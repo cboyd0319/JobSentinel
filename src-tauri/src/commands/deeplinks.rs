@@ -112,6 +112,7 @@ mod tests {
         let criteria = SearchCriteria {
             query: "Software Engineer".to_string(),
             location: Some("San Francisco, CA".to_string()),
+            governmentjobs_portal_url: None,
             experience_level: None,
             job_type: None,
             remote_type: None,
@@ -126,6 +127,7 @@ mod tests {
         let criteria = SearchCriteria {
             query: "Rust Developer".to_string(),
             location: Some("Remote".to_string()),
+            governmentjobs_portal_url: None,
             experience_level: None,
             job_type: None,
             remote_type: Some(RemoteType::Remote),

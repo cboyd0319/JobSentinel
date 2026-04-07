@@ -6,11 +6,30 @@ use super::sites::{get_all_sites, get_site_by_id};
 use super::types::{DeepLink, JobType, RemoteType, SearchCriteria};
 use anyhow::{Context, Result};
 use std::borrow::Cow;
+use url::Url;
 use urlencoding::encode;
 
 /// Generate deep links for all supported sites
 pub fn generate_all_links(criteria: &SearchCriteria) -> Result<Vec<DeepLink>> {
-    let sites = get_all_sites();
+    let query = criteria.query.trim();
+    let portal_url = criteria
+        .governmentjobs_portal_url
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty());
+
+    if query.is_empty() && portal_url.is_none() {
+        anyhow::bail!("Provide keywords, or a GovernmentJobs portal URL for an area-only tracker");
+    }
+
+    let sites = if query.is_empty() {
+        get_all_sites()
+            .into_iter()
+            .filter(|site| site.id == "governmentjobs")
+            .collect()
+    } else {
+        get_all_sites()
+    };
     let mut links = Vec::with_capacity(sites.len());
 
     for site in sites {
@@ -254,12 +273,52 @@ fn generate_usajobs_url(criteria: &SearchCriteria) -> Result<String> {
 }
 
 fn generate_governmentjobs_url(criteria: &SearchCriteria) -> Result<String> {
+    let query = criteria.query.trim();
+    let location = criteria
+        .location
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty());
+
+    if let Some(portal_url) = criteria
+        .governmentjobs_portal_url
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+    {
+        let mut url = normalize_governmentjobs_portal_url(portal_url)?;
+        let mut has_params = false;
+
+        if !query.is_empty() {
+            push_query_param(&mut url, &mut has_params, "keywords", query);
+        }
+
+        if let Some(location) = location {
+            push_query_param(&mut url, &mut has_params, "location[0]", location);
+        }
+
+        if has_params {
+            push_query_param(
+                &mut url,
+                &mut has_params,
+                "pagetype",
+                "jobOpportunitiesJobs",
+            );
+        }
+
+        return Ok(url);
+    }
+
+    if query.is_empty() {
+        anyhow::bail!("GovernmentJobs searches need keywords or a careers portal URL");
+    }
+
     let mut url = format!(
         "https://www.governmentjobs.com/jobs?keyword={}",
-        encode(&criteria.query)
+        encode(query)
     );
 
-    if let Some(location) = &criteria.location {
+    if let Some(location) = location {
         url.push_str(&format!("&location={}", encode(location)));
     }
 
@@ -354,6 +413,46 @@ fn generate_ycombinator_url(criteria: &SearchCriteria) -> Result<String> {
     Ok(url)
 }
 
+fn normalize_governmentjobs_portal_url(portal_url: &str) -> Result<String> {
+    let candidate = if portal_url.starts_with("http://") || portal_url.starts_with("https://") {
+        portal_url.to_string()
+    } else if portal_url.starts_with("careers/") {
+        format!("https://www.governmentjobs.com/{}", portal_url.trim_start_matches('/'))
+    } else {
+        format!(
+            "https://www.governmentjobs.com/careers/{}",
+            portal_url.trim_matches('/')
+        )
+    };
+
+    let parsed = Url::parse(&candidate)
+        .with_context(|| format!("Invalid GovernmentJobs portal URL: {}", portal_url))?;
+
+    if parsed.scheme() != "https" {
+        anyhow::bail!("GovernmentJobs portal URLs must use https");
+    }
+
+    match parsed.host_str() {
+        Some("governmentjobs.com" | "www.governmentjobs.com") => {}
+        _ => anyhow::bail!("GovernmentJobs portal URLs must use governmentjobs.com"),
+    }
+
+    let path = parsed.path().trim_end_matches('/');
+    if !path.starts_with("/careers/") || path == "/careers" {
+        anyhow::bail!("GovernmentJobs portal URLs must point to a /careers/<portal> path");
+    }
+
+    Ok(format!("https://www.governmentjobs.com{}", path))
+}
+
+fn push_query_param(url: &mut String, has_params: &mut bool, key: &str, value: &str) {
+    url.push(if *has_params { '&' } else { '?' });
+    url.push_str(key);
+    url.push('=');
+    url.push_str(&encode(value));
+    *has_params = true;
+}
+
 /// URL-encode helper for locations with special characters
 #[allow(dead_code)]
 fn normalize_location(location: &str) -> Cow<'_, str> {
@@ -381,6 +480,7 @@ mod tests {
         SearchCriteria {
             query: "Software Engineer".to_string(),
             location: Some("San Francisco, CA".to_string()),
+            governmentjobs_portal_url: None,
             experience_level: None,
             job_type: None,
             remote_type: None,
@@ -464,6 +564,7 @@ mod tests {
         let criteria = SearchCriteria {
             query: "Senior Software Engineer (C++)".to_string(),
             location: Some("New York, NY".to_string()),
+            governmentjobs_portal_url: None,
             experience_level: None,
             job_type: None,
             remote_type: None,
@@ -535,5 +636,80 @@ mod tests {
             let url = generate_linkedin_url(&criteria).unwrap();
             assert!(url.contains("f_WT="));
         }
+    }
+
+    #[test]
+    fn test_generate_governmentjobs_url_generic_search() {
+        let criteria = create_basic_criteria();
+        let url = generate_governmentjobs_url(&criteria).unwrap();
+        assert_eq!(
+            url,
+            "https://www.governmentjobs.com/jobs?keyword=Software%20Engineer&location=San%20Francisco%2C%20CA"
+        );
+    }
+
+    #[test]
+    fn test_generate_governmentjobs_url_scoped_portal_with_keywords_and_location() {
+        let mut criteria = create_basic_criteria();
+        criteria.governmentjobs_portal_url = Some("pabureau".to_string());
+        criteria.location = Some("Luzerne County".to_string());
+
+        let url = generate_governmentjobs_url(&criteria).unwrap();
+        assert_eq!(
+            url,
+            "https://www.governmentjobs.com/careers/pabureau?keywords=Software%20Engineer&location[0]=Luzerne%20County&pagetype=jobOpportunitiesJobs"
+        );
+    }
+
+    #[test]
+    fn test_generate_governmentjobs_url_scoped_portal_only() {
+        let mut criteria = create_basic_criteria();
+        criteria.query.clear();
+        criteria.location = None;
+        criteria.governmentjobs_portal_url =
+            Some("https://www.governmentjobs.com/careers/pabureau".to_string());
+
+        let url = generate_governmentjobs_url(&criteria).unwrap();
+        assert_eq!(url, "https://www.governmentjobs.com/careers/pabureau");
+    }
+
+    #[test]
+    fn test_generate_governmentjobs_url_scoped_portal_area_only() {
+        let mut criteria = create_basic_criteria();
+        criteria.query.clear();
+        criteria.location = Some("PA".to_string());
+        criteria.governmentjobs_portal_url = Some("careers/pabureau".to_string());
+
+        let url = generate_governmentjobs_url(&criteria).unwrap();
+        assert_eq!(
+            url,
+            "https://www.governmentjobs.com/careers/pabureau?location[0]=PA&pagetype=jobOpportunitiesJobs"
+        );
+    }
+
+    #[test]
+    fn test_generate_governmentjobs_url_rejects_invalid_portal_url() {
+        let mut criteria = create_basic_criteria();
+        criteria.governmentjobs_portal_url = Some("https://example.com/careers/pabureau".to_string());
+
+        let error = generate_governmentjobs_url(&criteria).unwrap_err().to_string();
+        assert!(error.contains("governmentjobs.com"));
+    }
+
+    #[test]
+    fn test_generate_all_links_with_area_only_governmentjobs_tracker() {
+        let criteria = SearchCriteria {
+            query: String::new(),
+            location: None,
+            governmentjobs_portal_url: Some("pabureau".to_string()),
+            experience_level: None,
+            job_type: None,
+            remote_type: None,
+        };
+
+        let links = generate_all_links(&criteria).unwrap();
+        assert_eq!(links.len(), 1);
+        assert_eq!(links[0].site.id, "governmentjobs");
+        assert_eq!(links[0].url, "https://www.governmentjobs.com/careers/pabureau");
     }
 }

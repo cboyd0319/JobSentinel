@@ -97,7 +97,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             category: SiteCategory::Government,
             requires_login: false,
             logo_url: Some("https://www.governmentjobs.com/favicon.ico".to_string()),
-            notes: Some("State and local government positions".to_string()),
+            notes: Some("State and local government positions, including scoped careers portals".to_string()),
         },
         SiteInfo {
             id: "cajobs".to_string(),

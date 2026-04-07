@@ -12,6 +12,10 @@ pub struct SearchCriteria {
     /// Location (city, state, zip, or "remote")
     #[serde(skip_serializing_if = "Option::is_none")]
     pub location: Option<String>,
+    /// Optional GovernmentJobs/NEOGOV careers portal URL or slug
+    /// Example: "https://www.governmentjobs.com/careers/pabureau" or "pabureau"
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub governmentjobs_portal_url: Option<String>,
     /// Experience level filter
     #[serde(skip_serializing_if = "Option::is_none")]
     pub experience_level: Option<ExperienceLevel>,

@@ -12,6 +12,8 @@ export interface SearchCriteria {
   query: string;
   /** Location (city, state, zip, or "remote") */
   location?: string;
+  /** Optional GovernmentJobs/NEOGOV careers portal URL or slug */
+  governmentjobs_portal_url?: string;
   /** Experience level filter */
   experience_level?: ExperienceLevel;
   /** Job type filter */

@@ -7,6 +7,7 @@
 import React, { useState, useEffect } from "react";
 import {
   generateDeepLinks,
+  generateDeepLink,
   getSupportedSites,
   openDeepLink,
 } from "../services/deeplinks";
@@ -26,6 +27,7 @@ export function DeepLinkGenerator({
 }: DeepLinkGeneratorProps) {
   const [query, setQuery] = useState(initialQuery);
   const [location, setLocation] = useState(initialLocation);
+  const [governmentJobsPortalUrl, setGovernmentJobsPortalUrl] = useState("");
   const [links, setLinks] = useState<DeepLink[]>([]);
   const [, setSites] = useState<SiteInfo[]>([]);
   const [loading, setLoading] = useState(false);
@@ -50,8 +52,10 @@ export function DeepLinkGenerator({
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!query.trim()) {
-      setError("Please enter a job title or keywords");
+    if (!query.trim() && !governmentJobsPortalUrl.trim()) {
+      setError(
+        "Please enter job keywords, or provide a GovernmentJobs portal URL for an area-only tracker",
+      );
       return;
     }
 
@@ -62,10 +66,19 @@ export function DeepLinkGenerator({
       const criteria: SearchCriteria = {
         query: query.trim(),
         location: location.trim() || undefined,
+        governmentjobs_portal_url: governmentJobsPortalUrl.trim() || undefined,
       };
 
-      const generatedLinks = await generateDeepLinks(criteria);
-      setLinks(generatedLinks);
+      if (!query.trim() && governmentJobsPortalUrl.trim()) {
+        const governmentJobsLink = await generateDeepLink(
+          "governmentjobs",
+          criteria,
+        );
+        setLinks([governmentJobsLink]);
+      } else {
+        const generatedLinks = await generateDeepLinks(criteria);
+        setLinks(generatedLinks);
+      }
     } catch (err) {
       console.error("Failed to generate links:", err);
       setError(`Failed to generate links: ${err}`);
@@ -110,8 +123,8 @@ export function DeepLinkGenerator({
           Deep Link Generator
         </h2>
         <p className="text-gray-600 dark:text-gray-400">
-          Generate pre-filled search URLs for job sites. Click any link to open it in
-          your browser with your search criteria ready.
+          Generate pre-filled search URLs for job sites, including scoped
+          GovernmentJobs portals like state or county NEOGOV boards.
         </p>
       </div>
 
@@ -123,7 +136,7 @@ export function DeepLinkGenerator({
               htmlFor="query"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
-              Job Title or Keywords *
+              Job Title or Keywords
             </label>
             <input
               type="text"
@@ -132,8 +145,11 @@ export function DeepLinkGenerator({
               onChange={(e) => setQuery(e.target.value)}
               placeholder="e.g., Software Engineer, Product Manager"
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-              required
             />
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              Leave this blank only when you want an area-only GovernmentJobs
+              tracker for a specific portal.
+            </p>
           </div>
 
           <div>
@@ -151,6 +167,27 @@ export function DeepLinkGenerator({
               placeholder="e.g., San Francisco, CA or Remote"
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             />
+          </div>
+
+          <div>
+            <label
+              htmlFor="governmentjobs-portal"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              GovernmentJobs Portal URL or slug (optional)
+            </label>
+            <input
+              type="text"
+              id="governmentjobs-portal"
+              value={governmentJobsPortalUrl}
+              onChange={(e) => setGovernmentJobsPortalUrl(e.target.value)}
+              placeholder="e.g., https://www.governmentjobs.com/careers/pabureau or pabureau"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            />
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              Use this to target a specific NEOGOV careers portal. Leave it
+              blank to generate the normal global GovernmentJobs search.
+            </p>
           </div>
 
           {error && (

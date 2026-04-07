@@ -63,8 +63,10 @@ open it in your browser with the search ready to go.
 1. Go to the Deep Links page
 2. Enter your job title or keywords (e.g., "Software Engineer")
 3. Optionally enter a location (e.g., "San Francisco, CA" or "Remote")
-4. Click "Generate Deep Links"
-5. Click any site to open the search in your browser
+4. Optionally enter a GovernmentJobs portal URL or slug to target a specific NEOGOV board
+5. Click "Generate Deep Links"
+6. If you only enter a GovernmentJobs portal URL, JobSentinel generates an area-only GovernmentJobs tracker link
+7. Click any site to open the search in your browser
 
 ### Example Searches
 
@@ -90,6 +92,17 @@ Location: Washington, DC
 ```
 
 Filter by "Government" category to see only USAJobs, GovernmentJobs, etc.
+
+**Government railroad jobs in Pennsylvania**
+
+```text
+Job Title: railroad
+GovernmentJobs Portal: https://www.governmentjobs.com/careers/pabureau
+```
+
+You can also use just `pabureau` in the portal field. Add a location like
+`Luzerne County` if you want a narrower GovernmentJobs filter inside that PA
+portal.
 
 ### Category Filters
 
@@ -123,6 +136,7 @@ Deep links include:
 
 - **Query** - Your job title/keywords (all sites)
 - **Location** - City, state, or "remote" (most sites)
+- **GovernmentJobs portal** - Optional state/county/city NEOGOV careers board like `pabureau`
 - **Job Type** - Full-time, part-time, contract (LinkedIn, Indeed)
 - **Remote Filter** - Remote-only jobs (Indeed, LinkedIn, Dice, etc.)
 
