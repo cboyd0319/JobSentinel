@@ -22,7 +22,7 @@ jobs:
         run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
       - name: Create Release
-        uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe # v2.6.1
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           name: JobSentinel ${{ steps.get_version.outputs.version }}
           draft: true
@@ -87,21 +87,21 @@ jobs:
       # Windows MSI upload
       - name: Upload Windows MSI
         if: matrix.platform == 'windows-latest'
-        uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe # v2.6.1
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           files: src-tauri/target/${{ matrix.target }}/release/bundle/msi/*.msi
 
       # macOS DMG upload
       - name: Upload macOS DMG
         if: startsWith(matrix.platform, 'macos')
-        uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe # v2.6.1
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           files: src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
 
       # Linux uploads
       - name: Upload Linux AppImage
         if: matrix.platform == 'ubuntu-latest'
-        uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe # v2.6.1
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           files: |
             src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
