@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Harness Engineering alignment** - Added root `AGENTS.md`, structured harness docs,
+  exec plan templates, tech debt tracker, and `npm run harness:check` for agent-facing
+  documentation and workflow validation
 - **macOS Universal Binary** - Single .dmg installer now works on both Intel and Apple Silicon Macs
   - Updated GitHub Actions release workflow to build universal binary
   - Installs both aarch64-apple-darwin and x86_64-apple-darwin Rust targets

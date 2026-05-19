@@ -130,31 +130,25 @@ src-tauri/
 module directory. This improves code organization and keeps module files under 500 lines for
 easier maintenance and regeneration.
 
-### Test Counts by Module
+### Test Coverage Map
 
-| Module                       | Tests              | Coverage                               |
-| ---------------------------- | ------------------ | -------------------------------------- |
-| `core/config`                | 51                 | 100% validation                        |
-| `core/db`                    | 21                 | All CRUD + edge cases                  |
-| `core/db/integrity`          | 12                 | Health checks, backups                 |
-| `core/notify/*`              | 55                 | Slack, Discord, Teams, Telegram, Email |
-| `commands`                   | 13                 | All Tauri RPC                          |
-| `core/scoring`               | 3                  | Happy + edge cases                     |
-| `core/scheduler`             | 12                 | Lifecycle + shutdown                   |
-| `core/scrapers/greenhouse`   | 19                 | 12 unit + 7 properties                 |
-| `core/scrapers/lever`        | 22                 | Unit + properties                      |
-| `core/scrapers/jobswithgpt`  | 21                 | Unit + properties                      |
-| `core/scrapers/linkedin`     | 4                  | Basic functionality                    |
-| `core/scrapers/rate_limiter` | 5                  | Token bucket algorithm                 |
-| `core/ats`                   | 4                  | Application tracking (ignored)         |
-| `core/resume`                | 14                 | Parser + matcher + skills              |
-| `core/salary`                | 8                  | Benchmarks + negotiation               |
-| `core/market_intelligence`   | 12                 | Trends + alerts + analytics            |
-| `platforms/macos`            | 6                  | Paths + initialization                 |
-| `cloud/common`               | 1                  | Deployment mode detection              |
-| **Backend Unit Tests**       | **2,263+**         | **Core module coverage**               |
-| **Frontend Tests**           | **2,403+**         | **Component and integration**          |
-| **Total**                    | **~4,666 passing** | **26 ignored**                         |
+Test counts change as features move. Use fresh command output as source of truth.
+
+| Area | Coverage |
+| ---- | -------- |
+| `core/config` | Validation and defaults |
+| `core/db` | CRUD, queries, analytics, integrity checks |
+| `core/notify/*` | Slack, Discord, Teams, Telegram, email |
+| `commands` | Tauri RPC handler behavior |
+| `core/scoring` | Scoring config and score calculations |
+| `core/scheduler` | Lifecycle, workers, shutdown |
+| `core/scrapers/*` | Parser behavior, rate limiting, error handling |
+| `core/ats` | Application tracking |
+| `core/resume` | Parser, matcher, builder, export |
+| `core/salary` | Benchmarks, prediction, offer comparison |
+| `core/market_intelligence` | Trends, alerts, analytics |
+| `src/**/*.test.*` | React components, hooks, contexts, pages |
+| `tests/e2e/playwright/*` | Browser-level user flows |
 
 ---
 
@@ -563,6 +557,6 @@ See [tests/README.md](../../tests/README.md) for full documentation.
 
 ---
 
-**Last Updated:** March 18, 2026
-**Test count:** ~4,666 passing (2,403 frontend + 2,263 Rust)
+**Last Updated:** May 19, 2026
+**Test count:** Run the commands above for current counts.
 **Version:** v2.6.4

@@ -4,45 +4,32 @@ Thank you for your interest in contributing to JobSentinel! This guide will help
 
 ---
 
-## 🤖 For AI Assistants (READ FIRST)
+## For AI Assistants (READ FIRST)
 
 **If you're an AI assistant (Claude, GPT, Copilot, etc.) working on this codebase:**
 
-### MANDATORY: Use Sub-Agents
+1. Read [AGENTS.md](../../AGENTS.md).
+2. Read [Harness Engineering](../harness/README.md).
+3. Use [Change Contract](../harness/change-contract.md) for non-trivial work.
+4. Run sensors from [Verification Matrix](../harness/verification-matrix.md).
+5. Update docs when behavior, setup, architecture, commands, or security changes.
 
-**DO NOT** read files sequentially. **USE PARALLEL SUB-AGENTS:**
+### Documentation Updates
 
-```text
-WRONG: Read file A → Read file B → Read file C → Decide
-
-RIGHT: Launch 3 Explore agents in parallel → Receive all results → Decide with full context
-```
-
-**Available agents to use:**
-
-- `Explore` - Fast codebase exploration (use for file discovery)
-- `code-reviewer` - PR review for bugs, security, style
-- `code-explorer` - Deep feature analysis
-- `code-architect` - Design implementation plans
-- `silent-failure-hunter` - Find error handling issues
-- `type-design-analyzer` - Review type definitions
-
-### MANDATORY: Update Documentation
-
-**After ANY change, update ALL relevant docs:**
+After any significant change, update all relevant docs:
 
 | Change Type       | Must Update                                                      |
 | ----------------- | ---------------------------------------------------------------- |
 | New feature       | `CHANGELOG.md`, `docs/features/`, `README.md`, `docs/ROADMAP.md` |
-| New Tauri command | `docs/CLAUDE.md`, `docs/README.md`                               |
+| New Tauri command | `AGENTS.md` if workflow changes, `docs/harness/`, `docs/README.md` |
 | Bug fix           | `CHANGELOG.md`                                                   |
 | Refactoring       | `docs/ROADMAP.md` (Technical Debt section)                       |
 | New scraper       | `docs/features/scrapers.md`, `CHANGELOG.md`                      |
 | Test changes      | `docs/developer/TESTING.md`                                      |
 
-**Before committing: "Did I update all relevant docs?"**
+Before committing, ask: "Did I update all relevant docs?"
 
-### MANDATORY: File Size Limits
+### File Size Limits
 
 **Keep files under 500 lines.** Large files are hard to maintain and regenerate with AI assistance.
 
@@ -51,7 +38,7 @@ lines. This keeps the main logic focused and tests discoverable.
 
 See `docs/ROADMAP.md` → Technical Debt section for files needing refactoring.
 
-### MANDATORY: Check Current Status
+### Check Current Status
 
 **Current version:** 2.6.4 (Production Ready)
 
@@ -416,7 +403,7 @@ Before submitting:
 - [ ] No linter warnings (`cargo clippy`, `npm run lint`)
 - [ ] **Documentation updated** (MANDATORY - see table above)
 - [ ] CHANGELOG.md updated (for ALL significant changes)
-- [ ] docs/CLAUDE.md updated (if commands/structure changed)
+- [ ] AGENTS.md or `docs/harness/` updated (if agent workflow changed)
 - [ ] docs/ROADMAP.md updated (if adding to technical debt)
 - [ ] Tested on Windows and/or macOS
 - [ ] No files exceed 500 lines (move tests to `tests.rs` if needed)
@@ -454,7 +441,7 @@ Closes #123
 
 - [ ] CHANGELOG.md updated
 - [ ] Feature docs updated (if new feature)
-- [ ] docs/CLAUDE.md updated (if structure/commands changed)
+- [ ] AGENTS.md or harness docs updated (if structure/commands changed)
 - [ ] ROADMAP.md updated (if technical debt added)
 - [ ] N/A - No docs needed (explain why)
 
@@ -574,7 +561,7 @@ pub mod freebsd;
 
 1. Search existing [issues](https://github.com/cboyd0319/JobSentinel/issues)
 2. Try latest version
-3. Check [FAQ](README.md#frequently-asked-questions-faq)
+3. Check [FAQ](../../README.md#frequently-asked-questions)
 
 ### Bug Report Template
 

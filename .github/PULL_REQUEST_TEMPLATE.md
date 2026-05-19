@@ -20,9 +20,17 @@
 
 ## Testing
 
+- [ ] Harness check passes (`npm run harness:check`)
 - [ ] Existing tests pass (`npm run test:run` and `cargo test`)
 - [ ] New tests added for changed functionality (if applicable)
 - [ ] Manual testing completed
+
+## Harness Checklist
+
+- [ ] Change contract or plan exists for non-trivial work
+- [ ] Required sensors from `docs/harness/verification-matrix.md` ran
+- [ ] Agent-facing docs stayed short and linked to source-of-truth docs
+- [ ] Known gaps were recorded in `docs/plans/tech-debt-tracker.md` or the PR
 
 ## Checklist
 

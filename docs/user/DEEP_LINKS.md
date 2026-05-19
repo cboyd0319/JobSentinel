@@ -176,7 +176,8 @@ We'll update the URL patterns in new releases. If you notice a broken link, plea
 
 ### Can I add more sites?
 
-Yes! Deep links are easy to add. See [CONTRIBUTING.md](../../CONTRIBUTING.md) for details on adding new sites.
+Yes! Deep links are easy to add. See [Adding Deep Link Sites](../developer/ADDING_DEEP_LINK_SITES.md)
+for details on adding new sites.
 
 ## Comparison with Scrapers
 

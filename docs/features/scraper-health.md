@@ -41,21 +41,21 @@ For each of the 13 scrapers, JobSentinel tracks:
 
 ### 13 Scrapers Monitored
 
-| Scraper         | Type         | Status       | Last Check |
-| --------------- | ------------ | ------------ | ---------- |
-| LinkedIn        | API + HTML   | ✅ Monitored | 2026-01-17 |
-| Indeed          | HTML         | ✅ Monitored | 2026-01-17 |
-| Greenhouse      | Official API | ✅ Monitored | 2026-01-17 |
-| Lever           | Official API | ✅ Monitored | 2026-01-17 |
-| RemoteOK        | Public API   | ✅ Monitored | 2026-01-17 |
-| Wellfound       | Public API   | ✅ Monitored | 2026-01-17 |
-| WeWorkRemotely  | HTML         | ✅ Monitored | 2026-01-17 |
-| BuiltIn         | HTML         | ✅ Monitored | 2026-01-17 |
-| HN Who's Hiring | HTML         | ✅ Monitored | 2026-01-17 |
-| JobsWithGPT     | MCP Server   | ✅ Monitored | 2026-01-17 |
-| Dice            | Public API   | ✅ Monitored | 2026-01-17 |
-| YC Startup Jobs | HTML         | ✅ Monitored | 2026-01-17 |
-| ZipRecruiter    | Public API   | ✅ Monitored | 2026-01-17 |
+| Scraper         | Type                 | Status       |
+| --------------- | -------------------- | ------------ |
+| LinkedIn        | Authenticated API    | ✅ Monitored |
+| Greenhouse      | Official API         | ✅ Monitored |
+| Lever           | Official API         | ✅ Monitored |
+| RemoteOK        | Public API           | ✅ Monitored |
+| WeWorkRemotely  | RSS                  | ✅ Monitored |
+| BuiltIn         | HTML                 | ✅ Monitored |
+| HN Who's Hiring | Public API / HTML    | ✅ Monitored |
+| JobsWithGPT     | MCP / API endpoint   | ✅ Monitored |
+| Dice            | Public job endpoint  | ✅ Monitored |
+| YC Startup Jobs | HTML                 | ✅ Monitored |
+| USAJobs         | Official API         | ✅ Monitored |
+| SimplyHired     | RSS / HTML fallback  | ✅ Monitored |
+| Glassdoor       | HTML, anti-bot prone | ✅ Monitored |
 
 ---
 
@@ -90,18 +90,18 @@ Sortable table with one row per scraper:
 Scraper Name      Status      Success Rate  Avg Duration  Jobs (24h)  Last Run
 ─────────────────────────────────────────────────────────────────────────────
 LinkedIn          🟢 Healthy  94%           12.3s         342         5 min ago
-Indeed            🟢 Healthy  91%           8.1s          289         15 min ago
 Greenhouse        🟢 Healthy  100%          2.4s          18          2 hours ago
 Lever             🟡 Degraded 75%           5.2s          12          3 hours ago
 RemoteOK          🟢 Healthy  96%           1.8s          45          30 min ago
-Wellfound         🟢 Healthy  88%           4.5s          32          1 hour ago
 WeWorkRemotely    🟢 Healthy  92%           3.1s          28          45 min ago
 BuiltIn           🟢 Healthy  89%           5.8s          22          2 hours ago
 HN Who's Hiring   🟢 Healthy  100%          1.2s          15          6 hours ago
 JobsWithGPT       🟢 Healthy  97%           2.9s          51          20 min ago
 Dice              🔴 Down     42%           N/A           0           12 hours ago
 YC Startup Jobs   🟢 Healthy  93%           1.5s          8           4 hours ago
-ZipRecruiter      🟡 Degraded 68%           7.4s          24          5 hours ago
+USAJobs           🟢 Healthy  100%          2.7s          36          2 hours ago
+SimplyHired       🟡 Degraded 68%           7.4s          24          5 hours ago
+Glassdoor         🟡 Degraded 70%           9.0s          10          5 hours ago
 ```
 
 **Color Legend:**
@@ -264,14 +264,14 @@ search. They're fast, safe, and useful for troubleshooting.
 
 For each scraper type:
 
-**API-Based Scrapers (Greenhouse, Lever, RemoteOK, Wellfound, Dice, JobsWithGPT)**
+**API-Based Scrapers (Greenhouse, Lever, RemoteOK, USAJobs, Dice, JobsWithGPT)**
 
 - ✅ API endpoint responds
 - ✅ Authentication credentials valid (if required)
 - ✅ API returns valid job data format
 - ✅ Response time acceptable (<5 seconds)
 
-**HTML Scrapers (Indeed, LinkedIn, WeWorkRemotely, BuiltIn, HN, YC Startup Jobs, ZipRecruiter)**
+**HTML/RSS Scrapers (LinkedIn, WeWorkRemotely, BuiltIn, HN, YC Startup Jobs, SimplyHired, Glassdoor)**
 
 - ✅ Website is reachable
 - ✅ HTML structure hasn't changed (selectors valid)
@@ -317,12 +317,12 @@ Summary shows:
 Smoke Test Results: All Scrapers
 ────────────────────────────────
 ✅ PASSED (12):
-  - LinkedIn, Indeed, Greenhouse, Lever, RemoteOK, Wellfound
+  - LinkedIn, Greenhouse, Lever, RemoteOK, USAJobs
   - WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT
   - YC Startup Jobs, Dice
 
 ⚠️  WARNING (1):
-  - ZipRecruiter - Response time: 8.2s (expected <5s)
+  - SimplyHired - Response time: 8.2s (expected <5s)
 
 Test Duration: 45 seconds
 Next Test:     2026-01-18 02:00 UTC (24h from now)
@@ -581,7 +581,7 @@ Dashboard shows: Error Rate: Rate Limit (429)
 Job boards enforce rate limits to prevent abuse:
 
 - LinkedIn: 100 requests/hour
-- Indeed: 500 requests/hour
+- Glassdoor and SimplyHired: 200 requests/hour
 - API boards: 1000 requests/hour
 - Specialized boards: 100-500 requests/hour
 
@@ -729,7 +729,7 @@ Dashboard shows: Error: Service Down
 
 1. Check job board's status page:
    - LinkedIn: [LinkedIn System Status](https://www.linkedin.com/system-status)
-   - Indeed: [Indeed Status](https://status.indeed.com)
+   - USAJobs: [USAJobs Agency Talent Portal status](https://help.usastaffing.gov/USAS/index.php?title=USA_Staffing_Support)
    - Greenhouse: Check email for maintenance notices
 
 2. Or try accessing in a browser to confirm
@@ -772,9 +772,9 @@ their HTML structure, breaking selectors.
 
 Examples:
 
-- Indeed changes HTML layout → selectors no longer find job cards
 - LinkedIn updates CSS classes → description parsing breaks
 - BuiltIn redesigns job listing page → selectors fail
+- Glassdoor or SimplyHired anti-bot protection returns an empty or changed page
 
 **Fix**
 
@@ -791,8 +791,8 @@ This usually requires code changes (new selectors). **Report it**:
 
 Use a different scraper while waiting for fix:
 
-1. If LinkedIn selectors break, use Indeed instead
-2. If Indeed breaks, use ZipRecruiter
+1. If LinkedIn selectors break, use Greenhouse, Lever, RemoteOK, or Dice instead
+2. If SimplyHired or Glassdoor breaks, use USAJobs or deep links where relevant
 3. You'll still find most jobs through other sources
 
 ### Issue: Jobs Count is Zero
@@ -878,7 +878,7 @@ Usually one of:
 
 5. **If Still Failing**
    - Try a different browser (sometimes cookies get corrupted)
-   - Or use Indeed/Greenhouse until you get it working
+   - Or use Greenhouse, Lever, RemoteOK, or Dice until you get it working
 
 ---
 
@@ -1041,9 +1041,8 @@ Check which scrapers give you the best jobs:
 
 ```text
 LinkedIn:     342 jobs (high quality) ✅ Keep enabled
-Indeed:       289 jobs (high quality) ✅ Keep enabled
 Greenhouse:   18 jobs (niche) ✅ Keep enabled
-ZipRecruiter: 0 jobs (irrelevant) ❌ Could disable
+SimplyHired:  0 jobs (blocked) ❌ Could disable
 ```
 
 ### Reading Error Messages

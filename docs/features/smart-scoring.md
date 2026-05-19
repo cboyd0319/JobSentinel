@@ -24,7 +24,7 @@ algorithm prioritize the best matches for you.
 
 ### Screenshot
 
-![Smart Scoring Dashboard](../images/smart-scoring.png)
+![Smart Scoring Dashboard](../images/dashboard.png)
 
 ---
 

@@ -260,7 +260,7 @@ No configuration changes needed! Synonym matching is **backward compatible**:
 ## See Also
 
 - [Smart Scoring](./smart-scoring.md) - Overview of the scoring system
-- [Configuration Guide](../user/configuration.md) - How to configure keywords
+- [Smart Scoring](./smart-scoring.md) - How keywords affect scoring
 - [Changelog](../../CHANGELOG.md) - Version history
 
 ---

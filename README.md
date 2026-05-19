@@ -417,9 +417,9 @@ No command line or technical knowledge required.
 
 ### By the Numbers
 
-- **169 Tauri commands** powering all features
-- **4,660+ tests passing** (2,403 frontend + 2,263 Rust)
-- **0 security vulnerabilities** (cargo-audit verified)
+- **191 registered Tauri commands** powering desktop features
+- **Automated test coverage** across Vitest, Playwright, Rust, and docs harness checks
+- **Security gates** for dependency advisories, URL validation, command execution, and keyring storage
 - **~8MB** installed size
 - **<50MB RAM** typical usage
 
@@ -431,6 +431,7 @@ are clearly separated, and the codebase is extensively documented.
 
 For full technical documentation, see:
 
+- [Harness Engineering](docs/harness/README.md)
 - [Developer Guide](docs/developer/GETTING_STARTED.md)
 - [Architecture](docs/developer/ARCHITECTURE.md)
 - [Contributing](docs/developer/CONTRIBUTING.md)
@@ -443,9 +444,10 @@ For full technical documentation, see:
 
 ### Coming Soon (v2.7)
 
-- **Machine learning predictions** — Predict likelihood of response based on historical data
-- **Linux support** — AppImage installer for Linux users
-- **Mobile companion** — Get notifications on your phone
+- **Beta feedback system** — Privacy-first feedback reports with PII sanitization
+- **Universal macOS installer** — One `.dmg` for Intel and Apple Silicon
+- **Linux release artifacts** — AppImage and `.deb` packages through the release workflow
+- **Machine learning improvements** — Local semantic matching and better job-fit predictions
 
 ### Just Released (v2.6.4)
 

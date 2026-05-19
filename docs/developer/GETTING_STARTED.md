@@ -2,13 +2,13 @@
 
 ## Project Status
 
-**Version 2.6.4** (March 2026)
+**Version 2.6.4**
 
 | Component                                                                                                                            | Status                                       |
 | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- |
 | Core modules (config, db, scoring, scrapers, scheduler, notify, ghost, ats, resume, salary, market, automation, credentials, health) | Working                                      |
 | Frontend (React 19 + TypeScript)                                                                                                     | Working                                      |
-| Tests                                                                                                                                | 4,660+ passing (2,403 frontend + 2,263 Rust) |
+| Verification                                                                                                                         | `npm run harness:check`, frontend tests, Rust tests, and E2E tests |
 
 ---
 
@@ -77,14 +77,14 @@ rustup target add aarch64-apple-darwin x86_64-apple-darwin
 cd src-tauri && cargo tauri build --target universal-apple-darwin
 
 # Windows MSI installer output
-# src-tauri/target/release/bundle/msi/JobSentinel_2.6.4_x64_en-US.msi
+# src-tauri/target/<target>/release/bundle/msi/JobSentinel_<version>_x64_en-US.msi
 
 # macOS Universal DMG output
-# src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg
+# src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_<version>_universal.dmg
 
 # Linux packages output
-# src-tauri/target/release/bundle/deb/JobSentinel_2.6.4_amd64.deb
-# src-tauri/target/release/bundle/appimage/JobSentinel_2.6.4_amd64.AppImage
+# src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/JobSentinel_<version>_amd64.deb
+# src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/JobSentinel_<version>_amd64.AppImage
 ```
 
 ### Project Structure
@@ -120,7 +120,7 @@ JobSentinel/
 │   │   │   └── scrapers/    # 13 job board scrapers
 │   │   ├── platforms/       # Windows/macOS/Linux specific code
 │   │   ├── cloud/           # GCP/AWS deployment (v3.0+)
-│   │   └── commands/        # 169 Tauri RPC command handlers
+│   │   └── commands/        # Tauri RPC command handlers
 │   ├── migrations/          # 4 SQLite migrations
 │   └── Cargo.toml           # Rust dependencies
 ├── public/                  # Static assets (logo, etc.)
@@ -147,11 +147,11 @@ JobSentinel/
 ### Running Tests
 
 ```bash
-# Backend tests (2,263 tests)
+# Backend tests
 cd src-tauri
 cargo test
 
-# Frontend tests (2,403 tests)
+# Frontend tests
 npm test
 ```
 
@@ -165,8 +165,8 @@ cargo fmt
 # Lint Rust code
 cargo clippy
 
-# Format TypeScript/React
-npm run format
+# Fix TypeScript/React lint issues where safe
+npm run lint:fix
 ```
 
 ---
@@ -352,7 +352,7 @@ To maintain code quality and regenerability, all files follow the LLM-first codi
 1. Read [ROADMAP.md](../ROADMAP.md) for v1.5+ priorities and technical debt
 2. Read [Quick Start Guide](../user/QUICK_START.md) for user documentation
 3. Check [GitHub Issues](https://github.com/cboyd0319/JobSentinel/issues) for tasks
-4. Review [Feature Documentation](../features/) for implementation details
+4. Review [Feature Documentation](../README.md#features) for implementation details
 5. Join [Discussions](https://github.com/cboyd0319/JobSentinel/discussions) for questions
 
 ---

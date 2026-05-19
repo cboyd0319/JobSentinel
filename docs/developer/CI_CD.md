@@ -139,7 +139,7 @@ npm audit --audit-level=moderate
 cd src-tauri && cargo deny check advisories
 ```
 
-Or use the combined validation command from `CLAUDE.md`:
+For broader local validation, use the [verification matrix](../harness/verification-matrix.md):
 
 ```bash
 cargo fmt --manifest-path src-tauri/Cargo.toml && \

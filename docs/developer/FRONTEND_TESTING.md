@@ -773,8 +773,8 @@ test("should open external link in browser", async () => {
 
 ---
 
-**Last Updated**: March 18, 2026
-**Test Count**: 2,274+ passing frontend tests
+**Last Updated**: May 19, 2026
+**Test Count**: Run `npm run test:run` for current frontend count
 **Stack**: Vitest 4.0.17 + React Testing Library 16.3.1 + Playwright 1.57.0
 **Target**: React 19 + Tauri 2.x
 **Version**: v2.6.4

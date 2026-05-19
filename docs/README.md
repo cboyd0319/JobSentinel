@@ -6,20 +6,25 @@ Welcome to JobSentinel documentation.
 
 **If you're an AI assistant working on this codebase:**
 
-1. **USE SUB-AGENTS** - Parallelize work with Task tool. Don't read files sequentially.
-2. **UPDATE DOCS** - After ANY change, update relevant docs (see table in docs/CLAUDE.md)
-3. **CHECK FILE SIZES** - Keep files <500 lines. See [ROADMAP.md](ROADMAP.md) for refactoring plan.
-4. **READ docs/CLAUDE.md FIRST** - Contains project context and critical requirements.
+1. **READ `AGENTS.md` FIRST** - It is the short repo entrypoint for agents.
+2. **USE THE HARNESS DOCS** - Start with [Harness Engineering](harness/README.md).
+3. **WRITE A CHANGE CONTRACT** - Use [Change Contract](harness/change-contract.md) for non-trivial work.
+4. **RUN SENSORS** - Use [Verification Matrix](harness/verification-matrix.md).
+5. **UPDATE DOCS** - Keep relevant docs current when behavior, setup, architecture, commands, or security changes.
 
-### Current Version: 2.6.4 (Production Ready)
+### Current Version: 2.6.4
 
-See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux support).
+Current release package version is `2.6.4`. Unreleased `2.7.x` work is tracked in
+[CHANGELOG.md](../CHANGELOG.md) and [ROADMAP.md](ROADMAP.md).
 
 ---
 
-## Current Status (March 2026)
+## Current Status
 
-**Version: 2.6.4** | 4,815+ tests passing | Bug Fixes & Polish
+**Release version:** 2.6.4
+**Unreleased work:** Beta feedback, universal macOS builds, docs harness alignment
+**Verification:** Use `npm run harness:check`, `npm run lint`, `npm run test:run`, and Rust checks from
+[Verification Matrix](harness/verification-matrix.md).
 
 ### What's New in v2.6.4
 
@@ -63,7 +68,7 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
   - Tooltip: Escape key dismisses tooltips
   - Badge: Contextual remove button labels
 
-- **Test Coverage** - 4,449+ tests (2,274 Frontend + 2,175 Rust)
+- **Test Coverage** - Vitest, Playwright, Rust unit/integration tests, and docs harness checks
 
 - See [v2.6.0 Release Notes](releases/v2.6.0.md) for full details
 
@@ -120,8 +125,8 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
 
 ### Working Features
 
-- **13 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely,
-  BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter
+- **13 Job scrapers**: Greenhouse, Lever, LinkedIn, RemoteOK, WeWorkRemotely, BuiltIn,
+  HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, Glassdoor
 - **Ghost Job Detection** - Identifies fake/stale job postings
 - Application Tracking System (ATS) with Kanban board + interview scheduler
 - AI Resume-Job Matcher with PDF parsing
@@ -160,7 +165,7 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
 | ---------------------------------------------- |
 | ![One-Click Apply](images/one-click-apply.png) |
 
-### Backend Modules (169 Tauri Commands)
+### Backend Modules (191 registered Tauri commands)
 
 - **Core**: config, db, scoring, scheduler, scrapers (13 with parallel scraping), notify, ghost
 - **ATS**: 10 commands (Kanban, reminders, ghosting detection, interviews)
@@ -173,11 +178,12 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
 - **One-Click Apply**: 18 commands (profile, screening answers, attempts, ATS detection, browser)
 - **Health**: 9 commands (scraper health, smoke tests, credential expiry)
 
-### Planned Features (v2.6+)
+### Planned / Unreleased Features
 
-- Machine Learning Predictions
-- Linux Support
-- Intel Mac Support
+- Beta feedback workflow
+- Universal macOS release artifact
+- Linux AppImage and `.deb` release artifacts
+- Machine learning improvements
 
 ---
 
@@ -189,6 +195,8 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
 
 ### For Developers
 
+- **[Harness Engineering](harness/README.md)** - Agent-readable repo operating model
+- **[Exec Plans](exec-plans.md)** - Durable planning format for multi-step work
 - **[Getting Started](developer/GETTING_STARTED.md)** - Development setup
 - **[Contributing](developer/CONTRIBUTING.md)** - How to contribute
 - **[Architecture](developer/ARCHITECTURE.md)** - System design
@@ -246,8 +254,8 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
 ### Planning
 
 - **[Roadmap](ROADMAP.md)** - Feature roadmap and priorities
-- **[Release Plans](plans/README.md)** - Formal planning documents for major releases
-  - [v2.6.0 UX Improvements](plans/v2.6.0-ux-improvements.md) - Current sprint
+- **[Plans](plans/README.md)** - Active, completed, and template plans
+  - [v2.6.0 UX Improvements](plans/v2.6.0-ux-improvements.md) - Completed sprint
 
 ---
 
@@ -270,7 +278,9 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
 docs/
 ├── README.md              # This file
 ├── ROADMAP.md             # Feature roadmap
-├── CLAUDE.md              # AI assistant instructions
+├── CLAUDE.md              # Compatibility pointer; AGENTS.md is authoritative
+├── exec-plans.md          # Exec plan format
+├── harness/               # Harness engineering guides and sensors
 ├── developer/             # Developer documentation
 │   ├── GETTING_STARTED.md
 │   ├── CONTRIBUTING.md

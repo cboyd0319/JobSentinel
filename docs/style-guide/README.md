@@ -128,7 +128,7 @@ Assume readers are smart people who just aren't familiar with our specific tool.
 
 **Good:** Learn more in the [quick start guide](../user/QUICK_START.md).
 
-**Not great:** `Click [here](link) for more info.`
+**Not great:** `Click here for more info.`
 
 ## Terms to avoid (with alternatives)
 

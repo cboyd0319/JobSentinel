@@ -1,0 +1,54 @@
+name: Docs Harness
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "AGENTS.md"
+      - "CLAUDE.md"
+      - "README.md"
+      - "docs/**"
+      - "scripts/check-harness.mjs"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/PULL_REQUEST_TEMPLATE.md"
+      - ".github/copilot-instructions.md"
+      - ".github/workflows/docs-harness.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "AGENTS.md"
+      - "CLAUDE.md"
+      - "README.md"
+      - "docs/**"
+      - "scripts/check-harness.mjs"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/PULL_REQUEST_TEMPLATE.md"
+      - ".github/copilot-instructions.md"
+      - ".github/workflows/docs-harness.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  docs-harness:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run harness check
+        run: npm run harness:check
+
+      - name: Run markdown lint
+        run: npm run lint:md

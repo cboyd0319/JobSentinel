@@ -1,13 +1,13 @@
 # JobSentinel Roadmap
 
-**Last Updated:** March 18, 2026
+**Last Updated:** May 19, 2026
 
 ## Current Version: 2.6.4
 
-### Working Features (v1.4.0)
+### Working Features
 
-- **13 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely,
-  BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter
+- **13 Job scrapers**: Greenhouse, Lever, LinkedIn, RemoteOK, WeWorkRemotely,
+  BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, Glassdoor
 - Application Tracking System (ATS): Kanban board, reminders, timeline, ghosting detection
 - Interview Scheduler: iCal export, prep checklists, follow-up reminders
 - AI Resume-Job Matcher: PDF parsing, skill extraction, matching
@@ -42,7 +42,7 @@
 | Onboarding tour   | **Done** | First-run guided tour       |
 | Export utilities  | **Done** | CSV/JSON export             |
 | RemoteOK scraper  | **Done** | JSON API for remote jobs    |
-| Wellfound scraper | **Done** | HTML scraping for startups  |
+| Remote-first source coverage | **Done** | RemoteOK and WeWorkRemotely |
 
 ### v1.3 Features (COMPLETED)
 
@@ -189,8 +189,8 @@ Comprehensive health monitoring system for all 13 job board scrapers.
 
 **Scrapers now fully wired (previously missing 8):**
 
-- RemoteOK, Wellfound, WeWorkRemotely, BuiltIn
-- HN Who's Hiring, Dice, YC Startup Jobs, ZipRecruiter
+- RemoteOK, WeWorkRemotely, BuiltIn
+- HN Who's Hiring, Dice, YC Startup Jobs, USAJobs, SimplyHired, Glassdoor
 
 **Health Dashboard features:**
 
@@ -366,14 +366,14 @@ Security fixes, memory leak resolution, and standardized error handling released
 | **Test Coverage**             | ✅ Done | 145+ new tests (ApplyButton, custom hooks, utilities)      |
 | **Beta Feedback System**      | ✅ Done | GitHub Issues + Google Drive integration, PII sanitization |
 
-**Current Test Status:**
+**Current Verification Status:**
 
-- **4,449+ tests passing** (2,274 Frontend + 2,175 Rust)
-- 26 ignored (require file-based database, Chrome, or are doc-tests)
+- Test counts change as work lands; use fresh `npm run test:run` and `cargo test` output.
+- Docs and harness changes must pass `npm run harness:check` and `npm run lint:md`.
 
 See [CHANGELOG.md](../CHANGELOG.md) for detailed v2.6.3 changes.
 
-### v2.7+ Planned Features
+### v2.7+ Planned / Unreleased Features
 
 | Feature                         | Status     | Priority | Notes                                                                    |
 | ------------------------------- | ---------- | -------- | ------------------------------------------------------------------------ |
@@ -396,7 +396,7 @@ See [CHANGELOG.md](../CHANGELOG.md) for detailed v2.6.3 changes.
 
 **Legal Compliance is NON-NEGOTIABLE.** JobSentinel stays 100% legal. No exceptions.
 
-Currently JobSentinel has **15 scrapers** (v2.6.3+). The goal is to cover more job sources while respecting
+Currently JobSentinel has **13 Rust scraper adapters**. The goal is to cover more job sources while respecting
 legal boundaries. This helps everyone — job seekers, veterans, career changers.
 
 ### New Scrapers (Legal - API or Permissible Scraping)
@@ -412,7 +412,7 @@ Files implemented:
 - `src-tauri/src/core/scrapers/simplyhired.rs` - SimplyHired RSS scraper
 - Backend integration: `src-tauri/src/core/scheduler/workers/scrapers.rs` (lines 286-384)
 - Frontend config: `src/pages/Settings.tsx` (USAJobs, SimplyHired sections)
-- Documentation: `docs/features/scrapers.md` (updated with 15 scrapers)
+- Documentation: `docs/features/scrapers.md` (updated with 13 scrapers)
 
 ### Restricted Sites (Legal Alternatives Only)
 
@@ -587,12 +587,13 @@ Base app should stay under 100MB. Larger models (LLMs) should be optional downlo
 
 ## Feature Details
 
-### LinkedIn/Indeed Scrapers (Working)
+### Job Scrapers (Working)
 
-Both scrapers fully integrated with scheduler and Settings UI.
+Current Rust scraper adapters are integrated with scheduler and Settings UI.
 
 - LinkedIn: Requires li_at session cookie, configurable query/location/remote-only
-- Indeed: Query-based search with configurable radius and limit
+- USAJobs: Requires free API key and user email
+- SimplyHired and Glassdoor: May return empty results when blocked by anti-bot protection
 
 ### AI Resume-Job Matcher (Working)
 
@@ -680,12 +681,12 @@ See [docs/features/one-click-apply.md](features/one-click-apply.md) for full doc
 
 - All Rust code compiles with 0 errors
 - Clippy passes with 0 warnings (`-D warnings`)
-- **4,449+ tests passing** (2,274 Frontend + 2,175 Rust), 26 ignored (require file-based database, Chrome, or are doc-tests)
+- Test counts vary; use fresh local and CI output for current pass/fail status
 - Integration tests: 76+ tests across multiple files (automation, scheduler, database, API contract)
 - Component tests: 300+ tests across React components
 - E2E tests: Playwright test suite
 - All modules enabled and functional
-- **169 Tauri commands** for backend modules (22 Resume Builder + 18 One-Click Apply)
+- **191 registered Tauri commands** for backend modules
 - 13 job board scrapers with parallel execution
 - Ghost job detection with repost tracking
 - Backend persistence for all user data (localStorage → SQLite)
@@ -699,7 +700,7 @@ See [docs/features/one-click-apply.md](features/one-click-apply.md) for full doc
 - [x] SQLx query! macros - converted to runtime queries
 - [x] All compilation errors fixed
 - [x] All clippy warnings fixed (with comprehensive lint configuration)
-- [x] LinkedIn/Indeed scrapers integrated
+- [x] Current 13 scraper adapters integrated
 - [x] Desktop notifications implemented
 - [x] All backend modules exposed via Tauri commands
 - [x] Accessibility improvements (ARIA labels, keyboard nav, focus styles)
