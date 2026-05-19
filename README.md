@@ -1,231 +1,286 @@
 <div align="center">
 
-<img src="docs/images/logo.png" alt="JobSentinel Logo" width="180">
+<img src="docs/images/logo.png" alt="JobSentinel logo" width="180">
 
 # JobSentinel
 
-**Your Personal Job Search Bodyguard**
+**A friendly local assistant for finding better jobs without giving up your data.**
 
-**Find better jobs. Faster. Without selling your soul (or your data).**
+JobSentinel watches job boards for you, ranks new roles by fit, warns you about
+stale postings, and keeps your search organized on your own computer.
 
 <br>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Version-2.6.4-blue?style=for-the-badge" alt="Version 2.6.4">
-  <img src="https://img.shields.io/badge/Windows-Ready-0078D6?style=for-the-badge&logo=Windows&logoColor=white" alt="Windows">
-  <img src="https://img.shields.io/badge/macOS-Ready-000000?style=for-the-badge&logo=apple&logoColor=white" alt="macOS">
-  <img src="https://img.shields.io/badge/Linux-Coming_Soon-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux">
+  <img src="https://img.shields.io/badge/Windows-Ready-0078D6?style=for-the-badge" alt="Windows ready">
+  <img src="https://img.shields.io/badge/macOS-Ready-000000?style=for-the-badge&logo=apple&logoColor=white" alt="macOS ready">
+  <img src="https://img.shields.io/badge/Linux-Source_Build-FCC624?style=for-the-badge" alt="Linux source build">
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Price-FREE_FOREVER-brightgreen?style=for-the-badge" alt="Free Forever">
-  <img src="https://img.shields.io/badge/Privacy-100%25_LOCAL-blue?style=for-the-badge" alt="100% Local">
-  <img src="https://img.shields.io/badge/Data_Collected-ZERO-red?style=for-the-badge" alt="Zero Data">
-  <img src="https://img.shields.io/badge/Dark_Mode-Supported-1a1a2e?style=for-the-badge" alt="Dark Mode">
+  <img src="https://img.shields.io/badge/Privacy-Local_First-0f766e?style=for-the-badge" alt="Local first privacy">
+  <img src="https://img.shields.io/badge/Telemetry-None-1f2937?style=for-the-badge" alt="No telemetry">
+  <img src="https://img.shields.io/badge/License-MIT-7c3aed?style=for-the-badge" alt="MIT license">
+  <img src="https://img.shields.io/badge/Desktop-Tauri_2-2563eb?style=for-the-badge" alt="Tauri 2 desktop app">
 </p>
 
----
-
-**Job hunting sucks.** You know it. We know it.
-
-Endless scrolling. Reposted ghost jobs. Missing the perfect role because you were sleeping.
-Companies harvesting your data while you search.
-
-**JobSentinel fixes all of that.**
-
-[Get Started (2 minutes)](#get-started) • [See It In Action](#see-it-in-action) • [Why It's Different](#why-jobsentinel)
+[Get started](#get-started) | [See screenshots](#see-it-in-action) |
+[Privacy model](#privacy-model) | [Developer setup](#build-from-source)
 
 </div>
 
 ---
 
-## What Does JobSentinel Actually Do?
+## What JobSentinel does
 
-**It's like having a tireless assistant who searches for jobs 24/7 and only bothers you when something great comes up.**
+JobSentinel is a desktop app for people who want job-search help without a
+cloud account, subscription, or tracking. You tell it what you want, and it
+keeps checking for matching jobs in the background.
 
-Here's the deal:
+At a glance:
 
-1. **You tell it what you want** — job titles, salary, remote/hybrid/onsite
-2. **It watches 13 job boards for you** — checking every 2 hours, day and night
-3. **It scores every job** — so you only see roles that actually match
-4. **It alerts you instantly** — Slack, Discord, Teams, Email, or just a desktop notification
+| You need | JobSentinel helps by |
+| -------- | -------------------- |
+| Find new roles faster | Checking 13 job sources every 2 hours by default |
+| Avoid noisy listings | Ranking jobs by skills, salary, location, company, and freshness |
+| Save promising jobs | Bookmarking, hiding, searching, and adding private notes |
+| Know what to apply for | Flagging suspicious or stale postings before you spend time |
+| Stay organized | Tracking applications, interviews, reminders, and follow-ups |
+| Apply with less typing | Filling supported forms while you review and click Submit yourself |
 
-That's it. No accounts. No subscriptions. No data harvesting. Just... jobs that match what you want.
+No account is required. JobSentinel stores your search data locally and only
+sends data outside the app when you configure a channel like Slack, Discord,
+Teams, Telegram, email, or feedback through GitHub or Google Drive.
 
 ---
 
-## See It In Action
+## How it works
+
+1. **Set your search**
+
+   Add job titles, locations, remote preferences, salary floor, and alert rules.
+
+2. **Let JobSentinel scan**
+
+   It checks supported job sources on a schedule. You can also run **Search Now**
+   when you want a fresh scan.
+
+3. **Review ranked matches**
+
+   Jobs show up in one dashboard with match scores, source details, ghost-job
+   warnings, and saved notes.
+
+4. **Apply when ready**
+
+   For supported application systems, JobSentinel can fill common fields. You
+   still review the form, handle CAPTCHAs, upload files, and click Submit.
+
+---
+
+## See it in action
 
 <p align="center">
-  <img src="docs/images/dashboard.png" alt="JobSentinel Dashboard" width="800">
+  <img src="docs/images/dashboard.png" alt="JobSentinel dashboard" width="800">
   <br>
-  <em>Your command center. Every job scored and ranked. Dark mode included.</em>
+  <em>Dashboard with scored jobs, filters, source status, and dark mode.</em>
 </p>
 
 <p align="center">
-  <img src="docs/images/application-tracking.png" alt="Application Tracker" width="800">
+  <img src="docs/images/application-tracking.png" alt="Application tracking board" width="800">
   <br>
-  <em>Track every application. Never forget to follow up. See your progress at a glance.</em>
+  <em>Track applications from saved to offer, with notes and follow-up reminders.</em>
 </p>
 
 <details>
-<summary><strong>See more screenshots</strong></summary>
+<summary><strong>More screenshots</strong></summary>
 <br>
 
-<p align="center">
-  <img src="docs/images/resume-builder.png" alt="Resume Builder" width="700">
-  <br>
-  <em>Build ATS-friendly resumes with 5 professional templates. Export to Word in one click.</em>
-</p>
+| Resume builder | Resume matcher |
+| -------------- | -------------- |
+| ![Resume builder](docs/images/resume-builder.png) | ![Resume matcher](docs/images/resume-matcher.png) |
 
-<p align="center">
-  <img src="docs/images/ats-optimizer.png" alt="ATS Optimizer" width="700">
-  <br>
-  <em>See exactly how your resume scores against a job description. Fix gaps before applying.</em>
-</p>
+| ATS optimizer | One-click apply |
+| ------------- | --------------- |
+| ![ATS optimizer](docs/images/ats-optimizer.png) | ![One-click apply](docs/images/one-click-apply.png) |
 
-<p align="center">
-  <img src="docs/images/one-click-apply.png" alt="One-Click Apply" width="700">
-  <br>
-  <em>Fill out job applications in seconds. You review everything before hitting Submit.</em>
-</p>
+| Salary AI | Market intelligence |
+| --------- | ------------------- |
+| ![Salary AI](docs/images/salary-ai.png) | ![Market intelligence](docs/images/market-intelligence.png) |
 
-<p align="center">
-  <img src="docs/images/salary-ai.png" alt="Salary AI" width="700">
-  <br>
-  <em>Know your worth. Get negotiation scripts based on real H1B salary data.</em>
-</p>
-
-<p align="center">
-  <img src="docs/images/market-intelligence.png" alt="Market Intelligence" width="700">
-  <br>
-  <em>See which skills are trending. Know which companies are actually hiring.</em>
-</p>
+| Settings |
+| -------- |
+| ![Settings](docs/images/settings.png) |
 
 </details>
 
 ---
 
-## Why JobSentinel?
+## Privacy model
 
-### The Job Search Is Rigged Against You
+JobSentinel is local-first. That means the app runs on your computer and does
+not depend on a hosted JobSentinel service.
 
-| The Problem                          | How JobSentinel Fixes It                                                 |
-| ------------------------------------ | ------------------------------------------------------------------------ |
-| **Job sites sell your data**         | Your data never leaves your computer. Period.                            |
-| **You miss jobs while sleeping**     | JobSentinel watches 13 job boards 24/7 and pings you instantly           |
-| **Half the listings are ghost jobs** | Built-in ghost detection flags fake, stale, and already-filled positions |
-| **Applications take forever**        | One-click apply fills forms automatically (you still click Submit)       |
-| **You're guessing at salary**        | Salary AI shows real market rates from public government data            |
-| **Subscription fatigue**             | **Free forever.** No premium tier. No "upgrade to unlock."               |
+| Data or action | Where it lives |
+| -------------- | -------------- |
+| Search settings, saved jobs, notes, and applications | Local SQLite storage |
+| Slack, Discord, Teams, email, Telegram, USAJobs, and LinkedIn secrets | Your OS credential store |
+| Desktop notifications | Your computer |
+| External alerts | Only the channels you configure |
+| Telemetry and analytics | Not collected |
 
-### What Makes It Special
+Credentials use platform storage:
 
-**13 Job Boards, One Dashboard**
+- **Windows:** Windows Credential Manager
+- **macOS:** Keychain
+- **Linux:** Secret Service, such as GNOME Keyring or KWallet
 
-- Greenhouse, Lever, LinkedIn, RemoteOK, WeWorkRemotely, BuiltIn
-- HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs
-- USAJobs (federal), SimplyHired, Glassdoor
-- New jobs every 2 hours (or whenever you want)
+JobSentinel does not auto-submit applications, bypass CAPTCHAs, or send your
+profile data to an external service unless you explicitly configure that flow.
 
-**Ghost Job Detection**
-
-- Spots fake listings, reposted jobs, and positions that are already filled
-- Color-coded warnings so you don't waste time applying
-
-**Smart Scoring**
-
-- Every job gets a match score based on YOUR preferences
-- Skills (40%) + Salary (25%) + Location (20%) + Company (10%) + Freshness (5%)
-
-**Resume Builder + ATS Optimizer**
-
-- Build professional resumes with 5 templates
-- ATS (Applicant Tracking System) is software companies use to filter resumes — we help you pass those filters
-- See exactly which keywords you're missing before you apply
-- Export to Word (.docx) ready to upload
-
-**One-Click Apply**
-
-- Fills out Greenhouse, Lever, Workday, and 4 other application systems
-- You review everything and click Submit yourself
-- Stores your info locally so you never type it again
-
-**Application Tracking**
-
-- Kanban board to track every application
-- Automatic reminders for follow-ups
-- Interview prep checklists
-
-**100% Private**
-
-- Runs entirely on your computer
-- No cloud. No accounts. No tracking.
-- We literally cannot see your data
-
-**Keyboard-First Design**
-
-Power users can navigate entirely by keyboard:
-
-| Key        | Action                      |
-| ---------- | --------------------------- |
-| `j` / `k`  | Navigate job list (down/up) |
-| `o`        | Open selected job           |
-| `b`        | Bookmark job                |
-| `h`        | Hide job                    |
-| `n`        | Add note                    |
-| `/`        | Focus search                |
-| `?`        | Show all shortcuts          |
-| `Ctrl+1-7` | Switch pages                |
+Learn more in [secure credential storage](docs/security/KEYRING.md) and the
+[security docs](docs/security/README.md).
 
 ---
 
-## Get Started
+## Job sources
 
-### Step 1: Download
+JobSentinel supports 13 job sources with rate limits, retry handling,
+deduplication, and health checks.
 
-**👉 [Download the latest release from GitHub](https://github.com/cboyd0319/JobSentinel/releases/latest)**
+| Category | Sources |
+| -------- | ------- |
+| ATS platforms | Greenhouse, Lever |
+| General and tech boards | LinkedIn, Dice, Glassdoor, SimplyHired |
+| Remote and startup boards | RemoteOK, WeWorkRemotely, BuiltIn, YC Startup Jobs |
+| Community and specialized feeds | HN Who's Hiring, JobsWithGPT, USAJobs |
 
-| Platform                          | What to Download                                              |
-| --------------------------------- | ------------------------------------------------------------- |
-| **Windows**                       | The `.msi` file — double-click to install                     |
-| **macOS** (Intel & Apple Silicon) | The `.dmg` file — drag to Applications                        |
-| **Linux**                         | Coming soon — [build from source](#build-from-source) for now |
+Some sources need setup. LinkedIn uses your own session cookie and stores it in
+the OS keyring. USAJobs uses a free API key. JobSentinel reports scraper health
+so you can see when a source is healthy, degraded, or blocked.
 
-> **Don't see a download?** Releases may still be in review.
-> You can always [build from source](#build-from-source) below.
+Read the full [scraper guide](docs/features/scrapers.md) and
+[scraper health docs](docs/features/scraper-health.md).
+
+---
+
+## Main features
+
+### Job matching
+
+- Score each job against your skills, salary floor, location, company filters,
+  and posting age.
+- Use advanced search, saved searches, job notes, bookmarks, and hidden jobs.
+- Flag likely ghost jobs so stale or suspicious postings do not dominate your
+  list.
+
+### Application tracking
+
+- Use a Kanban-style board for saved, applied, interviewing, offer, and rejected
+  stages.
+- Track interviews, prep tasks, reminders, and follow-up notes.
+- Review response rates and weekly progress without leaving the app.
+
+### Resume tools
+
+- Build resumes with ATS-friendly templates.
+- Compare your resume with a job description and see missing keywords.
+- Export resume documents when you are ready to apply.
+
+### One-click apply
+
+- Works with Greenhouse, Lever, Workday, Taleo, iCIMS, BambooHR, and Ashby.
+- Fills contact fields and saved screening answers where possible.
+- Keeps the final submit step manual by design.
+- Pauses for CAPTCHAs and unusual fields instead of bypassing them.
+
+### Salary and market insight
+
+- Compare salary ranges against market data.
+- Review negotiation notes and offer comparisons.
+- See skill, location, and company trends from the Market Intelligence view.
+
+### Notifications
+
+- Use desktop notifications for local alerts.
+- Configure Slack, Discord, Teams, Telegram, or email when you want external
+  alerts.
+- Filter alerts by score, keywords, company, salary, and job source.
+
+---
+
+## Get started
+
+### Download
+
+Download the latest installer from
+[GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases/latest).
+
+| Platform | Installer |
+| -------- | --------- |
+| **Windows** | `.msi` |
+| **macOS** | `.dmg` |
+| **Linux** | Build from source today; release packages are tracked for v2.7 |
+
+If a release asset is not available yet, use the source build below.
 
 <details>
-<summary id="build-from-source"><strong>Build from source (for developers)</strong></summary>
+<summary><strong>macOS Gatekeeper warning</strong></summary>
 <br>
 
-**Prerequisites:**
+macOS may show this message because JobSentinel is a new open-source app:
 
-| Requirement     | How to Install                                                      |
-| --------------- | ------------------------------------------------------------------- |
-| **Rust**        | Visit [rustup.rs](https://rustup.rs) and follow the instructions    |
-| **Node.js 20+** | Visit [nodejs.org](https://nodejs.org) and download the LTS version |
-
-<details>
-<summary>Extra requirements for Windows</summary>
-
-- [Visual Studio Build Tools 2022](https://visualstudio.microsoft.com/downloads/)
-  (select "Desktop development with C++")
-- Windows 10 SDK (included with Build Tools)
-
-</details>
-
-<details>
-<summary>Extra requirements for Linux</summary>
-
-```bash
-sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev \
-  libappindicator3-dev librsvg2-dev patchelf
+```text
+JobSentinel can't be opened because Apple cannot check it for malicious software.
 ```
 
+To continue:
+
+1. Open **System Settings**.
+2. Go to **Privacy & Security**.
+3. Click **Open Anyway** next to the JobSentinel message.
+4. Click **Open** in the confirmation dialog.
+
 </details>
 
-**Then build:**
+<details>
+<summary><strong>Windows SmartScreen warning</strong></summary>
+<br>
+
+Windows may show this message because JobSentinel is a new app:
+
+```text
+Windows protected your PC
+```
+
+To continue:
+
+1. Click **More info**.
+2. Click **Run anyway**.
+
+</details>
+
+### First run
+
+The setup wizard asks four questions:
+
+1. What job titles are you looking for?
+2. Do you prefer remote, hybrid, onsite, or any mix?
+3. What is your minimum salary?
+4. Do you want alerts through desktop, Slack, Discord, Teams, Telegram, or email?
+
+After setup, JobSentinel starts scanning. You can change every setting later.
+
+### Build from source
+
+You need:
+
+- Node.js 20 or newer
+- Rust from [rustup.rs](https://rustup.rs)
+- Platform dependencies listed in the
+  [developer setup guide](docs/developer/GETTING_STARTED.md)
+
+Build:
 
 ```bash
 git clone https://github.com/cboyd0319/JobSentinel
@@ -234,251 +289,175 @@ npm install
 npm run tauri:build
 ```
 
-Your installer will be in:
+Installer output:
 
-- **Windows:** `src-tauri/target/release/bundle/msi/` (`.msi` file)
-- **macOS:** `src-tauri/target/release/bundle/dmg/` (`.dmg` file)
-- **Linux:** `src-tauri/target/release/bundle/appimage/` (`.AppImage` file)
-
-For more details, see the [Developer Guide](docs/developer/GETTING_STARTED.md).
-
-</details>
-
-**That's it.** The app is ~10MB and runs without admin rights.
-No database setup needed — everything is created automatically on first launch.
-
-<details>
-<summary><strong>First time on Mac? (Gatekeeper warning)</strong></summary>
-<br>
-
-macOS may show "JobSentinel can't be opened because Apple cannot check it for malicious software."
-
-**To fix this:**
-
-1. Go to **System Settings → Privacy & Security**
-2. Scroll down and click **"Open Anyway"** next to the JobSentinel message
-3. Click **Open** in the confirmation dialog
-
-This only happens once. JobSentinel is safe — it's open source and you can verify the code yourself.
-
-</details>
-
-<details>
-<summary><strong>Windows showing a blue warning?</strong></summary>
-<br>
-
-Windows SmartScreen may show "Windows protected your PC" because JobSentinel is new.
-
-**To continue:**
-
-1. Click **"More info"**
-2. Click **"Run anyway"**
-
-This is normal for new apps. JobSentinel is safe — it's open source and you can verify the code yourself.
-
-</details>
-
-### Step 2: Setup (2 minutes)
-
-When you first open JobSentinel, a friendly wizard asks you four questions:
-
-1. **What job titles are you looking for?**
-   - Example: "Software Engineer", "Product Manager"
-
-2. **Where do you want to work?**
-   - Remote, Hybrid, Onsite (pick any combination)
-
-3. **What's your minimum salary?**
-   - Enter a number or $0 to see everything
-
-4. **Want instant alerts?** (optional)
-   - Connect Slack, Discord, or Teams to get pinged when great jobs appear
-   - (A "webhook" is just a special URL that lets JobSentinel send messages to these apps)
-
-Done. JobSentinel starts watching job boards immediately.
-
-### Step 3: Let It Work
-
-JobSentinel automatically checks all 13 job boards every 2 hours. When it finds something that matches your criteria:
-
-- Jobs appear in your dashboard, sorted by match score
-- High-scoring jobs (90%+) trigger instant notifications (if you set them up)
-- Ghost jobs are flagged so you can skip them
-
-You can also click "Search Now" anytime to run a manual scan.
+| Platform | Output path |
+| -------- | ----------- |
+| Windows | `src-tauri/target/release/bundle/msi/` |
+| macOS | `src-tauri/target/release/bundle/dmg/` |
+| Linux | `src-tauri/target/release/bundle/appimage/` |
 
 ---
 
-## Frequently Asked Questions
+## Keyboard shortcuts
 
-<details>
-<summary><strong>Is this really free?</strong></summary>
-<br>
-Yes. 100% free, forever. No subscriptions, no premium tier, no "upgrade to unlock features."
-
-JobSentinel is open source under the MIT license. You can literally read every line of code.
-
-</details>
-
-<details>
-<summary><strong>Do I need to create an account?</strong></summary>
-<br>
-Nope. No account, no login, no cloud sync. Everything runs on your computer.
-</details>
-
-<details>
-<summary><strong>What data do you collect?</strong></summary>
-<br>
-<strong>Zero.</strong> Nothing. Nada.
-
-JobSentinel has no telemetry, no analytics, no tracking. Your job search data exists only on
-your computer. We couldn't see your data even if we wanted to.
-
-</details>
-
-<details>
-<summary><strong>How is this different from LinkedIn/Indeed/Glassdoor?</strong></summary>
-<br>
-Those are job boards that collect and sell your data. JobSentinel is a <em>tool</em> that
-searches those job boards for you, privately, on your own computer.
-
-Think of it like the difference between Google tracking your searches vs. a private search engine.
-
-</details>
-
-<details>
-<summary><strong>Can I use this for non-tech jobs?</strong></summary>
-<br>
-Absolutely! While the default settings are optimized for tech roles, JobSentinel works for any
-job posted on the supported job boards.
-
-Just change your title allowlist and keywords to match what you're looking for.
-
-</details>
-
-<details>
-<summary><strong>What's a "ghost job"?</strong></summary>
-<br>
-A ghost job is a posting that isn't a real opportunity — maybe it's already filled, posted
-just to collect resumes, or has been sitting there for 6 months.
-
-JobSentinel analyzes each job and flags suspicious ones so you don't waste time applying to
-dead ends.
-
-</details>
-
-<details>
-<summary><strong>How does One-Click Apply work?</strong></summary>
-<br>
-You save your contact info, work history, and answers to common screening questions. When you
-click "Quick Apply" on a job, JobSentinel opens the application form and fills in everything
-automatically.
-
-<strong>Important:</strong> You always review the form and click Submit yourself. JobSentinel never
-submits applications without you.
-
-</details>
-
-<details>
-<summary><strong>Is my data secure?</strong></summary>
-<br>
-Yes. Passwords and API tokens are stored in your operating system's secure credential manager:
-
-- <strong>macOS:</strong> Keychain
-- <strong>Windows:</strong> Credential Manager
-- <strong>Linux:</strong> Secret Service (GNOME Keyring)
-
-Your job search data is stored in a local SQLite database that only you can access.
-
-</details>
-
-<details>
-<summary><strong>I'm not technical. Can I still use this?</strong></summary>
-<br>
-Absolutely! Just download the installer for your platform (Windows or Mac), double-click, and go.
-No command line or technical knowledge required.
-</details>
+| Key | Action |
+| --- | ------ |
+| <kbd>j</kbd> / <kbd>k</kbd> | Move through the job list |
+| <kbd>o</kbd> | Open the selected job |
+| <kbd>b</kbd> | Bookmark a job |
+| <kbd>h</kbd> | Hide a job |
+| <kbd>n</kbd> | Add a note |
+| <kbd>/</kbd> | Focus search |
+| <kbd>?</kbd> | Show all shortcuts |
+| <kbd>Ctrl</kbd>+<kbd>1</kbd> to <kbd>7</kbd> | Switch pages |
 
 ---
 
-## The Nerdy Details
+## For developers
 
-<details>
-<summary><strong>For developers and the curious</strong></summary>
+JobSentinel is built as a Tauri desktop app.
 
-### Tech Stack
+| Layer | Stack |
+| ----- | ----- |
+| Frontend | React 19, TypeScript, Vite, Tailwind CSS |
+| Backend | Rust 2021, Tauri 2, Tokio |
+| Storage | SQLite with SQLx offline mode |
+| Tests | Vitest, Playwright, Rust tests, docs harness checks |
 
-| Layer    | Technology                              |
-| -------- | --------------------------------------- |
-| Frontend | React 19, TypeScript, Vite, TailwindCSS |
-| Backend  | Rust, Tokio (async), SQLx               |
-| Desktop  | Tauri 2.x                               |
-| Database | SQLite (local)                          |
+Current backend surface: **191 registered Tauri commands**.
 
-### By the Numbers
+Common checks:
 
-- **191 registered Tauri commands** powering desktop features
-- **Automated test coverage** across Vitest, Playwright, Rust, and docs harness checks
-- **Security gates** for dependency advisories, URL validation, command execution, and keyring storage
-- **~8MB** installed size
-- **<50MB RAM** typical usage
+```bash
+npm run harness:check
+npm run lint
+npm run test:run
+npm run build
+cd src-tauri && cargo fmt --all -- --check
+cd src-tauri && cargo clippy -- -D warnings
+cd src-tauri && cargo test --lib
+```
 
-### Architecture
+Full release verification also includes `npm run test:e2e` and the full Rust
+test suite. E2E tests can take several minutes.
 
-JobSentinel follows "LLM-first" development principles — every module is designed to be
-understandable and regenerable by AI coding assistants. Files stay under 500 lines, concerns
-are clearly separated, and the codebase is extensively documented.
+Developer docs:
 
-For full technical documentation, see:
-
-- [Harness Engineering](docs/harness/README.md)
-- [Developer Guide](docs/developer/GETTING_STARTED.md)
+- [Harness engineering](docs/harness/README.md)
+- [Developer setup](docs/developer/GETTING_STARTED.md)
 - [Architecture](docs/developer/ARCHITECTURE.md)
+- [Testing guide](docs/developer/TESTING.md)
 - [Contributing](docs/developer/CONTRIBUTING.md)
+- [Roadmap](docs/ROADMAP.md)
+
+---
+
+## Current release
+
+### Just released in v2.6.4
+
+- Settings no longer spins forever on first load.
+- Jobs with missing salary or scoring data no longer show `NaN`.
+- Bulk bookmark and hide actions keep working when one job has an error.
+- Tests were expanded across settings, scoring edge cases, and bulk actions.
+- Transitive dependency security updates were applied.
+
+### Planned for v2.7
+
+- Privacy-first beta feedback workflow.
+- Universal macOS release artifact.
+- Linux AppImage and `.deb` release artifacts.
+- Local matching improvements.
+
+Read [docs/README.md](docs/README.md), [CHANGELOG.md](CHANGELOG.md), and
+[ROADMAP.md](docs/ROADMAP.md) for more release detail.
+
+---
+
+## FAQ
+
+<details>
+<summary><strong>Is JobSentinel free?</strong></summary>
+<br>
+
+Yes. JobSentinel is open source under the MIT license.
+
+</details>
+
+<details>
+<summary><strong>Do I need an account?</strong></summary>
+<br>
+
+No. JobSentinel does not require a hosted account or cloud sync.
+
+</details>
+
+<details>
+<summary><strong>What data does JobSentinel collect?</strong></summary>
+<br>
+
+JobSentinel does not collect telemetry or analytics. Your job data is stored on
+your computer. External alerts only send data to channels you configure.
+
+</details>
+
+<details>
+<summary><strong>Can I use JobSentinel for non-tech jobs?</strong></summary>
+<br>
+
+Yes. Some defaults and sources are strongest for tech roles, but you can change
+job titles, keywords, locations, and source settings.
+
+</details>
+
+<details>
+<summary><strong>What is a ghost job?</strong></summary>
+<br>
+
+A ghost job is a posting that may be stale, already filled, repeatedly reposted,
+or posted mainly to collect resumes. JobSentinel flags these so you can decide
+whether the role is worth your time.
+
+</details>
+
+<details>
+<summary><strong>Does one-click apply submit applications for me?</strong></summary>
+<br>
+
+No. JobSentinel can fill supported forms, but you review the form and click
+Submit yourself.
+
+</details>
+
+<details>
+<summary><strong>Where is my database?</strong></summary>
+<br>
+
+JobSentinel stores app data in the standard app-data location for your platform.
+See [developer setup](docs/developer/GETTING_STARTED.md#database) for exact
+paths.
 
 </details>
 
 ---
 
-## What's Next?
+## Support and community
 
-### Coming Soon (v2.7)
-
-- **Beta feedback system** — Privacy-first feedback reports with PII sanitization
-- **Universal macOS installer** — One `.dmg` for Intel and Apple Silicon
-- **Linux release artifacts** — AppImage and `.deb` packages through the release workflow
-- **Machine learning improvements** — Local semantic matching and better job-fit predictions
-
-### Just Released (v2.6.4)
-
-- **Settings infinite loading fixed** — Settings page no longer spins forever on first load
-- **NaN score handling** — Jobs with missing salary or scoring data now display correctly instead of showing NaN
-- **Bulk operation resilience** — Bulk bookmark/hide operations no longer fail silently when one job errors
-- **45 new tests** — Expanded coverage for Settings, scoring edge cases, and bulk operations
-- **Security updates** — Dependabot patches for transitive dependencies
-
----
-
-## Support & Community
-
-- **Found a bug?** [Open an issue](https://github.com/cboyd0319/JobSentinel/issues/new)
-- **Have an idea?** [Start a discussion](https://github.com/cboyd0319/JobSentinel/discussions)
-- **Want to contribute?** [Read the guide](docs/developer/CONTRIBUTING.md)
+- Found a bug? [Open an issue](https://github.com/cboyd0319/JobSentinel/issues/new).
+- Have an idea? [Start a discussion](https://github.com/cboyd0319/JobSentinel/discussions).
+- Want to contribute? Read the [contributing guide](docs/developer/CONTRIBUTING.md).
 
 ---
 
 <div align="center">
 
-### Built for Job Seekers Who Refuse to Sacrifice Privacy
+**JobSentinel helps you search steadily, stay organized, and keep your data close.**
 
-Your data is yours.
-Your job search is yours.
-Your future is yours.
-
-**[Get Started Now](#get-started)**
+[Get started](#get-started)
 
 <br>
 
-<sub>Open source and free forever — Zero data collection</sub>
+<sub>Open source. Local-first. Built for job seekers who value privacy.</sub>
 
 </div>
