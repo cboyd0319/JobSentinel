@@ -139,6 +139,20 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "get_application_stats":
       return mockApplicationStats as T;
 
+    case "get_jobs_by_source":
+      return Object.entries(mockStatistics.by_source).map(([source, count]) => ({
+        source,
+        count,
+      })) as T;
+
+    case "get_salary_distribution":
+      return [
+        { range: "$75k-$100k", count: jobs.filter((j) => j.salary_min < 100000).length },
+        { range: "$100k-$150k", count: jobs.filter((j) => j.salary_min >= 100000 && j.salary_min < 150000).length },
+        { range: "$150k-$200k", count: jobs.filter((j) => j.salary_min >= 150000 && j.salary_min < 200000).length },
+        { range: "$200k+", count: jobs.filter((j) => j.salary_min >= 200000).length },
+      ].filter((bucket) => bucket.count > 0) as T;
+
     // Interview commands
     case "get_upcoming_interviews":
       return interviews as T;

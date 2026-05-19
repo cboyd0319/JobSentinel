@@ -250,18 +250,29 @@ impl LinkedInScraper {
 
                 if status.is_success() {
                     if attempt > 0 {
-                        tracing::info!(attempt, decoration_version, "LinkedIn API succeeded after retries");
+                        tracing::info!(
+                            attempt,
+                            decoration_version,
+                            "LinkedIn API succeeded after retries"
+                        );
                     }
                     let json: serde_json::Value = response.json().await?;
                     let jobs = self.parse_linkedin_api_response(&json)?;
 
                     if !jobs.is_empty() {
-                        tracing::info!(decoration_version, job_count = jobs.len(), "LinkedIn decorationId version resolved");
+                        tracing::info!(
+                            decoration_version,
+                            job_count = jobs.len(),
+                            "LinkedIn decorationId version resolved"
+                        );
                         return Ok(jobs);
                     }
 
                     // 200 but no jobs — treat as stale schema, try next version
-                    tracing::debug!(decoration_version, "decorationId returned 200 but zero jobs, trying next version");
+                    tracing::debug!(
+                        decoration_version,
+                        "decorationId returned 200 but zero jobs, trying next version"
+                    );
                     skip_version = true;
                     break;
                 }

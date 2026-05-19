@@ -1,9 +1,9 @@
 //! Live Scraper Tests - Tests against real APIs
 //!
-//! Run with: cargo test --test live_scraper_test -- --nocapture
+//! Run with: cargo test --test live_scraper_test -- --ignored --nocapture
 //!
 //! Note: Some scrapers require authentication or may be rate-limited/blocked.
-//! Tests are designed to verify basic connectivity and parsing.
+//! Tests are ignored by default because they depend on live external sites.
 
 use jobsentinel::core::scrapers::{
     builtin::BuiltInScraper,
@@ -27,6 +27,7 @@ use jobsentinel::core::scrapers::{
 // ============================================================================
 
 #[tokio::test]
+#[ignore = "Live network scraper check; run manually"]
 async fn test_greenhouse_live() {
     let scraper = GreenhouseScraper::new(vec![GreenhouseCompany {
         id: "cloudflare".to_string(),
@@ -45,6 +46,7 @@ async fn test_greenhouse_live() {
 }
 
 #[tokio::test]
+#[ignore = "Live network scraper check; run manually"]
 async fn test_lever_live() {
     let scraper = LeverScraper::new(vec![LeverCompany {
         id: "plaid".to_string(),
@@ -63,6 +65,7 @@ async fn test_lever_live() {
 }
 
 #[tokio::test]
+#[ignore = "Live network scraper check; run manually"]
 async fn test_remoteok_live() {
     let scraper = RemoteOkScraper::new(vec!["developer".to_string()], 50);
 
@@ -77,6 +80,7 @@ async fn test_remoteok_live() {
 }
 
 #[tokio::test]
+#[ignore = "Live network scraper check; run manually"]
 async fn test_hn_hiring_live() {
     let scraper = HnHiringScraper::new(50, false);
 
@@ -95,6 +99,7 @@ async fn test_hn_hiring_live() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore = "Live network scraper check; run manually"]
 async fn test_weworkremotely_live() {
     let scraper = WeWorkRemotelyScraper::new(Some("remote-programming-jobs".to_string()), 50);
 
@@ -113,6 +118,7 @@ async fn test_weworkremotely_live() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore = "Live network scraper check; run manually"]
 async fn test_builtin_live() {
     // BuiltIn changed their URL structure - now uses /jobs and /jobs/remote
     let scraper = BuiltInScraper::new(false, 50);
@@ -130,6 +136,7 @@ async fn test_builtin_live() {
 }
 
 #[tokio::test]
+#[ignore = "Live network scraper check; run manually"]
 async fn test_builtin_remote_live() {
     // Test the remote-only endpoint
     let scraper = BuiltInScraper::new(true, 50);
@@ -147,6 +154,7 @@ async fn test_builtin_remote_live() {
 }
 
 #[tokio::test]
+#[ignore = "Live network scraper check; run manually"]
 async fn test_dice_live() {
     let scraper = DiceScraper::new("rust developer".to_string(), Some("Remote".to_string()), 50);
 
@@ -163,6 +171,7 @@ async fn test_dice_live() {
 }
 
 #[tokio::test]
+#[ignore = "Live network scraper check; run manually"]
 async fn test_yc_startups_live() {
     let scraper = YcStartupScraper::new(Some("engineer".to_string()), false, 50);
 
@@ -210,6 +219,7 @@ async fn test_jobswithgpt_live() {
 // ============================================================================
 
 #[tokio::test]
+#[ignore = "Live network scraper check; run manually"]
 async fn test_simplyhired_live() {
     let scraper =
         SimplyHiredScraper::new("rust developer".to_string(), Some("Remote".to_string()), 50);
@@ -240,6 +250,7 @@ async fn test_simplyhired_live() {
 }
 
 #[tokio::test]
+#[ignore = "Live network scraper check; run manually"]
 async fn test_glassdoor_live() {
     let scraper = GlassdoorScraper::new(
         "software engineer".to_string(),

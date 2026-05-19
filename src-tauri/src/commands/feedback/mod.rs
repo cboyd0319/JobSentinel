@@ -114,9 +114,7 @@ pub async fn reveal_file(app: AppHandle, path: String) -> Result<(), String> {
     {
         let _ = &app;
         use std::process::Command;
-        let path_str = canonical
-            .to_str()
-            .ok_or("Invalid path encoding")?;
+        let path_str = canonical.to_str().ok_or("Invalid path encoding")?;
         Command::new("explorer")
             .arg(format!("/select,{}", path_str))
             .spawn()
@@ -258,11 +256,7 @@ mod tests {
         let system_paths = ["/etc/shadow", "/var/log/system.log", "/usr/bin/sudo"];
         for path in &system_paths {
             let result = validate_reveal_path(path);
-            assert!(
-                result.is_err(),
-                "System path {} must be rejected",
-                path
-            );
+            assert!(result.is_err(), "System path {} must be rejected", path);
         }
     }
 

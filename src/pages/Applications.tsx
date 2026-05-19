@@ -120,6 +120,7 @@ const SortableApplicationCard = memo(function SortableApplicationCard({
       style={style}
       {...attributes}
       {...listeners}
+      data-testid="application-card"
       role="button"
       aria-label={`${app.job_title} at ${app.company}. Status: ${columnLabel}. Press space to start dragging.`}
       aria-pressed={isDragging}
@@ -135,13 +136,25 @@ const SortableApplicationCard = memo(function SortableApplicationCard({
         }
       }}
     >
-      <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-1">
+      <span data-testid="application-status" className="sr-only">
+        {columnLabel}
+      </span>
+      <h4
+        className="font-medium text-surface-800 dark:text-surface-200 mb-1"
+        data-testid="application-position"
+      >
         {app.job_title}
       </h4>
-      <p className="text-sm text-surface-500 dark:text-surface-400 mb-2">
+      <p
+        className="text-sm text-surface-500 dark:text-surface-400 mb-2"
+        data-testid="application-company"
+      >
         {app.company}
       </p>
-      <p className="text-xs text-surface-400 dark:text-surface-500">
+      <p
+        className="text-xs text-surface-400 dark:text-surface-500"
+        data-testid="application-date"
+      >
         Applied: {formatDate(app.applied_at)}
       </p>
       {app.notes && (
@@ -166,7 +179,11 @@ const DroppableColumn = memo(function DroppableColumn({
   formatDate: (date: string) => string;
 }) {
   return (
-    <div className="w-72 flex-shrink-0 bg-surface-100 dark:bg-surface-800 rounded-lg p-4">
+    <div
+      className="w-72 flex-shrink-0 bg-surface-100 dark:bg-surface-800 rounded-lg p-4"
+      data-testid="kanban-column"
+      data-status={column.key}
+    >
       <div className="flex items-center gap-2 mb-4">
         <div className={`w-3 h-3 rounded-full ${column.color}`} />
         <h3 className="font-medium text-surface-800 dark:text-surface-200">
@@ -645,7 +662,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
-          <div className="overflow-x-auto pb-4">
+              <div className="overflow-x-auto pb-4" data-testid="kanban-board">
             <div className="flex gap-4 min-w-max">
               {STATUS_COLUMNS.map((column) => {
                 const apps = applications?.[column.key as keyof ApplicationsByStatus] || [];

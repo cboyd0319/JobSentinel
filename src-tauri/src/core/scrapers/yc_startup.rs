@@ -160,10 +160,7 @@ impl YcStartupScraper {
                 .trim()
                 .to_string();
 
-            let postings = match company_obj
-                .get("jobPostings")
-                .and_then(|p| p.as_array())
-            {
+            let postings = match company_obj.get("jobPostings").and_then(|p| p.as_array()) {
                 Some(arr) => arr,
                 None => continue,
             };
@@ -228,8 +225,7 @@ impl YcStartupScraper {
                     .map(Self::parse_salary_range)
                     .unwrap_or((None, None));
 
-                let hash =
-                    Self::compute_hash(&company_name, &title, location.as_deref(), &url);
+                let hash = Self::compute_hash(&company_name, &title, location.as_deref(), &url);
 
                 jobs.push(Job {
                     id: 0,
@@ -304,9 +300,7 @@ impl YcStartupScraper {
 
     /// Parse a single salary token like "$120K" or "$180,000" into an integer.
     fn parse_salary_amount(s: &str) -> Option<i64> {
-        let cleaned = s
-            .replace(['$', ',', ' '], "")
-            .to_uppercase();
+        let cleaned = s.replace(['$', ',', ' '], "").to_uppercase();
 
         if cleaned.is_empty() {
             return None;
@@ -516,8 +510,12 @@ mod tests {
 
     #[test]
     fn test_compute_hash_without_location() {
-        let hash =
-            YcStartupScraper::compute_hash("Startup Inc", "Engineer", None, "https://ycombinator.com/jobs/123");
+        let hash = YcStartupScraper::compute_hash(
+            "Startup Inc",
+            "Engineer",
+            None,
+            "https://ycombinator.com/jobs/123",
+        );
         assert_eq!(hash.len(), 64);
     }
 
@@ -532,15 +530,24 @@ mod tests {
 
     #[test]
     fn test_is_remote() {
-        assert!(YcStartupScraper::is_remote("Remote Software Engineer", None));
+        assert!(YcStartupScraper::is_remote(
+            "Remote Software Engineer",
+            None
+        ));
         assert!(YcStartupScraper::is_remote("Engineer", Some("Remote, US")));
         assert!(YcStartupScraper::is_remote("Developer", Some("Anywhere")));
-        assert!(!YcStartupScraper::is_remote("Developer", Some("San Francisco, CA")));
+        assert!(!YcStartupScraper::is_remote(
+            "Developer",
+            Some("San Francisco, CA")
+        ));
     }
 
     #[test]
     fn test_is_remote_distributed() {
-        assert!(YcStartupScraper::is_remote("Engineer", Some("Distributed team")));
+        assert!(YcStartupScraper::is_remote(
+            "Engineer",
+            Some("Distributed team")
+        ));
         assert!(YcStartupScraper::is_remote("Engineer", Some("distributed")));
     }
 
@@ -552,8 +559,14 @@ mod tests {
 
     #[test]
     fn test_is_remote_distributed_keyword() {
-        assert!(YcStartupScraper::is_remote("Engineer", Some("Distributed team")));
-        assert!(YcStartupScraper::is_remote("Developer", Some("fully distributed")));
+        assert!(YcStartupScraper::is_remote(
+            "Engineer",
+            Some("Distributed team")
+        ));
+        assert!(YcStartupScraper::is_remote(
+            "Developer",
+            Some("fully distributed")
+        ));
     }
 
     // -- Salary parsing -------------------------------------------------------
@@ -598,23 +611,21 @@ mod tests {
     #[test]
     fn test_parse_inertia_basic_jobs() {
         let scraper = YcStartupScraper::new(None, false, 10);
-        let payload = build_payload(&[
-            (
-                "AI Startup Inc",
-                vec![
-                    (
-                        "Senior Backend Engineer",
-                        "/companies/ai-startup/jobs/backend-123",
-                        Some("San Francisco, CA"),
-                    ),
-                    (
-                        "Frontend Developer",
-                        "/companies/ai-startup/jobs/frontend-456",
-                        Some("Remote"),
-                    ),
-                ],
-            ),
-        ]);
+        let payload = build_payload(&[(
+            "AI Startup Inc",
+            vec![
+                (
+                    "Senior Backend Engineer",
+                    "/companies/ai-startup/jobs/backend-123",
+                    Some("San Francisco, CA"),
+                ),
+                (
+                    "Frontend Developer",
+                    "/companies/ai-startup/jobs/frontend-456",
+                    Some("Remote"),
+                ),
+            ],
+        )]);
         let html = inertia_html(&payload);
         let jobs = scraper.parse_inertia_page(&html);
 
@@ -666,7 +677,8 @@ mod tests {
     fn test_parse_inertia_malformed_json_returns_empty() {
         let scraper = YcStartupScraper::new(None, false, 10);
         // data-page is present but contains garbage JSON
-        let html = r#"<html><body><div id="app" data-page="not valid json at all"></div></body></html>"#;
+        let html =
+            r#"<html><body><div id="app" data-page="not valid json at all"></div></body></html>"#;
         let jobs = scraper.parse_inertia_page(html);
         assert_eq!(jobs.len(), 0);
     }
@@ -674,15 +686,13 @@ mod tests {
     #[test]
     fn test_parse_inertia_skips_empty_title() {
         let scraper = YcStartupScraper::new(None, false, 10);
-        let payload = build_payload(&[
-            (
-                "TechCorp",
-                vec![
-                    ("", "/companies/techcorp/jobs/1", None),
-                    ("Real Engineer", "/companies/techcorp/jobs/2", None),
-                ],
-            ),
-        ]);
+        let payload = build_payload(&[(
+            "TechCorp",
+            vec![
+                ("", "/companies/techcorp/jobs/1", None),
+                ("Real Engineer", "/companies/techcorp/jobs/2", None),
+            ],
+        )]);
         let html = inertia_html(&payload);
         let jobs = scraper.parse_inertia_page(&html);
         assert_eq!(jobs.len(), 1);
@@ -692,10 +702,8 @@ mod tests {
     #[test]
     fn test_parse_inertia_skips_short_title() {
         let scraper = YcStartupScraper::new(None, false, 10);
-        let payload = build_payload(&[(
-            "TechCorp",
-            vec![("AB", "/companies/techcorp/jobs/1", None)],
-        )]);
+        let payload =
+            build_payload(&[("TechCorp", vec![("AB", "/companies/techcorp/jobs/1", None)])]);
         let html = inertia_html(&payload);
         let jobs = scraper.parse_inertia_page(&html);
         assert_eq!(jobs.len(), 0);
@@ -715,15 +723,13 @@ mod tests {
     #[test]
     fn test_parse_inertia_deduplicates_urls() {
         let scraper = YcStartupScraper::new(None, false, 10);
-        let payload = build_payload(&[
-            (
-                "Startup",
-                vec![
-                    ("Engineer", "/companies/startup/jobs/123", None),
-                    ("Senior Engineer", "/companies/startup/jobs/123", None),
-                ],
-            ),
-        ]);
+        let payload = build_payload(&[(
+            "Startup",
+            vec![
+                ("Engineer", "/companies/startup/jobs/123", None),
+                ("Senior Engineer", "/companies/startup/jobs/123", None),
+            ],
+        )]);
         let html = inertia_html(&payload);
         let jobs = scraper.parse_inertia_page(&html);
         assert_eq!(jobs.len(), 1);
@@ -732,16 +738,14 @@ mod tests {
     #[test]
     fn test_parse_inertia_limit_respected() {
         let scraper = YcStartupScraper::new(None, false, 2);
-        let payload = build_payload(&[
-            (
-                "Startup",
-                vec![
-                    ("Job 1", "/companies/s/jobs/1", None),
-                    ("Job 2", "/companies/s/jobs/2", None),
-                    ("Job 3", "/companies/s/jobs/3", None),
-                ],
-            ),
-        ]);
+        let payload = build_payload(&[(
+            "Startup",
+            vec![
+                ("Job 1", "/companies/s/jobs/1", None),
+                ("Job 2", "/companies/s/jobs/2", None),
+                ("Job 3", "/companies/s/jobs/3", None),
+            ],
+        )]);
         let html = inertia_html(&payload);
         let jobs = scraper.parse_inertia_page(&html);
         assert_eq!(jobs.len(), 2);
@@ -754,7 +758,11 @@ mod tests {
             "Startup",
             vec![
                 ("Remote Engineer", "/companies/s/jobs/1", Some("Remote")),
-                ("Onsite Engineer", "/companies/s/jobs/2", Some("San Francisco")),
+                (
+                    "Onsite Engineer",
+                    "/companies/s/jobs/2",
+                    Some("San Francisco"),
+                ),
             ],
         )]);
         let html = inertia_html(&payload);
@@ -874,10 +882,8 @@ mod tests {
     #[test]
     fn test_parse_inertia_null_salary_range() {
         let scraper = YcStartupScraper::new(None, false, 10);
-        let payload = build_payload(&[(
-            "Startup",
-            vec![("Engineer", "/companies/s/jobs/1", None)],
-        )]);
+        let payload =
+            build_payload(&[("Startup", vec![("Engineer", "/companies/s/jobs/1", None)])]);
         let html = inertia_html(&payload);
         let jobs = scraper.parse_inertia_page(&html);
         assert_eq!(jobs.len(), 1);
@@ -890,11 +896,7 @@ mod tests {
         let scraper = YcStartupScraper::new(None, false, 10);
         let payload = build_payload(&[(
             "Startup",
-            vec![(
-                "Engineer",
-                "/companies/mystartup/jobs/555",
-                None,
-            )],
+            vec![("Engineer", "/companies/mystartup/jobs/555", None)],
         )]);
         let html = inertia_html(&payload);
         let jobs = scraper.parse_inertia_page(&html);

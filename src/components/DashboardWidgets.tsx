@@ -96,14 +96,14 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
         logError('Failed to load jobs by source (non-critical):', err);
         return [];
       });
-      setJobsBySource(jobs);
+      setJobsBySource(Array.isArray(jobs) ? jobs : []);
 
       // Calculate salary ranges from jobs (optional, degrade gracefully)
       const salaryData = await invoke<SalaryRange[]>('get_salary_distribution').catch((err) => {
         logError('Failed to load salary distribution (non-critical):', err);
         return [];
       });
-      setSalaryRanges(salaryData);
+      setSalaryRanges(Array.isArray(salaryData) ? salaryData : []);
     } catch (error: unknown) {
       logError('Failed to load widget data:', error);
       setError('Failed to load analytics data');
@@ -173,7 +173,7 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
           {appStats && (
             <div className="flex items-center gap-4 text-sm text-surface-500 dark:text-surface-400">
               <span>{appStats.total} applications</span>
-              <span>{Math.round(appStats.response_rate * 100)}% response rate</span>
+              <span>{Math.round(appStats.response_rate)}% response rate</span>
             </div>
           )}
           <ChevronIcon className={`w-5 h-5 text-surface-400 transition-transform ${expanded ? 'rotate-180' : ''}`} />
@@ -306,13 +306,13 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <StatBox
                   label="Response Rate"
-                  value={`${Math.round(appStats.response_rate * 100)}%`}
-                  color={appStats.response_rate > 0.3 ? 'success' : appStats.response_rate > 0.15 ? 'warning' : 'danger'}
+                  value={`${Math.round(appStats.response_rate)}%`}
+                  color={appStats.response_rate > 30 ? 'success' : appStats.response_rate > 15 ? 'warning' : 'danger'}
                 />
                 <StatBox
                   label="Offer Rate"
-                  value={`${Math.round(appStats.offer_rate * 100)}%`}
-                  color={appStats.offer_rate > 0.1 ? 'success' : appStats.offer_rate > 0.05 ? 'warning' : 'surface'}
+                  value={`${Math.round(appStats.offer_rate)}%`}
+                  color={appStats.offer_rate > 10 ? 'success' : appStats.offer_rate > 5 ? 'warning' : 'surface'}
                 />
                 <StatBox
                   label="Active"

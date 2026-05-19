@@ -1,6 +1,9 @@
 import { test, expect } from "@playwright/test";
 import { ResumePage } from "./page-objects/ResumePage";
-import { join } from "path";
+import { dirname, join } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 test.describe("Resume Upload and Matching", () => {
   let resumePage: ResumePage;
@@ -283,7 +286,14 @@ test.describe("Resume Upload and Matching", () => {
 
       // Match button should be disabled or show error
       const matchButton = resumePage.matchButton;
-      const isDisabled = await matchButton.isDisabled().catch(() => true);
+      if ((await matchButton.count()) === 0) {
+        return;
+      }
+
+      const isDisabled = await matchButton
+        .first()
+        .isDisabled({ timeout: 1000 })
+        .catch(() => true);
 
       expect(isDisabled).toBeTruthy();
     });

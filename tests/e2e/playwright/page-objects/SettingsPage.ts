@@ -14,7 +14,9 @@ export class SettingsPage extends BasePage {
     await this.skipSetupWizard();
 
     // Open settings - usually via gear icon or keyboard shortcut
-    const settingsButton = this.page.locator("[data-testid='btn-settings'], button[aria-label*='Settings']");
+    const settingsButton = this.page.locator(
+      "[data-testid='btn-settings'], button[aria-label*='settings' i]"
+    );
     if (await settingsButton.isVisible().catch(() => false)) {
       await settingsButton.click();
     } else {
@@ -23,10 +25,15 @@ export class SettingsPage extends BasePage {
     }
 
     await this.waitForReady();
+    await this.page
+      .getByRole("heading", { name: "Settings" })
+      .waitFor({ state: "visible", timeout: 15000 });
   }
 
   get generalTab(): Locator {
-    return this.page.locator("[data-testid='tab-general'], button:has-text('General')");
+    return this.page.locator(
+      "[data-testid='tab-general'], button:has-text('Basic Settings')"
+    );
   }
 
   get notificationsTab(): Locator {
@@ -38,7 +45,9 @@ export class SettingsPage extends BasePage {
   }
 
   get advancedTab(): Locator {
-    return this.page.locator("[data-testid='tab-advanced'], button:has-text('Advanced')");
+    return this.page.locator(
+      "[data-testid='tab-advanced'], button:has-text('Advanced Settings')"
+    );
   }
 
   get saveButton(): Locator {

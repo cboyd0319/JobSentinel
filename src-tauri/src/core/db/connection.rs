@@ -372,10 +372,7 @@ impl Database {
         let backup_path = backup_dir.join(&backup_name);
 
         std::fs::copy(db_path, &backup_path)?;
-        tracing::info!(
-            "Pre-migration backup created: {}",
-            backup_path.display()
-        );
+        tracing::info!("Pre-migration backup created: {}", backup_path.display());
 
         // Prune pre-migration backups beyond the keep limit.
         Self::prune_pre_migration_backups(&backup_dir, PRE_MIGRATION_BACKUP_KEEP);

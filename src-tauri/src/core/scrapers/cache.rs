@@ -237,11 +237,21 @@ pub async fn set_cache_duration(duration: Duration) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use tokio::sync::{Mutex, MutexGuard};
     use tokio::time::sleep;
+
+    static TEST_LOCK: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
+
+    async fn reset_cache_for_test() -> MutexGuard<'static, ()> {
+        let guard = TEST_LOCK.lock().await;
+        clear_cache().await;
+        set_cache_duration(Duration::from_secs(DEFAULT_CACHE_DURATION_SECS)).await;
+        guard
+    }
 
     #[tokio::test]
     async fn test_cache_miss() {
-        clear_cache().await;
+        let _guard = reset_cache_for_test().await;
 
         let result = get_cached("https://example.com/test1").await;
         assert!(result.is_none());
@@ -253,7 +263,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_cache_hit() {
-        clear_cache().await;
+        let _guard = reset_cache_for_test().await;
 
         let url = "https://example.com/test2";
         let body = "test response".to_string();
@@ -272,7 +282,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_cache_expiration() {
-        clear_cache().await;
+        let _guard = reset_cache_for_test().await;
 
         // Set very short cache duration
         set_cache_duration(Duration::from_millis(100)).await;
@@ -298,7 +308,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_clear_cache() {
-        clear_cache().await;
+        let _guard = reset_cache_for_test().await;
 
         // Add multiple entries
         set_cached("https://example.com/test4", "body1".to_string()).await;
@@ -319,7 +329,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_cache_stats_hit_rate() {
-        clear_cache().await;
+        let _guard = reset_cache_for_test().await;
 
         let url = "https://example.com/test7";
         set_cached(url, "body".to_string()).await;
@@ -340,7 +350,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_cache_overwrite() {
-        clear_cache().await;
+        let _guard = reset_cache_for_test().await;
 
         let url = "https://example.com/test8";
 
@@ -355,7 +365,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_multiple_urls() {
-        clear_cache().await;
+        let _guard = reset_cache_for_test().await;
 
         let url1 = "https://example.com/test9";
         let url2 = "https://example.com/test10";

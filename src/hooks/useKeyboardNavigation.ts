@@ -88,7 +88,7 @@ export function useKeyboardNavigation<T>({
         onRefresh: refreshCb,
       } = callbacksRef.current;
 
-      if (!enabled || currentItems.length === 0) return;
+      if (!enabled) return;
 
       // Ignore if focus is on an input element
       const target = event.target as HTMLElement;
@@ -98,6 +98,24 @@ export function useKeyboardNavigation<T>({
         target.tagName === "SELECT" ||
         target.isContentEditable
       ) {
+        return;
+      }
+
+      if (event.key === "/" && focusSearchCb) {
+        event.preventDefault();
+        event.stopPropagation();
+        focusSearchCb();
+        return;
+      }
+
+      if (event.key === "r" && refreshCb) {
+        event.preventDefault();
+        event.stopPropagation();
+        refreshCb();
+        return;
+      }
+
+      if (event.metaKey || event.ctrlKey || event.altKey || currentItems.length === 0) {
         return;
       }
 
@@ -274,25 +292,6 @@ export function useKeyboardNavigation<T>({
           break;
         }
 
-        case "/": {
-          // Focus search input
-          if (focusSearchCb) {
-            event.preventDefault();
-            handled = true;
-            focusSearchCb();
-          }
-          break;
-        }
-
-        case "r": {
-          // Refresh jobs
-          if (refreshCb) {
-            event.preventDefault();
-            handled = true;
-            refreshCb();
-          }
-          break;
-        }
       }
 
       // Only stop propagation for keys we actually handle

@@ -230,16 +230,15 @@ mod tests {
             .unwrap();
 
         // SELECT should work
-        assert!(
-            QueryAnalyzer::explain_query_plan(&pool, "SELECT 1")
-                .await
-                .is_ok()
-        );
+        assert!(QueryAnalyzer::explain_query_plan(&pool, "SELECT 1")
+            .await
+            .is_ok());
         // WITH (CTE) should work
-        assert!(
-            QueryAnalyzer::explain_query_plan(&pool, "WITH cte AS (SELECT 1) SELECT * FROM cte")
-                .await
-                .is_ok()
-        );
+        assert!(QueryAnalyzer::explain_query_plan(
+            &pool,
+            "WITH cte AS (SELECT 1) SELECT * FROM cte"
+        )
+        .await
+        .is_ok());
     }
 }

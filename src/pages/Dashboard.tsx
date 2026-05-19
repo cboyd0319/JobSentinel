@@ -416,6 +416,40 @@ export default function Dashboard({
     onRefresh: () => handleSearchNow(),
   });
 
+  useEffect(() => {
+    const handleFocusSearch = () => searchInputRef.current?.focus();
+    const handleSlashFocus = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement;
+      if (
+        event.key !== "/" ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey ||
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      window.setTimeout(() => {
+        const searchInput = document.querySelector<HTMLInputElement>(
+          "[data-testid='search-input']",
+        );
+        (searchInput ?? searchInputRef.current)?.focus();
+      }, 0);
+    };
+
+    window.addEventListener("keyboard-focus-search", handleFocusSearch);
+    document.addEventListener("keydown", handleSlashFocus, true);
+    return () => {
+      window.removeEventListener("keyboard-focus-search", handleFocusSearch);
+      document.removeEventListener("keydown", handleSlashFocus, true);
+    };
+  }, []);
+
   // Scroll selected job into view
   useEffect(() => {
     if (isKeyboardActive && selectedIndex >= 0 && jobListRef.current) {

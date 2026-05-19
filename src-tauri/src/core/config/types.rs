@@ -191,7 +191,14 @@ impl fmt::Debug for SlackConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("SlackConfig")
             .field("enabled", &self.enabled)
-            .field("webhook_url", &if self.webhook_url.is_empty() { "[empty]" } else { "[REDACTED]" })
+            .field(
+                "webhook_url",
+                &if self.webhook_url.is_empty() {
+                    "[empty]"
+                } else {
+                    "[REDACTED]"
+                },
+            )
             .finish()
     }
 }
@@ -248,7 +255,14 @@ impl fmt::Debug for EmailConfig {
             .field("smtp_server", &self.smtp_server)
             .field("smtp_port", &self.smtp_port)
             .field("smtp_username", &self.smtp_username)
-            .field("smtp_password", &if self.smtp_password.is_empty() { "[empty]" } else { "[REDACTED]" })
+            .field(
+                "smtp_password",
+                &if self.smtp_password.is_empty() {
+                    "[empty]"
+                } else {
+                    "[REDACTED]"
+                },
+            )
             .field("from_email", &self.from_email)
             .field("to_emails", &self.to_emails)
             .field("use_starttls", &self.use_starttls)
@@ -274,7 +288,14 @@ impl fmt::Debug for DiscordConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("DiscordConfig")
             .field("enabled", &self.enabled)
-            .field("webhook_url", &if self.webhook_url.is_empty() { "[empty]" } else { "[REDACTED]" })
+            .field(
+                "webhook_url",
+                &if self.webhook_url.is_empty() {
+                    "[empty]"
+                } else {
+                    "[REDACTED]"
+                },
+            )
             .field("user_id_to_mention", &self.user_id_to_mention)
             .finish()
     }
@@ -298,7 +319,14 @@ impl fmt::Debug for TelegramConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("TelegramConfig")
             .field("enabled", &self.enabled)
-            .field("bot_token", &if self.bot_token.is_empty() { "[empty]" } else { "[REDACTED]" })
+            .field(
+                "bot_token",
+                &if self.bot_token.is_empty() {
+                    "[empty]"
+                } else {
+                    "[REDACTED]"
+                },
+            )
             .field("chat_id", &self.chat_id)
             .finish()
     }
@@ -318,7 +346,14 @@ impl fmt::Debug for TeamsConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("TeamsConfig")
             .field("enabled", &self.enabled)
-            .field("webhook_url", &if self.webhook_url.is_empty() { "[empty]" } else { "[REDACTED]" })
+            .field(
+                "webhook_url",
+                &if self.webhook_url.is_empty() {
+                    "[empty]"
+                } else {
+                    "[REDACTED]"
+                },
+            )
             .finish()
     }
 }
@@ -379,7 +414,14 @@ impl fmt::Debug for LinkedInConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("LinkedInConfig")
             .field("enabled", &self.enabled)
-            .field("session_cookie", &if self.session_cookie.is_empty() { "[empty]" } else { "[REDACTED]" })
+            .field(
+                "session_cookie",
+                &if self.session_cookie.is_empty() {
+                    "[empty]"
+                } else {
+                    "[REDACTED]"
+                },
+            )
             .field("query", &self.query)
             .field("location", &self.location)
             .field("remote_only", &self.remote_only)

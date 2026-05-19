@@ -1,9 +1,20 @@
-import { memo } from "react";
+import { memo, type MouseEvent } from "react";
 
 export const SkipToContent = memo(function SkipToContent() {
+  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    const target = document.getElementById("main-content");
+    if (!target) return;
+
+    event.preventDefault();
+    target.setAttribute("tabindex", "-1");
+    target.focus();
+    window.history.replaceState(null, "", "#main-content");
+  };
+
   return (
     <a
       href="#main-content"
+      onClick={handleClick}
       className="
         sr-only focus:not-sr-only
         fixed top-4 left-4 z-50

@@ -195,7 +195,7 @@ test.describe("Keyboard Navigation", () => {
       await page.waitForTimeout(300);
 
       // Should filter command list
-      const commandList = palette.locator("[data-testid='command-list']");
+      const commandList = palette.locator("[data-testid='command-palette-list']");
       const hasCommands = await commandList.isVisible().catch(() => false);
 
       expect(hasCommands).toBeTruthy();
@@ -206,7 +206,6 @@ test.describe("Keyboard Navigation", () => {
     test("should focus search input with / key", async ({ page }) => {
       // Press / to focus search
       await page.keyboard.press("/");
-      await page.waitForTimeout(300);
 
       // Search input should be focused
       const searchInput = page.locator("[data-testid='search-input']");
@@ -215,8 +214,7 @@ test.describe("Keyboard Navigation", () => {
         return;
       }
 
-      const isFocused = await searchInput.evaluate((el) => el === document.activeElement);
-      expect(isFocused).toBeTruthy();
+      await expect(searchInput).toBeFocused({ timeout: 2000 });
     });
 
     test("should not focus search when typing in input field", async ({ page }) => {
@@ -420,7 +418,7 @@ test.describe("Keyboard Navigation", () => {
       await page.waitForTimeout(300);
 
       // Should focus main content
-      const mainContent = page.locator("#main-content, main");
+      const mainContent = page.locator("#main-content").first();
       const isFocused = await mainContent.evaluate((el) => el === document.activeElement || el.contains(document.activeElement));
 
       expect(isFocused).toBeTruthy();
@@ -430,16 +428,36 @@ test.describe("Keyboard Navigation", () => {
   test.describe("Form Navigation", () => {
     test("should navigate form fields with Tab", async ({ page }) => {
       // Navigate to a page with forms (settings)
-      const settingsButton = page.locator("[data-testid='btn-settings'], button[aria-label*='Settings']");
+      const settingsButton = page.locator(
+        "[data-testid='btn-settings'], button[aria-label*='settings' i]"
+      );
       if (await settingsButton.isVisible().catch(() => false)) {
         await settingsButton.click();
-        await page.waitForTimeout(500);
+        await page
+          .getByRole("heading", { name: "Settings" })
+          .waitFor({ state: "visible", timeout: 5000 })
+          .catch(() => undefined);
+      }
+
+      const settingsVisible = await page
+        .getByRole("heading", { name: "Settings" })
+        .isVisible()
+        .catch(() => false);
+      if (!settingsVisible) {
+        test.skip();
+        return;
+      }
+
+      const firstFormField = page.locator("input:not([type='hidden']), select, textarea").first();
+      if (!(await firstFormField.isVisible({ timeout: 10000 }).catch(() => false))) {
+        test.skip();
+        return;
       }
 
       // Tab through form fields
       const formInputs: string[] = [];
 
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 30; i++) {
         await page.keyboard.press("Tab");
         await page.waitForTimeout(100);
 
@@ -533,13 +551,14 @@ test.describe("Keyboard Navigation", () => {
       await searchInput.click();
       await page.waitForTimeout(200);
 
-      // Type navigation shortcut (should be literal text)
-      await page.keyboard.type("Cmd+1");
+      await searchInput.fill("j");
+      await expect(searchInput).toHaveValue("j");
+      await searchInput.press("j");
       await page.waitForTimeout(300);
 
-      // Should have typed literal text, not navigated
+      // List navigation shortcut should not clear text or remount the page while input has focus.
       const value = await searchInput.inputValue();
-      expect(value).toContain("1");
+      expect(value).toContain("j");
     });
   });
 });

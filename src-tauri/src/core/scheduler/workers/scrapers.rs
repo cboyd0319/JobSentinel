@@ -2,6 +2,7 @@
 //!
 //! Runs all configured scrapers and collects jobs
 
+use crate::core::db::Database;
 use crate::core::{
     config::Config,
     credentials::{CredentialKey, CredentialStore},
@@ -24,7 +25,6 @@ use crate::core::{
         JobScraper,
     },
 };
-use crate::core::db::Database;
 use std::sync::Arc;
 
 /// Run all configured scrapers and return jobs and errors
@@ -52,11 +52,20 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
         if !greenhouse_companies.is_empty() {
             let greenhouse = GreenhouseScraper::new(greenhouse_companies);
             {
-                let _tid = crate::core::health::start_run(db, "greenhouse").await.unwrap_or(0);
+                let _tid = crate::core::health::start_run(db, "greenhouse")
+                    .await
+                    .unwrap_or(0);
                 let _ts = std::time::Instant::now();
                 match greenhouse.scrape().await {
                     Ok(jobs) => {
-                        let _ = crate::core::health::complete_run(db, _tid, _ts.elapsed().as_millis() as i64, jobs.len(), 0).await;
+                        let _ = crate::core::health::complete_run(
+                            db,
+                            _tid,
+                            _ts.elapsed().as_millis() as i64,
+                            jobs.len(),
+                            0,
+                        )
+                        .await;
                         tracing::info!("Greenhouse: {} jobs found", jobs.len());
                         all_jobs.extend(jobs);
                     }
@@ -65,7 +74,9 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
                         if matches!(e, crate::core::scrapers::ScraperError::Timeout { .. }) {
                             let _ = crate::core::health::timeout_run(db, _tid, _dur).await;
                         } else {
-                            let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None).await;
+                            let _ =
+                                crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None)
+                                    .await;
                         }
                         let error_msg = format!("Greenhouse scraper failed: {}", e);
                         tracing::error!("{}", error_msg);
@@ -94,11 +105,20 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
         if !lever_companies.is_empty() {
             let lever = LeverScraper::new(lever_companies);
             {
-                let _tid = crate::core::health::start_run(db, "lever").await.unwrap_or(0);
+                let _tid = crate::core::health::start_run(db, "lever")
+                    .await
+                    .unwrap_or(0);
                 let _ts = std::time::Instant::now();
                 match lever.scrape().await {
                     Ok(jobs) => {
-                        let _ = crate::core::health::complete_run(db, _tid, _ts.elapsed().as_millis() as i64, jobs.len(), 0).await;
+                        let _ = crate::core::health::complete_run(
+                            db,
+                            _tid,
+                            _ts.elapsed().as_millis() as i64,
+                            jobs.len(),
+                            0,
+                        )
+                        .await;
                         tracing::info!("Lever: {} jobs found", jobs.len());
                         all_jobs.extend(jobs);
                     }
@@ -107,7 +127,9 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
                         if matches!(e, crate::core::scrapers::ScraperError::Timeout { .. }) {
                             let _ = crate::core::health::timeout_run(db, _tid, _dur).await;
                         } else {
-                            let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None).await;
+                            let _ =
+                                crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None)
+                                    .await;
                         }
                         let error_msg = format!("Lever scraper failed: {}", e);
                         tracing::error!("{}", error_msg);
@@ -132,11 +154,20 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
             JobsWithGptScraper::new(config.jobswithgpt_endpoint.clone(), jobswithgpt_query);
 
         {
-            let _tid = crate::core::health::start_run(db, "jobswithgpt").await.unwrap_or(0);
+            let _tid = crate::core::health::start_run(db, "jobswithgpt")
+                .await
+                .unwrap_or(0);
             let _ts = std::time::Instant::now();
             match jobswithgpt.scrape().await {
                 Ok(jobs) => {
-                    let _ = crate::core::health::complete_run(db, _tid, _ts.elapsed().as_millis() as i64, jobs.len(), 0).await;
+                    let _ = crate::core::health::complete_run(
+                        db,
+                        _tid,
+                        _ts.elapsed().as_millis() as i64,
+                        jobs.len(),
+                        0,
+                    )
+                    .await;
                     tracing::info!("JobsWithGPT: {} jobs found", jobs.len());
                     all_jobs.extend(jobs);
                 }
@@ -145,7 +176,8 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
                     if matches!(e, crate::core::scrapers::ScraperError::Timeout { .. }) {
                         let _ = crate::core::health::timeout_run(db, _tid, _dur).await;
                     } else {
-                        let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None).await;
+                        let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None)
+                            .await;
                     }
                     let error_msg = format!("JobsWithGPT scraper failed: {}", e);
                     tracing::error!("{}", error_msg);
@@ -170,11 +202,20 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
                 };
 
                 {
-                    let _tid = crate::core::health::start_run(db, "linkedin").await.unwrap_or(0);
+                    let _tid = crate::core::health::start_run(db, "linkedin")
+                        .await
+                        .unwrap_or(0);
                     let _ts = std::time::Instant::now();
                     match linkedin.scrape().await {
                         Ok(jobs) => {
-                            let _ = crate::core::health::complete_run(db, _tid, _ts.elapsed().as_millis() as i64, jobs.len(), 0).await;
+                            let _ = crate::core::health::complete_run(
+                                db,
+                                _tid,
+                                _ts.elapsed().as_millis() as i64,
+                                jobs.len(),
+                                0,
+                            )
+                            .await;
                             tracing::info!("LinkedIn: {} jobs found", jobs.len());
                             all_jobs.extend(jobs);
                         }
@@ -183,7 +224,14 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
                             if matches!(e, crate::core::scrapers::ScraperError::Timeout { .. }) {
                                 let _ = crate::core::health::timeout_run(db, _tid, _dur).await;
                             } else {
-                                let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None).await;
+                                let _ = crate::core::health::fail_run(
+                                    db,
+                                    _tid,
+                                    _dur,
+                                    &e.to_string(),
+                                    None,
+                                )
+                                .await;
                             }
                             let error_msg = format!("LinkedIn scraper failed: {}", e);
                             tracing::error!("{}", error_msg);
@@ -211,11 +259,20 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
         let remoteok = RemoteOkScraper::new(config.remoteok.tags.clone(), config.remoteok.limit);
 
         {
-            let _tid = crate::core::health::start_run(db, "remoteok").await.unwrap_or(0);
+            let _tid = crate::core::health::start_run(db, "remoteok")
+                .await
+                .unwrap_or(0);
             let _ts = std::time::Instant::now();
             match remoteok.scrape().await {
                 Ok(jobs) => {
-                    let _ = crate::core::health::complete_run(db, _tid, _ts.elapsed().as_millis() as i64, jobs.len(), 0).await;
+                    let _ = crate::core::health::complete_run(
+                        db,
+                        _tid,
+                        _ts.elapsed().as_millis() as i64,
+                        jobs.len(),
+                        0,
+                    )
+                    .await;
                     tracing::info!("RemoteOK: {} jobs found", jobs.len());
                     all_jobs.extend(jobs);
                 }
@@ -224,7 +281,8 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
                     if matches!(e, crate::core::scrapers::ScraperError::Timeout { .. }) {
                         let _ = crate::core::health::timeout_run(db, _tid, _dur).await;
                     } else {
-                        let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None).await;
+                        let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None)
+                            .await;
                     }
                     let error_msg = format!("RemoteOK scraper failed: {}", e);
                     tracing::error!("{}", error_msg);
@@ -243,11 +301,20 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
         );
 
         {
-            let _tid = crate::core::health::start_run(db, "weworkremotely").await.unwrap_or(0);
+            let _tid = crate::core::health::start_run(db, "weworkremotely")
+                .await
+                .unwrap_or(0);
             let _ts = std::time::Instant::now();
             match weworkremotely.scrape().await {
                 Ok(jobs) => {
-                    let _ = crate::core::health::complete_run(db, _tid, _ts.elapsed().as_millis() as i64, jobs.len(), 0).await;
+                    let _ = crate::core::health::complete_run(
+                        db,
+                        _tid,
+                        _ts.elapsed().as_millis() as i64,
+                        jobs.len(),
+                        0,
+                    )
+                    .await;
                     tracing::info!("WeWorkRemotely: {} jobs found", jobs.len());
                     all_jobs.extend(jobs);
                 }
@@ -256,7 +323,8 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
                     if matches!(e, crate::core::scrapers::ScraperError::Timeout { .. }) {
                         let _ = crate::core::health::timeout_run(db, _tid, _dur).await;
                     } else {
-                        let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None).await;
+                        let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None)
+                            .await;
                     }
                     let error_msg = format!("WeWorkRemotely scraper failed: {}", e);
                     tracing::error!("{}", error_msg);
@@ -277,11 +345,20 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
         let builtin = BuiltInScraper::new(config.builtin.remote_only, config.builtin.limit);
 
         {
-            let _tid = crate::core::health::start_run(db, "builtin").await.unwrap_or(0);
+            let _tid = crate::core::health::start_run(db, "builtin")
+                .await
+                .unwrap_or(0);
             let _ts = std::time::Instant::now();
             match builtin.scrape().await {
                 Ok(jobs) => {
-                    let _ = crate::core::health::complete_run(db, _tid, _ts.elapsed().as_millis() as i64, jobs.len(), 0).await;
+                    let _ = crate::core::health::complete_run(
+                        db,
+                        _tid,
+                        _ts.elapsed().as_millis() as i64,
+                        jobs.len(),
+                        0,
+                    )
+                    .await;
                     tracing::info!("BuiltIn: {} jobs found", jobs.len());
                     all_jobs.extend(jobs);
                 }
@@ -290,7 +367,8 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
                     if matches!(e, crate::core::scrapers::ScraperError::Timeout { .. }) {
                         let _ = crate::core::health::timeout_run(db, _tid, _dur).await;
                     } else {
-                        let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None).await;
+                        let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None)
+                            .await;
                     }
                     let error_msg = format!("BuiltIn scraper failed: {}", e);
                     tracing::error!("{}", error_msg);
@@ -306,11 +384,20 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
         let hn_hiring = HnHiringScraper::new(config.hn_hiring.limit, config.hn_hiring.remote_only);
 
         {
-            let _tid = crate::core::health::start_run(db, "hn_hiring").await.unwrap_or(0);
+            let _tid = crate::core::health::start_run(db, "hn_hiring")
+                .await
+                .unwrap_or(0);
             let _ts = std::time::Instant::now();
             match hn_hiring.scrape().await {
                 Ok(jobs) => {
-                    let _ = crate::core::health::complete_run(db, _tid, _ts.elapsed().as_millis() as i64, jobs.len(), 0).await;
+                    let _ = crate::core::health::complete_run(
+                        db,
+                        _tid,
+                        _ts.elapsed().as_millis() as i64,
+                        jobs.len(),
+                        0,
+                    )
+                    .await;
                     tracing::info!("HN Who's Hiring: {} jobs found", jobs.len());
                     all_jobs.extend(jobs);
                 }
@@ -319,7 +406,8 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
                     if matches!(e, crate::core::scrapers::ScraperError::Timeout { .. }) {
                         let _ = crate::core::health::timeout_run(db, _tid, _dur).await;
                     } else {
-                        let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None).await;
+                        let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None)
+                            .await;
                     }
                     let error_msg = format!("HN Who's Hiring scraper failed: {}", e);
                     tracing::error!("{}", error_msg);
@@ -339,11 +427,20 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
         );
 
         {
-            let _tid = crate::core::health::start_run(db, "dice").await.unwrap_or(0);
+            let _tid = crate::core::health::start_run(db, "dice")
+                .await
+                .unwrap_or(0);
             let _ts = std::time::Instant::now();
             match dice.scrape().await {
                 Ok(jobs) => {
-                    let _ = crate::core::health::complete_run(db, _tid, _ts.elapsed().as_millis() as i64, jobs.len(), 0).await;
+                    let _ = crate::core::health::complete_run(
+                        db,
+                        _tid,
+                        _ts.elapsed().as_millis() as i64,
+                        jobs.len(),
+                        0,
+                    )
+                    .await;
                     tracing::info!("Dice: {} jobs found", jobs.len());
                     all_jobs.extend(jobs);
                 }
@@ -352,7 +449,8 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
                     if matches!(e, crate::core::scrapers::ScraperError::Timeout { .. }) {
                         let _ = crate::core::health::timeout_run(db, _tid, _dur).await;
                     } else {
-                        let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None).await;
+                        let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None)
+                            .await;
                     }
                     let error_msg = format!("Dice scraper failed: {}", e);
                     tracing::error!("{}", error_msg);
@@ -372,11 +470,20 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
         );
 
         {
-            let _tid = crate::core::health::start_run(db, "yc_startup").await.unwrap_or(0);
+            let _tid = crate::core::health::start_run(db, "yc_startup")
+                .await
+                .unwrap_or(0);
             let _ts = std::time::Instant::now();
             match yc_startup.scrape().await {
                 Ok(jobs) => {
-                    let _ = crate::core::health::complete_run(db, _tid, _ts.elapsed().as_millis() as i64, jobs.len(), 0).await;
+                    let _ = crate::core::health::complete_run(
+                        db,
+                        _tid,
+                        _ts.elapsed().as_millis() as i64,
+                        jobs.len(),
+                        0,
+                    )
+                    .await;
                     tracing::info!("YC Startup: {} jobs found", jobs.len());
                     all_jobs.extend(jobs);
                 }
@@ -385,7 +492,8 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
                     if matches!(e, crate::core::scrapers::ScraperError::Timeout { .. }) {
                         let _ = crate::core::health::timeout_run(db, _tid, _dur).await;
                     } else {
-                        let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None).await;
+                        let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None)
+                            .await;
                     }
                     let error_msg = format!("YC Startup scraper failed: {}", e);
                     tracing::error!("{}", error_msg);
@@ -422,11 +530,20 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
                     .with_limit(config.usajobs.limit);
 
                 {
-                    let _tid = crate::core::health::start_run(db, "usajobs").await.unwrap_or(0);
+                    let _tid = crate::core::health::start_run(db, "usajobs")
+                        .await
+                        .unwrap_or(0);
                     let _ts = std::time::Instant::now();
                     match scraper.scrape().await {
                         Ok(jobs) => {
-                            let _ = crate::core::health::complete_run(db, _tid, _ts.elapsed().as_millis() as i64, jobs.len(), 0).await;
+                            let _ = crate::core::health::complete_run(
+                                db,
+                                _tid,
+                                _ts.elapsed().as_millis() as i64,
+                                jobs.len(),
+                                0,
+                            )
+                            .await;
                             tracing::info!("USAJobs: {} jobs found", jobs.len());
                             all_jobs.extend(jobs);
                         }
@@ -435,7 +552,14 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
                             if matches!(e, crate::core::scrapers::ScraperError::Timeout { .. }) {
                                 let _ = crate::core::health::timeout_run(db, _tid, _dur).await;
                             } else {
-                                let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None).await;
+                                let _ = crate::core::health::fail_run(
+                                    db,
+                                    _tid,
+                                    _dur,
+                                    &e.to_string(),
+                                    None,
+                                )
+                                .await;
                             }
                             let error_msg = format!("USAJobs scraper failed: {}", e);
                             tracing::error!("{}", error_msg);
@@ -465,11 +589,20 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
         );
 
         {
-            let _tid = crate::core::health::start_run(db, "simplyhired").await.unwrap_or(0);
+            let _tid = crate::core::health::start_run(db, "simplyhired")
+                .await
+                .unwrap_or(0);
             let _ts = std::time::Instant::now();
             match simplyhired.scrape().await {
                 Ok(jobs) => {
-                    let _ = crate::core::health::complete_run(db, _tid, _ts.elapsed().as_millis() as i64, jobs.len(), 0).await;
+                    let _ = crate::core::health::complete_run(
+                        db,
+                        _tid,
+                        _ts.elapsed().as_millis() as i64,
+                        jobs.len(),
+                        0,
+                    )
+                    .await;
                     if jobs.is_empty() {
                         tracing::warn!("SimplyHired: 0 jobs (may be Cloudflare blocked)");
                     } else {
@@ -482,7 +615,8 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
                     if matches!(e, crate::core::scrapers::ScraperError::Timeout { .. }) {
                         let _ = crate::core::health::timeout_run(db, _tid, _dur).await;
                     } else {
-                        let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None).await;
+                        let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None)
+                            .await;
                     }
                     let error_msg = format!("SimplyHired scraper failed: {}", e);
                     tracing::error!("{}", error_msg);
@@ -502,11 +636,20 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
         );
 
         {
-            let _tid = crate::core::health::start_run(db, "glassdoor").await.unwrap_or(0);
+            let _tid = crate::core::health::start_run(db, "glassdoor")
+                .await
+                .unwrap_or(0);
             let _ts = std::time::Instant::now();
             match glassdoor.scrape().await {
                 Ok(jobs) => {
-                    let _ = crate::core::health::complete_run(db, _tid, _ts.elapsed().as_millis() as i64, jobs.len(), 0).await;
+                    let _ = crate::core::health::complete_run(
+                        db,
+                        _tid,
+                        _ts.elapsed().as_millis() as i64,
+                        jobs.len(),
+                        0,
+                    )
+                    .await;
                     if jobs.is_empty() {
                         tracing::warn!("Glassdoor: 0 jobs (may be Cloudflare blocked)");
                     } else {
@@ -519,7 +662,8 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
                     if matches!(e, crate::core::scrapers::ScraperError::Timeout { .. }) {
                         let _ = crate::core::health::timeout_run(db, _tid, _dur).await;
                     } else {
-                        let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None).await;
+                        let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None)
+                            .await;
                     }
                     let error_msg = format!("Glassdoor scraper failed: {}", e);
                     tracing::error!("{}", error_msg);

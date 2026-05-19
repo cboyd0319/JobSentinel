@@ -12,11 +12,16 @@ export class ResumePage extends BasePage {
   async navigateTo() {
     await this.goto("/");
     await this.skipSetupWizard();
-    await this.navigateWithKeyboard(3); // Cmd+3 for Resume page
+    await this.navigateToPage("Resumes");
+    await this.page
+      .getByRole("heading", { name: "Resume Matcher" })
+      .waitFor({ state: "visible", timeout: 15000 });
   }
 
   get uploadArea(): Locator {
-    return this.page.locator("[data-testid='resume-upload-area']");
+    return this.page.locator(
+      "[data-testid='resume-upload-area'], text=No Resume Uploaded"
+    );
   }
 
   get uploadInput(): Locator {
@@ -24,7 +29,11 @@ export class ResumePage extends BasePage {
   }
 
   get uploadButton(): Locator {
-    return this.page.locator("[data-testid='btn-upload-resume']");
+    return this.page
+      .locator(
+        "[data-testid='btn-upload-resume'], button:has-text('Upload Resume'), button:has-text('Upload New')"
+      )
+      .first();
   }
 
   get resumePreview(): Locator {

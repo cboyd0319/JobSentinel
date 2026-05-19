@@ -67,7 +67,10 @@ fn validate_deep_link_url(url: &str) -> Result<(), String> {
     match parsed.scheme() {
         "https" => Ok(()),
         "http" => Ok(()), // Some job boards don't support HTTPS
-        _ => Err(format!("Blocked scheme '{}': only http/https allowed", parsed.scheme())),
+        _ => Err(format!(
+            "Blocked scheme '{}': only http/https allowed",
+            parsed.scheme()
+        )),
     }
 }
 

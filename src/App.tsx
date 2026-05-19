@@ -106,7 +106,7 @@ function App() {
     return (
       <ErrorBoundary>
         <SkipToContent />
-        <div className="min-h-screen" id="main-content">
+        <div className="min-h-screen" id="main-content" tabIndex={-1}>
           <Suspense fallback={<PageLoader message="Loading setup wizard..." />}>
             <SetupWizard onComplete={handleSetupComplete} />
           </Suspense>
@@ -131,7 +131,7 @@ function App() {
           <Navigation currentPage={currentPage} onNavigate={navigateTo} />
           
           {/* Main content with left margin for sidebar */}
-          <div className="min-h-screen ml-16" id="main-content">
+          <div className="min-h-screen ml-16" id="main-content" tabIndex={-1}>
             <Suspense fallback={<PageLoader />}>
               {currentPage === "dashboard" && (
                 <PageErrorBoundary pageName="Dashboard">

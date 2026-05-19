@@ -25,6 +25,8 @@
     ".claude/",
     "docs/archive/",
     "src-tauri/target/",
-    "browser-extension/"
+    "browser-extension/",
+    "playwright-report/",
+    "test-results/"
   ]
 }

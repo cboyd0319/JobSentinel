@@ -1,4 +1,12 @@
-import { memo, useState, useEffect, useRef, useCallback, useMemo } from "react";
+import {
+  memo,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
 import {
   useKeyboardShortcuts,
   formatShortcut,
@@ -25,6 +33,7 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const paletteRef = useRef<HTMLDivElement>(null);
   const isMountedRef = useRef(true);
   const [announcement, setAnnouncement] = useState("");
 
@@ -78,6 +87,40 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
       command.action();
     },
     [closeCommandPalette]
+  );
+
+  const trapFocus = useCallback((e: KeyboardEvent) => {
+    if (e.key !== "Tab" || !paletteRef.current) return;
+
+    const focusableElements = Array.from(
+      paletteRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter((element) => !element.hasAttribute("disabled"));
+
+    if (focusableElements.length === 0) return;
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (!paletteRef.current.contains(document.activeElement)) {
+      e.preventDefault();
+      firstElement?.focus();
+      return;
+    }
+
+    if (e.shiftKey && document.activeElement === firstElement) {
+      e.preventDefault();
+      lastElement?.focus();
+    } else if (!e.shiftKey && document.activeElement === lastElement) {
+      e.preventDefault();
+      firstElement?.focus();
+    }
+  }, []);
+
+  const handlePaletteKeyDown = useCallback(
+    (e: ReactKeyboardEvent<HTMLDivElement>) => trapFocus(e.nativeEvent),
+    [trapFocus],
   );
 
   // Focus input when opened with proper timing
@@ -137,6 +180,13 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isCommandPaletteOpen, flatCommands, selectedIndex, executeCommand]);
 
+  useEffect(() => {
+    if (!isCommandPaletteOpen) return undefined;
+
+    document.addEventListener("keydown", trapFocus, true);
+    return () => document.removeEventListener("keydown", trapFocus, true);
+  }, [isCommandPaletteOpen, trapFocus]);
+
   // Scroll selected item into view
   useEffect(() => {
     if (listRef.current) {
@@ -175,8 +225,10 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
 
       {/* Palette */}
       <div
+        ref={paletteRef}
         className="relative w-full max-w-lg bg-white dark:bg-surface-800 rounded-xl shadow-2xl border border-surface-200 dark:border-surface-700 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={handlePaletteKeyDown}
         role="dialog"
         aria-modal="true"
         aria-label="Command palette"

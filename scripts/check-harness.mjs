@@ -14,6 +14,8 @@ const ignoredPathParts = new Set([
   "target",
   ".claude",
   "browser-extension",
+  "playwright-report",
+  "test-results",
 ]);
 
 const requiredFiles = [
@@ -123,12 +125,49 @@ for (const path of collectMarkdownFiles()) {
 }
 
 const packageJson = JSON.parse(read("package.json"));
+const packageLockJson = JSON.parse(read("package-lock.json"));
 const tauriConfig = JSON.parse(read("src-tauri/tauri.conf.json"));
+const cargoToml = read("src-tauri/Cargo.toml");
+const cargoVersion = cargoToml.match(/^version\s*=\s*"([^"]+)"/m)?.[1];
 
 if (packageJson.version !== tauriConfig.version) {
   errors.push(
     `version mismatch: package.json=${packageJson.version}, src-tauri/tauri.conf.json=${tauriConfig.version}`,
   );
+}
+
+if (packageLockJson.version !== packageJson.version) {
+  errors.push(
+    `version mismatch: package.json=${packageJson.version}, package-lock.json=${packageLockJson.version}`,
+  );
+}
+
+if (packageLockJson.packages?.[""]?.version !== packageJson.version) {
+  errors.push(
+    `version mismatch: package.json=${packageJson.version}, package-lock.json root package=${packageLockJson.packages?.[""]?.version}`,
+  );
+}
+
+if (cargoVersion !== packageJson.version) {
+  errors.push(
+    `version mismatch: package.json=${packageJson.version}, src-tauri/Cargo.toml=${cargoVersion ?? "missing"}`,
+  );
+}
+
+const currentVersion = packageJson.version;
+const versionClaims = {
+  "README.md": [`Version-${currentVersion}`, `alt="Version ${currentVersion}"`],
+  "docs/README.md": [`Current Version: ${currentVersion}`, `Release version:** ${currentVersion}`],
+  "docs/ROADMAP.md": [`Current Version: ${currentVersion}`],
+};
+
+for (const [path, claims] of Object.entries(versionClaims)) {
+  const text = read(path);
+  for (const claim of claims) {
+    if (!text.includes(claim)) {
+      errors.push(`${path} must include current version claim: ${claim}`);
+    }
+  }
 }
 
 const mainRs = read("src-tauri/src/main.rs");

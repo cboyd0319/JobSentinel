@@ -9,8 +9,24 @@
  */
 
 import { mockInvoke } from "./handlers";
+import { mockIPC } from "@tauri-apps/api/mocks";
 
 let mockingEnabled = false;
+
+type WindowWithTauriInternals = Window & {
+  __TAURI_INTERNALS__?: {
+    invoke?: unknown;
+    transformCallback?: unknown;
+  };
+};
+
+function hasCompleteTauriInternals(): boolean {
+  const internals = (window as WindowWithTauriInternals).__TAURI_INTERNALS__;
+  return (
+    typeof internals?.invoke === "function" &&
+    typeof internals?.transformCallback === "function"
+  );
+}
 
 /**
  * Enable API mocking by patching the Tauri invoke function
@@ -20,27 +36,15 @@ export async function enableMocking(): Promise<void> {
     return;
   }
 
-  // Check if we're in a Tauri environment
-  const isTauri = "__TAURI__" in window || "__TAURI_INTERNALS__" in window;
+  const forceMocking = import.meta.env.VITE_MOCK_API === "true";
 
-  if (isTauri) {
+  if (!forceMocking && hasCompleteTauriInternals()) {
     return;
   }
 
-  // Patch the global invoke function
-  // @ts-expect-error - Patching global for mocking
-  window.__TAURI_INTERNALS__ = {
-    invoke: mockInvoke,
-  };
-
-  // Also patch the @tauri-apps/api/core module if it's loaded
-  try {
-    const tauriCore = await import("@tauri-apps/api/core");
-    // @ts-expect-error - Patching for mocking
-    tauriCore.invoke = mockInvoke;
-  } catch {
-    // Module not loaded yet, that's fine
-  }
+  mockIPC((cmd, args) => mockInvoke(cmd, args as Record<string, unknown>), {
+    shouldMockEvents: true,
+  });
 
   mockingEnabled = true;
 }
@@ -55,8 +59,7 @@ export function shouldEnableMocking(): boolean {
   }
 
   // Check if running in browser without Tauri
-  const isTauri = "__TAURI__" in window || "__TAURI_INTERNALS__" in window;
-  if (!isTauri && import.meta.env.DEV) {
+  if (!hasCompleteTauriInternals() && import.meta.env.DEV) {
     return true;
   }
 

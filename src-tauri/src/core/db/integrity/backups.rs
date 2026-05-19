@@ -14,7 +14,13 @@ impl DatabaseIntegrity {
     fn sanitize_backup_reason(reason: &str) -> String {
         reason
             .chars()
-            .map(|c| if c.is_alphanumeric() || c == '_' || c == '-' { c } else { '_' })
+            .map(|c| {
+                if c.is_alphanumeric() || c == '_' || c == '-' {
+                    c
+                } else {
+                    '_'
+                }
+            })
             .collect()
     }
 

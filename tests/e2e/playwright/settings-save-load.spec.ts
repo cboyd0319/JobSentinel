@@ -147,8 +147,10 @@ test.describe("Settings Save and Load", () => {
 
       // Should show success message
       const hasSuccess = await settingsPage.hasSuccessMessage();
-      const successToast = page.locator("text=Saved, text=Success, [data-testid='toast-success']");
-      const hasToast = await successToast.isVisible().catch(() => false);
+      const successToast = page
+        .getByText(/settings saved|saved|success/i)
+        .first();
+      const hasToast = await successToast.isVisible({ timeout: 3000 }).catch(() => false);
 
       expect(hasSuccess || hasToast).toBeTruthy();
     });

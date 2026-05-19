@@ -24,6 +24,7 @@ class ErrorReporter {
   private errors: ErrorReport[] = [];
   private listeners: Set<(errors: ErrorReport[]) => void> = new Set();
   private initialized = false;
+  private originalConsoleError: typeof console.error | null = null;
 
   /**
    * Initialize the error reporter and set up global handlers
@@ -65,12 +66,17 @@ class ErrorReporter {
 
     // Console error override (capture but don't suppress)
     const originalConsoleError = console.error;
+    this.originalConsoleError = originalConsoleError;
     console.error = (...args: unknown[]) => {
       // Call original first
       originalConsoleError.apply(console, args);
 
       // Capture if it's an error object
       const firstArg = args[0];
+      if (typeof firstArg === 'string' && firstArg.startsWith('[ErrorReporter]')) {
+        return;
+      }
+
       if (firstArg instanceof Error) {
         this.capture({
           type: 'custom',
@@ -132,7 +138,8 @@ class ErrorReporter {
 
     // Log in development
     if (import.meta.env.DEV) {
-      console.error(`[ErrorReporter][${type}]`, error.message, {
+      const logError = this.originalConsoleError ?? console.error;
+      logError(`[ErrorReporter][${type}]`, error.message, {
         report,
         originalError: error,
       });

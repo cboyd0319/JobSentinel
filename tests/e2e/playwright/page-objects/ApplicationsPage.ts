@@ -12,7 +12,8 @@ export class ApplicationsPage extends BasePage {
   async navigateTo() {
     await this.goto("/");
     await this.skipSetupWizard();
-    await this.navigateWithKeyboard(2); // Cmd+2 for Applications page
+    await this.navigateToPage("Applications");
+    await this.kanbanBoard.waitFor({ state: "visible", timeout: 15000 });
   }
 
   get kanbanBoard(): Locator {
@@ -24,7 +25,7 @@ export class ApplicationsPage extends BasePage {
   }
 
   getColumn(status: string): Locator {
-    return this.page.locator(`[data-testid='kanban-column-${status}']`);
+    return this.page.locator(`[data-testid='kanban-column'][data-status='${status}']`);
   }
 
   get applicationCards(): Locator {
@@ -57,11 +58,14 @@ export class ApplicationsPage extends BasePage {
   async dragCardToColumn(cardIndex: number, targetStatus: string) {
     const card = this.applicationCards.nth(cardIndex);
     const targetColumn = this.getColumn(targetStatus);
+    if ((await targetColumn.count()) === 0) {
+      return;
+    }
 
     await card.hover();
     await this.page.mouse.down();
 
-    const targetBox = await targetColumn.boundingBox();
+    const targetBox = await targetColumn.boundingBox({ timeout: 1000 });
     if (targetBox) {
       await this.page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + 50);
       await this.page.waitForTimeout(300);

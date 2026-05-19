@@ -13,6 +13,7 @@ export class BasePage {
   async goto(path: string = "/") {
     await this.page.goto(path);
     await this.page.waitForLoadState("networkidle");
+    await this.waitForReady();
   }
 
   async skipSetupWizard() {
@@ -26,6 +27,10 @@ export class BasePage {
 
   async waitForReady() {
     await this.page.waitForLoadState("networkidle");
+    await this.page.locator("#root > *").first().waitFor({
+      state: "attached",
+      timeout: 15000,
+    });
     await this.page.waitForTimeout(300);
   }
 
@@ -34,11 +39,19 @@ export class BasePage {
     await this.waitForReady();
   }
 
+  async navigateToPage(label: string) {
+    const navButton = this.page
+      .locator(`nav button[aria-label^="${label}"]`)
+      .first();
+    await navButton.click();
+    await this.waitForReady();
+  }
+
   get sidebar(): Locator {
     return this.page.locator("nav").first();
   }
 
   get mainContent(): Locator {
-    return this.page.locator("main, [role='main'], #root");
+    return this.page.locator("#root > *").first();
   }
 }

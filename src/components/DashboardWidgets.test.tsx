@@ -57,8 +57,8 @@ describe("DashboardWidgets", () => {
       ghosted: 2,
       withdrawn: 0,
     },
-    response_rate: 0.4,
-    offer_rate: 0.1,
+    response_rate: 40,
+    offer_rate: 10,
     weekly_applications: [
       { week: "Week 1", count: 10 },
       { week: "Week 2", count: 15 },
@@ -336,6 +336,27 @@ describe("DashboardWidgets", () => {
 
       expect(screen.getByText("Quick Stats")).toBeInTheDocument();
     });
+
+    it("handles undefined optional analytics data gracefully", async () => {
+      mockInvoke.mockImplementation((command: string) => {
+        if (command === "get_application_stats") {
+          return Promise.resolve(mockAppStats);
+        }
+        return Promise.resolve(undefined);
+      });
+
+      render(<DashboardWidgets />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Analytics Dashboard")).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByText("Analytics Dashboard"));
+
+      expect(screen.getByText("Quick Stats")).toBeInTheDocument();
+      expect(screen.queryByText("Jobs by Source")).not.toBeInTheDocument();
+      expect(screen.queryByText("Salary Distribution")).not.toBeInTheDocument();
+    });
   });
 
   describe("empty data states", () => {
@@ -429,7 +450,7 @@ describe("DashboardWidgets", () => {
     it("shows success color for high response rate", async () => {
       mockInvoke.mockImplementation((command: string) => {
         if (command === "get_application_stats") {
-          return Promise.resolve({ ...mockAppStats, response_rate: 0.5 });
+          return Promise.resolve({ ...mockAppStats, response_rate: 50 });
         }
         return Promise.resolve([]);
       });
@@ -449,7 +470,7 @@ describe("DashboardWidgets", () => {
     it("shows warning color for medium response rate", async () => {
       mockInvoke.mockImplementation((command: string) => {
         if (command === "get_application_stats") {
-          return Promise.resolve({ ...mockAppStats, response_rate: 0.2 });
+          return Promise.resolve({ ...mockAppStats, response_rate: 20 });
         }
         return Promise.resolve([]);
       });
@@ -469,7 +490,7 @@ describe("DashboardWidgets", () => {
     it("shows danger color for low response rate", async () => {
       mockInvoke.mockImplementation((command: string) => {
         if (command === "get_application_stats") {
-          return Promise.resolve({ ...mockAppStats, response_rate: 0.1 });
+          return Promise.resolve({ ...mockAppStats, response_rate: 10 });
         }
         return Promise.resolve([]);
       });
