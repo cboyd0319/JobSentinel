@@ -1690,10 +1690,7 @@ mod tests {
     // ========================================
     // Property-Based Tests
     // ========================================
-    // NOTE: Temporarily disabled due to proptest macro compatibility issues
-    // TODO: Fix proptest integration after upgrading to compatible version
 
-    /*
     use proptest::prelude::*;
 
     proptest! {
@@ -1768,7 +1765,7 @@ mod tests {
 
         /// Property: Scraping interval of 0 hours fails
         #[test]
-        fn prop_zero_interval_fails() {
+        fn prop_zero_interval_fails(_unit in proptest::strategy::Just(())) {
             let mut config = create_valid_config();
             config.scraping_interval_hours = 0;
 
@@ -1858,15 +1855,15 @@ mod tests {
             prop_assert!(validate_config(&config).is_err());
         }
 
-        /// Property: Webhook URL validation is length-bounded
+        /// Property: Slack webhook URL is not validated from config
         #[test]
-        fn prop_webhook_url_length_bounded(
-            url in "https://hooks\\.slack\\.com/services/[A-Z0-9]{1,480}",
+        fn prop_slack_webhook_not_config_validated(
+            url in "[A-Za-z0-9:/._?=&%-]{0,700}",
         ) {
-            let config = create_valid_config();
+            let mut config = create_valid_config();
+            config.alerts.slack.webhook_url = url;
 
-            // URL length should be validated (max 500 chars)
-            prop_assert!(url.len() <= 500);
+            prop_assert!(validate_config(&config).is_ok());
         }
 
         /// Property: Country code validation accepts valid strings
@@ -1892,9 +1889,9 @@ mod tests {
             prop_assert!(validate_config(&config).is_ok());
         }
 
-        /// Property: Boolean location preferences are always valid
+        /// Property: At least one location mode must be enabled
         #[test]
-        fn prop_location_booleans_always_valid(
+        fn prop_location_mode_requirement(
             allow_remote in proptest::bool::ANY,
             allow_hybrid in proptest::bool::ANY,
             allow_onsite in proptest::bool::ANY,
@@ -1904,8 +1901,16 @@ mod tests {
             config.location_preferences.allow_hybrid = allow_hybrid;
             config.location_preferences.allow_onsite = allow_onsite;
 
-            prop_assert!(validate_config(&config).is_ok());
+            let result = validate_config(&config);
+            if allow_remote || allow_hybrid || allow_onsite {
+                prop_assert!(result.is_ok());
+            } else {
+                prop_assert!(result.is_err());
+                prop_assert!(result
+                    .unwrap_err()
+                    .to_string()
+                    .contains("at least one of allow_remote"));
+            }
         }
     }
-    */
 }
