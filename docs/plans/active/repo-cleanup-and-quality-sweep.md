@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Removed emoji status markers from scraper health docs and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Removed emoji status markers from scraper feature docs and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Removed emoji markers from front-door README docs and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Removed emoji markers from Quick Start user docs and added bloat coverage for recurrence. |
@@ -268,6 +269,9 @@ changes or Playwright-specific work.
 - Scraper feature docs still used emoji markers for source status, platform
   support, warnings, headings, and implementation status despite maintained doc
   rules.
+- Scraper health docs still used emoji markers in status legends, sample
+  dashboards, smoke-test results, troubleshooting examples, and best-practice
+  recommendations.
 
 ## Decisions
 
@@ -284,6 +288,9 @@ changes or Playwright-specific work.
   actual content.
 - Keep scraper feature docs text-only for status and warning markers; use words
   like `Production`, `Available`, and `May be blocked`.
+- Keep scraper health docs text-only for dashboard status examples and
+  troubleshooting outputs; use status words like `Healthy`, `PASS`, and
+  `FAILED`.
 - Treat tracked `.gitkeep` files as bloat in this repo. Durable empty directory
   intent belongs in docs or in the commit that introduces real fixtures.
 - Treat removing bloat and junk as active repo work even though the earlier

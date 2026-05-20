@@ -422,6 +422,16 @@ function hasScraperDocEmojiMarkers(root, path) {
   );
 }
 
+function hasScraperHealthDocEmojiMarkers(root, path) {
+  if (path !== "docs/features/scraper-health.md") {
+    return false;
+  }
+
+  return /(?:\p{Extended_Pictographic}|[\u{1f1e6}-\u{1f1ff}])/u.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -496,6 +506,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasScraperDocEmojiMarkers(root, path)) {
       violations.push(`replace scraper doc emoji markers: ${path}`);
+    }
+
+    if (hasScraperHealthDocEmojiMarkers(root, path)) {
+      violations.push(`replace scraper health doc emoji markers: ${path}`);
     }
   }
 

@@ -43,19 +43,19 @@ For each of the 13 scrapers, JobSentinel tracks:
 
 | Scraper         | Type                 | Status       |
 | --------------- | -------------------- | ------------ |
-| LinkedIn        | Authenticated API    | ✅ Monitored |
-| Greenhouse      | Official API         | ✅ Monitored |
-| Lever           | Official API         | ✅ Monitored |
-| RemoteOK        | Public API           | ✅ Monitored |
-| WeWorkRemotely  | RSS                  | ✅ Monitored |
-| BuiltIn         | HTML                 | ✅ Monitored |
-| HN Who's Hiring | Public API / HTML    | ✅ Monitored |
-| JobsWithGPT     | MCP / API endpoint   | ✅ Monitored |
-| Dice            | Public job endpoint  | ✅ Monitored |
-| YC Startup Jobs | HTML                 | ✅ Monitored |
-| USAJobs         | Official API         | ✅ Monitored |
-| SimplyHired     | RSS / HTML fallback  | ✅ Monitored |
-| Glassdoor       | HTML, anti-bot prone | ✅ Monitored |
+| LinkedIn        | Authenticated API    | Monitored |
+| Greenhouse      | Official API         | Monitored |
+| Lever           | Official API         | Monitored |
+| RemoteOK        | Public API           | Monitored |
+| WeWorkRemotely  | RSS                  | Monitored |
+| BuiltIn         | HTML                 | Monitored |
+| HN Who's Hiring | Public API / HTML    | Monitored |
+| JobsWithGPT     | MCP / API endpoint   | Monitored |
+| Dice            | Public job endpoint  | Monitored |
+| YC Startup Jobs | HTML                 | Monitored |
+| USAJobs         | Official API         | Monitored |
+| SimplyHired     | RSS / HTML fallback  | Monitored |
+| Glassdoor       | HTML, anti-bot prone | Monitored |
 
 ---
 
@@ -89,27 +89,27 @@ Sortable table with one row per scraper:
 ```text
 Scraper Name      Status      Success Rate  Avg Duration  Jobs (24h)  Last Run
 ─────────────────────────────────────────────────────────────────────────────
-LinkedIn          🟢 Healthy  94%           12.3s         342         5 min ago
-Greenhouse        🟢 Healthy  100%          2.4s          18          2 hours ago
-Lever             🟡 Degraded 75%           5.2s          12          3 hours ago
-RemoteOK          🟢 Healthy  96%           1.8s          45          30 min ago
-WeWorkRemotely    🟢 Healthy  92%           3.1s          28          45 min ago
-BuiltIn           🟢 Healthy  89%           5.8s          22          2 hours ago
-HN Who's Hiring   🟢 Healthy  100%          1.2s          15          6 hours ago
-JobsWithGPT       🟢 Healthy  97%           2.9s          51          20 min ago
-Dice              🔴 Down     42%           N/A           0           12 hours ago
-YC Startup Jobs   🟢 Healthy  93%           1.5s          8           4 hours ago
-USAJobs           🟢 Healthy  100%          2.7s          36          2 hours ago
-SimplyHired       🟡 Degraded 68%           7.4s          24          5 hours ago
-Glassdoor         🟡 Degraded 70%           9.0s          10          5 hours ago
+LinkedIn          Healthy  94%           12.3s         342         5 min ago
+Greenhouse        Healthy  100%          2.4s          18          2 hours ago
+Lever             Degraded 75%           5.2s          12          3 hours ago
+RemoteOK          Healthy  96%           1.8s          45          30 min ago
+WeWorkRemotely    Healthy  92%           3.1s          28          45 min ago
+BuiltIn           Healthy  89%           5.8s          22          2 hours ago
+HN Who's Hiring   Healthy  100%          1.2s          15          6 hours ago
+JobsWithGPT       Healthy  97%           2.9s          51          20 min ago
+Dice              Down     42%           N/A           0           12 hours ago
+YC Startup Jobs   Healthy  93%           1.5s          8           4 hours ago
+USAJobs           Healthy  100%          2.7s          36          2 hours ago
+SimplyHired       Degraded 68%           7.4s          24          5 hours ago
+Glassdoor         Degraded 70%           9.0s          10          5 hours ago
 ```
 
-**Color Legend:**
+**Status Legend:**
 
-- 🟢 **Green (Healthy)** - Success rate ≥90%
-- 🟡 **Yellow (Degraded)** - Success rate 70-89%
-- 🔴 **Red (Down)** - Success rate <70%
-- ⚪ **Gray (Disabled)** - Manually disabled or not configured
+- **Healthy** - Success rate ≥90%
+- **Degraded** - Success rate 70-89%
+- **Down** - Success rate <70%
+- **Disabled** - Manually disabled or not configured
 
 ### Table Features
 
@@ -136,10 +136,10 @@ Click any scraper row to see:
 
 Right of each row:
 
-- **🧪 Test** - Run smoke test for this scraper
-- **⚙️ Config** - View/edit configuration (API keys, cookies, etc.)
-- **▶️ Run Now** - Start a full scrape (respects rate limits)
-- **⏸️ Disable** - Pause this scraper temporarily
+- **Test** - Run smoke test for this scraper
+- **Config** - View/edit configuration (API keys, cookies, etc.)
+- **Run Now** - Start a full scrape (respects rate limits)
+- **Disable** - Pause this scraper temporarily
 
 ---
 
@@ -147,7 +147,7 @@ Right of each row:
 
 ### Status Definitions
 
-**🟢 Healthy**
+**Healthy**
 
 - Success rate ≥90%
 - Last run: Within expected interval
@@ -156,7 +156,7 @@ Right of each row:
 
 **Action:** Keep monitoring. Everything is working.
 
-**🟡 Degraded**
+**Degraded**
 
 - Success rate 70-89%
 - Some failures but mostly working
@@ -164,7 +164,7 @@ Right of each row:
 
 **Action:** Watch for trends. May improve or need investigation.
 
-**🔴 Down**
+**Down**
 
 - Success rate <70%
 - Multiple recent failures
@@ -173,14 +173,14 @@ Right of each row:
 
 **Action:** Investigate immediately. Use troubleshooting guide below.
 
-**⚪ Disabled**
+**Disabled**
 
 - Manually turned off by user
 - Not in active scraping rotation
 
 **Action:** Re-enable if you want to use this scraper.
 
-**❓ Unknown**
+**Unknown**
 
 - No runs in last 7 days
 - Never been run
@@ -196,9 +196,9 @@ Time Window: Last 30 days
 Minimum Runs: 5 (if <5 runs, shows "insufficient data")
 
 Example:
-19 successful runs out of 20 total = 95% success rate ✅ Healthy
-14 successful runs out of 20 total = 70% success rate ⚠️ Degraded
-8 successful runs out of 20 total = 40% success rate ❌ Down
+19 successful runs out of 20 total = 95% success rate Healthy
+14 successful runs out of 20 total = 70% success rate Degraded
+8 successful runs out of 20 total = 40% success rate Down
 ```
 
 ---
@@ -215,16 +215,16 @@ Example:
 ```text
 Run #  Date/Time          Status     Duration  Jobs Found  Error
 ────────────────────────────────────────────────────────────────
-10     2026-01-17 14:30   ✅ Success 12.4s     42          —
-9      2026-01-17 14:00   ✅ Success 11.8s     45          —
-8      2026-01-17 13:30   ❌ Failed  2.1s      0           Rate limit (429)
-7      2026-01-17 13:00   ✅ Success 12.2s     38          —
-6      2026-01-17 12:30   ✅ Success 11.9s     41          —
-5      2026-01-17 12:00   ✅ Success 12.3s     39          —
-4      2026-01-17 11:30   ✅ Success 12.1s     43          —
-3      2026-01-17 11:00   ✅ Success 12.4s     40          —
-2      2026-01-17 10:30   ✅ Success 11.8s     44          —
-1      2026-01-17 10:00   ✅ Success 12.2s     42          —
+10     2026-01-17 14:30   Success 12.4s     42          —
+9      2026-01-17 14:00   Success 11.8s     45          —
+8      2026-01-17 13:30   Failed  2.1s      0           Rate limit (429)
+7      2026-01-17 13:00   Success 12.2s     38          —
+6      2026-01-17 12:30   Success 11.9s     41          —
+5      2026-01-17 12:00   Success 12.3s     39          —
+4      2026-01-17 11:30   Success 12.1s     43          —
+3      2026-01-17 11:00   Success 12.4s     40          —
+2      2026-01-17 10:30   Success 11.8s     44          —
+1      2026-01-17 10:00   Success 12.2s     42          —
 ```
 
 **7-Day Trend Chart**
@@ -266,30 +266,30 @@ For each scraper type:
 
 **API-Based Scrapers (Greenhouse, Lever, RemoteOK, USAJobs, Dice, JobsWithGPT)**
 
-- ✅ API endpoint responds
-- ✅ Authentication credentials valid (if required)
-- ✅ API returns valid job data format
-- ✅ Response time acceptable (<5 seconds)
+- API endpoint responds
+- Authentication credentials valid (if required)
+- API returns valid job data format
+- Response time acceptable (<5 seconds)
 
 **HTML/RSS Scrapers (LinkedIn, WeWorkRemotely, BuiltIn, HN, YC Startup Jobs, SimplyHired, Glassdoor)**
 
-- ✅ Website is reachable
-- ✅ HTML structure hasn't changed (selectors valid)
-- ✅ CSS selectors find expected elements
-- ✅ Response time acceptable (<5 seconds)
+- Website is reachable
+- HTML structure hasn't changed (selectors valid)
+- CSS selectors find expected elements
+- Response time acceptable (<5 seconds)
 
 **LinkedIn-Specific**
 
-- ✅ Session cookie is valid
-- ✅ Cookie is not expired
-- ✅ Cookie has permission to view jobs
+- Session cookie is valid
+- Cookie is not expired
+- Cookie has permission to view jobs
 
 ### Running Smoke Tests
 
 **Test Single Scraper**
 
 1. Click the scraper row
-2. Click **🧪 Test** button
+2. Click **Test** button
 3. Wait 5-30 seconds for results
 
 Result shows:
@@ -297,7 +297,7 @@ Result shows:
 ```text
 LinkedIn Smoke Test Results
 ──────────────────────────
-Status:           ✅ PASS
+Status:           PASS
 Test Duration:    2.3 seconds
 Cookie Valid:     Yes (expires in 45 days)
 API Responding:   Yes
@@ -307,7 +307,7 @@ Recommendation:   All clear. Scraper is healthy.
 
 **Test All Scrapers**
 
-1. From dashboard, click **🧪 Test All Scrapers** button (top right)
+1. From dashboard, click **Test All Scrapers** button (top right)
 2. Progress bar shows: "Testing 13 scrapers... 5 complete"
 3. Results appear as each test finishes
 
@@ -316,12 +316,12 @@ Summary shows:
 ```text
 Smoke Test Results: All Scrapers
 ────────────────────────────────
-✅ PASSED (12):
+PASSED (12):
   - LinkedIn, Greenhouse, Lever, RemoteOK, USAJobs
   - WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT
   - YC Startup Jobs, Dice
 
-⚠️  WARNING (1):
+WARNING (1):
   - SimplyHired - Response time: 8.2s (expected <5s)
 
 Test Duration: 45 seconds
@@ -354,7 +354,7 @@ Under "Credential Warnings" section:
 ```text
 LinkedIn Session Cookie
 ────────────────────────
-Status:          ✅ Valid
+Status:          Valid
 Set Date:        2026-01-20
 Expires:         2027-01-20 (365 days from now)
 Warnings:        None
@@ -377,9 +377,9 @@ Refresh Instructions:
 
 **Warning Thresholds**
 
-- ⚠️ **Yellow Alert:** 30 days before expiry
-- 🔴 **Red Alert:** 7 days before expiry
-- ❌ **Expired:** Cookie no longer works
+- **Yellow Alert:** 30 days before expiry
+- **Red Alert:** 7 days before expiry
+- **Expired:** Cookie no longer works
 
 **What Happens When Expired**
 
@@ -406,7 +406,7 @@ Under "Credential Warnings" section:
 ```text
 Email SMTP Configuration
 ────────────────────────
-Status:          ⚠️  Not Configured
+Status:          Not Configured
 Configuration:   Add SMTP settings to send email alerts
 Recommendation:   Optional - not required for scraping
 ```
@@ -416,10 +416,10 @@ If configured:
 ```text
 Email SMTP Configuration
 ────────────────────────
-Status:          ✅ Valid
+Status:          Valid
 Server:          smtp.gmail.com
 Port:            587
-Test Result:     ✅ Connected (measured 234ms)
+Test Result:     Connected (measured 234ms)
 Last Test:       2026-01-17 14:30 UTC
 ```
 
@@ -457,7 +457,7 @@ For each run, view:
 ```text
 Run Details: LinkedIn #2026-01-17 14:30 UTC
 ──────────────────────────────────────────────
-Status:          ✅ Success
+Status:          Success
 Started:         2026-01-17 14:30:00 UTC
 Completed:       2026-01-17 14:32:15 UTC
 Duration:        2m 15s
@@ -488,7 +488,7 @@ Last 7 Days:   94% (18/19 runs successful)
 Last 30 Days:  92% (276/300 runs successful)
 Last 90 Days:  89% (804/900 runs successful)
 
-Trend:         📈 Improving (was 87% in Dec)
+Trend:         Improving (was 87% in Dec)
 ```
 
 **Jobs Found Trend**
@@ -503,7 +503,7 @@ Last 7 Days:  38 jobs/day average
 Last 30 Days: 35 jobs/day average
 Last 90 Days: 32 jobs/day average
 
-Trend:        📈 More jobs being found
+Trend:        More jobs being found
 ```
 
 **Performance Trend**
@@ -518,7 +518,7 @@ Last 7 Days:  2m 12s average
 Last 30 Days: 2m 18s average
 Last 90 Days: 2m 45s average
 
-Trend:        📉 Getting faster (was 3m in Oct)
+Trend:        Getting faster (was 3m in Oct)
 ```
 
 **Error Trend**
@@ -533,25 +533,25 @@ Authentication Errors:    0
 Network Timeouts:         1
 Service Errors (50x):     0
 
-Trend:        ✅ Fewer errors overall
+Trend:        Fewer errors overall
 ```
 
 ### Interpreting Trends
 
 **Good Signs**
 
-- ✅ Success rate increasing
-- ✅ Jobs found increasing
-- ✅ Scrape duration decreasing
-- ✅ Fewer errors
+- Success rate increasing
+- Jobs found increasing
+- Scrape duration decreasing
+- Fewer errors
 
 **Concerning Signs**
 
-- ❌ Success rate dropping
-- ❌ Jobs found dropping
-- ❌ Scrape duration increasing
-- ❌ Error rate increasing
-- ❌ Rate limit errors appearing
+- Success rate dropping
+- Jobs found dropping
+- Scrape duration increasing
+- Error rate increasing
+- Rate limit errors appearing
 
 **What to Do**
 
@@ -571,7 +571,7 @@ If you see concerning trends:
 **Symptom**
 
 ```text
-❌ FAILED: HTTP 429 Too Many Requests
+FAILED: HTTP 429 Too Many Requests
 ```
 
 Dashboard shows: Error Rate: Rate Limit (429)
@@ -619,7 +619,7 @@ You've exceeded the limit for that scraper.
 **Symptom**
 
 ```text
-❌ FAILED: HTTP 401 Unauthorized
+FAILED: HTTP 401 Unauthorized
 ```
 
 Dashboard shows: Error: Authentication Failed
@@ -645,7 +645,7 @@ Dashboard shows: Error: Authentication Failed
    - Find and copy **li_at** value
 4. Paste into the field
 5. Click **Save and Test**
-6. Dashboard shows ✅ if successful
+6. Dashboard shows success if successful
 
 **For API-Based Scrapers (Greenhouse, Lever, etc.):**
 
@@ -659,15 +659,15 @@ Dashboard shows: Error: Authentication Failed
 Run a smoke test to confirm:
 
 1. Click scraper row
-2. Click **🧪 Test** button
-3. Result should show ✅ PASS
+2. Click **Test** button
+3. Result should show PASS
 
 ### Issue: Network Timeout
 
 **Symptom**
 
 ```text
-❌ FAILED: Connection timeout (30 seconds)
+FAILED: Connection timeout (30 seconds)
 ```
 
 Dashboard shows: Error: Network Timeout
@@ -714,7 +714,7 @@ If timeouts persist:
 **Symptom**
 
 ```text
-❌ FAILED: HTTP 503 Service Unavailable
+FAILED: HTTP 503 Service Unavailable
 ```
 
 Dashboard shows: Error: Service Down
@@ -760,7 +760,7 @@ Dashboard shows: Error: Service Down
 **Symptom**
 
 ```text
-❌ FAILED: No jobs found (selectors not matching)
+FAILED: No jobs found (selectors not matching)
 ```
 
 Dashboard shows: Error: Selector Health Failed
@@ -802,7 +802,7 @@ Use a different scraper while waiting for fix:
 Scraper ran successfully but found 0 jobs:
 
 ```text
-✅ SUCCESS
+SUCCESS
 Duration: 2m 15s
 Jobs Found: 0
 Error: None
@@ -1003,8 +1003,8 @@ invoke("get_scraper_configs");
 
 **Daily**
 
-- Glance at dashboard summary - make sure mostly green
-- If you see 🔴 down, check what's wrong
+- Glance at dashboard summary - make sure most sources are healthy
+- If you see a Down status, check what's wrong
 
 **Weekly**
 
@@ -1040,9 +1040,9 @@ Check which scrapers give you the best jobs:
 **Example**
 
 ```text
-LinkedIn:     342 jobs (high quality) ✅ Keep enabled
-Greenhouse:   18 jobs (niche) ✅ Keep enabled
-SimplyHired:  0 jobs (blocked) ❌ Could disable
+LinkedIn:     342 jobs (high quality) Keep enabled
+Greenhouse:   18 jobs (niche) Keep enabled
+SimplyHired:  0 jobs (blocked) Could disable
 ```
 
 ### Reading Error Messages
@@ -1100,4 +1100,4 @@ Expected resolution: 2026-01-18 03:00 UTC
 
 ---
 
-**Version:** 2.6.4 | **Last Updated:** March 18, 2026 | **Status:** ✅ Production Ready
+**Version:** 2.6.4 | **Last Updated:** March 18, 2026 | **Status:** Production Ready

@@ -445,3 +445,33 @@ test("checkRepoBloat rejects scraper doc emoji markers", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects scraper health doc emoji markers", () => {
+  withGitFixture((root) => {
+    const greenIcon = String.fromCodePoint(0x1f7e2);
+    const testIcon = String.fromCodePoint(0x1f9ea);
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/scraper-health.md",
+      [
+        `LinkedIn ${greenIcon} Healthy`,
+        `Click **${testIcon} Test** button`,
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/features/scraper-health.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace scraper health doc emoji markers: docs/features/scraper-health.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
