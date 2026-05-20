@@ -671,6 +671,20 @@ Rust validates config
 | **Build Tool** | Vite         | Fast dev server and build |
 | **Styling**    | Tailwind CSS | Utility-first CSS         |
 
+### Frontend Boundary Policy
+
+`scripts/check-frontend-boundaries.mjs` enforces production import boundaries.
+Run `npm run lint:architecture` directly, or `npm run harness:check` as part of
+the broader agent harness.
+
+- Shared layers (`components`, `contexts`, `hooks`, `services`, `utils`,
+  `types`, and `config`) must not import page modules.
+- Utilities and services must stay outside UI and app-state layers.
+- Page modules may compose shared layers and page-local modules such as
+  `src/pages/DashboardUI` and `src/pages/hooks`.
+- Tests, mocks, stories, and test setup files are excluded from this production
+  architecture sensor.
+
 ---
 
 ## Design Principles
@@ -680,6 +694,8 @@ Rust validates config
 - **Core**: Platform-agnostic business logic
 - **Commands**: Thin RPC layer (no business logic)
 - **Platforms**: OS-specific code only
+- **Frontend shared layers**: Components, hooks, contexts, services, utilities,
+  types, and config stay reusable and independent from page modules.
 
 ### 2. **Dependency Inversion**
 

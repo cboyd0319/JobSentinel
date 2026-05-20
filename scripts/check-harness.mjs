@@ -3,6 +3,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, normalize, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { checkFrontendBoundaries } from "./check-frontend-boundaries.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -242,6 +243,10 @@ for (const path of rustLintPolicyDocs) {
       `${path}:${index + 1} uses all-target clippy as a hard gate; use production clippy policy instead`,
     );
   });
+}
+
+for (const violation of checkFrontendBoundaries(root)) {
+  errors.push(violation);
 }
 
 if (errors.length > 0) {
