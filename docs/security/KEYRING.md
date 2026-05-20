@@ -74,7 +74,8 @@ JobSentinel uses a dual-access pattern for credentials:
 │                                                              │
 │   ┌───────────────────────────────────────────────────────┐ │
 │   │         Keyring Crate (Backend Direct)                │ │
-│   │   Used by: notify/mod.rs, scheduler/scrapers.rs       │ │
+│   │   Used by: notify/mod.rs,                            │ │
+│   │            scheduler/workers/scrapers.rs             │ │
 │   └───────────────────────────────────────────────────────┘ │
 │                           │                                  │
 │                           v                                  │

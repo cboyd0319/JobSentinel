@@ -431,7 +431,7 @@ pub struct ScreeningAnswer {
 
 See [One-Click Apply Feature](../features/one-click-apply.md) for full documentation.
 
-#### `core/scheduler/` (7 submodules)
+#### `core/scheduler/`
 
 **Purpose**: Automated job scraping
 
@@ -441,10 +441,10 @@ See [One-Click Apply Feature](../features/one-click-apply.md) for full documenta
 - **Submodules:**
   - `types.rs` - Scheduler types and state
   - `pipeline.rs` - Scraping pipeline orchestration
-  - `workers/scraper.rs` - Scraper worker threads
-  - `workers/scorer.rs` - Job scoring worker
-  - `workers/notifier.rs` - Notification worker
-  - `workers/mod.rs` - Worker pool management
+  - `workers/scrapers.rs` - Scraper execution worker
+  - `workers/scoring.rs` - Job scoring and ghost detection worker
+  - `workers/persistence.rs` - Database persistence and notification worker
+  - `workers/mod.rs` - Worker module exports
   - `tests.rs` - Scheduler unit tests
 
 **Workflow:**

@@ -312,6 +312,36 @@ function hasStaleIntegrationFixtureDirectoryClaim(root, path) {
   );
 }
 
+function hasStaleSchedulerWorkerPathDocs(root, path) {
+  if (path !== "docs/developer/ARCHITECTURE.md") {
+    return false;
+  }
+
+  return /workers\/(?:scraper|scorer|notifier)\.rs/.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
+function hasStaleSchedulerScraperPathDocs(root, path) {
+  if (path !== "docs/security/KEYRING.md") {
+    return false;
+  }
+
+  return /scheduler\/scrapers\.rs/.test(readFileSync(join(root, path), "utf8"));
+}
+
+function hasStaleRefactoringPriorityTable(root, path) {
+  if (path !== "docs/developer/GETTING_STARTED.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /\*\*v1\.5 Refactoring Priority\*\*/.test(text) ||
+    /needs modularization|candidate for split|frontend refactoring planned/.test(text)
+  );
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -346,6 +376,18 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleIntegrationFixtureDirectoryClaim(root, path)) {
       violations.push(`remove stale integration fixture directory claim: ${path}`);
+    }
+
+    if (hasStaleSchedulerWorkerPathDocs(root, path)) {
+      violations.push(`remove stale scheduler worker path docs: ${path}`);
+    }
+
+    if (hasStaleSchedulerScraperPathDocs(root, path)) {
+      violations.push(`remove stale scheduler scraper path docs: ${path}`);
+    }
+
+    if (hasStaleRefactoringPriorityTable(root, path)) {
+      violations.push(`remove stale refactoring-priority table: ${path}`);
     }
   }
 

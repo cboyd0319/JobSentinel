@@ -325,15 +325,9 @@ To maintain code quality and regenerability, all files follow the LLM-first codi
 - **Modular structure**: Each module has clear boundaries and minimal coupling
 - **Separated concerns**: Tests go in `tests.rs` files, not inline `#[cfg(test)]` blocks
 
-**v1.5 Refactoring Priority** (see [ROADMAP.md](../ROADMAP.md) for details):
-
-| File                         | Lines | Status                                |
-| ---------------------------- | ----- | ------------------------------------- |
-| `db/mod.rs`                  | 4442  | CRITICAL - needs modularization       |
-| `scheduler/mod.rs`           | 2955  | HIGH - candidate for split            |
-| `market_intelligence/mod.rs` | 2703  | HIGH - candidate for split            |
-| `config/mod.rs`              | 2343  | MEDIUM - monitor size                 |
-| `Dashboard.tsx`              | 2315  | MEDIUM - frontend refactoring planned |
+Historical v1.5 modularization status lives in [ROADMAP.md](../ROADMAP.md).
+For current refactor candidates, use live line counts and ownership checks
+instead of copying fixed size snapshots into setup docs.
 
 ---
 

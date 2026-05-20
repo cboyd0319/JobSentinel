@@ -173,3 +173,55 @@ test("checkRepoBloat rejects stale docs tree claims", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects stale scheduler refactor docs", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/developer/ARCHITECTURE.md",
+      "`workers/scraper.rs` - Scraper worker threads\n`workers/notifier.rs` - Notification worker\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/GETTING_STARTED.md",
+      "**v1.5 Refactoring Priority**\n\n`db/mod.rs` | 4442 | CRITICAL - needs modularization\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/security/KEYRING.md",
+      "Used by: notify/mod.rs, scheduler/scrapers.rs\n",
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "docs/developer/ARCHITECTURE.md",
+        "docs/developer/GETTING_STARTED.md",
+        "docs/security/KEYRING.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove stale scheduler worker path docs: docs/developer/ARCHITECTURE.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove stale refactoring-priority table: docs/developer/GETTING_STARTED.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("remove stale scheduler scraper path docs: docs/security/KEYRING.md"),
+      violations.join("\n"),
+    );
+  });
+});
