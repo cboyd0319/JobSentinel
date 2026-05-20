@@ -152,6 +152,7 @@ const rawScraperLoggingPaths = new Set([
   "src-tauri/src/core/scrapers/glassdoor.rs",
   "src-tauri/src/core/scrapers/greenhouse.rs",
   "src-tauri/src/core/scrapers/http_client.rs",
+  "src-tauri/src/core/scrapers/jobswithgpt.rs",
   "src-tauri/src/core/scrapers/lever/mod.rs",
   "src-tauri/src/core/scrapers/linkedin.rs",
   "src-tauri/src/core/scrapers/simplyhired.rs",
@@ -555,7 +556,7 @@ function hasRawScraperUrlOrQueryLogging(root, path) {
   const text = readFileSync(join(root, path), "utf8");
   return /(?:URL|url|fetching|Fetching[^"]*(?:API|for|query)):\s*\{\}|(?:query|location)\s*=\s*%self\.(?:query|location)/.test(
     text,
-  );
+  ) || /MCP request:\s*\{\}[^;]*request/.test(text);
 }
 
 function hasRawLocalPathLogging(root, path) {

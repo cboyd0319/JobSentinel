@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Replaced raw JobsWithGPT MCP request logging with sanitized endpoint and search-shape metadata, with bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Replaced raw notification success job-title logs with structured job id/hash metadata, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Sanitized LinkedIn auth navigation logs so login redirects are written as sanitized URL labels, with bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Replaced raw automation screening question debug logs with question-length metadata, and added bloat coverage for recurrence. |
@@ -284,6 +285,9 @@ changes or Playwright-specific work.
 - Notification success logs recorded raw job titles after alert delivery. Alert
   payloads intentionally include job details for user-configured channels, but
   local logs should use identifiers instead of job-title text.
+- JobsWithGPT logged the full MCP JSON request, including searched job titles
+  and location. Scraper request logs should keep request troubleshooting
+  metadata without writing search criteria.
 - `docs/plans/active/.gitkeep` and `docs/plans/completed/.gitkeep` were
   redundant tracked placeholders because both directories contain real plan
   files.
@@ -395,6 +399,9 @@ changes or Playwright-specific work.
 - Auth and login navigation logs must sanitize URLs before writing them.
 - Notification service logs must not include raw job title, company, URL, or
   description. Use structured job ids, hashes, channel names, and counts.
+- Scraper integration request logs must not serialize whole request bodies when
+  those bodies contain search criteria. Log endpoint labels and request shape
+  instead.
 - Local paths in logs must use non-identifying labels. Preserve actual paths for
   file operations, database records, and user-facing operations that need them.
 - Keep feature docs aligned with live source names for frontend routes and IPC

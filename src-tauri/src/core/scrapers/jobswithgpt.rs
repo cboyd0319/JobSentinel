@@ -8,6 +8,7 @@ use super::http_client::send_with_retry;
 use super::rate_limiter::{limits, RateLimiter};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
+use crate::core::url_security::sanitize_url_for_logging;
 
 use async_trait::async_trait;
 use chrono::Utc;
@@ -68,7 +69,14 @@ impl JobsWithGptScraper {
             "id": 1
         });
 
-        tracing::debug!("MCP request: {}", request);
+        tracing::debug!(
+            endpoint = %sanitize_url_for_logging(&self.endpoint),
+            title_count = self.query.titles.len(),
+            has_location = self.query.location.is_some(),
+            remote_only = self.query.remote_only,
+            limit = self.query.limit,
+            "Sending JobsWithGPT MCP request"
+        );
 
         let response = send_with_retry(&self.endpoint, |client| {
             client.post(&self.endpoint).json(&request)
