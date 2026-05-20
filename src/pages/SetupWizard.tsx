@@ -797,6 +797,7 @@ function LocationOption({ label, description, checked, onChange, icon }: Locatio
         onChange={(e) => onChange(e.target.checked)}
         className="sr-only"
         tabIndex={-1}
+        aria-hidden="true"
       />
       <div className={`
         w-10 h-10 rounded-lg flex items-center justify-center

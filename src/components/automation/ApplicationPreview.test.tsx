@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { ApplicationPreview } from "./ApplicationPreview";
 
 // Mock Tauri API
@@ -581,17 +581,30 @@ describe("ApplicationPreview", () => {
 
   describe("cleanup", () => {
     it("aborts fetch on unmount", async () => {
-      mockInvoke.mockImplementation(() => new Promise(() => {})); // Never resolves
+      let resolveProfile: (value: typeof mockProfile) => void = () => {};
+      mockInvoke.mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            resolveProfile = resolve;
+          })
+      );
 
-      const { unmount } = render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
+      const { container, unmount } = render(
+        <ApplicationPreview job={mockJob} atsPlatform="greenhouse" />
+      );
 
       expect(screen.getByRole("status", { name: /loading/i })).toBeInTheDocument();
 
-      // Unmount should abort the request
       unmount();
+      expect(container).toBeEmptyDOMElement();
 
-      // No error should be thrown
-      expect(true).toBe(true);
+      await act(async () => {
+        resolveProfile(mockProfile);
+        await Promise.resolve();
+      });
+
+      expect(container).toBeEmptyDOMElement();
+      expect(screen.queryByText("John Doe")).not.toBeInTheDocument();
     });
   });
 

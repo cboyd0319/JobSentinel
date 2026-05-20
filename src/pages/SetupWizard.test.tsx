@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import SetupWizard from "./SetupWizard";
 import { ToastProvider } from "../contexts";
 
@@ -103,21 +103,39 @@ describe("SetupWizard Accessibility", () => {
   });
 
   describe("LocationOption Checkbox Accessibility", () => {
-    it("should render checkboxes with proper ARIA attributes", () => {
+    it("should render checkboxes with proper ARIA attributes", async () => {
       renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
 
-      // LocationOption components are rendered in step 2 (location step)
-      // We can verify the component structure without navigation by checking the source code
-      // The key accessibility features are:
-      // 1. role="checkbox" on the label
-      // 2. aria-checked attribute
-      // 3. aria-label attribute
-      // 4. tabIndex={0} for keyboard focus
-      // 5. onKeyDown handler for Enter/Space keys
+      const [firstProfile] = screen.getAllByRole("radio");
+      fireEvent.click(firstProfile);
+      fireEvent.click(screen.getByRole("button", { name: /continue with this profile/i }));
+      fireEvent.click(screen.getByRole("button", { name: /^continue$/i }));
 
-      // This test validates that the component structure exists
-      // Integration tests would verify the full navigation flow
-      expect(true).toBe(true);
+      const remoteOption = await screen.findByRole("checkbox", {
+        name: /remote: work from anywhere/i,
+      });
+      const hybridOption = screen.getByRole("checkbox", {
+        name: /hybrid: mix of remote and office/i,
+      });
+      const onsiteOption = screen.getByRole("checkbox", {
+        name: /on-site: work from the office/i,
+      });
+
+      expect(screen.getAllByRole("checkbox")).toHaveLength(3);
+      expect(remoteOption).toHaveAttribute("aria-checked", "true");
+      expect(remoteOption).toHaveAttribute("tabindex", "0");
+      expect(["true", "false"]).toContain(hybridOption.getAttribute("aria-checked"));
+      expect(["true", "false"]).toContain(onsiteOption.getAttribute("aria-checked"));
+
+      const hybridInitialState = hybridOption.getAttribute("aria-checked");
+      fireEvent.keyDown(hybridOption, { key: "Enter" });
+      expect(hybridOption).toHaveAttribute(
+        "aria-checked",
+        hybridInitialState === "true" ? "false" : "true"
+      );
+
+      fireEvent.keyDown(remoteOption, { key: " " });
+      expect(remoteOption).toHaveAttribute("aria-checked", "false");
     });
   });
 
