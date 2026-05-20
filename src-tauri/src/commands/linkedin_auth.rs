@@ -120,7 +120,7 @@ pub async fn linkedin_login(app: AppHandle) -> Result<String, String> {
 
                     // Extract cookie using platform-appropriate method
                     #[cfg(target_os = "macos")]
-                    let cookie_result = extract_linkedin_cookie().await;
+                    let cookie_result = extract_linkedin_cookie(&app).await;
 
                     #[cfg(any(target_os = "windows", target_os = "linux"))]
                     let cookie_result = extract_linkedin_cookie_from_webview(&app).await;
@@ -212,41 +212,57 @@ pub async fn linkedin_login(app: AppHandle) -> Result<String, String> {
 /// Returns (cookie_value, optional_expiry_iso8601)
 #[cfg(target_os = "macos")]
 #[allow(unsafe_code)] // Required for Objective-C interop
-async fn extract_linkedin_cookie() -> Result<(String, Option<String>), String> {
-    use block2::StackBlock;
+async fn extract_linkedin_cookie(app: &AppHandle) -> Result<(String, Option<String>), String> {
+    use block2::RcBlock;
     use objc2::MainThreadMarker;
     use objc2_foundation::{NSArray, NSHTTPCookie};
     use objc2_web_kit::WKWebsiteDataStore;
     use std::ptr::NonNull;
-    use std::sync::mpsc;
+    use std::sync::{Arc, Mutex};
+
+    type CookieExtractionResult = Result<Option<(String, Option<f64>)>, String>;
+
+    fn send_cookie_extraction_result(
+        tx: &Arc<Mutex<Option<tokio::sync::oneshot::Sender<CookieExtractionResult>>>>,
+        result: CookieExtractionResult,
+    ) {
+        match tx.lock() {
+            Ok(mut tx_option) => {
+                if let Some(tx) = tx_option.take() {
+                    let _ = tx.send(result);
+                }
+            }
+            Err(_) => {
+                tracing::error!("LinkedIn cookie extraction result mutex poisoned");
+            }
+        }
+    }
 
     tracing::info!("Extracting LinkedIn cookie via WKHTTPCookieStore (macOS)");
 
-    // Create a channel to receive cookies from the callback
-    // Returns (cookie_value, expiry_timestamp_seconds)
-    let (tx, rx) = mpsc::channel::<Option<(String, Option<f64>)>>();
+    let (tx, rx) = tokio::sync::oneshot::channel::<CookieExtractionResult>();
+    let tx = Arc::new(Mutex::new(Some(tx)));
+    let tx_main = Arc::clone(&tx);
 
-    // Access the default data store and its cookie store
-    // This needs to run on the main thread for WebKit
-    std::thread::spawn(move || {
-        // SAFETY: We're calling Objective-C APIs that require unsafe.
-        // These are well-tested Apple framework methods.
+    app.run_on_main_thread(move || {
+        let Some(mtm) = MainThreadMarker::new() else {
+            send_cookie_extraction_result(
+                &tx_main,
+                Err("Failed to run WebKit cookie extraction on main thread".to_string()),
+            );
+            return;
+        };
+
+        let tx_callback = Arc::clone(&tx_main);
+
         unsafe {
-            // SAFETY: MainThreadMarker::new_unchecked is used because:
-            // 1. WKWebsiteDataStore.defaultDataStore requires main thread access
-            // 2. This runs on a spawned thread, NOT the actual main thread
-            // 3. The ObjC runtime serializes WebKit calls via its run loop
-            // 4. In practice, getAllCookies dispatches to WebKit's internal
-            //    serial queue, making this safe despite the thread mismatch
-            // 5. This pattern is standard in Tauri macOS apps using WebKit APIs
-            // TODO: Consider using dispatch_async to main queue instead for
-            //       strict correctness (icrate 0.2+ may provide safer APIs)
-            let mtm = MainThreadMarker::new_unchecked();
+            // SAFETY: WebKit APIs below require Objective-C FFI. The Tauri
+            // main-thread dispatcher provides the required main-thread context,
+            // and MainThreadMarker::new() verifies that context before use.
             let data_store = WKWebsiteDataStore::defaultDataStore(mtm);
             let cookie_store = data_store.httpCookieStore();
 
-            // Create block to receive cookies
-            let block = StackBlock::new(move |cookies: NonNull<NSArray<NSHTTPCookie>>| {
+            let block = RcBlock::new(move |cookies: NonNull<NSArray<NSHTTPCookie>>| {
                 let mut li_at_value: Option<(String, Option<f64>)> = None;
 
                 let cookies_ref = cookies.as_ref();
@@ -270,19 +286,16 @@ async fn extract_linkedin_cookie() -> Result<(String, Option<String>), String> {
                     }
                 }
 
-                let _ = tx.send(li_at_value);
+                send_cookie_extraction_result(&tx_callback, Ok(li_at_value));
             });
 
-            // Get all cookies
             cookie_store.getAllCookies(&block);
         }
     })
-    .join()
-    .map_err(|_| "Failed to run cookie extraction thread")?;
+    .map_err(|e| format!("Failed to schedule cookie extraction on main thread: {}", e))?;
 
-    // Wait for result with timeout
-    match rx.recv_timeout(std::time::Duration::from_secs(5)) {
-        Ok(Some((cookie, expiry_secs))) => {
+    match tokio::time::timeout(std::time::Duration::from_secs(5), rx).await {
+        Ok(Ok(Ok(Some((cookie, expiry_secs))))) => {
             // Convert timestamp to ISO 8601 string
             let expiry_str = expiry_secs.map(|secs| {
                 use chrono::{DateTime, Utc};
@@ -291,10 +304,12 @@ async fn extract_linkedin_cookie() -> Result<(String, Option<String>), String> {
             });
             Ok((cookie, expiry_str))
         }
-        Ok(None) => Err(
+        Ok(Ok(Ok(None))) => Err(
             "LinkedIn cookie (li_at) not found. Please make sure you're fully logged in."
                 .to_string(),
         ),
+        Ok(Ok(Err(e))) => Err(e),
+        Ok(Err(_)) => Err("Cookie extraction callback was cancelled".to_string()),
         Err(_) => Err("Timeout waiting for cookie extraction".to_string()),
     }
 }
