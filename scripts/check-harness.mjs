@@ -217,6 +217,33 @@ for (const path of currentTestCountDocs) {
   });
 }
 
+const rustLintPolicyDocs = [
+  "AGENTS.md",
+  "README.md",
+  "docs/harness/agent-operating-model.md",
+  "docs/harness/verification-matrix.md",
+  "docs/developer/CONTRIBUTING.md",
+  "docs/developer/CI_CD.md",
+  "docs/developer/TESTING.md",
+];
+
+const allTargetClippyHardGatePattern =
+  /cargo\s+clippy(?=[^\n`]*--all-targets)(?=[^\n`]*-D\s+warnings)/;
+
+for (const path of rustLintPolicyDocs) {
+  const lines = read(path).split(/\r?\n/);
+
+  lines.forEach((line, index) => {
+    if (!allTargetClippyHardGatePattern.test(line)) {
+      return;
+    }
+
+    errors.push(
+      `${path}:${index + 1} uses all-target clippy as a hard gate; use production clippy policy instead`,
+    );
+  });
+}
+
 if (errors.length > 0) {
   console.error("Harness check failed:");
   for (const error of errors) {

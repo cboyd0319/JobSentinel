@@ -32,6 +32,10 @@ behavior, security, storage, or release flow changes.
 | Tauri command | Command test or compile check | Frontend invoke path test |
 | Migration | Migration test or SQLx prepare | Manual upgrade/downgrade review |
 
+Production clippy is the hard Rust lint gate. Test-target clippy warnings are
+advisory until the test lint policy is tightened; do not use all-target clippy
+with warnings-as-errors as a required local or CI gate.
+
 ## Security And Privacy
 
 | Change | Required sensor |

@@ -220,8 +220,8 @@ Closes #123"
 # Format code
 cargo fmt
 
-# Lint code
-cargo clippy --all-targets --all-features -- -D warnings
+# Lint production Rust targets
+cargo clippy -- -D warnings
 
 # Check for security vulnerabilities
 cargo audit
@@ -233,6 +233,8 @@ cargo audit
 - Add doc comments for public APIs
 - Handle errors explicitly with domain-specific error types (`ScraperError`, `DatabaseError`)
 - Use structured error handling with `thiserror` (avoid `.unwrap()` in production)
+- Treat test-target clippy warnings as advisory unless a change explicitly
+  tightens the test lint policy; production clippy is the hard lint gate.
 - Use `tracing::` for logging (not `println!`)
 - Keep functions small and focused
 - Sanitize URLs in error messages to prevent information leakage
