@@ -2,6 +2,8 @@
 //!
 //! Manages salary benchmark data from H1B database and user reports.
 
+use crate::core::ats::parse_sqlite_datetime;
+
 use super::SeniorityLevel;
 use anyhow::Result;
 use chrono::{DateTime, Utc};
@@ -144,33 +146,32 @@ impl BenchmarkManager {
         .fetch_all(&self.db)
         .await?;
 
-        Ok(rows
-            .into_iter()
-            .map(|r| SalaryBenchmark {
-                job_title: r
-                    .try_get::<String, _>("job_title_normalized")
-                    .unwrap_or_default(),
-                location: r
-                    .try_get::<String, _>("location_normalized")
-                    .unwrap_or_default(),
-                seniority_level: SeniorityLevel::parse(
-                    &r.try_get::<String, _>("seniority_level")
+        rows.into_iter()
+            .map(|r| {
+                let last_updated: String = r.try_get("last_updated")?;
+
+                Ok(SalaryBenchmark {
+                    job_title: r
+                        .try_get::<String, _>("job_title_normalized")
                         .unwrap_or_default(),
-                ),
-                min_salary: r.try_get::<i64, _>("min_salary").unwrap_or(0),
-                p25_salary: r.try_get::<i64, _>("p25_salary").unwrap_or(0),
-                median_salary: r.try_get::<i64, _>("median_salary").unwrap_or(0),
-                p75_salary: r.try_get::<i64, _>("p75_salary").unwrap_or(0),
-                max_salary: r.try_get::<i64, _>("max_salary").unwrap_or(0),
-                average_salary: r.try_get::<i64, _>("average_salary").unwrap_or(0),
-                sample_size: r.try_get::<i64, _>("sample_size").unwrap_or(0),
-                last_updated: DateTime::parse_from_rfc3339(
-                    &r.try_get::<String, _>("last_updated").unwrap_or_default(),
-                )
-                .unwrap_or_else(|_| DateTime::default())
-                .with_timezone(&Utc),
+                    location: r
+                        .try_get::<String, _>("location_normalized")
+                        .unwrap_or_default(),
+                    seniority_level: SeniorityLevel::parse(
+                        &r.try_get::<String, _>("seniority_level")
+                            .unwrap_or_default(),
+                    ),
+                    min_salary: r.try_get::<i64, _>("min_salary").unwrap_or(0),
+                    p25_salary: r.try_get::<i64, _>("p25_salary").unwrap_or(0),
+                    median_salary: r.try_get::<i64, _>("median_salary").unwrap_or(0),
+                    p75_salary: r.try_get::<i64, _>("p75_salary").unwrap_or(0),
+                    max_salary: r.try_get::<i64, _>("max_salary").unwrap_or(0),
+                    average_salary: r.try_get::<i64, _>("average_salary").unwrap_or(0),
+                    sample_size: r.try_get::<i64, _>("sample_size").unwrap_or(0),
+                    last_updated: parse_sqlite_datetime(&last_updated)?,
+                })
             })
-            .collect())
+            .collect()
     }
 
     /// Get top paying locations for a job title
@@ -1033,6 +1034,41 @@ mod tests {
         assert_eq!(results1.len(), 1);
         assert_eq!(results2.len(), 1);
         assert_eq!(results3.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn test_get_benchmarks_preserves_sqlite_last_updated() {
+        let pool = setup_test_db().await;
+        let manager = BenchmarkManager::new(pool.clone());
+
+        sqlx::query(
+            r#"
+            INSERT INTO salary_benchmarks (
+                job_title_normalized, location_normalized, seniority_level,
+                min_salary, p25_salary, median_salary, p75_salary,
+                max_salary, average_salary, sample_size, data_source, last_updated
+            )
+            VALUES (
+                'software engineer', 'remote', 'mid',
+                100000, 120000, 140000, 160000,
+                180000, 145000, 42, 'h1b', '2026-05-20 12:34:56'
+            )
+            "#,
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        let benchmarks = manager
+            .get_benchmarks_for_title("software engineer")
+            .await
+            .unwrap();
+
+        assert_eq!(benchmarks.len(), 1);
+        assert_eq!(
+            benchmarks[0].last_updated.to_rfc3339(),
+            "2026-05-20T12:34:56+00:00"
+        );
     }
 
     #[tokio::test]

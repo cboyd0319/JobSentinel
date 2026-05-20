@@ -1,7 +1,7 @@
 //! Salary analyzer implementation
 
+use crate::core::ats::parse_sqlite_datetime;
 use anyhow::Result;
-use chrono::{DateTime, Utc};
 use sqlx::{Row, SqlitePool};
 
 use super::benchmarks::SalaryBenchmark;
@@ -77,11 +77,7 @@ impl SalaryAnalyzer {
                 max_salary: r.try_get::<i64, _>("max_salary").unwrap_or(0),
                 average_salary: r.try_get::<i64, _>("average_salary").unwrap_or(0),
                 sample_size: r.try_get::<i64, _>("sample_size").unwrap_or(0),
-                last_updated: DateTime::parse_from_rfc3339(
-                    &r.try_get::<String, _>("last_updated").unwrap_or_default(),
-                )
-                .unwrap_or_else(|_| DateTime::default())
-                .with_timezone(&Utc),
+                last_updated: parse_sqlite_datetime(&r.try_get::<String, _>("last_updated")?)?,
             })),
             None => Ok(None),
         }

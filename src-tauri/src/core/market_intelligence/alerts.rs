@@ -2,6 +2,7 @@
 //!
 //! Detects and manages market anomalies, trends, and notable events.
 
+use crate::core::ats::parse_sqlite_datetime;
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -163,9 +164,7 @@ impl MarketAlert {
 
 fn row_to_alert(r: &sqlx::sqlite::SqliteRow) -> Result<MarketAlert> {
     let created_str: String = r.try_get("created_at")?;
-    let created_at = DateTime::parse_from_rfc3339(&created_str)
-        .map(|dt| dt.with_timezone(&Utc))
-        .unwrap_or_else(|_| Utc::now());
+    let created_at = parse_sqlite_datetime(&created_str)?;
 
     Ok(MarketAlert {
         id: r.try_get("id")?,
@@ -655,6 +654,28 @@ mod tests {
             assert_eq!(alerts[0].title, "Alert 3");
             assert_eq!(alerts[1].title, "Alert 2");
             assert_eq!(alerts[2].title, "Alert 1");
+        }
+
+        #[tokio::test]
+        async fn test_row_to_alert_preserves_sqlite_created_at() {
+            let pool = setup_test_db().await;
+
+            sqlx::query(
+                r#"
+                INSERT INTO market_alerts (alert_type, title, description, severity, created_at)
+                VALUES ('skill_surge', 'SQLite Alert', 'Desc', 'info', '2026-05-20 12:34:56')
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let alerts = get_all_alerts(&pool, 1).await.unwrap();
+            assert_eq!(alerts.len(), 1);
+            assert_eq!(
+                alerts[0].created_at.to_rfc3339(),
+                "2026-05-20T12:34:56+00:00"
+            );
         }
 
         #[tokio::test]
