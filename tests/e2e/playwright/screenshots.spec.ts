@@ -1,18 +1,26 @@
-import { test } from "@playwright/test";
+import { test, type TestInfo } from "@playwright/test";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
 /**
  * Screenshot capture tests for documentation.
  *
- * Run with: npx playwright test e2e/screenshots.spec.ts --headed
+ * Run with: npm run docs:screenshots
  *
- * Screenshots are saved to docs/images/
+ * Standard E2E runs save screenshots as Playwright artifacts so the working
+ * tree stays clean. Set UPDATE_DOC_SCREENSHOTS=1 to refresh docs/images/.
  */
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const screenshotDir = join(__dirname, "..", "docs", "images");
+const docsScreenshotDir = join(__dirname, "..", "..", "..", "docs", "images");
+const updateDocsScreenshots = process.env.UPDATE_DOC_SCREENSHOTS === "1";
+
+function screenshotPath(testInfo: TestInfo, filename: string) {
+  return updateDocsScreenshots
+    ? join(docsScreenshotDir, filename)
+    : testInfo.outputPath(filename);
+}
 
 test.describe("Documentation Screenshots", () => {
   test.use({
@@ -20,7 +28,7 @@ test.describe("Documentation Screenshots", () => {
     colorScheme: "dark",  // Dark mode is now the default
   });
 
-  test("capture dashboard screenshot", async ({ page }) => {
+  test("capture dashboard screenshot", async ({ page }, testInfo) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
@@ -36,12 +44,12 @@ test.describe("Documentation Screenshots", () => {
     }
 
     await page.screenshot({
-      path: join(screenshotDir, "dashboard.png"),
+      path: screenshotPath(testInfo, "dashboard.png"),
       fullPage: false,
     });
   });
 
-  test("capture settings screenshot", async ({ page }) => {
+  test("capture settings screenshot", async ({ page }, testInfo) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
@@ -56,12 +64,12 @@ test.describe("Documentation Screenshots", () => {
     // Settings modal can be opened from the gear icon in the header
     // For now, just take a screenshot of the dashboard (settings is embedded)
     await page.screenshot({
-      path: join(screenshotDir, "settings.png"),
+      path: screenshotPath(testInfo, "settings.png"),
       fullPage: false,
     });
   });
 
-  test("capture one-click-apply screenshot", async ({ page }) => {
+  test("capture one-click-apply screenshot", async ({ page }, testInfo) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
@@ -86,12 +94,12 @@ test.describe("Documentation Screenshots", () => {
     await page.waitForTimeout(500);
 
     await page.screenshot({
-      path: join(screenshotDir, "one-click-apply.png"),
+      path: screenshotPath(testInfo, "one-click-apply.png"),
       fullPage: false,
     });
   });
 
-  test("capture keyboard shortcuts screenshot", async ({ page }) => {
+  test("capture keyboard shortcuts screenshot", async ({ page }, testInfo) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
@@ -109,12 +117,12 @@ test.describe("Documentation Screenshots", () => {
 
     // Take screenshot regardless of whether modal appeared
     await page.screenshot({
-      path: join(screenshotDir, "keyboard-shortcuts.png"),
+      path: screenshotPath(testInfo, "keyboard-shortcuts.png"),
       fullPage: false,
     });
   });
 
-  test("capture light mode dashboard screenshot", async ({ page }) => {
+  test("capture light mode dashboard screenshot", async ({ page }, testInfo) => {
     // Capture light mode variant for docs (dark is default)
     await page.emulateMedia({ colorScheme: "light" });
 
@@ -131,12 +139,12 @@ test.describe("Documentation Screenshots", () => {
     await page.waitForTimeout(1000);
 
     await page.screenshot({
-      path: join(screenshotDir, "dashboard-light.png"),
+      path: screenshotPath(testInfo, "dashboard-light.png"),
       fullPage: false,
     });
   });
 
-  test("capture resume matcher screenshot", async ({ page }) => {
+  test("capture resume matcher screenshot", async ({ page }, testInfo) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
@@ -153,12 +161,12 @@ test.describe("Documentation Screenshots", () => {
     await page.waitForTimeout(1500);
 
     await page.screenshot({
-      path: join(screenshotDir, "resume-matcher.png"),
+      path: screenshotPath(testInfo, "resume-matcher.png"),
       fullPage: false,
     });
   });
 
-  test("capture salary ai screenshot", async ({ page }) => {
+  test("capture salary ai screenshot", async ({ page }, testInfo) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
@@ -175,12 +183,12 @@ test.describe("Documentation Screenshots", () => {
     await page.waitForTimeout(1500);
 
     await page.screenshot({
-      path: join(screenshotDir, "salary-ai.png"),
+      path: screenshotPath(testInfo, "salary-ai.png"),
       fullPage: false,
     });
   });
 
-  test("capture market intelligence screenshot", async ({ page }) => {
+  test("capture market intelligence screenshot", async ({ page }, testInfo) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
@@ -197,12 +205,12 @@ test.describe("Documentation Screenshots", () => {
     await page.waitForTimeout(1500);
 
     await page.screenshot({
-      path: join(screenshotDir, "market-intelligence.png"),
+      path: screenshotPath(testInfo, "market-intelligence.png"),
       fullPage: false,
     });
   });
 
-  test("capture applications kanban screenshot", async ({ page }) => {
+  test("capture applications kanban screenshot", async ({ page }, testInfo) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
@@ -219,12 +227,12 @@ test.describe("Documentation Screenshots", () => {
     await page.waitForTimeout(1500);
 
     await page.screenshot({
-      path: join(screenshotDir, "application-tracking.png"),
+      path: screenshotPath(testInfo, "application-tracking.png"),
       fullPage: false,
     });
   });
 
-  test("capture one-click apply screenshot via keyboard", async ({ page }) => {
+  test("capture one-click apply screenshot via keyboard", async ({ page }, testInfo) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
@@ -241,12 +249,12 @@ test.describe("Documentation Screenshots", () => {
     await page.waitForTimeout(1500);
 
     await page.screenshot({
-      path: join(screenshotDir, "one-click-apply.png"),
+      path: screenshotPath(testInfo, "one-click-apply.png"),
       fullPage: false,
     });
   });
 
-  test("capture resume builder screenshot", async ({ page }) => {
+  test("capture resume builder screenshot", async ({ page }, testInfo) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
@@ -263,12 +271,12 @@ test.describe("Documentation Screenshots", () => {
     await page.waitForTimeout(1500);
 
     await page.screenshot({
-      path: join(screenshotDir, "resume-builder.png"),
+      path: screenshotPath(testInfo, "resume-builder.png"),
       fullPage: false,
     });
   });
 
-  test("capture ats optimizer screenshot", async ({ page }) => {
+  test("capture ats optimizer screenshot", async ({ page }, testInfo) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
@@ -285,7 +293,7 @@ test.describe("Documentation Screenshots", () => {
     await page.waitForTimeout(1500);
 
     await page.screenshot({
-      path: join(screenshotDir, "ats-optimizer.png"),
+      path: screenshotPath(testInfo, "ats-optimizer.png"),
       fullPage: false,
     });
   });

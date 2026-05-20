@@ -1,70 +1,98 @@
 # Tests
 
-All tests for JobSentinel are organized in this directory.
+JobSentinel keeps browser-level tests under `tests/`. Frontend unit tests live
+beside source files in `src/`, and Rust tests live under `src-tauri/`.
 
 ## Structure
 
 ```text
 tests/
-├── e2e/                    # End-to-end tests
-│   ├── playwright/         # Playwright tests (browser automation)
-│   │   ├── app.spec.ts         # Main app E2E tests (82 tests)
-│   │   └── screenshots.spec.ts # Screenshot capture tests
-│   └── webdriverio/        # WebdriverIO + Tauri Driver tests
-│       ├── specs/              # Test specifications
-│       ├── wdio.conf.js        # WebdriverIO configuration
-│       └── package.json        # WebdriverIO dependencies
-└── unit/                   # Unit tests (future)
+├── e2e/
+│   ├── fixtures/              # Shared E2E fixtures
+│   ├── playwright/            # Playwright browser tests
+│   │   ├── page-objects/      # Page Object Model helpers
+│   │   ├── app.spec.ts
+│   │   ├── application-tracking.spec.ts
+│   │   ├── job-interactions.spec.ts
+│   │   ├── job-search-filtering.spec.ts
+│   │   ├── keyboard-navigation.spec.ts
+│   │   ├── market-intelligence.spec.ts
+│   │   ├── one-click-apply.spec.ts
+│   │   ├── resume-builder.spec.ts
+│   │   ├── resume-upload-matching.spec.ts
+│   │   ├── screenshots.spec.ts
+│   │   └── settings-save-load.spec.ts
+│   ├── README.md
+│   └── TEST_SUMMARY.md
+└── README.md
 ```
 
 ## Running Tests
 
+### Frontend Unit Tests
+
+```bash
+npm run test:run
+```
+
+List the current test count with:
+
+```bash
+npm run test:run -- --list
+```
+
 ### Playwright E2E Tests
 
 ```bash
-# From project root
-npx playwright test
-
-# With UI
-npx playwright test --ui
-
-# Specific test file
-npx playwright test tests/e2e/playwright/app.spec.ts
+npm run test:e2e
 ```
 
-### WebdriverIO E2E Tests
+CI uses the same Playwright suite:
 
 ```bash
-# From tests/e2e/webdriverio
-cd tests/e2e/webdriverio
-npm install
-npm test
+npm run test:e2e:ci
 ```
 
-### Rust Unit Tests
+List the current E2E test count with:
+
+```bash
+npm run test:e2e:ci -- --list
+```
+
+Run one file:
+
+```bash
+npm run test:e2e -- tests/e2e/playwright/app.spec.ts
+```
+
+### Documentation Screenshots
+
+Normal E2E runs write screenshot artifacts to Playwright output directories and
+do not modify tracked docs images. Refresh tracked docs screenshots with:
+
+```bash
+npm run docs:screenshots
+```
+
+Pass Playwright flags after `--` when needed:
+
+```bash
+npm run docs:screenshots -- --headed
+```
+
+### Rust Tests
 
 ```bash
 cd src-tauri
 cargo test
 ```
 
-### Frontend Unit Tests
+## Verification Baseline
 
-```bash
-npm test
-```
+Use the repo verification matrix for current required checks:
 
-## Test Coverage
+- [Verification matrix](../docs/harness/verification-matrix.md)
+- [Testing guide](../docs/developer/TESTING.md)
 
-| Type | Framework | Count | Location |
-|------|-----------|-------|----------|
-| Rust unit tests | cargo test | 2,357 | `src-tauri/src/` |
-| Frontend unit tests | Vitest | 2,413 | `src/**/*.test.tsx` |
-| E2E (Playwright) | Playwright | 82 | `tests/e2e/playwright/` |
-| E2E (WebdriverIO) | WebdriverIO | 8 | `tests/e2e/webdriverio/` |
-
-**Total: 4,770+ tests**
-
-## Writing Tests
-
-See [Testing Guide](../docs/developer/TESTING.md) for detailed instructions.
+Do not copy fixed test counts into this file. Use the commands above for
+current counts.

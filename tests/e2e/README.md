@@ -88,7 +88,9 @@ Reusable page objects following the Page Object Model pattern:
     - Sidebar navigation
 
 11. **screenshots.spec.ts** (existing)
-    - Documentation screenshots
+    - Documentation screenshot capture
+    - Writes Playwright artifacts during normal E2E runs
+    - Refreshes tracked docs images only through `npm run docs:screenshots`
 
 ## Running Tests
 
@@ -96,6 +98,18 @@ Reusable page objects following the Page Object Model pattern:
 
 ```bash
 npm run test:e2e
+```
+
+### Refresh Documentation Screenshots
+
+```bash
+npm run docs:screenshots
+```
+
+Pass Playwright flags after `--` when needed:
+
+```bash
+npm run docs:screenshots -- --headed
 ```
 
 ### Specific Test Suite
