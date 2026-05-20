@@ -712,6 +712,11 @@ test("checkRepoBloat rejects raw scraper URL and query logging", () => {
       "src-tauri/src/core/scrapers/dice.rs",
       'tracing::info!("Fetching jobs from Dice for query: {}", self.query);\n',
     );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/linkedin.rs",
+      "#[tracing::instrument(skip(self), fields(query = %self.query, location = %self.location))]\n",
+    );
 
     execFileSync(
       "git",
@@ -721,6 +726,7 @@ test("checkRepoBloat rejects raw scraper URL and query logging", () => {
         "src-tauri/src/core/scrapers/cache.rs",
         "src-tauri/src/core/scrapers/http_client.rs",
         "src-tauri/src/core/scrapers/dice.rs",
+        "src-tauri/src/core/scrapers/linkedin.rs",
       ],
       { cwd: root },
     );
@@ -739,6 +745,12 @@ test("checkRepoBloat rejects raw scraper URL and query logging", () => {
     );
     assert.ok(
       violations.includes("replace raw scraper URL/query logging: src-tauri/src/core/scrapers/dice.rs"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace raw scraper URL/query logging: src-tauri/src/core/scrapers/linkedin.rs",
+      ),
       violations.join("\n"),
     );
   });

@@ -145,8 +145,8 @@ impl LinkedInScraper {
     #[tracing::instrument(
         skip(self),
         fields(
-            query = %self.query,
-            location = %self.location,
+            query_chars = self.query.chars().count(),
+            location_chars = self.location.chars().count(),
             limit = %self.limit,
             remote_only = %self.remote_only
         )

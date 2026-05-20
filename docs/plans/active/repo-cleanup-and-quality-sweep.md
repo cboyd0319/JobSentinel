@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Replaced raw LinkedIn scraper query and location span fields with length metadata, and extended scraper-log bloat coverage. |
 | 2026-05-20 | In progress | Sanitized remaining raw URL logging in URL normalization parse failures and browser automation spans, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Replaced raw local path logging with non-identifying path labels for resume, automation, database, platform, startup, and ML model paths. |
 | 2026-05-20 | In progress | Sanitized scraper cache, fetch, and query logs so source adapters no longer write raw search queries or full fetch URLs. |
@@ -263,6 +264,9 @@ changes or Playwright-specific work.
   user-controlled URLs. Raw URL logs outside approved sanitizer paths are
   forbidden; use `sanitize_url_for_logging` before writing URL fields or
   messages to logs.
+- The LinkedIn scraper span still recorded raw search query and location fields.
+  These values are user-authored job criteria and should be logged only as
+  non-content metadata such as character counts.
 - `docs/plans/active/.gitkeep` and `docs/plans/completed/.gitkeep` were
   redundant tracked placeholders because both directories contain real plan
   files.
@@ -365,6 +369,8 @@ changes or Playwright-specific work.
   counts, booleans, or other non-content metadata for troubleshooting.
 - Scraper transport and cache logs must sanitize URL labels and avoid raw query
   strings. Do not change request URLs or cache keys for logging-only fixes.
+- Scraper spans must not record raw user-authored query or location fields; use
+  counts, booleans, source names, limits, or result counts instead.
 - Local paths in logs must use non-identifying labels. Preserve actual paths for
   file operations, database records, and user-facing operations that need them.
 - Keep feature docs aligned with live source names for frontend routes and IPC
