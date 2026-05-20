@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Sanitized database error display output so formatted errors no longer expose SQL query text or local backup/database paths. |
 | 2026-05-20 | In progress | Sanitized automation error display output so browser automation logs and command error strings do not expose raw application URLs, credentials, query strings, or fragments. |
 | 2026-05-20 | In progress | Sanitized scraper error display output so scheduler logs and health rows no longer receive raw scraper URLs or search query text from `ScraperError::to_string()`. |
 | 2026-05-20 | In progress | Replaced raw JobsWithGPT MCP request logging with sanitized endpoint and search-shape metadata, with bloat coverage for recurrence. |
@@ -298,6 +299,9 @@ changes or Playwright-specific work.
   JavaScript failures. Automation command/log paths format errors with
   `to_string()` / `%e`, so display output needs the same sanitizer as explicit
   URL logs.
+- `DatabaseError` display strings included raw SQL query text and raw local
+  backup/database paths. Command handlers, bookmarklet paths, scheduler
+  persistence, and logs format database failures with `to_string()` / `%e`.
 - `docs/plans/active/.gitkeep` and `docs/plans/completed/.gitkeep` were
   redundant tracked placeholders because both directories contain real plan
   files.
@@ -418,6 +422,9 @@ changes or Playwright-specific work.
 - Automation error display output must sanitize URL labels. Keep exact
   application URLs only in typed fields and browser operations, not formatted
   errors or logs.
+- Database error display output must use non-content query labels and
+  non-identifying path labels. Keep exact paths and SQL only in typed fields and
+  database operations that need them.
 - Local paths in logs must use non-identifying labels. Preserve actual paths for
   file operations, database records, and user-facing operations that need them.
 - Keep feature docs aligned with live source names for frontend routes and IPC

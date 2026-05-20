@@ -1007,3 +1007,34 @@ test("checkRepoBloat rejects raw URL error display", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects raw path or query error display", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/error.rs",
+      [
+        "#[derive(thiserror::Error, Debug)]",
+        "pub enum DatabaseError {",
+        '    #[error("Database query timed out after {timeout_secs}s: {query}")]',
+        "    Timeout { timeout_secs: u64, query: String },",
+        '    #[error("Backup failed at {path}: {source}")]',
+        "    Backup { path: String, source: std::io::Error },",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/db/error.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace raw path/query error display: src-tauri/src/core/db/error.rs"),
+      violations.join("\n"),
+    );
+  });
+});

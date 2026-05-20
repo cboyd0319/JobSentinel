@@ -182,6 +182,8 @@ const rawUrlErrorDisplayPaths = new Set([
   "src-tauri/src/core/scrapers/error.rs",
 ]);
 
+const rawPathOrQueryErrorDisplayPaths = new Set(["src-tauri/src/core/db/error.rs"]);
+
 const rawJobImportLoggingPaths = new Set(["src-tauri/src/commands/import.rs"]);
 
 const rawAutomationQuestionLoggingPaths = new Set([
@@ -594,6 +596,14 @@ function hasRawUrlErrorDisplay(root, path) {
   return /#\[error\("[^"]*\{url\}/.test(readFileSync(join(root, path), "utf8"));
 }
 
+function hasRawPathOrQueryErrorDisplay(root, path) {
+  if (!rawPathOrQueryErrorDisplayPaths.has(path)) {
+    return false;
+  }
+
+  return /#\[error\("[^"]*\{(?:path|query)\}/.test(readFileSync(join(root, path), "utf8"));
+}
+
 function hasRawJobImportLogging(root, path) {
   if (!rawJobImportLoggingPaths.has(path)) {
     return false;
@@ -744,6 +754,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawUrlErrorDisplay(root, path)) {
       violations.push(`replace raw URL error display: ${path}`);
+    }
+
+    if (hasRawPathOrQueryErrorDisplay(root, path)) {
+      violations.push(`replace raw path/query error display: ${path}`);
     }
 
     if (hasRawJobImportLogging(root, path)) {

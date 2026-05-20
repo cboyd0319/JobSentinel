@@ -3,40 +3,28 @@
 //! Domain-specific error types for database operations with detailed context
 //! for better debugging and user-friendly error messages.
 
-use thiserror::Error;
+use crate::core::logging::path_label_for_logging;
+use std::{error::Error, fmt, path::Path};
 
 /// Comprehensive error type for database operations
-#[derive(Error, Debug)]
+#[derive(Debug)]
 pub enum DatabaseError {
     /// SQLx database error
-    #[error("Database query error: {context}")]
     Query {
         context: String,
-        #[source]
         source: sqlx::Error,
     },
 
     /// Database connection error
-    #[error("Failed to connect to database at {path}: {source}")]
-    Connection {
-        path: String,
-        #[source]
-        source: sqlx::Error,
-    },
+    Connection { path: String, source: sqlx::Error },
 
     /// Migration error
-    #[error("Database migration failed: {source}")]
-    Migration {
-        #[source]
-        source: sqlx::migrate::MigrateError,
-    },
+    Migration { source: sqlx::migrate::MigrateError },
 
     /// Query timeout
-    #[error("Database query timed out after {timeout_secs}s: {query}")]
     Timeout { timeout_secs: u64, query: String },
 
     /// Record not found
-    #[error("Record not found: {entity} with {field}={value}")]
     NotFound {
         entity: String, // "job", "application", "resume"
         field: String,  // "id", "hash", "email"
@@ -44,7 +32,6 @@ pub enum DatabaseError {
     },
 
     /// Duplicate record (unique constraint violation)
-    #[error("Duplicate {entity}: {field}={value} already exists")]
     Duplicate {
         entity: String,
         field: String,
@@ -52,18 +39,15 @@ pub enum DatabaseError {
     },
 
     /// Foreign key constraint violation
-    #[error("Foreign key violation: {parent_entity} not found for {child_entity}")]
     ForeignKeyViolation {
         parent_entity: String, // "job"
         child_entity: String,  // "application"
     },
 
     /// Data validation error
-    #[error("Validation error for {field}: {reason}")]
     Validation { field: String, reason: String },
 
     /// Field too long
-    #[error("Field '{field}' exceeds maximum length of {max_length} (actual: {actual_length})")]
     FieldTooLong {
         field: String,
         max_length: usize,
@@ -71,51 +55,132 @@ pub enum DatabaseError {
     },
 
     /// Invalid field value
-    #[error("Invalid {field}: {reason}")]
     InvalidField { field: String, reason: String },
 
     /// Database integrity error
-    #[error("Database integrity check failed: {message}")]
     Integrity { message: String },
 
     /// Database corruption detected
-    #[error("Database corruption detected: {details}")]
     Corruption { details: String },
 
     /// Backup operation failed
-    #[error("Backup failed at {path}: {source}")]
     Backup {
         path: String,
-        #[source]
         source: std::io::Error,
     },
 
     /// Restore operation failed
-    #[error("Restore failed from {path}: {reason}")]
     Restore { path: String, reason: String },
 
     /// Transaction error
-    #[error("Transaction failed: {operation}")]
     Transaction {
         operation: String,
-        #[source]
-        source: Box<dyn std::error::Error + Send + Sync>,
+        source: Box<dyn Error + Send + Sync>,
     },
 
     /// Database locked (concurrent access)
-    #[error("Database is locked - retry in {retry_after_ms}ms")]
     Locked { retry_after_ms: u64 },
 
     /// Disk full or I/O error
-    #[error("Disk I/O error: {source}")]
-    Io {
-        #[source]
-        source: std::io::Error,
-    },
+    Io { source: std::io::Error },
 
     /// Generic database error with context
-    #[error("Database error: {message}")]
     Generic { message: String },
+}
+
+impl fmt::Display for DatabaseError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Query { context, .. } => write!(f, "Database query error: {context}"),
+            Self::Connection { path, source } => {
+                write!(
+                    f,
+                    "Failed to connect to database at {}: {}",
+                    Self::sanitize_path(path),
+                    source
+                )
+            }
+            Self::Migration { source } => write!(f, "Database migration failed: {source}"),
+            Self::Timeout {
+                timeout_secs,
+                query,
+            } => {
+                write!(
+                    f,
+                    "Database query timed out after {}s: {}",
+                    timeout_secs,
+                    Self::sanitize_query(query)
+                )
+            }
+            Self::NotFound { entity, field, .. } => {
+                write!(f, "Record not found: {entity} with {field}")
+            }
+            Self::Duplicate { entity, field, .. } => {
+                write!(f, "Duplicate {entity}: {field} already exists")
+            }
+            Self::ForeignKeyViolation {
+                parent_entity,
+                child_entity,
+            } => {
+                write!(
+                    f,
+                    "Foreign key violation: {parent_entity} not found for {child_entity}"
+                )
+            }
+            Self::Validation { field, reason } => {
+                write!(f, "Validation error for {field}: {reason}")
+            }
+            Self::FieldTooLong {
+                field,
+                max_length,
+                actual_length,
+            } => {
+                write!(
+                    f,
+                    "Field '{field}' exceeds maximum length of {max_length} (actual: {actual_length})"
+                )
+            }
+            Self::InvalidField { field, reason } => write!(f, "Invalid {field}: {reason}"),
+            Self::Integrity { message } => {
+                write!(f, "Database integrity check failed: {message}")
+            }
+            Self::Corruption { details } => write!(f, "Database corruption detected: {details}"),
+            Self::Backup { path, source } => {
+                write!(
+                    f,
+                    "Backup failed at {}: {}",
+                    Self::sanitize_path(path),
+                    source
+                )
+            }
+            Self::Restore { path, reason } => {
+                write!(
+                    f,
+                    "Restore failed from {}: {}",
+                    Self::sanitize_path(path),
+                    reason
+                )
+            }
+            Self::Transaction { operation, .. } => write!(f, "Transaction failed: {operation}"),
+            Self::Locked { retry_after_ms } => {
+                write!(f, "Database is locked - retry in {retry_after_ms}ms")
+            }
+            Self::Io { source } => write!(f, "Disk I/O error: {source}"),
+            Self::Generic { message } => write!(f, "Database error: {message}"),
+        }
+    }
+}
+
+impl Error for DatabaseError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            Self::Query { source, .. } | Self::Connection { source, .. } => Some(source),
+            Self::Migration { source } => Some(source),
+            Self::Backup { source, .. } | Self::Io { source } => Some(source),
+            Self::Transaction { source, .. } => Some(source.as_ref()),
+            _ => None,
+        }
+    }
 }
 
 impl DatabaseError {
@@ -260,18 +325,12 @@ impl DatabaseError {
 
     /// Sanitize SQL query for display (remove sensitive data)
     fn sanitize_query(query: &str) -> String {
-        // Truncate long queries and remove potential sensitive data
-        let truncated = if query.len() > 100 {
-            format!("{}...", &query[..100])
-        } else {
-            query.to_string()
-        };
+        format!("<query:{} chars>", query.chars().count())
+    }
 
-        // Remove potential sensitive patterns (simplified)
-        truncated
-            .replace("password", "***")
-            .replace("token", "***")
-            .replace("secret", "***")
+    /// Sanitize a local path for display.
+    fn sanitize_path(path: &str) -> String {
+        path_label_for_logging(Path::new(path))
     }
 
     /// Capitalize first letter of string
@@ -393,8 +452,9 @@ mod tests {
     fn test_sanitize_query() {
         let query = "SELECT * FROM users WHERE password='secret123'";
         let sanitized = DatabaseError::sanitize_query(query);
-        assert!(sanitized.contains("***"));
+        assert_eq!(sanitized, "<query:46 chars>");
         assert!(!sanitized.contains("secret123"));
+        assert!(!sanitized.contains("SELECT"));
     }
 
     #[test]
@@ -403,5 +463,36 @@ mod tests {
         assert!(matches!(err, DatabaseError::FieldTooLong { .. }));
         assert!(err.to_string().contains("500"));
         assert!(err.to_string().contains("750"));
+    }
+
+    #[test]
+    fn test_display_messages_do_not_expose_raw_paths_or_queries() {
+        let timeout = DatabaseError::Timeout {
+            timeout_secs: 30,
+            query: "SELECT * FROM jobs WHERE title='secret role' AND token='abc123'".to_string(),
+        };
+        let timeout_text = timeout.to_string();
+        assert!(timeout_text.contains("30s"));
+        assert!(!timeout_text.contains("secret role"));
+        assert!(!timeout_text.contains("abc123"));
+        assert!(!timeout_text.contains("SELECT * FROM jobs"));
+
+        let backup = DatabaseError::Backup {
+            path: "/Users/alice/Documents/JobSentinel/private-backup.db".to_string(),
+            source: std::io::Error::new(std::io::ErrorKind::PermissionDenied, "denied"),
+        };
+        let backup_text = backup.to_string();
+        assert!(backup_text.contains("<path:.db>"));
+        assert!(!backup_text.contains("alice"));
+        assert!(!backup_text.contains("private-backup"));
+
+        let restore = DatabaseError::Restore {
+            path: "/Users/alice/Documents/JobSentinel/private-backup.db".to_string(),
+            reason: "invalid backup".to_string(),
+        };
+        let restore_text = restore.to_string();
+        assert!(restore_text.contains("<path:.db>"));
+        assert!(!restore_text.contains("alice"));
+        assert!(!restore_text.contains("private-backup"));
     }
 }
