@@ -355,7 +355,7 @@ For security-related questions or private disclosure:
 
 ---
 
-**Last Updated**: 2026-03-19
+**Last Updated**: 2026-05-19
 **JobSentinel Version**: 2.6.4
 **Security Level**: Production Ready
-**Latest Audit**: [SECURITY_AUDIT_2026-01-16.md](../reports/SECURITY_AUDIT_2026-01-16.md)
+**Current References**: [Security documentation](./README.md), [verification matrix](../harness/verification-matrix.md)

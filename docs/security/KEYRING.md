@@ -331,10 +331,10 @@ keyring = { version = "3", features = [
 - [Notifications Setup](../features/notifications.md) - Configure notification channels
 - [Architecture](../developer/ARCHITECTURE.md) - System architecture overview
 - [Quick Start](../user/QUICK_START.md) - Getting started guide
-- [Security Audit Report](../reports/SECURITY_AUDIT_2026-01-16.md) - Full security assessment
+- [Security Documentation](./README.md) - Current security guidance
 
 ---
 
-**Last Updated**: 2026-03-18
+**Last Updated**: 2026-05-19
 **Version**: 2.6.4
 **Security Level**: Production Ready

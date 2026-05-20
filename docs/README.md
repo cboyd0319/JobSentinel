@@ -248,15 +248,11 @@ Current release package version is `2.6.4`. Unreleased `2.7.x` work is tracked i
 - **[v1.3 - Power User](releases/v1.3.md)** - Keyboard shortcuts, advanced search
 - **[v1.2 - Notifications](releases/v1.2.md)** - Multi-channel notifications
 
-### Reports
-
-- **[Security Audit (2026-01-16)](reports/SECURITY_AUDIT_2026-01-16.md)** - Comprehensive security analysis
-
 ### Planning
 
 - **[Roadmap](ROADMAP.md)** - Feature roadmap and priorities
 - **[Plans](plans/README.md)** - Active, completed, and template plans
-  - [v2.6.0 UX Improvements](plans/v2.6.0-ux-improvements.md) - Completed sprint
+  - [v2.6.0 UX Improvements](plans/completed/v2.6.0-ux-improvements.md) - Completed sprint
 
 ---
 
@@ -298,9 +294,10 @@ docs/
 │   ├── v2.5.1.md
 │   ├── v2.5.md
 │   └── ...
-├── reports/               # Test and audit reports
-│   ├── TEST-REPORT.md
-│   └── SECURITY_AUDIT_2026-01-16.md
+├── plans/                 # Active, completed, and template plans
+│   ├── active/
+│   ├── completed/
+│   └── templates/
 ├── security/
 │   └── KEYRING.md
 ├── user/
@@ -311,10 +308,10 @@ tests/                     # All tests
 ├── README.md              # Testing overview
 ├── e2e/
 │   ├── playwright/        # Playwright E2E tests
-│   └── webdriverio/       # WebdriverIO + Tauri tests
-└── unit/                  # Unit tests (future)
+│   ├── fixtures/          # E2E fixture placeholders
+│   └── docs/              # E2E screenshot fixtures
 ```
 
 ---
 
-**Last Updated:** 2026-03-17
+**Last Updated:** 2026-05-19

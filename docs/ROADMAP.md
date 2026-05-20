@@ -323,7 +323,7 @@ Comprehensive frontend UX improvements released January 24, 2026.
 | useMinimumLoadingDuration  | ✅ Done | New hook for loading state management                                                         |
 | Actionable Empty States    | ✅ Done | Resume skills, ResumeBuilder experience/education                                             |
 
-See [v2.6.0 UX improvements](plans/v2.6.0-ux-improvements.md) and [v2.6.0 release notes](releases/v2.6.0.md)
+See [v2.6.0 UX improvements](plans/completed/v2.6.0-ux-improvements.md) and [v2.6.0 release notes](releases/v2.6.0.md)
 for details.
 
 ### v2.6.1 - Performance & Code Quality (COMPLETED)

@@ -66,9 +66,8 @@ tests/e2e/fixtures/*.pdf
 tests/e2e/fixtures/*.docx
 tests/e2e/fixtures/*.txt
 
-# Claude CLI configuration (track settings, ignore user data)
-.claude/*
-!.claude/settings.local.json
+# Claude CLI local configuration
+.claude/
 
 # AI-generated root summary files (Copilot, Claude, etc.)
 /*_SUMMARY.md
