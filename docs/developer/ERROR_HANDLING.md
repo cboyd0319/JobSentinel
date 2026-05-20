@@ -30,44 +30,86 @@ JobSentinel treats errors as first-class citizens:
 
 ## Error Types
 
-### 1. Domain-Specific Errors with `thiserror`
+### 1. Domain-Specific Errors with Controlled Display
 
-**Use for**: Module-specific errors with rich context and user-friendly messages
+**Use for**: Module-specific errors with rich context, user-friendly messages,
+and safe display output for logs or stored health rows.
 
 **ScraperError Example:**
 
 ```rust
-use thiserror::Error;
+use crate::core::url_security::sanitize_url_for_logging;
+use std::fmt;
 
-#[derive(Error, Debug)]
+#[derive(Debug)]
 pub enum ScraperError {
-    #[error("HTTP request failed for {url}: {source}")]
     HttpRequest {
         url: String,
-        #[source]
         source: reqwest::Error,
     },
 
-    #[error("HTTP {status} from {url}: {message}")]
     HttpStatus {
         status: u16,
         url: String,
         message: String,
     },
 
-    #[error("Rate limit exceeded for {scraper}: {message}")]
     RateLimit { scraper: String, message: String },
 
-    #[error("Failed to parse {format} from {url}: {source}")]
     ParseError {
         format: String, // "HTML", "JSON", "XML"
         url: String,
-        #[source]
         source: Box<dyn std::error::Error + Send + Sync>,
     },
 
-    #[error("CAPTCHA detected on {url} - manual intervention required")]
     CaptchaDetected { url: String },
+}
+
+impl fmt::Display for ScraperError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::HttpRequest { url, source } => {
+                write!(
+                    f,
+                    "HTTP request failed for {}: {}",
+                    Self::sanitize_url(url),
+                    source
+                )
+            }
+            Self::HttpStatus { status, url, message } => {
+                write!(f, "HTTP {status} from {}: {message}", Self::sanitize_url(url))
+            }
+            Self::RateLimit { scraper, message } => {
+                write!(f, "Rate limit exceeded for {scraper}: {message}")
+            }
+            Self::ParseError { format, url, source } => {
+                write!(
+                    f,
+                    "Failed to parse {} from {}: {}",
+                    format,
+                    Self::sanitize_url(url),
+                    source
+                )
+            }
+            Self::CaptchaDetected { url } => {
+                write!(
+                    f,
+                    "CAPTCHA detected on {} - manual intervention required",
+                    Self::sanitize_url(url)
+                )
+            }
+        }
+    }
+}
+
+impl std::error::Error for ScraperError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            Self::HttpRequest { source, .. } => Some(source),
+            Self::ParseError { source, .. } => Some(source.as_ref()),
+            _ => None,
+        }
+    }
 }
 
 impl ScraperError {
@@ -106,13 +148,9 @@ impl ScraperError {
         }
     }
 
-    /// Sanitize URL for display (remove sensitive query params)
+    /// Sanitize URL for display (remove sensitive URL parts)
     fn sanitize_url(url: &str) -> String {
-        if let Some(base) = url.split('?').next() {
-            base.to_string()
-        } else {
-            url.to_string()
-        }
+        sanitize_url_for_logging(url)
     }
 }
 ```

@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Sanitized scraper error display output so scheduler logs and health rows no longer receive raw scraper URLs or search query text from `ScraperError::to_string()`. |
 | 2026-05-20 | In progress | Replaced raw JobsWithGPT MCP request logging with sanitized endpoint and search-shape metadata, with bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Replaced raw notification success job-title logs with structured job id/hash metadata, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Sanitized LinkedIn auth navigation logs so login redirects are written as sanitized URL labels, with bloat coverage for recurrence. |
@@ -288,6 +289,9 @@ changes or Playwright-specific work.
 - JobsWithGPT logged the full MCP JSON request, including searched job titles
   and location. Scraper request logs should keep request troubleshooting
   metadata without writing search criteria.
+- `ScraperError` display strings included raw URLs and the `NoResults` search
+  query, while scheduler health paths store and log `e.to_string()` from
+  scraper failures.
 - `docs/plans/active/.gitkeep` and `docs/plans/completed/.gitkeep` were
   redundant tracked placeholders because both directories contain real plan
   files.
@@ -402,6 +406,9 @@ changes or Playwright-specific work.
 - Scraper integration request logs must not serialize whole request bodies when
   those bodies contain search criteria. Log endpoint labels and request shape
   instead.
+- Scraper error display output must sanitize URL labels and avoid raw search
+  criteria. Preserve exact URLs and queries only in request execution and typed
+  internal fields that need them.
 - Local paths in logs must use non-identifying labels. Preserve actual paths for
   file operations, database records, and user-facing operations that need them.
 - Keep feature docs aligned with live source names for frontend routes and IPC

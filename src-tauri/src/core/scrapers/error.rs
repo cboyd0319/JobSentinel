@@ -3,21 +3,16 @@
 //! Domain-specific error types for job board scrapers with detailed context
 //! for better debugging and user-friendly error messages.
 
-use thiserror::Error;
+use crate::core::url_security::sanitize_url_for_logging;
+use std::fmt;
 
 /// Comprehensive error type for scraper operations
-#[derive(Error, Debug)]
+#[derive(Debug)]
 pub enum ScraperError {
     /// HTTP request failed
-    #[error("HTTP request failed for {url}: {source}")]
-    HttpRequest {
-        url: String,
-        #[source]
-        source: reqwest::Error,
-    },
+    HttpRequest { url: String, source: reqwest::Error },
 
     /// HTTP error status code
-    #[error("HTTP {status} from {url}: {message}")]
     HttpStatus {
         status: u16,
         url: String,
@@ -25,80 +20,190 @@ pub enum ScraperError {
     },
 
     /// Rate limit exceeded
-    #[error("Rate limit exceeded for {scraper}: {message}")]
     RateLimit { scraper: String, message: String },
 
     /// Failed to parse HTML/JSON response
-    #[error("Failed to parse {format} from {url}: {source}")]
     ParseError {
         format: String, // "HTML", "JSON", "XML"
         url: String,
-        #[source]
         source: Box<dyn std::error::Error + Send + Sync>,
     },
 
     /// Required HTML selector not found
-    #[error("Selector not found in {url}: {selector}")]
     SelectorNotFound { url: String, selector: String },
 
     /// Missing required field in scraped data
-    #[error("Missing required field '{field}' from {url}")]
     MissingField { field: String, url: String },
 
     /// Invalid or malformed URL
-    #[error("Invalid URL: {url} - {reason}")]
     InvalidUrl { url: String, reason: String },
 
     /// Authentication failure (missing or invalid credentials)
-    #[error("Authentication failed for {scraper}: {message}")]
     Authentication { scraper: String, message: String },
 
     /// Session expired (cookie/token no longer valid)
-    #[error("Session expired for {scraper}: {message}")]
     SessionExpired { scraper: String, message: String },
 
     /// CAPTCHA detected
-    #[error("CAPTCHA detected on {url} - manual intervention required")]
     CaptchaDetected { url: String },
 
     /// Cloudflare protection or anti-bot detected
-    #[error("Anti-bot protection detected on {url}: {protection_type}")]
     BotProtection {
         url: String,
         protection_type: String, // "Cloudflare", "PerimeterX", "Akamai"
     },
 
     /// Request timeout
-    #[error("Request timeout after {timeout_secs}s for {url}")]
     Timeout { url: String, timeout_secs: u64 },
 
     /// Network connectivity issue
-    #[error("Network error for {url}: {source}")]
-    Network {
-        url: String,
-        #[source]
-        source: reqwest::Error,
-    },
+    Network { url: String, source: reqwest::Error },
 
     /// Invalid configuration for scraper
-    #[error("Invalid configuration for {scraper}: {message}")]
     InvalidConfiguration { scraper: String, message: String },
 
     /// Empty result set (may not be an error, but useful for logging)
-    #[error("No jobs found for {scraper} with query: {query}")]
     NoResults { scraper: String, query: String },
 
     /// Data validation failed
-    #[error("Data validation failed for {field}: {reason}")]
     ValidationError { field: String, reason: String },
 
     /// Feature not implemented yet
-    #[error("Feature not implemented for {scraper}: {feature}")]
     NotImplemented { scraper: String, feature: String },
 
     /// Generic scraper error with context
-    #[error("Scraper error for {scraper}: {message}")]
     Generic { scraper: String, message: String },
+}
+
+impl fmt::Display for ScraperError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::HttpRequest { url, source } => {
+                write!(
+                    f,
+                    "HTTP request failed for {}: {}",
+                    Self::sanitize_url(url),
+                    source
+                )
+            }
+            Self::HttpStatus {
+                status,
+                url,
+                message,
+            } => {
+                write!(
+                    f,
+                    "HTTP {} from {}: {}",
+                    status,
+                    Self::sanitize_url(url),
+                    message
+                )
+            }
+            Self::RateLimit { scraper, message } => {
+                write!(f, "Rate limit exceeded for {scraper}: {message}")
+            }
+            Self::ParseError {
+                format,
+                url,
+                source,
+            } => {
+                write!(
+                    f,
+                    "Failed to parse {} from {}: {}",
+                    format,
+                    Self::sanitize_url(url),
+                    source
+                )
+            }
+            Self::SelectorNotFound { url, selector } => {
+                write!(
+                    f,
+                    "Selector not found in {}: {}",
+                    Self::sanitize_url(url),
+                    selector
+                )
+            }
+            Self::MissingField { field, url } => {
+                write!(
+                    f,
+                    "Missing required field '{}' from {}",
+                    field,
+                    Self::sanitize_url(url)
+                )
+            }
+            Self::InvalidUrl { url, reason } => {
+                write!(f, "Invalid URL: {} - {}", Self::sanitize_url(url), reason)
+            }
+            Self::Authentication { scraper, message } => {
+                write!(f, "Authentication failed for {scraper}: {message}")
+            }
+            Self::SessionExpired { scraper, message } => {
+                write!(f, "Session expired for {scraper}: {message}")
+            }
+            Self::CaptchaDetected { url } => {
+                write!(
+                    f,
+                    "CAPTCHA detected on {} - manual intervention required",
+                    Self::sanitize_url(url)
+                )
+            }
+            Self::BotProtection {
+                url,
+                protection_type,
+            } => {
+                write!(
+                    f,
+                    "Anti-bot protection detected on {}: {}",
+                    Self::sanitize_url(url),
+                    protection_type
+                )
+            }
+            Self::Timeout { url, timeout_secs } => {
+                write!(
+                    f,
+                    "Request timeout after {}s for {}",
+                    timeout_secs,
+                    Self::sanitize_url(url)
+                )
+            }
+            Self::Network { url, source } => {
+                write!(
+                    f,
+                    "Network error for {}: {}",
+                    Self::sanitize_url(url),
+                    source
+                )
+            }
+            Self::InvalidConfiguration { scraper, message } => {
+                write!(f, "Invalid configuration for {scraper}: {message}")
+            }
+            Self::NoResults { scraper, .. } => {
+                write!(
+                    f,
+                    "No jobs found for {scraper} with supplied search criteria"
+                )
+            }
+            Self::ValidationError { field, reason } => {
+                write!(f, "Data validation failed for {field}: {reason}")
+            }
+            Self::NotImplemented { scraper, feature } => {
+                write!(f, "Feature not implemented for {scraper}: {feature}")
+            }
+            Self::Generic { scraper, message } => {
+                write!(f, "Scraper error for {scraper}: {message}")
+            }
+        }
+    }
+}
+
+impl std::error::Error for ScraperError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            Self::HttpRequest { source, .. } | Self::Network { source, .. } => Some(source),
+            Self::ParseError { source, .. } => Some(source.as_ref()),
+            _ => None,
+        }
+    }
 }
 
 impl ScraperError {
@@ -260,12 +365,7 @@ impl ScraperError {
 
     /// Sanitize URL for display (remove sensitive query params)
     fn sanitize_url(url: &str) -> String {
-        // Remove query parameters that might contain sensitive data
-        if let Some(base) = url.split('?').next() {
-            base.to_string()
-        } else {
-            url.to_string()
-        }
+        sanitize_url_for_logging(url)
     }
 }
 
@@ -372,5 +472,38 @@ mod tests {
         let sanitized = ScraperError::sanitize_url(url);
         assert_eq!(sanitized, "https://example.com/api");
         assert!(!sanitized.contains("secret123"));
+    }
+
+    #[test]
+    fn test_display_messages_do_not_expose_raw_urls_or_queries() {
+        let raw_url = "https://user:pass@example.com/jobs?token=secret123&query=security#private";
+
+        let status = ScraperError::http_status(503, raw_url, "Service Unavailable");
+        let status_text = status.to_string();
+        assert!(status_text.contains("https://example.com/jobs"));
+        assert!(!status_text.contains("secret123"));
+        assert!(!status_text.contains("query=security"));
+        assert!(!status_text.contains("user"));
+        assert!(!status_text.contains("pass"));
+        assert!(!status_text.contains("private"));
+
+        let invalid = ScraperError::InvalidUrl {
+            url: raw_url.to_string(),
+            reason: "bad host".to_string(),
+        };
+        let invalid_text = invalid.to_string();
+        assert!(invalid_text.contains("https://example.com/jobs"));
+        assert!(!invalid_text.contains("secret123"));
+        assert!(!invalid_text.contains("user"));
+        assert!(!invalid_text.contains("pass"));
+        assert!(!invalid_text.contains("private"));
+
+        let no_results = ScraperError::NoResults {
+            scraper: "linkedin".to_string(),
+            query: "secret job search".to_string(),
+        };
+        let no_results_text = no_results.to_string();
+        assert!(no_results_text.contains("linkedin"));
+        assert!(!no_results_text.contains("secret job search"));
     }
 }
