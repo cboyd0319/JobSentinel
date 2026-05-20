@@ -510,7 +510,7 @@ npm run test:e2e:ui
 | Settings        | `settings-save-load.spec.ts` | Modal nav, basic preferences, advanced notifications, credentials, ghost detection, save/load |
 | Applications    | `application-tracking.spec.ts` | Kanban, cards, drag/drop, detail modal, status and notes, reminders |
 | Market          | `market-intelligence.spec.ts` | Tabs, snapshot, charts, alerts |
-| Resume          | `resume-upload-matching.spec.ts` | Upload, validation, matching |
+| Resume          | `resume-upload-matching.spec.ts` | No-resume state, active resume, skill CRUD, library switching, match results |
 | Resume Builder  | `resume-builder.spec.ts` | Wizard, steps, templates, export |
 | Keyboard        | `keyboard-navigation.spec.ts` | Shortcuts, focus, command palette |
 | One-Click Apply | `one-click-apply.spec.ts` | Profile, ATS detection, automation |

@@ -10,7 +10,7 @@ Reusable page objects following the Page Object Model pattern:
 
 - `BasePage.ts` - Base class with common functionality
 - `DashboardPage.ts` - Job search and filtering
-- `ResumePage.ts` - Resume upload and matching
+- `ResumePage.ts` - Resume state, skills, library, and match results
 - `ApplicationsPage.ts` - Application tracking kanban
 - `SettingsPage.ts` - Settings management
 - `OneClickApplyPage.ts` - One-Click Apply automation
@@ -27,10 +27,10 @@ Reusable page objects following the Page Object Model pattern:
    - Error handling
 
 2. **resume-upload-matching.spec.ts**
-   - Upload PDF/DOCX resumes
-   - File validation and error handling
-   - AI-powered resume matching
-   - Match score and suggestions
+   - Empty resume state and native import actions
+   - Active resume, extracted skills, and match results
+   - Skill add/edit/delete and category filtering
+   - Resume library activation and deletion
 
 3. **application-tracking.spec.ts**
    - Kanban board display
@@ -205,14 +205,13 @@ Tests run against mock data defined in `src/mocks/`:
 - Mock job listings
 - Mock applications
 - Mock settings
+- Mock resumes, skills, and match results
 
 ### Fixtures
 
-Test fixtures in `tests/e2e/fixtures/`:
-
-- Sample resumes (PDF, DOCX)
-- Invalid files for error testing
-- See `fixtures/README.md` for setup
+`tests/e2e/fixtures/` is reserved for future tests that need real files. The
+current resume E2E suite uses seeded mock backend state instead of native file
+upload fixtures.
 
 ## CI/CD Integration
 
@@ -281,7 +280,7 @@ Current test coverage:
 
 - Keyboard shortcuts may not work reliably in headless mode (tests skip gracefully)
 - Drag-and-drop can be flaky on some systems (tests include retries)
-- File upload tests require fixture files (see `fixtures/README.md`)
+- Native file-picker coverage belongs in a Tauri-level smoke test, not browser-only Playwright.
 
 ## Resources
 

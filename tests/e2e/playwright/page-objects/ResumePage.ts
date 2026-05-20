@@ -1,8 +1,8 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
 /**
- * Resume page object - resume upload and matching
+ * Resume matcher page object.
  */
 export class ResumePage extends BasePage {
   constructor(page: Page) {
@@ -13,115 +13,112 @@ export class ResumePage extends BasePage {
     await this.goto("/");
     await this.skipSetupWizard();
     await this.navigateToPage("Resumes");
-    await this.page
-      .getByRole("heading", { name: "Resume Matcher" })
-      .waitFor({ state: "visible", timeout: 15000 });
+    await expect(this.heading).toBeVisible({ timeout: 15000 });
   }
 
-  get uploadArea(): Locator {
-    return this.page.locator(
-      "[data-testid='resume-upload-area'], text=No Resume Uploaded"
-    );
+  get heading(): Locator {
+    return this.page.getByRole("heading", { name: "Resume Matcher" });
   }
 
-  get uploadInput(): Locator {
-    return this.page.locator("input[type='file']");
+  get emptyState(): Locator {
+    return this.page.getByRole("heading", { name: "No Resume Uploaded" });
   }
 
-  get uploadButton(): Locator {
-    return this.page
-      .locator(
-        "[data-testid='btn-upload-resume'], button:has-text('Upload Resume'), button:has-text('Upload New')"
-      )
-      .first();
+  get uploadResumeButton(): Locator {
+    return this.page.getByRole("button", { name: /Upload Resume/i }).first();
   }
 
-  get resumePreview(): Locator {
-    return this.page.locator("[data-testid='resume-preview']");
+  get importJsonButton(): Locator {
+    return this.page.getByRole("button", { name: /Import JSON Resume/i }).first();
   }
 
-  get matchButton(): Locator {
-    return this.page.locator("[data-testid='btn-match-resume']");
+  get activeResumeHeading(): Locator {
+    return this.page.getByRole("heading", { name: "Active Resume" });
   }
 
-  get matchResults(): Locator {
-    return this.page.locator("[data-testid='match-results']");
+  get skillsHeading(): Locator {
+    return this.page.getByRole("heading", { name: "Skills Management" });
   }
 
-  get matchScore(): Locator {
-    return this.page.locator("[data-testid='match-score']");
+  get recentMatchesHeading(): Locator {
+    return this.page.getByRole("heading", { name: "Recent Match Results" });
   }
 
-  get suggestions(): Locator {
-    return this.page.locator("[data-testid='match-suggestions']");
+  get libraryButton(): Locator {
+    return this.page.getByRole("button", { name: /Library \(/ });
   }
 
-  get deleteButton(): Locator {
-    return this.page.locator("[data-testid='btn-delete-resume']");
+  get categoryFilter(): Locator {
+    return this.page.locator("select").first();
   }
 
-  async uploadResume(filePath: string) {
-    // Check if upload input exists
-    const inputExists = await this.uploadInput.count() > 0;
+  async openAddSkillForm() {
+    await this.page.getByRole("button", { name: /^Add$/ }).click();
+    await expect(this.page.getByRole("heading", { name: "Add New Skill" })).toBeVisible();
+  }
 
-    if (inputExists) {
-      await this.uploadInput.setInputFiles(filePath);
-    } else {
-      // Click upload area to trigger file dialog
-      await this.uploadArea.click();
-      await this.page.waitForTimeout(200);
-      await this.uploadInput.setInputFiles(filePath);
+  async openEmptyStateAddSkillForm() {
+    await this.page.getByRole("button", { name: "Add Skill" }).click();
+    await expect(this.page.getByRole("heading", { name: "Add New Skill" })).toBeVisible();
+  }
+
+  async fillSkillForm(options: {
+    name: string;
+    proficiency?: string;
+    category?: string;
+    years?: string;
+  }) {
+    await this.page.getByLabel("Skill name").fill(options.name);
+
+    if (options.proficiency) {
+      await this.page.getByLabel("Proficiency level").selectOption(options.proficiency);
     }
 
+    if (options.category) {
+      await this.page.getByLabel("Skill category").selectOption(options.category);
+    }
+
+    if (options.years) {
+      await this.page.getByLabel("Years of experience").fill(options.years);
+    }
+  }
+
+  async saveNewSkill() {
+    await this.page.getByRole("button", { name: "Add Skill" }).first().click();
     await this.waitForReady();
   }
 
-  async matchWithJob(jobTitle?: string) {
-    if (jobTitle) {
-      // Select specific job from dropdown if provided
-      const jobSelector = this.page.locator("[data-testid='job-selector']");
-      await jobSelector.click();
-      await this.page.locator(`text=${jobTitle}`).click();
-    }
-
-    await this.matchButton.click();
+  async editSkill(skillName: string, nextName: string, nextProficiency: string) {
+    await this.page.getByLabel(`Edit skill: ${skillName}`).click();
+    await this.page.locator('input[placeholder="Skill name"]').fill(nextName);
+    await this.page.locator("select").nth(1).selectOption(nextProficiency);
+    await this.page.getByRole("button", { name: "Save" }).click();
     await this.waitForReady();
   }
 
-  async getMatchScore(): Promise<number> {
-    const scoreText = await this.matchScore.textContent();
-    const match = scoreText?.match(/(\d+)%?/);
-    return match ? parseInt(match[1]) : 0;
+  async deleteSkill(skillName: string) {
+    await this.page.getByLabel(`Delete skill: ${skillName}`).click();
+    const dialog = this.page.getByRole("dialog", { name: "Delete Skill?" });
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole("button", { name: "Delete" }).click();
+    await this.waitForReady();
   }
 
-  async getSuggestions(): Promise<string[]> {
-    const items = this.suggestions.locator("li");
-    const count = await items.count();
-    const suggestions: string[] = [];
-
-    for (let i = 0; i < count; i++) {
-      const text = await items.nth(i).textContent();
-      if (text) suggestions.push(text);
-    }
-
-    return suggestions;
+  async openLibrary() {
+    await this.libraryButton.click();
+    await expect(this.page.getByRole("heading", { name: "Resume Library" })).toBeVisible();
   }
 
-  async deleteResume() {
-    if (await this.deleteButton.isVisible().catch(() => false)) {
-      await this.deleteButton.click();
-
-      // Handle confirmation dialog
-      const confirmButton = this.page.locator("button:has-text('Delete'), button:has-text('Confirm')");
-      if (await confirmButton.isVisible().catch(() => false)) {
-        await confirmButton.click();
-      }
-
-      await this.waitForReady();
-    }
+  async activateResume(name: string) {
+    await this.page.getByText(name).click();
+    await this.waitForReady();
   }
 
-  async hasResume(): Promise<boolean> {
-    return await this.resumePreview.isVisible().catch(() => false);
+  async deleteLibraryResume(name: string) {
+    await this.page.getByLabel(`Delete resume: ${name}`).click();
+    const dialog = this.page.getByRole("dialog", { name: "Delete Resume?" });
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole("button", { name: "Delete" }).click();
+    await this.waitForReady();
   }
 }

@@ -721,8 +721,8 @@ export default function Resume({ onBack }: ResumeProps) {
                     <Button
                       size="sm"
                       onClick={() => {
-                        setEditingSkillId(-1);
                         setNewSkillForm({ skill_name: '', proficiency_level: 'Intermediate' });
+                        setShowAddSkill(true);
                       }}
                     >
                       Add Skill

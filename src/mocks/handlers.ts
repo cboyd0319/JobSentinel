@@ -52,6 +52,49 @@ interface MockBookmarkletConfig {
   enabled: boolean;
 }
 
+interface MockResumeData {
+  id: number;
+  name: string;
+  file_path: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface MockUserSkill {
+  id: number;
+  resume_id: number;
+  skill_name: string;
+  skill_category: string | null;
+  confidence_score: number;
+  years_experience: number | null;
+  proficiency_level: string | null;
+  source: string;
+}
+
+interface MockSkillInput {
+  skill_name?: unknown;
+  skill_category?: unknown;
+  proficiency_level?: unknown;
+  years_experience?: unknown;
+}
+
+interface MockMatchResult {
+  id: number;
+  resume_id: number;
+  job_hash: string;
+  job_title: string;
+  company: string;
+  overall_match_score: number;
+  skills_match_score: number | null;
+  experience_match_score: number | null;
+  education_match_score: number | null;
+  matching_skills: string[];
+  missing_skills: string[];
+  gap_analysis: string | null;
+  created_at: string;
+}
+
 interface MockInterview {
   id: number;
   application_id: number;
@@ -83,6 +126,9 @@ let bookmarkletConfig: MockBookmarkletConfig = {
   port: 4321,
   enabled: false,
 };
+let resumes: MockResumeData[] = [];
+let userSkills: MockUserSkill[] = [];
+let recentMatches: MockMatchResult[] = [];
 
 const MOCK_STATE_KEY = "jobsentinel.mockState.v1";
 
@@ -95,6 +141,9 @@ interface MockState {
   credentials: Partial<Record<MockCredentialKey, string>>;
   ghostConfig: MockGhostConfig;
   bookmarkletConfig: MockBookmarkletConfig;
+  resumes: MockResumeData[];
+  userSkills: MockUserSkill[];
+  recentMatches: MockMatchResult[];
 }
 
 function canUseStorage(): boolean {
@@ -116,6 +165,9 @@ function saveMockState(): void {
     credentials,
     ghostConfig,
     bookmarkletConfig,
+    resumes,
+    userSkills,
+    recentMatches,
   };
   window.localStorage.setItem(MOCK_STATE_KEY, JSON.stringify(state));
 }
@@ -148,6 +200,9 @@ function loadMockState(): void {
     if (state.bookmarkletConfig && typeof state.bookmarkletConfig === "object") {
       bookmarkletConfig = { ...bookmarkletConfig, ...state.bookmarkletConfig };
     }
+    if (Array.isArray(state.resumes)) resumes = state.resumes;
+    if (Array.isArray(state.userSkills)) userSkills = state.userSkills;
+    if (Array.isArray(state.recentMatches)) recentMatches = state.recentMatches;
   } catch {
     window.localStorage.removeItem(MOCK_STATE_KEY);
   }
@@ -199,6 +254,50 @@ function isCredentialKey(value: unknown): value is MockCredentialKey {
 
 function getArrayLength(value: unknown): number {
   return Array.isArray(value) ? value.length : 0;
+}
+
+function getStringArg(
+  args: Record<string, unknown> | undefined,
+  key: string,
+): string | undefined {
+  const value = getArg(args, key);
+  return typeof value === "string" ? value : undefined;
+}
+
+function getActiveResume(): MockResumeData | null {
+  return resumes.find((resume) => resume.is_active) ?? null;
+}
+
+function getNextId(items: Array<{ id: number }>): number {
+  return items.reduce((max, item) => Math.max(max, item.id), 0) + 1;
+}
+
+function getResumeIdArg(args: Record<string, unknown> | undefined): number | undefined {
+  return getNumericArg(args, "resumeId") ?? getNumericArg(args, "resume_id");
+}
+
+function getSkillIdArg(args: Record<string, unknown> | undefined): number | undefined {
+  return getNumericArg(args, "skillId") ?? getNumericArg(args, "skill_id");
+}
+
+function normalizeSkillInput(value: unknown): MockSkillInput {
+  return value && typeof value === "object" ? (value as MockSkillInput) : {};
+}
+
+function createMockResume(name: string, filePath: string): number {
+  const now = new Date().toISOString();
+  const id = getNextId(resumes);
+  resumes = resumes.map((resume) => ({ ...resume, is_active: false }));
+  resumes.push({
+    id,
+    name,
+    file_path: filePath,
+    is_active: true,
+    created_at: now,
+    updated_at: now,
+  });
+  saveMockState();
+  return id;
 }
 
 function getJobId(args?: Record<string, unknown>): number | undefined {
@@ -460,7 +559,7 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
           has_company_allowlist:
             getArrayLength(configWithCompanies.company_whitelist) > 0,
           notifications_configured: Number(config.alerts.email?.enabled ?? false),
-          has_resume: false,
+          has_resume: Boolean(getActiveResume()),
         } as T;
       }
 
@@ -635,10 +734,158 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
 
     // Resume commands
     case "get_active_resume":
-      return null as T;
+      return getActiveResume() as T;
 
-    case "get_user_skills":
-      return [] as T;
+    case "list_all_resumes":
+      return resumes as T;
+
+    case "set_active_resume": {
+      const resumeId = getResumeIdArg(args);
+      if (typeof resumeId === "number" && resumes.some((resume) => resume.id === resumeId)) {
+        resumes = resumes.map((resume) => ({
+          ...resume,
+          is_active: resume.id === resumeId,
+        }));
+        saveMockState();
+      }
+      return undefined as T;
+    }
+
+    case "upload_resume": {
+      const name = getStringArg(args, "name") ?? "Resume.pdf";
+      const filePath = getStringArg(args, "filePath") ?? getStringArg(args, "file_path") ?? "";
+      return createMockResume(name, filePath) as T;
+    }
+
+    case "import_json_resume": {
+      const name = getStringArg(args, "name") ?? "Imported Resume";
+      return createMockResume(`${name}.json`, `${name}.json`) as T;
+    }
+
+    case "delete_resume": {
+      const resumeId = getResumeIdArg(args);
+      if (typeof resumeId === "number") {
+        const wasActive = resumes.some((resume) => resume.id === resumeId && resume.is_active);
+        resumes = resumes.filter((resume) => resume.id !== resumeId);
+        userSkills = userSkills.filter((skill) => skill.resume_id !== resumeId);
+        recentMatches = recentMatches.filter((match) => match.resume_id !== resumeId);
+        if (wasActive && resumes.length > 0) {
+          resumes = resumes.map((resume, index) => ({
+            ...resume,
+            is_active: index === 0,
+          }));
+        }
+        saveMockState();
+      }
+      return undefined as T;
+    }
+
+    case "get_user_skills": {
+      const resumeId = getResumeIdArg(args);
+      return userSkills.filter((skill) => skill.resume_id === resumeId) as T;
+    }
+
+    case "add_user_skill": {
+      const resumeId = getResumeIdArg(args);
+      const skill = normalizeSkillInput(getArg(args, "skill"));
+      if (typeof resumeId !== "number" || typeof skill.skill_name !== "string") {
+        return undefined as T;
+      }
+
+      const newSkill: MockUserSkill = {
+        id: getNextId(userSkills),
+        resume_id: resumeId,
+        skill_name: skill.skill_name,
+        skill_category: typeof skill.skill_category === "string" ? skill.skill_category : null,
+        confidence_score: 1,
+        years_experience:
+          typeof skill.years_experience === "number" ? skill.years_experience : null,
+        proficiency_level:
+          typeof skill.proficiency_level === "string" ? skill.proficiency_level : null,
+        source: "manual",
+      };
+      userSkills.push(newSkill);
+      saveMockState();
+      return newSkill.id as T;
+    }
+
+    case "update_user_skill": {
+      const skillId = getSkillIdArg(args);
+      const updates = normalizeSkillInput(getArg(args, "updates"));
+      userSkills = userSkills.map((skill) =>
+        skill.id === skillId
+          ? {
+              ...skill,
+              skill_name:
+                typeof updates.skill_name === "string" ? updates.skill_name : skill.skill_name,
+              skill_category:
+                typeof updates.skill_category === "string"
+                  ? updates.skill_category
+                  : skill.skill_category,
+              proficiency_level:
+                typeof updates.proficiency_level === "string"
+                  ? updates.proficiency_level
+                  : skill.proficiency_level,
+              years_experience:
+                typeof updates.years_experience === "number"
+                  ? updates.years_experience
+                  : skill.years_experience,
+              source: "manual",
+            }
+          : skill,
+      );
+      saveMockState();
+      return undefined as T;
+    }
+
+    case "delete_user_skill": {
+      const skillId = getSkillIdArg(args);
+      userSkills = userSkills.filter((skill) => skill.id !== skillId);
+      saveMockState();
+      return undefined as T;
+    }
+
+    case "get_recent_matches": {
+      const resumeId = getResumeIdArg(args);
+      const limit = getNumericArg(args, "limit") ?? 10;
+      return recentMatches
+        .filter((match) => match.resume_id === resumeId)
+        .slice(0, limit) as T;
+    }
+
+    case "match_resume_to_job": {
+      const resumeId = getResumeIdArg(args);
+      const jobHash = getStringArg(args, "jobHash") ?? getStringArg(args, "job_hash");
+      const job = jobs.find((item) => item.hash === jobHash);
+      if (typeof resumeId !== "number" || !jobHash || !job) {
+        return undefined as T;
+      }
+
+      const skills = userSkills
+        .filter((skill) => skill.resume_id === resumeId)
+        .map((skill) => skill.skill_name);
+      const match: MockMatchResult = {
+        id: getNextId(recentMatches),
+        resume_id: resumeId,
+        job_hash: jobHash,
+        job_title: job.title,
+        company: job.company,
+        overall_match_score: Math.round(job.score * 100),
+        skills_match_score: Math.round(job.score * 100),
+        experience_match_score: Math.max(0, Math.round(job.score * 100) - 5),
+        education_match_score: null,
+        matching_skills: skills.slice(0, 3),
+        missing_skills: ["Kubernetes"],
+        gap_analysis: "✓ Existing skills align\n✗ Add Kubernetes evidence",
+        created_at: new Date().toISOString(),
+      };
+      recentMatches = [
+        match,
+        ...recentMatches.filter((item) => item.job_hash !== jobHash),
+      ];
+      saveMockState();
+      return match as T;
+    }
 
     // Salary commands
     case "predict_salary":
@@ -725,9 +972,6 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
         success_rate: 90.5,
       } as T;
 
-    case "list_all_resumes":
-      return [] as T;
-
     // Search history and saved searches
     case "get_search_history":
       return [] as T;
@@ -789,5 +1033,8 @@ export function resetMockData() {
     port: 4321,
     enabled: false,
   };
+  resumes = [];
+  userSkills = [];
+  recentMatches = [];
   saveMockState();
 }

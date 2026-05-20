@@ -1,346 +1,282 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, Page } from "@playwright/test";
 import { ResumePage } from "./page-objects/ResumePage";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const MOCK_STATE_KEY = "jobsentinel.mockState.v1";
+
+interface SeedResume {
+  id: number;
+  name: string;
+  file_path: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface SeedSkill {
+  id: number;
+  resume_id: number;
+  skill_name: string;
+  skill_category: string | null;
+  confidence_score: number;
+  years_experience: number | null;
+  proficiency_level: string | null;
+  source: string;
+}
+
+interface SeedMatch {
+  id: number;
+  resume_id: number;
+  job_hash: string;
+  job_title: string;
+  company: string;
+  overall_match_score: number;
+  skills_match_score: number | null;
+  experience_match_score: number | null;
+  education_match_score: number | null;
+  matching_skills: string[];
+  missing_skills: string[];
+  gap_analysis: string | null;
+  created_at: string;
+}
+
+interface ResumeSeedState {
+  resumes: SeedResume[];
+  userSkills: SeedSkill[];
+  recentMatches: SeedMatch[];
+}
+
+const activeResume: SeedResume = {
+  id: 101,
+  name: "portfolio-resume.pdf",
+  file_path: "/tmp/portfolio-resume.pdf",
+  is_active: true,
+  created_at: "2026-05-18T16:00:00.000Z",
+  updated_at: "2026-05-18T16:00:00.000Z",
+};
+
+const archivedResume: SeedResume = {
+  id: 202,
+  name: "marketing-resume.pdf",
+  file_path: "/tmp/marketing-resume.pdf",
+  is_active: false,
+  created_at: "2026-05-17T16:00:00.000Z",
+  updated_at: "2026-05-17T16:00:00.000Z",
+};
+
+const seededSkills: SeedSkill[] = [
+  {
+    id: 1,
+    resume_id: activeResume.id,
+    skill_name: "React",
+    skill_category: "Frameworks",
+    confidence_score: 0.95,
+    years_experience: 5,
+    proficiency_level: "Expert",
+    source: "resume",
+  },
+  {
+    id: 2,
+    resume_id: activeResume.id,
+    skill_name: "TypeScript",
+    skill_category: "Programming Languages",
+    confidence_score: 0.9,
+    years_experience: 4,
+    proficiency_level: "Advanced",
+    source: "resume",
+  },
+  {
+    id: 3,
+    resume_id: activeResume.id,
+    skill_name: "SQL",
+    skill_category: "Databases",
+    confidence_score: 0.72,
+    years_experience: 3,
+    proficiency_level: "Intermediate",
+    source: "manual",
+  },
+];
+
+const seededMatches: SeedMatch[] = [
+  {
+    id: 50,
+    resume_id: activeResume.id,
+    job_hash: "job-hash-2",
+    job_title: "Senior Software Engineer",
+    company: "Stripe",
+    overall_match_score: 86,
+    skills_match_score: 88,
+    experience_match_score: 82,
+    education_match_score: 74,
+    matching_skills: ["React", "TypeScript"],
+    missing_skills: ["Go"],
+    gap_analysis: "✓ React experience matches\n✗ Add Go examples",
+    created_at: "2026-05-19T16:00:00.000Z",
+  },
+];
+
+function buildResumeState(
+  overrides: Partial<ResumeSeedState> = {},
+): ResumeSeedState {
+  return {
+    resumes: [activeResume, archivedResume],
+    userSkills: seededSkills,
+    recentMatches: seededMatches,
+    ...overrides,
+  };
+}
+
+async function seedResumeState(
+  page: Page,
+  overrides: Partial<ResumeSeedState> = {},
+) {
+  const state = buildResumeState(overrides);
+  await page.addInitScript(
+    ({ key, value }) => {
+      if (window.sessionStorage.getItem("resume-e2e-seeded")) return;
+      window.localStorage.setItem(key, JSON.stringify(value));
+      window.sessionStorage.setItem("resume-e2e-seeded", "true");
+    },
+    { key: MOCK_STATE_KEY, value: state },
+  );
+}
 
 test.describe("Resume Upload and Matching", () => {
   let resumePage: ResumePage;
 
   test.beforeEach(async ({ page }) => {
     resumePage = new ResumePage(page);
+  });
+
+  test("shows no-resume state and native import actions", async ({ page }) => {
+    await seedResumeState(page, {
+      resumes: [],
+      userSkills: [],
+      recentMatches: [],
+    });
+
     await resumePage.navigateTo();
+
+    await expect(resumePage.emptyState).toBeVisible();
+    await expect(resumePage.uploadResumeButton).toBeVisible();
+    await expect(resumePage.importJsonButton).toBeVisible();
+    await expect(page.getByText("Upload your resume to enable AI-powered job matching")).toBeVisible();
   });
 
-  test.describe("Resume Upload", () => {
-    test("should display upload area", async () => {
-      const hasUploadArea = await resumePage.uploadArea.isVisible().catch(() => false);
-      const hasUploadButton = await resumePage.uploadButton.isVisible().catch(() => false);
+  test("renders active resume, extracted skills, and recent matches", async ({ page }) => {
+    await seedResumeState(page);
 
-      // Resume page should have upload UI
-      expect(hasUploadArea || hasUploadButton).toBeTruthy();
-    });
+    await resumePage.navigateTo();
 
-    test("should upload PDF resume", async ({ page }) => {
-      // Create mock PDF file path (tests should use fixtures)
-      const mockPdfPath = join(__dirname, "..", "..", "fixtures", "sample-resume.pdf");
-
-      // Skip if upload input not found
-      const inputCount = await resumePage.uploadInput.count();
-      if (inputCount === 0) {
-        test.skip();
-        return;
-      }
-
-      // Try to upload (will fail if file doesn't exist, but tests the flow)
-      try {
-        await resumePage.uploadResume(mockPdfPath);
-
-        // Should show preview or success message
-        const hasPreview = await resumePage.resumePreview.isVisible().catch(() => false);
-        const successMsg = page.locator("text=Uploaded, text=Success");
-        const hasSuccess = await successMsg.isVisible().catch(() => false);
-
-        expect(hasPreview || hasSuccess).toBeTruthy();
-      } catch {
-        // File doesn't exist - that's OK for this test structure
-        test.skip();
-      }
-    });
-
-    test("should upload DOCX resume", async ({ page }) => {
-      const mockDocxPath = join(__dirname, "..", "..", "fixtures", "sample-resume.docx");
-
-      const inputCount = await resumePage.uploadInput.count();
-      if (inputCount === 0) {
-        test.skip();
-        return;
-      }
-
-      try {
-        await resumePage.uploadResume(mockDocxPath);
-
-        const hasPreview = await resumePage.resumePreview.isVisible().catch(() => false);
-        const successMsg = page.locator("text=Uploaded, text=Success");
-        const hasSuccess = await successMsg.isVisible().catch(() => false);
-
-        expect(hasPreview || hasSuccess).toBeTruthy();
-      } catch {
-        test.skip();
-      }
-    });
-
-    test("should reject invalid file types", async ({ page }) => {
-      const invalidPath = join(__dirname, "..", "..", "fixtures", "invalid.txt");
-
-      const inputCount = await resumePage.uploadInput.count();
-      if (inputCount === 0) {
-        test.skip();
-        return;
-      }
-
-      try {
-        await resumePage.uploadResume(invalidPath);
-
-        // Should show error message
-        const errorMsg = page.locator("text=Invalid, text=Error, text=not supported");
-        const hasError = await errorMsg.isVisible({ timeout: 3000 }).catch(() => false);
-
-        expect(hasError).toBeTruthy();
-      } catch {
-        await expect(resumePage.uploadArea).toBeVisible();
-      }
-    });
-
-    test("should handle large file size", async ({ page }) => {
-      // Most apps limit resume size to 5-10MB
-      const largePath = join(__dirname, "..", "..", "fixtures", "large-resume.pdf");
-
-      const inputCount = await resumePage.uploadInput.count();
-      if (inputCount === 0) {
-        test.skip();
-        return;
-      }
-
-      try {
-        await resumePage.uploadResume(largePath);
-
-        // Should show size error
-        const errorMsg = page.locator("text=too large, text=size limit, text=exceed");
-        const hasError = await errorMsg.isVisible({ timeout: 3000 }).catch(() => false);
-
-        expect(hasError).toBeTruthy();
-      } catch {
-        test.skip();
-      }
-    });
-
-    test("should display resume preview after upload", async () => {
-      // Skip if no resume uploaded
-      const hasResume = await resumePage.hasResume();
-      if (!hasResume) {
-        test.skip();
-        return;
-      }
-
-      await expect(resumePage.resumePreview).toBeVisible();
-    });
-
-    test("should delete uploaded resume", async ({ page }) => {
-      const hasResume = await resumePage.hasResume();
-      if (!hasResume) {
-        test.skip();
-        return;
-      }
-
-      const hasDeleteButton = await resumePage.deleteButton.isVisible().catch(() => false);
-      if (!hasDeleteButton) {
-        test.skip();
-        return;
-      }
-
-      await resumePage.deleteResume();
-      await page.waitForTimeout(500);
-
-      // Resume should be removed
-      const stillHasResume = await resumePage.hasResume();
-      expect(stillHasResume).toBe(false);
-    });
+    await expect(resumePage.activeResumeHeading).toBeVisible();
+    await expect(page.getByText(activeResume.name)).toBeVisible();
+    await expect(page.getByText("Skills Extracted (3)")).toBeVisible();
+    await expect(page.getByText("React", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("TypeScript", { exact: true }).first()).toBeVisible();
+    await expect(resumePage.recentMatchesHeading).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Senior Software Engineer" })).toBeVisible();
+    await expect(page.getByText("Matched Skills (2)")).toBeVisible();
+    await expect(page.getByText("Missing Skills (1)")).toBeVisible();
+    await expect(page.getByText("Add Go examples")).toBeVisible();
   });
 
-  test.describe("Resume Matching", () => {
-    test("should display match button when resume uploaded", async () => {
-      const hasResume = await resumePage.hasResume();
-      if (!hasResume) {
-        test.skip();
-        return;
-      }
+  test("adds a manual skill and persists it after reload", async ({ page }) => {
+    await seedResumeState(page);
 
-      const hasMatchButton = await resumePage.matchButton.isVisible().catch(() => false);
-      expect(hasMatchButton).toBeTruthy();
+    await resumePage.navigateTo();
+    await resumePage.openAddSkillForm();
+    await resumePage.fillSkillForm({
+      name: "GraphQL",
+      proficiency: "Advanced",
+      category: "Frameworks",
+      years: "2",
     });
+    await resumePage.saveNewSkill();
 
-    test("should match resume with job posting", async ({ page }) => {
-      const hasResume = await resumePage.hasResume();
-      const hasMatchButton = await resumePage.matchButton.isVisible().catch(() => false);
-
-      if (!hasResume || !hasMatchButton) {
-        test.skip();
-        return;
-      }
-
-      await resumePage.matchWithJob();
-      await page.waitForTimeout(2000); // AI matching may take time
-
-      // Should show match results
-      const hasResults = await resumePage.matchResults.isVisible().catch(() => false);
-      const hasScore = await resumePage.matchScore.isVisible().catch(() => false);
-
-      expect(hasResults || hasScore).toBeTruthy();
-    });
-
-    test("should display match score percentage", async ({ page }) => {
-      const hasResume = await resumePage.hasResume();
-      const hasMatchButton = await resumePage.matchButton.isVisible().catch(() => false);
-
-      if (!hasResume || !hasMatchButton) {
-        test.skip();
-        return;
-      }
-
-      await resumePage.matchWithJob();
-      await page.waitForTimeout(2000);
-
-      const hasScore = await resumePage.matchScore.isVisible().catch(() => false);
-      if (!hasScore) {
-        test.skip();
-        return;
-      }
-
-      const score = await resumePage.getMatchScore();
-
-      // Score should be between 0-100
-      expect(score).toBeGreaterThanOrEqual(0);
-      expect(score).toBeLessThanOrEqual(100);
-    });
-
-    test("should show improvement suggestions", async ({ page }) => {
-      const hasResume = await resumePage.hasResume();
-      const hasMatchButton = await resumePage.matchButton.isVisible().catch(() => false);
-
-      if (!hasResume || !hasMatchButton) {
-        test.skip();
-        return;
-      }
-
-      await resumePage.matchWithJob();
-      await page.waitForTimeout(2000);
-
-      const hasSuggestions = await resumePage.suggestions.isVisible().catch(() => false);
-      if (!hasSuggestions) {
-        test.skip();
-        return;
-      }
-
-      const suggestions = await resumePage.getSuggestions();
-
-      // Should have at least one suggestion
-      expect(suggestions.length).toBeGreaterThan(0);
-    });
-
-    test("should highlight missing keywords", async ({ page }) => {
-      const hasResume = await resumePage.hasResume();
-      const hasMatchButton = await resumePage.matchButton.isVisible().catch(() => false);
-
-      if (!hasResume || !hasMatchButton) {
-        test.skip();
-        return;
-      }
-
-      await resumePage.matchWithJob();
-      await page.waitForTimeout(2000);
-
-      // Look for keyword highlights
-      const keywords = page.locator("[data-testid='missing-keywords'], [data-testid='keyword-match']");
-      const hasKeywords = (await keywords.count()) > 0;
-
-      if (!hasKeywords) {
-        test.skip();
-        return;
-      }
-
-      await expect(keywords.first()).toBeVisible();
-    });
-
-    test("should match with specific job from list", async ({ page }) => {
-      const hasResume = await resumePage.hasResume();
-      const hasMatchButton = await resumePage.matchButton.isVisible().catch(() => false);
-
-      if (!hasResume || !hasMatchButton) {
-        test.skip();
-        return;
-      }
-
-      // Check if job selector exists
-      const jobSelector = page.locator("[data-testid='job-selector']");
-      if (!(await jobSelector.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await resumePage.matchWithJob("Software Engineer");
-      await page.waitForTimeout(2000);
-
-      const hasResults = await resumePage.matchResults.isVisible().catch(() => false);
-      expect(hasResults).toBeTruthy();
-    });
+    await expect(page.getByText("GraphQL", { exact: true }).first()).toBeVisible();
+    await page.reload();
+    await resumePage.navigateTo();
+    await expect(page.getByText("GraphQL", { exact: true }).first()).toBeVisible();
   });
 
-  test.describe("Error Handling", () => {
-    test("should handle matching without resume", async () => {
-      const hasResume = await resumePage.hasResume();
-      if (hasResume) {
-        test.skip();
-        return;
-      }
-
-      // Match button should be disabled or show error
-      const matchButton = resumePage.matchButton;
-      if ((await matchButton.count()) === 0) {
-        return;
-      }
-
-      const isDisabled = await matchButton
-        .first()
-        .isDisabled({ timeout: 1000 })
-        .catch(() => true);
-
-      expect(isDisabled).toBeTruthy();
+  test("opens the add-skill form from empty extracted-skills state", async ({ page }) => {
+    await seedResumeState(page, {
+      userSkills: [],
+      recentMatches: [],
     });
 
-    test("should handle corrupted file upload", async ({ page }) => {
-      const corruptedPath = join(__dirname, "..", "..", "fixtures", "corrupted.pdf");
+    await resumePage.navigateTo();
+    await expect(page.getByText("No skills extracted yet")).toBeVisible();
 
-      const inputCount = await resumePage.uploadInput.count();
-      if (inputCount === 0) {
-        test.skip();
-        return;
-      }
+    await resumePage.openEmptyStateAddSkillForm();
+    await resumePage.fillSkillForm({
+      name: "Rust",
+      proficiency: "Intermediate",
+      category: "Programming Languages",
+    });
+    await resumePage.saveNewSkill();
 
-      try {
-        await resumePage.uploadResume(corruptedPath);
+    await expect(page.getByText("Rust", { exact: true }).first()).toBeVisible();
+  });
 
-        // Should show error
-        const errorMsg = page.locator("text=Error, text=Failed, text=corrupt");
-        const hasError = await errorMsg.isVisible({ timeout: 3000 }).catch(() => false);
+  test("edits and deletes a skill", async ({ page }) => {
+    await seedResumeState(page);
 
-        expect(hasError).toBeTruthy();
-      } catch {
-        test.skip();
-      }
+    await resumePage.navigateTo();
+    await resumePage.editSkill("SQL", "PostgreSQL", "Advanced");
+
+    await expect(page.getByText("PostgreSQL", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("SQL", { exact: true })).not.toBeVisible();
+
+    await resumePage.deleteSkill("PostgreSQL");
+
+    await expect(page.getByText("PostgreSQL", { exact: true })).not.toBeVisible();
+  });
+
+  test("filters skills by category", async ({ page }) => {
+    await seedResumeState(page);
+
+    await resumePage.navigateTo();
+    await resumePage.categoryFilter.selectOption("Frameworks");
+
+    await expect(page.getByText("React", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("SQL", { exact: true })).not.toBeVisible();
+  });
+
+  test("switches active resume from the library", async ({ page }) => {
+    await seedResumeState(page, {
+      userSkills: [
+        ...seededSkills,
+        {
+          id: 4,
+          resume_id: archivedResume.id,
+          skill_name: "Lifecycle Marketing",
+          skill_category: "Soft Skills",
+          confidence_score: 0.81,
+          years_experience: 6,
+          proficiency_level: "Advanced",
+          source: "resume",
+        },
+      ],
+      recentMatches: [],
     });
 
-    test("should handle network timeout during matching", async ({ page }) => {
-      const hasResume = await resumePage.hasResume();
-      const hasMatchButton = await resumePage.matchButton.isVisible().catch(() => false);
+    await resumePage.navigateTo();
+    await resumePage.openLibrary();
+    await resumePage.activateResume(archivedResume.name);
 
-      if (!hasResume || !hasMatchButton) {
-        test.skip();
-        return;
-      }
+    await expect(page.getByText(archivedResume.name)).toBeVisible();
+    await expect(page.getByText("Lifecycle Marketing", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("React", { exact: true })).not.toBeVisible();
+  });
 
-      // Simulate slow network (Playwright can't directly simulate, but we can test timeout handling)
-      await resumePage.matchWithJob();
+  test("deletes an inactive resume from the library", async ({ page }) => {
+    await seedResumeState(page);
 
-      // Wait for loading state or error
-      await page.waitForTimeout(5000);
+    await resumePage.navigateTo();
+    await resumePage.openLibrary();
+    await resumePage.deleteLibraryResume(archivedResume.name);
 
-      // Should show result or error, not hang indefinitely
-      const hasResults = await resumePage.matchResults.isVisible().catch(() => false);
-      const hasError = await page.locator("text=Error, text=Failed, text=timeout").isVisible().catch(() => false);
-
-      expect(hasResults || hasError).toBeTruthy();
-    });
+    await expect(page.getByText(archivedResume.name)).not.toBeVisible();
+    await expect(resumePage.libraryButton).not.toBeVisible();
   });
 });
