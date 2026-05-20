@@ -2694,6 +2694,18 @@ mod tests {
         use super::*;
         use std::path::Path;
 
+        fn sqlite_sidecar_path(path: &Path, suffix: &str) -> std::path::PathBuf {
+            let mut sidecar = path.as_os_str().to_os_string();
+            sidecar.push(suffix);
+            sidecar.into()
+        }
+
+        fn remove_sqlite_artifacts(path: &Path) {
+            let _ = std::fs::remove_file(path);
+            let _ = std::fs::remove_file(sqlite_sidecar_path(path, "-shm"));
+            let _ = std::fs::remove_file(sqlite_sidecar_path(path, "-wal"));
+        }
+
         #[tokio::test]
         async fn test_connect_memory_and_migrate() {
             let db = Database::connect_memory().await.unwrap();
@@ -2748,11 +2760,14 @@ mod tests {
         async fn test_connect_without_parent_directory() {
             // Test connecting to a path in root directory (should succeed)
             let db_path = Path::new("test_no_parent.db");
+            remove_sqlite_artifacts(db_path);
+
             let db = Database::connect(db_path).await.unwrap();
             db.migrate().await.unwrap();
 
             // Cleanup
-            let _ = std::fs::remove_file(db_path);
+            drop(db);
+            remove_sqlite_artifacts(db_path);
         }
 
         #[tokio::test]
