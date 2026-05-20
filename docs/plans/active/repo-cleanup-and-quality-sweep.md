@@ -122,6 +122,7 @@ changes or Playwright-specific work.
 | 2026-05-20 | In progress | Hardened the LinkedIn login result channel so a poisoned mutex cannot panic the auth flow, and added a regression test for poisoned sender recovery. |
 | 2026-05-20 | In progress | Removed implicit external location detection from setup/settings, switched the backend lookup to HTTPS, and documented explicit FreeIPAPI public-IP lookup behavior. |
 | 2026-05-20 | In progress | Hardened ATS URL detection so provider names in query strings or lookalike hosts cannot produce false platform matches, and corrected related architecture docs. |
+| 2026-05-20 | In progress | Sanitized automation command URL logging so credentials, query strings, fragments, and invalid raw URLs are not written to logs. |
 
 ## Discoveries
 
@@ -185,6 +186,9 @@ changes or Playwright-specific work.
   misclassified as a supported ATS.
 - Architecture docs referenced stale `ats_detection.rs` and `myworkday.com`
   names instead of current `ats_detector.rs` and `myworkdayjobs.com`.
+- Automation commands logged raw job URLs for ATS detection and form fill
+  startup; job URLs can contain tracking IDs, session tokens, or credentials in
+  query strings or URL userinfo.
 
 ## Decisions
 
@@ -204,6 +208,8 @@ changes or Playwright-specific work.
   public-IP lookup because it is an external provider call.
 - Match ATS platforms from parsed URL host/path only; HTML fallback can inspect
   page content, but URL detection must not trust arbitrary query text.
+- Log sanitized URL labels for automation commands instead of raw
+  user-controlled URLs.
 
 ## Outcomes
 

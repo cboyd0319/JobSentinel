@@ -17,6 +17,38 @@ use crate::core::automation::{
 };
 use serde::{Deserialize, Serialize};
 use tauri::State;
+use url::Url;
+
+const MAX_LOG_URL_LEN: usize = 80;
+
+fn truncate_log_label(label: &str) -> String {
+    if label.len() <= MAX_LOG_URL_LEN {
+        return label.to_string();
+    }
+
+    let end = label
+        .char_indices()
+        .map(|(index, _)| index)
+        .take_while(|index| *index <= MAX_LOG_URL_LEN)
+        .last()
+        .unwrap_or(MAX_LOG_URL_LEN);
+
+    format!("{}...", &label[..end])
+}
+
+fn sanitize_automation_log_url(url: &str) -> String {
+    let Ok(mut parsed_url) = Url::parse(url) else {
+        return "<invalid-url>".to_string();
+    };
+
+    let _ = parsed_url.set_username("");
+    let _ = parsed_url.set_password(None);
+    parsed_url.set_query(None);
+    parsed_url.set_fragment(None);
+
+    let sanitized = parsed_url.to_string();
+    truncate_log_label(&sanitized)
+}
 
 // ============================================================================
 // Profile Management Commands
@@ -337,7 +369,10 @@ pub async fn get_automation_stats(state: State<'_, AppState>) -> Result<Automati
 /// Detect ATS platform from a URL
 #[tauri::command]
 pub async fn detect_ats_platform(url: String) -> Result<AtsDetectionResponse, String> {
-    tracing::info!("Command: detect_ats_platform (url: {})", url);
+    tracing::info!(
+        "Command: detect_ats_platform (url: {})",
+        sanitize_automation_log_url(&url)
+    );
 
     let platform = AtsDetector::detect_from_url(&url);
     let common_fields = AtsDetector::get_common_fields(&platform)
@@ -432,7 +467,10 @@ pub async fn fill_application_form(
     job_hash: Option<String>,
     state: State<'_, AppState>,
 ) -> Result<FillResultWithAttempt, String> {
-    tracing::info!("Command: fill_application_form (url: {})", job_url);
+    tracing::info!(
+        "Command: fill_application_form (url: {})",
+        sanitize_automation_log_url(&job_url)
+    );
     let start_time = std::time::Instant::now();
 
     // Get profile
@@ -537,6 +575,46 @@ pub async fn fill_application_form(
         duration_ms,
         ats_platform: platform.as_str().to_string(),
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_sanitize_automation_log_url_removes_sensitive_parts() {
+        let sanitized = sanitize_automation_log_url(
+            "https://user:pass@example.com/jobs/123?token=secret&session=abc#private",
+        );
+
+        assert_eq!(sanitized, "https://example.com/jobs/123");
+    }
+
+    #[test]
+    fn test_sanitize_automation_log_url_truncates_long_path() {
+        let sanitized =
+            sanitize_automation_log_url(&format!("https://example.com/jobs/{}", "a".repeat(120)));
+
+        assert!(sanitized.starts_with("https://example.com/jobs/"));
+        assert!(sanitized.ends_with("..."));
+        assert!(sanitized.len() <= 83);
+    }
+
+    #[test]
+    fn test_sanitize_automation_log_url_handles_invalid_url() {
+        let sanitized = sanitize_automation_log_url("not a url with token=secret");
+
+        assert_eq!(sanitized, "<invalid-url>");
+    }
+
+    #[test]
+    fn test_truncate_log_label_handles_unicode_boundaries() {
+        let label = format!("https://example.com/jobs/{}", "é".repeat(80));
+        let truncated = truncate_log_label(&label);
+
+        assert!(truncated.ends_with("..."));
+        assert!(truncated.is_char_boundary(truncated.len()));
+    }
 }
 
 /// Extended fill result with tracking info

@@ -569,18 +569,32 @@ const ALLOWED_HOSTS: &[&str] = &["hooks.slack.com"];
 const BLOCKED_HOSTS: &[&str] = &["evil.com", "attacker.com"];
 ```
 
-### 4. Log validation failures
+### 4. Log sanitized validation failures
 
 ```rust
+fn sanitized_url_label(url: &str) -> String {
+    let Ok(mut parsed) = Url::parse(url) else {
+        return "<invalid-url>".to_string();
+    };
+    let _ = parsed.set_username("");
+    let _ = parsed.set_password(None);
+    parsed.set_query(None);
+    parsed.set_fragment(None);
+    parsed.to_string()
+}
+
 fn validate_webhook_url(url: &str) -> Result<()> {
     let parsed = Url::parse(url).map_err(|e| {
-        tracing::warn!("Invalid webhook URL: {} - {}", url, e);
+        tracing::warn!("Invalid webhook URL: {} - {}", sanitized_url_label(url), e);
         anyhow!("Invalid URL format: {}", e)
     })?;
 
     // ... rest of validation
 }
 ```
+
+Do not log raw user-supplied URLs. Strip credentials, query strings, and
+fragments before logging because job URLs and webhooks can carry tokens.
 
 ## Related Documentation
 

@@ -508,7 +508,8 @@ pub async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
 
 **Security Considerations:**
 
-- URL sanitization removes query parameters (may contain tokens)
+- URL sanitization removes credentials, query parameters, and fragments before
+  error display or logging
 - Error messages never expose internal paths or secrets
 - Stack traces logged but not shown to users
 - `.user_message()` provides safe, user-friendly text
@@ -664,7 +665,7 @@ fn test_error_message_quality() {
 - Add context to errors (`.context()` or structured fields)
 - Provide `.user_message()` methods for user-facing errors
 - Implement `.is_retryable()` for network errors
-- Sanitize URLs and sensitive data in error messages
+- Sanitize URLs and sensitive data in error messages and logs
 - Log errors with structured fields
 - Provide user-friendly error messages
 - Test error paths
