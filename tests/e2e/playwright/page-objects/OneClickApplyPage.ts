@@ -1,8 +1,8 @@
-import { Page, Locator } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
 /**
- * Page object for One-Click Apply functionality
+ * Page object for the One-Click Apply settings surface.
  */
 export class OneClickApplyPage extends BasePage {
   constructor(page: Page) {
@@ -10,162 +10,176 @@ export class OneClickApplyPage extends BasePage {
   }
 
   async navigateTo() {
-    await this.goto("/dashboard");
+    await this.goto("/");
     await this.skipSetupWizard();
+    await this.navigateToPage("One-Click Apply");
+    await expect(this.heading).toBeVisible({ timeout: 15000 });
+    await expect(this.profileForm).toBeVisible({ timeout: 15000 });
   }
 
-  // Locators
-  get jobCards(): Locator {
-    return this.page.locator("[data-testid='job-card'], [class*='job-card']");
+  get heading(): Locator {
+    return this.page.getByRole("heading", { name: "One-Click Apply Settings" });
   }
 
-  get quickApplyButton(): Locator {
-    return this.page.locator(
-      "button:has-text('Quick Apply'), button:has-text('Apply'), [data-testid='quick-apply-btn']"
-    );
+  get profileTab(): Locator {
+    return this.page.getByRole("button", { name: "Profile", exact: true });
   }
 
-  get applyButtons(): Locator {
-    return this.page.locator(
-      "button:has-text('Quick Apply'), button:has-text('Apply')"
-    );
+  get screeningTab(): Locator {
+    return this.page.getByRole("button", { name: "Screening Questions" });
   }
 
-  get applicationPreview(): Locator {
-    return this.page.locator("[data-testid='application-preview'], [role='dialog']");
+  get profileForm(): Locator {
+    return this.page.getByRole("form", { name: "Application profile form" });
   }
 
-  get startAutomationButton(): Locator {
-    return this.page.locator(
-      "button:has-text('Start Automation'), button:has-text('Begin')"
-    );
+  get fullNameInput(): Locator {
+    return this.page.getByLabel(/Full Name/);
   }
 
-  get pauseButton(): Locator {
-    return this.page.locator(
-      "button:has-text('Pause'), [data-testid='pause-btn']"
-    );
+  get emailInput(): Locator {
+    return this.page.getByLabel(/Email/);
   }
 
-  get resumeButton(): Locator {
-    return this.page.locator(
-      "button:has-text('Resume'), [data-testid='resume-btn']"
-    );
+  get phoneInput(): Locator {
+    return this.page.getByLabel("Phone");
   }
 
-  get stopButton(): Locator {
-    return this.page.locator(
-      "button:has-text('Stop'), [data-testid='stop-btn']"
-    );
+  get linkedInInput(): Locator {
+    return this.page.getByRole("textbox", { name: "LinkedIn" });
   }
 
-  get automationStatus(): Locator {
-    return this.page.locator(
-      "[data-testid='automation-status'], [class*='status']"
-    );
+  get githubInput(): Locator {
+    return this.page.getByRole("textbox", { name: "GitHub" });
   }
 
-  get formFieldsDetected(): Locator {
-    return this.page.locator(
-      "[data-testid='detected-fields'], [class*='field-list']"
-    );
+  get portfolioInput(): Locator {
+    return this.page.getByRole("textbox", { name: "Portfolio" });
   }
 
-  get profileSetupPrompt(): Locator {
-    return this.page.locator(
-      "text=set up your profile, text=configure profile"
-    );
+  get websiteInput(): Locator {
+    return this.page.getByRole("textbox", { name: "Website" });
   }
 
-  get atsBadge(): Locator {
-    return this.page.locator(
-      "[data-testid='ats-badge'], [class*='ats-']"
-    );
+  get resumePathInput(): Locator {
+    return this.page.getByLabel("Resume file path");
   }
 
-  get submitConfirmDialog(): Locator {
-    return this.page.locator(
-      "[data-testid='submit-confirm'], text=Ready to submit"
-    );
+  get browseResumeButton(): Locator {
+    return this.page.getByRole("button", { name: "Browse..." });
   }
 
-  // Actions
-  async clickFirstJobCard() {
-    const card = this.jobCards.first();
-    await card.click();
-    await this.waitForReady();
+  get maxApplicationsSelect(): Locator {
+    return this.page.getByLabel("Maximum applications per day");
   }
 
-  async clickQuickApply() {
-    await this.quickApplyButton.click();
-    await this.waitForReady();
+  get manualApprovalCheckbox(): Locator {
+    return this.page.getByLabel(/Require manual approval/);
   }
 
-  async waitForApplicationPreview(timeout: number = 5000): Promise<boolean> {
-    try {
-      await this.applicationPreview.waitFor({ state: "visible", timeout });
-      return true;
-    } catch {
-      return false;
+  get saveProfileButton(): Locator {
+    return this.page.getByRole("button", { name: "Save Profile" });
+  }
+
+  get unsavedChangesIndicator(): Locator {
+    return this.page.getByText("You have unsaved changes");
+  }
+
+  get screeningHeading(): Locator {
+    return this.page.getByRole("heading", { name: "Screening Question Answers" });
+  }
+
+  get addAnswerButton(): Locator {
+    return this.page.getByRole("button", { name: "Add Answer" });
+  }
+
+  get addFirstAnswerButton(): Locator {
+    return this.page.getByRole("button", { name: "Add Your First Answer" });
+  }
+
+  get screeningAnswerDialog(): Locator {
+    return this.page.getByRole("dialog", { name: /Screening Answer/ });
+  }
+
+  get questionPatternInput(): Locator {
+    return this.page.getByLabel(/Question Pattern/);
+  }
+
+  get answerTypeSelect(): Locator {
+    return this.page.getByLabel("Answer type");
+  }
+
+  get answerInput(): Locator {
+    return this.page.getByLabel(/Your Answer/);
+  }
+
+  get notesInput(): Locator {
+    return this.page.getByLabel("Notes (optional)");
+  }
+
+  get saveAnswerButton(): Locator {
+    return this.screeningAnswerDialog.getByRole("button", { name: /Save Answer|Update Answer/ });
+  }
+
+  get editAnswerButtons(): Locator {
+    return this.page.getByRole("button", { name: "Edit answer" });
+  }
+
+  statCard(label: string): Locator {
+    return this.page.getByRole("article", { name: `${label} statistic` });
+  }
+
+  statValue(label: string): Locator {
+    return this.page.getByLabel(`${label} value:`, { exact: false });
+  }
+
+  async switchToScreeningQuestions() {
+    await this.screeningTab.click();
+    await expect(this.screeningHeading).toBeVisible();
+  }
+
+  async fillProfile(values: {
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    linkedin?: string;
+    github?: string;
+    portfolio?: string;
+    website?: string;
+    maxApplications?: string;
+  }) {
+    if (values.fullName !== undefined) await this.fullNameInput.fill(values.fullName);
+    if (values.email !== undefined) await this.emailInput.fill(values.email);
+    if (values.phone !== undefined) await this.phoneInput.fill(values.phone);
+    if (values.linkedin !== undefined) await this.linkedInInput.fill(values.linkedin);
+    if (values.github !== undefined) await this.githubInput.fill(values.github);
+    if (values.portfolio !== undefined) await this.portfolioInput.fill(values.portfolio);
+    if (values.website !== undefined) await this.websiteInput.fill(values.website);
+    if (values.maxApplications !== undefined) {
+      await this.maxApplicationsSelect.selectOption(values.maxApplications);
     }
   }
 
-  async startAutomation() {
-    await this.startAutomationButton.click();
-    await this.waitForReady();
+  async openCommonScreeningAnswer(label: string) {
+    await this.page.getByRole("button", { name: `+ ${label}` }).click();
+    await expect(this.screeningAnswerDialog).toBeVisible();
   }
 
-  async pauseAutomation() {
-    await this.pauseButton.click();
-    await this.page.waitForTimeout(500);
+  async openBlankScreeningAnswer() {
+    await this.addAnswerButton.click();
+    await expect(this.screeningAnswerDialog).toBeVisible();
   }
 
-  async resumeAutomation() {
-    await this.resumeButton.click();
-    await this.page.waitForTimeout(500);
-  }
-
-  async stopAutomation() {
-    await this.stopButton.click();
-    await this.page.waitForTimeout(500);
-  }
-
-  async getDetectedFieldsCount(): Promise<number> {
-    try {
-      const fields = await this.formFieldsDetected.locator("li, [class*='field-item']");
-      return await fields.count();
-    } catch {
-      return 0;
-    }
-  }
-
-  async waitForAtsBadge(timeout: number = 3000): Promise<boolean> {
-    try {
-      await this.atsBadge.waitFor({ state: "visible", timeout });
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  async getAtsDetectionText(): Promise<string> {
-    try {
-      return (await this.atsBadge.textContent()) || "";
-    } catch {
-      return "";
-    }
-  }
-
-  async hasProfileSetup(): Promise<boolean> {
-    return await this.profileSetupPrompt.isVisible().catch(() => false);
-  }
-
-  async waitForSubmitConfirm(timeout: number = 5000): Promise<boolean> {
-    try {
-      await this.submitConfirmDialog.waitFor({ state: "visible", timeout });
-      return true;
-    } catch {
-      return false;
-    }
+  async saveScreeningAnswer(values: {
+    pattern?: string;
+    answer?: string;
+    type?: string;
+    notes?: string;
+  }) {
+    if (values.pattern !== undefined) await this.questionPatternInput.fill(values.pattern);
+    if (values.type !== undefined) await this.answerTypeSelect.selectOption(values.type);
+    if (values.answer !== undefined) await this.answerInput.fill(values.answer);
+    if (values.notes !== undefined) await this.notesInput.fill(values.notes);
+    await this.saveAnswerButton.click();
   }
 }

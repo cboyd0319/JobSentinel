@@ -726,6 +726,10 @@ mod tests {
             answer: answer.to_string(),
             answer_type: Some("text".to_string()),
             notes: None,
+            times_used: 0,
+            times_modified: 0,
+            confidence_score: 1.0,
+            last_used_at: None,
             created_at: Utc::now(),
             updated_at: Utc::now(),
         }

@@ -522,6 +522,7 @@ impl AutomationManager {
 ///
 /// Used for dashboard metrics and health monitoring.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AutomationStats {
     /// Total number of automation attempts (all statuses).
     pub total_attempts: i64,

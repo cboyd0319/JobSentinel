@@ -108,6 +108,40 @@ interface MockMarketAlert {
   created_at: string;
 }
 
+interface MockApplicationProfile {
+  id: number;
+  fullName: string;
+  email: string;
+  phone: string | null;
+  linkedinUrl: string | null;
+  githubUrl: string | null;
+  portfolioUrl: string | null;
+  websiteUrl: string | null;
+  defaultResumeId: number | null;
+  resumeFilePath: string | null;
+  defaultCoverLetterTemplate: string | null;
+  usWorkAuthorized: boolean;
+  requiresSponsorship: boolean;
+  maxApplicationsPerDay: number;
+  requireManualApproval: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface MockScreeningAnswer {
+  id: number;
+  questionPattern: string;
+  answer: string;
+  answerType: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  timesUsed?: number;
+  timesModified?: number;
+  confidenceScore?: number;
+  lastUsedAt?: string | null;
+}
+
 interface MockInterview {
   id: number;
   application_id: number;
@@ -143,6 +177,8 @@ let resumes: MockResumeData[] = [];
 let userSkills: MockUserSkill[] = [];
 let recentMatches: MockMatchResult[] = [];
 let marketAlerts: MockMarketAlert[] = getDefaultMarketAlerts();
+let applicationProfile: MockApplicationProfile | null = getDefaultApplicationProfile();
+let screeningAnswers: MockScreeningAnswer[] = getDefaultScreeningAnswers();
 
 const MOCK_STATE_KEY = "jobsentinel.mockState.v1";
 
@@ -159,6 +195,8 @@ interface MockState {
   userSkills: MockUserSkill[];
   recentMatches: MockMatchResult[];
   marketAlerts: MockMarketAlert[];
+  applicationProfile: MockApplicationProfile | null;
+  screeningAnswers: MockScreeningAnswer[];
 }
 
 function canUseStorage(): boolean {
@@ -184,6 +222,8 @@ function saveMockState(): void {
     userSkills,
     recentMatches,
     marketAlerts,
+    applicationProfile,
+    screeningAnswers,
   };
   window.localStorage.setItem(MOCK_STATE_KEY, JSON.stringify(state));
 }
@@ -220,6 +260,17 @@ function loadMockState(): void {
     if (Array.isArray(state.userSkills)) userSkills = state.userSkills;
     if (Array.isArray(state.recentMatches)) recentMatches = state.recentMatches;
     if (Array.isArray(state.marketAlerts)) marketAlerts = state.marketAlerts;
+    if ("applicationProfile" in state) {
+      applicationProfile =
+        state.applicationProfile && typeof state.applicationProfile === "object"
+          ? normalizeApplicationProfile(state.applicationProfile)
+          : null;
+    }
+    if (Array.isArray(state.screeningAnswers)) {
+      screeningAnswers = state.screeningAnswers
+        .filter((answer) => answer && typeof answer === "object")
+        .map((answer) => normalizeScreeningAnswer(answer));
+    }
   } catch {
     window.localStorage.removeItem(MOCK_STATE_KEY);
   }
@@ -286,6 +337,90 @@ function getDefaultMarketAlerts(): MockMarketAlert[] {
   ];
 }
 
+function getDefaultApplicationProfile(): MockApplicationProfile {
+  const now = "2026-05-19T16:00:00.000Z";
+  return {
+    id: 1,
+    fullName: "John Doe",
+    email: "john@example.com",
+    phone: "+1 (555) 123-4567",
+    linkedinUrl: "https://linkedin.com/in/johndoe",
+    githubUrl: "https://github.com/johndoe",
+    portfolioUrl: "https://johndoe.com",
+    websiteUrl: "https://blog.johndoe.com",
+    defaultResumeId: null,
+    resumeFilePath: null,
+    defaultCoverLetterTemplate: null,
+    usWorkAuthorized: true,
+    requiresSponsorship: false,
+    maxApplicationsPerDay: 10,
+    requireManualApproval: true,
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+function getDefaultScreeningAnswers(): MockScreeningAnswer[] {
+  const now = "2026-05-19T16:00:00.000Z";
+  return [
+    {
+      id: 1,
+      questionPattern: "work.*authorized",
+      answer: "Yes",
+      answerType: "yes_no",
+      notes: "US work authorization",
+      timesUsed: 4,
+      timesModified: 0,
+      confidenceScore: 0.92,
+      lastUsedAt: now,
+      createdAt: now,
+      updatedAt: now,
+    },
+  ];
+}
+
+function normalizeApplicationProfile(value: Partial<MockApplicationProfile>): MockApplicationProfile {
+  const defaults = getDefaultApplicationProfile();
+  return {
+    ...defaults,
+    ...value,
+    id: typeof value.id === "number" ? value.id : defaults.id,
+    fullName: typeof value.fullName === "string" ? value.fullName : defaults.fullName,
+    email: typeof value.email === "string" ? value.email : defaults.email,
+    phone: nullableString(value.phone),
+    linkedinUrl: nullableString(value.linkedinUrl),
+    githubUrl: nullableString(value.githubUrl),
+    portfolioUrl: nullableString(value.portfolioUrl),
+    websiteUrl: nullableString(value.websiteUrl),
+    defaultResumeId: nullableNumber(value.defaultResumeId),
+    resumeFilePath: nullableString(value.resumeFilePath),
+    defaultCoverLetterTemplate: nullableString(value.defaultCoverLetterTemplate),
+    usWorkAuthorized: typeof value.usWorkAuthorized === "boolean" ? value.usWorkAuthorized : defaults.usWorkAuthorized,
+    requiresSponsorship: typeof value.requiresSponsorship === "boolean" ? value.requiresSponsorship : defaults.requiresSponsorship,
+    maxApplicationsPerDay: typeof value.maxApplicationsPerDay === "number" ? value.maxApplicationsPerDay : defaults.maxApplicationsPerDay,
+    requireManualApproval: typeof value.requireManualApproval === "boolean" ? value.requireManualApproval : defaults.requireManualApproval,
+    createdAt: typeof value.createdAt === "string" ? value.createdAt : defaults.createdAt,
+    updatedAt: typeof value.updatedAt === "string" ? value.updatedAt : defaults.updatedAt,
+  };
+}
+
+function normalizeScreeningAnswer(value: Partial<MockScreeningAnswer>): MockScreeningAnswer {
+  const now = new Date().toISOString();
+  return {
+    id: typeof value.id === "number" ? value.id : 1,
+    questionPattern: typeof value.questionPattern === "string" ? value.questionPattern : "",
+    answer: typeof value.answer === "string" ? value.answer : "",
+    answerType: nullableString(value.answerType),
+    notes: nullableString(value.notes),
+    timesUsed: typeof value.timesUsed === "number" ? value.timesUsed : undefined,
+    timesModified: typeof value.timesModified === "number" ? value.timesModified : undefined,
+    confidenceScore: typeof value.confidenceScore === "number" ? value.confidenceScore : undefined,
+    lastUsedAt: nullableString(value.lastUsedAt),
+    createdAt: typeof value.createdAt === "string" ? value.createdAt : now,
+    updatedAt: typeof value.updatedAt === "string" ? value.updatedAt : now,
+  };
+}
+
 function isCredentialKey(value: unknown): value is MockCredentialKey {
   return (
     value === "slack_webhook" ||
@@ -310,6 +445,22 @@ function getStringArg(
   return typeof value === "string" ? value : undefined;
 }
 
+function nullableString(value: unknown): string | null {
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+function nullableNumber(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function booleanValue(value: unknown, fallback: boolean): boolean {
+  return typeof value === "boolean" ? value : fallback;
+}
+
+function numberValue(value: unknown, fallback: number): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
 function getActiveResume(): MockResumeData | null {
   return resumes.find((resume) => resume.is_active) ?? null;
 }
@@ -328,6 +479,85 @@ function getSkillIdArg(args: Record<string, unknown> | undefined): number | unde
 
 function normalizeSkillInput(value: unknown): MockSkillInput {
   return value && typeof value === "object" ? (value as MockSkillInput) : {};
+}
+
+function normalizeProfileInput(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" ? (value as Record<string, unknown>) : {};
+}
+
+function upsertMockApplicationProfile(args?: Record<string, unknown>): number {
+  const input = normalizeProfileInput(getArg(args, "input"));
+  const existing = applicationProfile ?? getDefaultApplicationProfile();
+  const now = new Date().toISOString();
+
+  applicationProfile = {
+    id: existing.id,
+    fullName: String(input.full_name ?? ""),
+    email: String(input.email ?? ""),
+    phone: nullableString(input.phone),
+    linkedinUrl: nullableString(input.linkedin_url),
+    githubUrl: nullableString(input.github_url),
+    portfolioUrl: nullableString(input.portfolio_url),
+    websiteUrl: nullableString(input.website_url),
+    defaultResumeId: nullableNumber(input.default_resume_id),
+    resumeFilePath: nullableString(input.resume_file_path),
+    defaultCoverLetterTemplate: nullableString(input.default_cover_letter_template),
+    usWorkAuthorized: booleanValue(input.us_work_authorized, true),
+    requiresSponsorship: booleanValue(input.requires_sponsorship, false),
+    maxApplicationsPerDay: numberValue(input.max_applications_per_day, 10),
+    requireManualApproval: booleanValue(input.require_manual_approval, true),
+    createdAt: existing.createdAt,
+    updatedAt: now,
+  };
+  saveMockState();
+
+  return applicationProfile.id;
+}
+
+function upsertMockScreeningAnswer(args?: Record<string, unknown>): void {
+  const questionPattern =
+    getStringArg(args, "questionPattern") ?? getStringArg(args, "question_pattern") ?? "";
+  const answer = getStringArg(args, "answer") ?? "";
+  const answerType =
+    getStringArg(args, "answerType") ?? getStringArg(args, "answer_type") ?? "text";
+  const notes = nullableString(getArg(args, "notes"));
+  const existing = screeningAnswers.find(
+    (screeningAnswer) => screeningAnswer.questionPattern === questionPattern,
+  );
+  const now = new Date().toISOString();
+
+  if (existing) {
+    screeningAnswers = screeningAnswers.map((screeningAnswer) =>
+      screeningAnswer.id === existing.id
+        ? {
+            ...screeningAnswer,
+            answer,
+            answerType,
+            notes,
+            updatedAt: now,
+          }
+        : screeningAnswer,
+    );
+  } else {
+    screeningAnswers = [
+      ...screeningAnswers,
+      {
+        id: getNextId(screeningAnswers),
+        questionPattern,
+        answer,
+        answerType,
+        notes,
+        timesUsed: 0,
+        timesModified: 0,
+        confidenceScore: 1,
+        lastUsedAt: null,
+        createdAt: now,
+        updatedAt: now,
+      },
+    ];
+  }
+
+  saveMockState();
 }
 
 function createMockResume(name: string, filePath: string): number {
@@ -1003,27 +1233,25 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
 
     // Automation / One-Click Apply
     case "get_application_profile":
-      return {
-        full_name: "John Doe",
-        email: "john@example.com",
-        phone: "+1 (555) 123-4567",
-        linkedin_url: "https://linkedin.com/in/johndoe",
-        github_url: "https://github.com/johndoe",
-        portfolio_url: "https://johndoe.com",
-        website_url: "https://blog.johndoe.com",
-        resume_path: null,
-        us_work_authorized: true,
-        requires_sponsorship: false,
-        max_applications_per_day: 10,
-        require_manual_approval: true,
-      } as T;
+      return applicationProfile as T;
+
+    case "upsert_application_profile":
+      return upsertMockApplicationProfile(args) as T;
+
+    case "get_screening_answers":
+      return screeningAnswers as T;
+
+    case "upsert_screening_answer":
+      upsertMockScreeningAnswer(args);
+      return undefined as T;
 
     case "get_automation_stats":
       return {
-        total_attempts: 42,
+        totalAttempts: 42,
         submitted: 38,
+        failed: 0,
         pending: 4,
-        success_rate: 90.5,
+        successRate: 90.476,
       } as T;
 
     // Search history and saved searches
@@ -1091,5 +1319,7 @@ export function resetMockData() {
   userSkills = [];
   recentMatches = [];
   marketAlerts = getDefaultMarketAlerts();
+  applicationProfile = getDefaultApplicationProfile();
+  screeningAnswers = getDefaultScreeningAnswers();
   saveMockState();
 }

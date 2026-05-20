@@ -3,6 +3,7 @@
 //! Manages user profile information for automated job applications.
 #![allow(clippy::unwrap_used, clippy::expect_used)] // DateTime parsing from validated database values
 
+use crate::core::ats::parse_sqlite_datetime;
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -153,8 +154,8 @@ impl ProfileManager {
                     requires_sponsorship: r.get::<i32, _>("requires_sponsorship") != 0,
                     max_applications_per_day: r.get("max_applications_per_day"),
                     require_manual_approval: r.get::<i32, _>("require_manual_approval") != 0,
-                    created_at: DateTime::parse_from_rfc3339(&created_at)?.with_timezone(&Utc),
-                    updated_at: DateTime::parse_from_rfc3339(&updated_at)?.with_timezone(&Utc),
+                    created_at: parse_sqlite_datetime(&created_at)?,
+                    updated_at: parse_sqlite_datetime(&updated_at)?,
                 }))
             }
             None => Ok(None),
@@ -177,6 +178,8 @@ impl ProfileManager {
                 answer = excluded.answer,
                 answer_type = excluded.answer_type,
                 notes = excluded.notes,
+                times_modified = times_modified + 1,
+                confidence_score = 1.0,
                 updated_at = datetime('now')
             "#,
         )
@@ -197,7 +200,9 @@ impl ProfileManager {
     pub async fn get_screening_answers(&self) -> Result<Vec<ScreeningAnswer>> {
         let rows = sqlx::query(
             r#"
-            SELECT id, question_pattern, answer, answer_type, notes, created_at, updated_at
+            SELECT id, question_pattern, answer, answer_type, notes,
+                   times_used, times_modified, confidence_score, last_used_at,
+                   created_at, updated_at
             FROM screening_answers
             ORDER BY created_at DESC
             LIMIT 1000
@@ -218,12 +223,14 @@ impl ProfileManager {
                     answer: r.get("answer"),
                     answer_type: r.get("answer_type"),
                     notes: r.get("notes"),
-                    created_at: DateTime::parse_from_rfc3339(&created_at)
-                        .unwrap()
-                        .with_timezone(&Utc),
-                    updated_at: DateTime::parse_from_rfc3339(&updated_at)
-                        .unwrap()
-                        .with_timezone(&Utc),
+                    times_used: r.get("times_used"),
+                    times_modified: r.get("times_modified"),
+                    confidence_score: r.get("confidence_score"),
+                    last_used_at: r
+                        .get::<Option<String>, _>("last_used_at")
+                        .and_then(|date| parse_sqlite_datetime(&date).ok()),
+                    created_at: parse_sqlite_datetime(&created_at).unwrap(),
+                    updated_at: parse_sqlite_datetime(&updated_at).unwrap(),
                 }
             })
             .collect())
@@ -284,6 +291,10 @@ pub struct ScreeningAnswer {
     pub answer: String,
     pub answer_type: Option<String>,
     pub notes: Option<String>,
+    pub times_used: i32,
+    pub times_modified: i32,
+    pub confidence_score: f64,
+    pub last_used_at: Option<DateTime<Utc>>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -297,7 +308,7 @@ mod tests {
     async fn setup_test_db() -> (SqlitePool, TempDir) {
         let temp_dir = TempDir::new().unwrap();
         let db_path = temp_dir.path().join("test.db");
-        let db_url = format!("sqlite:{}", db_path.display());
+        let db_url = format!("sqlite:{}?mode=rwc", db_path.display());
 
         let pool = SqlitePoolOptions::new().connect(&db_url).await.unwrap();
 
@@ -392,7 +403,7 @@ mod tests {
             .upsert_screening_answer(
                 "(?i)authorized.*work.*us",
                 "Yes",
-                "boolean",
+                "yes_no",
                 Some("US work authorization"),
             )
             .await

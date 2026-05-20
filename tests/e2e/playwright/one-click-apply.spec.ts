@@ -1,397 +1,156 @@
 import { test, expect } from "@playwright/test";
 import { OneClickApplyPage } from "./page-objects/OneClickApplyPage";
 
-test.describe("One-Click Apply Flow", () => {
+const MOCK_STATE_KEY = "jobsentinel.mockState.v1";
+
+test.describe("One-Click Apply Settings", () => {
   let applyPage: OneClickApplyPage;
 
   test.beforeEach(async ({ page }) => {
+    await page.addInitScript((key) => {
+      if (window.sessionStorage.getItem("one-click-e2e-reset")) return;
+      window.localStorage.removeItem(key);
+      window.sessionStorage.setItem("one-click-e2e-reset", "true");
+    }, MOCK_STATE_KEY);
+
     applyPage = new OneClickApplyPage(page);
     await applyPage.navigateTo();
   });
 
-  test.describe("Quick Apply Button", () => {
-    test("should display Quick Apply button on job cards", async () => {
-      const jobCount = await applyPage.jobCards.count();
-
-      if (jobCount === 0) {
-        test.skip();
-        return;
-      }
-
-      // Check if at least one job has an apply button
-      const applyButtonCount = await applyPage.applyButtons.count();
-      expect(applyButtonCount).toBeGreaterThanOrEqual(0);
-    });
-
-    test("should open application preview when clicked", async () => {
-      const jobCount = await applyPage.jobCards.count();
-
-      if (jobCount === 0) {
-        test.skip();
-        return;
-      }
-
-      // Click first job to open detail
-      await applyPage.clickFirstJobCard();
-
-      // Look for Quick Apply button
-      if (!(await applyPage.quickApplyButton.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.clickQuickApply();
-
-      // Should show application preview or profile setup prompt
-      const hasPreview = await applyPage.waitForApplicationPreview(3000);
-      const hasProfilePrompt = await applyPage.hasProfileSetup();
-
-      expect(hasPreview || hasProfilePrompt).toBeTruthy();
-    });
+  test("loads settings stats, tabs, and human-review safety copy", async ({ page }) => {
+    await expect(applyPage.statCard("Total Attempts")).toContainText("42");
+    await expect(applyPage.statCard("Submitted")).toContainText("38");
+    await expect(applyPage.statCard("Pending")).toContainText("4");
+    await expect(applyPage.statCard("Success Rate")).toContainText("90%");
+    await expect(applyPage.profileTab).toBeVisible();
+    await expect(applyPage.screeningTab).toBeVisible();
+    await expect(page.getByRole("heading", { name: "How One-Click Apply Works" })).toBeVisible();
+    await expect(page.getByText("Submit Manually")).toBeVisible();
+    await expect(page.getByText("We never submit applications automatically")).toBeVisible();
   });
 
-  test.describe("ATS Detection", () => {
-    test("should detect ATS platform from job URL", async () => {
-      const jobCount = await applyPage.jobCards.count();
-
-      if (jobCount === 0) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.clickFirstJobCard();
-
-      // Wait for ATS badge to appear (optional feature)
-      const hasAtsBadge = await applyPage.waitForAtsBadge(5000);
-
-      if (hasAtsBadge) {
-        const atsText = await applyPage.getAtsDetectionText();
-        expect(atsText.length).toBeGreaterThan(0);
-      } else {
-        test.skip();
-        return;
-      }
-    });
-
-    test("should show common form fields for detected ATS", async () => {
-      const jobCount = await applyPage.jobCards.count();
-
-      if (jobCount === 0) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.clickFirstJobCard();
-
-      if (!(await applyPage.quickApplyButton.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.clickQuickApply();
-
-      const hasPreview = await applyPage.waitForApplicationPreview(3000);
-
-      if (hasPreview) {
-        // Check for detected fields (may be zero if ATS not detected)
-        const fieldsCount = await applyPage.getDetectedFieldsCount();
-        expect(fieldsCount).toBeGreaterThanOrEqual(0);
-      }
-    });
+  test("loads existing application profile into editable fields", async () => {
+    await expect(applyPage.profileForm).toBeVisible();
+    await expect(applyPage.fullNameInput).toHaveValue("John Doe");
+    await expect(applyPage.emailInput).toHaveValue("john@example.com");
+    await expect(applyPage.phoneInput).toHaveValue("+1 (555) 123-4567");
+    await expect(applyPage.linkedInInput).toHaveValue("https://linkedin.com/in/johndoe");
+    await expect(applyPage.githubInput).toHaveValue("https://github.com/johndoe");
+    await expect(applyPage.portfolioInput).toHaveValue("https://johndoe.com");
+    await expect(applyPage.websiteInput).toHaveValue("https://blog.johndoe.com");
+    await expect(applyPage.maxApplicationsSelect).toHaveValue("10");
+    await expect(applyPage.manualApprovalCheckbox).toBeChecked();
+    await expect(applyPage.browseResumeButton).toBeVisible();
   });
 
-  test.describe("Browser Automation", () => {
-    test("should start automation when button clicked", async () => {
-      const jobCount = await applyPage.jobCards.count();
-
-      if (jobCount === 0) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.clickFirstJobCard();
-
-      if (!(await applyPage.quickApplyButton.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.clickQuickApply();
-
-      const hasPreview = await applyPage.waitForApplicationPreview(3000);
-
-      if (!hasPreview) {
-        test.skip();
-        return;
-      }
-
-      // Look for start automation button
-      if (
-        !(await applyPage.startAutomationButton.isVisible().catch(() => false))
-      ) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.startAutomation();
-
-      // Should show automation status or controls
-      const hasStatus =
-        await applyPage.automationStatus.isVisible().catch(() => false);
-      const hasPauseBtn =
-        await applyPage.pauseButton.isVisible().catch(() => false);
-
-      expect(hasStatus || hasPauseBtn).toBeTruthy();
+  test("validates required profile fields before saving", async ({ page }) => {
+    await applyPage.fillProfile({
+      fullName: "",
+      email: "not-an-email",
+      phone: "123",
+      linkedin: "notaurl",
     });
 
-    test("should allow pausing automation", async ({ page }) => {
-      const jobCount = await applyPage.jobCards.count();
+    await applyPage.saveProfileButton.click();
 
-      if (jobCount === 0) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.clickFirstJobCard();
-
-      if (!(await applyPage.quickApplyButton.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.clickQuickApply();
-
-      const hasPreview = await applyPage.waitForApplicationPreview(3000);
-
-      if (!hasPreview) {
-        test.skip();
-        return;
-      }
-
-      if (
-        !(await applyPage.startAutomationButton.isVisible().catch(() => false))
-      ) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.startAutomation();
-
-      // Wait a bit for automation to start
-      await page.waitForTimeout(1000);
-
-      if (!(await applyPage.pauseButton.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.pauseAutomation();
-
-      // Should show resume button after pause
-      const hasResumeBtn = await applyPage.resumeButton.isVisible().catch(() => false);
-      expect(hasResumeBtn).toBeTruthy();
-    });
-
-    test("should allow resuming automation", async ({ page }) => {
-      const jobCount = await applyPage.jobCards.count();
-
-      if (jobCount === 0) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.clickFirstJobCard();
-
-      if (!(await applyPage.quickApplyButton.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.clickQuickApply();
-
-      const hasPreview = await applyPage.waitForApplicationPreview(3000);
-
-      if (!hasPreview) {
-        test.skip();
-        return;
-      }
-
-      if (
-        !(await applyPage.startAutomationButton.isVisible().catch(() => false))
-      ) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.startAutomation();
-      await page.waitForTimeout(1000);
-
-      if (!(await applyPage.pauseButton.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.pauseAutomation();
-      await page.waitForTimeout(500);
-
-      if (!(await applyPage.resumeButton.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.resumeAutomation();
-
-      // Should go back to running state (pause button visible)
-      await page.waitForTimeout(500);
-      const hasPauseBtn = await applyPage.pauseButton.isVisible().catch(() => false);
-      expect(hasPauseBtn).toBeTruthy();
-    });
-
-    test("should allow stopping automation", async ({ page }) => {
-      const jobCount = await applyPage.jobCards.count();
-
-      if (jobCount === 0) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.clickFirstJobCard();
-
-      if (!(await applyPage.quickApplyButton.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.clickQuickApply();
-
-      const hasPreview = await applyPage.waitForApplicationPreview(3000);
-
-      if (!hasPreview) {
-        test.skip();
-        return;
-      }
-
-      if (
-        !(await applyPage.startAutomationButton.isVisible().catch(() => false))
-      ) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.startAutomation();
-      await page.waitForTimeout(1000);
-
-      if (!(await applyPage.stopButton.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.stopAutomation();
-
-      // Automation should stop and controls should change
-      await page.waitForTimeout(500);
-      await expect(applyPage.startAutomationButton).toBeVisible();
-    });
+    await expect(page.getByText("Full name is required")).toBeVisible();
+    await expect(page.getByText("Please enter a valid email address")).toBeVisible();
+    await expect(page.getByText("Phone number must have 10-15 digits")).toBeVisible();
+    await expect(page.getByText("Please enter a valid URL")).toBeVisible();
   });
 
-  test.describe("Form Field Detection", () => {
-    test("should detect and list form fields", async () => {
-      const jobCount = await applyPage.jobCards.count();
-
-      if (jobCount === 0) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.clickFirstJobCard();
-
-      if (!(await applyPage.quickApplyButton.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.clickQuickApply();
-
-      const hasPreview = await applyPage.waitForApplicationPreview(3000);
-
-      if (!hasPreview) {
-        test.skip();
-        return;
-      }
-
-      // Check for detected fields
-      const fieldsCount = await applyPage.getDetectedFieldsCount();
-
-      // May be 0 if no ATS detected or no fields found
-      expect(fieldsCount).toBeGreaterThanOrEqual(0);
+  test("saves profile changes and persists them after reload", async ({ page }) => {
+    await applyPage.fillProfile({
+      fullName: "Casey Sentinel",
+      email: "casey@example.com",
+      phone: "+1 (555) 765-4321",
+      linkedin: "https://linkedin.com/in/caseysentinel",
+      github: "https://github.com/caseysentinel",
+      portfolio: "https://casey.example.com",
+      website: "https://blog.casey.example.com",
+      maxApplications: "20",
     });
+
+    await expect(applyPage.unsavedChangesIndicator).toBeVisible();
+    await applyPage.saveProfileButton.click();
+    await expect(page.getByText("Profile saved")).toBeVisible();
+    await expect.poll(async () => page.evaluate((key) => {
+      const rawState = window.localStorage.getItem(key);
+      if (!rawState) return null;
+      return JSON.parse(rawState).applicationProfile?.fullName ?? null;
+    }, MOCK_STATE_KEY)).toBe("Casey Sentinel");
+
+    await page.reload();
+    await applyPage.navigateTo();
+
+    await expect(applyPage.fullNameInput).toHaveValue("Casey Sentinel");
+    await expect(applyPage.emailInput).toHaveValue("casey@example.com");
+    await expect(applyPage.phoneInput).toHaveValue("+1 (555) 765-4321");
+    await expect(applyPage.linkedInInput).toHaveValue("https://linkedin.com/in/caseysentinel");
+    await expect(applyPage.githubInput).toHaveValue("https://github.com/caseysentinel");
+    await expect(applyPage.portfolioInput).toHaveValue("https://casey.example.com");
+    await expect(applyPage.websiteInput).toHaveValue("https://blog.casey.example.com");
+    await expect(applyPage.maxApplicationsSelect).toHaveValue("20");
   });
 
-  test.describe("Submit Confirmation", () => {
-    test("should show submit confirmation before final submission", async () => {
-      const jobCount = await applyPage.jobCards.count();
-
-      if (jobCount === 0) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.clickFirstJobCard();
-
-      if (!(await applyPage.quickApplyButton.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await applyPage.clickQuickApply();
-
-      const hasPreview = await applyPage.waitForApplicationPreview(3000);
-
-      if (!hasPreview) {
-        test.skip();
-        return;
-      }
-
-      // This test would normally run automation to completion
-      // For E2E, we just verify the confirmation dialog can appear
-      // In a real flow, this would require completing form fill
-
-      // Look for submit confirmation dialog (optional feature)
-      const hasSubmitConfirm = await applyPage.waitForSubmitConfirm(2000);
-
-      if (!hasSubmitConfirm) {
-        test.skip();
-        return;
-      }
-
-      await expect(applyPage.submitConfirmDialog).toBeVisible();
-    });
+  test("keeps manual approval enabled and final submission manual", async ({ page }) => {
+    await expect(applyPage.manualApprovalCheckbox).toBeChecked();
+    await expect(page.getByText("Review each application before the form is filled")).toBeVisible();
+    await expect(page.getByText("You always review and click the final Submit button yourself")).toBeVisible();
   });
 
-  test.describe("Error Handling", () => {
-    test("should handle missing application profile gracefully", async () => {
-      const jobCount = await applyPage.jobCards.count();
+  test("shows saved screening answers", async ({ page }) => {
+    await applyPage.switchToScreeningQuestions();
 
-      if (jobCount === 0) {
-        test.skip();
-        return;
-      }
+    await expect(page.getByText("work.*authorized")).toBeVisible();
+    await expect(page.getByText("Yes", { exact: true })).toBeVisible();
+    await expect(page.getByText("92% confident")).toBeVisible();
+    await expect(page.getByText(/Used 4/)).toBeVisible();
+  });
 
-      await applyPage.clickFirstJobCard();
+  test("adds a screening answer from a common pattern and persists it", async ({ page }) => {
+    await applyPage.switchToScreeningQuestions();
+    await applyPage.openCommonScreeningAnswer("Years of experience");
+    await applyPage.saveScreeningAnswer({ answer: "8 years" });
 
-      if (!(await applyPage.quickApplyButton.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
+    await expect(page.getByText("Answer saved")).toBeVisible();
+    await expect(page.getByText("years.*experience")).toBeVisible();
+    await expect(page.getByText("8 years")).toBeVisible();
 
-      await applyPage.clickQuickApply();
+    await page.reload();
+    await applyPage.navigateTo();
+    await applyPage.switchToScreeningQuestions();
 
-      // Should show preview or profile setup prompt
-      const hasPreview = await applyPage.waitForApplicationPreview(3000);
-      const hasProfilePrompt = await applyPage.hasProfileSetup();
+    await expect(page.getByText("years.*experience")).toBeVisible();
+    await expect(page.getByText("8 years")).toBeVisible();
+  });
 
-      // At least one should be shown
-      expect(hasPreview || hasProfilePrompt).toBeTruthy();
+  test("validates screening answer pattern and answer", async ({ page }) => {
+    await applyPage.switchToScreeningQuestions();
+    await applyPage.openBlankScreeningAnswer();
+    await applyPage.saveAnswerButton.click();
+
+    await expect(page.getByText("Pattern is required")).toBeVisible();
+    await expect(page.getByText("Answer is required")).toBeVisible();
+
+    await applyPage.saveScreeningAnswer({
+      pattern: "[",
+      answer: "Yes",
     });
+
+    await expect(page.getByText("Invalid regex pattern")).toBeVisible();
+  });
+
+  test("edits an existing screening answer", async ({ page }) => {
+    await applyPage.switchToScreeningQuestions();
+    await applyPage.editAnswerButtons.first().click();
+    await expect(applyPage.screeningAnswerDialog).toBeVisible();
+
+    await applyPage.saveScreeningAnswer({ answer: "No" });
+
+    await expect(page.getByText("Answer saved")).toBeVisible();
+    await expect(page.getByText("work.*authorized")).toBeVisible();
+    await expect(page.getByText("No", { exact: true })).toBeVisible();
+    await expect(page.getByText("Yes", { exact: true })).not.toBeVisible();
   });
 });

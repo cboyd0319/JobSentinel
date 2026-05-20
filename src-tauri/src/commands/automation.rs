@@ -150,6 +150,10 @@ pub struct ScreeningAnswerResponse {
     pub answer: String,
     pub answer_type: Option<String>,
     pub notes: Option<String>,
+    pub times_used: i32,
+    pub times_modified: i32,
+    pub confidence_score: f64,
+    pub last_used_at: Option<String>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -162,6 +166,10 @@ impl From<ScreeningAnswer> for ScreeningAnswerResponse {
             answer: a.answer,
             answer_type: a.answer_type,
             notes: a.notes,
+            times_used: a.times_used,
+            times_modified: a.times_modified,
+            confidence_score: a.confidence_score,
+            last_used_at: a.last_used_at.map(|dt| dt.to_rfc3339()),
             created_at: a.created_at.to_rfc3339(),
             updated_at: a.updated_at.to_rfc3339(),
         }

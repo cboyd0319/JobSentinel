@@ -513,7 +513,7 @@ npm run test:e2e:ui
 | Resume          | `resume-upload-matching.spec.ts` | No-resume state, active resume, skill CRUD, library switching, match results |
 | Resume Builder  | `resume-builder.spec.ts` | Wizard, steps, templates, export |
 | Keyboard        | `keyboard-navigation.spec.ts` | Shortcuts, focus, command palette |
-| One-Click Apply | `one-click-apply.spec.ts` | Profile, ATS detection, automation |
+| One-Click Apply | `one-click-apply.spec.ts` | Settings stats, profile validation/save/load, screening answers, human-review guardrails |
 
 Documentation screenshots live in `screenshots.spec.ts` and run only through
 `npm run docs:screenshots`.

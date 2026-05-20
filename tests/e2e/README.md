@@ -13,7 +13,7 @@ Reusable page objects following the Page Object Model pattern:
 - `ResumePage.ts` - Resume state, skills, library, and match results
 - `ApplicationsPage.ts` - Application tracking kanban
 - `SettingsPage.ts` - Settings management
-- `OneClickApplyPage.ts` - One-Click Apply automation
+- `OneClickApplyPage.ts` - One-Click Apply settings, profile, and screening answers
 - `ResumeBuilderPage.ts` - Resume Builder wizard
 - `MarketIntelligencePage.ts` - Market Intelligence features
 - `JobDetailPage.ts` - Job detail view and interactions
@@ -51,11 +51,10 @@ Reusable page objects following the Page Object Model pattern:
    - Accessibility features
 
 6. **one-click-apply.spec.ts**
-   - Quick Apply button functionality
-   - ATS platform detection
-   - Browser automation start/pause/resume
-   - Form field detection
-   - Submit confirmation
+   - Settings stats and tabs
+   - Application profile validation, save, and reload behavior
+   - Screening answer add/edit validation and persistence
+   - Human-review and manual-final-submit guardrails
 
 7. **resume-builder.spec.ts**
    - Wizard navigation (7 steps)
@@ -161,15 +160,14 @@ Tests are configured in `playwright.config.ts`:
 
 ## Test Patterns
 
-### Graceful Skipping
+### Intentional Skipping
 
-Tests skip gracefully when UI elements don't exist:
+Runtime skips are reserved for capabilities that are intentionally unavailable
+in browser-only Playwright, such as native file pickers. Current UI flows should
+use mock-backed assertions instead of stale element probes:
 
 ```typescript
-if (!(await element.isVisible().catch(() => false))) {
-  test.skip();
-  return;
-}
+test.skip(browserName === "webkit", "Documented platform gap");
 ```
 
 ### Error Handling
@@ -255,7 +253,7 @@ When adding new tests:
 
 1. Create page object if needed
 2. Follow existing patterns (AAA: Arrange, Act, Assert)
-3. Add graceful skipping for optional features
+3. Avoid runtime skips for current UI; use seeded mock state instead
 4. Test happy paths AND error scenarios
 5. Add to this README
 
@@ -263,22 +261,22 @@ When adding new tests:
 
 Current test coverage:
 
-- ✅ Job search and filtering
-- ✅ Resume upload and matching
-- ✅ Application tracking
-- ✅ Settings management
-- ✅ Keyboard navigation
-- ✅ One-Click Apply automation
-- ✅ Resume Builder wizard
-- ✅ Market Intelligence features
-- ✅ Job interactions (bookmarking, notes, status)
-- ✅ Theme toggle
-- ✅ Responsive design
-- ✅ Accessibility
+- Job search and filtering
+- Resume upload and matching
+- Application tracking
+- Settings management
+- Keyboard navigation
+- One-Click Apply settings and screening answers
+- Resume Builder wizard
+- Market Intelligence features
+- Job interactions (bookmarking, notes, status)
+- Theme toggle
+- Responsive design
+- Accessibility
 
 ## Known Issues
 
-- Keyboard shortcuts may not work reliably in headless mode (tests skip gracefully)
+- Keyboard shortcuts may not work reliably in headless mode; keep any skips explicit and documented.
 - Drag-and-drop can be flaky on some systems (tests include retries)
 - Native file-picker coverage belongs in a Tauri-level smoke test, not browser-only Playwright.
 
