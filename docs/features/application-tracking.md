@@ -20,9 +20,10 @@ set reminders to follow up, and see your entire pipeline at a glance.
 ## How to Use It
 
 1. Click **Applications** in the sidebar
-2. When you find a job you like, click **"Track Application"**
-3. Drag cards between columns as your application progresses
-4. Click any card to add notes, set reminders, or update status
+2. Review tracked jobs on the Kanban board, including pending follow-up reminders
+3. Drag cards between columns or open a card and choose a new status
+4. Click any card to review company details, save notes, and track the next follow-up
+5. Use **Analytics**, **Interviews**, **Templates**, and **Detect Ghosted** for pipeline follow-through
 
 ---
 
@@ -35,9 +36,9 @@ set reminders to follow up, and see your entire pipeline at a glance.
 
 > **Status:** WORKING - Module enabled in v1.4.0
 > **Completion:** 100% core functionality
-> **Last Updated:** 2026-03-18
+> **Last Updated:** 2026-05-19
 > **Version:** 2.6.4
-> **Tests:** 4 tests (ignored - require file-based database setup)
+> **Tests:** Backend ATS tests plus Playwright coverage in `application-tracking.spec.ts`
 
 ---
 

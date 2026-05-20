@@ -15,6 +15,20 @@ import {
 
 type MockJob = typeof mockJobs[number];
 type MockConfig = typeof mockConfig;
+type MockApplicationStatus = keyof typeof mockApplications;
+interface MockApplication {
+  id: number;
+  job_hash: string;
+  job_title: string;
+  company: string;
+  status: string;
+  applied_at: string | null;
+  notes: string | null;
+  last_contact: string | null;
+}
+type MockApplications = Record<MockApplicationStatus, MockApplication[]>;
+type MockPendingReminder = typeof mockPendingReminders[number];
+const APPLICATION_STATUS_KEYS = Object.keys(mockApplications) as MockApplicationStatus[];
 
 interface MockInterview {
   id: number;
@@ -39,6 +53,8 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 let jobs = [...mockJobs];
 let config = { ...mockConfig };
 let interviews: MockInterview[] = [...mockUpcomingInterviews];
+let applications: MockApplications = cloneApplications(mockApplications);
+let pendingReminders: MockPendingReminder[] = [...mockPendingReminders];
 
 const MOCK_STATE_KEY = "jobsentinel.mockState.v1";
 
@@ -46,6 +62,8 @@ interface MockState {
   jobs: MockJob[];
   config: MockConfig;
   interviews: MockInterview[];
+  applications: MockApplications;
+  pendingReminders: MockPendingReminder[];
 }
 
 function canUseStorage(): boolean {
@@ -58,7 +76,13 @@ function canUseStorage(): boolean {
 function saveMockState(): void {
   if (!canUseStorage()) return;
 
-  const state: MockState = { jobs, config, interviews };
+  const state: MockState = {
+    jobs,
+    config,
+    interviews,
+    applications,
+    pendingReminders,
+  };
   window.localStorage.setItem(MOCK_STATE_KEY, JSON.stringify(state));
 }
 
@@ -75,12 +99,37 @@ function loadMockState(): void {
       config = { ...mockConfig, ...state.config };
     }
     if (Array.isArray(state.interviews)) interviews = state.interviews;
+    if (state.applications && typeof state.applications === "object") {
+      applications = normalizeApplications(state.applications);
+    }
+    if (Array.isArray(state.pendingReminders)) {
+      pendingReminders = state.pendingReminders;
+    }
   } catch {
     window.localStorage.removeItem(MOCK_STATE_KEY);
   }
 }
 
 loadMockState();
+
+function cloneApplications(
+  source: Partial<Record<MockApplicationStatus, MockApplication[]>>,
+): MockApplications {
+  return APPLICATION_STATUS_KEYS.reduce((acc, status) => {
+    acc[status] = (source[status] ?? []).map((application) => ({ ...application }));
+    return acc;
+  }, {} as MockApplications);
+}
+
+function normalizeApplications(
+  source: Partial<Record<MockApplicationStatus, MockApplication[]>>,
+): MockApplications {
+  return APPLICATION_STATUS_KEYS.reduce((acc, status) => {
+    const apps = Array.isArray(source[status]) ? source[status] : [];
+    acc[status] = apps.map((application) => ({ ...application }));
+    return acc;
+  }, {} as MockApplications);
+}
 
 function getJobId(args?: Record<string, unknown>): number | undefined {
   const value = getArg(args, "id") ?? getArg(args, "jobId");
@@ -98,6 +147,58 @@ function getArg(
 ): unknown {
   const nestedArgs = args?.payload as Record<string, unknown> | undefined;
   return args?.[key] ?? nestedArgs?.[key];
+}
+
+function getNumericArg(
+  args: Record<string, unknown> | undefined,
+  key: string,
+): number | undefined {
+  const value = getArg(args, key);
+  if (typeof value === "number") return value;
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+  return undefined;
+}
+
+function findApplication(
+  applicationId: number,
+): { status: MockApplicationStatus; application: MockApplication } | null {
+  for (const status of APPLICATION_STATUS_KEYS) {
+    const application = applications[status].find((app) => app.id === applicationId);
+    if (application) return { status, application };
+  }
+  return null;
+}
+
+function updateApplication(
+  applicationId: number,
+  updater: (application: MockApplication) => MockApplication,
+): void {
+  applications = APPLICATION_STATUS_KEYS.reduce((acc, status) => {
+    acc[status] = applications[status].map((application) =>
+      application.id === applicationId ? updater(application) : application,
+    );
+    return acc;
+  }, {} as MockApplications);
+}
+
+function moveApplicationStatus(applicationId: number, status: string): void {
+  if (!APPLICATION_STATUS_KEYS.includes(status as MockApplicationStatus)) return;
+
+  const current = findApplication(applicationId);
+  if (!current) return;
+
+  const nextStatus = status as MockApplicationStatus;
+  applications = APPLICATION_STATUS_KEYS.reduce((acc, key) => {
+    acc[key] = applications[key].filter((application) => application.id !== applicationId);
+    return acc;
+  }, {} as MockApplications);
+  applications[nextStatus] = [
+    ...applications[nextStatus],
+    { ...current.application, status: nextStatus },
+  ];
 }
 
 /**
@@ -193,22 +294,66 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
 
     // Application commands
     case "get_applications_kanban":
-      return mockApplications as T;
+      return applications as T;
 
-    case "create_application":
-      return 100 as T;
+    case "create_application": {
+      const jobHash = getArg(args, "jobHash") ?? getArg(args, "job_hash");
+      const job = jobs.find((candidate) => candidate.hash === jobHash);
+      const nextId = Math.max(
+        0,
+        ...APPLICATION_STATUS_KEYS.flatMap((status) =>
+          applications[status].map((application) => application.id),
+        ),
+      ) + 1;
+      applications.to_apply = [
+        ...applications.to_apply,
+        {
+          id: nextId,
+          job_hash: typeof jobHash === "string" ? jobHash : `mock-${nextId}`,
+          job_title: job?.title ?? "Tracked Job",
+          company: job?.company ?? "Mock Company",
+          status: "to_apply",
+          applied_at: null,
+          notes: null,
+          last_contact: null,
+        },
+      ];
+      saveMockState();
+      return nextId as T;
+    }
 
-    case "update_application_status":
+    case "update_application_status": {
+      const applicationId = getNumericArg(args, "applicationId");
+      const status = getArg(args, "status");
+      if (applicationId !== undefined && typeof status === "string") {
+        moveApplicationStatus(applicationId, status);
+        saveMockState();
+      }
       return undefined as T;
+    }
 
-    case "add_application_notes":
+    case "add_application_notes": {
+      const applicationId = getNumericArg(args, "applicationId");
+      const notes = getArg(args, "notes");
+      if (applicationId !== undefined) {
+        updateApplication(applicationId, (application) => ({
+          ...application,
+          notes: typeof notes === "string" ? notes : null,
+        }));
+        saveMockState();
+      }
       return undefined as T;
+    }
 
     case "get_pending_reminders":
-      return mockPendingReminders as T;
+      return pendingReminders as T;
 
-    case "complete_reminder":
+    case "complete_reminder": {
+      const reminderId = getNumericArg(args, "reminderId");
+      pendingReminders = pendingReminders.filter((reminder) => reminder.id !== reminderId);
+      saveMockState();
       return undefined as T;
+    }
 
     case "detect_ghosted_applications":
       return 0 as T;
@@ -233,6 +378,9 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     // Interview commands
     case "get_upcoming_interviews":
       return interviews as T;
+
+    case "get_past_interviews":
+      return [] as T;
 
     case "schedule_interview": {
       const newId = Math.max(...interviews.map((i) => i.id), 0) + 1;
@@ -433,5 +581,7 @@ export function resetMockData() {
   jobs = [...mockJobs];
   config = { ...mockConfig };
   interviews = [...mockUpcomingInterviews];
+  applications = cloneApplications(mockApplications);
+  pendingReminders = [...mockPendingReminders];
   saveMockState();
 }

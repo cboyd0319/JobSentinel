@@ -32,16 +32,52 @@ export class ApplicationsPage extends BasePage {
     return this.page.locator("[data-testid='application-card']");
   }
 
-  get addButton(): Locator {
-    return this.page.locator("[data-testid='btn-add-application']");
+  get templatesButton(): Locator {
+    return this.page.getByRole("button", { name: "Templates" });
   }
 
-  get filterButton(): Locator {
-    return this.page.locator("[data-testid='btn-filter-applications']");
+  get interviewsButton(): Locator {
+    return this.page.getByRole("button", { name: "Interviews" });
   }
 
-  get sortButton(): Locator {
-    return this.page.locator("[data-testid='btn-sort-applications']");
+  get analyticsButton(): Locator {
+    return this.page.getByRole("button", { name: "Analytics" });
+  }
+
+  get detectGhostedButton(): Locator {
+    return this.page.getByRole("button", { name: "Detect Ghosted" });
+  }
+
+  get pendingReminders(): Locator {
+    return this.page.locator("[data-testid='pending-reminders']");
+  }
+
+  get pendingReminderRows(): Locator {
+    return this.page.locator("[data-testid='pending-reminder']");
+  }
+
+  get detailDialog(): Locator {
+    return this.page.locator("[data-testid='application-detail-dialog']");
+  }
+
+  get statusSelect(): Locator {
+    return this.detailDialog.locator("select");
+  }
+
+  get notesTextarea(): Locator {
+    return this.detailDialog.locator("textarea");
+  }
+
+  get saveNotesButton(): Locator {
+    return this.detailDialog.getByRole("button", { name: "Save Notes" });
+  }
+
+  get closeDialogButton(): Locator {
+    return this.detailDialog.getByRole("button", { name: "Close", exact: true });
+  }
+
+  getApplicationCardByText(text: string): Locator {
+    return this.applicationCards.filter({ hasText: text });
   }
 
   async getApplicationCard(index: number = 0): Promise<ApplicationCard> {
@@ -61,63 +97,32 @@ export class ApplicationsPage extends BasePage {
     if ((await targetColumn.count()) === 0) {
       return;
     }
+    await card.scrollIntoViewIfNeeded();
+    const cardBox = await card.boundingBox({ timeout: 1000 });
+    if (!cardBox) return;
 
-    await card.hover();
+    await this.page.mouse.move(
+      cardBox.x + cardBox.width / 2,
+      cardBox.y + cardBox.height / 2,
+    );
     await this.page.mouse.down();
+    await targetColumn.scrollIntoViewIfNeeded();
 
     const targetBox = await targetColumn.boundingBox({ timeout: 1000 });
     if (targetBox) {
-      await this.page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + 50);
+      await this.page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + 90, {
+        steps: 12,
+      });
       await this.page.waitForTimeout(300);
-      await this.page.mouse.up();
     }
+    await this.page.mouse.up();
 
     await this.waitForReady();
   }
 
-  async addApplication(data: {
-    company: string;
-    position: string;
-    status?: string;
-    url?: string;
-  }) {
-    await this.addButton.click();
-    await this.page.waitForTimeout(200);
-
-    // Fill form
-    await this.page.locator("input[name='company']").fill(data.company);
-    await this.page.locator("input[name='position']").fill(data.position);
-
-    if (data.status) {
-      await this.page.locator("select[name='status']").selectOption(data.status);
-    }
-
-    if (data.url) {
-      await this.page.locator("input[name='url']").fill(data.url);
-    }
-
-    // Submit
-    const submitButton = this.page.locator("button[type='submit'], button:has-text('Add'), button:has-text('Save')");
-    await submitButton.click();
-    await this.waitForReady();
-  }
-
-  async filterByStatus(status: string) {
-    await this.filterButton.click();
-    await this.page.waitForTimeout(200);
-
-    const statusOption = this.page.locator(`[data-value="${status}"]`);
-    await statusOption.click();
-    await this.waitForReady();
-  }
-
-  async sortBy(field: "date" | "company" | "position") {
-    await this.sortButton.click();
-    await this.page.waitForTimeout(200);
-
-    const sortOption = this.page.locator(`[data-sort="${field}"]`);
-    await sortOption.click();
-    await this.waitForReady();
+  async openApplicationDetails(cardText: string) {
+    await this.getApplicationCardByText(cardText).click();
+    await this.detailDialog.waitFor({ state: "visible", timeout: 5000 });
   }
 }
 
@@ -147,39 +152,7 @@ export class ApplicationCard {
     return this.locator.locator("[data-testid='application-date']");
   }
 
-  get viewButton(): Locator {
-    return this.locator.locator("[data-testid='btn-view-application']");
-  }
-
-  get editButton(): Locator {
-    return this.locator.locator("[data-testid='btn-edit-application']");
-  }
-
-  get deleteButton(): Locator {
-    return this.locator.locator("[data-testid='btn-delete-application']");
-  }
-
-  async view() {
-    await this.viewButton.click();
-  }
-
-  async edit() {
-    await this.editButton.click();
-  }
-
-  async delete() {
-    await this.deleteButton.click();
-
-    // Handle confirmation
-    const confirmButton = this.locator.page().locator("button:has-text('Delete'), button:has-text('Confirm')");
-    if (await confirmButton.isVisible().catch(() => false)) {
-      await confirmButton.click();
-    }
-  }
-
-  async updateStatus(newStatus: string) {
-    await this.status.click();
-    const statusOption = this.locator.page().locator(`[data-value="${newStatus}"]`);
-    await statusOption.click();
+  async open() {
+    await this.locator.click();
   }
 }

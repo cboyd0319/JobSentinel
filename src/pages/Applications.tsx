@@ -1,10 +1,10 @@
-import { useEffect, useState, useCallback, lazy, Suspense, useId, useMemo, memo } from "react";
+import { useEffect, useState, useCallback, lazy, Suspense, useId, useMemo, memo, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { cachedInvoke, invalidateCacheByCommand, safeInvokeWithToast } from "../utils/api";
 import {
   DndContext,
   DragOverlay,
-  closestCorners,
+  pointerWithin,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -12,6 +12,7 @@ import {
   DragStartEvent,
   DragEndEvent,
   DragOverEvent,
+  useDroppable,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -40,19 +41,21 @@ interface Application {
   job_title: string;
   company: string;
   status: string;
-  applied_at: string;
+  applied_at: string | null;
   notes: string | null;
   last_contact: string | null;
 }
 
 interface ApplicationsByStatus {
-  saved: Application[];
+  to_apply: Application[];
   applied: Application[];
-  phone_screen: Application[];
-  technical: Application[];
-  onsite: Application[];
-  offer: Application[];
-  accepted: Application[];
+  screening_call: Application[];
+  phone_interview: Application[];
+  technical_interview: Application[];
+  onsite_interview: Application[];
+  offer_received: Application[];
+  offer_accepted: Application[];
+  offer_rejected: Application[];
   rejected: Application[];
   withdrawn: Application[];
   ghosted: Application[];
@@ -64,7 +67,7 @@ interface PendingReminder {
   job_title: string;
   company: string;
   reminder_type: string;
-  due_date: string;
+  reminder_time: string;
 }
 
 interface ApplicationsProps {
@@ -72,15 +75,17 @@ interface ApplicationsProps {
 }
 
 const STATUS_COLUMNS = [
-  { key: "saved", label: "Saved", color: "bg-surface-500" },
+  { key: "to_apply", label: "To Apply", color: "bg-surface-500" },
   { key: "applied", label: "Applied", color: "bg-blue-500" },
-  { key: "phone_screen", label: "Phone Screen", color: "bg-purple-500" },
-  { key: "technical", label: "Technical", color: "bg-indigo-500" },
-  { key: "onsite", label: "Onsite", color: "bg-cyan-500" },
-  { key: "offer", label: "Offer", color: "bg-success" },
-  { key: "accepted", label: "Accepted", color: "bg-emerald-500" },
+  { key: "screening_call", label: "Screening Call", color: "bg-purple-500" },
+  { key: "phone_interview", label: "Phone Interview", color: "bg-violet-500" },
+  { key: "technical_interview", label: "Technical Interview", color: "bg-indigo-500" },
+  { key: "onsite_interview", label: "Onsite Interview", color: "bg-cyan-500" },
+  { key: "offer_received", label: "Offer Received", color: "bg-success" },
+  { key: "offer_accepted", label: "Offer Accepted", color: "bg-emerald-500" },
+  { key: "offer_rejected", label: "Offer Rejected", color: "bg-orange-500" },
   { key: "rejected", label: "Rejected", color: "bg-danger" },
-  { key: "withdrawn", label: "Withdrawn", color: "bg-orange-500" },
+  { key: "withdrawn", label: "Withdrawn", color: "bg-amber-500" },
   { key: "ghosted", label: "Ghosted", color: "bg-surface-400" },
 ] as const;
 
@@ -155,7 +160,7 @@ const SortableApplicationCard = memo(function SortableApplicationCard({
         className="text-xs text-surface-400 dark:text-surface-500"
         data-testid="application-date"
       >
-        Applied: {formatDate(app.applied_at)}
+        {app.applied_at ? `Applied: ${formatDate(app.applied_at)}` : "Not applied yet"}
       </p>
       {app.notes && (
         <p className="text-xs text-surface-500 dark:text-surface-400 mt-2 truncate">
@@ -178,9 +183,14 @@ const DroppableColumn = memo(function DroppableColumn({
   onCardClick: (app: Application) => void;
   formatDate: (date: string) => string;
 }) {
+  const { setNodeRef, isOver } = useDroppable({ id: column.key });
+
   return (
     <div
-      className="w-72 flex-shrink-0 bg-surface-100 dark:bg-surface-800 rounded-lg p-4"
+      ref={setNodeRef}
+      className={`w-72 flex-shrink-0 bg-surface-100 dark:bg-surface-800 rounded-lg p-4 transition-shadow ${
+        isOver ? "ring-2 ring-sentinel-500" : ""
+      }`}
       data-testid="kanban-column"
       data-status={column.key}
     >
@@ -269,6 +279,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showInterviews, setShowInterviews] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const dragStartColumnRef = useRef<StatusKey | null>(null);
   const toast = useToast();
   const { pushAction } = useUndo();
 
@@ -324,7 +335,9 @@ export default function Applications({ onBack }: ApplicationsProps) {
   };
 
   const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as number);
+    const appId = event.active.id as number;
+    setActiveId(appId);
+    dragStartColumnRef.current = findColumnForApp(appId);
   };
 
   const handleDragOver = (event: DragOverEvent) => {
@@ -359,18 +372,20 @@ export default function Applications({ onBack }: ApplicationsProps) {
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveId(null);
+    const oldColumn = dragStartColumnRef.current;
+    dragStartColumnRef.current = null;
 
     if (!over || !applications) return;
 
     const activeId = active.id as number;
     const newColumn = findColumnForApp(activeId);
-    const oldColumn = STATUS_COLUMNS.find(c =>
-      applications[c.key as keyof ApplicationsByStatus].some(a => a.id === activeId)
-    )?.key;
 
     if (!newColumn || !oldColumn) return;
+    if (newColumn === oldColumn) return;
 
-    const app = applications[oldColumn as keyof ApplicationsByStatus].find(a => a.id === activeId);
+    const app = STATUS_COLUMNS
+      .flatMap((column) => applications[column.key])
+      .find((candidate) => candidate.id === activeId);
     if (!app) return;
 
     // Persist the change to backend
@@ -488,28 +503,40 @@ export default function Applications({ onBack }: ApplicationsProps) {
 
     const totalApplied =
       applications.applied.length +
-      applications.phone_screen.length +
-      applications.technical.length +
-      applications.onsite.length +
-      applications.offer.length +
-      applications.accepted.length +
+      applications.screening_call.length +
+      applications.phone_interview.length +
+      applications.technical_interview.length +
+      applications.onsite_interview.length +
+      applications.offer_received.length +
+      applications.offer_accepted.length +
+      applications.offer_rejected.length +
       applications.rejected.length +
       applications.withdrawn.length +
       applications.ghosted.length;
 
     const interviews =
-      applications.phone_screen.length +
-      applications.technical.length +
-      applications.onsite.length;
+      applications.screening_call.length +
+      applications.phone_interview.length +
+      applications.technical_interview.length +
+      applications.onsite_interview.length;
 
     const interviewsPlusOffers = interviews +
-      applications.offer.length +
-      applications.accepted.length;
+      applications.offer_received.length +
+      applications.offer_accepted.length +
+      applications.offer_rejected.length;
 
     const offers =
-      applications.offer.length + applications.accepted.length;
+      applications.offer_received.length +
+      applications.offer_accepted.length +
+      applications.offer_rejected.length;
 
-    const rejected = applications.rejected.length;
+    const rejected =
+      applications.rejected.length + applications.offer_rejected.length;
+
+    const inProgress =
+      applications.applied.length +
+      interviews +
+      applications.offer_received.length;
 
     const interviewRate = totalApplied > 0
       ? Math.round((interviewsPlusOffers / totalApplied) * 100)
@@ -524,6 +551,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
       interviews,
       offers,
       rejected,
+      inProgress,
       interviewRate,
       offerRate,
     };
@@ -613,7 +641,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
             />
             <QuickStat
               label="In Progress"
-              value={stats.totalApplied - stats.offers - stats.rejected}
+              value={stats.inProgress}
               icon="⏳"
             />
           </div>
@@ -623,7 +651,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
       <main className="p-6">
         {/* Reminders */}
         {reminders.length > 0 && (
-          <Card className="mb-6 dark:bg-surface-800">
+          <Card className="mb-6 dark:bg-surface-800" data-testid="pending-reminders">
             <h2 className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
               Pending Reminders ({reminders.length})
             </h2>
@@ -631,6 +659,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
               {reminders.map((reminder) => (
                 <div
                   key={reminder.id}
+                  data-testid="pending-reminder"
                   className="flex items-center justify-between p-3 bg-alert-50 dark:bg-alert-900/20 rounded-lg"
                 >
                   <div>
@@ -638,7 +667,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
                       {reminder.job_title} at {reminder.company}
                     </p>
                     <p className="text-sm text-surface-500 dark:text-surface-400">
-                      {reminder.reminder_type} - Due: {formatEventDate(reminder.due_date)}
+                      {reminder.reminder_type} - Due: {formatEventDate(reminder.reminder_time)}
                     </p>
                   </div>
                   <Button
@@ -657,7 +686,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
         {/* Drag and Drop Kanban Board */}
         <DndContext
           sensors={sensors}
-          collisionDetection={closestCorners}
+          collisionDetection={pointerWithin}
           onDragStart={handleDragStart}
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
@@ -708,6 +737,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"
+          data-testid="application-detail-dialog"
         >
           <Card className="w-full max-w-lg dark:bg-surface-800">
             <div className="p-6">
@@ -737,7 +767,9 @@ export default function Applications({ onBack }: ApplicationsProps) {
                     const newStatus = e.target.value;
                     try {
                       await invoke("update_application_status", { applicationId: selectedApp.id, status: newStatus });
-                      toast.success("Status updated", `Application moved to ${newStatus}`);
+                      invalidateCacheByCommand("get_applications_kanban");
+                      const newLabel = STATUS_COLUMNS.find((col) => col.key === newStatus)?.label ?? newStatus;
+                      toast.success("Status updated", `Application moved to ${newLabel}`);
                       setSelectedApp({ ...selectedApp, status: newStatus });
                       fetchData();
                     } catch (err: unknown) {

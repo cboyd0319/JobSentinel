@@ -207,19 +207,21 @@ export const mockStatistics = {
 };
 
 export const mockApplications = {
-  saved: [
-    { id: 1, job_hash: "job-hash-1", job_title: "SEO Manager", company: "Shopify", status: "saved", applied_at: null, notes: null, last_contact: null },
+  to_apply: [
+    { id: 1, job_hash: "job-hash-1", job_title: "SEO Manager", company: "Shopify", status: "to_apply", applied_at: null, notes: null, last_contact: null },
   ],
   applied: [
     { id: 2, job_hash: "job-hash-5", job_title: "E-Commerce Manager", company: "Wayfair", status: "applied", applied_at: new Date(Date.now() - 604800000).toISOString(), notes: "Applied via website", last_contact: null },
   ],
-  phone_screen: [
-    { id: 3, job_hash: "job-hash-8", job_title: "Content Marketing Manager", company: "Mailchimp", status: "phone_screen", applied_at: new Date(Date.now() - 1209600000).toISOString(), notes: "Recruiter reached out", last_contact: new Date(Date.now() - 86400000).toISOString() },
+  screening_call: [
+    { id: 3, job_hash: "job-hash-8", job_title: "Content Marketing Manager", company: "Mailchimp", status: "screening_call", applied_at: new Date(Date.now() - 1209600000).toISOString(), notes: "Recruiter reached out", last_contact: new Date(Date.now() - 86400000).toISOString() },
   ],
-  technical: [],
-  onsite: [],
-  offer: [],
-  accepted: [],
+  phone_interview: [],
+  technical_interview: [],
+  onsite_interview: [],
+  offer_received: [],
+  offer_accepted: [],
+  offer_rejected: [],
   rejected: [],
   withdrawn: [],
   ghosted: [],

@@ -1,543 +1,188 @@
 import { test, expect } from "@playwright/test";
 import { ApplicationsPage } from "./page-objects/ApplicationsPage";
 
+const STATUS_COLUMNS = [
+  ["to_apply", "To Apply"],
+  ["applied", "Applied"],
+  ["screening_call", "Screening Call"],
+  ["phone_interview", "Phone Interview"],
+  ["technical_interview", "Technical Interview"],
+  ["onsite_interview", "Onsite Interview"],
+  ["offer_received", "Offer Received"],
+  ["offer_accepted", "Offer Accepted"],
+  ["offer_rejected", "Offer Rejected"],
+  ["rejected", "Rejected"],
+  ["withdrawn", "Withdrawn"],
+  ["ghosted", "Ghosted"],
+] as const;
+
 test.describe("Application Tracking", () => {
   let applicationsPage: ApplicationsPage;
 
   test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.removeItem("jobsentinel.mockState.v1");
+      sessionStorage.clear();
+    });
     applicationsPage = new ApplicationsPage(page);
     await applicationsPage.navigateTo();
   });
 
-  test.describe("Kanban Board Display", () => {
-    test("should display kanban board", async () => {
-      const hasBoard = await applicationsPage.kanbanBoard.isVisible().catch(() => false);
+  test.describe("Kanban Board", () => {
+    test("displays the kanban board", async () => {
+      await expect(applicationsPage.kanbanBoard).toBeVisible();
+      await expect(pageTitle(applicationsPage)).toBeVisible();
+    });
 
-      if (!hasBoard) {
-        test.skip();
-        return;
+    test("displays every backend status column", async () => {
+      await expect(applicationsPage.columns).toHaveCount(STATUS_COLUMNS.length);
+
+      for (const [status, label] of STATUS_COLUMNS) {
+        await expect(applicationsPage.getColumn(status)).toBeVisible();
+        await expect(applicationsPage.getColumn(status)).toContainText(label);
       }
+    });
+
+    test("loads mock applications into canonical columns", async () => {
+      await expect(applicationsPage.getColumn("to_apply")).toContainText("SEO Manager");
+      await expect(applicationsPage.getColumn("applied")).toContainText("E-Commerce Manager");
+      await expect(applicationsPage.getColumn("screening_call")).toContainText("Content Marketing Manager");
+    });
+
+    test("shows empty canonical columns as drop targets", async () => {
+      await expect(applicationsPage.getColumn("phone_interview")).toContainText("Drop here");
+      await expect(applicationsPage.getColumn("offer_received")).toContainText("Drop here");
+      await expect(applicationsPage.getColumn("ghosted")).toContainText("Drop here");
+    });
+
+    test("shows quick stats from application statuses", async ({ page }) => {
+      await expect(page.getByText("Applied:", { exact: true })).toBeVisible();
+      await expect(page.getByText("Interviews:", { exact: true })).toBeVisible();
+      await expect(page.getByText("Offers:", { exact: true })).toBeVisible();
+      await expect(page.getByText("In Progress:", { exact: true })).toBeVisible();
+    });
+  });
+
+  test.describe("Application Cards", () => {
+    test("displays application cards with required fields", async () => {
+      await expect(applicationsPage.applicationCards).toHaveCount(3);
+
+      const firstCard = await applicationsPage.getApplicationCard(0);
+      await expect(firstCard.position).toContainText("SEO Manager");
+      await expect(firstCard.company).toContainText("Shopify");
+      await expect(firstCard.status).toContainText("To Apply");
+    });
+
+    test("shows not-applied and applied dates correctly", async () => {
+      const toApplyCard = applicationsPage.getApplicationCardByText("SEO Manager");
+      const appliedCard = applicationsPage.getApplicationCardByText("E-Commerce Manager");
+
+      await expect(toApplyCard.locator("[data-testid='application-date']")).toContainText("Not applied yet");
+      await expect(appliedCard.locator("[data-testid='application-date']")).toContainText("Applied:");
+    });
+
+    test("opens application detail dialog from a card", async () => {
+      await applicationsPage.openApplicationDetails("SEO Manager");
+
+      await expect(applicationsPage.detailDialog).toBeVisible();
+      await expect(applicationsPage.detailDialog).toContainText("SEO Manager");
+      await expect(applicationsPage.detailDialog).toContainText("Shopify");
+      await expect(applicationsPage.statusSelect).toHaveValue("to_apply");
+      await expect(applicationsPage.notesTextarea).toBeVisible();
+    });
+
+    test("loads existing notes in detail dialog", async () => {
+      await applicationsPage.openApplicationDetails("E-Commerce Manager");
+
+      await expect(applicationsPage.detailDialog).toContainText("Previous notes: Applied via website");
+    });
+  });
+
+  test.describe("Status and Notes", () => {
+    test("updates status through the detail modal", async () => {
+      await applicationsPage.openApplicationDetails("SEO Manager");
+      await applicationsPage.statusSelect.selectOption("applied");
+
+      await expect(applicationsPage.statusSelect).toHaveValue("applied");
+      await applicationsPage.closeDialogButton.click();
+
+      await expect.poll(() => applicationsPage.getCardsInColumn("applied")).toBe(2);
+      await expect(applicationsPage.getColumn("applied")).toContainText("SEO Manager");
+    });
+
+    test("moves a card by drag and drop", async () => {
+      await applicationsPage.dragCardToColumn(0, "phone_interview");
+
+      const movedStatusLocator = applicationsPage
+        .getApplicationCardByText("SEO Manager")
+        .locator("[data-testid='application-status']");
+
+      await expect.poll(async () => (await movedStatusLocator.textContent())?.trim()).not.toBe("To Apply");
+      const movedStatus = (await movedStatusLocator.textContent())?.trim() ?? "";
+      expect(movedStatus).toMatch(/Interview$/);
+    });
+
+    test("saves notes and shows them on the card", async () => {
+      const note = "Follow up after portfolio review";
+
+      await applicationsPage.openApplicationDetails("SEO Manager");
+      await applicationsPage.notesTextarea.fill(note);
+      await applicationsPage.saveNotesButton.click();
+
+      await expect(applicationsPage.detailDialog).toBeHidden();
+      await expect(applicationsPage.getApplicationCardByText("SEO Manager")).toContainText(note);
+    });
+
+    test("keeps board visible after invalid drag target", async () => {
+      await applicationsPage.dragCardToColumn(0, "invalid-status");
 
       await expect(applicationsPage.kanbanBoard).toBeVisible();
-    });
-
-    test("should display all status columns", async () => {
-      const columnCount = await applicationsPage.columns.count();
-
-      // Should have multiple columns (Applied, Interview, Offer, Rejected, etc.)
-      expect(columnCount).toBeGreaterThanOrEqual(3);
-    });
-
-    test("should display column headers", async () => {
-      const columns = await applicationsPage.columns.all();
-
-      if (columns.length === 0) {
-        test.skip();
-        return;
-      }
-
-      // Each column should have a header
-      for (const column of columns) {
-        const header = column.locator("h2, h3, [data-testid*='header']");
-        const hasHeader = await header.isVisible().catch(() => false);
-        expect(hasHeader).toBeTruthy();
-      }
-    });
-
-    test("should show application count in each column", async ({ page }) => {
-      const hasBoard = await applicationsPage.kanbanBoard.isVisible().catch(() => false);
-
-      if (!hasBoard) {
-        test.skip();
-        return;
-      }
-
-      // Check for count badges
-      const countBadges = page.locator("[data-testid*='count'], .count, .badge");
-      const hasCountBadges = (await countBadges.count()) > 0;
-
-      if (!hasCountBadges) {
-        test.skip();
-        return;
-      }
-
-      await expect(countBadges.first()).toBeVisible();
+      await expect(applicationsPage.applicationCards).toHaveCount(3);
     });
   });
 
-  test.describe("Application Card Display", () => {
-    test("should display application cards", async () => {
-      const cardCount = await applicationsPage.applicationCards.count();
-
-      // May have 0 cards on fresh install
-      expect(cardCount).toBeGreaterThanOrEqual(0);
+  test.describe("Reminders and Toolbar", () => {
+    test("shows pending reminders with valid dates", async () => {
+      await expect(applicationsPage.pendingReminders).toBeVisible();
+      await expect(applicationsPage.pendingReminderRows).toHaveCount(1);
+      await expect(applicationsPage.pendingReminderRows.first()).toContainText("E-Commerce Manager at Wayfair");
+      await expect(applicationsPage.pendingReminderRows.first()).not.toContainText("Invalid");
     });
 
-    test("should show company and position on cards", async () => {
-      const cardCount = await applicationsPage.applicationCards.count();
+    test("completes a pending reminder", async () => {
+      await applicationsPage.pendingReminderRows.first().getByRole("button", { name: "Done" }).click();
 
-      if (cardCount === 0) {
-        test.skip();
-        return;
-      }
-
-      const firstCard = await applicationsPage.getApplicationCard(0);
-
-      await expect(firstCard.company).toBeVisible();
-      await expect(firstCard.position).toBeVisible();
+      await expect(applicationsPage.pendingReminderRows).toHaveCount(0);
+      await expect(applicationsPage.pendingReminders).toBeHidden();
     });
 
-    test("should show application date", async () => {
-      const cardCount = await applicationsPage.applicationCards.count();
+    test("runs ghosted detection without losing the board", async () => {
+      await applicationsPage.detectGhostedButton.click();
 
-      if (cardCount === 0) {
-        test.skip();
-        return;
-      }
-
-      const firstCard = await applicationsPage.getApplicationCard(0);
-      const hasDate = await firstCard.date.isVisible().catch(() => false);
-
-      if (!hasDate) {
-        test.skip();
-        return;
-      }
-
-      await expect(firstCard.date).toBeVisible();
+      await expect(applicationsPage.kanbanBoard).toBeVisible();
+      await expect(applicationsPage.applicationCards).toHaveCount(3);
     });
 
-    test("should show action buttons on hover", async ({ page }) => {
-      const cardCount = await applicationsPage.applicationCards.count();
+    test("opens analytics panel", async ({ page }) => {
+      await applicationsPage.analyticsButton.click();
 
-      if (cardCount === 0) {
-        test.skip();
-        return;
-      }
-
-      const firstCard = await applicationsPage.getApplicationCard(0);
-
-      // Hover to reveal actions
-      await firstCard.locator.hover();
-      await page.waitForTimeout(300);
-
-      const hasEdit = await firstCard.editButton.isVisible().catch(() => false);
-      const hasDelete = await firstCard.deleteButton.isVisible().catch(() => false);
-
-      if (!hasEdit && !hasDelete) {
-        await firstCard.locator.click();
-        await expect(page.locator("[role='dialog']").first()).toBeVisible();
-        return;
-      }
-
-      expect(hasEdit || hasDelete).toBeTruthy();
-    });
-  });
-
-  test.describe("Add Application", () => {
-    test("should have add application button", async () => {
-      const hasAddButton = await applicationsPage.addButton.isVisible().catch(() => false);
-
-      if (!hasAddButton) {
-        test.skip();
-        return;
-      }
-
-      await expect(applicationsPage.addButton).toBeVisible();
-      await expect(applicationsPage.addButton).toBeEnabled();
+      await expect(page.getByRole("dialog", { name: "Application Analytics" })).toBeVisible();
     });
 
-    test("should open add application form", async ({ page }) => {
-      const hasAddButton = await applicationsPage.addButton.isVisible().catch(() => false);
+    test("opens interview scheduler", async ({ page }) => {
+      await applicationsPage.interviewsButton.click();
 
-      if (!hasAddButton) {
-        test.skip();
-        return;
-      }
-
-      await applicationsPage.addButton.click();
-      await page.waitForTimeout(500);
-
-      // Should show form modal or inline form
-      const form = page.locator("form, [data-testid='add-application-form']");
-      const hasForm = await form.isVisible().catch(() => false);
-
-      expect(hasForm).toBeTruthy();
+      await expect(page.getByRole("dialog", { name: "Interview Schedule" })).toBeVisible();
     });
 
-    test("should add new application", async ({ page }) => {
-      const hasAddButton = await applicationsPage.addButton.isVisible().catch(() => false);
+    test("opens cover letter templates", async ({ page }) => {
+      await applicationsPage.templatesButton.click();
 
-      if (!hasAddButton) {
-        test.skip();
-        return;
-      }
-
-      const initialCount = await applicationsPage.applicationCards.count();
-
-      await applicationsPage.addApplication({
-        company: "Test Company",
-        position: "Software Engineer",
-        status: "applied",
-        url: "https://example.com/job",
-      });
-
-      await page.waitForTimeout(1000);
-
-      const finalCount = await applicationsPage.applicationCards.count();
-      expect(finalCount).toBeGreaterThan(initialCount);
-    });
-
-    test("should validate required fields", async ({ page }) => {
-      const hasAddButton = await applicationsPage.addButton.isVisible().catch(() => false);
-
-      if (!hasAddButton) {
-        test.skip();
-        return;
-      }
-
-      await applicationsPage.addButton.click();
-      await page.waitForTimeout(200);
-
-      // Try to submit without filling required fields
-      const submitButton = page.locator("button[type='submit'], button:has-text('Add'), button:has-text('Save')");
-      if (await submitButton.isVisible().catch(() => false)) {
-        await submitButton.click();
-        await page.waitForTimeout(500);
-
-        // Should show validation errors
-        const errors = page.locator("[data-testid='error'], .error, text=required");
-        const hasErrors = (await errors.count()) > 0;
-
-        expect(hasErrors).toBeTruthy();
-      }
-    });
-  });
-
-  test.describe("Update Application Status", () => {
-    test("should drag card to different column", async ({ page }) => {
-      const cardCount = await applicationsPage.applicationCards.count();
-
-      if (cardCount === 0) {
-        test.skip();
-        return;
-      }
-
-      // Get initial column
-      const firstCard = await applicationsPage.getApplicationCard(0);
-      const hasInteractiveStatus = await firstCard.status.evaluate((el) =>
-        ["BUTTON", "SELECT"].includes(el.tagName),
-      );
-      if (!hasInteractiveStatus) {
-        test.skip();
-        return;
-      }
-      const initialStatus = await firstCard.status.textContent();
-
-      const targetStatus = "phone_screen";
-      const targetColumnCount = await applicationsPage.getColumn(targetStatus).count();
-      if (targetColumnCount === 0) {
-        test.skip();
-        return;
-      }
-
-      // Drag to phone screen column
-      await applicationsPage.dragCardToColumn(0, targetStatus);
-      await page.waitForTimeout(1000);
-
-      // Status should have changed
-      const finalStatus = await firstCard.status.textContent();
-      expect(finalStatus).not.toBe(initialStatus);
-    });
-
-    test("should update status via dropdown", async ({ page }) => {
-      const cardCount = await applicationsPage.applicationCards.count();
-
-      if (cardCount === 0) {
-        test.skip();
-        return;
-      }
-
-      const firstCard = await applicationsPage.getApplicationCard(0);
-
-      // Check if status dropdown exists
-      const hasStatusDropdown = await firstCard.status
-        .evaluate((el) => ["BUTTON", "SELECT"].includes(el.tagName))
-        .catch(() => false);
-      if (!hasStatusDropdown) {
-        test.skip();
-        return;
-      }
-
-      await firstCard.updateStatus("phone_screen");
-      await page.waitForTimeout(500);
-
-      const newStatus = await firstCard.status.textContent();
-      expect(newStatus?.toLowerCase()).toContain("phone");
-    });
-
-    test("should move card to correct column after status update", async ({ page }) => {
-      const cardCount = await applicationsPage.applicationCards.count();
-
-      if (cardCount === 0) {
-        test.skip();
-        return;
-      }
-
-      const targetStatus = "phone_screen";
-      const targetColumnCount = await applicationsPage.getColumn(targetStatus).count();
-      if (targetColumnCount === 0) {
-        test.skip();
-        return;
-      }
-
-      const initialInterviewCount = await applicationsPage.getCardsInColumn(targetStatus);
-
-      // Update first card to phone screen status
-      const firstCard = await applicationsPage.getApplicationCard(0);
-      const hasStatusDropdown = await firstCard.status
-        .evaluate((el) => ["BUTTON", "SELECT"].includes(el.tagName))
-        .catch(() => false);
-      if (!hasStatusDropdown) {
-        test.skip();
-        return;
-      }
-      await firstCard.updateStatus(targetStatus);
-      await page.waitForTimeout(1000);
-
-      const finalInterviewCount = await applicationsPage.getCardsInColumn(targetStatus);
-      expect(finalInterviewCount).toBeGreaterThan(initialInterviewCount);
-    });
-  });
-
-  test.describe("Edit Application", () => {
-    test("should open edit form", async ({ page }) => {
-      const cardCount = await applicationsPage.applicationCards.count();
-
-      if (cardCount === 0) {
-        test.skip();
-        return;
-      }
-
-      const firstCard = await applicationsPage.getApplicationCard(0);
-
-      await firstCard.locator.hover();
-      await page.waitForTimeout(300);
-
-      const hasEditButton = await firstCard.editButton.isVisible().catch(() => false);
-      if (!hasEditButton) {
-        test.skip();
-        return;
-      }
-
-      await firstCard.edit();
-      await page.waitForTimeout(500);
-
-      // Should show edit form
-      const form = page.locator("form, [data-testid='edit-application-form']");
-      const hasForm = await form.isVisible().catch(() => false);
-
-      expect(hasForm).toBeTruthy();
-    });
-
-    test("should update application details", async ({ page }) => {
-      const cardCount = await applicationsPage.applicationCards.count();
-
-      if (cardCount === 0) {
-        test.skip();
-        return;
-      }
-
-      const firstCard = await applicationsPage.getApplicationCard(0);
-
-      await firstCard.locator.hover();
-      await page.waitForTimeout(300);
-
-      const hasEditButton = await firstCard.editButton.isVisible().catch(() => false);
-      if (!hasEditButton) {
-        test.skip();
-        return;
-      }
-
-      await firstCard.edit();
-      await page.waitForTimeout(500);
-
-      // Update company name
-      const companyInput = page.locator("input[name='company']");
-      if (await companyInput.isVisible().catch(() => false)) {
-        await companyInput.fill("Updated Company");
-
-        const saveButton = page.locator("button[type='submit'], button:has-text('Save')");
-        await saveButton.click();
-        await page.waitForTimeout(500);
-
-        // Verify update
-        const updatedCompany = await firstCard.company.textContent();
-        expect(updatedCompany).toContain("Updated Company");
-      }
-    });
-  });
-
-  test.describe("Delete Application", () => {
-    test("should delete application with confirmation", async ({ page }) => {
-      const cardCount = await applicationsPage.applicationCards.count();
-
-      if (cardCount === 0) {
-        test.skip();
-        return;
-      }
-
-      const initialCount = cardCount;
-      const firstCard = await applicationsPage.getApplicationCard(0);
-
-      await firstCard.locator.hover();
-      await page.waitForTimeout(300);
-
-      const hasDeleteButton = await firstCard.deleteButton.isVisible().catch(() => false);
-      if (!hasDeleteButton) {
-        test.skip();
-        return;
-      }
-
-      await firstCard.delete();
-      await page.waitForTimeout(1000);
-
-      const finalCount = await applicationsPage.applicationCards.count();
-      expect(finalCount).toBeLessThan(initialCount);
-    });
-
-    test("should show confirmation dialog before delete", async ({ page }) => {
-      const cardCount = await applicationsPage.applicationCards.count();
-
-      if (cardCount === 0) {
-        test.skip();
-        return;
-      }
-
-      const firstCard = await applicationsPage.getApplicationCard(0);
-
-      await firstCard.locator.hover();
-      await page.waitForTimeout(300);
-
-      const hasDeleteButton = await firstCard.deleteButton.isVisible().catch(() => false);
-      if (!hasDeleteButton) {
-        test.skip();
-        return;
-      }
-
-      await firstCard.deleteButton.click();
-      await page.waitForTimeout(300);
-
-      // Should show confirmation
-      const confirmDialog = page.locator("[role='dialog'], [data-testid='confirm-dialog']");
-      const hasDialog = await confirmDialog.isVisible().catch(() => false);
-
-      expect(hasDialog).toBeTruthy();
-    });
-  });
-
-  test.describe("Filter and Sort", () => {
-    test("should filter applications by status", async ({ page }) => {
-      const hasFilterButton = await applicationsPage.filterButton.isVisible().catch(() => false);
-
-      if (!hasFilterButton) {
-        test.skip();
-        return;
-      }
-
-      await applicationsPage.filterByStatus("interview");
-      await page.waitForTimeout(500);
-
-      // Should show only interview applications
-      const visibleCards = await applicationsPage.applicationCards.count();
-      expect(visibleCards).toBeGreaterThanOrEqual(0);
-    });
-
-    test("should sort applications by date", async ({ page }) => {
-      const hasSortButton = await applicationsPage.sortButton.isVisible().catch(() => false);
-
-      if (!hasSortButton) {
-        test.skip();
-        return;
-      }
-
-      await applicationsPage.sortBy("date");
-      await page.waitForTimeout(500);
-
-      // Cards should be reordered
-      const cardCount = await applicationsPage.applicationCards.count();
-      expect(cardCount).toBeGreaterThanOrEqual(0);
-    });
-
-    test("should sort applications by company name", async ({ page }) => {
-      const hasSortButton = await applicationsPage.sortButton.isVisible().catch(() => false);
-
-      if (!hasSortButton) {
-        test.skip();
-        return;
-      }
-
-      await applicationsPage.sortBy("company");
-      await page.waitForTimeout(500);
-
-      const cardCount = await applicationsPage.applicationCards.count();
-      expect(cardCount).toBeGreaterThanOrEqual(0);
-    });
-  });
-
-  test.describe("Error Handling", () => {
-    test("should handle drag-and-drop failures", async ({ page }) => {
-      const cardCount = await applicationsPage.applicationCards.count();
-
-      if (cardCount === 0) {
-        test.skip();
-        return;
-      }
-
-      // Try to drag to invalid location
-      try {
-        await applicationsPage.dragCardToColumn(0, "invalid-status");
-        await page.waitForTimeout(500);
-
-        // Should not crash
-        await expect(applicationsPage.kanbanBoard).toBeVisible();
-      } catch {
-        await expect(applicationsPage.kanbanBoard).toBeVisible();
-      }
-    });
-
-    test("should handle delete errors", async ({ page }) => {
-      const cardCount = await applicationsPage.applicationCards.count();
-
-      if (cardCount === 0) {
-        test.skip();
-        return;
-      }
-
-      const firstCard = await applicationsPage.getApplicationCard(0);
-
-      // Cancel delete
-      await firstCard.locator.hover();
-      await page.waitForTimeout(300);
-
-      const hasDeleteButton = await firstCard.deleteButton.isVisible().catch(() => false);
-      if (!hasDeleteButton) {
-        test.skip();
-        return;
-      }
-
-      await firstCard.deleteButton.click();
-      await page.waitForTimeout(300);
-
-      // Click cancel instead of confirm
-      const cancelButton = page.locator("button:has-text('Cancel')");
-      if (await cancelButton.isVisible().catch(() => false)) {
-        await cancelButton.click();
-        await page.waitForTimeout(300);
-
-        // Card should still exist
-        const stillExists = await firstCard.locator.isVisible().catch(() => false);
-        expect(stillExists).toBeTruthy();
-      }
+      await expect(page.getByRole("dialog", { name: "Cover Letter Templates" })).toBeVisible();
     });
   });
 });
+
+function pageTitle(applicationsPage: ApplicationsPage) {
+  return applicationsPage.page.getByRole("heading", { name: "Application Tracker" });
+}
