@@ -7,6 +7,7 @@ security, or developer workflow.
 
 | ID | Area | Evidence | Risk | Next step | Status |
 | -- | ---- | -------- | ---- | --------- | ------ |
+| BLOAT-003 | Removing bloat and junk | User reported root clutter and likely nested junk after the disposable-artifact sensor was already passing. | Artifact-only sensors can miss stale docs, redundant root files, duplicate examples, or obsolete nested content that still slows maintenance. | Classify root files, sweep nested paths for stale or duplicate content, remove or relocate confirmed bloat, then add sensors for recurring junk classes. | Open |
 
 ## Closed Items
 
