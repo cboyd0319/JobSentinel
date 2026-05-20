@@ -391,13 +391,13 @@ See [Security: Keyring Integration](../security/KEYRING.md) for full documentati
 - `profile.rs` - Application profile and screening answer management
 - `browser.rs` - Browser control via chromiumoxide
 - `form_filler.rs` - Form field detection and filling
-- `ats_detection.rs` - ATS platform detection (7 platforms)
+- `ats_detector.rs` - ATS platform detection (7 platforms)
 
 **Supported ATS Platforms:**
 
 - Greenhouse (`boards.greenhouse.io`)
 - Lever (`jobs.lever.co`)
-- Workday (`myworkday.com`, `workday.com`)
+- Workday (`myworkdayjobs.com`, `workday.com`)
 - Taleo (`taleo.net`)
 - iCIMS (`icims.com`)
 - BambooHR (`bamboohr.com`)

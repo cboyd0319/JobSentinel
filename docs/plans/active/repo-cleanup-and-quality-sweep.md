@@ -121,6 +121,7 @@ changes or Playwright-specific work.
 | 2026-05-20 | In progress | Corrected stale E2E documentation that still referenced WebdriverIO, removed a deleted `tests/e2e/docs/` tree entry, and updated Playwright examples/layout notes. |
 | 2026-05-20 | In progress | Hardened the LinkedIn login result channel so a poisoned mutex cannot panic the auth flow, and added a regression test for poisoned sender recovery. |
 | 2026-05-20 | In progress | Removed implicit external location detection from setup/settings, switched the backend lookup to HTTPS, and documented explicit FreeIPAPI public-IP lookup behavior. |
+| 2026-05-20 | In progress | Hardened ATS URL detection so provider names in query strings or lookalike hosts cannot produce false platform matches, and corrected related architecture docs. |
 
 ## Discoveries
 
@@ -179,6 +180,11 @@ changes or Playwright-specific work.
   settings called geolocation on mount, the backend used plaintext HTTP, and the
   roadmap still listed location detection as planned even though the command and
   UI existed.
+- ATS URL detection was scanning the whole URL with regexes, so a trusted
+  provider name in an untrusted query string or a lookalike host could be
+  misclassified as a supported ATS.
+- Architecture docs referenced stale `ats_detection.rs` and `myworkday.com`
+  names instead of current `ats_detector.rs` and `myworkdayjobs.com`.
 
 ## Decisions
 
@@ -196,6 +202,8 @@ changes or Playwright-specific work.
   them; pair the deletion with bloat allowlist updates.
 - Keep IP geolocation behind explicit user action, use HTTPS, and document the
   public-IP lookup because it is an external provider call.
+- Match ATS platforms from parsed URL host/path only; HTML fallback can inspect
+  page content, but URL detection must not trust arbitrary query text.
 
 ## Outcomes
 

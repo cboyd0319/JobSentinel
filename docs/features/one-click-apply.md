@@ -278,6 +278,9 @@ The first selector that finds an element is used.
 - `detect_ats_platform`
 - `detect_ats_from_html`
 
+URL detection parses the URL and matches supported ATS domains by host and path.
+It ignores provider names in query strings and rejects lookalike domains.
+
 **Browser Control:**
 
 - `launch_automation_browser`

@@ -1,15 +1,22 @@
 //! ATS Platform Detector
 //!
 //! Identifies which ATS (Applicant Tracking System) platform a job posting uses
-//! based on URL patterns and page structure.
-#![allow(clippy::unwrap_used, clippy::expect_used)] // Regex patterns are compile-time constants
+//! based on parsed URL host/path rules and page structure.
 
 use super::AtsPlatform;
-use regex::Regex;
-use std::sync::OnceLock;
+use url::Url;
 
 /// ATS detector
 pub struct AtsDetector;
+
+fn host_matches_domain(host: &str, domain: &str) -> bool {
+    host == domain || host.ends_with(&format!(".{domain}"))
+}
+
+fn path_has_segment(url: &Url, segment: &str) -> bool {
+    url.path_segments()
+        .is_some_and(|mut segments| segments.any(|part| part.eq_ignore_ascii_case(segment)))
+}
 
 impl AtsDetector {
     /// Detect ATS platform from job URL
@@ -26,54 +33,50 @@ impl AtsDetector {
     /// assert_eq!(platform, AtsPlatform::Lever);
     /// ```
     pub fn detect_from_url(url: &str) -> AtsPlatform {
-        let patterns = Self::url_patterns();
+        let Ok(parsed_url) = Url::parse(url) else {
+            return AtsPlatform::Unknown;
+        };
 
-        for (platform, pattern) in patterns.iter() {
-            if pattern.is_match(url) {
-                return platform.clone();
-            }
+        let scheme = parsed_url.scheme();
+        if scheme != "https" && scheme != "http" {
+            return AtsPlatform::Unknown;
+        }
+
+        let Some(host) = parsed_url.host_str().map(|host| host.to_ascii_lowercase()) else {
+            return AtsPlatform::Unknown;
+        };
+
+        if host_matches_domain(&host, "greenhouse.io") {
+            return AtsPlatform::Greenhouse;
+        }
+
+        if host_matches_domain(&host, "lever.co") {
+            return AtsPlatform::Lever;
+        }
+
+        if host_matches_domain(&host, "myworkdayjobs.com")
+            || (host_matches_domain(&host, "workday.com") && path_has_segment(&parsed_url, "job"))
+        {
+            return AtsPlatform::Workday;
+        }
+
+        if host_matches_domain(&host, "taleo.net") {
+            return AtsPlatform::Taleo;
+        }
+
+        if host_matches_domain(&host, "icims.com") {
+            return AtsPlatform::Icims;
+        }
+
+        if host_matches_domain(&host, "bamboohr.com") && path_has_segment(&parsed_url, "careers") {
+            return AtsPlatform::BambooHr;
+        }
+
+        if host_matches_domain(&host, "ashbyhq.com") {
+            return AtsPlatform::AshbyHq;
         }
 
         AtsPlatform::Unknown
-    }
-
-    /// Get URL patterns for each ATS platform
-    fn url_patterns() -> &'static Vec<(AtsPlatform, Regex)> {
-        static PATTERNS: OnceLock<Vec<(AtsPlatform, Regex)>> = OnceLock::new();
-
-        PATTERNS.get_or_init(|| {
-            vec![
-                // Greenhouse: boards.greenhouse.io, greenhouse.io, *.greenhouse.io
-                (
-                    AtsPlatform::Greenhouse,
-                    Regex::new(r"(?i)(boards\.)?greenhouse\.io").unwrap(),
-                ),
-                // Lever: jobs.lever.co, *.lever.co
-                (
-                    AtsPlatform::Lever,
-                    Regex::new(r"(?i)(jobs\.)?lever\.co").unwrap(),
-                ),
-                // Workday: *.myworkdayjobs.com, workday.com/*/job
-                (
-                    AtsPlatform::Workday,
-                    Regex::new(r"(?i)(myworkdayjobs\.com|workday\.com/[^/]+/job)").unwrap(),
-                ),
-                // Taleo: *.taleo.net, tbe.taleo.net
-                (AtsPlatform::Taleo, Regex::new(r"(?i)taleo\.net").unwrap()),
-                // iCIMS: *.icims.com, careers.*.com (using iCIMS)
-                (AtsPlatform::Icims, Regex::new(r"(?i)icims\.com").unwrap()),
-                // BambooHR: *.bamboohr.com/careers
-                (
-                    AtsPlatform::BambooHr,
-                    Regex::new(r"(?i)bamboohr\.com/careers").unwrap(),
-                ),
-                // Ashby: jobs.ashbyhq.com, *.ashbyhq.com
-                (
-                    AtsPlatform::AshbyHq,
-                    Regex::new(r"(?i)ashbyhq\.com").unwrap(),
-                ),
-            ]
-        })
     }
 
     /// Get company career page pattern for detecting ATS
@@ -288,6 +291,32 @@ mod tests {
     fn test_detect_unknown() {
         assert_eq!(
             AtsDetector::detect_from_url("https://company.com/careers/job/123"),
+            AtsPlatform::Unknown
+        );
+    }
+
+    #[test]
+    fn test_detect_from_url_ignores_query_string_mentions() {
+        assert_eq!(
+            AtsDetector::detect_from_url(
+                "https://example.com/jobs/123?next=https://boards.greenhouse.io/company/jobs/123"
+            ),
+            AtsPlatform::Unknown
+        );
+        assert_eq!(
+            AtsDetector::detect_from_url("https://example.com/apply?redirect=jobs.lever.co"),
+            AtsPlatform::Unknown
+        );
+    }
+
+    #[test]
+    fn test_detect_from_url_rejects_lookalike_hosts() {
+        assert_eq!(
+            AtsDetector::detect_from_url("https://greenhouse.io.evil.example/jobs/123"),
+            AtsPlatform::Unknown
+        );
+        assert_eq!(
+            AtsDetector::detect_from_url("https://notlever.co/jobs/123"),
             AtsPlatform::Unknown
         );
     }
