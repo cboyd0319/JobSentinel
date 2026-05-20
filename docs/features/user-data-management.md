@@ -391,29 +391,28 @@ invoke("import_cover_letter_templates", {
 
 ### Interview Prep Checklists
 
-#### `get_interview_prep_checklist(interview_id: i64)`
+#### `get_interview_prep_checklist(interviewId: number)`
 
 Get the prep checklist for an interview.
 
 ```typescript
-invoke("get_interview_prep_checklist", { interview_id: 42 });
+invoke("get_interview_prep_checklist", { interviewId: 42 });
 // Returns: PrepChecklistItem[]
 // {
-//   id: string,
-//   category: 'research' | 'technical' | 'behavioral' | 'logistics',
-//   title: string,
+//   itemId: string,
 //   completed: boolean
+//   completedAt: string | null
 // }
 ```
 
-#### `save_interview_prep_item(interview_id: i64, item_id: string, completed: boolean)`
+#### `save_interview_prep_item(interviewId: number, itemId: string, completed: boolean)`
 
 Mark a checklist item as complete or incomplete.
 
 ```typescript
 invoke("save_interview_prep_item", {
-  interview_id: 42,
-  item_id: "item-research-company",
+  interviewId: 42,
+  itemId: "item-research-company",
   completed: true,
 });
 // Returns: void
@@ -423,29 +422,28 @@ invoke("save_interview_prep_item", {
 
 ### Follow-up Reminders
 
-#### `get_interview_followup(interview_id: i64)`
+#### `get_interview_followup(interviewId: number)`
 
 Get the follow-up reminder for an interview.
 
 ```typescript
-invoke("get_interview_followup", { interview_id: 42 });
+invoke("get_interview_followup", { interviewId: 42 });
 // Returns: FollowUpReminder | null
 // {
-//   interview_id: i64,
-//   thank_you_sent: boolean,
-//   created_at: string,
-//   updated_at: string
+//   interviewId: number,
+//   thankYouSent: boolean,
+//   sentAt: string | null
 // }
 ```
 
-#### `save_interview_followup(interview_id: i64, thank_you_sent: boolean)`
+#### `save_interview_followup(interviewId: number, thankYouSent: boolean)`
 
 Update the follow-up reminder status.
 
 ```typescript
 invoke("save_interview_followup", {
-  interview_id: 42,
-  thank_you_sent: true,
+  interviewId: 42,
+  thankYouSent: true,
 });
 // Returns: FollowUpReminder
 ```

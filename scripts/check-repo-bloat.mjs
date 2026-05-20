@@ -987,6 +987,77 @@ function hasStaleAtsKeywordMatchFrontendShape(root, path) {
   return /\bfound_in\s*:\s*string\s*[;\n]/.test(text) || /\bcontext\s*:\s*string\s*[;\n]/.test(text);
 }
 
+function stripTypeScriptComments(text) {
+  return text
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/(^|[^:])\/\/.*$/gm, "$1");
+}
+
+function isRuntimeFrontendSource(path) {
+  return (
+    path.startsWith("src/") &&
+    /\.(ts|tsx)$/.test(path) &&
+    !path.endsWith(".d.ts") &&
+    !/\.test\.(ts|tsx)$/.test(path) &&
+    !/\.stories\.(ts|tsx)$/.test(path) &&
+    path !== "src/mocks/handlers.ts"
+  );
+}
+
+function collectRuntimeInvokeCommands(root) {
+  const commands = new Set();
+  const commandPattern =
+    /\b(?:cachedInvoke|safeInvokeWithToast|safeInvoke|invokeCommand|invoke)(?:<[^>]+>)?\(\s*["']([^"']+)["']/g;
+
+  for (const path of listTrackedFiles(root).filter(isRuntimeFrontendSource)) {
+    const text = stripTypeScriptComments(readFileSync(join(root, path), "utf8"));
+    for (const match of text.matchAll(commandPattern)) {
+      commands.add(match[1]);
+    }
+  }
+
+  return commands;
+}
+
+function collectMockCommandCases(root) {
+  const text = readFileSync(join(root, "src/mocks/handlers.ts"), "utf8");
+  return new Set([...text.matchAll(/case\s+["']([^"']+)["']/g)].map((match) => match[1]));
+}
+
+function missingRuntimeMockInvokeCases(root, path) {
+  if (path !== "src/mocks/handlers.ts") {
+    return [];
+  }
+
+  const mockCases = collectMockCommandCases(root);
+  return [...collectRuntimeInvokeCommands(root)]
+    .filter((command) => !mockCases.has(command))
+    .sort();
+}
+
+function hasStaleSalaryBenchmarkFrontendShape(root, path) {
+  if (path !== "src/pages/Salary.tsx") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /\brole\s*:\s*string\s*[;\n]/.test(text) ||
+    /\bp50\s*:\s*number\s*[;\n]/.test(text) ||
+    /\bp90\s*:\s*number\s*[;\n]/.test(text) ||
+    /\bbenchmark\.(role|p25|p50|p75|p90)\b/.test(text)
+  );
+}
+
+function hasStaleInterviewFollowupFrontendShape(root, path) {
+  if (path !== "src/components/InterviewScheduler.tsx") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /\bthank_you_sent\b|\bsent_at\b/.test(text);
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -1209,6 +1280,21 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleAtsKeywordMatchFrontendShape(root, path)) {
       violations.push(`sync ATS keyword match frontend shape: ${path}`);
+    }
+
+    const missingMockCases = missingRuntimeMockInvokeCases(root, path);
+    if (missingMockCases.length > 0) {
+      violations.push(
+        `sync dev mock handlers for runtime invokes: ${path} missing ${missingMockCases.join(", ")}`,
+      );
+    }
+
+    if (hasStaleSalaryBenchmarkFrontendShape(root, path)) {
+      violations.push(`sync salary benchmark frontend shape: ${path}`);
+    }
+
+    if (hasStaleInterviewFollowupFrontendShape(root, path)) {
+      violations.push(`sync interview follow-up frontend shape: ${path}`);
     }
   }
 

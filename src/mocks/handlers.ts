@@ -292,6 +292,119 @@ interface MockJobImportPreview {
 }
 
 type MockFeedbackCategory = "bug" | "feature" | "question";
+type MockScraperType = "api" | "html" | "hybrid";
+type MockHealthStatus = "healthy" | "degraded" | "down" | "disabled" | "unknown";
+type MockSelectorHealth = "healthy" | "degraded" | "broken" | "unknown";
+type MockScraperRunStatus = "running" | "success" | "error" | "rate_limited";
+
+interface MockScraperDefinition {
+  scraper_name: string;
+  display_name: string;
+  requires_auth: boolean;
+  scraper_type: MockScraperType;
+  rate_limit_per_hour: number;
+}
+
+interface MockScraperHealthMetrics extends MockScraperDefinition {
+  is_enabled: boolean;
+  health_status: MockHealthStatus;
+  selector_health: MockSelectorHealth;
+  success_rate_24h: number;
+  avg_duration_ms: number | null;
+  last_success: string | null;
+  last_error: string | null;
+  total_runs_24h: number;
+  jobs_found_24h: number;
+}
+
+interface MockScraperRun {
+  id: number;
+  scraper_name: string;
+  started_at: string;
+  finished_at: string | null;
+  duration_ms: number | null;
+  status: MockScraperRunStatus;
+  jobs_found: number;
+  jobs_new: number;
+  error_message: string | null;
+  error_code: string | null;
+  retry_attempt: number;
+}
+
+interface MockSmokeTestResult {
+  scraper_name: string;
+  success: boolean;
+  response_time_ms: number;
+  error_message: string | null;
+  tested_at: string;
+}
+
+interface MockCredentialHealth {
+  credential_name: string;
+  is_valid: boolean;
+  expires_at: string | null;
+  days_until_expiry: number | null;
+  last_validated: string | null;
+  warning_message: string | null;
+}
+
+interface MockPrepChecklistItem {
+  itemId: string;
+  completed: boolean;
+  completedAt: string | null;
+}
+
+interface MockFollowUpReminder {
+  interviewId: number;
+  thankYouSent: boolean;
+  sentAt: string | null;
+}
+
+interface MockSalaryBenchmark {
+  job_title: string;
+  location: string;
+  seniority_level: string;
+  min_salary: number;
+  p25_salary: number;
+  median_salary: number;
+  p75_salary: number;
+  max_salary: number;
+  average_salary: number;
+  sample_size: number;
+  last_updated: string;
+}
+
+interface MockAtsDetectionResponse {
+  platform: string;
+  commonFields: string[];
+  automationNotes: string | null;
+}
+
+interface MockFillResultWithAttempt {
+  filledFields: string[];
+  unfilledFields: string[];
+  captchaDetected: boolean;
+  readyForReview: boolean;
+  errorMessage: string | null;
+  attemptId: number | null;
+  durationMs: number;
+  atsPlatform: string;
+}
+
+interface MockAnswerSuggestion {
+  answer: string;
+  confidence: number;
+  source: {
+    type: "manual";
+    pattern: string;
+    answerId: number;
+  };
+  timesUsed: number;
+  timesModified: number;
+  lastUsedDaysAgo: number | null;
+  modificationRate: number;
+}
+
 type MockKeywordImportance = "Required" | "Preferred" | "Industry";
 type MockIssueSeverity = "Critical" | "Warning" | "Info";
 type MockSuggestionCategory =
@@ -385,6 +498,22 @@ const ATS_KNOWN_KEYWORDS = [
   "automation",
   "testing",
   "leadership",
+] as const;
+
+const MOCK_SCRAPERS: readonly MockScraperDefinition[] = [
+  { scraper_name: "greenhouse", display_name: "Greenhouse", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 60 },
+  { scraper_name: "lever", display_name: "Lever", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 60 },
+  { scraper_name: "remoteok", display_name: "Remote OK", requires_auth: false, scraper_type: "api", rate_limit_per_hour: 120 },
+  { scraper_name: "hn_hiring", display_name: "HN Who's Hiring", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 30 },
+  { scraper_name: "weworkremotely", display_name: "We Work Remotely", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 60 },
+  { scraper_name: "linkedin", display_name: "LinkedIn", requires_auth: true, scraper_type: "hybrid", rate_limit_per_hour: 30 },
+  { scraper_name: "indeed", display_name: "Indeed", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 60 },
+  { scraper_name: "wellfound", display_name: "Wellfound", requires_auth: true, scraper_type: "html", rate_limit_per_hour: 45 },
+  { scraper_name: "builtin", display_name: "Built In", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 60 },
+  { scraper_name: "jobswithgpt", display_name: "JobsWithGPT", requires_auth: false, scraper_type: "api", rate_limit_per_hour: 60 },
+  { scraper_name: "dice", display_name: "Dice", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 45 },
+  { scraper_name: "ziprecruiter", display_name: "ZipRecruiter", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 45 },
+  { scraper_name: "usa_jobs", display_name: "USAJOBS", requires_auth: true, scraper_type: "api", rate_limit_per_hour: 120 },
 ] as const;
 
 const MOCK_DEEP_LINK_SITES = [
@@ -588,6 +717,11 @@ let recentMatches: MockMatchResult[] = [];
 let marketAlerts: MockMarketAlert[] = getDefaultMarketAlerts();
 let applicationProfile: MockApplicationProfile | null = getDefaultApplicationProfile();
 let screeningAnswers: MockScreeningAnswer[] = getDefaultScreeningAnswers();
+let scraperEnabledOverrides: Record<string, boolean> = {};
+let interviewPrepChecklists: Record<string, MockPrepChecklistItem[]> = {};
+let interviewFollowups: Record<string, MockFollowUpReminder> = {};
+let automationBrowserRunning = false;
+let nextAutomationAttemptId = 1;
 
 const MOCK_STATE_KEY = "jobsentinel.mockState.v1";
 
@@ -611,6 +745,9 @@ interface MockState {
   marketAlerts: MockMarketAlert[];
   applicationProfile: MockApplicationProfile | null;
   screeningAnswers: MockScreeningAnswer[];
+  scraperEnabledOverrides: Record<string, boolean>;
+  interviewPrepChecklists: Record<string, MockPrepChecklistItem[]>;
+  interviewFollowups: Record<string, MockFollowUpReminder>;
 }
 
 function canUseStorage(): boolean {
@@ -643,6 +780,9 @@ function saveMockState(): void {
     marketAlerts,
     applicationProfile,
     screeningAnswers,
+    scraperEnabledOverrides,
+    interviewPrepChecklists,
+    interviewFollowups,
   };
   window.localStorage.setItem(MOCK_STATE_KEY, JSON.stringify(state));
 }
@@ -708,6 +848,15 @@ function loadMockState(): void {
       screeningAnswers = state.screeningAnswers
         .filter((answer) => answer && typeof answer === "object")
         .map((answer) => normalizeScreeningAnswer(answer));
+    }
+    if (state.scraperEnabledOverrides && typeof state.scraperEnabledOverrides === "object") {
+      scraperEnabledOverrides = state.scraperEnabledOverrides;
+    }
+    if (state.interviewPrepChecklists && typeof state.interviewPrepChecklists === "object") {
+      interviewPrepChecklists = normalizeInterviewPrepState(state.interviewPrepChecklists);
+    }
+    if (state.interviewFollowups && typeof state.interviewFollowups === "object") {
+      interviewFollowups = normalizeFollowUpState(state.interviewFollowups);
     }
   } catch {
     window.localStorage.removeItem(MOCK_STATE_KEY);
@@ -1296,6 +1445,46 @@ function normalizeScreeningAnswer(value: Partial<MockScreeningAnswer>): MockScre
   };
 }
 
+function normalizeInterviewPrepState(value: Record<string, unknown>): Record<string, MockPrepChecklistItem[]> {
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter(([, items]) => Array.isArray(items))
+      .map(([interviewId, items]) => [
+        interviewId,
+        (items as unknown[]).map(normalizePrepChecklistItem),
+      ]),
+  );
+}
+
+function normalizePrepChecklistItem(value: unknown): MockPrepChecklistItem {
+  const source = isRecord(value) ? value : {};
+  return {
+    itemId: typeof source.itemId === "string" ? source.itemId : "",
+    completed: typeof source.completed === "boolean" ? source.completed : false,
+    completedAt: nullableString(source.completedAt),
+  };
+}
+
+function normalizeFollowUpState(value: Record<string, unknown>): Record<string, MockFollowUpReminder> {
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter(([, followup]) => isRecord(followup))
+      .map(([interviewId, followup]) => [
+        interviewId,
+        normalizeFollowUpReminder(followup),
+      ]),
+  );
+}
+
+function normalizeFollowUpReminder(value: unknown): MockFollowUpReminder {
+  const source = isRecord(value) ? value : {};
+  return {
+    interviewId: numberValue(source.interviewId, 0),
+    thankYouSent: booleanValue(source.thankYouSent, false),
+    sentAt: nullableString(source.sentAt),
+  };
+}
+
 function getEmptyBuilderContact(): MockBuilderContact {
   return {
     name: "",
@@ -1749,6 +1938,316 @@ function countKeywordFrequency(text: string, keyword: string): number {
 
 function clampScore(score: number): number {
   return Math.max(0, Math.min(100, Math.round(score * 10) / 10));
+}
+
+function getMockSalaryBenchmark(args?: Record<string, unknown>): MockSalaryBenchmark {
+  const jobTitle = getStringArg(args, "jobTitle") ?? getStringArg(args, "job_title") ?? "Software Engineer";
+  const location = getStringArg(args, "location") ?? "Remote";
+  const seniority = getStringArg(args, "seniority") ?? "mid";
+  const seniorityLabel = toMockSeniorityLabel(seniority);
+  const seniorityMultiplier = seniorityLabel === "Entry"
+    ? 0.72
+    : seniorityLabel === "Senior"
+      ? 1.18
+      : seniorityLabel === "Staff" || seniorityLabel === "Principal"
+        ? 1.38
+        : 1;
+  const base = Math.round(140000 * seniorityMultiplier);
+
+  return {
+    job_title: jobTitle,
+    location,
+    seniority_level: seniorityLabel,
+    min_salary: base - 35000,
+    p25_salary: base - 15000,
+    median_salary: base,
+    p75_salary: base + 30000,
+    max_salary: base + 55000,
+    average_salary: base + 5000,
+    sample_size: 128,
+    last_updated: new Date().toISOString(),
+  };
+}
+
+function toMockSeniorityLabel(value: string): string {
+  switch (value.toLowerCase()) {
+    case "entry":
+      return "Entry";
+    case "senior":
+      return "Senior";
+    case "staff":
+      return "Staff";
+    case "principal":
+    case "executive":
+      return "Principal";
+    case "mid":
+      return "Mid";
+    default:
+      return "Unknown";
+  }
+}
+
+function generateMockNegotiationScript(args?: Record<string, unknown>): string {
+  const params = isRecord(getArg(args, "params")) ? getArg(args, "params") as Record<string, unknown> : {};
+  const scenario = getStringArg(args, "scenario") ?? "initial_offer";
+  const jobTitle = typeof params.job_title === "string" ? params.job_title : "the role";
+  const targetSalary = typeof params.target_salary === "string" ? params.target_salary : "170000";
+  const currentOffer = typeof params.current_offer === "string" ? params.current_offer : "140000";
+
+  return [
+    `Scenario: ${scenario.replace(/_/g, " ")}`,
+    "",
+    `Thank you for the offer for ${jobTitle}. Based on market data and the scope of this role, I was targeting ${formatMockCurrency(targetSalary)}.`,
+    `Given the current offer of ${formatMockCurrency(currentOffer)}, I would like to discuss aligning compensation closer to ${formatMockCurrency(targetSalary)}.`,
+    "",
+    "Key points:",
+    "- Anchor on market benchmarks and role impact.",
+    "- Keep tone collaborative and specific.",
+    "- Ask whether base salary, bonus, or equity can close the gap.",
+  ].join("\n");
+}
+
+function formatMockCurrency(value: string): string {
+  const numeric = Number(value.replace(/[^0-9.-]/g, ""));
+  if (!Number.isFinite(numeric)) {
+    return value;
+  }
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(numeric);
+}
+
+function detectMockAtsPlatform(args?: Record<string, unknown>): MockAtsDetectionResponse {
+  const url = getStringArg(args, "url") ?? "";
+  const platform = getMockAtsPlatform(url);
+  return {
+    platform,
+    commonFields: getMockAtsCommonFields(platform),
+    automationNotes: getMockAtsAutomationNotes(platform),
+  };
+}
+
+function getMockAtsPlatform(url: string): string {
+  const lower = url.toLowerCase();
+  if (lower.includes("greenhouse.io")) return "greenhouse";
+  if (lower.includes("lever.co")) return "lever";
+  if (lower.includes("myworkdayjobs.com") || lower.includes("workday")) return "workday";
+  if (lower.includes("icims.com")) return "icims";
+  if (lower.includes("bamboohr.com")) return "bamboohr";
+  if (lower.includes("ashbyhq.com")) return "ashbyhq";
+  if (lower.includes("taleo.net")) return "taleo";
+  return "unknown";
+}
+
+function getMockAtsCommonFields(platform: string): string[] {
+  const baseFields = ["firstName", "lastName", "email", "phone", "resume"];
+  if (platform === "greenhouse" || platform === "lever") {
+    return [...baseFields, "coverLetter", "linkedin"];
+  }
+  if (platform === "workday") {
+    return [...baseFields, "address", "workAuthorization"];
+  }
+  return baseFields;
+}
+
+function getMockAtsAutomationNotes(platform: string): string {
+  if (platform === "unknown") {
+    return "Unknown ATS. Review fields carefully before submitting.";
+  }
+  return `${platform} supports guided form filling. Review before submitting.`;
+}
+
+function fillMockApplicationForm(args?: Record<string, unknown>): MockFillResultWithAttempt {
+  const jobUrl = getStringArg(args, "jobUrl") ?? getStringArg(args, "job_url") ?? "";
+  if (!isExternalHttpUrl(jobUrl)) {
+    throw new Error("Blocked unsafe application URL");
+  }
+
+  automationBrowserRunning = true;
+  const platform = getMockAtsPlatform(jobUrl);
+  const hasJobHash = Boolean(getStringArg(args, "jobHash") ?? getStringArg(args, "job_hash"));
+  const attemptId = hasJobHash ? nextAutomationAttemptId++ : null;
+  const screeningFields = screeningAnswers.slice(0, 2).map((answer) =>
+    `screening:${answer.questionPattern}`,
+  );
+
+  return {
+    filledFields: ["firstName", "lastName", "email", "phone", "resume", ...screeningFields],
+    unfilledFields: platform === "unknown" ? ["customQuestion"] : [],
+    captchaDetected: false,
+    readyForReview: true,
+    errorMessage: null,
+    attemptId,
+    durationMs: 1250,
+    atsPlatform: platform,
+  };
+}
+
+function getMockSuggestedAnswers(args?: Record<string, unknown>): MockAnswerSuggestion[] {
+  const question = getStringArg(args, "question") ?? "";
+  const limit = getNumericArg(args, "limit") ?? 5;
+  const normalizedQuestion = question.toLowerCase();
+
+  return screeningAnswers
+    .filter((answer) => {
+      try {
+        if (new RegExp(answer.questionPattern, "i").test(question)) {
+          return true;
+        }
+      } catch {
+        // Fall through to token matching.
+      }
+
+      const patternTokens = answer.questionPattern
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .filter((token) => token.length > 2);
+      return patternTokens.length > 0 &&
+        patternTokens.every((token) => normalizedQuestion.includes(token));
+    })
+    .slice(0, limit)
+    .map((answer) => ({
+      answer: answer.answer,
+      confidence: answer.confidenceScore ?? 0.8,
+      source: {
+        type: "manual",
+        pattern: answer.questionPattern,
+        answerId: answer.id,
+      },
+      timesUsed: answer.timesUsed ?? 0,
+      timesModified: answer.timesModified ?? 0,
+      lastUsedDaysAgo: answer.lastUsedAt ? 1 : null,
+      modificationRate: answer.timesUsed && answer.timesUsed > 0
+        ? (answer.timesModified ?? 0) / answer.timesUsed
+        : 0,
+    }));
+}
+
+function getMockScraperHealth(): MockScraperHealthMetrics[] {
+  return MOCK_SCRAPERS.map((scraper, index) => {
+    const isEnabled = scraperEnabledOverrides[scraper.scraper_name] ?? true;
+    const status: MockHealthStatus = isEnabled
+      ? index % 7 === 0 ? "degraded" : "healthy"
+      : "disabled";
+    return {
+      ...scraper,
+      is_enabled: isEnabled,
+      health_status: status,
+      selector_health: status === "degraded" ? "degraded" : "healthy",
+      success_rate_24h: status === "healthy" ? 96 : status === "degraded" ? 82 : 0,
+      avg_duration_ms: isEnabled ? 850 + index * 75 : null,
+      last_success: isEnabled ? new Date(Date.now() - (index + 1) * 600000).toISOString() : null,
+      last_error: status === "degraded" ? "Selector fallback used" : null,
+      total_runs_24h: isEnabled ? 12 : 0,
+      jobs_found_24h: isEnabled ? 4 + index : 0,
+    };
+  });
+}
+
+function getMockHealthSummary() {
+  const health = getMockScraperHealth();
+  return {
+    total_scrapers: health.length,
+    healthy: health.filter((scraper) => scraper.health_status === "healthy").length,
+    degraded: health.filter((scraper) => scraper.health_status === "degraded").length,
+    down: health.filter((scraper) => scraper.health_status === "down").length,
+    disabled: health.filter((scraper) => scraper.health_status === "disabled").length,
+    total_jobs_24h: health.reduce((sum, scraper) => sum + scraper.jobs_found_24h, 0),
+  };
+}
+
+function getMockScraperRuns(args?: Record<string, unknown>): MockScraperRun[] {
+  const scraperName = getStringArg(args, "scraperName") ?? getStringArg(args, "scraper_name") ?? "greenhouse";
+  const limit = getNumericArg(args, "limit") ?? 20;
+  return Array.from({ length: limit }, (_, index) => {
+    const startedAt = new Date(Date.now() - (index + 1) * 3600000).toISOString();
+    return {
+      id: index + 1,
+      scraper_name: scraperName,
+      started_at: startedAt,
+      finished_at: new Date(Date.now() - (index + 1) * 3600000 + 900).toISOString(),
+      duration_ms: 900 + index * 25,
+      status: "success",
+      jobs_found: 5 + index,
+      jobs_new: 2,
+      error_message: null,
+      error_code: null,
+      retry_attempt: 0,
+    };
+  });
+}
+
+function getMockSmokeTestResult(scraperName: string): MockSmokeTestResult {
+  return {
+    scraper_name: scraperName,
+    success: scraperEnabledOverrides[scraperName] !== false,
+    response_time_ms: 700,
+    error_message: scraperEnabledOverrides[scraperName] === false ? "Scraper disabled" : null,
+    tested_at: new Date().toISOString(),
+  };
+}
+
+function getMockExpiringCredentials(): MockCredentialHealth[] {
+  return credentials.linkedin_cookie
+    ? [
+        {
+          credential_name: "linkedin_cookie",
+          is_valid: true,
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          days_until_expiry: 7,
+          last_validated: new Date().toISOString(),
+          warning_message: null,
+        },
+      ]
+    : [];
+}
+
+function getInterviewIdArg(args?: Record<string, unknown>): number | undefined {
+  return getNumericArg(args, "interviewId") ?? getNumericArg(args, "interview_id");
+}
+
+function saveMockInterviewPrepItem(args?: Record<string, unknown>): void {
+  const interviewId = getInterviewIdArg(args);
+  const itemId = getStringArg(args, "itemId") ?? getStringArg(args, "item_id");
+  if (!interviewId || !itemId) {
+    throw new Error("interviewId and itemId are required");
+  }
+
+  const completed = booleanValue(getArg(args, "completed"), false);
+  const key = String(interviewId);
+  const existingItems = interviewPrepChecklists[key] ?? [];
+  const nextItem: MockPrepChecklistItem = {
+    itemId,
+    completed,
+    completedAt: completed ? new Date().toISOString() : null,
+  };
+  interviewPrepChecklists[key] = [
+    ...existingItems.filter((item) => item.itemId !== itemId),
+    nextItem,
+  ];
+  saveMockState();
+}
+
+function saveMockInterviewFollowup(args?: Record<string, unknown>): MockFollowUpReminder {
+  const interviewId = getInterviewIdArg(args);
+  if (!interviewId) {
+    throw new Error("interviewId is required");
+  }
+
+  const thankYouSent = booleanValue(
+    getArg(args, "thankYouSent") ?? getArg(args, "thank_you_sent"),
+    false,
+  );
+  const followup: MockFollowUpReminder = {
+    interviewId,
+    thankYouSent,
+    sentAt: thankYouSent ? new Date().toISOString() : null,
+  };
+  interviewFollowups[String(interviewId)] = followup;
+  saveMockState();
+  return followup;
 }
 
 function escapeHtml(value: string): string {
@@ -2256,6 +2755,36 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       saveMockState();
       return undefined as T;
 
+    case "mark_job_as_real":
+      jobs = jobs.map((j) =>
+        j.id === getJobId(args)
+          ? { ...j, ghost_score: 0, ghost_reasons: null, user_ghost_verdict: "real" }
+          : j,
+      );
+      saveMockState();
+      return undefined as T;
+
+    case "mark_job_as_ghost":
+      jobs = jobs.map((j) =>
+        j.id === getJobId(args)
+          ? {
+              ...j,
+              ghost_score: 0.95,
+              ghost_reasons: JSON.stringify([
+                {
+                  category: "company_behavior",
+                  description: "User confirmed this listing is a ghost job.",
+                  weight: 1,
+                  severity: "high",
+                },
+              ]),
+              user_ghost_verdict: "ghost",
+            }
+          : j,
+      );
+      saveMockState();
+      return undefined as T;
+
     case "get_job_notes":
       return (jobs.find((j) => j.id === jobId)?.notes || null) as T;
 
@@ -2263,6 +2792,15 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "is_first_run":
       // Set to true to test setup wizard, false to show dashboard
       return false as T;
+
+    case "complete_setup": {
+      const setupConfig = getArg(args, "config");
+      if (setupConfig && typeof setupConfig === "object") {
+        config = { ...config, ...(setupConfig as Partial<MockConfig>) };
+        saveMockState();
+      }
+      return undefined as T;
+    }
 
     // Config commands
     case "get_config":
@@ -2864,7 +3402,10 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       return { min: 120000, max: 160000, median: 140000 } as T;
 
     case "get_salary_benchmark":
-      return { p25: 110000, p50: 140000, p75: 170000, p90: 200000 } as T;
+      return getMockSalaryBenchmark(args) as T;
+
+    case "generate_negotiation_script":
+      return generateMockNegotiationScript(args) as T;
 
     // Market intelligence
     case "get_trending_skills":
@@ -2949,6 +3490,76 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
         pending: 4,
         successRate: 90.476,
       } as T;
+
+    case "detect_ats_platform":
+      return detectMockAtsPlatform(args) as T;
+
+    case "fill_application_form":
+      return fillMockApplicationForm(args) as T;
+
+    case "is_browser_running":
+      return automationBrowserRunning as T;
+
+    case "close_automation_browser":
+      automationBrowserRunning = false;
+      return undefined as T;
+
+    case "mark_attempt_submitted":
+      return undefined as T;
+
+    case "get_suggested_answers":
+      return getMockSuggestedAnswers(args) as T;
+
+    // Scraper health commands
+    case "get_health_summary":
+      return getMockHealthSummary() as T;
+
+    case "get_scraper_health":
+      return getMockScraperHealth() as T;
+
+    case "get_expiring_credentials":
+      return getMockExpiringCredentials() as T;
+
+    case "set_scraper_enabled": {
+      const scraperName = getStringArg(args, "scraperName") ?? getStringArg(args, "scraper_name");
+      if (scraperName) {
+        scraperEnabledOverrides = {
+          ...scraperEnabledOverrides,
+          [scraperName]: booleanValue(getArg(args, "enabled"), true),
+        };
+        saveMockState();
+      }
+      return undefined as T;
+    }
+
+    case "get_scraper_runs":
+      return getMockScraperRuns(args) as T;
+
+    case "run_scraper_smoke_test": {
+      const scraperName = getStringArg(args, "scraperName") ?? getStringArg(args, "scraper_name") ?? "greenhouse";
+      return getMockSmokeTestResult(scraperName) as T;
+    }
+
+    case "run_all_smoke_tests":
+      return MOCK_SCRAPERS.map((scraper) => getMockSmokeTestResult(scraper.scraper_name)) as T;
+
+    // Interview prep and follow-up commands
+    case "get_interview_prep_checklist": {
+      const interviewId = getInterviewIdArg(args);
+      return (interviewId ? interviewPrepChecklists[String(interviewId)] ?? [] : []) as T;
+    }
+
+    case "save_interview_prep_item":
+      saveMockInterviewPrepItem(args);
+      return undefined as T;
+
+    case "get_interview_followup": {
+      const interviewId = getInterviewIdArg(args);
+      return (interviewId ? interviewFollowups[String(interviewId)] ?? null : null) as T;
+    }
+
+    case "save_interview_followup":
+      return saveMockInterviewFollowup(args) as T;
 
     // Cover letter templates
     case "seed_default_templates": {

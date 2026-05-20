@@ -67,6 +67,47 @@ type FeedbackSystemInfo = {
   architecture: string;
 };
 
+type SalaryBenchmark = {
+  job_title: string;
+  location: string;
+  seniority_level: string;
+  min_salary: number;
+  p25_salary: number;
+  median_salary: number;
+  p75_salary: number;
+  max_salary: number;
+  average_salary: number;
+  sample_size: number;
+  last_updated: string;
+};
+
+type AtsDetectionResponse = {
+  platform: string;
+  commonFields: string[];
+  automationNotes: string | null;
+};
+
+type FillResultWithAttempt = {
+  filledFields: string[];
+  unfilledFields: string[];
+  captchaDetected: boolean;
+  readyForReview: boolean;
+  errorMessage: string | null;
+  attemptId: number | null;
+  durationMs: number;
+  atsPlatform: string;
+};
+
+type AnswerSuggestion = {
+  answer: string;
+  confidence: number;
+  source: { type: "manual"; pattern: string; answerId: number };
+  timesUsed: number;
+  timesModified: number;
+  lastUsedDaysAgo: number | null;
+  modificationRate: number;
+};
+
 type AtsAnalysisResult = {
   overall_score: number;
   keyword_score: number;
@@ -504,5 +545,173 @@ describe("mock Tauri handlers", () => {
     expect(improved).toContain("Developed dashboards");
     expect(improved).toContain("add specific metrics");
     expect(improved).toContain("consider adding");
+  });
+
+  it("handles runtime frontend command names in dev mocks", async () => {
+    const benchmark = await mockInvoke<SalaryBenchmark | null>("get_salary_benchmark", {
+      jobTitle: "Senior Software Engineer",
+      location: "Denver, CO",
+      seniority: "senior",
+    });
+    expect(benchmark).toMatchObject({
+      job_title: "Senior Software Engineer",
+      location: "Denver, CO",
+      seniority_level: "Senior",
+      p25_salary: expect.any(Number),
+      median_salary: expect.any(Number),
+      p75_salary: expect.any(Number),
+      max_salary: expect.any(Number),
+      sample_size: expect.any(Number),
+    });
+
+    const script = await mockInvoke<string>("generate_negotiation_script", {
+      scenario: "initial_offer",
+      params: {
+        job_title: "Senior Software Engineer",
+        target_salary: "180000",
+        current_offer: "150000",
+      },
+    });
+    expect(script).toContain("Senior Software Engineer");
+    expect(script).toContain("$180,000");
+
+    const ats = await mockInvoke<AtsDetectionResponse>("detect_ats_platform", {
+      url: "https://boards.greenhouse.io/example/jobs/123",
+    });
+    expect(ats).toMatchObject({
+      platform: "greenhouse",
+      commonFields: expect.arrayContaining(["firstName", "lastName", "email"]),
+      automationNotes: expect.any(String),
+    });
+
+    const fillResult = await mockInvoke<FillResultWithAttempt>("fill_application_form", {
+      jobUrl: "https://boards.greenhouse.io/example/jobs/123",
+      jobHash: "job-hash-1",
+    });
+    expect(fillResult).toMatchObject({
+      filledFields: expect.arrayContaining(["firstName", "lastName", "email"]),
+      unfilledFields: expect.any(Array),
+      captchaDetected: false,
+      readyForReview: true,
+      errorMessage: null,
+      attemptId: expect.any(Number),
+      durationMs: expect.any(Number),
+      atsPlatform: "greenhouse",
+    });
+
+    await expect(mockInvoke<boolean>("is_browser_running")).resolves.toBe(true);
+    await expect(mockInvoke<void>("mark_attempt_submitted", { attemptId: fillResult.attemptId }))
+      .resolves.toBeUndefined();
+    await expect(mockInvoke<void>("close_automation_browser")).resolves.toBeUndefined();
+    await expect(mockInvoke<boolean>("is_browser_running")).resolves.toBe(false);
+
+    const suggestions = await mockInvoke<AnswerSuggestion[]>("get_suggested_answers", {
+      question: "Are you authorized to work in the United States?",
+      limit: 3,
+    });
+    expect(suggestions[0]).toMatchObject({
+      answer: "Yes",
+      source: { type: "manual", answerId: 1 },
+      timesUsed: expect.any(Number),
+      lastUsedDaysAgo: expect.any(Number),
+    });
+
+    await expect(mockInvoke<void>("complete_setup", { config: {} })).resolves.toBeUndefined();
+    await expect(mockInvoke<void>("mark_job_as_real", { jobId: 1 })).resolves.toBeUndefined();
+    await expect(mockInvoke<void>("mark_job_as_ghost", { jobId: 1 })).resolves.toBeUndefined();
+  });
+
+  it("handles scraper health and interview persistence commands in dev mocks", async () => {
+    const summary = await mockInvoke<{
+      total_scrapers: number;
+      healthy: number;
+      degraded: number;
+      down: number;
+      disabled: number;
+      total_jobs_24h: number;
+    }>("get_health_summary");
+    expect(summary.total_scrapers).toBeGreaterThan(0);
+
+    const scrapers = await mockInvoke<Array<{ scraper_name: string; is_enabled: boolean }>>(
+      "get_scraper_health",
+    );
+    expect(scrapers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ scraper_name: "greenhouse", is_enabled: true }),
+      ]),
+    );
+
+    await expect(
+      mockInvoke<void>("set_scraper_enabled", {
+        scraperName: "greenhouse",
+        enabled: false,
+      }),
+    ).resolves.toBeUndefined();
+    const updatedScrapers = await mockInvoke<Array<{ scraper_name: string; is_enabled: boolean }>>(
+      "get_scraper_health",
+    );
+    expect(updatedScrapers.find((scraper) => scraper.scraper_name === "greenhouse")?.is_enabled)
+      .toBe(false);
+    await mockInvoke<void>("set_scraper_enabled", {
+      scraperName: "greenhouse",
+      enabled: true,
+    });
+
+    const runs = await mockInvoke<Array<{ scraper_name: string; status: string }>>(
+      "get_scraper_runs",
+      { scraperName: "greenhouse", limit: 2 },
+    );
+    expect(runs).toHaveLength(2);
+    expect(runs[0]).toMatchObject({ scraper_name: "greenhouse" });
+
+    const smoke = await mockInvoke<{ scraper_name: string; success: boolean }>(
+      "run_scraper_smoke_test",
+      { scraperName: "greenhouse" },
+    );
+    expect(smoke).toMatchObject({ scraper_name: "greenhouse", success: true });
+
+    const allSmoke = await mockInvoke<Array<{ scraper_name: string; success: boolean }>>(
+      "run_all_smoke_tests",
+    );
+    expect(allSmoke.length).toBeGreaterThanOrEqual(scrapers.length);
+
+    await expect(mockInvoke<Array<unknown>>("get_expiring_credentials"))
+      .resolves.toEqual(expect.any(Array));
+
+    await expect(
+      mockInvoke<void>("save_interview_prep_item", {
+        interviewId: 1,
+        itemId: "research",
+        completed: true,
+      }),
+    ).resolves.toBeUndefined();
+    await expect(
+      mockInvoke<Array<{ itemId: string; completed: boolean; completedAt: string | null }>>(
+        "get_interview_prep_checklist",
+        { interviewId: 1 },
+      ),
+    ).resolves.toEqual([
+      expect.objectContaining({ itemId: "research", completed: true }),
+    ]);
+
+    const followup = await mockInvoke<{
+      interviewId: number;
+      thankYouSent: boolean;
+      sentAt: string | null;
+    }>("save_interview_followup", {
+      interviewId: 1,
+      thankYouSent: true,
+    });
+    expect(followup).toMatchObject({
+      interviewId: 1,
+      thankYouSent: true,
+      sentAt: expect.any(String),
+    });
+    await expect(
+      mockInvoke("get_interview_followup", { interviewId: 1 }),
+    ).resolves.toMatchObject({
+      interviewId: 1,
+      thankYouSent: true,
+    });
   });
 });

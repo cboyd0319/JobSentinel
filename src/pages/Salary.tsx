@@ -10,14 +10,17 @@ import { logError, getErrorMessage } from "../utils/errorUtils";
 import { formatCurrency } from "../utils/formatUtils";
 
 interface SalaryBenchmark {
-  role: string;
+  job_title: string;
   location: string;
-  seniority: string;
-  p25: number;
-  p50: number;
-  p75: number;
-  p90: number;
+  seniority_level: string;
+  min_salary: number;
+  p25_salary: number;
+  median_salary: number;
+  p75_salary: number;
+  max_salary: number;
+  average_salary: number;
   sample_size: number;
+  last_updated: string;
 }
 
 interface SalaryProps {
@@ -82,8 +85,8 @@ export default function Salary({ onBack }: SalaryProps) {
         params: {
           job_title: jobTitle,
           location: location,
-          target_salary: benchmark.p75.toString(),
-          current_offer: benchmark.p50.toString(),
+          target_salary: benchmark.p75_salary.toString(),
+          current_offer: benchmark.median_salary.toString(),
         },
       });
 
@@ -217,10 +220,10 @@ export default function Salary({ onBack }: SalaryProps) {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-surface-800 dark:text-surface-200">
-                      {benchmark.role}
+                      {benchmark.job_title}
                     </p>
                     <p className="text-sm text-surface-500 dark:text-surface-400">
-                      {benchmark.location} • {benchmark.seniority}
+                      {benchmark.location} • {benchmark.seniority_level}
                     </p>
                   </div>
                   <Badge variant="sentinel">{benchmark.sample_size} data points</Badge>
@@ -233,8 +236,8 @@ export default function Salary({ onBack }: SalaryProps) {
                     <span>Median</span>
                     <span>75th %</span>
                     <span className="flex items-center gap-1">
-                      90th %
-                      <HelpIcon text="Percentiles show salary distribution. Median (50th) = half earn more, half less. 75th = top 25% of earners. Aim for 75th+ with your experience." />
+                      Max
+                      <HelpIcon text="Percentiles show salary distribution. Median (50th) = half earn more, half less. 75th = top 25% of earners. Max is the highest benchmark in the current sample." />
                     </span>
                   </div>
 
@@ -247,16 +250,16 @@ export default function Salary({ onBack }: SalaryProps) {
 
                   <div className="flex justify-between mt-2">
                     <span className="text-sm font-medium text-surface-800 dark:text-surface-200">
-                      {formatCurrency(benchmark.p25)}
+                      {formatCurrency(benchmark.p25_salary)}
                     </span>
                     <span className="text-sm font-medium text-sentinel-600 dark:text-sentinel-400">
-                      {formatCurrency(benchmark.p50)}
+                      {formatCurrency(benchmark.median_salary)}
                     </span>
                     <span className="text-sm font-medium text-surface-800 dark:text-surface-200">
-                      {formatCurrency(benchmark.p75)}
+                      {formatCurrency(benchmark.p75_salary)}
                     </span>
                     <span className="text-sm font-medium text-green-600 dark:text-green-400">
-                      {formatCurrency(benchmark.p90)}
+                      {formatCurrency(benchmark.max_salary)}
                     </span>
                   </div>
                 </div>
@@ -268,15 +271,15 @@ export default function Salary({ onBack }: SalaryProps) {
                       Target (75th percentile)
                     </p>
                     <p className="font-display text-display-md text-sentinel-700 dark:text-sentinel-300">
-                      {formatCurrency(benchmark.p75)}
+                      {formatCurrency(benchmark.p75_salary)}
                     </p>
                   </div>
                   <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                     <p className="text-xs text-green-600 dark:text-green-400 mb-1">
-                      Stretch (90th percentile)
+                      Stretch (sample max)
                     </p>
                     <p className="font-display text-display-md text-green-700 dark:text-green-300">
-                      {formatCurrency(benchmark.p90)}
+                      {formatCurrency(benchmark.max_salary)}
                     </p>
                   </div>
                 </div>

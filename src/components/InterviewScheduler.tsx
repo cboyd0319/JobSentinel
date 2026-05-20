@@ -180,7 +180,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
       // Load reminders for all past interviews
       const reminders: Record<number, FollowUpReminder> = {};
       for (const interview of pastInterviews) {
-        const result = await safeInvoke<{ thank_you_sent: boolean; sent_at: string | null } | null>(
+        const result = await safeInvoke<{ thankYouSent: boolean; sentAt: string | null } | null>(
           'get_interview_followup',
           { interviewId: interview.id },
           { logContext: "Load interview follow-up", silent: true }
@@ -188,8 +188,8 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
         if (result) {
           reminders[interview.id] = {
             interviewId: interview.id,
-            thankYouSent: result.thank_you_sent,
-            sentAt: result.sent_at,
+            thankYouSent: result.thankYouSent,
+            sentAt: result.sentAt,
           };
         }
       }

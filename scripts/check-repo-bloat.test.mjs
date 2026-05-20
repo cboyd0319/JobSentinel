@@ -1873,3 +1873,109 @@ test("checkRepoBloat rejects stale ATS keyword match frontend shape", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects runtime frontend invokes missing dev mock cases", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/RuntimeInvoke.tsx",
+      [
+        "import { invoke } from '@tauri-apps/api/core';",
+        "export async function load() {",
+        "  return await invoke('missing_runtime_command');",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      [
+        "export async function mockInvoke(cmd) {",
+        "  switch (cmd) {",
+        "    case 'known_command':",
+        "      return undefined;",
+        "    default:",
+        "      return undefined;",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/components/RuntimeInvoke.tsx", "src/mocks/handlers.ts"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sync dev mock handlers for runtime invokes: src/mocks/handlers.ts missing missing_runtime_command",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects stale salary benchmark frontend shape", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/pages/Salary.tsx",
+      [
+        "interface SalaryBenchmark {",
+        "  role: string;",
+        "  p50: number;",
+        "  p90: number;",
+        "}",
+        "export function Salary({ benchmark }) {",
+        "  return benchmark.role + benchmark.p90;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/pages/Salary.tsx"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sync salary benchmark frontend shape: src/pages/Salary.tsx"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects stale interview follow-up frontend shape", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/InterviewScheduler.tsx",
+      [
+        "export function mapFollowup(result) {",
+        "  return { thankYouSent: result.thank_you_sent, sentAt: result.sent_at };",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/components/InterviewScheduler.tsx"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sync interview follow-up frontend shape: src/components/InterviewScheduler.tsx"),
+      violations.join("\n"),
+    );
+  });
+});
