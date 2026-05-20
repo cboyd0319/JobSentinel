@@ -89,7 +89,8 @@ and Tauri. The application runs entirely on the user's machine with no cloud dep
 
 ### 1. Core (`src/core/`)
 
-Platform-agnostic business logic that can run on any OS or in the cloud.
+Platform-agnostic business logic shared by the desktop app across Windows,
+macOS, and Linux.
 
 #### `core/config/` (5 submodules)
 

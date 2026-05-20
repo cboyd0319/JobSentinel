@@ -131,7 +131,10 @@ const forbiddenTrackedPlaceholderFiles = new Set([
 ]);
 
 const speculativeCloudDeploymentDocs = new Map([
-  ["docs/developer/ARCHITECTURE.md", /Cloud Architecture \(not implemented\)|Cloud Backend \(GCP\/AWS\)/],
+  [
+    "docs/developer/ARCHITECTURE.md",
+    /Cloud Architecture \(not implemented\)|Cloud Backend \(GCP\/AWS\)|or in the cloud/,
+  ],
   ["docs/developer/GETTING_STARTED.md", /src-tauri\/src\/cloud\/|GCP\/AWS deployment/],
   ["docs/ROADMAP.md", /GCP Cloud Run \/ AWS Lambda deployment/],
 ]);
@@ -342,6 +345,20 @@ function hasStaleRefactoringPriorityTable(root, path) {
   );
 }
 
+function hasStaleShippedFeatureStatusDoc(root, path) {
+  if (path !== "docs/ROADMAP.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /src-tauri\/src\/core\/import\/` module \(planned\)/.test(text) ||
+    /🔲 Universal Job Importer with Schema\.org parsing/.test(text) ||
+    /🔲 Deep Link Generator for 15\+ sites/.test(text) ||
+    /🔲 Bookmarklet generator/.test(text)
+  );
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -388,6 +405,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleRefactoringPriorityTable(root, path)) {
       violations.push(`remove stale refactoring-priority table: ${path}`);
+    }
+
+    if (hasStaleShippedFeatureStatusDoc(root, path)) {
+      violations.push(`remove stale shipped-feature status doc: ${path}`);
     }
   }
 

@@ -432,7 +432,7 @@ Instead of scraping restricted sites, we provide maximum value through legal mea
 User pastes ANY job URL → we fetch that ONE page → parse Schema.org/JobPosting structured data.
 
 - **Why legal:** User-initiated, single page, Schema.org is designed for machine reading
-- **Implementation:** `src-tauri/src/core/import/` module (planned)
+- **Implementation:** `src-tauri/src/core/import/` module and dashboard import modal
 - **Supports:** Any site with JobPosting schema (most major job boards)
 
 #### 2. Deep Link Generator
@@ -448,6 +448,7 @@ User clicks → opens in their browser with search ready
 - **Why legal:** Building URLs, not scraping. User's browser, user's session.
 - **Sites:** GovernmentJobs, ClearanceJobs, Glassdoor, LinkedIn, Indeed, Monster, CareerBuilder,
   FlexJobs, Dice, ZipRecruiter, state gov portals, + more
+- **Implementation:** `src-tauri/src/core/deeplinks/` module, Tauri commands, and Deep Links UI
 
 #### 3. Bookmarklet
 
@@ -455,7 +456,8 @@ JavaScript bookmarklet user installs in browser. They browse to any job, click b
 extracts job data → sends to local JobSentinel.
 
 - **Why legal:** Runs in USER's browser with THEIR session. Not server-side scraping.
-- **Implementation:** Generate bookmarklet code in frontend
+- **Implementation:** Frontend bookmarklet generator plus local `src-tauri/src/core/bookmarklet/`
+  receiver
 
 #### 4. RSS Feeds
 
@@ -470,13 +472,13 @@ Many governments publish job data as open CSV/JSON:
 
 ### Implementation Priority
 
-1. ✅ USAJobs API scraper (DONE - v2.6.3+)
-2. ✅ SimplyHired scraper (DONE - v2.6.3+)
-3. 🔲 Universal Job Importer with Schema.org parsing
-4. 🔲 Deep Link Generator for 15+ sites
-5. 🔲 Bookmarklet generator
-6. 🔲 Curated job board directory with direct links
-7. 🔲 RSS feed discovery and parsing
+1. Done - USAJobs API scraper (v2.6.3+)
+2. Done - SimplyHired scraper (v2.6.3+)
+3. Done - Universal Job Importer with Schema.org parsing (v2.2+)
+4. Done - Deep Link Generator for 19+ sites (v2.6+)
+5. Done - Bookmarklet generator and local receiver (v2.6+)
+6. Planned - Curated job board directory with direct links
+7. Planned - RSS feed discovery and parsing
 
 ### Community Contributions
 

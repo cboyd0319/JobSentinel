@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Corrected local-first architecture wording and roadmap statuses for shipped importer, deep-link, and bookmarklet features; bloat sensor now catches stale shipped-feature roadmap statuses. |
 | 2026-05-20 | In progress | Corrected stale scheduler worker paths and removed fixed refactor-priority snapshots from setup docs; bloat sensor now catches those drift patterns. |
 | 2026-05-20 | Active | Expanded removing bloat and junk into a dedicated cleanup track covering root clutter, nested stale content, candidate classification, and reference-safe deletion or relocation. |
 | 2026-05-20 | Active | Added removing bloat and junk as an explicit cleanup track. Current bloat sensor passes, so next pass must classify root clutter and nested stale content beyond disposable artifacts. |
@@ -221,6 +222,9 @@ changes or Playwright-specific work.
 - Architecture and keyring docs still referenced pre-split scheduler worker
   paths, while getting-started docs carried fixed v1.5 refactor-priority line
   counts after the modularization work had already landed.
+- Architecture docs still said core logic could run in the cloud, and the
+  roadmap still marked shipped importer, deep-link, and bookmarklet features as
+  planned even though source modules, commands, and UI entrypoints exist.
 
 ## Decisions
 
@@ -244,6 +248,8 @@ changes or Playwright-specific work.
   user-controlled URLs.
 - Treat stale source-tree snapshots and old module paths as repo bloat when
   they send maintainers toward files that no longer exist.
+- Treat planned-status roadmap rows as bloat when live code proves the feature
+  is already shipped.
 - Keep the exact total Tauri command count only in canonical summary claims
   guarded by `npm run lint:tauri-invokes`; remove exact module sub-counts from
   overview docs unless a sensor owns them.
