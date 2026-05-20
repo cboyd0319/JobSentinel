@@ -53,7 +53,8 @@ export function isValidJobUrl(url: string): boolean {
         ipHostname === '::1' ||
         ipHostname.startsWith('fc') ||
         ipHostname.startsWith('fd') ||
-        ipHostname.startsWith('fe80')
+        ipHostname.startsWith('fe80') ||
+        ipHostname.startsWith('ff')
       ) {
         return false;
       }
@@ -77,7 +78,7 @@ function isBlockedIpv4Address(hostname: string): boolean {
     return true;
   }
 
-  const [first, second] = octets;
+  const [first, second, third, fourth] = octets;
 
   // 0.0.0.0/8 and 127.0.0.0/8
   if (first === 0 || first === 127) {
@@ -101,6 +102,16 @@ function isBlockedIpv4Address(hostname: string): boolean {
 
   // 169.254.0.0/16 (link-local)
   if (first === 169 && second === 254) {
+    return true;
+  }
+
+  // 224.0.0.0/4 (multicast)
+  if (first >= 224 && first <= 239) {
+    return true;
+  }
+
+  // 255.255.255.255 (limited broadcast)
+  if (first === 255 && second === 255 && third === 255 && fourth === 255) {
     return true;
   }
 

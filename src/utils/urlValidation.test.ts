@@ -34,6 +34,13 @@ describe("isValidJobUrl", () => {
     expect(isValidJobUrl("http://0.0.0.0/jobs")).toBe(false);
   });
 
+  it("blocks multicast and broadcast IP ranges", () => {
+    expect(isValidJobUrl("http://224.0.0.1/jobs")).toBe(false);
+    expect(isValidJobUrl("http://255.255.255.255/jobs")).toBe(false);
+    expect(isValidJobUrl("http://[ff02::1]/jobs")).toBe(false);
+    expect(isValidJobUrl("http://[::ffff:224.0.0.1]/jobs")).toBe(false);
+  });
+
   it("blocks non-http schemes", () => {
     expect(isValidJobUrl("file:///etc/passwd")).toBe(false);
     expect(isValidJobUrl("javascript:alert(1)")).toBe(false);
