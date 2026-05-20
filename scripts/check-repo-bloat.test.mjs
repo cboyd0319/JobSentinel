@@ -406,6 +406,26 @@ test("checkRepoBloat rejects stale user-data export roadmap claims", () => {
   });
 });
 
+test("checkRepoBloat rejects overbroad localStorage migration claims", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/ROADMAP.md",
+      "- Backend persistence for all user data (localStorage → SQLite)\n",
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/ROADMAP.md"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace overbroad localStorage migration claim: docs/ROADMAP.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects Deep Links doc emoji and version promises", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -1222,6 +1242,35 @@ test("checkRepoBloat rejects bookmarklet code without auth header", () => {
       violations.includes(
         "include bookmarklet auth token header: src/components/BookmarkletGenerator.tsx",
       ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects unsanitized frontend error report storage", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/utils/errorReporting.ts",
+      [
+        "class ErrorReporter {",
+        "  private errors = [];",
+        "  capture(report) {",
+        "    this.errors.unshift(report);",
+        "    localStorage.setItem(STORAGE_KEY, JSON.stringify(this.errors));",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/utils/errorReporting.ts"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sanitize frontend error report storage: src/utils/errorReporting.ts"),
       violations.join("\n"),
     );
   });

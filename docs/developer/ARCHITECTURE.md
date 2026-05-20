@@ -344,6 +344,10 @@ See [Security: Keyring Integration](../security/KEYRING.md) for full documentati
 
 **Migration:** Includes localStorage → SQLite migration for existing users.
 
+SQLite is authoritative for job-search records and durable preferences. Frontend
+localStorage remains available only for non-authoritative UI preferences, cached
+lookup results, sanitized error reports, and transient recovery hints.
+
 #### `core/resume/`
 
 **Purpose**: AI Resume-Job Matcher
@@ -793,6 +797,9 @@ match result {
 
 4. **Data Privacy**
    - All data stored locally
+   - Job-search records and durable preferences are stored in SQLite
+   - Browser localStorage is limited to UI preferences, caches, sanitized error
+     reports, and transient recovery hints
    - No telemetry
    - No cloud dependencies (v1.0)
 

@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Sanitized frontend error-report storage so browser-local error logs no longer persist raw URLs, emails, tokens, webhook URLs, user paths, or captured async arguments; corrected localStorage persistence docs. |
 | 2026-05-20 | In progress | Removed stale Storybook config entries for an uninstalled Chromatic addon and an empty MDX story glob, with bloat coverage for unowned Storybook addons. |
 | 2026-05-20 | In progress | Added bookmarklet import token authentication so arbitrary websites cannot POST jobs into the local SQLite database when the localhost bookmarklet server is running. |
 | 2026-05-20 | In progress | Hardened bookmarklet import responses and logs so local HTTP error bodies are JSON-escaped and import logs use job hash plus shape metadata instead of raw title/company names. |
@@ -179,6 +180,14 @@ changes or Playwright-specific work.
 - Storybook build completed but warned twice that `@chromatic-com/storybook`
   was configured without being installed. The Storybook story globs also
   included `src/**/*.mdx` even though no tracked MDX stories exist.
+- The frontend error reporter persisted raw error messages, stacks, context
+  values, current URLs, and captured async arguments in browser localStorage.
+  Those values can contain job URLs, query strings, emails, tokens, webhook
+  URLs, local usernames in paths, or user-entered request arguments.
+- Maintained docs still used an overbroad "all user data" localStorage-to-SQLite
+  migration claim even though frontend localStorage remains valid for
+  non-authoritative UI preferences, caches, sanitized error logs, and transient
+  recovery hints.
 - Current ignored local paths are `.husky/_/`, `node_modules/`, and
   `src-tauri/target/`.
 - The largest local disk use is ignored Rust build output under
@@ -456,6 +465,13 @@ changes or Playwright-specific work.
 - Storybook addons in `.storybook/main.ts` must be owned by `package.json`.
   Uninstalled addon names create noisy build warnings and make the root support
   config look more capable than it is.
+- Frontend error reports must sanitize before local persistence or export.
+  Preserve exact error objects for development console output, but stored reports
+  must strip URL query strings/fragments/userinfo, emails, tokens, webhook URLs,
+  local user paths, and sensitive context keys.
+- Describe SQLite as authoritative for job-search records and durable
+  preferences. Do not claim browser localStorage is unused; it remains available
+  for local-only UI state, caches, sanitized error logs, and recovery hints.
 - Local paths in logs must use non-identifying labels. Preserve actual paths for
   file operations, database records, and user-facing operations that need them.
 - Keep feature docs aligned with live source names for frontend routes and IPC

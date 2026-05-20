@@ -1,4 +1,5 @@
-import { describe, it, expect, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { errorReporter, withErrorCapture } from "./errorReporting";
 
 /**
  * Note: Full test suite for errorReporting is disabled due to worker isolation issues.
@@ -14,10 +15,22 @@ import { describe, it, expect, vi } from "vitest";
  */
 
 describe("errorReporting", () => {
-  it("module exports correctly", async () => {
-    // Basic sanity check without initializing
-    const { errorReporter, withErrorCapture } = await import("./errorReporting");
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
+  beforeEach(() => {
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    window.localStorage.clear();
+    errorReporter.clear();
+    window.history.pushState({}, "", "/");
+  });
+
+  afterEach(() => {
+    errorReporter.clear();
+    window.localStorage.clear();
+    consoleErrorSpy.mockRestore();
+  });
+
+  it("module exports correctly", async () => {
     expect(errorReporter).toBeDefined();
     expect(withErrorCapture).toBeDefined();
     expect(typeof errorReporter.captureCustom).toBe("function");
@@ -27,8 +40,6 @@ describe("errorReporting", () => {
   });
 
   it("withErrorCapture wraps async functions", async () => {
-    const { withErrorCapture } = await import("./errorReporting");
-
     const fn = vi.fn().mockResolvedValue("result");
     const wrapped = withErrorCapture(fn);
 
@@ -36,5 +47,62 @@ describe("errorReporting", () => {
 
     expect(result).toBe("result");
     expect(fn).toHaveBeenCalledWith("arg");
+  });
+
+  it("sanitizes stored error reports before local persistence", () => {
+    window.history.pushState(
+      {},
+      "",
+      "/settings?token=secret123&email=john@example.com#private"
+    );
+
+    const report = errorReporter.captureCustom(
+      "Failed https://user:pass@example.com/jobs/123?token=abc#frag for john@example.com in /Users/alice/resume.pdf",
+      {
+        apiToken: "secret123",
+        retryUrl: "https://example.com/apply?session=abc#frag",
+        nested: {
+          webhook: "https://hooks.slack.com/services/T000/B000/SECRET",
+          cookie: "li_at=AQEDA123",
+        },
+      }
+    );
+
+    const stored = errorReporter.getErrors()[0];
+    const serialized = JSON.stringify(stored);
+
+    expect(report).toEqual(stored);
+    expect(stored.message).toContain("https://example.com/jobs/123");
+    expect(stored.url).toContain("/settings");
+    expect(stored.url).not.toContain("token=secret123");
+    expect(serialized).not.toContain("john@example.com");
+    expect(serialized).not.toContain("/Users/alice");
+    expect(serialized).not.toContain("secret123");
+    expect(serialized).not.toContain("SECRET");
+    expect(serialized).not.toContain("li_at=AQEDA123");
+    expect(serialized).not.toContain("session=abc");
+    expect(stored.context?.apiToken).toBe("[REDACTED]");
+    expect((stored.context?.nested as Record<string, unknown>).webhook).toBe("[REDACTED]");
+  });
+
+  it("sanitizes captured async arguments when wrapped functions fail", async () => {
+    const fn = vi.fn().mockRejectedValue(new Error("Failed token ghp_secret"));
+    const wrapped = withErrorCapture(fn);
+
+    await expect(
+      wrapped({
+        password: "hunter2",
+        jobUrl: "https://example.com/job?candidate=jane@example.com&token=abc#frag",
+      })
+    ).rejects.toThrow("Failed token ghp_secret");
+
+    const stored = errorReporter.getErrors()[0];
+    const serialized = JSON.stringify(stored);
+
+    expect(stored.message).toBe("Failed [TOKEN]");
+    expect(serialized).not.toContain("hunter2");
+    expect(serialized).not.toContain("jane@example.com");
+    expect(serialized).not.toContain("token=abc");
+    expect(serialized).toContain("https://example.com/job");
   });
 });

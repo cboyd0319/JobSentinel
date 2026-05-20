@@ -689,7 +689,9 @@ See [docs/features/one-click-apply.md](features/one-click-apply.md) for full doc
 - **190 registered Tauri commands** for backend modules
 - 13 job board scrapers with parallel execution
 - Ghost job detection with repost tracking
-- Backend persistence for all user data (localStorage → SQLite)
+- Backend persistence for job-search records and preferences, with frontend
+  localStorage limited to non-authoritative UI preferences, caches, sanitized
+  error reports, and transient recovery hints
 - One-Click Apply automation with 7 ATS platforms
 - Custom React hooks for optimistic updates, pagination, form validation
 - Enhanced error boundaries with component-level isolation

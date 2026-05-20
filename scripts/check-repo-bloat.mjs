@@ -196,6 +196,7 @@ const rawNotificationJobTitleLoggingPaths = new Set(["src-tauri/src/core/notify/
 
 const rawBookmarkletLoggingPaths = new Set(["src-tauri/src/core/bookmarklet/server.rs"]);
 const bookmarkletGeneratorPaths = new Set(["src/components/BookmarkletGenerator.tsx"]);
+const frontendErrorReportingPaths = new Set(["src/utils/errorReporting.ts"]);
 
 function readPackageManifest(root) {
   return JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
@@ -453,6 +454,16 @@ function hasStaleUserDataExportRoadmapClaim(root, path) {
   );
 }
 
+function hasOverbroadLocalStorageMigrationClaim(root, path) {
+  if (path !== "docs/ROADMAP.md") {
+    return false;
+  }
+
+  return /Backend persistence for all user data \(localStorage → SQLite\)/.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 function hasDeepLinksEmojiOrVersionPromise(root, path) {
   if (path !== "docs/user/DEEP_LINKS.md") {
     return false;
@@ -694,6 +705,19 @@ function hasBookmarkletCodeWithoutTokenHeader(root, path) {
   return /api\/bookmarklet\/import/.test(text) && !/X-JobSentinel-Token/.test(text);
 }
 
+function hasUnsanitizedFrontendErrorReportStorage(root, path) {
+  if (!frontendErrorReportingPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /this\.errors\.unshift\(report\)/.test(text) ||
+    (/localStorage\.setItem\(STORAGE_KEY,\s*JSON\.stringify\(this\.errors\)\)/.test(text) &&
+      !/sanitizeStoredReport/.test(text))
+  );
+}
+
 function hasUnownedStorybookAddon(root, path) {
   if (path !== ".storybook/main.ts") {
     return false;
@@ -776,6 +800,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleUserDataExportRoadmapClaim(root, path)) {
       violations.push(`remove stale user-data export roadmap claim: ${path}`);
+    }
+
+    if (hasOverbroadLocalStorageMigrationClaim(root, path)) {
+      violations.push(`replace overbroad localStorage migration claim: ${path}`);
     }
 
     if (hasDeepLinksEmojiOrVersionPromise(root, path)) {
@@ -868,6 +896,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasBookmarkletCodeWithoutTokenHeader(root, path)) {
       violations.push(`include bookmarklet auth token header: ${path}`);
+    }
+
+    if (hasUnsanitizedFrontendErrorReportStorage(root, path)) {
+      violations.push(`sanitize frontend error report storage: ${path}`);
     }
 
     if (hasUnownedStorybookAddon(root, path)) {

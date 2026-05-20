@@ -19,6 +19,126 @@ export interface ErrorReport {
 
 const MAX_STORED_ERRORS = 100;
 const STORAGE_KEY = 'jobsentinel_error_logs';
+const MAX_CONTEXT_DEPTH = 4;
+const MAX_STORED_STRING_LENGTH = 1_000;
+
+const SENSITIVE_KEY_PATTERN = /(?:password|passwd|secret|token|api[_-]?key|cookie|webhook|authorization|credential|li_at)/i;
+const URL_PATTERN = /https?:\/\/[^\s"'<>\\)]+/gi;
+const USER_PATH_PATTERN = /\/(?:Users|home)\/[^/\s]+/g;
+const WINDOWS_USER_PATH_PATTERN = /[A-Za-z]:\\Users\\[^\\\s]+/g;
+const EMAIL_PATTERN = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+const LINKEDIN_COOKIE_PATTERN = /li_at=[^\s;]+/g;
+const TOKEN_PATTERN = /\b(?:Bearer\s+[^\s]+|token\s+[^\s]+|api_key=[^\s&]+|access_token=[^\s&]+|refresh_token=[^\s&]+|secret=[^\s&]+|password=[^\s&]+)/gi;
+const WEBHOOK_PATTERN = /https:\/\/(?:hooks\.slack\.com\/services|discord(?:app)?\.com\/api\/webhooks|outlook(?:\.office)?365?\.com\/webhook|outlook\.office\.com\/webhook)[^\s"'<>\\)]*/gi;
+
+function truncateStoredString(value: string): string {
+  if (value.length <= MAX_STORED_STRING_LENGTH) {
+    return value;
+  }
+
+  return `${value.slice(0, MAX_STORED_STRING_LENGTH)}...[truncated]`;
+}
+
+function sanitizeUrlForStorage(value: string): string {
+  try {
+    const parsed = new URL(value);
+    parsed.username = '';
+    parsed.password = '';
+    parsed.search = '';
+    parsed.hash = '';
+    return parsed.toString();
+  } catch {
+    return '[URL]';
+  }
+}
+
+function sanitizeTextForStorage(value: string): string {
+  let sanitized = value;
+
+  sanitized = sanitized.replace(WEBHOOK_PATTERN, '[WEBHOOK_CONFIGURED]');
+  sanitized = sanitized.replace(LINKEDIN_COOKIE_PATTERN, 'li_at=[REDACTED]');
+  sanitized = sanitized.replace(USER_PATH_PATTERN, '/[USER_PATH]');
+  sanitized = sanitized.replace(WINDOWS_USER_PATH_PATTERN, 'C:\\[USER_PATH]');
+  sanitized = sanitized.replace(URL_PATTERN, (url) => sanitizeUrlForStorage(url));
+  sanitized = sanitized.replace(EMAIL_PATTERN, '[EMAIL]');
+  sanitized = sanitized.replace(TOKEN_PATTERN, '[TOKEN]');
+
+  return truncateStoredString(sanitized);
+}
+
+function sanitizeContextValue(
+  value: unknown,
+  depth = 0,
+  seen: WeakSet<object> = new WeakSet()
+): unknown {
+  if (typeof value === 'string') {
+    return sanitizeTextForStorage(value);
+  }
+
+  if (
+    value === null ||
+    typeof value === 'number' ||
+    typeof value === 'boolean' ||
+    typeof value === 'undefined'
+  ) {
+    return value;
+  }
+
+  if (depth >= MAX_CONTEXT_DEPTH) {
+    return '[DEPTH_LIMIT]';
+  }
+
+  if (value instanceof Error) {
+    return {
+      name: value.name,
+      message: sanitizeTextForStorage(value.message),
+      stack: value.stack ? sanitizeTextForStorage(value.stack) : undefined,
+    };
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => sanitizeContextValue(item, depth + 1, seen));
+  }
+
+  if (typeof value === 'object') {
+    if (seen.has(value)) {
+      return '[CIRCULAR]';
+    }
+    seen.add(value);
+
+    const sanitized: Record<string, unknown> = {};
+    for (const [key, nestedValue] of Object.entries(value as Record<string, unknown>)) {
+      sanitized[key] = SENSITIVE_KEY_PATTERN.test(key)
+        ? '[REDACTED]'
+        : sanitizeContextValue(nestedValue, depth + 1, seen);
+    }
+    return sanitized;
+  }
+
+  return String(value);
+}
+
+function sanitizeContext(context?: Record<string, unknown>): Record<string, unknown> | undefined {
+  if (!context) {
+    return undefined;
+  }
+
+  return sanitizeContextValue(context) as Record<string, unknown>;
+}
+
+function sanitizeStoredReport(report: ErrorReport): ErrorReport {
+  return {
+    ...report,
+    message: sanitizeTextForStorage(report.message),
+    stack: report.stack ? sanitizeTextForStorage(report.stack) : undefined,
+    componentStack: report.componentStack
+      ? sanitizeTextForStorage(report.componentStack)
+      : undefined,
+    context: sanitizeContext(report.context),
+    url: sanitizeUrlForStorage(report.url),
+    userAgent: sanitizeTextForStorage(report.userAgent),
+  };
+}
 
 class ErrorReporter {
   private errors: ErrorReport[] = [];
@@ -121,9 +241,10 @@ class ErrorReporter {
       url: window.location.href,
       userAgent: navigator.userAgent,
     };
+    const storedReport = sanitizeStoredReport(report);
 
     // Add to array (newest first)
-    this.errors.unshift(report);
+    this.errors.unshift(storedReport);
 
     // Keep only recent errors
     if (this.errors.length > MAX_STORED_ERRORS) {
@@ -145,7 +266,7 @@ class ErrorReporter {
       });
     }
 
-    return report;
+    return storedReport;
   }
 
   /**
@@ -266,7 +387,9 @@ class ErrorReporter {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        this.errors = JSON.parse(stored);
+        this.errors = JSON.parse(stored).map((report: ErrorReport) =>
+          sanitizeStoredReport(report)
+        );
       }
     } catch (e: unknown) {
       console.warn('[ErrorReporter] Failed to load from storage:', e);

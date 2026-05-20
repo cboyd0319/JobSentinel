@@ -20,6 +20,10 @@ User data management provides four core features for organizing your job search:
 All data is stored locally in SQLite. No data leaves your computer unless you explicitly
 configure external notifications (Slack, Discord, etc.).
 
+SQLite is the source of truth for job-search records and durable preferences.
+Frontend localStorage is reserved for non-authoritative UI preferences, short-lived
+caches, sanitized error logs, and transient recovery hints.
+
 **Version:** 2.6.4 | **Status:** Stable | **Last Updated:** March 18, 2026
 
 ---
@@ -259,6 +263,12 @@ All user data is stored in a local SQLite database:
 - Saved searches
 - Notification preferences
 - Search history (50 most recent)
+
+The frontend may also keep local-only UI state in browser localStorage. Current
+uses include theme preferences, onboarding completion, cached company research,
+sanitized error logs, and temporary one-click-apply recovery hints. Those entries
+are not cloud-synced, and error reports are sanitized before local persistence or
+export.
 
 ### Migration from localStorage
 
