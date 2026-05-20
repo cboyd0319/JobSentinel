@@ -31,6 +31,9 @@ pub enum ImportError {
     #[error("Timeout while fetching URL")]
     Timeout,
 
+    #[error("Redirect blocked while fetching URL: {location}")]
+    RedirectBlocked { location: String },
+
     #[error("URL validation failed: {0}")]
     InvalidUrl(String),
 }

@@ -142,6 +142,10 @@ It is used by:
 The frontend fallback guard in `src/utils/urlValidation.ts` mirrors these
 external job URL rules before any direct `window.open()` fallback.
 
+The import fetcher does not follow HTTP redirects. A redirect can move from a
+validated public URL to a different host or private-network target, so the user
+must paste the final public job posting URL directly.
+
 **Rules**:
 
 - Parse with `url::Url` before checking components.

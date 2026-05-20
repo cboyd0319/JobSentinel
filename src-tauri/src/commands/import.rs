@@ -311,6 +311,11 @@ fn format_import_error(error: &ImportError) -> String {
         ImportError::InvalidUrl(msg) => {
             format!("Invalid URL: {}", msg)
         }
+        ImportError::RedirectBlocked { location } => {
+            format!(
+                "The URL redirects to another location ({location}). Please paste the final public job posting URL directly."
+            )
+        }
         ImportError::HttpError(e) => {
             if e.is_connect() {
                 "Could not connect to the website. Please check your internet connection.".to_string()

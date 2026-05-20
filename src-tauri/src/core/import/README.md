@@ -17,6 +17,7 @@ This implementation is designed for legal compliance:
 
 - **User-initiated**: User manually provides the URL
 - **Single-page fetch**: Only fetches one specific job page
+- **No redirect following**: Redirect responses are blocked so the fetch does not cross to another trust boundary
 - **Public data**: Only reads publicly available data
 - **Schema.org standard**: Uses machine-readable data format designed for this purpose
 - **No scraping**: Does not crawl or scrape multiple pages
@@ -94,6 +95,7 @@ The importer handles various error cases:
 - **Missing required fields**: Preview shows missing fields
 - **Already exists**: Preview indicates duplicate
 - **HTTP errors**: Returns `ImportError::HttpError`
+- **Redirects**: Returns `ImportError::RedirectBlocked`
 - **Timeout**: Returns `ImportError::Timeout`
 
 ## Testing
