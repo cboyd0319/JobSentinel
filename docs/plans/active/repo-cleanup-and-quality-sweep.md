@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Corrected stale user-data export and backup docs that still promised v1.5 JSON export/import, and added bloat coverage for those stale roadmap claims. |
 | 2026-05-20 | In progress | Added Deep Link UI controls for backend-supported job type and work mode filters, plus frontend coverage and user-doc corrections. |
 | 2026-05-20 | In progress | Replaced dynamic Tailwind category button classes in the deep-link UI with static class metadata and added frontend sensor coverage for interpolated Tailwind utility names. |
 | 2026-05-20 | In progress | Removed redundant tracked `.gitkeep` placeholders from non-empty plan directories and added bloat coverage for future tracked `.gitkeep` files. |
@@ -249,6 +250,9 @@ changes or Playwright-specific work.
 - Deep-link backend types and URL generation already supported job type and
   work-mode filters, and user docs described those parameters, but the UI only
   sent query and location.
+- User-data docs still promised full JSON export/import and backup as a v1.5
+  feature, but current commands only expose template and saved-search migration
+  imports plus item-level deletes and search-history clearing.
 
 ## Decisions
 
@@ -256,6 +260,8 @@ changes or Playwright-specific work.
   reject interpolated utility-name construction in frontend boundary checks.
 - Keep Deep Link user docs scoped to visible UI controls. Backend-only
   parameters should either have controls or be documented as API internals.
+- Document user-data backup/export according to current commands. Do not keep
+  expired release promises in maintained feature docs.
 - Treat tracked `.gitkeep` files as bloat in this repo. Durable empty directory
   intent belongs in docs or in the commit that introduces real fixtures.
 - Treat removing bloat and junk as active repo work even though the earlier

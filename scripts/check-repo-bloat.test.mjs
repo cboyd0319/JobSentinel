@@ -307,3 +307,32 @@ test("checkRepoBloat rejects stale scheduler refactor docs", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects stale user-data export roadmap claims", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/user-data-management.md",
+      [
+        "- **Export anytime** - You can export your data as JSON (feature coming in v1.5)",
+        "Consider creating a backup first (feature coming in v1.5).",
+        "**v1.5 (Q1 2026):**",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/features/user-data-management.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove stale user-data export roadmap claim: docs/features/user-data-management.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});

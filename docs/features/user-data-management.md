@@ -276,8 +276,10 @@ If you used JobSentinel before version 1.4:
 - **Zero telemetry** - JobSentinel does not collect analytics or telemetry
 - **Local-first** - Your data stays on your computer
 - **Explicit location lookup** - **Detect location** contacts FreeIPAPI over HTTPS only after you request it
-- **Export anytime** - You can export your data as JSON (feature coming in v1.5)
-- **Delete anytime** - Clear data without affecting the app
+- **Manual backup** - Close JobSentinel and copy the SQLite database file if
+  you need a full user-data backup
+- **Delete anytime** - Delete individual templates and saved searches, and
+  clear search history without affecting the app
 
 ---
 
@@ -683,24 +685,19 @@ CREATE TABLE notification_preferences (
 ### I accidentally deleted a template
 
 Templates deleted in v1.4+ cannot be recovered (they're removed from SQLite immediately).
-Consider creating a backup first (feature coming in v1.5).
+Close JobSentinel and copy the SQLite database file before deleting important
+templates if you need a manual backup.
 
 ---
 
-## What's Coming
+## Open Gaps
 
-**v1.5 (Q1 2026):**
+The current user-data commands do not provide a full JSON export/import or
+automatic backup flow. Current import commands are migration helpers for cover
+letter templates and saved searches.
 
-- Export user data as JSON
-- Import user data from JSON
 - Bulk template management
 - Smarter variable substitution
-
-**v2.0 (Q2 2026):**
-
-- Resume builder integration
-- Auto-generated cover letters with AI
-- Interview question suggestions
 
 ---
 

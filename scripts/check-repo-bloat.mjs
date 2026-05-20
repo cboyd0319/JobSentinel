@@ -372,6 +372,16 @@ function hasRoadmapStatusEmoji(root, path) {
   return /[\u{2705}\u{1f532}]/u.test(readFileSync(join(root, path), "utf8"));
 }
 
+function hasStaleUserDataExportRoadmapClaim(root, path) {
+  if (path !== "docs/features/user-data-management.md") {
+    return false;
+  }
+
+  return /feature coming in v1\.5|\*\*v1\.5 \(Q1 2026\):\*\*|Export anytime.*JSON/.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -426,6 +436,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRoadmapStatusEmoji(root, path)) {
       violations.push(`replace roadmap status emoji with text: ${path}`);
+    }
+
+    if (hasStaleUserDataExportRoadmapClaim(root, path)) {
+      violations.push(`remove stale user-data export roadmap claim: ${path}`);
     }
   }
 
