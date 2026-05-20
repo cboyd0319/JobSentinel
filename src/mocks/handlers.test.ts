@@ -20,6 +20,15 @@ type BackendSavedSearch = {
   lastUsedAt: string | null;
 };
 
+type CoverLetterTemplate = {
+  id: string;
+  name: string;
+  content: string;
+  category: "general" | "tech" | "creative" | "finance" | "healthcare" | "sales" | "custom" | "thankyou" | "followup" | "withdrawal";
+  createdAt: string;
+  updatedAt: string;
+};
+
 const savedSearchInput: BackendSavedSearch = {
   id: "",
   name: "Remote Rust",
@@ -94,5 +103,62 @@ describe("mock Tauri handlers", () => {
     await mockInvoke<void>("clear_search_history");
 
     expect(await mockInvoke<string[]>("get_search_history", { limit: 20 })).toEqual([]);
+  });
+
+  it("stores cover letter templates with the real backend command names", async () => {
+    expect(await mockInvoke<number>("seed_default_templates")).toBe(6);
+    const seededTemplates = await mockInvoke<CoverLetterTemplate[]>(
+      "list_cover_letter_templates",
+    );
+    expect(seededTemplates).toHaveLength(6);
+
+    const created = await mockInvoke<CoverLetterTemplate>("create_cover_letter_template", {
+      name: "Targeted letter",
+      content: "Dear {company}, I can help.",
+      category: "custom",
+    });
+
+    expect(created).toMatchObject({
+      id: "mock-cover-letter-template-7",
+      name: "Targeted letter",
+      content: "Dear {company}, I can help.",
+      category: "custom",
+    });
+    expect(created.createdAt).toEqual(expect.any(String));
+    expect(created.updatedAt).toEqual(created.createdAt);
+
+    expect(
+      await mockInvoke<CoverLetterTemplate | null>("get_cover_letter_template", {
+        id: created.id,
+      }),
+    ).toEqual(created);
+
+    const updated = await mockInvoke<CoverLetterTemplate | null>(
+      "update_cover_letter_template",
+      {
+        id: created.id,
+        name: "Updated letter",
+        content: "Hello {company}",
+        category: "tech",
+      },
+    );
+
+    expect(updated).toMatchObject({
+      id: created.id,
+      name: "Updated letter",
+      content: "Hello {company}",
+      category: "tech",
+      createdAt: created.createdAt,
+    });
+    expect(updated?.updatedAt).toEqual(expect.any(String));
+
+    expect(await mockInvoke<boolean>("delete_cover_letter_template", { id: created.id })).toBe(
+      true,
+    );
+    expect(
+      await mockInvoke<CoverLetterTemplate | null>("get_cover_letter_template", {
+        id: created.id,
+      }),
+    ).toBeNull();
   });
 });

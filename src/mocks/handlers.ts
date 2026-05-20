@@ -29,6 +29,25 @@ interface MockApplication {
 }
 type MockApplications = Record<MockApplicationStatus, MockApplication[]>;
 type MockPendingReminder = typeof mockPendingReminders[number];
+type MockTemplateCategory =
+  | "general"
+  | "tech"
+  | "creative"
+  | "finance"
+  | "healthcare"
+  | "sales"
+  | "custom"
+  | "thankyou"
+  | "followup"
+  | "withdrawal";
+interface MockCoverLetterTemplate {
+  id: string;
+  name: string;
+  content: string;
+  category: MockTemplateCategory;
+  createdAt: string;
+  updatedAt: string;
+}
 interface MockSavedSearch {
   id: string;
   name: string;
@@ -55,6 +74,18 @@ const SORT_OPTIONS: readonly SortOption[] = [
 ];
 const SCORE_FILTERS: readonly ScoreFilter[] = ["all", "high", "medium", "low"];
 const POSTED_DATE_FILTERS: readonly PostedDateFilter[] = ["all", "24h", "7d", "30d"];
+const TEMPLATE_CATEGORIES: readonly MockTemplateCategory[] = [
+  "general",
+  "tech",
+  "creative",
+  "finance",
+  "healthcare",
+  "sales",
+  "custom",
+  "thankyou",
+  "followup",
+  "withdrawal",
+];
 type MockCredentialKey =
   | "slack_webhook"
   | "smtp_password"
@@ -251,6 +282,7 @@ let config = { ...mockConfig };
 let interviews: MockInterview[] = [...mockUpcomingInterviews];
 let applications: MockApplications = cloneApplications(mockApplications);
 let pendingReminders: MockPendingReminder[] = [...mockPendingReminders];
+let coverLetterTemplates: MockCoverLetterTemplate[] = [];
 let savedSearches: MockSavedSearch[] = [];
 let searchHistory: string[] = [];
 let credentials: Partial<Record<MockCredentialKey, string>> = {};
@@ -276,6 +308,7 @@ interface MockState {
   interviews: MockInterview[];
   applications: MockApplications;
   pendingReminders: MockPendingReminder[];
+  coverLetterTemplates: MockCoverLetterTemplate[];
   savedSearches: MockSavedSearch[];
   searchHistory: string[];
   credentials: Partial<Record<MockCredentialKey, string>>;
@@ -306,6 +339,7 @@ function saveMockState(): void {
     interviews,
     applications,
     pendingReminders,
+    coverLetterTemplates,
     savedSearches,
     searchHistory,
     credentials,
@@ -340,6 +374,9 @@ function loadMockState(): void {
     }
     if (Array.isArray(state.pendingReminders)) {
       pendingReminders = state.pendingReminders;
+    }
+    if (Array.isArray(state.coverLetterTemplates)) {
+      coverLetterTemplates = state.coverLetterTemplates.map(normalizeCoverLetterTemplate);
     }
     if (Array.isArray(state.savedSearches)) {
       savedSearches = state.savedSearches.map(normalizeSavedSearch);
@@ -806,8 +843,85 @@ function isPostedDateFilter(value: unknown): value is PostedDateFilter {
   return typeof value === "string" && POSTED_DATE_FILTERS.includes(value as PostedDateFilter);
 }
 
+function isTemplateCategory(value: unknown): value is MockTemplateCategory {
+  return typeof value === "string" && TEMPLATE_CATEGORIES.includes(value as MockTemplateCategory);
+}
+
 function getNullablePostedDateFilter(value: unknown): PostedDateFilter | null {
   return isPostedDateFilter(value) ? value : null;
+}
+
+function getNextCoverLetterTemplateId(): string {
+  const maxId = coverLetterTemplates.reduce((max, template) => {
+    const match = /^mock-cover-letter-template-(\d+)$/.exec(template.id);
+    return match ? Math.max(max, Number(match[1])) : max;
+  }, 0);
+  return `mock-cover-letter-template-${maxId + 1}`;
+}
+
+function normalizeCoverLetterTemplate(value: unknown): MockCoverLetterTemplate {
+  const source = isRecord(value) ? value : {};
+  const now = new Date().toISOString();
+
+  return {
+    id: typeof source.id === "string" && source.id.length > 0
+      ? source.id
+      : getNextCoverLetterTemplateId(),
+    name: typeof source.name === "string" && source.name.trim().length > 0
+      ? source.name.trim()
+      : "Cover Letter Template",
+    content: typeof source.content === "string" ? source.content : "",
+    category: isTemplateCategory(source.category) ? source.category : "general",
+    createdAt: typeof source.createdAt === "string" && source.createdAt.length > 0
+      ? source.createdAt
+      : now,
+    updatedAt: typeof source.updatedAt === "string" && source.updatedAt.length > 0
+      ? source.updatedAt
+      : now,
+  };
+}
+
+function getDefaultCoverLetterTemplates(): MockCoverLetterTemplate[] {
+  const now = new Date().toISOString();
+  const defaults: Array<Pick<MockCoverLetterTemplate, "name" | "category" | "content">> = [
+    {
+      name: "Professional Cover Letter",
+      category: "general",
+      content: "Dear {hiring_manager},\n\nI am interested in the {position} role at {company}.\n\nBest regards,\n{your_name}",
+    },
+    {
+      name: "Tech/Engineering Cover Letter",
+      category: "tech",
+      content: "Dear {hiring_manager},\n\nI can bring {skill1} and {skill2} experience to the {position} role at {company}.\n\nBest regards,\n{your_name}",
+    },
+    {
+      name: "Thank You - Post Interview",
+      category: "thankyou",
+      content: "Dear {hiring_manager},\n\nThank you for meeting with me about the {position} role at {company}.\n\nBest regards,\n{your_name}",
+    },
+    {
+      name: "Application Follow-Up",
+      category: "followup",
+      content: "Dear {hiring_manager},\n\nI wanted to follow up on my application for the {position} role at {company}.\n\nBest regards,\n{your_name}",
+    },
+    {
+      name: "Interview Follow-Up (No Response)",
+      category: "followup",
+      content: "Dear {hiring_manager},\n\nI wanted to check in on the status of the {position} process at {company}.\n\nBest regards,\n{your_name}",
+    },
+    {
+      name: "Withdraw Application",
+      category: "withdrawal",
+      content: "Dear {hiring_manager},\n\nI have decided to withdraw my application for the {position} role at {company}.\n\nBest regards,\n{your_name}",
+    },
+  ];
+
+  return defaults.map((template, index) => ({
+    id: `mock-cover-letter-template-${index + 1}`,
+    createdAt: now,
+    updatedAt: now,
+    ...template,
+  }));
 }
 
 function getNextSavedSearchId(): string {
@@ -1755,6 +1869,72 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
         successRate: 90.476,
       } as T;
 
+    // Cover letter templates
+    case "seed_default_templates": {
+      if (coverLetterTemplates.length > 0) {
+        return 0 as T;
+      }
+      coverLetterTemplates = getDefaultCoverLetterTemplates();
+      saveMockState();
+      return coverLetterTemplates.length as T;
+    }
+
+    case "list_cover_letter_templates":
+      return coverLetterTemplates.map((template) => ({ ...template })) as T;
+
+    case "get_cover_letter_template":
+      return (
+        coverLetterTemplates.find((template) => template.id === getStringArg(args, "id")) ?? null
+      ) as T;
+
+    case "create_cover_letter_template": {
+      const now = new Date().toISOString();
+      const template = normalizeCoverLetterTemplate({
+        id: getNextCoverLetterTemplateId(),
+        name: getStringArg(args, "name"),
+        content: getStringArg(args, "content"),
+        category: getStringArg(args, "category"),
+        createdAt: now,
+        updatedAt: now,
+      });
+      coverLetterTemplates = [
+        template,
+        ...coverLetterTemplates.filter((existing) => existing.id !== template.id),
+      ];
+      saveMockState();
+      return { ...template } as T;
+    }
+
+    case "update_cover_letter_template": {
+      const id = getStringArg(args, "id");
+      const existingTemplate = coverLetterTemplates.find((template) => template.id === id);
+      if (!existingTemplate) {
+        return null as T;
+      }
+
+      const updatedTemplate = normalizeCoverLetterTemplate({
+        ...existingTemplate,
+        name: getStringArg(args, "name") ?? existingTemplate.name,
+        content: getStringArg(args, "content") ?? existingTemplate.content,
+        category: getStringArg(args, "category") ?? existingTemplate.category,
+        updatedAt: new Date().toISOString(),
+      });
+      coverLetterTemplates = coverLetterTemplates.map((template) =>
+        template.id === id ? updatedTemplate : template,
+      );
+      saveMockState();
+      return { ...updatedTemplate } as T;
+    }
+
+    case "delete_cover_letter_template": {
+      const id = getStringArg(args, "id");
+      const initialLength = coverLetterTemplates.length;
+      coverLetterTemplates = coverLetterTemplates.filter((template) => template.id !== id);
+      const deleted = coverLetterTemplates.length !== initialLength;
+      if (deleted) saveMockState();
+      return deleted as T;
+    }
+
     // Search history and saved searches
     case "get_search_history": {
       const limit = Math.max(0, Math.min(getNumericArg(args, "limit") ?? 20, 50));
@@ -1855,6 +2035,7 @@ export function resetMockData() {
   interviews = [...mockUpcomingInterviews];
   applications = cloneApplications(mockApplications);
   pendingReminders = [...mockPendingReminders];
+  coverLetterTemplates = [];
   savedSearches = [];
   searchHistory = [];
   credentials = {};

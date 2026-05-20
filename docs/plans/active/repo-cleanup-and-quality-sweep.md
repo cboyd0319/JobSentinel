@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Synced cover-letter template dev mock handlers with real Tauri command names, added lifecycle regression coverage, and broadened mock-parity bloat coverage for user-data commands. |
 | 2026-05-20 | In progress | Synced dev mock handlers with real saved-search and search-history Tauri command names, removed stale `save_search` behavior, and added regression plus bloat-sensor coverage. |
 | 2026-05-20 | In progress | Fixed saved-search IPC shape so create and undo restore send the backend `search` envelope, frontend reads camelCase saved-search results, and invoke-surface checks catch missing required command args. |
 | 2026-05-20 | In progress | Fixed dashboard search-history loading by sending the required `limit` argument to the backend command, and added invoke-surface coverage for recurrence. |
@@ -221,6 +222,10 @@ changes or Playwright-specific work.
   lacked the real `create_saved_search`, `use_saved_search`,
   `add_search_history`, and `clear_search_history` command handlers, so
   `npm run dev:mock` could hide or create frontend/backend parity drift.
+- Development mock handlers also lacked cover-letter template command handlers
+  for `seed_default_templates`, template CRUD, and template lookup, so the
+  Cover Letter Templates UI could fail under `npm run dev:mock` while working
+  against the real backend.
 - Maintained docs still used an overbroad "all user data" localStorage-to-SQLite
   migration claim even though frontend localStorage remains valid for
   non-authoritative UI preferences, caches, sanitized error logs, and transient
@@ -527,6 +532,8 @@ changes or Playwright-specific work.
 - Frontend command calls with object-literal args must include required backend
   command parameters, including nested command envelopes such as
   `create_saved_search`'s `search`.
+- Keep dev mock handlers aligned with frontend-invoked user-data Tauri command
+  names so mock development does not hide backend contract drift.
 - Describe SQLite as authoritative for job-search records and durable
   preferences. Do not claim browser localStorage is unused; it remains available
   for local-only UI state, caches, sanitized error logs, and recovery hints.

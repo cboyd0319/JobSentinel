@@ -1547,7 +1547,7 @@ test("checkRepoBloat rejects raw user-data privacy logging", () => {
   });
 });
 
-test("checkRepoBloat rejects stale saved-search mock handlers", () => {
+test("checkRepoBloat rejects stale user-data mock handlers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
@@ -1579,7 +1579,7 @@ test("checkRepoBloat rejects stale saved-search mock handlers", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sync saved-search mock command handlers: src/mocks/handlers.ts"),
+      violations.includes("sync user-data mock command handlers: src/mocks/handlers.ts"),
       violations.join("\n"),
     );
   });

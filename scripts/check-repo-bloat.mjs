@@ -835,13 +835,19 @@ function hasUnownedStorybookAddon(root, path) {
   });
 }
 
-function hasStaleSavedSearchMockHandlers(root, path) {
+function hasStaleUserDataMockHandlers(root, path) {
   if (path !== "src/mocks/handlers.ts") {
     return false;
   }
 
   const text = readFileSync(join(root, path), "utf8");
   const requiredCommands = [
+    "seed_default_templates",
+    "list_cover_letter_templates",
+    "get_cover_letter_template",
+    "create_cover_letter_template",
+    "update_cover_letter_template",
+    "delete_cover_letter_template",
     "get_search_history",
     "add_search_history",
     "clear_search_history",
@@ -1049,8 +1055,8 @@ export function checkRepoBloat(root = defaultRoot) {
       violations.push(`remove Storybook addon without package ownership: ${path}`);
     }
 
-    if (hasStaleSavedSearchMockHandlers(root, path)) {
-      violations.push(`sync saved-search mock command handlers: ${path}`);
+    if (hasStaleUserDataMockHandlers(root, path)) {
+      violations.push(`sync user-data mock command handlers: ${path}`);
     }
   }
 
