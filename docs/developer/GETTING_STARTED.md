@@ -25,8 +25,9 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 # Install Node.js 20+ (https://nodejs.org/)
 # Download the LTS version from the website
 
-# Install Tauri CLI
-cargo install tauri-cli@2.1
+# Tauri CLI
+# `npm install` installs the repo-local CLI from @tauri-apps/cli.
+# Use `npm run tauri:*` scripts or `npx tauri` from the repo root.
 ```
 
 **Windows Only:**
@@ -74,7 +75,7 @@ npm run tauri:build
 
 # macOS: Build universal binary (Intel + Apple Silicon)
 rustup target add aarch64-apple-darwin x86_64-apple-darwin
-cd src-tauri && cargo tauri build --target universal-apple-darwin
+npm run tauri -- build --target universal-apple-darwin
 
 # Windows MSI installer output
 # src-tauri/target/<target>/release/bundle/msi/JobSentinel_<version>_x64_en-US.msi
@@ -132,7 +133,7 @@ JobSentinel/
 
 | Technology      | Purpose                            |
 | --------------- | ---------------------------------- |
-| **Tauri 2.1**   | Desktop app framework (Rust + Web) |
+| **Tauri 2**     | Desktop app framework (Rust + Web) |
 | **React 19**    | UI framework                       |
 | **Vite**        | Fast build tool                    |
 | **TailwindCSS** | Utility-first CSS                  |
@@ -148,10 +149,10 @@ JobSentinel/
 ```bash
 # Backend tests
 cd src-tauri
-cargo test
+cargo test --lib
 
 # Frontend tests
-npm test
+npm run test:run
 ```
 
 ### Code Style
@@ -159,10 +160,10 @@ npm test
 ```bash
 # Format Rust code
 cd src-tauri
-cargo fmt
+cargo fmt --all -- --check
 
 # Lint Rust code
-cargo clippy
+cargo clippy -- -D warnings
 
 # Fix TypeScript/React lint issues where safe
 npm run lint:fix

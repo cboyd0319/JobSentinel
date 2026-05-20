@@ -22,11 +22,10 @@
    brew install node
    ```
 
-3. **Install Tauri CLI:**
+3. **Use the repo-local Tauri CLI:**
 
-   ```bash
-   npm install -g @tauri-apps/cli
-   ```
+   `npm install` installs `@tauri-apps/cli`. Use `npm run tauri:*` scripts or
+   `npx tauri` from the repo root.
 
 ### Development Setup
 
@@ -72,8 +71,8 @@ JobSentinel creates the following directories on macOS:
 |---------|------|-------------|
 | **Data** | `~/Library/Application Support/JobSentinel` | SQLite database, scraped jobs |
 | **Config** | `~/.config/jobsentinel` | config.json, user preferences |
-| **Cache** | `~/Library/Caches/JobSentinel` | Temporary files (future) |
-| **Logs** | `~/Library/Logs/JobSentinel` | Application logs (future) |
+| **Cache** | `~/Library/Caches/JobSentinel` | Cache files |
+| **Logs** | `~/Library/Logs/JobSentinel` | Application logs |
 
 **Tested on:** macOS 15 (Sequoia), macOS 14 (Sonoma), macOS 13 (Ventura)
 
@@ -110,7 +109,7 @@ npm run tauri:dev
 npm run tauri:build
 ```
 
-**Output:** `src-tauri/target/release/bundle/dmg/JobSentinel_1.0.0_aarch64.dmg`
+**Output:** `src-tauri/target/release/bundle/dmg/JobSentinel_<version>_<arch>.dmg`
 
 **Note:** The `.dmg` installer is for distribution. You can also run the binary directly:
 
@@ -168,23 +167,23 @@ npm install
 
 ## macOS-Specific Features
 
-### Currently Implemented ✅
+### Implemented
 
-- ✅ Application Support directory (`~/Library/Application Support/JobSentinel`)
-- ✅ XDG config directory support (`~/.config/jobsentinel`)
-- ✅ Directory creation on first run
-- ✅ macOS version detection (`sw_vers`)
-- ✅ Sandbox detection
-- ✅ Cache and logs directory support
+- Application Support directory (`~/Library/Application Support/JobSentinel`)
+- XDG config directory support (`~/.config/jobsentinel`)
+- Directory creation on first run
+- macOS version detection (`sw_vers`)
+- Sandbox detection
+- Cache and logs directory support
+- Menu bar tray integration through Tauri's tray APIs
+- Native desktop notifications through the Tauri notification plugin
+- Keychain-backed credential storage through the OS keyring
 
-### Future Enhancements (v2.0+)
+### Planned Or Distribution-Dependent
 
-- 🟡 Menu bar integration (native macOS menu)
-- 🟡 macOS notifications (native)
-- 🟡 Keychain integration (secure webhook storage)
-- 🟡 Launch Agent (start on login)
-- 🟡 App Sandbox support
-- 🟡 Code signing for distribution
+- Launch Agent support for start-on-login
+- App Sandbox support
+- Code signing and notarization for distribution
 
 ---
 
@@ -319,11 +318,11 @@ rustflags = ["-C", "link-arg=-fuse-ld=/opt/homebrew/bin/mold"]
 
 ## Next Steps
 
-1. ✅ **macOS module complete** - Fully functional
-2. 🔄 **Test compilation** - Verify no errors
-3. 🔄 **Run dev server** - Test full application flow
-4. 🔄 **Create first job search** - Verify database + scraping works
-5. 📋 **Report any issues** - Open GitHub issue if problems occur
+1. **macOS module complete** - Fully functional
+2. **Test compilation** - Verify no errors
+3. **Run dev server** - Test full application flow
+4. **Create first job search** - Verify database and scraping work
+5. **Report any issues** - Open GitHub issue if problems occur
 
 ---
 

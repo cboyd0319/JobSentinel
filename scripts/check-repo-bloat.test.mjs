@@ -191,6 +191,73 @@ test("checkRepoBloat rejects unsupported Vitest grep docs", () => {
   });
 });
 
+test("checkRepoBloat rejects stale getting started tooling docs", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/developer/GETTING_STARTED.md",
+      [
+        "# Getting Started",
+        "",
+        "cargo install tauri-cli@2.1",
+        "",
+        "| **Tauri 2.1** | Desktop app framework |",
+        "",
+        "# Frontend tests",
+        "npm test",
+        "",
+        "# Lint Rust code",
+        "cargo clippy",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/developer/GETTING_STARTED.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sync getting-started tooling docs: docs/developer/GETTING_STARTED.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects stale macOS developer docs", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/developer/MACOS_DEVELOPMENT.md",
+      [
+        "# macOS Development",
+        "",
+        "**Output:** `src-tauri/target/release/bundle/dmg/JobSentinel_1.0.0_aarch64.dmg`",
+        "",
+        "### Currently Implemented ✅",
+        "",
+        "- ✅ Application Support directory",
+        "- 🟡 Code signing for distribution",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/developer/MACOS_DEVELOPMENT.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sync macOS developer docs: docs/developer/MACOS_DEVELOPMENT.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects speculative cloud deployment docs", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

@@ -549,6 +549,31 @@ function hasStaleTestQualityDocGuidance(root, path) {
   );
 }
 
+function hasStaleGettingStartedToolingDocs(root, path) {
+  if (path !== "docs/developer/GETTING_STARTED.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /cargo install tauri-cli@2\.1/.test(text) ||
+    /\*\*Tauri 2\.1\*\*/.test(text) ||
+    /# Frontend tests\s+npm test\b/.test(text) ||
+    /# Lint Rust code\s+cargo clippy\s*(?:\n|$)/.test(text)
+  );
+}
+
+function hasStaleMacosDeveloperDocs(root, path) {
+  if (path !== "docs/developer/MACOS_DEVELOPMENT.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /JobSentinel_1\.0\.0_aarch64\.dmg|[✅❌⚠️⏳🔐📄📝🟢🟡🔴📊📧📈📉🎯🚀💡🔍⭐🔄📋]/u.test(
+    text,
+  );
+}
+
 function hasMarketIntelligenceDocEmojiMarkers(root, path) {
   if (path !== "docs/features/market-intelligence.md") {
     return false;
@@ -1165,6 +1190,14 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleTestQualityDocGuidance(root, path)) {
       violations.push(`replace stale test-quality doc guidance: ${path}`);
+    }
+
+    if (hasStaleGettingStartedToolingDocs(root, path)) {
+      violations.push(`sync getting-started tooling docs: ${path}`);
+    }
+
+    if (hasStaleMacosDeveloperDocs(root, path)) {
+      violations.push(`sync macOS developer docs: ${path}`);
     }
 
     if (hasMarketIntelligenceDocEmojiMarkers(root, path)) {
