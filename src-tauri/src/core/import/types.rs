@@ -31,11 +31,32 @@ pub enum ImportError {
     #[error("Timeout while fetching URL")]
     Timeout,
 
-    #[error("Redirect blocked while fetching URL: {location}")]
+    #[error("Redirect blocked while fetching URL")]
     RedirectBlocked { location: String },
 
     #[error("URL validation failed: {0}")]
     InvalidUrl(String),
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_redirect_blocked_display_does_not_expose_location() {
+        let error = ImportError::RedirectBlocked {
+            location: "https://user:pass@example.com/final?token=secret123#private".to_string(),
+        };
+
+        let message = error.to_string();
+
+        assert!(message.contains("Redirect blocked"));
+        assert!(!message.contains("example.com"));
+        assert!(!message.contains("secret123"));
+        assert!(!message.contains("user"));
+        assert!(!message.contains("pass"));
+        assert!(!message.contains("private"));
+    }
 }
 
 pub type ImportResult<T> = Result<T, ImportError>;

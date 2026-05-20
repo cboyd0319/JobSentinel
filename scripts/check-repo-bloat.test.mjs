@@ -1038,3 +1038,32 @@ test("checkRepoBloat rejects raw path or query error display", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects raw import redirect display", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/import/types.rs",
+      [
+        "#[derive(thiserror::Error, Debug)]",
+        "pub enum ImportError {",
+        '    #[error("Redirect blocked while fetching URL: {location}")]',
+        "    RedirectBlocked { location: String },",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/import/types.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace raw import redirect display: src-tauri/src/core/import/types.rs"),
+      violations.join("\n"),
+    );
+  });
+});

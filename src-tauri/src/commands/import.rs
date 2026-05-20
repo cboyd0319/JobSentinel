@@ -313,8 +313,9 @@ fn format_import_error(error: &ImportError) -> String {
             format!("Invalid URL: {}", msg)
         }
         ImportError::RedirectBlocked { location } => {
+            let location_label = sanitize_url_for_logging(location);
             format!(
-                "The URL redirects to another location ({location}). Please paste the final public job posting URL directly."
+                "The URL redirects to another location ({location_label}). Please paste the final public job posting URL directly."
             )
         }
         ImportError::HttpError(e) => {
@@ -371,5 +372,22 @@ mod tests {
         assert_eq!(min, Some(100000));
         assert_eq!(max, Some(150000));
         assert_eq!(currency, Some("USD".to_string()));
+    }
+
+    #[test]
+    fn test_format_import_error_sanitizes_redirect_location() {
+        let error = ImportError::RedirectBlocked {
+            location: "https://user:pass@example.com/final?token=secret123&query=security#private"
+                .to_string(),
+        };
+
+        let message = format_import_error(&error);
+
+        assert!(message.contains("https://example.com/final"));
+        assert!(!message.contains("secret123"));
+        assert!(!message.contains("query=security"));
+        assert!(!message.contains("user"));
+        assert!(!message.contains("pass"));
+        assert!(!message.contains("private"));
     }
 }

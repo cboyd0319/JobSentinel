@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Sanitized job-import redirect error output so blocked redirect `Location` headers cannot expose credentials, query strings, fragments, or search terms in UI/Display messages. |
 | 2026-05-20 | In progress | Sanitized database error display output so formatted errors no longer expose SQL query text or local backup/database paths. |
 | 2026-05-20 | In progress | Sanitized automation error display output so browser automation logs and command error strings do not expose raw application URLs, credentials, query strings, or fragments. |
 | 2026-05-20 | In progress | Sanitized scraper error display output so scheduler logs and health rows no longer receive raw scraper URLs or search query text from `ScraperError::to_string()`. |
@@ -302,6 +303,10 @@ changes or Playwright-specific work.
 - `DatabaseError` display strings included raw SQL query text and raw local
   backup/database paths. Command handlers, bookmarklet paths, scheduler
   persistence, and logs format database failures with `to_string()` / `%e`.
+- Job-import blocked-redirect errors included the raw `Location` response
+  header in formatted UI and Display output. Redirect targets can contain
+  credentials, tracking tokens, query strings, fragments, or copied search
+  criteria.
 - `docs/plans/active/.gitkeep` and `docs/plans/completed/.gitkeep` were
   redundant tracked placeholders because both directories contain real plan
   files.
@@ -425,6 +430,9 @@ changes or Playwright-specific work.
 - Database error display output must use non-content query labels and
   non-identifying path labels. Keep exact paths and SQL only in typed fields and
   database operations that need them.
+- Job-import redirect errors must keep exact redirect targets only in typed
+  fields. UI and Display messages must use sanitized URL labels or omit the raw
+  target.
 - Local paths in logs must use non-identifying labels. Preserve actual paths for
   file operations, database records, and user-facing operations that need them.
 - Keep feature docs aligned with live source names for frontend routes and IPC

@@ -186,6 +186,8 @@ const rawPathOrQueryErrorDisplayPaths = new Set(["src-tauri/src/core/db/error.rs
 
 const rawJobImportLoggingPaths = new Set(["src-tauri/src/commands/import.rs"]);
 
+const rawImportRedirectDisplayPaths = new Set(["src-tauri/src/core/import/types.rs"]);
+
 const rawAutomationQuestionLoggingPaths = new Set([
   "src-tauri/src/core/automation/form_filler.rs",
 ]);
@@ -604,6 +606,16 @@ function hasRawPathOrQueryErrorDisplay(root, path) {
   return /#\[error\("[^"]*\{(?:path|query)\}/.test(readFileSync(join(root, path), "utf8"));
 }
 
+function hasRawImportRedirectDisplay(root, path) {
+  if (!rawImportRedirectDisplayPaths.has(path)) {
+    return false;
+  }
+
+  return /Redirect blocked while fetching URL: \{location\}/.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 function hasRawJobImportLogging(root, path) {
   if (!rawJobImportLoggingPaths.has(path)) {
     return false;
@@ -758,6 +770,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawPathOrQueryErrorDisplay(root, path)) {
       violations.push(`replace raw path/query error display: ${path}`);
+    }
+
+    if (hasRawImportRedirectDisplay(root, path)) {
+      violations.push(`replace raw import redirect display: ${path}`);
     }
 
     if (hasRawJobImportLogging(root, path)) {
