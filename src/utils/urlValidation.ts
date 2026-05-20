@@ -73,12 +73,24 @@ function isBlockedIpv4Address(hostname: string): boolean {
     return false;
   }
 
-  const octets = ipv4Match.slice(1).map(Number);
-  if (octets.some((octet) => !Number.isInteger(octet) || octet < 0 || octet > 255)) {
+  const [, firstRaw, secondRaw, thirdRaw, fourthRaw] = ipv4Match;
+  if (
+    firstRaw === undefined ||
+    secondRaw === undefined ||
+    thirdRaw === undefined ||
+    fourthRaw === undefined
+  ) {
     return true;
   }
 
-  const [first, second, third, fourth] = octets;
+  const first = Number(firstRaw);
+  const second = Number(secondRaw);
+  const third = Number(thirdRaw);
+  const fourth = Number(fourthRaw);
+  const octets = [first, second, third, fourth];
+  if (octets.some((octet) => !Number.isInteger(octet) || octet < 0 || octet > 255)) {
+    return true;
+  }
 
   // 0.0.0.0/8 and 127.0.0.0/8
   if (first === 0 || first === 127) {
@@ -125,8 +137,13 @@ function ipv4FromMappedIpv6(hostname: string): string | null {
     return null;
   }
 
-  const highWord = Number.parseInt(match[1], 16);
-  const lowWord = Number.parseInt(match[2], 16);
+  const [, highWordHex, lowWordHex] = match;
+  if (highWordHex === undefined || lowWordHex === undefined) {
+    return null;
+  }
+
+  const highWord = Number.parseInt(highWordHex, 16);
+  const lowWord = Number.parseInt(lowWordHex, 16);
   if (!Number.isFinite(highWord) || !Number.isFinite(lowWord)) {
     return null;
   }
