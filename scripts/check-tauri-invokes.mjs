@@ -167,8 +167,134 @@ function hasObjectProperty(node, propertyName) {
   );
 }
 
+function toCamelCase(name) {
+  return name.replace(/_([a-z])/g, (_, char) => char.toUpperCase());
+}
+
+function isObjectLikeArg(node) {
+  return node && ts.isObjectLiteralExpression(node);
+}
+
+function isMissingArg(node) {
+  return (
+    !node ||
+    (ts.isIdentifier(node) && node.text === "undefined") ||
+    node.kind === ts.SyntaxKind.NullKeyword
+  );
+}
+
+function splitTopLevelParams(text) {
+  const params = [];
+  let current = "";
+  let parens = 0;
+  let angles = 0;
+
+  for (const char of text) {
+    if (char === "," && parens === 0 && angles === 0) {
+      if (current.trim()) {
+        params.push(current.trim());
+      }
+      current = "";
+      continue;
+    }
+
+    current += char;
+
+    if (char === "(") {
+      parens += 1;
+    } else if (char === ")") {
+      parens -= 1;
+    } else if (char === "<") {
+      angles += 1;
+    } else if (char === ">") {
+      angles = Math.max(0, angles - 1);
+    }
+  }
+
+  if (current.trim()) {
+    params.push(current.trim());
+  }
+
+  return params;
+}
+
+function extractSignatureParams(body, name) {
+  const fnIndex = body.search(
+    new RegExp(`\\bpub\\s+(?:async\\s+)?fn\\s+${escapeRegExp(name)}\\b`),
+  );
+
+  if (fnIndex === -1) {
+    return [];
+  }
+
+  const openIndex = body.indexOf("(", fnIndex);
+  if (openIndex === -1) {
+    return [];
+  }
+
+  let depth = 0;
+  for (let index = openIndex; index < body.length; index += 1) {
+    const char = body[index];
+    if (char === "(") {
+      depth += 1;
+    } else if (char === ")") {
+      depth -= 1;
+      if (depth === 0) {
+        return splitTopLevelParams(body.slice(openIndex + 1, index));
+      }
+    }
+  }
+
+  return [];
+}
+
+function requiredFrontendArgsForCommand(body, name) {
+  return extractSignatureParams(body, name).flatMap((param) => {
+    const match = param.match(/(?:^|\s)([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*([\s\S]+)/);
+    if (!match) {
+      return [];
+    }
+
+    const [, paramName, type] = match;
+    if (["state", "app", "window"].includes(paramName)) {
+      return [];
+    }
+
+    if (/State\s*<|AppHandle|Window|WebviewWindow/.test(type)) {
+      return [];
+    }
+
+    if (/Option\s*</.test(type)) {
+      return [];
+    }
+
+    return [paramName];
+  });
+}
+
 function collectFrontendRequiredArgViolations(root) {
   const violations = [];
+  const requiredByCommand = new Map();
+  const entries = collectRegisteredCommandEntries(root);
+
+  if (!entries) {
+    return violations;
+  }
+
+  for (const { module, name } of entries) {
+    const commandPath = join(root, "src-tauri/src/commands", `${module}.rs`);
+    if (!existsSync(commandPath)) {
+      continue;
+    }
+
+    const text = readFileSync(commandPath, "utf8");
+    const body = findFunctionBody(text, name);
+    if (!body) {
+      continue;
+    }
+
+    requiredByCommand.set(name, requiredFrontendArgsForCommand(body, name));
+  }
 
   for (const file of collectSourceFiles(root)) {
     const text = readFileSync(file, "utf8");
@@ -180,19 +306,28 @@ function collectFrontendRequiredArgViolations(root) {
       if (
         ts.isCallExpression(node) &&
         ts.isIdentifier(node.expression) &&
-        node.expression.text === "invoke" &&
+        ["invoke", "safeInvoke", "safeInvokeWithToast", "cachedInvoke"].includes(
+          node.expression.text,
+        ) &&
         node.arguments.length > 0
       ) {
         const [firstArg, secondArg] = node.arguments;
 
-        if (
-          (ts.isStringLiteral(firstArg) || ts.isNoSubstitutionTemplateLiteral(firstArg)) &&
-          firstArg.text === "get_search_history" &&
-          (!secondArg || !hasObjectProperty(secondArg, "limit"))
-        ) {
-          violations.push(
-            `${relFile}:${getLineNumber(sourceFile, firstArg.getStart(sourceFile))} invokes get_search_history without required limit argument`,
-          );
+        if (ts.isStringLiteral(firstArg) || ts.isNoSubstitutionTemplateLiteral(firstArg)) {
+          const requiredArgs = requiredByCommand.get(firstArg.text) ?? [];
+          if (requiredArgs.length > 0 && (isMissingArg(secondArg) || isObjectLikeArg(secondArg))) {
+            for (const requiredArg of requiredArgs) {
+              if (
+                isMissingArg(secondArg) ||
+                (!hasObjectProperty(secondArg, requiredArg) &&
+                  !hasObjectProperty(secondArg, toCamelCase(requiredArg)))
+              ) {
+                violations.push(
+                  `${relFile}:${getLineNumber(sourceFile, firstArg.getStart(sourceFile))} invokes ${firstArg.text} without required ${requiredArg} argument`,
+                );
+              }
+            }
+          }
         }
       }
 

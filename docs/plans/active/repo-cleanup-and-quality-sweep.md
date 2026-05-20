@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Fixed saved-search IPC shape so create and undo restore send the backend `search` envelope, frontend reads camelCase saved-search results, and invoke-surface checks catch missing required command args. |
 | 2026-05-20 | In progress | Fixed dashboard search-history loading by sending the required `limit` argument to the backend command, and added invoke-surface coverage for recurrence. |
 | 2026-05-20 | In progress | Sanitized user-data command and manager logging so saved-search text, saved-search names, cover-letter template names, and notification preference payloads are not captured by logs or tracing spans. |
 | 2026-05-20 | In progress | Added backend sanitization for saved feedback file content, so frontend-provided report text cannot bypass the privacy contract before writing through the native save dialog. |
@@ -212,6 +213,9 @@ changes or Playwright-specific work.
   preference payloads.
 - Dashboard search history invoked `get_search_history` without the backend's
   required `limit` argument, so initial history loading could fail at runtime.
+- Saved-search create and undo-restore calls sent flat filter fields even though
+  the Tauri command expects a required `search` object. The list path also read
+  snake_case fields even though `SavedSearch` serializes as camelCase.
 - Maintained docs still used an overbroad "all user data" localStorage-to-SQLite
   migration claim even though frontend localStorage remains valid for
   non-authoritative UI preferences, caches, sanitized error logs, and transient
@@ -515,6 +519,9 @@ changes or Playwright-specific work.
   or preference payloads.
 - Frontend `get_search_history` calls must include a bounded `limit` argument to
   match the Tauri command contract.
+- Frontend command calls with object-literal args must include required backend
+  command parameters, including nested command envelopes such as
+  `create_saved_search`'s `search`.
 - Describe SQLite as authoritative for job-search records and durable
   preferences. Do not claim browser localStorage is unused; it remains available
   for local-only UI state, caches, sanitized error logs, and recovery hints.

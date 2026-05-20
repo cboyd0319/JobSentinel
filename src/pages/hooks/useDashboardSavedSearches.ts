@@ -8,6 +8,44 @@ import { useToast } from "../../contexts";
 import { useUndo } from "../../contexts/UndoContext";
 import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
 
+type BackendSavedSearch = {
+  id: string;
+  name: string;
+  sortBy: SortOption;
+  scoreFilter: ScoreFilter;
+  sourceFilter: string;
+  remoteFilter: string;
+  bookmarkFilter: string;
+  notesFilter: string;
+  postedDateFilter: PostedDateFilter | null;
+  salaryMinFilter: number | null;
+  salaryMaxFilter: number | null;
+  ghostFilter: string | null;
+  textSearch: string | null;
+  createdAt: string;
+  lastUsedAt: string | null;
+};
+
+function toBackendSavedSearch(name: string, filters: SavedSearch["filters"]): BackendSavedSearch {
+  return {
+    id: "",
+    name,
+    sortBy: filters.sortBy,
+    scoreFilter: filters.scoreFilter,
+    sourceFilter: filters.sourceFilter,
+    remoteFilter: filters.remoteFilter,
+    bookmarkFilter: filters.bookmarkFilter,
+    notesFilter: filters.notesFilter,
+    postedDateFilter: filters.postedDateFilter ?? null,
+    salaryMinFilter: filters.salaryMinFilter ?? null,
+    salaryMaxFilter: filters.salaryMaxFilter ?? null,
+    ghostFilter: null,
+    textSearch: null,
+    createdAt: "",
+    lastUsedAt: null,
+  };
+}
+
 export function useDashboardSavedSearches() {
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [saveSearchModalOpen, setSaveSearchModalOpen] = useState(false);
@@ -19,23 +57,7 @@ export function useDashboardSavedSearches() {
   useEffect(() => {
     const loadSavedSearches = async () => {
       try {
-        const searches = await safeInvoke<Array<{
-          id: string;
-          name: string;
-          sort_by: SortOption;
-          score_filter: ScoreFilter;
-          source_filter: string;
-          remote_filter: string;
-          bookmark_filter: string;
-          notes_filter: string;
-          posted_date_filter: PostedDateFilter | null;
-          salary_min_filter: number | null;
-          salary_max_filter: number | null;
-          ghost_filter: string | null;
-          text_search: string | null;
-          created_at: string;
-          last_used_at: string | null;
-        }>>('list_saved_searches', {}, {
+        const searches = await safeInvoke<BackendSavedSearch[]>('list_saved_searches', {}, {
           logContext: "Load saved searches",
           silent: true // Non-critical on mount
         });
@@ -44,17 +66,17 @@ export function useDashboardSavedSearches() {
           id: s.id,
           name: s.name,
           filters: {
-            sortBy: s.sort_by,
-            scoreFilter: s.score_filter,
-            sourceFilter: s.source_filter,
-            remoteFilter: s.remote_filter,
-            bookmarkFilter: s.bookmark_filter,
-            notesFilter: s.notes_filter,
-            postedDateFilter: s.posted_date_filter ?? undefined,
-            salaryMinFilter: s.salary_min_filter,
-            salaryMaxFilter: s.salary_max_filter,
+            sortBy: s.sortBy,
+            scoreFilter: s.scoreFilter,
+            sourceFilter: s.sourceFilter,
+            remoteFilter: s.remoteFilter,
+            bookmarkFilter: s.bookmarkFilter,
+            notesFilter: s.notesFilter,
+            postedDateFilter: s.postedDateFilter ?? undefined,
+            salaryMinFilter: s.salaryMinFilter,
+            salaryMaxFilter: s.salaryMaxFilter,
           },
-          createdAt: s.created_at,
+          createdAt: s.createdAt,
         }));
         setSavedSearches(transformed);
       } catch {
@@ -87,18 +109,9 @@ export function useDashboardSavedSearches() {
       const result = await safeInvoke<{
         id: string;
         name: string;
-        created_at: string;
+        createdAt: string;
       }>('create_saved_search', {
-        name: newSearchName.trim(),
-        sortBy: filters.sortBy,
-        scoreFilter: filters.scoreFilter,
-        sourceFilter: filters.sourceFilter,
-        remoteFilter: filters.remoteFilter,
-        bookmarkFilter: filters.bookmarkFilter,
-        notesFilter: filters.notesFilter,
-        postedDateFilter: filters.postedDateFilter,
-        salaryMinFilter: filters.salaryMinFilter,
-        salaryMaxFilter: filters.salaryMaxFilter,
+        search: toBackendSavedSearch(newSearchName.trim(), filters),
       }, {
         logContext: "Create saved search"
       });
@@ -107,7 +120,7 @@ export function useDashboardSavedSearches() {
         id: result.id,
         name: result.name,
         filters,
-        createdAt: result.created_at,
+        createdAt: result.createdAt,
       };
 
       setSavedSearches(prev => [newSearch, ...prev]);
@@ -151,22 +164,13 @@ export function useDashboardSavedSearches() {
         description: `Deleted search: ${deletedSearch.name}`,
         undo: async () => {
           // Re-create the saved search
-          const result = await invoke<{ id: string; name: string; created_at: string }>('create_saved_search', {
-            name: deletedSearch.name,
-            sortBy: deletedSearch.filters.sortBy,
-            scoreFilter: deletedSearch.filters.scoreFilter,
-            sourceFilter: deletedSearch.filters.sourceFilter,
-            remoteFilter: deletedSearch.filters.remoteFilter,
-            bookmarkFilter: deletedSearch.filters.bookmarkFilter,
-            notesFilter: deletedSearch.filters.notesFilter,
-            postedDateFilter: deletedSearch.filters.postedDateFilter,
-            salaryMinFilter: deletedSearch.filters.salaryMinFilter,
-            salaryMaxFilter: deletedSearch.filters.salaryMaxFilter,
+          const result = await invoke<{ id: string; name: string; createdAt: string }>('create_saved_search', {
+            search: toBackendSavedSearch(deletedSearch.name, deletedSearch.filters),
           });
           const restoredSearch: SavedSearch = {
             ...deletedSearch,
             id: result.id,
-            createdAt: result.created_at,
+            createdAt: result.createdAt,
           };
           setSavedSearches(prev => [restoredSearch, ...prev]);
         },

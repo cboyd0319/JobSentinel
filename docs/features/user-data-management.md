@@ -464,11 +464,19 @@ invoke("list_saved_searches");
 // {
 //   id: string,
 //   name: string,
-//   query: string,                    // Search query text
-//   filters: object,                  // Filter config
-//   last_used_at: string | null,
-//   created_at: string,
-//   updated_at: string
+//   sortBy: string,
+//   scoreFilter: string,
+//   sourceFilter: string,
+//   remoteFilter: string,
+//   bookmarkFilter: string,
+//   notesFilter: string,
+//   postedDateFilter: string | null,
+//   salaryMinFilter: number | null,
+//   salaryMaxFilter: number | null,
+//   ghostFilter: string | null,
+//   textSearch: string | null,
+//   createdAt: string,
+//   lastUsedAt: string | null
 // }
 ```
 
@@ -478,12 +486,22 @@ Create a new saved search.
 
 ```typescript
 invoke("create_saved_search", {
-  name: "SWE Remote 120k+",
-  query: "senior software engineer",
-  filters: {
-    remote_only: true,
-    min_salary: 120000,
-    job_types: ["Full-time"],
+  search: {
+    id: "",
+    name: "SWE Remote 120k+",
+    sortBy: "score-desc",
+    scoreFilter: "all",
+    sourceFilter: "all",
+    remoteFilter: "remote",
+    bookmarkFilter: "all",
+    notesFilter: "all",
+    postedDateFilter: "week",
+    salaryMinFilter: 120000,
+    salaryMaxFilter: null,
+    ghostFilter: null,
+    textSearch: "senior software engineer",
+    createdAt: "",
+    lastUsedAt: null,
   },
 });
 // Returns: SavedSearch (with generated id, timestamps)
