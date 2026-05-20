@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Validated ghost-job threshold command input so public IPC cannot query with out-of-range or non-finite ghost scores. |
 | 2026-05-20 | In progress | Added shared Tauri command limit validation across job, ghost, resume, market, automation, user-data, and health commands, with invoke-surface coverage for recurrence. |
 | 2026-05-20 | In progress | Validated Market Intelligence historical snapshot day ranges before integer conversion, with Tauri command-boundary sensor coverage. |
 | 2026-05-20 | In progress | Removed decorative emoji and stale indicator API names from Market Intelligence feature docs, with bloat coverage for recurrence. |
@@ -301,6 +302,9 @@ changes or Playwright-specific work.
   unvalidated `limit` values. Negative signed limits can make SQLite treat
   `LIMIT ?` as unlimited, and very large unsigned limits can wrap during signed
   SQL binding conversion.
+- `get_ghost_jobs` accepted raw `threshold` values even though ghost scores and
+  configuration thresholds are defined on a `0.0..=1.0` scale. Out-of-range
+  values could force misleading empty or over-broad result sets.
 - `ScoreBreakdownModal` sanitized scores only through callers, so direct use of
   the exported modal with `NaN` rendered `NaN%`.
 - `ScoreBreakdownModal` converted Tailwind color classes such as
@@ -336,6 +340,8 @@ changes or Playwright-specific work.
 - Validate all command-boundary `limit` inputs before querying, including
   optional defaults. Keep the shared command maximum at a bounded value unless
   a feature has a documented reason for a different limit.
+- Validate public score and threshold inputs at command boundaries before using
+  them in filters, even when the current UI sends safe defaults.
 - Keep feature docs aligned with live source names for frontend routes and IPC
   commands; stale future-work claims count as documentation bloat.
 - Do not document UI markers that are not present in source; describe current

@@ -8,6 +8,16 @@ use crate::core::ghost::GhostConfig;
 use serde_json::Value;
 use tauri::State;
 
+fn validate_ghost_threshold(threshold: Option<f64>) -> Result<f64, String> {
+    let threshold = threshold.unwrap_or(0.5);
+
+    if threshold.is_finite() && (0.0..=1.0).contains(&threshold) {
+        Ok(threshold)
+    } else {
+        Err("threshold must be between 0.0 and 1.0".to_string())
+    }
+}
+
 /// Get jobs flagged as potential ghost jobs
 ///
 /// Returns jobs with ghost_score >= threshold (default 0.5)
@@ -17,7 +27,7 @@ pub async fn get_ghost_jobs(
     limit: Option<i64>,
     state: State<'_, AppState>,
 ) -> Result<Vec<Value>, String> {
-    let threshold = threshold.unwrap_or(0.5);
+    let threshold = validate_ghost_threshold(threshold)?;
     let limit = validate_optional_command_limit_i64(limit, 100)?;
     tracing::info!(
         "Command: get_ghost_jobs (threshold: {}, limit: {})",
@@ -246,4 +256,32 @@ pub async fn clear_ghost_feedback(job_id: i64, state: State<'_, AppState>) -> Re
             tracing::error!("Failed to clear ghost feedback: {}", e);
             format!("Database error: {}", e)
         })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::validate_ghost_threshold;
+
+    #[test]
+    fn validates_default_ghost_threshold() {
+        assert_eq!(validate_ghost_threshold(None).unwrap(), 0.5);
+    }
+
+    #[test]
+    fn validates_explicit_ghost_threshold_range() {
+        assert_eq!(validate_ghost_threshold(Some(0.0)).unwrap(), 0.0);
+        assert_eq!(validate_ghost_threshold(Some(1.0)).unwrap(), 1.0);
+    }
+
+    #[test]
+    fn rejects_out_of_range_ghost_thresholds() {
+        assert!(validate_ghost_threshold(Some(-0.1)).is_err());
+        assert!(validate_ghost_threshold(Some(1.1)).is_err());
+    }
+
+    #[test]
+    fn rejects_non_finite_ghost_thresholds() {
+        assert!(validate_ghost_threshold(Some(f64::NAN)).is_err());
+        assert!(validate_ghost_threshold(Some(f64::INFINITY)).is_err());
+    }
 }
