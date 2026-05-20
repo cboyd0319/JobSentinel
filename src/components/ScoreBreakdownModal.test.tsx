@@ -189,6 +189,15 @@ describe("ScoreBreakdownModal", () => {
   });
 
   describe("score color coding", () => {
+    it("uses Tailwind classes for overall score color instead of invalid inline color", () => {
+      render(<ScoreBreakdownModal {...defaultProps} score={0.92} />);
+
+      const overallScore = screen.getByText("92%");
+
+      expect(overallScore).toHaveClass("text-green-600", "dark:text-green-400");
+      expect(overallScore).not.toHaveAttribute("style");
+    });
+
     it("applies green styling for high factor scores", () => {
       render(<ScoreBreakdownModal {...defaultProps} score={1.0} />);
 

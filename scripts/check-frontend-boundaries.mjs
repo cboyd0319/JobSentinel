@@ -64,6 +64,8 @@ const boundaryRules = [
 
 const dynamicTailwindClassPattern =
   /(?:^|[^A-Za-z0-9_-])(?:[a-z]+:)*(?:bg|text|border|ring|from|via|to|stroke|fill)-\$\{[^}]+}/;
+const tailwindTextClassToInlineColorPattern =
+  /style=\{\{\s*color:\s*[^}]*\.replace\(["']text-["'],\s*["']["']\)/s;
 
 function collectSourceFiles(root, dir = join(root, "src")) {
   const files = [];
@@ -158,6 +160,10 @@ function hasDynamicTailwindClassConstruction(text) {
   return dynamicTailwindClassPattern.test(text);
 }
 
+function hasTailwindTextClassToInlineColor(text) {
+  return tailwindTextClassToInlineColorPattern.test(text);
+}
+
 export function checkFrontendBoundaries(root = defaultRoot) {
   const srcRoot = join(root, "src");
   const violations = [];
@@ -169,6 +175,12 @@ export function checkFrontendBoundaries(root = defaultRoot) {
     if (hasDynamicTailwindClassConstruction(text)) {
       violations.push(
         `${relFile} constructs Tailwind class names with interpolation; use a static class map so Tailwind emits the CSS`,
+      );
+    }
+
+    if (hasTailwindTextClassToInlineColor(text)) {
+      violations.push(
+        `${relFile} converts Tailwind text classes into inline CSS color values; apply the Tailwind class directly or map to a real CSS color`,
       );
     }
 

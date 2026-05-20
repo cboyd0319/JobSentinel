@@ -45,3 +45,28 @@ export function DynamicCategory({ color }: { color: string }) {
     );
   });
 });
+
+test("checkFrontendBoundaries rejects Tailwind text classes converted to inline CSS colors", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/components/InvalidColor.tsx",
+      `
+export function InvalidColor({ colorClass }: { colorClass: string }) {
+  return <div style={{ color: colorClass.split(" ")[0]?.replace("text-", "") }}>Bad</div>;
+}
+`,
+    );
+
+    const violations = checkFrontendBoundaries(root);
+
+    assert.ok(
+      violations.some((violation) =>
+        violation.includes(
+          "src/components/InvalidColor.tsx converts Tailwind text classes into inline CSS color values",
+        ),
+      ),
+      violations.join("\n"),
+    );
+  });
+});

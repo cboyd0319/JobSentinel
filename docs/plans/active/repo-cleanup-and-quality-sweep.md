@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Fixed score-breakdown overall score color rendering that converted Tailwind text classes into invalid inline CSS colors, and added frontend boundary coverage for recurrence. |
 | 2026-05-20 | In progress | Corrected smart-scoring docs that promised a robot salary marker not present in the UI, with bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Corrected stale application-tracking docs that still marked Kanban UI and Tauri commands as future work, with bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Removed emoji status markers from scraper health docs and added bloat coverage for recurrence. |
@@ -280,6 +281,9 @@ changes or Playwright-specific work.
 - Smart-scoring docs claimed predicted salaries were marked with a robot icon,
   but the live score UI uses factor icons and score reasons, not a robot salary
   marker.
+- `ScoreBreakdownModal` converted Tailwind color classes such as
+  `text-green-600` into inline CSS values like `green-600`, which browsers do
+  not treat as valid colors.
 
 ## Decisions
 
@@ -303,6 +307,8 @@ changes or Playwright-specific work.
   commands; stale future-work claims count as documentation bloat.
 - Do not document UI markers that are not present in source; describe current
   data flow instead.
+- Apply Tailwind text color classes directly in React class strings; do not
+  derive inline CSS `color` values from utility class names.
 - Treat tracked `.gitkeep` files as bloat in this repo. Durable empty directory
   intent belongs in docs or in the commit that introduces real fixtures.
 - Treat removing bloat and junk as active repo work even though the earlier

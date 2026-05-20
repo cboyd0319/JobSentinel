@@ -163,7 +163,7 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
       <div className="space-y-6">
         {/* Overall Score */}
         <div className="text-center pb-4 border-b border-surface-200 dark:border-surface-700">
-          <div className="text-5xl font-bold font-mono mb-2" style={{ color: scoreLabel.color.split(" ")[0]?.replace("text-", "") ?? '' }}>
+          <div className={`text-5xl font-bold font-mono mb-2 ${scoreLabel.color}`}>
             {percentage}%
           </div>
           <div className={`text-lg font-semibold ${scoreLabel.color}`}>
