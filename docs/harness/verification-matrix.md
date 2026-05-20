@@ -14,6 +14,7 @@ behavior, security, storage, or release flow changes.
 | Tauri invoke command map | `npm run lint:tauri-invokes` and `npm run harness:check` |
 | Security sensor policy | `npm run lint:security` and `npm run harness:check` |
 | Test quality policy | `npm run lint:tests` and `npm run harness:check` |
+| Repo bloat policy | `npm run lint:bloat` and `npm run harness:check` |
 | Any claim of completion | Name exact checks run |
 
 ## Frontend

@@ -8,6 +8,7 @@ import {
   checkSecuritySensors,
   formatSecuritySensorSummary,
 } from "./check-security-sensors.mjs";
+import { checkRepoBloat } from "./check-repo-bloat.mjs";
 import { checkTauriInvokes } from "./check-tauri-invokes.mjs";
 import { checkTestQuality } from "./check-test-quality.mjs";
 
@@ -256,6 +257,10 @@ for (const violation of checkFrontendBoundaries(root)) {
 }
 
 for (const violation of checkSecuritySensors(root)) {
+  errors.push(violation);
+}
+
+for (const violation of checkRepoBloat(root)) {
   errors.push(violation);
 }
 

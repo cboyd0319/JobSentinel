@@ -54,6 +54,7 @@ Sensors:
 - Frontend architecture boundary checks.
 - Security sensor coverage checks.
 - Test quality checks for no-op, focused, and skipped unit tests.
+- Repo bloat checks for disposable artifacts and tracked generated output.
 - Vitest unit and integration tests.
 - Playwright E2E tests.
 - Rust formatting, clippy, and tests.
