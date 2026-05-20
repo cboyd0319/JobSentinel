@@ -84,6 +84,7 @@ changes or Playwright-specific work.
 | ---- | ------ | ----- |
 | 2026-05-20 | Active | Added removing bloat and junk as an explicit cleanup track. Current bloat sensor passes, so next pass must classify root clutter and nested stale content beyond disposable artifacts. |
 | 2026-05-20 | In progress | Classified current root entries in the bloat sensor allowlist, removed an unreferenced one-off cache test shell script, and added a guard against future nested `test_*.sh` helper drift outside `scripts/`. |
+| 2026-05-20 | In progress | Fixed resume matcher education lookup error handling so database failures no longer score as missing education. |
 
 ## Discoveries
 
@@ -101,6 +102,9 @@ changes or Playwright-specific work.
 - The scraper module had a stale pointer to `docs/CLAUDE.md` for restricted
   site alternatives; the maintained docs are `docs/user/DEEP_LINKS.md` and
   `docs/BOOKMARKLET.md`.
+- Resume-job matching was silently treating education lookup database failures
+  as absent education because the query used `.ok()??`; the matcher now
+  propagates lookup failures when a job declares an education requirement.
 
 ## Decisions
 

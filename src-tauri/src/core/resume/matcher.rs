@@ -6,7 +6,7 @@
 use super::skills::SkillExtractor;
 use super::types::{DegreeLevel, EducationRequirement, ExperienceRequirement};
 use super::{MatchResult, UserSkill};
-use anyhow::Result;
+use anyhow::{Context, Result};
 use chrono::Utc;
 use regex::Regex;
 use sqlx::{Row, SqlitePool};
@@ -380,7 +380,11 @@ impl JobMatcher {
         // Extract and calculate education match
         // For now, we'll try to detect user's education from their resume text
         let education_req = self.extract_education_requirements(&job_text);
-        let user_education = self.get_user_education(resume_id).await;
+        let user_education = if education_req.is_some() {
+            self.get_user_education(resume_id).await?
+        } else {
+            None
+        };
         let education_match_score =
             self.calculate_education_match(user_education, education_req.as_ref());
 
@@ -579,9 +583,9 @@ impl JobMatcher {
     }
 
     /// Get user's education level from their resume
-    async fn get_user_education(&self, resume_id: i64) -> Option<DegreeLevel> {
+    async fn get_user_education(&self, resume_id: i64) -> Result<Option<DegreeLevel>> {
         // Try to get education from parsed resume text
-        let row = sqlx::query(
+        let Some(row) = sqlx::query(
             r#"
             SELECT parsed_text
             FROM resumes
@@ -591,13 +595,17 @@ impl JobMatcher {
         .bind(resume_id)
         .fetch_optional(&self.db)
         .await
-        .ok()??;
+        .with_context(|| format!("failed to read education data for resume {resume_id}"))?
+        else {
+            return Ok(None);
+        };
 
-        let parsed_text: Option<String> = row.try_get("parsed_text").ok()?;
-        let text = parsed_text?;
+        let parsed_text: Option<String> = row
+            .try_get("parsed_text")
+            .with_context(|| format!("failed to decode parsed_text for resume {resume_id}"))?;
 
         // Extract education level from resume text
-        DegreeLevel::from_text(&text)
+        Ok(parsed_text.as_deref().and_then(DegreeLevel::from_text))
     }
 
     /// Get job by hash
@@ -1072,6 +1080,33 @@ mod tests {
 
         let skills = matcher.get_job_skills(job_hash).await.unwrap();
         assert_eq!(skills.len(), 0);
+    }
+
+    #[tokio::test]
+    async fn test_calculate_match_errors_when_education_lookup_fails() {
+        let pool = setup_test_db().await;
+        let matcher = JobMatcher::new(pool.clone());
+
+        let job_hash = "job_requires_degree";
+        create_test_job(&pool, job_hash).await;
+        sqlx::query("UPDATE jobs SET description = ? WHERE hash = ?")
+            .bind("Bachelor's degree required. Looking for Python developer.")
+            .bind(job_hash)
+            .execute(&pool)
+            .await
+            .unwrap();
+
+        sqlx::query("DROP TABLE resumes")
+            .execute(&pool)
+            .await
+            .unwrap();
+
+        let result = matcher.calculate_match(42, job_hash).await;
+
+        assert!(
+            result.is_err(),
+            "education lookup database failures must not be scored as missing education"
+        );
     }
 
     #[tokio::test]
