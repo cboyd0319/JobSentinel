@@ -1714,8 +1714,9 @@ async fn test_scraping_cycle_notification_error_handling() {
     // Run cycle - notification will fail if high-scoring job found
     let result = scheduler.run_scraping_cycle().await.unwrap();
 
-    // Should handle notification errors gracefully (always succeeds, errors accumulate in vec)
-    assert!(result.jobs_found >= 0);
+    // Should handle notification errors gracefully and keep result accounting consistent.
+    assert!(result.jobs_new <= result.jobs_found);
+    assert!(result.jobs_updated <= result.jobs_found);
 }
 
 // ========================================

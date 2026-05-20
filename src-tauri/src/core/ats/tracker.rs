@@ -4,7 +4,7 @@ use super::types::*;
 use anyhow::Result;
 use chrono::Utc;
 use serde_json::Value as JsonValue;
-use sqlx::SqlitePool;
+use sqlx::{Row, SqlitePool};
 
 /// Application tracker manager
 pub struct ApplicationTracker {
@@ -367,17 +367,17 @@ impl ApplicationTracker {
         }
 
         // Get applications by week for the last 12 weeks
-        let weekly_data = sqlx::query!(
+        let weekly_data = sqlx::query(
             r#"
             SELECT
-                strftime('%Y-%W', applied_at) as week,
+                strftime('%Y-%W', datetime(applied_at)) as week,
                 COUNT(*) as count
             FROM applications
             WHERE applied_at IS NOT NULL
-              AND applied_at >= datetime('now', '-12 weeks')
+              AND julianday(datetime(applied_at)) >= julianday('now', '-84 days')
             GROUP BY week
             ORDER BY week ASC
-            "#
+            "#,
         )
         .fetch_all(&self.db)
         .await?;
@@ -385,9 +385,11 @@ impl ApplicationTracker {
         stats.weekly_applications = weekly_data
             .into_iter()
             .filter_map(|row| {
-                row.week.map(|w| WeeklyData {
+                let week: Option<String> = row.try_get("week").ok()?;
+                let count: i64 = row.try_get("count").ok()?;
+                week.map(|w| WeeklyData {
                     week: w,
-                    count: row.count as i32,
+                    count: count as i32,
                 })
             })
             .collect();

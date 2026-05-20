@@ -1520,10 +1520,56 @@ async fn test_application_stats_weekly_data_with_null_week() {
         .await
         .unwrap();
 
+    let applied_at: Option<String> =
+        sqlx::query_scalar("SELECT applied_at FROM applications WHERE id = ?")
+            .bind(app_id)
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+    assert!(applied_at.is_some());
+
+    let sql_week: Option<String> = sqlx::query_scalar(
+        "SELECT strftime('%Y-%W', datetime(applied_at)) FROM applications WHERE id = ?",
+    )
+    .bind(app_id)
+    .fetch_one(&pool)
+    .await
+    .unwrap();
+    assert!(
+        sql_week.is_some(),
+        "applied_at should map to a SQLite week: {:?}",
+        applied_at
+    );
+
+    let applied_julian: Option<f64> =
+        sqlx::query_scalar("SELECT julianday(datetime(applied_at)) FROM applications WHERE id = ?")
+            .bind(app_id)
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+    let cutoff_julian: Option<f64> = sqlx::query_scalar("SELECT julianday('now', '-84 days')")
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+    let in_window: i64 = sqlx::query_scalar(
+        "SELECT COUNT(*) FROM applications WHERE id = ? AND julianday(datetime(applied_at)) >= julianday('now', '-84 days')",
+    )
+    .bind(app_id)
+    .fetch_one(&pool)
+    .await
+    .unwrap();
+    assert_eq!(
+        in_window, 1,
+        "applied_at should be in the 12-week window: applied_at={:?}, applied_julian={:?}, cutoff_julian={:?}",
+        applied_at, applied_julian, cutoff_julian
+    );
+
     let stats = tracker.get_application_stats().await.unwrap();
 
-    // Should have weekly data for current week (tests lines 769-771 filter_map)
-    assert!(stats.weekly_applications.len() >= 0);
+    // Should have weekly data for the current applied application.
+    assert_eq!(stats.weekly_applications.len(), 1);
+    assert_eq!(stats.weekly_applications[0].count, 1);
+    assert!(!stats.weekly_applications[0].week.is_empty());
 
     // Insert application with NULL applied_at to test filter_map on line 769
     sqlx::query("UPDATE applications SET applied_at = NULL WHERE id = ?")

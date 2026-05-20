@@ -1157,7 +1157,6 @@ mod tests {
 
     #[test]
     fn test_complete_payload_structure_with_mention() {
-        let notification = create_test_notification();
         let embed = json!({"title": "Test"});
         let mut payload = json!({"embeds": [embed]});
         payload["content"] = json!(format!("<@{}>", "987654321098765432"));

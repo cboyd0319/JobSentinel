@@ -101,8 +101,8 @@ mod tests {
     use super::*;
     use crate::core::deeplinks::RemoteType;
 
-    #[tokio::test]
-    async fn test_generate_deep_links_basic() {
+    #[test]
+    fn test_generate_deep_links_basic() {
         let criteria = SearchCriteria {
             query: "Software Engineer".to_string(),
             location: Some("San Francisco, CA".to_string()),
@@ -111,8 +111,11 @@ mod tests {
             remote_type: None,
         };
 
-        // Create mock app handle (this would fail in real tests without proper setup)
-        // In actual testing, we'd use integration tests with a real Tauri app
+        let links = generate_all_links(&criteria).unwrap();
+        assert!(!links.is_empty());
+        assert!(links
+            .iter()
+            .any(|link| link.url.contains("Software") && link.url.contains("Engineer")));
     }
 
     #[test]

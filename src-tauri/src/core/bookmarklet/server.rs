@@ -383,7 +383,7 @@ mod tests {
     #[tokio::test]
     async fn test_bookmarklet_server_lifecycle() {
         let config = BookmarkletConfig { port: 0 }; // Use random port
-        let mut server = BookmarkletServer::new(config);
+        let server = BookmarkletServer::new(config);
 
         assert!(!server.is_running());
 

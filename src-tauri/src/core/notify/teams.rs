@@ -1364,6 +1364,7 @@ mod tests {
             // Note: .round() on f64 produces "96.0", "80.0", etc (not "96", "80")
             let rounded_score = (score * 100.0_f64).round();
             let title = format!("🎯 High Match Job Alert ({}% Match)", rounded_score);
+            assert!(title.contains(expected_suffix));
             // Extract the numeric part from expected and compare with .0 suffix
             let expected_num = expected_suffix.trim_end_matches("% Match");
             let actual_num_str = format!("{}", rounded_score);
