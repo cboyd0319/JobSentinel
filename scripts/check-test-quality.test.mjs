@@ -44,3 +44,32 @@ mod tests {
     ]);
   });
 });
+
+test("checkTestQuality rejects temporarily disabled test blocks", () => {
+  withFixture((root) => {
+    const disabledMarker = "TEMPORARILY " + "DISABLED";
+    const noCommitMarker = "NO" + "COMMIT";
+    const reenableMarker = "Re-enable after " + "implementing";
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scoring/mod.rs",
+      `
+#[cfg(test)]
+mod tests {
+    // ${disabledMarker} - these tests depend on old behavior
+    /* // ${noCommitMarker}: ${reenableMarker} company matching
+    #[test]
+    fn skipped_behavior() {}
+    */
+}
+`,
+    );
+
+    const violations = checkTestQuality(root);
+
+    assert.deepEqual(violations, [
+      "src-tauri/src/core/scoring/mod.rs:4 contains temporarily disabled test block",
+      "src-tauri/src/core/scoring/mod.rs:5 contains temporarily disabled test block",
+    ]);
+  });
+});

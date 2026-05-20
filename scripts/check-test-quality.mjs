@@ -17,6 +17,14 @@ const ignoredPathParts = new Set([
   "test-results",
 ]);
 
+const disabledTestBlockPattern = new RegExp(
+  [
+    "TEMPORARILY " + "DISABLED",
+    "NO" + "COMMIT",
+    "Re-enable after " + "implementing",
+  ].join("|"),
+);
+
 const qualityRules = [
   {
     label: "no-op true assertion",
@@ -42,6 +50,11 @@ const qualityRules = [
     label: "skipped unit test",
     pattern: /\b(?:describe|it)\.skip\s*\(/,
     extensions: new Set([".js", ".jsx", ".mjs", ".ts", ".tsx"]),
+  },
+  {
+    label: "temporarily disabled test block",
+    pattern: disabledTestBlockPattern,
+    extensions: new Set([".js", ".jsx", ".mjs", ".rs", ".ts", ".tsx"]),
   },
 ];
 

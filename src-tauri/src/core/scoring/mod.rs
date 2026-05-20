@@ -1844,10 +1844,6 @@ mod tests {
         );
     }
 
-    // ========== Company Scoring Tests ==========
-    // TEMPORARILY DISABLED - these tests depend on unimplemented fuzzy matching functions
-    /* // NOCOMMIT: Re-enable after implementing company fuzzy matching
-
     #[test]
     fn test_company_blacklist() {
         let mut config = create_test_config();
@@ -1880,12 +1876,15 @@ mod tests {
         let score = engine.score(&job);
 
         // Should get 1.5x bonus (0.10 * 1.5 = 0.15)
-        assert_eq!(
-            score.breakdown.company, 0.15,
+        assert!(
+            (score.breakdown.company - 0.15).abs() < 0.001,
             "Whitelisted company should get 1.5x bonus"
         );
         assert!(
-            score.reasons.iter().any(|r| r.contains("preferred") && r.contains("+50% bonus")),
+            score
+                .reasons
+                .iter()
+                .any(|r| r.contains("preferred") && r.contains("+50% bonus")),
             "Should have preferred reason with bonus, got: {:?}",
             score.reasons
         );
@@ -1903,8 +1902,8 @@ mod tests {
         let score = engine.score(&job);
 
         // Should get full base score
-        assert_eq!(
-            score.breakdown.company, 0.10,
+        assert!(
+            (score.breakdown.company - 0.10).abs() < 0.001,
             "Neutral company should get base score"
         );
         assert!(
@@ -1923,12 +1922,15 @@ mod tests {
         let score = engine.score(&job);
 
         // Should get full base score
-        assert_eq!(
-            score.breakdown.company, 0.10,
+        assert!(
+            (score.breakdown.company - 0.10).abs() < 0.001,
             "Should get base score with no preferences configured"
         );
         assert!(
-            score.reasons.iter().any(|r| r.contains("No company preferences configured")),
+            score
+                .reasons
+                .iter()
+                .any(|r| r.contains("No company preferences configured")),
             "Should have no preferences reason, got: {:?}",
             score.reasons
         );
@@ -1944,8 +1946,8 @@ mod tests {
         let engine = ScoringEngine::new(Arc::new(config));
         let score = engine.score(&job);
 
-        assert_eq!(
-            score.breakdown.company, 0.15,
+        assert!(
+            (score.breakdown.company - 0.15).abs() < 0.001,
             "Case-insensitive fuzzy match should work"
         );
     }
@@ -1968,7 +1970,7 @@ mod tests {
 
         for company_name in test_cases {
             job.company = company_name.to_string();
-            let engine = ScoringEngine::new(Arc::clone(&Arc::new(config.clone())));
+            let engine = ScoringEngine::new(Arc::new(config.clone()));
             let score = engine.score(&job);
 
             assert_eq!(
@@ -1978,7 +1980,6 @@ mod tests {
             );
         }
     }
-    */
 
     #[test]
     fn test_company_partial_match() {

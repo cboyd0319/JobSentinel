@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Re-enabled company scoring tests that were still commented out after fuzzy matching landed, and added test-quality coverage for temporarily disabled test blocks. |
 | 2026-05-20 | In progress | Replaced roadmap status emoji with text-only statuses and added bloat coverage to keep active roadmap status rows ASCII. |
 | 2026-05-20 | In progress | Corrected local-first architecture wording and roadmap statuses for shipped importer, deep-link, and bookmarklet features; bloat sensor now catches stale shipped-feature roadmap statuses. |
 | 2026-05-20 | In progress | Corrected stale scheduler worker paths and removed fixed refactor-priority snapshots from setup docs; bloat sensor now catches those drift patterns. |
@@ -228,6 +229,9 @@ changes or Playwright-specific work.
   planned even though source modules, commands, and UI entrypoints exist.
 - The active roadmap still used emoji status markers, which conflicted with the
   repo instruction to keep maintained docs emoji-free.
+- Company scoring tests still had a temporary-disabled / no-commit
+  commented block even though company fuzzy matching had already been
+  implemented.
 
 ## Decisions
 
@@ -255,6 +259,8 @@ changes or Playwright-specific work.
   is already shipped.
 - Keep active roadmap status markers as plain text so status tables stay
   searchable, accessible, and aligned with repo doc rules.
+- Treat commented-out temporary test blocks as test bloat; restore the coverage
+  or delete it, then guard against reintroducing it.
 - Keep the exact total Tauri command count only in canonical summary claims
   guarded by `npm run lint:tauri-invokes`; remove exact module sub-counts from
   overview docs unless a sensor owns them.
