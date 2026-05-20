@@ -1,123 +1,129 @@
-import { Page, Locator } from "@playwright/test";
+import { Locator } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
 /**
- * Settings page object
+ * Settings modal page object.
  */
 export class SettingsPage extends BasePage {
-  constructor(page: Page) {
-    super(page);
-  }
-
   async navigateTo() {
     await this.goto("/");
     await this.skipSetupWizard();
-
-    // Open settings - usually via gear icon or keyboard shortcut
-    const settingsButton = this.page.locator(
-      "[data-testid='btn-settings'], button[aria-label*='settings' i]"
-    );
-    if (await settingsButton.isVisible().catch(() => false)) {
-      await settingsButton.click();
-    } else {
-      // Try keyboard shortcut
-      await this.page.keyboard.press("Meta+,");
-    }
-
-    await this.waitForReady();
-    await this.page
-      .getByRole("heading", { name: "Settings" })
-      .waitFor({ state: "visible", timeout: 15000 });
+    await this.page.getByRole("button", { name: "Open settings" }).click();
+    await this.dialog.waitFor({ state: "visible", timeout: 15000 });
   }
 
-  get generalTab(): Locator {
-    return this.page.locator(
-      "[data-testid='tab-general'], button:has-text('Basic Settings')"
-    );
+  get dialog(): Locator {
+    return this.page.getByRole("dialog", { name: "Settings" });
   }
 
-  get notificationsTab(): Locator {
-    return this.page.locator("[data-testid='tab-notifications'], button:has-text('Notifications')");
-  }
-
-  get privacyTab(): Locator {
-    return this.page.locator("[data-testid='tab-privacy'], button:has-text('Privacy')");
+  get basicTab(): Locator {
+    return this.dialog.getByRole("tab", { name: "Basic Settings" });
   }
 
   get advancedTab(): Locator {
-    return this.page.locator(
-      "[data-testid='tab-advanced'], button:has-text('Advanced Settings')"
-    );
+    return this.dialog.getByRole("tab", { name: "Advanced Settings" });
   }
 
   get saveButton(): Locator {
-    return this.page.locator("[data-testid='btn-save-settings'], button:has-text('Save')");
+    return this.dialog.getByRole("button", { name: "Save Changes" });
   }
 
-  get resetButton(): Locator {
-    return this.page.locator("[data-testid='btn-reset-settings'], button:has-text('Reset')");
+  get cancelButton(): Locator {
+    return this.dialog.getByRole("button", { name: "Cancel" });
   }
 
-  get successMessage(): Locator {
-    return this.page.locator("[data-testid='settings-success']");
+  get closeButton(): Locator {
+    return this.dialog.getByRole("button", { name: "Close settings" });
   }
 
-  async switchTab(tab: "general" | "notifications" | "privacy" | "advanced") {
-    const tabMap = {
-      general: this.generalTab,
-      notifications: this.notificationsTab,
-      privacy: this.privacyTab,
-      advanced: this.advancedTab,
-    };
-
-    await tabMap[tab].click();
-    await this.waitForReady();
+  get titleInput(): Locator {
+    return this.dialog.getByPlaceholder("Add a job title...");
   }
 
-  async updateSetting(name: string, value: string | boolean) {
-    const input = this.page.locator(`input[name="${name}"]`);
+  get skillInput(): Locator {
+    return this.dialog.getByPlaceholder("Add a skill...");
+  }
 
-    if (typeof value === "boolean") {
-      // Checkbox or toggle
-      const isChecked = await input.isChecked().catch(() => false);
-      if (isChecked !== value) {
-        await input.click();
-      }
-    } else {
-      // Text input
-      await input.fill(value);
+  get minimumSalaryInput(): Locator {
+    return this.dialog.getByPlaceholder("e.g., 60000");
+  }
+
+  get targetSalaryInput(): Locator {
+    return this.dialog.getByPlaceholder("e.g., 100000");
+  }
+
+  get remoteCheckbox(): Locator {
+    return this.dialog.getByLabel("Remote", { exact: true });
+  }
+
+  get hybridCheckbox(): Locator {
+    return this.dialog.getByLabel("Hybrid", { exact: true });
+  }
+
+  get onsiteCheckbox(): Locator {
+    return this.dialog.getByLabel("On-site", { exact: true });
+  }
+
+  get slackWebhookInput(): Locator {
+    return this.dialog.getByPlaceholder(/Slack webhook URL/i);
+  }
+
+  get fromEmailInput(): Locator {
+    return this.dialog.locator("input[autocomplete='email']").nth(1);
+  }
+
+  get toEmailInput(): Locator {
+    return this.dialog.locator("input[placeholder='you@email.com']");
+  }
+
+  get backupButton(): Locator {
+    return this.dialog.getByRole("button", { name: "Backup Settings" });
+  }
+
+  get restoreButton(): Locator {
+    return this.dialog.getByRole("button", { name: "Restore Settings" });
+  }
+
+  get feedbackButton(): Locator {
+    return this.dialog.getByRole("button", { name: "Send Feedback" });
+  }
+
+  async switchTab(tab: "basic" | "advanced") {
+    await (tab === "basic" ? this.basicTab : this.advancedTab).click();
+    await this.dialog
+      .getByRole("tabpanel")
+      .filter({ hasText: tab === "basic" ? "Job Titles You Want" : "Get Notified" })
+      .waitFor({ state: "visible", timeout: 5000 });
+  }
+
+  section(name: string | RegExp): Locator {
+    return this.dialog.locator("section").filter({ hasText: name }).first();
+  }
+
+  async addListValue(sectionName: string | RegExp, value: string) {
+    const section = this.section(sectionName);
+    await section.locator("input").first().fill(value);
+    await section.getByRole("button", { name: "Add" }).click();
+  }
+
+  async removeBadge(value: string) {
+    await this.dialog.getByRole("button", { name: `Remove ${value}` }).click();
+  }
+
+  async setCheckbox(locator: Locator, checked: boolean) {
+    if ((await locator.isChecked()) !== checked) {
+      await locator.click();
     }
+  }
+
+  async toggleEmailAlerts() {
+    await this.section("Email Alerts").locator("input[type='checkbox']").first().click({
+      force: true,
+    });
   }
 
   async saveSettings() {
     await this.saveButton.click();
-    await this.waitForReady();
-  }
-
-  async resetSettings() {
-    await this.resetButton.click();
-
-    // Handle confirmation dialog
-    const confirmButton = this.page.locator("button:has-text('Reset'), button:has-text('Confirm')");
-    if (await confirmButton.isVisible().catch(() => false)) {
-      await confirmButton.click();
-    }
-
-    await this.waitForReady();
-  }
-
-  async hasSuccessMessage(): Promise<boolean> {
-    return await this.successMessage.isVisible().catch(() => false);
-  }
-
-  async getSettingValue(name: string): Promise<string | boolean> {
-    const input = this.page.locator(`input[name="${name}"]`);
-    const inputType = await input.getAttribute("type");
-
-    if (inputType === "checkbox") {
-      return await input.isChecked();
-    }
-
-    return (await input.inputValue()) || "";
+    await this.dialog.waitFor({ state: "hidden", timeout: 10000 });
   }
 }

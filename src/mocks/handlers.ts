@@ -28,7 +28,29 @@ interface MockApplication {
 }
 type MockApplications = Record<MockApplicationStatus, MockApplication[]>;
 type MockPendingReminder = typeof mockPendingReminders[number];
+type MockCredentialKey =
+  | "slack_webhook"
+  | "smtp_password"
+  | "linkedin_cookie"
+  | "discord_webhook"
+  | "teams_webhook"
+  | "telegram_bot_token"
+  | "usajobs_api_key";
 const APPLICATION_STATUS_KEYS = Object.keys(mockApplications) as MockApplicationStatus[];
+
+interface MockGhostConfig {
+  stale_threshold_days: number;
+  repost_threshold: number;
+  min_description_length: number;
+  penalize_missing_salary: boolean;
+  warning_threshold: number;
+  hide_threshold: number;
+}
+
+interface MockBookmarkletConfig {
+  port: number;
+  enabled: boolean;
+}
 
 interface MockInterview {
   id: number;
@@ -55,6 +77,12 @@ let config = { ...mockConfig };
 let interviews: MockInterview[] = [...mockUpcomingInterviews];
 let applications: MockApplications = cloneApplications(mockApplications);
 let pendingReminders: MockPendingReminder[] = [...mockPendingReminders];
+let credentials: Partial<Record<MockCredentialKey, string>> = {};
+let ghostConfig: MockGhostConfig = getDefaultGhostConfig();
+let bookmarkletConfig: MockBookmarkletConfig = {
+  port: 4321,
+  enabled: false,
+};
 
 const MOCK_STATE_KEY = "jobsentinel.mockState.v1";
 
@@ -64,6 +92,9 @@ interface MockState {
   interviews: MockInterview[];
   applications: MockApplications;
   pendingReminders: MockPendingReminder[];
+  credentials: Partial<Record<MockCredentialKey, string>>;
+  ghostConfig: MockGhostConfig;
+  bookmarkletConfig: MockBookmarkletConfig;
 }
 
 function canUseStorage(): boolean {
@@ -82,6 +113,9 @@ function saveMockState(): void {
     interviews,
     applications,
     pendingReminders,
+    credentials,
+    ghostConfig,
+    bookmarkletConfig,
   };
   window.localStorage.setItem(MOCK_STATE_KEY, JSON.stringify(state));
 }
@@ -104,6 +138,15 @@ function loadMockState(): void {
     }
     if (Array.isArray(state.pendingReminders)) {
       pendingReminders = state.pendingReminders;
+    }
+    if (state.credentials && typeof state.credentials === "object") {
+      credentials = state.credentials;
+    }
+    if (state.ghostConfig && typeof state.ghostConfig === "object") {
+      ghostConfig = { ...getDefaultGhostConfig(), ...state.ghostConfig };
+    }
+    if (state.bookmarkletConfig && typeof state.bookmarkletConfig === "object") {
+      bookmarkletConfig = { ...bookmarkletConfig, ...state.bookmarkletConfig };
     }
   } catch {
     window.localStorage.removeItem(MOCK_STATE_KEY);
@@ -129,6 +172,33 @@ function normalizeApplications(
     acc[status] = apps.map((application) => ({ ...application }));
     return acc;
   }, {} as MockApplications);
+}
+
+function getDefaultGhostConfig(): MockGhostConfig {
+  return {
+    stale_threshold_days: 60,
+    repost_threshold: 3,
+    min_description_length: 200,
+    penalize_missing_salary: false,
+    warning_threshold: 0.3,
+    hide_threshold: 0.7,
+  };
+}
+
+function isCredentialKey(value: unknown): value is MockCredentialKey {
+  return (
+    value === "slack_webhook" ||
+    value === "smtp_password" ||
+    value === "linkedin_cookie" ||
+    value === "discord_webhook" ||
+    value === "teams_webhook" ||
+    value === "telegram_bot_token" ||
+    value === "usajobs_api_key"
+  );
+}
+
+function getArrayLength(value: unknown): number {
+  return Array.isArray(value) ? value.length : 0;
 }
 
 function getJobId(args?: Record<string, unknown>): number | undefined {
@@ -266,6 +336,136 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       config = { ...config, ...(getArg(args, "config") as object) };
       saveMockState();
       return undefined as T;
+
+    case "has_credential": {
+      const key = getArg(args, "key");
+      return (isCredentialKey(key) && Boolean(credentials[key])) as T;
+    }
+
+    case "store_credential": {
+      const key = getArg(args, "key");
+      const value = getArg(args, "value");
+      if (isCredentialKey(key) && typeof value === "string") {
+        credentials[key] = value;
+        saveMockState();
+      }
+      return undefined as T;
+    }
+
+    case "retrieve_credential": {
+      const key = getArg(args, "key");
+      return (isCredentialKey(key) ? credentials[key] ?? null : null) as T;
+    }
+
+    case "disconnect_linkedin":
+      delete credentials.linkedin_cookie;
+      config = {
+        ...config,
+        linkedin: { ...config.linkedin, enabled: false },
+      };
+      saveMockState();
+      return undefined as T;
+
+    case "linkedin_login":
+      credentials.linkedin_cookie = "mock-linkedin-session";
+      config = {
+        ...config,
+        linkedin: { ...config.linkedin, enabled: true },
+      };
+      saveMockState();
+      return undefined as T;
+
+    case "get_linkedin_expiry_status":
+      return {
+        connected: Boolean(credentials.linkedin_cookie),
+        expires_at: credentials.linkedin_cookie
+          ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+          : null,
+        days_remaining: credentials.linkedin_cookie ? 7 : null,
+        expiry_warning: false,
+        expired: false,
+      } as T;
+
+    case "detect_location":
+      return {
+        city: "Denver",
+        region: "CO",
+        country: "US",
+        timezone: "America/Denver",
+      } as T;
+
+    case "get_ghost_config":
+      return ghostConfig as T;
+
+    case "set_ghost_config":
+      ghostConfig = {
+        ...ghostConfig,
+        ...(getArg(args, "config") as Partial<MockGhostConfig>),
+      };
+      saveMockState();
+      return undefined as T;
+
+    case "reset_ghost_config":
+      ghostConfig = getDefaultGhostConfig();
+      saveMockState();
+      return undefined as T;
+
+    case "validate_slack_webhook":
+    case "test_email_notification":
+      return undefined as T;
+
+    case "get_bookmarklet_config":
+      return bookmarkletConfig as T;
+
+    case "start_bookmarklet_server": {
+      const port = getNumericArg(args, "port") ?? bookmarkletConfig.port;
+      bookmarkletConfig = { port, enabled: true };
+      saveMockState();
+      return undefined as T;
+    }
+
+    case "stop_bookmarklet_server":
+      bookmarkletConfig = { ...bookmarkletConfig, enabled: false };
+      saveMockState();
+      return undefined as T;
+
+    case "set_bookmarklet_port": {
+      const port = getNumericArg(args, "port") ?? bookmarkletConfig.port;
+      bookmarkletConfig = { ...bookmarkletConfig, port };
+      saveMockState();
+      return undefined as T;
+    }
+
+    case "get_system_info":
+      return {
+        app_version: "dev",
+        platform: "mock",
+        os_version: "browser",
+        arch: "wasm",
+      } as T;
+
+    case "get_config_summary":
+      {
+        const configWithCompanies = config as {
+          company_blacklist?: unknown;
+          company_whitelist?: unknown;
+        };
+        return {
+          scrapers_enabled: 3,
+          keywords_count: config.keywords_boost.length,
+          has_location_prefs: config.location_preferences.cities.length > 0,
+          has_salary_prefs: config.salary_floor_usd > 0,
+          has_company_blocklist:
+            getArrayLength(configWithCompanies.company_blacklist) > 0,
+          has_company_allowlist:
+            getArrayLength(configWithCompanies.company_whitelist) > 0,
+          notifications_configured: Number(config.alerts.email?.enabled ?? false),
+          has_resume: false,
+        } as T;
+      }
+
+    case "get_debug_log_events":
+      return [] as T;
 
     // Statistics commands
     case "get_statistics":
@@ -583,5 +783,11 @@ export function resetMockData() {
   interviews = [...mockUpcomingInterviews];
   applications = cloneApplications(mockApplications);
   pendingReminders = [...mockPendingReminders];
+  credentials = {};
+  ghostConfig = getDefaultGhostConfig();
+  bookmarkletConfig = {
+    port: 4321,
+    enabled: false,
+  };
   saveMockState();
 }

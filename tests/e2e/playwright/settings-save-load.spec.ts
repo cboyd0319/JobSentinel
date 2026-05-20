@@ -5,434 +5,168 @@ test.describe("Settings Save and Load", () => {
   let settingsPage: SettingsPage;
 
   test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      if (!sessionStorage.getItem("settings-e2e-reset")) {
+        localStorage.removeItem("jobsentinel.mockState.v1");
+        sessionStorage.setItem("settings-e2e-reset", "true");
+      }
+    });
     settingsPage = new SettingsPage(page);
     await settingsPage.navigateTo();
   });
 
-  test.describe("Settings Navigation", () => {
-    test("should open settings page", async () => {
-      // Settings modal or page should be visible
-      const hasGeneralTab = await settingsPage.generalTab.isVisible().catch(() => false);
-      const settingsHeading = settingsPage.page.locator("text=Settings, h1:has-text('Settings')");
-      const hasHeading = await settingsHeading.isVisible().catch(() => false);
-
-      expect(hasGeneralTab || hasHeading).toBeTruthy();
+  test.describe("Navigation", () => {
+    test("opens settings modal on the dashboard", async () => {
+      await expect(settingsPage.dialog).toBeVisible();
+      await expect(settingsPage.basicTab).toHaveAttribute("aria-selected", "true");
+      await expect(settingsPage.saveButton).toBeVisible();
     });
 
-    test("should display all settings tabs", async () => {
-      const hasGeneral = await settingsPage.generalTab.isVisible().catch(() => false);
-      const hasNotifications = await settingsPage.notificationsTab.isVisible().catch(() => false);
-      const hasPrivacy = await settingsPage.privacyTab.isVisible().catch(() => false);
-      const hasAdvanced = await settingsPage.advancedTab.isVisible().catch(() => false);
+    test("switches between basic and advanced tabs", async () => {
+      await settingsPage.switchTab("advanced");
 
-      // Should have at least general settings
-      expect(hasGeneral || hasNotifications || hasPrivacy || hasAdvanced).toBeTruthy();
+      await expect(settingsPage.advancedTab).toHaveAttribute("aria-selected", "true");
+      await expect(settingsPage.dialog).toContainText("Get Notified");
+
+      await settingsPage.switchTab("basic");
+
+      await expect(settingsPage.basicTab).toHaveAttribute("aria-selected", "true");
+      await expect(settingsPage.dialog).toContainText("Job Titles You Want");
     });
 
-    test("should switch between tabs", async ({ page }) => {
-      const hasGeneralTab = await settingsPage.generalTab.isVisible().catch(() => false);
-      const hasNotificationsTab = await settingsPage.notificationsTab.isVisible().catch(() => false);
-
-      if (!hasGeneralTab || !hasNotificationsTab) {
-        test.skip();
-        return;
-      }
-
-      // Start on general tab
-      await settingsPage.switchTab("general");
-      await page.waitForTimeout(300);
-
-      // Switch to notifications
-      await settingsPage.switchTab("notifications");
-      await page.waitForTimeout(300);
-
-      // Notifications tab should be active
-      const notificationsContent = page.locator("text=Notification, text=Email, text=Alert");
-      const hasNotifications = await notificationsContent.first().isVisible().catch(() => false);
-
-      expect(hasNotifications).toBeTruthy();
+    test("closes settings from the header close control", async () => {
+      await settingsPage.closeButton.click();
+      await expect(settingsPage.dialog).toBeHidden();
     });
   });
 
-  test.describe("General Settings", () => {
-    test.beforeEach(async ({ page }) => {
-      const hasGeneralTab = await settingsPage.generalTab.isVisible().catch(() => false);
-      if (hasGeneralTab) {
-        await settingsPage.switchTab("general");
-        await page.waitForTimeout(300);
-      }
+  test.describe("Basic Settings", () => {
+    test("loads core job-search defaults", async () => {
+      await expect(settingsPage.dialog).toContainText("SEO Manager");
+      await expect(settingsPage.dialog).toContainText("Google Analytics");
+      await expect(settingsPage.minimumSalaryInput).toHaveValue("80000");
+      await expect(settingsPage.remoteCheckbox).toBeChecked();
+      await expect(settingsPage.hybridCheckbox).toBeChecked();
+      await expect(settingsPage.onsiteCheckbox).toBeChecked();
     });
 
-    test("should display general settings form", async ({ page }) => {
-      // Check for common settings inputs
-      const inputs = page.locator("input, select, textarea");
-      const inputCount = await inputs.count();
+    test("adds and removes a desired job title", async () => {
+      await settingsPage.addListValue("Job Titles You Want", "Principal Product Manager");
 
-      expect(inputCount).toBeGreaterThan(0);
+      await expect(settingsPage.dialog).toContainText("Principal Product Manager");
+
+      await settingsPage.removeBadge("Principal Product Manager");
+
+      await expect(settingsPage.dialog).not.toContainText("Principal Product Manager");
     });
 
-    test("should update text setting", async ({ page }) => {
-      const nameInput = page.locator("input[name='name'], input[placeholder*='name' i]");
+    test("updates work-style preferences", async () => {
+      await settingsPage.setCheckbox(settingsPage.remoteCheckbox, false);
+      await settingsPage.setCheckbox(settingsPage.hybridCheckbox, true);
+      await settingsPage.setCheckbox(settingsPage.onsiteCheckbox, false);
 
-      if (!(await nameInput.first().isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await settingsPage.updateSetting("name", "John Doe");
-      await expect(nameInput.first()).toHaveValue("John Doe");
+      await expect(settingsPage.remoteCheckbox).not.toBeChecked();
+      await expect(settingsPage.hybridCheckbox).toBeChecked();
+      await expect(settingsPage.onsiteCheckbox).not.toBeChecked();
     });
 
-    test("should toggle boolean setting", async ({ page }) => {
-      const toggles = page.locator("input[type='checkbox']");
+    test("updates salary preferences", async () => {
+      await settingsPage.minimumSalaryInput.fill("95000");
+      await settingsPage.targetSalaryInput.fill("145000");
 
-      if ((await toggles.count()) === 0) {
-        test.skip();
-        return;
-      }
-
-      const firstToggle = toggles.first();
-      const initialState = await firstToggle.isChecked();
-
-      await firstToggle.click();
-      await page.waitForTimeout(200);
-
-      const finalState = await firstToggle.isChecked();
-      expect(finalState).not.toBe(initialState);
+      await expect(settingsPage.minimumSalaryInput).toHaveValue("95000");
+      await expect(settingsPage.targetSalaryInput).toHaveValue("145000");
     });
 
-    test("should update dropdown setting", async ({ page }) => {
-      const selects = page.locator("select");
-
-      if ((await selects.count()) === 0) {
-        test.skip();
-        return;
-      }
-
-      const firstSelect = selects.first();
-      const options = firstSelect.locator("option");
-      const optionCount = await options.count();
-
-      if (optionCount < 2) {
-        test.skip();
-        return;
-      }
-
-      // Select second option
-      await firstSelect.selectOption({ index: 1 });
-      await page.waitForTimeout(200);
-
-      const selectedValue = await firstSelect.inputValue();
-      expect(selectedValue).toBeTruthy();
-    });
-  });
-
-  test.describe("Save Settings", () => {
-    test("should save settings successfully", async ({ page }) => {
-      const hasSaveButton = await settingsPage.saveButton.isVisible().catch(() => false);
-
-      if (!hasSaveButton) {
-        test.skip();
-        return;
-      }
-
-      // Make a change
-      const nameInput = page.locator("input[name='name'], input[placeholder*='name' i]");
-      if (await nameInput.first().isVisible().catch(() => false)) {
-        await settingsPage.updateSetting("name", "Test User");
-      }
+    test("persists saved basic settings after reopening", async () => {
+      await settingsPage.addListValue("Job Titles You Want", "Staff Designer");
+      await settingsPage.minimumSalaryInput.fill("99000");
+      await settingsPage.setCheckbox(settingsPage.remoteCheckbox, false);
 
       await settingsPage.saveSettings();
-      await page.waitForTimeout(1000);
+      await settingsPage.navigateTo();
 
-      // Should show success message
-      const hasSuccess = await settingsPage.hasSuccessMessage();
-      const successToast = page
-        .getByText(/settings saved|saved|success/i)
-        .first();
-      const hasToast = await successToast.isVisible({ timeout: 3000 }).catch(() => false);
+      await expect(settingsPage.dialog).toContainText("Staff Designer");
+      await expect(settingsPage.minimumSalaryInput).toHaveValue("99000");
+      await expect(settingsPage.remoteCheckbox).not.toBeChecked();
+    });
+  });
 
-      expect(hasSuccess || hasToast).toBeTruthy();
+  test.describe("Advanced Settings", () => {
+    test.beforeEach(async () => {
+      await settingsPage.switchTab("advanced");
     });
 
-    test("should persist settings after save", async ({ page }) => {
-      const hasSaveButton = await settingsPage.saveButton.isVisible().catch(() => false);
+    test("loads notification, source, and backup controls", async () => {
+      await expect(settingsPage.dialog).toContainText("Slack Notifications");
+      await expect(settingsPage.dialog).toContainText("Email Alerts");
+      await expect(settingsPage.dialog).toContainText("Desktop Notifications");
+      await expect(settingsPage.dialog).toContainText("Ghost Detection Settings");
+      await expect(settingsPage.backupButton).toBeVisible();
+      await expect(settingsPage.restoreButton).toBeVisible();
+      await expect(settingsPage.feedbackButton).toBeVisible();
+    });
 
-      if (!hasSaveButton) {
-        test.skip();
-        return;
-      }
+    test("toggles email alerts and validates email fields", async () => {
+      await settingsPage.toggleEmailAlerts();
 
-      const nameInput = page.locator("input[name='name'], input[placeholder*='name' i]");
-      if (!(await nameInput.first().isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
+      await expect(settingsPage.dialog.getByText("Quick setup:")).toBeVisible();
 
-      // Set and save value
-      const testValue = "Persisted User";
-      await settingsPage.updateSetting("name", testValue);
+      await settingsPage.fromEmailInput.fill("invalid-email");
+
+      await expect(settingsPage.dialog).toContainText("Please enter a valid email address");
+
+      await settingsPage.fromEmailInput.fill("sender@example.com");
+      await settingsPage.toEmailInput.fill("alerts@example.com");
+
+      await expect(settingsPage.dialog).not.toContainText("Please enter a valid email address");
+    });
+
+    test("stores Slack webhook status after saving", async () => {
+      await settingsPage.slackWebhookInput.fill("https://hooks.slack.com/services/T000/B000/secret");
+
       await settingsPage.saveSettings();
-      await page.waitForTimeout(1000);
+      await settingsPage.navigateTo();
+      await settingsPage.switchTab("advanced");
 
-      // Reload page
-      await settingsPage.goto("/");
-      await settingsPage.skipSetupWizard();
+      await expect(settingsPage.section("Slack Notifications")).toContainText(/Stored in|Enter new webhook/i);
+    });
+
+    test("updates ghost detection settings", async () => {
+      const ghostSection = settingsPage.section("Ghost Detection Settings");
+      await ghostSection.getByRole("button", { name: /Custom/ }).click();
+      const staleThresholdInput = ghostSection.locator("input[type='number']").first();
+
+      await staleThresholdInput.fill("45");
+      await ghostSection.getByRole("button", { name: "Save Settings" }).click();
+
+      await expect(settingsPage.page.getByText("Ghost Detection Settings Saved")).toBeVisible();
+      await expect(staleThresholdInput).toHaveValue("45");
+    });
+
+    test("resets ghost detection settings to defaults", async () => {
+      const ghostSection = settingsPage.section("Ghost Detection Settings");
+      await ghostSection.getByRole("button", { name: /Custom/ }).click();
+      const staleThresholdInput = ghostSection.locator("input[type='number']").first();
+
+      await staleThresholdInput.fill("45");
+      await ghostSection.getByRole("button", { name: "Reset to Defaults" }).click();
+
+      await expect(staleThresholdInput).toHaveValue("60");
+    });
+  });
+
+  test.describe("Recovery", () => {
+    test("reloads defaults after mock storage is cleared", async ({ page }) => {
+      await page.evaluate(() => {
+        localStorage.removeItem("jobsentinel.mockState.v1");
+        sessionStorage.clear();
+      });
+
       await settingsPage.navigateTo();
 
-      // Value should persist
-      const persistedValue = await settingsPage.getSettingValue("name");
-      expect(persistedValue).toBe(testValue);
-    });
-
-    test("should auto-save settings", async ({ page }) => {
-      // Some settings may auto-save without clicking save button
-      const nameInput = page.locator("input[name='name'], input[placeholder*='name' i]");
-
-      if (!(await nameInput.first().isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await settingsPage.updateSetting("name", "Auto Save Test");
-      await page.waitForTimeout(2000); // Wait for auto-save
-
-      // Check for auto-save indicator
-      const autoSaveIndicator = page.locator("text=Saved, text=Saving, [data-testid='auto-save']");
-      const hasIndicator = await autoSaveIndicator.isVisible().catch(() => false);
-
-      if (!hasIndicator) {
-        test.skip();
-        return;
-      }
-
-      await expect(autoSaveIndicator).toBeVisible();
-    });
-  });
-
-  test.describe("Load Settings", () => {
-    test("should load settings on page open", async ({ page }) => {
-      // Settings should be loaded from storage
-      const inputs = page.locator("input[value], select, textarea");
-      const inputsWithValues = await inputs.count();
-
-      // Some inputs should have values (even if defaults)
-      expect(inputsWithValues).toBeGreaterThanOrEqual(0);
-    });
-
-    test("should restore previous values", async ({ page }) => {
-      const nameInput = page.locator("input[name='name'], input[placeholder*='name' i]");
-
-      if (!(await nameInput.first().isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      // Set initial value
-      const initialValue = "Initial Value";
-      await settingsPage.updateSetting("name", initialValue);
-      await settingsPage.saveSettings();
-      await page.waitForTimeout(500);
-
-      // Change value
-      await settingsPage.updateSetting("name", "Changed Value");
-
-      // Close and reopen without saving
-      await page.keyboard.press("Escape");
-      await settingsPage.navigateTo();
-
-      // Should restore saved value
-      const restoredValue = await settingsPage.getSettingValue("name");
-      expect(restoredValue).toBe(initialValue);
-    });
-  });
-
-  test.describe("Notification Settings", () => {
-    test.beforeEach(async ({ page }) => {
-      const hasNotificationsTab = await settingsPage.notificationsTab.isVisible().catch(() => false);
-      if (hasNotificationsTab) {
-        await settingsPage.switchTab("notifications");
-        await page.waitForTimeout(300);
-      }
-    });
-
-    test("should toggle email notifications", async ({ page }) => {
-      const emailToggle = page.locator("input[name='emailNotifications'], input[id*='email']");
-
-      if (!(await emailToggle.first().isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      const initialState = await settingsPage.getSettingValue("emailNotifications");
-      await settingsPage.updateSetting("emailNotifications", !initialState);
-
-      const finalState = await settingsPage.getSettingValue("emailNotifications");
-      expect(finalState).not.toBe(initialState);
-    });
-
-    test("should toggle push notifications", async ({ page }) => {
-      const pushToggle = page.locator("input[name='pushNotifications'], input[id*='push']");
-
-      if (!(await pushToggle.first().isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      const initialState = await settingsPage.getSettingValue("pushNotifications");
-      await settingsPage.updateSetting("pushNotifications", !initialState);
-
-      const finalState = await settingsPage.getSettingValue("pushNotifications");
-      expect(finalState).not.toBe(initialState);
-    });
-  });
-
-  test.describe("Privacy Settings", () => {
-    test.beforeEach(async ({ page }) => {
-      const hasPrivacyTab = await settingsPage.privacyTab.isVisible().catch(() => false);
-      if (hasPrivacyTab) {
-        await settingsPage.switchTab("privacy");
-        await page.waitForTimeout(300);
-      }
-    });
-
-    test("should toggle analytics tracking", async ({ page }) => {
-      const analyticsToggle = page.locator("input[name='analytics'], input[id*='analytics']");
-
-      if (!(await analyticsToggle.first().isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      const initialState = await settingsPage.getSettingValue("analytics");
-      await settingsPage.updateSetting("analytics", !initialState);
-
-      const finalState = await settingsPage.getSettingValue("analytics");
-      expect(finalState).not.toBe(initialState);
-    });
-
-    test("should toggle data sharing", async ({ page }) => {
-      const sharingToggle = page.locator("input[name='dataSharing'], input[id*='sharing']");
-
-      if (!(await sharingToggle.first().isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      const initialState = await settingsPage.getSettingValue("dataSharing");
-      await settingsPage.updateSetting("dataSharing", !initialState);
-
-      const finalState = await settingsPage.getSettingValue("dataSharing");
-      expect(finalState).not.toBe(initialState);
-    });
-  });
-
-  test.describe("Reset Settings", () => {
-    test("should reset to defaults", async ({ page }) => {
-      const hasResetButton = await settingsPage.resetButton.isVisible().catch(() => false);
-
-      if (!hasResetButton) {
-        test.skip();
-        return;
-      }
-
-      // Make changes
-      const nameInput = page.locator("input[name='name'], input[placeholder*='name' i]");
-      if (await nameInput.first().isVisible().catch(() => false)) {
-        await settingsPage.updateSetting("name", "To Be Reset");
-        await settingsPage.saveSettings();
-        await page.waitForTimeout(500);
-      }
-
-      // Reset
-      await settingsPage.resetSettings();
-      await page.waitForTimeout(1000);
-
-      // Should restore defaults
-      const resetValue = await settingsPage.getSettingValue("name");
-      expect(resetValue).not.toBe("To Be Reset");
-    });
-
-    test("should confirm before reset", async ({ page }) => {
-      const hasResetButton = await settingsPage.resetButton.isVisible().catch(() => false);
-
-      if (!hasResetButton) {
-        test.skip();
-        return;
-      }
-
-      await settingsPage.resetButton.click();
-      await page.waitForTimeout(300);
-
-      // Should show confirmation dialog
-      const confirmDialog = page.locator("[role='dialog'], text=Are you sure, text=Reset all settings");
-      const hasDialog = await confirmDialog.isVisible().catch(() => false);
-
-      expect(hasDialog).toBeTruthy();
-    });
-  });
-
-  test.describe("Error Handling", () => {
-    test("should handle save failures", async ({ page }) => {
-      const hasSaveButton = await settingsPage.saveButton.isVisible().catch(() => false);
-
-      if (!hasSaveButton) {
-        test.skip();
-        return;
-      }
-
-      // Try to save invalid data (if validation exists)
-      const emailInput = page.locator("input[type='email'], input[name='email']");
-      if (await emailInput.first().isVisible().catch(() => false)) {
-        await emailInput.first().fill("invalid-email");
-        await settingsPage.saveSettings();
-        await page.waitForTimeout(500);
-
-        // Should show error
-        const errorMsg = page.locator("text=Invalid, text=Error, [data-testid='error']");
-        const hasError = await errorMsg.isVisible().catch(() => false);
-
-        expect(hasError).toBeTruthy();
-      }
-    });
-
-    test("should handle load failures", async ({ page }) => {
-      // Clear local storage to simulate load failure
-      await page.evaluate(() => localStorage.clear());
-
-      await settingsPage.goto("/");
-      await settingsPage.skipSetupWizard();
-      await settingsPage.navigateTo();
-
-      // Should load with defaults and not crash
-      await expect(settingsPage.mainContent).toBeVisible();
-    });
-
-    test("should prevent navigation with unsaved changes", async ({ page }) => {
-      const nameInput = page.locator("input[name='name'], input[placeholder*='name' i]");
-
-      if (!(await nameInput.first().isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      // Make changes without saving
-      await settingsPage.updateSetting("name", "Unsaved Changes");
-
-      // Try to close settings
-      await page.keyboard.press("Escape");
-      await page.waitForTimeout(300);
-
-      // Should show unsaved changes warning
-      const warningDialog = page.locator("text=Unsaved changes, text=Discard changes");
-      const hasWarning = await warningDialog.isVisible().catch(() => false);
-
-      if (!hasWarning) {
-        test.skip();
-        return;
-      }
-
-      await expect(warningDialog.first()).toBeVisible();
+      await expect(settingsPage.dialog).toBeVisible();
+      await expect(settingsPage.minimumSalaryInput).toHaveValue("80000");
     });
   });
 });

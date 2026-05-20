@@ -507,7 +507,7 @@ npm run test:e2e:ui
 | Page            | Test File                | Tests                                          |
 | --------------- | ------------------------ | ---------------------------------------------- |
 | Dashboard       | `app.spec.ts`, `job-search-filtering.spec.ts` | Load, nav, search, filters, job cards |
-| Settings        | `settings-save-load.spec.ts` | Nav, preferences, notifications, save |
+| Settings        | `settings-save-load.spec.ts` | Modal nav, basic preferences, advanced notifications, credentials, ghost detection, save/load |
 | Applications    | `application-tracking.spec.ts` | Kanban, cards, drag/drop, detail modal, status and notes, reminders |
 | Market          | `market-intelligence.spec.ts` | Tabs, snapshot, charts, alerts |
 | Resume          | `resume-upload-matching.spec.ts` | Upload, validation, matching |

@@ -1111,6 +1111,7 @@ export default function Settings({ onClose }: SettingsProps) {
             <button
               onClick={onClose}
               className="p-2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors"
+              aria-label="Close settings"
             >
               <CloseIcon />
             </button>

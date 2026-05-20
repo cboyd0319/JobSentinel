@@ -10,8 +10,22 @@ interface BookmarkletConfig {
   enabled: boolean;
 }
 
+const DEFAULT_BOOKMARKLET_CONFIG: BookmarkletConfig = {
+  port: 4321,
+  enabled: false,
+};
+
+function isBookmarkletConfig(value: unknown): value is BookmarkletConfig {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as BookmarkletConfig).port === "number" &&
+    typeof (value as BookmarkletConfig).enabled === "boolean"
+  );
+}
+
 export function BookmarkletGenerator() {
-  const [config, setConfig] = useState<BookmarkletConfig>({ port: 4321, enabled: false });
+  const [config, setConfig] = useState<BookmarkletConfig>(DEFAULT_BOOKMARKLET_CONFIG);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -24,7 +38,7 @@ export function BookmarkletGenerator() {
     try {
       setLoading(true);
       const cfg = await invoke<BookmarkletConfig>("get_bookmarklet_config");
-      setConfig(cfg);
+      setConfig(isBookmarkletConfig(cfg) ? cfg : DEFAULT_BOOKMARKLET_CONFIG);
       setError(null);
     } catch (err) {
       console.error("Failed to load bookmarklet config:", err);
