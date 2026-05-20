@@ -8,6 +8,7 @@ use super::http_client::send_with_retry;
 use super::rate_limiter::{limits, RateLimiter};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
+use crate::core::url_security::sanitize_url_for_logging;
 use async_trait::async_trait;
 use chrono::Utc;
 use sha2::{Digest, Sha256};
@@ -43,7 +44,7 @@ impl LeverScraper {
         // Lever has a public JSON API: https://api.lever.co/v0/postings/{company_id}
         let api_url = format!("https://api.lever.co/v0/postings/{}", company.id);
 
-        tracing::debug!("Fetching Lever API: {}", api_url);
+        tracing::debug!(url = %sanitize_url_for_logging(&api_url), "Fetching Lever API");
 
         let response = send_with_retry(&api_url, |client| client.get(&api_url))
             .await

@@ -41,7 +41,12 @@ impl GlassdoorScraper {
 
     /// Fetch jobs from Glassdoor
     async fn fetch_jobs(&self) -> ScraperResult {
-        tracing::info!("Fetching jobs from Glassdoor for: {}", self.query);
+        tracing::info!(
+            query_chars = self.query.chars().count(),
+            has_location = self.location.is_some(),
+            limit = self.limit,
+            "Fetching jobs from Glassdoor"
+        );
 
         // Use rate limiter (conservative due to Cloudflare protection)
         self.rate_limiter.wait("glassdoor", 200).await;

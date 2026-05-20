@@ -8,6 +8,7 @@ use super::http_client::get_with_retry;
 use super::rate_limiter::{limits, RateLimiter};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
+use crate::core::url_security::sanitize_url_for_logging;
 use async_trait::async_trait;
 use chrono::Utc;
 use scraper::{Html, Selector};
@@ -199,7 +200,7 @@ impl GreenhouseScraper {
             company_id
         );
 
-        tracing::debug!("Fetching Greenhouse API: {}", api_url);
+        tracing::debug!(url = %sanitize_url_for_logging(&api_url), "Fetching Greenhouse API");
 
         // Use retry logic for API calls
         let response = get_with_retry(&api_url)

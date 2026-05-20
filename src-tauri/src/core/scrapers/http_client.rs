@@ -5,6 +5,7 @@
 //! connection pools instead of creating new clients per request.
 
 use crate::core::scrapers::cache;
+use crate::core::url_security::sanitize_url_for_logging;
 use anyhow::{Context, Result};
 use std::time::Duration;
 
@@ -254,12 +255,12 @@ where
 pub async fn get_with_cache(url: &str) -> Result<String> {
     // Check cache first
     if let Some(cached_body) = cache::get_cached(url).await {
-        tracing::debug!("Returning cached response for: {}", url);
+        tracing::debug!(url = %sanitize_url_for_logging(url), "Returning cached response");
         return Ok(cached_body);
     }
 
     // Cache miss - make the request
-    tracing::debug!("Cache miss, fetching: {}", url);
+    tracing::debug!(url = %sanitize_url_for_logging(url), "Cache miss, fetching");
     let response = get_with_retry(url).await?;
     let body = response
         .text()
@@ -302,7 +303,7 @@ pub async fn get_with_retry_cached(url: &str, use_cache: bool) -> Result<String>
     if use_cache {
         // Check cache first
         if let Some(cached_body) = cache::get_cached(url).await {
-            tracing::debug!("Returning cached response for: {}", url);
+            tracing::debug!(url = %sanitize_url_for_logging(url), "Returning cached response");
             return Ok(cached_body);
         }
     }

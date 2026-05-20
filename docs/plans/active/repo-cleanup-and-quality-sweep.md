@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Sanitized scraper cache, fetch, and query logs so source adapters no longer write raw search queries or full fetch URLs. |
 | 2026-05-20 | In progress | Sanitized command and database search logging so raw private search queries, screening questions, and answer patterns are not written to logs. |
 | 2026-05-20 | In progress | Validated ghost-job threshold command input so public IPC cannot query with out-of-range or non-finite ghost scores. |
 | 2026-05-20 | In progress | Added shared Tauri command limit validation across job, ghost, resume, market, automation, user-data, and health commands, with invoke-surface coverage for recurrence. |
@@ -310,6 +311,10 @@ changes or Playwright-specific work.
   screening questions, and answer patterns. These values can contain private job
   criteria or personal application answers, so logs should record metadata such
   as text length or presence instead of content.
+- Scraper cache and fetch logs wrote raw URLs or source query strings, including
+  parameters that can contain job criteria, locations, or tokens. Fetching and
+  cache behavior should keep exact URLs for requests and cache keys, but logs
+  should use sanitized URL labels or query metadata.
 - `ScoreBreakdownModal` sanitized scores only through callers, so direct use of
   the exported modal with `NaN` rendered `NaN%`.
 - `ScoreBreakdownModal` converted Tailwind color classes such as
@@ -349,6 +354,8 @@ changes or Playwright-specific work.
   them in filters, even when the current UI sends safe defaults.
 - Do not log raw user-authored search, question, answer, or pattern text. Use
   counts, booleans, or other non-content metadata for troubleshooting.
+- Scraper transport and cache logs must sanitize URL labels and avoid raw query
+  strings. Do not change request URLs or cache keys for logging-only fixes.
 - Keep feature docs aligned with live source names for frontend routes and IPC
   commands; stale future-work claims count as documentation bloat.
 - Do not document UI markers that are not present in source; describe current

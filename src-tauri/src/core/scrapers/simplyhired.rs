@@ -40,7 +40,12 @@ impl SimplyHiredScraper {
 
     /// Fetch jobs from SimplyHired RSS feed
     async fn fetch_jobs(&self) -> ScraperResult {
-        tracing::info!("Fetching jobs from SimplyHired for: {}", self.query);
+        tracing::info!(
+            query_chars = self.query.chars().count(),
+            has_location = self.location.is_some(),
+            limit = self.limit,
+            "Fetching jobs from SimplyHired"
+        );
 
         // Use rate limiter (conservative due to Cloudflare protection)
         self.rate_limiter.wait("simplyhired", 200).await;

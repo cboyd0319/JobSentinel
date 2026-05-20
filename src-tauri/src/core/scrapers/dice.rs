@@ -53,7 +53,12 @@ impl DiceScraper {
 
     /// Fetch jobs from Dice
     async fn fetch_jobs(&self) -> ScraperResult {
-        tracing::info!("Fetching jobs from Dice for query: {}", self.query);
+        tracing::info!(
+            query_chars = self.query.chars().count(),
+            has_location = self.location.is_some(),
+            limit = self.limit,
+            "Fetching jobs from Dice"
+        );
 
         // Use rate limiter (500 req/hr - similar to Indeed)
         self.rate_limiter.wait("dice", 500).await;

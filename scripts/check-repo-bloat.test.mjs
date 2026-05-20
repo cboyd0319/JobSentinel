@@ -693,3 +693,53 @@ test("checkRepoBloat rejects raw private query logging", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects raw scraper URL and query logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/cache.rs",
+      'tracing::debug!("Cache HIT for URL: {}", url);\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/http_client.rs",
+      'tracing::debug!("Cache miss, fetching: {}", url);\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/dice.rs",
+      'tracing::info!("Fetching jobs from Dice for query: {}", self.query);\n',
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/scrapers/cache.rs",
+        "src-tauri/src/core/scrapers/http_client.rs",
+        "src-tauri/src/core/scrapers/dice.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace raw scraper URL/query logging: src-tauri/src/core/scrapers/cache.rs"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace raw scraper URL/query logging: src-tauri/src/core/scrapers/http_client.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace raw scraper URL/query logging: src-tauri/src/core/scrapers/dice.rs"),
+      violations.join("\n"),
+    );
+  });
+});

@@ -146,6 +146,16 @@ const rawPrivateQueryLoggingPaths = new Set([
   "src-tauri/src/core/db/queries.rs",
 ]);
 
+const rawScraperLoggingPaths = new Set([
+  "src-tauri/src/core/scrapers/cache.rs",
+  "src-tauri/src/core/scrapers/dice.rs",
+  "src-tauri/src/core/scrapers/glassdoor.rs",
+  "src-tauri/src/core/scrapers/greenhouse.rs",
+  "src-tauri/src/core/scrapers/http_client.rs",
+  "src-tauri/src/core/scrapers/lever/mod.rs",
+  "src-tauri/src/core/scrapers/simplyhired.rs",
+]);
+
 function normalizeRepoPath(path) {
   return path.split(/[\\/]/).join("/");
 }
@@ -509,6 +519,16 @@ function hasRawPrivateQueryLogging(root, path) {
   );
 }
 
+function hasRawScraperUrlOrQueryLogging(root, path) {
+  if (!rawScraperLoggingPaths.has(path)) {
+    return false;
+  }
+
+  return /(?:URL|url|fetching|Fetching[^"]*(?:API|for|query)):\s*\{\}/.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -611,6 +631,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawPrivateQueryLogging(root, path)) {
       violations.push(`replace raw private query logging: ${path}`);
+    }
+
+    if (hasRawScraperUrlOrQueryLogging(root, path)) {
+      violations.push(`replace raw scraper URL/query logging: ${path}`);
     }
   }
 

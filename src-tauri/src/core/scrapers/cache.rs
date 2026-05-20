@@ -14,6 +14,8 @@ use std::collections::HashMap;
 use std::time::{Duration, SystemTime};
 use tokio::sync::RwLock;
 
+use crate::core::url_security::sanitize_url_for_logging;
+
 /// Default cache duration: 5 minutes
 const DEFAULT_CACHE_DURATION_SECS: u64 = 300;
 
@@ -90,24 +92,24 @@ impl ResponseCache {
         if let Some(entry) = self.cache.get(url) {
             if entry.is_fresh(self.duration) {
                 self.hits += 1;
-                tracing::debug!("Cache HIT for URL: {}", url);
+                tracing::debug!(url = %sanitize_url_for_logging(url), "Cache hit");
                 return Some(entry.body.clone());
             } else {
                 // Entry expired, remove it
-                tracing::debug!("Cache entry EXPIRED for URL: {}", url);
+                tracing::debug!(url = %sanitize_url_for_logging(url), "Cache entry expired");
                 self.cache.remove(url);
             }
         }
 
         self.misses += 1;
-        tracing::debug!("Cache MISS for URL: {}", url);
+        tracing::debug!(url = %sanitize_url_for_logging(url), "Cache miss");
         None
     }
 
     /// Store response in cache
     fn set(&mut self, url: impl Into<String>, body: impl Into<String>) {
         let url = url.into();
-        tracing::debug!("Caching response for URL: {}", &url);
+        tracing::debug!(url = %sanitize_url_for_logging(&url), "Caching response");
         self.cache.insert(url, CacheEntry::new(body));
         tracing::debug!("Cache now has {} entries", self.cache.len());
     }
