@@ -402,6 +402,16 @@ function hasQuickStartEmojiMarkers(root, path) {
   );
 }
 
+function hasFrontDoorDocEmojiMarkers(root, path) {
+  if (path !== "README.md" && path !== "docs/README.md") {
+    return false;
+  }
+
+  return /[\u{2705}\u{274c}\u{26a0}\u{23f3}\u{26a1}\u{1f517}\u{1f512}\u{1f4c4}\u{1f4dd}\u{1f7e2}\u{1f7e1}\u{1f534}\u{1f4ca}\u{1f4e7}\u{1f4c8}\u{1f4c9}\u{1f3af}\u{1f680}\u{1f4a1}\u{1f50d}\u{2b50}]/u.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -468,6 +478,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasQuickStartEmojiMarkers(root, path)) {
       violations.push(`replace Quick Start doc emoji markers: ${path}`);
+    }
+
+    if (hasFrontDoorDocEmojiMarkers(root, path)) {
+      violations.push(`replace front-door doc emoji markers: ${path}`);
     }
   }
 

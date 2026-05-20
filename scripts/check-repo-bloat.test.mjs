@@ -392,3 +392,28 @@ test("checkRepoBloat rejects Quick Start doc emoji markers", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects front-door doc emoji markers", () => {
+  withGitFixture((root) => {
+    const chartIcon = String.fromCodePoint(0x1f4ca);
+    const rocketIcon = String.fromCodePoint(0x1f680);
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(root, "README.md", `# JobSentinel ${rocketIcon}\n`);
+    writeFixtureFile(root, "docs/README.md", `### What's New in v2.5 ${chartIcon}\n`);
+
+    execFileSync("git", ["add", "package.json", "README.md", "docs/README.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace front-door doc emoji markers: README.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace front-door doc emoji markers: docs/README.md"),
+      violations.join("\n"),
+    );
+  });
+});

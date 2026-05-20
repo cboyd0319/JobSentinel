@@ -46,7 +46,7 @@ Current release package version is `2.6.4`. Unreleased `2.7.x` work is tracked i
 - **Memory Leaks** - 2 critical fixes (AbortController cleanup)
 - **Form Validation** - 10 improvements with real-time feedback
 
-### What's New in v2.6.0 ⚡
+### What's New in v2.6.0
 
 - **Comprehensive UX Improvements** - Error recovery, loading states, accessibility
   - Retry buttons across multiple components (Market, AtsLiveScorePanel, ApplyButton, DashboardWidgets, NotificationPreferences)
@@ -72,16 +72,16 @@ Current release package version is `2.6.4`. Unreleased `2.7.x` work is tracked i
 
 - See [v2.6.0 Release Notes](releases/v2.6.0.md) for full details
 
-### What's New in v2.5.3 🔗
+### What's New in v2.5.3
 
 - **LinkedIn Auto-Connect** - Zero-copy authentication, no technical knowledge required
-  - Click "Connect LinkedIn" → Log in normally → Done!
+  - Click "Connect LinkedIn", log in normally, and finish.
   - Native macOS WebKit integration for automatic cookie extraction
   - No more DevTools, no more copy-paste
   - Cookie stored securely in OS keychain
 - See [LinkedIn Setup](features/scrapers.md#-linkedin-scraper) for details
 
-### What's New in v2.5 📊
+### What's New in v2.5
 
 - **Market Intelligence UI** - Complete visualization layer with interactive charts
   - MarketSnapshotCard - Daily market summary with sentiment indicators
@@ -93,7 +93,7 @@ Current release package version is `2.6.4`. Unreleased `2.7.x` work is tracked i
 - **4 new Tauri commands** for market operations
 - See [Market Intelligence Documentation](features/market-intelligence.md) for full details
 
-### What's New in v2.0 🔐
+### What's New in v2.0 Security Hardening
 
 - **OS-Native Keyring Integration** - All credentials securely stored in OS credential managers
   - macOS: Keychain | Windows: Credential Manager | Linux: Secret Service
@@ -101,7 +101,7 @@ Current release package version is `2.6.4`. Unreleased `2.7.x` work is tracked i
 - **Automatic migration** - Existing plaintext credentials migrated on first launch
 - See [Keyring Documentation](security/KEYRING.md) for full details
 
-### What's New in v2.0 📄
+### What's New in v2.0 Resume Tools
 
 - **Resume Builder** - 7-step wizard for creating professional resumes
   - 5 ATS-optimized templates (Classic, Modern, Technical, Executive, Military)
@@ -112,7 +112,7 @@ Current release package version is `2.6.4`. Unreleased `2.7.x` work is tracked i
 - **22 new Tauri commands** for resume operations
 - See [Resume Builder Documentation](features/resume-builder.md) for full details
 
-### What's New in v2.0 🚀
+### What's New in v2.0 One-Click Apply
 
 - **One-Click Apply Automation** - Human-in-the-loop form filling
   - 7 ATS platforms: Greenhouse, Lever, Workday, Taleo, iCIMS, BambooHR, Ashby
