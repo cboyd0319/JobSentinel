@@ -350,6 +350,16 @@ function hasStaleRefactoringPriorityTable(root, path) {
   );
 }
 
+function hasStaleLinuxPlatformStubMarkers(root, path) {
+  if (path !== "src-tauri/src/platforms/linux/mod.rs") {
+    return false;
+  }
+
+  return /Coming Soon|will contain Linux-specific code|limited functionality/.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 function hasStaleShippedFeatureStatusDoc(root, path) {
   if (path !== "docs/ROADMAP.md") {
     return false;
@@ -519,6 +529,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleRefactoringPriorityTable(root, path)) {
       violations.push(`remove stale refactoring-priority table: ${path}`);
+    }
+
+    if (hasStaleLinuxPlatformStubMarkers(root, path)) {
+      violations.push(`replace stale Linux platform stub markers: ${path}`);
     }
 
     if (hasStaleShippedFeatureStatusDoc(root, path)) {

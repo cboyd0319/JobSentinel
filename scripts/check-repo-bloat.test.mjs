@@ -308,6 +308,35 @@ test("checkRepoBloat rejects stale scheduler refactor docs", () => {
   });
 });
 
+test("checkRepoBloat rejects stale Linux platform stub markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/platforms/linux/mod.rs",
+      [
+        "//! Linux-Specific Implementation (v2.0 - Coming Soon)",
+        "//! This module will contain Linux-specific code for JobSentinel v2.0.",
+        "tracing::info!(\"Linux platform initialized (v2.0 - limited functionality)\");",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/platforms/linux/mod.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace stale Linux platform stub markers: src-tauri/src/platforms/linux/mod.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale user-data export roadmap claims", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

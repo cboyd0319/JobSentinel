@@ -1,7 +1,7 @@
-//! Linux-Specific Implementation (v2.0 - Coming Soon)
+//! Linux-Specific Implementation
 //!
-//! This module will contain Linux-specific code for JobSentinel v2.0.
-//! Currently a stub implementation to allow compilation on Linux during development.
+//! This module contains Linux-specific directory handling for JobSentinel using
+//! the XDG base directory conventions.
 
 use std::path::PathBuf;
 
@@ -46,7 +46,7 @@ pub fn initialize() -> Result<(), Box<dyn std::error::Error>> {
         std::fs::create_dir_all(&config_dir)?;
     }
 
-    tracing::info!("Linux platform initialized (v2.0 - limited functionality)");
+    tracing::info!("Linux platform initialized");
     tracing::info!("Data directory: {:?}", data_dir);
     tracing::info!("Config directory: {:?}", config_dir);
 
