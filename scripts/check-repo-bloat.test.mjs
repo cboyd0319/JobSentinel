@@ -1126,3 +1126,63 @@ test("checkRepoBloat rejects manual bookmarklet JSON error responses", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects unauthenticated bookmarklet imports", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/bookmarklet/server.rs",
+      [
+        'if request.starts_with("POST /api/bookmarklet/import") {',
+        "    handle_import_request(&request, database).await",
+        "} else if request.starts_with(\"OPTIONS\") {",
+        '    ("OK".to_string(), "text/plain".to_string())',
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/bookmarklet/server.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "require bookmarklet import auth token: src-tauri/src/core/bookmarklet/server.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects bookmarklet code without auth header", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/BookmarkletGenerator.tsx",
+      [
+        "export function code() {",
+        "  return `fetch('http://localhost:4321/api/bookmarklet/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(job)})`;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/components/BookmarkletGenerator.tsx"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "include bookmarklet auth token header: src/components/BookmarkletGenerator.tsx",
+      ),
+      violations.join("\n"),
+    );
+  });
+});

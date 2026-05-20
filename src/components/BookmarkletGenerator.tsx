@@ -8,11 +8,13 @@ import { HelpIcon } from "./HelpIcon";
 interface BookmarkletConfig {
   port: number;
   enabled: boolean;
+  authToken: string;
 }
 
 const DEFAULT_BOOKMARKLET_CONFIG: BookmarkletConfig = {
   port: 4321,
   enabled: false,
+  authToken: "",
 };
 
 function isBookmarkletConfig(value: unknown): value is BookmarkletConfig {
@@ -20,7 +22,8 @@ function isBookmarkletConfig(value: unknown): value is BookmarkletConfig {
     typeof value === "object" &&
     value !== null &&
     typeof (value as BookmarkletConfig).port === "number" &&
-    typeof (value as BookmarkletConfig).enabled === "boolean"
+    typeof (value as BookmarkletConfig).enabled === "boolean" &&
+    typeof (value as BookmarkletConfig).authToken === "string"
   );
 }
 
@@ -83,7 +86,8 @@ export function BookmarkletGenerator() {
 
   const generateBookmarkletCode = () => {
     const port = config.port;
-    return `javascript:(function(){var scripts=document.querySelectorAll('script[type="application/ld+json"]');var job=null;scripts.forEach(function(s){try{var data=JSON.parse(s.textContent);if(data['@type']==='JobPosting')job=data;}catch(e){}});if(!job){var title=document.querySelector('h1');var company=document.querySelector('[class*="company"]')||document.querySelector('[class*="employer"]');var desc=document.querySelector('[class*="description"]')||document.querySelector('[class*="desc"]');job={title:title?title.textContent:'',company:company?company.textContent:'',description:desc?desc.textContent:'',url:window.location.href};}else{job.url=window.location.href;}fetch('http://localhost:${port}/api/bookmarklet/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(job)}).then(function(r){if(r.ok){alert('✓ Job imported to JobSentinel!');}else{alert('✗ Failed to import job. Is JobSentinel running?');}}).catch(function(e){alert('✗ Cannot connect to JobSentinel. Make sure the app is running and bookmarklet server is enabled.');});})();`;
+    const token = JSON.stringify(config.authToken);
+    return `javascript:(function(){var scripts=document.querySelectorAll('script[type="application/ld+json"]');var job=null;scripts.forEach(function(s){try{var data=JSON.parse(s.textContent);if(data['@type']==='JobPosting')job=data;}catch(e){}});if(!job){var title=document.querySelector('h1');var company=document.querySelector('[class*="company"]')||document.querySelector('[class*="employer"]');var desc=document.querySelector('[class*="description"]')||document.querySelector('[class*="desc"]');job={title:title?title.textContent:'',company:company?company.textContent:'',description:desc?desc.textContent:'',url:window.location.href};}else{job.url=window.location.href;}fetch('http://localhost:${port}/api/bookmarklet/import',{method:'POST',headers:{'Content-Type':'application/json','X-JobSentinel-Token':${token}},body:JSON.stringify(job)}).then(function(r){if(r.ok){alert('✓ Job imported to JobSentinel!');}else{alert('✗ Failed to import job. Is JobSentinel running?');}}).catch(function(e){alert('✗ Cannot connect to JobSentinel. Make sure the app is running and bookmarklet server is enabled.');});})();`;
   };
 
   const copyBookmarklet = () => {
@@ -192,6 +196,7 @@ export function BookmarkletGenerator() {
                 <li>Name it "Import to JobSentinel"</li>
                 <li>Paste the code into the URL/Location field</li>
                 <li>Save the bookmark to your bookmarks bar</li>
+                <li>Copy a fresh code after changing the port or restarting JobSentinel</li>
               </ol>
             </div>
 

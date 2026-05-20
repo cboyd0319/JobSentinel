@@ -61,7 +61,10 @@ mod tests {
 
         use crate::core::bookmarklet::{BookmarkletConfig, BookmarkletServer};
 
-        let bookmarklet_config = BookmarkletConfig { port: 9528 };
+        let bookmarklet_config = BookmarkletConfig {
+            port: 9528,
+            ..Default::default()
+        };
         let bookmarklet_server = BookmarkletServer::new(bookmarklet_config);
 
         AppState {

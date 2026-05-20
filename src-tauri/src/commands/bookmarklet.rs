@@ -13,6 +13,8 @@ use tauri::State;
 pub struct BookmarkletConfigResponse {
     pub port: u16,
     pub enabled: bool,
+    #[serde(rename = "authToken")]
+    pub auth_token: String,
 }
 
 /// Get current bookmarklet configuration
@@ -30,6 +32,7 @@ pub async fn get_bookmarklet_config(
     Ok(BookmarkletConfigResponse {
         port: config.port,
         enabled,
+        auth_token: config.auth_token,
     })
 }
 
@@ -114,14 +117,17 @@ mod tests {
         let config = BookmarkletConfigResponse {
             port: 4321,
             enabled: true,
+            auth_token: "test-token".to_string(),
         };
 
         let json = serde_json::to_string(&config).unwrap();
         assert!(json.contains("4321"));
         assert!(json.contains("true"));
+        assert!(json.contains("authToken"));
 
         let deserialized: BookmarkletConfigResponse = serde_json::from_str(&json).unwrap();
         assert_eq!(deserialized.port, 4321);
         assert!(deserialized.enabled);
+        assert_eq!(deserialized.auth_token, "test-token");
     }
 }

@@ -12,16 +12,26 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use thiserror::Error;
 use tokio::task::JoinHandle;
+use uuid::Uuid;
+
+const BOOKMARKLET_TOKEN_HEADER: &str = "x-jobsentinel-token";
+const CONTENT_LENGTH_HEADER: &str = "content-length";
+const HEADER_BODY_SEPARATOR: &[u8] = b"\r\n\r\n";
+const MAX_BOOKMARKLET_REQUEST_BYTES: usize = 8192;
 
 /// Bookmarklet server configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BookmarkletConfig {
     pub port: u16,
+    pub auth_token: String,
 }
 
 impl Default for BookmarkletConfig {
     fn default() -> Self {
-        Self { port: 4321 }
+        Self {
+            port: 4321,
+            auth_token: Uuid::new_v4().to_string(),
+        }
     }
 }
 
@@ -88,13 +98,14 @@ impl BookmarkletServer {
 
         self.config = config;
         let port = self.config.port;
+        let auth_token = self.config.auth_token.clone();
 
         // Create shutdown channel
         let (shutdown_tx, shutdown_rx) = tokio::sync::oneshot::channel();
 
         // Spawn server task
         let handle = tokio::spawn(async move {
-            if let Err(e) = run_server(port, database, shutdown_rx).await {
+            if let Err(e) = run_server(port, auth_token, database, shutdown_rx).await {
                 tracing::error!(error = %e, "Bookmarklet server error");
             }
         });
@@ -136,6 +147,7 @@ impl Default for BookmarkletServer {
 /// Run the HTTP server
 async fn run_server(
     port: u16,
+    auth_token: String,
     database: Arc<Database>,
     mut shutdown_rx: tokio::sync::oneshot::Receiver<()>,
 ) -> Result<(), BookmarkletError> {
@@ -156,8 +168,9 @@ async fn run_server(
                 match result {
                     Ok((stream, _)) => {
                         let db = database.clone();
+                        let token = auth_token.clone();
                         tokio::spawn(async move {
-                            if let Err(e) = handle_connection(stream, db).await {
+                            if let Err(e) = handle_connection(stream, token, db).await {
                                 tracing::error!("Connection error: {}", e);
                             }
                         });
@@ -180,11 +193,12 @@ async fn run_server(
 /// Handle a single HTTP connection
 async fn handle_connection(
     stream: tokio::net::TcpStream,
+    auth_token: String,
     database: Arc<Database>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     use tokio::io::AsyncWriteExt;
 
-    let mut buffer = vec![0u8; 8192];
+    let mut buffer = vec![0u8; MAX_BOOKMARKLET_REQUEST_BYTES];
     let mut total_read = 0;
 
     // Read request
@@ -196,8 +210,7 @@ async fn handle_connection(
                 if total_read >= buffer.len() {
                     break;
                 }
-                // Check if we've read the headers
-                if buffer[..total_read].windows(4).any(|w| w == b"\r\n\r\n") {
+                if request_buffer_has_complete_body(&buffer[..total_read]) {
                     break;
                 }
             }
@@ -213,7 +226,14 @@ async fn handle_connection(
 
     // Parse request
     let (response, content_type) = if request.starts_with("POST /api/bookmarklet/import") {
-        handle_import_request(&request, database).await
+        if has_valid_bookmarklet_token(&request, &auth_token) {
+            handle_import_request(&request, database).await
+        } else {
+            (
+                json_error_response("Unauthorized bookmarklet request"),
+                "application/json".to_string(),
+            )
+        }
     } else if request.starts_with("OPTIONS") {
         // Handle preflight CORS request
         ("OK".to_string(), "text/plain".to_string())
@@ -232,7 +252,7 @@ async fn handle_connection(
     };
 
     let response_data = format!(
-        "HTTP/1.1 {}\r\nContent-Type: {}\r\nContent-Length: {}\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: POST, OPTIONS\r\nAccess-Control-Allow-Headers: Content-Type\r\n\r\n{}",
+        "HTTP/1.1 {}\r\nContent-Type: {}\r\nContent-Length: {}\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: POST, OPTIONS\r\nAccess-Control-Allow-Headers: Content-Type, X-JobSentinel-Token\r\n\r\n{}",
         status,
         content_type,
         response.len(),
@@ -244,6 +264,46 @@ async fn handle_connection(
     writable_stream.flush().await?;
 
     Ok(())
+}
+
+fn has_valid_bookmarklet_token(request: &str, auth_token: &str) -> bool {
+    !auth_token.is_empty()
+        && request_header_value(request, BOOKMARKLET_TOKEN_HEADER)
+            .is_some_and(|value| value == auth_token)
+}
+
+fn request_header_value<'a>(request: &'a str, header_name: &str) -> Option<&'a str> {
+    for line in request.lines().skip(1) {
+        let line = line.trim_end_matches('\r');
+        if line.is_empty() {
+            return None;
+        }
+
+        if let Some((name, value)) = line.split_once(':') {
+            if name.trim().eq_ignore_ascii_case(header_name) {
+                return Some(value.trim());
+            }
+        }
+    }
+
+    None
+}
+
+fn request_buffer_has_complete_body(buffer: &[u8]) -> bool {
+    let Some(header_end) = buffer
+        .windows(HEADER_BODY_SEPARATOR.len())
+        .position(|window| window == HEADER_BODY_SEPARATOR)
+    else {
+        return false;
+    };
+
+    let headers = String::from_utf8_lossy(&buffer[..header_end]);
+    let body_start = header_end + HEADER_BODY_SEPARATOR.len();
+    let content_length = request_header_value(&headers, CONTENT_LENGTH_HEADER)
+        .and_then(|value| value.parse::<usize>().ok())
+        .unwrap_or(0);
+
+    buffer.len() >= body_start + content_length
 }
 
 /// Handle import request
@@ -394,9 +454,41 @@ mod tests {
         assert_eq!(parsed["error"], "bad \"quote\"\nnext line");
     }
 
+    #[test]
+    fn test_bookmarklet_token_validation_requires_matching_header() {
+        let request = "POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost\r\nX-JobSentinel-Token: secret-token\r\n\r\n{}";
+
+        assert!(has_valid_bookmarklet_token(request, "secret-token"));
+        assert!(!has_valid_bookmarklet_token(request, "other-token"));
+        assert!(!has_valid_bookmarklet_token(request, ""));
+        assert!(!has_valid_bookmarklet_token(
+            "POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost\r\n\r\n{}",
+            "secret-token"
+        ));
+        assert!(!has_valid_bookmarklet_token(
+            "POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost\r\n\r\nX-JobSentinel-Token: secret-token",
+            "secret-token"
+        ));
+    }
+
+    #[test]
+    fn test_request_buffer_waits_for_declared_body() {
+        let headers_only = b"POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost\r\nContent-Length: 5\r\n\r\n";
+        let complete_request = b"POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost\r\nContent-Length: 5\r\n\r\nhello";
+
+        assert!(!request_buffer_has_complete_body(headers_only));
+        assert!(request_buffer_has_complete_body(complete_request));
+        assert!(request_buffer_has_complete_body(
+            b"OPTIONS /api/bookmarklet/import HTTP/1.1\r\nHost: localhost\r\n\r\n"
+        ));
+    }
+
     #[tokio::test]
     async fn test_bookmarklet_server_lifecycle() {
-        let config = BookmarkletConfig { port: 0 }; // Use random port
+        let config = BookmarkletConfig {
+            port: 0,
+            ..Default::default()
+        }; // Use random port
         let server = BookmarkletServer::new(config);
 
         assert!(!server.is_running());

@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Added bookmarklet import token authentication so arbitrary websites cannot POST jobs into the local SQLite database when the localhost bookmarklet server is running. |
 | 2026-05-20 | In progress | Hardened bookmarklet import responses and logs so local HTTP error bodies are JSON-escaped and import logs use job hash plus shape metadata instead of raw title/company names. |
 | 2026-05-20 | In progress | Sanitized job-import redirect error output so blocked redirect `Location` headers cannot expose credentials, query strings, fragments, or search terms in UI/Display messages. |
 | 2026-05-20 | In progress | Sanitized database error display output so formatted errors no longer expose SQL query text or local backup/database paths. |
@@ -312,6 +313,10 @@ changes or Playwright-specific work.
   interpolation, so quotes or control characters in parser/database errors could
   produce invalid JSON. Successful bookmarklet imports also logged raw job
   titles and company names from browser-provided data.
+- The bookmarklet local HTTP server accepted cross-origin POSTs from any website
+  without a shared secret. Because successful requests write to the local SQLite
+  database, the bookmarklet needs a generated token in the copied code and a
+  matching server-side header check.
 - `docs/plans/active/.gitkeep` and `docs/plans/completed/.gitkeep` were
   redundant tracked placeholders because both directories contain real plan
   files.
@@ -441,6 +446,9 @@ changes or Playwright-specific work.
 - Bookmarklet local HTTP responses must serialize JSON with `serde_json` rather
   than manual string interpolation. Bookmarklet logs must use identifiers,
   counts, and booleans instead of raw title/company text.
+- Bookmarklet imports must require a generated local auth token. Cross-origin
+  CORS stays available for real bookmarklets, but POSTs without the token must
+  be rejected before JSON parsing or database writes.
 - Local paths in logs must use non-identifying labels. Preserve actual paths for
   file operations, database records, and user-facing operations that need them.
 - Keep feature docs aligned with live source names for frontend routes and IPC

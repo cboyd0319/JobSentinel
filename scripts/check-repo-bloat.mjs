@@ -195,6 +195,7 @@ const rawAutomationQuestionLoggingPaths = new Set([
 const rawNotificationJobTitleLoggingPaths = new Set(["src-tauri/src/core/notify/mod.rs"]);
 
 const rawBookmarkletLoggingPaths = new Set(["src-tauri/src/core/bookmarklet/server.rs"]);
+const bookmarkletGeneratorPaths = new Set(["src/components/BookmarkletGenerator.tsx"]);
 
 function normalizeRepoPath(path) {
   return path.split(/[\\/]/).join("/");
@@ -670,6 +671,25 @@ function hasManualBookmarkletJsonErrorResponses(root, path) {
   );
 }
 
+function hasUnauthenticatedBookmarkletImports(root, path) {
+  if (!rawBookmarkletLoggingPaths.has(path)) {
+    return false;
+  }
+
+  return /if request\.starts_with\("POST \/api\/bookmarklet\/import"\)\s*\{\s*handle_import_request\(&request,\s*database\)\.await/s.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
+function hasBookmarkletCodeWithoutTokenHeader(root, path) {
+  if (!bookmarkletGeneratorPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /api\/bookmarklet\/import/.test(text) && !/X-JobSentinel-Token/.test(text);
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -816,6 +836,14 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasManualBookmarkletJsonErrorResponses(root, path)) {
       violations.push(`replace manual bookmarklet JSON error responses: ${path}`);
+    }
+
+    if (hasUnauthenticatedBookmarkletImports(root, path)) {
+      violations.push(`require bookmarklet import auth token: ${path}`);
+    }
+
+    if (hasBookmarkletCodeWithoutTokenHeader(root, path)) {
+      violations.push(`include bookmarklet auth token header: ${path}`);
     }
   }
 
