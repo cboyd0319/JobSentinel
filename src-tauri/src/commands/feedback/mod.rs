@@ -73,6 +73,10 @@ fn feedback_suggested_filename(suggested_filename: Option<String>) -> String {
         .unwrap_or_else(report::get_feedback_filename_impl)
 }
 
+fn feedback_file_content(content: &str) -> String {
+    Sanitizer::sanitize(content)
+}
+
 /// Open GitHub Issues page for bug reports
 #[tauri::command]
 #[allow(deprecated)]
@@ -211,7 +215,8 @@ pub async fn save_feedback_file(
     };
 
     let path = feedback_save_path(file_path)?;
-    std::fs::write(&path, content).map_err(|e| format!("Failed to save feedback report: {e}"))?;
+    std::fs::write(&path, feedback_file_content(&content))
+        .map_err(|e| format!("Failed to save feedback report: {e}"))?;
 
     Ok(Some(path.to_string_lossy().into_owned()))
 }
@@ -327,5 +332,22 @@ mod tests {
         let filename = feedback_suggested_filename(Some("   ".to_string()));
         assert!(filename.starts_with("jobsentinel-feedback-"));
         assert!(filename.ends_with(".txt"));
+    }
+
+    #[test]
+    fn test_feedback_file_content_is_sanitized_before_write() {
+        let content = concat!(
+            "User john@example.com saved report from /Users/johnsmith/Desktop/report.txt ",
+            "with webhook https://discord.com/api/webhooks/123456789/secret-token"
+        );
+
+        let sanitized = feedback_file_content(content);
+
+        assert!(!sanitized.contains("john@example.com"));
+        assert!(!sanitized.contains("johnsmith"));
+        assert!(!sanitized.contains("discord.com/api/webhooks"));
+        assert!(sanitized.contains("[EMAIL]"));
+        assert!(sanitized.contains("[USER_PATH]"));
+        assert!(sanitized.contains("[WEBHOOK_CONFIGURED]"));
     }
 }

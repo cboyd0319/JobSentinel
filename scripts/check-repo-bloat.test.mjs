@@ -1450,3 +1450,33 @@ test("checkRepoBloat rejects unsanitized structured feedback debug events", () =
     );
   });
 });
+
+test("checkRepoBloat rejects unsanitized feedback file saves", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/feedback/mod.rs",
+      [
+        "pub async fn save_feedback_file(content: String) -> Result<(), String> {",
+        "    std::fs::write(&path, content).map_err(|e| format!(\"{e}\"))?;",
+        "    Ok(())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/feedback/mod.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize feedback file content before saving: src-tauri/src/commands/feedback/mod.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});

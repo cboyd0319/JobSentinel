@@ -201,6 +201,7 @@ const settingsCredentialPaths = new Set(["src/pages/Settings.tsx"]);
 const feedbackSanitizerPaths = new Set(["src-tauri/src/commands/feedback/sanitizer.rs"]);
 const notificationDocsPaths = new Set(["docs/features/notifications.md"]);
 const structuredDebugLogPaths = new Set(["src-tauri/src/commands/feedback/debug_log.rs"]);
+const feedbackCommandPaths = new Set(["src-tauri/src/commands/feedback/mod.rs"]);
 
 function readPackageManifest(root) {
   return JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
@@ -780,6 +781,15 @@ function hasUnsanitizedStructuredDebugLogEvents(root, path) {
   );
 }
 
+function hasUnsanitizedFeedbackFileSave(root, path) {
+  if (!feedbackCommandPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /std::fs::write\(&path,\s*content\)/.test(text) || !text.includes("feedback_file_content");
+}
+
 function hasUnownedStorybookAddon(root, path) {
   if (path !== ".storybook/main.ts") {
     return false;
@@ -978,6 +988,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasUnsanitizedStructuredDebugLogEvents(root, path)) {
       violations.push(`sanitize structured feedback debug events: ${path}`);
+    }
+
+    if (hasUnsanitizedFeedbackFileSave(root, path)) {
+      violations.push(`sanitize feedback file content before saving: ${path}`);
     }
 
     if (hasUnownedStorybookAddon(root, path)) {

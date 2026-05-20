@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Added backend sanitization for saved feedback file content, so frontend-provided report text cannot bypass the privacy contract before writing through the native save dialog. |
 | 2026-05-20 | In progress | Expanded frontend stored-error webhook redaction so malformed Slack webhook-like URLs and provider Discord/Teams webhook URLs are redacted before generic URL sanitization can preserve token paths. |
 | 2026-05-20 | In progress | Sanitized structured feedback debug events returned to the frontend, so GitHub/Drive feedback paths cannot bypass the formatted debug-log sanitizer, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Fixed feedback-report webhook redaction so provider-valid Discord and Teams webhook URLs are sanitized, corrected notification docs for all allowed provider hosts, and added bloat coverage for recurrence. |
@@ -201,6 +202,9 @@ changes or Playwright-specific work.
 - Frontend stored-error redaction replaced only `hooks.slack.com/services/...`
   Slack URLs before generic URL sanitization. Malformed Slack webhook-like URLs
   could keep secret path segments in local error logs.
+- `save_feedback_file` accepted frontend-provided report text and wrote it
+  directly, even though the feedback module and plan promise sanitized local
+  report output.
 - Maintained docs still used an overbroad "all user data" localStorage-to-SQLite
   migration claim even though frontend localStorage remains valid for
   non-authoritative UI preferences, caches, sanitized error logs, and transient
@@ -497,6 +501,8 @@ changes or Playwright-specific work.
 - Frontend stored-error reports must redact webhook provider hosts before
   generic URL sanitization, including malformed Slack webhook-like URLs whose
   path segments may still contain secrets.
+- Feedback file saves must sanitize content at the backend write boundary, even
+  when the expected caller already used `generate_feedback_report`.
 - Describe SQLite as authoritative for job-search records and durable
   preferences. Do not claim browser localStorage is unused; it remains available
   for local-only UI state, caches, sanitized error logs, and recovery hints.
