@@ -1,8 +1,9 @@
-// ! Smart Screening Answer Learning
+//! Smart Screening Answer Learning
 //!
 //! Learns from user behavior to improve screening question answers over time.
 //! Tracks usage, modifications, and suggests answers with confidence scores.
 
+use crate::core::ats::parse_sqlite_datetime;
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 use regex::Regex;
@@ -60,6 +61,15 @@ pub struct ModificationExample {
 /// Manages screening answer learning
 pub struct AnswerLearningManager {
     db: SqlitePool,
+}
+
+fn parse_optional_answer_datetime(value: Option<&str>) -> Option<DateTime<Utc>> {
+    value.and_then(|date| parse_sqlite_datetime(date).ok())
+}
+
+fn days_since_answer_datetime(value: Option<&str>) -> Option<i32> {
+    let parsed = parse_optional_answer_datetime(value)?;
+    Some((Utc::now() - parsed).num_days() as i32)
 }
 
 impl AnswerLearningManager {
@@ -200,11 +210,7 @@ impl AnswerLearningManager {
                         &last_used,
                     );
 
-                    let last_used_days = last_used.and_then(|d| {
-                        DateTime::parse_from_rfc3339(&d)
-                            .ok()
-                            .map(|dt| (Utc::now() - dt.with_timezone(&Utc)).num_days() as i32)
-                    });
+                    let last_used_days = days_since_answer_datetime(last_used.as_deref());
 
                     suggestions.push(AnswerSuggestion {
                         answer,
@@ -266,11 +272,7 @@ impl AnswerLearningManager {
                         &last_used,
                     );
 
-                    let last_used_days = last_used.and_then(|d| {
-                        DateTime::parse_from_rfc3339(&d)
-                            .ok()
-                            .map(|dt| (Utc::now() - dt.with_timezone(&Utc)).num_days() as i32)
-                    });
+                    let last_used_days = days_since_answer_datetime(last_used.as_deref());
 
                     suggestions.push(AnswerSuggestion {
                         answer,
@@ -364,16 +366,13 @@ impl AnswerLearningManager {
         let usage_weight = (times_used as f64 / 10.0).min(1.0);
 
         // Recency weight: decays linearly over 1 year
-        let recency_weight = if let Some(last_used) = last_used_at {
-            if let Ok(dt) = DateTime::parse_from_rfc3339(last_used) {
-                let days_ago = (Utc::now() - dt.with_timezone(&Utc)).num_days();
+        let recency_weight =
+            if let Some(dt) = parse_optional_answer_datetime(last_used_at.as_deref()) {
+                let days_ago = (Utc::now() - dt).num_days();
                 (1.0 - (days_ago as f64 / 365.0)).max(0.3) // Min 30% confidence
             } else {
-                0.8 // Default if parse fails
-            }
-        } else {
-            0.8 // Never used yet
-        };
+                0.8 // Never used yet, or unparseable legacy data
+            };
 
         // Modification penalty: reduces confidence based on modification rate
         let modification_penalty = if times_used > 0 {
@@ -515,12 +514,8 @@ impl AnswerLearningManager {
             times_modified,
             modification_rate,
             confidence_score: row.get("confidence_score"),
-            last_used_at: last_used.and_then(|d| {
-                DateTime::parse_from_rfc3339(&d)
-                    .ok()
-                    .map(|dt| dt.with_timezone(&Utc))
-            }),
-            created_at: DateTime::parse_from_rfc3339(&created_at)?.with_timezone(&Utc),
+            last_used_at: parse_optional_answer_datetime(last_used.as_deref()),
+            created_at: parse_sqlite_datetime(&created_at)?,
             recent_modifications: modification_examples,
         }))
     }
@@ -556,9 +551,7 @@ impl AnswerLearningManager {
                     original_answer: row.get("answer_filled"),
                     modified_to: modified_to?,
                     question_text: row.get("question_text"),
-                    modified_at: DateTime::parse_from_rfc3339(&created_at)
-                        .ok()?
-                        .with_timezone(&Utc),
+                    modified_at: parse_optional_answer_datetime(Some(&created_at))?,
                 })
             })
             .collect();
@@ -666,5 +659,27 @@ mod tests {
 
         // Empty strings
         assert_eq!(AnswerLearningManager::calculate_similarity("", "test"), 0.0);
+    }
+
+    #[test]
+    fn test_parse_optional_answer_datetime_accepts_sqlite_format() {
+        let parsed = parse_optional_answer_datetime(Some("2026-05-20 12:34:56"))
+            .expect("SQLite datetime should parse");
+
+        assert_eq!(parsed.to_rfc3339(), "2026-05-20T12:34:56+00:00");
+    }
+
+    #[test]
+    fn test_parse_optional_answer_datetime_accepts_rfc3339() {
+        let parsed = parse_optional_answer_datetime(Some("2026-05-20T12:34:56Z"))
+            .expect("RFC3339 datetime should parse");
+
+        assert_eq!(parsed.to_rfc3339(), "2026-05-20T12:34:56+00:00");
+    }
+
+    #[test]
+    fn test_parse_optional_answer_datetime_rejects_invalid() {
+        assert!(parse_optional_answer_datetime(Some("not a date")).is_none());
+        assert!(parse_optional_answer_datetime(None).is_none());
     }
 }
