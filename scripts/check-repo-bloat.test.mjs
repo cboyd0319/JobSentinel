@@ -1363,3 +1363,42 @@ test("checkRepoBloat rejects stale notification webhook docs", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects unsanitized structured feedback debug events", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/feedback/debug_log.rs",
+      [
+        "pub fn get_debug_log() -> Vec<TimestampedEvent> {",
+        "    DEBUG_LOG",
+        "        .read()",
+        "        .map(|buffer| buffer.get_all())",
+        "        .unwrap_or_default()",
+        "}",
+        "",
+        "pub fn get_recent_events(n: usize) -> Vec<TimestampedEvent> {",
+        "    DEBUG_LOG",
+        "        .read()",
+        "        .map(|buffer| buffer.get_recent(n))",
+        "        .unwrap_or_default()",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/feedback/debug_log.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize structured feedback debug events: src-tauri/src/commands/feedback/debug_log.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});

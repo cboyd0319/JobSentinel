@@ -174,7 +174,13 @@ pub fn log_event(event: DebugEvent) {
 pub fn get_debug_log() -> Vec<TimestampedEvent> {
     DEBUG_LOG
         .read()
-        .map(|buffer| buffer.get_all())
+        .map(|buffer| {
+            buffer
+                .get_all()
+                .into_iter()
+                .map(sanitize_timestamped_event)
+                .collect()
+        })
         .unwrap_or_default()
 }
 
@@ -182,8 +188,59 @@ pub fn get_debug_log() -> Vec<TimestampedEvent> {
 pub fn get_recent_events(n: usize) -> Vec<TimestampedEvent> {
     DEBUG_LOG
         .read()
-        .map(|buffer| buffer.get_recent(n))
+        .map(|buffer| {
+            buffer
+                .get_recent(n)
+                .into_iter()
+                .map(sanitize_timestamped_event)
+                .collect()
+        })
         .unwrap_or_default()
+}
+
+fn sanitize_timestamped_event(event: TimestampedEvent) -> TimestampedEvent {
+    TimestampedEvent {
+        timestamp: event.timestamp,
+        event: sanitize_debug_event(event.event),
+    }
+}
+
+fn sanitize_debug_event(event: DebugEvent) -> DebugEvent {
+    match event {
+        DebugEvent::AppStarted { version } => DebugEvent::AppStarted {
+            version: Sanitizer::sanitize(&version),
+        },
+        DebugEvent::ViewNavigated { from, to } => DebugEvent::ViewNavigated {
+            from: Sanitizer::sanitize(&from),
+            to: Sanitizer::sanitize(&to),
+        },
+        DebugEvent::CommandInvoked {
+            command,
+            success,
+            error_code,
+        } => DebugEvent::CommandInvoked {
+            command: Sanitizer::sanitize(&command),
+            success,
+            error_code: error_code.map(|code| Sanitizer::sanitize(&code)),
+        },
+        DebugEvent::ErrorOccurred { code, message } => DebugEvent::ErrorOccurred {
+            code: Sanitizer::sanitize(&code),
+            message: Sanitizer::sanitize_error(&message),
+        },
+        DebugEvent::ScraperRun {
+            scraper,
+            jobs_found,
+            success,
+        } => DebugEvent::ScraperRun {
+            scraper: Sanitizer::sanitize(&scraper),
+            jobs_found,
+            success,
+        },
+        DebugEvent::FeatureUsed { feature, metadata } => DebugEvent::FeatureUsed {
+            feature: Sanitizer::sanitize(&feature),
+            metadata: metadata.map(|value| Sanitizer::sanitize(&value)),
+        },
+    }
 }
 
 /// Clear the global debug buffer
@@ -363,6 +420,48 @@ mod tests {
             sanitized.contains("[USER_PATH]"),
             "Sanitized message should contain sanitized path marker '[USER_PATH]'. Got: {}",
             sanitized
+        );
+    }
+
+    #[test]
+    fn test_structured_debug_events_are_sanitized() {
+        let event = sanitize_timestamped_event(TimestampedEvent::new(DebugEvent::ErrorOccurred {
+            code: "io_error".to_string(),
+            message: concat!(
+                "Failed to read /Users/johnsmith/Documents/jobs.db with webhook ",
+                "https://discord.com/api/webhooks/123456789/secret-token for user john@example.com"
+            )
+            .to_string(),
+        }));
+
+        let DebugEvent::ErrorOccurred { message, .. } = &event.event else {
+            panic!("Expected ErrorOccurred event");
+        };
+
+        assert!(
+            !message.contains("johnsmith"),
+            "message leaked username: {}",
+            message
+        );
+        assert!(
+            !message.contains("john@example.com"),
+            "message leaked email: {}",
+            message
+        );
+        assert!(
+            !message.contains("discord.com/api/webhooks"),
+            "message leaked webhook URL: {}",
+            message
+        );
+        assert!(
+            message.contains("[USER_PATH]"),
+            "message did not include path marker: {}",
+            message
+        );
+        assert!(
+            message.contains("[WEBHOOK_CONFIGURED]"),
+            "message did not include webhook marker: {}",
+            message
         );
     }
 

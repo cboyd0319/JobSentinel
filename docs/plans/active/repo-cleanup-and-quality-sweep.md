@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Sanitized structured feedback debug events returned to the frontend, so GitHub/Drive feedback paths cannot bypass the formatted debug-log sanitizer, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Fixed feedback-report webhook redaction so provider-valid Discord and Teams webhook URLs are sanitized, corrected notification docs for all allowed provider hosts, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Added frontend validation gates for Slack, Discord, and Teams webhook credential saves, added Teams URL validation coverage, corrected stale webhook allowlist docs, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Sanitized frontend error-report storage so browser-local error logs no longer persist raw URLs, emails, tokens, webhook URLs, user paths, or captured async arguments; corrected localStorage persistence docs. |
@@ -193,6 +194,9 @@ changes or Playwright-specific work.
 - Feedback-report sanitization redacted Slack webhooks and fake
   `hooks.discord.com` / `hooks.teams.com` patterns, but missed the provider
   URLs accepted by notification code for Discord and Teams.
+- `get_debug_log_events` claimed to return sanitized structured events but
+  returned cloned raw events. Formatted reports used a sanitizer pass, but the
+  frontend GitHub/Drive debug-info path formats structured events directly.
 - Maintained docs still used an overbroad "all user data" localStorage-to-SQLite
   migration claim even though frontend localStorage remains valid for
   non-authoritative UI preferences, caches, sanitized error logs, and transient
@@ -484,6 +488,8 @@ changes or Playwright-specific work.
 - Feedback reports must redact the same webhook provider hosts accepted by the
   notification senders and settings UI, including legacy Discord and Teams host
   variants.
+- Structured debug events returned to the frontend must be sanitized at the
+  backend boundary, not only when rendering the formatted debug-log string.
 - Describe SQLite as authoritative for job-search records and durable
   preferences. Do not claim browser localStorage is unused; it remains available
   for local-only UI state, caches, sanitized error logs, and recovery hints.

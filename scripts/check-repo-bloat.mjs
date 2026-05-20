@@ -200,6 +200,7 @@ const frontendErrorReportingPaths = new Set(["src/utils/errorReporting.ts"]);
 const settingsCredentialPaths = new Set(["src/pages/Settings.tsx"]);
 const feedbackSanitizerPaths = new Set(["src-tauri/src/commands/feedback/sanitizer.rs"]);
 const notificationDocsPaths = new Set(["docs/features/notifications.md"]);
+const structuredDebugLogPaths = new Set(["src-tauri/src/commands/feedback/debug_log.rs"]);
 
 function readPackageManifest(root) {
   return JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
@@ -761,6 +762,21 @@ function hasStaleNotificationWebhookDocs(root, path) {
   );
 }
 
+function hasUnsanitizedStructuredDebugLogEvents(root, path) {
+  if (!structuredDebugLogPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    !text.includes("sanitize_timestamped_event") ||
+    /pub fn get_debug_log\(\)[\s\S]*?\.map\(\|buffer\| buffer\.get_all\(\)\)/.test(text) ||
+    /pub fn get_recent_events\([^)]*\)[\s\S]*?\.map\(\|buffer\| buffer\.get_recent\(n\)\)/.test(
+      text,
+    )
+  );
+}
+
 function hasUnownedStorybookAddon(root, path) {
   if (path !== ".storybook/main.ts") {
     return false;
@@ -955,6 +971,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleNotificationWebhookDocs(root, path)) {
       violations.push(`document all notification webhook provider hosts: ${path}`);
+    }
+
+    if (hasUnsanitizedStructuredDebugLogEvents(root, path)) {
+      violations.push(`sanitize structured feedback debug events: ${path}`);
     }
 
     if (hasUnownedStorybookAddon(root, path)) {
