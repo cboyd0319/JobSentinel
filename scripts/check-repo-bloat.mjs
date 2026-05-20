@@ -171,6 +171,7 @@ const rawLocalPathLoggingPaths = new Set([
 ]);
 
 const rawUrlLoggingPaths = new Set([
+  "src-tauri/src/commands/linkedin_auth.rs",
   "src-tauri/src/core/automation/browser/manager.rs",
   "src-tauri/src/core/scrapers/url_utils.rs",
 ]);
@@ -574,7 +575,7 @@ function hasRawUrlLogging(root, path) {
   const text = readFileSync(join(root, path), "utf8");
   return /(?:fields\(url\s*=\s*%url\)|tracing::(?:debug|info|warn|error)!\([^;]*(?:URL|url)[^;]*:\s*\{\})/.test(
     text,
-  );
+  ) || /tracing::(?:debug|info|warn|error)!\([^;]*navigation:\s*\{\}[^;]*url_str/.test(text);
 }
 
 function hasRawJobImportLogging(root, path) {

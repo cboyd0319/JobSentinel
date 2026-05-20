@@ -10,6 +10,7 @@
 //! No manual cookie copying required!
 
 use crate::core::credentials::{CredentialKey, CredentialStore};
+use crate::core::url_security::sanitize_url_for_logging;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use tauri::{AppHandle, Emitter, Manager, WebviewUrl, WebviewWindowBuilder};
@@ -118,7 +119,10 @@ pub async fn linkedin_login(app: AppHandle) -> Result<String, String> {
         .visible(true)
         .on_navigation(move |url| {
             let url_str = url.as_str();
-            tracing::debug!("LinkedIn navigation: {}", url_str);
+            tracing::debug!(
+                url = %sanitize_url_for_logging(url_str),
+                "LinkedIn navigation"
+            );
 
             if is_login_success_url(url_str) && !login_detected_nav.load(Ordering::SeqCst) {
                 tracing::info!("LinkedIn login success detected!");

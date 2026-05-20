@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Sanitized LinkedIn auth navigation logs so login redirects are written as sanitized URL labels, with bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Replaced raw automation screening question debug logs with question-length metadata, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Sanitized job-import spans and result logs so raw import URLs, titles, and companies are not written to logs, with bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Replaced raw LinkedIn scraper query and location span fields with length metadata, and extended scraper-log bloat coverage. |
@@ -276,6 +277,9 @@ changes or Playwright-specific work.
 - Automation form filling logged raw screening question text when a stored
   answer matched. Screening questions can reveal application details; logs
   should record non-content metadata such as character counts.
+- LinkedIn auth navigation logged raw webview URLs during login. Login
+  redirects can carry query strings or account-routing state, so navigation logs
+  should use sanitized URL labels.
 - `docs/plans/active/.gitkeep` and `docs/plans/completed/.gitkeep` were
   redundant tracked placeholders because both directories contain real plan
   files.
@@ -384,6 +388,7 @@ changes or Playwright-specific work.
   titles or company names. Log identifiers, counts, and missing-field totals.
 - Automation logs must not include raw screening questions or answers. Use
   counts, matched-field totals, or other non-content metadata.
+- Auth and login navigation logs must sanitize URLs before writing them.
 - Local paths in logs must use non-identifying labels. Preserve actual paths for
   file operations, database records, and user-facing operations that need them.
 - Keep feature docs aligned with live source names for frontend routes and IPC

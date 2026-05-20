@@ -819,6 +819,11 @@ test("checkRepoBloat rejects raw URL logging outside approved sanitizers", () =>
       "src-tauri/src/core/automation/browser/manager.rs",
       "#[tracing::instrument(skip(self), fields(url = %url), level = \"info\")]\n",
     );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/linkedin_auth.rs",
+      'tracing::debug!("LinkedIn navigation: {}", url_str);\n',
+    );
 
     execFileSync(
       "git",
@@ -827,6 +832,7 @@ test("checkRepoBloat rejects raw URL logging outside approved sanitizers", () =>
         "package.json",
         "src-tauri/src/core/scrapers/url_utils.rs",
         "src-tauri/src/core/automation/browser/manager.rs",
+        "src-tauri/src/commands/linkedin_auth.rs",
       ],
       { cwd: root },
     );
@@ -843,6 +849,10 @@ test("checkRepoBloat rejects raw URL logging outside approved sanitizers", () =>
       violations.includes(
         "replace raw URL logging: src-tauri/src/core/automation/browser/manager.rs",
       ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace raw URL logging: src-tauri/src/commands/linkedin_auth.rs"),
       violations.join("\n"),
     );
   });
