@@ -140,6 +140,7 @@ test.describe("Keyboard Navigation", () => {
 
     test("focuses dashboard search with slash outside inputs", async ({ page }) => {
       const searchInput = page.getByTestId("search-input");
+      await expect(searchInput).toBeVisible();
 
       await page.keyboard.press("/");
 

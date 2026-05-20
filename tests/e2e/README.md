@@ -79,10 +79,11 @@ Reusable page objects following the Page Object Model pattern:
    - Match score display
    - Complete user flow
 
-10. **app.spec.ts** (existing)
-    - Basic app loading and rendering
+10. **app.spec.ts**
+    - App shell smoke coverage
     - Theme toggle
-    - Sidebar navigation
+    - Sidebar destination navigation
+    - Responsive shell rendering
 
 11. **screenshots.spec.ts** (existing)
     - Documentation screenshot capture

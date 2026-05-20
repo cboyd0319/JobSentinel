@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, memo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef, memo } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { Button, Input, Card, HelpIcon } from "..";
@@ -73,7 +73,8 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
   const [loading, setLoading] = useState(true);
   const [takingLong, setTakingLong] = useState(false);
   const [saving, setSaving] = useState(false);
-  const toast = useToast();
+  const { error: showError, success: showSuccess } = useToast();
+  const hasLoadedProfileRef = useRef(false);
 
   // Form state
   const [fullName, setFullName] = useState("");
@@ -161,6 +162,9 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     try {
       setLoading(true);
       const data = await invoke<ApplicationProfile | null>("get_application_profile");
+      if (hasLoadedProfileRef.current) return;
+      hasLoadedProfileRef.current = true;
+
       if (data) {
         setFullName(data.fullName);
         setEmail(data.email);
@@ -208,11 +212,11 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
       }
     } catch (error: unknown) {
       logError("Failed to load application profile:", error);
-      toast.error("Failed to load profile", "Please try again");
+      showError("Failed to load profile", "Please try again");
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [showError]);
 
   useEffect(() => {
     loadProfile();
@@ -248,7 +252,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
       }
     } catch (error: unknown) {
       logError("Failed to select resume file:", error);
-      toast.error("Failed to select file", "Please try again");
+      showError("Failed to select file", "Please try again");
     }
   };
 
@@ -270,7 +274,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     // Check if any errors exist
     const hasErrors = Object.values(newErrors).some((error) => error !== undefined);
     if (hasErrors) {
-      toast.error("Please fix the errors", "Check the highlighted fields");
+      showError("Please fix the errors", "Check the highlighted fields");
       return;
     }
 
@@ -292,7 +296,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
       };
 
       await invoke("upsert_application_profile", { input });
-      toast.success("Profile saved", "Your application profile has been updated");
+      showSuccess("Profile saved", "Your application profile has been updated");
       // Update original values to mark form as clean
       setOriginalValues({
         fullName: fullName.trim(),
@@ -311,7 +315,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
       onSaved?.();
     } catch (error: unknown) {
       logError("Failed to save profile:", error);
-      toast.error("Failed to save", "Please try again");
+      showError("Failed to save", "Please try again");
     } finally {
       setSaving(false);
     }
@@ -329,7 +333,8 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     maxApplicationsPerDay,
     requireManualApproval,
     validateField,
-    toast,
+    showError,
+    showSuccess,
     onSaved,
   ]);
 
