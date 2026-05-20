@@ -7,6 +7,7 @@ import {
   validatePhone,
   validateSlackWebhook,
   validateDiscordWebhook,
+  validateTeamsWebhook,
   validateRequired,
   validateRegex,
   validateRequiredRegex,
@@ -355,6 +356,64 @@ describe("formValidation", () => {
       expect(
         validateDiscordWebhook("https://evil.com#discord.com/api/webhooks/123/abc")
       ).toBe("Discord webhook must use discord.com or discordapp.com domain");
+    });
+  });
+
+  describe("validateTeamsWebhook", () => {
+    it("returns undefined for valid Teams webhook URLs", () => {
+      // Arrange & Act & Assert
+      expect(
+        validateTeamsWebhook("https://outlook.office.com/webhook/abc/IncomingWebhook/def/ghi")
+      ).toBeUndefined();
+      expect(
+        validateTeamsWebhook("https://outlook.office365.com/webhook/abc/IncomingWebhook/def/ghi")
+      ).toBeUndefined();
+    });
+
+    it("returns undefined for empty string (optional field)", () => {
+      // Arrange & Act & Assert
+      expect(validateTeamsWebhook("")).toBeUndefined();
+      expect(validateTeamsWebhook("   ")).toBeUndefined();
+    });
+
+    it("returns error message for non-HTTPS protocol", () => {
+      // Arrange & Act & Assert
+      expect(
+        validateTeamsWebhook("http://outlook.office.com/webhook/abc")
+      ).toBe("Teams webhook must use HTTPS");
+    });
+
+    it("returns error message for wrong hostname", () => {
+      // Arrange & Act & Assert
+      expect(
+        validateTeamsWebhook("https://evil.com/webhook/abc")
+      ).toBe("Teams webhook must use outlook.office.com or outlook.office365.com domain");
+      expect(
+        validateTeamsWebhook("https://teams.microsoft.com/webhook/abc")
+      ).toBe("Teams webhook must use outlook.office.com or outlook.office365.com domain");
+    });
+
+    it("returns error message for invalid path", () => {
+      // Arrange & Act & Assert
+      expect(validateTeamsWebhook("https://outlook.office.com/invalid")).toBe(
+        "Invalid Teams webhook path"
+      );
+      expect(validateTeamsWebhook("https://outlook.office.com/")).toBe(
+        "Invalid Teams webhook path"
+      );
+    });
+
+    it("returns error message for malformed URLs", () => {
+      // Arrange & Act & Assert
+      expect(validateTeamsWebhook("not-a-url")).toBe("Invalid URL format");
+      expect(validateTeamsWebhook("https://")).toBe("Invalid URL format");
+    });
+
+    it("prevents bypass attacks with query parameters", () => {
+      // Arrange & Act & Assert
+      expect(
+        validateTeamsWebhook("https://evil.com?https://outlook.office.com/webhook/abc")
+      ).toBe("Teams webhook must use outlook.office.com or outlook.office365.com domain");
     });
   });
 

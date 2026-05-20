@@ -149,6 +149,40 @@ export function validateDiscordWebhook(url: string): string | undefined {
 }
 
 /**
+ * Validates a Microsoft Teams webhook URL
+ * @param url - Teams webhook URL to validate
+ * @returns Error message if invalid, undefined if valid
+ */
+export function validateTeamsWebhook(url: string): string | undefined {
+  if (!url.trim()) return undefined; // Empty is valid (optional field)
+
+  // Parse URL to validate host/origin, not just string prefix
+  // This prevents bypass attacks like "https://evil.com?https://outlook.office.com/webhook/..."
+  try {
+    const parsed = new URL(url);
+
+    // Validate scheme
+    if (parsed.protocol !== "https:") {
+      return "Teams webhook must use HTTPS";
+    }
+
+    // Validate host
+    if (parsed.hostname !== "outlook.office.com" && parsed.hostname !== "outlook.office365.com") {
+      return "Teams webhook must use outlook.office.com or outlook.office365.com domain";
+    }
+
+    // Validate path
+    if (!parsed.pathname.startsWith("/webhook/")) {
+      return "Invalid Teams webhook path";
+    }
+
+    return undefined;
+  } catch {
+    return "Invalid URL format";
+  }
+}
+
+/**
  * Validates a required text field
  * @param value - Value to validate
  * @param fieldName - Name of the field for error message

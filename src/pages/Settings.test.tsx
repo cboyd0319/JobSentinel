@@ -437,4 +437,86 @@ describe("Settings — handleSave flow", () => {
     // Should NOT close on failure
     expect(onClose).not.toHaveBeenCalled();
   });
+
+  it("blocks saving an invalid Discord webhook URL", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    const config = makeConfig();
+    config.alerts.discord.enabled = true;
+
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_config") return config;
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      if (cmd === "save_config") return null;
+      if (cmd === "store_credential") return null;
+      return null;
+    });
+
+    render(<Settings onClose={onClose} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+    await user.type(
+      screen.getByPlaceholderText("Paste your Discord webhook URL"),
+      "https://evil.com/api/webhooks/123/abc",
+    );
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
+
+    expect(mockToast.error).toHaveBeenCalledWith(
+      "Invalid Discord webhook",
+      "Discord webhook URLs must use discord.com or discordapp.com over HTTPS.",
+    );
+    expect(mockInvoke).not.toHaveBeenCalledWith("save_config", expect.anything());
+    expect(mockInvoke).not.toHaveBeenCalledWith(
+      "store_credential",
+      expect.objectContaining({ key: "discord_webhook" }),
+    );
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("blocks saving an invalid Teams webhook URL", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    const config = makeConfig();
+    config.alerts.teams.enabled = true;
+
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_config") return config;
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      if (cmd === "save_config") return null;
+      if (cmd === "store_credential") return null;
+      return null;
+    });
+
+    render(<Settings onClose={onClose} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+    await user.type(
+      screen.getByPlaceholderText("Paste your Teams webhook URL"),
+      "https://evil.com/webhook/abc",
+    );
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
+
+    expect(mockToast.error).toHaveBeenCalledWith(
+      "Invalid Teams webhook",
+      "Teams webhook URLs must use outlook.office.com or outlook.office365.com over HTTPS.",
+    );
+    expect(mockInvoke).not.toHaveBeenCalledWith("save_config", expect.anything());
+    expect(mockInvoke).not.toHaveBeenCalledWith(
+      "store_credential",
+      expect.objectContaining({ key: "teams_webhook" }),
+    );
+    expect(onClose).not.toHaveBeenCalled();
+  });
 });

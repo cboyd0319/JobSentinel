@@ -766,7 +766,7 @@ match result {
 
 | Threat                | Mitigation                                   |
 | --------------------- | -------------------------------------------- |
-| **Data exfiltration** | Webhook URL validation (only slack.com)      |
+| **Data exfiltration** | Webhook URL validation and provider allowlists |
 | **SQL injection**     | Parameterized queries (sqlx)                 |
 | **XSS**               | No eval(), sanitized HTML parsing            |
 | **Secrets in code**   | No hardcoded secrets, user-provided webhooks |

@@ -197,6 +197,7 @@ const rawNotificationJobTitleLoggingPaths = new Set(["src-tauri/src/core/notify/
 const rawBookmarkletLoggingPaths = new Set(["src-tauri/src/core/bookmarklet/server.rs"]);
 const bookmarkletGeneratorPaths = new Set(["src/components/BookmarkletGenerator.tsx"]);
 const frontendErrorReportingPaths = new Set(["src/utils/errorReporting.ts"]);
+const settingsCredentialPaths = new Set(["src/pages/Settings.tsx"]);
 
 function readPackageManifest(root) {
   return JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
@@ -718,6 +719,21 @@ function hasUnsanitizedFrontendErrorReportStorage(root, path) {
   );
 }
 
+function hasNotificationWebhookSaveWithoutValidation(root, path) {
+  if (!settingsCredentialPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const savesNotificationWebhook =
+    /storeCredential\(\s*["'](?:slack|discord|teams)_webhook["']/.test(text);
+
+  return (
+    savesNotificationWebhook &&
+    !/getCredentialValidationError\(\s*credentials\s*\)/.test(text)
+  );
+}
+
 function hasUnownedStorybookAddon(root, path) {
   if (path !== ".storybook/main.ts") {
     return false;
@@ -900,6 +916,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasUnsanitizedFrontendErrorReportStorage(root, path)) {
       violations.push(`sanitize frontend error report storage: ${path}`);
+    }
+
+    if (hasNotificationWebhookSaveWithoutValidation(root, path)) {
+      violations.push(`validate notification webhook settings before saving: ${path}`);
     }
 
     if (hasUnownedStorybookAddon(root, path)) {

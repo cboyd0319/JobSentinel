@@ -20,6 +20,11 @@ import {
   readCachedDetectedLocation,
   type LocationInfo,
 } from "../utils/locationDetection";
+import {
+  validateDiscordWebhook,
+  validateSlackWebhook,
+  validateTeamsWebhook,
+} from "../utils/formValidation";
 
 // Ghost detection configuration interface
 interface GhostConfig {
@@ -207,26 +212,53 @@ async function hasCredential(key: CredentialKey): Promise<boolean> {
   return await invoke<boolean>("has_credential", { key });
 }
 
-const isValidSlackWebhook = (url: string): boolean => {
-  if (!url) return true;
-  // Parse URL to validate host/origin, not just string prefix
-  // This prevents bypass attacks like "https://evil.com?https://hooks.slack.com/services/..."
-  try {
-    const parsed = new URL(url);
-    return (
-      parsed.protocol === "https:" &&
-      parsed.hostname === "hooks.slack.com" &&
-      parsed.pathname.startsWith("/services/")
-    );
-  } catch {
-    return false;
-  }
-};
+const isValidSlackWebhook = (url: string): boolean =>
+  validateSlackWebhook(url) === undefined;
+
+const isValidDiscordWebhook = (url: string): boolean =>
+  validateDiscordWebhook(url) === undefined;
+
+const isValidTeamsWebhook = (url: string): boolean =>
+  validateTeamsWebhook(url) === undefined;
 
 const isValidEmail = (email: string): boolean => {
   if (!email) return true;
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
+
+interface CredentialValidationError {
+  title: string;
+  message: string;
+}
+
+function getCredentialValidationError(
+  credentials: Credentials,
+): CredentialValidationError | null {
+  if (validateSlackWebhook(credentials.slack_webhook)) {
+    return {
+      title: "Invalid Slack webhook",
+      message: "Slack webhook URLs must use hooks.slack.com over HTTPS.",
+    };
+  }
+
+  if (validateDiscordWebhook(credentials.discord_webhook)) {
+    return {
+      title: "Invalid Discord webhook",
+      message:
+        "Discord webhook URLs must use discord.com or discordapp.com over HTTPS.",
+    };
+  }
+
+  if (validateTeamsWebhook(credentials.teams_webhook)) {
+    return {
+      title: "Invalid Teams webhook",
+      message:
+        "Teams webhook URLs must use outlook.office.com or outlook.office365.com over HTTPS.",
+    };
+  }
+
+  return null;
+}
 
 export default function Settings({ onClose }: SettingsProps) {
   const [config, setConfig] = useState<Config | null>(null);
@@ -692,6 +724,15 @@ export default function Settings({ onClose }: SettingsProps) {
 
   const handleSave = useCallback(async () => {
     if (!config) return;
+
+    const credentialValidationError = getCredentialValidationError(credentials);
+    if (credentialValidationError) {
+      toast.error(
+        credentialValidationError.title,
+        credentialValidationError.message,
+      );
+      return;
+    }
 
     try {
       setSaving(true);
@@ -2261,6 +2302,14 @@ export default function Settings({ onClose }: SettingsProps) {
                               ? "Enter new webhook to update"
                               : "Paste your Discord webhook URL"
                           }
+                          error={
+                            credentials.discord_webhook &&
+                            !isValidDiscordWebhook(
+                              credentials.discord_webhook,
+                            )
+                              ? "This doesn't look like a valid Discord webhook URL"
+                              : undefined
+                          }
                           hint="Server Settings → Integrations → Webhooks → New Webhook → Copy URL"
                           autoComplete="off"
                         />
@@ -2330,6 +2379,12 @@ export default function Settings({ onClose }: SettingsProps) {
                             credentialStatus.teams_webhook
                               ? "Enter new webhook to update"
                               : "Paste your Teams webhook URL"
+                          }
+                          error={
+                            credentials.teams_webhook &&
+                            !isValidTeamsWebhook(credentials.teams_webhook)
+                              ? "This doesn't look like a valid Teams webhook URL"
+                              : undefined
                           }
                           autoComplete="off"
                           hint="Channel → Connectors → Incoming Webhook → Configure → Copy URL"

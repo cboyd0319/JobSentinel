@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Added frontend validation gates for Slack, Discord, and Teams webhook credential saves, added Teams URL validation coverage, corrected stale webhook allowlist docs, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Sanitized frontend error-report storage so browser-local error logs no longer persist raw URLs, emails, tokens, webhook URLs, user paths, or captured async arguments; corrected localStorage persistence docs. |
 | 2026-05-20 | In progress | Removed stale Storybook config entries for an uninstalled Chromatic addon and an empty MDX story glob, with bloat coverage for unowned Storybook addons. |
 | 2026-05-20 | In progress | Added bookmarklet import token authentication so arbitrary websites cannot POST jobs into the local SQLite database when the localhost bookmarklet server is running. |
@@ -184,6 +185,10 @@ changes or Playwright-specific work.
   values, current URLs, and captured async arguments in browser localStorage.
   Those values can contain job URLs, query strings, emails, tokens, webhook
   URLs, local usernames in paths, or user-entered request arguments.
+- Settings validated Slack webhook shape inline for display, but the save path
+  could still persist invalid Slack, Discord, or Teams webhook values to the
+  keyring. Discord and Teams also lacked frontend validation hints even though
+  backend senders reject non-provider webhook URLs later.
 - Maintained docs still used an overbroad "all user data" localStorage-to-SQLite
   migration claim even though frontend localStorage remains valid for
   non-authoritative UI preferences, caches, sanitized error logs, and transient
@@ -469,6 +474,9 @@ changes or Playwright-specific work.
   Preserve exact error objects for development console output, but stored reports
   must strip URL query strings/fragments/userinfo, emails, tokens, webhook URLs,
   local user paths, and sensitive context keys.
+- Notification webhook credentials must be validated before any keyring write.
+  Frontend validation should mirror backend provider allowlists so users see the
+  error while configuring Slack, Discord, or Teams, not only after a send fails.
 - Describe SQLite as authoritative for job-search records and durable
   preferences. Do not claim browser localStorage is unused; it remains available
   for local-only UI state, caches, sanitized error logs, and recovery hints.

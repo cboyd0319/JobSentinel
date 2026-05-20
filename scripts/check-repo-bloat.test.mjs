@@ -1275,3 +1275,31 @@ test("checkRepoBloat rejects unsanitized frontend error report storage", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects notification webhook saves without validation", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/pages/Settings.tsx",
+      [
+        "async function handleSave(credentials) {",
+        "  await storeCredential(\"discord_webhook\", credentials.discord_webhook);",
+        "  await storeCredential(\"teams_webhook\", credentials.teams_webhook);",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/pages/Settings.tsx"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "validate notification webhook settings before saving: src/pages/Settings.tsx",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
