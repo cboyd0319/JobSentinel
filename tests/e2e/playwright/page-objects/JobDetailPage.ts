@@ -2,118 +2,72 @@ import { Page, Locator } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
 /**
- * Page object for Job Detail view and interactions
+ * Job card interactions on the dashboard.
  */
 export class JobDetailPage extends BasePage {
+  private activeCardIndex = 0;
+
   constructor(page: Page) {
     super(page);
   }
 
   async navigateTo() {
-    await this.goto("/dashboard");
+    await this.goto("/");
     await this.skipSetupWizard();
   }
 
-  // Job detail panel
+  private get jobCards(): Locator {
+    return this.page.locator("[data-testid='job-card']");
+  }
+
+  private get activeCard(): Locator {
+    return this.jobCards.nth(this.activeCardIndex);
+  }
+
   get jobDetailPanel(): Locator {
-    return this.page.locator("[data-testid='job-detail'], [class*='job-detail']");
+    return this.activeCard;
   }
 
   get jobTitle(): Locator {
-    return this.page.locator("[data-testid='job-title'], h1, h2").first();
+    return this.activeCard.locator("[data-testid='job-title']");
   }
 
   get companyName(): Locator {
-    return this.page.locator("[data-testid='company-name'], [class*='company']");
+    return this.activeCard.locator("[data-testid='job-company']");
   }
 
-  get jobLocation(): Locator {
-    return this.page.locator("[data-testid='job-location'], [class*='location']");
-  }
-
-  get jobDescription(): Locator {
-    return this.page.locator("[data-testid='job-description'], [class*='description']");
-  }
-
-  // Job actions
   get bookmarkButton(): Locator {
-    return this.page.locator(
-      "button:has-text('Bookmark'), button:has-text('Save'), [data-testid='bookmark-btn']"
-    );
-  }
-
-  get bookmarkedIcon(): Locator {
-    return this.page.locator("[data-testid='bookmarked'], [class*='bookmarked']");
+    return this.activeCard.locator("[data-testid='btn-bookmark']");
   }
 
   get addNoteButton(): Locator {
-    return this.page.locator(
-      "button:has-text('Add Note'), button:has-text('Note'), [data-testid='add-note-btn']"
-    );
-  }
-
-  get notesSection(): Locator {
-    return this.page.locator("[data-testid='notes-section'], [class*='notes']");
+    return this.activeCard.locator("[data-testid='btn-notes']");
   }
 
   get noteTextarea(): Locator {
-    return this.page.locator("textarea[placeholder*='note' i], textarea[name='note']");
+    return this.page.getByLabel("Job notes");
   }
 
   get saveNoteButton(): Locator {
-    return this.page.locator("button:has-text('Save Note'), button:has-text('Add')");
+    return this.page.getByRole("button", {
+      name: /Save Notes|Remove Notes/,
+    });
   }
 
-  get notesList(): Locator {
-    return this.page.locator("[data-testid='note-item'], [class*='note-card']");
-  }
-
-  // Application status
-  get statusDropdown(): Locator {
-    return this.page.locator(
-      "select[name='status'], [data-testid='status-select']"
-    );
-  }
-
-  get applyButton(): Locator {
-    return this.page.locator("button:has-text('Apply'), button:has-text('Quick Apply')");
-  }
-
-  get appliedBadge(): Locator {
-    return this.page.locator(
-      "[data-testid='applied-badge'], text=Applied, [class*='applied']"
-    );
-  }
-
-  get moveToAppliedButton(): Locator {
-    return this.page.locator("button:has-text('Mark as Applied')");
-  }
-
-  // Match score
   get matchScore(): Locator {
-    return this.page.locator("[data-testid='match-score'], [class*='match-score']");
+    return this.activeCard.getByLabel(/^Match score:/);
   }
 
-  get matchPercentage(): Locator {
-    return this.page.locator("[data-testid='match-percentage']");
-  }
-
-  // Actions
   async openJobDetail(index: number = 0) {
-    const jobCards = this.page.locator(
-      "[data-testid='job-card'], [class*='job-card']"
-    );
-    const card = jobCards.nth(index);
-
-    if (await card.isVisible().catch(() => false)) {
-      await card.click();
-      await this.waitForReady();
-    }
+    this.activeCardIndex = index;
+    await this.activeCard.waitFor({ state: "visible", timeout: 5000 });
+    await this.activeCard.scrollIntoViewIfNeeded();
+    await this.activeCard.hover();
   }
 
   async waitForDetailPanel(timeout: number = 5000): Promise<boolean> {
     try {
-      await this.jobDetailPanel.waitFor({ state: "visible", timeout });
+      await this.activeCard.waitFor({ state: "visible", timeout });
       return true;
     } catch {
       return false;
@@ -121,85 +75,43 @@ export class JobDetailPage extends BasePage {
   }
 
   async getJobTitle(): Promise<string> {
-    try {
-      return (await this.jobTitle.textContent()) || "";
-    } catch {
-      return "";
-    }
+    return (await this.jobTitle.textContent())?.trim() || "";
   }
 
   async getCompanyName(): Promise<string> {
-    try {
-      return (await this.companyName.textContent()) || "";
-    } catch {
-      return "";
-    }
+    return (await this.companyName.textContent())?.trim() || "";
   }
 
   async toggleBookmark() {
-    if (await this.bookmarkButton.isVisible().catch(() => false)) {
-      await this.bookmarkButton.click();
-      await this.page.waitForTimeout(300);
-    }
+    await this.activeCard.hover();
+    await this.bookmarkButton.click();
   }
 
   async isBookmarked(): Promise<boolean> {
-    return await this.bookmarkedIcon.isVisible().catch(() => false);
+    const bookmarked = await this.bookmarkButton.getAttribute(
+      "data-bookmarked",
+    );
+    return bookmarked !== null && bookmarked !== "false";
   }
 
   async addNote(noteText: string) {
-    // Open note input if needed
-    if (await this.addNoteButton.isVisible().catch(() => false)) {
-      await this.addNoteButton.click();
-      await this.page.waitForTimeout(300);
-    }
-
-    if (await this.noteTextarea.isVisible().catch(() => false)) {
-      await this.noteTextarea.fill(noteText);
-      await this.saveNoteButton.click();
-      await this.page.waitForTimeout(500);
-    }
+    await this.activeCard.hover();
+    await this.addNoteButton.click({ force: true });
+    await this.noteTextarea.waitFor({ state: "visible", timeout: 5000 });
+    await this.noteTextarea.fill(noteText);
+    await this.saveNoteButton.waitFor({ state: "visible", timeout: 5000 });
+    await this.saveNoteButton.click({ force: true });
+    await this.noteTextarea.waitFor({ state: "detached", timeout: 5000 });
   }
 
   async getNotesCount(): Promise<number> {
-    return await this.notesList.count();
-  }
-
-  async getNoteText(index: number): Promise<string> {
-    try {
-      const note = this.notesList.nth(index);
-      return (await note.textContent()) || "";
-    } catch {
-      return "";
-    }
-  }
-
-  async moveToAppliedStatus() {
-    // Try dropdown method first
-    if (await this.statusDropdown.isVisible().catch(() => false)) {
-      await this.statusDropdown.selectOption("applied");
-      await this.page.waitForTimeout(500);
-      return;
-    }
-
-    // Try button method
-    if (await this.moveToAppliedButton.isVisible().catch(() => false)) {
-      await this.moveToAppliedButton.click();
-      await this.page.waitForTimeout(500);
-    }
-  }
-
-  async isMarkedAsApplied(): Promise<boolean> {
-    return await this.appliedBadge.isVisible().catch(() => false);
+    const label = await this.addNoteButton.getAttribute("aria-label");
+    return label === "Edit notes" ? 1 : 0;
   }
 
   async getMatchScore(): Promise<number | null> {
-    try {
-      const text = await this.matchScore.textContent();
-      const match = text?.match(/(\d+)%?/);
-      return match ? parseInt(match[1]) : null;
-    } catch {
-      return null;
-    }
+    const label = await this.matchScore.getAttribute("aria-label");
+    const match = label?.match(/Match score:\s*(\d+)%/);
+    return match ? parseInt(match[1], 10) : null;
   }
 }

@@ -200,9 +200,9 @@ export function useDashboardJobOps(
           logContext: "Save job notes",
         },
       );
-      // Update local state
-      setJobs(
-        jobs.map((j) => (j.id === jobId ? { ...j, notes: notesToSave } : j)),
+      invalidateCacheByCommand("get_recent_jobs");
+      setJobs((prev) =>
+        prev.map((j) => (j.id === jobId ? { ...j, notes: notesToSave } : j)),
       );
 
       // Push undoable action
@@ -214,6 +214,7 @@ export function useDashboardJobOps(
         undo: async () => {
           try {
             await invoke("set_job_notes", { id: jobId, notes: previousNotes });
+            invalidateCacheByCommand("get_recent_jobs");
             setJobs((prev) =>
               prev.map((j) =>
                 j.id === jobId ? { ...j, notes: previousNotes } : j,
@@ -230,6 +231,7 @@ export function useDashboardJobOps(
         redo: async () => {
           try {
             await invoke("set_job_notes", { id: jobId, notes: notesToSave });
+            invalidateCacheByCommand("get_recent_jobs");
             setJobs((prev) =>
               prev.map((j) =>
                 j.id === jobId ? { ...j, notes: notesToSave } : j,

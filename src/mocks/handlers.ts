@@ -14,6 +14,7 @@ import {
 } from "./data";
 
 type MockJob = typeof mockJobs[number];
+type MockConfig = typeof mockConfig;
 
 interface MockInterview {
   id: number;
@@ -39,15 +40,64 @@ let jobs = [...mockJobs];
 let config = { ...mockConfig };
 let interviews: MockInterview[] = [...mockUpcomingInterviews];
 
+const MOCK_STATE_KEY = "jobsentinel.mockState.v1";
+
+interface MockState {
+  jobs: MockJob[];
+  config: MockConfig;
+  interviews: MockInterview[];
+}
+
+function canUseStorage(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    typeof window.localStorage !== "undefined"
+  );
+}
+
+function saveMockState(): void {
+  if (!canUseStorage()) return;
+
+  const state: MockState = { jobs, config, interviews };
+  window.localStorage.setItem(MOCK_STATE_KEY, JSON.stringify(state));
+}
+
+function loadMockState(): void {
+  if (!canUseStorage()) return;
+
+  const rawState = window.localStorage.getItem(MOCK_STATE_KEY);
+  if (!rawState) return;
+
+  try {
+    const state = JSON.parse(rawState) as Partial<MockState>;
+    if (Array.isArray(state.jobs)) jobs = state.jobs;
+    if (state.config && typeof state.config === "object") {
+      config = { ...mockConfig, ...state.config };
+    }
+    if (Array.isArray(state.interviews)) interviews = state.interviews;
+  } catch {
+    window.localStorage.removeItem(MOCK_STATE_KEY);
+  }
+}
+
+loadMockState();
+
 function getJobId(args?: Record<string, unknown>): number | undefined {
-  const nestedArgs = args?.payload as Record<string, unknown> | undefined;
-  const value = args?.id ?? args?.jobId ?? nestedArgs?.id ?? nestedArgs?.jobId;
+  const value = getArg(args, "id") ?? getArg(args, "jobId");
   if (typeof value === "number") return value;
   if (typeof value === "string") {
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : undefined;
   }
   return undefined;
+}
+
+function getArg(
+  args: Record<string, unknown> | undefined,
+  key: string,
+): unknown {
+  const nestedArgs = args?.payload as Record<string, unknown> | undefined;
+  return args?.[key] ?? nestedArgs?.[key];
 }
 
 /**
@@ -68,10 +118,12 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
 
     case "hide_job":
       jobs = jobs.map((j) => (j.id === jobId ? { ...j, hidden: true } : j));
+      saveMockState();
       return undefined as T;
 
     case "unhide_job":
       jobs = jobs.map((j) => (j.id === jobId ? { ...j, hidden: false } : j));
+      saveMockState();
       return undefined as T;
 
     case "toggle_bookmark": {
@@ -81,6 +133,7 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
         nextState = !j.bookmarked;
         return { ...j, bookmarked: nextState };
       });
+      saveMockState();
       return nextState as T;
     }
 
@@ -88,7 +141,12 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       return jobs.filter((j) => j.bookmarked) as T;
 
     case "set_job_notes":
-      jobs = jobs.map((j) => (j.id === jobId ? { ...j, notes: args?.notes as string } : j));
+      jobs = jobs.map((j) =>
+        j.id === jobId
+          ? { ...j, notes: getArg(args, "notes") as string | null }
+          : j,
+      );
+      saveMockState();
       return undefined as T;
 
     case "get_job_notes":
@@ -104,7 +162,8 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       return config as T;
 
     case "save_config":
-      config = { ...config, ...(args?.config as object) };
+      config = { ...config, ...(getArg(args, "config") as object) };
+      saveMockState();
       return undefined as T;
 
     // Statistics commands
@@ -179,31 +238,44 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       const newId = Math.max(...interviews.map((i) => i.id), 0) + 1;
       const newInterview: MockInterview = {
         id: newId,
-        application_id: args?.applicationId as number,
-        interview_type: args?.interviewType as string,
-        scheduled_at: args?.scheduledAt as string,
-        duration_minutes: args?.durationMinutes as number,
-        location: (args?.location as string) || null,
-        interviewer_name: (args?.interviewerName as string) || null,
-        interviewer_title: (args?.interviewerTitle as string) || null,
-        notes: (args?.notes as string) || null,
+        application_id: getArg(args, "applicationId") as number,
+        interview_type: getArg(args, "interviewType") as string,
+        scheduled_at: getArg(args, "scheduledAt") as string,
+        duration_minutes: getArg(args, "durationMinutes") as number,
+        location: (getArg(args, "location") as string) || null,
+        interviewer_name:
+          (getArg(args, "interviewerName") as string) || null,
+        interviewer_title:
+          (getArg(args, "interviewerTitle") as string) || null,
+        notes: (getArg(args, "notes") as string) || null,
         completed: false,
         outcome: null,
         job_title: "Mock Job",
         company: "Mock Company",
       };
       interviews.push(newInterview);
+      saveMockState();
       return newId as T;
     }
 
     case "complete_interview":
       interviews = interviews.map((i): MockInterview =>
-        i.id === args?.interviewId ? { ...i, completed: true, outcome: args?.outcome as string } : i
+        i.id === getArg(args, "interviewId")
+          ? {
+              ...i,
+              completed: true,
+              outcome: getArg(args, "outcome") as string,
+            }
+          : i,
       );
+      saveMockState();
       return undefined as T;
 
     case "delete_interview":
-      interviews = interviews.filter((i) => i.id !== args?.interviewId);
+      interviews = interviews.filter(
+        (i) => i.id !== getArg(args, "interviewId"),
+      );
+      saveMockState();
       return undefined as T;
 
     // Deduplication commands
@@ -361,4 +433,5 @@ export function resetMockData() {
   jobs = [...mockJobs];
   config = { ...mockConfig };
   interviews = [...mockUpcomingInterviews];
+  saveMockState();
 }

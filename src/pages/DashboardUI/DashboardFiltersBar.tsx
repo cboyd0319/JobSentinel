@@ -1,7 +1,7 @@
 // Dashboard Filters Bar Component
 // Contains all filter controls, search, bulk actions, and action buttons
 
-import { memo, RefObject, useState, useEffect } from "react";
+import { memo, RefObject, useState, useEffect, useRef } from "react";
 import { Dropdown, Tooltip } from "../../components";
 import { useDebouncedValue } from "../../hooks";
 import {
@@ -122,20 +122,30 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
   // Local state for responsive input, debounced for filtering performance
   const [localSearch, setLocalSearch] = useState(textSearch);
   const debouncedSearch = useDebouncedValue(localSearch, 300);
+  const lastSyncedSearchRef = useRef(textSearch);
+  const skipNextDebounceSyncRef = useRef(false);
+
+  // Sync from parent when textSearch changes externally, such as Clear filters.
+  useEffect(() => {
+    if (textSearch !== lastSyncedSearchRef.current) {
+      lastSyncedSearchRef.current = textSearch;
+      skipNextDebounceSyncRef.current = true;
+      setLocalSearch(textSearch);
+    }
+  }, [textSearch]);
 
   // Sync debounced value to parent for filtering
   useEffect(() => {
-    if (debouncedSearch !== textSearch) {
+    if (skipNextDebounceSyncRef.current) {
+      skipNextDebounceSyncRef.current = false;
+      return;
+    }
+
+    if (debouncedSearch !== lastSyncedSearchRef.current) {
+      lastSyncedSearchRef.current = debouncedSearch;
       setTextSearch(debouncedSearch);
     }
-  }, [debouncedSearch, setTextSearch, textSearch]);
-
-  // Sync from parent when textSearch changes externally (e.g., loading saved search)
-  useEffect(() => {
-    if (textSearch !== localSearch && textSearch !== debouncedSearch) {
-      setLocalSearch(textSearch);
-    }
-  }, [textSearch]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [debouncedSearch, setTextSearch]);
 
   return (
     <div className="flex flex-col gap-4 mb-4">

@@ -31,15 +31,15 @@ export class DashboardPage extends BasePage {
   }
 
   get filterButtons(): Locator {
-    return this.page.locator("[data-testid^='filter-']");
+    return this.page.locator("button[aria-haspopup='listbox']");
   }
 
   get locationFilter(): Locator {
-    return this.page.locator("[data-testid='filter-location']");
+    return this.dropdownButton("Location");
   }
 
   get salaryFilter(): Locator {
-    return this.page.locator("[data-testid='filter-salary']");
+    return this.page.getByLabel("Minimum salary in thousands");
   }
 
   get experienceFilter(): Locator {
@@ -47,7 +47,11 @@ export class DashboardPage extends BasePage {
   }
 
   get clearFiltersButton(): Locator {
-    return this.page.locator("[data-testid='btn-clear-filters']");
+    return this.page
+      .getByRole("button", {
+        name: /Clear all active filters|Clear all filters to show all jobs|Clear Filters/,
+      })
+      .first();
   }
 
   get emptyState(): Locator {
@@ -72,29 +76,57 @@ export class DashboardPage extends BasePage {
   }
 
   async applyFilter(filterType: "location" | "salary" | "experience", value: string) {
-    const filter = {
-      location: this.locationFilter,
-      salary: this.salaryFilter,
-      experience: this.experienceFilter,
-    }[filterType];
+    if (filterType === "location") {
+      const optionLabels: Record<string, string> = {
+        all: "All Locations",
+        remote: "Remote Only",
+        onsite: "On-site Only",
+      };
+      await this.locationFilter.click();
+      const option = this.page.getByRole("option", {
+        name: optionLabels[value] ?? value,
+      });
+      await option.waitFor({ state: "visible", timeout: 5000 });
+      await option.click({ force: true });
+      await this.waitForReady();
+      return;
+    }
 
-    await filter.click();
-    await this.page.waitForTimeout(200);
+    if (filterType === "salary") {
+      const salaryMinimums: Record<string, string> = {
+        "100k+": "100",
+        "150k+": "150",
+        "200k+": "200",
+      };
+      await this.salaryFilter.fill(salaryMinimums[value] ?? value);
+      await this.waitForReady();
+      return;
+    }
 
-    const option = this.page.locator(`[data-value="${value}"]`);
-    await option.click();
+    await this.experienceFilter.click();
     await this.waitForReady();
   }
 
   async clearAllFilters() {
-    if (await this.clearFiltersButton.isVisible().catch(() => false)) {
-      await this.clearFiltersButton.click();
+    try {
+      await this.clearFiltersButton.waitFor({ state: "visible", timeout: 5000 });
+      await this.clearFiltersButton.click({ force: true });
       await this.waitForReady();
+    } catch {
+      return;
     }
   }
 
   async getJobCount(): Promise<number> {
     return await this.jobCards.count();
+  }
+
+  private dropdownButton(label: string): Locator {
+    return this.page
+      .locator("div.relative")
+      .filter({ has: this.page.locator("label", { hasText: label }) })
+      .getByRole("button")
+      .first();
   }
 }
 
