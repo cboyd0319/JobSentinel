@@ -52,11 +52,14 @@ pub async fn create_cover_letter_template(
     category: String,
     state: State<'_, AppState>,
 ) -> Result<CoverLetterTemplate, String> {
-    tracing::info!("Command: create_cover_letter_template (name: {})", name);
-
     let category: TemplateCategory = category
         .parse()
         .map_err(|e: String| format!("Invalid category: {}", e))?;
+    tracing::info!(
+        name_len = name.chars().count(),
+        category = %category,
+        "Command: create_cover_letter_template"
+    );
 
     let manager = UserDataManager::new(state.database.pool().clone());
     manager
@@ -241,7 +244,14 @@ pub async fn create_saved_search(
     search: SavedSearch,
     state: State<'_, AppState>,
 ) -> Result<SavedSearch, String> {
-    tracing::info!("Command: create_saved_search (name: {})", search.name);
+    tracing::info!(
+        name_len = search.name.chars().count(),
+        has_text_search = search
+            .text_search
+            .as_ref()
+            .is_some_and(|text| !text.trim().is_empty()),
+        "Command: create_saved_search"
+    );
 
     let manager = UserDataManager::new(state.database.pool().clone());
     manager

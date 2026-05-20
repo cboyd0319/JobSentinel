@@ -202,6 +202,10 @@ const feedbackSanitizerPaths = new Set(["src-tauri/src/commands/feedback/sanitiz
 const notificationDocsPaths = new Set(["docs/features/notifications.md"]);
 const structuredDebugLogPaths = new Set(["src-tauri/src/commands/feedback/debug_log.rs"]);
 const feedbackCommandPaths = new Set(["src-tauri/src/commands/feedback/mod.rs"]);
+const userDataPrivacyLoggingPaths = new Set([
+  "src-tauri/src/commands/user_data.rs",
+  "src-tauri/src/core/user_data/mod.rs",
+]);
 
 function readPackageManifest(root) {
   return JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
@@ -580,6 +584,27 @@ function hasRawPrivateQueryLogging(root, path) {
   );
 }
 
+function hasRawUserDataPrivacyLogging(root, path) {
+  if (!userDataPrivacyLoggingPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /create_cover_letter_template \(name:\s*\{\}\)/.test(text) ||
+    /create_saved_search \(name:\s*\{\}\)/.test(text) ||
+    /Creating template:\s*\{\}/.test(text) ||
+    /Creating saved search:\s*\{\}/.test(text) ||
+    /Adding search history:\s*\{\}/.test(text) ||
+    /#\[instrument\(skip\(self,\s*content\)\)\]\s*pub async fn (?:create|update)_template/.test(
+      text,
+    ) ||
+    /#\[instrument\(skip\(self\)\)\]\s*pub async fn (?:create_saved_search|add_search_history|save_notification_preferences)/.test(
+      text,
+    )
+  );
+}
+
 function hasRawScraperUrlOrQueryLogging(root, path) {
   if (!rawScraperLoggingPaths.has(path)) {
     return false;
@@ -916,6 +941,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawPrivateQueryLogging(root, path)) {
       violations.push(`replace raw private query logging: ${path}`);
+    }
+
+    if (hasRawUserDataPrivacyLogging(root, path)) {
+      violations.push(`replace raw user-data privacy logging: ${path}`);
     }
 
     if (hasRawScraperUrlOrQueryLogging(root, path)) {

@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Sanitized user-data command and manager logging so saved-search text, saved-search names, cover-letter template names, and notification preference payloads are not captured by logs or tracing spans. |
 | 2026-05-20 | In progress | Added backend sanitization for saved feedback file content, so frontend-provided report text cannot bypass the privacy contract before writing through the native save dialog. |
 | 2026-05-20 | In progress | Expanded frontend stored-error webhook redaction so malformed Slack webhook-like URLs and provider Discord/Teams webhook URLs are redacted before generic URL sanitization can preserve token paths. |
 | 2026-05-20 | In progress | Sanitized structured feedback debug events returned to the frontend, so GitHub/Drive feedback paths cannot bypass the formatted debug-log sanitizer, and added bloat coverage for recurrence. |
@@ -205,6 +206,9 @@ changes or Playwright-specific work.
 - `save_feedback_file` accepted frontend-provided report text and wrote it
   directly, even though the feedback module and plan promise sanitized local
   report output.
+- User-data command logs and manager tracing spans still exposed saved-search
+  names, saved-search text, cover-letter template names, and notification
+  preference payloads.
 - Maintained docs still used an overbroad "all user data" localStorage-to-SQLite
   migration claim even though frontend localStorage remains valid for
   non-authoritative UI preferences, caches, sanitized error logs, and transient
@@ -503,6 +507,9 @@ changes or Playwright-specific work.
   path segments may still contain secrets.
 - Feedback file saves must sanitize content at the backend write boundary, even
   when the expected caller already used `generate_feedback_report`.
+- User-data logs and tracing spans must use shape metadata such as length and
+  presence flags instead of raw template names, saved-search names, search text,
+  or preference payloads.
 - Describe SQLite as authoritative for job-search records and durable
   preferences. Do not claim browser localStorage is unused; it remains available
   for local-only UI state, caches, sanitized error logs, and recovery hints.

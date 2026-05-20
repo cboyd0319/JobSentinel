@@ -1480,3 +1480,69 @@ test("checkRepoBloat rejects unsanitized feedback file saves", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects raw user-data privacy logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/user_data.rs",
+      [
+        "pub async fn create_cover_letter_template(name: String) -> Result<(), String> {",
+        "    tracing::info!(\"Command: create_cover_letter_template (name: {})\", name);",
+        "    Ok(())",
+        "}",
+        "",
+        "pub async fn create_saved_search(search: SavedSearch) -> Result<(), String> {",
+        "    tracing::info!(\"Command: create_saved_search (name: {})\", search.name);",
+        "    Ok(())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/user_data/mod.rs",
+      [
+        "#[instrument(skip(self, content))]",
+        "pub async fn create_template(&self, name: &str, content: &str) -> Result<(), Error> {",
+        "    debug!(\"Creating template: {}\", name);",
+        "    Ok(())",
+        "}",
+        "",
+        "#[instrument(skip(self))]",
+        "pub async fn create_saved_search(&self, search: SavedSearch) -> Result<(), Error> {",
+        "    debug!(\"Creating saved search: {} ({})\", search.name, search.id);",
+        "    Ok(())",
+        "}",
+        "",
+        "#[instrument(skip(self))]",
+        "pub async fn add_search_history(&self, query: &str) -> Result<(), Error> {",
+        "    debug!(\"Adding search history: {}\", query);",
+        "    Ok(())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", [
+      "add",
+      "package.json",
+      "src-tauri/src/commands/user_data.rs",
+      "src-tauri/src/core/user_data/mod.rs",
+    ], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace raw user-data privacy logging: src-tauri/src/commands/user_data.rs"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace raw user-data privacy logging: src-tauri/src/core/user_data/mod.rs"),
+      violations.join("\n"),
+    );
+  });
+});

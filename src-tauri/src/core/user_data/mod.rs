@@ -414,7 +414,7 @@ impl UserDataManager {
     }
 
     /// Create a new template
-    #[instrument(skip(self, content))]
+    #[instrument(skip(self, name, content))]
     pub async fn create_template(
         &self,
         name: &str,
@@ -425,7 +425,11 @@ impl UserDataManager {
         let now = Utc::now().to_rfc3339();
         let category_str = category.to_string();
 
-        debug!("Creating template: {} ({})", name, category_str);
+        debug!(
+            name_len = name.chars().count(),
+            category = %category_str,
+            "Creating template"
+        );
 
         sqlx::query(
             r#"
@@ -453,7 +457,7 @@ impl UserDataManager {
     }
 
     /// Update an existing template
-    #[instrument(skip(self, content))]
+    #[instrument(skip(self, name, content))]
     pub async fn update_template(
         &self,
         id: &str,
@@ -658,7 +662,7 @@ impl UserDataManager {
     }
 
     /// Create a saved search
-    #[instrument(skip(self))]
+    #[instrument(skip(self, search))]
     pub async fn create_saved_search(
         &self,
         search: SavedSearch,
@@ -670,7 +674,15 @@ impl UserDataManager {
         };
         let now = Utc::now().to_rfc3339();
 
-        debug!("Creating saved search: {} ({})", search.name, id);
+        debug!(
+            id = %id,
+            name_len = search.name.chars().count(),
+            has_text_search = search
+                .text_search
+                .as_ref()
+                .is_some_and(|text| !text.trim().is_empty()),
+            "Creating saved search"
+        );
 
         sqlx::query(
             r#"
@@ -746,7 +758,7 @@ impl UserDataManager {
     // ========== Search History ==========
 
     /// Add a query to search history
-    #[instrument(skip(self))]
+    #[instrument(skip(self, query))]
     pub async fn add_search_history(&self, query: &str) -> Result<(), sqlx::Error> {
         if query.trim().is_empty() || query.len() < 2 {
             return Ok(());
@@ -754,7 +766,7 @@ impl UserDataManager {
 
         let now = Utc::now().to_rfc3339();
 
-        debug!("Adding search history: {}", query);
+        debug!(query_len = query.chars().count(), "Adding search history");
 
         sqlx::query(
             r#"
@@ -859,7 +871,7 @@ impl UserDataManager {
     }
 
     /// Save notification preferences
-    #[instrument(skip(self))]
+    #[instrument(skip(self, prefs))]
     pub async fn save_notification_preferences(
         &self,
         prefs: &NotificationPreferences,
