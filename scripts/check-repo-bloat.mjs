@@ -198,6 +198,8 @@ const rawBookmarkletLoggingPaths = new Set(["src-tauri/src/core/bookmarklet/serv
 const bookmarkletGeneratorPaths = new Set(["src/components/BookmarkletGenerator.tsx"]);
 const frontendErrorReportingPaths = new Set(["src/utils/errorReporting.ts"]);
 const settingsCredentialPaths = new Set(["src/pages/Settings.tsx"]);
+const feedbackSanitizerPaths = new Set(["src-tauri/src/commands/feedback/sanitizer.rs"]);
+const notificationDocsPaths = new Set(["docs/features/notifications.md"]);
 
 function readPackageManifest(root) {
   return JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
@@ -734,6 +736,31 @@ function hasNotificationWebhookSaveWithoutValidation(root, path) {
   );
 }
 
+function hasStaleFeedbackWebhookSanitizer(root, path) {
+  if (!feedbackSanitizerPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    text.includes("hooks\\.(slack|discord|teams)\\.com") ||
+    !text.includes("discord(?:app)?\\.com/api/webhooks") ||
+    !text.includes("outlook\\.office(?:365)?\\.com/webhook")
+  );
+}
+
+function hasStaleNotificationWebhookDocs(root, path) {
+  if (!notificationDocsPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /Discord:\*\* Must start with `https:\/\/discord\.com\/api\/webhooks\/`/.test(text) ||
+    /Teams:\*\* Must start with `https:\/\/outlook\.office\.com\/webhook\/`/.test(text)
+  );
+}
+
 function hasUnownedStorybookAddon(root, path) {
   if (path !== ".storybook/main.ts") {
     return false;
@@ -920,6 +947,14 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasNotificationWebhookSaveWithoutValidation(root, path)) {
       violations.push(`validate notification webhook settings before saving: ${path}`);
+    }
+
+    if (hasStaleFeedbackWebhookSanitizer(root, path)) {
+      violations.push(`redact provider webhook URLs in feedback sanitizer: ${path}`);
+    }
+
+    if (hasStaleNotificationWebhookDocs(root, path)) {
+      violations.push(`document all notification webhook provider hosts: ${path}`);
     }
 
     if (hasUnownedStorybookAddon(root, path)) {

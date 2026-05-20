@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Fixed feedback-report webhook redaction so provider-valid Discord and Teams webhook URLs are sanitized, corrected notification docs for all allowed provider hosts, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Added frontend validation gates for Slack, Discord, and Teams webhook credential saves, added Teams URL validation coverage, corrected stale webhook allowlist docs, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Sanitized frontend error-report storage so browser-local error logs no longer persist raw URLs, emails, tokens, webhook URLs, user paths, or captured async arguments; corrected localStorage persistence docs. |
 | 2026-05-20 | In progress | Removed stale Storybook config entries for an uninstalled Chromatic addon and an empty MDX story glob, with bloat coverage for unowned Storybook addons. |
@@ -189,6 +190,9 @@ changes or Playwright-specific work.
   could still persist invalid Slack, Discord, or Teams webhook values to the
   keyring. Discord and Teams also lacked frontend validation hints even though
   backend senders reject non-provider webhook URLs later.
+- Feedback-report sanitization redacted Slack webhooks and fake
+  `hooks.discord.com` / `hooks.teams.com` patterns, but missed the provider
+  URLs accepted by notification code for Discord and Teams.
 - Maintained docs still used an overbroad "all user data" localStorage-to-SQLite
   migration claim even though frontend localStorage remains valid for
   non-authoritative UI preferences, caches, sanitized error logs, and transient
@@ -477,6 +481,9 @@ changes or Playwright-specific work.
 - Notification webhook credentials must be validated before any keyring write.
   Frontend validation should mirror backend provider allowlists so users see the
   error while configuring Slack, Discord, or Teams, not only after a send fails.
+- Feedback reports must redact the same webhook provider hosts accepted by the
+  notification senders and settings UI, including legacy Discord and Teams host
+  variants.
 - Describe SQLite as authoritative for job-search records and durable
   preferences. Do not claim browser localStorage is unused; it remains available
   for local-only UI state, caches, sanitized error logs, and recovery hints.

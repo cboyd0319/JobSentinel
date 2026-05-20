@@ -1303,3 +1303,63 @@ test("checkRepoBloat rejects notification webhook saves without validation", () 
     );
   });
 });
+
+test("checkRepoBloat rejects stale feedback webhook sanitizer patterns", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/feedback/sanitizer.rs",
+      [
+        "static WEBHOOK_REGEX: Lazy<Regex> = Lazy::new(|| {",
+        "    Regex::new(r\"https://hooks\\.(slack|discord|teams)\\.com/[^\\s]+\")",
+        "        .expect(\"Webhook URL regex pattern is valid and should compile\")",
+        "});",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/feedback/sanitizer.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "redact provider webhook URLs in feedback sanitizer: src-tauri/src/commands/feedback/sanitizer.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects stale notification webhook docs", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/notifications.md",
+      [
+        "### URL Validation",
+        "- **Slack:** Must start with `https://hooks.slack.com/services/`",
+        "- **Discord:** Must start with `https://discord.com/api/webhooks/`",
+        "- **Teams:** Must start with `https://outlook.office.com/webhook/`",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/features/notifications.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "document all notification webhook provider hosts: docs/features/notifications.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});

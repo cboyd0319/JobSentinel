@@ -28,10 +28,12 @@ static EMAIL_REGEX: Lazy<Regex> = Lazy::new(|| {
         .expect("Email address regex pattern is valid and should compile")
 });
 
-// Webhooks: https://hooks.slack.com/... → [WEBHOOK_CONFIGURED]
+// Webhooks: provider URL → [WEBHOOK_CONFIGURED]
 #[allow(clippy::expect_used)]
 static WEBHOOK_REGEX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"https://hooks\.(slack|discord|teams)\.com/[^\s]+")
+    Regex::new(
+        r#"https://(?:hooks\.slack\.com|discord(?:app)?\.com/api/webhooks|outlook\.office(?:365)?\.com/webhook|hooks\.discord\.com/api/webhooks|hooks\.teams\.com/workflows)[^\s"'<>\\)]*"#,
+    )
         .expect("Webhook URL regex pattern is valid and should compile")
 });
 
@@ -245,11 +247,19 @@ mod tests {
                 "Slack webhook: [WEBHOOK_CONFIGURED]",
             ),
             (
-                "Discord webhook: https://hooks.discord.com/api/webhooks/123456789/abcdefg",
+                "Discord webhook: https://discord.com/api/webhooks/123456789/abcdefg",
                 "Discord webhook: [WEBHOOK_CONFIGURED]",
             ),
             (
-                "Teams webhook: https://hooks.teams.com/workflows/abc123",
+                "Discord webhook: https://discordapp.com/api/webhooks/123456789/abcdefg",
+                "Discord webhook: [WEBHOOK_CONFIGURED]",
+            ),
+            (
+                "Teams webhook: https://outlook.office.com/webhook/abc123/IncomingWebhook/def456/ghi789",
+                "Teams webhook: [WEBHOOK_CONFIGURED]",
+            ),
+            (
+                "Teams webhook: https://outlook.office365.com/webhook/abc123/IncomingWebhook/def456/ghi789",
                 "Teams webhook: [WEBHOOK_CONFIGURED]",
             ),
         ];
@@ -351,7 +361,7 @@ mod tests {
     fn test_sanitize_error_complex_windows() {
         let input = format!(
             r"Error loading config from C:\Users\Administrator\AppData\Roaming\JobSentinel\config.json: \
-            Failed to parse webhook https://hooks.discord.com/api/webhooks/123/abc for user admin@company.com. \
+            Failed to parse webhook https://discord.com/api/webhooks/123/abc for user admin@company.com. \
             Database at D:\Users\dbuser\Documents\jobs.db is locked. Search for {} failed.",
             "\"senior engineer\""
         );

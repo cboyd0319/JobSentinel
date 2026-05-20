@@ -216,9 +216,11 @@ If one channel fails, others still send. You only get an error if ALL channels f
 
 Webhooks are validated before sending:
 
-- **Slack:** Must start with `https://hooks.slack.com/services/`
-- **Discord:** Must start with `https://discord.com/api/webhooks/`
-- **Teams:** Must start with `https://outlook.office.com/webhook/`
+- **Slack:** `https://hooks.slack.com/services/...`
+- **Discord:** `https://discord.com/api/webhooks/...` or
+  `https://discordapp.com/api/webhooks/...`
+- **Teams:** `https://outlook.office.com/webhook/...` or
+  `https://outlook.office365.com/webhook/...`
 
 ### Module Structure
 
