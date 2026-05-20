@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Sanitized deep-link and job-import URL logging so search terms, locations, credentials, query strings, and fragments are not written to logs. |
 | 2026-05-20 | In progress | Re-enabled company scoring tests that were still commented out after fuzzy matching landed, and added test-quality coverage for temporarily disabled test blocks. |
 | 2026-05-20 | In progress | Replaced roadmap status emoji with text-only statuses and added bloat coverage to keep active roadmap status rows ASCII. |
 | 2026-05-20 | In progress | Corrected local-first architecture wording and roadmap statuses for shipped importer, deep-link, and bookmarklet features; bloat sensor now catches stale shipped-feature roadmap statuses. |
@@ -232,6 +233,9 @@ changes or Playwright-specific work.
 - Company scoring tests still had a temporary-disabled / no-commit
   commented block even though company fuzzy matching had already been
   implemented.
+- Deep-link and universal job-import paths still logged raw user-controlled URLs,
+  including search terms, location filters, credentials, query strings, and
+  fragments.
 
 ## Decisions
 
@@ -261,6 +265,8 @@ changes or Playwright-specific work.
   searchable, accessible, and aligned with repo doc rules.
 - Treat commented-out temporary test blocks as test bloat; restore the coverage
   or delete it, then guard against reintroducing it.
+- Log sanitized URL labels for user-controlled navigation and import paths;
+  raw URLs may include private search criteria or tokens.
 - Keep the exact total Tauri command count only in canonical summary claims
   guarded by `npm run lint:tauri-invokes`; remove exact module sub-counts from
   overview docs unless a sensor owns them.

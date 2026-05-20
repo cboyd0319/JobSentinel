@@ -6,12 +6,13 @@ use crate::core::deeplinks::{
     generate_all_links, generate_link_for_site, get_all_sites, DeepLink, SearchCriteria,
     SiteCategory, SiteInfo,
 };
+use crate::core::url_security::sanitize_url_for_logging;
 use serde::{Deserialize, Serialize};
 use tauri::Emitter;
 
 /// Generate deep links for all supported sites
 #[tauri::command]
-#[tracing::instrument(skip(_app), fields(query = %criteria.query))]
+#[tracing::instrument(skip(_app, criteria))]
 pub async fn generate_deep_links(
     _app: tauri::AppHandle,
     criteria: SearchCriteria,
@@ -26,7 +27,7 @@ pub async fn generate_deep_links(
 
 /// Generate deep link for a specific site
 #[tauri::command]
-#[tracing::instrument(skip(_app), fields(site_id = %site_id, query = %criteria.query))]
+#[tracing::instrument(skip(_app, criteria), fields(site_id = %site_id))]
 pub async fn generate_deep_link(
     _app: tauri::AppHandle,
     site_id: String,
@@ -60,7 +61,7 @@ pub async fn get_sites_by_category_cmd(
 }
 
 /// Validate that a URL is safe to open in the user's browser.
-/// Only allows https:// URLs to known job search domains.
+/// Allows external HTTP(S) URLs while blocking localhost, private networks, and unsafe schemes.
 fn validate_deep_link_url(url: &str) -> Result<(), String> {
     crate::core::url_security::validate_external_http_url(url).map(|_| ())
 }
@@ -73,13 +74,14 @@ pub async fn open_deep_link(app: tauri::AppHandle, url: String) -> Result<(), St
 
     validate_deep_link_url(&url)?;
 
-    tracing::info!(url = %url, "Opening deep link in browser");
+    let url_label = sanitize_url_for_logging(&url);
+    tracing::info!(url = %url_label, "Opening deep link in browser");
 
     // Use tauri-plugin-shell to open URL
     let shell = app.shell();
     #[allow(deprecated)]
     shell.open(&url, None).map_err(|e| {
-        tracing::error!(error = %e, url = %url, "Failed to open URL");
+        tracing::error!(error = %e, url = %url_label, "Failed to open URL");
         format!("Failed to open URL: {}", e)
     })?;
 

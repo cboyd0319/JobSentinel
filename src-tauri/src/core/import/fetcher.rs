@@ -3,6 +3,7 @@
 //! Single-page fetcher with proper User-Agent and timeout handling.
 
 use super::types::{ImportError, ImportResult};
+use crate::core::url_security::sanitize_url_for_logging;
 use reqwest::header::LOCATION;
 use reqwest::{redirect::Policy, Client};
 use std::time::Duration;
@@ -23,7 +24,7 @@ pub async fn fetch_job_page(url: &str) -> ImportResult<String> {
     let parsed_url = crate::core::url_security::validate_external_http_url(url)
         .map_err(ImportError::InvalidUrl)?;
 
-    tracing::info!(url = %url, "Fetching job page");
+    tracing::info!(url = %sanitize_url_for_logging(url), "Fetching job page");
 
     let client = build_import_http_client().map_err(ImportError::HttpError)?;
 

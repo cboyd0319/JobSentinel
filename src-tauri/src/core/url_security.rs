@@ -3,6 +3,23 @@
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use url::Url;
 
+const MAX_LOG_URL_LEN: usize = 80;
+
+fn truncate_log_label(label: &str) -> String {
+    if label.len() <= MAX_LOG_URL_LEN {
+        return label.to_string();
+    }
+
+    let end = label
+        .char_indices()
+        .map(|(index, _)| index)
+        .take_while(|index| *index <= MAX_LOG_URL_LEN)
+        .last()
+        .unwrap_or(MAX_LOG_URL_LEN);
+
+    format!("{}...", &label[..end])
+}
+
 /// Parse and validate a URL intended for an external browser or HTTP fetch.
 ///
 /// Allows public `http` and `https` URLs only. Localhost, private, link-local,
@@ -42,6 +59,24 @@ pub fn validate_external_http_url(url: &str) -> Result<Url, String> {
     }
 
     Ok(parsed)
+}
+
+/// Return a URL label safe for logs.
+///
+/// Removes userinfo, query strings, and fragments because user-controlled URLs
+/// can include credentials, session tokens, search terms, and location filters.
+#[must_use]
+pub fn sanitize_url_for_logging(url: &str) -> String {
+    let Ok(mut parsed_url) = Url::parse(url) else {
+        return "<invalid-url>".to_string();
+    };
+
+    let _ = parsed_url.set_username("");
+    let _ = parsed_url.set_password(None);
+    parsed_url.set_query(None);
+    parsed_url.set_fragment(None);
+
+    truncate_log_label(parsed_url.as_ref())
 }
 
 fn is_blocked_ip(ip: IpAddr) -> bool {
@@ -130,5 +165,37 @@ mod tests {
     fn blocks_non_http_schemes() {
         assert!(validate_external_http_url("file:///etc/passwd").is_err());
         assert!(validate_external_http_url("javascript:alert(1)").is_err());
+    }
+
+    #[test]
+    fn sanitized_log_url_removes_sensitive_parts() {
+        let sanitized = sanitize_url_for_logging(
+            "https://user:pass@example.com/jobs/123?token=secret&location=Denver#private",
+        );
+
+        assert_eq!(sanitized, "https://example.com/jobs/123");
+        assert!(!sanitized.contains("secret"));
+        assert!(!sanitized.contains("Denver"));
+        assert!(!sanitized.contains("user"));
+        assert!(!sanitized.contains("pass"));
+    }
+
+    #[test]
+    fn sanitized_log_url_truncates_long_paths() {
+        let sanitized = sanitize_url_for_logging(&format!(
+            "https://example.com/jobs/{}?q=rust",
+            "a".repeat(120)
+        ));
+
+        assert!(sanitized.ends_with("..."));
+        assert!(sanitized.len() <= MAX_LOG_URL_LEN + 3);
+        assert!(!sanitized.contains("?q="));
+    }
+
+    #[test]
+    fn sanitized_log_url_handles_invalid_url() {
+        let sanitized = sanitize_url_for_logging("not a url with token=secret");
+
+        assert_eq!(sanitized, "<invalid-url>");
     }
 }
