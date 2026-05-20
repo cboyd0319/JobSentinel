@@ -32,6 +32,34 @@ type CoverLetterTemplate = {
   updatedAt: string;
 };
 
+type JobImportPreview = {
+  title: string;
+  company: string;
+  url: string;
+  location: string | null;
+  description_preview: string | null;
+  salary: string | null;
+  date_posted: string | null;
+  valid_through: string | null;
+  employment_types: string[];
+  remote: boolean;
+  missing_fields: string[];
+  already_exists: boolean;
+};
+
+type ImportedJob = {
+  id: number;
+  hash: string;
+  title: string;
+  company: string;
+  url: string;
+  location: string;
+  description: string;
+  source: string;
+  remote: boolean;
+  score: number;
+};
+
 const savedSearchInput: BackendSavedSearch = {
   id: "",
   name: "Remote Rust",
@@ -272,5 +300,50 @@ describe("mock Tauri handlers", () => {
         url: "http://localhost:3000/jobs?query=Rust%20Developer",
       }),
     ).rejects.toThrow("Blocked unsafe deep link URL");
+  });
+
+  it("previews and imports jobs with the real backend command names", async () => {
+    const url = "https://jobs.example.com/careers/rust-platform-engineer";
+
+    const preview = await mockInvoke<JobImportPreview>("preview_job_import", { url });
+
+    expect(preview).toMatchObject({
+      title: "Rust Platform Engineer",
+      company: "jobs.example.com",
+      url,
+      location: "Remote",
+      description_preview: expect.stringContaining("Rust Platform Engineer"),
+      salary: "$120k-$180k",
+      employment_types: ["FULL_TIME"],
+      remote: true,
+      missing_fields: [],
+      already_exists: false,
+    });
+    expect(preview.date_posted).toEqual(expect.any(String));
+
+    const imported = await mockInvoke<ImportedJob>("import_job_from_url", { url });
+
+    expect(imported).toMatchObject({
+      title: "Rust Platform Engineer",
+      company: "jobs.example.com",
+      url,
+      source: "import",
+      remote: true,
+      score: 1,
+    });
+    expect(imported.hash).toContain("mock-import-");
+
+    const duplicatePreview = await mockInvoke<JobImportPreview>("preview_job_import", { url });
+    expect(duplicatePreview.already_exists).toBe(true);
+
+    await expect(mockInvoke<ImportedJob>("import_job_from_url", { url })).rejects.toThrow(
+      "This job already exists in your database",
+    );
+
+    await expect(
+      mockInvoke<JobImportPreview>("preview_job_import", {
+        url: "http://localhost:3000/jobs/rust-platform-engineer",
+      }),
+    ).rejects.toThrow("Blocked unsafe job import URL");
   });
 });

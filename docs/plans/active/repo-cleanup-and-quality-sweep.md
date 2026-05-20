@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Synced job-import dev mock handlers with registered Tauri commands, added preview/import duplicate behavior, mirrored external URL blocking, and added bloat coverage for missing job-import mock command cases. |
 | 2026-05-20 | In progress | Synced deep-link dev mock handlers with registered Tauri commands, mirrored supported-site metadata and URL generation, blocked unsafe mock open URLs, and added bloat coverage for missing deep-link mock command cases. |
 | 2026-05-20 | In progress | Restored notification preference parity by adding backend-required Indeed config to frontend defaults/UI, syncing mock get/save handlers, and correcting stale notification preference API docs. |
 | 2026-05-20 | In progress | Synced cover-letter template dev mock handlers with real Tauri command names, added lifecycle regression coverage, and broadened mock-parity bloat coverage for user-data commands. |

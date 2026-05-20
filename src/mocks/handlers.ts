@@ -276,6 +276,21 @@ interface MockInterview {
   company: string;
 }
 
+interface MockJobImportPreview {
+  title: string;
+  company: string;
+  url: string;
+  location: string | null;
+  description_preview: string | null;
+  salary: string | null;
+  date_posted: string | null;
+  valid_through: string | null;
+  employment_types: string[];
+  remote: boolean;
+  missing_fields: string[];
+  already_exists: boolean;
+}
+
 const MOCK_DEEP_LINK_SITES = [
   {
     id: "indeed",
@@ -890,6 +905,90 @@ function assertMockDeepLinkUrl(url: string | undefined): void {
   if (!url || !isExternalHttpUrl(url)) {
     throw new Error("Blocked unsafe deep link URL");
   }
+}
+
+function previewMockJobImport(args?: Record<string, unknown>): MockJobImportPreview {
+  const url = getJobImportUrl(args);
+  const title = getMockImportTitle(url);
+  const company = getMockImportCompany(url);
+
+  return {
+    title,
+    company,
+    url,
+    location: "Remote",
+    description_preview: `${title} role imported from ${company}. Review details before saving.`,
+    salary: "$120k-$180k",
+    date_posted: new Date().toISOString(),
+    valid_through: null,
+    employment_types: ["FULL_TIME"],
+    remote: true,
+    missing_fields: [],
+    already_exists: jobs.some((job) => job.url === url),
+  };
+}
+
+function importMockJobFromUrl(args?: Record<string, unknown>): MockJob {
+  const preview = previewMockJobImport(args);
+  if (preview.already_exists) {
+    throw new Error("This job already exists in your database");
+  }
+
+  const now = new Date().toISOString();
+  const job: MockJob = {
+    id: getNextId(jobs),
+    hash: `mock-import-${hashString(preview.url)}`,
+    title: preview.title,
+    company: preview.company,
+    location: preview.location ?? "Remote",
+    description: preview.description_preview ?? "",
+    url: preview.url,
+    source: "import",
+    salary_min: 120000,
+    salary_max: 180000,
+    remote: preview.remote,
+    score: 1,
+    hidden: false,
+    bookmarked: false,
+    notes: null,
+    created_at: now,
+  };
+
+  jobs = [job, ...jobs];
+  saveMockState();
+  return { ...job };
+}
+
+function getJobImportUrl(args?: Record<string, unknown>): string {
+  const url = getStringArg(args, "url")?.trim();
+  if (!url || !isExternalHttpUrl(url)) {
+    throw new Error("Blocked unsafe job import URL");
+  }
+
+  return url;
+}
+
+function getMockImportTitle(url: string): string {
+  const parsed = new URL(url);
+  const parts = parsed.pathname.split("/").filter((part) => part.length > 0);
+  const slug = parts[parts.length - 1] ?? "imported-job";
+  return slug
+    .replace(/\.[a-z0-9]+$/i, "")
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+    .trim() || "Imported Job";
+}
+
+function getMockImportCompany(url: string): string {
+  return new URL(url).hostname;
+}
+
+function hashString(value: string): string {
+  let hash = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash * 31 + value.charCodeAt(index)) >>> 0;
+  }
+  return hash.toString(16).padStart(8, "0");
 }
 
 function isExternalHttpUrl(value: string): boolean {
@@ -1877,6 +1976,13 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "open_deep_link":
       assertMockDeepLinkUrl(getStringArg(args, "url"));
       return undefined as T;
+
+    // Job import commands
+    case "preview_job_import":
+      return previewMockJobImport(args) as T;
+
+    case "import_job_from_url":
+      return importMockJobFromUrl(args) as T;
 
     // Application commands
     case "get_applications_kanban":

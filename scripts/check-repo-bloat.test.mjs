@@ -1649,3 +1649,35 @@ test("checkRepoBloat rejects stale deep-link mock handlers", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects stale job-import mock handlers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      [
+        "export async function mockInvoke(cmd) {",
+        "  switch (cmd) {",
+        "    case 'preview_job_import':",
+        "      return {};",
+        "    default:",
+        "      return undefined;",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/mocks/handlers.ts"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sync job-import mock command handlers: src/mocks/handlers.ts"),
+      violations.join("\n"),
+    );
+  });
+});

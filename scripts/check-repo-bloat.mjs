@@ -899,6 +899,19 @@ function hasStaleDeepLinkMockHandlers(root, path) {
   });
 }
 
+function hasStaleJobImportMockHandlers(root, path) {
+  if (path !== "src/mocks/handlers.ts") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const requiredCommands = ["preview_job_import", "import_job_from_url"];
+
+  return requiredCommands.some((command) => {
+    return !new RegExp(`case\\s+["']${command}["']`).test(text);
+  });
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -1101,6 +1114,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleDeepLinkMockHandlers(root, path)) {
       violations.push(`sync deep-link mock command handlers: ${path}`);
+    }
+
+    if (hasStaleJobImportMockHandlers(root, path)) {
+      violations.push(`sync job-import mock command handlers: ${path}`);
     }
   }
 
