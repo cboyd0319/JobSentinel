@@ -34,9 +34,9 @@ Reusable page objects following the Page Object Model pattern:
 
 3. **application-tracking.spec.ts**
    - Kanban board display
-   - Add/edit/delete applications
-   - Drag-and-drop status updates
-   - Filter and sort functionality
+   - Application card details and status updates
+   - Drag-and-drop status changes
+   - Notes persistence, reminders, ghost detection, and toolbar dialogs
 
 4. **settings-save-load.spec.ts**
    - Settings persistence across sessions
@@ -85,7 +85,7 @@ Reusable page objects following the Page Object Model pattern:
     - Sidebar destination navigation
     - Responsive shell rendering
 
-11. **screenshots.spec.ts** (existing)
+11. **screenshots.spec.ts**
     - Documentation screenshot capture
     - Excluded from normal E2E runs
     - Refreshes tracked docs images only through `npm run docs:screenshots`

@@ -93,6 +93,7 @@ changes or Playwright-specific work.
 | 2026-05-20 | In progress | Stabilized Chromium and WebKit E2E flows without serializing suites: fixed skip-link focusability, gave the email-alerts switch an accessible visible target, and removed shared page-object state from job interaction tests. |
 | 2026-05-20 | In progress | Removed the unreferenced development Dockerfile, pruned its stale Dependabot entry, and tightened the root bloat allowlist so `docker/` must be reintroduced intentionally. |
 | 2026-05-20 | In progress | Linked the JSON Resume sample fixture from feature docs and corrected roadmap status from planned to implemented. |
+| 2026-05-20 | In progress | Corrected stale E2E documentation that still referenced WebdriverIO, removed a deleted `tests/e2e/docs/` tree entry, and updated Playwright examples/layout notes. |
 
 ## Discoveries
 
@@ -140,6 +141,10 @@ changes or Playwright-specific work.
   not linked from the JSON Resume feature docs.
 - `docs/ROADMAP.md` still listed JSON Resume Import as planned even though the
   Tauri command, UI entrypoint, mock handler, and feature docs already exist.
+- E2E docs had drift from the current Playwright suite: `docs/README.md`
+  still described WebdriverIO + Tauri tests, and frontend testing docs showed
+  non-existent `fixtures/` and `utils/` directories under
+  `tests/e2e/playwright`.
 
 ## Decisions
 

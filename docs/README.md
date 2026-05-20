@@ -203,7 +203,7 @@ Current release package version is `2.6.4`. Unreleased `2.7.x` work is tracked i
 - **[Architecture](developer/ARCHITECTURE.md)** - System design
 - **[Why Tauri?](developer/WHY_TAURI.md)** - Why we chose Tauri over Electron/Chrome
 - **[Testing](developer/TESTING.md)** - Test suite guide
-- **[E2E Testing](../tests/README.md)** - WebdriverIO + Tauri E2E tests
+- **[E2E Testing](../tests/README.md)** - Playwright browser E2E tests
 - **[macOS Development](developer/MACOS_DEVELOPMENT.md)** - macOS-specific
 - **[SQLite Configuration](developer/sqlite-configuration.md)** - Database setup
 - **[Error Handling](developer/ERROR_HANDLING.md)** - Error patterns
@@ -308,8 +308,7 @@ tests/                     # All tests
 ├── README.md              # Testing overview
 ├── e2e/
 │   ├── playwright/        # Playwright E2E tests
-│   ├── fixtures/          # E2E fixture placeholders
-│   └── docs/              # E2E screenshot fixtures
+│   └── fixtures/          # E2E fixture placeholders
 ```
 
 ---

@@ -509,12 +509,19 @@ E2E tests live in `tests/e2e/playwright` and test complete user workflows:
 
 ```text
 tests/e2e/playwright/
-├── app.spec.ts              # Main application flows
-├── screenshots.spec.ts      # Documentation screenshots only
-├── fixtures/                # Test data
-│   └── jobs.json
-└── utils/                   # Helper functions
-    └── test-utils.ts
+├── app.spec.ts                       # App shell smoke coverage
+├── application-tracking.spec.ts      # Application board flows
+├── job-interactions.spec.ts          # Job card interactions
+├── job-search-filtering.spec.ts      # Search and filter flows
+├── keyboard-navigation.spec.ts       # Keyboard shortcuts and focus
+├── market-intelligence.spec.ts       # Market dashboard flows
+├── one-click-apply.spec.ts           # Human-reviewed apply settings
+├── resume-builder.spec.ts            # Resume Builder wizard
+├── resume-upload-matching.spec.ts    # Resume library and matching
+├── screenshots.spec.ts               # Documentation screenshots only
+├── settings-save-load.spec.ts        # Settings persistence
+├── test-helpers.ts                   # Shared helpers
+└── page-objects/                     # Page Object Model helpers
 ```
 
 ### Pattern 1: Complete User Flow

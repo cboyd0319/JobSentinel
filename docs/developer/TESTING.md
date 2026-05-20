@@ -520,17 +520,17 @@ Documentation screenshots live in `screenshots.spec.ts` and run only through
 
 ### Writing E2E Tests
 
-```javascript
-describe("Feature", () => {
-  it("should do something", async () => {
-    // Find elements
-    const button = await $("button.primary");
+```typescript
+import { expect, test } from "@playwright/test";
 
-    // Interact
+test.describe("Feature", () => {
+  test("does something", async ({ page }) => {
+    await page.goto("/");
+
+    const button = page.getByRole("button", { name: "Search Now" });
     await button.click();
 
-    // Assert
-    await expect(button).toBeDisplayed();
+    await expect(button).toBeVisible();
   });
 });
 ```
