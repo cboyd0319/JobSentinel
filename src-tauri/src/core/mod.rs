@@ -23,6 +23,7 @@
 // Core v1.0 modules (working)
 pub mod config;
 pub mod db;
+pub mod logging;
 pub mod notify;
 pub mod scheduler;
 pub mod scoring;

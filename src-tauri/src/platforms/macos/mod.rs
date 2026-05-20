@@ -5,6 +5,8 @@
 
 use std::path::PathBuf;
 
+use crate::core::logging::path_label_for_logging;
+
 /// Get macOS application support directory
 ///
 /// Returns: ~/Library/Application Support/JobSentinel
@@ -60,19 +62,25 @@ pub fn initialize() -> Result<(), Box<dyn std::error::Error>> {
     let data_dir = get_data_dir();
     if !data_dir.exists() {
         std::fs::create_dir_all(&data_dir)?;
-        tracing::info!("Created data directory: {:?}", data_dir);
+        tracing::info!(
+            data_dir = %path_label_for_logging(&data_dir),
+            "Created data directory"
+        );
     }
 
     // Create config directory if it doesn't exist
     let config_dir = get_config_dir();
     if !config_dir.exists() {
         std::fs::create_dir_all(&config_dir)?;
-        tracing::info!("Created config directory: {:?}", config_dir);
+        tracing::info!(
+            config_dir = %path_label_for_logging(&config_dir),
+            "Created config directory"
+        );
     }
 
     tracing::info!("macOS platform initialized");
-    tracing::info!("Data directory: {:?}", data_dir);
-    tracing::info!("Config directory: {:?}", config_dir);
+    tracing::info!(data_dir = %path_label_for_logging(&data_dir), "Data directory ready");
+    tracing::info!(config_dir = %path_label_for_logging(&config_dir), "Config directory ready");
 
     // Check if running on supported macOS version
     let version = get_macos_version();

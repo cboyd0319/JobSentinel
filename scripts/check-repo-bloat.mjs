@@ -156,6 +156,19 @@ const rawScraperLoggingPaths = new Set([
   "src-tauri/src/core/scrapers/simplyhired.rs",
 ]);
 
+const rawLocalPathLoggingPaths = new Set([
+  "src-tauri/src/commands/ml.rs",
+  "src-tauri/src/commands/resume.rs",
+  "src-tauri/src/core/automation/browser/page.rs",
+  "src-tauri/src/core/automation/form_filler.rs",
+  "src-tauri/src/core/db/connection.rs",
+  "src-tauri/src/core/db/integrity/backups.rs",
+  "src-tauri/src/main.rs",
+  "src-tauri/src/platforms/linux/mod.rs",
+  "src-tauri/src/platforms/macos/mod.rs",
+  "src-tauri/src/platforms/windows/mod.rs",
+]);
+
 function normalizeRepoPath(path) {
   return path.split(/[\\/]/).join("/");
 }
@@ -529,6 +542,17 @@ function hasRawScraperUrlOrQueryLogging(root, path) {
   );
 }
 
+function hasRawLocalPathLogging(root, path) {
+  if (!rawLocalPathLoggingPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /tracing::(?:debug|info|warn|error)!\([^;]*(?:\bpath:\s*\{\}|display\(\)|(?:path|dir|directory|backup|database|configuration)[^;]*\{:\?\})/.test(
+    text,
+  );
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -635,6 +659,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawScraperUrlOrQueryLogging(root, path)) {
       violations.push(`replace raw scraper URL/query logging: ${path}`);
+    }
+
+    if (hasRawLocalPathLogging(root, path)) {
+      violations.push(`replace raw local path logging: ${path}`);
     }
   }
 

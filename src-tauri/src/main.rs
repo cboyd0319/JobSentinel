@@ -13,6 +13,7 @@
 use jobsentinel::commands::{self, AppState, SchedulerStatus};
 use jobsentinel::core::bookmarklet::{BookmarkletConfig, BookmarkletServer};
 use jobsentinel::core::credentials::{migration, CredentialStore};
+use jobsentinel::core::logging::path_label_for_logging;
 use jobsentinel::core::scheduler::Scheduler;
 use jobsentinel::platforms;
 use jobsentinel::{Config, Database};
@@ -334,7 +335,10 @@ fn main() {
             let config = if config_path.exists() {
                 match Config::load(&config_path) {
                     Ok(cfg) => {
-                        tracing::info!("Loaded configuration from {:?}", config_path);
+                        tracing::info!(
+                            config_path = %path_label_for_logging(&config_path),
+                            "Loaded configuration"
+                        );
                         cfg
                     }
                     Err(e) => {
@@ -387,7 +391,10 @@ fn main() {
 
             // Initialize database
             let db_path = Database::default_path();
-            tracing::info!("Connecting to database at {:?}", db_path);
+            tracing::info!(
+                db_path = %path_label_for_logging(&db_path),
+                "Connecting to database"
+            );
 
             let database = tauri::async_runtime::block_on(async {
                 let db = Database::connect(&db_path)

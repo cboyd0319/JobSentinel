@@ -5,6 +5,8 @@ use chrono::Utc;
 use sqlx::Row;
 use std::path::{Path, PathBuf};
 
+use crate::core::logging::path_label_for_logging;
+
 use super::types::BackupEntry;
 use super::DatabaseIntegrity;
 
@@ -31,7 +33,10 @@ impl DatabaseIntegrity {
         let backup_name = format!("jobsentinel_backup_{}_{}.db", timestamp, safe_reason);
         let backup_path = self.backup_dir.join(&backup_name);
 
-        tracing::info!("💾 Creating database backup: {}", backup_path.display());
+        tracing::info!(
+            backup_path = %path_label_for_logging(&backup_path),
+            "Creating database backup"
+        );
         let start_time = std::time::Instant::now();
 
         // SQLite VACUUM INTO creates a compact, defragmented copy
@@ -48,10 +53,10 @@ impl DatabaseIntegrity {
         let file_size = std::fs::metadata(&backup_path)?.len();
 
         tracing::info!(
-            "✅ Backup created successfully: {} ({} bytes, took {:?})",
-            backup_path.display(),
+            backup_path = %path_label_for_logging(&backup_path),
             file_size,
-            duration
+            duration_ms = duration.as_millis(),
+            "Backup created successfully"
         );
 
         // Log backup to database
@@ -86,8 +91,8 @@ impl DatabaseIntegrity {
         current_db_path: &Path,
     ) -> Result<()> {
         tracing::warn!(
-            "⚠️  Restoring database from backup: {}",
-            backup_path.display()
+            backup_path = %path_label_for_logging(backup_path),
+            "Restoring database from backup"
         );
 
         if !backup_path.exists() {
@@ -104,8 +109,8 @@ impl DatabaseIntegrity {
         if current_db_path.exists() {
             std::fs::rename(current_db_path, &corrupted_backup)?;
             tracing::info!(
-                "🔒 Corrupted database saved to: {}",
-                corrupted_backup.display()
+                backup_path = %path_label_for_logging(&corrupted_backup),
+                "Corrupted database saved"
             );
         }
 
@@ -147,7 +152,10 @@ impl DatabaseIntegrity {
         let mut deleted_count = 0;
         for old_backup in backups.iter().skip(keep_count) {
             std::fs::remove_file(old_backup.path())?;
-            tracing::info!("🗑️  Deleted old backup: {}", old_backup.path().display());
+            tracing::info!(
+                backup_path = %path_label_for_logging(old_backup.path()),
+                "Deleted old backup"
+            );
             deleted_count += 1;
         }
 

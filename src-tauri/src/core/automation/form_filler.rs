@@ -7,6 +7,7 @@
 use super::browser::{AutomationPage, FillResult};
 use super::profile::{ApplicationProfile, ScreeningAnswer};
 use super::AtsPlatform;
+use crate::core::logging::path_label_for_logging;
 use anyhow::Result;
 use regex::Regex;
 use std::collections::HashMap;
@@ -89,7 +90,10 @@ impl FormFiller {
 
         // Upload resume if available
         if let Some(ref resume_path) = self.resume_path {
-            tracing::debug!(resume_path = %resume_path.display(), "Uploading resume");
+            tracing::debug!(
+                resume_path = %path_label_for_logging(resume_path),
+                "Uploading resume"
+            );
             self.fill_resume(page, &selectors, resume_path, &mut result)
                 .await;
         }

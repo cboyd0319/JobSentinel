@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Replaced raw local path logging with non-identifying path labels for resume, automation, database, platform, startup, and ML model paths. |
 | 2026-05-20 | In progress | Sanitized scraper cache, fetch, and query logs so source adapters no longer write raw search queries or full fetch URLs. |
 | 2026-05-20 | In progress | Sanitized command and database search logging so raw private search queries, screening questions, and answer patterns are not written to logs. |
 | 2026-05-20 | In progress | Validated ghost-job threshold command input so public IPC cannot query with out-of-range or non-finite ghost scores. |
@@ -315,6 +316,9 @@ changes or Playwright-specific work.
   parameters that can contain job criteria, locations, or tokens. Fetching and
   cache behavior should keep exact URLs for requests and cache keys, but logs
   should use sanitized URL labels or query metadata.
+- Resume upload, automation, database, platform startup, and ML model logs wrote
+  raw local paths. Local paths can expose usernames, resume filenames, company
+  names, and directory layouts in debug output.
 - `ScoreBreakdownModal` sanitized scores only through callers, so direct use of
   the exported modal with `NaN` rendered `NaN%`.
 - `ScoreBreakdownModal` converted Tailwind color classes such as
@@ -356,6 +360,8 @@ changes or Playwright-specific work.
   counts, booleans, or other non-content metadata for troubleshooting.
 - Scraper transport and cache logs must sanitize URL labels and avoid raw query
   strings. Do not change request URLs or cache keys for logging-only fixes.
+- Local paths in logs must use non-identifying labels. Preserve actual paths for
+  file operations, database records, and user-facing operations that need them.
 - Keep feature docs aligned with live source names for frontend routes and IPC
   commands; stale future-work claims count as documentation bloat.
 - Do not document UI markers that are not present in source; describe current

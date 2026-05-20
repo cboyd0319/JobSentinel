@@ -5,12 +5,14 @@
 
 use crate::commands::limits::validate_optional_command_limit_i64;
 use crate::commands::AppState;
+use crate::core::logging::path_label_for_logging;
 use crate::core::resume::{
     AtsAnalysisResult, AtsAnalyzer, AtsResumeData, BuilderContactInfo, BuilderEducation,
     BuilderExperience, BuilderResumeData, ExportResumeData, MatchResult, MatchResultWithJob,
     NewSkill, Resume, ResumeBuilder, ResumeExporter, ResumeMatcher, SkillEntry, SkillUpdate,
     Template, TemplateId, TemplateRenderer, UserSkill,
 };
+use std::path::Path;
 use tauri::State;
 
 /// Upload and parse a resume
@@ -21,9 +23,9 @@ pub async fn upload_resume(
     state: State<'_, AppState>,
 ) -> Result<i64, String> {
     tracing::info!(
-        "Command: upload_resume (name: {}, path: {})",
-        name,
-        file_path
+        name_chars = name.chars().count(),
+        file_path = %path_label_for_logging(Path::new(&file_path)),
+        "Command: upload_resume"
     );
 
     let matcher = ResumeMatcher::new(state.database.pool().clone());

@@ -9,6 +9,8 @@
 
 use std::path::PathBuf;
 
+use crate::core::logging::path_label_for_logging;
+
 /// Get Windows application data directory
 ///
 /// Returns: %LOCALAPPDATA%\JobSentinel
@@ -56,8 +58,8 @@ pub fn initialize() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     tracing::info!("Windows platform initialized");
-    tracing::info!("Data directory: {:?}", data_dir);
-    tracing::info!("Config directory: {:?}", config_dir);
+    tracing::info!(data_dir = %path_label_for_logging(&data_dir), "Data directory ready");
+    tracing::info!(config_dir = %path_label_for_logging(&config_dir), "Config directory ready");
 
     Ok(())
 }

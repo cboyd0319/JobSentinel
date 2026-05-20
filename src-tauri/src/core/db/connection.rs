@@ -5,6 +5,8 @@
 use sqlx::{sqlite::SqlitePool, Row};
 use std::path::PathBuf;
 
+use crate::core::logging::path_label_for_logging;
+
 /// Database handle
 #[derive(Debug)]
 pub struct Database {
@@ -372,7 +374,10 @@ impl Database {
         let backup_path = backup_dir.join(&backup_name);
 
         std::fs::copy(db_path, &backup_path)?;
-        tracing::info!("Pre-migration backup created: {}", backup_path.display());
+        tracing::info!(
+            backup_path = %path_label_for_logging(&backup_path),
+            "Pre-migration backup created"
+        );
 
         // Prune pre-migration backups beyond the keep limit.
         Self::prune_pre_migration_backups(&backup_dir, PRE_MIGRATION_BACKUP_KEEP);
@@ -412,14 +417,14 @@ impl Database {
         for entry in entries.iter().take(to_delete) {
             if let Err(e) = std::fs::remove_file(entry.path()) {
                 tracing::warn!(
-                    "Failed to delete old pre-migration backup {}: {}",
-                    entry.path().display(),
-                    e
+                    backup_path = %path_label_for_logging(entry.path()),
+                    error = %e,
+                    "Failed to delete old pre-migration backup"
                 );
             } else {
                 tracing::info!(
-                    "Pruned old pre-migration backup: {}",
-                    entry.path().display()
+                    backup_path = %path_label_for_logging(entry.path()),
+                    "Pruned old pre-migration backup"
                 );
             }
         }

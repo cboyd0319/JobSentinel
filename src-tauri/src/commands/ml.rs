@@ -5,6 +5,7 @@
 #![cfg(feature = "embedded-ml")]
 
 use crate::commands::AppState;
+use crate::core::logging::path_label_for_logging;
 use crate::core::ml::{ModelManager, ModelStatus, SemanticMatcher};
 use crate::platforms;
 use tauri::State;
@@ -30,7 +31,10 @@ pub async fn download_ml_model() -> Result<String, String> {
         .await
         .map_err(|e| format!("Failed to download model: {}", e))?;
 
-    tracing::info!("Model downloaded successfully to {:?}", model_path);
+    tracing::info!(
+        model_path = %path_label_for_logging(&model_path),
+        "Model downloaded successfully"
+    );
     Ok(format!("Model downloaded to {:?}", model_path))
 }
 

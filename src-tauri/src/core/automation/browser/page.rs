@@ -2,6 +2,7 @@
 //!
 //! Provides form filling and interaction methods for a browser page.
 
+use crate::core::logging::path_label_for_logging;
 use anyhow::{Context, Result};
 use chromiumoxide::cdp::browser_protocol::page::{
     CaptureScreenshotFormat, CaptureScreenshotParams,
@@ -241,7 +242,7 @@ impl AutomationPage {
             .await
             .context("Failed to save screenshot")?;
 
-        tracing::info!("Screenshot saved to: {:?}", path);
+        tracing::info!(path = %path_label_for_logging(path), "Screenshot saved");
         Ok(())
     }
 

@@ -743,3 +743,53 @@ test("checkRepoBloat rejects raw scraper URL and query logging", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects raw local path logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/resume.rs",
+      'tracing::info!("Command: upload_resume (name: {}, path: {})", name, file_path);\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/automation/form_filler.rs",
+      'tracing::debug!(resume_path = %resume_path.display(), "Uploading resume");\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/connection.rs",
+      'tracing::info!("Pre-migration backup created: {}", backup_path.display());\n',
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/commands/resume.rs",
+        "src-tauri/src/core/automation/form_filler.rs",
+        "src-tauri/src/core/db/connection.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace raw local path logging: src-tauri/src/commands/resume.rs"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace raw local path logging: src-tauri/src/core/automation/form_filler.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace raw local path logging: src-tauri/src/core/db/connection.rs"),
+      violations.join("\n"),
+    );
+  });
+});
