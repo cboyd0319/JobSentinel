@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Added Deep Link UI controls for backend-supported job type and work mode filters, plus frontend coverage and user-doc corrections. |
 | 2026-05-20 | In progress | Replaced dynamic Tailwind category button classes in the deep-link UI with static class metadata and added frontend sensor coverage for interpolated Tailwind utility names. |
 | 2026-05-20 | In progress | Removed redundant tracked `.gitkeep` placeholders from non-empty plan directories and added bloat coverage for future tracked `.gitkeep` files. |
 | 2026-05-20 | In progress | Sanitized deep-link and job-import URL logging so search terms, locations, credentials, query strings, and fragments are not written to logs. |
@@ -245,11 +246,16 @@ changes or Playwright-specific work.
   ``bg-${metadata.color}-600``. Runtime class names existed, but Tailwind could
   miss the generated CSS because the utility names were not static source
   strings.
+- Deep-link backend types and URL generation already supported job type and
+  work-mode filters, and user docs described those parameters, but the UI only
+  sent query and location.
 
 ## Decisions
 
 - Keep Tailwind utility names static in source or in explicit class metadata;
   reject interpolated utility-name construction in frontend boundary checks.
+- Keep Deep Link user docs scoped to visible UI controls. Backend-only
+  parameters should either have controls or be documented as API internals.
 - Treat tracked `.gitkeep` files as bloat in this repo. Durable empty directory
   intent belongs in docs or in the commit that introduces real fixtures.
 - Treat removing bloat and junk as active repo work even though the earlier

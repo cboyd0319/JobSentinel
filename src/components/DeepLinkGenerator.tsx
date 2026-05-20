@@ -11,7 +11,12 @@ import {
   openDeepLink,
 } from "../services/deeplinks";
 import type { DeepLink, SearchCriteria, SiteInfo } from "../types/deeplinks";
-import { CATEGORY_METADATA, SiteCategory } from "../types/deeplinks";
+import {
+  CATEGORY_METADATA,
+  JobType,
+  RemoteType,
+  SiteCategory,
+} from "../types/deeplinks";
 
 interface DeepLinkGeneratorProps {
   /** Pre-filled search query */
@@ -26,6 +31,8 @@ export function DeepLinkGenerator({
 }: DeepLinkGeneratorProps) {
   const [query, setQuery] = useState(initialQuery);
   const [location, setLocation] = useState(initialLocation);
+  const [jobType, setJobType] = useState<JobType | "">("");
+  const [remoteType, setRemoteType] = useState<RemoteType | "">("");
   const [links, setLinks] = useState<DeepLink[]>([]);
   const [, setSites] = useState<SiteInfo[]>([]);
   const [loading, setLoading] = useState(false);
@@ -62,6 +69,8 @@ export function DeepLinkGenerator({
       const criteria: SearchCriteria = {
         query: query.trim(),
         location: location.trim() || undefined,
+        job_type: jobType || undefined,
+        remote_type: remoteType || undefined,
       };
 
       const generatedLinks = await generateDeepLinks(criteria);
@@ -151,6 +160,50 @@ export function DeepLinkGenerator({
               placeholder="e.g., San Francisco, CA or Remote"
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label
+                htmlFor="job-type"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
+                Job Type (optional)
+              </label>
+              <select
+                id="job-type"
+                value={jobType}
+                onChange={(e) => setJobType(e.target.value as JobType | "")}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              >
+                <option value="">Any job type</option>
+                <option value={JobType.FullTime}>Full-time</option>
+                <option value={JobType.PartTime}>Part-time</option>
+                <option value={JobType.Contract}>Contract</option>
+                <option value={JobType.Temporary}>Temporary</option>
+                <option value={JobType.Internship}>Internship</option>
+              </select>
+            </div>
+
+            <div>
+              <label
+                htmlFor="work-mode"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
+                Work Mode (optional)
+              </label>
+              <select
+                id="work-mode"
+                value={remoteType}
+                onChange={(e) => setRemoteType(e.target.value as RemoteType | "")}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              >
+                <option value="">Any work mode</option>
+                <option value={RemoteType.Remote}>Remote</option>
+                <option value={RemoteType.Hybrid}>Hybrid</option>
+                <option value={RemoteType.Onsite}>Onsite</option>
+              </select>
+            </div>
           </div>
 
           {error && (

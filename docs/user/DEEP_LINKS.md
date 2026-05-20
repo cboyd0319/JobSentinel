@@ -63,8 +63,9 @@ open it in your browser with the search ready to go.
 1. Go to the Deep Links page
 2. Enter your job title or keywords (e.g., "Software Engineer")
 3. Optionally enter a location (e.g., "San Francisco, CA" or "Remote")
-4. Click "Generate Deep Links"
-5. Click any site to open the search in your browser
+4. Optionally choose a job type or work mode
+5. Click "Generate Deep Links"
+6. Click any site to open the search in your browser
 
 ### Example Searches
 
@@ -80,6 +81,7 @@ Location: San Francisco, CA
 ```text
 Job Title: Product Manager
 Location: Remote
+Work Mode: Remote
 ```
 
 **Federal Government Jobs**
@@ -123,8 +125,10 @@ Deep links include:
 
 - **Query** - Your job title/keywords (all sites)
 - **Location** - City, state, or "remote" (most sites)
-- **Job Type** - Full-time, part-time, contract (LinkedIn, Indeed)
-- **Remote Filter** - Remote-only jobs (Indeed, LinkedIn, Dice, etc.)
+- **Job Type** - Optional full-time, part-time, contract, temporary, or
+  internship filters where sites support them
+- **Work Mode** - Optional remote, hybrid, or onsite filters where sites
+  support them
 
 Not all sites support all parameters - we use what's available.
 
@@ -159,7 +163,7 @@ Deep links let you search these sites legally without scraping.
 
 ### Can I save my searches?
 
-Not yet, but this is planned for v2.7. For now, you can:
+Deep-link-specific favorites are not implemented yet. For now, you can:
 
 1. Bookmark the Deep Links page
 2. Generate links on-demand
