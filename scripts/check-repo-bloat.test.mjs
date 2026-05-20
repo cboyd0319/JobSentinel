@@ -507,3 +507,31 @@ test("checkRepoBloat rejects stale application tracking doc claims", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects stale smart scoring salary marker claims", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/smart-scoring.md",
+      [
+        "Predicted salaries are marked with a 🤖 icon.",
+        "**Implementation Status:** ✅ Complete (All features implemented)",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/features/smart-scoring.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove stale smart-scoring salary marker claim: docs/features/smart-scoring.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});

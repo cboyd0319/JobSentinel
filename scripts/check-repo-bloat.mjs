@@ -448,6 +448,18 @@ function hasStaleApplicationTrackingDocClaims(root, path) {
   );
 }
 
+function hasStaleSmartScoringSalaryMarkerClaim(root, path) {
+  if (path !== "docs/features/smart-scoring.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /Predicted salaries are marked with a .* icon/u.test(text) ||
+    /\*\*Implementation Status:\*\* ✅ Complete/.test(text)
+  );
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -530,6 +542,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleApplicationTrackingDocClaims(root, path)) {
       violations.push(`remove stale application tracking doc claims: ${path}`);
+    }
+
+    if (hasStaleSmartScoringSalaryMarkerClaim(root, path)) {
+      violations.push(`remove stale smart-scoring salary marker claim: ${path}`);
     }
   }
 

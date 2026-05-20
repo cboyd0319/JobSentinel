@@ -222,8 +222,8 @@ If a job doesn't list salary, JobSentinel uses AI to predict it based on:
 - Company size and location
 - Historical salary data
 
-Predicted salaries are marked with a 🤖 icon and help level the playing field when comparing jobs
-with missing salary info.
+Predicted salaries feed scoring and market views so jobs with missing salary
+info can still be compared against your target range.
 
 For details, see [Salary AI Feature](salary-ai.md).
 
@@ -796,5 +796,5 @@ Without these, the system falls back to keyword-only matching.
 **Last Updated:** 2026-03-18
 **Version:** 2.6.4
 **Maintained By:** JobSentinel Core Team
-**Implementation Status:** ✅ Complete (All features implemented)
+**Implementation Status:** Complete (all features implemented)
 **Next Phase:** ML-based skills matching (v2.7)
