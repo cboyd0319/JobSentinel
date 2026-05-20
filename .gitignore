@@ -48,8 +48,10 @@ lerna-debug.log*
 *.rpm
 *.AppImage
 
-# SQLx
-src-tauri/gen/
+# Tauri generated schemas are tracked for local capability validation.
+src-tauri/gen/*
+!src-tauri/gen/schemas/
+!src-tauri/gen/schemas/*.json
 Vagrantfile
 .vagrant/
 
@@ -68,13 +70,13 @@ tests/e2e/fixtures/*.txt
 .claude/*
 !.claude/settings.local.json
 
-# AI-generated summary files (Copilot, Claude, etc.)
-*_SUMMARY.md
-*_FIXES.md
-*_REPORT.md
-*_ANALYSIS.md
-*_ROADMAP.md
-*_GUIDE.md
-*_CHECKLIST.md
-*_IMPLEMENTATION.md
-*_PLAN.md
+# AI-generated root summary files (Copilot, Claude, etc.)
+/*_SUMMARY.md
+/*_FIXES.md
+/*_REPORT.md
+/*_ANALYSIS.md
+/*_ROADMAP.md
+/*_GUIDE.md
+/*_CHECKLIST.md
+/*_IMPLEMENTATION.md
+/*_PLAN.md

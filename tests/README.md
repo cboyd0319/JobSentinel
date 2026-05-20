@@ -22,8 +22,7 @@ tests/
 │   │   ├── resume-upload-matching.spec.ts
 │   │   ├── screenshots.spec.ts
 │   │   └── settings-save-load.spec.ts
-│   ├── README.md
-│   └── TEST_SUMMARY.md
+│   └── README.md
 └── README.md
 ```
 

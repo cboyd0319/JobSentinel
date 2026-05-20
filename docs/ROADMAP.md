@@ -383,7 +383,7 @@ See [CHANGELOG.md](../CHANGELOG.md) for detailed v2.6.3 changes.
 | Intel Mac support               | ✅ Done    | -        | v2.7.1 - Universal binary (single .dmg for both Intel and Apple Silicon) |
 | CI/CD Pipeline                  | ✅ Done    | -        | GitHub Actions                                                           |
 | **Expanded Scrapers**           | ✅ Done    | -        | USAJobs, SimplyHired (v2.6.3+)                                           |
-| **Undo/Redo for Actions**       | 🔲 Planned | Medium   | Context exists, needs wiring                                             |
+| **Undo/Redo for Actions**       | ✅ Done    | Medium   | Wired on main for dashboard, applications, and cover letter templates    |
 | **Auto-detect Location**        | 🔲 Planned | Medium   | IP geolocation for Setup Wizard                                          |
 | **Settings Quick Mode**         | 🔲 Planned | Low      | Simplified settings for new users                                        |
 | **JSON Resume Import**          | 🔲 Planned | Low      | jsonresume.org format support                                            |

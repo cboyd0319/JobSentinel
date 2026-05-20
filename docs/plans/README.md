@@ -37,6 +37,7 @@ Each release plan includes:
 | Version | Status | Document |
 | ------- | ------ | -------- |
 | v2.7.0 | Complete on main | [Beta feedback system](completed/beta-feedback-system.md) |
+| v2.6.x | Complete on main | [Undo and redo wiring](completed/undo-redo-wiring.md) |
 | v2.6.0 | Complete | [v2.6.0-ux-improvements.md](./v2.6.0-ux-improvements.md) |
 | v2.5.0 | Complete | No formal plan. |
 | v2.0.0 | Complete | No formal plan. |
