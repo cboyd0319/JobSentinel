@@ -200,6 +200,7 @@ const frontendErrorReportingPaths = new Set(["src/utils/errorReporting.ts"]);
 const settingsCredentialPaths = new Set(["src/pages/Settings.tsx"]);
 const feedbackSanitizerPaths = new Set(["src-tauri/src/commands/feedback/sanitizer.rs"]);
 const notificationDocsPaths = new Set(["docs/features/notifications.md"]);
+const userDataDocsPaths = new Set(["docs/features/user-data-management.md"]);
 const structuredDebugLogPaths = new Set(["src-tauri/src/commands/feedback/debug_log.rs"]);
 const feedbackCommandPaths = new Set(["src-tauri/src/commands/feedback/mod.rs"]);
 const userDataPrivacyLoggingPaths = new Set([
@@ -791,6 +792,20 @@ function hasStaleNotificationWebhookDocs(root, path) {
   );
 }
 
+function hasStaleNotificationPreferenceDocs(root, path) {
+  if (!userDataDocsPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /per_source_settings|min_score|include_ghosts|keyword_rules|\bthresholds\s*:/.test(text) ||
+    /invoke\("save_notification_preferences",\s*\{\s*(?:\r?\n)?\s*(?:per_source_settings|linkedin):/m.test(text) ||
+    !/indeed:\s*\{\s*enabled:\s*true,\s*minScoreThreshold:\s*70,\s*soundEnabled:\s*true\s*\}/.test(text) ||
+    !/prefs:\s*\{[\s\S]*advancedFilters:/m.test(text)
+  );
+}
+
 function hasUnsanitizedStructuredDebugLogEvents(root, path) {
   if (!structuredDebugLogPaths.has(path)) {
     return false;
@@ -848,6 +863,8 @@ function hasStaleUserDataMockHandlers(root, path) {
     "create_cover_letter_template",
     "update_cover_letter_template",
     "delete_cover_letter_template",
+    "get_notification_preferences",
+    "save_notification_preferences",
     "get_search_history",
     "add_search_history",
     "clear_search_history",
@@ -1041,6 +1058,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleNotificationWebhookDocs(root, path)) {
       violations.push(`document all notification webhook provider hosts: ${path}`);
+    }
+
+    if (hasStaleNotificationPreferenceDocs(root, path)) {
+      violations.push(`sync notification preference docs with backend shape: ${path}`);
     }
 
     if (hasUnsanitizedStructuredDebugLogEvents(root, path)) {

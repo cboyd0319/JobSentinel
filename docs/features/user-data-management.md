@@ -551,20 +551,24 @@ Get the user's notification settings.
 invoke("get_notification_preferences");
 // Returns: NotificationPreferences
 // {
-//   per_source_settings: {
-//     [source_name]: {
-//       enabled: boolean,
-//       min_score: number,
-//       include_ghosts: boolean
-//     }
+//   linkedin: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
+//   indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
+//   greenhouse: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
+//   lever: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
+//   jobswithgpt: { enabled: true, minScoreThreshold: 75, soundEnabled: true },
+//   global: {
+//     enabled: true,
+//     quietHoursStart: "22:00",
+//     quietHoursEnd: "08:00",
+//     quietHoursEnabled: false
 //   },
-//   keyword_rules: {
-//     include: string[],          // "Python OR TypeScript"
-//     exclude: string[],          // "PHP NOT required"
-//     company_list: string[]
-//   },
-//   thresholds: {
-//     [channel_name]: number      // 0.0 to 1.0
+//   advancedFilters: {
+//     includeKeywords: [],
+//     excludeKeywords: [],
+//     minSalary: null,
+//     remoteOnly: false,
+//     companyWhitelist: [],
+//     companyBlacklist: []
 //   }
 // }
 ```
@@ -575,18 +579,27 @@ Update notification preferences.
 
 ```typescript
 invoke("save_notification_preferences", {
-  per_source_settings: {
-    linkedin: { enabled: true, min_score: 0.9, include_ghosts: false },
-  },
-  keyword_rules: {
-    include: ["Python", "TypeScript"],
-    exclude: ["PHP"],
-    company_list: ["Google", "Meta"],
-  },
-  thresholds: {
-    slack: 0.9,
-    email: 0.85,
-  },
+  prefs: {
+    linkedin: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
+    indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
+    greenhouse: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
+    lever: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
+    jobswithgpt: { enabled: true, minScoreThreshold: 75, soundEnabled: true },
+    global: {
+      enabled: true,
+      quietHoursStart: "22:00",
+      quietHoursEnd: "08:00",
+      quietHoursEnabled: false
+    },
+    advancedFilters: {
+      includeKeywords: ["Python", "TypeScript"],
+      excludeKeywords: ["PHP"],
+      minSalary: 120,
+      remoteOnly: true,
+      companyWhitelist: ["Google", "Meta"],
+      companyBlacklist: []
+    }
+  }
 });
 // Returns: void
 ```

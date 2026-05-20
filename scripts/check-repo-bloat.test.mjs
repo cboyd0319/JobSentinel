@@ -1412,6 +1412,39 @@ test("checkRepoBloat rejects stale notification webhook docs", () => {
   });
 });
 
+test("checkRepoBloat rejects stale notification preference docs", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/user-data-management.md",
+      [
+        'invoke("save_notification_preferences", {',
+        "  per_source_settings: {",
+        "    linkedin: { enabled: true, min_score: 0.9, include_ghosts: false },",
+        "  },",
+        "  keyword_rules: { include: ['Rust'] },",
+        "  thresholds: { slack: 0.9 },",
+        "});",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/features/user-data-management.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sync notification preference docs with backend shape: docs/features/user-data-management.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects unsanitized structured feedback debug events", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

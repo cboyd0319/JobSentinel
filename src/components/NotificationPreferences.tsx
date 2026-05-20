@@ -14,10 +14,11 @@ import {
 } from '../utils/notificationPreferences';
 
 // Type for source keys only (excluding global and advancedFilters)
-type SourceKey = 'linkedin' | 'greenhouse' | 'lever' | 'jobswithgpt';
+type SourceKey = 'linkedin' | 'indeed' | 'greenhouse' | 'lever' | 'jobswithgpt';
 
 const SOURCE_INFO: Record<string, { name: string; color: string; icon: string }> = {
   linkedin: { name: 'LinkedIn', color: '#0077B5', icon: 'in' },
+  indeed: { name: 'Indeed', color: '#2557A7', icon: 'I' },
   greenhouse: { name: 'Greenhouse', color: '#3AB549', icon: 'G' },
   lever: { name: 'Lever', color: '#6B46C1', icon: 'L' },
   jobswithgpt: { name: 'JobsWithGPT', color: '#10A37F', icon: 'J' },

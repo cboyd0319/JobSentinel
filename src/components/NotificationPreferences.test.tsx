@@ -4,6 +4,7 @@ import {
   NotificationPreferences as NotificationPreferencesComponent,
 } from "./NotificationPreferences";
 import {
+  DEFAULT_PREFERENCES as REAL_DEFAULT_PREFERENCES,
   shouldNotifyForJob,
   type NotificationPreferences,
   type JobForNotification,
@@ -28,6 +29,7 @@ vi.mock("../contexts", () => ({
 
 const DEFAULT_PREFS: NotificationPreferences = {
   linkedin: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
+  indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
   greenhouse: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
   lever: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
   jobswithgpt: { enabled: true, minScoreThreshold: 75, soundEnabled: true },
@@ -48,6 +50,10 @@ const DEFAULT_PREFS: NotificationPreferences = {
 };
 
 describe("shouldNotifyForJob", () => {
+  it("keeps backend-required Indeed source in default preferences", () => {
+    expect("indeed" in REAL_DEFAULT_PREFERENCES).toBe(true);
+  });
+
   describe("global settings", () => {
     it("returns false when global.enabled is false", () => {
       const prefs = { ...DEFAULT_PREFS, global: { ...DEFAULT_PREFS.global, enabled: false } };
@@ -434,6 +440,7 @@ describe("NotificationPreferences Component", () => {
       await waitFor(() => {
         expect(screen.getByText("Per-Source Settings")).toBeInTheDocument();
         expect(screen.getByText("LinkedIn")).toBeInTheDocument();
+        expect(screen.getByText("Indeed")).toBeInTheDocument();
         expect(screen.getByText("Greenhouse")).toBeInTheDocument();
         expect(screen.getByText("Lever")).toBeInTheDocument();
         expect(screen.getByText("JobsWithGPT")).toBeInTheDocument();

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import type { PostedDateFilter, ScoreFilter, SortOption } from "../pages/DashboardTypes";
+import type { NotificationPreferences } from "../utils/notificationPreferences";
 import { mockInvoke, resetMockData } from "./handlers";
 
 type BackendSavedSearch = {
@@ -45,6 +46,28 @@ const savedSearchInput: BackendSavedSearch = {
   textSearch: "rust",
   createdAt: "",
   lastUsedAt: null,
+};
+
+const notificationPreferencesInput: NotificationPreferences = {
+  linkedin: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
+  indeed: { enabled: false, minScoreThreshold: 85, soundEnabled: false },
+  greenhouse: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
+  lever: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
+  jobswithgpt: { enabled: true, minScoreThreshold: 75, soundEnabled: true },
+  global: {
+    enabled: true,
+    quietHoursStart: "21:00",
+    quietHoursEnd: "07:00",
+    quietHoursEnabled: true,
+  },
+  advancedFilters: {
+    includeKeywords: ["Staff"],
+    excludeKeywords: ["Contract"],
+    minSalary: 150,
+    remoteOnly: true,
+    companyWhitelist: ["Anthropic"],
+    companyBlacklist: ["AvoidCo"],
+  },
 };
 
 describe("mock Tauri handlers", () => {
@@ -160,5 +183,23 @@ describe("mock Tauri handlers", () => {
         id: created.id,
       }),
     ).toBeNull();
+  });
+
+  it("stores notification preferences with the real backend command names", async () => {
+    const defaults = await mockInvoke<NotificationPreferences>("get_notification_preferences");
+
+    expect(defaults.indeed).toEqual({
+      enabled: true,
+      minScoreThreshold: 70,
+      soundEnabled: true,
+    });
+
+    await mockInvoke<void>("save_notification_preferences", {
+      prefs: notificationPreferencesInput,
+    });
+
+    expect(await mockInvoke<NotificationPreferences>("get_notification_preferences")).toEqual(
+      notificationPreferencesInput,
+    );
   });
 });

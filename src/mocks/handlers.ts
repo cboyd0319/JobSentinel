@@ -13,6 +13,7 @@ import {
   mockPendingReminders,
 } from "./data";
 import type { PostedDateFilter, ScoreFilter, SortOption } from "../pages/DashboardTypes";
+import type { NotificationPreferences, SourceNotificationConfig } from "../utils/notificationPreferences";
 
 type MockJob = typeof mockJobs[number];
 type MockConfig = typeof mockConfig;
@@ -285,6 +286,7 @@ let pendingReminders: MockPendingReminder[] = [...mockPendingReminders];
 let coverLetterTemplates: MockCoverLetterTemplate[] = [];
 let savedSearches: MockSavedSearch[] = [];
 let searchHistory: string[] = [];
+let notificationPreferences: NotificationPreferences | null = null;
 let credentials: Partial<Record<MockCredentialKey, string>> = {};
 let ghostConfig: MockGhostConfig = getDefaultGhostConfig();
 let bookmarkletConfig: MockBookmarkletConfig = {
@@ -311,6 +313,7 @@ interface MockState {
   coverLetterTemplates: MockCoverLetterTemplate[];
   savedSearches: MockSavedSearch[];
   searchHistory: string[];
+  notificationPreferences: NotificationPreferences | null;
   credentials: Partial<Record<MockCredentialKey, string>>;
   ghostConfig: MockGhostConfig;
   bookmarkletConfig: MockBookmarkletConfig;
@@ -342,6 +345,7 @@ function saveMockState(): void {
     coverLetterTemplates,
     savedSearches,
     searchHistory,
+    notificationPreferences,
     credentials,
     ghostConfig,
     bookmarkletConfig,
@@ -385,6 +389,9 @@ function loadMockState(): void {
       searchHistory = state.searchHistory.filter(
         (query): query is string => typeof query === "string" && query.trim().length >= 2,
       );
+    }
+    if (state.notificationPreferences && typeof state.notificationPreferences === "object") {
+      notificationPreferences = normalizeNotificationPreferences(state.notificationPreferences);
     }
     if (state.credentials && typeof state.credentials === "object") {
       credentials = state.credentials;
@@ -878,6 +885,74 @@ function normalizeCoverLetterTemplate(value: unknown): MockCoverLetterTemplate {
     updatedAt: typeof source.updatedAt === "string" && source.updatedAt.length > 0
       ? source.updatedAt
       : now,
+  };
+}
+
+function normalizeSourceNotificationConfig(value: unknown, fallback: SourceNotificationConfig): SourceNotificationConfig {
+  const source = isRecord(value) ? value : {};
+  return {
+    enabled: typeof source.enabled === "boolean" ? source.enabled : fallback.enabled,
+    minScoreThreshold: numberValue(source.minScoreThreshold, fallback.minScoreThreshold),
+    soundEnabled: typeof source.soundEnabled === "boolean" ? source.soundEnabled : fallback.soundEnabled,
+  };
+}
+
+function getDefaultNotificationPreferences(): NotificationPreferences {
+  return {
+    linkedin: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
+    indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
+    greenhouse: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
+    lever: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
+    jobswithgpt: { enabled: true, minScoreThreshold: 75, soundEnabled: true },
+    global: {
+      enabled: true,
+      quietHoursStart: "22:00",
+      quietHoursEnd: "08:00",
+      quietHoursEnabled: false,
+    },
+    advancedFilters: {
+      includeKeywords: [],
+      excludeKeywords: [],
+      minSalary: null,
+      remoteOnly: false,
+      companyWhitelist: [],
+      companyBlacklist: [],
+    },
+  };
+}
+
+function normalizeNotificationPreferences(value: unknown): NotificationPreferences {
+  const source = isRecord(value) ? value : {};
+  const defaults = getDefaultNotificationPreferences();
+  const global = isRecord(source.global) ? source.global : {};
+  const advancedFilters = isRecord(source.advancedFilters) ? source.advancedFilters : {};
+
+  return {
+    linkedin: normalizeSourceNotificationConfig(source.linkedin, defaults.linkedin),
+    indeed: normalizeSourceNotificationConfig(source.indeed, defaults.indeed),
+    greenhouse: normalizeSourceNotificationConfig(source.greenhouse, defaults.greenhouse),
+    lever: normalizeSourceNotificationConfig(source.lever, defaults.lever),
+    jobswithgpt: normalizeSourceNotificationConfig(source.jobswithgpt, defaults.jobswithgpt),
+    global: {
+      enabled: typeof global.enabled === "boolean" ? global.enabled : defaults.global.enabled,
+      quietHoursStart: typeof global.quietHoursStart === "string"
+        ? global.quietHoursStart
+        : defaults.global.quietHoursStart,
+      quietHoursEnd: typeof global.quietHoursEnd === "string"
+        ? global.quietHoursEnd
+        : defaults.global.quietHoursEnd,
+      quietHoursEnabled: typeof global.quietHoursEnabled === "boolean"
+        ? global.quietHoursEnabled
+        : defaults.global.quietHoursEnabled,
+    },
+    advancedFilters: {
+      includeKeywords: stringArray(advancedFilters.includeKeywords),
+      excludeKeywords: stringArray(advancedFilters.excludeKeywords),
+      minSalary: nullableNumber(advancedFilters.minSalary),
+      remoteOnly: booleanValue(advancedFilters.remoteOnly, defaults.advancedFilters.remoteOnly),
+      companyWhitelist: stringArray(advancedFilters.companyWhitelist),
+      companyBlacklist: stringArray(advancedFilters.companyBlacklist),
+    },
   };
 }
 
@@ -1935,6 +2010,20 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       return deleted as T;
     }
 
+    // Notification preferences
+    case "get_notification_preferences": {
+      if (!notificationPreferences) {
+        notificationPreferences = getDefaultNotificationPreferences();
+        saveMockState();
+      }
+      return normalizeNotificationPreferences(notificationPreferences) as T;
+    }
+
+    case "save_notification_preferences":
+      notificationPreferences = normalizeNotificationPreferences(getArg(args, "prefs"));
+      saveMockState();
+      return undefined as T;
+
     // Search history and saved searches
     case "get_search_history": {
       const limit = Math.max(0, Math.min(getNumericArg(args, "limit") ?? 20, 50));
@@ -2038,6 +2127,7 @@ export function resetMockData() {
   coverLetterTemplates = [];
   savedSearches = [];
   searchHistory = [];
+  notificationPreferences = null;
   credentials = {};
   ghostConfig = getDefaultGhostConfig();
   bookmarkletConfig = {

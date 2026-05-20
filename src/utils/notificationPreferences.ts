@@ -22,6 +22,7 @@ export interface AdvancedFilters {
 
 export interface NotificationPreferences {
   linkedin: SourceNotificationConfig;
+  indeed: SourceNotificationConfig;
   greenhouse: SourceNotificationConfig;
   lever: SourceNotificationConfig;
   jobswithgpt: SourceNotificationConfig;
@@ -46,6 +47,7 @@ export const DEFAULT_ADVANCED_FILTERS: AdvancedFilters = {
 
 export const DEFAULT_PREFERENCES: NotificationPreferences = {
   linkedin: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
+  indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
   greenhouse: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
   lever: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
   jobswithgpt: { enabled: true, minScoreThreshold: 75, soundEnabled: true },
@@ -59,7 +61,7 @@ export const DEFAULT_PREFERENCES: NotificationPreferences = {
 };
 
 // Type for source keys only (excluding global and advancedFilters)
-type SourceKey = 'linkedin' | 'greenhouse' | 'lever' | 'jobswithgpt';
+type SourceKey = 'linkedin' | 'indeed' | 'greenhouse' | 'lever' | 'jobswithgpt';
 
 // Extended job info for advanced filtering
 export interface JobForNotification {
