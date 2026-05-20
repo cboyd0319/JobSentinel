@@ -66,6 +66,14 @@ describe("ScoreBreakdownModal", () => {
 
       expect(screen.getByText("Low Match")).toBeInTheDocument();
     });
+
+    it("handles NaN score gracefully", () => {
+      render(<ScoreBreakdownModal {...defaultProps} score={NaN} />);
+
+      expect(screen.getByText("0%")).toBeInTheDocument();
+      expect(screen.getByText("Low Match")).toBeInTheDocument();
+      expect(screen.queryByText("NaN%")).not.toBeInTheDocument();
+    });
   });
 
   describe("job title", () => {
