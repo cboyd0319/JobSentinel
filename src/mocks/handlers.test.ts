@@ -1,4 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { JobType, RemoteType, SiteCategory } from "../types/deeplinks";
+import type { DeepLink, SearchCriteria, SiteInfo } from "../types/deeplinks";
 import type { PostedDateFilter, ScoreFilter, SortOption } from "../pages/DashboardTypes";
 import type { NotificationPreferences } from "../utils/notificationPreferences";
 import { mockInvoke, resetMockData } from "./handlers";
@@ -68,6 +70,13 @@ const notificationPreferencesInput: NotificationPreferences = {
     companyWhitelist: ["Anthropic"],
     companyBlacklist: ["AvoidCo"],
   },
+};
+
+const deepLinkCriteria: SearchCriteria = {
+  query: "Rust Developer",
+  location: "Denver, CO",
+  job_type: JobType.FullTime,
+  remote_type: RemoteType.Remote,
 };
 
 describe("mock Tauri handlers", () => {
@@ -201,5 +210,67 @@ describe("mock Tauri handlers", () => {
     expect(await mockInvoke<NotificationPreferences>("get_notification_preferences")).toEqual(
       notificationPreferencesInput,
     );
+  });
+
+  it("generates deep links with the real backend command names", async () => {
+    const sites = await mockInvoke<SiteInfo[]>("get_supported_sites");
+
+    expect(sites.length).toBeGreaterThanOrEqual(15);
+    expect(sites).toContainEqual(
+      expect.objectContaining({
+        id: "linkedin",
+        name: "LinkedIn",
+        category: SiteCategory.Professional,
+        requires_login: true,
+      }),
+    );
+
+    const techSites = await mockInvoke<SiteInfo[]>("get_sites_by_category_cmd", {
+      category: SiteCategory.Tech,
+    });
+    expect(techSites).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: "dice", category: SiteCategory.Tech }),
+        expect.objectContaining({ id: "stackoverflow", category: SiteCategory.Tech }),
+      ]),
+    );
+    expect(techSites.every((site) => site.category === SiteCategory.Tech)).toBe(true);
+
+    const links = await mockInvoke<DeepLink[]>("generate_deep_links", {
+      criteria: deepLinkCriteria,
+    });
+    expect(links.length).toBe(sites.length);
+    expect(links).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          site: expect.objectContaining({ id: "indeed" }),
+          url: expect.stringContaining("https://www.indeed.com/jobs?q=Rust%20Developer"),
+        }),
+      ]),
+    );
+
+    const linkedin = await mockInvoke<DeepLink>("generate_deep_link", {
+      siteId: "linkedin",
+      criteria: deepLinkCriteria,
+    });
+    expect(linkedin).toMatchObject({
+      site: expect.objectContaining({ id: "linkedin", name: "LinkedIn" }),
+    });
+    expect(linkedin.url).toContain("keywords=Rust%20Developer");
+    expect(linkedin.url).toContain("location=Denver%2C%20CO");
+    expect(linkedin.url).toContain("f_JT=F");
+    expect(linkedin.url).toContain("f_WT=2");
+
+    await expect(
+      mockInvoke<void>("open_deep_link", {
+        url: "https://www.linkedin.com/jobs/search/?keywords=Rust%20Developer",
+      }),
+    ).resolves.toBeUndefined();
+
+    await expect(
+      mockInvoke<void>("open_deep_link", {
+        url: "http://localhost:3000/jobs?query=Rust%20Developer",
+      }),
+    ).rejects.toThrow("Blocked unsafe deep link URL");
   });
 });

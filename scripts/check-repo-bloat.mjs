@@ -880,6 +880,25 @@ function hasStaleUserDataMockHandlers(root, path) {
   return missingRequiredCommand || /case\s+["']save_search["']/.test(text);
 }
 
+function hasStaleDeepLinkMockHandlers(root, path) {
+  if (path !== "src/mocks/handlers.ts") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const requiredCommands = [
+    "generate_deep_links",
+    "generate_deep_link",
+    "get_supported_sites",
+    "get_sites_by_category_cmd",
+    "open_deep_link",
+  ];
+
+  return requiredCommands.some((command) => {
+    return !new RegExp(`case\\s+["']${command}["']`).test(text);
+  });
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -1078,6 +1097,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleUserDataMockHandlers(root, path)) {
       violations.push(`sync user-data mock command handlers: ${path}`);
+    }
+
+    if (hasStaleDeepLinkMockHandlers(root, path)) {
+      violations.push(`sync deep-link mock command handlers: ${path}`);
     }
   }
 

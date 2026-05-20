@@ -1617,3 +1617,35 @@ test("checkRepoBloat rejects stale user-data mock handlers", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects stale deep-link mock handlers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      [
+        "export async function mockInvoke(cmd) {",
+        "  switch (cmd) {",
+        "    case 'get_supported_sites':",
+        "      return [];",
+        "    default:",
+        "      return undefined;",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/mocks/handlers.ts"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sync deep-link mock command handlers: src/mocks/handlers.ts"),
+      violations.join("\n"),
+    );
+  });
+});
