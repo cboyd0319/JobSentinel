@@ -331,6 +331,10 @@ function isTrackedBloat(path) {
     return true;
   }
 
+  if (parts[0] === "src" && extname(fileName) === ".md") {
+    return true;
+  }
+
   if (parts.length === 1 && forbiddenRootSummaryPattern.test(fileName)) {
     return true;
   }

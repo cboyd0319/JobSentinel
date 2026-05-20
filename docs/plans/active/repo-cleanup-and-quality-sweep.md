@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Removed unreferenced Markdown notes from `src/components/settings/` and `src/hooks/`, keeping durable docs under `docs/`, and added bloat coverage so tracked source-tree Markdown notes cannot return. |
 | 2026-05-20 | In progress | Removed emoji markers from Resume Matcher and Salary AI feature docs, corrected the stale Salary AI future-UI claim now that `src/pages/Salary.tsx` exists, and added bloat coverage for both drift classes. |
 | 2026-05-20 | In progress | Synced maintained macOS and getting-started developer docs with current Tauri CLI ownership, build output naming, Rust/frontend test commands, and text-only status guidance, with bloat coverage for those stale patterns. |
 | 2026-05-20 | In progress | Corrected stale Vitest name-filter docs from unsupported `--grep` to `-t`, with bloat coverage so frontend unit-test docs stay aligned with current Vitest CLI behavior. |
@@ -339,6 +340,11 @@ changes or Playwright-specific work.
 - Company scoring tests still had a temporary-disabled / no-commit
   commented block even though company fuzzy matching had already been
   implemented.
+- `src/components/settings/README.md`,
+  `src/components/settings/QUICK_REFERENCE.md`, and `src/hooks/USAGE.md` were
+  unreferenced nested Markdown notes outside the maintained docs source of
+  truth. The settings quick reference also carried absolute local paths and
+  stale refactor checklist language.
 - Deep-link and universal job-import paths still logged raw user-controlled URLs,
   including search terms, location filters, credentials, query strings, and
   fragments.

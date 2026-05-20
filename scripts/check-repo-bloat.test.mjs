@@ -94,6 +94,33 @@ test("checkRepoBloat rejects tracked gitkeep placeholders", () => {
   });
 });
 
+test("checkRepoBloat rejects tracked source-tree markdown notes", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(root, "src/components/settings/README.md", "# Component Notes\n");
+    writeFixtureFile(root, "src/hooks/USAGE.md", "# Hook Usage\n");
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/components/settings/README.md", "src/hooks/USAGE.md"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove tracked generated or disposable file: src/components/settings/README.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("remove tracked generated or disposable file: src/hooks/USAGE.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale E2E runtime skip guidance", () => {
   withGitFixture((root) => {
     const runtimeSkipCall = ["test", "skip"].join(".");
