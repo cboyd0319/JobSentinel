@@ -158,6 +158,39 @@ test("checkRepoBloat rejects focused-test commit guidance", () => {
   });
 });
 
+test("checkRepoBloat rejects unsupported Vitest grep docs", () => {
+  withGitFixture((root) => {
+    const unsupportedVitestFilterFlag = ["--", "grep"].join("");
+
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/developer/FRONTEND_TESTING.md",
+      [
+        "## Running Tests",
+        "",
+        "```bash",
+        `npm test -- ${unsupportedVitestFilterFlag} "GhostIndicator"`,
+        "```",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/developer/FRONTEND_TESTING.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace stale test-quality doc guidance: docs/developer/FRONTEND_TESTING.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects speculative cloud deployment docs", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

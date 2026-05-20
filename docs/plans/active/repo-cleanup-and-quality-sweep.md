@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Corrected stale Vitest name-filter docs from unsupported `--grep` to `-t`, with bloat coverage so frontend unit-test docs stay aligned with current Vitest CLI behavior. |
 | 2026-05-20 | In progress | Removed stale active testing-doc guidance that still demonstrated runtime Playwright skips and focused-test modifiers, and added bloat coverage so maintained testing docs cannot reintroduce those patterns. |
 | 2026-05-20 | In progress | Fixed Salary AI seniority lookup drift by sending backend-supported `principal` from the UI, accepting legacy `executive` and `director` aliases in the backend parser, and adding bloat coverage for unsupported salary seniority option values. |
 | 2026-05-20 | In progress | Added runtime invoke-to-dev-mock parity coverage, filled missing automation, scraper-health, setup, ghost-feedback, interview prep/follow-up, and salary mock handlers, and corrected salary plus interview follow-up frontend/backend response shapes. |

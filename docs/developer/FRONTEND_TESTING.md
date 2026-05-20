@@ -54,8 +54,8 @@ npm test -- --watch
 # Run specific test file
 npm test -- src/components/GhostIndicator.test.tsx
 
-# Run tests matching pattern
-npm test -- --grep "GhostIndicator"
+# Run tests matching test name
+npm test -- -t "GhostIndicator"
 
 # Run with coverage report
 npm run test:coverage
@@ -709,7 +709,7 @@ screen.debug(screen.getByRole("button"));
 ### 3. Run Single Test
 
 ```bash
-npm test -- --grep "specific test name"
+npm test -- -t "specific test name"
 npm test -- src/components/Button.test.tsx
 ```
 

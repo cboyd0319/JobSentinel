@@ -543,7 +543,10 @@ function hasStaleTestQualityDocGuidance(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /\btest\.skip\s*\(|\b(?:it|test|describe)\.only\s*\(/.test(text);
+  return (
+    /\btest\.skip\s*\(|\b(?:it|test|describe)\.only\s*\(/.test(text) ||
+    /\bnpm\s+test\s+--\s+--grep\b/.test(text)
+  );
 }
 
 function hasMarketIntelligenceDocEmojiMarkers(root, path) {
