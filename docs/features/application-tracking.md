@@ -36,7 +36,7 @@ set reminders to follow up, and see your entire pipeline at a glance.
 
 > **Status:** WORKING - Module enabled in v1.4.0
 > **Completion:** 100% core functionality
-> **Last Updated:** 2026-05-19
+> **Last Updated:** 2026-05-20
 > **Version:** 2.6.4
 > **Tests:** Backend ATS tests plus Playwright coverage in `application-tracking.spec.ts`
 
@@ -46,11 +46,11 @@ set reminders to follow up, and see your entire pipeline at a glance.
 
 JobSentinel's Application Tracking System provides comprehensive pipeline management for your job search with:
 
-- **📋 Kanban Board** - Visual pipeline with 12 status columns
-- **⏰ Automated Reminders** - Smart follow-ups based on status transitions
-- **📝 Timeline Tracking** - Complete audit trail of all application events
-- **👻 Ghosting Detection** - Automatic detection of stalled applications
-- **📊 Analytics-Ready** - Track success rates, response times, and more
+- **Kanban Board** - Visual pipeline with 12 status columns
+- **Automated Reminders** - Smart follow-ups based on status transitions
+- **Timeline Tracking** - Complete audit trail of all application events
+- **Ghosting Detection** - Automatic detection of stalled applications
+- **Analytics-Ready** - Track success rates, response times, and more
 
 ### Module Architecture (v1.4.0)
 
@@ -72,7 +72,7 @@ This modular structure keeps code organized and maintainable while supporting fu
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ### Database Schema
 
@@ -133,11 +133,11 @@ Withdrawn  Rejected    Ghosted    Technical Interview
 | Status                | Description                     | Auto-Reminders           |
 | --------------------- | ------------------------------- | ------------------------ |
 | `to_apply`            | Saved but not yet applied       | None                     |
-| `applied`             | Application submitted           | ✅ Follow-up in 7 days   |
+| `applied`             | Application submitted           | Follow-up in 7 days      |
 | `screening_call`      | Initial recruiter contact       | None                     |
-| `phone_interview`     | Phone/video interview scheduled | ✅ Thank-you in 24 hours |
-| `technical_interview` | Technical assessment            | ✅ Thank-you in 24 hours |
-| `onsite_interview`    | In-person/final round           | ✅ Thank-you in 24 hours |
+| `phone_interview`     | Phone/video interview scheduled | Thank-you in 24 hours    |
+| `technical_interview` | Technical assessment            | Thank-you in 24 hours    |
+| `onsite_interview`    | In-person/final round           | Thank-you in 24 hours    |
 | `offer_received`      | Offer extended                  | None (user decides)      |
 | `offer_accepted`      | Accepted position               | None                     |
 | `offer_rejected`      | Declined offer                  | None                     |
@@ -147,7 +147,7 @@ Withdrawn  Rejected    Ghosted    Technical Interview
 
 ---
 
-## 🚀 Core Features
+## Core Features
 
 ### 1. Application Management
 
@@ -239,7 +239,7 @@ let reminders = tracker.get_pending_reminders().await?;
 // Returns all incomplete reminders where reminder_time <= now
 
 for reminder in reminders {
-    println!("⏰ {}: {}", reminder.job_title, reminder.message);
+    println!("Reminder: {}: {}", reminder.job_title, reminder.message);
 
     // Mark as done
     tracker.complete_reminder(reminder.id).await?;
@@ -281,7 +281,7 @@ tracker.add_notes(
 
 ---
 
-## 📊 Event Timeline
+## Event Timeline
 
 All significant events are logged automatically:
 
@@ -307,7 +307,7 @@ ORDER BY created_at DESC;
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ### Unit Tests Included
 
@@ -325,26 +325,26 @@ cargo test --lib ats
 
 **Test Coverage:**
 
-- ✅ Create application
-- ✅ Get application by ID
-- ✅ Update status transitions
-- ✅ Auto-set applied_at timestamp
-- ✅ Kanban board grouping by status
-- ✅ Auto-reminder on status change
-- ✅ Event logging
+- Create application
+- Get application by ID
+- Update status transitions
+- Auto-set applied_at timestamp
+- Kanban board grouping by status
+- Auto-reminder on status change
+- Event logging
 
 ---
 
-## 🎨 UI Integration (Future)
+## UI Integration
 
 ### Kanban Board Component
 
 ```typescript
-// src/pages/ApplicationTracker.tsx
+// src/pages/Applications.tsx
 
 import { invoke } from '@tauri-apps/api/core';
 
-const kanban = await invoke<ApplicationsByStatus>('get_applications_by_status');
+const kanban = await invoke<ApplicationsByStatus>('get_applications_kanban');
 
 // Render columns
 {kanban.applied.map(app => (
@@ -364,7 +364,7 @@ const kanban = await invoke<ApplicationsByStatus>('get_applications_by_status');
 const updateStatus = async (appId: number, newStatus: string) => {
   await invoke("update_application_status", {
     applicationId: appId,
-    newStatus: newStatus,
+    status: newStatus,
   });
 };
 ```
@@ -377,7 +377,7 @@ const checkReminders = async () => {
 
   for (const reminder of reminders) {
     // Show desktop notification
-    new Notification(`⏰ Reminder: ${reminder.job_title}`, {
+    new Notification(`Reminder: ${reminder.job_title}`, {
       body: reminder.message,
     });
 
@@ -392,7 +392,7 @@ setInterval(checkReminders, 3600000);
 
 ---
 
-## 📈 Analytics Queries
+## Analytics Queries
 
 ### Success Rate
 
@@ -424,7 +424,7 @@ WHERE status IN ('applied', 'rejected', 'ghosted');
 
 ---
 
-## 🚀 Future Enhancements
+## Future Enhancements
 
 ### Phase 2 (Future)
 
@@ -449,7 +449,7 @@ WHERE status IN ('applied', 'rejected', 'ghosted');
 
 ---
 
-## 🔧 API Reference
+## API Reference
 
 ### ApplicationTracker
 
@@ -511,9 +511,9 @@ pub struct ApplicationsByStatus {
 
 ---
 
-## ✅ Implementation Status
+## Implementation Status
 
-### Completed ✅
+### Completed
 
 - [x] Database schema (5 tables, 10 indexes)
 - [x] ApplicationTracker core module (500+ lines)
@@ -524,22 +524,25 @@ pub struct ApplicationsByStatus {
 - [x] Event timeline logging
 - [x] Contact tracking
 - [x] Notes management
+- [x] Tauri commands
+- [x] Kanban board UI components
+- [x] Interview scheduling UI
+- [x] Application analytics dashboard widgets
 - [x] Comprehensive unit tests
 
-### Future 🔜
+### Future
 
-- [ ] Tauri commands
-- [ ] UI components (Kanban board)
-- [ ] Interview tracking
 - [ ] Offer comparison
 - [ ] Email integration
-- [ ] Analytics dashboard
+- [ ] Document vault
+- [ ] Bulk actions
+- [ ] Tags and labels
 
 ---
 
-**Last Updated:** 2026-03-18
+**Last Updated:** 2026-05-20
 **Maintained By:** JobSentinel Core Team
-**Implementation Status:** ✅ Core Complete (Phase 1)
-**Next Feature:** UI Connections & Polish (v1.4 E4)
+**Implementation Status:** Working with backend commands, Kanban UI, interviews, notes, reminders, and analytics.
+**Next Feature:** Offer comparison and document vault.
 
 </details>

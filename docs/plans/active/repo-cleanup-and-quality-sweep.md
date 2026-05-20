@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Corrected stale application-tracking docs that still marked Kanban UI and Tauri commands as future work, with bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Removed emoji status markers from scraper health docs and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Removed emoji status markers from scraper feature docs and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Removed emoji markers from front-door README docs and added bloat coverage for recurrence. |
@@ -272,6 +273,9 @@ changes or Playwright-specific work.
 - Scraper health docs still used emoji markers in status legends, sample
   dashboards, smoke-test results, troubleshooting examples, and best-practice
   recommendations.
+- Application tracking docs still described the Kanban UI and Tauri commands as
+  future work even though `src/pages/Applications.tsx`, ATS commands, interview
+  scheduling, and stats widgets are already present.
 
 ## Decisions
 
@@ -291,6 +295,8 @@ changes or Playwright-specific work.
 - Keep scraper health docs text-only for dashboard status examples and
   troubleshooting outputs; use status words like `Healthy`, `PASS`, and
   `FAILED`.
+- Keep feature docs aligned with live source names for frontend routes and IPC
+  commands; stale future-work claims count as documentation bloat.
 - Treat tracked `.gitkeep` files as bloat in this repo. Durable empty directory
   intent belongs in docs or in the commit that introduces real fixtures.
 - Treat removing bloat and junk as active repo work even though the earlier

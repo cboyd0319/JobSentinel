@@ -432,6 +432,22 @@ function hasScraperHealthDocEmojiMarkers(root, path) {
   );
 }
 
+function hasStaleApplicationTrackingDocClaims(root, path) {
+  if (path !== "docs/features/application-tracking.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /UI Integration \(Future\)/.test(text) ||
+    /src\/pages\/ApplicationTracker\.tsx/.test(text) ||
+    /invoke<ApplicationsByStatus>\('get_applications_by_status'\)/.test(text) ||
+    /- \[ \] Tauri commands/.test(text) ||
+    /- \[ \] UI components \(Kanban board\)/.test(text) ||
+    /UI Connections & Polish \(v1\.4 E4\)/.test(text)
+  );
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -510,6 +526,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasScraperHealthDocEmojiMarkers(root, path)) {
       violations.push(`replace scraper health doc emoji markers: ${path}`);
+    }
+
+    if (hasStaleApplicationTrackingDocClaims(root, path)) {
+      violations.push(`remove stale application tracking doc claims: ${path}`);
     }
   }
 

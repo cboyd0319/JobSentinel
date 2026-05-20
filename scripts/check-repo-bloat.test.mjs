@@ -475,3 +475,35 @@ test("checkRepoBloat rejects scraper health doc emoji markers", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects stale application tracking doc claims", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/application-tracking.md",
+      [
+        "## 🎨 UI Integration (Future)",
+        "// src/pages/ApplicationTracker.tsx",
+        "const kanban = await invoke<ApplicationsByStatus>('get_applications_by_status');",
+        "- [ ] Tauri commands",
+        "- [ ] UI components (Kanban board)",
+        "**Next Feature:** UI Connections & Polish (v1.4 E4)",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/features/application-tracking.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove stale application tracking doc claims: docs/features/application-tracking.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
