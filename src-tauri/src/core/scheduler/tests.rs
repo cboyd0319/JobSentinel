@@ -31,7 +31,7 @@ fn create_test_config() -> Config {
         greenhouse_urls: vec![],
         lever_urls: vec![],
         linkedin: Default::default(),
-        jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
+        jobswithgpt_endpoint: String::new(),
         remoteok: Default::default(),
         weworkremotely: Default::default(),
         builtin: Default::default(),
@@ -868,8 +868,8 @@ async fn test_scheduler_zero_interval_duration() {
 async fn test_scraping_cycle_with_greenhouse_urls() {
     let mut config = create_test_config();
     config.greenhouse_urls = vec![
-        "https://boards.greenhouse.io/cloudflare".to_string(),
-        "https://boards.greenhouse.io/netflix".to_string(),
+        "https://boards.greenhouse.io/jobsentinel-missing-company-a".to_string(),
+        "https://boards.greenhouse.io/jobsentinel-missing-company-b".to_string(),
     ];
     let config = Arc::new(config);
     let db = Database::connect_memory().await.unwrap();
@@ -1175,6 +1175,7 @@ async fn test_scraping_cycle_with_linkedin_empty_cookie() {
 async fn test_scraping_cycle_with_jobswithgpt_remote_only() {
     let mut config = create_test_config();
     config.title_allowlist = vec!["Engineer".to_string()];
+    config.jobswithgpt_endpoint = "not-a-url".to_string();
     config.location_preferences.allow_remote = true;
     config.location_preferences.allow_onsite = false;
     let config = Arc::new(config);
@@ -1195,6 +1196,7 @@ async fn test_scraping_cycle_with_jobswithgpt_remote_only() {
 async fn test_scraping_cycle_with_jobswithgpt_not_remote_only() {
     let mut config = create_test_config();
     config.title_allowlist = vec!["Engineer".to_string()];
+    config.jobswithgpt_endpoint = "not-a-url".to_string();
     config.location_preferences.allow_remote = false;
     config.location_preferences.allow_onsite = true;
     let config = Arc::new(config);
@@ -1419,7 +1421,7 @@ async fn test_scraping_cycle_with_many_greenhouse_urls() {
 #[tokio::test]
 async fn test_scraping_cycle_with_duplicate_urls() {
     let mut config = create_test_config();
-    let url = "https://boards.greenhouse.io/cloudflare".to_string();
+    let url = "https://boards.greenhouse.io/jobsentinel-missing-company".to_string();
     config.greenhouse_urls = vec![url.clone(), url.clone(), url.clone()];
     let config = Arc::new(config);
     let db = Database::connect_memory().await.unwrap();
@@ -1595,6 +1597,7 @@ async fn test_scraping_cycle_jobswithgpt_error_path() {
     // Tests lines 246-250 (JobsWithGPT error logging)
     let mut config = create_test_config();
     config.title_allowlist = vec!["Security Engineer".to_string()];
+    config.jobswithgpt_endpoint = "not-a-url".to_string();
     config.location_preferences.allow_remote = true;
     config.location_preferences.allow_onsite = false;
     let config = Arc::new(config);
@@ -1648,6 +1651,7 @@ async fn test_scraping_cycle_all_scrapers_error_accumulation() {
     config.greenhouse_urls = vec!["https://boards.greenhouse.io/error".to_string()];
     config.lever_urls = vec!["https://jobs.lever.co/error".to_string()];
     config.title_allowlist = vec!["Engineer".to_string()];
+    config.jobswithgpt_endpoint = "not-a-url".to_string();
     config.linkedin.enabled = true;
     config.linkedin.session_cookie = "invalid".to_string();
     config.linkedin.query = "Engineer".to_string();

@@ -41,8 +41,9 @@ fn init_shared_client() -> Result<reqwest::Client> {
 
 /// Get the shared HTTP client
 ///
-/// This is the preferred way to get an HTTP client for scraping.
-/// The client is created once and reused for all requests.
+/// This returns the shared client used by retry helpers. Prefer
+/// [`send_with_retry`] for normal scraper requests so retry behavior stays
+/// consistent across adapters.
 ///
 /// # Returns
 /// A reference to the shared HTTP client. If the shared client failed to initialize,
@@ -51,10 +52,11 @@ fn init_shared_client() -> Result<reqwest::Client> {
 /// # Example
 ///
 /// ```ignore
-/// use crate::core::scrapers::http_client::get_client;
+/// use crate::core::scrapers::http_client::send_with_retry;
 ///
-/// let client = get_client();
-/// let response = client.get("https://example.com").send().await?;
+/// let response = send_with_retry("https://example.com", |client| {
+///     client.get("https://example.com")
+/// }).await?;
 /// ```
 pub fn get_client() -> &'static reqwest::Client {
     SHARED_CLIENT.get_or_init(|| {
@@ -138,18 +140,64 @@ const BASE_DELAY_SECS: u64 = 1;
 /// ```
 #[must_use = "this returns the HTTP response"]
 pub async fn get_with_retry(url: &str) -> Result<reqwest::Response> {
-    let client = get_client();
+    let response = send_with_retry(url, |client| client.get(url)).await?;
+    let status = response.status();
 
+    if status.is_success() {
+        return Ok(response);
+    }
+
+    Err(anyhow::anyhow!("HTTP {}: {}", status, url))
+}
+
+/// Send a scraper request through the shared client with retry behavior.
+///
+/// The builder closure runs once per attempt so callers can keep custom
+/// headers, query parameters, or JSON bodies without bypassing shared retry
+/// handling.
+pub async fn send_with_retry<F>(url: &str, build_request: F) -> Result<reqwest::Response>
+where
+    F: FnMut(&reqwest::Client) -> reqwest::RequestBuilder,
+{
+    send_with_retry_on_client(get_client(), url, build_request).await
+}
+
+/// Send a scraper request through a caller-provided client with retry behavior.
+///
+/// Use this for sources that need custom client-level defaults, such as API
+/// authentication headers.
+pub async fn send_with_retry_on_client<F>(
+    client: &reqwest::Client,
+    url: &str,
+    mut build_request: F,
+) -> Result<reqwest::Response>
+where
+    F: FnMut(&reqwest::Client) -> reqwest::RequestBuilder,
+{
     for attempt in 0..=MAX_RETRIES {
-        let response = client
-            .get(url)
-            .send()
-            .await
-            .context("Failed to send GET request")?;
+        let response = match build_request(client).send().await {
+            Ok(response) => response,
+            Err(error) => {
+                let should_retry = is_retryable_request_error(&error);
+                if !should_retry || attempt == MAX_RETRIES {
+                    return Err(error).with_context(|| format!("Failed to send request: {url}"));
+                }
+
+                let delay = calculate_backoff_delay(None, attempt);
+                tracing::warn!(
+                    "Request send failed (attempt {}/{}), retrying after {}s: {}",
+                    attempt + 1,
+                    MAX_RETRIES + 1,
+                    delay.as_secs(),
+                    url
+                );
+                tokio::time::sleep(delay).await;
+                continue;
+            }
+        };
 
         let status = response.status();
 
-        // Success - return immediately
         if status.is_success() {
             if attempt > 0 {
                 tracing::info!(
@@ -161,22 +209,11 @@ pub async fn get_with_retry(url: &str) -> Result<reqwest::Response> {
             return Ok(response);
         }
 
-        // Check if we should retry
-        let should_retry =
-            status == reqwest::StatusCode::TOO_MANY_REQUESTS || status.is_server_error();
-
-        if !should_retry || attempt == MAX_RETRIES {
-            // Don't retry, or exhausted retries
-            return Err(anyhow::anyhow!(
-                "HTTP {} after {} attempt(s): {}",
-                status,
-                attempt + 1,
-                url
-            ));
+        if !is_retryable_status(status) || attempt == MAX_RETRIES {
+            return Ok(response);
         }
 
-        // Calculate backoff delay
-        let delay = calculate_backoff_delay(&response, attempt);
+        let delay = calculate_backoff_delay(Some(&response), attempt);
 
         tracing::warn!(
             "Request failed with HTTP {} (attempt {}/{}), retrying after {}s: {}",
@@ -190,7 +227,6 @@ pub async fn get_with_retry(url: &str) -> Result<reqwest::Response> {
         tokio::time::sleep(delay).await;
     }
 
-    // Unreachable, but satisfy the compiler
     Err(anyhow::anyhow!("Retry logic error"))
 }
 
@@ -298,7 +334,7 @@ pub async fn get_with_retry_cached(url: &str, use_cache: bool) -> Result<String>
 /// # Arguments
 ///
 /// * `url` - The URL to post to
-/// * `body` - The request body (must implement Clone)
+/// * `body` - The request body
 ///
 /// # Returns
 ///
@@ -312,65 +348,26 @@ pub async fn get_with_retry_cached(url: &str, use_cache: bool) -> Result<String>
 /// let body = serde_json::json!({"query": "rust developer"});
 /// let response = post_with_retry("https://example.com/api/search", body).await?;
 /// ```
-pub async fn post_with_retry<T: serde::Serialize + Clone>(
+pub async fn post_with_retry<T: serde::Serialize + Send + Sync>(
     url: &str,
     body: T,
 ) -> Result<reqwest::Response> {
-    let client = get_client();
+    let response = send_with_retry(url, |client| client.post(url).json(&body)).await?;
+    let status = response.status();
 
-    for attempt in 0..=MAX_RETRIES {
-        let response = client
-            .post(url)
-            .json(&body)
-            .send()
-            .await
-            .context("Failed to send POST request")?;
-
-        let status = response.status();
-
-        // Success - return immediately
-        if status.is_success() {
-            if attempt > 0 {
-                tracing::info!(
-                    "Request succeeded after {} retry attempt(s): {}",
-                    attempt,
-                    url
-                );
-            }
-            return Ok(response);
-        }
-
-        // Check if we should retry
-        let should_retry =
-            status == reqwest::StatusCode::TOO_MANY_REQUESTS || status.is_server_error();
-
-        if !should_retry || attempt == MAX_RETRIES {
-            // Don't retry, or exhausted retries
-            return Err(anyhow::anyhow!(
-                "HTTP {} after {} attempt(s): {}",
-                status,
-                attempt + 1,
-                url
-            ));
-        }
-
-        // Calculate backoff delay
-        let delay = calculate_backoff_delay(&response, attempt);
-
-        tracing::warn!(
-            "Request failed with HTTP {} (attempt {}/{}), retrying after {}s: {}",
-            status,
-            attempt + 1,
-            MAX_RETRIES + 1,
-            delay.as_secs(),
-            url
-        );
-
-        tokio::time::sleep(delay).await;
+    if status.is_success() {
+        return Ok(response);
     }
 
-    // Unreachable, but satisfy the compiler
-    Err(anyhow::anyhow!("Retry logic error"))
+    Err(anyhow::anyhow!("HTTP {}: {}", status, url))
+}
+
+fn is_retryable_status(status: reqwest::StatusCode) -> bool {
+    status == reqwest::StatusCode::TOO_MANY_REQUESTS || status.is_server_error()
+}
+
+fn is_retryable_request_error(error: &reqwest::Error) -> bool {
+    error.is_timeout() || error.is_connect()
 }
 
 /// Calculate backoff delay with respect to Retry-After header
@@ -386,16 +383,18 @@ pub async fn post_with_retry<T: serde::Serialize + Clone>(
 /// # Returns
 ///
 /// Duration to wait before the next retry
-fn calculate_backoff_delay(response: &reqwest::Response, attempt: u32) -> Duration {
+fn calculate_backoff_delay(response: Option<&reqwest::Response>, attempt: u32) -> Duration {
     // Check for Retry-After header
-    if let Some(retry_after) = response.headers().get(reqwest::header::RETRY_AFTER) {
-        if let Ok(retry_after_str) = retry_after.to_str() {
-            // Try parsing as seconds (integer)
-            if let Ok(seconds) = retry_after_str.parse::<u64>() {
-                tracing::debug!("Using Retry-After header value: {}s", seconds);
-                return Duration::from_secs(seconds);
+    if let Some(response) = response {
+        if let Some(retry_after) = response.headers().get(reqwest::header::RETRY_AFTER) {
+            if let Ok(retry_after_str) = retry_after.to_str() {
+                // Try parsing as seconds (integer)
+                if let Ok(seconds) = retry_after_str.parse::<u64>() {
+                    tracing::debug!("Using Retry-After header value: {}s", seconds);
+                    return Duration::from_secs(seconds);
+                }
+                // Could also parse HTTP date format here, but most rate limiters use seconds
             }
-            // Could also parse HTTP date format here, but most rate limiters use seconds
         }
     }
 
@@ -543,6 +542,18 @@ mod tests {
     }
 
     #[test]
+    fn test_retryable_status_classification() {
+        assert!(is_retryable_status(reqwest::StatusCode::TOO_MANY_REQUESTS));
+        assert!(is_retryable_status(
+            reqwest::StatusCode::INTERNAL_SERVER_ERROR
+        ));
+        assert!(is_retryable_status(reqwest::StatusCode::BAD_GATEWAY));
+        assert!(!is_retryable_status(reqwest::StatusCode::BAD_REQUEST));
+        assert!(!is_retryable_status(reqwest::StatusCode::UNAUTHORIZED));
+        assert!(!is_retryable_status(reqwest::StatusCode::NOT_FOUND));
+    }
+
+    #[test]
     fn test_calculate_backoff_delay_exponential() {
         // Test the exponential backoff logic
         // attempt 0: 1s, attempt 1: 2s, attempt 2: 4s, attempt 3: 8s
@@ -570,8 +581,64 @@ mod tests {
         assert!(err_msg.contains("404"));
     }
 
-    // Note: Testing actual retry behavior with 429/5xx would require a mock server
-    // Using wiremock in integration tests would be ideal for comprehensive retry testing
+    #[tokio::test]
+    async fn test_send_with_retry_retries_status_and_preserves_headers() {
+        use wiremock::matchers::{header, method, path};
+        use wiremock::{Mock, MockServer, ResponseTemplate};
+
+        let server = MockServer::start().await;
+        let path_value = "/jobs";
+        let url = format!("{}{}", server.uri(), path_value);
+
+        Mock::given(method("GET"))
+            .and(path(path_value))
+            .and(header("x-source", "custom"))
+            .respond_with(ResponseTemplate::new(429).insert_header("retry-after", "0"))
+            .up_to_n_times(1)
+            .with_priority(1)
+            .mount(&server)
+            .await;
+
+        Mock::given(method("GET"))
+            .and(path(path_value))
+            .and(header("x-source", "custom"))
+            .respond_with(ResponseTemplate::new(200).set_body_string("ok"))
+            .expect(1)
+            .with_priority(2)
+            .mount(&server)
+            .await;
+
+        let response =
+            send_with_retry(&url, |client| client.get(&url).header("x-source", "custom"))
+                .await
+                .expect("retry should return eventual success");
+
+        assert_eq!(response.status(), reqwest::StatusCode::OK);
+        assert_eq!(response.text().await.expect("body"), "ok");
+    }
+
+    #[tokio::test]
+    async fn test_send_with_retry_returns_final_non_retryable_status() {
+        use wiremock::matchers::{method, path};
+        use wiremock::{Mock, MockServer, ResponseTemplate};
+
+        let server = MockServer::start().await;
+        let path_value = "/not-found";
+        let url = format!("{}{}", server.uri(), path_value);
+
+        Mock::given(method("GET"))
+            .and(path(path_value))
+            .respond_with(ResponseTemplate::new(404))
+            .expect(1)
+            .mount(&server)
+            .await;
+
+        let response = send_with_retry(&url, |client| client.get(&url))
+            .await
+            .expect("non-retryable statuses should be returned to callers");
+
+        assert_eq!(response.status(), reqwest::StatusCode::NOT_FOUND);
+    }
 
     #[tokio::test]
     #[ignore = "requires network access - may fail in CI or offline environments"]

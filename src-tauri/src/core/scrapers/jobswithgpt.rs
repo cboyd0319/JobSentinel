@@ -4,7 +4,7 @@
 //! MCP is a JSON-RPC based protocol for querying structured data.
 
 use super::error::ScraperError;
-use super::http_client::get_client;
+use super::http_client::send_with_retry;
 use super::rate_limiter::{limits, RateLimiter};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -70,9 +70,11 @@ impl JobsWithGptScraper {
 
         tracing::debug!("MCP request: {}", request);
 
-        let client = get_client();
-
-        let response = client.post(&self.endpoint).json(&request).send().await?;
+        let response = send_with_retry(&self.endpoint, |client| {
+            client.post(&self.endpoint).json(&request)
+        })
+        .await
+        .map_err(|e| ScraperError::from_anyhow("jobswithgpt", e))?;
 
         if !response.status().is_success() {
             return Err(ScraperError::http_status(

@@ -4,7 +4,7 @@
 //! Lever is used by companies like Netflix, Shopify, IDEO, etc.
 
 use super::error::ScraperError;
-use super::http_client::get_client;
+use super::http_client::send_with_retry;
 use super::rate_limiter::{limits, RateLimiter};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -45,9 +45,9 @@ impl LeverScraper {
 
         tracing::debug!("Fetching Lever API: {}", api_url);
 
-        let client = get_client();
-
-        let response = client.get(&api_url).send().await?;
+        let response = send_with_retry(&api_url, |client| client.get(&api_url))
+            .await
+            .map_err(|e| ScraperError::from_anyhow("lever", e))?;
 
         if !response.status().is_success() {
             return Err(ScraperError::http_status(

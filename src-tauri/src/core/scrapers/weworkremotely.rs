@@ -4,7 +4,7 @@
 //! WeWorkRemotely is a popular remote-only job board.
 
 use super::error::ScraperError;
-use super::http_client::get_client;
+use super::http_client::send_with_retry;
 use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -48,14 +48,13 @@ impl WeWorkRemotelyScraper {
         // Use rate limiter (RSS feed, be conservative)
         self.rate_limiter.wait("weworkremotely", 300).await;
 
-        let client = get_client();
         let url = self.build_url();
 
-        let response = client
-            .get(&url)
-            .header("User-Agent", "JobSentinel/1.0")
-            .send()
-            .await?;
+        let response = send_with_retry(&url, |client| {
+            client.get(&url).header("User-Agent", "JobSentinel/1.0")
+        })
+        .await
+        .map_err(|e| ScraperError::from_anyhow("weworkremotely", e))?;
 
         if !response.status().is_success() {
             return Err(ScraperError::http_status(

@@ -7,7 +7,7 @@
 //! back gracefully if blocked.
 
 use super::error::ScraperError;
-use super::http_client::get_client;
+use super::http_client::send_with_retry;
 use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -46,8 +46,6 @@ impl GlassdoorScraper {
         // Use rate limiter (conservative due to Cloudflare protection)
         self.rate_limiter.wait("glassdoor", 200).await;
 
-        let client = get_client();
-
         // Build search URL - Glassdoor uses query parameters
         let query_encoded = urlencoding::encode(&self.query);
         let location_param = self
@@ -62,18 +60,20 @@ impl GlassdoorScraper {
             query_encoded, location_param
         );
 
-        let response = client
-            .get(&api_url)
-            .header("User-Agent", super::http_client::DEFAULT_USER_AGENT)
-            .header(
-                "Accept",
-                "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-            )
-            .header("Accept-Language", "en-US,en;q=0.5")
-            .header("Connection", "keep-alive")
-            .header("Upgrade-Insecure-Requests", "1")
-            .send()
-            .await?;
+        let response = send_with_retry(&api_url, |client| {
+            client
+                .get(&api_url)
+                .header("User-Agent", super::http_client::DEFAULT_USER_AGENT)
+                .header(
+                    "Accept",
+                    "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                )
+                .header("Accept-Language", "en-US,en;q=0.5")
+                .header("Connection", "keep-alive")
+                .header("Upgrade-Insecure-Requests", "1")
+        })
+        .await
+        .map_err(|e| ScraperError::from_anyhow("glassdoor", e))?;
 
         let status = response.status();
         if !status.is_success() {

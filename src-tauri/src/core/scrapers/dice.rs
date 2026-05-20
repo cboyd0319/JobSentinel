@@ -4,7 +4,7 @@
 //! Dice specializes in technology and IT positions.
 
 use super::error::ScraperError;
-use super::http_client::get_client;
+use super::http_client::send_with_retry;
 use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -58,18 +58,19 @@ impl DiceScraper {
         // Use rate limiter (500 req/hr - similar to Indeed)
         self.rate_limiter.wait("dice", 500).await;
 
-        let client = get_client();
         let url = self.build_url();
 
-        let response = client
-            .get(&url)
-            .header(
-                "Accept",
-                "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            )
-            .header("Accept-Language", "en-US,en;q=0.5")
-            .send()
-            .await?;
+        let response = send_with_retry(&url, |client| {
+            client
+                .get(&url)
+                .header(
+                    "Accept",
+                    "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                )
+                .header("Accept-Language", "en-US,en;q=0.5")
+        })
+        .await
+        .map_err(|e| ScraperError::from_anyhow("dice", e))?;
 
         if !response.status().is_success() {
             return Err(ScraperError::http_status(

@@ -8,7 +8,7 @@
 //! New: /jobs with optional /remote filter
 
 use super::error::ScraperError;
-use super::http_client::get_client;
+use super::http_client::send_with_retry;
 use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -76,18 +76,19 @@ impl BuiltInScraper {
         // Use rate limiter (job board, reasonable limit)
         self.rate_limiter.wait("builtin", 300).await;
 
-        let client = get_client();
         let url = self.build_url();
 
-        let response = client
-            .get(&url)
-            .header(
-                "User-Agent",
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-            )
-            .header("Accept", "text/html,application/xhtml+xml")
-            .send()
-            .await?;
+        let response = send_with_retry(&url, |client| {
+            client
+                .get(&url)
+                .header(
+                    "User-Agent",
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                )
+                .header("Accept", "text/html,application/xhtml+xml")
+        })
+        .await
+        .map_err(|e| ScraperError::from_anyhow("builtin", e))?;
 
         if !response.status().is_success() {
             return Err(ScraperError::http_status(

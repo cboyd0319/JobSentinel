@@ -4,7 +4,7 @@
 //! RemoteOK is a popular remote job board with tech-focused listings.
 
 use super::error::ScraperError;
-use super::http_client::get_client;
+use super::http_client::send_with_retry;
 use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -39,15 +39,13 @@ impl RemoteOkScraper {
         // Use rate limiter (500 req/hr - public API)
         self.rate_limiter.wait("remoteok", 500).await;
 
-        let client = get_client();
         let url = "https://remoteok.com/api";
 
-        let response = client
-            .get(url)
-            .header("User-Agent", "JobSentinel/1.0")
-            .send()
-            .await
-            .map_err(|e| ScraperError::http_request(url, e))?;
+        let response = send_with_retry(url, |client| {
+            client.get(url).header("User-Agent", "JobSentinel/1.0")
+        })
+        .await
+        .map_err(|e| ScraperError::from_anyhow("remoteok", e))?;
 
         if !response.status().is_success() {
             return Err(ScraperError::http_status(

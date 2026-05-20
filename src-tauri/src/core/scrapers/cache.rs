@@ -173,7 +173,7 @@ pub async fn get_cached(url: &str) -> Option<String> {
 /// # Example
 ///
 /// ```ignore
-/// let response = client.get(url).send().await?.text().await?;
+/// let response = send_with_retry(url, |client| client.get(url)).await?.text().await?;
 /// set_cached(url, response.clone()).await;
 /// ```
 pub async fn set_cached(url: &str, body: impl Into<String>) {

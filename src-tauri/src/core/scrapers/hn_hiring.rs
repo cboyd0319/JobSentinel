@@ -5,7 +5,7 @@
 //! high-quality tech job postings from the HN community.
 
 use super::error::ScraperError;
-use super::http_client::get_client;
+use super::http_client::send_with_retry;
 use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -41,17 +41,17 @@ impl HnHiringScraper {
         // Use rate limiter (Algolia API, reasonable limit)
         self.rate_limiter.wait("hn_hiring", 500).await;
 
-        let client = get_client();
-
         // First, search for the latest "Who is hiring?" thread
         let search_url =
             "https://hn.algolia.com/api/v1/search?query=who%20is%20hiring&tags=story,ask_hn&hitsPerPage=1";
 
-        let response = client
-            .get(search_url)
-            .header("User-Agent", "JobSentinel/1.0")
-            .send()
-            .await?;
+        let response = send_with_retry(search_url, |client| {
+            client
+                .get(search_url)
+                .header("User-Agent", "JobSentinel/1.0")
+        })
+        .await
+        .map_err(|e| ScraperError::from_anyhow("hn_hiring", e))?;
 
         if !response.status().is_success() {
             return Err(ScraperError::http_status(
@@ -78,11 +78,13 @@ impl HnHiringScraper {
             thread_id
         );
 
-        let comments_response = client
-            .get(&comments_url)
-            .header("User-Agent", "JobSentinel/1.0")
-            .send()
-            .await?;
+        let comments_response = send_with_retry(&comments_url, |client| {
+            client
+                .get(&comments_url)
+                .header("User-Agent", "JobSentinel/1.0")
+        })
+        .await
+        .map_err(|e| ScraperError::from_anyhow("hn_hiring", e))?;
 
         if !comments_response.status().is_success() {
             return Err(ScraperError::http_status(

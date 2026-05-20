@@ -6,7 +6,7 @@
 //! but RSS feeds may work. Falls back gracefully if blocked.
 
 use super::error::ScraperError;
-use super::http_client::get_client;
+use super::http_client::send_with_retry;
 use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -45,8 +45,6 @@ impl SimplyHiredScraper {
         // Use rate limiter (conservative due to Cloudflare protection)
         self.rate_limiter.wait("simplyhired", 200).await;
 
-        let client = get_client();
-
         // Build RSS feed URL
         let query_encoded = urlencoding::encode(&self.query);
         let location_param = self
@@ -60,18 +58,20 @@ impl SimplyHiredScraper {
             query_encoded, location_param
         );
 
-        let response = client
-            .get(&url)
-            .header(
-                "User-Agent",
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
-            )
-            .header(
-                "Accept",
-                "application/rss+xml, application/xml, text/xml, */*",
-            )
-            .send()
-            .await?;
+        let response = send_with_retry(&url, |client| {
+            client
+                .get(&url)
+                .header(
+                    "User-Agent",
+                    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+                )
+                .header(
+                    "Accept",
+                    "application/rss+xml, application/xml, text/xml, */*",
+                )
+        })
+        .await
+        .map_err(|e| ScraperError::from_anyhow("simplyhired", e))?;
 
         let status = response.status();
         if !status.is_success() {

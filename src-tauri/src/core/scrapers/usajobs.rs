@@ -7,6 +7,7 @@
 //! it's an official public API designed for programmatic access.
 
 use super::error::ScraperError;
+use super::http_client::send_with_retry_on_client;
 use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -183,12 +184,10 @@ impl UsaJobsScraper {
         let url = format!("{}{}", BASE_URL, SEARCH_ENDPOINT);
         let params = self.build_query_params(1);
 
-        let response = client
-            .get(&url)
-            .query(&params)
-            .send()
-            .await
-            .map_err(|e| ScraperError::http_request(&url, e))?;
+        let response =
+            send_with_retry_on_client(&client, &url, |client| client.get(&url).query(&params))
+                .await
+                .map_err(|e| ScraperError::from_anyhow("usajobs", e))?;
 
         if !response.status().is_success() {
             let status = response.status();

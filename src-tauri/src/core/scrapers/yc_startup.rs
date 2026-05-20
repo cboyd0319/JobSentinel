@@ -6,7 +6,7 @@
 //! and walk `props.companiesWithJobs[].jobPostings[]`.
 
 use super::error::ScraperError;
-use super::http_client::get_client;
+use super::http_client::send_with_retry;
 use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -72,18 +72,19 @@ impl YcStartupScraper {
 
         self.rate_limiter.wait("yc_startup", 300).await;
 
-        let client = get_client();
         let url = self.build_url();
 
-        let response = client
-            .get(&url)
-            .header("User-Agent", super::http_client::DEFAULT_USER_AGENT)
-            .header(
-                "Accept",
-                "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            )
-            .send()
-            .await?;
+        let response = send_with_retry(&url, |client| {
+            client
+                .get(&url)
+                .header("User-Agent", super::http_client::DEFAULT_USER_AGENT)
+                .header(
+                    "Accept",
+                    "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                )
+        })
+        .await
+        .map_err(|e| ScraperError::from_anyhow("yc_startup", e))?;
 
         if !response.status().is_success() {
             return Err(ScraperError::http_status(
