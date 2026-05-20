@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Replaced dynamic Tailwind category button classes in the deep-link UI with static class metadata and added frontend sensor coverage for interpolated Tailwind utility names. |
 | 2026-05-20 | In progress | Removed redundant tracked `.gitkeep` placeholders from non-empty plan directories and added bloat coverage for future tracked `.gitkeep` files. |
 | 2026-05-20 | In progress | Sanitized deep-link and job-import URL logging so search terms, locations, credentials, query strings, and fragments are not written to logs. |
 | 2026-05-20 | In progress | Re-enabled company scoring tests that were still commented out after fuzzy matching landed, and added test-quality coverage for temporarily disabled test blocks. |
@@ -240,9 +241,15 @@ changes or Playwright-specific work.
 - `docs/plans/active/.gitkeep` and `docs/plans/completed/.gitkeep` were
   redundant tracked placeholders because both directories contain real plan
   files.
+- The deep-link category filter built selected Tailwind classes with
+  ``bg-${metadata.color}-600``. Runtime class names existed, but Tailwind could
+  miss the generated CSS because the utility names were not static source
+  strings.
 
 ## Decisions
 
+- Keep Tailwind utility names static in source or in explicit class metadata;
+  reject interpolated utility-name construction in frontend boundary checks.
 - Treat tracked `.gitkeep` files as bloat in this repo. Durable empty directory
   intent belongs in docs or in the commit that introduces real fixtures.
 - Treat removing bloat and junk as active repo work even though the earlier

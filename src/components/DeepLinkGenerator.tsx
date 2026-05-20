@@ -194,7 +194,7 @@ export function DeepLinkGenerator({
                     onClick={() => setSelectedCategory(category)}
                     className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                       selectedCategory === category
-                        ? `bg-${metadata.color}-600 text-white`
+                        ? metadata.selectedClassName
                         : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                     }`}
                   >

@@ -62,6 +62,9 @@ const boundaryRules = [
   },
 ];
 
+const dynamicTailwindClassPattern =
+  /(?:^|[^A-Za-z0-9_-])(?:[a-z]+:)*(?:bg|text|border|ring|from|via|to|stroke|fill)-\$\{[^}]+}/;
+
 function collectSourceFiles(root, dir = join(root, "src")) {
   const files = [];
 
@@ -151,20 +154,30 @@ function pathExistsWithKnownExtension(path) {
   return [".ts", ".tsx", ".js", ".jsx"].some((ext) => existsSync(`${path}${ext}`));
 }
 
+function hasDynamicTailwindClassConstruction(text) {
+  return dynamicTailwindClassPattern.test(text);
+}
+
 export function checkFrontendBoundaries(root = defaultRoot) {
   const srcRoot = join(root, "src");
   const violations = [];
 
   for (const file of collectSourceFiles(root)) {
+    const text = readFileSync(file, "utf8");
+    const relFile = relative(root, file);
+
+    if (hasDynamicTailwindClassConstruction(text)) {
+      violations.push(
+        `${relFile} constructs Tailwind class names with interpolation; use a static class map so Tailwind emits the CSS`,
+      );
+    }
+
     const fromLayer = getLayer(root, file);
     const applicableRules = boundaryRules.filter((rule) => rule.from === fromLayer);
 
     if (applicableRules.length === 0) {
       continue;
     }
-
-    const text = readFileSync(file, "utf8");
-    const relFile = relative(root, file);
 
     for (const specifier of getImportSpecifiers(text)) {
       const resolved = resolveLocalImport(root, file, specifier);

@@ -104,7 +104,7 @@ export interface CategoryMetadata {
   label: string;
   description: string;
   icon: string;
-  color: string;
+  selectedClassName: string;
 }
 
 /**
@@ -116,48 +116,48 @@ export const CATEGORY_METADATA: Record<SiteCategory, CategoryMetadata> = {
     label: "General",
     description: "Large job boards with millions of listings",
     icon: "🌐",
-    color: "blue",
+    selectedClassName: "bg-blue-600 text-white",
   },
   [SiteCategory.Tech]: {
     category: SiteCategory.Tech,
     label: "Tech",
     description: "Developer and IT-focused job boards",
     icon: "💻",
-    color: "purple",
+    selectedClassName: "bg-purple-600 text-white",
   },
   [SiteCategory.Government]: {
     category: SiteCategory.Government,
     label: "Government",
     description: "Federal, state, and local government positions",
     icon: "🏛️",
-    color: "indigo",
+    selectedClassName: "bg-indigo-600 text-white",
   },
   [SiteCategory.Remote]: {
     category: SiteCategory.Remote,
     label: "Remote",
     description: "Remote and flexible work opportunities",
     icon: "🌍",
-    color: "green",
+    selectedClassName: "bg-green-600 text-white",
   },
   [SiteCategory.Startups]: {
     category: SiteCategory.Startups,
     label: "Startups",
     description: "Early-stage companies and startup jobs",
     icon: "🚀",
-    color: "orange",
+    selectedClassName: "bg-orange-600 text-white",
   },
   [SiteCategory.Cleared]: {
     category: SiteCategory.Cleared,
     label: "Cleared",
     description: "Jobs requiring security clearances",
     icon: "🔒",
-    color: "red",
+    selectedClassName: "bg-red-600 text-white",
   },
   [SiteCategory.Professional]: {
     category: SiteCategory.Professional,
     label: "Professional",
     description: "Professional networking and career sites",
     icon: "👔",
-    color: "sky",
+    selectedClassName: "bg-sky-600 text-white",
   },
 };
