@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Fixed dashboard search-history loading by sending the required `limit` argument to the backend command, and added invoke-surface coverage for recurrence. |
 | 2026-05-20 | In progress | Sanitized user-data command and manager logging so saved-search text, saved-search names, cover-letter template names, and notification preference payloads are not captured by logs or tracing spans. |
 | 2026-05-20 | In progress | Added backend sanitization for saved feedback file content, so frontend-provided report text cannot bypass the privacy contract before writing through the native save dialog. |
 | 2026-05-20 | In progress | Expanded frontend stored-error webhook redaction so malformed Slack webhook-like URLs and provider Discord/Teams webhook URLs are redacted before generic URL sanitization can preserve token paths. |
@@ -209,6 +210,8 @@ changes or Playwright-specific work.
 - User-data command logs and manager tracing spans still exposed saved-search
   names, saved-search text, cover-letter template names, and notification
   preference payloads.
+- Dashboard search history invoked `get_search_history` without the backend's
+  required `limit` argument, so initial history loading could fail at runtime.
 - Maintained docs still used an overbroad "all user data" localStorage-to-SQLite
   migration claim even though frontend localStorage remains valid for
   non-authoritative UI preferences, caches, sanitized error logs, and transient
@@ -510,6 +513,8 @@ changes or Playwright-specific work.
 - User-data logs and tracing spans must use shape metadata such as length and
   presence flags instead of raw template names, saved-search names, search text,
   or preference payloads.
+- Frontend `get_search_history` calls must include a bounded `limit` argument to
+  match the Tauri command contract.
 - Describe SQLite as authoritative for job-search records and durable
   preferences. Do not claim browser localStorage is unused; it remains available
   for local-only UI state, caches, sanitized error logs, and recovery hints.

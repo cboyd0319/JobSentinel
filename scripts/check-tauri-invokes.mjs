@@ -146,6 +146,65 @@ function collectFrontendInvokes(root) {
   return invokes;
 }
 
+function hasObjectProperty(node, propertyName) {
+  return (
+    ts.isObjectLiteralExpression(node) &&
+    node.properties.some((property) => {
+      if (ts.isShorthandPropertyAssignment(property)) {
+        return property.name.text === propertyName;
+      }
+
+      if (!ts.isPropertyAssignment(property)) {
+        return false;
+      }
+
+      const name = property.name;
+      return (
+        (ts.isIdentifier(name) && name.text === propertyName) ||
+        (ts.isStringLiteral(name) && name.text === propertyName)
+      );
+    })
+  );
+}
+
+function collectFrontendRequiredArgViolations(root) {
+  const violations = [];
+
+  for (const file of collectSourceFiles(root)) {
+    const text = readFileSync(file, "utf8");
+    const scriptKind = file.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
+    const sourceFile = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, scriptKind);
+    const relFile = relative(root, file);
+
+    function visit(node) {
+      if (
+        ts.isCallExpression(node) &&
+        ts.isIdentifier(node.expression) &&
+        node.expression.text === "invoke" &&
+        node.arguments.length > 0
+      ) {
+        const [firstArg, secondArg] = node.arguments;
+
+        if (
+          (ts.isStringLiteral(firstArg) || ts.isNoSubstitutionTemplateLiteral(firstArg)) &&
+          firstArg.text === "get_search_history" &&
+          (!secondArg || !hasObjectProperty(secondArg, "limit"))
+        ) {
+          violations.push(
+            `${relFile}:${getLineNumber(sourceFile, firstArg.getStart(sourceFile))} invokes get_search_history without required limit argument`,
+          );
+        }
+      }
+
+      ts.forEachChild(node, visit);
+    }
+
+    visit(sourceFile);
+  }
+
+  return violations;
+}
+
 function collectRegisteredCommands(root) {
   const entries = collectRegisteredCommandEntries(root);
 
@@ -375,6 +434,7 @@ export function checkTauriInvokes(root = defaultRoot) {
   violations.push(...collectRegisteredStubCommandViolations(root));
   violations.push(...collectCommandBoundaryCastViolations(root));
   violations.push(...collectCommandLimitValidationViolations(root));
+  violations.push(...collectFrontendRequiredArgViolations(root));
 
   return violations;
 }

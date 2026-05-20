@@ -5,6 +5,8 @@ import { useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { logError } from "../../utils/errorUtils";
 
+const SEARCH_HISTORY_LIMIT = 20;
+
 export function useDashboardSearch() {
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [showSearchHistory, setShowSearchHistory] = useState(false);
@@ -13,7 +15,9 @@ export function useDashboardSearch() {
   useEffect(() => {
     const loadSearchHistory = async () => {
       try {
-        const history = await invoke<string[]>('get_search_history');
+        const history = await invoke<string[]>('get_search_history', {
+          limit: SEARCH_HISTORY_LIMIT,
+        });
         setSearchHistory(history);
       } catch (err: unknown) {
         logError("Failed to load search history:", err);
