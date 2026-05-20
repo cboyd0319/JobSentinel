@@ -27,6 +27,11 @@ fn test_seniority_parse() {
         SeniorityLevel::parse("principal"),
         SeniorityLevel::Principal
     );
+    assert_eq!(
+        SeniorityLevel::parse("executive"),
+        SeniorityLevel::Principal
+    );
+    assert_eq!(SeniorityLevel::parse("director"), SeniorityLevel::Principal);
     assert_eq!(SeniorityLevel::parse("unknown"), SeniorityLevel::Unknown);
     assert_eq!(SeniorityLevel::parse("invalid"), SeniorityLevel::Unknown);
     assert_eq!(SeniorityLevel::parse(""), SeniorityLevel::Unknown);

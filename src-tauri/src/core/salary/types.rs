@@ -34,7 +34,7 @@ impl SeniorityLevel {
             "mid" => Self::Mid,
             "senior" => Self::Senior,
             "staff" => Self::Staff,
-            "principal" => Self::Principal,
+            "principal" | "executive" | "director" => Self::Principal,
             _ => Self::Unknown,
         }
     }

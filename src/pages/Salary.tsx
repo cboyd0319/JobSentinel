@@ -27,18 +27,20 @@ interface SalaryProps {
   onBack: () => void;
 }
 
-const SENIORITY_LEVELS = [
+type SalarySeniority = "entry" | "mid" | "senior" | "staff" | "principal";
+
+const SENIORITY_LEVELS: readonly { value: SalarySeniority; label: string }[] = [
   { value: "entry", label: "Entry Level (0-2 years)" },
   { value: "mid", label: "Mid Level (3-5 years)" },
   { value: "senior", label: "Senior (6-10 years)" },
-  { value: "staff", label: "Staff/Principal (10+ years)" },
-  { value: "executive", label: "Executive/Director" },
+  { value: "staff", label: "Staff (11-15 years)" },
+  { value: "principal", label: "Principal/Executive (16+ years)" },
 ];
 
 export default function Salary({ onBack }: SalaryProps) {
   const [jobTitle, setJobTitle] = useState("");
   const [location, setLocation] = useState("");
-  const [seniority, setSeniority] = useState("mid");
+  const [seniority, setSeniority] = useState<SalarySeniority>("mid");
   const [yearsExp, setYearsExp] = useState<number>(5);
   const [benchmark, setBenchmark] = useState<SalaryBenchmark | null>(null);
   const [negotiationScript, setNegotiationScript] = useState<string | null>(null);
@@ -156,7 +158,7 @@ export default function Salary({ onBack }: SalaryProps) {
                 <select
                   id="seniority-level"
                   value={seniority}
-                  onChange={(e) => setSeniority(e.target.value)}
+                  onChange={(e) => setSeniority(e.target.value as SalarySeniority)}
                   className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus-visible:ring-2 focus-visible:ring-sentinel-500 focus:border-sentinel-500"
                 >
                   {SENIORITY_LEVELS.map((level) => (

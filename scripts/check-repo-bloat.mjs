@@ -1045,7 +1045,8 @@ function hasStaleSalaryBenchmarkFrontendShape(root, path) {
     /\brole\s*:\s*string\s*[;\n]/.test(text) ||
     /\bp50\s*:\s*number\s*[;\n]/.test(text) ||
     /\bp90\s*:\s*number\s*[;\n]/.test(text) ||
-    /\bbenchmark\.(role|p25|p50|p75|p90)\b/.test(text)
+    /\bbenchmark\.(role|p25|p50|p75|p90)\b/.test(text) ||
+    /\bvalue\s*:\s*["']executive["']/.test(text)
   );
 }
 

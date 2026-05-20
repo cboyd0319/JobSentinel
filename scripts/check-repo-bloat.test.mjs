@@ -1953,6 +1953,33 @@ test("checkRepoBloat rejects stale salary benchmark frontend shape", () => {
   });
 });
 
+test("checkRepoBloat rejects unsupported salary seniority option values", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/pages/Salary.tsx",
+      [
+        "const SENIORITY_LEVELS = [",
+        '  { value: "executive", label: "Executive/Director" },',
+        "];",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/pages/Salary.tsx"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sync salary benchmark frontend shape: src/pages/Salary.tsx"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale interview follow-up frontend shape", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
