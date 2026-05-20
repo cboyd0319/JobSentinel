@@ -94,6 +94,7 @@ changes or Playwright-specific work.
 | 2026-05-20 | In progress | Removed the unreferenced development Dockerfile, pruned its stale Dependabot entry, and tightened the root bloat allowlist so `docker/` must be reintroduced intentionally. |
 | 2026-05-20 | In progress | Linked the JSON Resume sample fixture from feature docs and corrected roadmap status from planned to implemented. |
 | 2026-05-20 | In progress | Corrected stale E2E documentation that still referenced WebdriverIO, removed a deleted `tests/e2e/docs/` tree entry, and updated Playwright examples/layout notes. |
+| 2026-05-20 | In progress | Hardened the LinkedIn login result channel so a poisoned mutex cannot panic the auth flow, and added a regression test for poisoned sender recovery. |
 
 ## Discoveries
 
@@ -145,6 +146,9 @@ changes or Playwright-specific work.
   still described WebdriverIO + Tauri tests, and frontend testing docs showed
   non-existent `fixtures/` and `utils/` directories under
   `tests/e2e/playwright`.
+- `linkedin_login` treated a poisoned result mutex as an unrecoverable panic in
+  both cookie extraction and cancellation paths. The sender is now recovered
+  when possible so the command can resolve instead of crashing the app.
 
 ## Decisions
 

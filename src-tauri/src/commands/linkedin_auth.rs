@@ -11,7 +11,7 @@
 
 use crate::core::credentials::{CredentialKey, CredentialStore};
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use tauri::{AppHandle, Emitter, Manager, WebviewUrl, WebviewWindowBuilder};
 use tokio::sync::oneshot;
 
@@ -27,6 +27,20 @@ const SUCCESS_URL_PREFIXES: &[&str] = &[
     "https://www.linkedin.com/notifications",
     "https://www.linkedin.com/in/", // Profile page
 ];
+
+type LoginResultSender = oneshot::Sender<Result<String, String>>;
+
+fn take_login_result_sender(
+    result_tx: &Arc<Mutex<Option<LoginResultSender>>>,
+) -> Option<LoginResultSender> {
+    match result_tx.lock() {
+        Ok(mut tx_option) => tx_option.take(),
+        Err(poisoned) => {
+            tracing::error!("LinkedIn login result mutex poisoned; recovering sender");
+            poisoned.into_inner().take()
+        }
+    }
+}
 
 /// Check if a URL indicates successful LinkedIn login
 fn is_login_success_url(url: &str) -> bool {
@@ -157,9 +171,7 @@ pub async fn linkedin_login(app: AppHandle) -> Result<String, String> {
                     }
 
                     // Send result back (just the cookie value, not expiry)
-                    // Mutex poisoning indicates another thread panicked - propagate panic
-                    #[allow(clippy::expect_used)]
-                    let tx_option = result_tx.lock().expect("result_tx mutex poisoned").take();
+                    let tx_option = take_login_result_sender(&result_tx);
                     if let Some(tx) = tx_option {
                         let _ = tx.send(cookie_result.map(|(cookie, _)| cookie));
                     }
@@ -186,12 +198,7 @@ pub async fn linkedin_login(app: AppHandle) -> Result<String, String> {
     window.on_window_event(move |event| {
         if let tauri::WindowEvent::CloseRequested { .. } = event {
             if !login_detected_cancel.load(Ordering::SeqCst) {
-                // Mutex poisoning indicates another thread panicked - propagate panic
-                #[allow(clippy::expect_used)]
-                let tx_option = result_tx_cancel
-                    .lock()
-                    .expect("result_tx mutex poisoned")
-                    .take();
+                let tx_option = take_login_result_sender(&result_tx_cancel);
                 if let Some(tx) = tx_option {
                     let _ = tx.send(Err("Login cancelled by user".to_string()));
                 }
@@ -597,5 +604,20 @@ mod tests {
         // Valid LinkedIn cookies typically start with AQ
         assert!("AQEDAQDW8sIAAAGU".starts_with("AQ"));
         assert!(!"invalid_cookie".starts_with("AQ"));
+    }
+
+    #[test]
+    fn test_poisoned_result_sender_mutex_does_not_panic() {
+        let (tx, _rx) = tokio::sync::oneshot::channel::<Result<String, String>>();
+        let result_tx = Arc::new(std::sync::Mutex::new(Some(tx)));
+        let poison_target = Arc::clone(&result_tx);
+
+        let _ = std::thread::spawn(move || {
+            let _guard = poison_target.lock().expect("test mutex should lock");
+            panic!("poison test mutex");
+        })
+        .join();
+
+        assert!(take_login_result_sender(&result_tx).is_some());
     }
 }
