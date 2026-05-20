@@ -95,6 +95,19 @@ interface MockMatchResult {
   created_at: string;
 }
 
+interface MockMarketAlert {
+  id: number;
+  alert_type: string;
+  title: string;
+  description: string;
+  severity: string;
+  related_entity: string | null;
+  metric_value: number | null;
+  metric_change_pct: number | null;
+  is_read: boolean;
+  created_at: string;
+}
+
 interface MockInterview {
   id: number;
   application_id: number;
@@ -129,6 +142,7 @@ let bookmarkletConfig: MockBookmarkletConfig = {
 let resumes: MockResumeData[] = [];
 let userSkills: MockUserSkill[] = [];
 let recentMatches: MockMatchResult[] = [];
+let marketAlerts: MockMarketAlert[] = getDefaultMarketAlerts();
 
 const MOCK_STATE_KEY = "jobsentinel.mockState.v1";
 
@@ -144,6 +158,7 @@ interface MockState {
   resumes: MockResumeData[];
   userSkills: MockUserSkill[];
   recentMatches: MockMatchResult[];
+  marketAlerts: MockMarketAlert[];
 }
 
 function canUseStorage(): boolean {
@@ -168,6 +183,7 @@ function saveMockState(): void {
     resumes,
     userSkills,
     recentMatches,
+    marketAlerts,
   };
   window.localStorage.setItem(MOCK_STATE_KEY, JSON.stringify(state));
 }
@@ -203,6 +219,7 @@ function loadMockState(): void {
     if (Array.isArray(state.resumes)) resumes = state.resumes;
     if (Array.isArray(state.userSkills)) userSkills = state.userSkills;
     if (Array.isArray(state.recentMatches)) recentMatches = state.recentMatches;
+    if (Array.isArray(state.marketAlerts)) marketAlerts = state.marketAlerts;
   } catch {
     window.localStorage.removeItem(MOCK_STATE_KEY);
   }
@@ -238,6 +255,35 @@ function getDefaultGhostConfig(): MockGhostConfig {
     warning_threshold: 0.3,
     hide_threshold: 0.7,
   };
+}
+
+function getDefaultMarketAlerts(): MockMarketAlert[] {
+  return [
+    {
+      id: 1,
+      alert_type: "skill_surge",
+      title: "TypeScript demand is surging",
+      description: "TypeScript job postings are up across senior frontend and full-stack roles.",
+      severity: "warning",
+      related_entity: "TypeScript",
+      metric_value: 512,
+      metric_change_pct: 32,
+      is_read: false,
+      created_at: new Date(Date.now() - 3600000).toISOString(),
+    },
+    {
+      id: 2,
+      alert_type: "location_boom",
+      title: "Remote roles are expanding",
+      description: "Remote listings now represent a larger share of active job postings.",
+      severity: "info",
+      related_entity: "Remote",
+      metric_value: 42,
+      metric_change_pct: 8.5,
+      is_read: false,
+      created_at: new Date(Date.now() - 7200000).toISOString(),
+    },
+  ];
 }
 
 function isCredentialKey(value: unknown): value is MockCredentialKey {
@@ -920,7 +966,7 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       ] as T;
 
     case "get_market_alerts":
-      return [] as T;
+      return marketAlerts as T;
 
     case "get_market_snapshot":
       return {
@@ -942,9 +988,17 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       return { success: true } as T;
 
     case "mark_alert_read":
+      marketAlerts = marketAlerts.map((alert) =>
+        alert.id === getNumericArg(args, "id")
+          ? { ...alert, is_read: true }
+          : alert,
+      );
+      saveMockState();
       return undefined as T;
 
     case "mark_all_alerts_read":
+      marketAlerts = marketAlerts.map((alert) => ({ ...alert, is_read: true }));
+      saveMockState();
       return undefined as T;
 
     // Automation / One-Click Apply
@@ -1036,5 +1090,6 @@ export function resetMockData() {
   resumes = [];
   userSkills = [];
   recentMatches = [];
+  marketAlerts = getDefaultMarketAlerts();
   saveMockState();
 }

@@ -1,4 +1,4 @@
-import { test, expect, type Locator } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import { MarketIntelligencePage } from "./page-objects/MarketIntelligencePage";
 
 test.describe("Market Intelligence", () => {
@@ -9,561 +9,87 @@ test.describe("Market Intelligence", () => {
     await marketPage.navigateTo();
   });
 
-  test.describe("Page Loading", () => {
-    test("should load market intelligence page", async () => {
-      // Page should load successfully
-      await expect(marketPage.page).toHaveURL(/.*market.*/);
-    });
-
-    test("should display tab navigation", async () => {
-      const hasTabList =
-        await marketPage.tabList.isVisible().catch(() => false);
-
-      if (!hasTabList) {
-        test.skip();
-        return;
-      }
-
-      expect(hasTabList).toBeTruthy();
-    });
-
-    test("should wait for loading to complete", async () => {
-      const loadingComplete = await marketPage.waitForLoadingComplete(10000);
-
-      expect(loadingComplete).toBe(true);
-    });
+  test("loads overview snapshot, charts, and location heatmap", async ({ page }) => {
+    await expect(marketPage.tabList).toBeVisible();
+    await expect(marketPage.marketSnapshot).toBeVisible();
+    await expect(page.getByLabel("911 total jobs")).toBeVisible();
+    await expect(page.getByLabel("47 new jobs today")).toBeVisible();
+    await expect(page.getByLabel("42 percent remote jobs")).toBeVisible();
+    await expect(page.getByText("Top Skill: TypeScript")).toBeVisible();
+    await expect(page.getByText("Top Company: BigTech Inc")).toBeVisible();
+    await expect(page.getByRole("region", { name: "Skill Demand" })).toBeVisible();
+    await expect(page.getByRole("region", { name: "Company Hiring Activity" })).toBeVisible();
+    await expect(marketPage.locationRegion).toBeVisible();
+    await expect(page.getByRole("listitem", { name: /Remote: 312 jobs/ })).toBeVisible();
   });
 
-  test.describe("Overview Tab", () => {
-    test("should display market snapshot", async () => {
-      if (
-        !(await marketPage.overviewTab.isVisible().catch(() => false))
-      ) {
-        test.skip();
-        return;
-      }
+  test("opens location details from the heatmap", async ({ page }) => {
+    await marketPage.openLocation("Remote");
 
-      await marketPage.switchToTab("overview");
-
-      const hasSnapshot =
-        await marketPage.marketSnapshot.isVisible().catch(() => false);
-
-      if (!hasSnapshot) {
-        test.skip();
-        return;
-      }
-
-      expect(hasSnapshot).toBeTruthy();
-    });
-
-    test("should display total jobs metric", async () => {
-      if (
-        !(await marketPage.overviewTab.isVisible().catch(() => false))
-      ) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.switchToTab("overview");
-
-      const hasMetric =
-        await marketPage.totalJobsMetric.isVisible().catch(() => false);
-
-      if (!hasMetric) {
-        test.skip();
-        return;
-      }
-
-      const metricValue = await marketPage.getMetricValue(
-        marketPage.totalJobsMetric
-      );
-      expect(metricValue.length).toBeGreaterThan(0);
-    });
-
-    test("should display new jobs metric", async () => {
-      if (
-        !(await marketPage.overviewTab.isVisible().catch(() => false))
-      ) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.switchToTab("overview");
-
-      const hasMetric =
-        await marketPage.newJobsMetric.isVisible().catch(() => false);
-
-      if (!hasMetric) {
-        test.skip();
-        return;
-      }
-
-      const metricValue = await marketPage.getMetricValue(
-        marketPage.newJobsMetric
-      );
-      expect(metricValue.length).toBeGreaterThan(0);
-    });
-
-    test("should display average salary metric", async () => {
-      if (
-        !(await marketPage.overviewTab.isVisible().catch(() => false))
-      ) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.switchToTab("overview");
-
-      const hasMetric =
-        await marketPage.avgSalaryMetric.isVisible().catch(() => false);
-
-      if (!hasMetric) {
-        test.skip();
-        return;
-      }
-
-      expect(hasMetric).toBeTruthy();
-    });
-
-    test("should display remote percentage metric", async () => {
-      if (
-        !(await marketPage.overviewTab.isVisible().catch(() => false))
-      ) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.switchToTab("overview");
-
-      const hasMetric =
-        await marketPage.remotePercentageMetric
-          .isVisible()
-          .catch(() => false);
-
-      if (!hasMetric) {
-        test.skip();
-        return;
-      }
-
-      expect(hasMetric).toBeTruthy();
-    });
-
-    test("should display last updated timestamp", async () => {
-      if (
-        !(await marketPage.overviewTab.isVisible().catch(() => false))
-      ) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.switchToTab("overview");
-
-      const lastUpdated = await marketPage.getLastUpdatedTime();
-
-      if (!lastUpdated) {
-        test.skip();
-        return;
-      }
-
-      expect(lastUpdated.length).toBeGreaterThan(0);
-    });
+    await expect(page.getByRole("region", { name: /Remote/ })).toContainText("Total Jobs");
+    await expect(page.getByRole("region", { name: /Remote/ })).toContainText("312");
+    await expect(page.getByRole("region", { name: /Remote/ })).toContainText("Remote %");
   });
 
-  test.describe("Trends Charts", () => {
-    test("should display trend chart", async () => {
-      if (
-        !(await marketPage.overviewTab.isVisible().catch(() => false))
-      ) {
-        test.skip();
-        return;
-      }
+  test("shows skill trends on the skills tab", async ({ page }) => {
+    await marketPage.switchToTab("Skills");
 
-      await marketPage.switchToTab("overview");
-
-      const hasChart = await marketPage.waitForChartLoad(5000);
-
-      if (!hasChart) {
-        test.skip();
-        return;
-      }
-
-      expect(hasChart).toBeTruthy();
-    });
-
-    test("should display chart legend", async () => {
-      if (
-        !(await marketPage.overviewTab.isVisible().catch(() => false))
-      ) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.switchToTab("overview");
-
-      const hasChart = await marketPage.waitForChartLoad(5000);
-
-      if (!hasChart) {
-        test.skip();
-        return;
-      }
-
-      const hasLegend =
-        await marketPage.chartLegend.isVisible().catch(() => false);
-
-      if (!hasLegend) {
-        test.skip();
-        return;
-      }
-
-      await expect(marketPage.chartLegend).toBeVisible();
-    });
-
-    test("should show tooltip on hover", async () => {
-      if (
-        !(await marketPage.overviewTab.isVisible().catch(() => false))
-      ) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.switchToTab("overview");
-
-      const hasChart = await marketPage.waitForChartLoad(5000);
-
-      if (!hasChart) {
-        test.skip();
-        return;
-      }
-
-      // Hover over chart center
-      await marketPage.hoverOverChartPoint(100, 100);
-
-      // Wait for tooltip (may not appear in mock mode)
-      const hasTooltip = await marketPage.waitForTooltip(2000);
-
-      if (!hasTooltip) {
-        test.skip();
-        return;
-      }
-
-      await expect(marketPage.chartTooltip).toBeVisible();
-    });
+    await expect(page.getByRole("region", { name: "Skills by Demand" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Skill Trends" })).toBeVisible();
+    await expect(page.getByText("Rust", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("245 jobs")).toBeVisible();
+    await expect(page.getByText("+45.0%")).toBeVisible();
+    await expect(page.getByText("$175,000")).toBeVisible();
   });
 
-  test.describe("Skills Tab", () => {
-    test("should switch to skills tab", async () => {
-      if (!(await marketPage.skillsTab.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
+  test("shows company hiring activity on the companies tab", async ({ page }) => {
+    await marketPage.switchToTab("Companies");
 
-      await marketPage.switchToTab("skills");
-
-      // Skills list or empty state should be visible
-      const hasSkillsList =
-        await marketPage.skillTrendsList.isVisible().catch(() => false);
-
-      await expect(marketPage.skillsTab).toBeVisible();
-      expect(typeof hasSkillsList).toBe("boolean");
-    });
-
-    test("should display skill trends", async () => {
-      if (!(await marketPage.skillsTab.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.switchToTab("skills");
-
-      const skillCount = await marketPage.getSkillTrendsCount();
-
-      // May be 0 if no data
-      expect(skillCount).toBeGreaterThanOrEqual(0);
-    });
-
-    test("should display skill trend data", async () => {
-      if (!(await marketPage.skillsTab.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.switchToTab("skills");
-
-      const skillCount = await marketPage.getSkillTrendsCount();
-
-      if (skillCount === 0) {
-        test.skip();
-        return;
-      }
-
-      // First skill should have content
-      const firstSkill = marketPage.skillTrendItem.first();
-      const hasContent =
-        (await firstSkill.textContent())?.trim().length ?? 0 > 0;
-
-      expect(hasContent).toBeTruthy();
-    });
-
-    test("should allow filtering skills", async () => {
-      if (!(await marketPage.skillsTab.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.switchToTab("skills");
-
-      if (!(await marketPage.skillFilter.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.skillFilter.fill("JavaScript");
-      await marketPage.page.waitForTimeout(500);
-
-      await expect(marketPage.skillFilter).toHaveValue("JavaScript");
-    });
+    await expect(page.getByRole("region", { name: "Companies by Hiring Volume" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Hiring Activity" })).toBeVisible();
+    await expect(page.getByRole("columnheader", { name: "Company" })).toBeVisible();
+    await expect(page.getByRole("cell", { name: "TechCorp" })).toBeVisible();
+    await expect(page.getByRole("cell", { name: "45" })).toBeVisible();
+    await expect(page.getByText("+25.0%")).toBeVisible();
   });
 
-  test.describe("Companies Tab", () => {
-    test("should switch to companies tab", async () => {
-      if (!(await marketPage.companiesTab.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
+  test("shows all locations on the locations tab", async ({ page }) => {
+    await marketPage.switchToTab("Locations");
 
-      await marketPage.switchToTab("companies");
-
-      const hasCompanyList =
-        await marketPage.companyActivityList.isVisible().catch(() => false);
-
-      await expect(marketPage.companiesTab).toBeVisible();
-      expect(typeof hasCompanyList).toBe("boolean");
-    });
-
-    test("should display company activity", async () => {
-      if (!(await marketPage.companiesTab.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.switchToTab("companies");
-
-      const companyCount = await marketPage.getCompanyActivityCount();
-
-      // May be 0 if no data
-      expect(companyCount).toBeGreaterThanOrEqual(0);
-    });
-
-    test("should display hiring trend indicators", async () => {
-      if (!(await marketPage.companiesTab.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.switchToTab("companies");
-
-      const companyCount = await marketPage.getCompanyActivityCount();
-
-      if (companyCount === 0) {
-        test.skip();
-        return;
-      }
-
-      // Check for hiring trend badges
-      const hasTrendIndicators =
-        (await marketPage.hiringTrendIndicator.count()) > 0;
-
-      if (!hasTrendIndicators) {
-        test.skip();
-        return;
-      }
-
-      await expect(marketPage.hiringTrendIndicator.first()).toBeVisible();
-    });
+    await expect(marketPage.locationRegion).toBeVisible();
+    await expect(page.getByRole("listitem", { name: /San Francisco, CA: 245 jobs/ })).toBeVisible();
+    await expect(page.getByRole("listitem", { name: /New York, NY: 198 jobs/ })).toBeVisible();
+    await expect(page.getByRole("img", { name: "Job density legend" })).toBeVisible();
   });
 
-  test.describe("Locations Tab", () => {
-    test("should switch to locations tab", async () => {
-      if (!(await marketPage.locationsTab.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
+  test("marks market alerts as read", async ({ page }) => {
+    await marketPage.switchToTab("Alerts");
 
-      await marketPage.switchToTab("locations");
+    await expect(marketPage.alertsFeed).toBeVisible();
+    await expect(page.getByText("2 unread alerts")).toBeVisible();
+    await expect(page.getByRole("article", { name: /warning alert: TypeScript demand is surging/ })).toBeVisible();
+    await page.getByRole("button", { name: "Mark TypeScript demand is surging as read" }).click();
 
-      await expect(marketPage.locationsTab).toBeVisible();
-    });
+    await expect(page.getByText("1 unread alert")).toBeVisible();
+    await page.getByRole("button", { name: "Mark all 1 alerts as read" }).click();
 
-    test("should display location heatmap", async () => {
-      if (!(await marketPage.locationsTab.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.switchToTab("locations");
-
-      const hasHeatmap = await marketPage.waitForHeatmapLoad(5000);
-
-      if (!hasHeatmap) {
-        test.skip();
-        return;
-      }
-
-      expect(hasHeatmap).toBeTruthy();
-    });
-
-    test("should display location list", async () => {
-      if (!(await marketPage.locationsTab.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.switchToTab("locations");
-
-      const locationCount = await marketPage.getLocationCount();
-
-      // May be 0 if no data
-      expect(locationCount).toBeGreaterThanOrEqual(0);
-    });
-
-    test("should display map markers", async () => {
-      if (!(await marketPage.locationsTab.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.switchToTab("locations");
-
-      const hasHeatmap = await marketPage.waitForHeatmapLoad(5000);
-
-      if (!hasHeatmap) {
-        test.skip();
-        return;
-      }
-
-      const markerCount = await marketPage.getMapMarkersCount();
-
-      // May be 0 if no data or different visualization
-      expect(markerCount).toBeGreaterThanOrEqual(0);
-    });
+    await expect(page.getByText(/unread alert/)).not.toBeVisible();
+    await expect(page.getByRole("button", { name: /Mark .* as read/ })).not.toBeVisible();
   });
 
-  test.describe("Alerts Tab", () => {
-    test("should switch to alerts tab", async () => {
-      if (!(await marketPage.alertsTab.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
+  test("runs market analysis and keeps refreshed data visible", async ({ page }) => {
+    await marketPage.runAnalysis();
 
-      await marketPage.switchToTab("alerts");
-
-      await expect(marketPage.alertsTab).toBeVisible();
-    });
-
-    test("should display market alerts", async () => {
-      if (!(await marketPage.alertsTab.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.switchToTab("alerts");
-
-      const alertCount = await marketPage.getAlertsCount();
-
-      // May be 0 if no alerts
-      expect(alertCount).toBeGreaterThanOrEqual(0);
-    });
-
-    test("should display unread alert badge", async () => {
-      if (!(await marketPage.alertsTab.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.switchToTab("alerts");
-
-      const unreadCount = await marketPage.getUnreadAlertsCount();
-
-      // May be 0 if all read or no alerts
-      expect(unreadCount).toBeGreaterThanOrEqual(0);
-    });
-
-    test("should allow clicking on alerts", async () => {
-      if (!(await marketPage.alertsTab.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.switchToTab("alerts");
-
-      const alertCount = await marketPage.getAlertsCount();
-
-      if (alertCount === 0) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.clickAlert(0);
-
-      await expect(marketPage.alertItem.first()).toBeVisible();
-    });
+    await expect(page.getByText("Analysis complete")).toBeVisible();
+    await expect(marketPage.marketSnapshot).toBeVisible();
+    await expect(page.getByText("Top Skill: TypeScript")).toBeVisible();
   });
 
-  test.describe("Data Refresh", () => {
-    test("should allow refreshing data", async () => {
-      if (!(await marketPage.refreshButton.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
+  test("navigates all tabs without losing tab state", async () => {
+    for (const tab of ["Overview", "Skills", "Companies", "Locations", "Alerts"] as const) {
+      await marketPage.switchToTab(tab);
+    }
 
-      await marketPage.refreshData();
-
-      // Should reload data
-      const loadingComplete = await marketPage.waitForLoadingComplete(10000);
-
-      expect(loadingComplete).toBe(true);
-    });
-
-    test("should allow running analysis", async () => {
-      if (!(await marketPage.analyzeButton.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await marketPage.runAnalysis();
-
-      // Should run analysis
-      await marketPage.page.waitForTimeout(1000);
-
-      await expect(marketPage.analyzeButton).toBeVisible();
-    });
-  });
-
-  test.describe("Tab Navigation", () => {
-    test("should navigate between all tabs", async () => {
-      const tabs = ["overview", "skills", "companies", "locations", "alerts"] as const;
-      const tabLocators: Record<(typeof tabs)[number], Locator> = {
-        overview: marketPage.overviewTab,
-        skills: marketPage.skillsTab,
-        companies: marketPage.companiesTab,
-        locations: marketPage.locationsTab,
-        alerts: marketPage.alertsTab,
-      };
-
-      let visitedCount = 0;
-      for (const tab of tabs) {
-        const tabLocator = tabLocators[tab];
-
-        if (!(await tabLocator.isVisible().catch(() => false))) {
-          continue;
-        }
-
-        await marketPage.switchToTab(tab);
-        await marketPage.page.waitForTimeout(500);
-        visitedCount += 1;
-      }
-
-      expect(visitedCount).toBeGreaterThan(0);
-    });
+    await expect(marketPage.tab("Alerts")).toHaveAttribute("aria-selected", "true");
   });
 });

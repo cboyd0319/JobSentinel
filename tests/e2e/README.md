@@ -68,11 +68,11 @@ Reusable page objects following the Page Object Model pattern:
 
 8. **market-intelligence.spec.ts**
    - Overview tab with market metrics
-   - Trends charts and tooltips
+   - Trend charts for skills and companies
    - Skills trends analysis
    - Company activity tracking
    - Location heatmap
-   - Market alerts
+   - Market alert read state
 
 9. **job-interactions.spec.ts**
    - Bookmarking jobs
