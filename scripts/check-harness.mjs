@@ -8,6 +8,7 @@ import {
   checkSecuritySensors,
   formatSecuritySensorSummary,
 } from "./check-security-sensors.mjs";
+import { checkTauriInvokes } from "./check-tauri-invokes.mjs";
 import { checkTestQuality } from "./check-test-quality.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -255,6 +256,10 @@ for (const violation of checkFrontendBoundaries(root)) {
 }
 
 for (const violation of checkSecuritySensors(root)) {
+  errors.push(violation);
+}
+
+for (const violation of checkTauriInvokes(root)) {
   errors.push(violation);
 }
 

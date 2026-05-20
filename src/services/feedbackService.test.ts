@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  getDebugLog,
   openGitHubIssue,
   openGoogleDriveFeedbackFolder,
   revealInFileExplorer,
@@ -41,6 +42,33 @@ describe("feedbackService", () => {
       content: "sanitized report",
       suggestedFilename: "jobsentinel-feedback.txt",
     });
+  });
+
+  it("loads debug log events through the registered backend command", async () => {
+    mockInvoke.mockResolvedValueOnce([
+      {
+        timestamp: "2026-05-19T20:15:00Z",
+        event: {
+          type: "CommandInvoked",
+          command: "search_jobs",
+          success: true,
+        },
+      },
+    ]);
+
+    const events = await getDebugLog();
+
+    expect(mockInvoke).toHaveBeenCalledWith("get_debug_log_events");
+    expect(events).toEqual([
+      {
+        time: "2026-05-19T20:15:00Z",
+        event: "CommandInvoked",
+        details: {
+          command: "search_jobs",
+          success: true,
+        },
+      },
+    ]);
   });
 
   it("opens GitHub issues through the backend issue command", async () => {

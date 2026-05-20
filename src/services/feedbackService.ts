@@ -26,6 +26,11 @@ export interface DebugEvent {
   details?: Record<string, unknown>;
 }
 
+interface RawDebugEvent {
+  timestamp: string;
+  event: Record<string, unknown> & { type?: string };
+}
+
 export interface FeedbackReport {
   category: FeedbackCategory;
   description: string;
@@ -56,7 +61,15 @@ export async function getConfigSummary(): Promise<ConfigSummary> {
  * Events are anonymized by the backend.
  */
 export async function getDebugLog(): Promise<DebugEvent[]> {
-  return await invoke<DebugEvent[]>("get_debug_log");
+  const events = await invoke<RawDebugEvent[]>("get_debug_log_events");
+  return events.map(({ timestamp, event }) => {
+    const { type, ...details } = event;
+    return {
+      time: timestamp,
+      event: typeof type === "string" ? type : "UnknownEvent",
+      details: Object.keys(details).length > 0 ? details : undefined,
+    };
+  });
 }
 
 /**
