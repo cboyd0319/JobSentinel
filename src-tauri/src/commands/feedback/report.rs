@@ -251,7 +251,7 @@ pub(super) fn get_feedback_filename_impl() -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::commands::feedback::debug_log::DebugEvent;
+    use crate::commands::feedback::debug_log::{DebugEvent, TimestampedEvent};
     use chrono::Utc;
 
     #[test]
@@ -312,38 +312,36 @@ mod tests {
         assert!(report.contains("Notifications: 2 channel(s)"));
     }
 
-    // TODO: Fix this test to use correct DebugEvent variants
-    // (ViewNavigated instead of Navigation, ScraperRun instead of ScraperStarted)
     #[test]
-    #[ignore]
     fn test_format_feedback_report_with_debug_events() {
         let category = FeedbackCategory::Bug;
         let description = "Scraper failed";
         let system_info = SystemInfo::current();
 
         let events = vec![
-            // super::debug_log::TimestampedEvent {
-            //     timestamp: Utc::now(),
-            //     event: DebugEvent::ViewNavigated {
-            //         from: "Jobs".to_string(),
-            //         to: "Dashboard".to_string(),
-            //     },
-            // },
-            // super::debug_log::TimestampedEvent {
-            //     timestamp: Utc::now(),
-            //     event: DebugEvent::ScraperRun {
-            //         scraper: "indeed".to_string(),
-            //         jobs_found: 0,
-            //         success: false,
-            //     },
-            // },
+            TimestampedEvent {
+                timestamp: Utc::now(),
+                event: DebugEvent::ViewNavigated {
+                    from: "Jobs".to_string(),
+                    to: "Dashboard".to_string(),
+                },
+            },
+            TimestampedEvent {
+                timestamp: Utc::now(),
+                event: DebugEvent::ScraperRun {
+                    scraper: "indeed".to_string(),
+                    jobs_found: 0,
+                    success: false,
+                },
+            },
         ];
 
         let report = format_feedback_report(&category, description, &system_info, None, &events);
 
         assert!(report.contains("RECENT ACTIVITY LOG"));
-        // assert!(report.contains("Navigation"));
-        // assert!(report.contains("ScraperStarted"));
+        assert!(report.contains("ViewNavigated"));
+        assert!(report.contains("ScraperRun"));
+        assert!(report.contains("indeed"));
     }
 
     #[test]
