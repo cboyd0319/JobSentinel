@@ -20,7 +20,6 @@
     "src-tauri/gen/",
     ".vale/styles/",
     "CHANGELOG.md",
-    "SECURITY_AUDIT.md",
     "docs/CLAUDE.md",
     ".claude/",
     "docs/archive/",
