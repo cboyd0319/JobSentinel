@@ -492,8 +492,11 @@ E2E tests use Playwright to test complete workflows in the built app.
 ### Running E2E Tests
 
 ```bash
-# Run all E2E tests
+# Run local Chromium functional E2E tests
 npm run test:e2e
+
+# Run full cross-browser E2E tests
+npm run test:e2e:all
 
 # Run in interactive UI mode
 npm run test:e2e:ui
@@ -503,14 +506,17 @@ npm run test:e2e:ui
 
 | Page            | Test File                | Tests                                          |
 | --------------- | ------------------------ | ---------------------------------------------- |
-| Dashboard       | `dashboard.e2e.js`       | Load, nav, stats, search, shortcuts            |
-| Settings        | `settings.e2e.js`        | Nav, preferences, notifications, save          |
-| Applications    | `applications.e2e.js`    | Kanban, stats, cards, reminders                |
-| Market          | `market.e2e.js`          | Tabs, snapshot, charts, heatmap, alerts        |
-| Resume          | `resume.e2e.js`          | Upload, skills, categories, gap analysis       |
-| Resume Builder  | `resume-builder.e2e.js`  | Wizard, steps, templates, export               |
-| Salary          | `salary.e2e.js`          | Prediction, benchmark, comparison, negotiation |
-| One-Click Apply | `one-click-apply.e2e.js` | Profile, screening, ATS detection              |
+| Dashboard       | `app.spec.ts`, `job-search-filtering.spec.ts` | Load, nav, search, filters, job cards |
+| Settings        | `settings-save-load.spec.ts` | Nav, preferences, notifications, save |
+| Applications    | `application-tracking.spec.ts` | Kanban, cards, drag/drop, filters |
+| Market          | `market-intelligence.spec.ts` | Tabs, snapshot, charts, alerts |
+| Resume          | `resume-upload-matching.spec.ts` | Upload, validation, matching |
+| Resume Builder  | `resume-builder.spec.ts` | Wizard, steps, templates, export |
+| Keyboard        | `keyboard-navigation.spec.ts` | Shortcuts, focus, command palette |
+| One-Click Apply | `one-click-apply.spec.ts` | Profile, ATS detection, automation |
+
+Documentation screenshots live in `screenshots.spec.ts` and run only through
+`npm run docs:screenshots`.
 
 ### Writing E2E Tests
 

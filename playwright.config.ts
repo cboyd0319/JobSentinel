@@ -1,11 +1,14 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const updateDocsScreenshots = process.env.UPDATE_DOC_SCREENSHOTS === "1";
+
 /**
  * Playwright configuration for JobSentinel E2E tests.
  * Tests run against the Vite dev server.
  */
 export default defineConfig({
   testDir: "./tests/e2e/playwright",
+  testIgnore: updateDocsScreenshots ? [] : ["**/screenshots.spec.ts"],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,

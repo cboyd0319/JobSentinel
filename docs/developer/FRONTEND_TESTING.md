@@ -67,8 +67,11 @@ npm test -- --reporter=verbose src/components/Button.test.tsx
 ### End-to-End Tests (Playwright)
 
 ```bash
-# Run all E2E tests
+# Run local Chromium functional E2E tests
 npm run test:e2e
+
+# Run full cross-browser E2E tests
+npm run test:e2e:all
 
 # Run in UI mode (watch + debug interface)
 npm run test:e2e:ui
@@ -77,13 +80,13 @@ npm run test:e2e:ui
 npm run test:e2e:headed
 
 # Run specific test file
-npm run test:e2e -- e2e/app.spec.ts
+npm run test:e2e -- tests/e2e/playwright/app.spec.ts
 
 # Run tests matching pattern
 npm run test:e2e -- --grep "Dashboard"
 
 # Debug single test
-npm run test:e2e:headed -- --debug e2e/app.spec.ts
+npm run test:e2e:headed -- --debug tests/e2e/playwright/app.spec.ts
 ```
 
 ---
@@ -119,9 +122,9 @@ src/
 │   └── ...
 └── test/
     └── setup.ts                      # Vitest configuration
-e2e/
+tests/e2e/playwright/
 ├── app.spec.ts                       # Full application flow
-├── screenshots.spec.ts               # Visual features
+├── screenshots.spec.ts               # Documentation screenshots only
 └── ...
 ```
 
@@ -502,12 +505,12 @@ describe("KeyboardShortcutsContext", () => {
 
 ### Test Organization
 
-E2E tests live in `/e2e` and test complete user workflows:
+E2E tests live in `tests/e2e/playwright` and test complete user workflows:
 
 ```text
-e2e/
+tests/e2e/playwright/
 ├── app.spec.ts              # Main application flows
-├── screenshots.spec.ts      # Visual regression tests
+├── screenshots.spec.ts      # Documentation screenshots only
 ├── fixtures/                # Test data
 │   └── jobs.json
 └── utils/                   # Helper functions
@@ -600,14 +603,17 @@ test("should maintain layout on mobile", async ({ page }) => {
 ### Running Playwright Tests
 
 ```bash
-# Run all E2E tests
+# Run local Chromium functional E2E tests
 npm run test:e2e
 
-# Run specific test file
-npm run test:e2e e2e/app.spec.ts
+# Run full cross-browser E2E tests
+npm run test:e2e:all
 
-# Update visual snapshots
-npm run test:e2e -- --update-snapshots
+# Run specific test file
+npm run test:e2e -- tests/e2e/playwright/app.spec.ts
+
+# Refresh documentation screenshots
+npm run docs:screenshots
 
 # Debug with inspector
 npm run test:e2e:headed -- --debug

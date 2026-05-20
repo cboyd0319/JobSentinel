@@ -340,8 +340,10 @@ cd src-tauri && cargo clippy -- -D warnings
 cd src-tauri && cargo test --lib
 ```
 
-Full release verification also includes `npm run test:e2e` and the full Rust
-test suite. E2E tests can take several minutes.
+Full release verification also includes `npm run test:e2e:all` and the full
+Rust test suite. Local `npm run test:e2e` runs the faster Chromium functional
+suite; documentation screenshots are refreshed separately with
+`npm run docs:screenshots`.
 
 Developer docs:
 

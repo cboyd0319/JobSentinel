@@ -63,6 +63,7 @@ npm run harness:check
 npm run lint
 npm run test:run
 npm run test:e2e
+npm run test:e2e:all
 npm run build
 cd src-tauri && cargo fmt --all -- --check
 cd src-tauri && cargo clippy -- -D warnings

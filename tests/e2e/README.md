@@ -89,16 +89,27 @@ Reusable page objects following the Page Object Model pattern:
 
 11. **screenshots.spec.ts** (existing)
     - Documentation screenshot capture
-    - Writes Playwright artifacts during normal E2E runs
+    - Excluded from normal E2E runs
     - Refreshes tracked docs images only through `npm run docs:screenshots`
 
 ## Running Tests
 
-### All Tests
+### Local Functional Tests
 
 ```bash
 npm run test:e2e
 ```
+
+Runs Chromium only and excludes documentation screenshot capture.
+
+### Full Cross-Browser Tests
+
+```bash
+npm run test:e2e:all
+```
+
+Runs Chromium and WebKit functional E2E tests. `npm run test:e2e:ci` is the
+same full-suite command for CI-oriented runs.
 
 ### Refresh Documentation Screenshots
 
@@ -115,13 +126,13 @@ npm run docs:screenshots -- --headed
 ### Specific Test Suite
 
 ```bash
-npx playwright test job-search-filtering.spec.ts
+npm run test:e2e -- tests/e2e/playwright/job-search-filtering.spec.ts
 ```
 
 ### Headed Mode (see browser)
 
 ```bash
-npx playwright test --headed
+npm run test:e2e:headed
 ```
 
 ### Debug Mode
@@ -144,6 +155,7 @@ Tests are configured in `playwright.config.ts`:
 - Base URL: `http://localhost:5173`
 - Test directory: `tests/e2e/playwright`
 - Projects: Chromium, WebKit
+- Local default: Chromium functional tests, excluding `screenshots.spec.ts`
 - Retries: 2 (CI), 0 (local)
 - Mock data: Uses `npm run dev:mock`
 

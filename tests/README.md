@@ -46,13 +46,20 @@ npm run test:run -- --list
 npm run test:e2e
 ```
 
-CI uses the same Playwright suite:
+Local E2E runs use Chromium and skip documentation screenshots. Full
+cross-browser E2E uses:
+
+```bash
+npm run test:e2e:all
+```
+
+The CI-oriented alias uses the same full Playwright suite when invoked:
 
 ```bash
 npm run test:e2e:ci
 ```
 
-List the current E2E test count with:
+List the current full E2E test count with:
 
 ```bash
 npm run test:e2e:ci -- --list
@@ -66,8 +73,8 @@ npm run test:e2e -- tests/e2e/playwright/app.spec.ts
 
 ### Documentation Screenshots
 
-Normal E2E runs write screenshot artifacts to Playwright output directories and
-do not modify tracked docs images. Refresh tracked docs screenshots with:
+Normal E2E runs exclude documentation screenshots. Refresh tracked docs
+screenshots with:
 
 ```bash
 npm run docs:screenshots
