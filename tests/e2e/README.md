@@ -58,12 +58,10 @@ Reusable page objects following the Page Object Model pattern:
 
 7. **resume-builder.spec.ts**
    - Wizard navigation (7 steps)
-   - Contact info form
-   - Professional summary
-   - Experience and education
-   - Skills management
-   - Template selection and preview
-   - PDF/DOCX export
+   - Contact and summary validation
+   - Experience, education, and skills management
+   - Skill import from seeded active resume
+   - Template selection, ATS preview, and DOCX export
 
 8. **market-intelligence.spec.ts**
    - Overview tab with market metrics
@@ -203,7 +201,7 @@ Tests run against mock data defined in `src/mocks/`:
 - Mock job listings
 - Mock applications
 - Mock settings
-- Mock resumes, skills, and match results
+- Mock resumes, skills, builder drafts, templates, previews, and match results
 
 ### Fixtures
 

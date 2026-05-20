@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import DOMPurify from "dompurify";
 import { Button } from "../components/Button";
 import { Card, CardHeader } from "../components/Card";
@@ -96,8 +96,132 @@ interface Template {
   preview_image: string;
 }
 
-type ExportTemplateId = TemplateId;
-type ExportResumeData = ResumeData;
+interface TemplateSkillCategory {
+  name: string;
+  skills: string[];
+}
+
+interface TemplateResumeData {
+  contact: {
+    name: string;
+    email: string;
+    phone: string | null;
+    location: string | null;
+    linkedin: string | null;
+    website: string | null;
+  };
+  summary: string | null;
+  experience: Array<{
+    title: string;
+    company: string;
+    location: string | null;
+    start_date: string;
+    end_date: string | null;
+    achievements: string[];
+  }>;
+  education: Education[];
+  skills: TemplateSkillCategory[];
+  certifications: Array<{
+    name: string;
+    issuer: string;
+    date: string | null;
+    expiry: string | null;
+  }>;
+  clearance: string | null;
+  military_info: string | null;
+}
+
+type ExportTemplateId = "Professional" | "Modern" | "Traditional";
+
+interface ExportResumeData {
+  personal: {
+    full_name: string;
+    email: string;
+    phone: string;
+    location: string;
+    linkedin_url: string | null;
+    website_url: string | null;
+  };
+  summary: string | null;
+  experience: Array<{
+    company: string;
+    job_title: string;
+    start_date: string;
+    end_date: string | null;
+    location: string | null;
+    responsibilities: string[];
+  }>;
+  education: Array<{
+    institution: string;
+    degree: string;
+    field_of_study: string;
+    graduation_year: string;
+    gpa: number | null;
+    honors: string | null;
+  }>;
+  skills: Array<{
+    category: string;
+    skills: string[];
+  }>;
+  certifications: Array<{
+    name: string;
+    issuer: string;
+    date: string;
+    credential_id: string | null;
+  }>;
+  projects: Array<{
+    name: string;
+    description: string;
+    technologies: string[];
+    url: string | null;
+  }>;
+}
+
+interface AtsResumeData {
+  contact_info: {
+    name: string;
+    email: string;
+    phone: string;
+    location: string;
+    linkedin: string | null;
+    github: string | null;
+    website: string | null;
+  };
+  summary: string;
+  experience: Array<{
+    title: string;
+    company: string;
+    location: string;
+    start_date: string;
+    end_date: string;
+    achievements: string[];
+    current: boolean;
+  }>;
+  skills: Array<{
+    name: string;
+    category: string;
+    proficiency: string | null;
+  }>;
+  education: Array<{
+    degree: string;
+    institution: string;
+    location: string;
+    graduation_date: string;
+    gpa: number | null;
+    honors: string[];
+  }>;
+  certifications: string[];
+  projects: string[];
+  custom_sections: Record<string, string[]>;
+}
+
+interface BackendATSAnalysis {
+  format_score: number;
+  issues?: string[];
+  recommendations?: string[];
+  format_issues?: Array<{ issue: string }>;
+  suggestions?: Array<{ suggestion: string }>;
+}
 
 const STEPS = [
   { id: 1, name: "Contact", description: "Personal information" },
@@ -110,6 +234,142 @@ const STEPS = [
 ];
 
 const PROFICIENCY_LEVELS = ["beginner", "intermediate", "advanced", "expert"] as const;
+
+function groupSkills(skills: SkillEntry[]): TemplateSkillCategory[] {
+  const grouped = skills.reduce<Record<string, string[]>>((acc, skill) => {
+    const category = skill.category || "General";
+    acc[category] = [...(acc[category] ?? []), skill.name];
+    return acc;
+  }, {});
+
+  return Object.entries(grouped).map(([name, values]) => ({ name, skills: values }));
+}
+
+function toTemplateResumeData(resume: ResumeData): TemplateResumeData {
+  return {
+    contact: {
+      name: resume.contact.name,
+      email: resume.contact.email,
+      phone: resume.contact.phone,
+      location: resume.contact.location,
+      linkedin: resume.contact.linkedin,
+      website: resume.contact.website,
+    },
+    summary: resume.summary || null,
+    experience: resume.experience.map((experience) => ({
+      title: experience.title,
+      company: experience.company,
+      location: experience.location,
+      start_date: experience.start_date,
+      end_date: experience.end_date,
+      achievements: experience.achievements,
+    })),
+    education: resume.education,
+    skills: groupSkills(resume.skills),
+    certifications: [],
+    clearance: null,
+    military_info: null,
+  };
+}
+
+function toExportTemplateId(template: TemplateId): ExportTemplateId {
+  if (template === "Modern") return "Modern";
+  if (template === "Classic") return "Traditional";
+  return "Professional";
+}
+
+function parseOptionalNumber(value: string | null): number | null {
+  if (!value) return null;
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function toExportResumeData(resume: ResumeData): ExportResumeData {
+  return {
+    personal: {
+      full_name: resume.contact.name,
+      email: resume.contact.email,
+      phone: resume.contact.phone ?? "",
+      location: resume.contact.location ?? "",
+      linkedin_url: resume.contact.linkedin,
+      website_url: resume.contact.website,
+    },
+    summary: resume.summary || null,
+    experience: resume.experience.map((experience) => ({
+      company: experience.company,
+      job_title: experience.title,
+      start_date: experience.start_date,
+      end_date: experience.end_date,
+      location: experience.location,
+      responsibilities: experience.achievements,
+    })),
+    education: resume.education.map((education) => ({
+      institution: education.institution,
+      degree: education.degree,
+      field_of_study: "",
+      graduation_year: education.graduation_date ?? "",
+      gpa: parseOptionalNumber(education.gpa),
+      honors: education.honors.length > 0 ? education.honors.join("; ") : null,
+    })),
+    skills: groupSkills(resume.skills).map((skillGroup) => ({
+      category: skillGroup.name,
+      skills: skillGroup.skills,
+    })),
+    certifications: [],
+    projects: [],
+  };
+}
+
+function toAtsResumeData(resume: ResumeData): AtsResumeData {
+  return {
+    contact_info: {
+      name: resume.contact.name,
+      email: resume.contact.email,
+      phone: resume.contact.phone ?? "",
+      location: resume.contact.location ?? "",
+      linkedin: resume.contact.linkedin,
+      github: resume.contact.github,
+      website: resume.contact.website,
+    },
+    summary: resume.summary,
+    experience: resume.experience.map((experience) => ({
+      title: experience.title,
+      company: experience.company,
+      location: experience.location ?? "",
+      start_date: experience.start_date,
+      end_date: experience.end_date ?? "Present",
+      achievements: experience.achievements,
+      current: !experience.end_date,
+    })),
+    skills: resume.skills.map((skill) => ({
+      name: skill.name,
+      category: skill.category,
+      proficiency: skill.proficiency,
+    })),
+    education: resume.education.map((education) => ({
+      degree: education.degree,
+      institution: education.institution,
+      location: education.location ?? "",
+      graduation_date: education.graduation_date ?? "",
+      gpa: parseOptionalNumber(education.gpa),
+      honors: education.honors,
+    })),
+    certifications: resume.certifications,
+    projects: resume.projects,
+    custom_sections: {},
+  };
+}
+
+function normalizeAtsAnalysis(analysis: BackendATSAnalysis): ATSAnalysis {
+  return {
+    format_score: analysis.format_score,
+    issues: analysis.issues ?? analysis.format_issues?.map((issue) => issue.issue) ?? [],
+    recommendations:
+      analysis.recommendations ??
+      analysis.suggestions?.map((suggestion) => suggestion.suggestion) ??
+      [],
+  };
+}
 
 interface ResumeBuilderProps {
   onBack: () => void;
@@ -127,6 +387,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
   const [exporting, setExporting] = useState(false);
   const [atsAnalysis, setAtsAnalysis] = useState<ATSAnalysis | null>(null);
   const [importingSkills, setImportingSkills] = useState(false);
+  const initializedRef = useRef(false);
 
   // Contact form state
   const [contact, setContact] = useState<ContactInfo>({
@@ -195,6 +456,8 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
 
   // Initialize resume on mount
   useEffect(() => {
+    if (initializedRef.current) return;
+    initializedRef.current = true;
     initializeResume();
   }, [initializeResume]);
 
@@ -488,7 +751,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       // NOTE: render_resume_html must sanitize all user input on the Rust side
       // to prevent XSS attacks. The HTML returned here is trusted.
       const html = await safeInvoke<string>("render_resume_html", {
-        resume: resumeData,
+        resume: toTemplateResumeData(resumeData),
         templateId: selectedTemplate,
       }, {
         logContext: "Render resume HTML"
@@ -497,13 +760,13 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
 
       // Generate ATS analysis
       try {
-        const analysis = await safeInvoke<ATSAnalysis>("analyze_resume_format", {
-          resume: resumeData,
+        const analysis = await safeInvoke<BackendATSAnalysis>("analyze_resume_format", {
+          resume: toAtsResumeData(resumeData),
         }, {
           logContext: "Analyze resume format",
           silent: true  // Non-critical, don't log failures
         });
-        setAtsAnalysis(analysis);
+        setAtsAnalysis(normalizeAtsAnalysis(analysis));
       } catch {
         // Non-critical, don't block preview
       }
@@ -531,8 +794,8 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
     try {
       setExporting(true);
       const docxData = await safeInvoke<number[]>("export_resume_docx", {
-        resume: resumeData as ExportResumeData,
-        template: selectedTemplate as ExportTemplateId,
+        resume: toExportResumeData(resumeData),
+        template: toExportTemplateId(selectedTemplate),
       }, {
         logContext: "Export resume to DOCX"
       });
@@ -571,7 +834,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
 
       // Generate HTML using the selected template
       const html = await safeInvoke<string>("render_resume_html", {
-        resume: resumeData,
+        resume: toTemplateResumeData(resumeData),
         templateId: selectedTemplate,
       }, {
         logContext: "Render resume for PDF export"

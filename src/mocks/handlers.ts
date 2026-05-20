@@ -72,6 +72,62 @@ interface MockUserSkill {
   source: string;
 }
 
+interface MockBuilderContact {
+  name: string;
+  email: string;
+  phone: string | null;
+  linkedin: string | null;
+  github: string | null;
+  location: string | null;
+  website: string | null;
+}
+
+interface MockBuilderExperience {
+  id: number;
+  title: string;
+  company: string;
+  location: string | null;
+  start_date: string;
+  end_date: string | null;
+  achievements: string[];
+}
+
+interface MockBuilderEducation {
+  id: number;
+  degree: string;
+  institution: string;
+  location: string | null;
+  graduation_date: string | null;
+  gpa: string | null;
+  honors: string[];
+}
+
+interface MockBuilderSkill {
+  name: string;
+  category: string;
+  proficiency: "beginner" | "intermediate" | "advanced" | "expert" | null;
+}
+
+interface MockResumeDraft {
+  id: number;
+  contact: MockBuilderContact;
+  summary: string;
+  experience: MockBuilderExperience[];
+  education: MockBuilderEducation[];
+  skills: MockBuilderSkill[];
+  certifications: string[];
+  projects: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+interface MockResumeTemplate {
+  id: "Classic" | "Modern" | "Technical" | "Executive" | "Military";
+  name: string;
+  description: string;
+  preview_image: string;
+}
+
 interface MockSkillInput {
   skill_name?: unknown;
   skill_category?: unknown;
@@ -175,6 +231,7 @@ let bookmarkletConfig: MockBookmarkletConfig = {
 };
 let resumes: MockResumeData[] = [];
 let userSkills: MockUserSkill[] = [];
+let resumeDrafts: MockResumeDraft[] = [];
 let recentMatches: MockMatchResult[] = [];
 let marketAlerts: MockMarketAlert[] = getDefaultMarketAlerts();
 let applicationProfile: MockApplicationProfile | null = getDefaultApplicationProfile();
@@ -193,6 +250,7 @@ interface MockState {
   bookmarkletConfig: MockBookmarkletConfig;
   resumes: MockResumeData[];
   userSkills: MockUserSkill[];
+  resumeDrafts: MockResumeDraft[];
   recentMatches: MockMatchResult[];
   marketAlerts: MockMarketAlert[];
   applicationProfile: MockApplicationProfile | null;
@@ -220,6 +278,7 @@ function saveMockState(): void {
     bookmarkletConfig,
     resumes,
     userSkills,
+    resumeDrafts,
     recentMatches,
     marketAlerts,
     applicationProfile,
@@ -258,6 +317,11 @@ function loadMockState(): void {
     }
     if (Array.isArray(state.resumes)) resumes = state.resumes;
     if (Array.isArray(state.userSkills)) userSkills = state.userSkills;
+    if (Array.isArray(state.resumeDrafts)) {
+      resumeDrafts = state.resumeDrafts
+        .filter((draft) => draft && typeof draft === "object")
+        .map((draft) => normalizeResumeDraft(draft));
+    }
     if (Array.isArray(state.recentMatches)) recentMatches = state.recentMatches;
     if (Array.isArray(state.marketAlerts)) marketAlerts = state.marketAlerts;
     if ("applicationProfile" in state) {
@@ -419,6 +483,236 @@ function normalizeScreeningAnswer(value: Partial<MockScreeningAnswer>): MockScre
     createdAt: typeof value.createdAt === "string" ? value.createdAt : now,
     updatedAt: typeof value.updatedAt === "string" ? value.updatedAt : now,
   };
+}
+
+function getEmptyBuilderContact(): MockBuilderContact {
+  return {
+    name: "",
+    email: "",
+    phone: null,
+    linkedin: null,
+    github: null,
+    location: null,
+    website: null,
+  };
+}
+
+function normalizeBuilderContact(value: unknown): MockBuilderContact {
+  const source = value && typeof value === "object"
+    ? value as Partial<MockBuilderContact>
+    : {};
+  const defaults = getEmptyBuilderContact();
+
+  return {
+    name: typeof source.name === "string" ? source.name : defaults.name,
+    email: typeof source.email === "string" ? source.email : defaults.email,
+    phone: nullableString(source.phone),
+    linkedin: nullableString(source.linkedin),
+    github: nullableString(source.github),
+    location: nullableString(source.location),
+    website: nullableString(source.website),
+  };
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string" && item.length > 0)
+    : [];
+}
+
+function normalizeBuilderExperience(value: unknown, fallbackId: number): MockBuilderExperience {
+  const source = value && typeof value === "object"
+    ? value as Partial<MockBuilderExperience> & { bullets?: unknown }
+    : {};
+  const achievements = stringArray(source.achievements);
+
+  return {
+    id: typeof source.id === "number" && source.id > 0 ? source.id : fallbackId,
+    title: typeof source.title === "string" ? source.title : "",
+    company: typeof source.company === "string" ? source.company : "",
+    location: nullableString(source.location),
+    start_date: typeof source.start_date === "string" ? source.start_date : "",
+    end_date: nullableString(source.end_date),
+    achievements: achievements.length > 0 ? achievements : stringArray(source.bullets),
+  };
+}
+
+function normalizeBuilderEducation(value: unknown, fallbackId: number): MockBuilderEducation {
+  const source = value && typeof value === "object"
+    ? value as Partial<MockBuilderEducation> & { honors?: unknown }
+    : {};
+
+  return {
+    id: typeof source.id === "number" && source.id > 0 ? source.id : fallbackId,
+    degree: typeof source.degree === "string" ? source.degree : "",
+    institution: typeof source.institution === "string" ? source.institution : "",
+    location: nullableString(source.location),
+    graduation_date: nullableString(source.graduation_date),
+    gpa: nullableString(source.gpa),
+    honors: stringArray(source.honors),
+  };
+}
+
+function normalizeBuilderSkill(value: unknown): MockBuilderSkill | null {
+  const source = value && typeof value === "object" ? value as Partial<MockBuilderSkill> : {};
+  if (typeof source.name !== "string" || typeof source.category !== "string") {
+    return null;
+  }
+
+  return {
+    name: source.name,
+    category: source.category,
+    proficiency: isBuilderProficiency(source.proficiency) ? source.proficiency : null,
+  };
+}
+
+function isBuilderProficiency(value: unknown): value is MockBuilderSkill["proficiency"] {
+  return (
+    value === null ||
+    value === "beginner" ||
+    value === "intermediate" ||
+    value === "advanced" ||
+    value === "expert"
+  );
+}
+
+function normalizeResumeDraft(value: Partial<MockResumeDraft> | undefined | null): MockResumeDraft {
+  const source = value ?? {};
+  const now = new Date().toISOString();
+
+  return {
+    id: typeof source.id === "number" ? source.id : 1,
+    contact: normalizeBuilderContact(source.contact),
+    summary: typeof source.summary === "string" ? source.summary : "",
+    experience: Array.isArray(source.experience)
+      ? source.experience.map((experience, index) =>
+        normalizeBuilderExperience(experience, index + 1)
+      )
+      : [],
+    education: Array.isArray(source.education)
+      ? source.education.map((education, index) => normalizeBuilderEducation(education, index + 1))
+      : [],
+    skills: Array.isArray(source.skills)
+      ? source.skills.map(normalizeBuilderSkill).filter((skill): skill is MockBuilderSkill => !!skill)
+      : [],
+    certifications: stringArray(source.certifications),
+    projects: stringArray(source.projects),
+    created_at: typeof source.created_at === "string" ? source.created_at : now,
+    updated_at: typeof source.updated_at === "string" ? source.updated_at : now,
+  };
+}
+
+function createMockResumeDraft(): number {
+  const now = new Date().toISOString();
+  const id = getNextId(resumeDrafts);
+  resumeDrafts.push({
+    id,
+    contact: getEmptyBuilderContact(),
+    summary: "",
+    experience: [],
+    education: [],
+    skills: [],
+    certifications: [],
+    projects: [],
+    created_at: now,
+    updated_at: now,
+  });
+  saveMockState();
+  return id;
+}
+
+function getResumeDraft(args?: Record<string, unknown>): MockResumeDraft | undefined {
+  const resumeId = getResumeIdArg(args);
+  return resumeDrafts.find((draft) => draft.id === resumeId);
+}
+
+function updateResumeDraft(
+  resumeId: number | undefined,
+  updater: (draft: MockResumeDraft) => MockResumeDraft,
+): void {
+  if (typeof resumeId !== "number") return;
+
+  resumeDrafts = resumeDrafts.map((draft) =>
+    draft.id === resumeId
+      ? updater({ ...draft, updated_at: new Date().toISOString() })
+      : draft,
+  );
+  saveMockState();
+}
+
+function getResumeTemplates(): MockResumeTemplate[] {
+  return [
+    {
+      id: "Classic",
+      name: "Classic Professional",
+      description: "Traditional chronological format with clear sections. Works with any ATS.",
+      preview_image: "/templates/classic-preview.png",
+    },
+    {
+      id: "Modern",
+      name: "Modern Minimal",
+      description: "Clean, contemporary design with subtle styling. ATS-compatible.",
+      preview_image: "/templates/modern-preview.png",
+    },
+    {
+      id: "Technical",
+      name: "Technical Skills-First",
+      description: "Emphasizes technical skills and projects. Perfect for engineering roles.",
+      preview_image: "/templates/technical-preview.png",
+    },
+    {
+      id: "Executive",
+      name: "Executive Summary",
+      description: "Highlights leadership and impact metrics. Ideal for senior positions.",
+      preview_image: "/templates/executive-preview.png",
+    },
+    {
+      id: "Military",
+      name: "Military Transition",
+      description: "Translates military experience for civilian employers. Includes clearance.",
+      preview_image: "/templates/military-preview.png",
+    },
+  ];
+}
+
+function renderMockResumeHtml(value: unknown): string {
+  const draft = normalizeResumeDraft(value as Partial<MockResumeDraft>);
+  const skills = draft.skills.map((skill) => escapeHtml(skill.name)).join(", ");
+  const experience = draft.experience
+    .map((item) => `<li>${escapeHtml(item.title)} at ${escapeHtml(item.company)}</li>`)
+    .join("");
+
+  return `
+    <article>
+      <h1>${escapeHtml(draft.contact.name)}</h1>
+      <p>${escapeHtml(draft.contact.email)}</p>
+      <section>
+        <h2>Summary</h2>
+        <p>${escapeHtml(draft.summary)}</p>
+      </section>
+      <section>
+        <h2>Experience</h2>
+        <ul>${experience}</ul>
+      </section>
+      <section>
+        <h2>Skills</h2>
+        <p>${skills}</p>
+      </section>
+    </article>
+  `;
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (char) => {
+    const escapes: Record<string, string> = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      "\"": "&quot;",
+      "'": "&#39;",
+    };
+    return escapes[char] ?? char;
+  });
 }
 
 function isCredentialKey(value: unknown): value is MockCredentialKey {
@@ -1163,6 +1457,113 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       return match as T;
     }
 
+    case "create_resume_draft":
+      return createMockResumeDraft() as T;
+
+    case "get_resume_draft":
+      return (getResumeDraft(args) ?? null) as T;
+
+    case "update_resume_contact": {
+      const resumeId = getResumeIdArg(args);
+      const contact = normalizeBuilderContact(getArg(args, "contact"));
+      updateResumeDraft(resumeId, (draft) => ({ ...draft, contact }));
+      return undefined as T;
+    }
+
+    case "update_resume_summary": {
+      const resumeId = getResumeIdArg(args);
+      const summary = getStringArg(args, "summary") ?? "";
+      updateResumeDraft(resumeId, (draft) => ({ ...draft, summary }));
+      return undefined as T;
+    }
+
+    case "add_resume_experience": {
+      const resumeId = getResumeIdArg(args);
+      const draft = getResumeDraft(args);
+      const newId = getNextId(draft?.experience ?? []);
+      const experience = normalizeBuilderExperience(getArg(args, "experience"), newId);
+      updateResumeDraft(resumeId, (current) => ({
+        ...current,
+        experience: [...current.experience, { ...experience, id: newId }],
+      }));
+      return newId as T;
+    }
+
+    case "delete_resume_experience": {
+      const resumeId = getResumeIdArg(args);
+      const experienceId =
+        getNumericArg(args, "experienceId") ?? getNumericArg(args, "experience_id");
+      updateResumeDraft(resumeId, (draft) => ({
+        ...draft,
+        experience: draft.experience.filter((experience) => experience.id !== experienceId),
+      }));
+      return undefined as T;
+    }
+
+    case "add_resume_education": {
+      const resumeId = getResumeIdArg(args);
+      const draft = getResumeDraft(args);
+      const newId = getNextId(draft?.education ?? []);
+      const education = normalizeBuilderEducation(getArg(args, "education"), newId);
+      updateResumeDraft(resumeId, (current) => ({
+        ...current,
+        education: [...current.education, { ...education, id: newId }],
+      }));
+      return newId as T;
+    }
+
+    case "delete_resume_education": {
+      const resumeId = getResumeIdArg(args);
+      const educationId =
+        getNumericArg(args, "educationId") ?? getNumericArg(args, "education_id");
+      updateResumeDraft(resumeId, (draft) => ({
+        ...draft,
+        education: draft.education.filter((education) => education.id !== educationId),
+      }));
+      return undefined as T;
+    }
+
+    case "set_resume_skills": {
+      const resumeId = getResumeIdArg(args);
+      const rawSkills = getArg(args, "skills");
+      const skills = Array.isArray(rawSkills)
+        ? rawSkills.map(normalizeBuilderSkill).filter((skill): skill is MockBuilderSkill => !!skill)
+        : [];
+      updateResumeDraft(resumeId, (draft) => ({ ...draft, skills }));
+      return undefined as T;
+    }
+
+    case "delete_resume_draft": {
+      const resumeId = getResumeIdArg(args);
+      resumeDrafts = resumeDrafts.filter((draft) => draft.id !== resumeId);
+      saveMockState();
+      return undefined as T;
+    }
+
+    case "list_resume_templates":
+      return getResumeTemplates() as T;
+
+    case "render_resume_html":
+      return renderMockResumeHtml(getArg(args, "resume")) as T;
+
+    case "analyze_resume_format":
+      return {
+        format_score: 88,
+        issues: ["Add more quantified achievements"],
+        recommendations: ["Keep sections clear and use standard headings"],
+      } as T;
+
+    case "export_resume_docx":
+      return [80, 75, 3, 4, 20, 0, 0, 0] as T;
+
+    case "export_resume_html":
+      return renderMockResumeHtml(getArg(args, "resume")) as T;
+
+    case "export_resume_text": {
+      const draft = normalizeResumeDraft(getArg(args, "resume") as Partial<MockResumeDraft>);
+      return `${draft.contact.name}\n${draft.contact.email}\n\n${draft.summary}` as T;
+    }
+
     // Salary commands
     case "predict_salary":
       return { min: 120000, max: 160000, median: 140000 } as T;
@@ -1317,6 +1718,7 @@ export function resetMockData() {
   };
   resumes = [];
   userSkills = [];
+  resumeDrafts = [];
   recentMatches = [];
   marketAlerts = getDefaultMarketAlerts();
   applicationProfile = getDefaultApplicationProfile();

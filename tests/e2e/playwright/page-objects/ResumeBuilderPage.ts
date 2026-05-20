@@ -1,364 +1,274 @@
-import { Page, Locator } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
-/**
- * Page object for Resume Builder wizard
- */
+interface ContactData {
+  name: string;
+  email: string;
+  phone?: string;
+  linkedin?: string;
+  github?: string;
+  location?: string;
+  website?: string;
+}
+
+interface ExperienceData {
+  title: string;
+  company: string;
+  startDate: string;
+  endDate?: string;
+  location?: string;
+  achievements?: string[];
+}
+
+interface EducationData {
+  degree: string;
+  institution: string;
+  graduationDate?: string;
+  gpa?: string;
+  location?: string;
+  honors?: string[];
+}
+
+interface SkillData {
+  name: string;
+  category: string;
+  proficiency?: "beginner" | "intermediate" | "advanced" | "expert";
+}
+
 export class ResumeBuilderPage extends BasePage {
   constructor(page: Page) {
     super(page);
   }
 
-  async navigateTo() {
-    await this.goto("/resume-builder");
+  async navigateTo(): Promise<void> {
+    await this.goto("/");
     await this.skipSetupWizard();
+    await this.navigateToPage("Resume Builder");
+    await expect(this.heading).toBeVisible({ timeout: 15000 });
+    await this.expectStep(1, "Contact");
   }
 
-  // Step navigation
-  get stepIndicator(): Locator {
-    return this.page.locator("[data-testid='step-indicator'], [class*='step']");
+  get heading(): Locator {
+    return this.page.getByRole("heading", { name: "Resume Builder" });
+  }
+
+  get stepText(): Locator {
+    return this.page.getByText(/^Step \d+ of 7:/);
   }
 
   get nextButton(): Locator {
-    return this.page.locator("button:has-text('Next'), button:has-text('Continue')");
+    return this.page.getByRole("button", { name: "Next" });
   }
 
-  get backButton(): Locator {
-    return this.page.locator("button:has-text('Back'), button:has-text('Previous')");
+  get previousButton(): Locator {
+    return this.page.getByRole("button", { name: "Previous" });
   }
 
-  get saveButton(): Locator {
-    return this.page.locator("button:has-text('Save')");
-  }
-
-  // Step 1: Contact Info
-  get nameInput(): Locator {
-    return this.page.locator("input[name='name'], input[placeholder*='name' i]");
+  get fullNameInput(): Locator {
+    return this.page.getByPlaceholder("John Doe");
   }
 
   get emailInput(): Locator {
-    return this.page.locator("input[name='email'], input[type='email']");
+    return this.page.getByPlaceholder("john@example.com");
   }
 
   get phoneInput(): Locator {
-    return this.page.locator("input[name='phone'], input[placeholder*='phone' i]");
-  }
-
-  get linkedinInput(): Locator {
-    return this.page.locator("input[name='linkedin'], input[placeholder*='linkedin' i]");
-  }
-
-  get githubInput(): Locator {
-    return this.page.locator("input[name='github'], input[placeholder*='github' i]");
+    return this.page.getByPlaceholder("(555) 123-4567");
   }
 
   get locationInput(): Locator {
-    return this.page.locator("input[name='location'], input[placeholder*='location' i]");
+    return this.page.getByPlaceholder("San Francisco, CA").first();
   }
 
-  // Step 2: Summary
+  get linkedinInput(): Locator {
+    return this.page.getByPlaceholder("linkedin.com/in/johndoe");
+  }
+
+  get githubInput(): Locator {
+    return this.page.getByPlaceholder("github.com/johndoe");
+  }
+
+  get websiteInput(): Locator {
+    return this.page.getByPlaceholder("https://johndoe.com");
+  }
+
   get summaryTextarea(): Locator {
-    return this.page.locator(
-      "textarea[name='summary'], textarea[placeholder*='summary' i]"
-    );
-  }
-
-  // Step 3: Experience
-  get addExperienceButton(): Locator {
-    return this.page.locator("button:has-text('Add Experience')");
-  }
-
-  get experienceTitle(): Locator {
-    return this.page.locator("input[name='title'], input[placeholder*='title' i]").first();
-  }
-
-  get experienceCompany(): Locator {
-    return this.page.locator("input[name='company'], input[placeholder*='company' i]").first();
-  }
-
-  get experienceStartDate(): Locator {
-    return this.page.locator(
-      "input[name='start_date'], input[name='startDate'], input[placeholder*='start' i]"
-    ).first();
-  }
-
-  get experienceEndDate(): Locator {
-    return this.page.locator(
-      "input[name='end_date'], input[name='endDate'], input[placeholder*='end' i]"
-    ).first();
-  }
-
-  get experienceList(): Locator {
-    return this.page.locator("[data-testid='experience-item'], [class*='experience-card']");
-  }
-
-  // Step 4: Education
-  get addEducationButton(): Locator {
-    return this.page.locator("button:has-text('Add Education')");
-  }
-
-  get educationDegree(): Locator {
-    return this.page.locator("input[name='degree'], input[placeholder*='degree' i]").first();
-  }
-
-  get educationInstitution(): Locator {
-    return this.page.locator(
-      "input[name='institution'], input[placeholder*='institution' i], input[placeholder*='school' i]"
-    ).first();
-  }
-
-  get educationGradDate(): Locator {
-    return this.page.locator(
-      "input[name='graduation_date'], input[name='graduationDate']"
-    ).first();
-  }
-
-  get educationList(): Locator {
-    return this.page.locator("[data-testid='education-item'], [class*='education-card']");
-  }
-
-  // Step 5: Skills
-  get addSkillButton(): Locator {
-    return this.page.locator("button:has-text('Add Skill')");
-  }
-
-  get skillNameInput(): Locator {
-    return this.page.locator(
-      "input[name='skill'], input[name='skillName'], input[placeholder*='skill' i]"
-    ).first();
-  }
-
-  get skillCategorySelect(): Locator {
-    return this.page.locator(
-      "select[name='category'], [data-testid='skill-category']"
-    ).first();
-  }
-
-  get skillProficiencySelect(): Locator {
-    return this.page.locator(
-      "select[name='proficiency'], [data-testid='skill-proficiency']"
-    ).first();
-  }
-
-  get skillsList(): Locator {
-    return this.page.locator("[data-testid='skill-item'], [class*='skill-tag']");
+    return this.page.getByLabel("Professional Summary");
   }
 
   get importSkillsButton(): Locator {
-    return this.page.locator("button:has-text('Import'), button:has-text('Load from Resume')");
+    return this.page.getByRole("button", { name: "Import from Resume" });
   }
 
-  // Step 6: Preview
-  get templateGrid(): Locator {
-    return this.page.locator("[data-testid='template-grid'], [class*='template']");
-  }
-
-  get templateCard(): Locator {
-    return this.page.locator(
-      "[data-testid='template-card'], [class*='template-card']"
-    );
-  }
-
-  get previewPane(): Locator {
-    return this.page.locator("[data-testid='resume-preview'], [class*='preview']");
-  }
-
-  get atsScorePanel(): Locator {
-    return this.page.locator("[data-testid='ats-score'], [class*='ats-score']");
-  }
-
-  // Step 7: Export
   get exportPdfButton(): Locator {
-    return this.page.locator("button:has-text('Export PDF'), button:has-text('Download PDF')");
+    return this.page.getByRole("button", { name: "Download PDF" });
   }
 
   get exportDocxButton(): Locator {
-    return this.page.locator("button:has-text('Export DOCX'), button:has-text('Download DOCX')");
+    return this.page.getByRole("button", { name: "Download DOCX" });
   }
 
-  // Actions
-  async getCurrentStep(): Promise<number> {
-    try {
-      const activeStep = this.stepIndicator.locator("[class*='active'], [aria-current='step']");
-      const text = await activeStep.textContent();
-      const match = text?.match(/\d+/);
-      return match ? parseInt(match[0]) : 1;
-    } catch {
-      return 1;
+  async expectStep(step: number, name: string): Promise<void> {
+    await expect(this.stepText).toContainText(`Step ${step} of 7: ${name}`);
+  }
+
+  async goNext(step?: number, name?: string): Promise<void> {
+    await this.nextButton.focus();
+    await this.page.keyboard.press("Enter");
+    await this.waitForReady();
+    if (step && name) {
+      await this.expectStep(step, name);
     }
   }
 
-  async goToNextStep() {
-    await this.nextButton.click();
+  async goPrevious(step: number, name: string): Promise<void> {
+    await this.previousButton.focus();
+    await this.page.keyboard.press("Enter");
     await this.waitForReady();
+    await this.expectStep(step, name);
   }
 
-  async goToPreviousStep() {
-    await this.backButton.click();
-    await this.waitForReady();
-  }
-
-  async fillContactInfo(data: {
-    name: string;
-    email: string;
-    phone?: string;
-    linkedin?: string;
-    github?: string;
-    location?: string;
-  }) {
-    await this.nameInput.fill(data.name);
+  async fillContactInfo(data: ContactData): Promise<void> {
+    await this.fullNameInput.fill(data.name);
     await this.emailInput.fill(data.email);
-
-    if (data.phone && (await this.phoneInput.isVisible().catch(() => false))) {
-      await this.phoneInput.fill(data.phone);
-    }
-    if (data.linkedin && (await this.linkedinInput.isVisible().catch(() => false))) {
-      await this.linkedinInput.fill(data.linkedin);
-    }
-    if (data.github && (await this.githubInput.isVisible().catch(() => false))) {
-      await this.githubInput.fill(data.github);
-    }
-    if (data.location && (await this.locationInput.isVisible().catch(() => false))) {
-      await this.locationInput.fill(data.location);
-    }
+    if (data.phone) await this.phoneInput.fill(data.phone);
+    if (data.location) await this.locationInput.fill(data.location);
+    if (data.linkedin) await this.linkedinInput.fill(data.linkedin);
+    if (data.github) await this.githubInput.fill(data.github);
+    if (data.website) await this.websiteInput.fill(data.website);
   }
 
-  async fillSummary(text: string) {
+  async completeContact(data?: Partial<ContactData>): Promise<void> {
+    await this.fillContactInfo({
+      name: "Jane Smith",
+      email: "jane.smith@example.com",
+      phone: "+1-555-9876",
+      location: "New York, NY",
+      linkedin: "linkedin.com/in/janesmith",
+      github: "github.com/janesmith",
+      website: "https://janesmith.dev",
+      ...data,
+    });
+    await this.goNext(2, "Summary");
+  }
+
+  async fillSummary(text: string): Promise<void> {
     await this.summaryTextarea.fill(text);
   }
 
-  async addExperience(data: {
-    title: string;
-    company: string;
-    startDate: string;
-    endDate?: string;
-  }) {
-    await this.addExperienceButton.click();
-    await this.page.waitForTimeout(300);
-
-    await this.experienceTitle.fill(data.title);
-    await this.experienceCompany.fill(data.company);
-    await this.experienceStartDate.fill(data.startDate);
-
-    if (data.endDate && (await this.experienceEndDate.isVisible().catch(() => false))) {
-      await this.experienceEndDate.fill(data.endDate);
-    }
-
-    // Save experience (usually a modal with Save button)
-    const saveBtn = this.page.locator("button:has-text('Save'), button:has-text('Add')");
-    if (await saveBtn.isVisible().catch(() => false)) {
-      await saveBtn.click();
-      await this.page.waitForTimeout(300);
-    }
+  async completeSummary(text = "Results-driven software engineer with deep React, TypeScript, and product delivery experience."): Promise<void> {
+    await this.fillSummary(text);
+    await this.goNext(3, "Experience");
   }
 
-  async getExperienceCount(): Promise<number> {
-    return await this.experienceList.count();
+  async addExperience(data: ExperienceData): Promise<void> {
+    await this.page.getByRole("button", { name: "+ Add Experience" }).click();
+    const dialog = this.page.getByRole("dialog", { name: "Add Work Experience" });
+    await expect(dialog).toBeVisible();
+
+    await dialog.getByPlaceholder("Senior Software Engineer").fill(data.title);
+    await dialog.getByPlaceholder("Acme Corp").fill(data.company);
+    await dialog.getByPlaceholder("Jan 2020").fill(data.startDate);
+    if (data.endDate) await dialog.getByPlaceholder("Present").fill(data.endDate);
+    if (data.location) await dialog.getByPlaceholder("San Francisco, CA").fill(data.location);
+    if (data.achievements) {
+      await dialog
+        .getByPlaceholder("Led team of 5 engineers")
+        .fill(data.achievements.join("\n"));
+    }
+
+    await dialog.getByRole("button", { name: "Add Experience" }).click();
+    await expect(dialog).toBeHidden();
   }
 
-  async addEducation(data: {
-    degree: string;
-    institution: string;
-    graduationDate?: string;
-  }) {
-    await this.addEducationButton.click();
-    await this.page.waitForTimeout(300);
-
-    await this.educationDegree.fill(data.degree);
-    await this.educationInstitution.fill(data.institution);
-
-    if (data.graduationDate && (await this.educationGradDate.isVisible().catch(() => false))) {
-      await this.educationGradDate.fill(data.graduationDate);
-    }
-
-    // Save education
-    const saveBtn = this.page.locator("button:has-text('Save'), button:has-text('Add')");
-    if (await saveBtn.isVisible().catch(() => false)) {
-      await saveBtn.click();
-      await this.page.waitForTimeout(300);
-    }
+  async completeExperience(data?: Partial<ExperienceData>): Promise<void> {
+    const experience = {
+      title: "Senior Software Engineer",
+      company: "Acme Corp",
+      startDate: "Jan 2020",
+      endDate: "Present",
+      location: "Remote",
+      achievements: ["Led team of 5 engineers", "Improved application performance by 40%"],
+      ...data,
+    };
+    await this.addExperience(experience);
+    await this.goNext(4, "Education");
   }
 
-  async getEducationCount(): Promise<number> {
-    return await this.educationList.count();
+  async addEducation(data: EducationData): Promise<void> {
+    await this.page.getByRole("button", { name: "+ Add Education" }).click();
+    const dialog = this.page.getByRole("dialog", { name: "Add Education" });
+    await expect(dialog).toBeVisible();
+
+    await dialog.getByPlaceholder("B.S. Computer Science").fill(data.degree);
+    await dialog.getByPlaceholder("Stanford University").fill(data.institution);
+    if (data.graduationDate) await dialog.getByPlaceholder("May 2020").fill(data.graduationDate);
+    if (data.gpa) await dialog.getByPlaceholder("3.8").fill(data.gpa);
+    if (data.location) await dialog.getByPlaceholder("Stanford, CA").fill(data.location);
+    if (data.honors) {
+      await dialog.getByPlaceholder("Dean's List").fill(data.honors.join("\n"));
+    }
+
+    await dialog.getByRole("button", { name: "Add Education" }).click();
+    await expect(dialog).toBeHidden();
   }
 
-  async addSkill(data: {
-    name: string;
-    category?: string;
-    proficiency?: string;
-  }) {
-    await this.addSkillButton.click();
-    await this.page.waitForTimeout(300);
-
-    await this.skillNameInput.fill(data.name);
-
-    if (data.category && (await this.skillCategorySelect.isVisible().catch(() => false))) {
-      await this.skillCategorySelect.selectOption(data.category);
-    }
-
-    if (data.proficiency && (await this.skillProficiencySelect.isVisible().catch(() => false))) {
-      await this.skillProficiencySelect.selectOption(data.proficiency);
-    }
-
-    // Save skill
-    const saveBtn = this.page.locator("button:has-text('Save'), button:has-text('Add')");
-    if (await saveBtn.isVisible().catch(() => false)) {
-      await saveBtn.click();
-      await this.page.waitForTimeout(300);
-    }
+  async completeEducation(data?: Partial<EducationData>): Promise<void> {
+    await this.addEducation({
+      degree: "B.S. Computer Science",
+      institution: "State University",
+      graduationDate: "May 2020",
+      gpa: "3.8",
+      location: "New York, NY",
+      honors: ["Dean's List"],
+      ...data,
+    });
+    await this.goNext(5, "Skills");
   }
 
-  async getSkillsCount(): Promise<number> {
-    return await this.skillsList.count();
+  async addSkill(data: SkillData): Promise<void> {
+    await this.page.getByPlaceholder("React").fill(data.name);
+    await this.page.getByPlaceholder("Frontend").fill(data.category);
+    if (data.proficiency) {
+      await this.page.getByRole("combobox").selectOption(data.proficiency);
+    }
+    const addButton = this.page.getByRole("button", { name: "Add", exact: true });
+    await addButton.focus();
+    await this.page.keyboard.press("Enter");
   }
 
-  async selectTemplate(templateName: string) {
-    const template = this.templateCard.filter({ hasText: templateName }).first();
-    if (await template.isVisible().catch(() => false)) {
-      await template.click();
-      await this.page.waitForTimeout(500);
-    }
+  async completeSkills(data?: Partial<SkillData>): Promise<void> {
+    await this.addSkill({
+      name: "TypeScript",
+      category: "Frontend",
+      proficiency: "advanced",
+      ...data,
+    });
+    await this.goNext(6, "Preview");
   }
 
-  async waitForPreview(timeout: number = 5000): Promise<boolean> {
-    try {
-      await this.previewPane.waitFor({ state: "visible", timeout });
-      return true;
-    } catch {
-      return false;
-    }
+  async completeRequiredResume(): Promise<void> {
+    await this.completeContact();
+    await this.completeSummary();
+    await this.completeExperience();
+    await this.completeEducation();
+    await this.completeSkills();
   }
 
-  async getAtsScore(): Promise<number | null> {
-    try {
-      const text = await this.atsScorePanel.textContent();
-      const match = text?.match(/(\d+)%?/);
-      return match ? parseInt(match[1]) : null;
-    } catch {
-      return null;
-    }
+  templateButton(name: string): Locator {
+    return this.page.getByRole("button", {
+      name: new RegExp(`^Select ${name} template:`, "i"),
+    });
   }
 
-  async exportPdf(): Promise<boolean> {
-    try {
-      const downloadPromise = this.page.waitForEvent("download", { timeout: 10000 });
-      await this.exportPdfButton.click();
-      await downloadPromise;
-      return true;
-    } catch {
-      return false;
-    }
+  async selectTemplate(name: string): Promise<void> {
+    await this.templateButton(name).click();
+    await expect(this.templateButton(name)).toHaveAttribute("aria-pressed", "true");
   }
 
-  async exportDocx(): Promise<boolean> {
-    try {
-      const downloadPromise = this.page.waitForEvent("download", { timeout: 10000 });
-      await this.exportDocxButton.click();
-      await downloadPromise;
-      return true;
-    } catch {
-      return false;
-    }
+  async downloadDocx(): Promise<void> {
+    const downloadPromise = this.page.waitForEvent("download");
+    await this.exportDocxButton.click();
+    await downloadPromise;
   }
 }

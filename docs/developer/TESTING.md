@@ -511,7 +511,7 @@ npm run test:e2e:ui
 | Applications    | `application-tracking.spec.ts` | Kanban, cards, drag/drop, detail modal, status and notes, reminders |
 | Market          | `market-intelligence.spec.ts` | Tabs, snapshot, charts, locations, alert read state |
 | Resume          | `resume-upload-matching.spec.ts` | No-resume state, active resume, skill CRUD, library switching, match results |
-| Resume Builder  | `resume-builder.spec.ts` | Wizard, steps, templates, export |
+| Resume Builder  | `resume-builder.spec.ts` | Draft init, contact/summary validation, experience, education, skills/import, preview/template, DOCX export |
 | Keyboard        | `keyboard-navigation.spec.ts` | Shortcuts, focus, command palette |
 | One-Click Apply | `one-click-apply.spec.ts` | Settings stats, profile validation/save/load, screening answers, human-review guardrails |
 
