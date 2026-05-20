@@ -84,6 +84,8 @@ const forbiddenArtifactDirs = new Set([
   "dist-ssr",
   "playwright-report",
   "storybook-static",
+  "test_cache",
+  "test_ml_cache",
   "test-results",
 ]);
 

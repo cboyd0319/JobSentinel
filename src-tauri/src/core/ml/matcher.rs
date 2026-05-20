@@ -195,8 +195,8 @@ mod tests {
     #[test]
     #[ignore]
     fn test_semantic_matching() {
-        let app_data_dir = PathBuf::from("./test_cache");
-        let matcher = SemanticMatcher::new(app_data_dir).unwrap();
+        let app_data_dir = tempfile::tempdir().unwrap();
+        let matcher = SemanticMatcher::new(app_data_dir.path().to_path_buf()).unwrap();
 
         let user_skills = vec![
             "Python programming".to_string(),

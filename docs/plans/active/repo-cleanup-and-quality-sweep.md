@@ -85,6 +85,7 @@ changes or Playwright-specific work.
 | 2026-05-20 | Active | Added removing bloat and junk as an explicit cleanup track. Current bloat sensor passes, so next pass must classify root clutter and nested stale content beyond disposable artifacts. |
 | 2026-05-20 | In progress | Classified current root entries in the bloat sensor allowlist, removed an unreferenced one-off cache test shell script, and added a guard against future nested `test_*.sh` helper drift outside `scripts/`. |
 | 2026-05-20 | In progress | Fixed resume matcher education lookup error handling so database failures no longer score as missing education. |
+| 2026-05-20 | In progress | Moved ignored embedded-ML tests off repo-relative `test_cache` and `test_ml_cache` directories, taught the bloat sensor to reject those cache dirs, and restored embedded-ML feature compilation. |
 
 ## Discoveries
 
@@ -105,6 +106,12 @@ changes or Playwright-specific work.
 - Resume-job matching was silently treating education lookup database failures
   as absent education because the query used `.ok()??`; the matcher now
   propagates lookup failures when a job declares an education requirement.
+- Ignored embedded-ML tests used repo-relative cache directories when run
+  manually; those tests now use temporary directories, and the bloat sensor
+  rejects leftover `test_cache/` and `test_ml_cache/` directories.
+- The optional `embedded-ml` feature had drifted out of compile health due to
+  SQLx offline macro cache misses, a denied unsafe safetensors mmap, stale
+  fields/imports, and a Candle tensor API mismatch.
 
 ## Decisions
 

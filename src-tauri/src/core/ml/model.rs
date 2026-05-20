@@ -7,13 +7,11 @@ use anyhow::{Context, Result};
 use candle_core::{DType, Device, Module, Tensor};
 use candle_nn::VarBuilder;
 use hf_hub::{api::tokio::Api, Repo, RepoType};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use tokenizers::Tokenizer;
 
 /// Model identifier on HuggingFace Hub
 const MODEL_ID: &str = "sentence-transformers/all-MiniLM-L6-v2";
-const MODEL_REVISION: &str = "main";
-
 /// Required files for the model
 const MODEL_FILES: &[&str] = &["config.json", "tokenizer.json", "model.safetensors"];
 
@@ -118,7 +116,7 @@ impl ModelManager {
     }
 
     /// Load model weights from cache
-    pub fn load_model(&self, device: &Device) -> Result<VarBuilder> {
+    pub fn load_model(&self, device: &Device) -> Result<VarBuilder<'_>> {
         let model_path = self.cache_dir.join("all-MiniLM-L6-v2/model.safetensors");
 
         if !model_path.exists() {
@@ -128,16 +126,10 @@ impl ModelManager {
             .into());
         }
 
-        // SAFETY: Memory-mapping the safetensors file is unsafe because:
-        // 1. The mapped memory must not be modified by another process while in use
-        // 2. The file must not be truncated or deleted while mapped
-        // 3. The safetensors format includes validation headers that candle checks
-        // Mitigations: The model file is in our app data dir, only we write to it,
-        // and we verify existence above. The file is read-only mapped.
-        let vb = unsafe {
-            VarBuilder::from_mmaped_safetensors(&[model_path], DType::F32, device)
-                .map_err(|e| MlError::ModelLoadFailed(e.to_string()))?
-        };
+        let model_data = std::fs::read(&model_path)
+            .with_context(|| format!("failed to read model weights from {:?}", model_path))?;
+        let vb = VarBuilder::from_buffered_safetensors(model_data, DType::F32, device)
+            .map_err(|e| MlError::ModelLoadFailed(e.to_string()))?;
 
         Ok(vb)
     }
@@ -168,8 +160,6 @@ impl ModelManager {
 pub struct SentenceTransformer {
     embeddings: candle_nn::Embedding,
     layers: Vec<TransformerLayer>,
-    pooler: candle_nn::Linear,
-    device: Device,
 }
 
 struct TransformerLayer {
@@ -195,7 +185,7 @@ struct FeedForward {
 
 impl SentenceTransformer {
     /// Load model from VarBuilder
-    pub fn load(vb: VarBuilder, device: Device) -> Result<Self> {
+    pub fn load(vb: VarBuilder) -> Result<Self> {
         const HIDDEN_SIZE: usize = 384;
         const NUM_LAYERS: usize = 6;
         const NUM_HEADS: usize = 12;
@@ -213,16 +203,7 @@ impl SentenceTransformer {
             layers.push(TransformerLayer::load(layer_vb, HIDDEN_SIZE, NUM_HEADS)?);
         }
 
-        // Load pooler
-        let pooler = candle_nn::linear(HIDDEN_SIZE, HIDDEN_SIZE, vb.pp("pooler.dense"))
-            .map_err(|e| MlError::ModelLoadFailed(e.to_string()))?;
-
-        Ok(Self {
-            embeddings,
-            layers,
-            pooler,
-            device,
-        })
+        Ok(Self { embeddings, layers })
     }
 
     /// Forward pass to generate embeddings
@@ -377,8 +358,9 @@ impl MultiHeadAttention {
             .map_err(|e: candle_core::Error| MlError::InferenceFailed(e.to_string()))?;
         let scores = query
             .matmul(&key_t)
-            .map_err(|e: candle_core::Error| MlError::InferenceFailed(e.to_string()))?
-            / scale;
+            .map_err(|e: candle_core::Error| MlError::InferenceFailed(e.to_string()))?;
+        let scores = (scores / scale)
+            .map_err(|e: candle_core::Error| MlError::InferenceFailed(e.to_string()))?;
 
         let attn_weights = candle_nn::ops::softmax_last_dim(&scores)
             .map_err(|e: candle_core::Error| MlError::InferenceFailed(e.to_string()))?;

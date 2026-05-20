@@ -90,36 +90,30 @@ pub async fn match_resume_semantic(
     }
 
     // Get user skills from resume
-    let user_skills = sqlx::query!(
+    let user_skills = sqlx::query_scalar::<_, String>(
         r#"
         SELECT skill_name
         FROM user_skills
         WHERE resume_id = ?
         "#,
-        resume_id
     )
+    .bind(resume_id)
     .fetch_all(state.database.pool())
     .await
-    .map_err(|e| format!("Failed to fetch user skills: {}", e))?
-    .into_iter()
-    .map(|row| row.skill_name)
-    .collect::<Vec<_>>();
+    .map_err(|e| format!("Failed to fetch user skills: {}", e))?;
 
     // Get job requirements
-    let job_skills = sqlx::query!(
+    let job_skills = sqlx::query_scalar::<_, String>(
         r#"
         SELECT skill_name
         FROM job_skills
         WHERE job_hash = ?
         "#,
-        job_hash
     )
+    .bind(&job_hash)
     .fetch_all(state.database.pool())
     .await
-    .map_err(|e| format!("Failed to fetch job skills: {}", e))?
-    .into_iter()
-    .map(|row| row.skill_name)
-    .collect::<Vec<_>>();
+    .map_err(|e| format!("Failed to fetch job skills: {}", e))?;
 
     // Perform semantic matching
     let matcher = SemanticMatcher::new(app_data_dir)

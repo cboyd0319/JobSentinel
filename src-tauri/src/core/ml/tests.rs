@@ -6,7 +6,6 @@
 #[cfg(test)]
 mod tests {
     use crate::core::ml::*;
-    use std::path::PathBuf;
     use tempfile::TempDir;
 
     fn get_test_cache_dir() -> TempDir {
@@ -81,10 +80,9 @@ mod tests {
     #[test]
     #[ignore]
     fn test_embedding_generation() {
-        let cache_dir = PathBuf::from("./test_ml_cache");
-        std::fs::create_dir_all(&cache_dir).unwrap();
+        let cache_dir = get_test_cache_dir();
 
-        let generator = EmbeddingGenerator::new(cache_dir).unwrap();
+        let generator = EmbeddingGenerator::new(cache_dir.path().to_path_buf()).unwrap();
 
         let text = "Machine learning engineer with Python experience";
         let embedding = generator.embed_text(text).unwrap();
@@ -100,8 +98,8 @@ mod tests {
     #[test]
     #[ignore]
     fn test_batch_embeddings() {
-        let cache_dir = PathBuf::from("./test_ml_cache");
-        let generator = EmbeddingGenerator::new(cache_dir).unwrap();
+        let cache_dir = get_test_cache_dir();
+        let generator = EmbeddingGenerator::new(cache_dir.path().to_path_buf()).unwrap();
 
         let texts = vec!["Python programming", "Machine Learning", "Data Science"];
 
@@ -114,8 +112,8 @@ mod tests {
     #[test]
     #[ignore]
     fn test_semantic_matching() {
-        let cache_dir = PathBuf::from("./test_ml_cache");
-        let matcher = SemanticMatcher::new(cache_dir).unwrap();
+        let cache_dir = get_test_cache_dir();
+        let matcher = SemanticMatcher::new(cache_dir.path().to_path_buf()).unwrap();
 
         let user_skills = vec![
             "Python programming".to_string(),
@@ -152,8 +150,8 @@ mod tests {
     #[test]
     #[ignore]
     fn test_semantic_similarity() {
-        let cache_dir = PathBuf::from("./test_ml_cache");
-        let matcher = SemanticMatcher::new(cache_dir).unwrap();
+        let cache_dir = get_test_cache_dir();
+        let matcher = SemanticMatcher::new(cache_dir.path().to_path_buf()).unwrap();
 
         let candidates = vec![
             "Python programming".to_string(),
@@ -176,8 +174,8 @@ mod tests {
     #[test]
     #[ignore]
     fn test_semantic_vs_keyword_matching() {
-        let cache_dir = PathBuf::from("./test_ml_cache");
-        let matcher = SemanticMatcher::new(cache_dir).unwrap();
+        let cache_dir = get_test_cache_dir();
+        let matcher = SemanticMatcher::new(cache_dir.path().to_path_buf()).unwrap();
 
         // These should match semantically but not by exact string
         let user_skills = vec!["Machine Learning".to_string(), "Deep Learning".to_string()];

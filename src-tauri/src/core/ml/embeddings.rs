@@ -4,7 +4,7 @@
 
 use super::model::{ModelManager, SentenceTransformer};
 use super::MlError;
-use anyhow::{Context, Result};
+use anyhow::Result;
 use candle_core::{DType, Device, Tensor};
 use std::path::PathBuf;
 use tokenizers::{Encoding, Tokenizer};
@@ -36,7 +36,7 @@ impl EmbeddingGenerator {
         let device = ModelManager::get_device()?;
         let tokenizer = manager.load_tokenizer()?;
         let vb = manager.load_model(&device)?;
-        let model = SentenceTransformer::load(vb, device.clone())?;
+        let model = SentenceTransformer::load(vb)?;
 
         Ok(Self {
             model,
