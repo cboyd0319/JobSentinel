@@ -31,6 +31,30 @@ Out of scope:
 - Rewriting product behavior without a concrete defect or product decision.
 - Adding telemetry, cloud dependencies, or scraper bypass behavior.
 
+## Cleanup Track: Removing Bloat And Junk
+
+This track stays open until root clutter and nested repo junk have been
+inventoried, classified, and either removed, moved, merged, or explicitly kept.
+
+Candidate classes:
+
+- Root clutter: one-off scripts, loose docs or reports, stale configs,
+  generated assets, duplicate instructions, and unowned support directories.
+- Nested junk: stale reports, caches, test artifacts, obsolete examples,
+  unreferenced fixtures, duplicate docs, and generated output that slipped into
+  source paths.
+- Keep by default: repo front-door files, required root tool config, policy
+  files, active fixtures, and compatibility wrappers with current references.
+
+Required process:
+
+- Prove whether each candidate is referenced by scripts, docs, CI, tests,
+  package manifests, or Tauri build config.
+- Remove disposable files, move durable docs under `docs/`, and merge duplicate
+  content instead of leaving parallel sources of truth.
+- Update `.gitignore`, bloat sensors, docs, and references after each cleanup
+  slice.
+
 ## Risks
 
 - Root cleanup can break tool discovery if config files move without command
@@ -84,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | Active | Expanded removing bloat and junk into a dedicated cleanup track covering root clutter, nested stale content, candidate classification, and reference-safe deletion or relocation. |
 | 2026-05-20 | Active | Added removing bloat and junk as an explicit cleanup track. Current bloat sensor passes, so next pass must classify root clutter and nested stale content beyond disposable artifacts. |
 | 2026-05-20 | In progress | Classified current root entries in the bloat sensor allowlist, removed an unreferenced one-off cache test shell script, and added a guard against future nested `test_*.sh` helper drift outside `scripts/`. |
 | 2026-05-20 | In progress | Fixed resume matcher education lookup error handling so database failures no longer score as missing education. |
