@@ -185,6 +185,38 @@ for (const path of ["README.md", "docs/README.md", "docs/ROADMAP.md"]) {
   }
 }
 
+const currentTestCountDocs = [
+  "README.md",
+  "docs/README.md",
+  "docs/ROADMAP.md",
+  "docs/developer/TESTING.md",
+  "docs/developer/FRONTEND_TESTING.md",
+  "docs/developer/INTEGRATION_TESTING.md",
+];
+
+const hardcodedTestCountPattern =
+  /\b(?:\d+\+?\s+(?:unit|integration|component|frontend|e2e|rust|js)?\s*tests?\b|(?:unit|integration|component|frontend|e2e|rust|js)\s+tests?:\s*\d+\+?)/i;
+
+for (const path of currentTestCountDocs) {
+  const lines = read(path).split(/\r?\n/);
+
+  lines.forEach((line, index) => {
+    const normalizedLine = line.trim();
+
+    if (!hardcodedTestCountPattern.test(normalizedLine)) {
+      return;
+    }
+
+    if (/\bnew\s+(?:component\s+)?tests?\b/i.test(normalizedLine)) {
+      return;
+    }
+
+    errors.push(
+      `${path}:${index + 1} has hardcoded current test-count claim; reference fresh command output instead`,
+    );
+  });
+}
+
 if (errors.length > 0) {
   console.error("Harness check failed:");
   for (const error of errors) {

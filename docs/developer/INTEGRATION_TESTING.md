@@ -732,5 +732,5 @@ for _ in 0..50 {
 ---
 
 **Last Updated**: March 18, 2026
-**Test Count**: 75+ integration tests across 6 files
+**Test Count**: Run `cd src-tauri && cargo test --test '*' -- --list` for current integration count
 **Version**: v2.6.4

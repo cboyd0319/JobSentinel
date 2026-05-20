@@ -133,7 +133,7 @@ Major security release with OS-native keyring integration, Resume Builder, and O
 | Automatic migration                   | **Done** | Plaintext → keyring on first v2.0 launch       |
 | 5 credential commands                 | **Done** | store, retrieve, delete, has, get_status       |
 | Updated Settings UI                   | **Done** | Credential status indicators                   |
-| **P3 Integration Tests**              | **Done** | 76 tests across 4 files                        |
+| **P3 Integration Tests**              | **Done** | Integration suite documented; use fresh command output for counts |
 | **P4 Resume Builder + ATS Optimizer** | **Done** | Full resume creation and optimization          |
 | **P5 One-Click Apply**                | **Done** | Form filling automation with human-in-the-loop |
 
@@ -682,8 +682,8 @@ See [docs/features/one-click-apply.md](features/one-click-apply.md) for full doc
 - All Rust code compiles with 0 errors
 - Clippy passes with 0 warnings (`-D warnings`)
 - Test counts vary; use fresh local and CI output for current pass/fail status
-- Integration tests: 76+ tests across multiple files (automation, scheduler, database, API contract)
-- Component tests: 300+ tests across React components
+- Integration tests: use fresh `cd src-tauri && cargo test --test '*' -- --list` output for current count
+- Component tests: use fresh `npm run test:run -- --reporter=verbose` output for current count
 - E2E tests: Playwright test suite
 - All modules enabled and functional
 - **191 registered Tauri commands** for backend modules

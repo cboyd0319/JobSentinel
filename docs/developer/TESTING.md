@@ -96,20 +96,20 @@ src-tauri/
 │   ├── core/
 │   │   ├── config/
 │   │   │   ├── mod.rs       # Config logic
-│   │   │   └── tests.rs     # 51 unit tests (extracted)
+│   │   │   └── tests.rs     # Config tests
 │   │   ├── db/
 │   │   │   ├── mod.rs       # Database operations
-│   │   │   └── tests.rs     # 21 unit tests (extracted)
+│   │   │   └── tests.rs     # Database tests
 │   │   ├── scoring/
 │   │   │   ├── mod.rs       # Scoring logic
-│   │   │   └── tests.rs     # 3 unit tests (extracted)
+│   │   │   └── tests.rs     # Scoring tests
 │   │   ├── scheduler/
 │   │   │   ├── mod.rs       # Job scheduling
-│   │   │   └── tests.rs     # 1 unit test (extracted)
+│   │   │   └── tests.rs     # Scheduler tests
 │   │   ├── notify/
 │   │   │   ├── mod.rs       # Notification dispatch
 │   │   │   ├── slack.rs     # Slack channel
-│   │   │   └── tests.rs     # 10 unit tests (extracted)
+│   │   │   └── tests.rs     # Notification tests
 │   │   └── scrapers/
 │   │       ├── greenhouse.rs # Greenhouse scraper
 │   │       ├── lever.rs      # Lever scraper
@@ -117,13 +117,13 @@ src-tauri/
 │   │       └── tests.rs      # Scraper unit tests (extracted)
 │   ├── commands/
 │   │   ├── mod.rs           # Tauri RPC handlers
-│   │   └── tests.rs         # 13 integration tests (extracted)
+│   │   └── tests.rs         # Command tests
 │   └── platforms/
 │       ├── windows/mod.rs   # Windows platform code
 │       ├── macos/mod.rs     # macOS platform code
 │       ├── linux/mod.rs     # Linux platform code
-│       └── tests.rs         # 10 platform tests (extracted)
-└── tests/                   # Integration tests (40 tests)
+│       └── tests.rs         # Platform tests
+└── tests/                   # Integration test crates
 ```
 
 **Note**: As of v1.5.0, test files have been extracted to separate `tests.rs` files within each
