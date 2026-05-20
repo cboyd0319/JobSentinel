@@ -52,13 +52,15 @@ real dependencies.
 
 ```text
 src-tauri/tests/
-├── api_contract_test.rs              # Tauri command signatures (26 KB)
-├── database_integration_test.rs       # Database layer (26 KB)
-├── scheduler_integration_test.rs      # Scheduling workflow (20 KB)
-├── scraper_integration_test.rs        # Scraper trait interface (17 KB)
-├── scraping_pipeline_integration.rs   # Full pipeline (25 KB)
-├── automation_integration_test.rs     # One-click apply (5 KB)
-└── fixtures/                          # Test HTML/JSON responses
+├── api_contract_test.rs              # Tauri command signatures
+├── automation_integration_test.rs     # One-click apply
+├── cow_zero_copy_tests.rs             # Cow zero-copy behavior
+├── credential_test.rs                 # Credential storage
+├── database_integration_test.rs       # Database layer
+├── live_scraper_test.rs               # Ignored live scraper smoke tests
+├── scheduler_integration_test.rs      # Scheduling workflow
+├── scraper_integration_test.rs        # Scraper trait interface
+└── scraping_pipeline_integration.rs   # Full pipeline
 ```
 
 ### Test File Naming
@@ -316,9 +318,9 @@ async fn test_scraper_calls_correct_endpoint() {
 }
 ```
 
-### HTML Fixture Files
+### HTML Fixture Data
 
-Test HTML responses stored in `fixtures/`:
+Keep small HTML responses inline next to the parser test that uses them:
 
 ```rust
 // Verify scraper can parse real HTML structure

@@ -129,6 +129,7 @@ changes or Playwright-specific work.
 | 2026-05-20 | In progress | Removed the empty `tests/e2e/fixtures/` placeholder directory and taught the bloat sensor to reject reserved future fixture placeholders. |
 | 2026-05-20 | In progress | Removed speculative cloud deployment docs that pointed to a non-existent cloud source tree and contradicted the local-first architecture. |
 | 2026-05-20 | In progress | Replaced stale informal maintainer footers in developer docs and added bloat coverage to keep them out. |
+| 2026-05-20 | In progress | Corrected stale docs tree claims for SQLite migrations and Rust integration tests, and added bloat coverage for those drift patterns. |
 
 ## Discoveries
 
@@ -214,6 +215,8 @@ changes or Playwright-specific work.
   configures an explicit external channel.
 - `ERROR_HANDLING.md` and `MUTATION_TESTING.md` still had informal maintainer
   footers instead of current project-owned ownership labels.
+- Getting-started docs claimed a fixed SQLite migration count, and integration
+  testing docs listed an integration fixture directory that does not exist.
 
 ## Decisions
 
@@ -249,6 +252,8 @@ changes or Playwright-specific work.
   there is an explicit product decision and implementation plan.
 - Use neutral project ownership in maintained docs; informal maintainer footers
   are bloat and should not be reintroduced.
+- Avoid fixed migration counts in docs; use live directory contents for exact
+  counts and keep integration-test tree examples aligned with tracked files.
 
 ## Outcomes
 

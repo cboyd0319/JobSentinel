@@ -294,6 +294,24 @@ function hasStaleInformalMaintainerFooter(root, path) {
   );
 }
 
+function hasStaleHardcodedMigrationCount(root, path) {
+  if (path !== "docs/developer/GETTING_STARTED.md") {
+    return false;
+  }
+
+  return /\b\d+\s+SQLite migrations\b/.test(readFileSync(join(root, path), "utf8"));
+}
+
+function hasStaleIntegrationFixtureDirectoryClaim(root, path) {
+  if (path !== "docs/developer/INTEGRATION_TESTING.md") {
+    return false;
+  }
+
+  return /fixtures\/\s+# Test HTML\/JSON responses|Test HTML responses stored in `fixtures\/`/m.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -320,6 +338,14 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleInformalMaintainerFooter(root, path)) {
       violations.push(`replace stale informal maintainer footer: ${path}`);
+    }
+
+    if (hasStaleHardcodedMigrationCount(root, path)) {
+      violations.push(`remove stale hardcoded migration count: ${path}`);
+    }
+
+    if (hasStaleIntegrationFixtureDirectoryClaim(root, path)) {
+      violations.push(`remove stale integration fixture directory claim: ${path}`);
     }
   }
 

@@ -131,3 +131,45 @@ test("checkRepoBloat rejects stale informal maintainer footers", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects stale docs tree claims", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/developer/GETTING_STARTED.md",
+      "│   ├── migrations/          # 4 SQLite migrations\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/INTEGRATION_TESTING.md",
+      "└── fixtures/                          # Test HTML/JSON responses\n\nTest HTML responses stored in `fixtures/`:\n",
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "docs/developer/GETTING_STARTED.md",
+        "docs/developer/INTEGRATION_TESTING.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove stale hardcoded migration count: docs/developer/GETTING_STARTED.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove stale integration fixture directory claim: docs/developer/INTEGRATION_TESTING.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});

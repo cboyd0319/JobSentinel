@@ -120,7 +120,7 @@ JobSentinel/
 │   │   │   └── scrapers/    # 13 job board scrapers
 │   │   ├── platforms/       # Windows/macOS/Linux specific code
 │   │   └── commands/        # Tauri RPC command handlers
-│   ├── migrations/          # 4 SQLite migrations
+│   ├── migrations/          # SQLite migrations
 │   └── Cargo.toml           # Rust dependencies
 ├── public/                  # Static assets (logo, etc.)
 ├── docs/                    # Documentation
