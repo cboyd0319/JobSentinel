@@ -36,6 +36,7 @@ const allowedTrackedGeneratedPaths = new Set([
 
 const forbiddenArtifactDirs = new Set([
   ".claude",
+  ".vagrant",
   "coverage",
   "dist",
   "dist-ssr",
@@ -50,16 +51,24 @@ const forbiddenRootSummaryPattern =
 const forbiddenFileExtensions = new Set([
   ".AppImage",
   ".bak",
+  ".bk",
   ".db",
+  ".db-shm",
+  ".db-wal",
   ".deb",
   ".dmg",
+  ".local",
   ".log",
   ".msi",
+  ".njsproj",
   ".pdb",
   ".rpm",
+  ".sln",
   ".suo",
+  ".swo",
   ".swp",
   ".tmp",
+  ".ntvs",
 ]);
 
 const forbiddenFileNames = new Set([
@@ -94,6 +103,10 @@ function isForbiddenFileName(name) {
   }
 
   if (name.endsWith("~")) {
+    return true;
+  }
+
+  if (/\.sw.$/.test(name) || name.endsWith("storybook.log")) {
     return true;
   }
 
