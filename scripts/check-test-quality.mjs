@@ -7,8 +7,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
 
-const checkedRoots = ["src", "tests", "scripts"];
-const checkedExtensions = new Set([".js", ".jsx", ".mjs", ".ts", ".tsx"]);
+const checkedRoots = ["src", "src-tauri/src", "tests", "scripts"];
+const checkedExtensions = new Set([".js", ".jsx", ".mjs", ".rs", ".ts", ".tsx"]);
 const ignoredPathParts = new Set([
   "node_modules",
   "dist",
@@ -21,18 +21,27 @@ const qualityRules = [
   {
     label: "no-op true assertion",
     pattern: /\bexpect\s*\(\s*true\s*\)/,
+    extensions: new Set([".js", ".jsx", ".mjs", ".ts", ".tsx"]),
+  },
+  {
+    label: "no-op true assertion",
+    pattern: /\bassert!\s*\(\s*true\s*(?:,|\))/,
+    extensions: new Set([".rs"]),
   },
   {
     label: "always-true fallback",
     pattern: /\|\|\s*true\b/,
+    extensions: new Set([".js", ".jsx", ".mjs", ".ts", ".tsx"]),
   },
   {
     label: "focused test",
     pattern: /\b(?:describe|it|test)\.only\s*\(/,
+    extensions: new Set([".js", ".jsx", ".mjs", ".ts", ".tsx"]),
   },
   {
     label: "skipped unit test",
     pattern: /\b(?:describe|it)\.skip\s*\(/,
+    extensions: new Set([".js", ".jsx", ".mjs", ".ts", ".tsx"]),
   },
 ];
 
@@ -71,10 +80,15 @@ export function checkTestQuality(root = defaultRoot) {
 
   for (const file of files) {
     const rel = relative(root, file);
+    const extension = extname(file);
     const lines = readFileSync(file, "utf8").split(/\r?\n/);
 
     lines.forEach((line, index) => {
       for (const rule of qualityRules) {
+        if (rule.extensions && !rule.extensions.has(extension)) {
+          continue;
+        }
+
         if (rule.pattern.test(line)) {
           violations.push(`${rel}:${index + 1} contains ${rule.label}`);
         }

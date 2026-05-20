@@ -144,11 +144,10 @@ impl Default for BrowserManager {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_browser_manager_new() {
+    #[tokio::test]
+    async fn test_browser_manager_new() {
         let manager = BrowserManager::new();
-        // Just verify it can be created
-        assert!(true, "BrowserManager created successfully");
+        assert!(!manager.is_running().await);
         drop(manager);
     }
 

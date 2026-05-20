@@ -125,6 +125,7 @@ changes or Playwright-specific work.
 | 2026-05-20 | In progress | Sanitized automation command URL logging so credentials, query strings, fragments, and invalid raw URLs are not written to logs. |
 | 2026-05-20 | In progress | Removed stale hard-coded Tauri command sub-counts from docs, added missing user-data command docs, and extended the invoke checker to catch command-count documentation drift. |
 | 2026-05-20 | In progress | Removed the registered but unimplemented automation screenshot IPC command and added an invoke-surface sensor for registered stub commands. |
+| 2026-05-20 | In progress | Tightened test-quality sensors to reject Rust `assert!(true)` no-op assertions and replaced the browser-manager creation smoke test with a real initial-state assertion. |
 
 ## Discoveries
 
@@ -198,6 +199,9 @@ changes or Playwright-specific work.
   a fixed active-page-context error; no frontend or docs referenced it, and
   implementing arbitrary screenshot paths would need a separate file-write
   security design.
+- Rust test quality had a blind spot: `BrowserManager::new()` was covered by an
+  `assert!(true)` smoke test, and the existing test-quality sensor only checked
+  JavaScript and TypeScript files.
 
 ## Decisions
 
@@ -225,6 +229,8 @@ changes or Playwright-specific work.
 - Do not expose registered Tauri commands that are placeholders or guaranteed
   fixed errors; implement the behavior with a reviewed trust boundary or remove
   the command from the IPC surface.
+- Treat Rust `assert!(true)` as no-op test bloat and fail it in
+  `npm run lint:tests`; creation smoke tests must assert observable state.
 
 ## Outcomes
 
