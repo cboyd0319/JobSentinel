@@ -386,7 +386,7 @@ See [CHANGELOG.md](../CHANGELOG.md) for detailed v2.6.3 changes.
 | **Undo/Redo for Actions**       | ✅ Done    | Medium   | Wired on main for dashboard, applications, and cover letter templates    |
 | **Auto-detect Location**        | 🔲 Planned | Medium   | IP geolocation for Setup Wizard                                          |
 | **Settings Quick Mode**         | 🔲 Planned | Low      | Simplified settings for new users                                        |
-| **JSON Resume Import**          | 🔲 Planned | Low      | jsonresume.org format support                                            |
+| **JSON Resume Import**          | ✅ Done    | Low      | Implemented on main; see `docs/features/json-resume-import.md`           |
 | **Smart Screening Answers**     | 🔲 Planned | Low      | Learn from previous answers                                              |
 
 ---

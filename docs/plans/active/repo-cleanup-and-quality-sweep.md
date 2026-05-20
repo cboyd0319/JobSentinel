@@ -91,6 +91,8 @@ changes or Playwright-specific work.
 | 2026-05-20 | In progress | Restored full Rust test-suite health by updating stale screening-answer integration fixtures and normalizing legacy answer types at the profile manager boundary. |
 | 2026-05-20 | In progress | Fixed scheduler shutdown so an in-flight scraping cycle cannot block full-suite integration tests or app shutdown. |
 | 2026-05-20 | In progress | Stabilized Chromium and WebKit E2E flows without serializing suites: fixed skip-link focusability, gave the email-alerts switch an accessible visible target, and removed shared page-object state from job interaction tests. |
+| 2026-05-20 | In progress | Removed the unreferenced development Dockerfile, pruned its stale Dependabot entry, and tightened the root bloat allowlist so `docker/` must be reintroduced intentionally. |
+| 2026-05-20 | In progress | Linked the JSON Resume sample fixture from feature docs and corrected roadmap status from planned to implemented. |
 
 ## Discoveries
 
@@ -132,6 +134,12 @@ changes or Playwright-specific work.
 - `job-interactions.spec.ts` used file-scoped page objects under Playwright
   `fullyParallel`; those shared mutable locators could cross test contexts.
   The spec now builds page objects per test and keeps project-level parallelism.
+- `docker/Dockerfile.dev` had no docs, scripts, or workflow consumers and used
+  an external `rust-dev:latest` base image that the repo does not define.
+- `examples/sample-json-resume.json` is a useful fixture, not junk, but it was
+  not linked from the JSON Resume feature docs.
+- `docs/ROADMAP.md` still listed JSON Resume Import as planned even though the
+  Tauri command, UI entrypoint, mock handler, and feature docs already exist.
 
 ## Decisions
 
@@ -145,6 +153,8 @@ changes or Playwright-specific work.
   should be promoted into canonical scripts or deleted.
 - Preserve E2E parallelism where possible; fix shared test state directly rather
   than serializing whole suites.
+- Remove unused root support directories when no command, doc, or workflow owns
+  them; pair the deletion with bloat allowlist updates.
 
 ## Outcomes
 

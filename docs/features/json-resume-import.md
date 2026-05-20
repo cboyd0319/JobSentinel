@@ -25,10 +25,10 @@ and convert them to internal resume drafts for editing and ATS optimization.
 | `certificates[]` | Certifications | |
 | `awards[]` | Certifications | Treated as certifications |
 | `projects[]` | Experience entries | Converted to project experience |
-| `publications[]` | Not imported | v2.1 feature |
-| `languages[]` | Not imported | v2.1 feature |
-| `interests[]` | Not imported | v2.1 feature |
-| `references[]` | Not imported | v2.1 feature |
+| `publications[]` | Not imported | Future enhancement |
+| `languages[]` | Not imported | Future enhancement |
+| `interests[]` | Not imported | Future enhancement |
+| `references[]` | Not imported | Future enhancement |
 
 ## Field Mapping Details
 
@@ -323,7 +323,9 @@ No validation is performed during import:
 
 ### Complete Resume
 
-See [JSON Resume examples](https://jsonresume.org/schema/) for full examples.
+Use [`examples/sample-json-resume.json`](../../examples/sample-json-resume.json)
+for a complete import fixture. See
+[JSON Resume examples](https://jsonresume.org/schema/) for more examples.
 
 ## Testing
 
@@ -344,7 +346,7 @@ cd src-tauri
 cargo test core::resume::json_resume
 ```
 
-## Future Enhancements (v2.1)
+## Future Enhancements
 
 - Import publications
 - Import languages (spoken languages)

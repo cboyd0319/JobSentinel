@@ -35,7 +35,6 @@ const allowedRootEntries = new Set([
   "README.md",
   "SECURITY.md",
   "config",
-  "docker",
   "docs",
   "eslint.config.js",
   "examples",
