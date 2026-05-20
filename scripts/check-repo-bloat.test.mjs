@@ -1067,3 +1067,62 @@ test("checkRepoBloat rejects raw import redirect display", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects raw bookmarklet import metadata logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/bookmarklet/server.rs",
+      [
+        "tracing::info!(",
+        "    title = %title,",
+        "    company = %company,",
+        '    "Job imported from bookmarklet"',
+        ");",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/bookmarklet/server.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace raw bookmarklet import metadata logging: src-tauri/src/core/bookmarklet/server.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects manual bookmarklet JSON error responses", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/bookmarklet/server.rs",
+      [
+        'format!(r#"{{"error":"{}"}}"#, e),',
+        'format!(r#"{{"error":"Failed to import job: {}"}}"#, e),',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/bookmarklet/server.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace manual bookmarklet JSON error responses: src-tauri/src/core/bookmarklet/server.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});

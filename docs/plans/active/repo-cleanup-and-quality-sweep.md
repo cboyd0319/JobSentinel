@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Hardened bookmarklet import responses and logs so local HTTP error bodies are JSON-escaped and import logs use job hash plus shape metadata instead of raw title/company names. |
 | 2026-05-20 | In progress | Sanitized job-import redirect error output so blocked redirect `Location` headers cannot expose credentials, query strings, fragments, or search terms in UI/Display messages. |
 | 2026-05-20 | In progress | Sanitized database error display output so formatted errors no longer expose SQL query text or local backup/database paths. |
 | 2026-05-20 | In progress | Sanitized automation error display output so browser automation logs and command error strings do not expose raw application URLs, credentials, query strings, or fragments. |
@@ -307,6 +308,10 @@ changes or Playwright-specific work.
   header in formatted UI and Display output. Redirect targets can contain
   credentials, tracking tokens, query strings, fragments, or copied search
   criteria.
+- Bookmarklet import responses built JSON error bodies with raw string
+  interpolation, so quotes or control characters in parser/database errors could
+  produce invalid JSON. Successful bookmarklet imports also logged raw job
+  titles and company names from browser-provided data.
 - `docs/plans/active/.gitkeep` and `docs/plans/completed/.gitkeep` were
   redundant tracked placeholders because both directories contain real plan
   files.
@@ -433,6 +438,9 @@ changes or Playwright-specific work.
 - Job-import redirect errors must keep exact redirect targets only in typed
   fields. UI and Display messages must use sanitized URL labels or omit the raw
   target.
+- Bookmarklet local HTTP responses must serialize JSON with `serde_json` rather
+  than manual string interpolation. Bookmarklet logs must use identifiers,
+  counts, and booleans instead of raw title/company text.
 - Local paths in logs must use non-identifying labels. Preserve actual paths for
   file operations, database records, and user-facing operations that need them.
 - Keep feature docs aligned with live source names for frontend routes and IPC

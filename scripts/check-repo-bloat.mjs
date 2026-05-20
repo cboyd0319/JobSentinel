@@ -194,6 +194,8 @@ const rawAutomationQuestionLoggingPaths = new Set([
 
 const rawNotificationJobTitleLoggingPaths = new Set(["src-tauri/src/core/notify/mod.rs"]);
 
+const rawBookmarkletLoggingPaths = new Set(["src-tauri/src/core/bookmarklet/server.rs"]);
+
 function normalizeRepoPath(path) {
   return path.split(/[\\/]/).join("/");
 }
@@ -648,6 +650,26 @@ function hasRawNotificationJobTitleLogging(root, path) {
   return /tracing::info!\([^;]*notification\.job\.title/.test(text);
 }
 
+function hasRawBookmarkletImportLogging(root, path) {
+  if (!rawBookmarkletLoggingPaths.has(path)) {
+    return false;
+  }
+
+  return /tracing::info!\([^;]*title\s*=\s*%title[^;]*company\s*=\s*%company/s.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
+function hasManualBookmarkletJsonErrorResponses(root, path) {
+  if (!rawBookmarkletLoggingPaths.has(path)) {
+    return false;
+  }
+
+  return /format!\(r#"\{\{"error":"[^"]*\{\}[^"]*"\}\}"#,\s*e\)/.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -786,6 +808,14 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawNotificationJobTitleLogging(root, path)) {
       violations.push(`replace raw notification job title logging: ${path}`);
+    }
+
+    if (hasRawBookmarkletImportLogging(root, path)) {
+      violations.push(`replace raw bookmarklet import metadata logging: ${path}`);
+    }
+
+    if (hasManualBookmarkletJsonErrorResponses(root, path)) {
+      violations.push(`replace manual bookmarklet JSON error responses: ${path}`);
     }
   }
 

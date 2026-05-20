@@ -6,6 +6,7 @@ use super::BookmarkletJobData;
 use crate::core::db::Database;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use sha2::{Digest, Sha256};
 use std::net::SocketAddr;
 use std::sync::Arc;
@@ -218,7 +219,7 @@ async fn handle_connection(
         ("OK".to_string(), "text/plain".to_string())
     } else {
         (
-            r#"{"error":"Not found"}"#.to_string(),
+            json_error_response("Not found"),
             "application/json".to_string(),
         )
     };
@@ -252,7 +253,7 @@ async fn handle_import_request(request: &str, database: Arc<Database>) -> (Strin
         &request[body_start + 4..]
     } else {
         return (
-            r#"{"error":"Invalid request format"}"#.to_string(),
+            json_error_response("Invalid request format"),
             "application/json".to_string(),
         );
     };
@@ -263,7 +264,7 @@ async fn handle_import_request(request: &str, database: Arc<Database>) -> (Strin
         Err(e) => {
             tracing::error!("Failed to parse job data: {}", e);
             return (
-                format!(r#"{{"error":"Invalid JSON: {}"}}"#, e),
+                json_error_response(format!("Invalid JSON: {e}")),
                 "application/json".to_string(),
             );
         }
@@ -271,10 +272,7 @@ async fn handle_import_request(request: &str, database: Arc<Database>) -> (Strin
 
     // Validate job data
     if let Err(e) = job_data.validate() {
-        return (
-            format!(r#"{{"error":"{}"}}"#, e),
-            "application/json".to_string(),
-        );
+        return (json_error_response(e), "application/json".to_string());
     }
 
     // Extract fields
@@ -296,7 +294,7 @@ async fn handle_import_request(request: &str, database: Arc<Database>) -> (Strin
     match database.job_exists_by_hash(&job_hash).await {
         Ok(true) => {
             return (
-                r#"{"error":"Job already exists in database"}"#.to_string(),
+                json_error_response("Job already exists in database"),
                 "application/json".to_string(),
             );
         }
@@ -304,7 +302,7 @@ async fn handle_import_request(request: &str, database: Arc<Database>) -> (Strin
         Err(e) => {
             tracing::error!("Database error checking job existence: {}", e);
             return (
-                format!(r#"{{"error":"Database error: {}"}}"#, e),
+                json_error_response(format!("Database error: {e}")),
                 "application/json".to_string(),
             );
         }
@@ -338,8 +336,11 @@ async fn handle_import_request(request: &str, database: Arc<Database>) -> (Strin
     match result {
         Ok(_) => {
             tracing::info!(
-                title = %title,
-                company = %company,
+                job_hash = %job_hash,
+                title_chars = title.chars().count(),
+                company_chars = company.chars().count(),
+                has_location = location.is_some(),
+                remote,
                 "Job imported from bookmarklet"
             );
             (
@@ -350,11 +351,15 @@ async fn handle_import_request(request: &str, database: Arc<Database>) -> (Strin
         Err(e) => {
             tracing::error!("Database error inserting job: {}", e);
             (
-                format!(r#"{{"error":"Failed to import job: {}"}}"#, e),
+                json_error_response(format!("Failed to import job: {e}")),
                 "application/json".to_string(),
             )
         }
     }
+}
+
+fn json_error_response(message: impl AsRef<str>) -> String {
+    json!({ "error": message.as_ref() }).to_string()
 }
 
 /// Calculate job hash for deduplication
@@ -378,6 +383,15 @@ mod tests {
 
         assert_eq!(hash1, hash2);
         assert_ne!(hash1, hash3);
+    }
+
+    #[test]
+    fn test_json_error_response_escapes_message() {
+        let response = json_error_response("bad \"quote\"\nnext line");
+        let parsed: serde_json::Value =
+            serde_json::from_str(&response).expect("error response should be valid JSON");
+
+        assert_eq!(parsed["error"], "bad \"quote\"\nnext line");
     }
 
     #[tokio::test]
