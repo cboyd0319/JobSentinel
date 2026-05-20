@@ -310,7 +310,7 @@ async fn test_screening_answers_unique_pattern() {
     sqlx::query(
         r#"
         INSERT INTO screening_answers (question_pattern, answer, answer_type)
-        VALUES ('(?i)work.*authorized', 'Yes', 'boolean')
+        VALUES ('(?i)work.*authorized', 'Yes', 'yes_no')
         "#,
     )
     .execute(&pool)
@@ -321,7 +321,7 @@ async fn test_screening_answers_unique_pattern() {
     let result = sqlx::query(
         r#"
         INSERT INTO screening_answers (question_pattern, answer, answer_type)
-        VALUES ('(?i)work.*authorized', 'No', 'boolean')
+        VALUES ('(?i)work.*authorized', 'No', 'yes_no')
         "#,
     )
     .execute(&pool)

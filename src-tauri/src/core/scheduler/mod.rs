@@ -61,22 +61,30 @@ impl Scheduler {
         loop {
             tracing::info!("Scheduler: Running job scraping cycle");
 
-            match self.run_scraping_cycle().await {
-                Ok(result) => {
-                    tracing::info!(
-                        "Scraping cycle complete: {} jobs found, {} new, {} high matches, {} alerts sent",
-                        result.jobs_found,
-                        result.jobs_new,
-                        result.high_matches,
-                        result.alerts_sent
-                    );
+            tokio::select! {
+                result = self.run_scraping_cycle() => {
+                    match result {
+                        Ok(result) => {
+                            tracing::info!(
+                                "Scraping cycle complete: {} jobs found, {} new, {} high matches, {} alerts sent",
+                                result.jobs_found,
+                                result.jobs_new,
+                                result.high_matches,
+                                result.alerts_sent
+                            );
 
-                    if !result.errors.is_empty() {
-                        tracing::warn!("Errors during scraping: {:?}", result.errors);
+                            if !result.errors.is_empty() {
+                                tracing::warn!("Errors during scraping: {:?}", result.errors);
+                            }
+                        }
+                        Err(e) => {
+                            tracing::error!("Scraping cycle failed: {}", e);
+                        }
                     }
                 }
-                Err(e) => {
-                    tracing::error!("Scraping cycle failed: {}", e);
+                _ = shutdown_rx.recv() => {
+                    tracing::info!("Scheduler received shutdown signal while cycle was running");
+                    break;
                 }
             }
 

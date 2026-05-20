@@ -36,6 +36,16 @@ pub struct ProfileManager {
     db: SqlitePool,
 }
 
+fn normalize_screening_answer_type(answer_type: &str) -> Result<&'static str> {
+    match answer_type.trim().to_ascii_lowercase().as_str() {
+        "text" | "number" => Ok("text"),
+        "yes_no" | "boolean" => Ok("yes_no"),
+        "textarea" => Ok("textarea"),
+        "select" | "multiple_choice" => Ok("select"),
+        other => anyhow::bail!("invalid screening answer type: {other}"),
+    }
+}
+
 impl ProfileManager {
     pub fn new(db: SqlitePool) -> Self {
         Self { db }
@@ -169,6 +179,8 @@ impl ProfileManager {
         answer_type: &str,
         notes: Option<&str>,
     ) -> Result<()> {
+        let answer_type = normalize_screening_answer_type(answer_type)?;
+
         sqlx::query(
             r#"
             INSERT INTO screening_answers (question_pattern, answer, answer_type, notes)
@@ -413,5 +425,37 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(answer, Some("Yes".to_string()));
+    }
+
+    #[tokio::test]
+    async fn test_screening_answer_legacy_boolean_type_is_normalized() {
+        let (pool, _temp_dir) = setup_test_db().await;
+        let manager = ProfileManager::new(pool);
+
+        manager
+            .upsert_screening_answer("(?i)authorized.*work", "Yes", "boolean", None)
+            .await
+            .unwrap();
+
+        let answers = manager.get_screening_answers().await.unwrap();
+        let answer = answers
+            .iter()
+            .find(|answer| answer.question_pattern == "(?i)authorized.*work")
+            .unwrap();
+
+        assert_eq!(answer.answer_type.as_deref(), Some("yes_no"));
+    }
+
+    #[tokio::test]
+    async fn test_screening_answer_invalid_type_is_rejected() {
+        let (pool, _temp_dir) = setup_test_db().await;
+        let manager = ProfileManager::new(pool);
+
+        let result = manager
+            .upsert_screening_answer("(?i)invalid.*type", "Yes", "checkbox", None)
+            .await;
+
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("checkbox"));
     }
 }

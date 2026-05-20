@@ -86,6 +86,8 @@ changes or Playwright-specific work.
 | 2026-05-20 | In progress | Classified current root entries in the bloat sensor allowlist, removed an unreferenced one-off cache test shell script, and added a guard against future nested `test_*.sh` helper drift outside `scripts/`. |
 | 2026-05-20 | In progress | Fixed resume matcher education lookup error handling so database failures no longer score as missing education. |
 | 2026-05-20 | In progress | Moved ignored embedded-ML tests off repo-relative `test_cache` and `test_ml_cache` directories, taught the bloat sensor to reject those cache dirs, and restored embedded-ML feature compilation. |
+| 2026-05-20 | In progress | Restored full Rust test-suite health by updating stale screening-answer integration fixtures and normalizing legacy answer types at the profile manager boundary. |
+| 2026-05-20 | In progress | Fixed scheduler shutdown so an in-flight scraping cycle cannot block full-suite integration tests or app shutdown. |
 
 ## Discoveries
 
@@ -112,6 +114,13 @@ changes or Playwright-specific work.
 - The optional `embedded-ml` feature had drifted out of compile health due to
   SQLx offline macro cache misses, a denied unsafe safetensors mmap, stale
   fields/imports, and a Candle tensor API mismatch.
+- The full Rust test suite caught a stale raw database fixture still using the
+  old `boolean` screening-answer type after migrations moved the active schema
+  to `yes_no`; the profile manager now normalizes legacy type names before
+  writing.
+- Scheduler startup previously awaited the first scraping cycle before
+  observing shutdown; any slow external scraper could make shutdown wait until
+  that cycle returned.
 
 ## Decisions
 
