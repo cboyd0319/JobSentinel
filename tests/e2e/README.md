@@ -204,12 +204,6 @@ Tests run against mock data defined in `src/mocks/`:
 - Mock settings
 - Mock resumes, skills, builder drafts, templates, previews, and match results
 
-### Fixtures
-
-`tests/e2e/fixtures/` is reserved for future tests that need real files. The
-current resume E2E suite uses seeded mock backend state instead of native file
-upload fixtures.
-
 ## CI/CD Integration
 
 Tests run in CI with:

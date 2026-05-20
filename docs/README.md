@@ -307,8 +307,7 @@ docs/
 tests/                     # All tests
 ├── README.md              # Testing overview
 ├── e2e/
-│   ├── playwright/        # Playwright E2E tests
-│   └── fixtures/          # E2E fixture placeholders
+│   └── playwright/        # Playwright E2E tests
 ```
 
 ---

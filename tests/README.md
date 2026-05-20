@@ -8,7 +8,6 @@ beside source files in `src/`, and Rust tests live under `src-tauri/`.
 ```text
 tests/
 ├── e2e/
-│   ├── fixtures/              # Shared E2E fixtures
 │   ├── playwright/            # Playwright browser tests
 │   │   ├── page-objects/      # Page Object Model helpers
 │   │   ├── app.spec.ts

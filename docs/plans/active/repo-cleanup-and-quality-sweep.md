@@ -126,6 +126,7 @@ changes or Playwright-specific work.
 | 2026-05-20 | In progress | Removed stale hard-coded Tauri command sub-counts from docs, added missing user-data command docs, and extended the invoke checker to catch command-count documentation drift. |
 | 2026-05-20 | In progress | Removed the registered but unimplemented automation screenshot IPC command and added an invoke-surface sensor for registered stub commands. |
 | 2026-05-20 | In progress | Tightened test-quality sensors to reject Rust `assert!(true)` no-op assertions and replaced the browser-manager creation smoke test with a real initial-state assertion. |
+| 2026-05-20 | In progress | Removed the empty `tests/e2e/fixtures/` placeholder directory and taught the bloat sensor to reject reserved future fixture placeholders. |
 
 ## Discoveries
 
@@ -202,6 +203,9 @@ changes or Playwright-specific work.
 - Rust test quality had a blind spot: `BrowserManager::new()` was covered by an
   `assert!(true)` smoke test, and the existing test-quality sensor only checked
   JavaScript and TypeScript files.
+- `tests/e2e/fixtures/` only contained `.gitkeep` and a README reserving the
+  directory for future file fixtures; current E2E coverage uses mock backend
+  state and no test reads files from that path.
 
 ## Decisions
 
@@ -231,6 +235,8 @@ changes or Playwright-specific work.
   the command from the IPC surface.
 - Treat Rust `assert!(true)` as no-op test bloat and fail it in
   `npm run lint:tests`; creation smoke tests must assert observable state.
+- Do not keep empty placeholder fixture directories. Add real fixtures in the
+  same commit as tests that read them.
 
 ## Outcomes
 

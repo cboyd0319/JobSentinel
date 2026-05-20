@@ -125,6 +125,11 @@ const forbiddenFileNames = new Set([
   "lerna-debug.log",
 ]);
 
+const forbiddenTrackedPlaceholderFiles = new Set([
+  "tests/e2e/fixtures/.gitkeep",
+  "tests/e2e/fixtures/README.md",
+]);
+
 function normalizeRepoPath(path) {
   return path.split(/[\\/]/).join("/");
 }
@@ -227,6 +232,10 @@ function listTrackedFiles(root) {
 function isTrackedBloat(path) {
   if (allowedTrackedGeneratedPaths.has(path)) {
     return false;
+  }
+
+  if (forbiddenTrackedPlaceholderFiles.has(path)) {
+    return true;
   }
 
   const parts = path.split("/");
