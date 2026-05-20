@@ -936,3 +936,31 @@ test("checkRepoBloat rejects raw automation screening question logging", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects raw notification job title logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/notify/mod.rs",
+      [
+        'tracing::info!("Sent Slack notification for: {}", notification.job.title);',
+        'tracing::info!("Sent Teams notification for: {}", notification.job.title);',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/notify/mod.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace raw notification job title logging: src-tauri/src/core/notify/mod.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});

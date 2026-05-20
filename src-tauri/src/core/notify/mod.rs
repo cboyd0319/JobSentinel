@@ -32,6 +32,15 @@ pub struct NotificationService {
     config: Arc<Config>,
 }
 
+fn log_notification_sent(channel: &'static str, notification: &Notification) {
+    tracing::info!(
+        channel,
+        job_id = notification.job.id,
+        job_hash = %notification.job.hash,
+        "Sent notification"
+    );
+}
+
 impl NotificationService {
     pub fn new(config: Arc<Config>) -> Self {
         Self { config }
@@ -52,7 +61,7 @@ impl NotificationService {
                         tracing::error!("Failed to send Slack notification: {}", e);
                         errors.push(format!("Slack: {}", e));
                     } else {
-                        tracing::info!("✓ Sent Slack notification for: {}", notification.job.title);
+                        log_notification_sent("slack", notification);
                     }
                 }
                 Ok(None) => {
@@ -87,7 +96,7 @@ impl NotificationService {
                         tracing::error!("Failed to send email notification: {}", e);
                         errors.push(format!("Email: {}", e));
                     } else {
-                        tracing::info!("✓ Sent email notification for: {}", notification.job.title);
+                        log_notification_sent("email", notification);
                     }
                 }
                 Ok(None) => {
@@ -117,10 +126,7 @@ impl NotificationService {
                         tracing::error!("Failed to send Discord notification: {}", e);
                         errors.push(format!("Discord: {}", e));
                     } else {
-                        tracing::info!(
-                            "✓ Sent Discord notification for: {}",
-                            notification.job.title
-                        );
+                        log_notification_sent("discord", notification);
                     }
                 }
                 Ok(None) => {
@@ -150,10 +156,7 @@ impl NotificationService {
                         tracing::error!("Failed to send Telegram notification: {}", e);
                         errors.push(format!("Telegram: {}", e));
                     } else {
-                        tracing::info!(
-                            "✓ Sent Telegram notification for: {}",
-                            notification.job.title
-                        );
+                        log_notification_sent("telegram", notification);
                     }
                 }
                 Ok(None) => {
@@ -176,7 +179,7 @@ impl NotificationService {
                         tracing::error!("Failed to send Teams notification: {}", e);
                         errors.push(format!("Teams: {}", e));
                     } else {
-                        tracing::info!("✓ Sent Teams notification for: {}", notification.job.title);
+                        log_notification_sent("teams", notification);
                     }
                 }
                 Ok(None) => {

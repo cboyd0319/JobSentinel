@@ -182,6 +182,8 @@ const rawAutomationQuestionLoggingPaths = new Set([
   "src-tauri/src/core/automation/form_filler.rs",
 ]);
 
+const rawNotificationJobTitleLoggingPaths = new Set(["src-tauri/src/core/notify/mod.rs"]);
+
 function normalizeRepoPath(path) {
   return path.split(/[\\/]/).join("/");
 }
@@ -601,6 +603,15 @@ function hasRawAutomationQuestionLogging(root, path) {
   );
 }
 
+function hasRawNotificationJobTitleLogging(root, path) {
+  if (!rawNotificationJobTitleLoggingPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /tracing::info!\([^;]*notification\.job\.title/.test(text);
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -723,6 +734,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawAutomationQuestionLogging(root, path)) {
       violations.push(`replace raw automation screening question logging: ${path}`);
+    }
+
+    if (hasRawNotificationJobTitleLogging(root, path)) {
+      violations.push(`replace raw notification job title logging: ${path}`);
     }
   }
 
