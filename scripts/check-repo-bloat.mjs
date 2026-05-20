@@ -15,6 +15,48 @@ const ignoredTraversalPaths = new Set([
   "src-tauri/target",
 ]);
 
+const allowedRootEntries = new Set([
+  ".claudeignore",
+  ".env.example",
+  ".github",
+  ".gitignore",
+  ".husky",
+  ".lintstagedrc.json",
+  ".markdownlint-cli2.jsonc",
+  ".markdownlint.json",
+  ".storybook",
+  ".vale",
+  ".vale.ini",
+  "AGENTS.md",
+  "CHANGELOG.md",
+  "CLAUDE.md",
+  "CODE_OF_CONDUCT.md",
+  "LICENSE",
+  "README.md",
+  "SECURITY.md",
+  "config",
+  "docker",
+  "docs",
+  "eslint.config.js",
+  "examples",
+  "index.html",
+  "package-lock.json",
+  "package.json",
+  "playwright.config.ts",
+  "postcss.config.js",
+  "profiles",
+  "public",
+  "scripts",
+  "src",
+  "src-tauri",
+  "tailwind.config.js",
+  "tests",
+  "tsconfig.json",
+  "tsconfig.node.json",
+  "vite.config.ts",
+  "vitest.config.ts",
+]);
+
 const allowedTrackedGeneratedPaths = new Set([
   "docs/images/application-tracking.png",
   "docs/images/ats-optimizer.png",
@@ -123,6 +165,24 @@ function isForbiddenFileName(name) {
   return forbiddenFileExtensions.has(extname(name));
 }
 
+function collectUnexpectedRootEntries(root) {
+  const violations = [];
+
+  for (const entry of readdirSync(root, { withFileTypes: true })) {
+    const rel = normalizeRepoPath(entry.name);
+
+    if (ignoredTraversalPaths.has(rel) || rel === ".git" || rel === "node_modules") {
+      continue;
+    }
+
+    if (!allowedRootEntries.has(rel)) {
+      violations.push(`${rel} is not in the root allowlist`);
+    }
+  }
+
+  return violations;
+}
+
 function collectFilesystemBloat(root, dir = root) {
   const violations = [];
 
@@ -159,7 +219,8 @@ function listTrackedFiles(root) {
   })
     .split(/\r?\n/)
     .filter(Boolean)
-    .map(normalizeRepoPath);
+    .map(normalizeRepoPath)
+    .filter((path) => existsSync(join(root, path)));
 }
 
 function isTrackedBloat(path) {
@@ -169,6 +230,10 @@ function isTrackedBloat(path) {
 
   const parts = path.split("/");
   const fileName = parts.at(-1) ?? path;
+
+  if (parts.length > 1 && /^test[_-].*\.sh$/.test(fileName) && parts[0] !== "scripts") {
+    return true;
+  }
 
   if (parts.length === 1 && forbiddenRootSummaryPattern.test(fileName)) {
     return true;
@@ -198,6 +263,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
   if (!existsSync(root)) {
     return [`repo root does not exist: ${root}`];
+  }
+
+  for (const rootEntry of collectUnexpectedRootEntries(root)) {
+    violations.push(`classify root entry or move/remove it: ${rootEntry}`);
   }
 
   for (const artifact of collectFilesystemBloat(root)) {

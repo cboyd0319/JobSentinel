@@ -33,7 +33,8 @@ pub use error::{ScraperError, ScraperResult as TypedScraperResult};
 // These scrapers attempt to use RSS/JSON-LD but may return empty if blocked.
 
 // NOTE: GovernmentJobs.com and ClearanceJobs.com explicitly prohibit scraping in their ToS.
-// We provide Deep Link Generator and Bookmarklet features instead. See docs/CLAUDE.md for details.
+// Use Deep Link Generator and Bookmarklet features instead; see docs/user/DEEP_LINKS.md and
+// docs/BOOKMARKLET.md for supported alternatives.
 
 /// Scraper result type using ScraperError for better error context
 ///

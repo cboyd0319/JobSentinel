@@ -53,11 +53,11 @@ Out of scope:
   targets.
 - [x] Harden backend job import fetches against HTTP redirect trust-boundary
   changes.
-- [ ] Classify root files and mark each as keep, move, merge, or delete.
+- [x] Classify root files and mark each as keep, move, merge, or delete.
 - [ ] Search nested paths for stale reports, generated output, logs, build
   products, duplicate docs, and obsolete examples.
-- [ ] Remove or relocate confirmed bloat and update references.
-- [ ] Add sensor coverage for any recurring junk class found during cleanup.
+- [x] Remove or relocate confirmed bloat and update references.
+- [x] Add sensor coverage for any recurring junk class found during cleanup.
 - [ ] Run relevant verification and push each cleanup slice.
 
 ## Verification
@@ -83,6 +83,7 @@ changes or Playwright-specific work.
 | Date | Status | Notes |
 | ---- | ------ | ----- |
 | 2026-05-20 | Active | Added removing bloat and junk as an explicit cleanup track. Current bloat sensor passes, so next pass must classify root clutter and nested stale content beyond disposable artifacts. |
+| 2026-05-20 | In progress | Classified current root entries in the bloat sensor allowlist, removed an unreferenced one-off cache test shell script, and added a guard against future nested `test_*.sh` helper drift outside `scripts/`. |
 
 ## Discoveries
 
@@ -94,6 +95,12 @@ changes or Playwright-specific work.
   `src-tauri/target/`.
 - Root contains conventional repo metadata, agent wrappers, and tool configs;
   cleanup must distinguish necessary tool entrypoints from true junk.
+- `src-tauri/test_cache.sh` was an unreferenced one-off test helper. Canonical
+  cache coverage now runs through Cargo test commands and repo verification
+  scripts, so the shell wrapper was removable bloat.
+- The scraper module had a stale pointer to `docs/CLAUDE.md` for restricted
+  site alternatives; the maintained docs are `docs/user/DEEP_LINKS.md` and
+  `docs/BOOKMARKLET.md`.
 
 ## Decisions
 
@@ -101,6 +108,10 @@ changes or Playwright-specific work.
   disposable-artifact sensor is closed.
 - Do not delete root front-door or policy files just to reduce visible clutter.
 - Prefer small verified cleanup commits over a large repo-wide churn commit.
+- Guard the root with an explicit allowlist so new root files must be classified
+  instead of silently becoming clutter.
+- Keep reusable shell automation under `scripts/`; nested `test_*.sh` helpers
+  should be promoted into canonical scripts or deleted.
 
 ## Outcomes
 
