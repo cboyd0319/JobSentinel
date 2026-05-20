@@ -1,6 +1,11 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { errorReporter } from '../utils/errorReporting';
 
+const VISUAL_PREFERENCE_KEYS = [
+  'jobsentinel-theme',
+  'jobsentinel-high-contrast',
+] as const;
+
 interface Props {
   children: ReactNode;
   fallback?: (error: Error, retry: () => void) => ReactNode;
@@ -71,11 +76,17 @@ class ErrorBoundary extends Component<Props, State> {
   };
 
   private handleClearData = () => {
-    // Clear all localStorage except theme preference
-    const theme = localStorage.getItem('jobsentinel_theme');
+    const visualPreferences: Array<[string, string]> = [];
+    for (const key of VISUAL_PREFERENCE_KEYS) {
+      const value = localStorage.getItem(key);
+      if (value !== null) {
+        visualPreferences.push([key, value]);
+      }
+    }
+
     localStorage.clear();
-    if (theme) {
-      localStorage.setItem('jobsentinel_theme', theme);
+    for (const [key, value] of visualPreferences) {
+      localStorage.setItem(key, value);
     }
     window.location.reload();
   };

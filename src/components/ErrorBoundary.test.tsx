@@ -119,6 +119,48 @@ describe("ErrorBoundary", () => {
       expect(reloadMock).toHaveBeenCalledTimes(1);
     });
 
+    it("preserves visual preferences when clearing app data", async () => {
+      const user = userEvent.setup();
+      const reloadMock = vi.fn();
+      const storage = new Map<string, string>();
+      Object.defineProperty(window, "location", {
+        writable: true,
+        value: { reload: reloadMock },
+      });
+
+      vi.mocked(localStorage.getItem).mockImplementation(
+        (key: string) => storage.get(key) ?? null
+      );
+      vi.mocked(localStorage.setItem).mockImplementation(
+        (key: string, value: string) => {
+          storage.set(key, value);
+        }
+      );
+      vi.mocked(localStorage.clear).mockImplementation(() => {
+        storage.clear();
+      });
+
+      localStorage.setItem("jobsentinel-theme", "dark");
+      localStorage.setItem("jobsentinel-high-contrast", "true");
+      localStorage.setItem("jobsentinel-job-cache", "stale");
+
+      render(
+        <ErrorBoundary>
+          <ThrowError shouldThrow={true} />
+        </ErrorBoundary>
+      );
+
+      await user.click(screen.getByRole("button", { name: /try again/i }));
+      await user.click(
+        await screen.findByRole("button", { name: /clear app data/i })
+      );
+
+      expect(localStorage.getItem("jobsentinel-theme")).toBe("dark");
+      expect(localStorage.getItem("jobsentinel-high-contrast")).toBe("true");
+      expect(localStorage.getItem("jobsentinel-job-cache")).toBeNull();
+      expect(reloadMock).toHaveBeenCalledTimes(1);
+    });
+
     it("does not render children after error", () => {
       render(
         <ErrorBoundary>
