@@ -8,7 +8,6 @@
 //! - Never bypass CAPTCHAs or security measures
 //! - Respect rate limits (default: max 10 applications/day)
 //! - Only apply to jobs they genuinely intend to pursue
-#![allow(clippy::unwrap_used, clippy::expect_used)] // DateTime parsing from validated database values
 //! - Review applications before submission (human-in-the-loop)
 //!
 //! **Legal Considerations:**
@@ -37,6 +36,7 @@
 //! - Phase 4: CAPTCHA detection and user prompting
 //! - Phase 5: Resume/cover letter customization per job
 
+use crate::core::ats::parse_sqlite_datetime;
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -210,6 +210,10 @@ pub struct AutomationManager {
     db: SqlitePool,
 }
 
+fn parse_optional_sqlite_datetime(value: Option<String>) -> Option<DateTime<Utc>> {
+    value.and_then(|date| parse_sqlite_datetime(&date).ok())
+}
+
 impl AutomationManager {
     /// Create a new automation manager with database connection.
     pub fn new(db: SqlitePool) -> Self {
@@ -298,12 +302,8 @@ impl AutomationManager {
             confirmation_screenshot_path: row.get("confirmation_screenshot_path"),
             automation_duration_ms: row.get("automation_duration_ms"),
             user_approved: row.get::<i32, _>("user_approved") != 0,
-            submitted_at: submitted_at.and_then(|s| {
-                DateTime::parse_from_rfc3339(&s)
-                    .ok()
-                    .map(|dt| dt.with_timezone(&Utc))
-            }),
-            created_at: DateTime::parse_from_rfc3339(&created_at)?.with_timezone(&Utc),
+            submitted_at: parse_optional_sqlite_datetime(submitted_at),
+            created_at: parse_sqlite_datetime(&created_at)?,
         })
     }
 
@@ -444,12 +444,11 @@ impl AutomationManager {
         .await?;
 
         use sqlx::Row;
-        Ok(rows
-            .into_iter()
+        rows.into_iter()
             .map(|row| {
                 let submitted_at: Option<String> = row.get("submitted_at");
                 let created_at: String = row.get("created_at");
-                ApplicationAttempt {
+                Ok(ApplicationAttempt {
                     id: row.get("id"),
                     job_hash: row.get("job_hash"),
                     application_id: row.get("application_id"),
@@ -460,17 +459,11 @@ impl AutomationManager {
                     confirmation_screenshot_path: row.get("confirmation_screenshot_path"),
                     automation_duration_ms: row.get("automation_duration_ms"),
                     user_approved: row.get::<i32, _>("user_approved") != 0,
-                    submitted_at: submitted_at.and_then(|s| {
-                        DateTime::parse_from_rfc3339(&s)
-                            .ok()
-                            .map(|dt| dt.with_timezone(&Utc))
-                    }),
-                    created_at: DateTime::parse_from_rfc3339(&created_at)
-                        .unwrap()
-                        .with_timezone(&Utc),
-                }
+                    submitted_at: parse_optional_sqlite_datetime(submitted_at),
+                    created_at: parse_sqlite_datetime(&created_at)?,
+                })
             })
-            .collect())
+            .collect()
     }
 
     /// Calculate aggregated automation statistics.
@@ -545,7 +538,7 @@ mod tests {
     async fn setup_test_db() -> (SqlitePool, TempDir) {
         let temp_dir = TempDir::new().unwrap();
         let db_path = temp_dir.path().join("test.db");
-        let db_url = format!("sqlite:{}", db_path.display());
+        let db_url = format!("sqlite:{}?mode=rwc", db_path.display());
 
         let pool = SqlitePoolOptions::new().connect(&db_url).await.unwrap();
 
@@ -555,7 +548,6 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore = "Requires file-based database - run with --ignored"]
     async fn test_create_automation_attempt() {
         let (pool, _temp_dir) = setup_test_db().await;
         let manager = AutomationManager::new(pool);
@@ -590,7 +582,6 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore = "Requires file-based database - run with --ignored"]
     async fn test_update_attempt_status() {
         let (pool, _temp_dir) = setup_test_db().await;
         let manager = AutomationManager::new(pool.clone());
@@ -627,7 +618,6 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore = "Requires file-based database - run with --ignored"]
     async fn test_approve_and_submit() {
         let (pool, _temp_dir) = setup_test_db().await;
         let manager = AutomationManager::new(pool.clone());

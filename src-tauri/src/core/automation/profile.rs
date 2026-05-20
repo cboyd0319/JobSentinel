@@ -1,7 +1,6 @@
 //! Application Profile Management
 //!
 //! Manages user profile information for automated job applications.
-#![allow(clippy::unwrap_used, clippy::expect_used)] // DateTime parsing from validated database values
 
 use crate::core::ats::parse_sqlite_datetime;
 use anyhow::Result;
@@ -212,12 +211,11 @@ impl ProfileManager {
         .await?;
 
         use sqlx::Row;
-        Ok(rows
-            .into_iter()
+        rows.into_iter()
             .map(|r| {
                 let created_at: String = r.get("created_at");
                 let updated_at: String = r.get("updated_at");
-                ScreeningAnswer {
+                Ok(ScreeningAnswer {
                     id: r.get("id"),
                     question_pattern: r.get("question_pattern"),
                     answer: r.get("answer"),
@@ -229,11 +227,11 @@ impl ProfileManager {
                     last_used_at: r
                         .get::<Option<String>, _>("last_used_at")
                         .and_then(|date| parse_sqlite_datetime(&date).ok()),
-                    created_at: parse_sqlite_datetime(&created_at).unwrap(),
-                    updated_at: parse_sqlite_datetime(&updated_at).unwrap(),
-                }
+                    created_at: parse_sqlite_datetime(&created_at)?,
+                    updated_at: parse_sqlite_datetime(&updated_at)?,
+                })
             })
-            .collect())
+            .collect()
     }
 
     /// Find matching screening answer for a question
@@ -318,7 +316,6 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore = "Requires file-based database - run with --ignored"]
     async fn test_create_profile() {
         let (pool, _temp_dir) = setup_test_db().await;
         let manager = ProfileManager::new(pool);
@@ -352,7 +349,6 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore = "Requires file-based database - run with --ignored"]
     async fn test_update_profile() {
         let (pool, _temp_dir) = setup_test_db().await;
         let manager = ProfileManager::new(pool);
@@ -394,7 +390,6 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore = "Requires file-based database - run with --ignored"]
     async fn test_screening_answers() {
         let (pool, _temp_dir) = setup_test_db().await;
         let manager = ProfileManager::new(pool);
