@@ -353,10 +353,18 @@ function hasStaleShippedFeatureStatusDoc(root, path) {
   const text = readFileSync(join(root, path), "utf8");
   return (
     /src-tauri\/src\/core\/import\/` module \(planned\)/.test(text) ||
-    /🔲 Universal Job Importer with Schema\.org parsing/.test(text) ||
-    /🔲 Deep Link Generator for 15\+ sites/.test(text) ||
-    /🔲 Bookmarklet generator/.test(text)
+    /\u{1f532} Universal Job Importer with Schema\.org parsing/u.test(text) ||
+    /\u{1f532} Deep Link Generator for 15\+ sites/u.test(text) ||
+    /\u{1f532} Bookmarklet generator/u.test(text)
   );
+}
+
+function hasRoadmapStatusEmoji(root, path) {
+  if (path !== "docs/ROADMAP.md") {
+    return false;
+  }
+
+  return /[\u{2705}\u{1f532}]/u.test(readFileSync(join(root, path), "utf8"));
 }
 
 export function checkRepoBloat(root = defaultRoot) {
@@ -409,6 +417,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleShippedFeatureStatusDoc(root, path)) {
       violations.push(`remove stale shipped-feature status doc: ${path}`);
+    }
+
+    if (hasRoadmapStatusEmoji(root, path)) {
+      violations.push(`replace roadmap status emoji with text: ${path}`);
     }
   }
 

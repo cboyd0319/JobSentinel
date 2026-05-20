@@ -110,15 +110,16 @@ test("checkRepoBloat rejects speculative cloud deployment docs", () => {
 
 test("checkRepoBloat rejects stale shipped-feature roadmap statuses", () => {
   withGitFixture((root) => {
+    const plannedStatusIcon = String.fromCodePoint(0x1f532);
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
       "docs/ROADMAP.md",
       [
         "- **Implementation:** `src-tauri/src/core/import/` module (planned)",
-        "3. 🔲 Universal Job Importer with Schema.org parsing",
-        "4. 🔲 Deep Link Generator for 15+ sites",
-        "5. 🔲 Bookmarklet generator",
+        `3. ${plannedStatusIcon} Universal Job Importer with Schema.org parsing`,
+        `4. ${plannedStatusIcon} Deep Link Generator for 15+ sites`,
+        `5. ${plannedStatusIcon} Bookmarklet generator`,
         "",
       ].join("\n"),
     );
@@ -129,6 +130,23 @@ test("checkRepoBloat rejects stale shipped-feature roadmap statuses", () => {
 
     assert.ok(
       violations.includes("remove stale shipped-feature status doc: docs/ROADMAP.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects roadmap status emoji", () => {
+  withGitFixture((root) => {
+    const doneStatusIcon = String.fromCodePoint(0x2705);
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(root, "docs/ROADMAP.md", `| Feature | ${doneStatusIcon} Done |\n`);
+
+    execFileSync("git", ["add", "package.json", "docs/ROADMAP.md"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace roadmap status emoji with text: docs/ROADMAP.md"),
       violations.join("\n"),
     );
   });

@@ -310,18 +310,18 @@ Comprehensive frontend UX improvements released January 24, 2026.
 
 | Feature                    | Status  | Notes                                                                                         |
 | -------------------------- | ------- | --------------------------------------------------------------------------------------------- |
-| Error Recovery UI          | ✅ Done | Retry buttons in Market, CoverLetterTemplates, AtsLiveScorePanel, AnalyticsPanel, ApplyButton |
-| Stale Data Indicators      | ✅ Done | Color-coded timestamps (green/amber/red)                                                      |
-| Skeleton Loaders           | ✅ Done | ResumeSkeleton component, better perceived performance                                        |
-| Timeout Feedback           | ✅ Done | "Taking longer than expected..." messages                                                     |
-| Inline Validation          | ✅ Done | InterviewScheduler datetime, ResumeBuilder steps                                              |
-| Unsaved Changes Warning    | ✅ Done | CoverLetterTemplates editor confirmation                                                      |
-| Component Memoization      | ✅ Done | DashboardFiltersBar, QuickActions, Dropdown                                                   |
-| Lookup Objects             | ✅ Done | MarketAlertCard severity/type styles                                                          |
-| Accessible Labels          | ✅ Done | ResumeBuilder, ResumeOptimizer textareas                                                      |
-| Optimistic Update Rollback | ✅ Done | NotificationPreferences reverts on failure                                                    |
-| useMinimumLoadingDuration  | ✅ Done | New hook for loading state management                                                         |
-| Actionable Empty States    | ✅ Done | Resume skills, ResumeBuilder experience/education                                             |
+| Error Recovery UI          | Done | Retry buttons in Market, CoverLetterTemplates, AtsLiveScorePanel, AnalyticsPanel, ApplyButton |
+| Stale Data Indicators      | Done | Color-coded timestamps (green/amber/red)                                                      |
+| Skeleton Loaders           | Done | ResumeSkeleton component, better perceived performance                                        |
+| Timeout Feedback           | Done | "Taking longer than expected..." messages                                                     |
+| Inline Validation          | Done | InterviewScheduler datetime, ResumeBuilder steps                                              |
+| Unsaved Changes Warning    | Done | CoverLetterTemplates editor confirmation                                                      |
+| Component Memoization      | Done | DashboardFiltersBar, QuickActions, Dropdown                                                   |
+| Lookup Objects             | Done | MarketAlertCard severity/type styles                                                          |
+| Accessible Labels          | Done | ResumeBuilder, ResumeOptimizer textareas                                                      |
+| Optimistic Update Rollback | Done | NotificationPreferences reverts on failure                                                    |
+| useMinimumLoadingDuration  | Done | New hook for loading state management                                                         |
+| Actionable Empty States    | Done | Resume skills, ResumeBuilder experience/education                                             |
 
 See [v2.6.0 UX improvements](plans/completed/v2.6.0-ux-improvements.md) and [v2.6.0 release notes](releases/v2.6.0.md)
 for details.
@@ -332,11 +332,11 @@ Performance optimizations and code quality improvements released January 2026.
 
 | Feature                   | Status  | Notes                                                    |
 | ------------------------- | ------- | -------------------------------------------------------- |
-| **Rust Performance**      | ✅ Done | Removed unnecessary clones (190+ instances)              |
-| **React Performance**     | ✅ Done | Added useCallback to prevent re-renders (50+ components) |
-| **Accessibility**         | ✅ Done | Added aria-hidden to decorative icons                    |
-| **Documentation Cleanup** | ✅ Done | Fixed inconsistencies across all docs                    |
-| **Constant Extraction**   | ✅ Done | Extracted magic numbers to named constants               |
+| **Rust Performance**      | Done | Removed unnecessary clones (190+ instances)              |
+| **React Performance**     | Done | Added useCallback to prevent re-renders (50+ components) |
+| **Accessibility**         | Done | Added aria-hidden to decorative icons                    |
+| **Documentation Cleanup** | Done | Fixed inconsistencies across all docs                    |
+| **Constant Extraction**   | Done | Extracted magic numbers to named constants               |
 
 ### v2.6.2 - Code Quality & Test Coverage (COMPLETED)
 
@@ -344,10 +344,10 @@ Test coverage expansion and code quality improvements released January 2026.
 
 | Feature                    | Status  | Notes                                         |
 | -------------------------- | ------- | --------------------------------------------- |
-| **Integration Tests**      | ✅ Done | 50+ new integration tests                     |
-| **Frontend Tests**         | ✅ Done | 100+ new component tests                      |
-| **TypeScript Strict Mode** | ✅ Done | Enabled strict null checks                    |
-| **Accessibility**          | ✅ Done | ARIA labels, keyboard navigation improvements |
+| **Integration Tests**      | Done | 50+ new integration tests                     |
+| **Frontend Tests**         | Done | 100+ new component tests                      |
+| **TypeScript Strict Mode** | Done | Enabled strict null checks                    |
+| **Accessibility**          | Done | ARIA labels, keyboard navigation improvements |
 
 ### v2.6.3 - Security & Stability (COMPLETED)
 
@@ -355,15 +355,15 @@ Security fixes, memory leak resolution, and standardized error handling released
 
 | Feature                       | Status  | Notes                                                      |
 | ----------------------------- | ------- | ---------------------------------------------------------- |
-| **Custom React Hooks**        | ✅ Done | useOptimisticUpdate, usePagination, useFormValidation      |
-| **Error Utilities**           | ✅ Done | errorHelpers.ts with retry logic and error classification  |
-| **Form Validation**           | ✅ Done | Shared validation utilities (email, URL, phone)            |
-| **Enhanced Error Boundaries** | ✅ Done | Component-level error isolation with retry                 |
-| **Security Fixes**            | ✅ Done | XSS prevention, URL validation, input sanitization         |
-| **Memory Leak Fixes**         | ✅ Done | useEffect cleanup, subscription management                 |
-| **Standardized Error Types**  | ✅ Done | Consistent error handling across frontend/backend          |
-| **Config Validation**         | ✅ Done | Comprehensive runtime config validation                    |
-| **Test Coverage**             | ✅ Done | 145+ new tests (ApplyButton, custom hooks, utilities)      |
+| **Custom React Hooks**        | Done | useOptimisticUpdate, usePagination, useFormValidation      |
+| **Error Utilities**           | Done | errorHelpers.ts with retry logic and error classification  |
+| **Form Validation**           | Done | Shared validation utilities (email, URL, phone)            |
+| **Enhanced Error Boundaries** | Done | Component-level error isolation with retry                 |
+| **Security Fixes**            | Done | XSS prevention, URL validation, input sanitization         |
+| **Memory Leak Fixes**         | Done | useEffect cleanup, subscription management                 |
+| **Standardized Error Types**  | Done | Consistent error handling across frontend/backend          |
+| **Config Validation**         | Done | Comprehensive runtime config validation                    |
+| **Test Coverage**             | Done | 145+ new tests (ApplyButton, custom hooks, utilities)      |
 
 **Current Verification Status:**
 
@@ -376,18 +376,18 @@ See [CHANGELOG.md](../CHANGELOG.md) for detailed v2.6.3 changes.
 
 | Feature                         | Status     | Priority | Notes                                                                    |
 | ------------------------------- | ---------- | -------- | ------------------------------------------------------------------------ |
-| **Beta Feedback System**        | ✅ Done    | High     | Implemented on main; tracked for v2.7.0 release                          |
-| macOS support (.dmg)            | ✅ Done    | -        | v2.5.1                                                                   |
-| Windows support (.msi)          | ✅ Done    | -        | v2.5.1                                                                   |
-| Linux support (.deb, .AppImage) | ✅ Done    | -        | v2.7.0 - Ubuntu 20.04+ compatibility                                     |
-| Intel Mac support               | ✅ Done    | -        | v2.7.1 - Universal binary (single .dmg for both Intel and Apple Silicon) |
-| CI/CD Pipeline                  | ✅ Done    | -        | GitHub Actions                                                           |
-| **Expanded Scrapers**           | ✅ Done    | -        | USAJobs, SimplyHired (v2.6.3+)                                           |
-| **Undo/Redo for Actions**       | ✅ Done    | Medium   | Wired on main for dashboard, applications, and cover letter templates    |
-| **Auto-detect Location**        | ✅ Done    | Medium   | Explicit HTTPS IP lookup in Setup Wizard and Settings                    |
-| **Settings Quick Mode**         | 🔲 Planned | Low      | Simplified settings for new users                                        |
-| **JSON Resume Import**          | ✅ Done    | Low      | Implemented on main; see `docs/features/json-resume-import.md`           |
-| **Smart Screening Answers**     | 🔲 Planned | Low      | Learn from previous answers                                              |
+| **Beta Feedback System**        | Done    | High     | Implemented on main; tracked for v2.7.0 release                          |
+| macOS support (.dmg)            | Done    | -        | v2.5.1                                                                   |
+| Windows support (.msi)          | Done    | -        | v2.5.1                                                                   |
+| Linux support (.deb, .AppImage) | Done    | -        | v2.7.0 - Ubuntu 20.04+ compatibility                                     |
+| Intel Mac support               | Done    | -        | v2.7.1 - Universal binary (single .dmg for both Intel and Apple Silicon) |
+| CI/CD Pipeline                  | Done    | -        | GitHub Actions                                                           |
+| **Expanded Scrapers**           | Done    | -        | USAJobs, SimplyHired (v2.6.3+)                                           |
+| **Undo/Redo for Actions**       | Done    | Medium   | Wired on main for dashboard, applications, and cover letter templates    |
+| **Auto-detect Location**        | Done    | Medium   | Explicit HTTPS IP lookup in Setup Wizard and Settings                    |
+| **Settings Quick Mode**         | Planned | Low      | Simplified settings for new users                                        |
+| **JSON Resume Import**          | Done    | Low      | Implemented on main; see `docs/features/json-resume-import.md`           |
+| **Smart Screening Answers**     | Planned | Low      | Learn from previous answers                                              |
 
 ---
 
@@ -402,8 +402,8 @@ legal boundaries. This helps everyone — job seekers, veterans, career changers
 
 | Source          | Method       | Priority | Status  | Notes                                 |
 | --------------- | ------------ | -------- | ------- | ------------------------------------- |
-| **USAJobs.gov** | Official API | High     | ✅ Done | Free API key, v2.6.3+                 |
-| **SimplyHired** | RSS Feed     | High     | ✅ Done | May be blocked by Cloudflare, v2.6.3+ |
+| **USAJobs.gov** | Official API | High     | Done | Free API key, v2.6.3+                 |
+| **SimplyHired** | RSS Feed     | High     | Done | May be blocked by Cloudflare, v2.6.3+ |
 
 Files implemented:
 
