@@ -19,7 +19,7 @@ export interface Shortcut {
 interface KeyboardShortcutsContextType {
   shortcuts: Shortcut[];
   registerShortcut: (shortcut: Shortcut) => void;
-  unregisterShortcut: (key: string) => void;
+  unregisterShortcut: (key: string, modifiers?: Shortcut["modifiers"]) => void;
   isCommandPaletteOpen: boolean;
   openCommandPalette: () => void;
   closeCommandPalette: () => void;
@@ -32,6 +32,20 @@ interface KeyboardShortcutsContextType {
 
 const KeyboardShortcutsContext =
   createContext<KeyboardShortcutsContextType | null>(null);
+
+function shortcutId(key: string, modifiers: Shortcut["modifiers"]): string {
+  return `${key.toLowerCase()}::${[...modifiers].sort().join("+")}`;
+}
+
+function eventMatchesShortcutKey(event: KeyboardEvent, shortcut: Shortcut): boolean {
+  const eventKey = event.key.toLowerCase();
+  const shortcutKey = shortcut.key.toLowerCase();
+
+  return (
+    eventKey === shortcutKey ||
+    (shortcutKey === "?" && event.shiftKey && eventKey === "/")
+  );
+}
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function useKeyboardShortcuts() {
@@ -86,7 +100,8 @@ export function KeyboardShortcutsProvider({
   const registerShortcut = useCallback((shortcut: Shortcut) => {
     setShortcuts((prev) => {
       // Replace if exists, otherwise add
-      const existing = prev.findIndex((s) => s.key === shortcut.key);
+      const newId = shortcutId(shortcut.key, shortcut.modifiers);
+      const existing = prev.findIndex((s) => shortcutId(s.key, s.modifiers) === newId);
       if (existing >= 0) {
         const updated = [...prev];
         updated[existing] = shortcut;
@@ -96,8 +111,13 @@ export function KeyboardShortcutsProvider({
     });
   }, []);
 
-  const unregisterShortcut = useCallback((key: string) => {
-    setShortcuts((prev) => prev.filter((s) => s.key !== key));
+  const unregisterShortcut = useCallback((key: string, modifiers?: Shortcut["modifiers"]) => {
+    setShortcuts((prev) => prev.filter((s) => {
+      if (s.key !== key) return true;
+      return modifiers
+        ? shortcutId(s.key, s.modifiers) !== shortcutId(key, modifiers)
+        : false;
+    }));
   }, []);
 
   // Register default shortcuts
@@ -177,7 +197,10 @@ export function KeyboardShortcutsProvider({
         key: "Escape",
         modifiers: [],
         description: "Close dialog / command palette",
-        action: closeCommandPalette,
+        action: () => {
+          closeCommandPalette();
+          closeHelp();
+        },
         category: "ui",
       },
       {
@@ -248,13 +271,14 @@ export function KeyboardShortcutsProvider({
     defaultShortcuts.forEach(registerShortcut);
 
     return () => {
-      defaultShortcuts.forEach((s) => unregisterShortcut(s.key));
+      defaultShortcuts.forEach((s) => unregisterShortcut(s.key, s.modifiers));
     };
   }, [
     registerShortcut,
     unregisterShortcut,
     toggleCommandPalette,
     closeCommandPalette,
+    closeHelp,
     toggleHelp,
     onNavigate,
     onOpenSettings,
@@ -293,7 +317,7 @@ export function KeyboardShortcutsProvider({
 
         if (
           modifiersMatch &&
-          event.key.toLowerCase() === shortcut.key.toLowerCase()
+          eventMatchesShortcutKey(event, shortcut)
         ) {
           event.preventDefault();
           shortcut.action();

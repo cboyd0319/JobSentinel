@@ -26,6 +26,12 @@ interface CommandPaletteProps {
   commands?: Command[];
 }
 
+function commandIdFromShortcut(shortcut: Shortcut): string {
+  const modifiers = [...shortcut.modifiers].sort().join("-") || "none";
+  const key = shortcut.key.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "key";
+  return `shortcut-${modifiers}-${key}`;
+}
+
 export const CommandPalette = memo(function CommandPalette({ commands = [] }: CommandPaletteProps) {
   const { shortcuts, isCommandPaletteOpen, closeCommandPalette } =
     useKeyboardShortcuts();
@@ -41,7 +47,7 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
   const allCommands = useMemo<Command[]>(
     () => [
       ...shortcuts.map((s) => ({
-        id: s.key,
+        id: commandIdFromShortcut(s),
         name: s.description,
         shortcut: s,
         action: s.action,
@@ -127,17 +133,30 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
 
   // Focus input when opened with proper timing
   useEffect(() => {
+    let timeoutId: number | undefined;
     if (isCommandPaletteOpen) {
       setQuery("");
       setSelectedIndex(0);
-      
+
       // Use requestAnimationFrame to ensure DOM is ready
-      requestAnimationFrame(() => {
+      const rafId = requestAnimationFrame(() => {
         if (isMountedRef.current && inputRef.current) {
-          inputRef.current.focus();
+          inputRef.current.focus({ preventScroll: true });
+          timeoutId = window.setTimeout(() => {
+            inputRef.current?.focus({ preventScroll: true });
+          }, 0);
         }
       });
+
+      return () => {
+        cancelAnimationFrame(rafId);
+        if (timeoutId !== undefined) {
+          window.clearTimeout(timeoutId);
+        }
+      };
     }
+
+    return undefined;
   }, [isCommandPaletteOpen]);
 
   // Track mounted state
@@ -265,6 +284,7 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
           <input
             ref={inputRef}
             type="text"
+            autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Type a command or search..."

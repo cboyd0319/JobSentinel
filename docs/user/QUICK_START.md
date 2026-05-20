@@ -165,14 +165,21 @@ and Glassdoor ratings.
 
 For power users who hate using the mouse:
 
+Use `Cmd` on macOS and `Ctrl` on Windows or Linux.
+
 | Key | What It Does                  |
 | --- | ----------------------------- |
-| `b` | Bookmark the selected job     |
+| `Cmd/Ctrl + K` | Open the command palette |
+| `Cmd/Ctrl + 1-8` | Switch pages |
+| `Cmd/Ctrl + ,` | Open settings |
+| `Cmd/Ctrl + Z` | Undo the last action |
+| `Cmd/Ctrl + Shift + Z` | Redo the last action |
+| `/` | Jump to the search bar |
+| `r` | Refresh the current view |
+| `b` | Bookmark the selected job |
 | `n` | Add notes to the selected job |
-| `c` | View company details          |
-| `/` | Jump to the search bar        |
-| `r` | Refresh the job list          |
-| `?` | Show all keyboard shortcuts   |
+| `c` | View company details |
+| `?` | Show all keyboard shortcuts |
 
 Press `?` anytime to see the full list.
 

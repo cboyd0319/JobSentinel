@@ -45,10 +45,10 @@ Reusable page objects following the Page Object Model pattern:
    - Validation and error handling
 
 5. **keyboard-navigation.spec.ts**
-   - Global keyboard shortcuts (Cmd+1-6)
+   - Global keyboard shortcuts (Ctrl/Cmd+1-8)
    - Command palette (Ctrl/Cmd+K)
-   - Tab navigation and focus management
-   - Accessibility features
+   - Keyboard help modal
+   - Search focus, focus trap, and skip link behavior
 
 6. **one-click-apply.spec.ts**
    - Settings stats and tabs
@@ -222,7 +222,7 @@ Tests run in CI with:
 
 1. **Test Isolation** - Each test is independent
 2. **Page Objects** - Reusable components
-3. **Graceful Degradation** - Skip when features missing
+3. **Explicit Platform Gaps** - Skip only intentional unavailable capabilities
 4. **Error Handling** - All edge cases covered
 5. **Accessibility** - Keyboard and screen reader support
 6. **Performance** - Fast execution with parallel tests
@@ -274,7 +274,6 @@ Current test coverage:
 
 ## Known Issues
 
-- Keyboard shortcuts may not work reliably in headless mode; keep any skips explicit and documented.
 - Drag-and-drop can be flaky on some systems (tests include retries)
 - Native file-picker coverage belongs in a Tauri-level smoke test, not browser-only Playwright.
 

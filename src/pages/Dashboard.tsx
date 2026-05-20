@@ -425,6 +425,7 @@ export default function Dashboard({
         event.metaKey ||
         event.ctrlKey ||
         event.altKey ||
+        event.shiftKey ||
         target.tagName === "INPUT" ||
         target.tagName === "TEXTAREA" ||
         target.isContentEditable

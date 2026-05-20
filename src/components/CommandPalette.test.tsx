@@ -168,6 +168,39 @@ describe("CommandPalette", () => {
       expect(screen.getByText("meta+1")).toBeInTheDocument();
       expect(screen.getByText("meta+2")).toBeInTheDocument();
     });
+
+    it("uses unique option ids for shortcuts sharing the same key", () => {
+      mockUseKeyboardShortcuts.mockReturnValue({
+        ...defaultMockReturn,
+        shortcuts: [
+          {
+            key: "z",
+            modifiers: ["meta"],
+            description: "Undo last action",
+            action: vi.fn(),
+            category: "actions",
+          },
+          {
+            key: "z",
+            modifiers: ["meta", "shift"],
+            description: "Redo last action",
+            action: vi.fn(),
+            category: "actions",
+          },
+        ],
+      });
+
+      render(<CommandPalette />);
+
+      const options = screen.getAllByRole("option");
+      const optionIds = options.map((option) => option.id);
+
+      expect(new Set(optionIds).size).toBe(optionIds.length);
+      expect(screen.getByRole("combobox")).toHaveAttribute(
+        "aria-activedescendant",
+        optionIds[0],
+      );
+    });
   });
 
   describe("command selection", () => {
@@ -178,6 +211,7 @@ describe("CommandPalette", () => {
         shortcuts: [
           {
             key: "1",
+            modifiers: ["meta"],
             description: "Test Command",
             action,
             category: "navigation",
@@ -275,6 +309,7 @@ describe("CommandPalette", () => {
         shortcuts: [
           {
             key: "1",
+            modifiers: ["meta"],
             description: "Test Command",
             action,
             category: "navigation",

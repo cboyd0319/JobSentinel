@@ -1,11 +1,42 @@
-import { test, expect, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { BasePage } from "./page-objects/BasePage";
+
+const MAIN_HEADING_BY_SHORTCUT: Array<{
+  shortcut: number;
+  heading: string | RegExp;
+}> = [
+  { shortcut: 1, heading: "JobSentinel" },
+  { shortcut: 2, heading: "Application Tracker" },
+  { shortcut: 3, heading: "Resume Matcher" },
+  { shortcut: 4, heading: "Salary AI" },
+  { shortcut: 5, heading: "Market Intelligence" },
+  { shortcut: 6, heading: "One-Click Apply Settings" },
+  { shortcut: 7, heading: "Resume Builder" },
+  { shortcut: 8, heading: "ATS Resume Optimizer" },
+];
+
+function mainHeading(page: Page, name: string | RegExp) {
+  return page.locator("#main-content").getByRole("heading", { name }).first();
+}
+
+function commandPalette(page: Page) {
+  return page.getByTestId("command-palette");
+}
+
+async function expectActiveElement(locator: Locator): Promise<void> {
+  await expect
+    .poll(() => locator.evaluate((element) => document.activeElement === element))
+    .toBe(true);
+}
+
+async function openCommandPalette(page: Page): Promise<void> {
+  await page.keyboard.press("Control+k");
+  await expect(commandPalette(page)).toBeVisible();
+  await expectActiveElement(page.getByTestId("command-palette-input"));
+}
 
 test.describe("Keyboard Navigation", () => {
   let basePage: BasePage;
-
-  const mainHeading = (page: Page, name: string | RegExp) =>
-    page.locator("#main-content").getByRole("heading", { name }).first();
 
   test.beforeEach(async ({ page }) => {
     basePage = new BasePage(page);
@@ -13,534 +44,126 @@ test.describe("Keyboard Navigation", () => {
     await basePage.skipSetupWizard();
   });
 
-  test.describe("Global Keyboard Shortcuts", () => {
-    test("should navigate to Dashboard with Cmd+1", async ({ page }) => {
-      await basePage.navigateWithKeyboard(1);
+  test.describe("Global Shortcuts", () => {
+    for (const { shortcut, heading } of MAIN_HEADING_BY_SHORTCUT) {
+      test(`navigates to page ${shortcut} with Meta+${shortcut}`, async ({ page }) => {
+        await basePage.navigateWithKeyboard(shortcut);
 
-      // Should be on dashboard
+        await expect(mainHeading(page, heading)).toBeVisible();
+      });
+    }
+
+    test("keeps navigation shortcuts inactive while typing in search", async ({ page }) => {
+      const searchInput = page.getByTestId("search-input");
+      await expect(searchInput).toBeVisible();
+
+      await searchInput.focus();
+      await page.keyboard.press("Meta+2");
+
+      await expect(searchInput).toBeFocused();
       await expect(mainHeading(page, "JobSentinel")).toBeVisible();
     });
 
-    test("should navigate to Applications with Cmd+2", async ({ page }) => {
-      await basePage.navigateWithKeyboard(2);
+    test("ignores unsupported shortcut combinations without crashing", async ({ page }) => {
+      await page.keyboard.press("Control+Shift+Alt+Z");
+      await page.keyboard.press("Meta+Shift+X");
 
-      // Should be on applications page
-      await expect(mainHeading(page, "Application Tracker")).toBeVisible();
-    });
-
-    test("should navigate to Resume with Cmd+3", async ({ page }) => {
-      await basePage.navigateWithKeyboard(3);
-
-      // Should be on resume page
-      await expect(mainHeading(page, "Resume Matcher")).toBeVisible();
-    });
-
-    test("should navigate to Salary with Cmd+4", async ({ page }) => {
-      await basePage.navigateWithKeyboard(4);
-
-      // Should be on salary page
-      await expect(mainHeading(page, "Salary AI")).toBeVisible();
-    });
-
-    test("should navigate to Market with Cmd+5", async ({ page }) => {
-      await basePage.navigateWithKeyboard(5);
-
-      // Should be on market page
-      await expect(mainHeading(page, "Market Intelligence")).toBeVisible();
-    });
-
-    test("should navigate to One-Click Apply with Cmd+6", async ({ page }) => {
-      await basePage.navigateWithKeyboard(6);
-
-      // Should be on one-click apply page
-      await expect(mainHeading(page, "One-Click Apply Settings")).toBeVisible();
-    });
-
-    test("should cycle through pages sequentially", async ({ page }) => {
-      // Navigate through multiple pages
-      await basePage.navigateWithKeyboard(1);
-      await page.waitForTimeout(300);
-
-      await basePage.navigateWithKeyboard(2);
-      await page.waitForTimeout(300);
-
-      await basePage.navigateWithKeyboard(3);
-      await page.waitForTimeout(300);
-
-      // Should be on resume page
-      await expect(mainHeading(page, "Resume Matcher")).toBeVisible();
+      await expect(basePage.mainContent).toBeVisible();
+      await expect(mainHeading(page, "JobSentinel")).toBeVisible();
     });
   });
 
   test.describe("Command Palette", () => {
-    test("should open command palette with Ctrl+K", async ({ page }) => {
-      await page.keyboard.press("Control+k");
-      await page.waitForTimeout(300);
-
-      const palette = page.locator("[data-testid='command-palette']");
-      const isOpen = await palette.isVisible().catch(() => false);
-
-      if (!isOpen) {
-        test.skip(true, "Keyboard shortcuts may not work in headless browser");
-        return;
-      }
-
-      await expect(palette).toBeVisible();
-    });
-
-    test("should open command palette with Cmd+K", async ({ page }) => {
-      await page.keyboard.press("Meta+k");
-      await page.waitForTimeout(300);
-
-      const palette = page.locator("[data-testid='command-palette']");
-      const isOpen = await palette.isVisible().catch(() => false);
-
-      if (!isOpen) {
-        test.skip(true, "Keyboard shortcuts may not work in headless browser");
-        return;
-      }
-
-      await expect(palette).toBeVisible();
-    });
-
-    test("should close command palette with Escape", async ({ page }) => {
-      await page.keyboard.press("Control+k");
-      await page.waitForTimeout(300);
-
-      const palette = page.locator("[data-testid='command-palette']");
-      if (!(await palette.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
+    test("opens with Control+K and closes with Escape", async ({ page }) => {
+      await openCommandPalette(page);
 
       await page.keyboard.press("Escape");
-      await page.waitForTimeout(200);
 
-      await expect(palette).not.toBeVisible();
+      await expect(commandPalette(page)).toBeHidden();
     });
 
-    test("should navigate command palette with arrow keys", async ({ page }) => {
-      await page.keyboard.press("Control+k");
-      await page.waitForTimeout(300);
+    test("opens with Meta+K", async ({ page }) => {
+      await page.keyboard.press("Meta+k");
 
-      const palette = page.locator("[data-testid='command-palette']");
-      if (!(await palette.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      // Press down arrow
-      await page.keyboard.press("ArrowDown");
-      await page.waitForTimeout(200);
-
-      // Check for selected item
-      const selectedItem = palette.locator("[aria-selected='true'], .selected");
-      const hasSelection = (await selectedItem.count()) > 0;
-
-      expect(hasSelection).toBeTruthy();
+      await expect(commandPalette(page)).toBeVisible();
+      await expectActiveElement(page.getByTestId("command-palette-input"));
     });
 
-    test("should execute command with Enter", async ({ page }) => {
-      await page.keyboard.press("Control+k");
-      await page.waitForTimeout(300);
+    test("filters commands and executes selected command with Enter", async ({ page }) => {
+      await openCommandPalette(page);
 
-      const palette = page.locator("[data-testid='command-palette']");
-      if (!(await palette.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
+      await page.getByTestId("command-palette-input").fill("settings");
+      await expect(commandPalette(page).getByRole("option", { name: /Open settings/ })).toBeVisible();
 
-      // Select first command
-      await page.keyboard.press("ArrowDown");
-      await page.waitForTimeout(200);
-
-      // Execute with Enter
       await page.keyboard.press("Enter");
-      await page.waitForTimeout(500);
 
-      // Palette should close
-      await expect(palette).not.toBeVisible();
+      await expect(commandPalette(page)).toBeHidden();
+      await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
     });
 
-    test("should filter commands on typing", async ({ page }) => {
-      await page.keyboard.press("Control+k");
-      await page.waitForTimeout(300);
+    test("moves selected command with arrow keys", async ({ page }) => {
+      await openCommandPalette(page);
 
-      const palette = page.locator("[data-testid='command-palette']");
-      if (!(await palette.isVisible().catch(() => false))) {
-        test.skip();
-        return;
+      const options = commandPalette(page).getByRole("option");
+      await expect(options.first()).toHaveAttribute("aria-selected", "true");
+
+      await page.keyboard.press("ArrowDown");
+
+      await expect(options.nth(1)).toHaveAttribute("aria-selected", "true");
+    });
+
+    test("keeps tab focus inside the palette", async ({ page }) => {
+      await openCommandPalette(page);
+
+      for (let index = 0; index < 4; index += 1) {
+        await page.keyboard.press("Tab");
+        const focusIsInsidePalette = await commandPalette(page).evaluate((palette) =>
+          palette.contains(document.activeElement)
+        );
+        expect(focusIsInsidePalette).toBe(true);
       }
-
-      // Type search query
-      await page.keyboard.type("settings");
-      await page.waitForTimeout(300);
-
-      // Should filter command list
-      const commandList = palette.locator("[data-testid='command-palette-list']");
-      const hasCommands = await commandList.isVisible().catch(() => false);
-
-      expect(hasCommands).toBeTruthy();
     });
   });
 
-  test.describe("Search Focus", () => {
-    test("should focus search input with / key", async ({ page }) => {
-      const searchInput = page.locator("[data-testid='search-input']");
-      if (!(await searchInput.isVisible({ timeout: 5000 }).catch(() => false))) {
-        test.skip();
-        return;
-      }
+  test.describe("Help And Focus", () => {
+    test("opens keyboard help with question mark and closes with Escape", async ({ page }) => {
+      await page.keyboard.press("Shift+Slash");
 
-      // Press / to focus search
+      const helpDialog = page.getByRole("dialog", { name: "Keyboard Shortcuts" });
+      await expect(helpDialog).toBeVisible();
+      await expect(helpDialog.getByText("⌘1-8")).toBeVisible();
+
+      await page.keyboard.press("Escape");
+
+      await expect(helpDialog).toBeHidden();
+    });
+
+    test("focuses dashboard search with slash outside inputs", async ({ page }) => {
+      const searchInput = page.getByTestId("search-input");
+
       await page.keyboard.press("/");
 
-      // Search input should be focused
-      await expect(searchInput).toBeFocused({ timeout: 2000 });
+      await expect(searchInput).toBeFocused();
     });
 
-    test("should not focus search when typing in input field", async ({ page }) => {
-      // Focus a different input first
-      const nameInput = page.locator("input[name='name']");
-      if (await nameInput.first().isVisible().catch(() => false)) {
-        await nameInput.first().click();
-        await page.waitForTimeout(200);
-
-        // Type / should not trigger search focus
-        await page.keyboard.type("/");
-        await page.waitForTimeout(200);
-
-        const searchInput = page.locator("[data-testid='search-input']");
-        if (!(await searchInput.isVisible().catch(() => false))) {
-          test.skip();
-          return;
-        }
-
-        const isFocused = await searchInput.evaluate((el) => el === document.activeElement);
-        expect(isFocused).toBe(false);
-      }
-    });
-  });
-
-  test.describe("Help Modal", () => {
-    test("should open help modal with ? key", async ({ page }) => {
-      await page.keyboard.press("Shift+/");
-      await page.waitForTimeout(300);
-
-      const helpModal = page.locator("text=Keyboard Shortcuts, text=Help");
-      const isOpen = await helpModal.isVisible().catch(() => false);
-
-      if (!isOpen) {
-        test.skip(true, "Keyboard shortcuts may not work in headless browser");
-        return;
-      }
-
-      await expect(helpModal).toBeVisible();
-    });
-
-    test("should close help modal with Escape", async ({ page }) => {
-      await page.keyboard.press("Shift+/");
-      await page.waitForTimeout(300);
-
-      const helpModal = page.locator("text=Keyboard Shortcuts");
-      if (!(await helpModal.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await page.keyboard.press("Escape");
-      await page.waitForTimeout(200);
-
-      await expect(helpModal).not.toBeVisible();
-    });
-
-    test("should display all keyboard shortcuts", async ({ page }) => {
-      await page.keyboard.press("Shift+/");
-      await page.waitForTimeout(300);
-
-      const helpModal = page.locator("text=Keyboard Shortcuts");
-      if (!(await helpModal.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      // Should list shortcuts
-      const shortcuts = page.locator("kbd, .shortcut");
-      const shortcutCount = await shortcuts.count();
-
-      expect(shortcutCount).toBeGreaterThan(0);
-    });
-  });
-
-  test.describe("Theme Toggle", () => {
-    test("should toggle theme with keyboard", async ({ page }) => {
-      // Some apps support Ctrl+Shift+T or similar
-      const html = page.locator("html");
-      const initialTheme = await html.getAttribute("class");
-
-      // Try theme toggle shortcut (if exists)
-      await page.keyboard.press("Control+Shift+T");
-      await page.waitForTimeout(300);
-
-      const finalTheme = await html.getAttribute("class");
-
-      // Theme may or may not change depending on shortcut support
-      expect(finalTheme || initialTheme).toBeTruthy();
-    });
-  });
-
-  test.describe("Tab Navigation", () => {
-    test("should navigate through focusable elements with Tab", async ({ page, browserName }) => {
-      // Focus first element
-      await page.keyboard.press("Tab");
-      await page.waitForTimeout(200);
-
-      const activeElement = await page.evaluate(() => document.activeElement?.tagName);
-
-      if (activeElement === "BODY" && browserName === "webkit") {
-        test.skip(true, "Headless WebKit did not advance focus on Tab in this environment");
-        return;
-      }
-
-      // Should focus an interactive element
-      expect(["BUTTON", "A", "INPUT", "SELECT", "TEXTAREA"]).toContain(activeElement || "");
-    });
-
-    test("should reverse navigate with Shift+Tab", async ({ page }) => {
-      // Focus an element first
-      await page.keyboard.press("Tab");
-      await page.waitForTimeout(200);
-
-      const firstFocused = await page.evaluate(() => document.activeElement?.id);
-
-      // Move forward
-      await page.keyboard.press("Tab");
-      await page.waitForTimeout(200);
-
-      // Move backward
-      await page.keyboard.press("Shift+Tab");
-      await page.waitForTimeout(200);
-
-      const backFocused = await page.evaluate(() => document.activeElement?.id);
-
-      // Should return to previous element
-      expect(backFocused).toBe(firstFocused);
-    });
-
-    test("should skip hidden elements", async ({ page }) => {
-      // Tab through multiple elements
-      const focusedElements: string[] = [];
-
-      for (let i = 0; i < 5; i++) {
-        await page.keyboard.press("Tab");
-        await page.waitForTimeout(100);
-
-        const tag = await page.evaluate(() => document.activeElement?.tagName);
-        if (tag) focusedElements.push(tag);
-      }
-
-      // Should only focus visible, interactive elements
-      const validElements = focusedElements.filter((tag) =>
-        ["BUTTON", "A", "INPUT", "SELECT", "TEXTAREA"].includes(tag)
-      );
-
-      expect(validElements.length).toBeGreaterThan(0);
-    });
-
-    test("should trap focus in modal dialogs", async ({ page }) => {
-      // Open a modal
-      await page.keyboard.press("Control+k");
-      await page.waitForTimeout(300);
-
-      const palette = page.locator("[data-testid='command-palette']");
-      if (!(await palette.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      // Tab through modal elements
-      const focusedElements: boolean[] = [];
-
-      for (let i = 0; i < 5; i++) {
-        await page.keyboard.press("Tab");
-        await page.waitForTimeout(100);
-
-        const isInModal = await page.evaluate((sel) => {
-          const modal = document.querySelector(sel);
-          return modal?.contains(document.activeElement) || false;
-        }, "[data-testid='command-palette']");
-
-        focusedElements.push(isInModal);
-      }
-
-      // Focus should stay within modal
-      const allInModal = focusedElements.every((inModal) => inModal);
-      expect(allInModal).toBeTruthy();
-    });
-  });
-
-  test.describe("Accessibility Shortcuts", () => {
-    test("should have skip to main content link", async ({ page }) => {
-      const skipLink = page.locator("a[href='#main-content'], .skip-link");
-      const hasSkipLink = (await skipLink.count()) > 0;
-
-      expect(hasSkipLink).toBeTruthy();
-    });
-
-    test("should skip to main content on activation", async ({ page }) => {
-      const skipLink = page.locator("a[href='#main-content'], .skip-link");
-
-      if ((await skipLink.count()) === 0) {
-        test.skip();
-        return;
-      }
-
-      await skipLink.first().evaluate((el) => (el as HTMLElement).focus());
-      await expect(skipLink.first()).toBeFocused();
-
-      // Activate skip link
-      await page.keyboard.press("Enter");
-      await page.waitForTimeout(300);
-
-      // Should focus main content
-      const mainContent = page.locator("#main-content").first();
-      const isFocused = await mainContent.evaluate((el) => el === document.activeElement || el.contains(document.activeElement));
-
-      expect(isFocused).toBeTruthy();
-    });
-  });
-
-  test.describe("Form Navigation", () => {
-    test("should navigate form fields with Tab", async ({ page }) => {
-      // Navigate to a page with forms (settings)
-      const settingsButton = page.locator(
-        "[data-testid='btn-settings'], button[aria-label*='settings' i]"
-      );
-      if (await settingsButton.isVisible().catch(() => false)) {
-        await settingsButton.click();
-        await page
-          .getByRole("heading", { name: "Settings" })
-          .waitFor({ state: "visible", timeout: 5000 })
-          .catch(() => undefined);
-      }
-
-      const settingsVisible = await page
-        .getByRole("heading", { name: "Settings" })
-        .isVisible()
-        .catch(() => false);
-      if (!settingsVisible) {
-        test.skip();
-        return;
-      }
-
-      const firstFormField = page.locator("input:not([type='hidden']), select, textarea").first();
-      if (!(await firstFormField.isVisible({ timeout: 10000 }).catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      // Tab through form fields
-      const formInputs: string[] = [];
-
-      for (let i = 0; i < 30; i++) {
-        await page.keyboard.press("Tab");
-        await page.waitForTimeout(100);
-
-        const inputType = await page.evaluate(() => {
-          const el = document.activeElement;
-          if (el instanceof HTMLInputElement) return el.type;
-          if (el instanceof HTMLSelectElement) return "select";
-          if (el instanceof HTMLTextAreaElement) return "textarea";
-          return null;
-        });
-
-        if (inputType) formInputs.push(inputType);
-      }
-
-      // Should focus form fields
-      expect(formInputs.length).toBeGreaterThan(0);
-    });
-
-    test("should activate buttons with Enter", async ({ page }) => {
-      // Find a button
-      const button = page.locator("button").first();
-
-      if (!(await button.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      // Focus button with Tab
-      await button.focus();
-      await page.waitForTimeout(200);
-
-      // Activate with Enter
-      await page.keyboard.press("Enter");
-      await page.waitForTimeout(300);
-
-      // Button should have been clicked (verify by checking for state change)
-      // This is hard to verify generically, so we just check it doesn't crash
-      await expect(basePage.mainContent).toBeVisible();
-    });
-
-    test("should activate buttons with Space", async ({ page }) => {
-      const button = page.locator("button").first();
-
-      if (!(await button.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await button.focus();
-      await page.waitForTimeout(200);
-
-      await page.keyboard.press("Space");
-      await page.waitForTimeout(300);
-
-      await expect(basePage.mainContent).toBeVisible();
-    });
-  });
-
-  test.describe("Error Handling", () => {
-    test("should not crash on invalid keyboard shortcuts", async ({ page }) => {
-      // Try random key combinations
-      await page.keyboard.press("Control+Shift+Alt+Z");
-      await page.waitForTimeout(200);
-
-      await page.keyboard.press("Meta+Shift+X");
-      await page.waitForTimeout(200);
-
-      // App should not crash
-      await expect(basePage.mainContent).toBeVisible();
-    });
-
-    test("should handle rapid keyboard input", async ({ page }) => {
-      // Rapidly press navigation shortcuts
-      for (let i = 1; i <= 6; i++) {
-        await page.keyboard.press(`Meta+${i}`);
-        await page.waitForTimeout(50);
-      }
-
-      // App should not crash
-      await expect(basePage.mainContent).toBeVisible();
-    });
-
-    test("should prevent keyboard shortcuts in text inputs", async ({ page }) => {
-      const searchInput = page.locator("[data-testid='search-input']");
-
-      if (!(await searchInput.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
+    test("does not steal focus when slash is typed in search", async ({ page }) => {
+      const searchInput = page.getByTestId("search-input");
       await searchInput.focus();
 
-      await expect(searchInput).toBeFocused();
-      await page.keyboard.press("Meta+2");
-      await page.waitForTimeout(300);
+      await page.keyboard.type("/");
 
-      // Global navigation shortcut should not fire while input has focus.
-      await expect(mainHeading(page, "JobSentinel")).toBeVisible();
+      await expect(searchInput).toBeFocused();
+      await expect(searchInput).toHaveValue("/");
+    });
+
+    test("skip link moves focus to main content", async ({ page }) => {
+      const skipLink = page.getByRole("link", { name: "Skip to main content" });
+
+      await skipLink.focus();
+      await expect(skipLink).toBeFocused();
+      await page.keyboard.press("Enter");
+
+      await expect(page.locator("#main-content")).toBeFocused();
     });
   });
 });

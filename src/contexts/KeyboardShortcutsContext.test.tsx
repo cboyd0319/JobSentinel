@@ -244,6 +244,27 @@ describe("KeyboardShortcutsContext", () => {
         expect(screen.getByTestId("help-open")).toHaveTextContent("false");
       });
     });
+
+    it("closes help with Escape", async () => {
+      render(
+        <KeyboardShortcutsProvider>
+          <TestComponent />
+        </KeyboardShortcutsProvider>
+      );
+
+      fireEvent.click(screen.getByTestId("open-help"));
+      await waitFor(() => {
+        expect(screen.getByTestId("help-open")).toHaveTextContent("true");
+      });
+
+      await act(async () => {
+        fireEvent.keyDown(window, { key: "Escape" });
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId("help-open")).toHaveTextContent("false");
+      });
+    });
   });
 
   describe("registerShortcut", () => {
@@ -299,6 +320,7 @@ describe("KeyboardShortcutsContext", () => {
         expect(countAfterSecond).toBe(countAfterFirst);
       });
     });
+
   });
 
   describe("unregisterShortcut", () => {
@@ -353,6 +375,48 @@ describe("KeyboardShortcutsContext", () => {
 
       await waitFor(() => {
         expect(onRegister).toHaveBeenCalled();
+      });
+    });
+
+    it("keeps both undo and redo shortcuts registered", async () => {
+      function ShortcutDescriptions() {
+        const { shortcuts } = useKeyboardShortcuts();
+        return (
+          <ul>
+            {shortcuts.map((shortcut) => (
+              <li key={`${shortcut.key}-${shortcut.modifiers.join("-")}`}>
+                {shortcut.description}
+              </li>
+            ))}
+          </ul>
+        );
+      }
+
+      render(
+        <KeyboardShortcutsProvider>
+          <ShortcutDescriptions />
+        </KeyboardShortcutsProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText("Undo last action")).toBeInTheDocument();
+        expect(screen.getByText("Redo last action")).toBeInTheDocument();
+      });
+    });
+
+    it("opens help when question mark key is reported as shifted slash", async () => {
+      render(
+        <KeyboardShortcutsProvider>
+          <TestComponent />
+        </KeyboardShortcutsProvider>
+      );
+
+      await act(async () => {
+        fireEvent.keyDown(window, { key: "/", shiftKey: true });
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId("help-open")).toHaveTextContent("true");
       });
     });
 

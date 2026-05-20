@@ -34,7 +34,7 @@ const SHORTCUTS = {
     shortcuts: [
       { keys: ['⌘K'], description: 'Open command palette' },
       { keys: ['⌘,'], description: 'Open settings' },
-      { keys: ['⌘1-5'], description: 'Switch pages' },
+      { keys: ['⌘1-8'], description: 'Switch pages' },
       { keys: ['⌘Z'], description: 'Undo last action' },
       { keys: ['⌘⇧Z'], description: 'Redo' },
       { keys: ['?'], description: 'Show this help' },
