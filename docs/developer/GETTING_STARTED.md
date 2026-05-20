@@ -119,7 +119,6 @@ JobSentinel/
 │   │   │   ├── scoring/     # Job scoring algorithm
 │   │   │   └── scrapers/    # 13 job board scrapers
 │   │   ├── platforms/       # Windows/macOS/Linux specific code
-│   │   ├── cloud/           # GCP/AWS deployment (v3.0+)
 │   │   └── commands/        # Tauri RPC command handlers
 │   ├── migrations/          # 4 SQLite migrations
 │   └── Cargo.toml           # Rust dependencies
@@ -212,15 +211,6 @@ pub fn get_data_dir() -> PathBuf {
     // macOS implementation
 }
 ```
-
-### Cloud Deployment (v3.0+)
-
-Cloud code is in `src-tauri/src/cloud/` and only compiled with feature flags:
-
-- **gcp**: Google Cloud Platform (Cloud Run, Scheduler)
-- **aws**: Amazon Web Services (Lambda, EventBridge)
-
----
 
 ## Debugging
 

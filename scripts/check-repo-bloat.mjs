@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execFileSync } from "node:child_process";
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, extname, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -128,6 +128,12 @@ const forbiddenFileNames = new Set([
 const forbiddenTrackedPlaceholderFiles = new Set([
   "tests/e2e/fixtures/.gitkeep",
   "tests/e2e/fixtures/README.md",
+]);
+
+const speculativeCloudDeploymentDocs = new Map([
+  ["docs/developer/ARCHITECTURE.md", /Cloud Architecture \(not implemented\)|Cloud Backend \(GCP\/AWS\)/],
+  ["docs/developer/GETTING_STARTED.md", /src-tauri\/src\/cloud\/|GCP\/AWS deployment/],
+  ["docs/ROADMAP.md", /GCP Cloud Run \/ AWS Lambda deployment/],
 ]);
 
 function normalizeRepoPath(path) {
@@ -268,6 +274,26 @@ function isTrackedBloat(path) {
   return isForbiddenFileName(fileName);
 }
 
+function hasSpeculativeCloudDeploymentDoc(root, path) {
+  const pattern = speculativeCloudDeploymentDocs.get(path);
+
+  if (!pattern) {
+    return false;
+  }
+
+  return pattern.test(readFileSync(join(root, path), "utf8"));
+}
+
+function hasStaleInformalMaintainerFooter(root, path) {
+  if (!path.endsWith(".md")) {
+    return false;
+  }
+
+  return /Maintained By\**:\s*The Rust Mac Overlord/i.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -286,6 +312,14 @@ export function checkRepoBloat(root = defaultRoot) {
   for (const path of listTrackedFiles(root)) {
     if (isTrackedBloat(path)) {
       violations.push(`remove tracked generated or disposable file: ${path}`);
+    }
+
+    if (hasSpeculativeCloudDeploymentDoc(root, path)) {
+      violations.push(`remove speculative cloud deployment doc: ${path}`);
+    }
+
+    if (hasStaleInformalMaintainerFooter(root, path)) {
+      violations.push(`replace stale informal maintainer footer: ${path}`);
     }
   }
 

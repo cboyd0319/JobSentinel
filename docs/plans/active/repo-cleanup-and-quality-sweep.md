@@ -127,6 +127,8 @@ changes or Playwright-specific work.
 | 2026-05-20 | In progress | Removed the registered but unimplemented automation screenshot IPC command and added an invoke-surface sensor for registered stub commands. |
 | 2026-05-20 | In progress | Tightened test-quality sensors to reject Rust `assert!(true)` no-op assertions and replaced the browser-manager creation smoke test with a real initial-state assertion. |
 | 2026-05-20 | In progress | Removed the empty `tests/e2e/fixtures/` placeholder directory and taught the bloat sensor to reject reserved future fixture placeholders. |
+| 2026-05-20 | In progress | Removed speculative cloud deployment docs that pointed to a non-existent cloud source tree and contradicted the local-first architecture. |
+| 2026-05-20 | In progress | Replaced stale informal maintainer footers in developer docs and added bloat coverage to keep them out. |
 
 ## Discoveries
 
@@ -206,6 +208,12 @@ changes or Playwright-specific work.
 - `tests/e2e/fixtures/` only contained `.gitkeep` and a README reserving the
   directory for future file fixtures; current E2E coverage uses mock backend
   state and no test reads files from that path.
+- Architecture and getting-started docs described a future cloud deployment
+  tree that does not exist, and the roadmap listed cloud deployment as a future
+  idea even though current product rules keep user data local unless the user
+  configures an explicit external channel.
+- `ERROR_HANDLING.md` and `MUTATION_TESTING.md` still had informal maintainer
+  footers instead of current project-owned ownership labels.
 
 ## Decisions
 
@@ -237,6 +245,10 @@ changes or Playwright-specific work.
   `npm run lint:tests`; creation smoke tests must assert observable state.
 - Do not keep empty placeholder fixture directories. Add real fixtures in the
   same commit as tests that read them.
+- Keep speculative cloud deployment architecture out of maintained docs unless
+  there is an explicit product decision and implementation plan.
+- Use neutral project ownership in maintained docs; informal maintainer footers
+  are bloat and should not be reintroduced.
 
 ## Outcomes
 

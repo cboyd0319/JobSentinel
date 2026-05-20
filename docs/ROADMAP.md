@@ -488,7 +488,6 @@ Many governments publish job data as open CSV/JSON:
 
 ### v3.0+ Future Ideas
 
-- GCP Cloud Run / AWS Lambda deployment
 - Multi-user support with web dashboard
 - Mobile companion app (React Native)
 - Company health monitoring (reviews, funding, red flags)

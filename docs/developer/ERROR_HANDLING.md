@@ -695,5 +695,5 @@ fn test_error_message_quality() {
 
 ---
 
-**Last Updated**: January 25, 2026
-**Maintained By**: The Rust Mac Overlord 🦀
+**Last Updated**: May 20, 2026
+**Maintained By**: JobSentinel maintainers

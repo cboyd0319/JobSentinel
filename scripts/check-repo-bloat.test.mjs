@@ -55,3 +55,79 @@ test("checkRepoBloat rejects reserved E2E fixture placeholders", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects speculative cloud deployment docs", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/developer/ARCHITECTURE.md",
+      "## Cloud Architecture (not implemented)\n\nCloud Backend (GCP/AWS)\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/GETTING_STARTED.md",
+      "src-tauri/src/cloud/ # GCP/AWS deployment\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/ROADMAP.md",
+      "- GCP Cloud Run / AWS Lambda deployment\n",
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "docs/developer/ARCHITECTURE.md",
+        "docs/developer/GETTING_STARTED.md",
+        "docs/ROADMAP.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove speculative cloud deployment doc: docs/developer/ARCHITECTURE.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove speculative cloud deployment doc: docs/developer/GETTING_STARTED.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("remove speculative cloud deployment doc: docs/ROADMAP.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects stale informal maintainer footers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/developer/ERROR_HANDLING.md",
+      "**Maintained By**: The Rust Mac Overlord 🦀\n",
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/developer/ERROR_HANDLING.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace stale informal maintainer footer: docs/developer/ERROR_HANDLING.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});

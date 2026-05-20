@@ -482,6 +482,6 @@ exclude_functions = ["::function_name"]
 
 ---
 
-**Last Updated**: March 18, 2026
+**Last Updated**: May 20, 2026
 **Version**: v2.6.4
-**Maintained By**: The Rust Mac Overlord 🦀
+**Maintained By**: JobSentinel maintainers

@@ -797,47 +797,6 @@ match result {
 
 ---
 
-## Cloud Architecture (not implemented)
-
-### Cloud Deployment
-
-```text
-┌──────────────┐
-│   Desktop    │ ──┐
-│     App      │   │
-└──────────────┘   │
-                   ├──> Load Balancer
-┌──────────────┐   │
-│   Web App    │ ──┘
-│   (React)    │
-└──────────────┘
-        │
-        v
-┌──────────────────────────────┐
-│   Cloud Backend (GCP/AWS)    │
-│  ┌────────────────────────┐  │
-│  │  Compute (Cloud Run)   │  │
-│  │  - Job scrapers        │  │
-│  │  - Scoring engine      │  │
-│  │  - Notifications       │  │
-│  └────────────────────────┘  │
-│  ┌────────────────────────┐  │
-│  │  Storage               │  │
-│  │  - PostgreSQL (jobs)   │  │
-│  │  - Redis (cache)       │  │
-│  └────────────────────────┘  │
-└──────────────────────────────┘
-```
-
-### Multi-Tenant Architecture
-
-- Shared scraper pool (cost optimization)
-- Per-user scoring and notifications
-- User authentication (OAuth)
-- Encrypted user data
-
----
-
 ## Performance Characteristics
 
 | Operation             | Latency | Notes                     |
@@ -851,6 +810,6 @@ match result {
 
 ---
 
-**Last Updated**: March 18, 2026
+**Last Updated**: May 20, 2026
 **Version**: 2.6.4
-**Maintained By**: The Rust Mac Overlord 🦀
+**Maintained By**: JobSentinel maintainers
