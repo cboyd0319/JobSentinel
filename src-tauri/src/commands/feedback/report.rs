@@ -1,7 +1,7 @@
 //! Feedback Report Generator
 //!
 //! Generates fully anonymized feedback reports for beta testers.
-//! Reports follow the exact format specified in BETA_FEEDBACK_PLAN.md.
+//! Reports follow the beta feedback workflow in docs/plans/completed/beta-feedback-system.md.
 
 use chrono::{DateTime, Local, Utc};
 use serde::Serialize;

@@ -70,10 +70,16 @@ export async function saveFeedbackReport(
   description: string,
   includeDebugInfo: boolean
 ): Promise<string | null> {
-  return await invoke<string | null>("save_feedback_report", {
+  const content = await invoke<string>("generate_feedback_report", {
     category,
     description,
     includeDebugInfo,
+  });
+  const suggestedFilename = await invoke<string>("get_feedback_filename");
+
+  return await invoke<string | null>("save_feedback_file", {
+    content,
+    suggestedFilename,
   });
 }
 
@@ -96,33 +102,21 @@ export async function openGitHubIssue(
     }
   }
 
-  // Build GitHub issue URL
-  const template = category === "bug"
-    ? "bug_report.yml"
-    : category === "feature"
-    ? "feature_request.yml"
-    : "question.yml";
-
-  const params = new URLSearchParams({ template });
-  const url = `https://github.com/cboyd0319/JobSentinel/issues/new?${params}`;
-
-  // Open in browser via Tauri
-  await invoke("open_url", { url });
+  await invoke("open_github_issues", { template: category });
 }
 
 /**
  * Open Google Drive feedback folder.
  */
 export async function openGoogleDriveFeedbackFolder(): Promise<void> {
-  const url = "https://drive.google.com/drive/folders/1cbhxt_8mVf4fbi-eD3XPd2UGUSBmhLfo";
-  await invoke("open_url", { url });
+  await invoke("open_google_drive");
 }
 
 /**
  * Reveal saved file in native file explorer.
  */
 export async function revealInFileExplorer(path: string): Promise<void> {
-  await invoke("reveal_in_file_explorer", { path });
+  await invoke("reveal_file", { path });
 }
 
 /**

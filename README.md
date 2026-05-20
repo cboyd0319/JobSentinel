@@ -365,7 +365,7 @@ Developer docs:
 
 ### Planned for v2.7
 
-- Privacy-first beta feedback workflow.
+- Privacy-first beta feedback workflow, implemented on main and tracked for release.
 - Universal macOS release artifact.
 - Linux AppImage and `.deb` release artifacts.
 - Local matching improvements.

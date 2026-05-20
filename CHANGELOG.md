@@ -28,8 +28,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Full PII sanitization (paths, emails, webhooks, tokens, IPs)
   - Cross-platform support (macOS, Windows, Linux)
   - Debug log ring buffer (100 events) for diagnostics
-  - 8 new Tauri commands: `open_github_issues`, `open_google_drive`, `reveal_file`, `get_system_info`, `get_config_summary`, `generate_feedback_report`, `get_debug_log_formatted`, `clear_debug_log`
+  - 11 new Tauri commands: `open_github_issues`, `open_google_drive`, `reveal_file`,
+    `get_system_info`, `get_config_summary`, `generate_feedback_report`,
+    `get_debug_log_formatted`, `get_debug_log_events`, `clear_debug_log_cmd`,
+    `get_feedback_filename`, `save_feedback_file`
 - **GitHub Issue Templates** - Structured forms for bug reports, feature requests, questions
+
+### Fixed
+
+- **Feedback command wiring** - Frontend feedback actions now invoke registered Tauri commands
+  for GitHub, Google Drive, file reveal, and native report saving.
 
 ## [2.6.4] - 2026-03-18
 

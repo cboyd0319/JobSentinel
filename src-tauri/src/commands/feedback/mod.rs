@@ -19,6 +19,7 @@ pub use system_info::SystemInfo;
 use crate::commands::AppState;
 use std::path::PathBuf;
 use tauri::{AppHandle, State};
+use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_shell::ShellExt;
 
 /// Validate that a path is safe to reveal in the file manager.
@@ -51,6 +52,25 @@ fn validate_reveal_path(path: &str) -> Result<PathBuf, String> {
     }
 
     Ok(canonical)
+}
+
+fn feedback_save_path(file_path: tauri_plugin_dialog::FilePath) -> Result<PathBuf, String> {
+    file_path
+        .into_path()
+        .map_err(|e| format!("Invalid feedback file path: {e}"))
+}
+
+fn feedback_suggested_filename(suggested_filename: Option<String>) -> String {
+    suggested_filename
+        .and_then(|name| {
+            PathBuf::from(name)
+                .file_name()
+                .and_then(|value| value.to_str())
+                .map(str::trim)
+                .filter(|value| !value.is_empty())
+                .map(ToOwned::to_owned)
+        })
+        .unwrap_or_else(report::get_feedback_filename_impl)
 }
 
 /// Open GitHub Issues page for bug reports
@@ -172,14 +192,28 @@ pub fn get_feedback_filename() -> String {
     report::get_feedback_filename_impl()
 }
 
-/// Save a feedback report (frontend handles dialog)
+/// Save a feedback report using a native file dialog.
 #[tauri::command]
 pub async fn save_feedback_file(
-    _app: tauri::AppHandle,
+    app: tauri::AppHandle,
     content: String,
-    _suggested_filename: Option<String>,
-) -> Result<String, String> {
-    Ok(content)
+    suggested_filename: Option<String>,
+) -> Result<Option<String>, String> {
+    let suggested_filename = feedback_suggested_filename(suggested_filename);
+    let Some(file_path) = app
+        .dialog()
+        .file()
+        .add_filter("Text", &["txt"])
+        .set_file_name(suggested_filename)
+        .blocking_save_file()
+    else {
+        return Ok(None);
+    };
+
+    let path = feedback_save_path(file_path)?;
+    std::fs::write(&path, content).map_err(|e| format!("Failed to save feedback report: {e}"))?;
+
+    Ok(Some(path.to_string_lossy().into_owned()))
 }
 
 // ============================================================================
@@ -280,5 +314,18 @@ mod tests {
     fn test_validate_reveal_path_rejects_empty() {
         let result = validate_reveal_path("");
         assert!(result.is_err(), "Empty path must be rejected");
+    }
+
+    #[test]
+    fn test_feedback_suggested_filename_strips_path_components() {
+        let filename = feedback_suggested_filename(Some("../jobsentinel-feedback.txt".to_string()));
+        assert_eq!(filename, "jobsentinel-feedback.txt");
+    }
+
+    #[test]
+    fn test_feedback_suggested_filename_uses_generated_fallback() {
+        let filename = feedback_suggested_filename(Some("   ".to_string()));
+        assert!(filename.starts_with("jobsentinel-feedback-"));
+        assert!(filename.ends_with(".txt"));
     }
 }

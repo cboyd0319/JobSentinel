@@ -16,7 +16,7 @@ See [Exec Plans](../exec-plans.md) for required format.
 
 | Version | Status | Document |
 | ------- | ------ | -------- |
-| v2.7.0 | Planned | No formal plan yet. |
+| v2.7.0 | Unreleased | [Beta feedback system](completed/beta-feedback-system.md) |
 
 ## Plan Requirements
 
@@ -36,6 +36,7 @@ Each release plan includes:
 
 | Version | Status | Document |
 | ------- | ------ | -------- |
+| v2.7.0 | Complete on main | [Beta feedback system](completed/beta-feedback-system.md) |
 | v2.6.0 | Complete | [v2.6.0-ux-improvements.md](./v2.6.0-ux-improvements.md) |
 | v2.5.0 | Complete | No formal plan. |
 | v2.0.0 | Complete | No formal plan. |

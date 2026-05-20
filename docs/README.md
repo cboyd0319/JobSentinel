@@ -22,7 +22,7 @@ Current release package version is `2.6.4`. Unreleased `2.7.x` work is tracked i
 ## Current Status
 
 **Release version:** 2.6.4
-**Unreleased work:** Beta feedback, universal macOS builds, docs harness alignment
+**Unreleased `2.7.x` work implemented on main:** Beta feedback, universal macOS builds, docs harness alignment
 **Verification:** Use `npm run harness:check`, `npm run lint`, `npm run test:run`, and Rust checks from
 [Verification Matrix](harness/verification-matrix.md).
 
@@ -177,10 +177,11 @@ Current release package version is `2.6.4`. Unreleased `2.7.x` work is tracked i
 - **User Data**: 20 commands (templates, prep checklists, saved searches, notifications, history)
 - **One-Click Apply**: 18 commands (profile, screening answers, attempts, ATS detection, browser)
 - **Health**: 9 commands (scraper health, smoke tests, credential expiry)
+- **Feedback**: 11 commands (GitHub, Google Drive, sanitized reports, debug summaries)
 
 ### Planned / Unreleased Features
 
-- Beta feedback workflow
+- Beta feedback workflow (implemented on main, tracked for `2.7.0`)
 - Universal macOS release artifact
 - Linux AppImage and `.deb` release artifacts
 - Machine learning improvements
