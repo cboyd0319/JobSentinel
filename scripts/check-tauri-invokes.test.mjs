@@ -90,3 +90,72 @@ test("checkTauriInvokes rejects hardcoded current command-count claims", () => {
     );
   });
 });
+
+test("checkTauriInvokes rejects registered stub commands", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/main.rs",
+      `
+fn main() {
+    tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![
+            commands::automation::take_automation_screenshot,
+        ]);
+}
+`,
+    );
+    writeFixtureFile(
+      root,
+      "README.md",
+      "Current backend surface: **1 registered Tauri commands**.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/README.md",
+      "### Backend Modules (1 registered Tauri commands)\n\n- **Automation**: browser control\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/ROADMAP.md",
+      "- **1 registered Tauri commands** for backend modules\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/ARCHITECTURE.md",
+      "Tauri command handlers.\n\n**Automation Commands:**\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/GETTING_STARTED.md",
+      "- **automation**: Browser control\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/user-data-management.md",
+      "These commands power the user data features.\n\n### Saved Searches\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/automation.rs",
+      `
+#[tauri::command]
+pub async fn take_automation_screenshot(path: String) -> Result<(), String> {
+    tracing::info!("Command: take_automation_screenshot (path: {})", path);
+
+    // Note: This is a placeholder - we'd need to track the current page.
+    Err("Screenshot functionality requires active page context".to_string())
+}
+`,
+    );
+
+    const violations = checkTauriInvokes(root);
+
+    assert.ok(
+      violations.some((violation) =>
+        violation.includes("take_automation_screenshot is registered but appears to be a stub"),
+      ),
+      violations.join("\n"),
+    );
+  });
+});

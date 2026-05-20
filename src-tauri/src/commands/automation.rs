@@ -631,16 +631,6 @@ pub struct FillResultWithAttempt {
     pub ats_platform: String,
 }
 
-/// Take a screenshot of the current browser page
-#[tauri::command]
-pub async fn take_automation_screenshot(path: String) -> Result<(), String> {
-    tracing::info!("Command: take_automation_screenshot (path: {})", path);
-
-    // Note: This is a placeholder - we'd need to track the current page
-    // For now, users can use OS screenshot tools
-    Err("Screenshot functionality requires active page context".to_string())
-}
-
 /// Mark an automation attempt as submitted by the user
 ///
 /// Called when user confirms they clicked the submit button on the form.

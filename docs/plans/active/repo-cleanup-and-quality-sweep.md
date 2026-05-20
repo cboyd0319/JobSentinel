@@ -124,6 +124,7 @@ changes or Playwright-specific work.
 | 2026-05-20 | In progress | Hardened ATS URL detection so provider names in query strings or lookalike hosts cannot produce false platform matches, and corrected related architecture docs. |
 | 2026-05-20 | In progress | Sanitized automation command URL logging so credentials, query strings, fragments, and invalid raw URLs are not written to logs. |
 | 2026-05-20 | In progress | Removed stale hard-coded Tauri command sub-counts from docs, added missing user-data command docs, and extended the invoke checker to catch command-count documentation drift. |
+| 2026-05-20 | In progress | Removed the registered but unimplemented automation screenshot IPC command and added an invoke-surface sensor for registered stub commands. |
 
 ## Discoveries
 
@@ -193,6 +194,10 @@ changes or Playwright-specific work.
 - Command-count docs had drifted: architecture still claimed 169 total Tauri
   commands, user-data docs claimed 20 commands while omitting
   `seed_default_templates`, and overview docs carried stale module sub-counts.
+- `take_automation_screenshot` was registered as public IPC but always returned
+  a fixed active-page-context error; no frontend or docs referenced it, and
+  implementing arbitrary screenshot paths would need a separate file-write
+  security design.
 
 ## Decisions
 
@@ -217,6 +222,9 @@ changes or Playwright-specific work.
 - Keep the exact total Tauri command count only in canonical summary claims
   guarded by `npm run lint:tauri-invokes`; remove exact module sub-counts from
   overview docs unless a sensor owns them.
+- Do not expose registered Tauri commands that are placeholders or guaranteed
+  fixed errors; implement the behavior with a reviewed trust boundary or remove
+  the command from the IPC surface.
 
 ## Outcomes
 

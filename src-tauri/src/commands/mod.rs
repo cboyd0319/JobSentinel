@@ -192,7 +192,6 @@ pub use automation::{
     get_screening_answers,
     is_browser_running,
     launch_automation_browser,
-    take_automation_screenshot,
     upsert_application_profile,
     upsert_screening_answer,
 };

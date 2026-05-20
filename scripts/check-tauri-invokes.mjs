@@ -147,6 +147,16 @@ function collectFrontendInvokes(root) {
 }
 
 function collectRegisteredCommands(root) {
+  const entries = collectRegisteredCommandEntries(root);
+
+  if (!entries) {
+    return null;
+  }
+
+  return new Set(entries.map((entry) => entry.name));
+}
+
+function collectRegisteredCommandEntries(root) {
   const mainPath = join(root, "src-tauri/src/main.rs");
 
   if (!existsSync(mainPath)) {
@@ -160,11 +170,70 @@ function collectRegisteredCommands(root) {
     return null;
   }
 
-  return new Set(
-    [...generateHandlerMatch[1].matchAll(/commands::[a-z_]+::([a-zA-Z0-9_]+)/g)].map(
-      (match) => match[1],
-    ),
+  return [
+    ...generateHandlerMatch[1].matchAll(/commands::([a-z_]+)::([a-zA-Z0-9_]+)/g),
+  ].map((match) => ({
+    module: match[1],
+    name: match[2],
+  }));
+}
+
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function findFunctionBody(text, name) {
+  const functionStart = text.search(
+    new RegExp(`\\bpub\\s+(?:async\\s+)?fn\\s+${escapeRegExp(name)}\\b`),
   );
+
+  if (functionStart === -1) {
+    return null;
+  }
+
+  const nextCommand = text.slice(functionStart + 1).search(/\n#\[tauri::command\]/);
+  const end =
+    nextCommand === -1 ? text.length : functionStart + 1 + nextCommand;
+
+  return text.slice(functionStart, end);
+}
+
+function collectRegisteredStubCommandViolations(root) {
+  const violations = [];
+  const entries = collectRegisteredCommandEntries(root);
+
+  if (!entries) {
+    return violations;
+  }
+
+  for (const { module, name } of entries) {
+    const commandPath = join(root, "src-tauri/src/commands", `${module}.rs`);
+
+    if (!existsSync(commandPath)) {
+      continue;
+    }
+
+    const text = readFileSync(commandPath, "utf8");
+    const body = findFunctionBody(text, name);
+
+    if (!body) {
+      continue;
+    }
+
+    const returnsFixedError = /\bErr\s*\(/.test(body);
+    const hasStubMarker =
+      /\bplaceholder\b/i.test(body) ||
+      /\bnot implemented\b/i.test(body) ||
+      /requires active page context/i.test(body);
+
+    if (returnsFixedError && hasStubMarker) {
+      violations.push(
+        `${module}::${name} is registered but appears to be a stub; implement it or remove it from src-tauri/src/main.rs`,
+      );
+    }
+  }
+
+  return violations;
 }
 
 function collectDocumentedCommandCountViolations(root, commandCount) {
@@ -230,6 +299,7 @@ export function checkTauriInvokes(root = defaultRoot) {
   }
 
   violations.push(...collectDocumentedCommandCountViolations(root, registered.size));
+  violations.push(...collectRegisteredStubCommandViolations(root));
 
   return violations;
 }

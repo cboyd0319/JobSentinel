@@ -276,7 +276,6 @@ fn main() {
             commands::automation::close_automation_browser,
             commands::automation::is_browser_running,
             commands::automation::fill_application_form,
-            commands::automation::take_automation_screenshot,
             commands::automation::mark_attempt_submitted,
             commands::automation::get_attempts_for_job,
             // Health monitoring commands (v2.1)
