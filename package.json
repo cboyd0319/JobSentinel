@@ -16,6 +16,7 @@
     "lint:prose:all": "vale .",
     "lint:architecture": "node scripts/check-frontend-boundaries.mjs",
     "lint:security": "node scripts/check-security-sensors.mjs",
+    "lint:tests": "node scripts/check-test-quality.mjs",
     "harness:check": "node scripts/check-harness.mjs",
     "lint:harness": "npm run harness:check",
     "lint:docs": "npm run harness:check && npm run lint:md && npm run lint:prose",

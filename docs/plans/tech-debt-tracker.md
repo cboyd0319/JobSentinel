@@ -12,6 +12,7 @@ security, or developer workflow.
 
 | ID | Area | Evidence | Outcome | Closed |
 | -- | ---- | -------- | ------- | ------ |
+| QA-003 | Test quality sensors | `scripts/check-test-quality.mjs` rejects no-op `expect(true)`, always-true fallbacks, and focused `.only` tests through `npm run harness:check`. | Repeated weak assertion drift now has a mechanical guard. | 2026-05-19 |
 | HE-003 | Security sensors | `scripts/check-security-sensors.mjs` verifies required security docs, security matrix coverage, and CI audit/advisory gate visibility through `npm run harness:check`. | Local harness now summarizes security-specific gates so agents get a deterministic threat-surface reminder. | 2026-05-19 |
 | HE-001 | Harness docs | `scripts/check-harness.mjs` rejects hardcoded current test-count claims in front-door and testing docs. | Maintained docs now reference fresh command output for current test counts instead of stale numeric claims. | 2026-05-19 |
 | HE-002 | Architecture sensors | `scripts/check-frontend-boundaries.mjs` enforces production frontend import boundaries and runs through `npm run harness:check`. | Shared frontend layers now have a mechanical drift sensor. | 2026-05-19 |

@@ -53,6 +53,7 @@ Sensors:
 - TypeScript checks and ESLint.
 - Frontend architecture boundary checks.
 - Security sensor coverage checks.
+- Test quality checks for no-op and focused tests.
 - Vitest unit and integration tests.
 - Playwright E2E tests.
 - Rust formatting, clippy, and tests.

@@ -12,6 +12,7 @@ behavior, security, storage, or release flow changes.
 | Package scripts | `npm run harness:check` and affected script command |
 | Frontend architecture boundary rules | `npm run lint:architecture` and `npm run harness:check` |
 | Security sensor policy | `npm run lint:security` and `npm run harness:check` |
+| Test quality policy | `npm run lint:tests` and `npm run harness:check` |
 | Any claim of completion | Name exact checks run |
 
 ## Frontend

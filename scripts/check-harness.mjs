@@ -8,6 +8,7 @@ import {
   checkSecuritySensors,
   formatSecuritySensorSummary,
 } from "./check-security-sensors.mjs";
+import { checkTestQuality } from "./check-test-quality.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -254,6 +255,10 @@ for (const violation of checkFrontendBoundaries(root)) {
 }
 
 for (const violation of checkSecuritySensors(root)) {
+  errors.push(violation);
+}
+
+for (const violation of checkTestQuality(root)) {
   errors.push(violation);
 }
 
