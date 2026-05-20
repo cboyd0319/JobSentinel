@@ -847,3 +847,52 @@ test("checkRepoBloat rejects raw URL logging outside approved sanitizers", () =>
     );
   });
 });
+
+test("checkRepoBloat rejects raw job import logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/import.rs",
+      [
+        '#[tracing::instrument(skip(state), fields(url), level = "info")]',
+        "pub async fn preview_job_import(url: String) {}",
+        'tracing::info!(title = %preview.title, company = %preview.company, "Import preview created");',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/import.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace raw job import logging: src-tauri/src/commands/import.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw job import success metadata", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/import.rs",
+      'tracing::info!(job_id = job_id, title = %title, company = %company, "Job imported successfully");\n',
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/import.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace raw job import logging: src-tauri/src/commands/import.rs"),
+      violations.join("\n"),
+    );
+  });
+});

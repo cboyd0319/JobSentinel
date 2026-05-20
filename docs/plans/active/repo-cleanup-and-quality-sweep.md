@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Sanitized job-import spans and result logs so raw import URLs, titles, and companies are not written to logs, with bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Replaced raw LinkedIn scraper query and location span fields with length metadata, and extended scraper-log bloat coverage. |
 | 2026-05-20 | In progress | Sanitized remaining raw URL logging in URL normalization parse failures and browser automation spans, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Replaced raw local path logging with non-identifying path labels for resume, automation, database, platform, startup, and ML model paths. |
@@ -267,6 +268,10 @@ changes or Playwright-specific work.
 - The LinkedIn scraper span still recorded raw search query and location fields.
   These values are user-authored job criteria and should be logged only as
   non-content metadata such as character counts.
+- Job import commands still recorded raw import URLs in tracing spans and logged
+  parsed job titles and company names after preview/import. Import URLs can
+  contain private tracking state, and titles/companies are user job targets; log
+  sanitized URL labels and content lengths instead.
 - `docs/plans/active/.gitkeep` and `docs/plans/completed/.gitkeep` were
   redundant tracked placeholders because both directories contain real plan
   files.
@@ -371,6 +376,8 @@ changes or Playwright-specific work.
   strings. Do not change request URLs or cache keys for logging-only fixes.
 - Scraper spans must not record raw user-authored query or location fields; use
   counts, booleans, source names, limits, or result counts instead.
+- Job import logging must sanitize untrusted URLs and avoid raw parsed job
+  titles or company names. Log identifiers, counts, and missing-field totals.
 - Local paths in logs must use non-identifying labels. Preserve actual paths for
   file operations, database records, and user-facing operations that need them.
 - Keep feature docs aligned with live source names for frontend routes and IPC

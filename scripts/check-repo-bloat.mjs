@@ -175,6 +175,8 @@ const rawUrlLoggingPaths = new Set([
   "src-tauri/src/core/scrapers/url_utils.rs",
 ]);
 
+const rawJobImportLoggingPaths = new Set(["src-tauri/src/commands/import.rs"]);
+
 function normalizeRepoPath(path) {
   return path.split(/[\\/]/).join("/");
 }
@@ -571,6 +573,18 @@ function hasRawUrlLogging(root, path) {
   );
 }
 
+function hasRawJobImportLogging(root, path) {
+  if (!rawJobImportLoggingPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /#\[tracing::instrument\([^\]]*fields\(url\)/.test(text) ||
+    /tracing::info!\([^;]*(?:title|company)\s*=\s*%(?:preview\.)?(?:title|company)/.test(text)
+  );
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -685,6 +699,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawUrlLogging(root, path)) {
       violations.push(`replace raw URL logging: ${path}`);
+    }
+
+    if (hasRawJobImportLogging(root, path)) {
+      violations.push(`replace raw job import logging: ${path}`);
     }
   }
 

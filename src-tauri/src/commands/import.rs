@@ -7,6 +7,7 @@ use crate::core::import::{
     fetch_job_page, parse_schema_org_job_posting, schema_org::create_preview, ImportError,
     JobImportPreview,
 };
+use crate::core::url_security::sanitize_url_for_logging;
 use chrono::Utc;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
@@ -17,7 +18,7 @@ use tauri::State;
 /// Fetches the URL, parses Schema.org data, and returns a preview
 /// without actually importing the job. User can review before confirming.
 #[tauri::command]
-#[tracing::instrument(skip(state), fields(url), level = "info")]
+#[tracing::instrument(skip(state, url), fields(url = %sanitize_url_for_logging(&url)), level = "info")]
 pub async fn preview_job_import(
     url: String,
     state: State<'_, AppState>,
@@ -64,8 +65,8 @@ pub async fn preview_job_import(
         .map_err(|e| format_import_error(&e))?;
 
     tracing::info!(
-        title = %preview.title,
-        company = %preview.company,
+        title_chars = preview.title.chars().count(),
+        company_chars = preview.company.chars().count(),
         already_exists = already_exists,
         missing_fields = preview.missing_fields.len(),
         "Import preview created"
@@ -79,7 +80,7 @@ pub async fn preview_job_import(
 /// Fetches the URL, parses Schema.org data, and imports the job into the database.
 /// Returns the created job object.
 #[tauri::command]
-#[tracing::instrument(skip(state), fields(url), level = "info")]
+#[tracing::instrument(skip(state, url), fields(url = %sanitize_url_for_logging(&url)), level = "info")]
 pub async fn import_job_from_url(url: String, state: State<'_, AppState>) -> Result<Value, String> {
     tracing::info!("Importing job from URL");
 
@@ -185,8 +186,8 @@ pub async fn import_job_from_url(url: String, state: State<'_, AppState>) -> Res
 
     tracing::info!(
         job_id = job_id,
-        title = %title,
-        company = %company,
+        title_chars = title.chars().count(),
+        company_chars = company.chars().count(),
         "Job imported successfully"
     );
 
