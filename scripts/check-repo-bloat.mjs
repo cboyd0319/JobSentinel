@@ -718,7 +718,10 @@ function hasUnsanitizedFrontendErrorReportStorage(root, path) {
   return (
     /this\.errors\.unshift\(report\)/.test(text) ||
     (/localStorage\.setItem\(STORAGE_KEY,\s*JSON\.stringify\(this\.errors\)\)/.test(text) &&
-      !/sanitizeStoredReport/.test(text))
+      !/sanitizeStoredReport/.test(text)) ||
+    text.includes("hooks\\.slack\\.com\\/services") ||
+    !text.includes("discord(?:app)?\\.com\\/api\\/webhooks") ||
+    !text.includes("outlook\\.office(?:365)?\\.com\\/webhook")
   );
 }
 

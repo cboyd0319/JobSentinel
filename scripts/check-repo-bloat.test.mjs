@@ -1276,6 +1276,54 @@ test("checkRepoBloat rejects unsanitized frontend error report storage", () => {
   });
 });
 
+test("checkRepoBloat rejects stale frontend webhook redaction patterns", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/utils/errorReporting.ts",
+      [
+        "const WEBHOOK_PATTERN = /https:\\/\\/(?:hooks\\.slack\\.com\\/services|discord\\.com\\/api\\/webhooks|outlook\\.office\\.com\\/webhook)[^\\s]*/gi;",
+        "function sanitizeStoredReport(report) { return report; }",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/utils/errorReporting.ts"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sanitize frontend error report storage: src/utils/errorReporting.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat accepts current frontend webhook redaction patterns", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/utils/errorReporting.ts",
+      [
+        "const WEBHOOK_PATTERN = /https:\\/\\/(?:hooks\\.slack\\.com|discord(?:app)?\\.com\\/api\\/webhooks|outlook\\.office(?:365)?\\.com\\/webhook)[^\\s]*/gi;",
+        "function sanitizeStoredReport(report) { return report; }",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/utils/errorReporting.ts"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      !violations.includes("sanitize frontend error report storage: src/utils/errorReporting.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects notification webhook saves without validation", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

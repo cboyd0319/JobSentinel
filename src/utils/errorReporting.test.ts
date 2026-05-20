@@ -85,6 +85,25 @@ describe("errorReporting", () => {
     expect((stored.context?.nested as Record<string, unknown>).webhook).toBe("[REDACTED]");
   });
 
+  it("redacts provider webhook URLs before generic URL sanitization", () => {
+    const report = errorReporter.captureCustom(
+      [
+        "Slack parse failed https://hooks.slack.com/T000/B000/SECRET",
+        "Discord failed https://discord.com/api/webhooks/123456789/discord-secret",
+        "Teams failed https://outlook.office365.com/webhook/team-secret/IncomingWebhook/channel/connector",
+      ].join(" ")
+    );
+
+    const stored = errorReporter.getErrors()[0];
+    const serialized = JSON.stringify(stored);
+
+    expect(report).toEqual(stored);
+    expect(stored.message).toContain("[WEBHOOK_CONFIGURED]");
+    expect(serialized).not.toContain("hooks.slack.com/T000");
+    expect(serialized).not.toContain("discord-secret");
+    expect(serialized).not.toContain("team-secret");
+  });
+
   it("sanitizes captured async arguments when wrapped functions fail", async () => {
     const fn = vi.fn().mockRejectedValue(new Error("Failed token ghp_secret"));
     const wrapped = withErrorCapture(fn);

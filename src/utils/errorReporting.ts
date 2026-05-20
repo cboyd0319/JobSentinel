@@ -29,7 +29,7 @@ const WINDOWS_USER_PATH_PATTERN = /[A-Za-z]:\\Users\\[^\\\s]+/g;
 const EMAIL_PATTERN = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
 const LINKEDIN_COOKIE_PATTERN = /li_at=[^\s;]+/g;
 const TOKEN_PATTERN = /\b(?:Bearer\s+[^\s]+|token\s+[^\s]+|api_key=[^\s&]+|access_token=[^\s&]+|refresh_token=[^\s&]+|secret=[^\s&]+|password=[^\s&]+)/gi;
-const WEBHOOK_PATTERN = /https:\/\/(?:hooks\.slack\.com\/services|discord(?:app)?\.com\/api\/webhooks|outlook(?:\.office)?365?\.com\/webhook|outlook\.office\.com\/webhook)[^\s"'<>\\)]*/gi;
+const WEBHOOK_PATTERN = /https:\/\/(?:hooks\.slack\.com|discord(?:app)?\.com\/api\/webhooks|outlook\.office(?:365)?\.com\/webhook|hooks\.discord\.com\/api\/webhooks|hooks\.teams\.com\/workflows)[^\s"'<>\\)]*/gi;
 
 function truncateStoredString(value: string): string {
   if (value.length <= MAX_STORED_STRING_LENGTH) {
