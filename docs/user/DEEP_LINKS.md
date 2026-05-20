@@ -117,7 +117,7 @@ Some sites require login to view full results:
 - FlexJobs (also requires subscription)
 - Wellfound (AngelList)
 
-These are clearly marked with a 🔐 icon.
+These are clearly marked with a login-required badge.
 
 ### URL Parameters
 
@@ -171,7 +171,7 @@ Deep-link-specific favorites are not implemented yet. For now, you can:
 
 ### Can I customize which sites appear?
 
-Not yet, but planned for v2.7. For now, use the category filters to narrow results.
+Not currently. For now, use the category filters to narrow results.
 
 ### What if a site changes its URL format?
 
@@ -187,12 +187,12 @@ for details on adding new sites.
 
 | Feature | Deep Links | Scrapers |
 |---------|------------|----------|
-| **Legal** | ✅ Always | ⚠️ Site-dependent |
-| **Rate Limiting** | ✅ None | ❌ Common issue |
-| **CAPTCHA** | ✅ No problem | ❌ Blocks scraping |
-| **Up-to-date** | ✅ Always current | ⚠️ Breaks on changes |
-| **Automation** | ❌ Manual | ✅ Fully automated |
-| **Data Storage** | ❌ View only | ✅ Saved locally |
+| **Legal** | Always | Site-dependent |
+| **Rate Limiting** | None | Common issue |
+| **CAPTCHA** | No problem | Blocks scraping |
+| **Up-to-date** | Always current | Breaks on changes |
+| **Automation** | Manual | Fully automated |
+| **Data Storage** | View only | Saved locally |
 
 **Use scrapers for:** Sites that allow it (Greenhouse, Lever, USAJobs API)
 **Use deep links for:** Everything else (LinkedIn, Indeed, Glassdoor, etc.)
@@ -214,7 +214,7 @@ Some sites have limited URL parameter support. Try:
 
 ### Link opens but requires login
 
-Sites marked with 🔐 always require login:
+Sites marked with the login-required badge always require login:
 
 - LinkedIn
 - Glassdoor
@@ -226,19 +226,19 @@ This is expected - log in to view results.
 ## Related Features
 
 - **Scrapers** - Automated scraping for supported sites
-- **Saved Searches** (coming in v2.7) - Save your favorite deep link searches
+- **Deep-link favorites** (not yet implemented) - Save favorite deep link searches
 - **Job Tracker** - Track applications from manual searches
 
 ## Roadmap
 
-### v2.7 (Planned)
+### Planned
 
 - Save favorite deep link searches
 - Custom site preferences
 - Bulk open (open multiple sites at once)
 - Browser extension integration
 
-### v3.0 (Future)
+### Later
 
 - More sites (50+ total)
 - Advanced filters (salary, experience level)

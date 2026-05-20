@@ -336,3 +336,31 @@ test("checkRepoBloat rejects stale user-data export roadmap claims", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects Deep Links doc emoji and version promises", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/user/DEEP_LINKS.md",
+      [
+        "These are clearly marked with a 🔐 icon.",
+        "| **Legal** | ✅ Always | ⚠️ Site-dependent |",
+        "- **Saved Searches** (coming in v2.7) - Save favorite deep link searches",
+        "Not yet, but planned for v2.7.",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/user/DEEP_LINKS.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace Deep Links doc emoji/version promises: docs/user/DEEP_LINKS.md"),
+      violations.join("\n"),
+    );
+  });
+});
