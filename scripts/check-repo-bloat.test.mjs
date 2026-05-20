@@ -476,6 +476,53 @@ test("checkRepoBloat rejects scraper health doc emoji markers", () => {
   });
 });
 
+test("checkRepoBloat rejects feature status color emoji markers", () => {
+  withGitFixture((root) => {
+    const yellowIcon = String.fromCodePoint(0x1f7e1);
+    const redIcon = String.fromCodePoint(0x1f534);
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/ghost-detection.md",
+      [
+        `- ${yellowIcon} **Yellow** - Minor concerns`,
+        `- ${redIcon} **Red** - Probably fake`,
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/resume-builder.md",
+      [
+        `- ${yellowIcon} **60-79** - Good, but could be better`,
+        `- ${redIcon} **0-39** - Major issues`,
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/features/ghost-detection.md", "docs/features/resume-builder.md"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace feature status color emoji markers: docs/features/ghost-detection.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace feature status color emoji markers: docs/features/resume-builder.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale application tracking doc claims", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

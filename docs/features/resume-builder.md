@@ -113,10 +113,10 @@ Clear sections?
 
 ### Color Coding
 
-- 🟢 **80-100** - Excellent! You're likely to pass ATS filters
-- 🟡 **60-79** - Good, but could be better
-- 🟠 **40-59** - Needs work - you might get filtered
-- 🔴 **0-39** - Major issues - probably won't pass
+- **80-100** - Excellent! You're likely to pass ATS filters
+- **60-79** - Good, but could be better
+- **40-59** - Needs work - you might get filtered
+- **0-39** - Major issues - probably won't pass
 
 ---
 

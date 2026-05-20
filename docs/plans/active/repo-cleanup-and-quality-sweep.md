@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Removed color emoji status bullets from Ghost Detection and Resume Builder feature docs, with bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Sanitized score-breakdown modal input so direct non-finite scores render as `0%` instead of `NaN%`, with boundary regression coverage. |
 | 2026-05-20 | In progress | Fixed score-breakdown overall score color rendering that converted Tailwind text classes into invalid inline CSS colors, and added frontend boundary coverage for recurrence. |
 | 2026-05-20 | In progress | Corrected smart-scoring docs that promised a robot salary marker not present in the UI, with bloat coverage for recurrence. |
@@ -282,6 +283,8 @@ changes or Playwright-specific work.
 - Smart-scoring docs claimed predicted salaries were marked with a robot icon,
   but the live score UI uses factor icons and score reasons, not a robot salary
   marker.
+- Ghost Detection and Resume Builder feature docs still used color emoji status
+  bullets where plain text labels provide the same meaning.
 - `ScoreBreakdownModal` sanitized scores only through callers, so direct use of
   the exported modal with `NaN` rendered `NaN%`.
 - `ScoreBreakdownModal` converted Tailwind color classes such as
@@ -306,6 +309,8 @@ changes or Playwright-specific work.
 - Keep scraper health docs text-only for dashboard status examples and
   troubleshooting outputs; use status words like `Healthy`, `PASS`, and
   `FAILED`.
+- Keep maintained feature-doc status legends text-only; color names can be
+  written as words without emoji bullets.
 - Keep feature docs aligned with live source names for frontend routes and IPC
   commands; stale future-work claims count as documentation bloat.
 - Do not document UI markers that are not present in source; describe current

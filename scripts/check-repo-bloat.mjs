@@ -432,6 +432,19 @@ function hasScraperHealthDocEmojiMarkers(root, path) {
   );
 }
 
+function hasFeatureStatusColorEmojiMarkers(root, path) {
+  if (
+    path !== "docs/features/ghost-detection.md" &&
+    path !== "docs/features/resume-builder.md"
+  ) {
+    return false;
+  }
+
+  return /[\u{1f7e2}\u{1f7e1}\u{1f7e0}\u{1f534}]\s+\*\*/u.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 function hasStaleApplicationTrackingDocClaims(root, path) {
   if (path !== "docs/features/application-tracking.md") {
     return false;
@@ -538,6 +551,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasScraperHealthDocEmojiMarkers(root, path)) {
       violations.push(`replace scraper health doc emoji markers: ${path}`);
+    }
+
+    if (hasFeatureStatusColorEmojiMarkers(root, path)) {
+      violations.push(`replace feature status color emoji markers: ${path}`);
     }
 
     if (hasStaleApplicationTrackingDocClaims(root, path)) {

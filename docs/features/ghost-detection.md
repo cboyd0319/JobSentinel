@@ -78,9 +78,9 @@ hiring for all of them.
 
 Ghost jobs show a colored badge:
 
-- 🟡 **Yellow** - Minor concerns (50-59%)
-- 🟠 **Orange** - Multiple warning signs (60-74%)
-- 🔴 **Red** - Probably fake (75%+)
+- **Yellow** - Minor concerns (50-59%)
+- **Orange** - Multiple warning signs (60-74%)
+- **Red** - Probably fake (75%+)
 
 Hover over the badge to see why it was flagged. Job cards also show "Seen on X sources"
 badge to indicate deduplication detection.
