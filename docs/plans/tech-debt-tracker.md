@@ -7,11 +7,13 @@ security, or developer workflow.
 
 | ID | Area | Evidence | Risk | Next step | Status |
 | -- | ---- | -------- | ---- | --------- | ------ |
+| SCRAPE-001 | Scraper retry coverage | Shared retry helper exists, but several source adapters still call `reqwest` directly for custom headers or parsing. | Docs or operators can overestimate retry coverage, and transient 429/5xx failures may be handled inconsistently by source. | Move direct-request adapters through shared retry/body helpers where source-specific headers allow it. | Open |
 
 ## Closed Items
 
 | ID | Area | Evidence | Outcome | Closed |
 | -- | ---- | -------- | ------- | ------ |
+| SCRAPE-002 | Rate limiter contention | `RateLimiter::wait` held the shared bucket mutex while sleeping for token refill. | Released the lock before sleeping and added regression coverage so one exhausted bucket cannot block unrelated scrapers. | 2026-05-19 |
 | HE-004 | Tauri invoke map | `scripts/check-tauri-invokes.mjs` verifies production frontend `invoke()` command names against `src-tauri/src/main.rs` registrations through `npm run harness:check`. | Frontend/backend IPC drift now fails locally before broken workflows ship. | 2026-05-19 |
 | HE-005 | Tracked generated output | `src-tauri/coverage/` was committed despite generated coverage output being ignored. | Removed tracked coverage artifacts from repo history tip; future coverage output remains ignored by `.gitignore`. | 2026-05-19 |
 | HE-006 | Stale migration docs | Unlinked migration and summary docs duplicated authoritative references and contained hardcoded implementation/test claims. | Removed stale docs, narrowed root-only generated-doc ignore rules, and replaced the undo note with a compact completed plan. | 2026-05-19 |

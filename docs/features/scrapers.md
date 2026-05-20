@@ -41,7 +41,7 @@ faster. Our parallel scraping architecture enables simultaneous searches across 
 
 - **🔹 Multi-Source Integration** - 13 scrapers with parallel execution
 - **🟢 Automatic Rate Limiting** - Token bucket algorithm prevents IP bans
-- **⏱️ Intelligent Retry Logic** - Automatic retries with exponential backoff
+- **⏱️ Shared Retry Helper** - Common scraper HTTP client retries 429 and 5xx responses with exponential backoff
 - **📊 Deduplication** - SHA-256 hashing prevents duplicate jobs across sources
 - **🚀 Parallel Scraping** - Concurrent requests to multiple boards
 
@@ -404,27 +404,30 @@ Monitor the health and performance of all 13 scrapers from Settings → Troubles
 | **Disabled** | Manually disabled | N/A          |
 | **Unknown**  | No recent runs    | N/A          |
 
-### Automatic Retry Logic
+### Shared Retry Helper
 
-Scrapers automatically retry on transient failures using exponential backoff:
+The shared scraper HTTP client includes retry support for adapters that route
+requests through `get_with_retry` or `post_with_retry`. Some source-specific
+adapters still make direct requests when they need custom headers or parsing, so
+do not assume every source retries every request.
 
 ```rust
-// Default retry configuration
-RetryConfig {
-    max_attempts: 3,
-    initial_delay_ms: 1000,    // 1 second
-    max_delay_ms: 30000,       // 30 seconds
-    backoff_multiplier: 2.0,
-    retryable_status_codes: [429, 500, 502, 503, 504],
-}
+let response = get_with_retry("https://boards.greenhouse.io/v1/boards/acme/jobs").await?;
 ```
 
-**Retry Sequence Example:**
+The helper retries:
+
+- `429 Too Many Requests`
+- `5xx` server errors
+- `Retry-After` header delays when provided
+
+Default retry sequence:
 
 ```text
 Attempt 1: Immediate
-Attempt 2: Wait 1s (+ jitter)
-Attempt 3: Wait 2s (+ jitter)
+Attempt 2: Wait 1s
+Attempt 3: Wait 2s
+Attempt 4: Wait 4s
 ```
 
 ### Smoke Tests
@@ -664,7 +667,7 @@ impl RateLimiter {
 - [x] Auto-refresh scheduling (configurable intervals)
 - [x] Job filtering (keyword, salary, location, company)
 - [x] **Health monitoring dashboard** (v2.1.0)
-- [x] **Exponential backoff retry logic** (v2.1.0)
+- [x] **Shared exponential backoff retry helper** (v2.1.0)
 - [x] **Smoke tests for all scrapers** (v2.1.0)
 - [x] **Credential expiry tracking** (v2.1.0)
 - [x] **Run history tracking** (v2.1.0)

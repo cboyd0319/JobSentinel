@@ -57,13 +57,23 @@ impl RateLimiter {
     #[tracing::instrument(skip(self))]
     pub async fn wait(&self, scraper_name: &str, max_requests_per_hour: u32) {
         tracing::debug!("Acquiring rate limit token for scraper");
-        let mut buckets = self.buckets.lock().await;
 
-        let bucket = buckets
-            .entry(scraper_name.to_string())
-            .or_insert_with(|| TokenBucket::new(max_requests_per_hour));
+        loop {
+            let wait_duration = {
+                let mut buckets = self.buckets.lock().await;
 
-        bucket.wait_for_token().await;
+                let bucket = buckets
+                    .entry(scraper_name.to_string())
+                    .or_insert_with(|| TokenBucket::new(max_requests_per_hour));
+
+                match bucket.try_take_token() {
+                    Ok(()) => return,
+                    Err(wait_duration) => wait_duration,
+                }
+            };
+
+            tokio::time::sleep(wait_duration).await;
+        }
     }
 
     /// Check if request is allowed without waiting
@@ -95,11 +105,12 @@ impl Default for RateLimiter {
 impl TokenBucket {
     #[must_use]
     fn new(max_requests_per_hour: u32) -> Self {
+        let capacity = max_requests_per_hour.max(1);
         Self {
-            capacity: max_requests_per_hour,
-            tokens: max_requests_per_hour,
+            capacity,
+            tokens: capacity,
             last_refill: Instant::now(),
-            refill_rate: max_requests_per_hour as f64 / 3600.0, // tokens per second
+            refill_rate: capacity as f64 / 3600.0, // tokens per second
         }
     }
 
@@ -117,29 +128,26 @@ impl TokenBucket {
         }
     }
 
-    /// Wait until a token is available
-    async fn wait_for_token(&mut self) {
-        loop {
-            self.refill();
+    /// Try to consume a token, or return how long the caller should wait.
+    fn try_take_token(&mut self) -> Result<(), Duration> {
+        self.refill();
 
-            if self.tokens > 0 {
-                self.tokens -= 1;
-                tracing::debug!("Token consumed, {} tokens remaining", self.tokens);
-                return;
-            }
-
-            // Calculate wait time until next token
-            let wait_secs = 1.0 / self.refill_rate;
-            let wait_duration = Duration::from_secs_f64(wait_secs);
-
-            tracing::warn!(
-                "Rate limit exhausted, waiting {:?} for token refill (refill_rate: {}/sec)",
-                wait_duration,
-                self.refill_rate
-            );
-
-            tokio::time::sleep(wait_duration).await;
+        if self.tokens > 0 {
+            self.tokens -= 1;
+            tracing::debug!("Token consumed, {} tokens remaining", self.tokens);
+            return Ok(());
         }
+
+        let wait_secs = 1.0 / self.refill_rate;
+        let wait_duration = Duration::from_secs_f64(wait_secs);
+
+        tracing::warn!(
+            "Rate limit exhausted, waiting {:?} for token refill (refill_rate: {}/sec)",
+            wait_duration,
+            self.refill_rate
+        );
+
+        Err(wait_duration)
     }
 }
 
@@ -257,6 +265,54 @@ mod tests {
 
         // Indeed should still be available
         assert!(limiter.is_allowed("indeed", 10).await);
+    }
+
+    #[tokio::test]
+    async fn test_waiting_bucket_does_not_block_other_scrapers() {
+        let limiter = RateLimiter::new();
+
+        // Exhaust the slow bucket.
+        limiter.wait("slow", 1).await;
+
+        let waiting_limiter = limiter.clone();
+        let waiting_task = tokio::spawn(async move {
+            waiting_limiter.wait("slow", 1).await;
+        });
+
+        tokio::time::sleep(Duration::from_millis(10)).await;
+
+        let fast_result =
+            tokio::time::timeout(Duration::from_millis(100), limiter.is_allowed("fast", 1)).await;
+
+        waiting_task.abort();
+
+        assert!(
+            fast_result.is_ok(),
+            "An exhausted scraper bucket must not block unrelated scraper buckets"
+        );
+        assert!(fast_result.unwrap());
+    }
+
+    #[tokio::test]
+    async fn test_zero_rate_is_clamped_to_safe_minimum() {
+        let limiter = RateLimiter::new();
+
+        limiter.wait("zero-rate", 0).await;
+
+        let tokens_left = {
+            let buckets = limiter.buckets.lock().await;
+            buckets.get("zero-rate").unwrap().tokens
+        };
+
+        assert_eq!(tokens_left, 0);
+
+        let second_wait =
+            tokio::time::timeout(Duration::from_millis(100), limiter.wait("zero-rate", 0)).await;
+
+        assert!(
+            second_wait.is_err(),
+            "Second request should wait for refill instead of panicking or bypassing the limiter"
+        );
     }
 
     #[tokio::test]

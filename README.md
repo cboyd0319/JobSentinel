@@ -145,8 +145,9 @@ Learn more in [secure credential storage](docs/security/KEYRING.md) and the
 
 ## Job sources
 
-JobSentinel supports 13 job sources with rate limits, retry handling,
-deduplication, and health checks.
+JobSentinel supports 13 job sources with rate limits, deduplication, health
+checks, and shared retry helpers for adapters that route requests through the
+common scraper HTTP client.
 
 | Category | Sources |
 | -------- | ------- |
