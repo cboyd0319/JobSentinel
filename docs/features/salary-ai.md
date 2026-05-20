@@ -43,18 +43,18 @@ which are verified and updated quarterly.
 
 ---
 
-## 🎯 Overview
+## Overview
 
 JobSentinel's Salary Negotiation AI provides data-driven salary benchmarking, offer comparison,
 and AI-generated negotiation scripts to help you maximize your compensation.
 
 ### Key Features
 
-- **📊 Salary Benchmarks** - H1B public database (500K+ salaries annually)
-- **🎯 Salary Prediction** - Estimate fair market value for any job
-- **💰 Offer Comparison** - Side-by-side analysis of multiple offers
-- **📝 Negotiation Scripts** - AI-generated personalized templates
-- **📈 Market Intelligence** - Identify top-paying locations and companies
+- **Salary Benchmarks** - H1B public database (500K+ salaries annually)
+- **Salary Prediction** - Estimate fair market value for any job
+- **Offer Comparison** - Side-by-side analysis of multiple offers
+- **Negotiation Scripts** - AI-generated personalized templates
+- **Market Intelligence** - Identify top-paying locations and companies
 
 ### Screenshot
 
@@ -62,31 +62,19 @@ and AI-generated negotiation scripts to help you maximize your compensation.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ### System Components
 
 ```text
-┌─────────────────────────────────────────────────┐
-│          Salary Negotiation AI Engine           │
-│                                                  │
-│  ┌──────────────┐      ┌──────────────────────┐│
-│  │   H1B Data   │─────▶│  Salary Benchmarks   ││
-│  │   (500K+)    │      │  (Aggregated Stats)  ││
-│  └──────────────┘      └──────────────────────┘│
-│         │                       │               │
-│         ▼                       ▼               │
-│  ┌──────────────┐      ┌──────────────────────┐│
-│  │   Salary     │      │   Negotiation        ││
-│  │  Predictor   │      │   Script Generator   ││
-│  └──────────────┘      └──────────────────────┘│
-└─────────────────────────────────────────────────┘
-              │                    │
-              ▼                    ▼
-       ┌────────────┐      ┌────────────────┐
-       │Job Salary  │      │  Offer         │
-       │Predictions │      │  Comparison    │
-       └────────────┘      └────────────────┘
+H1B salary data
+  -> aggregated salary benchmarks
+  -> salary predictor
+  -> job salary predictions
+
+Salary benchmark data
+  -> negotiation script generator
+  -> offer comparison
 ```
 
 ### Database Schema
@@ -133,7 +121,7 @@ negotiation_history
 
 ---
 
-## 🚀 Usage Guide
+## Usage Guide
 
 ### 1. Predict Salary for a Job
 
@@ -296,22 +284,22 @@ sqlx::query!(
 
 ---
 
-## 📊 Data Sources
+## Data Sources
 
 ### 1. H1B Salary Database (Primary)
 
 **Source:** U.S. Department of Labor - Foreign Labor Certification Data Center
 **URL:** <https://www.flcdatacenter.com/>
 **Coverage:** 500,000+ certified H1B applications annually
-**Legal:** ✅ Public domain (Freedom of Information Act)
+**Legal:** Public domain (Freedom of Information Act)
 
 **Why H1B Data:**
 
-- ✅ Legally public and free
-- ✅ Verified by U.S. government
-- ✅ Includes exact salaries (not ranges)
-- ✅ Covers all major tech hubs
-- ✅ Updated quarterly
+- Legally public and free
+- Verified by U.S. government
+- Includes exact salaries (not ranges)
+- Covers all major tech hubs
+- Updated quarterly
 
 **Data Fields:**
 
@@ -336,7 +324,7 @@ sqlx::query!(
 
 ---
 
-## 🎯 Seniority Detection
+## Seniority Detection
 
 ### Automatic Inference
 
@@ -367,7 +355,7 @@ let seniority = SeniorityLevel::from_job_title("Senior Software Engineer");
 
 ---
 
-## 💬 Negotiation Templates
+## Negotiation Templates
 
 ### Built-in Templates
 
@@ -410,7 +398,7 @@ generator.add_template(
 
 ---
 
-## 📈 Salary Prediction Algorithm
+## Salary Prediction Algorithm
 
 ### Prediction Flow
 
@@ -454,7 +442,7 @@ generator.add_template(
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ### Unit Tests
 
@@ -462,14 +450,14 @@ generator.add_template(
 cargo test --lib salary
 
 # Test coverage:
-# ✅ Seniority inference from years
-# ✅ Seniority inference from title
-# ✅ Job title normalization
-# ✅ Location normalization
-# ✅ Salary formatting
-# ✅ Competitiveness checking
-# ✅ Negotiation target calculation
-# ✅ Template placeholder replacement
+# Seniority inference from years
+# Seniority inference from title
+# Job title normalization
+# Location normalization
+# Salary formatting
+# Competitiveness checking
+# Negotiation target calculation
+# Template placeholder replacement
 ```
 
 **Test Statistics:**
@@ -481,7 +469,7 @@ cargo test --lib salary
 
 ---
 
-## 📊 Analytics Queries
+## Analytics Queries
 
 ### Top Paying Locations
 
@@ -520,7 +508,7 @@ GROUP BY outcome;
 
 ---
 
-## 🚀 Future Enhancements
+## Future Enhancements
 
 ### Phase 2: Machine Learning (Weeks 3-4)
 
@@ -545,7 +533,7 @@ GROUP BY outcome;
 
 ---
 
-## 🔧 API Reference
+## API Reference
 
 ### SalaryAnalyzer
 
@@ -601,9 +589,9 @@ impl SalaryPredictor {
 
 ---
 
-## ✅ Implementation Status
+## Implementation Status
 
-### Phase 1: Foundation ✅ COMPLETE
+### Phase 1: Foundation Complete
 
 - [x] Database schema (7 tables, 8 indexes)
 - [x] H1B data structure
@@ -616,24 +604,23 @@ impl SalaryPredictor {
 - [x] Comprehensive unit tests (8 tests)
 - [x] Full documentation
 
-### Phase 2-4: Future 🔜
+### Phase 2-4: Future
 
 - [ ] H1B data import tool (CSV → SQLite)
 - [ ] ML-based salary prediction
 - [ ] Levels.fyi integration
 - [ ] GPT-powered script generation
 - [ ] Equity valuation calculator
-- [ ] UI components
 
 ---
 
 **Last Updated:** 2026-03-18
 **Version:** 2.6.4
 **Maintained By:** JobSentinel Core Team
-**Implementation Status:** ✅ Phase 1 Complete (Data Infrastructure)
+**Implementation Status:** Core benchmarking, prediction, negotiation, and UI available
 **Next Feature:** ML-based salary prediction
 
-💡 **Pro Tip:** Always negotiate! Research shows 70% of employers expect it, and the average
+**Pro Tip:** Always negotiate! Research shows 70% of employers expect it, and the average
 salary increase from negotiation is 10-15%.
 
 </details>

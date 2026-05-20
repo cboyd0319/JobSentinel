@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Removed emoji markers from Resume Matcher and Salary AI feature docs, corrected the stale Salary AI future-UI claim now that `src/pages/Salary.tsx` exists, and added bloat coverage for both drift classes. |
 | 2026-05-20 | In progress | Synced maintained macOS and getting-started developer docs with current Tauri CLI ownership, build output naming, Rust/frontend test commands, and text-only status guidance, with bloat coverage for those stale patterns. |
 | 2026-05-20 | In progress | Corrected stale Vitest name-filter docs from unsupported `--grep` to `-t`, with bloat coverage so frontend unit-test docs stay aligned with current Vitest CLI behavior. |
 | 2026-05-20 | In progress | Removed stale active testing-doc guidance that still demonstrated runtime Playwright skips and focused-test modifiers, and added bloat coverage so maintained testing docs cannot reintroduce those patterns. |

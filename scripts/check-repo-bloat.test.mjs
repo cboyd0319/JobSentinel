@@ -808,6 +808,67 @@ test("checkRepoBloat rejects Market Intelligence doc emoji markers", () => {
   });
 });
 
+test("checkRepoBloat rejects Resume Matcher and Salary AI feature doc emoji markers", () => {
+  withGitFixture((root) => {
+    const targetIcon = String.fromCodePoint(0x1f3af);
+    const chartIcon = String.fromCodePoint(0x1f4ca);
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/resume-matcher.md",
+      [`## ${targetIcon} Overview`, `- **${chartIcon} Gap Analysis**`, ""].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/salary-ai.md",
+      [`## ${targetIcon} Overview`, `- **${chartIcon} Salary Benchmarks**`, ""].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/features/resume-matcher.md", "docs/features/salary-ai.md"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace resume and salary feature doc emoji markers: docs/features/resume-matcher.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace resume and salary feature doc emoji markers: docs/features/salary-ai.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects stale Salary AI future UI claim", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/salary-ai.md",
+      ["### Phase 2-4: Future", "", "- [ ] UI components", ""].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/features/salary-ai.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("remove stale Salary AI future UI claim: docs/features/salary-ai.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale application tracking doc claims", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

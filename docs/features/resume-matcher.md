@@ -9,7 +9,7 @@
 
 ---
 
-## 🎯 Overview
+## Overview
 
 JobSentinel's AI Resume-Job Matcher automatically analyzes your resume, extracts technical and
 soft skills, and calculates compatibility scores against job postings. Stop manually comparing
@@ -17,11 +17,11 @@ job requirements—let the AI do it for you!
 
 ### Key Features
 
-- **📄 PDF Resume Parsing** - Extract text from PDF resumes automatically
-- **🔍 Skill Extraction** - Identify 200+ technical skills across 6 categories
-- **🎯 Smart Matching** - Calculate match scores between resume and jobs
-- **📊 Gap Analysis** - See exactly which skills you're missing
-- **💡 Recommendations** - Get actionable advice on whether to apply
+- **PDF Resume Parsing** - Extract text from PDF resumes automatically
+- **Skill Extraction** - Identify 200+ technical skills across 6 categories
+- **Smart Matching** - Calculate match scores between resume and jobs
+- **Gap Analysis** - See exactly which skills you're missing
+- **Recommendations** - Get actionable advice on whether to apply
 
 ### Screenshot
 
@@ -29,33 +29,16 @@ job requirements—let the AI do it for you!
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ### System Flow
 
 ```text
-┌─────────────┐      ┌──────────────┐      ┌─────────────┐
-│   Resume    │─────▶│ PDF Parser   │─────▶│   Skill     │
-│  (PDF)      │      │   Service    │      │ Extractor   │
-└─────────────┘      └──────────────┘      └─────────────┘
-                              │                     │
-                              ▼                     ▼
-                     ┌──────────────┐      ┌─────────────┐
-                     │ Text Content │      │ Skills List │
-                     └──────────────┘      └─────────────┘
-                              │                     │
-                              └─────────┬───────────┘
-                                        ▼
-                              ┌──────────────────┐
-                              │  Keyword Match   │
-                              │    vs Job Desc   │
-                              └──────────────────┘
-                                        │
-                                        ▼
-                              ┌──────────────────┐
-                              │   Gap Analysis   │
-                              │  + Match Score   │
-                              └──────────────────┘
+Resume PDF
+  -> PDF parser service
+  -> text content and extracted skills
+  -> keyword match against job description
+  -> gap analysis and match score
 ```
 
 ### Database Schema
@@ -104,7 +87,7 @@ resume_job_matches
 
 ---
 
-## 🚀 Usage Guide
+## Usage Guide
 
 ### 1. Upload Resume
 
@@ -185,7 +168,7 @@ Match: 75%
   • TypeScript
   • Kubernetes
 
-💡 Good match. Consider highlighting transferable skills in your application.
+Good match. Consider highlighting transferable skills in your application.
 ```
 
 ### 4. Manage Multiple Resumes
@@ -200,7 +183,7 @@ matcher.set_active_resume(other_resume_id).await?;
 
 ---
 
-## 🔍 Skill Categories
+## Skill Categories
 
 The skill extractor recognizes **200+ skills** across 6 categories:
 
@@ -237,7 +220,7 @@ Project Management, Agile, Scrum, Mentoring, Public Speaking
 
 ---
 
-## 📊 Matching Algorithm
+## Matching Algorithm
 
 ### Current Implementation (v2.3.0)
 
@@ -308,7 +291,7 @@ total_confidence = 0.3 + 0.3 + 0.2 = 0.8 (80%)
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ### Unit Tests Included
 
@@ -316,16 +299,16 @@ total_confidence = 0.3 + 0.3 + 0.2 = 0.8 (80%)
 cargo test --lib resume
 
 # Test coverage:
-# ✅ PDF parsing and text extraction
-# ✅ Text cleaning and section extraction
-# ✅ Skill extraction by category
-# ✅ Confidence scoring
-# ✅ No duplicate skills
-# ✅ Word boundary matching
-# ✅ Job skill extraction
-# ✅ Match score calculation
-# ✅ Gap analysis generation
-# ✅ Resume activation
+# PDF parsing and text extraction
+# Text cleaning and section extraction
+# Skill extraction by category
+# Confidence scoring
+# No duplicate skills
+# Word boundary matching
+# Job skill extraction
+# Match score calculation
+# Gap analysis generation
+# Resume activation
 ```
 
 **Test Statistics:**
@@ -338,7 +321,7 @@ cargo test --lib resume
 
 ---
 
-## 🎯 Scoring Engine Integration
+## Scoring Engine Integration
 
 The Resume Matcher integrates directly with JobSentinel's Smart Scoring engine for automated job matching.
 
@@ -381,7 +364,7 @@ Or simply use the toggle in Settings (recommended for non-technical users).
 
 ---
 
-## 🎨 UI Integration (v2.4.0)
+## UI Integration (v2.4.0)
 
 ### Resume Upload Component
 
@@ -499,7 +482,7 @@ const AtsOptimizerView = ({ resumeDraft, selectedJob }: Props) => {
         onClick={() => navigateToBuilder(resumeDraft.id)}
         className="tailor-button"
       >
-        📝 Tailor Resume for This Job
+        Tailor Resume for This Job
       </button>
     </div>
   );
@@ -545,8 +528,8 @@ const ResumeBuilderWizard = () => {
       {/* Step 7: Export/Download */}
       {currentStep === 7 && (
         <div className="export-options">
-          <button onClick={() => exportPDF()}>📄 Export as PDF</button>
-          <button onClick={() => exportDOCX()}>📝 Export as DOCX</button>
+          <button onClick={() => exportPDF()}>Export as PDF</button>
+          <button onClick={() => exportDOCX()}>Export as DOCX</button>
         </div>
       )}
     </div>
@@ -567,7 +550,7 @@ const ImportSkillsButton = ({ resumeId }: { resumeId: number }) => {
 
   return (
     <button onClick={handleImport} className="import-skills-btn">
-      📥 Import Skills from Resume
+      Import Skills from Resume
     </button>
   );
 };
@@ -597,7 +580,7 @@ const autoMatchJobs = async () => {
 
 ---
 
-## 📈 Analytics Queries
+## Analytics Queries
 
 ### Top Matching Jobs
 
@@ -646,7 +629,7 @@ LIMIT 10;
 
 ---
 
-## 🚀 Features & Enhancements
+## Features & Enhancements
 
 ### Completed (v2.3.0)
 
@@ -694,7 +677,7 @@ JobSentinel uses a fully self-contained skill extraction system:
 
 ---
 
-## 🔧 API Reference
+## API Reference
 
 ### ResumeMatcher
 
@@ -768,9 +751,9 @@ pub struct MatchResult {
 
 ---
 
-## ✅ Implementation Status
+## Implementation Status
 
-### Completed ✅
+### Completed
 
 - [x] Database schema (6 tables, 10 indexes)
 - [x] PDF parsing with pdf-extract
@@ -808,7 +791,7 @@ pub struct MatchResult {
 - [x] **Template Thumbnail Previews** - Visual template selection
 - [x] **New Components** - ResumeMatchScoreBreakdown, SkillCategoryFilter
 
-### Future 🔜
+### Future
 
 - [ ] LinkedIn profile import
 - [ ] A/B testing for resume versions
@@ -821,5 +804,5 @@ pub struct MatchResult {
 **Last Updated:** 2026-03-18
 **Version:** 2.6.4
 **Maintained By:** JobSentinel Core Team
-**Implementation Status:** ✅ v2.4.0 Complete (Enhanced UI + Resume Builder Integration)
+**Implementation Status:** v2.4.0 Complete (Enhanced UI + Resume Builder Integration)
 **Tests:** 145+ passing (updated with v2.4.0 component tests)

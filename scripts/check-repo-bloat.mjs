@@ -584,6 +584,24 @@ function hasMarketIntelligenceDocEmojiMarkers(root, path) {
   );
 }
 
+function hasResumeOrSalaryFeatureDocEmojiMarkers(root, path) {
+  if (path !== "docs/features/resume-matcher.md" && path !== "docs/features/salary-ai.md") {
+    return false;
+  }
+
+  return /(?:\p{Extended_Pictographic}|[\u{1f1e6}-\u{1f1ff}])/u.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
+function hasStaleSalaryAiFutureUiClaim(root, path) {
+  if (path !== "docs/features/salary-ai.md") {
+    return false;
+  }
+
+  return /- \[ \] UI components/.test(readFileSync(join(root, path), "utf8"));
+}
+
 function hasStaleApplicationTrackingDocClaims(root, path) {
   if (path !== "docs/features/application-tracking.md") {
     return false;
@@ -1202,6 +1220,14 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasMarketIntelligenceDocEmojiMarkers(root, path)) {
       violations.push(`replace Market Intelligence doc emoji/stale indicator markers: ${path}`);
+    }
+
+    if (hasResumeOrSalaryFeatureDocEmojiMarkers(root, path)) {
+      violations.push(`replace resume and salary feature doc emoji markers: ${path}`);
+    }
+
+    if (hasStaleSalaryAiFutureUiClaim(root, path)) {
+      violations.push(`remove stale Salary AI future UI claim: ${path}`);
     }
 
     if (hasStaleApplicationTrackingDocClaims(root, path)) {
