@@ -26,6 +26,7 @@ pub mod ghost;
 pub mod health;
 pub mod import;
 pub mod jobs;
+pub mod limits;
 pub mod linkedin_auth;
 pub mod market;
 pub mod resume;

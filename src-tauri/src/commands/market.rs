@@ -2,6 +2,7 @@
 //!
 //! Commands for skill trends, company activity, location analysis, and market alerts.
 
+use crate::commands::limits::validate_command_limit_usize;
 use crate::commands::AppState;
 use crate::core::market_intelligence::{
     CompanyActivity, LocationHeat, MarketAlert, MarketIntelligence, MarketSnapshot, SkillTrend,
@@ -30,6 +31,7 @@ pub async fn get_trending_skills(
 ) -> Result<Vec<SkillTrend>, String> {
     tracing::info!("Command: get_trending_skills (limit: {})", limit);
 
+    let limit = validate_command_limit_usize(limit)?;
     let intel = MarketIntelligence::new(state.database.pool().clone());
     intel
         .get_trending_skills(limit)
@@ -45,6 +47,7 @@ pub async fn get_active_companies(
 ) -> Result<Vec<CompanyActivity>, String> {
     tracing::info!("Command: get_active_companies (limit: {})", limit);
 
+    let limit = validate_command_limit_usize(limit)?;
     let intel = MarketIntelligence::new(state.database.pool().clone());
     intel
         .get_most_active_companies(limit)
@@ -60,6 +63,7 @@ pub async fn get_hottest_locations(
 ) -> Result<Vec<LocationHeat>, String> {
     tracing::info!("Command: get_hottest_locations (limit: {})", limit);
 
+    let limit = validate_command_limit_usize(limit)?;
     let intel = MarketIntelligence::new(state.database.pool().clone());
     intel
         .get_hottest_locations(limit)

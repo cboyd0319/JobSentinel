@@ -3,6 +3,7 @@
 //! Commands for job searching, retrieval, bookmarking, notes, and deduplication.
 
 use crate::commands::errors::user_friendly_error;
+use crate::commands::limits::validate_command_limit_usize_as_i64;
 use crate::commands::AppState;
 use crate::core::db::DuplicateGroup;
 use serde_json::Value;
@@ -58,7 +59,8 @@ pub async fn get_recent_jobs(
 ) -> Result<Vec<Value>, String> {
     tracing::debug!("Fetching recent jobs");
 
-    match state.database.get_recent_jobs(limit as i64).await {
+    let limit = validate_command_limit_usize_as_i64(limit)?;
+    match state.database.get_recent_jobs(limit).await {
         Ok(jobs) => {
             let jobs_json: Vec<Value> = jobs
                 .into_iter()
@@ -120,7 +122,8 @@ pub async fn search_jobs_query(
         limit
     );
 
-    match state.database.search_jobs(&query, limit as i64).await {
+    let limit = validate_command_limit_usize_as_i64(limit)?;
+    match state.database.search_jobs(&query, limit).await {
         Ok(jobs) => {
             let jobs_json: Vec<Value> = jobs
                 .into_iter()
@@ -202,7 +205,8 @@ pub async fn get_bookmarked_jobs(
 ) -> Result<Vec<Value>, String> {
     tracing::info!("Command: get_bookmarked_jobs (limit: {})", limit);
 
-    match state.database.get_bookmarked_jobs(limit as i64).await {
+    let limit = validate_command_limit_usize_as_i64(limit)?;
+    match state.database.get_bookmarked_jobs(limit).await {
         Ok(jobs) => {
             let jobs_json: Vec<Value> = jobs
                 .into_iter()

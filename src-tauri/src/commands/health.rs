@@ -3,6 +3,7 @@
 //! Provides frontend access to scraper health metrics, run history,
 //! smoke tests, and credential health.
 
+use crate::commands::limits::validate_optional_command_limit_i32;
 use crate::core::health::{
     check_linkedin_cookie_health, get_all_scraper_health,
     get_expiring_credentials as fetch_expiring_credentials, get_health_summary as health_summary,
@@ -63,8 +64,9 @@ pub async fn get_scraper_runs(
     scraper_name: String,
     limit: Option<i32>,
 ) -> Result<Vec<ScraperRun>, String> {
+    let limit = validate_optional_command_limit_i32(limit, 20)?;
     let db = db.lock().await;
-    scraper_runs(&db, &scraper_name, limit.unwrap_or(20))
+    scraper_runs(&db, &scraper_name, limit)
         .await
         .map_err(|e| e.to_string())
 }

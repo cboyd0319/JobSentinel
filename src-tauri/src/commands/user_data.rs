@@ -3,6 +3,7 @@
 //! Commands for cover letter templates, interview prep, saved searches, and notification preferences.
 
 use crate::commands::errors::user_friendly_error;
+use crate::commands::limits::validate_command_limit_i64;
 use crate::commands::AppState;
 use crate::core::user_data::{
     CoverLetterTemplate, FollowUpReminder, NotificationPreferences, PrepChecklistItem, SavedSearch,
@@ -348,6 +349,7 @@ pub async fn get_search_history(
 ) -> Result<Vec<String>, String> {
     tracing::info!("Command: get_search_history (limit: {})", limit);
 
+    let limit = validate_command_limit_i64(limit)?;
     let manager = UserDataManager::new(state.database.pool().clone());
     manager
         .get_search_history(limit)

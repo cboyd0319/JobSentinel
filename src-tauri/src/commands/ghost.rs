@@ -2,6 +2,7 @@
 //!
 //! Commands for identifying and filtering ghost/fake job postings.
 
+use crate::commands::limits::{validate_command_limit_i64, validate_optional_command_limit_i64};
 use crate::commands::AppState;
 use crate::core::ghost::GhostConfig;
 use serde_json::Value;
@@ -17,7 +18,7 @@ pub async fn get_ghost_jobs(
     state: State<'_, AppState>,
 ) -> Result<Vec<Value>, String> {
     let threshold = threshold.unwrap_or(0.5);
-    let limit = limit.unwrap_or(100);
+    let limit = validate_optional_command_limit_i64(limit, 100)?;
     tracing::info!(
         "Command: get_ghost_jobs (threshold: {}, limit: {})",
         threshold,
@@ -65,6 +66,7 @@ pub async fn get_recent_jobs_filtered(
     exclude_ghost: bool,
     state: State<'_, AppState>,
 ) -> Result<Vec<Value>, String> {
+    let limit = validate_command_limit_i64(limit)?;
     tracing::info!(
         "Command: get_recent_jobs_filtered (limit: {}, exclude_ghost: {})",
         limit,

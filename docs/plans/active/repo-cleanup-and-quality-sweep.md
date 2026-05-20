@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Added shared Tauri command limit validation across job, ghost, resume, market, automation, user-data, and health commands, with invoke-surface coverage for recurrence. |
 | 2026-05-20 | In progress | Validated Market Intelligence historical snapshot day ranges before integer conversion, with Tauri command-boundary sensor coverage. |
 | 2026-05-20 | In progress | Removed decorative emoji and stale indicator API names from Market Intelligence feature docs, with bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Replaced stale Linux platform stub wording in source comments/logging and added bloat coverage for those markers. |
@@ -295,6 +296,11 @@ changes or Playwright-specific work.
   indicators.
 - `get_historical_snapshots` accepted signed IPC input but converted it with
   `days as usize`, allowing negative values to become huge history ranges.
+- Registered Tauri commands across jobs, ghost detection, resume matching,
+  market intelligence, automation, user data, and scraper health accepted
+  unvalidated `limit` values. Negative signed limits can make SQLite treat
+  `LIMIT ?` as unlimited, and very large unsigned limits can wrap during signed
+  SQL binding conversion.
 - `ScoreBreakdownModal` sanitized scores only through callers, so direct use of
   the exported modal with `NaN` rendered `NaN%`.
 - `ScoreBreakdownModal` converted Tailwind color classes such as
@@ -327,6 +333,9 @@ changes or Playwright-specific work.
   `severity_indicator()`, `type_indicator()`, and `sentiment_indicator()`.
 - Validate signed IPC command inputs before converting to unsigned query or
   limit types.
+- Validate all command-boundary `limit` inputs before querying, including
+  optional defaults. Keep the shared command maximum at a bounded value unless
+  a feature has a documented reason for a different limit.
 - Keep feature docs aligned with live source names for frontend routes and IPC
   commands; stale future-work claims count as documentation bloat.
 - Do not document UI markers that are not present in source; describe current

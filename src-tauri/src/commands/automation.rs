@@ -9,6 +9,7 @@
 //! - ATS platform detection
 
 use crate::commands::errors::user_friendly_error;
+use crate::commands::limits::validate_optional_command_limit_usize;
 use crate::commands::AppState;
 use crate::core::automation::{
     ats_detector::AtsDetector,
@@ -343,8 +344,9 @@ pub async fn get_pending_attempts(
 ) -> Result<Vec<AttemptResponse>, String> {
     tracing::info!("Command: get_pending_attempts");
 
+    let limit = validate_optional_command_limit_usize(limit, 10)?;
     let manager = AutomationManager::new(state.database.pool().clone());
-    match manager.get_pending_attempts(limit.unwrap_or(10)).await {
+    match manager.get_pending_attempts(limit).await {
         Ok(attempts) => Ok(attempts.into_iter().map(AttemptResponse::from).collect()),
         Err(e) => Err(format!("Failed to get pending attempts: {}", e)),
     }
@@ -727,9 +729,10 @@ pub async fn get_suggested_answers(
         limit
     );
 
+    let limit = validate_optional_command_limit_usize(limit, 5)?;
     let manager = AnswerLearningManager::new(state.database.pool().clone());
     let suggestions = manager
-        .get_suggested_answers(&question, limit.unwrap_or(5))
+        .get_suggested_answers(&question, limit)
         .await
         .map_err(|e| format!("Failed to get suggestions: {}", e))?;
 

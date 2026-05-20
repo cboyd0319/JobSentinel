@@ -3,6 +3,7 @@
 //! Commands for resume upload, skill extraction, job-resume matching,
 //! resume builder, and ATS analysis.
 
+use crate::commands::limits::validate_optional_command_limit_i64;
 use crate::commands::AppState;
 use crate::core::resume::{
     AtsAnalysisResult, AtsAnalyzer, AtsResumeData, BuilderContactInfo, BuilderEducation,
@@ -140,9 +141,10 @@ pub async fn get_recent_matches(
         limit
     );
 
+    let limit = validate_optional_command_limit_i64(limit, 10)?;
     let matcher = ResumeMatcher::new(state.database.pool().clone());
     matcher
-        .get_recent_matches(resume_id, limit.unwrap_or(10))
+        .get_recent_matches(resume_id, limit)
         .await
         .map_err(|e| format!("Failed to get recent matches: {}", e))
 }

@@ -228,3 +228,72 @@ pub async fn get_historical_snapshots(days: i64) -> Result<(), String> {
     );
   });
 });
+
+test("checkTauriInvokes rejects unvalidated command limits", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/main.rs",
+      `
+fn main() {
+    tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![
+            commands::jobs::get_recent_jobs,
+        ]);
+}
+`,
+    );
+    writeFixtureFile(
+      root,
+      "README.md",
+      "Current backend surface: **1 registered Tauri commands**.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/README.md",
+      "### Backend Modules (1 registered Tauri commands)\n\n- **Jobs**: search\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/ROADMAP.md",
+      "- **1 registered Tauri commands** for backend modules\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/ARCHITECTURE.md",
+      "Tauri command handlers.\n\n**Jobs Commands:**\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/GETTING_STARTED.md",
+      "- **jobs**: Search jobs\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/user-data-management.md",
+      "These commands power the user data features.\n\n### Saved Searches\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/jobs.rs",
+      `
+#[tauri::command]
+pub async fn get_recent_jobs(limit: usize) -> Result<(), String> {
+    database.get_recent_jobs(limit as i64).await;
+    Ok(())
+}
+`,
+    );
+
+    const violations = checkTauriInvokes(root);
+
+    assert.ok(
+      violations.some((violation) =>
+        violation.includes(
+          "jobs::get_recent_jobs accepts a command limit without validation",
+        ),
+      ),
+      violations.join("\n"),
+    );
+  });
+});

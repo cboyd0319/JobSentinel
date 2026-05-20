@@ -268,6 +268,47 @@ function collectCommandBoundaryCastViolations(root) {
   return violations;
 }
 
+function collectCommandLimitValidationViolations(root) {
+  const violations = [];
+  const entries = collectRegisteredCommandEntries(root);
+
+  if (!entries) {
+    return violations;
+  }
+
+  for (const { module, name } of entries) {
+    const commandPath = join(root, "src-tauri/src/commands", `${module}.rs`);
+
+    if (!existsSync(commandPath)) {
+      continue;
+    }
+
+    const text = readFileSync(commandPath, "utf8");
+    const body = findFunctionBody(text, name);
+
+    if (!body) {
+      continue;
+    }
+
+    const signatureEnd = body.indexOf("{");
+    const signature = signatureEnd === -1 ? body : body.slice(0, signatureEnd);
+    const hasLimitParameter =
+      /\blimit\s*:\s*(?:Option\s*<\s*)?(?:usize|i64|i32)\s*>?/m.test(signature);
+    const validatesLimit =
+      /\bvalidate_(?:optional_)?command_limit_(?:usize_as_i64|usize|i64|i32)\s*\(/.test(
+        body,
+      );
+
+    if (hasLimitParameter && !validatesLimit) {
+      violations.push(
+        `${module}::${name} accepts a command limit without validation; validate range before querying`,
+      );
+    }
+  }
+
+  return violations;
+}
+
 function collectDocumentedCommandCountViolations(root, commandCount) {
   const violations = [];
   const expectedClaim = `${commandCount} registered Tauri commands`;
@@ -333,6 +374,7 @@ export function checkTauriInvokes(root = defaultRoot) {
   violations.push(...collectDocumentedCommandCountViolations(root, registered.size));
   violations.push(...collectRegisteredStubCommandViolations(root));
   violations.push(...collectCommandBoundaryCastViolations(root));
+  violations.push(...collectCommandLimitValidationViolations(root));
 
   return violations;
 }
