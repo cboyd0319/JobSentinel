@@ -6,16 +6,16 @@ use crate::core::geo::{detect_location as core_detect_location, LocationInfo};
 
 /// Detect location from IP address
 ///
-/// Uses free ip-api.com service to auto-suggest location during setup.
-/// Should be called once and cached to avoid rate limits (45 req/min).
+/// Uses FreeIPAPI over HTTPS to suggest location after explicit user action.
+/// Frontend callers should cache results to avoid repeated provider calls.
 ///
 /// # Returns
 /// - `Ok(LocationInfo)` - Detected location with city, region, country, timezone
 /// - `Err(String)` - Error message if detection fails
 ///
 /// # Privacy
-/// - Only calls external API when user opens setup wizard
-/// - No tracking or data storage on external servers
+/// - Calls external IP geolocation only when user requests detection
+/// - Sends the public IP address visible to that provider
 /// - User can override/ignore the suggestion
 #[tauri::command]
 pub async fn detect_location() -> Result<LocationInfo, String> {

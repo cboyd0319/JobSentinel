@@ -57,7 +57,7 @@ pub mod deeplinks;
 // v2.6+ modules - Bookmarklet server for browser integration
 pub mod bookmarklet;
 
-// v2.6+ modules - IP geolocation for setup wizard
+// v2.6+ modules - explicit IP geolocation for setup and settings
 pub mod geo;
 
 // v2.7+ modules - Embedded ML (optional)

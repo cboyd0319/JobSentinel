@@ -273,8 +273,9 @@ If you used JobSentinel before version 1.4:
 
 ### Data Privacy
 
-- **Zero telemetry** - JobSentinel never sends your data externally without your explicit configuration
+- **Zero telemetry** - JobSentinel does not collect analytics or telemetry
 - **Local-first** - Your data stays on your computer
+- **Explicit location lookup** - **Detect location** contacts FreeIPAPI over HTTPS only after you request it
 - **Export anytime** - You can export your data as JSON (feature coming in v1.5)
 - **Delete anytime** - Clear data without affecting the app
 

@@ -89,7 +89,8 @@ process(input);   // Only reached if valid
 ### 3. Minimize Attack Surface
 
 - **Feature flags:** OCR is optional (`cargo build --features ocr`)
-- **No network by default:** Only connects when user configures webhooks
+- **No network by default:** External lookups run only after user action or
+  source/channel configuration
 - **Local-first:** All data stays on device unless explicitly shared
 - **No telemetry:** Zero data collection
 

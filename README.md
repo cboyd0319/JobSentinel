@@ -127,6 +127,7 @@ not depend on a hosted JobSentinel service.
 | Slack, Discord, Teams, email, Telegram, USAJobs, and LinkedIn secrets | Your OS credential store |
 | Desktop notifications | Your computer |
 | External alerts | Only the channels you configure |
+| Optional location detection | FreeIPAPI HTTPS lookup only after you click **Detect location**; cached for the session |
 | Telemetry and analytics | Not collected |
 
 Credentials use platform storage:
@@ -137,6 +138,9 @@ Credentials use platform storage:
 
 JobSentinel does not auto-submit applications, bypass CAPTCHAs, or send your
 profile data to an external service unless you explicitly configure that flow.
+Optional location detection is separate: it contacts FreeIPAPI over HTTPS with
+your public IP only after you request detection, and it saves a city only if you
+choose to add it.
 
 Learn more in [secure credential storage](docs/security/KEYRING.md) and the
 [security docs](docs/security/README.md).

@@ -146,6 +146,19 @@ describe("Settings — loadConfig flow", () => {
     expect(screen.queryByLabelText("Loading settings")).not.toBeInTheDocument();
   });
 
+  it("does not detect location when settings opens", async () => {
+    setupHappyPath();
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    expect(
+      mockInvoke.mock.calls.some(([cmd]) => cmd === "detect_location"),
+    ).toBe(false);
+  });
+
   it("shows error state with Retry button when get_config throws", async () => {
     mockInvoke.mockImplementation(async (cmd: string) => {
       if (cmd === "get_config") throw new Error("DB locked");

@@ -1,5 +1,7 @@
-import { describe, it, expect, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { invoke } from "@tauri-apps/api/core";
 import SetupWizard from "./SetupWizard";
 import { ToastProvider } from "../contexts";
 
@@ -7,6 +9,8 @@ import { ToastProvider } from "../contexts";
 vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),
 }));
+
+const mockInvoke = vi.mocked(invoke);
 
 const renderWithProviders = (ui: React.ReactElement) => {
   return render(
@@ -18,6 +22,11 @@ const renderWithProviders = (ui: React.ReactElement) => {
 
 describe("SetupWizard Accessibility", () => {
   const mockOnComplete = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    window.sessionStorage.clear();
+  });
 
   describe("Progress Announcements", () => {
     it("should have aria-live region for step announcements", () => {
@@ -136,6 +145,51 @@ describe("SetupWizard Accessibility", () => {
 
       fireEvent.keyDown(remoteOption, { key: " " });
       expect(remoteOption).toHaveAttribute("aria-checked", "false");
+    });
+
+    it("does not detect location until the user requests it", async () => {
+      const user = userEvent.setup();
+      mockInvoke.mockResolvedValue({
+        city: "Denver",
+        region: "Colorado",
+        country: "United States",
+        timezone: "America/Denver",
+      });
+
+      renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
+
+      const [firstProfile] = screen.getAllByRole("radio");
+      await user.click(firstProfile);
+      await user.click(
+        screen.getByRole("button", { name: /continue with this profile/i }),
+      );
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText("Where do you want to work?")).toBeInTheDocument();
+      });
+
+      expect(
+        mockInvoke.mock.calls.some(([cmd]) => cmd === "detect_location"),
+      ).toBe(false);
+
+      const hybridOption = screen.getByRole("checkbox", {
+        name: /hybrid: mix of remote and office/i,
+      });
+      const hybridInput = hybridOption.querySelector("input");
+      expect(hybridInput).toBeInstanceOf(HTMLInputElement);
+      fireEvent.change(hybridInput as HTMLInputElement, {
+        target: { checked: true },
+      });
+
+      const detectButton = await screen.findByRole("button", {
+        name: /detect location/i,
+      });
+      await user.click(detectButton);
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith("detect_location", {});
+      });
     });
   });
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
 import { Badge } from "../components/Badge";
@@ -8,18 +8,15 @@ import { useToast } from "../contexts";
 import { safeInvoke, safeInvokeWithToast } from "../utils/api";
 import { CAREER_PROFILES, getProfileById, profileToConfig } from "../utils/profiles";
 import { validateSlackWebhook } from "../utils/formValidation";
+import {
+  cacheDetectedLocation,
+  readCachedDetectedLocation,
+  type LocationInfo,
+} from "../utils/locationDetection";
 
 interface SetupWizardProps {
   onComplete: () => void;
 }
-
-interface LocationInfo {
-  city: string;
-  region: string;
-  country: string;
-  timezone: string;
-}
-
 
 // Step 0 is profile selection, then simplified flow
 const STEPS = [
@@ -41,7 +38,9 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const [stepAnnouncement, setStepAnnouncement] = useState("");
   const [validationAnnouncement, setValidationAnnouncement] = useState("");
   const announcementTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [detectedLocation, setDetectedLocation] = useState<LocationInfo | null>(null);
+  const [detectedLocation, setDetectedLocation] = useState<LocationInfo | null>(
+    () => readCachedDetectedLocation()
+  );
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [config, setConfig] = useState({
     title_allowlist: [] as string[],
@@ -142,41 +141,22 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const canProceedFromStep1 = config.title_allowlist.length > 0;
   const [slackWebhookError, setSlackWebhookError] = useState<string | undefined>();
 
-  // Detect location on mount (once per session)
-  useEffect(() => {
-    const detectLocationOnce = async () => {
-      // Check if we already detected location in this session
-      const cached = sessionStorage.getItem("detected_location");
-      if (cached) {
-        try {
-          setDetectedLocation(JSON.parse(cached));
-          return;
-        } catch {
-          // Invalid cache, continue with detection
-        }
-      }
-
-      setIsDetectingLocation(true);
-      try {
-        const location = await safeInvoke<LocationInfo>(
-          "detect_location",
-          {},
-          { logContext: "Detect location from IP" }
-        );
-        if (location) {
-          setDetectedLocation(location);
-          // Cache in sessionStorage to avoid repeated calls
-          sessionStorage.setItem("detected_location", JSON.stringify(location));
-        }
-      } catch {
-        // Silently fail - location detection is optional
-      } finally {
-        setIsDetectingLocation(false);
-      }
-    };
-
-    detectLocationOnce();
-  }, []);
+  const handleDetectLocation = useCallback(async () => {
+    setIsDetectingLocation(true);
+    try {
+      const location = await safeInvoke<LocationInfo>(
+        "detect_location",
+        {},
+        { logContext: "Detect location from IP" }
+      );
+      setDetectedLocation(location);
+      cacheDetectedLocation(location);
+    } catch {
+      toast.warning("Location unavailable", "Enter a city manually.");
+    } finally {
+      setIsDetectingLocation(false);
+    }
+  }, [toast]);
 
   // Announce step changes for screen readers
   useEffect(() => {
@@ -610,9 +590,27 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                       </div>
                     </div>
                   )}
-                  {isDetectingLocation && (
-                    <div className="mb-3 p-3 bg-surface-50 rounded-lg text-sm text-surface-600">
-                      Detecting your location...
+                  {!detectedLocation && (
+                    <div className="mb-3 p-3 bg-surface-50 border border-surface-200 rounded-lg">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={handleDetectLocation}
+                          loading={isDetectingLocation}
+                          loadingText="Detecting..."
+                          aria-describedby="setup-location-detection-privacy"
+                          icon={<MapPinIcon />}
+                        >
+                          Detect location
+                        </Button>
+                      </div>
+                      <p
+                        id="setup-location-detection-privacy"
+                        className="mt-2 text-xs text-surface-500"
+                      >
+                        Uses HTTPS IP lookup. Not saved unless added.
+                      </p>
                     </div>
                   )}
 

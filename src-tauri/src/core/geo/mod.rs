@@ -1,7 +1,7 @@
 //! IP Geolocation Module
 //!
-//! Detects user location from IP address using free ip-api.com service.
-//! Used to auto-suggest location during setup wizard.
+//! Detects user location from IP address using FreeIPAPI over HTTPS.
+//! Used to suggest location after explicit user action.
 
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
@@ -20,48 +20,46 @@ pub struct LocationInfo {
     pub timezone: String,
 }
 
-/// Response from ip-api.com API
+const FREEIPAPI_LOCATION_URL: &str = "https://free.freeipapi.com/api/json";
+
+/// Response from FreeIPAPI.
 #[derive(Debug, Deserialize)]
-struct IpApiResponse {
-    status: String,
-    #[serde(default)]
-    city: String,
+struct FreeIpApiResponse {
+    #[serde(rename = "cityName", default)]
+    city_name: String,
     #[serde(rename = "regionName", default)]
     region_name: String,
-    #[serde(default)]
-    country: String,
-    #[serde(default)]
-    timezone: String,
+    #[serde(rename = "countryName", default)]
+    country_name: String,
+    #[serde(rename = "timeZones", default)]
+    time_zones: Vec<String>,
     #[serde(default)]
     message: Option<String>,
 }
 
-/// Detect location from IP address using ip-api.com
+/// Detect location from IP address using FreeIPAPI.
 ///
-/// Free service with 45 requests/minute limit (no API key required).
-/// Should only be called once during setup - cache result to avoid rate limits.
+/// This is an optional convenience lookup. Frontend callers must keep it behind
+/// explicit user action and cache the result to avoid repeated provider calls.
 ///
 /// # Privacy
-/// - Only called during setup wizard (user-initiated)
-/// - No tracking, purely for convenience
+/// - Calls an external HTTPS geolocation provider only when user requests it
+/// - Sends the public IP address visible to that provider
 /// - User can override/clear at any time
 ///
 /// # Errors
 /// Returns error if:
 /// - Network request fails
-/// - API returns error status
+/// - Provider returns error status or message
 /// - Response parsing fails
 pub async fn detect_location() -> Result<LocationInfo> {
-    // Use free ip-api.com endpoint (no auth required)
-    let url = "http://ip-api.com/json/?fields=status,message,city,regionName,country,timezone";
-
     let client = reqwest::Client::builder()
         .timeout(Duration::from_secs(10))
         .build()
         .context("Failed to create HTTP client for geolocation")?;
 
     let response = client
-        .get(url)
+        .get(FREEIPAPI_LOCATION_URL)
         .send()
         .await
         .context("Failed to fetch IP geolocation data")?;
@@ -72,29 +70,42 @@ pub async fn detect_location() -> Result<LocationInfo> {
         anyhow::bail!("IP geolocation API returned error status: {}", status_code);
     }
 
-    let api_response: IpApiResponse = response
-        .json()
+    let body = response
+        .text()
         .await
-        .context("Failed to parse IP geolocation response")?;
+        .context("Failed to read IP geolocation response")?;
 
-    // Check API-level status
-    if api_response.status != "success" {
-        let error_msg = api_response
-            .message
-            .unwrap_or_else(|| "Unknown error".to_string());
-        anyhow::bail!("IP geolocation API error: {}", error_msg);
-    }
+    parse_freeipapi_location_response(&body)
+}
 
-    // Validate we got meaningful data
-    if api_response.city.is_empty() && api_response.region_name.is_empty() {
+fn parse_freeipapi_location_response(body: &str) -> Result<LocationInfo> {
+    let api_response: FreeIpApiResponse =
+        serde_json::from_str(body).context("Failed to parse IP geolocation response")?;
+
+    let city = api_response.city_name.trim().to_string();
+    let region = api_response.region_name.trim().to_string();
+    let country = api_response.country_name.trim().to_string();
+    let timezone = api_response
+        .time_zones
+        .into_iter()
+        .find(|timezone| !timezone.trim().is_empty())
+        .unwrap_or_default();
+
+    if city.is_empty() && region.is_empty() {
+        if let Some(message) = api_response.message {
+            let message = message.trim();
+            if !message.is_empty() {
+                anyhow::bail!("IP geolocation API error: {}", message);
+            }
+        }
         anyhow::bail!("IP geolocation returned empty location data");
     }
 
     Ok(LocationInfo {
-        city: api_response.city,
-        region: api_response.region_name,
-        country: api_response.country,
-        timezone: api_response.timezone,
+        city,
+        region,
+        country,
+        timezone,
     })
 }
 
@@ -105,7 +116,7 @@ mod tests {
     #[tokio::test]
     #[ignore] // Ignore by default (requires network)
     async fn test_detect_location_real_api() {
-        // This test requires network access and hits real API
+        // This test requires network access and hits real API.
         // Run with: cargo test --manifest-path src-tauri/Cargo.toml -- --ignored
         let result = detect_location().await;
         assert!(result.is_ok(), "Failed to detect location: {:?}", result);
@@ -136,5 +147,38 @@ mod tests {
         let deserialized: LocationInfo = serde_json::from_str(&json).unwrap();
         assert_eq!(deserialized.city, location.city);
         assert_eq!(deserialized.region, location.region);
+    }
+
+    #[test]
+    fn test_parse_freeipapi_response_maps_location_fields() {
+        let json = r#"{
+            "cityName": "Denver",
+            "regionName": "Colorado",
+            "countryName": "United States",
+            "timeZones": ["America/Denver", "America/Chicago"]
+        }"#;
+
+        let location = parse_freeipapi_location_response(json).unwrap();
+
+        assert_eq!(location.city, "Denver");
+        assert_eq!(location.region, "Colorado");
+        assert_eq!(location.country, "United States");
+        assert_eq!(location.timezone, "America/Denver");
+    }
+
+    #[test]
+    fn test_parse_freeipapi_response_rejects_empty_location() {
+        let json = r#"{
+            "cityName": "",
+            "regionName": "",
+            "countryName": "United States",
+            "timeZones": ["America/Denver"]
+        }"#;
+
+        let error = parse_freeipapi_location_response(json).unwrap_err();
+
+        assert!(error
+            .to_string()
+            .contains("IP geolocation returned empty location data"));
     }
 }

@@ -120,6 +120,7 @@ changes or Playwright-specific work.
 | 2026-05-20 | In progress | Linked the JSON Resume sample fixture from feature docs and corrected roadmap status from planned to implemented. |
 | 2026-05-20 | In progress | Corrected stale E2E documentation that still referenced WebdriverIO, removed a deleted `tests/e2e/docs/` tree entry, and updated Playwright examples/layout notes. |
 | 2026-05-20 | In progress | Hardened the LinkedIn login result channel so a poisoned mutex cannot panic the auth flow, and added a regression test for poisoned sender recovery. |
+| 2026-05-20 | In progress | Removed implicit external location detection from setup/settings, switched the backend lookup to HTTPS, and documented explicit FreeIPAPI public-IP lookup behavior. |
 
 ## Discoveries
 
@@ -174,6 +175,10 @@ changes or Playwright-specific work.
 - `linkedin_login` treated a poisoned result mutex as an unrecoverable panic in
   both cookie extraction and cancellation paths. The sender is now recovered
   when possible so the command can resolve instead of crashing the app.
+- Location detection contradicted the local-first privacy docs: setup and
+  settings called geolocation on mount, the backend used plaintext HTTP, and the
+  roadmap still listed location detection as planned even though the command and
+  UI existed.
 
 ## Decisions
 
@@ -189,6 +194,8 @@ changes or Playwright-specific work.
   than serializing whole suites.
 - Remove unused root support directories when no command, doc, or workflow owns
   them; pair the deletion with bloat allowlist updates.
+- Keep IP geolocation behind explicit user action, use HTTPS, and document the
+  public-IP lookup because it is an external provider call.
 
 ## Outcomes
 

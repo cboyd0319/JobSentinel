@@ -15,6 +15,11 @@ import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
 import { getUserFriendlyError } from "../utils/errorMessages";
 import { exportConfigToJSON, importConfigFromJSON } from "../utils/export";
+import {
+  cacheDetectedLocation,
+  readCachedDetectedLocation,
+  type LocationInfo,
+} from "../utils/locationDetection";
 
 // Ghost detection configuration interface
 interface GhostConfig {
@@ -24,13 +29,6 @@ interface GhostConfig {
   penalize_missing_salary: boolean;
   warning_threshold: number;
   hide_threshold: number;
-}
-
-interface LocationInfo {
-  city: string;
-  region: string;
-  country: string;
-  timezone: string;
 }
 
 interface SettingsProps {
@@ -282,7 +280,7 @@ export default function Settings({ onClose }: SettingsProps) {
 
   // Location detection state
   const [detectedLocation, setDetectedLocation] = useState<LocationInfo | null>(
-    null,
+    () => readCachedDetectedLocation(),
   );
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
 
@@ -674,39 +672,23 @@ export default function Settings({ onClose }: SettingsProps) {
     }
   }, [toast]);
 
-  // Detect location on mount (once per session)
-  const detectLocationOnce = useCallback(async () => {
-    // Check if we already detected location in this session
-    const cached = sessionStorage.getItem("detected_location");
-    if (cached) {
-      try {
-        setDetectedLocation(JSON.parse(cached));
-        return;
-      } catch {
-        // Invalid cache, continue with detection
-      }
-    }
-
+  const handleDetectLocation = useCallback(async () => {
     setIsDetectingLocation(true);
     try {
       const location = await invoke<LocationInfo>("detect_location");
-      if (location) {
-        setDetectedLocation(location);
-        // Cache in sessionStorage to avoid repeated calls
-        sessionStorage.setItem("detected_location", JSON.stringify(location));
-      }
+      setDetectedLocation(location);
+      cacheDetectedLocation(location);
     } catch {
-      // Silently fail - location detection is optional
+      toast.warning("Location unavailable", "Enter a city manually.");
     } finally {
       setIsDetectingLocation(false);
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     loadConfig();
     loadGhostConfig();
-    detectLocationOnce();
-  }, [loadConfig, loadGhostConfig, detectLocationOnce]);
+  }, [loadConfig, loadGhostConfig]);
 
   const handleSave = useCallback(async () => {
     if (!config) return;
@@ -1474,9 +1456,48 @@ export default function Settings({ onClose }: SettingsProps) {
                         </div>
                       </div>
                     )}
-                    {isDetectingLocation && (
-                      <div className="mb-3 p-3 bg-surface-50 dark:bg-surface-800 rounded-lg text-sm text-surface-600 dark:text-surface-400">
-                        Detecting your location...
+                    {!detectedLocation && (
+                      <div className="mb-3 p-3 bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            onClick={handleDetectLocation}
+                            loading={isDetectingLocation}
+                            loadingText="Detecting..."
+                            aria-describedby="settings-location-detection-privacy"
+                            icon={
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                aria-hidden="true"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={1.5}
+                                  d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
+                                />
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={1.5}
+                                  d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
+                                />
+                              </svg>
+                            }
+                          >
+                            Detect location
+                          </Button>
+                        </div>
+                        <p
+                          id="settings-location-detection-privacy"
+                          className="mt-2 text-xs text-surface-500 dark:text-surface-400"
+                        >
+                          Uses HTTPS IP lookup. Not saved unless added.
+                        </p>
                       </div>
                     )}
 
