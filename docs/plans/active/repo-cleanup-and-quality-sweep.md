@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Sanitized remaining raw URL logging in URL normalization parse failures and browser automation spans, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Replaced raw local path logging with non-identifying path labels for resume, automation, database, platform, startup, and ML model paths. |
 | 2026-05-20 | In progress | Sanitized scraper cache, fetch, and query logs so source adapters no longer write raw search queries or full fetch URLs. |
 | 2026-05-20 | In progress | Sanitized command and database search logging so raw private search queries, screening questions, and answer patterns are not written to logs. |
@@ -258,6 +259,10 @@ changes or Playwright-specific work.
 - Deep-link and universal job-import paths still logged raw user-controlled URLs,
   including search terms, location filters, credentials, query strings, and
   fragments.
+- URL normalization parse failures and browser automation spans still logged raw
+  user-controlled URLs. Raw URL logs outside approved sanitizer paths are
+  forbidden; use `sanitize_url_for_logging` before writing URL fields or
+  messages to logs.
 - `docs/plans/active/.gitkeep` and `docs/plans/completed/.gitkeep` were
   redundant tracked placeholders because both directories contain real plan
   files.

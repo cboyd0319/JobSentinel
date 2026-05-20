@@ -2,6 +2,7 @@
 //!
 //! Manages browser lifecycle and page creation.
 
+use crate::core::url_security::sanitize_url_for_logging;
 use anyhow::{Context, Result};
 use chromiumoxide::browser::{Browser, BrowserConfig};
 use futures_util::StreamExt;
@@ -80,7 +81,7 @@ impl BrowserManager {
     /// Create a new page for automation
     ///
     /// Returns an AutomationPage that provides form filling methods.
-    #[tracing::instrument(skip(self), fields(url = %url), level = "info")]
+    #[tracing::instrument(skip(self, url), fields(url = %sanitize_url_for_logging(url)), level = "info")]
     pub async fn new_page(&self, url: &str) -> Result<AutomationPage> {
         use std::time::Instant;
 

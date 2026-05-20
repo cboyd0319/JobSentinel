@@ -6,6 +6,8 @@
 use std::borrow::Cow;
 use url::Url;
 
+use crate::core::url_security::sanitize_url_for_logging;
+
 /// Common tracking parameters to strip from URLs
 const TRACKING_PARAMS: &[&str] = &[
     // Analytics and campaign tracking
@@ -117,7 +119,10 @@ pub fn normalize_url(url_str: &str) -> Cow<'_, str> {
         Ok(u) => u,
         Err(_) => {
             // If parsing fails, return the original string (zero-copy)
-            tracing::warn!("Failed to parse URL for normalization: {}", url_str);
+            tracing::warn!(
+                url = %sanitize_url_for_logging(url_str),
+                "Failed to parse URL for normalization"
+            );
             return Cow::Borrowed(url_str);
         }
     };

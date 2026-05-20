@@ -793,3 +793,45 @@ test("checkRepoBloat rejects raw local path logging", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects raw URL logging outside approved sanitizers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/url_utils.rs",
+      'tracing::warn!("Failed to parse URL for normalization: {}", url_str);\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/automation/browser/manager.rs",
+      "#[tracing::instrument(skip(self), fields(url = %url), level = \"info\")]\n",
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/scrapers/url_utils.rs",
+        "src-tauri/src/core/automation/browser/manager.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace raw URL logging: src-tauri/src/core/scrapers/url_utils.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace raw URL logging: src-tauri/src/core/automation/browser/manager.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});

@@ -169,6 +169,11 @@ const rawLocalPathLoggingPaths = new Set([
   "src-tauri/src/platforms/windows/mod.rs",
 ]);
 
+const rawUrlLoggingPaths = new Set([
+  "src-tauri/src/core/automation/browser/manager.rs",
+  "src-tauri/src/core/scrapers/url_utils.rs",
+]);
+
 function normalizeRepoPath(path) {
   return path.split(/[\\/]/).join("/");
 }
@@ -553,6 +558,17 @@ function hasRawLocalPathLogging(root, path) {
   );
 }
 
+function hasRawUrlLogging(root, path) {
+  if (!rawUrlLoggingPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /(?:fields\(url\s*=\s*%url\)|tracing::(?:debug|info|warn|error)!\([^;]*(?:URL|url)[^;]*:\s*\{\})/.test(
+    text,
+  );
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -663,6 +679,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawLocalPathLogging(root, path)) {
       violations.push(`replace raw local path logging: ${path}`);
+    }
+
+    if (hasRawUrlLogging(root, path)) {
+      violations.push(`replace raw URL logging: ${path}`);
     }
   }
 
