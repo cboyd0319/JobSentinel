@@ -11,7 +11,15 @@ describe("isValidJobUrl", () => {
     expect(isValidJobUrl("http://localhost:3000/jobs")).toBe(false);
     expect(isValidJobUrl("http://app.localhost/jobs")).toBe(false);
     expect(isValidJobUrl("http://127.0.0.1/jobs")).toBe(false);
+    expect(isValidJobUrl("http://127.0.0.2/jobs")).toBe(false);
+    expect(isValidJobUrl("http://127.255.255.255/jobs")).toBe(false);
     expect(isValidJobUrl("http://[::1]/jobs")).toBe(false);
+  });
+
+  it("blocks IPv4-mapped IPv6 private and loopback addresses", () => {
+    expect(isValidJobUrl("http://[::ffff:127.0.0.1]/jobs")).toBe(false);
+    expect(isValidJobUrl("http://[::ffff:10.0.0.1]/jobs")).toBe(false);
+    expect(isValidJobUrl("http://[::ffff:192.168.1.1]/jobs")).toBe(false);
   });
 
   it("blocks private and link-local IPv4 ranges", () => {

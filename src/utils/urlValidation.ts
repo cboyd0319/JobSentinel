@@ -37,40 +37,13 @@ export function isValidJobUrl(url: string): boolean {
       return false;
     }
 
-    // Block private IP ranges (10.x.x.x, 172.16-31.x.x, 192.168.x.x)
-    const ipv4Match = ipHostname.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
-    if (ipv4Match) {
-      const first = Number(ipv4Match[1]);
-      const second = Number(ipv4Match[2]);
+    if (isBlockedIpv4Address(ipHostname)) {
+      return false;
+    }
 
-      if (first === 0) {
-        return false;
-      }
-
-      // 10.0.0.0/8
-      if (first === 10) {
-        return false;
-      }
-
-      // 172.16.0.0/12
-      if (first === 172 && second >= 16 && second <= 31) {
-        return false;
-      }
-
-      // 192.168.0.0/16
-      if (first === 192 && second === 168) {
-        return false;
-      }
-
-      // 169.254.0.0/16 (link-local)
-      if (first === 169 && second === 254) {
-        return false;
-      }
-
-      // 100.64.0.0/10 (carrier-grade NAT/shared address space)
-      if (first === 100 && second >= 64 && second <= 127) {
-        return false;
-      }
+    const mappedIpv4 = ipv4FromMappedIpv6(ipHostname);
+    if (mappedIpv4 && isBlockedIpv4Address(mappedIpv4)) {
+      return false;
     }
 
     // Block private IPv6 ranges (fc00::/7, fe80::/10)
@@ -91,4 +64,66 @@ export function isValidJobUrl(url: string): boolean {
     // Invalid URL format
     return false;
   }
+}
+
+function isBlockedIpv4Address(hostname: string): boolean {
+  const ipv4Match = hostname.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (!ipv4Match) {
+    return false;
+  }
+
+  const octets = ipv4Match.slice(1).map(Number);
+  if (octets.some((octet) => !Number.isInteger(octet) || octet < 0 || octet > 255)) {
+    return true;
+  }
+
+  const [first, second] = octets;
+
+  // 0.0.0.0/8 and 127.0.0.0/8
+  if (first === 0 || first === 127) {
+    return true;
+  }
+
+  // 10.0.0.0/8
+  if (first === 10) {
+    return true;
+  }
+
+  // 172.16.0.0/12
+  if (first === 172 && second >= 16 && second <= 31) {
+    return true;
+  }
+
+  // 192.168.0.0/16
+  if (first === 192 && second === 168) {
+    return true;
+  }
+
+  // 169.254.0.0/16 (link-local)
+  if (first === 169 && second === 254) {
+    return true;
+  }
+
+  // 100.64.0.0/10 (carrier-grade NAT/shared address space)
+  return first === 100 && second >= 64 && second <= 127;
+}
+
+function ipv4FromMappedIpv6(hostname: string): string | null {
+  const match = hostname.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/i);
+  if (!match) {
+    return null;
+  }
+
+  const highWord = Number.parseInt(match[1], 16);
+  const lowWord = Number.parseInt(match[2], 16);
+  if (!Number.isFinite(highWord) || !Number.isFinite(lowWord)) {
+    return null;
+  }
+
+  return [
+    highWord >> 8,
+    highWord & 0xff,
+    lowWord >> 8,
+    lowWord & 0xff,
+  ].join(".");
 }

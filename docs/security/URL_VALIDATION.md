@@ -139,6 +139,9 @@ It is used by:
 - `src-tauri/src/commands/deeplinks.rs` before opening a job URL in the user's browser.
 - `src-tauri/src/core/import/fetcher.rs` before fetching a user-supplied job page.
 
+The frontend fallback guard in `src/utils/urlValidation.ts` mirrors these
+external job URL rules before any direct `window.open()` fallback.
+
 **Rules**:
 
 - Parse with `url::Url` before checking components.
