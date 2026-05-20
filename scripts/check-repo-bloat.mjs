@@ -455,6 +455,16 @@ function hasFeatureStatusColorEmojiMarkers(root, path) {
   );
 }
 
+function hasMarketIntelligenceDocEmojiMarkers(root, path) {
+  if (path !== "docs/features/market-intelligence.md") {
+    return false;
+  }
+
+  return /(?:\p{Extended_Pictographic}|severity_emoji|type_emoji|sentiment_emoji)/u.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 function hasStaleApplicationTrackingDocClaims(root, path) {
   if (path !== "docs/features/application-tracking.md") {
     return false;
@@ -569,6 +579,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasFeatureStatusColorEmojiMarkers(root, path)) {
       violations.push(`replace feature status color emoji markers: ${path}`);
+    }
+
+    if (hasMarketIntelligenceDocEmojiMarkers(root, path)) {
+      violations.push(`replace Market Intelligence doc emoji/stale indicator markers: ${path}`);
     }
 
     if (hasStaleApplicationTrackingDocClaims(root, path)) {

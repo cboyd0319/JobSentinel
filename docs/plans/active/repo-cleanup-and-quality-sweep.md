@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Removed decorative emoji and stale indicator API names from Market Intelligence feature docs, with bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Replaced stale Linux platform stub wording in source comments/logging and added bloat coverage for those markers. |
 | 2026-05-20 | In progress | Removed color emoji status bullets from Ghost Detection and Resume Builder feature docs, with bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Sanitized score-breakdown modal input so direct non-finite scores render as `0%` instead of `NaN%`, with boundary regression coverage. |
@@ -288,6 +289,9 @@ changes or Playwright-specific work.
   bullets where plain text labels provide the same meaning.
 - The Linux platform module had working XDG directory setup but still described
   itself as a future stub with limited functionality.
+- Market Intelligence feature docs still used emoji-heavy headings, sample
+  outputs, and stale `*_emoji()` API names after source switched to text
+  indicators.
 - `ScoreBreakdownModal` sanitized scores only through callers, so direct use of
   the exported modal with `NaN` rendered `NaN%`.
 - `ScoreBreakdownModal` converted Tailwind color classes such as
@@ -316,6 +320,8 @@ changes or Playwright-specific work.
   written as words without emoji bullets.
 - Keep source comments and logs aligned with implemented platform behavior;
   stale "coming soon" stub markers count as bloat once code exists.
+- Keep Market Intelligence docs aligned with text indicator APIs such as
+  `severity_indicator()`, `type_indicator()`, and `sentiment_indicator()`.
 - Keep feature docs aligned with live source names for frontend routes and IPC
   commands; stale future-work claims count as documentation bloat.
 - Do not document UI markers that are not present in source; describe current

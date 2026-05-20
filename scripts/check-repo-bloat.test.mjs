@@ -552,6 +552,38 @@ test("checkRepoBloat rejects feature status color emoji markers", () => {
   });
 });
 
+test("checkRepoBloat rejects Market Intelligence doc emoji markers", () => {
+  withGitFixture((root) => {
+    const chartIcon = String.fromCodePoint(0x1f4c8);
+    const moneyIcon = String.fromCodePoint(0x1f4b0);
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/market-intelligence.md",
+      [
+        `## ${chartIcon} Overview`,
+        `- **${moneyIcon} Salary Trends** - Monitor salary changes`,
+        "pub fn severity_emoji(&self) -> &str;",
+        "pub fn sentiment_emoji(&self) -> &str;",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/features/market-intelligence.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace Market Intelligence doc emoji/stale indicator markers: docs/features/market-intelligence.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale application tracking doc claims", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

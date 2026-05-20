@@ -1,6 +1,6 @@
 # Job Market Intelligence Dashboard
 
-**See what's happening in the job market — at a glance.**
+**See what's happening in the job market at a glance.**
 
 Which skills are companies looking for right now? Which companies are hiring aggressively?
 Are salaries going up or down? JobSentinel's Market Intelligence shows you the trends so
@@ -10,10 +10,10 @@ you can make smarter career decisions.
 
 ## What Can Market Intelligence Do For You?
 
-- **See trending skills** — Know which skills to learn next
-- **Find active companies** — See who's hiring the most
-- **Track salary trends** — Are salaries rising or falling for your role?
-- **Get market alerts** — Get notified when skills surge or companies go on hiring sprees
+- **See trending skills** - Know which skills to learn next
+- **Find active companies** - See who's hiring the most
+- **Track salary trends** - Are salaries rising or falling for your role?
+- **Get market alerts** - Get notified when skills surge or companies go on hiring sprees
 
 ---
 
@@ -41,7 +41,7 @@ The data updates automatically as JobSentinel finds new jobs.
 
 ---
 
-## 🎯 Overview
+## Overview
 
 JobSentinel's Market Intelligence Dashboard provides real-time analytics on job market trends,
 skill demand, salary movements, company hiring velocity, and geographic distribution. Make
@@ -49,13 +49,13 @@ data-driven career decisions with comprehensive market insights.
 
 ### Key Features
 
-- **📊 Skill Demand Trends** - Track which skills are rising/falling in demand
-- **💰 Salary Trends** - Monitor salary changes by role and location
-- **🔥 Company Hiring Velocity** - Identify which companies are hiring aggressively
-- **📍 Geographic Heatmaps** - See where jobs are concentrated
-- **🚨 Market Alerts** - Get notified of skill surges, salary spikes, hiring sprees
-- **📈 Market Snapshots** - Daily market health indicators
-- **🖥️ Interactive UI** - Tabbed layout with charts and heatmaps (v2.5)
+- **Skill Demand Trends** - Track which skills are rising/falling in demand
+- **Salary Trends** - Monitor salary changes by role and location
+- **Company Hiring Velocity** - Identify which companies are hiring aggressively
+- **Geographic Heatmaps** - See where jobs are concentrated
+- **Market Alerts** - Get notified of skill surges, salary spikes, hiring sprees
+- **Market Snapshots** - Daily market health indicators
+- **Interactive UI** - Tabbed layout with charts and heatmaps (v2.5)
 
 ### Screenshot
 
@@ -63,7 +63,7 @@ data-driven career decisions with comprehensive market insights.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ### System Components
 
@@ -72,7 +72,7 @@ data-driven career decisions with comprehensive market insights.
 │      Job Market Intelligence Engine             │
 │                                                  │
 │  ┌──────────────┐      ┌──────────────────────┐│
-│  │  Daily Data  │─────▶│  Trend Computation   ││
+│  │  Daily Data  │----->│  Trend Computation   ││
 │  │  Aggregation │      │  (Skills, Salaries)  ││
 │  └──────────────┘      └──────────────────────┘│
 │         │                       │               │
@@ -154,7 +154,7 @@ market_alerts
 
 ---
 
-## 🚀 Usage Guide
+## Usage Guide
 
 ### 1. Run Daily Market Analysis
 
@@ -259,8 +259,8 @@ let alerts = market_intel.get_unread_alerts().await?;
 
 for alert in alerts {
     println!("{} {} {}",
-        alert.severity_emoji(),
-        alert.type_emoji(),
+        alert.severity_indicator(),
+        alert.type_indicator(),
         alert.title
     );
     println!("  {}", alert.description);
@@ -271,15 +271,15 @@ for alert in alerts {
 **Example Output:**
 
 ```text
-ℹ️ 📈 Rust demand surging!
-  The skill 'Rust' saw a 75% increase in job postings this week (140 → 245 mentions).
+[INFO] [SKILL+] Rust demand surging!
+  The skill 'Rust' saw a 75% increase in job postings this week (140 to 245 mentions).
   Change: +75.0%
 
-ℹ️ 💰 Software Engineer salaries jumping in San Francisco, CA
+[INFO] [SALARY+] Software Engineer salaries jumping in San Francisco, CA
   Salaries for 'software engineer' in san francisco, ca increased by 12.5% (median: $175,000).
   Change: +12.5%
 
-ℹ️ 🔥 Google hiring aggressively
+[INFO] [HIRING] Google hiring aggressively
   Google posted 25 new jobs today (450 total active positions).
   Change: N/A
 ```
@@ -296,7 +296,7 @@ if let Some(snap) = snapshot {
     println!("Date: {}", snap.date);
     println!("Total Jobs: {}", snap.total_jobs);
     println!("New Today: {}", snap.new_jobs_today);
-    println!("Sentiment: {} {}", snap.sentiment_emoji(), snap.market_sentiment);
+    println!("Sentiment: {} {}", snap.sentiment_indicator(), snap.market_sentiment);
     println!("Remote: {:.1}%", snap.remote_job_percentage);
     println!("Top Skill: {}", snap.top_skill.unwrap_or("N/A".to_string()));
     println!("Median Salary: ${}", snap.median_salary.unwrap_or(0));
@@ -309,7 +309,7 @@ if let Some(snap) = snapshot {
 Date: 2026-01-20
 Total Jobs: 10,500
 New Today: 150
-Sentiment: 📈 bullish
+Sentiment: [UP] bullish
 Remote: 35.5%
 Top Skill: Python
 Median Salary: $145,000
@@ -333,7 +333,7 @@ for snapshot in historical {
 
 ---
 
-## 📊 Analytics Queries
+## Analytics Queries
 
 ### Top Paying Locations
 
@@ -392,9 +392,9 @@ LIMIT 20;
 
 ---
 
-## 🔔 Market Alert Types
+## Market Alert Types
 
-### 1. Skill Surge 📈
+### 1. Skill Surge
 
 **Trigger:** Skill mentions increased by ≥50% in a week
 
@@ -402,12 +402,12 @@ LIMIT 20;
 
 ```text
 Rust demand surging!
-The skill 'Rust' saw a 75% increase in job postings this week (140 → 245 mentions).
+The skill 'Rust' saw a 75% increase in job postings this week (140 to 245 mentions).
 ```
 
 **Action:** Consider learning this skill if it aligns with your career goals.
 
-### 2. Salary Spike 💰
+### 2. Salary Spike
 
 **Trigger:** Median salary increased by ≥25% for a role/location
 
@@ -420,7 +420,7 @@ Salaries for 'devops engineer' in austin, tx increased by 28.0% (median: $145,00
 
 **Action:** Great time to negotiate or switch roles in this market.
 
-### 3. Hiring Spree 🔥
+### 3. Hiring Spree
 
 **Trigger:** Company posted ≥10 jobs in a single day
 
@@ -433,19 +433,19 @@ Meta posted 35 new jobs today (520 total active positions).
 
 **Action:** Prime opportunity to apply - company is scaling fast.
 
-### 4. Hiring Freeze ❄️
+### 4. Hiring Freeze
 
 **Trigger:** Company stopped posting jobs for ≥14 days (future implementation)
 
 **Action:** Avoid applying - company may be restructuring.
 
-### 5. Location Boom 📍
+### 5. Location Boom
 
 **Trigger:** New location sees ≥100 jobs in a month (future implementation)
 
 **Action:** Consider relocating or targeting this market.
 
-### 6. Role Obsolete 📉
+### 6. Role Obsolete
 
 **Trigger:** Job demand for a role decreased by ≥50% (future implementation)
 
@@ -453,7 +453,7 @@ Meta posted 35 new jobs today (520 total active positions).
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ### Unit Tests
 
@@ -461,13 +461,13 @@ Meta posted 35 new jobs today (520 total active positions).
 cargo test --lib market_intelligence
 
 # Test coverage:
-# ✅ Skill demand growth calculation
-# ✅ Salary trend analysis
-# ✅ Company hiring velocity
-# ✅ Location job density
-# ✅ Market snapshot creation
-# ✅ Alert type conversion
-# ✅ Alert formatting
+# PASS Skill demand growth calculation
+# PASS Salary trend analysis
+# PASS Company hiring velocity
+# PASS Location job density
+# PASS Market snapshot creation
+# PASS Alert type conversion
+# PASS Alert formatting
 ```
 
 **Test Statistics:**
@@ -479,7 +479,7 @@ cargo test --lib market_intelligence
 
 ---
 
-## 📈 Data Visualization (Frontend)
+## Data Visualization (Frontend)
 
 ### Recommended Charts
 
@@ -517,7 +517,7 @@ cargo test --lib market_intelligence
 
 ---
 
-## 🔧 API Reference
+## API Reference
 
 ### MarketIntelligence
 
@@ -580,7 +580,7 @@ pub struct MarketSnapshot {
 impl MarketSnapshot {
     pub fn summary(&self) -> String;
     pub fn is_healthy(&self) -> bool;
-    pub fn sentiment_emoji(&self) -> &str;
+    pub fn sentiment_indicator(&self) -> &str;
 }
 ```
 
@@ -604,16 +604,16 @@ pub struct MarketAlert {
 impl MarketAlert {
     pub async fn mark_read(&self, db: &SqlitePool) -> Result<()>;
     pub fn change_description(&self) -> String;
-    pub fn severity_emoji(&self) -> &str;
-    pub fn type_emoji(&self) -> &str;
+    pub fn severity_indicator(&self) -> &str;
+    pub fn type_indicator(&self) -> &str;
 }
 ```
 
 ---
 
-## ✅ Implementation Status
+## Implementation Status
 
-### Phase 1: Foundation ✅ COMPLETE
+### Phase 1: Foundation Complete
 
 - [x] Database schema (7 tables, 4 views, 15 indexes)
 - [x] Skill demand trend computation
@@ -627,7 +627,7 @@ impl MarketAlert {
 - [x] Comprehensive unit tests (11 tests)
 - [x] Full API documentation
 
-### Phase 2: Enhanced Analytics 🔜
+### Phase 2: Enhanced Analytics Planned
 
 - [ ] Machine learning trend prediction
 - [ ] Seasonality detection (hiring cycles)
@@ -635,7 +635,7 @@ impl MarketAlert {
 - [ ] Skill co-occurrence analysis (skills that appear together)
 - [ ] Additional alert types (hiring freeze, location boom, role obsolete)
 
-### Phase 3: Advanced Visualization ✅ COMPLETE (v2.5)
+### Phase 3: Advanced Visualization Complete (v2.5)
 
 - [x] Interactive Recharts components (TrendChart, LocationHeatmap)
 - [x] Tabbed Market Intelligence page (Overview, Skills, Companies, Locations, Alerts)
@@ -648,7 +648,7 @@ impl MarketAlert {
 
 ---
 
-## 🗓️ Scheduled Jobs
+## Scheduled Jobs
 
 ### Daily Analysis (Recommended: 2 AM)
 
@@ -682,14 +682,14 @@ scheduler.schedule_weekly("0 3 * * 0", || async {
 
 ---
 
-## 📊 Example Dashboard Mockup
+## Example Dashboard Mockup
 
 ```text
 ┌────────────────────────────────────────────────────────────┐
 │  Job Market Intelligence Dashboard                         │
 ├────────────────────────────────────────────────────────────┤
 │                                                            │
-│  Market Snapshot (Jan 20, 2026)        📈 Bullish         │
+│  Market Snapshot (Jan 20, 2026)        [UP] Bullish      │
 │  ────────────────────────────────────────────────────      │
 │  Total Jobs:        10,500                                 │
 │  New Today:         150                                    │
@@ -716,18 +716,18 @@ scheduler.schedule_weekly("0 3 * * 0", || async {
 │  5. Netflix          50 posted    180 active   ▼          │
 │                                                            │
 ├────────────────────────────────────────────────────────────┤
-│  Market Alerts (3 unread)                    🚨            │
+│  Market Alerts (3 unread)                                  │
 │  ────────────────────────────────────────────────────      │
-│  📈 Rust demand surging! (+75%)                           │
-│  💰 DevOps salaries spiking in Austin (+28%)              │
-│  🔥 Meta hiring aggressively (35 jobs today)              │
+│  [SKILL+] Rust demand surging! (+75%)                     │
+│  [SALARY+] DevOps salaries spiking in Austin (+28%)       │
+│  [HIRING] Meta hiring aggressively (35 jobs today)        │
 │                                                            │
 └────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🎓 Use Cases
+## Use Cases
 
 ### 1. Career Decision Making
 
@@ -814,7 +814,7 @@ let target_company = companies.iter()
 
 if let Some(company) = target_company {
     if company.hiring_trend == Some("decreasing".to_string()) {
-        println!("⚠️ Warning: Company hiring is slowing down");
+        println!("Warning: Company hiring is slowing down");
     }
 }
 ```
@@ -824,10 +824,10 @@ if let Some(company) = target_company {
 **Last Updated:** 2026-03-18
 **Version:** 2.6.4
 **Maintained By:** JobSentinel Core Team
-**Implementation Status:** ✅ Phase 1 & 3 Complete (Data Infrastructure + UI)
+**Implementation Status:** Phase 1 & 3 Complete (Data Infrastructure + UI)
 **Next Feature:** Machine learning trend prediction
 
-💡 **Pro Tip:** Run daily analysis as a scheduled job to maintain up-to-date market insights.
+**Pro Tip:** Run daily analysis as a scheduled job to maintain up-to-date market insights.
 Enable market alerts to get notified of significant changes in your target skills or companies!
 
 </details>
