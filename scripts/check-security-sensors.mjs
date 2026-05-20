@@ -1,0 +1,152 @@
+#!/usr/bin/env node
+
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+const scriptPath = fileURLToPath(import.meta.url);
+const defaultRoot = resolve(dirname(scriptPath), "..");
+
+const requiredSecurityDocs = [
+  "docs/security/README.md",
+  "docs/security/KEYRING.md",
+  "docs/security/XSS_PREVENTION.md",
+  "docs/security/URL_VALIDATION.md",
+  "docs/security/COMMAND_EXECUTION.md",
+  "docs/security/WEBHOOK_SECURITY.md",
+];
+
+const requiredMatrixEntries = [
+  {
+    label: "input validation",
+    phrases: ["URL, file path, command, or HTML input", "Unit tests for malicious input"],
+  },
+  {
+    label: "credential handling",
+    phrases: ["Credential handling", "Keyring behavior check and no plaintext path"],
+  },
+  {
+    label: "external network destination",
+    phrases: ["External network destination", "Privacy docs update and explicit user configuration"],
+  },
+  {
+    label: "browser automation",
+    phrases: ["Browser automation", "Human-in-the-loop submit behavior preserved"],
+  },
+  {
+    label: "scraper behavior",
+    phrases: ["Scraper behavior", "Rate limit and error handling tests"],
+  },
+];
+
+const ciWorkflowChecks = [
+  {
+    label: "security job",
+    phrases: ["jobs:", "security:"],
+  },
+  {
+    label: "npm audit",
+    phrases: ["npm audit --audit-level=moderate"],
+  },
+  {
+    label: "cargo deny advisories",
+    phrases: ["cargo deny check advisories"],
+  },
+];
+
+const ciDocsChecks = [
+  {
+    label: "npm audit",
+    phrases: ["npm audit --audit-level=moderate"],
+  },
+  {
+    label: "cargo deny advisories",
+    phrases: ["cargo deny check advisories"],
+  },
+];
+
+function repoPath(root, path) {
+  return join(root, path);
+}
+
+function readIfExists(root, path, violations) {
+  const fullPath = repoPath(root, path);
+
+  if (!existsSync(fullPath)) {
+    violations.push(`missing file required for security sensor check: ${path}`);
+    return "";
+  }
+
+  return readFileSync(fullPath, "utf8");
+}
+
+function includesAll(text, phrases) {
+  return phrases.every((phrase) => text.includes(phrase));
+}
+
+export function formatSecuritySensorSummary() {
+  return [
+    "Security sensors:",
+    `docs=${requiredSecurityDocs.length}`,
+    `matrix=${requiredMatrixEntries.length}`,
+    "workflow=1",
+    "ci=2",
+    `ci-docs=${ciDocsChecks.length}`,
+  ].join(" ");
+}
+
+export function checkSecuritySensors(root = defaultRoot) {
+  const violations = [];
+
+  for (const path of requiredSecurityDocs) {
+    if (!existsSync(repoPath(root, path))) {
+      violations.push(`missing required security doc: ${path}`);
+    }
+  }
+
+  const verificationMatrix = readIfExists(
+    root,
+    "docs/harness/verification-matrix.md",
+    violations,
+  );
+
+  for (const entry of requiredMatrixEntries) {
+    if (!includesAll(verificationMatrix, entry.phrases)) {
+      violations.push(`verification matrix is missing security sensor entry: ${entry.label}`);
+    }
+  }
+
+  const ciWorkflow = readIfExists(root, ".github/workflows/ci.yml", violations);
+
+  for (const check of ciWorkflowChecks) {
+    if (!includesAll(ciWorkflow, check.phrases)) {
+      violations.push(`CI workflow is missing security gate: ${check.label}`);
+    }
+  }
+
+  const ciDocs = readIfExists(root, "docs/developer/CI_CD.md", violations);
+
+  for (const check of ciDocsChecks) {
+    if (!includesAll(ciDocs, check.phrases)) {
+      violations.push(`CI/CD docs are missing security gate: ${check.label}`);
+    }
+  }
+
+  return violations;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const root = process.argv[2] ? resolve(process.argv[2]) : defaultRoot;
+  const violations = checkSecuritySensors(root);
+
+  if (violations.length > 0) {
+    console.error("Security sensor check failed:");
+    for (const violation of violations) {
+      console.error(`- ${violation}`);
+    }
+    process.exit(1);
+  }
+
+  console.log("Security sensor check passed.");
+  console.log(formatSecuritySensorSummary());
+}

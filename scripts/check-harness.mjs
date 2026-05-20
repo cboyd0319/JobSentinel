@@ -4,6 +4,10 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, normalize, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { checkFrontendBoundaries } from "./check-frontend-boundaries.mjs";
+import {
+  checkSecuritySensors,
+  formatSecuritySensorSummary,
+} from "./check-security-sensors.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -249,6 +253,10 @@ for (const violation of checkFrontendBoundaries(root)) {
   errors.push(violation);
 }
 
+for (const violation of checkSecuritySensors(root)) {
+  errors.push(violation);
+}
+
 if (errors.length > 0) {
   console.error("Harness check failed:");
   for (const error of errors) {
@@ -257,4 +265,5 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
+console.log(formatSecuritySensorSummary());
 console.log("Harness check passed.");

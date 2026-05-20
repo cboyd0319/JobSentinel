@@ -48,7 +48,6 @@ Status:
 
 | ID | Area | Evidence | Risk | Next step |
 | -- | ---- | -------- | ---- | --------- |
-| HE-003 | Security | Existing CI has audit gates, but local harness check does not summarize security sensors. | Agents may skip security-specific checks. | Add security sensor summary script after current harness check stabilizes. |
 | HE-004 | Plans | Active/completed plan folders were added after earlier plans. | New work may skip plan lifecycle. | Move future broad work through `docs/plans/active/`. |
 
 ## Promotion Rule

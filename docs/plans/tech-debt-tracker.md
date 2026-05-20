@@ -7,12 +7,12 @@ security, or developer workflow.
 
 | ID | Area | Evidence | Risk | Next step | Status |
 | -- | ---- | -------- | ---- | --------- | ------ |
-| HE-003 | Security sensors | Local harness check does not summarize security-specific gates. | Agents may skip threat-surface checks for sensitive changes. | Add security sensor summary after harness check stabilizes. | Open |
 
 ## Closed Items
 
 | ID | Area | Evidence | Outcome | Closed |
 | -- | ---- | -------- | ------- | ------ |
+| HE-003 | Security sensors | `scripts/check-security-sensors.mjs` verifies required security docs, security matrix coverage, and CI audit/advisory gate visibility through `npm run harness:check`. | Local harness now summarizes security-specific gates so agents get a deterministic threat-surface reminder. | 2026-05-19 |
 | HE-001 | Harness docs | `scripts/check-harness.mjs` rejects hardcoded current test-count claims in front-door and testing docs. | Maintained docs now reference fresh command output for current test counts instead of stale numeric claims. | 2026-05-19 |
 | HE-002 | Architecture sensors | `scripts/check-frontend-boundaries.mjs` enforces production frontend import boundaries and runs through `npm run harness:check`. | Shared frontend layers now have a mechanical drift sensor. | 2026-05-19 |
 | QA-002 | E2E assertion quality | Search for always-true expressions such as `expect(true)` and `\|\| true` no longer finds matches under `tests/e2e/playwright`. | Replaced no-op assertions with real UI assertions or explicit `test.skip()` branches across the affected Playwright suites. | 2026-05-19 |

@@ -128,6 +128,9 @@ Never trust:
 # Run all tests including security tests
 cargo test
 
+# Check local security sensor coverage
+npm run lint:security
+
 # Run security-specific tests
 cargo test security
 cargo test validation
@@ -136,6 +139,10 @@ cargo test credentials
 # Run with coverage
 cargo tarpaulin --out Html
 ```
+
+`npm run lint:security` checks that required security docs exist, that the
+verification matrix preserves security-specific sensors, and that CI plus CI/CD
+docs keep dependency audit and Rust advisory gates visible.
 
 ### Manual Security Testing
 
