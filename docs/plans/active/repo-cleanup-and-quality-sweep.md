@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Validated Market Intelligence historical snapshot day ranges before integer conversion, with Tauri command-boundary sensor coverage. |
 | 2026-05-20 | In progress | Removed decorative emoji and stale indicator API names from Market Intelligence feature docs, with bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Replaced stale Linux platform stub wording in source comments/logging and added bloat coverage for those markers. |
 | 2026-05-20 | In progress | Removed color emoji status bullets from Ghost Detection and Resume Builder feature docs, with bloat coverage for recurrence. |
@@ -292,6 +293,8 @@ changes or Playwright-specific work.
 - Market Intelligence feature docs still used emoji-heavy headings, sample
   outputs, and stale `*_emoji()` API names after source switched to text
   indicators.
+- `get_historical_snapshots` accepted signed IPC input but converted it with
+  `days as usize`, allowing negative values to become huge history ranges.
 - `ScoreBreakdownModal` sanitized scores only through callers, so direct use of
   the exported modal with `NaN` rendered `NaN%`.
 - `ScoreBreakdownModal` converted Tailwind color classes such as
@@ -322,6 +325,8 @@ changes or Playwright-specific work.
   stale "coming soon" stub markers count as bloat once code exists.
 - Keep Market Intelligence docs aligned with text indicator APIs such as
   `severity_indicator()`, `type_indicator()`, and `sentiment_indicator()`.
+- Validate signed IPC command inputs before converting to unsigned query or
+  limit types.
 - Keep feature docs aligned with live source names for frontend routes and IPC
   commands; stale future-work claims count as documentation bloat.
 - Do not document UI markers that are not present in source; describe current

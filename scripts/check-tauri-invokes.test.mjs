@@ -159,3 +159,72 @@ pub async fn take_automation_screenshot(path: String) -> Result<(), String> {
     );
   });
 });
+
+test("checkTauriInvokes rejects signed-to-usize casts in command handlers", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/main.rs",
+      `
+fn main() {
+    tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![
+            commands::market::get_historical_snapshots,
+        ]);
+}
+`,
+    );
+    writeFixtureFile(
+      root,
+      "README.md",
+      "Current backend surface: **1 registered Tauri commands**.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/README.md",
+      "### Backend Modules (1 registered Tauri commands)\n\n- **Market**: analytics\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/ROADMAP.md",
+      "- **1 registered Tauri commands** for backend modules\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/ARCHITECTURE.md",
+      "Tauri command handlers.\n\n**Market Commands:**\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/GETTING_STARTED.md",
+      "- **market**: Market intelligence\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/user-data-management.md",
+      "These commands power the user data features.\n\n### Saved Searches\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/market.rs",
+      `
+#[tauri::command]
+pub async fn get_historical_snapshots(days: i64) -> Result<(), String> {
+    market.get_historical_snapshots(days as usize).await;
+    Ok(())
+}
+`,
+    );
+
+    const violations = checkTauriInvokes(root);
+
+    assert.ok(
+      violations.some((violation) =>
+        violation.includes(
+          "market::get_historical_snapshots casts a command value to usize",
+        ),
+      ),
+      violations.join("\n"),
+    );
+  });
+});

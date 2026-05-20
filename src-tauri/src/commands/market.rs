@@ -9,6 +9,19 @@ use crate::core::market_intelligence::{
 use serde_json::Value;
 use tauri::State;
 
+const MAX_HISTORICAL_SNAPSHOT_DAYS: i64 = 3_650;
+
+fn validate_historical_snapshot_days(days: i64) -> Result<usize, String> {
+    if !(1..=MAX_HISTORICAL_SNAPSHOT_DAYS).contains(&days) {
+        return Err(format!(
+            "days must be between 1 and {}",
+            MAX_HISTORICAL_SNAPSHOT_DAYS
+        ));
+    }
+
+    usize::try_from(days).map_err(|_| "days is outside supported range".to_string())
+}
+
 /// Get trending skills
 #[tauri::command]
 pub async fn get_trending_skills(
@@ -101,9 +114,10 @@ pub async fn get_historical_snapshots(
 ) -> Result<Vec<MarketSnapshot>, String> {
     tracing::info!("Command: get_historical_snapshots (days: {})", days);
 
+    let days = validate_historical_snapshot_days(days)?;
     let intel = MarketIntelligence::new(state.database.pool().clone());
     intel
-        .get_historical_snapshots(days as usize)
+        .get_historical_snapshots(days)
         .await
         .map_err(|e| format!("Failed to get historical snapshots: {}", e))
 }
@@ -130,4 +144,25 @@ pub async fn mark_all_alerts_read(state: State<'_, AppState>) -> Result<u64, Str
         .mark_all_alerts_read()
         .await
         .map_err(|e| format!("Failed to mark all alerts as read: {}", e))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{validate_historical_snapshot_days, MAX_HISTORICAL_SNAPSHOT_DAYS};
+
+    #[test]
+    fn validates_positive_historical_snapshot_days() {
+        assert_eq!(validate_historical_snapshot_days(30).unwrap(), 30);
+    }
+
+    #[test]
+    fn rejects_non_positive_historical_snapshot_days() {
+        assert!(validate_historical_snapshot_days(0).is_err());
+        assert!(validate_historical_snapshot_days(-1).is_err());
+    }
+
+    #[test]
+    fn rejects_unbounded_historical_snapshot_days() {
+        assert!(validate_historical_snapshot_days(MAX_HISTORICAL_SNAPSHOT_DAYS + 1).is_err());
+    }
 }

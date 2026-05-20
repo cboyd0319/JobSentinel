@@ -236,6 +236,38 @@ function collectRegisteredStubCommandViolations(root) {
   return violations;
 }
 
+function collectCommandBoundaryCastViolations(root) {
+  const violations = [];
+  const entries = collectRegisteredCommandEntries(root);
+
+  if (!entries) {
+    return violations;
+  }
+
+  for (const { module, name } of entries) {
+    const commandPath = join(root, "src-tauri/src/commands", `${module}.rs`);
+
+    if (!existsSync(commandPath)) {
+      continue;
+    }
+
+    const text = readFileSync(commandPath, "utf8");
+    const body = findFunctionBody(text, name);
+
+    if (!body) {
+      continue;
+    }
+
+    if (/\b[a-zA-Z_][a-zA-Z0-9_]*\s+as\s+usize\b/.test(body)) {
+      violations.push(
+        `${module}::${name} casts a command value to usize; validate range before conversion`,
+      );
+    }
+  }
+
+  return violations;
+}
+
 function collectDocumentedCommandCountViolations(root, commandCount) {
   const violations = [];
   const expectedClaim = `${commandCount} registered Tauri commands`;
@@ -300,6 +332,7 @@ export function checkTauriInvokes(root = defaultRoot) {
 
   violations.push(...collectDocumentedCommandCountViolations(root, registered.size));
   violations.push(...collectRegisteredStubCommandViolations(root));
+  violations.push(...collectCommandBoundaryCastViolations(root));
 
   return violations;
 }
