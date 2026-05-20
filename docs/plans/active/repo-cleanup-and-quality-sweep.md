@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Removed emoji status markers from scraper feature docs and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Removed emoji markers from front-door README docs and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Removed emoji markers from Quick Start user docs and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Removed emoji status markers and stale version promises from Deep Links user docs, with bloat coverage for recurrence. |
@@ -264,6 +265,9 @@ changes or Playwright-specific work.
 - Front-door docs still used emoji markers in historical "What's New" headings,
   which made the docs index visually noisy and inconsistent with maintained
   doc rules.
+- Scraper feature docs still used emoji markers for source status, platform
+  support, warnings, headings, and implementation status despite maintained doc
+  rules.
 
 ## Decisions
 
@@ -278,6 +282,8 @@ changes or Playwright-specific work.
 - Keep user docs text-only unless an image or screenshot is the actual content.
 - Keep front-door README docs text-only unless an image or screenshot is the
   actual content.
+- Keep scraper feature docs text-only for status and warning markers; use words
+  like `Production`, `Available`, and `May be blocked`.
 - Treat tracked `.gitkeep` files as bloat in this repo. Durable empty directory
   intent belongs in docs or in the commit that introduces real fixtures.
 - Treat removing bloat and junk as active repo work even though the earlier

@@ -417,3 +417,31 @@ test("checkRepoBloat rejects front-door doc emoji markers", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects scraper doc emoji markers", () => {
+  withGitFixture((root) => {
+    const doneIcon = String.fromCodePoint(0x2705);
+    const warningIcon = String.fromCodePoint(0x26a0, 0xfe0f);
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/scrapers.md",
+      [
+        `| LinkedIn | ${doneIcon} Production |`,
+        `- ${warningIcon} User responsibility: comply with site terms`,
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/features/scrapers.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace scraper doc emoji markers: docs/features/scrapers.md"),
+      violations.join("\n"),
+    );
+  });
+});

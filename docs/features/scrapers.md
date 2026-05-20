@@ -23,31 +23,31 @@ faster. Our parallel scraping architecture enables simultaneous searches across 
 
 | Scraper             | Job Count  | Authentication | Status            |
 | ------------------- | ---------- | -------------- | ----------------- |
-| **LinkedIn**        | 30M+       | Session cookie | ✅ Production     |
-| **Greenhouse**      | ~500K      | Official API   | ✅ Production     |
-| **Lever**           | ~200K      | Official API   | ✅ Production     |
-| **RemoteOK**        | ~100K      | Public         | ✅ Production     |
-| **WeWorkRemotely**  | ~50K       | Public         | ✅ Production     |
-| **BuiltIn**         | ~80K       | Public         | ✅ Production     |
-| **HN Who's Hiring** | ~500/month | Public         | ✅ Production     |
-| **JobsWithGPT**     | ~50K       | MCP Server     | ✅ Production     |
-| **Dice**            | ~50K       | Public         | ✅ Production     |
-| **YC Startup Jobs** | ~10K       | Public         | ✅ Production     |
-| **USAJobs**         | ~50K       | API key (free) | ✅ Production     |
-| **SimplyHired**     | ~5M        | None (RSS)     | ⚠️ May be blocked |
-| **Glassdoor**       | ~1M+       | Public         | ✅ Production     |
+| **LinkedIn**        | 30M+       | Session cookie | Production     |
+| **Greenhouse**      | ~500K      | Official API   | Production     |
+| **Lever**           | ~200K      | Official API   | Production     |
+| **RemoteOK**        | ~100K      | Public         | Production     |
+| **WeWorkRemotely**  | ~50K       | Public         | Production     |
+| **BuiltIn**         | ~80K       | Public         | Production     |
+| **HN Who's Hiring** | ~500/month | Public         | Production     |
+| **JobsWithGPT**     | ~50K       | MCP Server     | Production     |
+| **Dice**            | ~50K       | Public         | Production     |
+| **YC Startup Jobs** | ~10K       | Public         | Production     |
+| **USAJobs**         | ~50K       | API key (free) | Production     |
+| **SimplyHired**     | ~5M        | None (RSS)     | May be blocked |
+| **Glassdoor**       | ~1M+       | Public         | Production     |
 
 ### Key Features (v1.5.0)
 
-- **🔹 Multi-Source Integration** - 13 scrapers with parallel execution
-- **🟢 Automatic Rate Limiting** - Token bucket algorithm prevents IP bans
-- **⏱️ Shared Retry Helper** - Common scraper HTTP client retries 429 and 5xx responses with exponential backoff
-- **📊 Deduplication** - SHA-256 hashing prevents duplicate jobs across sources
-- **🚀 Parallel Scraping** - Concurrent requests to multiple boards
+- **Multi-Source Integration** - 13 scrapers with parallel execution
+- **Automatic Rate Limiting** - Token bucket algorithm prevents IP bans
+- **Shared Retry Helper** - Common scraper HTTP client retries 429 and 5xx responses with exponential backoff
+- **Deduplication** - SHA-256 hashing prevents duplicate jobs across sources
+- **Parallel Scraping** - Concurrent requests to multiple boards
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ### Component Diagram
 
@@ -112,7 +112,7 @@ faster. Our parallel scraping architecture enables simultaneous searches across 
 
 ---
 
-## 🔹 LinkedIn Scraper
+## LinkedIn Scraper
 
 ### Setup Instructions (v2.5.3+)
 
@@ -146,9 +146,9 @@ The cookie is stored securely in your OS keychain (macOS Keychain, Windows Crede
 
 | Platform    | Auto-Connect    | Manual Fallback |
 | ----------- | --------------- | --------------- |
-| **macOS**   | ✅ Full support | Available       |
-| **Windows** | ⏳ Coming soon  | ✅ Available    |
-| **Linux**   | ⏳ Coming soon  | ✅ Available    |
+| **macOS**   | Full support | Available |
+| **Windows** | Coming soon  | Available |
+| **Linux**   | Coming soon  | Available |
 
 #### Config (Search Parameters)
 
@@ -198,11 +198,11 @@ version changes without requiring a code update.
 
 ### Security & Privacy
 
-- ✅ **Your Cookie Only:** No credentials stored, uses your own session
-- ✅ **Respectful Scraping:** 2-5 second delays, max 100 req/hour
-- ✅ **Browser User-Agent:** Mimics real Chrome browser
-- ⚠️ **User Responsibility:** Must comply with LinkedIn Terms of Service
-- ⚠️ **Session Expiry:** Cookie expires after ~90 days, requires refresh
+- **Your Cookie Only:** No credentials stored, uses your own session
+- **Respectful Scraping:** 2-5 second delays, max 100 req/hour
+- **Browser User-Agent:** Mimics real Chrome browser
+- **User Responsibility:** Must comply with LinkedIn Terms of Service
+- **Session Expiry:** Cookie expires after ~90 days, requires refresh
 
 ### Limitations
 
@@ -210,7 +210,7 @@ version changes without requiring a code update.
 - **Rate Limits:** 100 requests/hour to avoid detection
 - **CAPTCHA:** May trigger CAPTCHA if too aggressive
 
-### ✅ Implemented: In-App Login (v2.5.3)
+### Implemented: In-App Login (v2.5.3)
 
 **No manual cookie extraction required!** JobSentinel v2.5.3 introduced native in-app login:
 
@@ -228,13 +228,13 @@ version changes without requiring a code update.
 
 **Platform Status:**
 
-- ✅ macOS: Full automatic extraction
-- ⏳ Windows: Manual fallback (WebView2 integration planned)
-- ⏳ Linux: Manual fallback (WebKitGTK integration planned)
+- macOS: Full automatic extraction
+- Windows: Manual fallback (WebView2 integration planned)
+- Linux: Manual fallback (WebKitGTK integration planned)
 
 ---
 
-## ⏱️ Rate Limiting
+## Rate Limiting
 
 ### Token Bucket Algorithm
 
@@ -288,7 +288,7 @@ Hour 1:00 → Fully refilled → 100 available
 
 ---
 
-## 🧮 Deduplication Improvements
+## Deduplication Improvements
 
 JobSentinel uses intelligent deduplication to prevent duplicate jobs across 13 sources
 using consistent hashing with URL, location, and title normalization.
@@ -380,7 +380,7 @@ Each module includes comprehensive tests (26+ test cases total).
 
 ---
 
-## 🏥 Health Monitoring (v2.1.0+)
+## Health Monitoring (v2.1.0+)
 
 ### Scraper Health Dashboard
 
@@ -478,7 +478,7 @@ LinkedIn cookie expiry is automatically tracked:
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ### Unit Tests
 
@@ -488,12 +488,12 @@ cargo test --lib scrapers::greenhouse
 cargo test --lib scrapers::rate_limiter
 
 # Test coverage:
-# ✅ Query parameter building
-# ✅ SHA-256 hash generation
-# ✅ HTML parsing (all layout variants)
-# ✅ Rate limiter token refill
-# ✅ Session cookie validation
-# ✅ API response parsing
+# Query parameter building
+# SHA-256 hash generation
+# HTML parsing (all layout variants)
+# Rate limiter token refill
+# Session cookie validation
+# API response parsing
 ```
 
 **Test statistics:**
@@ -521,7 +521,7 @@ async fn test_linkedin_scraper_live() {
 
 ---
 
-## 📊 Analytics
+## Analytics
 
 ### Job Discovery Metrics
 
@@ -553,7 +553,7 @@ GROUP BY source;
 
 ---
 
-## 🔐 Security & Ethics
+## Security & Ethics
 
 ### Best Practices
 
@@ -565,10 +565,10 @@ GROUP BY source;
 
 ### LinkedIn-Specific Ethics
 
-- ✅ **Use Your Own Account:** Don't share cookies
-- ✅ **Personal Use Only:** Don't scrape on behalf of others
-- ✅ **Respect ToS:** Comply with LinkedIn Terms of Service
-- ⚠️ **Risk of Ban:** Aggressive scraping may trigger account restrictions
+- **Use Your Own Account:** Don't share cookies
+- **Personal Use Only:** Don't scrape on behalf of others
+- **Respect ToS:** Comply with LinkedIn Terms of Service
+- **Risk of Ban:** Aggressive scraping may trigger account restrictions
 
 ### Legal Considerations
 
@@ -579,7 +579,7 @@ GROUP BY source;
 
 ---
 
-## 🚀 Future Enhancements
+## Future Enhancements
 
 ### Phase 2: Headless Browser (Weeks 3-4)
 
@@ -607,7 +607,7 @@ GROUP BY source;
 
 ---
 
-## 🔧 API Reference
+## API Reference
 
 ### LinkedInScraper
 
@@ -653,9 +653,9 @@ impl RateLimiter {
 
 ---
 
-## ✅ Implementation Status
+## Implementation Status
 
-### Completed ✅ (v2.1.0)
+### Completed (v2.1.0)
 
 - [x] All 13 job board scrapers (production-ready)
 - [x] Parallel scraping architecture
@@ -672,7 +672,7 @@ impl RateLimiter {
 - [x] **Credential expiry tracking** (v2.1.0)
 - [x] **Run history tracking** (v2.1.0)
 
-### Future Enhancements 🔜 (v2.2+)
+### Future Enhancements (v2.2+)
 
 - [ ] Headless browser integration for JavaScript-heavy sites
 - [ ] Additional job boards (Monster, ZipRecruiter, Wellfound, CareerBuilder)
@@ -683,7 +683,7 @@ impl RateLimiter {
 
 ---
 
-## 🇺🇸 USAJobs Federal Government Scraper
+## USAJobs Federal Government Scraper
 
 ### Setup Instructions
 
@@ -769,12 +769,12 @@ Headers:
 
 ### Features
 
-- ✅ **Official API:** Designed for programmatic access (no scraping)
-- ✅ **Comprehensive Data:** Full job descriptions, salary ranges, locations
-- ✅ **Salary Data:** Annual salary ranges with PA (Per Annum) codes
-- ✅ **Remote Detection:** Detects "Remote" or "Telework" in location fields
-- ✅ **No CAPTCHA Risk:** Official API, no anti-bot measures
-- ✅ **Free API Key:** No credit card, instant approval
+- **Official API:** Designed for programmatic access (no scraping)
+- **Comprehensive Data:** Full job descriptions, salary ranges, locations
+- **Salary Data:** Annual salary ranges with PA (Per Annum) codes
+- **Remote Detection:** Detects "Remote" or "Telework" in location fields
+- **No CAPTCHA Risk:** Official API, no anti-bot measures
+- **Free API Key:** No credit card, instant approval
 
 ### Limitations
 
@@ -785,7 +785,7 @@ Headers:
 
 ---
 
-## 📋 SimplyHired Job Aggregator Scraper
+## SimplyHired Job Aggregator Scraper
 
 ### Setup Instructions
 
@@ -834,14 +834,14 @@ SimplyHired has Cloudflare bot protection. The scraper:
 
 ### Advantages
 
-- ✅ **No Authentication:** Public RSS feeds
-- ✅ **Large Coverage:** 5M+ jobs (aggregates from multiple sources)
-- ✅ **Simple Parsing:** XML RSS format is easy to parse
-- ✅ **Low Rate Limits:** RSS is explicitly public
+- **No Authentication:** Public RSS feeds
+- **Large Coverage:** 5M+ jobs (aggregates from multiple sources)
+- **Simple Parsing:** XML RSS format is easy to parse
+- **Low Rate Limits:** RSS is explicitly public
 
 ### Limitations
 
-- ⚠️ **Cloudflare Risk:** May be blocked by anti-bot protection
+- **Cloudflare Risk:** May be blocked by anti-bot protection
 - **Limited Data:** RSS feeds have brief descriptions only
 - **No Salary:** Salary data not in RSS feeds
 - **Generic Locations:** Location data may be vague
@@ -851,5 +851,5 @@ SimplyHired has Cloudflare bot protection. The scraper:
 **Last Updated:** 2026-03-18
 **Version:** 2.6.4
 **Maintained By:** JobSentinel Core Team
-**Implementation Status:** ✅ Phase 3 Complete (13 scrapers integrated)
+**Implementation Status:** Phase 3 Complete (13 scrapers integrated)
 **Next Phase:** v2.7 - ML Predictions, Windows/Linux Auto-Connect
