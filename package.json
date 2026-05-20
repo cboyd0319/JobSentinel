@@ -24,6 +24,7 @@
     "lint:docs": "npm run harness:check && npm run lint:md && npm run lint:prose",
     "test": "vitest",
     "test:run": "vitest run",
+    "test:scripts": "node --test scripts/*.test.mjs",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test --project=chromium",
     "test:e2e:all": "playwright test",

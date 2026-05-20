@@ -283,12 +283,12 @@ If you used JobSentinel before version 1.4:
 
 ## Tauri Commands (API Reference)
 
-These 20 commands power the user data features. Frontend developers can use these to build additional UI.
+These commands power the user data features. Frontend developers can use these to build additional UI.
 
 <details>
 <summary><strong>For developers</strong></summary>
 
-### Cover Letter Templates (6 commands)
+### Cover Letter Templates
 
 #### `list_cover_letter_templates()`
 
@@ -352,6 +352,15 @@ invoke("delete_cover_letter_template", { id: "template-123" });
 // Returns: boolean (true = deleted, false = not found)
 ```
 
+#### `seed_default_templates()`
+
+Create starter templates when no templates exist.
+
+```typescript
+invoke("seed_default_templates");
+// Returns: number (count created)
+```
+
 #### `import_cover_letter_templates(templates: CoverLetterTemplate[])`
 
 Bulk import templates (used during migration).
@@ -368,7 +377,7 @@ invoke("import_cover_letter_templates", {
 
 ---
 
-### Interview Prep Checklists (2 commands)
+### Interview Prep Checklists
 
 #### `get_interview_prep_checklist(interview_id: i64)`
 
@@ -400,7 +409,7 @@ invoke("save_interview_prep_item", {
 
 ---
 
-### Follow-up Reminders (2 commands)
+### Follow-up Reminders
 
 #### `get_interview_followup(interview_id: i64)`
 
@@ -431,7 +440,7 @@ invoke("save_interview_followup", {
 
 ---
 
-### Saved Searches (4 commands)
+### Saved Searches
 
 #### `list_saved_searches()`
 
@@ -502,7 +511,7 @@ invoke("import_saved_searches", {
 
 ---
 
-### Notification Preferences (2 commands)
+### Notification Preferences
 
 #### `get_notification_preferences()`
 
@@ -554,7 +563,7 @@ invoke("save_notification_preferences", {
 
 ---
 
-### Search History (3 commands)
+### Search History
 
 #### `add_search_history(query: string)`
 

@@ -25,6 +25,39 @@ const ignoredFilePatterns = [
   /\.d\.ts$/,
 ];
 
+const requiredCommandClaimFiles = [
+  "README.md",
+  "docs/README.md",
+  "docs/ROADMAP.md",
+];
+
+const staleCommandCountClaimPatterns = [
+  {
+    path: "docs/README.md",
+    pattern: /^-\s+\*\*[^*\n]+\*\*:\s+\d+\s+commands\b/gim,
+  },
+  {
+    path: "docs/developer/ARCHITECTURE.md",
+    pattern: /\b\d+\s+total commands\b/gi,
+  },
+  {
+    path: "docs/developer/ARCHITECTURE.md",
+    pattern: /\*\*[^*\n]*Commands \(\d+\):\*\*/g,
+  },
+  {
+    path: "docs/developer/GETTING_STARTED.md",
+    pattern: /^-\s+\*\*[^*\n]+\*\*:.*\(\d+\s+commands\)/gim,
+  },
+  {
+    path: "docs/features/user-data-management.md",
+    pattern: /\bThese\s+\d+\s+commands\s+power\b/gi,
+  },
+  {
+    path: "docs/features/user-data-management.md",
+    pattern: /^###\s+.+\(\d+\s+commands\)$/gim,
+  },
+];
+
 function collectSourceFiles(root, dir = join(root, "src")) {
   const files = [];
 
@@ -60,6 +93,18 @@ function collectSourceFiles(root, dir = join(root, "src")) {
 
 function getLineNumber(sourceFile, position) {
   return sourceFile.getLineAndCharacterOfPosition(position).line + 1;
+}
+
+function getTextLineNumber(text, position) {
+  let line = 1;
+
+  for (let index = 0; index < position; index += 1) {
+    if (text.charCodeAt(index) === 10) {
+      line += 1;
+    }
+  }
+
+  return line;
 }
 
 function collectFrontendInvokes(root) {
@@ -122,6 +167,46 @@ function collectRegisteredCommands(root) {
   );
 }
 
+function collectDocumentedCommandCountViolations(root, commandCount) {
+  const violations = [];
+  const expectedClaim = `${commandCount} registered Tauri commands`;
+
+  for (const path of requiredCommandClaimFiles) {
+    const fullPath = join(root, path);
+
+    if (!existsSync(fullPath)) {
+      continue;
+    }
+
+    const text = readFileSync(fullPath, "utf8");
+
+    if (!text.includes(expectedClaim)) {
+      violations.push(`${path} must include current command claim: ${expectedClaim}`);
+    }
+  }
+
+  for (const { path, pattern } of staleCommandCountClaimPatterns) {
+    const fullPath = join(root, path);
+
+    if (!existsSync(fullPath)) {
+      continue;
+    }
+
+    const text = readFileSync(fullPath, "utf8");
+
+    for (const match of text.matchAll(pattern)) {
+      const claim = match[0].replace(/\s+/g, " ").trim();
+      const line = getTextLineNumber(text, match.index ?? 0);
+
+      violations.push(
+        `${path}:${line} has hardcoded command-count claim "${claim}"; remove exact sub-counts or use live registration data`,
+      );
+    }
+  }
+
+  return violations;
+}
+
 export function checkTauriInvokes(root = defaultRoot) {
   const violations = [];
   const registered = collectRegisteredCommands(root);
@@ -143,6 +228,8 @@ export function checkTauriInvokes(root = defaultRoot) {
       `${locations.join(", ")} invokes unregistered Tauri command: ${command}`,
     );
   }
+
+  violations.push(...collectDocumentedCommandCountViolations(root, registered.size));
 
   return violations;
 }

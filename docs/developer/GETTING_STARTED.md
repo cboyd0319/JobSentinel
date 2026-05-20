@@ -177,7 +177,7 @@ npm run lint:fix
 
 All core functionality is in `src-tauri/src/core/` and works identically on all platforms:
 
-- **ats**: Application Tracking System with interview scheduler (10 commands)
+- **ats**: Application Tracking System with interview scheduler
 - **config**: JSON-based user preferences
 - **db**: SQLite database with async support (70+ queries)
 - **ghost**: Ghost job detection with repost tracking and stale detection

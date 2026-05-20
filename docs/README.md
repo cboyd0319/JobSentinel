@@ -168,16 +168,16 @@ Current release package version is `2.6.4`. Unreleased `2.7.x` work is tracked i
 ### Backend Modules (191 registered Tauri commands)
 
 - **Core**: config, db, scoring, scheduler, scrapers (13 with parallel scraping), notify, ghost
-- **ATS**: 10 commands (Kanban, reminders, ghosting detection, interviews)
-- **Resume Matcher**: 6 commands (upload, match, skills)
-- **Resume Builder**: 22 commands (builder, templates, export, ATS analysis)
-- **Salary AI**: 4 commands (predict, benchmark, negotiate, compare)
-- **Market Intelligence**: 9 commands (trends, companies, locations, alerts, snapshot, historical)
-- **Ghost Detection**: 3 commands (ghost jobs, statistics, filtered search)
-- **User Data**: 20 commands (templates, prep checklists, saved searches, notifications, history)
-- **One-Click Apply**: 18 commands (profile, screening answers, attempts, ATS detection, browser)
-- **Health**: 9 commands (scraper health, smoke tests, credential expiry)
-- **Feedback**: 11 commands (GitHub, Google Drive, sanitized reports, debug summaries)
+- **ATS**: Kanban, reminders, ghosting detection, interviews, and application stats
+- **Resume Matcher**: JSON Resume import, uploaded resumes, matching, and skill profile management
+- **Resume Builder**: drafts, sections, templates, rendering, exports, and ATS analysis
+- **Salary AI**: predictions, benchmarking, negotiation scripts, and offer comparison
+- **Market Intelligence**: trends, companies, locations, alerts, snapshots, and history
+- **Ghost Detection**: ghost jobs, statistics, filtered search, feedback, and configuration
+- **User Data**: templates, prep checklists, saved searches, notifications, migration, and history
+- **One-Click Apply**: profile, screening answers, attempts, ATS detection, and browser control
+- **Health**: scraper health, smoke tests, run history, and credential expiry
+- **Feedback**: GitHub, Google Drive, sanitized reports, debug summaries, and log events
 
 ### Planned / Unreleased Features
 

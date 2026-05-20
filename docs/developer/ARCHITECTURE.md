@@ -482,9 +482,11 @@ See [One-Click Apply Feature](../features/one-click-apply.md) for full documenta
 
 ### 2. Commands (`src/commands/`)
 
-Tauri command handlers (RPC interface between React and Rust). **169 total commands.**
+Tauri command handlers (RPC interface between React and Rust). The registered
+command list lives in `src-tauri/src/main.rs`; `npm run lint:tauri-invokes`
+checks frontend invocations and command-count documentation drift.
 
-**Core Commands (18):**
+**Core Commands:**
 
 ```rust
 search_jobs()              // Trigger manual scrape
@@ -506,7 +508,7 @@ get_ghost_statistics()     // Detection stats
 get_recent_jobs_filtered() // Filter by ghost status
 ```
 
-**ATS Commands (10):**
+**ATS Commands:**
 
 ```rust
 create_application(), get_applications_kanban(),
@@ -516,7 +518,7 @@ detect_ghosted_applications(), schedule_interview(),
 get_upcoming_interviews(), complete_interview()
 ```
 
-**User Data Commands (20):**
+**User Data Commands:**
 
 ```rust
 // Templates
@@ -541,7 +543,7 @@ add_search_history(), get_search_history(), clear_search_history()
 // Market: trends, companies, locations, alerts, analysis
 ```
 
-**Automation Commands (18):** (NEW in v2.0)
+**Automation Commands:**
 
 ```rust
 // Application Profile

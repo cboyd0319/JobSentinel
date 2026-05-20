@@ -123,6 +123,7 @@ changes or Playwright-specific work.
 | 2026-05-20 | In progress | Removed implicit external location detection from setup/settings, switched the backend lookup to HTTPS, and documented explicit FreeIPAPI public-IP lookup behavior. |
 | 2026-05-20 | In progress | Hardened ATS URL detection so provider names in query strings or lookalike hosts cannot produce false platform matches, and corrected related architecture docs. |
 | 2026-05-20 | In progress | Sanitized automation command URL logging so credentials, query strings, fragments, and invalid raw URLs are not written to logs. |
+| 2026-05-20 | In progress | Removed stale hard-coded Tauri command sub-counts from docs, added missing user-data command docs, and extended the invoke checker to catch command-count documentation drift. |
 
 ## Discoveries
 
@@ -189,6 +190,9 @@ changes or Playwright-specific work.
 - Automation commands logged raw job URLs for ATS detection and form fill
   startup; job URLs can contain tracking IDs, session tokens, or credentials in
   query strings or URL userinfo.
+- Command-count docs had drifted: architecture still claimed 169 total Tauri
+  commands, user-data docs claimed 20 commands while omitting
+  `seed_default_templates`, and overview docs carried stale module sub-counts.
 
 ## Decisions
 
@@ -210,6 +214,9 @@ changes or Playwright-specific work.
   page content, but URL detection must not trust arbitrary query text.
 - Log sanitized URL labels for automation commands instead of raw
   user-controlled URLs.
+- Keep the exact total Tauri command count only in canonical summary claims
+  guarded by `npm run lint:tauri-invokes`; remove exact module sub-counts from
+  overview docs unless a sensor owns them.
 
 ## Outcomes
 
