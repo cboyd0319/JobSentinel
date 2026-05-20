@@ -18,16 +18,8 @@ const HTTP_TIMEOUT: Duration = Duration::from_secs(30);
 /// - No cookies or authentication (user-initiated, public page)
 pub async fn fetch_job_page(url: &str) -> ImportResult<String> {
     // Validate URL
-    let parsed_url = reqwest::Url::parse(url)
-        .map_err(|e| ImportError::InvalidUrl(format!("Invalid URL format: {}", e)))?;
-
-    // Ensure HTTPS for security
-    if parsed_url.scheme() != "https" && parsed_url.scheme() != "http" {
-        return Err(ImportError::InvalidUrl(format!(
-            "Unsupported URL scheme: {}",
-            parsed_url.scheme()
-        )));
-    }
+    let parsed_url = crate::core::url_security::validate_external_http_url(url)
+        .map_err(ImportError::InvalidUrl)?;
 
     tracing::info!(url = %url, "Fetching job page");
 
@@ -39,7 +31,7 @@ pub async fn fetch_job_page(url: &str) -> ImportResult<String> {
         .map_err(ImportError::HttpError)?;
 
     // Fetch the page
-    let response = client.get(url).send().await.map_err(|e| {
+    let response = client.get(parsed_url).send().await.map_err(|e| {
         if e.is_timeout() {
             ImportError::Timeout
         } else {
@@ -76,6 +68,24 @@ mod tests {
     #[tokio::test]
     async fn test_invalid_scheme() {
         let result = fetch_job_page("ftp://example.com").await;
+        assert!(matches!(result, Err(ImportError::InvalidUrl(_))));
+    }
+
+    #[tokio::test]
+    async fn test_blocks_localhost_urls_before_fetch() {
+        let result = fetch_job_page("http://127.0.0.1/internal").await;
+        assert!(matches!(result, Err(ImportError::InvalidUrl(_))));
+
+        let result = fetch_job_page("http://localhost:3000/internal").await;
+        assert!(matches!(result, Err(ImportError::InvalidUrl(_))));
+    }
+
+    #[tokio::test]
+    async fn test_blocks_private_network_urls_before_fetch() {
+        let result = fetch_job_page("http://10.0.0.5/internal").await;
+        assert!(matches!(result, Err(ImportError::InvalidUrl(_))));
+
+        let result = fetch_job_page("http://192.168.1.5/internal").await;
         assert!(matches!(result, Err(ImportError::InvalidUrl(_))));
     }
 

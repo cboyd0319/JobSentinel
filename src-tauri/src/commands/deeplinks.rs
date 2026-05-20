@@ -62,16 +62,7 @@ pub async fn get_sites_by_category_cmd(
 /// Validate that a URL is safe to open in the user's browser.
 /// Only allows https:// URLs to known job search domains.
 fn validate_deep_link_url(url: &str) -> Result<(), String> {
-    let parsed = url::Url::parse(url).map_err(|_| "Invalid URL format".to_string())?;
-
-    match parsed.scheme() {
-        "https" => Ok(()),
-        "http" => Ok(()), // Some job boards don't support HTTPS
-        _ => Err(format!(
-            "Blocked scheme '{}': only http/https allowed",
-            parsed.scheme()
-        )),
-    }
+    crate::core::url_security::validate_external_http_url(url).map(|_| ())
 }
 
 /// Open a deep link URL in the default browser
@@ -159,6 +150,21 @@ mod tests {
     #[test]
     fn test_deep_link_blocks_file_scheme() {
         assert!(validate_deep_link_url("file:///etc/passwd").is_err());
+    }
+
+    #[test]
+    fn test_deep_link_blocks_localhost() {
+        assert!(validate_deep_link_url("http://localhost:3000/jobs").is_err());
+        assert!(validate_deep_link_url("http://127.0.0.1/jobs").is_err());
+        assert!(validate_deep_link_url("http://[::1]/jobs").is_err());
+    }
+
+    #[test]
+    fn test_deep_link_blocks_private_network_urls() {
+        assert!(validate_deep_link_url("http://10.0.0.5/jobs").is_err());
+        assert!(validate_deep_link_url("http://172.20.0.5/jobs").is_err());
+        assert!(validate_deep_link_url("http://192.168.1.5/jobs").is_err());
+        assert!(validate_deep_link_url("http://169.254.1.5/jobs").is_err());
     }
 
     #[test]

@@ -22,23 +22,30 @@ export function isValidJobUrl(url: string): boolean {
     }
 
     // Block localhost and private IP ranges
-    const hostname = parsed.hostname.toLowerCase();
+    const hostname = parsed.hostname.toLowerCase().replace(/\.$/, '');
+    const ipHostname = hostname.startsWith('[') && hostname.endsWith(']')
+      ? hostname.slice(1, -1)
+      : hostname;
 
     // Block localhost variants
     if (
       hostname === 'localhost' ||
-      hostname === '127.0.0.1' ||
-      hostname === '::1' ||
-      hostname.startsWith('localhost:')
+      hostname.endsWith('.localhost') ||
+      ipHostname === '127.0.0.1' ||
+      ipHostname === '::1'
     ) {
       return false;
     }
 
     // Block private IP ranges (10.x.x.x, 172.16-31.x.x, 192.168.x.x)
-    const ipv4Match = hostname.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+    const ipv4Match = ipHostname.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
     if (ipv4Match) {
       const first = Number(ipv4Match[1]);
       const second = Number(ipv4Match[2]);
+
+      if (first === 0) {
+        return false;
+      }
 
       // 10.0.0.0/8
       if (first === 10) {
@@ -59,11 +66,22 @@ export function isValidJobUrl(url: string): boolean {
       if (first === 169 && second === 254) {
         return false;
       }
+
+      // 100.64.0.0/10 (carrier-grade NAT/shared address space)
+      if (first === 100 && second >= 64 && second <= 127) {
+        return false;
+      }
     }
 
     // Block private IPv6 ranges (fc00::/7, fe80::/10)
-    if (hostname.includes(':')) {
-      if (hostname.startsWith('fc') || hostname.startsWith('fd') || hostname.startsWith('fe80')) {
+    if (ipHostname.includes(':')) {
+      if (
+        ipHostname === '::' ||
+        ipHostname === '::1' ||
+        ipHostname.startsWith('fc') ||
+        ipHostname.startsWith('fd') ||
+        ipHostname.startsWith('fe80')
+      ) {
         return false;
       }
     }

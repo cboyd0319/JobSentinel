@@ -3,10 +3,12 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { JobCard } from "./JobCard";
-import * as shell from "@tauri-apps/plugin-shell";
+import * as deeplinks from "../services/deeplinks";
 import { ToastProvider } from "../contexts/ToastContext";
 
-vi.mock("@tauri-apps/plugin-shell");
+vi.mock("../services/deeplinks", () => ({
+  openDeepLink: vi.fn(),
+}));
 
 // Helper to wrap component with ToastProvider
 const renderWithToast = (ui: React.ReactElement) => {
@@ -368,26 +370,28 @@ describe("JobCard", () => {
       await user.click(viewBtn);
 
       expect(onViewJob).toHaveBeenCalledWith("https://example.com/job/1");
-      expect(shell.open).not.toHaveBeenCalled();
+      expect(deeplinks.openDeepLink).not.toHaveBeenCalled();
     });
 
-    it("calls shell.open when onViewJob is not provided", async () => {
+    it("calls openDeepLink when onViewJob is not provided", async () => {
       const user = userEvent.setup();
-      vi.mocked(shell.open).mockResolvedValue();
+      vi.mocked(deeplinks.openDeepLink).mockResolvedValue();
       renderWithToast(<JobCard job={mockJob} />);
 
       const viewBtn = screen.getByTestId("btn-view");
       await user.click(viewBtn);
 
-      expect(shell.open).toHaveBeenCalledWith("https://example.com/job/1");
+      expect(deeplinks.openDeepLink).toHaveBeenCalledWith(
+        "https://example.com/job/1",
+      );
     });
 
-    it("falls back to window.open when shell.open fails", async () => {
+    it("falls back to window.open when openDeepLink fails", async () => {
       const user = userEvent.setup();
       const mockWindowOpen = vi.fn();
       (window as typeof globalThis & { open: typeof window.open }).open =
         mockWindowOpen;
-      vi.mocked(shell.open).mockRejectedValue(new Error("Failed"));
+      vi.mocked(deeplinks.openDeepLink).mockRejectedValue(new Error("Failed"));
 
       renderWithToast(<JobCard job={mockJob} />);
 

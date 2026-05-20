@@ -2,7 +2,6 @@ import { useState, memo, lazy, Suspense } from "react";
 import { ScoreDisplay } from "./ScoreDisplay";
 import { GhostIndicatorCompact } from "./GhostIndicator";
 import { ModalSkeleton } from "./LoadingFallbacks";
-import { open } from "@tauri-apps/plugin-shell";
 import { logError } from "../utils/errorUtils";
 import {
   formatRelativeDate,
@@ -12,6 +11,7 @@ import {
 import { SCORE_THRESHOLD_HIGH, SCORE_THRESHOLD_GOOD } from "../utils/constants";
 import { useToast } from "../hooks/useToast";
 import { isValidJobUrl } from "../utils/urlValidation";
+import { openDeepLink } from "../services/deeplinks";
 
 // Lazy load modal to reduce initial bundle size
 const ScoreBreakdownModal = lazy(() =>
@@ -88,10 +88,10 @@ export const JobCard = memo(function JobCard({
     }
 
     try {
-      await open(url);
+      await openDeepLink(url);
     } catch (err: unknown) {
       // Log error and fallback to window.open
-      logError("Failed to open URL via Tauri shell:", err);
+      logError("Failed to open URL via Tauri command:", err);
       toast.error("Failed to open link", "Unable to open the job posting URL");
       window.open(url, "_blank", "noopener,noreferrer");
     }

@@ -12,7 +12,6 @@ import {
   memo,
 } from "react";
 import { listen } from "@tauri-apps/api/event";
-import { open } from "@tauri-apps/plugin-shell";
 import { Button } from "../components/Button";
 import { Card, CardHeader } from "../components/Card";
 import { JobCard } from "../components/JobCard";
@@ -35,6 +34,7 @@ import {
 } from "../utils/api";
 import { PanelSkeleton, WidgetSkeleton } from "../components/LoadingFallbacks";
 import { isValidJobUrl } from "../utils/urlValidation";
+import { openDeepLink } from "../services/deeplinks";
 
 // Lazy load heavy components to reduce initial bundle size
 const DashboardWidgets = lazy(() =>
@@ -383,7 +383,7 @@ export default function Dashboard({
       }
 
       try {
-        await open(job.url);
+        await openDeepLink(job.url);
       } catch {
         window.open(job.url, "_blank", "noopener,noreferrer");
       }

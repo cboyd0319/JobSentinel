@@ -7,7 +7,8 @@
 ## Overview
 
 Proper URL validation is critical for preventing security vulnerabilities. JobSentinel uses **URL parsing**
-instead of **string prefix matching** to validate webhook URLs and prevent data exfiltration attacks.
+instead of **string prefix matching** to validate webhook URLs, browser-open destinations, and user-supplied
+job import URLs.
 
 ## The Problem: String Prefix Matching
 
@@ -127,6 +128,28 @@ validate_webhook_url("https://hooks.slack.com.evil.com/webhook")
 ```
 
 ## Implementation in JobSentinel
+
+### External Job URLs And Imports
+
+**File**: `src-tauri/src/core/url_security.rs`
+
+`validate_external_http_url` is the shared backend guard for user-controlled external URLs.
+It is used by:
+
+- `src-tauri/src/commands/deeplinks.rs` before opening a job URL in the user's browser.
+- `src-tauri/src/core/import/fetcher.rs` before fetching a user-supplied job page.
+
+**Rules**:
+
+- Parse with `url::Url` before checking components.
+- Allow only `http` and `https`.
+- Require a host.
+- Reject `localhost` and `*.localhost`.
+- Reject loopback, private, link-local, shared-address, unspecified, multicast, and IPv4-mapped private IPs.
+
+Frontend code calls `openDeepLink()` through Tauri IPC instead of importing
+`@tauri-apps/plugin-shell` directly. The default Tauri capability does not grant
+frontend `shell:allow-open`; browser-open requests must pass the backend URL guard.
 
 ### Slack Webhooks
 
@@ -503,6 +526,10 @@ fn validate_external_url(url: &str) -> Result<()> {
 }
 ```
 
+In JobSentinel, use `crate::core::url_security::validate_external_http_url`
+instead of creating one-off SSRF checks. Add unit tests for malicious input when
+touching URL, file path, command, or HTML input boundaries.
+
 ## Best Practices
 
 ### 1. Use the `url` crate
@@ -562,6 +589,6 @@ fn validate_webhook_url(url: &str) -> Result<()> {
 
 ---
 
-**Last Updated**: 2026-03-18
+**Last Updated**: 2026-05-19
 **Version**: 2.6.4
 **Security Level**: Production Ready
