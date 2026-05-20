@@ -7,6 +7,8 @@ test.describe("Job Search and Filtering", () => {
   test.beforeEach(async ({ page }) => {
     dashboard = new DashboardPage(page);
     await dashboard.navigateTo();
+    await expect(dashboard.searchInput).toBeVisible();
+    await expect(dashboard.jobCards.first()).toBeVisible();
   });
 
   test.describe("Search Functionality", () => {
@@ -15,176 +17,104 @@ test.describe("Job Search and Filtering", () => {
       await expect(dashboard.searchButton).toBeVisible();
     });
 
-    test("should search for jobs with keyword", async ({ page }) => {
-      // Skip if no search input
-      if (!(await dashboard.searchInput.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
+    test("should search for jobs with keyword", async () => {
       await dashboard.searchForJobs("software engineer");
 
-      // Wait for results
-      await page.waitForTimeout(1000);
-
-      // Should show job list or empty state
-      const hasJobs = (await dashboard.getJobCount()) > 0;
-      const hasEmptyState = await dashboard.emptyState.isVisible().catch(() => false);
-
-      expect(hasJobs || hasEmptyState).toBeTruthy();
+      await expect(dashboard.jobCards.first()).toBeVisible();
+      await expect(dashboard.jobCards.first()).toContainText(/engineer/i);
     });
 
     test("should clear search input", async () => {
-      if (!(await dashboard.searchInput.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      await dashboard.searchInput.fill("test query");
+      await dashboard.searchForJobs("test query");
       await expect(dashboard.searchInput).toHaveValue("test query");
 
       await dashboard.clearSearch();
+
       await expect(dashboard.searchInput).toHaveValue("");
     });
 
-    test("should show empty state for no results", async ({ page }) => {
-      if (!(await dashboard.searchInput.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      // Search for unlikely term
+    test("should show empty state for no results", async () => {
       await dashboard.searchForJobs("xyzabc123unlikely");
-      await page.waitForTimeout(1000);
 
-      const hasEmptyState = await dashboard.emptyState.isVisible().catch(() => false);
-
-      // Either shows empty state or has jobs (mock data)
-      const jobCount = await dashboard.getJobCount();
-      expect(hasEmptyState || jobCount === 0).toBeTruthy();
+      await expect(dashboard.emptyState).toBeVisible();
+      await expect.poll(() => dashboard.getJobCount()).toBe(0);
     });
   });
 
   test.describe("Filter Functionality", () => {
     test("should display filter options", async () => {
-      const filterCount = await dashboard.filterButtons.count();
-
-      // Should have at least some filters (location, salary, etc.)
-      expect(filterCount).toBeGreaterThanOrEqual(0);
+      await expect.poll(() => dashboard.filterButtons.count()).toBeGreaterThan(0);
     });
 
-    test("should filter jobs by location", async ({ page }) => {
-      if (!(await dashboard.locationFilter.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
+    test("should filter jobs by location", async () => {
       const initialCount = await dashboard.getJobCount();
 
       await dashboard.applyFilter("location", "remote");
-      await page.waitForTimeout(500);
 
+      await expect.poll(() => dashboard.getJobCount()).toBeGreaterThan(0);
       const filteredCount = await dashboard.getJobCount();
+      expect(filteredCount).toBeLessThan(initialCount);
 
-      // Count may change or stay same depending on mock data
-      expect(filteredCount).toBeGreaterThanOrEqual(0);
+      const cards = await dashboard.jobCards.allTextContents();
+      expect(cards.every((card) => /Remote/i.test(card))).toBe(true);
     });
 
-    test("should filter jobs by salary range", async ({ page }) => {
-      if (!(await dashboard.salaryFilter.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
+    test("should filter jobs by salary range", async () => {
+      const initialCount = await dashboard.getJobCount();
 
-      await dashboard.applyFilter("salary", "100k+");
-      await page.waitForTimeout(500);
+      await dashboard.applyFilter("salary", "150k+");
 
+      await expect.poll(() => dashboard.getJobCount()).toBeGreaterThan(0);
       const filteredCount = await dashboard.getJobCount();
-      expect(filteredCount).toBeGreaterThanOrEqual(0);
+      expect(filteredCount).toBeLessThan(initialCount);
     });
 
-    test("should filter jobs by experience level", async ({ page }) => {
-      if (!(await dashboard.experienceFilter.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
+    test("should filter jobs by source", async () => {
+      const initialCount = await dashboard.getJobCount();
 
-      await dashboard.applyFilter("experience", "senior");
-      await page.waitForTimeout(500);
+      await dashboard.applyDropdownFilter("Source", "lever");
 
-      const filteredCount = await dashboard.getJobCount();
-      expect(filteredCount).toBeGreaterThanOrEqual(0);
+      await expect.poll(() => dashboard.getJobCount()).toBe(1);
+      expect(await dashboard.getJobCount()).toBeLessThan(initialCount);
+      await expect(dashboard.jobCards.first()).toContainText(/lever/i);
     });
 
-    test("should clear all filters", async ({ page }) => {
-      // Apply a filter first
-      if (await dashboard.locationFilter.isVisible().catch(() => false)) {
-        await dashboard.applyFilter("location", "remote");
-        await page.waitForTimeout(500);
-      }
-
-      // Clear filters
-      if (await dashboard.clearFiltersButton.isVisible().catch(() => false)) {
-        await dashboard.clearAllFilters();
-        await page.waitForTimeout(500);
-
-        // Should show all jobs again
-        const jobCount = await dashboard.getJobCount();
-        expect(jobCount).toBeGreaterThanOrEqual(0);
-      }
-    });
-
-    test("should combine multiple filters", async ({ page }) => {
-      const hasLocationFilter = await dashboard.locationFilter.isVisible().catch(() => false);
-      const hasSalaryFilter = await dashboard.salaryFilter.isVisible().catch(() => false);
-
-      if (!hasLocationFilter || !hasSalaryFilter) {
-        test.skip();
-        return;
-      }
+    test("should clear all filters", async () => {
+      const initialCount = await dashboard.getJobCount();
 
       await dashboard.applyFilter("location", "remote");
-      await page.waitForTimeout(300);
+      await dashboard.clearAllFilters();
 
-      await dashboard.applyFilter("salary", "100k+");
-      await page.waitForTimeout(500);
+      await expect.poll(() => dashboard.getJobCount()).toBe(initialCount);
+      await expect(dashboard.locationFilter).toContainText("All Locations");
+    });
 
+    test("should combine multiple filters", async () => {
+      const initialCount = await dashboard.getJobCount();
+
+      await dashboard.applyFilter("location", "remote");
+      await dashboard.applyFilter("salary", "150k+");
+
+      await expect.poll(() => dashboard.getJobCount()).toBeGreaterThan(0);
       const filteredCount = await dashboard.getJobCount();
-      expect(filteredCount).toBeGreaterThanOrEqual(0);
+      expect(filteredCount).toBeLessThan(initialCount);
+
+      const cards = await dashboard.jobCards.allTextContents();
+      expect(cards.every((card) => /Remote/i.test(card))).toBe(true);
     });
   });
 
   test.describe("Job Card Interactions", () => {
     test("should display job cards with required fields", async () => {
-      const jobCount = await dashboard.getJobCount();
-
-      if (jobCount === 0) {
-        test.skip();
-        return;
-      }
-
       const firstCard = await dashboard.getJobCard(0);
 
       await expect(firstCard.title).toBeVisible();
       await expect(firstCard.company).toBeVisible();
     });
 
-    test("should toggle bookmark on job card", async ({ page }) => {
-      const jobCount = await dashboard.getJobCount();
-
-      if (jobCount === 0) {
-        test.skip();
-        return;
-      }
-
+    test("should toggle bookmark on job card", async () => {
       const firstCard = await dashboard.getJobCard(0);
       await firstCard.hover();
-      await page.waitForTimeout(300);
-
-      if (!(await firstCard.bookmarkButton.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
 
       const initialBookmarked = await firstCard.isBookmarked();
 
@@ -196,18 +126,12 @@ test.describe("Job Search and Filtering", () => {
     });
 
     test("should open job posting on view button click", async ({ page }) => {
-      const jobCount = await dashboard.getJobCount();
-
-      if (jobCount === 0) {
-        test.skip();
-        return;
-      }
-
       const firstCard = await dashboard.getJobCard(0);
 
-      const popupPromise = page.waitForEvent("popup", { timeout: 1000 }).catch(() => null);
+      const popupPromise = page
+        .waitForEvent("popup", { timeout: 1000 })
+        .catch(() => null);
       await firstCard.view();
-      await page.waitForTimeout(500);
       const popup = await popupPromise;
 
       if (popup) {
@@ -217,57 +141,32 @@ test.describe("Job Search and Filtering", () => {
       await expect(dashboard.mainContent).toBeVisible();
     });
 
-    test("should show hover actions on job card", async ({ page }) => {
-      const jobCount = await dashboard.getJobCount();
-
-      if (jobCount === 0) {
-        test.skip();
-        return;
-      }
-
+    test("should expose expected hover actions on job card", async () => {
       const firstCard = await dashboard.getJobCard(0);
 
-      // Actions may be hidden initially
       await firstCard.hover();
-      await page.waitForTimeout(300);
 
-      // Check if action buttons exist
-      const bookmarkExists = (await firstCard.bookmarkButton.count()) > 0;
-      const applyExists = (await firstCard.applyButton.count()) > 0;
-
-      expect(bookmarkExists || applyExists).toBeTruthy();
+      await expect(firstCard.bookmarkButton).toBeVisible();
+      await expect(firstCard.viewButton).toBeVisible();
     });
   });
 
   test.describe("Error Handling", () => {
-    test("should handle search errors gracefully", async ({ page }) => {
-      if (!(await dashboard.searchInput.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
-
-      // Try edge case searches
+    test("should handle empty search without crashing", async () => {
       await dashboard.searchForJobs("");
-      await page.waitForTimeout(500);
 
-      // Should not crash
       await expect(dashboard.mainContent).toBeVisible();
+      await expect.poll(() => dashboard.getJobCount()).toBeGreaterThan(0);
     });
 
-    test("should handle filter errors gracefully", async ({ page }) => {
-      if (!(await dashboard.locationFilter.isVisible().catch(() => false))) {
-        test.skip();
-        return;
-      }
+    test("should handle rapid filter changes without crashing", async () => {
+      const initialCount = await dashboard.getJobCount();
 
-      // Apply and remove filters rapidly
       await dashboard.applyFilter("location", "remote");
-      await page.waitForTimeout(100);
       await dashboard.clearAllFilters();
-      await page.waitForTimeout(100);
 
-      // Should not crash
       await expect(dashboard.mainContent).toBeVisible();
+      await expect.poll(() => dashboard.getJobCount()).toBe(initialCount);
     });
   });
 });

@@ -57,7 +57,7 @@ export class DashboardPage extends BasePage {
   get emptyState(): Locator {
     return this.page.getByText(
       /No jobs yet|No jobs match your filters|No jobs found|No results|Try adjusting|Try different/i
-    );
+    ).first();
   }
 
   async searchForJobs(query: string) {
@@ -82,13 +82,7 @@ export class DashboardPage extends BasePage {
         remote: "Remote Only",
         onsite: "On-site Only",
       };
-      await this.locationFilter.click();
-      const option = this.page.getByRole("option", {
-        name: optionLabels[value] ?? value,
-      });
-      await option.waitFor({ state: "visible", timeout: 5000 });
-      await option.click({ force: true });
-      await this.waitForReady();
+      await this.applyDropdownFilter("Location", optionLabels[value] ?? value);
       return;
     }
 
@@ -104,6 +98,14 @@ export class DashboardPage extends BasePage {
     }
 
     await this.experienceFilter.click();
+    await this.waitForReady();
+  }
+
+  async applyDropdownFilter(label: string, optionName: string) {
+    await this.dropdownButton(label).click();
+    const option = this.page.getByRole("option", { name: optionName });
+    await option.waitFor({ state: "visible", timeout: 5000 });
+    await option.click({ force: true });
     await this.waitForReady();
   }
 
