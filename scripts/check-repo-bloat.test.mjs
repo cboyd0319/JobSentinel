@@ -976,3 +976,34 @@ test("checkRepoBloat rejects raw notification job title logging", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects raw URL error display", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/automation/error.rs",
+      [
+        "#[derive(thiserror::Error, Debug)]",
+        "pub enum AutomationError {",
+        '    #[error("Failed to navigate to {url}: {reason}")]',
+        "    Navigation { url: String, reason: String },",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/automation/error.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace raw URL error display: src-tauri/src/core/automation/error.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});

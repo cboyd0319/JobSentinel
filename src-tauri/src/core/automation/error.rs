@@ -3,41 +3,34 @@
 //! Domain-specific error types for browser automation and form filling
 //! with detailed context for better debugging and user-friendly error messages.
 
-use thiserror::Error;
+use crate::core::url_security::sanitize_url_for_logging;
+use std::{error::Error, fmt};
 
 /// Comprehensive error type for automation operations
-#[derive(Error, Debug)]
+#[derive(Debug)]
 pub enum AutomationError {
     /// Browser launch failed
-    #[error("Failed to launch browser: {reason}")]
     BrowserLaunch {
         reason: String,
-        #[source]
-        source: Option<Box<dyn std::error::Error + Send + Sync>>,
+        source: Option<Box<dyn Error + Send + Sync>>,
     },
 
     /// Browser not running or crashed
-    #[error("Browser is not running or has crashed")]
     BrowserNotRunning,
 
     /// Page navigation failed
-    #[error("Failed to navigate to {url}: {reason}")]
     Navigation { url: String, reason: String },
 
     /// Page load timeout
-    #[error("Page load timeout after {timeout_secs}s for {url}")]
     PageLoadTimeout { url: String, timeout_secs: u64 },
 
     /// Element not found on page
-    #[error("Element not found: {selector} on {url}")]
     ElementNotFound { selector: String, url: String },
 
     /// Element not interactable (hidden, disabled, etc.)
-    #[error("Element not interactable: {selector} - {reason}")]
     ElementNotInteractable { selector: String, reason: String },
 
     /// Form field type mismatch
-    #[error("Field type mismatch for {field_name}: expected {expected}, found {actual}")]
     FieldTypeMismatch {
         field_name: String,
         expected: String,
@@ -45,82 +38,196 @@ pub enum AutomationError {
     },
 
     /// Failed to fill form field
-    #[error("Failed to fill field '{field_name}': {reason}")]
     FillFieldError { field_name: String, reason: String },
 
     /// CAPTCHA detected - requires manual intervention
-    #[error("CAPTCHA detected on {url} - manual intervention required")]
     CaptchaDetected { url: String },
 
     /// Multi-factor authentication required
-    #[error("MFA required for {platform} - manual intervention required")]
     MfaRequired { platform: String },
 
     /// Terms of service or consent required
-    #[error("Terms acceptance required on {url}")]
     ConsentRequired { url: String },
 
     /// Application already submitted
-    #[error("Application already submitted for job {job_id} on {platform}")]
     AlreadySubmitted { job_id: String, platform: String },
 
     /// ATS platform not supported
-    #[error("ATS platform not supported: {platform}")]
     UnsupportedPlatform { platform: String },
 
     /// ATS detection failed
-    #[error("Failed to detect ATS platform for {url}")]
     AtsDetectionFailed { url: String },
 
     /// Profile data missing or incomplete
-    #[error("Profile data incomplete: missing {}", missing_fields.join(", "))]
     IncompleteProfile { missing_fields: Vec<String> },
 
     /// Resume file not found or invalid
-    #[error("Resume file error: {reason}")]
     ResumeError { reason: String },
 
     /// File upload failed
-    #[error("Failed to upload {file_type}: {reason}")]
     FileUploadError {
         file_type: String, // "resume", "cover_letter"
         reason: String,
     },
 
     /// JavaScript execution error
-    #[error("JavaScript error on {url}: {message}")]
     JavaScriptError { url: String, message: String },
 
     /// Network error during automation
-    #[error("Network error during automation: {source}")]
     Network {
-        #[source]
-        source: Box<dyn std::error::Error + Send + Sync>,
+        source: Box<dyn Error + Send + Sync>,
     },
 
     /// Screenshot capture failed
-    #[error("Failed to capture screenshot: {reason}")]
     ScreenshotError { reason: String },
 
     /// Database error during automation
-    #[error("Database error: {context}")]
     Database {
         context: String,
-        #[source]
-        source: Box<dyn std::error::Error + Send + Sync>,
+        source: Box<dyn Error + Send + Sync>,
     },
 
     /// User approval required but not granted
-    #[error("User approval required for submission but not granted")]
     ApprovalRequired,
 
     /// Daily automation limit reached
-    #[error("Daily automation limit reached: {current}/{max} applications")]
     DailyLimitReached { current: u32, max: u32 },
 
     /// Generic automation error with context
-    #[error("Automation error: {message}")]
     Generic { message: String },
+}
+
+impl fmt::Display for AutomationError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::BrowserLaunch { reason, .. } => {
+                write!(f, "Failed to launch browser: {reason}")
+            }
+            Self::BrowserNotRunning => write!(f, "Browser is not running or has crashed"),
+            Self::Navigation { url, reason } => {
+                write!(
+                    f,
+                    "Failed to navigate to {}: {}",
+                    Self::sanitize_url(url),
+                    reason
+                )
+            }
+            Self::PageLoadTimeout { url, timeout_secs } => {
+                write!(
+                    f,
+                    "Page load timeout after {}s for {}",
+                    timeout_secs,
+                    Self::sanitize_url(url)
+                )
+            }
+            Self::ElementNotFound { selector, url } => {
+                write!(
+                    f,
+                    "Element not found: {} on {}",
+                    selector,
+                    Self::sanitize_url(url)
+                )
+            }
+            Self::ElementNotInteractable { selector, reason } => {
+                write!(f, "Element not interactable: {selector} - {reason}")
+            }
+            Self::FieldTypeMismatch {
+                field_name,
+                expected,
+                actual,
+            } => {
+                write!(
+                    f,
+                    "Field type mismatch for {field_name}: expected {expected}, found {actual}"
+                )
+            }
+            Self::FillFieldError { field_name, reason } => {
+                write!(f, "Failed to fill field '{field_name}': {reason}")
+            }
+            Self::CaptchaDetected { url } => {
+                write!(
+                    f,
+                    "CAPTCHA detected on {} - manual intervention required",
+                    Self::sanitize_url(url)
+                )
+            }
+            Self::MfaRequired { platform } => {
+                write!(
+                    f,
+                    "MFA required for {platform} - manual intervention required"
+                )
+            }
+            Self::ConsentRequired { url } => {
+                write!(
+                    f,
+                    "Terms acceptance required on {}",
+                    Self::sanitize_url(url)
+                )
+            }
+            Self::AlreadySubmitted { job_id, platform } => {
+                write!(
+                    f,
+                    "Application already submitted for job {job_id} on {platform}"
+                )
+            }
+            Self::UnsupportedPlatform { platform } => {
+                write!(f, "ATS platform not supported: {platform}")
+            }
+            Self::AtsDetectionFailed { url } => {
+                write!(
+                    f,
+                    "Failed to detect ATS platform for {}",
+                    Self::sanitize_url(url)
+                )
+            }
+            Self::IncompleteProfile { missing_fields } => {
+                write!(
+                    f,
+                    "Profile data incomplete: missing {}",
+                    missing_fields.join(", ")
+                )
+            }
+            Self::ResumeError { reason } => write!(f, "Resume file error: {reason}"),
+            Self::FileUploadError { file_type, reason } => {
+                write!(f, "Failed to upload {file_type}: {reason}")
+            }
+            Self::JavaScriptError { url, message } => {
+                write!(
+                    f,
+                    "JavaScript error on {}: {}",
+                    Self::sanitize_url(url),
+                    message
+                )
+            }
+            Self::Network { source } => write!(f, "Network error during automation: {source}"),
+            Self::ScreenshotError { reason } => write!(f, "Failed to capture screenshot: {reason}"),
+            Self::Database { context, .. } => write!(f, "Database error: {context}"),
+            Self::ApprovalRequired => {
+                write!(f, "User approval required for submission but not granted")
+            }
+            Self::DailyLimitReached { current, max } => {
+                write!(
+                    f,
+                    "Daily automation limit reached: {current}/{max} applications"
+                )
+            }
+            Self::Generic { message } => write!(f, "Automation error: {message}"),
+        }
+    }
+}
+
+impl Error for AutomationError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            Self::BrowserLaunch {
+                source: Some(source),
+                ..
+            }
+            | Self::Network { source }
+            | Self::Database { source, .. } => Some(source.as_ref()),
+            _ => None,
+        }
+    }
 }
 
 impl AutomationError {
@@ -279,13 +386,7 @@ impl AutomationError {
 
     /// Sanitize URL for display
     fn sanitize_url(url: &str) -> String {
-        // Remove query parameters and truncate if too long
-        let base = url.split('?').next().unwrap_or(url);
-        if base.len() > 50 {
-            format!("{}...", &base[..50])
-        } else {
-            base.to_string()
-        }
+        sanitize_url_for_logging(url)
     }
 
     /// Sanitize selector for display (make it human-readable)
@@ -366,5 +467,35 @@ mod tests {
         let selector = "input[name=\"email\"]";
         let sanitized = AutomationError::sanitize_selector(selector);
         assert_eq!(sanitized, "email");
+    }
+
+    #[test]
+    fn test_display_messages_do_not_expose_raw_urls() {
+        let raw_url = "https://user:pass@example.com/apply?token=secret123&query=security#private";
+
+        let navigation = AutomationError::navigation(raw_url, "redirect failed");
+        let navigation_text = navigation.to_string();
+        assert!(navigation_text.contains("https://example.com/apply"));
+        assert!(!navigation_text.contains("secret123"));
+        assert!(!navigation_text.contains("query=security"));
+        assert!(!navigation_text.contains("user"));
+        assert!(!navigation_text.contains("pass"));
+        assert!(!navigation_text.contains("private"));
+
+        let element = AutomationError::element_not_found("input[name=\"email\"]", raw_url);
+        let element_text = element.to_string();
+        assert!(element_text.contains("https://example.com/apply"));
+        assert!(!element_text.contains("secret123"));
+        assert!(!element_text.contains("user"));
+        assert!(!element_text.contains("pass"));
+
+        let javascript = AutomationError::JavaScriptError {
+            url: raw_url.to_string(),
+            message: "script failed".to_string(),
+        };
+        let javascript_text = javascript.to_string();
+        assert!(javascript_text.contains("https://example.com/apply"));
+        assert!(!javascript_text.contains("secret123"));
+        assert!(!javascript_text.contains("private"));
     }
 }

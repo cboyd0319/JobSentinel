@@ -177,6 +177,11 @@ const rawUrlLoggingPaths = new Set([
   "src-tauri/src/core/scrapers/url_utils.rs",
 ]);
 
+const rawUrlErrorDisplayPaths = new Set([
+  "src-tauri/src/core/automation/error.rs",
+  "src-tauri/src/core/scrapers/error.rs",
+]);
+
 const rawJobImportLoggingPaths = new Set(["src-tauri/src/commands/import.rs"]);
 
 const rawAutomationQuestionLoggingPaths = new Set([
@@ -581,6 +586,14 @@ function hasRawUrlLogging(root, path) {
   ) || /tracing::(?:debug|info|warn|error)!\([^;]*navigation:\s*\{\}[^;]*url_str/.test(text);
 }
 
+function hasRawUrlErrorDisplay(root, path) {
+  if (!rawUrlErrorDisplayPaths.has(path)) {
+    return false;
+  }
+
+  return /#\[error\("[^"]*\{url\}/.test(readFileSync(join(root, path), "utf8"));
+}
+
 function hasRawJobImportLogging(root, path) {
   if (!rawJobImportLoggingPaths.has(path)) {
     return false;
@@ -727,6 +740,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawUrlLogging(root, path)) {
       violations.push(`replace raw URL logging: ${path}`);
+    }
+
+    if (hasRawUrlErrorDisplay(root, path)) {
+      violations.push(`replace raw URL error display: ${path}`);
     }
 
     if (hasRawJobImportLogging(root, path)) {

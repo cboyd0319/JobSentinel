@@ -158,7 +158,7 @@ impl ScraperError {
 **Benefits:**
 
 - Type-safe error handling with rich context
-- Automatic `From` implementations
+- Explicit display and source chaining where sensitive fields need sanitizing
 - User-friendly messages with `.user_message()`
 - Retryability detection with `.is_retryable()`
 - URL sanitization to prevent information leakage
@@ -226,7 +226,7 @@ pub async fn scrape_company(url: &str) -> Result<Vec<Job>> {
 - Less boilerplate
 - Good for application code
 
-### 3. `Box<dyn std::error::Error>` - FFI/Dynamic Errors
+### 4. `Box<dyn std::error::Error>` - FFI/Dynamic Errors
 
 **Use for**: Public API boundaries (Tauri commands, config loading)
 
@@ -253,7 +253,7 @@ impl Config {
 
 | Situation | Use | Example |
 |-----------|-----|---------|
-| Library with specific errors | Domain-specific `thiserror` | `ScraperError`, `DatabaseError`, `AutomationError` |
+| Library with specific errors | Domain-specific error enum | `ScraperError`, `DatabaseError`, `AutomationError` |
 | Application logic | `anyhow` | Scheduler, command handlers |
 | Public API boundaries | `Box<dyn Error>` | Config loading, Tauri commands |
 | Cannot fail | Return value directly | Pure computation |
@@ -262,8 +262,9 @@ impl Config {
 
 ```text
 Is this library code that others will use?
-├─ Yes → Use domain-specific thiserror error type
+├─ Yes → Use a domain-specific error enum
 │  └─ Define custom error enum with context fields
+│      - Implement controlled Display when fields include URLs, paths, queries, or user text
 │      - Add .user_message() for user-friendly errors
 │      - Add .is_retryable() if relevant
 │      - Sanitize URLs and sensitive data

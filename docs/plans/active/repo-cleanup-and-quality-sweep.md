@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Sanitized automation error display output so browser automation logs and command error strings do not expose raw application URLs, credentials, query strings, or fragments. |
 | 2026-05-20 | In progress | Sanitized scraper error display output so scheduler logs and health rows no longer receive raw scraper URLs or search query text from `ScraperError::to_string()`. |
 | 2026-05-20 | In progress | Replaced raw JobsWithGPT MCP request logging with sanitized endpoint and search-shape metadata, with bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Replaced raw notification success job-title logs with structured job id/hash metadata, and added bloat coverage for recurrence. |
@@ -292,6 +293,11 @@ changes or Playwright-specific work.
 - `ScraperError` display strings included raw URLs and the `NoResults` search
   query, while scheduler health paths store and log `e.to_string()` from
   scraper failures.
+- `AutomationError` display strings included raw application URLs for
+  navigation, page load, element lookup, consent, ATS detection, CAPTCHA, and
+  JavaScript failures. Automation command/log paths format errors with
+  `to_string()` / `%e`, so display output needs the same sanitizer as explicit
+  URL logs.
 - `docs/plans/active/.gitkeep` and `docs/plans/completed/.gitkeep` were
   redundant tracked placeholders because both directories contain real plan
   files.
@@ -409,6 +415,9 @@ changes or Playwright-specific work.
 - Scraper error display output must sanitize URL labels and avoid raw search
   criteria. Preserve exact URLs and queries only in request execution and typed
   internal fields that need them.
+- Automation error display output must sanitize URL labels. Keep exact
+  application URLs only in typed fields and browser operations, not formatted
+  errors or logs.
 - Local paths in logs must use non-identifying labels. Preserve actual paths for
   file operations, database records, and user-facing operations that need them.
 - Keep feature docs aligned with live source names for frontend routes and IPC
