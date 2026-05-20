@@ -537,6 +537,15 @@ function hasFeatureStatusColorEmojiMarkers(root, path) {
   );
 }
 
+function hasStaleTestQualityDocGuidance(root, path) {
+  if (path !== "tests/e2e/README.md" && path !== "docs/developer/FRONTEND_TESTING.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /\btest\.skip\s*\(|\b(?:it|test|describe)\.only\s*\(/.test(text);
+}
+
 function hasMarketIntelligenceDocEmojiMarkers(root, path) {
   if (path !== "docs/features/market-intelligence.md") {
     return false;
@@ -1149,6 +1158,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasFeatureStatusColorEmojiMarkers(root, path)) {
       violations.push(`replace feature status color emoji markers: ${path}`);
+    }
+
+    if (hasStaleTestQualityDocGuidance(root, path)) {
+      violations.push(`replace stale test-quality doc guidance: ${path}`);
     }
 
     if (hasMarketIntelligenceDocEmojiMarkers(root, path)) {

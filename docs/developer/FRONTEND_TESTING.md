@@ -710,12 +710,11 @@ screen.debug(screen.getByRole("button"));
 
 ```bash
 npm test -- --grep "specific test name"
-
-# Or use test.only in test file
-it.only("should test this one thing", () => {
-  // Only this test runs
-});
+npm test -- src/components/Button.test.tsx
 ```
+
+Use command-line filters for local focus. Do not commit focused-test modifiers
+or disabled assertions.
 
 ### 4. Playwright Inspector
 

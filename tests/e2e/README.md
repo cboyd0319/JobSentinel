@@ -159,15 +159,12 @@ Tests are configured in `playwright.config.ts`:
 
 ## Test Patterns
 
-### Intentional Skipping
+### Platform Gaps
 
-Runtime skips are reserved for capabilities that are intentionally unavailable
-in browser-only Playwright, such as native file pickers. Current UI flows should
-use mock-backed assertions instead of stale element probes:
-
-```typescript
-test.skip(browserName === "webkit", "Documented platform gap");
-```
+Active E2E suites should assert current mocked UI behavior instead of hiding
+stale element probes behind runtime skips. If a browser or native capability gap
+is real, document it in `docs/plans/tech-debt-tracker.md`, keep the affected
+assertion narrow, and prefer a command-line project filter while debugging.
 
 ### Error Handling
 

@@ -94,6 +94,70 @@ test("checkRepoBloat rejects tracked gitkeep placeholders", () => {
   });
 });
 
+test("checkRepoBloat rejects stale E2E runtime skip guidance", () => {
+  withGitFixture((root) => {
+    const runtimeSkipCall = ["test", "skip"].join(".");
+
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "tests/e2e/README.md",
+      [
+        "## Test Patterns",
+        "",
+        "```typescript",
+        `${runtimeSkipCall}(browserName === "webkit", "Documented platform gap");`,
+        "```",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "tests/e2e/README.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace stale test-quality doc guidance: tests/e2e/README.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects focused-test commit guidance", () => {
+  withGitFixture((root) => {
+    const focusedTestCall = ["it", "only"].join(".");
+
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/developer/FRONTEND_TESTING.md",
+      [
+        "## Debugging Failed Tests",
+        "",
+        "```typescript",
+        `${focusedTestCall}("should test this one thing", () => {});`,
+        "```",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/developer/FRONTEND_TESTING.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace stale test-quality doc guidance: docs/developer/FRONTEND_TESTING.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects speculative cloud deployment docs", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
