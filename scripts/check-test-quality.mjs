@@ -30,6 +30,10 @@ const qualityRules = [
     label: "focused test",
     pattern: /\b(?:describe|it|test)\.only\s*\(/,
   },
+  {
+    label: "skipped unit test",
+    pattern: /\b(?:describe|it)\.skip\s*\(/,
+  },
 ];
 
 function collectFiles(root, dir) {
