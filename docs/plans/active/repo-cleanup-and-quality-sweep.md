@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Replaced raw automation screening question debug logs with question-length metadata, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Sanitized job-import spans and result logs so raw import URLs, titles, and companies are not written to logs, with bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Replaced raw LinkedIn scraper query and location span fields with length metadata, and extended scraper-log bloat coverage. |
 | 2026-05-20 | In progress | Sanitized remaining raw URL logging in URL normalization parse failures and browser automation spans, and added bloat coverage for recurrence. |
@@ -272,6 +273,9 @@ changes or Playwright-specific work.
   parsed job titles and company names after preview/import. Import URLs can
   contain private tracking state, and titles/companies are user job targets; log
   sanitized URL labels and content lengths instead.
+- Automation form filling logged raw screening question text when a stored
+  answer matched. Screening questions can reveal application details; logs
+  should record non-content metadata such as character counts.
 - `docs/plans/active/.gitkeep` and `docs/plans/completed/.gitkeep` were
   redundant tracked placeholders because both directories contain real plan
   files.
@@ -378,6 +382,8 @@ changes or Playwright-specific work.
   counts, booleans, source names, limits, or result counts instead.
 - Job import logging must sanitize untrusted URLs and avoid raw parsed job
   titles or company names. Log identifiers, counts, and missing-field totals.
+- Automation logs must not include raw screening questions or answers. Use
+  counts, matched-field totals, or other non-content metadata.
 - Local paths in logs must use non-identifying labels. Preserve actual paths for
   file operations, database records, and user-facing operations that need them.
 - Keep feature docs aligned with live source names for frontend routes and IPC

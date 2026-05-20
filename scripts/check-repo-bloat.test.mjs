@@ -896,3 +896,33 @@ test("checkRepoBloat rejects raw job import success metadata", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects raw automation screening question logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/automation/form_filler.rs",
+      [
+        'tracing::debug!("Filled screening question \'{}\' with answer", question_text);',
+        'tracing::debug!("Selected screening answer for \'{}\'", question_text);',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "src-tauri/src/core/automation/form_filler.rs"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace raw automation screening question logging: src-tauri/src/core/automation/form_filler.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});

@@ -346,6 +346,8 @@ impl FormFiller {
             if let Ok(questions) = self.find_questions_with_selector(page, selector).await {
                 for (question_text, input_selector) in questions {
                     if let Some(answer) = self.find_answer_for_question(&question_text) {
+                        let question_chars = question_text.chars().count();
+
                         // Try to fill the associated input
                         if let Ok(true) = page.fill(&input_selector, &answer).await {
                             let field_name = Self::truncate_question(&question_text, 30);
@@ -353,15 +355,15 @@ impl FormFiller {
                                 .filled_fields
                                 .push(format!("screening:{}", field_name));
                             tracing::debug!(
-                                "Filled screening question '{}' with answer",
-                                question_text
+                                question_chars,
+                                "Filled screening question with answer"
                             );
                         } else if let Ok(true) = page.select(&input_selector, &answer).await {
                             let field_name = Self::truncate_question(&question_text, 30);
                             result
                                 .filled_fields
                                 .push(format!("screening:{}", field_name));
-                            tracing::debug!("Selected screening answer for '{}'", question_text);
+                            tracing::debug!(question_chars, "Selected screening answer");
                         }
                     }
                 }

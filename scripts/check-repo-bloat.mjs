@@ -177,6 +177,10 @@ const rawUrlLoggingPaths = new Set([
 
 const rawJobImportLoggingPaths = new Set(["src-tauri/src/commands/import.rs"]);
 
+const rawAutomationQuestionLoggingPaths = new Set([
+  "src-tauri/src/core/automation/form_filler.rs",
+]);
+
 function normalizeRepoPath(path) {
   return path.split(/[\\/]/).join("/");
 }
@@ -585,6 +589,17 @@ function hasRawJobImportLogging(root, path) {
   );
 }
 
+function hasRawAutomationQuestionLogging(root, path) {
+  if (!rawAutomationQuestionLoggingPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /tracing::debug!\([^;]*(?:screening question|screening answer)[^;]*'\{\}'[^;]*question_text/.test(
+    text,
+  );
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -703,6 +718,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawJobImportLogging(root, path)) {
       violations.push(`replace raw job import logging: ${path}`);
+    }
+
+    if (hasRawAutomationQuestionLogging(root, path)) {
+      violations.push(`replace raw automation screening question logging: ${path}`);
     }
   }
 
