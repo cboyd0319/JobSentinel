@@ -117,9 +117,9 @@ pub async fn search_jobs_query(
     state: State<'_, AppState>,
 ) -> Result<Vec<Value>, String> {
     tracing::info!(
-        "Command: search_jobs_query (query: {}, limit: {})",
-        query,
-        limit
+        query_chars = query.chars().count(),
+        limit,
+        "Command: search_jobs_query"
     );
 
     let limit = validate_command_limit_usize_as_i64(limit)?;

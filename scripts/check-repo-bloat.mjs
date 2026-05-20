@@ -140,6 +140,12 @@ const speculativeCloudDeploymentDocs = new Map([
   ["docs/ROADMAP.md", /GCP Cloud Run \/ AWS Lambda deployment/],
 ]);
 
+const rawPrivateQueryLoggingPaths = new Set([
+  "src-tauri/src/commands/automation.rs",
+  "src-tauri/src/commands/jobs.rs",
+  "src-tauri/src/core/db/queries.rs",
+]);
+
 function normalizeRepoPath(path) {
   return path.split(/[\\/]/).join("/");
 }
@@ -493,6 +499,16 @@ function hasStaleSmartScoringSalaryMarkerClaim(root, path) {
   );
 }
 
+function hasRawPrivateQueryLogging(root, path) {
+  if (!rawPrivateQueryLoggingPaths.has(path)) {
+    return false;
+  }
+
+  return /\b(?:query|question|pattern):\s*'?\{(?::\?)?\}'?/.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -591,6 +607,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleSmartScoringSalaryMarkerClaim(root, path)) {
       violations.push(`remove stale smart-scoring salary marker claim: ${path}`);
+    }
+
+    if (hasRawPrivateQueryLogging(root, path)) {
+      violations.push(`replace raw private query logging: ${path}`);
     }
   }
 

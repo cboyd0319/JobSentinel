@@ -643,3 +643,53 @@ test("checkRepoBloat rejects stale smart scoring salary marker claims", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects raw private query logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/jobs.rs",
+      'tracing::info!("Command: search_jobs_query (query: {}, limit: {})", query, limit);\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/automation.rs",
+      'tracing::info!("Command: find_answer_for_question (question: {})", question);\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/queries.rs",
+      'tracing::debug!("Performing full-text search with query: \'{}\'", query);\n',
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/commands/jobs.rs",
+        "src-tauri/src/commands/automation.rs",
+        "src-tauri/src/core/db/queries.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace raw private query logging: src-tauri/src/commands/jobs.rs"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace raw private query logging: src-tauri/src/commands/automation.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace raw private query logging: src-tauri/src/core/db/queries.rs"),
+      violations.join("\n"),
+    );
+  });
+});

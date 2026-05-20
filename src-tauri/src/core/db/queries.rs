@@ -89,7 +89,8 @@ impl Database {
     /// Full-text search on title and description
     #[tracing::instrument(skip(self))]
     pub async fn search_jobs(&self, query: &str, limit: i64) -> Result<Vec<Job>, sqlx::Error> {
-        tracing::debug!("Performing full-text search with query: '{}'", query);
+        let query_chars = query.chars().count();
+        tracing::debug!(query_chars, limit, "Performing full-text search");
         // Use FTS5 virtual table for fast full-text search
         let job_ids: Vec<i64> =
             sqlx::query_scalar("SELECT rowid FROM jobs_fts WHERE jobs_fts MATCH ? LIMIT ?")
@@ -99,7 +100,7 @@ impl Database {
                 .await?;
 
         if job_ids.is_empty() {
-            tracing::info!("No jobs found matching query: '{}'", query);
+            tracing::info!(query_chars, "No jobs found matching search query");
             return Ok(Vec::new());
         }
 

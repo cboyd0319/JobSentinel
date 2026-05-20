@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Sanitized command and database search logging so raw private search queries, screening questions, and answer patterns are not written to logs. |
 | 2026-05-20 | In progress | Validated ghost-job threshold command input so public IPC cannot query with out-of-range or non-finite ghost scores. |
 | 2026-05-20 | In progress | Added shared Tauri command limit validation across job, ghost, resume, market, automation, user-data, and health commands, with invoke-surface coverage for recurrence. |
 | 2026-05-20 | In progress | Validated Market Intelligence historical snapshot day ranges before integer conversion, with Tauri command-boundary sensor coverage. |
@@ -305,6 +306,10 @@ changes or Playwright-specific work.
 - `get_ghost_jobs` accepted raw `threshold` values even though ghost scores and
   configuration thresholds are defined on a `0.0..=1.0` scale. Out-of-range
   values could force misleading empty or over-broad result sets.
+- Job search and automation answer commands logged raw user search queries,
+  screening questions, and answer patterns. These values can contain private job
+  criteria or personal application answers, so logs should record metadata such
+  as text length or presence instead of content.
 - `ScoreBreakdownModal` sanitized scores only through callers, so direct use of
   the exported modal with `NaN` rendered `NaN%`.
 - `ScoreBreakdownModal` converted Tailwind color classes such as
@@ -342,6 +347,8 @@ changes or Playwright-specific work.
   a feature has a documented reason for a different limit.
 - Validate public score and threshold inputs at command boundaries before using
   them in filters, even when the current UI sends safe defaults.
+- Do not log raw user-authored search, question, answer, or pattern text. Use
+  counts, booleans, or other non-content metadata for troubleshooting.
 - Keep feature docs aligned with live source names for frontend routes and IPC
   commands; stale future-work claims count as documentation bloat.
 - Do not document UI markers that are not present in source; describe current

@@ -146,8 +146,10 @@ pub async fn upsert_screening_answer(
     state: State<'_, AppState>,
 ) -> Result<(), String> {
     tracing::info!(
-        "Command: upsert_screening_answer (pattern: {})",
-        question_pattern
+        question_pattern_chars = question_pattern.chars().count(),
+        answer_type,
+        has_notes = notes.is_some(),
+        "Command: upsert_screening_answer"
     );
 
     let manager = ProfileManager::new(state.database.pool().clone());
@@ -215,7 +217,10 @@ pub async fn find_answer_for_question(
     question: String,
     state: State<'_, AppState>,
 ) -> Result<Option<String>, String> {
-    tracing::info!("Command: find_answer_for_question (question: {})", question);
+    tracing::info!(
+        question_chars = question.chars().count(),
+        "Command: find_answer_for_question"
+    );
 
     let manager = ProfileManager::new(state.database.pool().clone());
     manager
@@ -724,9 +729,9 @@ pub async fn get_suggested_answers(
     state: State<'_, AppState>,
 ) -> Result<Vec<AnswerSuggestionResponse>, String> {
     tracing::info!(
-        "Command: get_suggested_answers (question: {}, limit: {:?})",
-        question,
-        limit
+        question_chars = question.chars().count(),
+        limit = ?limit,
+        "Command: get_suggested_answers"
     );
 
     let limit = validate_optional_command_limit_usize(limit, 5)?;
@@ -786,7 +791,10 @@ pub async fn get_answer_statistics(
     pattern: String,
     state: State<'_, AppState>,
 ) -> Result<Option<AnswerStatisticsResponse>, String> {
-    tracing::info!("Command: get_answer_statistics (pattern: {})", pattern);
+    tracing::info!(
+        pattern_chars = pattern.chars().count(),
+        "Command: get_answer_statistics"
+    );
 
     let manager = AnswerLearningManager::new(state.database.pool().clone());
     match manager.get_answer_statistics(&pattern).await {
@@ -805,7 +813,13 @@ pub async fn clear_answer_history(
     pattern: Option<String>,
     state: State<'_, AppState>,
 ) -> Result<usize, String> {
-    tracing::info!("Command: clear_answer_history (pattern: {:?})", pattern);
+    tracing::info!(
+        has_pattern = pattern.is_some(),
+        pattern_chars = pattern
+            .as_ref()
+            .map_or(0, |pattern| pattern.chars().count()),
+        "Command: clear_answer_history"
+    );
 
     let manager = AnswerLearningManager::new(state.database.pool().clone());
     manager
