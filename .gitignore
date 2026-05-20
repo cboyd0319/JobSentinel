@@ -60,6 +60,7 @@ storybook-static
 coverage/
 playwright-report/
 test-results/
+/tests/e2e/docs/
 
 # Test fixtures (not committed)
 tests/e2e/fixtures/*.pdf

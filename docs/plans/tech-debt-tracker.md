@@ -7,12 +7,14 @@ security, or developer workflow.
 
 | ID | Area | Evidence | Risk | Next step | Status |
 | -- | ---- | -------- | ---- | --------- | ------ |
+| BLOAT-001 | Removing bloat and junk | Root contains large ignored local artifacts such as `dist/`, `node_modules/`, `src-tauri/target/`, and `.husky/_`; tracked-file audits have already found stale generated outputs outside root. | Junk hides meaningful changes, slows searches and verification, and makes agents more likely to inspect or preserve files that should not shape product behavior. | Continue cleanup passes that separate ignored local artifacts from tracked stale files, delete or relocate confirmed junk, tighten ignore/harness rules where drift can recur, and record any kept files with a clear reason. | Open |
 | SCRAPE-001 | Scraper retry coverage | Shared retry helper exists, but several source adapters still call `reqwest` directly for custom headers or parsing. | Docs or operators can overestimate retry coverage, and transient 429/5xx failures may be handled inconsistently by source. | Move direct-request adapters through shared retry/body helpers where source-specific headers allow it. | Open |
 
 ## Closed Items
 
 | ID | Area | Evidence | Outcome | Closed |
 | -- | ---- | -------- | ------- | ------ |
+| BLOAT-002 | Duplicate docs screenshot artifacts | `tests/e2e/docs/images/` contained tracked copies of documentation screenshots while `README.md` and screenshot tooling use canonical `docs/images/`. | Removed the stale tracked screenshot bundle and ignored `/tests/e2e/docs/` so future Playwright artifacts do not re-enter the repo. | 2026-05-19 |
 | SCRAPE-002 | Rate limiter contention | `RateLimiter::wait` held the shared bucket mutex while sleeping for token refill. | Released the lock before sleeping and added regression coverage so one exhausted bucket cannot block unrelated scrapers. | 2026-05-19 |
 | HE-004 | Tauri invoke map | `scripts/check-tauri-invokes.mjs` verifies production frontend `invoke()` command names against `src-tauri/src/main.rs` registrations through `npm run harness:check`. | Frontend/backend IPC drift now fails locally before broken workflows ship. | 2026-05-19 |
 | HE-005 | Tracked generated output | `src-tauri/coverage/` was committed despite generated coverage output being ignored. | Removed tracked coverage artifacts from repo history tip; future coverage output remains ignored by `.gitignore`. | 2026-05-19 |
