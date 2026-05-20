@@ -60,6 +60,13 @@ type ImportedJob = {
   score: number;
 };
 
+type FeedbackSystemInfo = {
+  app_version: string;
+  platform: string;
+  os_version: string;
+  architecture: string;
+};
+
 const savedSearchInput: BackendSavedSearch = {
   id: "",
   name: "Remote Rust",
@@ -342,8 +349,45 @@ describe("mock Tauri handlers", () => {
 
     await expect(
       mockInvoke<JobImportPreview>("preview_job_import", {
-        url: "http://localhost:3000/jobs/rust-platform-engineer",
-      }),
+      url: "http://localhost:3000/jobs/rust-platform-engineer",
+    }),
     ).rejects.toThrow("Blocked unsafe job import URL");
+  });
+
+  it("generates feedback reports with the real backend command names", async () => {
+    const systemInfo = await mockInvoke<FeedbackSystemInfo>("get_system_info");
+
+    expect(systemInfo).toMatchObject({
+      app_version: expect.any(String),
+      platform: "mock",
+      os_version: "browser",
+      architecture: "wasm",
+    });
+    expect("arch" in systemInfo).toBe(false);
+
+    const report = await mockInvoke<string>("generate_feedback_report", {
+      category: "bug",
+      description: "Crash after search",
+      includeDebugInfo: true,
+    });
+    expect(report).toContain("JOBSENTINEL BETA FEEDBACK REPORT");
+    expect(report).toContain("CATEGORY: Bug Report");
+    expect(report).toContain("Crash after search");
+    expect(report).toContain("CONFIGURATION SUMMARY");
+
+    const filename = await mockInvoke<string>("get_feedback_filename");
+    expect(filename).toMatch(/^jobsentinel-feedback-\d{4}-\d{2}-\d{2}-\d{4}\.txt$/);
+
+    const savedPath = await mockInvoke<string | null>("save_feedback_file", {
+      content: report,
+      suggestedFilename: "../unsafe-name.txt",
+    });
+    expect(savedPath).toBe("/mock/feedback/unsafe-name.txt");
+
+    await expect(
+      mockInvoke<void>("open_github_issues", { template: "feature" }),
+    ).resolves.toBeUndefined();
+    await expect(mockInvoke<void>("open_google_drive")).resolves.toBeUndefined();
+    await expect(mockInvoke<void>("reveal_file", { path: savedPath })).resolves.toBeUndefined();
   });
 });

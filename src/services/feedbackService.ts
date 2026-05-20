@@ -6,7 +6,7 @@ export interface SystemInfo {
   app_version: string;
   platform: string;
   os_version: string;
-  arch: string;
+  architecture: string;
 }
 
 export interface ConfigSummary {
@@ -148,7 +148,7 @@ export function formatDebugInfo(
     `App Version: ${systemInfo.app_version}`,
     `Platform: ${systemInfo.platform}`,
     `OS Version: ${systemInfo.os_version}`,
-    `Architecture: ${systemInfo.arch}`,
+    `Architecture: ${systemInfo.architecture}`,
     "",
     "───────────────────────────────────────────────────────────",
     "CONFIGURATION SUMMARY (anonymized - no actual values)",

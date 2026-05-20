@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  formatDebugInfo,
   getDebugLog,
   openGitHubIssue,
   openGoogleDriveFeedbackFolder,
@@ -98,5 +99,30 @@ describe("feedbackService", () => {
     expect(mockInvoke).toHaveBeenCalledWith("reveal_file", {
       path: "/Users/test/jobsentinel-feedback.txt",
     });
+  });
+
+  it("formats backend system architecture from get_system_info", () => {
+    const debugInfo = formatDebugInfo(
+      {
+        app_version: "2.6.4",
+        platform: "macos",
+        os_version: "macOS 15.5",
+        architecture: "arm64",
+      },
+      {
+        scrapers_enabled: 3,
+        keywords_count: 4,
+        has_location_prefs: true,
+        has_salary_prefs: false,
+        has_company_blocklist: false,
+        has_company_allowlist: true,
+        notifications_configured: 2,
+        has_resume: true,
+      },
+      [],
+    );
+
+    expect(debugInfo).toContain("Architecture: arm64");
+    expect(debugInfo).not.toContain("Architecture: undefined");
   });
 });

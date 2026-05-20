@@ -1681,3 +1681,107 @@ test("checkRepoBloat rejects stale job-import mock handlers", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects stale feedback mock handlers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      [
+        "export async function mockInvoke(cmd) {",
+        "  switch (cmd) {",
+        "    case 'generate_feedback_report':",
+        "      return '';",
+        "    default:",
+        "      return undefined;",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/mocks/handlers.ts"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sync feedback mock command handlers: src/mocks/handlers.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects stale feedback system-info architecture field", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/services/feedbackService.ts",
+      [
+        "export interface SystemInfo {",
+        "  arch: string;",
+        "}",
+        "export function formatDebugInfo(systemInfo: SystemInfo): string {",
+        "  return `Architecture: ${systemInfo.arch}`;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/feedback/DebugInfoPreview.tsx",
+      "export function DebugInfoPreview({ systemInfo }) { return systemInfo.arch; }\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      [
+        "export async function mockInvoke(cmd) {",
+        "  switch (cmd) {",
+        "    case 'get_system_info':",
+        "      return { arch: 'wasm' };",
+        "    default:",
+        "      return undefined;",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src/services/feedbackService.ts",
+        "src/components/feedback/DebugInfoPreview.tsx",
+        "src/mocks/handlers.ts",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sync feedback system-info architecture field: src/services/feedbackService.ts",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "sync feedback system-info architecture field: src/components/feedback/DebugInfoPreview.tsx",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "sync feedback system-info architecture field: src/mocks/handlers.ts",
+      ),
+      violations.join("\n"),
+    );
+  });
+});

@@ -291,6 +291,8 @@ interface MockJobImportPreview {
   already_exists: boolean;
 }
 
+type MockFeedbackCategory = "bug" | "feature" | "question";
+
 const MOCK_DEEP_LINK_SITES = [
   {
     id: "indeed",
@@ -989,6 +991,140 @@ function hashString(value: string): string {
     hash = (hash * 31 + value.charCodeAt(index)) >>> 0;
   }
   return hash.toString(16).padStart(8, "0");
+}
+
+function generateMockFeedbackReport(args?: Record<string, unknown>): string {
+  const category = getMockFeedbackCategory(args);
+  const description = getStringArg(args, "description") ?? "";
+  const includeDebugInfo = booleanValue(getArg(args, "includeDebugInfo"), false);
+  const systemInfo = getMockSystemInfo();
+  const configSummary = getMockConfigSummary();
+  const timestamp = new Date().toISOString();
+
+  const lines = [
+    "JOBSENTINEL BETA FEEDBACK REPORT",
+    "",
+    `CATEGORY: ${getMockFeedbackCategoryLabel(category)}`,
+    `DATE: ${timestamp}`,
+    "",
+    "YOUR FEEDBACK",
+    "",
+    description,
+    "",
+    "SYSTEM INFORMATION (anonymized)",
+    "",
+    `App Version: ${systemInfo.app_version}`,
+    `Platform: ${systemInfo.platform} ${systemInfo.os_version}`,
+    `Architecture: ${systemInfo.architecture}`,
+  ];
+
+  if (includeDebugInfo) {
+    lines.push(
+      "",
+      "CONFIGURATION SUMMARY (anonymized - no actual values)",
+      "",
+      `Scrapers enabled: ${configSummary.scrapers_enabled}`,
+      `Search keywords configured: ${configSummary.keywords_count}`,
+      `Location preferences: ${configSummary.has_location_prefs ? "configured" : "not set"}`,
+      `Salary preferences: ${configSummary.has_salary_prefs ? "configured" : "not set"}`,
+      `Notifications: ${configSummary.notifications_configured} channel(s)`,
+    );
+  }
+
+  lines.push(
+    "",
+    "STRUCTURED DATA (for automated processing)",
+    "",
+    JSON.stringify(
+      {
+        schema_version: "1.0",
+        app_version: systemInfo.app_version,
+        category,
+        timestamp,
+        platform: {
+          os: systemInfo.platform,
+          os_version: systemInfo.os_version,
+          arch: systemInfo.architecture,
+        },
+        config_summary: includeDebugInfo ? configSummary : null,
+        debug_events_count: 0,
+      },
+      null,
+      2,
+    ),
+    "",
+    "END OF REPORT",
+  );
+
+  return lines.join("\n");
+}
+
+function getMockFeedbackFilename(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const hour = String(now.getHours()).padStart(2, "0");
+  const minute = String(now.getMinutes()).padStart(2, "0");
+  return `jobsentinel-feedback-${year}-${month}-${day}-${hour}${minute}.txt`;
+}
+
+function saveMockFeedbackFile(args?: Record<string, unknown>): string | null {
+  const suggestedFilename =
+    getStringArg(args, "suggestedFilename") ??
+    getStringArg(args, "suggested_filename") ??
+    getMockFeedbackFilename();
+  return `/mock/feedback/${sanitizeMockFilename(suggestedFilename)}`;
+}
+
+function sanitizeMockFilename(filename: string): string {
+  const pathSegments = filename.split(/[\\/]+/).filter((segment) => segment.length > 0);
+  const basename = pathSegments[pathSegments.length - 1] ?? getMockFeedbackFilename();
+  return basename.replace(/[^a-zA-Z0-9._-]/g, "-") || getMockFeedbackFilename();
+}
+
+function getMockFeedbackCategory(args?: Record<string, unknown>): MockFeedbackCategory {
+  const category = getStringArg(args, "category");
+  return category === "bug" || category === "feature" || category === "question"
+    ? category
+    : "question";
+}
+
+function getMockFeedbackCategoryLabel(category: MockFeedbackCategory): string {
+  switch (category) {
+    case "bug":
+      return "Bug Report";
+    case "feature":
+      return "Feature Idea";
+    case "question":
+      return "General Feedback";
+  }
+}
+
+function getMockSystemInfo() {
+  return {
+    app_version: "dev",
+    platform: "mock",
+    os_version: "browser",
+    architecture: "wasm",
+  };
+}
+
+function getMockConfigSummary() {
+  const configWithCompanies = config as {
+    company_blacklist?: unknown;
+    company_whitelist?: unknown;
+  };
+  return {
+    scrapers_enabled: 3,
+    keywords_count: config.keywords_boost.length,
+    has_location_prefs: config.location_preferences.cities.length > 0,
+    has_salary_prefs: config.salary_floor_usd > 0,
+    has_company_blocklist: getArrayLength(configWithCompanies.company_blacklist) > 0,
+    has_company_allowlist: getArrayLength(configWithCompanies.company_whitelist) > 0,
+    notifications_configured: Number(config.alerts.email?.enabled ?? false),
+    has_resume: Boolean(getActiveResume()),
+  };
 }
 
 function isExternalHttpUrl(value: string): boolean {
@@ -1905,35 +2041,34 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     }
 
     case "get_system_info":
-      return {
-        app_version: "dev",
-        platform: "mock",
-        os_version: "browser",
-        arch: "wasm",
-      } as T;
+      return getMockSystemInfo() as T;
 
     case "get_config_summary":
-      {
-        const configWithCompanies = config as {
-          company_blacklist?: unknown;
-          company_whitelist?: unknown;
-        };
-        return {
-          scrapers_enabled: 3,
-          keywords_count: config.keywords_boost.length,
-          has_location_prefs: config.location_preferences.cities.length > 0,
-          has_salary_prefs: config.salary_floor_usd > 0,
-          has_company_blocklist:
-            getArrayLength(configWithCompanies.company_blacklist) > 0,
-          has_company_allowlist:
-            getArrayLength(configWithCompanies.company_whitelist) > 0,
-          notifications_configured: Number(config.alerts.email?.enabled ?? false),
-          has_resume: Boolean(getActiveResume()),
-        } as T;
-      }
+      return getMockConfigSummary() as T;
 
     case "get_debug_log_events":
       return [] as T;
+
+    case "generate_feedback_report":
+      return generateMockFeedbackReport(args) as T;
+
+    case "get_feedback_filename":
+      return getMockFeedbackFilename() as T;
+
+    case "save_feedback_file":
+      return saveMockFeedbackFile(args) as T;
+
+    case "open_github_issues":
+    case "open_google_drive":
+      return undefined as T;
+
+    case "reveal_file": {
+      const path = getStringArg(args, "path");
+      if (!path) {
+        throw new Error("Path cannot be empty");
+      }
+      return undefined as T;
+    }
 
     // Statistics commands
     case "get_statistics":

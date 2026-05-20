@@ -912,6 +912,46 @@ function hasStaleJobImportMockHandlers(root, path) {
   });
 }
 
+function hasStaleFeedbackMockHandlers(root, path) {
+  if (path !== "src/mocks/handlers.ts") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const requiredCommands = [
+    "generate_feedback_report",
+    "get_feedback_filename",
+    "save_feedback_file",
+    "open_github_issues",
+    "open_google_drive",
+    "reveal_file",
+  ];
+
+  return requiredCommands.some((command) => {
+    return !new RegExp(`case\\s+["']${command}["']`).test(text);
+  });
+}
+
+function hasStaleFeedbackSystemInfoArchitecture(root, path) {
+  if (
+    path !== "src/services/feedbackService.ts" &&
+    path !== "src/components/feedback/DebugInfoPreview.tsx" &&
+    path !== "src/mocks/handlers.ts"
+  ) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  if (path === "src/mocks/handlers.ts") {
+    return (
+      /case\s+["']get_system_info["'][\s\S]{0,240}\barch\s*:/.test(text) ||
+      /function\s+getMockSystemInfo\(\)[\s\S]{0,240}\barch\s*:/.test(text)
+    );
+  }
+
+  return /\bsystemInfo\.arch\b|\barch\s*:\s*string\b/.test(text);
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -1118,6 +1158,14 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleJobImportMockHandlers(root, path)) {
       violations.push(`sync job-import mock command handlers: ${path}`);
+    }
+
+    if (hasStaleFeedbackMockHandlers(root, path)) {
+      violations.push(`sync feedback mock command handlers: ${path}`);
+    }
+
+    if (hasStaleFeedbackSystemInfoArchitecture(root, path)) {
+      violations.push(`sync feedback system-info architecture field: ${path}`);
     }
   }
 

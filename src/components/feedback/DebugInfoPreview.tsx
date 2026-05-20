@@ -77,7 +77,7 @@ export const DebugInfoPreview = memo(function DebugInfoPreview({
                   <InfoRow label="App Version" value={systemInfo.app_version} />
                   <InfoRow label="Platform" value={systemInfo.platform} />
                   <InfoRow label="OS Version" value={systemInfo.os_version} />
-                  <InfoRow label="Architecture" value={systemInfo.arch} />
+                  <InfoRow label="Architecture" value={systemInfo.architecture} />
                 </Section>
 
                 {/* Config Summary */}
