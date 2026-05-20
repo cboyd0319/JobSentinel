@@ -197,6 +197,10 @@ const rawNotificationJobTitleLoggingPaths = new Set(["src-tauri/src/core/notify/
 const rawBookmarkletLoggingPaths = new Set(["src-tauri/src/core/bookmarklet/server.rs"]);
 const bookmarkletGeneratorPaths = new Set(["src/components/BookmarkletGenerator.tsx"]);
 
+function readPackageManifest(root) {
+  return JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+}
+
 function normalizeRepoPath(path) {
   return path.split(/[\\/]/).join("/");
 }
@@ -690,6 +694,26 @@ function hasBookmarkletCodeWithoutTokenHeader(root, path) {
   return /api\/bookmarklet\/import/.test(text) && !/X-JobSentinel-Token/.test(text);
 }
 
+function hasUnownedStorybookAddon(root, path) {
+  if (path !== ".storybook/main.ts") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const addons = text.match(/["']addons["']\s*:\s*\[([\s\S]*?)\]/)?.[1] ?? "";
+  const packageJson = readPackageManifest(root);
+  const ownedPackages = new Set([
+    ...Object.keys(packageJson.dependencies ?? {}),
+    ...Object.keys(packageJson.devDependencies ?? {}),
+    ...Object.keys(packageJson.optionalDependencies ?? {}),
+    ...Object.keys(packageJson.peerDependencies ?? {}),
+  ]);
+
+  return [...addons.matchAll(/["']([^"']+)["']/g)].some(([, addon]) => {
+    return !addon.startsWith(".") && !ownedPackages.has(addon);
+  });
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -844,6 +868,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasBookmarkletCodeWithoutTokenHeader(root, path)) {
       violations.push(`include bookmarklet auth token header: ${path}`);
+    }
+
+    if (hasUnownedStorybookAddon(root, path)) {
+      violations.push(`remove Storybook addon without package ownership: ${path}`);
     }
   }
 

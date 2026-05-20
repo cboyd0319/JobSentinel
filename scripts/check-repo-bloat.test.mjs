@@ -146,6 +146,46 @@ test("checkRepoBloat rejects speculative cloud deployment docs", () => {
   });
 });
 
+test("checkRepoBloat rejects Storybook addons without package ownership", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(
+      root,
+      "package.json",
+      JSON.stringify(
+        {
+          devDependencies: {
+            "@storybook/addon-docs": "^10.2.19",
+            "@storybook/react-vite": "^10.2.19",
+            storybook: "^10.2.19",
+          },
+        },
+        null,
+        2,
+      ),
+    );
+    writeFixtureFile(
+      root,
+      ".storybook/main.ts",
+      [
+        "export default {",
+        '  "addons": ["@storybook/addon-docs", "@chromatic-com/storybook"],',
+        '  "framework": "@storybook/react-vite"',
+        "};",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", ".storybook/main.ts"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("remove Storybook addon without package ownership: .storybook/main.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale shipped-feature roadmap statuses", () => {
   withGitFixture((root) => {
     const plannedStatusIcon = String.fromCodePoint(0x1f532);
