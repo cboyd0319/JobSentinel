@@ -1849,9 +1849,13 @@ export default function Settings({ onClose }: SettingsProps) {
                       </span>
                       <HelpIcon text="Receive job alerts via email. Requires an email account that allows sending (like Gmail with an App Password)." />
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
+                    <label
+                      className="relative inline-flex items-center cursor-pointer"
+                      data-testid="email-alerts-toggle"
+                    >
                       <input
                         type="checkbox"
+                        aria-label="Enable email alerts"
                         checked={config.alerts.email?.enabled ?? false}
                         onChange={(e) =>
                           setConfig({

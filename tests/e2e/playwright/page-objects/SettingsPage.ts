@@ -117,9 +117,7 @@ export class SettingsPage extends BasePage {
   }
 
   async toggleEmailAlerts() {
-    await this.section("Email Alerts").locator("input[type='checkbox']").first().click({
-      force: true,
-    });
+    await this.dialog.getByTestId("email-alerts-toggle").click();
   }
 
   async saveSettings() {

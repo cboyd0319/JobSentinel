@@ -33,6 +33,10 @@ vi.mock("../utils/export", () => ({
   importConfigFromJSON: vi.fn(),
 }));
 
+vi.mock("../components/ErrorLogPanel", () => ({
+  ErrorLogPanel: () => <div data-testid="error-log-panel" />,
+}));
+
 // Minimal valid config that satisfies the Config interface
 function makeConfig() {
   return {
@@ -302,6 +306,27 @@ describe("Settings — loadConfig flow", () => {
 
     // Verify linkedin expiry was fetched
     expect(mockInvoke).toHaveBeenCalledWith("get_linkedin_expiry_status");
+  });
+
+  it("exposes email alert toggle with an accessible name", async () => {
+    const user = userEvent.setup();
+
+    setupHappyPath();
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+
+    const emailToggle = screen.getByRole("checkbox", {
+      name: "Enable email alerts",
+    });
+    await user.click(emailToggle);
+
+    expect(emailToggle).toBeChecked();
+    expect(screen.getByText("Quick setup:")).toBeInTheDocument();
   });
 
   it("does NOT fetch LinkedIn expiry when linkedin credential check fails", async () => {

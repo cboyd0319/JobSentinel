@@ -14,6 +14,7 @@ export const SkipToContent = memo(function SkipToContent() {
   return (
     <a
       href="#main-content"
+      tabIndex={0}
       onClick={handleClick}
       className="
         sr-only focus:not-sr-only

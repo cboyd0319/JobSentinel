@@ -48,6 +48,8 @@ Out of scope:
 
 - [x] Add and wire `npm run lint:bloat` into `npm run harness:check`.
 - [x] Remove stale tracked generated screenshot artifacts.
+- [ ] Remove root and nested bloat/junk after classifying each candidate as
+  keep, move, merge, or delete.
 - [x] Stabilize skip-heavy Playwright suites and remove `test.skip()` sprawl.
 - [x] Harden frontend job URL validation for loopback, mapped, and multicast
   targets.
@@ -88,6 +90,7 @@ changes or Playwright-specific work.
 | 2026-05-20 | In progress | Moved ignored embedded-ML tests off repo-relative `test_cache` and `test_ml_cache` directories, taught the bloat sensor to reject those cache dirs, and restored embedded-ML feature compilation. |
 | 2026-05-20 | In progress | Restored full Rust test-suite health by updating stale screening-answer integration fixtures and normalizing legacy answer types at the profile manager boundary. |
 | 2026-05-20 | In progress | Fixed scheduler shutdown so an in-flight scraping cycle cannot block full-suite integration tests or app shutdown. |
+| 2026-05-20 | In progress | Stabilized Chromium and WebKit E2E flows without serializing suites: fixed skip-link focusability, gave the email-alerts switch an accessible visible target, and removed shared page-object state from job interaction tests. |
 
 ## Discoveries
 
@@ -121,6 +124,14 @@ changes or Playwright-specific work.
 - Scheduler startup previously awaited the first scraping cycle before
   observing shutdown; any slow external scraper could make shutdown wait until
   that cycle returned.
+- WebKit does not reliably tab to an `sr-only` skip link unless it has an
+  explicit tab stop, so the skip link now declares `tabIndex={0}`.
+- The Email Alerts switch was visually clickable but the hidden checkbox lacked
+  a stable accessible E2E target in WebKit; the visible switch label is now the
+  Playwright target and the checkbox has an accessible name.
+- `job-interactions.spec.ts` used file-scoped page objects under Playwright
+  `fullyParallel`; those shared mutable locators could cross test contexts.
+  The spec now builds page objects per test and keeps project-level parallelism.
 
 ## Decisions
 
@@ -132,6 +143,8 @@ changes or Playwright-specific work.
   instead of silently becoming clutter.
 - Keep reusable shell automation under `scripts/`; nested `test_*.sh` helpers
   should be promoted into canonical scripts or deleted.
+- Preserve E2E parallelism where possible; fix shared test state directly rather
+  than serializing whole suites.
 
 ## Outcomes
 

@@ -1,20 +1,22 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { JobDetailPage } from "./page-objects/JobDetailPage";
 import { DashboardPage } from "./page-objects/DashboardPage";
 
+async function openDashboard(page: Page) {
+  const jobDetail = new JobDetailPage(page);
+  const dashboard = new DashboardPage(page);
+
+  await jobDetail.navigateTo();
+  await expect(dashboard.jobCards.first()).toBeVisible();
+
+  return { jobDetail, dashboard };
+}
+
 test.describe("Job Interactions and Tracking", () => {
-  let jobDetail: JobDetailPage;
-  let dashboard: DashboardPage;
-
-  test.beforeEach(async ({ page }) => {
-    jobDetail = new JobDetailPage(page);
-    dashboard = new DashboardPage(page);
-    await jobDetail.navigateTo();
-    await expect(dashboard.jobCards.first()).toBeVisible();
-  });
-
   test.describe("Bookmarking Jobs", () => {
-    test("should bookmark an unbookmarked job", async () => {
+    test("should bookmark an unbookmarked job", async ({ page }) => {
+      const { jobDetail } = await openDashboard(page);
+
       await jobDetail.openJobDetail(1);
 
       await expect(jobDetail.bookmarkButton).toBeVisible();
@@ -25,7 +27,9 @@ test.describe("Job Interactions and Tracking", () => {
       await expect.poll(() => jobDetail.isBookmarked()).toBe(true);
     });
 
-    test("should unbookmark a bookmarked job", async () => {
+    test("should unbookmark a bookmarked job", async ({ page }) => {
+      const { jobDetail } = await openDashboard(page);
+
       await jobDetail.openJobDetail(0);
 
       await expect(jobDetail.bookmarkButton).toBeVisible();
@@ -37,6 +41,8 @@ test.describe("Job Interactions and Tracking", () => {
     });
 
     test("should persist bookmark across page reload", async ({ page }) => {
+      const { jobDetail } = await openDashboard(page);
+
       await jobDetail.openJobDetail(1);
       await jobDetail.toggleBookmark();
       await expect.poll(() => jobDetail.isBookmarked()).toBe(true);
@@ -50,7 +56,9 @@ test.describe("Job Interactions and Tracking", () => {
   });
 
   test.describe("Adding Notes to Jobs", () => {
-    test("should add a note to a job", async () => {
+    test("should add a note to a job", async ({ page }) => {
+      const { jobDetail } = await openDashboard(page);
+
       await jobDetail.openJobDetail(1);
 
       await expect.poll(() => jobDetail.getNotesCount()).toBe(0);
@@ -60,7 +68,9 @@ test.describe("Job Interactions and Tracking", () => {
       await expect.poll(() => jobDetail.getNotesCount()).toBe(1);
     });
 
-    test("should show edit state after adding notes", async () => {
+    test("should show edit state after adding notes", async ({ page }) => {
+      const { jobDetail } = await openDashboard(page);
+
       await jobDetail.openJobDetail(1);
       await jobDetail.addNote("Test note for display");
 
@@ -68,6 +78,7 @@ test.describe("Job Interactions and Tracking", () => {
     });
 
     test("should persist notes across page reload", async ({ page }) => {
+      const { jobDetail } = await openDashboard(page);
       const noteText = "Persistent note test";
 
       await jobDetail.openJobDetail(1);
@@ -82,14 +93,17 @@ test.describe("Job Interactions and Tracking", () => {
   });
 
   test.describe("Job Search and Filtering", () => {
-    test("should search for jobs with keyword", async () => {
+    test("should search for jobs with keyword", async ({ page }) => {
+      const { dashboard } = await openDashboard(page);
+
       await dashboard.searchForJobs("engineer");
 
       await expect(dashboard.jobCards.first()).toBeVisible();
       await expect(dashboard.jobCards.first()).toContainText(/engineer/i);
     });
 
-    test("should filter jobs by remote location", async () => {
+    test("should filter jobs by remote location", async ({ page }) => {
+      const { dashboard } = await openDashboard(page);
       const initialCount = await dashboard.getJobCount();
 
       await dashboard.applyFilter("location", "remote");
@@ -103,7 +117,8 @@ test.describe("Job Interactions and Tracking", () => {
       expect(cards.every((card) => /Remote/i.test(card))).toBe(true);
     });
 
-    test("should clear filters", async () => {
+    test("should clear filters", async ({ page }) => {
+      const { dashboard } = await openDashboard(page);
       const initialCount = await dashboard.getJobCount();
 
       await dashboard.searchForJobs("engineer");
@@ -116,7 +131,9 @@ test.describe("Job Interactions and Tracking", () => {
   });
 
   test.describe("Match Score Display", () => {
-    test("should display match score for jobs", async () => {
+    test("should display match score for jobs", async ({ page }) => {
+      const { jobDetail } = await openDashboard(page);
+
       await jobDetail.openJobDetail(0);
 
       const matchScore = await jobDetail.getMatchScore();
@@ -128,7 +145,11 @@ test.describe("Job Interactions and Tracking", () => {
   });
 
   test.describe("Combined User Flow", () => {
-    test("should combine search, bookmark, and score checks", async () => {
+    test("should combine search, bookmark toggle, and score checks", async ({
+      page,
+    }) => {
+      const { jobDetail, dashboard } = await openDashboard(page);
+
       await dashboard.searchForJobs("engineer");
       await jobDetail.openJobDetail(0);
 
@@ -137,8 +158,9 @@ test.describe("Job Interactions and Tracking", () => {
       expect(title).toMatch(/engineer/i);
       expect(company.length).toBeGreaterThan(0);
 
+      const initialBookmarked = await jobDetail.isBookmarked();
       await jobDetail.toggleBookmark();
-      await expect.poll(() => jobDetail.isBookmarked()).toBe(true);
+      await expect.poll(() => jobDetail.isBookmarked()).toBe(!initialBookmarked);
 
       const matchScore = await jobDetail.getMatchScore();
       expect(matchScore).not.toBeNull();
