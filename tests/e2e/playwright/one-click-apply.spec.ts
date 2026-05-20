@@ -67,10 +67,10 @@ test.describe("One-Click Apply Flow", () => {
       if (hasAtsBadge) {
         const atsText = await applyPage.getAtsDetectionText();
         expect(atsText.length).toBeGreaterThan(0);
+      } else {
+        test.skip();
+        return;
       }
-
-      // Test passes whether ATS is detected or not
-      expect(true).toBeTruthy();
     });
 
     test("should show common form fields for detected ATS", async () => {
@@ -290,7 +290,7 @@ test.describe("One-Click Apply Flow", () => {
 
       // Automation should stop and controls should change
       await page.waitForTimeout(500);
-      expect(true).toBeTruthy();
+      await expect(applyPage.startAutomationButton).toBeVisible();
     });
   });
 
@@ -328,7 +328,7 @@ test.describe("One-Click Apply Flow", () => {
   });
 
   test.describe("Submit Confirmation", () => {
-    test("should show submit confirmation before final submission", async ({ page }) => {
+    test("should show submit confirmation before final submission", async () => {
       const jobCount = await applyPage.jobCards.count();
 
       if (jobCount === 0) {
@@ -359,9 +359,12 @@ test.describe("One-Click Apply Flow", () => {
       // Look for submit confirmation dialog (optional feature)
       const hasSubmitConfirm = await applyPage.waitForSubmitConfirm(2000);
 
-      // Test passes whether confirm dialog appears or not
-      // (depends on mock data and automation state)
-      expect(true).toBeTruthy();
+      if (!hasSubmitConfirm) {
+        test.skip();
+        return;
+      }
+
+      await expect(applyPage.submitConfirmDialog).toBeVisible();
     });
   });
 

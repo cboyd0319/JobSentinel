@@ -42,9 +42,8 @@ test.describe("Resume Upload and Matching", () => {
         const successMsg = page.locator("text=Uploaded, text=Success");
         const hasSuccess = await successMsg.isVisible().catch(() => false);
 
-        // Either shows preview or we're in error state (no fixture file)
-        expect(hasPreview || hasSuccess || true).toBeTruthy();
-      } catch (error) {
+        expect(hasPreview || hasSuccess).toBeTruthy();
+      } catch {
         // File doesn't exist - that's OK for this test structure
         test.skip();
       }
@@ -66,8 +65,8 @@ test.describe("Resume Upload and Matching", () => {
         const successMsg = page.locator("text=Uploaded, text=Success");
         const hasSuccess = await successMsg.isVisible().catch(() => false);
 
-        expect(hasPreview || hasSuccess || true).toBeTruthy();
-      } catch (error) {
+        expect(hasPreview || hasSuccess).toBeTruthy();
+      } catch {
         test.skip();
       }
     });
@@ -88,11 +87,9 @@ test.describe("Resume Upload and Matching", () => {
         const errorMsg = page.locator("text=Invalid, text=Error, text=not supported");
         const hasError = await errorMsg.isVisible({ timeout: 3000 }).catch(() => false);
 
-        // Should either show error or reject the file
-        expect(hasError || true).toBeTruthy();
-      } catch (error) {
-        // Upload rejected - good
-        expect(true).toBeTruthy();
+        expect(hasError).toBeTruthy();
+      } catch {
+        await expect(resumePage.uploadArea).toBeVisible();
       }
     });
 
@@ -113,13 +110,13 @@ test.describe("Resume Upload and Matching", () => {
         const errorMsg = page.locator("text=too large, text=size limit, text=exceed");
         const hasError = await errorMsg.isVisible({ timeout: 3000 }).catch(() => false);
 
-        expect(hasError || true).toBeTruthy();
-      } catch (error) {
+        expect(hasError).toBeTruthy();
+      } catch {
         test.skip();
       }
     });
 
-    test("should display resume preview after upload", async ({ page }) => {
+    test("should display resume preview after upload", async () => {
       // Skip if no resume uploaded
       const hasResume = await resumePage.hasResume();
       if (!hasResume) {
@@ -248,8 +245,12 @@ test.describe("Resume Upload and Matching", () => {
       const keywords = page.locator("[data-testid='missing-keywords'], [data-testid='keyword-match']");
       const hasKeywords = (await keywords.count()) > 0;
 
-      // May or may not show keywords depending on match
-      expect(hasKeywords || true).toBeTruthy();
+      if (!hasKeywords) {
+        test.skip();
+        return;
+      }
+
+      await expect(keywords.first()).toBeVisible();
     });
 
     test("should match with specific job from list", async ({ page }) => {
@@ -277,7 +278,7 @@ test.describe("Resume Upload and Matching", () => {
   });
 
   test.describe("Error Handling", () => {
-    test("should handle matching without resume", async ({ page }) => {
+    test("should handle matching without resume", async () => {
       const hasResume = await resumePage.hasResume();
       if (hasResume) {
         test.skip();
@@ -314,8 +315,8 @@ test.describe("Resume Upload and Matching", () => {
         const errorMsg = page.locator("text=Error, text=Failed, text=corrupt");
         const hasError = await errorMsg.isVisible({ timeout: 3000 }).catch(() => false);
 
-        expect(hasError || true).toBeTruthy();
-      } catch (error) {
+        expect(hasError).toBeTruthy();
+      } catch {
         test.skip();
       }
     });
@@ -339,7 +340,7 @@ test.describe("Resume Upload and Matching", () => {
       const hasResults = await resumePage.matchResults.isVisible().catch(() => false);
       const hasError = await page.locator("text=Error, text=Failed, text=timeout").isVisible().catch(() => false);
 
-      expect(hasResults || hasError || true).toBeTruthy();
+      expect(hasResults || hasError).toBeTruthy();
     });
   });
 });

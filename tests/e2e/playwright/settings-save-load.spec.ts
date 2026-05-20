@@ -201,8 +201,12 @@ test.describe("Settings Save and Load", () => {
       const autoSaveIndicator = page.locator("text=Saved, text=Saving, [data-testid='auto-save']");
       const hasIndicator = await autoSaveIndicator.isVisible().catch(() => false);
 
-      // Auto-save is optional feature
-      expect(hasIndicator || true).toBeTruthy();
+      if (!hasIndicator) {
+        test.skip();
+        return;
+      }
+
+      await expect(autoSaveIndicator).toBeVisible();
     });
   });
 
@@ -423,8 +427,12 @@ test.describe("Settings Save and Load", () => {
       const warningDialog = page.locator("text=Unsaved changes, text=Discard changes");
       const hasWarning = await warningDialog.isVisible().catch(() => false);
 
-      // Warning is optional UX feature
-      expect(hasWarning || true).toBeTruthy();
+      if (!hasWarning) {
+        test.skip();
+        return;
+      }
+
+      await expect(warningDialog.first()).toBeVisible();
     });
   });
 });

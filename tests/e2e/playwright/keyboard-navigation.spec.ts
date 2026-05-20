@@ -1,8 +1,11 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { BasePage } from "./page-objects/BasePage";
 
 test.describe("Keyboard Navigation", () => {
   let basePage: BasePage;
+
+  const mainHeading = (page: Page, name: string | RegExp) =>
+    page.locator("#main-content").getByRole("heading", { name }).first();
 
   test.beforeEach(async ({ page }) => {
     basePage = new BasePage(page);
@@ -15,60 +18,42 @@ test.describe("Keyboard Navigation", () => {
       await basePage.navigateWithKeyboard(1);
 
       // Should be on dashboard
-      const dashboard = page.locator("[data-testid='dashboard'], text=Dashboard");
-      const hasDashboard = await dashboard.isVisible().catch(() => false);
-
-      expect(hasDashboard || true).toBeTruthy();
+      await expect(mainHeading(page, "JobSentinel")).toBeVisible();
     });
 
     test("should navigate to Applications with Cmd+2", async ({ page }) => {
       await basePage.navigateWithKeyboard(2);
 
       // Should be on applications page
-      const applications = page.locator("[data-testid='applications'], text=Applications, text=Kanban");
-      const hasApplications = await applications.first().isVisible().catch(() => false);
-
-      expect(hasApplications || true).toBeTruthy();
+      await expect(mainHeading(page, "Application Tracker")).toBeVisible();
     });
 
     test("should navigate to Resume with Cmd+3", async ({ page }) => {
       await basePage.navigateWithKeyboard(3);
 
       // Should be on resume page
-      const resume = page.locator("[data-testid='resume'], text=Resume, text=Upload");
-      const hasResume = await resume.first().isVisible().catch(() => false);
-
-      expect(hasResume || true).toBeTruthy();
+      await expect(mainHeading(page, "Resume Matcher")).toBeVisible();
     });
 
     test("should navigate to Salary with Cmd+4", async ({ page }) => {
       await basePage.navigateWithKeyboard(4);
 
       // Should be on salary page
-      const salary = page.locator("[data-testid='salary'], text=Salary");
-      const hasSalary = await salary.first().isVisible().catch(() => false);
-
-      expect(hasSalary || true).toBeTruthy();
+      await expect(mainHeading(page, "Salary AI")).toBeVisible();
     });
 
     test("should navigate to Market with Cmd+5", async ({ page }) => {
       await basePage.navigateWithKeyboard(5);
 
       // Should be on market page
-      const market = page.locator("[data-testid='market'], text=Market");
-      const hasMarket = await market.first().isVisible().catch(() => false);
-
-      expect(hasMarket || true).toBeTruthy();
+      await expect(mainHeading(page, "Market Intelligence")).toBeVisible();
     });
 
     test("should navigate to One-Click Apply with Cmd+6", async ({ page }) => {
       await basePage.navigateWithKeyboard(6);
 
       // Should be on one-click apply page
-      const oneClick = page.locator("[data-testid='one-click-apply'], text=One-Click Apply, text=Application Profile");
-      const hasOneClick = await oneClick.first().isVisible().catch(() => false);
-
-      expect(hasOneClick || true).toBeTruthy();
+      await expect(mainHeading(page, "One-Click Apply Settings")).toBeVisible();
     });
 
     test("should cycle through pages sequentially", async ({ page }) => {
@@ -83,10 +68,7 @@ test.describe("Keyboard Navigation", () => {
       await page.waitForTimeout(300);
 
       // Should be on resume page
-      const resume = page.locator("[data-testid='resume'], text=Resume");
-      const hasResume = await resume.first().isVisible().catch(() => false);
-
-      expect(hasResume || true).toBeTruthy();
+      await expect(mainHeading(page, "Resume Matcher")).toBeVisible();
     });
   });
 
@@ -402,8 +384,7 @@ test.describe("Keyboard Navigation", () => {
       const skipLink = page.locator("a[href='#main-content'], .skip-link");
       const hasSkipLink = (await skipLink.count()) > 0;
 
-      // Skip link is recommended but optional
-      expect(hasSkipLink || true).toBeTruthy();
+      expect(hasSkipLink).toBeTruthy();
     });
 
     test("should skip to main content on activation", async ({ page }) => {
@@ -552,17 +533,14 @@ test.describe("Keyboard Navigation", () => {
         return;
       }
 
-      await searchInput.click();
-      await page.waitForTimeout(200);
+      await searchInput.focus();
 
-      await searchInput.fill("j");
-      await expect(searchInput).toHaveValue("j");
-      await searchInput.press("j");
+      await expect(searchInput).toBeFocused();
+      await page.keyboard.press("Meta+2");
       await page.waitForTimeout(300);
 
-      // List navigation shortcut should not clear text or remount the page while input has focus.
-      const value = await searchInput.inputValue();
-      expect(value).toContain("j");
+      // Global navigation shortcut should not fire while input has focus.
+      await expect(mainHeading(page, "JobSentinel")).toBeVisible();
     });
   });
 });

@@ -147,9 +147,14 @@ test.describe("Resume Builder Wizard", () => {
 
       await resumeBuilder.nextButton.click();
 
-      // Should stay on same step or show validation error
-      // (Implementation may vary)
-      expect(true).toBeTruthy();
+      const hasValidationError =
+        (await resumeBuilder.page
+          .locator("[data-testid='error'], .error, text=required")
+          .count()) > 0;
+      const stayedOnContactStep =
+        await resumeBuilder.nameInput.isVisible().catch(() => false);
+
+      expect(hasValidationError || stayedOnContactStep).toBeTruthy();
     });
   });
 
@@ -410,8 +415,12 @@ test.describe("Resume Builder Wizard", () => {
       const hasImportBtn =
         await resumeBuilder.importSkillsButton.isVisible().catch(() => false);
 
-      // Test passes whether import is available or not
-      expect(true).toBeTruthy();
+      if (!hasImportBtn) {
+        test.skip();
+        return;
+      }
+
+      await expect(resumeBuilder.importSkillsButton).toBeVisible();
     });
   });
 
@@ -480,7 +489,7 @@ test.describe("Resume Builder Wizard", () => {
       await resumeBuilder.selectTemplate("Modern");
       await page.waitForTimeout(500);
 
-      expect(true).toBeTruthy();
+      await expect(resumeBuilder.templateCard.first()).toBeVisible();
     });
 
     test("should display resume preview", async ({ page }) => {
@@ -541,9 +550,10 @@ test.describe("Resume Builder Wizard", () => {
       if (atsScore !== null) {
         expect(atsScore).toBeGreaterThanOrEqual(0);
         expect(atsScore).toBeLessThanOrEqual(100);
+      } else {
+        test.skip();
+        return;
       }
-
-      expect(true).toBeTruthy();
     });
   });
 
@@ -580,7 +590,7 @@ test.describe("Resume Builder Wizard", () => {
       await resumeBuilder.exportPdfButton.click();
       await page.waitForTimeout(1000);
 
-      expect(true).toBeTruthy();
+      await expect(resumeBuilder.exportPdfButton).toBeVisible();
     });
 
     test("should export resume as DOCX", async ({ page }) => {
@@ -613,7 +623,7 @@ test.describe("Resume Builder Wizard", () => {
       await resumeBuilder.exportDocxButton.click();
       await page.waitForTimeout(1000);
 
-      expect(true).toBeTruthy();
+      await expect(resumeBuilder.exportDocxButton).toBeVisible();
     });
   });
 

@@ -56,8 +56,12 @@ test.describe("Application Tracking", () => {
       const countBadges = page.locator("[data-testid*='count'], .count, .badge");
       const hasCountBadges = (await countBadges.count()) > 0;
 
-      // Count badges are optional UI enhancement
-      expect(hasCountBadges || true).toBeTruthy();
+      if (!hasCountBadges) {
+        test.skip();
+        return;
+      }
+
+      await expect(countBadges.first()).toBeVisible();
     });
   });
 
@@ -94,8 +98,12 @@ test.describe("Application Tracking", () => {
       const firstCard = await applicationsPage.getApplicationCard(0);
       const hasDate = await firstCard.date.isVisible().catch(() => false);
 
-      // Date may be optional
-      expect(hasDate || true).toBeTruthy();
+      if (!hasDate) {
+        test.skip();
+        return;
+      }
+
+      await expect(firstCard.date).toBeVisible();
     });
 
     test("should show action buttons on hover", async ({ page }) => {
@@ -492,9 +500,8 @@ test.describe("Application Tracking", () => {
 
         // Should not crash
         await expect(applicationsPage.kanbanBoard).toBeVisible();
-      } catch (error) {
-        // Expected to fail gracefully
-        expect(true).toBeTruthy();
+      } catch {
+        await expect(applicationsPage.kanbanBoard).toBeVisible();
       }
     });
 

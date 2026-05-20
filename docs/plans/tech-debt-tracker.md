@@ -11,8 +11,9 @@ security, or developer workflow.
 | HE-002 | Architecture sensors | Frontend module boundaries are not mechanically enforced. | Agents may create imports that blur feature, service, and UI layers. | Evaluate dependency-cruiser or ESLint boundary rules. | Open |
 | HE-003 | Security sensors | Local harness check does not summarize security-specific gates. | Agents may skip threat-surface checks for sensitive changes. | Add security sensor summary after harness check stabilizes. | Open |
 | QA-001 | Rust test linting | `cargo clippy --all-targets -- -D warnings` reports existing test-target lint debt; CI currently runs `cargo clippy -- -D warnings`. | Test-only warnings can hide real regression risk if all-targets becomes required later. | Either clean test lints incrementally or add an explicit test-target lint policy. | Open |
-| QA-002 | E2E assertion quality | Search for always-true expressions such as `expect(true)` finds no-op assertions across multiple suites. | E2E tests can pass without proving the named behavior. | Replace no-op assertions with real UI assertions or explicit `test.skip()` branches, starting with resume upload and market intelligence flows. | Open |
 
 ## Closed Items
 
-None yet.
+| ID | Area | Evidence | Outcome | Closed |
+| -- | ---- | -------- | ------- | ------ |
+| QA-002 | E2E assertion quality | Search for always-true expressions such as `expect(true)` and `\|\| true` no longer finds matches under `tests/e2e/playwright`. | Replaced no-op assertions with real UI assertions or explicit `test.skip()` branches across the affected Playwright suites. | 2026-05-19 |

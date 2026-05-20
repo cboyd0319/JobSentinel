@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Locator } from "@playwright/test";
 import { MarketIntelligencePage } from "./page-objects/MarketIntelligencePage";
 
 test.describe("Market Intelligence", () => {
@@ -30,8 +30,7 @@ test.describe("Market Intelligence", () => {
     test("should wait for loading to complete", async () => {
       const loadingComplete = await marketPage.waitForLoadingComplete(10000);
 
-      // Test passes even if loading doesn't appear (fast load)
-      expect(true).toBeTruthy();
+      expect(loadingComplete).toBe(true);
     });
   });
 
@@ -161,13 +160,17 @@ test.describe("Market Intelligence", () => {
 
       const lastUpdated = await marketPage.getLastUpdatedTime();
 
-      // May or may not have timestamp
-      expect(true).toBeTruthy();
+      if (!lastUpdated) {
+        test.skip();
+        return;
+      }
+
+      expect(lastUpdated.length).toBeGreaterThan(0);
     });
   });
 
   test.describe("Trends Charts", () => {
-    test("should display trend chart", async ({ page }) => {
+    test("should display trend chart", async () => {
       if (
         !(await marketPage.overviewTab.isVisible().catch(() => false))
       ) {
@@ -187,7 +190,7 @@ test.describe("Market Intelligence", () => {
       expect(hasChart).toBeTruthy();
     });
 
-    test("should display chart legend", async ({ page }) => {
+    test("should display chart legend", async () => {
       if (
         !(await marketPage.overviewTab.isVisible().catch(() => false))
       ) {
@@ -207,11 +210,15 @@ test.describe("Market Intelligence", () => {
       const hasLegend =
         await marketPage.chartLegend.isVisible().catch(() => false);
 
-      // Legend is optional
-      expect(true).toBeTruthy();
+      if (!hasLegend) {
+        test.skip();
+        return;
+      }
+
+      await expect(marketPage.chartLegend).toBeVisible();
     });
 
-    test("should show tooltip on hover", async ({ page }) => {
+    test("should show tooltip on hover", async () => {
       if (
         !(await marketPage.overviewTab.isVisible().catch(() => false))
       ) {
@@ -234,8 +241,12 @@ test.describe("Market Intelligence", () => {
       // Wait for tooltip (may not appear in mock mode)
       const hasTooltip = await marketPage.waitForTooltip(2000);
 
-      // Test passes whether tooltip appears or not
-      expect(true).toBeTruthy();
+      if (!hasTooltip) {
+        test.skip();
+        return;
+      }
+
+      await expect(marketPage.chartTooltip).toBeVisible();
     });
   });
 
@@ -252,7 +263,8 @@ test.describe("Market Intelligence", () => {
       const hasSkillsList =
         await marketPage.skillTrendsList.isVisible().catch(() => false);
 
-      expect(true).toBeTruthy();
+      await expect(marketPage.skillsTab).toBeVisible();
+      expect(typeof hasSkillsList).toBe("boolean");
     });
 
     test("should display skill trends", async () => {
@@ -308,8 +320,7 @@ test.describe("Market Intelligence", () => {
       await marketPage.skillFilter.fill("JavaScript");
       await marketPage.page.waitForTimeout(500);
 
-      // Filter may or may not affect results depending on mock data
-      expect(true).toBeTruthy();
+      await expect(marketPage.skillFilter).toHaveValue("JavaScript");
     });
   });
 
@@ -325,7 +336,8 @@ test.describe("Market Intelligence", () => {
       const hasCompanyList =
         await marketPage.companyActivityList.isVisible().catch(() => false);
 
-      expect(true).toBeTruthy();
+      await expect(marketPage.companiesTab).toBeVisible();
+      expect(typeof hasCompanyList).toBe("boolean");
     });
 
     test("should display company activity", async () => {
@@ -361,8 +373,12 @@ test.describe("Market Intelligence", () => {
       const hasTrendIndicators =
         (await marketPage.hiringTrendIndicator.count()) > 0;
 
-      // Indicators are optional
-      expect(true).toBeTruthy();
+      if (!hasTrendIndicators) {
+        test.skip();
+        return;
+      }
+
+      await expect(marketPage.hiringTrendIndicator.first()).toBeVisible();
     });
   });
 
@@ -375,7 +391,7 @@ test.describe("Market Intelligence", () => {
 
       await marketPage.switchToTab("locations");
 
-      expect(true).toBeTruthy();
+      await expect(marketPage.locationsTab).toBeVisible();
     });
 
     test("should display location heatmap", async () => {
@@ -441,7 +457,7 @@ test.describe("Market Intelligence", () => {
 
       await marketPage.switchToTab("alerts");
 
-      expect(true).toBeTruthy();
+      await expect(marketPage.alertsTab).toBeVisible();
     });
 
     test("should display market alerts", async () => {
@@ -489,8 +505,7 @@ test.describe("Market Intelligence", () => {
 
       await marketPage.clickAlert(0);
 
-      // Alert should be clicked (may show details or mark as read)
-      expect(true).toBeTruthy();
+      await expect(marketPage.alertItem.first()).toBeVisible();
     });
   });
 
@@ -506,7 +521,7 @@ test.describe("Market Intelligence", () => {
       // Should reload data
       const loadingComplete = await marketPage.waitForLoadingComplete(10000);
 
-      expect(true).toBeTruthy();
+      expect(loadingComplete).toBe(true);
     });
 
     test("should allow running analysis", async () => {
@@ -520,18 +535,24 @@ test.describe("Market Intelligence", () => {
       // Should run analysis
       await marketPage.page.waitForTimeout(1000);
 
-      expect(true).toBeTruthy();
+      await expect(marketPage.analyzeButton).toBeVisible();
     });
   });
 
   test.describe("Tab Navigation", () => {
     test("should navigate between all tabs", async () => {
-      const tabs: Array<
-        "overview" | "skills" | "companies" | "locations" | "alerts"
-      > = ["overview", "skills", "companies", "locations", "alerts"];
+      const tabs = ["overview", "skills", "companies", "locations", "alerts"] as const;
+      const tabLocators: Record<(typeof tabs)[number], Locator> = {
+        overview: marketPage.overviewTab,
+        skills: marketPage.skillsTab,
+        companies: marketPage.companiesTab,
+        locations: marketPage.locationsTab,
+        alerts: marketPage.alertsTab,
+      };
 
+      let visitedCount = 0;
       for (const tab of tabs) {
-        const tabLocator = marketPage[`${tab}Tab` as keyof MarketIntelligencePage] as any;
+        const tabLocator = tabLocators[tab];
 
         if (!(await tabLocator.isVisible().catch(() => false))) {
           continue;
@@ -539,9 +560,10 @@ test.describe("Market Intelligence", () => {
 
         await marketPage.switchToTab(tab);
         await marketPage.page.waitForTimeout(500);
+        visitedCount += 1;
       }
 
-      expect(true).toBeTruthy();
+      expect(visitedCount).toBeGreaterThan(0);
     });
   });
 });

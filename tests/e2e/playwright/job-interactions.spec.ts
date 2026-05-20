@@ -481,7 +481,7 @@ test.describe("Job Interactions and Tracking", () => {
   });
 
   test.describe("Match Score Display", () => {
-    test("should display match score for jobs", async ({ page }) => {
+    test("should display match score for jobs", async () => {
       const jobCount = await dashboard.jobCards.count();
 
       if (jobCount === 0) {
@@ -504,9 +504,10 @@ test.describe("Job Interactions and Tracking", () => {
       if (matchScore !== null) {
         expect(matchScore).toBeGreaterThanOrEqual(0);
         expect(matchScore).toBeLessThanOrEqual(100);
+      } else {
+        test.skip();
+        return;
       }
-
-      expect(true).toBeTruthy();
     });
   });
 
