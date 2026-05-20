@@ -392,6 +392,16 @@ function hasDeepLinksEmojiOrVersionPromise(root, path) {
   );
 }
 
+function hasQuickStartEmojiMarkers(root, path) {
+  if (path !== "docs/user/QUICK_START.md") {
+    return false;
+  }
+
+  return /[✅❌⚠️⏳🔐📄📝🟢🟡🔴📊📧📈📉🎯🚀💡🔍⭐]/u.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -454,6 +464,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasDeepLinksEmojiOrVersionPromise(root, path)) {
       violations.push(`replace Deep Links doc emoji/version promises: ${path}`);
+    }
+
+    if (hasQuickStartEmojiMarkers(root, path)) {
+      violations.push(`replace Quick Start doc emoji markers: ${path}`);
     }
   }
 

@@ -96,9 +96,9 @@ Type in job titles that match what you want. Examples:
 
 Pick any combination:
 
-- ✅ **Remote** - Work from anywhere
-- ✅ **Hybrid** - Mix of office and home
-- ✅ **Onsite** - Full-time in the office
+- **Remote** - Work from anywhere
+- **Hybrid** - Mix of office and home
+- **Onsite** - Full-time in the office
 
 ### Question 3: What's your minimum salary?
 
@@ -187,7 +187,7 @@ Press `?` anytime to see the full list.
 
 ## Features You'll Love
 
-### Ghost Job Detection 👻
+### Ghost Job Detection
 
 JobSentinel spots fake job postings so you don't waste time applying:
 
@@ -197,7 +197,7 @@ JobSentinel spots fake job postings so you don't waste time applying:
 
 Use the ghost filter dropdown to hide these from your list.
 
-### Resume Builder 📄
+### Resume Builder
 
 Create professional resumes right inside JobSentinel:
 
@@ -206,7 +206,7 @@ Create professional resumes right inside JobSentinel:
 3. Pick from 5 ATS-friendly templates (designed to pass company resume-filtering software)
 4. Export to Word (.docx)
 
-### ATS Optimizer ✅
+### ATS Optimizer
 
 ATS stands for "Applicant Tracking System" — it's software that companies use to filter
 resumes before a human ever sees them. The optimizer helps you see how your resume scores
@@ -217,7 +217,7 @@ against a specific job so you can improve it:
 3. Enter your resume info
 4. Get instant feedback on what keywords you're missing
 
-### One-Click Apply 🚀
+### One-Click Apply
 
 Fill out application forms in seconds:
 
@@ -313,13 +313,13 @@ Everything stays on your computer. No cloud, no accounts, no tracking.
 
 Now that you're set up:
 
-- ⭐ **Star the repo** on [GitHub](https://github.com/cboyd0319/JobSentinel)
-- 📖 **Learn more** about [Ghost Detection](../features/ghost-detection.md)
-- 📄 **Build your resume** with the [Resume Builder](../features/resume-builder.md)
-- 🚀 **Speed up applications** with [One-Click Apply](../features/one-click-apply.md)
+- **Star the repo** on [GitHub](https://github.com/cboyd0319/JobSentinel)
+- **Learn more** about [Ghost Detection](../features/ghost-detection.md)
+- **Build your resume** with the [Resume Builder](../features/resume-builder.md)
+- **Speed up applications** with [One-Click Apply](../features/one-click-apply.md)
 
 ---
 
-**Happy job hunting!** 🎯
+**Good luck with your search.**
 
 *JobSentinel - Your data stays yours. Always.*

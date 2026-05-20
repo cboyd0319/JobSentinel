@@ -364,3 +364,31 @@ test("checkRepoBloat rejects Deep Links doc emoji and version promises", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects Quick Start doc emoji markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/user/QUICK_START.md",
+      [
+        "- ✅ **Remote** - Work from anywhere",
+        "### Resume Builder 📄",
+        "- 🚀 **Speed up applications** with One-Click Apply",
+        "**Happy job hunting!** 🎯",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/user/QUICK_START.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace Quick Start doc emoji markers: docs/user/QUICK_START.md"),
+      violations.join("\n"),
+    );
+  });
+});
