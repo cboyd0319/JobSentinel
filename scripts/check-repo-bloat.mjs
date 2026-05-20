@@ -835,6 +835,28 @@ function hasUnownedStorybookAddon(root, path) {
   });
 }
 
+function hasStaleSavedSearchMockHandlers(root, path) {
+  if (path !== "src/mocks/handlers.ts") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const requiredCommands = [
+    "get_search_history",
+    "add_search_history",
+    "clear_search_history",
+    "list_saved_searches",
+    "create_saved_search",
+    "use_saved_search",
+    "delete_saved_search",
+  ];
+  const missingRequiredCommand = requiredCommands.some((command) => {
+    return !new RegExp(`case\\s+["']${command}["']`).test(text);
+  });
+
+  return missingRequiredCommand || /case\s+["']save_search["']/.test(text);
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -1025,6 +1047,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasUnownedStorybookAddon(root, path)) {
       violations.push(`remove Storybook addon without package ownership: ${path}`);
+    }
+
+    if (hasStaleSavedSearchMockHandlers(root, path)) {
+      violations.push(`sync saved-search mock command handlers: ${path}`);
     }
   }
 

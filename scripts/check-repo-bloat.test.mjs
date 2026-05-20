@@ -1546,3 +1546,41 @@ test("checkRepoBloat rejects raw user-data privacy logging", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects stale saved-search mock handlers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      [
+        "export async function mockInvoke(cmd) {",
+        "  switch (cmd) {",
+        "    case 'get_search_history':",
+        "      return [];",
+        "    case 'list_saved_searches':",
+        "      return [];",
+        "    case 'save_search':",
+        "      return {};",
+        "    case 'delete_saved_search':",
+        "      return undefined;",
+        "    default:",
+        "      return undefined;",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/mocks/handlers.ts"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sync saved-search mock command handlers: src/mocks/handlers.ts"),
+      violations.join("\n"),
+    );
+  });
+});

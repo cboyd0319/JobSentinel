@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Synced dev mock handlers with real saved-search and search-history Tauri command names, removed stale `save_search` behavior, and added regression plus bloat-sensor coverage. |
 | 2026-05-20 | In progress | Fixed saved-search IPC shape so create and undo restore send the backend `search` envelope, frontend reads camelCase saved-search results, and invoke-surface checks catch missing required command args. |
 | 2026-05-20 | In progress | Fixed dashboard search-history loading by sending the required `limit` argument to the backend command, and added invoke-surface coverage for recurrence. |
 | 2026-05-20 | In progress | Sanitized user-data command and manager logging so saved-search text, saved-search names, cover-letter template names, and notification preference payloads are not captured by logs or tracing spans. |
@@ -216,6 +217,10 @@ changes or Playwright-specific work.
 - Saved-search create and undo-restore calls sent flat filter fields even though
   the Tauri command expects a required `search` object. The list path also read
   snake_case fields even though `SavedSearch` serializes as camelCase.
+- Development mock handlers still exposed stale `save_search` behavior and
+  lacked the real `create_saved_search`, `use_saved_search`,
+  `add_search_history`, and `clear_search_history` command handlers, so
+  `npm run dev:mock` could hide or create frontend/backend parity drift.
 - Maintained docs still used an overbroad "all user data" localStorage-to-SQLite
   migration claim even though frontend localStorage remains valid for
   non-authoritative UI preferences, caches, sanitized error logs, and transient

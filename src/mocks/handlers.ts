@@ -12,6 +12,7 @@ import {
   mockUpcomingInterviews,
   mockPendingReminders,
 } from "./data";
+import type { PostedDateFilter, ScoreFilter, SortOption } from "../pages/DashboardTypes";
 
 type MockJob = typeof mockJobs[number];
 type MockConfig = typeof mockConfig;
@@ -28,6 +29,32 @@ interface MockApplication {
 }
 type MockApplications = Record<MockApplicationStatus, MockApplication[]>;
 type MockPendingReminder = typeof mockPendingReminders[number];
+interface MockSavedSearch {
+  id: string;
+  name: string;
+  sortBy: SortOption;
+  scoreFilter: ScoreFilter;
+  sourceFilter: string;
+  remoteFilter: string;
+  bookmarkFilter: string;
+  notesFilter: string;
+  postedDateFilter: PostedDateFilter | null;
+  salaryMinFilter: number | null;
+  salaryMaxFilter: number | null;
+  ghostFilter: string | null;
+  textSearch: string | null;
+  createdAt: string;
+  lastUsedAt: string | null;
+}
+const SORT_OPTIONS: readonly SortOption[] = [
+  "score-desc",
+  "score-asc",
+  "date-desc",
+  "date-asc",
+  "company-asc",
+];
+const SCORE_FILTERS: readonly ScoreFilter[] = ["all", "high", "medium", "low"];
+const POSTED_DATE_FILTERS: readonly PostedDateFilter[] = ["all", "24h", "7d", "30d"];
 type MockCredentialKey =
   | "slack_webhook"
   | "smtp_password"
@@ -224,6 +251,8 @@ let config = { ...mockConfig };
 let interviews: MockInterview[] = [...mockUpcomingInterviews];
 let applications: MockApplications = cloneApplications(mockApplications);
 let pendingReminders: MockPendingReminder[] = [...mockPendingReminders];
+let savedSearches: MockSavedSearch[] = [];
+let searchHistory: string[] = [];
 let credentials: Partial<Record<MockCredentialKey, string>> = {};
 let ghostConfig: MockGhostConfig = getDefaultGhostConfig();
 let bookmarkletConfig: MockBookmarkletConfig = {
@@ -247,6 +276,8 @@ interface MockState {
   interviews: MockInterview[];
   applications: MockApplications;
   pendingReminders: MockPendingReminder[];
+  savedSearches: MockSavedSearch[];
+  searchHistory: string[];
   credentials: Partial<Record<MockCredentialKey, string>>;
   ghostConfig: MockGhostConfig;
   bookmarkletConfig: MockBookmarkletConfig;
@@ -275,6 +306,8 @@ function saveMockState(): void {
     interviews,
     applications,
     pendingReminders,
+    savedSearches,
+    searchHistory,
     credentials,
     ghostConfig,
     bookmarkletConfig,
@@ -307,6 +340,14 @@ function loadMockState(): void {
     }
     if (Array.isArray(state.pendingReminders)) {
       pendingReminders = state.pendingReminders;
+    }
+    if (Array.isArray(state.savedSearches)) {
+      savedSearches = state.savedSearches.map(normalizeSavedSearch);
+    }
+    if (Array.isArray(state.searchHistory)) {
+      searchHistory = state.searchHistory.filter(
+        (query): query is string => typeof query === "string" && query.trim().length >= 2,
+      );
     }
     if (state.credentials && typeof state.credentials === "object") {
       credentials = state.credentials;
@@ -747,6 +788,63 @@ function nullableString(value: unknown): string | null {
 
 function nullableNumber(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object";
+}
+
+function isSortOption(value: unknown): value is SortOption {
+  return typeof value === "string" && SORT_OPTIONS.includes(value as SortOption);
+}
+
+function isScoreFilter(value: unknown): value is ScoreFilter {
+  return typeof value === "string" && SCORE_FILTERS.includes(value as ScoreFilter);
+}
+
+function isPostedDateFilter(value: unknown): value is PostedDateFilter {
+  return typeof value === "string" && POSTED_DATE_FILTERS.includes(value as PostedDateFilter);
+}
+
+function getNullablePostedDateFilter(value: unknown): PostedDateFilter | null {
+  return isPostedDateFilter(value) ? value : null;
+}
+
+function getNextSavedSearchId(): string {
+  const maxId = savedSearches.reduce((max, search) => {
+    const match = /^mock-saved-search-(\d+)$/.exec(search.id);
+    return match ? Math.max(max, Number(match[1])) : max;
+  }, 0);
+  return `mock-saved-search-${maxId + 1}`;
+}
+
+function normalizeSavedSearch(value: unknown): MockSavedSearch {
+  const source = isRecord(value) ? value : {};
+  const now = new Date().toISOString();
+
+  return {
+    id: typeof source.id === "string" && source.id.length > 0
+      ? source.id
+      : getNextSavedSearchId(),
+    name: typeof source.name === "string" && source.name.trim().length > 0
+      ? source.name.trim()
+      : "Saved search",
+    sortBy: isSortOption(source.sortBy) ? source.sortBy : "score-desc",
+    scoreFilter: isScoreFilter(source.scoreFilter) ? source.scoreFilter : "all",
+    sourceFilter: typeof source.sourceFilter === "string" ? source.sourceFilter : "all",
+    remoteFilter: typeof source.remoteFilter === "string" ? source.remoteFilter : "all",
+    bookmarkFilter: typeof source.bookmarkFilter === "string" ? source.bookmarkFilter : "all",
+    notesFilter: typeof source.notesFilter === "string" ? source.notesFilter : "all",
+    postedDateFilter: getNullablePostedDateFilter(source.postedDateFilter),
+    salaryMinFilter: nullableNumber(source.salaryMinFilter),
+    salaryMaxFilter: nullableNumber(source.salaryMaxFilter),
+    ghostFilter: nullableString(source.ghostFilter),
+    textSearch: nullableString(source.textSearch),
+    createdAt: typeof source.createdAt === "string" && source.createdAt.length > 0
+      ? source.createdAt
+      : now,
+    lastUsedAt: nullableString(source.lastUsedAt),
+  };
 }
 
 function booleanValue(value: unknown, fallback: boolean): boolean {
@@ -1658,16 +1756,61 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       } as T;
 
     // Search history and saved searches
-    case "get_search_history":
-      return [] as T;
+    case "get_search_history": {
+      const limit = Math.max(0, Math.min(getNumericArg(args, "limit") ?? 20, 50));
+      return searchHistory.slice(0, limit) as T;
+    }
 
     case "list_saved_searches":
-      return [] as T;
+      return savedSearches.map((search) => ({ ...search })) as T;
 
-    case "save_search":
-      return { id: 1, name: args?.name, query: args?.query } as T;
+    case "create_saved_search": {
+      const search = {
+        ...normalizeSavedSearch(getArg(args, "search")),
+        createdAt: new Date().toISOString(),
+        lastUsedAt: null,
+      };
+      savedSearches = [search, ...savedSearches.filter((saved) => saved.id !== search.id)];
+      saveMockState();
+      return { ...search } as T;
+    }
 
-    case "delete_saved_search":
+    case "use_saved_search": {
+      let found = false;
+      const lastUsedAt = new Date().toISOString();
+      savedSearches = savedSearches.map((search) => {
+        if (search.id !== getStringArg(args, "id")) return search;
+        found = true;
+        return { ...search, lastUsedAt };
+      });
+      if (found) saveMockState();
+      return found as T;
+    }
+
+    case "delete_saved_search": {
+      const id = getStringArg(args, "id");
+      const initialLength = savedSearches.length;
+      savedSearches = savedSearches.filter((search) => search.id !== id);
+      const deleted = savedSearches.length !== initialLength;
+      if (deleted) saveMockState();
+      return deleted as T;
+    }
+
+    case "add_search_history": {
+      const query = getStringArg(args, "query")?.trim();
+      if (query && query.length >= 2) {
+        searchHistory = [
+          query,
+          ...searchHistory.filter((entry) => entry !== query),
+        ].slice(0, 50);
+        saveMockState();
+      }
+      return undefined as T;
+    }
+
+    case "clear_search_history":
+      searchHistory = [];
+      saveMockState();
       return undefined as T;
 
     default:
@@ -1712,6 +1855,8 @@ export function resetMockData() {
   interviews = [...mockUpcomingInterviews];
   applications = cloneApplications(mockApplications);
   pendingReminders = [...mockPendingReminders];
+  savedSearches = [];
+  searchHistory = [];
   credentials = {};
   ghostConfig = getDefaultGhostConfig();
   bookmarkletConfig = {
