@@ -116,6 +116,7 @@ const forbiddenFileExtensions = new Set([
 
 const forbiddenFileNames = new Set([
   ".DS_Store",
+  ".gitkeep",
   "Thumbs.db",
   "desktop.ini",
   "npm-debug.log",
@@ -249,6 +250,10 @@ function isTrackedBloat(path) {
 
   const parts = path.split("/");
   const fileName = parts.at(-1) ?? path;
+
+  if (fileName === ".gitkeep") {
+    return true;
+  }
 
   if (parts.length > 1 && /^test[_-].*\.sh$/.test(fileName) && parts[0] !== "scripts") {
     return true;

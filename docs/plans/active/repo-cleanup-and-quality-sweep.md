@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Removed redundant tracked `.gitkeep` placeholders from non-empty plan directories and added bloat coverage for future tracked `.gitkeep` files. |
 | 2026-05-20 | In progress | Sanitized deep-link and job-import URL logging so search terms, locations, credentials, query strings, and fragments are not written to logs. |
 | 2026-05-20 | In progress | Re-enabled company scoring tests that were still commented out after fuzzy matching landed, and added test-quality coverage for temporarily disabled test blocks. |
 | 2026-05-20 | In progress | Replaced roadmap status emoji with text-only statuses and added bloat coverage to keep active roadmap status rows ASCII. |
@@ -236,9 +237,14 @@ changes or Playwright-specific work.
 - Deep-link and universal job-import paths still logged raw user-controlled URLs,
   including search terms, location filters, credentials, query strings, and
   fragments.
+- `docs/plans/active/.gitkeep` and `docs/plans/completed/.gitkeep` were
+  redundant tracked placeholders because both directories contain real plan
+  files.
 
 ## Decisions
 
+- Treat tracked `.gitkeep` files as bloat in this repo. Durable empty directory
+  intent belongs in docs or in the commit that introduces real fixtures.
 - Treat removing bloat and junk as active repo work even though the earlier
   disposable-artifact sensor is closed.
 - Do not delete root front-door or policy files just to reduce visible clutter.

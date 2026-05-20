@@ -56,6 +56,44 @@ test("checkRepoBloat rejects reserved E2E fixture placeholders", () => {
   });
 });
 
+test("checkRepoBloat rejects tracked gitkeep placeholders", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(root, "docs/plans/active/.gitkeep");
+    writeFixtureFile(root, "docs/plans/active/current-plan.md", "# Current Plan\n");
+    writeFixtureFile(root, "docs/plans/completed/.gitkeep");
+    writeFixtureFile(root, "docs/plans/completed/done-plan.md", "# Done Plan\n");
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "docs/plans/active/.gitkeep",
+        "docs/plans/active/current-plan.md",
+        "docs/plans/completed/.gitkeep",
+        "docs/plans/completed/done-plan.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove tracked generated or disposable file: docs/plans/active/.gitkeep",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove tracked generated or disposable file: docs/plans/completed/.gitkeep",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects speculative cloud deployment docs", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
