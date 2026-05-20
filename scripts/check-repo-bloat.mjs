@@ -952,6 +952,41 @@ function hasStaleFeedbackSystemInfoArchitecture(root, path) {
   return /\bsystemInfo\.arch\b|\barch\s*:\s*string\b/.test(text);
 }
 
+function hasStaleResumeOptimizerMockHandlers(root, path) {
+  if (path !== "src/mocks/handlers.ts") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const requiredCommands = [
+    "analyze_resume_for_job",
+    "analyze_resume_format",
+    "get_ats_power_words",
+    "improve_bullet_point",
+  ];
+  const missingRequiredCommand = requiredCommands.some((command) => {
+    return !new RegExp(`case\\s+["']${command}["']`).test(text);
+  });
+
+  return (
+    missingRequiredCommand ||
+    /case\s+["']analyze_resume_format["'][\s\S]{0,240}\bissues\s*:/.test(text) ||
+    /case\s+["']analyze_resume_format["'][\s\S]{0,300}\brecommendations\s*:/.test(text)
+  );
+}
+
+function hasStaleAtsKeywordMatchFrontendShape(root, path) {
+  if (
+    path !== "src/pages/ResumeOptimizer.tsx" &&
+    path !== "src/components/AtsLiveScorePanel.tsx"
+  ) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /\bfound_in\s*:\s*string\s*[;\n]/.test(text) || /\bcontext\s*:\s*string\s*[;\n]/.test(text);
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -1166,6 +1201,14 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleFeedbackSystemInfoArchitecture(root, path)) {
       violations.push(`sync feedback system-info architecture field: ${path}`);
+    }
+
+    if (hasStaleResumeOptimizerMockHandlers(root, path)) {
+      violations.push(`sync resume optimizer mock command handlers: ${path}`);
+    }
+
+    if (hasStaleAtsKeywordMatchFrontendShape(root, path)) {
+      violations.push(`sync ATS keyword match frontend shape: ${path}`);
     }
   }
 

@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Synced resume optimizer dev mock handlers with registered ATS commands, replaced stale format-only mock result shape, aligned frontend keyword-match types with backend `found_in` arrays plus frequency, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Synced feedback dev mock handlers with registered Tauri commands, corrected frontend system-info architecture field handling from `arch` to backend `architecture`, and added bloat coverage for feedback mock and contract drift. |
 | 2026-05-20 | In progress | Synced job-import dev mock handlers with registered Tauri commands, added preview/import duplicate behavior, mirrored external URL blocking, and added bloat coverage for missing job-import mock command cases. |
 | 2026-05-20 | In progress | Synced deep-link dev mock handlers with registered Tauri commands, mirrored supported-site metadata and URL generation, blocked unsafe mock open URLs, and added bloat coverage for missing deep-link mock command cases. |

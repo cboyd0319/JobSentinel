@@ -292,6 +292,100 @@ interface MockJobImportPreview {
 }
 
 type MockFeedbackCategory = "bug" | "feature" | "question";
+type MockKeywordImportance = "Required" | "Preferred" | "Industry";
+type MockIssueSeverity = "Critical" | "Warning" | "Info";
+type MockSuggestionCategory =
+  | "AddKeyword"
+  | "RewordBullet"
+  | "AddSection"
+  | "ReorderContent"
+  | "FormatFix";
+
+interface MockKeywordMatch {
+  keyword: string;
+  found_in: string[];
+  frequency: number;
+  importance: MockKeywordImportance;
+}
+
+interface MockFormatIssue {
+  severity: MockIssueSeverity;
+  issue: string;
+  fix: string;
+}
+
+interface MockAtsSuggestion {
+  category: MockSuggestionCategory;
+  suggestion: string;
+  impact: string;
+}
+
+interface MockAtsAnalysisResult {
+  overall_score: number;
+  keyword_score: number;
+  format_score: number;
+  completeness_score: number;
+  keyword_matches: MockKeywordMatch[];
+  missing_keywords: string[];
+  format_issues: MockFormatIssue[];
+  suggestions: MockAtsSuggestion[];
+}
+
+interface MockAtsKeyword {
+  keyword: string;
+  importance: MockKeywordImportance;
+}
+
+const ATS_POWER_WORDS = [
+  "led",
+  "managed",
+  "directed",
+  "coordinated",
+  "supervised",
+  "mentored",
+  "achieved",
+  "accomplished",
+  "delivered",
+  "exceeded",
+  "developed",
+  "created",
+  "designed",
+  "built",
+  "implemented",
+  "launched",
+  "improved",
+  "optimized",
+  "enhanced",
+  "streamlined",
+  "automated",
+  "refactored",
+  "increased",
+  "reduced",
+  "saved",
+  "generated",
+  "analyzed",
+  "researched",
+  "evaluated",
+  "collaborated",
+  "partnered",
+  "supported",
+] as const;
+
+const ATS_KNOWN_KEYWORDS = [
+  "Rust",
+  "React",
+  "TypeScript",
+  "JavaScript",
+  "Node.js",
+  "Python",
+  "SQL",
+  "Kubernetes",
+  "Docker",
+  "AWS",
+  "automation",
+  "testing",
+  "leadership",
+] as const;
 
 const MOCK_DEEP_LINK_SITES = [
   {
@@ -1419,6 +1513,244 @@ function renderMockResumeHtml(value: unknown): string {
   `;
 }
 
+function analyzeMockResumeFormat(args?: Record<string, unknown>): MockAtsAnalysisResult {
+  const resume = getArg(args, "resume");
+  const sections = getMockAtsResumeSections(resume);
+  const formatIssues: MockFormatIssue[] = [];
+  const suggestions: MockAtsSuggestion[] = [];
+
+  if (!getNestedString(resume, ["contact_info", "email"])) {
+    formatIssues.push({
+      severity: "Critical",
+      issue: "Missing email address",
+      fix: "Add your professional email address",
+    });
+  }
+  if (sections.experience.length === 0) {
+    formatIssues.push({
+      severity: "Warning",
+      issue: "Missing experience section",
+      fix: "Add recent roles with quantified achievements",
+    });
+    suggestions.push({
+      category: "AddSection",
+      suggestion: "Add work experience with measurable impact",
+      impact: "High",
+    });
+  }
+  if (sections.skills.length === 0) {
+    formatIssues.push({
+      severity: "Warning",
+      issue: "Missing skills section",
+      fix: "Add relevant technical and soft skills",
+    });
+  }
+
+  const formatScore = clampScore(100 - formatIssues.length * 10);
+  const completenessScore = clampScore(
+    40 +
+      (sections.summary ? 15 : 0) +
+      Math.min(sections.experience.length, 3) * 10 +
+      Math.min(sections.skills.length, 6) * 3,
+  );
+
+  return {
+    overall_score: Math.round((formatScore * 0.5 + completenessScore * 0.5) * 10) / 10,
+    keyword_score: 0,
+    format_score: formatScore,
+    completeness_score: completenessScore,
+    keyword_matches: [],
+    missing_keywords: [],
+    format_issues: formatIssues,
+    suggestions,
+  };
+}
+
+function analyzeMockResumeForJob(args?: Record<string, unknown>): MockAtsAnalysisResult {
+  const resume = getArg(args, "resume");
+  const jobDescription = getStringArg(args, "jobDescription") ?? "";
+  const formatResult = analyzeMockResumeFormat(args);
+  const sections = getMockAtsResumeSections(resume);
+  const keywords = extractMockAtsKeywords(jobDescription);
+  const keywordMatches: MockKeywordMatch[] = [];
+  const missingKeywords: string[] = [];
+
+  for (const { keyword, importance } of keywords) {
+    const foundIn = findMockKeywordLocations(sections, keyword);
+    if (foundIn.length > 0) {
+      keywordMatches.push({
+        keyword,
+        found_in: foundIn,
+        frequency: countKeywordFrequency(sections.allText, keyword),
+        importance,
+      });
+    } else {
+      missingKeywords.push(keyword);
+    }
+  }
+
+  const keywordScore = keywords.length > 0
+    ? Math.round((keywordMatches.length / keywords.length) * 1000) / 10
+    : 100;
+  const suggestions: MockAtsSuggestion[] = [
+    ...formatResult.suggestions,
+    ...missingKeywords.map((keyword) => ({
+      category: "AddKeyword" as const,
+      suggestion: `Add '${keyword}' to relevant sections`,
+      impact: keywords.find((candidate) => candidate.keyword === keyword)?.importance === "Required"
+        ? "High"
+        : "Medium",
+    })),
+  ];
+
+  return {
+    ...formatResult,
+    overall_score: Math.round(
+      (keywordScore * 0.4 + formatResult.format_score * 0.3 + formatResult.completeness_score * 0.3) * 10,
+    ) / 10,
+    keyword_score: keywordScore,
+    keyword_matches: keywordMatches,
+    missing_keywords: missingKeywords,
+    suggestions,
+  };
+}
+
+function improveMockBulletPoint(args?: Record<string, unknown>): string {
+  const bullet = getStringArg(args, "bullet")?.trim() ?? "";
+  let improved = bullet;
+  const lower = improved.toLowerCase();
+
+  if (!ATS_POWER_WORDS.some((word) => lower.startsWith(word))) {
+    if (lower.includes("was responsible for")) {
+      improved = improved.replace(/was responsible for/i, "Managed");
+    } else if (lower.includes("worked on")) {
+      improved = improved.replace(/worked on/i, "Developed");
+    } else if (lower.includes("helped with")) {
+      improved = improved.replace(/helped with/i, "Contributed to");
+    }
+  }
+
+  if (!/\d|%/.test(improved)) {
+    improved += " (add specific metrics)";
+  }
+
+  const jobContext = getStringArg(args, "jobContext") ?? getStringArg(args, "job_context");
+  if (jobContext) {
+    const requiredKeywords = extractMockAtsKeywords(jobContext)
+      .filter((candidate) => candidate.importance === "Required")
+      .map((candidate) => candidate.keyword)
+      .filter((keyword) => !improved.toLowerCase().includes(keyword.toLowerCase()))
+      .slice(0, 2);
+    if (requiredKeywords.length > 0) {
+      improved += ` (consider adding: ${requiredKeywords.join(", ")})`;
+    }
+  }
+
+  return improved;
+}
+
+function getMockAtsResumeSections(value: unknown): {
+  summary: string;
+  experience: string[];
+  skills: string[];
+  education: string[];
+  allText: string;
+} {
+  const source = isRecord(value) ? value : {};
+  const experience = Array.isArray(source.experience)
+    ? source.experience.map((item) => collectRecordText(item))
+    : [];
+  const skills = Array.isArray(source.skills)
+    ? source.skills.map((item) => collectRecordText(item))
+    : [];
+  const education = Array.isArray(source.education)
+    ? source.education.map((item) => collectRecordText(item))
+    : [];
+  const summary = typeof source.summary === "string" ? source.summary : "";
+  const contactInfo = collectRecordText(source.contact_info);
+  const allText = [contactInfo, summary, ...experience, ...skills, ...education]
+    .filter((text) => text.length > 0)
+    .join(" ");
+
+  return { summary, experience, skills, education, allText };
+}
+
+function collectRecordText(value: unknown): string {
+  if (typeof value === "string") return value;
+  if (Array.isArray(value)) return value.map(collectRecordText).join(" ");
+  if (!isRecord(value)) return "";
+  return Object.values(value).map(collectRecordText).filter((text) => text.length > 0).join(" ");
+}
+
+function getNestedString(value: unknown, path: string[]): string | undefined {
+  let current: unknown = value;
+  for (const key of path) {
+    if (!isRecord(current)) return undefined;
+    current = current[key];
+  }
+  return typeof current === "string" && current.length > 0 ? current : undefined;
+}
+
+function extractMockAtsKeywords(jobDescription: string): MockAtsKeyword[] {
+  const lower = jobDescription.toLowerCase();
+  return ATS_KNOWN_KEYWORDS
+    .filter((keyword) => lower.includes(keyword.toLowerCase()))
+    .map((keyword) => ({
+      keyword,
+      importance: getMockKeywordImportance(jobDescription, keyword),
+    }));
+}
+
+function getMockKeywordImportance(
+  jobDescription: string,
+  keyword: string,
+): MockKeywordImportance {
+  const lower = jobDescription.toLowerCase();
+  const keywordIndex = lower.indexOf(keyword.toLowerCase());
+  const preferredIndex = lower.indexOf("preferred");
+  const requiredIndex = lower.indexOf("required");
+
+  if (preferredIndex >= 0 && keywordIndex >= preferredIndex) {
+    return "Preferred";
+  }
+  if (requiredIndex >= 0 && (preferredIndex < 0 || keywordIndex < preferredIndex)) {
+    return "Required";
+  }
+  return "Industry";
+}
+
+function findMockKeywordLocations(
+  sections: ReturnType<typeof getMockAtsResumeSections>,
+  keyword: string,
+): string[] {
+  const locations: string[] = [];
+  if (containsKeyword(sections.summary, keyword)) locations.push("summary");
+  if (sections.experience.some((text) => containsKeyword(text, keyword))) {
+    locations.push("experience");
+  }
+  if (sections.skills.some((text) => containsKeyword(text, keyword))) {
+    locations.push("skills");
+  }
+  if (sections.education.some((text) => containsKeyword(text, keyword))) {
+    locations.push("education");
+  }
+  return locations;
+}
+
+function containsKeyword(text: string, keyword: string): boolean {
+  return text.toLowerCase().includes(keyword.toLowerCase());
+}
+
+function countKeywordFrequency(text: string, keyword: string): number {
+  if (!keyword) return 0;
+  const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return Array.from(text.matchAll(new RegExp(escaped, "gi"))).length;
+}
+
+function clampScore(score: number): number {
+  return Math.max(0, Math.min(100, Math.round(score * 10) / 10));
+}
+
 function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (char) => {
     const escapes: Record<string, string> = {
@@ -2505,11 +2837,16 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       return renderMockResumeHtml(getArg(args, "resume")) as T;
 
     case "analyze_resume_format":
-      return {
-        format_score: 88,
-        issues: ["Add more quantified achievements"],
-        recommendations: ["Keep sections clear and use standard headings"],
-      } as T;
+      return analyzeMockResumeFormat(args) as T;
+
+    case "analyze_resume_for_job":
+      return analyzeMockResumeForJob(args) as T;
+
+    case "get_ats_power_words":
+      return [...ATS_POWER_WORDS] as T;
+
+    case "improve_bullet_point":
+      return improveMockBulletPoint(args) as T;
 
     case "export_resume_docx":
       return [80, 75, 3, 4, 20, 0, 0, 0] as T;

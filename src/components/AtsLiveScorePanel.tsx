@@ -28,8 +28,8 @@ export interface AtsAnalysisResult {
 interface KeywordMatch {
   keyword: string;
   importance: "Required" | "Preferred" | "Industry";
-  found_in: string;
-  context: string;
+  found_in: string[];
+  frequency: number;
 }
 
 interface FormatIssue {
@@ -448,7 +448,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {analysis.keyword_matches.map((match, idx) => (
-                    <Tooltip key={idx} content={`Found in: ${match.found_in}`} position="top">
+                    <Tooltip key={idx} content={`Found in: ${match.found_in.join(", ")}`} position="top">
                       <Badge
                         variant={
                           match.importance === "Required"

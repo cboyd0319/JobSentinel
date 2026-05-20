@@ -1785,3 +1785,91 @@ test("checkRepoBloat rejects stale feedback system-info architecture field", () 
     );
   });
 });
+
+test("checkRepoBloat rejects stale resume optimizer mock handlers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      [
+        "export async function mockInvoke(cmd) {",
+        "  switch (cmd) {",
+        "    case 'analyze_resume_format':",
+        "      return { issues: [], recommendations: [] };",
+        "    default:",
+        "      return undefined;",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/mocks/handlers.ts"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sync resume optimizer mock command handlers: src/mocks/handlers.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects stale ATS keyword match frontend shape", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/pages/ResumeOptimizer.tsx",
+      [
+        "interface KeywordMatch {",
+        "  keyword: string;",
+        "  found_in: string;",
+        "  context: string;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/AtsLiveScorePanel.tsx",
+      [
+        "interface KeywordMatch {",
+        "  keyword: string;",
+        "  found_in: string;",
+        "  context: string;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src/pages/ResumeOptimizer.tsx",
+        "src/components/AtsLiveScorePanel.tsx",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sync ATS keyword match frontend shape: src/pages/ResumeOptimizer.tsx",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "sync ATS keyword match frontend shape: src/components/AtsLiveScorePanel.tsx",
+      ),
+      violations.join("\n"),
+    );
+  });
+});

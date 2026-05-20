@@ -70,14 +70,14 @@ describe("AtsLiveScorePanel", () => {
       {
         keyword: "JavaScript",
         importance: "Required",
-        found_in: "Skills",
-        context: "Listed in skills section",
+        found_in: ["skills"],
+        frequency: 1,
       },
       {
         keyword: "React",
         importance: "Preferred",
-        found_in: "Skills",
-        context: "Listed in skills section",
+        found_in: ["skills"],
+        frequency: 1,
       },
     ],
     missing_keywords: ["TypeScript", "Node.js"],

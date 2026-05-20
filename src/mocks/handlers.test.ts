@@ -67,6 +67,62 @@ type FeedbackSystemInfo = {
   architecture: string;
 };
 
+type AtsAnalysisResult = {
+  overall_score: number;
+  keyword_score: number;
+  format_score: number;
+  completeness_score: number;
+  keyword_matches: Array<{
+    keyword: string;
+    found_in: string[];
+    frequency: number;
+    importance: "Required" | "Preferred" | "Industry";
+  }>;
+  missing_keywords: string[];
+  format_issues: Array<{
+    severity: "Critical" | "Warning" | "Info";
+    issue: string;
+    fix: string;
+  }>;
+  suggestions: Array<{
+    category: "AddKeyword" | "RewordBullet" | "AddSection" | "ReorderContent" | "FormatFix";
+    suggestion: string;
+    impact: string;
+  }>;
+};
+
+const atsResume = {
+  contact_info: {
+    name: "Casey Smith",
+    email: "casey@example.com",
+    phone: "",
+    location: "Denver, CO",
+    linkedin: null,
+    github: null,
+    website: null,
+  },
+  summary: "Rust engineer building React tools and automation.",
+  experience: [
+    {
+      title: "Platform Engineer",
+      company: "ExampleCo",
+      location: "Remote",
+      start_date: "2021-01",
+      end_date: "Present",
+      achievements: ["Developed Rust services", "Improved React dashboards by 40%"],
+      current: true,
+    },
+  ],
+  skills: [
+    { name: "Rust", category: "Languages", proficiency: "advanced" },
+    { name: "React", category: "Frameworks", proficiency: "advanced" },
+  ],
+  education: [],
+  certifications: [],
+  projects: [],
+  custom_sections: {},
+};
+
 const savedSearchInput: BackendSavedSearch = {
   id: "",
   name: "Remote Rust",
@@ -389,5 +445,64 @@ describe("mock Tauri handlers", () => {
     ).resolves.toBeUndefined();
     await expect(mockInvoke<void>("open_google_drive")).resolves.toBeUndefined();
     await expect(mockInvoke<void>("reveal_file", { path: savedPath })).resolves.toBeUndefined();
+  });
+
+  it("analyzes resumes with the real ATS backend command names", async () => {
+    const powerWords = await mockInvoke<string[]>("get_ats_power_words");
+
+    expect(powerWords).toEqual(
+      expect.arrayContaining(["led", "developed", "improved", "optimized"]),
+    );
+
+    const formatResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_format", {
+      resume: atsResume,
+    });
+    expect(formatResult).toMatchObject({
+      keyword_score: 0,
+      format_score: expect.any(Number),
+      completeness_score: expect.any(Number),
+      keyword_matches: [],
+      missing_keywords: [],
+      format_issues: expect.any(Array),
+      suggestions: expect.any(Array),
+    });
+
+    const jobResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: atsResume,
+      jobDescription: "Required: Rust, React, TypeScript. Preferred: automation.",
+    });
+    expect(jobResult.keyword_matches).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "Rust",
+          found_in: expect.arrayContaining(["summary", "experience", "skills"]),
+          frequency: expect.any(Number),
+          importance: "Required",
+        }),
+        expect.objectContaining({
+          keyword: "React",
+          found_in: expect.arrayContaining(["summary", "experience", "skills"]),
+          frequency: expect.any(Number),
+          importance: "Required",
+        }),
+      ]),
+    );
+    expect(jobResult.missing_keywords).toContain("TypeScript");
+    expect(jobResult.suggestions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          category: "AddKeyword",
+          suggestion: expect.stringContaining("TypeScript"),
+        }),
+      ]),
+    );
+
+    const improved = await mockInvoke<string>("improve_bullet_point", {
+      bullet: "worked on dashboards",
+      jobContext: "Required: React, TypeScript",
+    });
+    expect(improved).toContain("Developed dashboards");
+    expect(improved).toContain("add specific metrics");
+    expect(improved).toContain("consider adding");
   });
 });
