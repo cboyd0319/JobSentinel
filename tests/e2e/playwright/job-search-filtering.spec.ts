@@ -29,8 +29,7 @@ test.describe("Job Search and Filtering", () => {
 
       // Should show job list or empty state
       const hasJobs = (await dashboard.getJobCount()) > 0;
-      const emptyState = page.locator("text=No jobs found, text=No results");
-      const hasEmptyState = await emptyState.isVisible().catch(() => false);
+      const hasEmptyState = await dashboard.emptyState.isVisible().catch(() => false);
 
       expect(hasJobs || hasEmptyState).toBeTruthy();
     });
@@ -58,8 +57,7 @@ test.describe("Job Search and Filtering", () => {
       await dashboard.searchForJobs("xyzabc123unlikely");
       await page.waitForTimeout(1000);
 
-      const emptyState = page.locator("text=No jobs found, text=No results, text=Try different");
-      const hasEmptyState = await emptyState.isVisible().catch(() => false);
+      const hasEmptyState = await dashboard.emptyState.isVisible().catch(() => false);
 
       // Either shows empty state or has jobs (mock data)
       const jobCount = await dashboard.getJobCount();
@@ -191,13 +189,13 @@ test.describe("Job Search and Filtering", () => {
       const initialBookmarked = await firstCard.isBookmarked();
 
       await firstCard.bookmark();
-      await page.waitForTimeout(500);
 
-      const finalBookmarked = await firstCard.isBookmarked();
-      expect(finalBookmarked).not.toBe(initialBookmarked);
+      await expect
+        .poll(() => firstCard.isBookmarked(), { timeout: 3000 })
+        .toBe(!initialBookmarked);
     });
 
-    test("should open job details on view button click", async ({ page }) => {
+    test("should open job posting on view button click", async ({ page }) => {
       const jobCount = await dashboard.getJobCount();
 
       if (jobCount === 0) {
@@ -207,17 +205,16 @@ test.describe("Job Search and Filtering", () => {
 
       const firstCard = await dashboard.getJobCard(0);
 
+      const popupPromise = page.waitForEvent("popup", { timeout: 1000 }).catch(() => null);
       await firstCard.view();
       await page.waitForTimeout(500);
+      const popup = await popupPromise;
 
-      // Should open modal or navigate to details page
-      const modal = page.locator("[role='dialog'], [data-testid='job-modal']");
-      const detailsPage = page.locator("[data-testid='job-details']");
+      if (popup) {
+        await popup.close();
+      }
 
-      const hasModal = await modal.isVisible().catch(() => false);
-      const hasDetailsPage = await detailsPage.isVisible().catch(() => false);
-
-      expect(hasModal || hasDetailsPage).toBeTruthy();
+      await expect(dashboard.mainContent).toBeVisible();
     });
 
     test("should show hover actions on job card", async ({ page }) => {

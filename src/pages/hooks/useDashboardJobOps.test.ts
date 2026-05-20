@@ -63,6 +63,78 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
+function applyJobsUpdate(
+  update: Job[] | ((prev: Job[]) => Job[]),
+  previousJobs: Job[],
+): Job[] {
+  return Array.isArray(update) ? update : update(previousJobs);
+}
+
+// ─── handleToggleBookmark ────────────────────────────────────────────────────
+
+describe("handleToggleBookmark", () => {
+  it("updates bookmark state immediately while backend request is pending", async () => {
+    const jobs = [
+      makeJob({ id: 1, bookmarked: true }),
+      makeJob({ id: 2, bookmarked: false }),
+    ];
+    const { result, setJobs } = renderJobOps(jobs);
+
+    let resolveToggle!: (value: boolean) => void;
+    const pendingToggle = new Promise<boolean>((resolve) => {
+      resolveToggle = resolve;
+    });
+    mockInvoke.mockReturnValueOnce(pendingToggle);
+
+    let togglePromise!: Promise<void>;
+    act(() => {
+      togglePromise = result.current.handleToggleBookmark(1);
+    });
+
+    expect(mockInvoke).toHaveBeenCalledWith("toggle_bookmark", { id: 1 });
+    expect(setJobs).toHaveBeenCalledOnce();
+
+    const optimisticJobs = applyJobsUpdate(setJobs.mock.calls[0][0], jobs);
+    expect(optimisticJobs.find((job) => job.id === 1)?.bookmarked).toBe(false);
+    expect(optimisticJobs.find((job) => job.id === 2)?.bookmarked).toBe(false);
+
+    await act(async () => {
+      resolveToggle(false);
+      await togglePromise;
+    });
+
+    expect(mockPushAction).toHaveBeenCalledOnce();
+    expect(mockPushAction.mock.calls[0][0]).toMatchObject({
+      type: "bookmark",
+      description: "Unbookmarked: Software Engineer",
+    });
+  });
+
+  it("rolls back optimistic bookmark state and shows an error when backend fails", async () => {
+    const jobs = [makeJob({ id: 1, bookmarked: false })];
+    const { result, setJobs } = renderJobOps(jobs);
+    mockInvoke.mockRejectedValueOnce(new Error("backend down"));
+
+    await act(async () => {
+      await result.current.handleToggleBookmark(1);
+    });
+
+    expect(setJobs).toHaveBeenCalledTimes(2);
+
+    const optimisticJobs = applyJobsUpdate(setJobs.mock.calls[0][0], jobs);
+    expect(optimisticJobs[0].bookmarked).toBe(true);
+
+    const rolledBackJobs = applyJobsUpdate(setJobs.mock.calls[1][0], optimisticJobs);
+    expect(rolledBackJobs[0].bookmarked).toBe(false);
+
+    expect(mockToast.error).toHaveBeenCalledWith(
+      "Bookmark Failed",
+      expect.stringContaining("update bookmark"),
+    );
+    expect(mockPushAction).not.toHaveBeenCalled();
+  });
+});
+
 // ─── handleBulkHide ───────────────────────────────────────────────────────────
 
 describe("handleBulkHide", () => {

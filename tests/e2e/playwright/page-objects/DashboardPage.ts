@@ -50,14 +50,20 @@ export class DashboardPage extends BasePage {
     return this.page.locator("[data-testid='btn-clear-filters']");
   }
 
+  get emptyState(): Locator {
+    return this.page.getByText(
+      /No jobs yet|No jobs match your filters|No jobs found|No results|Try adjusting|Try different/i
+    );
+  }
+
   async searchForJobs(query: string) {
     await this.searchInput.fill(query);
-    await this.searchButton.click();
-    await this.waitForReady();
+    await this.page.waitForTimeout(400);
   }
 
   async clearSearch() {
-    await this.searchInput.clear();
+    await this.searchInput.fill("");
+    await this.page.waitForTimeout(400);
   }
 
   async getJobCard(index: number = 0): Promise<JobCard> {
@@ -142,6 +148,6 @@ export class JobCard {
 
   async isBookmarked(): Promise<boolean> {
     const attr = await this.bookmarkButton.getAttribute("data-bookmarked");
-    return attr === "true";
+    return attr !== null && attr !== "false";
   }
 }

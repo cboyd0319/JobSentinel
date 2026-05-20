@@ -96,26 +96,28 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
       paletteRef.current.querySelectorAll<HTMLElement>(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       )
-    ).filter((element) => !element.hasAttribute("disabled"));
+    ).filter((element) => {
+      const style = window.getComputedStyle(element);
+      return (
+        !element.hasAttribute("disabled") &&
+        style.display !== "none" &&
+        style.visibility !== "hidden"
+      );
+    });
 
     if (focusableElements.length === 0) return;
 
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
+    const activeElement = document.activeElement as HTMLElement | null;
+    const activeIndex = activeElement ? focusableElements.indexOf(activeElement) : -1;
+    const nextIndex =
+      activeIndex === -1
+        ? 0
+        : e.shiftKey
+          ? (activeIndex - 1 + focusableElements.length) % focusableElements.length
+          : (activeIndex + 1) % focusableElements.length;
 
-    if (!paletteRef.current.contains(document.activeElement)) {
-      e.preventDefault();
-      firstElement?.focus();
-      return;
-    }
-
-    if (e.shiftKey && document.activeElement === firstElement) {
-      e.preventDefault();
-      lastElement?.focus();
-    } else if (!e.shiftKey && document.activeElement === lastElement) {
-      e.preventDefault();
-      firstElement?.focus();
-    }
+    e.preventDefault();
+    focusableElements[nextIndex]?.focus();
   }, []);
 
   const handlePaletteKeyDown = useCallback(

@@ -94,19 +94,33 @@ export function useDashboardJobOps(
       const job = jobs.find((j) => j.id === id);
       if (!job) return;
 
-      const previousState = job.bookmarked;
+      const previousState = Boolean(job.bookmarked);
+      const optimisticState = !previousState;
+      let confirmedState = optimisticState;
+
+      setJobs((prev) =>
+        prev.map((j) =>
+          j.id === id ? { ...j, bookmarked: optimisticState } : j,
+        ),
+      );
 
       try {
         const newState = await invoke<boolean>("toggle_bookmark", { id });
-        // Update local state optimistically
-        setJobs(
-          jobs.map((j) => (j.id === id ? { ...j, bookmarked: newState } : j)),
-        );
+        confirmedState =
+          typeof newState === "boolean" ? newState : optimisticState;
+
+        if (confirmedState !== optimisticState) {
+          setJobs((prev) =>
+            prev.map((j) =>
+              j.id === id ? { ...j, bookmarked: confirmedState } : j,
+            ),
+          );
+        }
 
         // Push undoable action
         pushAction({
           type: "bookmark",
-          description: newState
+          description: confirmedState
             ? `Bookmarked: ${job.title}`
             : `Unbookmarked: ${job.title}`,
           undo: async () => {
@@ -130,7 +144,7 @@ export function useDashboardJobOps(
               await invoke<boolean>("toggle_bookmark", { id });
               setJobs((prev) =>
                 prev.map((j) =>
-                  j.id === id ? { ...j, bookmarked: newState } : j,
+                  j.id === id ? { ...j, bookmarked: confirmedState } : j,
                 ),
               );
             } catch (err) {
@@ -142,8 +156,17 @@ export function useDashboardJobOps(
             }
           },
         });
-      } catch {
-        // Error already logged and shown to user via safeInvokeWithToast (used in undo/redo actions)
+      } catch (err) {
+        logError("Failed to toggle bookmark:", err);
+        setJobs((prev) =>
+          prev.map((j) =>
+            j.id === id ? { ...j, bookmarked: previousState } : j,
+          ),
+        );
+        toast.error(
+          "Bookmark Failed",
+          "Couldn't update bookmark. Try again.",
+        );
       }
     },
     [jobs, setJobs, pushAction, toast],

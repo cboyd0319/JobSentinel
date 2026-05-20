@@ -39,12 +39,24 @@ let jobs = [...mockJobs];
 let config = { ...mockConfig };
 let interviews: MockInterview[] = [...mockUpcomingInterviews];
 
+function getJobId(args?: Record<string, unknown>): number | undefined {
+  const nestedArgs = args?.payload as Record<string, unknown> | undefined;
+  const value = args?.id ?? args?.jobId ?? nestedArgs?.id ?? nestedArgs?.jobId;
+  if (typeof value === "number") return value;
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+  return undefined;
+}
+
 /**
  * Mock implementation of Tauri invoke
  */
 export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T> {
   // Simulate network latency
   await delay(100 + Math.random() * 200);
+  const jobId = getJobId(args);
 
   switch (cmd) {
     // Job commands
@@ -52,29 +64,35 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       return filterJobs(args) as T;
 
     case "get_job":
-      return jobs.find((j) => j.id === args?.jobId) as T;
+      return jobs.find((j) => j.id === jobId) as T;
 
     case "hide_job":
-      jobs = jobs.map((j) => (j.id === args?.jobId ? { ...j, hidden: true } : j));
+      jobs = jobs.map((j) => (j.id === jobId ? { ...j, hidden: true } : j));
       return undefined as T;
 
     case "unhide_job":
-      jobs = jobs.map((j) => (j.id === args?.jobId ? { ...j, hidden: false } : j));
+      jobs = jobs.map((j) => (j.id === jobId ? { ...j, hidden: false } : j));
       return undefined as T;
 
-    case "toggle_bookmark":
-      jobs = jobs.map((j) => (j.id === args?.jobId ? { ...j, bookmarked: !j.bookmarked } : j));
-      return undefined as T;
+    case "toggle_bookmark": {
+      let nextState = false;
+      jobs = jobs.map((j) => {
+        if (j.id !== jobId) return j;
+        nextState = !j.bookmarked;
+        return { ...j, bookmarked: nextState };
+      });
+      return nextState as T;
+    }
 
     case "get_bookmarked_jobs":
       return jobs.filter((j) => j.bookmarked) as T;
 
     case "set_job_notes":
-      jobs = jobs.map((j) => (j.id === args?.jobId ? { ...j, notes: args?.notes as string } : j));
+      jobs = jobs.map((j) => (j.id === jobId ? { ...j, notes: args?.notes as string } : j));
       return undefined as T;
 
     case "get_job_notes":
-      return (jobs.find((j) => j.id === args?.jobId)?.notes || null) as T;
+      return (jobs.find((j) => j.id === jobId)?.notes || null) as T;
 
     // Setup/First run
     case "is_first_run":
