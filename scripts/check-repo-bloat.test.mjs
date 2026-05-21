@@ -2274,6 +2274,37 @@ test("checkRepoBloat rejects stale notification webhook docs", () => {
   });
 });
 
+test("checkRepoBloat rejects stale webhook security doc markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/security/WEBHOOK_SECURITY.md",
+      [
+        "// ❌ BAD: Easy to bypass",
+        "2. **Invalid domain**: Try `https://evil.com/hook` → Should error",
+        "1. **v2.0.0+**: Webhooks stored in OS keyring",
+        "**Last Updated**: 2026-03-18",
+        "**Version**: 2.6.4",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/security/WEBHOOK_SECURITY.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace webhook security doc stale markers: docs/security/WEBHOOK_SECURITY.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale notification preference docs", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

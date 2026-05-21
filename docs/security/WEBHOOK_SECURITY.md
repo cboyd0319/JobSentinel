@@ -168,12 +168,12 @@ JobSentinel only allows webhooks to known, trusted domains:
 **Denylisting doesn't work**:
 
 ```rust
-// ❌ BAD: Easy to bypass
+// Bad: easy to bypass
 if !url.contains("evil.com") {
     // Allow
 }
 
-// ✅ GOOD: Explicit allowlist
+// Good: explicit allowlist
 if url_parsed.host_str() == Some("hooks.slack.com") {
     // Allow
 }
@@ -369,7 +369,7 @@ https://hooks.slack.com.evil.com/services/T/B/X
 
 **Mitigation**:
 
-1. **v2.0.0+**: Webhooks stored in OS keyring (encrypted)
+1. Current builds store webhooks in the OS keyring
 2. Requires user authentication to access keyring
 3. No plaintext webhooks in config file
 4. Even with file access, attacker cannot read webhooks
@@ -401,21 +401,21 @@ https://hooks.slack.com.evil.com/services/T/B/X
 ### 1. Protect Webhook URLs Like Passwords
 
 ```text
-❌ Don't share in Slack/Discord/Teams
-❌ Don't commit to Git repositories
-❌ Don't post in public forums
-✅ Store in JobSentinel (keyring)
-✅ Rotate if compromised
-✅ Delete unused webhooks
+Avoid: sharing in Slack/Discord/Teams
+Avoid: committing to Git repositories
+Avoid: posting in public forums
+Use: JobSentinel keyring storage
+Use: rotation after compromise
+Use: deletion for unused webhooks
 ```
 
 ### 2. Use Dedicated Channels
 
 ```text
-✅ Create #jobsentinel-alerts channel
-✅ Limit channel membership
-✅ Monitor for unexpected messages
-❌ Don't use general/busy channels
+Use: create #jobsentinel-alerts channel
+Use: limit channel membership
+Use: monitor for unexpected messages
+Avoid: general or busy channels
 ```
 
 ### 3. Monitor Webhook Activity
@@ -435,9 +435,9 @@ https://hooks.slack.com.evil.com/services/T/B/X
 
 ### 5. Enable Two-Factor Authentication
 
-- Slack: Settings → Two-Factor Authentication
-- Discord: User Settings → Enable 2FA
-- Teams: Azure AD → Security Defaults
+- Slack: Settings -> Two-Factor Authentication
+- Discord: User Settings -> Enable 2FA
+- Teams: Azure AD -> Security Defaults
 
 ## Testing Webhook Security
 
@@ -489,10 +489,10 @@ mod tests {
 ### Manual Testing
 
 1. **Valid webhook**: Configure and send test notification
-2. **Invalid domain**: Try `https://evil.com/hook` → Should error
-3. **HTTP**: Try `http://hooks.slack.com/...` → Should error
-4. **Wrong path**: Try `https://hooks.slack.com/api/...` → Should error
-5. **Subdomain trick**: Try `https://hooks.slack.com.evil.com/...` → Should error
+2. **Invalid domain**: Try `https://evil.com/hook` -> should error
+3. **HTTP**: Try `http://hooks.slack.com/...` -> should error
+4. **Wrong path**: Try `https://hooks.slack.com/api/...` -> should error
+5. **Subdomain trick**: Try `https://hooks.slack.com.evil.com/...` -> should error
 
 ## Incident Response
 
@@ -527,9 +527,3 @@ mod tests {
 - [Discord Webhooks Guide](https://discord.com/developers/docs/resources/webhook)
 - [Teams Webhooks](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/connectors-using)
 - [OWASP API Security](https://owasp.org/www-project-api-security/)
-
----
-
-**Last Updated**: 2026-03-18
-**Version**: 2.6.4
-**Security Level**: Production Ready

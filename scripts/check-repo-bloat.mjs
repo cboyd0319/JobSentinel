@@ -236,6 +236,7 @@ const frontendErrorReportingPaths = new Set(["src/utils/errorReporting.ts"]);
 const settingsCredentialPaths = new Set(["src/pages/Settings.tsx"]);
 const feedbackSanitizerPaths = new Set(["src-tauri/src/commands/feedback/sanitizer.rs"]);
 const notificationDocsPaths = new Set(["docs/features/notifications.md"]);
+const webhookSecurityDocsPaths = new Set(["docs/security/WEBHOOK_SECURITY.md"]);
 const userDataDocsPaths = new Set(["docs/features/user-data-management.md"]);
 const structuredDebugLogPaths = new Set(["src-tauri/src/commands/feedback/debug_log.rs"]);
 const feedbackCommandPaths = new Set(["src-tauri/src/commands/feedback/mod.rs"]);
@@ -1177,6 +1178,16 @@ function hasStaleNotificationWebhookDocs(root, path) {
   );
 }
 
+function hasStaleWebhookSecurityDocMarkers(root, path) {
+  if (!webhookSecurityDocsPaths.has(path)) {
+    return false;
+  }
+
+  return /[✅❌⚠️→]|\*\*(?:Last Updated|Version)\*\*:|v2\.0\.0\+/.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 function hasStaleNotificationPreferenceDocs(root, path) {
   if (!userDataDocsPaths.has(path)) {
     return false;
@@ -1740,6 +1751,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleNotificationWebhookDocs(root, path)) {
       violations.push(`document all notification webhook provider hosts: ${path}`);
+    }
+
+    if (hasStaleWebhookSecurityDocMarkers(root, path)) {
+      violations.push(`replace webhook security doc stale markers: ${path}`);
     }
 
     if (hasStaleNotificationPreferenceDocs(root, path)) {
