@@ -131,6 +131,14 @@ const forbiddenTrackedPlaceholderFiles = new Set([
   "tests/e2e/fixtures/README.md",
 ]);
 
+const settingsHelperComponents = new Map([
+  ["src/components/settings/CredentialInput.tsx", "CredentialInput"],
+  ["src/components/settings/FilterListInput.tsx", "FilterListInput"],
+  ["src/components/settings/SecureCredentialInput.tsx", "SecureCredentialInput"],
+  ["src/components/settings/SliderSection.tsx", "SliderSection"],
+  ["src/components/settings/ToggleSection.tsx", "ToggleSection"],
+]);
+
 const speculativeCloudDeploymentDocs = new Map([
   [
     "docs/developer/ARCHITECTURE.md",
@@ -356,6 +364,36 @@ function isTrackedBloat(path) {
   }
 
   return isForbiddenFileName(fileName);
+}
+
+function isProductionTypeScriptSource(path) {
+  return (
+    path.startsWith("src/") &&
+    /\.(?:ts|tsx)$/.test(path) &&
+    !/(?:^|\/)[^/]+\.test\.(?:ts|tsx)$/.test(path)
+  );
+}
+
+function hasExternalProductionReference(root, componentName) {
+  const componentPattern = new RegExp(`\\b${componentName}\\b`);
+
+  return listTrackedFiles(root).some((path) => {
+    if (!isProductionTypeScriptSource(path) || path.startsWith("src/components/settings/")) {
+      return false;
+    }
+
+    return componentPattern.test(readFileSync(join(root, path), "utf8"));
+  });
+}
+
+function hasUnreferencedSettingsHelperComponent(root, path) {
+  const componentName = settingsHelperComponents.get(path);
+
+  if (!componentName) {
+    return false;
+  }
+
+  return !hasExternalProductionReference(root, componentName);
 }
 
 function hasSpeculativeCloudDeploymentDoc(root, path) {
@@ -1136,6 +1174,10 @@ export function checkRepoBloat(root = defaultRoot) {
   for (const path of listTrackedFiles(root)) {
     if (isTrackedBloat(path)) {
       violations.push(`remove tracked generated or disposable file: ${path}`);
+    }
+
+    if (hasUnreferencedSettingsHelperComponent(root, path)) {
+      violations.push(`remove unreferenced settings helper component: ${path}`);
     }
 
     if (hasSpeculativeCloudDeploymentDoc(root, path)) {

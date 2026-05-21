@@ -121,6 +121,42 @@ test("checkRepoBloat rejects tracked source-tree markdown notes", () => {
   });
 });
 
+test("checkRepoBloat rejects unreferenced settings helper components", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/settings/FilterListInput.tsx",
+      "export function FilterListInput() { return null; }\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/components/settings/FilterListInput.test.tsx",
+      "import { FilterListInput } from './FilterListInput';\n",
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src/components/settings/FilterListInput.tsx",
+        "src/components/settings/FilterListInput.test.tsx",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove unreferenced settings helper component: src/components/settings/FilterListInput.tsx",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale E2E runtime skip guidance", () => {
   withGitFixture((root) => {
     const runtimeSkipCall = ["test", "skip"].join(".");

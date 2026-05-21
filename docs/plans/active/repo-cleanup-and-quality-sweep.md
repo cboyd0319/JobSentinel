@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Removed unused `src/components/settings/` helper components and self-only tests after verifying no production imports, and added bloat coverage for unreferenced settings helper components. |
 | 2026-05-20 | In progress | Removed unreferenced Markdown notes from `src/components/settings/` and `src/hooks/`, keeping durable docs under `docs/`, and added bloat coverage so tracked source-tree Markdown notes cannot return. |
 | 2026-05-20 | In progress | Removed emoji markers from Resume Matcher and Salary AI feature docs, corrected the stale Salary AI future-UI claim now that `src/pages/Salary.tsx` exists, and added bloat coverage for both drift classes. |
 | 2026-05-20 | In progress | Synced maintained macOS and getting-started developer docs with current Tauri CLI ownership, build output naming, Rust/frontend test commands, and text-only status guidance, with bloat coverage for those stale patterns. |
@@ -345,6 +346,10 @@ changes or Playwright-specific work.
   unreferenced nested Markdown notes outside the maintained docs source of
   truth. The settings quick reference also carried absolute local paths and
   stale refactor checklist language.
+- `src/components/settings/` helper components were exported and tested, but no
+  production page imported them. `Settings.tsx` still owned the equivalent
+  inline controls, leaving the helper components and their tests as dead
+  source-tree bloat.
 - Deep-link and universal job-import paths still logged raw user-controlled URLs,
   including search terms, location filters, credentials, query strings, and
   fragments.
