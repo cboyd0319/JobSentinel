@@ -35,7 +35,7 @@ pub async fn download_ml_model() -> Result<String, String> {
         model_path = %path_label_for_logging(&model_path),
         "Model downloaded successfully"
     );
-    Ok(format!("Model downloaded to {:?}", model_path))
+    Ok("Model downloaded successfully".to_string())
 }
 
 /// Get ML model status

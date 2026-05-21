@@ -3,6 +3,7 @@
 //! Handles downloading, caching, and loading of the sentence embedding model.
 
 use super::MlError;
+use crate::core::logging::path_label_for_logging;
 use anyhow::{Context, Result};
 use candle_core::{DType, Device, Module, Tensor};
 use candle_nn::VarBuilder;
@@ -19,7 +20,6 @@ const MODEL_FILES: &[&str] = &["config.json", "tokenizer.json", "model.safetenso
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct ModelStatus {
     pub is_downloaded: bool,
-    pub model_path: PathBuf,
     pub model_size_bytes: Option<u64>,
 }
 
@@ -64,7 +64,6 @@ impl ModelManager {
 
         ModelStatus {
             is_downloaded,
-            model_path,
             model_size_bytes,
         }
     }
@@ -96,7 +95,10 @@ impl ModelManager {
                 .with_context(|| format!("Failed to copy {} to cache", file))?;
         }
 
-        tracing::info!("Model downloaded successfully to {:?}", model_dir);
+        tracing::info!(
+            model_dir = %path_label_for_logging(&model_dir),
+            "Model downloaded successfully"
+        );
         Ok(model_dir)
     }
 
@@ -126,8 +128,12 @@ impl ModelManager {
             .into());
         }
 
-        let model_data = std::fs::read(&model_path)
-            .with_context(|| format!("failed to read model weights from {:?}", model_path))?;
+        let model_data = std::fs::read(&model_path).with_context(|| {
+            format!(
+                "failed to read model weights from {}",
+                path_label_for_logging(&model_path)
+            )
+        })?;
         let vb = VarBuilder::from_buffered_safetensors(model_data, DType::F32, device)
             .map_err(|e| MlError::ModelLoadFailed(e.to_string()))?;
 

@@ -202,6 +202,13 @@ const rawLocalPathLoggingPaths = new Set([
   "src-tauri/src/platforms/windows/mod.rs",
 ]);
 
+const mlRawLocalPathExposurePaths = new Set([
+  "src-tauri/src/commands/ml.rs",
+  "src-tauri/src/core/ml/model.rs",
+]);
+
+const mlRawLocalPathDocPaths = new Set(["docs/ML_FEATURE.md", "docs/ML_QUICKSTART.md"]);
+
 const databaseLogEmojiPaths = new Set([
   "src-tauri/src/core/db/connection.rs",
   "src-tauri/src/core/db/integrity/backups.rs",
@@ -1342,6 +1349,32 @@ function hasRawLocalPathLogging(root, path) {
   );
 }
 
+function hasMlRawLocalPathExposure(root, path) {
+  if (!mlRawLocalPathExposurePaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /\bpub\s+model_path\s*:\s*PathBuf\b/.test(productionText) ||
+    /Ok\(format!\(\s*"Model downloaded to \{:\?\}"\s*,\s*model_path\s*\)\)/.test(
+      productionText,
+    ) ||
+    /tracing::info!\(\s*"Model downloaded successfully to \{:\?\}"\s*,\s*model_dir\s*\)/.test(
+      productionText,
+    ) ||
+    /failed to read model weights from \{:\?\}[\s\S]{0,120}model_path/.test(productionText)
+  );
+}
+
+function hasMlRawLocalPathDoc(root, path) {
+  if (!mlRawLocalPathDocPaths.has(path)) {
+    return false;
+  }
+
+  return /\bmodel_path\s*:\s*string\b/.test(readFileSync(join(root, path), "utf8"));
+}
+
 function hasDatabaseLogEmojiMarkers(root, path) {
   if (!databaseLogEmojiPaths.has(path)) {
     return false;
@@ -2276,6 +2309,14 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawLocalPathLogging(root, path)) {
       violations.push(`replace raw local path logging: ${path}`);
+    }
+
+    if (hasMlRawLocalPathExposure(root, path)) {
+      violations.push(`remove ML raw local path exposure: ${path}`);
+    }
+
+    if (hasMlRawLocalPathDoc(root, path)) {
+      violations.push(`remove ML raw local path doc claim: ${path}`);
     }
 
     if (hasDatabaseLogEmojiMarkers(root, path)) {

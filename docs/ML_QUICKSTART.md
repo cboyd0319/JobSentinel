@@ -31,7 +31,6 @@ async function downloadModel() {
 ```typescript
 interface ModelStatus {
   is_downloaded: boolean;
-  model_path: string;
   model_size_bytes?: number;
 }
 

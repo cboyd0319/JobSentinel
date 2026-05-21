@@ -2909,6 +2909,71 @@ test("checkRepoBloat rejects raw local path logging", () => {
   });
 });
 
+test("checkRepoBloat rejects ML raw local path exposure", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/ml.rs",
+      'Ok(format!("Model downloaded to {:?}", model_path))\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/ml/model.rs",
+      [
+        "use std::path::PathBuf;",
+        "pub struct ModelStatus {",
+        "  pub model_path: PathBuf,",
+        "}",
+        'tracing::info!("Model downloaded successfully to {:?}", model_dir);',
+        'let model_data = std::fs::read(&model_path).with_context(|| format!("failed to read model weights from {:?}", model_path))?;',
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/ML_FEATURE.md",
+      ["interface ModelStatus {", "  model_path: string;", "}"].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/ML_QUICKSTART.md",
+      ["interface ModelStatus {", "  model_path: string;", "}"].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/commands/ml.rs",
+        "src-tauri/src/core/ml/model.rs",
+        "docs/ML_FEATURE.md",
+        "docs/ML_QUICKSTART.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("remove ML raw local path exposure: src-tauri/src/commands/ml.rs"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("remove ML raw local path exposure: src-tauri/src/core/ml/model.rs"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("remove ML raw local path doc claim: docs/ML_FEATURE.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("remove ML raw local path doc claim: docs/ML_QUICKSTART.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects database log emoji markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
