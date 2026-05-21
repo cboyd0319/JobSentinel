@@ -1,24 +1,17 @@
-//! Resume export functionality - PDF, DOCX, and plain text formats
+//! Resume export functionality - HTML, DOCX, and plain text formats
 //!
 //! ## Supported Formats
 //!
-//! - **PDF** - Professional PDF output using printpdf
+//! - **HTML** - Browser-printable resume output
 //! - **DOCX** - ATS-friendly Word documents using docx-rs
 //! - **Plain Text** - Simple text format for copying/pasting
-//!
-//! ## Required Dependencies (add to Cargo.toml)
-//!
-//! ```toml
-//! printpdf = "0.7"
-//! docx-rs = "0.4"
-//! ```
 //!
 //! ## Usage
 //!
 //! ```rust,ignore
 //! use jobsentinel::core::resume::export::{ResumeExporter, TemplateId};
 //!
-//! let pdf_bytes = ResumeExporter::export_pdf(&resume_data, TemplateId::Professional)?;
+//! let html = ResumeExporter::export_html(resume_data.clone(), TemplateId::Professional);
 //! let docx_bytes = ResumeExporter::export_docx(&resume_data, TemplateId::Modern)?;
 //! let text = ResumeExporter::export_text(&resume_data);
 //! ```
@@ -138,22 +131,6 @@ impl ResumeExporter {
         crate::core::resume::templates::TemplateRenderer::render_html(
             &template_resume,
             convert_template_id(template),
-        )
-    }
-
-    /// Legacy PDF export function - now redirects to HTML export
-    ///
-    /// Returns PDF bytes suitable for saving to file or sending to client.
-    ///
-    /// # Implementation Status
-    ///
-    /// This function now generates HTML instead of PDF bytes. Use `export_html()`
-    /// for the recommended HTML-based approach with browser print-to-PDF.
-    #[deprecated(since = "2.0.0", note = "Use export_html() instead")]
-    pub fn export_pdf(_resume: &ResumeData, _template: TemplateId) -> Result<Vec<u8>> {
-        anyhow::bail!(
-            "PDF export not yet implemented. Use export_html() for browser print-to-PDF, \
-             or export_docx() for Word format."
         )
     }
 
@@ -723,19 +700,6 @@ mod tests {
         assert!(html.contains("john.doe@example.com"));
         assert!(html.contains("Tech Corp"));
         assert!(html.contains("Stanford University"));
-    }
-
-    #[test]
-    #[allow(deprecated)]
-    fn test_export_pdf_not_implemented() {
-        let resume = create_test_resume();
-        let result = ResumeExporter::export_pdf(&resume, TemplateId::Professional);
-
-        assert!(result.is_err());
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("not yet implemented"));
     }
 
     #[test]

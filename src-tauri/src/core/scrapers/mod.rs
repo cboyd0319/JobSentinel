@@ -129,9 +129,3 @@ pub async fn scrape_all_parallel(scrapers: Vec<Box<dyn JobScraper>>) -> Vec<Job>
     tracing::info!(total_jobs, "Parallel scrape complete");
     all_jobs
 }
-
-/// Run all enabled scrapers (legacy function, use scrape_all_parallel for new code)
-#[deprecated(since = "1.3.0", note = "Use scrape_all_parallel instead")]
-pub async fn scrape_all() -> Vec<Job> {
-    vec![]
-}

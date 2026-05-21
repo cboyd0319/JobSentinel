@@ -578,6 +578,14 @@ function hasStaleSchedulerScraperPathDocs(root, path) {
   return /scheduler\/scrapers\.rs/.test(readFileSync(join(root, path), "utf8"));
 }
 
+function hasStaleErrorHandlingScrapeAllDoc(root, path) {
+  if (path !== "docs/developer/ERROR_HANDLING.md") {
+    return false;
+  }
+
+  return /self\.scrape_all\(\)\.await/.test(readFileSync(join(root, path), "utf8"));
+}
+
 function hasStaleRefactoringPriorityTable(root, path) {
   if (path !== "docs/developer/GETTING_STARTED.md") {
     return false;
@@ -795,6 +803,32 @@ function hasStaleSmartScoringSalaryMarkerClaim(root, path) {
   return (
     /Predicted salaries are marked with a .* icon/u.test(text) ||
     /\*\*Implementation Status:\*\* ✅ Complete/.test(text)
+  );
+}
+
+function hasStaleScrapeAllStub(root, path) {
+  if (path !== "src-tauri/src/core/scrapers/mod.rs") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /pub async fn scrape_all\(\) -> Vec<Job>/.test(text) ||
+    /legacy function, use scrape_all_parallel/.test(text)
+  );
+}
+
+function hasStaleResumeExportPdfStub(root, path) {
+  if (path !== "src-tauri/src/core/resume/export.rs") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /Resume export functionality - PDF/.test(text) ||
+    /printpdf =/.test(text) ||
+    /pub fn export_pdf/.test(text) ||
+    /PDF export not yet implemented/.test(text)
   );
 }
 
@@ -1380,6 +1414,10 @@ export function checkRepoBloat(root = defaultRoot) {
       violations.push(`remove stale scheduler scraper path docs: ${path}`);
     }
 
+    if (hasStaleErrorHandlingScrapeAllDoc(root, path)) {
+      violations.push(`remove stale scrape_all error-handling doc: ${path}`);
+    }
+
     if (hasStaleRefactoringPriorityTable(root, path)) {
       violations.push(`remove stale refactoring-priority table: ${path}`);
     }
@@ -1458,6 +1496,14 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleSmartScoringSalaryMarkerClaim(root, path)) {
       violations.push(`remove stale smart-scoring salary marker claim: ${path}`);
+    }
+
+    if (hasStaleScrapeAllStub(root, path)) {
+      violations.push(`remove stale scrape_all scraper stub: ${path}`);
+    }
+
+    if (hasStaleResumeExportPdfStub(root, path)) {
+      violations.push(`remove stale resume PDF export stub: ${path}`);
     }
 
     if (hasRawPrivateQueryLogging(root, path)) {

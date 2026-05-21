@@ -401,7 +401,7 @@ pub async fn run_scraping_cycle(&self) -> Result<ScrapingResult> {
     let _guard = self.acquire_lock().await?;
 
     // Do work (errors here will auto-release lock via Drop)
-    let jobs = self.scrape_all().await?;
+    let jobs = self.fetch_jobs().await?;
     let results = self.process_jobs(jobs).await?;
 
     Ok(results)

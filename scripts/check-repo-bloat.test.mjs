@@ -781,6 +781,30 @@ test("checkRepoBloat rejects stale scheduler refactor docs", () => {
   });
 });
 
+test("checkRepoBloat rejects stale scrape_all error-handling docs", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/developer/ERROR_HANDLING.md",
+      "let jobs = self.scrape_all().await?;\n",
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/developer/ERROR_HANDLING.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove stale scrape_all error-handling doc: docs/developer/ERROR_HANDLING.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale Linux platform stub markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -1192,6 +1216,65 @@ test("checkRepoBloat rejects stale smart scoring salary marker claims", () => {
     assert.ok(
       violations.includes(
         "remove stale smart-scoring salary marker claim: docs/features/smart-scoring.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects stale Rust export and scraper stubs", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/mod.rs",
+      [
+        "use crate::core::db::Job;",
+        "/// Run all enabled scrapers (legacy function, use scrape_all_parallel for new code)",
+        "#[deprecated(since = \"1.3.0\", note = \"Use scrape_all_parallel instead\")]",
+        "pub async fn scrape_all() -> Vec<Job> {",
+        "    vec![]",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/resume/export.rs",
+      [
+        "//! Resume export functionality - PDF, DOCX, and plain text formats",
+        "//! printpdf = \"0.7\"",
+        "impl ResumeExporter {",
+        "    pub fn export_pdf() {",
+        "        anyhow::bail!(\"PDF export not yet implemented\");",
+        "    }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/scrapers/mod.rs",
+        "src-tauri/src/core/resume/export.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove stale scrape_all scraper stub: src-tauri/src/core/scrapers/mod.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove stale resume PDF export stub: src-tauri/src/core/resume/export.rs",
       ),
       violations.join("\n"),
     );
