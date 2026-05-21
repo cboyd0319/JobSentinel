@@ -1094,6 +1094,39 @@ test("checkRepoBloat rejects top-level active doc stale markers", () => {
   });
 });
 
+test("checkRepoBloat rejects top-level active doc glyph markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/ML_FEATURE.md",
+      ["src-tauri/src/core/ml/", "├── mod.rs", "└── tests.rs", ""].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/ML_QUICKSTART.md",
+      ["<span>✓ ML Ready</span>", "console.log('✓ match')", ""].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/ML_FEATURE.md", "docs/ML_QUICKSTART.md"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace top-level active doc glyph markers: docs/ML_FEATURE.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace top-level active doc glyph markers: docs/ML_QUICKSTART.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects unsupported Vitest grep docs", () => {
   withGitFixture((root) => {
     const unsupportedVitestFilterFlag = ["--", "grep"].join("");

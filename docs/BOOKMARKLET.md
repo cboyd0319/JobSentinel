@@ -56,7 +56,7 @@ The bookmarklet works on:
 1. Show your bookmarks bar (Cmd/Ctrl+Shift+B in most browsers)
 2. Click "Copy Code" in the Browser Integration section
 3. Create a new bookmark:
-   - Right-click bookmarks bar → "Add page"
+   - Right-click the bookmarks bar and choose "Add page"
    - Name: "Import to JobSentinel"
    - URL: Paste the copied code
 4. Save
@@ -114,13 +114,11 @@ bookmarklet port.
 
 ### Architecture
 
-```text
-Browser Bookmarklet
-    ↓ (HTTP POST)
-Local HTTP Server (localhost:4321)
-    ↓ (validates & dedupes)
-SQLite Database
-```
+Bookmarklet import flow:
+
+1. Browser bookmarklet sends an HTTP POST.
+2. Local HTTP server on `localhost:4321` validates the token and deduplicates.
+3. SQLite stores the imported job.
 
 ### Data Extraction Priority
 

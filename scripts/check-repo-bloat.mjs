@@ -249,6 +249,7 @@ const xssSecurityDocsPaths = new Set([
 const topLevelActiveDocsPaths = new Set([
   "docs/BOOKMARKLET.md",
   "docs/ML_FEATURE.md",
+  "docs/ML_QUICKSTART.md",
   "docs/developer/FRONTEND_TESTING.md",
   "docs/developer/TESTING.md",
 ]);
@@ -1016,6 +1017,16 @@ function hasTopLevelActiveDocDrift(root, path) {
     /^\*\*(?:Status|Version|Model):\*\*/m.test(text) ||
     /\bJobSentinel v\d+\.\d+(?:\.\d+)?\b/.test(text) ||
     /With ML support \(default build\)/.test(text)
+  );
+}
+
+function hasTopLevelActiveDocGlyphMarkers(root, path) {
+  if (!topLevelActiveDocsPaths.has(path)) {
+    return false;
+  }
+
+  return /(?:\p{Extended_Pictographic}|[\u{2190}-\u{21ff}\u{2500}-\u{257f}\u{2713}\u{2717}])/u.test(
+    readFileSync(join(root, path), "utf8"),
   );
 }
 
@@ -2109,6 +2120,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasTopLevelActiveDocDrift(root, path)) {
       violations.push(`replace top-level active doc stale markers: ${path}`);
+    }
+
+    if (hasTopLevelActiveDocGlyphMarkers(root, path)) {
+      violations.push(`replace top-level active doc glyph markers: ${path}`);
     }
 
     if (hasStaleE2eWaitGuidance(root, path)) {

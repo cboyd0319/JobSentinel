@@ -21,14 +21,13 @@ keyword matches.
 
 ## Architecture
 
-```text
-src-tauri/src/core/ml/
-├── mod.rs          # Module entry, feature flag
-├── model.rs        # Model download, loading, inference
-├── embeddings.rs   # Embedding generation
-├── matcher.rs      # Semantic skill matching
-└── tests.rs        # Unit and integration tests
-```
+ML code lives under `src-tauri/src/core/ml/`:
+
+- `mod.rs`: module entry and feature flag
+- `model.rs`: model download, loading, and inference
+- `embeddings.rs`: embedding generation
+- `matcher.rs`: semantic skill matching
+- `tests.rs`: unit and integration tests
 
 ## Building
 

@@ -127,7 +127,7 @@ function MLStatusIndicator() {
   return (
     <div className="ml-status">
       {status.is_downloaded ? (
-        <span className="text-green-600">✓ ML Ready</span>
+        <span className="text-green-600">ML Ready</span>
       ) : (
         <button onClick={downloadModel} disabled={downloading}>
           {downloading ? 'Downloading...' : 'Download ML Model'}
@@ -195,7 +195,7 @@ async function performSemanticMatch(userSkills: string[], jobSkills: string[]) {
   console.log(`Overall Match: ${(result.overall_score * 100).toFixed(1)}%`);
 
   result.matched_skills.forEach(match => {
-    console.log(`✓ "${match.user_skill}" matches "${match.job_skill}" (${(match.similarity * 100).toFixed(0)}%)`);
+    console.log(`Match: "${match.user_skill}" matches "${match.job_skill}" (${(match.similarity * 100).toFixed(0)}%)`);
   });
 
   if (result.unmatched_requirements.length > 0) {
