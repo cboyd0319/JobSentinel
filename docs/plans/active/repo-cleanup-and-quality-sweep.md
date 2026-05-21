@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Hardened frontend error-log restore so malformed stored entries are filtered instead of throwing away the whole stored report history, extended plain `token=` redaction, and added focused parser plus bloat coverage. |
 | 2026-05-21 | In progress | Hardened ATS live-score job-context session storage so malformed stored payloads cannot be treated as current job descriptions; added focused component and bloat coverage. |
 | 2026-05-21 | In progress | Hardened analytics weekly-goal and company-research cache JSON loading so malformed but syntactically valid browser storage cannot feed bogus runtime shapes into rendering; added focused component and bloat coverage. |
 | 2026-05-21 | In progress | Hardened score and ghost-reason JSON parsers so malformed but syntactically valid stored reason payloads cannot render character-by-character reason text or break ghost tooltips; added component tests and bloat coverage. |

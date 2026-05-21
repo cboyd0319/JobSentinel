@@ -1944,9 +1944,23 @@ function hasUnsanitizedFrontendErrorReportStorage(root, path) {
     /logError\(`\[ErrorReporter\]\[\$\{type\}\]`,\s*error\.message/.test(text) ||
     /\boriginalError:\s*error\b/.test(text) ||
     /logError\(`\[ErrorReporter\]\[\$\{type\}\]`[\s\S]{0,160}\breport,\s*$/m.test(text) ||
+    !/token\(\?:\\s\+\|=\)/.test(text) ||
     text.includes("hooks\\.slack\\.com\\/services") ||
     !text.includes("discord(?:app)?\\.com\\/api\\/webhooks") ||
     !text.includes("outlook\\.office(?:365)?\\.com\\/webhook")
+  );
+}
+
+function hasUnsafeErrorReportStorageParsing(root, path) {
+  if (!frontendErrorReportingPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /JSON\.parse\(stored\)\.map/.test(text) ||
+    !/function\s+isErrorReport/.test(text) ||
+    !/parseStoredErrorReports/.test(text)
   );
 }
 
@@ -2958,6 +2972,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasUnsanitizedFrontendErrorReportStorage(root, path)) {
       violations.push(`sanitize frontend error report storage: ${path}`);
+    }
+
+    if (hasUnsafeErrorReportStorageParsing(root, path)) {
+      violations.push(`validate stored error reports before loading: ${path}`);
     }
 
     if (hasHardcodedFrontendErrorExportVersion(root, path)) {

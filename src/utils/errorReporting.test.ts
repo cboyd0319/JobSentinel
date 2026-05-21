@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { errorReporter, withErrorCapture } from "./errorReporting";
+import { errorReporter, parseStoredErrorReports, withErrorCapture } from "./errorReporting";
 
 /**
  * These tests avoid calling errorReporter.init() because the singleton modifies
@@ -119,6 +119,44 @@ describe("errorReporting", () => {
     expect(serialized).not.toContain("hooks.slack.com/T000");
     expect(serialized).not.toContain("discord-secret");
     expect(serialized).not.toContain("team-secret");
+  });
+
+  it("filters malformed stored reports while preserving valid entries", () => {
+    const stored = JSON.stringify([
+      null,
+      {
+        id: "valid",
+        timestamp: new Date().toISOString(),
+        message: "Failed for jane@example.com with token=abc",
+        type: "custom",
+        context: {
+          webhook: "https://hooks.slack.com/services/T000/B000/SECRET",
+        },
+        url: "https://example.com/settings?token=secret#private",
+        userAgent: "Vitest",
+      },
+      {
+        id: "bad",
+        timestamp: new Date().toISOString(),
+        message: { text: "not a string" },
+        type: "custom",
+        url: "https://example.com",
+        userAgent: "Vitest",
+      },
+    ]);
+
+    const reports = parseStoredErrorReports(stored);
+
+    expect(reports).toHaveLength(1);
+    expect(reports[0]?.id).toBe("valid");
+    const serialized = JSON.stringify(reports[0]);
+    expect(serialized).not.toContain("jane@example.com");
+    expect(serialized).not.toContain("token=abc");
+    expect(serialized).not.toContain("SECRET");
+  });
+
+  it("ignores non-array stored error payloads", () => {
+    expect(parseStoredErrorReports(JSON.stringify({ id: "not-array" }))).toEqual([]);
   });
 
   it("sanitizes captured async arguments when wrapped functions fail", async () => {

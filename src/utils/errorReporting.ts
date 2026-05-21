@@ -5,7 +5,7 @@
  * Can be extended to integrate with external services like Sentry.
  */
 
-import { readStorageValue, writeStorageValue } from './browserStorage';
+import { readStorageValue, removeStorageValue, writeStorageValue } from './browserStorage';
 
 export interface ErrorReport {
   id: string;
@@ -30,7 +30,7 @@ const USER_PATH_PATTERN = /\/(?:Users|home)\/[^/\s]+/g;
 const WINDOWS_USER_PATH_PATTERN = /[A-Za-z]:\\Users\\[^\\\s]+/g;
 const EMAIL_PATTERN = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
 const LINKEDIN_COOKIE_PATTERN = /li_at=[^\s;]+/g;
-const TOKEN_PATTERN = /\b(?:Bearer\s+[^\s]+|token\s+[^\s]+|api_key=[^\s&]+|access_token=[^\s&]+|refresh_token=[^\s&]+|secret=[^\s&]+|password=[^\s&]+)/gi;
+const TOKEN_PATTERN = /\b(?:Bearer\s+[^\s]+|token(?:\s+|=)[^\s&]+|api_key=[^\s&]+|access_token=[^\s&]+|refresh_token=[^\s&]+|secret=[^\s&]+|password=[^\s&]+)/gi;
 const WEBHOOK_PATTERN = /https:\/\/(?:hooks\.slack\.com|discord(?:app)?\.com\/api\/webhooks|outlook\.office(?:365)?\.com\/webhook|hooks\.discord\.com\/api\/webhooks|hooks\.teams\.com\/workflows)[^\s"'<>\\)]*/gi;
 
 function truncateStoredString(value: string): string {
@@ -128,6 +128,38 @@ function sanitizeContext(context?: Record<string, unknown>): Record<string, unkn
   return sanitizeContextValue(context) as Record<string, unknown>;
 }
 
+const ERROR_REPORT_TYPES = new Set<ErrorReport['type']>([
+  'render',
+  'unhandled',
+  'promise',
+  'api',
+  'custom',
+]);
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function isErrorReport(value: unknown): value is ErrorReport {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return (
+    typeof value.id === 'string' &&
+    typeof value.timestamp === 'string' &&
+    Number.isFinite(Date.parse(value.timestamp)) &&
+    typeof value.message === 'string' &&
+    (value.stack === undefined || typeof value.stack === 'string') &&
+    (value.componentStack === undefined || typeof value.componentStack === 'string') &&
+    typeof value.type === 'string' &&
+    ERROR_REPORT_TYPES.has(value.type as ErrorReport['type']) &&
+    (value.context === undefined || isRecord(value.context)) &&
+    typeof value.url === 'string' &&
+    typeof value.userAgent === 'string'
+  );
+}
+
 function sanitizeStoredReport(report: ErrorReport): ErrorReport {
   return {
     ...report,
@@ -140,6 +172,18 @@ function sanitizeStoredReport(report: ErrorReport): ErrorReport {
     url: sanitizeUrlForStorage(report.url),
     userAgent: sanitizeTextForStorage(report.userAgent),
   };
+}
+
+export function parseStoredErrorReports(stored: string): ErrorReport[] {
+  const parsed: unknown = JSON.parse(stored);
+  if (!Array.isArray(parsed)) {
+    return [];
+  }
+
+  return parsed
+    .filter(isErrorReport)
+    .slice(0, MAX_STORED_ERRORS)
+    .map((report) => sanitizeStoredReport(report));
 }
 
 class ErrorReporter {
@@ -388,13 +432,13 @@ class ErrorReporter {
     try {
       const stored = readStorageValue('local', STORAGE_KEY);
       if (stored) {
-        this.errors = JSON.parse(stored).map((report: ErrorReport) =>
-          sanitizeStoredReport(report)
-        );
+        this.errors = parseStoredErrorReports(stored);
+        this.saveToStorage();
       }
     } catch (e: unknown) {
       console.warn('[ErrorReporter] Failed to load from storage:', e);
       this.errors = [];
+      removeStorageValue('local', STORAGE_KEY);
     }
   }
 

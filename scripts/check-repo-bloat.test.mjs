@@ -4408,6 +4408,32 @@ test("checkRepoBloat rejects stale frontend webhook redaction patterns", () => {
   });
 });
 
+test("checkRepoBloat rejects unsafe stored error report parsing", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/utils/errorReporting.ts",
+      [
+        "function sanitizeStoredReport(report) { return report; }",
+        "function loadFromStorage(stored) {",
+        "  this.errors = JSON.parse(stored).map((report) => sanitizeStoredReport(report));",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/utils/errorReporting.ts"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("validate stored error reports before loading: src/utils/errorReporting.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects unsafe reason JSON parsing", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -4533,6 +4559,9 @@ test("checkRepoBloat accepts current frontend webhook redaction patterns", () =>
       "src/utils/errorReporting.ts",
       [
         "const WEBHOOK_PATTERN = /https:\\/\\/(?:hooks\\.slack\\.com|discord(?:app)?\\.com\\/api\\/webhooks|outlook\\.office(?:365)?\\.com\\/webhook)[^\\s]*/gi;",
+        "const TOKEN_PATTERN = /token(?:\\s+|=)[^\\s&]+/gi;",
+        "function isErrorReport(report) { return true; }",
+        "function parseStoredErrorReports(stored) { return JSON.parse(stored).filter(isErrorReport); }",
         "function sanitizeStoredReport(report) { return report; }",
         "",
       ].join("\n"),
