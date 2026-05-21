@@ -972,7 +972,7 @@ function hasDeveloperArchitectureDocMarkers(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
   return (
-    /[✅❌⚠️]|\*\*(?:Last Updated|Version|Maintained By)\*\*:/.test(text) ||
+    /[✅❌⚠️]|\*\*(?:Last Updated|Version|Maintained By)\*\*:|[\u{2190}-\u{21ff}\u{2500}-\u{257f}]/u.test(text) ||
     /Good ✅|Bad ❌|DO ✅|DON'T ❌|No cloud dependencies \(v1\.0\)|JobSentinel v\d+\.\d+(?:\.\d+)? System Architecture/.test(
       text,
     )

@@ -260,22 +260,15 @@ impl Config {
 
 ### Decision Tree
 
-```text
-Is this library code that others will use?
-├─ Yes → Use a domain-specific error enum
-│  └─ Define custom error enum with context fields
-│      - Implement controlled Display when fields include URLs, paths, queries, or user text
-│      - Add .user_message() for user-friendly errors
-│      - Add .is_retryable() if relevant
-│      - Sanitize URLs and sensitive data
-│
-└─ No → Is this application code?
-   ├─ Yes → Use anyhow::Result
-   │  └─ Add context with .context()
-   │
-   └─ Is this a public API?
-      └─ Yes → Use Box<dyn Error>
-```
+Use this sequence:
+
+1. Library code that others will use: define a domain-specific error enum.
+2. Domain error enum: include context fields, controlled `Display` output,
+   `.user_message()` for user-facing text, `.is_retryable()` when relevant, and URL or
+   sensitive-data sanitization.
+3. Application code: use `anyhow::Result` with `.context()`.
+4. Public API boundary: use `Box<dyn Error>` only where the caller needs a generic
+   error type.
 
 ---
 

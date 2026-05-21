@@ -850,6 +850,43 @@ test("checkRepoBloat rejects developer architecture doc stale markers", () => {
   });
 });
 
+test("checkRepoBloat rejects developer architecture doc diagram glyphs", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/developer/ARCHITECTURE.md",
+      ["```text", "┌──────────────┐", "│ Frontend     │", "Frontend → Backend", "```", ""].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/ERROR_HANDLING.md",
+      ["```text", "├─ Yes → Use a domain-specific error enum", "└─ No → Use anyhow::Result", "```", ""].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/developer/ARCHITECTURE.md", "docs/developer/ERROR_HANDLING.md"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace developer architecture doc stale markers: docs/developer/ARCHITECTURE.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace developer architecture doc stale markers: docs/developer/ERROR_HANDLING.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects developer maintenance doc stale markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

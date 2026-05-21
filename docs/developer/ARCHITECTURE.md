@@ -36,52 +36,19 @@ and Tauri. The application runs entirely on the user's machine with no cloud dep
 
 ### High-Level Architecture
 
-```text
-┌─────────────────────────────────────────────────────────────────┐
-│                         Frontend (React 19)                     │
-│  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐      │
-│  │   Dashboard   │  │    Settings   │  │  Job Browser  │      │
-│  └───────┬───────┘  └───────┬───────┘  └───────┬───────┘      │
-│          │                  │                  │                │
-│          └──────────────────┴──────────────────┘                │
-│                             │                                   │
-│                    Tauri IPC (Commands)                         │
-└─────────────────────────────┼───────────────────────────────────┘
-                              │
-┌─────────────────────────────┼───────────────────────────────────┐
-│                     Backend (Rust/Tauri)                        │
-│  ┌─────────────────────────┴───────────────────────────┐       │
-│  │          Commands Layer (Tauri RPC)                 │       │
-│  │  - search_jobs      - get_config                    │       │
-│  │  - get_recent_jobs  - save_config                   │       │
-│  │  - get_statistics   - validate_slack_webhook        │       │
-│  └──────────────┬──────────────────────────────────────┘       │
-│                 │                                               │
-│  ┌──────────────┴──────────────────────────────────────┐       │
-│  │               Core Business Logic                   │       │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐          │       │
-│  │  │ Scheduler│  │  Scoring │  │  Notify  │          │       │
-│  │  └────┬─────┘  └────┬─────┘  └────┬─────┘          │       │
-│  │       │             │             │                 │       │
-│  │  ┌────┴──────┬──────┴───────┬─────┴────┐           │       │
-│  │  │ Scrapers  │   Database   │  Config  │           │       │
-│  │  │-Greenhouse│   (SQLite)   │  (JSON)  │           │       │
-│  │  │-Lever     │              │          │           │       │
-│  │  │-JobsGPT   │              │          │           │       │
-│  │  └───────────┴──────────────┴──────────┘           │       │
-│  └─────────────────────────────────────────────────────┘       │
-│                             │                                   │
-│  ┌─────────────────────────┴───────────────────────────┐       │
-│  │         Platform-Specific Layer                     │       │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐          │       │
-│  │  │ Windows  │  │  macOS   │  │  Linux   │          │       │
-│  │  │ - Paths  │  │ - Paths  │  │ - Paths  │          │       │
-│  │  │ - Tray   │  │ - Tray   │  │ - Tray   │          │       │
-│  │  │ - Notify │  │ - Notify │  │ - Notify │          │       │
-│  │  └──────────┘  └──────────┘  └──────────┘          │       │
-│  └─────────────────────────────────────────────────────┘       │
-└─────────────────────────────────────────────────────────────────┘
-```
+JobSentinel is split into these layers:
+
+1. Frontend: React 19 screens such as Dashboard, Settings, and Job Browser.
+2. IPC boundary: Tauri commands validate and route frontend requests.
+3. Commands layer: handlers such as `search_jobs`, `get_config`, `get_recent_jobs`,
+   `save_config`, `get_statistics`, and `validate_slack_webhook`.
+4. Core business logic: scheduler, scoring, notification, scraper, database, and
+   configuration modules.
+5. Platform layer: Windows, macOS, and Linux path, tray, and notification adapters.
+
+The frontend never reads or writes local job data directly. It calls typed Tauri
+commands, and the Rust backend owns scraping, scoring, persistence, and external
+notification delivery.
 
 ---
 
@@ -342,7 +309,7 @@ See [Security: Keyring Integration](../security/KEYRING.md) for full documentati
 - Search history (unlimited)
 - Notification preferences
 
-**Migration:** Includes localStorage → SQLite migration for existing users.
+**Migration:** Includes localStorage to SQLite migration for existing users.
 
 SQLite is authoritative for job-search records and durable preferences. Frontend
 localStorage remains available only for non-authoritative UI preferences, cached
@@ -454,36 +421,14 @@ See [One-Click Apply Feature](../features/one-click-apply.md) for full documenta
 
 **Workflow:**
 
-```text
-┌──────────────┐
-│  Schedule    │
-│  (every 2h)  │
-└──────┬───────┘
-       │
-       v
-┌──────────────┐
-│ Scrape All   │──> 13 sources in parallel:
-│   Sources    │    Greenhouse, Lever, LinkedIn, RemoteOK,
-│              │    WeWorkRemotely, BuiltIn, HN Hiring,
-│              │    JobsGPT, Dice, YC Startup Jobs,
-│              │    USAJobs, SimplyHired, Glassdoor
-└──────┬───────┘
-       │
-       v
-┌──────────────┐
-│  Score Jobs  │──> Multi-factor scoring
-└──────┬───────┘
-       │
-       v
-┌──────────────┐
-│  Store in DB │──> SQLite (upsert)
-└──────┬───────┘
-       │
-       v
-┌──────────────┐
-│ Send Alerts  │──> Slack/Discord/Teams/Email (if score >= threshold)
-└──────────────┘
-```
+1. Scheduler fires on the configured interval.
+2. Scraper workers query enabled sources in parallel, including Greenhouse, Lever,
+   LinkedIn, RemoteOK, WeWorkRemotely, BuiltIn, HN Hiring, JobsGPT, Dice, YC Startup
+   Jobs, USAJobs, SimplyHired, and Glassdoor.
+3. Scoring workers apply multi-factor scoring.
+4. Persistence workers upsert jobs into SQLite.
+5. Notification workers send alerts through configured Slack, Discord, Teams, or email
+   channels when scores meet the alert threshold.
 
 ### 2. Commands (`src/commands/`)
 
@@ -606,50 +551,22 @@ get_config_dir()  // ~/.config/jobsentinel
 
 ### Complete Scraping Cycle
 
-```text
-1. User triggers scrape OR scheduler fires
-   │
-   v
-2. Scheduler::run_scraping_cycle()
-   │
-   ├──> Scrape Greenhouse companies (parallel)
-   ├──> Scrape Lever companies (parallel)
-   └──> Scrape JobsWithGPT (parallel)
-   │
-   v
-3. Parse HTML/JSON → Vec<Job>
-   │
-   v
-4. For each job:
-   ├──> Compute SHA-256 hash
-   ├──> Score job (multi-factor)
-   └──> Store in database (upsert)
-   │
-   v
-5. Get high-scoring jobs (score >= threshold)
-   │
-   v
-6. For each high-scoring job:
-   └──> Send Slack notification (if not already sent)
-   │
-   v
-7. Return results to UI
-```
+1. User triggers a scrape or the scheduler fires.
+2. `Scheduler::run_scraping_cycle()` starts scraper workers for configured sources.
+3. Each scraper parses HTML or JSON into `Vec<Job>`.
+4. For each job, the backend computes a SHA-256 hash, scores the job, and upserts it
+   into the database.
+5. The notification layer selects jobs meeting the configured alert threshold.
+6. Each unsent high-scoring job can produce an alert through the configured channels.
+7. The command returns the result summary to the UI.
 
 ### Configuration Flow
 
-```text
-User edits config in UI
-   │
-   v
-Frontend calls save_config(config)
-   │
-   v
-Rust validates config
-   │
-   ├──> Valid: Save to ~/.config/jobsentinel/config.json
-   └──> Invalid: Return error with details
-```
+1. User edits configuration in the UI.
+2. Frontend calls `save_config(config)`.
+3. Rust validates the configuration.
+4. Valid configuration is saved to `~/.config/jobsentinel/config.json`.
+5. Invalid configuration returns an error with details for the UI.
 
 ---
 

@@ -110,6 +110,7 @@ changes or Playwright-specific work.
 | ---- | ------ | ----- |
 | 2026-05-21 | In progress | Replaced frontend testing doc tree diagrams with plain source/test layout lists and added the doc to developer layout bloat coverage. |
 | 2026-05-21 | In progress | Replaced Market Intelligence box/tree mockups with plain flow, schema, and dashboard examples, and widened its doc guard to block box, arrow, triangle, emoji, and stale indicator markers. |
+| 2026-05-21 | In progress | Replaced architecture and error-handling diagram trees with plain ordered flows, and widened architecture-doc coverage for box and arrow glyph recurrence. |
 | 2026-05-21 | In progress | Replaced developer onboarding and Rust integration/testing tree diagrams with plain layout lists, with bloat coverage for those maintained developer-doc layout markers. |
 | 2026-05-21 | In progress | Normalized the scraper health guide's tables, trend examples, setup paths, and error interpretations from glyph-heavy separators/arrows to plain text, with scraper-health bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Replaced the active scraper feature doc's box diagram, arrow-heavy examples, and versioned section labels with plain flow/list text, and widened scraper doc bloat coverage for recurrence. |
