@@ -1619,6 +1619,32 @@ test("checkRepoBloat rejects raw scraper URL and query logging", () => {
   });
 });
 
+test("checkRepoBloat rejects stale cache usage documentation", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/CACHE_USAGE.md",
+      [
+        'tracing::info!("Cache hit for: {}", url);',
+        "let response = reqwest::get(url).await?;",
+        "Disable in Production",
+        "- ✅ `get_with_cache(url)`",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/CACHE_USAGE.md"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sync cache usage doc with scraper HTTP client: docs/CACHE_USAGE.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw local path logging", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

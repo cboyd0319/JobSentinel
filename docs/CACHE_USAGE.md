@@ -1,69 +1,71 @@
 # Response Cache Usage Guide
 
-This guide demonstrates how to use the response caching system in JobSentinel scrapers.
+This guide documents the response cache used by scraper HTTP helpers.
 
-## Overview
+## Purpose
 
-The response cache is a simple in-memory cache designed to reduce redundant API calls during
-development and testing. It uses `tokio::sync::RwLock` for thread-safe access and provides
-hit/miss statistics.
+The response cache is an in-memory helper for repeated scraper requests during a
+single app or test process. It reduces redundant calls, keeps parser iterations
+faster, and records hit/miss counts.
 
-## Basic Usage
+The cache is not durable storage. It is cleared when the process exits.
 
-### Using `get_with_cache()`
+## APIs
 
-The simplest way to use caching is with `get_with_cache()`:
+Use the scraper HTTP client helpers instead of calling `reqwest` directly from
+scraper code.
+
+### `get_with_cache`
+
+`get_with_cache(url)` checks the shared response cache first. On a cache miss it
+uses the retrying HTTP client, reads the response body, stores successful
+responses, and returns the body.
 
 ```rust
 use crate::core::scrapers::http_client::get_with_cache;
 
-async fn fetch_jobs() -> Result<Vec<Job>> {
-    let url = "https://api.example.com/jobs";
-    
-    // Automatically checks cache before making request
-    let body = get_with_cache(url).await?;
-    
-    // Parse the response
-    let jobs: Vec<Job> = serde_json::from_str(&body)?;
+async fn fetch_jobs() -> anyhow::Result<Vec<Job>> {
+    let body = get_with_cache("https://api.example.com/jobs").await?;
+    let jobs = serde_json::from_str(&body)?;
     Ok(jobs)
 }
 ```
 
-### Using `get_with_retry_cached()`
+### `get_with_retry_cached`
 
-For more control, use `get_with_retry_cached()` with a boolean flag:
+`get_with_retry_cached(url, use_cache)` lets adapter code choose whether a
+specific request should use the cache while keeping the retrying HTTP client in
+both paths.
 
 ```rust
 use crate::core::scrapers::http_client::get_with_retry_cached;
 
-async fn fetch_with_optional_cache(url: &str, use_cache: bool) -> Result<String> {
-    // Enable/disable caching based on configuration
+async fn fetch_jobs(url: &str, use_cache: bool) -> anyhow::Result<Vec<Job>> {
     let body = get_with_retry_cached(url, use_cache).await?;
-    Ok(body)
+    let jobs = serde_json::from_str(&body)?;
+    Ok(jobs)
 }
 ```
 
 ### Direct Cache API
 
-For complete control, use the cache functions directly:
+Use `cache::get_cached` and `cache::set_cached` only when adapter code already
+owns a retrying fetch path. Keep fetches routed through `get_with_retry` or
+`send_with_retry`, and sanitize URL values before logging.
 
 ```rust
-use crate::core::scrapers::cache;
+use crate::core::scrapers::{cache, http_client};
+use crate::core::url_security::sanitize_url_for_logging;
 
-async fn custom_fetch(url: &str) -> Result<String> {
-    // Check cache first
+async fn custom_fetch(url: &str) -> anyhow::Result<String> {
     if let Some(cached) = cache::get_cached(url).await {
-        tracing::info!("Cache hit for: {}", url);
+        tracing::debug!(url = %sanitize_url_for_logging(url), "Using cached response");
         return Ok(cached);
     }
-    
-    // Cache miss - fetch from network
-    let response = reqwest::get(url).await?;
+
+    let response = http_client::get_with_retry(url).await?;
     let body = response.text().await?;
-    
-    // Store in cache
     cache::set_cached(url, body.clone()).await;
-    
     Ok(body)
 }
 ```
@@ -75,14 +77,16 @@ async fn custom_fetch(url: &str) -> Result<String> {
 ```rust
 use crate::core::scrapers::cache;
 
-async fn print_cache_stats() {
+async fn log_cache_stats() {
     let stats = cache::cache_stats().await;
-    
-    println!("Cache Statistics:");
-    println!("  Entries: {}", stats.entries);
-    println!("  Hits: {}", stats.hits);
-    println!("  Misses: {}", stats.misses);
-    println!("  Hit Rate: {:.2}%", stats.hit_rate());
+
+    tracing::info!(
+        entries = stats.entries,
+        hits = stats.hits,
+        misses = stats.misses,
+        hit_rate = stats.hit_rate(),
+        "Scraper response cache stats"
+    );
 }
 ```
 
@@ -93,7 +97,6 @@ use crate::core::scrapers::cache;
 
 async fn reset_cache() {
     cache::clear_cache().await;
-    tracing::info!("Cache cleared");
 }
 ```
 
@@ -104,23 +107,17 @@ use crate::core::scrapers::cache;
 use std::time::Duration;
 
 async fn configure_cache() {
-    // Set cache to 10 minutes
     cache::set_cache_duration(Duration::from_secs(600)).await;
-    
-    // Or 1 hour
-    cache::set_cache_duration(Duration::from_secs(3600)).await;
-    
-    // Default is 5 minutes (300 seconds)
 }
 ```
 
-## Integration Examples
+The default duration is five minutes.
 
-### In a Scraper Implementation
+## Adapter Pattern
 
 ```rust
-use crate::core::scrapers::{http_client, JobScraper, ScraperResult};
 use crate::core::db::Job;
+use crate::core::scrapers::{http_client, JobScraper, ScraperResult};
 use async_trait::async_trait;
 
 pub struct CachedScraper {
@@ -137,195 +134,70 @@ impl CachedScraper {
 #[async_trait]
 impl JobScraper for CachedScraper {
     async fn scrape(&self) -> ScraperResult {
-        // Use cache during development, bypass in production
-        let body = if self.use_cache {
-            http_client::get_with_cache(&self.url).await?
-        } else {
-            let response = http_client::get_with_retry(&self.url).await?;
-            response.text().await?
-        };
-        
-        // Parse and return jobs...
-        Ok(vec![])
+        let body = http_client::get_with_retry_cached(&self.url, self.use_cache).await?;
+        let jobs: Vec<Job> = serde_json::from_str(&body).unwrap_or_default();
+        Ok(jobs)
     }
-    
+
     fn name(&self) -> &'static str {
         "CachedScraper"
     }
 }
 ```
 
-### Development vs Production
+Prefer source-specific freshness decisions over a blanket development versus
+production switch. Some sources are safe to cache briefly; others need fresh
+requests for each run. Keep rate limits and user-triggered refresh behavior in
+mind when choosing `use_cache`.
+
+## Testing
+
+The cache is global process state. Cache tests should clear state before each
+case and serialize access when several tests mutate cache statistics or cache
+duration.
 
 ```rust
 use crate::core::scrapers::cache;
+use once_cell::sync::Lazy;
+use tokio::sync::Mutex;
 
-pub struct ScraperConfig {
-    pub enable_cache: bool,
-}
+static CACHE_TEST_LOCK: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
 
-impl ScraperConfig {
-    pub fn development() -> Self {
-        Self { enable_cache: true }
-    }
-    
-    pub fn production() -> Self {
-        Self { enable_cache: false }
-    }
-}
+#[tokio::test]
+async fn scraper_uses_cache_on_second_fetch() {
+    let _guard = CACHE_TEST_LOCK.lock().await;
+    cache::clear_cache().await;
 
-async fn run_scraper(config: ScraperConfig) -> Result<()> {
-    if config.enable_cache {
-        tracing::info!("Cache enabled for development");
-    } else {
-        // Clear cache in production to ensure fresh data
-        cache::clear_cache().await;
-        tracing::info!("Cache disabled for production");
-    }
-    
-    // Run scrapers...
-    Ok(())
+    let jobs1 = scrape_jobs().await.unwrap();
+    let jobs2 = scrape_jobs().await.unwrap();
+    let stats = cache::cache_stats().await;
+
+    assert_eq!(jobs1.len(), jobs2.len());
+    assert_eq!(stats.hits, 1);
 }
 ```
 
-### Testing with Cache
+For the cache module itself, run:
 
-```rust
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::core::scrapers::cache;
-    
-    #[tokio::test]
-    async fn test_scraper_with_cache() {
-        // Ensure clean slate
-        cache::clear_cache().await;
-        
-        // First run - should miss cache
-        let jobs1 = scrape_jobs().await.unwrap();
-        let stats = cache::cache_stats().await;
-        assert_eq!(stats.misses, 1);
-        
-        // Second run - should hit cache
-        let jobs2 = scrape_jobs().await.unwrap();
-        let stats = cache::cache_stats().await;
-        assert_eq!(stats.hits, 1);
-        
-        // Results should be identical
-        assert_eq!(jobs1.len(), jobs2.len());
-    }
-}
+```bash
+cd src-tauri && cargo test cache --lib -- --test-threads=1
 ```
-
-## Performance Benefits
-
-The cache is most beneficial during:
-
-1. **Development**: Reduces API calls while testing scrapers
-2. **Testing**: Speeds up test suites by avoiding network requests
-3. **Rate-Limited APIs**: Prevents hitting rate limits during rapid iterations
-4. **Debugging**: Ensures consistent responses while debugging parsing logic
 
 ## Limitations
 
-- **In-Memory Only**: Cache is lost on restart
-- **No Persistence**: Not suitable as a production caching layer
-- **Global State**: All scrapers share the same cache
-- **Simple Expiration**: Only time-based expiration, no LRU or size limits
+- In-memory only: cache entries are lost on restart.
+- No persistence: do not use it as a durable job store.
+- Shared state: all scraper cache helpers use the same process-level cache.
+- Time-based expiration: there is no LRU eviction or size cap.
+- Raw URL keys: URLs are used as cache keys internally; log output must stay
+  sanitized.
 
-## Best Practices
+## Checklist
 
-1. **Clear Cache Between Major Changes**: Use `clear_cache()` when changing scraper logic
-2. **Monitor Statistics**: Check hit/miss rates to verify cache effectiveness
-3. **Adjust Duration**: Set shorter durations for frequently updated data sources
-4. **Disable in Production**: Use environment variables to disable caching in production
-5. **Test With and Without Cache**: Ensure scrapers work correctly in both modes
-
-## Example: Complete Workflow
-
-```rust
-use crate::core::scrapers::{cache, http_client};
-use std::time::Duration;
-
-async fn scraping_workflow() -> anyhow::Result<()> {
-    // 1. Configure cache for development
-    cache::set_cache_duration(Duration::from_secs(600)).await; // 10 minutes
-    
-    // 2. Run scraper
-    let jobs = fetch_all_jobs().await?;
-    tracing::info!("Fetched {} jobs", jobs.len());
-    
-    // 3. Check statistics
-    let stats = cache::cache_stats().await;
-    tracing::info!(
-        "Cache: {} entries, {}/{} hits/misses ({:.1}% hit rate)",
-        stats.entries,
-        stats.hits,
-        stats.misses,
-        stats.hit_rate()
-    );
-    
-    // 4. Force fresh data if needed
-    if needs_fresh_data() {
-        cache::clear_cache().await;
-        let fresh_jobs = fetch_all_jobs().await?;
-        tracing::info!("Fetched {} fresh jobs", fresh_jobs.len());
-    }
-    
-    Ok(())
-}
-
-async fn fetch_all_jobs() -> anyhow::Result<Vec<Job>> {
-    let urls = vec![
-        "https://api.example.com/jobs",
-        "https://api.another.com/jobs",
-    ];
-    
-    let mut all_jobs = Vec::new();
-    
-    for url in urls {
-        let body = http_client::get_with_cache(url).await?;
-        let jobs: Vec<Job> = serde_json::from_str(&body)?;
-        all_jobs.extend(jobs);
-    }
-    
-    Ok(all_jobs)
-}
-
-fn needs_fresh_data() -> bool {
-    // Your logic here
-    false
-}
-```
-
-## Troubleshooting
-
-### Tests Failing Due to Cache State
-
-Run tests sequentially to avoid cache interference:
-
-```bash
-cargo test core::scrapers::cache -- --test-threads=1
-```
-
-### Cache Not Working
-
-Check that you're using the cached functions:
-
-- ✅ `get_with_cache(url)`
-- ✅ `get_with_retry_cached(url, true)`
-- ❌ `get_with_retry(url)` - bypasses cache
-
-### Stale Data
-
-Clear the cache to force fresh requests:
-
-```rust
-cache::clear_cache().await;
-```
-
-Or reduce the cache duration:
-
-```rust
-cache::set_cache_duration(Duration::from_secs(60)).await; // 1 minute
-```
+- Use `get_with_cache(url)` for normal cached GET requests.
+- Use `get_with_retry_cached(url, use_cache)` when cache use is source-specific.
+- Use `get_with_retry(url)` when a request must bypass cache.
+- Do not call `reqwest::get` directly from scraper adapters.
+- Do not log raw scraper URLs, search queries, locations, credentials, query
+  strings, or fragments.
+- Clear cache state in tests that assert cache statistics.

@@ -243,6 +243,7 @@ const userDataPrivacyLoggingPaths = new Set([
   "src-tauri/src/commands/user_data.rs",
   "src-tauri/src/core/user_data/mod.rs",
 ]);
+const cacheUsageDocPaths = new Set(["docs/CACHE_USAGE.md"]);
 
 function readPackageManifest(root) {
   return JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
@@ -998,6 +999,20 @@ function hasDatabaseLogEmojiMarkers(root, path) {
   );
 }
 
+function hasStaleCacheUsageDoc(root, path) {
+  if (!cacheUsageDocPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /tracing::info!\("Cache hit for: \{\}",\s*url\)/.test(text) ||
+    /reqwest::get\(url\)/.test(text) ||
+    /Disable in Production|disable caching in production|Cache disabled for production/.test(text) ||
+    /[✅❌⚠️]/u.test(text)
+  );
+}
+
 function hasRawUrlLogging(root, path) {
   if (!rawUrlLoggingPaths.has(path)) {
     return false;
@@ -1661,6 +1676,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasDatabaseLogEmojiMarkers(root, path)) {
       violations.push(`replace database log emoji markers: ${path}`);
+    }
+
+    if (hasStaleCacheUsageDoc(root, path)) {
+      violations.push(`sync cache usage doc with scraper HTTP client: ${path}`);
     }
 
     if (hasRawUrlLogging(root, path)) {

@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Synced cache usage docs with the live scraper HTTP client, removing raw URL logging, direct `reqwest::get`, production-disable guidance, and status markers; added bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Removed emoji/status markers from SQLite connection and integrity diagnostic log messages plus comments, and added bloat coverage so database logs stay text-only. |
 | 2026-05-21 | In progress | Removed unguarded emoji/status markers and stale version-promised future sections from synonym matching and remote preference scoring docs, fixed their test command examples, and added bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Rewrote the SQLite configuration doc against live `connection.rs` and integrity APIs, corrected the file-backed cache-size claim to `-128000`, removed speculative cloud-backup roadmap text, and added bloat coverage for recurrence. |
