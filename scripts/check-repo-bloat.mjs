@@ -2661,6 +2661,18 @@ function hasStaleResumeMatchSubscoreDisplay(root, path) {
   );
 }
 
+function hasStaleResumeE2eMatchSeed(root, path) {
+  if (path !== "tests/e2e/playwright/resume-upload-matching.spec.ts") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /\b(?:overall_match_score|skills_match_score|experience_match_score|education_match_score)\s*:\s*(?:[2-9]\d*|1\d+|1\.[1-9]\d*)\b/.test(text) ||
+    /gap_analysis\s*:\s*["'`][^"'`]*[\u2713\u2715\u2717]/u.test(text)
+  );
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -3286,6 +3298,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleResumeMatchSubscoreDisplay(root, path)) {
       violations.push(`render resume match sub-scores from backend fractions: ${path}`);
+    }
+
+    if (hasStaleResumeE2eMatchSeed(root, path)) {
+      violations.push(`sync resume E2E match seeds with backend fraction shape: ${path}`);
     }
   }
 

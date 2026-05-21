@@ -142,7 +142,7 @@ export class ResumeBuilderPage extends BasePage {
     await this.fillContactInfo({
       name: "Jane Smith",
       email: "jane.smith@example.com",
-      phone: "+1-555-9876",
+      phone: "+1-555-987-6543",
       location: "New York, NY",
       linkedin: "linkedin.com/in/janesmith",
       github: "github.com/janesmith",

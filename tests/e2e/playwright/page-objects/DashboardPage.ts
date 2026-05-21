@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { expect, Page, Locator } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
 /**
@@ -62,6 +62,26 @@ export class DashboardPage extends BasePage {
 
   async searchForJobs(query: string) {
     await this.searchInput.fill(query);
+    await expect(this.searchInput).toHaveValue(query);
+
+    const normalizedQuery = query.trim().toLowerCase();
+    if (!normalizedQuery) {
+      await this.waitForReady();
+      return;
+    }
+
+    const queryTerms = normalizedQuery.split(/\s+/);
+    await expect
+      .poll(async () => {
+        if (await this.emptyState.isVisible().catch(() => false)) {
+          return true;
+        }
+
+        const firstCardText = (await this.jobCards.first().textContent().catch(() => "")) ?? "";
+        const normalizedFirstCard = firstCardText.toLowerCase();
+        return queryTerms.some((term) => normalizedFirstCard.includes(term));
+      })
+      .toBe(true);
   }
 
   async clearSearch() {

@@ -141,10 +141,11 @@ test.describe("Keyboard Navigation", () => {
     test("focuses dashboard search with slash outside inputs", async ({ page }) => {
       const searchInput = page.getByTestId("search-input");
       await expect(searchInput).toBeVisible();
+      await expect(page.getByTestId("job-card").first()).toBeVisible();
 
       await page.keyboard.press("/");
 
-      await expect(searchInput).toBeFocused();
+      await expectActiveElement(searchInput);
     });
 
     test("does not steal focus when slash is typed in search", async ({ page }) => {

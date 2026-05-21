@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { expect, Page, Locator } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
 /**
@@ -60,8 +60,7 @@ export class JobDetailPage extends BasePage {
 
   async openJobDetail(index: number = 0) {
     this.activeCardIndex = index;
-    await this.activeCard.waitFor({ state: "visible", timeout: 5000 });
-    await this.activeCard.scrollIntoViewIfNeeded();
+    await expect(this.activeCard).toBeVisible({ timeout: 5000 });
     await this.activeCard.hover();
   }
 

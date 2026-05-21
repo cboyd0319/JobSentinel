@@ -5876,3 +5876,36 @@ test("checkRepoBloat rejects stale resume match sub-score display", () => {
     );
   });
 });
+
+test("checkRepoBloat rejects stale resume E2E match seeds", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "tests/e2e/playwright/resume-upload-matching.spec.ts",
+      [
+        "const seededMatches = [{",
+        "  overall_match_score: 86,",
+        "  skills_match_score: 88,",
+        '  gap_analysis: "✓ React experience matches",',
+        "}];",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "tests/e2e/playwright/resume-upload-matching.spec.ts"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sync resume E2E match seeds with backend fraction shape: tests/e2e/playwright/resume-upload-matching.spec.ts",
+      ),
+      violations.join("\n"),
+    );
+  });
+});

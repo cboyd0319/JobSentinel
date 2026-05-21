@@ -101,6 +101,7 @@ export class ResumePage extends BasePage {
     const dialog = this.page.getByRole("dialog", { name: "Delete Skill?" });
     await expect(dialog).toBeVisible();
     await dialog.getByRole("button", { name: "Delete" }).click();
+    await expect(dialog).toBeHidden();
     await this.waitForReady();
   }
 
@@ -119,6 +120,7 @@ export class ResumePage extends BasePage {
     const dialog = this.page.getByRole("dialog", { name: "Delete Resume?" });
     await expect(dialog).toBeVisible();
     await dialog.getByRole("button", { name: "Delete" }).click();
+    await expect(dialog).toBeHidden();
     await this.waitForReady();
   }
 }

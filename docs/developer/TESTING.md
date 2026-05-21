@@ -464,7 +464,8 @@ fn test_example() {
 
 ## End-to-End Tests
 
-E2E tests use Playwright to test complete workflows in the built app.
+E2E tests use Playwright against the Vite mock dev server to test complete
+browser workflows.
 
 ### Running E2E Tests
 

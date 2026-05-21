@@ -77,7 +77,7 @@ test.describe("Resume Builder Wizard", () => {
     await resumeBuilder.completeContact({
       name: "Jordan Lee",
       email: "jordan@example.com",
-      phone: "+1-555-0101",
+      phone: "+1-555-010-1000",
       location: "Denver, CO",
     });
     await expect(resumeBuilder.summaryTextarea).toBeVisible();
@@ -85,7 +85,7 @@ test.describe("Resume Builder Wizard", () => {
     await resumeBuilder.goPrevious(1, "Contact");
     await expect(resumeBuilder.fullNameInput).toHaveValue("Jordan Lee");
     await expect(resumeBuilder.emailInput).toHaveValue("jordan@example.com");
-    await expect(resumeBuilder.phoneInput).toHaveValue("+1-555-0101");
+    await expect(resumeBuilder.phoneInput).toHaveValue("+1-555-010-1000");
     await expect(resumeBuilder.locationInput).toHaveValue("Denver, CO");
   });
 
