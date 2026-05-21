@@ -3026,6 +3026,38 @@ test("checkRepoBloat rejects raw JobsWithGPT Debug derives", () => {
   });
 });
 
+test("checkRepoBloat rejects raw LinkedIn scraper Debug derive", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/linkedin.rs",
+      [
+        "#[derive(Debug, Clone, Serialize, Deserialize)]",
+        "pub struct LinkedInScraper {",
+        "  pub session_cookie: String,",
+        "  pub query: String,",
+        "  pub location: String,",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/scrapers/linkedin.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize LinkedIn scraper debug output: src-tauri/src/core/scrapers/linkedin.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects database log emoji markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

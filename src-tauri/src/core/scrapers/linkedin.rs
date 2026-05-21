@@ -52,9 +52,10 @@ use chrono::Utc;
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
+use std::fmt;
 
 /// LinkedIn scraper configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct LinkedInScraper {
     /// LinkedIn session cookie (li_at value)
     pub session_cookie: String,
@@ -69,6 +70,22 @@ pub struct LinkedInScraper {
     /// Rate limiter for respecting LinkedIn's request limits
     #[serde(skip)]
     pub rate_limiter: RateLimiter,
+}
+
+impl fmt::Debug for LinkedInScraper {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("LinkedInScraper")
+            .field(
+                "session_cookie_configured",
+                &!self.session_cookie.is_empty(),
+            )
+            .field("query_chars", &self.query.chars().count())
+            .field("location_chars", &self.location.chars().count())
+            .field("remote_only", &self.remote_only)
+            .field("limit", &self.limit)
+            .field("rate_limiter_configured", &true)
+            .finish()
+    }
 }
 
 /// LinkedIn job search result from API
@@ -644,6 +661,28 @@ mod tests {
         assert_eq!(scraper.location, "San Francisco");
         assert!(scraper.remote_only);
         assert_eq!(scraper.limit, 100); // Capped at max
+    }
+
+    #[test]
+    fn test_scraper_debug_does_not_echo_cookie_or_search_values() {
+        let scraper = LinkedInScraper::new(
+            "AQED_secret_cookie_value".to_string(),
+            "Secret Security Engineer".to_string(),
+            "Private City".to_string(),
+        )
+        .with_remote_only(true)
+        .with_limit(25);
+
+        let debug_str = format!("{:?}", scraper);
+
+        assert!(debug_str.contains("session_cookie_configured: true"));
+        assert!(debug_str.contains("query_chars: 24"));
+        assert!(debug_str.contains("location_chars: 12"));
+        assert!(debug_str.contains("remote_only: true"));
+        assert!(debug_str.contains("limit: 25"));
+        assert!(!debug_str.contains("AQED_secret_cookie_value"));
+        assert!(!debug_str.contains("Secret Security Engineer"));
+        assert!(!debug_str.contains("Private City"));
     }
 
     #[test]

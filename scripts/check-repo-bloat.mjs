@@ -211,6 +211,7 @@ const mlRawLocalPathExposurePaths = new Set([
 const mlRawLocalPathDocPaths = new Set(["docs/ML_FEATURE.md", "docs/ML_QUICKSTART.md"]);
 
 const jobsWithGptPrivacyPaths = new Set(["src-tauri/src/core/scrapers/jobswithgpt.rs"]);
+const linkedInPrivacyPaths = new Set(["src-tauri/src/core/scrapers/linkedin.rs"]);
 
 const databaseLogEmojiPaths = new Set([
   "src-tauri/src/core/db/connection.rs",
@@ -1391,6 +1392,15 @@ function hasRawJobsWithGptDebug(root, path) {
   );
 }
 
+function hasRawLinkedInDebug(root, path) {
+  if (!linkedInPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return /#\[derive\([^)]*Debug[^)]*\)\]\s*pub struct LinkedInScraper\b/.test(productionText);
+}
+
 function hasDatabaseLogEmojiMarkers(root, path) {
   if (!databaseLogEmojiPaths.has(path)) {
     return false;
@@ -2337,6 +2347,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawJobsWithGptDebug(root, path)) {
       violations.push(`sanitize JobsWithGPT debug output: ${path}`);
+    }
+
+    if (hasRawLinkedInDebug(root, path)) {
+      violations.push(`sanitize LinkedIn scraper debug output: ${path}`);
     }
 
     if (hasDatabaseLogEmojiMarkers(root, path)) {
