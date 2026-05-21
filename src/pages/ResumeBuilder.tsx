@@ -9,6 +9,7 @@ import { AtsLiveScorePanel } from "../components/AtsLiveScorePanel";
 import { useToast } from "../hooks/useToast";
 import { safeInvoke, safeInvokeWithToast } from "../utils/api";
 import { readStorageValue, removeStorageValue } from "../utils/browserStorage";
+import { getResumeContactValidationMessage } from "../utils/resumeContactValidation";
 
 // TypeScript Types
 interface Resume {
@@ -547,7 +548,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
   // Validation using lookup pattern (better performance than switch)
   const canProceed = useCallback((): boolean => {
     const validators: Record<number, () => boolean> = {
-      1: () => !!(contact.name && contact.email),
+      1: () => !getResumeContactValidationMessage(contact),
       2: () => summary.length >= 10,
       3: () => experiences.length > 0,
       4: () => educations.length > 0,
@@ -559,11 +560,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
   // Validation messages using lookup pattern
   const getValidationMessage = useCallback((): string => {
     const messages: Record<number, () => string> = {
-      1: () => {
-        if (!contact.name) return "Please enter your name";
-        if (!contact.email) return "Please enter your email";
-        return "";
-      },
+      1: () => getResumeContactValidationMessage(contact) ?? "",
       2: () => "Please write a summary (at least 10 characters)",
       3: () => "Please add at least one work experience",
       4: () => "Please add at least one education entry",
