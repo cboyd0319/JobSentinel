@@ -60,7 +60,10 @@ describe("errorUtils", () => {
       const error = new Error("Test error");
       logError("Context:", error);
 
-      expect(console.error).toHaveBeenCalledWith("Context:", error);
+      expect(console.error).toHaveBeenCalledWith("Context:", expect.objectContaining({
+        name: "Error",
+        message: "Test error",
+      }));
 
       vi.unstubAllEnvs();
     });
@@ -71,6 +74,31 @@ describe("errorUtils", () => {
       logError("Failed to load:", "Connection refused");
 
       expect(console.error).toHaveBeenCalledWith("Failed to load:", "Connection refused");
+
+      vi.unstubAllEnvs();
+    });
+
+    it("redacts sensitive error details before logging", () => {
+      vi.stubEnv("DEV", true);
+
+      logError(
+        "Failed for alice@example.com",
+        new Error(
+          "token=abc123 https://hooks.slack.com/services/T000/B000/secret /Users/alice/private.txt"
+        )
+      );
+
+      const loggedOutput = vi.mocked(console.error).mock.calls
+        .flat()
+        .map((value) => JSON.stringify(value))
+        .join("\n");
+
+      expect(loggedOutput).not.toContain("alice@example.com");
+      expect(loggedOutput).not.toContain("abc123");
+      expect(loggedOutput).not.toContain("hooks.slack.com/services");
+      expect(loggedOutput).not.toContain("/Users/alice");
+      expect(loggedOutput).toContain("[EMAIL]");
+      expect(loggedOutput).toContain("[TOKEN]");
 
       vi.unstubAllEnvs();
     });

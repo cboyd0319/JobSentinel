@@ -4526,6 +4526,31 @@ test("checkRepoBloat rejects raw frontend error helper debug logging", () => {
   });
 });
 
+test("checkRepoBloat rejects raw shared frontend error logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/utils/errorUtils.ts",
+      [
+        "export function logError(message, error) {",
+        "  console.error(message, error);",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/utils/errorUtils.ts"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sanitize shared frontend error logging: src/utils/errorUtils.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale frontend webhook redaction patterns", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

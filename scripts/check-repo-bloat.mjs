@@ -266,6 +266,7 @@ const rawBookmarkletLoggingPaths = new Set(["src-tauri/src/core/bookmarklet/serv
 const bookmarkletGeneratorPaths = new Set(["src/components/BookmarkletGenerator.tsx"]);
 const frontendErrorReportingPaths = new Set(["src/utils/errorReporting.ts"]);
 const frontendErrorHelperDebugPaths = new Set(["src/utils/errorHelpers.ts"]);
+const frontendErrorUtilsPaths = new Set(["src/utils/errorUtils.ts"]);
 const scoreReasonJsonParserPaths = new Set([
   "src/components/ScoreDisplay.tsx",
   "src/components/ScoreBreakdownModal.tsx",
@@ -1968,6 +1969,20 @@ function hasRawFrontendErrorHelperDebugLogging(root, path) {
   );
 }
 
+function hasRawFrontendSharedErrorLogging(root, path) {
+  if (!frontendErrorUtilsPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /console\.error\(\s*message\s*,\s*error\s*\)/.test(text) ||
+    !text.includes("sanitizeLoggedError") ||
+    !text.includes("sanitizeTextForStorage") ||
+    !text.includes("sanitizeContext")
+  );
+}
+
 function hasUnsafeErrorReportStorageParsing(root, path) {
   if (!frontendErrorReportingPaths.has(path)) {
     return false;
@@ -3058,6 +3073,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawFrontendErrorHelperDebugLogging(root, path)) {
       violations.push(`sanitize frontend error helper debug logging: ${path}`);
+    }
+
+    if (hasRawFrontendSharedErrorLogging(root, path)) {
+      violations.push(`sanitize shared frontend error logging: ${path}`);
     }
 
     if (hasUnsafeErrorReportStorageParsing(root, path)) {
