@@ -2305,6 +2305,38 @@ test("checkRepoBloat rejects stale webhook security doc markers", () => {
   });
 });
 
+test("checkRepoBloat rejects stale command execution security doc markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/security/COMMAND_EXECUTION.md",
+      [
+        "PDF File → pdftoppm → PNG Images → tesseract → Extracted Text",
+        "// ❌ VULNERABLE: Shell injection risk",
+        "- ✅ Path traversal: `../../etc/passwd` → Error",
+        "**Last Updated**: 2026-03-18",
+        "**Version**: 2.6.4",
+        "**Security Level**: Production Ready",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/security/COMMAND_EXECUTION.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace command execution security doc stale markers: docs/security/COMMAND_EXECUTION.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale notification preference docs", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
