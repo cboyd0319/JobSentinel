@@ -241,6 +241,11 @@ const notificationDocsPaths = new Set(["docs/features/notifications.md"]);
 const webhookSecurityDocsPaths = new Set(["docs/security/WEBHOOK_SECURITY.md"]);
 const commandExecutionSecurityDocsPaths = new Set(["docs/security/COMMAND_EXECUTION.md"]);
 const urlValidationSecurityDocsPaths = new Set(["docs/security/URL_VALIDATION.md"]);
+const xssSecurityDocsPaths = new Set([
+  "docs/security/README.md",
+  "docs/security/XSS_PREVENTION.md",
+  "docs/security/dompurify-test-examples.js",
+]);
 const developerTestingDocsPaths = new Set([
   "docs/developer/TESTING.md",
   "docs/developer/FRONTEND_TESTING.md",
@@ -1258,6 +1263,23 @@ function hasStaleUrlValidationSecurityDocMarkers(root, path) {
   );
 }
 
+function hasStaleXssSecurityDocs(root, path) {
+  if (!xssSecurityDocsPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /[✅❌⚠️→←↑↓]|\*\*(?:Last Updated|(?:DOMPurify|JobSentinel) Version|Security Level)\*\*:/.test(
+      text,
+    ) ||
+    /JobSentinel Security Documentation|DOMPurify Integration Test Example/.test(text) ||
+    /JobSentinel uses v3\.3\.1\+|While JobSentinel is a desktop app with no backend/.test(text) ||
+    /Resume Builder Configuration|cdn\.jsdelivr\.net\/npm\/dompurify/.test(text) ||
+    /\/\/ ✅ Output|\/\/ ❌|\/\/ ✅ SAFE|\/\/ ❌ UNSAFE/.test(text)
+  );
+}
+
 function hasStaleKeyringSecurityDocs(root, path) {
   if (!keyringSecurityDocsPaths.has(path)) {
     return false;
@@ -1881,6 +1903,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleUrlValidationSecurityDocMarkers(root, path)) {
       violations.push(`sync URL validation security doc markers: ${path}`);
+    }
+
+    if (hasStaleXssSecurityDocs(root, path)) {
+      violations.push(`sync XSS security docs with live sanitizer path: ${path}`);
     }
 
     if (hasStaleKeyringSecurityDocs(root, path)) {

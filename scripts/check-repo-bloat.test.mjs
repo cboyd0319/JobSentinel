@@ -2550,6 +2550,81 @@ test("checkRepoBloat rejects stale URL validation security doc markers", () => {
   });
 });
 
+test("checkRepoBloat rejects stale XSS security docs", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/security/README.md",
+      [
+        "Input → Validation → Sanitization",
+        "User Input ↑ Parse",
+        "// ❌ Insecure: Allows on error",
+        "// ✅ Secure: Denies on error",
+        "**Last Updated**: 2026-05-19",
+        "**JobSentinel Version**: 2.6.4",
+        "**Security Level**: Production Ready",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/security/XSS_PREVENTION.md",
+      [
+        "> JobSentinel Security Documentation",
+        "npm install dompurify  # JobSentinel uses v3.3.1+",
+        '<script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>',
+        "### Resume Builder Configuration",
+        "While JobSentinel is a desktop app with no backend",
+        "// ✅ SAFE - Always sanitize first",
+        "**DOMPurify Version**: 3.x",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/security/dompurify-test-examples.js",
+      [
+        " * DOMPurify Integration Test Example",
+        "// ✅ Output: Same as input",
+        "// ❌ UNSAFE",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "docs/security/README.md",
+        "docs/security/XSS_PREVENTION.md",
+        "docs/security/dompurify-test-examples.js",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sync XSS security docs with live sanitizer path: docs/security/README.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "sync XSS security docs with live sanitizer path: docs/security/XSS_PREVENTION.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "sync XSS security docs with live sanitizer path: docs/security/dompurify-test-examples.js",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale keyring credential docs", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

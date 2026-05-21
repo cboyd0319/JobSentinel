@@ -64,8 +64,8 @@ models, and best practices.
 Multiple layers of security protection:
 
 ```text
-Input → Validation → Sanitization → Parsing → Authorization → Execution
-  ↓        ↓            ↓             ↓            ↓            ↓
+Input -> Validation -> Sanitization -> Parsing -> Authorization -> Execution
+  |        |            |             |            |            |
 Reject  Normalize    Remove        Verify       Check        Log
 Bad     Data         Dangerous     Structure    Permissions  Activity
 ```
@@ -75,13 +75,13 @@ Bad     Data         Dangerous     Structure    Permissions  Activity
 Default to denial when validation fails:
 
 ```rust
-// ❌ Insecure: Allows on error
+// Insecure: allows on error.
 if validate(input).is_ok() {
     return Err("Invalid");
 }
 process(input); // Dangerous default
 
-// ✅ Secure: Denies on error
+// Secure: denies on error.
 validate(input)?; // Returns error if invalid
 process(input);   // Only reached if valid
 ```
@@ -105,8 +105,8 @@ process(input);   // Only reached if valid
 ### 5. Validate Everything
 
 ```text
-User Input → Parse → Validate → Sanitize → Use
-             ↑        ↑          ↑           ↑
+User Input -> Parse -> Validate -> Sanitize -> Use
+             |        |          |           |
            Fail    Fail       Fail        Log
 ```
 
@@ -177,7 +177,7 @@ cargo fmt -- --check
 ### How to Report
 
 1. **GitHub Security Advisory** (preferred)
-   - Go to Security tab → Report a vulnerability
+   - Go to Security tab -> Report a vulnerability
    - Provides private communication channel
 
 2. **Direct Email**
@@ -207,15 +207,15 @@ cargo fmt -- --check
 
 We follow Semantic Versioning:
 
-- **Major (2.x.x)**: Breaking changes
-- **Minor (x.5.x)**: New features
-- **Patch (x.x.3)**: Bug fixes and security patches
+- **Major (`x.0.0`)**: Breaking changes
+- **Minor (`x.y.0`)**: New features
+- **Patch (`x.y.z`)**: Bug fixes and security patches
 
 ### Security Patches
 
-Security fixes are released as:
+Security fixes should be released as:
 
-1. **Patch version** (e.g., 2.6.3 → 2.6.4)
+1. **Patch version**, unless the fix requires a breaking change
 2. **Announced in CHANGELOG** with severity level
 3. **GitHub Security Advisory** published
 4. **Users notified** to update
@@ -245,7 +245,7 @@ jobsentinel --version
 
 ### 2. Protect Credentials
 
-- **Use keyring storage** (automatic in v2.0.0+)
+- **Use keyring storage** for credentials
 - **Never commit** config files with credentials
 - **Rotate secrets** if compromised
 - **Use strong passwords** for services
@@ -257,7 +257,7 @@ jobsentinel --version
 jobsentinel config validate
 
 # Check credential status
-# Open Settings → View credential status indicators
+# Open Settings and view credential status indicators
 ```
 
 ### 4. Monitor Activity
@@ -353,10 +353,3 @@ For security-related questions or private disclosure:
 - **Security Issues**: Use GitHub Security Advisory
 - **General Questions**: Open a GitHub Discussion
 - **Documentation**: Contribute via Pull Request
-
----
-
-**Last Updated**: 2026-05-19
-**JobSentinel Version**: 2.6.4
-**Security Level**: Production Ready
-**Current References**: [Security documentation](./README.md), [verification matrix](../harness/verification-matrix.md)
