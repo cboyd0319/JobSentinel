@@ -66,6 +66,8 @@ const dynamicTailwindClassPattern =
   /(?:^|[^A-Za-z0-9_-])(?:[a-z]+:)*(?:bg|text|border|ring|from|via|to|stroke|fill)-\$\{[^}]+}/;
 const tailwindTextClassToInlineColorPattern =
   /style=\{\{\s*color:\s*[^}]*\.replace\(["']text-["'],\s*["']["']\)/s;
+const httpPrefixUrlValidationPattern =
+  /new\s+URL\(\s*([A-Za-z_$][\w$]*)\.startsWith\(["']http["']\)\s*\?\s*\1\s*:\s*`https:\/\/\$\{\1\}`\s*\)/;
 
 function collectSourceFiles(root, dir = join(root, "src")) {
   const files = [];
@@ -164,6 +166,10 @@ function hasTailwindTextClassToInlineColor(text) {
   return tailwindTextClassToInlineColorPattern.test(text);
 }
 
+function hasHttpPrefixUrlValidation(text) {
+  return httpPrefixUrlValidationPattern.test(text);
+}
+
 export function checkFrontendBoundaries(root = defaultRoot) {
   const srcRoot = join(root, "src");
   const violations = [];
@@ -181,6 +187,12 @@ export function checkFrontendBoundaries(root = defaultRoot) {
     if (hasTailwindTextClassToInlineColor(text)) {
       violations.push(
         `${relFile} converts Tailwind text classes into inline CSS color values; apply the Tailwind class directly or map to a real CSS color`,
+      );
+    }
+
+    if (hasHttpPrefixUrlValidation(text)) {
+      violations.push(
+        `${relFile} validates URLs with startsWith("http"); parse the URL and require an actual http/https protocol`,
       );
     }
 

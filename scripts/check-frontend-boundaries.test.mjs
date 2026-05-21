@@ -70,3 +70,29 @@ export function InvalidColor({ colorClass }: { colorClass: string }) {
     );
   });
 });
+
+test("checkFrontendBoundaries rejects URL validation by http prefix", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/components/UnsafeUrlInput.tsx",
+      `
+export function UnsafeUrlInput({ url }: { url: string }) {
+  new URL(url.startsWith("http") ? url : \`https://\${url}\`);
+  return null;
+}
+`,
+    );
+
+    const violations = checkFrontendBoundaries(root);
+
+    assert.ok(
+      violations.some((violation) =>
+        violation.includes(
+          'src/components/UnsafeUrlInput.tsx validates URLs with startsWith("http")',
+        ),
+      ),
+      violations.join("\n"),
+    );
+  });
+});

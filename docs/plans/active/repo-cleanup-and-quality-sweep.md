@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Hardened Resume Builder contact URL validation so bare profile domains still work but deceptive `http*` schemes and embedded credentials are rejected, with frontend-boundary coverage. |
 | 2026-05-21 | In progress | Sanitized invalid Greenhouse and Lever config URL error display so userinfo, queries, and fragments are not echoed into frontend-visible validation errors. |
 | 2026-05-21 | In progress | Removed notification provider error bodies from Discord, Teams, and Telegram errors so failed sends cannot echo private job payloads, and sanitized JobsWithGPT smoke-test endpoint request errors. |
 | 2026-05-21 | In progress | Removed token-bearing Slack, Discord, and Teams webhook URLs from request error formatting and added bloat guards for recurrence. |

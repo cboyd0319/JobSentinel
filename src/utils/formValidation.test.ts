@@ -3,6 +3,7 @@ import {
   validateEmail,
   validateRequiredEmail,
   validateUrl,
+  validateUrlWithOptionalProtocol,
   validateRequiredUrl,
   validatePhone,
   validateSlackWebhook,
@@ -156,6 +157,36 @@ describe("formValidation", () => {
       );
       expect(validateRequiredUrl("ftp://example.com")).toBe(
         "URL must start with http:// or https://"
+      );
+    });
+  });
+
+  describe("validateUrlWithOptionalProtocol", () => {
+    it("returns undefined for profile URLs with or without protocol", () => {
+      // Arrange & Act & Assert
+      expect(validateUrlWithOptionalProtocol("https://example.com")).toBeUndefined();
+      expect(validateUrlWithOptionalProtocol("http://example.com")).toBeUndefined();
+      expect(validateUrlWithOptionalProtocol("example.com")).toBeUndefined();
+      expect(validateUrlWithOptionalProtocol("linkedin.com/in/johndoe")).toBeUndefined();
+    });
+
+    it("returns error message for non-http and deceptive http-prefixed schemes", () => {
+      // Arrange & Act & Assert
+      expect(validateUrlWithOptionalProtocol("javascript:alert(1)")).toBe(
+        "URL must use http:// or https://"
+      );
+      expect(validateUrlWithOptionalProtocol("httpjavascript://example.com")).toBe(
+        "URL must use http:// or https://"
+      );
+      expect(validateUrlWithOptionalProtocol("ftp://example.com")).toBe(
+        "URL must use http:// or https://"
+      );
+    });
+
+    it("returns error message for embedded credentials", () => {
+      // Arrange & Act & Assert
+      expect(validateUrlWithOptionalProtocol("https://user:pass@example.com")).toBe(
+        "URL must not include credentials"
       );
     });
   });

@@ -1,6 +1,7 @@
 import { memo, useState, useCallback } from "react";
 import { CardHeader } from "../../Card";
 import { Input } from "../../Input";
+import { validateUrlWithOptionalProtocol } from "../../../utils/formValidation";
 
 interface ContactInfo {
   name: string;
@@ -22,16 +23,6 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ContactStep = memo(function ContactStep({ contact, setContact }: ContactStepProps) {
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
 
-  const validateUrl = useCallback((url: string): string | undefined => {
-    if (!url.trim()) return undefined;
-    try {
-      new URL(url.startsWith("http") ? url : `https://${url}`);
-      return undefined;
-    } catch {
-      return "Please enter a valid URL";
-    }
-  }, []);
-
   const validateEmail = useCallback((email: string): string | undefined => {
     if (!email.trim()) return "Email is required";
     if (!EMAIL_REGEX.test(email)) return "Please enter a valid email address";
@@ -49,9 +40,11 @@ const ContactStep = memo(function ContactStep({ contact, setContact }: ContactSt
     let error: string | undefined;
     if (field === "email") error = validateEmail(value);
     else if (field === "phone") error = validatePhone(value);
-    else if (["linkedin", "github", "website"].includes(field)) error = validateUrl(value);
+    else if (["linkedin", "github", "website"].includes(field)) {
+      error = validateUrlWithOptionalProtocol(value);
+    }
     setErrors((prev) => ({ ...prev, [field]: error }));
-  }, [validateEmail, validatePhone, validateUrl]);
+  }, [validateEmail, validatePhone]);
 
   return (
     <div className="space-y-6">

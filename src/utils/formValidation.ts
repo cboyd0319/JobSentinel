@@ -56,6 +56,31 @@ export function validateUrl(url: string): string | undefined {
 }
 
 /**
+ * Validates a URL, allowing users to omit http:// or https:// for profile links.
+ * @param url - URL to validate
+ * @returns Error message if invalid, undefined if valid
+ */
+export function validateUrlWithOptionalProtocol(url: string): string | undefined {
+  if (!url.trim()) return undefined; // Empty is valid (optional field)
+
+  const trimmed = url.trim();
+  const hasScheme = /^[a-z][a-z0-9+.-]*:/i.test(trimmed);
+
+  try {
+    const parsed = new URL(hasScheme ? trimmed : `https://${trimmed}`);
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+      return "URL must use http:// or https://";
+    }
+    if (parsed.username || parsed.password) {
+      return "URL must not include credentials";
+    }
+    return undefined;
+  } catch {
+    return "Please enter a valid URL";
+  }
+}
+
+/**
  * Validates a required URL
  * @param url - URL to validate
  * @returns Error message if invalid, undefined if valid
