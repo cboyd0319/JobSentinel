@@ -108,6 +108,8 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Added a shared 16 MiB decoded HTTP body cap for scraper adapters, scraper health smoke tests, single-page imports, and Telegram error reads; synced scraper architecture docs and pushed `f077f9f`. |
+| 2026-05-21 | In progress | Re-ran root and tracked-artifact junk scans after the response-cap slice. No untracked junk or tracked disposable artifacts were found beyond expected ignored build/cache paths. |
 | 2026-05-21 | In progress | Replaced roadmap, docs index, and style-guide arrow/tree glyphs with plain prose and list text, and added maintained-doc glyph coverage for recurrence. |
 | 2026-05-21 | In progress | Replaced ML feature doc tree markers and ML quickstart checkmark examples with plain text, and widened top-level active doc glyph coverage for recurrence. |
 | 2026-05-21 | In progress | Replaced the frontend error export's stale hardcoded `1.2.0` version with a package-version build define, added test coverage, and added bloat coverage for recurrence. |
@@ -245,6 +247,9 @@ changes or Playwright-specific work.
 
 - Current filesystem bloat scan finds no disposable reports, logs, or artifact
   directories outside ignored build/cache paths.
+- Current root inventory is limited to front-door docs, policy files, tool
+  config, source directories, package manifests, and expected ignored local
+  caches (`node_modules`, `.husky/_`, and `src-tauri/target`).
 - `src/hooks/` still contained exported or tested generic hooks with no
   production imports. Keeping them made hook inventory look larger than active
   app behavior.
