@@ -725,6 +725,44 @@ function hasStaleTestQualityDocGuidance(root, path) {
   );
 }
 
+function hasStaleE2eWaitGuidance(root, path) {
+  if (path !== "tests/e2e/README.md" && path !== "docs/developer/FRONTEND_TESTING.md") {
+    return false;
+  }
+
+  return /waitForLoadState\(["']networkidle["']\)|waitForTimeout\(ms\)/.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
+function hasFixedWaitInE2ePageObject(root, path) {
+  if (!path.startsWith("tests/e2e/playwright/page-objects/") || !path.endsWith(".ts")) {
+    return false;
+  }
+
+  return /\.waitForTimeout\(/.test(readFileSync(join(root, path), "utf8"));
+}
+
+function hasUnreferencedE2eTestHelper(root, path) {
+  if (path !== "tests/e2e/playwright/test-helpers.ts") {
+    return false;
+  }
+
+  return !listTrackedFiles(root).some((trackedPath) => {
+    if (
+      trackedPath === path ||
+      !trackedPath.startsWith("tests/e2e/playwright/") ||
+      !trackedPath.endsWith(".ts")
+    ) {
+      return false;
+    }
+
+    return importSpecifiers(root, trackedPath).some(
+      (specifier) => specifier === "./test-helpers" || specifier.endsWith("/test-helpers"),
+    );
+  });
+}
+
 function hasStaleGettingStartedToolingDocs(root, path) {
   if (path !== "docs/developer/GETTING_STARTED.md") {
     return false;
@@ -1468,6 +1506,18 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleTestQualityDocGuidance(root, path)) {
       violations.push(`replace stale test-quality doc guidance: ${path}`);
+    }
+
+    if (hasStaleE2eWaitGuidance(root, path)) {
+      violations.push(`replace stale E2E wait guidance: ${path}`);
+    }
+
+    if (hasFixedWaitInE2ePageObject(root, path)) {
+      violations.push(`replace fixed E2E page-object wait: ${path}`);
+    }
+
+    if (hasUnreferencedE2eTestHelper(root, path)) {
+      violations.push(`remove unreferenced E2E test helper: ${path}`);
     }
 
     if (hasStaleGettingStartedToolingDocs(root, path)) {

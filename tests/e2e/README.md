@@ -176,9 +176,12 @@ const hasElement = await element.isVisible().catch(() => false);
 
 ### Waiting Strategies
 
-- `waitForLoadState("networkidle")` - Wait for network requests
-- `waitForTimeout(ms)` - Wait for animations/transitions
-- `expect().toBeVisible()` - Wait for element visibility
+- Prefer `expect(locator).toBeVisible()` or `expect.poll()` for user-visible
+  state.
+- Use page-object methods that wait for `#main-content` or a feature-specific
+  element.
+- Keep fixed timeouts out of normal functional suites. Screenshot capture can
+  use explicit waits for visual stability.
 
 ### Page Object Pattern
 

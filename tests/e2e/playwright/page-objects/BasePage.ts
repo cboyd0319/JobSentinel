@@ -11,8 +11,7 @@ export class BasePage {
   }
 
   async goto(path: string = "/") {
-    await this.page.goto(path);
-    await this.page.waitForLoadState("networkidle");
+    await this.page.goto(path, { waitUntil: "domcontentloaded" });
     await this.waitForReady();
   }
 
@@ -20,18 +19,15 @@ export class BasePage {
     const skipButton = this.page.locator("text=Skip for now, button:has-text('Skip')").first();
     if (await skipButton.isVisible().catch(() => false)) {
       await skipButton.click();
-      await this.page.waitForLoadState("networkidle");
-      await this.page.waitForTimeout(500);
+      await this.waitForReady();
     }
   }
 
   async waitForReady() {
-    await this.page.waitForLoadState("networkidle");
-    await this.page.locator("#root > *").first().waitFor({
-      state: "attached",
+    await this.page.locator("#main-content").waitFor({
+      state: "visible",
       timeout: 15000,
     });
-    await this.page.waitForTimeout(300);
   }
 
   async navigateWithKeyboard(pageNumber: number) {

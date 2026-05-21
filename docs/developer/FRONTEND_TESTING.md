@@ -520,7 +520,6 @@ tests/e2e/playwright/
 ├── resume-upload-matching.spec.ts    # Resume library and matching
 ├── screenshots.spec.ts               # Documentation screenshots only
 ├── settings-save-load.spec.ts        # Settings persistence
-├── test-helpers.ts                   # Shared helpers
 └── page-objects/                     # Page Object Model helpers
 ```
 
@@ -535,7 +534,7 @@ test.describe("Job Search Workflow", () => {
   test.beforeEach(async ({ page }) => {
     // Visit app before each test
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await expect(page.getByTestId("job-list")).toBeVisible();
   });
 
   test("should search jobs and apply filters", async ({ page }) => {

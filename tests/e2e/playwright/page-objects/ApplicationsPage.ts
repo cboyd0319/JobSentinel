@@ -113,7 +113,6 @@ export class ApplicationsPage extends BasePage {
       await this.page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + 90, {
         steps: 12,
       });
-      await this.page.waitForTimeout(300);
     }
     await this.page.mouse.up();
 

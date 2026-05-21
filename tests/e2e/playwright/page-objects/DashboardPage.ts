@@ -62,12 +62,10 @@ export class DashboardPage extends BasePage {
 
   async searchForJobs(query: string) {
     await this.searchInput.fill(query);
-    await this.page.waitForTimeout(400);
   }
 
   async clearSearch() {
     await this.searchInput.fill("");
-    await this.page.waitForTimeout(400);
   }
 
   async getJobCard(index: number = 0): Promise<JobCard> {

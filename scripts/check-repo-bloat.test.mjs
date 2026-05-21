@@ -460,6 +460,92 @@ test("checkRepoBloat rejects unsupported Vitest grep docs", () => {
   });
 });
 
+test("checkRepoBloat rejects stale E2E wait guidance", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "tests/e2e/README.md",
+      [
+        "### Waiting Strategies",
+        "",
+        '- `waitForLoadState("networkidle")` - Wait for network requests',
+        "- `waitForTimeout(ms)` - Wait for animations/transitions",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "tests/e2e/README.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace stale E2E wait guidance: tests/e2e/README.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects fixed waits in E2E page objects", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "tests/e2e/playwright/page-objects/BasePage.ts",
+      "export async function wait(page) { await page.waitForTimeout(500); }\n",
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "tests/e2e/playwright/page-objects/BasePage.ts"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace fixed E2E page-object wait: tests/e2e/playwright/page-objects/BasePage.ts",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects unreferenced E2E test helpers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "tests/e2e/playwright/test-helpers.ts",
+      "export async function waitForAnimation(page) { await page.waitForTimeout(300); }\n",
+    );
+    writeFixtureFile(root, "tests/e2e/playwright/app.spec.ts", "import { test } from '@playwright/test';\n");
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "tests/e2e/playwright/test-helpers.ts",
+        "tests/e2e/playwright/app.spec.ts",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove unreferenced E2E test helper: tests/e2e/playwright/test-helpers.ts",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale getting started tooling docs", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
