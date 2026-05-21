@@ -2502,6 +2502,15 @@ function hasProductionTypeErrorSuppression(root, path) {
   return /@ts-(?:expect-error|ignore)\b/.test(text);
 }
 
+function hasProductionHookDependencySuppression(root, path) {
+  if (!isRuntimeFrontendSource(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /eslint-disable(?:-next-line|-line)?\s+react-hooks\/exhaustive-deps/.test(text);
+}
+
 function collectRuntimeInvokeCommands(root) {
   const commands = new Set();
   const commandPattern =
@@ -2687,6 +2696,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasProductionTypeErrorSuppression(root, path)) {
       violations.push(`remove production TypeScript error suppression: ${path}`);
+    }
+
+    if (hasProductionHookDependencySuppression(root, path)) {
+      violations.push(`remove production hook dependency suppression: ${path}`);
     }
 
     if (hasProductionSourceGlyphMarkers(root, path)) {

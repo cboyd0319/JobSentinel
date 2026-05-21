@@ -712,14 +712,14 @@ export const CompanyResearchPanel = memo(function CompanyResearchPanel({ company
 
     // Show "taking longer than expected" after 5 seconds
     const slowLoadingId = setTimeout(() => {
-      if (!cancelled && loading) {
+      if (!cancelled) {
         setTakingLong(true);
       }
     }, 5000);
 
     // Timeout to prevent infinite spinner
     const timeoutId = setTimeout(() => {
-      if (!cancelled && loading) {
+      if (!cancelled) {
         setError('Request timed out. The company lookup is taking too long.');
         setLoading(false);
       }
@@ -755,9 +755,6 @@ export const CompanyResearchPanel = memo(function CompanyResearchPanel({ company
       clearTimeout(timeoutId);
       clearTimeout(slowLoadingId);
     };
-    // Note: 'loading' is intentionally excluded - including it would cause infinite re-renders
-    // The timeouts check loading defensively but the cancelled flag handles the cleanup case
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyName, retryCount]);
 
   const handleRetry = () => {

@@ -347,6 +347,36 @@ test("checkRepoBloat rejects production TypeScript error suppressions", () => {
   });
 });
 
+test("checkRepoBloat rejects production hook dependency suppressions", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/CompanyResearchPanel.tsx",
+      [
+        "useEffect(() => {",
+        "  setLoading(false);",
+        "  // eslint-disable-next-line react-hooks/exhaustive-deps",
+        "}, [companyName]);",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/components/CompanyResearchPanel.tsx"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove production hook dependency suppression: src/components/CompanyResearchPanel.tsx",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects backend scoring reason glyph markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

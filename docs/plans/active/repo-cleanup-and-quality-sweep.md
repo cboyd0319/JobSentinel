@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Removed the Company Research hook dependency suppression by eliminating stale `loading` closures from timeout callbacks, and added bloat coverage for production hook dependency suppressions. |
 | 2026-05-21 | In progress | Removed the web-vitals `@ts-expect-error` by modeling optional browser heap memory explicitly, added memory-present test coverage, and added bloat coverage for production TypeScript error suppressions. |
 | 2026-05-21 | In progress | Removed the TrendChart explicit-any lint suppression by typing chart rows as dynamic objects with unknown field reads, and added component plus bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Hardened Resume Optimizer pasted JSON handling so syntactically valid but malformed ATS resume payloads are rejected before backend invoke; added page tests and bloat coverage. |
