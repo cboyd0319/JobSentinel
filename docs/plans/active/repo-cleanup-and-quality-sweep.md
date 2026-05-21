@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Tightened shared external job URL validation to reject embedded credentials in backend and frontend guards before deep-link opening, job imports, and JobsWithGPT endpoint use. |
 | 2026-05-21 | In progress | Added bloat-sensor coverage for unbounded Rust HTTP body reads, then routed explicit IP geolocation and Discord/Teams webhook error response parsing through the shared bounded reader. |
 | 2026-05-21 | In progress | Reused the shared external URL validator for `jobswithgpt_endpoint` so configured MCP endpoints cannot target localhost or private-network addresses. |
 | 2026-05-21 | In progress | Added a shared 16 MiB decoded HTTP body cap for scraper adapters, scraper health smoke tests, single-page imports, and Telegram error reads; synced scraper architecture docs and pushed `f077f9f`. |

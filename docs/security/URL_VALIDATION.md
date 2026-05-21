@@ -146,6 +146,8 @@ It is used by:
 
 - `src-tauri/src/commands/deeplinks.rs` before opening a job URL in the user's browser.
 - `src-tauri/src/core/import/fetcher.rs` before fetching a user-supplied job page.
+- `src-tauri/src/core/config/validation.rs`, `src-tauri/src/core/scrapers/jobswithgpt.rs`,
+  and `src-tauri/src/core/health/smoke_tests.rs` before using a configured JobsWithGPT endpoint.
 
 The frontend fallback guard in `src/utils/urlValidation.ts` mirrors these
 external job URL rules before any direct `window.open()` fallback.
@@ -159,6 +161,7 @@ must paste the final public job posting URL directly.
 - Parse with `url::Url` before checking components.
 - Allow only `http` and `https`.
 - Require a host.
+- Reject embedded username or password credentials.
 - Reject `localhost` and `*.localhost`.
 - Reject loopback, private, link-local, shared-address, unspecified, multicast, and IPv4-mapped private IPs.
 

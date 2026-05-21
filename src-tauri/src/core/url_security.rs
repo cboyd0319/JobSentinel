@@ -37,6 +37,10 @@ pub fn validate_external_http_url(url: &str) -> Result<Url, String> {
         }
     }
 
+    if !parsed.username().is_empty() || parsed.password().is_some() {
+        return Err("Blocked URL with embedded credentials".to_string());
+    }
+
     let host = parsed
         .host_str()
         .ok_or_else(|| "URL must include a host".to_string())?
@@ -165,6 +169,16 @@ mod tests {
     fn blocks_non_http_schemes() {
         assert!(validate_external_http_url("file:///etc/passwd").is_err());
         assert!(validate_external_http_url("javascript:alert(1)").is_err());
+    }
+
+    #[test]
+    fn blocks_embedded_credentials() {
+        for url in [
+            "https://user@example.com/jobs",
+            "https://user:pass@example.com/jobs",
+        ] {
+            assert!(validate_external_http_url(url).is_err(), "{url}");
+        }
     }
 
     #[test]

@@ -45,4 +45,9 @@ describe("isValidJobUrl", () => {
     expect(isValidJobUrl("file:///etc/passwd")).toBe(false);
     expect(isValidJobUrl("javascript:alert(1)")).toBe(false);
   });
+
+  it("blocks embedded credentials", () => {
+    expect(isValidJobUrl("https://user@example.com/jobs")).toBe(false);
+    expect(isValidJobUrl("https://user:pass@example.com/jobs")).toBe(false);
+  });
 });

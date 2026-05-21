@@ -8,7 +8,7 @@ use super::http_client::{read_json_with_limit, send_with_retry};
 use super::rate_limiter::{limits, RateLimiter};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
-use crate::core::url_security::sanitize_url_for_logging;
+use crate::core::url_security::{sanitize_url_for_logging, validate_external_http_url};
 
 use async_trait::async_trait;
 use chrono::Utc;
@@ -48,6 +48,11 @@ impl JobsWithGptScraper {
 
     /// Query JobsWithGPT MCP server
     async fn query_mcp(&self) -> ScraperResult {
+        validate_external_http_url(&self.endpoint).map_err(|reason| ScraperError::InvalidUrl {
+            url: self.endpoint.clone(),
+            reason,
+        })?;
+
         tracing::info!("Querying JobsWithGPT MCP server");
 
         // Use rate limiter (MCP server, high limit)
@@ -641,6 +646,23 @@ mod tests {
         assert_eq!(scraper.query.titles.len(), 1);
         assert_eq!(scraper.query.remote_only, true);
         assert_eq!(scraper.name(), "jobswithgpt");
+    }
+
+    #[tokio::test]
+    async fn test_query_mcp_rejects_endpoint_credentials_before_request() {
+        let scraper = JobsWithGptScraper::new(
+            "https://user:pass@api.jobswithgpt.com/mcp".to_string(),
+            JobQuery {
+                titles: vec!["Rust Engineer".to_string()],
+                location: None,
+                remote_only: true,
+                limit: 10,
+            },
+        );
+
+        let result = scraper.query_mcp().await;
+
+        assert!(matches!(result, Err(ScraperError::InvalidUrl { .. })));
     }
 
     #[test]

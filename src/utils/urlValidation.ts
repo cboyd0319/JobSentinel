@@ -21,6 +21,10 @@ export function isValidJobUrl(url: string): boolean {
       return false;
     }
 
+    if (parsed.username || parsed.password) {
+      return false;
+    }
+
     // Block localhost and private IP ranges
     const hostname = parsed.hostname.toLowerCase().replace(/\.$/, '');
     const ipHostname = hostname.startsWith('[') && hostname.endsWith(']')
