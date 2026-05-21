@@ -14,7 +14,10 @@ See [Exec Plans](../exec-plans.md) for required format.
 
 ## Current Active Plans
 
-No active release plans are tracked in this folder right now.
+| Workstream | Document |
+| ---------- | -------- |
+| Repo cleanup and quality sweep | [Active plan](active/repo-cleanup-and-quality-sweep.md) |
+| Repo cleanup handoff | [Current handoff](active/repo-cleanup-handoff.md) |
 
 ## Plan Requirements
 
