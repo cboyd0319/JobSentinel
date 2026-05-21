@@ -5445,6 +5445,34 @@ test("checkRepoBloat rejects stale ATS keyword match frontend shape", () => {
   });
 });
 
+test("checkRepoBloat rejects unsafe Resume Optimizer JSON parsing", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/pages/ResumeOptimizer.tsx",
+      [
+        "async function handleAnalyze() {",
+        "  const resume: AtsResumeData = JSON.parse(resumeJson);",
+        "  await invoke('analyze_resume_format', { resume });",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/pages/ResumeOptimizer.tsx"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("validate Resume Optimizer JSON before invoke: src/pages/ResumeOptimizer.tsx"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects runtime frontend invokes missing dev mock cases", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

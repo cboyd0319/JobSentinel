@@ -2454,6 +2454,19 @@ function hasStaleAtsKeywordMatchFrontendShape(root, path) {
   return /\bfound_in\s*:\s*string\s*[;\n]/.test(text) || /\bcontext\s*:\s*string\s*[;\n]/.test(text);
 }
 
+function hasUnsafeResumeOptimizerJsonParsing(root, path) {
+  if (path !== "src/pages/ResumeOptimizer.tsx") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /const\s+resume:\s*AtsResumeData\s*=\s*JSON\.parse\(resumeJson\)/.test(text) ||
+    !/function\s+isAtsResumeData/.test(text) ||
+    !/parseAtsResumeInput/.test(text)
+  );
+}
+
 function stripTypeScriptComments(text) {
   return text
     .replace(/\/\*[\s\S]*?\*\//g, "")
@@ -3096,6 +3109,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleAtsKeywordMatchFrontendShape(root, path)) {
       violations.push(`sync ATS keyword match frontend shape: ${path}`);
+    }
+
+    if (hasUnsafeResumeOptimizerJsonParsing(root, path)) {
+      violations.push(`validate Resume Optimizer JSON before invoke: ${path}`);
     }
 
     const missingMockCases = missingRuntimeMockInvokeCases(root, path);
