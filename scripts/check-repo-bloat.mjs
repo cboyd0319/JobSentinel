@@ -468,6 +468,11 @@ function isForbiddenFileName(name) {
   return forbiddenFileExtensions.has(extname(name));
 }
 
+function isForbiddenEmptyDirectory(path) {
+  return /^(?:docs|examples|profiles|scripts|src|tests)\//.test(path) ||
+    path.startsWith("src-tauri/src/");
+}
+
 function collectUnexpectedRootEntries(root) {
   const violations = [];
 
@@ -500,6 +505,11 @@ function collectFilesystemBloat(root, dir = root) {
     if (entry.isDirectory()) {
       if (forbiddenArtifactDirs.has(entry.name)) {
         violations.push(`${rel}/ is a disposable local artifact`);
+        continue;
+      }
+
+      if (isForbiddenEmptyDirectory(rel) && readdirSync(fullPath).length === 0) {
+        violations.push(`${rel}/ is an empty local directory`);
         continue;
       }
 

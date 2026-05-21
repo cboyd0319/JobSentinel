@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Removed the empty `src/components/settings/` directory left behind by earlier helper cleanup, and added bloat coverage so empty source/doc/test directories are flagged during local scans. |
 | 2026-05-21 | In progress | Routed remaining direct frontend component, hook, service, and error-boundary development error logs through the sanitized logger so raw errors, stacks, tokens, emails, webhook URLs, and local paths are redacted before console output; added bloat coverage. |
 | 2026-05-21 | In progress | Sanitized shared frontend `logError` development output so component and utility callers no longer pass raw errors, stacks, tokens, emails, webhook URLs, or user paths to `console.error`; added bloat coverage. |
 | 2026-05-21 | In progress | Sanitized frontend `logErrorDetails` dev console output so error messages, context, stack traces, URLs, tokens, emails, cookies, and user paths are redacted before logging, with bloat coverage for recurrence. |

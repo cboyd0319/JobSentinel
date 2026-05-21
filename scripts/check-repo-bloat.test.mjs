@@ -145,6 +145,22 @@ test("checkRepoBloat rejects tracked source-tree markdown notes", () => {
   });
 });
 
+test("checkRepoBloat rejects empty source directories", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    mkdirSync(join(root, "src/components/settings"), { recursive: true });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove local artifact: src/components/settings/ is an empty local directory",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects unreferenced docs images", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
