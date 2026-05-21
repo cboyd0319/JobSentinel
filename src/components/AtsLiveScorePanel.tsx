@@ -15,6 +15,7 @@ import { Modal, ModalFooter } from "./Modal";
 import { Tooltip } from "./Tooltip";
 import { logError } from "../utils/errorUtils";
 import { getScoreColor, getScoreBg, getScoreLabel } from "../utils/scoreUtils";
+import { readStorageValue } from "../utils/browserStorage";
 
 // Full ATS analysis result from backend
 export interface AtsAnalysisResult {
@@ -170,7 +171,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
   // Load job context from sessionStorage (set by ATS Optimizer)
   useEffect(() => {
     try {
-      const stored = sessionStorage.getItem("jobContext");
+      const stored = readStorageValue("session", "jobContext");
       if (stored) {
         const parsed = JSON.parse(stored);
         // Only use if less than 24 hours old

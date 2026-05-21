@@ -4,6 +4,7 @@ import { Button } from './Button';
 import { Badge } from './Badge';
 import { LoadingSpinner } from './LoadingSpinner';
 import { COMPANY_CACHE_TTL } from '../utils/constants';
+import { readStorageValue, writeStorageValue } from '../utils/browserStorage';
 
 interface CompanyInfo {
   name: string;
@@ -37,7 +38,7 @@ interface CacheEntry {
 
 function loadCache(): Record<string, CacheEntry> {
   try {
-    const stored = localStorage.getItem(CACHE_KEY);
+    const stored = readStorageValue('local', CACHE_KEY);
     return stored ? JSON.parse(stored) : {};
   } catch {
     return {};
@@ -45,11 +46,7 @@ function loadCache(): Record<string, CacheEntry> {
 }
 
 function saveCache(cache: Record<string, CacheEntry>): void {
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
-  } catch {
-    // Ignore storage errors
-  }
+  writeStorageValue('local', CACHE_KEY, JSON.stringify(cache));
 }
 
 function getCachedCompany(name: string): CompanyInfo | null {

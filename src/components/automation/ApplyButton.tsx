@@ -7,6 +7,7 @@ import { useToast } from "../../contexts";
 import { logError } from "../../utils/errorUtils";
 import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
 import { ApplicationPreview } from "./ApplicationPreview";
+import { readStorageValue, removeStorageValue, writeStorageValue } from "../../utils/browserStorage";
 
 interface Job {
   id: number;
@@ -67,7 +68,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
 
   // Check for previous attempt on mount
   useEffect(() => {
-    const stored = localStorage.getItem(`lastAttempt_${job.hash}`);
+    const stored = readStorageValue("local", `lastAttempt_${job.hash}`);
     if (stored) {
       const attemptId = parseInt(stored, 10);
       if (!isNaN(attemptId)) {
@@ -181,7 +182,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
 
       // Store attempt ID for later tracking
       if (result.attemptId) {
-        localStorage.setItem(`lastAttempt_${job.hash}`, result.attemptId.toString());
+        writeStorageValue("local", `lastAttempt_${job.hash}`, result.attemptId.toString());
       }
 
       onApplied?.();
@@ -241,7 +242,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
         logContext: "Mark application submitted",
       });
       toast.success("Marked as submitted", "Your application has been tracked");
-      localStorage.removeItem(`lastAttempt_${job.hash}`);
+      removeStorageValue("local", `lastAttempt_${job.hash}`);
       setLastAttemptId(null);
       setShowSubmitConfirm(false);
       onApplied?.();
@@ -251,7 +252,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
   };
 
   const handleSkipTracking = () => {
-    localStorage.removeItem(`lastAttempt_${job.hash}`);
+    removeStorageValue("local", `lastAttempt_${job.hash}`);
     setLastAttemptId(null);
     setShowSubmitConfirm(false);
     toast.info("Browser closed", "Application not tracked");

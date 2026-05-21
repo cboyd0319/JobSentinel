@@ -1,5 +1,6 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { errorReporter } from '../utils/errorReporting';
+import { clearStorage, readStorageValue, writeStorageValue } from '../utils/browserStorage';
 
 const VISUAL_PREFERENCE_KEYS = [
   'jobsentinel-theme',
@@ -78,15 +79,15 @@ class ErrorBoundary extends Component<Props, State> {
   private handleClearData = () => {
     const visualPreferences: Array<[string, string]> = [];
     for (const key of VISUAL_PREFERENCE_KEYS) {
-      const value = localStorage.getItem(key);
+      const value = readStorageValue('local', key);
       if (value !== null) {
         visualPreferences.push([key, value]);
       }
     }
 
-    localStorage.clear();
+    clearStorage('local');
     for (const [key, value] of visualPreferences) {
-      localStorage.setItem(key, value);
+      writeStorageValue('local', key, value);
     }
     window.location.reload();
   };

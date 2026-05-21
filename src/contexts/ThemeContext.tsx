@@ -1,10 +1,15 @@
 import { useEffect, useState, useCallback, useMemo, ReactNode } from "react";
 import { ThemeContext } from "./themeContextDef";
+import { readStorageValue, writeStorageValue } from "../utils/browserStorage";
 
 type Theme = "light" | "dark" | "system";
 
 const STORAGE_KEY = "jobsentinel-theme";
 const HIGH_CONTRAST_KEY = "jobsentinel-high-contrast";
+
+function isTheme(value: string | null): value is Theme {
+  return value === "light" || value === "dark" || value === "system";
+}
 
 function getSystemTheme(): "light" | "dark" {
   if (typeof window !== "undefined") {
@@ -15,12 +20,8 @@ function getSystemTheme(): "light" | "dark" {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
-      // Default to dark mode for new users
-      return stored || "dark";
-    }
-    return "dark";
+    const stored = readStorageValue("local", STORAGE_KEY);
+    return isTheme(stored) ? stored : "dark";
   });
 
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">(() => {
@@ -29,10 +30,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   });
 
   const [highContrast, setHighContrastState] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem(HIGH_CONTRAST_KEY) === "true";
-    }
-    return false;
+    return readStorageValue("local", HIGH_CONTRAST_KEY) === "true";
   });
 
   useEffect(() => {
@@ -74,21 +72,21 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem(STORAGE_KEY, newTheme);
+    writeStorageValue("local", STORAGE_KEY, newTheme);
   }, []);
 
   const toggleTheme = useCallback(() => {
     setThemeState(prev => {
       const currentResolved = prev === "system" ? getSystemTheme() : prev;
       const newTheme = currentResolved === "light" ? "dark" : "light";
-      localStorage.setItem(STORAGE_KEY, newTheme);
+      writeStorageValue("local", STORAGE_KEY, newTheme);
       return newTheme;
     });
   }, []);
 
   const setHighContrast = useCallback((enabled: boolean) => {
     setHighContrastState(enabled);
-    localStorage.setItem(HIGH_CONTRAST_KEY, String(enabled));
+    writeStorageValue("local", HIGH_CONTRAST_KEY, String(enabled));
   }, []);
 
   const value = useMemo(() => ({

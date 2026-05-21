@@ -1,5 +1,6 @@
 import { memo, useState, useEffect, useCallback, type ReactNode } from "react";
 import { OnboardingContext, useOnboarding } from "../hooks/useOnboarding";
+import { readStorageValue, writeStorageValue } from "../utils/browserStorage";
 
 interface TourStep {
   target: string; // CSS selector
@@ -20,7 +21,7 @@ export function OnboardingProvider({ children, steps }: OnboardingProviderProps)
   const [currentStep, setCurrentStep] = useState(0);
   // Use lazy initialization to avoid setState in effect
   const [hasCompletedTour, setHasCompletedTour] = useState(() => {
-    const completed = localStorage.getItem(TOUR_STORAGE_KEY);
+    const completed = readStorageValue("local", TOUR_STORAGE_KEY);
     return completed === "true";
   });
 
@@ -32,7 +33,7 @@ export function OnboardingProvider({ children, steps }: OnboardingProviderProps)
   const endTour = useCallback(() => {
     setIsActive(false);
     setHasCompletedTour(true);
-    localStorage.setItem(TOUR_STORAGE_KEY, "true");
+    writeStorageValue("local", TOUR_STORAGE_KEY, "true");
   }, []);
 
   const nextStep = useCallback(() => {

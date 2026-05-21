@@ -8,6 +8,7 @@ import { Modal, ModalFooter } from "../components/Modal";
 import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
 import { getScoreColor, getScoreBg } from "../utils/scoreUtils";
+import { writeStorageValue } from "../utils/browserStorage";
 
 // TypeScript Types
 interface ContactInfo {
@@ -306,11 +307,17 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
       return;
     }
 
-    // Store job description in sessionStorage for resume builder
-    sessionStorage.setItem("jobContext", JSON.stringify({
+    const saved = writeStorageValue("session", "jobContext", JSON.stringify({
       description: jobDescription,
       timestamp: Date.now(),
     }));
+    if (!saved) {
+      toast.error(
+        "Could not save job context",
+        "Browser session storage is unavailable. Resume Builder cannot tailor against this job."
+      );
+      return;
+    }
 
     onNavigate("resume-builder");
     toast.success("Navigating to Resume Builder", "Job context has been saved");

@@ -9,6 +9,7 @@ import { Tooltip } from "../components/Tooltip";
 import { AtsLiveScorePanel } from "../components/AtsLiveScorePanel";
 import { useToast } from "../hooks/useToast";
 import { safeInvoke, safeInvokeWithToast } from "../utils/api";
+import { readStorageValue, removeStorageValue } from "../utils/browserStorage";
 
 // TypeScript Types
 interface Resume {
@@ -388,6 +389,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
   const [atsAnalysis, setAtsAnalysis] = useState<ATSAnalysis | null>(null);
   const [importingSkills, setImportingSkills] = useState(false);
   const initializedRef = useRef(false);
+  const hasJobContext = readStorageValue("session", "jobContext") !== null;
 
   // Contact form state
   const [contact, setContact] = useState<ContactInfo>({
@@ -1622,7 +1624,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
             />
 
             {/* Job Context Info */}
-            {typeof window !== "undefined" && sessionStorage.getItem("jobContext") && (
+            {hasJobContext && (
               <div className="bg-white dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700 shadow-sm p-4">
                 <h4 className="text-sm font-semibold text-surface-800 dark:text-surface-200 mb-2 flex items-center gap-2">
                   <svg className="w-4 h-4 text-sentinel-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1635,7 +1637,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                 </p>
                 <button
                   onClick={() => {
-                    sessionStorage.removeItem("jobContext");
+                    removeStorageValue("session", "jobContext");
                     window.location.reload();
                   }}
                   className="mt-2 text-xs text-red-600 dark:text-red-400 hover:underline"

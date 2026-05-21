@@ -13,6 +13,7 @@ import { PieChart } from "recharts/es6/chart/PieChart";
 import { Pie } from "recharts/es6/polar/Pie";
 import { Cell } from "recharts/es6/component/Cell";
 import { Legend } from "recharts/es6/component/Legend";
+import { readStorageValue, writeStorageValue } from "../utils/browserStorage";
 
 interface StatusCounts {
   to_apply: number;
@@ -125,7 +126,7 @@ const SOURCE_COLORS: Record<string, string> = {
 
 function getWeeklyGoal(): WeeklyGoal | null {
   try {
-    const stored = localStorage.getItem(WEEKLY_GOALS_KEY);
+    const stored = readStorageValue("local", WEEKLY_GOALS_KEY);
     return stored ? JSON.parse(stored) : null;
   } catch {
     return null;
@@ -143,7 +144,7 @@ function saveWeeklyGoal(target: number): void {
     target,
     weekStart: weekStart.toISOString(),
   };
-  localStorage.setItem(WEEKLY_GOALS_KEY, JSON.stringify(goal));
+  writeStorageValue("local", WEEKLY_GOALS_KEY, JSON.stringify(goal));
 }
 
 function getCurrentWeekApplications(weeklyData: WeeklyData[]): number {

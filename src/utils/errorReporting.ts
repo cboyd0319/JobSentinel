@@ -5,6 +5,8 @@
  * Can be extended to integrate with external services like Sentry.
  */
 
+import { readStorageValue, writeStorageValue } from './browserStorage';
+
 export interface ErrorReport {
   id: string;
   timestamp: string;
@@ -385,7 +387,7 @@ class ErrorReporter {
 
   private loadFromStorage(): void {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = readStorageValue('local', STORAGE_KEY);
       if (stored) {
         this.errors = JSON.parse(stored).map((report: ErrorReport) =>
           sanitizeStoredReport(report)
@@ -399,7 +401,7 @@ class ErrorReporter {
 
   private saveToStorage(): void {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.errors));
+      writeStorageValue('local', STORAGE_KEY, JSON.stringify(this.errors));
     } catch (e: unknown) {
       console.warn('[ErrorReporter] Failed to save to storage:', e);
     }
