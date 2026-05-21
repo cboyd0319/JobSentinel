@@ -2131,7 +2131,7 @@ test("checkRepoBloat rejects synonym and remote preference doc drift", () => {
   });
 });
 
-test("checkRepoBloat rejects Market Intelligence doc emoji markers", () => {
+test("checkRepoBloat rejects Market Intelligence doc glyph markers", () => {
   withGitFixture((root) => {
     const chartIcon = String.fromCodePoint(0x1f4c8);
     const moneyIcon = String.fromCodePoint(0x1f4b0);
@@ -2142,6 +2142,11 @@ test("checkRepoBloat rejects Market Intelligence doc emoji markers", () => {
       [
         `## ${chartIcon} Overview`,
         `- **${moneyIcon} Salary Trends** - Monitor salary changes`,
+        "┌──────────────┐",
+        "│ Dashboard    │",
+        "└──────────────┘",
+        "Trend → Dashboard",
+        "Company ▲",
         "pub fn severity_emoji(&self) -> &str;",
         "pub fn sentiment_emoji(&self) -> &str;",
         "",
@@ -2156,7 +2161,7 @@ test("checkRepoBloat rejects Market Intelligence doc emoji markers", () => {
 
     assert.ok(
       violations.includes(
-        "replace Market Intelligence doc emoji/stale indicator markers: docs/features/market-intelligence.md",
+        "replace Market Intelligence doc glyph/stale indicator markers: docs/features/market-intelligence.md",
       ),
       violations.join("\n"),
     );

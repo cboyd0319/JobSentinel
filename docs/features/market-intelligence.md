@@ -60,28 +60,14 @@ data-driven career decisions with comprehensive market insights.
 
 ### System Components
 
-```text
-┌─────────────────────────────────────────────────┐
-│      Job Market Intelligence Engine             │
-│                                                  │
-│  ┌──────────────┐      ┌──────────────────────┐│
-│  │  Daily Data  │----->│  Trend Computation   ││
-│  │  Aggregation │      │  (Skills, Salaries)  ││
-│  └──────────────┘      └──────────────────────┘│
-│         │                       │               │
-│         ▼                       ▼               │
-│  ┌──────────────┐      ┌──────────────────────┐│
-│  │   Market     │      │   Alert Detection    ││
-│  │  Snapshots   │      │   (Anomalies)        ││
-│  └──────────────┘      └──────────────────────┘│
-└─────────────────────────────────────────────────┘
-              │                    │
-              ▼                    ▼
-       ┌────────────┐      ┌────────────────┐
-       │  Dashboard │      │  Notifications │
-       │   Charts   │      │   & Alerts     │
-       └────────────┘      └────────────────┘
-```
+Market Intelligence uses this flow:
+
+1. Daily data aggregation collects normalized job, company, skill, salary, and location signals.
+2. Trend computation turns those signals into skill, salary, company, location, and role metrics.
+3. Market snapshots store daily aggregate health indicators.
+4. Alert detection finds notable changes such as skill surges, salary spikes, and hiring sprees.
+5. Dashboard charts read the latest snapshots and trends.
+6. Notifications deliver unread alerts through configured channels.
 
 **v1.5.0 Refactoring Note:** This module was refactored from a single 2703-line file into 4 focused submodules:
 
@@ -95,54 +81,40 @@ data-driven career decisions with comprehensive market insights.
 ```sql
 -- Skill demand over time
 skill_demand_trends
-├── skill_name, date
-├── mention_count, job_count
-├── avg_salary, median_salary
-└── top_company, top_location
+fields: skill_name, date, mention_count, job_count, avg_salary,
+median_salary, top_company, top_location
 
 -- Salary movements
 salary_trends
-├── job_title_normalized, location_normalized, date
-├── min/p25/median/p75/max_salary
-├── sample_size
-└── salary_growth_pct
+fields: job_title_normalized, location_normalized, date, min_salary,
+p25_salary, median_salary, p75_salary, max_salary, sample_size,
+salary_growth_pct
 
 -- Company hiring activity
 company_hiring_velocity
-├── company_name, date
-├── jobs_posted/filled/active_count
-├── hiring_trend (increasing/stable/decreasing)
-└── top_role, top_location
+fields: company_name, date, jobs_posted_count, jobs_filled_count,
+active_count, hiring_trend, top_role, top_location
 
 -- Geographic distribution
 location_job_density
-├── location_normalized, city, state
-├── job_count, remote_job_count
-├── avg/median_salary
-└── top_skill, top_company, top_role
+fields: location_normalized, city, state, job_count, remote_job_count,
+avg_salary, median_salary, top_skill, top_company, top_role
 
 -- Daily market health
 market_snapshots
-├── date, total_jobs, new_jobs_today
-├── avg/median_salary
-├── remote_job_percentage
-├── market_sentiment (bullish/neutral/bearish)
-└── top_skill, top_company, top_location
+fields: date, total_jobs, new_jobs_today, avg_salary, median_salary,
+remote_job_percentage, market_sentiment, top_skill, top_company,
+top_location
 
 -- Role demand trends
 role_demand_trends
-├── job_title_normalized, date
-├── job_count, avg/median_salary
-├── demand_trend (rising/stable/falling)
-└── remote_percentage
+fields: job_title_normalized, date, job_count, avg_salary,
+median_salary, demand_trend, remote_percentage
 
 -- Market alerts
 market_alerts
-├── alert_type (skill_surge, salary_spike, hiring_spree, etc.)
-├── title, description, severity
-├── related_entity (skill/company/location/role)
-├── metric_value, metric_change_pct
-└── is_read, created_at
+fields: alert_type, title, description, severity, related_entity,
+metric_value, metric_change_pct, is_read, created_at
 ```
 
 ---
@@ -678,44 +650,33 @@ scheduler.schedule_weekly("0 3 * * 0", || async {
 ## Example Dashboard Mockup
 
 ```text
-┌────────────────────────────────────────────────────────────┐
-│  Job Market Intelligence Dashboard                         │
-├────────────────────────────────────────────────────────────┤
-│                                                            │
-│  Market Snapshot (Jan 20, 2026)        [UP] Bullish      │
-│  ────────────────────────────────────────────────────      │
-│  Total Jobs:        10,500                                 │
-│  New Today:         150                                    │
-│  Median Salary:     $145,000                              │
-│  Remote Jobs:       35.5%                                 │
-│  Top Skill:         Python                                │
-│                                                            │
-├────────────────────────────────────────────────────────────┤
-│  Trending Skills (Last 30 Days)                            │
-│  ────────────────────────────────────────────────────      │
-│  1. Python          1,250 jobs    $135k avg    +15%       │
-│  2. React           1,100 jobs    $130k avg    +22%       │
-│  3. TypeScript        950 jobs    $140k avg    +18%       │
-│  4. AWS               800 jobs    $145k avg    +10%       │
-│  5. Docker            750 jobs    $138k avg    +25%       │
-│                                                            │
-├────────────────────────────────────────────────────────────┤
-│  Most Active Companies                                     │
-│  ────────────────────────────────────────────────────      │
-│  1. Google          125 posted    450 active   ▲          │
-│  2. Meta            100 posted    380 active   ─          │
-│  3. Amazon           95 posted    520 active   ▲          │
-│  4. Microsoft        85 posted    410 active   ─          │
-│  5. Netflix          50 posted    180 active   ▼          │
-│                                                            │
-├────────────────────────────────────────────────────────────┤
-│  Market Alerts (3 unread)                                  │
-│  ────────────────────────────────────────────────────      │
-│  [SKILL+] Rust demand surging! (+75%)                     │
-│  [SALARY+] DevOps salaries spiking in Austin (+28%)       │
-│  [HIRING] Meta hiring aggressively (35 jobs today)        │
-│                                                            │
-└────────────────────────────────────────────────────────────┘
+Job Market Intelligence Dashboard
+
+Market Snapshot (Jan 20, 2026): Bullish
+- Total Jobs: 10,500
+- New Today: 150
+- Median Salary: $145,000
+- Remote Jobs: 35.5%
+- Top Skill: Python
+
+Trending Skills (Last 30 Days)
+1. Python: 1,250 jobs, $135k average, +15%
+2. React: 1,100 jobs, $130k average, +22%
+3. TypeScript: 950 jobs, $140k average, +18%
+4. AWS: 800 jobs, $145k average, +10%
+5. Docker: 750 jobs, $138k average, +25%
+
+Most Active Companies
+1. Google: 125 posted, 450 active, rising
+2. Meta: 100 posted, 380 active, stable
+3. Amazon: 95 posted, 520 active, rising
+4. Microsoft: 85 posted, 410 active, stable
+5. Netflix: 50 posted, 180 active, falling
+
+Market Alerts (3 unread)
+- [SKILL+] Rust demand surging! (+75%)
+- [SALARY+] DevOps salaries spiking in Austin (+28%)
+- [HIRING] Meta hiring aggressively (35 jobs today)
 ```
 
 ---

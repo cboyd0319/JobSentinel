@@ -1093,12 +1093,12 @@ function hasStaleSqliteConfigurationDoc(root, path) {
   );
 }
 
-function hasMarketIntelligenceDocEmojiMarkers(root, path) {
+function hasMarketIntelligenceDocGlyphMarkers(root, path) {
   if (path !== "docs/features/market-intelligence.md") {
     return false;
   }
 
-  return /(?:\p{Extended_Pictographic}|severity_emoji|type_emoji|sentiment_emoji)/u.test(
+  return /(?:\p{Extended_Pictographic}|severity_emoji|type_emoji|sentiment_emoji|[\u{2190}-\u{21ff}\u{2500}-\u{257f}\u{25b2}\u{25bc}])/u.test(
     readFileSync(join(root, path), "utf8"),
   );
 }
@@ -2108,8 +2108,8 @@ export function checkRepoBloat(root = defaultRoot) {
       violations.push(`sync SQLite configuration doc: ${path}`);
     }
 
-    if (hasMarketIntelligenceDocEmojiMarkers(root, path)) {
-      violations.push(`replace Market Intelligence doc emoji/stale indicator markers: ${path}`);
+    if (hasMarketIntelligenceDocGlyphMarkers(root, path)) {
+      violations.push(`replace Market Intelligence doc glyph/stale indicator markers: ${path}`);
     }
 
     if (hasResumeOrSalaryFeatureDocEmojiMarkers(root, path)) {
