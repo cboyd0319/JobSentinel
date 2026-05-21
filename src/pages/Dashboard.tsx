@@ -70,12 +70,10 @@ import { useDashboardSearch } from "./hooks/useDashboardSearch";
 import { useDashboardJobOps } from "./hooks/useDashboardJobOps";
 import { useDashboardSavedSearches } from "./hooks/useDashboardSavedSearches";
 import { useDashboardAutoRefresh } from "./hooks/useDashboardAutoRefresh";
-import {
-  DashboardHeader,
-  DashboardStats,
-  DashboardFiltersBar,
-  QuickActions,
-} from "./DashboardUI";
+import { DashboardFiltersBar } from "./DashboardUI/DashboardFiltersBar";
+import { DashboardHeader } from "./DashboardUI/DashboardHeader";
+import { DashboardStats } from "./DashboardUI/DashboardStats";
+import { QuickActions } from "./DashboardUI/QuickActions";
 
 export default function Dashboard({
   onNavigate: _onNavigate,

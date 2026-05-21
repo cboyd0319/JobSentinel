@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Replaced one-call-site automation, feedback, and Dashboard UI barrel imports with direct imports, removed those local barrels, and extended bloat coverage to catch recurring unreferenced barrel modules. |
 | 2026-05-20 | In progress | Replaced the remaining broad `src/components` barrel imports with direct component imports, removed the unused component barrel, and added bloat coverage so broad unreferenced barrels do not return. |
 | 2026-05-20 | In progress | Removed deprecated `@types/dompurify` stub package after confirming `dompurify` exports its own TypeScript declarations, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Removed the redundant direct `playwright` dev dependency now that `@playwright/test` owns the runner, confirmed the Playwright CLI still resolves through transitive ownership, and added bloat coverage for recurrence. |
@@ -217,6 +218,9 @@ changes or Playwright-specific work.
 - `src/components/index.ts` re-exported nearly every component and some utility
   helpers, while live production imports only needed a few dashboard UI symbols.
   Direct imports remove that stale public surface.
+- `src/components/automation/index.ts`, `src/components/feedback/index.ts`, and
+  `src/pages/DashboardUI/index.ts` were local barrels with one production caller
+  each, so direct imports better match ownership and avoid stale export surfaces.
 - Storybook build completed but warned twice that `@chromatic-com/storybook`
   was configured without being installed. The Storybook story globs also
   included `src/**/*.mdx` even though no tracked MDX stories exist.

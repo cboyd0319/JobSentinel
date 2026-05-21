@@ -156,6 +156,12 @@ const unreferencedSourceHelpers = new Map([
   ["src/utils/cacheStrategies.ts", "cacheStrategies"],
 ]);
 
+const unreferencedBarrelModules = new Set([
+  "src/components/automation/index.ts",
+  "src/components/feedback/index.ts",
+  "src/pages/DashboardUI/index.ts",
+]);
+
 const speculativeCloudDeploymentDocs = new Map([
   [
     "docs/developer/ARCHITECTURE.md",
@@ -445,15 +451,42 @@ function hasUnreferencedSourceHelper(root, path) {
   });
 }
 
-function importsComponentsBarrel(root, path) {
-  if (!isProductionTypeScriptSource(path) || path === "src/components/index.ts") {
+function importSpecifiers(root, path) {
+  const text = readFileSync(join(root, path), "utf8");
+  const specifiers = [];
+  const importPattern =
+    /(?:import\s+(?:type\s+)?(?:[\s\S]*?\s+from\s*)?|export\s+(?:type\s+)?[\s\S]*?\s+from\s*|import\s*\()\s*["']([^"']+)["']/g;
+
+  for (const match of text.matchAll(importPattern)) {
+    specifiers.push(match[1]);
+  }
+
+  return specifiers;
+}
+
+function resolveImportSpecifier(importerPath, specifier) {
+  if (specifier.startsWith("@/")) {
+    return normalizeRepoPath(join("src", specifier.slice(2)));
+  }
+
+  if (specifier.startsWith(".")) {
+    return normalizeRepoPath(join(dirname(importerPath), specifier));
+  }
+
+  return null;
+}
+
+function importsBarrelPath(root, path, barrelPath) {
+  if (!isProductionTypeScriptSource(path) || path === barrelPath) {
     return false;
   }
 
-  const text = readFileSync(join(root, path), "utf8");
-  return /(?:from\s*["']|import\s*\(\s*["'])(?:\.{1,2}\/)+(?:[^"']*\/)?components["']/.test(
-    text,
-  );
+  const barrelImportPath = barrelPath.replace(/\/index\.ts$/, "");
+
+  return importSpecifiers(root, path).some((specifier) => {
+    const resolvedPath = resolveImportSpecifier(path, specifier);
+    return resolvedPath === barrelImportPath || resolvedPath === barrelPath.replace(/\.ts$/, "");
+  });
 }
 
 function hasUnreferencedComponentsBarrel(root, path) {
@@ -461,7 +494,19 @@ function hasUnreferencedComponentsBarrel(root, path) {
     return false;
   }
 
-  return !listTrackedFiles(root).some((trackedPath) => importsComponentsBarrel(root, trackedPath));
+  return !listTrackedFiles(root).some((trackedPath) =>
+    importsBarrelPath(root, trackedPath, path),
+  );
+}
+
+function hasUnreferencedBarrelModule(root, path) {
+  if (!unreferencedBarrelModules.has(path)) {
+    return false;
+  }
+
+  return !listTrackedFiles(root).some((trackedPath) =>
+    importsBarrelPath(root, trackedPath, path),
+  );
 }
 
 function hasSpeculativeCloudDeploymentDoc(root, path) {
@@ -1288,6 +1333,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasUnreferencedComponentsBarrel(root, path)) {
       violations.push(`remove unreferenced components barrel: ${path}`);
+    }
+
+    if (hasUnreferencedBarrelModule(root, path)) {
+      violations.push(`remove unreferenced barrel module: ${path}`);
     }
 
     if (hasSpeculativeCloudDeploymentDoc(root, path)) {

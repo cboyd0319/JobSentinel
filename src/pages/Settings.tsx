@@ -8,7 +8,7 @@ import { ErrorLogPanel } from "../components/ErrorLogPanel";
 import { NotificationPreferences } from "../components/NotificationPreferences";
 import { HelpIcon } from "../components/HelpIcon";
 import { ScraperHealthDashboard } from "../components/ScraperHealthDashboard";
-import { FeedbackModal } from "../components/feedback";
+import { FeedbackModal } from "../components/feedback/FeedbackModal";
 import { FeedbackIcon } from "./DashboardIcons";
 import { BookmarkletGenerator } from "../components/BookmarkletGenerator";
 import { useToast } from "../contexts";

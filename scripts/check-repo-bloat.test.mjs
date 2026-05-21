@@ -231,6 +231,46 @@ test("checkRepoBloat rejects unreferenced components barrel", () => {
   });
 });
 
+test("checkRepoBloat rejects unreferenced local barrel modules", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/automation/index.ts",
+      "export { ProfileForm } from './ProfileForm';\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/components/automation/ProfileForm.tsx",
+      "export function ProfileForm() { return null; }\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/ApplicationProfile.tsx",
+      "import { ProfileForm } from '../components/automation/ProfileForm';\n",
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src/components/automation/index.ts",
+        "src/components/automation/ProfileForm.tsx",
+        "src/pages/ApplicationProfile.tsx",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("remove unreferenced barrel module: src/components/automation/index.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects redundant direct Playwright dependency", () => {
   withGitFixture((root) => {
     writeFixtureFile(
