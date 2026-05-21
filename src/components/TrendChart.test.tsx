@@ -3,15 +3,24 @@ import { render, screen } from "@testing-library/react";
 import { TrendChart } from "./TrendChart";
 
 // Mock recharts components since they don't render in jsdom
+interface MockChartProps {
+  children: React.ReactNode;
+  data?: unknown;
+}
+
 vi.mock("recharts/es6/chart/LineChart", () => ({
-  LineChart: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="line-chart">{children}</div>
+  LineChart: ({ children, data }: MockChartProps) => (
+    <div data-testid="line-chart" data-chart={JSON.stringify(data)}>
+      {children}
+    </div>
   ),
 }));
 
 vi.mock("recharts/es6/chart/BarChart", () => ({
-  BarChart: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="bar-chart">{children}</div>
+  BarChart: ({ children, data }: MockChartProps) => (
+    <div data-testid="bar-chart" data-chart={JSON.stringify(data)}>
+      {children}
+    </div>
   ),
 }));
 
@@ -277,15 +286,21 @@ describe("TrendChart", () => {
         { month: "Mar", value: undefined },
       ];
 
-      // Should not throw
       render(
         <TrendChart
           {...defaultProps}
-          data={dataWithNonNumeric as unknown as typeof sampleData}
+          data={dataWithNonNumeric}
         />
       );
 
-      expect(screen.getByTestId("line-chart")).toBeInTheDocument();
+      expect(screen.getByTestId("line-chart")).toHaveAttribute(
+        "data-chart",
+        JSON.stringify([
+          { month: "Jan", value: 0 },
+          { month: "Feb", value: 0 },
+          { month: "Mar", value: 0 },
+        ]),
+      );
     });
   });
 });

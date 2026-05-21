@@ -291,6 +291,34 @@ test("checkRepoBloat rejects production source emoji markers", () => {
   });
 });
 
+test("checkRepoBloat rejects production explicit-any lint suppressions", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/TrendChart.tsx",
+      [
+        "// eslint-disable-next-line @typescript-eslint/no-explicit-any",
+        "type ChartData = Record<string, any>;",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/components/TrendChart.tsx"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove production explicit-any suppression: src/components/TrendChart.tsx",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects backend scoring reason glyph markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

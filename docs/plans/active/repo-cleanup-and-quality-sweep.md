@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Removed the TrendChart explicit-any lint suppression by typing chart rows as dynamic objects with unknown field reads, and added component plus bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Hardened Resume Optimizer pasted JSON handling so syntactically valid but malformed ATS resume payloads are rejected before backend invoke; added page tests and bloat coverage. |
 | 2026-05-21 | In progress | Hardened frontend error-log restore so malformed stored entries are filtered instead of throwing away the whole stored report history, extended plain `token=` redaction, and added focused parser plus bloat coverage. |
 | 2026-05-21 | In progress | Hardened ATS live-score job-context session storage so malformed stored payloads cannot be treated as current job descriptions; added focused component and bloat coverage. |

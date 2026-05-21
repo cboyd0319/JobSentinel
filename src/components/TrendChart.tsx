@@ -11,9 +11,11 @@ import { ResponsiveContainer } from "recharts/es6/component/ResponsiveContainer"
 import { Legend } from "recharts/es6/component/Legend";
 import { Card } from "./Card";
 
-// Generic chart data - accepts any object with string keys
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ChartData = Record<string, any>;
+type ChartData = object;
+
+function getChartValue(item: ChartData, key: string): unknown {
+  return (item as Record<string, unknown>)[key];
+}
 
 // Extracted constant to prevent re-creating object on each render
 const TOOLTIP_CONTENT_STYLE = {
@@ -51,8 +53,8 @@ export const TrendChart = memo(function TrendChart({
   const chartData = useMemo(() => {
     return data.map((item) => ({
       ...item,
-      [xKey]: String(item[xKey]),
-      [yKey]: Number(item[yKey]) || 0,
+      [xKey]: String(getChartValue(item, xKey)),
+      [yKey]: Number(getChartValue(item, yKey)) || 0,
     }));
   }, [data, xKey, yKey]);
 

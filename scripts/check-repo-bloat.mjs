@@ -2484,6 +2484,15 @@ function isRuntimeFrontendSource(path) {
   );
 }
 
+function hasProductionExplicitAnySuppression(root, path) {
+  if (!isRuntimeFrontendSource(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /eslint-disable(?:-next-line|-line)?\s+@typescript-eslint\/no-explicit-any/.test(text);
+}
+
 function collectRuntimeInvokeCommands(root) {
   const commands = new Set();
   const commandPattern =
@@ -2661,6 +2670,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasSourceReleaseVersionPromise(root, path)) {
       violations.push(`replace source release version promises: ${path}`);
+    }
+
+    if (hasProductionExplicitAnySuppression(root, path)) {
+      violations.push(`remove production explicit-any suppression: ${path}`);
     }
 
     if (hasProductionSourceGlyphMarkers(root, path)) {
