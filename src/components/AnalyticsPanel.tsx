@@ -13,7 +13,7 @@ import { PieChart } from "recharts/es6/chart/PieChart";
 import { Pie } from "recharts/es6/polar/Pie";
 import { Cell } from "recharts/es6/component/Cell";
 import { Legend } from "recharts/es6/component/Legend";
-import { readStorageValue, writeStorageValue } from "../utils/browserStorage";
+import { readStorageValue, removeStorageValue, writeStorageValue } from "../utils/browserStorage";
 
 interface StatusCounts {
   to_apply: number;
@@ -127,10 +127,34 @@ const SOURCE_COLORS: Record<string, string> = {
 function getWeeklyGoal(): WeeklyGoal | null {
   try {
     const stored = readStorageValue("local", WEEKLY_GOALS_KEY);
-    return stored ? JSON.parse(stored) : null;
+    if (!stored) return null;
+
+    const parsed: unknown = JSON.parse(stored);
+    if (isWeeklyGoal(parsed)) {
+      return parsed;
+    }
+
+    removeStorageValue("local", WEEKLY_GOALS_KEY);
+    return null;
   } catch {
+    removeStorageValue("local", WEEKLY_GOALS_KEY);
     return null;
   }
+}
+
+function isWeeklyGoal(value: unknown): value is WeeklyGoal {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Record<string, unknown>;
+  return (
+    typeof candidate.target === "number" &&
+    Number.isFinite(candidate.target) &&
+    candidate.target > 0 &&
+    typeof candidate.weekStart === "string" &&
+    Number.isFinite(Date.parse(candidate.weekStart))
+  );
 }
 
 function saveWeeklyGoal(target: number): void {

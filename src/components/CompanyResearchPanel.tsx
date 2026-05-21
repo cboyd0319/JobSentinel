@@ -39,10 +39,66 @@ interface CacheEntry {
 function loadCache(): Record<string, CacheEntry> {
   try {
     const stored = readStorageValue('local', CACHE_KEY);
-    return stored ? JSON.parse(stored) : {};
+    if (!stored) return {};
+
+    const parsed: unknown = JSON.parse(stored);
+    if (!isRecord(parsed)) return {};
+
+    return Object.fromEntries(
+      Object.entries(parsed).filter((entry): entry is [string, CacheEntry] =>
+        isCacheEntry(entry[1])
+      )
+    );
   } catch {
     return {};
   }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
+function isCompanyInfo(value: unknown): value is CompanyInfo {
+  if (!isRecord(value) || typeof value.name !== "string") {
+    return false;
+  }
+
+  const optionalStringKeys = [
+    "description",
+    "industry",
+    "founded",
+    "headquarters",
+    "employeeCount",
+    "website",
+    "linkedinUrl",
+    "fundingStage",
+    "totalFunding",
+    "remotePolicy",
+  ];
+  const hasInvalidString = optionalStringKeys.some((key) => {
+    const candidate = value[key];
+    return candidate !== undefined && typeof candidate !== "string";
+  });
+
+  return (
+    !hasInvalidString &&
+    (value.glassdoorRating === undefined ||
+      (typeof value.glassdoorRating === "number" && Number.isFinite(value.glassdoorRating))) &&
+    (value.techStack === undefined || isStringArray(value.techStack))
+  );
+}
+
+function isCacheEntry(value: unknown): value is CacheEntry {
+  return (
+    isRecord(value) &&
+    isCompanyInfo(value.data) &&
+    typeof value.timestamp === "number" &&
+    Number.isFinite(value.timestamp)
+  );
 }
 
 function saveCache(cache: Record<string, CacheEntry>): void {

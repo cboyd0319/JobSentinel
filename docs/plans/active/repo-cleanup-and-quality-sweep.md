@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Hardened analytics weekly-goal and company-research cache JSON loading so malformed but syntactically valid browser storage cannot feed bogus runtime shapes into rendering; added focused component and bloat coverage. |
 | 2026-05-21 | In progress | Hardened score and ghost-reason JSON parsers so malformed but syntactically valid stored reason payloads cannot render character-by-character reason text or break ghost tooltips; added component tests and bloat coverage. |
 | 2026-05-21 | In progress | Sanitized development error-reporter console output so it logs the same redacted report stored in local error logs, not raw error objects, webhook URLs, paths, emails, or URL tokens. |
 | 2026-05-21 | In progress | Removed credential rustdoc guidance that printed retrieved secrets and added bloat coverage to catch future examples that log credential or password values. |

@@ -502,6 +502,22 @@ describe("AnalyticsPanel", () => {
       });
     });
 
+    it("ignores malformed stored weekly goals", async () => {
+      mockLocalStorage.jobsentinel_weekly_goals = JSON.stringify({
+        target: "20",
+        weekStart: new Date().toISOString(),
+      });
+
+      render(<AnalyticsPanel onClose={mockOnClose} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText("Set a weekly goal to track your application progress")
+        ).toBeInTheDocument();
+      });
+      expect(screen.getByText("Set Goal")).toBeInTheDocument();
+    });
+
     it("allows entering goal value in input", async () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 

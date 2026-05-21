@@ -270,6 +270,10 @@ const scoreReasonJsonParserPaths = new Set([
   "src/components/ScoreBreakdownModal.tsx",
   "src/components/GhostIndicator.tsx",
 ]);
+const storageJsonParserPaths = new Set([
+  "src/components/AnalyticsPanel.tsx",
+  "src/components/CompanyResearchPanel.tsx",
+]);
 const settingsCredentialPaths = new Set(["src/pages/Settings.tsx"]);
 const feedbackSanitizerPaths = new Set(["src-tauri/src/commands/feedback/sanitizer.rs"]);
 const notificationDocsPaths = new Set(["docs/features/notifications.md"]);
@@ -1978,6 +1982,27 @@ function hasUnsafeScoreReasonJsonParsing(root, path) {
   );
 }
 
+function hasUnsafeStorageJsonParsing(root, path) {
+  if (!storageJsonParserPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  if (path === "src/components/AnalyticsPanel.tsx") {
+    return (
+      /return\s+stored\s+\?\s+JSON\.parse\(stored\)\s+:\s+null/.test(text) ||
+      !/function\s+isWeeklyGoal/.test(text) ||
+      !/removeStorageValue\("local",\s*WEEKLY_GOALS_KEY\)/.test(text)
+    );
+  }
+
+  return (
+    /return\s+stored\s+\?\s+JSON\.parse\(stored\)\s+:\s+\{\}/.test(text) ||
+    !/function\s+isCacheEntry/.test(text) ||
+    !/function\s+isCompanyInfo/.test(text)
+  );
+}
+
 function hasNotificationWebhookSaveWithoutValidation(root, path) {
   if (!settingsCredentialPaths.has(path)) {
     return false;
@@ -2932,6 +2957,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasUnsafeScoreReasonJsonParsing(root, path)) {
       violations.push(`validate reason JSON before rendering: ${path}`);
+    }
+
+    if (hasUnsafeStorageJsonParsing(root, path)) {
+      violations.push(`validate storage JSON before rendering: ${path}`);
     }
 
     if (hasNotificationWebhookSaveWithoutValidation(root, path)) {

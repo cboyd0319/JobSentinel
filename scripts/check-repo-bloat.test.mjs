@@ -4456,6 +4456,58 @@ test("checkRepoBloat rejects unsafe reason JSON parsing", () => {
   });
 });
 
+test("checkRepoBloat rejects unsafe storage JSON parsing", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/AnalyticsPanel.tsx",
+      [
+        "function getWeeklyGoal() {",
+        "  const stored = readStorageValue('local', WEEKLY_GOALS_KEY);",
+        "  return stored ? JSON.parse(stored) : null;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/CompanyResearchPanel.tsx",
+      [
+        "function loadCache() {",
+        "  const stored = readStorageValue('local', CACHE_KEY);",
+        "  return stored ? JSON.parse(stored) : {};",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src/components/AnalyticsPanel.tsx",
+        "src/components/CompanyResearchPanel.tsx",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("validate storage JSON before rendering: src/components/AnalyticsPanel.tsx"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "validate storage JSON before rendering: src/components/CompanyResearchPanel.tsx",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat accepts current frontend webhook redaction patterns", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

@@ -220,6 +220,27 @@ describe("CompanyResearchPanel", () => {
       expect(screen.getByText("Test City")).toBeInTheDocument();
     });
 
+    it("ignores malformed valid JSON cache entries", async () => {
+      const cache = {
+        "badco": {
+          data: {
+            name: { text: "BadCo" },
+            industry: "Bad Industry",
+            techStack: { length: 1 },
+          },
+          timestamp: Date.now(),
+        },
+      };
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(cache));
+
+      render(<CompanyResearchPanel companyName="BadCo" />);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Limited information available/)).toBeInTheDocument();
+      });
+      expect(screen.queryByText("Bad Industry")).not.toBeInTheDocument();
+    });
+
     it("ignores expired cache entries", async () => {
       // Pre-populate cache with expired entry (older than COMPANY_CACHE_TTL)
       const cache = {
