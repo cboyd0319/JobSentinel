@@ -39,7 +39,7 @@ impl GreenhouseScraper {
     }
 
     /// Scrape a single Greenhouse company
-    #[tracing::instrument(skip(self), fields(company_name = %company.name, company_url = %company.url))]
+    #[tracing::instrument(skip(self), fields(company_name = %company.name))]
     async fn scrape_company(&self, company: &GreenhouseCompany) -> ScraperResult {
         tracing::info!("Starting Greenhouse scrape");
 

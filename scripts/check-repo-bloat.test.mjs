@@ -1428,7 +1428,11 @@ test("checkRepoBloat rejects raw scraper URL and query logging", () => {
     writeFixtureFile(
       root,
       "src-tauri/src/core/scrapers/http_client.rs",
-      'tracing::debug!("Cache miss, fetching: {}", url);\n',
+      [
+        'tracing::debug!("Cache miss, fetching: {}", url);',
+        'return Err(error).with_context(|| format!("Failed to send request: {url}"));',
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(
       root,

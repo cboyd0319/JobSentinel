@@ -114,6 +114,9 @@ const MAX_RETRIES: u32 = 3;
 /// Base delay for exponential backoff in seconds
 const BASE_DELAY_SECS: u64 = 1;
 
+/// Maximum delay accepted from Retry-After headers.
+const MAX_RETRY_AFTER_DELAY_SECS: u64 = 60;
+
 /// HTTP GET with automatic retry logic and exponential backoff
 ///
 /// Retries on:
@@ -148,7 +151,11 @@ pub async fn get_with_retry(url: &str) -> Result<reqwest::Response> {
         return Ok(response);
     }
 
-    Err(anyhow::anyhow!("HTTP {}: {}", status, url))
+    Err(anyhow::anyhow!(
+        "HTTP {}: {}",
+        status,
+        sanitize_url_for_logging(url)
+    ))
 }
 
 /// Send a scraper request through the shared client with retry behavior.
@@ -175,13 +182,16 @@ pub async fn send_with_retry_on_client<F>(
 where
     F: FnMut(&reqwest::Client) -> reqwest::RequestBuilder,
 {
+    let log_url = sanitize_url_for_logging(url);
+
     for attempt in 0..=MAX_RETRIES {
         let response = match build_request(client).send().await {
             Ok(response) => response,
             Err(error) => {
                 let should_retry = is_retryable_request_error(&error);
                 if !should_retry || attempt == MAX_RETRIES {
-                    return Err(error).with_context(|| format!("Failed to send request: {url}"));
+                    return Err(error)
+                        .with_context(|| format!("Failed to send request: {log_url}"));
                 }
 
                 let delay = calculate_backoff_delay(None, attempt);
@@ -190,7 +200,7 @@ where
                     attempt + 1,
                     MAX_RETRIES + 1,
                     delay.as_secs(),
-                    url
+                    log_url
                 );
                 tokio::time::sleep(delay).await;
                 continue;
@@ -204,7 +214,7 @@ where
                 tracing::info!(
                     "Request succeeded after {} retry attempt(s): {}",
                     attempt,
-                    url
+                    log_url
                 );
             }
             return Ok(response);
@@ -222,7 +232,7 @@ where
             attempt + 1,
             MAX_RETRIES + 1,
             delay.as_secs(),
-            url
+            log_url
         );
 
         tokio::time::sleep(delay).await;
@@ -360,7 +370,11 @@ pub async fn post_with_retry<T: serde::Serialize + Send + Sync>(
         return Ok(response);
     }
 
-    Err(anyhow::anyhow!("HTTP {}: {}", status, url))
+    Err(anyhow::anyhow!(
+        "HTTP {}: {}",
+        status,
+        sanitize_url_for_logging(url)
+    ))
 }
 
 fn is_retryable_status(status: reqwest::StatusCode) -> bool {
@@ -369,6 +383,10 @@ fn is_retryable_status(status: reqwest::StatusCode) -> bool {
 
 fn is_retryable_request_error(error: &reqwest::Error) -> bool {
     error.is_timeout() || error.is_connect()
+}
+
+fn bounded_retry_after_secs(seconds: u64) -> u64 {
+    seconds.min(MAX_RETRY_AFTER_DELAY_SECS)
 }
 
 /// Calculate backoff delay with respect to Retry-After header
@@ -391,8 +409,17 @@ fn calculate_backoff_delay(response: Option<&reqwest::Response>, attempt: u32) -
             if let Ok(retry_after_str) = retry_after.to_str() {
                 // Try parsing as seconds (integer)
                 if let Ok(seconds) = retry_after_str.parse::<u64>() {
-                    tracing::debug!("Using Retry-After header value: {}s", seconds);
-                    return Duration::from_secs(seconds);
+                    let bounded_seconds = bounded_retry_after_secs(seconds);
+                    if seconds > MAX_RETRY_AFTER_DELAY_SECS {
+                        tracing::warn!(
+                            "Retry-After header value {}s exceeds scraper retry cap; using {}s",
+                            seconds,
+                            bounded_seconds
+                        );
+                    } else {
+                        tracing::debug!("Using Retry-After header value: {}s", seconds);
+                    }
+                    return Duration::from_secs(bounded_seconds);
                 }
                 // Could also parse HTTP date format here, but most rate limiters use seconds
             }
@@ -540,6 +567,7 @@ mod tests {
     fn test_retry_constants() {
         assert_eq!(MAX_RETRIES, 3);
         assert_eq!(BASE_DELAY_SECS, 1);
+        assert_eq!(MAX_RETRY_AFTER_DELAY_SECS, 60);
     }
 
     #[test]
@@ -562,6 +590,16 @@ mod tests {
         assert_eq!(BASE_DELAY_SECS * 2_u64.pow(1), 2);
         assert_eq!(BASE_DELAY_SECS * 2_u64.pow(2), 4);
         assert_eq!(BASE_DELAY_SECS * 2_u64.pow(3), 8);
+    }
+
+    #[test]
+    fn test_retry_after_delay_is_bounded() {
+        assert_eq!(bounded_retry_after_secs(0), 0);
+        assert_eq!(bounded_retry_after_secs(10), 10);
+        assert_eq!(
+            bounded_retry_after_secs(MAX_RETRY_AFTER_DELAY_SECS + 60),
+            MAX_RETRY_AFTER_DELAY_SECS
+        );
     }
 
     #[tokio::test]
