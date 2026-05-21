@@ -310,6 +310,12 @@ const activeUserDocGlyphPaths = new Set([
   "docs/user/QUICK_START.md",
 ]);
 
+const developerLayoutDocGlyphPaths = new Set([
+  "docs/developer/GETTING_STARTED.md",
+  "docs/developer/INTEGRATION_TESTING.md",
+  "docs/developer/TESTING.md",
+]);
+
 function readPackageManifest(root) {
   return JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
 }
@@ -1132,6 +1138,16 @@ function hasActiveUserDocGlyphMarkers(root, path) {
   }
 
   return /[\u{2192}\u{2193}\u{2199}\u{2198}\u{2265}\u{2500}\u{2502}\u{2514}\u{251c}\u{22ef}]/u.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
+function hasDeveloperLayoutDocGlyphMarkers(root, path) {
+  if (!developerLayoutDocGlyphPaths.has(path)) {
+    return false;
+  }
+
+  return /[\u{2192}\u{2500}\u{2502}\u{2514}\u{251c}]/u.test(
     readFileSync(join(root, path), "utf8"),
   );
 }
@@ -2109,6 +2125,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasActiveUserDocGlyphMarkers(root, path)) {
       violations.push(`replace active user doc glyph markers: ${path}`);
+    }
+
+    if (hasDeveloperLayoutDocGlyphMarkers(root, path)) {
+      violations.push(`replace developer layout doc glyph markers: ${path}`);
     }
 
     if (hasStaleSalaryAiFutureUiClaim(root, path)) {

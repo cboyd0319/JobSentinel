@@ -1754,6 +1754,54 @@ test("checkRepoBloat rejects active user doc glyph markers", () => {
   });
 });
 
+test("checkRepoBloat rejects developer layout doc glyph markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/developer/GETTING_STARTED.md",
+      ["JobSentinel/", "├── src/", "└── vite.config.ts", ""].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/TESTING.md",
+      ["src-tauri/", "├── src/", "└── tests/", ""].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/INTEGRATION_TESTING.md",
+      "Full pipelines - Scraper → Scorer → Database → Notifications\n",
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "docs/developer/GETTING_STARTED.md",
+        "docs/developer/TESTING.md",
+        "docs/developer/INTEGRATION_TESTING.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace developer layout doc glyph markers: docs/developer/GETTING_STARTED.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace developer layout doc glyph markers: docs/developer/TESTING.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace developer layout doc glyph markers: docs/developer/INTEGRATION_TESTING.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects front-door doc emoji markers", () => {
   withGitFixture((root) => {
     const chartIcon = String.fromCodePoint(0x1f4ca);

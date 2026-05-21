@@ -90,41 +90,26 @@ npm run tauri -- build --target universal-apple-darwin
 
 ```text
 JobSentinel/
-├── src/                      # React frontend (TypeScript + Tailwind)
-│   ├── components/          # 37 reusable UI components
-│   ├── contexts/            # React contexts (KeyboardShortcuts, ErrorReporting)
-│   ├── hooks/               # Custom hooks (useKeyboardNavigation)
-│   ├── pages/               # Page components (Dashboard, Applications, etc.)
-│   ├── utils/               # Utilities (export, api, notifications)
-│   ├── App.tsx              # Main app component
-│   └── main.tsx             # Entry point
-├── src-tauri/               # Rust backend
-│   ├── src/
-│   │   ├── main.rs          # Tauri app entry
-│   │   ├── lib.rs           # Library exports
-│   │   ├── core/            # Business logic (modular structure)
-│   │   │   ├── ats/         # Application Tracking System
-│   │   │   ├── automation/  # One-Click Apply
-│   │   │   ├── config/      # Configuration
-│   │   │   ├── credentials/ # OS keyring integration
-│   │   │   ├── db/          # Database layer
-│   │   │   ├── ghost/       # Ghost job detection
-│   │   │   ├── health/      # Scraper health monitoring
-│   │   │   ├── market_intelligence/  # Market analytics
-│   │   │   ├── notify/      # Multi-channel notifications
-│   │   │   ├── resume/      # Resume matching + builder
-│   │   │   ├── salary/      # Salary prediction
-│   │   │   ├── scheduler/   # Job scheduling
-│   │   │   ├── scoring/     # Job scoring algorithm
-│   │   │   └── scrapers/    # 13 job board scrapers
-│   │   ├── platforms/       # Windows/macOS/Linux specific code
-│   │   └── commands/        # Tauri RPC command handlers
-│   ├── migrations/          # SQLite migrations
-│   └── Cargo.toml           # Rust dependencies
-├── public/                  # Static assets (logo, etc.)
-├── docs/                    # Documentation
-├── package.json             # npm dependencies
-└── vite.config.ts           # Vite configuration
+- src/: React frontend (TypeScript + Tailwind)
+  - components/: reusable UI components
+  - contexts/: React contexts
+  - hooks/: custom hooks
+  - pages/: page components
+  - utils/: frontend utilities
+  - App.tsx: main app component
+  - main.tsx: entry point
+- src-tauri/: Rust backend
+  - src/main.rs: Tauri app entry
+  - src/lib.rs: library exports
+  - src/core/: business logic modules
+  - src/platforms/: Windows, macOS, and Linux code
+  - src/commands/: Tauri RPC command handlers
+  - migrations/: SQLite migrations
+  - Cargo.toml: Rust dependencies
+- public/: static assets
+- docs/: documentation
+- package.json: npm dependencies
+- vite.config.ts: Vite configuration
 ```
 
 ### Key Technologies

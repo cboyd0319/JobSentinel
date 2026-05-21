@@ -92,38 +92,15 @@ cargo test -- --test-threads=1
 
 ```text
 src-tauri/
-├── src/
-│   ├── core/
-│   │   ├── config/
-│   │   │   ├── mod.rs       # Config logic
-│   │   │   └── tests.rs     # Config tests
-│   │   ├── db/
-│   │   │   ├── mod.rs       # Database operations
-│   │   │   └── tests.rs     # Database tests
-│   │   ├── scoring/
-│   │   │   ├── mod.rs       # Scoring logic
-│   │   │   └── tests.rs     # Scoring tests
-│   │   ├── scheduler/
-│   │   │   ├── mod.rs       # Job scheduling
-│   │   │   └── tests.rs     # Scheduler tests
-│   │   ├── notify/
-│   │   │   ├── mod.rs       # Notification dispatch
-│   │   │   ├── slack.rs     # Slack channel
-│   │   │   └── tests.rs     # Notification tests
-│   │   └── scrapers/
-│   │       ├── greenhouse.rs # Greenhouse scraper
-│   │       ├── lever.rs      # Lever scraper
-│   │       ├── jobswithgpt.rs # JobsWithGPT scraper
-│   │       └── tests.rs      # Scraper unit tests (extracted)
-│   ├── commands/
-│   │   ├── mod.rs           # Tauri RPC handlers
-│   │   └── tests.rs         # Command tests
-│   └── platforms/
-│       ├── windows/mod.rs   # Windows platform code
-│       ├── macos/mod.rs     # macOS platform code
-│       ├── linux/mod.rs     # Linux platform code
-│       └── tests.rs         # Platform tests
-└── tests/                   # Integration test crates
+- src/core/config/: config logic and tests
+- src/core/db/: database operations and tests
+- src/core/scoring/: scoring logic and tests
+- src/core/scheduler/: job scheduling and tests
+- src/core/notify/: notification dispatch and channel tests
+- src/core/scrapers/: scraper adapters and unit tests
+- src/commands/: Tauri RPC handlers and command tests
+- src/platforms/: Windows, macOS, and Linux platform code
+- tests/: integration test crates
 ```
 
 **Note**: As of v1.5.0, test files have been extracted to separate `tests.rs` files within each

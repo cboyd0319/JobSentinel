@@ -41,7 +41,7 @@ real dependencies.
 - **Schema constraints** - Foreign keys, unique constraints, triggers
 - **Concurrent operations** - Multiple connections writing simultaneously
 - **API contracts** - Tauri commands match expected signatures
-- **Full pipelines** - Scraper → Scorer → Database → Notifications
+- **Full pipelines** - Scraper to scorer to database to notifications
 - **Scheduler lifecycle** - Startup, shutdown, error handling
 
 ---
@@ -52,15 +52,15 @@ real dependencies.
 
 ```text
 src-tauri/tests/
-├── api_contract_test.rs              # Tauri command signatures
-├── automation_integration_test.rs     # One-click apply
-├── cow_zero_copy_tests.rs             # Cow zero-copy behavior
-├── credential_test.rs                 # Credential storage
-├── database_integration_test.rs       # Database layer
-├── live_scraper_test.rs               # Ignored live scraper smoke tests
-├── scheduler_integration_test.rs      # Scheduling workflow
-├── scraper_integration_test.rs        # Scraper trait interface
-└── scraping_pipeline_integration.rs   # Full pipeline
+- api_contract_test.rs: Tauri command signatures
+- automation_integration_test.rs: one-click apply
+- cow_zero_copy_tests.rs: Cow zero-copy behavior
+- credential_test.rs: credential storage
+- database_integration_test.rs: database layer
+- live_scraper_test.rs: ignored live scraper smoke tests
+- scheduler_integration_test.rs: scheduling workflow
+- scraper_integration_test.rs: scraper trait interface
+- scraping_pipeline_integration.rs: full pipeline
 ```
 
 ### Test File Naming
