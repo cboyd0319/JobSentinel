@@ -3099,6 +3099,38 @@ test("checkRepoBloat rejects raw LinkedIn scraper Debug derive", () => {
   });
 });
 
+test("checkRepoBloat rejects LinkedIn login cookie return", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/linkedin_auth.rs",
+      [
+        "pub async fn linkedin_login() -> Result<String, String> {",
+        "    let tx = get_sender();",
+        "    // Send result back (just the cookie value, not expiry)",
+        "    let _ = tx.send(cookie_result.map(|(cookie, _)| cookie));",
+        "    Ok(String::new())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/linkedin_auth.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "keep LinkedIn login cookie out of renderer response: src-tauri/src/commands/linkedin_auth.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects secret-bearing Debug derives", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

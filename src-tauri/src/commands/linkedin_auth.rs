@@ -174,10 +174,11 @@ pub async fn linkedin_login(app: AppHandle) -> Result<String, String> {
                         }
                     }
 
-                    // Send result back (just the cookie value, not expiry)
+                    // Return only completion status to the renderer; the
+                    // session cookie stays confined to the OS keyring.
                     let tx_option = take_login_result_sender(&result_tx);
                     if let Some(tx) = tx_option {
-                        let _ = tx.send(cookie_result.map(|(cookie, _)| cookie));
+                        let _ = tx.send(cookie_result.map(|_| "LinkedIn connected".to_string()));
                     }
 
                     // Close the window - need to get it fresh since we can't capture it
@@ -608,6 +609,18 @@ mod tests {
         // Valid LinkedIn cookies typically start with AQ
         assert!("AQEDAQDW8sIAAAGU".starts_with("AQ"));
         assert!(!"invalid_cookie".starts_with("AQ"));
+    }
+
+    #[test]
+    fn test_linkedin_login_success_message_does_not_expose_cookie() {
+        let cookie_result: Result<(String, Option<String>), String> =
+            Ok(("AQED_secret_cookie_value".to_string(), None));
+        let message = cookie_result
+            .map(|_| "LinkedIn connected".to_string())
+            .unwrap();
+
+        assert_eq!(message, "LinkedIn connected");
+        assert!(!message.contains("AQED_secret_cookie_value"));
     }
 
     #[test]

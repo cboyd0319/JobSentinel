@@ -212,6 +212,7 @@ const mlRawLocalPathDocPaths = new Set(["docs/ML_FEATURE.md", "docs/ML_QUICKSTAR
 
 const jobsWithGptPrivacyPaths = new Set(["src-tauri/src/core/scrapers/jobswithgpt.rs"]);
 const linkedInPrivacyPaths = new Set(["src-tauri/src/core/scrapers/linkedin.rs"]);
+const linkedInAuthPrivacyPaths = new Set(["src-tauri/src/commands/linkedin_auth.rs"]);
 const linkedInCredentialDocsPaths = new Set([
   "src-tauri/src/core/scrapers/linkedin.rs",
   "docs/features/scrapers.md",
@@ -1456,6 +1457,19 @@ function hasRawLinkedInDebug(root, path) {
   return /#\[derive\([^)]*Debug[^)]*\)\]\s*pub struct LinkedInScraper\b/.test(productionText);
 }
 
+function hasLinkedInLoginCookieReturn(root, path) {
+  if (!linkedInAuthPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /cookie_result\.map\(\s*\|\(\s*cookie\b/.test(productionText) ||
+    /tx\.send\(\s*cookie_result\.map\(\s*\|\([^)]*\)\|\s*cookie\s*\)\s*\)/.test(productionText) ||
+    /Send result back\s*\([^)]*cookie value/.test(productionText)
+  );
+}
+
 function hasSecretBearingDebugDerive(root, path) {
   if (!path.startsWith("src-tauri/src/") || !path.endsWith(".rs")) {
     return false;
@@ -2551,6 +2565,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawLinkedInDebug(root, path)) {
       violations.push(`sanitize LinkedIn scraper debug output: ${path}`);
+    }
+
+    if (hasLinkedInLoginCookieReturn(root, path)) {
+      violations.push(`keep LinkedIn login cookie out of renderer response: ${path}`);
     }
 
     if (hasSecretBearingDebugDerive(root, path)) {

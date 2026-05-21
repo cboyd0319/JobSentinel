@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Kept LinkedIn login session cookies confined to the backend/keyring by returning only a success message to the renderer, with bloat coverage preventing raw cookie return regressions. |
 | 2026-05-21 | In progress | Synced scraper health smoke tests, frontend result shapes, mocks, and docs with the current 16 configured scraper sources, replacing stale `usa_jobs` and `success`/`response_time_ms` smoke-result assumptions. |
 | 2026-05-21 | In progress | Sanitized frontend-visible config/setup/ghost command errors so database URLs, local paths, and raw setup failures are not echoed into command responses; added bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Wired hardened Resume Builder contact validation into the live next/save gate so invalid emails, phone numbers, deceptive profile URL schemes, and URL credentials cannot be saved by bypassing blur-time field validation. |
