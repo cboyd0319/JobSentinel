@@ -119,6 +119,23 @@ impl FromStr for CredentialKey {
 
 /// Service name for all keyring entries (used as namespace).
 const SERVICE_NAME: &str = "JobSentinel";
+const MAX_LINKEDIN_COOKIE_LEN: usize = 500;
+
+fn validate_credential_value(key: CredentialKey, value: &str) -> Result<(), String> {
+    if key != CredentialKey::LinkedInCookie {
+        return Ok(());
+    }
+
+    if value.len() > MAX_LINKEDIN_COOKIE_LEN {
+        return Err("LinkedIn cookie is too long".to_string());
+    }
+
+    if value.chars().any(|ch| ch.is_ascii_control() || ch == ';') {
+        return Err("LinkedIn cookie contains unsupported characters".to_string());
+    }
+
+    Ok(())
+}
 
 /// Secure credential storage using OS-native keyring.
 ///
@@ -181,6 +198,8 @@ impl CredentialStore {
         if value.is_empty() {
             return Self::delete(key);
         }
+
+        validate_credential_value(key, value)?;
 
         let entry = Entry::new(SERVICE_NAME, key.as_str())
             .map_err(|e| format!("Failed to create keyring entry: {e}"))?;
@@ -512,6 +531,42 @@ mod tests {
         assert!(
             !err.contains("secret"),
             "parse error must not echo caller input: {err}"
+        );
+    }
+
+    #[test]
+    fn linkedin_cookie_validation_rejects_oversized_values_without_echo() {
+        let cookie = format!("AQ{}", "x".repeat(MAX_LINKEDIN_COOKIE_LEN));
+        let err = validate_credential_value(CredentialKey::LinkedInCookie, &cookie).unwrap_err();
+
+        assert_eq!(err, "LinkedIn cookie is too long");
+        assert!(
+            !err.contains(&cookie),
+            "validation error must not echo cookie value: {err}"
+        );
+    }
+
+    #[test]
+    fn linkedin_cookie_validation_rejects_header_separators_without_echo() {
+        let cookie = "AQvalidPrefix; other_cookie=secret";
+        let err = validate_credential_value(CredentialKey::LinkedInCookie, cookie).unwrap_err();
+
+        assert_eq!(err, "LinkedIn cookie contains unsupported characters");
+        assert!(
+            !err.contains("secret"),
+            "validation error must not echo cookie value: {err}"
+        );
+    }
+
+    #[test]
+    fn linkedin_cookie_validation_rejects_control_characters_without_echo() {
+        let cookie = "AQvalidPrefix\r\nx-secret: value";
+        let err = validate_credential_value(CredentialKey::LinkedInCookie, cookie).unwrap_err();
+
+        assert_eq!(err, "LinkedIn cookie contains unsupported characters");
+        assert!(
+            !err.contains("x-secret"),
+            "validation error must not echo cookie value: {err}"
         );
     }
 

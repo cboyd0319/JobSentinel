@@ -3288,6 +3288,61 @@ test("checkRepoBloat rejects credential key input echo", () => {
   });
 });
 
+test("checkRepoBloat rejects missing LinkedIn cookie storage validation", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/credentials.rs",
+      [
+        "pub async fn store_credential(key: String, value: String) -> Result<(), String> {",
+        "  let cred_key = parse_credential_key(&key)?;",
+        "  CredentialStore::store(cred_key, &value)",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/credentials/mod.rs",
+      [
+        "impl CredentialStore {",
+        "  pub fn store(key: CredentialKey, value: &str) -> Result<(), String> {",
+        "    entry.set_password(value)",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/commands/credentials.rs",
+        "src-tauri/src/core/credentials/mod.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "validate LinkedIn cookies before keyring storage: src-tauri/src/commands/credentials.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "validate LinkedIn cookies before keyring storage: src-tauri/src/core/credentials/mod.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects incomplete config export redaction", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

@@ -20,10 +20,18 @@ fn parse_credential_key(key: &str) -> Result<CredentialKey, String> {
         .map_err(|_| UNKNOWN_CREDENTIAL_KEY.to_string())
 }
 
+fn normalize_credential_value(key: CredentialKey, value: String) -> String {
+    match key {
+        CredentialKey::LinkedInCookie => value.trim().to_string(),
+        _ => value,
+    }
+}
+
 /// Store a credential in the OS keyring
 #[tauri::command]
 pub async fn store_credential(key: String, value: String) -> Result<(), String> {
     let cred_key = parse_credential_key(&key)?;
+    let value = normalize_credential_value(cred_key, value);
 
     tracing::info!("Command: store_credential for {}", cred_key.as_str());
 
@@ -89,6 +97,34 @@ mod tests {
         assert!(
             !err.contains("secret"),
             "invalid key error must not echo frontend input: {err}"
+        );
+    }
+
+    #[tokio::test]
+    async fn linkedin_cookie_validation_rejects_oversized_values_before_keyring() {
+        let cookie = format!("AQ{}", "x".repeat(500));
+        let err = store_credential("linkedin_cookie".to_string(), cookie.clone())
+            .await
+            .unwrap_err();
+
+        assert_eq!(err, "LinkedIn cookie is too long");
+        assert!(
+            !err.contains(&cookie),
+            "validation error must not echo cookie value: {err}"
+        );
+    }
+
+    #[tokio::test]
+    async fn linkedin_cookie_validation_rejects_header_separator_before_keyring() {
+        let cookie = "AQvalidPrefix; other_cookie=secret";
+        let err = store_credential("linkedin_cookie".to_string(), cookie.to_string())
+            .await
+            .unwrap_err();
+
+        assert_eq!(err, "LinkedIn cookie contains unsupported characters");
+        assert!(
+            !err.contains("secret"),
+            "validation error must not echo cookie value: {err}"
         );
     }
 }

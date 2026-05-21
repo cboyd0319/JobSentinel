@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Added backend LinkedIn cookie validation before keyring storage so credential IPC and direct credential-store calls reject oversized, control-character, and cookie-separator values before scraper header use; added bloat coverage. |
 | 2026-05-21 | In progress | Sanitized job import URL failure paths so non-public IP validation and fallback HTTP errors do not echo user-supplied hosts, URLs, queries, or provider error URLs; added bloat coverage. |
 | 2026-05-21 | In progress | Sanitized database backup restore missing-file errors so backup filenames and local paths are not exposed, with regression and bloat coverage. |
 | 2026-05-21 | In progress | Sanitized resume PDF parser failures so renderer-visible upload errors do not expose local file paths; synced command-execution docs and added bloat coverage for raw parser path displays. |

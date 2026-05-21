@@ -1536,6 +1536,34 @@ function hasCredentialKeyInputEcho(root, path) {
   );
 }
 
+function hasMissingLinkedInCookieStorageValidation(root, path) {
+  if (!credentialCommandPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+
+  if (path === "src-tauri/src/core/credentials/mod.rs") {
+    return (
+      !productionText.includes("MAX_LINKEDIN_COOKIE_LEN") ||
+      !productionText.includes("is_ascii_control()") ||
+      !productionText.includes("ch == ';'") ||
+      !/validate_credential_value\(key,\s*value\)\?/.test(productionText)
+    );
+  }
+
+  if (path === "src-tauri/src/commands/credentials.rs") {
+    return (
+      !productionText.includes("normalize_credential_value") ||
+      !/CredentialKey::LinkedInCookie\s*=>\s*value\.trim\(\)\.to_string\(\)/.test(
+        productionText,
+      )
+    );
+  }
+
+  return false;
+}
+
 function hasIncompleteConfigExportRedaction(root, path) {
   if (!configExportPrivacyPaths.has(path)) {
     return false;
@@ -2663,6 +2691,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasCredentialKeyInputEcho(root, path)) {
       violations.push(`avoid echoing credential key input: ${path}`);
+    }
+
+    if (hasMissingLinkedInCookieStorageValidation(root, path)) {
+      violations.push(`validate LinkedIn cookies before keyring storage: ${path}`);
     }
 
     if (hasIncompleteConfigExportRedaction(root, path)) {

@@ -140,6 +140,9 @@ Settings displays credential presence without returning credential values:
   and body length are kept because provider failures can echo job payload data.
 - Credential command logs use parsed allowlisted key names only. Invalid key
   errors stay generic and do not echo caller input.
+- LinkedIn cookie values are trimmed at the credential command boundary, capped
+  at 500 bytes, and rejected if they contain control characters or cookie
+  separators before they can be stored or used in scraper headers.
 
 Non-sensitive config remains in `config.json`, including job titles, keywords,
 locations, scraping intervals, alert thresholds, company URLs, and search query
