@@ -5,42 +5,26 @@
 //! ## Architecture
 //!
 //! LinkedIn requires authentication, so this scraper uses session cookies
-//! from a logged-in user. The user must provide their LinkedIn session cookie
-//! via the config file.
+//! from a logged-in user. The Settings flow stores the `li_at` cookie in the
+//! OS keyring, and scheduler code passes that cookie into this scraper at
+//! runtime.
 //!
 //! ## Security & Ethics
 //!
-//! - Uses ONLY the user's own session cookie (no credential storage)
+//! - Uses only the user's own session cookie
+//! - Stores the cookie through the OS keyring, not plaintext config
 //! - Respects LinkedIn's rate limits (max 100 requests/hour)
 //! - User-agent mimics real browser
 //! - Includes random delays between requests (2-5 seconds)
 //! - **User Responsibility**: Users must comply with LinkedIn's Terms of Service
 //!
-//! ## Future Enhancement: Headless Browser
-//!
-//! For better reliability, this could be upgraded to use headless Chrome/Firefox
-//! with the `headless_chrome` or `fantoccini` crate. This would allow:
-//! - Interactive login (no cookie extraction needed)
-//! - JavaScript rendering
-//! - Better CAPTCHA handling
-//!
 //! ## Setup Instructions
 //!
-//! 1. Log into LinkedIn in your browser
-//! 2. Open DevTools (F12) → Application → Cookies
-//! 3. Copy the `li_at` cookie value
-//! 4. Add to config.json:
-//!    ```json
-//!    {
-//!      "linkedin": {
-//!        "enabled": true,
-//!        "session_cookie": "YOUR_LI_AT_COOKIE_HERE",
-//!        "query": "software engineer",
-//!        "location": "San Francisco Bay Area",
-//!        "remote_only": false
-//!      }
-//!    }
-//!    ```
+//! 1. Open Settings > Job Sources.
+//! 2. Enable LinkedIn.
+//! 3. Click "Connect LinkedIn".
+//! 4. Log in normally in the secure window.
+//! 5. Configure query, location, remote-only, and result limit.
 
 use super::error::ScraperError;
 use super::http_client::{read_json_with_limit, read_text_with_limit, send_with_retry};

@@ -212,6 +212,11 @@ const mlRawLocalPathDocPaths = new Set(["docs/ML_FEATURE.md", "docs/ML_QUICKSTAR
 
 const jobsWithGptPrivacyPaths = new Set(["src-tauri/src/core/scrapers/jobswithgpt.rs"]);
 const linkedInPrivacyPaths = new Set(["src-tauri/src/core/scrapers/linkedin.rs"]);
+const linkedInCredentialDocsPaths = new Set([
+  "src-tauri/src/core/scrapers/linkedin.rs",
+  "docs/features/scrapers.md",
+  "docs/features/scraper-health.md",
+]);
 
 const databaseLogEmojiPaths = new Set([
   "src-tauri/src/core/db/connection.rs",
@@ -1401,6 +1406,17 @@ function hasRawLinkedInDebug(root, path) {
   return /#\[derive\([^)]*Debug[^)]*\)\]\s*pub struct LinkedInScraper\b/.test(productionText);
 }
 
+function hasStaleLinkedInCredentialDocs(root, path) {
+  if (!linkedInCredentialDocsPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /session cookie\s+via the config file|no credential storage|No credentials stored|Cookie expires after ~90 days|Open DevTools|Find and copy\s+\*\*?li_at|Paste into Settings > Scrapers > LinkedIn|Paste the new cookie|Update LinkedIn Cookie/.test(
+    text,
+  ) || /\[\s\]\s+\*\*Interactive Login:\*\* No manual cookie extraction/.test(text);
+}
+
 function hasDatabaseLogEmojiMarkers(root, path) {
   if (!databaseLogEmojiPaths.has(path)) {
     return false;
@@ -2351,6 +2367,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawLinkedInDebug(root, path)) {
       violations.push(`sanitize LinkedIn scraper debug output: ${path}`);
+    }
+
+    if (hasStaleLinkedInCredentialDocs(root, path)) {
+      violations.push(`sync LinkedIn credential docs with keyring login flow: ${path}`);
     }
 
     if (hasDatabaseLogEmojiMarkers(root, path)) {

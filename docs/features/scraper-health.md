@@ -350,11 +350,11 @@ Warnings:        None
 Action:          No action needed (expires in 365 days)
 
 Refresh Instructions:
-1. Log into LinkedIn
-2. Open DevTools (F12)
-3. Find "li_at" cookie
-4. Copy the value
-5. Paste into Settings > Scrapers > LinkedIn
+1. Open Settings > Job Sources
+2. Select LinkedIn
+3. Click "Connect LinkedIn"
+4. Log in normally in the secure window
+5. Wait for the dashboard to show the updated credential status
 ```
 
 **Cookie Lifespan**
@@ -362,7 +362,7 @@ Refresh Instructions:
 - Issued when you first log into LinkedIn
 - Valid for approximately 365 days
 - Expires after 1 year
-- You must refresh manually (LinkedIn doesn't auto-renew)
+- Reconnect through Settings when the health dashboard warns that expiry is near
 
 **Warning Thresholds**
 
@@ -378,9 +378,9 @@ LinkedIn scraper will:
 2. Get 401 Unauthorized response
 3. Status changes to "Degraded"
 4. Smoke test fails with "Cookie Expired"
-5. Notification shows "Update LinkedIn Cookie"
+5. Notification asks you to reconnect LinkedIn
 
-To fix: Refresh cookie following instructions above.
+To fix: reconnect LinkedIn from Settings > Job Sources.
 
 ### Email SMTP Validation
 
@@ -617,17 +617,11 @@ Dashboard shows: Error: Authentication Failed
 
 **For LinkedIn:**
 
-1. Go to Settings > Scrapers > LinkedIn
-2. Click **Update LinkedIn Cookie**
-3. Follow on-screen instructions:
-   - Log into LinkedIn
-   - Open DevTools (F12 or right-click > Inspect)
-   - Go to **Application** tab
-   - Find **Cookies** > **LinkedIn.com**
-   - Find and copy **li_at** value
-4. Paste into the field
-5. Click **Save and Test**
-6. Dashboard shows success if successful
+1. Go to Settings > Job Sources > LinkedIn
+2. Click **Connect LinkedIn**
+3. Log in normally in the secure window
+4. Return to the health dashboard after connection completes
+5. Dashboard shows success if the stored session is valid
 
 **For API-Based Scrapers (Greenhouse, Lever, etc.):**
 
@@ -847,16 +841,15 @@ Usually one of:
    - Click Profile > Sign Out
    - Sign back in fresh
 
-3. **Extract Cookie Again**
-   - Open DevTools (F12)
-   - Go to Application > Cookies > LinkedIn.com
-   - Find and copy li_at (the full value)
-   - Note: Should be 100+ characters, not small
+3. **Connect LinkedIn Again**
+   - Open Settings > Job Sources > LinkedIn
+   - Click **Connect LinkedIn**
+   - Log in normally in the secure window
 
 4. **Update in JobSentinel**
-   - Settings > Scrapers > LinkedIn
-   - Paste the new cookie
-   - Click **Save and Test**
+   - Wait for the connection confirmation
+   - Open the health dashboard
+   - Confirm the credential status is valid
 
 5. **If Still Failing**
    - Try a different browser (sometimes cookies get corrupted)

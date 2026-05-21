@@ -127,6 +127,7 @@ changes or Playwright-specific work.
 | 2026-05-21 | In progress | Replaced the active scraper feature doc's box diagram, arrow-heavy examples, and versioned section labels with plain flow/list text, and widened scraper doc bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Normalized active user-facing setup and application-tracking docs from arrow/tree glyphs to plain menu paths and list text, with bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Removed remaining box-drawing and arrow glyphs from the active Salary AI feature doc examples and widened resume/salary doc bloat coverage to catch those markers. |
+| 2026-05-21 | In progress | Synced LinkedIn scraper source comments and user docs with the current keyring-backed Connect LinkedIn flow, removing stale config-file, DevTools, and future-interactive-login guidance; added bloat coverage. |
 | 2026-05-21 | In progress | Replaced raw LinkedIn scraper `Debug` output with shape-only metadata so debug formatting cannot expose session cookies, search terms, or locations; added regression and bloat coverage. |
 | 2026-05-21 | In progress | Replaced raw JobsWithGPT scraper/query `Debug` output with shape-only metadata so debug formatting cannot expose configured endpoints, searched titles, or locations; added regression and bloat coverage. |
 | 2026-05-21 | In progress | Sanitized USAJobs HTTP error messages so external API response bodies cannot echo private keywords, locations, or diagnostics into scraper logs; added regression and bloat coverage. |

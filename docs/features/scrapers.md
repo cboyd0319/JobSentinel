@@ -193,11 +193,11 @@ version changes without requiring a code update.
 
 ### Security & Privacy
 
-- **Your Cookie Only:** No credentials stored, uses your own session
+- **Your Cookie Only:** Uses your own session cookie stored in the OS keyring
 - **Respectful Scraping:** 2-5 second delays, max 100 req/hour
 - **Browser User-Agent:** Mimics real Chrome browser
 - **User Responsibility:** Must comply with LinkedIn Terms of Service
-- **Session Expiry:** Cookie expires after ~90 days, requires refresh
+- **Session Expiry:** Credential health warns before the cookie expires
 
 ### Limitations
 
@@ -581,10 +581,9 @@ GROUP BY source;
 
 ## Future Enhancements
 
-### Phase 2: Headless Browser (Weeks 3-4)
+### Phase 2: Headless Browser
 
 - [ ] **Headless Chrome:** Integrate `headless_chrome` crate
-- [ ] **Interactive Login:** No manual cookie extraction
 - [ ] **JavaScript Rendering:** Full dynamic content support
 
 ### Phase 3: Additional job boards (v1.6+)

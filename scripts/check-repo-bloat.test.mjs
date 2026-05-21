@@ -3058,6 +3058,78 @@ test("checkRepoBloat rejects raw LinkedIn scraper Debug derive", () => {
   });
 });
 
+test("checkRepoBloat rejects stale LinkedIn credential docs", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/linkedin.rs",
+      [
+        "//! The user must provide their LinkedIn session cookie",
+        "//! via the config file.",
+        "//! - Uses ONLY the user's own session cookie (no credential storage)",
+        "//! 2. Open DevTools (F12) -> Application -> Cookies",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/scraper-health.md",
+      [
+        "Refresh Instructions:",
+        "2. Open DevTools (F12)",
+        "3. Find and copy **li_at** value",
+        "4. Paste into Settings > Scrapers > LinkedIn",
+        "Click **Update LinkedIn Cookie**",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/scrapers.md",
+      [
+        "- **Your Cookie Only:** No credentials stored, uses your own session",
+        "- **Session Expiry:** Cookie expires after ~90 days, requires refresh",
+        "- [ ] **Interactive Login:** No manual cookie extraction",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/scrapers/linkedin.rs",
+        "docs/features/scrapers.md",
+        "docs/features/scraper-health.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sync LinkedIn credential docs with keyring login flow: src-tauri/src/core/scrapers/linkedin.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "sync LinkedIn credential docs with keyring login flow: docs/features/scraper-health.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "sync LinkedIn credential docs with keyring login flow: docs/features/scrapers.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects database log emoji markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
