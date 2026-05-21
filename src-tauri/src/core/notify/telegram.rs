@@ -4,6 +4,7 @@
 
 use super::Notification;
 use crate::core::config::TelegramConfig;
+use crate::core::http_body::read_text_with_limit;
 use anyhow::{anyhow, Result};
 use serde_json::json;
 
@@ -125,8 +126,7 @@ pub async fn send_telegram_notification(
 
     if !response.status().is_success() {
         let status = response.status();
-        let error_text = response
-            .text()
+        let error_text = read_text_with_limit(response, "https://api.telegram.org/sendMessage")
             .await
             .unwrap_or_else(|_| "Unknown error".to_string());
         return Err(anyhow!(
@@ -239,7 +239,8 @@ pub async fn validate_telegram_config(config: &TelegramConfig) -> Result<bool> {
     let response = client.post(&api_url).json(&payload).send().await?;
 
     if !response.status().is_success() {
-        let error_text = response.text().await?;
+        let error_text =
+            read_text_with_limit(response, "https://api.telegram.org/sendMessage").await?;
         return Err(anyhow!("Telegram API error: {}", error_text));
     }
 

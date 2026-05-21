@@ -5,7 +5,7 @@
 //! high-quality tech job postings from the HN community.
 
 use super::error::ScraperError;
-use super::http_client::send_with_retry;
+use super::http_client::{read_json_with_limit, send_with_retry};
 use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -61,7 +61,7 @@ impl HnHiringScraper {
             ));
         }
 
-        let search_result: serde_json::Value = response.json().await?;
+        let search_result: serde_json::Value = read_json_with_limit(response, search_url).await?;
 
         // Get the thread ID from the search result
         let thread_id = search_result["hits"]
@@ -94,7 +94,8 @@ impl HnHiringScraper {
             ));
         }
 
-        let comments_result: serde_json::Value = comments_response.json().await?;
+        let comments_result: serde_json::Value =
+            read_json_with_limit(comments_response, &comments_url).await?;
         let jobs = self.parse_comments(&comments_result)?;
 
         tracing::info!("Found {} jobs from HN Who's Hiring", jobs.len());

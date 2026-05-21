@@ -3,6 +3,7 @@
 //! Single-page fetcher with proper User-Agent and timeout handling.
 
 use super::types::{ImportError, ImportResult};
+use crate::core::http_body::read_text_with_limit;
 use crate::core::url_security::sanitize_url_for_logging;
 use reqwest::header::LOCATION;
 use reqwest::{redirect::Policy, Client};
@@ -54,7 +55,7 @@ pub async fn fetch_job_page(url: &str) -> ImportResult<String> {
         .map_err(ImportError::HttpError)?;
 
     // Get HTML content
-    let html = response.text().await.map_err(ImportError::HttpError)?;
+    let html = read_text_with_limit(response, url).await?;
 
     tracing::debug!(
         html_length = html.len(),

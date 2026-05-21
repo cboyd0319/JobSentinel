@@ -4,7 +4,7 @@
 //! WeWorkRemotely is a popular remote-only job board.
 
 use super::error::ScraperError;
-use super::http_client::send_with_retry;
+use super::http_client::{read_text_with_limit, send_with_retry};
 use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -64,7 +64,7 @@ impl WeWorkRemotelyScraper {
             ));
         }
 
-        let xml = response.text().await?;
+        let xml = read_text_with_limit(response, &url).await?;
         let jobs = self.parse_rss(&xml)?;
 
         tracing::info!("Found {} jobs from WeWorkRemotely", jobs.len());

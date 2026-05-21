@@ -4,7 +4,7 @@
 //! Lever is used by companies like Netflix, Shopify, IDEO, etc.
 
 use super::error::ScraperError;
-use super::http_client::send_with_retry;
+use super::http_client::{read_json_with_limit, send_with_retry};
 use super::rate_limiter::{limits, RateLimiter};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -58,7 +58,7 @@ impl LeverScraper {
             ));
         }
 
-        let json: serde_json::Value = response.json().await?;
+        let json: serde_json::Value = read_json_with_limit(response, &api_url).await?;
 
         let jobs = if let Some(postings) = json.as_array() {
             let mut jobs = Vec::with_capacity(postings.len());

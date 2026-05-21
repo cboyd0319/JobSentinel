@@ -7,7 +7,9 @@
 //! it's an official public API designed for programmatic access.
 
 use super::error::ScraperError;
-use super::http_client::send_with_retry_on_client;
+use super::http_client::{
+    read_json_with_limit, read_text_with_limit, send_with_retry_on_client, DEFAULT_TIMEOUT_SECS,
+};
 use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -128,6 +130,7 @@ impl UsaJobsScraper {
 
         reqwest::Client::builder()
             .default_headers(headers)
+            .timeout(std::time::Duration::from_secs(DEFAULT_TIMEOUT_SECS))
             .build()
             .map_err(|e| ScraperError::Generic {
                 scraper: "usajobs".to_string(),
@@ -191,7 +194,9 @@ impl UsaJobsScraper {
 
         if !response.status().is_success() {
             let status = response.status();
-            let body = response.text().await.unwrap_or_default();
+            let body = read_text_with_limit(response, &url)
+                .await
+                .unwrap_or_else(|error| format!("<failed to read response body: {error}>"));
             return Err(ScraperError::http_status(
                 status.as_u16(),
                 &url,
@@ -199,7 +204,7 @@ impl UsaJobsScraper {
             ));
         }
 
-        let api_response: UsaJobsResponse = response.json().await?;
+        let api_response: UsaJobsResponse = read_json_with_limit(response, &url).await?;
 
         let total_jobs = api_response.search_result.search_result_count_all;
         tracing::info!(

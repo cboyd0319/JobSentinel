@@ -1,6 +1,9 @@
 //! Smoke tests for scraper connectivity and functionality
 
-use crate::core::{Config, Database};
+use crate::core::{
+    http_body::{read_json_with_limit, read_text_with_limit},
+    Config, Database,
+};
 use anyhow::Result;
 use std::time::Instant;
 
@@ -129,7 +132,7 @@ async fn test_greenhouse() -> Result<serde_json::Value> {
         return Err(anyhow::anyhow!("HTTP {}", status));
     }
 
-    let json: serde_json::Value = resp.json().await?;
+    let json: serde_json::Value = read_json_with_limit(resp, url).await?;
     let job_count = json
         .get("jobs")
         .and_then(|j| j.as_array())
@@ -157,7 +160,7 @@ async fn test_lever() -> Result<serde_json::Value> {
         return Err(anyhow::anyhow!("HTTP {}", status));
     }
 
-    let json: serde_json::Value = resp.json().await?;
+    let json: serde_json::Value = read_json_with_limit(resp, url).await?;
     let job_count = json.as_array().map(|a| a.len()).unwrap_or(0);
 
     Ok(serde_json::json!({
@@ -211,7 +214,7 @@ async fn test_indeed() -> Result<serde_json::Value> {
         return Err(anyhow::anyhow!("HTTP {}", status));
     }
 
-    let html = resp.text().await?;
+    let html = read_text_with_limit(resp, url).await?;
     let has_jobs = html.contains("job_seen_beacon") || html.contains("jobsearch-SerpJobCard");
 
     Ok(serde_json::json!({
@@ -234,7 +237,7 @@ async fn test_remoteok() -> Result<serde_json::Value> {
         return Err(anyhow::anyhow!("HTTP {}", status));
     }
 
-    let json: serde_json::Value = resp.json().await?;
+    let json: serde_json::Value = read_json_with_limit(resp, url).await?;
     // First element is legal notice, rest are jobs
     let job_count = json
         .as_array()
@@ -261,7 +264,7 @@ async fn test_wellfound() -> Result<serde_json::Value> {
         return Err(anyhow::anyhow!("HTTP {}", status));
     }
 
-    let html = resp.text().await?;
+    let html = read_text_with_limit(resp, url).await?;
     let has_jobs = html.contains("StartupResult") || html.contains("startupResult");
 
     Ok(serde_json::json!({
@@ -284,7 +287,7 @@ async fn test_weworkremotely() -> Result<serde_json::Value> {
         return Err(anyhow::anyhow!("HTTP {}", status));
     }
 
-    let rss = resp.text().await?;
+    let rss = read_text_with_limit(resp, url).await?;
     let item_count = rss.matches("<item>").count();
 
     Ok(serde_json::json!({
@@ -308,7 +311,7 @@ async fn test_builtin() -> Result<serde_json::Value> {
         return Err(anyhow::anyhow!("HTTP {}", status));
     }
 
-    let html = resp.text().await?;
+    let html = read_text_with_limit(resp, url).await?;
     let has_jobs = html.contains("data-id") || html.contains("job-card");
 
     Ok(serde_json::json!({
@@ -341,7 +344,7 @@ async fn test_hn_hiring() -> Result<serde_json::Value> {
         return Err(anyhow::anyhow!("HTTP {}", status));
     }
 
-    let json: serde_json::Value = resp.json().await?;
+    let json: serde_json::Value = read_json_with_limit(resp, url).await?;
     let has_hits = json
         .get("hits")
         .and_then(|h| h.as_array())
@@ -398,7 +401,7 @@ async fn test_dice() -> Result<serde_json::Value> {
         return Err(anyhow::anyhow!("HTTP {}", status));
     }
 
-    let html = resp.text().await?;
+    let html = read_text_with_limit(resp, url).await?;
     let has_jobs = html.contains("search-card") || html.contains("job-card");
 
     Ok(serde_json::json!({
@@ -422,7 +425,7 @@ async fn test_yc_startup() -> Result<serde_json::Value> {
         return Err(anyhow::anyhow!("HTTP {}", status));
     }
 
-    let html = resp.text().await?;
+    let html = read_text_with_limit(resp, url).await?;
     let has_jobs = html.contains("job-listing") || html.contains("JobListing");
 
     Ok(serde_json::json!({
@@ -445,7 +448,7 @@ async fn test_ziprecruiter() -> Result<serde_json::Value> {
         return Err(anyhow::anyhow!("HTTP {}", status));
     }
 
-    let rss = resp.text().await?;
+    let rss = read_text_with_limit(resp, url).await?;
     let item_count = rss.matches("<item>").count();
 
     Ok(serde_json::json!({

@@ -3,10 +3,10 @@
 ## Support for 13 job sources with parallel scraping
 
 **Note:** JobSentinel includes 13 implemented job sources. API-backed sources such as
-Greenhouse, Lever, RemoteOK, USAJobs, Dice, and JobsWithGPT are the most reliable.
+Greenhouse, Lever, RemoteOK, USAJobs, HN Who's Hiring, and JobsWithGPT are the most reliable.
 HTML/RSS sources that sit behind anti-bot systems, especially SimplyHired and
 Glassdoor, are best-effort and can return empty results when blocked. All sources
-share rate limiting, deduplication, and structured error handling.
+share rate limiting, bounded response reads, deduplication, and structured error handling.
 
 ---
 
@@ -38,6 +38,7 @@ faster. Our parallel scraping architecture enables simultaneous searches across 
 - **Multi-Source Integration** - 13 scrapers with parallel execution
 - **Automatic Rate Limiting** - Token bucket algorithm prevents IP bans
 - **Shared Retry Helper** - Common scraper HTTP client retries 429 and 5xx responses with exponential backoff
+- **Bounded Response Reads** - Scraper, smoke-test, and import fetches cap decoded bodies at 16 MiB
 - **Deduplication** - SHA-256 hashing prevents duplicate jobs across sources
 - **Parallel Scraping** - Concurrent requests to multiple boards
 
@@ -102,7 +103,7 @@ Output
 | ------------- | -------------- | --------------- | -------- | ----------- | -------- |
 | **Focus**     | Tech companies | Tech community  | IT roles | AI-matched  | Startups |
 | **Job Count** | ~80K           | ~500/month      | ~50K     | ~50K        | ~10K     |
-| **API**       | Public         | HTML            | Public   | MCP         | Public   |
+| **API**       | Public         | Algolia         | Public   | MCP         | Public   |
 
 ---
 
@@ -415,6 +416,10 @@ The helper retries:
 - `5xx` server errors
 - `Retry-After` header delays when provided
 
+Response reads that parse HTML, RSS, or JSON use the shared bounded reader.
+Decoded bodies over 16 MiB are rejected before parsing or caching, including
+scraper health smoke tests and single-page imports.
+
 Default retry sequence:
 
 ```text
@@ -554,8 +559,9 @@ GROUP BY source;
 1. **Respect Rate Limits:** Use built-in rate limiter
 2. **Browser User-Agent:** Uses a consistent browser-like user agent where sources need it
 3. **Bounded Retries:** Retries 429 and 5xx responses with capped backoff
-4. **Session Management:** Uses only the user's own authenticated session where required
-5. **Error Handling:** Graceful failures, no infinite retries or unbounded sleeps
+4. **Bounded Response Reads:** Caps decoded HTML, RSS, and JSON bodies before parsing
+5. **Session Management:** Uses only the user's own authenticated session where required
+6. **Error Handling:** Graceful failures, no infinite retries or unbounded sleeps
 
 ### LinkedIn-Specific Ethics
 
@@ -661,6 +667,7 @@ impl RateLimiter {
 - [x] Job filtering (keyword, salary, location, company)
 - [x] **Health monitoring dashboard** (v2.1.0)
 - [x] **Shared exponential backoff retry helper** (v2.1.0)
+- [x] **Bounded scraper response reads** (v2.6.4)
 - [x] **Smoke tests for all scrapers** (v2.1.0)
 - [x] **Credential expiry tracking** (v2.1.0)
 - [x] **Run history tracking** (v2.1.0)

@@ -404,6 +404,30 @@ impl From<serde_json::Error> for ScraperError {
     }
 }
 
+impl From<crate::core::http_body::HttpBodyReadError> for ScraperError {
+    fn from(error: crate::core::http_body::HttpBodyReadError) -> Self {
+        match error {
+            crate::core::http_body::HttpBodyReadError::ResponseTooLarge { url, max_bytes } => {
+                Self::Generic {
+                    scraper: "http".to_string(),
+                    message: format!(
+                        "Response body from {} exceeded {} byte limit",
+                        url, max_bytes
+                    ),
+                }
+            }
+            crate::core::http_body::HttpBodyReadError::Read { url, source } => {
+                Self::HttpRequest { url, source }
+            }
+            crate::core::http_body::HttpBodyReadError::Json { url, source } => Self::ParseError {
+                format: "JSON".to_string(),
+                url,
+                source: Box::new(source),
+            },
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

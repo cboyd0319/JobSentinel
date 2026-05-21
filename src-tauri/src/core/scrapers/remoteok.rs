@@ -4,7 +4,7 @@
 //! RemoteOK is a popular remote job board with tech-focused listings.
 
 use super::error::ScraperError;
-use super::http_client::send_with_retry;
+use super::http_client::{read_json_with_limit, send_with_retry};
 use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -55,7 +55,7 @@ impl RemoteOkScraper {
             ));
         }
 
-        let json: serde_json::Value = response.json().await?;
+        let json: serde_json::Value = read_json_with_limit(response, url).await?;
 
         // RemoteOK returns an array where first element is a legal notice
         let jobs_array = json.as_array().ok_or_else(|| {

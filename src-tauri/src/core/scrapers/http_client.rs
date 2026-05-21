@@ -9,6 +9,10 @@ use crate::core::url_security::sanitize_url_for_logging;
 use anyhow::{Context, Result};
 use std::time::Duration;
 
+pub use crate::core::http_body::{
+    read_json_with_limit, read_text_with_limit, DEFAULT_MAX_HTTP_BODY_BYTES,
+};
+
 /// Default user agent for scraper requests
 pub const DEFAULT_USER_AGENT: &str =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
@@ -140,7 +144,7 @@ const MAX_RETRY_AFTER_DELAY_SECS: u64 = 60;
 /// use crate::core::scrapers::http_client::get_with_retry;
 ///
 /// let response = get_with_retry("https://example.com/api/jobs").await?;
-/// let jobs = response.json::<Vec<Job>>().await?;
+/// let jobs = read_json_with_limit::<Vec<Job>>(response, "https://example.com/api/jobs").await?;
 /// ```
 #[must_use = "this returns the HTTP response"]
 pub async fn get_with_retry(url: &str) -> Result<reqwest::Response> {
@@ -272,8 +276,7 @@ pub async fn get_with_cache(url: &str) -> Result<String> {
     // Cache miss - make the request
     tracing::debug!(url = %sanitize_url_for_logging(url), "Cache miss, fetching");
     let response = get_with_retry(url).await?;
-    let body = response
-        .text()
+    let body = read_text_with_limit(response, url)
         .await
         .context("Failed to read response body")?;
 
@@ -320,8 +323,7 @@ pub async fn get_with_retry_cached(url: &str, use_cache: bool) -> Result<String>
 
     // Make the actual request
     let response = get_with_retry(url).await?;
-    let body = response
-        .text()
+    let body = read_text_with_limit(response, url)
         .await
         .context("Failed to read response body")?;
 

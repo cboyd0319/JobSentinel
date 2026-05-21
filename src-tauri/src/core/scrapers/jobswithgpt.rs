@@ -4,7 +4,7 @@
 //! MCP is a JSON-RPC based protocol for querying structured data.
 
 use super::error::ScraperError;
-use super::http_client::send_with_retry;
+use super::http_client::{read_json_with_limit, send_with_retry};
 use super::rate_limiter::{limits, RateLimiter};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -92,7 +92,7 @@ impl JobsWithGptScraper {
             ));
         }
 
-        let json: serde_json::Value = response.json().await?;
+        let json: serde_json::Value = read_json_with_limit(response, &self.endpoint).await?;
 
         // Parse MCP response: { "jsonrpc": "2.0", "result": [...], "id": 1 }
         if let Some(error) = json.get("error") {

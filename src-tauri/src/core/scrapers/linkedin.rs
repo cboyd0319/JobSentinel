@@ -43,7 +43,7 @@
 //!    ```
 
 use super::error::ScraperError;
-use super::http_client::send_with_retry;
+use super::http_client::{read_json_with_limit, read_text_with_limit, send_with_retry};
 use super::rate_limiter::{limits, RateLimiter};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -228,7 +228,7 @@ impl LinkedInScraper {
             let status = response.status();
 
             if status.is_success() {
-                let json: serde_json::Value = response.json().await?;
+                let json: serde_json::Value = read_json_with_limit(response, &api_url).await?;
                 let jobs = self.parse_linkedin_api_response(&json)?;
 
                 if !jobs.is_empty() {
@@ -482,7 +482,7 @@ impl LinkedInScraper {
         let status = response.status();
 
         if status.is_success() {
-            let html = response.text().await?;
+            let html = read_text_with_limit(response, &search_url).await?;
             let jobs = self.parse_linkedin_html(&html)?;
             return Ok(jobs);
         }

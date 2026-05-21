@@ -329,6 +329,18 @@ fn format_import_error(error: &ImportError) -> String {
                 format!("Failed to fetch the page: {}", e)
             }
         }
+        ImportError::HttpBodyRead(crate::core::http_body::HttpBodyReadError::ResponseTooLarge {
+            max_bytes,
+            ..
+        }) => {
+            format!(
+                "The job page response is too large to import safely. Maximum size is {} MiB.",
+                max_bytes / (1024 * 1024)
+            )
+        }
+        ImportError::HttpBodyRead(error) => {
+            format!("Failed to read the job page response: {}", error)
+        }
         ImportError::HtmlParseError(msg) => {
             format!("Failed to parse the page: {}", msg)
         }

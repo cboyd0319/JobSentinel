@@ -4,7 +4,7 @@
 //! Greenhouse is used by companies like Cloudflare, Stripe, Figma, etc.
 
 use super::error::ScraperError;
-use super::http_client::get_with_retry;
+use super::http_client::{get_with_retry, read_json_with_limit, read_text_with_limit};
 use super::rate_limiter::{limits, RateLimiter};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -57,7 +57,7 @@ impl GreenhouseScraper {
             ));
         }
 
-        let html = response.text().await?;
+        let html = read_text_with_limit(response, &company.url).await?;
 
         // Try multiple selector patterns (Greenhouse has different layouts)
         // Parse HTML in a scope so document is dropped before any awaits
@@ -215,7 +215,7 @@ impl GreenhouseScraper {
             ));
         }
 
-        let json: serde_json::Value = response.json().await?;
+        let json: serde_json::Value = read_json_with_limit(response, &api_url).await?;
 
         let jobs = if let Some(jobs_array) = json["jobs"].as_array() {
             let mut jobs = Vec::with_capacity(jobs_array.len());

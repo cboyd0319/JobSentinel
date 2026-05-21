@@ -8,7 +8,7 @@
 //! New: /jobs with optional /remote filter
 
 use super::error::ScraperError;
-use super::http_client::send_with_retry;
+use super::http_client::{read_text_with_limit, send_with_retry};
 use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -98,7 +98,7 @@ impl BuiltInScraper {
             ));
         }
 
-        let html = response.text().await?;
+        let html = read_text_with_limit(response, &url).await?;
         let jobs = self.parse_html(&html)?;
 
         tracing::info!("Found {} jobs from BuiltIn", jobs.len());

@@ -10,6 +10,9 @@ pub enum ImportError {
     #[error("HTTP request failed: {0}")]
     HttpError(#[from] reqwest::Error),
 
+    #[error("{0}")]
+    HttpBodyRead(#[from] crate::core::http_body::HttpBodyReadError),
+
     #[error("No Schema.org JobPosting data found at URL")]
     NoSchemaOrgData,
 

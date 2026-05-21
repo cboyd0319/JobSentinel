@@ -149,12 +149,12 @@ CREATE VIRTUAL TABLE jobs_fts USING fts5(
 
 **Purpose**: Job board scraping (13 sources)
 
-- **Greenhouse** - ATS scraper (HTML)
-- **Lever** - ATS scraper (HTML)
+- **Greenhouse** - ATS scraper with HTML fetch and public API fallback
+- **Lever** - ATS public API scraper
 - **LinkedIn** - Session cookie authentication
 - **RemoteOK** - JSON API
 - **WeWorkRemotely** - RSS feed parsing
-- **BuiltIn** - City-specific tech jobs (HTML)
+- **BuiltIn** - Tech jobs and remote jobs (HTML)
 - **HN Who's Hiring** - Algolia API for monthly threads
 - **JobsWithGPT** - API client
 - **Dice** - Tech jobs scraper
@@ -196,6 +196,7 @@ SHA-256(company + title + location + url)
 
 - 2 second delay between companies
 - 30 second timeout per request
+- 16 MiB decoded response body cap for scraper and import fetches
 
 #### `core/scoring/`
 

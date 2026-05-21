@@ -6,7 +6,7 @@
 //! but RSS feeds may work. Falls back gracefully if blocked.
 
 use super::error::ScraperError;
-use super::http_client::send_with_retry;
+use super::http_client::{read_text_with_limit, send_with_retry};
 use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -94,7 +94,7 @@ impl SimplyHiredScraper {
             ));
         }
 
-        let body = response.text().await?;
+        let body = read_text_with_limit(response, &url).await?;
 
         // Check for Cloudflare challenge page
         if body.contains("cf-browser-verification") || body.contains("Checking your browser") {
