@@ -238,6 +238,13 @@ const frontendErrorReportingPaths = new Set(["src/utils/errorReporting.ts"]);
 const settingsCredentialPaths = new Set(["src/pages/Settings.tsx"]);
 const feedbackSanitizerPaths = new Set(["src-tauri/src/commands/feedback/sanitizer.rs"]);
 const notificationDocsPaths = new Set(["docs/features/notifications.md"]);
+const featureMetadataDocsPaths = new Set([
+  "docs/features/ghost-detection.md",
+  "docs/features/notifications.md",
+  "docs/features/one-click-apply.md",
+  "docs/features/resume-builder.md",
+  "docs/features/user-data-management.md",
+]);
 const webhookSecurityDocsPaths = new Set(["docs/security/WEBHOOK_SECURITY.md"]);
 const commandExecutionSecurityDocsPaths = new Set(["docs/security/COMMAND_EXECUTION.md"]);
 const urlValidationSecurityDocsPaths = new Set(["docs/security/URL_VALIDATION.md"]);
@@ -771,6 +778,15 @@ function hasFeatureStatusColorEmojiMarkers(root, path) {
   return /[\u{1f7e2}\u{1f7e1}\u{1f7e0}\u{1f534}]\s+\*\*/u.test(
     readFileSync(join(root, path), "utf8"),
   );
+}
+
+function hasFeatureDocMetadataFooter(root, path) {
+  if (!featureMetadataDocsPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /^\*\*(?:Version|Status|Last Updated|Updated):\*\*/m.test(text);
 }
 
 function hasSynonymOrRemotePreferenceDocDrift(root, path) {
@@ -1766,6 +1782,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasFeatureStatusColorEmojiMarkers(root, path)) {
       violations.push(`replace feature status color emoji markers: ${path}`);
+    }
+
+    if (hasFeatureDocMetadataFooter(root, path)) {
+      violations.push(`replace feature doc stale metadata: ${path}`);
     }
 
     if (hasSynonymOrRemotePreferenceDocDrift(root, path)) {

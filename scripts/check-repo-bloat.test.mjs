@@ -1487,6 +1487,80 @@ test("checkRepoBloat rejects feature status color emoji markers", () => {
   });
 });
 
+test("checkRepoBloat rejects feature doc stale metadata footers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/ghost-detection.md",
+      "**Version:** 2.6.4 | **Last Updated:** March 18, 2026\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/notifications.md",
+      "**Version:** 2.6.4 | **Last Updated:** March 18, 2026\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/one-click-apply.md",
+      "**Version:** 2.6.4 | **Last Updated:** March 18, 2026\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/resume-builder.md",
+      "**Version:** 2.6.4 | **Last Updated:** March 18, 2026\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/user-data-management.md",
+      [
+        "**Version:** 2.6.4 | **Status:** Stable | **Last Updated:** March 18, 2026",
+        "**Version:** 2.6.4 | **Updated:** March 18, 2026",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "docs/features/ghost-detection.md",
+        "docs/features/notifications.md",
+        "docs/features/one-click-apply.md",
+        "docs/features/resume-builder.md",
+        "docs/features/user-data-management.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace feature doc stale metadata: docs/features/ghost-detection.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace feature doc stale metadata: docs/features/notifications.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace feature doc stale metadata: docs/features/one-click-apply.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace feature doc stale metadata: docs/features/resume-builder.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace feature doc stale metadata: docs/features/user-data-management.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects synonym and remote preference doc drift", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

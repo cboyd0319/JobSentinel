@@ -24,8 +24,6 @@ SQLite is the source of truth for job-search records and durable preferences.
 Frontend localStorage is reserved for non-authoritative UI preferences, short-lived
 caches, sanitized error logs, and transient recovery hints.
 
-**Version:** 2.6.4 | **Status:** Stable | **Last Updated:** March 18, 2026
-
 ---
 
 ## Cover Letter Templates
@@ -737,7 +735,3 @@ letter templates and saved searches.
 
 - Bulk template management
 - Smarter variable substitution
-
----
-
-**Version:** 2.6.4 | **Updated:** March 18, 2026

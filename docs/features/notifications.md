@@ -247,7 +247,3 @@ src-tauri/src/core/notify/
 All connections use TLS/STARTTLS encryption.
 
 </details>
-
----
-
-**Version:** 2.6.4 | **Last Updated:** March 18, 2026

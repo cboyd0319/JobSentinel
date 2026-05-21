@@ -295,7 +295,3 @@ It ignores provider names in query strings and rejects lookalike domains.
 - `application_attempts` - History of form filling attempts
 
 </details>
-
----
-
-**Version:** 2.6.4 | **Last Updated:** March 18, 2026

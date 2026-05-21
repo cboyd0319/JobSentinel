@@ -216,7 +216,3 @@ invoke("clear_ghost_feedback", { job_id: 123 }); // Remove user's verdict
 ```
 
 </details>
-
----
-
-**Version:** 2.6.4 | **Last Updated:** March 18, 2026

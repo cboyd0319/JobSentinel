@@ -213,7 +213,3 @@ Resumes are stored as JSON in the `resume_drafts` table, auto-saved after each s
 - `ats_analyzer.rs` - Keyword extraction and scoring
 
 </details>
-
----
-
-**Version:** 2.6.4 | **Last Updated:** March 18, 2026
