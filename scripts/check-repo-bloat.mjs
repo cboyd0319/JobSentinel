@@ -809,6 +809,23 @@ function hasStaleMacosDeveloperDocs(root, path) {
   );
 }
 
+function hasStaleSqliteConfigurationDoc(root, path) {
+  if (path !== "docs/developer/sqlite-configuration.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /\p{Extended_Pictographic}/u.test(text) ||
+    /SQLite Maximum Protection & Performance Configuration/.test(text) ||
+    /Status:\*\* ✅ Fully Implemented/.test(text) ||
+    /cache_size`\s*\|\s*\*\*-64000\*\*/.test(text) ||
+    /Cache size set \(`PRAGMA cache_size` returns -64000\)/.test(text) ||
+    /Cloud backup sync \(optional S3\/GCS upload\)/.test(text) ||
+    /Estimated Performance Gain:\*\* 200-300%/.test(text)
+  );
+}
+
 function hasMarketIntelligenceDocEmojiMarkers(root, path) {
   if (path !== "docs/features/market-intelligence.md") {
     return false;
@@ -1553,6 +1570,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleMacosDeveloperDocs(root, path)) {
       violations.push(`sync macOS developer docs: ${path}`);
+    }
+
+    if (hasStaleSqliteConfigurationDoc(root, path)) {
+      violations.push(`sync SQLite configuration doc: ${path}`);
     }
 
     if (hasMarketIntelligenceDocEmojiMarkers(root, path)) {

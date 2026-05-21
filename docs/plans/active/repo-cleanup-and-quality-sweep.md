@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Rewrote the SQLite configuration doc against live `connection.rs` and integrity APIs, corrected the file-backed cache-size claim to `-128000`, removed speculative cloud-backup roadmap text, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Synced scraper docs with live rate-limit constants and local-first no-bypass posture, marking anti-bot-prone sources as best-effort instead of production-guaranteed. |
 | 2026-05-20 | In progress | Bounded scraper `Retry-After` delays, sanitized shared HTTP retry logs and error context, removed raw Greenhouse company-URL span fields, and extended bloat coverage for raw scraper URL logging. |
 | 2026-05-20 | In progress | Reduced E2E page-object fixed waits, removed the unreferenced Playwright helper module, corrected E2E wait guidance, and added bloat coverage for recurring wait/helper drift. |
@@ -220,6 +221,10 @@ changes or Playwright-specific work.
   Keeping both made Playwright version ownership less clear.
 - `@types/dompurify` is a deprecated stub package. The installed `dompurify`
   package already exports TypeScript declarations through `dist/purify.*.d.ts`.
+- `docs/developer/sqlite-configuration.md` still claimed the on-disk cache size
+  was `-64000` KB even though `connection.rs` configures `-128000` KB, and it
+  mixed old benchmark estimates with speculative cloud-backup ideas outside
+  the local-first product boundary.
 - `src/components/index.ts` re-exported nearly every component and some utility
   helpers, while live production imports only needed a few dashboard UI symbols.
   Direct imports remove that stale public surface.
@@ -512,6 +517,9 @@ changes or Playwright-specific work.
   `FAILED`.
 - Keep maintained feature-doc status legends text-only; color names can be
   written as words without emoji bullets.
+- Keep SQLite configuration docs sourced from the live PRAGMA setup in
+  `src-tauri/src/core/db/connection.rs`; stale cache-size values and
+  speculative cloud-backup text count as documentation bloat.
 - Keep source comments and logs aligned with implemented platform behavior;
   stale "coming soon" stub markers count as bloat once code exists.
 - Keep Market Intelligence docs aligned with text indicator APIs such as

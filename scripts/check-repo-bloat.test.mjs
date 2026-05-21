@@ -613,6 +613,41 @@ test("checkRepoBloat rejects stale macOS developer docs", () => {
   });
 });
 
+test("checkRepoBloat rejects stale SQLite configuration docs", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/developer/sqlite-configuration.md",
+      [
+        "# SQLite Maximum Protection & Performance Configuration",
+        "",
+        "> **Status:** ✅ Fully Implemented",
+        "",
+        "- **Estimated Performance Gain:** 200-300% for read-heavy workloads",
+        "",
+        "| `cache_size` | **-64000** (64MB) | In-memory page cache |",
+        "",
+        "- [ ] **Cloud backup sync** (optional S3/GCS upload)",
+        "",
+        "- [ ] Cache size set (`PRAGMA cache_size` returns -64000)",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/developer/sqlite-configuration.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sync SQLite configuration doc: docs/developer/sqlite-configuration.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects speculative cloud deployment docs", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
