@@ -2,7 +2,8 @@
 // Displays total jobs, high matches, and average score
 
 import { memo } from "react";
-import { Card, ScoreDisplay } from "../../components";
+import { Card } from "../../components/Card";
+import { ScoreDisplay } from "../../components/ScoreDisplay";
 import { BriefcaseIcon, StarIcon } from "../DashboardIcons";
 import type { Statistics } from "../DashboardTypes";
 

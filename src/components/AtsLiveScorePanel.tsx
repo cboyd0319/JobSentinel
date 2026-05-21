@@ -9,7 +9,10 @@
 
 import { memo, useState, useEffect, useCallback, useMemo } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Button, Badge, Modal, ModalFooter, Tooltip } from ".";
+import { Badge } from "./Badge";
+import { Button } from "./Button";
+import { Modal, ModalFooter } from "./Modal";
+import { Tooltip } from "./Tooltip";
 import { logError } from "../utils/errorUtils";
 import { getScoreColor, getScoreBg, getScoreLabel } from "../utils/scoreUtils";
 

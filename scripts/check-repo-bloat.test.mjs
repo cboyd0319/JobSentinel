@@ -205,6 +205,32 @@ test("checkRepoBloat rejects unreferenced cache strategy helpers", () => {
   });
 });
 
+test("checkRepoBloat rejects unreferenced components barrel", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/index.ts",
+      "export { Button } from './Button';\n",
+    );
+    writeFixtureFile(root, "src/components/Button.tsx", "export function Button() { return null; }\n");
+    writeFixtureFile(root, "src/pages/Dashboard.tsx", "import { Button } from '../components/Button';\n");
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/components/index.ts", "src/components/Button.tsx", "src/pages/Dashboard.tsx"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("remove unreferenced components barrel: src/components/index.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects redundant direct Playwright dependency", () => {
   withGitFixture((root) => {
     writeFixtureFile(

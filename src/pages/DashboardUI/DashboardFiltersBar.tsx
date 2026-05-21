@@ -2,7 +2,8 @@
 // Contains all filter controls, search, bulk actions, and action buttons
 
 import { memo, RefObject, useState, useEffect, useRef } from "react";
-import { Dropdown, Tooltip } from "../../components";
+import { Dropdown } from "../../components/Dropdown";
+import { Tooltip } from "../../components/Tooltip";
 import { useDebouncedValue } from "../../hooks";
 import {
   KeyboardIcon,

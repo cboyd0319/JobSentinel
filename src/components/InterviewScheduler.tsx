@@ -1,6 +1,9 @@
 import { useEffect, useState, useCallback, memo } from "react";
 import { cachedInvoke, invalidateCacheByCommand, safeInvoke, safeInvokeWithToast } from "../utils/api";
-import { Card, Button, Badge, CompanyResearchPanel } from "./index";
+import { Badge } from "./Badge";
+import { Button } from "./Button";
+import { Card } from "./Card";
+import { CompanyResearchPanel } from "./CompanyResearchPanel";
 import { useToast } from "../contexts";
 import { formatInterviewDate, getRelativeTimeUntil } from "../utils/formatUtils";
 import { MIN_INTERVIEW_DURATION, MAX_INTERVIEW_DURATION } from "../utils/constants";

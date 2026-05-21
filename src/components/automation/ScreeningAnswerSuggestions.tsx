@@ -1,5 +1,8 @@
 import { memo, useState, useEffect } from "react";
-import { Card, Badge, Button, Skeleton } from "..";
+import { Badge } from "../Badge";
+import { Button } from "../Button";
+import { Card } from "../Card";
+import { Skeleton } from "../Skeleton";
 import { invoke } from "@tauri-apps/api/core";
 import { logError } from "../../utils/errorUtils";
 

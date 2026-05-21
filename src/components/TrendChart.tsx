@@ -9,7 +9,7 @@ import { CartesianGrid } from "recharts/es6/cartesian/CartesianGrid";
 import { Tooltip } from "recharts/es6/component/Tooltip";
 import { ResponsiveContainer } from "recharts/es6/component/ResponsiveContainer";
 import { Legend } from "recharts/es6/component/Legend";
-import { Card } from "./";
+import { Card } from "./Card";
 
 // Generic chart data - accepts any object with string keys
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

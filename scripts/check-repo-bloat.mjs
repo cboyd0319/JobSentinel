@@ -445,6 +445,25 @@ function hasUnreferencedSourceHelper(root, path) {
   });
 }
 
+function importsComponentsBarrel(root, path) {
+  if (!isProductionTypeScriptSource(path) || path === "src/components/index.ts") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /(?:from\s*["']|import\s*\(\s*["'])(?:\.{1,2}\/)+(?:[^"']*\/)?components["']/.test(
+    text,
+  );
+}
+
+function hasUnreferencedComponentsBarrel(root, path) {
+  if (path !== "src/components/index.ts") {
+    return false;
+  }
+
+  return !listTrackedFiles(root).some((trackedPath) => importsComponentsBarrel(root, trackedPath));
+}
+
 function hasSpeculativeCloudDeploymentDoc(root, path) {
   const pattern = speculativeCloudDeploymentDocs.get(path);
 
@@ -1265,6 +1284,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasUnreferencedSourceHelper(root, path)) {
       violations.push(`remove unreferenced source helper: ${path}`);
+    }
+
+    if (hasUnreferencedComponentsBarrel(root, path)) {
+      violations.push(`remove unreferenced components barrel: ${path}`);
     }
 
     if (hasSpeculativeCloudDeploymentDoc(root, path)) {

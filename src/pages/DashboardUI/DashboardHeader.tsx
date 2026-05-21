@@ -2,7 +2,10 @@
 // Logo, title, status indicator, theme toggle, settings button, search button
 
 import { memo } from "react";
-import { Button, ThemeToggle, Tooltip, TourHelpButton } from "../../components";
+import { Button } from "../../components/Button";
+import { ThemeToggle } from "../../components/ThemeToggle";
+import { Tooltip } from "../../components/Tooltip";
+import { TourHelpButton } from "../../components/OnboardingTour";
 import { SentinelIcon, SearchIcon, SettingsIcon } from "../DashboardIcons";
 import type { ScrapingStatus } from "../DashboardTypes";
 import { formatRelativeDate } from "../../utils/formatUtils";

@@ -1,7 +1,10 @@
 import { useState, useEffect, useCallback, useMemo, useRef, memo } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { Button, Input, Card, HelpIcon } from "..";
+import { Button } from "../Button";
+import { Card } from "../Card";
+import { HelpIcon } from "../HelpIcon";
+import { Input } from "../Input";
 import { useToast } from "../../contexts";
 import { logError } from "../../utils/errorUtils";
 import {

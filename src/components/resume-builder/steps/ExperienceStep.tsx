@@ -1,5 +1,6 @@
 import { memo } from "react";
-import { Button, CardHeader } from "../../index";
+import { Button } from "../../Button";
+import { CardHeader } from "../../Card";
 
 interface Experience {
   id: number;

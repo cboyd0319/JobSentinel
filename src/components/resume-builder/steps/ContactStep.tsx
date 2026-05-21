@@ -1,5 +1,6 @@
 import { memo, useState, useCallback } from "react";
-import { CardHeader, Input } from "../../index";
+import { CardHeader } from "../../Card";
+import { Input } from "../../Input";
 
 interface ContactInfo {
   name: string;

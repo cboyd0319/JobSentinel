@@ -1,5 +1,6 @@
 import { memo, useState, useMemo } from "react";
-import { Card, Badge } from "./";
+import { Badge } from "./Badge";
+import { Card } from "./Card";
 import { formatCurrency } from "../utils/formatUtils";
 
 interface LocationHeat {

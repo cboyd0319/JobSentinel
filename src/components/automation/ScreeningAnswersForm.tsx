@@ -1,5 +1,10 @@
 import { memo, useState, useEffect, useCallback, type ReactElement } from "react";
-import { Button, Input, Card, Badge, HelpIcon, Modal, ModalFooter } from "..";
+import { Badge } from "../Badge";
+import { Button } from "../Button";
+import { Card } from "../Card";
+import { HelpIcon } from "../HelpIcon";
+import { Input } from "../Input";
+import { Modal, ModalFooter } from "../Modal";
 import { useToast } from "../../contexts";
 import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
 import { validateRequiredRegex, validateRequired } from "../../utils/formValidation";

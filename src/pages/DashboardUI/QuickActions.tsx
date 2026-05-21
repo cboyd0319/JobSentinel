@@ -2,7 +2,7 @@
 // One-click common actions for power users and beginners alike
 
 import { useState, memo } from "react";
-import { Card } from "../../components";
+import { Card } from "../../components/Card";
 
 interface QuickActionsProps {
   totalJobs: number;
