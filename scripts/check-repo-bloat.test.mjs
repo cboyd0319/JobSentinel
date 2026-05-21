@@ -3700,6 +3700,58 @@ test("checkRepoBloat rejects raw job import logging", () => {
   });
 });
 
+test("checkRepoBloat rejects raw job import HTTP errors", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/import.rs",
+      [
+        'ImportError::HttpError(e) => format!("Failed to fetch the page: {}", e),',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/import.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sanitize job import HTTP errors: src-tauri/src/commands/import.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects non-public IP validation error echo", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/url_security.rs",
+      [
+        "return Err(format!(\"Blocked non-public IP address '{}'\", host));",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/url_security.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize non-public IP validation errors: src-tauri/src/core/url_security.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw job import success metadata", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

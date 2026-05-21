@@ -257,6 +257,8 @@ const rawImportRedirectDisplayPaths = new Set(["src-tauri/src/core/import/types.
 const rawAutomationQuestionLoggingPaths = new Set([
   "src-tauri/src/core/automation/form_filler.rs",
 ]);
+const importCommandPrivacyPaths = new Set(["src-tauri/src/commands/import.rs"]);
+const urlSecurityPrivacyPaths = new Set(["src-tauri/src/core/url_security.rs"]);
 
 const rawNotificationJobTitleLoggingPaths = new Set(["src-tauri/src/core/notify/mod.rs"]);
 
@@ -1740,6 +1742,24 @@ function hasRawJobImportLogging(root, path) {
   );
 }
 
+function hasRawImportHttpErrorReturn(root, path) {
+  if (!importCommandPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return /Failed to fetch the page:\s*\{\}[\s\S]{0,80},\s*e\b/.test(productionText);
+}
+
+function hasNonPublicIpErrorEcho(root, path) {
+  if (!urlSecurityPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return /Blocked non-public IP address ['"]?\{[^}]*}/.test(productionText);
+}
+
 function hasRawAutomationQuestionLogging(root, path) {
   if (!rawAutomationQuestionLoggingPaths.has(path)) {
     return false;
@@ -2711,6 +2731,14 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawJobImportLogging(root, path)) {
       violations.push(`replace raw job import logging: ${path}`);
+    }
+
+    if (hasRawImportHttpErrorReturn(root, path)) {
+      violations.push(`sanitize job import HTTP errors: ${path}`);
+    }
+
+    if (hasNonPublicIpErrorEcho(root, path)) {
+      violations.push(`sanitize non-public IP validation errors: ${path}`);
     }
 
     if (hasRawAutomationQuestionLogging(root, path)) {

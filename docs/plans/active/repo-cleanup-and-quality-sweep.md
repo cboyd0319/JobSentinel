@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Sanitized job import URL failure paths so non-public IP validation and fallback HTTP errors do not echo user-supplied hosts, URLs, queries, or provider error URLs; added bloat coverage. |
 | 2026-05-21 | In progress | Sanitized database backup restore missing-file errors so backup filenames and local paths are not exposed, with regression and bloat coverage. |
 | 2026-05-21 | In progress | Sanitized resume PDF parser failures so renderer-visible upload errors do not expose local file paths; synced command-execution docs and added bloat coverage for raw parser path displays. |
 | 2026-05-21 | In progress | Synced keyring docs with live credential status shapes: `list_status` returns key/existence tuples and `get_credential_status` returns `Vec<CredentialStatus>`, with bloat coverage for stale `HashMap` signatures. |

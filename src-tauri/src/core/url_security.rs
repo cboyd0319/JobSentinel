@@ -58,7 +58,7 @@ pub fn validate_external_http_url(url: &str) -> Result<Url, String> {
 
     if let Ok(ip) = ip_host.parse::<IpAddr>() {
         if is_blocked_ip(ip) {
-            return Err(format!("Blocked non-public IP address '{}'", host));
+            return Err("Blocked non-public IP address".to_string());
         }
     }
 
@@ -148,6 +148,16 @@ mod tests {
         ] {
             assert!(validate_external_http_url(url).is_err(), "{url}");
         }
+    }
+
+    #[test]
+    fn blocked_private_ip_errors_do_not_echo_host() {
+        let err =
+            validate_external_http_url("http://192.168.1.10/internal?token=secret").unwrap_err();
+
+        assert_eq!(err, "Blocked non-public IP address");
+        assert!(!err.contains("192.168.1.10"), "host leaked: {err}");
+        assert!(!err.contains("secret"), "query leaked: {err}");
     }
 
     #[test]

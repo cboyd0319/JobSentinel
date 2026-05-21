@@ -326,7 +326,7 @@ fn format_import_error(error: &ImportError) -> String {
             } else if e.is_status() {
                 format!("The website returned an error: {}", e.status().map_or_else(|| "Unknown".to_string(), |s| s.to_string()))
             } else {
-                format!("Failed to fetch the page: {}", e)
+                "Failed to fetch the page. Please check the URL and try again.".to_string()
             }
         }
         ImportError::HttpBodyRead(crate::core::http_body::HttpBodyReadError::ResponseTooLarge {
