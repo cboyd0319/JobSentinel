@@ -1357,6 +1357,9 @@ function hasStaleCacheUsageDoc(root, path) {
   return (
     /tracing::info!\("Cache hit for: \{\}",\s*url\)/.test(text) ||
     /reqwest::get\(url\)/.test(text) ||
+    /response\.(?:text|bytes|chunk)\(\)\s*\.await|response\.json(?:::<[^)]*>)?\(\)\s*\.await/.test(
+      text,
+    ) ||
     /Disable in Production|disable caching in production|Cache disabled for production/.test(text) ||
     /[✅❌⚠️]/u.test(text)
   );

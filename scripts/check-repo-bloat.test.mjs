@@ -2803,6 +2803,7 @@ test("checkRepoBloat rejects stale cache usage documentation", () => {
       [
         'tracing::info!("Cache hit for: {}", url);',
         "let response = reqwest::get(url).await?;",
+        "let body = response.text().await?;",
         "Disable in Production",
         "- ✅ `get_with_cache(url)`",
         "",

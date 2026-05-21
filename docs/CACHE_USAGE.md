@@ -54,7 +54,7 @@ owns a retrying fetch path. Keep fetches routed through `get_with_retry` or
 `send_with_retry`, and sanitize URL values before logging.
 
 ```rust
-use crate::core::scrapers::{cache, http_client};
+use crate::core::scrapers::{cache, http_client, read_text_with_limit};
 use crate::core::url_security::sanitize_url_for_logging;
 
 async fn custom_fetch(url: &str) -> anyhow::Result<String> {
@@ -64,7 +64,7 @@ async fn custom_fetch(url: &str) -> anyhow::Result<String> {
     }
 
     let response = http_client::get_with_retry(url).await?;
-    let body = response.text().await?;
+    let body = read_text_with_limit(response, url).await?;
     cache::set_cached(url, body.clone()).await;
     Ok(body)
 }
