@@ -101,14 +101,10 @@ describe("ScoreBreakdownModal", () => {
       expect(screen.getByText("Recency")).toBeInTheDocument();
     });
 
-    it("displays factor icons", () => {
+    it("renders visual factor icons", () => {
       render(<ScoreBreakdownModal {...defaultProps} />);
 
-      expect(screen.getByText("🎯")).toBeInTheDocument();
-      expect(screen.getByText("💰")).toBeInTheDocument();
-      expect(screen.getByText("📍")).toBeInTheDocument();
-      expect(screen.getByText("🏢")).toBeInTheDocument();
-      expect(screen.getByText("⏰")).toBeInTheDocument();
+      expect(document.body.querySelectorAll("svg").length).toBeGreaterThanOrEqual(5);
     });
 
     it("displays factor descriptions", () => {
@@ -134,38 +130,38 @@ describe("ScoreBreakdownModal", () => {
 
   describe("score reasons parsing", () => {
     it("displays skills reasons", () => {
-      const reasons = JSON.stringify(["✓ Title match: Senior Engineer"]);
+      const reasons = JSON.stringify(["Title matches: Senior Engineer"]);
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);
 
-      expect(screen.getByText("✓ Title match: Senior Engineer")).toBeInTheDocument();
+      expect(screen.getByText("Title matches: Senior Engineer")).toBeInTheDocument();
     });
 
     it("displays salary reasons", () => {
-      const reasons = JSON.stringify(["✓ Salary meets minimum"]);
+      const reasons = JSON.stringify(["Salary meets minimum"]);
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);
 
-      expect(screen.getByText("✓ Salary meets minimum")).toBeInTheDocument();
+      expect(screen.getByText("Salary meets minimum")).toBeInTheDocument();
     });
 
     it("displays location reasons", () => {
-      const reasons = JSON.stringify(["✓ Remote position"]);
+      const reasons = JSON.stringify(["Remote position"]);
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);
 
-      expect(screen.getByText("✓ Remote position")).toBeInTheDocument();
+      expect(screen.getByText("Remote position")).toBeInTheDocument();
     });
 
     it("displays company reasons", () => {
-      const reasons = JSON.stringify(["✓ Company is in favorites"]);
+      const reasons = JSON.stringify(["Company is in favorites"]);
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);
 
-      expect(screen.getByText("✓ Company is in favorites")).toBeInTheDocument();
+      expect(screen.getByText("Company is in favorites")).toBeInTheDocument();
     });
 
     it("displays recency reasons", () => {
-      const reasons = JSON.stringify(["✓ Posted 2 days ago"]);
+      const reasons = JSON.stringify(["Posted 2 days ago"]);
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);
 
-      expect(screen.getByText("✓ Posted 2 days ago")).toBeInTheDocument();
+      expect(screen.getByText("Posted 2 days ago")).toBeInTheDocument();
     });
 
     it("handles invalid JSON gracefully", () => {
@@ -182,10 +178,10 @@ describe("ScoreBreakdownModal", () => {
     });
 
     it("categorizes hybrid/onsite to location", () => {
-      const reasons = JSON.stringify(["✓ Hybrid work available"]);
+      const reasons = JSON.stringify(["Hybrid work available"]);
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);
 
-      expect(screen.getByText("✓ Hybrid work available")).toBeInTheDocument();
+      expect(screen.getByText("Hybrid work available")).toBeInTheDocument();
     });
 
     it("categorizes fresh posting to recency", () => {
@@ -215,7 +211,7 @@ describe("ScoreBreakdownModal", () => {
     });
 
     it("handles zero factor scores", () => {
-      const reasons = JSON.stringify(["✗ Title doesn't match"]);
+      const reasons = JSON.stringify(["Title doesn't match"]);
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);
 
       // Should render without errors
@@ -256,7 +252,7 @@ describe("ScoreBreakdownModal", () => {
 
   describe("breakdown estimation", () => {
     it("reduces factor score to 0 when failure marker present", () => {
-      const reasons = JSON.stringify(["✗ Not in allowlist"]);
+      const reasons = JSON.stringify(["Not in allowlist"]);
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);
 
       // The Skills factor should show 0%

@@ -66,7 +66,6 @@ describe("MarketSnapshotCard", () => {
   describe("market sentiment", () => {
     it("displays market sentiment", () => {
       render(<MarketSnapshotCard snapshot={mockSnapshot} />);
-      // The sentiment text is shown with emoji prefix
       expect(screen.getByRole("status", { name: /market sentiment/i })).toBeInTheDocument();
       expect(screen.getByText("Market Sentiment")).toBeInTheDocument();
     });
@@ -109,22 +108,22 @@ describe("MarketSnapshotCard", () => {
   describe("top highlights", () => {
     it("displays top skill badge", () => {
       render(<MarketSnapshotCard snapshot={mockSnapshot} />);
-      expect(screen.getByText(/🔧 top skill: react/i)).toBeInTheDocument();
+      expect(screen.getByText(/top skill: react/i)).toBeInTheDocument();
     });
 
     it("displays top company badge", () => {
       render(<MarketSnapshotCard snapshot={mockSnapshot} />);
-      expect(screen.getByText(/🏢 top company: techcorp/i)).toBeInTheDocument();
+      expect(screen.getByText(/top company: techcorp/i)).toBeInTheDocument();
     });
 
     it("displays top location badge", () => {
       render(<MarketSnapshotCard snapshot={mockSnapshot} />);
-      expect(screen.getByText(/📍 top location: san francisco, ca/i)).toBeInTheDocument();
+      expect(screen.getByText(/top location: san francisco, ca/i)).toBeInTheDocument();
     });
 
     it("displays companies hiring count", () => {
       render(<MarketSnapshotCard snapshot={mockSnapshot} />);
-      expect(screen.getByText(/🏭 1,250 companies hiring/i)).toBeInTheDocument();
+      expect(screen.getByText(/1,250 companies hiring/i)).toBeInTheDocument();
     });
 
     it("does not display top skill badge when null", () => {

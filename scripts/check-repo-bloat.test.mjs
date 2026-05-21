@@ -269,6 +269,28 @@ test("checkRepoBloat rejects frontend status emoji markers", () => {
   });
 });
 
+test("checkRepoBloat rejects production source emoji markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/pages/Market.tsx",
+      'export const tabs = [{ id: "overview", label: "Overview", icon: "📊" }];\n',
+    );
+
+    execFileSync("git", ["add", "package.json", "src/pages/Market.tsx"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace production source emoji markers: src/pages/Market.tsx"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects bookmarklet doc status emoji markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(

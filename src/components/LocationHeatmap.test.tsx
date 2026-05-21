@@ -81,10 +81,10 @@ describe("LocationHeatmap", () => {
       expect(screen.getByText("Seattle, WA")).toBeInTheDocument();
     });
 
-    it("renders Remote location with globe emoji", () => {
+    it("renders Remote location", () => {
       render(<LocationHeatmap locations={defaultLocations} />);
 
-      expect(screen.getByText("🌐 Remote")).toBeInTheDocument();
+      expect(screen.getByText("Remote")).toBeInTheDocument();
     });
 
     it("renders job counts", () => {
@@ -215,7 +215,7 @@ describe("LocationHeatmap", () => {
       fireEvent.click(screen.getByText("San Francisco, CA"));
       expect(screen.getByText("$150,000")).toBeInTheDocument();
 
-      fireEvent.click(screen.getByText("🌐 Remote"));
+      fireEvent.click(screen.getByText("Remote"));
       // Selected location should change, still showing details
       expect(screen.getByText("Total Jobs")).toBeInTheDocument();
     });
@@ -370,14 +370,14 @@ describe("LocationHeatmap", () => {
       expect(screen.getByText("Austin, TX")).toBeInTheDocument();
     });
 
-    it("formats remote location with emoji", () => {
+    it("formats remote location", () => {
       render(
         <LocationHeatmap
           locations={[createLocation({ location: "remote", city: null, state: null })]}
         />
       );
 
-      expect(screen.getByText("🌐 Remote")).toBeInTheDocument();
+      expect(screen.getByText("Remote")).toBeInTheDocument();
     });
 
     it("formats location without city/state as raw location", () => {

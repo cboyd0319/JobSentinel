@@ -10,7 +10,7 @@ import {
   getSupportedSites,
   openDeepLink,
 } from "../services/deeplinks";
-import type { DeepLink, SearchCriteria, SiteInfo } from "../types/deeplinks";
+import type { CategoryMetadata, DeepLink, SearchCriteria, SiteInfo } from "../types/deeplinks";
 import {
   CATEGORY_METADATA,
   JobType,
@@ -23,6 +23,63 @@ interface DeepLinkGeneratorProps {
   initialQuery?: string;
   /** Pre-filled location */
   initialLocation?: string;
+}
+
+function CategoryIcon({
+  icon,
+  className = "h-5 w-5",
+}: {
+  icon: CategoryMetadata["icon"];
+  className?: string;
+}) {
+  const commonProps = {
+    className,
+    fill: "none",
+    viewBox: "0 0 24 24",
+    stroke: "currentColor",
+    "aria-hidden": true,
+  };
+
+  switch (icon) {
+    case "globe":
+    case "remote":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3 12h18M12 3c2 2.5 3 5.5 3 9s-1 6.5-3 9c-2-2.5-3-5.5-3-9s1-6.5 3-9z" />
+        </svg>
+      );
+    case "laptop":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M5 5h14v10H5V5zm-2 14h18" />
+        </svg>
+      );
+    case "building":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 21V7a2 2 0 012-2h8a2 2 0 012 2v14M9 9h1m-1 4h1m4-4h1m-1 4h1M3 21h18" />
+        </svg>
+      );
+    case "rocket":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M5 19c4.5-1 9.5-6 10.5-10.5L19 5l-3.5 1C11 7 6 12 5 16.5V19z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 15l-4 4m10-14l4 4" />
+        </svg>
+      );
+    case "lock":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M7 11V8a5 5 0 0110 0v3m-9 0h8a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2v-6a2 2 0 012-2z" />
+        </svg>
+      );
+    case "briefcase":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10 6V5a2 2 0 012-2h0a2 2 0 012 2v1m-9 4h14M5 8h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2z" />
+        </svg>
+      );
+  }
 }
 
 export function DeepLinkGenerator({
@@ -251,7 +308,10 @@ export function DeepLinkGenerator({
                         : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                     }`}
                   >
-                    {metadata.icon} {metadata.label} ({count})
+                    <span className="inline-flex items-center gap-1.5">
+                      <CategoryIcon icon={metadata.icon} className="h-4 w-4" />
+                      <span>{metadata.label} ({count})</span>
+                    </span>
                   </button>
                 );
               })}
@@ -280,8 +340,8 @@ export function DeepLinkGenerator({
                         {link.site.name}
                       </h3>
                     </div>
-                    <span className="text-xl" title={metadata.label}>
-                      {metadata.icon}
+                    <span className="text-gray-500 dark:text-gray-400" title={metadata.label}>
+                      <CategoryIcon icon={metadata.icon} />
                     </span>
                   </div>
 
@@ -293,7 +353,8 @@ export function DeepLinkGenerator({
 
                   {link.site.requires_login && (
                     <div className="mb-3 inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded text-xs text-yellow-800 dark:text-yellow-400">
-                      🔐 Login required
+                      <CategoryIcon icon="lock" className="h-3.5 w-3.5" />
+                      <span>Login required</span>
                     </div>
                   )}
 

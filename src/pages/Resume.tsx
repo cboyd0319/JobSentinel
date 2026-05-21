@@ -83,6 +83,37 @@ const SKILL_CATEGORIES = [
   "Other",
 ];
 
+const LEGACY_MATCH_PREFIX = "\u2713";
+const LEGACY_MISSING_PREFIX = "\u2717";
+
+function parseGapAnalysisLine(line: string) {
+  const trimmed = line.trim();
+  const matchPattern = /^(?:Matching:|Matching Skills\b)/i;
+  const missingPattern = /^(?:Missing:|Missing Skills\b)/i;
+
+  if (trimmed.startsWith(LEGACY_MATCH_PREFIX) || matchPattern.test(trimmed)) {
+    return {
+      text: trimmed
+        .replace(LEGACY_MATCH_PREFIX, "")
+        .replace(matchPattern, "")
+        .trim(),
+      status: "match" as const,
+    };
+  }
+
+  if (trimmed.startsWith(LEGACY_MISSING_PREFIX) || missingPattern.test(trimmed)) {
+    return {
+      text: trimmed
+        .replace(LEGACY_MISSING_PREFIX, "")
+        .replace(missingPattern, "")
+        .trim(),
+      status: "missing" as const,
+    };
+  }
+
+  return { text: trimmed, status: "neutral" as const };
+}
+
 interface ResumeProps {
   onBack: () => void;
 }
@@ -1029,11 +1060,10 @@ export default function Resume({ onBack }: ResumeProps) {
                           </p>
                           <ul className="space-y-1">
                             {match.gap_analysis.split("\n").map((line, idx) => {
-                              const trimmed = line.trim();
-                              if (!trimmed) return null;
-                              const isMatch = trimmed.startsWith("✓");
-                              const isMissing = trimmed.startsWith("✗");
-                              const text = trimmed.replace(/^[✓✗]\s*/, "");
+                              const parsedLine = parseGapAnalysisLine(line);
+                              if (!parsedLine.text) return null;
+                              const isMatch = parsedLine.status === "match";
+                              const isMissing = parsedLine.status === "missing";
                               return (
                                 <li
                                   key={idx}
@@ -1047,7 +1077,7 @@ export default function Resume({ onBack }: ResumeProps) {
                                 >
                                   {isMatch && <CheckIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />}
                                   {isMissing && <XIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />}
-                                  <span>{text}</span>
+                                  <span>{parsedLine.text}</span>
                                 </li>
                               );
                             })}

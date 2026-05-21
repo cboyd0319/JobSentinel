@@ -611,7 +611,10 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                           scraper.health_status === "healthy" ? (
                             <Tooltip content="Scraper ran successfully but found 0 jobs. Check your search terms or this source may be empty.">
                               <span className="font-medium text-amber-600 dark:text-amber-400 cursor-help">
-                                0 ⚠
+                                <span className="inline-flex items-center justify-end gap-1">
+                                  0
+                                  <StatusIcon status="warning" />
+                                </span>
                               </span>
                             </Tooltip>
                           ) : (

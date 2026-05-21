@@ -9,7 +9,7 @@ interface GhostReason {
   severity: "low" | "medium" | "high";
 }
 
-// Category display names and icons for ML-enhanced signals
+// Category display names for ML-enhanced signals
 const categoryLabels: Record<GhostReason["category"], string> = {
   stale: "Stale Listing",
   repost: "Reposted",
@@ -17,15 +17,6 @@ const categoryLabels: Record<GhostReason["category"], string> = {
   missing_details: "Missing Details",
   unrealistic: "Unrealistic",
   company_behavior: "Company Pattern",
-};
-
-const categoryIcons: Record<GhostReason["category"], string> = {
-  stale: "📅",
-  repost: "🔄",
-  generic: "📋",
-  missing_details: "❓",
-  unrealistic: "⚠️",
-  company_behavior: "🏢",
 };
 
 interface GhostIndicatorProps {
@@ -102,6 +93,17 @@ function WarningIcon({ className }: { className?: string }) {
   );
 }
 
+function SeverityDot({ severity }: { severity: GhostReason["severity"] }) {
+  const color =
+    severity === "high"
+      ? "bg-red-400"
+      : severity === "medium"
+        ? "bg-orange-400"
+        : "bg-yellow-400";
+
+  return <span className={`mt-1.5 h-2 w-2 flex-shrink-0 rounded-full ${color}`} aria-hidden="true" />;
+}
+
 export const GhostIndicator = memo(function GhostIndicator({
   ghostScore,
   ghostReasons,
@@ -155,9 +157,7 @@ export const GhostIndicator = memo(function GhostIndicator({
         <ul className="text-xs space-y-1.5">
           {reasons.map((reason, i) => (
             <li key={i} className="flex items-start gap-1.5">
-              <span className="flex-shrink-0 text-sm" role="img" aria-label={categoryLabels[reason.category] || reason.category}>
-                {categoryIcons[reason.category] || "•"}
-              </span>
+              <SeverityDot severity={reason.severity} />
               <span className="flex-1">
                 <span className={`font-medium ${
                   reason.severity === "high"
@@ -189,7 +189,7 @@ export const GhostIndicator = memo(function GhostIndicator({
               className="flex-1 px-2 py-1 text-xs rounded bg-green-500 hover:bg-green-600 text-white transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-1"
               title="Mark as real job"
             >
-              ✓ Real
+              Real
             </button>
             <button
               onClick={(e) => {
@@ -200,7 +200,7 @@ export const GhostIndicator = memo(function GhostIndicator({
               className="flex-1 px-2 py-1 text-xs rounded bg-red-500 hover:bg-red-600 text-white transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1"
               title="Confirm ghost job"
             >
-              ✗ Ghost
+              Ghost
             </button>
           </div>
         </div>
@@ -208,7 +208,7 @@ export const GhostIndicator = memo(function GhostIndicator({
       {feedbackState && (
         <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">
           <p className="text-xs text-green-400">
-            ✓ Marked as {feedbackState}
+            Marked as {feedbackState}
           </p>
         </div>
       )}
@@ -317,7 +317,7 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
               className="flex-1 px-2 py-1 text-xs rounded bg-green-500 hover:bg-green-600 text-white transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-1"
               title="Mark as real job"
             >
-              ✓ Real
+              Real
             </button>
             <button
               onClick={(e) => {
@@ -328,7 +328,7 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
               className="flex-1 px-2 py-1 text-xs rounded bg-red-500 hover:bg-red-600 text-white transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1"
               title="Confirm ghost job"
             >
-              ✗ Ghost
+              Ghost
             </button>
           </div>
         </div>
@@ -336,7 +336,7 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
       {feedbackState && (
         <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">
           <p className="text-xs text-green-400">
-            ✓ Marked as {feedbackState}
+            Marked as {feedbackState}
           </p>
         </div>
       )}

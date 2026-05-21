@@ -250,8 +250,9 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
               {/* Missing Fields Warning */}
               {preview.missing_fields.length > 0 && (
                 <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded">
-                  <p className="text-xs text-yellow-800 dark:text-yellow-200">
-                    ⚠ Missing fields: {preview.missing_fields.join(", ")}
+                  <p className="flex items-start gap-1.5 text-xs text-yellow-800 dark:text-yellow-200">
+                    <WarningIcon className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+                    <span>Missing fields: {preview.missing_fields.join(", ")}</span>
                   </p>
                 </div>
               )}
@@ -259,8 +260,9 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
               {/* Already Exists Warning */}
               {preview.already_exists && (
                 <div className="p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded">
-                  <p className="text-xs text-blue-800 dark:text-blue-200">
-                    ℹ This job already exists in your database
+                  <p className="flex items-start gap-1.5 text-xs text-blue-800 dark:text-blue-200">
+                    <InfoIcon className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+                    <span>This job already exists in your database</span>
                   </p>
                 </div>
               )}
@@ -291,5 +293,43 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
         )}
       </ModalFooter>
     </Modal>
+  );
+}
+
+function WarningIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M12 9v2m0 4h.01m-6.94 4h13.88c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.33 16c-.77 1.33.19 3 1.73 3z"
+      />
+    </svg>
+  );
+}
+
+function InfoIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M12 16v-4m0-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+      />
+    </svg>
   );
 }

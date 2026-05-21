@@ -69,7 +69,7 @@ export const LocationHeatmap = memo(function LocationHeatmap({ locations, loadin
 
 
   const formatLocationName = (loc: LocationHeat) => {
-    if (loc.location.toLowerCase() === "remote") return "🌐 Remote";
+    if (loc.location.toLowerCase() === "remote") return "Remote";
     if (loc.city && loc.state) return `${loc.city}, ${loc.state}`;
     return loc.location;
   };

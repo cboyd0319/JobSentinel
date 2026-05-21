@@ -62,9 +62,8 @@ describe("MarketAlertCard", () => {
     });
 
     it("renders alert icon based on type", () => {
-      render(<MarketAlertCard alert={mockAlert} />);
-      // skill_surge should show 🔧
-      expect(screen.getByText("🔧")).toBeInTheDocument();
+      const { container } = render(<MarketAlertCard alert={mockAlert} />);
+      expect(container.querySelector("svg")).toBeInTheDocument();
     });
 
     it("renders severity badge", () => {

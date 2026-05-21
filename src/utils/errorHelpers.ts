@@ -246,7 +246,7 @@ export function isRecoverableError(error: unknown): boolean {
  */
 export function logErrorDetails(error: unknown, context?: Record<string, unknown>) {
   if (import.meta.env.DEV) {
-    console.group('🔴 Error Details');
+    console.group('Error Details');
     console.error('Error:', error);
     console.log('Type:', classifyError(error));
     console.log('Message:', getUserMessage(error));

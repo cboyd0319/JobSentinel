@@ -118,11 +118,12 @@ interface MarketSnapshot {
 // ============================================================================
 
 type TabId = "overview" | "skills" | "companies" | "locations" | "alerts";
+type TabIcon = "chart" | "tool" | "building" | "location" | "bell";
 
 interface Tab {
   id: TabId;
   label: string;
-  icon: string;
+  icon: TabIcon;
   badge?: number;
 }
 
@@ -154,11 +155,11 @@ export default function Market({ onBack }: MarketProps) {
   const unreadAlertCount = useMemo(() => (alerts ?? []).filter((a) => !a.is_read).length, [alerts]);
 
   const tabs: Tab[] = [
-    { id: "overview", label: "Overview", icon: "📊" },
-    { id: "skills", label: "Skills", icon: "🔧" },
-    { id: "companies", label: "Companies", icon: "🏢" },
-    { id: "locations", label: "Locations", icon: "📍" },
-    { id: "alerts", label: "Alerts", icon: "🔔", badge: unreadAlertCount || undefined },
+    { id: "overview", label: "Overview", icon: "chart" },
+    { id: "skills", label: "Skills", icon: "tool" },
+    { id: "companies", label: "Companies", icon: "building" },
+    { id: "locations", label: "Locations", icon: "location" },
+    { id: "alerts", label: "Alerts", icon: "bell", badge: unreadAlertCount || undefined },
   ];
 
   const fetchData = useCallback(async (signal?: AbortSignal) => {
@@ -332,7 +333,7 @@ export default function Market({ onBack }: MarketProps) {
                     : "text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-white"
                 }`}
               >
-                <span aria-hidden="true">{tab.icon}</span>
+                <TabIconView icon={tab.icon} />
                 {tab.label}
                 {tab.badge !== undefined && tab.badge > 0 && (
                   <Badge variant="alert" className="ml-1">
@@ -577,6 +578,51 @@ function BackIcon() {
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
     </svg>
   );
+}
+
+function TabIconView({ icon }: { icon: TabIcon }) {
+  const commonProps = {
+    className: "h-4 w-4",
+    fill: "none",
+    viewBox: "0 0 24 24",
+    stroke: "currentColor",
+    "aria-hidden": true,
+  };
+
+  switch (icon) {
+    case "chart":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 19V5m4 14v-6m4 6V9m4 10v-8m4 8V7" />
+        </svg>
+      );
+    case "tool":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M14.7 6.3l3 3m-1.5-4.5l3 3-8.7 8.7H7.5v-3L16.2 4.8z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M5 19h14" />
+        </svg>
+      );
+    case "building":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 21V7a2 2 0 012-2h8a2 2 0 012 2v14M9 9h1m-1 4h1m4-4h1m-1 4h1M3 21h18" />
+        </svg>
+      );
+    case "location":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 21s6-5.4 6-11a6 6 0 10-12 0c0 5.6 6 11 6 11z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 10.5h.01" />
+        </svg>
+      );
+    case "bell":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0a3 3 0 01-6 0" />
+        </svg>
+      );
+  }
 }
 
 interface TrendIndicatorProps {

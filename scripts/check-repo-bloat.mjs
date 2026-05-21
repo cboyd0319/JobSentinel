@@ -775,6 +775,16 @@ function hasSourceReleaseVersionPromise(root, path) {
   );
 }
 
+function hasProductionSourceGlyphMarkers(root, path) {
+  if (!isRuntimeFrontendSource(path)) {
+    return false;
+  }
+
+  return /(?:\p{Extended_Pictographic}|[\u{2705}\u{274c}\u{26a0}\u{2139}\u{2713}\u{2717}])/u.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 function hasFrontendStatusEmojiMarkers(root, path) {
   if (!frontendStatusEmojiPaths.has(path)) {
     return false;
@@ -1923,6 +1933,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasSourceReleaseVersionPromise(root, path)) {
       violations.push(`replace source release version promises: ${path}`);
+    }
+
+    if (hasProductionSourceGlyphMarkers(root, path)) {
+      violations.push(`replace production source emoji markers: ${path}`);
     }
 
     if (hasFrontendStatusEmojiMarkers(root, path)) {

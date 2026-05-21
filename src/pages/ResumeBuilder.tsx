@@ -965,7 +965,11 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                       : "bg-surface-100 dark:bg-surface-700 text-surface-400"
                   }`}
                 >
-                  {step.id < currentStep ? "✓" : step.id}
+                  {step.id < currentStep ? (
+                    <CheckCircleIcon className="w-4 h-4" />
+                  ) : (
+                    step.id
+                  )}
                 </div>
                 <div className="hidden sm:block">{step.name}</div>
               </div>

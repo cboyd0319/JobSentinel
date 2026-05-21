@@ -31,7 +31,7 @@ describe("vitals utilities", () => {
         navigationType: "navigate",
       };
 
-      expect(getMetricRating(metric)).toBe("✅ Good");
+      expect(getMetricRating(metric)).toBe("Good");
     });
 
     it("returns Needs Improvement for needs-improvement rating", () => {
@@ -45,7 +45,7 @@ describe("vitals utilities", () => {
         navigationType: "navigate",
       };
 
-      expect(getMetricRating(metric)).toBe("⚠️ Needs Improvement");
+      expect(getMetricRating(metric)).toBe("Needs Improvement");
     });
 
     it("returns Poor for poor rating", () => {
@@ -59,7 +59,7 @@ describe("vitals utilities", () => {
         navigationType: "navigate",
       };
 
-      expect(getMetricRating(metric)).toBe("❌ Poor");
+      expect(getMetricRating(metric)).toBe("Poor");
     });
 
     it("falls back to threshold check for CLS", () => {
@@ -73,14 +73,14 @@ describe("vitals utilities", () => {
         navigationType: "navigate",
       };
 
-      expect(getMetricRating(goodCLS)).toBe("✅ Good");
+      expect(getMetricRating(goodCLS)).toBe("Good");
 
       const poorCLS: Metric = {
         ...goodCLS,
         value: 0.5,
       };
 
-      expect(getMetricRating(poorCLS)).toBe("❌ Poor");
+      expect(getMetricRating(poorCLS)).toBe("Poor");
     });
 
     it("returns Unknown for unknown metric name", () => {

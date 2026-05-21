@@ -41,9 +41,9 @@ function logMetric(_metric: Metric) {
 export function getMetricRating(metric: Metric): string {
   const { name, rating } = metric;
 
-  if (rating === "good") return "✅ Good";
-  if (rating === "needs-improvement") return "⚠️ Needs Improvement";
-  if (rating === "poor") return "❌ Poor";
+  if (rating === "good") return "Good";
+  if (rating === "needs-improvement") return "Needs Improvement";
+  if (rating === "poor") return "Poor";
 
   // Fallback based on thresholds
   const thresholds: Record<string, { good: number; poor: number }> = {
@@ -57,9 +57,9 @@ export function getMetricRating(metric: Metric): string {
   const threshold = thresholds[name];
   if (!threshold) return "Unknown";
 
-  if (metric.value <= threshold.good) return "✅ Good";
-  if (metric.value <= threshold.poor) return "⚠️ Needs Improvement";
-  return "❌ Poor";
+  if (metric.value <= threshold.good) return "Good";
+  if (metric.value <= threshold.poor) return "Needs Improvement";
+  return "Poor";
 }
 
 /**

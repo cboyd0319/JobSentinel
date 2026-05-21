@@ -103,7 +103,7 @@ export interface CategoryMetadata {
   category: SiteCategory;
   label: string;
   description: string;
-  icon: string;
+  icon: "globe" | "laptop" | "building" | "remote" | "rocket" | "lock" | "briefcase";
   selectedClassName: string;
 }
 
@@ -115,49 +115,49 @@ export const CATEGORY_METADATA: Record<SiteCategory, CategoryMetadata> = {
     category: SiteCategory.General,
     label: "General",
     description: "Large job boards with millions of listings",
-    icon: "🌐",
+    icon: "globe",
     selectedClassName: "bg-blue-600 text-white",
   },
   [SiteCategory.Tech]: {
     category: SiteCategory.Tech,
     label: "Tech",
     description: "Developer and IT-focused job boards",
-    icon: "💻",
+    icon: "laptop",
     selectedClassName: "bg-purple-600 text-white",
   },
   [SiteCategory.Government]: {
     category: SiteCategory.Government,
     label: "Government",
     description: "Federal, state, and local government positions",
-    icon: "🏛️",
+    icon: "building",
     selectedClassName: "bg-indigo-600 text-white",
   },
   [SiteCategory.Remote]: {
     category: SiteCategory.Remote,
     label: "Remote",
     description: "Remote and flexible work opportunities",
-    icon: "🌍",
+    icon: "remote",
     selectedClassName: "bg-green-600 text-white",
   },
   [SiteCategory.Startups]: {
     category: SiteCategory.Startups,
     label: "Startups",
     description: "Early-stage companies and startup jobs",
-    icon: "🚀",
+    icon: "rocket",
     selectedClassName: "bg-orange-600 text-white",
   },
   [SiteCategory.Cleared]: {
     category: SiteCategory.Cleared,
     label: "Cleared",
     description: "Jobs requiring security clearances",
-    icon: "🔒",
+    icon: "lock",
     selectedClassName: "bg-red-600 text-white",
   },
   [SiteCategory.Professional]: {
     category: SiteCategory.Professional,
     label: "Professional",
     description: "Professional networking and career sites",
-    icon: "👔",
+    icon: "briefcase",
     selectedClassName: "bg-sky-600 text-white",
   },
 };

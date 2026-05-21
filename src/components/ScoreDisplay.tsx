@@ -110,12 +110,91 @@ function getScoreInfo(score: number) {
  * Score factor weights for display
  */
 const FACTOR_WEIGHTS = {
-  skills: { weight: 40, label: "Skills", icon: "🎯" },
-  salary: { weight: 25, label: "Salary", icon: "💰" },
-  location: { weight: 20, label: "Location", icon: "📍" },
-  company: { weight: 10, label: "Company", icon: "🏢" },
-  recency: { weight: 5, label: "Recency", icon: "⏰" },
+  skills: { weight: 40, label: "Skills", icon: "target" },
+  salary: { weight: 25, label: "Salary", icon: "currency" },
+  location: { weight: 20, label: "Location", icon: "location" },
+  company: { weight: 10, label: "Company", icon: "company" },
+  recency: { weight: 5, label: "Recency", icon: "clock" },
 } as const;
+
+const LEGACY_PASS_PREFIX = "\u2713";
+const LEGACY_FAIL_PREFIX = "\u2717";
+
+function getReasonStatus(reason: string): "pass" | "fail" | "neutral" {
+  const lower = reason.toLowerCase();
+
+  if (
+    reason.includes(LEGACY_FAIL_PREFIX) ||
+    lower.includes("not in allowlist") ||
+    lower.includes("doesn't match") ||
+    lower.includes("in blocklist") ||
+    lower.includes("blocklisted")
+  ) {
+    return "fail";
+  }
+
+  if (
+    reason.includes(LEGACY_PASS_PREFIX) ||
+    lower.includes("matches") ||
+    lower.includes("meets") ||
+    lower.includes("favorite")
+  ) {
+    return "pass";
+  }
+
+  return "neutral";
+}
+
+function FactorIcon({
+  icon,
+  className = "w-3 h-3 inline-block mr-1 align-text-bottom",
+}: {
+  icon: (typeof FACTOR_WEIGHTS)[keyof typeof FACTOR_WEIGHTS]["icon"];
+  className?: string;
+}) {
+  const commonProps = {
+    className,
+    fill: "none",
+    viewBox: "0 0 24 24",
+    stroke: "currentColor",
+    "aria-hidden": true,
+  };
+
+  switch (icon) {
+    case "target":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 6v6l4 2m5-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      );
+    case "currency":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 6v12m3-9.5A3.5 3.5 0 0012 7c-1.66 0-3 .9-3 2s1.34 2 3 2 3 .9 3 2-1.34 2-3 2a3.5 3.5 0 01-3-1.5" />
+        </svg>
+      );
+    case "location":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 21s6-5.4 6-11a6 6 0 10-12 0c0 5.6 6 11 6 11z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 10.5h.01" />
+        </svg>
+      );
+    case "company":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 21V7a2 2 0 012-2h8a2 2 0 012 2v14M9 9h1m-1 4h1m4-4h1m-1 4h1M3 21h18" />
+        </svg>
+      );
+    case "clock":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      );
+  }
+}
 
 /**
  * Size configurations for score display (extracted to prevent re-creation on each render)
@@ -176,9 +255,10 @@ function ScoreBreakdownTooltip({
           ).map((key) => {
             const factor = FACTOR_WEIGHTS[key];
             const reasons = parsed[key];
-            const hasPass = reasons.some((r) => r.includes("✓"));
-            const hasFail = reasons.some((r) => r.includes("✗"));
-            const status = hasFail ? "✗" : hasPass ? "✓" : "—";
+            const statuses = reasons.map(getReasonStatus);
+            const hasPass = statuses.includes("pass");
+            const hasFail = statuses.includes("fail");
+            const status = hasFail ? "Needs review" : hasPass ? "Match" : "Neutral";
             const statusColor = hasFail
               ? "text-red-400"
               : hasPass
@@ -191,7 +271,7 @@ function ScoreBreakdownTooltip({
                 className="border-b border-surface-700 last:border-0"
               >
                 <td className="py-1 pr-2">
-                  <span className="mr-1">{factor.icon}</span>
+                  <FactorIcon icon={factor.icon} />
                   {factor.label}
                 </td>
                 <td className="text-right py-1 pr-2 text-surface-400">

@@ -2252,7 +2252,7 @@ export default function Settings({ onClose }: SettingsProps) {
                   <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-xl">💬</span>
+                        <SettingsSymbol icon="chat" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                         <span className="text-sm text-surface-600 dark:text-surface-300">
                           Send alerts to Discord
                         </span>
@@ -2330,7 +2330,7 @@ export default function Settings({ onClose }: SettingsProps) {
                   <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-xl">👥</span>
+                        <SettingsSymbol icon="users" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                         <span className="text-sm text-surface-600 dark:text-surface-300">
                           Send alerts to Teams
                         </span>
@@ -2406,7 +2406,7 @@ export default function Settings({ onClose }: SettingsProps) {
                   <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-xl">✈️</span>
+                        <SettingsSymbol icon="send" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                         <span className="text-sm text-surface-600 dark:text-surface-300">
                           Send alerts to Telegram
                         </span>
@@ -2500,7 +2500,7 @@ export default function Settings({ onClose }: SettingsProps) {
                   <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-xl">🔔</span>
+                        <SettingsSymbol icon="bell" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                         <span className="text-sm text-surface-600 dark:text-surface-300">
                           Desktop alerts
                         </span>
@@ -2643,9 +2643,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <div className="space-y-2">
                           <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                             <div className="flex items-center gap-3">
-                              <span className="text-green-600 dark:text-green-400">
-                                ✓
-                              </span>
+                              <SettingsSymbol icon="check" className="h-4 w-4 text-green-600 dark:text-green-400" />
                               <span className="text-sm font-medium text-green-800 dark:text-green-200">
                                 LinkedIn Connected
                               </span>
@@ -2973,8 +2971,9 @@ export default function Settings({ onClose }: SettingsProps) {
                       {/* Quick Setup Guide */}
                       {!credentialStatus.usajobs_api_key && (
                         <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                          <p className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
-                            ⚡ Quick Setup (2 minutes)
+                          <p className="flex items-center gap-1.5 text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
+                            <SettingsSymbol icon="bolt" className="h-4 w-4" />
+                            <span>Quick Setup (2 minutes)</span>
                           </p>
                           <ol className="text-xs text-blue-700 dark:text-blue-300 space-y-1 ml-4 list-decimal">
                             <li>Click "Get Free API Key" below</li>
@@ -3175,8 +3174,9 @@ export default function Settings({ onClose }: SettingsProps) {
                 {jobBoardRecommendations.length > 0 && (
                   <div className="mb-4 p-3 bg-sentinel-50 dark:bg-sentinel-900/20 border border-sentinel-200 dark:border-sentinel-800 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
+                      <SettingsSymbol icon="lightbulb" className="h-4 w-4 text-sentinel-700 dark:text-sentinel-300" />
                       <span className="text-sm font-medium text-sentinel-700 dark:text-sentinel-300">
-                        💡 Recommended for you
+                        Recommended for you
                       </span>
                     </div>
                     <div className="space-y-2">
@@ -3219,7 +3219,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-lg">🌍</span>
+                          <SettingsSymbol icon="globe" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                           <span className="font-medium text-surface-800 dark:text-surface-200">
                             RemoteOK
                           </span>
@@ -3253,7 +3253,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-lg">🏠</span>
+                          <SettingsSymbol icon="home" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                           <span className="font-medium text-surface-800 dark:text-surface-200">
                             WeWorkRemotely
                           </span>
@@ -3286,7 +3286,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-lg">🏙️</span>
+                          <SettingsSymbol icon="city" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                           <span className="font-medium text-surface-800 dark:text-surface-200">
                             BuiltIn
                           </span>
@@ -3320,7 +3320,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-lg">🔶</span>
+                          <SettingsSymbol icon="chat" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                           <span className="font-medium text-surface-800 dark:text-surface-200">
                             HN Who's Hiring
                           </span>
@@ -3355,7 +3355,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-lg">🎲</span>
+                          <SettingsSymbol icon="briefcase" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                           <span className="font-medium text-surface-800 dark:text-surface-200">
                             Dice
                           </span>
@@ -3389,7 +3389,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-lg">🚀</span>
+                          <SettingsSymbol icon="rocket" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                           <span className="font-medium text-surface-800 dark:text-surface-200">
                             YC Startups
                           </span>
@@ -3424,7 +3424,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-lg">📋</span>
+                          <SettingsSymbol icon="clipboard" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                           <span className="font-medium text-surface-800 dark:text-surface-200">
                             SimplyHired
                           </span>
@@ -3453,8 +3453,9 @@ export default function Settings({ onClose }: SettingsProps) {
                         </label>
                       </div>
                       {config.simplyhired?.enabled && (
-                        <div className="mt-3 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2">
-                          ⚠️ May be blocked by Cloudflare protection
+                        <div className="mt-3 flex items-start gap-1.5 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2">
+                          <SettingsSymbol icon="warning" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+                          <span>May be blocked by Cloudflare protection</span>
                         </div>
                       )}
                     </div>
@@ -3463,7 +3464,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-lg">🔍</span>
+                          <SettingsSymbol icon="search" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                           <span className="font-medium text-surface-800 dark:text-surface-200">
                             Glassdoor
                           </span>
@@ -3492,15 +3493,19 @@ export default function Settings({ onClose }: SettingsProps) {
                         </label>
                       </div>
                       {config.glassdoor?.enabled && (
-                        <div className="mt-3 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2">
-                          ⚠️ May be blocked by Cloudflare protection
+                        <div className="mt-3 flex items-start gap-1.5 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2">
+                          <SettingsSymbol icon="warning" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+                          <span>May be blocked by Cloudflare protection</span>
                         </div>
                       )}
                     </div>
 
-                    <p className="text-xs text-surface-500 dark:text-surface-400 pt-2">
-                      💡 These job boards are searched automatically. Enable the
-                      ones relevant to your job search.
+                    <p className="flex items-start gap-1.5 text-xs text-surface-500 dark:text-surface-400 pt-2">
+                      <SettingsSymbol icon="lightbulb" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+                      <span>
+                        These job boards are searched automatically. Enable the
+                        ones relevant to your job search.
+                      </span>
                     </p>
                   </div>
                 </details>
@@ -3546,10 +3551,10 @@ export default function Settings({ onClose }: SettingsProps) {
                               }`}
                             >
                               {preset === "lenient"
-                                ? "🟢 Lenient"
+                                ? "Lenient"
                                 : preset === "balanced"
-                                  ? "🟡 Balanced"
-                                  : "🔴 Strict"}
+                                  ? "Balanced"
+                                  : "Strict"}
                             </button>
                           ),
                         )}
@@ -3562,7 +3567,7 @@ export default function Settings({ onClose }: SettingsProps) {
                               : "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-600"
                           }`}
                         >
-                          ⚙️ Custom
+                          Custom
                         </button>
                       </div>
                     </div>
@@ -3763,7 +3768,7 @@ export default function Settings({ onClose }: SettingsProps) {
                 <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">📄</span>
+                      <SettingsSymbol icon="document" className="h-6 w-6 text-surface-500 dark:text-surface-400" />
                       <div>
                         <div className="text-sm font-medium text-surface-900 dark:text-white">
                           Use Resume for Scoring
@@ -3790,10 +3795,13 @@ export default function Settings({ onClose }: SettingsProps) {
                     </label>
                   </div>
                   <div className="mt-3 pt-3 border-t border-surface-200 dark:border-surface-700">
-                    <p className="text-xs text-surface-500 dark:text-surface-400">
-                      💡 <strong>Tip:</strong> Upload your resume in the{" "}
-                      <strong>Resume</strong> tab first. If no resume is
-                      uploaded, scoring falls back to keyword matching.
+                    <p className="flex items-start gap-1.5 text-xs text-surface-500 dark:text-surface-400">
+                      <SettingsSymbol icon="lightbulb" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+                      <span>
+                        <strong>Tip:</strong> Upload your resume in the{" "}
+                        <strong>Resume</strong> tab first. If no resume is
+                        uploaded, scoring falls back to keyword matching.
+                      </span>
                     </p>
                   </div>
                 </div>
@@ -3815,7 +3823,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     {/* Skills */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-xl">🎯</span>
+                        <SettingsSymbol icon="target" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                         <div>
                           <div className="text-sm font-medium text-surface-900 dark:text-white">
                             Skills Match
@@ -3838,7 +3846,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     {/* Salary */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-xl">💰</span>
+                        <SettingsSymbol icon="currency" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                         <div>
                           <div className="text-sm font-medium text-surface-900 dark:text-white">
                             Salary
@@ -3861,7 +3869,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     {/* Location */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-xl">📍</span>
+                        <SettingsSymbol icon="location" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                         <div>
                           <div className="text-sm font-medium text-surface-900 dark:text-white">
                             Location
@@ -3884,7 +3892,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     {/* Company */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-xl">🏢</span>
+                        <SettingsSymbol icon="company" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                         <div>
                           <div className="text-sm font-medium text-surface-900 dark:text-white">
                             Company
@@ -3907,7 +3915,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     {/* Recency */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-xl">⏰</span>
+                        <SettingsSymbol icon="clock" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                         <div>
                           <div className="text-sm font-medium text-surface-900 dark:text-white">
                             Recency
@@ -3928,10 +3936,13 @@ export default function Settings({ onClose }: SettingsProps) {
                     </div>
                   </div>
                   <div className="mt-4 pt-4 border-t border-surface-200 dark:border-surface-700">
-                    <p className="text-xs text-surface-500 dark:text-surface-400">
-                      💡 <strong>Tip:</strong> These weights are optimized for
-                      best results. Customize your preferences in the sections
-                      above to improve your job matches.
+                    <p className="flex items-start gap-1.5 text-xs text-surface-500 dark:text-surface-400">
+                      <SettingsSymbol icon="lightbulb" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+                      <span>
+                        <strong>Tip:</strong> These weights are optimized for
+                        best results. Customize your preferences in the sections
+                        above to improve your job matches.
+                      </span>
                     </p>
                   </div>
                 </div>
@@ -4050,6 +4061,181 @@ function SettingsIcon({ className = "" }: { className?: string }) {
       />
     </svg>
   );
+}
+
+function SettingsSymbol({
+  icon,
+  className = "w-5 h-5",
+}: {
+  icon:
+    | "bell"
+    | "bolt"
+    | "briefcase"
+    | "building"
+    | "chat"
+    | "check"
+    | "city"
+    | "clipboard"
+    | "clock"
+    | "company"
+    | "currency"
+    | "document"
+    | "globe"
+    | "home"
+    | "lightbulb"
+    | "location"
+    | "rocket"
+    | "search"
+    | "send"
+    | "settings"
+    | "target"
+    | "users"
+    | "warning";
+  className?: string;
+}) {
+  const commonProps = {
+    className,
+    fill: "none",
+    viewBox: "0 0 24 24",
+    stroke: "currentColor",
+    "aria-hidden": true,
+  };
+
+  switch (icon) {
+    case "bell":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0a3 3 0 01-6 0" />
+        </svg>
+      );
+    case "bolt":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 3L4 14h7l-1 7 9-11h-7l1-7z" />
+        </svg>
+      );
+    case "briefcase":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10 6V5a2 2 0 012-2h0a2 2 0 012 2v1m-9 4h14M5 8h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2z" />
+        </svg>
+      );
+    case "building":
+    case "company":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 21V7a2 2 0 012-2h8a2 2 0 012 2v14M9 9h1m-1 4h1m4-4h1m-1 4h1M3 21h18" />
+        </svg>
+      );
+    case "chat":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.4-4 8-9 8a10 10 0 01-4.3-.9L3 20l1.4-3.7A7 7 0 013 12c0-4.4 4-8 9-8s9 3.6 9 8z" />
+        </svg>
+      );
+    case "check":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+        </svg>
+      );
+    case "city":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 21h18M5 21V8l7-4 7 4v13M9 10h1m-1 4h1m4-4h1m-1 4h1" />
+        </svg>
+      );
+    case "clipboard":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 5h6m-6 4h6m-6 4h4m-6 8h10a2 2 0 002-2V7a2 2 0 00-2-2h-2a3 3 0 00-6 0H7a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      );
+    case "clock":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      );
+    case "currency":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 6v12m3-9.5A3.5 3.5 0 0012 7c-1.66 0-3 .9-3 2s1.34 2 3 2 3 .9 3 2-1.34 2-3 2a3.5 3.5 0 01-3-1.5" />
+        </svg>
+      );
+    case "document":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M7 3h7l5 5v13H7a2 2 0 01-2-2V5a2 2 0 012-2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M14 3v5h5M8 13h8M8 17h6" />
+        </svg>
+      );
+    case "globe":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3 12h18M12 3c2 2.5 3 5.5 3 9s-1 6.5-3 9c-2-2.5-3-5.5-3-9s1-6.5 3-9z" />
+        </svg>
+      );
+    case "home":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 11l9-7 9 7M5 10v11h14V10M9 21v-6h6v6" />
+        </svg>
+      );
+    case "lightbulb":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 18h6m-5 3h4m-2-18a6 6 0 00-3.5 10.9c.7.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0012 3z" />
+        </svg>
+      );
+    case "location":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 21s6-5.4 6-11a6 6 0 10-12 0c0 5.6 6 11 6 11z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 10.5h.01" />
+        </svg>
+      );
+    case "rocket":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M5 19c4.5-1 9.5-6 10.5-10.5L19 5l-3.5 1C11 7 6 12 5 16.5V19z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 15l-4 4m10-14l4 4" />
+        </svg>
+      );
+    case "search":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 21l-4.5-4.5m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      );
+    case "send":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 12l16-8-4 16-4-6-8-2z" />
+        </svg>
+      );
+    case "settings":
+      return <SettingsIcon className={className} />;
+    case "target":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      );
+    case "users":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2m14-10a4 4 0 10-8 0 4 4 0 008 0zm4 10v-2a4 4 0 00-3-3.9m-2-11a4 4 0 010 7.8" />
+        </svg>
+      );
+    case "warning":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 9v2m0 4h.01m-6.94 4h13.88c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.33 16c-.77 1.33.19 3 1.73 3z" />
+        </svg>
+      );
+  }
 }
 
 function CloseIcon() {

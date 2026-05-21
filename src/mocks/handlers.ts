@@ -3274,7 +3274,7 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
         education_match_score: null,
         matching_skills: skills.slice(0, 3),
         missing_skills: ["Kubernetes"],
-        gap_analysis: "✓ Existing skills align\n✗ Add Kubernetes evidence",
+        gap_analysis: "Matching: Existing skills align\nMissing: Add Kubernetes evidence",
         created_at: new Date().toISOString(),
       };
       recentMatches = [
