@@ -165,7 +165,7 @@ Current release package version is `2.6.4`. Unreleased `2.7.x` work is tracked i
 | ---------------------------------------------- |
 | ![One-Click Apply](images/one-click-apply.png) |
 
-### Backend Modules (190 registered Tauri commands)
+### Backend Modules (189 registered Tauri commands)
 
 - **Core**: config, db, scoring, scheduler, scrapers (13 with parallel scraping), notify, ghost
 - **ATS**: Kanban, reminders, ghosting detection, interviews, and application stats

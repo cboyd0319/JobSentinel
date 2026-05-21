@@ -684,7 +684,7 @@ See [docs/features/one-click-apply.md](features/one-click-apply.md) for full doc
 - Component tests: use fresh `npm run test:run -- --reporter=verbose` output for current count
 - E2E tests: Playwright test suite
 - All modules enabled and functional
-- **190 registered Tauri commands** for backend modules
+- **189 registered Tauri commands** for backend modules
 - 13 job board scrapers with parallel execution
 - Ghost job detection with repost tracking
 - Backend persistence for job-search records and preferences, with frontend

@@ -7,8 +7,7 @@
 //!
 //! ## Architecture
 //!
-//! - **Frontend**: Uses Tauri credential commands (`store_credential`, `retrieve_credential`,
-//!   `has_credential`, etc.)
+//! - **Frontend**: Uses Tauri credential commands (`store_credential`, `has_credential`, etc.)
 //! - **Backend**: Uses `keyring` crate directly for Rust access (scheduler, notify)
 //!
 //! Both paths use the same underlying keyring with consistent key naming.

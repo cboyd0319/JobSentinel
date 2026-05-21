@@ -36,7 +36,6 @@ unprefixed snake-case key, such as `slack_webhook`.
 ```text
 React settings and setup UI
   invoke("store_credential", { key, value })
-  invoke("retrieve_credential", { key })
   invoke("delete_credential", { key })
   invoke("has_credential", { key })
   invoke("get_credential_status")
@@ -92,9 +91,6 @@ impl CredentialStore {
 pub async fn store_credential(key: String, value: String) -> Result<(), String>;
 
 #[tauri::command]
-pub async fn retrieve_credential(key: String) -> Result<Option<String>, String>;
-
-#[tauri::command]
 pub async fn delete_credential(key: String) -> Result<(), String>;
 
 #[tauri::command]
@@ -136,6 +132,9 @@ Settings displays credential presence without returning credential values:
 - Plaintext config fields are ignored after migration and should stay empty.
 - Local app logs must not include credential values, webhook tokens, cookies, or
   API keys.
+- Renderer commands do not return stored credential values. Test actions for
+  stored Slack and SMTP credentials resolve the saved secret inside backend
+  commands and return only success or failure.
 - Notification provider error bodies are omitted from app errors; only status
   and body length are kept because provider failures can echo job payload data.
 - Credential command logs use parsed allowlisted key names only. Invalid key

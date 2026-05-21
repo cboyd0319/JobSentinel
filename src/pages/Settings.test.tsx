@@ -483,6 +483,95 @@ describe("Settings — handleSave flow", () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
+  it("tests an existing Slack webhook without retrieving it into the renderer", async () => {
+    const user = userEvent.setup();
+
+    mockInvoke.mockImplementation(async (cmd: string, args?: unknown) => {
+      if (cmd === "get_config") return makeConfig();
+      if (cmd === "has_credential") {
+        return (args as { key: string }).key === "slack_webhook";
+      }
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "validate_slack_webhook") return true;
+      return null;
+    });
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+    await user.click(screen.getByRole("button", { name: "Test" }));
+
+    await waitFor(() => {
+      expect(mockToast.success).toHaveBeenCalledWith(
+        "Test sent!",
+        "Check your Slack channel",
+      );
+    });
+
+    expect(mockInvoke).toHaveBeenCalledWith("validate_slack_webhook", {
+      webhookUrl: "",
+    });
+    expect(mockInvoke).not.toHaveBeenCalledWith(
+      "retrieve_credential",
+      expect.anything(),
+    );
+  });
+
+  it("tests an existing SMTP password without retrieving it into the renderer", async () => {
+    const user = userEvent.setup();
+    const config = makeConfig();
+    config.alerts.email = {
+      ...config.alerts.email,
+      enabled: true,
+      smtp_server: "smtp.example.com",
+      smtp_port: 587,
+      smtp_username: "user@example.com",
+      from_email: "from@example.com",
+      to_emails: ["to@example.com"],
+      use_starttls: true,
+    };
+
+    mockInvoke.mockImplementation(async (cmd: string, args?: unknown) => {
+      if (cmd === "get_config") return config;
+      if (cmd === "has_credential") {
+        return (args as { key: string }).key === "smtp_password";
+      }
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "test_email_notification") return null;
+      return null;
+    });
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+    await user.click(screen.getByRole("button", { name: "Test" }));
+
+    await waitFor(() => {
+      expect(mockToast.success).toHaveBeenCalledWith(
+        "Test sent!",
+        "Check your email inbox",
+      );
+    });
+
+    expect(mockInvoke).toHaveBeenCalledWith("test_email_notification", {
+      emailConfig: expect.objectContaining({
+        smtp_password: "",
+      }),
+    });
+    expect(mockInvoke).not.toHaveBeenCalledWith(
+      "retrieve_credential",
+      expect.anything(),
+    );
+  });
+
   it("blocks saving an invalid Discord webhook URL", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();

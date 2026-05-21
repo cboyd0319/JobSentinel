@@ -3343,6 +3343,66 @@ test("checkRepoBloat rejects missing LinkedIn cookie storage validation", () => 
   });
 });
 
+test("checkRepoBloat rejects renderer credential secret read IPC", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/credentials.rs",
+      [
+        "pub async fn retrieve_credential(key: String) -> Result<Option<String>, String> {",
+        "  CredentialStore::retrieve(parse_credential_key(&key)?)",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Settings.tsx",
+      [
+        "async function retrieveCredential(key: CredentialKey): Promise<string | null> {",
+        "  return await invoke<string | null>('retrieve_credential', { key });",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/security/KEYRING.md",
+      ["invoke(\"retrieve_credential\", { key })", ""].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/commands/credentials.rs",
+        "src/pages/Settings.tsx",
+        "docs/security/KEYRING.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "keep credential values out of renderer IPC: src-tauri/src/commands/credentials.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("keep credential values out of renderer IPC: src/pages/Settings.tsx"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("keep credential values out of renderer IPC: docs/security/KEYRING.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects incomplete config export redaction", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

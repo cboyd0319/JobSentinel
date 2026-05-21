@@ -164,9 +164,7 @@ pub use config::{complete_setup, get_config, is_first_run, save_config, validate
 pub use geo::detect_location;
 
 // Credential commands
-pub use credentials::{
-    delete_credential, get_credential_status, has_credential, retrieve_credential, store_credential,
-};
+pub use credentials::{delete_credential, get_credential_status, has_credential, store_credential};
 
 // LinkedIn auth commands
 pub use linkedin_auth::{

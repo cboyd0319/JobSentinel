@@ -202,11 +202,6 @@ async function storeCredential(
   await invoke("store_credential", { key, value });
 }
 
-// Helper to retrieve a credential from secure storage
-async function retrieveCredential(key: CredentialKey): Promise<string | null> {
-  return await invoke<string | null>("retrieve_credential", { key });
-}
-
 // Helper to check if a credential exists
 async function hasCredential(key: CredentialKey): Promise<boolean> {
   return await invoke<boolean>("has_credential", { key });
@@ -1877,11 +1872,10 @@ export default function Settings({ onClose }: SettingsProps) {
                         onClick={async () => {
                           setTestingSlack(true);
                           try {
-                            // Use new value if entered, otherwise test existing stored credential
-                            const webhookUrl =
-                              credentials.slack_webhook ||
-                              (await retrieveCredential("slack_webhook"));
-                            if (!webhookUrl) {
+                            if (
+                              !credentials.slack_webhook &&
+                              !credentialStatus.slack_webhook
+                            ) {
                               toast.error(
                                 "No webhook",
                                 "Please enter a Slack webhook URL first",
@@ -1889,7 +1883,7 @@ export default function Settings({ onClose }: SettingsProps) {
                               return;
                             }
                             await invoke("validate_slack_webhook", {
-                              webhookUrl,
+                              webhookUrl: credentials.slack_webhook,
                             });
                             toast.success(
                               "Test sent!",
@@ -2027,11 +2021,10 @@ export default function Settings({ onClose }: SettingsProps) {
                               onClick={async () => {
                                 setTestingEmail(true);
                                 try {
-                                  // Use new password if entered, otherwise retrieve from keyring
-                                  const password =
-                                    credentials.smtp_password ||
-                                    (await retrieveCredential("smtp_password"));
-                                  if (!password) {
+                                  if (
+                                    !credentials.smtp_password &&
+                                    !credentialStatus.smtp_password
+                                  ) {
                                     toast.error(
                                       "No password",
                                       "Please enter an SMTP password first",
@@ -2045,7 +2038,7 @@ export default function Settings({ onClose }: SettingsProps) {
                                       smtp_port: config.alerts.email.smtp_port,
                                       smtp_username:
                                         config.alerts.email.smtp_username,
-                                      smtp_password: password,
+                                      smtp_password: credentials.smtp_password,
                                       from_email:
                                         config.alerts.email.from_email,
                                       to_emails: config.alerts.email.to_emails,

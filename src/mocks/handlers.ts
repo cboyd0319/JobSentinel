@@ -2831,11 +2831,6 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       return undefined as T;
     }
 
-    case "retrieve_credential": {
-      const key = getArg(args, "key");
-      return (isCredentialKey(key) ? credentials[key] ?? null : null) as T;
-    }
-
     case "disconnect_linkedin":
       delete credentials.linkedin_cookie;
       config = {

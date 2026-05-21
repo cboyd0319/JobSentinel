@@ -312,6 +312,16 @@ const credentialCommandPrivacyPaths = new Set([
   "src-tauri/src/commands/credentials.rs",
   "src-tauri/src/core/credentials/mod.rs",
 ]);
+const credentialSecretReadIpcPaths = new Set([
+  "src-tauri/src/commands/credentials.rs",
+  "src-tauri/src/commands/mod.rs",
+  "src-tauri/src/main.rs",
+  "src/pages/Settings.tsx",
+  "src/mocks/handlers.ts",
+  "docs/security/KEYRING.md",
+  "docs/features/credentials-security.md",
+  "docs/releases/v2.0.md",
+]);
 const configExportPrivacyPaths = new Set(["src/utils/export.ts"]);
 const telegramNotificationPrivacyPaths = new Set([
   "src-tauri/src/core/notify/telegram.rs",
@@ -1564,6 +1574,18 @@ function hasMissingLinkedInCookieStorageValidation(root, path) {
   return false;
 }
 
+function hasRendererCredentialSecretRead(root, path) {
+  if (!credentialSecretReadIpcPaths.has(path)) {
+    return false;
+  }
+
+  const text = path.endsWith(".rs")
+    ? stripRustTestModules(readFileSync(join(root, path), "utf8"))
+    : readFileSync(join(root, path), "utf8");
+
+  return /\bretrieve_credential\b|\bretrieveCredential\b/.test(text);
+}
+
 function hasIncompleteConfigExportRedaction(root, path) {
   if (!configExportPrivacyPaths.has(path)) {
     return false;
@@ -2695,6 +2717,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasMissingLinkedInCookieStorageValidation(root, path)) {
       violations.push(`validate LinkedIn cookies before keyring storage: ${path}`);
+    }
+
+    if (hasRendererCredentialSecretRead(root, path)) {
+      violations.push(`keep credential values out of renderer IPC: ${path}`);
     }
 
     if (hasIncompleteConfigExportRedaction(root, path)) {

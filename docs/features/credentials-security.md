@@ -133,6 +133,10 @@ await invoke("delete_credential", {
 });
 ```
 
+The renderer can store, delete, and check credential presence, but it cannot
+retrieve stored credential values. Backend-only paths use `CredentialStore`
+directly when they must test or consume a saved secret.
+
 Backend parsing also accepts prefixed forms such as
 `jobsentinel_slack_webhook` for compatibility and diagnostics.
 

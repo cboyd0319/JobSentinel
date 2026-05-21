@@ -250,7 +250,6 @@ fn main() {
             commands::user_data::clear_search_history,
             // Credential commands (v2.0 - secure storage)
             commands::credentials::store_credential,
-            commands::credentials::retrieve_credential,
             commands::credentials::delete_credential,
             commands::credentials::has_credential,
             commands::credentials::get_credential_status,

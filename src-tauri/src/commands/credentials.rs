@@ -38,16 +38,6 @@ pub async fn store_credential(key: String, value: String) -> Result<(), String> 
     CredentialStore::store(cred_key, &value)
 }
 
-/// Retrieve a credential from the OS keyring
-#[tauri::command]
-pub async fn retrieve_credential(key: String) -> Result<Option<String>, String> {
-    let cred_key = parse_credential_key(&key)?;
-
-    tracing::info!("Command: retrieve_credential for {}", cred_key.as_str());
-
-    CredentialStore::retrieve(cred_key)
-}
-
 /// Delete a credential from the OS keyring
 #[tauri::command]
 pub async fn delete_credential(key: String) -> Result<(), String> {
