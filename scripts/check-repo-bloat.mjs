@@ -202,6 +202,11 @@ const rawLocalPathLoggingPaths = new Set([
   "src-tauri/src/platforms/windows/mod.rs",
 ]);
 
+const databaseLogEmojiPaths = new Set([
+  "src-tauri/src/core/db/connection.rs",
+  "src-tauri/src/core/db/integrity/diagnostics.rs",
+]);
+
 const rawUrlLoggingPaths = new Set([
   "src-tauri/src/commands/linkedin_auth.rs",
   "src-tauri/src/core/automation/browser/manager.rs",
@@ -983,6 +988,16 @@ function hasRawLocalPathLogging(root, path) {
   );
 }
 
+function hasDatabaseLogEmojiMarkers(root, path) {
+  if (!databaseLogEmojiPaths.has(path)) {
+    return false;
+  }
+
+  return /(?:\p{Extended_Pictographic}|[✅❌⚠️✓✗←→])/u.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 function hasRawUrlLogging(root, path) {
   if (!rawUrlLoggingPaths.has(path)) {
     return false;
@@ -1642,6 +1657,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawLocalPathLogging(root, path)) {
       violations.push(`replace raw local path logging: ${path}`);
+    }
+
+    if (hasDatabaseLogEmojiMarkers(root, path)) {
+      violations.push(`replace database log emoji markers: ${path}`);
     }
 
     if (hasRawUrlLogging(root, path)) {

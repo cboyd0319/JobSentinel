@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Removed emoji/status markers from SQLite connection and integrity diagnostic log messages plus comments, and added bloat coverage so database logs stay text-only. |
 | 2026-05-21 | In progress | Removed unguarded emoji/status markers and stale version-promised future sections from synonym matching and remote preference scoring docs, fixed their test command examples, and added bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Rewrote the SQLite configuration doc against live `connection.rs` and integrity APIs, corrected the file-backed cache-size claim to `-128000`, removed speculative cloud-backup roadmap text, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Synced scraper docs with live rate-limit constants and local-first no-bypass posture, marking anti-bot-prone sources as best-effort instead of production-guaranteed. |
@@ -230,6 +231,9 @@ changes or Playwright-specific work.
   `docs/features/remote-preference-scoring.md` still carried old emoji/status
   markers, stale `Last Updated` footers, and version-promised future sections
   even though active docs should avoid release promises not owned by a plan.
+- SQLite connection and integrity diagnostic logs still used emoji/status
+  markers and comments with symbol callouts, making low-level startup logs noisy
+  and inconsistent with the repo text-only maintenance posture.
 - `src/components/index.ts` re-exported nearly every component and some utility
   helpers, while live production imports only needed a few dashboard UI symbols.
   Direct imports remove that stale public surface.
@@ -527,6 +531,8 @@ changes or Playwright-specific work.
   speculative cloud-backup text count as documentation bloat.
 - Keep maintained feature docs free of emoji status markers and unowned
   version-promised future sections.
+- Keep database startup and integrity logs text-only; use clear message text
+  instead of emoji/status symbols.
 - Keep source comments and logs aligned with implemented platform behavior;
   stale "coming soon" stub markers count as bloat once code exists.
 - Keep Market Intelligence docs aligned with text indicator APIs such as

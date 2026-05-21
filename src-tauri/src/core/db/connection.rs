@@ -38,9 +38,9 @@ impl Database {
         })
     }
 
-    /// Configure SQLite PRAGMA settings for MAXIMUM performance and integrity
+    /// Configure SQLite PRAGMA settings for performance and integrity.
     async fn configure_pragmas(pool: &SqlitePool) -> Result<(), sqlx::Error> {
-        tracing::info!("🔧 Configuring SQLite with maximum protections and performance...");
+        tracing::info!("Configuring SQLite with integrity and performance settings");
 
         // ============================================================
         // JOURNAL & TRANSACTION SETTINGS
@@ -51,23 +51,23 @@ impl Database {
         sqlx::query("PRAGMA journal_mode = WAL")
             .execute(pool)
             .await?;
-        tracing::debug!("  ✓ WAL mode enabled");
+        tracing::debug!("WAL mode enabled");
 
         // Set synchronous mode (NORMAL = good balance between safety and speed)
         // FULL = fsync after every write (safest, slowest)
-        // NORMAL = fsync at critical moments (good balance) ← WE USE THIS
+        // NORMAL = fsync at critical moments (good balance used here)
         // OFF = no fsync (fastest, risky - data loss on crash)
         sqlx::query("PRAGMA synchronous = NORMAL")
             .execute(pool)
             .await?;
-        tracing::debug!("  ✓ Synchronous = NORMAL (balanced safety)");
+        tracing::debug!("Synchronous = NORMAL (balanced safety)");
 
         // Automatic WAL checkpointing every 1000 pages (~4MB with default page size)
         // Prevents WAL from growing too large
         sqlx::query("PRAGMA wal_autocheckpoint = 1000")
             .execute(pool)
             .await?;
-        tracing::debug!("  ✓ WAL autocheckpoint = 1000 pages");
+        tracing::debug!("WAL autocheckpoint = 1000 pages");
 
         // ============================================================
         // INTEGRITY & SECURITY SETTINGS
@@ -77,19 +77,19 @@ impl Database {
         sqlx::query("PRAGMA foreign_keys = ON")
             .execute(pool)
             .await?;
-        tracing::debug!("  ✓ Foreign keys enforced");
+        tracing::debug!("Foreign keys enforced");
 
         // Enforce immediate foreign key constraint checking (no deferring)
         sqlx::query("PRAGMA defer_foreign_keys = OFF")
             .execute(pool)
             .await?;
-        tracing::debug!("  ✓ Immediate foreign key checks");
+        tracing::debug!("Immediate foreign key checks");
 
         // Verify B-tree cell sizes for corruption detection
         sqlx::query("PRAGMA cell_size_check = ON")
             .execute(pool)
             .await?;
-        tracing::debug!("  ✓ Cell size verification enabled");
+        tracing::debug!("Cell size verification enabled");
 
         // Enable checksum verification (requires SQLite 3.37+, ignore if not supported)
         if sqlx::query("PRAGMA checksum_verification = ON")
@@ -121,7 +121,7 @@ impl Database {
         sqlx::query("PRAGMA secure_delete = FAST")
             .execute(pool)
             .await?;
-        tracing::debug!("  ✓ Secure delete = FAST (balanced security)");
+        tracing::debug!("Secure delete = FAST (balanced security)");
 
         // Help detect code relying on undefined ordering (useful for testing)
         // Can be disabled in production if needed for performance
@@ -131,7 +131,7 @@ impl Database {
                 .execute(pool)
                 .await
                 .ok();
-            tracing::debug!("  ✓ Reverse unordered selects (debug mode)");
+            tracing::debug!("Reverse unordered selects enabled (debug mode)");
         }
 
         // ============================================================
@@ -145,14 +145,14 @@ impl Database {
         sqlx::query(&format!("PRAGMA cache_size = {}", CACHE_SIZE_KB))
             .execute(pool)
             .await?;
-        tracing::debug!("  ✓ Cache size = 128MB (AT LEAST 64MB guaranteed)");
+        tracing::debug!("Cache size = 128MB (at least 64MB required)");
 
         // Use memory for temporary tables and indices (much faster)
-        // Options: DEFAULT (disk), FILE (disk), MEMORY (RAM) ← WE USE THIS
+        // Options: DEFAULT (disk), FILE (disk), MEMORY (RAM). We use MEMORY.
         sqlx::query("PRAGMA temp_store = MEMORY")
             .execute(pool)
             .await?;
-        tracing::debug!("  ✓ Temp store = MEMORY");
+        tracing::debug!("Temp store = MEMORY");
 
         // Enable memory-mapped I/O for faster reads (256MB)
         // Reads from memory instead of system calls
@@ -160,21 +160,21 @@ impl Database {
         sqlx::query("PRAGMA mmap_size = 268435456")
             .execute(pool)
             .await?;
-        tracing::debug!("  ✓ Memory-mapped I/O = 256MB");
+        tracing::debug!("Memory-mapped I/O = 256MB");
 
         // Set locking mode to NORMAL (allows multiple connections)
         // Options: NORMAL (multi-connection), EXCLUSIVE (single connection, faster)
         sqlx::query("PRAGMA locking_mode = NORMAL")
             .execute(pool)
             .await?;
-        tracing::debug!("  ✓ Locking mode = NORMAL (multi-connection)");
+        tracing::debug!("Locking mode = NORMAL (multi-connection)");
 
         // Set busy timeout (wait up to 5 seconds for lock before failing)
         // Prevents immediate failures when DB is locked by another connection
         sqlx::query("PRAGMA busy_timeout = 5000")
             .execute(pool)
             .await?;
-        tracing::debug!("  ✓ Busy timeout = 5000ms");
+        tracing::debug!("Busy timeout = 5000ms");
 
         // Set page size to 4096 bytes (optimal for most systems)
         // MUST be set before any tables are created (only affects new databases)
@@ -183,7 +183,7 @@ impl Database {
             .execute(pool)
             .await
             .ok(); // Ignore errors (can't change after DB created)
-        tracing::debug!("  ✓ Page size = 4096 bytes (if new DB)");
+        tracing::debug!("Page size = 4096 bytes (if new DB)");
 
         // ============================================================
         // VACUUM & SPACE MANAGEMENT
@@ -194,7 +194,7 @@ impl Database {
         sqlx::query("PRAGMA auto_vacuum = INCREMENTAL")
             .execute(pool)
             .await?;
-        tracing::debug!("  ✓ Auto vacuum = INCREMENTAL");
+        tracing::debug!("Auto vacuum = INCREMENTAL");
 
         // Run incremental vacuum to reclaim some free pages immediately
         // Argument = number of pages to free (0 = free all)
@@ -202,7 +202,7 @@ impl Database {
             .execute(pool)
             .await
             .ok(); // Ignore errors if no pages to free
-        tracing::debug!("  ✓ Incremental vacuum (100 pages)");
+        tracing::debug!("Incremental vacuum attempted (100 pages)");
 
         // ============================================================
         // APPLICATION METADATA
@@ -215,7 +215,7 @@ impl Database {
         sqlx::query(&format!("PRAGMA application_id = {}", JOBSENTINEL_APP_ID))
             .execute(pool)
             .await?;
-        tracing::debug!("  ✓ Application ID set (JSDB)");
+        tracing::debug!("Application ID set (JSDB)");
 
         // Set user version (complementary to migrations)
         // We'll use this to track major schema versions
@@ -223,7 +223,7 @@ impl Database {
         sqlx::query(&format!("PRAGMA user_version = {}", SCHEMA_VERSION))
             .execute(pool)
             .await?;
-        tracing::debug!("  ✓ User version = {}", SCHEMA_VERSION);
+        tracing::debug!("User version = {}", SCHEMA_VERSION);
 
         // ============================================================
         // QUERY OPTIMIZER
@@ -232,7 +232,7 @@ impl Database {
         // Run query optimizer analysis to update statistics
         // Helps SQLite choose better query plans
         sqlx::query("PRAGMA optimize").execute(pool).await?;
-        tracing::debug!("  ✓ Query optimizer statistics updated");
+        tracing::debug!("Query optimizer statistics updated");
 
         // ============================================================
         // DIAGNOSTIC INFO (logged at startup)
@@ -244,7 +244,7 @@ impl Database {
                 .iter()
                 .filter_map(|row| row.try_get::<String, _>(0).ok())
                 .collect();
-            tracing::debug!("  📋 SQLite compile options: {} features", options.len());
+            tracing::debug!("SQLite compile options: {} features", options.len());
 
             // Check for important features
             let has_fts5 = options.iter().any(|opt| opt.contains("FTS5"));
@@ -252,20 +252,20 @@ impl Database {
             let has_rtree = options.iter().any(|opt| opt.contains("RTREE"));
 
             if has_fts5 {
-                tracing::debug!("    ✓ FTS5 full-text search available");
+                tracing::debug!("FTS5 full-text search available");
             }
             if has_json {
-                tracing::debug!("    ✓ JSON1 extension available");
+                tracing::debug!("JSON1 extension available");
             }
             if has_rtree {
-                tracing::debug!("    ✓ R*Tree spatial index available");
+                tracing::debug!("R*Tree spatial index available");
             }
         }
 
         // Log SQLite version
         if let Ok(row) = sqlx::query("SELECT sqlite_version()").fetch_one(pool).await {
             if let Ok(version) = row.try_get::<String, _>(0) {
-                tracing::info!("  📦 SQLite version: {}", version);
+                tracing::info!("SQLite version: {}", version);
             }
         }
 
@@ -285,9 +285,9 @@ impl Database {
                 };
 
                 if actual_mb >= 64 {
-                    tracing::debug!("  ✓ Cache size verified: {}MB (>= 64MB ✅)", actual_mb);
+                    tracing::debug!("Cache size verified: {}MB (>= 64MB)", actual_mb);
                 } else {
-                    tracing::warn!("  ⚠️  Cache size only {}MB (< 64MB minimum!)", actual_mb);
+                    tracing::warn!("Cache size only {}MB (< 64MB minimum)", actual_mb);
                 }
             }
         }
@@ -296,9 +296,9 @@ impl Database {
         if let Ok(row) = sqlx::query("PRAGMA journal_mode").fetch_one(pool).await {
             if let Ok(mode) = row.try_get::<String, _>(0) {
                 if mode.eq_ignore_ascii_case("wal") {
-                    tracing::debug!("  ✓ WAL mode verified ✅");
+                    tracing::debug!("WAL mode verified");
                 } else {
-                    tracing::error!("  ❌ WAL mode NOT enabled (got: {})", mode);
+                    tracing::error!("WAL mode not enabled (got: {})", mode);
                 }
             }
         }
@@ -307,14 +307,14 @@ impl Database {
         if let Ok(row) = sqlx::query("PRAGMA foreign_keys").fetch_one(pool).await {
             if let Ok(enabled) = row.try_get::<i64, _>(0) {
                 if enabled == 1 {
-                    tracing::debug!("  ✓ Foreign keys verified ✅");
+                    tracing::debug!("Foreign keys verified");
                 } else {
-                    tracing::error!("  ❌ Foreign keys NOT enabled!");
+                    tracing::error!("Foreign keys not enabled");
                 }
             }
         }
 
-        tracing::info!("✅ Database configured with MAXIMUM protections and performance");
+        tracing::info!("Database configured with integrity and performance settings");
         Ok(())
     }
 

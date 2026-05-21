@@ -1669,6 +1669,51 @@ test("checkRepoBloat rejects raw local path logging", () => {
   });
 });
 
+test("checkRepoBloat rejects database log emoji markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/connection.rs",
+      [
+        'tracing::info!("🔧 Configuring SQLite with maximum protections and performance...");',
+        'tracing::debug!("  ✓ WAL mode verified ✅");',
+        'tracing::error!("  ❌ Foreign keys NOT enabled!");',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/integrity/diagnostics.rs",
+      'tracing::warn!("⚠️ WAL checkpoint partially complete (database was busy)");\n',
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/db/connection.rs",
+        "src-tauri/src/core/db/integrity/diagnostics.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace database log emoji markers: src-tauri/src/core/db/connection.rs"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace database log emoji markers: src-tauri/src/core/db/integrity/diagnostics.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw URL logging outside approved sanitizers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

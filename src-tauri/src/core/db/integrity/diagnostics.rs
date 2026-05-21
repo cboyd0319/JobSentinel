@@ -10,7 +10,7 @@ use super::DatabaseIntegrity;
 impl DatabaseIntegrity {
     /// Optimize database (VACUUM, ANALYZE)
     pub async fn optimize(&self) -> Result<()> {
-        tracing::info!("🔧 Optimizing database...");
+        tracing::info!("Optimizing database");
         let start_time = std::time::Instant::now();
 
         // VACUUM: Rebuild database file (compact, defragment)
@@ -26,7 +26,7 @@ impl DatabaseIntegrity {
             .context("ANALYZE failed")?;
 
         let duration = start_time.elapsed();
-        tracing::info!("✅ Database optimized (took {:?})", duration);
+        tracing::info!("Database optimized (took {:?})", duration);
         Ok(())
     }
 
@@ -153,15 +153,15 @@ impl DatabaseIntegrity {
 
     /// Run PRAGMA optimize to update query statistics
     pub async fn optimize_query_planner(&self) -> Result<()> {
-        tracing::info!("🔧 Optimizing query planner statistics...");
+        tracing::info!("Optimizing query planner statistics");
         sqlx::query("PRAGMA optimize").execute(&self.db).await?;
-        tracing::info!("✅ Query planner optimized");
+        tracing::info!("Query planner optimized");
         Ok(())
     }
 
     /// Perform WAL checkpoint (flush WAL to main database)
     pub async fn checkpoint_wal(&self) -> Result<WalCheckpointResult> {
-        tracing::info!("🔄 Performing WAL checkpoint...");
+        tracing::info!("Performing WAL checkpoint");
 
         let row = sqlx::query("PRAGMA wal_checkpoint(TRUNCATE)")
             .fetch_one(&self.db)
@@ -175,11 +175,11 @@ impl DatabaseIntegrity {
 
         if result.busy == 0 {
             tracing::info!(
-                "✅ WAL checkpoint complete ({} frames checkpointed)",
+                "WAL checkpoint complete ({} frames checkpointed)",
                 result.checkpointed_frames
             );
         } else {
-            tracing::warn!("⚠️ WAL checkpoint partially complete (database was busy)");
+            tracing::warn!("WAL checkpoint partially complete (database was busy)");
         }
 
         Ok(result)
