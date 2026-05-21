@@ -374,8 +374,8 @@ pub struct DesktopConfig {
 
 /// LinkedIn scraper configuration
 ///
-/// LinkedIn requires authentication via session cookie. Users must manually
-/// extract this from their browser after logging in.
+/// LinkedIn requires authentication via a session cookie captured by the
+/// Connect LinkedIn flow after the user signs in.
 ///
 /// # Security
 /// The session cookie is stored securely in the OS keyring (macOS Keychain,
@@ -608,7 +608,7 @@ pub struct GlassdoorConfig {
 ///
 /// # Security
 /// The API key is stored securely in the OS keyring.
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Clone, Serialize, Deserialize, Default)]
 pub struct UsaJobsConfig {
     /// Enable USAJobs scraping
     #[serde(default)]
@@ -653,6 +653,31 @@ pub struct UsaJobsConfig {
     /// Maximum results to return (default: 100)
     #[serde(default = "super::defaults::default_usajobs_limit")]
     pub limit: usize,
+}
+
+impl fmt::Debug for UsaJobsConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("UsaJobsConfig")
+            .field("enabled", &self.enabled)
+            .field(
+                "api_key",
+                &if self.api_key.is_empty() {
+                    "[empty]"
+                } else {
+                    "[REDACTED]"
+                },
+            )
+            .field("email", &self.email)
+            .field("keywords", &self.keywords)
+            .field("location", &self.location)
+            .field("radius", &self.radius)
+            .field("remote_only", &self.remote_only)
+            .field("pay_grade_min", &self.pay_grade_min)
+            .field("pay_grade_max", &self.pay_grade_max)
+            .field("date_posted_days", &self.date_posted_days)
+            .field("limit", &self.limit)
+            .finish()
+    }
 }
 
 #[cfg(test)]
@@ -744,6 +769,21 @@ mod tests {
         assert!(
             !debug_output.contains("xxxx-secret"),
             "SlackConfig Debug output must not contain webhook URL. Got: {}",
+            debug_output
+        );
+    }
+
+    #[test]
+    fn test_usajobs_config_debug_does_not_leak_api_key() {
+        let config = UsaJobsConfig {
+            api_key: "usajobs-secret-api-key".to_string(),
+            email: "user@example.com".to_string(),
+            ..Default::default()
+        };
+        let debug_output = format!("{:?}", config);
+        assert!(
+            !debug_output.contains("usajobs-secret-api-key"),
+            "USAJobsConfig Debug output must not contain API key. Got: {}",
             debug_output
         );
     }

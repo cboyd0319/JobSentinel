@@ -461,6 +461,11 @@ describe("export utilities", () => {
       vi.restoreAllMocks();
     });
 
+    const captureExportedJson = async <T,>(blob: Blob | null): Promise<T> => {
+      expect(blob).not.toBeNull();
+      return JSON.parse(await (blob as Blob).text()) as T;
+    };
+
     it("exports config as JSON", () => {
       const config = { setting: "value" };
 
@@ -487,7 +492,7 @@ describe("export utilities", () => {
       );
     });
 
-    it("sanitizes email password from alerts config", () => {
+    it("sanitizes email password from alerts config", async () => {
       let capturedBlob: Blob | null = null;
       globalThis.URL.createObjectURL = vi.fn((blob: Blob) => {
         capturedBlob = blob;
@@ -505,20 +510,14 @@ describe("export utilities", () => {
 
       exportConfigToJSON(config);
 
-      expect(capturedBlob).toBeDefined();
-      // Read blob content
-      const reader = new FileReader();
-      reader.onload = () => {
-        const content = JSON.parse(reader.result as string);
-        expect(content.alerts.email.smtp_password).toBe("");
-        expect(content.alerts.email.other_setting).toBe("keep this");
-      };
-      if (capturedBlob) {
-        reader.readAsText(capturedBlob);
-      }
+      const content = await captureExportedJson<{
+        alerts: { email: { smtp_password: string; other_setting: string } };
+      }>(capturedBlob);
+      expect(content.alerts.email.smtp_password).toBe("");
+      expect(content.alerts.email.other_setting).toBe("keep this");
     });
 
-    it("sanitizes linkedin session cookie", () => {
+    it("sanitizes linkedin session cookie", async () => {
       let capturedBlob: Blob | null = null;
       globalThis.URL.createObjectURL = vi.fn((blob: Blob) => {
         capturedBlob = blob;
@@ -534,16 +533,63 @@ describe("export utilities", () => {
 
       exportConfigToJSON(config);
 
-      expect(capturedBlob).toBeDefined();
-      const reader = new FileReader();
-      reader.onload = () => {
-        const content = JSON.parse(reader.result as string);
-        expect(content.linkedin.session_cookie).toBe("");
-        expect(content.linkedin.other_setting).toBe("keep");
+      const content = await captureExportedJson<{
+        linkedin: { session_cookie: string; other_setting: string };
+      }>(capturedBlob);
+      expect(content.linkedin.session_cookie).toBe("");
+      expect(content.linkedin.other_setting).toBe("keep");
+    });
+
+    it("sanitizes all supported credential fields recursively", async () => {
+      let capturedBlob: Blob | null = null;
+      globalThis.URL.createObjectURL = vi.fn((blob: Blob) => {
+        capturedBlob = blob;
+        return "blob:url";
+      });
+
+      const config = {
+        alerts: {
+          slack: { webhook_url: "slack-secret", enabled: true },
+          email: { smtp_password: "smtp-secret", smtp_server: "smtp.test" },
+          discord: { webhook_url: "discord-secret" },
+          telegram: { bot_token: "telegram-secret", chat_id: "123" },
+          teams: { webhook_url: "teams-secret" },
+        },
+        linkedin: { session_cookie: "linkedin-secret", query: "engineer" },
+        usajobs: { api_key: "usajobs-secret", email: "user@example.com" },
+        credentials: {
+          slack_webhook: "slack-field-secret",
+          discord_webhook: "discord-field-secret",
+          teams_webhook: "teams-field-secret",
+          telegram_bot_token: "telegram-field-secret",
+          usajobs_api_key: "usajobs-field-secret",
+          linkedin_cookie: "linkedin-field-secret",
+          smtp_password: "smtp-field-secret",
+        },
+        nested: [{ api_key: "array-secret", label: "keep" }],
       };
-      if (capturedBlob) {
-        reader.readAsText(capturedBlob);
-      }
+
+      exportConfigToJSON(config);
+
+      const content = await captureExportedJson<typeof config>(capturedBlob);
+      expect(content.alerts.slack.webhook_url).toBe("");
+      expect(content.alerts.email.smtp_password).toBe("");
+      expect(content.alerts.discord.webhook_url).toBe("");
+      expect(content.alerts.telegram.bot_token).toBe("");
+      expect(content.alerts.teams.webhook_url).toBe("");
+      expect(content.linkedin.session_cookie).toBe("");
+      expect(content.usajobs.api_key).toBe("");
+      expect(content.credentials.slack_webhook).toBe("");
+      expect(content.credentials.discord_webhook).toBe("");
+      expect(content.credentials.teams_webhook).toBe("");
+      expect(content.credentials.telegram_bot_token).toBe("");
+      expect(content.credentials.usajobs_api_key).toBe("");
+      expect(content.credentials.linkedin_cookie).toBe("");
+      expect(content.credentials.smtp_password).toBe("");
+      expect(content.nested[0]?.api_key).toBe("");
+      expect(content.alerts.email.smtp_server).toBe("smtp.test");
+      expect(content.usajobs.email).toBe("user@example.com");
+      expect(content.nested[0]?.label).toBe("keep");
     });
   });
 

@@ -119,21 +119,42 @@ function sanitizeConfigForExport<T>(config: T): T {
     unknown
   >;
 
-  // Remove sensitive fields
-  if (sanitized.alerts && typeof sanitized.alerts === "object") {
-    const alerts = sanitized.alerts as Record<string, unknown>;
-    if (alerts.email && typeof alerts.email === "object") {
-      const email = alerts.email as Record<string, unknown>;
-      email.smtp_password = "";
-    }
-  }
-
-  if (sanitized.linkedin && typeof sanitized.linkedin === "object") {
-    const linkedin = sanitized.linkedin as Record<string, unknown>;
-    linkedin.session_cookie = "";
-  }
+  scrubSensitiveFields(sanitized);
 
   return sanitized as T;
+}
+
+const SENSITIVE_CONFIG_FIELD_NAMES = new Set([
+  "api_key",
+  "bot_token",
+  "discord_webhook",
+  "linkedin_cookie",
+  "session_cookie",
+  "slack_webhook",
+  "smtp_password",
+  "teams_webhook",
+  "telegram_bot_token",
+  "usajobs_api_key",
+  "webhook_url",
+]);
+
+function scrubSensitiveFields(value: unknown): void {
+  if (value === null || typeof value !== "object") return;
+
+  if (Array.isArray(value)) {
+    value.forEach(scrubSensitiveFields);
+    return;
+  }
+
+  const record = value as Record<string, unknown>;
+  Object.entries(record).forEach(([key, nested]) => {
+    if (SENSITIVE_CONFIG_FIELD_NAMES.has(key)) {
+      record[key] = "";
+      return;
+    }
+
+    scrubSensitiveFields(nested);
+  });
 }
 
 /**

@@ -67,7 +67,7 @@ impl fmt::Debug for LinkedInScraper {
             .field("location_chars", &self.location.chars().count())
             .field("remote_only", &self.remote_only)
             .field("limit", &self.limit)
-            .field("rate_limiter_configured", &true)
+            .field("rate_limiter", &self.rate_limiter)
             .finish()
     }
 }

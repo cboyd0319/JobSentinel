@@ -112,7 +112,7 @@ impl FromStr for CredentialKey {
                 Ok(Self::LinkedInCookieExpiry)
             }
             "usajobs_api_key" | "jobsentinel_usajobs_api_key" => Ok(Self::UsaJobsApiKey),
-            _ => Err(format!("Invalid credential key: {}", s)),
+            _ => Err("invalid credential key".to_string()),
         }
     }
 }
@@ -398,6 +398,15 @@ pub mod migration {
             credentials.push((CredentialKey::LinkedInCookie, cookie.to_string()));
         }
 
+        // Extract USAJobs API key
+        if let Some(api_key) = config
+            .pointer("/usajobs/api_key")
+            .and_then(|v| v.as_str())
+            .filter(|s| !s.is_empty())
+        {
+            credentials.push((CredentialKey::UsaJobsApiKey, api_key.to_string()));
+        }
+
         Ok(credentials)
     }
 
@@ -453,6 +462,11 @@ pub mod migration {
                 map.remove("session_cookie");
             }
         }
+        if let Some(obj) = config.pointer_mut("/usajobs") {
+            if let Some(map) = obj.as_object_mut() {
+                map.remove("api_key");
+            }
+        }
 
         std::fs::write(config_path, serde_json::to_string_pretty(&config)?)?;
         tracing::info!("Cleared plaintext credentials from config.json");
@@ -487,5 +501,52 @@ mod tests {
             CredentialKey::SlackWebhook
         );
         assert!("unknown_key".parse::<CredentialKey>().is_err());
+    }
+
+    #[test]
+    fn test_invalid_credential_key_error_does_not_echo_input() {
+        let secret_like_key = "slack_webhook=https://hooks.slack.com/services/T/B/secret";
+        let err = secret_like_key.parse::<CredentialKey>().unwrap_err();
+
+        assert_eq!(err, "invalid credential key");
+        assert!(
+            !err.contains("secret"),
+            "parse error must not echo caller input: {err}"
+        );
+    }
+
+    #[test]
+    fn test_migration_extracts_and_clears_usajobs_api_key() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let config_path = temp_dir.path().join("config.json");
+        std::fs::write(
+            &config_path,
+            r#"{
+              "alerts": {
+                "email": { "smtp_password": "smtp-secret" }
+              },
+              "linkedin": { "session_cookie": "linkedin-secret" },
+              "usajobs": {
+                "api_key": "usajobs-secret",
+                "email": "user@example.com"
+              }
+            }"#,
+        )
+        .unwrap();
+
+        let credentials = migration::extract_plaintext_credentials(&config_path).unwrap();
+        assert!(credentials.contains(&(CredentialKey::UsaJobsApiKey, "usajobs-secret".to_string())));
+
+        migration::clear_config_credentials(&config_path).unwrap();
+
+        let cleaned = std::fs::read_to_string(&config_path).unwrap();
+        let cleaned_json: serde_json::Value = serde_json::from_str(&cleaned).unwrap();
+        assert_eq!(
+            cleaned_json
+                .pointer("/usajobs/email")
+                .and_then(|v| v.as_str()),
+            Some("user@example.com")
+        );
+        assert!(cleaned_json.pointer("/usajobs/api_key").is_none());
     }
 }

@@ -135,6 +135,8 @@ Settings displays credential presence with status text:
 - Plaintext config fields are ignored after migration and should stay empty.
 - Local app logs must not include credential values, webhook tokens, cookies, or
   API keys.
+- Credential command logs use parsed allowlisted key names only. Invalid key
+  errors stay generic and do not echo caller input.
 
 Non-sensitive config remains in `config.json`, including job titles, keywords,
 locations, scraping intervals, alert thresholds, company URLs, and search query
@@ -158,7 +160,28 @@ should remain empty during normal use:
     "slack": {
       "enabled": true,
       "webhook_url": ""
+    },
+    "discord": {
+      "enabled": true,
+      "webhook_url": ""
+    },
+    "telegram": {
+      "enabled": true,
+      "bot_token": ""
+    },
+    "teams": {
+      "enabled": true,
+      "webhook_url": ""
     }
+  },
+  "linkedin": {
+    "enabled": true,
+    "session_cookie": ""
+  },
+  "usajobs": {
+    "enabled": true,
+    "api_key": "",
+    "email": "user@example.com"
   }
 }
 ```

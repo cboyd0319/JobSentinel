@@ -43,7 +43,7 @@ impl fmt::Debug for JobsWithGptScraper {
         f.debug_struct("JobsWithGptScraper")
             .field("endpoint_configured", &!self.endpoint.is_empty())
             .field("query", &self.query)
-            .field("rate_limiter_configured", &true)
+            .field("rate_limiter", &self.rate_limiter)
             .finish()
     }
 }
