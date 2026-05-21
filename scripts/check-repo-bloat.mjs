@@ -734,6 +734,26 @@ function hasFeatureStatusColorEmojiMarkers(root, path) {
   );
 }
 
+function hasSynonymOrRemotePreferenceDocDrift(root, path) {
+  if (
+    path !== "docs/features/synonym-matching.md" &&
+    path !== "docs/features/remote-preference-scoring.md"
+  ) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /[✅❌⚠️✓✗→]/u.test(text) ||
+    /Custom Synonyms \(v2\.1\+\)|Database-backed Synonyms \(v2\.2\+\)|Fuzzy Matching \(v2\.3\+\)/.test(
+      text,
+    ) ||
+    /Potential improvements for v2\.0\+/.test(text) ||
+    /preference × job type/.test(text) ||
+    /\*\*Last Updated:\*\* March 18, 2026/.test(text)
+  );
+}
+
 function hasStaleTestQualityDocGuidance(root, path) {
   if (path !== "tests/e2e/README.md" && path !== "docs/developer/FRONTEND_TESTING.md") {
     return false;
@@ -1546,6 +1566,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasFeatureStatusColorEmojiMarkers(root, path)) {
       violations.push(`replace feature status color emoji markers: ${path}`);
+    }
+
+    if (hasSynonymOrRemotePreferenceDocDrift(root, path)) {
+      violations.push(`sync synonym and remote preference docs: ${path}`);
     }
 
     if (hasStaleTestQualityDocGuidance(root, path)) {

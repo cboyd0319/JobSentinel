@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Removed unguarded emoji/status markers and stale version-promised future sections from synonym matching and remote preference scoring docs, fixed their test command examples, and added bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Rewrote the SQLite configuration doc against live `connection.rs` and integrity APIs, corrected the file-backed cache-size claim to `-128000`, removed speculative cloud-backup roadmap text, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Synced scraper docs with live rate-limit constants and local-first no-bypass posture, marking anti-bot-prone sources as best-effort instead of production-guaranteed. |
 | 2026-05-20 | In progress | Bounded scraper `Retry-After` delays, sanitized shared HTTP retry logs and error context, removed raw Greenhouse company-URL span fields, and extended bloat coverage for raw scraper URL logging. |
@@ -225,6 +226,10 @@ changes or Playwright-specific work.
   was `-64000` KB even though `connection.rs` configures `-128000` KB, and it
   mixed old benchmark estimates with speculative cloud-backup ideas outside
   the local-first product boundary.
+- `docs/features/synonym-matching.md` and
+  `docs/features/remote-preference-scoring.md` still carried old emoji/status
+  markers, stale `Last Updated` footers, and version-promised future sections
+  even though active docs should avoid release promises not owned by a plan.
 - `src/components/index.ts` re-exported nearly every component and some utility
   helpers, while live production imports only needed a few dashboard UI symbols.
   Direct imports remove that stale public surface.
@@ -520,6 +525,8 @@ changes or Playwright-specific work.
 - Keep SQLite configuration docs sourced from the live PRAGMA setup in
   `src-tauri/src/core/db/connection.rs`; stale cache-size values and
   speculative cloud-backup text count as documentation bloat.
+- Keep maintained feature docs free of emoji status markers and unowned
+  version-promised future sections.
 - Keep source comments and logs aligned with implemented platform behavior;
   stale "coming soon" stub markers count as bloat once code exists.
 - Keep Market Intelligence docs aligned with text indicator APIs such as

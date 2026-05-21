@@ -1225,6 +1225,60 @@ test("checkRepoBloat rejects feature status color emoji markers", () => {
   });
 });
 
+test("checkRepoBloat rejects synonym and remote preference doc drift", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/synonym-matching.md",
+      [
+        '- ✅ "py" matches "py script"',
+        '- "Kuberntes" → "Kubernetes"',
+        "### Custom Synonyms (v2.1+)",
+        "**Version:** 2.6.4 | **Last Updated:** March 18, 2026",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/remote-preference-scoring.md",
+      [
+        "| Hybrid | 0.5 | ⚠ Prefer remote-only |",
+        "- All preference × job type combinations",
+        "Potential improvements for v2.0+:",
+        "**Version:** 2.6.4 | **Last Updated:** March 18, 2026",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "docs/features/synonym-matching.md",
+        "docs/features/remote-preference-scoring.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sync synonym and remote preference docs: docs/features/synonym-matching.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "sync synonym and remote preference docs: docs/features/remote-preference-scoring.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects Market Intelligence doc emoji markers", () => {
   withGitFixture((root) => {
     const chartIcon = String.fromCodePoint(0x1f4c8);

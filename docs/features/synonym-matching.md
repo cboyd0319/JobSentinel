@@ -1,8 +1,12 @@
 # Synonym Matching for Smart Scoring
 
+> **Status:** Implemented
+> **Last Reviewed:** 2026-05-21
+> **Module:** `src-tauri/src/core/scoring/synonyms.rs`
+
 ## Overview
 
-JobSentinel now includes **intelligent synonym matching** for keyword scoring,
+JobSentinel includes **intelligent synonym matching** for keyword scoring,
 allowing flexible matching of job descriptions without requiring exact keyword matches.
 
 ## Key Features
@@ -21,9 +25,9 @@ And vice versa - searching for "py" will also match "Python" and "Python3".
 
 The system is smart enough to avoid false positives:
 
-- ✅ "py" matches "py script"
-- ✅ "py" matches "Experience with py"
-- ❌ "py" does NOT match "spy" or "espionage"
+- Match: "py" matches "py script"
+- Match: "py" matches "Experience with py"
+- No match: "py" does not match "spy" or "espionage"
 
 ### 3. Case Insensitivity
 
@@ -127,10 +131,10 @@ In your `config.json`:
 
 **Matches:**
 
-- ✅ "Python" → matches "Python3"
-- ✅ "Kubernetes" → matches "K8s"
-- ✅ "Machine Learning" → matches "ML"
-- ✅ "Senior" (if in keywords) → matches "Sr."
+- "Python" matches "Python3"
+- "Kubernetes" matches "K8s"
+- "Machine Learning" matches "ML"
+- "Senior" matches "Sr." when `Senior` is configured as a keyword
 
 **Result:** High score boost from 3 matched keywords!
 
@@ -154,11 +158,12 @@ The synonym matching system consists of:
 - **Matching Time:** O(n\*m) where n is number of keyword occurrences, m is average synonym group size
 - **Memory:** Minimal - synonym groups are pre-computed at startup
 
-## Future Enhancements
+## Potential Follow-Ups
 
-### Custom Synonyms (v2.1+)
+### Configurable Custom Synonyms
 
-Users will be able to add custom synonym groups:
+The code supports custom synonym groups through `SynonymMap::add_synonym_group`.
+A future config surface could expose user-defined groups like this:
 
 ```json
 {
@@ -169,34 +174,34 @@ Users will be able to add custom synonym groups:
 }
 ```
 
-### Database-backed Synonyms (v2.2+)
+### Database-Backed Synonyms
 
 Store user-defined synonyms in SQLite for persistence across sessions.
 
-### Fuzzy Matching (v2.3+)
+### Fuzzy Matching
 
 Extend to include edit-distance-based fuzzy matching for typos:
 
-- "Kuberntes" → "Kubernetes"
-- "Pythoon" → "Python"
+- "Kuberntes" to "Kubernetes"
+- "Pythoon" to "Python"
 
 ## Testing
 
 Comprehensive test suite in `src-tauri/src/core/scoring/synonyms.rs`:
 
-- ✅ Basic synonym matching
-- ✅ Case insensitivity
-- ✅ Word boundary detection
-- ✅ Bidirectional matching
-- ✅ Multiple synonyms in one text
-- ✅ Punctuation boundaries
-- ✅ Special characters (C++, C#)
-- ✅ Empty input handling
+- Basic synonym matching
+- Case insensitivity
+- Word boundary detection
+- Bidirectional matching
+- Multiple synonyms in one text
+- Punctuation boundaries
+- Special characters (`C++`, `C#`)
+- Empty input handling
 
 Run tests:
 
 ```bash
-cargo test scoring::synonyms --lib
+cd src-tauri && cargo test --lib scoring::synonyms
 ```
 
 ## Examples
@@ -249,9 +254,9 @@ cargo test scoring::synonyms --lib
 - "Amazon Web Services infrastructure"
 - "kubernetes and aws certified"
 
-## Migration from v1.5
+## Compatibility
 
-No configuration changes needed! Synonym matching is **backward compatible**:
+No configuration changes are needed. Synonym matching is additive:
 
 - Existing keywords continue to work
 - Synonym matching is additive (more matches, never fewer)
@@ -260,9 +265,8 @@ No configuration changes needed! Synonym matching is **backward compatible**:
 ## See Also
 
 - [Smart Scoring](./smart-scoring.md) - Overview of the scoring system
-- [Smart Scoring](./smart-scoring.md) - How keywords affect scoring
 - [Changelog](../../CHANGELOG.md) - Version history
 
 ---
 
-**Version:** 2.6.4 | **Last Updated:** March 18, 2026
+**Version:** 2.6.4 | **Last Reviewed:** 2026-05-21

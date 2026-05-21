@@ -1,11 +1,12 @@
 # Remote Work Preference Scoring
 
 **Status:** Implemented (v1.7)
+**Last Reviewed:** 2026-05-21
 **Module:** `src-tauri/src/core/scoring/remote.rs`
 
 ## Overview
 
-JobSentinel now includes graduated scoring for remote/hybrid/onsite job preferences.
+JobSentinel includes graduated scoring for remote/hybrid/onsite job preferences.
 Instead of binary allow/reject logic, the system assigns partial scores based on
 how well a job's work arrangement matches the user's preferences.
 
@@ -48,48 +49,48 @@ Instead of 0 or 1.0, jobs receive graduated scores based on preference match:
 
 #### RemoteOnly Preference
 
-| Job Type    | Score | Reason                                  |
-| ----------- | ----- | --------------------------------------- |
-| Remote      | 1.0   | ✓ Perfect match                         |
-| Hybrid      | 0.5   | ⚠ Prefer remote-only                    |
-| Onsite      | 0.1   | ✗ Remote-only preferred                 |
-| Unspecified | 0.3   | ⚠ Not specified (remote-only preferred) |
+| Job Type    | Score | Meaning                                |
+| ----------- | ----- | -------------------------------------- |
+| Remote      | 1.0   | Perfect match                          |
+| Hybrid      | 0.5   | Remote-only preferred                  |
+| Onsite      | 0.1   | Remote-only preferred                  |
+| Unspecified | 0.3   | Work arrangement not specified         |
 
 #### RemotePreferred
 
-| Job Type    | Score | Reason             |
-| ----------- | ----- | ------------------ |
-| Remote      | 1.0   | ✓ Preferred        |
-| Hybrid      | 0.7   | ✓ Acceptable       |
-| Onsite      | 0.4   | ⚠ Remote preferred |
-| Unspecified | 0.6   | ⚠ Not specified    |
+| Job Type    | Score | Meaning                        |
+| ----------- | ----- | ------------------------------ |
+| Remote      | 1.0   | Preferred                      |
+| Hybrid      | 0.7   | Acceptable                     |
+| Onsite      | 0.4   | Remote preferred               |
+| Unspecified | 0.6   | Work arrangement not specified |
 
 #### HybridPreferred
 
-| Job Type    | Score | Reason          |
-| ----------- | ----- | --------------- |
-| Hybrid      | 1.0   | ✓ Preferred     |
-| Remote      | 0.8   | ✓ Acceptable    |
-| Onsite      | 0.6   | ✓ Acceptable    |
-| Unspecified | 0.7   | ⚠ Not specified |
+| Job Type    | Score | Meaning                        |
+| ----------- | ----- | ------------------------------ |
+| Hybrid      | 1.0   | Preferred                      |
+| Remote      | 0.8   | Acceptable                     |
+| Onsite      | 0.6   | Acceptable                     |
+| Unspecified | 0.7   | Work arrangement not specified |
 
 #### OnsitePreferred
 
-| Job Type    | Score | Reason             |
-| ----------- | ----- | ------------------ |
-| Onsite      | 1.0   | ✓ Preferred        |
-| Hybrid      | 0.7   | ✓ Acceptable       |
-| Remote      | 0.5   | ⚠ Onsite preferred |
-| Unspecified | 0.6   | ⚠ Not specified    |
+| Job Type    | Score | Meaning                        |
+| ----------- | ----- | ------------------------------ |
+| Onsite      | 1.0   | Preferred                      |
+| Hybrid      | 0.7   | Acceptable                     |
+| Remote      | 0.5   | Onsite preferred               |
+| Unspecified | 0.6   | Work arrangement not specified |
 
 #### Flexible
 
-| Job Type    | Score | Reason                              |
-| ----------- | ----- | ----------------------------------- |
-| Remote      | 1.0   | ✓ Remote job                        |
-| Hybrid      | 1.0   | ✓ Hybrid job                        |
-| Onsite      | 1.0   | ✓ Onsite job                        |
-| Unspecified | 0.8   | ⚠ Not specified (assuming flexible) |
+| Job Type    | Score | Meaning                        |
+| ----------- | ----- | ------------------------------ |
+| Remote      | 1.0   | Remote job                      |
+| Hybrid      | 1.0   | Hybrid job                      |
+| Onsite      | 1.0   | Onsite job                      |
+| Unspecified | 0.8   | Work arrangement not specified |
 
 ## Implementation Details
 
@@ -148,7 +149,7 @@ The module includes comprehensive tests covering:
 
 - Job type detection from various sources (title, location, description)
 - User preference derivation from config flags
-- All preference × job type combinations
+- All preference and job type combinations
 - Edge cases (unspecified work arrangements, conflicting keywords)
 
 **Test file:** `src-tauri/src/core/scoring/remote.rs` (tests module)
@@ -156,7 +157,7 @@ The module includes comprehensive tests covering:
 **Run tests:**
 
 ```bash
-cargo test --lib scoring::remote
+cd src-tauri && cargo test --lib scoring::remote
 ```
 
 ## Benefits
@@ -166,9 +167,9 @@ cargo test --lib scoring::remote
 3. **Gradual migration:** Someone preferring remote but open to hybrid gets both, with remote scored higher
 4. **Unspecified handling:** Jobs that don't mention work arrangement get partial credit instead of being rejected
 
-## Future Enhancements
+## Potential Follow-Ups
 
-Potential improvements for v2.0+:
+Potential improvements:
 
 1. **Explicit RemotePreference enum in config** - Replace boolean flags with explicit preference selection
 2. **Custom score multipliers** - Let users customize the penalty for non-preferred arrangements
@@ -177,4 +178,4 @@ Potential improvements for v2.0+:
 
 ---
 
-**Version:** 2.6.4 | **Last Updated:** March 18, 2026
+**Version:** 2.6.4 | **Last Reviewed:** 2026-05-21
