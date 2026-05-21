@@ -2988,6 +2988,44 @@ test("checkRepoBloat rejects ML raw local path exposure", () => {
   });
 });
 
+test("checkRepoBloat rejects raw JobsWithGPT Debug derives", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/jobswithgpt.rs",
+      [
+        "#[derive(Debug, Clone)]",
+        "pub struct JobsWithGptScraper {",
+        "  pub endpoint: String,",
+        "}",
+        "",
+        "#[derive(Debug, Clone, Default)]",
+        "pub struct JobQuery {",
+        "  pub titles: Vec<String>,",
+        "  pub location: Option<String>,",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "src-tauri/src/core/scrapers/jobswithgpt.rs"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize JobsWithGPT debug output: src-tauri/src/core/scrapers/jobswithgpt.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects database log emoji markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

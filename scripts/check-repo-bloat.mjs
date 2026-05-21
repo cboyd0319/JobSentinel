@@ -210,6 +210,8 @@ const mlRawLocalPathExposurePaths = new Set([
 
 const mlRawLocalPathDocPaths = new Set(["docs/ML_FEATURE.md", "docs/ML_QUICKSTART.md"]);
 
+const jobsWithGptPrivacyPaths = new Set(["src-tauri/src/core/scrapers/jobswithgpt.rs"]);
+
 const databaseLogEmojiPaths = new Set([
   "src-tauri/src/core/db/connection.rs",
   "src-tauri/src/core/db/integrity/backups.rs",
@@ -1378,6 +1380,17 @@ function hasMlRawLocalPathDoc(root, path) {
   return /\bmodel_path\s*:\s*string\b/.test(readFileSync(join(root, path), "utf8"));
 }
 
+function hasRawJobsWithGptDebug(root, path) {
+  if (!jobsWithGptPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return /#\[derive\([^)]*Debug[^)]*\)\]\s*pub struct (?:JobsWithGptScraper|JobQuery)\b/.test(
+    productionText,
+  );
+}
+
 function hasDatabaseLogEmojiMarkers(root, path) {
   if (!databaseLogEmojiPaths.has(path)) {
     return false;
@@ -2320,6 +2333,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasMlRawLocalPathDoc(root, path)) {
       violations.push(`remove ML raw local path doc claim: ${path}`);
+    }
+
+    if (hasRawJobsWithGptDebug(root, path)) {
+      violations.push(`sanitize JobsWithGPT debug output: ${path}`);
     }
 
     if (hasDatabaseLogEmojiMarkers(root, path)) {

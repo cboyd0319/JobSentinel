@@ -13,9 +13,10 @@ use crate::core::url_security::{sanitize_url_for_logging, validate_external_http
 use async_trait::async_trait;
 use chrono::Utc;
 use sha2::{Digest, Sha256};
+use std::fmt;
 
 /// JobsWithGPT MCP scraper
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct JobsWithGptScraper {
     /// MCP server endpoint
     pub endpoint: String,
@@ -25,7 +26,7 @@ pub struct JobsWithGptScraper {
     pub rate_limiter: RateLimiter,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Clone, Default)]
 pub struct JobQuery {
     /// Job titles to search for
     pub titles: Vec<String>,
@@ -35,6 +36,27 @@ pub struct JobQuery {
     pub remote_only: bool,
     /// Maximum results to return
     pub limit: usize,
+}
+
+impl fmt::Debug for JobsWithGptScraper {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("JobsWithGptScraper")
+            .field("endpoint_configured", &!self.endpoint.is_empty())
+            .field("query", &self.query)
+            .field("rate_limiter_configured", &true)
+            .finish()
+    }
+}
+
+impl fmt::Debug for JobQuery {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("JobQuery")
+            .field("title_count", &self.titles.len())
+            .field("has_location", &self.location.is_some())
+            .field("remote_only", &self.remote_only)
+            .field("limit", &self.limit)
+            .finish()
+    }
 }
 
 impl JobsWithGptScraper {
@@ -892,8 +914,32 @@ mod tests {
         };
 
         let debug_str = format!("{:?}", query);
-        assert!(debug_str.contains("Rust Developer"));
-        assert!(debug_str.contains("San Francisco"));
+        assert!(debug_str.contains("title_count: 1"));
+        assert!(debug_str.contains("has_location: true"));
+        assert!(debug_str.contains("remote_only: true"));
+        assert!(debug_str.contains("limit: 25"));
+        assert!(!debug_str.contains("Rust Developer"));
+        assert!(!debug_str.contains("San Francisco"));
+    }
+
+    #[test]
+    fn test_scraper_debug_format_does_not_echo_endpoint_or_query_values() {
+        let scraper = JobsWithGptScraper::new(
+            "https://api.jobswithgpt.example/mcp?token=private".to_string(),
+            JobQuery {
+                titles: vec!["Secret Rust Developer".to_string()],
+                location: Some("Private City".to_string()),
+                remote_only: true,
+                limit: 25,
+            },
+        );
+
+        let debug_str = format!("{:?}", scraper);
+        assert!(debug_str.contains("endpoint_configured: true"));
+        assert!(debug_str.contains("title_count: 1"));
+        assert!(!debug_str.contains("token=private"));
+        assert!(!debug_str.contains("Secret Rust Developer"));
+        assert!(!debug_str.contains("Private City"));
     }
 
     #[test]
