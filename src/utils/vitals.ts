@@ -2,6 +2,14 @@ import { onCLS, onFCP, onINP, onLCP, onTTFB, type Metric } from "web-vitals";
 
 type VitalsCallback = (metric: Metric) => void;
 
+interface PerformanceMemoryInfo {
+  usedJSHeapSize?: number;
+}
+
+type PerformanceWithMemory = Performance & {
+  memory?: PerformanceMemoryInfo;
+};
+
 /**
  * Report Web Vitals metrics
  *
@@ -70,6 +78,11 @@ export function getMetricUnit(name: string): string {
   return "ms";
 }
 
+function getJsHeapSize(performanceApi: Performance = performance): number {
+  const memory = (performanceApi as PerformanceWithMemory).memory;
+  return typeof memory?.usedJSHeapSize === "number" ? memory.usedJSHeapSize : 0;
+}
+
 /**
  * Performance summary for debugging
  */
@@ -86,7 +99,6 @@ export function getPerformanceSummary(): Record<string, number> {
     resourceCount: performance.getEntriesByType("resource").length,
 
     // Memory (if available)
-    // @ts-expect-error - memory is non-standard
-    jsHeapSize: performance.memory?.usedJSHeapSize || 0,
+    jsHeapSize: getJsHeapSize(),
   };
 }

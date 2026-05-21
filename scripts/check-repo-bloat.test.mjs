@@ -319,6 +319,34 @@ test("checkRepoBloat rejects production explicit-any lint suppressions", () => {
   });
 });
 
+test("checkRepoBloat rejects production TypeScript error suppressions", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/utils/vitals.ts",
+      [
+        "export function getPerformanceSummary() {",
+        "  // @ts-expect-error - memory is non-standard",
+        "  return performance.memory?.usedJSHeapSize || 0;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/utils/vitals.ts"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("remove production TypeScript error suppression: src/utils/vitals.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects backend scoring reason glyph markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

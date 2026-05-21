@@ -2493,6 +2493,15 @@ function hasProductionExplicitAnySuppression(root, path) {
   return /eslint-disable(?:-next-line|-line)?\s+@typescript-eslint\/no-explicit-any/.test(text);
 }
 
+function hasProductionTypeErrorSuppression(root, path) {
+  if (!isRuntimeFrontendSource(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /@ts-(?:expect-error|ignore)\b/.test(text);
+}
+
 function collectRuntimeInvokeCommands(root) {
   const commands = new Set();
   const commandPattern =
@@ -2674,6 +2683,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasProductionExplicitAnySuppression(root, path)) {
       violations.push(`remove production explicit-any suppression: ${path}`);
+    }
+
+    if (hasProductionTypeErrorSuppression(root, path)) {
+      violations.push(`remove production TypeScript error suppression: ${path}`);
     }
 
     if (hasProductionSourceGlyphMarkers(root, path)) {

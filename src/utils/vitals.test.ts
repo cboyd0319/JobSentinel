@@ -131,6 +131,10 @@ describe("vitals utilities", () => {
       });
     });
 
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
     it("returns performance summary object", () => {
       const summary = getPerformanceSummary();
 
@@ -152,6 +156,28 @@ describe("vitals utilities", () => {
     it("includes resource count", () => {
       const summary = getPerformanceSummary();
       expect(summary.resourceCount).toBe(3);
+    });
+
+    it("includes browser heap size when available", () => {
+      Object.defineProperty(performance, "memory", {
+        configurable: true,
+        value: { usedJSHeapSize: 12_345 },
+      });
+
+      const summary = getPerformanceSummary();
+
+      expect(summary.jsHeapSize).toBe(12_345);
+    });
+
+    it("uses zero heap size when browser memory API is unavailable", () => {
+      Object.defineProperty(performance, "memory", {
+        configurable: true,
+        value: undefined,
+      });
+
+      const summary = getPerformanceSummary();
+
+      expect(summary.jsHeapSize).toBe(0);
     });
   });
 
