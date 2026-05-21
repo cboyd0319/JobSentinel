@@ -690,6 +690,27 @@ function hasScraperDocEmojiMarkers(root, path) {
   );
 }
 
+function hasStaleScraperDocReliabilityClaim(root, path) {
+  if (path !== "docs/features/scrapers.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /production-ready scrapers for 13 major job boards/.test(text) ||
+    /All 13 job board scrapers \(production-ready\)/.test(text) ||
+    /CAPTCHA Solver|CAPTCHA solver integration|Proxy rotation for large-scale scraping/.test(text) ||
+    /Rotate cookies if multiple accounts/.test(text) ||
+    /Conservative 5-second delays/.test(text) ||
+    /limits::USAJOBS\)\.await;\s*\/\/ 60\/hour/.test(text) ||
+    /\*\*USAJobs\*\*\s*\|\s*60\s*\|/.test(text) ||
+    /\*\*RemoteOK\*\*\s*\|\s*1000\s*\|/.test(text) ||
+    /\*\*WeWorkRemotely\*\*\s*\|\s*500\s*\|/.test(text) ||
+    /\*\*HN Who's Hiring\*\*\s*\|\s*100\s*\|/.test(text) ||
+    /\*\*YC Startup Jobs\*\*\s*\|\s*200\s*\|/.test(text)
+  );
+}
+
 function hasScraperHealthDocEmojiMarkers(root, path) {
   if (path !== "docs/features/scraper-health.md") {
     return false;
@@ -1496,6 +1517,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasScraperDocEmojiMarkers(root, path)) {
       violations.push(`replace scraper doc emoji markers: ${path}`);
+    }
+
+    if (hasStaleScraperDocReliabilityClaim(root, path)) {
+      violations.push(`sync scraper reliability and rate-limit docs: ${path}`);
     }
 
     if (hasScraperHealthDocEmojiMarkers(root, path)) {

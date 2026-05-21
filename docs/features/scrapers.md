@@ -4,13 +4,15 @@
 
 > **Status:** ACTIVE (v2.1.0+)
 > **Supported Scrapers:** 13 sources
-> **Last Updated:** 2026-03-18
+> **Last Reviewed:** 2026-05-21
 > **Version:** 2.6.4
 > **Architecture:** Parallel scraping with intelligent rate limiting, health monitoring, and deduplication
 
-**Note:** JobSentinel includes production-ready scrapers for 13 major job boards. All scrapers
-implement intelligent rate limiting, automatic deduplication via SHA-256 hashing, and robust
-error handling.
+**Note:** JobSentinel includes 13 implemented job sources. API-backed sources such as
+Greenhouse, Lever, RemoteOK, USAJobs, Dice, and JobsWithGPT are the most reliable.
+HTML/RSS sources that sit behind anti-bot systems, especially SimplyHired and
+Glassdoor, are best-effort and can return empty results when blocked. All sources
+share rate limiting, deduplication, and structured error handling.
 
 ---
 
@@ -34,8 +36,8 @@ faster. Our parallel scraping architecture enables simultaneous searches across 
 | **Dice**            | ~50K       | Public         | Production     |
 | **YC Startup Jobs** | ~10K       | Public         | Production     |
 | **USAJobs**         | ~50K       | API key (free) | Production     |
-| **SimplyHired**     | ~5M        | None (RSS)     | May be blocked |
-| **Glassdoor**       | ~1M+       | Public         | Production     |
+| **SimplyHired**     | ~5M        | None (RSS)     | Best-effort, may be blocked |
+| **Glassdoor**       | ~1M+       | Public         | Best-effort, anti-bot prone |
 
 ### Key Features (v1.5.0)
 
@@ -248,7 +250,7 @@ let limiter = RateLimiter::new();
 // Wait until request is allowed
 limiter.wait("linkedin", limits::LINKEDIN).await;     // 100/hour
 limiter.wait("greenhouse", limits::GREENHOUSE).await; // 1000/hour
-limiter.wait("usajobs", limits::USAJOBS).await;       // 60/hour
+limiter.wait("usajobs", limits::USAJOBS).await;       // 1000/hour
 ```
 
 ### How It Works
@@ -265,14 +267,14 @@ limiter.wait("usajobs", limits::USAJOBS).await;       // 60/hour
 | **LinkedIn**        | 100           | 0.028         | Conservative (avoid detection) |
 | **Greenhouse**      | 1000          | 0.278         | Official API                   |
 | **Lever**           | 1000          | 0.278         | Official API                   |
-| **RemoteOK**        | 1000          | 0.278         | Public API                     |
-| **WeWorkRemotely**  | 500           | 0.139         | Public site                    |
-| **BuiltIn**         | 500           | 0.139         | Public site                    |
-| **HN Who's Hiring** | 100           | 0.028         | Community site                 |
+| **RemoteOK**        | 500           | 0.139         | Public API                     |
+| **WeWorkRemotely**  | 300           | 0.083         | Public site                    |
+| **BuiltIn**         | 300           | 0.083         | Public site                    |
+| **HN Who's Hiring** | 500           | 0.139         | Community site                 |
 | **JobsWithGPT**     | 10,000        | 2.778         | MCP server                     |
 | **Dice**            | 500           | 0.139         | Public API                     |
-| **YC Startup Jobs** | 200           | 0.056         | Public site                    |
-| **USAJobs**         | 60            | 0.017         | Official API, conservative     |
+| **YC Startup Jobs** | 300           | 0.083         | Public site                    |
+| **USAJobs**         | 1000          | 0.278         | Official API                   |
 | **SimplyHired**     | 200           | 0.056         | Public RSS, Cloudflare risk    |
 | **Glassdoor**       | 200           | 0.056         | Public site                    |
 
@@ -558,10 +560,10 @@ GROUP BY source;
 ### Best Practices
 
 1. **Respect Rate Limits:** Use built-in rate limiter
-2. **User-Agent Mimicry:** Appears as real browser
-3. **Random Delays:** 2-5 second delays between requests
-4. **Session Management:** Rotate cookies if multiple accounts
-5. **Error Handling:** Graceful failures, no infinite retries
+2. **Browser User-Agent:** Uses a consistent browser-like user agent where sources need it
+3. **Bounded Retries:** Retries 429 and 5xx responses with capped backoff
+4. **Session Management:** Uses only the user's own authenticated session where required
+5. **Error Handling:** Graceful failures, no infinite retries or unbounded sleeps
 
 ### LinkedIn-Specific Ethics
 
@@ -586,14 +588,13 @@ GROUP BY source;
 - [ ] **Headless Chrome:** Integrate `headless_chrome` crate
 - [ ] **Interactive Login:** No manual cookie extraction
 - [ ] **JavaScript Rendering:** Full dynamic content support
-- [ ] **CAPTCHA Solver:** User-assisted CAPTCHA solving
 
 ### Phase 3: Additional job boards (v1.6+)
 
 - [ ] **ZipRecruiter:** 8M+ jobs
 - [ ] **AngelList (Wellfound):** 100K+ startup jobs
 - [ ] **Monster:** 6M+ jobs
-- [x] **Glassdoor:** 5M+ jobs
+- [x] **Glassdoor:** Best-effort source, anti-bot prone
 - [ ] **CareerBuilder:** 1M+ jobs
 - [ ] **FlexJobs:** 80K+ remote roles
 
@@ -657,7 +658,7 @@ impl RateLimiter {
 
 ### Completed (v2.1.0)
 
-- [x] All 13 job board scrapers (production-ready)
+- [x] All 13 job board sources implemented
 - [x] Parallel scraping architecture
 - [x] Rate limiting (token bucket, per-scraper)
 - [x] Multi-layout HTML parsing
@@ -677,8 +678,6 @@ impl RateLimiter {
 - [ ] Headless browser integration for JavaScript-heavy sites
 - [ ] Additional job boards (Monster, ZipRecruiter, Wellfound, CareerBuilder)
 - [ ] Job detail page fetching with full descriptions
-- [ ] CAPTCHA solver integration
-- [ ] Proxy rotation for large-scale scraping
 - [ ] Job board version tracking (HTML layout change detection)
 
 ---
@@ -809,7 +808,7 @@ Headers:
 1. **RSS Feed:** Uses public RSS feeds (<https://www.simplyhired.com/search?q=...&output=rss>)
 2. **No Authentication:** Public access
 3. **XML Parsing:** Simple XML parsing (no full XML library needed)
-4. **Rate Limiting:** Conservative 5-second delays (Cloudflare protection)
+4. **Rate Limiting:** Conservative token-bucket limit (Cloudflare protection)
 5. **Graceful Degradation:** Returns empty list if Cloudflare blocks request
 
 ### Search URL Format
@@ -848,8 +847,7 @@ SimplyHired has Cloudflare bot protection. The scraper:
 
 ---
 
-**Last Updated:** 2026-03-18
+**Last Reviewed:** 2026-05-21
 **Version:** 2.6.4
 **Maintained By:** JobSentinel Core Team
-**Implementation Status:** Phase 3 Complete (13 scrapers integrated)
-**Next Phase:** v2.7 - ML Predictions, Windows/Linux Auto-Connect
+**Implementation Status:** 13 scraper sources integrated

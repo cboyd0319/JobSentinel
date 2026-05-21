@@ -1078,6 +1078,41 @@ test("checkRepoBloat rejects scraper doc emoji markers", () => {
   });
 });
 
+test("checkRepoBloat rejects stale scraper reliability and rate-limit docs", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/scrapers.md",
+      [
+        "JobSentinel includes production-ready scrapers for 13 major job boards.",
+        "- [x] All 13 job board scrapers (production-ready)",
+        "- [ ] CAPTCHA solver integration",
+        "- [ ] Proxy rotation for large-scale scraping",
+        "4. **Session Management:** Rotate cookies if multiple accounts",
+        "4. **Rate Limiting:** Conservative 5-second delays (Cloudflare protection)",
+        "limiter.wait(\"usajobs\", limits::USAJOBS).await;       // 60/hour",
+        "| **USAJobs**         | 60            | 0.017         | Official API, conservative     |",
+        "| **RemoteOK**        | 1000          | 0.278         | Public API                     |",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/features/scrapers.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sync scraper reliability and rate-limit docs: docs/features/scrapers.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects scraper health doc emoji markers", () => {
   withGitFixture((root) => {
     const greenIcon = String.fromCodePoint(0x1f7e2);

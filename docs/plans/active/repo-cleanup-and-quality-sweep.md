@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Synced scraper docs with live rate-limit constants and local-first no-bypass posture, marking anti-bot-prone sources as best-effort instead of production-guaranteed. |
 | 2026-05-20 | In progress | Bounded scraper `Retry-After` delays, sanitized shared HTTP retry logs and error context, removed raw Greenhouse company-URL span fields, and extended bloat coverage for raw scraper URL logging. |
 | 2026-05-20 | In progress | Reduced E2E page-object fixed waits, removed the unreferenced Playwright helper module, corrected E2E wait guidance, and added bloat coverage for recurring wait/helper drift. |
 | 2026-05-20 | In progress | Removed unused legacy Rust stubs for `scrape_all` and PDF resume export, corrected stale scraper and resume-export docs, and added bloat coverage for recurrence. |
