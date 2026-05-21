@@ -292,7 +292,7 @@ interface MockJobImportPreview {
 }
 
 type MockFeedbackCategory = "bug" | "feature" | "question";
-type MockScraperType = "api" | "html" | "hybrid";
+type MockScraperType = "api" | "html" | "rss" | "graphql" | "hybrid";
 type MockHealthStatus = "healthy" | "degraded" | "down" | "disabled" | "unknown";
 type MockSelectorHealth = "healthy" | "degraded" | "broken" | "unknown";
 type MockScraperRunStatus = "running" | "success" | "error" | "rate_limited";
@@ -333,19 +333,20 @@ interface MockScraperRun {
 
 interface MockSmokeTestResult {
   scraper_name: string;
-  success: boolean;
-  response_time_ms: number;
-  error_message: string | null;
-  tested_at: string;
+  test_type: "connectivity" | "selector" | "auth" | "rate_limit";
+  passed: boolean;
+  duration_ms: number;
+  details: Record<string, unknown> | null;
+  error: string | null;
 }
 
 interface MockCredentialHealth {
-  credential_name: string;
-  is_valid: boolean;
-  expires_at: string | null;
-  days_until_expiry: number | null;
+  key: string;
+  created_at: string | null;
   last_validated: string | null;
-  warning_message: string | null;
+  expires_at: string | null;
+  status: "valid" | "expiring" | "expired" | "unknown";
+  days_until_expiry: number | null;
 }
 
 interface MockPrepChecklistItem {
@@ -501,19 +502,22 @@ const ATS_KNOWN_KEYWORDS = [
 ] as const;
 
 const MOCK_SCRAPERS: readonly MockScraperDefinition[] = [
-  { scraper_name: "greenhouse", display_name: "Greenhouse", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 60 },
-  { scraper_name: "lever", display_name: "Lever", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 60 },
+  { scraper_name: "greenhouse", display_name: "Greenhouse", requires_auth: false, scraper_type: "api", rate_limit_per_hour: 60 },
+  { scraper_name: "lever", display_name: "Lever", requires_auth: false, scraper_type: "api", rate_limit_per_hour: 60 },
   { scraper_name: "remoteok", display_name: "Remote OK", requires_auth: false, scraper_type: "api", rate_limit_per_hour: 120 },
   { scraper_name: "hn_hiring", display_name: "HN Who's Hiring", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 30 },
-  { scraper_name: "weworkremotely", display_name: "We Work Remotely", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 60 },
-  { scraper_name: "linkedin", display_name: "LinkedIn", requires_auth: true, scraper_type: "hybrid", rate_limit_per_hour: 30 },
+  { scraper_name: "weworkremotely", display_name: "We Work Remotely", requires_auth: false, scraper_type: "rss", rate_limit_per_hour: 60 },
+  { scraper_name: "linkedin", display_name: "LinkedIn", requires_auth: true, scraper_type: "api", rate_limit_per_hour: 30 },
   { scraper_name: "indeed", display_name: "Indeed", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 60 },
   { scraper_name: "wellfound", display_name: "Wellfound", requires_auth: true, scraper_type: "html", rate_limit_per_hour: 45 },
   { scraper_name: "builtin", display_name: "Built In", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 60 },
   { scraper_name: "jobswithgpt", display_name: "JobsWithGPT", requires_auth: false, scraper_type: "api", rate_limit_per_hour: 60 },
   { scraper_name: "dice", display_name: "Dice", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 45 },
-  { scraper_name: "ziprecruiter", display_name: "ZipRecruiter", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 45 },
-  { scraper_name: "usa_jobs", display_name: "USAJOBS", requires_auth: true, scraper_type: "api", rate_limit_per_hour: 120 },
+  { scraper_name: "yc_startup", display_name: "YC Startup Jobs", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 45 },
+  { scraper_name: "ziprecruiter", display_name: "ZipRecruiter", requires_auth: false, scraper_type: "rss", rate_limit_per_hour: 45 },
+  { scraper_name: "usajobs", display_name: "USAJOBS", requires_auth: true, scraper_type: "api", rate_limit_per_hour: 120 },
+  { scraper_name: "simplyhired", display_name: "SimplyHired", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 45 },
+  { scraper_name: "glassdoor", display_name: "Glassdoor", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 45 },
 ] as const;
 
 const MOCK_DEEP_LINK_SITES = [
@@ -2182,10 +2186,11 @@ function getMockScraperRuns(args?: Record<string, unknown>): MockScraperRun[] {
 function getMockSmokeTestResult(scraperName: string): MockSmokeTestResult {
   return {
     scraper_name: scraperName,
-    success: scraperEnabledOverrides[scraperName] !== false,
-    response_time_ms: 700,
-    error_message: scraperEnabledOverrides[scraperName] === false ? "Scraper disabled" : null,
-    tested_at: new Date().toISOString(),
+    test_type: "connectivity",
+    passed: scraperEnabledOverrides[scraperName] !== false,
+    duration_ms: 700,
+    details: null,
+    error: scraperEnabledOverrides[scraperName] === false ? "Scraper disabled" : null,
   };
 }
 
@@ -2193,12 +2198,12 @@ function getMockExpiringCredentials(): MockCredentialHealth[] {
   return credentials.linkedin_cookie
     ? [
         {
-          credential_name: "linkedin_cookie",
-          is_valid: true,
-          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-          days_until_expiry: 7,
+          key: "linkedin_cookie",
+          created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
           last_validated: new Date().toISOString(),
-          warning_message: null,
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          status: "expiring",
+          days_until_expiry: 7,
         },
       ]
     : [];

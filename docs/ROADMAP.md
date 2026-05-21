@@ -409,7 +409,7 @@ Files implemented:
 - `src-tauri/src/core/scrapers/simplyhired.rs` - SimplyHired RSS scraper
 - Backend integration: `src-tauri/src/core/scheduler/workers/scrapers.rs` (lines 286-384)
 - Frontend config: `src/pages/Settings.tsx` (USAJobs, SimplyHired sections)
-- Documentation: `docs/features/scrapers.md` (updated with 13 scrapers)
+- Documentation: `docs/features/scrapers.md` (updated with 16 scraper sources)
 
 ### Restricted Sites (Legal Alternatives Only)
 

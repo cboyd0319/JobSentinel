@@ -948,6 +948,29 @@ function hasScraperHealthDocEmojiMarkers(root, path) {
   );
 }
 
+function hasStaleScraperHealthCoverage(root, path) {
+  if (
+    path !== "docs/features/scrapers.md" &&
+    path !== "docs/features/scraper-health.md" &&
+    path !== "docs/ROADMAP.md" &&
+    path !== "src/mocks/handlers.ts" &&
+    path !== "src/components/ScraperHealthDashboard.tsx"
+  ) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  if (/13 scrapers|Testing 13 scrapers|updated with 13 scrapers|usa_jobs/.test(text)) {
+    return true;
+  }
+
+  return (
+    /interface SmokeTestResult[\s\S]{0,180}success:\s*boolean/.test(text) ||
+    /interface MockSmokeTestResult[\s\S]{0,180}success:\s*boolean/.test(text) ||
+    /response_time_ms/.test(text)
+  );
+}
+
 function hasFeatureStatusColorEmojiMarkers(root, path) {
   if (
     path !== "docs/features/ghost-detection.md" &&
@@ -2376,6 +2399,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasScraperHealthDocEmojiMarkers(root, path)) {
       violations.push(`replace scraper health doc emoji markers: ${path}`);
+    }
+
+    if (hasStaleScraperHealthCoverage(root, path)) {
+      violations.push(`sync scraper health source coverage: ${path}`);
     }
 
     if (hasFeatureStatusColorEmojiMarkers(root, path)) {

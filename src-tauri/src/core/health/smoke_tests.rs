@@ -10,6 +10,35 @@ use std::time::Instant;
 
 use super::types::{SmokeTestResult, SmokeTestType};
 
+const SMOKE_TEST_SCRAPERS: &[&str] = &[
+    "greenhouse",
+    "lever",
+    "linkedin",
+    "indeed",
+    "remoteok",
+    "wellfound",
+    "weworkremotely",
+    "builtin",
+    "hn_hiring",
+    "jobswithgpt",
+    "dice",
+    "yc_startup",
+    "ziprecruiter",
+    "usajobs",
+    "simplyhired",
+    "glassdoor",
+];
+
+#[must_use]
+pub fn smoke_test_scrapers() -> &'static [&'static str] {
+    SMOKE_TEST_SCRAPERS
+}
+
+#[must_use]
+pub fn is_known_scraper_name(scraper_name: &str) -> bool {
+    SMOKE_TEST_SCRAPERS.contains(&scraper_name)
+}
+
 fn sanitized_request_error(context: &'static str, error: reqwest::Error) -> anyhow::Error {
     anyhow::anyhow!("{}: {}", context, error.without_url())
 }
@@ -36,7 +65,10 @@ pub async fn run_smoke_test(
         "dice" => test_dice().await,
         "yc_startup" => test_yc_startup().await,
         "ziprecruiter" => test_ziprecruiter().await,
-        _ => Err(anyhow::anyhow!("Unknown scraper: {}", scraper_name)),
+        "usajobs" => test_usajobs(config).await,
+        "simplyhired" => test_simplyhired().await,
+        "glassdoor" => test_glassdoor().await,
+        _ => Err(anyhow::anyhow!("Unknown scraper")),
     };
 
     let duration_ms = start.elapsed().as_millis() as i64;
@@ -68,25 +100,9 @@ pub async fn run_smoke_test(
 
 /// Run smoke tests for all enabled scrapers
 pub async fn run_all_smoke_tests(db: &Database, config: &Config) -> Result<Vec<SmokeTestResult>> {
-    let scrapers = vec![
-        "greenhouse",
-        "lever",
-        "linkedin",
-        "indeed",
-        "remoteok",
-        "wellfound",
-        "weworkremotely",
-        "builtin",
-        "hn_hiring",
-        "jobswithgpt",
-        "dice",
-        "yc_startup",
-        "ziprecruiter",
-    ];
-
     let mut results = Vec::new();
 
-    for scraper in scrapers {
+    for scraper in SMOKE_TEST_SCRAPERS {
         let result = run_smoke_test(db, config, scraper).await?;
         results.push(result);
     }
@@ -507,5 +523,123 @@ async fn test_ziprecruiter() -> Result<serde_json::Value> {
         "status": status.as_u16(),
         "jobs_found": item_count,
         "format": "rss"
+    }))
+}
+
+async fn test_usajobs(config: &Config) -> Result<serde_json::Value> {
+    if !config.usajobs.enabled {
+        return Ok(serde_json::json!({
+            "status": "skipped",
+            "reason": "USAJobs scraping not enabled"
+        }));
+    }
+
+    if config.usajobs.email.is_empty() {
+        return Ok(serde_json::json!({
+            "status": "skipped",
+            "reason": "USAJobs email not configured"
+        }));
+    }
+
+    if config.usajobs.api_key.is_empty() {
+        return Ok(serde_json::json!({
+            "status": "skipped",
+            "reason": "USAJobs API key not loaded"
+        }));
+    }
+
+    let url = "https://data.usajobs.gov/api/Search?Keyword=software&ResultsPerPage=1";
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(10))
+        .build()?;
+
+    let resp = client
+        .get(url)
+        .header("Host", "data.usajobs.gov")
+        .header("User-Agent", &config.usajobs.email)
+        .header("Authorization-Key", &config.usajobs.api_key)
+        .send()
+        .await
+        .map_err(|e| sanitized_request_error("USAJobs smoke test request failed", e))?;
+    let status = resp.status();
+
+    if !status.is_success() {
+        return Err(anyhow::anyhow!("HTTP {}", status));
+    }
+
+    let json: serde_json::Value = read_json_with_limit(resp, url).await?;
+    let job_count = json
+        .pointer("/SearchResult/SearchResultCount")
+        .and_then(serde_json::Value::as_i64)
+        .unwrap_or(0);
+
+    Ok(serde_json::json!({
+        "status": status.as_u16(),
+        "jobs_found": job_count,
+        "api": "usajobs"
+    }))
+}
+
+async fn test_simplyhired() -> Result<serde_json::Value> {
+    let url = "https://www.simplyhired.com/search?q=software+engineer&l=remote&output=rss";
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(10))
+        .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36")
+        .build()?;
+
+    let resp = client
+        .get(url)
+        .header(
+            "Accept",
+            "application/rss+xml, application/xml, text/xml, */*",
+        )
+        .send()
+        .await
+        .map_err(|e| sanitized_request_error("SimplyHired smoke test request failed", e))?;
+    let status = resp.status();
+
+    if !status.is_success() {
+        return Err(anyhow::anyhow!("HTTP {}", status));
+    }
+
+    let rss = read_text_with_limit(resp, url).await?;
+    let item_count = rss.matches("<item>").count();
+
+    Ok(serde_json::json!({
+        "status": status.as_u16(),
+        "jobs_found": item_count,
+        "format": "rss"
+    }))
+}
+
+async fn test_glassdoor() -> Result<serde_json::Value> {
+    let url = "https://www.glassdoor.com/Job/jobs.htm?sc.keyword=software+engineer&jobType=all";
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(10))
+        .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36")
+        .build()?;
+
+    let resp = client
+        .get(url)
+        .header(
+            "Accept",
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        )
+        .send()
+        .await
+        .map_err(|e| sanitized_request_error("Glassdoor smoke test request failed", e))?;
+    let status = resp.status();
+
+    if !status.is_success() {
+        return Err(anyhow::anyhow!("HTTP {}", status));
+    }
+
+    let html = read_text_with_limit(resp, url).await?;
+    let has_jobs = html.contains("jobListing") || html.contains("job-card");
+
+    Ok(serde_json::json!({
+        "status": status.as_u16(),
+        "selectors_found": has_jobs,
+        "html_size_kb": html.len() / 1024
     }))
 }

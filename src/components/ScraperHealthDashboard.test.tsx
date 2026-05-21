@@ -93,12 +93,12 @@ const mockScrapers = [
 
 const mockCredentials = [
   {
-    credential_name: "LinkedIn API Key",
-    is_valid: true,
-    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    days_until_expiry: 7,
+    key: "linkedin_cookie",
+    created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
     last_validated: new Date().toISOString(),
-    warning_message: null,
+    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    status: "expiring" as const,
+    days_until_expiry: 7,
   },
 ];
 
@@ -134,17 +134,19 @@ const mockRuns = [
 const mockTestResults = [
   {
     scraper_name: "indeed",
-    success: true,
-    response_time_ms: 1200,
-    error_message: null,
-    tested_at: new Date().toISOString(),
+    test_type: "connectivity" as const,
+    passed: true,
+    duration_ms: 1200,
+    details: null,
+    error: null,
   },
   {
     scraper_name: "linkedin",
-    success: false,
-    response_time_ms: 5000,
-    error_message: "Connection refused",
-    tested_at: new Date().toISOString(),
+    test_type: "connectivity" as const,
+    passed: false,
+    duration_ms: 5000,
+    details: null,
+    error: "Connection refused",
   },
 ];
 
@@ -411,7 +413,7 @@ describe("ScraperHealthDashboard", () => {
       await waitFor(() => {
         expect(screen.getByText("Credential Warnings")).toBeInTheDocument();
       });
-      expect(screen.getByText("LinkedIn API Key")).toBeInTheDocument();
+      expect(screen.getByText("linkedin_cookie")).toBeInTheDocument();
       expect(screen.getByText(/expires in 7 days/i)).toBeInTheDocument();
     });
 
@@ -431,10 +433,11 @@ describe("ScraperHealthDashboard", () => {
       expect(screen.queryByText("Credential Warnings")).not.toBeInTheDocument();
     });
 
-    it("shows custom warning message when provided", async () => {
+    it("shows expired credential status when provided", async () => {
       const customCredential = {
         ...mockCredentials[0],
-        warning_message: "Token needs refresh",
+        status: "expired" as const,
+        days_until_expiry: 0,
       };
       mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
@@ -446,7 +449,7 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Token needs refresh")).toBeInTheDocument();
+        expect(screen.getByText("Expired")).toBeInTheDocument();
       });
     });
   });

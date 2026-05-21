@@ -2107,6 +2107,47 @@ test("checkRepoBloat rejects scraper health doc emoji markers", () => {
   });
 });
 
+test("checkRepoBloat rejects stale scraper health coverage", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/scraper-health.md",
+      "The health monitoring system automatically tracks all 13 scrapers.\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      [
+        "interface MockSmokeTestResult {",
+        "  scraper_name: string;",
+        "  success: boolean;",
+        "  response_time_ms: number;",
+        "}",
+        "const MOCK_SCRAPERS = [{ scraper_name: \"usa_jobs\" }];",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/features/scraper-health.md", "src/mocks/handlers.ts"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sync scraper health source coverage: docs/features/scraper-health.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("sync scraper health source coverage: src/mocks/handlers.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects feature status color emoji markers", () => {
   withGitFixture((root) => {
     const yellowIcon = String.fromCodePoint(0x1f7e1);

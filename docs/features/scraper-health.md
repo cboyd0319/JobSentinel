@@ -10,7 +10,7 @@ before they stop your job search.
 
 ## Overview
 
-The health monitoring system automatically tracks all 13 scrapers and alerts you to issues:
+The health monitoring system automatically tracks all 16 scraper sources and alerts you to issues:
 
 - **Real-time status tracking** - Healthy, degraded, down, or disabled
 - **Success rate metrics** - See which scrapers are working reliably
@@ -22,7 +22,7 @@ The health monitoring system automatically tracks all 13 scrapers and alerts you
 
 ### Key Metrics Per Scraper
 
-For each of the 13 scrapers, JobSentinel tracks:
+For each of the 16 scraper sources, JobSentinel tracks:
 
 | Metric               | What It Shows                                  |
 | -------------------- | ---------------------------------------------- |
@@ -299,7 +299,7 @@ Recommendation:   All clear. Scraper is healthy.
 **Test All Scrapers**
 
 1. From dashboard, click **Test All Scrapers** button (top right)
-2. Progress bar shows: "Testing 13 scrapers... 5 complete"
+2. Progress bar shows: "Testing 16 scraper sources... 5 complete"
 3. Results appear as each test finishes
 
 Summary shows:
@@ -910,11 +910,13 @@ credential_health (
 scraper_smoke_tests (
   id INTEGER PRIMARY KEY,
   scraper_name TEXT,
-  test_result TEXT,               -- "pass" or "fail"
+  test_type TEXT,                 -- "connectivity", "selector", "auth", or "rate_limit"
+  started_at DATETIME,
   duration_ms INTEGER,
-  tested_at DATETIME,
+  status TEXT,                    -- "pass", "fail", or "skip"
+  details TEXT,
   error_message TEXT,
-  response_time_ms INTEGER
+  created_at DATETIME
 );
 
 -- View: Aggregated health metrics

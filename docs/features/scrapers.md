@@ -35,7 +35,7 @@ faster. Our parallel scraping architecture enables simultaneous searches across 
 
 ### Key Features (v1.5.0)
 
-- **Multi-Source Integration** - 13 scrapers with parallel execution
+- **Multi-Source Integration** - 16 scraper sources with parallel execution
 - **Automatic Rate Limiting** - Token bucket algorithm prevents IP bans
 - **Shared Retry Helper** - Common scraper HTTP client retries 429 and 5xx responses with exponential backoff
 - **Bounded Response Reads** - Scraper, smoke-test, and import fetches cap decoded bodies at 16 MiB
@@ -336,7 +336,7 @@ Removes abbreviations and standardizes common terms:
 
 ### Hash Formula
 
-All 13 scrapers use the same consistent formula:
+All 16 scraper sources use the same consistent formula:
 
 ```rust
 SHA256(
@@ -379,7 +379,7 @@ Each module includes comprehensive tests (26+ test cases total).
 
 ### Scraper Health Dashboard
 
-Monitor the health and performance of all 13 scrapers from Settings > Troubleshooting > "View Scraper Health Dashboard".
+Monitor the health and performance of all 16 scraper sources from Settings > Troubleshooting > "View Scraper Health Dashboard".
 
 **Dashboard Features:**
 

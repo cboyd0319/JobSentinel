@@ -73,6 +73,26 @@ fn test_smoke_test_type_serialization() {
 }
 
 #[test]
+fn test_smoke_test_scraper_list_matches_configured_sources() {
+    let scrapers = smoke_test_scrapers();
+
+    assert_eq!(scrapers.len(), 16);
+    assert!(scrapers.contains(&"greenhouse"));
+    assert!(scrapers.contains(&"yc_startup"));
+    assert!(scrapers.contains(&"usajobs"));
+    assert!(scrapers.contains(&"simplyhired"));
+    assert!(scrapers.contains(&"glassdoor"));
+    assert!(!scrapers.contains(&"usa_jobs"));
+}
+
+#[test]
+fn test_known_scraper_validation() {
+    assert!(is_known_scraper_name("usajobs"));
+    assert!(!is_known_scraper_name("usa_jobs"));
+    assert!(!is_known_scraper_name("unknown"));
+}
+
+#[test]
 fn test_retry_config_default() {
     let config = RetryConfig::default();
     assert_eq!(config.max_attempts, 3);

@@ -14,7 +14,7 @@ interface ScraperHealthMetrics {
   display_name: string;
   is_enabled: boolean;
   requires_auth: boolean;
-  scraper_type: "api" | "html" | "hybrid";
+  scraper_type: "api" | "html" | "rss" | "graphql" | "hybrid";
   health_status: "healthy" | "degraded" | "down" | "disabled" | "unknown";
   selector_health: "healthy" | "degraded" | "broken" | "unknown";
   success_rate_24h: number;
@@ -51,19 +51,20 @@ interface ScraperRun {
 
 interface SmokeTestResult {
   scraper_name: string;
-  success: boolean;
-  response_time_ms: number;
-  error_message: string | null;
-  tested_at: string;
+  test_type: "connectivity" | "selector" | "auth" | "rate_limit";
+  passed: boolean;
+  duration_ms: number;
+  details: Record<string, unknown> | null;
+  error: string | null;
 }
 
 interface CredentialHealth {
-  credential_name: string;
-  is_valid: boolean;
-  expires_at: string | null;
-  days_until_expiry: number | null;
+  key: string;
+  created_at: string | null;
   last_validated: string | null;
-  warning_message: string | null;
+  expires_at: string | null;
+  status: "valid" | "expiring" | "expired" | "unknown";
+  days_until_expiry: number | null;
 }
 
 interface ScraperHealthDashboardProps {
@@ -107,6 +108,22 @@ function formatRelativeTime(dateStr: string | null): string {
   if (diffMins < 60) return `${diffMins}m ago`;
   if (diffHours < 24) return `${diffHours}h ago`;
   return `${diffDays}d ago`;
+}
+
+function formatCredentialWarning(credential: CredentialHealth): string {
+  if (credential.status === "expired") {
+    return "Expired";
+  }
+
+  if (credential.status === "valid") {
+    return "Valid";
+  }
+
+  if (credential.days_until_expiry !== null) {
+    return `Expires in ${credential.days_until_expiry} days`;
+  }
+
+  return "Status unknown";
 }
 
 // Status icon component
@@ -481,15 +498,14 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                 <div className="space-y-2">
                   {credentials.map((cred) => (
                     <div
-                      key={cred.credential_name}
+                      key={cred.key}
                       className="flex items-center justify-between text-sm"
                     >
                       <span className="text-alert-600 dark:text-alert-300">
-                        {cred.credential_name}
+                        {cred.key}
                       </span>
                       <span className="text-alert-500 dark:text-alert-400">
-                        {cred.warning_message ||
-                          `Expires in ${cred.days_until_expiry} days`}
+                        {formatCredentialWarning(cred)}
                       </span>
                     </div>
                   ))}
@@ -872,7 +888,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
             <div
               key={result.scraper_name}
               className={`p-3 rounded-lg border ${
-                result.success
+                result.passed
                   ? "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800"
                   : "bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800"
               }`}
@@ -883,19 +899,19 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                 </span>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-surface-500 dark:text-surface-400">
-                    {result.response_time_ms}ms
+                    {result.duration_ms}ms
                   </span>
                   <Badge
-                    variant={result.success ? "success" : "danger"}
+                    variant={result.passed ? "success" : "danger"}
                     size="sm"
                   >
-                    {result.success ? "PASS" : "FAIL"}
+                    {result.passed ? "PASS" : "FAIL"}
                   </Badge>
                 </div>
               </div>
-              {result.error_message && (
+              {result.error && (
                 <p className="text-sm text-red-600 dark:text-red-400 mt-1">
-                  {result.error_message}
+                  {result.error}
                 </p>
               )}
             </div>

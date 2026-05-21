@@ -664,13 +664,13 @@ describe("mock Tauri handlers", () => {
     expect(runs).toHaveLength(2);
     expect(runs[0]).toMatchObject({ scraper_name: "greenhouse" });
 
-    const smoke = await mockInvoke<{ scraper_name: string; success: boolean }>(
+    const smoke = await mockInvoke<{ scraper_name: string; passed: boolean }>(
       "run_scraper_smoke_test",
       { scraperName: "greenhouse" },
     );
-    expect(smoke).toMatchObject({ scraper_name: "greenhouse", success: true });
+    expect(smoke).toMatchObject({ scraper_name: "greenhouse", passed: true });
 
-    const allSmoke = await mockInvoke<Array<{ scraper_name: string; success: boolean }>>(
+    const allSmoke = await mockInvoke<Array<{ scraper_name: string; passed: boolean }>>(
       "run_all_smoke_tests",
     );
     expect(allSmoke.length).toBeGreaterThanOrEqual(scrapers.length);
