@@ -2556,6 +2556,36 @@ test("checkRepoBloat rejects Resume Matcher and Salary AI feature doc emoji mark
   });
 });
 
+test("checkRepoBloat rejects stale Resume Matcher doc UI shape", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/resume-matcher.md",
+      [
+        "// src/pages/ResumeManager.tsx",
+        "const filteredSkills = match.matching_skills.filter(skill => skill.category === selectedCategory);",
+        "return <ResumeMatchScoreBreakdown skillsScore={match.skills_score} />;",
+        "return <span>{skill.name} {skill.confidence} {skill.years_experience}</span>;",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/features/resume-matcher.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sync resume matcher docs with live Resume page shape: docs/features/resume-matcher.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale Salary AI future UI claim", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -5815,6 +5845,33 @@ test("checkRepoBloat rejects stale interview follow-up frontend shape", () => {
 
     assert.ok(
       violations.includes("sync interview follow-up frontend shape: src/components/InterviewScheduler.tsx"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects stale resume match sub-score display", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/pages/Resume.tsx",
+      [
+        "export function Resume({ match }) {",
+        "  return <div style={{ width: `${match.skills_match_score}%` }}>{Math.round(match.experience_match_score)}%</div>;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/pages/Resume.tsx"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("render resume match sub-scores from backend fractions: src/pages/Resume.tsx"),
       violations.join("\n"),
     );
   });

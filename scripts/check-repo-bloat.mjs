@@ -1262,6 +1262,20 @@ function hasResumeOrSalaryFeatureDocEmojiMarkers(root, path) {
   );
 }
 
+function hasStaleResumeMatcherDocShape(root, path) {
+  if (path !== "docs/features/resume-matcher.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /src\/pages\/ResumeManager\.tsx/.test(text) ||
+    /match\.matching_skills\.filter\(skill => skill\.category/.test(text) ||
+    /match\.(?:skills_score|experience_score|education_score)\b/.test(text) ||
+    /\bskill\.(?:name|confidence|years_experience)\b/.test(text)
+  );
+}
+
 function hasSmartScoringDocGlyphMarkers(root, path) {
   if (path !== "docs/features/smart-scoring.md") {
     return false;
@@ -2635,6 +2649,18 @@ function hasStaleInterviewFollowupFrontendShape(root, path) {
   return /\bthank_you_sent\b|\bsent_at\b/.test(text);
 }
 
+function hasStaleResumeMatchSubscoreDisplay(root, path) {
+  if (path !== "src/pages/Resume.tsx") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /width:\s*`\$\{match\.(?:skills|experience|education)_match_score\}%`/.test(text) ||
+    /Math\.round\(match\.(?:skills|experience|education)_match_score\)/.test(text)
+  );
+}
+
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
 
@@ -2877,6 +2903,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasResumeOrSalaryFeatureDocEmojiMarkers(root, path)) {
       violations.push(`replace resume and salary feature doc emoji markers: ${path}`);
+    }
+
+    if (hasStaleResumeMatcherDocShape(root, path)) {
+      violations.push(`sync resume matcher docs with live Resume page shape: ${path}`);
     }
 
     if (hasSmartScoringDocGlyphMarkers(root, path)) {
@@ -3252,6 +3282,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleInterviewFollowupFrontendShape(root, path)) {
       violations.push(`sync interview follow-up frontend shape: ${path}`);
+    }
+
+    if (hasStaleResumeMatchSubscoreDisplay(root, path)) {
+      violations.push(`render resume match sub-scores from backend fractions: ${path}`);
     }
   }
 

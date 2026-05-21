@@ -215,7 +215,7 @@ Project Management, Agile, Scrum, Mentoring, Public Speaking
 
 ## Matching Algorithm
 
-### Current Implementation (v2.3.0)
+### Current Implementation
 
 **Multi-Factor Matching:**
 
@@ -357,89 +357,36 @@ Or simply use the toggle in Settings (recommended for non-technical users).
 
 ---
 
-## UI Integration (v2.4.0)
+## UI Integration
 
-### Resume Upload Component
+### Resume Upload And Match Results
 
-```typescript
-// src/pages/ResumeManager.tsx
+The live resume manager is `src/pages/Resume.tsx`. It loads active resume data
+through `get_active_resume`, `list_all_resumes`, `get_user_skills`, and
+`get_recent_matches`.
 
-import { invoke } from "@tauri-apps/api/core";
-
-const uploadResume = async (file: File) => {
-  const filePath = await save(file); // Save to local storage
-
-  const resumeId = await invoke<number>("upload_resume", {
-    name: file.name,
-    filePath: filePath,
-  });
-
-  console.log("Resume uploaded! ID:", resumeId);
-};
-```
-
-### Match Dashboard with Enhanced Skill Visualization
+`get_recent_matches` returns match scores as backend fractions in the `0.0..1.0`
+range. The UI converts each sub-score to a `0..100` display percentage before
+rendering progress bars.
 
 ```typescript
-// Display match results with confidence scores and category filtering
-const MatchCard = ({ match }: { match: MatchResult }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const percentage = (match.overall_match_score * 100).toFixed(0);
-
-  // Skills display with confidence scores and years of experience
-  const filteredSkills = selectedCategory
-    ? match.matching_skills.filter(skill => skill.category === selectedCategory)
-    : match.matching_skills;
-
-  return (
-    <div className="match-card">
-      <h3>{percentage}% Match</h3>
-
-      {/* Score breakdown chart: skills/experience/education */}
-      <ResumeMatchScoreBreakdown
-        skillsScore={match.skills_score}
-        experienceScore={match.experience_score}
-        educationScore={match.education_score}
-      />
-
-      {/* Category filter dropdown for skills */}
-      <SkillCategoryFilter
-        categories={Array.from(new Set(match.matching_skills.map(s => s.category)))}
-        selected={selectedCategory}
-        onChange={setSelectedCategory}
-      />
-
-      <div className="matching-skills">
-        <h4>You Have ({filteredSkills.length})</h4>
-        {filteredSkills.map(skill => (
-          <div key={skill.name} className="skill-badge-container">
-            <span className="skill-badge success">{skill.name}</span>
-            <span className="confidence-score">{(skill.confidence * 100).toFixed(0)}%</span>
-            {skill.years_experience && (
-              <span className="experience-badge">{skill.years_experience}y</span>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Styled gap analysis with color-coded list */}
-      <div className="missing-skills">
-        <h4>Missing ({match.missing_skills.length})</h4>
-        {match.missing_skills.map(skill => (
-          <span key={skill} className="skill-badge error">{skill}</span>
-        ))}
-      </div>
-
-      {/* Proficiency distribution chart */}
-      <ProficiencyDistributionChart
-        skills={filteredSkills}
-      />
-
-      <p className="recommendation">{match.gap_analysis}</p>
-    </div>
-  );
-};
+interface MatchResult {
+  overall_match_score: number;
+  skills_match_score: number | null;
+  experience_match_score: number | null;
+  education_match_score: number | null;
+  matching_skills: string[];
+  missing_skills: string[];
+  gap_analysis: string | null;
+}
 ```
+
+Recent matches show:
+
+- Overall match score via `ScoreDisplay`.
+- Skills, experience, and education sub-score bars when available.
+- Matched and missing skill lists.
+- Color-coded gap analysis lines.
 
 ### ATS Optimizer with Job Comparison
 
@@ -782,7 +729,7 @@ pub struct MatchResult {
 - [x] **OCR Support** (v2.3) - Scanned PDF parsing via tesseract
 - [x] **Enhanced Skill Database** (v2.3) - 300+ skills across 10 categories
 
-### Completed (v2.4.0)
+### Completed UI Work
 
 - [x] **Resume.tsx UI Enhancements** - Skill confidence scores on badges
 - [x] **Years of Experience Display** - Per-skill experience tracking

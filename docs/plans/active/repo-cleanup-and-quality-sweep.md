@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Fixed Resume match sub-score bars that rendered backend `0.0..1.0` fractions as direct percentages, synced the Resume Matcher doc with the live `Resume.tsx` shape, and added bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Removed JSDOM navigation noise from analytics CSV and interview iCal download tests by stubbing temporary anchor clicks and asserting the download trigger directly. |
 | 2026-05-21 | In progress | Removed the empty `src/components/settings/` directory left behind by earlier helper cleanup, and added bloat coverage so empty source/doc/test directories are flagged during local scans. |
 | 2026-05-21 | In progress | Routed remaining direct frontend component, hook, service, and error-boundary development error logs through the sanitized logger so raw errors, stacks, tokens, emails, webhook URLs, and local paths are redacted before console output; added bloat coverage. |

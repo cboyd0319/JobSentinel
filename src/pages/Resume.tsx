@@ -8,6 +8,7 @@ import { Modal, ModalFooter } from "../components/Modal";
 import { ResumeSkeleton } from "../components/Skeleton";
 import { useToast } from "../contexts";
 import { safeInvoke, safeInvokeWithToast } from "../utils/api";
+import { scoreFractionToPercent } from "../utils/scoreUtils";
 
 // Proficiency color lookup (better performance than switch)
 type BadgeVariant = "sentinel" | "alert" | "surface" | "success" | "danger";
@@ -69,6 +70,34 @@ interface MatchResult {
   missing_skills: string[];
   gap_analysis: string | null;
   created_at: string;
+}
+
+function ScoreBreakdownRow({
+  label,
+  weight,
+  score,
+  barClassName,
+}: {
+  label: string;
+  weight: number;
+  score: number;
+  barClassName: string;
+}) {
+  const percentage = scoreFractionToPercent(score);
+
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-xs text-surface-600 dark:text-surface-400 w-24">
+        {label} ({weight}%)
+      </span>
+      <div className="flex-1 h-4 bg-surface-200 dark:bg-surface-800 rounded overflow-hidden">
+        <div className={`h-full ${barClassName}`} style={{ width: `${percentage}%` }} />
+      </div>
+      <span className="text-xs font-medium text-surface-700 dark:text-surface-300 w-12 text-right">
+        {percentage}%
+      </span>
+    </div>
+  );
 }
 
 const PROFICIENCY_LEVELS = ["Beginner", "Intermediate", "Advanced", "Expert"];
@@ -951,52 +980,28 @@ export default function Resume({ onBack }: ResumeProps) {
                           </p>
                           <div className="space-y-2">
                             {match.skills_match_score !== null && (
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-surface-600 dark:text-surface-400 w-24">
-                                  Skills (50%)
-                                </span>
-                                <div className="flex-1 h-4 bg-surface-200 dark:bg-surface-800 rounded overflow-hidden">
-                                  <div
-                                    className="h-full bg-sentinel-500"
-                                    style={{ width: `${match.skills_match_score}%` }}
-                                  />
-                                </div>
-                                <span className="text-xs font-medium text-surface-700 dark:text-surface-300 w-12 text-right">
-                                  {Math.round(match.skills_match_score)}%
-                                </span>
-                              </div>
+                              <ScoreBreakdownRow
+                                label="Skills"
+                                weight={50}
+                                score={match.skills_match_score}
+                                barClassName="bg-sentinel-500"
+                              />
                             )}
                             {match.experience_match_score !== null && (
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-surface-600 dark:text-surface-400 w-24">
-                                  Experience (30%)
-                                </span>
-                                <div className="flex-1 h-4 bg-surface-200 dark:bg-surface-800 rounded overflow-hidden">
-                                  <div
-                                    className="h-full bg-alert-500"
-                                    style={{ width: `${match.experience_match_score}%` }}
-                                  />
-                                </div>
-                                <span className="text-xs font-medium text-surface-700 dark:text-surface-300 w-12 text-right">
-                                  {Math.round(match.experience_match_score)}%
-                                </span>
-                              </div>
+                              <ScoreBreakdownRow
+                                label="Experience"
+                                weight={30}
+                                score={match.experience_match_score}
+                                barClassName="bg-alert-500"
+                              />
                             )}
                             {match.education_match_score !== null && (
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-surface-600 dark:text-surface-400 w-24">
-                                  Education (20%)
-                                </span>
-                                <div className="flex-1 h-4 bg-surface-200 dark:bg-surface-800 rounded overflow-hidden">
-                                  <div
-                                    className="h-full bg-blue-500"
-                                    style={{ width: `${match.education_match_score}%` }}
-                                  />
-                                </div>
-                                <span className="text-xs font-medium text-surface-700 dark:text-surface-300 w-12 text-right">
-                                  {Math.round(match.education_match_score)}%
-                                </span>
-                              </div>
+                              <ScoreBreakdownRow
+                                label="Education"
+                                weight={20}
+                                score={match.education_match_score}
+                                barClassName="bg-blue-500"
+                              />
                             )}
                           </div>
                         </div>

@@ -1,7 +1,26 @@
 import { describe, it, expect } from "vitest";
-import { getScoreColor, getScoreBg, getScoreLabel } from "./scoreUtils";
+import {
+  getScoreColor,
+  getScoreBg,
+  getScoreLabel,
+  scoreFractionToPercent,
+} from "./scoreUtils";
 
 describe("scoreUtils", () => {
+  describe("scoreFractionToPercent", () => {
+    it("converts backend score fractions to display percentages", () => {
+      expect(scoreFractionToPercent(0)).toBe(0);
+      expect(scoreFractionToPercent(0.5)).toBe(50);
+      expect(scoreFractionToPercent(0.756)).toBe(76);
+      expect(scoreFractionToPercent(1)).toBe(100);
+    });
+
+    it("clamps out-of-range score fractions", () => {
+      expect(scoreFractionToPercent(-0.25)).toBe(0);
+      expect(scoreFractionToPercent(1.25)).toBe(100);
+    });
+  });
+
   describe("getScoreColor", () => {
     it("returns green for scores >= 80", () => {
       expect(getScoreColor(80)).toBe("text-green-600 dark:text-green-400");

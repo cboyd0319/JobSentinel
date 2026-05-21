@@ -4,6 +4,13 @@
  */
 
 /**
+ * Convert a backend score fraction (0-1) to a display percentage (0-100).
+ */
+export function scoreFractionToPercent(score: number): number {
+  return Math.round(Math.min(1, Math.max(0, score)) * 100);
+}
+
+/**
  * Get text color class for a score value
  */
 export function getScoreColor(score: number): string {
