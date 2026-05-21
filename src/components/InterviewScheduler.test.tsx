@@ -619,6 +619,9 @@ describe("InterviewScheduler", () => {
     it("triggers download when iCal link is clicked", async () => {
       const appendChildSpy = vi.spyOn(document.body, "appendChild");
       const removeChildSpy = vi.spyOn(document.body, "removeChild");
+      const anchorClickSpy = vi
+        .spyOn(HTMLAnchorElement.prototype, "click")
+        .mockImplementation(() => undefined);
 
       render(<InterviewScheduler onClose={mockOnClose} />);
 
@@ -631,6 +634,7 @@ describe("InterviewScheduler", () => {
       await waitFor(() => {
         expect(mockCreateObjectURL).toHaveBeenCalled();
         expect(appendChildSpy).toHaveBeenCalled();
+        expect(anchorClickSpy).toHaveBeenCalled();
         expect(removeChildSpy).toHaveBeenCalled();
         expect(mockRevokeObjectURL).toHaveBeenCalled();
         expect(mockToast.success).toHaveBeenCalledWith(
@@ -641,6 +645,7 @@ describe("InterviewScheduler", () => {
 
       appendChildSpy.mockRestore();
       removeChildSpy.mockRestore();
+      anchorClickSpy.mockRestore();
     });
   });
 

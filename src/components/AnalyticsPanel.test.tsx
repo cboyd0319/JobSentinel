@@ -417,6 +417,9 @@ describe("AnalyticsPanel", () => {
       const mockCreateElement = vi.spyOn(document, "createElement");
       const mockCreateObjectURL = vi.fn(() => "blob:test");
       const mockRevokeObjectURL = vi.fn();
+      const anchorClickSpy = vi
+        .spyOn(HTMLAnchorElement.prototype, "click")
+        .mockImplementation(() => undefined);
       URL.createObjectURL = mockCreateObjectURL;
       URL.revokeObjectURL = mockRevokeObjectURL;
 
@@ -430,9 +433,11 @@ describe("AnalyticsPanel", () => {
 
       expect(mockCreateElement).toHaveBeenCalledWith("a");
       expect(mockCreateObjectURL).toHaveBeenCalled();
+      expect(anchorClickSpy).toHaveBeenCalled();
       expect(mockRevokeObjectURL).toHaveBeenCalled();
 
       mockCreateElement.mockRestore();
+      anchorClickSpy.mockRestore();
     });
   });
 
