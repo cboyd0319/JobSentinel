@@ -2964,6 +2964,33 @@ test("checkRepoBloat rejects raw local path logging", () => {
   });
 });
 
+test("checkRepoBloat rejects raw backup path error display", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/integrity/backups.rs",
+      [
+        'return Err(anyhow::anyhow!("Backup file not found: {}", backup_path.display()));',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/db/integrity/backups.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize backup path error display: src-tauri/src/core/db/integrity/backups.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects ML raw local path exposure", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

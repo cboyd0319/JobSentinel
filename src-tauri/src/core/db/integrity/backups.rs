@@ -96,10 +96,7 @@ impl DatabaseIntegrity {
         );
 
         if !backup_path.exists() {
-            return Err(anyhow::anyhow!(
-                "Backup file not found: {}",
-                backup_path.display()
-            ));
+            return Err(anyhow::anyhow!("Backup file not found"));
         }
 
         // Close current connection (handled by caller)

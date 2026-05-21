@@ -202,6 +202,7 @@ const rawLocalPathLoggingPaths = new Set([
   "src-tauri/src/platforms/macos/mod.rs",
   "src-tauri/src/platforms/windows/mod.rs",
 ]);
+const rawBackupPathErrorPaths = new Set(["src-tauri/src/core/db/integrity/backups.rs"]);
 
 const mlRawLocalPathExposurePaths = new Set([
   "src-tauri/src/commands/ml.rs",
@@ -1413,6 +1414,17 @@ function hasRawLocalPathLogging(root, path) {
   );
 }
 
+function hasRawBackupPathError(root, path) {
+  if (!rawBackupPathErrorPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return /Backup file not found:\s*\{\}[\s\S]{0,80}backup_path\.display\(\)/.test(
+    productionText,
+  );
+}
+
 function hasMlRawLocalPathExposure(root, path) {
   if (!mlRawLocalPathExposurePaths.has(path)) {
     return false;
@@ -2591,6 +2603,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawLocalPathLogging(root, path)) {
       violations.push(`replace raw local path logging: ${path}`);
+    }
+
+    if (hasRawBackupPathError(root, path)) {
+      violations.push(`sanitize backup path error display: ${path}`);
     }
 
     if (hasMlRawLocalPathExposure(root, path)) {

@@ -610,7 +610,6 @@ async fn test_backup_before_operation() {
 }
 
 #[tokio::test]
-#[ignore = "Requires file-based database for restore operations"]
 async fn test_restore_from_backup_file_not_found() {
     let db = create_test_db().await;
     let temp_dir = tempfile::tempdir().unwrap();
@@ -623,12 +622,14 @@ async fn test_restore_from_backup_file_not_found() {
         .restore_from_backup(&nonexistent_backup, &current_db)
         .await;
     assert!(result.is_err(), "Should fail if backup file doesn't exist");
+    let error = result.unwrap_err().to_string();
     assert!(
-        result
-            .unwrap_err()
-            .to_string()
-            .contains("Backup file not found"),
+        error.contains("Backup file not found"),
         "Error message should mention file not found"
+    );
+    assert!(
+        !error.contains("nonexistent.db"),
+        "Error message must not expose backup path: {error}"
     );
 }
 
