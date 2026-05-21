@@ -159,10 +159,10 @@ and convert them to internal resume drafts for editing and ATS optimization.
 - Skill entries created for: `name` + all `keywords`
 - For example above: 4 skills (Programming, Rust, Python, JavaScript)
 - Proficiency mapping:
-  - `"beginner"` / `"novice"` → Beginner
-  - `"intermediate"` / `"proficient"` → Intermediate
-  - `"advanced"` / `"expert"` → Advanced
-  - `"master"` / `"guru"` → Expert
+  - `"beginner"` / `"novice"` maps to Beginner
+  - `"intermediate"` / `"proficient"` maps to Intermediate
+  - `"advanced"` / `"expert"` maps to Advanced
+  - `"master"` / `"guru"` maps to Expert
   - Default: Intermediate
 
 ### Projects
@@ -274,8 +274,8 @@ console.log('Imported resume:', resumeId);
 ### Date Formats
 
 - ISO 8601 format preferred (`"2020-01-01"`)
-- Empty `endDate` → "Present" / `current: true`
-- Invalid dates → parsed as strings
+- Empty `endDate` maps to "Present" / `current: true`
+- Invalid dates are parsed as strings
 
 ### Empty Resume
 

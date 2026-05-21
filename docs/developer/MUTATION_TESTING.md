@@ -211,8 +211,8 @@ For each missed mutant:
 
 1. Understand what the mutation changed
 2. Ask: "Would this break my application?"
-3. If yes → write a test to catch it
-4. If no → consider excluding the function
+3. If yes, write a test to catch it
+4. If no, consider excluding the function
 
 ### 4. Exclude Trivial Functions
 

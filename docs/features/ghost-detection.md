@@ -97,7 +97,7 @@ Most people use "Real Jobs Only" to avoid wasting time.
 
 ### Settings UI for Ghost Config
 
-Customize ghost detection sensitivity in **Settings → Detection → Ghost Job Settings**:
+Customize ghost detection sensitivity in **Settings > Detection > Ghost Job Settings**:
 
 - **Stale Job Threshold** - How old a job needs to be before it's flagged as stale (default: 60 days)
 - **Repost Threshold** - How many times a job must be reposted to trigger a flag (default: 3)

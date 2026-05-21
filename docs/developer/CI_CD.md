@@ -102,7 +102,7 @@ natively on both Apple Silicon and Intel Macs.
 
 ## Manual build workflows
 
-These workflows run only when triggered manually via **Actions → Run workflow** in the GitHub UI.
+These workflows run only when triggered manually via **Actions > Run workflow** in the GitHub UI.
 They are useful for producing a build outside of the normal release flow, for example to test a
 hotfix or create a pre-release artifact.
 
@@ -178,7 +178,7 @@ Pushing the tag triggers `release.yml` automatically.
 
 ### 3. Publish the draft release
 
-1. Go to **GitHub → Releases**
+1. Go to **GitHub > Releases**
 2. Find the draft created by the workflow
 3. Review the auto-generated release notes
 4. Click **Publish release**

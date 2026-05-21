@@ -32,18 +32,18 @@ Electron bundles Chromium (the open-source Chrome browser) with every app. This 
 
 Every Electron app ships its own copy of Chromium. For a simple job scraper, this is absurd:
 
-```text
 Electron app:
-├── Chrome runtime     ~120MB
-├── Node.js runtime    ~20MB
-├── Your actual code   ~5MB
-└── Total:             ~150MB
+
+- Chrome runtime: about 120MB
+- Node.js runtime: about 20MB
+- Application code: about 5MB
+- Total: about 150MB
 
 Tauri app:
-├── Rust binary        ~8MB
-├── Uses system webview  0MB (already installed)
-└── Total:             ~8MB
-```
+
+- Rust binary: about 8MB
+- System webview: 0MB bundled because it uses the installed OS webview
+- Total: about 8MB
 
 ### 2. Memory Hungry (300MB+)
 
@@ -173,7 +173,7 @@ This means:
 Tauri was designed with security in mind:
 
 - **Capability-based permissions** - Frontend can only call allowed commands
-- **IPC validation** - All frontend→backend calls are type-checked
+- **IPC validation** - All frontend-to-backend calls are type-checked
 - **CSP by default** - Content Security Policy enabled out of the box
 - **No Node.js in renderer** - Unlike Electron, no access to filesystem from frontend
 

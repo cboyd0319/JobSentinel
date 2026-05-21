@@ -359,6 +359,6 @@ When contributing macOS-specific code:
 
 ---
 
-**Happy hacking on macOS! 🍎**
+**macOS development setup is ready.**
 
 *For general documentation, see [GETTING_STARTED.md](GETTING_STARTED.md)*

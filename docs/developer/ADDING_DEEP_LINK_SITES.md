@@ -100,7 +100,7 @@ Choose the most appropriate category:
 ### Finding the Logo URL
 
 1. Visit the site
-2. Right-click → "View Page Source"
+2. Right-click and choose "View Page Source"
 3. Search for `favicon.ico` or `apple-touch-icon.png`
 4. Use the full URL (e.g., `https://example.com/favicon.ico`)
 

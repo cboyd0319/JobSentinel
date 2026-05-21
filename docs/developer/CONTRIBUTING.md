@@ -36,7 +36,7 @@ Before committing, ask: "Did I update all relevant docs?"
 **Test organization:** Move test modules to separate `tests.rs` files when a file exceeds 400
 lines. This keeps the main logic focused and tests discoverable.
 
-See `docs/ROADMAP.md` → Technical Debt section for files needing refactoring.
+See the Technical Debt section in `docs/ROADMAP.md` for files needing refactoring.
 
 ### Check Current Status
 

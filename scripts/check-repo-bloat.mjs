@@ -263,9 +263,11 @@ const developerArchitectureDocsPaths = new Set([
   "docs/developer/ERROR_HANDLING.md",
 ]);
 const developerMaintenanceDocsPaths = new Set([
+  "docs/developer/ADDING_DEEP_LINK_SITES.md",
   "docs/developer/CI_CD.md",
   "docs/developer/CONTRIBUTING.md",
   "docs/developer/GETTING_STARTED.md",
+  "docs/developer/MACOS_DEVELOPMENT.md",
   "docs/developer/RELEASING.md",
   "docs/developer/WHY_TAURI.md",
 ]);
@@ -308,6 +310,11 @@ const activeUserDocGlyphPaths = new Set([
   "docs/features/application-tracking.md",
   "docs/features/user-data-management.md",
   "docs/user/QUICK_START.md",
+]);
+
+const featurePlainDocGlyphPaths = new Set([
+  "docs/features/ghost-detection.md",
+  "docs/features/json-resume-import.md",
 ]);
 
 const developerLayoutDocGlyphPaths = new Set([
@@ -956,7 +963,7 @@ function hasDeveloperTestingDocMarkers(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
   return (
-    /[✅❌⚠️⏱️]|\*\*(?:Last Updated|Version|Maintained By|Stack|Target|Test Count|Test count)\*\*:/.test(
+    /[✅❌⚠️⏱️]|\*\*(?:Last Updated|Version|Maintained By|Stack|Target|Test Count|Test count)\*\*:|[\u{2190}-\u{21ff}\u{2500}-\u{257f}]/u.test(
       text,
     ) ||
     /### DO|### DON'T|Good ✅|Bad ❌|\bAchieved\s+✅|⚠️\s+In Progress|CAUGHT by|MISSED -/.test(
@@ -986,7 +993,7 @@ function hasDeveloperMaintenanceDocDrift(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
   return (
-    /\p{Extended_Pictographic}/u.test(text) ||
+    /(?:\p{Extended_Pictographic}|[\u{2190}-\u{21ff}\u{2500}-\u{257f}])/u.test(text) ||
     /^\*\*(?:Last Updated|Last updated|Version|Current version)(?::\*\*|\*\*:)/im.test(
       text,
     ) ||
@@ -1139,6 +1146,16 @@ function hasActiveUserDocGlyphMarkers(root, path) {
   }
 
   return /[\u{2192}\u{2193}\u{2199}\u{2198}\u{2265}\u{2500}\u{2502}\u{2514}\u{251c}\u{22ef}]/u.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
+function hasFeaturePlainDocGlyphMarkers(root, path) {
+  if (!featurePlainDocGlyphPaths.has(path)) {
+    return false;
+  }
+
+  return /(?:\p{Extended_Pictographic}|[\u{2190}-\u{21ff}\u{2500}-\u{257f}])/u.test(
     readFileSync(join(root, path), "utf8"),
   );
 }
@@ -2126,6 +2143,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasActiveUserDocGlyphMarkers(root, path)) {
       violations.push(`replace active user doc glyph markers: ${path}`);
+    }
+
+    if (hasFeaturePlainDocGlyphMarkers(root, path)) {
+      violations.push(`replace feature doc glyph markers: ${path}`);
     }
 
     if (hasDeveloperLayoutDocGlyphMarkers(root, path)) {

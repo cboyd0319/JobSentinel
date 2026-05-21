@@ -926,9 +926,14 @@ test("checkRepoBloat rejects developer maintenance doc stale markers", () => {
     writeFixtureFile(
       root,
       "docs/developer/WHY_TAURI.md",
-      ["# Why Tauri?", "", "**Last Updated:** March 18, 2026", "**Version:** v2.6.4", ""].join(
-        "\n",
-      ),
+      [
+        "# Why Tauri?",
+        "",
+        "**Last Updated:** March 18, 2026",
+        "**Version:** v2.6.4",
+        "├── Chrome runtime",
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(
       root,
@@ -944,6 +949,16 @@ test("checkRepoBloat rejects developer maintenance doc stale markers", () => {
         "\n",
       ),
     );
+    writeFixtureFile(
+      root,
+      "docs/developer/ADDING_DEEP_LINK_SITES.md",
+      ["# Add Deep Link Sites", "", "Right-click → \"View Page Source\"", ""].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/MACOS_DEVELOPMENT.md",
+      ["# macOS Development", "", "Happy hacking on macOS! 🍎", ""].join("\n"),
+    );
 
     execFileSync(
       "git",
@@ -955,6 +970,8 @@ test("checkRepoBloat rejects developer maintenance doc stale markers", () => {
         "docs/developer/WHY_TAURI.md",
         "docs/developer/RELEASING.md",
         "docs/developer/CI_CD.md",
+        "docs/developer/ADDING_DEEP_LINK_SITES.md",
+        "docs/developer/MACOS_DEVELOPMENT.md",
       ],
       { cwd: root },
     );
@@ -988,6 +1005,18 @@ test("checkRepoBloat rejects developer maintenance doc stale markers", () => {
     assert.ok(
       violations.includes(
         "replace developer maintenance doc stale markers: docs/developer/CI_CD.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace developer maintenance doc stale markers: docs/developer/ADDING_DEEP_LINK_SITES.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace developer maintenance doc stale markers: docs/developer/MACOS_DEVELOPMENT.md",
       ),
       violations.join("\n"),
     );
@@ -1786,6 +1815,44 @@ test("checkRepoBloat rejects active user doc glyph markers", () => {
     );
     assert.ok(
       violations.includes("replace active user doc glyph markers: docs/user/QUICK_START.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects feature doc glyph markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/ghost-detection.md",
+      "Customize in Settings → Detection → Ghost Job Settings\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/json-resume-import.md",
+      "\"beginner\" → Beginner\n",
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "docs/features/ghost-detection.md",
+        "docs/features/json-resume-import.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace feature doc glyph markers: docs/features/ghost-detection.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace feature doc glyph markers: docs/features/json-resume-import.md"),
       violations.join("\n"),
     );
   });
