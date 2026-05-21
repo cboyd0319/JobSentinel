@@ -3159,6 +3159,33 @@ test("checkRepoBloat rejects secret-bearing Debug derives", () => {
   });
 });
 
+test("checkRepoBloat rejects raw test email command errors", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/config.rs",
+      [
+        "pub async fn test_email_notification() -> Result<(), String> {",
+        '  validate_email_config().await.map_err(|e| format!("Failed to send test email: {}", e))?;',
+        "  Ok(())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/config.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sanitize test email command errors: src-tauri/src/commands/config.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects credential key input echo", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

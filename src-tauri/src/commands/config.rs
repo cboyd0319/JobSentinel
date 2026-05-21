@@ -186,7 +186,7 @@ pub async fn test_email_notification(email_config: TestEmailConfig) -> Result<()
 
     crate::core::notify::email::validate_email_config(&config)
         .await
-        .map_err(|e| format!("Failed to send test email: {}", e))?;
+        .map_err(|e| user_friendly_error("Failed to send test email", &e))?;
 
     tracing::info!("Test email sent successfully");
     Ok(())
@@ -228,5 +228,22 @@ mod tests {
         assert!(!msg.contains("jobs.db"), "database file leaked: {msg}");
         assert!(!msg.contains("sqlite:"), "database URL leaked: {msg}");
         assert!(msg.contains("Failed to initialize database"));
+    }
+
+    #[test]
+    fn test_email_error_formatter_omits_smtp_details() {
+        let msg = user_friendly_error(
+            "Failed to send test email",
+            "smtp://user@example.com:smtp-secret-password@smtp.example.com:587 authentication failed",
+        );
+
+        assert!(
+            !msg.contains("smtp-secret-password"),
+            "password leaked: {msg}"
+        );
+        assert!(!msg.contains("user@example.com"), "username leaked: {msg}");
+        assert!(!msg.contains("smtp.example.com"), "server leaked: {msg}");
+        assert!(!msg.contains("smtp://"), "smtp URL leaked: {msg}");
+        assert!(msg.contains("Failed to send test email"));
     }
 }

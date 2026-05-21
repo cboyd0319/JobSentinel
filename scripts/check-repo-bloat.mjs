@@ -213,6 +213,7 @@ const mlRawLocalPathDocPaths = new Set(["docs/ML_FEATURE.md", "docs/ML_QUICKSTAR
 const jobsWithGptPrivacyPaths = new Set(["src-tauri/src/core/scrapers/jobswithgpt.rs"]);
 const linkedInPrivacyPaths = new Set(["src-tauri/src/core/scrapers/linkedin.rs"]);
 const linkedInAuthPrivacyPaths = new Set(["src-tauri/src/commands/linkedin_auth.rs"]);
+const emailCommandPrivacyPaths = new Set(["src-tauri/src/commands/config.rs"]);
 const linkedInCredentialDocsPaths = new Set([
   "src-tauri/src/core/scrapers/linkedin.rs",
   "docs/features/scrapers.md",
@@ -1470,6 +1471,15 @@ function hasLinkedInLoginCookieReturn(root, path) {
   );
 }
 
+function hasRawEmailTestErrorReturn(root, path) {
+  if (!emailCommandPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return /format!\(\s*"Failed to send test email:\s*\{\}"\s*,\s*e\s*\)/.test(productionText);
+}
+
 function hasSecretBearingDebugDerive(root, path) {
   if (!path.startsWith("src-tauri/src/") || !path.endsWith(".rs")) {
     return false;
@@ -2569,6 +2579,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasLinkedInLoginCookieReturn(root, path)) {
       violations.push(`keep LinkedIn login cookie out of renderer response: ${path}`);
+    }
+
+    if (hasRawEmailTestErrorReturn(root, path)) {
+      violations.push(`sanitize test email command errors: ${path}`);
     }
 
     if (hasSecretBearingDebugDerive(root, path)) {
