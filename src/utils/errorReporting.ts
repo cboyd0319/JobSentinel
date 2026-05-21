@@ -54,7 +54,7 @@ function sanitizeUrlForStorage(value: string): string {
   }
 }
 
-function sanitizeTextForStorage(value: string): string {
+export function sanitizeTextForStorage(value: string): string {
   let sanitized = value;
 
   sanitized = sanitized.replace(WEBHOOK_PATTERN, '[WEBHOOK_CONFIGURED]');
@@ -120,7 +120,7 @@ function sanitizeContextValue(
   return String(value);
 }
 
-function sanitizeContext(context?: Record<string, unknown>): Record<string, unknown> | undefined {
+export function sanitizeContext(context?: Record<string, unknown>): Record<string, unknown> | undefined {
   if (!context) {
     return undefined;
   }

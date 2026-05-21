@@ -265,6 +265,7 @@ const rawNotificationJobTitleLoggingPaths = new Set(["src-tauri/src/core/notify/
 const rawBookmarkletLoggingPaths = new Set(["src-tauri/src/core/bookmarklet/server.rs"]);
 const bookmarkletGeneratorPaths = new Set(["src/components/BookmarkletGenerator.tsx"]);
 const frontendErrorReportingPaths = new Set(["src/utils/errorReporting.ts"]);
+const frontendErrorHelperDebugPaths = new Set(["src/utils/errorHelpers.ts"]);
 const scoreReasonJsonParserPaths = new Set([
   "src/components/ScoreDisplay.tsx",
   "src/components/ScoreBreakdownModal.tsx",
@@ -1951,6 +1952,22 @@ function hasUnsanitizedFrontendErrorReportStorage(root, path) {
   );
 }
 
+function hasRawFrontendErrorHelperDebugLogging(root, path) {
+  if (!frontendErrorHelperDebugPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /console\.error\(\s*["']Error:["']\s*,\s*error\s*\)/.test(text) ||
+    /console\.log\(\s*["']Context:["']\s*,\s*context\s*\)/.test(text) ||
+    /console\.log\(\s*["']Stack:["']\s*,\s*error\.stack\s*\)/.test(text) ||
+    !text.includes("sanitizeDebugValue") ||
+    !text.includes("sanitizeTextForStorage") ||
+    !text.includes("sanitizeContext")
+  );
+}
+
 function hasUnsafeErrorReportStorageParsing(root, path) {
   if (!frontendErrorReportingPaths.has(path)) {
     return false;
@@ -3037,6 +3054,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasUnsanitizedFrontendErrorReportStorage(root, path)) {
       violations.push(`sanitize frontend error report storage: ${path}`);
+    }
+
+    if (hasRawFrontendErrorHelperDebugLogging(root, path)) {
+      violations.push(`sanitize frontend error helper debug logging: ${path}`);
     }
 
     if (hasUnsafeErrorReportStorageParsing(root, path)) {

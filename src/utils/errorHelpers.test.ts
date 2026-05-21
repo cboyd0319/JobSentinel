@@ -16,12 +16,16 @@ import {
 import { errorReporter } from "./errorReporting";
 
 // Mock errorReporting module
-vi.mock("./errorReporting", () => ({
-  errorReporter: {
-    captureApiError: vi.fn(),
-    captureCustom: vi.fn(),
-  },
-}));
+vi.mock("./errorReporting", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./errorReporting")>();
+  return {
+    ...actual,
+    errorReporter: {
+      captureApiError: vi.fn(),
+      captureCustom: vi.fn(),
+    },
+  };
+});
 
 describe("errorHelpers", () => {
   beforeEach(() => {
@@ -656,7 +660,10 @@ describe("errorHelpers", () => {
       logErrorDetails(error);
       
       expect(console.group).toHaveBeenCalledWith("Error Details");
-      expect(console.error).toHaveBeenCalledWith("Error:", error);
+      expect(console.error).toHaveBeenCalledWith("Error:", expect.objectContaining({
+        name: "Error",
+        message: "Test error",
+      }));
       expect(console.log).toHaveBeenCalledWith("Type:", ErrorType.UNKNOWN);
       expect(console.log).toHaveBeenCalledWith("Message:", "Test error");
       expect(console.groupEnd).toHaveBeenCalled();
@@ -681,7 +688,7 @@ describe("errorHelpers", () => {
       const error = new Error("Test error");
       logErrorDetails(error);
       
-      expect(console.log).toHaveBeenCalledWith("Stack:", error.stack);
+      expect(console.log).toHaveBeenCalledWith("Stack:", expect.stringContaining("Test error"));
       
       vi.unstubAllEnvs();
     });
@@ -716,6 +723,37 @@ describe("errorHelpers", () => {
       
       expect(console.log).toHaveBeenCalledWith("Type:", ErrorType.NETWORK);
       
+      vi.unstubAllEnvs();
+    });
+
+    it("redacts sensitive details before dev console logging", () => {
+      vi.stubEnv("DEV", true);
+
+      const error = new Error(
+        "Failed for token=abc123 at https://hooks.slack.com/services/T000/B000/secret and /Users/alice/private.txt"
+      );
+      logErrorDetails(error, {
+        email: "alice@example.com",
+        password: "super-secret",
+        url: "https://example.com/path?access_token=secret",
+      });
+
+      const loggedOutput = [
+        ...vi.mocked(console.error).mock.calls.flat(),
+        ...vi.mocked(console.log).mock.calls.flat(),
+      ]
+        .map((value) => JSON.stringify(value))
+        .join("\n");
+
+      expect(loggedOutput).not.toContain("abc123");
+      expect(loggedOutput).not.toContain("hooks.slack.com/services");
+      expect(loggedOutput).not.toContain("/Users/alice");
+      expect(loggedOutput).not.toContain("alice@example.com");
+      expect(loggedOutput).not.toContain("super-secret");
+      expect(loggedOutput).not.toContain("access_token=secret");
+      expect(loggedOutput).toContain("[TOKEN]");
+      expect(loggedOutput).toContain("[REDACTED]");
+
       vi.unstubAllEnvs();
     });
   });

@@ -6,7 +6,11 @@
  * robust error handling throughout the application.
  */
 
-import { errorReporter } from './errorReporting';
+import {
+  errorReporter,
+  sanitizeContext,
+  sanitizeTextForStorage,
+} from './errorReporting';
 
 /**
  * Error types for better error handling
@@ -246,18 +250,51 @@ export function isRecoverableError(error: unknown): boolean {
  */
 export function logErrorDetails(error: unknown, context?: Record<string, unknown>) {
   if (import.meta.env.DEV) {
+    const sanitizedError = sanitizeDebugValue(error);
+    const sanitizedContext = sanitizeContext(context);
+    const sanitizedStack =
+      error instanceof Error && error.stack
+        ? sanitizeTextForStorage(error.stack)
+        : undefined;
+
     console.group('Error Details');
-    console.error('Error:', error);
+    console.error('Error:', sanitizedError);
     console.log('Type:', classifyError(error));
-    console.log('Message:', getUserMessage(error));
-    if (context) {
-      console.log('Context:', context);
+    console.log('Message:', sanitizeTextForStorage(getUserMessage(error)));
+    if (sanitizedContext) {
+      console.log('Context:', sanitizedContext);
     }
-    if (error instanceof Error && error.stack) {
-      console.log('Stack:', error.stack);
+    if (sanitizedStack) {
+      console.log('Stack:', sanitizedStack);
     }
     console.groupEnd();
   }
+}
+
+interface SanitizedDebugError {
+  name: string;
+  message: string;
+  stack?: string;
+}
+
+function sanitizeDebugValue(error: unknown): SanitizedDebugError | unknown {
+  if (error instanceof Error) {
+    return {
+      name: error.name,
+      message: sanitizeTextForStorage(error.message),
+      stack: error.stack ? sanitizeTextForStorage(error.stack) : undefined,
+    };
+  }
+
+  if (typeof error === 'string') {
+    return sanitizeTextForStorage(error);
+  }
+
+  if (error && typeof error === 'object') {
+    return sanitizeContext({ error })?.error ?? '[UNAVAILABLE]';
+  }
+
+  return error;
 }
 
 /**
