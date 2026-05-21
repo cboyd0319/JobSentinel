@@ -99,10 +99,12 @@ describe("AtsLiveScorePanel", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    window.sessionStorage.clear();
     mockInvoke.mockResolvedValue(mockAnalysis);
   });
 
   afterEach(() => {
+    window.sessionStorage.clear();
     vi.restoreAllMocks();
   });
 
@@ -700,8 +702,73 @@ describe("AtsLiveScorePanel", () => {
       expect(screen.queryByText("Job Context")).not.toBeInTheDocument();
     });
 
+    it("uses valid stored job context for full analysis", async () => {
+      window.sessionStorage.setItem(
+        "jobContext",
+        JSON.stringify({
+          timestamp: Date.now(),
+          description: "Senior TypeScript role",
+        }),
+      );
+
+      render(
+        <AtsLiveScorePanel
+          resumeData={mockResumeData}
+          currentStep={1}
+          debounceMs={10}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText("Job Context")).toBeInTheDocument();
+      });
+      await waitForAnalysis();
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith(
+          "analyze_resume_for_job",
+          expect.objectContaining({ jobDescription: "Senior TypeScript role" }),
+        );
+      });
+    });
+
+    it("ignores malformed stored job context", async () => {
+      window.sessionStorage.setItem(
+        "jobContext",
+        JSON.stringify({
+          timestamp: Date.now(),
+          description: { text: "not a string" },
+        }),
+      );
+
+      render(
+        <AtsLiveScorePanel
+          resumeData={mockResumeData}
+          currentStep={1}
+          debounceMs={10}
+        />
+      );
+
+      expect(screen.queryByText("Job Context")).not.toBeInTheDocument();
+      await waitForAnalysis();
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith(
+          "analyze_resume_format",
+          expect.any(Object),
+        );
+      });
+    });
+
     it("ignores expired job context (>24 hours old)", () => {
-      // Test verifies badge doesn't show without valid context
+      window.sessionStorage.setItem(
+        "jobContext",
+        JSON.stringify({
+          timestamp: Date.now() - 25 * 60 * 60 * 1000,
+          description: "Expired context",
+        }),
+      );
+
       render(
         <AtsLiveScorePanel
           resumeData={mockResumeData}

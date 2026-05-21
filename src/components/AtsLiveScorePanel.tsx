@@ -15,7 +15,7 @@ import { Modal, ModalFooter } from "./Modal";
 import { Tooltip } from "./Tooltip";
 import { logError } from "../utils/errorUtils";
 import { getScoreColor, getScoreBg, getScoreLabel } from "../utils/scoreUtils";
-import { readStorageValue } from "../utils/browserStorage";
+import { readStorageValue, removeStorageValue } from "../utils/browserStorage";
 
 // Full ATS analysis result from backend
 export interface AtsAnalysisResult {
@@ -100,6 +100,13 @@ interface AtsLiveScorePanelProps {
   showFullAnalysis?: boolean;
 }
 
+interface StoredJobContext {
+  timestamp: number;
+  description: string;
+}
+
+const JOB_CONTEXT_KEY = "jobContext";
+const JOB_CONTEXT_TTL_MS = 24 * 60 * 60 * 1000;
 
 // Step tips lookup (better performance than switch)
 const STEP_TIPS: Record<number, string[]> = {
@@ -155,6 +162,20 @@ const getStepTips = (step: number, analysis: AtsAnalysisResult | null): string[]
   return tips.slice(0, 3);
 };
 
+function isStoredJobContext(value: unknown): value is StoredJobContext {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Record<string, unknown>;
+  return (
+    typeof candidate.timestamp === "number" &&
+    Number.isFinite(candidate.timestamp) &&
+    typeof candidate.description === "string" &&
+    candidate.description.trim().length > 0
+  );
+}
+
 export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
   resumeData,
   currentStep,
@@ -171,15 +192,18 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
   // Load job context from sessionStorage (set by ATS Optimizer)
   useEffect(() => {
     try {
-      const stored = readStorageValue("session", "jobContext");
+      const stored = readStorageValue("session", JOB_CONTEXT_KEY);
       if (stored) {
-        const parsed = JSON.parse(stored);
+        const parsed: unknown = JSON.parse(stored);
         // Only use if less than 24 hours old
-        if (parsed.timestamp && Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000) {
+        if (isStoredJobContext(parsed) && Date.now() - parsed.timestamp < JOB_CONTEXT_TTL_MS) {
           setJobDescription(parsed.description);
+        } else {
+          removeStorageValue("session", JOB_CONTEXT_KEY);
         }
       }
     } catch {
+      removeStorageValue("session", JOB_CONTEXT_KEY);
       // Ignore sessionStorage errors
     }
   }, []);

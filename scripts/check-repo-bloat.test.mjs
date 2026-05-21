@@ -4481,6 +4481,18 @@ test("checkRepoBloat rejects unsafe storage JSON parsing", () => {
         "",
       ].join("\n"),
     );
+    writeFixtureFile(
+      root,
+      "src/components/AtsLiveScorePanel.tsx",
+      [
+        "function loadJobContext() {",
+        "  const stored = readStorageValue('session', 'jobContext');",
+        "  const parsed = JSON.parse(stored);",
+        "  setJobDescription(parsed.description);",
+        "}",
+        "",
+      ].join("\n"),
+    );
 
     execFileSync(
       "git",
@@ -4488,6 +4500,7 @@ test("checkRepoBloat rejects unsafe storage JSON parsing", () => {
         "add",
         "package.json",
         "src/components/AnalyticsPanel.tsx",
+        "src/components/AtsLiveScorePanel.tsx",
         "src/components/CompanyResearchPanel.tsx",
       ],
       { cwd: root },
@@ -4503,6 +4516,10 @@ test("checkRepoBloat rejects unsafe storage JSON parsing", () => {
       violations.includes(
         "validate storage JSON before rendering: src/components/CompanyResearchPanel.tsx",
       ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("validate storage JSON before rendering: src/components/AtsLiveScorePanel.tsx"),
       violations.join("\n"),
     );
   });

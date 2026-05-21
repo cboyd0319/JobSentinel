@@ -272,6 +272,7 @@ const scoreReasonJsonParserPaths = new Set([
 ]);
 const storageJsonParserPaths = new Set([
   "src/components/AnalyticsPanel.tsx",
+  "src/components/AtsLiveScorePanel.tsx",
   "src/components/CompanyResearchPanel.tsx",
 ]);
 const settingsCredentialPaths = new Set(["src/pages/Settings.tsx"]);
@@ -1993,6 +1994,14 @@ function hasUnsafeStorageJsonParsing(root, path) {
       /return\s+stored\s+\?\s+JSON\.parse\(stored\)\s+:\s+null/.test(text) ||
       !/function\s+isWeeklyGoal/.test(text) ||
       !/removeStorageValue\("local",\s*WEEKLY_GOALS_KEY\)/.test(text)
+    );
+  }
+
+  if (path === "src/components/AtsLiveScorePanel.tsx") {
+    return (
+      /const\s+parsed\s*=\s*JSON\.parse\(stored\)/.test(text) ||
+      !/function\s+isStoredJobContext/.test(text) ||
+      !/removeStorageValue\("session",\s*JOB_CONTEXT_KEY\)/.test(text)
     );
   }
 
