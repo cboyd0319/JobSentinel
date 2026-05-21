@@ -97,35 +97,17 @@ npm run test:e2e:headed -- --debug tests/e2e/playwright/app.spec.ts
 
 ```text
 src/
-├── components/
-│   ├── Button.tsx
-│   ├── Button.test.tsx              # Co-located with component
-│   ├── GhostIndicator/
-│   │   ├── GhostIndicator.tsx
-│   │   └── GhostIndicator.test.tsx
-│   └── ...
-├── hooks/
-│   ├── useKeyboardNavigation.ts
-│   ├── useKeyboardNavigation.test.ts
-│   └── ...
-├── contexts/
-│   ├── KeyboardShortcutsContext.tsx
-│   ├── KeyboardShortcutsContext.test.tsx
-│   └── ...
-├── pages/
-│   ├── Dashboard.tsx
-│   ├── Dashboard.test.tsx
-│   └── ...
-├── utils/
-│   ├── export.ts
-│   ├── export.test.ts
-│   └── ...
-└── test/
-    └── setup.ts                      # Vitest configuration
+- components/: component source and co-located tests
+- hooks/: custom hooks and hook tests
+- contexts/: React contexts and context tests
+- pages/: route/page components and page tests
+- utils/: shared frontend utilities and utility tests
+- test/setup.ts: Vitest configuration
+
 tests/e2e/playwright/
-├── app.spec.ts                       # Full application flow
-├── screenshots.spec.ts               # Documentation screenshots only
-└── ...
+- app.spec.ts: full application flow
+- screenshots.spec.ts: documentation screenshots only
+- additional specs: workflow-specific E2E coverage
 ```
 
 ### Naming Conventions
@@ -509,18 +491,18 @@ E2E tests live in `tests/e2e/playwright` and test complete user workflows:
 
 ```text
 tests/e2e/playwright/
-├── app.spec.ts                       # App shell smoke coverage
-├── application-tracking.spec.ts      # Application board flows
-├── job-interactions.spec.ts          # Job card interactions
-├── job-search-filtering.spec.ts      # Search and filter flows
-├── keyboard-navigation.spec.ts       # Keyboard shortcuts and focus
-├── market-intelligence.spec.ts       # Market dashboard flows
-├── one-click-apply.spec.ts           # Human-reviewed apply settings
-├── resume-builder.spec.ts            # Resume Builder wizard
-├── resume-upload-matching.spec.ts    # Resume library and matching
-├── screenshots.spec.ts               # Documentation screenshots only
-├── settings-save-load.spec.ts        # Settings persistence
-└── page-objects/                     # Page Object Model helpers
+- app.spec.ts: app shell smoke coverage
+- application-tracking.spec.ts: application board flows
+- job-interactions.spec.ts: job card interactions
+- job-search-filtering.spec.ts: search and filter flows
+- keyboard-navigation.spec.ts: keyboard shortcuts and focus
+- market-intelligence.spec.ts: market dashboard flows
+- one-click-apply.spec.ts: human-reviewed apply settings
+- resume-builder.spec.ts: Resume Builder wizard
+- resume-upload-matching.spec.ts: resume library and matching
+- screenshots.spec.ts: documentation screenshots only
+- settings-save-load.spec.ts: settings persistence
+- page-objects/: Page Object Model helpers
 ```
 
 ### Pattern 1: Complete User Flow

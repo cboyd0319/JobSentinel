@@ -1764,6 +1764,11 @@ test("checkRepoBloat rejects developer layout doc glyph markers", () => {
     );
     writeFixtureFile(
       root,
+      "docs/developer/FRONTEND_TESTING.md",
+      ["src/", "├── components/", "└── test/", ""].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "docs/developer/TESTING.md",
       ["src-tauri/", "├── src/", "└── tests/", ""].join("\n"),
     );
@@ -1778,6 +1783,7 @@ test("checkRepoBloat rejects developer layout doc glyph markers", () => {
       [
         "add",
         "package.json",
+        "docs/developer/FRONTEND_TESTING.md",
         "docs/developer/GETTING_STARTED.md",
         "docs/developer/TESTING.md",
         "docs/developer/INTEGRATION_TESTING.md",
@@ -1787,6 +1793,10 @@ test("checkRepoBloat rejects developer layout doc glyph markers", () => {
 
     const violations = checkRepoBloat(root);
 
+    assert.ok(
+      violations.includes("replace developer layout doc glyph markers: docs/developer/FRONTEND_TESTING.md"),
+      violations.join("\n"),
+    );
     assert.ok(
       violations.includes("replace developer layout doc glyph markers: docs/developer/GETTING_STARTED.md"),
       violations.join("\n"),

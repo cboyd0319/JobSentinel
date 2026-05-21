@@ -311,6 +311,7 @@ const activeUserDocGlyphPaths = new Set([
 ]);
 
 const developerLayoutDocGlyphPaths = new Set([
+  "docs/developer/FRONTEND_TESTING.md",
   "docs/developer/GETTING_STARTED.md",
   "docs/developer/INTEGRATION_TESTING.md",
   "docs/developer/TESTING.md",
