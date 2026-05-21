@@ -89,10 +89,7 @@ describe("shouldNotifyForJob", () => {
     });
 
     it("handles unknown sources", () => {
-      // Unknown sources have sourceConfig undefined, so they compare raw score >= 70
-      // Since score is 0-1, this effectively blocks all unknown sources
-      // (This appears to be a bug in the original code but we test actual behavior)
-      expect(shouldNotifyForJob("unknown", 0.75, DEFAULT_PREFS)).toBe(false);
+      expect(shouldNotifyForJob("unknown", 0.75, DEFAULT_PREFS)).toBe(true);
       expect(shouldNotifyForJob("unknown", 0.65, DEFAULT_PREFS)).toBe(false);
     });
 

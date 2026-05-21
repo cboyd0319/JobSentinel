@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Removed dead notification preference sync wrappers, fixed the unknown-source notification threshold to compare normalized score percentages, and added bloat coverage for stale sync wrappers. |
 | 2026-05-20 | In progress | Replaced one-call-site automation, feedback, and Dashboard UI barrel imports with direct imports, removed those local barrels, and extended bloat coverage to catch recurring unreferenced barrel modules. |
 | 2026-05-20 | In progress | Replaced the remaining broad `src/components` barrel imports with direct component imports, removed the unused component barrel, and added bloat coverage so broad unreferenced barrels do not return. |
 | 2026-05-20 | In progress | Removed deprecated `@types/dompurify` stub package after confirming `dompurify` exports its own TypeScript declarations, and added bloat coverage for recurrence. |

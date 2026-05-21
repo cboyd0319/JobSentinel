@@ -205,6 +205,42 @@ test("checkRepoBloat rejects unreferenced cache strategy helpers", () => {
   });
 });
 
+test("checkRepoBloat rejects stale notification preference sync wrappers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/utils/notificationPreferences.ts",
+      [
+        "export interface NotificationPreferences { enabled: boolean; }",
+        "export const DEFAULT_PREFERENCES: NotificationPreferences = { enabled: true };",
+        "export async function saveNotificationPreferencesAsync() { return true; }",
+        "export function loadNotificationPreferences(): NotificationPreferences {",
+        "  return DEFAULT_PREFERENCES;",
+        "}",
+        "/** @deprecated Use saveNotificationPreferencesAsync instead */",
+        "export function saveNotificationPreferences(_prefs: NotificationPreferences): boolean {",
+        "  return false;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/utils/notificationPreferences.ts"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove stale notification preference sync wrapper: src/utils/notificationPreferences.ts",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects unreferenced components barrel", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

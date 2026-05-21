@@ -103,17 +103,6 @@ export async function saveNotificationPreferencesAsync(prefs: NotificationPrefer
   }
 }
 
-// Sync version for backward compatibility (returns defaults, used by shouldNotifyForJob)
-export function loadNotificationPreferences(): NotificationPreferences {
-  return DEFAULT_PREFERENCES;
-}
-
-// Sync version for backward compatibility (no-op, async version should be used)
-/** @deprecated Use saveNotificationPreferencesAsync instead */
-export function saveNotificationPreferences(_prefs: NotificationPreferences): boolean {
-  return false;
-}
-
 export function shouldNotifyForJob(
   source: string,
   score: number,
@@ -141,16 +130,16 @@ export function shouldNotifyForJob(
   // Check source-specific settings
   const sourceKey = source.toLowerCase().replace(/\s+/g, '') as SourceKey;
   const sourceConfig = prefs[sourceKey];
+  const scorePercent = score * 100;
 
   if (!sourceConfig) {
     // Unknown source, use default threshold
-    return score >= 70;
+    return scorePercent >= 70;
   }
 
   if (!sourceConfig.enabled) return false;
 
   // Score is 0-1, threshold is 0-100
-  const scorePercent = score * 100;
   if (scorePercent < sourceConfig.minScoreThreshold) return false;
 
   // Apply advanced filters if job info is provided

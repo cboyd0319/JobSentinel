@@ -451,6 +451,19 @@ function hasUnreferencedSourceHelper(root, path) {
   });
 }
 
+function hasStaleNotificationPreferenceSyncWrapper(root, path) {
+  if (path !== "src/utils/notificationPreferences.ts") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /export function loadNotificationPreferences\(\): NotificationPreferences/.test(text) ||
+    /export function saveNotificationPreferences\(_?prefs: NotificationPreferences\): boolean/.test(text) ||
+    /@deprecated Use saveNotificationPreferencesAsync instead/.test(text)
+  );
+}
+
 function importSpecifiers(root, path) {
   const text = readFileSync(join(root, path), "utf8");
   const specifiers = [];
@@ -1329,6 +1342,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasUnreferencedSourceHelper(root, path)) {
       violations.push(`remove unreferenced source helper: ${path}`);
+    }
+
+    if (hasStaleNotificationPreferenceSyncWrapper(root, path)) {
+      violations.push(`remove stale notification preference sync wrapper: ${path}`);
     }
 
     if (hasUnreferencedComponentsBarrel(root, path)) {
