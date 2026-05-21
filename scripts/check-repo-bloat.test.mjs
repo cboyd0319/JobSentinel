@@ -3058,6 +3058,137 @@ test("checkRepoBloat rejects raw LinkedIn scraper Debug derive", () => {
   });
 });
 
+test("checkRepoBloat rejects secret-bearing Debug derives", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/config.rs",
+      [
+        "#[derive(Debug, Clone, Serialize, Deserialize)]",
+        "pub struct TestEmailConfig {",
+        "  pub smtp_server: String,",
+        "  pub smtp_password: String,",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/config.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sanitize secret-bearing debug derive: src-tauri/src/commands/config.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects credential key input echo", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/credentials.rs",
+      [
+        'let cred_key = key.parse::<CredentialKey>().map_err(|_| format!("Unknown credential key: {key}"))?;',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/credentials/mod.rs",
+      [
+        'impl FromStr for CredentialKey { type Err = String; fn from_str(s: &str) -> Result<Self, Self::Err> { Err(format!("Invalid credential key: {}", s)) } }',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/commands/credentials.rs",
+        "src-tauri/src/core/credentials/mod.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("avoid echoing credential key input: src-tauri/src/commands/credentials.rs"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("avoid echoing credential key input: src-tauri/src/core/credentials/mod.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects incomplete config export redaction", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/utils/export.ts",
+      [
+        "function sanitizeConfigForExport(config) {",
+        "  const sanitized = JSON.parse(JSON.stringify(config));",
+        "  sanitized.alerts.email.smtp_password = '';",
+        "  sanitized.linkedin.session_cookie = '';",
+        "  return sanitized;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/utils/export.ts"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("redact all credential fields from config export: src/utils/export.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw Telegram bot-token request errors", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/notify/telegram.rs",
+      [
+        'let api_url = format!("https://api.telegram.org/bot{}/sendMessage", config.bot_token);',
+        "let response = client.post(&api_url).json(&payload).send().await?;",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/notify/telegram.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove Telegram bot-token URLs from request errors: src-tauri/src/core/notify/telegram.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale LinkedIn credential docs", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

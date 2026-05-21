@@ -294,6 +294,14 @@ const keyringSecurityDocsPaths = new Set([
 ]);
 const keyringMigrationPaths = new Set(["src-tauri/src/main.rs"]);
 const credentialArchitecturePaths = new Set(["src-tauri/src/core/credentials/mod.rs"]);
+const credentialCommandPrivacyPaths = new Set([
+  "src-tauri/src/commands/credentials.rs",
+  "src-tauri/src/core/credentials/mod.rs",
+]);
+const configExportPrivacyPaths = new Set(["src/utils/export.ts"]);
+const telegramNotificationPrivacyPaths = new Set([
+  "src-tauri/src/core/notify/telegram.rs",
+]);
 const userDataDocsPaths = new Set(["docs/features/user-data-management.md"]);
 const structuredDebugLogPaths = new Set(["src-tauri/src/commands/feedback/debug_log.rs"]);
 const feedbackCommandPaths = new Set(["src-tauri/src/commands/feedback/mod.rs"]);
@@ -1406,6 +1414,70 @@ function hasRawLinkedInDebug(root, path) {
   return /#\[derive\([^)]*Debug[^)]*\)\]\s*pub struct LinkedInScraper\b/.test(productionText);
 }
 
+function hasSecretBearingDebugDerive(root, path) {
+  if (!path.startsWith("src-tauri/src/") || !path.endsWith(".rs")) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  const secretFieldPattern =
+    /\b(?:api_key|bot_token|session_cookie|smtp_password|webhook_url|discord_webhook|linkedin_cookie|slack_webhook|teams_webhook|telegram_bot_token|usajobs_api_key)\s*:/;
+  const derivedStructPattern =
+    /#\[derive\([^)]*Debug[^)]*\)\]\s*(?:#\[[^\]]+\]\s*)*(?:pub\s+)?struct\s+\w+[^{]*\{([\s\S]*?)\n\}/g;
+
+  return [...productionText.matchAll(derivedStructPattern)].some((match) =>
+    secretFieldPattern.test(match[1] ?? ""),
+  );
+}
+
+function hasCredentialKeyInputEcho(root, path) {
+  if (!credentialCommandPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /Unknown credential key:\s*\{key\}/.test(productionText) ||
+    /Invalid credential key:\s*\{\}[\s\S]{0,80},\s*(?:s|key)\b/.test(productionText) ||
+    /format!\(\s*"[^"]*credential key[^"]*\{(?:key|s)\}/.test(productionText)
+  );
+}
+
+function hasIncompleteConfigExportRedaction(root, path) {
+  if (!configExportPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    !text.includes("scrubSensitiveFields") ||
+    [
+      "api_key",
+      "bot_token",
+      "discord_webhook",
+      "linkedin_cookie",
+      "session_cookie",
+      "slack_webhook",
+      "smtp_password",
+      "teams_webhook",
+      "telegram_bot_token",
+      "usajobs_api_key",
+      "webhook_url",
+    ].some((fieldName) => !text.includes(`"${fieldName}"`))
+  );
+}
+
+function hasRawTelegramBotTokenRequestError(root, path) {
+  if (!telegramNotificationPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return /client\s*\.post\(&api_url\)[\s\S]{0,260}\.send\(\)\s*\.await\s*\?/.test(
+    productionText,
+  );
+}
+
 function hasStaleLinkedInCredentialDocs(root, path) {
   if (!linkedInCredentialDocsPaths.has(path)) {
     return false;
@@ -2367,6 +2439,22 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawLinkedInDebug(root, path)) {
       violations.push(`sanitize LinkedIn scraper debug output: ${path}`);
+    }
+
+    if (hasSecretBearingDebugDerive(root, path)) {
+      violations.push(`sanitize secret-bearing debug derive: ${path}`);
+    }
+
+    if (hasCredentialKeyInputEcho(root, path)) {
+      violations.push(`avoid echoing credential key input: ${path}`);
+    }
+
+    if (hasIncompleteConfigExportRedaction(root, path)) {
+      violations.push(`redact all credential fields from config export: ${path}`);
+    }
+
+    if (hasRawTelegramBotTokenRequestError(root, path)) {
+      violations.push(`remove Telegram bot-token URLs from request errors: ${path}`);
     }
 
     if (hasStaleLinkedInCredentialDocs(root, path)) {
