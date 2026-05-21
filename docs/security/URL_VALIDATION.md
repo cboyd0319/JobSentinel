@@ -149,8 +149,8 @@ It is used by:
 - `src-tauri/src/core/config/validation.rs`, `src-tauri/src/core/scrapers/jobswithgpt.rs`,
   and `src-tauri/src/core/health/smoke_tests.rs` before using a configured JobsWithGPT endpoint.
 
-The frontend fallback guard in `src/utils/urlValidation.ts` mirrors these
-external job URL rules before any direct `window.open()` fallback.
+The frontend guard in `src/utils/urlValidation.ts` mirrors these external job
+URL rules before calling the backend open command.
 
 The import fetcher does not follow HTTP redirects. A redirect can move from a
 validated public URL to a different host or private-network target, so the user
@@ -166,8 +166,9 @@ must paste the final public job posting URL directly.
 - Reject loopback, private, link-local, shared-address, unspecified, multicast, and IPv4-mapped private IPs.
 
 Frontend code calls `openDeepLink()` through Tauri IPC instead of importing
-`@tauri-apps/plugin-shell` directly. The default Tauri capability does not grant
-frontend `shell:allow-open`; browser-open requests must pass the backend URL guard.
+`@tauri-apps/plugin-shell` directly or falling back to `window.open()`. The
+default Tauri capability does not grant frontend `shell:allow-open`; browser-open
+requests must pass the backend URL guard.
 
 ### Slack Webhooks
 

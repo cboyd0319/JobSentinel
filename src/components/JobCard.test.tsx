@@ -386,7 +386,7 @@ describe("JobCard", () => {
       );
     });
 
-    it("falls back to window.open when openDeepLink fails", async () => {
+    it("does not fall back to window.open when openDeepLink fails", async () => {
       const user = userEvent.setup();
       const mockWindowOpen = vi.fn();
       (window as typeof globalThis & { open: typeof window.open }).open =
@@ -399,11 +399,7 @@ describe("JobCard", () => {
       await user.click(viewBtn);
 
       await vi.waitFor(() => {
-        expect(mockWindowOpen).toHaveBeenCalledWith(
-          "https://example.com/job/1",
-          "_blank",
-          "noopener,noreferrer",
-        );
+        expect(mockWindowOpen).not.toHaveBeenCalled();
       });
     });
 

@@ -286,6 +286,10 @@ const userDataPrivacyLoggingPaths = new Set([
   "src-tauri/src/core/user_data/mod.rs",
 ]);
 const cacheUsageDocPaths = new Set(["docs/CACHE_USAGE.md"]);
+const frontendJobUrlOpenPaths = new Set([
+  "src/components/JobCard.tsx",
+  "src/pages/Dashboard.tsx",
+]);
 const frontendStatusEmojiPaths = new Set([
   "src/components/AnalyticsPanel.tsx",
   "src/components/BookmarkletGenerator.tsx",
@@ -1365,6 +1369,15 @@ function hasStaleCacheUsageDoc(root, path) {
   );
 }
 
+function hasFrontendDirectOpenDeepLinkFallback(root, path) {
+  if (!frontendJobUrlOpenPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /\bopenDeepLink\(/.test(text) && /\bwindow\.open\(/.test(text);
+}
+
 function hasRawUrlLogging(root, path) {
   if (!rawUrlLoggingPaths.has(path)) {
     return false;
@@ -2271,6 +2284,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleCacheUsageDoc(root, path)) {
       violations.push(`sync cache usage doc with scraper HTTP client: ${path}`);
+    }
+
+    if (hasFrontendDirectOpenDeepLinkFallback(root, path)) {
+      violations.push(`route job URL opens through backend guard only: ${path}`);
     }
 
     if (hasRawUrlLogging(root, path)) {

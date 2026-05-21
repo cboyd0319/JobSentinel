@@ -382,8 +382,9 @@ export default function Dashboard({
 
       try {
         await openDeepLink(job.url);
-      } catch {
-        window.open(job.url, "_blank", "noopener,noreferrer");
+      } catch (err: unknown) {
+        logError("Failed to open URL via Tauri command:", err);
+        toast.error("Failed to open link", "Unable to open the job posting URL");
       }
     },
     [toast],

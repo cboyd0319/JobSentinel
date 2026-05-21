@@ -2821,6 +2821,44 @@ test("checkRepoBloat rejects stale cache usage documentation", () => {
   });
 });
 
+test("checkRepoBloat rejects frontend direct-open deep link fallbacks", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/JobCard.tsx",
+      "try { await openDeepLink(url); } catch { window.open(url, '_blank'); }\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Dashboard.tsx",
+      "try { await openDeepLink(job.url); } catch { window.open(job.url, '_blank'); }\n",
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src/components/JobCard.tsx",
+        "src/pages/Dashboard.tsx",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("route job URL opens through backend guard only: src/components/JobCard.tsx"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("route job URL opens through backend guard only: src/pages/Dashboard.tsx"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw local path logging", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

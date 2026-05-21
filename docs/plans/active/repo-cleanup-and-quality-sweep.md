@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Removed frontend `window.open()` deep-link fallbacks so job URL opens route only through the backend guard, and added bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Replaced the cache usage doc's stale unbounded response-read example with `read_text_with_limit`, and extended the cache-doc bloat guard for recurrence. |
 | 2026-05-21 | In progress | Tightened shared external job URL validation to reject embedded credentials in backend and frontend guards before deep-link opening, job imports, and JobsWithGPT endpoint use. |
 | 2026-05-21 | In progress | Added bloat-sensor coverage for unbounded Rust HTTP body reads, then routed explicit IP geolocation and Discord/Teams webhook error response parsing through the shared bounded reader. |
