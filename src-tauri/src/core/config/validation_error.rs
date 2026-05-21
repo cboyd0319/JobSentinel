@@ -1,5 +1,6 @@
 //! Configuration validation error types
 
+use crate::core::url_security::sanitize_url_for_logging;
 use std::fmt;
 
 /// Configuration validation errors
@@ -330,9 +331,17 @@ impl fmt::Display for ValidationError {
             }
             Self::InvalidUrl { field, url, reason } => {
                 if field.contains("greenhouse") {
-                    write!(f, "Invalid Greenhouse URL format. Must start with 'https://boards.greenhouse.io/'. Got: {}", url)
+                    write!(
+                        f,
+                        "Invalid Greenhouse URL format. Must start with 'https://boards.greenhouse.io/'. Got: {}",
+                        sanitize_url_for_logging(url)
+                    )
                 } else if field.contains("lever") {
-                    write!(f, "Invalid Lever URL format. Must start with 'https://jobs.lever.co/'. Got: {}", url)
+                    write!(
+                        f,
+                        "Invalid Lever URL format. Must start with 'https://jobs.lever.co/'. Got: {}",
+                        sanitize_url_for_logging(url)
+                    )
                 } else {
                     write!(
                         f,

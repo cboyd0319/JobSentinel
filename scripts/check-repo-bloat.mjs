@@ -237,6 +237,9 @@ const rawUrlErrorDisplayPaths = new Set([
 ]);
 
 const rawPathOrQueryErrorDisplayPaths = new Set(["src-tauri/src/core/db/error.rs"]);
+const configValidationPrivacyPaths = new Set([
+  "src-tauri/src/core/config/validation_error.rs",
+]);
 
 const rawJobImportLoggingPaths = new Set(["src-tauri/src/commands/import.rs"]);
 
@@ -1602,6 +1605,15 @@ function hasRawPathOrQueryErrorDisplay(root, path) {
   return /#\[error\("[^"]*\{(?:path|query)\}/.test(readFileSync(join(root, path), "utf8"));
 }
 
+function hasRawConfigValidationUrlDisplay(root, path) {
+  if (!configValidationPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return /Got:\s*\{\}"[\s\S]{0,120},\s*url\b/.test(productionText);
+}
+
 function hasRawImportRedirectDisplay(root, path) {
   if (!rawImportRedirectDisplayPaths.has(path)) {
     return false;
@@ -2545,6 +2557,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawPathOrQueryErrorDisplay(root, path)) {
       violations.push(`replace raw path/query error display: ${path}`);
+    }
+
+    if (hasRawConfigValidationUrlDisplay(root, path)) {
+      violations.push(`sanitize config validation URL display: ${path}`);
     }
 
     if (hasRawImportRedirectDisplay(root, path)) {

@@ -611,8 +611,9 @@ fn validate_webhook_url(url: &str) -> Result<()> {
 }
 ```
 
-Do not log raw user-supplied URLs. Strip credentials, query strings, and
-fragments before logging because job URLs and webhooks can carry tokens.
+Do not log or display raw user-supplied URLs. Strip credentials, query strings,
+and fragments before logging or returning validation errors because job URLs,
+company-board URLs, and webhooks can carry tokens or private search context.
 
 ## Related Documentation
 

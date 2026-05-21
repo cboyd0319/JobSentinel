@@ -475,6 +475,23 @@ mod tests {
     }
 
     #[test]
+    fn test_invalid_greenhouse_url_error_sanitizes_sensitive_parts() {
+        let mut config = create_valid_config();
+        config.greenhouse_urls =
+            vec!["https://user:pass@wrongsite.com/company?query=private#fragment".to_string()];
+
+        let result = validate_config(&config);
+        assert!(result.is_err(), "Invalid Greenhouse URL prefix should fail");
+        let error = result.unwrap_err().to_string();
+
+        assert!(error.contains("Got: https://wrongsite.com/company"));
+        assert!(!error.contains("user"));
+        assert!(!error.contains("pass"));
+        assert!(!error.contains("private"));
+        assert!(!error.contains("fragment"));
+    }
+
+    #[test]
     fn test_greenhouse_url_too_long_fails() {
         let mut config = create_valid_config();
         config.greenhouse_urls = vec![format!("https://boards.greenhouse.io/{}", "x".repeat(500))];
@@ -526,6 +543,23 @@ mod tests {
             .unwrap_err()
             .to_string()
             .contains("Invalid Lever URL format"));
+    }
+
+    #[test]
+    fn test_invalid_lever_url_error_sanitizes_sensitive_parts() {
+        let mut config = create_valid_config();
+        config.lever_urls =
+            vec!["https://user:pass@wrongsite.com/company?query=private#fragment".to_string()];
+
+        let result = validate_config(&config);
+        assert!(result.is_err(), "Invalid Lever URL prefix should fail");
+        let error = result.unwrap_err().to_string();
+
+        assert!(error.contains("Got: https://wrongsite.com/company"));
+        assert!(!error.contains("user"));
+        assert!(!error.contains("pass"));
+        assert!(!error.contains("private"));
+        assert!(!error.contains("fragment"));
     }
 
     #[test]

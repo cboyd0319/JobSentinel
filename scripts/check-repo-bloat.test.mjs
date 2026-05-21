@@ -3685,6 +3685,43 @@ test("checkRepoBloat rejects raw path or query error display", () => {
   });
 });
 
+test("checkRepoBloat rejects raw config validation URL display", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/config/validation_error.rs",
+      [
+        "match self {",
+        "  Self::InvalidUrl { field, url, reason } => {",
+        "    if field.contains(\"greenhouse\") {",
+        "      write!(f, \"Invalid Greenhouse URL format. Got: {}\", url)",
+        "    } else {",
+        "      write!(f, \"Invalid URL in {}: {}\", field, reason)",
+        "    }",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "src-tauri/src/core/config/validation_error.rs"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize config validation URL display: src-tauri/src/core/config/validation_error.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw import redirect display", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

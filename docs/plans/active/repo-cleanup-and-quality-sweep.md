@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Sanitized invalid Greenhouse and Lever config URL error display so userinfo, queries, and fragments are not echoed into frontend-visible validation errors. |
 | 2026-05-21 | In progress | Removed notification provider error bodies from Discord, Teams, and Telegram errors so failed sends cannot echo private job payloads, and sanitized JobsWithGPT smoke-test endpoint request errors. |
 | 2026-05-21 | In progress | Removed token-bearing Slack, Discord, and Teams webhook URLs from request error formatting and added bloat guards for recurrence. |
 | 2026-05-21 | In progress | Re-ran root and nested disposable artifact scans with no candidates found, then added bloat guards for secret-bearing debug derives, credential key echo errors, incomplete config export redaction, and Telegram bot-token request URLs. |
