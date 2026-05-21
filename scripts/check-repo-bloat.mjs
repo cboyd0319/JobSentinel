@@ -1011,6 +1011,21 @@ function hasRedundantDirectPlaywrightDependency(root, path) {
   return Boolean(directDeps["@playwright/test"] && directDeps.playwright);
 }
 
+function hasRedundantDomPurifyTypesDependency(root, path) {
+  if (path !== "package.json") {
+    return false;
+  }
+
+  const packageJson = readPackageManifest(root);
+  const directDeps = {
+    ...(packageJson.dependencies ?? {}),
+    ...(packageJson.devDependencies ?? {}),
+    ...(packageJson.optionalDependencies ?? {}),
+  };
+
+  return Boolean(directDeps.dompurify && directDeps["@types/dompurify"]);
+}
+
 function hasStaleUserDataMockHandlers(root, path) {
   if (path !== "src/mocks/handlers.ts") {
     return false;
@@ -1450,6 +1465,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRedundantDirectPlaywrightDependency(root, path)) {
       violations.push(`remove redundant direct Playwright dependency: ${path}`);
+    }
+
+    if (hasRedundantDomPurifyTypesDependency(root, path)) {
+      violations.push(`remove redundant DOMPurify stub types dependency: ${path}`);
     }
 
     if (hasStaleUserDataMockHandlers(root, path)) {

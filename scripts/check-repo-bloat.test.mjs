@@ -233,6 +233,34 @@ test("checkRepoBloat rejects redundant direct Playwright dependency", () => {
   });
 });
 
+test("checkRepoBloat rejects redundant DOMPurify stub types", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(
+      root,
+      "package.json",
+      JSON.stringify(
+        {
+          dependencies: {
+            "@types/dompurify": "^3.2.0",
+            dompurify: "^3.3.3",
+          },
+        },
+        null,
+        2,
+      ),
+    );
+
+    execFileSync("git", ["add", "package.json"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("remove redundant DOMPurify stub types dependency: package.json"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale E2E runtime skip guidance", () => {
   withGitFixture((root) => {
     const runtimeSkipCall = ["test", "skip"].join(".");
