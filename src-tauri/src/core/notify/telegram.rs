@@ -122,7 +122,12 @@ pub async fn send_telegram_notification(
         .timeout(std::time::Duration::from_secs(10))
         .build()?;
 
-    let response = client.post(&api_url).json(&payload).send().await?;
+    let response = client
+        .post(&api_url)
+        .json(&payload)
+        .send()
+        .await
+        .map_err(|e| anyhow!("Telegram API request failed: {}", e.without_url()))?;
 
     if !response.status().is_success() {
         let status = response.status();
@@ -236,7 +241,12 @@ pub async fn validate_telegram_config(config: &TelegramConfig) -> Result<bool> {
         .timeout(std::time::Duration::from_secs(10))
         .build()?;
 
-    let response = client.post(&api_url).json(&payload).send().await?;
+    let response = client
+        .post(&api_url)
+        .json(&payload)
+        .send()
+        .await
+        .map_err(|e| anyhow!("Telegram API request failed: {}", e.without_url()))?;
 
     if !response.status().is_success() {
         let error_text =

@@ -7,10 +7,11 @@ use crate::core::config::{Config, EmailConfig};
 use crate::core::db::Database;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::fmt;
 use tauri::State;
 
 /// Email configuration for testing (matches frontend interface)
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct TestEmailConfig {
     pub smtp_server: String,
@@ -21,6 +22,27 @@ pub struct TestEmailConfig {
     pub to_emails: Vec<String>,
     #[serde(default = "default_starttls")]
     pub use_starttls: bool,
+}
+
+impl fmt::Debug for TestEmailConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("TestEmailConfig")
+            .field("smtp_server", &self.smtp_server)
+            .field("smtp_port", &self.smtp_port)
+            .field("smtp_username", &self.smtp_username)
+            .field(
+                "smtp_password",
+                &if self.smtp_password.is_empty() {
+                    "[empty]"
+                } else {
+                    "[REDACTED]"
+                },
+            )
+            .field("from_email", &self.from_email)
+            .field("to_emails", &self.to_emails)
+            .field("use_starttls", &self.use_starttls)
+            .finish()
+    }
 }
 
 fn default_starttls() -> bool {
@@ -140,4 +162,30 @@ pub async fn test_email_notification(email_config: TestEmailConfig) -> Result<()
 
     tracing::info!("Test email sent successfully");
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_email_config_debug_does_not_leak_password() {
+        let config = TestEmailConfig {
+            smtp_server: "smtp.example.com".to_string(),
+            smtp_port: 587,
+            smtp_username: "user@example.com".to_string(),
+            smtp_password: "smtp-secret-password".to_string(),
+            from_email: "from@example.com".to_string(),
+            to_emails: vec!["to@example.com".to_string()],
+            use_starttls: true,
+        };
+
+        let debug_output = format!("{:?}", config);
+
+        assert!(
+            !debug_output.contains("smtp-secret-password"),
+            "TestEmailConfig Debug output must not contain password. Got: {}",
+            debug_output
+        );
+    }
 }

@@ -19,13 +19,14 @@ use chrono::Utc;
 use reqwest::header::{HeaderMap, HeaderValue, HOST, USER_AGENT};
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
+use std::fmt;
 
 const BASE_URL: &str = "https://data.usajobs.gov";
 const SEARCH_ENDPOINT: &str = "/api/Search";
 const MAX_RESULTS_PER_PAGE: u32 = 500;
 
 /// USAJobs API scraper for federal government positions
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct UsaJobsScraper {
     /// API key from developer.usajobs.gov
     pub api_key: String,
@@ -49,6 +50,31 @@ pub struct UsaJobsScraper {
     pub limit: usize,
     /// Rate limiter for respecting USAJobs API limits
     pub rate_limiter: RateLimiter,
+}
+
+impl fmt::Debug for UsaJobsScraper {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("UsaJobsScraper")
+            .field(
+                "api_key",
+                &if self.api_key.is_empty() {
+                    "[empty]"
+                } else {
+                    "[REDACTED]"
+                },
+            )
+            .field("email_configured", &!self.email.is_empty())
+            .field("has_keywords", &self.keywords.is_some())
+            .field("has_location", &self.location.is_some())
+            .field("radius", &self.radius)
+            .field("remote_only", &self.remote_only)
+            .field("pay_grade_min", &self.pay_grade_min)
+            .field("pay_grade_max", &self.pay_grade_max)
+            .field("date_posted_days", &self.date_posted_days)
+            .field("limit", &self.limit)
+            .field("rate_limiter", &self.rate_limiter)
+            .finish()
+    }
 }
 
 impl UsaJobsScraper {
@@ -454,6 +480,39 @@ mod tests {
         assert_eq!(scraper.limit, 100);
         assert_eq!(scraper.date_posted_days, Some(30));
         assert!(!scraper.remote_only);
+    }
+
+    #[test]
+    fn test_debug_does_not_leak_api_key_or_email() {
+        let scraper = UsaJobsScraper::new(
+            "usajobs-secret-api-key".to_string(),
+            "user@example.com".to_string(),
+        )
+        .with_keywords("private search")
+        .with_location("Private City", Some(25));
+
+        let debug_output = format!("{:?}", scraper);
+
+        assert!(
+            !debug_output.contains("usajobs-secret-api-key"),
+            "USAJobs scraper Debug output must not contain API key. Got: {}",
+            debug_output
+        );
+        assert!(
+            !debug_output.contains("user@example.com"),
+            "USAJobs scraper Debug output must not contain email. Got: {}",
+            debug_output
+        );
+        assert!(
+            !debug_output.contains("private search"),
+            "USAJobs scraper Debug output must not contain query. Got: {}",
+            debug_output
+        );
+        assert!(
+            !debug_output.contains("Private City"),
+            "USAJobs scraper Debug output must not contain location. Got: {}",
+            debug_output
+        );
     }
 
     #[test]
