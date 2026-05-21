@@ -12,8 +12,31 @@ use crate::core::resume::{
     NewSkill, Resume, ResumeBuilder, ResumeExporter, ResumeMatcher, SkillEntry, SkillUpdate,
     Template, TemplateId, TemplateRenderer, UserSkill,
 };
+use chrono::{DateTime, Utc};
+use serde::Serialize;
 use std::path::Path;
 use tauri::State;
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ResumeSummary {
+    pub id: i64,
+    pub name: String,
+    pub is_active: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+impl From<Resume> for ResumeSummary {
+    fn from(resume: Resume) -> Self {
+        Self {
+            id: resume.id,
+            name: resume.name,
+            is_active: resume.is_active,
+            created_at: resume.created_at,
+            updated_at: resume.updated_at,
+        }
+    }
+}
 
 /// Upload and parse a resume
 #[tauri::command]
@@ -53,13 +76,16 @@ pub async fn import_json_resume(
 
 /// Get active resume
 #[tauri::command]
-pub async fn get_active_resume(state: State<'_, AppState>) -> Result<Option<Resume>, String> {
+pub async fn get_active_resume(
+    state: State<'_, AppState>,
+) -> Result<Option<ResumeSummary>, String> {
     tracing::info!("Command: get_active_resume");
 
     let matcher = ResumeMatcher::new(state.database.pool().clone());
     matcher
         .get_active_resume()
         .await
+        .map(|resume| resume.map(ResumeSummary::from))
         .map_err(|e| format!("Failed to get resume: {}", e))
 }
 
@@ -209,13 +235,14 @@ pub async fn add_user_skill(
 
 /// List all resumes
 #[tauri::command]
-pub async fn list_all_resumes(state: State<'_, AppState>) -> Result<Vec<Resume>, String> {
+pub async fn list_all_resumes(state: State<'_, AppState>) -> Result<Vec<ResumeSummary>, String> {
     tracing::info!("Command: list_all_resumes");
 
     let matcher = ResumeMatcher::new(state.database.pool().clone());
     matcher
         .list_all_resumes()
         .await
+        .map(|resumes| resumes.into_iter().map(ResumeSummary::from).collect())
         .map_err(|e| format!("Failed to list resumes: {}", e))
 }
 
@@ -492,4 +519,31 @@ pub fn get_ats_power_words() -> Vec<&'static str> {
 pub fn improve_bullet_point(bullet: String, job_context: Option<String>) -> String {
     tracing::info!("Command: improve_bullet_point");
     AtsAnalyzer::improve_bullet(&bullet, job_context.as_deref())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn resume_summary_serialization_omits_file_path_and_parsed_text() {
+        let now = Utc::now();
+        let resume = Resume {
+            id: 42,
+            name: "Private Resume.pdf".to_string(),
+            file_path: "/Users/alice/Documents/private-company-resume.pdf".to_string(),
+            parsed_text: Some("secret resume body".to_string()),
+            is_active: true,
+            created_at: now,
+            updated_at: now,
+        };
+
+        let serialized = serde_json::to_string(&ResumeSummary::from(resume)).unwrap();
+
+        assert!(serialized.contains("Private Resume.pdf"));
+        assert!(!serialized.contains("file_path"));
+        assert!(!serialized.contains("/Users/alice"));
+        assert!(!serialized.contains("parsed_text"));
+        assert!(!serialized.contains("secret resume body"));
+    }
 }

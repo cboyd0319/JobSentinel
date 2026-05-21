@@ -555,7 +555,9 @@ const ImportSkillsButton = ({ resumeId }: { resumeId: number }) => {
 // Match resume against all jobs
 const autoMatchJobs = async () => {
   const jobs = await invoke<Job[]>("get_all_jobs");
-  const activeResume = await invoke<Resume>("get_active_resume");
+  const activeResume = await invoke<ResumeSummary | null>("get_active_resume");
+
+  if (!activeResume) return;
 
   for (const job of jobs) {
     const match = await invoke<MatchResult>("match_resume_to_job", {
@@ -674,6 +676,10 @@ JobSentinel uses a fully self-contained skill extraction system:
 
 ### ResumeMatcher
 
+`ResumeMatcher` keeps local file paths and parsed text in backend-only domain
+types. Renderer-facing commands return `ResumeSummary`, which omits those
+fields.
+
 ```rust
 pub struct ResumeMatcher {
     db: SqlitePool,
@@ -708,6 +714,14 @@ impl ResumeMatcher {
 ### Types
 
 ```rust
+pub struct ResumeSummary {
+    pub id: i64,
+    pub name: String,
+    pub is_active: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
 pub struct Resume {
     pub id: i64,
     pub name: String,

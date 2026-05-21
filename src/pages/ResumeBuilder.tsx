@@ -15,8 +15,6 @@ import { getResumeContactValidationMessage } from "../utils/resumeContactValidat
 interface Resume {
   id: number;
   name: string;
-  file_path: string;
-  parsed_text: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;

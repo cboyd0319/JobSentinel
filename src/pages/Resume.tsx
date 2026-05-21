@@ -25,7 +25,6 @@ const getProficiencyColor = (proficiency: string | null): BadgeVariant =>
 interface ResumeData {
   id: number;
   name: string;
-  file_path: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;

@@ -340,6 +340,13 @@ const healthSmokePrivacyPaths = new Set(["src-tauri/src/core/health/smoke_tests.
 const userDataDocsPaths = new Set(["docs/features/user-data-management.md"]);
 const structuredDebugLogPaths = new Set(["src-tauri/src/commands/feedback/debug_log.rs"]);
 const feedbackCommandPaths = new Set(["src-tauri/src/commands/feedback/mod.rs"]);
+const resumeCommandDtoPrivacyPaths = new Set([
+  "src-tauri/src/commands/resume.rs",
+  "src/pages/Resume.tsx",
+  "src/pages/ResumeBuilder.tsx",
+  "src/mocks/handlers.ts",
+  "docs/features/resume-matcher.md",
+]);
 const userDataPrivacyLoggingPaths = new Set([
   "src-tauri/src/commands/user_data.rs",
   "src-tauri/src/core/user_data/mod.rs",
@@ -1743,6 +1750,51 @@ function hasRawResumeParserPathDisplay(root, path) {
   return /(?:file_path|canonical_path)\.display\(\)/.test(productionText);
 }
 
+function resumeSummaryStructMissingOrPrivate(text) {
+  const match = text.match(/pub\s+struct\s+ResumeSummary\s*\{([^}]*)\}/);
+  return !match || /\b(?:file_path|parsed_text)\b/.test(match[1]);
+}
+
+function hasRawResumeCommandDtoExposure(root, path) {
+  if (!resumeCommandDtoPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+
+  if (path === "src-tauri/src/commands/resume.rs") {
+    const productionText = stripRustTestModules(text);
+    return (
+      /Result\s*<\s*Option\s*<\s*Resume\s*>\s*,\s*String\s*>/.test(productionText) ||
+      /Result\s*<\s*Vec\s*<\s*Resume\s*>\s*,\s*String\s*>/.test(productionText) ||
+      resumeSummaryStructMissingOrPrivate(productionText)
+    );
+  }
+
+  if (path === "src/pages/Resume.tsx") {
+    return /interface\s+ResumeData\s*\{[\s\S]{0,320}\b(?:file_path|parsed_text)\b/.test(text);
+  }
+
+  if (path === "src/pages/ResumeBuilder.tsx") {
+    return /interface\s+Resume\s*\{[\s\S]{0,320}\b(?:file_path|parsed_text)\b/.test(text);
+  }
+
+  if (path === "src/mocks/handlers.ts") {
+    return (
+      !/toMockResumeSummary/.test(text) ||
+      /case\s+["']get_active_resume["']:[\s\S]{0,180}return\s+getActiveResume\(\)\s+as\s+T/.test(
+        text,
+      ) ||
+      /case\s+["']list_all_resumes["']:[\s\S]{0,120}return\s+resumes\s+as\s+T/.test(text)
+    );
+  }
+
+  return (
+    /invoke<Resume>\(["']get_active_resume["']\)/.test(text) ||
+    resumeSummaryStructMissingOrPrivate(text)
+  );
+}
+
 function hasRawCommandSetupErrorDisplay(root, path) {
   if (!rawCommandSetupErrorDisplayPaths.has(path)) {
     return false;
@@ -2779,6 +2831,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawResumeParserPathDisplay(root, path)) {
       violations.push(`sanitize resume parser path error display: ${path}`);
+    }
+
+    if (hasRawResumeCommandDtoExposure(root, path)) {
+      violations.push(`hide resume file paths from renderer DTOs: ${path}`);
     }
 
     if (hasRawCommandSetupErrorDisplay(root, path)) {

@@ -123,6 +123,8 @@ interface MockResumeData {
   updated_at: string;
 }
 
+type MockResumeSummary = Omit<MockResumeData, "file_path">;
+
 interface MockUserSkill {
   id: number;
   resume_id: number;
@@ -2537,6 +2539,16 @@ function getActiveResume(): MockResumeData | null {
   return resumes.find((resume) => resume.is_active) ?? null;
 }
 
+function toMockResumeSummary(resume: MockResumeData): MockResumeSummary {
+  return {
+    id: resume.id,
+    name: resume.name,
+    is_active: resume.is_active,
+    created_at: resume.created_at,
+    updated_at: resume.updated_at,
+  };
+}
+
 function getNextId(items: Array<{ id: number }>): number {
   return items.reduce((max, item) => Math.max(max, item.id), 0) + 1;
 }
@@ -3138,11 +3150,13 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       return undefined as T;
 
     // Resume commands
-    case "get_active_resume":
-      return getActiveResume() as T;
+    case "get_active_resume": {
+      const activeResume = getActiveResume();
+      return (activeResume ? toMockResumeSummary(activeResume) : null) as T;
+    }
 
     case "list_all_resumes":
-      return resumes as T;
+      return resumes.map(toMockResumeSummary) as T;
 
     case "set_active_resume": {
       const resumeId = getResumeIdArg(args);

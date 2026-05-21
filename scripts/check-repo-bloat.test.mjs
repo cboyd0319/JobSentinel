@@ -3403,6 +3403,76 @@ test("checkRepoBloat rejects renderer credential secret read IPC", () => {
   });
 });
 
+test("checkRepoBloat rejects resume renderer DTO path exposure", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/resume.rs",
+      [
+        "pub async fn get_active_resume() -> Result<Option<Resume>, String> { todo!() }",
+        "pub async fn list_all_resumes() -> Result<Vec<Resume>, String> { todo!() }",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Resume.tsx",
+      ["interface ResumeData {", "  id: number;", "  file_path: string;", "}"].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/ResumeBuilder.tsx",
+      ["interface Resume {", "  id: number;", "  parsed_text: string | null;", "}"].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      [
+        'case "get_active_resume":',
+        "  return getActiveResume() as T;",
+        'case "list_all_resumes":',
+        "  return resumes as T;",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/resume-matcher.md",
+      'const activeResume = await invoke<Resume>("get_active_resume");\n',
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/commands/resume.rs",
+        "src/pages/Resume.tsx",
+        "src/pages/ResumeBuilder.tsx",
+        "src/mocks/handlers.ts",
+        "docs/features/resume-matcher.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of [
+      "src-tauri/src/commands/resume.rs",
+      "src/pages/Resume.tsx",
+      "src/pages/ResumeBuilder.tsx",
+      "src/mocks/handlers.ts",
+      "docs/features/resume-matcher.md",
+    ]) {
+      assert.ok(
+        violations.includes(`hide resume file paths from renderer DTOs: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
 test("checkRepoBloat rejects incomplete config export redaction", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
