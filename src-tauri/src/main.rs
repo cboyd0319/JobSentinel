@@ -53,11 +53,9 @@ fn main() {
 
         match migration::extract_plaintext_credentials(&config_path) {
             Ok(credentials) => {
-                let mut mark_migration_complete = false;
-
-                if credentials.is_empty() {
+                let mark_migration_complete = if credentials.is_empty() {
                     tracing::info!("No plaintext credentials found, marking as migrated");
-                    mark_migration_complete = true;
+                    true
                 } else {
                     tracing::info!(
                         "Found {} plaintext credentials to migrate",
@@ -85,13 +83,15 @@ fn main() {
                                 e
                             );
                             tracing::warn!("Keyring migration will retry on next startup");
+                            false
                         } else {
-                            mark_migration_complete = true;
+                            true
                         }
                     } else {
                         tracing::warn!("Keyring migration incomplete; will retry on next startup");
+                        false
                     }
-                }
+                };
 
                 if mark_migration_complete {
                     if let Err(e) = migration::set_migrated() {
