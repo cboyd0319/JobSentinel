@@ -3189,6 +3189,54 @@ test("checkRepoBloat rejects raw Telegram bot-token request errors", () => {
   });
 });
 
+test("checkRepoBloat rejects raw webhook token request errors", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    for (const path of [
+      "src-tauri/src/core/notify/slack.rs",
+      "src-tauri/src/core/notify/discord.rs",
+      "src-tauri/src/core/notify/teams.rs",
+    ]) {
+      writeFixtureFile(
+        root,
+        path,
+        [
+          "async fn send(webhook_url: &str) -> anyhow::Result<()> {",
+          "  let response = client.post(webhook_url).json(&payload).send().await?;",
+          "  Ok(())",
+          "}",
+          "",
+        ].join("\n"),
+      );
+    }
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/notify/slack.rs",
+        "src-tauri/src/core/notify/discord.rs",
+        "src-tauri/src/core/notify/teams.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of [
+      "src-tauri/src/core/notify/slack.rs",
+      "src-tauri/src/core/notify/discord.rs",
+      "src-tauri/src/core/notify/teams.rs",
+    ]) {
+      assert.ok(
+        violations.includes(`remove webhook token URLs from request errors: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
 test("checkRepoBloat rejects stale LinkedIn credential docs", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

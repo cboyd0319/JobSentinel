@@ -126,7 +126,12 @@ pub async fn send_slack_notification(webhook_url: &str, notification: &Notificat
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(10))
         .build()?;
-    let response = client.post(webhook_url).json(&payload).send().await?;
+    let response = client
+        .post(webhook_url)
+        .json(&payload)
+        .send()
+        .await
+        .map_err(|e| anyhow!("Slack webhook request failed: {}", e.without_url()))?;
 
     if !response.status().is_success() {
         return Err(anyhow::anyhow!(
@@ -151,7 +156,8 @@ pub async fn validate_webhook(webhook_url: &str) -> Result<bool> {
         .post(webhook_url)
         .json(&json!({"text": "JobSentinel: Webhook validation successful ✅"}))
         .send()
-        .await?;
+        .await
+        .map_err(|e| anyhow!("Slack webhook validation failed: {}", e.without_url()))?;
 
     Ok(response.status().is_success())
 }

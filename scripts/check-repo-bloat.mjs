@@ -302,6 +302,11 @@ const configExportPrivacyPaths = new Set(["src/utils/export.ts"]);
 const telegramNotificationPrivacyPaths = new Set([
   "src-tauri/src/core/notify/telegram.rs",
 ]);
+const webhookNotificationPrivacyPaths = new Set([
+  "src-tauri/src/core/notify/discord.rs",
+  "src-tauri/src/core/notify/slack.rs",
+  "src-tauri/src/core/notify/teams.rs",
+]);
 const userDataDocsPaths = new Set(["docs/features/user-data-management.md"]);
 const structuredDebugLogPaths = new Set(["src-tauri/src/commands/feedback/debug_log.rs"]);
 const feedbackCommandPaths = new Set(["src-tauri/src/commands/feedback/mod.rs"]);
@@ -1478,6 +1483,17 @@ function hasRawTelegramBotTokenRequestError(root, path) {
   );
 }
 
+function hasRawWebhookTokenRequestError(root, path) {
+  if (!webhookNotificationPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return /client\s*\.post\(&?(?:config\.)?webhook_url\)[\s\S]{0,260}\.send\(\)\s*\.await\s*\?/.test(
+    productionText,
+  );
+}
+
 function hasStaleLinkedInCredentialDocs(root, path) {
   if (!linkedInCredentialDocsPaths.has(path)) {
     return false;
@@ -2455,6 +2471,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawTelegramBotTokenRequestError(root, path)) {
       violations.push(`remove Telegram bot-token URLs from request errors: ${path}`);
+    }
+
+    if (hasRawWebhookTokenRequestError(root, path)) {
+      violations.push(`remove webhook token URLs from request errors: ${path}`);
     }
 
     if (hasStaleLinkedInCredentialDocs(root, path)) {

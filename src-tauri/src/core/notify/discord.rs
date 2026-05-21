@@ -127,7 +127,8 @@ pub async fn send_discord_notification(
         .post(&config.webhook_url)
         .json(&payload)
         .send()
-        .await?;
+        .await
+        .map_err(|e| anyhow!("Discord webhook request failed: {}", e.without_url()))?;
 
     if !response.status().is_success() {
         let status = response.status();
@@ -166,7 +167,12 @@ pub async fn validate_webhook(webhook_url: &str) -> Result<bool> {
         }]
     });
 
-    let response = client.post(webhook_url).json(&payload).send().await?;
+    let response = client
+        .post(webhook_url)
+        .json(&payload)
+        .send()
+        .await
+        .map_err(|e| anyhow!("Discord webhook validation failed: {}", e.without_url()))?;
 
     Ok(response.status().is_success())
 }
