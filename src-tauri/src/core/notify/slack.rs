@@ -207,10 +207,10 @@ mod tests {
                     recency: 0.05,
                 },
                 reasons: vec![
-                    "✓ Title matches: Senior Rust Engineer".to_string(),
-                    "✓ Has keyword: Rust".to_string(),
-                    "✓ Salary >= $150,000".to_string(),
-                    "✓ Remote job (matches preference)".to_string(),
+                    "Title matches: Senior Rust Engineer".to_string(),
+                    "Keyword match: Rust".to_string(),
+                    "Salary 120% of target (100% credit)".to_string(),
+                    "Remote job (matches preference)".to_string(),
                 ],
             },
         }
@@ -475,7 +475,7 @@ mod tests {
 
         // Should contain all reasons separated by newlines
         assert!(reasons_text.contains("Title matches"));
-        assert!(reasons_text.contains("Has keyword: Rust"));
+        assert!(reasons_text.contains("Keyword match: Rust"));
         assert!(reasons_text.contains("Salary"));
         assert!(reasons_text.contains("Remote job"));
 
@@ -752,9 +752,9 @@ mod tests {
     fn test_notification_with_markdown_special_chars() {
         let mut notification = create_test_notification();
         notification.score.reasons = vec![
-            "✓ Has *asterisks* and _underscores_".to_string(),
-            "✓ Contains `backticks` and ~tildes~".to_string(),
-            "✓ Has [brackets] and (parens)".to_string(),
+            "Has *asterisks* and _underscores_".to_string(),
+            "Contains `backticks` and ~tildes~".to_string(),
+            "Has [brackets] and (parens)".to_string(),
         ];
 
         let reasons_text = notification.score.reasons.join("\n");
@@ -771,12 +771,12 @@ mod tests {
     #[test]
     fn test_notification_with_very_long_reason() {
         let mut notification = create_test_notification();
-        let long_reason = "✓ ".to_string() + &"Very long reason text ".repeat(50);
+        let long_reason = "Very long reason text ".repeat(50);
         notification.score.reasons = vec![long_reason.clone()];
 
         let reasons_text = notification.score.reasons.join("\n");
         assert_eq!(reasons_text.len(), long_reason.len());
-        assert!(reasons_text.starts_with("✓ Very long"));
+        assert!(reasons_text.starts_with("Very long"));
     }
 
     #[test]
@@ -987,9 +987,9 @@ mod tests {
     fn test_notification_reasons_formatting_with_bullets() {
         let mut notification = create_test_notification();
         notification.score.reasons = vec![
-            "✓ First reason".to_string(),
-            "✓ Second reason".to_string(),
-            "✓ Third reason".to_string(),
+            "First reason".to_string(),
+            "Second reason".to_string(),
+            "Third reason".to_string(),
         ];
 
         let payload = json!({
@@ -1006,9 +1006,9 @@ mod tests {
 
         let reasons_text = payload["blocks"][0]["text"]["text"].as_str().unwrap();
         assert!(reasons_text.starts_with("*Why this matches:*\n"));
-        assert!(reasons_text.contains("✓ First reason"));
-        assert!(reasons_text.contains("✓ Second reason"));
-        assert!(reasons_text.contains("✓ Third reason"));
+        assert!(reasons_text.contains("First reason"));
+        assert!(reasons_text.contains("Second reason"));
+        assert!(reasons_text.contains("Third reason"));
     }
 
     #[test]
@@ -1368,17 +1368,17 @@ mod tests {
     #[test]
     fn test_build_reasons_section_block_content() {
         let reasons = vec![
-            "✓ Title matches".to_string(),
-            "✓ Has keyword: Rust".to_string(),
-            "✓ Salary >= $150,000".to_string(),
+            "Title matches".to_string(),
+            "Keyword match: Rust".to_string(),
+            "Salary 120% of target (100% credit)".to_string(),
         ];
         let block = build_reasons_section_block(&reasons);
 
         let text = block["text"]["text"].as_str().unwrap();
         assert!(text.starts_with("*Why this matches:*\n"));
         assert!(text.contains("Title matches"));
-        assert!(text.contains("Has keyword: Rust"));
-        assert!(text.contains("Salary >= $150,000"));
+        assert!(text.contains("Keyword match: Rust"));
+        assert!(text.contains("Salary 120% of target (100% credit)"));
     }
 
     #[test]
@@ -1416,8 +1416,8 @@ mod tests {
     #[test]
     fn test_build_reasons_section_block_with_markdown() {
         let reasons = vec![
-            "✓ Has *asterisks* and _underscores_".to_string(),
-            "✓ Contains `backticks`".to_string(),
+            "Has *asterisks* and _underscores_".to_string(),
+            "Contains `backticks`".to_string(),
         ];
         let block = build_reasons_section_block(&reasons);
 
@@ -1516,7 +1516,7 @@ mod tests {
 
         let reasons_text = payload["blocks"][2]["text"]["text"].as_str().unwrap();
         assert!(reasons_text.contains("Title matches"));
-        assert!(reasons_text.contains("Has keyword: Rust"));
+        assert!(reasons_text.contains("Keyword match: Rust"));
     }
 
     #[test]

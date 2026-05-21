@@ -315,6 +315,30 @@ test("checkRepoBloat rejects backend scoring reason glyph markers", () => {
   });
 });
 
+test("checkRepoBloat rejects notification scoring reason glyph markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/notify/slack.rs",
+      'reasons: vec!["✓ Title matches".to_string()],\n',
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/notify/slack.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace notification scoring reason glyph markers: src-tauri/src/core/notify/slack.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects bookmarklet doc status emoji markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(
@@ -2170,6 +2194,33 @@ test("checkRepoBloat rejects smart scoring doc glyph markers", () => {
 
     assert.ok(
       violations.includes("replace smart scoring doc glyph markers: docs/features/smart-scoring.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects notifications doc glyph markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/notifications.md",
+      [
+        '2. Click "Create New App" → "From Scratch"',
+        "src-tauri/src/core/notify/",
+        "├── mod.rs",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/features/notifications.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace notifications doc glyph markers: docs/features/notifications.md"),
       violations.join("\n"),
     );
   });

@@ -295,6 +295,15 @@ const backendScoringReasonPaths = new Set([
   "src-tauri/src/core/scoring/remote.rs",
 ]);
 
+const notificationScoringReasonPaths = new Set([
+  "src-tauri/src/core/notify/discord.rs",
+  "src-tauri/src/core/notify/email.rs",
+  "src-tauri/src/core/notify/mod.rs",
+  "src-tauri/src/core/notify/slack.rs",
+  "src-tauri/src/core/notify/teams.rs",
+  "src-tauri/src/core/notify/telegram.rs",
+]);
+
 function readPackageManifest(root) {
   return JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
 }
@@ -800,6 +809,14 @@ function hasBackendScoringReasonGlyphMarkers(root, path) {
   );
 }
 
+function hasNotificationScoringReasonGlyphMarkers(root, path) {
+  if (!notificationScoringReasonPaths.has(path)) {
+    return false;
+  }
+
+  return /\u{2713}/u.test(readFileSync(join(root, path), "utf8"));
+}
+
 function hasFrontendStatusEmojiMarkers(root, path) {
   if (!frontendStatusEmojiPaths.has(path)) {
     return false;
@@ -1089,6 +1106,16 @@ function hasSmartScoringDocGlyphMarkers(root, path) {
   }
 
   return /[\u{2713}\u{2717}\u{2192}\u{251c}\u{2514}\u{2500}\u{2502}]/u.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
+function hasNotificationsDocGlyphMarkers(root, path) {
+  if (path !== "docs/features/notifications.md") {
+    return false;
+  }
+
+  return /[\u{2192}\u{251c}\u{2514}\u{2500}\u{2502}\u{22ef}]/u.test(
     readFileSync(join(root, path), "utf8"),
   );
 }
@@ -1968,6 +1995,10 @@ export function checkRepoBloat(root = defaultRoot) {
       violations.push(`replace backend scoring reason glyph markers: ${path}`);
     }
 
+    if (hasNotificationScoringReasonGlyphMarkers(root, path)) {
+      violations.push(`replace notification scoring reason glyph markers: ${path}`);
+    }
+
     if (hasFrontendStatusEmojiMarkers(root, path)) {
       violations.push(`replace frontend status emoji markers: ${path}`);
     }
@@ -2054,6 +2085,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasSmartScoringDocGlyphMarkers(root, path)) {
       violations.push(`replace smart scoring doc glyph markers: ${path}`);
+    }
+
+    if (hasNotificationsDocGlyphMarkers(root, path)) {
+      violations.push(`replace notifications doc glyph markers: ${path}`);
     }
 
     if (hasStaleSalaryAiFutureUiClaim(root, path)) {

@@ -166,7 +166,7 @@ fn format_html_email(job: &crate::core::db::Job, score: &crate::core::scoring::J
 
             <div style="text-align: center; margin-top: 30px;">
                 <a href="{}" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 16px;">
-                    View Full Job Posting →
+                    View Full Job Posting
                 </a>
             </div>
         </div>
@@ -240,7 +240,7 @@ You can adjust your notification preferences in the app settings.
         score
             .reasons
             .iter()
-            .map(|r| format!("  • {}", r))
+            .map(|r| format!("  - {}", r))
             .collect::<Vec<_>>()
             .join("\n"),
         job.url,
@@ -354,10 +354,10 @@ mod tests {
                     recency: 0.05,
                 },
                 reasons: vec![
-                    "✓ Title matches: Senior Rust Engineer".to_string(),
-                    "✓ Has keyword: Rust".to_string(),
-                    "✓ Salary >= $150,000".to_string(),
-                    "✓ Remote job (matches preference)".to_string(),
+                    "Title matches: Senior Rust Engineer".to_string(),
+                    "Keyword match: Rust".to_string(),
+                    "Salary 120% of target (100% credit)".to_string(),
+                    "Remote job (matches preference)".to_string(),
                 ],
             },
         }
@@ -834,9 +834,9 @@ mod tests {
 
         let text = format_text_email(&notification.job, &notification.score);
 
-        // Each reason should have bullet point
+        // Each reason should have list marker
         for reason in &notification.score.reasons {
-            assert!(text.contains(&format!("  • {}", reason)));
+            assert!(text.contains(&format!("  - {}", reason)));
         }
     }
 
@@ -857,7 +857,7 @@ mod tests {
 
         let text = format_text_email(&notification.job, &notification.score);
 
-        assert!(text.contains("  • Only one reason"));
+        assert!(text.contains("  - Only one reason"));
     }
 
     #[test]

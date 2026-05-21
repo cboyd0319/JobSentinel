@@ -39,13 +39,13 @@ You can enable multiple channels at once - they all fire simultaneously.
 ### Slack
 
 1. Go to [Slack Webhooks](https://api.slack.com/messaging/webhooks)
-2. Click "Create New App" → "From Scratch"
+2. Click "Create New App" > "From Scratch"
 3. Name it "JobSentinel" and pick your workspace
 4. Enable "Incoming Webhooks"
 5. Click "Add New Webhook to Workspace"
 6. Pick a channel (like #job-alerts)
 7. Copy the webhook URL
-8. In JobSentinel: Settings → Notifications → Slack → Paste URL
+8. In JobSentinel: Settings > Notifications > Slack > Paste URL
 
 **What you'll get:** Rich formatted messages with job details and a "View Job" button.
 
@@ -54,12 +54,12 @@ You can enable multiple channels at once - they all fire simultaneously.
 ### Discord
 
 1. Open your Discord server
-2. Go to Server Settings → Integrations → Webhooks
+2. Go to Server Settings > Integrations > Webhooks
 3. Click "New Webhook"
 4. Name it "JobSentinel"
 5. Pick a channel
 6. Copy the webhook URL
-7. In JobSentinel: Settings → Notifications → Discord → Paste URL
+7. In JobSentinel: Settings > Notifications > Discord > Paste URL
 
 **What you'll get:** Color-coded embeds (green for high scores, yellow for medium).
 
@@ -70,11 +70,11 @@ You can enable multiple channels at once - they all fire simultaneously.
 ### Microsoft Teams
 
 1. Open Teams and go to your target channel
-2. Click ⋯ → Connectors
+2. Click More options > Connectors
 3. Find "Incoming Webhook" and click Configure
 4. Name it "JobSentinel"
 5. Copy the webhook URL
-6. In JobSentinel: Settings → Notifications → Teams → Paste URL
+6. In JobSentinel: Settings > Notifications > Teams > Paste URL
 
 **What you'll get:** Cards with job details and action buttons.
 
@@ -82,7 +82,7 @@ You can enable multiple channels at once - they all fire simultaneously.
 
 ### Email
 
-1. In JobSentinel: Settings → Notifications → Email
+1. In JobSentinel: Settings > Notifications > Email
 2. Enter your SMTP server details:
    - **Gmail:** `smtp.gmail.com`, port `587`
    - **Outlook:** `smtp-mail.outlook.com`, port `587`
@@ -92,7 +92,7 @@ You can enable multiple channels at once - they all fire simultaneously.
 **Gmail users:** You need an App Password, not your regular password:
 
 1. Enable 2-factor authentication on your Google account
-2. Go to Security → App Passwords
+2. Go to Security > App Passwords
 3. Generate a password for "Mail"
 4. Use that password in JobSentinel
 
@@ -109,7 +109,7 @@ You can enable multiple channels at once - they all fire simultaneously.
 5. Get your chat ID:
    - For groups: Use [@userinfobot](https://t.me/userinfobot)
    - For channels: Forward a message to [@getmyid_bot](https://t.me/getmyid_bot)
-6. In JobSentinel: Settings → Notifications → Telegram → Enter token and chat ID
+6. In JobSentinel: Settings > Notifications > Telegram > Enter token and chat ID
 
 **Note:** Chat IDs for groups start with `-` (it's a negative number).
 
@@ -119,7 +119,7 @@ You can enable multiple channels at once - they all fire simultaneously.
 
 ### Desktop Notifications
 
-1. In JobSentinel: Settings → Notifications → Desktop → Enable
+1. In JobSentinel: Settings > Notifications > Desktop > Enable
 
 That's it! No webhook setup needed.
 
@@ -135,7 +135,7 @@ That's it! No webhook setup needed.
 
 By default, JobSentinel sends notifications for jobs scoring **90% or higher**.
 
-You can adjust this threshold in Settings → Notifications → Alert Threshold.
+You can adjust this threshold in Settings > Notifications > Alert Threshold.
 
 **Tip:** Start at 90% to avoid notification spam. Lower it to 80% if you want more alerts.
 
@@ -226,13 +226,13 @@ Webhooks are validated before sending:
 
 ```text
 src-tauri/src/core/notify/
-├── mod.rs       # Main router
-├── slack.rs     # Slack webhooks
-├── discord.rs   # Discord webhooks
-├── teams.rs     # Teams webhooks
-├── email.rs     # SMTP email
-├── telegram.rs  # Telegram Bot API
-└── desktop.rs   # Native OS notifications
+- mod.rs       # Main router
+- slack.rs     # Slack webhooks
+- discord.rs   # Discord webhooks
+- teams.rs     # Teams webhooks
+- email.rs     # SMTP email
+- telegram.rs  # Telegram Bot API
+- desktop.rs   # Native OS notifications
 ```
 
 ### SMTP Settings

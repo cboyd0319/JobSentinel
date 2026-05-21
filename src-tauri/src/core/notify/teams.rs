@@ -223,10 +223,10 @@ mod tests {
                     recency: 0.05,
                 },
                 reasons: vec![
-                    "✓ Title matches: Senior Rust Engineer".to_string(),
-                    "✓ Has keyword: Rust".to_string(),
-                    "✓ Salary >= $150,000".to_string(),
-                    "✓ Remote job (matches preference)".to_string(),
+                    "Title matches: Senior Rust Engineer".to_string(),
+                    "Keyword match: Rust".to_string(),
+                    "Salary 120% of target (100% credit)".to_string(),
+                    "Remote job (matches preference)".to_string(),
                 ],
             },
         }
@@ -840,7 +840,7 @@ mod tests {
         let notification = create_test_notification();
         assert_eq!(notification.score.reasons.len(), 4);
         assert!(notification.score.reasons[0].contains("Title matches"));
-        assert!(notification.score.reasons[1].contains("Has keyword"));
+        assert!(notification.score.reasons[1].contains("Keyword match"));
         assert!(notification.score.reasons[2].contains("Salary"));
         assert!(notification.score.reasons[3].contains("Remote"));
     }
@@ -987,7 +987,7 @@ mod tests {
         );
         assert!(text.starts_with("**Why this matches:**"));
         assert!(text.contains("\n\n"));
-        assert!(text.contains("✓ Title matches"));
+        assert!(text.contains("Title matches"));
     }
 
     #[test]
@@ -1033,9 +1033,9 @@ mod tests {
     #[test]
     fn test_single_reason() {
         let mut notification = create_test_notification();
-        notification.score.reasons = vec!["✓ Only reason".to_string()];
+        notification.score.reasons = vec!["Only reason".to_string()];
         let text = notification.score.reasons.join("\n\n");
-        assert_eq!(text, "✓ Only reason");
+        assert_eq!(text, "Only reason");
     }
 
     #[test]
@@ -1232,9 +1232,9 @@ mod tests {
     #[test]
     fn test_multiple_reasons_formatting() {
         let reasons = vec![
-            "✓ First reason".to_string(),
-            "✓ Second reason".to_string(),
-            "✓ Third reason".to_string(),
+            "First reason".to_string(),
+            "Second reason".to_string(),
+            "Third reason".to_string(),
         ];
         let text = reasons.join("\n\n");
 
@@ -1402,8 +1402,8 @@ mod tests {
     #[test]
     fn test_reasons_text_with_markdown() {
         let reasons = vec![
-            "✓ **Strong match**: 95%".to_string(),
-            "✓ Remote: _preferred_".to_string(),
+            "**Strong match**: 95%".to_string(),
+            "Remote: _preferred_".to_string(),
         ];
         let text = format!("**Why this matches:**\n\n{}", reasons.join("\n\n"));
 
@@ -1629,17 +1629,18 @@ mod tests {
     #[test]
     fn test_reasons_with_unicode_characters() {
         let reasons = vec![
-            "✓ Match: 95%".to_string(),
-            "✅ Remote available".to_string(),
-            "❌ No relocation".to_string(),
-            "🎯 Perfect fit".to_string(),
+            "Match: 95%".to_string(),
+            "Café role match".to_string(),
+            "Startup™ preferred company".to_string(),
+            "São Paulo timezone overlap".to_string(),
+            "Zürich relocation not required".to_string(),
         ];
         let text = reasons.join("\n\n");
 
-        assert!(text.contains("✓"));
-        assert!(text.contains("✅"));
-        assert!(text.contains("❌"));
-        assert!(text.contains("🎯"));
+        assert!(text.contains("é"));
+        assert!(text.contains("™"));
+        assert!(text.contains("São"));
+        assert!(text.contains("Zürich"));
     }
 
     #[test]

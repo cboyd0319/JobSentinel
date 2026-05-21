@@ -221,10 +221,10 @@ mod tests {
                     recency: 0.05,
                 },
                 reasons: vec![
-                    "✓ Title matches: Senior Rust Engineer".to_string(),
-                    "✓ Has keyword: Rust".to_string(),
-                    "✓ Salary >= $150,000".to_string(),
-                    "✓ Remote job (matches preference)".to_string(),
+                    "Title matches: Senior Rust Engineer".to_string(),
+                    "Keyword match: Rust".to_string(),
+                    "Salary 120% of target (100% credit)".to_string(),
+                    "Remote job (matches preference)".to_string(),
                 ],
             },
         }
@@ -557,7 +557,7 @@ mod tests {
 
         assert!(reasons_text.contains('\n'));
         assert!(reasons_text.contains("Title matches"));
-        assert!(reasons_text.contains("keyword: Rust"));
+        assert!(reasons_text.contains("Keyword match: Rust"));
     }
 
     #[test]
@@ -772,13 +772,12 @@ mod tests {
     fn test_score_reasons_with_special_characters() {
         let mut notification = create_test_notification();
         notification.score.reasons = vec![
-            "✓ C++ & Python skills".to_string(),
-            "✓ $200k+ salary".to_string(),
-            "✓ Remote (100%)".to_string(),
+            "C++ & Python skills".to_string(),
+            "$200k+ salary".to_string(),
+            "Remote (100%)".to_string(),
         ];
 
         let reasons_text = notification.score.reasons.join("\n");
-        assert!(reasons_text.contains("✓"));
         assert!(reasons_text.contains("&"));
         assert!(reasons_text.contains("$"));
         assert!(reasons_text.contains("("));
@@ -1001,10 +1000,10 @@ mod tests {
     #[test]
     fn test_reasons_single_item() {
         let mut notification = create_test_notification();
-        notification.score.reasons = vec!["✓ Perfect match".to_string()];
+        notification.score.reasons = vec!["Perfect match".to_string()];
 
         let reasons_text = notification.score.reasons.join("\n");
-        assert_eq!(reasons_text, "✓ Perfect match");
+        assert_eq!(reasons_text, "Perfect match");
     }
 
     #[test]

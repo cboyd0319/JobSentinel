@@ -296,10 +296,10 @@ mod tests {
                     recency: 0.05,
                 },
                 reasons: vec![
-                    "✓ Title matches: Senior Rust Engineer".to_string(),
-                    "✓ Has keyword: Rust".to_string(),
-                    "✓ Salary >= $150,000".to_string(),
-                    "✓ Remote job (matches preference)".to_string(),
+                    "Title matches: Senior Rust Engineer".to_string(),
+                    "Keyword match: Rust".to_string(),
+                    "Salary 120% of target (100% credit)".to_string(),
+                    "Remote job (matches preference)".to_string(),
                 ],
             },
         }
@@ -355,7 +355,7 @@ mod tests {
 
         // Check that all reasons are included (note: some special chars will be escaped)
         assert!(message.contains("Title matches"));
-        assert!(message.contains("keyword: Rust"));
+        assert!(message.contains("Keyword match: Rust"));
         assert!(message.contains("Salary"));
         assert!(message.contains("Remote job"));
     }
