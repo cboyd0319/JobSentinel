@@ -2064,7 +2064,13 @@ test("checkRepoBloat rejects Resume Matcher and Salary AI feature doc emoji mark
     writeFixtureFile(
       root,
       "docs/features/salary-ai.md",
-      [`## ${targetIcon} Overview`, `- **${chartIcon} Salary Benchmarks**`, ""].join("\n"),
+      [
+        `## ${targetIcon} Overview`,
+        `- **${chartIcon} Salary Benchmarks**`,
+        "job_hash (FK → jobs)",
+        "├── placeholders",
+        "",
+      ].join("\n"),
     );
 
     execFileSync(

@@ -75,41 +75,41 @@ Salary benchmark data
 ```sql
 -- H1B salary data (public DOL database)
 h1b_salaries
-├── job_title, employer_name
-├── wage_rate_of_pay_from/to
-├── work_city, work_state
-├── soc_code, case_status
-└── decision_date
+- job_title, employer_name
+- wage_rate_of_pay_from/to
+- work_city, work_state
+- soc_code, case_status
+- decision_date
 
 -- Aggregated benchmarks
 salary_benchmarks
-├── job_title_normalized
-├── location_normalized
-├── seniority_level (entry, mid, senior, staff, principal)
-├── min_salary, p25, median, p75, max
-├── average_salary, sample_size
-└── data_source (h1b, user_reported)
+- job_title_normalized
+- location_normalized
+- seniority_level (entry, mid, senior, staff, principal)
+- min_salary, p25, median, p75, max
+- average_salary, sample_size
+- data_source (h1b, user_reported)
 
 -- Job salary predictions
 job_salary_predictions
-├── job_hash (FK → jobs)
-├── predicted_min, predicted_median, predicted_max
-├── confidence_score (0.0-1.0)
-└── prediction_method
+- job_hash (FK to jobs)
+- predicted_min, predicted_median, predicted_max
+- confidence_score (0.0-1.0)
+- prediction_method
 
 -- Negotiation templates
 negotiation_templates
-├── template_name, scenario
-├── template_text
-├── placeholders (JSON)
-└── is_default
+- template_name, scenario
+- template_text
+- placeholders (JSON)
+- is_default
 
 -- Negotiation history
 negotiation_history
-├── offer_id (FK → offers)
-├── negotiation_round
-├── initial_offer, counter_offer, final_offer
-└── outcome
+- offer_id (FK to offers)
+- negotiation_round
+- initial_offer, counter_offer, final_offer
+- outcome
 ```
 
 ---
@@ -184,7 +184,7 @@ for comp in comparisons {
     println!("  Base: ${}", comp.base_salary);
     println!("  Total: ${}", comp.total_compensation);
     println!("  Market: {}", comp.market_position);
-    println!("  → {}", comp.recommendation);
+    println!("  Recommendation: {}", comp.recommendation);
 }
 ```
 
@@ -195,19 +195,19 @@ Google
   Base: $180,000
   Total: $250,000
   Market: above_market
-  → Excellent offer! Accept or negotiate equity.
+  Recommendation: Excellent offer! Accept or negotiate equity.
 
 Meta
   Base: $170,000
   Total: $300,000
   Market: at_market
-  → Fair offer. Consider negotiating for 10-15% more.
+  Recommendation: Fair offer. Consider negotiating for 10-15% more.
 
 Startup XYZ
   Base: $130,000
   Total: $150,000
   Market: below_market
-  → Below market. Counter with $150,000-$180,000.
+  Recommendation: Below market. Counter with $150,000-$180,000.
 ```
 
 ### 4. Generate Negotiation Script
@@ -327,11 +327,11 @@ sqlx::query!(
 let seniority = SeniorityLevel::from_years_of_experience(5);
 // Output: SeniorityLevel::Mid
 
-// 0-2 years  → Entry
-// 3-5 years  → Mid
-// 6-10 years → Senior
-// 11-15 years → Staff
-// 16+ years  → Principal
+// 0-2 years: Entry
+// 3-5 years: Mid
+// 6-10 years: Senior
+// 11-15 years: Staff
+// 16+ years: Principal
 ```
 
 **From Job Title:**
@@ -340,10 +340,10 @@ let seniority = SeniorityLevel::from_years_of_experience(5);
 let seniority = SeniorityLevel::from_job_title("Senior Software Engineer");
 // Output: SeniorityLevel::Senior
 
-// Detects: junior, associate → Entry
-// Detects: senior, sr., lead → Senior
-// Detects: staff, architect → Staff
-// Detects: principal, distinguished → Principal
+// Detects: junior, associate: Entry
+// Detects: senior, sr., lead: Senior
+// Detects: staff, architect: Staff
+// Detects: principal, distinguished: Principal
 ```
 
 ---
@@ -599,7 +599,7 @@ impl SalaryPredictor {
 
 ### Phase 2-4: Future
 
-- [ ] H1B data import tool (CSV → SQLite)
+- [ ] H1B data import tool (CSV to SQLite)
 - [ ] ML-based salary prediction
 - [ ] Levels.fyi integration
 - [ ] GPT-powered script generation

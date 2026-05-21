@@ -1095,7 +1095,7 @@ function hasResumeOrSalaryFeatureDocEmojiMarkers(root, path) {
     return false;
   }
 
-  return /(?:\p{Extended_Pictographic}|[\u{1f1e6}-\u{1f1ff}\u{2713}\u{2717}\u{2022}])/u.test(
+  return /(?:\p{Extended_Pictographic}|[\u{1f1e6}-\u{1f1ff}\u{2192}\u{2500}\u{2502}\u{2514}\u{251c}\u{2713}\u{2717}\u{2022}])/u.test(
     readFileSync(join(root, path), "utf8"),
   );
 }
