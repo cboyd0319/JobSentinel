@@ -3073,7 +3073,6 @@ test("checkRepoBloat rejects secret-bearing Debug derives", () => {
         "",
       ].join("\n"),
     );
-
     execFileSync("git", ["add", "package.json", "src-tauri/src/commands/config.rs"], {
       cwd: root,
     });
@@ -3680,6 +3679,65 @@ test("checkRepoBloat rejects raw path or query error display", () => {
 
     assert.ok(
       violations.includes("replace raw path/query error display: src-tauri/src/core/db/error.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw command setup error display", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/config.rs",
+      [
+        "pub async fn complete_setup() -> Result<(), String> {",
+        "    Database::connect(&db_path)",
+        "        .await",
+        "        .map_err(|e| format!(\"Failed to connect to database: {}\", e))?;",
+        "    Ok(())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/main.rs",
+      [
+        "fn main() {",
+        "    match Config::load(&config_path) {",
+        "        Err(e) => {",
+        "            tracing::error!(\"Failed to load config: {}\", e);",
+        "            return Err(format!(\"Configuration error: {}\", e).into());",
+        "        }",
+        "        _ => {}",
+        "    }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/commands/config.rs",
+        "src-tauri/src/main.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace raw command setup error display: src-tauri/src/commands/config.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace raw command setup error display: src-tauri/src/main.rs"),
       violations.join("\n"),
     );
   });

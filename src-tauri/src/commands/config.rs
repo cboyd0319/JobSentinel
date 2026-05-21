@@ -2,9 +2,11 @@
 //!
 //! Commands for saving, retrieving, and validating app configuration.
 
+use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
 use crate::core::config::{Config, EmailConfig};
 use crate::core::db::Database;
+use crate::core::logging::path_label_for_logging;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::fmt;
@@ -60,9 +62,15 @@ pub async fn save_config(config: Value, _state: State<'_, AppState>) -> Result<(
 
     // Save to file
     let config_path = Config::default_path();
-    parsed_config
-        .save(&config_path)
-        .map_err(|e| format!("Failed to save config: {}", e))?;
+    parsed_config.save(&config_path).map_err(|e| {
+        let message = user_friendly_error("Failed to save configuration", &e);
+        tracing::error!(
+            config_path = %path_label_for_logging(&config_path),
+            error = %message,
+            "Failed to save configuration"
+        );
+        message
+    })?;
 
     tracing::info!("Configuration saved successfully");
     Ok(())
@@ -115,25 +123,45 @@ pub async fn complete_setup(config: Value) -> Result<(), String> {
     // Ensure config directory exists
     let config_path = Config::default_path();
     if let Some(parent) = config_path.parent() {
-        std::fs::create_dir_all(parent)
-            .map_err(|e| format!("Failed to create config directory: {}", e))?;
+        std::fs::create_dir_all(parent).map_err(|e| {
+            let message = user_friendly_error("Failed to create configuration directory", &e);
+            tracing::error!(
+                config_dir = %path_label_for_logging(parent),
+                error = %message,
+                "Failed to create configuration directory"
+            );
+            message
+        })?;
     }
 
     // Save configuration
-    parsed_config
-        .save(&config_path)
-        .map_err(|e| format!("Failed to save config: {}", e))?;
+    parsed_config.save(&config_path).map_err(|e| {
+        let message = user_friendly_error("Failed to save configuration", &e);
+        tracing::error!(
+            config_path = %path_label_for_logging(&config_path),
+            error = %message,
+            "Failed to save setup configuration"
+        );
+        message
+    })?;
 
     // Initialize database
     let db_path = Database::default_path();
-    let database = Database::connect(&db_path)
-        .await
-        .map_err(|e| format!("Failed to connect to database: {}", e))?;
+    let database = Database::connect(&db_path).await.map_err(|e| {
+        let message = user_friendly_error("Failed to initialize database", &e);
+        tracing::error!(
+            db_path = %path_label_for_logging(&db_path),
+            error = %message,
+            "Failed to connect to setup database"
+        );
+        message
+    })?;
 
-    database
-        .migrate()
-        .await
-        .map_err(|e| format!("Failed to migrate database: {}", e))?;
+    database.migrate().await.map_err(|e| {
+        let message = user_friendly_error("Failed to initialize database", &e);
+        tracing::error!(error = %message, "Failed to migrate setup database");
+        message
+    })?;
 
     tracing::info!("Setup complete");
     Ok(())
@@ -187,5 +215,18 @@ mod tests {
             "TestEmailConfig Debug output must not contain password. Got: {}",
             debug_output
         );
+    }
+
+    #[test]
+    fn test_command_error_formatter_omits_raw_paths() {
+        let msg = user_friendly_error(
+            "Failed to initialize database",
+            "sqlite:///Users/alice/.config/jobsentinel/jobs.db?mode=rwc: unable to open database file",
+        );
+
+        assert!(!msg.contains("/Users/alice"), "path leaked: {msg}");
+        assert!(!msg.contains("jobs.db"), "database file leaked: {msg}");
+        assert!(!msg.contains("sqlite:"), "database URL leaked: {msg}");
+        assert!(msg.contains("Failed to initialize database"));
     }
 }

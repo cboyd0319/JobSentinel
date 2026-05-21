@@ -237,6 +237,11 @@ const rawUrlErrorDisplayPaths = new Set([
 ]);
 
 const rawPathOrQueryErrorDisplayPaths = new Set(["src-tauri/src/core/db/error.rs"]);
+const rawCommandSetupErrorDisplayPaths = new Set([
+  "src-tauri/src/commands/config.rs",
+  "src-tauri/src/commands/ghost.rs",
+  "src-tauri/src/main.rs",
+]);
 const configValidationPrivacyPaths = new Set([
   "src-tauri/src/core/config/validation_error.rs",
 ]);
@@ -1605,6 +1610,24 @@ function hasRawPathOrQueryErrorDisplay(root, path) {
   return /#\[error\("[^"]*\{(?:path|query)\}/.test(readFileSync(join(root, path), "utf8"));
 }
 
+function hasRawCommandSetupErrorDisplay(root, path) {
+  if (!rawCommandSetupErrorDisplayPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /map_err\(\s*\|e\|\s*format!\(\s*"Failed to (?:load config|save config|create config directory|connect to database|migrate database|run migrations): \{\}"\s*,\s*e\s*\)\s*\)/.test(
+      productionText,
+    ) ||
+    /format!\(\s*"Configuration error: \{\}"\s*,\s*e\s*\)/.test(productionText) ||
+    /tracing::error!\(\s*"Failed to load config: \{\}"\s*,\s*e\s*\)/.test(productionText) ||
+    /tracing::error!\([\s\S]{0,240}error\s*=\s*%e[\s\S]{0,240}"Failed to [^"]*(?:config|configuration|database)"/.test(
+      productionText,
+    )
+  );
+}
+
 function hasRawConfigValidationUrlDisplay(root, path) {
   if (!configValidationPrivacyPaths.has(path)) {
     return false;
@@ -2557,6 +2580,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawPathOrQueryErrorDisplay(root, path)) {
       violations.push(`replace raw path/query error display: ${path}`);
+    }
+
+    if (hasRawCommandSetupErrorDisplay(root, path)) {
+      violations.push(`replace raw command setup error display: ${path}`);
     }
 
     if (hasRawConfigValidationUrlDisplay(root, path)) {

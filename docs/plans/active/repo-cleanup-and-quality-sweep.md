@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Sanitized frontend-visible config/setup/ghost command errors so database URLs, local paths, and raw setup failures are not echoed into command responses; added bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Wired hardened Resume Builder contact validation into the live next/save gate so invalid emails, phone numbers, deceptive profile URL schemes, and URL credentials cannot be saved by bypassing blur-time field validation. |
 | 2026-05-21 | In progress | Hardened Resume Builder contact URL validation so bare profile domains still work but deceptive `http*` schemes and embedded credentials are rejected, with frontend-boundary coverage. |
 | 2026-05-21 | In progress | Sanitized invalid Greenhouse and Lever config URL error display so userinfo, queries, and fragments are not echoed into frontend-visible validation errors. |

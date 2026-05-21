@@ -350,8 +350,14 @@ fn main() {
                         cfg
                     }
                     Err(e) => {
-                        tracing::error!("Failed to load config: {}", e);
-                        return Err(format!("Configuration error: {}", e).into());
+                        let message =
+                            commands::errors::user_friendly_error("Configuration error", &e);
+                        tracing::error!(
+                            config_path = %path_label_for_logging(&config_path),
+                            error = %message,
+                            "Failed to load configuration"
+                        );
+                        return Err(message.into());
                     }
                 }
             } else {
@@ -405,13 +411,23 @@ fn main() {
             );
 
             let database = tauri::async_runtime::block_on(async {
-                let db = Database::connect(&db_path)
-                    .await
-                    .map_err(|e| format!("Failed to connect to database: {}", e))?;
+                let db = Database::connect(&db_path).await.map_err(|e| {
+                    let message =
+                        commands::errors::user_friendly_error("Failed to initialize database", &e);
+                    tracing::error!(
+                        db_path = %path_label_for_logging(&db_path),
+                        error = %message,
+                        "Failed to connect to database"
+                    );
+                    message
+                })?;
 
-                db.migrate()
-                    .await
-                    .map_err(|e| format!("Failed to run migrations: {}", e))?;
+                db.migrate().await.map_err(|e| {
+                    let message =
+                        commands::errors::user_friendly_error("Failed to initialize database", &e);
+                    tracing::error!(error = %message, "Failed to run database migrations");
+                    message
+                })?;
 
                 Ok::<Database, String>(db)
             })?;

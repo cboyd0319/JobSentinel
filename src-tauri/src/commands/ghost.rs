@@ -2,9 +2,11 @@
 //!
 //! Commands for identifying and filtering ghost/fake job postings.
 
+use crate::commands::errors::user_friendly_error;
 use crate::commands::limits::{validate_command_limit_i64, validate_optional_command_limit_i64};
 use crate::commands::AppState;
 use crate::core::ghost::GhostConfig;
+use crate::core::logging::path_label_for_logging;
 use serde_json::Value;
 use tauri::State;
 
@@ -153,8 +155,15 @@ pub async fn set_ghost_config(config: Value, _state: State<'_, AppState>) -> Res
     // Load current config
     let config_path = crate::core::config::Config::default_path();
     let mut current_config = if config_path.exists() {
-        crate::core::config::Config::load(&config_path)
-            .map_err(|e| format!("Failed to load config: {}", e))?
+        crate::core::config::Config::load(&config_path).map_err(|e| {
+            let message = user_friendly_error("Failed to load configuration", &e);
+            tracing::error!(
+                config_path = %path_label_for_logging(&config_path),
+                error = %message,
+                "Failed to load ghost configuration"
+            );
+            message
+        })?
     } else {
         return Err("Configuration not initialized".to_string());
     };
@@ -163,9 +172,15 @@ pub async fn set_ghost_config(config: Value, _state: State<'_, AppState>) -> Res
     current_config.ghost_config = Some(ghost_config);
 
     // Save to file
-    current_config
-        .save(&config_path)
-        .map_err(|e| format!("Failed to save config: {}", e))?;
+    current_config.save(&config_path).map_err(|e| {
+        let message = user_friendly_error("Failed to save configuration", &e);
+        tracing::error!(
+            config_path = %path_label_for_logging(&config_path),
+            error = %message,
+            "Failed to save ghost configuration"
+        );
+        message
+    })?;
 
     tracing::info!("Ghost detection config updated successfully");
     Ok(())
@@ -179,8 +194,15 @@ pub async fn reset_ghost_config(_state: State<'_, AppState>) -> Result<(), Strin
     // Load current config
     let config_path = crate::core::config::Config::default_path();
     let mut current_config = if config_path.exists() {
-        crate::core::config::Config::load(&config_path)
-            .map_err(|e| format!("Failed to load config: {}", e))?
+        crate::core::config::Config::load(&config_path).map_err(|e| {
+            let message = user_friendly_error("Failed to load configuration", &e);
+            tracing::error!(
+                config_path = %path_label_for_logging(&config_path),
+                error = %message,
+                "Failed to load ghost configuration"
+            );
+            message
+        })?
     } else {
         return Err("Configuration not initialized".to_string());
     };
@@ -189,9 +211,15 @@ pub async fn reset_ghost_config(_state: State<'_, AppState>) -> Result<(), Strin
     current_config.ghost_config = Some(GhostConfig::default());
 
     // Save to file
-    current_config
-        .save(&config_path)
-        .map_err(|e| format!("Failed to save config: {}", e))?;
+    current_config.save(&config_path).map_err(|e| {
+        let message = user_friendly_error("Failed to save configuration", &e);
+        tracing::error!(
+            config_path = %path_label_for_logging(&config_path),
+            error = %message,
+            "Failed to save ghost configuration"
+        );
+        message
+    })?;
 
     tracing::info!("Ghost detection config reset to defaults");
     Ok(())
