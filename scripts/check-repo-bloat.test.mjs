@@ -4457,6 +4457,7 @@ test("checkRepoBloat rejects stale keyring credential docs", () => {
         "JobSentinel v2.0.0 introduces OS-native keyring integration.",
         "Frontend uses `tauri-plugin-secure-storage` JS API.",
         "pub enum CredentialKey { SlackWebhookUrl, DiscordWebhookUrl, TeamsWebhookUrl }",
+        "pub fn list_status() -> Result<HashMap<String, bool>, String>;",
         "Does NOT delete plaintext values",
         "- ✅ Stored",
         "**Last Updated**: 2026-05-19",

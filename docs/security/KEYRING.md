@@ -81,7 +81,7 @@ impl CredentialStore {
     pub fn retrieve(key: CredentialKey) -> Result<Option<String>, String>;
     pub fn delete(key: CredentialKey) -> Result<(), String>;
     pub fn exists(key: CredentialKey) -> Result<bool, String>;
-    pub fn list_status() -> Result<HashMap<String, bool>, String>;
+    pub fn list_status() -> Vec<(CredentialKey, bool)>;
 }
 ```
 
@@ -101,7 +101,7 @@ pub async fn delete_credential(key: String) -> Result<(), String>;
 pub async fn has_credential(key: String) -> Result<bool, String>;
 
 #[tauri::command]
-pub async fn get_credential_status() -> Result<HashMap<String, bool>, String>;
+pub async fn get_credential_status() -> Result<Vec<CredentialStatus>, String>;
 ```
 
 ## Migration From Plaintext Config
@@ -123,10 +123,11 @@ app thinks migration is complete.
 
 ## Settings Status
 
-Settings displays credential presence with status text:
+Settings displays credential presence without returning credential values:
 
-- `Stored`: credential exists in the keyring.
-- `Not set`: credential is not configured.
+- `Stored in <keychain>`: credential exists in the OS keyring.
+- `Will store in <keychain>`: a newly entered credential will be saved there.
+- Empty credential fields mean no new credential value was entered.
 
 ## Security Considerations
 
@@ -193,7 +194,7 @@ should remain empty during normal use:
 ### Credentials Not Working
 
 1. Check credential status in Settings.
-2. Re-enter credentials that show `Not set`.
+2. Re-enter credentials that are missing or need rotation.
 3. Verify the OS credential store is unlocked.
 4. On Linux, confirm a Secret Service provider is running.
 
