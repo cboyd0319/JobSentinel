@@ -2083,7 +2083,13 @@ function hasStaleCredentialArchitectureComments(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /tauri-plugin-secure-storage` JS API|set_item|get_item|remove_item|[✅❌⚠️✓→←]/.test(text);
+  return (
+    /tauri-plugin-secure-storage` JS API|set_item|get_item|remove_item|[✅❌⚠️✓→←]/.test(
+      text,
+    ) ||
+    /println!\([^)]*(?:password|secret|token|webhook|cookie|api key)[^)]*\)/i.test(text) ||
+    /Got password/i.test(text)
+  );
 }
 
 function hasStaleNotificationPreferenceDocs(root, path) {

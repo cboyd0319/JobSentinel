@@ -169,9 +169,8 @@ fn validate_credential_value(key: CredentialKey, value: &str) -> Result<(), Stri
 /// CredentialStore::store(CredentialKey::SmtpPassword, "secret123")?;
 ///
 /// // Retrieve it
-/// if let Some(password) = CredentialStore::retrieve(CredentialKey::SmtpPassword)? {
-///     println!("Got password: {}", password);
-/// }
+/// let is_configured = CredentialStore::retrieve(CredentialKey::SmtpPassword)?.is_some();
+/// assert!(is_configured);
 ///
 /// // Delete it
 /// CredentialStore::delete(CredentialKey::SmtpPassword)?;

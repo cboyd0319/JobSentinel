@@ -4806,6 +4806,7 @@ test("checkRepoBloat rejects unsafe keyring migration and stale credential comme
       [
         "//! - Frontend uses `tauri-plugin-secure-storage` JS API",
         "//!   set_item, get_item, remove_item",
+        '///     println!("Got password: {}", password);',
         "",
       ].join("\n"),
     );
