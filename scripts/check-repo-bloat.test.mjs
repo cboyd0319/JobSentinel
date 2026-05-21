@@ -3186,6 +3186,37 @@ test("checkRepoBloat rejects raw test email command errors", () => {
   });
 });
 
+test("checkRepoBloat rejects raw Slack webhook validation command errors", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/config.rs",
+      [
+        "pub async fn validate_slack_webhook(webhook_url: String) -> Result<bool, String> {",
+        "  match validate_webhook(&webhook_url).await {",
+        "    Ok(valid) => Ok(valid),",
+        '    Err(e) => { tracing::error!("Webhook validation failed: {}", e); Err(format!("Validation failed: {}", e)) }',
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/config.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize Slack webhook validation command errors: src-tauri/src/commands/config.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects credential key input echo", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

@@ -1480,6 +1480,18 @@ function hasRawEmailTestErrorReturn(root, path) {
   return /format!\(\s*"Failed to send test email:\s*\{\}"\s*,\s*e\s*\)/.test(productionText);
 }
 
+function hasRawSlackWebhookValidationErrorReturn(root, path) {
+  if (!emailCommandPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /format!\(\s*"Validation failed:\s*\{\}"\s*,\s*e\s*\)/.test(productionText) ||
+    /tracing::error!\(\s*"Webhook validation failed:\s*\{\}"\s*,\s*e\s*\)/.test(productionText)
+  );
+}
+
 function hasSecretBearingDebugDerive(root, path) {
   if (!path.startsWith("src-tauri/src/") || !path.endsWith(".rs")) {
     return false;
@@ -2583,6 +2595,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawEmailTestErrorReturn(root, path)) {
       violations.push(`sanitize test email command errors: ${path}`);
+    }
+
+    if (hasRawSlackWebhookValidationErrorReturn(root, path)) {
+      violations.push(`sanitize Slack webhook validation command errors: ${path}`);
     }
 
     if (hasSecretBearingDebugDerive(root, path)) {

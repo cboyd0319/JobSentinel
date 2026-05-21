@@ -92,8 +92,9 @@ pub async fn validate_slack_webhook(webhook_url: String) -> Result<bool, String>
     match crate::core::notify::slack::validate_webhook(&webhook_url).await {
         Ok(valid) => Ok(valid),
         Err(e) => {
-            tracing::error!("Webhook validation failed: {}", e);
-            Err(format!("Validation failed: {}", e))
+            let message = user_friendly_error("Validation failed", &e);
+            tracing::error!(error = %message, "Webhook validation failed");
+            Err(message)
         }
     }
 }
@@ -245,5 +246,19 @@ mod tests {
         assert!(!msg.contains("smtp.example.com"), "server leaked: {msg}");
         assert!(!msg.contains("smtp://"), "smtp URL leaked: {msg}");
         assert!(msg.contains("Failed to send test email"));
+    }
+
+    #[test]
+    fn test_webhook_error_formatter_omits_webhook_details() {
+        let msg = user_friendly_error(
+            "Validation failed",
+            "https://hooks.slack.com/services/T00/B00/secret-token request failed",
+        );
+
+        assert!(!msg.contains("secret-token"), "token leaked: {msg}");
+        assert!(!msg.contains("hooks.slack.com"), "host leaked: {msg}");
+        assert!(!msg.contains("/services/"), "path leaked: {msg}");
+        assert!(!msg.contains("https://"), "URL leaked: {msg}");
+        assert!(msg.contains("Validation failed"));
     }
 }
