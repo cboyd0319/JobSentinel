@@ -8,6 +8,8 @@ vi.mock("../utils/errorReporting", () => ({
   errorReporter: {
     captureReactError: vi.fn(),
   },
+  sanitizeContext: (context: Record<string, unknown> | undefined) => context,
+  sanitizeTextForStorage: (value: string) => value,
 }));
 
 // Component that throws an error

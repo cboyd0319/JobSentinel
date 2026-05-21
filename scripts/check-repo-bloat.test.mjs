@@ -4551,6 +4551,37 @@ test("checkRepoBloat rejects raw shared frontend error logging", () => {
   });
 });
 
+test("checkRepoBloat rejects direct frontend console error logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/ErrorBoundary.tsx",
+      [
+        "export class ErrorBoundary {",
+        "  componentDidCatch(error, errorInfo) {",
+        "    console.error('Global Error Boundary caught error:', error, errorInfo);",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/components/ErrorBoundary.tsx"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "route frontend direct error logging through sanitized logger: src/components/ErrorBoundary.tsx",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale frontend webhook redaction patterns", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

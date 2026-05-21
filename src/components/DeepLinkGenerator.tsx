@@ -17,6 +17,7 @@ import {
   RemoteType,
   SiteCategory,
 } from "../types/deeplinks";
+import { logError } from "../utils/errorUtils";
 
 interface DeepLinkGeneratorProps {
   /** Pre-filled search query */
@@ -106,7 +107,7 @@ export function DeepLinkGenerator({
       const supportedSites = await getSupportedSites();
       setSites(supportedSites);
     } catch (err) {
-      console.error("Failed to load sites:", err);
+      logError("Failed to load deep-link sites:", err);
       setError("Failed to load supported sites");
     }
   };
@@ -133,8 +134,8 @@ export function DeepLinkGenerator({
       const generatedLinks = await generateDeepLinks(criteria);
       setLinks(generatedLinks);
     } catch (err) {
-      console.error("Failed to generate links:", err);
-      setError(`Failed to generate links: ${err}`);
+      logError("Failed to generate deep links:", err);
+      setError("Failed to generate links");
     } finally {
       setLoading(false);
     }
@@ -144,8 +145,8 @@ export function DeepLinkGenerator({
     try {
       await openDeepLink(url);
     } catch (err) {
-      console.error("Failed to open link:", err);
-      setError(`Failed to open link: ${err}`);
+      logError("Failed to open deep link:", err);
+      setError("Failed to open link");
     }
   };
 

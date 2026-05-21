@@ -1,5 +1,6 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { errorReporter } from '../utils/errorReporting';
+import { logError } from '../utils/errorUtils';
 
 interface Props {
   children: ReactNode;
@@ -58,13 +59,10 @@ class ComponentErrorBoundary extends Component<Props, State> {
     this.props.onError?.(error);
 
     // Log in development
-    if (import.meta.env.DEV) {
-      console.error(
-        `[ComponentErrorBoundary] Error in component "${this.props.componentName}"`,
-        error,
-        errorInfo
-      );
-    }
+    logError(`[ComponentErrorBoundary] Error in component "${this.props.componentName}"`, {
+      error,
+      errorInfo,
+    });
   }
 
   public render() {

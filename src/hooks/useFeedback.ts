@@ -14,6 +14,7 @@ import {
   revealSavedFeedbackFile,
   formatDebugInfo,
 } from "../services/feedbackService";
+import { logError } from "../utils/errorUtils";
 
 export type FeedbackStep = "category" | "description" | "review" | "submit" | "success";
 
@@ -103,7 +104,7 @@ export function useFeedback(): UseFeedbackResult {
           loading: false,
         }));
       } catch (error) {
-        console.error("Failed to load debug data:", error);
+        logError("Failed to load feedback debug data:", error);
         setState(prev => ({
           ...prev,
           error: "Failed to load system information. You can still submit feedback.",
@@ -194,7 +195,7 @@ export function useFeedback(): UseFeedbackResult {
         step: "success",
       }));
     } catch (error) {
-      console.error("Failed to open GitHub issue:", error);
+      logError("Failed to open GitHub issue:", error);
       setState(prev => ({
         ...prev,
         submitting: false,
@@ -234,7 +235,7 @@ export function useFeedback(): UseFeedbackResult {
         }));
       }
     } catch (error) {
-      console.error("Failed to save feedback report:", error);
+      logError("Failed to save feedback report:", error);
       setState(prev => ({
         ...prev,
         submitting: false,
@@ -248,7 +249,7 @@ export function useFeedback(): UseFeedbackResult {
       try {
         await revealSavedFeedbackFile(state.savedFeedbackFile.revealToken);
       } catch (error) {
-        console.error("Failed to reveal file:", error);
+        logError("Failed to reveal feedback file:", error);
       }
     }
   }, [state.savedFeedbackFile]);
@@ -257,7 +258,7 @@ export function useFeedback(): UseFeedbackResult {
     try {
       await openGoogleDriveFeedbackFolder();
     } catch (error) {
-      console.error("Failed to open Drive folder:", error);
+      logError("Failed to open feedback Drive folder:", error);
     }
   }, []);
 

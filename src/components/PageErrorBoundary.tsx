@@ -2,6 +2,7 @@ import { Component, ErrorInfo, ReactNode } from "react";
 import { Button } from "./Button";
 import { EmptyState } from "./EmptyState";
 import { errorReporter } from "../utils/errorReporting";
+import { logError } from "../utils/errorUtils";
 
 interface Props {
   children: ReactNode;
@@ -52,13 +53,10 @@ class PageErrorBoundary extends Component<Props, State> {
     );
 
     // Log in development
-    if (import.meta.env.DEV) {
-      console.error(
-        `[PageErrorBoundary] Error on page "${this.props.pageName}"`,
-        error,
-        errorInfo
-      );
-    }
+    logError(`[PageErrorBoundary] Error on page "${this.props.pageName}"`, {
+      error,
+      errorInfo,
+    });
   }
 
   private handleRetry = () => {

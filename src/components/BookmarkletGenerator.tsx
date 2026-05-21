@@ -4,6 +4,7 @@ import { Button } from "./Button";
 import { Card } from "./Card";
 import { Badge } from "./Badge";
 import { HelpIcon } from "./HelpIcon";
+import { logError } from "../utils/errorUtils";
 
 interface BookmarkletConfig {
   port: number;
@@ -44,8 +45,8 @@ export function BookmarkletGenerator() {
       setConfig(isBookmarkletConfig(cfg) ? cfg : DEFAULT_BOOKMARKLET_CONFIG);
       setError(null);
     } catch (err) {
-      console.error("Failed to load bookmarklet config:", err);
-      setError(err instanceof Error ? err.message : String(err));
+      logError("Failed to load bookmarklet config:", err);
+      setError("Failed to load bookmarklet configuration");
     } finally {
       setLoading(false);
     }
@@ -63,8 +64,8 @@ export function BookmarkletGenerator() {
       }
       setError(null);
     } catch (err) {
-      console.error("Failed to toggle bookmarklet server:", err);
-      setError(err instanceof Error ? err.message : String(err));
+      logError("Failed to toggle bookmarklet server:", err);
+      setError("Failed to update bookmarklet server");
     } finally {
       setLoading(false);
     }
@@ -77,8 +78,8 @@ export function BookmarkletGenerator() {
       setConfig({ ...config, port: newPort });
       setError(null);
     } catch (err) {
-      console.error("Failed to update port:", err);
-      setError(err instanceof Error ? err.message : String(err));
+      logError("Failed to update bookmarklet port:", err);
+      setError("Failed to update bookmarklet port");
     } finally {
       setLoading(false);
     }

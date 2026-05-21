@@ -1,6 +1,7 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { errorReporter } from '../utils/errorReporting';
 import { clearStorage, readStorageValue, writeStorageValue } from '../utils/browserStorage';
+import { logError } from '../utils/errorUtils';
 
 const VISUAL_PREFERENCE_KEYS = [
   'jobsentinel-theme',
@@ -56,9 +57,7 @@ class ErrorBoundary extends Component<Props, State> {
     );
 
     // Log to console in development
-    if (import.meta.env.DEV) {
-      console.error('Global Error Boundary caught error:', error, errorInfo);
-    }
+    logError('Global Error Boundary caught error:', { error, errorInfo });
   }
 
   private handleRetry = () => {

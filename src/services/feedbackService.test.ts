@@ -89,6 +89,19 @@ describe("feedbackService", () => {
     });
   });
 
+  it("continues opening GitHub issues when debug clipboard copy fails", async () => {
+    vi.mocked(navigator.clipboard.writeText).mockRejectedValueOnce(
+      new Error("clipboard denied for /Users/alice/secrets.txt?token=abc"),
+    );
+    mockInvoke.mockResolvedValueOnce(undefined);
+
+    await openGitHubIssue("bug", "Crash after search", "debug info");
+
+    expect(mockInvoke).toHaveBeenCalledWith("open_github_issues", {
+      template: "bug",
+    });
+  });
+
   it("opens Google Drive through the backend drive command", async () => {
     mockInvoke.mockResolvedValueOnce(undefined);
 

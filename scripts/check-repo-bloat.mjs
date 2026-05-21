@@ -267,6 +267,16 @@ const bookmarkletGeneratorPaths = new Set(["src/components/BookmarkletGenerator.
 const frontendErrorReportingPaths = new Set(["src/utils/errorReporting.ts"]);
 const frontendErrorHelperDebugPaths = new Set(["src/utils/errorHelpers.ts"]);
 const frontendErrorUtilsPaths = new Set(["src/utils/errorUtils.ts"]);
+const frontendDirectErrorLoggingPaths = new Set([
+  "src/components/BookmarkletGenerator.tsx",
+  "src/components/ComponentErrorBoundary.tsx",
+  "src/components/DeepLinkGenerator.tsx",
+  "src/components/ErrorBoundary.tsx",
+  "src/components/ModalErrorBoundary.tsx",
+  "src/components/PageErrorBoundary.tsx",
+  "src/hooks/useFeedback.ts",
+  "src/services/feedbackService.ts",
+]);
 const scoreReasonJsonParserPaths = new Set([
   "src/components/ScoreDisplay.tsx",
   "src/components/ScoreBreakdownModal.tsx",
@@ -1983,6 +1993,14 @@ function hasRawFrontendSharedErrorLogging(root, path) {
   );
 }
 
+function hasRawFrontendDirectErrorLogging(root, path) {
+  if (!frontendDirectErrorLoggingPaths.has(path)) {
+    return false;
+  }
+
+  return /console\.error\(/.test(readFileSync(join(root, path), "utf8"));
+}
+
 function hasUnsafeErrorReportStorageParsing(root, path) {
   if (!frontendErrorReportingPaths.has(path)) {
     return false;
@@ -3077,6 +3095,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawFrontendSharedErrorLogging(root, path)) {
       violations.push(`sanitize shared frontend error logging: ${path}`);
+    }
+
+    if (hasRawFrontendDirectErrorLogging(root, path)) {
+      violations.push(`route frontend direct error logging through sanitized logger: ${path}`);
     }
 
     if (hasUnsafeErrorReportStorageParsing(root, path)) {

@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { logError } from "../utils/errorUtils";
 
 export type FeedbackCategory = "bug" | "feature" | "question";
 
@@ -115,7 +116,7 @@ export async function openGitHubIssue(
     try {
       await navigator.clipboard.writeText(debugInfo);
     } catch (error) {
-      console.error("Failed to copy debug info to clipboard:", error);
+      logError("Failed to copy feedback debug info to clipboard:", error);
       // Non-fatal - user can still open issue
     }
   }
