@@ -77,7 +77,7 @@ JobSentinel analyzes job requirements against your qualifications using three me
 
 ### Configuration in Settings
 
-Navigate to **Settings → Scoring → Skills Matching**:
+Navigate to **Settings > Scoring > Skills Matching**:
 
 1. **Title Preferences**
    - Allowed job titles (e.g., "Software Engineer", "Backend Developer")
@@ -110,15 +110,15 @@ Navigate to **Settings → Scoring → Skills Matching**:
 **Scoring:**
 
 ```text
-Title: "Senior Backend Engineer" → Matches "Backend Developer" → 100%
+Title: "Senior Backend Engineer" matches "Backend Developer": 100%
 
 Keyword Match:
-  ✓ React (found, boosted)       +10%
-  ✓ TypeScript (found, boosted)  +10%
-  ✓ AWS (found, boosted)         +10%
-  ✗ Node.js (found, not boosted) +5%
-  ✗ Docker (found, not boosted)  +5%
-  ✗ VB.NET (not found)           (not penalized)
+  React (found, boosted)       +10%
+  TypeScript (found, boosted)  +10%
+  AWS (found, boosted)         +10%
+  Node.js (found, not boosted) +5%
+  Docker (found, not boosted)  +5%
+  VB.NET (not found)           (not penalized)
 
 Keywords Score: 40%
 
@@ -127,7 +127,7 @@ Skills Factor: (100% × 0.4) + (40% × 0.6) = 40% + 24% = 64%
 
 **With Resume:**
 
-If your resume shows: React ✓, TypeScript ✓, Docker ✓, Node.js ✓, AWS ✓ (5/5 matching)
+If your resume shows React, TypeScript, Docker, Node.js, and AWS, all five required skills match.
 
 ```text
 Resume Match: 5/5 = 100%
@@ -191,7 +191,7 @@ If a job doesn't list salary:
 
 ### Configuration in Settings
 
-Navigate to **Settings → Scoring → Salary**:
+Navigate to **Settings > Scoring > Salary**:
 
 1. **Target Salary**
    - Your desired annual salary (e.g., $150,000)
@@ -273,7 +273,7 @@ JobSentinel detects work arrangement from multiple sources:
 
 ### Configuration in Settings
 
-Navigate to **Settings → Scoring → Location Preferences**:
+Navigate to **Settings > Scoring > Location Preferences**:
 
 1. **Work Arrangement Preference**
    - Select from 5 modes above
@@ -338,7 +338,7 @@ The system uses smart fuzzy matching to recognize companies:
 
 ### Configuration in Settings
 
-Navigate to **Settings → Scoring → Company Preferences**:
+Navigate to **Settings > Scoring > Company Preferences**:
 
 1. **Whitelist**
    - Add company names you want to prioritize
@@ -393,7 +393,7 @@ potentially fake.
 
 ### Configuration in Settings
 
-Navigate to **Settings → Scoring → Recency**:
+Navigate to **Settings > Scoring > Recency**:
 
 1. **Recency Weight Impact**
    - By default: 5% of total score
@@ -420,22 +420,18 @@ Click any score to see exactly how it was calculated.
 Total Score: 78%
 
 Score Breakdown:
-├─ Skills (40%):       64% × 40% = 25.6%
-│  ├─ Title Match:     100%
-│  ├─ Keywords:        40%
-│  └─ Resume Match:    82%
-│
-├─ Salary (25%):       80% × 25% = 20.0%
-│  └─ $145k vs target $150k
-│
-├─ Location (20%):     90% × 20% = 18.0%
-│  └─ Hybrid vs your Remote Preferred
-│
-├─ Company (10%):     100% × 10% = 10.0%
-│  └─ Microsoft on whitelist
-│
-└─ Recency (5%):       100% × 5% = 5.0%
-   └─ Posted 3 days ago
+- Skills (40%):       64% x 40% = 25.6%
+  - Title Match:      100%
+  - Keywords:         40%
+  - Resume Match:     82%
+- Salary (25%):       80% x 25% = 20.0%
+  - $145k vs target $150k
+- Location (20%):     90% x 20% = 18.0%
+  - Hybrid vs your Remote Preferred
+- Company (10%):     100% x 10% = 10.0%
+  - Microsoft on whitelist
+- Recency (5%):       100% x 5% = 5.0%
+  - Posted 3 days ago
 ```
 
 ### Why Each Factor Was Scored
@@ -487,7 +483,7 @@ Preferred Location:   Remote Preferred (but open to hybrid)
 Skills Allowlist:     Software Engineer, React Developer, Backend Engineer
 Skills Boosters:      React, TypeScript, Docker, AWS
 Company Whitelist:    Microsoft, Google, Amazon
-Resume:              Uploaded (React ✓, TypeScript ✓, Docker ✓, Node.js ✓, AWS ✓)
+Resume:              Uploaded (React, TypeScript, Docker, Node.js, AWS matched)
 ```
 
 ### Calculation
@@ -496,18 +492,18 @@ Resume:              Uploaded (React ✓, TypeScript ✓, Docker ✓, Node.js �
 
 ```text
 Title Match:
-  "Senior React Developer" matches "React Developer" → 100%
+  "Senior React Developer" matches "React Developer": 100%
 
 Resume Match:
   Your skills: React, TypeScript, Docker, Node.js, AWS (5/5 required)
   Match: 5/5 = 100%
 
 Keywords Boost:
-  ✓ React       (boosted keyword found)
-  ✓ TypeScript  (boosted keyword found)
-  ✓ Docker      (boosted keyword found)
-  ✓ AWS         (boosted keyword found)
-  ✓ Node.js     (found, not boosted) +0%
+  React       (boosted keyword found)
+  TypeScript  (boosted keyword found)
+  Docker      (boosted keyword found)
+  AWS         (boosted keyword found)
+  Node.js     (found, not boosted) +0%
   Keywords Score: 100%
 
 Skills Factor:
@@ -585,7 +581,7 @@ Not all factors matter equally to you. Customize weights to match your prioritie
 
 ### How to Customize
 
-1. **Navigate to Settings → Scoring**
+1. **Navigate to Settings > Scoring**
 2. **Click "Customize Weights"**
 3. **Adjust sliders** for each factor:
    - Skills: 20-60% (default 40%)
@@ -743,16 +739,16 @@ Least Impactful:       Recency (average 65%)
 
 **Common reasons:**
 
-- Job title doesn't match your allowlist → Adjust title preferences
-- Salary is below target → Set realistic target or adjust weight
-- Location doesn't match → Adjust location preference or weight
-- Old posting → Adjust recency weight if you're desperate
+- Job title doesn't match your allowlist: adjust title preferences
+- Salary is below target: set realistic target or adjust weight
+- Location doesn't match: adjust location preference or weight
+- Old posting: adjust recency weight if you're desperate
 
 ### Why don't I see my resume skills contributing?
 
 **Verify resume-based scoring is enabled:**
 
-1. Go to **Settings → Scoring → Skills**
+1. Go to **Settings > Scoring > Skills**
 2. Check that "Use Resume for Scoring" is ON
 3. Ensure you've uploaded a resume in the **Resume** tab
 

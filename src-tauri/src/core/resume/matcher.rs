@@ -433,35 +433,35 @@ impl JobMatcher {
         let mut analysis = format!("Match: {}%\n\n", match_percentage);
 
         if !matching_skills.is_empty() {
-            analysis.push_str(&format!("✓ Matching Skills ({}):\n", matching_skills.len()));
+            analysis.push_str(&format!("Matching Skills ({}):\n", matching_skills.len()));
             for skill in matching_skills {
-                analysis.push_str(&format!("  • {}\n", skill));
+                analysis.push_str(&format!("  - {}\n", skill));
             }
             analysis.push('\n');
         }
 
         if !missing_skills.is_empty() {
-            analysis.push_str(&format!("✗ Missing Skills ({}):\n", missing_skills.len()));
+            analysis.push_str(&format!("Missing Skills ({}):\n", missing_skills.len()));
             for skill in missing_skills {
-                analysis.push_str(&format!("  • {}\n", skill));
+                analysis.push_str(&format!("  - {}\n", skill));
             }
             analysis.push('\n');
         }
 
         // Recommendation
         if overall_score >= 0.8 {
-            analysis.push_str("💡 Strong match! Apply immediately.");
+            analysis.push_str("Recommendation: Strong match. Apply immediately.");
         } else if overall_score >= 0.6 {
             analysis.push_str(
-                "💡 Good match. Consider highlighting transferable skills in your application.",
+                "Recommendation: Good match. Consider highlighting transferable skills in your application.",
             );
         } else if overall_score >= 0.4 {
             analysis.push_str(
-                "💡 Moderate match. Study the missing skills and mention any related experience.",
+                "Recommendation: Moderate match. Study the missing skills and mention any related experience.",
             );
         } else {
             analysis.push_str(
-                "💡 Low match. Consider upskilling in the missing areas before applying.",
+                "Recommendation: Low match. Consider upskilling in the missing areas before applying.",
             );
         }
 
@@ -487,7 +487,7 @@ impl JobMatcher {
         let edu_pct = (education_score * 100.0).round() as i32;
 
         let mut analysis = format!(
-            "Match Score: {}%\n├─ Skills: {}% ({}/{} matched)\n├─ Experience: {}%\n└─ Education: {}%\n\n",
+            "Match Score: {}%\n- Skills: {}% ({}/{} matched)\n- Experience: {}%\n- Education: {}%\n\n",
             overall_pct,
             skills_pct,
             matching_skills.len(),
@@ -498,9 +498,9 @@ impl JobMatcher {
 
         // Skills breakdown
         if !matching_skills.is_empty() {
-            analysis.push_str(&format!("✓ Matching Skills ({}):\n", matching_skills.len()));
+            analysis.push_str(&format!("Matching Skills ({}):\n", matching_skills.len()));
             for skill in matching_skills.iter().take(10) {
-                analysis.push_str(&format!("  • {}\n", skill));
+                analysis.push_str(&format!("  - {}\n", skill));
             }
             if matching_skills.len() > 10 {
                 analysis.push_str(&format!("  ... and {} more\n", matching_skills.len() - 10));
@@ -509,9 +509,9 @@ impl JobMatcher {
         }
 
         if !missing_skills.is_empty() {
-            analysis.push_str(&format!("✗ Missing Skills ({}):\n", missing_skills.len()));
+            analysis.push_str(&format!("Missing Skills ({}):\n", missing_skills.len()));
             for skill in missing_skills.iter().take(10) {
-                analysis.push_str(&format!("  • {}\n", skill));
+                analysis.push_str(&format!("  - {}\n", skill));
             }
             if missing_skills.len() > 10 {
                 analysis.push_str(&format!("  ... and {} more\n", missing_skills.len() - 10));
@@ -521,7 +521,7 @@ impl JobMatcher {
 
         // Experience breakdown
         if !experience_reqs.is_empty() {
-            analysis.push_str("📊 Experience Requirements:\n");
+            analysis.push_str("Experience Requirements:\n");
             for req in experience_reqs.iter().take(5) {
                 let skill_label = req.skill.as_deref().unwrap_or("General");
                 let range = if let Some(max) = req.max_years {
@@ -535,7 +535,7 @@ impl JobMatcher {
                     "preferred"
                 };
                 analysis.push_str(&format!(
-                    "  • {} years {} ({})\n",
+                    "  - {} years {} ({})\n",
                     range, skill_label, required_label
                 ));
             }
@@ -550,7 +550,7 @@ impl JobMatcher {
                 "preferred"
             };
             analysis.push_str(&format!(
-                "🎓 Education: {} {} ({})\n",
+                "Education: {} {} ({})\n",
                 req.degree_level.as_str(),
                 if req.fields.is_empty() {
                     "".to_string()
@@ -564,18 +564,18 @@ impl JobMatcher {
 
         // Recommendation
         if overall_score >= 0.8 {
-            analysis.push_str("💡 Strong match! Apply immediately.");
+            analysis.push_str("Recommendation: Strong match. Apply immediately.");
         } else if overall_score >= 0.6 {
             analysis.push_str(
-                "💡 Good match. Consider highlighting transferable skills in your application.",
+                "Recommendation: Good match. Consider highlighting transferable skills in your application.",
             );
         } else if overall_score >= 0.4 {
             analysis.push_str(
-                "💡 Moderate match. Study the missing skills and mention any related experience.",
+                "Recommendation: Moderate match. Study the missing skills and mention any related experience.",
             );
         } else {
             analysis.push_str(
-                "💡 Low match. Consider upskilling in the missing areas before applying.",
+                "Recommendation: Low match. Consider upskilling in the missing areas before applying.",
             );
         }
 

@@ -289,6 +289,11 @@ const frontendStatusEmojiPaths = new Set([
   "src/components/InterviewScheduler.tsx",
   "src/pages/Applications.tsx",
 ]);
+const backendScoringReasonPaths = new Set([
+  "src-tauri/src/core/resume/matcher.rs",
+  "src-tauri/src/core/scoring/mod.rs",
+  "src-tauri/src/core/scoring/remote.rs",
+]);
 
 function readPackageManifest(root) {
   return JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
@@ -785,6 +790,16 @@ function hasProductionSourceGlyphMarkers(root, path) {
   );
 }
 
+function hasBackendScoringReasonGlyphMarkers(root, path) {
+  if (!backendScoringReasonPaths.has(path)) {
+    return false;
+  }
+
+  return /(?:\p{Extended_Pictographic}|[\u{2705}\u{274c}\u{26a0}\u{2139}\u{2713}\u{2717}\u{251c}\u{2514}\u{2500}\u{2022}])/u.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 function hasFrontendStatusEmojiMarkers(root, path) {
   if (!frontendStatusEmojiPaths.has(path)) {
     return false;
@@ -1063,7 +1078,17 @@ function hasResumeOrSalaryFeatureDocEmojiMarkers(root, path) {
     return false;
   }
 
-  return /(?:\p{Extended_Pictographic}|[\u{1f1e6}-\u{1f1ff}])/u.test(
+  return /(?:\p{Extended_Pictographic}|[\u{1f1e6}-\u{1f1ff}\u{2713}\u{2717}\u{2022}])/u.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
+function hasSmartScoringDocGlyphMarkers(root, path) {
+  if (path !== "docs/features/smart-scoring.md") {
+    return false;
+  }
+
+  return /[\u{2713}\u{2717}\u{2192}\u{251c}\u{2514}\u{2500}\u{2502}]/u.test(
     readFileSync(join(root, path), "utf8"),
   );
 }
@@ -1939,6 +1964,10 @@ export function checkRepoBloat(root = defaultRoot) {
       violations.push(`replace production source emoji markers: ${path}`);
     }
 
+    if (hasBackendScoringReasonGlyphMarkers(root, path)) {
+      violations.push(`replace backend scoring reason glyph markers: ${path}`);
+    }
+
     if (hasFrontendStatusEmojiMarkers(root, path)) {
       violations.push(`replace frontend status emoji markers: ${path}`);
     }
@@ -2021,6 +2050,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasResumeOrSalaryFeatureDocEmojiMarkers(root, path)) {
       violations.push(`replace resume and salary feature doc emoji markers: ${path}`);
+    }
+
+    if (hasSmartScoringDocGlyphMarkers(root, path)) {
+      violations.push(`replace smart scoring doc glyph markers: ${path}`);
     }
 
     if (hasStaleSalaryAiFutureUiClaim(root, path)) {

@@ -39,43 +39,43 @@ Resume PDF
 ```sql
 -- Resume metadata
 resumes
-├── id (PRIMARY KEY)
-├── name
-├── file_path
-├── parsed_text
-├── is_active (boolean)
-├── created_at
-└── updated_at
+- id (PRIMARY KEY)
+- name
+- file_path
+- parsed_text
+- is_active (boolean)
+- created_at
+- updated_at
 
 -- Extracted skills from resume
 user_skills
-├── id (PRIMARY KEY)
-├── resume_id (FOREIGN KEY)
-├── skill_name
-├── skill_category (programming_language, framework, tool, etc.)
-├── confidence_score (0.0-1.0)
-├── years_experience
-├── proficiency_level (beginner, intermediate, expert)
-└── source (resume, user_input, inferred)
+- id (PRIMARY KEY)
+- resume_id (FOREIGN KEY)
+- skill_name
+- skill_category (programming_language, framework, tool, etc.)
+- confidence_score (0.0-1.0)
+- years_experience
+- proficiency_level (beginner, intermediate, expert)
+- source (resume, user_input, inferred)
 
 -- Job skill requirements
 job_skills
-├── id (PRIMARY KEY)
-├── job_hash (FOREIGN KEY)
-├── skill_name
-├── is_required (boolean)
-└── skill_category
+- id (PRIMARY KEY)
+- job_hash (FOREIGN KEY)
+- skill_name
+- is_required (boolean)
+- skill_category
 
 -- Match results
 resume_job_matches
-├── id (PRIMARY KEY)
-├── resume_id (FOREIGN KEY)
-├── job_hash (FOREIGN KEY)
-├── overall_match_score (0.0-1.0)
-├── skills_match_score
-├── missing_skills (JSON array)
-├── matching_skills (JSON array)
-└── gap_analysis (text)
+- id (PRIMARY KEY)
+- resume_id (FOREIGN KEY)
+- job_hash (FOREIGN KEY)
+- overall_match_score (0.0-1.0)
+- skills_match_score
+- missing_skills (JSON array)
+- matching_skills (JSON array)
+- gap_analysis (text)
 ```
 
 ---
@@ -151,15 +151,15 @@ Missing Skills: ["TypeScript", "Kubernetes"]
 
 Match: 75%
 
-✓ Matching Skills (4):
-  • Python
-  • React
-  • Docker
-  • PostgreSQL
+Matching Skills (4):
+  - Python
+  - React
+  - Docker
+  - PostgreSQL
 
-✗ Missing Skills (2):
-  • TypeScript
-  • Kubernetes
+Missing Skills (2):
+  - TypeScript
+  - Kubernetes
 
 Good match. Consider highlighting transferable skills in your application.
 ```
@@ -243,17 +243,17 @@ overall_score = (skills × 0.5) + (experience × 0.3) + (education × 0.2)
 2. Patterns detected: "5+ years Python", "3-5 years experience", "Senior (7+ years)"
 3. Compare against user's years of experience per skill
 4. Scoring:
-   - `user_years >= required_years` → 1.0 (full credit)
-   - `user_years < required_years` → `user_years / required_years` (partial credit)
+   - `user_years >= required_years`: 1.0 (full credit)
+   - `user_years < required_years`: `user_years / required_years` (partial credit)
 
 #### Education Matching (20%)
 
 1. Extract degree requirements: "Bachelor's required", "Master's preferred", "PhD in CS"
 2. `DegreeLevel` hierarchy: None(0) < HighSchool(1) < Associate(2) < Bachelor(3) < Master(4) < PhD(5)
 3. Scoring:
-   - `user_level >= required_level` → 1.0 (full credit)
-   - `user_level < required_level` → `user_level / required_level` (partial credit)
-   - No requirement specified → 1.0
+   - `user_level >= required_level`: 1.0 (full credit)
+   - `user_level < required_level`: `user_level / required_level` (partial credit)
+   - No requirement specified: 1.0
 
 ### Confidence Scoring
 
@@ -333,7 +333,7 @@ When **Resume-Based Scoring** is enabled in Settings:
 ### Enabling Resume-Based Scoring
 
 1. **Upload your resume** in the **Resume** tab
-2. Go to **Settings** → **Resume-Based Scoring**
+2. Go to **Settings** > **Resume-Based Scoring**
 3. Toggle **"Use Resume for Scoring"** ON
 
 ### Score Breakdown
@@ -410,7 +410,7 @@ const MatchCard = ({ match }: { match: MatchResult }) => {
       />
 
       <div className="matching-skills">
-        <h4>✓ You Have ({filteredSkills.length})</h4>
+        <h4>You Have ({filteredSkills.length})</h4>
         {filteredSkills.map(skill => (
           <div key={skill.name} className="skill-badge-container">
             <span className="skill-badge success">{skill.name}</span>
@@ -424,7 +424,7 @@ const MatchCard = ({ match }: { match: MatchResult }) => {
 
       {/* Styled gap analysis with color-coded list */}
       <div className="missing-skills">
-        <h4>✗ Missing ({match.missing_skills.length})</h4>
+        <h4>Missing ({match.missing_skills.length})</h4>
         {match.missing_skills.map(skill => (
           <span key={skill} className="skill-badge error">{skill}</span>
         ))}

@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Normalized backend-generated scoring reasons and resume gap analysis from symbol-coded strings to plain text, synced smart-scoring and resume-matcher docs, and added bloat coverage for backend scoring/gap glyph recurrence. |
 | 2026-05-21 | In progress | Replaced remaining production frontend emoji/status glyphs in market intelligence, settings, score breakdown, deep links, ghost feedback, import warnings, scraper health, and web-vitals labels with SVG icons or plain text; added a production-source glyph bloat guard. |
 | 2026-05-21 | In progress | Removed versioned future-release promises from the README, roadmap, plans index, and Resume Builder disabled ATS callout; replaced visible status emoji in application, analytics, bookmarklet, and interview surfaces, and added bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Removed unreferenced tracked docs screenshots for light dashboard and keyboard shortcuts, trimmed duplicate docs screenshot captures, and added bloat coverage so `docs/images/` assets must be referenced by maintained docs. |

@@ -353,7 +353,7 @@ impl ScoringEngine {
             return Ok((0.0, vec!["Title not in allowlist".to_string()]));
         }
 
-        reasons.push(format!("✓ Title matches: {}", job.title));
+        reasons.push(format!("Title matches: {}", job.title));
 
         let title_blocked = self.config.title_blocklist.iter().any(|blocked_title| {
             job.title
@@ -407,7 +407,7 @@ impl ScoringEngine {
 
         // Add detailed reasons
         reasons.push(format!(
-            "📄 Resume match: {}%",
+            "Resume match: {}%",
             (resume_match_score * 100.0) as i32
         ));
 
@@ -420,7 +420,7 @@ impl ScoringEngine {
                 .map(|s| s.as_str())
                 .collect::<Vec<_>>()
                 .join(", ");
-            reasons.push(format!("✓ Matching skills: {}", skills_str));
+            reasons.push(format!("Matching skills: {}", skills_str));
         }
 
         if !match_result.missing_skills.is_empty() {
@@ -432,7 +432,7 @@ impl ScoringEngine {
                 .map(|s| s.as_str())
                 .collect::<Vec<_>>()
                 .join(", ");
-            reasons.push(format!("⚠ Missing skills: {}", missing_str));
+            reasons.push(format!("Missing skills: {}", missing_str));
         }
 
         // Also show keyword matches
@@ -441,7 +441,7 @@ impl ScoringEngine {
                 .synonym_map
                 .matches_with_synonyms(keyword, &description_text)
             {
-                reasons.push(format!("✓ Has keyword: {}", keyword));
+                reasons.push(format!("Keyword match: {}", keyword));
             }
         }
 
@@ -489,7 +489,7 @@ impl ScoringEngine {
             return (0.0, vec!["Title not in allowlist".to_string()]);
         }
 
-        reasons.push(format!("✓ Title matches: {}", job.title));
+        reasons.push(format!("Title matches: {}", job.title));
 
         // Check if title is in blocklist
         let title_blocked = self.config.title_blocklist.iter().any(|blocked_title| {
@@ -526,7 +526,7 @@ impl ScoringEngine {
                 .matches_with_synonyms(keyword, &description_text)
             {
                 boost_matches += 1;
-                reasons.push(format!("✓ Has keyword: {}", keyword));
+                reasons.push(format!("Keyword match: {}", keyword));
             }
         }
 
@@ -611,7 +611,7 @@ impl ScoringEngine {
         let multiplier = if percentage >= 1.2 {
             // Significantly above target - give bonus (capped)
             reasons.push(format!(
-                "✓ Salary {}% of target ({}% credit + bonus)",
+                "Salary {}% of target ({}% credit + bonus)",
                 (percentage * 100.0) as i32,
                 120
             ));
@@ -619,7 +619,7 @@ impl ScoringEngine {
         } else if percentage >= 1.0 {
             // At or above target - full score
             reasons.push(format!(
-                "✓ Salary {}% of target (100% credit)",
+                "Salary {}% of target (100% credit)",
                 (percentage * 100.0) as i32
             ));
             1.0
@@ -647,7 +647,7 @@ impl ScoringEngine {
         } else {
             // Below 70% of target
             reasons.push(format!(
-                "✗ Salary {}% of target (30% credit)",
+                "Salary below target: {}% of target (30% credit)",
                 (percentage * 100.0) as i32
             ));
             0.3
@@ -676,22 +676,22 @@ impl ScoringEngine {
         let is_onsite = !is_remote && !is_hybrid;
 
         if is_remote && self.config.location_preferences.allow_remote {
-            reasons.push("✓ Remote job (matches preference)".to_string());
+            reasons.push("Remote job (matches preference)".to_string());
             return (max_score, reasons);
         }
 
         if is_hybrid && self.config.location_preferences.allow_hybrid {
-            reasons.push("✓ Hybrid job (matches preference)".to_string());
+            reasons.push("Hybrid job (matches preference)".to_string());
             return (max_score, reasons);
         }
 
         if is_onsite && self.config.location_preferences.allow_onsite {
-            reasons.push("✓ Onsite job (matches preference)".to_string());
+            reasons.push("Onsite job (matches preference)".to_string());
             return (max_score, reasons);
         }
 
         // Location doesn't match preferences
-        reasons.push("✗ Location doesn't match preferences".to_string());
+        reasons.push("Location doesn't match preferences".to_string());
         (0.0, reasons)
     }
 
@@ -712,7 +712,7 @@ impl ScoringEngine {
         // Check blacklist first (takes precedence)
         for blocked in &self.config.company_blacklist {
             if fuzzy_match_company(&job.company, blocked) {
-                reasons.push(format!("✗ Company '{}' is blocklisted", job.company));
+                reasons.push(format!("Company '{}' is blocklisted", job.company));
                 return (0.0, reasons);
             }
         }
@@ -722,7 +722,7 @@ impl ScoringEngine {
             if fuzzy_match_company(&job.company, preferred) {
                 let bonus_score = base_score * 1.5; // 50% bonus
                 reasons.push(format!(
-                    "✓ Company '{}' is preferred (+50% bonus)",
+                    "Company '{}' is preferred (+50% bonus)",
                     job.company
                 ));
                 return (bonus_score, reasons);
@@ -744,7 +744,7 @@ impl ScoringEngine {
         let days_old = age.num_days();
 
         if days_old <= 7 {
-            reasons.push(format!("✓ Posted {} days ago (fresh)", days_old));
+            reasons.push(format!("Posted {} days ago (fresh)", days_old));
             (max_score, reasons)
         } else if days_old <= 30 {
             let score = max_score * (1.0 - (days_old as f64 - 7.0) / 23.0);
@@ -755,7 +755,7 @@ impl ScoringEngine {
             ));
             (score, reasons)
         } else {
-            reasons.push(format!("✗ Posted {} days ago (too old)", days_old));
+            reasons.push(format!("Posted {} days ago (too old)", days_old));
             (0.0, reasons)
         }
     }

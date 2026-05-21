@@ -291,6 +291,30 @@ test("checkRepoBloat rejects production source emoji markers", () => {
   });
 });
 
+test("checkRepoBloat rejects backend scoring reason glyph markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scoring/mod.rs",
+      'reasons.push(format!("✓ Title matches: {}", job.title));\n',
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/scoring/mod.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace backend scoring reason glyph markers: src-tauri/src/core/scoring/mod.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects bookmarklet doc status emoji markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(
@@ -2011,7 +2035,7 @@ test("checkRepoBloat rejects Resume Matcher and Salary AI feature doc emoji mark
     writeFixtureFile(
       root,
       "docs/features/resume-matcher.md",
-      [`## ${targetIcon} Overview`, `- **${chartIcon} Gap Analysis**`, ""].join("\n"),
+      [`## ${targetIcon} Overview`, `- **${chartIcon} Gap Analysis**`, "✓ Matching Skills", ""].join("\n"),
     );
     writeFixtureFile(
       root,
@@ -2119,6 +2143,33 @@ test("checkRepoBloat rejects stale smart scoring salary marker claims", () => {
       violations.includes(
         "remove stale smart-scoring salary marker claim: docs/features/smart-scoring.md",
       ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects smart scoring doc glyph markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/smart-scoring.md",
+      [
+        'Title: "Senior Backend Engineer" → Matches "Backend Developer" → 100%',
+        "├─ Skills (40%): 64%",
+        "  ✓ React (boosted keyword found)",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/features/smart-scoring.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace smart scoring doc glyph markers: docs/features/smart-scoring.md"),
       violations.join("\n"),
     );
   });

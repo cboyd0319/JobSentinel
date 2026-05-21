@@ -114,67 +114,67 @@ pub fn score_remote_match(
     match (user_pref, job_status) {
         // RemoteOnly preference
         (UserRemotePreference::RemoteOnly, RemoteStatus::Remote) => {
-            (1.0, "✓ Remote job (perfect match)")
+            (1.0, "Remote job (perfect match)")
         }
         (UserRemotePreference::RemoteOnly, RemoteStatus::Hybrid) => {
-            (0.5, "⚠ Hybrid job (prefer remote-only)")
+            (0.5, "Hybrid job (prefer remote-only)")
         }
         (UserRemotePreference::RemoteOnly, RemoteStatus::Onsite) => {
-            (0.1, "✗ Onsite job (remote-only preferred)")
+            (0.1, "Onsite job (remote-only preferred)")
         }
         (UserRemotePreference::RemoteOnly, RemoteStatus::Unspecified) => (
             0.3,
-            "⚠ Work arrangement not specified (remote-only preferred)",
+            "Work arrangement not specified (remote-only preferred)",
         ),
 
         // RemotePreferred
         (UserRemotePreference::RemotePreferred, RemoteStatus::Remote) => {
-            (1.0, "✓ Remote job (preferred)")
+            (1.0, "Remote job (preferred)")
         }
         (UserRemotePreference::RemotePreferred, RemoteStatus::Hybrid) => {
-            (0.7, "✓ Hybrid job (acceptable)")
+            (0.7, "Hybrid job (acceptable)")
         }
         (UserRemotePreference::RemotePreferred, RemoteStatus::Onsite) => {
-            (0.4, "⚠ Onsite job (remote preferred)")
+            (0.4, "Onsite job (remote preferred)")
         }
         (UserRemotePreference::RemotePreferred, RemoteStatus::Unspecified) => {
-            (0.6, "⚠ Work arrangement not specified")
+            (0.6, "Work arrangement not specified")
         }
 
         // HybridPreferred
         (UserRemotePreference::HybridPreferred, RemoteStatus::Hybrid) => {
-            (1.0, "✓ Hybrid job (preferred)")
+            (1.0, "Hybrid job (preferred)")
         }
         (UserRemotePreference::HybridPreferred, RemoteStatus::Remote) => {
-            (0.8, "✓ Remote job (acceptable)")
+            (0.8, "Remote job (acceptable)")
         }
         (UserRemotePreference::HybridPreferred, RemoteStatus::Onsite) => {
-            (0.6, "✓ Onsite job (acceptable)")
+            (0.6, "Onsite job (acceptable)")
         }
         (UserRemotePreference::HybridPreferred, RemoteStatus::Unspecified) => {
-            (0.7, "⚠ Work arrangement not specified")
+            (0.7, "Work arrangement not specified")
         }
 
         // OnsitePreferred
         (UserRemotePreference::OnsitePreferred, RemoteStatus::Onsite) => {
-            (1.0, "✓ Onsite job (preferred)")
+            (1.0, "Onsite job (preferred)")
         }
         (UserRemotePreference::OnsitePreferred, RemoteStatus::Hybrid) => {
-            (0.7, "✓ Hybrid job (acceptable)")
+            (0.7, "Hybrid job (acceptable)")
         }
         (UserRemotePreference::OnsitePreferred, RemoteStatus::Remote) => {
-            (0.5, "⚠ Remote job (onsite preferred)")
+            (0.5, "Remote job (onsite preferred)")
         }
         (UserRemotePreference::OnsitePreferred, RemoteStatus::Unspecified) => {
-            (0.6, "⚠ Work arrangement not specified")
+            (0.6, "Work arrangement not specified")
         }
 
         // Flexible (all equally acceptable)
-        (UserRemotePreference::Flexible, RemoteStatus::Remote) => (1.0, "✓ Remote job"),
-        (UserRemotePreference::Flexible, RemoteStatus::Hybrid) => (1.0, "✓ Hybrid job"),
-        (UserRemotePreference::Flexible, RemoteStatus::Onsite) => (1.0, "✓ Onsite job"),
+        (UserRemotePreference::Flexible, RemoteStatus::Remote) => (1.0, "Remote job"),
+        (UserRemotePreference::Flexible, RemoteStatus::Hybrid) => (1.0, "Hybrid job"),
+        (UserRemotePreference::Flexible, RemoteStatus::Onsite) => (1.0, "Onsite job"),
         (UserRemotePreference::Flexible, RemoteStatus::Unspecified) => {
-            (0.8, "⚠ Work arrangement not specified (assuming flexible)")
+            (0.8, "Work arrangement not specified (assuming flexible)")
         }
     }
 }
