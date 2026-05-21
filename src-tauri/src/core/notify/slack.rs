@@ -2,7 +2,7 @@
 //!
 //! Sends rich-formatted job alerts to Slack via incoming webhooks.
 
-use super::Notification;
+use super::{validate_webhook_url_security_parts, Notification};
 use anyhow::{anyhow, Result};
 use serde_json::json;
 
@@ -18,6 +18,8 @@ fn validate_webhook_url(url: &str) -> Result<()> {
     if url_parsed.scheme() != "https" {
         return Err(anyhow!("Webhook URL must use HTTPS"));
     }
+
+    validate_webhook_url_security_parts(&url_parsed)?;
 
     // Ensure correct host (validate host BEFORE checking string prefix)
     if url_parsed.host_str() != Some("hooks.slack.com") {
@@ -637,11 +639,14 @@ mod tests {
     fn test_validate_webhook_url_with_port() {
         let url = "https://hooks.slack.com:443/services/T00000000/B00000000/XXXX";
         let result = validate_webhook_url(url);
-        // Port is included in URL parsing and affects host_str comparison
-        assert!(
-            result.is_err() || result.is_ok(),
-            "URL with port may or may not pass depending on implementation"
-        );
+        assert!(result.is_ok(), "Explicit default HTTPS port should pass");
+    }
+
+    #[test]
+    fn test_validate_webhook_url_with_non_default_port_fails() {
+        let url = "https://hooks.slack.com:8080/services/T00000000/B00000000/XXXX";
+        let result = validate_webhook_url(url);
+        assert!(result.is_err(), "Non-default port should fail validation");
     }
 
     #[test]
@@ -656,11 +661,9 @@ mod tests {
     fn test_webhook_url_with_username_password_fails() {
         let url = "https://user:pass@hooks.slack.com/services/T00000000/B00000000/XXXX";
         let result = validate_webhook_url(url);
-        // URL with credentials - host_str() still returns "hooks.slack.com"
-        // This actually passes validation since only the host is checked
         assert!(
-            result.is_ok(),
-            "URL with credentials passes validation (only host is checked)"
+            result.is_err(),
+            "URL with credentials should fail validation"
         );
     }
 

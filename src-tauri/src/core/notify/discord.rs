@@ -2,7 +2,7 @@
 //!
 //! Sends rich-formatted job alerts to Discord using webhooks with embeds.
 
-use super::Notification;
+use super::{validate_webhook_url_security_parts, Notification};
 use crate::core::config::DiscordConfig;
 use anyhow::{anyhow, Result};
 use serde_json::json;
@@ -17,6 +17,8 @@ fn validate_webhook_url(url: &str) -> Result<()> {
     if url_parsed.scheme() != "https" {
         return Err(anyhow!("Webhook URL must use HTTPS"));
     }
+
+    validate_webhook_url_security_parts(&url_parsed)?;
 
     // Ensure correct host (validate host BEFORE checking string prefix)
     let host = url_parsed
@@ -625,11 +627,14 @@ mod tests {
     fn test_webhook_url_with_port() {
         let url = "https://discord.com:443/api/webhooks/123456789/token";
         let result = validate_webhook_url(url);
-        // Port affects host_str comparison
-        assert!(
-            result.is_err() || result.is_ok(),
-            "URL with port may or may not pass"
-        );
+        assert!(result.is_ok(), "Explicit default HTTPS port should pass");
+    }
+
+    #[test]
+    fn test_webhook_url_with_non_default_port_fails() {
+        let url = "https://discord.com:8080/api/webhooks/123456789/token";
+        let result = validate_webhook_url(url);
+        assert!(result.is_err(), "Non-default port should fail validation");
     }
 
     #[test]
@@ -981,8 +986,7 @@ mod tests {
     fn test_webhook_url_with_username() {
         let url = "https://user:pass@discord.com/api/webhooks/123/token";
         let result = validate_webhook_url(url);
-        // URL with auth info should still validate
-        assert!(result.is_ok() || result.is_err());
+        assert!(result.is_err(), "URL with auth info should fail validation");
     }
 
     #[test]

@@ -2337,6 +2337,35 @@ test("checkRepoBloat rejects stale command execution security doc markers", () =
   });
 });
 
+test("checkRepoBloat rejects stale URL validation security doc markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/security/URL_VALIDATION.md",
+      [
+        "### Insecure Approach ❌",
+        "// ✅ GOOD: Explicit allowlist",
+        "**Last Updated**: 2026-05-19",
+        "**Version**: 2.6.4",
+        "**Security Level**: Production Ready",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/security/URL_VALIDATION.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sync URL validation security doc markers: docs/security/URL_VALIDATION.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale notification preference docs", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

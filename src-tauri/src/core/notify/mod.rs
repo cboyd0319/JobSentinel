@@ -10,7 +10,7 @@ use crate::core::{
     db::Job,
     scoring::JobScore,
 };
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -39,6 +39,20 @@ fn log_notification_sent(channel: &'static str, notification: &Notification) {
         job_hash = %notification.job.hash,
         "Sent notification"
     );
+}
+
+fn validate_webhook_url_security_parts(url: &url::Url) -> Result<()> {
+    if !url.username().is_empty() || url.password().is_some() {
+        return Err(anyhow!("Webhook URL must not include credentials"));
+    }
+
+    if let Some(port) = url.port() {
+        if port != 443 {
+            return Err(anyhow!("Webhook URL must use the default HTTPS port"));
+        }
+    }
+
+    Ok(())
 }
 
 impl NotificationService {

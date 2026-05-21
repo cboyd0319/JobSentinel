@@ -2,7 +2,7 @@
 //!
 //! Sends formatted job alerts to Microsoft Teams using Incoming Webhooks.
 
-use super::Notification;
+use super::{validate_webhook_url_security_parts, Notification};
 use anyhow::{anyhow, Result};
 use serde_json::json;
 
@@ -16,6 +16,8 @@ fn validate_webhook_url(url: &str) -> Result<()> {
     if url_parsed.scheme() != "https" {
         return Err(anyhow!("Webhook URL must use HTTPS"));
     }
+
+    validate_webhook_url_security_parts(&url_parsed)?;
 
     // Ensure correct host (validate host BEFORE checking string prefix)
     let host = url_parsed
@@ -958,24 +960,14 @@ mod tests {
     fn test_webhook_url_with_non_standard_port_fails() {
         let url = "https://outlook.office.com:8080/webhook/123";
         let result = validate_webhook_url(url);
-        // URL with non-standard port - host_str() still returns "outlook.office.com"
-        // This actually passes validation since only the host is checked
-        assert!(
-            result.is_ok(),
-            "URL with non-standard port passes validation (only host is checked)"
-        );
+        assert!(result.is_err(), "Non-standard port should fail validation");
     }
 
     #[test]
     fn test_webhook_url_with_username_fails() {
         let url = "https://user@outlook.office.com/webhook/123";
         let result = validate_webhook_url(url);
-        // URL with username - host_str() still returns "outlook.office.com"
-        // This actually passes validation since only the host is checked
-        assert!(
-            result.is_ok(),
-            "URL with username passes validation (only host is checked)"
-        );
+        assert!(result.is_err(), "URL with username should fail validation");
     }
 
     #[test]

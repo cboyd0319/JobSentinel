@@ -238,6 +238,7 @@ const feedbackSanitizerPaths = new Set(["src-tauri/src/commands/feedback/sanitiz
 const notificationDocsPaths = new Set(["docs/features/notifications.md"]);
 const webhookSecurityDocsPaths = new Set(["docs/security/WEBHOOK_SECURITY.md"]);
 const commandExecutionSecurityDocsPaths = new Set(["docs/security/COMMAND_EXECUTION.md"]);
+const urlValidationSecurityDocsPaths = new Set(["docs/security/URL_VALIDATION.md"]);
 const userDataDocsPaths = new Set(["docs/features/user-data-management.md"]);
 const structuredDebugLogPaths = new Set(["src-tauri/src/commands/feedback/debug_log.rs"]);
 const feedbackCommandPaths = new Set(["src-tauri/src/commands/feedback/mod.rs"]);
@@ -1199,6 +1200,18 @@ function hasStaleCommandExecutionSecurityDocMarkers(root, path) {
   );
 }
 
+function hasStaleUrlValidationSecurityDocMarkers(root, path) {
+  if (!urlValidationSecurityDocsPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /[✅❌⚠️]|\*\*(?:Last Updated|Version|Security Level)\*\*:/.test(text) ||
+    !text.includes("validate_webhook_url_security_parts(&url_parsed)?")
+  );
+}
+
 function hasStaleNotificationPreferenceDocs(root, path) {
   if (!userDataDocsPaths.has(path)) {
     return false;
@@ -1770,6 +1783,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleCommandExecutionSecurityDocMarkers(root, path)) {
       violations.push(`replace command execution security doc stale markers: ${path}`);
+    }
+
+    if (hasStaleUrlValidationSecurityDocMarkers(root, path)) {
+      violations.push(`sync URL validation security doc markers: ${path}`);
     }
 
     if (hasStaleNotificationPreferenceDocs(root, path)) {

@@ -97,6 +97,14 @@ export function validateSlackWebhook(url: string): string | undefined {
     if (parsed.protocol !== "https:") {
       return "Slack webhook must use HTTPS";
     }
+
+    if (parsed.username || parsed.password) {
+      return "Slack webhook must not include credentials";
+    }
+
+    if (parsed.port && parsed.port !== "443") {
+      return "Slack webhook must use the default HTTPS port";
+    }
     
     // Validate host
     if (parsed.hostname !== "hooks.slack.com") {
@@ -131,6 +139,14 @@ export function validateDiscordWebhook(url: string): string | undefined {
     if (parsed.protocol !== "https:") {
       return "Discord webhook must use HTTPS";
     }
+
+    if (parsed.username || parsed.password) {
+      return "Discord webhook must not include credentials";
+    }
+
+    if (parsed.port && parsed.port !== "443") {
+      return "Discord webhook must use the default HTTPS port";
+    }
     
     // Validate host
     if (parsed.hostname !== "discord.com" && parsed.hostname !== "discordapp.com") {
@@ -164,6 +180,14 @@ export function validateTeamsWebhook(url: string): string | undefined {
     // Validate scheme
     if (parsed.protocol !== "https:") {
       return "Teams webhook must use HTTPS";
+    }
+
+    if (parsed.username || parsed.password) {
+      return "Teams webhook must not include credentials";
+    }
+
+    if (parsed.port && parsed.port !== "443") {
+      return "Teams webhook must use the default HTTPS port";
     }
 
     // Validate host

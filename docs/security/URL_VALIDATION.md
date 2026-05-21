@@ -12,7 +12,7 @@ job import URLs.
 
 ## The Problem: String Prefix Matching
 
-### Insecure Approach ❌
+### Insecure Approach
 
 ```rust
 // INSECURE: String prefix check can be bypassed
@@ -35,8 +35,8 @@ An attacker can bypass this validation using several techniques:
 https://evil.com/steal?redirect=https://hooks.slack.com/services/T00/B00/XXX
 ```
 
-- **Check**: ✅ Passes (contains the expected prefix)
-- **Reality**: ❌ Sends data to `evil.com`, not Slack
+- **Naive check**: passes because the URL contains the expected prefix
+- **Actual destination**: `evil.com`, not Slack
 
 #### 2. Fragment Bypass
 
@@ -44,8 +44,8 @@ https://evil.com/steal?redirect=https://hooks.slack.com/services/T00/B00/XXX
 https://attacker.com/webhook#https://hooks.slack.com/services/T00/B00/XXX
 ```
 
-- **Check**: ✅ Passes
-- **Reality**: ❌ Data sent to `attacker.com`
+- **Naive check**: passes
+- **Actual destination**: `attacker.com`
 
 #### 3. URL-Encoded Bypass
 
@@ -53,8 +53,8 @@ https://attacker.com/webhook#https://hooks.slack.com/services/T00/B00/XXX
 https://evil.com/https%3A%2F%2Fhooks.slack.com%2Fservices%2F
 ```
 
-- **Check**: ✅ Passes (after decoding)
-- **Reality**: ❌ Sends data to `evil.com`
+- **Naive check**: passes after decoding
+- **Actual destination**: `evil.com`
 
 #### 4. Subdomain Bypass
 
@@ -62,12 +62,12 @@ https://evil.com/https%3A%2F%2Fhooks.slack.com%2Fservices%2F
 https://hooks.slack.com.evil.com/webhook
 ```
 
-- **Check**: ✅ Passes (contains "hooks.slack.com")
-- **Reality**: ❌ Host is `evil.com`, not `slack.com`
+- **Naive check**: passes because the string contains `hooks.slack.com`
+- **Actual host**: `hooks.slack.com.evil.com`, not `hooks.slack.com`
 
 ## The Solution: Proper URL Parsing
 
-### Secure Approach ✅
+### Secure Approach
 
 ```rust
 use url::Url;
@@ -83,12 +83,20 @@ fn validate_webhook_url(url: &str) -> Result<()> {
         return Err(anyhow!("Webhook URL must use HTTPS"));
     }
 
-    // 3. Validate host (exact match)
+    // 3. Reject embedded credentials and non-default HTTPS ports
+    if url_parsed.username() != "" || url_parsed.password().is_some() {
+        return Err(anyhow!("Webhook URL must not include credentials"));
+    }
+    if matches!(url_parsed.port(), Some(port) if port != 443) {
+        return Err(anyhow!("Webhook URL must use the default HTTPS port"));
+    }
+
+    // 4. Validate host (exact match)
     if url_parsed.host_str() != Some("hooks.slack.com") {
         return Err(anyhow!("Webhook URL must use hooks.slack.com domain"));
     }
 
-    // 4. Validate path
+    // 5. Validate path
     if !url_parsed.path().starts_with("/services/") {
         return Err(anyhow!("Invalid Slack webhook path"));
     }
@@ -111,17 +119,17 @@ scheme host            port path                  query  fragment
 Now all bypass attempts fail:
 
 ```rust
-// ❌ Query parameter bypass - FAILS
+// Query parameter bypass fails
 validate_webhook_url("https://evil.com?redirect=https://hooks.slack.com/services/T00/B00/XXX")
 // Error: "Webhook URL must use hooks.slack.com domain"
 // Host is correctly identified as "evil.com"
 
-// ❌ Fragment bypass - FAILS
+// Fragment bypass fails
 validate_webhook_url("https://attacker.com/webhook#https://hooks.slack.com/services/T00/B00/XXX")
 // Error: "Webhook URL must use hooks.slack.com domain"
 // Host is correctly identified as "attacker.com"
 
-// ❌ Subdomain bypass - FAILS
+// Subdomain bypass fails
 validate_webhook_url("https://hooks.slack.com.evil.com/webhook")
 // Error: "Webhook URL must use hooks.slack.com domain"
 // Host is correctly identified as "hooks.slack.com.evil.com"
@@ -171,6 +179,8 @@ fn validate_webhook_url(url: &str) -> Result<()> {
         return Err(anyhow!("Webhook URL must use HTTPS"));
     }
 
+    validate_webhook_url_security_parts(&url_parsed)?;
+
     if url_parsed.host_str() != Some("hooks.slack.com") {
         return Err(anyhow!("Webhook URL must use hooks.slack.com domain"));
     }
@@ -210,6 +220,8 @@ fn validate_webhook_url(url: &str) -> Result<()> {
         return Err(anyhow!("Webhook URL must use HTTPS"));
     }
 
+    validate_webhook_url_security_parts(&url_parsed)?;
+
     let host = url_parsed.host_str()
         .ok_or_else(|| anyhow!("Invalid webhook URL host"))?;
 
@@ -247,6 +259,8 @@ fn validate_webhook_url(url: &str) -> Result<()> {
         return Err(anyhow!("Webhook URL must use HTTPS"));
     }
 
+    validate_webhook_url_security_parts(&url_parsed)?;
+
     let host = url_parsed.host_str()
         .ok_or_else(|| anyhow!("Invalid webhook URL host"))?;
 
@@ -276,13 +290,13 @@ https://outlook.office365.com/webhook/...
 ### 1. Always parse URLs first
 
 ```rust
-// ❌ WRONG: String manipulation before parsing
+// Wrong: string manipulation before parsing
 if url.contains("@") || url.contains("..") {
     return Err(anyhow!("Invalid URL"));
 }
 let parsed = Url::parse(url)?; // Too late!
 
-// ✅ CORRECT: Parse first, then validate
+// Correct: parse first, then validate
 let parsed = Url::parse(url)?;
 if parsed.username() != "" || parsed.password().is_some() {
     return Err(anyhow!("URL must not contain credentials"));
@@ -351,17 +365,17 @@ match url_parsed.port() {
 ### Pitfall 1: Case Sensitivity
 
 ```rust
-// ❌ Case-sensitive comparison
+// Case-sensitive comparison
 if url_parsed.host_str() == Some("Discord.com") {  // Won't match "discord.com"
     // ...
 }
 
-// ✅ Case-insensitive comparison
+// Case-insensitive comparison
 if url_parsed.host_str().map(|h| h.to_lowercase()) == Some("discord.com".to_string()) {
     // ...
 }
 
-// ✅ Or better: Use url crate's domain normalization
+// Better: use url crate's domain normalization
 // The url crate normalizes domains to lowercase automatically
 if url_parsed.host_str() == Some("discord.com") {
     // Works for "Discord.com", "DISCORD.COM", etc.
@@ -371,12 +385,12 @@ if url_parsed.host_str() == Some("discord.com") {
 ### Pitfall 2: Forgetting Subdomains
 
 ```rust
-// ❌ Allows any subdomain
+// Allows any subdomain
 if url_parsed.host_str().unwrap_or("").ends_with("slack.com") {
     // Matches "evil.slack.com", "hooks.slack.com.attacker.com"
 }
 
-// ✅ Exact match or explicit subdomain list
+// Exact match or explicit subdomain list
 if url_parsed.host_str() == Some("hooks.slack.com") {
     // Only matches "hooks.slack.com"
 }
@@ -562,10 +576,10 @@ validate_security(&url)?;
 ### 3. Use allowlists, not denylists
 
 ```rust
-// ✅ GOOD: Explicit allowlist
+// Good: explicit allowlist
 const ALLOWED_HOSTS: &[&str] = &["hooks.slack.com"];
 
-// ❌ BAD: Denylist (easily bypassed)
+// Bad: denylist, easily bypassed
 const BLOCKED_HOSTS: &[&str] = &["evil.com", "attacker.com"];
 ```
 
@@ -607,9 +621,3 @@ fragments before logging because job URLs and webhooks can carry tokens.
 - [OWASP URL Validation](https://cheatsheetseries.owasp.org/cheatsheets/Unvalidated_Redirects_and_Forwards_Cheat_Sheet.html)
 - [RFC 3986: URI Generic Syntax](https://www.rfc-editor.org/rfc/rfc3986)
 - [Rust `url` crate documentation](https://docs.rs/url/)
-
----
-
-**Last Updated**: 2026-05-19
-**Version**: 2.6.4
-**Security Level**: Production Ready

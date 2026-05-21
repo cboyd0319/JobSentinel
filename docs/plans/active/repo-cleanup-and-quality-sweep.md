@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Hardened Slack, Discord, and Teams webhook URL validators to reject embedded credentials and non-default HTTPS ports; synced URL validation security docs and bloat coverage with the shared validator helper. |
 | 2026-05-21 | In progress | Cleaned command-execution security docs to remove stale status markers, Unicode arrows, and version footer while confirming OCR guidance against live resume parser feature gates and command execution flow. |
 | 2026-05-21 | In progress | Cleaned webhook security docs to remove status markers, stale version footer, and old keyring version wording while keeping provider host/path validation aligned with live frontend and backend validators. |
 | 2026-05-21 | In progress | Synced cache usage docs with the live scraper HTTP client, removing raw URL logging, direct `reqwest::get`, production-disable guidance, and status markers; added bloat coverage for recurrence. |

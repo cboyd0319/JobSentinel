@@ -241,6 +241,15 @@ describe("formValidation", () => {
       ).toBe("Slack webhook must use HTTPS");
     });
 
+    it("rejects credentials and non-default ports", () => {
+      expect(
+        validateSlackWebhook("https://user:pass@hooks.slack.com/services/T00/B00/XXX")
+      ).toBe("Slack webhook must not include credentials");
+      expect(
+        validateSlackWebhook("https://hooks.slack.com:8080/services/T00/B00/XXX")
+      ).toBe("Slack webhook must use the default HTTPS port");
+    });
+
     it("returns error message for wrong hostname", () => {
       // Arrange & Act & Assert
       expect(
@@ -312,6 +321,15 @@ describe("formValidation", () => {
       ).toBe("Discord webhook must use HTTPS");
     });
 
+    it("rejects credentials and non-default ports", () => {
+      expect(
+        validateDiscordWebhook("https://user:pass@discord.com/api/webhooks/123/abc")
+      ).toBe("Discord webhook must not include credentials");
+      expect(
+        validateDiscordWebhook("https://discord.com:8080/api/webhooks/123/abc")
+      ).toBe("Discord webhook must use the default HTTPS port");
+    });
+
     it("returns error message for wrong hostname", () => {
       // Arrange & Act & Assert
       expect(
@@ -381,6 +399,15 @@ describe("formValidation", () => {
       expect(
         validateTeamsWebhook("http://outlook.office.com/webhook/abc")
       ).toBe("Teams webhook must use HTTPS");
+    });
+
+    it("rejects credentials and non-default ports", () => {
+      expect(
+        validateTeamsWebhook("https://user:pass@outlook.office.com/webhook/abc")
+      ).toBe("Teams webhook must not include credentials");
+      expect(
+        validateTeamsWebhook("https://outlook.office.com:8080/webhook/abc")
+      ).toBe("Teams webhook must use the default HTTPS port");
     });
 
     it("returns error message for wrong hostname", () => {
