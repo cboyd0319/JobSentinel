@@ -59,9 +59,7 @@ const allowedRootEntries = new Set([
 const allowedTrackedGeneratedPaths = new Set([
   "docs/images/application-tracking.png",
   "docs/images/ats-optimizer.png",
-  "docs/images/dashboard-light.png",
   "docs/images/dashboard.png",
-  "docs/images/keyboard-shortcuts.png",
   "docs/images/logo.png",
   "docs/images/market-intelligence.png",
   "docs/images/one-click-apply.png",
@@ -1500,6 +1498,46 @@ function hasRedundantDomPurifyTypesDependency(root, path) {
   return Boolean(directDeps.dompurify && directDeps["@types/dompurify"]);
 }
 
+function hasUnreferencedDocsImage(root, path) {
+  if (!path.startsWith("docs/images/") || extname(path) !== ".png") {
+    return false;
+  }
+
+  const fileName = path.split("/").at(-1);
+  if (!fileName) {
+    return true;
+  }
+
+  const references = [`docs/images/${fileName}`, `images/${fileName}`, `../images/${fileName}`];
+
+  return !listTrackedFiles(root).some((trackedPath) => {
+    if (
+      trackedPath.startsWith("docs/archive/") ||
+      trackedPath.startsWith("docs/releases/") ||
+      !trackedPath.endsWith(".md") ||
+      (trackedPath !== "README.md" && !trackedPath.startsWith("docs/"))
+    ) {
+      return false;
+    }
+
+    const text = readFileSync(join(root, trackedPath), "utf8");
+    return references.some((reference) => text.includes(reference));
+  });
+}
+
+function hasDuplicateDocsScreenshotCapture(root, path) {
+  if (path !== "tests/e2e/playwright/screenshots.spec.ts") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const captures = [...text.matchAll(/screenshotPath\(\s*testInfo,\s*["']([^"']+)["']\s*\)/g)].map(
+    (match) => match[1],
+  );
+
+  return new Set(captures).size !== captures.length;
+}
+
 function hasStaleUserDataMockHandlers(root, path) {
   if (path !== "src/mocks/handlers.ts") {
     return false;
@@ -2055,6 +2093,14 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRedundantDomPurifyTypesDependency(root, path)) {
       violations.push(`remove redundant DOMPurify stub types dependency: ${path}`);
+    }
+
+    if (hasUnreferencedDocsImage(root, path)) {
+      violations.push(`remove unreferenced docs image: ${path}`);
+    }
+
+    if (hasDuplicateDocsScreenshotCapture(root, path)) {
+      violations.push(`remove duplicate docs screenshot capture: ${path}`);
     }
 
     if (hasStaleUserDataMockHandlers(root, path)) {

@@ -99,51 +99,6 @@ test.describe("Documentation Screenshots", () => {
     });
   });
 
-  test("capture keyboard shortcuts screenshot", async ({ page }, testInfo) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(1000);
-
-    // Skip setup wizard if visible
-    const skipButton = page.locator("text=Skip for now, button:has-text('Skip')").first();
-    if (await skipButton.isVisible().catch(() => false)) {
-      await skipButton.click();
-      await page.waitForLoadState("networkidle");
-    }
-
-    // Open keyboard shortcuts help with ? key
-    await page.keyboard.press("Shift+/");
-    await page.waitForTimeout(500);
-
-    // Take screenshot regardless of whether modal appeared
-    await page.screenshot({
-      path: screenshotPath(testInfo, "keyboard-shortcuts.png"),
-      fullPage: false,
-    });
-  });
-
-  test("capture light mode dashboard screenshot", async ({ page }, testInfo) => {
-    // Capture light mode variant for docs (dark is default)
-    await page.emulateMedia({ colorScheme: "light" });
-
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
-    // Skip setup wizard if visible
-    const skipButton = page.locator("text=Skip for now, button:has-text('Skip')").first();
-    if (await skipButton.isVisible().catch(() => false)) {
-      await skipButton.click();
-      await page.waitForLoadState("networkidle");
-    }
-
-    await page.waitForTimeout(1000);
-
-    await page.screenshot({
-      path: screenshotPath(testInfo, "dashboard-light.png"),
-      fullPage: false,
-    });
-  });
-
   test("capture resume matcher screenshot", async ({ page }, testInfo) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
@@ -228,28 +183,6 @@ test.describe("Documentation Screenshots", () => {
 
     await page.screenshot({
       path: screenshotPath(testInfo, "application-tracking.png"),
-      fullPage: false,
-    });
-  });
-
-  test("capture one-click apply screenshot via keyboard", async ({ page }, testInfo) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
-    // Skip setup wizard if visible
-    const skipButton = page.locator("text=Skip for now, button:has-text('Skip')").first();
-    if (await skipButton.isVisible().catch(() => false)) {
-      await skipButton.click();
-      await page.waitForLoadState("networkidle");
-    }
-
-    // Navigate to One-Click Apply page with Cmd+6
-    await page.keyboard.press("Meta+6");
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(1500);
-
-    await page.screenshot({
-      path: screenshotPath(testInfo, "one-click-apply.png"),
       fullPage: false,
     });
   });

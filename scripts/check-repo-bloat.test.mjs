@@ -145,6 +145,65 @@ test("checkRepoBloat rejects tracked source-tree markdown notes", () => {
   });
 });
 
+test("checkRepoBloat rejects unreferenced docs images", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(root, "README.md", "![Dashboard](docs/images/dashboard.png)\n");
+    writeFixtureFile(root, "docs/images/dashboard.png", "used image fixture\n");
+    writeFixtureFile(root, "docs/images/keyboard-shortcuts.png", "unused image fixture\n");
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "README.md",
+        "docs/images/dashboard.png",
+        "docs/images/keyboard-shortcuts.png",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("remove unreferenced docs image: docs/images/keyboard-shortcuts.png"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      !violations.includes("remove unreferenced docs image: docs/images/dashboard.png"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects duplicate docs screenshot targets", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "tests/e2e/playwright/screenshots.spec.ts",
+      `
+await page.screenshot({ path: screenshotPath(testInfo, "dashboard.png") });
+await page.screenshot({ path: screenshotPath(testInfo, "dashboard.png") });
+`,
+    );
+
+    execFileSync("git", ["add", "package.json", "tests/e2e/playwright/screenshots.spec.ts"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove duplicate docs screenshot capture: tests/e2e/playwright/screenshots.spec.ts",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects unreferenced settings helper components", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
