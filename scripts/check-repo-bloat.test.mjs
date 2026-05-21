@@ -2665,6 +2665,11 @@ test("checkRepoBloat rejects raw scraper URL and query logging", () => {
         "",
       ].join("\n"),
     );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/usajobs.rs",
+      'format!("USAJobs API error: {} - {}", status, body)\n',
+    );
 
     execFileSync(
       "git",
@@ -2676,6 +2681,7 @@ test("checkRepoBloat rejects raw scraper URL and query logging", () => {
         "src-tauri/src/core/scrapers/dice.rs",
         "src-tauri/src/core/scrapers/linkedin.rs",
         "src-tauri/src/core/scrapers/jobswithgpt.rs",
+        "src-tauri/src/core/scrapers/usajobs.rs",
       ],
       { cwd: root },
     );
@@ -2706,6 +2712,10 @@ test("checkRepoBloat rejects raw scraper URL and query logging", () => {
       violations.includes(
         "replace raw scraper URL/query logging: src-tauri/src/core/scrapers/jobswithgpt.rs",
       ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace raw scraper URL/query logging: src-tauri/src/core/scrapers/usajobs.rs"),
       violations.join("\n"),
     );
   });

@@ -187,6 +187,7 @@ const rawScraperLoggingPaths = new Set([
   "src-tauri/src/core/scrapers/lever/mod.rs",
   "src-tauri/src/core/scrapers/linkedin.rs",
   "src-tauri/src/core/scrapers/simplyhired.rs",
+  "src-tauri/src/core/scrapers/usajobs.rs",
 ]);
 
 const rawLocalPathLoggingPaths = new Set([
@@ -1311,6 +1312,7 @@ function hasRawScraperUrlOrQueryLogging(root, path) {
     text,
   ) || /MCP request:\s*\{\}[^;]*request/.test(text) ||
     /MCP error:\s*\{\}[^;]*error/.test(text) ||
+    /USAJobs API error:\s*\{\}\s*-\s*\{\}[^;]*body/.test(text) ||
     /tracing::(?:debug|info|warn|error)!\([^;]*,\s*url\s*\)/.test(text) ||
     /format!\([^)]*\{url\}/.test(text);
 }

@@ -194,13 +194,14 @@ impl UsaJobsScraper {
 
         if !response.status().is_success() {
             let status = response.status();
-            let body = read_text_with_limit(response, &url)
+            let body_chars = read_text_with_limit(response, &url)
                 .await
-                .unwrap_or_else(|error| format!("<failed to read response body: {error}>"));
+                .ok()
+                .map(|body| body.chars().count());
             return Err(ScraperError::http_status(
                 status.as_u16(),
                 &url,
-                format!("USAJobs API error: {} - {}", status, body),
+                Self::api_error_message(status.as_u16(), body_chars),
             ));
         }
 
@@ -225,6 +226,13 @@ impl UsaJobsScraper {
 
         tracing::info!("Parsed {} jobs from USAJobs", jobs.len());
         Ok(jobs)
+    }
+
+    fn api_error_message(status: u16, body_chars: Option<usize>) -> String {
+        match body_chars {
+            Some(chars) => format!("USAJobs API error: {status} (response_body_chars: {chars})"),
+            None => format!("USAJobs API error: {status} (response_body_unavailable)"),
+        }
     }
 
     /// Parse a job from API response
@@ -609,6 +617,24 @@ mod tests {
     fn test_scraper_name() {
         let scraper = UsaJobsScraper::new("key".to_string(), "email".to_string());
         assert_eq!(scraper.name(), "usajobs");
+    }
+
+    #[test]
+    fn test_api_error_message_does_not_echo_response_body() {
+        let body = r#"{"error":"No results for Secret Security Role in Private City, CO"}"#;
+        let message = UsaJobsScraper::api_error_message(400, Some(body.chars().count()));
+
+        assert_eq!(message, "USAJobs API error: 400 (response_body_chars: 67)");
+        assert!(!message.contains("Secret Security Role"));
+        assert!(!message.contains("Private City"));
+    }
+
+    #[test]
+    fn test_api_error_message_handles_unavailable_body() {
+        assert_eq!(
+            UsaJobsScraper::api_error_message(503, None),
+            "USAJobs API error: 503 (response_body_unavailable)"
+        );
     }
 
     #[test]
