@@ -681,6 +681,26 @@ function hasRoadmapStatusEmoji(root, path) {
   return /[\u{2705}\u{1f532}]/u.test(readFileSync(join(root, path), "utf8"));
 }
 
+function hasRoadmapVersionDrift(root, path) {
+  if (path !== "docs/ROADMAP.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /\*\*Last Updated:\*\*|## Current Version:|v2\.7\+ Planned|v2\.7\.[01]\s+-\s+/.test(text) ||
+    /\((?:v2\.2\+|v2\.6\+|v1\.6\+)\)|Frontend Architecture \(v2\.6\+\)/.test(text)
+  );
+}
+
+function hasFrontDoorDocStaleFooter(root, path) {
+  if (path !== "docs/README.md") {
+    return false;
+  }
+
+  return /\*\*Last Updated:\*\*/.test(readFileSync(join(root, path), "utf8"));
+}
+
 function hasStaleUserDataExportRoadmapClaim(root, path) {
   if (path !== "docs/features/user-data-management.md") {
     return false;
@@ -969,6 +989,7 @@ function hasStaleSqliteConfigurationDoc(root, path) {
   return (
     /\p{Extended_Pictographic}/u.test(text) ||
     /SQLite Maximum Protection & Performance Configuration/.test(text) ||
+    /\*\*(?:Status|Last Reviewed):\*\*/.test(text) ||
     /Status:\*\* ✅ Fully Implemented/.test(text) ||
     /cache_size`\s*\|\s*\*\*-64000\*\*/.test(text) ||
     /Cache size set \(`PRAGMA cache_size` returns -64000\)/.test(text) ||
@@ -1774,6 +1795,14 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRoadmapStatusEmoji(root, path)) {
       violations.push(`replace roadmap status emoji with text: ${path}`);
+    }
+
+    if (hasRoadmapVersionDrift(root, path)) {
+      violations.push(`replace roadmap version drift markers: ${path}`);
+    }
+
+    if (hasFrontDoorDocStaleFooter(root, path)) {
+      violations.push(`replace front-door doc stale footer: ${path}`);
     }
 
     if (hasStaleUserDataExportRoadmapClaim(root, path)) {

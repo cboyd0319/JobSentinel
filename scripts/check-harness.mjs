@@ -166,7 +166,7 @@ const currentVersion = packageJson.version;
 const versionClaims = {
   "README.md": [`Version-${currentVersion}`, `alt="Version ${currentVersion}"`],
   "docs/README.md": [`Current Version: ${currentVersion}`, `Release version:** ${currentVersion}`],
-  "docs/ROADMAP.md": [`Current Version: ${currentVersion}`],
+  "docs/ROADMAP.md": ["Use `package.json` for the current release package version."],
 };
 
 for (const [path, claims] of Object.entries(versionClaims)) {

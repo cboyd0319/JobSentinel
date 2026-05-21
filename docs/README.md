@@ -309,7 +309,3 @@ tests/                     # All tests
 ├── e2e/
 │   └── playwright/        # Playwright E2E tests
 ```
-
----
-
-**Last Updated:** 2026-05-20

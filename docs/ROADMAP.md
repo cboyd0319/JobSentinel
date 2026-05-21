@@ -1,10 +1,8 @@
 # JobSentinel Roadmap
 
-**Last Updated:** May 20, 2026
+Use `package.json` for the current release package version.
 
-## Current Version: 2.6.4
-
-### Working Features
+## Working Features
 
 - **13 Job scrapers**: Greenhouse, Lever, LinkedIn, RemoteOK, WeWorkRemotely,
   BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, Glassdoor
@@ -372,15 +370,15 @@ Security fixes, memory leak resolution, and standardized error handling released
 
 See [CHANGELOG.md](../CHANGELOG.md) for detailed v2.6.3 changes.
 
-### v2.7+ Planned / Unreleased Features
+### Planned / Unreleased Features
 
 | Feature                         | Status     | Priority | Notes                                                                    |
 | ------------------------------- | ---------- | -------- | ------------------------------------------------------------------------ |
 | **Beta Feedback System**        | Done    | High     | Implemented on main; tracked for v2.7.0 release                          |
 | macOS support (.dmg)            | Done    | -        | v2.5.1                                                                   |
 | Windows support (.msi)          | Done    | -        | v2.5.1                                                                   |
-| Linux support (.deb, .AppImage) | Done    | -        | v2.7.0 - Ubuntu 20.04+ compatibility                                     |
-| Intel Mac support               | Done    | -        | v2.7.1 - Universal binary (single .dmg for both Intel and Apple Silicon) |
+| Linux support (.deb, .AppImage) | Done    | -        | Ubuntu 20.04+ compatibility                                              |
+| Intel Mac support               | Done    | -        | Universal binary (single .dmg for both Intel and Apple Silicon)          |
 | CI/CD Pipeline                  | Done    | -        | GitHub Actions                                                           |
 | **Expanded Scrapers**           | Done    | -        | USAJobs, SimplyHired (v2.6.3+)                                           |
 | **Undo/Redo for Actions**       | Done    | Medium   | Wired on main for dashboard, applications, and cover letter templates    |
@@ -472,11 +470,11 @@ Many governments publish job data as open CSV/JSON:
 
 ### Implementation Priority
 
-1. Done - USAJobs API scraper (v2.6.3+)
-2. Done - SimplyHired scraper (v2.6.3+)
-3. Done - Universal Job Importer with Schema.org parsing (v2.2+)
-4. Done - Deep Link Generator for 19+ sites (v2.6+)
-5. Done - Bookmarklet generator and local receiver (v2.6+)
+1. Done - USAJobs API scraper
+2. Done - SimplyHired scraper
+3. Done - Universal Job Importer with Schema.org parsing
+4. Done - Deep Link Generator for 19+ sites
+5. Done - Bookmarklet generator and local receiver
 6. Planned - Curated job board directory with direct links
 7. Planned - RSS feed discovery and parsing
 
@@ -760,7 +758,7 @@ The v1.5 modularization effort successfully split 7 oversized files into smaller
 | --------------- | ------ | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Dashboard.tsx` | 2315   | 672   | DashboardTypes.ts, DashboardIcons.tsx, 5 hooks (useDashboardFilters, useDashboardSearch, useDashboardJobOps, useDashboardSavedSearches, useDashboardAutoRefresh), 3 UI components (DashboardHeader, DashboardStats, DashboardFiltersBar) |
 
-### Remaining (Lower Priority - v1.6+)
+### Remaining Lower Priority
 
 | File                | Lines | Notes                                             |
 | ------------------- | ----- | ------------------------------------------------- |
@@ -768,7 +766,7 @@ The v1.5 modularization effort successfully split 7 oversized files into smaller
 | `resume/mod.rs`     | 1727  | Split parser, matcher, tests                      |
 | `commands/mod.rs`   | 1278  | Could split by domain (jobs, ats, resume, salary) |
 
-### Frontend Architecture (v2.6+)
+### Frontend Architecture
 
 The current flat `src/components/` directory contains 70+ files. A future refactor should organize into:
 

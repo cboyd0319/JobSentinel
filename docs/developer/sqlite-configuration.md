@@ -1,7 +1,5 @@
 # SQLite Configuration
 
-> **Status:** Implemented
-> **Last Reviewed:** 2026-05-21
 > **Source:** `src-tauri/src/core/db/connection.rs` and
 > `src-tauri/src/core/db/integrity/`
 

@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Removed stale freshness footers and version-suffix roadmap markers from maintained docs while keeping current package-version claims in the docs index tied to `package.json`; updated harness expectations and added guards for recurrence. |
 | 2026-05-21 | In progress | Removed unreferenced one-off Intel Mac support report after confirming current universal-binary guidance lives in developer build/release docs; cleaned stale version banners from bookmarklet, embedded-ML, architecture, and testing docs with bloat coverage. |
 | 2026-05-21 | In progress | Removed stale status/version/review blocks, local version-history tables, maintainer footers, and phase-promise metadata from remaining maintained feature docs; widened feature-doc metadata bloat coverage. |
 | 2026-05-21 | In progress | Removed stale version/status metadata footers from maintained ghost detection, notifications, one-click apply, resume builder, and user-data feature docs, with bloat coverage for recurrence. |

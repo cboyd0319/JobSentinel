@@ -981,6 +981,7 @@ test("checkRepoBloat rejects stale SQLite configuration docs", () => {
         "# SQLite Maximum Protection & Performance Configuration",
         "",
         "> **Status:** ✅ Fully Implemented",
+        "> **Last Reviewed:** 2026-05-21",
         "",
         "- **Estimated Performance Gain:** 200-300% for read-heavy workloads",
         "",
@@ -1137,6 +1138,50 @@ test("checkRepoBloat rejects roadmap status emoji", () => {
 
     assert.ok(
       violations.includes("replace roadmap status emoji with text: docs/ROADMAP.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects roadmap version drift markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/ROADMAP.md",
+      [
+        "**Last Updated:** May 20, 2026",
+        "## Current Version: 2.6.4",
+        "### v2.7+ Planned / Unreleased Features",
+        "| Linux support | Done | - | v2.7.0 - Ubuntu 20.04+ compatibility |",
+        "4. Done - Deep Link Generator for 19+ sites (v2.6+)",
+        "### Frontend Architecture (v2.6+)",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/ROADMAP.md"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace roadmap version drift markers: docs/ROADMAP.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects front-door docs stale footer", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(root, "docs/README.md", "**Last Updated:** 2026-05-20\n");
+
+    execFileSync("git", ["add", "package.json", "docs/README.md"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace front-door doc stale footer: docs/README.md"),
       violations.join("\n"),
     );
   });
