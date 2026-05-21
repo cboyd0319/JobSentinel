@@ -1310,6 +1310,7 @@ function hasRawScraperUrlOrQueryLogging(root, path) {
   return /(?:URL|url|fetching|Fetching[^"]*(?:API|for|query)):\s*\{\}|(?:query|location)\s*=\s*%self\.(?:query|location)/.test(
     text,
   ) || /MCP request:\s*\{\}[^;]*request/.test(text) ||
+    /MCP error:\s*\{\}[^;]*error/.test(text) ||
     /tracing::(?:debug|info|warn|error)!\([^;]*,\s*url\s*\)/.test(text) ||
     /format!\([^)]*\{url\}/.test(text);
 }

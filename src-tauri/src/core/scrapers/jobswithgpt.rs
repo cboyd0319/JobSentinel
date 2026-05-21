@@ -103,7 +103,7 @@ impl JobsWithGptScraper {
         if let Some(error) = json.get("error") {
             return Err(ScraperError::Generic {
                 scraper: "jobswithgpt".to_string(),
-                message: format!("MCP error: {}", error),
+                message: Self::mcp_error_message(error),
             });
         }
 
@@ -119,6 +119,33 @@ impl JobsWithGptScraper {
 
         tracing::info!("Found {} jobs from JobsWithGPT", jobs.len());
         Ok(jobs)
+    }
+
+    fn mcp_error_message(error: &serde_json::Value) -> String {
+        let code = error
+            .get("code")
+            .and_then(serde_json::Value::as_i64)
+            .map_or_else(|| "unknown".to_string(), |value| value.to_string());
+        let has_message = error.get("message").is_some();
+        let data_type = error
+            .get("data")
+            .map(Self::json_value_kind)
+            .unwrap_or("none");
+
+        format!(
+            "MCP error response (code: {code}, has_message: {has_message}, data_type: {data_type})"
+        )
+    }
+
+    fn json_value_kind(value: &serde_json::Value) -> &'static str {
+        match value {
+            serde_json::Value::Null => "null",
+            serde_json::Value::Bool(_) => "bool",
+            serde_json::Value::Number(_) => "number",
+            serde_json::Value::String(_) => "string",
+            serde_json::Value::Array(_) => "array",
+            serde_json::Value::Object(_) => "object",
+        }
     }
 
     /// Parse a job from MCP response
@@ -663,6 +690,29 @@ mod tests {
         let result = scraper.query_mcp().await;
 
         assert!(matches!(result, Err(ScraperError::InvalidUrl { .. })));
+    }
+
+    #[test]
+    fn test_mcp_error_message_does_not_echo_private_query_data() {
+        let error = serde_json::json!({
+            "code": -32602,
+            "message": "No jobs found for Secret Staff Engineer",
+            "data": {
+                "titles": ["Secret Staff Engineer"],
+                "location": "Private City, CO",
+                "endpoint": "https://api.jobswithgpt.example/mcp?token=private"
+            }
+        });
+
+        let message = JobsWithGptScraper::mcp_error_message(&error);
+
+        assert_eq!(
+            message,
+            "MCP error response (code: -32602, has_message: true, data_type: object)"
+        );
+        assert!(!message.contains("Secret Staff Engineer"));
+        assert!(!message.contains("Private City"));
+        assert!(!message.contains("token=private"));
     }
 
     #[test]

@@ -2659,7 +2659,11 @@ test("checkRepoBloat rejects raw scraper URL and query logging", () => {
     writeFixtureFile(
       root,
       "src-tauri/src/core/scrapers/jobswithgpt.rs",
-      'tracing::debug!("MCP request: {}", request);\n',
+      [
+        'tracing::debug!("MCP request: {}", request);',
+        'message: format!("MCP error: {}", error),',
+        "",
+      ].join("\n"),
     );
 
     execFileSync(
