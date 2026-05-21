@@ -3815,6 +3815,34 @@ test("checkRepoBloat rejects raw path or query error display", () => {
   });
 });
 
+test("checkRepoBloat rejects raw resume parser path error display", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/resume/parser.rs",
+      [
+        'let canonical_path = file_path.canonicalize().context(format!("Invalid path: {}", file_path.display()))?;',
+        'return Err(anyhow::anyhow!("File must be a PDF. Got: {}", canonical_path.display()));',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/resume/parser.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize resume parser path error display: src-tauri/src/core/resume/parser.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw command setup error display", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

@@ -112,24 +112,25 @@ pub fn parse_pdf(&self, file_path: &Path) -> Result<String> {
     // This resolves symlinks and removes ../ components
     let canonical_path = file_path
         .canonicalize()
-        .context(format!("Invalid or inaccessible path: {}", file_path.display()))?;
+        .context("Invalid or inaccessible path")?;
 
     // Security: Verify the canonical path still exists
     if !canonical_path.exists() {
-        return Err(anyhow::anyhow!("File not found: {}", canonical_path.display()));
+        return Err(anyhow::anyhow!("File not found"));
     }
 
     // Security: Verify the canonical path is a regular file
     if !canonical_path.is_file() {
-        return Err(anyhow::anyhow!("Path is not a regular file: {}", canonical_path.display()));
+        return Err(anyhow::anyhow!("Path is not a regular file"));
     }
 
     // Verify it's a PDF file
     if canonical_path.extension().and_then(|s| s.to_str()) != Some("pdf") {
-        return Err(anyhow::anyhow!("File must be a PDF. Got: {}", canonical_path.display()));
+        return Err(anyhow::anyhow!("File must be a PDF"));
     }
 
-    // Now safe to use canonical_path
+    // Now safe to use canonical_path internally. Do not return raw local paths
+    // in renderer-visible errors.
     // ...
 }
 ```

@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Sanitized resume PDF parser failures so renderer-visible upload errors do not expose local file paths; synced command-execution docs and added bloat coverage for raw parser path displays. |
 | 2026-05-21 | In progress | Synced keyring docs with live credential status shapes: `list_status` returns key/existence tuples and `get_credential_status` returns `Vec<CredentialStatus>`, with bloat coverage for stale `HashMap` signatures. |
 | 2026-05-21 | In progress | Split Settings save failure handling so config write failures are reported as save failures even when credential writes succeed, with UI and bloat coverage for stale partial-save copy. |
 | 2026-05-21 | In progress | Sanitized Slack webhook validation command failures so webhook URLs and token paths are never returned or logged raw from the IPC wrapper; added bloat coverage for recurrence. |

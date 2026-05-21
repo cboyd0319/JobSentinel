@@ -239,6 +239,7 @@ const rawUrlErrorDisplayPaths = new Set([
 ]);
 
 const rawPathOrQueryErrorDisplayPaths = new Set(["src-tauri/src/core/db/error.rs"]);
+const rawResumeParserPathDisplayPaths = new Set(["src-tauri/src/core/resume/parser.rs"]);
 const rawCommandSetupErrorDisplayPaths = new Set([
   "src-tauri/src/commands/config.rs",
   "src-tauri/src/commands/ghost.rs",
@@ -1669,6 +1670,15 @@ function hasRawPathOrQueryErrorDisplay(root, path) {
   return /#\[error\("[^"]*\{(?:path|query)\}/.test(readFileSync(join(root, path), "utf8"));
 }
 
+function hasRawResumeParserPathDisplay(root, path) {
+  if (!rawResumeParserPathDisplayPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return /(?:file_path|canonical_path)\.display\(\)/.test(productionText);
+}
+
 function hasRawCommandSetupErrorDisplay(root, path) {
   if (!rawCommandSetupErrorDisplayPaths.has(path)) {
     return false;
@@ -2665,6 +2675,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawPathOrQueryErrorDisplay(root, path)) {
       violations.push(`replace raw path/query error display: ${path}`);
+    }
+
+    if (hasRawResumeParserPathDisplay(root, path)) {
+      violations.push(`sanitize resume parser path error display: ${path}`);
     }
 
     if (hasRawCommandSetupErrorDisplay(root, path)) {
