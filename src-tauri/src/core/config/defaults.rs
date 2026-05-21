@@ -2,7 +2,7 @@
 
 /// Default JobsWithGPT MCP endpoint
 /// Empty by default — domain api.jobswithgpt.com does not resolve.
-/// Users can configure a custom MCP endpoint if they have one.
+/// Users can configure a custom public MCP endpoint if they have one.
 pub(crate) fn default_jobswithgpt_endpoint() -> String {
     String::new()
 }

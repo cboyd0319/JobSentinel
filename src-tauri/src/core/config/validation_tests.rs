@@ -162,6 +162,23 @@ mod validation_tests {
     }
 
     #[test]
+    fn test_jobswithgpt_endpoint_blocks_private_networks() {
+        for endpoint in [
+            "http://localhost:3000/mcp",
+            "http://127.0.0.1:3000/mcp",
+            "http://10.0.0.5/mcp",
+            "http://192.168.1.5/mcp",
+            "http://[::1]/mcp",
+        ] {
+            let mut config = create_minimal_valid_config();
+            config.jobswithgpt_endpoint = endpoint.to_string();
+
+            let result = validate_config(&config);
+            assert!(result.is_err(), "{endpoint}");
+        }
+    }
+
+    #[test]
     fn test_empty_jobswithgpt_endpoint() {
         // Empty endpoint is valid — it disables JobsWithGPT scraping
         let mut config = create_minimal_valid_config();
