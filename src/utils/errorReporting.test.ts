@@ -2,16 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { errorReporter, withErrorCapture } from "./errorReporting";
 
 /**
- * Note: Full test suite for errorReporting is disabled due to worker isolation issues.
- *
- * The errorReporter singleton modifies global handlers (window.onerror, console.error)
- * which conflicts with Vitest's worker isolation strategy and causes crashes.
- *
- * These tests should be run in a separate process or with different isolation settings.
- * The errorReporting module is tested implicitly through:
- * - ErrorBoundary.test.tsx (mock-based tests)
- * - ErrorReportingContext.test.tsx (integration tests)
- * - E2E tests that verify error handling
+ * These tests avoid calling errorReporter.init() because the singleton modifies
+ * global handlers (window.onerror, console.error), which can conflict with Vitest
+ * worker isolation. Boundary and context tests cover the provider integration.
  */
 
 describe("errorReporting", () => {
@@ -123,5 +116,13 @@ describe("errorReporting", () => {
     expect(serialized).not.toContain("jane@example.com");
     expect(serialized).not.toContain("token=abc");
     expect(serialized).toContain("https://example.com/job");
+  });
+
+  it("exports the configured application version", () => {
+    errorReporter.captureCustom("Export test");
+
+    const exported = JSON.parse(errorReporter.export()) as { app_version: string };
+
+    expect(exported.app_version).toBe(__APP_VERSION__);
   });
 });

@@ -104,7 +104,7 @@ describe("feedbackService", () => {
   it("formats backend system architecture from get_system_info", () => {
     const debugInfo = formatDebugInfo(
       {
-        app_version: "2.6.4",
+        app_version: "test-version",
         platform: "macos",
         os_version: "macOS 15.5",
         architecture: "arm64",

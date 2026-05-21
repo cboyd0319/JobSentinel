@@ -350,7 +350,7 @@ class ErrorReporter {
   export(): string {
     return JSON.stringify({
       exported_at: new Date().toISOString(),
-      app_version: '1.2.0',
+      app_version: __APP_VERSION__,
       error_count: this.errors.length,
       errors: this.errors,
     }, null, 2);

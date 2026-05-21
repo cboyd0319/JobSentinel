@@ -3236,6 +3236,35 @@ test("checkRepoBloat accepts current frontend webhook redaction patterns", () =>
   });
 });
 
+test("checkRepoBloat rejects hardcoded frontend error export version", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/utils/errorReporting.ts",
+      [
+        "const WEBHOOK_PATTERN = /https:\\/\\/(?:hooks\\.slack\\.com|discord(?:app)?\\.com\\/api\\/webhooks|outlook\\.office(?:365)?\\.com\\/webhook)[^\\s]*/gi;",
+        "function sanitizeStoredReport(report) { return report; }",
+        "function exportErrors() {",
+        "  return { app_version: '1.2.0' };",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/utils/errorReporting.ts"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "derive frontend error export version from package metadata: src/utils/errorReporting.ts",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects notification webhook saves without validation", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

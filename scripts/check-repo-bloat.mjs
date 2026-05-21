@@ -1435,6 +1435,16 @@ function hasUnsanitizedFrontendErrorReportStorage(root, path) {
   );
 }
 
+function hasHardcodedFrontendErrorExportVersion(root, path) {
+  if (!frontendErrorReportingPaths.has(path)) {
+    return false;
+  }
+
+  return /app_version:\s*["']\d+\.\d+(?:\.\d+)?["']/.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 function hasNotificationWebhookSaveWithoutValidation(root, path) {
   if (!settingsCredentialPaths.has(path)) {
     return false;
@@ -2243,6 +2253,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasUnsanitizedFrontendErrorReportStorage(root, path)) {
       violations.push(`sanitize frontend error report storage: ${path}`);
+    }
+
+    if (hasHardcodedFrontendErrorExportVersion(root, path)) {
+      violations.push(`derive frontend error export version from package metadata: ${path}`);
     }
 
     if (hasNotificationWebhookSaveWithoutValidation(root, path)) {
