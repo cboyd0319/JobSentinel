@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Removed the redundant direct `playwright` dev dependency now that `@playwright/test` owns the runner, confirmed the Playwright CLI still resolves through transitive ownership, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Removed unreferenced generic hook modules, retired the now-dead cache strategy helper, updated active docs that still referenced those hooks, and added bloat coverage for both dead-source classes. |
 | 2026-05-20 | In progress | Removed unused `src/components/settings/` helper components and self-only tests after verifying no production imports, and added bloat coverage for unreferenced settings helper components. |
 | 2026-05-20 | In progress | Removed unreferenced Markdown notes from `src/components/settings/` and `src/hooks/`, keeping durable docs under `docs/`, and added bloat coverage so tracked source-tree Markdown notes cannot return. |
@@ -206,6 +207,9 @@ changes or Playwright-specific work.
   app behavior.
 - `src/utils/cacheStrategies.ts` was only used by the unreferenced cached
   dashboard hook, while the active API cache path remains in `src/utils/api.ts`.
+- `package.json` carried a direct `playwright` dev dependency even though the
+  app imports `@playwright/test` and that package owns the Playwright CLI.
+  Keeping both made Playwright version ownership less clear.
 - Storybook build completed but warned twice that `@chromatic-com/storybook`
   was configured without being installed. The Storybook story globs also
   included `src/**/*.mdx` even though no tracked MDX stories exist.

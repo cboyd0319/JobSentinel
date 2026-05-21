@@ -996,6 +996,21 @@ function hasUnownedStorybookAddon(root, path) {
   });
 }
 
+function hasRedundantDirectPlaywrightDependency(root, path) {
+  if (path !== "package.json") {
+    return false;
+  }
+
+  const packageJson = readPackageManifest(root);
+  const directDeps = {
+    ...(packageJson.dependencies ?? {}),
+    ...(packageJson.devDependencies ?? {}),
+    ...(packageJson.optionalDependencies ?? {}),
+  };
+
+  return Boolean(directDeps["@playwright/test"] && directDeps.playwright);
+}
+
 function hasStaleUserDataMockHandlers(root, path) {
   if (path !== "src/mocks/handlers.ts") {
     return false;
@@ -1431,6 +1446,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasUnownedStorybookAddon(root, path)) {
       violations.push(`remove Storybook addon without package ownership: ${path}`);
+    }
+
+    if (hasRedundantDirectPlaywrightDependency(root, path)) {
+      violations.push(`remove redundant direct Playwright dependency: ${path}`);
     }
 
     if (hasStaleUserDataMockHandlers(root, path)) {

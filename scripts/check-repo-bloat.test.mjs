@@ -205,6 +205,34 @@ test("checkRepoBloat rejects unreferenced cache strategy helpers", () => {
   });
 });
 
+test("checkRepoBloat rejects redundant direct Playwright dependency", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(
+      root,
+      "package.json",
+      JSON.stringify(
+        {
+          devDependencies: {
+            "@playwright/test": "^1.58.2",
+            playwright: "^1.57.0",
+          },
+        },
+        null,
+        2,
+      ),
+    );
+
+    execFileSync("git", ["add", "package.json"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("remove redundant direct Playwright dependency: package.json"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale E2E runtime skip guidance", () => {
   withGitFixture((root) => {
     const runtimeSkipCall = ["test", "skip"].join(".");
