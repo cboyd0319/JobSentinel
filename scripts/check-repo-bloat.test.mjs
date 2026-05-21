@@ -582,6 +582,113 @@ test("checkRepoBloat rejects developer architecture doc stale markers", () => {
   });
 });
 
+test("checkRepoBloat rejects developer maintenance doc stale markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/developer/CONTRIBUTING.md",
+      [
+        "# Contributing",
+        "",
+        "**Current version:** 2.6.4 (Production Ready)",
+        "",
+        "## 🚀 Getting Started",
+        "",
+        "- ✅ **Do:** Provide constructive feedback",
+        "- ❌ **Don't:** Share private information",
+        "",
+        "**Last Updated:** March 18, 2026 (v2.6.4)",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/GETTING_STARTED.md",
+      [
+        "# Getting Started",
+        "",
+        "**Version 2.6.4**",
+        "",
+        "│   │   │   ├── db/          # Database layer (refactored v1.5)",
+        "",
+        "### Modular Architecture (v1.5+)",
+        "",
+        "1. Read ROADMAP.md for v1.5+ priorities",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/WHY_TAURI.md",
+      ["# Why Tauri?", "", "**Last Updated:** March 18, 2026", "**Version:** v2.6.4", ""].join(
+        "\n",
+      ),
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/RELEASING.md",
+      ["# Releases", "", "## Version History", "", "- **v2.7.1 (unreleased)** - Notes", ""].join(
+        "\n",
+      ),
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/CI_CD.md",
+      ["# CI/CD", "", "**Last updated:** March 2026", "**Version:** v2.6.4", ""].join(
+        "\n",
+      ),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "docs/developer/CONTRIBUTING.md",
+        "docs/developer/GETTING_STARTED.md",
+        "docs/developer/WHY_TAURI.md",
+        "docs/developer/RELEASING.md",
+        "docs/developer/CI_CD.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace developer maintenance doc stale markers: docs/developer/CONTRIBUTING.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace developer maintenance doc stale markers: docs/developer/GETTING_STARTED.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace developer maintenance doc stale markers: docs/developer/WHY_TAURI.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace developer maintenance doc stale markers: docs/developer/RELEASING.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace developer maintenance doc stale markers: docs/developer/CI_CD.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects unsupported Vitest grep docs", () => {
   withGitFixture((root) => {
     const unsupportedVitestFilterFlag = ["--", "grep"].join("");

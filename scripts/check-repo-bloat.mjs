@@ -256,6 +256,13 @@ const developerArchitectureDocsPaths = new Set([
   "docs/developer/ARCHITECTURE.md",
   "docs/developer/ERROR_HANDLING.md",
 ]);
+const developerMaintenanceDocsPaths = new Set([
+  "docs/developer/CI_CD.md",
+  "docs/developer/CONTRIBUTING.md",
+  "docs/developer/GETTING_STARTED.md",
+  "docs/developer/RELEASING.md",
+  "docs/developer/WHY_TAURI.md",
+]);
 const keyringSecurityDocsPaths = new Set([
   "docs/security/KEYRING.md",
   "docs/features/credentials-security.md",
@@ -823,6 +830,26 @@ function hasDeveloperArchitectureDocMarkers(root, path) {
   return (
     /[✅❌⚠️]|\*\*(?:Last Updated|Version|Maintained By)\*\*:/.test(text) ||
     /Good ✅|Bad ❌|DO ✅|DON'T ❌|No cloud dependencies \(v1\.0\)/.test(text)
+  );
+}
+
+function hasDeveloperMaintenanceDocDrift(root, path) {
+  if (!developerMaintenanceDocsPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /\p{Extended_Pictographic}/u.test(text) ||
+    /^\*\*(?:Last Updated|Last updated|Version|Current version)(?::\*\*|\*\*:)/im.test(
+      text,
+    ) ||
+    /^\*\*Version\s+\d+\.\d+(?:\.\d+)?\*\*$/m.test(text) ||
+    /^## Version History$/m.test(text) ||
+    /\bv\d+\.\d+(?:\.\d+)?\s+\(unreleased\)/.test(text) ||
+    /for v1\.5\+ priorities|Modular Architecture \(v1\.5\+\)|refactored v1\.5/.test(
+      text,
+    )
   );
 }
 
@@ -1755,6 +1782,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasDeveloperArchitectureDocMarkers(root, path)) {
       violations.push(`replace developer architecture doc stale markers: ${path}`);
+    }
+
+    if (hasDeveloperMaintenanceDocDrift(root, path)) {
+      violations.push(`replace developer maintenance doc stale markers: ${path}`);
     }
 
     if (hasStaleE2eWaitGuidance(root, path)) {

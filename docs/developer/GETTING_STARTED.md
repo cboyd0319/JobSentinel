@@ -2,8 +2,6 @@
 
 ## Project Status
 
-**Version 2.6.4**
-
 | Component                                                                                                                            | Status                                       |
 | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- |
 | Core modules (config, db, scoring, scrapers, scheduler, notify, ghost, ats, resume, salary, market, automation, credentials, health) | Working                                      |
@@ -109,7 +107,7 @@ JobSentinel/
 │   │   │   ├── automation/  # One-Click Apply
 │   │   │   ├── config/      # Configuration
 │   │   │   ├── credentials/ # OS keyring integration
-│   │   │   ├── db/          # Database layer (refactored v1.5)
+│   │   │   ├── db/          # Database layer
 │   │   │   ├── ghost/       # Ghost job detection
 │   │   │   ├── health/      # Scraper health monitoring
 │   │   │   ├── market_intelligence/  # Market analytics
@@ -317,7 +315,7 @@ DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare
 > **Prefer runtime queries:** Use `sqlx::query()` (without `!`) for new code. Runtime queries
 > don't need the offline cache and are easier to maintain.
 
-### Modular Architecture (v1.5+)
+### Modular Architecture
 
 To maintain code quality and regenerability, all files follow the LLM-first coding principle:
 
@@ -326,7 +324,7 @@ To maintain code quality and regenerability, all files follow the LLM-first codi
 - **Modular structure**: Each module has clear boundaries and minimal coupling
 - **Separated concerns**: Tests go in `tests.rs` files, not inline `#[cfg(test)]` blocks
 
-Historical v1.5 modularization status lives in [ROADMAP.md](../ROADMAP.md).
+Historical modularization status lives in [ROADMAP.md](../ROADMAP.md).
 For current refactor candidates, use live line counts and ownership checks
 instead of copying fixed size snapshots into setup docs.
 
@@ -334,12 +332,8 @@ instead of copying fixed size snapshots into setup docs.
 
 ## Next Steps
 
-1. Read [ROADMAP.md](../ROADMAP.md) for v1.5+ priorities and technical debt
+1. Read [ROADMAP.md](../ROADMAP.md) for current priorities and technical debt
 2. Read [Quick Start Guide](../user/QUICK_START.md) for user documentation
 3. Check [GitHub Issues](https://github.com/cboyd0319/JobSentinel/issues) for tasks
 4. Review [Feature Documentation](../README.md#features) for implementation details
 5. Join [Discussions](https://github.com/cboyd0319/JobSentinel/discussions) for questions
-
----
-
-**Last Updated:** March 18, 2026

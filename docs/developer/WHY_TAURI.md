@@ -1,8 +1,5 @@
 # Why Tauri? Architecture Decision
 
-**Last Updated:** March 18, 2026
-**Version:** v2.6.4
-
 ---
 
 ## TL;DR

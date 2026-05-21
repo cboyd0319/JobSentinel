@@ -19,16 +19,18 @@
 
 ## Overview
 
-JobSentinel uses four GitHub Actions workflows:
+JobSentinel uses five GitHub Actions workflows:
 
 | Workflow      | File                | Trigger                      | Purpose                      |
 | ------------- | ------------------- | ---------------------------- | ---------------------------- |
 | CI            | `ci.yml`            | Push or PR to `main`         | Tests, linting, security     |
+| Docs Harness  | `docs-harness.yml`  | Docs and harness changes     | Harness, markdown lint       |
 | Release       | `release.yml`       | Version tag (`v*`)           | Build and publish installers |
 | Build Windows | `build-windows.yml` | Manual (`workflow_dispatch`) | Windows MSI on demand        |
 | Build Linux   | `build-linux.yml`   | Manual (`workflow_dispatch`) | Linux AppImage/deb on demand |
 
 CI skips runs when only documentation files change (`.md`, `docs/**`, Storybook, etc.).
+The docs harness workflow covers maintained docs and agent-facing harness files.
 
 ---
 
@@ -75,7 +77,7 @@ Audits both dependency trees for known vulnerabilities.
 
 ## Release builds (release.yml)
 
-**Trigger:** Push of a tag matching `v*` (for example, `v2.6.4`)
+**Trigger:** Push of a tag matching `v*`, for example `vX.Y.Z`
 
 This workflow creates a draft GitHub Release, then builds installers in parallel across three platforms.
 
@@ -108,14 +110,14 @@ hotfix or create a pre-release artifact.
 
 Builds a Windows `.msi` and uploads it as a draft release asset for the specified version tag.
 
-**Input:** `version` — the version string, for example `2.6.4`
+**Input:** `version` - the version string, for example `X.Y.Z`
 
 ### build-linux.yml
 
 Builds a Linux `.AppImage` and `.deb` and uploads them as workflow artifacts (not a release).
 Download them from the Actions run summary.
 
-**Input:** `version` — the version string, for example `2.6.4`
+**Input:** `version` - the version string, for example `X.Y.Z`
 
 ---
 
@@ -156,8 +158,8 @@ npm run lint && npm run test:run
 
 ```bash
 # Update version in both places
-# src-tauri/Cargo.toml → [package] version = "X.Y.Z"
-# package.json → "version": "X.Y.Z"
+# src-tauri/Cargo.toml -> [package] version = "X.Y.Z"
+# package.json -> "version": "X.Y.Z"
 
 # Update CHANGELOG.md, then commit
 git add src-tauri/Cargo.toml package.json CHANGELOG.md
@@ -279,8 +281,3 @@ git push origin vX.Y.Z
 - [Tauri distribution guide](https://v2.tauri.app/distribute/)
 - [cargo-deny documentation](https://embarkstudios.github.io/cargo-deny/)
 - [Semantic Versioning](https://semver.org)
-
----
-
-**Last updated:** March 2026
-**Version:** v2.6.4

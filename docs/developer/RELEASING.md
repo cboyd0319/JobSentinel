@@ -27,8 +27,8 @@ npx tauri build --target x86_64-unknown-linux-gnu
 ### 2. Create GitHub Release
 
 ```bash
-gh release create v2.5.1 \
-  --title "JobSentinel v2.5.1" \
+gh release create vX.Y.Z \
+  --title "JobSentinel vX.Y.Z" \
   --notes "Release notes here..." \
   --draft \
   src-tauri/target/release/bundle/dmg/*.dmg
@@ -42,18 +42,8 @@ Review the draft release on GitHub and click "Publish release".
 
 | Platform | Architecture          | Format      | Status   |
 | -------- | --------------------- | ----------- | -------- |
-| macOS    | universal             | `.dmg`      | ✅ Ready |
-| Windows  | x86_64                | `.msi`      | ✅ Ready |
-| Linux    | x86_64                | `.AppImage` / `.deb` | ✅ Workflow ready |
-
-## Version History
-
-- **v2.7.1 (unreleased)** - Universal macOS binary, harness engineering docs and checks
-- **v2.7.0 (unreleased)** - Beta feedback system and structured issue templates
-- **v2.6.4** - Settings infinite loading fix, NaN score handling, bulk operation resilience, 45 new tests, security updates
-- **v2.6.3** - Security fixes, memory leak fixes, standardized errors, docs update
-- **v2.5.1** - Dark mode default, navigation sidebar, all screenshots updated
-- **v2.5.0** - Market Intelligence UI, 13 scrapers, One-Click Apply
-- **v2.0.0** - Resume Builder, ATS Optimizer, OS keyring integration
+| macOS    | universal             | `.dmg`      | Ready |
+| Windows  | x86_64                | `.msi`      | Ready |
+| Linux    | x86_64                | `.AppImage` / `.deb` | Workflow ready |
 
 See [CHANGELOG.md](../../CHANGELOG.md) for full history.

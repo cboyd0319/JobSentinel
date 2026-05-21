@@ -40,39 +40,38 @@ See `docs/ROADMAP.md` → Technical Debt section for files needing refactoring.
 
 ### Check Current Status
 
-**Current version:** 2.6.4 (Production Ready)
-
-See `docs/ROADMAP.md` for future plans and technical debt tracking.
-
----
-
-## 📋 Table of Contents
-
-- [Code of Conduct](#-code-of-conduct)
-- [Getting Started](#-getting-started)
-- [Development Workflow](#-development-workflow)
-- [Coding Standards](#-coding-standards)
-- [Testing](#-testing)
-- [Submitting Changes](#-submitting-changes)
-- [Adding New Features](#-adding-new-features)
-- [Reporting Bugs](#-reporting-bugs)
+Check `package.json` for the current release package version. See
+`docs/ROADMAP.md` for current plans and technical debt tracking.
 
 ---
 
-## 📜 Code of Conduct
+## Table of Contents
+
+- [Code of Conduct](#code-of-conduct)
+- [Getting Started](#getting-started)
+- [Development Workflow](#development-workflow)
+- [Coding Standards](#coding-standards)
+- [Testing](#testing)
+- [Submitting Changes](#submitting-changes)
+- [Adding New Features](#adding-new-features)
+- [Reporting Bugs](#reporting-bugs)
+
+---
+
+## Code of Conduct
 
 **Be respectful, inclusive, and collaborative.** We're all here to make job searching easier.
 
-- ✅ **Do:** Provide constructive feedback
-- ✅ **Do:** Help others learn and grow
-- ✅ **Do:** Assume good intentions
-- ❌ **Don't:** Harass, discriminate, or belittle others
-- ❌ **Don't:** Spam or self-promote
-- ❌ **Don't:** Share private information
+- **Do:** Provide constructive feedback
+- **Do:** Help others learn and grow
+- **Do:** Assume good intentions
+- **Do not:** Harass, discriminate, or belittle others
+- **Do not:** Spam or self-promote
+- **Do not:** Share private information
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -124,7 +123,7 @@ npm run tauri:dev
 
 ---
 
-## 🔄 Development Workflow
+## Development Workflow
 
 ### 1. Sync with Upstream
 
@@ -210,7 +209,7 @@ Closes #123"
 
 ---
 
-## 💻 Coding Standards
+## Coding Standards
 
 ### Rust Code
 
@@ -315,7 +314,7 @@ export function JobList({ jobs, onSelect }: JobListProps) {
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ### Rust Tests
 
@@ -379,7 +378,7 @@ cargo test -- --nocapture
 
 ---
 
-## 📤 Submitting Changes
+## Submitting Changes
 
 ### Create Pull Request
 
@@ -458,7 +457,7 @@ Closes #123
 
 ---
 
-## ✨ Adding New Features
+## Adding New Features
 
 ### Adding a New Job Scraper
 
@@ -557,7 +556,7 @@ pub mod freebsd;
 
 ---
 
-## 🐛 Reporting Bugs
+## Reporting Bugs
 
 ### Before Reporting
 
@@ -596,7 +595,7 @@ Any other relevant information
 
 ---
 
-## 💡 Feature Requests
+## Feature Requests
 
 ### Before Requesting
 
@@ -621,7 +620,7 @@ Mockups, examples, etc.
 
 ---
 
-## 📚 Resources
+## Resources
 
 - [Rust Documentation](https://doc.rust-lang.org/)
 - [Tauri Documentation](https://tauri.app/)
@@ -631,7 +630,7 @@ Mockups, examples, etc.
 
 ---
 
-## 🙏 Recognition
+## Recognition
 
 Contributors will be:
 
@@ -641,10 +640,6 @@ Contributors will be:
 
 ---
 
-**Thank you for contributing to JobSentinel!** 🚀
+Thanks for contributing to JobSentinel.
 
 *Questions? Open a [Discussion](https://github.com/cboyd0319/JobSentinel/discussions)*
-
----
-
-**Last Updated:** March 18, 2026 (v2.6.4)

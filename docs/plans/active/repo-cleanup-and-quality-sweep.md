@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Cleaned stale version footers, emoji status markers, and release-history drift from active developer maintenance docs, synced CI workflow count with live workflows, and added bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Synced XSS/security overview docs with the live DOMPurify render path, removed stale status/version markers and CDN/custom-config drift, refreshed manual sanitizer examples, and added bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Cleaned stale emoji/status examples and version footers from maintained integration and mutation testing docs, and extended testing-doc bloat coverage to those surfaces. |
 | 2026-05-21 | In progress | Removed stale emoji/status callouts, version footers, and versioned privacy wording from maintained architecture and error-handling docs, with bloat coverage for recurrence. |
