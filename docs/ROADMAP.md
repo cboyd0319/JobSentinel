@@ -320,7 +320,7 @@ Comprehensive frontend UX improvements released January 24, 2026.
 | Lookup Objects             | Done | MarketAlertCard severity/type styles                                                          |
 | Accessible Labels          | Done | ResumeBuilder, ResumeOptimizer textareas                                                      |
 | Optimistic Update Rollback | Done | NotificationPreferences reverts on failure                                                    |
-| useMinimumLoadingDuration  | Done | New hook for loading state management                                                         |
+| useMinimumLoadingDuration  | Retired | Removed from main after no production references remained                                    |
 | Actionable Empty States    | Done | Resume skills, ResumeBuilder experience/education                                             |
 
 See [v2.6.0 UX improvements](plans/completed/v2.6.0-ux-improvements.md) and [v2.6.0 release notes](releases/v2.6.0.md)
@@ -355,7 +355,7 @@ Security fixes, memory leak resolution, and standardized error handling released
 
 | Feature                       | Status  | Notes                                                      |
 | ----------------------------- | ------- | ---------------------------------------------------------- |
-| **Custom React Hooks**        | Done | useOptimisticUpdate, usePagination, useFormValidation      |
+| **Custom React Hooks**        | Retired | Unreferenced generic hooks removed from main; active hooks remain under `src/hooks/` |
 | **Error Utilities**           | Done | errorHelpers.ts with retry logic and error classification  |
 | **Form Validation**           | Done | Shared validation utilities (email, URL, phone)            |
 | **Enhanced Error Boundaries** | Done | Component-level error isolation with retry                 |

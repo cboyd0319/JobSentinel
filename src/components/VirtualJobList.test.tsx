@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, renderHook, act } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { VirtualJobList } from "./VirtualJobList";
-import { useVirtualListScroll } from "../hooks/useVirtualListScroll";
 import { AnnouncerProvider } from "../contexts/AnnouncerContext";
 import { ReactNode } from "react";
 
@@ -210,60 +209,6 @@ describe("VirtualJobList", () => {
 
       expect(screen.getByTestId("job-card-1")).toBeInTheDocument();
     });
-  });
-});
-
-describe("useVirtualListScroll", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("returns listRef and scrollToJob", () => {
-    const { result } = renderHook(() => useVirtualListScroll());
-
-    expect(result.current).toHaveProperty("listRef");
-    expect(result.current).toHaveProperty("scrollToJob");
-    expect(typeof result.current.scrollToJob).toBe("function");
-  });
-
-  it("scrollToJob calls scrollToRow with correct params", () => {
-    const { result } = renderHook(() => useVirtualListScroll());
-
-    act(() => {
-      result.current.scrollToJob(5);
-    });
-
-    expect(mockScrollToRow).toHaveBeenCalledWith({ index: 5, align: "center" });
-  });
-
-  it("scrollToJob accepts custom align parameter", () => {
-    const { result } = renderHook(() => useVirtualListScroll());
-
-    act(() => {
-      result.current.scrollToJob(10, "start");
-    });
-
-    expect(mockScrollToRow).toHaveBeenCalledWith({ index: 10, align: "start" });
-  });
-
-  it("scrollToJob handles end alignment", () => {
-    const { result } = renderHook(() => useVirtualListScroll());
-
-    act(() => {
-      result.current.scrollToJob(3, "end");
-    });
-
-    expect(mockScrollToRow).toHaveBeenCalledWith({ index: 3, align: "end" });
-  });
-
-  it("scrollToJob handles auto alignment", () => {
-    const { result } = renderHook(() => useVirtualListScroll());
-
-    act(() => {
-      result.current.scrollToJob(7, "auto");
-    });
-
-    expect(mockScrollToRow).toHaveBeenCalledWith({ index: 7, align: "auto" });
   });
 });
 

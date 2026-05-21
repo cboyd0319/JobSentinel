@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-20 | In progress | Removed unreferenced generic hook modules, retired the now-dead cache strategy helper, updated active docs that still referenced those hooks, and added bloat coverage for both dead-source classes. |
 | 2026-05-20 | In progress | Removed unused `src/components/settings/` helper components and self-only tests after verifying no production imports, and added bloat coverage for unreferenced settings helper components. |
 | 2026-05-20 | In progress | Removed unreferenced Markdown notes from `src/components/settings/` and `src/hooks/`, keeping durable docs under `docs/`, and added bloat coverage so tracked source-tree Markdown notes cannot return. |
 | 2026-05-20 | In progress | Removed emoji markers from Resume Matcher and Salary AI feature docs, corrected the stale Salary AI future-UI claim now that `src/pages/Salary.tsx` exists, and added bloat coverage for both drift classes. |
@@ -200,6 +201,11 @@ changes or Playwright-specific work.
 
 - Current filesystem bloat scan finds no disposable reports, logs, or artifact
   directories outside ignored build/cache paths.
+- `src/hooks/` still contained exported or tested generic hooks with no
+  production imports. Keeping them made hook inventory look larger than active
+  app behavior.
+- `src/utils/cacheStrategies.ts` was only used by the unreferenced cached
+  dashboard hook, while the active API cache path remains in `src/utils/api.ts`.
 - Storybook build completed but warned twice that `@chromatic-com/storybook`
   was configured without being installed. The Storybook story globs also
   included `src/**/*.mdx` even though no tracked MDX stories exist.

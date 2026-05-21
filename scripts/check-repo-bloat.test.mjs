@@ -157,6 +157,54 @@ test("checkRepoBloat rejects unreferenced settings helper components", () => {
   });
 });
 
+test("checkRepoBloat rejects unreferenced hook modules", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/hooks/useModal.ts",
+      "export function useModal() { return { isOpen: false }; }\n",
+    );
+    writeFixtureFile(root, "src/hooks/useModal.test.ts", "import { useModal } from './useModal';\n");
+    writeFixtureFile(root, "src/hooks/index.ts", "export { useModal } from './useModal';\n");
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/hooks/useModal.ts", "src/hooks/useModal.test.ts", "src/hooks/index.ts"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("remove unreferenced hook module: src/hooks/useModal.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects unreferenced cache strategy helpers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/utils/cacheStrategies.ts",
+      "export function staleWhileRevalidate() { return undefined; }\n",
+    );
+
+    execFileSync("git", ["add", "package.json", "src/utils/cacheStrategies.ts"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("remove unreferenced source helper: src/utils/cacheStrategies.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale E2E runtime skip guidance", () => {
   withGitFixture((root) => {
     const runtimeSkipCall = ["test", "skip"].join(".");

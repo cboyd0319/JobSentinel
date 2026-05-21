@@ -139,6 +139,23 @@ const settingsHelperComponents = new Map([
   ["src/components/settings/ToggleSection.tsx", "ToggleSection"],
 ]);
 
+const unreferencedHookModules = new Map([
+  ["src/hooks/useAsyncOperation.ts", "useAsyncOperation"],
+  ["src/hooks/useCachedDashboardData.ts", "useCachedDashboardData"],
+  ["src/hooks/useFetchOnMount.ts", "useFetchOnMount"],
+  ["src/hooks/useFormValidation.ts", "useFormValidation"],
+  ["src/hooks/useMinimumLoadingDuration.ts", "useMinimumLoadingDuration"],
+  ["src/hooks/useModal.ts", "useModal"],
+  ["src/hooks/useOptimisticUpdate.ts", "useOptimisticUpdate"],
+  ["src/hooks/usePagination.ts", "usePagination"],
+  ["src/hooks/useTabs.ts", "useTabs"],
+  ["src/hooks/useVirtualListScroll.ts", "useVirtualListScroll"],
+]);
+
+const unreferencedSourceHelpers = new Map([
+  ["src/utils/cacheStrategies.ts", "cacheStrategies"],
+]);
+
 const speculativeCloudDeploymentDocs = new Map([
   [
     "docs/developer/ARCHITECTURE.md",
@@ -374,15 +391,21 @@ function isProductionTypeScriptSource(path) {
   );
 }
 
-function hasExternalProductionReference(root, componentName) {
-  const componentPattern = new RegExp(`\\b${componentName}\\b`);
+function hasExternalProductionReference(root, symbolName, options = {}) {
+  const symbolPattern = new RegExp(`\\b${symbolName}\\b`);
+  const ignoredPaths = options.ignoredPaths ?? new Set();
+  const ignoredPrefixes = options.ignoredPrefixes ?? [];
 
   return listTrackedFiles(root).some((path) => {
-    if (!isProductionTypeScriptSource(path) || path.startsWith("src/components/settings/")) {
+    if (
+      !isProductionTypeScriptSource(path) ||
+      ignoredPaths.has(path) ||
+      ignoredPrefixes.some((prefix) => path.startsWith(prefix))
+    ) {
       return false;
     }
 
-    return componentPattern.test(readFileSync(join(root, path), "utf8"));
+    return symbolPattern.test(readFileSync(join(root, path), "utf8"));
   });
 }
 
@@ -393,7 +416,33 @@ function hasUnreferencedSettingsHelperComponent(root, path) {
     return false;
   }
 
-  return !hasExternalProductionReference(root, componentName);
+  return !hasExternalProductionReference(root, componentName, {
+    ignoredPrefixes: ["src/components/settings/"],
+  });
+}
+
+function hasUnreferencedHookModule(root, path) {
+  const hookName = unreferencedHookModules.get(path);
+
+  if (!hookName) {
+    return false;
+  }
+
+  return !hasExternalProductionReference(root, hookName, {
+    ignoredPaths: new Set([path, "src/hooks/index.ts"]),
+  });
+}
+
+function hasUnreferencedSourceHelper(root, path) {
+  const helperName = unreferencedSourceHelpers.get(path);
+
+  if (!helperName) {
+    return false;
+  }
+
+  return !hasExternalProductionReference(root, helperName, {
+    ignoredPaths: new Set([path]),
+  });
 }
 
 function hasSpeculativeCloudDeploymentDoc(root, path) {
@@ -1178,6 +1227,14 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasUnreferencedSettingsHelperComponent(root, path)) {
       violations.push(`remove unreferenced settings helper component: ${path}`);
+    }
+
+    if (hasUnreferencedHookModule(root, path)) {
+      violations.push(`remove unreferenced hook module: ${path}`);
+    }
+
+    if (hasUnreferencedSourceHelper(root, path)) {
+      violations.push(`remove unreferenced source helper: ${path}`);
     }
 
     if (hasSpeculativeCloudDeploymentDoc(root, path)) {

@@ -37,7 +37,7 @@ Current release package version is `2.6.4`. Unreleased `2.7.x` work is tracked i
 ### What's New in v2.6.1
 
 - **React Performance** - 60+ useCallback hooks, 8 React.memo components, 5 useMemo optimizations
-- **New Reusable Hooks** - useModal, useTabs, useFetchOnMount with proper cleanup
+- **Reusable Hook Patterns** - Added hook patterns in v2.6.1; unreferenced generic hooks were later retired from main
 - **Component Deduplication** - Icons.tsx (22 icons), AsyncButton, FilterListInput
 - **Rust Optimizations** - 25+ structs with derives, 20 #[inline] hints, 4 Cow zero-copy functions
 - **Database Performance** - 10 query optimizations, 8 new indexes
