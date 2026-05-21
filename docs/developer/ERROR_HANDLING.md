@@ -471,9 +471,9 @@ error!("Database connection failed: {}", err);
 ### Structured Logging
 
 ```rust
-use tracing::{info, error};
+use tracing::{error, info};
 
-// Good ✅: Structured fields
+// Good: structured fields
 info!(
     company = %company.name,
     jobs_count = jobs.len(),
@@ -481,7 +481,7 @@ info!(
     "Scraping complete"
 );
 
-// Bad ❌: String interpolation only
+// Bad: string interpolation only
 info!("Scraping {} complete: {} jobs in {}ms",
     company.name, jobs.len(), start.elapsed().as_millis());
 ```
@@ -555,14 +555,14 @@ pub async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
 
 ### Error Message Guidelines
 
-**DO ✅:**
+**Do:**
 
 - Explain what happened
 - Suggest next steps
 - Be specific when possible
 - Use plain language
 
-**DON'T ❌:**
+**Do not:**
 
 - Show stack traces to users
 - Use technical jargon
@@ -571,8 +571,8 @@ pub async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
 
 **Examples:**
 
-| Bad ❌ | Good ✅ |
-|-------|--------|
+| Bad | Good |
+| --- | ---- |
 | "Error" | "Failed to save configuration. Please check file permissions." |
 | "HTTP 404" | "Company page not found. This company may no longer be hiring." |
 | "Validation failed" | "Salary must be between $0 and $10,000,000." |
@@ -698,7 +698,7 @@ fn test_error_message_quality() {
 
 ## Best Practices Summary
 
-### DO ✅
+### Do
 
 - Use appropriate error types (domain-specific `thiserror` vs `anyhow`)
 - Add context to errors (`.context()` or structured fields)
@@ -712,7 +712,7 @@ fn test_error_message_quality() {
 - Fail fast on programmer errors (assertions)
 - Degrade gracefully on external errors
 
-### DON'T ❌
+### Do Not
 
 - Use `.unwrap()` in production code
 - Ignore errors silently
@@ -731,8 +731,3 @@ fn test_error_message_quality() {
 - [thiserror Documentation](https://docs.rs/thiserror/)
 - [Rust Error Handling Book](https://doc.rust-lang.org/book/ch09-00-error-handling.html)
 - [tracing Documentation](https://docs.rs/tracing/)
-
----
-
-**Last Updated**: May 20, 2026
-**Maintained By**: JobSentinel maintainers

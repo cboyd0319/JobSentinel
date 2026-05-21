@@ -480,6 +480,62 @@ test("checkRepoBloat rejects developer testing doc stale markers", () => {
   });
 });
 
+test("checkRepoBloat rejects developer architecture doc stale markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/developer/ARCHITECTURE.md",
+      [
+        "// Good ✅: Core depends on abstractions",
+        "// Bad ❌: Core depends on concrete types",
+        "- No cloud dependencies (v1.0)",
+        "**Last Updated**: May 20, 2026",
+        "**Version**: 2.6.4",
+        "**Maintained By**: JobSentinel maintainers",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/ERROR_HANDLING.md",
+      [
+        "// Good ✅: Structured fields",
+        "// Bad ❌: String interpolation only",
+        "**DO ✅:**",
+        "**DON'T ❌:**",
+        "| Bad ❌ | Good ✅ |",
+        "### DO ✅",
+        "### DON'T ❌",
+        "**Last Updated**: May 20, 2026",
+        "**Maintained By**: JobSentinel maintainers",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/developer/ARCHITECTURE.md", "docs/developer/ERROR_HANDLING.md"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace developer architecture doc stale markers: docs/developer/ARCHITECTURE.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace developer architecture doc stale markers: docs/developer/ERROR_HANDLING.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects unsupported Vitest grep docs", () => {
   withGitFixture((root) => {
     const unsupportedVitestFilterFlag = ["--", "grep"].join("");

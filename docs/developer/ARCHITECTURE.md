@@ -707,13 +707,13 @@ the broader agent harness.
 ### 2. **Dependency Inversion**
 
 ```rust
-// Good ✅: Core depends on abstractions
+// Good: core depends on abstractions
 #[async_trait]
 pub trait JobScraper: Send + Sync {
     async fn scrape(&self) -> ScraperResult;
 }
 
-// Bad ❌: Core depends on concrete types
+// Bad: core depends on concrete types
 pub struct GreenhouseScraper { ... }
 ```
 
@@ -801,7 +801,7 @@ match result {
    - Browser localStorage is limited to UI preferences, caches, sanitized error
      reports, and transient recovery hints
    - No telemetry
-   - No cloud dependencies (v1.0)
+   - No cloud dependencies by default
 
 ---
 
@@ -815,9 +815,3 @@ match result {
 | Scrape single company | 1-5s    | Network dependent         |
 | Score single job      | <1ms    | Pure computation          |
 | Full scraping cycle   | 30-120s | Depends on # of companies |
-
----
-
-**Last Updated**: May 20, 2026
-**Version**: 2.6.4
-**Maintained By**: JobSentinel maintainers

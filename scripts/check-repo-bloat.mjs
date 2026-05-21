@@ -245,6 +245,10 @@ const developerTestingDocsPaths = new Set([
   "docs/developer/TESTING.md",
   "docs/developer/FRONTEND_TESTING.md",
 ]);
+const developerArchitectureDocsPaths = new Set([
+  "docs/developer/ARCHITECTURE.md",
+  "docs/developer/ERROR_HANDLING.md",
+]);
 const keyringSecurityDocsPaths = new Set([
   "docs/security/KEYRING.md",
   "docs/features/credentials-security.md",
@@ -798,6 +802,18 @@ function hasDeveloperTestingDocMarkers(root, path) {
       text,
     ) ||
     /### DO|### DON'T|Good ✅|Bad ❌|\bAchieved\s+✅|⚠️\s+In Progress/.test(text)
+  );
+}
+
+function hasDeveloperArchitectureDocMarkers(root, path) {
+  if (!developerArchitectureDocsPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /[✅❌⚠️]|\*\*(?:Last Updated|Version|Maintained By)\*\*:/.test(text) ||
+    /Good ✅|Bad ❌|DO ✅|DON'T ❌|No cloud dependencies \(v1\.0\)/.test(text)
   );
 }
 
@@ -1709,6 +1725,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasDeveloperTestingDocMarkers(root, path)) {
       violations.push(`replace developer testing doc stale markers: ${path}`);
+    }
+
+    if (hasDeveloperArchitectureDocMarkers(root, path)) {
+      violations.push(`replace developer architecture doc stale markers: ${path}`);
     }
 
     if (hasStaleE2eWaitGuidance(root, path)) {
