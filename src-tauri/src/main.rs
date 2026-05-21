@@ -308,7 +308,7 @@ fn main() {
             commands::feedback::clear_debug_log_cmd,
             commands::feedback::open_github_issues,
             commands::feedback::open_google_drive,
-            commands::feedback::reveal_file,
+            commands::feedback::reveal_saved_feedback_file,
             commands::feedback::generate_feedback_report,
             commands::feedback::get_feedback_filename,
             commands::feedback::save_feedback_file,

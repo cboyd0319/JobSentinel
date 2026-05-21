@@ -40,6 +40,11 @@ export interface FeedbackReport {
   timestamp: string;
 }
 
+export interface SavedFeedbackFile {
+  fileName: string;
+  revealToken: string;
+}
+
 /**
  * Get system information for feedback report.
  * Data is anonymized by the backend before being returned.
@@ -76,13 +81,13 @@ export async function getDebugLog(): Promise<DebugEvent[]> {
  * Generate feedback report and save to file.
  * Opens native file save dialog.
  *
- * @returns Path to saved file, or null if cancelled
+ * @returns Saved file metadata, or null if cancelled
  */
 export async function saveFeedbackReport(
   category: FeedbackCategory,
   description: string,
   includeDebugInfo: boolean
-): Promise<string | null> {
+): Promise<SavedFeedbackFile | null> {
   const content = await invoke<string>("generate_feedback_report", {
     category,
     description,
@@ -90,7 +95,7 @@ export async function saveFeedbackReport(
   });
   const suggestedFilename = await invoke<string>("get_feedback_filename");
 
-  return await invoke<string | null>("save_feedback_file", {
+  return await invoke<SavedFeedbackFile | null>("save_feedback_file", {
     content,
     suggestedFilename,
   });
@@ -126,10 +131,10 @@ export async function openGoogleDriveFeedbackFolder(): Promise<void> {
 }
 
 /**
- * Reveal saved file in native file explorer.
+ * Reveal saved feedback file in native file explorer.
  */
-export async function revealInFileExplorer(path: string): Promise<void> {
-  await invoke("reveal_file", { path });
+export async function revealSavedFeedbackFile(revealToken: string): Promise<void> {
+  await invoke("reveal_saved_feedback_file", { revealToken });
 }
 
 /**

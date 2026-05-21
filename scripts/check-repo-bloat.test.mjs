@@ -4842,6 +4842,7 @@ test("checkRepoBloat rejects unsanitized feedback file saves", () => {
       [
         "pub async fn save_feedback_file(content: String) -> Result<(), String> {",
         "    std::fs::write(&path, content).map_err(|e| format!(\"{e}\"))?;",
+        "    Ok(Some(path.to_string_lossy().into_owned()))",
         "    Ok(())",
         "}",
         "",

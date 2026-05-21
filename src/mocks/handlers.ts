@@ -1316,12 +1316,19 @@ function getMockFeedbackFilename(): string {
   return `jobsentinel-feedback-${year}-${month}-${day}-${hour}${minute}.txt`;
 }
 
-function saveMockFeedbackFile(args?: Record<string, unknown>): string | null {
+function saveMockFeedbackFile(args?: Record<string, unknown>): {
+  fileName: string;
+  revealToken: string;
+} | null {
   const suggestedFilename =
     getStringArg(args, "suggestedFilename") ??
     getStringArg(args, "suggested_filename") ??
     getMockFeedbackFilename();
-  return `/mock/feedback/${sanitizeMockFilename(suggestedFilename)}`;
+  const fileName = sanitizeMockFilename(suggestedFilename);
+  return {
+    fileName,
+    revealToken: `mock-feedback:${fileName}`,
+  };
 }
 
 function sanitizeMockFilename(filename: string): string {
@@ -2932,10 +2939,10 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "open_google_drive":
       return undefined as T;
 
-    case "reveal_file": {
-      const path = getStringArg(args, "path");
-      if (!path) {
-        throw new Error("Path cannot be empty");
+    case "reveal_saved_feedback_file": {
+      const revealToken = getStringArg(args, "revealToken") ?? getStringArg(args, "reveal_token");
+      if (!revealToken) {
+        throw new Error("Reveal token cannot be empty");
       }
       return undefined as T;
     }

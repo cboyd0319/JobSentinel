@@ -475,17 +475,27 @@ describe("mock Tauri handlers", () => {
     const filename = await mockInvoke<string>("get_feedback_filename");
     expect(filename).toMatch(/^jobsentinel-feedback-\d{4}-\d{2}-\d{2}-\d{4}\.txt$/);
 
-    const savedPath = await mockInvoke<string | null>("save_feedback_file", {
+    const savedFile = await mockInvoke<{ fileName: string; revealToken: string } | null>(
+      "save_feedback_file",
+      {
       content: report,
       suggestedFilename: "../unsafe-name.txt",
+      },
+    );
+    expect(savedFile).toEqual({
+      fileName: "unsafe-name.txt",
+      revealToken: "mock-feedback:unsafe-name.txt",
     });
-    expect(savedPath).toBe("/mock/feedback/unsafe-name.txt");
 
     await expect(
       mockInvoke<void>("open_github_issues", { template: "feature" }),
     ).resolves.toBeUndefined();
     await expect(mockInvoke<void>("open_google_drive")).resolves.toBeUndefined();
-    await expect(mockInvoke<void>("reveal_file", { path: savedPath })).resolves.toBeUndefined();
+    await expect(
+      mockInvoke<void>("reveal_saved_feedback_file", {
+        revealToken: savedFile?.revealToken,
+      }),
+    ).resolves.toBeUndefined();
   });
 
   it("analyzes resumes with the real ATS backend command names", async () => {

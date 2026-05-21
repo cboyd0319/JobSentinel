@@ -27,7 +27,7 @@ data.
 - Backend feedback commands:
   - `open_github_issues`
   - `open_google_drive`
-  - `reveal_file`
+  - `reveal_saved_feedback_file`
   - `get_system_info`
   - `get_config_summary`
   - `generate_feedback_report`

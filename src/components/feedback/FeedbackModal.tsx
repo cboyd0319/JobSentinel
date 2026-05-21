@@ -145,7 +145,7 @@ export const FeedbackModal = memo(function FeedbackModal({
           {feedback.step === "success" && feedback.submittedVia && (
             <SuccessScreen
               submittedVia={feedback.submittedVia}
-              savedFilePath={feedback.savedFilePath}
+              savedFeedbackFile={feedback.savedFeedbackFile}
               onRevealFile={feedback.revealSavedFile}
               onOpenDriveFolder={feedback.openDriveFolder}
               onClose={handleClose}

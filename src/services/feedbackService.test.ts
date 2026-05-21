@@ -6,7 +6,7 @@ import {
   getDebugLog,
   openGitHubIssue,
   openGoogleDriveFeedbackFolder,
-  revealInFileExplorer,
+  revealSavedFeedbackFile,
   saveFeedbackReport,
 } from "./feedbackService";
 
@@ -28,11 +28,17 @@ describe("feedbackService", () => {
     mockInvoke
       .mockResolvedValueOnce("sanitized report")
       .mockResolvedValueOnce("jobsentinel-feedback.txt")
-      .mockResolvedValueOnce("/Users/test/jobsentinel-feedback.txt");
+      .mockResolvedValueOnce({
+        fileName: "jobsentinel-feedback.txt",
+        revealToken: "feedback-token",
+      });
 
-    const savedPath = await saveFeedbackReport("bug", "Crash after search", true);
+    const savedFile = await saveFeedbackReport("bug", "Crash after search", true);
 
-    expect(savedPath).toBe("/Users/test/jobsentinel-feedback.txt");
+    expect(savedFile).toEqual({
+      fileName: "jobsentinel-feedback.txt",
+      revealToken: "feedback-token",
+    });
     expect(mockInvoke).toHaveBeenNthCalledWith(1, "generate_feedback_report", {
       category: "bug",
       description: "Crash after search",
@@ -94,10 +100,10 @@ describe("feedbackService", () => {
   it("reveals saved feedback files through the backend reveal command", async () => {
     mockInvoke.mockResolvedValueOnce(undefined);
 
-    await revealInFileExplorer("/Users/test/jobsentinel-feedback.txt");
+    await revealSavedFeedbackFile("feedback-token");
 
-    expect(mockInvoke).toHaveBeenCalledWith("reveal_file", {
-      path: "/Users/test/jobsentinel-feedback.txt",
+    expect(mockInvoke).toHaveBeenCalledWith("reveal_saved_feedback_file", {
+      revealToken: "feedback-token",
     });
   });
 

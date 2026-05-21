@@ -1,9 +1,10 @@
 import { memo } from "react";
 import { Button } from "../Button";
+import type { SavedFeedbackFile } from "../../services/feedbackService";
 
 interface SuccessScreenProps {
   submittedVia: "github" | "drive";
-  savedFilePath: string | null;
+  savedFeedbackFile: SavedFeedbackFile | null;
   onRevealFile: () => void;
   onOpenDriveFolder: () => void;
   onClose: () => void;
@@ -11,7 +12,7 @@ interface SuccessScreenProps {
 
 export const SuccessScreen = memo(function SuccessScreen({
   submittedVia,
-  savedFilePath,
+  savedFeedbackFile,
   onRevealFile,
   onOpenDriveFolder,
   onClose,
@@ -60,7 +61,7 @@ export const SuccessScreen = memo(function SuccessScreen({
       )}
 
       {/* Drive Success */}
-      {submittedVia === "drive" && savedFilePath && (
+      {submittedVia === "drive" && savedFeedbackFile && (
         <div className="text-center space-y-4">
           <h3 className="text-xl font-semibold text-surface-800 dark:text-surface-200">
             File Saved!
@@ -73,7 +74,7 @@ export const SuccessScreen = memo(function SuccessScreen({
 
             <div className="bg-surface-50 dark:bg-surface-900 rounded-lg p-3 border border-surface-200 dark:border-surface-700">
               <code className="text-xs text-surface-700 dark:text-surface-300 break-all">
-                {savedFilePath}
+                {savedFeedbackFile.fileName}
               </code>
             </div>
 

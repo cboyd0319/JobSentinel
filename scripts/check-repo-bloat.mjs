@@ -2069,7 +2069,13 @@ function hasUnsanitizedFeedbackFileSave(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /std::fs::write\(&path,\s*content\)/.test(text) || !text.includes("feedback_file_content");
+  return (
+    /std::fs::write\(&path,\s*content\)/.test(text) ||
+    /Ok\(Some\(path\.to_string_lossy\(\)/.test(text) ||
+    /Result<Option<String>,\s*String>/.test(text) ||
+    !text.includes("feedback_file_content") ||
+    !text.includes("reveal_token")
+  );
 }
 
 function hasUnownedStorybookAddon(root, path) {
@@ -2248,7 +2254,7 @@ function hasStaleFeedbackMockHandlers(root, path) {
     "save_feedback_file",
     "open_github_issues",
     "open_google_drive",
-    "reveal_file",
+    "reveal_saved_feedback_file",
   ];
 
   return requiredCommands.some((command) => {

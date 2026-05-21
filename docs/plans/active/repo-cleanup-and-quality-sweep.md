@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Changed feedback file save flow so the renderer receives only a filename and opaque reveal token, not a full local save path; reveal now uses backend-held saved-file paths and bloat coverage prevents raw path returns. |
 | 2026-05-21 | In progress | Removed renderer access to stored credential values by retiring the `retrieve_credential` IPC command and moving existing Slack/SMTP test fallback reads into backend-only credential-store paths; synced docs, mocks, tests, and bloat coverage. |
 | 2026-05-21 | In progress | Added backend LinkedIn cookie validation before keyring storage so credential IPC and direct credential-store calls reject oversized, control-character, and cookie-separator values before scraper header use; added bloat coverage. |
 | 2026-05-21 | In progress | Sanitized job import URL failure paths so non-public IP validation and fallback HTTP errors do not echo user-supplied hosts, URLs, queries, or provider error URLs; added bloat coverage. |

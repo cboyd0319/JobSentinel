@@ -4,13 +4,14 @@ import {
   SystemInfo,
   ConfigSummary,
   DebugEvent,
+  SavedFeedbackFile,
   getSystemInfo,
   getConfigSummary,
   getDebugLog,
   saveFeedbackReport,
   openGitHubIssue,
   openGoogleDriveFeedbackFolder,
-  revealInFileExplorer,
+  revealSavedFeedbackFile,
   formatDebugInfo,
 } from "../services/feedbackService";
 
@@ -36,7 +37,7 @@ export interface UseFeedbackState {
 
   // Success state
   submittedVia: "github" | "drive" | null;
-  savedFilePath: string | null;
+  savedFeedbackFile: SavedFeedbackFile | null;
 
   // Errors
   error: string | null;
@@ -80,7 +81,7 @@ export function useFeedback(): UseFeedbackResult {
     loading: true,
     submitting: false,
     submittedVia: null,
-    savedFilePath: null,
+    savedFeedbackFile: null,
     error: null,
   });
 
@@ -145,7 +146,7 @@ export function useFeedback(): UseFeedbackResult {
       includeDebugInfo: true,
       submitting: false,
       submittedVia: null,
-      savedFilePath: null,
+      savedFeedbackFile: null,
       error: null,
     }));
   }, []);
@@ -222,7 +223,7 @@ export function useFeedback(): UseFeedbackResult {
           ...prev,
           submitting: false,
           submittedVia: "drive",
-          savedFilePath: filePath,
+          savedFeedbackFile: filePath,
           step: "success",
         }));
       } else {
@@ -243,14 +244,14 @@ export function useFeedback(): UseFeedbackResult {
   }, [state.category, state.description, state.includeDebugInfo]);
 
   const revealSavedFile = useCallback(async () => {
-    if (state.savedFilePath) {
+    if (state.savedFeedbackFile) {
       try {
-        await revealInFileExplorer(state.savedFilePath);
+        await revealSavedFeedbackFile(state.savedFeedbackFile.revealToken);
       } catch (error) {
         console.error("Failed to reveal file:", error);
       }
     }
-  }, [state.savedFilePath]);
+  }, [state.savedFeedbackFile]);
 
   const openDriveFolder = useCallback(async () => {
     try {

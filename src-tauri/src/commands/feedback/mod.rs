@@ -17,16 +17,31 @@ pub use sanitizer::{ConfigSummary, Sanitizer};
 pub use system_info::SystemInfo;
 
 use crate::commands::AppState;
-use std::path::PathBuf;
+use once_cell::sync::Lazy;
+use serde::Serialize;
+use std::collections::HashMap;
+use std::path::{Path, PathBuf};
+use std::sync::Mutex;
 use tauri::{AppHandle, State};
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_shell::ShellExt;
+use uuid::Uuid;
 
-/// Validate that a path is safe to reveal in the file manager.
+static SAVED_FEEDBACK_FILES: Lazy<Mutex<HashMap<String, PathBuf>>> =
+    Lazy::new(|| Mutex::new(HashMap::new()));
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SavedFeedbackFile {
+    pub file_name: String,
+    pub reveal_token: String,
+}
+
+/// Validate that a caller-supplied path is safe to reveal in the file manager.
 ///
-/// Returns the canonicalized path if valid, or an error if:
-/// - The path doesn't exist or can't be resolved
-/// - The path is outside allowed directories (home dir, app data dir)
+/// Kept as a regression helper for the retired raw-path reveal command. The
+/// live reveal flow uses opaque tokens created by `save_feedback_file`.
+#[cfg(test)]
 fn validate_reveal_path(path: &str) -> Result<PathBuf, String> {
     if path.is_empty() {
         return Err("Path cannot be empty".to_string());
@@ -57,7 +72,7 @@ fn validate_reveal_path(path: &str) -> Result<PathBuf, String> {
 fn feedback_save_path(file_path: tauri_plugin_dialog::FilePath) -> Result<PathBuf, String> {
     file_path
         .into_path()
-        .map_err(|e| format!("Invalid feedback file path: {e}"))
+        .map_err(|_| "Invalid feedback file path".to_string())
 }
 
 fn feedback_suggested_filename(suggested_filename: Option<String>) -> String {
@@ -75,6 +90,28 @@ fn feedback_suggested_filename(suggested_filename: Option<String>) -> String {
 
 fn feedback_file_content(content: &str) -> String {
     Sanitizer::sanitize(content)
+}
+
+fn feedback_file_name(path: &Path) -> String {
+    path.file_name()
+        .and_then(|value| value.to_str())
+        .map(ToOwned::to_owned)
+        .unwrap_or_else(report::get_feedback_filename_impl)
+}
+
+fn remember_feedback_file(path: PathBuf) -> Result<SavedFeedbackFile, String> {
+    let reveal_token = Uuid::new_v4().to_string();
+    let file_name = feedback_file_name(&path);
+
+    let mut files = SAVED_FEEDBACK_FILES
+        .lock()
+        .map_err(|_| "Failed to prepare saved feedback report".to_string())?;
+    files.insert(reveal_token.clone(), path);
+
+    Ok(SavedFeedbackFile {
+        file_name,
+        reveal_token,
+    })
 }
 
 /// Open GitHub Issues page for bug reports
@@ -114,15 +151,7 @@ pub async fn open_google_drive(app: AppHandle) -> Result<(), String> {
     Ok(())
 }
 
-/// Reveal a file in Finder/Explorer
-///
-/// # Security
-/// Path is canonicalized and validated to prevent path traversal attacks (CWE-22).
-/// Only paths within the user's home directory or the app data directory are allowed.
-#[tauri::command]
-pub async fn reveal_file(app: AppHandle, path: String) -> Result<(), String> {
-    let canonical = validate_reveal_path(&path)?;
-
+fn reveal_canonical_path(app: AppHandle, canonical: PathBuf) -> Result<(), String> {
     #[cfg(target_os = "macos")]
     {
         let _ = &app;
@@ -160,6 +189,20 @@ pub async fn reveal_file(app: AppHandle, path: String) -> Result<(), String> {
     }
 
     Ok(())
+}
+
+#[tauri::command]
+pub async fn reveal_saved_feedback_file(
+    app: AppHandle,
+    reveal_token: String,
+) -> Result<(), String> {
+    let path = SAVED_FEEDBACK_FILES
+        .lock()
+        .ok()
+        .and_then(|files| files.get(&reveal_token).cloned())
+        .ok_or_else(|| "Saved feedback file is no longer available".to_string())?;
+
+    reveal_canonical_path(app, path)
 }
 
 // ============================================================================
@@ -202,7 +245,7 @@ pub async fn save_feedback_file(
     app: tauri::AppHandle,
     content: String,
     suggested_filename: Option<String>,
-) -> Result<Option<String>, String> {
+) -> Result<Option<SavedFeedbackFile>, String> {
     let suggested_filename = feedback_suggested_filename(suggested_filename);
     let Some(file_path) = app
         .dialog()
@@ -216,9 +259,12 @@ pub async fn save_feedback_file(
 
     let path = feedback_save_path(file_path)?;
     std::fs::write(&path, feedback_file_content(&content))
-        .map_err(|e| format!("Failed to save feedback report: {e}"))?;
+        .map_err(|_| "Failed to save feedback report".to_string())?;
+    let canonical = path
+        .canonicalize()
+        .map_err(|_| "Failed to confirm saved feedback report".to_string())?;
 
-    Ok(Some(path.to_string_lossy().into_owned()))
+    Ok(Some(remember_feedback_file(canonical)?))
 }
 
 // ============================================================================
@@ -273,7 +319,7 @@ mod tests {
     }
 
     // ========================================================================
-    // Security: reveal_file path validation (CWE-22 Path Traversal)
+    // Security: retired raw-path reveal validation (CWE-22 Path Traversal)
     // ========================================================================
 
     #[test]
