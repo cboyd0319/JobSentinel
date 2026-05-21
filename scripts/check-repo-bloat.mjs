@@ -2511,6 +2511,15 @@ function hasProductionHookDependencySuppression(root, path) {
   return /eslint-disable(?:-next-line|-line)?\s+react-hooks\/exhaustive-deps/.test(text);
 }
 
+function hasProductionReactRefreshSuppression(root, path) {
+  if (!isRuntimeFrontendSource(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /eslint-disable(?:-next-line|-line)?\s+react-refresh\/only-export-components/.test(text);
+}
+
 function collectRuntimeInvokeCommands(root) {
   const commands = new Set();
   const commandPattern =
@@ -2700,6 +2709,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasProductionHookDependencySuppression(root, path)) {
       violations.push(`remove production hook dependency suppression: ${path}`);
+    }
+
+    if (hasProductionReactRefreshSuppression(root, path)) {
+      violations.push(`remove production react-refresh suppression: ${path}`);
     }
 
     if (hasProductionSourceGlyphMarkers(root, path)) {

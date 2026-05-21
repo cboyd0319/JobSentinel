@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import type { SavedSearch, SortOption, ScoreFilter, PostedDateFilter } from "../DashboardTypes";
 import { useToast } from "../../contexts";
-import { useUndo } from "../../contexts/UndoContext";
+import { useUndo } from "../../hooks/useUndo";
 import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
 
 type BackendSavedSearch = {

@@ -5,7 +5,7 @@ import {
   DEFAULT_LIST_HEIGHT,
   DEFAULT_JOB_CARD_HEIGHT,
 } from "../utils/constants";
-import { useAnnouncer } from "../contexts/AnnouncerContext";
+import { useAnnouncer } from "../hooks/useAnnouncer";
 
 interface Job {
   id: number;
@@ -108,4 +108,3 @@ export const VirtualJobList = memo(function VirtualJobList({
     />
   );
 });
-

@@ -1,37 +1,15 @@
 import {
-  createContext,
-  useContext,
   useCallback,
   useMemo,
   useEffect,
   useState,
   type ReactNode,
 } from "react";
-
-export interface Shortcut {
-  key: string;
-  modifiers: ("meta" | "ctrl" | "alt" | "shift")[];
-  description: string;
-  action: () => void;
-  category: "navigation" | "actions" | "ui";
-}
-
-interface KeyboardShortcutsContextType {
-  shortcuts: Shortcut[];
-  registerShortcut: (shortcut: Shortcut) => void;
-  unregisterShortcut: (key: string, modifiers?: Shortcut["modifiers"]) => void;
-  isCommandPaletteOpen: boolean;
-  openCommandPalette: () => void;
-  closeCommandPalette: () => void;
-  toggleCommandPalette: () => void;
-  isHelpOpen: boolean;
-  openHelp: () => void;
-  closeHelp: () => void;
-  toggleHelp: () => void;
-}
-
-const KeyboardShortcutsContext =
-  createContext<KeyboardShortcutsContextType | null>(null);
+import {
+  KeyboardShortcutsContext,
+  type KeyboardShortcutsContextType,
+} from "./keyboardShortcutsContextDef";
+import type { Shortcut } from "../types/keyboardShortcuts";
 
 function shortcutId(key: string, modifiers: Shortcut["modifiers"]): string {
   return `${key.toLowerCase()}::${[...modifiers].sort().join("+")}`;
@@ -45,17 +23,6 @@ function eventMatchesShortcutKey(event: KeyboardEvent, shortcut: Shortcut): bool
     eventKey === shortcutKey ||
     (shortcutKey === "?" && event.shiftKey && eventKey === "/")
   );
-}
-
-// eslint-disable-next-line react-refresh/only-export-components
-export function useKeyboardShortcuts() {
-  const context = useContext(KeyboardShortcutsContext);
-  if (!context) {
-    throw new Error(
-      "useKeyboardShortcuts must be used within a KeyboardShortcutsProvider"
-    );
-  }
-  return context;
 }
 
 interface KeyboardShortcutsProviderProps {
@@ -330,7 +297,7 @@ export function KeyboardShortcutsProvider({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [shortcuts]);
 
-  const value = useMemo(() => ({
+  const value = useMemo<KeyboardShortcutsContextType>(() => ({
     shortcuts,
     registerShortcut,
     unregisterShortcut,
@@ -361,22 +328,4 @@ export function KeyboardShortcutsProvider({
       {children}
     </KeyboardShortcutsContext.Provider>
   );
-}
-
-// Helper to format shortcut for display
-// eslint-disable-next-line react-refresh/only-export-components
-export function formatShortcut(shortcut: Shortcut): string {
-  const isMac =
-    typeof navigator !== "undefined" &&
-    /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
-  const modSymbols: Record<string, string> = {
-    meta: isMac ? "⌘" : "Ctrl",
-    ctrl: "Ctrl",
-    alt: isMac ? "⌥" : "Alt",
-    shift: "⇧",
-  };
-
-  const mods = shortcut.modifiers.map((m) => modSymbols[m]).join("");
-  const key = shortcut.key.length === 1 ? shortcut.key.toUpperCase() : shortcut.key;
-  return mods ? `${mods}${key}` : key;
 }

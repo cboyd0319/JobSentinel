@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Removed remaining production react-refresh lint suppressions by moving context definitions, hooks, and shortcut formatting out of provider component files, with bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Removed the Company Research hook dependency suppression by eliminating stale `loading` closures from timeout callbacks, and added bloat coverage for production hook dependency suppressions. |
 | 2026-05-21 | In progress | Removed the web-vitals `@ts-expect-error` by modeling optional browser heap memory explicitly, added memory-present test coverage, and added bloat coverage for production TypeScript error suppressions. |
 | 2026-05-21 | In progress | Removed the TrendChart explicit-any lint suppression by typing chart rows as dynamic objects with unknown field reads, and added component plus bloat coverage for recurrence. |

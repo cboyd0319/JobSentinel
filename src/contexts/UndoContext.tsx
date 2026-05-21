@@ -1,27 +1,10 @@
-import { createContext, useContext, useCallback, useMemo, useState, useEffect, ReactNode } from "react";
+import { useCallback, useMemo, useState, useEffect, type ReactNode } from "react";
 import { useToast } from "./index";
-
-type ActionType = "hide" | "bookmark" | "notes" | "status";
-
-interface UndoableAction {
-  id: string;
-  type: ActionType;
-  description: string;
-  undo: () => Promise<void>;
-  redo: () => Promise<void>;
-  timestamp: number;
-}
-
-interface UndoContextType {
-  pushAction: (action: Omit<UndoableAction, "id" | "timestamp">) => void;
-  undo: () => Promise<void>;
-  redo: () => Promise<void>;
-  canUndo: boolean;
-  canRedo: boolean;
-  lastAction: UndoableAction | null;
-}
-
-const UndoContext = createContext<UndoContextType | undefined>(undefined);
+import {
+  UndoContext,
+  type UndoableAction,
+  type UndoContextType,
+} from "./undoContextDef";
 
 const MAX_UNDO_STACK = 50;
 
@@ -144,13 +127,4 @@ export function UndoProvider({ children }: { children: ReactNode }) {
       {children}
     </UndoContext.Provider>
   );
-}
-
-// eslint-disable-next-line react-refresh/only-export-components
-export function useUndo() {
-  const context = useContext(UndoContext);
-  if (!context) {
-    throw new Error("useUndo must be used within an UndoProvider");
-  }
-  return context;
 }

@@ -5,7 +5,7 @@ import { Input } from './Input';
 import { Card } from './Card';
 import { Modal, ModalFooter } from './Modal';
 import { useToast } from '../contexts';
-import { useUndo } from '../contexts/UndoContext';
+import { useUndo } from '../hooks/useUndo';
 import { LoadingSpinner } from './LoadingSpinner';
 import { logError } from '../utils/errorUtils';
 import { fillTemplatePlaceholders, type JobForTemplate } from '../utils/coverLetterUtils';

@@ -5,7 +5,7 @@ import type { ErrorReport } from "../utils/errorReporting";
 
 // Mock the useErrorReporting hook
 const mockUseErrorReporting = vi.fn();
-vi.mock("../contexts/ErrorReportingContext", () => ({
+vi.mock("../hooks/useErrorReporting", () => ({
   useErrorReporting: () => mockUseErrorReporting(),
 }));
 

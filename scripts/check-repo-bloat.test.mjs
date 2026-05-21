@@ -377,6 +377,35 @@ test("checkRepoBloat rejects production hook dependency suppressions", () => {
   });
 });
 
+test("checkRepoBloat rejects production react-refresh suppressions", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/contexts/UndoContext.tsx",
+      [
+        "export function UndoProvider() { return null; }",
+        "// eslint-disable-next-line react-refresh/only-export-components",
+        "export function useUndo() { return null; }",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/contexts/UndoContext.tsx"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove production react-refresh suppression: src/contexts/UndoContext.tsx",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects backend scoring reason glyph markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

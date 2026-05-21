@@ -14,7 +14,7 @@ vi.mock("../../contexts", () => ({
   useToast: () => mockToast,
 }));
 
-vi.mock("../../contexts/UndoContext", () => ({
+vi.mock("../../hooks/useUndo", () => ({
   useUndo: () => ({ pushAction: vi.fn() }),
 }));
 

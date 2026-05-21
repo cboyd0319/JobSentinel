@@ -1,16 +1,6 @@
-import { createContext, useContext, useEffect, useState, useCallback, useMemo, ReactNode } from 'react';
+import { useEffect, useState, useCallback, useMemo, type ReactNode } from 'react';
 import { errorReporter, ErrorReport } from '../utils/errorReporting';
-
-interface ErrorReportingContextType {
-  errors: ErrorReport[];
-  errorCount: number;
-  captureError: (error: Error, context?: Record<string, unknown>) => void;
-  clearErrors: () => void;
-  clearError: (id: string) => void;
-  exportErrors: () => void;
-}
-
-const ErrorReportingContext = createContext<ErrorReportingContextType | null>(null);
+import { ErrorReportingContext } from './errorReportingContextDef';
 
 export function ErrorReportingProvider({ children }: { children: ReactNode }) {
   // Use lazy initialization to avoid setState in effect
@@ -55,13 +45,4 @@ export function ErrorReportingProvider({ children }: { children: ReactNode }) {
       {children}
     </ErrorReportingContext.Provider>
   );
-}
-
-// eslint-disable-next-line react-refresh/only-export-components
-export function useErrorReporting() {
-  const context = useContext(ErrorReportingContext);
-  if (!context) {
-    throw new Error('useErrorReporting must be used within ErrorReportingProvider');
-  }
-  return context;
 }

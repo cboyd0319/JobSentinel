@@ -9,7 +9,8 @@ import { KeyboardShortcutsHelp } from "./components/KeyboardShortcutsHelp";
 import { OnboardingProvider } from "./components/OnboardingTour";
 import { useOnboarding } from "./hooks/useOnboarding";
 import { Navigation } from "./components/Navigation";
-import { KeyboardShortcutsProvider, useKeyboardShortcuts } from "./contexts/KeyboardShortcutsContext";
+import { KeyboardShortcutsProvider } from "./contexts/KeyboardShortcutsContext";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { logError } from "./utils/errorUtils";
 import { defaultTourSteps } from "./config/tourSteps";
 

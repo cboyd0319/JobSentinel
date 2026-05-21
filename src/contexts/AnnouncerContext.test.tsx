@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, act } from "@testing-library/react";
-import { AnnouncerProvider, useAnnouncer } from "./AnnouncerContext";
+import { AnnouncerProvider } from "./AnnouncerContext";
+import { useAnnouncer } from "../hooks/useAnnouncer";
 
 // Test component that uses the announcer context
 function TestComponent() {

@@ -1,10 +1,5 @@
-import { createContext, useContext, useState, useCallback, useMemo, ReactNode, useEffect, useRef } from "react";
-
-interface AnnouncerContextType {
-  announce: (message: string, priority?: "polite" | "assertive") => void;
-}
-
-const AnnouncerContext = createContext<AnnouncerContextType | undefined>(undefined);
+import { useState, useCallback, useMemo, type ReactNode, useEffect, useRef } from "react";
+import { AnnouncerContext, type AnnouncerContextType } from "./announcerContextDef";
 
 export function AnnouncerProvider({ children }: { children: ReactNode }) {
   const [politeMessage, setPoliteMessage] = useState("");
@@ -37,7 +32,7 @@ export function AnnouncerProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const value = useMemo(() => ({ announce }), [announce]);
+  const value = useMemo<AnnouncerContextType>(() => ({ announce }), [announce]);
 
   return (
     <AnnouncerContext.Provider value={value}>
@@ -61,13 +56,4 @@ export function AnnouncerProvider({ children }: { children: ReactNode }) {
       </div>
     </AnnouncerContext.Provider>
   );
-}
-
-// eslint-disable-next-line react-refresh/only-export-components
-export function useAnnouncer(): AnnouncerContextType {
-  const context = useContext(AnnouncerContext);
-  if (!context) {
-    throw new Error("useAnnouncer must be used within an AnnouncerProvider");
-  }
-  return context;
 }

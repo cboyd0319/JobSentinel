@@ -1,5 +1,5 @@
 import { memo, useState } from 'react';
-import { useErrorReporting } from '../contexts/ErrorReportingContext';
+import { useErrorReporting } from '../hooks/useErrorReporting';
 import { Button } from './Button';
 import { Badge } from './Badge';
 import { Card } from './Card';

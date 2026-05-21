@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { ErrorReportingProvider, useErrorReporting } from "./ErrorReportingContext";
+import { ErrorReportingProvider } from "./ErrorReportingContext";
+import { useErrorReporting } from "../hooks/useErrorReporting";
 
 /**
  * Note: Some tests in this file are limited to avoid worker crashes.
