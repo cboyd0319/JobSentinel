@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Sanitized development error-reporter console output so it logs the same redacted report stored in local error logs, not raw error objects, webhook URLs, paths, emails, or URL tokens. |
 | 2026-05-21 | In progress | Removed credential rustdoc guidance that printed retrieved secrets and added bloat coverage to catch future examples that log credential or password values. |
 | 2026-05-21 | In progress | Sanitized resume library command responses so renderer DTOs no longer include backend resume file paths or parsed text, and added frontend, mock, docs, and bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Changed feedback file save flow so the renderer receives only a filename and opaque reveal token, not a full local save path; reveal now uses backend-held saved-file paths and bloat coverage prevents raw path returns. |

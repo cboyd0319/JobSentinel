@@ -78,6 +78,30 @@ describe("errorReporting", () => {
     expect((stored.context?.nested as Record<string, unknown>).webhook).toBe("[REDACTED]");
   });
 
+  it("uses sanitized reports in development console logging", () => {
+    vi.stubEnv("DEV", true);
+
+    errorReporter.captureCustom(
+      "Failed https://user:pass@example.com/jobs/123?token=abc#frag for jane@example.com",
+      {
+        webhook: "https://hooks.slack.com/services/T000/B000/SECRET",
+        resumePath: "/Users/alice/resume.pdf",
+      }
+    );
+
+    const serializedCalls = JSON.stringify(consoleErrorSpy.mock.calls);
+
+    expect(serializedCalls).toContain("https://example.com/jobs/123");
+    expect(serializedCalls).not.toContain("user:pass");
+    expect(serializedCalls).not.toContain("token=abc");
+    expect(serializedCalls).not.toContain("jane@example.com");
+    expect(serializedCalls).not.toContain("/Users/alice");
+    expect(serializedCalls).not.toContain("SECRET");
+    expect(serializedCalls).not.toContain("originalError");
+
+    vi.unstubAllEnvs();
+  });
+
   it("redacts provider webhook URLs before generic URL sanitization", () => {
     const report = errorReporter.captureCustom(
       [

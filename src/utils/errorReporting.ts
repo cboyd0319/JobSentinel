@@ -262,9 +262,8 @@ class ErrorReporter {
     // Log in development
     if (import.meta.env.DEV) {
       const logError = this.originalConsoleError ?? console.error;
-      logError(`[ErrorReporter][${type}]`, error.message, {
-        report,
-        originalError: error,
+      logError(`[ErrorReporter][${type}]`, storedReport.message, {
+        report: storedReport,
       });
     }
 
