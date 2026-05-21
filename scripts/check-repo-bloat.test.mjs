@@ -4408,6 +4408,54 @@ test("checkRepoBloat rejects stale frontend webhook redaction patterns", () => {
   });
 });
 
+test("checkRepoBloat rejects unsafe reason JSON parsing", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/ScoreDisplay.tsx",
+      [
+        "function parseScoreReasons(reasonsJson) {",
+        "  const reasons: string[] = JSON.parse(reasonsJson);",
+        "  return reasons.map((reason) => reason.toLowerCase());",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/GhostIndicator.tsx",
+      [
+        "function parseReasons(reasonsJson) {",
+        "  try {",
+        "    return JSON.parse(reasonsJson);",
+        "  } catch {",
+        "    return [];",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/components/ScoreDisplay.tsx", "src/components/GhostIndicator.tsx"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("validate reason JSON before rendering: src/components/ScoreDisplay.tsx"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("validate reason JSON before rendering: src/components/GhostIndicator.tsx"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat accepts current frontend webhook redaction patterns", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

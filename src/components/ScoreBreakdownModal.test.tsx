@@ -171,6 +171,15 @@ describe("ScoreBreakdownModal", () => {
       expect(screen.getByText("Score Breakdown")).toBeInTheDocument();
     });
 
+    it("ignores malformed valid JSON reason shapes", () => {
+      const reasons = JSON.stringify([null, { text: "bad" }, "Salary meets target"]);
+      render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);
+
+      expect(screen.getByText("Score Breakdown")).toBeInTheDocument();
+      expect(screen.getByText("Salary meets target")).toBeInTheDocument();
+      expect(screen.queryByText("bad")).not.toBeInTheDocument();
+    });
+
     it("handles null reasons", () => {
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons={null} />);
 

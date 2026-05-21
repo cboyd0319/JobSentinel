@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { ScoreDisplay, ScoreBar } from "./ScoreDisplay";
 
 describe("ScoreDisplay", () => {
@@ -148,6 +148,32 @@ describe("ScoreDisplay", () => {
     it("handles scores > 1", () => {
       render(<ScoreDisplay score={1.5} />);
       expect(screen.getByText("150%")).toBeInTheDocument();
+    });
+
+    it("ignores non-array score reason JSON", async () => {
+      const { container } = render(<ScoreDisplay score={0.8} scoreReasons={'"salary"'} />);
+
+      const trigger = container.querySelector(".cursor-help");
+      expect(trigger).not.toBeNull();
+      fireEvent.mouseEnter(trigger as Element);
+
+      await waitFor(() => {
+        expect(screen.getByText("This job matches most of your criteria. Worth a closer look.")).toBeInTheDocument();
+      });
+      expect(screen.queryByText("Factor")).not.toBeInTheDocument();
+    });
+
+    it("keeps valid score reasons while ignoring malformed entries", async () => {
+      const reasons = JSON.stringify([null, { text: "bad" }, "Salary meets minimum"]);
+      const { container } = render(<ScoreDisplay score={0.8} scoreReasons={reasons} />);
+
+      const trigger = container.querySelector(".cursor-help");
+      expect(trigger).not.toBeNull();
+      fireEvent.mouseEnter(trigger as Element);
+
+      await waitFor(() => {
+        expect(screen.getByText("Salary meets minimum")).toBeInTheDocument();
+      });
     });
   });
 

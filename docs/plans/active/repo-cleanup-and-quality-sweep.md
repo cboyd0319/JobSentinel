@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Hardened score and ghost-reason JSON parsers so malformed but syntactically valid stored reason payloads cannot render character-by-character reason text or break ghost tooltips; added component tests and bloat coverage. |
 | 2026-05-21 | In progress | Sanitized development error-reporter console output so it logs the same redacted report stored in local error logs, not raw error objects, webhook URLs, paths, emails, or URL tokens. |
 | 2026-05-21 | In progress | Removed credential rustdoc guidance that printed retrieved secrets and added bloat coverage to catch future examples that log credential or password values. |
 | 2026-05-21 | In progress | Sanitized resume library command responses so renderer DTOs no longer include backend resume file paths or parsed text, and added frontend, mock, docs, and bloat coverage for recurrence. |

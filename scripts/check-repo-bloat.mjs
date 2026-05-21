@@ -265,6 +265,11 @@ const rawNotificationJobTitleLoggingPaths = new Set(["src-tauri/src/core/notify/
 const rawBookmarkletLoggingPaths = new Set(["src-tauri/src/core/bookmarklet/server.rs"]);
 const bookmarkletGeneratorPaths = new Set(["src/components/BookmarkletGenerator.tsx"]);
 const frontendErrorReportingPaths = new Set(["src/utils/errorReporting.ts"]);
+const scoreReasonJsonParserPaths = new Set([
+  "src/components/ScoreDisplay.tsx",
+  "src/components/ScoreBreakdownModal.tsx",
+  "src/components/GhostIndicator.tsx",
+]);
 const settingsCredentialPaths = new Set(["src/pages/Settings.tsx"]);
 const feedbackSanitizerPaths = new Set(["src-tauri/src/commands/feedback/sanitizer.rs"]);
 const notificationDocsPaths = new Set(["docs/features/notifications.md"]);
@@ -1950,6 +1955,29 @@ function hasHardcodedFrontendErrorExportVersion(root, path) {
   );
 }
 
+function hasUnsafeScoreReasonJsonParsing(root, path) {
+  if (!scoreReasonJsonParserPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  if (path === "src/components/GhostIndicator.tsx") {
+    return (
+      /return\s+JSON\.parse\(reasonsJson\)/.test(text) ||
+      !/function\s+isGhostReason/.test(text) ||
+      !/Array\.isArray\(parsed\)/.test(text) ||
+      !/Number\.isFinite\(reason\.weight\)/.test(text)
+    );
+  }
+
+  return (
+    /const\s+reasons:\s*string\[\]\s*=\s*JSON\.parse\(reasonsJson\)/.test(text) ||
+    !/function\s+parseReasonList/.test(text) ||
+    !/Array\.isArray\(parsed\)/.test(text) ||
+    !/typeof reason === "string"/.test(text)
+  );
+}
+
 function hasNotificationWebhookSaveWithoutValidation(root, path) {
   if (!settingsCredentialPaths.has(path)) {
     return false;
@@ -2900,6 +2928,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasHardcodedFrontendErrorExportVersion(root, path)) {
       violations.push(`derive frontend error export version from package metadata: ${path}`);
+    }
+
+    if (hasUnsafeScoreReasonJsonParsing(root, path)) {
+      violations.push(`validate reason JSON before rendering: ${path}`);
     }
 
     if (hasNotificationWebhookSaveWithoutValidation(root, path)) {

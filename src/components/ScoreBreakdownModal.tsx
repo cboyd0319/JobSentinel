@@ -119,6 +119,19 @@ function FactorIcon({
 /**
  * Parse score reasons JSON and categorize by factor
  */
+function parseReasonList(reasonsJson?: string | null): string[] {
+  if (!reasonsJson) return [];
+
+  try {
+    const parsed: unknown = JSON.parse(reasonsJson);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed.filter((reason): reason is string => typeof reason === "string");
+  } catch {
+    return [];
+  }
+}
+
 function parseScoreReasons(reasonsJson?: string | null): {
   skills: string[];
   salary: string[];
@@ -136,27 +149,23 @@ function parseScoreReasons(reasonsJson?: string | null): {
 
   if (!reasonsJson) return result;
 
-  try {
-    const reasons: string[] = JSON.parse(reasonsJson);
-    for (const reason of reasons) {
-      const lower = reason.toLowerCase();
-      if (lower.includes("title") || lower.includes("keyword") || lower.includes("allowlist") || lower.includes("blocklist")) {
-        result.skills.push(reason);
-      } else if (lower.includes("salary")) {
-        result.salary.push(reason);
-      } else if (lower.includes("remote") || lower.includes("location") || lower.includes("hybrid") || lower.includes("onsite")) {
-        result.location.push(reason);
-      } else if (lower.includes("company")) {
-        result.company.push(reason);
-      } else if (lower.includes("posted") || lower.includes("days ago") || lower.includes("fresh") || lower.includes("old")) {
-        result.recency.push(reason);
-      } else {
-        // Default to skills if can't categorize
-        result.skills.push(reason);
-      }
+  const reasons = parseReasonList(reasonsJson);
+  for (const reason of reasons) {
+    const lower = reason.toLowerCase();
+    if (lower.includes("title") || lower.includes("keyword") || lower.includes("allowlist") || lower.includes("blocklist")) {
+      result.skills.push(reason);
+    } else if (lower.includes("salary")) {
+      result.salary.push(reason);
+    } else if (lower.includes("remote") || lower.includes("location") || lower.includes("hybrid") || lower.includes("onsite")) {
+      result.location.push(reason);
+    } else if (lower.includes("company")) {
+      result.company.push(reason);
+    } else if (lower.includes("posted") || lower.includes("days ago") || lower.includes("fresh") || lower.includes("old")) {
+      result.recency.push(reason);
+    } else {
+      // Default to skills if can't categorize
+      result.skills.push(reason);
     }
-  } catch {
-    // Invalid JSON, return empty
   }
 
   return result;

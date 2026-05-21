@@ -109,6 +109,38 @@ describe("GhostIndicator", () => {
       expect(container.firstChild).toBeInTheDocument();
     });
 
+    it("ignores non-array JSON reason payloads", () => {
+      const { container } = render(
+        <GhostIndicator ghostScore={0.8} ghostReasons={'"stale"'} />
+      );
+
+      expect(container.firstChild).toBeInTheDocument();
+    });
+
+    it("keeps valid ghost reasons while ignoring malformed entries", async () => {
+      const user = userEvent.setup();
+      const reasons = JSON.stringify([
+        null,
+        { category: "stale", description: "missing fields" },
+        {
+          category: "stale",
+          description: "Posted over 90 days ago",
+          weight: 0.3,
+          severity: "high",
+        },
+      ]);
+
+      render(<GhostIndicator ghostScore={0.8} ghostReasons={reasons} />);
+
+      const indicator = screen.getByText(/likely ghost/i).parentElement;
+      if (indicator) {
+        await user.hover(indicator);
+        await waitFor(() => {
+          expect(screen.getByText(/posted over 90 days ago/i)).toBeInTheDocument();
+        });
+      }
+    });
+
     it("displays multiple reasons", async () => {
       const user = userEvent.setup();
       const reasons = JSON.stringify([
@@ -281,10 +313,10 @@ describe("GhostIndicatorCompact", () => {
     it("shows limited reasons in compact tooltip", async () => {
       const user = userEvent.setup();
       const reasons = JSON.stringify([
-        { description: "Reason 1", severity: "high" },
-        { description: "Reason 2", severity: "medium" },
-        { description: "Reason 3", severity: "low" },
-        { description: "Reason 4", severity: "low" },
+        { category: "stale", description: "Reason 1", weight: 0.4, severity: "high" },
+        { category: "generic", description: "Reason 2", weight: 0.3, severity: "medium" },
+        { category: "repost", description: "Reason 3", weight: 0.2, severity: "low" },
+        { category: "unrealistic", description: "Reason 4", weight: 0.1, severity: "low" },
       ]);
 
       render(<GhostIndicatorCompact ghostScore={0.8} ghostReasons={reasons} />);

@@ -9,6 +9,17 @@ interface GhostReason {
   severity: "low" | "medium" | "high";
 }
 
+const ghostReasonCategories = new Set<string>([
+  "stale",
+  "repost",
+  "generic",
+  "missing_details",
+  "unrealistic",
+  "company_behavior",
+]);
+
+const ghostReasonSeverities = new Set<string>(["low", "medium", "high"]);
+
 // Category display names for ML-enhanced signals
 const categoryLabels: Record<GhostReason["category"], string> = {
   stale: "Stale Listing",
@@ -48,10 +59,31 @@ function getSeverity(score: number): "low" | "medium" | "high" {
 function parseReasons(reasonsJson: string | null): GhostReason[] {
   if (!reasonsJson) return [];
   try {
-    return JSON.parse(reasonsJson);
+    const parsed: unknown = JSON.parse(reasonsJson);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed.filter(isGhostReason);
   } catch {
     return [];
   }
+}
+
+function isGhostReason(value: unknown): value is GhostReason {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const reason = value as Record<string, unknown>;
+
+  return (
+    typeof reason.category === "string" &&
+    ghostReasonCategories.has(reason.category) &&
+    typeof reason.description === "string" &&
+    typeof reason.weight === "number" &&
+    Number.isFinite(reason.weight) &&
+    typeof reason.severity === "string" &&
+    ghostReasonSeverities.has(reason.severity)
+  );
 }
 
 function GhostIcon({ className }: { className?: string }) {
