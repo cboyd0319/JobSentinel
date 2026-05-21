@@ -1818,6 +1818,15 @@ function hasNotificationWebhookSaveWithoutValidation(root, path) {
   );
 }
 
+function hasStaleSettingsPartialSaveMessage(root, path) {
+  if (!settingsCredentialPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /credential\(s\) failed to save\. Config was saved/.test(text);
+}
+
 function hasStaleFeedbackWebhookSanitizer(root, path) {
   if (!feedbackSanitizerPaths.has(path)) {
     return false;
@@ -2707,6 +2716,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasNotificationWebhookSaveWithoutValidation(root, path)) {
       violations.push(`validate notification webhook settings before saving: ${path}`);
+    }
+
+    if (hasStaleSettingsPartialSaveMessage(root, path)) {
+      violations.push(`separate config save failures from credential save failures: ${path}`);
     }
 
     if (hasStaleFeedbackWebhookSanitizer(root, path)) {

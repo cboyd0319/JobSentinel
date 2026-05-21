@@ -776,32 +776,43 @@ export default function Settings({ onClose }: SettingsProps) {
         );
       }
 
-      // Save credentials and config in parallel, tracking per-item results
-      const results = await Promise.allSettled([
-        ...credentialSaves,
-        invoke("save_config", { config }),
-      ]);
+      const configSave = invoke("save_config", { config });
+      const results = await Promise.allSettled([...credentialSaves, configSave]);
+      const credentialResults = results.slice(0, credentialSaves.length);
+      const configResult = results[credentialSaves.length];
 
-      const failures = results.filter(
+      const credentialFailures = credentialResults.filter(
         (r): r is PromiseRejectedResult => r.status === "rejected",
       );
+      const configFailure =
+        configResult?.status === "rejected" ? configResult : null;
 
-      if (failures.length > 0) {
-        logError(
-          "Partial save failures:",
-          failures.map((f) => f.reason),
-        );
-        if (failures.length === results.length) {
-          toast.error(
-            "Save failed",
-            "Settings could not be saved. Check your connection and try again.",
-          );
-        } else {
-          toast.warning(
-            "Partially saved",
-            `${failures.length} credential(s) failed to save. Config was saved. Try saving again.`,
+      if (configFailure) {
+        logError("Settings config save failed:", configFailure.reason);
+        if (credentialFailures.length > 0) {
+          logError(
+            "Credential save failures:",
+            credentialFailures.map((f) => f.reason),
           );
         }
+        toast.error(
+          "Save failed",
+          credentialFailures.length > 0
+            ? "Settings and some credentials could not be saved. Try saving again."
+            : "Settings could not be saved. Try saving again.",
+        );
+        return;
+      }
+
+      if (credentialFailures.length > 0) {
+        logError(
+          "Credential save failures:",
+          credentialFailures.map((f) => f.reason),
+        );
+        toast.warning(
+          "Partially saved",
+          `${credentialFailures.length} credential(s) failed to save. Settings were saved. Try saving again.`,
+        );
       } else {
         toast.success(
           "Settings saved!",

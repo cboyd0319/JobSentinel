@@ -438,6 +438,51 @@ describe("Settings — handleSave flow", () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
+  it("reports config save failure separately from successful credential saves", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_config") return makeConfig();
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      if (cmd === "store_credential") return null;
+      if (cmd === "save_config") throw new Error("Config write failed");
+      return null;
+    });
+
+    render(<Settings onClose={onClose} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+    await user.type(
+      screen.getByPlaceholderText("Paste your Slack webhook URL here"),
+      "https://hooks.slack.com/services/T00/B00/secret-token",
+    );
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
+
+    await waitFor(() => {
+      expect(mockToast.error).toHaveBeenCalledWith(
+        "Save failed",
+        "Settings could not be saved. Try saving again.",
+      );
+    });
+
+    expect(mockToast.warning).not.toHaveBeenCalledWith(
+      "Partially saved",
+      expect.stringContaining("Config was saved"),
+    );
+    expect(mockInvoke).toHaveBeenCalledWith("store_credential", {
+      key: "slack_webhook",
+      value: "https://hooks.slack.com/services/T00/B00/secret-token",
+    });
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
   it("blocks saving an invalid Discord webhook URL", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();

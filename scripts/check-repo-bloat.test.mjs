@@ -4193,6 +4193,33 @@ test("checkRepoBloat rejects notification webhook saves without validation", () 
   });
 });
 
+test("checkRepoBloat rejects stale settings partial-save messages", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/pages/Settings.tsx",
+      [
+        "async function handleSave(results) {",
+        '  toast.warning("Partially saved", `${failures.length} credential(s) failed to save. Config was saved. Try saving again.`);',
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/pages/Settings.tsx"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "separate config save failures from credential save failures: src/pages/Settings.tsx",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale feedback webhook sanitizer patterns", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

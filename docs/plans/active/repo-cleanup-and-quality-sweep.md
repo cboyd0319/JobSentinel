@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Split Settings save failure handling so config write failures are reported as save failures even when credential writes succeed, with UI and bloat coverage for stale partial-save copy. |
 | 2026-05-21 | In progress | Sanitized Slack webhook validation command failures so webhook URLs and token paths are never returned or logged raw from the IPC wrapper; added bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Sanitized test email command failures so raw SMTP URLs, usernames, hosts, and passwords cannot be returned to the renderer; added bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Kept LinkedIn login session cookies confined to the backend/keyring by returning only a success message to the renderer, with bloat coverage preventing raw cookie return regressions. |
