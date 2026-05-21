@@ -3237,6 +3237,87 @@ test("checkRepoBloat rejects raw webhook token request errors", () => {
   });
 });
 
+test("checkRepoBloat rejects notification provider error body exposure", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    for (const path of [
+      "src-tauri/src/core/notify/discord.rs",
+      "src-tauri/src/core/notify/teams.rs",
+      "src-tauri/src/core/notify/telegram.rs",
+    ]) {
+      writeFixtureFile(
+        root,
+        path,
+        [
+          "async fn send() -> anyhow::Result<()> {",
+          "  let error_text = read_text_with_limit(response, \"https://example.test\").await?;",
+          "  return Err(anyhow!(\"Provider failed: {}\", error_text));",
+          "}",
+          "",
+        ].join("\n"),
+      );
+    }
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/notify/discord.rs",
+        "src-tauri/src/core/notify/teams.rs",
+        "src-tauri/src/core/notify/telegram.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of [
+      "src-tauri/src/core/notify/discord.rs",
+      "src-tauri/src/core/notify/teams.rs",
+      "src-tauri/src/core/notify/telegram.rs",
+    ]) {
+      assert.ok(
+        violations.includes(`omit notification provider error bodies from errors: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
+test("checkRepoBloat rejects raw JobsWithGPT smoke-test endpoint errors", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/health/smoke_tests.rs",
+      [
+        "match resp {",
+        "  Err(e) if e.is_connect() => Ok(serde_json::json!({",
+        "    \"status\": \"unreachable\",",
+        "    \"error\": e.to_string()",
+        "  })),",
+        "  Err(e) => Err(e.into()),",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/health/smoke_tests.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize JobsWithGPT smoke-test endpoint errors: src-tauri/src/core/health/smoke_tests.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale LinkedIn credential docs", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

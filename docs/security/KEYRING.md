@@ -135,6 +135,8 @@ Settings displays credential presence with status text:
 - Plaintext config fields are ignored after migration and should stay empty.
 - Local app logs must not include credential values, webhook tokens, cookies, or
   API keys.
+- Notification provider error bodies are omitted from app errors; only status
+  and body length are kept because provider failures can echo job payload data.
 - Credential command logs use parsed allowlisted key names only. Invalid key
   errors stay generic and do not echo caller input.
 

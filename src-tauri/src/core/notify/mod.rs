@@ -41,6 +41,32 @@ fn log_notification_sent(channel: &'static str, notification: &Notification) {
     );
 }
 
+fn format_provider_failure_summary(
+    status: reqwest::StatusCode,
+    body_chars: Option<usize>,
+) -> String {
+    match body_chars {
+        Some(chars) => format!(
+            "status {}; provider error body omitted ({} chars)",
+            status, chars
+        ),
+        None => format!("status {}; provider error body unavailable", status),
+    }
+}
+
+pub(crate) async fn notification_provider_failure_summary(
+    response: reqwest::Response,
+    url_label: &str,
+) -> String {
+    let status = response.status();
+    let body_chars = crate::core::http_body::read_text_with_limit(response, url_label)
+        .await
+        .ok()
+        .map(|body| body.chars().count());
+
+    format_provider_failure_summary(status, body_chars)
+}
+
 fn validate_webhook_url_security_parts(url: &url::Url) -> Result<()> {
     if !url.username().is_empty() || url.password().is_some() {
         return Err(anyhow!("Webhook URL must not include credentials"));
@@ -976,6 +1002,31 @@ mod tests {
         assert!(
             !notification.job.title.is_empty(),
             "Job title should not be empty"
+        );
+    }
+
+    #[test]
+    fn test_provider_failure_summary_omits_error_body() {
+        let secret_body = "Senior Rust Engineer at Awesome Corp https://example.com/jobs/123";
+        let summary = format_provider_failure_summary(
+            reqwest::StatusCode::BAD_REQUEST,
+            Some(secret_body.chars().count()),
+        );
+
+        assert!(summary.contains("400 Bad Request"));
+        assert!(summary.contains("provider error body omitted"));
+        assert!(!summary.contains("Senior Rust Engineer"));
+        assert!(!summary.contains("Awesome Corp"));
+        assert!(!summary.contains("https://example.com/jobs/123"));
+    }
+
+    #[test]
+    fn test_provider_failure_summary_handles_unreadable_body() {
+        let summary = format_provider_failure_summary(reqwest::StatusCode::TOO_MANY_REQUESTS, None);
+
+        assert_eq!(
+            summary,
+            "status 429 Too Many Requests; provider error body unavailable"
         );
     }
 

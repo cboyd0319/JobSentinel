@@ -233,7 +233,8 @@ pub async fn send_slack_notification(
     let response = client.post(webhook_url)
         .json(&payload)
         .send()
-        .await?;
+        .await
+        .map_err(|e| anyhow!("Webhook request failed: {}", e.without_url()))?;
 
     // Check response
     if !response.status().is_success() {
@@ -243,6 +244,11 @@ pub async fn send_slack_notification(
     Ok(())
 }
 ```
+
+Request errors remove provider URLs before display so webhook tokens in path
+segments are not logged. Provider error bodies are not returned in notification
+send errors; errors keep status and body length only because providers can echo
+submitted job payload fields.
 
 ## Webhook Provider Security
 

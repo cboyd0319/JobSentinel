@@ -307,6 +307,12 @@ const webhookNotificationPrivacyPaths = new Set([
   "src-tauri/src/core/notify/slack.rs",
   "src-tauri/src/core/notify/teams.rs",
 ]);
+const notificationProviderErrorBodyPaths = new Set([
+  "src-tauri/src/core/notify/discord.rs",
+  "src-tauri/src/core/notify/teams.rs",
+  "src-tauri/src/core/notify/telegram.rs",
+]);
+const healthSmokePrivacyPaths = new Set(["src-tauri/src/core/health/smoke_tests.rs"]);
 const userDataDocsPaths = new Set(["docs/features/user-data-management.md"]);
 const structuredDebugLogPaths = new Set(["src-tauri/src/commands/feedback/debug_log.rs"]);
 const feedbackCommandPaths = new Set(["src-tauri/src/commands/feedback/mod.rs"]);
@@ -1494,6 +1500,34 @@ function hasRawWebhookTokenRequestError(root, path) {
   );
 }
 
+function hasRawNotificationProviderErrorBody(root, path) {
+  if (!notificationProviderErrorBodyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /let\s+error_text\s*=\s*read_text_with_limit\(response,[\s\S]{0,420}anyhow!\([\s\S]{0,180}error_text/.test(
+      productionText,
+    ) ||
+    /read_text_with_limit\(response,[\s\S]{0,180}\.await\?[\s\S]{0,180}anyhow!\([\s\S]{0,120}\{\}[\s\S]{0,80}error_text/.test(
+      productionText,
+    )
+  );
+}
+
+function hasRawJobsWithGptSmokeEndpointError(root, path) {
+  if (!healthSmokePrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /"error"\s*:\s*e\.to_string\(\)/.test(productionText) ||
+    /Err\(e\)\s*=>\s*Err\(e\.into\(\)\)/.test(productionText)
+  );
+}
+
 function hasStaleLinkedInCredentialDocs(root, path) {
   if (!linkedInCredentialDocsPaths.has(path)) {
     return false;
@@ -2475,6 +2509,14 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawWebhookTokenRequestError(root, path)) {
       violations.push(`remove webhook token URLs from request errors: ${path}`);
+    }
+
+    if (hasRawNotificationProviderErrorBody(root, path)) {
+      violations.push(`omit notification provider error bodies from errors: ${path}`);
+    }
+
+    if (hasRawJobsWithGptSmokeEndpointError(root, path)) {
+      violations.push(`sanitize JobsWithGPT smoke-test endpoint errors: ${path}`);
     }
 
     if (hasStaleLinkedInCredentialDocs(root, path)) {

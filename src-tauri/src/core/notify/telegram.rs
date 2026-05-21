@@ -2,9 +2,8 @@
 //!
 //! Sends formatted job alerts to Telegram using the Bot API with Markdown.
 
-use super::Notification;
+use super::{notification_provider_failure_summary, Notification};
 use crate::core::config::TelegramConfig;
-use crate::core::http_body::read_text_with_limit;
 use anyhow::{anyhow, Result};
 use serde_json::json;
 
@@ -130,15 +129,10 @@ pub async fn send_telegram_notification(
         .map_err(|e| anyhow!("Telegram API request failed: {}", e.without_url()))?;
 
     if !response.status().is_success() {
-        let status = response.status();
-        let error_text = read_text_with_limit(response, "https://api.telegram.org/sendMessage")
-            .await
-            .unwrap_or_else(|_| "Unknown error".to_string());
-        return Err(anyhow!(
-            "Telegram API failed with status {}: {}",
-            status,
-            error_text
-        ));
+        let error_summary =
+            notification_provider_failure_summary(response, "https://api.telegram.org/sendMessage")
+                .await;
+        return Err(anyhow!("Telegram API failed: {}", error_summary));
     }
 
     Ok(())
@@ -249,9 +243,10 @@ pub async fn validate_telegram_config(config: &TelegramConfig) -> Result<bool> {
         .map_err(|e| anyhow!("Telegram API request failed: {}", e.without_url()))?;
 
     if !response.status().is_success() {
-        let error_text =
-            read_text_with_limit(response, "https://api.telegram.org/sendMessage").await?;
-        return Err(anyhow!("Telegram API error: {}", error_text));
+        let error_summary =
+            notification_provider_failure_summary(response, "https://api.telegram.org/sendMessage")
+                .await;
+        return Err(anyhow!("Telegram API error: {}", error_summary));
     }
 
     Ok(true)

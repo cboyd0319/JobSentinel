@@ -2,9 +2,10 @@
 //!
 //! Sends rich-formatted job alerts to Discord using webhooks with embeds.
 
-use super::{validate_webhook_url_security_parts, Notification};
+use super::{
+    notification_provider_failure_summary, validate_webhook_url_security_parts, Notification,
+};
 use crate::core::config::DiscordConfig;
-use crate::core::http_body::read_text_with_limit;
 use anyhow::{anyhow, Result};
 use serde_json::json;
 
@@ -131,15 +132,10 @@ pub async fn send_discord_notification(
         .map_err(|e| anyhow!("Discord webhook request failed: {}", e.without_url()))?;
 
     if !response.status().is_success() {
-        let status = response.status();
-        let error_text = read_text_with_limit(response, "https://discord.com/api/webhooks")
-            .await
-            .unwrap_or_else(|_| "Unknown error".to_string());
-        return Err(anyhow!(
-            "Discord webhook failed with status {}: {}",
-            status,
-            error_text
-        ));
+        let error_summary =
+            notification_provider_failure_summary(response, "https://discord.com/api/webhooks")
+                .await;
+        return Err(anyhow!("Discord webhook failed: {}", error_summary));
     }
 
     Ok(())

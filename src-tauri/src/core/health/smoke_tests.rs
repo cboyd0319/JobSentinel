@@ -10,6 +10,10 @@ use std::time::Instant;
 
 use super::types::{SmokeTestResult, SmokeTestType};
 
+fn sanitized_request_error(context: &'static str, error: reqwest::Error) -> anyhow::Error {
+    anyhow::anyhow!("{}: {}", context, error.without_url())
+}
+
 /// Run a connectivity smoke test for a specific scraper
 pub async fn run_smoke_test(
     db: &Database,
@@ -126,7 +130,11 @@ async fn test_greenhouse() -> Result<serde_json::Value> {
         .timeout(std::time::Duration::from_secs(10))
         .build()?;
 
-    let resp = client.get(url).send().await?;
+    let resp = client
+        .get(url)
+        .send()
+        .await
+        .map_err(|e| sanitized_request_error("Greenhouse smoke test request failed", e))?;
     let status = resp.status();
 
     if !status.is_success() {
@@ -154,7 +162,11 @@ async fn test_lever() -> Result<serde_json::Value> {
         .timeout(std::time::Duration::from_secs(10))
         .build()?;
 
-    let resp = client.get(url).send().await?;
+    let resp = client
+        .get(url)
+        .send()
+        .await
+        .map_err(|e| sanitized_request_error("Lever smoke test request failed", e))?;
     let status = resp.status();
 
     if !status.is_success() {
@@ -189,7 +201,8 @@ async fn test_linkedin(config: &Config) -> Result<serde_json::Value> {
         .get(url)
         .query(&[("keywords", "software"), ("start", "0")])
         .send()
-        .await?;
+        .await
+        .map_err(|e| sanitized_request_error("LinkedIn smoke test request failed", e))?;
 
     let status = resp.status();
 
@@ -208,7 +221,11 @@ async fn test_indeed() -> Result<serde_json::Value> {
         .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
         .build()?;
 
-    let resp = client.get(url).send().await?;
+    let resp = client
+        .get(url)
+        .send()
+        .await
+        .map_err(|e| sanitized_request_error("Indeed smoke test request failed", e))?;
     let status = resp.status();
 
     if !status.is_success() {
@@ -231,7 +248,11 @@ async fn test_remoteok() -> Result<serde_json::Value> {
         .timeout(std::time::Duration::from_secs(10))
         .build()?;
 
-    let resp = client.get(url).send().await?;
+    let resp = client
+        .get(url)
+        .send()
+        .await
+        .map_err(|e| sanitized_request_error("RemoteOK smoke test request failed", e))?;
     let status = resp.status();
 
     if !status.is_success() {
@@ -258,7 +279,11 @@ async fn test_wellfound() -> Result<serde_json::Value> {
         .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
         .build()?;
 
-    let resp = client.get(url).send().await?;
+    let resp = client
+        .get(url)
+        .send()
+        .await
+        .map_err(|e| sanitized_request_error("Wellfound smoke test request failed", e))?;
     let status = resp.status();
 
     if !status.is_success() {
@@ -281,7 +306,10 @@ async fn test_weworkremotely() -> Result<serde_json::Value> {
         .timeout(std::time::Duration::from_secs(10))
         .build()?;
 
-    let resp = client.get(url).send().await?;
+    let resp =
+        client.get(url).send().await.map_err(|e| {
+            sanitized_request_error("We Work Remotely smoke test request failed", e)
+        })?;
     let status = resp.status();
 
     if !status.is_success() {
@@ -305,7 +333,11 @@ async fn test_builtin() -> Result<serde_json::Value> {
         .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
         .build()?;
 
-    let resp = client.get(url).send().await?;
+    let resp = client
+        .get(url)
+        .send()
+        .await
+        .map_err(|e| sanitized_request_error("Built In smoke test request failed", e))?;
     let status = resp.status();
 
     if !status.is_success() {
@@ -337,7 +369,8 @@ async fn test_hn_hiring() -> Result<serde_json::Value> {
             ("hitsPerPage", "1"),
         ])
         .send()
-        .await?;
+        .await
+        .map_err(|e| sanitized_request_error("HN Hiring smoke test request failed", e))?;
 
     let status = resp.status();
 
@@ -385,9 +418,12 @@ async fn test_jobswithgpt(config: &Config) -> Result<serde_json::Value> {
         })),
         Err(e) if e.is_connect() => Ok(serde_json::json!({
             "status": "unreachable",
-            "error": e.to_string()
+            "error": format!("connect error: {}", e.without_url())
         })),
-        Err(e) => Err(e.into()),
+        Err(e) => Err(sanitized_request_error(
+            "JobsWithGPT smoke test request failed",
+            e,
+        )),
     }
 }
 
@@ -398,7 +434,11 @@ async fn test_dice() -> Result<serde_json::Value> {
         .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
         .build()?;
 
-    let resp = client.get(url).send().await?;
+    let resp = client
+        .get(url)
+        .send()
+        .await
+        .map_err(|e| sanitized_request_error("Dice smoke test request failed", e))?;
     let status = resp.status();
 
     if !status.is_success() {
@@ -422,7 +462,11 @@ async fn test_yc_startup() -> Result<serde_json::Value> {
         .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
         .build()?;
 
-    let resp = client.get(url).send().await?;
+    let resp = client
+        .get(url)
+        .send()
+        .await
+        .map_err(|e| sanitized_request_error("YC startup smoke test request failed", e))?;
     let status = resp.status();
 
     if !status.is_success() {
@@ -445,7 +489,11 @@ async fn test_ziprecruiter() -> Result<serde_json::Value> {
         .timeout(std::time::Duration::from_secs(10))
         .build()?;
 
-    let resp = client.get(url).send().await?;
+    let resp = client
+        .get(url)
+        .send()
+        .await
+        .map_err(|e| sanitized_request_error("ZipRecruiter smoke test request failed", e))?;
     let status = resp.status();
 
     if !status.is_success() {
