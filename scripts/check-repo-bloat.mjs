@@ -875,7 +875,7 @@ function hasScraperHealthDocEmojiMarkers(root, path) {
     return false;
   }
 
-  return /(?:\p{Extended_Pictographic}|[\u{1f1e6}-\u{1f1ff}])/u.test(
+  return /(?:\p{Extended_Pictographic}|[\u{1f1e6}-\u{1f1ff}\u{2014}\u{2192}\u{2500}-\u{257f}\u{25bc}])/u.test(
     readFileSync(join(root, path), "utf8"),
   );
 }

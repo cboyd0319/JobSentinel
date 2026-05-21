@@ -1856,6 +1856,9 @@ test("checkRepoBloat rejects scraper health doc emoji markers", () => {
       [
         `LinkedIn ${greenIcon} Healthy`,
         `Click **${testIcon} Test** button`,
+        "Settings → Scrapers → LinkedIn",
+        "────────────────────────",
+        "┌────────────────────────────────┐",
         "",
       ].join("\n"),
     );

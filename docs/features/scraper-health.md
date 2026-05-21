@@ -83,7 +83,6 @@ Sortable table with one row per scraper:
 
 ```text
 Scraper Name      Status      Success Rate  Avg Duration  Jobs (24h)  Last Run
-─────────────────────────────────────────────────────────────────────────────
 LinkedIn          Healthy  94%           12.3s         342         5 min ago
 Greenhouse        Healthy  100%          2.4s          18          2 hours ago
 Lever             Degraded 75%           5.2s          12          3 hours ago
@@ -209,17 +208,16 @@ Example:
 
 ```text
 Run #  Date/Time          Status     Duration  Jobs Found  Error
-────────────────────────────────────────────────────────────────
-10     2026-01-17 14:30   Success 12.4s     42          —
-9      2026-01-17 14:00   Success 11.8s     45          —
+10     2026-01-17 14:30   Success 12.4s     42          None
+9      2026-01-17 14:00   Success 11.8s     45          None
 8      2026-01-17 13:30   Failed  2.1s      0           Rate limit (429)
-7      2026-01-17 13:00   Success 12.2s     38          —
-6      2026-01-17 12:30   Success 11.9s     41          —
-5      2026-01-17 12:00   Success 12.3s     39          —
-4      2026-01-17 11:30   Success 12.1s     43          —
-3      2026-01-17 11:00   Success 12.4s     40          —
-2      2026-01-17 10:30   Success 11.8s     44          —
-1      2026-01-17 10:00   Success 12.2s     42          —
+7      2026-01-17 13:00   Success 12.2s     38          None
+6      2026-01-17 12:30   Success 11.9s     41          None
+5      2026-01-17 12:00   Success 12.3s     39          None
+4      2026-01-17 11:30   Success 12.1s     43          None
+3      2026-01-17 11:00   Success 12.4s     40          None
+2      2026-01-17 10:30   Success 11.8s     44          None
+1      2026-01-17 10:00   Success 12.2s     42          None
 ```
 
 **7-Day Trend Chart**
@@ -228,13 +226,12 @@ Visual graph showing success/failure pattern:
 
 ```text
 Success Rate Trend (Last 7 Days)
-┌────────────────────────────────┐
-│                    ███  ███     │ 90%
-│ ███  ███  ███  ███ ███  ███    │ 85%
-│ ███  ███  ███  ███ ███  ███    │ 80%
-│                                │ 75%
-└────────────────────────────────┘
-  Mon  Tue  Wed  Thu  Fri  Sat
+Mon: 85%
+Tue: 85%
+Wed: 85%
+Thu: 85%
+Fri: 90%
+Sat: 90%
 ```
 
 **Recent Errors**
@@ -291,7 +288,6 @@ Result shows:
 
 ```text
 LinkedIn Smoke Test Results
-──────────────────────────
 Status:           PASS
 Test Duration:    2.3 seconds
 Cookie Valid:     Yes (expires in 45 days)
@@ -310,7 +306,6 @@ Summary shows:
 
 ```text
 Smoke Test Results: All Scrapers
-────────────────────────────────
 PASSED (12):
   - LinkedIn, Greenhouse, Lever, RemoteOK, USAJobs
   - WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT
@@ -342,13 +337,12 @@ LinkedIn cookies have a limited lifespan and must be refreshed periodically.
 
 **Where to Check**
 
-Settings → Troubleshooting → View Scraper Health Dashboard
+Settings > Troubleshooting > View Scraper Health Dashboard
 
 Under "Credential Warnings" section:
 
 ```text
 LinkedIn Session Cookie
-────────────────────────
 Status:          Valid
 Set Date:        2026-01-20
 Expires:         2027-01-20 (365 days from now)
@@ -360,7 +354,7 @@ Refresh Instructions:
 2. Open DevTools (F12)
 3. Find "li_at" cookie
 4. Copy the value
-5. Paste into Settings → Scrapers → LinkedIn
+5. Paste into Settings > Scrapers > LinkedIn
 ```
 
 **Cookie Lifespan**
@@ -394,13 +388,12 @@ For notification features that email scraping alerts:
 
 **Where to Check**
 
-Settings → Troubleshooting → View Scraper Health Dashboard
+Settings > Troubleshooting > View Scraper Health Dashboard
 
 Under "Credential Warnings" section:
 
 ```text
 Email SMTP Configuration
-────────────────────────
 Status:          Not Configured
 Configuration:   Add SMTP settings to send email alerts
 Recommendation:   Optional - not required for scraping
@@ -410,7 +403,6 @@ If configured:
 
 ```text
 Email SMTP Configuration
-────────────────────────
 Status:          Valid
 Server:          smtp.gmail.com
 Port:            587
@@ -441,7 +433,7 @@ Last Test:       2026-01-17 14:30 UTC
 
 **Global Run History**
 
-1. Dashboard → Click **Run History** tab
+1. Dashboard > Click **Run History** tab
 2. See all runs across all scrapers
 3. Filter by date or scraper name
 
@@ -451,7 +443,6 @@ For each run, view:
 
 ```text
 Run Details: LinkedIn #2026-01-17 14:30 UTC
-──────────────────────────────────────────────
 Status:          Success
 Started:         2026-01-17 14:30:00 UTC
 Completed:       2026-01-17 14:32:15 UTC
@@ -478,7 +469,6 @@ Dashboard shows 7-day and 30-day success rates:
 
 ```text
 LinkedIn - Success Rate Trend
-──────────────────────────────
 Last 7 Days:   94% (18/19 runs successful)
 Last 30 Days:  92% (276/300 runs successful)
 Last 90 Days:  89% (804/900 runs successful)
@@ -492,7 +482,6 @@ Track productivity over time:
 
 ```text
 LinkedIn - Jobs Found (Daily Average)
-──────────────────────────────────────
 Today:        42 jobs
 Last 7 Days:  38 jobs/day average
 Last 30 Days: 35 jobs/day average
@@ -507,7 +496,6 @@ Monitor scrape duration:
 
 ```text
 LinkedIn - Scrape Duration (Average)
-────────────────────────────────────
 Today:        2m 15s
 Last 7 Days:  2m 12s average
 Last 30 Days: 2m 18s average
@@ -522,7 +510,6 @@ Spot patterns of problems:
 
 ```text
 LinkedIn - Errors (Last 30 Days)
-────────────────────────────────
 Rate Limit Errors:        2 (down from 5 in Dec)
 Authentication Errors:    0
 Network Timeouts:         1
@@ -593,7 +580,7 @@ You've exceeded the limit for that scraper.
 **Long-term:**
 
 1. Check if scraper is configured for correct rate limit
-2. Settings → Scrapers → [Scraper Name]
+2. Settings > Scrapers > [Scraper Name]
 3. Adjust "Max Requests Per Hour" if needed
 4. Or space out scrape frequency
 
@@ -630,13 +617,13 @@ Dashboard shows: Error: Authentication Failed
 
 **For LinkedIn:**
 
-1. Go to Settings → Scrapers → LinkedIn
+1. Go to Settings > Scrapers > LinkedIn
 2. Click **Update LinkedIn Cookie**
 3. Follow on-screen instructions:
    - Log into LinkedIn
-   - Open DevTools (F12 or right-click → Inspect)
+   - Open DevTools (F12 or right-click > Inspect)
    - Go to **Application** tab
-   - Find **Cookies** → **LinkedIn.com**
+   - Find **Cookies** > **LinkedIn.com**
    - Find and copy **li_at** value
 4. Paste into the field
 5. Click **Save and Test**
@@ -645,7 +632,7 @@ Dashboard shows: Error: Authentication Failed
 **For API-Based Scrapers (Greenhouse, Lever, etc.):**
 
 1. Verify API key hasn't been rotated on the job board's website
-2. Settings → Scrapers → [Scraper Name]
+2. Settings > Scrapers > [Scraper Name]
 3. Re-enter the API key
 4. Click **Save and Test**
 
@@ -694,7 +681,7 @@ Most timeouts are temporary:
 
 If timeouts persist:
 
-1. Settings → Advanced → Scraper Timeout
+1. Settings > Advanced > Scraper Timeout
 2. Increase from 30 seconds to 60 seconds
 3. Next scrape will wait longer
 
@@ -702,7 +689,7 @@ If timeouts persist:
 
 1. If on corporate network, firewall may block job boards
 2. Use home internet as workaround
-3. Or configure proxy in Settings → Network
+3. Or configure proxy in Settings > Network
 
 ### Issue: Service Down / 503 Errors
 
@@ -767,15 +754,15 @@ their HTML structure, breaking selectors.
 
 Examples:
 
-- LinkedIn updates CSS classes → description parsing breaks
-- BuiltIn redesigns job listing page → selectors fail
+- LinkedIn updates CSS classes: description parsing breaks
+- BuiltIn redesigns job listing page: selectors fail
 - Glassdoor or SimplyHired anti-bot protection returns an empty or changed page
 
 **Fix**
 
 This usually requires code changes (new selectors). **Report it**:
 
-1. Dashboard → **Report Issue**
+1. Dashboard > **Report Issue**
 2. Include:
    - Scraper name
    - Error message
@@ -829,7 +816,7 @@ Error: None
 **Fix**
 
 1. **Check Query** - Try a broader job title
-2. **Check Enabled** - Settings → Scrapers → Verify "Enabled" is ON
+2. **Check Enabled** - Settings > Scrapers > Verify "Enabled" is ON
 3. **Check Location** - Try "Remote" or expand geographic area
 4. **Check Rate Limits** - Look at run history for 429 errors
 5. **Wait for Retry** - JobSentinel retries automatically
@@ -851,23 +838,23 @@ Usually one of:
 **Fix**
 
 1. **Clear Browser Cache**
-   - Chrome: Ctrl+Shift+Delete → Clear all data
-   - Safari: Develop → Empty Web Caches
+   - Chrome: Ctrl+Shift+Delete > Clear all data
+   - Safari: Develop > Empty Web Caches
    - Edge: Ctrl+Shift+Delete
 
 2. **Log Out and Log Back In**
    - Go to LinkedIn.com
-   - Click Profile → Sign Out
+   - Click Profile > Sign Out
    - Sign back in fresh
 
 3. **Extract Cookie Again**
    - Open DevTools (F12)
-   - Go to Application → Cookies → LinkedIn.com
+   - Go to Application > Cookies > LinkedIn.com
    - Find and copy li_at (the full value)
    - Note: Should be 100+ characters, not small
 
 4. **Update in JobSentinel**
-   - Settings → Scrapers → LinkedIn
+   - Settings > Scrapers > LinkedIn
    - Paste the new cookie
    - Click **Save and Test**
 
@@ -1019,7 +1006,7 @@ invoke("get_scraper_configs");
 
 If you see lots of rate limit errors:
 
-1. Settings → Scrapers → [Scraper Name]
+1. Settings > Scrapers > [Scraper Name]
 2. Increase "Scrape Interval" from 30 min to 60 min
 3. This gives rate limiter more time to refill tokens
 
@@ -1027,7 +1014,7 @@ If you see lots of rate limit errors:
 
 Check which scrapers give you the best jobs:
 
-1. Dashboard → Run History tab
+1. Dashboard > Run History tab
 2. Filter by scraper, sort by "Jobs Found"
 3. Disable low-performing scrapers (not finding many jobs)
 4. Disable scrapers that are frequently degraded
@@ -1050,7 +1037,7 @@ Rate Limit: 100 requests/hour
 Next retry: in 15 seconds
 ```
 
-→ Normal and expected. JobSentinel handles automatically.
+Interpretation: Normal and expected. JobSentinel handles automatically.
 
 **Authentication Errors (401)**
 
@@ -1060,7 +1047,7 @@ Cookie: li_at expired or invalid
 Action: Refresh LinkedIn cookie
 ```
 
-→ You need to take action. Update your cookie.
+Interpretation: You need to take action. Update your cookie.
 
 **Network Errors (Timeout)**
 
@@ -1070,7 +1057,7 @@ Could not reach linkedin.com
 Retrying in exponential backoff
 ```
 
-→ Usually temporary. Will retry automatically.
+Interpretation: Usually temporary. Will retry automatically.
 
 **Service Errors (503)**
 
@@ -1080,6 +1067,6 @@ LinkedIn is undergoing maintenance
 Expected resolution: 2026-01-18 03:00 UTC
 ```
 
-→ Job board's issue, not yours. Will retry.
+Interpretation: Job board's issue, not yours. Will retry.
 
 ---
