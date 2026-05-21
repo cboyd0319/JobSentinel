@@ -655,7 +655,7 @@ describe("errorHelpers", () => {
       const error = new Error("Test error");
       logErrorDetails(error);
       
-      expect(console.group).toHaveBeenCalledWith("🔴 Error Details");
+      expect(console.group).toHaveBeenCalledWith("Error Details");
       expect(console.error).toHaveBeenCalledWith("Error:", error);
       expect(console.log).toHaveBeenCalledWith("Type:", ErrorType.UNKNOWN);
       expect(console.log).toHaveBeenCalledWith("Message:", "Test error");
