@@ -1790,6 +1790,9 @@ test("checkRepoBloat rejects scraper doc emoji markers", () => {
       [
         `| LinkedIn | ${doneIcon} Production |`,
         `- ${warningIcon} User responsibility: comply with site terms`,
+        "Settings → Job Sources",
+        "┌─────────┐",
+        "One-Click Connect — No Technical Knowledge Required!",
         "",
       ].join("\n"),
     );

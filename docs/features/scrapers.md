@@ -45,26 +45,24 @@ faster. Our parallel scraping architecture enables simultaneous searches across 
 
 ## Architecture
 
-### Component Diagram
+### Component Flow
 
 ```text
-┌─────────────────────────────────────────────────────┐
-│              Job Scraper Registry                   │
-│  ┌─────────┐  ┌─────────┐  ┌────────┐ ┌──────────┐│
-│  │Greenhouse│  │  Lever  │  │LinkedIn│ │Glassdoor ││
-│  └────┬────┘  └────┬────┘  └───┬────┘ └────┬─────┘│
-│       └───────────┬────────────┴──────────┬─┘      │
-│                   ▼                        ▼        │
-│            ┌──────────────┐        ┌──────────────┐│
-│            │ Rate Limiter │        │ HTTP Client  ││
-│            └──────────────┘        └──────────────┘│
-└─────────────────────────────────────────────────────┘
-                        │
-                        ▼
-              ┌─────────────────┐
-              │  Job Database   │
-              │  (Deduplicated) │
-              └─────────────────┘
+Scraper registry
+- Greenhouse
+- Lever
+- LinkedIn
+- Glassdoor
+- Other configured sources
+
+Shared scraper services
+- Rate limiter
+- HTTP client
+- URL and response validation
+
+Output
+- Normalized jobs
+- Deduplicated job database records
 ```
 
 ### Scraper Details by Category
@@ -110,11 +108,11 @@ faster. Our parallel scraping architecture enables simultaneous searches across 
 
 ## LinkedIn Scraper
 
-### Setup Instructions (v2.5.3+)
+### Setup Instructions
 
-**One-Click Connect — No Technical Knowledge Required!**
+**One-Click Connect: No technical knowledge required.**
 
-1. Go to **Settings** → **Job Sources** → Enable **LinkedIn**
+1. Go to **Settings** > **Job Sources** > Enable **LinkedIn**
 2. Click **"Connect LinkedIn"**
 3. Log in normally in the window that opens (username, password, 2FA if needed)
 4. Done! The cookie is extracted automatically and stored securely
@@ -275,11 +273,11 @@ limiter.wait("usajobs", limits::USAJOBS).await;       // 1000/hour
 ### Example: Token Refill
 
 ```text
-Hour 0:00 → 100 tokens available
-Hour 0:10 → Use 50 tokens → 50 remaining
-Hour 0:20 → Refilled +17 tokens → 67 available
-Hour 0:30 → Refilled +17 tokens → 84 available
-Hour 1:00 → Fully refilled → 100 available
+Hour 0:00: 100 tokens available
+Hour 0:10: use 50 tokens, 50 remaining
+Hour 0:20: refill adds 17 tokens, 67 available
+Hour 0:30: refill adds 17 tokens, 84 available
+Hour 1:00: fully refilled, 100 available
 ```
 
 ---
@@ -312,11 +310,11 @@ Removed parameters (tracking):
 Converts location name variations to canonical forms:
 
 ```text
-"SF" → "San Francisco"
-"San Fran" → "San Francisco"
-"Remote US" → "Remote"
-"USA Remote" → "Remote"
-"Work from home" → "Remote"
+"SF" becomes "San Francisco"
+"San Fran" becomes "San Francisco"
+"Remote US" becomes "Remote"
+"USA Remote" becomes "Remote"
+"Work from home" becomes "Remote"
 ```
 
 **Benefit:** Prevents false positives from location spelling variations.
@@ -326,11 +324,11 @@ Converts location name variations to canonical forms:
 Removes abbreviations and standardizes common terms:
 
 ```text
-"Sr. Software Engineer" → "Senior Software Engineer"
-"SWE" → "Software Engineer"
-"Sr Dev" → "Senior Developer"
-"Jr. Dev" → "Junior Developer"
-"FTE" → "Full-Time Employee"
+"Sr. Software Engineer" becomes "Senior Software Engineer"
+"SWE" becomes "Software Engineer"
+"Sr Dev" becomes "Senior Developer"
+"Jr. Dev" becomes "Junior Developer"
+"FTE" becomes "Full-Time Employee"
 ```
 
 **Benefit:** Reduces duplicates from title inconsistencies across job boards.
@@ -376,11 +374,11 @@ Each module includes comprehensive tests (26+ test cases total).
 
 ---
 
-## Health Monitoring (v2.1.0+)
+## Health Monitoring
 
 ### Scraper Health Dashboard
 
-Monitor the health and performance of all 13 scrapers from Settings → Troubleshooting → "View Scraper Health Dashboard".
+Monitor the health and performance of all 13 scrapers from Settings > Troubleshooting > "View Scraper Health Dashboard".
 
 **Dashboard Features:**
 
@@ -682,10 +680,10 @@ impl RateLimiter {
 
 **Free API key required** from [https://developer.usajobs.gov/](https://developer.usajobs.gov/)
 
-1. Go to **Settings** → **Job Sources** → Enable **USAJobs**
-2. Click "Get Free API Key" → Sign up with email (no credit card)
+1. Go to **Settings** > **Job Sources** > Enable **USAJobs**
+2. Click "Get Free API Key" and sign up with email (no credit card)
 3. Copy API key from confirmation email
-4. Paste into JobSentinel → Stored securely in OS keychain
+4. Paste into JobSentinel; the app stores it securely in the OS keychain
 5. Enter same email used for signup (required by API)
 6. Configure search parameters (keywords, location, pay grade, etc.)
 
