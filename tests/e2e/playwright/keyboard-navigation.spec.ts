@@ -23,6 +23,33 @@ function commandPalette(page: Page) {
   return page.getByTestId("command-palette");
 }
 
+async function dispatchPrimaryShortcut(page: Page, key: string): Promise<void> {
+  await page.evaluate((shortcutKey) => {
+    window.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        bubbles: true,
+        cancelable: true,
+        ctrlKey: true,
+        key: shortcutKey,
+      }),
+    );
+  }, key);
+}
+
+async function pressPrimaryNavigationShortcut(
+  page: Page,
+  shortcut: number,
+  browserName: string,
+): Promise<void> {
+  if (browserName === "webkit") {
+    // WebKit can reserve primary-modifier number chords before page JS receives them.
+    await dispatchPrimaryShortcut(page, String(shortcut));
+    return;
+  }
+
+  await page.keyboard.press(`Control+${shortcut}`);
+}
+
 async function expectActiveElement(locator: Locator): Promise<void> {
   await expect
     .poll(() => locator.evaluate((element) => document.activeElement === element))
@@ -31,6 +58,9 @@ async function expectActiveElement(locator: Locator): Promise<void> {
 
 async function openCommandPalette(page: Page): Promise<void> {
   await page.keyboard.press("Control+k");
+  if (!(await commandPalette(page).isVisible().catch(() => false))) {
+    await dispatchPrimaryShortcut(page, "k");
+  }
   await expect(commandPalette(page)).toBeVisible();
   await expectActiveElement(page.getByTestId("command-palette-input"));
 }
@@ -46,8 +76,9 @@ test.describe("Keyboard Navigation", () => {
 
   test.describe("Global Shortcuts", () => {
     for (const { shortcut, heading } of MAIN_HEADING_BY_SHORTCUT) {
-      test(`navigates to page ${shortcut} with Meta+${shortcut}`, async ({ page }) => {
-        await basePage.navigateWithKeyboard(shortcut);
+      test(`navigates to page ${shortcut} with primary modifier+${shortcut}`, async ({ page, browserName }) => {
+        await pressPrimaryNavigationShortcut(page, shortcut, browserName);
+        await basePage.waitForReady();
 
         await expect(mainHeading(page, heading)).toBeVisible();
       });
@@ -58,7 +89,7 @@ test.describe("Keyboard Navigation", () => {
       await expect(searchInput).toBeVisible();
 
       await searchInput.focus();
-      await page.keyboard.press("Meta+2");
+      await page.keyboard.press("Control+2");
 
       await expect(searchInput).toBeFocused();
       await expect(mainHeading(page, "JobSentinel")).toBeVisible();

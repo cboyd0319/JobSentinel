@@ -31,7 +31,7 @@ export class BasePage {
   }
 
   async navigateWithKeyboard(pageNumber: number) {
-    await this.page.keyboard.press(`Meta+${pageNumber}`);
+    await this.page.keyboard.press(`Control+${pageNumber}`);
     await this.waitForReady();
   }
 

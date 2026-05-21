@@ -315,7 +315,7 @@ Installer output:
 | <kbd>n</kbd> | Add a note |
 | <kbd>/</kbd> | Focus search |
 | <kbd>?</kbd> | Show all shortcuts |
-| <kbd>Ctrl</kbd>+<kbd>1</kbd> to <kbd>7</kbd> | Switch pages |
+| <kbd>Cmd</kbd>/<kbd>Ctrl</kbd>+<kbd>1</kbd> to <kbd>8</kbd> | Switch pages |
 
 ---
 
@@ -336,6 +336,9 @@ Common checks:
 
 ```bash
 npm run harness:check
+npm run lint:bloat
+npm run lint:tests
+npm run lint:docs
 npm run lint
 npm run test:run
 npm run build
@@ -348,6 +351,18 @@ Full release verification also includes `npm run test:e2e:all` and the full
 Rust test suite. Local `npm run test:e2e` runs the faster Chromium functional
 suite; documentation screenshots are refreshed separately with
 `npm run docs:screenshots`.
+
+Quality guardrails:
+
+- `npm run harness:check` keeps agent-facing docs, plan lifecycle rules, and
+  version-linked front-door claims in sync.
+- `npm run lint:bloat` blocks disposable artifacts, stale docs patterns, weak
+  test shortcuts, and recurring junk classes found during cleanup.
+- `npm run lint:tests` rejects focused tests, runtime skips, and weak E2E
+  assertions before they can hide regressions.
+- Use focused Playwright projects first for browser-specific changes. Run
+  `npm run test:e2e:all` when release risk or cross-browser behavior warrants
+  the full browser matrix.
 
 Developer docs:
 

@@ -47,7 +47,7 @@ test.describe("Job Search and Filtering", () => {
     });
 
     test("should filter jobs by location", async () => {
-      const initialCount = await dashboard.getJobCount();
+      const initialCount = await dashboard.getVisibleJobCount();
 
       await dashboard.applyFilter("location", "remote");
 
@@ -60,7 +60,7 @@ test.describe("Job Search and Filtering", () => {
     });
 
     test("should filter jobs by salary range", async () => {
-      const initialCount = await dashboard.getJobCount();
+      const initialCount = await dashboard.getVisibleJobCount();
 
       await dashboard.applyFilter("salary", "150k+");
 
@@ -70,7 +70,7 @@ test.describe("Job Search and Filtering", () => {
     });
 
     test("should filter jobs by source", async () => {
-      const initialCount = await dashboard.getJobCount();
+      const initialCount = await dashboard.getVisibleJobCount();
 
       await dashboard.applyDropdownFilter("Source", "lever");
 
@@ -80,7 +80,7 @@ test.describe("Job Search and Filtering", () => {
     });
 
     test("should clear all filters", async () => {
-      const initialCount = await dashboard.getJobCount();
+      const initialCount = await dashboard.getVisibleJobCount();
 
       await dashboard.applyFilter("location", "remote");
       await dashboard.clearAllFilters();
@@ -90,7 +90,7 @@ test.describe("Job Search and Filtering", () => {
     });
 
     test("should combine multiple filters", async () => {
-      const initialCount = await dashboard.getJobCount();
+      const initialCount = await dashboard.getVisibleJobCount();
 
       await dashboard.applyFilter("location", "remote");
       await dashboard.applyFilter("salary", "150k+");

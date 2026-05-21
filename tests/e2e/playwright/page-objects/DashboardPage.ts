@@ -141,6 +141,17 @@ export class DashboardPage extends BasePage {
     return await this.jobCards.count();
   }
 
+  async getVisibleJobCount(): Promise<number> {
+    let count = 0;
+    await expect
+      .poll(async () => {
+        count = await this.getJobCount();
+        return count;
+      })
+      .toBeGreaterThan(0);
+    return count;
+  }
+
   private dropdownButton(label: string): Locator {
     return this.page
       .locator("div.relative")
