@@ -131,6 +131,8 @@ const forbiddenTrackedPlaceholderFiles = new Set([
   "tests/e2e/fixtures/README.md",
 ]);
 
+const forbiddenTrackedOneOffDocs = new Set(["docs/intel-mac-support.md"]);
+
 const settingsHelperComponents = new Map([
   ["src/components/settings/CredentialInput.tsx", "CredentialInput"],
   ["src/components/settings/FilterListInput.tsx", "FilterListInput"],
@@ -245,6 +247,12 @@ const xssSecurityDocsPaths = new Set([
   "docs/security/README.md",
   "docs/security/XSS_PREVENTION.md",
   "docs/security/dompurify-test-examples.js",
+]);
+const topLevelActiveDocsPaths = new Set([
+  "docs/BOOKMARKLET.md",
+  "docs/ML_FEATURE.md",
+  "docs/developer/FRONTEND_TESTING.md",
+  "docs/developer/TESTING.md",
 ]);
 const developerTestingDocsPaths = new Set([
   "docs/developer/TESTING.md",
@@ -387,6 +395,10 @@ function isTrackedBloat(path) {
   }
 
   if (forbiddenTrackedPlaceholderFiles.has(path)) {
+    return true;
+  }
+
+  if (forbiddenTrackedOneOffDocs.has(path)) {
     return true;
   }
 
@@ -846,7 +858,9 @@ function hasDeveloperArchitectureDocMarkers(root, path) {
   const text = readFileSync(join(root, path), "utf8");
   return (
     /[✅❌⚠️]|\*\*(?:Last Updated|Version|Maintained By)\*\*:/.test(text) ||
-    /Good ✅|Bad ❌|DO ✅|DON'T ❌|No cloud dependencies \(v1\.0\)/.test(text)
+    /Good ✅|Bad ❌|DO ✅|DON'T ❌|No cloud dependencies \(v1\.0\)|JobSentinel v\d+\.\d+(?:\.\d+)? System Architecture/.test(
+      text,
+    )
   );
 }
 
@@ -867,6 +881,19 @@ function hasDeveloperMaintenanceDocDrift(root, path) {
     /for v1\.5\+ priorities|Modular Architecture \(v1\.5\+\)|refactored v1\.5/.test(
       text,
     )
+  );
+}
+
+function hasTopLevelActiveDocDrift(root, path) {
+  if (!topLevelActiveDocsPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /^\*\*(?:Status|Version|Model):\*\*/m.test(text) ||
+    /\bJobSentinel v\d+\.\d+(?:\.\d+)?\b/.test(text) ||
+    /With ML support \(default build\)/.test(text)
   );
 }
 
@@ -1807,6 +1834,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasDeveloperMaintenanceDocDrift(root, path)) {
       violations.push(`replace developer maintenance doc stale markers: ${path}`);
+    }
+
+    if (hasTopLevelActiveDocDrift(root, path)) {
+      violations.push(`replace top-level active doc stale markers: ${path}`);
     }
 
     if (hasStaleE2eWaitGuidance(root, path)) {

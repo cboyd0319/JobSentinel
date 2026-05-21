@@ -1,8 +1,5 @@
 # Browser Bookmarklet Integration
 
-**Version:** 2.6+
-**Status:** Ready for testing
-
 ## Overview
 
 The JobSentinel bookmarklet allows you to import jobs from **any website** directly into your local JobSentinel

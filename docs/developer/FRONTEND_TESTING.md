@@ -1,6 +1,6 @@
 # Frontend Testing Guide
 
-**Complete guide to testing React components and features in JobSentinel v2.6.4**
+Complete guide to testing React components and features in JobSentinel.
 
 ---
 

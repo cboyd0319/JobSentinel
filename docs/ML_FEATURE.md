@@ -1,8 +1,8 @@
 # Embedded ML Feature
 
-**Status:** Optional feature (enabled with `embedded-ml` flag)
-**Version:** 2.7+
-**Model:** all-MiniLM-L6-v2 (quantized, ~20MB)
+Embedded ML is an optional feature enabled with the `embedded-ml` Cargo feature.
+It uses `sentence-transformers/all-MiniLM-L6-v2` with cached `safetensors`
+weights.
 
 ## Overview
 
@@ -32,7 +32,7 @@ src-tauri/src/core/ml/
 
 ## Building
 
-### With ML support (default build)
+### With ML support
 
 ```bash
 cd src-tauri

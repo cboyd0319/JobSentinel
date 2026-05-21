@@ -1,6 +1,6 @@
 # Architecture Documentation
 
-**JobSentinel v2.6.4 System Architecture**
+System architecture for JobSentinel.
 
 ---
 

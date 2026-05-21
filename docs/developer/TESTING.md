@@ -1,6 +1,6 @@
 # Testing Guide
 
-**Complete guide to testing in JobSentinel v2.6.4**
+Complete guide to testing in JobSentinel.
 
 ---
 

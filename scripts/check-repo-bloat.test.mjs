@@ -94,6 +94,30 @@ test("checkRepoBloat rejects tracked gitkeep placeholders", () => {
   });
 });
 
+test("checkRepoBloat rejects one-off implementation report docs", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/intel-mac-support.md",
+      "# Intel Mac Support - Universal Binary\n\nOne-off implementation report.\n",
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/intel-mac-support.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove tracked generated or disposable file: docs/intel-mac-support.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects tracked source-tree markdown notes", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -533,6 +557,7 @@ test("checkRepoBloat rejects developer architecture doc stale markers", () => {
       root,
       "docs/developer/ARCHITECTURE.md",
       [
+        "**JobSentinel v2.6.4 System Architecture**",
         "// Good ✅: Core depends on abstractions",
         "// Bad ❌: Core depends on concrete types",
         "- No cloud dependencies (v1.0)",
@@ -683,6 +708,77 @@ test("checkRepoBloat rejects developer maintenance doc stale markers", () => {
     assert.ok(
       violations.includes(
         "replace developer maintenance doc stale markers: docs/developer/CI_CD.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects top-level active doc stale markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/BOOKMARKLET.md",
+      ["# Browser Bookmarklet Integration", "", "**Version:** 2.6+", "**Status:** Ready", ""].join(
+        "\n",
+      ),
+    );
+    writeFixtureFile(
+      root,
+      "docs/ML_FEATURE.md",
+      [
+        "# Embedded ML Feature",
+        "",
+        "**Status:** Optional feature",
+        "**Version:** 2.7+",
+        "**Model:** all-MiniLM-L6-v2",
+        "",
+        "### With ML support (default build)",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/TESTING.md",
+      "# Testing Guide\n\nComplete guide to testing in JobSentinel v2.6.4\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/FRONTEND_TESTING.md",
+      "# Frontend Testing Guide\n\nComplete guide to testing React components in JobSentinel v2.6.4\n",
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "docs/BOOKMARKLET.md",
+        "docs/ML_FEATURE.md",
+        "docs/developer/TESTING.md",
+        "docs/developer/FRONTEND_TESTING.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace top-level active doc stale markers: docs/BOOKMARKLET.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace top-level active doc stale markers: docs/ML_FEATURE.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace top-level active doc stale markers: docs/developer/TESTING.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace top-level active doc stale markers: docs/developer/FRONTEND_TESTING.md",
       ),
       violations.join("\n"),
     );
