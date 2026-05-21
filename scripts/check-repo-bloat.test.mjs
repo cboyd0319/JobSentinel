@@ -204,6 +204,120 @@ await page.screenshot({ path: screenshotPath(testInfo, "dashboard.png") });
   });
 });
 
+test("checkRepoBloat rejects front-door release version promises", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(
+      root,
+      "README.md",
+      "### Planned for v2.7\n\nRelease packages are tracked for v2.7.\n",
+    );
+
+    execFileSync("git", ["add", "README.md"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace front-door release version promises: README.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects source release version promises", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/pages/ResumeBuilder.tsx",
+      'export const tooltip = "Coming in v2.7 - Full ATS compatibility check";\n',
+    );
+
+    execFileSync("git", ["add", "package.json", "src/pages/ResumeBuilder.tsx"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace source release version promises: src/pages/ResumeBuilder.tsx"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects frontend status emoji markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/InterviewScheduler.tsx",
+      '<Button>⏳ Pending</Button><Button>✓ Passed</Button><Button>✗ Failed</Button>\n',
+    );
+
+    execFileSync("git", ["add", "package.json", "src/components/InterviewScheduler.tsx"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace frontend status emoji markers: src/components/InterviewScheduler.tsx",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects bookmarklet doc status emoji markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(
+      root,
+      "docs/BOOKMARKLET.md",
+      "alert('✓ Job imported to JobSentinel!');\nalert('✗ Failed to import job.');\n",
+    );
+
+    execFileSync("git", ["add", "docs/BOOKMARKLET.md"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace bookmarklet doc status emoji markers: docs/BOOKMARKLET.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects contradictory plans index release statuses", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(
+      root,
+      "docs/plans/README.md",
+      [
+        "## Current Release Plans",
+        "| Version | Status | Document |",
+        "| ------- | ------ | -------- |",
+        "| v2.7.0 | Unreleased | [Beta feedback system](completed/beta-feedback-system.md) |",
+        "",
+        "## Archived Plans",
+        "| Version | Status | Document |",
+        "| ------- | ------ | -------- |",
+        "| v2.7.0 | Complete on main | [Beta feedback system](completed/beta-feedback-system.md) |",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "docs/plans/README.md"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sync plans index release status: docs/plans/README.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects unreferenced settings helper components", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

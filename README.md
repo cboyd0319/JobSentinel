@@ -225,7 +225,7 @@ Download the latest installer from
 | -------- | --------- |
 | **Windows** | `.msi` |
 | **macOS** | `.dmg` |
-| **Linux** | Build from source today; release packages are tracked for v2.7 |
+| **Linux** | Build from source today; release packaging is tracked in the roadmap |
 
 If a release asset is not available yet, use the source build below.
 
@@ -370,9 +370,8 @@ Developer docs:
 - Tests were expanded across settings, scoring edge cases, and bulk actions.
 - Transitive dependency security updates were applied.
 
-### Planned for v2.7
+### Tracked next
 
-- Privacy-first beta feedback workflow, implemented on main and tracked for release.
 - Universal macOS release artifact.
 - Linux AppImage and `.deb` release artifacts.
 - Local matching improvements.

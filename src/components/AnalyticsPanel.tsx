@@ -626,7 +626,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
                 </div>
                 {getCurrentWeekApplications(stats.weekly_applications) >= weeklyGoal.target && (
                   <p className="text-sm text-green-600 dark:text-green-400 mt-2">
-                    🎉 Goal achieved this week!
+                    Goal achieved this week!
                   </p>
                 )}
               </div>

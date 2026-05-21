@@ -12,11 +12,9 @@ harness work.
 
 See [Exec Plans](../exec-plans.md) for required format.
 
-## Current Release Plans
+## Current Active Plans
 
-| Version | Status | Document |
-| ------- | ------ | -------- |
-| v2.7.0 | Unreleased | [Beta feedback system](completed/beta-feedback-system.md) |
+No active release plans are tracked in this folder right now.
 
 ## Plan Requirements
 
@@ -36,7 +34,7 @@ Each release plan includes:
 
 | Version | Status | Document |
 | ------- | ------ | -------- |
-| v2.7.0 | Complete on main | [Beta feedback system](completed/beta-feedback-system.md) |
+| Feedback workflow | Complete on main | [Beta feedback system](completed/beta-feedback-system.md) |
 | v2.6.x | Complete on main | [Undo and redo wiring](completed/undo-redo-wiring.md) |
 | v2.6.0 | Complete | [v2.6.0 UX improvements](completed/v2.6.0-ux-improvements.md) |
 | v2.5.0 | Complete | No formal plan. |

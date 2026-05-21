@@ -5,7 +5,6 @@ import { Card, CardHeader } from "../components/Card";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { Progress } from "../components/Progress";
 import { Modal, ModalFooter } from "../components/Modal";
-import { Tooltip } from "../components/Tooltip";
 import { AtsLiveScorePanel } from "../components/AtsLiveScorePanel";
 import { useToast } from "../hooks/useToast";
 import { safeInvoke, safeInvokeWithToast } from "../utils/api";
@@ -1521,12 +1520,6 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                           For detailed analysis and optimization recommendations, visit ATS
                           Optimizer.
                         </p>
-
-                        <Tooltip content="Coming in v2.7 - Full ATS compatibility check with detailed recommendations">
-                          <Button size="sm" variant="secondary" className="w-full" disabled>
-                            <span className="opacity-75">⏳</span> Full ATS Analysis
-                          </Button>
-                        </Tooltip>
                       </div>
                     </div>
                   )}

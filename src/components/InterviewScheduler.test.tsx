@@ -548,9 +548,9 @@ describe("InterviewScheduler", () => {
       fireEvent.click(screen.getByText("Software Engineer"));
 
       await waitFor(() => {
-        expect(screen.getByText("✓ Passed")).toBeInTheDocument();
-        expect(screen.getByText("⏳ Pending")).toBeInTheDocument();
-        expect(screen.getByText("✗ Failed")).toBeInTheDocument();
+        expect(screen.getByText("Passed")).toBeInTheDocument();
+        expect(screen.getByText("Pending")).toBeInTheDocument();
+        expect(screen.getByText("Failed")).toBeInTheDocument();
       });
     });
 
@@ -566,10 +566,10 @@ describe("InterviewScheduler", () => {
       fireEvent.click(screen.getByText("Software Engineer"));
 
       await waitFor(() => {
-        expect(screen.getByText("✓ Passed")).toBeInTheDocument();
+        expect(screen.getByText("Passed")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("✓ Passed"));
+      fireEvent.click(screen.getByText("Passed"));
 
       await waitFor(() => {
         expect(screen.getByText("Interview Outcome:")).toBeInTheDocument();

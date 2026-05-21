@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Removed versioned future-release promises from the README, roadmap, plans index, and Resume Builder disabled ATS callout; replaced visible status emoji in application, analytics, bookmarklet, and interview surfaces, and added bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Removed unreferenced tracked docs screenshots for light dashboard and keyboard shortcuts, trimmed duplicate docs screenshot captures, and added bloat coverage so `docs/images/` assets must be referenced by maintained docs. |
 | 2026-05-21 | In progress | Removed stale freshness footers and version-suffix roadmap markers from maintained docs while keeping current package-version claims in the docs index tied to `package.json`; updated harness expectations and added guards for recurrence. |
 | 2026-05-21 | In progress | Removed unreferenced one-off Intel Mac support report after confirming current universal-binary guidance lives in developer build/release docs; cleaned stale version banners from bookmarklet, embedded-ML, architecture, and testing docs with bloat coverage. |

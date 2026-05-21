@@ -188,12 +188,12 @@ javascript:(function(){
     body: JSON.stringify(job)
   }).then(function(r){
     if(r.ok){
-      alert('✓ Job imported to JobSentinel!');
+      alert('Job imported to JobSentinel.');
     } else {
-      alert('✗ Failed to import job. Is JobSentinel running?');
+      alert('Failed to import job. Is JobSentinel running?');
     }
   }).catch(function(e){
-    alert('✗ Cannot connect to JobSentinel.');
+    alert('Cannot connect to JobSentinel.');
   });
 })();
 ```

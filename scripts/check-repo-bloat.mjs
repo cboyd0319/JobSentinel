@@ -283,6 +283,12 @@ const userDataPrivacyLoggingPaths = new Set([
   "src-tauri/src/core/user_data/mod.rs",
 ]);
 const cacheUsageDocPaths = new Set(["docs/CACHE_USAGE.md"]);
+const frontendStatusEmojiPaths = new Set([
+  "src/components/AnalyticsPanel.tsx",
+  "src/components/BookmarkletGenerator.tsx",
+  "src/components/InterviewScheduler.tsx",
+  "src/pages/Applications.tsx",
+]);
 
 function readPackageManifest(root) {
   return JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
@@ -747,6 +753,42 @@ function hasFrontDoorDocEmojiMarkers(root, path) {
   return /[\u{2705}\u{274c}\u{26a0}\u{23f3}\u{26a1}\u{1f517}\u{1f512}\u{1f4c4}\u{1f4dd}\u{1f7e2}\u{1f7e1}\u{1f534}\u{1f4ca}\u{1f4e7}\u{1f4c8}\u{1f4c9}\u{1f3af}\u{1f680}\u{1f4a1}\u{1f50d}\u{2b50}]/u.test(
     readFileSync(join(root, path), "utf8"),
   );
+}
+
+function hasFrontDoorReleaseVersionPromise(root, path) {
+  if (path !== "README.md") {
+    return false;
+  }
+
+  return /(?:Planned for v\d+\.\d+|coming in v\d+\.\d+|tracked for v\d+\.\d+)/i.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
+function hasSourceReleaseVersionPromise(root, path) {
+  if (!isRuntimeFrontendSource(path)) {
+    return false;
+  }
+
+  return /(?:Coming in v\d+\.\d+|planned for v\d+\.\d+)/i.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
+function hasFrontendStatusEmojiMarkers(root, path) {
+  if (!frontendStatusEmojiPaths.has(path)) {
+    return false;
+  }
+
+  return /[⏳📝📞🎉✓✗]/u.test(readFileSync(join(root, path), "utf8"));
+}
+
+function hasBookmarkletDocStatusEmojiMarkers(root, path) {
+  if (path !== "docs/BOOKMARKLET.md") {
+    return false;
+  }
+
+  return /[✓✗]/u.test(readFileSync(join(root, path), "utf8"));
 }
 
 function hasScraperDocEmojiMarkers(root, path) {
@@ -1538,6 +1580,18 @@ function hasDuplicateDocsScreenshotCapture(root, path) {
   return new Set(captures).size !== captures.length;
 }
 
+function hasContradictoryPlansIndexReleaseStatus(root, path) {
+  if (path !== "docs/plans/README.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /## Current Release Plans[\s\S]*\|\s*v\d+\.\d+\.\d+\s*\|\s*Unreleased\s*\|/.test(text) &&
+    /## Archived Plans[\s\S]*\|\s*v\d+\.\d+\.\d+\s*\|\s*Complete on main\s*\|/.test(text)
+  );
+}
+
 function hasStaleUserDataMockHandlers(root, path) {
   if (path !== "src/mocks/handlers.ts") {
     return false;
@@ -1863,6 +1917,22 @@ export function checkRepoBloat(root = defaultRoot) {
       violations.push(`replace front-door doc emoji markers: ${path}`);
     }
 
+    if (hasFrontDoorReleaseVersionPromise(root, path)) {
+      violations.push(`replace front-door release version promises: ${path}`);
+    }
+
+    if (hasSourceReleaseVersionPromise(root, path)) {
+      violations.push(`replace source release version promises: ${path}`);
+    }
+
+    if (hasFrontendStatusEmojiMarkers(root, path)) {
+      violations.push(`replace frontend status emoji markers: ${path}`);
+    }
+
+    if (hasBookmarkletDocStatusEmojiMarkers(root, path)) {
+      violations.push(`replace bookmarklet doc status emoji markers: ${path}`);
+    }
+
     if (hasScraperDocEmojiMarkers(root, path)) {
       violations.push(`replace scraper doc emoji markers: ${path}`);
     }
@@ -2101,6 +2171,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasDuplicateDocsScreenshotCapture(root, path)) {
       violations.push(`remove duplicate docs screenshot capture: ${path}`);
+    }
+
+    if (hasContradictoryPlansIndexReleaseStatus(root, path)) {
+      violations.push(`sync plans index release status: ${path}`);
     }
 
     if (hasStaleUserDataMockHandlers(root, path)) {

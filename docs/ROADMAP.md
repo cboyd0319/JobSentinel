@@ -374,7 +374,7 @@ See [CHANGELOG.md](../CHANGELOG.md) for detailed v2.6.3 changes.
 
 | Feature                         | Status     | Priority | Notes                                                                    |
 | ------------------------------- | ---------- | -------- | ------------------------------------------------------------------------ |
-| **Beta Feedback System**        | Done    | High     | Implemented on main; tracked for v2.7.0 release                          |
+| **Beta Feedback System**        | Done    | High     | Implemented on main                                                       |
 | macOS support (.dmg)            | Done    | -        | v2.5.1                                                                   |
 | Windows support (.msi)          | Done    | -        | v2.5.1                                                                   |
 | Linux support (.deb, .AppImage) | Done    | -        | Ubuntu 20.04+ compatibility                                              |

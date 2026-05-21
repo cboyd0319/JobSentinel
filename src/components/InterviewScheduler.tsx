@@ -686,7 +686,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                         />
                         <span className={`text-sm ${followUpReminders[interview.id]?.thankYouSent ? 'text-green-600 dark:text-green-400' : 'text-surface-600 dark:text-surface-400'}`}>
                           {followUpReminders[interview.id]?.thankYouSent ? (
-                            <>✓ Thank you note sent</>
+                            <>Thank you note sent</>
                           ) : (
                             <>Send thank you note</>
                           )}
@@ -1025,21 +1025,21 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                         onClick={() => { setFeedbackOutcome("passed"); setShowFeedbackForm(true); }}
                         className="flex-1"
                       >
-                        ✓ Passed
+                        Passed
                       </Button>
                       <Button
                         variant="secondary"
                         onClick={() => { setFeedbackOutcome("pending"); setShowFeedbackForm(true); }}
                         className="flex-1"
                       >
-                        ⏳ Pending
+                        Pending
                       </Button>
                       <Button
                         variant="secondary"
                         onClick={() => { setFeedbackOutcome("failed"); setShowFeedbackForm(true); }}
                         className="flex-1"
                       >
-                        ✗ Failed
+                        Failed
                       </Button>
                     </div>
                   </>

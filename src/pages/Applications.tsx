@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, lazy, Suspense, useId, useMemo, memo, useRef } from "react";
+import { useEffect, useState, useCallback, lazy, Suspense, useId, useMemo, memo, useRef, type ReactNode } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { cachedInvoke, invalidateCacheByCommand, safeInvokeWithToast } from "../utils/api";
 import {
@@ -624,25 +624,25 @@ export default function Applications({ onBack }: ApplicationsProps) {
             <QuickStat
               label="Applied"
               value={stats.totalApplied}
-              icon="📝"
+              icon={<AppliedIcon />}
             />
             <QuickStat
               label="Interviews"
               value={stats.interviews}
               percent={stats.interviewRate}
-              icon="📞"
+              icon={<PhoneStatIcon />}
             />
             <QuickStat
               label="Offers"
               value={stats.offers}
               percent={stats.offerRate}
-              icon="🎉"
+              icon={<OfferIcon />}
               highlight
             />
             <QuickStat
               label="In Progress"
               value={stats.inProgress}
-              icon="⏳"
+              icon={<ProgressIcon />}
             />
           </div>
         </div>
@@ -898,12 +898,12 @@ function QuickStat({
   label: string;
   value: number;
   percent?: number;
-  icon: string;
+  icon: ReactNode;
   highlight?: boolean;
 }) {
   return (
     <div className={`flex items-center gap-2 ${highlight && value > 0 ? "text-success" : "text-surface-600 dark:text-surface-300"}`}>
-      <span className="text-base">{icon}</span>
+      <span className="text-base" aria-hidden="true">{icon}</span>
       <span className="font-medium">{label}:</span>
       <span className={`font-semibold ${highlight && value > 0 ? "text-success" : "text-surface-900 dark:text-white"}`}>
         {value}
@@ -914,6 +914,38 @@ function QuickStat({
         </span>
       )}
     </div>
+  );
+}
+
+function AppliedIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 4H7a2 2 0 01-2-2V6a2 2 0 012-2h7l5 5v9a2 2 0 01-2 2z" />
+    </svg>
+  );
+}
+
+function PhoneStatIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h2.3a1 1 0 01.95.68l1 3a1 1 0 01-.25 1.03l-1.4 1.4a12 12 0 005.3 5.3l1.4-1.4a1 1 0 011.03-.25l3 1a1 1 0 01.68.95V19a2 2 0 01-2 2h-1C8.8 21 3 15.2 3 8V5z" />
+    </svg>
+  );
+}
+
+function OfferIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.05 3.55a1 1 0 011.9 0l1.62 4.98a1 1 0 00.95.69h5.24a1 1 0 01.59 1.81l-4.24 3.08a1 1 0 00-.36 1.12l1.62 4.98a1 1 0 01-1.54 1.12l-4.24-3.08a1 1 0 00-1.18 0l-4.24 3.08a1 1 0 01-1.54-1.12l1.62-4.98a1 1 0 00-.36-1.12l-4.24-3.08a1 1 0 01.59-1.81h5.24a1 1 0 00.95-.69l1.62-4.98z" />
+    </svg>
+  );
+}
+
+function ProgressIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6l4 2m5-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
   );
 }
 
