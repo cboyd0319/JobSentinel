@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Added bloat-sensor coverage for unbounded Rust HTTP body reads, then routed explicit IP geolocation and Discord/Teams webhook error response parsing through the shared bounded reader. |
 | 2026-05-21 | In progress | Added a shared 16 MiB decoded HTTP body cap for scraper adapters, scraper health smoke tests, single-page imports, and Telegram error reads; synced scraper architecture docs and pushed `f077f9f`. |
 | 2026-05-21 | In progress | Re-ran root and tracked-artifact junk scans after the response-cap slice. No untracked junk or tracked disposable artifacts were found beyond expected ignored build/cache paths. |
 | 2026-05-21 | In progress | Replaced roadmap, docs index, and style-guide arrow/tree glyphs with plain prose and list text, and added maintained-doc glyph coverage for recurrence. |

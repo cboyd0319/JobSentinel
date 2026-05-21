@@ -196,7 +196,7 @@ SHA-256(company + title + location + url)
 
 - 2 second delay between companies
 - 30 second timeout per request
-- 16 MiB decoded response body cap for scraper and import fetches
+- 16 MiB decoded response body cap for external fetches that parse remote bodies
 
 #### `core/scoring/`
 

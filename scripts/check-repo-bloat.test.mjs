@@ -2707,6 +2707,93 @@ test("checkRepoBloat rejects raw scraper URL and query logging", () => {
   });
 });
 
+test("checkRepoBloat rejects unbounded external response body reads", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/geo/mod.rs",
+      "let body = response.text().await?;\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/remoteok.rs",
+      "let json: serde_json::Value = response.json().await?;\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/notify/telegram.rs",
+      "let bytes = response.bytes().await?;\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/http_client.rs",
+      [
+        "pub async fn production() {}",
+        "#[cfg(test)]",
+        "mod tests {",
+        "    async fn reads_mock_response(response: reqwest::Response) {",
+        "        let _ = response.text().await;",
+        "    }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/http_body.rs",
+      "while let Some(chunk) = response.chunk().await? { body.extend_from_slice(&chunk); }\n",
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/geo/mod.rs",
+        "src-tauri/src/core/scrapers/remoteok.rs",
+        "src-tauri/src/core/notify/telegram.rs",
+        "src-tauri/src/core/scrapers/http_client.rs",
+        "src-tauri/src/core/http_body.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace unbounded external response body read: src-tauri/src/core/geo/mod.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace unbounded external response body read: src-tauri/src/core/scrapers/remoteok.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace unbounded external response body read: src-tauri/src/core/notify/telegram.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      !violations.includes(
+        "replace unbounded external response body read: src-tauri/src/core/scrapers/http_client.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      !violations.includes(
+        "replace unbounded external response body read: src-tauri/src/core/http_body.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale cache usage documentation", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

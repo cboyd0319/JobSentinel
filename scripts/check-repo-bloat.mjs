@@ -1303,6 +1303,30 @@ function hasRawScraperUrlOrQueryLogging(root, path) {
     /format!\([^)]*\{url\}/.test(text);
 }
 
+function stripRustTestModules(text) {
+  const testModuleIndex = text.search(/(?:^|\n)\s*#\[cfg\(test\)\]/);
+  if (testModuleIndex === -1) {
+    return text;
+  }
+
+  return text.slice(0, testModuleIndex);
+}
+
+function hasUnboundedExternalResponseBodyRead(root, path) {
+  if (
+    !path.startsWith("src-tauri/src/") ||
+    !path.endsWith(".rs") ||
+    path === "src-tauri/src/core/http_body.rs"
+  ) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return /\.(?:text|bytes|chunk)\(\)\s*\.await|\.json(?:::<[^)]*>)?\(\)\s*\.await/.test(
+    productionText,
+  );
+}
+
 function hasRawLocalPathLogging(root, path) {
   if (!rawLocalPathLoggingPaths.has(path)) {
     return false;
@@ -2228,6 +2252,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawScraperUrlOrQueryLogging(root, path)) {
       violations.push(`replace raw scraper URL/query logging: ${path}`);
+    }
+
+    if (hasUnboundedExternalResponseBodyRead(root, path)) {
+      violations.push(`replace unbounded external response body read: ${path}`);
     }
 
     if (hasRawLocalPathLogging(root, path)) {

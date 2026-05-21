@@ -4,6 +4,7 @@
 
 use super::{validate_webhook_url_security_parts, Notification};
 use crate::core::config::DiscordConfig;
+use crate::core::http_body::read_text_with_limit;
 use anyhow::{anyhow, Result};
 use serde_json::json;
 
@@ -130,8 +131,7 @@ pub async fn send_discord_notification(
 
     if !response.status().is_success() {
         let status = response.status();
-        let error_text = response
-            .text()
+        let error_text = read_text_with_limit(response, "https://discord.com/api/webhooks")
             .await
             .unwrap_or_else(|_| "Unknown error".to_string());
         return Err(anyhow!(

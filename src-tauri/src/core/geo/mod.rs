@@ -7,6 +7,8 @@ use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
+use crate::core::http_body::read_text_with_limit;
+
 /// Location information detected from IP address
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LocationInfo {
@@ -70,8 +72,7 @@ pub async fn detect_location() -> Result<LocationInfo> {
         anyhow::bail!("IP geolocation API returned error status: {}", status_code);
     }
 
-    let body = response
-        .text()
+    let body = read_text_with_limit(response, FREEIPAPI_LOCATION_URL)
         .await
         .context("Failed to read IP geolocation response")?;
 

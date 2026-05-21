@@ -3,6 +3,7 @@
 //! Sends formatted job alerts to Microsoft Teams using Incoming Webhooks.
 
 use super::{validate_webhook_url_security_parts, Notification};
+use crate::core::http_body::read_text_with_limit;
 use anyhow::{anyhow, Result};
 use serde_json::json;
 
@@ -123,8 +124,7 @@ pub async fn send_teams_notification(webhook_url: &str, notification: &Notificat
 
     if !response.status().is_success() {
         let status = response.status();
-        let error_text = response
-            .text()
+        let error_text = read_text_with_limit(response, "https://outlook.office.com/webhook")
             .await
             .unwrap_or_else(|_| "Unknown error".to_string());
         return Err(anyhow!(
