@@ -244,6 +244,8 @@ const urlValidationSecurityDocsPaths = new Set(["docs/security/URL_VALIDATION.md
 const developerTestingDocsPaths = new Set([
   "docs/developer/TESTING.md",
   "docs/developer/FRONTEND_TESTING.md",
+  "docs/developer/INTEGRATION_TESTING.md",
+  "docs/developer/MUTATION_TESTING.md",
 ]);
 const developerArchitectureDocsPaths = new Set([
   "docs/developer/ARCHITECTURE.md",
@@ -798,10 +800,12 @@ function hasDeveloperTestingDocMarkers(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
   return (
-    /[✅❌⚠️]|\*\*(?:Last Updated|Version|Maintained By|Stack|Target|Test Count|Test count)\*\*:/.test(
+    /[✅❌⚠️⏱️]|\*\*(?:Last Updated|Version|Maintained By|Stack|Target|Test Count|Test count)\*\*:/.test(
       text,
     ) ||
-    /### DO|### DON'T|Good ✅|Bad ❌|\bAchieved\s+✅|⚠️\s+In Progress/.test(text)
+    /### DO|### DON'T|Good ✅|Bad ❌|\bAchieved\s+✅|⚠️\s+In Progress|CAUGHT by|MISSED -/.test(
+      text,
+    )
   );
 }
 

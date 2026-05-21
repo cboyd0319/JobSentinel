@@ -36,12 +36,12 @@ Example:
 ```rust
 // Code with 100% line coverage
 fn is_positive(x: i32) -> bool {
-    x > 0  // ✅ Line covered
+    x > 0  // Line covered
 }
 
 #[test]
 fn test_is_positive() {
-    is_positive(5);  // ❌ No assertion! Bug would slip through
+    is_positive(5);  // No assertion. Bug would slip through.
 }
 ```
 
@@ -77,7 +77,7 @@ This will:
 - Run tests against each mutation
 - Report caught vs. escaped mutants
 
-**⚠️ Warning:** Full mutation testing can take 30-60+ minutes!
+Warning: full mutation testing can take 30-60+ minutes.
 
 ### Run Mutations for Specific Module
 
@@ -119,10 +119,10 @@ cargo mutants --in-diff
 Running mutation tests...
 
 src/core/config/mod.rs:138: replaced > with >= in validate
-  ✅ CAUGHT by test_negative_salary_floor_fails
+  Caught by test_negative_salary_floor_fails
 
 src/core/config/mod.rs:148: replaced < with <= in validate
-  ❌ MISSED - no test caught this mutation
+  Missed: no test caught this mutation
 
 Summary:
   Total mutants: 150
@@ -135,10 +135,10 @@ Summary:
 
 | Category        | Meaning                            | Action                          |
 | --------------- | ---------------------------------- | ------------------------------- |
-| **Caught** ✅   | Test suite detected the mutation   | Good! Tests working correctly   |
-| **Missed** ❌   | Mutation survived (no test failed) | Add/improve tests for this case |
-| **Unviable** ⚠️ | Mutation caused compile error      | Ignore (artifact of mutation)   |
-| **Timeout** ⏱️  | Tests took too long                | Adjust timeout multiplier       |
+| **Caught** | Test suite detected the mutation   | Tests cover this case           |
+| **Missed** | Mutation survived (no test failed) | Add/improve tests for this case |
+| **Unviable** | Mutation caused compile error   | Ignore (artifact of mutation)   |
+| **Timeout** | Tests took too long               | Adjust timeout multiplier       |
 
 ---
 
@@ -346,7 +346,7 @@ cargo mutants -- --file src/core/config/mod.rs
 
 ```text
 CAUGHT src/core/config/mod.rs:156: replaced 168 with 169
-  ✅ by test_scraping_interval_exactly_169_fails
+  by test_scraping_interval_exactly_169_fails
 ```
 
 ---
@@ -397,10 +397,10 @@ jobs:
 
 | Module          | Mutations | Caught | Score | Status        |
 | --------------- | --------- | ------ | ----- | ------------- |
-| `core/config`   | 85        | 83     | 97.6% | ✅ Excellent  |
-| `core/db`       | 42        | 40     | 95.2% | ✅ Excellent  |
-| `core/scrapers` | 38        | 32     | 84.2% | ⚠️ Needs work |
-| `core/notify`   | 15        | 15     | 100%  | ✅ Perfect    |
+| `core/config`   | 85        | 83     | 97.6% | Excellent     |
+| `core/db`       | 42        | 40     | 95.2% | Excellent     |
+| `core/scrapers` | 38        | 32     | 84.2% | Needs work    |
+| `core/notify`   | 15        | 15     | 100%  | Perfect       |
 
 ### When to Improve
 
@@ -479,9 +479,3 @@ exclude_functions = ["::function_name"]
 - Find gaps in test coverage
 - Ensure boundary conditions are tested
 - Verify error handling is tested
-
----
-
-**Last Updated**: May 20, 2026
-**Version**: v2.6.4
-**Maintained By**: JobSentinel maintainers

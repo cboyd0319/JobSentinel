@@ -458,10 +458,44 @@ test("checkRepoBloat rejects developer testing doc stale markers", () => {
         "",
       ].join("\n"),
     );
+    writeFixtureFile(
+      root,
+      "docs/developer/INTEGRATION_TESTING.md",
+      [
+        "### DO ✅",
+        "### DON'T ❌",
+        "**Last Updated**: March 18, 2026",
+        "**Test Count**: Run `cargo test --test '*' -- --list`",
+        "**Version**: v2.6.4",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/MUTATION_TESTING.md",
+      [
+        "x > 0  // ✅ Line covered",
+        "is_positive(5);  // ❌ No assertion",
+        "**⚠️ Warning:** Full mutation testing can take 30-60+ minutes!",
+        "✅ CAUGHT by test_negative_salary_floor_fails",
+        "❌ MISSED - no test caught this mutation",
+        "| **Timeout** ⏱️ | Tests took too long |",
+        "**Last Updated**: May 20, 2026",
+        "**Maintained By**: JobSentinel maintainers",
+        "",
+      ].join("\n"),
+    );
 
     execFileSync(
       "git",
-      ["add", "package.json", "docs/developer/TESTING.md", "docs/developer/FRONTEND_TESTING.md"],
+      [
+        "add",
+        "package.json",
+        "docs/developer/TESTING.md",
+        "docs/developer/FRONTEND_TESTING.md",
+        "docs/developer/INTEGRATION_TESTING.md",
+        "docs/developer/MUTATION_TESTING.md",
+      ],
       { cwd: root },
     );
 
@@ -474,6 +508,18 @@ test("checkRepoBloat rejects developer testing doc stale markers", () => {
     assert.ok(
       violations.includes(
         "replace developer testing doc stale markers: docs/developer/FRONTEND_TESTING.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace developer testing doc stale markers: docs/developer/INTEGRATION_TESTING.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace developer testing doc stale markers: docs/developer/MUTATION_TESTING.md",
       ),
       violations.join("\n"),
     );

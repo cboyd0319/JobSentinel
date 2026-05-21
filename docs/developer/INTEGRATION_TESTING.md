@@ -702,7 +702,7 @@ for _ in 0..50 {
 
 ## Best Practices
 
-### DO ✅
+### Do
 
 - Use in-memory databases for speed
 - Test both success and error paths
@@ -712,7 +712,7 @@ for _ in 0..50 {
 - Run tests single-threaded when debugging
 - Document test fixtures with module comments
 
-### DON'T ❌
+### Do Not
 
 - Don't share state between tests
 - Don't use hardcoded file paths
@@ -730,9 +730,3 @@ for _ in 0..50 {
 - [wiremock Documentation](https://docs.rs/wiremock/)
 - [SQLx Testing](https://github.com/launchbadge/sqlx#testing)
 - [tempfile Crate](https://docs.rs/tempfile/)
-
----
-
-**Last Updated**: March 18, 2026
-**Test Count**: Run `cd src-tauri && cargo test --test '*' -- --list` for current integration count
-**Version**: v2.6.4
