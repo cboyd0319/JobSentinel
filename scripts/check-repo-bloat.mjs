@@ -304,6 +304,12 @@ const notificationScoringReasonPaths = new Set([
   "src-tauri/src/core/notify/telegram.rs",
 ]);
 
+const activeUserDocGlyphPaths = new Set([
+  "docs/features/application-tracking.md",
+  "docs/features/user-data-management.md",
+  "docs/user/QUICK_START.md",
+]);
+
 function readPackageManifest(root) {
   return JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
 }
@@ -1116,6 +1122,16 @@ function hasNotificationsDocGlyphMarkers(root, path) {
   }
 
   return /[\u{2192}\u{251c}\u{2514}\u{2500}\u{2502}\u{22ef}]/u.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
+function hasActiveUserDocGlyphMarkers(root, path) {
+  if (!activeUserDocGlyphPaths.has(path)) {
+    return false;
+  }
+
+  return /[\u{2192}\u{2193}\u{2199}\u{2198}\u{2265}\u{2500}\u{2502}\u{2514}\u{251c}\u{22ef}]/u.test(
     readFileSync(join(root, path), "utf8"),
   );
 }
@@ -2089,6 +2105,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasNotificationsDocGlyphMarkers(root, path)) {
       violations.push(`replace notifications doc glyph markers: ${path}`);
+    }
+
+    if (hasActiveUserDocGlyphMarkers(root, path)) {
+      violations.push(`replace active user doc glyph markers: ${path}`);
     }
 
     if (hasStaleSalaryAiFutureUiClaim(root, path)) {

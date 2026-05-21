@@ -151,7 +151,7 @@ You receive notifications at:
 - **3 days after interview** - Thank you email reminder
 - **7 days after interview** - Status check-in reminder
 
-You can disable specific reminders in **Settings → Interview Prep**.
+You can disable specific reminders in **Settings > Interview Prep**.
 
 ---
 
@@ -184,7 +184,7 @@ JobSentinel automatically tracks the last 50 searches you've performed (without 
 1. Click the **History** icon above the search bar
 2. Your recent searches appear in order
 3. Click a search to reload it
-4. Clear history anytime in **Settings → Privacy**
+4. Clear history anytime in **Settings > Privacy**
 
 ### Managing Searches
 
@@ -204,10 +204,10 @@ Fine-tune which jobs trigger alerts and how you receive them.
 
 Control notifications for each job board independently:
 
-1. Go to **Settings → Notifications → Advanced Filtering**
+1. Go to **Settings > Notifications > Advanced Filtering**
 2. For each source (LinkedIn, Indeed, Greenhouse, etc.):
    - **Enable/disable** - Turn alerts on or off
-   - **Minimum score** - Only notify for jobs scoring ≥ threshold
+   - **Minimum score** - Only notify for jobs scoring at or above the threshold
    - **Include ghost jobs** - Show or hide flagged postings
 
 ### Keyword-Based Filtering
@@ -699,10 +699,10 @@ CREATE TABLE notification_preferences (
 
 ### My templates didn't migrate from localStorage
 
-1. Check that you're using v1.4 or later (go to **Settings → About**)
+1. Check that you're using v1.4 or later (go to **Settings > About**)
 2. Reload the app completely (not just refresh)
 3. Look for a "Migrate Data" prompt on first launch
-4. If no prompt appears, go to **Settings → Data → Migrate from Browser** manually
+4. If no prompt appears, go to **Settings > Data > Migrate from Browser** manually
 
 ### I can't find a saved search
 
@@ -713,7 +713,7 @@ CREATE TABLE notification_preferences (
 
 ### Notifications aren't firing for certain keywords
 
-1. Check your notification preferences in **Settings → Notifications → Advanced Filtering**
+1. Check your notification preferences in **Settings > Notifications > Advanced Filtering**
 2. Verify the keyword rule is active (not disabled)
 3. Check the minimum score threshold isn't too high
 4. Ensure the job source is enabled

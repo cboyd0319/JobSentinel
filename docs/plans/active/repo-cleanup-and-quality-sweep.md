@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Normalized active user-facing setup and application-tracking docs from arrow/tree glyphs to plain menu paths and list text, with bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Removed remaining box-drawing and arrow glyphs from the active Salary AI feature doc examples and widened resume/salary doc bloat coverage to catch those markers. |
 | 2026-05-21 | In progress | Synced notification test fixtures with plain backend scoring reasons, removed nonessential glyphs from email fallback text and notification setup docs, and added bloat coverage for notification scoring/documentation glyph recurrence. |
 | 2026-05-21 | In progress | Normalized backend-generated scoring reasons and resume gap analysis from symbol-coded strings to plain text, synced smart-scoring and resume-matcher docs, and added bloat coverage for backend scoring/gap glyph recurrence. |

@@ -1706,6 +1706,54 @@ test("checkRepoBloat rejects Quick Start doc emoji markers", () => {
   });
 });
 
+test("checkRepoBloat rejects active user doc glyph markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/application-tracking.md",
+      ["applications", "├── id (PRIMARY KEY)", "To Apply → Applied", ""].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/user-data-management.md",
+      "Only notify for jobs scoring ≥ threshold\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/user/QUICK_START.md",
+      "Go to System Settings → Privacy & Security\n",
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "docs/features/application-tracking.md",
+        "docs/features/user-data-management.md",
+        "docs/user/QUICK_START.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace active user doc glyph markers: docs/features/application-tracking.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace active user doc glyph markers: docs/features/user-data-management.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace active user doc glyph markers: docs/user/QUICK_START.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects front-door doc emoji markers", () => {
   withGitFixture((root) => {
     const chartIcon = String.fromCodePoint(0x1f4ca);

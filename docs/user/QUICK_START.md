@@ -28,7 +28,7 @@ macOS may show "JobSentinel can't be opened because Apple cannot check it for ma
 
 **To fix this:**
 
-1. Go to **System Settings → Privacy & Security**
+1. Go to **System Settings > Privacy & Security**
 2. Scroll down and click **"Open Anyway"** next to the JobSentinel message
 3. Click **Open** in the confirmation dialog
 
@@ -249,21 +249,21 @@ Your changes take effect immediately.
 1. Go to [Slack Webhooks](https://api.slack.com/messaging/webhooks)
 2. Create a new webhook for your workspace
 3. Copy the URL
-4. Paste it in JobSentinel Settings → Notifications → Slack
+4. Paste it in JobSentinel Settings > Notifications > Slack
 
 ### Discord
 
-1. Right-click your Discord channel → Edit Channel → Integrations
+1. Right-click your Discord channel > Edit Channel > Integrations
 2. Create a Webhook
 3. Copy the URL
-4. Paste it in JobSentinel Settings → Notifications → Discord
+4. Paste it in JobSentinel Settings > Notifications > Discord
 
 ### Microsoft Teams
 
-1. In your Teams channel, click ⋯ → Connectors
+1. In your Teams channel, click More options > Connectors
 2. Add "Incoming Webhook"
 3. Copy the URL
-4. Paste it in JobSentinel Settings → Notifications → Teams
+4. Paste it in JobSentinel Settings > Notifications > Teams
 
 ---
 
@@ -291,7 +291,7 @@ Everything stays on your computer. No cloud, no accounts, no tracking.
 1. Make sure your job titles aren't too specific
 2. Try enabling more location options (Remote + Hybrid + Onsite)
 3. Lower your minimum salary to $0 temporarily
-4. Right-click the tray icon → "Search Now" to force a refresh
+4. Right-click the tray icon > "Search Now" to force a refresh
 
 ### Notifications not working?
 

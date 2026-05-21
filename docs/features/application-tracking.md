@@ -71,33 +71,33 @@ This modular structure keeps code organized and maintainable while supporting fu
 ```sql
 -- Core application tracking
 applications
-├── id (PRIMARY KEY)
-├── job_hash (FOREIGN KEY → jobs.hash)
-├── status
-├── applied_at
-├── last_contact
-├── next_followup
-├── notes
-├── recruiter_name, recruiter_email, recruiter_phone
-└── salary_expectation
+- id (PRIMARY KEY)
+- job_hash (FOREIGN KEY to jobs.hash)
+- status
+- applied_at
+- last_contact
+- next_followup
+- notes
+- recruiter_name, recruiter_email, recruiter_phone
+- salary_expectation
 
 -- Event timeline (audit trail)
 application_events
-├── id (PRIMARY KEY)
-├── application_id (FOREIGN KEY)
-├── event_type
-├── event_data (JSON)
-└── created_at
+- id (PRIMARY KEY)
+- application_id (FOREIGN KEY)
+- event_type
+- event_data (JSON)
+- created_at
 
 -- Reminders & follow-ups
 application_reminders
-├── id (PRIMARY KEY)
-├── application_id (FOREIGN KEY)
-├── reminder_type
-├── reminder_time
-├── message
-├── completed (boolean)
-└── completed_at
+- id (PRIMARY KEY)
+- application_id (FOREIGN KEY)
+- reminder_type
+- reminder_time
+- message
+- completed (boolean)
+- completed_at
 
 -- Interview tracking
 interviews
@@ -109,15 +109,15 @@ offers
 ### Status Pipeline
 
 ```text
-To Apply → Applied → Screening Call → Phone Interview
-    ↓         ↓           ↓                 ↓
-Withdrawn  Rejected    Ghosted    Technical Interview
-                                          ↓
-                                   Onsite Interview
-                                          ↓
-                                   Offer Received
-                                    ↙        ↘
-                            Offer Accepted  Offer Rejected
+- To Apply
+- Applied
+- Screening Call
+- Phone Interview
+- Technical Interview
+- Onsite Interview
+- Offer Received
+- Offer Accepted or Offer Rejected
+- Withdrawn, Rejected, or Ghosted can end the pipeline from earlier states
 ```
 
 ### Application Statuses (12 Total)
@@ -201,11 +201,11 @@ Each `ApplicationWithJob` includes:
 **Auto-created reminders:**
 
 ```rust
-// When status → Applied
+// When status becomes Applied
 tracker.update_status(app_id, ApplicationStatus::Applied).await?;
 // Creates: "Follow up on application if no response" (in 7 days)
 
-// When status → PhoneInterview/TechnicalInterview/OnsiteInterview
+// When status becomes PhoneInterview, TechnicalInterview, or OnsiteInterview
 tracker.update_status(app_id, ApplicationStatus::PhoneInterview).await?;
 // Creates: "Send thank-you email after interview" (in 24 hours)
 ```
