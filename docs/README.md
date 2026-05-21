@@ -271,41 +271,30 @@ Current release package version is `2.6.4`. Unreleased `2.7.x` work is tracked i
 
 ## File Structure
 
-```text
-docs/
-├── README.md              # This file
-├── ROADMAP.md             # Feature roadmap
-├── CLAUDE.md              # Compatibility pointer; AGENTS.md is authoritative
-├── exec-plans.md          # Exec plan format
-├── harness/               # Harness engineering guides and sensors
-├── developer/             # Developer documentation
-│   ├── GETTING_STARTED.md
-│   ├── CONTRIBUTING.md
-│   ├── ARCHITECTURE.md
-│   ├── TESTING.md
-│   ├── RELEASING.md           # Release process
-│   └── ...
-├── features/              # Feature documentation
-│   ├── one-click-apply.md
-│   ├── resume-builder.md
-│   ├── ghost-detection.md
-│   └── ...
-├── releases/              # Version release notes
-│   ├── v2.5.1.md
-│   ├── v2.5.md
-│   └── ...
-├── plans/                 # Active, completed, and template plans
-│   ├── active/
-│   ├── completed/
-│   └── templates/
-├── security/
-│   └── KEYRING.md
-├── user/
-│   └── QUICK_START.md
-└── images/                # Screenshots
+Docs layout:
 
-tests/                     # All tests
-├── README.md              # Testing overview
-├── e2e/
-│   └── playwright/        # Playwright E2E tests
-```
+- `docs/README.md`: this file
+- `docs/ROADMAP.md`: feature roadmap
+- `docs/CLAUDE.md`: compatibility pointer; `AGENTS.md` is authoritative
+- `docs/exec-plans.md`: exec plan format
+- `docs/harness/`: harness engineering guides and sensors
+- `docs/developer/`: developer documentation
+- `docs/developer/GETTING_STARTED.md`: setup guide
+- `docs/developer/CONTRIBUTING.md`: contribution guide
+- `docs/developer/ARCHITECTURE.md`: architecture guide
+- `docs/developer/TESTING.md`: testing guide
+- `docs/developer/RELEASING.md`: release process
+- `docs/features/`: feature documentation
+- `docs/features/one-click-apply.md`: One-Click Apply feature guide
+- `docs/features/resume-builder.md`: Resume Builder feature guide
+- `docs/features/ghost-detection.md`: ghost detection feature guide
+- `docs/releases/`: version release notes
+- `docs/plans/`: active, completed, and template plans
+- `docs/security/`: security documentation
+- `docs/user/`: user documentation
+- `docs/images/`: screenshots
+
+Test docs layout:
+
+- `tests/README.md`: testing overview
+- `tests/e2e/playwright/`: Playwright E2E tests

@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Replaced roadmap, docs index, and style-guide arrow/tree glyphs with plain prose and list text, and added maintained-doc glyph coverage for recurrence. |
 | 2026-05-21 | In progress | Replaced ML feature doc tree markers and ML quickstart checkmark examples with plain text, and widened top-level active doc glyph coverage for recurrence. |
 | 2026-05-21 | In progress | Replaced the frontend error export's stale hardcoded `1.2.0` version with a package-version build define, added test coverage, and added bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Replaced frontend testing doc tree diagrams with plain source/test layout lists and added the doc to developer layout bloat coverage. |

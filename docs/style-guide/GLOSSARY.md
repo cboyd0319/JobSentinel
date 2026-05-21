@@ -164,7 +164,7 @@ isn't actually hiring, or posted it just to collect resumes.
 
 **Write this:** "Mac security warning" or just describe the fix
 
-**Example:** "If Mac shows a security warning, go to System Settings → Privacy & Security and click 'Open Anyway'."
+**Example:** "If Mac shows a security warning, go to System Settings > Privacy & Security and click 'Open Anyway'."
 
 ### SmartScreen (Windows)
 

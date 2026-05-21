@@ -1891,6 +1891,40 @@ test("checkRepoBloat rejects feature doc glyph markers", () => {
   });
 });
 
+test("checkRepoBloat rejects maintained doc glyph markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(root, "docs/README.md", ["docs/", "├── README.md", "└── images/", ""].join("\n"));
+    writeFixtureFile(root, "docs/ROADMAP.md", "Resume → Builder Integration\n");
+    writeFixtureFile(
+      root,
+      "docs/style-guide/GLOSSARY.md",
+      "Go to System Settings → Privacy & Security\n",
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/README.md", "docs/ROADMAP.md", "docs/style-guide/GLOSSARY.md"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace maintained doc glyph markers: docs/README.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace maintained doc glyph markers: docs/ROADMAP.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace maintained doc glyph markers: docs/style-guide/GLOSSARY.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects developer layout doc glyph markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

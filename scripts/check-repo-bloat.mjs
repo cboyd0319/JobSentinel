@@ -318,6 +318,12 @@ const featurePlainDocGlyphPaths = new Set([
   "docs/features/json-resume-import.md",
 ]);
 
+const maintainedDocGlyphPaths = new Set([
+  "docs/README.md",
+  "docs/ROADMAP.md",
+  "docs/style-guide/GLOSSARY.md",
+]);
+
 const developerLayoutDocGlyphPaths = new Set([
   "docs/developer/FRONTEND_TESTING.md",
   "docs/developer/GETTING_STARTED.md",
@@ -1167,6 +1173,16 @@ function hasFeaturePlainDocGlyphMarkers(root, path) {
   }
 
   return /(?:\p{Extended_Pictographic}|[\u{2190}-\u{21ff}\u{2500}-\u{257f}])/u.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
+function hasMaintainedDocGlyphMarkers(root, path) {
+  if (!maintainedDocGlyphPaths.has(path)) {
+    return false;
+  }
+
+  return /(?:\p{Extended_Pictographic}|[\u{2190}-\u{21ff}\u{2500}-\u{257f}\u{2713}\u{2717}])/u.test(
     readFileSync(join(root, path), "utf8"),
   );
 }
@@ -2172,6 +2188,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasFeaturePlainDocGlyphMarkers(root, path)) {
       violations.push(`replace feature doc glyph markers: ${path}`);
+    }
+
+    if (hasMaintainedDocGlyphMarkers(root, path)) {
+      violations.push(`replace maintained doc glyph markers: ${path}`);
     }
 
     if (hasDeveloperLayoutDocGlyphMarkers(root, path)) {

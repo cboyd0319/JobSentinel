@@ -69,7 +69,7 @@ Use `package.json` for the current release package version.
 | Score Breakdown Tooltip      | **Done** | Hover to see scoring factor breakdown              |
 | Application Conversion Stats | **Done** | Quick stats bar on Applications page               |
 | Resume Match Visualization   | **Done** | Green/red skill match display                      |
-| **Backend Persistence (E3)** | **Done** | localStorage → SQLite migration                    |
+| **Backend Persistence (E3)** | **Done** | localStorage to SQLite migration                   |
 | Cover Letter Templates       | **Done** | Persisted with categories in SQLite                |
 | Interview Prep Checklists    | **Done** | Per-interview completion tracking                  |
 | Saved Searches               | **Done** | Filter presets stored in database                  |
@@ -128,7 +128,7 @@ Major security release with OS-native keyring integration, Resume Builder, and O
 | macOS Keychain support                | **Done** | `keyring` crate with `apple-native`            |
 | Windows Credential Manager            | **Done** | `keyring` crate with `windows-native`          |
 | Linux Secret Service                  | **Done** | `keyring` crate with `sync-secret-service`     |
-| Automatic migration                   | **Done** | Plaintext → keyring on first v2.0 launch       |
+| Automatic migration                   | **Done** | Plaintext to keyring on first v2.0 launch      |
 | 5 credential commands                 | **Done** | store, retrieve, delete, has, get_status       |
 | Updated Settings UI                   | **Done** | Credential status indicators                   |
 | **P3 Integration Tests**              | **Done** | Integration suite documented; use fresh command output for counts |
@@ -177,7 +177,7 @@ Comprehensive health monitoring system for all 13 job board scrapers.
 | Feature                       | Status   | Notes                           |
 | ----------------------------- | -------- | ------------------------------- |
 | **All 13 Scrapers Wired**     | **Done** | Previously only 5/13 connected  |
-| **Health Dashboard**          | **Done** | Settings → Troubleshooting      |
+| **Health Dashboard**          | **Done** | Settings > Troubleshooting      |
 | **Run History Tracking**      | **Done** | Per-scraper execution logs      |
 | **Exponential Backoff Retry** | **Done** | Auto-retry on 429, 5xx errors   |
 | **Smoke Tests**               | **Done** | Test individual or all scrapers |
@@ -257,7 +257,7 @@ Enhanced user interfaces for resume management with visual improvements and seam
 | **Import Skills from Resume**          | **Done** | Auto-populate builder skills from matcher               |
 | **ATS Score Preview**                  | **Done** | Score display in builder step 6                         |
 | **New Components**                     | **Done** | ResumeMatchScoreBreakdown, SkillCategoryFilter, etc.    |
-| **Resume → Builder Integration**       | **Done** | Seamless data flow between modules                      |
+| **Resume to Builder Integration**      | **Done** | Seamless data flow between modules                      |
 
 **Enhanced User Workflow:**
 
@@ -427,7 +427,8 @@ Instead of scraping restricted sites, we provide maximum value through legal mea
 
 #### 1. Universal Job Importer (Schema.org Parser)
 
-User pastes ANY job URL → we fetch that ONE page → parse Schema.org/JobPosting structured data.
+User pastes any job URL. JobSentinel fetches that one page and parses Schema.org or
+JobPosting structured data.
 
 - **Why legal:** User-initiated, single page, Schema.org is designed for machine reading
 - **Implementation:** `src-tauri/src/core/import/` module and dashboard import modal
@@ -437,11 +438,10 @@ User pastes ANY job URL → we fetch that ONE page → parse Schema.org/JobPosti
 
 Build pre-filled search URLs that open in user's browser.
 
-```text
-User enters: "security engineer" + "Denver, CO"
-We generate: https://www.governmentjobs.com/jobs?keyword=security+engineer&location=Denver
-User clicks → opens in their browser with search ready
-```
+1. User enters: "security engineer" + "Denver, CO".
+2. JobSentinel generates:
+   `https://www.governmentjobs.com/jobs?keyword=security+engineer&location=Denver`.
+3. User clicks the generated link and opens the search in their browser.
 
 - **Why legal:** Building URLs, not scraping. User's browser, user's session.
 - **Sites:** GovernmentJobs, ClearanceJobs, Glassdoor, LinkedIn, Indeed, Monster, CareerBuilder,
@@ -450,8 +450,8 @@ User clicks → opens in their browser with search ready
 
 #### 3. Bookmarklet
 
-JavaScript bookmarklet user installs in browser. They browse to any job, click bookmarklet →
-extracts job data → sends to local JobSentinel.
+A user installs the JavaScript bookmarklet in their browser. They browse to any
+job, click the bookmarklet, extract job data, and send it to local JobSentinel.
 
 - **Why legal:** Runs in USER's browser with THEIR session. Not server-side scraping.
 - **Implementation:** Frontend bookmarklet generator plus local `src-tauri/src/core/bookmarklet/`
@@ -710,7 +710,7 @@ See [docs/features/one-click-apply.md](features/one-click-apply.md) for full doc
 - [x] Advanced search with boolean operators
 - [x] Interview scheduler with iCal export
 - [x] Company research panel with known companies database
-- [x] **v2.5.1** Resume → One-Click Apply integration (resume file path wired)
+- [x] **v2.5.1** Resume to One-Click Apply integration (resume file path wired)
 - [x] **v2.5.1** PDF export implemented (browser print method)
 - [x] **v2.5.1** Scraper retry logic with exponential backoff
 - [x] **v2.5.1** Scraper response caching (5-min TTL)
@@ -745,7 +745,7 @@ The v1.5 modularization effort successfully split 7 oversized files into smaller
 | Module                       | Before | After             | Files Created                                                                                   |
 | ---------------------------- | ------ | ----------------- | ----------------------------------------------------------------------------------------------- |
 | `db/mod.rs`                  | 4442   | 85                | types.rs, connection.rs, crud.rs, queries.rs, interactions.rs, analytics.rs, ghost.rs, tests.rs |
-| `db/integrity.rs`            | 2517   | → `db/integrity/` | mod.rs (85), types.rs, checks.rs, backups.rs, diagnostics.rs, tests.rs                          |
+| `db/integrity.rs`            | 2517   | Split into `db/integrity/` | mod.rs (85), types.rs, checks.rs, backups.rs, diagnostics.rs, tests.rs                          |
 | `scheduler/mod.rs`           | 2955   | ~300              | types.rs, pipeline.rs, workers/{mod,scrapers,scoring,persistence}.rs, tests.rs                  |
 | `market_intelligence/mod.rs` | 2703   | ~400              | computations.rs, queries.rs, utils.rs, tests.rs                                                 |
 | `config/mod.rs`              | 2343   | ~300              | types.rs, defaults.rs, validation.rs, io.rs, tests.rs                                           |
@@ -770,28 +770,27 @@ The v1.5 modularization effort successfully split 7 oversized files into smaller
 
 The current flat `src/components/` directory contains 70+ files. A future refactor should organize into:
 
-```text
-src/
-├── features/           # Feature modules (domain-specific)
-│   ├── dashboard/      # Dashboard page + related components
-│   │   ├── components/ # JobCard, VirtualJobList, GhostIndicator
-│   │   ├── hooks/      # useDashboard*, useFilters, etc.
-│   │   └── Dashboard.tsx
-│   ├── applications/   # Applications tracking
-│   ├── resume/         # Resume matcher, builder, optimizer
-│   ├── automation/     # One-Click Apply
-│   ├── market/         # Market intelligence
-│   ├── salary/         # Salary predictions
-│   └── settings/       # Settings, setup wizard
-├── components/         # Shared UI components only
-│   ├── ui/            # Button, Card, Badge, Input, Modal
-│   ├── layout/        # Navigation, FocusTrap, SkipToContent
-│   └── feedback/      # ErrorBoundary, LoadingSpinner, EmptyState
-├── hooks/             # Shared hooks
-├── contexts/          # Global contexts (Theme, Keyboard, Toast)
-├── types/             # Shared TypeScript types
-└── utils/             # Utility functions
-```
+Target frontend layout:
+
+- `src/features/`: feature modules by domain
+- `src/features/dashboard/`: Dashboard page and related components
+- `src/features/dashboard/components/`: JobCard, VirtualJobList, GhostIndicator
+- `src/features/dashboard/hooks/`: dashboard filters, search, job operations, and saved searches
+- `src/features/dashboard/Dashboard.tsx`: dashboard feature entrypoint
+- `src/features/applications/`: application tracking
+- `src/features/resume/`: resume matcher, builder, and optimizer
+- `src/features/automation/`: One-Click Apply
+- `src/features/market/`: market intelligence
+- `src/features/salary/`: salary predictions
+- `src/features/settings/`: settings and setup wizard
+- `src/components/`: shared UI components only
+- `src/components/ui/`: Button, Card, Badge, Input, Modal
+- `src/components/layout/`: Navigation, FocusTrap, SkipToContent
+- `src/components/feedback/`: ErrorBoundary, LoadingSpinner, EmptyState
+- `src/hooks/`: shared hooks
+- `src/contexts/`: global contexts such as Theme, Keyboard, and Toast
+- `src/types/`: shared TypeScript types
+- `src/utils/`: utility functions
 
 **Why deferred:** Requires 100+ import path updates. Not worth the risk before Reddit launch.
 **Target:** v2.6 with comprehensive import path migration script.
