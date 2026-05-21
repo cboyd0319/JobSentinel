@@ -427,6 +427,59 @@ test("checkRepoBloat rejects focused-test commit guidance", () => {
   });
 });
 
+test("checkRepoBloat rejects developer testing doc stale markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/developer/TESTING.md",
+      [
+        "// Good ✅",
+        "// Bad ❌",
+        "| Core business logic | 90%+ | ✅ Achieved |",
+        "| Scrapers | 70%+ | ⚠️ In Progress |",
+        "### DO ✅",
+        "### DON'T ❌",
+        "**Last Updated:** May 19, 2026",
+        "**Version:** v2.6.4",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/FRONTEND_TESTING.md",
+      [
+        "### DO ✅",
+        "### DON'T ❌",
+        "**Last Updated**: May 19, 2026",
+        "**Test Count**: Run `npm run test:run` for current frontend count",
+        "**Stack**: Vitest 4.0.17",
+        "**Maintained By**: JobSentinel Team",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/developer/TESTING.md", "docs/developer/FRONTEND_TESTING.md"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace developer testing doc stale markers: docs/developer/TESTING.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace developer testing doc stale markers: docs/developer/FRONTEND_TESTING.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects unsupported Vitest grep docs", () => {
   withGitFixture((root) => {
     const unsupportedVitestFilterFlag = ["--", "grep"].join("");

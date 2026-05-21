@@ -633,7 +633,7 @@ npm run test:e2e
 
 ## Best Practices
 
-### DO ✅
+### Do
 
 - **Use semantic queries** - `getByRole()`, `getByLabelText()`, `getByText()`
 - **Test behavior** - What user does and sees, not implementation
@@ -646,7 +646,7 @@ npm run test:e2e
 - **Co-locate test files** - Test near the code it tests
 - **Mock at boundaries** - Tauri, localStorage, network
 
-### DON'T ❌
+### Do Not
 
 - Don't test implementation details - Test the interface
 - Don't create complex test setup - Keep tests simple and independent
@@ -781,12 +781,3 @@ test("should open external link in browser", async () => {
 - [Playwright Documentation](https://playwright.dev/)
 - [Testing Best Practices](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library)
 - [Web Accessibility Guidelines](https://www.w3.org/WAI/test-evaluate/)
-
----
-
-**Last Updated**: May 19, 2026
-**Test Count**: Run `npm run test:run` for current frontend count
-**Stack**: Vitest 4.0.17 + React Testing Library 16.3.1 + Playwright 1.57.0
-**Target**: React 19 + Tauri 2.x
-**Version**: v2.6.4
-**Maintained By**: JobSentinel Team

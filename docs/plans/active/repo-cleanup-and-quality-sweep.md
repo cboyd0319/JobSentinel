@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Cleaned stale emoji/status callouts and version footers from maintained backend and frontend testing docs, and added bloat coverage so testing docs stay text-only and count/version claims stay command-derived. |
 | 2026-05-21 | In progress | Removed remaining database integrity and backup restore emoji/status log markers after finding live drift beyond the earlier connection/diagnostics cleanup, and widened bloat coverage to include the missed integrity modules. |
 | 2026-05-21 | In progress | Made keyring migration retry-safe so partial keyring writes or config-clear failures do not set the migration flag, then synced credential security docs and bloat coverage with current key names and command-backed frontend flow. |
 | 2026-05-21 | In progress | Hardened Slack, Discord, and Teams webhook URL validators to reject embedded credentials and non-default HTTPS ports; synced URL validation security docs and bloat coverage with the shared validator helper. |

@@ -288,14 +288,14 @@ Use descriptive names that explain:
 - **What the expected outcome is**
 
 ```rust
-// Good ✅
+// Good: descriptive behavior and expected outcome
 #[test]
 fn test_negative_salary_floor_fails() { ... }
 
 #[test]
 fn test_upsert_job_increments_times_seen() { ... }
 
-// Bad ❌
+// Bad: unclear behavior and expected outcome
 #[test]
 fn test1() { ... }
 
@@ -385,12 +385,12 @@ Open `coverage/index.html` to view detailed coverage.
 
 | Category            | Target | Status         |
 | ------------------- | ------ | -------------- |
-| Core business logic | 90%+   | ✅ Achieved    |
-| Database layer      | 85%+   | ✅ Achieved    |
-| Configuration       | 100%   | ✅ Achieved    |
-| Tauri commands      | 80%+   | ✅ Achieved    |
-| Scrapers            | 70%+   | ⚠️ In Progress |
-| Platform-specific   | 60%+   | ✅ Achieved    |
+| Core business logic | 90%+   | Achieved       |
+| Database layer      | 85%+   | Achieved       |
+| Configuration       | 100%   | Achieved       |
+| Tauri commands      | 80%+   | Achieved       |
+| Scrapers            | 70%+   | In progress    |
+| Platform-specific   | 60%+   | Achieved       |
 
 ---
 
@@ -431,7 +431,7 @@ fi
 
 ## Best Practices
 
-### DO ✅
+### Do
 
 - Write tests FIRST when fixing bugs (TDD)
 - Test edge cases and boundary conditions
@@ -441,7 +441,7 @@ fi
 - Clean up resources automatically (use RAII)
 - Test both success and failure paths
 
-### DON'T ❌
+### Do Not
 
 - Don't write flaky tests (use deterministic data)
 - Don't test implementation details
@@ -560,9 +560,3 @@ See [tests/README.md](../../tests/README.md) for full documentation.
 - [tempfile Crate](https://docs.rs/tempfile/)
 - [SQLx Testing](https://github.com/launchbadge/sqlx#testing)
 - [Playwright documentation](https://playwright.dev/docs/intro)
-
----
-
-**Last Updated:** May 19, 2026
-**Test count:** Run the commands above for current counts.
-**Version:** v2.6.4

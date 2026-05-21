@@ -241,6 +241,10 @@ const notificationDocsPaths = new Set(["docs/features/notifications.md"]);
 const webhookSecurityDocsPaths = new Set(["docs/security/WEBHOOK_SECURITY.md"]);
 const commandExecutionSecurityDocsPaths = new Set(["docs/security/COMMAND_EXECUTION.md"]);
 const urlValidationSecurityDocsPaths = new Set(["docs/security/URL_VALIDATION.md"]);
+const developerTestingDocsPaths = new Set([
+  "docs/developer/TESTING.md",
+  "docs/developer/FRONTEND_TESTING.md",
+]);
 const keyringSecurityDocsPaths = new Set([
   "docs/security/KEYRING.md",
   "docs/features/credentials-security.md",
@@ -780,6 +784,20 @@ function hasStaleTestQualityDocGuidance(root, path) {
   return (
     /\btest\.skip\s*\(|\b(?:it|test|describe)\.only\s*\(/.test(text) ||
     /\bnpm\s+test\s+--\s+--grep\b/.test(text)
+  );
+}
+
+function hasDeveloperTestingDocMarkers(root, path) {
+  if (!developerTestingDocsPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /[✅❌⚠️]|\*\*(?:Last Updated|Version|Maintained By|Stack|Target|Test Count|Test count)\*\*:/.test(
+      text,
+    ) ||
+    /### DO|### DON'T|Good ✅|Bad ❌|\bAchieved\s+✅|⚠️\s+In Progress/.test(text)
   );
 }
 
@@ -1687,6 +1705,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleTestQualityDocGuidance(root, path)) {
       violations.push(`replace stale test-quality doc guidance: ${path}`);
+    }
+
+    if (hasDeveloperTestingDocMarkers(root, path)) {
+      violations.push(`replace developer testing doc stale markers: ${path}`);
     }
 
     if (hasStaleE2eWaitGuidance(root, path)) {
