@@ -108,6 +108,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-21 | In progress | Removed stale status/version/review blocks, local version-history tables, maintainer footers, and phase-promise metadata from remaining maintained feature docs; widened feature-doc metadata bloat coverage. |
 | 2026-05-21 | In progress | Removed stale version/status metadata footers from maintained ghost detection, notifications, one-click apply, resume builder, and user-data feature docs, with bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Cleaned stale version footers, emoji status markers, and release-history drift from active developer maintenance docs, synced CI workflow count with live workflows, and added bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Synced XSS/security overview docs with the live DOMPurify render path, removed stale status/version markers and CDN/custom-config drift, refreshed manual sanitizer examples, and added bloat coverage for recurrence. |

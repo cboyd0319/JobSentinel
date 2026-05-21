@@ -2,12 +2,6 @@
 
 ## Support for 13 job sources with parallel scraping
 
-> **Status:** ACTIVE (v2.1.0+)
-> **Supported Scrapers:** 13 sources
-> **Last Reviewed:** 2026-05-21
-> **Version:** 2.6.4
-> **Architecture:** Parallel scraping with intelligent rate limiting, health monitoring, and deduplication
-
 **Note:** JobSentinel includes 13 implemented job sources. API-backed sources such as
 Greenhouse, Lever, RemoteOK, USAJobs, Dice, and JobsWithGPT are the most reliable.
 HTML/RSS sources that sit behind anti-bot systems, especially SimplyHired and
@@ -846,8 +840,3 @@ SimplyHired has Cloudflare bot protection. The scraper:
 - **Generic Locations:** Location data may be vague
 
 ---
-
-**Last Reviewed:** 2026-05-21
-**Version:** 2.6.4
-**Maintained By:** JobSentinel Core Team
-**Implementation Status:** 13 scraper sources integrated

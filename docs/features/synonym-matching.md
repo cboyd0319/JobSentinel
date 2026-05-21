@@ -1,7 +1,5 @@
 # Synonym Matching for Smart Scoring
 
-> **Status:** Implemented
-> **Last Reviewed:** 2026-05-21
 > **Module:** `src-tauri/src/core/scoring/synonyms.rs`
 
 ## Overview
@@ -266,7 +264,3 @@ No configuration changes are needed. Synonym matching is additive:
 
 - [Smart Scoring](./smart-scoring.md) - Overview of the scoring system
 - [Changelog](../../CHANGELOG.md) - Version history
-
----
-
-**Version:** 2.6.4 | **Last Reviewed:** 2026-05-21

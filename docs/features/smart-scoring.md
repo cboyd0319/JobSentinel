@@ -2,12 +2,6 @@
 
 **Find the best job matches automatically with intelligent multi-factor scoring.**
 
-> **Status:** ENABLED - Module fully functional
-> **Version:** 2.6.4
-> **Last Updated:** 2026-03-18
-
----
-
 ## Overview
 
 JobSentinel's Smart Scoring System analyzes every job across five key factors to give you a
@@ -777,24 +771,3 @@ Without these, the system falls back to keyword-only matching.
 - Update your preferences based on what went wrong
 - Add skills you discovered to boosters/excluders
 - Add company to blacklist if it was problematic
-
----
-
-## Version History
-
-| Version   | Date       | Changes                                                     |
-| --------- | ---------- | ----------------------------------------------------------- |
-| **2.6.4** | 2026-03-18 | Settings fix, NaN score handling, bulk operation resilience |
-| **2.6.3** | 2026-01-25 | Security fixes, standardized error types                    |
-| **2.2**   | 2026-01-17 | Resume integration, score breakdown modal, weight presets   |
-| **2.1**   | 2025-12-01 | Salary AI prediction, graduated scoring for all factors     |
-| **2.0**   | 2025-11-15 | Multi-factor algorithm launch, customizable weights         |
-| **1.6**   | 2025-10-01 | Initial keyword-based scoring                               |
-
----
-
-**Last Updated:** 2026-03-18
-**Version:** 2.6.4
-**Maintained By:** JobSentinel Core Team
-**Implementation Status:** Complete (all features implemented)
-**Next Phase:** ML-based skills matching (v2.7)

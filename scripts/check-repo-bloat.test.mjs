@@ -1487,7 +1487,7 @@ test("checkRepoBloat rejects feature status color emoji markers", () => {
   });
 });
 
-test("checkRepoBloat rejects feature doc stale metadata footers", () => {
+test("checkRepoBloat rejects feature doc stale metadata blocks", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
@@ -1519,6 +1519,16 @@ test("checkRepoBloat rejects feature doc stale metadata footers", () => {
         "",
       ].join("\n"),
     );
+    writeFixtureFile(
+      root,
+      "docs/features/resume-matcher.md",
+      "> **Status:** ENABLED - Module fully functional\n> **Version:** 2.6.4\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/smart-scoring.md",
+      "## Version History\n\n**Next Phase:** ML-based skills matching (v2.7)\n",
+    );
 
     execFileSync(
       "git",
@@ -1530,6 +1540,8 @@ test("checkRepoBloat rejects feature doc stale metadata footers", () => {
         "docs/features/one-click-apply.md",
         "docs/features/resume-builder.md",
         "docs/features/user-data-management.md",
+        "docs/features/resume-matcher.md",
+        "docs/features/smart-scoring.md",
       ],
       { cwd: root },
     );
@@ -1556,6 +1568,14 @@ test("checkRepoBloat rejects feature doc stale metadata footers", () => {
       violations.includes(
         "replace feature doc stale metadata: docs/features/user-data-management.md",
       ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace feature doc stale metadata: docs/features/resume-matcher.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace feature doc stale metadata: docs/features/smart-scoring.md"),
       violations.join("\n"),
     );
   });

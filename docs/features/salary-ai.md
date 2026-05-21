@@ -36,13 +36,6 @@ which are verified and updated quarterly.
 
 ## Data-Driven Compensation Intelligence & Negotiation Assistance
 
-> **Status:** ENABLED - Module fully functional
-> **Completion:** 100%
-> **Last Updated:** 2026-03-18
-> **Version:** 2.6.4
-
----
-
 ## Overview
 
 JobSentinel's Salary Negotiation AI provides data-driven salary benchmarking, offer comparison,
@@ -611,14 +604,6 @@ impl SalaryPredictor {
 - [ ] Levels.fyi integration
 - [ ] GPT-powered script generation
 - [ ] Equity valuation calculator
-
----
-
-**Last Updated:** 2026-03-18
-**Version:** 2.6.4
-**Maintained By:** JobSentinel Core Team
-**Implementation Status:** Core benchmarking, prediction, negotiation, and UI available
-**Next Feature:** ML-based salary prediction
 
 **Pro Tip:** Always negotiate! Research shows 70% of employers expect it, and the average
 salary increase from negotiation is 10-15%.

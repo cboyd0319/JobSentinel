@@ -34,14 +34,6 @@ set reminders to follow up, and see your entire pipeline at a glance.
 
 ## Kanban Board & Pipeline Management for JobSentinel
 
-> **Status:** WORKING - Module enabled in v1.4.0
-> **Completion:** 100% core functionality
-> **Last Updated:** 2026-05-20
-> **Version:** 2.6.4
-> **Tests:** Backend ATS tests plus Playwright coverage in `application-tracking.spec.ts`
-
----
-
 ## Overview
 
 JobSentinel's Application Tracking System provides comprehensive pipeline management for your job search with:
@@ -537,12 +529,5 @@ pub struct ApplicationsByStatus {
 - [ ] Document vault
 - [ ] Bulk actions
 - [ ] Tags and labels
-
----
-
-**Last Updated:** 2026-05-20
-**Maintained By:** JobSentinel Core Team
-**Implementation Status:** Working with backend commands, Kanban UI, interviews, notes, reminders, and analytics.
-**Next Feature:** Offer comparison and document vault.
 
 </details>

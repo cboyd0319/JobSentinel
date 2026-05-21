@@ -1,7 +1,5 @@
 # Remote Work Preference Scoring
 
-**Status:** Implemented (v1.7)
-**Last Reviewed:** 2026-05-21
 **Module:** `src-tauri/src/core/scoring/remote.rs`
 
 ## Overview
@@ -175,7 +173,3 @@ Potential improvements:
 2. **Custom score multipliers** - Let users customize the penalty for non-preferred arrangements
 3. **Location-aware scoring** - Combine remote preference with city/state preferences for hybrid/onsite jobs
 4. **Resume-based detection** - Use resume's remote work experience to suggest preference
-
----
-
-**Version:** 2.6.4 | **Last Reviewed:** 2026-05-21
