@@ -204,7 +204,9 @@ const rawLocalPathLoggingPaths = new Set([
 
 const databaseLogEmojiPaths = new Set([
   "src-tauri/src/core/db/connection.rs",
+  "src-tauri/src/core/db/integrity/backups.rs",
   "src-tauri/src/core/db/integrity/diagnostics.rs",
+  "src-tauri/src/core/db/integrity/mod.rs",
 ]);
 
 const rawUrlLoggingPaths = new Set([

@@ -1713,6 +1713,21 @@ test("checkRepoBloat rejects database log emoji markers", () => {
       "src-tauri/src/core/db/integrity/diagnostics.rs",
       'tracing::warn!("⚠️ WAL checkpoint partially complete (database was busy)");\n',
     );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/integrity/mod.rs",
+      [
+        'tracing::info!("🔍 Running database integrity check...");',
+        'tracing::error!("❌ Quick check failed: {}", quick_result.message);',
+        'tracing::info!("✅ Database integrity check passed ({:?})", start_time.elapsed());',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/integrity/backups.rs",
+      'tracing::info!("✅ Database restored successfully");\n',
+    );
 
     execFileSync(
       "git",
@@ -1720,7 +1735,9 @@ test("checkRepoBloat rejects database log emoji markers", () => {
         "add",
         "package.json",
         "src-tauri/src/core/db/connection.rs",
+        "src-tauri/src/core/db/integrity/backups.rs",
         "src-tauri/src/core/db/integrity/diagnostics.rs",
+        "src-tauri/src/core/db/integrity/mod.rs",
       ],
       { cwd: root },
     );
@@ -1734,6 +1751,18 @@ test("checkRepoBloat rejects database log emoji markers", () => {
     assert.ok(
       violations.includes(
         "replace database log emoji markers: src-tauri/src/core/db/integrity/diagnostics.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace database log emoji markers: src-tauri/src/core/db/integrity/mod.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "replace database log emoji markers: src-tauri/src/core/db/integrity/backups.rs",
       ),
       violations.join("\n"),
     );

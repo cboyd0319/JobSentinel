@@ -117,7 +117,7 @@ impl DatabaseIntegrity {
         // Copy backup to main database location
         std::fs::copy(backup_path, current_db_path)?;
 
-        tracing::info!("✅ Database restored successfully");
+        tracing::info!("Database restored successfully");
 
         Ok(())
     }

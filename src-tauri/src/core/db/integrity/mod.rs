@@ -32,13 +32,13 @@ impl DatabaseIntegrity {
 
     /// Run full integrity check on startup
     pub async fn startup_check(&self) -> Result<IntegrityStatus> {
-        tracing::info!("🔍 Running database integrity check...");
+        tracing::info!("Running database integrity check");
         let start_time = std::time::Instant::now();
 
         // 1. Quick check first (fast)
         let quick_result = self.quick_check().await?;
         if !quick_result.is_ok {
-            tracing::error!("❌ Quick check failed: {}", quick_result.message);
+            tracing::error!("Quick integrity check failed: {}", quick_result.message);
             self.log_check(
                 "quick",
                 "failed",
@@ -53,7 +53,7 @@ impl DatabaseIntegrity {
         let fk_violations = self.foreign_key_check().await?;
         if !fk_violations.is_empty() {
             tracing::warn!(
-                "⚠️  Foreign key violations detected: {} issues",
+                "Foreign key violations detected: {} issues",
                 fk_violations.len()
             );
             self.log_check(
@@ -71,7 +71,7 @@ impl DatabaseIntegrity {
             tracing::info!("Running full integrity check (weekly schedule)...");
             let full_result = self.full_integrity_check().await?;
             if !full_result.is_ok {
-                tracing::error!("❌ Full integrity check failed: {}", full_result.message);
+                tracing::error!("Full integrity check failed: {}", full_result.message);
                 self.log_check(
                     "full",
                     "failed",
@@ -89,7 +89,7 @@ impl DatabaseIntegrity {
         self.log_check("quick", "passed", None, start_time.elapsed())
             .await?;
         tracing::info!(
-            "✅ Database integrity check passed ({:?})",
+            "Database integrity check passed ({:?})",
             start_time.elapsed()
         );
         Ok(IntegrityStatus::Healthy)
