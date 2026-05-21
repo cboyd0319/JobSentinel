@@ -1,224 +1,149 @@
-# Keyring Integration - Secure Credential Storage
+# Keyring Integration
 
-> JobSentinel v2.0 Security Feature
-
----
-
-## Overview
-
-JobSentinel v2.0.0 introduces **OS-native keyring integration** for secure credential storage.
-All sensitive credentials (API keys, passwords, webhook URLs, session cookies) are now stored
-in the operating system's secure credential manager instead of plain text configuration files.
-
-This is a **major security improvement** that protects your credentials with:
-
-- **OS-level encryption** - Credentials encrypted at rest
-- **Access control** - Only JobSentinel can access its stored credentials
-- **No plaintext storage** - Secrets never written to disk unencrypted
-
----
+JobSentinel stores sensitive credentials in the operating system credential
+store, not in plaintext app config. This applies to notification secrets, API
+keys, and authenticated scraper cookies.
 
 ## Supported Credential Stores
 
-| Platform    | Credential Manager                      | Implementation                                     |
-| ----------- | --------------------------------------- | -------------------------------------------------- |
-| **Windows** | Windows Credential Manager              | `keyring` crate with `windows-native` feature      |
-| **macOS**   | macOS Keychain                          | `keyring` crate with `apple-native` feature        |
-| **Linux**   | Secret Service (GNOME Keyring, KWallet) | `keyring` crate with `sync-secret-service` feature |
+| Platform | Credential manager | Implementation |
+| -------- | ------------------ | -------------- |
+| Windows | Windows Credential Manager | `keyring` crate with `windows-native` |
+| macOS | macOS Keychain | `keyring` crate with `apple-native` |
+| Linux | Secret Service API | `keyring` crate with `sync-secret-service` |
 
----
+## Stored Credentials
 
-## Credentials Stored in Keyring
+The service name for all entries is `JobSentinel`. Each key is namespaced with
+the `jobsentinel_` prefix.
 
-The following credentials are stored securely in the OS keyring:
+| Storage key | `CredentialKey` variant | Used by |
+| ----------- | ----------------------- | ------- |
+| `jobsentinel_smtp_password` | `SmtpPassword` | Email notifications |
+| `jobsentinel_telegram_bot_token` | `TelegramBotToken` | Telegram notifications |
+| `jobsentinel_slack_webhook` | `SlackWebhook` | Slack notifications |
+| `jobsentinel_discord_webhook` | `DiscordWebhook` | Discord notifications |
+| `jobsentinel_teams_webhook` | `TeamsWebhook` | Microsoft Teams notifications |
+| `jobsentinel_linkedin_cookie` | `LinkedInCookie` | LinkedIn authenticated scraping |
+| `jobsentinel_linkedin_cookie_expiry` | `LinkedInCookieExpiry` | LinkedIn cookie renewal checks |
+| `jobsentinel_usajobs_api_key` | `UsaJobsApiKey` | USAJobs API access |
 
-| Credential Key            | Description                     | Used By                                        |
-| ------------------------- | ------------------------------- | ---------------------------------------------- |
-| `smtp_password`           | Email SMTP password             | Email notifications                            |
-| `telegram_bot_token`      | Telegram Bot API token          | Telegram notifications                         |
-| `slack_webhook_url`       | Slack incoming webhook URL      | Slack notifications                            |
-| `discord_webhook_url`     | Discord webhook URL             | Discord notifications                          |
-| `teams_webhook_url`       | Microsoft Teams webhook URL     | Teams notifications                            |
-| `linkedin_session_cookie` | LinkedIn `li_at` session cookie | LinkedIn job scraper (auto-extracted on macOS) |
-
----
+The Tauri credential commands accept either the prefixed storage key or the
+unprefixed snake-case key, such as `slack_webhook`.
 
 ## Architecture
 
-### Dual-Access Pattern
-
-JobSentinel uses a dual-access pattern for credentials:
-
 ```text
-┌──────────────────────────────────────────────────────────────┐
-│                         Frontend (React)                     │
-│                                                              │
-│   Settings.tsx uses Tauri commands:                         │
-│   - invoke("store_credential", { key, value })              │
-│   - invoke("retrieve_credential", { key })                  │
-│   - invoke("delete_credential", { key })                    │
-│   - invoke("has_credential", { key })                       │
-│   - invoke("get_credential_status")                         │
-│                                                              │
-└──────────────────────────┬───────────────────────────────────┘
-                           │
-                 Tauri IPC (Commands)
-                           │
-┌──────────────────────────┴───────────────────────────────────┐
-│                  Backend (Rust/Tauri)                       │
-│                                                              │
-│   ┌───────────────────────────────────────────────────────┐ │
-│   │   Tauri Secure Storage Plugin (Frontend)              │ │
-│   │         tauri-plugin-secure-storage                   │ │
-│   └───────────────────────────────────────────────────────┘ │
-│                                                              │
-│   ┌───────────────────────────────────────────────────────┐ │
-│   │         Keyring Crate (Backend Direct)                │ │
-│   │   Used by: notify/mod.rs,                            │ │
-│   │            scheduler/workers/scrapers.rs             │ │
-│   └───────────────────────────────────────────────────────┘ │
-│                           │                                  │
-│                           v                                  │
-│   ┌───────────────────────────────────────────────────────┐ │
-│   │          OS Credential Manager                        │ │
-│   │  macOS: Keychain | Windows: Cred Mgr | Linux: SS      │ │
-│   └───────────────────────────────────────────────────────┘ │
-└──────────────────────────────────────────────────────────────┘
+React settings and setup UI
+  invoke("store_credential", { key, value })
+  invoke("retrieve_credential", { key })
+  invoke("delete_credential", { key })
+  invoke("has_credential", { key })
+  invoke("get_credential_status")
+    |
+    v
+src-tauri/src/commands/credentials.rs
+    |
+    v
+src-tauri/src/core/credentials/mod.rs
+    |
+    v
+OS credential store
 ```
 
-### Why Two Access Methods?
+Backend notification and scraper code uses `CredentialStore` directly when it
+needs credentials outside the frontend command path. Both paths use the same
+service name and storage keys.
 
-1. **Frontend (`tauri-plugin-secure-storage`)**: Used by Settings.tsx to save/retrieve
-   credentials with a JavaScript API.
-
-2. **Backend (`keyring` crate)**: Used by Rust code that needs direct access (notification
-   senders, LinkedIn scraper) without going through Tauri commands.
-
-Both use the same underlying OS credential store, so credentials stored via either method are
-accessible by both.
-
----
+`tauri-plugin-secure-storage` remains registered with the app, but the current
+React credential flow uses Tauri commands backed by `CredentialStore`.
 
 ## Code Modules
 
 ### `src-tauri/src/core/credentials/mod.rs`
 
-Core credentials module with:
-
 ```rust
-/// Credential keys for secure storage
 pub enum CredentialKey {
     SmtpPassword,
     TelegramBotToken,
-    SlackWebhookUrl,
-    DiscordWebhookUrl,
-    TeamsWebhookUrl,
-    LinkedInSessionCookie,
+    SlackWebhook,
+    DiscordWebhook,
+    TeamsWebhook,
+    LinkedInCookie,
+    LinkedInCookieExpiry,
+    UsaJobsApiKey,
 }
 
-/// Credential store for OS keyring access
-pub struct CredentialStore {
-    service_name: String,
-}
+pub struct CredentialStore;
 
 impl CredentialStore {
-    pub fn new() -> Self { }
-    pub fn store(&self, key: CredentialKey,
-                 value: &str) -> Result<()> { }
-    pub fn retrieve(&self, key: CredentialKey)
-                    -> Result<Option<String>> { }
-    pub fn delete(&self, key: CredentialKey) -> Result<()> { }
-    pub fn has(&self, key: CredentialKey) -> bool { }
+    pub fn store(key: CredentialKey, value: &str) -> Result<(), String>;
+    pub fn retrieve(key: CredentialKey) -> Result<Option<String>, String>;
+    pub fn delete(key: CredentialKey) -> Result<(), String>;
+    pub fn exists(key: CredentialKey) -> Result<bool, String>;
+    pub fn list_status() -> Result<HashMap<String, bool>, String>;
 }
 ```
 
 ### `src-tauri/src/commands/credentials.rs`
 
-Tauri commands for frontend access:
-
 ```rust
 #[tauri::command]
-pub async fn store_credential(key: String, value: String) -> Result<(), String>
+pub async fn store_credential(key: String, value: String) -> Result<(), String>;
 
 #[tauri::command]
-pub async fn retrieve_credential(key: String) -> Result<Option<String>, String>
+pub async fn retrieve_credential(key: String) -> Result<Option<String>, String>;
 
 #[tauri::command]
-pub async fn delete_credential(key: String) -> Result<(), String>
+pub async fn delete_credential(key: String) -> Result<(), String>;
 
 #[tauri::command]
-pub async fn has_credential(key: String) -> Result<bool, String>
+pub async fn has_credential(key: String) -> Result<bool, String>;
 
 #[tauri::command]
-pub async fn get_credential_status() -> Result<HashMap<String, bool>, String>
+pub async fn get_credential_status() -> Result<HashMap<String, bool>, String>;
 ```
 
----
+## Migration From Plaintext Config
 
-## Migration from Plaintext Config
+Startup migration runs when the config file exists and the keyring migration
+flag has not been set.
 
-### Automatic Migration
+1. Extract plaintext credentials from `config.json`.
+2. Store each extracted credential in the OS keyring.
+3. Clear plaintext credential fields from config only after every credential was
+   stored successfully.
+4. Set the migration flag only after either no plaintext credentials were found
+   or the successful store-and-clear path completed.
+5. Leave the migration flag unset after partial keyring failures or config clear
+   failures so the next startup retries.
 
-When JobSentinel v2.0.0+ starts for the first time, it automatically migrates any plaintext
-credentials from your config file to the secure keyring:
+This avoids the unsafe state where plaintext secrets remain in config while the
+app thinks migration is complete.
 
-1. Checks if migration has already been performed
-2. Reads credentials from `config.json`
-3. Stores each credential in the OS keyring
-4. Marks migration as complete
-5. **Does NOT delete plaintext values** (for rollback safety)
+## Settings Status
 
-After successful migration, you should manually remove the plaintext credentials from your config file.
+Settings displays credential presence with status text:
 
-### Manual Migration
-
-If automatic migration fails or you prefer manual control:
-
-1. **Open Settings** in JobSentinel
-2. **Re-enter each credential** in the appropriate field
-3. **Save** - credentials are stored in keyring
-4. **Edit config.json** - remove the plaintext values
-
-### Migration Status Check
-
-You can verify migration status via the Settings page - each credential field shows a status indicator:
-
-- ✅ **Stored** - Credential exists in keyring
-- ⚠️ **Not set** - Credential not configured
-
----
+- `Stored`: credential exists in the keyring.
+- `Not set`: credential is not configured.
 
 ## Security Considerations
 
-### Encryption at Rest
+- Credentials are encrypted at rest by the OS credential manager.
+- JobSentinel stores credentials under service name `JobSentinel`.
+- Plaintext config fields are ignored after migration and should stay empty.
+- Local app logs must not include credential values, webhook tokens, cookies, or
+  API keys.
 
-- **macOS**: Keychain encrypts credentials with user password
-- **Windows**: DPAPI encrypts with user credentials
-- **Linux**: Secret Service uses session keyring or user password
+Non-sensitive config remains in `config.json`, including job titles, keywords,
+locations, scraping intervals, alert thresholds, company URLs, and search query
+settings.
 
-### Access Control
+## Config File Fields
 
-Credentials stored by JobSentinel:
-
-- Are scoped to the `com.jobsentinel.app` service name
-- Can only be accessed by the JobSentinel application
-- Require user authentication on locked devices
-
-### What's NOT in the Keyring
-
-The following data is still stored in `config.json` (non-sensitive):
-
-- Job title allowlists/blocklists
-- Keywords (boost/exclude)
-- Location preferences
-- Scraping interval
-- Alert thresholds
-- Company URLs (Greenhouse, Lever)
-- LinkedIn search queries (not cookies)
-
-### Config File Changes
-
-In v2.0.0+, credential fields in `config.json` are ignored:
+Credential fields in `config.json` are compatibility inputs for migration and
+should remain empty during normal use:
 
 ```json
 {
@@ -228,114 +153,78 @@ In v2.0.0+, credential fields in `config.json` are ignored:
       "smtp_server": "smtp.gmail.com",
       "smtp_port": 587,
       "smtp_username": "user@example.com",
-      "smtp_password": "" // ← Ignored, use keyring
+      "smtp_password": ""
     },
     "slack": {
       "enabled": true,
-      "webhook_url": "" // ← Ignored, use keyring
+      "webhook_url": ""
     }
   }
 }
 ```
 
----
-
 ## Troubleshooting
 
 ### Credentials Not Working
 
-1. **Check keyring status** in Settings page
-2. **Re-enter credentials** if status shows "Not set"
-3. **Verify OS keyring** is unlocked (especially on Linux)
+1. Check credential status in Settings.
+2. Re-enter credentials that show `Not set`.
+3. Verify the OS credential store is unlocked.
+4. On Linux, confirm a Secret Service provider is running.
 
-### Linux Secret Service Issues
-
-On Linux, ensure D-Bus and a secret service are running:
+### Linux Secret Service
 
 ```bash
-# GNOME Keyring
 gnome-keyring-daemon --start --components=secrets
-
-# KWallet
 kwalletd5
 ```
 
 ### macOS Keychain Permissions
 
-If prompted to allow keychain access:
-
-1. Click "Allow" to grant JobSentinel access
-2. If denied, go to Keychain Access → JobSentinel → Always Allow
+If macOS prompts for keychain access, allow JobSentinel access. If access was
+denied, open Keychain Access, search for `JobSentinel`, and adjust access
+control for the relevant item.
 
 ### Windows Credential Manager
 
-View stored credentials:
+Open Windows Credential Manager, select Windows Credentials, and search for
+entries owned by `JobSentinel`.
 
-1. Open Control Panel → Credential Manager
-2. Look for "Windows Credentials"
-3. Find entries with `com.jobsentinel.app` prefix
+## Adding New Credentials
 
----
+1. Add a `CredentialKey` variant in `src-tauri/src/core/credentials/mod.rs`.
+2. Add its `jobsentinel_*` storage key in `CredentialKey::as_str`.
+3. Add parsing aliases in `FromStr`.
+4. Update migration extraction and config clearing when the credential can
+   appear in config.
+5. Add or update UI fields and tests.
+6. Update this document and `docs/features/credentials-security.md`.
 
-## Developer Notes
-
-### Adding New Credentials
-
-To add a new credential type:
-
-1. **Add to `CredentialKey` enum** in `src/core/credentials/mod.rs`:
-
-   ```rust
-   pub enum CredentialKey {
-       // ... existing keys
-       NewCredential,
-   }
-   ```
-
-2. **Implement `as_str()` and `TryFrom`** for the new key
-
-3. **Update migration** in `src/core/credentials/migration.rs`
-
-4. **Add UI field** in `src/pages/Settings.tsx`
-
-### Testing
-
-Credential tests are in `src-tauri/src/core/credentials/tests.rs`:
+## Testing
 
 ```bash
-cargo test core::credentials
+cd src-tauri
+cargo test credentials --lib
 ```
 
-Note: Tests use a mock keyring to avoid polluting the real OS keyring.
-
----
+Credential tests use test-owned key names and should avoid writing real user
+secrets.
 
 ## Dependencies
 
 ```toml
-[dependencies]
-# Tauri plugin for frontend JS API
 tauri-plugin-secure-storage = "1.4"
 
-# Direct Rust keyring access for backend
 keyring = { version = "3", features = [
-    "apple-native",      # macOS Keychain
-    "windows-native",    # Windows Credential Manager
-    "sync-secret-service" # Linux Secret Service
-]}
+    "apple-native",
+    "windows-native",
+    "sync-secret-service"
+] }
 ```
-
----
 
 ## Related Documentation
 
-- [Notifications Setup](../features/notifications.md) - Configure notification channels
-- [Architecture](../developer/ARCHITECTURE.md) - System architecture overview
-- [Quick Start](../user/QUICK_START.md) - Getting started guide
-- [Security Documentation](./README.md) - Current security guidance
-
----
-
-**Last Updated**: 2026-05-19
-**Version**: 2.6.4
-**Security Level**: Production Ready
+- [Credentials Security](../features/credentials-security.md)
+- [Notifications Setup](../features/notifications.md)
+- [Architecture](../developer/ARCHITECTURE.md)
+- [Security Documentation](./README.md)

@@ -239,6 +239,12 @@ const notificationDocsPaths = new Set(["docs/features/notifications.md"]);
 const webhookSecurityDocsPaths = new Set(["docs/security/WEBHOOK_SECURITY.md"]);
 const commandExecutionSecurityDocsPaths = new Set(["docs/security/COMMAND_EXECUTION.md"]);
 const urlValidationSecurityDocsPaths = new Set(["docs/security/URL_VALIDATION.md"]);
+const keyringSecurityDocsPaths = new Set([
+  "docs/security/KEYRING.md",
+  "docs/features/credentials-security.md",
+]);
+const keyringMigrationPaths = new Set(["src-tauri/src/main.rs"]);
+const credentialArchitecturePaths = new Set(["src-tauri/src/core/credentials/mod.rs"]);
 const userDataDocsPaths = new Set(["docs/features/user-data-management.md"]);
 const structuredDebugLogPaths = new Set(["src-tauri/src/commands/feedback/debug_log.rs"]);
 const feedbackCommandPaths = new Set(["src-tauri/src/commands/feedback/mod.rs"]);
@@ -1212,6 +1218,46 @@ function hasStaleUrlValidationSecurityDocMarkers(root, path) {
   );
 }
 
+function hasStaleKeyringSecurityDocs(root, path) {
+  if (!keyringSecurityDocsPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /JobSentinel:slack-webhook|SlackWebhookUrl|DiscordWebhookUrl|TeamsWebhookUrl/.test(text) ||
+    /EmailSmtpPassword|LinkedinCookies|TelegramToken/.test(text) ||
+    /tauri-plugin-secure-storage` JS API|Does NOT delete plaintext values/.test(text) ||
+    /v2\.0\.0 introduces|[✅❌⚠️✓→←]|\*\*(?:Last Updated|Version|Security Level)\*\*:/.test(text) ||
+    !text.includes("jobsentinel_usajobs_api_key") ||
+    !text.includes("LinkedInCookieExpiry") ||
+    !text.includes("store_credential")
+  );
+}
+
+function hasUnsafeKeyringMigration(root, path) {
+  if (!keyringMigrationPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /even if partial/.test(text) ||
+    /✓ Migrated/.test(text) ||
+    !text.includes("mark_migration_complete") ||
+    !text.includes("Keyring migration incomplete; will retry on next startup")
+  );
+}
+
+function hasStaleCredentialArchitectureComments(root, path) {
+  if (!credentialArchitecturePaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /tauri-plugin-secure-storage` JS API|set_item|get_item|remove_item|[✅❌⚠️✓→←]/.test(text);
+}
+
 function hasStaleNotificationPreferenceDocs(root, path) {
   if (!userDataDocsPaths.has(path)) {
     return false;
@@ -1787,6 +1833,18 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleUrlValidationSecurityDocMarkers(root, path)) {
       violations.push(`sync URL validation security doc markers: ${path}`);
+    }
+
+    if (hasStaleKeyringSecurityDocs(root, path)) {
+      violations.push(`sync keyring credential docs: ${path}`);
+    }
+
+    if (hasUnsafeKeyringMigration(root, path)) {
+      violations.push(`keep keyring migration retry-safe: ${path}`);
+    }
+
+    if (hasStaleCredentialArchitectureComments(root, path)) {
+      violations.push(`sync credential architecture comments: ${path}`);
     }
 
     if (hasStaleNotificationPreferenceDocs(root, path)) {

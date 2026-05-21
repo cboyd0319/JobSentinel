@@ -53,8 +53,11 @@ fn main() {
 
         match migration::extract_plaintext_credentials(&config_path) {
             Ok(credentials) => {
+                let mut mark_migration_complete = false;
+
                 if credentials.is_empty() {
                     tracing::info!("No plaintext credentials found, marking as migrated");
+                    mark_migration_complete = true;
                 } else {
                     tracing::info!(
                         "Found {} plaintext credentials to migrate",
@@ -71,24 +74,29 @@ fn main() {
                             );
                             migration_success = false;
                         } else {
-                            tracing::info!("✓ Migrated {:?} to secure storage", key);
+                            tracing::info!("Migrated {:?} to secure storage", key);
                         }
                     }
 
-                    // Only clear config and mark migrated if all credentials were stored
                     if migration_success {
                         if let Err(e) = migration::clear_config_credentials(&config_path) {
                             tracing::error!(
                                 "Failed to clear plaintext credentials from config: {}",
                                 e
                             );
+                            tracing::warn!("Keyring migration will retry on next startup");
+                        } else {
+                            mark_migration_complete = true;
                         }
+                    } else {
+                        tracing::warn!("Keyring migration incomplete; will retry on next startup");
                     }
                 }
 
-                // Mark migration as complete (even if partial, to avoid repeated attempts)
-                if let Err(e) = migration::set_migrated() {
-                    tracing::warn!("Failed to set migration flag: {}", e);
+                if mark_migration_complete {
+                    if let Err(e) = migration::set_migrated() {
+                        tracing::warn!("Failed to set migration flag: {}", e);
+                    }
                 }
             }
             Err(e) => {

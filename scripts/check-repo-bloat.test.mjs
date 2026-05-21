@@ -2366,6 +2366,97 @@ test("checkRepoBloat rejects stale URL validation security doc markers", () => {
   });
 });
 
+test("checkRepoBloat rejects stale keyring credential docs", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/security/KEYRING.md",
+      [
+        "JobSentinel v2.0.0 introduces OS-native keyring integration.",
+        "Frontend uses `tauri-plugin-secure-storage` JS API.",
+        "pub enum CredentialKey { SlackWebhookUrl, DiscordWebhookUrl, TeamsWebhookUrl }",
+        "Does NOT delete plaintext values",
+        "- ✅ Stored",
+        "**Last Updated**: 2026-05-19",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/credentials-security.md",
+      [
+        "JobSentinel:slack-webhook",
+        "pub enum CredentialKey { EmailSmtpPassword, LinkedinCookies, TelegramToken }",
+        "Self::TelegramToken => \"JobSentinel:telegram-token\"",
+        "Setup complete ✓",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/security/KEYRING.md", "docs/features/credentials-security.md"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sync keyring credential docs: docs/security/KEYRING.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("sync keyring credential docs: docs/features/credentials-security.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects unsafe keyring migration and stale credential comments", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/main.rs",
+      [
+        'tracing::info!("✓ Migrated {:?} to secure storage", key);',
+        "// Mark migration as complete (even if partial, to avoid repeated attempts)",
+        "migration::set_migrated();",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/credentials/mod.rs",
+      [
+        "//! - Frontend uses `tauri-plugin-secure-storage` JS API",
+        "//!   set_item, get_item, remove_item",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "src-tauri/src/main.rs", "src-tauri/src/core/credentials/mod.rs"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("keep keyring migration retry-safe: src-tauri/src/main.rs"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "sync credential architecture comments: src-tauri/src/core/credentials/mod.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale notification preference docs", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

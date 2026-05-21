@@ -7,10 +7,11 @@
 //!
 //! ## Architecture
 //!
-//! - **Frontend**: Uses `tauri-plugin-secure-storage` JS API (set_item, get_item, remove_item)
+//! - **Frontend**: Uses Tauri credential commands (`store_credential`, `retrieve_credential`,
+//!   `has_credential`, etc.)
 //! - **Backend**: Uses `keyring` crate directly for Rust access (scheduler, notify)
 //!
-//! Both use the same underlying keyring with consistent key naming.
+//! Both paths use the same underlying keyring with consistent key naming.
 
 use keyring::Entry;
 use serde::{Deserialize, Serialize};
@@ -127,7 +128,7 @@ const SERVICE_NAME: &str = "JobSentinel";
 ///
 /// # Architecture
 ///
-/// - Frontend uses `tauri-plugin-secure-storage` (JS API)
+/// - Frontend uses Tauri credential commands backed by this store
 /// - Backend uses this `CredentialStore` (Rust API)
 /// - Both access the same underlying keyring entries
 ///
@@ -272,7 +273,7 @@ impl CredentialStore {
 
 /// Migration utilities for moving credentials from plaintext config to secure keyring.
 ///
-/// **⚠️ SECURITY MIGRATION ⚠️**
+/// Security-sensitive migration.
 ///
 /// Early versions of JobSentinel stored credentials in plaintext `config.json`.
 /// This module migrates those credentials to OS keyring and clears them from config.
@@ -283,7 +284,7 @@ impl CredentialStore {
 /// 2. Extract credentials from `config.json`
 /// 3. Store each credential in OS keyring
 /// 4. Clear plaintext credentials from config
-/// 5. Write migration flag to prevent re-running
+/// 5. Write migration flag only after successful cleanup
 ///
 /// # One-Time Execution
 ///
