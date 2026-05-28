@@ -123,6 +123,8 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-28 | In progress | Triaged GitHub Dependabot Rust alerts after push; updated `Cargo.lock` for Tauri 2.11.1, OpenSSL 0.10.80, rand 0.8.6, and rand 0.9.3, regenerated Tauri permission schemas, and verified Rust fmt, clippy, and lib tests. Remaining low `rand` 0.7 alert is tracked as SEC-001 because it comes through the Tauri build-time transitive chain. |
+| 2026-05-28 | In progress | Reduced Playwright wall time by adding fast smoke scripts and local parallel workers, excluding docs screenshot capture by default, stabilizing parallel-safe page objects, and verifying `npm run test:e2e:all` at 252 passed in 5.5m plus Chromium-only full E2E at 126 passed in 2.8m. |
 | 2026-05-28 | In progress | Audited the root README against live package metadata, registered Tauri command count, release assets, platform packaging, and current product direction; updated release/download claims and backend command counts. |
 | 2026-05-28 | In progress | Reproduced and fixed a WebKit slash-shortcut E2E flake by accepting `KeyboardEvent.code === "Slash"` and adding a WebKit fallback in the E2E helper; focused stress passed 20/20. |
 | 2026-05-28 | In progress | Strengthened the repo harness after reviewing current public harness-engineering references plus Persona and Bluepeak-AI sibling patterns: added session-start, audience/ease, support-path, rollback, handoff, and experience-sensor requirements, with `npm run harness:check` snippet coverage. |

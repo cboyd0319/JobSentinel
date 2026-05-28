@@ -7,6 +7,7 @@ security, or developer workflow.
 
 | ID | Area | Evidence | Risk | Next step | Status |
 | -- | ---- | -------- | ---- | --------- | ------ |
+| SEC-001 | Rust transitive dependency alert | GitHub Dependabot alert #67 remains open for `rand` 0.7.3 after updating Tauri, OpenSSL, and newer rand lines. `cargo tree -i rand@0.7.3` shows it enters through `tauri-utils` -> `kuchikiki` -> `selectors` -> `phf_codegen`; cargo-audit classifies it as an unsound warning, not a direct vulnerability, and it is not a direct JobSentinel dependency. | Low alert noise can hide new dependency risk, and local code cannot patch the semver-incompatible transitive chain safely. | Track Tauri/tauri-utils/kuchikiki/selectors updates; if repository owner approves, dismiss Dependabot alert #67 as an upstream build-time transitive constraint until upstream releases a fix. | Open |
 | BLOAT-003 | Removing bloat and junk | User reported root clutter and likely nested junk after the disposable-artifact sensor was already passing. | Artifact-only sensors can miss stale docs, redundant root files, duplicate examples, or obsolete nested content that still slows maintenance. | Classify root files, sweep nested paths for stale or duplicate content, remove or relocate confirmed bloat, then add sensors for recurring junk classes. | Open |
 
 ## Closed Items
