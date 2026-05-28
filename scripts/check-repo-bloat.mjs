@@ -404,6 +404,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/components/automation/ScreeningAnswersForm.tsx",
   "src/pages/Resume.tsx",
   "src/pages/ResumeOptimizer.tsx",
+  "src/utils/errorMessages.ts",
   "src/utils/formValidation.ts",
   "docs/features/one-click-apply.md",
 ]);
@@ -990,6 +991,22 @@ function hasTechnicalFirstUserCopy(root, path) {
     /Invalid regex pattern\. Check for unmatched brackets or special characters\./i,
     /Pattern is required/i,
     /flexible \(regex\)/i,
+    /Your credentials or API key/i,
+    /API Limit Reached/i,
+    /job board's API/i,
+    /Database Busy/i,
+    /exists in the database/i,
+    /Database Corruption/i,
+    /webhook URL/i,
+    /Slack webhook must/i,
+    /Discord webhook must/i,
+    /Teams webhook must/i,
+    /Invalid Slack webhook path/i,
+    /Invalid Discord webhook path/i,
+    /Invalid Teams webhook path/i,
+    /SMTP credentials/i,
+    /special API access/i,
+    /check your API key/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));

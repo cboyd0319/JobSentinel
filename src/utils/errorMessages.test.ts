@@ -24,7 +24,22 @@ describe("errorMessages", () => {
 
     it("handles database locked errors", () => {
       const result = getUserFriendlyError(new Error("database is locked"));
-      expect(result.title).toBe("Database Busy");
+      expect(result.title).toBe("Local Data Busy");
+    });
+
+    it("uses plain-language copy for common technical failures", () => {
+      const userCopy = [
+        getUserFriendlyError(new Error("401 unauthorized api key rejected")),
+        getUserFriendlyError(new Error("database is locked")),
+        getUserFriendlyError(new Error("api quota exceeded")),
+        getUserFriendlyError(new Error("slack webhook failed")),
+        getUserFriendlyError(new Error("smtp error")),
+        getUserFriendlyError(new Error("openai model error")),
+      ].flatMap((result) => [result.title, result.message, result.action ?? ""]);
+
+      expect(userCopy.join("\n")).not.toMatch(
+        /API key|API Limit|job board's API|Database Busy|database|Database Corruption|webhook URL|SMTP credentials|special API access/i,
+      );
     });
 
     it("handles missing required field errors", () => {

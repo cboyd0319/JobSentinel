@@ -269,62 +269,62 @@ describe("formValidation", () => {
       // Arrange & Act & Assert
       expect(
         validateSlackWebhook("http://hooks.slack.com/services/T00/B00/XXX")
-      ).toBe("Slack webhook must use HTTPS");
+      ).toBe("Slack connection link must start with https://");
     });
 
     it("rejects credentials and non-default ports", () => {
       expect(
         validateSlackWebhook("https://user:pass@hooks.slack.com/services/T00/B00/XXX")
-      ).toBe("Slack webhook must not include credentials");
+      ).toBe("Slack connection link must not include a username or password");
       expect(
         validateSlackWebhook("https://hooks.slack.com:8080/services/T00/B00/XXX")
-      ).toBe("Slack webhook must use the default HTTPS port");
+      ).toBe("Slack connection link must use the standard secure web port");
     });
 
     it("returns error message for wrong hostname", () => {
       // Arrange & Act & Assert
       expect(
         validateSlackWebhook("https://evil.com/services/T00/B00/XXX")
-      ).toBe("Slack webhook must use hooks.slack.com domain");
+      ).toBe("Paste a Slack connection link from hooks.slack.com");
       expect(
         validateSlackWebhook("https://slack.com/services/T00/B00/XXX")
-      ).toBe("Slack webhook must use hooks.slack.com domain");
+      ).toBe("Paste a Slack connection link from hooks.slack.com");
       expect(
         validateSlackWebhook("https://api.slack.com/services/T00/B00/XXX")
-      ).toBe("Slack webhook must use hooks.slack.com domain");
+      ).toBe("Paste a Slack connection link from hooks.slack.com");
     });
 
     it("returns error message for invalid path", () => {
       // Arrange & Act & Assert
       expect(validateSlackWebhook("https://hooks.slack.com/invalid")).toBe(
-        "Invalid Slack webhook path"
+        "Paste the full Slack connection link"
       );
       expect(validateSlackWebhook("https://hooks.slack.com/")).toBe(
-        "Invalid Slack webhook path"
+        "Paste the full Slack connection link"
       );
       expect(validateSlackWebhook("https://hooks.slack.com/api/webhooks/123")).toBe(
-        "Invalid Slack webhook path"
+        "Paste the full Slack connection link"
       );
     });
 
     it("returns error message for malformed URLs", () => {
       // Arrange & Act & Assert
-      expect(validateSlackWebhook("not-a-url")).toBe("Invalid URL format");
-      expect(validateSlackWebhook("https://")).toBe("Invalid URL format");
+      expect(validateSlackWebhook("not-a-url")).toBe("Enter a valid connection link");
+      expect(validateSlackWebhook("https://")).toBe("Enter a valid connection link");
     });
 
     it("prevents bypass attacks with query parameters", () => {
       // Arrange & Act & Assert
       expect(
         validateSlackWebhook("https://evil.com?https://hooks.slack.com/services/T00/B00/XXX")
-      ).toBe("Slack webhook must use hooks.slack.com domain");
+      ).toBe("Paste a Slack connection link from hooks.slack.com");
     });
 
     it("prevents bypass attacks with URL fragments", () => {
       // Arrange & Act & Assert
       expect(
         validateSlackWebhook("https://evil.com#hooks.slack.com/services/T00/B00/XXX")
-      ).toBe("Slack webhook must use hooks.slack.com domain");
+      ).toBe("Paste a Slack connection link from hooks.slack.com");
     });
   });
 
@@ -349,62 +349,62 @@ describe("formValidation", () => {
       // Arrange & Act & Assert
       expect(
         validateDiscordWebhook("http://discord.com/api/webhooks/123/abc")
-      ).toBe("Discord webhook must use HTTPS");
+      ).toBe("Discord connection link must start with https://");
     });
 
     it("rejects credentials and non-default ports", () => {
       expect(
         validateDiscordWebhook("https://user:pass@discord.com/api/webhooks/123/abc")
-      ).toBe("Discord webhook must not include credentials");
+      ).toBe("Discord connection link must not include a username or password");
       expect(
         validateDiscordWebhook("https://discord.com:8080/api/webhooks/123/abc")
-      ).toBe("Discord webhook must use the default HTTPS port");
+      ).toBe("Discord connection link must use the standard secure web port");
     });
 
     it("returns error message for wrong hostname", () => {
       // Arrange & Act & Assert
       expect(
         validateDiscordWebhook("https://evil.com/api/webhooks/123/abc")
-      ).toBe("Discord webhook must use discord.com or discordapp.com domain");
+      ).toBe("Paste a Discord connection link from discord.com or discordapp.com");
       expect(
         validateDiscordWebhook("https://slack.com/api/webhooks/123/abc")
-      ).toBe("Discord webhook must use discord.com or discordapp.com domain");
+      ).toBe("Paste a Discord connection link from discord.com or discordapp.com");
       expect(
         validateDiscordWebhook("https://api.discord.com/api/webhooks/123/abc")
-      ).toBe("Discord webhook must use discord.com or discordapp.com domain");
+      ).toBe("Paste a Discord connection link from discord.com or discordapp.com");
     });
 
     it("returns error message for invalid path", () => {
       // Arrange & Act & Assert
       expect(validateDiscordWebhook("https://discord.com/invalid")).toBe(
-        "Invalid Discord webhook path"
+        "Paste the full Discord connection link"
       );
       expect(validateDiscordWebhook("https://discord.com/")).toBe(
-        "Invalid Discord webhook path"
+        "Paste the full Discord connection link"
       );
       expect(validateDiscordWebhook("https://discord.com/webhooks/123")).toBe(
-        "Invalid Discord webhook path"
+        "Paste the full Discord connection link"
       );
     });
 
     it("returns error message for malformed URLs", () => {
       // Arrange & Act & Assert
-      expect(validateDiscordWebhook("not-a-url")).toBe("Invalid URL format");
-      expect(validateDiscordWebhook("https://")).toBe("Invalid URL format");
+      expect(validateDiscordWebhook("not-a-url")).toBe("Enter a valid connection link");
+      expect(validateDiscordWebhook("https://")).toBe("Enter a valid connection link");
     });
 
     it("prevents bypass attacks with query parameters", () => {
       // Arrange & Act & Assert
       expect(
         validateDiscordWebhook("https://evil.com?https://discord.com/api/webhooks/123/abc")
-      ).toBe("Discord webhook must use discord.com or discordapp.com domain");
+      ).toBe("Paste a Discord connection link from discord.com or discordapp.com");
     });
 
     it("prevents bypass attacks with URL fragments", () => {
       // Arrange & Act & Assert
       expect(
         validateDiscordWebhook("https://evil.com#discord.com/api/webhooks/123/abc")
-      ).toBe("Discord webhook must use discord.com or discordapp.com domain");
+      ).toBe("Paste a Discord connection link from discord.com or discordapp.com");
     });
   });
 
@@ -429,49 +429,49 @@ describe("formValidation", () => {
       // Arrange & Act & Assert
       expect(
         validateTeamsWebhook("http://outlook.office.com/webhook/abc")
-      ).toBe("Teams webhook must use HTTPS");
+      ).toBe("Teams connection link must start with https://");
     });
 
     it("rejects credentials and non-default ports", () => {
       expect(
         validateTeamsWebhook("https://user:pass@outlook.office.com/webhook/abc")
-      ).toBe("Teams webhook must not include credentials");
+      ).toBe("Teams connection link must not include a username or password");
       expect(
         validateTeamsWebhook("https://outlook.office.com:8080/webhook/abc")
-      ).toBe("Teams webhook must use the default HTTPS port");
+      ).toBe("Teams connection link must use the standard secure web port");
     });
 
     it("returns error message for wrong hostname", () => {
       // Arrange & Act & Assert
       expect(
         validateTeamsWebhook("https://evil.com/webhook/abc")
-      ).toBe("Teams webhook must use outlook.office.com or outlook.office365.com domain");
+      ).toBe("Paste a Teams connection link from outlook.office.com or outlook.office365.com");
       expect(
         validateTeamsWebhook("https://teams.microsoft.com/webhook/abc")
-      ).toBe("Teams webhook must use outlook.office.com or outlook.office365.com domain");
+      ).toBe("Paste a Teams connection link from outlook.office.com or outlook.office365.com");
     });
 
     it("returns error message for invalid path", () => {
       // Arrange & Act & Assert
       expect(validateTeamsWebhook("https://outlook.office.com/invalid")).toBe(
-        "Invalid Teams webhook path"
+        "Paste the full Teams connection link"
       );
       expect(validateTeamsWebhook("https://outlook.office.com/")).toBe(
-        "Invalid Teams webhook path"
+        "Paste the full Teams connection link"
       );
     });
 
     it("returns error message for malformed URLs", () => {
       // Arrange & Act & Assert
-      expect(validateTeamsWebhook("not-a-url")).toBe("Invalid URL format");
-      expect(validateTeamsWebhook("https://")).toBe("Invalid URL format");
+      expect(validateTeamsWebhook("not-a-url")).toBe("Enter a valid connection link");
+      expect(validateTeamsWebhook("https://")).toBe("Enter a valid connection link");
     });
 
     it("prevents bypass attacks with query parameters", () => {
       // Arrange & Act & Assert
       expect(
         validateTeamsWebhook("https://evil.com?https://outlook.office.com/webhook/abc")
-      ).toBe("Teams webhook must use outlook.office.com or outlook.office365.com domain");
+      ).toBe("Paste a Teams connection link from outlook.office.com or outlook.office365.com");
     });
   });
 

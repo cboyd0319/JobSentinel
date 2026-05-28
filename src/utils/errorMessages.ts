@@ -21,8 +21,8 @@ const NETWORK_ERRORS = [
   { pattern: /certificate|ssl|tls/i, title: 'Security Certificate Issue', message: 'There\'s a problem with the website\'s security certificate.', action: 'This is usually temporary. Try again later, or check if your system date/time is correct.' },
   { pattern: /429|rate.?limit/i, title: 'Too Many Requests', message: 'You\'ve made too many requests to this job board.', action: 'Wait a few minutes before trying again. Consider increasing the delay between searches.' },
   { pattern: /503|502|504|service.?unavailable/i, title: 'Service Temporarily Down', message: 'The job board\'s servers are temporarily unavailable.', action: 'This is on their end. Try again in 10-15 minutes.' },
-  { pattern: /401|unauthorized|authentication/i, title: 'Authentication Failed', message: 'Your credentials or API key aren\'t working.', action: 'Check your settings and make sure your API keys or login credentials are correct.' },
-  { pattern: /403|forbidden/i, title: 'Access Denied', message: 'You don\'t have permission to access this resource.', action: 'Check if you need a premium account or special API access for this feature.' },
+  { pattern: /401|unauthorized|authentication/i, title: 'Sign-In Details Not Working', message: 'Your saved sign-in or access details aren\'t working.', action: 'Open Settings, reconnect the job source, or paste updated access details.' },
+  { pattern: /403|forbidden/i, title: 'Access Denied', message: 'The job board would not allow this request.', action: 'Check whether this job board needs a signed-in or premium account, then try again.' },
   { pattern: /404|not.?found/i, title: 'Page Not Found', message: 'The job listing or page no longer exists.', action: 'The posting may have been removed. Try refreshing your job list.' },
 ];
 
@@ -30,10 +30,10 @@ const NETWORK_ERRORS = [
  * Database error patterns
  */
 const DATABASE_ERRORS = [
-  { pattern: /database.*locked|SQLITE_BUSY/i, title: 'Database Busy', message: 'The database is currently in use by another operation.', action: 'Wait a moment and try again. If this keeps happening, try restarting the app.' },
-  { pattern: /constraint|unique|duplicate/i, title: 'Duplicate Entry', message: 'This item already exists in the database.', action: 'You might be trying to add something that\'s already saved. Check your existing entries.' },
+  { pattern: /database.*locked|SQLITE_BUSY/i, title: 'Local Data Busy', message: 'JobSentinel is already saving or reading your local data.', action: 'Wait a moment and try again. If this keeps happening, restart the app.' },
+  { pattern: /constraint|unique|duplicate/i, title: 'Duplicate Entry', message: 'This item is already saved.', action: 'Check your existing entries before adding it again.' },
   { pattern: /foreign.?key|reference/i, title: 'Data Relationship Error', message: 'This action would break a connection between related data.', action: 'Make sure all related information exists before trying this action.' },
-  { pattern: /corrupt|malformed|integrity/i, title: 'Database Corruption', message: 'The database file appears to be damaged.', action: 'You may need to restore from a backup or contact support. Don\'t delete the database file yet.' },
+  { pattern: /corrupt|malformed|integrity/i, title: 'Local Data Problem', message: 'JobSentinel\'s local data file may be damaged.', action: 'Copy a debug report and restore from a backup if you have one. Don\'t delete app data yet.' },
   { pattern: /disk|storage|space/i, title: 'Storage Full', message: 'Your computer is running out of disk space.', action: 'Free up some storage space on your hard drive and try again.' },
 ];
 
@@ -43,8 +43,8 @@ const DATABASE_ERRORS = [
 const VALIDATION_ERRORS = [
   { pattern: /required|missing|empty/i, title: 'Missing Information', message: 'Some required information is missing.', action: 'Fill in all required fields and try again.' },
   { pattern: /invalid.*email/i, title: 'Invalid Email', message: 'The email address isn\'t in the correct format.', action: 'Check the email address and make sure it looks like: name@example.com' },
-  { pattern: /invalid.*url|invalid.*webhook/i, title: 'Invalid Web Address', message: 'The web address (URL) isn\'t formatted correctly.', action: 'Make sure the URL starts with http:// or https:// and is spelled correctly.' },
-  { pattern: /invalid.*json/i, title: 'Invalid Data Format', message: 'The data isn\'t in the expected format.', action: 'Check that any configuration files are properly formatted. Contact support if you need help.' },
+  { pattern: /invalid.*url|invalid.*webhook/i, title: 'Web Address Not Recognized', message: 'The web address is not in a format JobSentinel can use.', action: 'Copy the full address again. It should usually start with https://.' },
+  { pattern: /invalid.*json/i, title: 'Data Not Recognized', message: 'The selected data is not in a format JobSentinel can use.', action: 'Try exporting it again from the original app, or copy a debug report if you need help.' },
   { pattern: /password.*weak|password.*short/i, title: 'Weak Password', message: 'The password doesn\'t meet security requirements.', action: 'Use a longer password with a mix of letters, numbers, and special characters.' },
   { pattern: /date|time.*invalid/i, title: 'Invalid Date or Time', message: 'The date or time format isn\'t recognized.', action: 'Use a standard date format like MM/DD/YYYY or check your system date/time settings.' },
 ];
@@ -56,7 +56,7 @@ const SCRAPER_ERRORS = [
   { pattern: /parse|selector|element.*not.*found/i, title: 'Website Format Changed', message: 'The job board\'s website layout has changed and we can\'t read it properly.', action: 'This usually means we need to update our software. Check for app updates or contact support.' },
   { pattern: /no.*jobs.*found|empty.*results/i, title: 'No Jobs Found', message: 'No job listings matched your search criteria.', action: 'Try broadening your search filters or check different job boards.' },
   { pattern: /scraper.*disabled|source.*unavailable/i, title: 'Job Source Disabled', message: 'This job board is currently disabled in your settings.', action: 'Go to Settings > Job Sources to enable this job board.' },
-  { pattern: /api.*key|api.*quota|api.*limit/i, title: 'API Limit Reached', message: 'You\'ve reached the daily limit for this job board\'s API.', action: 'Wait until tomorrow, or upgrade your API plan with the job board if available.' },
+  { pattern: /api.*key|api.*quota|api.*limit/i, title: 'Daily Job Board Limit Reached', message: 'This job board has stopped accepting more requests today.', action: 'Wait until tomorrow, or reduce how often JobSentinel checks this source.' },
   { pattern: /captcha|bot.*detection|cloudflare/i, title: 'Bot Detection Triggered', message: 'The website thinks you\'re a bot and blocked the request.', action: 'This is a safety measure. Reduce search frequency or try again later.' },
 ];
 
@@ -74,11 +74,11 @@ const CONFIG_ERRORS = [
  * Notification and webhook error patterns
  */
 const NOTIFICATION_ERRORS = [
-  { pattern: /webhook.*failed|webhook.*invalid/i, title: 'Notification Setup Failed', message: 'We couldn\'t send notifications to your configured channel.', action: 'Check your webhook URL in Settings > Notifications and make sure it\'s correct.' },
-  { pattern: /slack.*error/i, title: 'Slack Notification Failed', message: 'Couldn\'t send a notification to Slack.', action: 'Verify your Slack webhook URL is correct and the channel still exists.' },
-  { pattern: /discord.*error/i, title: 'Discord Notification Failed', message: 'Couldn\'t send a notification to Discord.', action: 'Verify your Discord webhook URL is correct and the channel still exists.' },
-  { pattern: /teams.*error/i, title: 'Teams Notification Failed', message: 'Couldn\'t send a notification to Microsoft Teams.', action: 'Verify your Teams webhook URL is correct and the connector is still active.' },
-  { pattern: /email.*error|smtp/i, title: 'Email Notification Failed', message: 'Couldn\'t send an email notification.', action: 'Check your email settings and make sure your SMTP credentials are correct.' },
+  { pattern: /webhook.*failed|webhook.*invalid/i, title: 'Notification Setup Failed', message: 'We couldn\'t send notifications to your configured channel.', action: 'Open Settings > Notifications and paste a fresh connection link for that channel.' },
+  { pattern: /slack.*error/i, title: 'Slack Notification Failed', message: 'Couldn\'t send a notification to Slack.', action: 'Paste a fresh Slack connection link in Settings and make sure the channel still exists.' },
+  { pattern: /discord.*error/i, title: 'Discord Notification Failed', message: 'Couldn\'t send a notification to Discord.', action: 'Paste a fresh Discord connection link in Settings and make sure the channel still exists.' },
+  { pattern: /teams.*error/i, title: 'Teams Notification Failed', message: 'Couldn\'t send a notification to Microsoft Teams.', action: 'Paste a fresh Teams connection link in Settings and make sure the connector is still active.' },
+  { pattern: /email.*error|smtp/i, title: 'Email Notification Failed', message: 'Couldn\'t send an email notification.', action: 'Check your email sending settings and saved password.' },
 ];
 
 /**
@@ -96,7 +96,7 @@ const ATS_ERRORS = [
 const AI_ERRORS = [
   { pattern: /resume.*not.*found|resume.*missing/i, title: 'Resume Not Found', message: 'No resume has been uploaded yet.', action: 'Upload your resume in the Resume section before using this feature.' },
   { pattern: /parsing.*failed|extract.*failed/i, title: 'Resume Parsing Failed', message: 'We couldn\'t read the information from your resume.', action: 'Make sure your resume is in a supported format (PDF, DOCX, or TXT).' },
-  { pattern: /ai.*error|model.*error|openai/i, title: 'AI Service Error', message: 'The AI service encountered a problem.', action: 'This is usually temporary. Try again in a moment. If it persists, check your API key.' },
+  { pattern: /ai.*error|model.*error|openai/i, title: 'Resume Analysis Problem', message: 'The resume analysis service had a problem.', action: 'Try again in a moment. If this keeps happening, check any analysis service you connected in Settings.' },
   { pattern: /token.*limit|context.*length/i, title: 'Document Too Large', message: 'Your resume or the job description is too long for processing.', action: 'Try using a shorter resume or job description. Remove any unnecessary content.' },
 ];
 

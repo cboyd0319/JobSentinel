@@ -371,7 +371,24 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     writeFixtureFile(
       root,
       "src/utils/formValidation.ts",
-      'return "Invalid regex pattern. Check for unmatched brackets or special characters."; if (!value) return "Pattern is required";\n',
+      [
+        'return "Invalid regex pattern. Check for unmatched brackets or special characters."; if (!value) return "Pattern is required";',
+        'return "Slack webhook must use HTTPS";',
+        'return "Invalid Discord webhook path";',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/utils/errorMessages.ts",
+      [
+        '"Your credentials or API key aren\'t working."',
+        '"API Limit Reached"',
+        '"The database is currently in use by another operation."',
+        '"Check your webhook URL in Settings"',
+        '"make sure your SMTP credentials are correct"',
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(
       root,
@@ -388,6 +405,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/pages/ResumeOptimizer.tsx",
         "src/components/automation/ScreeningAnswersForm.tsx",
         "src/utils/formValidation.ts",
+        "src/utils/errorMessages.ts",
         "docs/features/one-click-apply.md",
       ],
       { cwd: root },
@@ -400,6 +418,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/pages/ResumeOptimizer.tsx",
       "src/components/automation/ScreeningAnswersForm.tsx",
       "src/utils/formValidation.ts",
+      "src/utils/errorMessages.ts",
       "docs/features/one-click-apply.md",
     ]) {
       assert.ok(
