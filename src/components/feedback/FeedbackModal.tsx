@@ -164,7 +164,7 @@ function getTitle(step: string): string {
     case "description":
       return "Describe Your Feedback";
     case "review":
-      return "Include Debug Information?";
+      return "Include Safe App Details?";
     case "submit":
       return "Choose Submission Method";
     case "success":
@@ -179,7 +179,7 @@ function LoadingState() {
     <div className="py-12 text-center">
       <div className="inline-block w-8 h-8 border-4 border-surface-200 dark:border-surface-700 border-t-sentinel-500 rounded-full motion-safe:animate-spin" />
       <p className="mt-4 text-sm text-surface-600 dark:text-surface-400">
-        Loading system information...
+        Loading safe app details...
       </p>
     </div>
   );

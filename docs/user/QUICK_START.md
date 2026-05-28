@@ -303,9 +303,9 @@ Everything stays on your computer. No cloud, no accounts, no tracking.
 ### Something else wrong?
 
 1. Open Settings in JobSentinel.
-2. Click **Copy Debug Report**.
+2. Click **Copy Safe Debug Report**.
 3. [Open an issue on GitHub](https://github.com/cboyd0319/JobSentinel/issues).
-4. Paste the copied report into the Debug Information box.
+4. Paste the copied report into the safe app details box.
 
 Also include:
 

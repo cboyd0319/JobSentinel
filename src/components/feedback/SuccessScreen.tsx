@@ -35,7 +35,7 @@ export const SuccessScreen = memo(function SuccessScreen({
 
           <div className="space-y-3 text-sm text-surface-600 dark:text-surface-400">
             <p>
-              GitHub should have opened in your browser. Your debug report is in your clipboard.
+              GitHub should have opened in your browser. Your safe debug report is in your clipboard.
             </p>
 
             <div className="bg-surface-50 dark:bg-surface-900 rounded-lg p-4 border border-surface-200 dark:border-surface-700">
@@ -44,7 +44,7 @@ export const SuccessScreen = memo(function SuccessScreen({
               </p>
               <ol className="list-decimal list-inside space-y-1 text-left">
                 <li>Fill out the issue form with additional details</li>
-                <li>Paste the debug report from your clipboard</li>
+                <li>Paste the safe debug report from your clipboard</li>
                 <li>Review and submit the issue</li>
               </ol>
             </div>

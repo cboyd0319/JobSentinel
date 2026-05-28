@@ -56,7 +56,7 @@ describe("ErrorBoundary", () => {
         </ErrorBoundary>
       );
 
-      expect(screen.queryByText("Application Error")).not.toBeInTheDocument();
+      expect(screen.queryByText("Something Went Wrong")).not.toBeInTheDocument();
     });
   });
 
@@ -68,7 +68,7 @@ describe("ErrorBoundary", () => {
         </ErrorBoundary>
       );
 
-      expect(screen.getByText("Application Error")).toBeInTheDocument();
+      expect(screen.getByText("Something Went Wrong")).toBeInTheDocument();
     });
 
     it("displays error message", () => {
@@ -88,7 +88,7 @@ describe("ErrorBoundary", () => {
         </ErrorBoundary>
       );
 
-      // Component shows "Try Again" and "Reload Application" buttons
+      // Component shows "Try Again" and "Reload App" buttons
       expect(
         screen.getByRole("button", { name: /try again/i })
       ).toBeInTheDocument();
@@ -121,11 +121,11 @@ describe("ErrorBoundary", () => {
       );
 
       await user.click(
-        screen.getByRole("button", { name: /copy debug report/i })
+        screen.getByRole("button", { name: /copy safe debug report/i })
       );
 
       expect(mockCopySanitizedDebugReport).toHaveBeenCalledTimes(1);
-      expect(screen.getByText("Debug report copied")).toBeInTheDocument();
+      expect(screen.getByText("Safe debug report copied")).toBeInTheDocument();
     });
 
     it("reloads window when reload button is clicked", async () => {
@@ -142,9 +142,9 @@ describe("ErrorBoundary", () => {
         </ErrorBoundary>
       );
 
-      // Click "Reload Application" button
+      // Click "Reload App" button
       const reloadButton = screen.getByRole("button", {
-        name: /reload application/i,
+        name: /reload app/i,
       });
       await user.click(reloadButton);
 
@@ -227,7 +227,7 @@ describe("ErrorBoundary", () => {
         </ErrorBoundary>
       );
 
-      const heading = screen.getByRole("heading", { name: /application error/i });
+      const heading = screen.getByRole("heading", { name: /something went wrong/i });
       expect(heading).toBeInTheDocument();
     });
 
@@ -238,7 +238,7 @@ describe("ErrorBoundary", () => {
         </ErrorBoundary>
       );
 
-      const button = screen.getByRole("button", { name: /reload application/i });
+      const button = screen.getByRole("button", { name: /reload app/i });
       expect(button).toHaveClass("focus-visible:ring-2");
     });
 
@@ -263,7 +263,7 @@ describe("ErrorBoundary", () => {
         </ErrorBoundary>
       );
 
-      const heading = screen.getByRole("heading", { name: /application error/i });
+      const heading = screen.getByRole("heading", { name: /something went wrong/i });
       expect(heading).toBeInTheDocument();
     });
 
@@ -274,7 +274,7 @@ describe("ErrorBoundary", () => {
         </ErrorBoundary>
       );
 
-      const button = screen.getByRole("button", { name: /reload application/i });
+      const button = screen.getByRole("button", { name: /reload app/i });
       expect(button).toBeInTheDocument();
     });
   });

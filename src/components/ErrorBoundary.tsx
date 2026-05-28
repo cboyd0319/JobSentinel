@@ -142,7 +142,7 @@ class ErrorBoundary extends Component<Props, State> {
                 </svg>
               </div>
               <h3 className="font-display text-display-lg text-surface-900 dark:text-white mb-2">
-                Application Error
+                Something Went Wrong
               </h3>
               <p className="text-surface-600 dark:text-surface-400 mb-2">
                 {this.state.error.message || 'An unexpected error occurred'}
@@ -158,7 +158,7 @@ class ErrorBoundary extends Component<Props, State> {
               <p className="text-sm text-surface-500 dark:text-surface-400">
                 {showClearData
                   ? "Multiple errors detected. Try clearing app data or reloading."
-                  : "Your data is safe. Try reloading the application to continue."}
+                  : "Your data is safe. Try reloading the app to continue."}
               </p>
             </div>
 
@@ -176,7 +176,7 @@ class ErrorBoundary extends Component<Props, State> {
                 onClick={this.handleReload}
                 className="w-full bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-700 dark:text-surface-200 font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-800"
               >
-                Reload Application
+                Reload App
               </button>
 
               <button
@@ -186,17 +186,17 @@ class ErrorBoundary extends Component<Props, State> {
               >
                 {this.state.debugReportStatus === 'copying'
                   ? 'Copying...'
-                  : 'Copy Debug Report'}
+                  : 'Copy Safe Debug Report'}
               </button>
 
               {this.state.debugReportStatus === 'copied' && (
                 <p className="text-center text-sm text-success" role="status">
-                  Debug report copied
+                  Safe debug report copied
                 </p>
               )}
               {this.state.debugReportStatus === 'failed' && (
                 <p className="text-center text-sm text-danger" role="status">
-                  Could not copy debug report
+                  Could not copy safe debug report
                 </p>
               )}
 

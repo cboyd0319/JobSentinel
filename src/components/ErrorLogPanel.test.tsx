@@ -39,23 +39,23 @@ describe("ErrorLogPanel", () => {
   });
 
   describe("rendering", () => {
-    it("renders Error Logs title", () => {
+    it("renders app problem history title", () => {
       render(<ErrorLogPanel />);
 
-      expect(screen.getByText("Error Logs")).toBeInTheDocument();
+      expect(screen.getByText("App Problem History")).toBeInTheDocument();
     });
 
-    it("shows 'No errors recorded' when empty", () => {
+    it("shows 'No problems recorded' when empty", () => {
       render(<ErrorLogPanel />);
 
-      expect(screen.getByText("No errors recorded")).toBeInTheDocument();
+      expect(screen.getByText("No problems recorded")).toBeInTheDocument();
     });
 
     it("shows empty state message", () => {
       render(<ErrorLogPanel />);
 
-      expect(screen.getByText("No errors have been recorded")).toBeInTheDocument();
-      expect(screen.getByText("Errors will appear here when they occur")).toBeInTheDocument();
+      expect(screen.getByText("No problems have been recorded")).toBeInTheDocument();
+      expect(screen.getByText("Problems will appear here when they occur")).toBeInTheDocument();
     });
 
     it("shows checkmark icon in empty state", () => {
@@ -75,7 +75,7 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      expect(screen.getByText("1 error recorded")).toBeInTheDocument();
+      expect(screen.getByText("1 problem recorded")).toBeInTheDocument();
     });
 
     it("shows plural error count", () => {
@@ -86,7 +86,7 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      expect(screen.getByText("2 errors recorded")).toBeInTheDocument();
+      expect(screen.getByText("2 problems recorded")).toBeInTheDocument();
     });
 
     it("displays error message", () => {
@@ -100,7 +100,7 @@ describe("ErrorLogPanel", () => {
       expect(screen.getByText("Something went wrong")).toBeInTheDocument();
     });
 
-    it("shows Export button when errors exist", () => {
+    it("shows Save Log button when errors exist", () => {
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
         errors: [createMockError()],
@@ -108,7 +108,7 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      expect(screen.getByRole("button", { name: "Export" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Save Log" })).toBeInTheDocument();
     });
 
     it("shows Clear All button when errors exist", () => {
@@ -125,7 +125,7 @@ describe("ErrorLogPanel", () => {
     it("hides action buttons when no errors", () => {
       render(<ErrorLogPanel />);
 
-      expect(screen.queryByRole("button", { name: "Export" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Save Log" })).not.toBeInTheDocument();
       expect(screen.queryByRole("button", { name: "Clear All" })).not.toBeInTheDocument();
     });
 
@@ -133,13 +133,13 @@ describe("ErrorLogPanel", () => {
       render(<ErrorLogPanel />);
 
       expect(
-        screen.getByRole("button", { name: "Copy Debug Report" })
+        screen.getByRole("button", { name: "Copy Safe Debug Report" })
       ).toBeInTheDocument();
     });
   });
 
   describe("error type badges", () => {
-    it("shows React badge for render errors", () => {
+    it("shows Screen badge for render errors", () => {
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
         errors: [createMockError({ type: "render" })],
@@ -147,10 +147,10 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      expect(screen.getByText("React")).toBeInTheDocument();
+      expect(screen.getByText("Screen")).toBeInTheDocument();
     });
 
-    it("shows Runtime badge for unhandled errors", () => {
+    it("shows App badge for unhandled errors", () => {
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
         errors: [createMockError({ type: "unhandled" })],
@@ -158,10 +158,10 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      expect(screen.getByText("Runtime")).toBeInTheDocument();
+      expect(screen.getByText("App")).toBeInTheDocument();
     });
 
-    it("shows Promise badge for promise errors", () => {
+    it("shows Task badge for promise errors", () => {
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
         errors: [createMockError({ type: "promise" })],
@@ -169,10 +169,10 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      expect(screen.getByText("Promise")).toBeInTheDocument();
+      expect(screen.getByText("Task")).toBeInTheDocument();
     });
 
-    it("shows API badge for api errors", () => {
+    it("shows Connection badge for api errors", () => {
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
         errors: [createMockError({ type: "api" })],
@@ -180,7 +180,7 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      expect(screen.getByText("API")).toBeInTheDocument();
+      expect(screen.getByText("Connection")).toBeInTheDocument();
     });
 
     it("shows Custom badge for custom errors", () => {
@@ -191,7 +191,7 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      expect(screen.getByText("Custom")).toBeInTheDocument();
+      expect(screen.getByText("App")).toBeInTheDocument();
     });
   });
 
@@ -205,13 +205,13 @@ describe("ErrorLogPanel", () => {
       render(<ErrorLogPanel />);
 
       // Stack trace not visible initially
-      expect(screen.queryByText("Stack Trace")).not.toBeInTheDocument();
+      expect(screen.queryByText("Technical details")).not.toBeInTheDocument();
 
       // Click to expand
       fireEvent.click(screen.getByText("Test error message"));
 
       // Now stack trace should be visible
-      expect(screen.getByText("Stack Trace")).toBeInTheDocument();
+      expect(screen.getByText("Technical details")).toBeInTheDocument();
       expect(screen.getByText("Test stack trace")).toBeInTheDocument();
     });
 
@@ -225,7 +225,7 @@ describe("ErrorLogPanel", () => {
 
       fireEvent.click(screen.getByText("Test error message"));
 
-      expect(screen.getByText("Component Stack")).toBeInTheDocument();
+      expect(screen.getByText("Screen details")).toBeInTheDocument();
       expect(screen.getByText("at MyComponent")).toBeInTheDocument();
     });
 
@@ -239,7 +239,7 @@ describe("ErrorLogPanel", () => {
 
       fireEvent.click(screen.getByText("Test error message"));
 
-      expect(screen.getByText("Context")).toBeInTheDocument();
+      expect(screen.getByText("App details")).toBeInTheDocument();
     });
 
     it("has aria-expanded attribute", () => {
@@ -283,7 +283,7 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      fireEvent.click(screen.getByRole("button", { name: "Export" }));
+      fireEvent.click(screen.getByRole("button", { name: "Save Log" }));
 
       expect(exportErrors).toHaveBeenCalledTimes(1);
     });
@@ -303,10 +303,10 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      await user.click(screen.getByRole("button", { name: "Copy Debug Report" }));
+      await user.click(screen.getByRole("button", { name: "Copy Safe Debug Report" }));
 
       expect(mockCopySanitizedDebugReport).toHaveBeenCalledWith(errors);
-      expect(await screen.findByText("Debug report copied")).toBeInTheDocument();
+      expect(await screen.findByText("Safe debug report copied")).toBeInTheDocument();
     });
 
     it("calls clearErrors when Clear All clicked", () => {

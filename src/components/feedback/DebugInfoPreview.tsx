@@ -22,7 +22,7 @@ export const DebugInfoPreview = memo(function DebugInfoPreview({
     return (
       <div className="p-4 bg-surface-50 dark:bg-surface-900 rounded-lg border border-surface-200 dark:border-surface-700">
         <p className="text-sm text-surface-500 dark:text-surface-400">
-          Loading debug information...
+          Loading safe app details...
         </p>
       </div>
     );
@@ -43,10 +43,10 @@ export const DebugInfoPreview = memo(function DebugInfoPreview({
             htmlFor="include-debug-info"
             className="block text-sm font-medium text-surface-700 dark:text-surface-300 cursor-pointer"
           >
-            Include debug information
+            Include safe app details
           </label>
           <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">
-            Helps us diagnose issues faster. All data is anonymized - no personal info is included.
+            Helps troubleshoot faster. JobSentinel removes private details before sharing.
           </p>
         </div>
       </div>
@@ -62,7 +62,7 @@ export const DebugInfoPreview = memo(function DebugInfoPreview({
             <div className="flex items-center gap-2">
               <ShieldIcon className="w-5 h-5 text-success" />
               <span className="text-sm font-medium text-surface-700 dark:text-surface-300">
-                Anonymized Debug Information
+                Safe App Details
               </span>
             </div>
             <ChevronIcon className={`w-5 h-5 text-surface-500 transition-transform ${expanded ? "rotate-180" : ""}`} />
@@ -73,28 +73,28 @@ export const DebugInfoPreview = memo(function DebugInfoPreview({
             <div className="p-4 bg-white dark:bg-surface-900 border-t border-surface-200 dark:border-surface-700">
               <div className="space-y-4 text-xs font-mono">
                 {/* System Info */}
-                <Section title="System Information">
-                  <InfoRow label="App Version" value={systemInfo.app_version} />
+                <Section title="App and device">
+                  <InfoRow label="App version" value={systemInfo.app_version} />
                   <InfoRow label="Platform" value={systemInfo.platform} />
-                  <InfoRow label="OS Version" value={systemInfo.os_version} />
-                  <InfoRow label="Architecture" value={systemInfo.architecture} />
+                  <InfoRow label="Operating system" value={systemInfo.os_version} />
+                  <InfoRow label="Device type" value={systemInfo.architecture} />
                 </Section>
 
                 {/* Config Summary */}
-                <Section title="Configuration Summary">
-                  <InfoRow label="Scrapers enabled" value={configSummary.scrapers_enabled} />
+                <Section title="Settings summary">
+                  <InfoRow label="Job sources enabled" value={configSummary.scrapers_enabled} />
                   <InfoRow label="Search keywords" value={`${configSummary.keywords_count} configured`} />
-                  <InfoRow label="Location prefs" value={configSummary.has_location_prefs ? "configured" : "not configured"} />
-                  <InfoRow label="Salary prefs" value={configSummary.has_salary_prefs ? "configured" : "not configured"} />
-                  <InfoRow label="Company blocklist" value={configSummary.has_company_blocklist ? "configured" : "not configured"} />
-                  <InfoRow label="Company allowlist" value={configSummary.has_company_allowlist ? "configured" : "not configured"} />
+                  <InfoRow label="Location filters" value={configSummary.has_location_prefs ? "configured" : "not configured"} />
+                  <InfoRow label="Salary filters" value={configSummary.has_salary_prefs ? "configured" : "not configured"} />
+                  <InfoRow label="Hidden companies" value={configSummary.has_company_blocklist ? "configured" : "not configured"} />
+                  <InfoRow label="Favorite companies" value={configSummary.has_company_allowlist ? "configured" : "not configured"} />
                   <InfoRow label="Notifications" value={`${configSummary.notifications_configured} configured`} />
                   <InfoRow label="Resume" value={configSummary.has_resume ? "uploaded" : "not uploaded"} />
                 </Section>
 
                 {/* Recent Activity */}
                 {debugEvents.length > 0 && (
-                  <Section title="Recent Activity">
+                  <Section title="Recent app activity">
                     <div className="space-y-1">
                       {debugEvents.slice(0, 10).map((event, idx) => (
                         <div
@@ -124,8 +124,8 @@ export const DebugInfoPreview = memo(function DebugInfoPreview({
                 <div className="flex items-start gap-2">
                   <ShieldIcon className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
                   <p className="text-xs text-success dark:text-success">
-                    <strong>Privacy guaranteed:</strong> All user-identifiable data has been removed.
-                    No job titles, company names, keywords, or personal information is included.
+                    <strong>Privacy check:</strong> JobSentinel removes private details before sharing.
+                    Job titles, company names, search words, and personal details are not included.
                   </p>
                 </div>
               </div>

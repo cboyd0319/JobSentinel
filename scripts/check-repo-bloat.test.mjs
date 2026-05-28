@@ -370,6 +370,36 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/ErrorBoundary.tsx",
+      '"Copy Debug Report"; "Debug report copied";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/ErrorLogPanel.tsx",
+      '"Error Logs"; "Stack Trace"; "Component Stack";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/feedback/DebugInfoPreview.tsx",
+      [
+        '"Loading debug information..."',
+        '"Anonymized Debug Information"',
+        '"Privacy guaranteed:"',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/feedback/FeedbackModal.tsx",
+      '"Include Debug Information?"; "Loading system information...";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/feedback/SuccessScreen.tsx",
+      '"Paste the debug report from your clipboard";\n',
+    );
+    writeFixtureFile(
+      root,
       "src/pages/Settings.tsx",
       [
         '"Invalid Discord webhook"',
@@ -412,6 +442,11 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "docs/features/user-data-management.md",
+      "The Settings screen exposes **Copy Debug Report**.\n",
+    );
+    writeFixtureFile(
+      root,
       "docs/features/notifications.md",
       [
         "That's it! No webhook setup needed.",
@@ -438,11 +473,17 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/pages/ResumeOptimizer.tsx",
         "src/pages/Settings.tsx",
         "src/pages/SetupWizard.tsx",
+        "src/components/ErrorBoundary.tsx",
+        "src/components/ErrorLogPanel.tsx",
         "src/components/automation/ScreeningAnswersForm.tsx",
+        "src/components/feedback/DebugInfoPreview.tsx",
+        "src/components/feedback/FeedbackModal.tsx",
+        "src/components/feedback/SuccessScreen.tsx",
         "src/utils/formValidation.ts",
         "src/utils/errorMessages.ts",
         "docs/features/notifications.md",
         "docs/features/one-click-apply.md",
+        "docs/features/user-data-management.md",
         "docs/user/QUICK_START.md",
       ],
       { cwd: root },
@@ -455,11 +496,17 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/pages/ResumeOptimizer.tsx",
       "src/pages/Settings.tsx",
       "src/pages/SetupWizard.tsx",
+      "src/components/ErrorBoundary.tsx",
+      "src/components/ErrorLogPanel.tsx",
       "src/components/automation/ScreeningAnswersForm.tsx",
+      "src/components/feedback/DebugInfoPreview.tsx",
+      "src/components/feedback/FeedbackModal.tsx",
+      "src/components/feedback/SuccessScreen.tsx",
       "src/utils/formValidation.ts",
       "src/utils/errorMessages.ts",
       "docs/features/notifications.md",
       "docs/features/one-click-apply.md",
+      "docs/features/user-data-management.md",
       "docs/user/QUICK_START.md",
     ]) {
       assert.ok(

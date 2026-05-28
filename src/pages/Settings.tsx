@@ -350,14 +350,14 @@ export default function Settings({ onClose }: SettingsProps) {
     try {
       await copySanitizedDebugReport();
       toast.success(
-        "Debug report copied",
-        "Paste it into a GitHub issue when you report a problem."
+        "Safe debug report copied",
+        "Paste it into a GitHub issue. Private details are removed first."
       );
     } catch (error) {
       logError("Failed to copy debug report:", error);
       toast.error(
-        "Could not copy debug report",
-        "Try Send Feedback or export error logs."
+        "Could not copy safe debug report",
+        "Try Send Feedback, then choose GitHub."
       );
     } finally {
       setCopyingDebugReport(false);
@@ -4035,10 +4035,12 @@ export default function Settings({ onClose }: SettingsProps) {
               onClick={handleCopyDebugReport}
               disabled={copyingDebugReport}
               className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors disabled:opacity-50 disabled:pointer-events-none"
-              title="Copy a sanitized report you can paste into a GitHub issue"
+              title="Copy a safe report you can paste into a GitHub issue"
             >
               <SettingsSymbol icon="clipboard" className="w-4 h-4" />
-              {copyingDebugReport ? "Copying Report..." : "Copy Debug Report"}
+              {copyingDebugReport
+                ? "Copying Safe Report..."
+                : "Copy Safe Debug Report"}
             </button>
           </div>
 

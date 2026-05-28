@@ -8,11 +8,11 @@ import { copySanitizedDebugReport } from '../services/feedbackService';
 import { logError } from '../utils/errorUtils';
 
 const TYPE_LABELS: Record<ErrorReport['type'], { label: string; variant: 'danger' | 'alert' | 'surface' }> = {
-  render: { label: 'React', variant: 'danger' },
-  unhandled: { label: 'Runtime', variant: 'danger' },
-  promise: { label: 'Promise', variant: 'alert' },
-  api: { label: 'API', variant: 'alert' },
-  custom: { label: 'Custom', variant: 'surface' },
+  render: { label: 'Screen', variant: 'danger' },
+  unhandled: { label: 'App', variant: 'danger' },
+  promise: { label: 'Task', variant: 'alert' },
+  api: { label: 'Connection', variant: 'alert' },
+  custom: { label: 'App', variant: 'surface' },
 };
 
 function formatRelativeTime(timestamp: string): string {
@@ -75,7 +75,7 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
           {error.stack && (
             <div>
               <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">
-                Stack Trace
+                Technical details
               </p>
               <pre className="text-xs bg-surface-100 dark:bg-surface-800 p-2 rounded overflow-x-auto text-surface-700 dark:text-surface-300 max-h-40">
                 {error.stack}
@@ -86,7 +86,7 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
           {error.componentStack && (
             <div>
               <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">
-                Component Stack
+                Screen details
               </p>
               <pre className="text-xs bg-surface-100 dark:bg-surface-800 p-2 rounded overflow-x-auto text-surface-700 dark:text-surface-300 max-h-32">
                 {error.componentStack}
@@ -97,7 +97,7 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
           {error.context && Object.keys(error.context).length > 0 && (
             <div>
               <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">
-                Context
+                App details
               </p>
               <pre className="text-xs bg-surface-100 dark:bg-surface-800 p-2 rounded overflow-x-auto text-surface-700 dark:text-surface-300">
                 {JSON.stringify(error.context, null, 2)}
@@ -136,10 +136,10 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
 
     try {
       await copySanitizedDebugReport(errors);
-      setCopyMessage("Debug report copied");
+      setCopyMessage("Safe debug report copied");
     } catch (error) {
       logError("Failed to copy debug report:", error);
-      setCopyMessage("Could not copy debug report");
+      setCopyMessage("Could not copy safe debug report");
     } finally {
       setCopyingReport(false);
     }
@@ -151,12 +151,12 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
         <div className="flex items-start justify-between gap-3">
           <div>
             <h3 className="font-medium text-surface-900 dark:text-white">
-              Error Logs
+              App Problem History
             </h3>
             <p className="text-sm text-surface-500 dark:text-surface-400 mt-0.5">
               {errors.length === 0
-                ? 'No errors recorded'
-                : `${errors.length} error${errors.length === 1 ? '' : 's'} recorded`}
+                ? 'No problems recorded'
+                : `${errors.length} problem${errors.length === 1 ? '' : 's'} recorded`}
             </p>
             {copyMessage && (
               <p
@@ -175,12 +175,12 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
               loading={copyingReport}
               loadingText="Copying..."
             >
-              Copy Debug Report
+              Copy Safe Debug Report
             </Button>
             {errors.length > 0 && (
               <>
                 <Button size="sm" variant="secondary" onClick={exportErrors}>
-                  Export
+                  Save Log
                 </Button>
                 <Button size="sm" variant="danger" onClick={clearErrors}>
                   Clear All
@@ -205,10 +205,10 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
             </svg>
           </div>
           <p className="text-surface-600 dark:text-surface-400">
-            No errors have been recorded
+            No problems have been recorded
           </p>
           <p className="text-sm text-surface-500 mt-1">
-            Errors will appear here when they occur
+            Problems will appear here when they occur
           </p>
         </div>
       ) : (

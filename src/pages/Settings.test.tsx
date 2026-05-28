@@ -176,12 +176,12 @@ describe("Settings — loadConfig flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("button", { name: "Copy Debug Report" }));
+    await user.click(screen.getByRole("button", { name: "Copy Safe Debug Report" }));
 
     expect(copySpy).toHaveBeenCalledTimes(1);
     expect(mockToast.success).toHaveBeenCalledWith(
-      "Debug report copied",
-      "Paste it into a GitHub issue when you report a problem."
+      "Safe debug report copied",
+      "Paste it into a GitHub issue. Private details are removed first."
     );
   });
 
