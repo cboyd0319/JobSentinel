@@ -32,6 +32,11 @@ In scope:
   evidence, rollback, and exact verification before implementation drifts.
 - Update docs when repo structure, behavior, commands, or security posture
   changes.
+- Treat every tracked file under `docs/plans/active/` as part of this goal until
+  it is completed, superseded, or moved out of active plans. Current active
+  goal inputs are `guided-job-search-intake.md`,
+  `repo-cleanup-and-quality-sweep.md`, `repo-cleanup-handoff.md`, and
+  `research-backed-product-improvements.md`.
 
 Out of scope:
 
@@ -82,7 +87,7 @@ Required process:
 
 - [x] Add and wire `npm run lint:bloat` into `npm run harness:check`.
 - [x] Remove stale tracked generated screenshot artifacts.
-- [ ] Remove root and nested bloat/junk after classifying each candidate as
+- [x] Remove root and nested bloat/junk after classifying each candidate as
   keep, move, merge, or delete.
 - [x] Stabilize skip-heavy Playwright suites and remove `test.skip()` sprawl.
 - [x] Harden frontend job URL validation for loopback, mapped, and multicast
@@ -90,7 +95,7 @@ Required process:
 - [x] Harden backend job import fetches against HTTP redirect trust-boundary
   changes.
 - [x] Classify root files and mark each as keep, move, merge, or delete.
-- [ ] Search nested paths for stale reports, generated output, logs, build
+- [x] Search nested paths for stale reports, generated output, logs, build
   products, duplicate docs, and obsolete examples.
 - [x] Remove or relocate confirmed bloat and update references.
 - [x] Add sensor coverage for any recurring junk class found during cleanup.
@@ -123,6 +128,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-28 | In progress | Locked all tracked `docs/plans/active/` files into the goal scope, removed local `.DS_Store` artifacts from root and docs paths, and reran root/nested junk checks: tracked disposable scan clean, untracked scan clean, local artifact `find` scan clean, and `npm run lint:bloat` passed. Source-tree README files were classified as owned module/test docs, not disposable reports. |
 | 2026-05-28 | In progress | Reworded Resume Optimizer results from ATS/keyword jargon to resume-match and job-word guidance, including honest-fit wording and bloat coverage. |
 | 2026-05-28 | In progress | Reworded ATS live-score match copy from keyword jargon to job-post words and honest-fit guidance, with component and bloat coverage for recurrence. |
 | 2026-05-28 | In progress | Refreshed direct npm, Cargo, and GitHub Actions dependencies to latest stable versions, including Tailwind 4, TypeScript 6, Vite 8, Vitest 4, Playwright 1.60, Tauri 2.11, SQLx 0.9, reqwest 0.13, keyring 4, and pinned Actions release SHAs. |

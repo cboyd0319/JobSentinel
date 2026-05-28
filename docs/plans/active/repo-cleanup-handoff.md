@@ -9,12 +9,19 @@ The cleanup goal remains open. Do not mark it complete until current evidence
 proves the repo-wide objective: identify and fix all known issues across the
 JobSentinel repo, then verify docs and code against that full scope.
 
-Latest completed cleanup slice before this handoff refresh:
+All tracked files under `docs/plans/active/` are now part of the current goal
+scope:
 
-- `a617ea64 Simplify ATS word-match copy`
-- Parent slices: `a8bfbad7 Simplify problem history support copy`,
-  `8d9e5284 Simplify browser import button setup`, and
-  `79977813 Simplify job search link copy`
+- `guided-job-search-intake.md`
+- `repo-cleanup-and-quality-sweep.md`
+- `repo-cleanup-handoff.md`
+- `research-backed-product-improvements.md`
+
+Latest local committed slices before this handoff refresh:
+
+- `766fe294 Expand research-backed product plan`
+- `d0383a24 Simplify resume optimizer match copy`
+- `c4b7c3d0 Add research-backed product plan`
 
 Current cleanup posture:
 
@@ -28,6 +35,9 @@ Current cleanup posture:
 - Research-backed product improvement planning exists as an active plan across
   setup, scoring, resume, ATS, ghost detection, applications, market
   intelligence, accessibility, privacy, and security.
+- Root and nested junk scans were rerun on 2026-05-28. Local `.DS_Store`
+  artifacts in root/docs paths were removed. Tracked disposable pattern scan,
+  untracked scan, local artifact `find` scan, and `npm run lint:bloat` passed.
 - User ease is now a standalone goal requirement: assume zero technical
   knowledge for end users. Troubleshooting and issue reporting must stay
   one-click, plain-language, and privacy-preserving.
@@ -46,6 +56,14 @@ Recent cleanup slices on `main` include:
 
 - WebKit E2E shortcut delivery and dashboard count stabilization.
 - Chromium E2E stabilization after full-suite failures.
+- Active research-backed product planning for job-seeker behavior, ATS-aware
+  preparation, ghost/stale-post research, local source collection, salary
+  negotiation, and pay-equity support.
+- Resume Optimizer copy moved from ATS/keyword jargon to resume-match and
+  job-word language.
+- Root and nested junk scan removed local `.DS_Store` artifacts and confirmed
+  no tracked or untracked disposable artifacts remain outside expected ignored
+  build/dependency roots.
 - Research-backed guided intake, work-to-avoid intake, and setup review summary.
 - Plain-language Deep Link, Browser Import Button, problem history, and ATS
   word-match copy.
@@ -101,11 +119,11 @@ Keep the objective broad. Do not collapse it to already-landed slices.
 
 Next high-value passes:
 
-1. Run a final root and nested junk scan.
-   - Confirm untracked files are expected.
-   - Confirm tracked disposable artifacts are absent.
-   - Recheck docs images, fixtures, generated output, logs, reports, caches, and
-     obsolete examples.
+1. Keep root and nested junk scans current after each later slice.
+   - Latest scan removed local `.DS_Store` artifacts and found no remaining
+     tracked or untracked disposable artifacts.
+   - Repeat before final completion or after any build/test command that may
+     create local artifacts.
 2. Run a final stale-docs and reference sweep.
    - Compare README, `docs/README.md`, harness docs, developer docs, security
      docs, feature docs, and source comments against live commands and APIs.
