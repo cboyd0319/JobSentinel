@@ -992,6 +992,7 @@ function hasEngineerFirstAudienceExamples(root, path) {
     /Comma or OR:\s*react,\s*vue/i,
     /senior AND engineer/i,
     /["']?query["']?\s*:\s*["']software engineer["']/i,
+    /title:\s*["'](?:Senior\s+)?Software Engineer["']/i,
     /\?\?\s*["']Software Engineer["']/i,
     /The skill extractor recognizes \*\*\d+\+ skills\*\* across 6 categories/i,
     /Identify \d+\+ technical skills across 6 categories/i,

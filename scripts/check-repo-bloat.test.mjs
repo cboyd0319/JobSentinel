@@ -322,7 +322,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     writeFixtureFile(
       root,
       "src/mocks/data.ts",
-      'export const mockConfig = { linkedin: { query: "software engineer" } };\n',
+      [
+        'export const mockConfig = { linkedin: { query: "software engineer" } };',
+        'export const mockJobs = [{ title: "Senior Software Engineer" }];',
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(
       root,
