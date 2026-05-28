@@ -288,7 +288,8 @@ impl MarketAnalyzer {
 
     /// Get historical snapshots (last N days)
     pub async fn get_historical_snapshots(&self, days: usize) -> Result<Vec<MarketSnapshot>> {
-        let query = format!(
+        let modifier = format!("-{days} days");
+        let rows = sqlx::query(
             r#"
             SELECT
                 date, total_jobs, new_jobs_today, jobs_filled_today,
@@ -296,13 +297,13 @@ impl MarketAnalyzer {
                 top_skill, top_company, top_location,
                 total_companies_hiring, market_sentiment, notes
             FROM market_snapshots
-            WHERE date >= date('now', '-{} days')
+            WHERE date >= date('now', ?)
             ORDER BY date DESC
             "#,
-            days
-        );
-
-        let rows = sqlx::query(&query).fetch_all(&self.db).await?;
+        )
+        .bind(modifier)
+        .fetch_all(&self.db)
+        .await?;
 
         rows.into_iter()
             .map(|r| row_to_snapshot(&r))

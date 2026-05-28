@@ -101,7 +101,15 @@ export function useKeyboardNavigation<T>({
         return;
       }
 
-      if ((event.key === "/" || event.code === "Slash") && focusSearchCb) {
+      const plainSlash =
+        !event.metaKey &&
+        !event.ctrlKey &&
+        !event.altKey &&
+        !event.shiftKey &&
+        (event.key === "/" ||
+          (event.key === "Unidentified" && event.code === "Slash"));
+
+      if (plainSlash && focusSearchCb) {
         event.preventDefault();
         event.stopPropagation();
         focusSearchCb();

@@ -123,6 +123,10 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-28 | In progress | Refreshed direct npm, Cargo, and GitHub Actions dependencies to latest stable versions, including Tailwind 4, TypeScript 6, Vite 8, Vitest 4, Playwright 1.60, Tauri 2.11, SQLx 0.9, reqwest 0.13, keyring 4, and pinned Actions release SHAs. |
+| 2026-05-28 | In progress | Closed SEC-001 after the latest-stable Rust refresh removed the `rand` 0.7 and `rsa` advisory paths from `Cargo.lock`; `cargo audit` now exits 0 with only allowed warnings. |
+| 2026-05-28 | In progress | Fixed upgrade regressions from the latest-stable refresh: Tailwind 4 PostCSS config and utility composition, TypeScript 6 config cleanup, React compiler hook/static-component purity issues, SQLx 0.9 dynamic SQL guards, keyring 4 native-store initialization, Dashboard refetch loop, WebKit slash shortcut handling, WebKit application-card activation, and invalid notification tooltip markup. |
+| 2026-05-28 | In progress | Hardened the Playwright bookmark page object so persistence tests wait for mock backend storage after optimistic UI updates; verified full Chromium/WebKit E2E at 252 passed in 2.0m after the latest-stable dependency refresh. |
 | 2026-05-28 | In progress | Confirmed GitHub shows zero open Dependabot, code scanning, and secret scanning alerts after dismissing Dependabot alert #67 as accepted upstream transitive risk with SEC-001 tracking. |
 | 2026-05-28 | In progress | Triaged GitHub Dependabot Rust alerts after push; updated `Cargo.lock` for Tauri 2.11.1, OpenSSL 0.10.80, rand 0.8.6, and rand 0.9.3, regenerated Tauri permission schemas, and verified Rust fmt, clippy, and lib tests. Remaining low `rand` 0.7 alert is tracked as SEC-001 because it comes through the Tauri build-time transitive chain. |
 | 2026-05-28 | In progress | Reduced Playwright wall time by adding fast smoke scripts and local parallel workers, excluding docs screenshot capture by default, stabilizing parallel-safe page objects, and verifying `npm run test:e2e:all` at 252 passed in 5.5m plus Chromium-only full E2E at 126 passed in 2.8m. |

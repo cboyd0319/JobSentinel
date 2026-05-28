@@ -393,9 +393,18 @@ Developer docs:
 - Tests were expanded across settings, scoring edge cases, and bulk actions.
 - Transitive dependency security updates were applied.
 
+### In main for the next release
+
+- One-click sanitized debug reports are available from settings, error logs,
+  and crash recovery surfaces.
+- Direct npm, Cargo, and GitHub Actions dependencies were refreshed to latest
+  stable versions; narrower Dependabot PRs are superseded by the mainline
+  refresh.
+- Playwright smoke and full-browser test commands are faster and support
+  `npm run test:e2e:last-failed` for quick failure loops.
+
 ### Tracked next
 
-- One-click sanitized debug reports in the next packaged release.
 - Continued zero-technical-knowledge UX review.
 - Continued broad-audience review for technical and non-technical roles.
 - Local matching improvements.

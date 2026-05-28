@@ -12,9 +12,10 @@
 //!
 //! Both paths use the same underlying keyring with consistent key naming.
 
-use keyring::Entry;
+use keyring_core::{Entry, Error as KeyringError};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
+use std::sync::OnceLock;
 
 /// Enumeration of all credential types supported by JobSentinel.
 ///
@@ -119,6 +120,22 @@ impl FromStr for CredentialKey {
 /// Service name for all keyring entries (used as namespace).
 const SERVICE_NAME: &str = "JobSentinel";
 const MAX_LINKEDIN_COOKIE_LEN: usize = 500;
+static KEYRING_STORE_INIT: OnceLock<Result<(), String>> = OnceLock::new();
+
+fn ensure_keyring_store() -> Result<(), String> {
+    KEYRING_STORE_INIT
+        .get_or_init(|| {
+            keyring::use_native_store(true)
+                .map_err(|e| format!("Failed to initialize native keyring store: {e}"))
+        })
+        .clone()
+}
+
+fn credential_entry(key: CredentialKey) -> Result<Entry, String> {
+    ensure_keyring_store()?;
+    Entry::new(SERVICE_NAME, key.as_str())
+        .map_err(|e| format!("Failed to create keyring entry: {e}"))
+}
 
 fn validate_credential_value(key: CredentialKey, value: &str) -> Result<(), String> {
     if key != CredentialKey::LinkedInCookie {
@@ -199,8 +216,7 @@ impl CredentialStore {
 
         validate_credential_value(key, value)?;
 
-        let entry = Entry::new(SERVICE_NAME, key.as_str())
-            .map_err(|e| format!("Failed to create keyring entry: {e}"))?;
+        let entry = credential_entry(key)?;
 
         entry
             .set_password(value)
@@ -222,12 +238,11 @@ impl CredentialStore {
     /// - `Ok(None)` - Credential doesn't exist (not an error)
     /// - `Err(_)` - Keyring error or permission denied
     pub fn retrieve(key: CredentialKey) -> Result<Option<String>, String> {
-        let entry = Entry::new(SERVICE_NAME, key.as_str())
-            .map_err(|e| format!("Failed to create keyring entry: {e}"))?;
+        let entry = credential_entry(key)?;
 
         match entry.get_password() {
             Ok(password) => Ok(Some(password)),
-            Err(keyring::Error::NoEntry) => Ok(None),
+            Err(KeyringError::NoEntry) => Ok(None),
             Err(e) => Err(format!(
                 "Failed to retrieve credential '{}': {e}",
                 key.as_str()
@@ -243,15 +258,14 @@ impl CredentialStore {
     ///
     /// * `key` - Credential type to delete
     pub fn delete(key: CredentialKey) -> Result<(), String> {
-        let entry = Entry::new(SERVICE_NAME, key.as_str())
-            .map_err(|e| format!("Failed to create keyring entry: {e}"))?;
+        let entry = credential_entry(key)?;
 
         match entry.delete_credential() {
             Ok(()) => {
                 tracing::debug!("Deleted credential: {}", key.as_str());
                 Ok(())
             }
-            Err(keyring::Error::NoEntry) => Ok(()), // Already deleted
+            Err(KeyringError::NoEntry) => Ok(()), // Already deleted
             Err(e) => Err(format!(
                 "Failed to delete credential '{}': {e}",
                 key.as_str()

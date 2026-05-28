@@ -115,6 +115,7 @@ const SortableApplicationCard = memo(function SortableApplicationCard({
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
+  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
 
   // Find the column this app is in for ARIA announcement
   const columnLabel = STATUS_COLUMNS.find(c => c.key === app.status)?.label || app.status;
@@ -133,6 +134,20 @@ const SortableApplicationCard = memo(function SortableApplicationCard({
       className={`p-3 bg-white dark:bg-surface-700 rounded-lg shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 ${
         isDragging ? "shadow-lg ring-2 ring-sentinel-500" : ""
       }`}
+      onPointerDownCapture={(e) => {
+        pointerStartRef.current =
+          e.button === 0 ? { x: e.clientX, y: e.clientY } : null;
+      }}
+      onPointerUpCapture={(e) => {
+        const start = pointerStartRef.current;
+        pointerStartRef.current = null;
+        if (!start || isDragging) return;
+
+        const distance = Math.hypot(e.clientX - start.x, e.clientY - start.y);
+        if (distance < 8) {
+          onClick();
+        }
+      }}
       onClick={(e) => {
         // Only trigger click if not dragging
         if (!isDragging) {

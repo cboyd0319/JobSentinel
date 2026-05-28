@@ -44,7 +44,8 @@ impl DatabaseIntegrity {
             .to_str()
             .context("Invalid backup path encoding")?;
 
-        sqlx::query(&format!("VACUUM INTO '{}'", backup_path_str))
+        sqlx::query("VACUUM INTO ?")
+            .bind(backup_path_str)
             .execute(&self.db)
             .await
             .context("Failed to create backup via VACUUM INTO")?;

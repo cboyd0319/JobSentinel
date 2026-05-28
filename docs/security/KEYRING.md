@@ -8,9 +8,9 @@ keys, and authenticated scraper cookies.
 
 | Platform | Credential manager | Implementation |
 | -------- | ------------------ | -------------- |
-| Windows | Windows Credential Manager | `keyring` crate with `windows-native` |
-| macOS | macOS Keychain | `keyring` crate with `apple-native` |
-| Linux | Secret Service API | `keyring` crate with `sync-secret-service` |
+| Windows | Windows Credential Manager | `keyring` native store |
+| macOS | macOS Keychain | `keyring` native store |
+| Linux | Secret Service API | `keyring` native store |
 
 ## Stored Credentials
 
@@ -56,6 +56,8 @@ service name and storage keys.
 
 `tauri-plugin-secure-storage` remains registered with the app, but the current
 React credential flow uses Tauri commands backed by `CredentialStore`.
+`CredentialStore` initializes the `keyring` native store once at startup, then
+uses `keyring-core` entries for OS credential access.
 
 ## Code Modules
 
@@ -241,13 +243,9 @@ secrets.
 ## Dependencies
 
 ```toml
-tauri-plugin-secure-storage = "1.4"
-
-keyring = { version = "3", features = [
-    "apple-native",
-    "windows-native",
-    "sync-secret-service"
-] }
+tauri-plugin-secure-storage = "1.5"
+keyring = "4"
+keyring-core = "1"
 ```
 
 ## Related Documentation

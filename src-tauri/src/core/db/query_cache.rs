@@ -115,8 +115,9 @@ impl QueryAnalyzer {
         }
 
         let explain_query = format!("EXPLAIN QUERY PLAN {}", query);
-        let rows: Vec<(i64, i64, i64, String)> =
-            sqlx::query_as(&explain_query).fetch_all(pool).await?;
+        let rows: Vec<(i64, i64, i64, String)> = sqlx::query_as(sqlx::AssertSqlSafe(explain_query))
+            .fetch_all(pool)
+            .await?;
 
         let plan = rows
             .into_iter()
@@ -151,7 +152,9 @@ impl QueryAnalyzer {
         let mut total_ms = 0.0;
         for _ in 0..iterations {
             let start = Instant::now();
-            sqlx::query(query).fetch_all(pool).await?;
+            sqlx::query(sqlx::AssertSqlSafe(query))
+                .fetch_all(pool)
+                .await?;
             total_ms += start.elapsed().as_secs_f64() * 1000.0;
         }
 

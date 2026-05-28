@@ -1,9 +1,8 @@
 /* Google Fonts - must be first */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
 @layer base {
   html {
@@ -39,7 +38,7 @@
     /* Enhance text contrast */
     .text-surface-500,
     .text-surface-400 {
-      @apply text-surface-700 dark:text-surface-200 !important;
+      @apply !text-surface-700 dark:!text-surface-200;
     }
 
     /* Stronger focus rings */
@@ -70,17 +69,17 @@
     .text-surface-500,
     .text-surface-400,
     .text-surface-300 {
-      @apply text-surface-800 dark:text-surface-100 !important;
+      @apply !text-surface-800 dark:!text-surface-100;
     }
 
     .border,
     [class*="border-surface"] {
-      @apply border-surface-600 dark:border-surface-300 !important;
+      @apply !border-surface-600 dark:!border-surface-300;
       border-width: 2px !important;
     }
 
     .bg-surface-50 {
-      @apply bg-surface-100 dark:bg-surface-800 !important;
+      @apply !bg-surface-100 dark:!bg-surface-800;
     }
   }
 
@@ -124,7 +123,9 @@
 
   /* Primary button - sentinel brand */
   .btn-primary {
-    @apply btn bg-sentinel-500 text-white rounded-lg;
+    @apply inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200 ease-out;
+    @apply focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+    @apply bg-sentinel-500 text-white rounded-lg;
     @apply hover:bg-sentinel-600 hover:shadow-soft hover:-translate-y-0.5;
     @apply active:translate-y-0 active:bg-sentinel-700;
     @apply focus-visible:ring-sentinel-500;
@@ -132,7 +133,9 @@
 
   /* Secondary button - subtle */
   .btn-secondary {
-    @apply btn bg-surface-100 text-surface-700 border border-surface-200 rounded-lg;
+    @apply inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200 ease-out;
+    @apply focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+    @apply bg-surface-100 text-surface-700 border border-surface-200 rounded-lg;
     @apply hover:bg-surface-200 hover:border-surface-300;
     @apply active:bg-surface-300;
     @apply focus-visible:ring-surface-400;
@@ -143,7 +146,9 @@
 
   /* Ghost button - minimal */
   .btn-ghost {
-    @apply btn text-surface-600 rounded-lg;
+    @apply inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200 ease-out;
+    @apply focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+    @apply text-surface-600 rounded-lg;
     @apply hover:bg-surface-100 hover:text-surface-800;
     @apply active:bg-surface-200;
     @apply dark:text-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-200;
@@ -161,8 +166,11 @@
     @apply dark:hover:border-surface-600;
   }
   .card-interactive {
-    @apply card card-hover cursor-pointer;
-    @apply hover:border-sentinel-200 dark:hover:border-sentinel-700;
+    @apply bg-white rounded-card border border-surface-100 shadow-soft;
+    @apply transition-all duration-200 ease-out cursor-pointer;
+    @apply dark:bg-surface-800 dark:border-surface-700 dark:shadow-none;
+    @apply hover:shadow-card-hover hover:-translate-y-0.5 hover:border-sentinel-200;
+    @apply dark:hover:border-sentinel-700;
   }
 
   /* Input fields */
@@ -185,15 +193,18 @@
     @apply inline-flex items-center gap-1 px-2.5 py-1 text-sm font-medium rounded-full;
   }
   .badge-sentinel {
-    @apply badge bg-sentinel-100 text-sentinel-700;
+    @apply inline-flex items-center gap-1 px-2.5 py-1 text-sm font-medium rounded-full;
+    @apply bg-sentinel-100 text-sentinel-700;
     @apply dark:bg-sentinel-900/40 dark:text-sentinel-300;
   }
   .badge-alert {
-    @apply badge bg-alert-100 text-alert-700;
+    @apply inline-flex items-center gap-1 px-2.5 py-1 text-sm font-medium rounded-full;
+    @apply bg-alert-100 text-alert-700;
     @apply dark:bg-alert-900/40 dark:text-alert-300;
   }
   .badge-surface {
-    @apply badge bg-surface-100 text-surface-600;
+    @apply inline-flex items-center gap-1 px-2.5 py-1 text-sm font-medium rounded-full;
+    @apply bg-surface-100 text-surface-600;
     @apply dark:bg-surface-700 dark:text-surface-300;
   }
 
@@ -234,13 +245,13 @@
     @apply w-2 h-2 rounded-full;
   }
   .status-dot-active {
-    @apply status-dot bg-sentinel-500 animate-pulse-slow;
+    @apply w-2 h-2 rounded-full bg-sentinel-500 animate-pulse-slow;
   }
   .status-dot-idle {
-    @apply status-dot bg-surface-300;
+    @apply w-2 h-2 rounded-full bg-surface-300;
   }
   .status-dot-auto {
-    @apply status-dot bg-green-500;
+    @apply w-2 h-2 rounded-full bg-green-500;
   }
 }
 

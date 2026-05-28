@@ -4,7 +4,7 @@
  * Generate pre-filled job search URLs for sites we can't scrape.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   generateDeepLinks,
   getSupportedSites,
@@ -97,12 +97,7 @@ export function DeepLinkGenerator({
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<SiteCategory | "all">("all");
 
-  // Load supported sites on mount
-  useEffect(() => {
-    loadSites();
-  }, []);
-
-  const loadSites = async () => {
+  const loadSites = useCallback(async () => {
     try {
       const supportedSites = await getSupportedSites();
       setSites(supportedSites);
@@ -110,7 +105,12 @@ export function DeepLinkGenerator({
       logError("Failed to load deep-link sites:", err);
       setError("Failed to load supported sites");
     }
-  };
+  }, []);
+
+  // Load supported sites on mount
+  useEffect(() => {
+    void loadSites();
+  }, [loadSites]);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();

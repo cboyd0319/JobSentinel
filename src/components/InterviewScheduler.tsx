@@ -38,6 +38,10 @@ interface InterviewSchedulerProps {
   applications?: Application[];
 }
 
+function formatFollowUpSentDate(sentAt?: string | null): string {
+  return sentAt ? new Date(sentAt).toLocaleDateString() : "";
+}
+
 const INTERVIEW_TYPES = [
   { value: "phone", label: "Phone Screen" },
   { value: "screening", label: "Screening Call" },
@@ -693,7 +697,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                         </span>
                         {followUpReminders[interview.id]?.sentAt && (
                           <span className="text-xs text-surface-400 ml-auto">
-                            {new Date(followUpReminders[interview.id]?.sentAt ?? Date.now()).toLocaleDateString()}
+                            {formatFollowUpSentDate(followUpReminders[interview.id]?.sentAt)}
                           </span>
                         )}
                       </label>

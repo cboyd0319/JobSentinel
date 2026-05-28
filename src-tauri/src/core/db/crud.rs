@@ -274,7 +274,7 @@ impl Database {
             .join(",");
         let sql = format!("UPDATE jobs SET hidden = 1 WHERE id IN ({})", placeholders);
 
-        let mut query = sqlx::query(&sql);
+        let mut query = sqlx::query(sqlx::AssertSqlSafe(sql));
         for id in &ids_to_hide {
             query = query.bind(id);
         }

@@ -358,10 +358,10 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
     <div className={`mt-4 pt-4 border-t border-surface-200 dark:border-surface-700 ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
       <div className="flex items-center gap-2 mb-4">
         <FilterIcon className="w-4 h-4 text-surface-500" />
-        <p className="text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wide flex items-center gap-1">
+        <div className="text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wide flex items-center gap-1">
           Extra Filters
           <HelpIcon text="Additional rules to customize which jobs you get notified about. All of these are optional." size="sm" />
-        </p>
+        </div>
       </div>
 
       {/* Keyword Filters */}

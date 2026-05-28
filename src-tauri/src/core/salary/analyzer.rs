@@ -115,7 +115,7 @@ impl SalaryAnalyzer {
             placeholders
         );
 
-        let mut query = sqlx::query(&sql);
+        let mut query = sqlx::query(sqlx::AssertSqlSafe(sql));
         for id in &offer_ids {
             query = query.bind(id);
         }

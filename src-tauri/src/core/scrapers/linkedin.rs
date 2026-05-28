@@ -612,7 +612,7 @@ impl LinkedInScraper {
             hasher.update(location_utils::normalize_location(loc).as_bytes());
         }
         hasher.update(url_utils::normalize_url(url).as_bytes());
-        format!("{:x}", hasher.finalize())
+        hex::encode(hasher.finalize())
     }
 }
 

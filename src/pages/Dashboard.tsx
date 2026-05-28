@@ -148,6 +148,7 @@ export default function Dashboard({
     statistics,
     onDataUpdate: handleDataUpdate,
   });
+  const { setAutoRefreshEnabled, setAutoRefreshInterval } = autoRefresh;
 
   // Data fetching
   const fetchData = useCallback(async () => {
@@ -173,8 +174,8 @@ export default function Dashboard({
           60_000,
         );
         if (config?.auto_refresh) {
-          autoRefresh.setAutoRefreshEnabled(config.auto_refresh.enabled);
-          autoRefresh.setAutoRefreshInterval(
+          setAutoRefreshEnabled(config.auto_refresh.enabled);
+          setAutoRefreshInterval(
             config.auto_refresh.interval_minutes || 30,
           );
         }
@@ -187,7 +188,7 @@ export default function Dashboard({
     } finally {
       setLoading(false);
     }
-  }, [autoRefresh]);
+  }, [setAutoRefreshEnabled, setAutoRefreshInterval]);
 
   // Keep ref updated to avoid stale closure in timeout
   useEffect(() => {

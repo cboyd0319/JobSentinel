@@ -423,6 +423,19 @@ describe("useKeyboardNavigation", () => {
       expect(onFocusSearch).toHaveBeenCalled();
     });
 
+    it("does not handle shifted Slash", () => {
+      const onFocusSearch = vi.fn();
+      renderHook(() =>
+        useKeyboardNavigation({ items, onFocusSearch })
+      );
+
+      act(() => {
+        document.dispatchEvent(new KeyboardEvent("keydown", { code: "Slash", key: "?", shiftKey: true }));
+      });
+
+      expect(onFocusSearch).not.toHaveBeenCalled();
+    });
+
     it("calls onRefresh when r is pressed", () => {
       const onRefresh = vi.fn();
       renderHook(() =>

@@ -1,6 +1,8 @@
 import { expect, Page, Locator } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
+const MOCK_STATE_KEY = "jobsentinel.mockState.v1";
+
 /**
  * Job card interactions on the dashboard.
  */
@@ -121,6 +123,41 @@ export class JobDetailPage extends BasePage {
     await expect(this.bookmarkButton).toBeVisible({ timeout: 5000 });
     await this.bookmarkButton.click();
     await expect.poll(() => this.isBookmarked()).toBe(!initialBookmarked);
+    await this.waitForMockBookmarkState(!initialBookmarked);
+  }
+
+  private async waitForMockBookmarkState(expected: boolean) {
+    if (!this.activeJobId) return;
+
+    await expect
+      .poll(
+        () =>
+          this.page.evaluate(
+            ({ jobId, stateKey, expectedState }) => {
+              const raw = window.localStorage.getItem(stateKey);
+              if (!raw) return false;
+
+              try {
+                const state = JSON.parse(raw) as {
+                  jobs?: Array<{ id?: number | string; bookmarked?: boolean }>;
+                };
+                const job = state.jobs?.find(
+                  (candidate) => String(candidate.id) === jobId,
+                );
+                return Boolean(job?.bookmarked) === expectedState;
+              } catch {
+                return false;
+              }
+            },
+            {
+              jobId: this.activeJobId,
+              stateKey: MOCK_STATE_KEY,
+              expectedState: expected,
+            },
+          ),
+        { timeout: 5000 },
+      )
+      .toBe(true);
   }
 
   async isBookmarked(): Promise<boolean> {

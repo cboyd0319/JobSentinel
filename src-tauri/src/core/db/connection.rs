@@ -141,8 +141,7 @@ impl Database {
         // Set cache size to 128MB (negative = kilobytes, positive = pages)
         // Larger cache = fewer disk reads = faster queries
         // Using 128MB to ensure we have AT LEAST 64MB (with 2x safety margin)
-        const CACHE_SIZE_KB: i64 = -128000; // 128MB in kilobytes
-        sqlx::query(&format!("PRAGMA cache_size = {}", CACHE_SIZE_KB))
+        sqlx::query("PRAGMA cache_size = -128000")
             .execute(pool)
             .await?;
         tracing::debug!("Cache size = 128MB (at least 64MB required)");
@@ -211,8 +210,7 @@ impl Database {
         // Set application ID (unique identifier for JobSentinel)
         // Helps identify database files in forensic analysis
         // Using ASCII "JSDB" = 0x4A534442
-        const JOBSENTINEL_APP_ID: i64 = 0x4A534442;
-        sqlx::query(&format!("PRAGMA application_id = {}", JOBSENTINEL_APP_ID))
+        sqlx::query("PRAGMA application_id = 1246979138")
             .execute(pool)
             .await?;
         tracing::debug!("Application ID set (JSDB)");
@@ -220,9 +218,7 @@ impl Database {
         // Set user version (complementary to migrations)
         // We'll use this to track major schema versions
         const SCHEMA_VERSION: i64 = 2; // Bumped with integrity tables
-        sqlx::query(&format!("PRAGMA user_version = {}", SCHEMA_VERSION))
-            .execute(pool)
-            .await?;
+        sqlx::query("PRAGMA user_version = 2").execute(pool).await?;
         tracing::debug!("User version = {}", SCHEMA_VERSION);
 
         // ============================================================

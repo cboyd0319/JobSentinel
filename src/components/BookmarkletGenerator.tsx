@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Button } from "./Button";
 import { Card } from "./Card";
@@ -34,11 +34,7 @@ export function BookmarkletGenerator() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    loadConfig();
-  }, []);
-
-  const loadConfig = async () => {
+  const loadConfig = useCallback(async () => {
     try {
       setLoading(true);
       const cfg = await invoke<BookmarkletConfig>("get_bookmarklet_config");
@@ -50,7 +46,11 @@ export function BookmarkletGenerator() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    void loadConfig();
+  }, [loadConfig]);
 
   const toggleServer = async () => {
     try {

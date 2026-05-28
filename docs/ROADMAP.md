@@ -125,9 +125,9 @@ Major security release with OS-native keyring integration, Resume Builder, and O
 | Feature                               | Status   | Notes                                          |
 | ------------------------------------- | -------- | ---------------------------------------------- |
 | **OS-Native Keyring Integration**     | **Done** | Secure credential storage                      |
-| macOS Keychain support                | **Done** | `keyring` crate with `apple-native`            |
-| Windows Credential Manager            | **Done** | `keyring` crate with `windows-native`          |
-| Linux Secret Service                  | **Done** | `keyring` crate with `sync-secret-service`     |
+| macOS Keychain support                | **Done** | `keyring` native store                         |
+| Windows Credential Manager            | **Done** | `keyring` native store                         |
+| Linux Secret Service                  | **Done** | `keyring` native store                         |
 | Automatic migration                   | **Done** | Plaintext to keyring on first v2.0 launch      |
 | 5 credential commands                 | **Done** | store, retrieve, delete, has, get_status       |
 | Updated Settings UI                   | **Done** | Credential status indicators                   |

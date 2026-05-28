@@ -128,7 +128,7 @@ impl Database {
         }
         let sql = format!("SELECT * FROM jobs WHERE id IN ({})", placeholders);
 
-        let mut query_builder = sqlx::query_as::<_, Job>(&sql);
+        let mut query_builder = sqlx::query_as::<_, Job>(sqlx::AssertSqlSafe(sql));
         for id in job_ids {
             query_builder = query_builder.bind(id);
         }

@@ -271,11 +271,13 @@ pub async fn mark_alert_read(db: &SqlitePool, id: i64) -> Result<bool> {
 
 /// Delete old alerts (older than N days)
 pub async fn cleanup_old_alerts(db: &SqlitePool, days: usize) -> Result<u64> {
-    let query = format!(
-        "DELETE FROM market_alerts WHERE created_at < datetime('now', '-{} days') AND is_read = 1",
-        days
-    );
-    let result = sqlx::query(&query).execute(db).await?;
+    let modifier = format!("-{days} days");
+    let result = sqlx::query(
+        "DELETE FROM market_alerts WHERE created_at < datetime('now', ?) AND is_read = 1",
+    )
+    .bind(modifier)
+    .execute(db)
+    .await?;
 
     Ok(result.rows_affected())
 }
