@@ -51,6 +51,30 @@ Question flows should feel helpful, not like an exam.
 - Make software or startup jobs the default examples.
 - Use pressure language.
 
+### Ask useful questions
+
+Good questions help JobSentinel find better jobs without making the job seeker
+feel judged.
+
+**Do:**
+
+- Ask about work the person wants, work they can do, and work they want to
+  avoid.
+- Ask which answers are must-haves and which are preferences.
+- Offer "not sure" when a normal person may not know the answer yet.
+- Ask whether nearby roles should be shown separately.
+- Summarize answers before scanning starts.
+- Show which answers affected a match score.
+
+**Don't:**
+
+- Ask people to rate themselves with vague labels like "expert" unless the
+  label affects a clear setting.
+- Treat missing skills as failure.
+- Hide good jobs because a user skipped an optional answer.
+- Present an automated score as a final judgment.
+- Make users describe their whole career before seeing results.
+
 ### Lead with benefits, not features
 
 Job seekers care about results, not technology.
