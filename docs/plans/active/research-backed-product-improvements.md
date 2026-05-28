@@ -4,7 +4,7 @@
 
 JobSentinel already has search setup, scoring, resume matching, resume building,
 ATS analysis, one-click apply, market intelligence, ghost detection, and
-application tracking. The research notes in the three user-provided source files
+application tracking. The research notes in the six user-provided source files
 show additional ways to make those features more useful, more honest, safer,
 and easier for job seekers from many backgrounds.
 
@@ -16,12 +16,50 @@ only. No code changes are part of this goal.
 - `/Users/c/Downloads/job_seeker_behavior_research_papers.md`
 - `/Users/c/Downloads/ats_bypass_automated_resume_screening_research.md`
 - `/Users/c/Downloads/ghost_job_detection_research_and_guidance.md`
+- `/Users/c/Downloads/job_site_web_scraping_research_and_guidance.md`
+- `/Users/c/Downloads/In Salary Negotiations, Women Do Ask - PON - Program on Negotiation at Harvard Law School.pdf`
+- `/Users/c/Downloads/pay_equity_higher_pay_women_people_of_color.md`
 
 Primary-source spot checks were also done on 2026-05-28 for high-impact claims
 from arXiv, IZA, ScienceDirect, NBER, HBS, Upturn, CEUR-WS, MDPI, Springer,
-Columbia Law Review Forum, FTC, ResumeBuilder.com, and Clarify Capital. The
-plan should still verify exact numbers again before implementation because
-several sources are working papers, preprints, vendor surveys, or news reports.
+Columbia Law Review Forum, FTC, ResumeBuilder.com, Clarify Capital, IETF RFC
+9309, Greenhouse, Lever, Ashby, SmartRecruiters, LinkedIn, Indeed, Pew Research
+Center, Harvard Gender Action Portal, HBR, UC Berkeley, NWLC, arXiv salary
+history and AI-salary-advice papers, and the Harvard Program on Negotiation PDF.
+The plan should still verify exact numbers again before implementation because
+several sources are working papers, preprints, vendor surveys, news reports,
+terms pages, legal summaries, or fast-changing policy references.
+
+Second-pass coverage on 2026-05-28 found 52 unique URLs across the three source
+files. Forty-five sources were downloaded or extracted with enough text for
+local review. Seven sources were blocked by publisher or paywall responses
+during direct download: ACM TIST fairness survey, MDPI Resume2Vec page, four
+ScienceDirect pages, and the Wall Street Journal ghost-jobs article. The ACM
+fairness survey was reviewed through an author-hosted PDF copy. Blocked sources
+still need source-level verification before exact statistics or legal claims
+are repeated in user-facing product copy.
+
+The scraping guidance is scoped only to JobSentinel as a local-first application
+for a single job seeker. It is not a full job-site scraper, public job board,
+commercial aggregation API, or AI training data collector. That single-user
+scope lowers scale and redistribution risk, but it does not remove source terms,
+robots.txt, privacy, copyright, access-control, or jurisdiction-specific legal
+constraints. Future implementation must treat terms, robots, and source
+permission as product constraints, not as obstacles to bypass.
+
+The added scraping source contained 33 unique URLs. Spot checks were done
+against RFC 9309, Greenhouse Job Board API, Lever Postings API, Ashby Job
+Postings API, SmartRecruiters Posting API, LinkedIn prohibited-software
+guidance, and Indeed terms. The salary-negotiation PDF was extracted locally
+with `pypdf`; Poppler text tools were not installed in this environment.
+
+The added pay-equity source contained 35 unique URLs. Spot checks were done
+against Pew 2025 gender pay gap data, Harvard GAP negotiation-ambiguity
+research, HBR and UC Berkeley summaries of women asking but receiving worse
+outcomes, NWLC pay-range transparency guidance, and arXiv papers on salary
+history bans and AI salary-advice bias. PubMed and APA direct pages for
+`Bargaining while Black` were blocked by browser checks, so race-and-negotiation
+claims need source-level re-verification before exact wording ships.
 
 ## Scope
 
@@ -34,6 +72,10 @@ In scope:
 - Legitimate ATS-aware optimization: accurate machine readability, truthful
   alignment, and human-readable applications.
 - Local-first behavior and explicit user control.
+- Single-user, low-volume, local job-source monitoring for the user's saved
+  searches, company watchlists, and imported job URLs.
+- API-first and company-source-first collection where public ATS feeds or
+  allowed employer pages support it.
 
 Out of scope:
 
@@ -44,11 +86,18 @@ Out of scope:
 - External AI, cloud sync, contact upload, or social features unless a later
   product decision explicitly accepts the privacy tradeoff.
 - Employer-side hiring decisions or automated employment decision tools.
+- Full job-site scraping, public job-board operation, broad commercial
+  aggregation, resale, redistribution, or AI training datasets.
+- Scraping candidate profiles, recruiter profiles, employee lists, social graph
+  data, authenticated job-board content, or login-only surfaces.
+- Bypassing logins, CAPTCHAs, paywalls, blocks, rate limits, robots directives,
+  or other technical access controls.
+- Proxy networks, IP rotation, session-cookie reuse, or any anti-bot evasion.
 
 ## Success criteria
 
 - A new active plan exists under `docs/plans/active/`.
-- The plan incorporates all three research docs, not only the first job-seeker
+- The plan incorporates all six research docs, not only the first job-seeker
   behavior document.
 - The plan names concrete JobSentinel improvement paths across search,
   scoring, resume, ATS, ghost detection, applications, market intelligence,
@@ -91,10 +140,26 @@ Out of scope:
 | Measuring Validity in LLM-based Resume Screening | Some LLM screeners did not reliably select more qualified resumes or abstain on ties. | Avoid claiming an ATS score predicts hiring success. Treat scores as rough preparation checks. |
 | Resume prompt-injection research | Resume-borne instructions can manipulate LLM-based screeners; some attack types had high success rates. | Treat resumes and job descriptions as hostile input. Detect hidden text, anomalous instructions, and prompt-injection-like content. |
 | Hidden Workers and Help Wanted | Automated hiring can exclude qualified workers through blunt filters, proxies, and automated rejections. | Warn users about brittle filters while helping them represent real skills clearly and truthfully. |
+| Application Flows | Many applications arrive soon after posting, open periods can be short, and staffing or intermediary firms can dominate platform flow. | Add fresh-post urgency, source-type labels, and channel analytics so users can spend effort where it is likelier to matter. |
+| The Cyclicality of On-the-Job Search | Employed job seekers behave differently from unemployed job seekers and may search for ladder moves rather than emergency replacement. | Add confidential employed-search mode and avoid unemployed-only assumptions in pacing, alerts, and copy. |
+| Minimum Wage Laws and Low-Skilled Job Search | Search behavior for low-wage and low-skilled work can move differently from higher-wage markets. | Keep non-degree, hourly, service, retail, trades, and entry-level workflows first-class, not edge cases. |
+| JobHop | Large-scale resume trajectories can support career-transition, career-break, and role-stability analysis. | Build career-transition suggestions around observed paths and gaps, not title matching alone. |
+| Fairness and Bias in Algorithmic Hiring | Bias can enter sourcing, screening, interview, and selection through proxies, data gaps, automation bias, accessibility barriers, and job-description wording. | Avoid importing protected proxies, expose uncertainty, and audit user-facing scoring language across the full workflow. |
+| Local Law 144 audit research | Required audit metrics can miss distributional or practical bias issues. | Do not imply legal compliance from simple score checks; keep an evidence register and jurisdiction-aware disclosure tracker. |
+| PopResume and VLM fairness research | Visual and demographic proxy cues can affect resume screening fairness. | Warn against photo-heavy or image-only resumes and keep resume analysis text-first and provenance-backed. |
 | Ghost Jobs, Columbia Law Review Forum | Ghost jobs can be real-company postings for roles that do not exist, are already filled, are paused, or have no present intent to hire; this differs from scam jobs. | Separate "ghost/stale risk" from "potential scam" and use cautious labels instead of accusing employers. |
 | Why is it so hard to find a job now? Enter Ghost Jobs | A Glassdoor and LLM-BERT study estimates that up to 21% of ads may be ghost jobs, with stronger prevalence in specialized industries and larger firms. | Treat ghost detection as a major job-search friction signal, but verify before making user-facing statistical claims. |
 | ResumeBuilder.com and Clarify Capital ghost-job surveys | Vendor surveys report employer-side fake or inactive posting behavior, long-open postings, pipeline collection, and seeker distrust. | Use as market-signal evidence only; build explainable heuristics and source labels rather than a hard classifier. |
+| Business Insider and Revelio ghost-job reporting | Fill-rate and job-removal patterns can worsen during slow hiring, freezes, or uncertainty, not only deliberate deception. | Distinguish "likely stale", "slow hiring", "hiring freeze", and "no present intent" when evidence allows. |
 | FTC job-scam guidance | Scams seek money or personal information and can look like ordinary online job ads. | Add scam-risk warnings for money requests, early sensitive data requests, fake checks, suspicious domains, and unrealistic pay. |
+| Job-site scraping guidance and RFC 9309 | Responsible collection should be API-first, low-volume, provenance-rich, and respectful of robots.txt, terms, privacy, and access controls. | Scope collection to one local job seeker; build a source registry, polite scheduler, stop list, and no-evasion rules. |
+| Greenhouse, Lever, Ashby, and SmartRecruiters docs | Public ATS posting APIs expose published jobs in structured formats intended for careers pages or public postings. | Prefer public ATS APIs and canonical company sources over rendered HTML scraping or aggregator scraping. |
+| LinkedIn and Indeed public terms or help pages | Large aggregators and social/job platforms restrict automated access, scraping, bots, or data extraction. | Avoid direct scraping of high-risk job boards unless a later source-specific review confirms permission and low risk. |
+| In Salary Negotiations, Women Do Ask | Recent PON summary says women in studied MBA samples negotiated as often or more often than men, while pay gaps persisted due to career paths, promotion opportunities, caregiving, inflexible roles, and bias. | Build salary and negotiation support without implying job seekers can solve structural pay gaps by asking better. |
+| Pay-equity and higher-pay research | Pay gaps are shaped by salary opacity, past-pay anchoring, negotiation ambiguity, bias, occupational segregation, unequal access to referrals or sponsors, discretionary pay setting, weak enforcement, and unclear promotion criteria. | Combine individual negotiation prep with structural transparency signals, not "just ask harder" advice. |
+| Pew, NWLC, salary-history-ban, and pay-transparency sources | Pay transparency and salary-history bans can reduce information asymmetry and reduce prior-pay anchoring, but laws and data change by jurisdiction and date. | Add range-quality scoring, salary-history guardrails, jurisdiction-aware reminders, and volatile-source revalidation. |
+| Bargaining-while-Black and related race-negotiation sources | Race can affect salary-negotiation expectations and backlash; Black job seekers may face penalties when violating biased expectations. | Use market, level, scope, and written evidence framing without stereotyping users or requiring identity disclosure. |
+| AI salary-advice bias research | AI salary advice can vary by protected attributes and model version in tasks with no single ground truth. | Keep negotiation suggestions evidence-backed, inspectable, local where possible, and never personalized through inferred protected-class traits. |
 
 ## Product improvement backlog
 
@@ -115,6 +180,10 @@ Out of scope:
   do not hide unless, and alerts.
 - Add periodic check-ins after quiet weeks: widen search, lower strictness,
   refresh sources, pause alerts, or keep current settings.
+- Add confidential employed-search mode with quieter notifications, neutral
+  wording, and no assumption that the user can apply during work hours.
+- Add non-degree and hourly-work paths that emphasize schedule, commute,
+  required credentials, physical demands, and immediate availability.
 
 Likely files later:
 
@@ -142,9 +211,13 @@ Likely files later:
   without deleting them.
 - Add freshness urgency: flag jobs likely to close quickly based on posting age
   and source behavior.
+- Add a "new and worth quick review" queue for jobs seen in the first 48 hours,
+  while still letting users save older postings that match strongly.
 - Add duplicate and repost explanation so users know whether they have seen the
   role before.
 - Store explanation provenance so tests can prove no hidden score factor exists.
+- Add "not enough evidence" or "mixed evidence" states when job text, salary,
+  source freshness, or resume extraction is too thin for a confident score.
 
 Likely files later:
 
@@ -174,6 +247,10 @@ Likely files later:
   available.
 - Prefer canonical employer or ATS pages over aggregator listings when sources
   conflict.
+- Treat company-site presence as stronger evidence, not proof. The
+  ResumeBuilder.com survey claims fake or inactive postings can also appear on
+  company websites, so JobSentinel should still inspect age, reposting, closure,
+  and user-observed response patterns.
 - Add a closed-role checker for saved jobs that revisits URLs and detects 404,
   removed, closed, expired, or "no longer accepting applications" pages.
 - Add canonical job fingerprinting from normalized title, company, location,
@@ -184,6 +261,9 @@ Likely files later:
 - Track employer behavior locally: average posting age, repost frequency,
   percentage removed within 30/60/90 days, user-observed response rate,
   interview-to-application ratio, and vague evergreen-role share.
+- Track public active-hiring context when available: hiring freeze signals,
+  recent layoff news, large requisition drops, and role fill or removal timing.
+  Keep this as weak evidence unless source quality is high.
 - Add job-content quality checks for vague responsibilities, missing team or
   reporting line, boilerplate-heavy text, talent-community language, unclear
   location, contradictory remote rules, and missing salary where expected.
@@ -192,6 +272,15 @@ Likely files later:
   find human signal, and message before deep tailoring.
 - Add warning copy such as "Verify before spending serious time" for high-risk
   postings.
+- Add regulatory-disclosure fields when available: active vacancy, expected
+  hiring timeline, posting expiration date, filled or closed date, and
+  future-opportunity disclosure.
+- Use source collection only for single-user monitoring and verification:
+  saved jobs, company watchlists, user-imported URLs, and focused searches. Do
+  not fan out into broad job-board scraping.
+- Prefer public ATS feeds and official company pages for freshness and closure
+  checks. Treat aggregator copies as weaker evidence unless direct collection
+  is allowed and low risk.
 - Keep scam warnings separate from ghost risk. Scam signals should include
   requests for money, early sensitive data, suspicious domains, fake checks,
   unrealistic pay, or non-company communication.
@@ -227,6 +316,44 @@ Likely files later:
   market signals.
 - Add offer comparison prompts that include commute, schedule, benefits, and
   risk, not salary alone.
+- Add local salary expectation calibration that compares target pay against
+  visible postings, estimated ranges, role seniority, schedule, commute, and
+  user-selected flexibility without presenting the target as wrong.
+- Add negotiation preparation for salary, benefits, schedule, title, scope,
+  promotion criteria, review timing, and flexibility.
+- Avoid copy that frames gender pay gaps or lower outcomes as a failure to ask.
+  Treat negotiation as one useful action, not a fix for structural inequity.
+- Add prompts for structural offer factors: promotion path, pay transparency,
+  flexible work, caregiving compatibility, travel load, expected hours, and
+  manager support.
+- Add jurisdiction-aware reminders for salary-history questions and
+  compensation transparency only after current law is verified for the user's
+  location.
+- Add salary-range quality scoring: listed vs missing, narrow vs extremely
+  broad, midpoint above or below user floor, placement criteria present, and
+  whether "competitive" or "DOE" hides useful information.
+- Add negotiability detection for postings and recruiter notes: negotiable,
+  based on experience, fixed range, broad range, budgeted range, and missing
+  compensation.
+- Add market-anchor helper that combines posted range, local market estimate,
+  level, scope, location, skills, scarcity, competing offers, total
+  compensation, and user walkaway point.
+- Add under-anchoring warnings when a user target is below a posted midpoint or
+  below credible market evidence, without shaming or forcing a counteroffer.
+- Add past-salary guardrails: explain why current or prior compensation can
+  preserve inequity, give neutral scripts to refocus on role range and value,
+  and avoid legal advice unless jurisdiction is verified.
+- Add leveling checker that asks whether title, level, scope, decision rights,
+  team size, budget ownership, and promotion path match the offer.
+- Add employer transparency score for range clarity, range width, salary-history
+  questions, written offer detail, level criteria, promotion cycles, and pay
+  equity review claims.
+- Add review-cycle and promotion-evidence tracker so users can capture wins,
+  scope growth, metrics, peer feedback, and promotion criteria before budget
+  cycles close.
+- Add pay-equity-safe scripts grounded in role scope, market data, and user
+  evidence. Do not tailor script tone from inferred race, gender, accent, name,
+  disability, or class signals.
 
 Likely files later:
 
@@ -248,6 +375,9 @@ Likely files later:
   DOCX content is readable.
 - Add format linting for tables, columns, graphics, icons, unusual headings,
   hidden text, empty text layers, and scan-only PDFs.
+- Add photo, image-only, and visual-layout warnings because VLM and visual
+  resume screeners can pick up proxy cues and because image-heavy resumes are
+  less accessible.
 - Add warning when exported resume text differs meaningfully from preview.
 - Add job-family resume variants so users can keep truthful tailored versions
   for different role types.
@@ -261,6 +391,15 @@ Likely files later:
 - Add bullet suggestions that preserve user facts and ask for confirmation
   before changing claims.
 - Add "confidence in extraction" for skills and dates.
+- Add "unknown" states for dates, titles, education, certifications, and gaps
+  instead of forcing possibly false parser guesses into scoring.
+- Add employment-gap and career-break support that helps users present true
+  context without treating gaps as defects.
+- Add exact-credential versus transferable-evidence review so users can decide
+  whether to apply when they lack a listed degree, certification, or exact
+  title but have relevant proof.
+- Add model-agnostic resume writing guidance: clear structure, truthful
+  evidence, and human readability rather than optimization for a guessed LLM.
 - Add support for non-technical skill taxonomies across healthcare, education,
   operations, sales, finance, legal, service, trades, creative, and government.
 
@@ -292,8 +431,19 @@ Likely files later:
   job boards.
 - Add source-quality badges for company site, aggregator, staffing agency,
   recruiter repost, and uncertain source.
+- Track whether the posting was reviewed in the first 48 hours, whether the
+  application was acknowledged, and whether the application route showed a real
+  requisition ID or generic talent-pool flow.
 - Record whether a submitted application came from a posting later marked
   stale, closed, evergreen, high ghost risk, or potential scam.
+- Track offer and negotiation status locally: initial offer, counter, deadline,
+  benefits questions, schedule requests, promotion criteria, follow-up date, and
+  final decision.
+- Track total compensation details: base, signing bonus, annual bonus, equity,
+  PTO, remote or hybrid flexibility, commute, relocation, training budget,
+  certification support, severance, review timeline, and promotion date.
+- Track range and offer provenance: posted range, recruiter-stated range,
+  written offer, user-entered market data, date collected, and confidence.
 - Add follow-up templates that remain local and editable.
 - Add application outcome analytics by source and channel so users can learn
   where effort pays off.
@@ -323,6 +473,8 @@ Likely files later:
   response history, likely closed postings, and active-hiring confidence.
 - Add staffing/intermediary visibility because some platforms route many
   applications through recruiters and staffing firms.
+- Add intermediary share and source mix so users can see whether their market is
+  mostly employer-direct, staffing, recruiter, aggregator, or uncertain.
 - Add adjacent-role explorer based on skill overlap, not only job title
   similarity.
 - Add skill-gap paths with small next actions and local-only notes.
@@ -333,6 +485,19 @@ Likely files later:
 - Add role-stability and demand trend views for users deciding whether to pivot.
 - Add plain-language uncertainty when data is thin or scraped sources are biased
   toward some industries.
+- Add employer fill or removal timing at 30, 60, 90, and 180 days when local
+  evidence exists, with weak-signal labeling for scraped or incomplete data.
+- Add volatile trend alerts, such as rising AI-related title demand, only when
+  source date, geography, and role family are visible.
+- Base market intelligence on local observed source data, saved searches, user
+  watchlists, and allowed APIs. Do not imply JobSentinel has full-market
+  coverage.
+- Add pay-transparency market view: share of postings with ranges, range width,
+  median listed pay by role family, missing-pay rates, employer range quality,
+  and likely transparency-theater patterns.
+- Add employer pay-equity signals as evidence tags, not verdicts: clear salary
+  bands, written leveling criteria, regular compensation review cycles,
+  salary-history avoidance, and documented pay-equity review claims.
 
 Likely files later:
 
@@ -357,6 +522,10 @@ Likely files later:
   recommendations.
 - Add local share summary for coaches, friends, workforce counselors, or peer
   support without exposing raw resume text by default.
+- Add collaboration notes for users working with counselors, friends, peers, or
+  family, with per-note privacy flags and no contact upload requirement.
+- Add accommodation and assessment notes so users can track platform barriers,
+  requested accommodations, assessment refusals, and follow-up outcomes.
 - Add "strategic refusal" support: user can mark a company, platform, or
   assessment type as avoided and explain why for their own records.
 - Add "verify first" paths for high ghost-risk postings so users can protect
@@ -397,6 +566,30 @@ Likely files later:
 - Keep scam warnings conservative and actionable: verify the employer, do not
   pay, do not share sensitive information early, and report suspected scams
   through the appropriate channel.
+- Keep source collection local, bounded, and user-directed. No public
+  redistribution of collected job data without a separate product, legal, and
+  privacy decision.
+- Do not scrape or store recruiter personal contact data unless the user enters
+  it for their own application tracking.
+- Do not use direct aggregator scraping for LinkedIn, Indeed, Glassdoor,
+  ZipRecruiter, Monster, CareerBuilder, or similar sources unless source terms
+  and robots status are reviewed and the allowed use is documented.
+- Do not import or infer protected-class data, photos, social profiles, commute
+  proxies, school prestige, or neighborhood signals for ranking. If future
+  fairness research needs sensitive attributes, require a separate governance
+  decision.
+- Do not ask users to disclose race, ethnicity, gender, disability, immigration
+  status, caregiver status, or other protected traits to receive pay guidance.
+  If a future opt-in equity feature needs sensitive data, it requires separate
+  governance, local-only defaults, clear user benefit, and deletion controls.
+- Do not make "diversity adjustment", "identity premium", or protected-class
+  compensation recommendations. Use role, level, market, scope, and user
+  evidence.
+- Label AI-assisted salary advice as uncertain and evidence-based. Require
+  user review before using generated scripts.
+- Add score uncertainty and abstention behavior for thin evidence, conflicting
+  parser output, adversarial content, or criteria that cannot be checked from
+  local data.
 - Add tests with malformed, adversarial, scan-only, and over-designed resumes.
 - Keep human-in-the-loop submission for applications. Do not auto-submit.
 - Preserve CAPTCHA pause and manual completion behavior.
@@ -413,7 +606,67 @@ Likely files later:
 - `docs/security/URL_VALIDATION.md`
 - `docs/features/one-click-apply.md`
 
-### 10. Research and measurement harness
+### 10. Local source collection and scraper governance
+
+This section is only for a local-first, single-job-seeker JobSentinel
+installation. It is not a plan for a full job-site crawler, public job board,
+commercial job-data product, or AI training dataset.
+
+- Add a source registry with `source_name`, `source_type`, `base_url`,
+  `robots_reviewed_at`, `terms_reviewed_at`, `allowed_use`,
+  `rate_limit_per_host`, `requires_auth`, `supports_last_modified`, and
+  `risk_tier`.
+- Use this source priority: user-provided saved searches and company
+  watchlists, company-owned careers pages, public ATS APIs, search discovery
+  that points back to canonical company pages, manual user-imported URLs,
+  licensed feeds, then aggregator scraping only if allowed and low risk.
+- Prefer Greenhouse, Lever, Ashby, SmartRecruiters, and other public ATS
+  posting APIs when available. Use Workable or similar APIs only where
+  authorized. Treat Workday and employer career pages carefully because
+  behavior varies by employer.
+- Implement source-aware cadence for watched sources only: public ATS feeds
+  every 6 to 24 hours, employer pages every 12 to 48 hours, small company pages
+  every 1 to 3 days, and saved closed jobs before the user spends time
+  applying.
+- Add polite crawler behavior: clear user-agent, low per-host limits, jitter,
+  caching, conditional requests, retry backoff, stop list, and hard stops on
+  403, 429, CAPTCHAs, blocks, or explicit removal requests.
+- Store provenance for every fetched listing: source URL, apply URL, fetch
+  timestamp, HTTP status, redirect chain, content hash, extractor version,
+  parser confidence, field-level provenance, robots status, and terms review
+  date.
+- Minimize collected data to job-posting fields: title, company, location,
+  salary range, employment type, posted date, first seen, last seen, apply URL,
+  source URL, ATS provider, job ID, and cleaned description where allowed.
+- Avoid collecting recruiter personal emails, recruiter phone numbers,
+  candidate profiles, employee lists, social graph data, login-only data,
+  sensitive demographic data, and anything behind access controls.
+- Add a source-risk badge for users: official company source, public ATS API,
+  allowed employer page, manual import, licensed feed, aggregator copy, or
+  unknown.
+- Add internal robots and terms notes, but do not expose legal conclusions to
+  users. Use plain user-facing labels such as "official source", "copied
+  source", "uncertain source", or "manual import".
+- Add tests for robots parsing, per-host rate limits, caching, backoff, stop
+  list behavior, duplicate detection, source provenance, and no-evasion
+  behavior.
+
+Likely files later:
+
+- `src-tauri/src/core/scrapers/*`
+- `src-tauri/src/core/scrapers/url_utils.rs`
+- `src-tauri/src/core/import/fetcher.rs`
+- `src-tauri/src/core/url_security.rs`
+- `src-tauri/src/core/db/types.rs`
+- `src-tauri/src/core/db/ghost.rs`
+- `src/components/JobCard.tsx`
+- `src/components/GhostIndicator.tsx`
+- `docs/features/scrapers.md`
+- `docs/features/scraper-health.md`
+- `docs/features/ghost-detection.md`
+- `docs/security/URL_VALIDATION.md`
+
+### 11. Research and measurement harness
 
 - Add an evidence register for product claims, separating peer-reviewed papers,
   working papers, preprints, vendor reports, and local observation.
@@ -426,6 +679,21 @@ Likely files later:
   or "scam" when the evidence only supports stale or unverified.
 - Add docs checks that prevent score language from claiming hiring guarantees.
 - Add manual review checklist for user-facing AI and ATS copy.
+- Add a source inventory with extraction status, blocked-source notes, source
+  class, publication date, and evidence strength.
+- Revalidate volatile sources before implementation: laws, vendor surveys,
+  news reports, platform behavior, salary transparency rules, and employer
+  posting practices.
+- Add a source-governance checklist for scrapers: official API first, terms
+  reviewed, robots checked, public data only, no authentication, low bounded
+  cadence, caching, backoff, stop list, provenance, no redistribution, and no
+  evasion.
+- Add docs checks that prevent "scrape all jobs", "bypass bot detection",
+  "ignore robots", "use proxies", or "scrape profiles" guidance.
+- Add docs checks that prevent "women just need to ask", "confidence fixes pay
+  gaps", "protected-class-based script", or "guaranteed raise" language.
+- Add fixture coverage for pay guidance across hourly, salaried, union,
+  commission, contract, nonprofit, public-sector, and executive roles.
 
 Likely files later:
 
@@ -446,6 +714,12 @@ Do first:
 - Application channel tracking and duplicate-application guard.
 - Anti-gaming guardrails for hidden text, stuffing, and prompt injection.
 - Accessibility checks for setup, resume, and score explanations.
+- Fresh-post and source-type labels for first-48-hour review, staffing firms,
+  aggregators, company-direct postings, and uncertain routes.
+- Hidden-worker resume support for employment gaps, exact-credential filters,
+  transferable evidence, and non-degree paths.
+- Single-user source registry, public ATS API preference, source risk badges,
+  crawler stop list, and no-evasion scraper guardrails.
 
 Do next:
 
@@ -454,6 +728,13 @@ Do next:
 - Semantic matching improvements with visible evidence.
 - Employer hiring velocity, trust trends, and source-quality badges.
 - Local share summary for counselors or peer support.
+- Confidential employed-search mode and collaboration notes.
+- Regulatory-disclosure tracking for ghost-job and automated-hiring signals.
+- Salary and offer negotiation support that covers benefits, flexibility,
+  promotion path, review timing, and structural risk factors.
+- Pay-equity compensation intelligence: range quality, under-anchoring warning,
+  past-salary guardrail, leveling checker, review-cycle tracker, and employer
+  transparency score.
 
 Research before building:
 
@@ -465,8 +746,18 @@ Research before building:
   harm users.
 - Company-site verification across protected or anti-bot sites, because
   scraping must respect rate limits, terms awareness, and user trust.
+- Any new source connector, because terms, robots, authorization, and allowed
+  use must be reviewed source by source.
+- Any jurisdiction-specific salary-history, pay-transparency, or equal-pay
+  guidance, because laws and enforcement details change by state, city, country,
+  date, employer size, and role type.
 - Any fairness or demographic-proxy analysis, because JobSentinel should not
   ask for protected-class data without a clear user benefit and governance.
+- Any use of photos, visual resume cues, social profiles, school prestige, or
+  neighborhood proxies in ranking, because these can encode demographic signals.
+- Any protected-class-personalized negotiation guidance, because pay support
+  should use role, level, market, scope, and user evidence unless a separate
+  opt-in governed feature is approved.
 
 Do not build:
 
@@ -475,9 +766,25 @@ Do not build:
 - Fabricated skills, employers, titles, dates, education, or credentials.
 - Resume prompt injection.
 - CAPTCHA bypass.
+- Login-wall, paywall, block, or rate-limit bypass.
+- Proxy rotation, residential proxies, account automation, stolen/session
+  cookies, or anti-bot evasion.
+- Broad scraping of LinkedIn, Indeed, Glassdoor, ZipRecruiter, Monster,
+  CareerBuilder, Google Jobs, or similar aggregators without documented
+  permission.
+- Scraping candidate profiles, recruiter profiles, social graph data, employee
+  lists, or authenticated surfaces.
+- Public job-board operation, data resale, bulk redistribution, or AI training
+  data collection.
 - Automated application submission.
 - Opaque "beat the ATS" scoring that implies guaranteed hiring outcomes.
 - Definitive "this employer is fake" labels from weak or indirect signals.
+- User-facing pay-equity claims that are not dated, sourced, and scoped.
+- Protected-class inference for salary guidance.
+- Pay advice that implies marginalized workers caused pay gaps by negotiating
+  poorly.
+- AI-generated negotiation scripts that invent market data, legal rights,
+  competing offers, skills, credentials, or user accomplishments.
 
 ## Milestones
 
@@ -485,9 +792,25 @@ Do not build:
 - [x] Review `/Users/c/Downloads/job_seeker_behavior_research_papers.md`.
 - [x] Review `/Users/c/Downloads/ats_bypass_automated_resume_screening_research.md`.
 - [x] Review `/Users/c/Downloads/ghost_job_detection_research_and_guidance.md`.
+- [x] Review `/Users/c/Downloads/job_site_web_scraping_research_and_guidance.md`.
+- [x] Review `/Users/c/Downloads/In Salary Negotiations, Women Do Ask - PON - Program on Negotiation at Harvard Law School.pdf`.
+- [x] Review `/Users/c/Downloads/pay_equity_higher_pay_women_people_of_color.md`.
 - [x] Spot-check primary sources for high-impact claims.
+- [x] Inventory 52 source URLs across all three research docs and extract 45
+  accessible sources for a second-pass review.
+- [x] Record blocked-source limits and add second-pass missed guidance to this
+  plan.
+- [x] Inventory 33 scraping-guidance URLs and spot-check core official sources:
+  RFC 9309, public ATS APIs, LinkedIn guidance, and Indeed terms.
+- [x] Add single-user local scraping boundary and salary-negotiation guidance
+  from the final two source documents.
+- [x] Inventory 35 pay-equity source URLs and spot-check core current sources:
+  Pew, Harvard GAP, HBR, UC Berkeley, NWLC, salary-history-ban research, and AI
+  salary-advice bias research.
+- [x] Add pay-equity compensation-intelligence guidance and protected-class
+  guardrails.
 - [x] Create this active plan with a combined improvement backlog.
-- [x] Run docs-only verification for this planning change.
+- [x] Re-run docs-only verification after the pay-equity source update.
 - [ ] For the next implementation goal, choose one prioritized slice and write
   a feature-specific change contract before code edits.
 
@@ -527,7 +850,10 @@ against:
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
-| 2026-05-28 | Verified | Added plan to active repo docs and ran docs-only checks for the planning slice. |
+| 2026-05-28 | Verified | Added pay-equity source. Added compensation intelligence, salary-history guardrails, market-anchor support, leveling checks, range-quality scoring, review-cycle tracking, employer transparency signals, protected-class guardrails, and re-ran docs-only checks. |
+| 2026-05-28 | Verified | Added final scraping and salary-negotiation sources. Scoped scraping guidance to a local-first single-job-seeker app, added source-governance guardrails, added negotiation guidance that avoids blaming job seekers for structural pay gaps, and re-ran docs-only checks. |
+| 2026-05-28 | Verified | Second pass inventoried 52 URLs, extracted 45 accessible sources, reviewed an alternate fairness-survey PDF, recorded blocked sources, added missed guidance around fresh-post urgency, intermediaries, hidden workers, fairness/proxy risks, company-site limits, and regulatory fields, then re-ran docs-only checks. |
+| 2026-05-28 | Verified | Added plan to active repo docs and ran docs-only checks for the initial planning slice. |
 | 2026-05-28 | Planned | Added ghost-job detection research and guidance: working definition, scam separation, source-verification workflow, freshness and repost signals, company-site mismatch, employer behavior, risk labels, and candidate-facing verification paths. |
 | 2026-05-28 | Planned | Created combined research-backed product improvement plan from both user-provided research docs and primary-source spot checks. |
 
@@ -547,16 +873,66 @@ against:
   trust risk.
 - Several ATS/LLM screening sources are preprints or system papers. Treat them
   as useful signals, not settled evidence.
+- Second-pass source extraction found 52 unique URLs across the three research
+  docs. Forty-five extracted successfully enough for local text review. Seven
+  direct downloads were blocked or paywalled: ACM TIST fairness survey, MDPI
+  Resume2Vec, four ScienceDirect pages, and Wall Street Journal ghost-jobs
+  coverage.
+- The author-hosted fairness-survey PDF reinforces that bias can enter across
+  sourcing, screening, interview, and selection through proxies, data gaps,
+  accessibility barriers, automation bias, and job-description wording. It also
+  cautions that single-system fairness metrics can miss broader workflow harm.
+- Application-flow research adds product urgency: some postings receive many
+  applications early and may remain open only briefly, while staffing or other
+  intermediaries can dominate some platform flows.
+- Hidden-worker research adds resume and search guidance beyond ATS parsing:
+  exact credentials, employment gaps, and rigid filters can screen out capable
+  workers before human review.
 - Ghost jobs and scam jobs are different problems. A real employer can have a
   stale, paused, evergreen, or non-active posting; a scam posting is malicious
   and usually tries to obtain money, credentials, identity data, or labor.
 - Candidate-facing ghost detection has limited rigorous public research. The
   Hunter Ng paper is directly relevant but still a preprint; vendor surveys are
   useful market signals but should not be treated as peer-reviewed evidence.
+- Company-site verification is useful but not definitive. Employer-side survey
+  sources claim fake or inactive postings can appear on company websites too, so
+  JobSentinel should combine canonical-source checks with age, closure, repost,
+  and user-observed response patterns.
 - Current `docs/features/ghost-detection.md` uses stronger copy such as "fake"
   and "real jobs only" than this research-backed plan recommends. Future
   implementation should soften labels toward stale, unverified, likely closed,
   evergreen, high risk, and potential scam.
+- The scraping guidance document is useful only after narrowing it to
+  JobSentinel's actual product: a local-first tool for one job seeker. Single
+  user scope is not a permission slip; it still needs source-by-source terms,
+  robots, rate-limit, privacy, and access-control checks.
+- RFC 9309 confirms robots.txt is a crawler-governance protocol whose rules
+  crawlers are requested to honor, not an authentication system. JobSentinel
+  should still treat robots directives as product constraints.
+- Public ATS APIs from Greenhouse, Lever, Ashby, and SmartRecruiters are better
+  fit than rendered HTML scraping where available. Large aggregators are
+  higher-risk sources and should default to manual import or canonical company
+  links unless permission is documented.
+- The salary-negotiation PDF argues against the stale narrative that women
+  simply do not ask. JobSentinel should support negotiation while also surfacing
+  structural factors such as promotion path, flexibility, caregiving
+  compatibility, and pay transparency.
+- Poppler was not available for PDF extraction in this environment, so the
+  salary PDF was extracted with `pypdf`. The source is a short text article, so
+  layout fidelity was not material for this planning update.
+- The pay-equity source adds a broader compensation strategy: reduce salary
+  ambiguity, avoid past-pay anchoring, use market-supported targets, negotiate
+  level and total compensation, track promotion criteria early, and prefer
+  transparent employers.
+- Pay-equity product design must avoid flattening broad groups into one
+  "diversity adjustment" box. Product copy should not imply that women, people
+  of color, or women of color caused pay gaps by failing to ask.
+- Salary-history and pay-transparency guidance is volatile. Future
+  implementation must verify current jurisdiction rules before showing legal or
+  compliance-oriented copy.
+- Direct browser checks for PubMed and APA-hosted `Bargaining while Black`
+  sources were blocked, so exact race-negotiation phrasing should be
+  re-verified from accessible primary text before shipping.
 
 ## Decisions
 
@@ -567,19 +943,38 @@ against:
 - Treat scores as estimates with visible evidence, not verdicts.
 - Treat ghost scores as source-confidence and freshness estimates, not claims
   that JobSentinel knows employer intent.
+- Treat scraping as local, single-user source monitoring. Do not expand it into
+  full-site scraping, public job-board aggregation, data resale, or AI training
+  data collection without a separate product and legal decision.
+- Prefer public ATS APIs and employer canonical sources. Default high-risk
+  aggregators to manual import or canonical-link discovery unless allowed use is
+  documented.
+- Frame salary negotiation as one part of job-search support, not as the reason
+  pay gaps exist or persist.
+- Treat pay-equity support as structural transparency plus individual prep.
+  Default to role, level, market, scope, and user evidence instead of identity
+  inference.
+- Do not require protected-class disclosure for compensation guidance.
+- Use evidence-strength labels for research-backed product claims: peer
+  reviewed, working paper, preprint, policy report, vendor survey, news report,
+  or local observation.
+- Re-check source dates and primary text before shipping volatile claims about
+  laws, employer behavior, salary rules, platform behavior, or exact statistics.
 - Prefer narrow future implementation slices with their own change contracts.
 
 ## Outcomes
 
 - Combined product backlog exists for job-seeker behavior, ATS-aware resume
-  preparation, and ghost-job research.
+  preparation, ghost-job research, local source collection, and salary
+  negotiation and pay-equity support.
 - Docs-only verification is complete for this planning slice.
 
 ## Handoff
 
-- Current state: plan updated with three source documents and verified as an
-  active planning artifact.
-- Evidence: source documents and selected primary sources reviewed on
+- Current state: plan updated with six source documents and verified after the
+  pay-equity source update.
+- Evidence: source documents, selected primary sources, and local PDF text
+  extraction reviewed on
   2026-05-28.
 - Next step: choose a first implementation slice and write a feature-specific
   change contract before code edits.
