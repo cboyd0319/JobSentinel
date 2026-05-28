@@ -486,7 +486,7 @@ describe("Settings — handleSave flow", () => {
 
     await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
     await user.type(
-      screen.getByPlaceholderText("Paste your Slack webhook URL here"),
+      screen.getByPlaceholderText("Paste Slack connection link"),
       "https://hooks.slack.com/services/T00/B00/secret-token",
     );
     await user.click(screen.getByRole("button", { name: /save changes/i }));
@@ -598,7 +598,7 @@ describe("Settings — handleSave flow", () => {
     );
   });
 
-  it("blocks saving an invalid Discord webhook URL", async () => {
+  it("blocks saving an invalid Discord connection link", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
     const config = makeConfig();
@@ -622,14 +622,14 @@ describe("Settings — handleSave flow", () => {
 
     await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
     await user.type(
-      screen.getByPlaceholderText("Paste your Discord webhook URL"),
+      screen.getByPlaceholderText("Paste Discord connection link"),
       "https://evil.com/api/webhooks/123/abc",
     );
     await user.click(screen.getByRole("button", { name: /save changes/i }));
 
     expect(mockToast.error).toHaveBeenCalledWith(
-      "Invalid Discord webhook",
-      "Discord webhook URLs must use discord.com or discordapp.com over HTTPS.",
+      "Check Discord connection link",
+      "Paste a Discord connection link from discord.com or discordapp.com that starts with https://.",
     );
     expect(mockInvoke).not.toHaveBeenCalledWith("save_config", expect.anything());
     expect(mockInvoke).not.toHaveBeenCalledWith(
@@ -639,7 +639,7 @@ describe("Settings — handleSave flow", () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
-  it("blocks saving an invalid Teams webhook URL", async () => {
+  it("blocks saving an invalid Teams connection link", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
     const config = makeConfig();
@@ -663,14 +663,14 @@ describe("Settings — handleSave flow", () => {
 
     await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
     await user.type(
-      screen.getByPlaceholderText("Paste your Teams webhook URL"),
+      screen.getByPlaceholderText("Paste Teams connection link"),
       "https://evil.com/webhook/abc",
     );
     await user.click(screen.getByRole("button", { name: /save changes/i }));
 
     expect(mockToast.error).toHaveBeenCalledWith(
-      "Invalid Teams webhook",
-      "Teams webhook URLs must use outlook.office.com or outlook.office365.com over HTTPS.",
+      "Check Teams connection link",
+      "Paste a Teams connection link from outlook.office.com or outlook.office365.com that starts with https://.",
     );
     expect(mockInvoke).not.toHaveBeenCalledWith("save_config", expect.anything());
     expect(mockInvoke).not.toHaveBeenCalledWith(

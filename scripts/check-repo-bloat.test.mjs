@@ -370,6 +370,21 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/pages/Settings.tsx",
+      [
+        '"Invalid Discord webhook"',
+        '"Paste your Discord webhook URL"',
+        '"This doesn\'t look like a valid Teams webhook URL"',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/SetupWizard.tsx",
+      '<Input label="Slack Webhook URL (optional)" />\n',
+    );
+    writeFixtureFile(
+      root,
       "src/utils/formValidation.ts",
       [
         'return "Invalid regex pattern. Check for unmatched brackets or special characters."; if (!value) return "Pattern is required";',
@@ -395,6 +410,24 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "docs/features/one-click-apply.md",
       "The patterns are flexible (regex), so they match variations.\n",
     );
+    writeFixtureFile(
+      root,
+      "docs/features/notifications.md",
+      [
+        "That's it! No webhook setup needed.",
+        "Regular passwords don't work with SMTP.",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/user/QUICK_START.md",
+      [
+        "**Database:** Your job matches and settings",
+        "**Credentials:** Passwords and API tokens are stored in your OS's secure vault",
+        "",
+      ].join("\n"),
+    );
 
     execFileSync(
       "git",
@@ -403,10 +436,14 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "package.json",
         "src/pages/Resume.tsx",
         "src/pages/ResumeOptimizer.tsx",
+        "src/pages/Settings.tsx",
+        "src/pages/SetupWizard.tsx",
         "src/components/automation/ScreeningAnswersForm.tsx",
         "src/utils/formValidation.ts",
         "src/utils/errorMessages.ts",
+        "docs/features/notifications.md",
         "docs/features/one-click-apply.md",
+        "docs/user/QUICK_START.md",
       ],
       { cwd: root },
     );
@@ -416,10 +453,14 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     for (const path of [
       "src/pages/Resume.tsx",
       "src/pages/ResumeOptimizer.tsx",
+      "src/pages/Settings.tsx",
+      "src/pages/SetupWizard.tsx",
       "src/components/automation/ScreeningAnswersForm.tsx",
       "src/utils/formValidation.ts",
       "src/utils/errorMessages.ts",
+      "docs/features/notifications.md",
       "docs/features/one-click-apply.md",
+      "docs/user/QUICK_START.md",
     ]) {
       assert.ok(
         violations.includes(`replace technical-first user copy: ${path}`),

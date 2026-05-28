@@ -122,14 +122,14 @@ test.describe("Settings Save and Load", () => {
       await expect(settingsPage.dialog).not.toContainText("Please enter a valid email address");
     });
 
-    test("stores Slack webhook status after saving", async () => {
+    test("stores Slack connection link status after saving", async () => {
       await settingsPage.slackWebhookInput.fill("https://hooks.slack.com/services/T000/B000/secret");
 
       await settingsPage.saveSettings();
       await settingsPage.navigateTo();
       await settingsPage.switchTab("advanced");
 
-      await expect(settingsPage.section("Slack Notifications")).toContainText(/Stored in|Enter new webhook/i);
+      await expect(settingsPage.section("Slack Notifications")).toContainText(/Stored in|Enter new Slack connection link/i);
     });
 
     test("updates ghost detection settings", async () => {

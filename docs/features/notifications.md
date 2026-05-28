@@ -9,11 +9,11 @@ No more checking job boards manually - let the jobs come to you.
 
 ---
 
-## What's a Webhook?
+## What is a connection link?
 
-A webhook is just a special URL that lets JobSentinel send messages to apps like Slack,
-Discord, or Teams. Think of it like giving JobSentinel your "address" so it knows where
-to send job alerts. You create this URL in Slack/Discord/Teams, then paste it into JobSentinel.
+Slack, Discord, and Teams give you a private connection link for job alerts.
+They may call it an "incoming webhook" in their settings. Copy that link, then
+paste it into JobSentinel.
 
 ---
 
@@ -38,14 +38,14 @@ You can enable multiple channels at once - they all fire simultaneously.
 
 ### Slack
 
-1. Go to [Slack Webhooks](https://api.slack.com/messaging/webhooks)
+1. Go to [Slack's Incoming Webhooks page](https://api.slack.com/messaging/webhooks)
 2. Click "Create New App" > "From Scratch"
 3. Name it "JobSentinel" and pick your workspace
 4. Enable "Incoming Webhooks"
 5. Click "Add New Webhook to Workspace"
 6. Pick a channel (like #job-alerts)
-7. Copy the webhook URL
-8. In JobSentinel: Settings > Notifications > Slack > Paste URL
+7. Copy the connection link
+8. In JobSentinel: Settings > Notifications > Slack > Paste link
 
 **What you'll get:** Rich formatted messages with job details and a "View Job" button.
 
@@ -58,8 +58,8 @@ You can enable multiple channels at once - they all fire simultaneously.
 3. Click "New Webhook"
 4. Name it "JobSentinel"
 5. Pick a channel
-6. Copy the webhook URL
-7. In JobSentinel: Settings > Notifications > Discord > Paste URL
+6. Copy the connection link
+7. In JobSentinel: Settings > Notifications > Discord > Paste link
 
 **What you'll get:** Color-coded embeds (green for high scores, yellow for medium).
 
@@ -73,8 +73,8 @@ You can enable multiple channels at once - they all fire simultaneously.
 2. Click More options > Connectors
 3. Find "Incoming Webhook" and click Configure
 4. Name it "JobSentinel"
-5. Copy the webhook URL
-6. In JobSentinel: Settings > Notifications > Teams > Paste URL
+5. Copy the connection link
+6. In JobSentinel: Settings > Notifications > Teams > Paste link
 
 **What you'll get:** Cards with job details and action buttons.
 
@@ -83,7 +83,7 @@ You can enable multiple channels at once - they all fire simultaneously.
 ### Email
 
 1. In JobSentinel: Settings > Notifications > Email
-2. Enter your SMTP server details:
+2. Enter your email sending details. Your email provider may call this SMTP:
    - **Gmail:** `smtp.gmail.com`, port `587`
    - **Outlook:** `smtp-mail.outlook.com`, port `587`
 3. Enter your email and password
@@ -121,7 +121,7 @@ You can enable multiple channels at once - they all fire simultaneously.
 
 1. In JobSentinel: Settings > Notifications > Desktop > Enable
 
-That's it! No webhook setup needed.
+That's it! No connection link needed.
 
 **What you'll get:** Native OS notifications:
 
@@ -143,14 +143,14 @@ You can adjust this threshold in Settings > Notifications > Alert Threshold.
 
 ## Security Note
 
-**Your credentials are safe.** All webhook URLs, API tokens, and passwords are stored in
-your operating system's secure credential manager:
+**Your saved details are safe.** Notification links, app passwords, and sign-in
+tokens are stored in your operating system's secure credential manager:
 
 - **macOS:** Keychain
 - **Windows:** Credential Manager
 - **Linux:** Secret Service
 
-Credentials are never stored in plain text configuration files.
+Saved details are never stored in plain text configuration files.
 
 ---
 
@@ -162,10 +162,10 @@ You should receive a test notification within a few seconds.
 
 If it doesn't work:
 
-1. Double-check the webhook URL or credentials
+1. Double-check the connection link or password
 2. Make sure the channel is enabled
 3. Check if your firewall blocks the connection
-4. Try regenerating the webhook
+4. Create a fresh connection link
 
 ---
 
@@ -174,21 +174,21 @@ If it doesn't work:
 ### No notifications received?
 
 1. Verify the channel is **enabled** in Settings
-2. Check that your webhook URL is correct
+2. Check that your connection link is correct
 3. Make sure jobs are scoring above your threshold
 4. Click "Send Test" to verify the connection
 
-### Slack says "invalid_token"?
+### Slack says token is invalid?
 
-Your webhook was deleted or expired. Create a new one in Slack.
+Your connection link was deleted or expired. Create a new one in Slack.
 
 ### Gmail email not working?
 
-You need an App Password. Regular passwords don't work with SMTP.
+You need an App Password. Regular passwords don't work for app email sending.
 
 ### Discord embed looks broken?
 
-Make sure your webhook URL starts with `https://discord.com/api/webhooks/`.
+Make sure your connection link starts with `https://discord.com/api/webhooks/`.
 
 ### Telegram says "chat not found"?
 

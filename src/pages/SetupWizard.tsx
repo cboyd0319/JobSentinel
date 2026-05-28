@@ -254,11 +254,11 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
 
   const handleComplete = async () => {
     try {
-      // Store Slack webhook in secure storage if provided
+      // Store Slack notification connection link in secure storage if provided.
       const webhookUrl = config.alerts.slack.webhook_url;
       if (webhookUrl && !validateSlackWebhook(webhookUrl)) {
         await safeInvoke("store_credential", { key: "slack_webhook", value: webhookUrl }, {
-          logContext: "Store Slack webhook credential"
+          logContext: "Store Slack connection credential"
         });
       }
 
@@ -685,9 +685,9 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                   </div>
                 </div>
 
-                {/* Slack webhook input */}
+                {/* Slack notification connection link input */}
                 <Input
-                  label="Slack Webhook URL (optional)"
+                  label="Slack connection link (optional)"
                   type="url"
                   value={config.alerts.slack.webhook_url}
                   onChange={(e) => {

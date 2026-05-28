@@ -247,23 +247,23 @@ Your changes take effect immediately.
 
 ### Slack
 
-1. Go to [Slack Webhooks](https://api.slack.com/messaging/webhooks)
-2. Create a new webhook for your workspace
-3. Copy the URL
+1. Go to [Slack's Incoming Webhooks page](https://api.slack.com/messaging/webhooks)
+2. Create a new connection link for your workspace
+3. Copy the connection link
 4. Paste it in JobSentinel Settings > Notifications > Slack
 
 ### Discord
 
 1. Right-click your Discord channel > Edit Channel > Integrations
 2. Create a Webhook
-3. Copy the URL
+3. Copy the connection link
 4. Paste it in JobSentinel Settings > Notifications > Discord
 
 ### Microsoft Teams
 
 1. In your Teams channel, click More options > Connectors
 2. Add "Incoming Webhook"
-3. Copy the URL
+3. Copy the connection link
 4. Paste it in JobSentinel Settings > Notifications > Teams
 
 ---
@@ -272,12 +272,12 @@ Your changes take effect immediately.
 
 Everything stays on your computer. No cloud, no accounts, no tracking.
 
-**Database:** Your job matches and settings
+**Saved jobs and settings:** Your local JobSentinel file
 
 - Windows: `%LOCALAPPDATA%\JobSentinel\jobs.db`
 - macOS: `~/Library/Application Support/JobSentinel/jobs.db`
 
-**Credentials:** Passwords and API tokens are stored in your OS's secure vault
+**Saved passwords and notification details:** Stored in your operating system's secure vault
 
 - Windows: Credential Manager
 - macOS: Keychain
@@ -296,7 +296,7 @@ Everything stays on your computer. No cloud, no accounts, no tracking.
 
 ### Notifications not working?
 
-1. Double-check your webhook URL in Settings
+1. Double-check your notification connection link in Settings
 2. Make sure the notification channel is enabled
 3. Test it by clicking "Send Test" in Settings
 

@@ -232,24 +232,25 @@ function getCredentialValidationError(
 ): CredentialValidationError | null {
   if (validateSlackWebhook(credentials.slack_webhook)) {
     return {
-      title: "Invalid Slack webhook",
-      message: "Slack webhook URLs must use hooks.slack.com over HTTPS.",
+      title: "Check Slack connection link",
+      message:
+        "Paste a Slack connection link from hooks.slack.com that starts with https://.",
     };
   }
 
   if (validateDiscordWebhook(credentials.discord_webhook)) {
     return {
-      title: "Invalid Discord webhook",
+      title: "Check Discord connection link",
       message:
-        "Discord webhook URLs must use discord.com or discordapp.com over HTTPS.",
+        "Paste a Discord connection link from discord.com or discordapp.com that starts with https://.",
     };
   }
 
   if (validateTeamsWebhook(credentials.teams_webhook)) {
     return {
-      title: "Invalid Teams webhook",
+      title: "Check Teams connection link",
       message:
-        "Teams webhook URLs must use outlook.office.com or outlook.office365.com over HTTPS.",
+        "Paste a Teams connection link from outlook.office.com or outlook.office365.com that starts with https://.",
     };
   }
 
@@ -1843,7 +1844,7 @@ export default function Settings({ onClose }: SettingsProps) {
                   <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
                     Slack Notifications
                     <HelpIcon
-                      text="Get job alerts in a Slack channel. To set up: Go to your Slack workspace → Apps → Incoming Webhooks → Create New → Copy the webhook URL"
+                      text="Get job alerts in a Slack channel. In Slack, go to Apps → Incoming Webhooks → Create New → Copy link."
                       position="right"
                     />
                     <SecurityBadge stored={credentialStatus.slack_webhook} />
@@ -1859,7 +1860,7 @@ export default function Settings({ onClose }: SettingsProps) {
                             ...prev,
                             slack_webhook: value,
                           }));
-                          // Auto-enable Slack if valid webhook entered
+                          // Auto-enable Slack if valid connection link entered.
                           if (value && isValidSlackWebhook(value)) {
                             setConfig({
                               ...config,
@@ -1872,13 +1873,13 @@ export default function Settings({ onClose }: SettingsProps) {
                         }}
                         placeholder={
                           credentialStatus.slack_webhook
-                            ? "Enter new webhook to update"
-                            : "Paste your Slack webhook URL here"
+                            ? "Enter new Slack connection link"
+                            : "Paste Slack connection link"
                         }
                         error={
                           credentials.slack_webhook &&
                           !isValidSlackWebhook(credentials.slack_webhook)
-                            ? "This doesn't look like a valid Slack webhook URL"
+                            ? "This doesn't look like a Slack connection link"
                             : undefined
                         }
                         hint="Stored securely in your system keychain"
@@ -1898,8 +1899,8 @@ export default function Settings({ onClose }: SettingsProps) {
                               !credentialStatus.slack_webhook
                             ) {
                               toast.error(
-                                "No webhook",
-                                "Please enter a Slack webhook URL first",
+                                "No Slack link",
+                                "Paste a Slack connection link first.",
                               );
                               return;
                             }
@@ -1913,7 +1914,7 @@ export default function Settings({ onClose }: SettingsProps) {
                           } catch {
                             toast.error(
                               "Test failed",
-                              "Check that the webhook URL is correct and try again",
+                              "Check that the Slack connection link is correct and try again",
                             );
                           } finally {
                             setTestingSlack(false);
@@ -2270,7 +2271,7 @@ export default function Settings({ onClose }: SettingsProps) {
                   <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
                     Discord Notifications
                     <HelpIcon
-                      text="Get job alerts in a Discord channel via webhook. Create a webhook in your Discord server settings."
+                      text="Get job alerts in a Discord channel. In Discord, go to Server Settings → Integrations → Webhooks → New Webhook → Copy link."
                       position="right"
                     />
                   </label>
@@ -2307,7 +2308,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       <div className="mt-3 space-y-2">
                         <div className="flex items-center gap-2">
                           <span className="text-sm text-surface-600 dark:text-surface-400">
-                            Webhook URL
+                            Connection link
                           </span>
                           <SecurityBadge
                             stored={credentialStatus.discord_webhook}
@@ -2324,18 +2325,18 @@ export default function Settings({ onClose }: SettingsProps) {
                           }
                           placeholder={
                             credentialStatus.discord_webhook
-                              ? "Enter new webhook to update"
-                              : "Paste your Discord webhook URL"
+                              ? "Enter new Discord connection link"
+                              : "Paste Discord connection link"
                           }
                           error={
                             credentials.discord_webhook &&
                             !isValidDiscordWebhook(
                               credentials.discord_webhook,
                             )
-                              ? "This doesn't look like a valid Discord webhook URL"
+                              ? "This doesn't look like a Discord connection link"
                               : undefined
                           }
-                          hint="Server Settings → Integrations → Webhooks → New Webhook → Copy URL"
+                          hint="Server Settings → Integrations → Webhooks → New Webhook → Copy link"
                           autoComplete="off"
                         />
                       </div>
@@ -2348,7 +2349,7 @@ export default function Settings({ onClose }: SettingsProps) {
                   <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
                     Microsoft Teams Notifications
                     <HelpIcon
-                      text="Get job alerts in a Teams channel via incoming webhook connector."
+                      text="Get job alerts in a Teams channel. Copy a connection link from the incoming webhook connector."
                       position="right"
                     />
                   </label>
@@ -2385,7 +2386,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       <div className="mt-3 space-y-2">
                         <div className="flex items-center gap-2">
                           <span className="text-sm text-surface-600 dark:text-surface-400">
-                            Webhook URL
+                            Connection link
                           </span>
                           <SecurityBadge
                             stored={credentialStatus.teams_webhook}
@@ -2402,17 +2403,17 @@ export default function Settings({ onClose }: SettingsProps) {
                           }
                           placeholder={
                             credentialStatus.teams_webhook
-                              ? "Enter new webhook to update"
-                              : "Paste your Teams webhook URL"
+                              ? "Enter new Teams connection link"
+                              : "Paste Teams connection link"
                           }
                           error={
                             credentials.teams_webhook &&
                             !isValidTeamsWebhook(credentials.teams_webhook)
-                              ? "This doesn't look like a valid Teams webhook URL"
+                              ? "This doesn't look like a Teams connection link"
                               : undefined
                           }
                           autoComplete="off"
-                          hint="Channel → Connectors → Incoming Webhook → Configure → Copy URL"
+                          hint="Channel → Connectors → Incoming Webhook → Configure → Copy link"
                         />
                       </div>
                     )}

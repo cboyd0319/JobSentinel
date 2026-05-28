@@ -65,7 +65,7 @@ export class SettingsPage extends BasePage {
   }
 
   get slackWebhookInput(): Locator {
-    return this.dialog.getByPlaceholder(/Slack webhook URL/i);
+    return this.dialog.getByPlaceholder(/Slack connection link/i);
   }
 
   get fromEmailInput(): Locator {
