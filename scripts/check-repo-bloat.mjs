@@ -386,6 +386,7 @@ const frontendStatusEmojiPaths = new Set([
 ]);
 const broadAudienceExamplePaths = new Set([
   "src/components/DeepLinkGenerator.tsx",
+  "src/components/JobImportModal.tsx",
   "src/components/resume-builder/steps/SkillsStep.tsx",
   "src/components/resume-builder/steps/SummaryStep.tsx",
   "src/mocks/data.ts",
@@ -404,6 +405,7 @@ const broadAudienceExamplePaths = new Set([
 const technicalFirstUserCopyPaths = new Set([
   "src/components/ErrorBoundary.tsx",
   "src/components/ErrorLogPanel.tsx",
+  "src/components/JobImportModal.tsx",
   "src/components/automation/ScreeningAnswersForm.tsx",
   "src/components/feedback/DebugInfoPreview.tsx",
   "src/components/feedback/FeedbackModal.tsx",
@@ -975,6 +977,7 @@ function hasEngineerFirstAudienceExamples(root, path) {
     /Identify \d+\+ technical skills across 6 categories/i,
     /extracts technical and\s+soft skills/i,
     /Enter your job title or keywords \(e\.g\., "Software Engineer"\)/i,
+    /jobs\/software-engineer/i,
     /Examples:\s*\n\s*- "Software Engineer"/i,
     /^\*\*Software Engineer in San Francisco\*\*$/m,
   ];
@@ -1042,6 +1045,18 @@ function hasTechnicalFirstUserCopy(root, path) {
     /["'`]Error Logs["'`]/i,
     /["'`]Stack Trace["'`]/i,
     /["'`]Component Stack["'`]/i,
+    /Import Job from URL/i,
+    /Job URL/i,
+    /Paste a job URL/i,
+    /This job already exists in your database/i,
+    /Failed to preview import/i,
+    /Failed to import job/i,
+    /Successfully imported/i,
+    /Preview Import/i,
+    /Fetching job details/i,
+    /Missing fields/i,
+    /Change URL/i,
+    /["'`]Import Job["'`]/i,
     /Get Free API Key/i,
     /Copy the API key from your email/i,
     /Copy API key from confirmation email/i,

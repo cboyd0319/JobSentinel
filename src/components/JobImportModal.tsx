@@ -55,7 +55,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
   // Preview the job import
   const handlePreview = useCallback(async () => {
     if (!url.trim()) {
-      setError("Please enter a job URL");
+      setError("Please enter a job link");
       return;
     }
 
@@ -63,7 +63,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
     try {
       new URL(url);
     } catch {
-      setError("Please enter a valid URL (must start with http:// or https://)");
+      setError("Please enter a full link that starts with http:// or https://");
       return;
     }
 
@@ -76,12 +76,12 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
       setPreview(result);
 
       if (result.already_exists) {
-        toast.info("Job already exists", "This job already exists in your database");
+        toast.info("Job already saved", "This job is already in your saved jobs");
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       setError(errorMessage);
-      toast.error("Failed to preview import", errorMessage);
+      toast.error("Could not check job link", errorMessage);
     } finally {
       setLoading(false);
     }
@@ -99,7 +99,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
     try {
       await invoke("import_job_from_url", { url: url.trim() });
 
-      toast.success("Job imported", `Successfully imported "${preview.title}"`);
+      toast.success("Job saved", `Saved "${preview.title}"`);
 
       // Call success callback
       onImportSuccess?.();
@@ -109,7 +109,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       setError(errorMessage);
-      toast.error("Failed to import job", errorMessage);
+      toast.error("Could not save job", errorMessage);
     } finally {
       setImporting(false);
     }
@@ -130,7 +130,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Import Job from URL"
+      title="Import Job from Link"
       size="lg"
       aria-labelledby="import-job-title"
       aria-describedby="import-job-description"
@@ -138,14 +138,14 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
       <div className="space-y-4">
         {/* Description */}
         <p id="import-job-description" className="text-sm text-gray-600 dark:text-gray-400">
-          Paste a job URL from any website (Indeed, LinkedIn, Glassdoor, company career pages, etc.).
+          Paste a job link from any website (Indeed, LinkedIn, Glassdoor, company career pages, etc.).
           We'll automatically extract the job details.
         </p>
 
         {/* URL Input */}
         <div>
           <label htmlFor="job-url" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Job URL
+            Job link
           </label>
           <input
             id="job-url"
@@ -153,7 +153,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="https://example.com/jobs/software-engineer"
+            placeholder="https://example.com/jobs/office-manager"
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             disabled={loading || importing}
             autoFocus
@@ -176,7 +176,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
               loading={loading}
               variant="primary"
             >
-              {loading ? "Fetching job details..." : "Preview Import"}
+              {loading ? "Checking job link..." : "Check Job Link"}
             </Button>
           </div>
         )}
@@ -185,7 +185,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
         {preview && (
           <div className="mt-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-              Job Preview
+              Job Details
             </h3>
 
             <div className="space-y-3">
@@ -247,12 +247,12 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
                 </div>
               )}
 
-              {/* Missing Fields Warning */}
+              {/* Missing details warning */}
               {preview.missing_fields.length > 0 && (
                 <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded">
                   <p className="flex items-start gap-1.5 text-xs text-yellow-800 dark:text-yellow-200">
                     <WarningIcon className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-                    <span>Missing fields: {preview.missing_fields.join(", ")}</span>
+                    <span>Missing details: {preview.missing_fields.join(", ")}</span>
                   </p>
                 </div>
               )}
@@ -262,7 +262,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
                 <div className="p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded">
                   <p className="flex items-start gap-1.5 text-xs text-blue-800 dark:text-blue-200">
                     <InfoIcon className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-                    <span>This job already exists in your database</span>
+                    <span>This job is already in your saved jobs</span>
                   </p>
                 </div>
               )}
@@ -275,7 +275,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
       <ModalFooter>
         {preview && !preview.already_exists && (
           <Button onClick={() => setPreview(null)} variant="secondary" disabled={importing}>
-            Change URL
+            Change Link
           </Button>
         )}
         <Button onClick={onClose} variant="secondary" disabled={importing}>
@@ -288,7 +288,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
             loading={importing}
             variant="primary"
           >
-            {importing ? "Importing..." : "Import Job"}
+            {importing ? "Saving..." : "Save Job"}
           </Button>
         )}
       </ModalFooter>

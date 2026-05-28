@@ -297,6 +297,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/JobImportModal.tsx",
+      '<input placeholder="https://example.com/jobs/software-engineer" />\n',
+    );
+    writeFixtureFile(
+      root,
       "src/mocks/data.ts",
       'export const mockConfig = { linkedin: { query: "software engineer" } };\n',
     );
@@ -318,6 +323,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "package.json",
         "src/pages/Salary.tsx",
         "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+        "src/components/JobImportModal.tsx",
         "src/mocks/data.ts",
         "src/components/resume-builder/steps/SummaryStep.tsx",
         "src/components/resume-builder/steps/SkillsStep.tsx",
@@ -333,6 +339,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     for (const path of [
       "src/pages/Salary.tsx",
       "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+      "src/components/JobImportModal.tsx",
       "src/mocks/data.ts",
       "src/components/resume-builder/steps/SummaryStep.tsx",
       "src/components/resume-builder/steps/SkillsStep.tsx",
@@ -384,6 +391,21 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       root,
       "src/components/ErrorLogPanel.tsx",
       '"Error Logs"; "Stack Trace"; "Component Stack";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/JobImportModal.tsx",
+      [
+        '"Import Job from URL"',
+        '"Job URL"',
+        '"This job already exists in your database"',
+        '"Failed to preview import"',
+        '"Successfully imported"',
+        '"Preview Import"',
+        '"Change URL"',
+        '"Import Job"',
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(
       root,
@@ -496,6 +518,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/pages/SetupWizard.tsx",
         "src/components/ErrorBoundary.tsx",
         "src/components/ErrorLogPanel.tsx",
+        "src/components/JobImportModal.tsx",
         "src/components/automation/ScreeningAnswersForm.tsx",
         "src/components/feedback/DebugInfoPreview.tsx",
         "src/components/feedback/FeedbackModal.tsx",
@@ -520,6 +543,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/pages/SetupWizard.tsx",
       "src/components/ErrorBoundary.tsx",
       "src/components/ErrorLogPanel.tsx",
+      "src/components/JobImportModal.tsx",
       "src/components/automation/ScreeningAnswersForm.tsx",
       "src/components/feedback/DebugInfoPreview.tsx",
       "src/components/feedback/FeedbackModal.tsx",
