@@ -80,6 +80,25 @@ const mockAnalysis = {
   suggestions: [],
 };
 
+const mockJobAnalysis = {
+  ...mockAnalysis,
+  keyword_matches: [
+    {
+      keyword: "onboarding",
+      importance: "Required" as const,
+      found_in: ["experience"],
+      frequency: 2,
+    },
+    {
+      keyword: "retention",
+      importance: "Preferred" as const,
+      found_in: ["summary"],
+      frequency: 1,
+    },
+  ],
+  missing_keywords: ["account management"],
+};
+
 describe("ResumeOptimizer", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -139,5 +158,44 @@ describe("ResumeOptimizer", () => {
       });
     });
     expect(mockToast.success).toHaveBeenCalledWith("Format analysis complete", "Format score: 84%");
+  });
+
+  it("uses plain job-word copy for job match results", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce(mockJobAnalysis);
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    fireEvent.change(screen.getByLabelText(/^job description$/i), {
+      target: { value: "Need onboarding, retention, and account management experience" },
+    });
+    fireEvent.change(screen.getByLabelText(/structured resume data/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /analyze with job/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Resume Match")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Job Words Overview")).toBeInTheDocument();
+    expect(screen.getByText("Job words")).toBeInTheDocument();
+    expect(screen.getByText("Words Found (2)")).toBeInTheDocument();
+    expect(screen.getByText("Words To Add (1)")).toBeInTheDocument();
+    expect(screen.getByText("Only add these words when they honestly fit your experience.")).toBeInTheDocument();
+    expect(screen.queryByText(/Keyword Matches/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Missing Keywords/i)).not.toBeInTheDocument();
+  });
+
+  it("explains strong resume words without ATS jargon", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce(["Led", "Improved"]);
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    await user.click(screen.getByRole("button", { name: /view strong resume words/i }));
+
+    expect(await screen.findByText("Strong Resume Words")).toBeInTheDocument();
+    expect(screen.getByText(/resume screening tools/i)).toBeInTheDocument();
+    expect(screen.queryByText(/ATS systems/i)).not.toBeInTheDocument();
   });
 });

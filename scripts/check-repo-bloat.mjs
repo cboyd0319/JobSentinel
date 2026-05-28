@@ -1006,6 +1006,29 @@ function hasEngineerFirstAudienceExamples(root, path) {
     }
   }
 
+  if (path === "src/pages/ResumeOptimizer.tsx") {
+    const resumeOptimizerPatterns = [
+      /ATS Resume Optimizer/i,
+      /Applicant Tracking Systems/i,
+      /View Power Words/i,
+      /ATS Power Words/i,
+      /Keyword Density Heatmap/i,
+      /Matched keywords/i,
+      /Missing keywords/i,
+      /\(\{(?:required|preferred|industry)\.length\} keywords\)/i,
+      /Opacity indicates keyword frequency/i,
+      /ScoreItem label=["']Keywords["']/i,
+      /Keyword Matches/i,
+      /Missing Keywords/i,
+      /Consider adding these keywords/i,
+      /These action verbs and keywords are commonly recognized by ATS systems/i,
+    ];
+
+    if (resumeOptimizerPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
   const stalePatterns = [
     /placeholder=["'][^"']*(?:Senior\s+)?Software Engineer/i,
     /placeholder=["'][^"']*React/i,

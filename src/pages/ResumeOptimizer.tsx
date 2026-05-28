@@ -324,7 +324,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     return "success";
   };
 
-  // Highlight keywords in text
+  // Highlight job-post words in text.
   const highlightKeywords = (text: string, keywords: string[], type: "match" | "missing"): React.ReactElement => {
     if (!text || keywords.length === 0) {
       return <span>{text}</span>;
@@ -337,7 +337,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     const parts: { text: string; isKeyword: boolean }[] = [];
     let currentIndex = 0;
 
-    // Sort keywords by length (descending) to match longer phrases first
+    // Sort by length so longer phrases win before shorter overlapping words.
     const sortedKeywords = [...keywords].sort((a, b) => b.length - a.length);
 
     // Simple regex-based highlighting
@@ -378,7 +378,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     );
   };
 
-  // Get keyword density groups
+  // Group job-post words by how the analyzer classified them.
   const getKeywordDensity = () => {
     if (!analysisResult) return { required: [], preferred: [], industry: [] };
 
@@ -389,7 +389,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     return { required, preferred, industry };
   };
 
-  // Get opacity based on keyword frequency
+  // Show stronger badges for words that appear more often.
   const getKeywordOpacity = (keyword: string): string => {
     if (!analysisResult) return "opacity-100";
 
@@ -443,10 +443,10 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
             </button>
             <div>
               <h1 className="font-display text-display-lg text-surface-900 dark:text-white">
-                ATS Resume Optimizer
+                Resume Match Helper
               </h1>
               <p className="text-surface-500 dark:text-surface-400 mt-1">
-                Optimize your resume for Applicant Tracking Systems
+                Check how your resume lines up with a job post before you apply
               </p>
             </div>
           </div>
@@ -504,7 +504,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                 size="sm"
                 className="flex-1"
               >
-                View Power Words
+                View Strong Resume Words
               </Button>
               <Button
                 onClick={() => setShowBulletImprover(true)}
@@ -599,29 +599,29 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                       <div className="text-sm">
                         <p className="text-sentinel-800 dark:text-sentinel-300">
                           <span className="bg-green-200 dark:bg-green-900/50 text-green-900 dark:text-green-100 px-1 rounded mr-1">Green</span>
-                          = Matched keywords
+                          = Words found in both
                           <span className="ml-4 bg-red-200 dark:bg-red-900/50 text-red-900 dark:text-red-100 px-1 rounded mr-1">Red</span>
-                          = Missing keywords
+                          = Words to add
                         </p>
                       </div>
                     </div>
                   </Card>
                 )}
 
-                {/* Keyword Density Heatmap */}
+                {/* Job Words Overview */}
                 <Card>
-                  <CardHeader title="Keyword Density Heatmap" />
+                  <CardHeader title="Job Words Overview" />
                   {(() => {
                     const { required, preferred, industry } = getKeywordDensity();
                     return (
                       <div className="space-y-4">
-                        {/* Required Keywords */}
+                        {/* Required words */}
                         {required.length > 0 && (
                           <div>
                             <h4 className="text-sm font-semibold text-red-700 dark:text-red-400 mb-2 flex items-center gap-2">
                               <Badge variant="danger" size="sm">Required</Badge>
                               <span className="text-surface-500 dark:text-surface-400 font-normal">
-                                ({required.length} keywords)
+                                ({required.length} words)
                               </span>
                             </h4>
                             <div className="flex flex-wrap gap-2">
@@ -641,13 +641,13 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                           </div>
                         )}
 
-                        {/* Preferred Keywords */}
+                        {/* Preferred words */}
                         {preferred.length > 0 && (
                           <div>
                             <h4 className="text-sm font-semibold text-yellow-700 dark:text-yellow-400 mb-2 flex items-center gap-2">
                               <Badge variant="alert" size="sm">Preferred</Badge>
                               <span className="text-surface-500 dark:text-surface-400 font-normal">
-                                ({preferred.length} keywords)
+                                ({preferred.length} words)
                               </span>
                             </h4>
                             <div className="flex flex-wrap gap-2">
@@ -667,13 +667,13 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                           </div>
                         )}
 
-                        {/* Industry Keywords */}
+                        {/* Industry words */}
                         {industry.length > 0 && (
                           <div>
                             <h4 className="text-sm font-semibold text-green-700 dark:text-green-400 mb-2 flex items-center gap-2">
                               <Badge variant="success" size="sm">Industry</Badge>
                               <span className="text-surface-500 dark:text-surface-400 font-normal">
-                                ({industry.length} keywords)
+                                ({industry.length} words)
                               </span>
                             </h4>
                             <div className="flex flex-wrap gap-2">
@@ -698,7 +698,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                           <p className="text-sentinel-800 dark:text-sentinel-300">
-                            Opacity indicates keyword frequency. Darker badges appear more often in your resume. Hover over badges to see where keywords were found.
+                            Darker badges appear more often in your resume. Hover over a badge to see where the word was found.
                           </p>
                         </div>
                       </div>
@@ -708,7 +708,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
 
                 {/* Score Overview */}
                 <Card>
-                  <CardHeader title="ATS Score" />
+                  <CardHeader title="Resume Match" />
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center">
                       <div className={`text-5xl font-bold ${getScoreColor(analysisResult.overall_score)}`}>
@@ -717,17 +717,17 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                       <p className="text-sm text-surface-500 dark:text-surface-400 mt-1">Overall Score</p>
                     </div>
                     <div className="space-y-3">
-                      <ScoreItem label="Keywords" score={analysisResult.keyword_score} />
+                      <ScoreItem label="Job words" score={analysisResult.keyword_score} />
                       <ScoreItem label="Format" score={analysisResult.format_score} />
                       <ScoreItem label="Completeness" score={analysisResult.completeness_score} />
                     </div>
                   </div>
                 </Card>
 
-                {/* Keyword Matches */}
+                {/* Words found */}
                 {analysisResult.keyword_matches.length > 0 && (
                   <Card>
-                    <CardHeader title={`Keyword Matches (${analysisResult.keyword_matches.length})`} />
+                    <CardHeader title={`Words Found (${analysisResult.keyword_matches.length})`} />
                     <div className="space-y-2 max-h-64 overflow-y-auto">
                       {analysisResult.keyword_matches.map((match, idx) => (
                         <div
@@ -753,10 +753,10 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                   </Card>
                 )}
 
-                {/* Missing Keywords */}
+                {/* Words to add */}
                 {analysisResult.missing_keywords.length > 0 && (
                   <Card>
-                    <CardHeader title={`Missing Keywords (${analysisResult.missing_keywords.length})`} />
+                    <CardHeader title={`Words To Add (${analysisResult.missing_keywords.length})`} />
                     <div className="flex flex-wrap gap-2">
                       {analysisResult.missing_keywords.map((keyword, idx) => (
                         <Badge key={idx} variant="danger">
@@ -765,7 +765,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                       ))}
                     </div>
                     <p className="text-xs text-surface-500 dark:text-surface-400 mt-3">
-                      Consider adding these keywords to improve your match score
+                      Only add these words when they honestly fit your experience.
                     </p>
                   </Card>
                 )}
@@ -855,11 +855,11 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
       <Modal
         isOpen={showPowerWords}
         onClose={() => setShowPowerWords(false)}
-        title="ATS Power Words"
+        title="Strong Resume Words"
       >
         <div className="space-y-4">
           <p className="text-sm text-surface-600 dark:text-surface-400">
-            These action verbs and keywords are commonly recognized by ATS systems. Use them in your resume to improve parsing.
+            These action verbs are commonly recognized by resume screening tools. Use only words that honestly fit your experience.
           </p>
           {powerWords.length > 0 ? (
             <div className="flex flex-wrap gap-2 max-h-96 overflow-y-auto p-2">
