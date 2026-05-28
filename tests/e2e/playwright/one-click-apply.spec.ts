@@ -3,7 +3,7 @@ import { OneClickApplyPage } from "./page-objects/OneClickApplyPage";
 
 const MOCK_STATE_KEY = "jobsentinel.mockState.v1";
 
-test.describe("One-Click Apply Settings", () => {
+test.describe("Application Assist Settings", () => {
   let applyPage: OneClickApplyPage;
 
   test.beforeEach(async ({ page }) => {
@@ -18,15 +18,15 @@ test.describe("One-Click Apply Settings", () => {
   });
 
   test("loads settings stats, tabs, and human-review safety copy @smoke", async ({ page }) => {
-    await expect(applyPage.statCard("Total Attempts")).toContainText("42");
-    await expect(applyPage.statCard("Submitted")).toContainText("38");
-    await expect(applyPage.statCard("Pending")).toContainText("4");
-    await expect(applyPage.statCard("Success Rate")).toContainText("90%");
+    await expect(applyPage.statCard("Forms Reviewed")).toContainText("42");
+    await expect(applyPage.statCard("Marked Submitted")).toContainText("38");
+    await expect(applyPage.statCard("Needs Follow-Up")).toContainText("4");
+    await expect(applyPage.statCard("Review Completion")).toContainText("90%");
     await expect(applyPage.profileTab).toBeVisible();
     await expect(applyPage.screeningTab).toBeVisible();
-    await expect(page.getByRole("heading", { name: "How One-Click Apply Works" })).toBeVisible();
-    await expect(page.getByText("Submit Manually")).toBeVisible();
-    await expect(page.getByText("We never submit applications automatically")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "How Application Assist Works" })).toBeVisible();
+    await expect(page.getByText("Submit Yourself")).toBeVisible();
+    await expect(page.getByText("JobSentinel never clicks Submit")).toBeVisible();
   });
 
   test("loads existing application profile into editable fields", async () => {
@@ -95,8 +95,8 @@ test.describe("One-Click Apply Settings", () => {
 
   test("keeps manual approval enabled and final submission manual", async ({ page }) => {
     await expect(applyPage.manualApprovalCheckbox).toBeChecked();
-    await expect(page.getByText("Review each application before the form is filled")).toBeVisible();
-    await expect(page.getByText("You always review and click the final Submit button yourself")).toBeVisible();
+    await expect(page.getByText("Review each application before JobSentinel prepares details")).toBeVisible();
+    await expect(page.getByText("You review every field and decide whether to submit")).toBeVisible();
   });
 
   test("shows saved screening answers", async ({ page }) => {

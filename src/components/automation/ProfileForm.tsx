@@ -379,7 +379,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
           Application Profile
         </h3>
         <p className="text-sm text-surface-500 dark:text-surface-400">
-          This information will be auto-filled when you apply to jobs
+          This information can be prepared while you review job applications
         </p>
       </div>
 
@@ -491,7 +491,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
         <section>
           <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
             Resume File
-            <HelpIcon text="Select your resume file (PDF or DOCX) for auto-upload when applying" />
+            <HelpIcon text="Select your resume file (PDF or DOCX) for application review" />
           </h4>
           <div className="flex items-center gap-3">
             <div className="flex-1">
@@ -523,7 +523,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
             )}
           </div>
           <p className="text-xs text-surface-500 dark:text-surface-400 mt-2">
-            Supported formats: PDF, DOCX, DOC. This file will be automatically uploaded when applying.
+            Supported formats: PDF, DOCX, DOC. You choose whether to attach this file while reviewing an application.
           </p>
         </section>
 
@@ -569,23 +569,23 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
           </div>
         </section>
 
-        {/* Automation Settings */}
-        <section role="group" aria-labelledby="automation-settings-heading">
-          <h4 id="automation-settings-heading" className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
-            Automation Settings
-            <HelpIcon text="Control how the form filler behaves" />
+        {/* Review Settings */}
+        <section role="group" aria-labelledby="review-settings-heading">
+          <h4 id="review-settings-heading" className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+            Review Settings
+            <HelpIcon text="Control how Application Assist prepares forms for review" />
           </h4>
           <div className="space-y-4">
             <div className="flex items-center gap-4">
               <label htmlFor="max-applications-select" className="text-surface-700 dark:text-surface-300 text-sm">
-                Max applications per day:
+                Daily review limit:
               </label>
               <select
                 id="max-applications-select"
                 value={maxApplicationsPerDay}
                 onChange={(e) => setMaxApplicationsPerDay(parseInt(e.target.value))}
                 className="px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100"
-                aria-label="Maximum applications per day"
+                aria-label="Daily application review limit"
               >
                 <option value="5">5</option>
                 <option value="10">10</option>
@@ -605,7 +605,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
                   Require manual approval
                 </span>
                 <p className="text-sm text-surface-500 dark:text-surface-400">
-                  Review each application before the form is filled (recommended)
+                  Review each application before JobSentinel prepares details (recommended)
                 </p>
               </div>
             </label>

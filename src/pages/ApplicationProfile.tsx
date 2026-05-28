@@ -38,7 +38,7 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
     } catch (error: unknown) {
       if (signal?.aborted) return;
       logError("Failed to load automation stats:", error);
-      toast.error("Failed to load stats", "Your automation history may be unavailable. Try restarting the app.");
+      toast.error("Failed to load application history", "Your saved review history may be unavailable. Try restarting the app.");
     } finally {
       if (!signal?.aborted) {
         setLoadingStats(false);
@@ -70,10 +70,10 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
             </button>
             <div>
               <h1 className="text-xl font-display font-semibold text-surface-900 dark:text-white">
-                One-Click Apply Settings
+                Application Assist Settings
               </h1>
               <p className="text-sm text-surface-500 dark:text-surface-400">
-                Configure your application profile for quick form filling
+                Save details JobSentinel can prepare while you review each application
               </p>
             </div>
           </div>
@@ -94,20 +94,20 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
           ) : (
             <>
               <StatCard
-                label="Total Attempts"
+                label="Forms Reviewed"
                 value={stats?.totalAttempts ?? 0}
               />
               <StatCard
-                label="Submitted"
+                label="Marked Submitted"
                 value={stats?.submitted ?? 0}
                 trend={stats?.submitted ? { value: stats.submitted, isPositive: true } : undefined}
               />
               <StatCard
-                label="Pending"
+                label="Needs Follow-Up"
                 value={stats?.pending ?? 0}
               />
               <StatCard
-                label="Success Rate"
+                label="Review Completion"
                 value={`${(stats?.successRate ?? 0).toFixed(0)}%`}
               />
             </>
@@ -116,7 +116,7 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
 
         {/* Tabs */}
         <div className="border-b border-surface-200 dark:border-surface-700 mb-6">
-          <nav className="flex gap-6" aria-label="One-click apply settings" role="tablist">
+          <nav className="flex gap-6" aria-label="Application assist settings" role="tablist">
             <button
               type="button"
               role="tab"
@@ -180,7 +180,7 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
         <Card className="mt-8 p-6 bg-gradient-to-br from-sentinel-50 to-blue-50 dark:from-sentinel-900/20 dark:to-blue-900/20 border-sentinel-200 dark:border-sentinel-800">
           <h3 className="text-lg font-semibold text-surface-900 dark:text-white mb-4 flex items-center gap-2">
             <InfoIcon className="w-5 h-5 text-sentinel-500" />
-            How One-Click Apply Works
+            How Application Assist Works
           </h3>
           <div className="grid md:grid-cols-4 gap-4">
             <StepCard
@@ -190,23 +190,23 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
             />
             <StepCard
               number={2}
-              title="Click Quick Apply"
-              description="Select a job and click the Quick Apply button"
+              title="Choose Prepare Form"
+              description="Select a job and choose the Prepare Form button"
             />
             <StepCard
               number={3}
-              title="Review & Complete"
-              description="A browser opens with fields pre-filled from your profile"
+              title="Review & Finish"
+              description="A browser opens with matching profile details prepared"
             />
             <StepCard
               number={4}
-              title="Submit Manually"
+              title="Submit Yourself"
               description="You review the form and click Submit yourself"
             />
           </div>
           <p className="text-sm text-surface-600 dark:text-surface-400 mt-4">
-            <strong>Important:</strong> We never submit applications automatically.
-            You always review and click the final Submit button yourself.
+            <strong>Important:</strong> JobSentinel never clicks Submit.
+            You review every field and decide whether to submit.
           </p>
         </Card>
       </main>

@@ -125,7 +125,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
     if (!hasProfile) {
       toast.error(
         "Profile required",
-        "Please set up your application profile first in Settings > One-Click Apply"
+        "Please set up your application profile first in Settings > Application Assist"
       );
       return;
     }
@@ -136,7 +136,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
     try {
       setIsFilling(true);
       setFillError(null);
-      toast.info("Opening browser...", "Form filling will begin shortly");
+      toast.info("Opening browser...", "Review-ready form help will start shortly");
 
       const result = await invoke<{
         filledFields: string[];
@@ -156,25 +156,25 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
       if (result.captchaDetected) {
         toast.warning(
           "CAPTCHA detected",
-          "Please complete the CAPTCHA manually, then click submit"
+          "Please complete the CAPTCHA yourself, then continue review"
         );
       } else if (result.errorMessage) {
         // Keep modal open with error for retry
         setFillError(result.errorMessage);
-        toast.error("Form fill error", result.errorMessage);
+        toast.error("Form preparation error", result.errorMessage);
         return; // Don't close modal
       } else {
         const unfilled = result.unfilledFields.length;
-        let message = `Filled ${basicCount} basic fields`;
+        let message = `Prepared ${basicCount} profile fields`;
         if (screeningCount > 0) {
-          message += ` and ${screeningCount} screening questions`;
+          message += ` and ${screeningCount} saved screening answers`;
         }
         if (unfilled > 0) {
           message += `. ${unfilled} fields need attention`;
         }
-        message += `. Review and click Submit in ${(result.durationMs / 1000).toFixed(1)}s.`;
+        message += `. Review every field and click Submit yourself.`;
 
-        toast.success("Form filled!", message);
+        toast.success("Form ready for review", message);
       }
 
       setShowPreview(false);
@@ -206,9 +206,9 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
 
       // Keep modal open with error for retry
       setFillError(errorMsg + recoveryHint + actionHint);
-      logError("Failed to fill form:", error);
+      logError("Failed to prepare form:", error);
       toast.error(
-        enhancedError.userFriendly?.title || "Form Fill Failed",
+        enhancedError.userFriendly?.title || "Form Preparation Failed",
         errorMsg + (recoveryHint || actionHint ? recoveryHint + actionHint : "")
       );
     } finally {
@@ -287,13 +287,13 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
             title={
               atsLoading
                 ? "Detecting application platform..."
-                : !hasProfile
-                  ? "Set up your application profile first"
-                  : "Prepare to apply - fills form fields automatically"
+                  : !hasProfile
+                    ? "Set up your application profile first"
+                    : "Prepare application form for your review"
             }
           >
             <BoltIcon className="w-4 h-4 mr-1" />
-            Quick Apply
+            Prepare Form
           </Button>
         )}
       </div>
@@ -302,7 +302,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
       <Modal
         isOpen={showPreview}
         onClose={() => { setShowPreview(false); setFillError(null); }}
-        title="Prepare Application"
+        title="Review Application"
         size="lg"
       >
         <ApplicationPreview job={job} atsPlatform={atsPlatform} />
@@ -318,7 +318,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
               </div>
               <div className="flex-1">
                 <h4 className="text-sm font-medium text-red-800 dark:text-red-200">
-                  Form filling failed
+                  Form preparation failed
                 </h4>
                 <p className="mt-1 text-sm text-red-700 dark:text-red-300">
                   {fillError}
@@ -332,9 +332,9 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
           <Button variant="secondary" onClick={() => { setShowPreview(false); setFillError(null); }}>
             Cancel
           </Button>
-          <Button onClick={handleFillForm} loading={isFilling} loadingText="Filling...">
+          <Button onClick={handleFillForm} loading={isFilling} loadingText="Preparing...">
             <BoltIcon className="w-4 h-4 mr-2" />
-            {fillError ? "Try Again" : "Fill Form"}
+            {fillError ? "Try Again" : "Prepare Details"}
           </Button>
         </ModalFooter>
       </Modal>
@@ -343,12 +343,12 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
       <Modal
         isOpen={showSubmitConfirm}
         onClose={handleSkipTracking}
-        title="Did you submit?"
+        title="Did you click Submit?"
         size="sm"
       >
         <div className="py-4">
           <p className="text-surface-700 dark:text-surface-300 mb-4">
-            Did you click the Submit button on the application form?
+            Did you personally click the Submit button on the application form?
           </p>
           <p className="text-sm text-surface-500 dark:text-surface-400">
             This helps track your application status.
@@ -360,7 +360,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
           </Button>
           <Button onClick={handleMarkSubmitted}>
             <CheckIcon className="w-4 h-4 mr-2" />
-            Yes, I submitted
+            Yes, I clicked Submit
           </Button>
         </ModalFooter>
       </Modal>

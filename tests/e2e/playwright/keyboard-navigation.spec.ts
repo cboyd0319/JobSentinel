@@ -10,7 +10,7 @@ const MAIN_HEADING_BY_SHORTCUT: Array<{
   { shortcut: 3, heading: "Resume Matcher" },
   { shortcut: 4, heading: "Salary AI" },
   { shortcut: 5, heading: "Market Intelligence" },
-  { shortcut: 6, heading: "One-Click Apply Settings" },
+  { shortcut: 6, heading: "Application Assist Settings" },
   { shortcut: 7, heading: "Resume Builder" },
   { shortcut: 8, heading: "ATS Resume Optimizer" },
 ];

@@ -667,7 +667,7 @@ export default function Dashboard({
                         We search
                       </p>
                       <p className="text-xs text-surface-500 dark:text-surface-400">
-                        13 job boards automatically
+                        13 job boards on your schedule
                       </p>
                     </div>
                   </div>

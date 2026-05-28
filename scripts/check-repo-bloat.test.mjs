@@ -881,6 +881,87 @@ test("checkRepoBloat rejects technical-first user copy", () => {
   });
 });
 
+test("checkRepoBloat rejects application-assist automation framing", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/pages/ApplicationProfile.tsx",
+      '"One-Click Apply Settings"; "Total Attempts"; "Success Rate";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/automation/ApplyButton.tsx",
+      '"Quick Apply"; "Prepare to apply - fills form fields automatically";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/automation/ApplicationPreview.tsx",
+      '"Fields that will be auto-filled";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/automation/ProfileForm.tsx",
+      '"This information will be auto-filled when you apply to jobs"; "Automation Settings";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/automation/ScreeningAnswersForm.tsx",
+      '"Add common answers to auto-fill screening questions during Quick Apply";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/DashboardUI/DashboardHeader.tsx",
+      '"Privacy-first job search automation";\n',
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/one-click-apply.md",
+      "# One-Click Apply\n\nFill out job applications in seconds, not minutes.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/user/QUICK_START.md",
+      "Speed up applications with One-Click Apply.\n",
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src/pages/ApplicationProfile.tsx",
+        "src/components/automation/ApplyButton.tsx",
+        "src/components/automation/ApplicationPreview.tsx",
+        "src/components/automation/ProfileForm.tsx",
+        "src/components/automation/ScreeningAnswersForm.tsx",
+        "src/pages/DashboardUI/DashboardHeader.tsx",
+        "docs/features/one-click-apply.md",
+        "docs/user/QUICK_START.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of [
+      "src/pages/ApplicationProfile.tsx",
+      "src/components/automation/ApplyButton.tsx",
+      "src/components/automation/ApplicationPreview.tsx",
+      "src/components/automation/ProfileForm.tsx",
+      "src/components/automation/ScreeningAnswersForm.tsx",
+      "src/pages/DashboardUI/DashboardHeader.tsx",
+      "docs/features/one-click-apply.md",
+      "docs/user/QUICK_START.md",
+    ]) {
+      assert.ok(
+        violations.includes(`replace application-assist automation framing: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
 test("checkRepoBloat rejects overconfident ghost-risk copy", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -2715,7 +2796,7 @@ test("checkRepoBloat rejects Quick Start doc emoji markers", () => {
       [
         "- ✅ **Remote** - Work from anywhere",
         "### Resume Builder 📄",
-        "- 🚀 **Speed up applications** with One-Click Apply",
+        "- 🚀 **Review applications** with Application Assist",
         "**Happy job hunting!** 🎯",
         "",
       ].join("\n"),

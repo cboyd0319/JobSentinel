@@ -18,7 +18,7 @@ System architecture for JobSentinel.
 
 ## Overview
 
-JobSentinel is a **privacy-first, desktop-native job search automation tool** built with Rust
+JobSentinel is a **privacy-first, desktop-native job-search assistant** built with Rust
 and Tauri. The application runs entirely on the user's machine with no cloud dependencies
 (v1.0), ensuring complete data privacy and control.
 
@@ -348,15 +348,15 @@ lookup results, sanitized error reports, and transient recovery hints.
   - `analysis.rs` - Market snapshot generation
   - `alerts.rs` - Anomaly detection and alerts
 
-#### `core/automation/` (NEW in v2.0)
+#### `core/automation/` (v2.0)
 
-**Purpose**: One-Click Apply form filling automation
+**Purpose**: Application Assist form preparation
 
 - Human-in-the-loop design (user clicks Submit manually)
 - Application profile management
-- Screening question auto-answers
+- Saved screening answers
 - ATS platform detection and specialized selectors
-- Browser automation via Chrome DevTools Protocol
+- Visible browser control via Chrome DevTools Protocol
 
 **Key Components:**
 
@@ -389,7 +389,7 @@ pub struct ApplicationProfile {
 }
 
 pub struct ScreeningAnswer {
-    question_pattern: String,  // Regex pattern
+    question_pattern: String,  // Question text to match
     answer: String,
     answer_type: AnswerType,  // text, yes/no, select
 }
@@ -397,12 +397,12 @@ pub struct ScreeningAnswer {
 
 **Safety Features:**
 
-- Never auto-submits (user always clicks Submit)
+- Never clicks Submit (user always decides)
 - CAPTCHA detection with user prompts
-- Rate limiting (configurable max applications/day)
+- Daily review limit
 - Visible browser window (no headless mode)
 
-See [One-Click Apply Feature](../features/one-click-apply.md) for full documentation.
+See [Application Assist Feature](../features/one-click-apply.md) for full documentation.
 
 #### `core/scheduler/`
 

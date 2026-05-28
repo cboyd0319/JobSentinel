@@ -83,11 +83,11 @@ describe("Navigation", () => {
       expect(onNavigate).toHaveBeenCalledWith("market");
     });
 
-    it("calls onNavigate when One-Click Apply is clicked", () => {
+    it("calls onNavigate when Application Assist is clicked", () => {
       const onNavigate = vi.fn();
       render(<Navigation currentPage="dashboard" onNavigate={onNavigate} />);
 
-      const btn = screen.getByTitle("One-Click Apply (⌘6)");
+      const btn = screen.getByTitle("Application Assist (⌘6)");
       fireEvent.click(btn);
 
       expect(onNavigate).toHaveBeenCalledWith("automation");

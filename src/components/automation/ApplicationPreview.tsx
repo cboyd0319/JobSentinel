@@ -116,13 +116,13 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
         </div>
       </Card>
 
-      {/* What Will Be Filled */}
-      <section role="group" aria-labelledby="auto-filled-heading">
-        <h4 id="auto-filled-heading" className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+      {/* What JobSentinel Can Prepare */}
+      <section role="group" aria-labelledby="prepared-fields-heading">
+        <h4 id="prepared-fields-heading" className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
           <CheckCircleIcon className="w-5 h-5 text-green-500" aria-hidden="true" />
-          Fields that will be auto-filled
+          Fields JobSentinel can prepare
         </h4>
-        <div className="border border-surface-200 dark:border-surface-700 rounded-lg divide-y divide-surface-200 dark:divide-surface-700" role="list" aria-label="Auto-filled fields">
+        <div className="border border-surface-200 dark:border-surface-700 rounded-lg divide-y divide-surface-200 dark:divide-surface-700" role="list" aria-label="Prepared fields">
           {fieldData
             .filter((f) => f.willFill && f.value)
             .map((field) => (
@@ -146,7 +146,7 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
       <section role="group" aria-labelledby="manual-fields-heading">
         <h4 id="manual-fields-heading" className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
           <ExclamationIcon className="w-5 h-5 text-amber-500" aria-hidden="true" />
-          You'll need to complete manually
+          You will complete and review
         </h4>
         <ul className="text-sm text-surface-600 dark:text-surface-400 space-y-2 pl-7" role="list" aria-label="Manual tasks">
           <li className="flex items-center gap-2">
@@ -167,7 +167,7 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
           </li>
           <li className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-            <strong>Final Submit button (you click this)</strong>
+            <strong>Final Submit button (you click this yourself)</strong>
           </li>
         </ul>
       </section>
@@ -180,8 +180,8 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
             <p id="info-banner-title" className="font-medium mb-1">How it works</p>
             <ol className="list-decimal list-inside space-y-1 text-blue-700 dark:text-blue-300" role="list" aria-label="Application process steps">
               <li>A browser window will open with the application page</li>
-              <li>Your profile data will be filled into matching fields</li>
-              <li>Review the filled data and complete any missing fields</li>
+              <li>Matching profile details are prepared for your review</li>
+              <li>Review every prepared detail and complete any missing fields</li>
               <li>When ready, click the Submit button yourself</li>
             </ol>
           </div>

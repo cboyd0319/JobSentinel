@@ -466,6 +466,26 @@ const technicalFirstUserCopyPaths = new Set([
   "docs/user/DEEP_LINKS.md",
   "docs/user/QUICK_START.md",
 ]);
+const applicationAssistFramingPaths = new Set([
+  "docs/README.md",
+  "docs/developer/ARCHITECTURE.md",
+  "docs/features/one-click-apply.md",
+  "docs/user/QUICK_START.md",
+  "src/App.tsx",
+  "src/components/Navigation.tsx",
+  "src/components/automation/ApplicationPreview.tsx",
+  "src/components/automation/ApplyButton.tsx",
+  "src/components/automation/ProfileForm.tsx",
+  "src/components/automation/ScreeningAnswersForm.tsx",
+  "src/pages/ApplicationProfile.tsx",
+  "src/pages/DashboardUI/DashboardHeader.tsx",
+  "src/pages/SetupWizard.tsx",
+  "tests/e2e/README.md",
+  "tests/e2e/playwright/app.spec.ts",
+  "tests/e2e/playwright/keyboard-navigation.spec.ts",
+  "tests/e2e/playwright/one-click-apply.spec.ts",
+  "tests/e2e/playwright/page-objects/OneClickApplyPage.ts",
+]);
 const overconfidentGhostCopyPaths = new Set([
   "docs/README.md",
   "docs/ROADMAP.md",
@@ -1327,6 +1347,41 @@ function hasTechnicalFirstUserCopy(root, path) {
     /SMTP credentials/i,
     /special API access/i,
     /check your API key/i,
+  ];
+
+  return stalePatterns.some((pattern) => pattern.test(text));
+}
+
+function hasApplicationAssistAutomationFraming(root, path) {
+  if (!applicationAssistFramingPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const stalePatterns = [
+    new RegExp(["One", "-Click", "\\s+", "Apply"].join(""), "i"),
+    new RegExp(["Quick", "\\s+", "Apply"].join(""), "i"),
+    new RegExp(["Fill", "\\s+", "out", "\\s+", "job", "\\s+", "applications", "\\s+", "in", "\\s+", "seconds"].join(""), "i"),
+    new RegExp(["Speed", "\\s+", "up", "\\s+", "applications"].join(""), "i"),
+    new RegExp(["forms?", "\\s+", "for", "\\s+", "you", "\\s+", "automatically"].join(""), "i"),
+    new RegExp(["fields?", "\\s+", "that", "\\s+", "will", "\\s+", "be", "\\s+", "auto-filled"].join(""), "i"),
+    new RegExp(["auto-fill", "\\s+", "screening", "\\s+", "questions"].join(""), "i"),
+    new RegExp(["This", "\\s+", "information", "\\s+", "will", "\\s+", "be", "\\s+", "auto-filled"].join(""), "i"),
+    new RegExp(["automatically", "\\s+", "uploaded", "\\s+", "when", "\\s+", "applying"].join(""), "i"),
+    new RegExp(["Prepare", "\\s+", "to", "\\s+", "apply", "\\s+-\\s+", "fills", "\\s+", "form", "\\s+", "fields", "\\s+", "automatically"].join(""), "i"),
+    new RegExp(["Form", "\\s+", "filling", "\\s+", "will", "\\s+", "begin", "\\s+", "shortly"].join(""), "i"),
+    new RegExp(["Form", "\\s+", "Fill", "\\s+", "Failed"].join(""), "i"),
+    new RegExp(["Form", "\\s+", "filled!"].join(""), "i"),
+    new RegExp(["form", "\\s+", "filling", "\\s+", "failed"].join(""), "i"),
+    new RegExp(["Max", "\\s+", "applications", "\\s+", "per", "\\s+", "day"].join(""), "i"),
+    new RegExp(["Total", "\\s+", "Attempts"].join(""), "i"),
+    new RegExp(["Success", "\\s+", "Rate"].join(""), "i"),
+    new RegExp(["Automation", "\\s+", "Settings"].join(""), "i"),
+    new RegExp(["No", "\\s+", "Auto-Submit"].join(""), "i"),
+    new RegExp(["automated", "\\s+", "browsers"].join(""), "i"),
+    new RegExp(["automated", "\\s+", "submission"].join(""), "i"),
+    new RegExp(["form", "\\s+", "filling", "\\s+", "automation"].join(""), "i"),
+    new RegExp(["Privacy-first", "\\s+", "job", "\\s+", "search", "\\s+", "automation"].join(""), "i"),
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));
@@ -3311,6 +3366,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasTechnicalFirstUserCopy(root, path)) {
       violations.push(`replace technical-first user copy: ${path}`);
+    }
+
+    if (hasApplicationAssistAutomationFraming(root, path)) {
+      violations.push(`replace application-assist automation framing: ${path}`);
     }
 
     if (hasOverconfidentGhostCopy(root, path)) {

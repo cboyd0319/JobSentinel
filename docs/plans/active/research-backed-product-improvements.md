@@ -68,7 +68,7 @@ In scope:
 
 - Product, UX, privacy, security, accessibility, and research-backed planning.
 - Future implementation areas across dashboard, setup, scoring, resume,
-  application tracking, one-click apply, market intelligence, scrapers, and
+  application tracking, Application Assist, market intelligence, scrapers, and
   docs.
 - Legitimate ATS-aware optimization: accurate machine readability, truthful
   alignment, and human-readable applications.
@@ -548,7 +548,7 @@ Likely files later:
 - Make every score and recommendation inspectable, editable, and reversible.
 - Add screen-reader and keyboard checks to every new guided flow.
 - Support users who opt out of a resume upload, AI-assisted writing, or
-  automated application filling.
+  Application Assist.
 - Avoid identity-flattening language such as "ATS says you are weak" or
   "unqualified".
 - Add "what JobSentinel knows" and "what JobSentinel is guessing" sections for
@@ -889,7 +889,7 @@ cd src-tauri && cargo test --lib
 UI slices also need keyboard, screen-reader, loading, empty, error, disabled,
 and narrow-width review.
 
-Resume, ATS, automation, or external-side-effect slices need security review
+Resume, ATS, Application Assist, or external-side-effect slices need security review
 against:
 
 - `docs/security/COMMAND_EXECUTION.md`
@@ -902,6 +902,7 @@ against:
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-28 | In progress | Chose Application Assist as the next implementation slice and reframed the visible flow around review-first form preparation, user-controlled Submit, and anti-volume guardrails. |
 | 2026-05-28 | In progress | Promoted ghost-job protection, pay-equity safeguards, long-term-unemployment support, bias-aware application routes, protective tone, and local-first privacy from research notes into first-class product requirements and prioritization. |
 | 2026-05-28 | Verified | Added pay-equity source. Added compensation intelligence, salary-history guardrails, market-anchor support, leveling checks, range-quality scoring, review-cycle tracking, employer transparency signals, protected-class guardrails, and re-ran docs-only checks. |
 | 2026-05-28 | Verified | Added final scraping and salary-negotiation sources. Scoped scraping guidance to a local-first single-job-seeker app, added source-governance guardrails, added negotiation guidance that avoids blaming job seekers for structural pay gaps, and re-ran docs-only checks. |

@@ -248,7 +248,7 @@ function TemplatePreview({ template, selectedJob, onEdit, onDelete, onCopy, onUs
 }
 
 interface CoverLetterTemplatesProps {
-  /** Optional job to enable "Use for Job" auto-fill button */
+  /** Optional job to enable "Use for Job" template button */
   selectedJob?: JobForTemplate | null;
 }
 

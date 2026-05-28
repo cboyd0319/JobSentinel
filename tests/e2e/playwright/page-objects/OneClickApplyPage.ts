@@ -2,7 +2,7 @@ import { expect, Locator, Page } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
 /**
- * Page object for the One-Click Apply settings surface.
+ * Page object for the Application Assist settings surface.
  */
 export class OneClickApplyPage extends BasePage {
   constructor(page: Page) {
@@ -12,13 +12,13 @@ export class OneClickApplyPage extends BasePage {
   async navigateTo() {
     await this.goto("/");
     await this.skipSetupWizard();
-    await this.navigateToPage("One-Click Apply");
+    await this.navigateToPage("Application Assist");
     await expect(this.heading).toBeVisible({ timeout: 15000 });
     await expect(this.profileForm).toBeVisible({ timeout: 15000 });
   }
 
   get heading(): Locator {
-    return this.page.getByRole("heading", { name: "One-Click Apply Settings" });
+    return this.page.getByRole("heading", { name: "Application Assist Settings" });
   }
 
   get profileTab(): Locator {
@@ -70,7 +70,7 @@ export class OneClickApplyPage extends BasePage {
   }
 
   get maxApplicationsSelect(): Locator {
-    return this.page.getByLabel("Maximum applications per day");
+    return this.page.getByLabel("Daily application review limit");
   }
 
   get manualApprovalCheckbox(): Locator {

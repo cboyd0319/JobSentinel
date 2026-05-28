@@ -154,7 +154,7 @@ describe("ScreeningAnswersForm", () => {
       await waitFor(() => {
         expect(
           screen.getByText(
-            /add common answers to auto-fill screening questions/i,
+            /add common answers to prepare screening questions/i,
           ),
         ).toBeInTheDocument();
       });

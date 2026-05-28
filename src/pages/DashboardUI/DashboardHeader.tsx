@@ -53,7 +53,7 @@ export const DashboardHeader = memo(function DashboardHeader({
                 JobSentinel
               </h1>
               <p className="text-sm text-surface-500 dark:text-surface-400">
-                Privacy-first job search automation
+                Privacy-preserving job search
               </p>
             </div>
           </div>

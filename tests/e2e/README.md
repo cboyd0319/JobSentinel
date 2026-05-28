@@ -13,7 +13,7 @@ Reusable page objects following the Page Object Model pattern:
 - `ResumePage.ts` - Resume state, skills, library, and match results
 - `ApplicationsPage.ts` - Application tracking kanban
 - `SettingsPage.ts` - Settings management
-- `OneClickApplyPage.ts` - One-Click Apply settings, profile, and screening answers
+- `OneClickApplyPage.ts` - Application Assist settings, profile, and screening answers
 - `ResumeBuilderPage.ts` - Resume Builder wizard
 - `MarketIntelligencePage.ts` - Market Intelligence features
 - `JobDetailPage.ts` - Job detail view and interactions
@@ -111,8 +111,8 @@ npm run test:e2e:smoke:all
 ```
 
 Use smoke tests during routine frontend work. They cover app load, search,
-keyboard focus, applications, settings, resume, one-click apply, resume builder,
-and market intelligence without running every browser-flow assertion.
+keyboard focus, applications, settings, resume, Application Assist, resume
+builder, and market intelligence without running every browser-flow assertion.
 
 ### Full Cross-Browser Tests
 
@@ -285,7 +285,7 @@ Current test coverage:
 - Application tracking
 - Settings management
 - Keyboard navigation
-- One-Click Apply settings and screening answers
+- Application Assist settings and screening answers
 - Resume Builder wizard
 - Market Intelligence features
 - Job interactions (bookmarking, notes, status)

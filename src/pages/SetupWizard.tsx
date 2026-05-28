@@ -877,7 +877,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
 
         {/* Footer */}
         <p className="text-center text-surface-500 text-sm mt-6">
-          Privacy-first job search automation
+          Privacy-preserving job search
         </p>
       </div>
     </div>

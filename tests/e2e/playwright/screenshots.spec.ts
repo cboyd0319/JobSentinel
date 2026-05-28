@@ -81,14 +81,14 @@ test.describe("Documentation Screenshots", () => {
       await page.waitForLoadState("networkidle");
     }
 
-    // Use keyboard shortcut to navigate to One-Click Apply (⌘6)
+    // Use keyboard shortcut to navigate to Application Assist (⌘6)
     await page.keyboard.press("Meta+6");
     await page.waitForTimeout(500);
 
     // If that didn't work, click the nav button
     const navButtons = page.locator("nav button");
     if (await navButtons.count() >= 6) {
-      await navButtons.nth(5).click();  // 6th button = One-Click Apply
+      await navButtons.nth(5).click();  // 6th button = Application Assist
     }
     
     await page.waitForTimeout(500);

@@ -10,7 +10,7 @@ const NAV_DESTINATIONS: Array<{
   { label: "Resumes", heading: "Resume Matcher" },
   { label: "Salary", heading: "Salary AI" },
   { label: "Market Intel", heading: "Market Intelligence" },
-  { label: "One-Click Apply", heading: "One-Click Apply Settings" },
+  { label: "Application Assist", heading: "Application Assist Settings" },
   { label: "Resume Builder", heading: "Resume Builder" },
   { label: "ATS Optimizer", heading: "ATS Resume Optimizer" },
 ];
@@ -55,7 +55,7 @@ test.describe("JobSentinel App Shell", () => {
     await openApp(page);
 
     await expect(mainHeading(page, "JobSentinel")).toBeVisible();
-    await expect(page.getByText("Privacy-first job search automation")).toBeVisible();
+    await expect(page.getByText("Privacy-preserving job search")).toBeVisible();
     await expect(page.getByTestId("btn-search-now")).toBeVisible();
     await expect(page.getByTestId("search-input")).toBeVisible();
     await expect(page.locator("body")).not.toContainText(/error boundary|failed to load/i);

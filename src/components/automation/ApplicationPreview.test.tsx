@@ -167,7 +167,7 @@ describe("ApplicationPreview", () => {
     });
   });
 
-  describe("auto-filled fields display", () => {
+  describe("prepared fields display", () => {
     it("displays full name", async () => {
       mockInvoke.mockResolvedValue(mockProfile);
 
@@ -437,13 +437,13 @@ describe("ApplicationPreview", () => {
       });
     });
 
-    it("explains data will be filled", async () => {
+    it("explains details will be prepared", async () => {
       mockInvoke.mockResolvedValue(mockProfile);
 
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        expect(screen.getByText(/profile data will be filled/i)).toBeInTheDocument();
+        expect(screen.getByText(/matching profile details are prepared/i)).toBeInTheDocument();
       });
     });
 
@@ -453,7 +453,7 @@ describe("ApplicationPreview", () => {
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        expect(screen.getByText(/review the filled data/i)).toBeInTheDocument();
+        expect(screen.getByText(/review every prepared detail/i)).toBeInTheDocument();
       });
     });
 
@@ -480,14 +480,14 @@ describe("ApplicationPreview", () => {
       });
     });
 
-    it("has labeled group for auto-filled fields", async () => {
+    it("has labeled group for prepared fields", async () => {
       mockInvoke.mockResolvedValue(mockProfile);
 
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        const heading = screen.getByText(/fields that will be auto-filled/i);
-        expect(heading).toHaveAttribute("id", "auto-filled-heading");
+        const heading = screen.getByText(/fields JobSentinel can prepare/i);
+        expect(heading).toHaveAttribute("id", "prepared-fields-heading");
       });
     });
 
@@ -497,7 +497,7 @@ describe("ApplicationPreview", () => {
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        const heading = screen.getByText(/you'll need to complete manually/i);
+        const heading = screen.getByText(/you will complete and review/i);
         expect(heading).toHaveAttribute("id", "manual-fields-heading");
       });
     });
@@ -513,13 +513,13 @@ describe("ApplicationPreview", () => {
       });
     });
 
-    it("auto-filled fields list has proper role", async () => {
+    it("prepared fields list has proper role", async () => {
       mockInvoke.mockResolvedValue(mockProfile);
 
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        const list = screen.getByRole("list", { name: /auto-filled fields/i });
+        const list = screen.getByRole("list", { name: /prepared fields/i });
         expect(list).toBeInTheDocument();
       });
     });

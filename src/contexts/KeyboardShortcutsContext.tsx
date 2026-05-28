@@ -142,7 +142,7 @@ export function KeyboardShortcutsProvider({
       {
         key: "6",
         modifiers: ["meta"],
-        description: "Go to One-Click Apply",
+        description: "Go to Application Assist",
         action: () => onNavigate?.("automation"),
         category: "navigation",
       },

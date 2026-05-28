@@ -1,4 +1,4 @@
-// Minimal Job interface for auto-fill feature
+// Minimal Job interface for cover letter placeholders
 export interface JobForTemplate {
   title: string;
   company: string;

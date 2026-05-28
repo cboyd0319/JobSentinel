@@ -3503,7 +3503,7 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       saveMockState();
       return undefined as T;
 
-    // Automation / One-Click Apply
+    // Application Assist
     case "get_application_profile":
       return applicationProfile as T;
 

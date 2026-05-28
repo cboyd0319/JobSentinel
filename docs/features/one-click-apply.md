@@ -1,297 +1,221 @@
-# One-Click Apply
+# Application Assist
 
-**Fill out job applications in seconds, not minutes.**
+Application Assist helps you review job application forms without turning the
+job search into a volume game. JobSentinel can prepare saved profile details in a
+visible browser, then you inspect every field and decide whether to submit.
 
-Tired of typing your name, email, and work history into every single application?
-JobSentinel can fill in those forms for you automatically. You just review everything
-and click Submit.
-
-![One-Click Apply Settings](../images/one-click-apply.png)
+![Application Assist Settings](../images/one-click-apply.png)
 
 ---
 
 ## How It Works
 
-1. **You set up your profile once** - Name, email, phone, LinkedIn, etc.
-2. **You find a job you like** in JobSentinel
-3. **Click "Quick Apply"** - JobSentinel opens the browser and fills the form
-4. **You review everything** - Make sure it looks right
-5. **You click Submit** - JobSentinel never submits without you
+1. **Save your profile once** - name, email, phone, links, work authorization,
+   and optional resume path.
+2. **Choose a job worth reviewing** from your dashboard.
+3. **Choose "Prepare Form"** - JobSentinel opens the application page in a
+   visible browser.
+4. **Review everything** - check prepared details, complete blank fields, and
+   decide whether this role still fits your constraints.
+5. **Click Submit yourself** - JobSentinel never clicks the final button.
 
-**Important:** You're always in control. JobSentinel fills out forms, but YOU click Submit.
-This is intentional - we never apply to jobs without your explicit approval.
+Application Assist is review-first by design. It should save effort on repeated
+details, not push you into applications you do not want.
 
 ---
 
 ## Supported Application Systems
 
-JobSentinel works with these popular hiring platforms:
+JobSentinel recognizes common application platforms and uses platform-specific
+field matching where possible.
 
 | Platform       | Where You'll See It       |
 | -------------- | ------------------------- |
-| **Greenhouse** | Most tech companies       |
-| **Lever**      | Startups, mid-size tech   |
-| **Workday**    | Enterprise companies      |
-| **Taleo**      | Large corporations        |
-| **iCIMS**      | Various industries        |
-| **BambooHR**   | Small to medium companies |
-| **Ashby**      | Modern tech companies     |
+| **Greenhouse** | Companies using Greenhouse |
+| **Lever**      | Companies using Lever      |
+| **Workday**    | Enterprise hiring portals  |
+| **Taleo**      | Large organization portals |
+| **iCIMS**      | Various industries         |
+| **BambooHR**   | Small to medium companies  |
+| **Ashby**      | Companies using Ashby      |
 
-Don't see your platform? JobSentinel tries generic form filling on unknown sites -
-it often works!
+Unknown systems can still be opened for review. JobSentinel may prepare basic
+profile fields when the form structure is clear.
 
 ---
 
 ## Setting Up Your Profile
 
-Before using One-Click Apply, fill in your information:
+Before using Application Assist, fill in your information:
 
-1. Click **One-Click Apply Settings** in the sidebar
-2. Fill out your profile
+1. Open **Application Assist** in the sidebar.
+2. Fill out your profile.
+3. Keep **Require manual approval** enabled.
 
-### What to Fill In
+### Contact Info
 
-**Contact Info (Required)**
-
-- Full Name (as it appears on your resume)
+- Full name as it appears on your resume
 - Email
-- Phone (include country code: +1 for US)
+- Phone
 
-**Links (Recommended)**
+### Links
 
-- LinkedIn URL
-- GitHub URL (for tech roles)
-- Portfolio/Website
+- LinkedIn profile link
+- GitHub profile link if relevant to your role
+- Portfolio or personal website link
 
-**Work Authorization**
+### Work Authorization
 
-- Are you authorized to work in the US?
-- Do you need visa sponsorship?
+- Whether you are authorized to work in the United States
+- Whether you need visa sponsorship now or in the future
 
-These questions appear on almost every application. Setting them once saves a ton of time.
+### Review Settings
 
-### Automation Settings
-
-- **Max applications per day** - Limits how many forms you can fill (default: 10)
-- **Require manual approval** - Shows a preview before filling (recommended: ON)
+- **Daily review limit** - a guardrail against spending too much energy on
+  forms in one day.
+- **Require manual approval** - shows a preview before JobSentinel prepares
+  details on a form. Keep this on unless you have a clear reason to change it.
 
 ---
 
 ## Screening Questions
 
-Many applications have screening questions beyond basic info:
+Many applications ask repeated questions beyond basic contact info:
 
 - "How many years of experience do you have?"
 - "What is your expected salary?"
 - "Are you willing to relocate?"
 
-You can pre-configure answers for common questions:
+You can save reusable answers for common questions:
 
-1. Go to **Screening Questions** tab in One-Click Apply Settings
-2. Click **Add Answer**
-3. Enter words from the question and your answer
+1. Open the **Screening Questions** tab in Application Assist.
+2. Choose **Add Answer**.
+3. Enter words from the question and your answer.
 
 ### Example Question Text
 
-| Words to match          | Matches Questions Like...         |
-| ----------------------- | --------------------------------- |
-| `years of experience`   | "How many years of experience..." |
-| `salary`                | "What is your expected salary..." |
-| `notice period`         | "What is your notice period..."   |
-| `relocate`              | "Are you willing to relocate..."  |
+| Words to match        | Matches Questions Like             |
+| --------------------- | ---------------------------------- |
+| `years of experience` | "How many years of experience..."  |
+| `salary`              | "What is your expected salary..."  |
+| `notice period`       | "What is your notice period..."    |
+| `relocate`            | "Are you willing to relocate..."   |
 
-Use words that appear in the screening question. Matching ignores capitalization.
-
----
-
-## Using Quick Apply
-
-### Step by Step
-
-1. **Find a job** on your dashboard
-2. **Look for the ATS badge** (e.g., "Greenhouse", "Lever")
-3. **Click "Quick Apply"**
-4. **Review the preview** showing what will be filled
-5. **Click "Fill Form"** to open the browser
-6. **Watch** as fields fill automatically
-7. **Complete any manual steps:**
-   - Upload your resume
-   - Solve CAPTCHAs if they appear
-   - Answer any questions that weren't pre-configured
-8. **Review everything** one last time
-9. **Click Submit** yourself
+Use plain words that appear in the screening question. Matching ignores
+capitalization.
 
 ---
 
-## What Gets Filled vs. What You Do
+## Using Application Assist
 
-### JobSentinel Fills
-
-- First name, last name
-- Email, phone
-- LinkedIn, GitHub, portfolio URLs
-- Work authorization (yes/no)
-- Sponsorship requirements (yes/no)
-- Pre-configured screening answers
-
-### You Complete
-
-- **Resume upload** - Select your file
-- **Cover letter** - Paste or upload
-- **CAPTCHAs** - Complete human verification
-- **Non-standard questions** - Anything not pre-configured
-- **Submit button** - Always your click
+1. Find a job on your dashboard.
+2. Check the application-system label if one appears.
+3. Choose **Prepare Form**.
+4. Review the preview showing details JobSentinel can prepare.
+5. Choose **Prepare Details** in the review dialog.
+6. Complete any manual steps:
+   - Attach your resume if required.
+   - Complete CAPTCHA verification if present.
+   - Answer any questions that were not saved.
+7. Review the full application one more time.
+8. Click Submit yourself only if you still want to apply.
 
 ---
 
-## CAPTCHAs
+## What JobSentinel Prepares vs. What You Do
 
-Some sites show CAPTCHAs to verify you're human. When JobSentinel detects one:
+### JobSentinel Can Prepare
 
-1. The browser pauses
-2. You complete the CAPTCHA manually
-3. Continue with the rest of the form
+- First name and last name
+- Email and phone
+- LinkedIn, GitHub, portfolio, or website links
+- Work authorization details
+- Sponsorship details
+- Saved screening answers when the question wording is clear
 
-This is normal and expected. JobSentinel leaves human verification to you.
+### You Complete And Decide
+
+- Resume attachment
+- Cover letter
+- CAPTCHA verification
+- Unusual or role-specific questions
+- Any field that does not look right
+- Final Submit
+
+---
+
+## CAPTCHA Verification
+
+Some sites ask you to prove you are human. When JobSentinel detects CAPTCHA
+verification, it pauses and leaves that step to you. It does not attempt to solve
+or work around human verification.
 
 ---
 
 ## Safety Features
 
-### Rate Limiting
+### Review Limit
 
-By default, you can only fill 10 applications per day. This prevents accidentally
-filling forms for jobs you do not want.
-
-Change this in Settings if you need more.
+The default daily review limit protects your time and attention. Raise it only
+when it matches your search plan.
 
 ### Manual Review
 
-When enabled (default), you see a preview before filling ANY form. This shows exactly
-what will be entered so you can cancel if something looks wrong.
+Manual review is enabled by default. You see a preview before JobSentinel
+prepares details on any form.
 
-### No Auto-Submit
+### No Final Submit
 
-JobSentinel **never** clicks the Submit button. This is by design:
+JobSentinel never clicks Submit. This keeps the decision with you:
 
-- You review all data before submitting
-- You catch any errors
-- You maintain full control
-- Companies can't claim automated submission
+- You review all data before submitting.
+- You catch wrong or blank fields.
+- You avoid applying to roles that fail salary, location, fit, or trust checks.
+- You stay in control of the application.
 
 ---
 
 ## Troubleshooting
 
-### Browser doesn't open
+### Browser Doesn't Open
 
-1. Make sure Chrome is installed
-2. Close any existing Chrome browser instances with debugging enabled
-3. Try again
+1. Make sure Chrome is installed.
+2. Close any existing Chrome browser instances opened for Application Assist.
+3. Try again.
 
-### Fields not filling
+### Details Do Not Appear
 
-1. Check that your profile is saved
-2. Wait a few seconds - some forms load dynamically
-3. Try clicking into the form first
-4. Some sites have unusual forms that don't work well
+1. Check that your profile is saved.
+2. Wait a few seconds for dynamic forms to load.
+3. Click into the form and review the field.
+4. Complete unusual fields yourself.
 
-### Wrong data filled
+### Wrong Data Appears
 
-1. Check your profile for typos
-2. Some forms expect different formats (e.g., phone without dashes)
-3. Update your profile and try again
+1. Check your profile for typos.
+2. Some forms expect different formats, such as phone numbers without dashes.
+3. Update your profile and prepare the form again.
 
-### CAPTCHA keeps appearing
+### CAPTCHA Keeps Appearing
 
-Some sites show CAPTCHAs for all automated browsers. Just complete them manually -
-that's normal.
-
----
-
-## Privacy & Ethics
-
-### What We Don't Do
-
-- Never bypass CAPTCHAs or security measures
-- Keep every final submit manual
-- Never scrape or store your application data
-- Never share your profile information
-
-### Your Responsibilities
-
-- Only apply to jobs you actually want
-- Review each application before submitting
-- Respect company Terms of Service
-- Keep your profile information accurate
+Complete CAPTCHA verification yourself. JobSentinel leaves human verification to
+you.
 
 ---
 
-## Technical Details
+## Privacy And Responsible Use
 
-<details>
-<summary><strong>For developers and the curious</strong></summary>
+### What JobSentinel Does Not Do
 
-### How It Works
+- It does not click Submit.
+- It does not solve CAPTCHAs.
+- It does not apply to jobs without you.
+- It does not share your profile details.
+- It does not work around site security controls.
 
-JobSentinel uses Chrome DevTools Protocol (via `chromiumoxide`) to control a visible
-Chrome browser. The browser window is intentionally visible so you can watch what's
-happening.
+### What You Control
 
-### Field Detection
-
-For each ATS platform, we try multiple CSS selectors:
-
-```text
-// Example: Greenhouse first name
-1. #first_name
-2. input[name='first_name']
-3. [data-field='first_name']
-```
-
-The first selector that finds an element is used.
-
-### Tauri Commands (18 total)
-
-**Profile Management:**
-
-- `upsert_application_profile`
-- `get_application_profile`
-
-**Screening Answers:**
-
-- `upsert_screening_answer`
-- `get_screening_answers`
-- `find_answer_for_question`
-
-**Automation Attempts:**
-
-- `create_automation_attempt`
-- `get_automation_attempt`
-- `approve_automation_attempt`
-- `cancel_automation_attempt`
-- `get_pending_attempts`
-- `get_automation_stats`
-
-**ATS Detection:**
-
-- `detect_ats_platform`
-- `detect_ats_from_html`
-
-URL detection parses the URL and matches supported ATS domains by host and path.
-It ignores provider names in query strings and rejects lookalike domains.
-
-**Browser Control:**
-
-- `launch_automation_browser`
-- `close_automation_browser`
-- `is_browser_running`
-- `fill_application_form`
-
-### Database Tables
-
-- `application_profiles` - Your saved profile data
-- `screening_answers` - Pre-configured question answers
-- `application_attempts` - History of form filling attempts
-
-</details>
+- Which jobs are worth reviewing.
+- Which saved details are used.
+- Which blank answers you add.
+- Whether the application is submitted.

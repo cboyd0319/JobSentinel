@@ -114,16 +114,16 @@ broad-audience design guidance, docs harness alignment
 - **22 new Tauri commands** for resume operations
 - See [Resume Builder Documentation](features/resume-builder.md) for full details
 
-### What's New in v2.0 One-Click Apply
+### What's New in v2.0 Application Assist
 
-- **One-Click Apply Automation** - Human-in-the-loop form filling
+- **Application Assist** - Human-reviewed form preparation
   - 7 ATS platforms: Greenhouse, Lever, Workday, Taleo, iCIMS, BambooHR, Ashby
   - Application profile for contact info and URLs
-  - Screening question auto-answers with regex patterns
-  - Visible browser automation (user always clicks Submit)
+  - Saved screening answers with plain question-text matching
+  - Visible browser review flow (user always clicks Submit)
   - CAPTCHA detection with user prompts
-- **18 new Tauri commands** for automation
-- See [One-Click Apply Documentation](features/one-click-apply.md) for full details
+- **18 Tauri commands** for application review assistance
+- See [Application Assist Documentation](features/one-click-apply.md) for full details
 
 ### Working Features
 
@@ -163,9 +163,9 @@ broad-audience design guidance, docs harness alignment
 | -------------------------------------------- | ------------------------------------------ |
 | ![Resume Builder](images/resume-builder.png) | ![ATS Optimizer](images/ats-optimizer.png) |
 
-| One-Click Apply                                |
-| ---------------------------------------------- |
-| ![One-Click Apply](images/one-click-apply.png) |
+| Application Assist                                |
+| ------------------------------------------------- |
+| ![Application Assist](images/one-click-apply.png) |
 
 ### Backend Modules (190 registered Tauri commands)
 
@@ -177,7 +177,7 @@ broad-audience design guidance, docs harness alignment
 - **Market Intelligence**: trends, companies, locations, alerts, snapshots, and history
 - **Ghost Detection**: posting-risk signals, statistics, filtered search, feedback, and configuration
 - **User Data**: templates, prep checklists, saved searches, notifications, migration, and history
-- **One-Click Apply**: profile, screening answers, attempts, ATS detection, and browser control
+- **Application Assist**: profile, screening answers, review attempts, ATS detection, and browser control
 - **Health**: scraper health, smoke tests, run history, and credential expiry
 - **Feedback**: GitHub, Google Drive, one-click sanitized debug reports, debug summaries, and log events
 
@@ -223,7 +223,7 @@ broad-audience design guidance, docs harness alignment
 | Feature                | Status   | Documentation                                  |
 | ---------------------- | -------- | ---------------------------------------------- |
 | Market Intelligence UI | **v2.5** | [Market](features/market-intelligence.md)      |
-| One-Click Apply        | **v2.0** | [One-Click Apply](features/one-click-apply.md) |
+| Application Assist     | **v2.0** | [Application Assist](features/one-click-apply.md) |
 | Resume Builder         | **v2.0** | [Resume Builder](features/resume-builder.md)   |
 | Ghost Detection        | **v1.4** | [Ghost Detection](features/ghost-detection.md) |
 | Application Tracking   | Working  | [ATS](features/application-tracking.md)        |
@@ -288,7 +288,7 @@ Docs layout:
 - `docs/developer/TESTING.md`: testing guide
 - `docs/developer/RELEASING.md`: release process
 - `docs/features/`: feature documentation
-- `docs/features/one-click-apply.md`: One-Click Apply feature guide
+- `docs/features/one-click-apply.md`: Application Assist feature guide
 - `docs/features/resume-builder.md`: Resume Builder feature guide
 - `docs/features/ghost-detection.md`: ghost detection feature guide
 - `docs/releases/`: version release notes

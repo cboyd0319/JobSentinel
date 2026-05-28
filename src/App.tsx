@@ -174,7 +174,7 @@ function App() {
                 </PageErrorBoundary>
               )}
               {currentPage === "automation" && (
-                <PageErrorBoundary pageName="One-Click Apply" onBack={() => navigateTo("dashboard")}>
+                <PageErrorBoundary pageName="Application Assist" onBack={() => navigateTo("dashboard")}>
                   <ApplicationProfile onBack={() => navigateTo("dashboard")} />
                 </PageErrorBoundary>
               )}

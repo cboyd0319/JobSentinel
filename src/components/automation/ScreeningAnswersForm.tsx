@@ -171,7 +171,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
   const handleAddCommon = (pattern: { pattern: string; label: string; type: string }) => {
     setQuestionPattern(pattern.pattern);
     setAnswerType(pattern.type);
-    setNotes(`Auto-answer for "${pattern.label}" questions`);
+            setNotes(`Saved answer for "${pattern.label}" questions`);
     setShowAddModal(true);
   };
 
@@ -192,10 +192,10 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
           <div>
             <h3 className="text-lg font-semibold text-surface-900 dark:text-white mb-1 flex items-center gap-2">
               Screening Question Answers
-              <HelpIcon text="Configure automatic answers for common screening questions. JobSentinel matches your saved text to question wording." />
+              <HelpIcon text="Save reusable answers for common screening questions. JobSentinel matches your saved text to question wording." />
             </h3>
             <p className="text-sm text-surface-500 dark:text-surface-400">
-              Save answers to common questions for faster applications
+              Save answers to common questions so each application is easier to review
             </p>
           </div>
           <Button onClick={() => setShowAddModal(true)}>
@@ -232,7 +232,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
               No screening answers yet
             </h4>
             <p className="text-surface-500 dark:text-surface-400 mb-6 max-w-md mx-auto">
-              Add common answers to auto-fill screening questions like "Years of experience" or "Salary expectations" during Quick Apply.
+              Add common answers to prepare screening questions like "Years of experience" or "Salary expectations" during Application Assist.
             </p>
             <Button onClick={() => setShowAddModal(true)}>
               <PlusIcon className="w-4 h-4 mr-2" />

@@ -370,7 +370,7 @@ export default function Settings({ onClose }: SettingsProps) {
   );
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
 
-  // Email provider templates for auto-fill
+  // Email provider templates for easier setup
   const emailProviderTemplates = {
     gmail: {
       server: "smtp.gmail.com",
@@ -1815,8 +1815,8 @@ export default function Settings({ onClose }: SettingsProps) {
                         </select>
                       </div>
                       <p className="text-xs text-surface-500 dark:text-surface-400">
-                        JobSentinel will automatically scan for new jobs at this
-                        interval while the app is open.
+                        JobSentinel checks for new jobs at this interval while
+                        the app is open.
                       </p>
                     </div>
                   )}
@@ -2627,11 +2627,11 @@ export default function Settings({ onClose }: SettingsProps) {
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
                   Additional Job Boards
-                  <HelpIcon text="JobSentinel searches many job boards automatically. Enable these for even more options (requires some setup)." />
+                  <HelpIcon text="JobSentinel can monitor more official job sources. Enable only the sources you want." />
                 </h3>
                 <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
-                  We automatically search Greenhouse, Lever, and other popular
-                  job boards. These are optional extras.
+                  We monitor Greenhouse, Lever, and other popular job boards.
+                  These are optional extras.
                 </p>
 
                 {/* LinkedIn */}
@@ -3529,8 +3529,8 @@ export default function Settings({ onClose }: SettingsProps) {
                     <p className="flex items-start gap-1.5 text-xs text-surface-500 dark:text-surface-400 pt-2">
                       <SettingsSymbol icon="lightbulb" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
                       <span>
-                        These job boards are searched automatically. Enable the
-                        ones relevant to your job search.
+                        These job boards can be monitored when enabled. Choose
+                        the ones relevant to your job search.
                       </span>
                     </p>
                   </div>

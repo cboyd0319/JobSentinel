@@ -44,7 +44,7 @@ describe("ApplyButton", () => {
   });
 
   describe("initial rendering", () => {
-    it("renders Quick Apply button", async () => {
+    it("renders prepare form button", async () => {
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
         if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
@@ -55,7 +55,7 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /quick apply/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /prepare form/i })).toBeInTheDocument();
       });
     });
 
@@ -70,7 +70,7 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        const button = screen.getByRole("button", { name: /quick apply/i });
+        const button = screen.getByRole("button", { name: /prepare form/i });
         const icon = button.querySelector("svg");
         expect(icon).toBeInTheDocument();
       });
@@ -87,8 +87,8 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        const button = screen.getByRole("button", { name: /quick apply/i });
-        expect(button).toHaveAttribute("title", "Prepare to apply - fills form fields automatically");
+        const button = screen.getByRole("button", { name: /prepare form/i });
+        expect(button).toHaveAttribute("title", "Prepare application form for your review");
       });
     });
   });
@@ -170,7 +170,7 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /quick apply/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /prepare form/i })).toBeInTheDocument();
       });
 
       expect(screen.queryByText("Unknown ATS")).not.toBeInTheDocument();
@@ -203,7 +203,7 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /quick apply/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /prepare form/i })).toBeInTheDocument();
       });
 
       // Should not show any ATS badge
@@ -223,7 +223,7 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        const button = screen.getByRole("button", { name: /quick apply/i });
+        const button = screen.getByRole("button", { name: /prepare form/i });
         expect(button).toBeDisabled();
       });
     });
@@ -239,7 +239,7 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        const button = screen.getByRole("button", { name: /quick apply/i });
+        const button = screen.getByRole("button", { name: /prepare form/i });
         expect(button).toHaveAttribute("title", "Set up your application profile first");
       });
     });
@@ -255,7 +255,7 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        const button = screen.getByRole("button", { name: /quick apply/i });
+        const button = screen.getByRole("button", { name: /prepare form/i });
         expect(button).not.toBeDisabled();
       });
     });
@@ -271,7 +271,7 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        const button = screen.getByRole("button", { name: /quick apply/i });
+        const button = screen.getByRole("button", { name: /prepare form/i });
         expect(button).toBeDisabled();
       });
     });
@@ -289,7 +289,7 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        const button = screen.getByRole("button", { name: /quick apply/i });
+        const button = screen.getByRole("button", { name: /prepare form/i });
         expect(button).toBeDisabled();
       });
 
@@ -309,14 +309,14 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /quick apply/i })).not.toBeDisabled();
+        expect(screen.getByRole("button", { name: /prepare form/i })).not.toBeDisabled();
       });
 
-      await user.click(screen.getByRole("button", { name: /quick apply/i }));
+      await user.click(screen.getByRole("button", { name: /prepare form/i }));
 
       await waitFor(() => {
         expect(screen.getByRole("dialog")).toBeInTheDocument();
-        expect(screen.getByText("Prepare Application")).toBeInTheDocument();
+        expect(screen.getByText("Review Application")).toBeInTheDocument();
       });
     });
 
@@ -346,16 +346,16 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} onApplied={mockOnApplied} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /quick apply/i })).not.toBeDisabled();
+        expect(screen.getByRole("button", { name: /prepare form/i })).not.toBeDisabled();
       });
 
-      await user.click(screen.getByRole("button", { name: /quick apply/i }));
+      await user.click(screen.getByRole("button", { name: /prepare form/i }));
 
       await waitFor(() => {
         expect(screen.getByRole("dialog")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole("button", { name: /fill form/i }));
+      await user.click(screen.getByRole("button", { name: /prepare details/i }));
 
       await waitFor(() => {
         expect(mockOnApplied).toHaveBeenCalledTimes(1);
@@ -374,7 +374,7 @@ describe("ApplyButton", () => {
 
       renderWithToast(<ApplyButton job={mockJob} />);
 
-      const button = screen.getByRole("button", { name: /quick apply/i });
+      const button = screen.getByRole("button", { name: /prepare form/i });
       expect(button).toBeDisabled();
       expect(button).toHaveAttribute("title", "Detecting application platform...");
     });
@@ -398,19 +398,19 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /quick apply/i })).not.toBeDisabled();
+        expect(screen.getByRole("button", { name: /prepare form/i })).not.toBeDisabled();
       });
 
-      await user.click(screen.getByRole("button", { name: /quick apply/i }));
+      await user.click(screen.getByRole("button", { name: /prepare form/i }));
 
       await waitFor(() => {
         expect(screen.getByRole("dialog")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole("button", { name: /fill form/i }));
+      await user.click(screen.getByRole("button", { name: /prepare details/i }));
 
       await waitFor(() => {
-        expect(screen.getByText("Filling...")).toBeInTheDocument();
+        expect(screen.getByText("Preparing...")).toBeInTheDocument();
       });
 
       // Resolve the promise
@@ -444,19 +444,19 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /quick apply/i })).not.toBeDisabled();
+        expect(screen.getByRole("button", { name: /prepare form/i })).not.toBeDisabled();
       });
 
-      await user.click(screen.getByRole("button", { name: /quick apply/i }));
+      await user.click(screen.getByRole("button", { name: /prepare form/i }));
 
       await waitFor(() => {
         expect(screen.getByRole("dialog")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole("button", { name: /fill form/i }));
+      await user.click(screen.getByRole("button", { name: /prepare details/i }));
 
       await waitFor(() => {
-        expect(screen.getByText("Form Fill Failed")).toBeInTheDocument();
+        expect(screen.getByText("Form Preparation Failed")).toBeInTheDocument();
       });
     });
 
@@ -476,16 +476,16 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /quick apply/i })).not.toBeDisabled();
+        expect(screen.getByRole("button", { name: /prepare form/i })).not.toBeDisabled();
       });
 
-      await user.click(screen.getByRole("button", { name: /quick apply/i }));
+      await user.click(screen.getByRole("button", { name: /prepare form/i }));
 
       await waitFor(() => {
         expect(screen.getByRole("dialog")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole("button", { name: /fill form/i }));
+      await user.click(screen.getByRole("button", { name: /prepare details/i }));
 
       await waitFor(() => {
         // Check for error in modal specifically (not toast)
@@ -510,16 +510,16 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /quick apply/i })).not.toBeDisabled();
+        expect(screen.getByRole("button", { name: /prepare form/i })).not.toBeDisabled();
       });
 
-      await user.click(screen.getByRole("button", { name: /quick apply/i }));
+      await user.click(screen.getByRole("button", { name: /prepare form/i }));
 
       await waitFor(() => {
         expect(screen.getByRole("dialog")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole("button", { name: /fill form/i }));
+      await user.click(screen.getByRole("button", { name: /prepare details/i }));
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: /try again/i })).toBeInTheDocument();
@@ -556,16 +556,16 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /quick apply/i })).not.toBeDisabled();
+        expect(screen.getByRole("button", { name: /prepare form/i })).not.toBeDisabled();
       });
 
-      await user.click(screen.getByRole("button", { name: /quick apply/i }));
+      await user.click(screen.getByRole("button", { name: /prepare form/i }));
 
       await waitFor(() => {
         expect(screen.getByRole("dialog")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole("button", { name: /fill form/i }));
+      await user.click(screen.getByRole("button", { name: /prepare details/i }));
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: /try again/i })).toBeInTheDocument();
@@ -575,7 +575,7 @@ describe("ApplyButton", () => {
       await user.click(screen.getByRole("button", { name: /try again/i }));
 
       await waitFor(() => {
-        expect(screen.getByText("Form filled!")).toBeInTheDocument();
+        expect(screen.getByText("Form ready for review")).toBeInTheDocument();
       });
     });
 
@@ -595,16 +595,16 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /quick apply/i })).not.toBeDisabled();
+        expect(screen.getByRole("button", { name: /prepare form/i })).not.toBeDisabled();
       });
 
-      await user.click(screen.getByRole("button", { name: /quick apply/i }));
+      await user.click(screen.getByRole("button", { name: /prepare form/i }));
 
       await waitFor(() => {
         expect(screen.getByRole("dialog")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole("button", { name: /fill form/i }));
+      await user.click(screen.getByRole("button", { name: /prepare details/i }));
 
       await waitFor(() => {
         const dialog = screen.getByRole("dialog");
@@ -619,13 +619,13 @@ describe("ApplyButton", () => {
       });
 
       // Reopen modal
-      await user.click(screen.getByRole("button", { name: /quick apply/i }));
+      await user.click(screen.getByRole("button", { name: /prepare form/i }));
 
       await waitFor(() => {
         expect(screen.getByRole("dialog")).toBeInTheDocument();
         // Error should be cleared from modal (error heading won't be present)
         const dialog = screen.getByRole("dialog");
-        expect(dialog.textContent).not.toMatch(/form filling failed/i);
+        expect(dialog.textContent).not.toMatch(/form preparation failed/i);
       });
     });
   });
@@ -646,7 +646,7 @@ describe("ApplyButton", () => {
       });
     });
 
-    it("switches from Quick Apply to Close Browser after form fill", async () => {
+    it("switches from prepare form to Close Browser after form fill", async () => {
       const user = userEvent.setup();
       
       mockInvoke.mockImplementation((cmd) => {
@@ -671,16 +671,16 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /quick apply/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /prepare form/i })).toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole("button", { name: /quick apply/i }));
+      await user.click(screen.getByRole("button", { name: /prepare form/i }));
 
       await waitFor(() => {
         expect(screen.getByRole("dialog")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole("button", { name: /fill form/i }));
+      await user.click(screen.getByRole("button", { name: /prepare details/i }));
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: /close browser/i })).toBeInTheDocument();
@@ -738,16 +738,16 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /quick apply/i })).not.toBeDisabled();
+        expect(screen.getByRole("button", { name: /prepare form/i })).not.toBeDisabled();
       });
 
-      await user.click(screen.getByRole("button", { name: /quick apply/i }));
+      await user.click(screen.getByRole("button", { name: /prepare form/i }));
 
       await waitFor(() => {
         expect(screen.getByRole("dialog")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole("button", { name: /fill form/i }));
+      await user.click(screen.getByRole("button", { name: /prepare details/i }));
 
       await waitFor(() => {
         expect(screen.getByText("CAPTCHA detected")).toBeInTheDocument();
@@ -781,19 +781,19 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /quick apply/i })).not.toBeDisabled();
+        expect(screen.getByRole("button", { name: /prepare form/i })).not.toBeDisabled();
       });
 
-      await user.click(screen.getByRole("button", { name: /quick apply/i }));
+      await user.click(screen.getByRole("button", { name: /prepare form/i }));
 
       await waitFor(() => {
         expect(screen.getByRole("dialog")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole("button", { name: /fill form/i }));
+      await user.click(screen.getByRole("button", { name: /prepare details/i }));
 
       await waitFor(() => {
-        expect(screen.getByText(/filled 2 basic fields and 2 screening questions/i)).toBeInTheDocument();
+        expect(screen.getByText(/prepared 2 profile fields and 2 saved screening answers/i)).toBeInTheDocument();
       });
     });
   });
@@ -824,16 +824,16 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /quick apply/i })).not.toBeDisabled();
+        expect(screen.getByRole("button", { name: /prepare form/i })).not.toBeDisabled();
       });
 
-      await user.click(screen.getByRole("button", { name: /quick apply/i }));
+      await user.click(screen.getByRole("button", { name: /prepare form/i }));
 
       await waitFor(() => {
         expect(screen.getByRole("dialog")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole("button", { name: /fill form/i }));
+      await user.click(screen.getByRole("button", { name: /prepare details/i }));
 
       await waitFor(() => {
         expect(localStorage.setItem).toHaveBeenCalledWith("lastAttempt_test-hash-123", "456");
@@ -878,7 +878,7 @@ describe("ApplyButton", () => {
       await user.click(screen.getByRole("button", { name: /close browser/i }));
 
       await waitFor(() => {
-        expect(screen.getByText("Did you submit?")).toBeInTheDocument();
+        expect(screen.getByText("Did you click Submit?")).toBeInTheDocument();
       });
     });
 
@@ -904,10 +904,10 @@ describe("ApplyButton", () => {
       await user.click(screen.getByRole("button", { name: /close browser/i }));
 
       await waitFor(() => {
-        expect(screen.getByText("Did you submit?")).toBeInTheDocument();
+        expect(screen.getByText("Did you click Submit?")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole("button", { name: /yes, i submitted/i }));
+      await user.click(screen.getByRole("button", { name: /yes, i clicked submit/i }));
 
       await waitFor(() => {
         expect(mockInvoke).toHaveBeenCalledWith("mark_attempt_submitted", { attemptId: 888 });
@@ -936,10 +936,10 @@ describe("ApplyButton", () => {
       await user.click(screen.getByRole("button", { name: /close browser/i }));
 
       await waitFor(() => {
-        expect(screen.getByText("Did you submit?")).toBeInTheDocument();
+        expect(screen.getByText("Did you click Submit?")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole("button", { name: /yes, i submitted/i }));
+      await user.click(screen.getByRole("button", { name: /yes, i clicked submit/i }));
 
       await waitFor(() => {
         expect(localStorage.removeItem).toHaveBeenCalledWith("lastAttempt_test-hash-123");
@@ -967,7 +967,7 @@ describe("ApplyButton", () => {
       await user.click(screen.getByRole("button", { name: /close browser/i }));
 
       await waitFor(() => {
-        expect(screen.getByText("Did you submit?")).toBeInTheDocument();
+        expect(screen.getByText("Did you click Submit?")).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /no, skip/i }));
@@ -991,7 +991,7 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /quick apply/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /prepare form/i })).toBeInTheDocument();
       });
     });
 
@@ -1008,15 +1008,15 @@ describe("ApplyButton", () => {
       renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /quick apply/i })).not.toBeDisabled();
+        expect(screen.getByRole("button", { name: /prepare form/i })).not.toBeDisabled();
       });
 
-      await user.click(screen.getByRole("button", { name: /quick apply/i }));
+      await user.click(screen.getByRole("button", { name: /prepare form/i }));
 
       await waitFor(() => {
         const dialog = screen.getByRole("dialog");
         expect(dialog).toBeInTheDocument();
-        expect(screen.getByText("Prepare Application")).toBeInTheDocument();
+        expect(screen.getByText("Review Application")).toBeInTheDocument();
       });
     });
   });

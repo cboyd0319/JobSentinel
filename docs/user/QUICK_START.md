@@ -258,16 +258,16 @@ against a specific job so you can improve it:
 3. Enter your resume info
 4. Get instant feedback on what keywords you're missing
 
-### One-Click Apply
+### Application Assist
 
-Fill out application forms in seconds:
+Prepare repeated application details while keeping each submission under your control:
 
-1. Click **Quick Apply** on any job
-2. JobSentinel opens the browser and fills in your info
-3. You review everything and click Submit yourself
+1. Click **Prepare Form** on a job worth reviewing
+2. JobSentinel opens the browser and prepares matching details
+3. You review everything and click Submit yourself only if the role still fits
 
 **Important:** JobSentinel never submits applications without you.
-See [One-Click Apply Guide](../features/one-click-apply.md) for setup.
+See [Application Assist Guide](../features/one-click-apply.md) for setup.
 
 ---
 
@@ -362,7 +362,7 @@ Now that you're set up:
 - **Star the repo** on [GitHub](https://github.com/cboyd0319/JobSentinel)
 - **Learn more** about [Ghost Detection](../features/ghost-detection.md)
 - **Build your resume** with the [Resume Builder](../features/resume-builder.md)
-- **Speed up applications** with [One-Click Apply](../features/one-click-apply.md)
+- **Review applications faster** with [Application Assist](../features/one-click-apply.md)
 
 ---
 
