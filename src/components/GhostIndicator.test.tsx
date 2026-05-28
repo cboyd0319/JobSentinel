@@ -32,49 +32,49 @@ describe("GhostIndicator", () => {
 
     it("renders when ghostScore is at threshold (0.5)", () => {
       render(<GhostIndicator ghostScore={0.5} ghostReasons={null} />);
-      expect(screen.getByText(/possible ghost/i)).toBeInTheDocument();
+      expect(screen.getByText(/needs review/i)).toBeInTheDocument();
     });
 
     it("renders with low severity for scores 0.5-0.59", () => {
       render(<GhostIndicator ghostScore={0.55} ghostReasons={null} />);
-      const indicator = screen.getByText(/possible ghost/i).parentElement;
+      const indicator = screen.getByText(/needs review/i).parentElement;
       expect(indicator).toHaveClass("bg-yellow-100");
     });
 
     it("renders with medium severity for scores 0.6-0.74", () => {
       render(<GhostIndicator ghostScore={0.65} ghostReasons={null} />);
-      const indicator = screen.getByText(/possible ghost/i).parentElement;
+      const indicator = screen.getByText(/needs review/i).parentElement;
       expect(indicator).toHaveClass("bg-orange-100");
     });
 
     it("renders with high severity for scores >= 0.75", () => {
       render(<GhostIndicator ghostScore={0.8} ghostReasons={null} />);
-      const indicator = screen.getByText(/likely ghost/i).parentElement;
+      const indicator = screen.getByText(/high risk/i).parentElement;
       expect(indicator).toHaveClass("bg-red-100");
     });
 
     it("displays ghost icon for low/medium severity", () => {
       render(<GhostIndicator ghostScore={0.6} ghostReasons={null} />);
       // Check for SVG with ghost icon path
-      const svg = screen.getByText(/possible ghost/i).parentElement?.querySelector("svg");
+      const svg = screen.getByText(/needs review/i).parentElement?.querySelector("svg");
       expect(svg).toBeInTheDocument();
     });
 
     it("displays warning icon for high severity", () => {
       render(<GhostIndicator ghostScore={0.8} ghostReasons={null} />);
-      const svg = screen.getByText(/likely ghost/i).parentElement?.querySelector("svg");
+      const svg = screen.getByText(/high risk/i).parentElement?.querySelector("svg");
       expect(svg).toBeInTheDocument();
     });
 
     it("renders with small size by default", () => {
       render(<GhostIndicator ghostScore={0.6} ghostReasons={null} />);
-      const svg = screen.getByText(/possible ghost/i).parentElement?.querySelector("svg");
+      const svg = screen.getByText(/needs review/i).parentElement?.querySelector("svg");
       expect(svg).toHaveClass("w-4", "h-4");
     });
 
     it("renders with medium size when specified", () => {
       render(<GhostIndicator ghostScore={0.6} ghostReasons={null} size="md" />);
-      const svg = screen.getByText(/possible ghost/i).parentElement?.querySelector("svg");
+      const svg = screen.getByText(/needs review/i).parentElement?.querySelector("svg");
       expect(svg).toHaveClass("w-5", "h-5");
     });
   });
@@ -93,7 +93,7 @@ describe("GhostIndicator", () => {
 
       render(<GhostIndicator ghostScore={0.8} ghostReasons={reasons} />);
 
-      const indicator = screen.getByText(/likely ghost/i).parentElement;
+      const indicator = screen.getByText(/high risk/i).parentElement;
       if (indicator) {
         await user.hover(indicator);
         await waitFor(() => {
@@ -132,7 +132,7 @@ describe("GhostIndicator", () => {
 
       render(<GhostIndicator ghostScore={0.8} ghostReasons={reasons} />);
 
-      const indicator = screen.getByText(/likely ghost/i).parentElement;
+      const indicator = screen.getByText(/high risk/i).parentElement;
       if (indicator) {
         await user.hover(indicator);
         await waitFor(() => {
@@ -160,7 +160,7 @@ describe("GhostIndicator", () => {
 
       render(<GhostIndicator ghostScore={0.8} ghostReasons={reasons} />);
 
-      const indicator = screen.getByText(/likely ghost/i).parentElement;
+      const indicator = screen.getByText(/high risk/i).parentElement;
       if (indicator) {
         await user.hover(indicator);
         await waitFor(() => {
@@ -176,13 +176,13 @@ describe("GhostIndicator", () => {
       // Tooltip content is rendered but may not be visible initially
       // Just verify component renders with jobId
       render(<GhostIndicator ghostScore={0.8} ghostReasons={null} jobId={123} />);
-      expect(screen.getByText(/likely ghost/i)).toBeInTheDocument();
+      expect(screen.getByText(/high risk/i)).toBeInTheDocument();
     });
 
     it("does not show feedback buttons without jobId", () => {
       // Without jobId, tooltip won't have feedback buttons
       render(<GhostIndicator ghostScore={0.8} ghostReasons={null} />);
-      expect(screen.getByText(/likely ghost/i)).toBeInTheDocument();
+      expect(screen.getByText(/high risk/i)).toBeInTheDocument();
     });
 
     it("calls mark_job_as_real when invoked", () => {
@@ -192,7 +192,7 @@ describe("GhostIndicator", () => {
       const onFeedbackSubmitted = vi.fn();
       
       render(<GhostIndicator ghostScore={0.8} ghostReasons={null} jobId={123} onFeedbackSubmitted={onFeedbackSubmitted} />);
-      expect(screen.getByText(/likely ghost/i)).toBeInTheDocument();
+      expect(screen.getByText(/high risk/i)).toBeInTheDocument();
     });
 
     it("calls mark_job_as_ghost when invoked", () => {
@@ -202,7 +202,7 @@ describe("GhostIndicator", () => {
       const onFeedbackSubmitted = vi.fn();
       
       render(<GhostIndicator ghostScore={0.8} ghostReasons={null} jobId={123} onFeedbackSubmitted={onFeedbackSubmitted} />);
-      expect(screen.getByText(/likely ghost/i)).toBeInTheDocument();
+      expect(screen.getByText(/high risk/i)).toBeInTheDocument();
     });
 
     it("calls onFeedbackSubmitted callback when provided", () => {
@@ -218,7 +218,7 @@ describe("GhostIndicator", () => {
           onFeedbackSubmitted={onFeedbackSubmitted}
         />
       );
-      expect(screen.getByText(/likely ghost/i)).toBeInTheDocument();
+      expect(screen.getByText(/high risk/i)).toBeInTheDocument();
     });
 
     it("supports feedback submission", () => {
@@ -228,7 +228,7 @@ describe("GhostIndicator", () => {
       );
 
       render(<GhostIndicator ghostScore={0.8} ghostReasons={null} jobId={123} />);
-      expect(screen.getByText(/likely ghost/i)).toBeInTheDocument();
+      expect(screen.getByText(/high risk/i)).toBeInTheDocument();
     });
 
     it("can show confirmation after feedback", () => {
@@ -236,7 +236,7 @@ describe("GhostIndicator", () => {
       mockInvoke.mockResolvedValue(undefined);
 
       render(<GhostIndicator ghostScore={0.8} ghostReasons={null} jobId={123} />);
-      expect(screen.getByText(/likely ghost/i)).toBeInTheDocument();
+      expect(screen.getByText(/high risk/i)).toBeInTheDocument();
     });
 
     it("handles feedback submission errors gracefully", () => {
@@ -245,7 +245,7 @@ describe("GhostIndicator", () => {
       mockInvoke.mockRejectedValue(new Error("Network error"));
 
       render(<GhostIndicator ghostScore={0.8} ghostReasons={null} jobId={123} />);
-      expect(screen.getByText(/likely ghost/i)).toBeInTheDocument();
+      expect(screen.getByText(/high risk/i)).toBeInTheDocument();
 
       consoleError.mockRestore();
     });
@@ -254,12 +254,12 @@ describe("GhostIndicator", () => {
   describe("accessibility", () => {
     it("has aria-label with confidence percentage", () => {
       render(<GhostIndicator ghostScore={0.75} ghostReasons={null} />);
-      expect(screen.getByLabelText(/potential ghost job: 75% confidence/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/posting risk warning: 75%/i)).toBeInTheDocument();
     });
 
     it("has cursor-help class for tooltip indication", () => {
       render(<GhostIndicator ghostScore={0.75} ghostReasons={null} />);
-      const indicator = screen.getByText(/likely ghost/i).parentElement;
+      const indicator = screen.getByText(/high risk/i).parentElement;
       expect(indicator).toHaveClass("cursor-help");
     });
   });
@@ -287,26 +287,26 @@ describe("GhostIndicatorCompact", () => {
 
     it("renders compact indicator when score is above threshold", () => {
       render(<GhostIndicatorCompact ghostScore={0.8} ghostReasons={null} />);
-      const indicator = screen.getByLabelText(/ghost warning: 80%/i);
+      const indicator = screen.getByLabelText(/posting risk warning: 80%/i);
       expect(indicator).toBeInTheDocument();
       expect(indicator).toHaveClass("w-5", "h-5");
     });
 
     it("renders with correct severity styling", () => {
       render(<GhostIndicatorCompact ghostScore={0.8} ghostReasons={null} />);
-      const indicator = screen.getByLabelText(/ghost warning: 80%/i);
+      const indicator = screen.getByLabelText(/posting risk warning: 80%/i);
       expect(indicator).toHaveClass("bg-red-100");
     });
 
     it("renders with low severity for scores 0.5-0.59", () => {
       render(<GhostIndicatorCompact ghostScore={0.55} ghostReasons={null} />);
-      const indicator = screen.getByLabelText(/ghost warning: 55%/i);
+      const indicator = screen.getByLabelText(/posting risk warning: 55%/i);
       expect(indicator).toHaveClass("bg-yellow-100");
     });
 
     it("renders with medium severity for scores 0.6-0.74", () => {
       render(<GhostIndicatorCompact ghostScore={0.65} ghostReasons={null} />);
-      const indicator = screen.getByLabelText(/ghost warning: 65%/i);
+      const indicator = screen.getByLabelText(/posting risk warning: 65%/i);
       expect(indicator).toHaveClass("bg-orange-100");
     });
 
@@ -321,7 +321,7 @@ describe("GhostIndicatorCompact", () => {
 
       render(<GhostIndicatorCompact ghostScore={0.8} ghostReasons={reasons} />);
 
-      const indicator = screen.getByLabelText(/ghost warning: 80%/i);
+      const indicator = screen.getByLabelText(/posting risk warning: 80%/i);
       await user.hover(indicator);
 
       await waitFor(() => {
@@ -336,11 +336,11 @@ describe("GhostIndicatorCompact", () => {
       const user = userEvent.setup();
       render(<GhostIndicatorCompact ghostScore={0.8} ghostReasons={null} />);
 
-      const indicator = screen.getByLabelText(/ghost warning: 80%/i);
+      const indicator = screen.getByLabelText(/posting risk warning: 80%/i);
       await user.hover(indicator);
 
       await waitFor(() => {
-        expect(screen.getByText(/this job may be stale or fake/i)).toBeInTheDocument();
+        expect(screen.getByText(/this job may be stale, reposted, or hard to verify/i)).toBeInTheDocument();
       });
     });
   });
@@ -350,12 +350,12 @@ describe("GhostIndicatorCompact", () => {
       const user = userEvent.setup();
       render(<GhostIndicatorCompact ghostScore={0.8} ghostReasons={null} jobId={456} />);
 
-      const indicator = screen.getByLabelText(/ghost warning: 80%/i);
+      const indicator = screen.getByLabelText(/posting risk warning: 80%/i);
       await user.hover(indicator);
 
       await waitFor(() => {
-        expect(screen.getByTitle("Mark as real job")).toBeInTheDocument();
-        expect(screen.getByTitle("Confirm ghost job")).toBeInTheDocument();
+        expect(screen.getByTitle("Mark as verified posting")).toBeInTheDocument();
+        expect(screen.getByTitle("Mark as stale or unverified")).toBeInTheDocument();
       });
     });
 
@@ -367,7 +367,7 @@ describe("GhostIndicatorCompact", () => {
           jobId={456}
         />
       );
-      expect(screen.getByLabelText(/ghost warning: 80%/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/posting risk warning: 80%/i)).toBeInTheDocument();
     });
 
     it("renders with onFeedbackSubmitted prop", () => {
@@ -380,7 +380,7 @@ describe("GhostIndicatorCompact", () => {
           onFeedbackSubmitted={onFeedbackSubmitted}
         />
       );
-      expect(screen.getByLabelText(/ghost warning: 80%/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/posting risk warning: 80%/i)).toBeInTheDocument();
     });
 
     it("does not show feedback buttons without jobId", async () => {
@@ -393,12 +393,12 @@ describe("GhostIndicatorCompact", () => {
         />
       );
 
-      const indicator = screen.getByLabelText(/ghost warning: 80%/i);
+      const indicator = screen.getByLabelText(/posting risk warning: 80%/i);
       await user.hover(indicator);
 
       // No feedback buttons without jobId
       await waitFor(() => {
-        expect(screen.queryByTitle("Mark as real job")).not.toBeInTheDocument();
+        expect(screen.queryByTitle("Mark as verified posting")).not.toBeInTheDocument();
       });
     });
   });

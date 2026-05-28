@@ -163,7 +163,7 @@ Here's what happens automatically:
 - Every 2 hours, JobSentinel checks for new jobs
 - Each job gets scored based on YOUR preferences
 - High-scoring jobs (90%+) trigger instant notifications (if you set them up)
-- Ghost jobs (fake or stale postings) are flagged with warnings
+- Stale, reposted, or low-trust postings are flagged with warnings
 
 ### Your Dashboard
 
@@ -172,7 +172,7 @@ Here's what happens automatically:
 The dashboard shows:
 
 - **Job List** - Every job found, sorted by match score
-- **Ghost Filter** - Hide suspicious job postings
+- **Posting Risk Filter** - Hide postings that need review first
 - **Search Bar** - Find jobs by keyword, company, or location
 - **Statistics** - See how many jobs match your criteria
 
@@ -228,13 +228,15 @@ Press `?` anytime to see the full list.
 
 ### Ghost Job Detection
 
-JobSentinel spots fake job postings so you don't waste time applying:
+JobSentinel flags stale, reposted, or low-trust postings so you can protect
+tailoring time:
 
 - **Yellow** - Minor concerns (might be old)
 - **Orange** - Multiple warning signs
-- **Red** - Probably fake or already filled
+- **Red** - Verify before tailoring
 
-Use the ghost filter dropdown to hide these from your list.
+Use the posting-risk dropdown to hide these from your list or review them
+separately.
 
 ### Resume Builder
 

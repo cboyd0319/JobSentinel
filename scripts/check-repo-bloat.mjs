@@ -451,6 +451,20 @@ const technicalFirstUserCopyPaths = new Set([
   "docs/user/DEEP_LINKS.md",
   "docs/user/QUICK_START.md",
 ]);
+const overconfidentGhostCopyPaths = new Set([
+  "docs/README.md",
+  "docs/ROADMAP.md",
+  "docs/developer/ARCHITECTURE.md",
+  "docs/features/ghost-detection.md",
+  "docs/features/smart-scoring.md",
+  "docs/releases/v1.4.md",
+  "docs/style-guide/GLOSSARY.md",
+  "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
+  "docs/user/QUICK_START.md",
+  "src/components/GhostIndicator.tsx",
+  "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+  "src/pages/Settings.tsx",
+]);
 const backendScoringReasonPaths = new Set([
   "src-tauri/src/core/resume/matcher.rs",
   "src-tauri/src/core/scoring/mod.rs",
@@ -1232,6 +1246,42 @@ function hasTechnicalFirstUserCopy(root, path) {
     /SMTP credentials/i,
     /special API access/i,
     /check your API key/i,
+  ];
+
+  return stalePatterns.some((pattern) => pattern.test(text));
+}
+
+function hasOverconfidentGhostCopy(root, path) {
+  if (!overconfidentGhostCopyPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const stalePatterns = [
+    /fake\/stale job postings/i,
+    /fake\/stale/i,
+    /fake or stale job postings/i,
+    /fake or stale postings/i,
+    /fake job postings/i,
+    /fake postings/i,
+    /fake or outdated job posting/i,
+    /real opportunities/i,
+    /Real Jobs Only/i,
+    /Likely Real/i,
+    /Possible Ghost/i,
+    /Potential Ghost Job/i,
+    /Likely Ghost/i,
+    /Ghost warning:/i,
+    /Ghost Job Warning/i,
+    /Mark as real job/i,
+    /Confirm ghost job/i,
+    /Probably fake/i,
+    /Probably a ghost/i,
+    /Almost certainly filled/i,
+    /definitely real/i,
+    /posting that isn't real/i,
+    /ghost score from 0\.0/i,
+    /ghost jobs, statistics/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));
@@ -3125,6 +3175,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasTechnicalFirstUserCopy(root, path)) {
       violations.push(`replace technical-first user copy: ${path}`);
+    }
+
+    if (hasOverconfidentGhostCopy(root, path)) {
+      violations.push(`replace overconfident ghost-risk copy: ${path}`);
     }
 
     if (hasProductionExplicitAnySuppression(root, path)) {

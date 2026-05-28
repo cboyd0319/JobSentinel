@@ -16,7 +16,7 @@ Job seekers are juggling applications, interviews, and often a current job. They
 
 Unemployment is scary. Even employed job seekers feel pressure. Your tone matters.
 
-**Do:** Be encouraging without being fake.
+**Do:** Be practical, protective, and specific.
 
 **Don't:** Use pressure tactics ("Don't miss out!") or make them feel behind.
 
@@ -238,4 +238,4 @@ Ask yourself:
 
 ### After (honest and helpful)
 
-> "Some job postings are fake or already filled. JobSentinel flags these so you don't waste time on them."
+> "This posting has stale or unclear signals. Verify it before spending serious tailoring time."

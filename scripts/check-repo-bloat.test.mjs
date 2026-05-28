@@ -813,6 +813,120 @@ test("checkRepoBloat rejects technical-first user copy", () => {
   });
 });
 
+test("checkRepoBloat rejects overconfident ghost-risk copy", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/ghost-detection.md",
+      [
+        "Stop wasting time on fake job postings.",
+        "Real Jobs Only hides anything with ghost score.",
+        "Red means Probably fake.",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/user/QUICK_START.md",
+      "Ghost jobs (fake or stale postings) are flagged with warnings.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/README.md",
+      "Ghost Detection: ghost jobs, statistics, filtered search, feedback, and configuration.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/ROADMAP.md",
+      "Detect stale, reposted, and fake job postings.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/ARCHITECTURE.md",
+      "Identifies fake/stale/already-filled job postings.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/smart-scoring.md",
+      "Ghost Job Detection - Identifying fake postings.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/releases/v1.4.md",
+      "Each job receives a ghost score from 0.0 (definitely real) to 1.0.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/style-guide/GLOSSARY.md",
+      "Write this: fake or outdated job posting.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
+      "Some job postings are fake job postings.\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/components/GhostIndicator.tsx",
+      '"Potential Ghost Job"; "Likely Ghost"; "Confirm ghost job";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+      '"Legitimacy"; "Likely Real"; "Possible Ghost";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Settings.tsx",
+      '"Adjust how aggressively JobSentinel flags fake or stale job postings."\n',
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "docs/features/ghost-detection.md",
+        "docs/user/QUICK_START.md",
+        "docs/README.md",
+        "docs/ROADMAP.md",
+        "docs/developer/ARCHITECTURE.md",
+        "docs/features/smart-scoring.md",
+        "docs/releases/v1.4.md",
+        "docs/style-guide/GLOSSARY.md",
+        "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
+        "src/components/GhostIndicator.tsx",
+        "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+        "src/pages/Settings.tsx",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of [
+      "docs/features/ghost-detection.md",
+      "docs/user/QUICK_START.md",
+      "docs/README.md",
+      "docs/ROADMAP.md",
+      "docs/developer/ARCHITECTURE.md",
+      "docs/features/smart-scoring.md",
+      "docs/releases/v1.4.md",
+      "docs/style-guide/GLOSSARY.md",
+      "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
+      "src/components/GhostIndicator.tsx",
+      "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+      "src/pages/Settings.tsx",
+    ]) {
+      assert.ok(
+        violations.includes(`replace overconfident ghost-risk copy: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
 test("checkRepoBloat rejects frontend status emoji markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

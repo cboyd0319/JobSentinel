@@ -1,158 +1,164 @@
 # Ghost Job Detection
 
-**Stop wasting time on fake job postings.**
+**Protect your time before you tailor.**
 
-Ever applied to a job and heard nothing back? There's a good chance it was a "ghost job" -
-a posting that isn't real. JobSentinel spots these so you can focus on real opportunities.
+Some job postings are stale, reposted, already closed, evergreen, or hard to
+verify. JobSentinel flags those warning signs so you can decide whether to
+apply, verify first, or spend your tailoring time elsewhere.
 
----
+## What This Means
 
-## What's a Ghost Job?
+JobSentinel does not claim to know an employer's intent. A "ghost job" warning
+means the posting has risk signals, such as:
 
-Ghost jobs are job postings that aren't genuine opportunities:
+- **Already closed** - The company may have filled the role but left the posting
+  online.
+- **Pipeline role** - The employer may be collecting resumes for future needs
+  instead of a current opening.
+- **Stale listing** - The posting has been open for a long time without fresh
+  evidence.
+- **Evergreen listing** - The company keeps the same role open all the time.
+- **Unclear route** - The listing appears away from the company or ATS source
+  and cannot be verified yet.
 
-- **Already filled** - The company hired someone but left the posting up
-- **Resume harvesting** - Just collecting resumes with no intent to hire
-- **Abandoned** - Posted 6 months ago and forgotten
-- **Evergreen** - Always posted, rarely actually hiring
-- **Internal promotion** - Already know who they're hiring
+Scam warnings are separate. Scam signals include requests for money, early
+sensitive information, suspicious domains, fake checks, unrealistic pay, or
+non-company communication.
 
-Studies suggest **30-50% of job postings online are ghosts.** That's a lot of wasted applications.
+## How JobSentinel Scores Posting Risk
 
----
+Every job gets checked against multiple signals. The user-facing result is a
+posting-risk estimate from 0% to 100%.
 
-## How JobSentinel Detects Ghosts
+| Score      | What It Means                              |
+| ---------- | ------------------------------------------ |
+| **0-49%**  | Lower risk from available evidence         |
+| **50-59%** | Needs light review                         |
+| **60-74%** | Multiple warning signs                     |
+| **75%+**   | Verify before spending serious time        |
 
-Every job gets analyzed against multiple signals. The result is a "ghost score" from 0% to 100%:
+## What JobSentinel Looks For
 
-| Score      | What It Means                        |
-| ---------- | ------------------------------------ |
-| **0-49%**  | Looks legitimate                     |
-| **50-59%** | Some concerns (yellow flag)          |
-| **60-74%** | Multiple warning signs (orange flag) |
-| **75%+**   | Probably a ghost (red flag)          |
+### Stale Postings
 
-### What We Look For
+- Posted 30-60 days ago? Light concern.
+- Posted 60-90 days ago? Review before tailoring.
+- Posted 90+ days ago? Verify the role is still open before spending serious
+  time.
 
-**Stale Postings**
+### Frequent Reposts
 
-- Posted 30-60 days ago? Mild concern.
-- Posted 60-90 days ago? Getting suspicious.
-- Posted 90+ days ago? Almost certainly filled or abandoned.
+Repeated reposting can mean normal hiring demand, a hard-to-fill role, a
+staffing pipeline, or a low-trust listing. JobSentinel treats repeated reposts
+as a reason to verify, not as proof the employer is acting badly.
 
-**Frequent Reposts**
+### Vague Descriptions
 
-Companies that keep reposting the same job usually aren't serious about hiring.
-If we've seen this exact job 3+ times, that's a red flag.
+Low-detail postings are harder to trust. Warning signs include generic
+responsibilities, unclear team or reporting line, contradictory remote rules,
+missing location details, or broad phrases without concrete work.
 
-**Vague Descriptions**
+### Missing Pay
 
-Real jobs have specific requirements. Ghost jobs use generic phrases like:
+Missing pay is not proof of a ghost job. It is still useful evidence because
+hidden pay can waste time and make it harder to compare roles against your
+salary floor.
 
-- "Fast-paced environment"
-- "Self-starter"
-- "Wear many hats"
-- "Rockstar developer"
-- "Competitive salary" (without actual numbers)
+### Unclear Titles
 
-**Missing Salary**
+Very broad titles such as "Various Positions" or single-word role names can
+indicate mass-posted listings or low-detail postings that need review.
 
-While not definitive, jobs that hide salary info are more likely to be ghosts.
-Real employers who want real candidates usually post real numbers.
+### Too Many Similar Openings
 
-**Weird Titles**
-
-Generic titles like "Developer" or "Various Positions" often indicate mass-posted,
-low-quality listings.
-
-**Too Many Openings**
-
-A company with 200+ open positions for the same role? They're probably not actually
-hiring for all of them.
-
----
+Many identical openings can mean genuine hiring, staffing activity, evergreen
+roles, or repost churn. JobSentinel flags the pattern so you can check the
+source before tailoring.
 
 ## Using Ghost Detection
 
 ### On the Dashboard
 
-Ghost jobs show a colored badge:
+Jobs with posting-risk signals show a badge:
 
-- **Yellow** - Minor concerns (50-59%)
+- **Yellow** - Needs light review (50-59%)
 - **Orange** - Multiple warning signs (60-74%)
-- **Red** - Probably fake (75%+)
+- **Red** - Verify before tailoring (75%+)
 
-Hover over the badge to see why it was flagged. Job cards also show "Seen on X sources"
-badge to indicate deduplication detection.
+Hover over the badge to see why it was flagged. Job cards can also show "Seen
+on X sources" when the same role appears in more than one place.
 
-### Ghost Filter
+### Posting Risk Filter
 
-Use the dropdown filter above your job list:
+Use the posting-risk filter above your job list:
 
-- **All Jobs** - Show everything (default)
-- **Real Jobs Only** - Hide anything with ghost score ≥ 50%
-- **Ghost Jobs** - See only flagged jobs (useful for curiosity)
+- **All Jobs** - Show everything.
+- **Lower Risk** - Hide jobs above the warning threshold.
+- **Needs Review** - Show only jobs with posting-risk warnings.
 
-Most people use "Real Jobs Only" to avoid wasting time.
+Use "Lower Risk" when you are low on time or energy. Use "Needs Review" when
+you want to check old or suspicious listings before deciding what to do.
 
-### Settings UI for Ghost Config
+### Settings
 
-Customize ghost detection sensitivity in **Settings > Detection > Ghost Job Settings**:
+Customize detection sensitivity in **Settings > Detection > Ghost Detection
+Settings**:
 
-- **Stale Job Threshold** - How old a job needs to be before it's flagged as stale (default: 60 days)
-- **Repost Threshold** - How many times a job must be reposted to trigger a flag (default: 3)
-- **Weight Adjustments** - Fine-tune the importance of each detection signal
-  - Stale postings weight (default: 25%)
-  - Repost frequency weight (default: 20%)
-  - Generic description weight (default: 15%)
-  - Vague title weight (default: 15%)
-  - Unrealistic requirements weight (default: 15%)
-  - Missing salary weight (default: 10%)
+- **Stale Job Threshold** - How old a job needs to be before it is flagged as
+  stale.
+- **Repost Threshold** - How many times a job must be reposted before it is
+  flagged.
+- **Weight Adjustments** - Fine-tune how much each signal affects the warning.
+  - Stale postings weight
+  - Repost frequency weight
+  - Generic description weight
+  - Vague title weight
+  - Unrealistic requirements weight
+  - Missing salary weight
 
-Changes take effect immediately with a live preview showing your new ghost job count.
+Changes take effect immediately with a live preview showing how many listings
+would be flagged.
 
----
+## What To Do With Flagged Jobs
 
-## Should You Apply to Flagged Jobs?
+Use the warning as a time-protection signal:
 
-It depends on the flag color:
+**Yellow (50-59%)** - Review quickly. Apply if the role still fits.
 
-**Yellow (50-59%)** - Probably fine. The job might just be slightly old or have a
-generic description. Apply if it interests you.
+**Orange (60-74%)** - Verify first if tailoring would take real effort. Check
+the company site, exact title, posting age, and source.
 
-**Orange (60-74%)** - Be cautious. Something's off. Maybe apply if it's a dream company,
-but don't expect much.
+**Red (75%+)** - Do not spend serious tailoring time until you have stronger
+evidence the role is active. Check the company or ATS page, look for recent
+updates, and consider contacting a recruiter or hiring contact if one is
+available.
 
-**Red (75%+)** - Skip it. Save your energy for real opportunities.
+## Limits
 
----
+Ghost detection is not perfect:
 
-## Limitations
+- **False positives** - Some active jobs may be flagged, especially from large
+  companies, staffing agencies, or evergreen hiring teams.
+- **False negatives** - Some stale or inactive jobs may not have enough visible
+  warning signs.
+- **Data dependent** - Accuracy improves when JobSentinel has more history for
+  a company, title, source, or repost pattern.
+- **Source dependent** - Company-site or ATS presence is stronger evidence, but
+  it is not absolute proof that hiring is active.
 
-Ghost detection isn't perfect:
+Use posting-risk scores as one signal. If a flagged role still looks worthwhile,
+verify it and decide based on your own situation.
 
-- **False positives** - Some legitimate jobs may be flagged, especially from large
-  companies or staffing agencies
-- **False negatives** - Some ghost jobs may slip through
-- **Data dependent** - Accuracy improves with more historical data
-- **Repost timing matters** - Very old reposts (180+ days) are weighted less heavily
-  because they may indicate legitimate evergreen roles
+## User Feedback
 
-Use ghost scores as one signal, not the only signal. If a job looks great despite a
-flag, apply anyway - you know your situation better than an algorithm.
+You can mark a posting based on what you verified:
 
-### User Feedback
+- Mark it as **verified** if you confirmed the role is active.
+- Mark it as **needs review** if you found stale, closed, evergreen, or unclear
+  evidence.
+- Clear your feedback if you change your mind.
 
-**Help improve detection accuracy** by marking jobs as real or ghost:
-
-- If you know a flagged job is legitimate, mark it as "real"
-- If you find a ghost job we missed, mark it as "ghost"
-- Your feedback can be cleared if you change your mind
-
-These corrections help you keep track of which jobs you've vetted.
-Future enhancement: we'll use this feedback to improve the detection algorithm.
-
----
+These corrections help you keep track of which jobs you have already checked.
 
 ## Technical Details
 
@@ -174,7 +180,7 @@ Future enhancement: we'll use this feedback to improve the detection algorithm.
 
 ```sql
 -- Ghost-related columns in jobs table
-ghost_score REAL,         -- 0.0 to 1.0
+ghost_score REAL,         -- 0.0 to 1.0 posting-risk estimate
 ghost_reasons TEXT,       -- JSON array of reasons
 first_seen TEXT,          -- When we first found this job
 repost_count INTEGER      -- How many times we've seen it
@@ -183,17 +189,17 @@ repost_count INTEGER      -- How many times we've seen it
 ### API Commands
 
 ```typescript
-// Get jobs flagged as ghosts
+// Get jobs above a posting-risk threshold
 invoke("get_ghost_jobs", { threshold: 0.5, limit: 100 });
 
 // Get ghost detection statistics
 invoke("get_ghost_statistics");
 // Returns: { total_analyzed, ghosts, warnings, real, average_score }
 
-// Get jobs with ghost filtering
+// Get jobs with posting-risk filtering
 invoke("get_recent_jobs_filtered", { limit: 50, exclude_ghost: true });
 
-// Ghost configuration commands (NEW)
+// Ghost configuration commands
 invoke("get_ghost_config"); // Get current settings
 invoke("set_ghost_config", {
   // Update settings
@@ -209,9 +215,9 @@ invoke("set_ghost_config", {
 invoke("reset_ghost_config"); // Reset to defaults
 
 // User feedback commands
-invoke("mark_job_as_real", { job_id: 123 }); // Mark job as legitimate
-invoke("mark_job_as_ghost", { job_id: 123 }); // Mark job as fake/ghost
-invoke("get_ghost_feedback", { job_id: 123 }); // Get user's verdict ("real", "ghost", or null)
+invoke("mark_job_as_real", { job_id: 123 }); // User verified the role is active
+invoke("mark_job_as_ghost", { job_id: 123 }); // User marked stale or unverified
+invoke("get_ghost_feedback", { job_id: 123 }); // Get user's verdict
 invoke("clear_ghost_feedback", { job_id: 123 }); // Remove user's verdict
 ```
 

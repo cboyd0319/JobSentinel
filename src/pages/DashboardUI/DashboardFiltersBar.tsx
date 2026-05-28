@@ -346,13 +346,13 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
 
           {/* Ghost Filter */}
           <Dropdown
-            label="Legitimacy"
+            label="Posting Risk"
             value={ghostFilter}
             onChange={(value) => setGhostFilter(value as GhostFilter)}
             options={[
               { value: "all", label: "All Jobs" },
-              { value: "real", label: "Likely Real" },
-              { value: "ghost", label: "Possible Ghost" },
+              { value: "real", label: "Lower Risk" },
+              { value: "ghost", label: "Needs Review" },
             ]}
           />
 

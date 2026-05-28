@@ -58,6 +58,9 @@ Current cleanup posture:
 
 Recent cleanup slices on `main` include:
 
+- Protective ghost/posting-risk wording across UI and maintained docs, replacing
+  fake/real verdict language with stale, low-trust, needs-review, and
+  verify-before-tailoring guidance.
 - WebKit E2E shortcut delivery and dashboard count stabilization.
 - Chromium E2E stabilization after full-suite failures.
 - Active research-backed product planning for job-seeker behavior, ATS-aware

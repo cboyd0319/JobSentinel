@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-28 | In progress | Reframed ghost/posting-risk UI and maintained docs away from fake/real verdict language toward stale, low-trust, needs-review, and verify-before-tailoring guidance; added bloat coverage for overconfident ghost-risk copy. |
 | 2026-05-28 | In progress | Promoted ghost-job protection, pay-equity safeguards, long-term-unemployment support, bias-aware application routes, protective tone, and local-first privacy into active goal and plan requirements. |
 | 2026-05-28 | In progress | Reworded Settings, score-breakdown, feedback-preview, and mock debug report search matching copy from keyword jargon to plain search-word language, with component/page tests and bloat coverage. |
 | 2026-05-28 | In progress | Locked all tracked `docs/plans/active/` files into the goal scope, removed local `.DS_Store` artifacts from root and docs paths, and reran root/nested junk checks: tracked disposable scan clean, untracked scan clean, local artifact `find` scan clean, and `npm run lint:bloat` passed. Source-tree README files were classified as owned module/test docs, not disposable reports. |

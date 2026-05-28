@@ -23,12 +23,12 @@ plain-language version for user-facing content.
 
 ### Ghost job
 
-**What it is:** A job posting that isn't real. The company might have already filled the position,
-isn't actually hiring, or posted it just to collect resumes.
+**What it is:** A job posting with stale, reposted, closed, evergreen, or hard-to-verify
+signals. It may or may not be an active role.
 
-**Write this:** "fake or outdated job posting"
+**Write this:** "stale or low-trust job posting"
 
-**Example:** "JobSentinel flags fake or outdated job postings so you don't waste time applying."
+**Example:** "JobSentinel flags stale or low-trust job postings so you can verify before tailoring."
 
 ### Ghosted / Ghosting
 

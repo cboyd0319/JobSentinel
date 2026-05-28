@@ -63,7 +63,7 @@ Use `package.json` for the current release package version.
 
 | Feature                      | Status   | Notes                                              |
 | ---------------------------- | -------- | -------------------------------------------------- |
-| Ghost Job Detection          | **Done** | Detect stale, reposted, and fake job postings      |
+| Ghost Job Detection          | **Done** | Flag stale, reposted, and low-trust job postings   |
 | Ghost Filter UI              | **Done** | Dashboard dropdown to filter by ghost status       |
 | Ghost Indicators             | **Done** | Visual badges with severity coloring               |
 | Score Breakdown Tooltip      | **Done** | Hover to see scoring factor breakdown              |

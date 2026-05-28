@@ -129,7 +129,7 @@ broad-audience design guidance, docs harness alignment
 
 - **13 Job scrapers**: Greenhouse, Lever, LinkedIn, RemoteOK, WeWorkRemotely, BuiltIn,
   HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, Glassdoor
-- **Ghost Job Detection** - Identifies fake/stale job postings
+- **Ghost Job Detection** - Flags stale, reposted, and low-trust postings
 - Application Tracking System (ATS) with Kanban board + interview scheduler
 - AI Resume-Job Matcher with PDF parsing
 - Salary AI with negotiation insights
@@ -175,7 +175,7 @@ broad-audience design guidance, docs harness alignment
 - **Resume Builder**: drafts, sections, templates, rendering, exports, and ATS analysis
 - **Salary AI**: predictions, benchmarking, negotiation scripts, and offer comparison
 - **Market Intelligence**: trends, companies, locations, alerts, snapshots, and history
-- **Ghost Detection**: ghost jobs, statistics, filtered search, feedback, and configuration
+- **Ghost Detection**: posting-risk signals, statistics, filtered search, feedback, and configuration
 - **User Data**: templates, prep checklists, saved searches, notifications, migration, and history
 - **One-Click Apply**: profile, screening answers, attempts, ATS detection, and browser control
 - **Health**: scraper health, smoke tests, run history, and credential expiry

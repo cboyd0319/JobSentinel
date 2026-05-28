@@ -271,7 +271,7 @@ See [Security: Keyring Integration](../security/KEYRING.md) for full documentati
 
 **Purpose**: Ghost job detection (v1.4)
 
-- Identifies fake/stale/already-filled job postings
+- Flags stale, reposted, already-filled, and low-trust job postings
 - Multi-signal analysis (age, reposts, content, requirements)
 - Ghost score 0.0-1.0
 

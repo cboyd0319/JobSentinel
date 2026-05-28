@@ -50,6 +50,10 @@ const severityBgStyles = {
   high: "bg-red-100 dark:bg-red-900/30",
 };
 
+function feedbackLabel(feedbackState: "real" | "ghost"): string {
+  return feedbackState === "real" ? "verified active" : "needs review";
+}
+
 function getSeverity(score: number): "low" | "medium" | "high" {
   if (score >= 0.75) return "high";
   if (score >= 0.6) return "medium";
@@ -183,7 +187,7 @@ export const GhostIndicator = memo(function GhostIndicator({
   const tooltipContent = (
     <div className="max-w-xs">
       <div className="font-semibold mb-1">
-        Potential Ghost Job ({Math.round(ghostScore * 100)}% confidence)
+        Posting Needs Verification ({Math.round(ghostScore * 100)}% risk)
       </div>
       {reasons.length > 0 ? (
         <ul className="text-xs space-y-1.5">
@@ -206,11 +210,11 @@ export const GhostIndicator = memo(function GhostIndicator({
           ))}
         </ul>
       ) : (
-        <p className="text-xs">ML analysis detected warning signals</p>
+        <p className="text-xs">Warning signals detected from posting details</p>
       )}
       {jobId && !feedbackState && (
         <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">
-          <p className="text-xs text-surface-400 mb-1">Is this correct?</p>
+          <p className="text-xs text-surface-400 mb-1">Did you verify this posting?</p>
           <div className="flex gap-1">
             <button
               onClick={(e) => {
@@ -219,9 +223,9 @@ export const GhostIndicator = memo(function GhostIndicator({
               }}
               disabled={isSubmitting}
               className="flex-1 px-2 py-1 text-xs rounded bg-green-500 hover:bg-green-600 text-white transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-1"
-              title="Mark as real job"
+              title="Mark as verified posting"
             >
-              Real
+              Verified
             </button>
             <button
               onClick={(e) => {
@@ -230,9 +234,9 @@ export const GhostIndicator = memo(function GhostIndicator({
               }}
               disabled={isSubmitting}
               className="flex-1 px-2 py-1 text-xs rounded bg-red-500 hover:bg-red-600 text-white transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1"
-              title="Confirm ghost job"
+              title="Mark as stale or unverified"
             >
-              Ghost
+              Needs Review
             </button>
           </div>
         </div>
@@ -240,7 +244,7 @@ export const GhostIndicator = memo(function GhostIndicator({
       {feedbackState && (
         <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">
           <p className="text-xs text-green-400">
-            Marked as {feedbackState}
+            Marked as {feedbackLabel(feedbackState)}
           </p>
         </div>
       )}
@@ -256,7 +260,7 @@ export const GhostIndicator = memo(function GhostIndicator({
           cursor-help transition-colors
           ${feedbackState === "real" ? "opacity-50" : ""}
         `}
-        aria-label={`Potential ghost job: ${Math.round(ghostScore * 100)}% confidence`}
+        aria-label={`Posting risk warning: ${Math.round(ghostScore * 100)}%`}
       >
         {severity === "high" ? (
           <WarningIcon className={sizeClass} />
@@ -265,10 +269,10 @@ export const GhostIndicator = memo(function GhostIndicator({
         )}
         <span className="sr-only sm:not-sr-only">
           {feedbackState === "real"
-            ? "Marked Real"
+            ? "Marked Verified"
             : severity === "high"
-            ? "Likely Ghost"
-            : "Possible Ghost"}
+            ? "High Risk"
+            : "Needs Review"}
         </span>
       </span>
     </Tooltip>
@@ -320,7 +324,7 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
   const tooltipContent = (
     <div className="max-w-xs">
       <div className="font-semibold mb-1">
-        Ghost Job Warning ({Math.round(ghostScore * 100)}%)
+        Posting Risk Warning ({Math.round(ghostScore * 100)}%)
       </div>
       {reasons.length > 0 ? (
         <ul className="text-xs space-y-1">
@@ -334,11 +338,11 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
           )}
         </ul>
       ) : (
-        <p className="text-xs">This job may be stale or fake</p>
+        <p className="text-xs">This job may be stale, reposted, or hard to verify</p>
       )}
       {jobId && !feedbackState && (
         <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">
-          <p className="text-xs text-surface-400 mb-1">Is this correct?</p>
+          <p className="text-xs text-surface-400 mb-1">Did you verify this posting?</p>
           <div className="flex gap-1">
             <button
               onClick={(e) => {
@@ -347,9 +351,9 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
               }}
               disabled={isSubmitting}
               className="flex-1 px-2 py-1 text-xs rounded bg-green-500 hover:bg-green-600 text-white transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-1"
-              title="Mark as real job"
+              title="Mark as verified posting"
             >
-              Real
+              Verified
             </button>
             <button
               onClick={(e) => {
@@ -358,9 +362,9 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
               }}
               disabled={isSubmitting}
               className="flex-1 px-2 py-1 text-xs rounded bg-red-500 hover:bg-red-600 text-white transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1"
-              title="Confirm ghost job"
+              title="Mark as stale or unverified"
             >
-              Ghost
+              Needs Review
             </button>
           </div>
         </div>
@@ -368,7 +372,7 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
       {feedbackState && (
         <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">
           <p className="text-xs text-green-400">
-            Marked as {feedbackState}
+            Marked as {feedbackLabel(feedbackState)}
           </p>
         </div>
       )}
@@ -384,7 +388,7 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
           cursor-help
           ${feedbackState === "real" ? "opacity-50" : ""}
         `}
-        aria-label={`Ghost warning: ${Math.round(ghostScore * 100)}%`}
+        aria-label={`Posting risk warning: ${Math.round(ghostScore * 100)}%`}
       >
         <GhostIcon className="w-3 h-3" />
       </span>

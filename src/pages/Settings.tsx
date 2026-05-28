@@ -3550,7 +3550,7 @@ export default function Settings({ onClose }: SettingsProps) {
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
                   Ghost Detection Settings
-                  <HelpIcon text="Adjust how aggressively JobSentinel flags fake or stale job postings. Choose a preset or customize." />
+                  <HelpIcon text="Adjust how JobSentinel flags stale, reposted, or low-trust job postings. Choose a preset or customize." />
                 </h3>
                 {ghostConfig && (
                   <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 space-y-4">

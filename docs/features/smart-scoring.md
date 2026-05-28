@@ -388,8 +388,8 @@ Newer jobs score higher than older ones, with a gradual decline over time:
 - **Old postings** are often ghosts or already filled
 - **Recency as a signal** of company engagement
 
-Recency also factors into [Ghost Job Detection](ghost-detection.md)—very old jobs get flagged as
-potentially fake.
+Recency also factors into [Ghost Job Detection](ghost-detection.md). Very old
+jobs get flagged for review before tailoring.
 
 ### Configuration in Settings
 
@@ -722,7 +722,7 @@ Least Impactful:       Recency (average 65%)
 - [Remote Work Preference Scoring](remote-preference-scoring.md) - Deep dive on location scoring
 - [Resume Matcher Integration](resume-matcher.md) - Using AI resume matching
 - [Salary AI Feature](salary-ai.md) - Salary prediction algorithm
-- [Ghost Job Detection](ghost-detection.md) - Identifying fake postings
+- [Ghost Job Detection](ghost-detection.md) - Flagging stale or low-trust postings
 
 ---
 
