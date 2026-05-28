@@ -66,13 +66,13 @@ List skills that match the jobs you want:
 
 Choose from 5 ATS-friendly templates:
 
-| Template      | Best For                              |
-| ------------- | ------------------------------------- |
-| **Classic**   | General use - works for any industry  |
-| **Modern**    | Tech companies - clean and minimal    |
-| **Technical** | Engineering roles - skills first      |
-| **Executive** | Senior positions - leadership focus   |
-| **Military**  | Veterans - civilian-friendly language |
+| Template           | Best For                              |
+| ------------------ | ------------------------------------- |
+| **Classic**        | General use - works for any industry  |
+| **Modern**         | Clean and minimal presentation        |
+| **Skills-First**   | Roles where skills matter most        |
+| **Executive**      | Senior positions - leadership focus   |
+| **Military**       | Veterans - civilian-friendly language |
 
 All templates are designed to pass ATS filters:
 
@@ -153,7 +153,7 @@ The optimizer suggests 45+ action verbs proven to improve resumes:
 
 - **Leadership:** Led, Managed, Directed, Coordinated
 - **Achievement:** Achieved, Delivered, Exceeded, Reduced
-- **Technical:** Developed, Engineered, Architected, Implemented
+- **Creation:** Developed, Built, Designed, Implemented
 - **Analysis:** Analyzed, Assessed, Evaluated, Identified
 
 ---

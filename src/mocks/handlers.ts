@@ -1680,8 +1680,8 @@ function getResumeTemplates(): MockResumeTemplate[] {
     },
     {
       id: "Technical",
-      name: "Technical Skills-First",
-      description: "Emphasizes technical skills and projects. Perfect for engineering roles.",
+      name: "Skills-First",
+      description: "Highlights relevant skills and projects when skills matter most.",
       preview_image: "/templates/technical-preview.png",
     },
     {

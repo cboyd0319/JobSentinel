@@ -292,6 +292,25 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "docs/README.md",
+      "- 5 ATS-optimized templates (Classic, Modern, Technical, Executive, Military)\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/ROADMAP.md",
+      "- 5 ATS-optimized templates (Classic, Modern, Technical, Executive, Military)\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/resume-builder.md",
+      [
+        "| **Modern** | Tech companies - clean and minimal |",
+        "| **Technical** | Engineering roles - skills first |",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/pages/DashboardUI/DashboardFiltersBar.tsx",
       "<p>Comma or OR: react, vue</p><p>AND: senior AND engineer</p>\n",
     );
@@ -307,13 +326,23 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src-tauri/src/core/resume/templates.rs",
+      '"Technical Skills-First"; "Perfect for engineering roles";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/ResumeBuilder.tsx",
+      '"Technical & soft skills"\n',
+    );
+    writeFixtureFile(
+      root,
       "src/components/resume-builder/steps/SummaryStep.tsx",
       '<textarea placeholder="Experienced software engineer with 5+ years building apps." />\n',
     );
     writeFixtureFile(
       root,
       "src/components/resume-builder/steps/SkillsStep.tsx",
-      '<input placeholder="React" /><input placeholder="Frontend" />\n',
+      '<input placeholder="React" /><input placeholder="Frontend" />"Technical and professional skills"\n',
     );
 
     execFileSync(
@@ -325,8 +354,13 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/pages/DashboardUI/DashboardFiltersBar.tsx",
         "src/components/JobImportModal.tsx",
         "src/mocks/data.ts",
+        "src-tauri/src/core/resume/templates.rs",
+        "src/pages/ResumeBuilder.tsx",
         "src/components/resume-builder/steps/SummaryStep.tsx",
         "src/components/resume-builder/steps/SkillsStep.tsx",
+        "docs/README.md",
+        "docs/ROADMAP.md",
+        "docs/features/resume-builder.md",
         "docs/features/scrapers.md",
         "docs/features/resume-matcher.md",
         "docs/user/QUICK_START.md",
@@ -341,8 +375,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/pages/DashboardUI/DashboardFiltersBar.tsx",
       "src/components/JobImportModal.tsx",
       "src/mocks/data.ts",
+      "src-tauri/src/core/resume/templates.rs",
+      "src/pages/ResumeBuilder.tsx",
       "src/components/resume-builder/steps/SummaryStep.tsx",
       "src/components/resume-builder/steps/SkillsStep.tsx",
+      "docs/features/resume-builder.md",
       "docs/features/scrapers.md",
       "docs/features/resume-matcher.md",
       "docs/user/QUICK_START.md",

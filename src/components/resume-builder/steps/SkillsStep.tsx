@@ -34,7 +34,7 @@ const SkillsStep = memo(function SkillsStep({
       <div className="flex items-center justify-between">
         <CardHeader
           title="Skills"
-          subtitle="Technical and professional skills"
+          subtitle="Role and professional skills"
         />
         <Button
           size="sm"

@@ -16,7 +16,7 @@ use std::str::FromStr;
 pub enum TemplateId {
     Classic,   // Traditional chronological, ATS-safe
     Modern,    // Clean design, still ATS-parseable
-    Technical, // Skills-first for engineering roles
+    Technical, // Skills-first template; stable internal id
     Executive, // Summary-focused for senior roles
     Military,  // Veteran→civilian with clearance support
 }
@@ -141,9 +141,8 @@ impl TemplateRenderer {
             },
             Template {
                 id: TemplateId::Technical,
-                name: "Technical Skills-First",
-                description:
-                    "Emphasizes technical skills and projects. Perfect for engineering roles.",
+                name: "Skills-First",
+                description: "Highlights relevant skills and projects when skills matter most.",
                 preview_image: "/templates/technical-preview.png",
             },
             Template {
@@ -415,9 +414,9 @@ impl TemplateRenderer {
         html
     }
 
-    // Technical template: skills-first for engineers
+    // Skills-first template.
     fn render_technical(resume: &ResumeData) -> String {
-        let mut html = Self::html_header("Technical Resume", Self::technical_styles());
+        let mut html = Self::html_header("Skills-First Resume", Self::technical_styles());
 
         // Name
         html.push_str(&format!(
@@ -1072,6 +1071,9 @@ mod tests {
         assert_eq!(templates[0].id, TemplateId::Classic);
         assert_eq!(templates[1].id, TemplateId::Modern);
         assert_eq!(templates[2].id, TemplateId::Technical);
+        assert_eq!(templates[2].name, "Skills-First");
+        assert!(templates[2].description.contains("skills matter most"));
+        assert!(!templates[2].description.contains("engineering"));
         assert_eq!(templates[3].id, TemplateId::Executive);
         assert_eq!(templates[4].id, TemplateId::Military);
     }

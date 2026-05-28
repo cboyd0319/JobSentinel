@@ -149,7 +149,7 @@ See [docs/security/KEYRING.md](security/KEYRING.md) for full documentation.
 **P4 Resume Builder Features:**
 
 - 7-step resume wizard (contact, summary, experience, education, skills, preview, export)
-- 5 ATS-optimized templates (Classic, Modern, Technical, Executive, Military)
+- 5 ATS-optimized templates (Classic, Modern, Skills-First, Executive, Military)
 - DOCX export with professional formatting
 - ATS Analyzer with keyword extraction and scoring
 - Bullet point improver with 45+ power words

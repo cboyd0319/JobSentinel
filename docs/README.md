@@ -106,7 +106,7 @@ broad-audience design guidance, docs harness alignment
 ### What's New in v2.0 Resume Tools
 
 - **Resume Builder** - 7-step wizard for creating professional resumes
-  - 5 ATS-optimized templates (Classic, Modern, Technical, Executive, Military)
+  - 5 ATS-optimized templates (Classic, Modern, Skills-First, Executive, Military)
   - DOCX export with professional formatting
 - **ATS Optimizer** - Analyze resumes against job descriptions
   - Keyword extraction and scoring

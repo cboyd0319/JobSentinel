@@ -399,8 +399,20 @@ const broadAudienceExamplePaths = new Set([
   "src/types/deeplinks.ts",
   "docs/user/DEEP_LINKS.md",
   "docs/user/QUICK_START.md",
+  "docs/README.md",
+  "docs/ROADMAP.md",
+  "docs/features/resume-builder.md",
   "docs/features/scrapers.md",
   "docs/features/resume-matcher.md",
+]);
+const resumeTemplateAudiencePaths = new Set([
+  "src-tauri/src/core/resume/templates.rs",
+  "src/mocks/handlers.ts",
+  "src/pages/ResumeBuilder.tsx",
+  "src/components/resume-builder/steps/SkillsStep.tsx",
+  "docs/README.md",
+  "docs/ROADMAP.md",
+  "docs/features/resume-builder.md",
 ]);
 const technicalFirstUserCopyPaths = new Set([
   "src/components/ErrorBoundary.tsx",
@@ -976,10 +988,35 @@ function hasEngineerFirstAudienceExamples(root, path) {
     /The skill extractor recognizes \*\*\d+\+ skills\*\* across 6 categories/i,
     /Identify \d+\+ technical skills across 6 categories/i,
     /extracts technical and\s+soft skills/i,
+    /Technical Skills-First/i,
+    /Perfect for engineering roles/i,
+    /Engineering roles - skills first/i,
+    /Tech companies - clean and minimal/i,
+    /Technical & soft skills/i,
+    /Technical and professional skills/i,
     /Enter your job title or keywords \(e\.g\., "Software Engineer"\)/i,
     /jobs\/software-engineer/i,
     /Examples:\s*\n\s*- "Software Engineer"/i,
     /^\*\*Software Engineer in San Francisco\*\*$/m,
+  ];
+
+  return stalePatterns.some((pattern) => pattern.test(text));
+}
+
+function hasEngineerFirstResumeTemplateCopy(root, path) {
+  if (!resumeTemplateAudiencePaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const stalePatterns = [
+    /Technical Skills-First/i,
+    /Perfect for engineering roles/i,
+    /Engineering roles - skills first/i,
+    /Tech companies - clean and minimal/i,
+    /Technical & soft skills/i,
+    /Technical and professional skills/i,
+    /Classic, Modern, Technical, Executive, Military/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));
@@ -2953,7 +2990,10 @@ export function checkRepoBloat(root = defaultRoot) {
       violations.push(`replace source release version promises: ${path}`);
     }
 
-    if (hasEngineerFirstAudienceExamples(root, path)) {
+    if (
+      hasEngineerFirstAudienceExamples(root, path) ||
+      hasEngineerFirstResumeTemplateCopy(root, path)
+    ) {
       violations.push(`replace engineer-first audience example: ${path}`);
     }
 

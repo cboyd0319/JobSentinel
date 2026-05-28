@@ -227,7 +227,7 @@ const STEPS = [
   { id: 2, name: "Summary", description: "Professional summary" },
   { id: 3, name: "Experience", description: "Work history" },
   { id: 4, name: "Education", description: "Academic background" },
-  { id: 5, name: "Skills", description: "Technical & soft skills" },
+  { id: 5, name: "Skills", description: "Role and people skills" },
   { id: 6, name: "Preview", description: "Choose template" },
   { id: 7, name: "Export", description: "Download resume" },
 ];
@@ -1305,7 +1305,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
               <div className="flex items-center justify-between">
                 <CardHeader
                   title="Skills"
-                  subtitle="Technical and professional skills"
+                  subtitle="Role and professional skills"
                 />
                 <Button
                   size="sm"
