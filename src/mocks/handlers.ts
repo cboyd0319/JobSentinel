@@ -1965,7 +1965,7 @@ function clampScore(score: number): number {
 }
 
 function getMockSalaryBenchmark(args?: Record<string, unknown>): MockSalaryBenchmark {
-  const jobTitle = getStringArg(args, "jobTitle") ?? getStringArg(args, "job_title") ?? "Software Engineer";
+  const jobTitle = getStringArg(args, "jobTitle") ?? getStringArg(args, "job_title") ?? "Marketing Manager";
   const location = getStringArg(args, "location") ?? "Remote";
   const seniority = getStringArg(args, "seniority") ?? "mid";
   const seniorityLabel = toMockSeniorityLabel(seniority);

@@ -3086,7 +3086,7 @@ export default function Settings({ onClose }: SettingsProps) {
                               },
                             })
                           }
-                          placeholder="e.g., software engineer"
+                          placeholder="e.g., program manager"
                         />
                         <Input
                           label="Location"

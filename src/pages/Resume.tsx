@@ -672,7 +672,7 @@ export default function Resume({ onBack }: ResumeProps) {
                       <input
                         id="skill-name"
                         type="text"
-                        placeholder="Skill name (e.g., Python, React)"
+                        placeholder="Skill name (e.g., Project Management, Customer Support)"
                         value={newSkillForm.skill_name}
                         onChange={(e) =>
                           setNewSkillForm({ ...newSkillForm, skill_name: e.target.value })

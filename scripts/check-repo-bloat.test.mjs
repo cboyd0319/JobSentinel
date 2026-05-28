@@ -285,6 +285,26 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "\n",
       ),
     );
+    writeFixtureFile(
+      root,
+      "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+      "<p>Comma or OR: react, vue</p><p>AND: senior AND engineer</p>\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/mocks/data.ts",
+      'export const mockConfig = { linkedin: { query: "software engineer" } };\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/resume-builder/steps/SummaryStep.tsx",
+      '<textarea placeholder="Experienced software engineer with 5+ years building apps." />\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/resume-builder/steps/SkillsStep.tsx",
+      '<input placeholder="React" /><input placeholder="Frontend" />\n',
+    );
 
     execFileSync(
       "git",
@@ -292,6 +312,10 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "add",
         "package.json",
         "src/pages/Salary.tsx",
+        "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+        "src/mocks/data.ts",
+        "src/components/resume-builder/steps/SummaryStep.tsx",
+        "src/components/resume-builder/steps/SkillsStep.tsx",
         "docs/features/resume-matcher.md",
         "docs/user/QUICK_START.md",
       ],
@@ -302,6 +326,10 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
 
     for (const path of [
       "src/pages/Salary.tsx",
+      "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+      "src/mocks/data.ts",
+      "src/components/resume-builder/steps/SummaryStep.tsx",
+      "src/components/resume-builder/steps/SkillsStep.tsx",
       "docs/features/resume-matcher.md",
       "docs/user/QUICK_START.md",
     ]) {

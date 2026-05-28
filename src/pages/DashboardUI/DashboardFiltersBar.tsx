@@ -189,8 +189,8 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
               content={
                 <div className="text-xs space-y-1">
                   <p className="font-medium">Advanced Search:</p>
-                  <p>• Comma or OR: react, vue (any match)</p>
-                  <p>• AND: senior AND engineer (all match)</p>
+                  <p>• Comma or OR: marketing, nurse (any match)</p>
+                  <p>• AND: senior AND manager (all match)</p>
                   <p>• NOT or -: -intern (exclude term)</p>
                 </div>
               }
