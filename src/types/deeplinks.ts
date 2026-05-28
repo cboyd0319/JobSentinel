@@ -8,7 +8,7 @@
  * Search criteria for generating deep links
  */
 export interface SearchCriteria {
-  /** Job title or keywords (e.g., "Software Engineer") */
+  /** Job title or keywords (e.g., "Marketing Manager") */
   query: string;
   /** Location (city, state, zip, or "remote") */
   location?: string;

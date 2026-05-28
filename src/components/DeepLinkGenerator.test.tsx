@@ -23,16 +23,27 @@ describe("DeepLinkGenerator", () => {
           category: SiteCategory.Professional,
           requires_login: true,
         },
-        url: "https://www.linkedin.com/jobs/search/?keywords=rust",
+        url: "https://www.linkedin.com/jobs/search/?keywords=marketing",
       },
     ]);
+  });
+
+  it("uses broad-audience search examples", () => {
+    render(<DeepLinkGenerator />);
+
+    const queryInput = screen.getByLabelText(/job title or keywords/i);
+
+    expect(queryInput).toHaveAttribute(
+      "placeholder",
+      "e.g., Marketing Manager, Registered Nurse",
+    );
   });
 
   it("sends selected job type and work mode filters when generating links", async () => {
     const user = userEvent.setup();
     render(<DeepLinkGenerator />);
 
-    await user.type(screen.getByLabelText(/job title or keywords/i), "Rust Engineer");
+    await user.type(screen.getByLabelText(/job title or keywords/i), "Marketing Manager");
     await user.type(screen.getByLabelText(/location/i), "Remote");
     await user.selectOptions(screen.getByLabelText(/job type/i), JobType.Contract);
     await user.selectOptions(screen.getByLabelText(/work mode/i), RemoteType.Remote);
@@ -40,7 +51,7 @@ describe("DeepLinkGenerator", () => {
 
     await waitFor(() => {
       expect(deeplinks.generateDeepLinks).toHaveBeenCalledWith({
-        query: "Rust Engineer",
+        query: "Marketing Manager",
         location: "Remote",
         job_type: JobType.Contract,
         remote_type: RemoteType.Remote,

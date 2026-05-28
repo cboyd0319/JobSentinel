@@ -384,6 +384,15 @@ const frontendStatusEmojiPaths = new Set([
   "src/components/InterviewScheduler.tsx",
   "src/pages/Applications.tsx",
 ]);
+const broadAudienceExamplePaths = new Set([
+  "src/components/DeepLinkGenerator.tsx",
+  "src/pages/ResumeBuilder.tsx",
+  "src/pages/Salary.tsx",
+  "src/types/deeplinks.ts",
+  "docs/user/DEEP_LINKS.md",
+  "docs/user/QUICK_START.md",
+  "docs/features/resume-matcher.md",
+]);
 const backendScoringReasonPaths = new Set([
   "src-tauri/src/core/resume/matcher.rs",
   "src-tauri/src/core/scoring/mod.rs",
@@ -916,6 +925,29 @@ function hasSourceReleaseVersionPromise(root, path) {
   return /(?:Coming in v\d+\.\d+|planned for v\d+\.\d+)/i.test(
     readFileSync(join(root, path), "utf8"),
   );
+}
+
+function hasEngineerFirstAudienceExamples(root, path) {
+  if (!broadAudienceExamplePaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const stalePatterns = [
+    /placeholder=["'][^"']*(?:Senior\s+)?Software Engineer/i,
+    /placeholder=["'][^"']*React/i,
+    /placeholder=["'][^"']*Frontend/i,
+    /Experienced software engineer/i,
+    /JOHN DOE - Software Engineer/i,
+    /The skill extractor recognizes \*\*\d+\+ skills\*\* across 6 categories/i,
+    /Identify \d+\+ technical skills across 6 categories/i,
+    /extracts technical and\s+soft skills/i,
+    /Enter your job title or keywords \(e\.g\., "Software Engineer"\)/i,
+    /Examples:\s*\n\s*- "Software Engineer"/i,
+    /^\*\*Software Engineer in San Francisco\*\*$/m,
+  ];
+
+  return stalePatterns.some((pattern) => pattern.test(text));
 }
 
 function hasProductionSourceGlyphMarkers(root, path) {
@@ -2795,6 +2827,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasSourceReleaseVersionPromise(root, path)) {
       violations.push(`replace source release version promises: ${path}`);
+    }
+
+    if (hasEngineerFirstAudienceExamples(root, path)) {
+      violations.push(`replace engineer-first audience example: ${path}`);
     }
 
     if (hasProductionExplicitAnySuppression(root, path)) {

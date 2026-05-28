@@ -234,7 +234,7 @@ overall_score = (skills × 0.5) + (experience × 0.3) + (education × 0.2)
 
 **Self-Contained Skill Extraction:**
 
-- 300+ skills across 10 categories
+- Technical, workplace, and role-specific skills across broad career categories
 - 100% offline - no external dependencies
 - Deterministic, fast keyword matching
 

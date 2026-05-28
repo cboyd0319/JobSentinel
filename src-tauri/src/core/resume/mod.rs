@@ -5,7 +5,7 @@
 //! ## Features
 //!
 //! - **PDF Parsing** - Extract text from PDF resumes
-//! - **Skill Extraction** - Identify technical and soft skills
+//! - **Skill Extraction** - Identify technical, workplace, and role-specific skills
 //! - **Semantic Matching** - Compare resume skills against job requirements
 //! - **Gap Analysis** - Identify missing skills and strengths
 //! - **ATS-Optimized Templates** - 5 professional resume templates (Classic, Modern, Technical, Executive, Military)

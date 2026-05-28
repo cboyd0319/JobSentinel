@@ -133,7 +133,7 @@ const STEP_TIPS: Record<number, string[]> = {
   5: [ // Skills
     "Match skills to job requirements",
     "Group skills by category",
-    "Include both technical and soft skills",
+    "Include technical, workplace, and role-specific skills",
   ],
 };
 

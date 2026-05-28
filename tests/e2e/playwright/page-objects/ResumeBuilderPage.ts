@@ -156,7 +156,7 @@ export class ResumeBuilderPage extends BasePage {
     await this.summaryTextarea.fill(text);
   }
 
-  async completeSummary(text = "Results-driven software engineer with deep React, TypeScript, and product delivery experience."): Promise<void> {
+  async completeSummary(text = "Customer success manager with deep onboarding, renewal, and customer experience results."): Promise<void> {
     await this.fillSummary(text);
     await this.goNext(3, "Experience");
   }
@@ -166,14 +166,14 @@ export class ResumeBuilderPage extends BasePage {
     const dialog = this.page.getByRole("dialog", { name: "Add Work Experience" });
     await expect(dialog).toBeVisible();
 
-    await dialog.getByPlaceholder("Senior Software Engineer").fill(data.title);
+    await dialog.getByPlaceholder("Marketing Manager").fill(data.title);
     await dialog.getByPlaceholder("Acme Corp").fill(data.company);
     await dialog.getByPlaceholder("Jan 2020").fill(data.startDate);
     if (data.endDate) await dialog.getByPlaceholder("Present").fill(data.endDate);
     if (data.location) await dialog.getByPlaceholder("San Francisco, CA").fill(data.location);
     if (data.achievements) {
       await dialog
-        .getByPlaceholder("Led team of 5 engineers")
+        .getByPlaceholder("Improved renewal rate by 18%")
         .fill(data.achievements.join("\n"));
     }
 
@@ -183,12 +183,12 @@ export class ResumeBuilderPage extends BasePage {
 
   async completeExperience(data?: Partial<ExperienceData>): Promise<void> {
     const experience = {
-      title: "Senior Software Engineer",
+      title: "Customer Success Manager",
       company: "Acme Corp",
       startDate: "Jan 2020",
       endDate: "Present",
       location: "Remote",
-      achievements: ["Led team of 5 engineers", "Improved application performance by 40%"],
+      achievements: ["Improved renewal rate by 18%", "Built onboarding checklist for new customers"],
       ...data,
     };
     await this.addExperience(experience);
@@ -200,7 +200,7 @@ export class ResumeBuilderPage extends BasePage {
     const dialog = this.page.getByRole("dialog", { name: "Add Education" });
     await expect(dialog).toBeVisible();
 
-    await dialog.getByPlaceholder("B.S. Computer Science").fill(data.degree);
+    await dialog.getByPlaceholder("B.A. Business Administration").fill(data.degree);
     await dialog.getByPlaceholder("Stanford University").fill(data.institution);
     if (data.graduationDate) await dialog.getByPlaceholder("May 2020").fill(data.graduationDate);
     if (data.gpa) await dialog.getByPlaceholder("3.8").fill(data.gpa);
@@ -215,7 +215,7 @@ export class ResumeBuilderPage extends BasePage {
 
   async completeEducation(data?: Partial<EducationData>): Promise<void> {
     await this.addEducation({
-      degree: "B.S. Computer Science",
+      degree: "B.A. Business Administration",
       institution: "State University",
       graduationDate: "May 2020",
       gpa: "3.8",
@@ -227,8 +227,8 @@ export class ResumeBuilderPage extends BasePage {
   }
 
   async addSkill(data: SkillData): Promise<void> {
-    await this.page.getByPlaceholder("React").fill(data.name);
-    await this.page.getByPlaceholder("Frontend").fill(data.category);
+    await this.page.getByPlaceholder("Project Management").fill(data.name);
+    await this.page.getByPlaceholder("Operations").fill(data.category);
     if (data.proficiency) {
       await this.page.getByRole("combobox").selectOption(data.proficiency);
     }
@@ -239,8 +239,8 @@ export class ResumeBuilderPage extends BasePage {
 
   async completeSkills(data?: Partial<SkillData>): Promise<void> {
     await this.addSkill({
-      name: "TypeScript",
-      category: "Frontend",
+      name: "Customer Success",
+      category: "Customer Experience",
       proficiency: "advanced",
       ...data,
     });

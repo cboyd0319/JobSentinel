@@ -4,14 +4,15 @@
 
 ## Overview
 
-JobSentinel's AI Resume-Job Matcher automatically analyzes your resume, extracts technical and
-soft skills, and calculates compatibility scores against job postings. Stop manually comparing
-job requirements—let the AI do it for you!
+JobSentinel's AI Resume-Job Matcher automatically analyzes your resume, extracts
+technical, workplace, and role-specific skills, and calculates compatibility
+scores against job postings. Stop manually comparing job requirements and let
+JobSentinel do the matching work.
 
 ### Key Features
 
 - **PDF Resume Parsing** - Extract text from PDF resumes automatically
-- **Skill Extraction** - Identify 200+ technical skills across 6 categories
+- **Skill Extraction** - Identify technical, workplace, and role-specific skills across broad career categories
 - **Smart Matching** - Calculate match scores between resume and jobs
 - **Gap Analysis** - See exactly which skills you're missing
 - **Recommendations** - Get actionable advice on whether to apply
@@ -91,7 +92,7 @@ let matcher = ResumeMatcher::new(db_pool);
 
 // Upload PDF resume
 let resume_id = matcher.upload_resume(
-    "John Doe - Software Engineer.pdf",
+    "Jordan Lee - Marketing Manager.pdf",
     "/path/to/resume.pdf"
 ).await?;
 
@@ -101,7 +102,7 @@ let resume_id = matcher.upload_resume(
 **What happens:**
 
 1. PDF is parsed to extract text content
-2. Skills are automatically detected (200+ known skills)
+2. Skills are automatically detected from technical and non-technical categories
 3. Resume is stored in database with `is_active = true`
 
 ### 2. View Extracted Skills
@@ -124,10 +125,10 @@ for skill in skills {
 
 ```text
 Python (programming_language) - Confidence: 85%
-React (framework) - Confidence: 80%
-Docker (tool) - Confidence: 75%
-PostgreSQL (database) - Confidence: 70%
-AWS (cloud_platform) - Confidence: 65%
+Content Strategy (marketing) - Confidence: 80%
+Project Management (operations) - Confidence: 75%
+Customer Success (customer_success) - Confidence: 70%
+Patient Care (healthcare) - Confidence: 65%
 ```
 
 ### 3. Match Resume Against Job
@@ -146,20 +147,19 @@ println!("\n{}", match_result.gap_analysis.unwrap_or_default());
 
 ```text
 Overall Match: 75%
-Matching Skills: ["Python", "React", "Docker", "PostgreSQL"]
-Missing Skills: ["TypeScript", "Kubernetes"]
+Matching Skills: ["Content Strategy", "Project Management", "Customer Success"]
+Missing Skills: ["Lifecycle Automation", "CRM"]
 
 Match: 75%
 
-Matching Skills (4):
-  - Python
-  - React
-  - Docker
-  - PostgreSQL
+Matching Skills (3):
+  - Content Strategy
+  - Project Management
+  - Customer Success
 
 Missing Skills (2):
-  - TypeScript
-  - Kubernetes
+  - Lifecycle Automation
+  - CRM
 
 Good match. Consider highlighting transferable skills in your application.
 ```
@@ -178,38 +178,53 @@ matcher.set_active_resume(other_resume_id).await?;
 
 ## Skill Categories
 
-The skill extractor recognizes **200+ skills** across 6 categories:
+The skill extractor recognizes skills across technical, workplace, and
+role-specific categories. Examples:
 
-### Programming Languages (21)
+### Programming Languages
 
 Python, JavaScript, TypeScript, Java, C++, C#, Go, Rust, Ruby, PHP, Swift, Kotlin, Scala, R,
 MATLAB, SQL, HTML, CSS, Shell, Bash, PowerShell
 
-### Frameworks (24)
+### Frameworks
 
 React, Angular, Vue, Next.js, Svelte, Django, Flask, FastAPI, Express, Node.js, Spring,
 Spring Boot, ASP.NET, .NET, Rails, Laravel, React Native, Flutter, SwiftUI, TensorFlow,
 PyTorch, Keras, scikit-learn
 
-### Tools (24)
+### Tools
 
 Git, GitHub, GitLab, Bitbucket, Jenkins, CircleCI, Travis CI, GitHub Actions, Docker,
 Kubernetes, Helm, Webpack, Vite, Maven, Gradle, Jest, Pytest, JUnit, Selenium, Cypress,
 Grafana, Prometheus, Datadog, New Relic
 
-### Databases (11)
+### Databases
 
 PostgreSQL, MySQL, SQLite, Microsoft SQL Server, Oracle, MongoDB, Redis, Cassandra,
 DynamoDB, Elasticsearch, Neo4j
 
-### Cloud Platforms (8)
+### Cloud Platforms
 
 AWS, Azure, Google Cloud, GCP, Heroku, Vercel, Netlify, DigitalOcean
 
-### Soft Skills (10)
+### Soft Skills
 
 Leadership, Communication, Team Collaboration, Problem Solving, Critical Thinking,
 Project Management, Agile, Scrum, Mentoring, Public Speaking
+
+### Role-Specific Skills
+
+Marketing: SEO, Content Strategy, Product Marketing, Lifecycle Automation, Local Search
+
+Sales and customer success: Pipeline Management, CRM, Lead Routing, Customer Success,
+Renewals, Support Content, Help Center
+
+Operations and commerce: Process Improvement, Marketplace Operations, Merchandising,
+Fulfillment, Commercial Reporting, Partner Management
+
+Healthcare, education, finance, legal, and creative: Patient Care, Curriculum
+Development, Financial Modeling, Contract Negotiation, Video Production, Policy
+Review, Information Architecture
 
 ---
 
@@ -581,7 +596,7 @@ LIMIT 10;
 - [x] **Education Matching** - Degree level comparison
 - [x] **PDF Export** - Browser print-to-PDF functionality
 - [x] **OCR Support** - Scanned PDF parsing (optional `ocr` feature)
-- [x] **Enhanced Skill Database** - 300+ skills across 10 categories
+- [x] **Enhanced Skill Database** - technical, workplace, and role-specific skills across broad career categories
 
 ### OCR Support (Optional)
 
@@ -601,9 +616,10 @@ When pdf-extract returns < 100 characters, OCR automatically kicks in:
 
 JobSentinel uses a fully self-contained skill extraction system:
 
-1. **300+ recognized skills** across 10 categories
+1. **Broad recognized skill set** across technical, workplace, and role-specific categories
 2. **Categories**: programming languages, frameworks, tools, databases, cloud platforms,
-   soft skills, methodologies, certifications, security, data
+   soft skills, methodologies, certifications, security, data, marketing, sales,
+   healthcare, education, finance, operations, legal, creative, customer success
 3. **100% offline** - no external services or network calls required
 4. **Deterministic** - same input always produces same output
 
@@ -727,7 +743,7 @@ pub struct MatchResult {
 - [x] **Education Matching** (v2.3) - Degree level comparison
 - [x] **PDF Export** (v2.3) - Browser print-to-PDF
 - [x] **OCR Support** (v2.3) - Scanned PDF parsing via tesseract
-- [x] **Enhanced Skill Database** (v2.3) - 300+ skills across 10 categories
+- [x] **Enhanced Skill Database** (v2.3) - technical, workplace, and role-specific skills across broad career categories
 
 ### Completed UI Work
 

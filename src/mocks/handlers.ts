@@ -1755,7 +1755,7 @@ function analyzeMockResumeFormat(args?: Record<string, unknown>): MockAtsAnalysi
     formatIssues.push({
       severity: "Warning",
       issue: "Missing skills section",
-      fix: "Add relevant technical and soft skills",
+      fix: "Add relevant technical, workplace, and role-specific skills",
     });
   }
 

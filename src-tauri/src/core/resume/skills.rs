@@ -17,7 +17,7 @@ pub struct ExtractedSkill {
 /// Skill extractor using keyword matching
 ///
 /// This is a fully self-contained skill extraction system that:
-/// - Recognizes 200+ technical and soft skills
+/// - Recognizes technical, workplace, and role-specific skills
 /// - Requires no external services or ML models
 /// - Works 100% offline
 /// - Is deterministic and fast
@@ -111,6 +111,69 @@ impl SkillExtractor {
             &mut found_skills,
             &mut seen_skills,
         );
+        self.extract_category(
+            &text_lower,
+            &self.skill_database.marketing_skills,
+            "marketing",
+            &mut found_skills,
+            &mut seen_skills,
+        );
+        self.extract_category(
+            &text_lower,
+            &self.skill_database.sales_skills,
+            "sales",
+            &mut found_skills,
+            &mut seen_skills,
+        );
+        self.extract_category(
+            &text_lower,
+            &self.skill_database.healthcare_skills,
+            "healthcare",
+            &mut found_skills,
+            &mut seen_skills,
+        );
+        self.extract_category(
+            &text_lower,
+            &self.skill_database.education_skills,
+            "education",
+            &mut found_skills,
+            &mut seen_skills,
+        );
+        self.extract_category(
+            &text_lower,
+            &self.skill_database.finance_skills,
+            "finance",
+            &mut found_skills,
+            &mut seen_skills,
+        );
+        self.extract_category(
+            &text_lower,
+            &self.skill_database.operations_skills,
+            "operations",
+            &mut found_skills,
+            &mut seen_skills,
+        );
+        self.extract_category(
+            &text_lower,
+            &self.skill_database.legal_skills,
+            "legal",
+            &mut found_skills,
+            &mut seen_skills,
+        );
+        self.extract_category(
+            &text_lower,
+            &self.skill_database.creative_skills,
+            "creative",
+            &mut found_skills,
+            &mut seen_skills,
+        );
+        self.extract_category(
+            &text_lower,
+            &self.skill_database.customer_success_skills,
+            "customer_success",
+            &mut found_skills,
+            &mut seen_skills,
+        );
 
         // Sort by confidence score (highest first)
         found_skills.sort_by(|a, b| {
@@ -188,7 +251,7 @@ impl Default for SkillExtractor {
     }
 }
 
-/// Database of known skills (200+ skills across 10 categories)
+/// Database of known skills across technical, workplace, and role-specific categories.
 #[derive(Debug, Clone)]
 struct SkillDatabase {
     programming_languages: Vec<String>,
@@ -201,6 +264,15 @@ struct SkillDatabase {
     certifications: Vec<String>,
     security_skills: Vec<String>,
     data_skills: Vec<String>,
+    marketing_skills: Vec<String>,
+    sales_skills: Vec<String>,
+    healthcare_skills: Vec<String>,
+    education_skills: Vec<String>,
+    finance_skills: Vec<String>,
+    operations_skills: Vec<String>,
+    legal_skills: Vec<String>,
+    creative_skills: Vec<String>,
+    customer_success_skills: Vec<String>,
 }
 
 impl Default for SkillDatabase {
@@ -605,6 +677,201 @@ impl Default for SkillDatabase {
                 "MLOps".to_string(),
                 "Model Deployment".to_string(),
             ],
+            marketing_skills: vec![
+                "SEO".to_string(),
+                "SEM".to_string(),
+                "PPC".to_string(),
+                "Google Analytics".to_string(),
+                "Google Ads".to_string(),
+                "Content Strategy".to_string(),
+                "Content Marketing".to_string(),
+                "Email Marketing".to_string(),
+                "Marketing Automation".to_string(),
+                "Campaign Management".to_string(),
+                "Brand Strategy".to_string(),
+                "Product Marketing".to_string(),
+                "Positioning".to_string(),
+                "Customer Research".to_string(),
+                "Customer Language".to_string(),
+                "Proof Points".to_string(),
+                "Objection Handling".to_string(),
+                "Message Architecture".to_string(),
+                "Social Media Marketing".to_string(),
+                "Conversion Rate Optimization".to_string(),
+                "E-commerce".to_string(),
+                "Shopify".to_string(),
+                "HubSpot".to_string(),
+                "Marketo".to_string(),
+                "Klaviyo".to_string(),
+                "Search Operations".to_string(),
+                "Local Search".to_string(),
+                "Local Visibility".to_string(),
+            ],
+            sales_skills: vec![
+                "B2B Sales".to_string(),
+                "Enterprise Sales".to_string(),
+                "Solution Selling".to_string(),
+                "Account Management".to_string(),
+                "Pipeline Management".to_string(),
+                "Prospecting".to_string(),
+                "Cold Calling".to_string(),
+                "Lead Generation".to_string(),
+                "Quota Attainment".to_string(),
+                "Salesforce".to_string(),
+                "CRM".to_string(),
+                "CRM Object Design".to_string(),
+                "Attribution Capture".to_string(),
+                "Lead Routing".to_string(),
+                "Negotiation".to_string(),
+                "Customer Relationship".to_string(),
+                "Upselling".to_string(),
+                "Renewals".to_string(),
+            ],
+            healthcare_skills: vec![
+                "Patient Care".to_string(),
+                "Clinical".to_string(),
+                "Nursing".to_string(),
+                "HIPAA".to_string(),
+                "EMR".to_string(),
+                "EHR".to_string(),
+                "Epic".to_string(),
+                "Cerner".to_string(),
+                "Care Coordination".to_string(),
+                "Case Management".to_string(),
+                "Medical Records".to_string(),
+                "Patient Safety".to_string(),
+                "Quality Improvement".to_string(),
+                "Population Health".to_string(),
+                "Clinical Research".to_string(),
+            ],
+            education_skills: vec![
+                "Curriculum Development".to_string(),
+                "Instructional Design".to_string(),
+                "Lesson Planning".to_string(),
+                "Classroom Management".to_string(),
+                "Learning Management System".to_string(),
+                "LMS".to_string(),
+                "E-Learning".to_string(),
+                "Assessment Design".to_string(),
+                "Adult Learning".to_string(),
+                "Training Delivery".to_string(),
+                "Facilitation".to_string(),
+                "Canvas".to_string(),
+                "Blackboard".to_string(),
+                "Articulate".to_string(),
+            ],
+            finance_skills: vec![
+                "Financial Modeling".to_string(),
+                "Budgeting".to_string(),
+                "Forecasting".to_string(),
+                "Variance Analysis".to_string(),
+                "GAAP".to_string(),
+                "SEC Reporting".to_string(),
+                "Audit".to_string(),
+                "Tax".to_string(),
+                "Revenue Recognition".to_string(),
+                "NetSuite".to_string(),
+                "QuickBooks".to_string(),
+                "SAP".to_string(),
+                "Month-end Close".to_string(),
+                "Financial Statements".to_string(),
+                "Accounts Payable".to_string(),
+                "Accounts Receivable".to_string(),
+            ],
+            operations_skills: vec![
+                "Program Management".to_string(),
+                "Project Management".to_string(),
+                "Process Improvement".to_string(),
+                "Change Management".to_string(),
+                "Risk Management".to_string(),
+                "Vendor Management".to_string(),
+                "Supply Chain".to_string(),
+                "Logistics".to_string(),
+                "Procurement".to_string(),
+                "Marketplace Operations".to_string(),
+                "Merchandising".to_string(),
+                "Fulfillment".to_string(),
+                "Commercial Reporting".to_string(),
+                "Partner Management".to_string(),
+                "Client Implementation".to_string(),
+                "Launch Operations".to_string(),
+                "Strategic Planning".to_string(),
+                "Resource Planning".to_string(),
+                "PMP".to_string(),
+                "Asana".to_string(),
+                "Monday.com".to_string(),
+                "Jira".to_string(),
+            ],
+            legal_skills: vec![
+                "Legal Research".to_string(),
+                "Contract Negotiation".to_string(),
+                "Contract Management".to_string(),
+                "Compliance".to_string(),
+                "Corporate Law".to_string(),
+                "Litigation".to_string(),
+                "Regulatory".to_string(),
+                "Intellectual Property".to_string(),
+                "Patent".to_string(),
+                "Employment Law".to_string(),
+                "Privacy Law".to_string(),
+                "Policy Review".to_string(),
+                "Privacy".to_string(),
+                "Legal Risk".to_string(),
+                "Due Diligence".to_string(),
+                "Westlaw".to_string(),
+                "LexisNexis".to_string(),
+            ],
+            creative_skills: vec![
+                "Graphic Design".to_string(),
+                "Brand Design".to_string(),
+                "Art Direction".to_string(),
+                "Creative Direction".to_string(),
+                "Video Production".to_string(),
+                "Video Editing".to_string(),
+                "Motion Graphics".to_string(),
+                "Photography".to_string(),
+                "Photo Editing".to_string(),
+                "Content Design".to_string(),
+                "Information Architecture".to_string(),
+                "Plain Language".to_string(),
+                "Readability".to_string(),
+                "Accessibility".to_string(),
+                "XML Authoring".to_string(),
+                "Adobe Creative Suite".to_string(),
+                "Photoshop".to_string(),
+                "Illustrator".to_string(),
+                "InDesign".to_string(),
+                "Premiere Pro".to_string(),
+                "After Effects".to_string(),
+                "Figma".to_string(),
+            ],
+            customer_success_skills: vec![
+                "Customer Success".to_string(),
+                "Customer Experience".to_string(),
+                "Customer Support".to_string(),
+                "Support Content".to_string(),
+                "Support Analytics".to_string(),
+                "Help Center".to_string(),
+                "Troubleshooting Messaging".to_string(),
+                "Source-of-Truth".to_string(),
+                "Onboarding".to_string(),
+                "Implementation".to_string(),
+                "Lifecycle Automation".to_string(),
+                "Renewal".to_string(),
+                "Retention".to_string(),
+                "Lifecycle".to_string(),
+                "Loyalty".to_string(),
+                "Personalization".to_string(),
+                "LTV".to_string(),
+                "Churn Prevention".to_string(),
+                "NPS".to_string(),
+                "CSAT".to_string(),
+                "Zendesk".to_string(),
+                "Intercom".to_string(),
+                "Gainsight".to_string(),
+                "ChurnZero".to_string(),
+                "Relationship Management".to_string(),
+            ],
         }
     }
 }
@@ -806,6 +1073,46 @@ mod tests {
             leadership_skill.skill_category,
             Some("soft_skill".to_string())
         );
+    }
+
+    #[test]
+    fn test_extract_role_specific_skills_for_broad_job_seekers() {
+        let extractor = SkillExtractor::new();
+        let resume_text = r#"
+        SKILLS
+        SEO, Content Strategy, Patient Care, Curriculum Development,
+        Financial Modeling, Contract Negotiation, Video Production,
+        Customer Success, Pipeline Management, Process Improvement,
+        Marketplace Operations, Lifecycle Automation, Product Marketing,
+        Help Center, Policy Review.
+        "#;
+
+        let skills = extractor.extract_skills(resume_text);
+
+        let category_for = |name: &str| {
+            skills
+                .iter()
+                .find(|skill| skill.skill_name == name)
+                .and_then(|skill| skill.skill_category.as_deref())
+        };
+
+        assert_eq!(category_for("SEO"), Some("marketing"));
+        assert_eq!(category_for("Patient Care"), Some("healthcare"));
+        assert_eq!(category_for("Curriculum Development"), Some("education"));
+        assert_eq!(category_for("Financial Modeling"), Some("finance"));
+        assert_eq!(category_for("Contract Negotiation"), Some("legal"));
+        assert_eq!(category_for("Video Production"), Some("creative"));
+        assert_eq!(category_for("Customer Success"), Some("customer_success"));
+        assert_eq!(category_for("Pipeline Management"), Some("sales"));
+        assert_eq!(category_for("Process Improvement"), Some("operations"));
+        assert_eq!(category_for("Marketplace Operations"), Some("operations"));
+        assert_eq!(
+            category_for("Lifecycle Automation"),
+            Some("customer_success")
+        );
+        assert_eq!(category_for("Product Marketing"), Some("marketing"));
+        assert_eq!(category_for("Help Center"), Some("customer_success"));
+        assert_eq!(category_for("Policy Review"), Some("legal"));
     }
 
     #[test]

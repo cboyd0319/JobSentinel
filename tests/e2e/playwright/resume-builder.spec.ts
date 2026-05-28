@@ -98,7 +98,7 @@ test.describe("Resume Builder Wizard", () => {
     await expect(page.getByText("Please write a summary")).toBeVisible();
     await resumeBuilder.expectStep(2, "Summary");
 
-    await resumeBuilder.completeSummary("Senior frontend engineer focused on accessible React and TypeScript product workflows.");
+    await resumeBuilder.completeSummary("Operations manager focused on clear process, customer handoffs, and team coordination.");
     await expect(page.getByRole("heading", { name: "Work Experience" })).toBeVisible();
     await expect(page.getByText("No work experience added yet")).toBeVisible();
   });
@@ -109,17 +109,17 @@ test.describe("Resume Builder Wizard", () => {
     await resumeBuilder.completeSummary();
 
     await resumeBuilder.addExperience({
-      title: "Lead Frontend Engineer",
-      company: "BrightByte",
+      title: "Senior Customer Success Manager",
+      company: "BrightPath",
       startDate: "Jan 2021",
       endDate: "Present",
       location: "Remote",
-      achievements: ["Led design system migration", "Cut bundle size by 35%"],
+      achievements: ["Improved onboarding completion by 22%", "Reduced renewal handoff time by 35%"],
     });
 
-    await expect(page.getByText("Lead Frontend Engineer")).toBeVisible();
-    await expect(page.getByText("BrightByte")).toBeVisible();
-    await expect(page.getByText("Led design system migration")).toBeVisible();
+    await expect(page.getByText("Senior Customer Success Manager")).toBeVisible();
+    await expect(page.getByText("BrightPath")).toBeVisible();
+    await expect(page.getByText("Improved onboarding completion by 22%")).toBeVisible();
     await expect(page.getByRole("button", { name: "Delete experience" })).toBeVisible();
   });
 
@@ -130,24 +130,24 @@ test.describe("Resume Builder Wizard", () => {
     await resumeBuilder.completeExperience();
 
     await resumeBuilder.addEducation({
-      degree: "B.S. Software Engineering",
+      degree: "B.A. Business Administration",
       institution: "State University",
       graduationDate: "May 2020",
       gpa: "3.9",
       location: "Denver, CO",
       honors: ["Dean's List"],
     });
-    await expect(page.getByText("B.S. Software Engineering")).toBeVisible();
+    await expect(page.getByText("B.A. Business Administration")).toBeVisible();
     await expect(page.getByText("State University")).toBeVisible();
 
     await resumeBuilder.goNext(5, "Skills");
     await resumeBuilder.addSkill({
-      name: "React",
-      category: "Frontend",
+      name: "Project Management",
+      category: "Operations",
       proficiency: "expert",
     });
-    await expect(page.getByText("React")).toBeVisible();
-    await expect(page.getByText("Frontend")).toBeVisible();
+    await expect(page.getByText("Project Management")).toBeVisible();
+    await expect(page.getByText("Operations")).toBeVisible();
     await expect(page.getByText("expert", { exact: true }).last()).toBeVisible();
   });
 

@@ -1101,7 +1101,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                   rows={6}
                   aria-describedby="summary-hint"
                   className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 resize-none"
-                  placeholder="Experienced software engineer with 5+ years building scalable web applications. Specialized in React, TypeScript, and cloud infrastructure. Proven track record of leading cross-functional teams and delivering high-impact projects."
+                  placeholder="Customer success manager with 5+ years improving onboarding, renewals, and customer experience. Known for clear communication, strong follow-through, and practical process improvements."
                 />
                 <p id="summary-hint" className="text-xs text-surface-500 dark:text-surface-400 mt-2">
                   {summary.length} characters (minimum 10)
@@ -1326,7 +1326,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                     value={newSkill.name}
                     onChange={(e) => setNewSkill({ ...newSkill, name: e.target.value })}
                     className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                    placeholder="React"
+                    placeholder="Project Management"
                   />
                 </div>
                 <div>
@@ -1338,7 +1338,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                     value={newSkill.category}
                     onChange={(e) => setNewSkill({ ...newSkill, category: e.target.value })}
                     className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                    placeholder="Frontend"
+                    placeholder="Operations"
                   />
                 </div>
                 <div>
@@ -1662,7 +1662,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                     setEditingExperience({ ...editingExperience, title: e.target.value })
                   }
                   className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                  placeholder="Senior Software Engineer"
+                  placeholder="Marketing Manager"
                 />
               </div>
               <div className="col-span-2">
@@ -1744,7 +1744,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                   }
                   rows={4}
                   className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 resize-none"
-                  placeholder="Led team of 5 engineers&#10;Increased performance by 40%&#10;Shipped 3 major features"
+                  placeholder="Improved renewal rate by 18%&#10;Built onboarding checklist for new customers&#10;Trained 12 teammates on support workflows"
                 />
               </div>
             </div>
@@ -1783,7 +1783,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                     setEditingEducation({ ...editingEducation, degree: e.target.value })
                   }
                   className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                  placeholder="B.S. Computer Science"
+                  placeholder="B.A. Business Administration"
                 />
               </div>
               <div className="col-span-2">
@@ -1925,16 +1925,16 @@ function TemplateThumbnail({ templateId }: { templateId: TemplateId }) {
       <div className="w-full h-full bg-white dark:bg-surface-800 p-2 text-[4px] leading-tight">
         <div className="text-center mb-1">
           <div className="font-bold">JOHN DOE</div>
-          <div className="text-surface-500">Software Engineer</div>
+          <div className="text-surface-500">Marketing Manager</div>
         </div>
         <div className="space-y-1">
           <div className="border-t border-surface-300 dark:border-surface-600 pt-1">
             <div className="font-semibold">EXPERIENCE</div>
-            <div className="text-surface-600 dark:text-surface-400">Senior Engineer • 2020-2024</div>
+            <div className="text-surface-600 dark:text-surface-400">Content Lead • 2020-2024</div>
           </div>
           <div className="border-t border-surface-300 dark:border-surface-600 pt-1">
             <div className="font-semibold">EDUCATION</div>
-            <div className="text-surface-600 dark:text-surface-400">B.S. Computer Science</div>
+            <div className="text-surface-600 dark:text-surface-400">B.A. Communications</div>
           </div>
         </div>
       </div>
@@ -1943,16 +1943,16 @@ function TemplateThumbnail({ templateId }: { templateId: TemplateId }) {
       <div className="w-full h-full bg-gradient-to-br from-sentinel-50 to-white dark:from-surface-800 dark:to-surface-900 p-2 text-[4px] leading-tight">
         <div className="bg-sentinel-600 text-white p-1 mb-1">
           <div className="font-bold">JOHN DOE</div>
-          <div>Software Engineer</div>
+          <div>Operations Manager</div>
         </div>
         <div className="space-y-1 px-1">
           <div>
             <div className="font-semibold text-sentinel-600">Experience</div>
-            <div className="text-surface-600 dark:text-surface-400">Senior Engineer</div>
+            <div className="text-surface-600 dark:text-surface-400">Program Manager</div>
           </div>
           <div>
             <div className="font-semibold text-sentinel-600">Education</div>
-            <div className="text-surface-600 dark:text-surface-400">Computer Science</div>
+            <div className="text-surface-600 dark:text-surface-400">Business Administration</div>
           </div>
         </div>
       </div>
@@ -1961,12 +1961,12 @@ function TemplateThumbnail({ templateId }: { templateId: TemplateId }) {
       <div className="w-full h-full bg-surface-900 text-surface-100 p-2 text-[4px] leading-tight font-mono">
         <div className="border-l-2 border-success pl-1 mb-1">
           <div className="font-bold text-success">$ whoami</div>
-          <div>JOHN DOE - Software Engineer</div>
+          <div>JOHN DOE - Data Analyst</div>
         </div>
         <div className="space-y-1">
           <div className="border-l-2 border-surface-600 pl-1">
             <div className="text-warning">./experience</div>
-            <div className="text-surface-400">Senior Engineer</div>
+            <div className="text-surface-400">Analytics Lead</div>
           </div>
           <div className="border-l-2 border-surface-600 pl-1">
             <div className="text-warning">./education</div>
@@ -1980,13 +1980,13 @@ function TemplateThumbnail({ templateId }: { templateId: TemplateId }) {
         <div className="border-b-2 border-surface-800 dark:border-surface-200 pb-1 mb-1">
           <div className="font-bold text-lg">JOHN DOE</div>
           <div className="text-surface-600 dark:text-surface-400 italic">
-            Chief Technology Officer
+            Chief Operations Officer
           </div>
         </div>
         <div className="grid grid-cols-2 gap-1">
           <div>
             <div className="font-semibold uppercase tracking-wider">Experience</div>
-            <div className="text-surface-600 dark:text-surface-400">CTO • 2020-2024</div>
+            <div className="text-surface-600 dark:text-surface-400">COO • 2020-2024</div>
           </div>
           <div>
             <div className="font-semibold uppercase tracking-wider">Education</div>
@@ -2000,19 +2000,19 @@ function TemplateThumbnail({ templateId }: { templateId: TemplateId }) {
         <div className="border-4 border-surface-800 dark:border-surface-200 p-1 mb-1">
           <div className="text-center font-bold">DOE, JOHN A.</div>
           <div className="text-center text-surface-600 dark:text-surface-400">
-            SOFTWARE ENGINEER
+            LOGISTICS MANAGER
           </div>
         </div>
         <div className="space-y-1">
           <div className="border border-surface-300 dark:border-surface-600 p-1">
             <div className="font-semibold">PROFESSIONAL EXPERIENCE</div>
             <div className="text-surface-600 dark:text-surface-400">
-              Senior Software Engineer
+              Logistics Manager
             </div>
           </div>
           <div className="border border-surface-300 dark:border-surface-600 p-1">
             <div className="font-semibold">EDUCATION & TRAINING</div>
-            <div className="text-surface-600 dark:text-surface-400">B.S. Computer Science</div>
+            <div className="text-surface-600 dark:text-surface-400">Operations Leadership</div>
           </div>
         </div>
       </div>

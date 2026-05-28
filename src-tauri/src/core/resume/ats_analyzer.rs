@@ -468,7 +468,7 @@ impl AtsAnalyzer {
             issues.push(FormatIssue {
                 severity: IssueSeverity::Critical,
                 issue: "No skills listed".to_string(),
-                fix: "Add a skills section with relevant technical and soft skills".to_string(),
+                fix: "Add a skills section with relevant technical, workplace, and role-specific skills".to_string(),
             });
         } else if skills.len() < 5 {
             issues.push(FormatIssue {

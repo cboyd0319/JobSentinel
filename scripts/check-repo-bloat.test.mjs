@@ -261,6 +261,58 @@ test("checkRepoBloat rejects source release version promises", () => {
   });
 });
 
+test("checkRepoBloat rejects engineer-first audience examples", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/pages/Salary.tsx",
+      '<Input placeholder="e.g., Senior Software Engineer" />\n',
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/resume-matcher.md",
+      [
+        "JobSentinel extracts technical and soft skills.",
+        "- **Skill Extraction** - Identify 200+ technical skills across 6 categories",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/user/QUICK_START.md",
+      ['Type in job titles that match what you want. Examples:', '- "Software Engineer"', ""].join(
+        "\n",
+      ),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src/pages/Salary.tsx",
+        "docs/features/resume-matcher.md",
+        "docs/user/QUICK_START.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of [
+      "src/pages/Salary.tsx",
+      "docs/features/resume-matcher.md",
+      "docs/user/QUICK_START.md",
+    ]) {
+      assert.ok(
+        violations.includes(`replace engineer-first audience example: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
 test("checkRepoBloat rejects frontend status emoji markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

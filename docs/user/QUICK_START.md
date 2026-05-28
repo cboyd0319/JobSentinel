@@ -85,10 +85,11 @@ The first time you open JobSentinel, a friendly wizard walks you through 4 simpl
 
 Type in job titles that match what you want. Examples:
 
-- "Software Engineer"
-- "Product Manager"
-- "Data Analyst"
 - "Marketing Manager"
+- "Registered Nurse"
+- "Customer Success Manager"
+- "Project Manager"
+- "Software Engineer"
 
 **Tip:** You can add multiple titles. The more specific you are, the better your matches.
 

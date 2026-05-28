@@ -141,7 +141,7 @@ export default function Salary({ onBack }: SalaryProps) {
                 label="Job Title"
                 value={jobTitle}
                 onChange={(e) => setJobTitle(e.target.value)}
-                placeholder="e.g., Senior Software Engineer"
+                placeholder="e.g., Registered Nurse"
               />
 
               <Input

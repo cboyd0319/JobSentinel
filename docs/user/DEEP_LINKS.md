@@ -61,7 +61,7 @@ open it in your browser with the search ready to go.
 ### Basic Search
 
 1. Go to the Deep Links page
-2. Enter your job title or keywords (e.g., "Software Engineer")
+2. Enter your job title or keywords (e.g., "Marketing Manager")
 3. Optionally enter a location (e.g., "San Francisco, CA" or "Remote")
 4. Optionally choose a job type or work mode
 5. Click "Generate Deep Links"
@@ -69,11 +69,11 @@ open it in your browser with the search ready to go.
 
 ### Example Searches
 
-**Software Engineer in San Francisco**
+**Marketing Manager in Chicago**
 
 ```text
-Job Title: Software Engineer
-Location: San Francisco, CA
+Job Title: Marketing Manager
+Location: Chicago, IL
 ```
 
 **Remote Product Manager**

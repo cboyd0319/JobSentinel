@@ -56,10 +56,10 @@ Add your degrees:
 
 ### Step 5: Skills
 
-List your technical and soft skills:
+List skills that match the jobs you want:
 
-- **Technical:** Python, AWS, Kubernetes, SQL, etc.
-- **Soft skills:** Leadership, communication, project management
+- **Role-specific:** Content Strategy, Patient Care, Contract Negotiation, SQL
+- **Workplace:** Leadership, communication, project management
 - Include proficiency levels if you want (expert, intermediate, etc.)
 
 ### Step 6: Preview
