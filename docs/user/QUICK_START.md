@@ -89,7 +89,7 @@ Type in job titles that match what you want. Examples:
 - "Registered Nurse"
 - "Customer Success Manager"
 - "Project Manager"
-- "Software Engineer"
+- "Bookkeeper"
 
 **Tip:** You can add multiple titles. The more specific you are, the better your matches.
 
@@ -111,8 +111,8 @@ Not sure? Start with $0 to see everything, then raise it later.
 
 Connect Slack, Discord, or Teams to get notified when great jobs appear.
 
-Don't know what a webhook is? No problem — it's just a special URL that lets JobSentinel
-send messages to these apps. Skip this for now and add it later in Settings if you want.
+Some apps ask you to create a connection link so JobSentinel can send messages
+there. Skip this for now and add it later in Settings if you want.
 
 ---
 

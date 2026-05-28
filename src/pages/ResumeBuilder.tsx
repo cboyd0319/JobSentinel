@@ -447,7 +447,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
       toast.error(
         enhanced.userFriendly?.title || "Resume builder unavailable",
-        enhanced.userFriendly?.message || "Couldn't start the resume builder. Try restarting the app or check if the database is accessible."
+        enhanced.userFriendly?.message || "Couldn't start the resume builder. Try restarting JobSentinel."
       );
     } finally {
       setLoading(false);

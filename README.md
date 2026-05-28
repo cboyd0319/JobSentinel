@@ -162,9 +162,10 @@ common scraper HTTP client.
 | Remote and startup boards | RemoteOK, WeWorkRemotely, BuiltIn, YC Startup Jobs |
 | Community and specialized feeds | HN Who's Hiring, JobsWithGPT, USAJobs |
 
-Some sources need setup. LinkedIn uses your own session cookie and stores it in
-the OS keyring. USAJobs uses a free API key. JobSentinel reports scraper health
-so you can see when a source is healthy, degraded, or blocked.
+Some sources need setup. LinkedIn uses your own sign-in session and stores it in
+your computer's password vault. USAJobs uses a free access code. JobSentinel
+reports source health so you can see when a source is healthy, degraded, or
+blocked.
 
 Read the full [scraper guide](docs/features/scrapers.md) and
 [scraper health docs](docs/features/scraper-health.md).
@@ -470,12 +471,11 @@ Submit yourself.
 </details>
 
 <details>
-<summary><strong>Where is my database?</strong></summary>
+<summary><strong>Where is my data stored?</strong></summary>
 <br>
 
 JobSentinel stores app data in the standard app-data location for your platform.
-See [developer setup](docs/developer/GETTING_STARTED.md#database) for exact
-paths.
+See [quick start](docs/user/QUICK_START.md#wheres-my-data) for exact paths.
 
 </details>
 

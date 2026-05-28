@@ -530,7 +530,7 @@ export default function Settings({ onClose }: SettingsProps) {
       }
     }
 
-    // Tech/Developer keywords
+    // Software/startup keywords
     if (
       keywords.some(
         (k) =>
@@ -542,7 +542,7 @@ export default function Settings({ onClose }: SettingsProps) {
       if (!config?.hn_hiring?.enabled) {
         recommendations.push({
           board: "HN Who's Hiring",
-          reason: "Popular with tech companies",
+          reason: "Active monthly hiring threads",
           enable: () =>
             setConfig({
               ...config!,

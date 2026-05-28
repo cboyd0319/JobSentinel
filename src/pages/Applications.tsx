@@ -791,7 +791,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
                       logError("Failed to update status:", err);
                       toast.error(
                         "Status update failed",
-                        "The application status wasn't changed. Try again, or check if the database is accessible."
+                        "The application status wasn't changed. Try again or restart JobSentinel."
                       );
                     }
                   }}

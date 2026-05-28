@@ -397,6 +397,15 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
+      "README.md",
+      [
+        "USAJobs uses a free API key.",
+        "<summary><strong>Where is my database?</strong></summary>",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/pages/Resume.tsx",
       '<Button>Import JSON Resume</Button><p>Your JSON Resume has been imported</p>\n',
     );
@@ -471,11 +480,22 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         '"Invalid Discord webhook"',
         '"Paste your Discord webhook URL"',
         '"This doesn\'t look like a valid Teams webhook URL"',
+        '"Popular with tech companies"',
         '"Get Free API Key"',
         '"Paste your API key here"',
         '"Required by USAJobs API"',
         "",
       ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Applications.tsx",
+      '"Try again, or check if the database is accessible."\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/ResumeBuilder.tsx",
+      '"Try restarting the app or check if the database is accessible."\n',
     );
     writeFixtureFile(
       root,
@@ -538,6 +558,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       root,
       "docs/user/QUICK_START.md",
       [
+        "Don't know what a webhook is? No problem -- it's just a special URL that lets JobSentinel",
         "**Database:** Your job matches and settings",
         "**Credentials:** Passwords and API tokens are stored in your OS's secure vault",
         "",
@@ -549,8 +570,11 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       [
         "add",
         "package.json",
+        "README.md",
         "src/pages/Resume.tsx",
         "src/pages/ResumeOptimizer.tsx",
+        "src/pages/Applications.tsx",
+        "src/pages/ResumeBuilder.tsx",
         "src/pages/Settings.tsx",
         "src/pages/SetupWizard.tsx",
         "src/components/ErrorBoundary.tsx",
@@ -576,6 +600,8 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     for (const path of [
       "src/pages/Resume.tsx",
       "src/pages/ResumeOptimizer.tsx",
+      "src/pages/Applications.tsx",
+      "src/pages/ResumeBuilder.tsx",
       "src/pages/Settings.tsx",
       "src/pages/SetupWizard.tsx",
       "src/components/ErrorBoundary.tsx",
@@ -587,6 +613,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/components/feedback/SuccessScreen.tsx",
       "src/utils/formValidation.ts",
       "src/utils/errorMessages.ts",
+      "README.md",
       "docs/features/notifications.md",
       "docs/features/one-click-apply.md",
       "docs/features/scrapers.md",

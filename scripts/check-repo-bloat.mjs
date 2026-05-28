@@ -415,6 +415,7 @@ const resumeTemplateAudiencePaths = new Set([
   "docs/features/resume-builder.md",
 ]);
 const technicalFirstUserCopyPaths = new Set([
+  "README.md",
   "src/components/ErrorBoundary.tsx",
   "src/components/ErrorLogPanel.tsx",
   "src/components/JobImportModal.tsx",
@@ -424,6 +425,8 @@ const technicalFirstUserCopyPaths = new Set([
   "src/components/feedback/SuccessScreen.tsx",
   "src/pages/Resume.tsx",
   "src/pages/ResumeOptimizer.tsx",
+  "src/pages/Applications.tsx",
+  "src/pages/ResumeBuilder.tsx",
   "src/pages/Settings.tsx",
   "src/pages/SetupWizard.tsx",
   "src/utils/errorMessages.ts",
@@ -996,6 +999,7 @@ function hasEngineerFirstAudienceExamples(root, path) {
     /Technical and professional skills/i,
     /Enter your job title or keywords \(e\.g\., "Software Engineer"\)/i,
     /jobs\/software-engineer/i,
+    /^- "Software Engineer"$/m,
     /Examples:\s*\n\s*- "Software Engineer"/i,
     /^\*\*Software Engineer in San Francisco\*\*$/m,
   ];
@@ -1094,6 +1098,12 @@ function hasTechnicalFirstUserCopy(root, path) {
     /Missing fields/i,
     /Change URL/i,
     /["'`]Import Job["'`]/i,
+    /USAJobs uses a free API key/i,
+    /Where is my database/i,
+    /Don't know what a webhook is/i,
+    /special URL that lets JobSentinel/i,
+    /check if the database is accessible/i,
+    /Popular with tech companies/i,
     /Get Free API Key/i,
     /Copy the API key from your email/i,
     /Copy API key from confirmation email/i,
