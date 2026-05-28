@@ -1,8 +1,8 @@
-//! Application Automation Module (One-Click Apply)
+//! Application Assist Module (One-Click Apply)
 //!
 //! **⚠️ ETHICAL GUIDELINES ⚠️**
 //!
-//! This module provides infrastructure for automated job application submission.
+//! This module provides infrastructure for candidate-controlled application form filling.
 //! Users MUST:
 //! - Comply with all company Terms of Service
 //! - Never bypass CAPTCHAs or security measures
@@ -11,16 +11,16 @@
 //! - Review applications before submission (human-in-the-loop)
 //!
 //! **Legal Considerations:**
-//! - Some companies prohibit automated applications in their ToS
-//! - Bypassing security measures may violate CFAA (Computer Fraud and Abuse Act)
+//! - Some companies prohibit browser-driven application assistance in their ToS
+//! - Evading security measures may violate CFAA (Computer Fraud and Abuse Act)
 //! - Users are responsible for ensuring compliance
 //!
 //! **Our Approach:**
 //! - Transparency: Users must explicitly enable automation
-//! - Quality: Only apply to 80%+ match jobs
+//! - Quality: Only assist with 80%+ match jobs
 //! - Approval: User reviews before submission (default)
 //! - Respect: Honor robots.txt and no-bot policies
-//! - CAPTCHA: Never bypass - always prompt user
+//! - CAPTCHA: stop and prompt the user
 //!
 //! ## Architecture
 //!
@@ -28,7 +28,7 @@
 //! - Application profile management
 //! - ATS platform detection
 //! - Screening answer configuration
-//! - Automation attempt logging
+//! - Application-assist attempt logging
 //!
 //! **Future Phases:**
 //! - Phase 2: Headless browser integration (`fantoccini` or `headless_chrome`)

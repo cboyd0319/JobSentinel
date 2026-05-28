@@ -152,7 +152,7 @@ Some sites show CAPTCHAs to verify you're human. When JobSentinel detects one:
 2. You complete the CAPTCHA manually
 3. Continue with the rest of the form
 
-This is normal and expected - JobSentinel intentionally doesn't bypass human verification.
+This is normal and expected. JobSentinel leaves human verification to you.
 
 ---
 
@@ -161,7 +161,7 @@ This is normal and expected - JobSentinel intentionally doesn't bypass human ver
 ### Rate Limiting
 
 By default, you can only fill 10 applications per day. This prevents accidentally
-mass-applying to jobs you don't want.
+filling forms for jobs you do not want.
 
 Change this in Settings if you need more.
 
@@ -214,7 +214,7 @@ that's normal.
 ### What We Don't Do
 
 - Never bypass CAPTCHAs or security measures
-- Never auto-submit applications
+- Keep every final submit manual
 - Never scrape or store your application data
 - Never share your profile information
 

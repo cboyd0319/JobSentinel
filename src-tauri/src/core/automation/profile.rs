@@ -1,6 +1,6 @@
 //! Application Profile Management
 //!
-//! Manages user profile information for automated job applications.
+//! Manages user profile information for candidate-controlled application help.
 
 use crate::core::ats::parse_sqlite_datetime;
 use anyhow::Result;

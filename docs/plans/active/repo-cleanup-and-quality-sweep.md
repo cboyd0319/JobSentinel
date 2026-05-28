@@ -132,6 +132,8 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-28 | In progress | Added grant-facing front-door docs: root roadmap organized by the six design pillars, root privacy policy, responsible-AI boundaries, and condensed research briefs for job-seeker behavior, ATS transparency, ghost jobs, job-site data sources, pay equity, and salary negotiation; added bloat coverage requiring those docs in the main repo. |
+| 2026-05-28 | In progress | Locked the README product definition to open-source, local-first, real/relevant/fairly compensated work under user control; replaced banned job-search framing around ATS tricks, LinkedIn extraction, algorithm gaming, bulk applying, and application automation with ATS transparency, candidate-side explainability, application readability, official-source job monitoring, ghost-job detection, salary transparency, pay-equity support, and privacy-preserving job search; added bloat coverage for recurrence. |
 | 2026-05-28 | In progress | Reframed ghost/posting-risk UI and maintained docs away from fake/real verdict language toward stale, low-trust, needs-review, and verify-before-tailoring guidance; added bloat coverage for overconfident ghost-risk copy. |
 | 2026-05-28 | In progress | Promoted ghost-job protection, pay-equity safeguards, long-term-unemployment support, bias-aware application routes, protective tone, and local-first privacy into active goal and plan requirements. |
 | 2026-05-28 | In progress | Reworded Settings, score-breakdown, feedback-preview, and mock debug report search matching copy from keyword jargon to plain search-word language, with component/page tests and bloat coverage. |

@@ -32,7 +32,10 @@ const allowedRootEntries = new Set([
   "CLAUDE.md",
   "CODE_OF_CONDUCT.md",
   "LICENSE",
+  "PRIVACY.md",
   "README.md",
+  "RESPONSIBLE_AI.md",
+  "ROADMAP.md",
   "SECURITY.md",
   "config",
   "docs",
@@ -54,6 +57,18 @@ const allowedRootEntries = new Set([
   "tsconfig.node.json",
   "vite.config.ts",
   "vitest.config.ts",
+]);
+
+const requiredGrantFacingDocs = new Set([
+  "PRIVACY.md",
+  "RESPONSIBLE_AI.md",
+  "ROADMAP.md",
+  "docs/research/job-seeker-behavior.md",
+  "docs/research/ats-transparency.md",
+  "docs/research/ghost-jobs.md",
+  "docs/research/job-site-data-sources.md",
+  "docs/research/pay-equity.md",
+  "docs/research/salary-negotiation.md",
 ]);
 
 const allowedTrackedGeneratedPaths = new Set([
@@ -465,6 +480,33 @@ const overconfidentGhostCopyPaths = new Set([
   "src/pages/DashboardUI/DashboardFiltersBar.tsx",
   "src/pages/Settings.tsx",
 ]);
+const productFramingTextExtensions = new Set([
+  ".css",
+  ".html",
+  ".js",
+  ".json",
+  ".md",
+  ".mjs",
+  ".rs",
+  ".toml",
+  ".ts",
+  ".tsx",
+  ".yaml",
+  ".yml",
+]);
+const requiredReadmeProductDefinition =
+  "JobSentinel is an open-source, local-first job-search assistant for finding real, relevant, fairly compensated work while keeping sensitive job-search data under user control.";
+const forbiddenJobSearchFramingPatterns = [
+  new RegExp(["bypass", "\\s+", "ATS"].join(""), "i"),
+  new RegExp(["ATS", "[-\\s]+", "bypass"].join(""), "i"),
+  new RegExp(["scrape", "\\s+", "LinkedIn"].join(""), "i"),
+  new RegExp(["beat", "\\s+", "the", "\\s+", "(?:algorithm|ATS)"].join(""), "i"),
+  new RegExp(["mass", "[-\\s]+", "(?:apply|applying)"].join(""), "i"),
+  new RegExp(["automate", "\\s+", "applications"].join(""), "i"),
+  new RegExp(["automated", "\\s+", "(?:job", "\\s+)?", "applications"].join(""), "i"),
+  new RegExp(["automating", "\\s+", "applications"].join(""), "i"),
+  new RegExp(["auto", "[-\\s]+", "submit", "\\s+", "applications"].join(""), "i"),
+];
 const backendScoringReasonPaths = new Set([
   "src-tauri/src/core/resume/matcher.rs",
   "src-tauri/src/core/scoring/mod.rs",
@@ -506,6 +548,14 @@ const developerLayoutDocGlyphPaths = new Set([
 
 function readPackageManifest(root) {
   return JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+}
+
+function isJobSentinelProject(root) {
+  try {
+    return readPackageManifest(root).name === "jobsentinel";
+  } catch {
+    return false;
+  }
 }
 
 function normalizeRepoPath(path) {
@@ -997,6 +1047,32 @@ function hasSourceReleaseVersionPromise(root, path) {
   return /(?:Coming in v\d+\.\d+|planned for v\d+\.\d+)/i.test(
     readFileSync(join(root, path), "utf8"),
   );
+}
+
+function hasMissingReadmeProductDefinition(root, path) {
+  if (path !== "README.md") {
+    return false;
+  }
+
+  const normalizedText = readFileSync(join(root, path), "utf8").replace(/\s+/g, " ");
+  return !normalizedText.includes(requiredReadmeProductDefinition);
+}
+
+function isJobSearchProductTextPath(path) {
+  if (path === "package-lock.json" || path === "src-tauri/Cargo.lock") {
+    return false;
+  }
+
+  return productFramingTextExtensions.has(extname(path));
+}
+
+function hasForbiddenJobSearchFraming(root, path) {
+  if (!isJobSearchProductTextPath(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return forbiddenJobSearchFramingPatterns.some((pattern) => pattern.test(text));
 }
 
 function hasEngineerFirstAudienceExamples(root, path) {
@@ -3049,6 +3125,14 @@ export function checkRepoBloat(root = defaultRoot) {
     return [`repo root does not exist: ${root}`];
   }
 
+  if (isJobSentinelProject(root)) {
+    for (const path of requiredGrantFacingDocs) {
+      if (!existsSync(join(root, path))) {
+        violations.push(`add required grant-facing doc: ${path}`);
+      }
+    }
+  }
+
   for (const rootEntry of collectUnexpectedRootEntries(root)) {
     violations.push(`classify root entry or move/remove it: ${rootEntry}`);
   }
@@ -3164,6 +3248,14 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasSourceReleaseVersionPromise(root, path)) {
       violations.push(`replace source release version promises: ${path}`);
+    }
+
+    if (hasMissingReadmeProductDefinition(root, path)) {
+      violations.push(`add required README product definition: ${path}`);
+    }
+
+    if (hasForbiddenJobSearchFraming(root, path)) {
+      violations.push(`replace banned job-search framing: ${path}`);
     }
 
     if (

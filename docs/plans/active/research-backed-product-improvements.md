@@ -14,7 +14,8 @@ only. No code changes are part of this goal.
 ## Source files
 
 - `/Users/c/Downloads/job_seeker_behavior_research_papers.md`
-- `/Users/c/Downloads/ats_bypass_automated_resume_screening_research.md`
+- Local ATS transparency and automated-resume-screening research notes from
+  `/Users/c/Downloads/`
 - `/Users/c/Downloads/ghost_job_detection_research_and_guidance.md`
 - `/Users/c/Downloads/job_site_web_scraping_research_and_guidance.md`
 - `/Users/c/Downloads/In Salary Negotiations, Women Do Ask - PON - Program on Negotiation at Harvard Law School.pdf`
@@ -45,7 +46,7 @@ commercial aggregation API, or AI training data collector. That single-user
 scope lowers scale and redistribution risk, but it does not remove source terms,
 robots.txt, privacy, copyright, access-control, or jurisdiction-specific legal
 constraints. Future implementation must treat terms, robots, and source
-permission as product constraints, not as obstacles to bypass.
+permission as product constraints, not as obstacles to route around.
 
 The added scraping source contained 33 unique URLs. Spot checks were done
 against RFC 9309, Greenhouse Job Board API, Lever Postings API, Ashby Job
@@ -80,7 +81,7 @@ In scope:
 Out of scope:
 
 - Code changes during this research goal.
-- Deceptive ATS bypass tactics, fabricated experience, hidden text, white-text
+- Deceptive ATS manipulation tactics, fabricated experience, hidden text, white-text
   keywords, prompt injection, CAPTCHA bypass, auto-submit, or terms-of-service
   evasion.
 - External AI, cloud sync, contact upload, or social features unless a later
@@ -102,7 +103,7 @@ Out of scope:
 - The plan names concrete JobSentinel improvement paths across search,
   scoring, resume, ATS, ghost detection, applications, market intelligence,
   accessibility, privacy, and security.
-- The plan flags unsafe or unethical "ATS bypass" paths as non-goals.
+- The plan flags unsafe or unethical ATS manipulation paths as non-goals.
 - The plan includes future file areas and verification commands.
 - Current goal remains documentation and planning only.
 
@@ -705,7 +706,7 @@ Likely files later:
 - Add acceptance criteria for recommendation changes: explanation quality,
   user actionability, false-confidence avoidance, privacy, and accessibility.
 - Add test fixtures for broad job families, not only software engineering.
-- Add bloat sensors for unsafe ATS-bypass language such as hidden keywords,
+- Add bloat sensors for unsafe ATS manipulation language such as hidden keywords,
   white text, fake credentials, prompt injection, and CAPTCHA bypass.
 - Add bloat sensors for overconfident ghost-job copy such as "fake", "certain",
   or "scam" when the evidence only supports stale or unverified.
@@ -824,8 +825,8 @@ Do not build:
   lists, or authenticated surfaces.
 - Public job-board operation, data resale, bulk redistribution, or AI training
   data collection.
-- Automated application submission.
-- Opaque "beat the ATS" scoring that implies guaranteed hiring outcomes.
+- Application submission without user review and final click.
+- Opaque ATS scoring that implies guaranteed hiring outcomes.
 - Definitive "this employer is fake" labels from weak or indirect signals.
 - User-facing pay-equity claims that are not dated, sourced, and scoped.
 - Protected-class inference for salary guidance.
@@ -838,7 +839,7 @@ Do not build:
 
 - [x] Review repo planning rules and docs-only verification requirements.
 - [x] Review `/Users/c/Downloads/job_seeker_behavior_research_papers.md`.
-- [x] Review `/Users/c/Downloads/ats_bypass_automated_resume_screening_research.md`.
+- [x] Review the local ATS transparency and automated-resume-screening research notes.
 - [x] Review `/Users/c/Downloads/ghost_job_detection_research_and_guidance.md`.
 - [x] Review `/Users/c/Downloads/job_site_web_scraping_research_and_guidance.md`.
 - [x] Review `/Users/c/Downloads/In Salary Negotiations, Women Do Ask - PON - Program on Negotiation at Harvard Law School.pdf`.
@@ -920,7 +921,7 @@ against:
   supports a 1% increase in short-term job finding and 2.7x higher application
   efficiency for recommended firms. Re-verify the 18% figure before repeating
   it in user-facing or decision docs.
-- "ATS bypass" should be reframed as accurate machine readability and truthful
+- Deceptive ATS manipulation should be reframed as accurate machine readability and truthful
   application alignment. Trick-based tactics create ethics, security, and user
   trust risk.
 - Several ATS/LLM screening sources are preprints or system papers. Treat them

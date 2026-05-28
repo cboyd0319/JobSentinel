@@ -261,6 +261,74 @@ test("checkRepoBloat rejects source release version promises", () => {
   });
 });
 
+test("checkRepoBloat requires README product definition", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "README.md", "# JobSentinel\n\nLocal job search app.\n");
+
+    execFileSync("git", ["add", "README.md"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("add required README product definition: README.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat requires grant-facing docs in the main repo", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", '{ "name": "jobsentinel" }\n');
+    execFileSync("git", ["add", "package.json"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("add required grant-facing doc: PRIVACY.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("add required grant-facing doc: RESPONSIBLE_AI.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("add required grant-facing doc: docs/research/pay-equity.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects banned job-search framing", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/application-positioning.md",
+      [
+        ["bypass", "ATS"].join(" "),
+        ["scrape", "LinkedIn"].join(" "),
+        ["beat", "the", "algorithm"].join(" "),
+        ["mass", "apply"].join(" "),
+        ["automate", "applications"].join(" "),
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/features/application-positioning.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace banned job-search framing: docs/features/application-positioning.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects engineer-first audience examples", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

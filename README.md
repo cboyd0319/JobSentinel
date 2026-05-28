@@ -4,10 +4,24 @@
 
 # JobSentinel
 
-**A friendly local assistant for finding better jobs without giving up your data.**
+**JobSentinel is an open-source, local-first job-search assistant for finding real,
+relevant, fairly compensated work while keeping sensitive job-search data under user
+control.**
 
-JobSentinel watches job boards for you, ranks new roles by fit, warns you about
-stale postings, and keeps your search organized on your own computer.
+JobSentinel watches job sources for you, ranks new roles by fit, warns you
+about stale postings, and keeps your search organized on your own computer.
+
+<p align="center">
+  <strong>Who it helps:</strong> job seekers in technical and non-technical roles,
+  including unemployed workers, career changers, and people protecting salary floors.
+  <br>
+  <strong>Different by design:</strong> ghost-job detection, ATS transparency,
+  pay-equity support, official-source job monitoring, and privacy-first local control.
+</p>
+
+Core thesis: job search software should protect time, pay, dignity, and private
+data. JobSentinel centers candidate-side explainability, application readability,
+salary transparency, pay-equity support, and privacy-preserving job search.
 
 <br>
 
@@ -25,8 +39,9 @@ stale postings, and keeps your search organized on your own computer.
   <img src="https://img.shields.io/badge/Desktop-Tauri_2-2563eb?style=for-the-badge" alt="Tauri 2 desktop app">
 </p>
 
-[Get started](#get-started) | [See screenshots](#see-it-in-action) |
-[Privacy model](#privacy-model) | [Developer setup](#build-from-source)
+[Get started](#get-started) | [Roadmap](ROADMAP.md) |
+[Research](docs/research/job-seeker-behavior.md) | [Privacy](PRIVACY.md) |
+[Responsible AI](RESPONSIBLE_AI.md) | [Developer setup](#build-from-source)
 
 </div>
 
@@ -102,9 +117,9 @@ Teams, Telegram, email, or feedback through GitHub or Google Drive.
 | -------------- | -------------- |
 | ![Resume builder](docs/images/resume-builder.png) | ![Resume matcher](docs/images/resume-matcher.png) |
 
-| ATS optimizer | One-click apply |
-| ------------- | --------------- |
-| ![ATS optimizer](docs/images/ats-optimizer.png) | ![One-click apply](docs/images/one-click-apply.png) |
+| ATS transparency | One-click apply |
+| ---------------- | --------------- |
+| ![ATS transparency](docs/images/ats-optimizer.png) | ![One-click apply](docs/images/one-click-apply.png) |
 
 | Salary AI | Market intelligence |
 | --------- | ------------------- |
@@ -138,8 +153,9 @@ Credentials use platform storage:
 - **macOS:** Keychain
 - **Linux:** Secret Service, such as GNOME Keyring or KWallet
 
-JobSentinel does not auto-submit applications, bypass CAPTCHAs, or send your
-profile data to an external service unless you explicitly configure that flow.
+JobSentinel keeps each application under your review, never clicks Submit for
+you, and does not send your profile data to an external service unless you
+explicitly configure that flow.
 Optional location detection is separate: it contacts FreeIPAPI over HTTPS with
 your public IP only after you request detection, and it saves a city only if you
 choose to add it.
@@ -191,8 +207,8 @@ Read the full [scraper guide](docs/features/scrapers.md) and
 
 ### Resume tools
 
-- Build resumes with ATS-friendly templates.
-- Compare your resume with a job description and see missing keywords.
+- Build readable resumes with ATS transparency checks.
+- Compare your resume with a job description and see where application readability can improve.
 - Export resume documents when you are ready to apply.
 
 ### One-click apply
@@ -200,7 +216,7 @@ Read the full [scraper guide](docs/features/scrapers.md) and
 - Works with Greenhouse, Lever, Workday, Taleo, iCIMS, BambooHR, and Ashby.
 - Fills contact fields and saved screening answers where possible.
 - Keeps the final submit step manual by design.
-- Pauses for CAPTCHAs and unusual fields instead of bypassing them.
+- Pauses for CAPTCHAs and unusual fields so review stays human.
 
 ### Salary and market insight
 

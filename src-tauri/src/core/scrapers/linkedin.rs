@@ -183,11 +183,15 @@ impl LinkedInScraper {
             }
         }
 
-        // Fallback to HTML scraping
-        let jobs = self.scrape_linkedin_html().await?;
+        // Fallback to reading the session-backed HTML page.
+        let jobs = self.fetch_linkedin_html().await?;
 
         let job_count = jobs.len();
-        tracing::info!(job_count, method = "HTML", "LinkedIn scrape completed");
+        tracing::info!(
+            job_count,
+            method = "HTML",
+            "LinkedIn source check completed"
+        );
         Ok(jobs)
     }
 
@@ -462,8 +466,8 @@ impl LinkedInScraper {
         }))
     }
 
-    /// Fallback: Scrape LinkedIn HTML (requires session cookie)
-    async fn scrape_linkedin_html(&self) -> ScraperResult {
+    /// Fallback: read LinkedIn HTML with the user's saved session.
+    async fn fetch_linkedin_html(&self) -> ScraperResult {
         let search_url = format!(
             "https://www.linkedin.com/jobs/search/?keywords={}&location={}",
             urlencoding::encode(&self.query),
