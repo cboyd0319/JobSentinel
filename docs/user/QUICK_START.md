@@ -140,6 +140,18 @@ Connect Slack, Discord, or Teams to get notified when great jobs appear.
 Some apps ask you to create a connection link so JobSentinel can send messages
 there. Skip this for now and add it later in Settings if you want.
 
+### Review your search
+
+Before scanning starts, JobSentinel shows the answers it will use to rank jobs:
+
+- Jobs to look for
+- Work to show more often
+- Work to rank lower
+- Location
+- Pay
+
+Change anything that looks wrong, then start finding jobs.
+
 ---
 
 ## Step 3: Let It Work

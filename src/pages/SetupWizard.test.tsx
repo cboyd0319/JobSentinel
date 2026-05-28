@@ -117,6 +117,36 @@ describe("SetupWizard Accessibility", () => {
       });
     });
 
+    it("shows a plain search summary before scanning starts", async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
+
+      await user.click(screen.getByRole("button", { name: /continue with my own search/i }));
+      await user.type(screen.getByPlaceholderText("Add a job title..."), "Office Manager{enter}");
+      await user.type(screen.getByPlaceholderText("Add a skill..."), "Scheduling{enter}");
+      await user.type(
+        screen.getByPlaceholderText("e.g., night shift, heavy travel"),
+        "night shift{enter}",
+      );
+
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+
+      expect(
+        screen.getByRole("heading", { name: /review your search/i }),
+      ).toBeInTheDocument();
+      expect(screen.getByText("Look for")).toBeInTheDocument();
+      expect(screen.getByText("Office Manager")).toBeInTheDocument();
+      expect(screen.getByText("Show more")).toBeInTheDocument();
+      expect(screen.getByText("Scheduling")).toBeInTheDocument();
+      expect(screen.getByText("Rank lower")).toBeInTheDocument();
+      expect(screen.getByText("night shift")).toBeInTheDocument();
+      expect(screen.getByText("remote")).toBeInTheDocument();
+      expect(
+        screen.getByText("Show jobs even when pay is missing or not listed"),
+      ).toBeInTheDocument();
+    });
+
     it("should have aria-live region for validation errors", () => {
       renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
 

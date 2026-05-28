@@ -191,3 +191,5 @@ Use defaults that avoid blocking progress:
 - Work to avoid maps to `keywords_exclude`, so matching jobs can rank lower
   without adding new backend fields.
 - The field is optional and can be skipped.
+- The final setup screen summarizes look-for titles, work to show more often,
+  work to rank lower, location, and pay before scanning starts.

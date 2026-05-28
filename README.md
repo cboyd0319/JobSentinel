@@ -279,6 +279,7 @@ The setup wizard walks you through the basics:
 4. Add work to avoid, if anything comes to mind.
 5. Choose remote, hybrid, onsite, or any mix.
 6. Choose where to get alerts.
+7. Review the search before scanning starts.
 
 After setup, JobSentinel starts scanning. You can change every setting later.
 

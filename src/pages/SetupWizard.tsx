@@ -18,6 +18,13 @@ interface SetupWizardProps {
   onComplete: () => void;
 }
 
+interface LocationPreferences {
+  allow_remote: boolean;
+  allow_hybrid: boolean;
+  allow_onsite: boolean;
+  cities: string[];
+}
+
 // Step 0 is profile selection, then simplified flow
 const STEPS = [
   { id: 0, title: "Career Path", description: "What kind of work are you looking for?" },
@@ -301,6 +308,23 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     } catch {
       // Error already logged and shown to user
     }
+  };
+
+  const searchSummary = {
+    titles: config.title_allowlist.join(", "),
+    wantedWork: formatListSummary(
+      config.keywords_boost,
+      "No extra work preferences yet"
+    ),
+    avoidedWork: formatListSummary(
+      config.keywords_exclude,
+      "Nothing selected"
+    ),
+    location: formatLocationSummary(config.location_preferences),
+    pay:
+      config.salary_floor_usd > 0
+        ? `At least $${config.salary_floor_usd.toLocaleString()}/year`
+        : "Show jobs even when pay is missing or not listed",
   };
 
   return (
@@ -788,6 +812,44 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 />
               </div>
 
+              <section
+                className="mb-6 border-t border-surface-200 pt-5"
+                aria-labelledby="setup-search-summary-title"
+              >
+                <h3
+                  id="setup-search-summary-title"
+                  className="mb-4 flex items-center gap-2 font-semibold text-surface-800"
+                >
+                  <CheckIcon className="w-5 h-5 text-sentinel-600" />
+                  Review your search
+                </h3>
+                <dl className="space-y-3 text-sm">
+                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
+                    <dt className="font-medium text-surface-600">Look for</dt>
+                    <dd className="text-surface-800">{searchSummary.titles}</dd>
+                  </div>
+                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
+                    <dt className="font-medium text-surface-600">Show more</dt>
+                    <dd className="text-surface-800">{searchSummary.wantedWork}</dd>
+                  </div>
+                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
+                    <dt className="font-medium text-surface-600">Rank lower</dt>
+                    <dd className="text-surface-800">{searchSummary.avoidedWork}</dd>
+                  </div>
+                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
+                    <dt className="font-medium text-surface-600">Location</dt>
+                    <dd className="text-surface-800">{searchSummary.location}</dd>
+                  </div>
+                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
+                    <dt className="font-medium text-surface-600">Pay</dt>
+                    <dd className="text-surface-800">{searchSummary.pay}</dd>
+                  </div>
+                </dl>
+                <p className="mt-4 text-sm text-surface-500">
+                  JobSentinel uses these answers to rank jobs. You can change them later.
+                </p>
+              </section>
+
               <div className="p-4 bg-surface-50 rounded-lg mb-6">
                 <p className="text-sm text-surface-600">
                   <span className="font-medium text-surface-700">Your privacy matters:</span> JobSentinel 
@@ -820,6 +882,26 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       </div>
     </div>
   );
+}
+
+function formatListSummary(items: string[], emptyText: string) {
+  return items.length > 0 ? items.join(", ") : emptyText;
+}
+
+function formatLocationSummary(locationPreferences: LocationPreferences) {
+  const workTypes = [
+    locationPreferences.allow_remote ? "remote" : null,
+    locationPreferences.allow_hybrid ? "hybrid" : null,
+    locationPreferences.allow_onsite ? "on-site" : null,
+  ].filter(Boolean);
+
+  const workTypeSummary = workTypes.length > 0 ? workTypes.join(", ") : "no work type selected";
+  const citySummary =
+    locationPreferences.cities.length > 0
+      ? ` near ${locationPreferences.cities.join(", ")}`
+      : "";
+
+  return `${workTypeSummary}${citySummary}`;
 }
 
 // Location option component
