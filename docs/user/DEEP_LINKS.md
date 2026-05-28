@@ -1,17 +1,17 @@
-# Deep Link Generator
+# Job Site Search Links
 
-Generate pre-filled job search URLs for sites we can't scrape.
+Create ready-to-use job searches for sites JobSentinel cannot scan automatically.
 
 ## Overview
 
-The Deep Link Generator creates URLs for 19+ job sites with your search criteria pre-filled. Click any link to
-open it in your browser with the search ready to go.
+JobSentinel creates search links for 19+ job sites with your search already
+filled in. Click any link to open the search in your browser.
 
 **Benefits:**
 
-- 100% legal - we're just building URLs, your browser does the rest
-- No rate limiting or ToS concerns
-- Access sites that block automated scraping
+- Your browser opens the site, the same as a manual search
+- No job-board limits from automated scanning
+- Access sites that block automated scans
 - Quick way to search multiple sites at once
 
 ## Supported Sites (19)
@@ -60,11 +60,11 @@ open it in your browser with the search ready to go.
 
 ### Basic Search
 
-1. Go to the Deep Links page
-2. Enter your job title or keywords (e.g., "Marketing Manager")
+1. Go to the Job Site Search Links page
+2. Enter your job title or work words (for example, "Marketing Manager")
 3. Optionally enter a location (e.g., "San Francisco, CA" or "Remote")
 4. Optionally choose a job type or work mode
-5. Click "Generate Deep Links"
+5. Click "Create Search Links"
 6. Click any site to open the search in your browser
 
 ### Example Searches
@@ -119,53 +119,53 @@ Some sites require login to view full results:
 
 These are clearly marked with a login-required badge.
 
-### URL Parameters
+### What JobSentinel Adds To Each Search
 
-Deep links include:
+Search links can include:
 
-- **Query** - Your job title/keywords (all sites)
+- **Job title or work words** - What you want to search for
 - **Location** - City, state, or "remote" (most sites)
 - **Job Type** - Optional full-time, part-time, contract, temporary, or
   internship filters where sites support them
 - **Work Mode** - Optional remote, hybrid, or onsite filters where sites
   support them
 
-Not all sites support all parameters - we use what's available.
+Not all sites support every filter. JobSentinel uses what each site supports.
 
 ## Privacy & Legal
 
 **100% Private:**
 
 - No data is sent to JobSentinel servers
-- URLs are generated locally in your app
-- Your browser makes the actual request to job sites
+- Search links are created locally in your app
+- Your browser opens the job site
 - No tracking or analytics
 
 **100% Legal:**
 
-- We only generate URLs - no scraping
+- JobSentinel only creates a browser search link for these sites
 - Respects site Terms of Service
 - User's browser makes the request (same as manual search)
 - No automation or bots involved
 
 ## FAQ
 
-### Why can't you scrape these sites?
+### Why can't JobSentinel scan these sites automatically?
 
-Many sites (LinkedIn, Glassdoor, Indeed, etc.) actively block automated scraping:
+Many sites (LinkedIn, Glassdoor, Indeed, etc.) actively block automated scans:
 
 - Rate limiting
 - CAPTCHA challenges
 - IP bans
 - Terms of Service prohibitions
 
-Deep links let you search these sites legally without scraping.
+Search links let you search these sites legally without automated scans.
 
 ### Can I save my searches?
 
-Deep-link-specific favorites are not implemented yet. For now, you can:
+Saved search-link favorites are not implemented yet. For now, you can:
 
-1. Bookmark the Deep Links page
+1. Bookmark the Job Site Search Links page
 2. Generate links on-demand
 3. Open multiple sites at once in tabs
 
@@ -173,44 +173,45 @@ Deep-link-specific favorites are not implemented yet. For now, you can:
 
 Not currently. For now, use the category filters to narrow results.
 
-### What if a site changes its URL format?
+### What if a site changes how search links work?
 
-We'll update the URL patterns in new releases. If you notice a broken link, please report it on GitHub:
+We'll update the search-link rules in new releases. If you notice a broken
+link, please report it on GitHub:
 <https://github.com/cboyd0319/JobSentinel/issues>
 
 ### Can I add more sites?
 
-Yes! Deep links are easy to add. See [Adding Deep Link Sites](../developer/ADDING_DEEP_LINK_SITES.md)
+Yes. Search links are easy to add. See the [developer guide](../developer/ADDING_DEEP_LINK_SITES.md)
 for details on adding new sites.
 
 ## Comparison with Scrapers
 
-| Feature | Deep Links | Scrapers |
+| Feature | Search Links | Scanners |
 |---------|------------|----------|
 | **Legal** | Always | Site-dependent |
-| **Rate Limiting** | None | Common issue |
-| **CAPTCHA** | No problem | Blocks scraping |
+| **Job-board limits** | Avoided | Common issue |
+| **CAPTCHA** | No problem | Blocks automated scanning |
 | **Up-to-date** | Always current | Breaks on changes |
 | **Automation** | Manual | Fully automated |
 | **Data Storage** | View only | Saved locally |
 
-**Use scrapers for:** Sites that allow it (Greenhouse, Lever, USAJobs)
-**Use deep links for:** Everything else (LinkedIn, Indeed, Glassdoor, etc.)
+**Use scanners for:** Sites that allow it (Greenhouse, Lever, USAJobs)
+**Use search links for:** Everything else (LinkedIn, Indeed, Glassdoor, etc.)
 
 ## Troubleshooting
 
 ### Link doesn't work
 
-1. Check if the site changed its URL format
-2. Try opening the site manually and comparing URLs
+1. Check whether the site changed its search page
+2. Try opening the site manually and searching there
 3. Report the issue on GitHub with the site name
 
 ### Search results are wrong
 
-Some sites have limited URL parameter support. Try:
+Some sites support fewer filters than others. Try:
 
 1. Opening the link and refining the search on the site
-2. Using a different site with better parameter support
+2. Using a different site with better filter support
 
 ### Link opens but requires login
 
@@ -225,15 +226,15 @@ This is expected - log in to view results.
 
 ## Related Features
 
-- **Scrapers** - Automated scraping for supported sites
-- **Deep-link favorites** (not yet implemented) - Save favorite deep link searches
+- **Scanners** - Automatic searches for supported sites
+- **Search-link favorites** (not yet implemented) - Save favorite search-link searches
 - **Job Tracker** - Track applications from manual searches
 
 ## Roadmap
 
 ### Planned
 
-- Save favorite deep link searches
+- Save favorite search-link searches
 - Custom site preferences
 - Bulk open (open multiple sites at once)
 - Browser extension integration

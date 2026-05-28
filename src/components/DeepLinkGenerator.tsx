@@ -1,7 +1,7 @@
 /**
  * Deep Link Generator Component
  *
- * Generate pre-filled job search URLs for sites we can't scrape.
+ * Generate pre-filled job search links for sites we can't scan automatically.
  */
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -103,7 +103,7 @@ export function DeepLinkGenerator({
       setSites(supportedSites);
     } catch (err) {
       logError("Failed to load deep-link sites:", err);
-      setError("Failed to load supported sites");
+      setError("Could not load job sites");
     }
   }, []);
 
@@ -116,7 +116,7 @@ export function DeepLinkGenerator({
     e.preventDefault();
 
     if (!query.trim()) {
-      setError("Please enter a job title or keywords");
+      setError("Please enter a job title or work words");
       return;
     }
 
@@ -135,7 +135,7 @@ export function DeepLinkGenerator({
       setLinks(generatedLinks);
     } catch (err) {
       logError("Failed to generate deep links:", err);
-      setError("Failed to generate links");
+      setError("Could not create search links");
     } finally {
       setLoading(false);
     }
@@ -146,7 +146,7 @@ export function DeepLinkGenerator({
       await openDeepLink(url);
     } catch (err) {
       logError("Failed to open deep link:", err);
-      setError("Failed to open link");
+      setError("Could not open search link");
     }
   };
 
@@ -174,11 +174,11 @@ export function DeepLinkGenerator({
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Deep Link Generator
+          Job Site Search Links
         </h2>
         <p className="text-gray-600 dark:text-gray-400">
-          Generate pre-filled search URLs for job sites. Click any link to open it in
-          your browser with your search criteria ready.
+          Create ready-to-use searches for job sites that JobSentinel cannot scan
+          automatically. Open any search in your browser.
         </p>
       </div>
 
@@ -190,7 +190,7 @@ export function DeepLinkGenerator({
               htmlFor="query"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
-              Job Title or Keywords *
+              Job title or work words *
             </label>
             <input
               type="text"
@@ -275,7 +275,7 @@ export function DeepLinkGenerator({
             disabled={loading}
             className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg transition-colors"
           >
-            {loading ? "Generating Links..." : "Generate Deep Links"}
+            {loading ? "Creating Links..." : "Create Search Links"}
           </button>
         </form>
       </div>
@@ -366,8 +366,8 @@ export function DeepLinkGenerator({
                     Open Search
                   </button>
 
-                  <p className="mt-2 text-xs text-gray-500 dark:text-gray-500 truncate">
-                    {link.url}
+                  <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
+                    Opens in your browser
                   </p>
                 </div>
               );
@@ -388,7 +388,7 @@ export function DeepLinkGenerator({
       {links.length === 0 && !loading && (
         <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-8 text-center">
           <p className="text-gray-600 dark:text-gray-400">
-            Enter a job title and click "Generate Deep Links" to get started
+            Enter a job title and create search links to get started.
           </p>
         </div>
       )}

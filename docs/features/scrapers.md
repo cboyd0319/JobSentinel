@@ -743,7 +743,7 @@ Headers:
 
 | Parameter         | Description               | Example             |
 | ----------------- | ------------------------- | ------------------- |
-| `Keyword`         | Job title/keywords        | `program analyst`   |
+| `Keyword`         | Job title or work words   | `program analyst`   |
 | `LocationName`    | City, state, or zip       | `Washington, DC`    |
 | `Radius`          | Search radius in miles    | `50`                |
 | `RemoteIndicator` | Remote-only jobs          | `true`              |

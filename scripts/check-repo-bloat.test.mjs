@@ -420,6 +420,18 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/DeepLinkGenerator.tsx",
+      [
+        "<h2>Deep Link Generator</h2>",
+        '"Generate pre-filled search URLs"',
+        '"Job Title or Keywords"',
+        '"Generate Deep Links"',
+        '"Enter a job title and click \\"Generate Deep Links\\""',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/components/AtsLiveScorePanel.tsx",
       '"Add LinkedIn profile for tech roles"\n',
     );
@@ -601,6 +613,21 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "docs/user/DEEP_LINKS.md",
+      [
+        "# Deep Link Generator",
+        "Generate pre-filled job search URLs for sites we can't scrape.",
+        "The Deep Link Generator creates URLs for 19+ job sites.",
+        "Go to the Deep Links page.",
+        "### URL Parameters",
+        "- **Query** - Your job title/keywords (all sites)",
+        "URLs are generated locally in your app.",
+        "Some sites have limited URL parameter support.",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "docs/features/notifications.md",
       [
         "That's it! No webhook setup needed.",
@@ -644,6 +671,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/pages/ResumeBuilder.tsx",
         "src/pages/Settings.tsx",
         "src/pages/SetupWizard.tsx",
+        "src/components/DeepLinkGenerator.tsx",
         "src/components/ErrorBoundary.tsx",
         "src/components/ErrorLogPanel.tsx",
         "src/components/JobImportModal.tsx",
@@ -664,6 +692,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "docs/features/one-click-apply.md",
         "docs/features/scrapers.md",
         "docs/features/user-data-management.md",
+        "docs/user/DEEP_LINKS.md",
         "docs/user/QUICK_START.md",
       ],
       { cwd: root },
@@ -680,6 +709,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/pages/ResumeBuilder.tsx",
       "src/pages/Settings.tsx",
       "src/pages/SetupWizard.tsx",
+      "src/components/DeepLinkGenerator.tsx",
       "src/components/ErrorBoundary.tsx",
       "src/components/ErrorLogPanel.tsx",
       "src/components/JobImportModal.tsx",
@@ -701,6 +731,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "docs/features/one-click-apply.md",
       "docs/features/scrapers.md",
       "docs/features/user-data-management.md",
+      "docs/user/DEEP_LINKS.md",
       "docs/user/QUICK_START.md",
     ]) {
       assert.ok(

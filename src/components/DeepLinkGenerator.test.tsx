@@ -31,7 +31,7 @@ describe("DeepLinkGenerator", () => {
   it("uses broad-audience search examples", () => {
     render(<DeepLinkGenerator />);
 
-    const queryInput = screen.getByLabelText(/job title or keywords/i);
+    const queryInput = screen.getByLabelText(/job title or work words/i);
 
     expect(queryInput).toHaveAttribute(
       "placeholder",
@@ -39,15 +39,34 @@ describe("DeepLinkGenerator", () => {
     );
   });
 
+  it("uses plain search-link copy instead of URL jargon", async () => {
+    const user = userEvent.setup();
+    render(<DeepLinkGenerator />);
+
+    expect(
+      screen.getByRole("heading", { name: /job site search links/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /create search links/i })).toBeInTheDocument();
+    expect(screen.queryByText(/search URLs/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/deep links/i)).not.toBeInTheDocument();
+
+    await user.type(screen.getByLabelText(/job title or work words/i), "Marketing Manager");
+    await user.click(screen.getByRole("button", { name: /create search links/i }));
+
+    expect(await screen.findByRole("button", { name: /open search/i })).toBeInTheDocument();
+    expect(screen.getByText("Opens in your browser")).toBeInTheDocument();
+    expect(screen.queryByText(/linkedin\.com\/jobs\/search/i)).not.toBeInTheDocument();
+  });
+
   it("sends selected job type and work mode filters when generating links", async () => {
     const user = userEvent.setup();
     render(<DeepLinkGenerator />);
 
-    await user.type(screen.getByLabelText(/job title or keywords/i), "Marketing Manager");
+    await user.type(screen.getByLabelText(/job title or work words/i), "Marketing Manager");
     await user.type(screen.getByLabelText(/location/i), "Remote");
     await user.selectOptions(screen.getByLabelText(/job type/i), JobType.Contract);
     await user.selectOptions(screen.getByLabelText(/work mode/i), RemoteType.Remote);
-    await user.click(screen.getByRole("button", { name: /generate deep links/i }));
+    await user.click(screen.getByRole("button", { name: /create search links/i }));
 
     await waitFor(() => {
       expect(deeplinks.generateDeepLinks).toHaveBeenCalledWith({
