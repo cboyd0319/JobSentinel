@@ -29,7 +29,7 @@ export class ResumePage extends BasePage {
   }
 
   get importJsonButton(): Locator {
-    return this.page.getByRole("button", { name: /Import JSON Resume/i }).first();
+    return this.page.getByRole("button", { name: /Import Resume Data/i }).first();
   }
 
   get activeResumeHeading(): Locator {

@@ -341,6 +341,42 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
   });
 });
 
+test("checkRepoBloat rejects technical-first user copy", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/pages/Resume.tsx",
+      '<Button>Import JSON Resume</Button><p>Your JSON Resume has been imported</p>\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/ResumeOptimizer.tsx",
+      [
+        '<CardHeader title="Resume Data (JSON)" />',
+        '<label>Resume Data in JSON format</label>',
+        'toast.error("Invalid resume JSON", "Paste resume JSON that matches the AtsResumeData schema");',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/pages/Resume.tsx", "src/pages/ResumeOptimizer.tsx"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of ["src/pages/Resume.tsx", "src/pages/ResumeOptimizer.tsx"]) {
+      assert.ok(
+        violations.includes(`replace technical-first user copy: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
 test("checkRepoBloat rejects frontend status emoji markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

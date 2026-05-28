@@ -35,22 +35,22 @@ const validResume = {
     github: null,
     website: null,
   },
-  summary: "Senior engineer",
+  summary: "Customer success manager",
   experience: [
     {
-      title: "Senior Engineer",
+      title: "Customer Success Manager",
       company: "ExampleCo",
       location: "Remote",
       start_date: "2022-01",
       end_date: "Present",
-      achievements: ["Built reliable systems"],
+      achievements: ["Improved onboarding and retention"],
       current: true,
     },
   ],
   skills: [
     {
-      name: "TypeScript",
-      category: "Languages",
+      name: "Customer Retention",
+      category: "Customer Success",
       proficiency: "advanced",
     },
   ],
@@ -90,15 +90,15 @@ describe("ResumeOptimizer", () => {
     const user = userEvent.setup();
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
-    fireEvent.change(screen.getByLabelText(/resume data in json format/i), {
+    fireEvent.change(screen.getByLabelText(/structured resume data/i), {
       target: { value: JSON.stringify({ contact_info: { name: "Jane" } }) },
     });
 
     await user.click(screen.getByRole("button", { name: /format only/i }));
 
     expect(mockToast.error).toHaveBeenCalledWith(
-      "Invalid resume JSON",
-      "Paste resume JSON that matches the AtsResumeData schema",
+      "Resume data not recognized",
+      "Paste structured resume data exported from JobSentinel or another supported tool.",
     );
     expect(mockInvoke).not.toHaveBeenCalledWith("analyze_resume_format", expect.anything());
   });
@@ -108,17 +108,17 @@ describe("ResumeOptimizer", () => {
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
     fireEvent.change(screen.getByLabelText(/^job description$/i), {
-      target: { value: "Need TypeScript and Rust" },
+      target: { value: "Need onboarding and retention experience" },
     });
-    fireEvent.change(screen.getByLabelText(/resume data in json format/i), {
+    fireEvent.change(screen.getByLabelText(/structured resume data/i), {
       target: { value: JSON.stringify("not a resume") },
     });
 
     await user.click(screen.getByRole("button", { name: /analyze with job/i }));
 
     expect(mockToast.error).toHaveBeenCalledWith(
-      "Invalid resume JSON",
-      "Paste resume JSON that matches the AtsResumeData schema",
+      "Resume data not recognized",
+      "Paste structured resume data exported from JobSentinel or another supported tool.",
     );
     expect(mockInvoke).not.toHaveBeenCalledWith("analyze_resume_for_job", expect.anything());
   });
@@ -127,7 +127,7 @@ describe("ResumeOptimizer", () => {
     const user = userEvent.setup();
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
-    fireEvent.change(screen.getByLabelText(/resume data in json format/i), {
+    fireEvent.change(screen.getByLabelText(/structured resume data/i), {
       target: { value: JSON.stringify(validResume) },
     });
 

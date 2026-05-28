@@ -278,7 +278,7 @@ export default function Resume({ onBack }: ResumeProps) {
     try {
       const selected = await open({
         multiple: false,
-        filters: [{ name: "JSON Resume", extensions: ["json"] }],
+        filters: [{ name: "Structured Resume Data", extensions: ["json"] }],
       });
 
       if (!selected) return;
@@ -295,14 +295,17 @@ export default function Resume({ onBack }: ResumeProps) {
       try {
         JSON.parse(jsonString);
       } catch {
-        toast.error("Invalid JSON", "The selected file is not valid JSON");
+        toast.error(
+          "Resume file not recognized",
+          "Choose a structured resume file exported from JobSentinel or another resume tool.",
+        );
         return;
       }
 
       await safeInvokeWithToast("import_json_resume", { name: fileName, jsonString }, toast, {
-        logContext: "Import JSON Resume"
+        logContext: "Import structured resume data"
       });
-      toast.success("Resume imported", "Your JSON Resume has been imported and analyzed");
+      toast.success("Resume imported", "Your resume data has been imported and analyzed");
       refetchData();
     } catch {
       // Error already logged and shown to user
@@ -450,7 +453,7 @@ export default function Resume({ onBack }: ResumeProps) {
                 loading={uploading}
                 loadingText="Importing..."
               >
-                Import JSON Resume
+                Import Resume Data
               </Button>
               <Button onClick={handleUploadResume} loading={uploading} loadingText="Uploading...">
                 {resume ? "Upload New" : "Upload Resume"}
@@ -541,7 +544,7 @@ export default function Resume({ onBack }: ResumeProps) {
                 loading={uploading}
                 loadingText="Importing..."
               >
-                Import JSON Resume
+                Import Resume Data
               </Button>
             </div>
           </Card>

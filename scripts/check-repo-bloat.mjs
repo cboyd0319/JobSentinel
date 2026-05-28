@@ -400,6 +400,10 @@ const broadAudienceExamplePaths = new Set([
   "docs/user/QUICK_START.md",
   "docs/features/resume-matcher.md",
 ]);
+const technicalFirstUserCopyPaths = new Set([
+  "src/pages/Resume.tsx",
+  "src/pages/ResumeOptimizer.tsx",
+]);
 const backendScoringReasonPaths = new Set([
   "src-tauri/src/core/resume/matcher.rs",
   "src-tauri/src/core/scoring/mod.rs",
@@ -957,6 +961,26 @@ function hasEngineerFirstAudienceExamples(root, path) {
     /Enter your job title or keywords \(e\.g\., "Software Engineer"\)/i,
     /Examples:\s*\n\s*- "Software Engineer"/i,
     /^\*\*Software Engineer in San Francisco\*\*$/m,
+  ];
+
+  return stalePatterns.some((pattern) => pattern.test(text));
+}
+
+function hasTechnicalFirstUserCopy(root, path) {
+  if (!technicalFirstUserCopyPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const stalePatterns = [
+    /Import JSON Resume/i,
+    /Invalid JSON/i,
+    /Invalid resume JSON/i,
+    /JSON Resume has been imported/i,
+    /Resume Data \(JSON\)/i,
+    /Resume Data in JSON format/i,
+    /Paste your resume as JSON/i,
+    /AtsResumeData schema/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));
@@ -2843,6 +2867,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasEngineerFirstAudienceExamples(root, path)) {
       violations.push(`replace engineer-first audience example: ${path}`);
+    }
+
+    if (hasTechnicalFirstUserCopy(root, path)) {
+      violations.push(`replace technical-first user copy: ${path}`);
     }
 
     if (hasProductionExplicitAnySuppression(root, path)) {
