@@ -425,6 +425,21 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/AnalyticsPanel.tsx",
+      'technical_interview: "Technical",\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/DashboardWidgets.tsx",
+      '{ name: "Technical", value: appStats.by_status.technical_interview }\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/InterviewScheduler.tsx",
+      '"Technical Interview"\n',
+    );
+    writeFixtureFile(
+      root,
       "src/components/CareerProfileSelector.tsx",
       [
         '"Custom Setup"',
@@ -530,7 +545,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     writeFixtureFile(
       root,
       "src/pages/Applications.tsx",
-      '"Try again, or check if the database is accessible."\n',
+      '"Try again, or check if the database is accessible."; "Technical Interview";\n',
     );
     writeFixtureFile(
       root,
@@ -634,6 +649,9 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/components/JobImportModal.tsx",
         "src/components/JobCard.tsx",
         "src/components/AtsLiveScorePanel.tsx",
+        "src/components/AnalyticsPanel.tsx",
+        "src/components/DashboardWidgets.tsx",
+        "src/components/InterviewScheduler.tsx",
         "src/components/CareerProfileSelector.tsx",
         "src/components/automation/ScreeningAnswersForm.tsx",
         "src/components/feedback/DebugInfoPreview.tsx",
@@ -667,6 +685,9 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/components/JobImportModal.tsx",
       "src/components/JobCard.tsx",
       "src/components/AtsLiveScorePanel.tsx",
+      "src/components/AnalyticsPanel.tsx",
+      "src/components/DashboardWidgets.tsx",
+      "src/components/InterviewScheduler.tsx",
       "src/components/CareerProfileSelector.tsx",
       "src/components/automation/ScreeningAnswersForm.tsx",
       "src/components/feedback/DebugInfoPreview.tsx",

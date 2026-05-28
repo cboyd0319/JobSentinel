@@ -122,7 +122,7 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
     { name: 'Applied', value: appStats.by_status.applied, fill: COLORS.primary },
     { name: 'Screening', value: appStats.by_status.screening_call, fill: COLORS.info },
     { name: 'Phone', value: appStats.by_status.phone_interview, fill: '#8b5cf6' },
-    { name: 'Technical', value: appStats.by_status.technical_interview, fill: '#ec4899' },
+    { name: 'Skills', value: appStats.by_status.technical_interview, fill: '#ec4899' },
     { name: 'Onsite', value: appStats.by_status.onsite_interview, fill: COLORS.warning },
     { name: 'Offers', value: appStats.by_status.offer_received, fill: COLORS.success },
   ].filter(d => d.value > 0) : [], [appStats]);

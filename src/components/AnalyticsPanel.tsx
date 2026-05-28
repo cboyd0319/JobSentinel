@@ -93,7 +93,7 @@ const STATUS_LABELS: Record<string, string> = {
   applied: "Applied",
   screening_call: "Screening",
   phone_interview: "Phone",
-  technical_interview: "Technical",
+  technical_interview: "Skills",
   onsite_interview: "Onsite",
   offer_received: "Offer",
   offer_accepted: "Accepted",

@@ -204,7 +204,7 @@ describe("InterviewScheduler", () => {
       render(<InterviewScheduler onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Technical Interview")).toBeInTheDocument();
+        expect(screen.getByText("Skills Interview")).toBeInTheDocument();
       });
     });
 
@@ -658,11 +658,11 @@ describe("InterviewScheduler", () => {
       });
     });
 
-    it("displays Technical Interview for technical type", async () => {
+    it("displays Skills Interview for technical type", async () => {
       render(<InterviewScheduler onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Technical Interview")).toBeInTheDocument();
+        expect(screen.getByText("Skills Interview")).toBeInTheDocument();
       });
     });
   });

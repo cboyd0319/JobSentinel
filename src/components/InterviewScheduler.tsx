@@ -45,7 +45,7 @@ function formatFollowUpSentDate(sentAt?: string | null): string {
 const INTERVIEW_TYPES = [
   { value: "phone", label: "Phone Screen" },
   { value: "screening", label: "Screening Call" },
-  { value: "technical", label: "Technical Interview" },
+  { value: "technical", label: "Skills Interview" },
   { value: "behavioral", label: "Behavioral Interview" },
   { value: "onsite", label: "Onsite Interview" },
   { value: "final", label: "Final Round" },

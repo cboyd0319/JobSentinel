@@ -79,7 +79,7 @@ const STATUS_COLUMNS = [
   { key: "applied", label: "Applied", color: "bg-blue-500" },
   { key: "screening_call", label: "Screening Call", color: "bg-purple-500" },
   { key: "phone_interview", label: "Phone Interview", color: "bg-violet-500" },
-  { key: "technical_interview", label: "Technical Interview", color: "bg-indigo-500" },
+  { key: "technical_interview", label: "Skills Interview", color: "bg-indigo-500" },
   { key: "onsite_interview", label: "Onsite Interview", color: "bg-cyan-500" },
   { key: "offer_received", label: "Offer Received", color: "bg-success" },
   { key: "offer_accepted", label: "Offer Accepted", color: "bg-emerald-500" },
