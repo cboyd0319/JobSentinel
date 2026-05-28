@@ -194,7 +194,7 @@ for details on adding new sites.
 | **Automation** | Manual | Fully automated |
 | **Data Storage** | View only | Saved locally |
 
-**Use scrapers for:** Sites that allow it (Greenhouse, Lever, USAJobs API)
+**Use scrapers for:** Sites that allow it (Greenhouse, Lever, USAJobs)
 **Use deep links for:** Everything else (LinkedIn, Indeed, Glassdoor, etc.)
 
 ## Troubleshooting

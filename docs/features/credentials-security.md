@@ -30,7 +30,7 @@ Supported stores:
 | Telegram bot token | `jobsentinel_telegram_bot_token` | Telegram notifications |
 | LinkedIn session cookie | `jobsentinel_linkedin_cookie` | Authenticated LinkedIn scraping |
 | LinkedIn cookie expiry | `jobsentinel_linkedin_cookie_expiry` | Cookie renewal checks |
-| USAJobs API key | `jobsentinel_usajobs_api_key` | USAJobs API access |
+| USAJobs access code | `jobsentinel_usajobs_api_key` | USAJobs connection |
 
 Non-secret app settings, such as enabled sources, search filters, thresholds,
 locations, and notification preferences, remain in local app config or SQLite.

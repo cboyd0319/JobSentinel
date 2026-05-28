@@ -17,21 +17,21 @@ faster. Our parallel scraping architecture enables simultaneous searches across 
 
 ### Supported Scrapers (v2.6.3+)
 
-| Scraper             | Job Count  | Authentication | Status            |
-| ------------------- | ---------- | -------------- | ----------------- |
-| **LinkedIn**        | 30M+       | Session cookie | Production     |
-| **Greenhouse**      | ~500K      | Official API   | Production     |
-| **Lever**           | ~200K      | Official API   | Production     |
-| **RemoteOK**        | ~100K      | Public         | Production     |
-| **WeWorkRemotely**  | ~50K       | Public         | Production     |
-| **BuiltIn**         | ~80K       | Public         | Production     |
-| **HN Who's Hiring** | ~500/month | Public         | Production     |
-| **JobsWithGPT**     | ~50K       | MCP Server     | Production     |
-| **Dice**            | ~50K       | Public         | Production     |
-| **YC Startup Jobs** | ~10K       | Public         | Production     |
-| **USAJobs**         | ~50K       | API key (free) | Production     |
-| **SimplyHired**     | ~5M        | None (RSS)     | Best-effort, may be blocked |
-| **Glassdoor**       | ~1M+       | Public         | Best-effort, anti-bot prone |
+| Scraper             | Job Count  | Authentication     | Status                       |
+| ------------------- | ---------- | ------------------ | ---------------------------- |
+| **LinkedIn**        | 30M+       | Session cookie     | Production                   |
+| **Greenhouse**      | ~500K      | Official API       | Production                   |
+| **Lever**           | ~200K      | Official API       | Production                   |
+| **RemoteOK**        | ~100K      | Public             | Production                   |
+| **WeWorkRemotely**  | ~50K       | Public             | Production                   |
+| **BuiltIn**         | ~80K       | Public             | Production                   |
+| **HN Who's Hiring** | ~500/month | Public             | Production                   |
+| **JobsWithGPT**     | ~50K       | MCP Server         | Production                   |
+| **Dice**            | ~50K       | Public             | Production                   |
+| **YC Startup Jobs** | ~10K       | Public             | Production                   |
+| **USAJobs**         | ~50K       | Access code (free) | Production                   |
+| **SimplyHired**     | ~5M        | None (RSS)         | Best-effort, may be blocked  |
+| **Glassdoor**       | ~1M+       | Public             | Best-effort, anti-bot prone  |
 
 ### Key Features (v1.5.0)
 
@@ -153,8 +153,8 @@ After connecting, configure your search in Settings:
 {
   "linkedin": {
     "enabled": true,
-    "query": "software engineer",
-    "location": "San Francisco Bay Area",
+    "query": "program manager",
+    "location": "Denver, CO",
     "remote_only": false,
     "limit": 50
   }
@@ -177,8 +177,8 @@ Note: The `session_cookie` is stored in the OS keychain, NOT in config.json.
 GET https://www.linkedin.com/voyager/api/voyagerJobsDashJobCards
 ?decorationId=com.linkedin.voyager.dash.deco.jobs.search.JobSearchCardsCollection-178
 &count=50
-&keywords=software+engineer
-&location=San+Francisco+Bay+Area
+&keywords=program+manager
+&location=Denver%2C+CO
 &start=0
 
 Headers:
@@ -508,7 +508,7 @@ cargo test --lib scrapers::rate_limiter
 async fn test_linkedin_scraper_live() {
     let scraper = LinkedInScraper::new(
         std::env::var("LINKEDIN_SESSION").unwrap(),
-        "software engineer".to_string(),
+        "program manager".to_string(),
         "Remote".to_string(),
     );
 
@@ -684,13 +684,13 @@ impl RateLimiter {
 
 ### Setup Instructions
 
-**Free API key required** from [https://developer.usajobs.gov/](https://developer.usajobs.gov/)
+**Free USAJobs access code required** from [https://developer.usajobs.gov/](https://developer.usajobs.gov/)
 
 1. Go to **Settings** > **Job Sources** > Enable **USAJobs**
-2. Click "Get Free API Key" and sign up with email (no credit card)
-3. Copy API key from confirmation email
+2. Click "Get Free USAJobs Access" and sign up with email (no credit card)
+3. Copy the access code from the confirmation email
 4. Paste into JobSentinel; the app stores it securely in the OS keychain
-5. Enter same email used for signup (required by API)
+5. Enter the same email used for signup; USAJobs needs it to connect
 6. Configure search parameters (keywords, location, pay grade, etc.)
 
 **Config:**
@@ -700,7 +700,7 @@ impl RateLimiter {
   "usajobs": {
     "enabled": true,
     "email": "you@example.com",
-    "keywords": "software engineer",
+    "keywords": "program analyst",
     "location": "Washington, DC",
     "radius": 50,
     "remote_only": false,
@@ -712,12 +712,12 @@ impl RateLimiter {
 }
 ```
 
-**Note:** The `api_key` is stored in the OS keychain, NOT in config.json.
+**Note:** The USAJobs access code is stored in the OS keychain, NOT in config.json.
 
 ### How It Works
 
 1. **Official API:** Uses the official USAJobs public API (<https://data.usajobs.gov>)
-2. **Authentication:** API key + email in User-Agent header (required by API)
+2. **Authentication:** JobSentinel sends your access code and email only to USAJobs when searching
 3. **Rate Limiting:** Conservative 1-second delays between requests
 4. **Deduplication:** SHA-256 hash of (organization + title + location + URL)
 5. **GS Pay Grades:** Supports filtering by government pay scale (GS-1 through GS-15)
@@ -726,7 +726,7 @@ impl RateLimiter {
 
 ```text
 GET https://data.usajobs.gov/api/Search
-?Keyword=software+engineer
+?Keyword=program+analyst
 &LocationName=Washington,+DC
 &Radius=50
 &DatePosted=30
@@ -743,7 +743,7 @@ Headers:
 
 | Parameter         | Description               | Example             |
 | ----------------- | ------------------------- | ------------------- |
-| `Keyword`         | Job title/keywords        | `software engineer` |
+| `Keyword`         | Job title/keywords        | `program analyst`   |
 | `LocationName`    | City, state, or zip       | `Washington, DC`    |
 | `Radius`          | Search radius in miles    | `50`                |
 | `RemoteIndicator` | Remote-only jobs          | `true`              |
@@ -771,11 +771,11 @@ Headers:
 - **Salary Data:** Annual salary ranges with PA (Per Annum) codes
 - **Remote Detection:** Detects "Remote" or "Telework" in location fields
 - **No CAPTCHA Risk:** Official API, no anti-bot measures
-- **Free API Key:** No credit card, instant approval
+- **Free Access Code:** No credit card, instant approval
 
 ### Limitations
 
-- **API Key Required:** Free but needs signup
+- **Access Code Required:** Free but needs signup
 - **60-Day Max:** Can only search jobs posted within last 60 days
 - **500 Results/Page Max:** Capped by API (use pagination for more)
 - **Federal Jobs Only:** Only U.S. government positions
@@ -794,7 +794,7 @@ Headers:
 {
   "simplyhired": {
     "enabled": true,
-    "query": "software engineer",
+    "query": "customer success manager",
     "location": "Remote",
     "limit": 50
   }
@@ -813,7 +813,7 @@ Headers:
 
 ```text
 https://www.simplyhired.com/search
-?q=software+engineer
+?q=customer+success+manager
 &l=Remote
 &output=rss
 ```

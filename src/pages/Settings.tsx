@@ -3002,12 +3002,12 @@ export default function Settings({ onClose }: SettingsProps) {
                             <span>Quick Setup (2 minutes)</span>
                           </p>
                           <ol className="text-xs text-blue-700 dark:text-blue-300 space-y-1 ml-4 list-decimal">
-                            <li>Click "Get Free API Key" below</li>
+                            <li>Click "Get Free USAJobs Access" below</li>
                             <li>
                               Sign up with your email (no credit card needed)
                             </li>
-                            <li>Copy the API key from your email</li>
-                            <li>Paste it here and you're done!</li>
+                            <li>Copy the access code from your email</li>
+                            <li>Paste it here and you're done</li>
                           </ol>
                           <a
                             href="https://developer.usajobs.gov/APIRequest/Index"
@@ -3015,14 +3015,14 @@ export default function Settings({ onClose }: SettingsProps) {
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded transition-colors"
                           >
-                            Get Free API Key →
+                            Get Free USAJobs Access
                           </a>
                         </div>
                       )}
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
                           <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
-                            API Key
+                            USAJobs access code
                             <SecurityBadge
                               stored={credentialStatus.usajobs_api_key}
                             />
@@ -3038,8 +3038,8 @@ export default function Settings({ onClose }: SettingsProps) {
                             }
                             placeholder={
                               credentialStatus.usajobs_api_key
-                                ? "Enter new key to update"
-                                : "Paste your API key here"
+                                ? "Enter new code to update"
+                                : "Paste your USAJobs access code"
                             }
                             autoComplete="off"
                           />
@@ -3063,11 +3063,11 @@ export default function Settings({ onClose }: SettingsProps) {
                             })
                           }
                           placeholder="your@email.com"
-                          hint="Required by USAJobs API"
+                          hint="Use the same email you used with USAJobs"
                           autoComplete="email"
                         />
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <Input
                           label="Keywords"
                           value={config.usajobs?.keywords ?? ""}
@@ -3111,7 +3111,7 @@ export default function Settings({ onClose }: SettingsProps) {
                           placeholder="e.g., Washington, DC"
                         />
                       </div>
-                      <div className="flex items-center gap-4">
+                      <div className="flex flex-wrap items-center gap-4">
                         <label className="flex items-center gap-2 cursor-pointer">
                           <input
                             type="checkbox"

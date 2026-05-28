@@ -287,6 +287,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "docs/features/scrapers.md",
+      '{ "linkedin": { "query": "software engineer" } }\n',
+    );
+    writeFixtureFile(
+      root,
       "src/pages/DashboardUI/DashboardFiltersBar.tsx",
       "<p>Comma or OR: react, vue</p><p>AND: senior AND engineer</p>\n",
     );
@@ -316,6 +321,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/mocks/data.ts",
         "src/components/resume-builder/steps/SummaryStep.tsx",
         "src/components/resume-builder/steps/SkillsStep.tsx",
+        "docs/features/scrapers.md",
         "docs/features/resume-matcher.md",
         "docs/user/QUICK_START.md",
       ],
@@ -330,6 +336,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/mocks/data.ts",
       "src/components/resume-builder/steps/SummaryStep.tsx",
       "src/components/resume-builder/steps/SkillsStep.tsx",
+      "docs/features/scrapers.md",
       "docs/features/resume-matcher.md",
       "docs/user/QUICK_START.md",
     ]) {
@@ -405,6 +412,9 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         '"Invalid Discord webhook"',
         '"Paste your Discord webhook URL"',
         '"This doesn\'t look like a valid Teams webhook URL"',
+        '"Get Free API Key"',
+        '"Paste your API key here"',
+        '"Required by USAJobs API"',
         "",
       ].join("\n"),
     );
@@ -456,6 +466,17 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "docs/features/scrapers.md",
+      [
+        "**Free API key required** from https://developer.usajobs.gov/",
+        'Click "Get Free API Key"',
+        "Copy API key from confirmation email",
+        "| **USAJobs** | ~50K | API key (free) | Production |",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "docs/user/QUICK_START.md",
       [
         "**Database:** Your job matches and settings",
@@ -483,6 +504,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/utils/errorMessages.ts",
         "docs/features/notifications.md",
         "docs/features/one-click-apply.md",
+        "docs/features/scrapers.md",
         "docs/features/user-data-management.md",
         "docs/user/QUICK_START.md",
       ],
@@ -506,6 +528,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/utils/errorMessages.ts",
       "docs/features/notifications.md",
       "docs/features/one-click-apply.md",
+      "docs/features/scrapers.md",
       "docs/features/user-data-management.md",
       "docs/user/QUICK_START.md",
     ]) {
