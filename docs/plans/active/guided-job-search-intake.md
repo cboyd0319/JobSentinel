@@ -86,3 +86,11 @@ Use defaults that avoid blocking progress:
 - The first screen makes it clear JobSentinel is for many kinds of jobs.
 - The user can skip uncertain answers and still get useful first results.
 - Tests cover the required custom-search path and at least one preset path.
+
+## Current implementation
+
+- Setup asks for job titles, work the user wants, and work to avoid before
+  scanning starts.
+- Work to avoid maps to `keywords_exclude`, so matching jobs can rank lower
+  without adding new backend fields.
+- The field is optional and can be skipped.

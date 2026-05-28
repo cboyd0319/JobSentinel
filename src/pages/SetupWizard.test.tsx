@@ -83,6 +83,40 @@ describe("SetupWizard Accessibility", () => {
       expect(screen.getByText("Add at least one job title")).toBeInTheDocument();
     });
 
+    it("saves work to avoid as search words to rank lower", async () => {
+      const user = userEvent.setup();
+      mockInvoke.mockResolvedValue(undefined);
+      renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
+
+      await user.click(screen.getByRole("button", { name: /continue with my own search/i }));
+
+      await user.type(screen.getByPlaceholderText("Add a job title..."), "Office Manager{enter}");
+      await user.type(screen.getByPlaceholderText("Add a skill..."), "Scheduling{enter}");
+      await user.type(
+        screen.getByPlaceholderText("e.g., night shift, heavy travel"),
+        "night shift{enter}",
+      );
+
+      expect(screen.getByText("night shift")).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith(
+          "complete_setup",
+          expect.objectContaining({
+            config: expect.objectContaining({
+              title_allowlist: ["Office Manager"],
+              keywords_boost: ["Scheduling"],
+              keywords_exclude: ["night shift"],
+            }),
+          }),
+        );
+      });
+    });
+
     it("should have aria-live region for validation errors", () => {
       renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
 

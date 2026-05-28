@@ -33,6 +33,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
   const [titleInput, setTitleInput] = useState("");
   const [skillInput, setSkillInput] = useState("");
+  const [avoidInput, setAvoidInput] = useState("");
   const [cityInput, setCityInput] = useState("");
   const toast = useToast();
   const [stepAnnouncement, setStepAnnouncement] = useState("");
@@ -225,6 +226,24 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     setConfig((prev) => ({
       ...prev,
       keywords_boost: prev.keywords_boost.filter((s) => s !== skillToRemove),
+    }));
+  };
+
+  const handleAddAvoid = () => {
+    const trimmed = avoidInput.trim();
+    if (trimmed && !config.keywords_exclude.includes(trimmed)) {
+      setConfig((prev) => ({
+        ...prev,
+        keywords_exclude: [...prev.keywords_exclude, trimmed],
+      }));
+      setAvoidInput("");
+    }
+  };
+
+  const handleRemoveAvoid = (itemToRemove: string) => {
+    setConfig((prev) => ({
+      ...prev,
+      keywords_exclude: prev.keywords_exclude.filter((item) => item !== itemToRemove),
     }));
   };
 
@@ -429,7 +448,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
               {/* Skills Section */}
               <div>
                 <h3 className="font-semibold text-surface-800 mb-3 flex items-center gap-2">
-                  <SparkleIcon /> Skills & Keywords
+                  <SparkleIcon /> Skills and Work You Want
                 </h3>
                 <div className="flex gap-2 mb-3">
                   <Input
@@ -464,6 +483,53 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 ) : (
                   <div className="flex items-center justify-center p-6 bg-surface-50 rounded-lg">
                     <p className="text-surface-400 text-sm">Skills help us find better matches (optional)</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Work to Avoid Section */}
+              <div>
+                <h3 className="font-semibold text-surface-800 mb-3 flex items-center gap-2">
+                  <AvoidIcon /> Work to Avoid
+                </h3>
+                <p className="mb-3 text-sm text-surface-500">
+                  Optional. Add words or phrases JobSentinel should rank lower.
+                </p>
+                <div className="flex gap-2 mb-3">
+                  <Input
+                    label="Work to avoid"
+                    hideLabel
+                    placeholder="e.g., night shift, heavy travel"
+                    value={avoidInput}
+                    onChange={(e) => setAvoidInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddAvoid();
+                      }
+                    }}
+                  />
+                  <Button onClick={handleAddAvoid} disabled={!avoidInput.trim()}>
+                    Add
+                  </Button>
+                </div>
+
+                {config.keywords_exclude.length > 0 ? (
+                  <div className="flex flex-wrap gap-2 p-3 bg-surface-50 rounded-lg max-h-32 overflow-y-auto">
+                    {config.keywords_exclude.map((item) => (
+                      <Badge
+                        key={item}
+                        variant="danger"
+                        removable
+                        onRemove={() => handleRemoveAvoid(item)}
+                      >
+                        {item}
+                      </Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center p-6 bg-surface-50 rounded-lg">
+                    <p className="text-surface-400 text-sm">Skip this if nothing comes to mind</p>
                   </div>
                 )}
               </div>
@@ -856,6 +922,14 @@ function SparkleIcon() {
   return (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+    </svg>
+  );
+}
+
+function AvoidIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6.72 6.72a7.5 7.5 0 1010.56 10.56M6.72 6.72l10.56 10.56M6.72 6.72a7.5 7.5 0 0110.56 10.56" />
     </svg>
   );
 }

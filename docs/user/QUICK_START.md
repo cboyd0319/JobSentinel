@@ -77,11 +77,15 @@ Left-click the icon to open the dashboard. That's your command center.
 
 ---
 
-## Step 2: Complete the Setup Wizard
+## Step 2: Complete the setup wizard
 
-The first time you open JobSentinel, a friendly wizard walks you through 4 simple questions:
+The first time you open JobSentinel, a friendly wizard walks you through a few simple questions.
 
-### Question 1: What jobs are you looking for?
+### Question 1: What kind of work are you looking for?
+
+Pick a career path or choose **My Own Search**.
+
+### Question 2: What job titles do you want?
 
 Type in job titles that match what you want. Examples:
 
@@ -93,21 +97,43 @@ Type in job titles that match what you want. Examples:
 
 **Tip:** You can add multiple titles. The more specific you are, the better your matches.
 
-### Question 2: Where do you want to work?
+### Question 3: What work do you want more of?
+
+Add skills, tools, duties, or strengths you want JobSentinel to notice.
+Examples:
+
+- "Customer support"
+- "Scheduling"
+- "Budgeting"
+- "Patient care"
+- "Project management"
+
+### Question 4: What work should JobSentinel avoid? (Optional)
+
+Add words or phrases that should rank jobs lower. Examples:
+
+- "Night shift"
+- "Heavy travel"
+- "Commission only"
+- "Seasonal"
+
+Skip this if nothing comes to mind.
+
+### Question 5: Where do you want to work?
 
 Pick any combination:
 
 - **Remote** - Work from anywhere
 - **Hybrid** - Mix of office and home
-- **Onsite** - Full-time in the office
+- **On-site** - Full-time in the office
 
-### Question 3: What's your minimum salary?
+### Question 6: What's your minimum salary?
 
 Enter a number (in USD). JobSentinel will filter out jobs that pay less.
 
 Not sure? Start with $0 to see everything, then raise it later.
 
-### Question 4: Want instant alerts? (Optional)
+### Question 7: Want instant alerts? (Optional)
 
 Connect Slack, Discord, or Teams to get notified when great jobs appear.
 

@@ -1128,6 +1128,7 @@ function hasTechnicalFirstUserCopy(root, path) {
     /Continue with This Profile/i,
     /Continue with Custom Setup/i,
     /Pre-filled from your/i,
+    /Skills & Keywords/i,
     /Technical Interview/i,
     /technical_interview:\s*["']Technical["']/i,
     /name:\s*["']Technical["']/i,

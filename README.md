@@ -271,12 +271,14 @@ To continue:
 
 ### First run
 
-The setup wizard asks four questions:
+The setup wizard walks you through the basics:
 
-1. What job titles are you looking for?
-2. Do you prefer remote, hybrid, onsite, or any mix?
-3. What is your minimum salary?
-4. Do you want alerts through desktop, Slack, Discord, Teams, Telegram, or email?
+1. Pick a career path or choose your own search.
+2. Add job titles.
+3. Add skills or work you want more of.
+4. Add work to avoid, if anything comes to mind.
+5. Choose remote, hybrid, onsite, or any mix.
+6. Choose where to get alerts.
 
 After setup, JobSentinel starts scanning. You can change every setting later.
 

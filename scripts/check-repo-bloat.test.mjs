@@ -565,7 +565,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     writeFixtureFile(
       root,
       "src/pages/SetupWizard.tsx",
-      '<Input label="Slack Webhook URL (optional)" />\n',
+      '<Input label="Slack Webhook URL (optional)" />"Skills & Keywords"\n',
     );
     writeFixtureFile(
       root,
