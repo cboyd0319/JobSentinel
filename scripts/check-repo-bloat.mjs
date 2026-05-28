@@ -480,6 +480,11 @@ const overconfidentGhostCopyPaths = new Set([
   "src/pages/DashboardUI/DashboardFiltersBar.tsx",
   "src/pages/Settings.tsx",
 ]);
+const payProtectionGuidancePaths = new Set([
+  "docs/features/salary-ai.md",
+  "src/pages/Salary.tsx",
+]);
+const rawSalaryCommandLoggingPaths = new Set(["src-tauri/src/commands/salary.rs"]);
 const productFramingTextExtensions = new Set([
   ".css",
   ".html",
@@ -1358,6 +1363,45 @@ function hasOverconfidentGhostCopy(root, path) {
     /posting that isn't real/i,
     /ghost score from 0\.0/i,
     /ghost jobs, statistics/i,
+  ];
+
+  return stalePatterns.some((pattern) => pattern.test(text));
+}
+
+function hasOverconfidentPayGuidance(root, path) {
+  if (!payProtectionGuidancePaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const stalePatterns = [
+    /Know your worth/i,
+    /Negotiate with confidence/i,
+    /maximize your compensation/i,
+    /exactly what to say/i,
+    /Copy-paste templates for asking for more money/i,
+    /Always negotiate/i,
+    /average salary increase from negotiation is 10-15%/i,
+    /verified salaries/i,
+    /guaranteed raise/i,
+    /women just need to ask/i,
+    /confidence fixes pay gaps/i,
+    /protected-class-based script/i,
+  ];
+
+  return stalePatterns.some((pattern) => pattern.test(text));
+}
+
+function hasRawSalaryCommandLogging(root, path) {
+  if (!rawSalaryCommandLoggingPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const stalePatterns = [
+    /Command: predict_salary \(job: \{\}, years: \{:\?\}\)/,
+    /Command: get_salary_benchmark \(title: \{\}, location: \{\}\)/,
+    /tracing::info!\([\s\S]{0,240}"Command: get_salary_benchmark[\s\S]{0,240},\s*job_title,\s*location\s*\)/,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));
@@ -3271,6 +3315,14 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasOverconfidentGhostCopy(root, path)) {
       violations.push(`replace overconfident ghost-risk copy: ${path}`);
+    }
+
+    if (hasOverconfidentPayGuidance(root, path)) {
+      violations.push(`replace overconfident pay guidance: ${path}`);
+    }
+
+    if (hasRawSalaryCommandLogging(root, path)) {
+      violations.push(`remove raw salary command logging: ${path}`);
     }
 
     if (hasProductionExplicitAnySuppression(root, path)) {

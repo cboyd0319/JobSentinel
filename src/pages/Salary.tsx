@@ -42,11 +42,20 @@ export default function Salary({ onBack }: SalaryProps) {
   const [location, setLocation] = useState("");
   const [seniority, setSeniority] = useState<SalarySeniority>("mid");
   const [yearsExp, setYearsExp] = useState<number>(5);
+  const [salaryFloor, setSalaryFloor] = useState("");
   const [benchmark, setBenchmark] = useState<SalaryBenchmark | null>(null);
   const [negotiationScript, setNegotiationScript] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [scriptLoading, setScriptLoading] = useState(false);
   const toast = useToast();
+  const salaryFloorAmount = Number.parseInt(salaryFloor, 10);
+  const activeSalaryFloor =
+    salaryFloor.trim() !== "" && Number.isFinite(salaryFloorAmount) && salaryFloorAmount > 0
+      ? salaryFloorAmount
+      : null;
+  const floorGuidance = benchmark
+    ? getSalaryFloorGuidance(benchmark, activeSalaryFloor)
+    : null;
 
   const handleGetBenchmark = useCallback(async () => {
     if (!jobTitle.trim() || !location.trim()) {
@@ -64,7 +73,7 @@ export default function Salary({ onBack }: SalaryProps) {
 
       if (result) {
         setBenchmark(result);
-        toast.success("Benchmark found", "Salary data retrieved successfully");
+        toast.success("Pay range found", "Salary evidence is ready");
       } else {
         toast.info("No data", "No salary data found for this combination");
         setBenchmark(null);
@@ -93,10 +102,10 @@ export default function Salary({ onBack }: SalaryProps) {
       });
 
       setNegotiationScript(script);
-      toast.success("Script generated", "Negotiation talking points ready");
+      toast.success("Notes drafted", "Negotiation notes are ready");
     } catch (err: unknown) {
       logError("Failed to generate script:", err);
-      toast.error("Script generation failed", getErrorMessage(err));
+      toast.error("Note drafting failed", getErrorMessage(err));
     } finally {
       setScriptLoading(false);
     }
@@ -118,10 +127,10 @@ export default function Salary({ onBack }: SalaryProps) {
             </button>
             <div>
               <h1 className="font-display text-display-md text-surface-900 dark:text-white">
-                Salary AI
+                Pay Protection
               </h1>
               <p className="text-sm text-surface-500 dark:text-surface-400">
-                Data-driven compensation insights and negotiation help
+                Compare role pay against your floor, range evidence, and negotiation notes
               </p>
             </div>
           </div>
@@ -133,7 +142,7 @@ export default function Salary({ onBack }: SalaryProps) {
           {/* Search Form */}
           <Card className="dark:bg-surface-800">
             <h2 className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
-              Salary Lookup
+              Pay Check
             </h2>
 
             <div className="space-y-4">
@@ -149,6 +158,17 @@ export default function Salary({ onBack }: SalaryProps) {
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="e.g., San Francisco, CA"
+              />
+
+              <Input
+                label="Salary floor"
+                type="number"
+                min="0"
+                inputMode="numeric"
+                value={salaryFloor}
+                onChange={(e) => setSalaryFloor(e.target.value)}
+                placeholder="e.g., 85000"
+                hint="Optional. JobSentinel uses this as your walk-away number, not a judgment."
               />
 
               <div>
@@ -196,7 +216,7 @@ export default function Salary({ onBack }: SalaryProps) {
               </div>
 
               <Button onClick={handleGetBenchmark} loading={loading} className="w-full">
-                Get Salary Data
+                Check Pay Range
               </Button>
             </div>
           </Card>
@@ -204,7 +224,7 @@ export default function Salary({ onBack }: SalaryProps) {
           {/* Results */}
           <Card className="dark:bg-surface-800">
             <h2 className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
-              Salary Benchmark
+              Pay Range Evidence
             </h2>
 
             {!benchmark ? (
@@ -213,7 +233,7 @@ export default function Salary({ onBack }: SalaryProps) {
                   <ChartIcon className="w-8 h-8 text-surface-400" />
                 </div>
                 <p className="text-surface-500 dark:text-surface-400">
-                  Enter job details to see salary benchmarks
+                  Enter role details to compare pay ranges and protect your floor
                 </p>
               </div>
             ) : (
@@ -228,7 +248,7 @@ export default function Salary({ onBack }: SalaryProps) {
                       {benchmark.location} • {benchmark.seniority_level}
                     </p>
                   </div>
-                  <Badge variant="sentinel">{benchmark.sample_size} data points</Badge>
+                  <Badge variant="sentinel">{benchmark.sample_size} salary records</Badge>
                 </div>
 
                 {/* Salary Range Visualization */}
@@ -270,7 +290,7 @@ export default function Salary({ onBack }: SalaryProps) {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-3 bg-sentinel-50 dark:bg-sentinel-900/20 rounded-lg">
                     <p className="text-xs text-sentinel-600 dark:text-sentinel-400 mb-1">
-                      Target (75th percentile)
+                      Strong target (75th percentile)
                     </p>
                     <p className="font-display text-display-md text-sentinel-700 dark:text-sentinel-300">
                       {formatCurrency(benchmark.p75_salary)}
@@ -278,7 +298,7 @@ export default function Salary({ onBack }: SalaryProps) {
                   </div>
                   <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                     <p className="text-xs text-green-600 dark:text-green-400 mb-1">
-                      Stretch (sample max)
+                      High sample point
                     </p>
                     <p className="font-display text-display-md text-green-700 dark:text-green-300">
                       {formatCurrency(benchmark.max_salary)}
@@ -286,13 +306,34 @@ export default function Salary({ onBack }: SalaryProps) {
                   </div>
                 </div>
 
+                {floorGuidance && (
+                  <div
+                    className={`p-4 rounded-lg border ${
+                      floorGuidance.tone === "caution"
+                        ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800"
+                        : "bg-sentinel-50 dark:bg-sentinel-900/20 border-sentinel-100 dark:border-sentinel-800"
+                    }`}
+                  >
+                    <p className="text-sm font-medium text-surface-900 dark:text-surface-100">
+                      Pay floor check
+                    </p>
+                    <p className="mt-1 text-sm text-surface-700 dark:text-surface-300">
+                      {floorGuidance.message}
+                    </p>
+                    <p className="mt-2 text-sm text-surface-600 dark:text-surface-400">
+                      If a recruiter asks for salary history, you can redirect to the role range
+                      and your target.
+                    </p>
+                  </div>
+                )}
+
                 <Button
                   onClick={handleGenerateScript}
                   loading={scriptLoading}
                   variant="secondary"
                   className="w-full"
                 >
-                  Generate Negotiation Script
+                  Draft Negotiation Notes
                 </Button>
               </div>
             )}
@@ -302,7 +343,7 @@ export default function Salary({ onBack }: SalaryProps) {
           {negotiationScript && (
             <Card className="lg:col-span-2 dark:bg-surface-800">
               <h2 className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
-                Negotiation Talking Points
+                Negotiation Notes
               </h2>
 
               <div className="p-4 bg-surface-50 dark:bg-surface-700 rounded-lg">
@@ -312,8 +353,8 @@ export default function Salary({ onBack }: SalaryProps) {
               </div>
 
               <p className="mt-4 text-sm text-surface-500 dark:text-surface-400">
-                These talking points are based on market data. Always adapt them to your specific
-                situation and the company's context.
+                Use these notes as a starting point. Do not add facts, offers, or legal claims
+                unless they are true and current.
               </p>
             </Card>
           )}
@@ -321,6 +362,48 @@ export default function Salary({ onBack }: SalaryProps) {
       </main>
     </div>
   );
+}
+
+function getSalaryFloorGuidance(
+  benchmark: SalaryBenchmark,
+  salaryFloorAmount: number | null,
+): { message: string; tone: "neutral" | "caution" } {
+  if (salaryFloorAmount === null) {
+    return {
+      message: "Add a salary floor to see below-floor and under-anchoring warnings.",
+      tone: "neutral",
+    };
+  }
+
+  if (salaryFloorAmount > benchmark.p75_salary) {
+    return {
+      message:
+        "Your floor is above this sample's 75th percentile. Verify level, scope, location, and range quality before lowering it.",
+      tone: "caution",
+    };
+  }
+
+  if (salaryFloorAmount > benchmark.median_salary) {
+    return {
+      message:
+        "Your floor is above the median sample. Use role scope and written range evidence before compromising.",
+      tone: "neutral",
+    };
+  }
+
+  if (salaryFloorAmount < benchmark.p25_salary) {
+    return {
+      message:
+        "Your floor is below the 25th percentile sample. Check whether the role is under-leveled or whether your floor should move up.",
+      tone: "caution",
+    };
+  }
+
+  return {
+    message:
+      "Your floor is within the middle of this sample range. Compare benefits, schedule, level, and promotion path before deciding.",
+    tone: "neutral",
+  };
 }
 
 function BackIcon() {

@@ -1,611 +1,108 @@
-# Salary Negotiation AI
+# Pay Protection
 
-**Know your worth. Negotiate with confidence.**
+Pay Protection helps job seekers compare role pay against salary floors, range
+evidence, and negotiation notes while keeping sensitive search data local.
 
-Not sure if a job offer is fair? JobSentinel's Salary AI shows you what similar roles actually
-pay, based on real data from 500,000+ verified salaries. Get personalized negotiation scripts
-so you know exactly what to say.
+The goal is to help users avoid being underpaid, not to imply that pay gaps are
+fixed by asking harder.
 
----
+## What It Does
 
-## What Can Salary AI Do For You?
-
-- **See if your offer is fair** — Compare it to real salaries for similar roles in your area
-- **Get negotiation scripts** — Copy-paste templates for asking for more money
-- **Compare multiple offers** — Side-by-side analysis when you have more than one offer
-- **Find top-paying locations** — See which cities pay the most for your role
-
----
+- Compare a role against public salary records and local benchmark data.
+- Let users enter a salary floor as a walk-away number.
+- Flag when a floor is below credible range evidence or when an offer may be
+  under-leveled.
+- Draft editable negotiation notes grounded in role scope, written ranges, and
+  user-confirmed facts.
+- Compare offers across pay, benefits, schedule, level, promotion path, and
+  risk.
 
 ## How to Use It
 
-1. Click **Salary AI** in the sidebar
-2. Enter a job title and location
-3. See the salary range (minimum, median, maximum)
-4. Click **Generate Script** for negotiation help
+1. Open **Pay Protection**.
+2. Enter a job title, location, seniority level, and optional salary floor.
+3. Review the range evidence and pay-floor guidance.
+4. Draft negotiation notes only after checking that the facts are true.
 
-That's it! The data comes from public U.S. government records (H1B visa applications),
-which are verified and updated quarterly.
+Salary floors are private user choices. JobSentinel treats them as planning
+inputs, not as self-worth scores.
 
----
+## Pay Protection Rules
 
-## Technical Documentation
-
-<details>
-<summary><strong>For developers and the curious</strong></summary>
-
-## Data-Driven Compensation Intelligence & Negotiation Assistance
-
-## Overview
-
-JobSentinel's Salary Negotiation AI provides data-driven salary benchmarking, offer comparison,
-and AI-generated negotiation scripts to help you maximize your compensation.
-
-### Key Features
-
-- **Salary Benchmarks** - H1B public database (500K+ salaries annually)
-- **Salary Prediction** - Estimate fair market value for any job
-- **Offer Comparison** - Side-by-side analysis of multiple offers
-- **Negotiation Scripts** - AI-generated personalized templates
-- **Market Intelligence** - Identify top-paying locations and companies
-
-### Screenshot
-
-![Salary AI Interface](../images/salary-ai.png)
-
----
-
-## Architecture
-
-### System Components
-
-```text
-H1B salary data
-  -> aggregated salary benchmarks
-  -> salary predictor
-  -> job salary predictions
-
-Salary benchmark data
-  -> negotiation script generator
-  -> offer comparison
-```
-
-### Database Schema
-
-```sql
--- H1B salary data (public DOL database)
-h1b_salaries
-- job_title, employer_name
-- wage_rate_of_pay_from/to
-- work_city, work_state
-- soc_code, case_status
-- decision_date
-
--- Aggregated benchmarks
-salary_benchmarks
-- job_title_normalized
-- location_normalized
-- seniority_level (entry, mid, senior, staff, principal)
-- min_salary, p25, median, p75, max
-- average_salary, sample_size
-- data_source (h1b, user_reported)
-
--- Job salary predictions
-job_salary_predictions
-- job_hash (FK to jobs)
-- predicted_min, predicted_median, predicted_max
-- confidence_score (0.0-1.0)
-- prediction_method
-
--- Negotiation templates
-negotiation_templates
-- template_name, scenario
-- template_text
-- placeholders (JSON)
-- is_default
-
--- Negotiation history
-negotiation_history
-- offer_id (FK to offers)
-- negotiation_round
-- initial_offer, counter_offer, final_offer
-- outcome
-```
-
----
-
-## Usage Guide
-
-### 1. Predict Salary for a Job
-
-```rust
-use jobsentinel::core::salary::SalaryAnalyzer;
-
-let analyzer = SalaryAnalyzer::new(db_pool);
-
-// Predict salary based on job
-let prediction = analyzer.predict_salary_for_job(
-    "job_hash_123",
-    Some(5) // years of experience
-).await?;
-
-println!("Salary Range: ${}-${}",
-    prediction.predicted_min,
-    prediction.predicted_max
-);
-println!("Market Median: ${}", prediction.predicted_median);
-println!("Confidence: {:.0}%", prediction.confidence_score * 100.0);
-println!("Data Points: {}", prediction.data_points_used);
-```
-
-**Example Output:**
-
-```text
-Salary Range: $120,000-$180,000
-Market Median: $150,000
-Confidence: 90%
-Data Points: 342
-```
-
-### 2. Get Salary Benchmark
-
-```rust
-use jobsentinel::core::salary::SeniorityLevel;
-
-let benchmark = analyzer.get_benchmark(
-    "Software Engineer",
-    "San Francisco, CA",
-    SeniorityLevel::Mid
-).await?;
-
-if let Some(b) = benchmark {
-    println!("{}", b.range_description());
-    // Output: $100,000-$250,000 (median: $150,000)
-
-    println!("Your offer of $140,000 is: {}",
-        b.is_competitive(140_000)
-    );
-    // Output: competitive
-
-    println!("Negotiation target: ${}",
-        b.negotiation_target(140_000)
-    );
-    // Output: Negotiation target: $150,000
-}
-```
-
-### 3. Compare Multiple Offers
-
-```rust
-let comparisons = analyzer.compare_offers(vec![1, 2, 3]).await?;
-
-for comp in comparisons {
-    println!("\n{}", comp.company);
-    println!("  Base: ${}", comp.base_salary);
-    println!("  Total: ${}", comp.total_compensation);
-    println!("  Market: {}", comp.market_position);
-    println!("  Recommendation: {}", comp.recommendation);
-}
-```
-
-**Example Output:**
-
-```text
-Google
-  Base: $180,000
-  Total: $250,000
-  Market: above_market
-  Recommendation: Excellent offer! Accept or negotiate equity.
-
-Meta
-  Base: $170,000
-  Total: $300,000
-  Market: at_market
-  Recommendation: Fair offer. Consider negotiating for 10-15% more.
-
-Startup XYZ
-  Base: $130,000
-  Total: $150,000
-  Market: below_market
-  Recommendation: Below market. Counter with $150,000-$180,000.
-```
-
-### 4. Generate Negotiation Script
-
-```rust
-use std::collections::HashMap;
-
-let mut params = HashMap::new();
-params.insert("company".to_string(), "Google".to_string());
-params.insert("current_offer".to_string(), "150,000".to_string());
-params.insert("target_min".to_string(), "170,000".to_string());
-params.insert("target_max".to_string(), "190,000".to_string());
-params.insert("location".to_string(), "San Francisco".to_string());
-params.insert("years_experience".to_string(), "5".to_string());
-
-let script = analyzer.generate_negotiation_script(
-    "initial_offer",
-    params
-).await?;
-
-println!("{}", script);
-```
-
-**Output:**
-
-```text
-Thank you for the offer! I'm excited about the opportunity to join Google.
-Based on my research of market rates for this role in San Francisco and my
-5 years of experience, I was hoping for a compensation package in the range
-of $170,000-$190,000. Is there any flexibility in the current offer of $150,000?
-```
-
-### 5. Track Offer Negotiation
-
-```rust
-// Create initial offer
-let offer_id = sqlx::query!(
-    "INSERT INTO offers (application_id, base_salary, equity_shares) VALUES (?, ?, ?)",
-    application_id,
-    150_000,
-    10_000
-)
-.execute(&db)
-.await?
-.last_insert_rowid();
-
-// Log negotiation attempt
-sqlx::query!(
-    r#"
-    INSERT INTO negotiation_history (offer_id, negotiation_round, initial_offer, counter_offer, outcome)
-    VALUES (?, 1, 150000, 170000, 'pending')
-    "#,
-    offer_id
-)
-.execute(&db)
-.await?;
-
-// Update after successful negotiation
-sqlx::query!(
-    "UPDATE negotiation_history SET final_offer = ?, outcome = 'accepted' WHERE offer_id = ?",
-    165_000,
-    offer_id
-)
-.execute(&db)
-.await?;
-```
-
----
+- Warn when listed or estimated pay is below the user's floor.
+- Warn when the user's target is below the 25th percentile or below a credible
+  posted midpoint.
+- Treat missing pay as useful evidence about transparency, not as neutral.
+- Check whether title, scope, decision rights, team size, budget, and promotion
+  path match the offered level.
+- Help users redirect salary-history questions toward the role range and target
+  pay.
+- Label source, date, sample size, and coverage limits.
+- Avoid protected-class inference for salary guidance.
+- Avoid copy that implies marginalized workers caused pay gaps by negotiating
+  poorly.
 
 ## Data Sources
 
-### 1. H1B Salary Database (Primary)
+JobSentinel can use public H1B salary records and local benchmark tables. H1B
+records are useful but incomplete. They may overrepresent visa-sponsored roles,
+large employers, salaried work, and specific locations.
 
-**Source:** U.S. Department of Labor - Foreign Labor Certification Data Center
-**URL:** <https://www.flcdatacenter.com/>
-**Coverage:** 500,000+ certified H1B applications annually
-**Legal:** Public domain (Freedom of Information Act)
+Future data sources need source review before use. Salary data should show
+coverage limits and last-updated dates wherever possible.
 
-**Why H1B Data:**
+## Offer Comparison Guidance
 
-- Legally public and free
-- Verified by U.S. government
-- Includes exact salaries (not ranges)
-- Covers all major tech hubs
-- Updated quarterly
+Offer guidance should be evidence-bounded:
 
-**Data Fields:**
+- Above current benchmark: compare equity risk, benefits, schedule, level, and
+  promotion path before deciding.
+- Near current benchmark: review the written range, scope, and promotion timing
+  before countering.
+- Below current benchmark: ask about range, level, and scope before accepting.
 
-- Job Title
-- Employer Name
-- Annual Salary ($)
-- Work Location (City, State, ZIP)
-- SOC Code (occupational classification)
-- Decision Date
+Negotiation notes should never invent competing offers, legal claims, skills,
+credentials, accomplishments, or market data.
 
-### 2. User-Reported Salaries (Secondary)
+## Technical Shape
 
-**Source:** JobSentinel users (opt-in crowdsourcing)
-**Coverage:** Community-contributed
-**Verification:** Optional offer letter upload
-
-**Privacy:**
-
-- Anonymized by default
-- Company name optional
-- Helps fill gaps in H1B data
-
----
-
-## Seniority Detection
-
-### Automatic Inference
-
-**From Years of Experience:**
-
-```rust
-let seniority = SeniorityLevel::from_years_of_experience(5);
-// Output: SeniorityLevel::Mid
-
-// 0-2 years: Entry
-// 3-5 years: Mid
-// 6-10 years: Senior
-// 11-15 years: Staff
-// 16+ years: Principal
+```text
+public salary records
+  -> aggregated salary benchmarks
+  -> pay range evidence
+  -> pay-floor guidance
+  -> editable negotiation notes
 ```
 
-**From Job Title:**
+Core tables:
 
-```rust
-let seniority = SeniorityLevel::from_job_title("Senior Software Engineer");
-// Output: SeniorityLevel::Senior
+- `h1b_salaries`: public salary record imports.
+- `salary_benchmarks`: normalized benchmark ranges by title, location, and
+  seniority.
+- `job_salary_predictions`: cached local predictions for saved jobs.
+- `negotiation_templates`: editable note templates.
+- `negotiation_history`: local offer and negotiation records.
 
-// Detects: junior, associate: Entry
-// Detects: senior, sr., lead: Senior
-// Detects: staff, architect: Staff
-// Detects: principal, distinguished: Principal
-```
+Core commands:
 
----
+- `get_salary_benchmark`
+- `predict_salary`
+- `generate_negotiation_script`
+- `compare_offers`
 
-## Negotiation Templates
+Command logs must not include raw job titles, locations, salary floors, offer
+amounts, resume text, or negotiation notes.
 
-### Built-in Templates
-
-| Template                     | Scenario          | Use When                           |
-| ---------------------------- | ----------------- | ---------------------------------- |
-| **Initial Offer Response**   | `initial_offer`   | First time receiving offer         |
-| **Counter Offer**            | `counter_offer`   | Negotiating after initial response |
-| **Competing Offer Leverage** | `competing_offer` | You have multiple offers           |
-| **Equity Focused**           | `equity_focused`  | Prioritizing stock/options         |
-
-### Template Placeholders
-
-Common placeholders:
-
-- `{{company}}` - Company name
-- `{{current_offer}}` - Their current offer
-- `{{target_salary}}` - Your target salary
-- `{{years_experience}}` - Your experience level
-- `{{key_skills}}` - Your relevant skills
-- `{{location}}` - Job location
-- `{{competing_company}}` - Name of competing offer
-- `{{competing_offer}}` - Competing offer amount
-
-### Custom Templates
-
-```rust
-use jobsentinel::core::salary::negotiation::NegotiationScriptGenerator;
-
-let generator = NegotiationScriptGenerator::new(db_pool);
-
-generator.add_template(
-    "Remote Work Request",
-    "remote_request",
-    "I'm very excited about joining {{company}}. Given my {{years_experience}} years \
-     of experience working remotely, would it be possible to work fully remote instead \
-     of the hybrid arrangement? This would allow me to be most productive.",
-    vec!["company".to_string(), "years_experience".to_string()]
-).await?;
-```
-
----
-
-## Salary Prediction Algorithm
-
-### Prediction Flow
-
-1. **Extract Job Details**
-   - Job title, location from database
-
-2. **Infer Seniority**
-   - From years of experience (if provided)
-   - OR from job title keywords
-
-3. **Query Benchmarks**
-
-   ```sql
-   SELECT median_salary, p75_salary, sample_size
-   FROM salary_benchmarks
-   WHERE job_title_normalized = ?
-     AND location_normalized LIKE ?
-     AND seniority_level = ?
-   ORDER BY sample_size DESC
-   LIMIT 1
-   ```
-
-4. **Fallback Strategy**
-   - **Level 1:** Exact match (title + location + seniority) - confidence: 90%
-   - **Level 2:** Title + seniority (any location, averaged) - confidence: 60%
-   - **Level 3:** Industry defaults by seniority - confidence: 30%
-
-5. **Store Prediction**
-   - Cache in `job_salary_predictions` table
-   - Avoid redundant calculations
-
-### Default Salary Ranges (Level 3 Fallback)
-
-| Seniority | Base Salary | Range               |
-| --------- | ----------- | ------------------- |
-| Entry     | $80,000     | $64,000 - $104,000  |
-| Mid       | $120,000    | $96,000 - $156,000  |
-| Senior    | $160,000    | $128,000 - $208,000 |
-| Staff     | $200,000    | $160,000 - $260,000 |
-| Principal | $250,000    | $200,000 - $325,000 |
-
----
-
-## Testing
-
-### Unit Tests
+## Verification
 
 ```bash
-cargo test --lib salary
-
-# Test coverage:
-# Seniority inference from years
-# Seniority inference from title
-# Job title normalization
-# Location normalization
-# Salary formatting
-# Competitiveness checking
-# Negotiation target calculation
-# Template placeholder replacement
+npm run test:run -- src/pages/Salary.test.tsx
+npm run lint:bloat
+cd src-tauri && cargo fmt --all -- --check
 ```
 
-**Test Statistics:**
+Pay guidance changes should also be reviewed against:
 
-- **Salary Module:** 4 tests
-- **Benchmarks:** 3 tests
-- **Negotiation:** 1 test
-- **Total:** 8 unit tests
-
----
-
-## Analytics Queries
-
-### Top Paying Locations
-
-```sql
-SELECT location_normalized, median_salary
-FROM salary_benchmarks
-WHERE job_title_normalized = 'software engineer'
-  AND seniority_level = 'senior'
-ORDER BY median_salary DESC
-LIMIT 10;
-```
-
-### Salary Trends Over Time
-
-```sql
-SELECT
-  strftime('%Y', decision_date) as year,
-  AVG(wage_rate_of_pay_from) as avg_salary
-FROM h1b_salaries
-WHERE job_title LIKE '%Software Engineer%'
-  AND case_status = 'Certified'
-GROUP BY year
-ORDER BY year DESC;
-```
-
-### Offer Acceptance Rate
-
-```sql
-SELECT
-  outcome,
-  COUNT(*) as count,
-  ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM negotiation_history), 1) as percentage
-FROM negotiation_history
-GROUP BY outcome;
-```
-
----
-
-## Future Enhancements
-
-### Phase 2: Machine Learning (Weeks 3-4)
-
-- [ ] **ML Salary Predictor** - Train on 500K+ H1B records
-- [ ] **Feature Engineering** - Company size, funding, tech stack
-- [ ] **Confidence Intervals** - Statistical prediction ranges
-- [ ] **Trend Detection** - Identify rising/falling markets
-
-### Phase 3: Advanced Data Sources (Weeks 4-5)
-
-- [ ] **Levels.fyi Integration** - API or ethical scraping (if available)
-- [ ] **Glassdoor Estimates** - Supplement H1B data
-- [ ] **Company Funding Data** - Correlate with salary levels
-- [ ] **Equity Valuation** - Calculate RSU/option worth
-
-### Phase 4: AI-Powered Scripts (Week 5)
-
-- [ ] **GPT Integration** - Generate custom negotiation scripts
-- [ ] **Tone Analysis** - Professional, friendly, assertive modes
-- [ ] **Multi-Round Negotiation** - Conversational flow
-- [ ] **Email Generation** - Ready-to-send negotiation emails
-
----
-
-## API Reference
-
-### SalaryAnalyzer
-
-```rust
-pub struct SalaryAnalyzer;
-
-impl SalaryAnalyzer {
-    pub fn new(db: SqlitePool) -> Self;
-
-    pub async fn predict_salary_for_job(&self, job_hash: &str, years_of_experience: Option<i32>) -> Result<SalaryPrediction>;
-    pub async fn get_benchmark(&self, job_title: &str, location: &str, seniority: SeniorityLevel) -> Result<Option<SalaryBenchmark>>;
-    pub async fn generate_negotiation_script(&self, scenario: &str, params: HashMap<String, String>) -> Result<String>;
-    pub async fn compare_offers(&self, offer_ids: Vec<i64>) -> Result<Vec<OfferComparison>>;
-}
-```
-
-### SalaryBenchmark
-
-```rust
-pub struct SalaryBenchmark {
-    pub job_title: String,
-    pub location: String,
-    pub seniority_level: SeniorityLevel,
-    pub min_salary: i64,
-    pub p25_salary: i64,
-    pub median_salary: i64,
-    pub p75_salary: i64,
-    pub max_salary: i64,
-    pub average_salary: i64,
-    pub sample_size: i64,
-    pub last_updated: DateTime<Utc>,
-}
-
-impl SalaryBenchmark {
-    pub fn range_description(&self) -> String;
-    pub fn is_competitive(&self, offered_salary: i64) -> &'static str;
-    pub fn negotiation_target(&self, current_offer: i64) -> i64;
-}
-```
-
-### SalaryPredictor
-
-```rust
-pub struct SalaryPredictor;
-
-impl SalaryPredictor {
-    pub fn new(db: SqlitePool) -> Self;
-
-    pub async fn predict_for_job(&self, job_hash: &str, years_of_experience: Option<i32>) -> Result<SalaryPrediction>;
-    pub async fn get_prediction(&self, job_hash: &str) -> Result<Option<SalaryPrediction>>;
-}
-```
-
----
-
-## Implementation Status
-
-### Phase 1: Foundation Complete
-
-- [x] Database schema (7 tables, 8 indexes)
-- [x] H1B data structure
-- [x] Salary benchmarks (aggregated stats)
-- [x] Salary prediction algorithm (3-level fallback)
-- [x] Seniority detection (years + title)
-- [x] Offer comparison tool
-- [x] Negotiation script generator (4 templates)
-- [x] Negotiation history tracking
-- [x] Comprehensive unit tests (8 tests)
-- [x] Full documentation
-
-### Phase 2-4: Future
-
-- [ ] H1B data import tool (CSV to SQLite)
-- [ ] ML-based salary prediction
-- [ ] Levels.fyi integration
-- [ ] GPT-powered script generation
-- [ ] Equity valuation calculator
-
-**Pro Tip:** Always negotiate! Research shows 70% of employers expect it, and the average
-salary increase from negotiation is 10-15%.
-
-</details>
+- [Pay-equity research](../research/pay-equity.md)
+- [Salary-negotiation research](../research/salary-negotiation.md)
+- [Responsible AI](../../RESPONSIBLE_AI.md)

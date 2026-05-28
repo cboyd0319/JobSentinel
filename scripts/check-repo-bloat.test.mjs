@@ -995,6 +995,70 @@ test("checkRepoBloat rejects overconfident ghost-risk copy", () => {
   });
 });
 
+test("checkRepoBloat rejects overconfident pay guidance", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/salary-ai.md",
+      [
+        "Know your worth. Negotiate with confidence.",
+        "Get scripts so you know exactly what to say.",
+        "Always negotiate for a guaranteed raise.",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Salary.tsx",
+      '"Copy-paste templates for asking for more money"; "maximize your compensation";\n',
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/features/salary-ai.md", "src/pages/Salary.tsx"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace overconfident pay guidance: docs/features/salary-ai.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace overconfident pay guidance: src/pages/Salary.tsx"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw salary command logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/salary.rs",
+      [
+        'tracing::info!("Command: predict_salary (job: {}, years: {:?})", job_hash, years);',
+        'tracing::info!("Command: get_salary_benchmark (title: {}, location: {})", job_title, location);',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/salary.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("remove raw salary command logging: src-tauri/src/commands/salary.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects frontend status emoji markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

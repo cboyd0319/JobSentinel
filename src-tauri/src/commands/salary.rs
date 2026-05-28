@@ -16,9 +16,9 @@ pub async fn predict_salary(
     state: State<'_, AppState>,
 ) -> Result<SalaryPrediction, String> {
     tracing::info!(
-        "Command: predict_salary (job: {}, years: {:?})",
-        job_hash,
-        years_experience
+        job_hash_len = job_hash.len(),
+        years_provided = years_experience.is_some(),
+        "Command: predict_salary"
     );
 
     let analyzer = SalaryAnalyzer::new(state.database.pool().clone());
@@ -37,9 +37,10 @@ pub async fn get_salary_benchmark(
     state: State<'_, AppState>,
 ) -> Result<Option<Value>, String> {
     tracing::info!(
-        "Command: get_salary_benchmark (title: {}, location: {})",
-        job_title,
-        location
+        job_title_len = job_title.len(),
+        location_len = location.len(),
+        seniority_requested = !seniority.trim().is_empty(),
+        "Command: get_salary_benchmark"
     );
 
     let analyzer = SalaryAnalyzer::new(state.database.pool().clone());

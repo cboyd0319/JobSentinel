@@ -36,6 +36,9 @@ describe("Salary", () => {
   it("uses broad-audience salary examples", () => {
     renderSalary();
 
+    expect(screen.getByRole("heading", { name: "Pay Protection" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Salary floor")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Check Pay Range" })).toBeInTheDocument();
     expect(screen.getByLabelText("Job Title")).toHaveAttribute(
       "placeholder",
       "e.g., Registered Nurse",
@@ -49,7 +52,7 @@ describe("Salary", () => {
     await user.type(screen.getByLabelText("Job Title"), "Registered Nurse");
     await user.type(screen.getByLabelText("Location"), "Denver, CO");
     await user.selectOptions(screen.getByLabelText("Seniority Level"), "principal");
-    await user.click(screen.getByRole("button", { name: "Get Salary Data" }));
+    await user.click(screen.getByRole("button", { name: "Check Pay Range" }));
 
     await waitFor(() => {
       expect(mockInvoke).toHaveBeenCalledWith("get_salary_benchmark", {
@@ -58,5 +61,19 @@ describe("Salary", () => {
         seniority: "principal",
       });
     });
+  });
+
+  it("warns when the salary floor is below market evidence", async () => {
+    const user = userEvent.setup();
+    renderSalary();
+
+    await user.type(screen.getByLabelText("Job Title"), "Registered Nurse");
+    await user.type(screen.getByLabelText("Location"), "Denver, CO");
+    await user.type(screen.getByLabelText("Salary floor"), "120000");
+    await user.click(screen.getByRole("button", { name: "Check Pay Range" }));
+
+    expect(await screen.findByText(/below the 25th percentile sample/i)).toBeInTheDocument();
+    expect(screen.getByText(/under-leveled/i)).toBeInTheDocument();
+    expect(screen.getByText(/salary history/i)).toBeInTheDocument();
   });
 });
