@@ -1100,6 +1100,8 @@ function hasTechnicalFirstUserCopy(root, path) {
     /["'`]Error Logs["'`]/i,
     /["'`]Stack Trace["'`]/i,
     /["'`]Component Stack["'`]/i,
+    /["'`]Technical details["'`]/i,
+    /["'`]Save Log["'`]/i,
     /Import Job from URL/i,
     /Job URL/i,
     /Paste a job URL/i,

@@ -507,7 +507,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     writeFixtureFile(
       root,
       "src/components/ErrorLogPanel.tsx",
-      '"Error Logs"; "Stack Trace"; "Component Stack";\n',
+      '"Error Logs"; "Stack Trace"; "Component Stack"; "Technical details"; "Save Log";\n',
     );
     writeFixtureFile(
       root,

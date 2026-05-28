@@ -100,7 +100,7 @@ describe("ErrorLogPanel", () => {
       expect(screen.getByText("Something went wrong")).toBeInTheDocument();
     });
 
-    it("shows Save Log button when errors exist", () => {
+    it("shows Save Problem List button when errors exist", () => {
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
         errors: [createMockError()],
@@ -108,7 +108,7 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      expect(screen.getByRole("button", { name: "Save Log" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Save Problem List" })).toBeInTheDocument();
     });
 
     it("shows Clear All button when errors exist", () => {
@@ -125,7 +125,7 @@ describe("ErrorLogPanel", () => {
     it("hides action buttons when no errors", () => {
       render(<ErrorLogPanel />);
 
-      expect(screen.queryByRole("button", { name: "Save Log" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Save Problem List" })).not.toBeInTheDocument();
       expect(screen.queryByRole("button", { name: "Clear All" })).not.toBeInTheDocument();
     });
 
@@ -205,13 +205,13 @@ describe("ErrorLogPanel", () => {
       render(<ErrorLogPanel />);
 
       // Stack trace not visible initially
-      expect(screen.queryByText("Technical details")).not.toBeInTheDocument();
+      expect(screen.queryByText("Details for support")).not.toBeInTheDocument();
 
       // Click to expand
       fireEvent.click(screen.getByText("Test error message"));
 
       // Now stack trace should be visible
-      expect(screen.getByText("Technical details")).toBeInTheDocument();
+      expect(screen.getByText("Details for support")).toBeInTheDocument();
       expect(screen.getByText("Test stack trace")).toBeInTheDocument();
     });
 
@@ -273,7 +273,7 @@ describe("ErrorLogPanel", () => {
   });
 
   describe("actions", () => {
-    it("calls exportErrors when Export clicked", () => {
+    it("calls exportErrors when Save Problem List clicked", () => {
       const exportErrors = vi.fn();
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
@@ -283,7 +283,7 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      fireEvent.click(screen.getByRole("button", { name: "Save Log" }));
+      fireEvent.click(screen.getByRole("button", { name: "Save Problem List" }));
 
       expect(exportErrors).toHaveBeenCalledTimes(1);
     });

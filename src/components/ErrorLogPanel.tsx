@@ -75,7 +75,7 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
           {error.stack && (
             <div>
               <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">
-                Technical details
+                Details for support
               </p>
               <pre className="text-xs bg-surface-100 dark:bg-surface-800 p-2 rounded overflow-x-auto text-surface-700 dark:text-surface-300 max-h-40">
                 {error.stack}
@@ -180,7 +180,7 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
             {errors.length > 0 && (
               <>
                 <Button size="sm" variant="secondary" onClick={exportErrors}>
-                  Save Log
+                  Save Problem List
                 </Button>
                 <Button size="sm" variant="danger" onClick={clearErrors}>
                   Clear All
