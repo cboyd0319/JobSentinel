@@ -32,6 +32,25 @@ software, engineering, or startup work the default mental model.
 
 ## Writing principles
 
+### Ask one question at a time
+
+Question flows should feel helpful, not like an exam.
+
+**Do:**
+
+- Ask one short question per screen.
+- Offer a recommended answer when JobSentinel has enough information.
+- Let people skip questions when an answer is not required.
+- Explain why a question helps in one sentence or less.
+- Show examples from many fields.
+
+**Don't:**
+
+- Ask users to understand search syntax.
+- Ask for everything before showing progress.
+- Make software or startup jobs the default examples.
+- Use pressure language.
+
 ### Lead with benefits, not features
 
 Job seekers care about results, not technology.

@@ -16,6 +16,7 @@ See [Exec Plans](../exec-plans.md) for required format.
 
 | Workstream | Document |
 | ---------- | -------- |
+| Guided job-search intake | [Active plan](active/guided-job-search-intake.md) |
 | Repo cleanup and quality sweep | [Active plan](active/repo-cleanup-and-quality-sweep.md) |
 | Repo cleanup handoff | [Current handoff](active/repo-cleanup-handoff.md) |
 
