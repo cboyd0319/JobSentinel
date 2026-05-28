@@ -112,7 +112,7 @@ const JOB_CONTEXT_TTL_MS = 24 * 60 * 60 * 1000;
 const STEP_TIPS: Record<number, string[]> = {
   1: [ // Contact
     "Include a professional email address",
-    "Add LinkedIn profile for tech roles",
+    "Add a LinkedIn profile if you use one",
     "Use a location that matches job requirements",
   ],
   2: [ // Summary

@@ -416,6 +416,11 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/AtsLiveScorePanel.tsx",
+      '"Add LinkedIn profile for tech roles"\n',
+    );
+    writeFixtureFile(
+      root,
       "src/pages/Resume.tsx",
       '<Button>Import JSON Resume</Button><p>Your JSON Resume has been imported</p>\n',
     );
@@ -614,6 +619,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/components/ErrorLogPanel.tsx",
         "src/components/JobImportModal.tsx",
         "src/components/JobCard.tsx",
+        "src/components/AtsLiveScorePanel.tsx",
         "src/components/automation/ScreeningAnswersForm.tsx",
         "src/components/feedback/DebugInfoPreview.tsx",
         "src/components/feedback/FeedbackModal.tsx",
@@ -645,6 +651,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/components/ErrorLogPanel.tsx",
       "src/components/JobImportModal.tsx",
       "src/components/JobCard.tsx",
+      "src/components/AtsLiveScorePanel.tsx",
       "src/components/automation/ScreeningAnswersForm.tsx",
       "src/components/feedback/DebugInfoPreview.tsx",
       "src/components/feedback/FeedbackModal.tsx",
