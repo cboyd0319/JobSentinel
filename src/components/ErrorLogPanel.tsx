@@ -4,6 +4,8 @@ import { Button } from './Button';
 import { Badge } from './Badge';
 import { Card } from './Card';
 import type { ErrorReport } from '../utils/errorReporting';
+import { copySanitizedDebugReport } from '../services/feedbackService';
+import { logError } from '../utils/errorUtils';
 
 const TYPE_LABELS: Record<ErrorReport['type'], { label: string; variant: 'danger' | 'alert' | 'surface' }> = {
   render: { label: 'React', variant: 'danger' },
@@ -125,11 +127,28 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
 
 export const ErrorLogPanel = memo(function ErrorLogPanel() {
   const { errors, clearErrors, clearError, exportErrors } = useErrorReporting();
+  const [copyingReport, setCopyingReport] = useState(false);
+  const [copyMessage, setCopyMessage] = useState<string | null>(null);
+
+  const handleCopyDebugReport = async () => {
+    setCopyingReport(true);
+    setCopyMessage(null);
+
+    try {
+      await copySanitizedDebugReport(errors);
+      setCopyMessage("Debug report copied");
+    } catch (error) {
+      logError("Failed to copy debug report:", error);
+      setCopyMessage("Could not copy debug report");
+    } finally {
+      setCopyingReport(false);
+    }
+  };
 
   return (
     <Card>
       <div className="p-4 border-b border-surface-200 dark:border-surface-700">
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between gap-3">
           <div>
             <h3 className="font-medium text-surface-900 dark:text-white">
               Error Logs
@@ -139,17 +158,36 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
                 ? 'No errors recorded'
                 : `${errors.length} error${errors.length === 1 ? '' : 's'} recorded`}
             </p>
+            {copyMessage && (
+              <p
+                className="text-xs text-surface-500 dark:text-surface-400 mt-1"
+                role="status"
+              >
+                {copyMessage}
+              </p>
+            )}
           </div>
-          {errors.length > 0 && (
-            <div className="flex gap-2">
-              <Button size="sm" variant="secondary" onClick={exportErrors}>
-                Export
-              </Button>
-              <Button size="sm" variant="danger" onClick={clearErrors}>
-                Clear All
-              </Button>
-            </div>
-          )}
+          <div className="flex flex-wrap gap-2 justify-end">
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={handleCopyDebugReport}
+              loading={copyingReport}
+              loadingText="Copying..."
+            >
+              Copy Debug Report
+            </Button>
+            {errors.length > 0 && (
+              <>
+                <Button size="sm" variant="secondary" onClick={exportErrors}>
+                  Export
+                </Button>
+                <Button size="sm" variant="danger" onClick={clearErrors}>
+                  Clear All
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </div>
 

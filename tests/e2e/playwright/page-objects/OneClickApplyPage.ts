@@ -22,11 +22,11 @@ export class OneClickApplyPage extends BasePage {
   }
 
   get profileTab(): Locator {
-    return this.page.getByRole("button", { name: "Profile", exact: true });
+    return this.page.getByRole("tab", { name: "Profile", exact: true });
   }
 
   get screeningTab(): Locator {
-    return this.page.getByRole("button", { name: "Screening Questions" });
+    return this.page.getByRole("tab", { name: "Screening Questions" });
   }
 
   get profileForm(): Locator {
@@ -134,8 +134,23 @@ export class OneClickApplyPage extends BasePage {
   }
 
   async switchToScreeningQuestions() {
-    await this.screeningTab.click();
-    await expect(this.screeningHeading).toBeVisible();
+    let lastError: unknown;
+
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        await expect(this.screeningTab).toBeVisible({ timeout: 5000 });
+        await this.screeningTab.click();
+        await expect(this.screeningTab).toHaveAttribute("aria-selected", "true");
+        await expect(this.screeningHeading).toBeVisible({ timeout: 10000 });
+        return;
+      } catch (error) {
+        lastError = error;
+      }
+    }
+
+    throw lastError instanceof Error
+      ? lastError
+      : new Error("Unable to switch to screening questions");
   }
 
   async fillProfile(values: {

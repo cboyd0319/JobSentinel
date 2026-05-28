@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  copySanitizedDebugReport,
   formatDebugInfo,
   getDebugLog,
   openGitHubIssue,
@@ -99,6 +100,41 @@ describe("feedbackService", () => {
 
     expect(mockInvoke).toHaveBeenCalledWith("open_github_issues", {
       template: "bug",
+    });
+  });
+
+  it("copies a backend-sanitized debug report for GitHub issues", async () => {
+    mockInvoke
+      .mockResolvedValueOnce("base report from backend")
+      .mockResolvedValueOnce("final sanitized report");
+
+    const result = await copySanitizedDebugReport([
+      {
+        id: "err-1",
+        timestamp: "2026-05-28T10:15:00.000Z",
+        message: "Failed at /Users/alice/secret.txt with token=abc123",
+        type: "api",
+        url: "http://localhost/?token=abc123",
+        userAgent: "test-agent",
+      },
+    ]);
+
+    expect(mockInvoke).toHaveBeenNthCalledWith(1, "generate_feedback_report", {
+      category: "bug",
+      description:
+        "User generated a sanitized debug report from JobSentinel.",
+      includeDebugInfo: true,
+    });
+    expect(mockInvoke).toHaveBeenNthCalledWith(2, "sanitize_feedback_text", {
+      content: expect.stringContaining("FRONTEND ERROR LOG"),
+    });
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      "final sanitized report"
+    );
+    expect(result).toEqual({
+      content: "final sanitized report",
+      copied: true,
+      errorCount: 1,
     });
   });
 

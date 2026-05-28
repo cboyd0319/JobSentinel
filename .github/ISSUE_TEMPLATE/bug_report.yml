@@ -13,6 +13,10 @@ body:
         - Company names from your search
         - Your location or salary preferences
 
+        In JobSentinel, click Settings, then Copy Debug Report. If the app is
+        showing an Application Error screen, click Copy Debug Report there.
+        Paste that sanitized report into the Debug Information box below.
+
   - type: textarea
     id: what-happened
     attributes:
@@ -36,7 +40,7 @@ body:
     id: debug-info
     attributes:
       label: Debug Information
-      description: Paste the ANONYMIZED debug info from JobSentinel (Help → Send Feedback → Copy Debug Info)
+      description: Paste the ANONYMIZED debug report from JobSentinel. Use Settings, then Copy Debug Report.
       render: shell
 
   - type: textarea

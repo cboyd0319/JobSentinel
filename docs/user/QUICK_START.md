@@ -301,7 +301,12 @@ Everything stays on your computer. No cloud, no accounts, no tracking.
 
 ### Something else wrong?
 
-[Open an issue on GitHub](https://github.com/cboyd0319/JobSentinel/issues) with:
+1. Open Settings in JobSentinel.
+2. Click **Copy Debug Report**.
+3. [Open an issue on GitHub](https://github.com/cboyd0319/JobSentinel/issues).
+4. Paste the copied report into the Debug Information box.
+
+Also include:
 
 - What you were trying to do
 - What happened instead

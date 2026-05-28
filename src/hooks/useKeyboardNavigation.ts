@@ -101,7 +101,7 @@ export function useKeyboardNavigation<T>({
         return;
       }
 
-      if (event.key === "/" && focusSearchCb) {
+      if ((event.key === "/" || event.code === "Slash") && focusSearchCb) {
         event.preventDefault();
         event.stopPropagation();
         focusSearchCb();

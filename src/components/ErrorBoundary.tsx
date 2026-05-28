@@ -2,6 +2,7 @@ import { Component, ErrorInfo, ReactNode } from 'react';
 import { errorReporter } from '../utils/errorReporting';
 import { clearStorage, readStorageValue, writeStorageValue } from '../utils/browserStorage';
 import { logError } from '../utils/errorUtils';
+import { copySanitizedDebugReport } from '../services/feedbackService';
 
 const VISUAL_PREFERENCE_KEYS = [
   'jobsentinel-theme',
@@ -17,6 +18,7 @@ interface State {
   hasError: boolean;
   error: Error | null;
   errorCount: number;
+  debugReportStatus: 'idle' | 'copying' | 'copied' | 'failed';
 }
 
 /**
@@ -34,10 +36,11 @@ class ErrorBoundary extends Component<Props, State> {
     hasError: false,
     error: null,
     errorCount: 0,
+    debugReportStatus: 'idle',
   };
 
   public static getDerivedStateFromError(error: Error): Partial<State> {
-    return { hasError: true, error };
+    return { hasError: true, error, debugReportStatus: 'idle' };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
@@ -73,6 +76,18 @@ class ErrorBoundary extends Component<Props, State> {
 
   private handleReload = () => {
     window.location.reload();
+  };
+
+  private handleCopyDebugReport = async () => {
+    this.setState({ debugReportStatus: 'copying' });
+
+    try {
+      await copySanitizedDebugReport(errorReporter.getErrors());
+      this.setState({ debugReportStatus: 'copied' });
+    } catch (error) {
+      logError('Failed to copy debug report from error boundary:', error);
+      this.setState({ debugReportStatus: 'failed' });
+    }
   };
 
   private handleClearData = () => {
@@ -163,6 +178,27 @@ class ErrorBoundary extends Component<Props, State> {
               >
                 Reload Application
               </button>
+
+              <button
+                onClick={this.handleCopyDebugReport}
+                disabled={this.state.debugReportStatus === 'copying'}
+                className="w-full bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-700 dark:text-surface-200 font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-800 disabled:opacity-50 disabled:pointer-events-none"
+              >
+                {this.state.debugReportStatus === 'copying'
+                  ? 'Copying...'
+                  : 'Copy Debug Report'}
+              </button>
+
+              {this.state.debugReportStatus === 'copied' && (
+                <p className="text-center text-sm text-success" role="status">
+                  Debug report copied
+                </p>
+              )}
+              {this.state.debugReportStatus === 'failed' && (
+                <p className="text-center text-sm text-danger" role="status">
+                  Could not copy debug report
+                </p>
+              )}
 
               {showClearData && (
                 <button

@@ -23,6 +23,17 @@ Current cleanup posture:
 - Chromium and WebKit focused E2E flows were stabilized for keyboard navigation
   and job filtering in the latest slice.
 - Root README now points developers to the quality gates that protect this work.
+- User ease is now a standalone goal requirement: assume zero technical
+  knowledge for end users. Troubleshooting and issue reporting must stay
+  one-click, plain-language, and privacy-preserving.
+- Broad audience fit is also a standalone design requirement: JobSentinel is
+  for all job seekers and technical plus non-technical roles, not just
+  engineers.
+- Harness docs and templates now require audience/ease, support-path, rollback,
+  handoff, and experience-sensor thinking for non-trivial work. The harness
+  check guards those template snippets.
+- Root README was rechecked against live release assets, package version,
+  current command count, and product direction.
 
 ## Recent Work Landed
 
@@ -30,6 +41,10 @@ Recent cleanup slices on `main` include:
 
 - WebKit E2E shortcut delivery and dashboard count stabilization.
 - Chromium E2E stabilization after full-suite failures.
+- Harness improvement from current public harness-engineering references and
+  Persona/Bluepeak-AI sibling repo patterns.
+- Root README release/download accuracy update and WebKit slash-shortcut E2E
+  stabilization.
 - Resume sub-score percentage rendering fix.
 - JSDOM download navigation noise cleanup.
 - Empty source-directory bloat guard.
@@ -85,11 +100,25 @@ Next high-value passes:
    - Recheck stored JSON parsing, URL validation, error rendering, direct
      browser-open paths, logging, and malformed input handling.
    - Prefer focused Vitest and E2E coverage for each concrete defect.
-5. Decide final E2E scope.
+5. Continue zero-technical-skill UX review.
+   - Recheck setup, settings, feedback, recovery, empty states, and error
+     screens for plain-language actions and no terminal/developer assumptions.
+   - Keep sanitized debug-report generation one click from Settings, Error
+     Logs, and crash/error recovery surfaces.
+6. Continue broad-audience UX review.
+   - Recheck onboarding, examples, placeholders, filters, profile presets, docs,
+     and empty states for engineer-only assumptions.
+   - Make sure technical and non-technical job searches both feel first-class.
+7. Keep harness evidence current.
+   - Use the updated change-contract and plan templates for broad follow-up
+     work.
+   - Promote any repeated ease, privacy, or flaky-test failure into a guide or
+     sensor instead of leaving it in chat.
+8. Decide final E2E scope.
    - Use focused E2E while fixing narrow browser-flow issues.
    - Run `npm run test:e2e:all` before claiming broad cross-browser completion,
      or document why it is deferred with exact risk.
-6. Run final broad verification before goal completion.
+9. Run final broad verification before goal completion.
    - Docs, bloat, test-quality, security, architecture, frontend tests, build,
      Rust formatting, Rust clippy, Rust tests, and chosen E2E scope all need
      current evidence.
@@ -109,6 +138,10 @@ current evidence for each requirement:
   exposure remain.
 - No known frontend/runtime issue found during the sweep remains unfixed.
 - No known backend/Rust issue found during the sweep remains unfixed.
+- No known user-facing path assumes technical knowledge for setup, recovery,
+  troubleshooting, or GitHub issue reporting.
+- No known user-facing path assumes the job seeker is an engineer or searching
+  only for technical work.
 - Relevant mechanical sensors cover recurring drift classes.
 - Final verification commands pass from the current checkout.
 

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { ErrorLogPanel } from "./ErrorLogPanel";
 import type { ErrorReport } from "../utils/errorReporting";
 
@@ -7,6 +8,12 @@ import type { ErrorReport } from "../utils/errorReporting";
 const mockUseErrorReporting = vi.fn();
 vi.mock("../hooks/useErrorReporting", () => ({
   useErrorReporting: () => mockUseErrorReporting(),
+}));
+
+const mockCopySanitizedDebugReport = vi.fn();
+vi.mock("../services/feedbackService", () => ({
+  copySanitizedDebugReport: (...args: unknown[]) =>
+    mockCopySanitizedDebugReport(...args),
 }));
 
 const createMockError = (overrides: Partial<ErrorReport> = {}): ErrorReport => ({
@@ -120,6 +127,14 @@ describe("ErrorLogPanel", () => {
 
       expect(screen.queryByRole("button", { name: "Export" })).not.toBeInTheDocument();
       expect(screen.queryByRole("button", { name: "Clear All" })).not.toBeInTheDocument();
+    });
+
+    it("shows one-click debug report copy action even before errors exist", () => {
+      render(<ErrorLogPanel />);
+
+      expect(
+        screen.getByRole("button", { name: "Copy Debug Report" })
+      ).toBeInTheDocument();
     });
   });
 
@@ -271,6 +286,27 @@ describe("ErrorLogPanel", () => {
       fireEvent.click(screen.getByRole("button", { name: "Export" }));
 
       expect(exportErrors).toHaveBeenCalledTimes(1);
+    });
+
+    it("copies a sanitized debug report with current errors", async () => {
+      const user = userEvent.setup();
+      const errors = [createMockError({ id: "error-123" })];
+      mockCopySanitizedDebugReport.mockResolvedValueOnce({
+        content: "safe report",
+        copied: true,
+        errorCount: 1,
+      });
+      mockUseErrorReporting.mockReturnValue({
+        ...defaultMockReturn,
+        errors,
+      });
+
+      render(<ErrorLogPanel />);
+
+      await user.click(screen.getByRole("button", { name: "Copy Debug Report" }));
+
+      expect(mockCopySanitizedDebugReport).toHaveBeenCalledWith(errors);
+      expect(await screen.findByText("Debug report copied")).toBeInTheDocument();
     });
 
     it("calls clearErrors when Clear All clicked", () => {

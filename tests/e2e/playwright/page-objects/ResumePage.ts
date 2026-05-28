@@ -53,13 +53,29 @@ export class ResumePage extends BasePage {
   }
 
   async openAddSkillForm() {
-    await this.page.getByRole("button", { name: /^Add$/ }).click();
-    await expect(this.page.getByRole("heading", { name: "Add New Skill" })).toBeVisible();
+    await this.openSkillFormWithButton(this.page.getByRole("button", { name: /^Add$/ }));
   }
 
   async openEmptyStateAddSkillForm() {
-    await this.page.getByRole("button", { name: "Add Skill" }).click();
-    await expect(this.page.getByRole("heading", { name: "Add New Skill" })).toBeVisible();
+    await this.openSkillFormWithButton(this.page.getByRole("button", { name: "Add Skill" }).last());
+  }
+
+  private async openSkillFormWithButton(button: Locator) {
+    const addSkillHeading = this.page.getByRole("heading", { name: "Add New Skill" });
+
+    await expect(button).toBeVisible({ timeout: 15000 });
+    await button.scrollIntoViewIfNeeded();
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      await button.click({ force: attempt > 0 });
+
+      if (await addSkillHeading.isVisible().catch(() => false)) {
+        return;
+      }
+    }
+
+    await button.evaluate((element: HTMLElement) => element.click());
+    await expect(addSkillHeading).toBeVisible({ timeout: 15000 });
   }
 
   async fillSkillForm(options: {

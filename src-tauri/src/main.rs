@@ -310,6 +310,7 @@ fn main() {
             commands::feedback::open_google_drive,
             commands::feedback::reveal_saved_feedback_file,
             commands::feedback::generate_feedback_report,
+            commands::feedback::sanitize_feedback_text,
             commands::feedback::get_feedback_filename,
             commands::feedback::save_feedback_file,
             // Import commands (v2.2 - Universal Job Importer)

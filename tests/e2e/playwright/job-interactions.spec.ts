@@ -12,12 +12,21 @@ async function openDashboard(page: Page) {
   return { jobDetail, dashboard };
 }
 
+const JOB_INDEXES = {
+  bookmarkCreate: 2,
+  bookmarkRemove: 3,
+  bookmarkPersist: 4,
+  noteCreate: 5,
+  noteEdit: 6,
+  notePersist: 7,
+} as const;
+
 test.describe("Job Interactions and Tracking", () => {
   test.describe("Bookmarking Jobs", () => {
     test("should bookmark an unbookmarked job", async ({ page }) => {
       const { jobDetail } = await openDashboard(page);
 
-      await jobDetail.openJobDetail(1);
+      await jobDetail.openJobDetail(JOB_INDEXES.bookmarkCreate);
 
       await expect(jobDetail.bookmarkButton).toBeVisible();
       await expect.poll(() => jobDetail.isBookmarked()).toBe(false);
@@ -30,7 +39,7 @@ test.describe("Job Interactions and Tracking", () => {
     test("should unbookmark a bookmarked job", async ({ page }) => {
       const { jobDetail } = await openDashboard(page);
 
-      await jobDetail.openJobDetail(0);
+      await jobDetail.openJobDetail(JOB_INDEXES.bookmarkRemove);
 
       await expect(jobDetail.bookmarkButton).toBeVisible();
       await expect.poll(() => jobDetail.isBookmarked()).toBe(true);
@@ -43,13 +52,15 @@ test.describe("Job Interactions and Tracking", () => {
     test("should persist bookmark across page reload", async ({ page }) => {
       const { jobDetail } = await openDashboard(page);
 
-      await jobDetail.openJobDetail(1);
+      await jobDetail.openJobDetail(JOB_INDEXES.bookmarkPersist);
+      await expect.poll(() => jobDetail.isBookmarked()).toBe(false);
+
       await jobDetail.toggleBookmark();
       await expect.poll(() => jobDetail.isBookmarked()).toBe(true);
 
       await page.reload();
       await page.waitForLoadState("networkidle");
-      await jobDetail.openJobDetail(1);
+      await jobDetail.openJobDetail(JOB_INDEXES.bookmarkPersist);
 
       await expect.poll(() => jobDetail.isBookmarked()).toBe(true);
     });
@@ -59,7 +70,7 @@ test.describe("Job Interactions and Tracking", () => {
     test("should add a note to a job", async ({ page }) => {
       const { jobDetail } = await openDashboard(page);
 
-      await jobDetail.openJobDetail(1);
+      await jobDetail.openJobDetail(JOB_INDEXES.noteCreate);
 
       await expect.poll(() => jobDetail.getNotesCount()).toBe(0);
 
@@ -71,7 +82,7 @@ test.describe("Job Interactions and Tracking", () => {
     test("should show edit state after adding notes", async ({ page }) => {
       const { jobDetail } = await openDashboard(page);
 
-      await jobDetail.openJobDetail(1);
+      await jobDetail.openJobDetail(JOB_INDEXES.noteEdit);
       await jobDetail.addNote("Test note for display");
 
       await expect.poll(() => jobDetail.getNotesCount()).toBe(1);
@@ -81,12 +92,12 @@ test.describe("Job Interactions and Tracking", () => {
       const { jobDetail } = await openDashboard(page);
       const noteText = "Persistent note test";
 
-      await jobDetail.openJobDetail(1);
+      await jobDetail.openJobDetail(JOB_INDEXES.notePersist);
       await jobDetail.addNote(noteText);
 
       await page.reload();
       await page.waitForLoadState("networkidle");
-      await jobDetail.openJobDetail(1);
+      await jobDetail.openJobDetail(JOB_INDEXES.notePersist);
 
       await expect.poll(() => jobDetail.getNotesCount()).toBe(1);
     });
@@ -99,12 +110,12 @@ test.describe("Job Interactions and Tracking", () => {
       await dashboard.searchForJobs("engineer");
 
       await expect(dashboard.jobCards.first()).toBeVisible();
-      await expect(dashboard.jobCards.first()).toContainText(/engineer/i);
+      await expect(dashboard.jobCards.filter({ hasText: /engineer/i }).first()).toBeVisible();
     });
 
     test("should filter jobs by remote location", async ({ page }) => {
       const { dashboard } = await openDashboard(page);
-      const initialCount = await dashboard.getJobCount();
+      const initialCount = await dashboard.getVisibleJobCount();
 
       await dashboard.applyFilter("location", "remote");
 
@@ -119,7 +130,7 @@ test.describe("Job Interactions and Tracking", () => {
 
     test("should clear filters", async ({ page }) => {
       const { dashboard } = await openDashboard(page);
-      const initialCount = await dashboard.getJobCount();
+      const initialCount = await dashboard.getVisibleJobCount();
 
       await dashboard.searchForJobs("engineer");
       await dashboard.applyFilter("location", "remote");
@@ -151,7 +162,7 @@ test.describe("Job Interactions and Tracking", () => {
       const { jobDetail, dashboard } = await openDashboard(page);
 
       await dashboard.searchForJobs("engineer");
-      await jobDetail.openJobDetail(0);
+      await jobDetail.openJobDetailByTitle(/engineer/i);
 
       const title = await jobDetail.getJobTitle();
       const company = await jobDetail.getCompanyName();

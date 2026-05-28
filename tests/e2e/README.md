@@ -99,6 +99,20 @@ npm run test:e2e
 ```
 
 Runs Chromium only and excludes documentation screenshot capture.
+Local Playwright runs use 4 workers by default, reduced-motion browser settings,
+and the line reporter. Override local concurrency with
+`PLAYWRIGHT_WORKERS=<count>` when a machine is under load.
+
+### Smoke Tests
+
+```bash
+npm run test:e2e:smoke
+npm run test:e2e:smoke:all
+```
+
+Use smoke tests during routine frontend work. They cover app load, search,
+keyboard focus, applications, settings, resume, one-click apply, resume builder,
+and market intelligence without running every browser-flow assertion.
 
 ### Full Cross-Browser Tests
 
@@ -108,6 +122,15 @@ npm run test:e2e:all
 
 Runs Chromium and WebKit functional E2E tests. `npm run test:e2e:ci` is the
 same full-suite command for CI-oriented runs.
+
+### Last Failed Tests
+
+```bash
+npm run test:e2e:last-failed
+```
+
+Use after a failed full run to avoid burning another full browser matrix while
+debugging.
 
 ### Refresh Documentation Screenshots
 
@@ -154,6 +177,9 @@ Tests are configured in `playwright.config.ts`:
 - Test directory: `tests/e2e/playwright`
 - Projects: Chromium, WebKit
 - Local default: Chromium functional tests, excluding `screenshots.spec.ts`
+- Local workers: 4 by default, override with `PLAYWRIGHT_WORKERS`
+- Reporter: line by default, HTML when `PLAYWRIGHT_HTML_REPORT=1`
+- Reduced motion: enabled to avoid waiting on hover animations and transitions
 - Retries: 2 (CI), 0 (local)
 - Mock data: Uses `npm run dev:mock`
 

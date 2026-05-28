@@ -10,6 +10,13 @@
 
 - Criterion.
 
+## Audience And Ease
+
+- Primary user:
+- Technical knowledge assumed:
+- Plain-language support or recovery path:
+- Broad job-seeker fit:
+
 ## Source-Of-Truth Docs
 
 - Path.
@@ -28,6 +35,11 @@
 npm run harness:check
 ```
 
+## Harness Impact
+
+- Docs, scripts, templates, tests, or checks to update:
+- Gap to record if no sensor exists:
+
 ## Rollback
 
 ## Completion Handoff
@@ -35,6 +47,8 @@ npm run harness:check
 Outcome:
 
 Evidence:
+
+User-ease evidence:
 
 Changed files:
 

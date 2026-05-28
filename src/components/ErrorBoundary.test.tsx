@@ -7,9 +7,16 @@ import ErrorBoundary from "./ErrorBoundary";
 vi.mock("../utils/errorReporting", () => ({
   errorReporter: {
     captureReactError: vi.fn(),
+    getErrors: vi.fn(() => []),
   },
   sanitizeContext: (context: Record<string, unknown> | undefined) => context,
   sanitizeTextForStorage: (value: string) => value,
+}));
+
+const mockCopySanitizedDebugReport = vi.fn();
+vi.mock("../services/feedbackService", () => ({
+  copySanitizedDebugReport: (...args: unknown[]) =>
+    mockCopySanitizedDebugReport(...args),
 }));
 
 // Component that throws an error
@@ -24,6 +31,7 @@ function ThrowError({ shouldThrow = false }: { shouldThrow?: boolean }) {
 const originalError = console.error;
 beforeEach(() => {
   console.error = vi.fn();
+  mockCopySanitizedDebugReport.mockReset();
   return () => {
     console.error = originalError;
   };
@@ -96,6 +104,28 @@ describe("ErrorBoundary", () => {
       expect(
         screen.getByText(/your data is safe/i)
       ).toBeInTheDocument();
+    });
+
+    it("copies a sanitized debug report from the crash screen", async () => {
+      const user = userEvent.setup();
+      mockCopySanitizedDebugReport.mockResolvedValueOnce({
+        content: "safe report",
+        copied: true,
+        errorCount: 1,
+      });
+
+      render(
+        <ErrorBoundary>
+          <ThrowError shouldThrow={true} />
+        </ErrorBoundary>
+      );
+
+      await user.click(
+        screen.getByRole("button", { name: /copy debug report/i })
+      );
+
+      expect(mockCopySanitizedDebugReport).toHaveBeenCalledTimes(1);
+      expect(screen.getByText("Debug report copied")).toBeInTheDocument();
     });
 
     it("reloads window when reload button is clicked", async () => {

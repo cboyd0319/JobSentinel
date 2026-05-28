@@ -20,6 +20,16 @@ In scope:
   invoke drift.
 - Fix concrete security, scraper, frontend, backend, documentation, and test
   issues found during the sweep.
+- Treat user ease as a standalone product requirement. JobSentinel should be
+  usable by people with zero technical knowledge, including issue reporting,
+  recovery, setup, and troubleshooting paths.
+- Treat broad job-seeker fit as a standalone design requirement. JobSentinel is
+  not just for engineers; user-facing flows and examples must work for
+  technical and non-technical job searches.
+- Keep sanitized debug-report generation one-click from normal settings and
+  crash/error recovery surfaces.
+- Improve the repo harness so future work captures scope, audience, ease,
+  evidence, rollback, and exact verification before implementation drifts.
 - Update docs when repo structure, behavior, commands, or security posture
   changes.
 
@@ -84,6 +94,11 @@ Required process:
   products, duplicate docs, and obsolete examples.
 - [x] Remove or relocate confirmed bloat and update references.
 - [x] Add sensor coverage for any recurring junk class found during cleanup.
+- [x] Add a one-click sanitized debug-report path for GitHub issue reporting.
+- [x] Improve harness docs and templates from current harness-engineering
+  references.
+- [ ] Audit primary user workflows for zero-technical-knowledge ease.
+- [ ] Audit user-facing flows and copy for engineer-only assumptions.
 - [ ] Run relevant verification and push each cleanup slice.
 
 ## Verification
@@ -108,6 +123,12 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-28 | In progress | Audited the root README against live package metadata, registered Tauri command count, release assets, platform packaging, and current product direction; updated release/download claims and backend command counts. |
+| 2026-05-28 | In progress | Reproduced and fixed a WebKit slash-shortcut E2E flake by accepting `KeyboardEvent.code === "Slash"` and adding a WebKit fallback in the E2E helper; focused stress passed 20/20. |
+| 2026-05-28 | In progress | Strengthened the repo harness after reviewing current public harness-engineering references plus Persona and Bluepeak-AI sibling patterns: added session-start, audience/ease, support-path, rollback, handoff, and experience-sensor requirements, with `npm run harness:check` snippet coverage. |
+| 2026-05-28 | In progress | Added standalone zero-technical-knowledge ease requirement to the active goal, added one-click sanitized debug report copy from Settings, Error Logs, and the crash screen, and synced GitHub issue templates plus user docs. |
+| 2026-05-28 | In progress | Locked broad audience design into repo guidance: JobSentinel is for all job seekers and technical plus non-technical searches, not only engineers. |
+| 2026-05-28 | In progress | Stabilized full Chromium and WebKit E2E by hardening Playwright navigation, search, drag/drop, location, and resume page-object waits under local parallel load. |
 | 2026-05-21 | In progress | Reached a clean stopping-point slice by stabilizing WebKit-specific E2E navigation/count waits, refreshing README quality-gate guidance, and keeping the broader repo-wide cleanup goal open for future scraper, backend, docs-drift, and junk passes. |
 | 2026-05-21 | In progress | Stabilized Chromium E2E after full-suite failures: synced Resume Builder phone fixtures with live validation, synced Resume Matcher E2E match seeds with backend score fractions, waited for delete confirmation modals to close, and hardened dashboard search/keyboard page objects under parallel load. |
 | 2026-05-21 | In progress | Fixed Resume match sub-score bars that rendered backend `0.0..1.0` fractions as direct percentages, synced the Resume Matcher doc with the live `Resume.tsx` shape, and added bloat coverage for recurrence. |

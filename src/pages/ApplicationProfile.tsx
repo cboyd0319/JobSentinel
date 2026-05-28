@@ -116,8 +116,13 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
 
         {/* Tabs */}
         <div className="border-b border-surface-200 dark:border-surface-700 mb-6">
-          <nav className="flex gap-6" aria-label="Tabs">
+          <nav className="flex gap-6" aria-label="One-click apply settings" role="tablist">
             <button
+              type="button"
+              role="tab"
+              id="one-click-profile-tab"
+              aria-controls="one-click-profile-panel"
+              aria-selected={activeTab === "profile"}
               onClick={() => setActiveTab("profile")}
               className={`py-3 border-b-2 text-sm font-medium transition-colors ${
                 activeTab === "profile"
@@ -131,6 +136,11 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
               </div>
             </button>
             <button
+              type="button"
+              role="tab"
+              id="one-click-screening-tab"
+              aria-controls="one-click-screening-panel"
+              aria-selected={activeTab === "screening"}
               onClick={() => setActiveTab("screening")}
               className={`py-3 border-b-2 text-sm font-medium transition-colors ${
                 activeTab === "screening"
@@ -147,8 +157,24 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
         </div>
 
         {/* Tab Content */}
-        {activeTab === "profile" && <ProfileForm />}
-        {activeTab === "screening" && <ScreeningAnswersForm />}
+        {activeTab === "profile" && (
+          <div
+            role="tabpanel"
+            id="one-click-profile-panel"
+            aria-labelledby="one-click-profile-tab"
+          >
+            <ProfileForm />
+          </div>
+        )}
+        {activeTab === "screening" && (
+          <div
+            role="tabpanel"
+            id="one-click-screening-panel"
+            aria-labelledby="one-click-screening-tab"
+          >
+            <ScreeningAnswersForm />
+          </div>
+        )}
 
         {/* How It Works Section */}
         <Card className="mt-8 p-6 bg-gradient-to-br from-sentinel-50 to-blue-50 dark:from-sentinel-900/20 dark:to-blue-900/20 border-sentinel-200 dark:border-sentinel-800">

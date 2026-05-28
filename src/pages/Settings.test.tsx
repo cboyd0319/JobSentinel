@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import Settings from "./Settings";
+import * as feedbackService from "../services/feedbackService";
 
 const mockInvoke = vi.mocked(invoke);
 
@@ -157,6 +158,31 @@ describe("Settings — loadConfig flow", () => {
     expect(
       mockInvoke.mock.calls.some(([cmd]) => cmd === "detect_location"),
     ).toBe(false);
+  });
+
+  it("copies a sanitized debug report from settings with one click", async () => {
+    const user = userEvent.setup();
+    const copySpy = vi
+      .spyOn(feedbackService, "copySanitizedDebugReport")
+      .mockResolvedValueOnce({
+        content: "safe report",
+        copied: true,
+        errorCount: 0,
+      });
+    setupHappyPath();
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("button", { name: "Copy Debug Report" }));
+
+    expect(copySpy).toHaveBeenCalledTimes(1);
+    expect(mockToast.success).toHaveBeenCalledWith(
+      "Debug report copied",
+      "Paste it into a GitHub issue when you report a problem."
+    );
   });
 
   it("shows error state with Retry button when get_config throws", async () => {

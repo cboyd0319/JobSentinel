@@ -1,6 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const updateDocsScreenshots = process.env.UPDATE_DOC_SCREENSHOTS === "1";
+const localWorkers = Number.parseInt(process.env.PLAYWRIGHT_WORKERS ?? "4", 10);
+const workers = process.env.CI ? 1 : Math.max(1, localWorkers);
+const reporter = process.env.PLAYWRIGHT_HTML_REPORT === "1" ? "html" : "line";
 
 /**
  * Playwright configuration for JobSentinel E2E tests.
@@ -12,10 +15,11 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: "html",
+  workers,
+  reporter,
   use: {
     baseURL: "http://localhost:5173",
+    reducedMotion: "reduce",
     trace: "on-first-retry",
   },
 

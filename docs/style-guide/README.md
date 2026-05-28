@@ -6,12 +6,16 @@ This guide helps you write clear, friendly documentation for JobSentinel users.
 
 JobSentinel users are **job seekers from all backgrounds**. Many have never used a technical tool
 like this before. They're stressed about finding work and don't have time to decode jargon.
+JobSentinel is not just for engineers. Design and write for people applying to
+technical and non-technical roles, from retail and healthcare to operations,
+sales, education, government, finance, creative work, trades, and technology.
 
 **Write for someone who:**
 
 - Has never heard of "APIs" or "webhooks"
 - Might not know what a "database" is
 - Just wants to find a job, not learn tech terminology
+- May be searching for a non-technical job
 - Is reading on their phone between job applications
 
 ## The golden rules

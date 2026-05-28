@@ -6,6 +6,7 @@ import { BasePage } from "./BasePage";
  */
 export class JobDetailPage extends BasePage {
   private activeCardIndex = 0;
+  private activeJobId: string | null = null;
 
   constructor(page: Page) {
     super(page);
@@ -21,6 +22,13 @@ export class JobDetailPage extends BasePage {
   }
 
   private get activeCard(): Locator {
+    if (this.activeJobId) {
+      const jobId = this.activeJobId.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+      return this.page.locator(
+        `[data-testid='job-card'][data-job-id="${jobId}"]`,
+      );
+    }
+
     return this.jobCards.nth(this.activeCardIndex);
   }
 
@@ -60,8 +68,33 @@ export class JobDetailPage extends BasePage {
 
   async openJobDetail(index: number = 0) {
     this.activeCardIndex = index;
+    this.activeJobId = null;
+
+    const candidate = this.jobCards.nth(index);
+    await expect(candidate).toBeVisible({ timeout: 5000 });
+    this.activeJobId = await candidate.getAttribute("data-job-id");
+
     await expect(this.activeCard).toBeVisible({ timeout: 5000 });
-    await this.activeCard.hover();
+    await this.activeCard.scrollIntoViewIfNeeded();
+  }
+
+  async openJobDetailByTitle(titlePattern: RegExp) {
+    await expect(this.jobCards.first()).toBeVisible({ timeout: 15000 });
+    const count = await this.jobCards.count();
+
+    for (let index = 0; index < count; index += 1) {
+      const cardTitle = await this.jobCards
+        .nth(index)
+        .locator("[data-testid='job-title']")
+        .textContent();
+
+      if (cardTitle && titlePattern.test(cardTitle)) {
+        await this.openJobDetail(index);
+        return;
+      }
+    }
+
+    throw new Error(`No job card title matched ${titlePattern}`);
   }
 
   async waitForDetailPanel(timeout: number = 5000): Promise<boolean> {
@@ -82,8 +115,12 @@ export class JobDetailPage extends BasePage {
   }
 
   async toggleBookmark() {
+    const initialBookmarked = await this.isBookmarked();
     await this.activeCard.hover();
+    await expect(this.bookmarkButton).toBeAttached({ timeout: 5000 });
+    await expect(this.bookmarkButton).toBeVisible({ timeout: 5000 });
     await this.bookmarkButton.click();
+    await expect.poll(() => this.isBookmarked()).toBe(!initialBookmarked);
   }
 
   async isBookmarked(): Promise<boolean> {
@@ -94,16 +131,18 @@ export class JobDetailPage extends BasePage {
   }
 
   async addNote(noteText: string) {
-    await this.activeCard.hover();
+    await expect(this.addNoteButton).toBeAttached({ timeout: 5000 });
     await this.addNoteButton.click({ force: true });
     await this.noteTextarea.waitFor({ state: "visible", timeout: 5000 });
     await this.noteTextarea.fill(noteText);
     await this.saveNoteButton.waitFor({ state: "visible", timeout: 5000 });
     await this.saveNoteButton.click({ force: true });
     await this.noteTextarea.waitFor({ state: "detached", timeout: 5000 });
+    await expect(this.addNoteButton).toHaveAttribute("aria-label", "Edit notes");
   }
 
   async getNotesCount(): Promise<number> {
+    await expect(this.addNoteButton).toBeAttached({ timeout: 5000 });
     const label = await this.addNoteButton.getAttribute("aria-label");
     return label === "Edit notes" ? 1 : 0;
   }

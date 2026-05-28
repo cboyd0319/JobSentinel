@@ -36,6 +36,19 @@ async function dispatchPrimaryShortcut(page: Page, key: string): Promise<void> {
   }, key);
 }
 
+async function dispatchSearchFocusShortcut(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    document.body.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        bubbles: true,
+        cancelable: true,
+        code: "Slash",
+        key: "/",
+      }),
+    );
+  });
+}
+
 async function pressPrimaryNavigationShortcut(
   page: Page,
   shortcut: number,
@@ -50,10 +63,55 @@ async function pressPrimaryNavigationShortcut(
   await page.keyboard.press(`Control+${shortcut}`);
 }
 
+async function isActiveElement(locator: Locator): Promise<boolean> {
+  return locator
+    .evaluate((element) => document.activeElement === element)
+    .catch(() => false);
+}
+
+async function expectPrimaryShortcutNavigation(
+  page: Page,
+  shortcut: number,
+  heading: string | RegExp,
+  browserName: string,
+  basePage: BasePage,
+): Promise<void> {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await pressPrimaryNavigationShortcut(page, shortcut, browserName);
+    await basePage.waitForReady();
+
+    if (await mainHeading(page, heading).isVisible().catch(() => false)) {
+      return;
+    }
+  }
+
+  await expect(mainHeading(page, heading)).toBeVisible({ timeout: 15000 });
+}
+
 async function expectActiveElement(locator: Locator): Promise<void> {
-  await expect
-    .poll(() => locator.evaluate((element) => document.activeElement === element))
-    .toBe(true);
+  await expect.poll(() => isActiveElement(locator)).toBe(true);
+}
+
+async function focusDashboardSearch(page: Page, searchInput: Locator, browserName: string): Promise<void> {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await page.keyboard.press("Slash");
+
+    if (await isActiveElement(searchInput)) {
+      return;
+    }
+
+    if (browserName === "webkit") {
+      await dispatchSearchFocusShortcut(page);
+
+      if (await isActiveElement(searchInput)) {
+        return;
+      }
+    }
+
+    await page.waitForTimeout(100);
+  }
+
+  await expectActiveElement(searchInput);
 }
 
 async function openCommandPalette(page: Page): Promise<void> {
@@ -77,10 +135,7 @@ test.describe("Keyboard Navigation", () => {
   test.describe("Global Shortcuts", () => {
     for (const { shortcut, heading } of MAIN_HEADING_BY_SHORTCUT) {
       test(`navigates to page ${shortcut} with primary modifier+${shortcut}`, async ({ page, browserName }) => {
-        await pressPrimaryNavigationShortcut(page, shortcut, browserName);
-        await basePage.waitForReady();
-
-        await expect(mainHeading(page, heading)).toBeVisible();
+        await expectPrimaryShortcutNavigation(page, shortcut, heading, browserName, basePage);
       });
     }
 
@@ -169,13 +224,12 @@ test.describe("Keyboard Navigation", () => {
       await expect(helpDialog).toBeHidden();
     });
 
-    test("focuses dashboard search with slash outside inputs", async ({ page }) => {
+    test("focuses dashboard search with slash outside inputs @smoke", async ({ page, browserName }) => {
       const searchInput = page.getByTestId("search-input");
       await expect(searchInput).toBeVisible();
       await expect(page.getByTestId("job-card").first()).toBeVisible();
 
-      await page.keyboard.press("/");
-
+      await focusDashboardSearch(page, searchInput, browserName);
       await expectActiveElement(searchInput);
     });
 

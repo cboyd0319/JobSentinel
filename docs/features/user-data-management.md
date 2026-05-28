@@ -266,7 +266,8 @@ The frontend may also keep local-only UI state in browser localStorage. Current
 uses include theme preferences, onboarding completion, cached company research,
 sanitized error logs, and temporary one-click-apply recovery hints. Those entries
 are not cloud-synced, and error reports are sanitized before local persistence or
-export.
+export. The Settings screen and crash screen both expose **Copy Debug Report** so
+non-technical users can paste a sanitized report directly into a GitHub issue.
 
 ### Migration from localStorage
 

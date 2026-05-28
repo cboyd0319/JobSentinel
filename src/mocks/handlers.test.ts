@@ -472,6 +472,17 @@ describe("mock Tauri handlers", () => {
     expect(report).toContain("Crash after search");
     expect(report).toContain("CONFIGURATION SUMMARY");
 
+    const sanitized = await mockInvoke<string>("sanitize_feedback_text", {
+      content:
+        "Crash at /Users/alice/secret.txt with token ghp_123456 and john@example.com",
+    });
+    expect(sanitized).toContain("[USER_PATH]");
+    expect(sanitized).toContain("[TOKEN]");
+    expect(sanitized).toContain("[EMAIL]");
+    expect(sanitized).not.toContain("alice");
+    expect(sanitized).not.toContain("ghp_123456");
+    expect(sanitized).not.toContain("john@example.com");
+
     const filename = await mockInvoke<string>("get_feedback_filename");
     expect(filename).toMatch(/^jobsentinel-feedback-\d{4}-\d{2}-\d{2}-\d{4}\.txt$/);
 

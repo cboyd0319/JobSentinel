@@ -410,6 +410,19 @@ describe("useKeyboardNavigation", () => {
       expect(onFocusSearch).toHaveBeenCalled();
     });
 
+    it("calls onFocusSearch when Slash code is pressed", () => {
+      const onFocusSearch = vi.fn();
+      renderHook(() =>
+        useKeyboardNavigation({ items, onFocusSearch })
+      );
+
+      act(() => {
+        document.dispatchEvent(new KeyboardEvent("keydown", { code: "Slash", key: "Unidentified" }));
+      });
+
+      expect(onFocusSearch).toHaveBeenCalled();
+    });
+
     it("calls onRefresh when r is pressed", () => {
       const onRefresh = vi.fn();
       renderHook(() =>

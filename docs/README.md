@@ -22,7 +22,9 @@ Current release package version is `2.6.4`. Unreleased `2.7.x` work is tracked i
 ## Current Status
 
 **Release version:** 2.6.4
-**Unreleased `2.7.x` work implemented on main:** Beta feedback, universal macOS builds, docs harness alignment
+**Unreleased `2.7.x` work implemented on main:** Beta feedback, one-click
+sanitized debug reports, zero-technical-knowledge UX requirements,
+broad-audience design guidance, docs harness alignment
 **Verification:** Use `npm run harness:check`, `npm run lint`, `npm run test:run`, and Rust checks from
 [Verification Matrix](harness/verification-matrix.md).
 
@@ -165,7 +167,7 @@ Current release package version is `2.6.4`. Unreleased `2.7.x` work is tracked i
 | ---------------------------------------------- |
 | ![One-Click Apply](images/one-click-apply.png) |
 
-### Backend Modules (189 registered Tauri commands)
+### Backend Modules (190 registered Tauri commands)
 
 - **Core**: config, db, scoring, scheduler, scrapers (13 with parallel scraping), notify, ghost
 - **ATS**: Kanban, reminders, ghosting detection, interviews, and application stats
@@ -177,13 +179,14 @@ Current release package version is `2.6.4`. Unreleased `2.7.x` work is tracked i
 - **User Data**: templates, prep checklists, saved searches, notifications, migration, and history
 - **One-Click Apply**: profile, screening answers, attempts, ATS detection, and browser control
 - **Health**: scraper health, smoke tests, run history, and credential expiry
-- **Feedback**: GitHub, Google Drive, sanitized reports, debug summaries, and log events
+- **Feedback**: GitHub, Google Drive, one-click sanitized debug reports, debug summaries, and log events
 
 ### Planned / Unreleased Features
 
 - Beta feedback workflow (implemented on main, tracked for `2.7.0`)
-- Universal macOS release artifact
-- Linux AppImage and `.deb` release artifacts
+- One-click sanitized debug reports in the next packaged release
+- Continued zero-technical-knowledge UX review
+- Continued broad-audience review for technical and non-technical roles
 - Machine learning improvements
 
 ---

@@ -420,7 +420,7 @@ export default function Dashboard({
     const handleSlashFocus = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement;
       if (
-        event.key !== "/" ||
+        (event.key !== "/" && event.code !== "Slash") ||
         event.metaKey ||
         event.ctrlKey ||
         event.altKey ||

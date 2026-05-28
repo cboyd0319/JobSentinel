@@ -17,11 +17,11 @@ test.describe("Job Search and Filtering", () => {
       await expect(dashboard.searchButton).toBeVisible();
     });
 
-    test("should search for jobs with keyword", async () => {
+    test("should search for jobs with keyword @smoke", async () => {
       await dashboard.searchForJobs("software engineer");
 
       await expect(dashboard.jobCards.first()).toBeVisible();
-      await expect(dashboard.jobCards.first()).toContainText(/engineer/i);
+      await expect(dashboard.jobCards.filter({ hasText: /engineer/i }).first()).toBeVisible();
     });
 
     test("should clear search input", async () => {

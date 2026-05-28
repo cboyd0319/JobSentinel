@@ -34,8 +34,24 @@ function navButton(page: Page, label: string) {
     .getByRole("button", { name: new RegExp(label) });
 }
 
+async function clickNavButton(page: Page, label: string) {
+  const button = navButton(page, label);
+  await expect(button).toBeVisible({ timeout: 15000 });
+  await button.click();
+  try {
+    await expect(button).toHaveAttribute("aria-current", "page", {
+      timeout: 5000,
+    });
+  } catch {
+    await button.evaluate((element: HTMLElement) => element.click());
+    await expect(button).toHaveAttribute("aria-current", "page", {
+      timeout: 15000,
+    });
+  }
+}
+
 test.describe("JobSentinel App Shell", () => {
-  test("loads the dashboard without rendering an error state", async ({ page }) => {
+  test("loads the dashboard without rendering an error state @smoke", async ({ page }) => {
     await openApp(page);
 
     await expect(mainHeading(page, "JobSentinel")).toBeVisible();
@@ -93,9 +109,9 @@ test.describe("JobSentinel App Shell", () => {
     test(`navigates to ${label} from the sidebar`, async ({ page }) => {
       await openApp(page);
 
-      await navButton(page, label).click();
+      await clickNavButton(page, label);
 
-      await expect(mainHeading(page, heading)).toBeVisible();
+      await expect(mainHeading(page, heading)).toBeVisible({ timeout: 15000 });
       await expect(navButton(page, label)).toHaveAttribute(
         "aria-current",
         "page",

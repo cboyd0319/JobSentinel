@@ -51,6 +51,16 @@ with warnings-as-errors as a required local or CI gate.
 | Browser automation | Human-in-the-loop submit behavior preserved |
 | Scraper behavior | Rate limit and error handling tests |
 
+## Experience And Support
+
+| Change | Required sensor | Add when risk increases |
+| ------ | --------------- | ----------------------- |
+| User-facing copy or workflow | Style-guide review for plain language, zero technical assumptions, and broad job-seeker fit | Focused component or page test |
+| Error, crash, feedback, or support path | Unit or integration test for recovery action plus docs or issue-template check | Playwright flow that proves user can recover or copy a sanitized debug report |
+| Setup, onboarding, or settings | Quick-start or feature-doc update plus relevant UI test | Windows/macOS readiness note or platform smoke |
+| Empty, loading, disabled, or narrow-width state | Component test or manual UI review against expected state | Browser screenshot or Playwright flow |
+| External side effect such as email, Slack, Discord, Teams, GitHub, or browser open | Human review gate and rollback/disable path | Security/privacy test for destination validation |
+
 ## Docs And Harness
 
 | Change | Required sensor |
@@ -58,6 +68,7 @@ with warnings-as-errors as a required local or CI gate.
 | `AGENTS.md` | `npm run harness:check` |
 | `docs/harness/*` | `npm run harness:check` and `npm run lint:md` |
 | `docs/plans/*` | `npm run harness:check` |
+| `docs/plans/templates/*` | `npm run harness:check` and `npm run lint:md` |
 | README developer links | `npm run harness:check` |
 | PR template or CI docs | Manual link check plus `npm run harness:check` |
 

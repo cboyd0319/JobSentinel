@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 
 /**
  * Base page object with common functionality
@@ -39,7 +39,19 @@ export class BasePage {
     const navButton = this.page
       .locator(`nav button[aria-label^="${label}"]`)
       .first();
+    await expect(navButton).toBeVisible({ timeout: 15000 });
+    await navButton.scrollIntoViewIfNeeded();
     await navButton.click();
+    try {
+      await expect(navButton).toHaveAttribute("aria-current", "page", {
+        timeout: 5000,
+      });
+    } catch {
+      await navButton.evaluate((element: HTMLElement) => element.click());
+      await expect(navButton).toHaveAttribute("aria-current", "page", {
+        timeout: 15000,
+      });
+    }
     await this.waitForReady();
   }
 

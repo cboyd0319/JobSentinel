@@ -9,7 +9,7 @@ test.describe("Market Intelligence", () => {
     await marketPage.navigateTo();
   });
 
-  test("loads overview snapshot, charts, and location heatmap", async ({ page }) => {
+  test("loads overview snapshot, charts, and location heatmap @smoke", async ({ page }) => {
     await expect(marketPage.tabList).toBeVisible();
     await expect(marketPage.marketSnapshot).toBeVisible();
     await expect(page.getByLabel("911 total jobs")).toBeVisible();

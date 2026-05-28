@@ -8,7 +8,9 @@ tests, permissions, plans, and feedback loops are the harness.
 
 Make each coding session easy to ground, easy to verify, and hard to drift.
 Agents should find the right context, make scoped changes, run the right
-checks, and leave durable evidence for the next run.
+checks, and leave durable evidence for the next run. For user-facing work,
+the harness also protects product ease: JobSentinel is for any job seeker, not
+only engineers, and it must not assume terminal, debugging, or GitHub skill.
 
 ## Current Standard
 
@@ -21,18 +23,33 @@ Use this structure:
 | Change contract | `docs/harness/change-contract.md` | Acceptance criteria before edits |
 | Plans | `docs/plans/` | Multi-step work, progress, decisions |
 | Sensors | `docs/harness/verification-matrix.md` | Checks by change type |
+| Experience contract | `docs/style-guide/` | Plain-language, broad-audience, zero-technical-skill review |
+| Support path | `docs/user/QUICK_START.md`, issue templates | Recovery and debug-report flow users can operate |
 | Drift control | `docs/harness/entropy-control.md` | Cleanup cadence and debt tracking |
 | Source notes | `docs/harness/sources.md` | Research basis and adoption decisions |
+
+## Session Start Checklist
+
+For non-trivial work, capture this before edits:
+
+- Goal, user, and success condition.
+- Relevant source-of-truth docs and code paths inspected.
+- Audience and ease risk, especially any zero-technical-skill assumption.
+- Privacy, local-data, and external-side-effect boundary.
+- Exact verification path and rollback path.
+- Plan or handoff file to update if the work spans context limits.
 
 ## Operating Loop
 
 1. Start from `AGENTS.md`.
 2. Read relevant docs and code paths.
 3. Write or update a change contract for non-trivial work.
-4. Implement the smallest coherent slice.
-5. Run sensors from `verification-matrix.md`.
-6. Update docs and plan state.
-7. Record remaining gaps in `docs/plans/tech-debt-tracker.md`.
+4. Choose user, privacy, and verification sensors before edits.
+5. Implement the smallest coherent slice.
+6. Run sensors from `verification-matrix.md`.
+7. Remove disposable artifacts and inspect the diff.
+8. Update docs and plan state.
+9. Record remaining gaps in `docs/plans/tech-debt-tracker.md`.
 
 ## Guide And Sensor Model
 
@@ -55,6 +72,7 @@ Sensors:
 - Security sensor coverage checks.
 - Test quality checks for no-op, focused, and skipped unit tests.
 - Repo bloat checks for disposable artifacts and tracked generated output.
+- User experience checks against zero-technical-skill and broad-audience rules.
 - Vitest unit and integration tests.
 - Playwright E2E tests.
 - Rust formatting, clippy, and tests.
@@ -70,6 +88,9 @@ Sensors:
 - Promote repeated review comments into docs, scripts, or tests.
 - Keep current behavior discoverable from repo files, not chat history.
 - Treat prompt files, plans, and scripts as maintained software.
+- Put repeated failures into a sensor when the rule is cheap to check.
+- Keep support and debug-report paths one-click where a normal user can find
+  them.
 
 ## Minimum Viable Harness For Each Change
 
@@ -79,6 +100,19 @@ Sensors:
 - Smallest relevant verification run.
 - Docs updated when behavior or workflow changes.
 - Known gaps captured instead of buried in chat.
+
+## When To Add Harness
+
+Add docs, scripts, tests, or templates when at least one condition is true:
+
+- A failure repeated or is likely to repeat.
+- A hidden setup, recovery, or verification step can become a command.
+- Context loss would make the next session redo investigation.
+- A product rule affects user trust, privacy, or ease.
+- A reviewer needs evidence that a claim matches current code.
+
+Do not add harness for style preference alone. Prefer the smallest check or doc
+that prevents the observed failure.
 
 ## Related Docs
 

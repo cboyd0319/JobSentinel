@@ -9,6 +9,9 @@ JobSentinel is a privacy-first desktop job search app.
 
 - Frontend: React 19, TypeScript, Vite, Tailwind CSS.
 - Backend: Tauri 2, Rust 2021, Tokio, SQLite with SQLx offline mode.
+- Audience: anyone trying to find a job, including technical and non-technical
+  roles. Do not design user-facing flows only for engineers, developers, or
+  people who can debug software.
 - Product rule: user data stays local unless the user configures an external
   channel such as email, Slack, Discord, Teams, GitHub, or Google Drive.
 - Primary targets: Windows 11+, macOS, Linux.

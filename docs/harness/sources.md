@@ -18,6 +18,16 @@ large harness redesigns.
 | LangChain, "The Anatomy of an Agent Harness" | 2026-03-10 | Agent equals model plus harness; harness includes prompts, tools, MCP, infrastructure, orchestration, middleware, state, and feedback loops. | Harness definition and component map. |
 | LangChain Deep Agents harness docs | 2026 | Useful harness primitives include planning, filesystem permissions, subagents, context management, code execution, human-in-the-loop gates, skills, memory, and profiles. | Permissions and HITL requirements in agent guide and verification matrix. |
 | AGENTS.md open format | 2026 | Provide a predictable repo-local agent instructions file with setup, test, style, and security guidance; use nested files for subprojects when needed. | Root `AGENTS.md`; future nested files if `src-tauri` or E2E guidance grows. |
+| AgentPatterns.ai, "GitHub Copilot: Harness Engineering for Agent-Ready Code" | 2026 | Keep instruction files as compressed architectural maps, use progress files as handoff state, prefer one verifiable feature or fix per session, and design rollback-first operations. | Session checklist, plan templates, rollback field, and verification matrix updates. |
+| Epsilla, "The Repository is the OS" | 2026 | Treat the repo as a self-validating environment, keep `AGENTS.md` as a bootloader, codify implicit rules, and enforce architecture through preflight checks. | `AGENTS.md` stays short; harness check guards docs, boundaries, invokes, security, tests, and bloat. |
+| Charles Anim, `harness-engineering` skill repo | 2026 | Packages the OpenAI-style harness pattern as repo setup: progressive-disclosure `AGENTS.md`, architecture boundaries, testing, CI, golden principles, drift scans, and hooks. | Confirmed current JobSentinel harness direction; adopted stronger templates and experience sensors, not wholesale tooling. |
+
+## Local Sibling Repo Patterns
+
+| Source | Pattern observed | JobSentinel adoption |
+| ------ | ---------------- | -------------------- |
+| Persona checkout | Compact agent map, validation contracts, friction audit, validation ledger, and generated evidence rules. | Kept `AGENTS.md` compact, added ease/audience contract fields, and kept generated reports out of source unless intentionally tracked. |
+| Bluepeak-AI checkout | Harness layers for context, constraints, source, execution, observation, and review; docs-harness checks guard entrypoint size and link health. | Added session checklist, "when to add harness" rules, support-path layer, and explicit template snippets enforced by `npm run harness:check`. |
 
 ## Emerging Research To Track
 
@@ -35,13 +45,17 @@ large harness redesigns.
   plans, tests, scripts, or issues.
 - Do not add broad new tools until current checks are wired and visible.
 - Prefer one repo-native harness check over scattered manual instructions.
+- Do not store local absolute source paths as durable provenance. Use portable
+  URLs, repo-relative paths, or summarized local-review patterns.
 
 ## Refresh Checklist
 
 When refreshing this guidance:
 
 1. Re-check OpenAI, Anthropic, Martin Fowler, Thoughtworks, Red Hat, LangChain,
-   and AGENTS.md sources.
-2. Add new dated source rows only when they change repo practice.
-3. Move superseded guidance into local decisions or remove it.
-4. Run `npm run harness:check`.
+   AgentPatterns.ai, Epsilla, Charles Anim, and AGENTS.md sources.
+2. Re-check any sibling repo patterns only as local examples, not portable
+   provenance.
+3. Add new dated source rows only when they change repo practice.
+4. Move superseded guidance into local decisions or remove it.
+5. Run `npm run harness:check`.

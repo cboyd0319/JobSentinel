@@ -16,7 +16,7 @@ test.describe("Settings Save and Load", () => {
   });
 
   test.describe("Navigation", () => {
-    test("opens settings modal on the dashboard", async () => {
+    test("opens settings modal on the dashboard @smoke", async () => {
       await expect(settingsPage.dialog).toBeVisible();
       await expect(settingsPage.basicTab).toHaveAttribute("aria-selected", "true");
       await expect(settingsPage.saveButton).toBeVisible();

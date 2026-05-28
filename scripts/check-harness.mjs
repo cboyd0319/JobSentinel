@@ -41,6 +41,36 @@ const requiredFiles = [
   "docs/plans/tech-debt-tracker.md",
 ];
 
+const requiredHarnessSnippets = {
+  "docs/harness/README.md": [
+    "## Session Start Checklist",
+    "## When To Add Harness",
+    "Experience contract",
+    "Support path",
+  ],
+  "docs/harness/change-contract.md": [
+    "Audience and ease:",
+    "Harness impact:",
+    "User-ease evidence:",
+  ],
+  "docs/harness/verification-matrix.md": ["## Experience And Support"],
+  "docs/harness/sources.md": [
+    "AgentPatterns.ai",
+    "Epsilla",
+    "Local Sibling Repo Patterns",
+  ],
+  "docs/plans/templates/change-contract-template.md": [
+    "## Audience And Ease",
+    "## Harness Impact",
+    "User-ease evidence:",
+  ],
+  "docs/plans/templates/exec-plan-template.md": [
+    "## Success Criteria",
+    "## Audience And Ease",
+    "## Handoff",
+  ],
+};
+
 const errors = [];
 
 function repoPath(path) {
@@ -77,6 +107,19 @@ function collectMarkdownFiles(dir = root) {
 for (const path of requiredFiles) {
   if (!existsSync(repoPath(path))) {
     errors.push(`missing required harness file: ${path}`);
+  }
+}
+
+for (const [path, snippets] of Object.entries(requiredHarnessSnippets)) {
+  if (!existsSync(repoPath(path))) {
+    continue;
+  }
+
+  const text = read(path);
+  for (const snippet of snippets) {
+    if (!text.includes(snippet)) {
+      errors.push(`${path} must include harness snippet: ${snippet}`);
+    }
   }
 }
 

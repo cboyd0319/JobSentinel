@@ -29,7 +29,7 @@ test.describe("Application Tracking", () => {
   });
 
   test.describe("Kanban Board", () => {
-    test("displays the kanban board", async () => {
+    test("displays the kanban board @smoke", async () => {
       await expect(applicationsPage.kanbanBoard).toBeVisible();
       await expect(pageTitle(applicationsPage)).toBeVisible();
     });

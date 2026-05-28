@@ -233,6 +233,12 @@ pub async fn generate_feedback_report(
     report::generate_feedback_report_impl(state, category, description, include_debug_info).await
 }
 
+/// Sanitize renderer-composed feedback text before clipboard or file use.
+#[tauri::command]
+pub fn sanitize_feedback_text(content: String) -> String {
+    feedback_file_content(&content)
+}
+
 /// Generate suggested filename for feedback report
 #[tauri::command]
 pub fn get_feedback_filename() -> String {
@@ -395,5 +401,22 @@ mod tests {
         assert!(sanitized.contains("[EMAIL]"));
         assert!(sanitized.contains("[USER_PATH]"));
         assert!(sanitized.contains("[WEBHOOK_CONFIGURED]"));
+    }
+
+    #[test]
+    fn test_sanitize_feedback_text_redacts_renderer_content() {
+        let content = concat!(
+            "Crash from C:\\Users\\Alice\\Desktop\\secret.txt ",
+            "using token ghp_123456789 and john@example.com"
+        );
+
+        let sanitized = sanitize_feedback_text(content.to_string());
+
+        assert!(!sanitized.contains("Alice"));
+        assert!(!sanitized.contains("ghp_123456789"));
+        assert!(!sanitized.contains("john@example.com"));
+        assert!(sanitized.contains("[USER_PATH]"));
+        assert!(sanitized.contains("[TOKEN]"));
+        assert!(sanitized.contains("[EMAIL]"));
     }
 }

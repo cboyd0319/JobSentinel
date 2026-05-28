@@ -57,7 +57,11 @@ export class MarketIntelligencePage extends BasePage {
   }
 
   async openLocation(locationName: string) {
-    await this.page.getByRole("listitem", { name: new RegExp(locationName) }).click();
-    await expect(this.page.getByRole("region", { name: new RegExp(locationName) })).toBeVisible();
+    await this.locationRegion
+      .getByRole("listitem", { name: new RegExp(`^${locationName}:`) })
+      .click();
+    await expect(this.page.getByRole("region", { name: new RegExp(locationName) })).toBeVisible({
+      timeout: 15000,
+    });
   }
 }

@@ -10,6 +10,7 @@ import { HelpIcon } from "../components/HelpIcon";
 import { ScraperHealthDashboard } from "../components/ScraperHealthDashboard";
 import { FeedbackModal } from "../components/feedback/FeedbackModal";
 import { FeedbackIcon } from "./DashboardIcons";
+import { copySanitizedDebugReport } from "../services/feedbackService";
 import { BookmarkletGenerator } from "../components/BookmarkletGenerator";
 import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
@@ -288,6 +289,7 @@ export default function Settings({ onClose }: SettingsProps) {
   const [blacklistCompanyInput, setBlacklistCompanyInput] = useState("");
   const [showHealthDashboard, setShowHealthDashboard] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [copyingDebugReport, setCopyingDebugReport] = useState(false);
   const [ghostConfig, setGhostConfig] = useState<GhostConfig | null>(null);
   const [ghostConfigLoading, setGhostConfigLoading] = useState(false);
   const [ghostPreset, setGhostPreset] = useState<
@@ -304,6 +306,26 @@ export default function Settings({ onClose }: SettingsProps) {
   const [testingEmail, setTestingEmail] = useState(false);
   const [connectingLinkedIn, setConnectingLinkedIn] = useState(false);
   const toast = useToast();
+
+  const handleCopyDebugReport = useCallback(async () => {
+    setCopyingDebugReport(true);
+
+    try {
+      await copySanitizedDebugReport();
+      toast.success(
+        "Debug report copied",
+        "Paste it into a GitHub issue when you report a problem."
+      );
+    } catch (error) {
+      logError("Failed to copy debug report:", error);
+      toast.error(
+        "Could not copy debug report",
+        "Try Send Feedback or export error logs."
+      );
+    } finally {
+      setCopyingDebugReport(false);
+    }
+  }, [toast]);
 
   // Location detection state
   const [detectedLocation, setDetectedLocation] = useState<LocationInfo | null>(
@@ -4000,7 +4022,7 @@ export default function Settings({ onClose }: SettingsProps) {
           </div>
 
           {/* Help & Feedback */}
-          <div className="flex gap-3 mb-4">
+          <div className="flex flex-wrap gap-3 mb-4">
             <button
               onClick={() => setShowFeedbackModal(true)}
               className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors"
@@ -4008,6 +4030,15 @@ export default function Settings({ onClose }: SettingsProps) {
             >
               <FeedbackIcon className="w-4 h-4" />
               Send Feedback
+            </button>
+            <button
+              onClick={handleCopyDebugReport}
+              disabled={copyingDebugReport}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors disabled:opacity-50 disabled:pointer-events-none"
+              title="Copy a sanitized report you can paste into a GitHub issue"
+            >
+              <SettingsSymbol icon="clipboard" className="w-4 h-4" />
+              {copyingDebugReport ? "Copying Report..." : "Copy Debug Report"}
             </button>
           </div>
 

@@ -20,6 +20,11 @@ Acceptance criteria:
 - Edge cases.
 - Security or privacy constraints.
 
+Audience and ease:
+- Who the user is.
+- What technical knowledge is assumed.
+- How the path stays usable for non-technical job seekers.
+
 Source-of-truth docs:
 - Existing docs that must stay accurate.
 - New docs to create or update.
@@ -32,6 +37,10 @@ Risks:
 
 Sensors:
 - Exact commands, manual checks, or reviewer passes needed.
+
+Harness impact:
+- Docs, scripts, tests, templates, or recurring checks to update.
+- New gap to record if this change exposes missing harness coverage.
 
 Rollback:
 - How to undo or disable the change.
@@ -48,6 +57,9 @@ Exact steps, command, test, log, screenshot, or user report.
 Failure mode:
 Observed facts, inferred cause, and unknowns.
 
+User-safe workaround:
+Plain-language action a non-technical user can take until the fix ships.
+
 Regression test:
 Test or check that fails before the fix and passes after.
 ```
@@ -62,6 +74,10 @@ Who needs this and why.
 
 UX states:
 Loading, empty, error, disabled, narrow-width, keyboard, and success states.
+
+Support path:
+Where a user can recover, copy a sanitized debug report, or get help without
+technical knowledge.
 
 Data model:
 Input, output, storage, migration, and privacy behavior.
@@ -92,6 +108,10 @@ What changed.
 
 Evidence:
 Commands or manual checks run.
+
+User-ease evidence:
+Copy, screenshot, test, or review proving the flow does not assume technical
+knowledge or engineer-only job searches.
 
 Changed files:
 Important paths.

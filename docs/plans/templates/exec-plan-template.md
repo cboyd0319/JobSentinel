@@ -14,6 +14,19 @@ Out of scope:
 
 - Item.
 
+## Success Criteria
+
+- Observable result:
+- User-ease result:
+- Verification result:
+
+## Audience And Ease
+
+- Primary user:
+- Technical knowledge assumed:
+- Broad job-seeker fit:
+- Support or recovery path:
+
 ## Risks
 
 - Risk and mitigation.
@@ -25,6 +38,7 @@ Out of scope:
 - [ ] Implement changes.
 - [ ] Update docs.
 - [ ] Run verification.
+- [ ] Record open gaps or rollback path.
 
 ## Verification
 
@@ -51,3 +65,10 @@ Add feature-specific commands here.
 ## Outcomes
 
 - Outcome.
+
+## Handoff
+
+- Current state:
+- Evidence:
+- Next step:
+- Open risks:

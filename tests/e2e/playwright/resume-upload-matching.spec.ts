@@ -162,7 +162,7 @@ test.describe("Resume Upload and Matching", () => {
     await expect(page.getByText("Upload your resume to enable AI-powered job matching")).toBeVisible();
   });
 
-  test("renders active resume, extracted skills, and recent matches", async ({ page }) => {
+  test("renders active resume, extracted skills, and recent matches @smoke", async ({ page }) => {
     await seedResumeState(page);
 
     await resumePage.navigateTo();

@@ -15,7 +15,7 @@ stale postings, and keeps your search organized on your own computer.
   <img src="https://img.shields.io/badge/Version-2.6.4-blue?style=for-the-badge" alt="Version 2.6.4">
   <img src="https://img.shields.io/badge/Windows-Ready-0078D6?style=for-the-badge" alt="Windows ready">
   <img src="https://img.shields.io/badge/macOS-Ready-000000?style=for-the-badge&logo=apple&logoColor=white" alt="macOS ready">
-  <img src="https://img.shields.io/badge/Linux-Source_Build-FCC624?style=for-the-badge" alt="Linux source build">
+  <img src="https://img.shields.io/badge/Linux-Installer_Ready-FCC624?style=for-the-badge" alt="Linux installer ready">
 </p>
 
 <p align="center">
@@ -35,8 +35,9 @@ stale postings, and keeps your search organized on your own computer.
 ## What JobSentinel does
 
 JobSentinel is a desktop app for people who want job-search help without a
-cloud account, subscription, or tracking. You tell it what you want, and it
-keeps checking for matching jobs in the background.
+cloud account, subscription, or tracking. It is for technical and non-technical
+job searches. You tell it what you want, and it keeps checking for matching jobs
+in the background.
 
 At a glance:
 
@@ -48,6 +49,7 @@ At a glance:
 | Know what to apply for | Flagging suspicious or stale postings before you spend time |
 | Stay organized | Tracking applications, interviews, reminders, and follow-ups |
 | Apply with less typing | Filling supported forms while you review and click Submit yourself |
+| Get help when something breaks | Copying a sanitized debug report with one click |
 
 No account is required. JobSentinel stores your search data locally and only
 sends data outside the app when you configure a channel like Slack, Discord,
@@ -224,10 +226,11 @@ Download the latest installer from
 | Platform | Installer |
 | -------- | --------- |
 | **Windows** | `.msi` |
-| **macOS** | `.dmg` |
-| **Linux** | Build from source today; release packaging is tracked in the roadmap |
+| **macOS** | universal `.dmg` for Apple silicon and Intel Macs |
+| **Linux** | `.AppImage` or `.deb` |
 
-If a release asset is not available yet, use the source build below.
+The current `v2.6.4` release includes Windows, macOS, and Linux assets. You can
+also build from source below.
 
 <details>
 <summary><strong>macOS Gatekeeper warning</strong></summary>
@@ -300,7 +303,7 @@ Installer output:
 | -------- | ----------- |
 | Windows | `src-tauri/target/release/bundle/msi/` |
 | macOS | `src-tauri/target/release/bundle/dmg/` |
-| Linux | `src-tauri/target/release/bundle/appimage/` |
+| Linux | `src-tauri/target/release/bundle/appimage/` and `src-tauri/target/release/bundle/deb/` |
 
 ---
 
@@ -330,7 +333,7 @@ JobSentinel is built as a Tauri desktop app.
 | Storage | SQLite with SQLx offline mode |
 | Tests | Vitest, Playwright, Rust tests, docs harness checks |
 
-Current backend surface: **189 registered Tauri commands**.
+Current backend surface: **190 registered Tauri commands**.
 
 Common checks:
 
@@ -341,6 +344,7 @@ npm run lint:tests
 npm run lint:docs
 npm run lint
 npm run test:run
+npm run test:e2e:smoke
 npm run build
 cd src-tauri && cargo fmt --all -- --check
 cd src-tauri && cargo clippy -- -D warnings
@@ -349,8 +353,8 @@ cd src-tauri && cargo test --lib
 
 Full release verification also includes `npm run test:e2e:all` and the full
 Rust test suite. Local `npm run test:e2e` runs the faster Chromium functional
-suite; documentation screenshots are refreshed separately with
-`npm run docs:screenshots`.
+suite; `npm run test:e2e:smoke` is the routine fast browser gate; documentation
+screenshots are refreshed separately with `npm run docs:screenshots`.
 
 Quality guardrails:
 
@@ -363,6 +367,8 @@ Quality guardrails:
 - Use focused Playwright projects first for browser-specific changes. Run
   `npm run test:e2e:all` when release risk or cross-browser behavior warrants
   the full browser matrix.
+- Use `npm run test:e2e:last-failed` after a failed Playwright run instead of
+  rerunning the whole matrix while debugging.
 
 Developer docs:
 
@@ -379,6 +385,8 @@ Developer docs:
 
 ### Just released in v2.6.4
 
+- Windows `.msi`, universal macOS `.dmg`, Linux `.AppImage`, and Linux `.deb`
+  release assets are available.
 - Settings no longer spins forever on first load.
 - Jobs with missing salary or scoring data no longer show `NaN`.
 - Bulk bookmark and hide actions keep working when one job has an error.
@@ -387,8 +395,9 @@ Developer docs:
 
 ### Tracked next
 
-- Universal macOS release artifact.
-- Linux AppImage and `.deb` release artifacts.
+- One-click sanitized debug reports in the next packaged release.
+- Continued zero-technical-knowledge UX review.
+- Continued broad-audience review for technical and non-technical roles.
 - Local matching improvements.
 
 Read [docs/README.md](docs/README.md), [CHANGELOG.md](CHANGELOG.md), and
@@ -427,8 +436,8 @@ your computer. External alerts only send data to channels you configure.
 <summary><strong>Can I use JobSentinel for non-tech jobs?</strong></summary>
 <br>
 
-Yes. Some defaults and sources are strongest for tech roles, but you can change
-job titles, keywords, locations, and source settings.
+Yes. JobSentinel is designed for technical and non-technical roles. You can
+change job titles, keywords, locations, and source settings for your search.
 
 </details>
 

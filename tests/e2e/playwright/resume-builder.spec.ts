@@ -50,7 +50,7 @@ test.describe("Resume Builder Wizard", () => {
     resumeBuilder = new ResumeBuilderPage(page);
   });
 
-  test("loads the builder at contact step", async () => {
+  test("loads the builder at contact step @smoke", async () => {
     await resumeBuilder.navigateTo();
 
     await expect(resumeBuilder.heading).toBeVisible();

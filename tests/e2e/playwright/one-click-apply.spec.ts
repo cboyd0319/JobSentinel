@@ -17,7 +17,7 @@ test.describe("One-Click Apply Settings", () => {
     await applyPage.navigateTo();
   });
 
-  test("loads settings stats, tabs, and human-review safety copy", async ({ page }) => {
+  test("loads settings stats, tabs, and human-review safety copy @smoke", async ({ page }) => {
     await expect(applyPage.statCard("Total Attempts")).toContainText("42");
     await expect(applyPage.statCard("Submitted")).toContainText("38");
     await expect(applyPage.statCard("Pending")).toContainText("4");

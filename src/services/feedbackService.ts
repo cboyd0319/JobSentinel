@@ -1,5 +1,11 @@
 import { invoke } from "@tauri-apps/api/core";
 import { logError } from "../utils/errorUtils";
+import {
+  errorReporter,
+  sanitizeContext,
+  sanitizeTextForStorage,
+  type ErrorReport,
+} from "../utils/errorReporting";
 
 export type FeedbackCategory = "bug" | "feature" | "question";
 
@@ -45,6 +51,16 @@ export interface SavedFeedbackFile {
   fileName: string;
   revealToken: string;
 }
+
+export interface DebugReportCopyResult {
+  content: string;
+  copied: boolean;
+  errorCount: number;
+}
+
+const DEBUG_REPORT_DESCRIPTION =
+  "User generated a sanitized debug report from JobSentinel.";
+const MAX_FRONTEND_ERRORS_IN_REPORT = 20;
 
 /**
  * Get system information for feedback report.
@@ -100,6 +116,81 @@ export async function saveFeedbackReport(
     content,
     suggestedFilename,
   });
+}
+
+function formatFrontendErrorLog(errors: ErrorReport[]): string {
+  const lines = [
+    "FRONTEND ERROR LOG (sanitized)",
+    "No raw local paths, URLs, tokens, cookies, webhook URLs, or email addresses.",
+    "",
+  ];
+
+  if (errors.length === 0) {
+    lines.push("No stored frontend errors.", "");
+    return lines.join("\n");
+  }
+
+  for (const error of errors.slice(0, MAX_FRONTEND_ERRORS_IN_REPORT)) {
+    lines.push(
+      `- Time: ${sanitizeTextForStorage(error.timestamp)}`,
+      `  Type: ${sanitizeTextForStorage(error.type)}`,
+      `  Message: ${sanitizeTextForStorage(error.message)}`,
+    );
+
+    if (error.stack) {
+      lines.push(`  Stack: ${sanitizeTextForStorage(error.stack)}`);
+    }
+
+    if (error.componentStack) {
+      lines.push(
+        `  Component Stack: ${sanitizeTextForStorage(error.componentStack)}`
+      );
+    }
+
+    if (error.context && Object.keys(error.context).length > 0) {
+      const context = sanitizeContext(error.context);
+      lines.push(
+        `  Context: ${sanitizeTextForStorage(JSON.stringify(context, null, 2))}`
+      );
+    }
+
+    lines.push("");
+  }
+
+  if (errors.length > MAX_FRONTEND_ERRORS_IN_REPORT) {
+    lines.push(
+      `${errors.length - MAX_FRONTEND_ERRORS_IN_REPORT} older frontend errors omitted.`,
+      ""
+    );
+  }
+
+  return lines.join("\n");
+}
+
+export async function buildSanitizedDebugReport(
+  errors: ErrorReport[] = errorReporter.getErrors()
+): Promise<string> {
+  const backendReport = await invoke<string>("generate_feedback_report", {
+    category: "bug",
+    description: DEBUG_REPORT_DESCRIPTION,
+    includeDebugInfo: true,
+  });
+  const content = `${backendReport}\n\n${formatFrontendErrorLog(errors)}`;
+
+  return await invoke<string>("sanitize_feedback_text", { content });
+}
+
+export async function copySanitizedDebugReport(
+  errors: ErrorReport[] = errorReporter.getErrors()
+): Promise<DebugReportCopyResult> {
+  const content = await buildSanitizedDebugReport(errors);
+  await navigator.clipboard.writeText(content);
+
+  return {
+    content,
+    copied: true,
+    errorCount: errors.length,
+  };
 }
 
 /**

@@ -1339,6 +1339,17 @@ function sanitizeMockFilename(filename: string): string {
   return basename.replace(/[^a-zA-Z0-9._-]/g, "-") || getMockFeedbackFilename();
 }
 
+function sanitizeMockFeedbackText(args?: Record<string, unknown>): string {
+  const content = getStringArg(args, "content") ?? "";
+  return content
+    .replace(/https:\/\/(?:hooks\.slack\.com|discord(?:app)?\.com\/api\/webhooks|outlook\.office(?:365)?\.com\/webhook|hooks\.discord\.com\/api\/webhooks|hooks\.teams\.com\/workflows)[^\s"'<>\\)]*/gi, "[WEBHOOK_CONFIGURED]")
+    .replace(/li_at=[^\s;]+/g, "li_at=[REDACTED]")
+    .replace(/\/(?:Users|home)\/[^/\s]+/g, "/[USER_PATH]")
+    .replace(/[A-Za-z]:\\Users\\[^\\\s]+/g, "C:\\[USER_PATH]")
+    .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "[EMAIL]")
+    .replace(/\b(?:Bearer\s+[^\s]+|token(?:\s+|=)[^\s&]+|api_key=[^\s&]+|access_token=[^\s&]+|refresh_token=[^\s&]+|secret=[^\s&]+|password=[^\s&]+)/gi, "[TOKEN]");
+}
+
 function getMockFeedbackCategory(args?: Record<string, unknown>): MockFeedbackCategory {
   const category = getStringArg(args, "category");
   return category === "bug" || category === "feature" || category === "question"
@@ -2940,6 +2951,9 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
 
     case "generate_feedback_report":
       return generateMockFeedbackReport(args) as T;
+
+    case "sanitize_feedback_text":
+      return sanitizeMockFeedbackText(args) as T;
 
     case "get_feedback_filename":
       return getMockFeedbackFilename() as T;

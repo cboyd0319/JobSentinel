@@ -61,8 +61,7 @@ export class DashboardPage extends BasePage {
   }
 
   async searchForJobs(query: string) {
-    await this.searchInput.fill(query);
-    await expect(this.searchInput).toHaveValue(query);
+    await this.setSearchInput(query);
 
     const normalizedQuery = query.trim().toLowerCase();
     if (!normalizedQuery) {
@@ -77,11 +76,40 @@ export class DashboardPage extends BasePage {
           return true;
         }
 
-        const firstCardText = (await this.jobCards.first().textContent().catch(() => "")) ?? "";
-        const normalizedFirstCard = firstCardText.toLowerCase();
-        return queryTerms.some((term) => normalizedFirstCard.includes(term));
-      })
+        const cardTexts = await this.jobCards.allTextContents();
+        return cardTexts.length > 0 && cardTexts.every((text) => {
+          const normalizedCard = text.toLowerCase();
+          return queryTerms.some((term) => normalizedCard.includes(term));
+        });
+      }, { timeout: 15000 })
       .toBe(true);
+  }
+
+  private async setSearchInput(query: string) {
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      await this.searchInput.fill(query);
+      if (await this.hasSearchValue(query)) {
+        return;
+      }
+
+      await this.searchInput.click();
+      await this.searchInput.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
+      await this.page.keyboard.type(query, { delay: 5 });
+      if (await this.hasSearchValue(query)) {
+        return;
+      }
+    }
+
+    await expect(this.searchInput).toHaveValue(query, { timeout: 15000 });
+  }
+
+  private async hasSearchValue(query: string) {
+    try {
+      await expect(this.searchInput).toHaveValue(query, { timeout: 5000 });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   async clearSearch() {

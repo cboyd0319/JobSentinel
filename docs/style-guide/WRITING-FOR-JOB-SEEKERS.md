@@ -23,6 +23,8 @@ Unemployment is scary. Even employed job seekers feel pressure. Your tone matter
 ### They come from all backgrounds
 
 A laid-off accountant and a recent graduate have different experiences. A career changer might not know industry jargon.
+JobSentinel is for technical and non-technical job searches. Don't make
+software, engineering, or startup work the default mental model.
 
 **Do:** Explain things clearly without assuming prior knowledge.
 
