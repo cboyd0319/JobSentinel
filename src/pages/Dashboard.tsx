@@ -365,18 +365,18 @@ export default function Dashboard({
     }
   };
 
-  // Open job URL
+  // Open job link.
   const handleOpenJob = useCallback(
     async (job: Job) => {
-      // Security: Validate URL before opening
+      // Security: validate job link before opening.
       if (!isValidJobUrl(job.url)) {
         logError(
-          "Security: Blocked attempt to open invalid URL:",
+          "Security: Blocked attempt to open invalid job link:",
           job.url.slice(0, 50),
         );
         toast.error(
-          "Invalid URL",
-          "This job posting URL is not valid or safe to open",
+          "Invalid job link",
+          "This job link is not safe to open",
         );
         return;
       }
@@ -384,8 +384,8 @@ export default function Dashboard({
       try {
         await openDeepLink(job.url);
       } catch (err: unknown) {
-        logError("Failed to open URL via Tauri command:", err);
-        toast.error("Failed to open link", "Unable to open the job posting URL");
+        logError("Failed to open job link via Tauri command:", err);
+        toast.error("Failed to open link", "Unable to open the job link");
       }
     },
     [toast],

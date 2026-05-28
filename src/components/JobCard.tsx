@@ -74,15 +74,15 @@ export const JobCard = memo(function JobCard({
   };
 
   const handleOpenUrl = async (url: string) => {
-    // Security: Validate URL before opening
+    // Security: validate job link before opening.
     if (!isValidJobUrl(url)) {
       logError(
-        "Security: Blocked attempt to open invalid URL:",
+        "Security: Blocked attempt to open invalid job link:",
         url.slice(0, 50),
       );
       toast.error(
-        "Invalid URL",
-        "This job posting URL is not valid or safe to open",
+        "Invalid job link",
+        "This job link is not safe to open",
       );
       return;
     }
@@ -90,8 +90,8 @@ export const JobCard = memo(function JobCard({
     try {
       await openDeepLink(url);
     } catch (err: unknown) {
-      logError("Failed to open URL via Tauri command:", err);
-      toast.error("Failed to open link", "Unable to open the job posting URL");
+      logError("Failed to open job link via Tauri command:", err);
+      toast.error("Failed to open link", "Unable to open the job link");
     }
   };
 

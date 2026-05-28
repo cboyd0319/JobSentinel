@@ -406,6 +406,16 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/JobCard.tsx",
+      [
+        '"Invalid URL"',
+        '"This job posting URL is not valid or safe to open"',
+        '"Unable to open the job posting URL"',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/pages/Resume.tsx",
       '<Button>Import JSON Resume</Button><p>Your JSON Resume has been imported</p>\n',
     );
@@ -505,6 +515,16 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/pages/Dashboard.tsx",
+      '"This job posting URL is not valid or safe to open"; "Unable to open the job posting URL";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/DashboardUI/QuickActions.tsx",
+      '"Import a job from any website URL"\n',
+    );
+    writeFixtureFile(
+      root,
       "src/pages/ResumeBuilder.tsx",
       '"Try restarting the app or check if the database is accessible."\n',
     );
@@ -585,12 +605,15 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/pages/Resume.tsx",
         "src/pages/ResumeOptimizer.tsx",
         "src/pages/Applications.tsx",
+        "src/pages/Dashboard.tsx",
+        "src/pages/DashboardUI/QuickActions.tsx",
         "src/pages/ResumeBuilder.tsx",
         "src/pages/Settings.tsx",
         "src/pages/SetupWizard.tsx",
         "src/components/ErrorBoundary.tsx",
         "src/components/ErrorLogPanel.tsx",
         "src/components/JobImportModal.tsx",
+        "src/components/JobCard.tsx",
         "src/components/automation/ScreeningAnswersForm.tsx",
         "src/components/feedback/DebugInfoPreview.tsx",
         "src/components/feedback/FeedbackModal.tsx",
@@ -613,12 +636,15 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/pages/Resume.tsx",
       "src/pages/ResumeOptimizer.tsx",
       "src/pages/Applications.tsx",
+      "src/pages/Dashboard.tsx",
+      "src/pages/DashboardUI/QuickActions.tsx",
       "src/pages/ResumeBuilder.tsx",
       "src/pages/Settings.tsx",
       "src/pages/SetupWizard.tsx",
       "src/components/ErrorBoundary.tsx",
       "src/components/ErrorLogPanel.tsx",
       "src/components/JobImportModal.tsx",
+      "src/components/JobCard.tsx",
       "src/components/automation/ScreeningAnswersForm.tsx",
       "src/components/feedback/DebugInfoPreview.tsx",
       "src/components/feedback/FeedbackModal.tsx",

@@ -45,7 +45,7 @@ export const QuickActions = memo(function QuickActions({
                        bg-sentinel-50 dark:bg-sentinel-900/30 text-sentinel-700 dark:text-sentinel-300
                        hover:bg-sentinel-100 dark:hover:bg-sentinel-900/50 transition-colors
                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus-visible:ring-offset-1"
-            title="Import a job from any website URL"
+            title="Import a job from any website link"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
