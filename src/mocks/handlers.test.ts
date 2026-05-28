@@ -403,7 +403,7 @@ describe("mock Tauri handlers", () => {
       mockInvoke<void>("open_deep_link", {
         url: "http://localhost:3000/jobs?query=Rust%20Developer",
       }),
-    ).rejects.toThrow("Blocked unsafe deep link URL");
+    ).rejects.toThrow("This job-site link is not safe to open");
   });
 
   it("previews and imports jobs with the real backend command names", async () => {
@@ -441,14 +441,14 @@ describe("mock Tauri handlers", () => {
     expect(duplicatePreview.already_exists).toBe(true);
 
     await expect(mockInvoke<ImportedJob>("import_job_from_url", { url })).rejects.toThrow(
-      "This job already exists in your database",
+      "This job is already in your saved jobs",
     );
 
     await expect(
       mockInvoke<JobImportPreview>("preview_job_import", {
-      url: "http://localhost:3000/jobs/rust-platform-engineer",
-    }),
-    ).rejects.toThrow("Blocked unsafe job import URL");
+        url: "http://localhost:3000/jobs/rust-platform-engineer",
+      }),
+    ).rejects.toThrow("Use a full job link that starts with http:// or https://");
   });
 
   it("generates feedback reports with the real backend command names", async () => {

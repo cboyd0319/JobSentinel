@@ -475,6 +475,17 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/mocks/handlers.ts",
+      [
+        '"Blocked unsafe deep link URL"',
+        '"Blocked unsafe job import URL"',
+        '"Blocked unsafe application URL"',
+        '"This job already exists in your database"',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/pages/Settings.tsx",
       [
         '"Invalid Discord webhook"',
@@ -584,6 +595,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/components/feedback/DebugInfoPreview.tsx",
         "src/components/feedback/FeedbackModal.tsx",
         "src/components/feedback/SuccessScreen.tsx",
+        "src/mocks/handlers.ts",
         "src/utils/formValidation.ts",
         "src/utils/errorMessages.ts",
         "docs/features/notifications.md",
@@ -611,6 +623,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/components/feedback/DebugInfoPreview.tsx",
       "src/components/feedback/FeedbackModal.tsx",
       "src/components/feedback/SuccessScreen.tsx",
+      "src/mocks/handlers.ts",
       "src/utils/formValidation.ts",
       "src/utils/errorMessages.ts",
       "README.md",

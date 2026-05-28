@@ -1154,7 +1154,7 @@ function encodeQuery(value: string): string {
 
 function assertMockDeepLinkUrl(url: string | undefined): void {
   if (!url || !isExternalHttpUrl(url)) {
-    throw new Error("Blocked unsafe deep link URL");
+    throw new Error("This job-site link is not safe to open");
   }
 }
 
@@ -1182,7 +1182,7 @@ function previewMockJobImport(args?: Record<string, unknown>): MockJobImportPrev
 function importMockJobFromUrl(args?: Record<string, unknown>): MockJob {
   const preview = previewMockJobImport(args);
   if (preview.already_exists) {
-    throw new Error("This job already exists in your database");
+    throw new Error("This job is already in your saved jobs");
   }
 
   const now = new Date().toISOString();
@@ -1213,7 +1213,7 @@ function importMockJobFromUrl(args?: Record<string, unknown>): MockJob {
 function getJobImportUrl(args?: Record<string, unknown>): string {
   const url = getStringArg(args, "url")?.trim();
   if (!url || !isExternalHttpUrl(url)) {
-    throw new Error("Blocked unsafe job import URL");
+    throw new Error("Use a full job link that starts with http:// or https://");
   }
 
   return url;
@@ -2086,7 +2086,7 @@ function getMockAtsAutomationNotes(platform: string): string {
 function fillMockApplicationForm(args?: Record<string, unknown>): MockFillResultWithAttempt {
   const jobUrl = getStringArg(args, "jobUrl") ?? getStringArg(args, "job_url") ?? "";
   if (!isExternalHttpUrl(jobUrl)) {
-    throw new Error("Blocked unsafe application URL");
+    throw new Error("This application link is not safe to open");
   }
 
   automationBrowserRunning = true;
