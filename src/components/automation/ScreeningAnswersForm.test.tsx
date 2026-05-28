@@ -23,7 +23,7 @@ vi.mock("../../contexts", () => ({
 const mockAnswers = [
   {
     id: 1,
-    questionPattern: "years.*experience",
+    questionPattern: "years of experience",
     answer: "5 years",
     answerType: "text",
     notes: "Professional experience",
@@ -32,7 +32,7 @@ const mockAnswers = [
   },
   {
     id: 2,
-    questionPattern: "willing.*relocate",
+    questionPattern: "relocate",
     answer: "Yes",
     answerType: "yes_no",
     notes: null,
@@ -41,7 +41,7 @@ const mockAnswers = [
   },
   {
     id: 3,
-    questionPattern: "cover.*letter",
+    questionPattern: "cover letter",
     answer: "I am passionate about software development...",
     answerType: "textarea",
     notes: "Cover letter template",
@@ -191,19 +191,19 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByText("years.*experience")).toBeInTheDocument();
+        expect(screen.getByText("years of experience")).toBeInTheDocument();
         expect(screen.getByText("5 years")).toBeInTheDocument();
-        expect(screen.getByText("willing.*relocate")).toBeInTheDocument();
+        expect(screen.getByText("relocate")).toBeInTheDocument();
         expect(screen.getByText("Yes")).toBeInTheDocument();
       });
     });
 
-    it("renders question patterns in code elements", async () => {
+    it("renders question match text in code elements", async () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
         const codeElements = screen.getAllByText(
-          /years.*experience|willing.*relocate|cover.*letter/,
+          /years of experience|relocate|cover letter/,
         );
         codeElements.forEach((el) => {
           expect(el.tagName.toLowerCase()).toBe("code");
@@ -225,7 +225,7 @@ describe("ScreeningAnswersForm", () => {
 
       await waitFor(() => {
         const relocateAnswer = screen
-          .getByText("willing.*relocate")
+          .getByText("relocate")
           .closest("div");
         expect(relocateAnswer?.textContent).not.toContain("notes");
       });
@@ -340,7 +340,7 @@ describe("ScreeningAnswersForm", () => {
     });
 
     it("hides common pattern button when answer already exists", async () => {
-      mockInvoke.mockResolvedValue([mockAnswers[0]]); // Has "years.*experience"
+      mockInvoke.mockResolvedValue([mockAnswers[0]]); // Has "years of experience"
 
       render(<ScreeningAnswersForm />);
 
@@ -365,9 +365,9 @@ describe("ScreeningAnswersForm", () => {
       await waitFor(() => {
         expect(screen.getByRole("dialog")).toBeInTheDocument();
         const input = screen.getByLabelText(
-          /question pattern/i,
+          /question text to match/i,
         ) as HTMLInputElement;
-        expect(input.value).toBe("years.*experience");
+        expect(input.value).toBe("years of experience");
       });
     });
   });
@@ -408,7 +408,7 @@ describe("ScreeningAnswersForm", () => {
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
       await waitFor(() => {
-        expect(screen.getByLabelText(/question pattern/i)).toBeInTheDocument();
+        expect(screen.getByLabelText(/question text to match/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/answer type/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/your answer/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/notes/i)).toBeInTheDocument();
@@ -555,7 +555,7 @@ describe("ScreeningAnswersForm", () => {
       mockInvoke.mockResolvedValue([]);
     });
 
-    it("allows typing in question pattern field", async () => {
+    it("allows typing in question text to match field", async () => {
       const user = userEvent.setup();
       render(<ScreeningAnswersForm />);
 
@@ -567,12 +567,12 @@ describe("ScreeningAnswersForm", () => {
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
-      const patternInput = screen.getByLabelText(/question pattern/i);
+      const patternInput = screen.getByLabelText(/question text to match/i);
       fireEvent.change(patternInput, {
-        target: { value: "salary|compensation" },
+        target: { value: "salary" },
       });
 
-      expect(patternInput).toHaveValue("salary|compensation");
+      expect(patternInput).toHaveValue("salary");
     });
 
     it("allows typing in answer field", async () => {
@@ -663,7 +663,7 @@ describe("ScreeningAnswersForm", () => {
       mockInvoke.mockResolvedValue([]);
     });
 
-    it("shows error when submitting with empty question pattern", async () => {
+    it("shows error when submitting with empty question text to match", async () => {
       const user = userEvent.setup();
       render(<ScreeningAnswersForm />);
 
@@ -700,7 +700,7 @@ describe("ScreeningAnswersForm", () => {
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
-      const patternInput = screen.getByLabelText(/question pattern/i);
+      const patternInput = screen.getByLabelText(/question text to match/i);
       await user.type(patternInput, "test.*pattern");
 
       await user.click(screen.getByRole("button", { name: /save answer/i }));
@@ -713,7 +713,7 @@ describe("ScreeningAnswersForm", () => {
       });
     });
 
-    it("validates regex pattern format", async () => {
+    it("validates question text match format", async () => {
       const user = userEvent.setup();
       render(<ScreeningAnswersForm />);
 
@@ -725,12 +725,12 @@ describe("ScreeningAnswersForm", () => {
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
-      const patternInput = screen.getByLabelText(/question pattern/i);
+      const patternInput = screen.getByLabelText(/question text to match/i);
       await user.type(patternInput, "   ");
       fireEvent.blur(patternInput);
 
       await waitFor(() => {
-        expect(screen.getByText(/pattern is required/i)).toBeInTheDocument();
+        expect(screen.getByText(/question text is required/i)).toBeInTheDocument();
       });
     });
 
@@ -746,12 +746,12 @@ describe("ScreeningAnswersForm", () => {
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
-      const patternInput = screen.getByLabelText(/question pattern/i);
+      const patternInput = screen.getByLabelText(/question text to match/i);
       await user.type(patternInput, "   ");
       fireEvent.blur(patternInput);
 
       await waitFor(() => {
-        expect(screen.getByText(/pattern is required/i)).toBeInTheDocument();
+        expect(screen.getByText(/question text is required/i)).toBeInTheDocument();
       });
     });
 
@@ -767,12 +767,12 @@ describe("ScreeningAnswersForm", () => {
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
-      const patternInput = screen.getByLabelText(/question pattern/i);
+      const patternInput = screen.getByLabelText(/question text to match/i);
       await user.type(patternInput, "   ");
       fireEvent.blur(patternInput);
 
       await waitFor(() => {
-        expect(screen.getByText(/pattern is required/i)).toBeInTheDocument();
+        expect(screen.getByText(/question text is required/i)).toBeInTheDocument();
       });
 
       await user.clear(patternInput);
@@ -780,7 +780,7 @@ describe("ScreeningAnswersForm", () => {
 
       await waitFor(() => {
         expect(
-          screen.queryByText(/pattern is required/i),
+          screen.queryByText(/question text is required/i),
         ).not.toBeInTheDocument();
       });
     });
@@ -829,7 +829,7 @@ describe("ScreeningAnswersForm", () => {
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
-      const patternInput = screen.getByLabelText(/question pattern/i);
+      const patternInput = screen.getByLabelText(/question text to match/i);
       const answerInput = screen.getByLabelText(/your answer/i);
       const notesInput = screen.getByLabelText(/notes/i);
 
@@ -874,7 +874,7 @@ describe("ScreeningAnswersForm", () => {
 
         await user.click(screen.getByRole("button", { name: /add answer/i }));
 
-        const patternInput = screen.getByLabelText(/question pattern/i);
+        const patternInput = screen.getByLabelText(/question text to match/i);
         const answerInput = screen.getByLabelText(/your answer/i);
 
         fireEvent.change(patternInput, { target: { value: "  testpattern  " } });
@@ -915,7 +915,7 @@ describe("ScreeningAnswersForm", () => {
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
-      const patternInput = screen.getByLabelText(/question pattern/i);
+      const patternInput = screen.getByLabelText(/question text to match/i);
       const answerInput = screen.getByLabelText(/your answer/i);
 
       fireEvent.change(patternInput, { target: { value: "test.*pattern" } });
@@ -950,7 +950,7 @@ describe("ScreeningAnswersForm", () => {
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
-      const patternInput = screen.getByLabelText(/question pattern/i);
+      const patternInput = screen.getByLabelText(/question text to match/i);
       const answerInput = screen.getByLabelText(/your answer/i);
 
       fireEvent.change(patternInput, { target: { value: "test.*pattern" } });
@@ -983,7 +983,7 @@ describe("ScreeningAnswersForm", () => {
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
-      const patternInput = screen.getByLabelText(/question pattern/i);
+      const patternInput = screen.getByLabelText(/question text to match/i);
       const answerInput = screen.getByLabelText(/your answer/i);
 
       fireEvent.change(patternInput, { target: { value: "test.*pattern" } });
@@ -1013,7 +1013,7 @@ describe("ScreeningAnswersForm", () => {
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
-      const patternInput = screen.getByLabelText(/question pattern/i);
+      const patternInput = screen.getByLabelText(/question text to match/i);
       const answerInput = screen.getByLabelText(/your answer/i);
 
       fireEvent.change(patternInput, { target: { value: "test.*pattern" } });
@@ -1045,7 +1045,7 @@ describe("ScreeningAnswersForm", () => {
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
-      const patternInput = screen.getByLabelText(/question pattern/i);
+      const patternInput = screen.getByLabelText(/question text to match/i);
       const answerInput = screen.getByLabelText(/your answer/i);
 
       fireEvent.change(patternInput, { target: { value: "test.*pattern" } });
@@ -1075,7 +1075,7 @@ describe("ScreeningAnswersForm", () => {
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
-      const patternInput = screen.getByLabelText(/question pattern/i);
+      const patternInput = screen.getByLabelText(/question text to match/i);
       const answerInput = screen.getByLabelText(/your answer/i);
 
       fireEvent.change(patternInput, { target: { value: "test.*pattern" } });
@@ -1105,7 +1105,7 @@ describe("ScreeningAnswersForm", () => {
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
-      const patternInput = screen.getByLabelText(/question pattern/i);
+      const patternInput = screen.getByLabelText(/question text to match/i);
       const answerInput = screen.getByLabelText(/your answer/i);
 
       fireEvent.change(patternInput, { target: { value: "test.*pattern" } });
@@ -1134,7 +1134,7 @@ describe("ScreeningAnswersForm", () => {
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
-      const patternInput = screen.getByLabelText(/question pattern/i);
+      const patternInput = screen.getByLabelText(/question text to match/i);
       const answerInput = screen.getByLabelText(/your answer/i);
 
       await user.type(patternInput, "test.*pattern");
@@ -1181,14 +1181,14 @@ describe("ScreeningAnswersForm", () => {
 
       await waitFor(() => {
         const patternInput = screen.getByLabelText(
-          /question pattern/i,
+          /question text to match/i,
         ) as HTMLInputElement;
         const answerInput = screen.getByLabelText(
           /your answer/i,
         ) as HTMLInputElement;
         const notesInput = screen.getByLabelText(/notes/i) as HTMLInputElement;
 
-        expect(patternInput.value).toBe("years.*experience");
+        expect(patternInput.value).toBe("years of experience");
         expect(answerInput.value).toBe("5 years");
         expect(notesInput.value).toBe("Professional experience");
       });
@@ -1306,7 +1306,7 @@ describe("ScreeningAnswersForm", () => {
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
-      const patternInput = screen.getByLabelText(/question pattern/i);
+      const patternInput = screen.getByLabelText(/question text to match/i);
       await user.type(patternInput, "test.*pattern");
 
       await user.click(screen.getByRole("button", { name: /cancel/i }));
@@ -1315,7 +1315,7 @@ describe("ScreeningAnswersForm", () => {
 
       await waitFor(() => {
         const patternInputAfter = screen.getByLabelText(
-          /question pattern/i,
+          /question text to match/i,
         ) as HTMLInputElement;
         expect(patternInputAfter.value).toBe("");
       });
@@ -1345,7 +1345,7 @@ describe("ScreeningAnswersForm", () => {
 
       await waitFor(() => {
         expect(
-          screen.queryByText(/pattern is required/i),
+          screen.queryByText(/question text is required/i),
         ).not.toBeInTheDocument();
       });
     });
@@ -1409,7 +1409,7 @@ describe("ScreeningAnswersForm", () => {
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
       await waitFor(() => {
-        expect(screen.getByLabelText(/question pattern/i)).toBeInTheDocument();
+        expect(screen.getByLabelText(/question text to match/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/answer type/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/your answer/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/notes/i)).toBeInTheDocument();
@@ -1439,7 +1439,7 @@ describe("ScreeningAnswersForm", () => {
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
       await waitFor(() => {
-        const patternInput = screen.getByLabelText(/question pattern/i);
+        const patternInput = screen.getByLabelText(/question text to match/i);
         const answerInput = screen.getByLabelText(/your answer/i);
         expect(patternInput).toHaveAttribute("required");
         expect(answerInput).toHaveAttribute("required");
@@ -1473,7 +1473,7 @@ describe("ScreeningAnswersForm", () => {
       mockInvoke.mockResolvedValue([]);
     });
 
-    it("question pattern has maxLength of 200", async () => {
+    it("question text to match has maxLength of 200", async () => {
       const user = userEvent.setup();
       render(<ScreeningAnswersForm />);
 
@@ -1485,7 +1485,7 @@ describe("ScreeningAnswersForm", () => {
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
-      const patternInput = screen.getByLabelText(/question pattern/i);
+      const patternInput = screen.getByLabelText(/question text to match/i);
       expect(patternInput).toHaveAttribute("maxLength", "200");
     });
 

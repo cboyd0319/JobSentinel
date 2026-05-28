@@ -958,7 +958,7 @@ function getDefaultScreeningAnswers(): MockScreeningAnswer[] {
   return [
     {
       id: 1,
-      questionPattern: "work.*authorized",
+      questionPattern: "work authorized",
       answer: "Yes",
       answerType: "yes_no",
       notes: "US work authorization",

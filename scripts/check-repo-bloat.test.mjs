@@ -359,16 +359,49 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "",
       ].join("\n"),
     );
+    writeFixtureFile(
+      root,
+      "src/components/automation/ScreeningAnswersForm.tsx",
+      [
+        '<HelpIcon text="Patterns use regex matching." />',
+        '<Input label="Question Pattern (regex) *" hint="Use regex patterns to match question text." />',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/utils/formValidation.ts",
+      'return "Invalid regex pattern. Check for unmatched brackets or special characters."; if (!value) return "Pattern is required";\n',
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/one-click-apply.md",
+      "The patterns are flexible (regex), so they match variations.\n",
+    );
 
     execFileSync(
       "git",
-      ["add", "package.json", "src/pages/Resume.tsx", "src/pages/ResumeOptimizer.tsx"],
+      [
+        "add",
+        "package.json",
+        "src/pages/Resume.tsx",
+        "src/pages/ResumeOptimizer.tsx",
+        "src/components/automation/ScreeningAnswersForm.tsx",
+        "src/utils/formValidation.ts",
+        "docs/features/one-click-apply.md",
+      ],
       { cwd: root },
     );
 
     const violations = checkRepoBloat(root);
 
-    for (const path of ["src/pages/Resume.tsx", "src/pages/ResumeOptimizer.tsx"]) {
+    for (const path of [
+      "src/pages/Resume.tsx",
+      "src/pages/ResumeOptimizer.tsx",
+      "src/components/automation/ScreeningAnswersForm.tsx",
+      "src/utils/formValidation.ts",
+      "docs/features/one-click-apply.md",
+    ]) {
       assert.ok(
         violations.includes(`replace technical-first user copy: ${path}`),
         violations.join("\n"),

@@ -89,18 +89,18 @@ You can pre-configure answers for common questions:
 
 1. Go to **Screening Questions** tab in One-Click Apply Settings
 2. Click **Add Answer**
-3. Enter a pattern and your answer
+3. Enter words from the question and your answer
 
-### Example Patterns
+### Example Question Text
 
-| Pattern                | Matches Questions Like...         |
-| ---------------------- | --------------------------------- |
-| `years.*experience`    | "How many years of experience..." |
-| `salary\|compensation` | "What is your expected salary..." |
-| `notice.*period`       | "What is your notice period..."   |
-| `willing.*relocate`    | "Are you willing to relocate..."  |
+| Words to match          | Matches Questions Like...         |
+| ----------------------- | --------------------------------- |
+| `years of experience`   | "How many years of experience..." |
+| `salary`                | "What is your expected salary..." |
+| `notice period`         | "What is your notice period..."   |
+| `relocate`              | "Are you willing to relocate..."  |
 
-The patterns are flexible (regex), so they'll match variations of the same question.
+Use words that appear in the screening question. Matching ignores capitalization.
 
 ---
 

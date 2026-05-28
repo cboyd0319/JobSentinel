@@ -401,8 +401,11 @@ const broadAudienceExamplePaths = new Set([
   "docs/features/resume-matcher.md",
 ]);
 const technicalFirstUserCopyPaths = new Set([
+  "src/components/automation/ScreeningAnswersForm.tsx",
   "src/pages/Resume.tsx",
   "src/pages/ResumeOptimizer.tsx",
+  "src/utils/formValidation.ts",
+  "docs/features/one-click-apply.md",
 ]);
 const backendScoringReasonPaths = new Set([
   "src-tauri/src/core/resume/matcher.rs",
@@ -981,6 +984,12 @@ function hasTechnicalFirstUserCopy(root, path) {
     /Resume Data in JSON format/i,
     /Paste your resume as JSON/i,
     /AtsResumeData schema/i,
+    /Question Pattern \(regex\)/i,
+    /Patterns use regex matching/i,
+    /Use regex patterns to match question text/i,
+    /Invalid regex pattern\. Check for unmatched brackets or special characters\./i,
+    /Pattern is required/i,
+    /flexible \(regex\)/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));

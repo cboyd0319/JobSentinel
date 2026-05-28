@@ -254,7 +254,7 @@ export function validateRegex(pattern: string): string | undefined {
     new RegExp(pattern.trim(), "i");
     return undefined;
   } catch {
-    return "Invalid regex pattern. Check for unmatched brackets or special characters.";
+    return "Question match has unsupported pattern symbols. Check brackets or special characters.";
   }
 }
 
@@ -264,7 +264,7 @@ export function validateRegex(pattern: string): string | undefined {
  * @returns Error message if invalid, undefined if valid
  */
 export function validateRequiredRegex(pattern: string): string | undefined {
-  if (!pattern.trim()) return "Pattern is required";
+  if (!pattern.trim()) return "Question text is required";
   return validateRegex(pattern);
 }
 

@@ -102,7 +102,7 @@ test.describe("One-Click Apply Settings", () => {
   test("shows saved screening answers", async ({ page }) => {
     await applyPage.switchToScreeningQuestions();
 
-    await expect(page.getByText("work.*authorized")).toBeVisible();
+    await expect(page.getByText("work authorized")).toBeVisible();
     await expect(page.getByText("Yes", { exact: true })).toBeVisible();
     await expect(page.getByText("92% confident")).toBeVisible();
     await expect(page.getByText(/Used 4/)).toBeVisible();
@@ -114,14 +114,14 @@ test.describe("One-Click Apply Settings", () => {
     await applyPage.saveScreeningAnswer({ answer: "8 years" });
 
     await expect(page.getByText("Answer saved")).toBeVisible();
-    await expect(page.getByText("years.*experience")).toBeVisible();
+    await expect(page.getByText("years of experience", { exact: true })).toBeVisible();
     await expect(page.getByText("8 years")).toBeVisible();
 
     await page.reload();
     await applyPage.navigateTo();
     await applyPage.switchToScreeningQuestions();
 
-    await expect(page.getByText("years.*experience")).toBeVisible();
+    await expect(page.getByText("years of experience", { exact: true })).toBeVisible();
     await expect(page.getByText("8 years")).toBeVisible();
   });
 
@@ -130,7 +130,7 @@ test.describe("One-Click Apply Settings", () => {
     await applyPage.openBlankScreeningAnswer();
     await applyPage.saveAnswerButton.click();
 
-    await expect(page.getByText("Pattern is required")).toBeVisible();
+    await expect(page.getByText("Question text is required")).toBeVisible();
     await expect(page.getByText("Answer is required")).toBeVisible();
 
     await applyPage.saveScreeningAnswer({
@@ -138,7 +138,7 @@ test.describe("One-Click Apply Settings", () => {
       answer: "Yes",
     });
 
-    await expect(page.getByText("Invalid regex pattern")).toBeVisible();
+    await expect(page.getByText("Question match has unsupported pattern symbols")).toBeVisible();
   });
 
   test("edits an existing screening answer", async ({ page }) => {
@@ -149,7 +149,7 @@ test.describe("One-Click Apply Settings", () => {
     await applyPage.saveScreeningAnswer({ answer: "No" });
 
     await expect(page.getByText("Answer saved")).toBeVisible();
-    await expect(page.getByText("work.*authorized")).toBeVisible();
+    await expect(page.getByText("work authorized")).toBeVisible();
     await expect(page.getByText("No", { exact: true })).toBeVisible();
     await expect(page.getByText("Yes", { exact: true })).not.toBeVisible();
   });

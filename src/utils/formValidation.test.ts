@@ -503,7 +503,7 @@ describe("formValidation", () => {
   });
 
   describe("validateRegex", () => {
-    it("returns undefined for valid regex patterns", () => {
+    it("returns undefined for valid question match patterns", () => {
       // Arrange & Act & Assert
       expect(validateRegex(".*")).toBeUndefined();
       expect(validateRegex("^test$")).toBeUndefined();
@@ -519,19 +519,19 @@ describe("formValidation", () => {
       expect(validateRegex("   ")).toBeUndefined();
     });
 
-    it("returns error message for invalid regex patterns", () => {
+    it("returns error message for invalid question match patterns", () => {
       // Arrange & Act & Assert
       expect(validateRegex("[invalid")).toBe(
-        "Invalid regex pattern. Check for unmatched brackets or special characters."
+        "Question match has unsupported pattern symbols. Check brackets or special characters."
       );
       expect(validateRegex("(unclosed")).toBe(
-        "Invalid regex pattern. Check for unmatched brackets or special characters."
+        "Question match has unsupported pattern symbols. Check brackets or special characters."
       );
       expect(validateRegex("*invalid")).toBe(
-        "Invalid regex pattern. Check for unmatched brackets or special characters."
+        "Question match has unsupported pattern symbols. Check brackets or special characters."
       );
       expect(validateRegex("(?invalid)")).toBe(
-        "Invalid regex pattern. Check for unmatched brackets or special characters."
+        "Question match has unsupported pattern symbols. Check brackets or special characters."
       );
     });
 
@@ -539,11 +539,11 @@ describe("formValidation", () => {
       // Arrange & Act & Assert
       expect(validateRegex("  .*  ")).toBeUndefined();
       expect(validateRegex("  [invalid  ")).toBe(
-        "Invalid regex pattern. Check for unmatched brackets or special characters."
+        "Question match has unsupported pattern symbols. Check brackets or special characters."
       );
     });
 
-    it("handles complex regex patterns", () => {
+    it("handles complex question match patterns", () => {
       // Arrange & Act & Assert
       expect(validateRegex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")).toBeUndefined();
       expect(validateRegex("(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)")).toBeUndefined();
@@ -551,7 +551,7 @@ describe("formValidation", () => {
   });
 
   describe("validateRequiredRegex", () => {
-    it("returns undefined for valid regex patterns", () => {
+    it("returns undefined for valid question match patterns", () => {
       // Arrange & Act & Assert
       expect(validateRequiredRegex(".*")).toBeUndefined();
       expect(validateRequiredRegex("^test$")).toBeUndefined();
@@ -559,17 +559,17 @@ describe("formValidation", () => {
 
     it("returns error message for empty string", () => {
       // Arrange & Act & Assert
-      expect(validateRequiredRegex("")).toBe("Pattern is required");
-      expect(validateRequiredRegex("   ")).toBe("Pattern is required");
+      expect(validateRequiredRegex("")).toBe("Question text is required");
+      expect(validateRequiredRegex("   ")).toBe("Question text is required");
     });
 
-    it("returns error message for invalid regex patterns", () => {
+    it("returns error message for invalid question match patterns", () => {
       // Arrange & Act & Assert
       expect(validateRequiredRegex("[invalid")).toBe(
-        "Invalid regex pattern. Check for unmatched brackets or special characters."
+        "Question match has unsupported pattern symbols. Check brackets or special characters."
       );
       expect(validateRequiredRegex("(unclosed")).toBe(
-        "Invalid regex pattern. Check for unmatched brackets or special characters."
+        "Question match has unsupported pattern symbols. Check brackets or special characters."
       );
     });
   });

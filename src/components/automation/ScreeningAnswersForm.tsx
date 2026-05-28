@@ -42,16 +42,16 @@ interface ScreeningAnswersFormProps {
   onSaved?: () => void;
 }
 
-// Common screening questions with patterns
+// Common screening questions with plain matching text.
 const COMMON_PATTERNS = [
-  { pattern: "years.*experience", label: "Years of experience", type: "text" },
-  { pattern: "salary|compensation|expected.*pay", label: "Salary expectation", type: "text" },
-  { pattern: "notice.*period|start.*date|available.*start", label: "Start date / Notice period", type: "text" },
-  { pattern: "willing.*relocate", label: "Willingness to relocate", type: "yes_no" },
-  { pattern: "remote|work.*from.*home|hybrid", label: "Remote work preference", type: "text" },
-  { pattern: "security.*clearance", label: "Security clearance", type: "yes_no" },
-  { pattern: "degree|education|university", label: "Education level", type: "text" },
-  { pattern: "cover.*letter|why.*company|why.*role", label: "Cover letter / Why this role", type: "textarea" },
+  { pattern: "years of experience", label: "Years of experience", type: "text" },
+  { pattern: "salary", label: "Salary expectation", type: "text" },
+  { pattern: "start date", label: "Start date / Notice period", type: "text" },
+  { pattern: "relocate", label: "Willingness to relocate", type: "yes_no" },
+  { pattern: "remote", label: "Remote work preference", type: "text" },
+  { pattern: "security clearance", label: "Security clearance", type: "yes_no" },
+  { pattern: "education", label: "Education level", type: "text" },
+  { pattern: "cover letter", label: "Cover letter / Why this role", type: "textarea" },
 ];
 
 // Format relative time (e.g., "2 days ago", "1 week ago")
@@ -192,7 +192,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
           <div>
             <h3 className="text-lg font-semibold text-surface-900 dark:text-white mb-1 flex items-center gap-2">
               Screening Question Answers
-              <HelpIcon text="Configure automatic answers for common screening questions. Patterns use regex matching." />
+              <HelpIcon text="Configure automatic answers for common screening questions. JobSentinel matches your saved text to question wording." />
             </h3>
             <p className="text-sm text-surface-500 dark:text-surface-400">
               Save answers to common questions for faster applications
@@ -311,7 +311,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
       >
         <div className="space-y-4">
           <Input
-            label="Question Pattern (regex) *"
+            label="Question text to match *"
             value={questionPattern}
             onChange={(e) => {
               setQuestionPattern(e.target.value);
@@ -320,8 +320,8 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
               }
             }}
             onBlur={() => setFormErrors((prev) => ({ ...prev, pattern: validateRequiredRegex(questionPattern) }))}
-            placeholder="e.g., years.*experience"
-            hint="Use regex patterns to match question text. Case-insensitive."
+            placeholder="e.g., years of experience"
+            hint="Use words that appear in the screening question. Matching ignores capitalization."
             error={formErrors.pattern}
             maxLength={200}
             required
