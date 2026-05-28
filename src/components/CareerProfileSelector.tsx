@@ -11,11 +11,38 @@ interface CareerProfileSelectorProps {
   onSelectProfile: (profileId: string | null) => void;
 }
 
+const PROFILE_DISPLAY_ORDER = [
+  "seo-digital-marketing",
+  "sales-business-dev",
+  "project-operations",
+  "customer-success",
+  "finance-accounting",
+  "healthcare",
+  "education",
+  "legal",
+  "content-copywriting",
+  "creative-media",
+  "product-management",
+  "data-science",
+  "cybersecurity",
+  "software-engineering",
+];
+
+const PROFILE_DISPLAY_RANK = new Map(
+  PROFILE_DISPLAY_ORDER.map((id, index) => [id, index]),
+);
+
+const DISPLAYED_CAREER_PROFILES = [...CAREER_PROFILES].sort((left, right) => {
+  const leftRank = PROFILE_DISPLAY_RANK.get(left.id) ?? Number.MAX_SAFE_INTEGER;
+  const rightRank = PROFILE_DISPLAY_RANK.get(right.id) ?? Number.MAX_SAFE_INTEGER;
+  return leftRank - rightRank || left.name.localeCompare(right.name);
+});
+
 export const CareerProfileSelector = memo(function CareerProfileSelector({ selectedProfile, onSelectProfile }: CareerProfileSelectorProps) {
   return (
     <div className="motion-safe:animate-slide-up" role="radiogroup" aria-label="Select career path">
       <div className="grid grid-cols-2 gap-3 mb-4">
-        {CAREER_PROFILES.map((profile) => (
+        {DISPLAYED_CAREER_PROFILES.map((profile) => (
           <ProfileCard
             key={profile.id}
             profile={profile}

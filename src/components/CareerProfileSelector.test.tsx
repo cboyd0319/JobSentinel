@@ -33,6 +33,19 @@ describe("CareerProfileSelector", () => {
       }
     });
 
+    it("shows broad non-technical paths before tech paths", () => {
+      render(<CareerProfileSelector {...defaultProps} />);
+
+      const radios = screen.getAllByRole("radio");
+
+      expect(radios[0]).toHaveAccessibleName(
+        "Marketing & SEO: SEO managers, growth marketers, and e-commerce",
+      );
+      expect(radios[1]).toHaveAccessibleName(
+        "Sales & Business: Account executives, BDRs, and sales managers",
+      );
+    });
+
     it("renders profile descriptions", () => {
       render(<CareerProfileSelector {...defaultProps} />);
 
