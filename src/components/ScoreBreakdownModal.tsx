@@ -23,7 +23,7 @@ interface ScoreBreakdownModalProps {
  * Scoring weights (must match backend in scoring/mod.rs)
  */
 const FACTOR_WEIGHTS = {
-  skills: { weight: 0.40, label: "Skills Match", icon: "target", description: "Job title and keyword matches" },
+  skills: { weight: 0.40, label: "Skills Match", icon: "target", description: "Job title and search-word matches" },
   salary: { weight: 0.25, label: "Salary", icon: "currency", description: "Salary meets your requirements" },
   location: { weight: 0.20, label: "Location", icon: "location", description: "Remote/hybrid/onsite preference" },
   company: { weight: 0.10, label: "Company", icon: "company", description: "Company preference (if configured)" },

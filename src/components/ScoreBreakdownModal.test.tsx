@@ -110,7 +110,7 @@ describe("ScoreBreakdownModal", () => {
     it("displays factor descriptions", () => {
       render(<ScoreBreakdownModal {...defaultProps} />);
 
-      expect(screen.getByText("Job title and keyword matches")).toBeInTheDocument();
+      expect(screen.getByText("Job title and search-word matches")).toBeInTheDocument();
       expect(screen.getByText("Salary meets your requirements")).toBeInTheDocument();
       expect(screen.getByText("Remote/hybrid/onsite preference")).toBeInTheDocument();
       expect(screen.getByText("Company preference (if configured)")).toBeInTheDocument();

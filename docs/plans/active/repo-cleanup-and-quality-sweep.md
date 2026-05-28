@@ -26,6 +26,10 @@ In scope:
 - Treat broad job-seeker fit as a standalone design requirement. JobSentinel is
   not just for engineers; user-facing flows and examples must work for
   technical and non-technical job searches.
+- Treat protective job-search guidance as a standalone design requirement.
+  Ghost-job detection, pay-equity support, long-term-unemployment pacing,
+  bias-aware route selection, practical tone, and local-first privacy are now
+  core goal inputs, not research appendix items.
 - Keep sanitized debug-report generation one-click from normal settings and
   crash/error recovery surfaces.
 - Improve the repo harness so future work captures scope, audience, ease,
@@ -128,6 +132,8 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-28 | In progress | Promoted ghost-job protection, pay-equity safeguards, long-term-unemployment support, bias-aware application routes, protective tone, and local-first privacy into active goal and plan requirements. |
+| 2026-05-28 | In progress | Reworded Settings, score-breakdown, feedback-preview, and mock debug report search matching copy from keyword jargon to plain search-word language, with component/page tests and bloat coverage. |
 | 2026-05-28 | In progress | Locked all tracked `docs/plans/active/` files into the goal scope, removed local `.DS_Store` artifacts from root and docs paths, and reran root/nested junk checks: tracked disposable scan clean, untracked scan clean, local artifact `find` scan clean, and `npm run lint:bloat` passed. Source-tree README files were classified as owned module/test docs, not disposable reports. |
 | 2026-05-28 | In progress | Reworded Resume Optimizer results from ATS/keyword jargon to resume-match and job-word guidance, including honest-fit wording and bloat coverage. |
 | 2026-05-28 | In progress | Reworded ATS live-score match copy from keyword jargon to job-post words and honest-fit guidance, with component and bloat coverage for recurrence. |

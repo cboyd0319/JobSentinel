@@ -368,6 +368,28 @@ describe("Settings — loadConfig flow", () => {
     expect(screen.getByText("Quick setup:")).toBeInTheDocument();
   });
 
+  it("uses plain search-word copy for matching settings", async () => {
+    const user = userEvent.setup();
+
+    setupHappyPath();
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Search Words to Avoid")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Add a word or phrase to avoid...")).toBeInTheDocument();
+    expect(screen.getByText("No search words to avoid")).toBeInTheDocument();
+    expect(screen.queryByText("Keywords to Avoid")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+
+    expect(screen.getByText(/resume match \+ 30% search words/i)).toBeInTheDocument();
+    expect(screen.getByText("Job title and search-word matches")).toBeInTheDocument();
+    expect(screen.queryByText(/keyword-only scoring/i)).not.toBeInTheDocument();
+  });
+
   it("does NOT fetch LinkedIn expiry when linkedin credential check fails", async () => {
     mockInvoke.mockImplementation(async (cmd: string, args?: unknown) => {
       if (cmd === "get_config") return makeConfig();

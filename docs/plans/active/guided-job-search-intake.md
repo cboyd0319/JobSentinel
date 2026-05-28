@@ -32,6 +32,17 @@ paper list. These rules turn the research into product behavior:
   have" without accidentally hiding good jobs.
 - Make pay adjustable and non-judgmental. Offer "not sure" and "show jobs even
   if pay is missing" paths.
+- Treat salary floors and pay transparency as protection, not preference
+  trivia. Help users avoid jobs that are below their floor, vague about pay, or
+  likely under-leveled.
+- Treat ghost-job risk as morale and time protection. Ask whether the user
+  wants fresh verified roles first, and warn before deep tailoring when source
+  evidence is weak.
+- Support long-term unemployment directly. Offer pacing, weekly summaries,
+  fresh-role filters, and gap-framing help without shame or pressure language.
+- Ask about preferred application routes. Referrals, recruiters, direct company
+  postings, hiring-manager signals, and verified active roles should be visible
+  as strategy choices, not hidden analytics.
 - Ask about adjacent work explicitly. Do not assume users want to leave their
   prior occupation or accept large skill changes.
 - Help users interpret qualifications. Distinguish required qualifications from
@@ -78,7 +89,9 @@ Start with the lowest-friction questions:
 7. What work should JobSentinel avoid?
 8. Are there companies or industries you prefer?
 9. Are there deal breakers, such as schedule, travel, or licensing?
-10. Where should JobSentinel send alerts?
+10. Should JobSentinel show fresh and verified roles first?
+11. Which application routes should JobSentinel prioritize?
+12. Where should JobSentinel send alerts?
 
 ## Target question flow
 
@@ -96,14 +109,23 @@ the flow into short screens:
 5. **Must-haves:** "What would make a job impossible for you?"
    Examples: location, schedule, license, commute, travel, pay, sponsorship.
 6. **Pay:** "What pay would make a job worth considering?"
-   Include "not sure" and "show jobs with missing pay".
+   Include "not sure", "show jobs with missing pay", and "warn me below this
+   floor".
 7. **Location and schedule:** "Where and when can you work?"
    Capture remote, hybrid, on-site, cities, commute, shifts, and travel.
 8. **Adjacent roles:** "Should JobSentinel suggest nearby roles?"
    Choices: yes, maybe show separately, no.
 9. **Review style:** "How many jobs do you want to review at once?"
    Use this to prevent overwhelming dashboards and alerts.
-10. **Alerts:** "Where should JobSentinel tell you about strong matches?"
+10. **Freshness:** "Should fresh or verified jobs show first?"
+    Capture fresh-only, verified-first, or balanced behavior.
+11. **Application route:** "Which routes feel worth your time?"
+    Capture company sites, referrals, recruiters, hiring managers, staffing
+    agencies, and broad job boards.
+12. **Search support:** "Do you want weekly search summaries?"
+    Offer pacing, quiet-period review, fresh-role review, and no-summary
+    choices.
+13. **Alerts:** "Where should JobSentinel tell you about strong matches?"
     Keep all channels optional.
 
 The review screen should summarize answers in plain language:
@@ -127,6 +149,9 @@ Each answer should map to existing settings where possible:
 | Remote, hybrid, onsite | location preferences |
 | Cities or regions | location city list |
 | Minimum pay | salary floor |
+| Below-floor warning | pay protection |
+| Fresh or verified first | freshness and source priority |
+| Preferred application route | channel quality preference |
 | Alerts | notification preferences |
 
 Future settings likely need:
@@ -135,6 +160,12 @@ Future settings likely need:
 - Strictness level for must-haves versus preferences.
 - Adjacent-role openness.
 - Pay-missing behavior.
+- Salary floor warning behavior.
+- Fresh-only or verified-first review mode.
+- Preferred channel strategy.
+- Weekly pacing summary cadence.
+- Long-term unemployment support mode that changes pacing and summaries
+  without exposing private status outside the app.
 - Search check-in cadence.
 
 ## Defaults
@@ -151,6 +182,11 @@ Use defaults that avoid blocking progress:
 - Default search strictness to balanced, not restrictive.
 - Default missing-pay jobs to visible but clearly marked.
 - Default adjacent roles to "show separately" when the user is unsure.
+- Default ghost-risk behavior to visible but ranked lower with a plain
+  verification warning.
+- Default below-floor jobs to visible but clearly marked unless the user chooses
+  to hide them.
+- Default weekly summaries to off until the user chooses them.
 
 ## Copy rules
 
@@ -160,6 +196,8 @@ Use defaults that avoid blocking progress:
 - Prefer "You can change this later" over long explanations.
 - Never call the flow an interview.
 - Never use pressure language.
+- Avoid hollow encouragement. Use practical, protective copy that names the
+  issue and the next safe action.
 - Avoid "qualified" as a binary judgment. Prefer "strong match", "missing from
   your current search", or "JobSentinel is not sure yet".
 - Explain automation as estimates based on visible inputs, not objective truth.

@@ -1341,15 +1341,15 @@ export default function Settings({ onClose }: SettingsProps) {
                 </div>
               </section>
 
-              {/* Keywords to Avoid */}
+              {/* Search words to avoid */}
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
-                  Keywords to Avoid
-                  <HelpIcon text="Jobs mentioning these keywords will rank lower. Use this for things you don't want like 'Sales' or 'Travel Required'." />
+                  Search Words to Avoid
+                  <HelpIcon text="Jobs mentioning these words will rank lower. Use this for work you do not want, like 'Sales' or 'Travel Required'." />
                 </h3>
                 <div className="flex gap-2 mb-3">
                   <Input
-                    placeholder="Add a keyword to avoid..."
+                    placeholder="Add a word or phrase to avoid..."
                     value={excludeKeywordInput}
                     onChange={(e) => setExcludeKeywordInput(e.target.value)}
                     onKeyDown={(e) => {
@@ -1379,7 +1379,7 @@ export default function Settings({ onClose }: SettingsProps) {
                   ))}
                   {config.keywords_exclude.length === 0 && (
                     <p className="text-sm text-surface-400">
-                      No excluded keywords
+                      No search words to avoid
                     </p>
                   )}
                 </div>
@@ -3789,7 +3789,7 @@ export default function Settings({ onClose }: SettingsProps) {
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
                   Resume-Based Scoring
-                  <HelpIcon text="When enabled, job scores are calculated based on skills from your uploaded resume. This provides more accurate matching than keyword-only scoring." />
+                  <HelpIcon text="When enabled, job scores use skills from your uploaded resume plus the search words you chose." />
                 </h3>
                 <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4">
                   <div className="flex items-center justify-between">
@@ -3801,7 +3801,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         </div>
                         <div className="text-xs text-surface-500 dark:text-surface-400">
                           Match jobs against your actual resume skills (70%
-                          resume match + 30% keywords)
+                          resume match + 30% search words)
                         </div>
                       </div>
                     </div>
@@ -3826,7 +3826,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       <span>
                         <strong>Tip:</strong> Upload your resume in the{" "}
                         <strong>Resume</strong> tab first. If no resume is
-                        uploaded, scoring falls back to keyword matching.
+                        uploaded, scoring uses your job titles and search words.
                       </span>
                     </p>
                   </div>
@@ -3855,7 +3855,7 @@ export default function Settings({ onClose }: SettingsProps) {
                             Skills Match
                           </div>
                           <div className="text-xs text-surface-500 dark:text-surface-400">
-                            Job title and keyword matches
+                            Job title and search-word matches
                           </div>
                         </div>
                       </div>

@@ -118,6 +118,38 @@ Out of scope:
 - Support or recovery path: every future feature should explain what changed,
   let users undo or edit it, and avoid presenting scores as objective truth.
 
+## Product north star
+
+JobSentinel should protect job seekers' time, dignity, money, and private data.
+The product should help users avoid wasted effort, underpayment, opaque
+channels, stale postings, and shame-based search loops. Tone should be
+protective and factual, not motivational theater.
+
+First-class product requirements:
+
+- Ghost-job and stale-posting detection is central. Prioritize first-seen and
+  last-seen tracking, company-site or ATS verification, repost detection,
+  closure checks, source-quality labels, and "verify before tailoring" warnings
+  so users do not spend an hour on low-trust postings.
+- Pay equity is core product behavior. Prioritize salary floor filters, range
+  quality scoring, pay transparency signals, salary-history guardrails,
+  under-anchoring warnings, under-leveling checks, and negotiation prep that
+  helps users avoid being underpaid.
+- Long-term unemployment needs explicit support. Add pacing, weekly progress
+  summaries, fresh-role queues, quiet-period prompts, reactivation strategies,
+  callback-rate context, and resume framing for gaps without shame.
+- Bias-aware application strategy matters. Help users spend more time on
+  verifiable routes: referrals, recruiter contact, hiring-manager signals,
+  direct company or ATS postings, warm paths, and roles with clear evidence of
+  active hiring.
+- Protective tone wins over cheerleading. Prefer copy like "This posting may
+  be stale", "This salary is below your floor", "This company has low response
+  history", "This role conflicts with your constraints", or "This one is
+  worth tailoring" over generic encouragement.
+- Privacy-first is ethical infrastructure. Keep job history, salary floors,
+  resume versions, application notes, contacts, and search constraints local by
+  default; require explicit user choice before any external channel or service.
+
 ## Research evidence map
 
 | Source | Research signal | JobSentinel implication |
@@ -707,10 +739,23 @@ Likely files later:
 
 Do first:
 
+- Ghost-job and stale-posting protection: stale labels, source verification,
+  company-site or ATS checks, repost tracking, closure checks, and "verify
+  before tailoring" warnings.
+- Pay-equity protection: salary floor filters, range-quality scoring,
+  salary-history guardrails, under-anchoring warnings, under-leveling checks,
+  and negotiation prep grounded in role scope and market evidence.
+- Long-term-unemployment support: pacing, weekly progress summaries,
+  fresh-role filters, quiet-period prompts, reactivation strategies, and
+  gap-framing support without shame.
+- Bias-aware application strategy: referrals, recruiter contact, hiring-manager
+  signals, direct company postings, route verification, and source/channel
+  outcome tracking.
+- Protective tone audit across job cards, score explanations, salary guidance,
+  ghost warnings, and application tracking.
 - Guided setup strictness: must-have, prefer, avoid, not sure.
 - Score explanations that show source inputs and uncertainty.
 - Resume parse preview and format linting.
-- Ghost detection labels, source verification, and scam separation.
 - Application channel tracking and duplicate-application guard.
 - Anti-gaming guardrails for hidden text, stuffing, and prompt injection.
 - Accessibility checks for setup, resume, and score explanations.
@@ -720,11 +765,14 @@ Do first:
   transferable evidence, and non-degree paths.
 - Single-user source registry, public ATS API preference, source risk badges,
   crawler stop list, and no-evasion scraper guardrails.
+- Local-first privacy coverage for salary floors, resume versions, job history,
+  application notes, contacts, and debug reports.
 
 Do next:
 
 - Weekly search check-ins and fatigue-aware queues.
-- Salary, commute, schedule, and missing-pay tradeoff review.
+- Salary, commute, schedule, and missing-pay tradeoff review beyond the first
+  pay-equity protection slice.
 - Semantic matching improvements with visible evidence.
 - Employer hiring velocity, trust trends, and source-quality badges.
 - Local share summary for counselors or peer support.
@@ -732,9 +780,9 @@ Do next:
 - Regulatory-disclosure tracking for ghost-job and automated-hiring signals.
 - Salary and offer negotiation support that covers benefits, flexibility,
   promotion path, review timing, and structural risk factors.
-- Pay-equity compensation intelligence: range quality, under-anchoring warning,
-  past-salary guardrail, leveling checker, review-cycle tracker, and employer
-  transparency score.
+- Expanded pay-equity compensation intelligence: review-cycle tracker, employer
+  transparency score, total-compensation comparison, and promotion-evidence
+  support.
 
 Research before building:
 
@@ -809,6 +857,9 @@ Do not build:
   salary-advice bias research.
 - [x] Add pay-equity compensation-intelligence guidance and protected-class
   guardrails.
+- [x] Promote ghost-job protection, pay-equity safeguards,
+  long-term-unemployment support, bias-aware application routes, protective
+  tone, and local-first privacy into first-class product requirements.
 - [x] Create this active plan with a combined improvement backlog.
 - [x] Re-run docs-only verification after the pay-equity source update.
 - [ ] For the next implementation goal, choose one prioritized slice and write
@@ -850,6 +901,7 @@ against:
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-28 | In progress | Promoted ghost-job protection, pay-equity safeguards, long-term-unemployment support, bias-aware application routes, protective tone, and local-first privacy from research notes into first-class product requirements and prioritization. |
 | 2026-05-28 | Verified | Added pay-equity source. Added compensation intelligence, salary-history guardrails, market-anchor support, leveling checks, range-quality scoring, review-cycle tracking, employer transparency signals, protected-class guardrails, and re-ran docs-only checks. |
 | 2026-05-28 | Verified | Added final scraping and salary-negotiation sources. Scoped scraping guidance to a local-first single-job-seeker app, added source-governance guardrails, added negotiation guidance that avoids blaming job seekers for structural pay gaps, and re-ran docs-only checks. |
 | 2026-05-28 | Verified | Second pass inventoried 52 URLs, extracted 45 accessible sources, reviewed an alternate fairness-survey PDF, recorded blocked sources, added missed guidance around fresh-post urgency, intermediaries, hidden workers, fairness/proxy risks, company-site limits, and regulatory fields, then re-ran docs-only checks. |
@@ -961,18 +1013,23 @@ against:
 - Re-check source dates and primary text before shipping volatile claims about
   laws, employer behavior, salary rules, platform behavior, or exact statistics.
 - Prefer narrow future implementation slices with their own change contracts.
+- Prioritize product behavior that protects time, dignity, compensation, and
+  privacy over motivational copy or raw activity volume.
 
 ## Outcomes
 
 - Combined product backlog exists for job-seeker behavior, ATS-aware resume
   preparation, ghost-job research, local source collection, and salary
   negotiation and pay-equity support.
+- Product priorities now explicitly center ghost-job protection, pay-equity
+  safeguards, long-term-unemployment support, bias-aware application routes,
+  protective tone, and local-first privacy.
 - Docs-only verification is complete for this planning slice.
 
 ## Handoff
 
-- Current state: plan updated with six source documents and verified after the
-  pay-equity source update.
+- Current state: plan updated with six source documents plus first-class
+  protective product priorities from the latest goal guidance.
 - Evidence: source documents, selected primary sources, and local PDF text
   extraction reviewed on
   2026-05-28.

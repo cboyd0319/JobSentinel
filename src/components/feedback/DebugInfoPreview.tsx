@@ -83,7 +83,7 @@ export const DebugInfoPreview = memo(function DebugInfoPreview({
                 {/* Config Summary */}
                 <Section title="Settings summary">
                   <InfoRow label="Job sources enabled" value={configSummary.scrapers_enabled} />
-                  <InfoRow label="Search keywords" value={`${configSummary.keywords_count} configured`} />
+                  <InfoRow label="Search words" value={`${configSummary.keywords_count} configured`} />
                   <InfoRow label="Location filters" value={configSummary.has_location_prefs ? "configured" : "not configured"} />
                   <InfoRow label="Salary filters" value={configSummary.has_salary_prefs ? "configured" : "not configured"} />
                   <InfoRow label="Hidden companies" value={configSummary.has_company_blocklist ? "configured" : "not configured"} />

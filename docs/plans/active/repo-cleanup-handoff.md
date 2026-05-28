@@ -44,6 +44,10 @@ Current cleanup posture:
 - Broad audience fit is also a standalone design requirement: JobSentinel is
   for all job seekers and technical plus non-technical roles, not just
   engineers.
+- Protective job-search guidance is now a standalone design requirement:
+  ghost-job protection, pay-equity safeguards, long-term-unemployment pacing,
+  bias-aware application routes, practical tone, and local-first privacy are
+  core goal inputs.
 - Harness docs and templates now require audience/ease, support-path, rollback,
   handoff, and experience-sensor thinking for non-trivial work. The harness
   check guards those template snippets.
@@ -152,14 +156,23 @@ Next high-value passes:
      work.
    - Promote any repeated ease, privacy, or flaky-test failure into a guide or
      sensor instead of leaving it in chat.
-8. Decide final E2E scope.
+8. Continue protective job-search UX review.
+   - Make ghost/stale detection central on job cards and saved jobs.
+   - Make salary floor, pay transparency, salary-history guardrails, and
+     under-leveling checks part of pay support.
+   - Add pacing, weekly summaries, fresh-role filters, reactivation strategy,
+     and gap-framing support for long-term unemployment.
+   - Prefer verified company routes, referrals, recruiter contact, and
+     hiring-manager signals over opaque cold-apply paths where evidence exists.
+   - Keep product copy factual and protective, not generic encouragement.
+9. Decide final E2E scope.
    - Use focused E2E while fixing narrow browser-flow issues.
    - Run `npm run test:e2e:all` before claiming broad cross-browser completion,
      or document why it is deferred with exact risk.
-9. Run final broad verification before goal completion.
-   - Docs, bloat, test-quality, security, architecture, frontend tests, build,
-     Rust formatting, Rust clippy, Rust tests, and chosen E2E scope all need
-     current evidence.
+10. Run final broad verification before goal completion.
+    - Docs, bloat, test-quality, security, architecture, frontend tests, build,
+      Rust formatting, Rust clippy, Rust tests, and chosen E2E scope all need
+      current evidence.
 
 ## Completion Bar
 

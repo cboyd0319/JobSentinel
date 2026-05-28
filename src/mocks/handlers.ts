@@ -1273,7 +1273,7 @@ function generateMockFeedbackReport(args?: Record<string, unknown>): string {
       "CONFIGURATION SUMMARY (anonymized - no actual values)",
       "",
       `Scrapers enabled: ${configSummary.scrapers_enabled}`,
-      `Search keywords configured: ${configSummary.keywords_count}`,
+      `Search words configured: ${configSummary.keywords_count}`,
       `Location preferences: ${configSummary.has_location_prefs ? "configured" : "not set"}`,
       `Salary preferences: ${configSummary.has_salary_prefs ? "configured" : "not set"}`,
       `Notifications: ${configSummary.notifications_configured} channel(s)`,

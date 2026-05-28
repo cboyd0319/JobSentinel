@@ -549,11 +549,17 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/ScoreBreakdownModal.tsx",
+      '"Job title and keyword matches"\n',
+    );
+    writeFixtureFile(
+      root,
       "src/components/feedback/DebugInfoPreview.tsx",
       [
         '"Loading debug information..."',
         '"Anonymized Debug Information"',
         '"Privacy guaranteed:"',
+        '"Search keywords"',
         "",
       ].join("\n"),
     );
@@ -575,6 +581,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         '"Blocked unsafe job import URL"',
         '"Blocked unsafe application URL"',
         '"This job already exists in your database"',
+        '"Search keywords configured"',
         "",
       ].join("\n"),
     );
@@ -589,6 +596,13 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         '"Get Free API Key"',
         '"Paste your API key here"',
         '"Required by USAJobs API"',
+        '"Keywords to Avoid"',
+        '"Add a keyword to avoid"',
+        '"No excluded keywords"',
+        '"keyword-only scoring"',
+        '"resume match + 30% keywords"',
+        '"scoring falls back to keyword matching"',
+        '"Job title and keyword matches"',
         "",
       ].join("\n"),
     );
@@ -726,6 +740,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/components/DeepLinkGenerator.tsx",
         "src/components/ErrorBoundary.tsx",
         "src/components/ErrorLogPanel.tsx",
+        "src/components/ScoreBreakdownModal.tsx",
         "src/components/JobImportModal.tsx",
         "src/components/JobCard.tsx",
         "src/components/AtsLiveScorePanel.tsx",
@@ -766,6 +781,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/components/DeepLinkGenerator.tsx",
       "src/components/ErrorBoundary.tsx",
       "src/components/ErrorLogPanel.tsx",
+      "src/components/ScoreBreakdownModal.tsx",
       "src/components/JobImportModal.tsx",
       "src/components/JobCard.tsx",
       "src/components/AtsLiveScorePanel.tsx",
