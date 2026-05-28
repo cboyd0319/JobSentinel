@@ -1,16 +1,50 @@
-# Browser Bookmarklet Integration
+# Browser Import Button
 
-## Overview
+The browser import button saves the job page you are viewing into JobSentinel.
+It is optional. You can still add jobs from inside JobSentinel without setting
+this up.
 
-The JobSentinel bookmarklet allows you to import jobs from **any website** directly into your local JobSentinel
-database with a single click. No scraping, no API keys, completely legal - it runs in your browser using your
-existing session.
+## What It Does
 
-## Supported Sites
+- Saves jobs from many job boards and company career pages.
+- Uses the browser page you already opened.
+- Sends the job only to the JobSentinel app running on your computer.
+- Keeps the saved job local.
 
-The bookmarklet works on:
+## When To Use It
 
-### Job Boards
+Use the browser import button when:
+
+- You find a job while browsing outside JobSentinel.
+- A job site cannot be scanned automatically.
+- You want to save one job without copying details by hand.
+
+## Set It Up
+
+1. Open JobSentinel Settings.
+2. Find **Browser Import Button**.
+3. Turn on the import helper.
+4. Click **Copy Setup Code**.
+5. Create a new browser bookmark.
+6. Name it **Import to JobSentinel**.
+7. Paste the copied setup code into the bookmark address field.
+8. Save it to your bookmarks bar.
+
+Copy fresh setup code after changing the connection number or restarting
+JobSentinel.
+
+## Save A Job
+
+1. Open an individual job posting in your browser.
+2. Click the **Import to JobSentinel** bookmark.
+3. Wait for the confirmation message.
+4. Open JobSentinel and review the saved job.
+
+If some details are missing, edit the saved job after import.
+
+## Supported Pages
+
+The browser import button works best on individual job pages from:
 
 - LinkedIn
 - Indeed
@@ -23,275 +57,52 @@ The bookmarklet works on:
 - We Work Remotely
 - Remote OK
 - FlexJobs
-- AngelList/Wellfound
+- Wellfound
+- Company career pages
 
-### Company Career Pages
+Job search result pages may not include enough job details. Open the specific
+job page first.
 
-- Google Careers
-- Microsoft Careers
-- Amazon Jobs
-- Any company site using Schema.org JobPosting markup
-- Most modern career pages with structured data
+## Troubleshooting
 
-### How It Works
+### Cannot Connect To JobSentinel
 
-1. **Schema.org Detection** - First attempts to extract structured JobPosting data
-2. **Smart DOM Parsing** - Falls back to intelligent HTML parsing if no structured data
-3. **Local Import** - Sends data to your local JobSentinel instance via HTTP
-4. **Deduplication** - Checks if job already exists before importing
+- Make sure JobSentinel is open.
+- Turn on the import helper in Settings.
+- Copy fresh setup code if you restarted JobSentinel.
+- If your firewall asks, allow connections for JobSentinel.
 
-## Installation
+### Job Already Exists
 
-### 1. Start the Bookmarklet Server
+JobSentinel found the same job in your saved jobs. Open your jobs list and
+search for the company or title.
 
-1. Open JobSentinel Settings
-2. Navigate to "Browser Integration"
-3. Click "Start Server"
-4. Default port is 4321 (change if needed)
+### Job Did Not Save
 
-### 2. Install the Bookmarklet
+- Make sure you are on an individual job page.
+- Try opening the job on the company career site.
+- Add the job manually if the page does not include enough details.
 
-**Method 1: Drag and Drop (Recommended)**
+### Missing Details
 
-1. Show your bookmarks bar (Cmd/Ctrl+Shift+B in most browsers)
-2. Click "Copy Code" in the Browser Integration section
-3. Create a new bookmark:
-   - Right-click the bookmarks bar and choose "Add page"
-   - Name: "Import to JobSentinel"
-   - URL: Paste the copied code
-4. Save
+Some sites hide details or load them after the page opens. Save the job, then
+fill in any blank details in JobSentinel.
 
-**Method 2: Manual Creation**
+## Privacy
 
-1. Copy the bookmarklet code from Settings
-2. Bookmark any page (Cmd/Ctrl+D)
-3. Edit the bookmark:
-   - Change name to "Import to JobSentinel"
-   - Replace URL with copied code
-4. Save and drag to bookmarks bar
+- JobSentinel creates the setup code on your computer.
+- The setup code includes a local safety token and is hidden in the app.
+- Job data stays local unless you choose to share it.
+- Debug reports must redact the setup code and saved job details.
 
-The generated code includes a local auth token for the running JobSentinel
-instance. Copy a fresh bookmarklet after restarting JobSentinel or changing the
-bookmarklet port.
+## For Maintainers
 
-## Usage
+The browser import button is implemented by the bookmarklet module. The user
+interface should keep technical details hidden:
 
-### Importing a Job
-
-1. Browse to any job posting page
-2. Click the "Import to JobSentinel" bookmark
-3. Wait for confirmation message
-4. Job appears in JobSentinel
-
-### Troubleshooting
-
-**"Cannot connect to JobSentinel"**
-
-- Make sure JobSentinel is running
-- Check that the bookmarklet server is started in Settings
-- Verify the port matches (default 4321)
-- Check firewall settings
-
-**"Job already exists"**
-
-- JobSentinel detected a duplicate (same company + title + URL hash)
-- This prevents duplicate entries
-- Check your existing jobs list
-
-**"Failed to import job"**
-
-- Page may not have structured job data
-- Try a different URL (direct job page, not search results)
-- Check browser console for details (F12)
-
-**"Invalid job data"**
-
-- Missing required fields (title, company, or URL)
-- Page may be a job search results page (not individual job)
-- Try navigating to the specific job posting
-
-## Technical Details
-
-### Architecture
-
-Bookmarklet import flow:
-
-1. Browser bookmarklet sends an HTTP POST.
-2. Local HTTP server on `localhost:4321` validates the token and deduplicates.
-3. SQLite stores the imported job.
-
-### Data Extraction Priority
-
-1. **Schema.org JobPosting** - Structured data in `<script type="application/ld+json">`
-2. **OpenGraph meta tags** - `og:title`, `og:description`, etc.
-3. **DOM patterns** - Common CSS selectors for title, company, description
-4. **User fallback** - Manual editing after import
-
-### Security
-
-- **Localhost only** - Server binds to 127.0.0.1, not accessible from network
-- **CORS enabled with token auth** - Allows bookmarklet requests from job sites
-  while rejecting local POSTs that do not include the generated token
-- **Local auth token** - Generated by JobSentinel and embedded only in the
-  bookmarklet code copied from Settings
-- **No data leakage** - All processing happens locally
-
-### Extracted Fields
-
-| Field | Schema.org | Fallback |
-|-------|-----------|----------|
-| Title | `title` | `<h1>` tag |
-| Company | `hiringOrganization.name` | `[class*="company"]` |
-| Description | `description` | `[class*="description"]` |
-| Location | `jobLocation.address` | `[class*="location"]` |
-| Salary | `baseSalary` | Not extracted |
-| Remote | `jobLocationType: "TELECOMMUTE"` | Not extracted |
-| URL | Current page URL | Current page URL |
-
-### Bookmarklet Code Structure
-
-The bookmarklet is a single JavaScript function:
-
-```javascript
-javascript:(function(){
-  // 1. Extract Schema.org JobPosting
-  var scripts = document.querySelectorAll('script[type="application/ld+json"]');
-  var job = null;
-  scripts.forEach(function(s){
-    try {
-      var data = JSON.parse(s.textContent);
-      if(data['@type'] === 'JobPosting') job = data;
-    } catch(e){}
-  });
-
-  // 2. Fallback to DOM parsing
-  if(!job) {
-    job = {
-      title: document.querySelector('h1')?.textContent,
-      company: document.querySelector('[class*="company"]')?.textContent,
-      description: document.querySelector('[class*="description"]')?.textContent,
-      url: window.location.href
-    };
-  } else {
-    job.url = window.location.href;
-  }
-
-  // 3. Send to JobSentinel
-  fetch('http://localhost:4321/api/bookmarklet/import', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-JobSentinel-Token': 'generated-token-from-settings'
-    },
-    body: JSON.stringify(job)
-  }).then(function(r){
-    if(r.ok){
-      alert('Job imported to JobSentinel.');
-    } else {
-      alert('Failed to import job. Is JobSentinel running?');
-    }
-  }).catch(function(e){
-    alert('Cannot connect to JobSentinel.');
-  });
-})();
-```
-
-## API Endpoint
-
-### POST /api/bookmarklet/import
-
-**Request:**
-
-```json
-{
-  "title": "Software Engineer",
-  "company": "Google",
-  "description": "We are looking for...",
-  "url": "https://careers.google.com/jobs/123",
-  "location": "San Francisco, CA",
-  "remote": false,
-  "@type": "JobPosting",
-  "hiringOrganization": {"name": "Google Inc."},
-  "jobLocation": {"address": {"addressLocality": "San Francisco"}},
-  "baseSalary": {"currency": "USD", "value": {"minValue": 100000, "maxValue": 150000}}
-}
-```
-
-**Response (Success):**
-
-```json
-{
-  "success": true,
-  "message": "Job imported successfully"
-}
-```
-
-**Response (Error):**
-
-```json
-{
-  "error": "Job already exists in database"
-}
-```
-
-## Future Enhancements
-
-- [ ] Browser extension (automatic detection)
-- [ ] Bulk import from search results
-- [ ] Chrome/Firefox native integration
-- [ ] Mobile browser support
-- [ ] Custom field mapping
-- [ ] Import history tracking
-- [ ] Quick edit imported jobs
-
-## Development
-
-### Testing the Bookmarklet
-
-1. Start JobSentinel in dev mode: `npm run tauri:dev`
-2. Enable bookmarklet server in Settings
-3. Test on:
-   - <https://careers.google.com> (Schema.org)
-   - <https://www.linkedin.com/jobs/view/>... (Mixed)
-   - <https://www.indeed.com/viewjob?jk=>... (DOM parsing)
-
-### Adding New Site Support
-
-To improve extraction for a specific site:
-
-1. Inspect the page HTML
-2. Identify Schema.org data or common CSS patterns
-3. Update bookmarklet code with site-specific selectors
-4. Test and verify
-
-### Debugging
-
-**Browser Console:**
-
-```javascript
-// Test Schema.org extraction
-document.querySelectorAll('script[type="application/ld+json"]')
-
-// Test DOM selectors
-document.querySelector('h1')
-document.querySelector('[class*="company"]')
-```
-
-**Server Logs:**
-
-```bash
-# Watch Rust logs
-tail -f ~/.local/share/JobSentinel/logs/jobsentinel.log | grep bookmarklet
-```
-
-## Privacy & Legal
-
-- **100% Legal** - Uses browser's existing session and user permissions
-- **No Scraping** - Bookmarklet runs in user's browser, not automated
-- **No Data Collection** - All data stays on local machine
-- **Terms of Service** - User must comply with site ToS
-- **No Automation** - Requires manual user action per job
-
-## License
-
-Same as JobSentinel (MIT License)
+- Do not show the generated script in the UI.
+- Do not expose the local safety token.
+- Prefer "browser import button", "import helper", "setup code", and
+  "connection number" in user-facing copy.
+- Keep lower-level implementation details in developer docs or code comments,
+  not in the user setup path.

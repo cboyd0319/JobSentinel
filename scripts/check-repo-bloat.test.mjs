@@ -432,6 +432,21 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/BookmarkletGenerator.tsx",
+      [
+        '"Browser Bookmarklet"',
+        '"Bookmarklet Code"',
+        '"Server Port"',
+        '"Start Server"',
+        '"Paste the code into the URL/Location field"',
+        '"Any with Schema.org data"',
+        '"Works best with sites that use structured Schema.org JobPosting data."',
+        '"Falls back to smart DOM parsing for others."',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/components/AtsLiveScorePanel.tsx",
       '"Add LinkedIn profile for tech roles"\n',
     );
@@ -628,6 +643,19 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "docs/BOOKMARKLET.md",
+      [
+        "# Browser Bookmarklet Integration",
+        "Any company site using Schema.org JobPosting markup.",
+        "Smart DOM Parsing falls back to intelligent HTML parsing.",
+        "Click \"Start Server\".",
+        "Paste the copied code into the URL/Location field.",
+        "**No Scraping** - Bookmarklet runs in user's browser.",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "docs/features/notifications.md",
       [
         "That's it! No webhook setup needed.",
@@ -671,6 +699,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/pages/ResumeBuilder.tsx",
         "src/pages/Settings.tsx",
         "src/pages/SetupWizard.tsx",
+        "src/components/BookmarkletGenerator.tsx",
         "src/components/DeepLinkGenerator.tsx",
         "src/components/ErrorBoundary.tsx",
         "src/components/ErrorLogPanel.tsx",
@@ -692,6 +721,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "docs/features/one-click-apply.md",
         "docs/features/scrapers.md",
         "docs/features/user-data-management.md",
+        "docs/BOOKMARKLET.md",
         "docs/user/DEEP_LINKS.md",
         "docs/user/QUICK_START.md",
       ],
@@ -709,6 +739,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/pages/ResumeBuilder.tsx",
       "src/pages/Settings.tsx",
       "src/pages/SetupWizard.tsx",
+      "src/components/BookmarkletGenerator.tsx",
       "src/components/DeepLinkGenerator.tsx",
       "src/components/ErrorBoundary.tsx",
       "src/components/ErrorLogPanel.tsx",
@@ -731,6 +762,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "docs/features/one-click-apply.md",
       "docs/features/scrapers.md",
       "docs/features/user-data-management.md",
+      "docs/BOOKMARKLET.md",
       "docs/user/DEEP_LINKS.md",
       "docs/user/QUICK_START.md",
     ]) {
