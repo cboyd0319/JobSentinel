@@ -68,6 +68,21 @@ describe("SetupWizard Accessibility", () => {
   });
 
   describe("Validation Feedback", () => {
+    it("lets users continue with custom setup by default", async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
+
+      const continueButton = screen.getByRole("button", {
+        name: /continue with custom setup/i,
+      });
+
+      expect(continueButton).toBeEnabled();
+      await user.click(continueButton);
+
+      expect(screen.getByText("Review & Edit")).toBeInTheDocument();
+      expect(screen.getByText("Add at least one job title")).toBeInTheDocument();
+    });
+
     it("should have aria-live region for validation errors", () => {
       renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
 

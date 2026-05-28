@@ -366,7 +366,6 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
 
               <Button
                 onClick={() => setStep(1)}
-                disabled={!selectedProfile}
                 className="w-full mt-6"
                 size="lg"
               >
