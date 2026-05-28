@@ -1,4 +1,4 @@
-//! Application Assist Module (One-Click Apply)
+//! Application Assist Module (Application Assist)
 //!
 //! **⚠️ ETHICAL GUIDELINES ⚠️**
 //!

@@ -172,7 +172,7 @@ and convert them to internal resume drafts for editing and ATS optimization.
   "projects": [
     {
       "name": "JobSentinel",
-      "description": "Job search automation tool",
+      "description": "Job-search assistant tool",
       "highlights": ["Built Rust backend", "Integrated 13 scrapers"],
       "startDate": "2024-01-01",
       "endDate": "",

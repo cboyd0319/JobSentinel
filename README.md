@@ -90,7 +90,7 @@ Teams, Telegram, email, or feedback through GitHub or Google Drive.
 
 4. **Apply when ready**
 
-   For supported application systems, JobSentinel can fill common fields. You
+   For supported application systems, JobSentinel can prepare common fields. You
    still review the form, handle CAPTCHAs, upload files, and click Submit.
 
 ---
@@ -117,9 +117,9 @@ Teams, Telegram, email, or feedback through GitHub or Google Drive.
 | -------------- | -------------- |
 | ![Resume builder](docs/images/resume-builder.png) | ![Resume matcher](docs/images/resume-matcher.png) |
 
-| ATS transparency | One-click apply |
-| ---------------- | --------------- |
-| ![ATS transparency](docs/images/ats-optimizer.png) | ![One-click apply](docs/images/one-click-apply.png) |
+| ATS transparency | Application Assist |
+| ---------------- | ------------------ |
+| ![ATS transparency](docs/images/ats-optimizer.png) | ![Application Assist](docs/images/one-click-apply.png) |
 
 | Salary AI | Market intelligence |
 | --------- | ------------------- |
@@ -211,10 +211,10 @@ Read the full [scraper guide](docs/features/scrapers.md) and
 - Compare your resume with a job description and see where application readability can improve.
 - Export resume documents when you are ready to apply.
 
-### One-click apply
+### Application Assist
 
 - Works with Greenhouse, Lever, Workday, Taleo, iCIMS, BambooHR, and Ashby.
-- Fills contact fields and saved screening answers where possible.
+- Prepares contact fields and saved screening answers where possible.
 - Keeps the final submit step manual by design.
 - Pauses for CAPTCHAs and unusual fields so review stays human.
 
@@ -481,10 +481,10 @@ whether the role is worth your time.
 </details>
 
 <details>
-<summary><strong>Does one-click apply submit applications for me?</strong></summary>
+<summary><strong>Does Application Assist submit applications for me?</strong></summary>
 <br>
 
-No. JobSentinel can fill supported forms, but you review the form and click
+No. JobSentinel can prepare supported forms, but you review the form and click
 Submit yourself.
 
 </details>

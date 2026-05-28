@@ -10,7 +10,7 @@
 //! - `scrapers`: Job board scraping (Greenhouse, Lever, JobsWithGPT)
 //! - `scoring`: Multi-factor job scoring algorithm
 //! - `notify`: Notification services (Slack, email)
-//! - `scheduler`: Job search scheduling and automation
+//! - `scheduler`: Job search scheduling
 //! - `ats`: Application Tracking System (Kanban board, reminders)
 //! - `resume`: AI Resume-Job Matcher (PDF parsing, skill extraction)
 //! - `salary`: Salary Negotiation AI (benchmarks, prediction)
@@ -18,7 +18,7 @@
 //!
 //! ## Deferred to v2.0+ (requires legal review)
 //!
-//! - `automation`: One-Click Apply automation - requires user consent framework
+//! - `automation`: Application Assist with user consent framework
 
 // Core v1.0 modules (working)
 pub mod config;
@@ -44,7 +44,7 @@ pub mod user_data;
 // v2.0+ security modules
 pub mod credentials;
 
-// v2.0+ modules - One-Click Apply (form filling without auto-submit)
+// v2.0+ modules - Application Assist with user-controlled submit
 pub mod automation;
 
 // v2.1+ modules - Scraper health monitoring
@@ -100,7 +100,7 @@ pub use user_data::{
 // v2.0+ security re-exports
 pub use credentials::{CredentialKey, CredentialStore};
 
-// v2.0+ automation re-exports
+// v2.0+ Application Assist re-exports
 pub use automation::profile::{ApplicationProfileInput, ProfileManager, ScreeningAnswer};
 pub use automation::{
     ApplicationAttempt, ApplicationProfile, AtsDetector, AtsPlatform, AutomationManager,

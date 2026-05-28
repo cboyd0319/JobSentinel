@@ -53,7 +53,7 @@ real dependencies.
 ```text
 src-tauri/tests/
 - api_contract_test.rs: Tauri command signatures
-- automation_integration_test.rs: one-click apply
+- automation_integration_test.rs: Application Assist
 - cow_zero_copy_tests.rs: Cow zero-copy behavior
 - credential_test.rs: credential storage
 - database_integration_test.rs: database layer

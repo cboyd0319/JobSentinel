@@ -749,7 +749,7 @@ Major improvements to existing features, code quality, accessibility, and test c
 
 #### Feature Completions
 
-- **Resume → One-Click Apply Integration** - Resume file path now flows from Resume Builder to One-Click Apply
+- **Resume → Application Assist Integration** - Resume file path now flows from Resume Builder to Application Assist
   - Added `resume_file_path` field to ApplicationProfile
   - File picker in ProfileForm.tsx for resume selection
   - FormFiller receives resume path for ATS form uploads
@@ -1397,7 +1397,7 @@ Complete Settings UI with user-configurable scoring weights and intelligent job 
 - **Dual-access pattern** - Tauri plugin for frontend, `keyring` crate for backend
 - **Runtime credential validation** - Credentials validated when used, not at config load
 
-### Added - P5: One-Click Apply (Form Filling)
+### Added - P5: Application Assist (Form Preparation)
 
 - **Application Profile Management** - Store contact info and work authorization for auto-fill
   - Full name, email, phone, LinkedIn, GitHub, portfolio URLs
@@ -1415,7 +1415,7 @@ Complete Settings UI with user-configurable scoring weights and intelligent job 
 - **Browser Automation** - Visible Chrome browser with form filling
   - Uses `chromiumoxide` crate for Chrome DevTools Protocol
   - Human-in-the-loop design: fills form, pauses for user review
-  - User clicks Submit manually (never auto-submit)
+  - User clicks Submit manually; JobSentinel does not click it
   - CAPTCHA detection with user prompt
 - **18 new Tauri commands** for automation:
   - Profile: `upsert_application_profile`, `get_application_profile`
@@ -1423,10 +1423,10 @@ Complete Settings UI with user-configurable scoring weights and intelligent job 
   - Attempts: `create_automation_attempt`, `get_automation_attempt`, `approve_automation_attempt`, etc.
   - Browser: `launch_automation_browser`, `close_automation_browser`, `fill_application_form`
 - **New Frontend**:
-  - `ApplicationProfile.tsx` - Settings page for One-Click Apply
+  - `ApplicationProfile.tsx` - Settings page for Application Assist
   - `ProfileForm.tsx` - Contact info and work authorization form
   - `ScreeningAnswersForm.tsx` - Question pattern configuration
-  - `ApplyButton.tsx` - Quick Apply button with ATS badge
+  - `ApplyButton.tsx` - Prepare Form button with ATS badge
   - `ApplicationPreview.tsx` - Preview before filling
 
 ### Added - P4: Resume Builder + ATS Optimizer
@@ -1564,7 +1564,7 @@ Complete Settings UI with user-configurable scoring weights and intelligent job 
 - New `/docs/features/` directory for feature documentation
 - New `/docs/releases/` directory for version release notes
 - Reorganized feature docs with cleaner naming
-- Archived deferred One-Click Apply documentation
+- Archived deferred Application Assist documentation
 
 ## [1.3.1] - 2026-01-16
 
@@ -1795,7 +1795,7 @@ Complete Settings UI with user-configurable scoring weights and intelligent job 
 
 ### Deferred to v2.0+
 
-- One-Click Apply Automation - requires legal review and user consent framework
+- Application Assist - requires legal review and user consent framework
 
 ---
 

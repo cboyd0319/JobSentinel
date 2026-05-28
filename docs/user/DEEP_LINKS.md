@@ -22,7 +22,7 @@ filled in. Click any link to open the search in your browser.
 - **Monster** - Established job board with career resources
 - **CareerBuilder** - General job listings
 - **SimplyHired** - Job aggregator with salary estimates
-- **ZipRecruiter** - Fast-growing job board with one-click apply
+- **ZipRecruiter** - Fast-growing job board with Application Assist
 
 ### Professional Networking (2)
 

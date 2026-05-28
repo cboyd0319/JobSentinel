@@ -320,7 +320,7 @@ CREATE INDEX IF NOT EXISTS idx_resume_job_matches_job_hash ON resume_job_matches
 CREATE INDEX IF NOT EXISTS idx_resume_job_matches_score ON resume_job_matches(overall_match_score DESC);
 CREATE INDEX IF NOT EXISTS idx_user_education_resume_id ON user_education(resume_id);
 CREATE INDEX IF NOT EXISTS idx_user_experience_resume_id ON user_experience(resume_id);
--- Application Automation Migration (One-Click Apply)
+-- Application Automation Migration (Application Assist)
 -- Foundation for automated job application submission
 
 -- User application profile (contact info, resume, preferences)

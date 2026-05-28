@@ -3,7 +3,7 @@
 ## Problem
 
 JobSentinel already has search setup, scoring, resume matching, resume building,
-ATS analysis, one-click apply, market intelligence, ghost detection, and
+ATS analysis, Application Assist, market intelligence, ghost detection, and
 application tracking. The research notes in the six user-provided source files
 show additional ways to make those features more useful, more honest, safer,
 and easier for job seekers from many backgrounds.
@@ -82,7 +82,7 @@ Out of scope:
 
 - Code changes during this research goal.
 - Deceptive ATS manipulation tactics, fabricated experience, hidden text, white-text
-  keywords, prompt injection, CAPTCHA bypass, auto-submit, or terms-of-service
+  keywords, prompt injection, CAPTCHA bypass, final-submit automation, or terms-of-service
   evasion.
 - External AI, cloud sync, contact upload, or social features unless a later
   product decision explicitly accepts the privacy tradeoff.
@@ -624,7 +624,7 @@ Likely files later:
   parser output, adversarial content, or criteria that cannot be checked from
   local data.
 - Add tests with malformed, adversarial, scan-only, and over-designed resumes.
-- Keep human-in-the-loop submission for applications. Do not auto-submit.
+- Keep human-in-the-loop submission for applications. JobSentinel must not click Submit.
 - Preserve CAPTCHA pause and manual completion behavior.
 
 Likely files later:

@@ -1,11 +1,11 @@
 [package]
 name = "jobsentinel"
 version = "2.6.4"
-description = "Privacy-first job search automation for Windows 11+"
+description = "Privacy-preserving job-search assistant for Windows 11+"
 authors = ["Chad Boyd"]
 license = "MIT"
 repository = "https://github.com/cboyd0319/JobSentinel"
-keywords = ["job-search", "automation", "privacy", "tauri", "desktop-app"]
+keywords = ["job-search", "assistant", "privacy", "tauri", "desktop-app"]
 categories = ["command-line-utilities"]
 edition = "2021"
 
@@ -96,7 +96,7 @@ docx-rs = "0.4"
 # Note: OCR feature uses command-line tesseract and pdftoppm (no Rust crate dependencies)
 # This avoids complex native library linking while still providing OCR support
 
-# Browser automation for form filling (One-Click Apply)
+# Visible browser control for Application Assist
 chromiumoxide = "0.9"
 futures-util = "0.3"
 

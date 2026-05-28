@@ -120,7 +120,7 @@ Continued refactoring of remaining large files.
 
 ### v2.0 - Security & Production Hardening (COMPLETED)
 
-Major security release with OS-native keyring integration, Resume Builder, and One-Click Apply automation.
+Major security release with OS-native keyring integration, Resume Builder, and Application Assist.
 
 | Feature                               | Status   | Notes                                          |
 | ------------------------------------- | -------- | ---------------------------------------------- |
@@ -133,7 +133,7 @@ Major security release with OS-native keyring integration, Resume Builder, and O
 | Updated Settings UI                   | **Done** | Credential status indicators                   |
 | **P3 Integration Tests**              | **Done** | Integration suite documented; use fresh command output for counts |
 | **P4 Resume Builder + ATS Optimizer** | **Done** | Full resume creation and optimization          |
-| **P5 One-Click Apply**                | **Done** | Form filling automation with human-in-the-loop |
+| **P5 Application Assist**                | **Done** | Form preparation with human review |
 
 **Credentials secured:**
 
@@ -157,15 +157,15 @@ See [docs/security/KEYRING.md](security/KEYRING.md) for full documentation.
 
 See [docs/features/resume-builder.md](features/resume-builder.md) for full documentation.
 
-**P5 One-Click Apply Features:**
+**P5 Application Assist Features:**
 
 - Human-in-the-loop design (user clicks Submit manually)
 - Application profile management (contact info, URLs, work authorization)
-- Screening question auto-answers with regex patterns
+- Saved screening answers with plain question-text matching
 - ATS platform detection (Greenhouse, Lever, Workday, Taleo, iCIMS, BambooHR, Ashby)
-- Visible browser automation via Chrome DevTools Protocol
+- Visible browser review flow
 - CAPTCHA detection with user prompts
-- Rate limiting (configurable max applications per day)
+- Daily review limit
 - 18 new Tauri commands
 
 See [docs/features/one-click-apply.md](features/one-click-apply.md) for full documentation.
@@ -632,16 +632,16 @@ Native OS notifications via Tauri plugin.
 - Notifies on high-match job discoveries
 - Integrated into Dashboard
 
-### One-Click Apply (v2.0 - COMPLETE)
+### Application Assist (v2.0 - COMPLETE)
 
-Human-in-the-loop form filling automation.
+Human-in-the-loop form preparation.
 
-- Visible browser automation via Chrome DevTools Protocol
+- Visible browser review flow
 - 7 ATS platforms: Greenhouse, Lever, Workday, Taleo, iCIMS, BambooHR, Ashby
-- Application profile for contact info, URLs, work authorization
-- Screening question auto-answers with regex patterns
+- Application profile for contact info, links, work authorization
+- Saved screening answers with plain question-text matching
 - CAPTCHA detection with user prompts
-- User always clicks Submit manually (never auto-submit)
+- User always clicks Submit
 - 18 Tauri commands exposed
 
 See [docs/features/one-click-apply.md](features/one-click-apply.md) for full documentation.
@@ -690,7 +690,7 @@ See [docs/features/one-click-apply.md](features/one-click-apply.md) for full doc
 - Backend persistence for job-search records and preferences, with frontend
   localStorage limited to non-authoritative UI preferences, caches, sanitized
   error reports, and transient recovery hints
-- One-Click Apply automation with 7 ATS platforms
+- Application Assist with 7 ATS platforms
 - Custom React hooks for optimistic updates, pagination, form validation
 - Enhanced error boundaries with component-level isolation
 
@@ -710,7 +710,7 @@ See [docs/features/one-click-apply.md](features/one-click-apply.md) for full doc
 - [x] Advanced search with boolean operators
 - [x] Interview scheduler with iCal export
 - [x] Company research panel with known companies database
-- [x] **v2.5.1** Resume to One-Click Apply integration (resume file path wired)
+- [x] **v2.5.1** Resume to Application Assist integration (resume file path wired)
 - [x] **v2.5.1** PDF export implemented (browser print method)
 - [x] **v2.5.1** Scraper retry logic with exponential backoff
 - [x] **v2.5.1** Scraper response caching (5-min TTL)
@@ -779,7 +779,7 @@ Target frontend layout:
 - `src/features/dashboard/Dashboard.tsx`: dashboard feature entrypoint
 - `src/features/applications/`: application tracking
 - `src/features/resume/`: resume matcher, builder, and optimizer
-- `src/features/automation/`: One-Click Apply
+- `src/features/automation/`: Application Assist
 - `src/features/market/`: market intelligence
 - `src/features/salary/`: salary predictions
 - `src/features/settings/`: settings and setup wizard

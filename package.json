@@ -1,7 +1,7 @@
 {
   "name": "jobsentinel",
   "version": "2.6.4",
-  "description": "Privacy-first job search automation for Windows 11+",
+  "description": "Privacy-preserving job-search assistant for Windows 11+",
   "type": "module",
   "scripts": {
     "dev": "vite",

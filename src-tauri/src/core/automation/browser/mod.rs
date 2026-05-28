@@ -10,7 +10,7 @@
 //! - Screenshot capture
 //!
 //! **Safety:**
-//! - No auto-submit functionality
+//! - No final-submit action
 //! - User must manually click submit
 //! - CAPTCHA detection triggers pause
 

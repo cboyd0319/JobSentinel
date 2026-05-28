@@ -1,7 +1,7 @@
 //! Automation Module Integration Tests
 //!
-//! Tests for the One-Click Apply automation module (v2.0+).
-//! This module enables form-filling automation without auto-submit.
+//! Tests for the Application Assist module (v2.0+).
+//! This module enables form preparation with user-controlled submit.
 //!
 //! Test coverage:
 //! - ATS platform detection (URL patterns)

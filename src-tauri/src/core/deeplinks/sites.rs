@@ -46,7 +46,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             category: SiteCategory::General,
             requires_login: false,
             logo_url: Some("https://www.ziprecruiter.com/favicon.ico".to_string()),
-            notes: Some("Fast-growing job board with one-click apply".to_string()),
+            notes: Some("Fast-growing job board with Application Assist".to_string()),
         },
         // Professional networking
         SiteInfo {

@@ -260,7 +260,7 @@ fn main() {
             commands::linkedin_auth::disconnect_linkedin,
             commands::linkedin_auth::close_linkedin_login,
             commands::linkedin_auth::get_linkedin_expiry_status,
-            // Automation commands (One-Click Apply)
+            // Automation commands (Application Assist)
             commands::automation::upsert_application_profile,
             commands::automation::get_application_profile,
             commands::automation::upsert_screening_answer,

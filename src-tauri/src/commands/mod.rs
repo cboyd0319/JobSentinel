@@ -172,7 +172,7 @@ pub use linkedin_auth::{
     linkedin_login, store_linkedin_cookie,
 };
 
-// Automation commands (One-Click Apply)
+// Automation commands (Application Assist)
 pub use automation::{
     // Profile management
     approve_automation_attempt,

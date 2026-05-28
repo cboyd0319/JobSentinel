@@ -193,7 +193,7 @@ fn get_specific_hint(error: &str) -> Option<&'static str> {
 
     // Browser specific
     if lower.contains("chrome not found") || lower.contains("chromium not found") {
-        return Some("Chrome browser not found. Please install Chrome to use Quick Apply.");
+        return Some("Chrome browser not found. Please install Chrome to use Prepare Form.");
     }
     if lower.contains("page crash") || lower.contains("target closed") {
         return Some("Browser page crashed. Please try again.");
@@ -204,7 +204,7 @@ fn get_specific_hint(error: &str) -> Option<&'static str> {
 
     // Profile specific
     if lower.contains("no application profile") || lower.contains("profile not") {
-        return Some("Please set up your application profile first in Settings > One-Click Apply.");
+        return Some("Please set up your application profile first in Settings > Application Assist.");
     }
 
     None

@@ -1,6 +1,6 @@
 //! Application Automation Tauri Commands
 //!
-//! Commands for One-Click Apply automation (form filling without auto-submit).
+//! Commands for Application Assist with user-controlled submit.
 //!
 //! **Features:**
 //! - Profile management (contact info, work authorization)
@@ -486,9 +486,9 @@ pub async fn fill_application_form(
         .get_profile()
         .await
         .map_err(|e| user_friendly_error("Failed to load profile", e))?
-        .ok_or("No application profile configured. Please set up your profile first in Settings > One-Click Apply.")?;
+        .ok_or("No application profile configured. Please set up your profile first in Settings > Application Assist.")?;
 
-    // Get screening answers for auto-filling questions
+    // Get saved screening answers for matching questions
     let screening_answers = profile_manager
         .get_screening_answers()
         .await

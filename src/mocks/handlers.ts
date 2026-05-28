@@ -560,7 +560,7 @@ const MOCK_DEEP_LINK_SITES = [
     category: SiteCategory.General,
     requires_login: false,
     logo_url: "https://www.ziprecruiter.com/favicon.ico",
-    notes: "Fast-growing job board with one-click apply",
+    notes: "Fast-growing job board with Application Assist",
   },
   {
     id: "linkedin",

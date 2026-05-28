@@ -250,7 +250,7 @@
   "projects": [
     {
       "name": "JobSentinel",
-      "description": "Job search automation desktop app built with Tauri 2.x and Rust",
+      "description": "Job-search assistant desktop app built with Tauri 2.x and Rust",
       "highlights": [
         "Built Rust backend with 13 job board scrapers",
         "Designed SQLite database schema with 20+ migrations",

@@ -924,12 +924,26 @@ test("checkRepoBloat rejects application-assist automation framing", () => {
       "docs/user/QUICK_START.md",
       "Speed up applications with One-Click Apply.\n",
     );
+    writeFixtureFile(root, "README.md", "One-click apply can fill supported forms.\n");
+    writeFixtureFile(
+      root,
+      "index.html",
+      '<meta name="description" content="Privacy-first job search automation" />\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/Cargo.toml",
+      'description = "Privacy-first job search automation for Windows 11+"\n',
+    );
 
     execFileSync(
       "git",
       [
         "add",
         "package.json",
+        "README.md",
+        "index.html",
+        "src-tauri/Cargo.toml",
         "src/pages/ApplicationProfile.tsx",
         "src/components/automation/ApplyButton.tsx",
         "src/components/automation/ApplicationPreview.tsx",
@@ -953,6 +967,9 @@ test("checkRepoBloat rejects application-assist automation framing", () => {
       "src/pages/DashboardUI/DashboardHeader.tsx",
       "docs/features/one-click-apply.md",
       "docs/user/QUICK_START.md",
+      "README.md",
+      "index.html",
+      "src-tauri/Cargo.toml",
     ]) {
       assert.ok(
         violations.includes(`replace application-assist automation framing: ${path}`),

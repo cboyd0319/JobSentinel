@@ -204,7 +204,7 @@ fn format_telegram_message(
 
 [View Full Job Posting]({})
 
-_Sent by JobSentinel • Job Search Automation_"#,
+_Sent by JobSentinel • Job Search Assistant_"#,
         title,
         company,
         score_percent,

@@ -98,7 +98,7 @@ pub async fn send_discord_notification(
             }
         ],
         "footer": {
-            "text": "JobSentinel • Job Search Automation"
+            "text": "JobSentinel • Job Search Assistant"
         },
         "timestamp": chrono::Utc::now().to_rfc3339()
     });
@@ -157,7 +157,7 @@ pub async fn validate_webhook(webhook_url: &str) -> Result<bool> {
             "description": "Your Discord webhook is configured correctly!",
             "color": 0x10b981,
             "footer": {
-                "text": "JobSentinel • Job Search Automation"
+                "text": "JobSentinel • Job Search Assistant"
             },
             "timestamp": chrono::Utc::now().to_rfc3339()
         }]
@@ -564,7 +564,7 @@ mod tests {
 
     #[test]
     fn test_embed_footer_text() {
-        let footer_text = "JobSentinel • Job Search Automation";
+        let footer_text = "JobSentinel • Job Search Assistant";
 
         assert!(footer_text.contains("JobSentinel"));
         assert!(footer_text.contains("•"));
@@ -689,7 +689,7 @@ mod tests {
                 }
             ],
             "footer": {
-                "text": "JobSentinel • Job Search Automation"
+                "text": "JobSentinel • Job Search Assistant"
             }
         });
 
@@ -1049,11 +1049,11 @@ mod tests {
     #[test]
     fn test_footer_structure() {
         let footer = json!({
-            "text": "JobSentinel • Job Search Automation"
+            "text": "JobSentinel • Job Search Assistant"
         });
 
         assert!(footer.get("text").is_some());
-        assert_eq!(footer["text"], "JobSentinel • Job Search Automation");
+        assert_eq!(footer["text"], "JobSentinel • Job Search Assistant");
     }
 
     #[test]
@@ -1146,7 +1146,7 @@ mod tests {
                 {"name": "🏢 Remote", "value": if notification.job.remote.unwrap_or(false) { "✅ Yes" } else { "❌ No" }, "inline": true},
                 {"name": "✨ Why this matches", "value": notification.score.reasons.join("\n"), "inline": false}
             ],
-            "footer": {"text": "JobSentinel • Job Search Automation"},
+            "footer": {"text": "JobSentinel • Job Search Assistant"},
             "timestamp": chrono::Utc::now().to_rfc3339()
         });
 
