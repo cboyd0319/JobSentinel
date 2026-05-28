@@ -68,12 +68,12 @@ describe("SetupWizard Accessibility", () => {
   });
 
   describe("Validation Feedback", () => {
-    it("lets users continue with custom setup by default", async () => {
+    it("lets users continue with their own search by default", async () => {
       const user = userEvent.setup();
       renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
 
       const continueButton = screen.getByRole("button", {
-        name: /continue with custom setup/i,
+        name: /continue with my own search/i,
       });
 
       expect(continueButton).toBeEnabled();
@@ -132,7 +132,7 @@ describe("SetupWizard Accessibility", () => {
 
       const [firstProfile] = screen.getAllByRole("radio");
       fireEvent.click(firstProfile);
-      fireEvent.click(screen.getByRole("button", { name: /continue with this profile/i }));
+      fireEvent.click(screen.getByRole("button", { name: /continue with this path/i }));
       fireEvent.click(screen.getByRole("button", { name: /^continue$/i }));
 
       const remoteOption = await screen.findByRole("checkbox", {
@@ -176,7 +176,7 @@ describe("SetupWizard Accessibility", () => {
       const [firstProfile] = screen.getAllByRole("radio");
       await user.click(firstProfile);
       await user.click(
-        screen.getByRole("button", { name: /continue with this profile/i }),
+        screen.getByRole("button", { name: /continue with this path/i }),
       );
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
 

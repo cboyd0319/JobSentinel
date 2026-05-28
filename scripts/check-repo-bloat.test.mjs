@@ -425,6 +425,16 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/CareerProfileSelector.tsx",
+      [
+        '"Custom Setup"',
+        '"I\'ll enter my own job titles and skills"',
+        '"Pre-configured with 10 relevant skills"',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/pages/Resume.tsx",
       '<Button>Import JSON Resume</Button><p>Your JSON Resume has been imported</p>\n',
     );
@@ -624,6 +634,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/components/JobImportModal.tsx",
         "src/components/JobCard.tsx",
         "src/components/AtsLiveScorePanel.tsx",
+        "src/components/CareerProfileSelector.tsx",
         "src/components/automation/ScreeningAnswersForm.tsx",
         "src/components/feedback/DebugInfoPreview.tsx",
         "src/components/feedback/FeedbackModal.tsx",
@@ -656,6 +667,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/components/JobImportModal.tsx",
       "src/components/JobCard.tsx",
       "src/components/AtsLiveScorePanel.tsx",
+      "src/components/CareerProfileSelector.tsx",
       "src/components/automation/ScreeningAnswersForm.tsx",
       "src/components/feedback/DebugInfoPreview.tsx",
       "src/components/feedback/FeedbackModal.tsx",

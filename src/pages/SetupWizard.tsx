@@ -26,7 +26,7 @@ const STEPS = [
   { id: 3, title: "Notifications", description: "Stay informed (optional)" },
 ];
 
-// Popular suggestions are no longer needed - profiles provide pre-populated data
+// Preset paths provide starter search settings.
 
 export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const [step, setStep] = useState(0); // Start at step 0 (profile selection)
@@ -95,7 +95,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
         }));
       }
     } else {
-      // Reset to empty for custom setup
+      // Reset to empty for the user's own search.
       setConfig({
         title_allowlist: [],
         title_blocklist: [],
@@ -369,7 +369,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 className="w-full mt-6"
                 size="lg"
               >
-                {selectedProfile ? "Continue with This Profile" : "Continue with Custom Setup"}
+                {selectedProfile ? "Continue with This Path" : "Continue with My Own Search"}
               </Button>
             </div>
           )}
@@ -380,7 +380,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
               {/* Pre-populated indicator */}
               {selectedProfile && (
                 <div className="p-3 bg-sentinel-50 border border-sentinel-200 rounded-lg text-sm text-sentinel-700">
-                  Pre-filled from your <strong>{CAREER_PROFILES.find(p => p.id === selectedProfile)?.name}</strong> profile. Edit as needed.
+                  Started with <strong>{CAREER_PROFILES.find(p => p.id === selectedProfile)?.name}</strong>. Change anything you want.
                 </div>
               )}
 

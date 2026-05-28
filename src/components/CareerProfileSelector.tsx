@@ -13,7 +13,7 @@ interface CareerProfileSelectorProps {
 
 export const CareerProfileSelector = memo(function CareerProfileSelector({ selectedProfile, onSelectProfile }: CareerProfileSelectorProps) {
   return (
-    <div className="motion-safe:animate-slide-up" role="radiogroup" aria-label="Select career profile">
+    <div className="motion-safe:animate-slide-up" role="radiogroup" aria-label="Select career path">
       <div className="grid grid-cols-2 gap-3 mb-4">
         {CAREER_PROFILES.map((profile) => (
           <ProfileCard
@@ -37,7 +37,7 @@ export const CareerProfileSelector = memo(function CareerProfileSelector({ selec
         `}
         role="radio"
         aria-checked={selectedProfile === null}
-        aria-label="Custom Setup: I'll enter my own job titles and skills"
+        aria-label="My Own Search: I'll choose job titles and skills myself"
       >
         <div className="flex items-center gap-3">
           <div className={`
@@ -48,9 +48,9 @@ export const CareerProfileSelector = memo(function CareerProfileSelector({ selec
           </div>
           <div className="flex-1">
             <p className={`font-medium ${selectedProfile === null ? "text-surface-800" : "text-surface-700"}`}>
-              Custom Setup
+              My Own Search
             </p>
-            <p className="text-sm text-surface-500">I'll enter my own job titles and skills</p>
+            <p className="text-sm text-surface-500">I'll choose job titles and skills myself</p>
           </div>
         </div>
       </button>
@@ -136,7 +136,7 @@ const SelectedProfilePreview = memo(function SelectedProfilePreview({ profileId 
         </span>
       </div>
       <p className="text-xs text-sentinel-600 mt-2">
-        Pre-configured with {profile.keywordsBoost.length} relevant skills
+        Starts with {profile.keywordsBoost.length} helpful skills
       </p>
     </div>
   );

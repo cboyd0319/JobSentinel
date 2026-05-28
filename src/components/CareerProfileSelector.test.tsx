@@ -21,7 +21,7 @@ describe("CareerProfileSelector", () => {
 
       expect(screen.getByRole("radiogroup")).toHaveAttribute(
         "aria-label",
-        "Select career profile"
+        "Select career path"
       );
     });
 
@@ -52,12 +52,12 @@ describe("CareerProfileSelector", () => {
       }
     });
 
-    it("renders Custom Setup option", () => {
+    it("renders My Own Search option", () => {
       render(<CareerProfileSelector {...defaultProps} />);
 
-      expect(screen.getByText("Custom Setup")).toBeInTheDocument();
+      expect(screen.getByText("My Own Search")).toBeInTheDocument();
       expect(
-        screen.getByText("I'll enter my own job titles and skills")
+        screen.getByText("I'll choose job titles and skills myself")
       ).toBeInTheDocument();
     });
   });
@@ -67,7 +67,7 @@ describe("CareerProfileSelector", () => {
       render(<CareerProfileSelector {...defaultProps} />);
 
       const radios = screen.getAllByRole("radio");
-      // All profiles + Custom Setup option
+      // All profiles + My Own Search option
       expect(radios).toHaveLength(CAREER_PROFILES.length + 1);
     });
 
@@ -83,12 +83,12 @@ describe("CareerProfileSelector", () => {
       }
     });
 
-    it("has aria-label on Custom Setup option", () => {
+    it("has aria-label on My Own Search option", () => {
       render(<CareerProfileSelector {...defaultProps} />);
 
       expect(
         screen.getByRole("radio", {
-          name: "Custom Setup: I'll enter my own job titles and skills",
+          name: "My Own Search: I'll choose job titles and skills myself",
         })
       ).toBeInTheDocument();
     });
@@ -96,9 +96,9 @@ describe("CareerProfileSelector", () => {
     it("marks no profile as checked when selectedProfile is null", () => {
       render(<CareerProfileSelector {...defaultProps} />);
 
-      // Custom Setup should be checked when selectedProfile is null
+      // My Own Search should be checked when selectedProfile is null
       const customSetup = screen.getByRole("radio", {
-        name: "Custom Setup: I'll enter my own job titles and skills",
+        name: "My Own Search: I'll choose job titles and skills myself",
       });
       expect(customSetup).toHaveAttribute("aria-checked", "true");
 
@@ -125,7 +125,7 @@ describe("CareerProfileSelector", () => {
       expect(selectedRadio).toHaveAttribute("aria-checked", "true");
     });
 
-    it("marks Custom Setup as not checked when profile is selected", () => {
+    it("marks My Own Search as not checked when path is selected", () => {
       render(
         <CareerProfileSelector
           {...defaultProps}
@@ -134,7 +134,7 @@ describe("CareerProfileSelector", () => {
       );
 
       const customSetup = screen.getByRole("radio", {
-        name: "Custom Setup: I'll enter my own job titles and skills",
+        name: "My Own Search: I'll choose job titles and skills myself",
       });
       expect(customSetup).toHaveAttribute("aria-checked", "false");
     });
@@ -152,7 +152,7 @@ describe("CareerProfileSelector", () => {
       expect(onSelectProfile).toHaveBeenCalledWith("software-engineering");
     });
 
-    it("calls onSelectProfile with null when clicking Custom Setup", () => {
+    it("calls onSelectProfile with null when clicking My Own Search", () => {
       const onSelectProfile = vi.fn();
       render(
         <CareerProfileSelector
@@ -162,7 +162,7 @@ describe("CareerProfileSelector", () => {
         />
       );
 
-      fireEvent.click(screen.getByText("Custom Setup"));
+      fireEvent.click(screen.getByText("My Own Search"));
 
       expect(onSelectProfile).toHaveBeenCalledWith(null);
     });
@@ -263,7 +263,7 @@ describe("CareerProfileSelector", () => {
       expect(screen.getByText(`+ ${additionalCount} more`)).toBeInTheDocument();
     });
 
-    it("shows count of relevant skills", () => {
+    it("shows count of helpful skills", () => {
       render(
         <CareerProfileSelector
           {...defaultProps}
@@ -273,7 +273,7 @@ describe("CareerProfileSelector", () => {
 
       const profile = CAREER_PROFILES.find(p => p.id === "software-engineering")!;
       expect(
-        screen.getByText(`Pre-configured with ${profile.keywordsBoost.length} relevant skills`)
+        screen.getByText(`Starts with ${profile.keywordsBoost.length} helpful skills`)
       ).toBeInTheDocument();
     });
 
@@ -321,17 +321,17 @@ describe("CareerProfileSelector", () => {
       expect(radio.className).toContain("border-surface-200");
     });
 
-    it("applies selected styling to Custom Setup when null selected", () => {
+    it("applies selected styling to My Own Search when null selected", () => {
       render(<CareerProfileSelector {...defaultProps} />);
 
       const customSetup = screen.getByRole("radio", {
-        name: "Custom Setup: I'll enter my own job titles and skills",
+        name: "My Own Search: I'll choose job titles and skills myself",
       });
       expect(customSetup.className).toContain("border-surface-400");
       expect(customSetup.className).toContain("bg-surface-100");
     });
 
-    it("applies unselected styling to Custom Setup when profile selected", () => {
+    it("applies unselected styling to My Own Search when path selected", () => {
       render(
         <CareerProfileSelector
           {...defaultProps}
@@ -340,7 +340,7 @@ describe("CareerProfileSelector", () => {
       );
 
       const customSetup = screen.getByRole("radio", {
-        name: "Custom Setup: I'll enter my own job titles and skills",
+        name: "My Own Search: I'll choose job titles and skills myself",
       });
       expect(customSetup.className).toContain("border-surface-200");
     });
