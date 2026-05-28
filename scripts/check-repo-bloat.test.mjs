@@ -448,7 +448,16 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     writeFixtureFile(
       root,
       "src/components/AtsLiveScorePanel.tsx",
-      '"Add LinkedIn profile for tech roles"\n',
+      [
+        '"Add LinkedIn profile for tech roles"',
+        '"Add missing keywords: TypeScript, scheduling, support"',
+        '<ScoreBar label="Keywords" />',
+        '"2 keywords matched"',
+        '"Keyword Matches (2)"',
+        '"Missing Keywords (2)"',
+        '"Consider adding these keywords to improve your match score"',
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(
       root,

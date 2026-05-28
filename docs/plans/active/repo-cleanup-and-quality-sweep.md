@@ -123,6 +123,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-28 | In progress | Reworded ATS live-score match copy from keyword jargon to job-post words and honest-fit guidance, with component and bloat coverage for recurrence. |
 | 2026-05-28 | In progress | Refreshed direct npm, Cargo, and GitHub Actions dependencies to latest stable versions, including Tailwind 4, TypeScript 6, Vite 8, Vitest 4, Playwright 1.60, Tauri 2.11, SQLx 0.9, reqwest 0.13, keyring 4, and pinned Actions release SHAs. |
 | 2026-05-28 | In progress | Continued the broad-audience audit by replacing engineer-first placeholders in resume builder, salary lookup, and deep-link generation; expanded offline resume skill extraction with marketing, sales, healthcare, education, finance, operations, legal, creative, and customer-success vocabulary informed by Persona capability content; added bloat coverage for engineer-first user-facing examples. |
 | 2026-05-28 | In progress | Used Persona capability content as source vocabulary for broad job-search defaults, then replaced remaining engineer-first placeholders in Resume, Settings, Dashboard search help, resume-builder step copy, mock search defaults, and salary mock fallback; widened bloat coverage for those visible examples. |

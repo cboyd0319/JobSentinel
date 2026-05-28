@@ -153,7 +153,7 @@ const getStepTips = (step: number, analysis: AtsAnalysisResult | null): string[]
     tips.push("Add more details to improve completeness");
   }
   if (analysis.missing_keywords.length > 3) {
-    tips.push(`Add missing keywords: ${analysis.missing_keywords.slice(0, 3).join(", ")}`);
+    tips.push(`Add words from the job post: ${analysis.missing_keywords.slice(0, 3).join(", ")}`);
   }
   if (analysis.format_issues.some(i => i.severity === "Critical")) {
     tips.push("Address critical format issues first");
@@ -381,7 +381,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
 
               {/* Score Breakdown */}
               <div className="flex-1 space-y-2">
-                <ScoreBar label="Keywords" score={analysis.keyword_score} />
+                <ScoreBar label="Job words" score={analysis.keyword_score} />
                 <ScoreBar label="Format" score={analysis.format_score} />
                 <ScoreBar label="Complete" score={analysis.completeness_score} />
               </div>
@@ -392,7 +392,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
               <div className="flex flex-wrap gap-2 text-xs">
                 {analysis.keyword_matches.length > 0 && (
                   <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded">
-                    {analysis.keyword_matches.length} keywords matched
+                    {analysis.keyword_matches.length} job words found
                   </span>
                 )}
                 {analysis.missing_keywords.length > 0 && (
@@ -463,16 +463,16 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
             {/* Score Overview */}
             <div className="grid grid-cols-4 gap-4">
               <ScoreCard label="Overall" score={analysis.overall_score} />
-              <ScoreCard label="Keywords" score={analysis.keyword_score} />
+              <ScoreCard label="Job words" score={analysis.keyword_score} />
               <ScoreCard label="Format" score={analysis.format_score} />
               <ScoreCard label="Completeness" score={analysis.completeness_score} />
             </div>
 
-            {/* Keyword Matches */}
+            {/* Job words found */}
             {analysis.keyword_matches.length > 0 && (
               <div>
                 <h4 className="text-sm font-semibold text-surface-800 dark:text-surface-200 mb-3">
-                  Keyword Matches ({analysis.keyword_matches.length})
+                  Words Found ({analysis.keyword_matches.length})
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {analysis.keyword_matches.map((match, idx) => (
@@ -495,11 +495,11 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
               </div>
             )}
 
-            {/* Missing Keywords */}
+            {/* Words to add */}
             {analysis.missing_keywords.length > 0 && (
               <div>
                 <h4 className="text-sm font-semibold text-surface-800 dark:text-surface-200 mb-3">
-                  Missing Keywords ({analysis.missing_keywords.length})
+                  Words To Add ({analysis.missing_keywords.length})
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {analysis.missing_keywords.map((keyword, idx) => (
@@ -509,7 +509,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
                   ))}
                 </div>
                 <p className="text-xs text-surface-500 dark:text-surface-400 mt-2">
-                  Consider adding these keywords to improve your match score
+                  Only add these words when they honestly fit your experience.
                 </p>
               </div>
             )}

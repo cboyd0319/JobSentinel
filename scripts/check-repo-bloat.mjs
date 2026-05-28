@@ -990,6 +990,22 @@ function hasEngineerFirstAudienceExamples(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
+
+  if (path === "src/components/AtsLiveScorePanel.tsx") {
+    const atsLiveScorePatterns = [
+      /Add missing keywords/i,
+      /["'`]Keywords["'`]/i,
+      /keywords matched/i,
+      /Keyword Matches/i,
+      /Missing Keywords/i,
+      /Consider adding these keywords/i,
+    ];
+
+    if (atsLiveScorePatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
   const stalePatterns = [
     /placeholder=["'][^"']*(?:Senior\s+)?Software Engineer/i,
     /placeholder=["'][^"']*React/i,

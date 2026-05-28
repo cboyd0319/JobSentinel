@@ -199,13 +199,13 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByText("Keywords")).toBeInTheDocument();
+        expect(screen.getByText("Job words")).toBeInTheDocument();
         expect(screen.getByText("Format")).toBeInTheDocument();
         expect(screen.getByText("Complete")).toBeInTheDocument();
       });
     });
 
-    it("shows keyword match count", async () => {
+    it("shows job word match count", async () => {
       render(
         <AtsLiveScorePanel
           resumeData={mockResumeData}
@@ -217,7 +217,7 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByText("2 keywords matched")).toBeInTheDocument();
+        expect(screen.getByText("2 job words found")).toBeInTheDocument();
       });
     });
 
@@ -564,7 +564,7 @@ describe("AtsLiveScorePanel", () => {
       expect(screen.getByText("Full ATS Analysis")).toBeInTheDocument();
     });
 
-    it("displays keyword matches in modal", async () => {
+    it("displays job words found in modal", async () => {
       render(
         <AtsLiveScorePanel
           resumeData={mockResumeData}
@@ -581,10 +581,10 @@ describe("AtsLiveScorePanel", () => {
 
       fireEvent.click(screen.getByRole("button", { name: /view full analysis/i }));
 
-      expect(screen.getByText("Keyword Matches (2)")).toBeInTheDocument();
+      expect(screen.getByText("Words Found (2)")).toBeInTheDocument();
     });
 
-    it("displays missing keywords in modal", async () => {
+    it("displays words to add in modal", async () => {
       render(
         <AtsLiveScorePanel
           resumeData={mockResumeData}
@@ -601,7 +601,7 @@ describe("AtsLiveScorePanel", () => {
 
       fireEvent.click(screen.getByRole("button", { name: /view full analysis/i }));
 
-      expect(screen.getByText("Missing Keywords (2)")).toBeInTheDocument();
+      expect(screen.getByText("Words To Add (2)")).toBeInTheDocument();
       expect(screen.getByText("TypeScript")).toBeInTheDocument();
       expect(screen.getByText("Node.js")).toBeInTheDocument();
     });
@@ -804,7 +804,7 @@ describe("AtsLiveScorePanel", () => {
         expect(screen.getByText("Good")).toBeInTheDocument();
       });
 
-      expect(screen.queryByText(/keywords matched/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/job words found/)).not.toBeInTheDocument();
       expect(screen.queryByText(/missing/)).not.toBeInTheDocument();
       expect(screen.queryByText(/issues/)).not.toBeInTheDocument();
     });
