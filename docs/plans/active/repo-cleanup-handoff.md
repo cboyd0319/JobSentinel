@@ -9,10 +9,12 @@ The cleanup goal remains open. Do not mark it complete until current evidence
 proves the repo-wide objective: identify and fix all known issues across the
 JobSentinel repo, then verify docs and code against that full scope.
 
-Latest committed stopping point observed on `main`:
+Latest completed cleanup slice before this handoff refresh:
 
-- `50cde393 test: stabilize WebKit E2E shortcuts`
-- Parent slice: `857c7bb4 test: stabilize Chromium E2E suite`
+- `a617ea64 Simplify ATS word-match copy`
+- Parent slices: `a8bfbad7 Simplify problem history support copy`,
+  `8d9e5284 Simplify browser import button setup`, and
+  `79977813 Simplify job search link copy`
 
 Current cleanup posture:
 
@@ -23,6 +25,9 @@ Current cleanup posture:
 - Chromium and WebKit focused E2E flows were stabilized for keyboard navigation
   and job filtering in the latest slice.
 - Root README now points developers to the quality gates that protect this work.
+- Research-backed product improvement planning exists as an active plan across
+  setup, scoring, resume, ATS, ghost detection, applications, market
+  intelligence, accessibility, privacy, and security.
 - User ease is now a standalone goal requirement: assume zero technical
   knowledge for end users. Troubleshooting and issue reporting must stay
   one-click, plain-language, and privacy-preserving.
@@ -41,6 +46,9 @@ Recent cleanup slices on `main` include:
 
 - WebKit E2E shortcut delivery and dashboard count stabilization.
 - Chromium E2E stabilization after full-suite failures.
+- Research-backed guided intake, work-to-avoid intake, and setup review summary.
+- Plain-language Deep Link, Browser Import Button, problem history, and ATS
+  word-match copy.
 - Harness improvement from current public harness-engineering references and
   Persona/Bluepeak-AI sibling repo patterns.
 - Root README release/download accuracy update and WebKit slash-shortcut E2E
@@ -62,8 +70,19 @@ The active plan progress table has detailed slice history.
 
 ## Verified Recently
 
-The latest stopping-point slice was verified with:
+The latest cleanup slices were verified with:
 
+- `npm run test:run -- src/components/AtsLiveScorePanel.test.tsx`
+- `npm run test:run -- src/components/ErrorLogPanel.test.tsx`
+- `npm run test:run -- src/components/BookmarkletGenerator.test.tsx`
+- `npm run test:run -- src/components/DeepLinkGenerator.test.tsx`
+- `npm run test:run -- src/pages/SetupWizard.test.tsx`
+- `npm run test:scripts -- scripts/check-repo-bloat.test.mjs`
+- `npm run lint:bloat`
+- `npm run lint:docs`
+- `npm run lint -- --max-warnings=0`
+- `npm run build`
+- `git diff --check`
 - Focused WebKit E2E for job filtering and keyboard navigation.
 - Focused Chromium E2E for job filtering and keyboard navigation.
 - `npm run test:scripts`
@@ -73,7 +92,8 @@ The latest stopping-point slice was verified with:
 - `npx tsc --noEmit`
 - `git diff --check`
 
-For this handoff-only update, rerun docs and bloat checks before committing.
+For this handoff and research-plan refresh, rerun docs and bloat checks before
+committing.
 
 ## Known Remaining Work
 
