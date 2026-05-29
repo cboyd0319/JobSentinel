@@ -6653,6 +6653,35 @@ test("checkRepoBloat rejects raw feedback debug-event JSON", () => {
   });
 });
 
+test("checkRepoBloat rejects raw problem-history context JSON", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/ErrorLogPanel.tsx",
+      [
+        "export function ErrorLogPanel({ error }) {",
+        "  return <pre>{JSON.stringify(error.context)}</pre>;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/components/ErrorLogPanel.tsx"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "keep problem-history context details readable: src/components/ErrorLogPanel.tsx",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale resume optimizer mock handlers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

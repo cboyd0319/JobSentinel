@@ -484,6 +484,9 @@ const feedbackDebugEventFormattingPaths = new Set([
   "src/components/feedback/DebugInfoPreview.tsx",
   "src/services/feedbackService.ts",
 ]);
+const problemHistoryContextFormattingPaths = new Set([
+  "src/components/ErrorLogPanel.tsx",
+]);
 
 const applicationAssistFramingPaths = new Set([
   "README.md",
@@ -3134,6 +3137,15 @@ function hasRawFeedbackDebugEventDetails(root, path) {
   return /JSON\.stringify\(event\.details\)/.test(text);
 }
 
+function hasRawProblemHistoryContextDetails(root, path) {
+  if (!problemHistoryContextFormattingPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /JSON\.stringify\(error\.context\)/.test(text);
+}
+
 function hasStaleResumeOptimizerMockHandlers(root, path) {
   if (path !== "src/mocks/handlers.ts") {
     return false;
@@ -3963,6 +3975,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawFeedbackDebugEventDetails(root, path)) {
       violations.push(`keep feedback debug event details readable: ${path}`);
+    }
+
+    if (hasRawProblemHistoryContextDetails(root, path)) {
+      violations.push(`keep problem-history context details readable: ${path}`);
     }
 
     if (hasStaleResumeOptimizerMockHandlers(root, path)) {

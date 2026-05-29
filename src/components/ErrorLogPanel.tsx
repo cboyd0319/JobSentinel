@@ -3,7 +3,7 @@ import { useErrorReporting } from '../hooks/useErrorReporting';
 import { Button } from './Button';
 import { Badge } from './Badge';
 import { Card } from './Card';
-import type { ErrorReport } from '../utils/errorReporting';
+import { sanitizeContext, type ErrorReport } from '../utils/errorReporting';
 import { copySanitizedDebugReport, saveSanitizedDebugReport } from '../services/feedbackService';
 import { logError } from '../utils/errorUtils';
 
@@ -30,6 +30,61 @@ function formatRelativeTime(timestamp: string): string {
   return 'Just now';
 }
 
+function formatContextLabel(key: string): string {
+  return key
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function formatContextValue(value: unknown): string {
+  if (value === null) {
+    return 'Not set';
+  }
+
+  if (value === undefined) {
+    return 'Not available';
+  }
+
+  if (typeof value === 'string') {
+    return value.trim() === '' ? 'Empty' : value;
+  }
+
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+
+  if (Array.isArray(value)) {
+    return value.length === 0
+      ? 'None'
+      : `${value.length} item${value.length === 1 ? '' : 's'} summarized`;
+  }
+
+  if (typeof value === 'object') {
+    return 'Details summarized';
+  }
+
+  return String(value);
+}
+
+function getReadableContextRows(
+  context?: Record<string, unknown>
+): Array<{ key: string; label: string; value: string }> {
+  const sanitizedContext = sanitizeContext(context);
+
+  if (!sanitizedContext) {
+    return [];
+  }
+
+  return Object.entries(sanitizedContext).map(([key, value]) => ({
+    key,
+    label: formatContextLabel(key),
+    value: formatContextValue(value),
+  }));
+}
+
 interface ErrorItemProps {
   error: ErrorReport;
   onClear: (id: string) => void;
@@ -38,6 +93,7 @@ interface ErrorItemProps {
 const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
   const [expanded, setExpanded] = useState(false);
   const typeInfo = TYPE_LABELS[error.type];
+  const appDetailRows = getReadableContextRows(error.context);
 
   return (
     <div className="border-b border-surface-200 dark:border-surface-700 last:border-b-0">
@@ -94,14 +150,23 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
             </div>
           )}
 
-          {error.context && Object.keys(error.context).length > 0 && (
+          {appDetailRows.length > 0 && (
             <div>
               <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">
                 App details
               </p>
-              <pre className="text-xs bg-surface-100 dark:bg-surface-800 p-2 rounded overflow-x-auto text-surface-700 dark:text-surface-300">
-                {JSON.stringify(error.context, null, 2)}
-              </pre>
+              <dl className="text-xs bg-surface-100 dark:bg-surface-800 p-2 rounded text-surface-700 dark:text-surface-300 space-y-1">
+                {appDetailRows.map((row) => (
+                  <div key={row.key} className="grid gap-1 sm:grid-cols-[8rem_1fr]">
+                    <dt className="font-medium text-surface-600 dark:text-surface-300">
+                      {row.label}
+                    </dt>
+                    <dd className="break-words text-surface-700 dark:text-surface-300">
+                      {row.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
             </div>
           )}
 

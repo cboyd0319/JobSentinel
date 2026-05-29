@@ -241,17 +241,38 @@ describe("ErrorLogPanel", () => {
       expect(screen.getByText("at MyComponent")).toBeInTheDocument();
     });
 
-    it("shows context when available", () => {
+    it("shows readable sanitized context when available", () => {
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
-        errors: [createMockError({ context: { userId: "123", action: "test" } })],
+        errors: [
+          createMockError({
+            context: {
+              user_email: "candidate@example.com",
+              jobUrl: "https://example.com/jobs?token=abc",
+              nested: { token: "secret" },
+              action: "test",
+            },
+          }),
+        ],
       });
 
-      render(<ErrorLogPanel />);
+      const { container } = render(<ErrorLogPanel />);
 
       fireEvent.click(screen.getByText("Test error message"));
 
       expect(screen.getByText("App details")).toBeInTheDocument();
+      expect(screen.getByText("user email")).toBeInTheDocument();
+      expect(screen.getByText("[EMAIL]")).toBeInTheDocument();
+      expect(screen.getByText("job url")).toBeInTheDocument();
+      expect(screen.getByText("https://example.com/jobs")).toBeInTheDocument();
+      expect(screen.getByText("nested")).toBeInTheDocument();
+      expect(screen.getByText("Details summarized")).toBeInTheDocument();
+      expect(screen.getByText("action")).toBeInTheDocument();
+      expect(screen.getByText("test")).toBeInTheDocument();
+      expect(container.textContent).not.toContain("candidate@example.com");
+      expect(container.textContent).not.toContain("token=abc");
+      expect(container.textContent).not.toContain("secret");
+      expect(container.textContent).not.toContain('"user_email"');
     });
 
     it("has aria-expanded attribute", () => {
