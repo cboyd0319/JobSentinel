@@ -118,10 +118,10 @@ describe("shouldNotifyForJob", () => {
           includeKeywords: ["Senior", "Lead"],
         },
       };
-      const job: JobForNotification = { title: "Senior Engineer", company: "TechCorp" };
+      const job: JobForNotification = { title: "Lead Care Coordinator", company: "CareBridge Services" };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, job)).toBe(true);
 
-      const juniorJob: JobForNotification = { title: "Engineer", company: "TechCorp" };
+      const juniorJob: JobForNotification = { title: "Care Coordinator", company: "CareBridge Services" };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, juniorJob)).toBe(false);
     });
 
@@ -133,11 +133,11 @@ describe("shouldNotifyForJob", () => {
           excludeKeywords: ["Junior", "Intern"],
         },
       };
-      const job: JobForNotification = { title: "Junior Engineer", company: "TechCorp" };
+      const job: JobForNotification = { title: "Junior Care Coordinator", company: "CareBridge Services" };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, job)).toBe(false);
 
-      const seniorJob: JobForNotification = { title: "Senior Engineer", company: "TechCorp" };
-      expect(shouldNotifyForJob("indeed", 0.8, prefs, seniorJob)).toBe(true);
+      const leadJob: JobForNotification = { title: "Lead Care Coordinator", company: "CareBridge Services" };
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, leadJob)).toBe(true);
     });
 
     it("keyword matching is case-insensitive", () => {
@@ -148,7 +148,7 @@ describe("shouldNotifyForJob", () => {
           excludeKeywords: ["INTERN"],
         },
       };
-      const job: JobForNotification = { title: "Software Intern", company: "TechCorp" };
+      const job: JobForNotification = { title: "Patient Care Intern", company: "CareBridge Services" };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, job)).toBe(false);
     });
   });
@@ -165,16 +165,16 @@ describe("shouldNotifyForJob", () => {
 
       // Job with salary below minimum
       const lowPayJob: JobForNotification = {
-        title: "Engineer",
-        company: "Corp",
+        title: "Care Coordinator",
+        company: "CareBridge Services",
         salary_max: 80000,
       };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, lowPayJob)).toBe(false);
 
       // Job with salary meeting minimum
       const goodPayJob: JobForNotification = {
-        title: "Engineer",
-        company: "Corp",
+        title: "Care Coordinator",
+        company: "CareBridge Services",
         salary_max: 120000,
       };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, goodPayJob)).toBe(true);
@@ -190,8 +190,8 @@ describe("shouldNotifyForJob", () => {
       };
 
       const job: JobForNotification = {
-        title: "Engineer",
-        company: "Corp",
+        title: "Care Coordinator",
+        company: "CareBridge Services",
         salary_min: 80000,
         salary_max: 120000,
       };
@@ -208,8 +208,8 @@ describe("shouldNotifyForJob", () => {
       };
 
       const jobNoSalary: JobForNotification = {
-        title: "Engineer",
-        company: "Corp",
+        title: "Care Coordinator",
+        company: "CareBridge Services",
       };
       // Jobs with 0 or no salary info pass the filter
       expect(shouldNotifyForJob("indeed", 0.8, prefs, jobNoSalary)).toBe(true);
@@ -227,15 +227,15 @@ describe("shouldNotifyForJob", () => {
       };
 
       const remoteJob: JobForNotification = {
-        title: "Engineer",
-        company: "Corp",
+        title: "Care Coordinator",
+        company: "CareBridge Services",
         remote: true,
       };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, remoteJob)).toBe(true);
 
       const onsiteJob: JobForNotification = {
-        title: "Engineer",
-        company: "Corp",
+        title: "Care Coordinator",
+        company: "CareBridge Services",
         remote: false,
       };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, onsiteJob)).toBe(false);
@@ -251,8 +251,8 @@ describe("shouldNotifyForJob", () => {
       };
 
       const job: JobForNotification = {
-        title: "Engineer",
-        company: "Corp",
+        title: "Care Coordinator",
+        company: "CareBridge Services",
         location: "Remote - US",
       };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, job)).toBe(true);
@@ -268,8 +268,8 @@ describe("shouldNotifyForJob", () => {
       };
 
       const job: JobForNotification = {
-        title: "Remote Software Engineer",
-        company: "Corp",
+        title: "Remote Care Coordinator",
+        company: "CareBridge Services",
       };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, job)).toBe(true);
     });
@@ -281,19 +281,19 @@ describe("shouldNotifyForJob", () => {
         ...DEFAULT_PREFS,
         advancedFilters: {
           ...DEFAULT_PREFS.advancedFilters,
-          companyWhitelist: ["Google", "Meta"],
+          companyWhitelist: ["CareBridge", "Neighborhood Works"],
         },
       };
 
       const favoriteJob: JobForNotification = {
-        title: "Engineer",
-        company: "Google",
+        title: "Care Coordinator",
+        company: "CareBridge Services",
       };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, favoriteJob)).toBe(true);
 
       const otherJob: JobForNotification = {
-        title: "Engineer",
-        company: "Random Corp",
+        title: "Care Coordinator",
+        company: "Random Employer",
       };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, otherJob)).toBe(false);
     });
@@ -303,18 +303,18 @@ describe("shouldNotifyForJob", () => {
         ...DEFAULT_PREFS,
         advancedFilters: {
           ...DEFAULT_PREFS.advancedFilters,
-          companyBlacklist: ["BadCorp", "AvoidMe"],
+          companyBlacklist: ["BadEmployer", "AvoidMe"],
         },
       };
 
       const badJob: JobForNotification = {
-        title: "Engineer",
-        company: "BadCorp",
+        title: "Care Coordinator",
+        company: "BadEmployer",
       };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, badJob)).toBe(false);
 
       const goodJob: JobForNotification = {
-        title: "Engineer",
+        title: "Care Coordinator",
         company: "GoodCompany",
       };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, goodJob)).toBe(true);
@@ -325,13 +325,13 @@ describe("shouldNotifyForJob", () => {
         ...DEFAULT_PREFS,
         advancedFilters: {
           ...DEFAULT_PREFS.advancedFilters,
-          companyWhitelist: ["google"],
+          companyWhitelist: ["carebridge"],
         },
       };
 
       const job: JobForNotification = {
-        title: "Engineer",
-        company: "GOOGLE",
+        title: "Care Coordinator",
+        company: "CAREBRIDGE SERVICES",
       };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, job)).toBe(true);
     });
@@ -341,13 +341,13 @@ describe("shouldNotifyForJob", () => {
         ...DEFAULT_PREFS,
         advancedFilters: {
           ...DEFAULT_PREFS.advancedFilters,
-          companyWhitelist: ["google"],
+          companyWhitelist: ["carebridge"],
         },
       };
 
       const job: JobForNotification = {
-        title: "Engineer",
-        company: "Google LLC",
+        title: "Care Coordinator",
+        company: "CareBridge Health LLC",
       };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, job)).toBe(true);
     });
@@ -358,29 +358,29 @@ describe("shouldNotifyForJob", () => {
       const prefs: NotificationPreferences = {
         ...DEFAULT_PREFS,
         advancedFilters: {
-          includeKeywords: ["Senior"],
+          includeKeywords: ["Lead"],
           excludeKeywords: ["Intern"],
-          minSalary: 100,
+          minSalary: 70,
           remoteOnly: true,
-          companyWhitelist: ["Google"],
+          companyWhitelist: ["CareBridge"],
           companyBlacklist: [],
         },
       };
 
       // Job that passes all filters
       const perfectJob: JobForNotification = {
-        title: "Senior Remote Engineer",
-        company: "Google",
-        salary_max: 150000,
+        title: "Lead Remote Care Coordinator",
+        company: "CareBridge Services",
+        salary_max: 85000,
         remote: true,
       };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, perfectJob)).toBe(true);
 
       // Job failing include keyword
       const noKeywordJob: JobForNotification = {
-        title: "Engineer",
-        company: "Google",
-        salary_max: 150000,
+        title: "Care Coordinator",
+        company: "CareBridge Services",
+        salary_max: 85000,
         remote: true,
       };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, noKeywordJob)).toBe(false);

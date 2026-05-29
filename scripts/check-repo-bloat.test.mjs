@@ -566,6 +566,14 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/NotificationPreferences.test.tsx",
+      [
+        'const job = { title: "Remote Software Engineer", company: "TechCorp" };',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/components/CoverLetterTemplates.test.tsx",
       [
         'title: "Software Engineer",',
@@ -680,6 +688,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/components/automation/ApplyButton.test.tsx",
         "src/components/AtsLiveScorePanel.test.tsx",
         "src/components/JobCard.test.tsx",
+        "src/components/NotificationPreferences.test.tsx",
         "src/components/CoverLetterTemplates.test.tsx",
         "src/components/InterviewScheduler.test.tsx",
         "src/utils/export.test.ts",
@@ -727,6 +736,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/components/automation/ApplyButton.test.tsx",
       "src/components/AtsLiveScorePanel.test.tsx",
       "src/components/JobCard.test.tsx",
+      "src/components/NotificationPreferences.test.tsx",
       "src/components/CoverLetterTemplates.test.tsx",
       "src/components/InterviewScheduler.test.tsx",
       "src/utils/export.test.ts",
