@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Rebased cover-letter placeholder test fixtures from software-engineering, TechCorp, San Francisco, and John Doe examples to customer-support, CareBridge, Chicago, and Jordan Lee examples, with bloat coverage against old template fixture drift. |
 | 2026-05-29 | In progress | Rebased Job Card component test fixtures from software-engineering, tech-company, San Francisco, and high-pay examples to customer-support, care-service, Chicago, and realistic support-role pay examples, with bloat coverage against old card fixture drift. |
 | 2026-05-29 | In progress | Rebased ATS transparency component test fixtures from software-engineering and tech-company examples to customer-support, care-service, and Chicago examples, with bloat coverage against old applicant fixture drift. |
 | 2026-05-29 | In progress | Broadened Deep Link user and developer examples away from San Francisco/New York defaults toward Chicago role examples, with bloat coverage against stale user-doc location copy returning. |

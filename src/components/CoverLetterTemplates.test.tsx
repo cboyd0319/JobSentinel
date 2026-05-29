@@ -44,24 +44,24 @@ const mockTemplate = {
 
 describe("fillTemplatePlaceholders", () => {
   const job: JobForTemplate = {
-    title: "Software Engineer",
-    company: "TechCorp",
-    location: "San Francisco, CA",
+    title: "Customer Support Coordinator",
+    company: "CareBridge Services",
+    location: "Chicago, IL",
   };
 
   it("replaces {company} placeholder", () => {
     const result = fillTemplatePlaceholders("Apply to {company}", job);
-    expect(result).toBe("Apply to TechCorp");
+    expect(result).toBe("Apply to CareBridge Services");
   });
 
   it("replaces {position} placeholder", () => {
     const result = fillTemplatePlaceholders("Role: {position}", job);
-    expect(result).toBe("Role: Software Engineer");
+    expect(result).toBe("Role: Customer Support Coordinator");
   });
 
   it("replaces {location} placeholder", () => {
     const result = fillTemplatePlaceholders("Location: {location}", job);
-    expect(result).toBe("Location: San Francisco, CA");
+    expect(result).toBe("Location: Chicago, IL");
   });
 
   it("uses Remote when location is null", () => {
@@ -76,8 +76,8 @@ describe("fillTemplatePlaceholders", () => {
   });
 
   it("replaces {your_name} with user name when provided", () => {
-    const result = fillTemplatePlaceholders("{your_name}", job, { name: "John Doe" });
-    expect(result).toBe("John Doe");
+    const result = fillTemplatePlaceholders("{your_name}", job, { name: "Jordan Lee" });
+    expect(result).toBe("Jordan Lee");
   });
 
   it("replaces {your_name} with placeholder when no user context", () => {
@@ -109,13 +109,17 @@ describe("fillTemplatePlaceholders", () => {
   it("replaces multiple placeholders", () => {
     const template = "I'm {your_name}, applying for {position} at {company}.";
     const result = fillTemplatePlaceholders(template, job, { name: "Jane" });
-    expect(result).toBe("I'm Jane, applying for Software Engineer at TechCorp.");
+    expect(result).toBe(
+      "I'm Jane, applying for Customer Support Coordinator at CareBridge Services.",
+    );
   });
 
   it("replaces all occurrences of same placeholder", () => {
     const template = "{company} is great. I want to work at {company}.";
     const result = fillTemplatePlaceholders(template, job);
-    expect(result).toBe("TechCorp is great. I want to work at TechCorp.");
+    expect(result).toBe(
+      "CareBridge Services is great. I want to work at CareBridge Services.",
+    );
   });
 });
 
