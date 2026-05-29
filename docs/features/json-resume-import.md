@@ -1,363 +1,120 @@
 # JSON Resume Import
 
-Import resumes from the [JSON Resume](https://jsonresume.org/) format into JobSentinel.
-
-## Overview
-
-JSON Resume is an open-source standard for resume data. JobSentinel can import resumes in this format
-and convert them to internal resume drafts for editing and ATS optimization.
-
-## Supported Sections
-
-| JSON Resume Section | JobSentinel Mapping | Notes |
-|---------------------|---------------------|-------|
-| `basics.name` | Contact name | |
-| `basics.email` | Contact email | |
-| `basics.phone` | Contact phone | |
-| `basics.url` | Website | |
-| `basics.summary` | Professional summary | |
-| `basics.location` | Location (city, region) | Combines city + region |
-| `basics.profiles` | LinkedIn, GitHub, Website | Detects by network name |
-| `work[]` | Experience entries | |
-| `volunteer[]` | Experience entries | Tagged as "(Volunteer)" |
-| `education[]` | Education entries | Combines studyType + area |
-| `skills[]` | Skills | Expands name + keywords |
-| `certificates[]` | Certifications | |
-| `awards[]` | Certifications | Treated as certifications |
-| `projects[]` | Experience entries | Converted to project experience |
-| `publications[]` | Not imported | Future enhancement |
-| `languages[]` | Not imported | Future enhancement |
-| `interests[]` | Not imported | Future enhancement |
-| `references[]` | Not imported | Future enhancement |
-
-## Field Mapping Details
-
-### Basics Section
-
-```json
-{
-  "basics": {
-    "name": "John Doe",
-    "email": "john@example.com",
-    "phone": "+1-555-1234",
-    "url": "https://johndoe.com",
-    "summary": "Software engineer with 5 years of experience",
-    "location": {
-      "city": "San Francisco",
-      "region": "CA"
-    },
-    "profiles": [
-      {
-        "network": "LinkedIn",
-        "url": "https://linkedin.com/in/johndoe"
-      },
-      {
-        "network": "GitHub",
-        "url": "https://github.com/johndoe"
-      }
-    ]
-  }
-}
-```
-
-**Maps to:**
-
-- Contact Info: name, email, phone, location ("San Francisco, CA")
-- Social Links: LinkedIn, GitHub extracted from profiles
-- Website: `basics.url` or first non-LinkedIn/GitHub profile
-
-### Work Experience
-
-```json
-{
-  "work": [
-    {
-      "name": "Acme Corp",
-      "position": "Senior Program Coordinator",
-      "startDate": "2020-01-01",
-      "endDate": "2024-12-31",
-      "highlights": [
-        "Led team of 5 coordinators",
-        "Improved client onboarding process"
-      ]
-    }
-  ]
-}
-```
-
-**Maps to Experience:**
-
-- Company: `work.name`
-- Title: `work.position`
-- Start/End dates: ISO 8601 format
-- Achievements: `work.highlights`
-- Current: `true` if `endDate` is empty
-
-### Volunteer Experience
-
-```json
-{
-  "volunteer": [
-    {
-      "organization": "Code.org",
-      "position": "Mentor",
-      "startDate": "2021-01-01",
-      "endDate": "2021-12-31",
-      "highlights": ["Taught coding to students"]
-    }
-  ]
-}
-```
-
-**Maps to Experience:**
-
-- Title: `"Mentor (Volunteer)"` (tagged with "(Volunteer)")
-- Company: `volunteer.organization`
-- Otherwise same as work experience
-
-### Education
-
-```json
-{
-  "education": [
-    {
-      "institution": "MIT",
-      "studyType": "Bachelor",
-      "area": "Computer Science",
-      "endDate": "2019-05-15",
-      "score": "3.8",
-      "courses": ["Algorithms", "Databases"]
-    }
-  ]
-}
-```
-
-**Maps to Education:**
-
-- Degree: `"Bachelor in Computer Science"` (combines studyType + area)
-- Institution: `education.institution`
-- Graduation date: `education.endDate`
-- GPA: Parsed from `education.score`
-- Honors/Courses: `education.courses`
-
-### Skills
-
-```json
-{
-  "skills": [
-    {
-      "name": "Programming",
-      "level": "Advanced",
-      "keywords": ["Rust", "Python", "JavaScript"]
-    }
-  ]
-}
-```
-
-**Maps to Skills:**
-
-- Skill entries created for: `name` + all `keywords`
-- For example above: 4 skills (Programming, Rust, Python, JavaScript)
-- Proficiency mapping:
-  - `"beginner"` / `"novice"` maps to Beginner
-  - `"intermediate"` / `"proficient"` maps to Intermediate
-  - `"advanced"` / `"expert"` maps to Advanced
-  - `"master"` / `"guru"` maps to Expert
-  - Default: Intermediate
-
-### Projects
-
-```json
-{
-  "projects": [
-    {
-      "name": "JobSentinel",
-      "description": "Job-search assistant tool",
-      "highlights": ["Coordinated local data migration", "Improved source monitoring"],
-      "startDate": "2024-01-01",
-      "endDate": "",
-      "url": "https://github.com/chad/jobsentinel",
-      "roles": ["Lead Developer"],
-      "entity": "Personal"
-    }
-  ]
-}
-```
-
-**Maps to Experience:**
-
-- Title: `"JobSentinel - Lead Developer"` (name + roles)
-- Company: `"Project at Personal"` or `"Personal Project"`
-- Achievements: `projects.highlights`
-- Current: `true` if `endDate` is empty
-
-### Certifications
-
-```json
-{
-  "certificates": [
-    {
-      "name": "AWS Certified Solutions Architect",
-      "issuer": "Amazon Web Services",
-      "date": "2023-01-01"
-    }
-  ]
-}
-```
-
-**Maps to Certifications:**
-
-- Name: `certificates.name`
-- Issuer: `certificates.issuer`
-- Date: `certificates.date`
-
-### Awards (as Certifications)
-
-```json
-{
-  "awards": [
-    {
-      "title": "Employee of the Year",
-      "awarder": "Tech Corp",
-      "date": "2022-12-01"
-    }
-  ]
-}
-```
-
-**Maps to Certifications:**
-
-- Name: `awards.title`
-- Issuer: `awards.awarder`
-- Date: `awards.date`
-
-## Usage
-
-### Backend (Rust)
-
-```rust
-use jobsentinel::core::resume::ResumeMatcher;
-
-let matcher = ResumeMatcher::new(db_pool);
-let json_string = r#"{ "basics": { "name": "John Doe" } }"#;
-
-let resume_id = matcher
-    .import_json_resume("My Resume".to_string(), json_string)
-    .await?;
-
-println!("Imported resume with ID: {}", resume_id);
-```
-
-### Frontend (TypeScript)
-
-```typescript
-import { invoke } from '@tauri-apps/api/core';
-
-const jsonString = JSON.stringify(jsonResumeData);
-
-const resumeId = await invoke<number>('import_json_resume', {
-  name: 'My Resume',
-  jsonString
-});
-
-console.log('Imported resume:', resumeId);
-```
-
-## Edge Cases
-
-### Partial Resumes
-
-- Missing sections are gracefully ignored
-- Empty strings are handled
-- Optional fields default to `None` or empty arrays
-
-### Date Formats
-
-- ISO 8601 format preferred (`"2020-01-01"`)
-- Empty `endDate` maps to "Present" / `current: true`
-- Invalid dates are parsed as strings
-
-### Empty Resume
-
-```json
-{}
-```
-
-- Valid! Creates empty resume draft
-- All sections default to empty
-
-## Error Handling
-
-### Invalid JSON
-
-```rust
-import_json_resume(name, "invalid json")
-// Returns: Err("Failed to parse JSON Resume")
-```
-
-### Missing Required Fields
-
-- `basics.name` defaults to empty string
-- All fields are optional in JSON Resume spec
-
-## Validation
-
-No validation is performed during import:
-
-- ATS analysis can be run separately
-- Resume Builder can be used to edit/fix issues
-- Skill extraction happens after import
-
-## Examples
-
-### Minimal Resume
-
-```json
-{
-  "basics": {
-    "name": "Jane Smith",
-    "email": "jane@example.com"
-  }
-}
-```
-
-### Complete Resume
-
-Use [`examples/sample-json-resume.json`](../../examples/sample-json-resume.json)
-for a complete import fixture. See
-[JSON Resume examples](https://jsonresume.org/schema/) for more examples.
-
-## Testing
-
-The importer includes 9 comprehensive tests:
-
-- Parsing valid/partial/empty JSON
-- Contact info conversion
-- Experience conversion (work + volunteer + projects)
-- Education conversion
-- Skills conversion (with keyword expansion)
-- Certifications conversion (certificates + awards)
-- Full end-to-end conversion
-
-Run tests:
+JobSentinel can import a resume saved in the
+[JSON Resume](https://jsonresume.org/) format and turn it into an editable
+local resume draft.
+
+Privacy label: **Local only** and **Sensitive**. Resume content stays on the
+user's device. Importing a resume must not send the file, parsed text, contact
+details, salary expectations, notes, or application history to any external
+service.
+
+## What users can do
+
+- Import a JSON Resume file from the Resume page.
+- Review the imported contact, work, education, skills, project, award, and
+  certification details before using them.
+- Edit or remove imported items in Resume Builder.
+- Run local resume/job fit review after import.
+- Delete the imported draft later from local resume management.
+
+This feature is for job seekers in any field. Examples and tests should include
+office, healthcare, education, service, trades, operations, creative, public
+sector, technical, and non-technical resumes.
+
+## Import behavior
+
+| JSON Resume content | JobSentinel draft field |
+| ------------------- | ----------------------- |
+| `basics.name` | Contact name |
+| `basics.email` | Contact email |
+| `basics.phone` | Contact phone |
+| `basics.url` | Website |
+| `basics.summary` | Summary |
+| `basics.location` | Location |
+| `basics.profiles` | Public profile links |
+| `work[]` | Work experience |
+| `volunteer[]` | Volunteer experience |
+| `education[]` | Education |
+| `skills[]` | Skills |
+| `certificates[]` | Certifications |
+| `awards[]` | Awards or certifications |
+| `projects[]` | Project experience |
+
+Unsupported sections are ignored instead of blocking import. The user can add
+those details manually after import.
+
+## Safe defaults
+
+- Missing sections are allowed.
+- Empty strings are allowed.
+- Dates are imported as written when they cannot be parsed.
+- Empty end dates are treated as current roles.
+- Skill groups import both the group name and listed keywords so the user can
+  decide what to keep.
+- Imported resume content is saved as a local draft.
+
+## User-facing failure states
+
+| Problem | User-facing action |
+| ------- | ------------------ |
+| File is not valid JSON | Explain that the file could not be read and let the user choose another file. |
+| File uses unsupported JSON Resume fields | Import supported fields and tell the user to review the draft. |
+| Imported details look wrong | Let the user edit or delete the draft locally. |
+| Import fails unexpectedly | Offer a safe debug report that redacts resume content by default. |
+
+Do not show Rust errors, database terms, stack traces, local file paths, or raw
+resume text in user-facing error copy.
+
+## Developer contract
+
+The import command is `import_json_resume`.
+
+Implementation paths:
+
+- `src/pages/Resume.tsx`
+- `src-tauri/src/commands/resume.rs`
+- `src-tauri/src/core/resume/json_resume.rs`
+- `src-tauri/src/core/resume/mod.rs`
+- `examples/sample-json-resume.json`
+
+Privacy requirements:
+
+- Do not log resume names, raw JSON strings, parsed resume text, local paths, or
+  imported contact details.
+- Command logs may record non-identifying counts such as resume-name length and
+  JSON character length.
+- Renderer DTOs must not expose local file paths or full parsed resume text.
+- Safe debug reports must redact resume content unless the user explicitly
+  includes it.
+
+Validation requirements:
+
+- Keep import tolerant of partial JSON Resume files.
+- Keep unsupported fields non-fatal.
+- Keep malformed JSON errors clear and non-technical.
+- Keep tests broad enough to cover non-software resumes.
+
+## Verification
+
+Run the focused Rust tests after importer changes:
 
 ```bash
 cd src-tauri
 cargo test core::resume::json_resume
 ```
 
-## Future Enhancements
+Run these broader checks when user-facing copy, privacy behavior, or command
+shape changes:
 
-- Import publications
-- Import languages (spoken languages)
-- Import interests
-- Import references
-- Auto-detect resume format (JSON Resume vs other formats)
-- Bulk import from directory
-- JSON Resume export (reverse conversion)
+```bash
+npm run lint:bloat
+npm run lint:docs
+cd src-tauri && cargo test --lib
+```
 
-## External Resources
+## References
 
-- [JSON Resume Spec](https://jsonresume.org/schema/)
-- [JSON Resume Examples](https://jsonresume.org/getting-started/)
-- [JSON Resume Registry](https://registry.jsonresume.org/)
+- [JSON Resume schema](https://jsonresume.org/schema/)
+- [JSON Resume getting started](https://jsonresume.org/getting-started/)
+- [JSON Resume registry](https://registry.jsonresume.org/)

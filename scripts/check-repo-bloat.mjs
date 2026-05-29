@@ -273,6 +273,7 @@ const rawUrlErrorDisplayPaths = new Set([
 
 const rawPathOrQueryErrorDisplayPaths = new Set(["src-tauri/src/core/db/error.rs"]);
 const rawResumeParserPathDisplayPaths = new Set(["src-tauri/src/core/resume/parser.rs"]);
+const rawResumeNameLoggingPaths = new Set(["src-tauri/src/commands/resume.rs"]);
 const rawCommandSetupErrorDisplayPaths = new Set([
   "src-tauri/src/commands/config.rs",
   "src-tauri/src/commands/ghost.rs",
@@ -2748,6 +2749,17 @@ function hasRawResumeParserPathDisplay(root, path) {
   return /(?:file_path|canonical_path)\.display\(\)/.test(productionText);
 }
 
+function hasRawResumeNameLogging(root, path) {
+  if (!rawResumeNameLoggingPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return /tracing::(?:debug|info|warn|error)!\([^;]*import_json_resume[^;]*(?:\bname\s*[:=]\s*\{\}|\bname\s*=\s*%?name\b)/.test(
+    productionText,
+  );
+}
+
 function resumeSummaryStructMissingOrPrivate(text) {
   const match = text.match(/pub\s+struct\s+ResumeSummary\s*\{([^}]*)\}/);
   return !match || /\b(?:file_path|parsed_text)\b/.test(match[1]);
@@ -4219,6 +4231,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawResumeParserPathDisplay(root, path)) {
       violations.push(`sanitize resume parser path error display: ${path}`);
+    }
+
+    if (hasRawResumeNameLogging(root, path)) {
+      violations.push(`sanitize resume import name logging: ${path}`);
     }
 
     if (hasRawResumeCommandDtoExposure(root, path)) {

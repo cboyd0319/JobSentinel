@@ -65,7 +65,11 @@ pub async fn import_json_resume(
     json_string: String,
     state: State<'_, AppState>,
 ) -> Result<i64, String> {
-    tracing::info!("Command: import_json_resume (name: {})", name);
+    tracing::info!(
+        name_chars = name.chars().count(),
+        json_chars = json_string.chars().count(),
+        "Command: import_json_resume"
+    );
 
     let matcher = ResumeMatcher::new(state.database.pool().clone());
     matcher

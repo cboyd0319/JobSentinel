@@ -5908,6 +5908,32 @@ test("checkRepoBloat rejects raw resume parser path error display", () => {
   });
 });
 
+test("checkRepoBloat rejects raw resume import name logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/resume.rs",
+      [
+        'tracing::info!("Command: import_json_resume (name: {})", name);',
+        'tracing::info!(name = %name, "Command: import_json_resume");',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/resume.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sanitize resume import name logging: src-tauri/src/commands/resume.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw command setup error display", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
