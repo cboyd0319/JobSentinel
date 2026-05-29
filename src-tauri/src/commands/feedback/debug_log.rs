@@ -503,7 +503,7 @@ mod tests {
     fn test_never_logs_sensitive_content() {
         // Test that the sanitizer doesn't remove generic job content
         // (which is why we should NEVER log it in the first place)
-        let message = "Job title: Senior Rust Developer at AcmeCorp";
+        let message = "Job title: Program Coordinator at Acme Services";
         let sanitized = Sanitizer::sanitize_error(message);
 
         // Job titles and company names are just plain text - they won't be sanitized
@@ -511,7 +511,7 @@ mod tests {
         // This is OK because we should NEVER log job content in the first place.
         // This test documents that behavior.
         assert!(
-            sanitized.contains("Senior Rust Developer"),
+            sanitized.contains("Program Coordinator"),
             "Test expects job title to appear (showing that sanitizer doesn't catch generic text - \
              which is why we must never log job content in the first place). Got: {}",
             sanitized

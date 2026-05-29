@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Rebased safe debug-report sanitizer test examples away from Rust/software-engineering job titles toward program-coordination and care-coordination examples, with bloat coverage against old feedback fixture drift. |
 | 2026-05-29 | In progress | Rebased database integration fixtures from TestCorp/Rust/San Francisco search examples to program-coordinator, care-coordination, support-specialist, Chicago, and realistic broad-role salary examples, with bloat coverage against old database fixture drift. |
 | 2026-05-29 | In progress | Rebased scheduler integration scoring, persistence, remote-preference, and search fixtures from Rust/security/TechCorp/San Francisco examples to care-coordination, customer-support, program-coordination, Chicago, and realistic broad-role salary examples, with bloat coverage against old scheduler fixture drift. |
 | 2026-05-29 | In progress | Reworked the root README through the maintained information-design system after a fresh prior-art and Gemini critique: moved the dashboard proof and route map up, collapsed duplicate privacy/research loops, put download before deep architecture, and refreshed the harness README design standard. |

@@ -323,7 +323,7 @@ mod tests {
 
     #[test]
     fn test_sanitize_error_removes_quoted_strings() {
-        let input = "Failed to find job titled \"Senior Software Engineer\"";
+        let input = "Failed to find job titled \"Senior Care Coordinator\"";
         let output = Sanitizer::sanitize_error(input);
         assert_eq!(output, "Failed to find job titled \"[REDACTED]\"");
 

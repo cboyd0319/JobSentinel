@@ -541,6 +541,8 @@ const broadAudienceExamplePaths = new Set([
   "src-tauri/src/core/resume/parser.rs",
   "src-tauri/src/core/resume/tests.rs",
   "src-tauri/src/commands/deeplinks.rs",
+  "src-tauri/src/commands/feedback/debug_log.rs",
+  "src-tauri/src/commands/feedback/sanitizer.rs",
   "src-tauri/src/commands/import.rs",
   "src-tauri/src/commands/tests.rs",
   "src-tauri/src/core/deeplinks/types.rs",
@@ -1580,6 +1582,22 @@ function hasEngineerFirstAudienceExamples(root, path) {
     ];
 
     if (databaseIntegrationPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "src-tauri/src/commands/feedback/debug_log.rs") {
+    const feedbackDebugLogPatterns = [/Senior Rust Developer/i, /AcmeCorp/i];
+
+    if (feedbackDebugLogPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "src-tauri/src/commands/feedback/sanitizer.rs") {
+    const feedbackSanitizerPatterns = [/Senior Software Engineer/i];
+
+    if (feedbackSanitizerPatterns.some((pattern) => pattern.test(text))) {
       return true;
     }
   }

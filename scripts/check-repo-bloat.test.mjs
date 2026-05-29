@@ -621,6 +621,16 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src-tauri/src/commands/feedback/debug_log.rs",
+      'let message = "Job title: Senior Rust Developer at AcmeCorp";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/feedback/sanitizer.rs",
+      'let input = "Failed to find job titled \\"Senior Software Engineer\\"";\n',
+    );
+    writeFixtureFile(
+      root,
       "src-tauri/src/commands/import.rs",
       'calculate_job_hash("Google", "Software Engineer", "https://example.com/job/1");\n',
     );
@@ -908,6 +918,8 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src-tauri/src/core/health/smoke_tests.rs",
         "src-tauri/src/core/deeplinks/generator.rs",
         "src-tauri/src/commands/deeplinks.rs",
+        "src-tauri/src/commands/feedback/debug_log.rs",
+        "src-tauri/src/commands/feedback/sanitizer.rs",
         "src-tauri/src/commands/import.rs",
         "src-tauri/src/commands/tests.rs",
         "src-tauri/tests/api_contract_test.rs",
@@ -993,6 +1005,8 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src-tauri/src/core/health/smoke_tests.rs",
       "src-tauri/src/core/deeplinks/generator.rs",
       "src-tauri/src/commands/deeplinks.rs",
+      "src-tauri/src/commands/feedback/debug_log.rs",
+      "src-tauri/src/commands/feedback/sanitizer.rs",
       "src-tauri/src/commands/import.rs",
       "src-tauri/src/commands/tests.rs",
       "src-tauri/tests/api_contract_test.rs",
