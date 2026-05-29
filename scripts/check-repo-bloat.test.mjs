@@ -3083,6 +3083,41 @@ test("checkRepoBloat rejects stale user-data export roadmap claims", () => {
   });
 });
 
+test("checkRepoBloat rejects stale user-data management doc shape", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/user-data-management.md",
+      [
+        "**Your job search, organized and persistent.**",
+        "templates with smart variable substitution",
+        '"Tech Startup", "Fortune 500"',
+        "## Tauri Commands (API Reference)",
+        "These commands power the user data features.",
+        "### Database Schema",
+        "CREATE TABLE saved_searches",
+        "## Open Gaps",
+        "The current user-data commands do not provide a full JSON export/import",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/features/user-data-management.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sync user-data docs with local privacy guidance: docs/features/user-data-management.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects overbroad localStorage migration claims", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

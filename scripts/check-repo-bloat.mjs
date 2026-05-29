@@ -1142,6 +1142,25 @@ function hasStaleUserDataExportRoadmapClaim(root, path) {
   );
 }
 
+function hasStaleUserDataManagementDocShape(root, path) {
+  if (path !== "docs/features/user-data-management.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /Your job search, organized and persistent/i.test(text) ||
+    /smart variable substitution/i.test(text) ||
+    /Tech Startup|Fortune 500/i.test(text) ||
+    /## Tauri Commands \(API Reference\)/i.test(text) ||
+    /These commands power the user data features/i.test(text) ||
+    /### Database Schema/i.test(text) ||
+    /CREATE TABLE/i.test(text) ||
+    /## Open Gaps/i.test(text) ||
+    /The current user-data commands do not provide a full JSON export\/import/i.test(text)
+  );
+}
+
 function hasOverbroadLocalStorageMigrationClaim(root, path) {
   if (path !== "docs/ROADMAP.md") {
     return false;
@@ -3800,6 +3819,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleUserDataExportRoadmapClaim(root, path)) {
       violations.push(`remove stale user-data export roadmap claim: ${path}`);
+    }
+
+    if (hasStaleUserDataManagementDocShape(root, path)) {
+      violations.push(`sync user-data docs with local privacy guidance: ${path}`);
     }
 
     if (hasOverbroadLocalStorageMigrationClaim(root, path)) {

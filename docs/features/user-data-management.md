@@ -1,739 +1,156 @@
-# User Data Management
+# Local Job-Search Data
 
-**Your job search, organized and persistent.**
+**Keep job-search history, saved searches, templates, reminders, and safe
+support reports under user control.**
 
-JobSentinel keeps your job search data organized and always available. Save cover letter
-templates, prep for interviews, bookmark searches, and customize notifications—all stored
-securely in your local database.
+JobSentinel treats job-search data as sensitive. Notes, templates, searches,
+interview prep, notification choices, salary context, and problem reports can
+reveal employment status, urgency, career goals, location constraints, and
+private circumstances. Core data workflows stay local by default.
 
----
+## Privacy Labels
 
-## Overview
+| Workflow | Label | Default behavior |
+| --- | --- | --- |
+| Cover letter templates | Local only, Sensitive | Saved locally and never submitted automatically. |
+| Interview prep and follow-ups | Local only, Sensitive | Checklist state and reminders stay local. |
+| Saved searches | Local only, Sensitive | Search names, words, filters, and history stay local. |
+| Notification preferences | Local only, Sensitive | Preferences stay local; external channels are used only if configured. |
+| Safe debug reports | Local only, Sensitive | Reports are sanitized before copy or save. |
+| Location detection | Sensitive | Public-IP lookup happens only after explicit user action. |
 
-User data management provides four core features for organizing your job search:
+External AI is not required for user-data management.
 
-1. **Cover Letter Templates** - Reusable letter templates with smart variable substitution
-2. **Interview Prep Checklists** - Pre-interview preparation and follow-up reminders
-3. **Saved Searches** - Bookmark frequently-used search queries
-4. **Notification Preferences** - Fine-tuned alert rules for each job source
+## What Stays Local
 
-All data is stored locally in SQLite. No data leaves your computer unless you explicitly
-configure external notifications (Slack, Discord, etc.).
+- Cover letter templates and generated drafts.
+- Interview prep checklists and follow-up reminders.
+- Saved searches, search history, and notification preferences.
+- Problem history and sanitized safe debug reports.
+- Local-only UI state such as theme, onboarding completion, temporary recovery
+  hints, and sanitized app-error records.
 
-SQLite is the source of truth for job-search records and durable preferences.
-Frontend localStorage is reserved for non-authoritative UI preferences, short-lived
-caches, sanitized error logs, and transient recovery hints.
+External notifications such as Slack, Discord, Teams, email, or other channels
+are optional. They are used only after the user configures them.
 
----
-
-## Cover Letter Templates
-
-Save and reuse cover letters across applications. Templates support variable substitution
-for company names, positions, and other details.
-
-### Creating a Template
-
-1. Go to **Templates** in the sidebar
-2. Click **+ New Template**
-3. Enter a name (for example: "Tech Startup", "Fortune 500", "Contract Role")
-4. Select a category:
-   - **Default** - General purpose
-   - **Formal** - Corporate roles
-   - **Startup** - Early-stage companies
-   - **Contract** - Freelance/temporary roles
-5. Write your cover letter with variables where needed
-6. Click **Save**
-
-### Using Variables
-
-Insert placeholders for values that change per application:
-
-| Variable           | Replaced With          |
-| ------------------ | ---------------------- |
-| `{company}`        | Company name           |
-| `{position}`       | Job title              |
-| `{hiring_manager}` | Recruiter/manager name |
-| `{department}`     | Team or department     |
-| `{location}`       | Office location        |
-| `{salary_range}`   | Expected salary band   |
-
-**Example template:**
-
-```text
-Dear {hiring_manager},
-
-I'm excited to apply for the {position} role at {company}. Your work in {department}
-aligns perfectly with my experience...
-
-Best regards,
-Your Name
-```
-
-### Apply with Template (Use for Job Button)
-
-When viewing a job posting:
-
-1. Click **Use for Job** in the top right
-2. Select a template from the dropdown
-3. JobSentinel auto-fills known variables (company name from the posting)
-4. Review and edit the letter
-5. Copy to clipboard or send directly
-
-The generated letter is NOT automatically submitted—you always review before sending.
-
-### Managing Templates
-
-**View all templates:** Templates page shows creation date, last modified, and category
-
-**Edit template:** Click the template name to open the editor
-
-**Duplicate template:** Use the **Duplicate** button to create a variant
-
-**Delete template:** Click **Delete** (this can't be undone)
-
----
-
-## Interview Prep Checklists
-
-Prepare for interviews with structured checklists and company research integration.
-
-### Pre-Interview Preparation
-
-When you schedule an interview in JobSentinel:
-
-1. Go to **Applications** and find the job
-2. Click **Schedule Interview**
-3. A prep checklist automatically generates with:
-   - **Research Items** - Company background, recent news, product overview
-   - **Role-specific Items** - Work samples, role tasks, or field-specific questions
-   - **Behavioral Items** - STAR method stories, culture fit, questions to ask
-   - **Logistics Items** - Dial-in link, timezone check, equipment test
-
-### Using the Checklist
-
-1. Open the **Applications** page
-2. Find your scheduled interview
-3. Click **Prep Checklist**
-4. Check off items as you complete them
-5. Incomplete items are flagged as reminders
-
-You can mark items complete or incomplete at any time—progress is automatically saved.
-
-### Company Research Integration
-
-JobSentinel links your prep checklist to the company research panel:
-
-- When you open an interview checklist, the company research panel appears on the right
-- Read recent news, Glassdoor reviews, tools, systems, and company social media
-- Add your own notes in the research panel
-- All research is saved for future reference
-
----
-
-## Follow-up Reminders
-
-Never miss a follow-up. JobSentinel reminds you to send thank-you notes and check in on applications.
-
-### Setting Reminders
-
-When you schedule an interview:
-
-1. JobSentinel automatically sets a **3-day follow-up reminder**
-2. After the interview ends, check **Send Thank You** in your reminder
-3. Copy the auto-generated thank you email or write your own
-4. The reminder marks as complete
-
-### Reminder Notifications
-
-You receive notifications at:
-
-- **1 day before interview** - Preparation reminder
-- **3 days after interview** - Thank you email reminder
-- **7 days after interview** - Status check-in reminder
-
-You can disable specific reminders in **Settings > Interview Prep**.
-
----
-
-## Saved Searches
-
-Bookmark your favorite job searches and access them with one click.
-
-### Creating a Saved Search
-
-1. On the **Dashboard**, build a search query:
-   - Use job titles, search words, and filters
-   - Set minimum match strength
-   - Filter by job type, location, salary range
-2. Click the **Save Search** button (bookmark icon)
-3. Give it a name, such as "Office manager remote", "Design NYC
-   entry-level", or "Clinic scheduler part-time"
-4. Click **Save**
-
-### Using Saved Searches
-
-Go to **Saved Searches** in the sidebar and click any search to:
-
-- Load the filters immediately
-- See when the search was last used
-- View result count and average match strength
-
-### Search History
-
-JobSentinel automatically tracks the last 50 searches you've performed (without needing to save them):
-
-1. Click the **History** icon above the search bar
-2. Your recent searches appear in order
-3. Click a search to reload it
-4. Clear history anytime in **Settings > Privacy**
-
-### Managing Searches
-
-**View usage stats:** Each saved search shows last used date and frequency
-
-**Update search:** Edit filters and click **Save Search** with the same name to overwrite
-
-**Delete search:** Click the trash icon next to a saved search
-
----
-
-## Notification Preferences
-
-Fine-tune which jobs trigger alerts and how you receive them.
-
-### Per-Source Filtering
-
-Control notifications for each job board independently:
-
-1. Go to **Settings > Notifications > Advanced Filtering**
-2. For each source (Indeed, Greenhouse, Lever, JobsWithGPT):
-   - **Enable/disable** - Turn alerts on or off
-   - **Match strength** - Send fewer or more alerts based on how strong the
-     job looks for your saved search
-
-### Search-Word Filtering
-
-Create inclusion and exclusion rules:
-
-1. **Include words** - Only notify if the posting contains ANY of these words
-   - Example: "onboarding OR scheduling OR patient care"
-2. **Exclude words** - Skip if the posting contains ANY of these words
-   - Example: "commission only NOT required"
-3. **Company list** - Only notify from specific companies
-   - Add company names, one per line
-   - Helpful for tracking target employers
-
-### Alert Match Strength
-
-Choose how selective each notification channel should be:
-
-| Channel      | Default Strength | Recommendation              |
-| ------------ | ---------------- | --------------------------- |
-| **Desktop**  | 80%              | Lower for more alerts       |
-| **Email**    | 85%              | Keeps inbox clean           |
-| **Slack**    | 90%              | Strongest matches only      |
-| **Discord**  | 90%              | Strongest matches only      |
-| **Telegram** | 85%              | Mobile-friendly             |
-| **Teams**    | 85%              | Work-channel friendly       |
-
-### Saving Preferences
-
-All notification settings are saved automatically when you change them. No need to click "Save."
-
----
-
-## Data Storage
-
-### Local Storage (SQLite)
-
-All user data is stored in a local SQLite database:
-
-**Location:**
-
-- **Windows:** `%APPDATA%\JobSentinel\data.db`
-- **macOS:** `~/Library/Application Support/JobSentinel/data.db`
-- **Linux:** `~/.local/share/jobsentinel/data.db`
-
-**What's stored:**
-
-- Cover letter templates
-- Interview prep checklists and completion status
-- Follow-up reminders
-- Saved searches
-- Notification preferences
-- Search history (50 most recent)
-
-The frontend may also keep local-only UI state in browser localStorage. Current
-uses include theme preferences, onboarding completion, cached company research,
-sanitized error logs, and temporary one-click-apply recovery hints. Those entries
-are not cloud-synced, and error reports are sanitized before local persistence or
-export. The Settings screen and crash screen both expose **Copy Safe Debug Report**
-and **Save Safe Debug Report** so non-technical users can paste or attach a
-sanitized report directly into a GitHub issue.
-
-### Migration from older browser-saved data
-
-If you used JobSentinel before version 1.4:
-
-1. JobSentinel checks for older saved templates and searches
-2. If older data is found, the app shows a **Migrate Data** prompt
-3. Click **Migrate Data** to move it into the current local storage
-4. After migration, the old browser-saved copy is removed
-
-**Note:** This one-time import happens automatically. You don't need to do anything.
-
-### Data Privacy
-
-- **Zero telemetry** - JobSentinel does not collect analytics or telemetry
-- **Local-first** - Your data stays on your computer
-- **Explicit location lookup** - **Detect location** contacts FreeIPAPI over HTTPS only after you request it
-- **Manual backup** - A built-in backup flow is still planned. Until then,
-  avoid deleting important templates unless you already have another copy.
-- **Delete anytime** - Delete individual templates and saved searches, and
-  clear search history without affecting the app
-
----
-
-## Tauri Commands (API Reference)
-
-These commands power the user data features. Frontend developers can use these to build additional UI.
-
-<details>
-<summary><strong>For developers</strong></summary>
+## Everyday Workflows
 
 ### Cover Letter Templates
 
-#### `list_cover_letter_templates()`
+Templates help users avoid starting from a blank page. JobSentinel can fill
+known placeholders such as company name, job title, hiring contact, department,
+location, and listed pay range.
 
-Get all cover letter templates.
+The user always reviews the result. JobSentinel does not submit the letter.
 
-```typescript
-invoke("list_cover_letter_templates");
-// Returns: CoverLetterTemplate[]
-// {
-//   id: string,
-//   name: string,
-//   content: string,
-//   category: 'Default' | 'Formal' | 'Startup' | 'Contract',
-//   created_at: string,
-//   updated_at: string
-// }
-```
+### Interview Prep
 
-#### `get_cover_letter_template(id: string)`
-
-Get a single template by ID.
-
-```typescript
-invoke("get_cover_letter_template", { id: "template-123" });
-// Returns: CoverLetterTemplate | null
-```
-
-#### `create_cover_letter_template(name: string, content: string, category: string)`
-
-Create a new template.
-
-```typescript
-invoke("create_cover_letter_template", {
-  name: "Tech Startup",
-  content: "Dear {hiring_manager}...",
-  category: "Startup",
-});
-// Returns: CoverLetterTemplate (with generated id, timestamps)
-```
-
-#### `update_cover_letter_template(id, name, content, category)`
-
-Update an existing template.
-
-```typescript
-invoke("update_cover_letter_template", {
-  id: "template-123",
-  name: "Updated Name",
-  content: "Updated content...",
-  category: "Formal",
-});
-// Returns: CoverLetterTemplate | null
-```
-
-#### `delete_cover_letter_template(id: string)`
-
-Delete a template permanently.
-
-```typescript
-invoke("delete_cover_letter_template", { id: "template-123" });
-// Returns: boolean (true = deleted, false = not found)
-```
-
-#### `seed_default_templates()`
-
-Create starter templates when no templates exist.
-
-```typescript
-invoke("seed_default_templates");
-// Returns: number (count created)
-```
-
-#### `import_cover_letter_templates(templates: CoverLetterTemplate[])`
-
-Bulk import templates (used during migration).
-
-```typescript
-invoke("import_cover_letter_templates", {
-  templates: [
-    { name: "Template 1", content: "...", category: "Default" },
-    { name: "Template 2", content: "...", category: "Formal" },
-  ],
-});
-// Returns: number (count imported)
-```
-
----
-
-### Interview Prep Checklists
-
-#### `get_interview_prep_checklist(interviewId: number)`
-
-Get the prep checklist for an interview.
-
-```typescript
-invoke("get_interview_prep_checklist", { interviewId: 42 });
-// Returns: PrepChecklistItem[]
-// {
-//   itemId: string,
-//   completed: boolean
-//   completedAt: string | null
-// }
-```
-
-#### `save_interview_prep_item(interviewId: number, itemId: string, completed: boolean)`
-
-Mark a checklist item as complete or incomplete.
-
-```typescript
-invoke("save_interview_prep_item", {
-  interviewId: 42,
-  itemId: "item-research-company",
-  completed: true,
-});
-// Returns: void
-```
-
----
-
-### Follow-up Reminders
-
-#### `get_interview_followup(interviewId: number)`
-
-Get the follow-up reminder for an interview.
-
-```typescript
-invoke("get_interview_followup", { interviewId: 42 });
-// Returns: FollowUpReminder | null
-// {
-//   interviewId: number,
-//   thankYouSent: boolean,
-//   sentAt: string | null
-// }
-```
-
-#### `save_interview_followup(interviewId: number, thankYouSent: boolean)`
-
-Update the follow-up reminder status.
-
-```typescript
-invoke("save_interview_followup", {
-  interviewId: 42,
-  thankYouSent: true,
-});
-// Returns: FollowUpReminder
-```
-
----
+Interview prep keeps logistics, company notes, role-specific questions,
+follow-up reminders, and thank-you status near the application. Checklists are
+for preparation, not performance scoring.
 
 ### Saved Searches
 
-#### `list_saved_searches()`
+Saved searches store repeatable searches such as:
 
-Get all saved searches.
+- "Office manager remote"
+- "Clinic scheduler part-time"
+- "Warehouse supervisor Denver"
+- "Design assistant entry-level"
 
-```typescript
-invoke("list_saved_searches");
-// Returns: SavedSearch[]
-// {
-//   id: string,
-//   name: string,
-//   sortBy: string,
-//   scoreFilter: string,
-//   sourceFilter: string,
-//   remoteFilter: string,
-//   bookmarkFilter: string,
-//   notesFilter: string,
-//   postedDateFilter: string | null,
-//   salaryMinFilter: number | null,
-//   salaryMaxFilter: number | null,
-//   ghostFilter: string | null,
-//   textSearch: string | null,
-//   createdAt: string,
-//   lastUsedAt: string | null
-// }
-```
-
-#### `create_saved_search(search: SavedSearch)`
-
-Create a new saved search.
-
-```typescript
-invoke("create_saved_search", {
-  search: {
-    id: "",
-    name: "Remote operations 90k+",
-    sortBy: "score-desc",
-    scoreFilter: "all",
-    sourceFilter: "all",
-    remoteFilter: "remote",
-    bookmarkFilter: "all",
-    notesFilter: "all",
-    postedDateFilter: "week",
-    salaryMinFilter: 120000,
-    salaryMaxFilter: null,
-    ghostFilter: null,
-    textSearch: "operations manager",
-    createdAt: "",
-    lastUsedAt: null,
-  },
-});
-// Returns: SavedSearch (with generated id, timestamps)
-```
-
-#### `use_saved_search(id: string)`
-
-Load a saved search (updates last_used_at).
-
-```typescript
-invoke("use_saved_search", { id: "search-123" });
-// Returns: boolean (true = found, false = not found)
-```
-
-#### `delete_saved_search(id: string)`
-
-Delete a saved search.
-
-```typescript
-invoke("delete_saved_search", { id: "search-123" });
-// Returns: boolean (true = deleted, false = not found)
-```
-
-#### `import_saved_searches(searches: SavedSearch[])`
-
-Bulk import searches (used during migration).
-
-```typescript
-invoke("import_saved_searches", {
-  searches: [
-    { name: "Search 1", query: "...", filters: {} },
-    { name: "Search 2", query: "...", filters: {} },
-  ],
-});
-// Returns: number (count imported)
-```
-
----
+Saved searches should make return visits easier for non-technical users. The UI
+should not require users to understand query syntax, filters, or scoring math.
 
 ### Notification Preferences
 
-#### `get_notification_preferences()`
+Notification settings control which saved searches and job sources can create
+alerts. Plain labels should describe alert destinations and match strength
+instead of service internals.
 
-Get the user's notification settings.
+### Safe Debug Reports
 
-```typescript
-invoke("get_notification_preferences");
-// Returns: NotificationPreferences
-// {
-//   linkedin: { enabled: false, minScoreThreshold: 70, soundEnabled: false },
-//   indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
-//   greenhouse: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
-//   lever: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
-//   jobswithgpt: { enabled: true, minScoreThreshold: 75, soundEnabled: true },
-//   global: {
-//     enabled: true,
-//     quietHoursStart: "22:00",
-//     quietHoursEnd: "08:00",
-//     quietHoursEnabled: false
-//   },
-//   advancedFilters: {
-//     includeKeywords: [],
-//     excludeKeywords: [],
-//     minSalary: null,
-//     remoteOnly: false,
-//     companyWhitelist: [],
-//     companyBlacklist: []
-//   }
-// }
-```
+When something breaks, users can choose **Copy Safe Debug Report** or **Save
+Safe Debug Report** from Settings, App Problem History, crash recovery, or page
+error recovery. Reports are designed for GitHub issue attachments and should
+avoid raw private values.
 
-#### `save_notification_preferences(prefs: NotificationPreferences)`
+Safe reports can include high-level app state, feature names, timestamps,
+sanitized error categories, and redacted configuration summaries. They should
+not include raw notes, resumes, full search text, salary floors, credentials,
+private paths, cookies, webhook links, tokens, or full application history.
 
-Update notification preferences.
+## Older Local Data
 
-```typescript
-invoke("save_notification_preferences", {
-  prefs: {
-    linkedin: { enabled: false, minScoreThreshold: 70, soundEnabled: false },
-    indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
-    greenhouse: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
-    lever: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
-    jobswithgpt: { enabled: true, minScoreThreshold: 75, soundEnabled: true },
-    global: {
-      enabled: true,
-      quietHoursStart: "22:00",
-      quietHoursEnd: "08:00",
-      quietHoursEnabled: false
-    },
-    advancedFilters: {
-      includeKeywords: ["onboarding", "scheduling"],
-      excludeKeywords: ["commission only"],
-      minSalary: 120,
-      remoteOnly: true,
-      companyWhitelist: ["Acme Health", "Northstar Clinic"],
-      companyBlacklist: []
-    }
-  }
-});
-// Returns: void
-```
+Users who had older browser-saved templates or searches may see a migration
+prompt. The migration moves supported local data into the current local store.
+If no prompt appears, restart the app and check Settings.
 
----
+## Backups And Deletion
 
-### Search History
-
-#### `add_search_history(query: string)`
-
-Add a search to history.
-
-```typescript
-invoke("add_search_history", { query: "remote project coordinator" });
-// Returns: void
-```
-
-#### `get_search_history(limit: i64)`
-
-Get recent search history (default: 50).
-
-```typescript
-invoke("get_search_history", { limit: 20 });
-// Returns: string[]
-// ["latest search", "previous search", "older search"]
-```
-
-#### `clear_search_history()`
-
-Clear all search history permanently.
-
-```typescript
-invoke("clear_search_history");
-// Returns: void
-```
-
----
-
-### Database Schema
-
-```sql
--- Cover Letter Templates
-CREATE TABLE cover_letter_templates (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  content TEXT NOT NULL,
-  category TEXT NOT NULL,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL
-);
-
--- Interview Prep Checklists
-CREATE TABLE interview_prep_items (
-  interview_id INTEGER PRIMARY KEY,
-  item_id TEXT NOT NULL,
-  category TEXT NOT NULL,
-  title TEXT NOT NULL,
-  completed BOOLEAN DEFAULT FALSE,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL
-);
-
--- Follow-up Reminders
-CREATE TABLE interview_followups (
-  interview_id INTEGER PRIMARY KEY,
-  thank_you_sent BOOLEAN DEFAULT FALSE,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL
-);
-
--- Saved Searches
-CREATE TABLE saved_searches (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  query TEXT NOT NULL,
-  filters TEXT NOT NULL,  -- JSON
-  last_used_at TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL
-);
-
--- Search History
-CREATE TABLE search_history (
-  query TEXT NOT NULL,
-  searched_at TEXT NOT NULL,
-  PRIMARY KEY (query, searched_at)
-);
-
--- Notification Preferences
-CREATE TABLE notification_preferences (
-  key TEXT PRIMARY KEY,
-  value TEXT NOT NULL  -- JSON
-);
-```
-
-</details>
-
----
+- Delete templates and saved searches carefully; deleted items may not be
+  recoverable inside the app yet.
+- Use safe debug reports before changing more data if something looks wrong.
+- A fuller backup and restore workflow remains a planned product need.
 
 ## Troubleshooting
 
-### My older templates did not move into JobSentinel
+| Problem | Plain next step |
+| --- | --- |
+| Older templates did not appear | Restart JobSentinel and check Settings for a migration prompt. |
+| A saved search is missing | Open Saved Searches, then check recent search history. |
+| Alerts feel too noisy | Raise match strength or narrow the saved search. |
+| Alerts miss expected jobs | Lower match strength or check whether the source is enabled. |
+| A template was deleted | Stop editing, make a safe debug report, and check whether another copy exists. |
 
-1. Check that you're using v1.4 or later (go to **Settings > About**)
-2. Close JobSentinel and open it again
-3. Look for a "Migrate Data" prompt on first launch
-4. If no prompt appears, go to **Settings > Data > Migrate from Browser** manually
+## Developer Notes
 
-### I can't find a saved search
+<details>
+<summary>Implementation references</summary>
 
-1. Check **Saved Searches** page to see all bookmarks
-2. Use search history (**History** button) to find recent searches
-3. Saved searches are sorted by last used date
-4. Note: Search history is separate from saved searches and only stores the last 50
+Primary surfaces:
 
-### Notifications aren't firing for certain keywords
+- Templates UI: `src/components/CoverLetterTemplates.tsx`
+- Saved searches hook: `src/pages/hooks/useDashboardSavedSearches.ts`
+- Safe reports: `src/components/ErrorLogPanel.tsx`,
+  `src/components/ErrorBoundary.tsx`, and `src/pages/Settings.tsx`
+- Backend core: `src-tauri/src/core/user_data/`
+- Tauri commands: `src-tauri/src/commands/user_data.rs`
 
-1. Check your notification preferences in **Settings > Notifications > Advanced Filtering**
-2. Verify the keyword rule is active (not disabled)
-3. Lower the match-strength setting if it is too selective
-4. Ensure the job source is enabled
-5. Try a test search to see if any jobs match
+Notification preference docs must stay aligned with the backend shape:
 
-### I accidentally deleted a template
+```ts
+const notificationPrefsExample = {
+  indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
+  global: { desktopEnabled: true },
+  advancedFilters: {},
+};
 
-Deleted templates cannot be recovered from inside JobSentinel yet. If something
-seems wrong, copy a safe debug report before changing more data.
+invoke("save_notification_preferences", {
+  prefs: {
+    indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
+    global: { desktopEnabled: true },
+    advancedFilters: {},
+  },
+});
+```
 
----
+Focused checks:
 
-## Open Gaps
+```bash
+npm run test:run -- src/components/CoverLetterTemplates.test.tsx
+npm run test:run -- src/pages/hooks/useDashboardSavedSearches.test.ts
+cd src-tauri && cargo test --lib user_data
+npm run lint:docs
+```
 
-The current user-data commands do not provide a full JSON export/import or
-automatic backup flow. Current import commands are migration helpers for cover
-letter templates and saved searches.
+Implementation rule:
 
-- Bulk template management
-- Smarter variable substitution
+- Do not log raw template names, saved-search text, private notes, salary
+  floors, credentials, tokens, webhooks, cookies, or local paths.
+- Safe debug reports must sanitize at the write boundary, not only in the UI.
+- User-data docs should be user-facing first; command and storage details belong
+  in developer references.
+- Do not add cloud sync, external AI, or telemetry without explicit product
+  decision, privacy labels, and user opt-in.
+
+</details>
