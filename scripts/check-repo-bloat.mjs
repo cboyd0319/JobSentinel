@@ -4053,6 +4053,7 @@ function hasTechnicalRecoveryCopy(root, path) {
     /Retry attempt\s*\{/,
     /aria-label=["']Close error dialog["']/,
     /CardHeader\s+title=["']Error["']/,
+    /window state/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));

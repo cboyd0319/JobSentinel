@@ -230,12 +230,12 @@ describe("ErrorBoundary", () => {
         screen.getByText(/saved jobs and applications stay saved on this device/i),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("button", { name: /reset window state.*reload/i }),
+        screen.getByRole("button", { name: /reset app window.*reload/i }),
       ).toBeInTheDocument();
       expect(screen.queryByText(/clear app data/i)).not.toBeInTheDocument();
     });
 
-    it("preserves visual preferences when resetting window state", async () => {
+    it("preserves visual preferences when resetting the app window", async () => {
       const user = userEvent.setup();
       const reloadMock = vi.fn();
       const storage = new Map<string, string>();
@@ -268,7 +268,7 @@ describe("ErrorBoundary", () => {
 
       await user.click(screen.getByRole("button", { name: /try again/i }));
       await user.click(
-        await screen.findByRole("button", { name: /reset window state/i })
+        await screen.findByRole("button", { name: /reset app window/i })
       );
 
       expect(localStorage.getItem("jobsentinel-theme")).toBe("dark");

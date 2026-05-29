@@ -8704,6 +8704,7 @@ test("checkRepoBloat rejects technical recovery copy", () => {
       [
         "export function ErrorBoundary({ count }) {",
         "  return <p>Error occurred {count} times</p>;",
+        "  return <button>Reset Window State & Reload</button>;",
         "}",
         "",
       ].join("\n"),
