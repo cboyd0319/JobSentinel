@@ -205,6 +205,20 @@ describe("ScoreDisplay", () => {
       });
       expect(screen.queryByText(/allowlist|blocklist/i)).not.toBeInTheDocument();
     });
+
+    it("uses priority wording in match-factor tooltip", async () => {
+      const reasons = JSON.stringify(["Salary meets minimum"]);
+      const { container } = render(<ScoreDisplay score={0.8} scoreReasons={reasons} />);
+
+      const trigger = container.querySelector(".cursor-help");
+      expect(trigger).not.toBeNull();
+      fireEvent.mouseEnter(trigger as Element);
+
+      await waitFor(() => {
+        expect(screen.getByText("Priority")).toBeInTheDocument();
+      });
+      expect(screen.queryByText("Weight")).not.toBeInTheDocument();
+    });
   });
 
   describe("SVG rendering", () => {

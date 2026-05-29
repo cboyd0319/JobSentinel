@@ -741,6 +741,11 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/ScoreDisplay.tsx",
+      "<th>Weight</th>\n",
+    );
+    writeFixtureFile(
+      root,
       "src/components/feedback/DebugInfoPreview.tsx",
       [
         '"Loading debug information..."',
@@ -982,6 +987,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/components/ErrorBoundary.tsx",
         "src/components/ErrorLogPanel.tsx",
         "src/components/ScoreBreakdownModal.tsx",
+        "src/components/ScoreDisplay.tsx",
         "src/components/ScraperHealthDashboard.tsx",
         "src/components/JobImportModal.tsx",
         "src/components/JobCard.tsx",
@@ -1031,6 +1037,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/components/ErrorBoundary.tsx",
       "src/components/ErrorLogPanel.tsx",
       "src/components/ScoreBreakdownModal.tsx",
+      "src/components/ScoreDisplay.tsx",
       "src/components/ScraperHealthDashboard.tsx",
       "src/components/JobImportModal.tsx",
       "src/components/JobCard.tsx",

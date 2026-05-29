@@ -271,7 +271,7 @@ function ScoreBreakdownTooltip({
         <thead>
           <tr className="border-b border-surface-600">
             <th className="text-left pb-1 pr-2">Factor</th>
-            <th className="text-right pb-1 pr-2">Weight</th>
+            <th className="text-right pb-1 pr-2">Priority</th>
             <th className="text-left pb-1">Status</th>
           </tr>
         </thead>
