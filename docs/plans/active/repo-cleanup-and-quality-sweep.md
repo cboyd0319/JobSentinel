@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Rebased ATS transparency component test fixtures from software-engineering and tech-company examples to customer-support, care-service, and Chicago examples, with bloat coverage against old applicant fixture drift. |
 | 2026-05-29 | In progress | Broadened Deep Link user and developer examples away from San Francisco/New York defaults toward Chicago role examples, with bloat coverage against stale user-doc location copy returning. |
 | 2026-05-29 | In progress | Tightened the root README front door against the maintained information-design source pool with a dynamic release badge, visible free-forever and Rule 0 badges, cleaner project thesis, and a job-seeker risk-to-product-response table. |
 | 2026-05-29 | In progress | Replaced remaining live Resume Builder name placeholders from `John Doe` to the broader `Jordan Lee`, synced the Resume Builder E2E page object, and added bloat coverage against old placeholder drift. |

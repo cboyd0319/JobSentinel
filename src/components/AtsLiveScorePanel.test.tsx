@@ -24,40 +24,40 @@ const waitForAnalysis = async () => {
 describe("AtsLiveScorePanel", () => {
   const mockResumeData = {
     contact: {
-      name: "John Doe",
-      email: "john@example.com",
+      name: "Jordan Lee",
+      email: "jordan@example.com",
       phone: "555-1234",
-      linkedin: "linkedin.com/in/johndoe",
+      linkedin: "linkedin.com/in/jordanlee",
       github: null,
-      location: "San Francisco, CA",
+      location: "Chicago, IL",
       website: null,
     },
-    summary: "Experienced software engineer with 5+ years...",
+    summary: "Customer support lead with 5+ years helping clients...",
     experience: [
       {
         id: 1,
-        title: "Senior Developer",
-        company: "Tech Corp",
-        location: "San Francisco",
+        title: "Customer Support Lead",
+        company: "CareBridge Services",
+        location: "Chicago",
         start_date: "2020-01",
         end_date: null,
-        achievements: ["Led team of 5", "Improved performance by 40%"],
+        achievements: ["Coached team of 5", "Improved response time by 40%"],
       },
     ],
     education: [
       {
         id: 1,
-        degree: "BS Computer Science",
-        institution: "University of California",
-        location: "Berkeley",
+        degree: "BA Communications",
+        institution: "State University",
+        location: "Chicago",
         graduation_date: "2018-05",
         gpa: "3.8",
         honors: ["Magna Cum Laude"],
       },
     ],
     skills: [
-      { name: "JavaScript", category: "Languages", proficiency: "expert" as const },
-      { name: "React", category: "Frameworks", proficiency: "advanced" as const },
+      { name: "Customer service", category: "Service", proficiency: "expert" as const },
+      { name: "Scheduling tools", category: "Tools", proficiency: "advanced" as const },
     ],
   };
 
@@ -68,19 +68,19 @@ describe("AtsLiveScorePanel", () => {
     completeness_score: 75,
     keyword_matches: [
       {
-        keyword: "JavaScript",
+        keyword: "Customer service",
         importance: "Required",
         found_in: ["skills"],
         frequency: 1,
       },
       {
-        keyword: "React",
+        keyword: "Scheduling",
         importance: "Preferred",
         found_in: ["skills"],
         frequency: 1,
       },
     ],
-    missing_keywords: ["TypeScript", "Node.js"],
+    missing_keywords: ["Spanish", "Zendesk"],
     format_issues: [
       {
         severity: "Warning",
@@ -91,7 +91,7 @@ describe("AtsLiveScorePanel", () => {
     suggestions: [
       {
         category: "AddKeyword",
-        suggestion: "Add TypeScript to skills",
+        suggestion: "Add Spanish to skills",
         impact: "High match improvement",
       },
     ],
@@ -623,8 +623,8 @@ describe("AtsLiveScorePanel", () => {
       fireEvent.click(screen.getByRole("button", { name: /view full analysis/i }));
 
       expect(screen.getByText("Words To Add (2)")).toBeInTheDocument();
-      expect(screen.getByText("TypeScript")).toBeInTheDocument();
-      expect(screen.getByText("Node.js")).toBeInTheDocument();
+      expect(screen.getByText("Spanish")).toBeInTheDocument();
+      expect(screen.getByText("Zendesk")).toBeInTheDocument();
     });
 
     it("displays format issues in modal", async () => {
@@ -666,7 +666,7 @@ describe("AtsLiveScorePanel", () => {
       fireEvent.click(screen.getByRole("button", { name: /view full analysis/i }));
 
       expect(screen.getByText("Suggestions (1)")).toBeInTheDocument();
-      expect(screen.getByText("Add TypeScript to skills")).toBeInTheDocument();
+      expect(screen.getByText("Add Spanish to skills")).toBeInTheDocument();
     });
   });
 
@@ -728,7 +728,7 @@ describe("AtsLiveScorePanel", () => {
         "jobContext",
         JSON.stringify({
           timestamp: Date.now(),
-          description: "Senior TypeScript role",
+          description: "Bilingual customer support role",
         }),
       );
 
@@ -748,7 +748,7 @@ describe("AtsLiveScorePanel", () => {
       await waitFor(() => {
         expect(mockInvoke).toHaveBeenCalledWith(
           "analyze_resume_for_job",
-          expect.objectContaining({ jobDescription: "Senior TypeScript role" }),
+          expect.objectContaining({ jobDescription: "Bilingual customer support role" }),
         );
       });
     });

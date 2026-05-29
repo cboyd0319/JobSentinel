@@ -497,6 +497,7 @@ const broadAudienceExamplePaths = new Set([
   "src/components/resume-builder/steps/SummaryStep.tsx",
   "src/components/automation/ApplicationPreview.tsx",
   "src/components/automation/ProfileForm.tsx",
+  "src/components/AtsLiveScorePanel.test.tsx",
   "src/components/MarketAlertCard.test.tsx",
   "src/components/MarketSnapshotCard.test.tsx",
   "src/mocks/data.ts",
@@ -1457,7 +1458,11 @@ function hasEngineerFirstAudienceExamples(root, path) {
     /label=["']GitHub["']/i,
     /label:\s*["']GitHub["']/i,
     /name:\s*["']GitHub["']/i,
+    /name:\s*["']John Doe["']/i,
     />\s*GitHub\s*</i,
+    /linkedin:\s*["']linkedin\.com\/in\/johndoe["']/i,
+    /location:\s*["']San Francisco, CA["']/i,
+    /company:\s*["']Tech Corp["']/i,
     /https:\/\/github\.com\/(?:johndoe|caseysentinel)/i,
     /GitHub profile link if relevant to your role/i,
     /placeholder=["'][^"']*React/i,
@@ -1510,6 +1515,7 @@ function hasEngineerFirstAudienceExamples(root, path) {
     /JOHN DOE - Data Analyst/i,
     /\.\/experience/i,
     /B\.S\. CS/i,
+    /Senior TypeScript role/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));
