@@ -49,12 +49,14 @@ const requiredFiles = [
 const requiredHarnessSnippets = {
   "README.md": [
     "Core workflows work locally.",
+    "Rule 0: user privacy and security are non-negotiable.",
     "External AI, including OpenAI or another provider,",
     "is optional, disabled by default,",
     "privacy-first AI gateway",
     "payload preview, redaction, cancellation, approval, and local request logging",
   ],
   "PRIVACY.md": [
+    "Rule 0: user privacy and security are non-negotiable.",
     "Core JobSentinel workflows work locally",
     "External AI is optional and disabled by default.",
     "No full database uploads.",
@@ -63,12 +65,14 @@ const requiredHarnessSnippets = {
     "JobSentinel does not train models on user data.",
   ],
   "RESPONSIBLE_AI.md": [
+    "Rule 0: user privacy and security are non-negotiable.",
     "External AI is optional, disabled by default, and routed through one AI gateway.",
     "Candidate-side explainability",
     "Manipulate ATS systems.",
     "AI outputs are advisory. Users remain in control.",
   ],
   "docs/architecture/privacy-first-ai-gateway.md": [
+    "Rule 0: user privacy and security are non-negotiable.",
     "External AI is optional, disabled by default,",
     "must be routed through one gateway.",
     "external_ai.enabled = false",
@@ -77,6 +81,8 @@ const requiredHarnessSnippets = {
     "TODO before shipping any user-facing external AI feature:",
   ],
   "docs/harness/README.md": [
+    "## Rule 0",
+    "User privacy and security are non-negotiable.",
     "## Session Start Checklist",
     "## When To Add Harness",
     "Experience contract",
@@ -84,6 +90,8 @@ const requiredHarnessSnippets = {
     "Privacy/AI boundary",
   ],
   "docs/harness/change-contract.md": [
+    "Rule 0 evidence:",
+    "Rule 0 risk:",
     "Audience and ease:",
     "Harness impact:",
     "User-ease evidence:",

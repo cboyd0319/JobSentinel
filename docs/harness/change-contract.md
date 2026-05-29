@@ -19,6 +19,7 @@ Acceptance criteria:
 - Observable behavior or documentation result.
 - Edge cases.
 - Security or privacy constraints.
+- Rule 0 evidence: user privacy and security cannot be weakened.
 
 Audience and ease:
 - Who the user is.
@@ -34,6 +35,8 @@ Likely files:
 
 Risks:
 - Runtime, product, privacy, data, platform, or migration risk.
+- Rule 0 risk: any path that could weaken local control, credential safety,
+  source boundaries, explicit review, or privacy-preserving defaults.
 
 Sensors:
 - Exact commands, manual checks, or reviewer passes needed.

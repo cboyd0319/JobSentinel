@@ -3,6 +3,13 @@
 JobSentinel is local-first. Default assumption: job-search data is sensitive and
 should remain under user control.
 
+Rule 0: user privacy and security are non-negotiable. No feature,
+integration, shortcut, test fixture, external AI provider, support workflow, or
+research workflow may bypass user privacy, local control, credential safety,
+source boundaries, or explicit review gates. If privacy or security conflicts
+with convenience, automation, velocity, analytics, or research value, privacy
+and security win.
+
 Job-search data can reveal employment status, salary expectations, salary
 floors, resume history, location preferences, application activity, career
 goals, job-search urgency, personal circumstances, private notes, and sensitive
@@ -123,7 +130,8 @@ Debug reports should redact:
 ## Design rule
 
 New features must describe their data flow before they ship: what stays local,
-what may be sent out, why it is needed, and what the user can turn off.
+what may be sent out, why it is needed, and what the user can turn off. Any
+feature that cannot satisfy Rule 0 must be redesigned, disabled, or removed.
 
 ## Research And Evaluation
 

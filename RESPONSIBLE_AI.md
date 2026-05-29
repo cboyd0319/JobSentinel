@@ -8,6 +8,11 @@ External AI is optional, disabled by default, and routed through one AI gateway.
 Core workflows must work locally. Sensitive job-search data must stay local
 unless the user opts in, reviews the exact payload, and approves sending it.
 
+Rule 0: user privacy and security are non-negotiable. AI features must never
+weaken local-first storage, opt-in, payload preview, redaction, approval,
+credential safety, source boundaries, or human review. If an AI feature cannot
+meet that bar, it must not ship.
+
 ## Boundaries
 
 JobSentinel does not:

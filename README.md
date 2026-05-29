@@ -1,19 +1,8 @@
-<div align="center">
-
-<img src="docs/images/logo.png" alt="JobSentinel logo" width="180">
-
 # JobSentinel
 
 **JobSentinel is an open-source, local-first job-search assistant for finding real,
 relevant, fairly compensated work while keeping sensitive job-search data under user
 control.**
-
-Find better jobs, avoid stale postings, protect your salary floor, and keep the
-private details of your search on your own computer.
-
-Core workflows work locally. External AI, including OpenAI or another provider,
-is optional, disabled by default, and must use an inspectable AI gateway with
-payload preview, redaction, cancellation, approval, and local request logging.
 
 [![CI](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml)
 [![Docs Harness](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-harness.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-harness.yml)
@@ -26,54 +15,86 @@ payload preview, redaction, cancellation, approval, and local request logging.
 [![Rust](https://img.shields.io/badge/backend-Rust-b7410e)](src-tauri)
 [![TypeScript](https://img.shields.io/badge/language-TypeScript-3178c6)](src)
 
-**Built for technical and non-technical job seekers. Designed for people who
-need practical help, not another opaque hiring platform.**
+JobSentinel is a research-backed desktop application for job seekers who need a
+private, practical way to find current, relevant, fairly compensated roles. It
+combines local job tracking, official-source job monitoring, ghost-job
+detection, salary transparency, ATS transparency, candidate-side explainability,
+and privacy-preserving job-search workflows.
 
-[Get Started](#get-started) |
-[Why It Matters](#why-it-matters) |
-[Features](#main-features) |
-[Privacy](#privacy-model) |
-[Research](docs/research/job-seeker-behavior.md) |
-[Roadmap](ROADMAP.md) |
-[Developer Setup](#build-from-source)
+Core workflows work locally. External AI, including OpenAI or another provider,
+is optional, disabled by default, and must use an inspectable
+[privacy-first AI gateway](docs/architecture/privacy-first-ai-gateway.md) with
+payload preview, redaction, cancellation, approval, and local request logging.
 
-</div>
+JobSentinel is designed for technical and non-technical roles. The default user
+is not assumed to know search syntax, software tooling, hiring jargon, GitHub,
+or command-line troubleshooting.
+
+**Rule 0: user privacy and security are non-negotiable.** No feature,
+integration, test shortcut, AI provider, research workflow, or convenience path
+may bypass the privacy and security boundaries documented in this repository.
+
+**Primary links:** [Download](#download) | [Research Thesis](#research-thesis) |
+[Architecture](#architecture) | [Privacy](#privacy-and-ai-boundaries) |
+[Verification](#development-and-verification) | [Roadmap](ROADMAP.md) |
+[References](#references-and-external-sources)
 
 ---
 
-## Why it matters
+## Research thesis
 
 Job search is noisy, expensive, and often demoralizing. Stale postings waste
 tailoring time. Missing pay data hides bad tradeoffs. Opaque screening tools
 make candidates guess what happened. Cloud tools can collect sensitive search
 history, salary floors, resumes, and application notes.
 
-JobSentinel takes the candidate's side:
+JobSentinel treats those problems as product requirements, not side notes:
 
-- **Ghost-job detection:** stale, reposted, low-trust, and needs-review signals.
-- **Pay-equity support:** salary floors, pay transparency, and under-leveling
-  cues.
-- **ATS transparency:** application readability and candidate-side
-  explainability.
-- **Privacy-preserving job search:** local storage by default, no telemetry,
-  and user-controlled external channels.
-- **Zero-technical-knowledge UX:** plain setup, safe recovery paths, and
-  one-click support reports.
+- **Ghost-job and stale-posting detection:** reduce wasted effort before a job
+  seeker spends serious time tailoring.
+- **Pay-equity support:** make missing pay, salary floors, under-leveling, and
+  salary-history risk visible.
+- **Long-term unemployment support:** support pacing, fresh-role review, and
+  practical progress summaries without shame or pressure language.
+- **Bias-aware application strategy:** prefer verifiable sources, direct
+  company routes, recruiter context, referrals, and inspectable reasoning over
+  opaque black-box workflows.
+- **Protective UX:** use practical guidance such as "Verify before tailoring" or
+  "Pay not listed" instead of generic encouragement.
+- **Privacy-first local control:** keep sensitive job-search data on the user's
+  device unless the user explicitly chooses an external channel.
+
+The research basis is tracked in [docs/research](docs/research/README.md),
+[ROADMAP.md](ROADMAP.md), and the external-source index at the end of this
+README.
+
+## Project status
+
+| Area | Current state |
+| ---- | ------------- |
+| Release | `v2.6.4` |
+| Platforms | Windows 11+, macOS, Linux |
+| Runtime | Tauri 2 desktop app with React 19 frontend and Rust backend |
+| Storage | Local SQLite database with SQLx offline mode |
+| External AI | Optional, disabled by default, gateway-bound |
+| Telemetry | None |
+| Supported job sources | 13 configured sources with health checks and rate limits |
+| Backend surface | 190 registered Tauri commands |
+| Primary checks | Docs harness, bloat guard, test-quality guard, Vitest, Playwright, Rust fmt, Rust clippy, Rust tests |
 
 ---
 
-## What makes it different
+## Design principles
 
-| You need | JobSentinel helps by |
-| -------- | -------------------- |
-| Find real opportunities | Monitors 13 supported sources with deduplication, health checks, and source status |
-| Protect time and morale | Flags stale, reposted, and low-trust postings before deep tailoring |
-| Avoid underpaid roles | Tracks salary floors, pay transparency, and compensation risk |
-| Understand fit | Explains match signals from visible job details and your local settings |
-| Keep control | Stores jobs, notes, resumes, settings, and application history locally |
-| Stay organized | Tracks saved roles, applications, interviews, reminders, and follow-ups |
-| Reduce repeated typing | Prepares supported forms while you review and submit yourself |
-| Get help safely | Copies or saves a sanitized debug report for GitHub issue reports |
+| Principle | Product implication |
+| --------- | ------------------- |
+| Candidate-side by design | Explain fit, source risk, pay transparency, and application readability from the job seeker's perspective |
+| Local-first by default | Store jobs, notes, resumes, settings, salary floors, and application history on the user's device |
+| Research-backed | Tie product direction to job-seeker behavior, automated hiring, ghost-job, pay-equity, and source-governance research |
+| Plain-language first | Avoid requiring technical knowledge to set up, recover, report issues, or understand warnings |
+| Protective, not motivational | Prioritize warnings, tradeoffs, verification steps, and next safe actions over cheerleading |
+| Review before action | Keep application submission, external AI requests, and sensitive-data sharing under user control |
+| Privacy and security rule 0 | Do not ship or keep any feature that weakens user privacy, local control, credential safety, source boundaries, or review gates |
 
 No account is required. JobSentinel stores your search data locally and only
 sends data outside the app when you configure a channel like Slack, Discord,
@@ -81,18 +102,51 @@ Teams, Telegram, email, or feedback through GitHub or Google Drive.
 
 ---
 
-## Core workflow
+## Product model
 
-| Step | What happens | Why it helps |
-| ---- | ------------ | ------------ |
-| 1. Set your search | Pick job titles, location, schedule, pay floor, and work to avoid | Starts broad enough to find useful jobs without needing expert search syntax |
-| 2. Scan supported sources | JobSentinel checks sources on a schedule or when you click **Search Now** | New roles appear without refreshing several sites all day |
-| 3. Review ranked matches | Dashboard shows fit, salary, source, freshness, and posting-risk context | You can choose where effort is worth spending |
-| 4. Prepare applications | Resume tools and Application Assist help with readable, reviewable materials | You stay in control of every submission |
+| Workflow | Local behavior | User-facing evidence |
+| -------- | -------------- | -------------------- |
+| Guided intake | Converts plain answers into search settings, work-to-avoid terms, freshness preferences, location, and pay-floor choices | Setup review summarizes what will be used before scanning starts |
+| Source monitoring | Checks configured sources through source-specific adapters with rate limits, deduplication, and health status | Dashboard shows source, freshness, salary, match score, and posting-risk context |
+| Job review | Ranks jobs without hiding recoverable choices by default | Cards show visible cues such as `Pay not listed`, `Review before tailoring`, and `Verify before tailoring` |
+| Application tracking | Stores applications, notes, reminders, interviews, and follow-ups locally | Kanban board and history views keep progress inspectable |
+| Application preparation | Helps prepare readable materials and supported form fields | User reviews every field and completes final submission manually |
+| Support reporting | Builds sanitized local debug reports | User can copy or save a report for a GitHub issue without technical steps |
 
 ---
 
-## See it in action
+## Architecture
+
+JobSentinel is a desktop application, not a hosted job-search service.
+
+```text
+React 19 + TypeScript UI
+  -> Tauri command boundary
+  -> Rust 2021 services
+  -> local SQLite database
+  -> source adapters and optional user-configured channels
+```
+
+| Boundary | Rule |
+| -------- | ---- |
+| Renderer to backend | UI calls typed Tauri commands and handles errors with user-safe messages |
+| Storage | SQLite stores search state, saved jobs, notes, applications, and local reports |
+| Secrets | Webhooks, access codes, and session credentials use the OS credential store |
+| Source adapters | Adapters use bounded requests, source-specific rate limits, and shared retry helpers |
+| External alerts | Slack, Discord, Teams, Telegram, email, GitHub, and Google Drive are user-configured |
+| External AI | All provider calls must go through the AI gateway; no scattered provider calls are allowed |
+| Research mode | Public postings and synthetic candidate profiles are the default evaluation data |
+
+Important architecture docs:
+
+- [Developer architecture](docs/developer/ARCHITECTURE.md)
+- [Privacy-first AI gateway](docs/architecture/privacy-first-ai-gateway.md)
+- [Security docs](docs/security/README.md)
+- [Harness engineering](docs/harness/README.md)
+
+---
+
+## Interface overview
 
 <p align="center">
   <img src="docs/images/dashboard.png" alt="JobSentinel dashboard" width="800">
@@ -118,9 +172,9 @@ Teams, Telegram, email, or feedback through GitHub or Google Drive.
 | ---------------- | ------------------ |
 | ![ATS transparency](docs/images/ats-optimizer.png) | ![Application Assist](docs/images/one-click-apply.png) |
 
-| Salary AI | Market intelligence |
-| --------- | ------------------- |
-| ![Salary AI](docs/images/salary-ai.png) | ![Market intelligence](docs/images/market-intelligence.png) |
+| Pay Protection | Market intelligence |
+| -------------- | ------------------- |
+| ![Pay Protection](docs/images/salary-ai.png) | ![Market intelligence](docs/images/market-intelligence.png) |
 
 | Settings |
 | -------- |
@@ -130,7 +184,7 @@ Teams, Telegram, email, or feedback through GitHub or Google Drive.
 
 ---
 
-## Privacy model
+## Privacy and AI boundaries
 
 JobSentinel is local-first. That means the app runs on your computer and does
 not depend on a hosted JobSentinel service.
@@ -172,7 +226,7 @@ dumps.
 
 ---
 
-## Job sources
+## Source coverage and governance
 
 JobSentinel supports 13 job sources with rate limits, deduplication, health
 checks, and shared retry helpers for adapters that route requests through the
@@ -188,61 +242,30 @@ common scraper HTTP client.
 Some sources need setup. LinkedIn uses your own sign-in session and stores it in
 your computer's password vault. USAJobs uses a free access code. JobSentinel
 reports source health so you can see when a source is healthy, degraded, or
-blocked.
+blocked. Source collection is scoped to a single user's local search, follows
+source-specific boundaries, and favors public ATS feeds or official company
+sources when available.
 
 Read the full [scraper guide](docs/features/scrapers.md) and
 [scraper health docs](docs/features/scraper-health.md).
 
 ---
 
-## Main features
+## Research-backed capabilities
 
-### Job matching
-
-- Score each job against your skills, salary floor, location, company filters,
-  and posting age.
-- Use advanced search, saved searches, job notes, bookmarks, and hidden jobs.
-- Flag likely ghost jobs so stale or suspicious postings do not dominate your
-  list.
-
-### Application tracking
-
-- Use a Kanban-style board for saved, applied, interviewing, offer, and rejected
-  stages.
-- Track interviews, prep tasks, reminders, and follow-up notes.
-- Review response rates and weekly progress without leaving the app.
-
-### Resume tools
-
-- Build readable resumes with ATS transparency checks.
-- Compare your resume with a job description and see where application readability can improve.
-- Export resume documents when you are ready to apply.
-
-### Application Assist
-
-- Works with Greenhouse, Lever, Workday, Taleo, iCIMS, BambooHR, and Ashby.
-- Prepares contact fields and saved screening answers where possible.
-- Keeps the final submit step manual by design.
-- Pauses for CAPTCHAs and unusual fields so review stays human.
-
-### Salary and market insight
-
-- Compare salary ranges against market data.
-- Review negotiation notes and offer comparisons.
-- See skill, location, and company trends from the Market Intelligence view.
-
-### Notifications
-
-- Use desktop notifications for local alerts.
-- Configure Slack, Discord, Teams, Telegram, or email when you want external
-  alerts.
-- Filter alerts by score, keywords, company, salary, and job source.
+| Capability | Current product surface | Research direction |
+| ---------- | ----------------------- | ------------------ |
+| Match explanation | Scores jobs against skills, salary, location, company filters, and posting age | Split explanations into visible factors with confidence labels and recoverable filters |
+| Ghost-job detection | Shows posting-risk signals, source context, and verify-before-tailoring prompts | Add first-seen/last-seen tracking, repost history, closure checks, and source trust labels |
+| Pay Protection | Shows listed pay, missing-pay cues, salary floors, negotiation notes, and offer comparisons | Add range-quality scoring, under-leveling checks, salary-history guardrails, and market-anchor review |
+| ATS transparency | Checks resume readability and compares visible job-post language | Add parse previews, machine-readable text export, and truthful application readability checks |
+| Application tracking | Tracks saved, applied, interviewing, offer, and rejected stages with notes and reminders | Add pacing support, weekly summaries, quiet-period review, and source/channel outcome analysis |
+| Application Assist | Prepares supported forms while keeping final submission manual | Expand review-first coverage without hiding fields, bypassing access controls, or reducing user control |
+| Notifications | Supports desktop notifications and user-configured external channels | Keep external channels explicit, local-first, and filterable by source, salary, posting risk, and match context |
 
 ---
 
-## Get started
-
-### Download
+## Download
 
 Download the latest installer from
 [GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases/latest).
@@ -306,7 +329,26 @@ The setup wizard walks you through the basics:
 
 After setup, JobSentinel starts scanning. You can change every setting later.
 
-### Build from source
+## Scope and limitations
+
+JobSentinel is a job-search assistant, not an employer-side hiring system, a
+legal adviser, a compensation authority, or a hosted data platform.
+
+| Area | Boundary |
+| ---- | -------- |
+| Posting risk | Scores are warning signs from visible evidence, not proof of employer intent |
+| Salary guidance | Pay support is evidence-bounded and avoids legal claims unless current jurisdiction rules are verified |
+| Resume help | Suggestions must preserve truthful application readability and user-confirmed experience |
+| Application Assist | The user remains responsible for review and final submission |
+| External AI | AI output is advisory and must pass through opt-in, preview, redaction, approval, and local logging |
+| Research evaluation | Public job postings and synthetic candidate profiles are the default evaluation data |
+
+See [RESPONSIBLE_AI.md](RESPONSIBLE_AI.md), [PRIVACY.md](PRIVACY.md), and
+[docs/research/README.md](docs/research/README.md) for the full boundaries.
+
+---
+
+## Build from source
 
 You need:
 
@@ -349,7 +391,7 @@ Installer output:
 
 ---
 
-## For developers
+## Development and verification
 
 JobSentinel is built as a Tauri desktop app.
 
@@ -473,7 +515,7 @@ your computer. External alerts only send data to channels you configure.
 <br>
 
 Yes. JobSentinel is designed for technical and non-technical roles. You can
-change job titles, keywords, locations, and source settings for your search.
+change job titles, search words, locations, and source settings for your search.
 
 </details>
 
@@ -519,7 +561,7 @@ See [quick start](docs/user/QUICK_START.md#wheres-my-data) for exact paths.
 
 **JobSentinel helps you search steadily, stay organized, and keep your data close.**
 
-[Get started](#get-started)
+[Download](#download)
 
 <br>
 
@@ -733,6 +775,18 @@ and fake example links are intentionally excluded.
 
 ### Engineering and test references
 
+- [Kubernetes repository README](https://github.com/kubernetes/kubernetes)
+- [AlphaFold repository README](https://github.com/google-deepmind/alphafold)
+- [TensorFlow repository README](https://github.com/tensorflow/tensorflow)
+- [PyTorch repository README](https://github.com/pytorch/pytorch)
+- [scikit-learn repository README](https://github.com/scikit-learn/scikit-learn)
+- [OpenTelemetry Collector repository README](https://github.com/open-telemetry/opentelemetry-collector)
+- [DuckDB repository README](https://github.com/duckdb/duckdb)
+- [Transformers repository README](https://github.com/huggingface/transformers)
+- [Apache Spark repository README](https://github.com/apache/spark)
+- [Ray repository README](https://github.com/ray-project/ray)
+- [Apache Airflow repository README](https://github.com/apache/airflow)
+- [Rust repository README](https://github.com/rust-lang/rust)
 - [GitHub Actions](https://docs.github.com/en/actions)
 - [Playwright](https://playwright.dev/)
 - [Playwright intro](https://playwright.dev/docs/intro)

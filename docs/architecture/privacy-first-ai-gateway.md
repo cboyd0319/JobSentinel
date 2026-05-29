@@ -4,6 +4,12 @@ JobSentinel is local-first. External AI is optional, disabled by default, and
 must be routed through one gateway. Core workflows must work locally without
 OpenAI or any other external provider.
 
+Rule 0: user privacy and security are non-negotiable. The AI gateway is a
+guardrail, not a convenience wrapper. No AI provider, prompt path, local
+fallback, fixture, or developer shortcut may bypass opt-in, payload preview,
+redaction, approval, sensitive-data minimization, credential safety, or local
+metadata logging.
+
 ## Boundary
 
 Sensitive job-search data includes employment status, resumes, salary floors,

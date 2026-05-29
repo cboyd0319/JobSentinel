@@ -12,6 +12,15 @@ checks, and leave durable evidence for the next run. For user-facing work,
 the harness also protects product ease: JobSentinel is for any job seeker, not
 only engineers, and it must not assume terminal, debugging, or GitHub skill.
 
+## Rule 0
+
+User privacy and security are non-negotiable. No code change, documentation
+change, test shortcut, external AI feature, source adapter, support flow, or
+research workflow may bypass local-first storage, credential safety, source
+boundaries, explicit user review, or privacy-preserving defaults. If Rule 0
+conflicts with convenience, automation, speed, analytics, or research value,
+Rule 0 wins.
+
 ## Current Standard
 
 Use this structure:
@@ -37,6 +46,8 @@ For non-trivial work, capture this before edits:
 - Relevant source-of-truth docs and code paths inspected.
 - Audience and ease risk, especially any zero-technical-skill assumption.
 - Privacy, local-data, and external-side-effect boundary.
+- Rule 0 impact: user privacy, credential safety, source boundary, and review
+  gate.
 - Exact verification path and rollback path.
 - Plan or handoff file to update if the work spans context limits.
 
@@ -95,6 +106,8 @@ Sensors:
 - Keep external AI optional, disabled by default, and routed through the AI
   gateway with payload preview, approval, minimization, and local metadata
   logging.
+- Treat Rule 0 as a release blocker. Do not land a feature that weakens user
+  privacy or security without redesigning it first.
 
 ## Minimum Viable Harness For Each Change
 
