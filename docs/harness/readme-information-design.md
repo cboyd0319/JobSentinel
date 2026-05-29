@@ -83,26 +83,35 @@ The root README should avoid three failure modes:
 - **Marketing tone.** Claims should be grounded in current product surfaces,
   evidence, boundaries, and verification, not adjectives.
 
+The latest correction also treats "what do I do next?" as a first-screen
+requirement. A serious project README needs an immediate route for job seekers,
+reviewers, privacy/security readers, contributors, and people reporting
+problems before it asks them to parse screenshots or release notes.
+
 The corrected structure uses compact front-door sections, then moves deeper
-detail into interface screenshots, local-data boundaries, source coverage,
-download, development, release notes, FAQ, support, and references.
+detail into interface screenshots, data boundaries, source coverage, download,
+development, release notes, FAQ, support, and references.
 
 ## Applied Redesign
 
 The root README now uses a research-brief front door:
 
 1. Required product definition and trust badges.
-2. Project abstract with audience, product thesis, local-first posture,
-   optional external-AI boundary, Rule 0, and free-forever MIT commitment.
-3. Job-search harm table mapping product responses to evidence paths.
-4. Reader map for job seekers, research reviewers, privacy reviewers,
+2. First-screen routes for download, quick start, privacy, roadmap, research,
+   and issue reporting.
+3. Research project brief with audience, thesis, local-first posture, optional
+   external-AI boundary, Rule 0, and free-forever MIT commitment.
+4. "What makes it different" table mapping product commitments to inspectable
+   repo evidence.
+5. Reader routes for job seekers, research reviewers, privacy reviewers,
    contributors, and people reporting problems.
-5. At-a-glance evidence table for release, runtime, storage, privacy, AI,
-   source surface, backend surface, support posture, and verification surface.
-6. Research program table for the six design pillars and evaluation questions.
-7. Trust and safety model for privacy, telemetry, external channels, external
-   AI, candidate-side framing, protective tone, and license posture.
-8. System design map and maintained deep links.
+6. Current evidence table for release, runtime, storage, privacy, AI, source
+   surface, backend surface, support posture, and verification surface.
+7. Research thesis table for the six design pillars and evaluation questions.
+8. Privacy and responsible-AI model for local control, telemetry, external
+   channels, external AI, candidate-side framing, protective tone, and license
+   posture.
+9. System design map and maintained deep links.
 
 ## Front-Door Structure
 
@@ -111,34 +120,38 @@ before it reads like a developer manual:
 
 1. Required product definition.
 2. Trust badges.
-3. Project abstract for broad-audience readers.
-4. Local-first and optional external-AI boundary.
-5. Rule 0 privacy and security guarantee.
-6. Free-forever MIT license and reuse invitation.
-7. Problem-to-product evidence table.
-8. Audience route table.
-9. At-a-glance implementation evidence.
-10. Research model and evaluation questions.
-11. Trust, privacy, and responsible-AI boundaries.
-12. System design and maintenance map.
+3. Start-here route line.
+4. Research project brief for broad-audience readers.
+5. Local-first and optional external-AI boundary.
+6. Rule 0 privacy and security guarantee.
+7. Free-forever MIT license and reuse invitation.
+8. Product-difference evidence table.
+9. Audience route table.
+10. Current repository evidence.
+11. Research model and evaluation questions.
+12. Trust, privacy, and responsible-AI boundaries.
+13. System design and maintenance map.
 
 ## README Structure Standard
 
 The root README should keep this order:
 
 1. Project name, required product definition, and core trust badges.
-2. Project abstract: who it helps, what outcome it targets, what stays local.
-3. Local-first and optional external-AI boundary.
-4. Rule 0, free-forever MIT, and fork/reuse invitation.
-5. Problem-to-product evidence table.
-6. Reader route table.
-7. At-a-glance implementation evidence.
-8. Research program and evaluation questions.
-9. Trust model, privacy, security, and responsible-AI boundaries.
-10. System design and maintenance map.
-11. Interface overview and local-data boundaries.
-12. Source coverage and download path.
-13. Scope, limitations, development, release notes, FAQ, support, and references.
+2. First-screen route line for the main visitor tasks.
+3. Research project brief: who it helps, what outcome it targets, what stays
+   local.
+4. Local-first and optional external-AI boundary.
+5. Rule 0, free-forever MIT, and fork/reuse invitation.
+6. Product-difference evidence table.
+7. Reader route table.
+8. Current implementation evidence.
+9. Research thesis and evaluation questions.
+10. Trust model, privacy, security, and responsible-AI boundaries.
+11. System design and maintenance map.
+12. Interface overview and data boundaries.
+13. Source coverage and download path.
+14. Scope, limitations, development, release notes, FAQ, support, and
+    references.
 
 ## Section Budget
 
