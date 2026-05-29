@@ -494,6 +494,10 @@ const errorBoundaryDisplayPaths = new Set([
   "src/components/ErrorBoundary.tsx",
   "src/components/PageErrorBoundary.tsx",
 ]);
+const protectiveScoreCopyPaths = new Set([
+  "src/components/ScoreDisplay.tsx",
+  "src/components/ScoreBreakdownModal.tsx",
+]);
 
 const applicationAssistFramingPaths = new Set([
   "README.md",
@@ -3168,6 +3172,15 @@ function hasRawErrorBoundaryDetails(root, path) {
   return /\bthis\.state\.error\.(?:message|stack)\b/.test(text);
 }
 
+function hasNonProtectiveScoreCopy(root, path) {
+  if (!protectiveScoreCopyPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /Great Match!|Highly recommended!|You might want to skip it/i.test(text);
+}
+
 function hasStaleResumeOptimizerMockHandlers(root, path) {
   if (path !== "src/mocks/handlers.ts") {
     return false;
@@ -4005,6 +4018,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawErrorBoundaryDetails(root, path)) {
       violations.push(`sanitize visible error-boundary details: ${path}`);
+    }
+
+    if (hasNonProtectiveScoreCopy(root, path)) {
+      violations.push(`keep score copy protective: ${path}`);
     }
 
     if (hasStaleResumeOptimizerMockHandlers(root, path)) {

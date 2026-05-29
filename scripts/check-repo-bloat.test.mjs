@@ -6752,6 +6752,48 @@ test("checkRepoBloat rejects raw visible error-boundary details", () => {
   });
 });
 
+test("checkRepoBloat rejects non-protective score copy", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/ScoreDisplay.tsx",
+      [
+        'const label = "Great Match!";',
+        'const detail = "This job is Highly recommended!";',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/ScoreBreakdownModal.tsx",
+      'const detail = "You might want to skip it";\n',
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src/components/ScoreDisplay.tsx",
+        "src/components/ScoreBreakdownModal.tsx",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("keep score copy protective: src/components/ScoreDisplay.tsx"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("keep score copy protective: src/components/ScoreBreakdownModal.tsx"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale resume optimizer mock handlers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

@@ -43,10 +43,10 @@ describe("ScoreBreakdownModal", () => {
       expect(screen.getByText("85%")).toBeInTheDocument();
     });
 
-    it("displays 'Great Match!' for scores >= 90%", () => {
+    it("displays 'Strong Match' for scores >= 90%", () => {
       render(<ScoreBreakdownModal {...defaultProps} score={0.92} />);
 
-      expect(screen.getByText("Great Match!")).toBeInTheDocument();
+      expect(screen.getByText("Strong Match")).toBeInTheDocument();
     });
 
     it("displays 'Good Match' for scores >= 70%", () => {
@@ -55,10 +55,10 @@ describe("ScoreBreakdownModal", () => {
       expect(screen.getByText("Good Match")).toBeInTheDocument();
     });
 
-    it("displays 'Partial Match' for scores >= 50%", () => {
+    it("displays 'Some Match' for scores >= 50%", () => {
       render(<ScoreBreakdownModal {...defaultProps} score={0.55} />);
 
-      expect(screen.getByText("Partial Match")).toBeInTheDocument();
+      expect(screen.getByText("Some Match")).toBeInTheDocument();
     });
 
     it("displays 'Low Match' for scores < 50%", () => {
@@ -292,7 +292,7 @@ describe("ScoreBreakdownModal", () => {
       // Multiple 100% texts exist (overall score + each factor), just check at least one
       const percentTexts = screen.getAllByText("100%");
       expect(percentTexts.length).toBeGreaterThan(0);
-      expect(screen.getByText("Great Match!")).toBeInTheDocument();
+      expect(screen.getByText("Strong Match")).toBeInTheDocument();
     });
 
     it("handles empty reasons array", () => {

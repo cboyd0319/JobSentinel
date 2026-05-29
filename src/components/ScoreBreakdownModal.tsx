@@ -246,9 +246,9 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
   const percentage = Math.round(safeScore * 100);
 
   const getScoreLabel = () => {
-    if (safeScore >= SCORE_THRESHOLD_HIGH) return { label: "Great Match!", color: "text-green-600 dark:text-green-400" };
+    if (safeScore >= SCORE_THRESHOLD_HIGH) return { label: "Strong Match", color: "text-green-600 dark:text-green-400" };
     if (safeScore >= SCORE_THRESHOLD_GOOD) return { label: "Good Match", color: "text-sentinel-600 dark:text-sentinel-400" };
-    if (safeScore >= SCORE_THRESHOLD_PARTIAL) return { label: "Partial Match", color: "text-yellow-600 dark:text-yellow-400" };
+    if (safeScore >= SCORE_THRESHOLD_PARTIAL) return { label: "Some Match", color: "text-yellow-600 dark:text-yellow-400" };
     return { label: "Low Match", color: "text-surface-500 dark:text-surface-400" };
   };
 

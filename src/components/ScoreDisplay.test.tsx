@@ -82,9 +82,9 @@ describe("ScoreDisplay", () => {
   });
 
   describe("labels", () => {
-    it("shows 'Great Match!' for scores >= 0.9", () => {
+    it("shows 'Strong Match' for scores >= 0.9", () => {
       render(<ScoreDisplay score={0.9} showLabel={true} />);
-      expect(screen.getByText("Great Match!")).toBeInTheDocument();
+      expect(screen.getByText("Strong Match")).toBeInTheDocument();
     });
 
     it("shows 'Good Match' for scores >= 0.7", () => {
@@ -92,9 +92,9 @@ describe("ScoreDisplay", () => {
       expect(screen.getByText("Good Match")).toBeInTheDocument();
     });
 
-    it("shows 'Partial Match' for scores >= 0.5", () => {
+    it("shows 'Some Match' for scores >= 0.5", () => {
       render(<ScoreDisplay score={0.55} showLabel={true} />);
-      expect(screen.getByText("Partial Match")).toBeInTheDocument();
+      expect(screen.getByText("Some Match")).toBeInTheDocument();
     });
 
     it("shows 'Low Match' for scores < 0.5", () => {
@@ -104,12 +104,12 @@ describe("ScoreDisplay", () => {
 
     it("hides label when showLabel is false", () => {
       render(<ScoreDisplay score={0.9} showLabel={false} />);
-      expect(screen.queryByText("Great Match!")).not.toBeInTheDocument();
+      expect(screen.queryByText("Strong Match")).not.toBeInTheDocument();
     });
 
     it("shows label by default", () => {
       render(<ScoreDisplay score={0.9} />);
-      expect(screen.getByText("Great Match!")).toBeInTheDocument();
+      expect(screen.getByText("Strong Match")).toBeInTheDocument();
     });
   });
 
@@ -158,7 +158,11 @@ describe("ScoreDisplay", () => {
       fireEvent.mouseEnter(trigger as Element);
 
       await waitFor(() => {
-        expect(screen.getByText("This job matches most of your criteria. Worth a closer look.")).toBeInTheDocument();
+        expect(
+          screen.getByText(
+            "This job matches many criteria. Review pay, posting freshness, and must-haves before tailoring."
+          )
+        ).toBeInTheDocument();
       });
       expect(screen.queryByText("Factor")).not.toBeInTheDocument();
     });

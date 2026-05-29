@@ -92,26 +92,26 @@ function parseScoreReasons(reasonsJson?: string | null): {
 function getScoreInfo(score: number) {
   if (score >= SCORE_THRESHOLD_HIGH)
     return {
-      label: "Great Match!",
+      label: "Strong Match",
       explanation:
-        "This job closely matches your skills, salary, and preferences. Highly recommended!",
+        "Strong evidence this fits your stated skills, pay, and preferences. Worth tailoring after a source check.",
     };
   if (score >= SCORE_THRESHOLD_GOOD)
     return {
       label: "Good Match",
       explanation:
-        "This job matches most of your criteria. Worth a closer look.",
+        "This job matches many criteria. Review pay, posting freshness, and must-haves before tailoring.",
     };
   if (score >= SCORE_THRESHOLD_PARTIAL)
     return {
-      label: "Partial Match",
+      label: "Some Match",
       explanation:
-        "This job matches some of your criteria but may be missing key requirements.",
+        "Some criteria match, but key requirements may be missing. Check must-haves first.",
     };
   return {
     label: "Low Match",
     explanation:
-      "This job doesn't match many of your preferences. You might want to skip it.",
+      "Limited match evidence. Save time unless it has a reason your settings missed.",
   };
 }
 

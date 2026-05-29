@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Reframed match-score copy from celebratory recommendations to protective evidence language: Strong Match, Some Match, source-check and must-have review guidance, plus bloat coverage against overconfident score copy. |
 | 2026-05-29 | In progress | Reworded Telegram notification setup from bot-token-first copy to connection-token and step-by-step Telegram guidance, with bloat coverage for raw bot-token setup wording. |
 | 2026-05-29 | In progress | Removed remaining tech-only placeholder examples from saved-search naming and cover-letter template creation, replacing them with broader customer-support examples and adding bloat coverage for recurrence. |
 | 2026-05-29 | In progress | Sanitized visible crash and page-error messages before rendering so local paths, tokens, and email addresses do not appear on recovery screens; added bloat coverage to prevent raw error-boundary message or stack display from returning. |
