@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Reworked the root README again through the README information-design harness after a fresh 10+ source prior-art pass: first screen now reads as an applied research project abstract, job-seeker harm map, reader map, evidence table, research program, trust model, and system design summary; expanded the harness source pool with desktop-project README patterns and kept the source index mirrored. |
 | 2026-05-29 | In progress | Reworded repeated-crash recovery to prioritize copying or saving a safe debug report before reset and to describe the destructive action as resetting local window state, not clearing app data. |
 | 2026-05-29 | In progress | Added a setup guard for impossible location preferences so users cannot finish first-run setup with remote, hybrid, and on-site all disabled; updated Quick Start and focused accessibility coverage. |
 | 2026-05-29 | In progress | Confirmed GitHub connector shows zero open PRs, including Dependabot PRs; updated the only outdated npm direct dependency, `web-vitals`, from 5.2.0 to 5.3.0. `cargo update` found no lockfile updates within current manifest constraints. |

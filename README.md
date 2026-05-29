@@ -7,54 +7,72 @@ control.**
 [![CI](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml)
 [![Docs Harness](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-harness.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-harness.yml)
 <img src="https://img.shields.io/badge/Version-2.6.4-2563eb" alt="Version 2.6.4">
-[![License: MIT](https://img.shields.io/badge/license-MIT-7c3aed)](LICENSE)
+[![MIT License](https://img.shields.io/badge/license-MIT-7c3aed)](LICENSE)
 [![Free Forever](https://img.shields.io/badge/cost-free%20forever-0f766e)](LICENSE)
-[![Local First](https://img.shields.io/badge/privacy-local--first-0f766e)](PRIVACY.md)
+[![Rule 0](https://img.shields.io/badge/rule%200-privacy%20and%20security-111827)](PRIVACY.md)
+[![Local First](https://img.shields.io/badge/data-local--first-0f766e)](PRIVACY.md)
 [![No Telemetry](https://img.shields.io/badge/telemetry-none-111827)](PRIVACY.md)
-[![External AI Optional](https://img.shields.io/badge/AI-optional%20by%20design-2563eb)](docs/architecture/privacy-first-ai-gateway.md)
+[![External AI Optional](https://img.shields.io/badge/external%20AI-optional-2563eb)](docs/architecture/privacy-first-ai-gateway.md)
 [![Research Backed](https://img.shields.io/badge/research-backed-334155)](docs/research/README.md)
 
-## Project brief
+## Project Abstract
 
-JobSentinel is a public-interest desktop app and applied research project for
-job seekers, reviewers, and contributors who care about verifiable roles,
-fair compensation, readable applications, and local control of sensitive search
-data. It is designed for technical and non-technical jobs, and for people with
-no technical background.
+JobSentinel is a desktop app and applied research project for job seekers who
+need to find trustworthy work without surrendering private search data. It is
+designed for technical and non-technical searches, and it assumes no technical
+knowledge from the user.
 
-The product thesis is practical: job seekers should spend more time on real,
-relevant, fairly compensated opportunities and less time on stale postings,
-opaque screening, underpaid roles, and unsafe support workflows.
+The product outcome is narrow and concrete: help people find real, relevant,
+fairly compensated work; avoid stale or low-trust postings; understand
+application readability; protect salary floors; and keep sensitive search
+history under local control.
 
-Core workflows work locally. External AI, including OpenAI or another provider,
-is optional, disabled by default, and routed through the
-[privacy-first AI gateway](docs/architecture/privacy-first-ai-gateway.md) with
-payload preview, redaction, cancellation, approval, and local request logging.
+Core workflows work locally. JobSentinel does not require a hosted account or
+cloud sync. External AI, including OpenAI or another provider,
+is optional, disabled by default, and must pass through the
+[privacy-first AI gateway](docs/architecture/privacy-first-ai-gateway.md). That
+gateway enforces payload preview, redaction, cancellation, approval, and local request logging,
+plus payload minimization.
 
 **Rule 0: user privacy and security are non-negotiable.** No feature,
-integration, test shortcut, AI provider, research workflow, or convenience path
-may weaken local control, credential safety, source boundaries, explicit review,
-or privacy-preserving defaults.
+integration, support shortcut, AI provider, research workflow, or convenience
+path may weaken local control, credential safety, source boundaries, explicit
+review, or privacy-preserving defaults.
 
-JobSentinel will always remain free under the MIT license. This code is here to
-help people. Fork it, adapt it, improve it, or build something better with it
-if that helps more job seekers. JobSentinel is free, will always stay free, and
-will always remain MIT licensed.
+JobSentinel will always remain free under the MIT license. JobSentinel is free,
+will always stay free, and will always remain MIT licensed. This code exists to
+help job seekers. Fork it, adapt it, improve it, or build something better with
+it if that helps more people.
 
-## Start here
+## Why This Exists
 
-| Reader | First path |
-| ------ | ---------- |
-| Job seeker | [Download and first run](#download-and-first-run), then use the setup wizard |
-| Grant or research reviewer | [Research model](#research-model), [roadmap](ROADMAP.md), and [references](#references-and-external-sources) |
-| Privacy or security reviewer | [Trust model](#trust-model), [PRIVACY.md](PRIVACY.md), and [RESPONSIBLE_AI.md](RESPONSIBLE_AI.md) |
-| Contributor | [Architecture](#architecture), [development](#development-and-verification), and [contributing guide](docs/developer/CONTRIBUTING.md) |
-| Person reporting a problem | Use the in-app safe debug report, then [open an issue](https://github.com/cboyd0319/JobSentinel/issues/new) |
+| Job-search harm | Product response | Evidence path |
+| --------------- | ---------------- | ------------- |
+| Stale or low-trust postings waste time and morale | Ghost-job detection, stale-posting warnings, repost context, official-source checks, and verify-before-tailoring guidance | [Ghost jobs](docs/research/ghost-jobs.md), [roadmap](ROADMAP.md) |
+| Pay opacity can push users below their floor | Salary-floor protection, salary transparency checks, salary-history guardrails, under-leveling cues, and compensation prep | [Pay equity](docs/research/pay-equity.md), [salary negotiation](docs/research/salary-negotiation.md) |
+| Automated screening is hard to interpret | ATS transparency, candidate-side explainability, application readability checks, and truthful fit review | [ATS transparency](docs/research/ats-transparency.md), [Responsible AI](RESPONSIBLE_AI.md) |
+| Long searches create fatigue and false signals | Local tracking, pacing support, weekly summaries, fresh-role focus, and non-shaming gap framing | [Job-seeker behavior](docs/research/job-seeker-behavior.md) |
+| Cold applications disappear into opaque systems | Bias-aware application routes, direct-source emphasis, recruiter context, referral prompts, and hiring-signal review | [Job-source research](docs/research/job-site-data-sources.md) |
+| Support can expose sensitive data | Sanitized debug reports from settings, error logs, and crash recovery surfaces | [Privacy policy](PRIVACY.md) |
 
-## At a glance
+JobSentinel does not optimize for application volume. It helps the user decide
+which opportunities deserve time, which claims need verification, and what data
+should stay private.
 
-| Dimension | Current evidence |
-| --------- | ---------------- |
+## Reader Map
+
+| Reader | Start here | What you should learn quickly |
+| ------ | ---------- | ----------------------------- |
+| Job seeker | [Download and first run](#download-and-first-run), then use the setup wizard | How to start without technical setup |
+| Grant or research reviewer | [Research program](#research-program), [roadmap](ROADMAP.md), and [references](#references-and-external-sources) | What is evidence-backed, what is planned, and how evaluation avoids private user data |
+| Privacy or security reviewer | [Trust and safety model](#trust-and-safety-model), [PRIVACY.md](PRIVACY.md), and [RESPONSIBLE_AI.md](RESPONSIBLE_AI.md) | Where data lives, what can leave the device, and which AI boundaries are mandatory |
+| Contributor | [System design](#system-design), [development](#development-and-verification), and [contributing guide](docs/developer/CONTRIBUTING.md) | How the app is structured and how changes are verified |
+| Person reporting a problem | Use the in-app safe debug report, then [open an issue](https://github.com/cboyd0319/JobSentinel/issues/new) | How to share useful diagnostics without exposing private search data |
+
+## Evidence At A Glance
+
+| Dimension | Current repository evidence |
+| --------- | --------------------------- |
 | Release | `v2.6.4` with Windows, macOS, and Linux installers |
 | Runtime | Tauri 2 desktop app, React 19 frontend, Rust 2021 backend |
 | Storage | Local SQLite database with SQLx offline mode |
@@ -62,32 +80,18 @@ will always remain MIT licensed.
 | External-AI posture | Optional, disabled by default, gateway-bound, preview-required |
 | Job-source surface | 12 scheduled source adapters, 15 source-health checks, and user-opened job-site search links |
 | Backend surface | 190 registered Tauri commands |
+| Support posture | Safe debug reports from settings, error logs, and crash recovery |
 | Verification surface | Docs harness, bloat guard, test-quality guard, Vitest, Playwright, Rust fmt, Rust clippy, Rust tests |
 
-## Product model
-
-| Problem for job seekers | JobSentinel response |
-| ----------------------- | -------------------- |
-| Stale or low-trust postings waste time and morale | Ghost-job detection, stale-posting warnings, repost context, official-source checks, and verify-before-tailoring guidance |
-| Pay opacity creates underpaid searches | Salary-floor protection, salary transparency checks, salary-history guardrails, under-leveling cues, and compensation prep |
-| Automated screening is hard to interpret | ATS transparency, candidate-side explainability, application readability checks, and truthful fit review |
-| Long searches create fatigue and false signals | Local tracking, pacing support, weekly summaries, fresh-role focus, and non-shaming gap framing |
-| Cold applications disappear into opaque systems | Bias-aware application routes, direct-source emphasis, recruiter context, referral prompts, and hiring-signal review |
-| Support requests can expose private data | Sanitized debug reports from normal settings and recovery surfaces |
-
-JobSentinel does not try to maximize application volume. It helps the user
-decide which opportunities deserve attention, which claims need verification,
-and what private data should remain on the user's device.
-
-## Research model
+## Research Program
 
 JobSentinel is evidence-backed, but it keeps research separate from user
 surveillance. Product direction is driven by public research, public job
 postings, synthetic candidate profiles, and explicit limitations. Real user
 data is not research data without informed consent.
 
-| Design pillar | Product stance | Evaluation question |
-| ------------- | -------------- | ------------------- |
+| Design pillar | Product commitment | Evaluation question |
+| ------------- | ------------------ | ------------------- |
 | Ghost-job and stale-posting detection | Prioritize fresh, verifiable roles and warn before a user spends time tailoring weak postings. | Does JobSentinel reduce time spent on stale or low-trust roles without hiding useful options? |
 | Pay equity and salary-floor protection | Treat salary floors, pay transparency, under-leveling risk, and compensation prep as core search features. | Does JobSentinel help users avoid underpaid opportunities and preserve compensation goals? |
 | Long-term unemployment support | Support pacing, fresh-role focus, weekly summaries, and gap framing without shame or pressure. | Does JobSentinel reduce fatigue and improve search control for people in long searches? |
@@ -100,7 +104,7 @@ direction lives in [ROADMAP.md](ROADMAP.md) and active plans under
 [docs/plans](docs/plans/README.md). The README information design standard
 lives in [docs/harness/readme-information-design.md](docs/harness/readme-information-design.md).
 
-## Trust model
+## Trust And Safety Model
 
 | Principle | Repository commitment |
 | --------- | --------------------- |
@@ -126,7 +130,7 @@ injection, manipulate ATS systems, solve CAPTCHAs, collect private candidate
 data for research, infer protected characteristics, or send full local database
 dumps.
 
-## Architecture
+## System Design
 
 JobSentinel is a desktop application, not a hosted job-search service.
 
@@ -434,7 +438,7 @@ Developer docs:
 - [Architecture](docs/developer/ARCHITECTURE.md)
 - [Testing guide](docs/developer/TESTING.md)
 - [Contributing](docs/developer/CONTRIBUTING.md)
-- [Roadmap](docs/ROADMAP.md)
+- [Roadmap](ROADMAP.md)
 
 ---
 
@@ -797,6 +801,8 @@ and fake example links are intentionally excluded.
 - [Ray repository README](https://github.com/ray-project/ray)
 - [Apache Airflow repository README](https://github.com/apache/airflow)
 - [Rust repository README](https://github.com/rust-lang/rust)
+- [Electron repository README](https://github.com/electron/electron)
+- [Visual Studio Code repository README](https://github.com/microsoft/vscode)
 - [GitHub Actions](https://docs.github.com/en/actions)
 - [Playwright](https://playwright.dev/)
 - [Playwright intro](https://playwright.dev/docs/intro)
