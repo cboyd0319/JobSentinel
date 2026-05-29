@@ -7202,12 +7202,18 @@ test("checkRepoBloat rejects non-protective score copy", () => {
       "src/components/ScoreBreakdownModal.tsx",
       'const detail = "You might want to skip it";\n',
     );
+    writeFixtureFile(
+      root,
+      "docs/features/smart-scoring.md",
+      "- Old posting: adjust recency weight if you're desperate\n",
+    );
 
     execFileSync(
       "git",
       [
         "add",
         "package.json",
+        "docs/features/smart-scoring.md",
         "src/components/ScoreDisplay.tsx",
         "src/components/ScoreBreakdownModal.tsx",
       ],
@@ -7222,6 +7228,10 @@ test("checkRepoBloat rejects non-protective score copy", () => {
     );
     assert.ok(
       violations.includes("keep score copy protective: src/components/ScoreBreakdownModal.tsx"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("keep score copy protective: docs/features/smart-scoring.md"),
       violations.join("\n"),
     );
   });

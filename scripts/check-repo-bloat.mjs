@@ -524,6 +524,7 @@ const errorBoundaryDisplayPaths = new Set([
   "src/components/PageErrorBoundary.tsx",
 ]);
 const protectiveScoreCopyPaths = new Set([
+  "docs/features/smart-scoring.md",
   "src/components/ScoreDisplay.tsx",
   "src/components/ScoreBreakdownModal.tsx",
 ]);
@@ -3342,7 +3343,7 @@ function hasNonProtectiveScoreCopy(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /Great Match!|Highly recommended!|You might want to skip it/i.test(text);
+  return /Great Match!|Highly recommended!|You might want to skip it|if you're desperate|if you are desperate/i.test(text);
 }
 
 function hasStaleStackOverflowJobsDeepLink(root, path) {

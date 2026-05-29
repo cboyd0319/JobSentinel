@@ -734,37 +734,40 @@ Least Impactful:       Recency (average 65%)
 **Check the breakdown:**
 
 1. Click the job's score
-2. View the breakdown modal
-3. Identify the lowest-scoring factors
-4. Adjust weights or preferences if needed
+2. Review which saved settings affected the match
+3. Look for a missing title, pay, location, freshness, or company signal
+4. Update the saved setting only if the warning does not match what you want
 
 **Common reasons:**
 
-- Job title doesn't match your preferred titles: adjust title preferences
-- Salary is below target: set realistic target or adjust weight
-- Location doesn't match: adjust location preference or weight
-- Old posting: adjust recency weight if you're desperate
+- Job title does not match your preferred titles: add or remove job titles
+- Salary is below your floor: keep it visible with a warning or update your
+  floor
+- Location does not match: update location, commute, or work-mode preferences
+- Posting is older: treat it as lower priority or choose a fresher-posting
+  preference
 
 ### Why don't I see my resume skills contributing?
 
-**Verify resume-based scoring is enabled:**
+**Check resume use:**
 
 1. Go to **Settings > Scoring > Skills**
 2. Check that "Use Resume for Scoring" is ON
 3. Ensure you've uploaded a resume in the **Resume** tab
 
-Without these, the system falls back to keyword-only matching.
+Without these, JobSentinel uses your saved job titles, work words, and other
+settings only.
 
-### My top score job turned out poorly
+### A high-match job was not worth the time
 
 **Manual feedback:**
 
 1. After applying or interviewing, mark the job as "Good" or "Bad"
-2. Your feedback helps improve the algorithm
-3. Similar jobs will be scored differently next time
+2. Add a note about what made it weak or not worth tailoring
+3. Update your saved preferences if the same issue should lower similar jobs
 
 **What to adjust:**
 
 - Update your preferences based on what went wrong
-- Add skills you discovered to boosters/excluders
-- Add company to blacklist if it was problematic
+- Add work words you want to see more often or avoid
+- Hide the company if you do not want to see similar roles
