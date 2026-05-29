@@ -95,7 +95,7 @@ Don't oversell features or make promises we can't keep.
 
 **Good:** "JobSentinel checks job boards for you, so you don't have to refresh them manually."
 
-**Not great:** "JobSentinel's revolutionary AI-powered engine transforms your job search forever!"
+**Not great:** "JobSentinel's revolutionary engine transforms your job search forever!"
 
 ### Be respectful, not condescending
 

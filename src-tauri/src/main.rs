@@ -160,7 +160,7 @@ fn main() {
             commands::ats::get_past_interviews,
             commands::ats::complete_interview,
             commands::ats::delete_interview,
-            // Resume Matcher commands
+            // Resume Match commands
             commands::resume::upload_resume,
             commands::resume::import_json_resume,
             commands::resume::get_active_resume,

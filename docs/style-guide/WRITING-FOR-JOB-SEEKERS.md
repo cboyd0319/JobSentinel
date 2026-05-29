@@ -234,7 +234,7 @@ Ask yourself:
 
 ### Before (too salesy)
 
-> "JobSentinel's revolutionary AI-powered ghost detection algorithm will transform your job search forever!"
+> "JobSentinel's revolutionary ghost-detection engine will transform your job search forever!"
 
 ### After (honest and helpful)
 

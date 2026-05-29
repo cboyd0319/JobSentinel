@@ -474,8 +474,8 @@ CREATE TABLE IF NOT EXISTS h1b_salaries (
 -- Aggregated salary benchmarks (computed from H1B data)
 CREATE TABLE IF NOT EXISTS salary_benchmarks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    job_title_normalized TEXT NOT NULL, -- Normalized title (e.g., "Software Engineer")
-    location_normalized TEXT NOT NULL,  -- Normalized location (e.g., "San Francisco, CA")
+    job_title_normalized TEXT NOT NULL, -- Normalized title (e.g., "Customer Support Lead")
+    location_normalized TEXT NOT NULL,  -- Normalized location (e.g., "Chicago, IL")
     seniority_level TEXT CHECK(seniority_level IN ('entry', 'mid', 'senior', 'staff', 'principal', 'unknown')),
     min_salary INTEGER NOT NULL,
     p25_salary INTEGER NOT NULL, -- 25th percentile

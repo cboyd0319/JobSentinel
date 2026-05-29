@@ -696,6 +696,31 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "docs/user/DEEP_LINKS.md",
       '3. Optionally enter a location (e.g., "San Francisco, CA" or "Remote")\n',
     );
+    writeFixtureFile(
+      root,
+      "docs/style-guide/README.md",
+      '"JobSentinel\'s revolutionary AI-powered engine transforms your job search forever!"\n',
+    );
+    writeFixtureFile(
+      root,
+      "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
+      '"JobSentinel\'s revolutionary AI-powered ghost detection algorithm will transform your job search forever!"\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/deeplinks/types.rs",
+      '/// Job title or keywords (e.g., "Software Engineer")\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/main.rs",
+      "// Resume Matcher commands\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/migrations/00000000000000_initial_schema.sql",
+      'job_title_normalized TEXT NOT NULL, -- Normalized title (e.g., "Software Engineer")\n',
+    );
 
     execFileSync(
       "git",
@@ -747,8 +772,13 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "docs/features/user-data-management.md",
         "docs/user/DEEP_LINKS.md",
         "docs/user/QUICK_START.md",
+        "docs/style-guide/README.md",
+        "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
         "docs/developer/FRONTEND_TESTING.md",
         "docs/developer/INTEGRATION_TESTING.md",
+        "src-tauri/src/core/deeplinks/types.rs",
+        "src-tauri/src/main.rs",
+        "src-tauri/migrations/00000000000000_initial_schema.sql",
       ],
       { cwd: root },
     );
@@ -799,8 +829,13 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "docs/features/user-data-management.md",
       "docs/user/DEEP_LINKS.md",
       "docs/user/QUICK_START.md",
+      "docs/style-guide/README.md",
+      "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
       "docs/developer/FRONTEND_TESTING.md",
       "docs/developer/INTEGRATION_TESTING.md",
+      "src-tauri/src/core/deeplinks/types.rs",
+      "src-tauri/src/main.rs",
+      "src-tauri/migrations/00000000000000_initial_schema.sql",
     ]) {
       assert.ok(
         violations.includes(`replace engineer-first audience example: ${path}`),

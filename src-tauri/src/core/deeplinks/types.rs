@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 /// Search criteria for generating deep links
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SearchCriteria {
-    /// Job title or keywords (e.g., "Software Engineer")
+    /// Job title or keywords (e.g., "Project Coordinator")
     pub query: String,
     /// Location (city, state, zip, or "remote")
     #[serde(skip_serializing_if = "Option::is_none")]
