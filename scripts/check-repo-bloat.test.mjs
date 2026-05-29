@@ -518,6 +518,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/resume-builder/steps/ContactStep.tsx",
+      '<input placeholder="San Francisco, CA" />\n',
+    );
+    writeFixtureFile(
+      root,
       "tests/e2e/playwright/market-intelligence.spec.ts",
       '"Top Skill: TypeScript"; "Top Company: BigTech Inc"; "TechCorp";\n',
     );
@@ -549,6 +554,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/pages/ResumeBuilder.tsx",
         "src/pages/ResumeOptimizer.tsx",
         "src/components/resume-builder/steps/SummaryStep.tsx",
+        "src/components/resume-builder/steps/ContactStep.tsx",
         "src/components/resume-builder/steps/SkillsStep.tsx",
         "tests/e2e/playwright/market-intelligence.spec.ts",
         "src/components/MarketSnapshotCard.test.tsx",
@@ -580,6 +586,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/pages/ResumeBuilder.tsx",
       "src/pages/ResumeOptimizer.tsx",
       "src/components/resume-builder/steps/SummaryStep.tsx",
+      "src/components/resume-builder/steps/ContactStep.tsx",
       "src/components/resume-builder/steps/SkillsStep.tsx",
       "tests/e2e/playwright/market-intelligence.spec.ts",
       "src/components/MarketSnapshotCard.test.tsx",

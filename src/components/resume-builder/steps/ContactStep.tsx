@@ -92,7 +92,7 @@ const ContactStep = memo(function ContactStep({ contact, setContact }: ContactSt
           type="text"
           value={contact.location || ""}
           onChange={(e) => setContact({ ...contact, location: e.target.value || null })}
-          placeholder="San Francisco, CA"
+          placeholder="Chicago, IL"
           maxLength={100}
           hint="City, State or Country"
           autoComplete="address-level2"

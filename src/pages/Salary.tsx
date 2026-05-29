@@ -163,7 +163,7 @@ export default function Salary({ onBack }: SalaryProps) {
                 label="Location"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                placeholder="e.g., San Francisco, CA"
+                placeholder="e.g., Chicago, IL"
               />
 
               <Input

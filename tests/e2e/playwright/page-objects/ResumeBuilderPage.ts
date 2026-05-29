@@ -77,7 +77,7 @@ export class ResumeBuilderPage extends BasePage {
   }
 
   get locationInput(): Locator {
-    return this.page.getByPlaceholder("San Francisco, CA").first();
+    return this.page.getByPlaceholder("Chicago, IL").first();
   }
 
   get linkedinInput(): Locator {
@@ -143,7 +143,7 @@ export class ResumeBuilderPage extends BasePage {
       name: "Jane Smith",
       email: "jane.smith@example.com",
       phone: "+1-555-987-6543",
-      location: "New York, NY",
+      location: "Chicago, IL",
       linkedin: "linkedin.com/in/janesmith",
       github: "github.com/janesmith",
       website: "https://janesmith.dev",
@@ -170,7 +170,7 @@ export class ResumeBuilderPage extends BasePage {
     await dialog.getByPlaceholder("Acme Corp").fill(data.company);
     await dialog.getByPlaceholder("Jan 2020").fill(data.startDate);
     if (data.endDate) await dialog.getByPlaceholder("Present").fill(data.endDate);
-    if (data.location) await dialog.getByPlaceholder("San Francisco, CA").fill(data.location);
+    if (data.location) await dialog.getByPlaceholder("Chicago, IL").fill(data.location);
     if (data.achievements) {
       await dialog
         .getByPlaceholder("Improved renewal rate by 18%")
@@ -219,7 +219,7 @@ export class ResumeBuilderPage extends BasePage {
       institution: "State University",
       graduationDate: "May 2020",
       gpa: "3.8",
-      location: "New York, NY",
+      location: "Chicago, IL",
       honors: ["Dean's List"],
       ...data,
     });

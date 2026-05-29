@@ -492,6 +492,7 @@ const broadAudienceExamplePaths = new Set([
   "src/components/CompanyResearchPanel.tsx",
   "src/components/DeepLinkGenerator.tsx",
   "src/components/JobImportModal.tsx",
+  "src/components/resume-builder/steps/ContactStep.tsx",
   "src/components/resume-builder/steps/SkillsStep.tsx",
   "src/components/resume-builder/steps/SummaryStep.tsx",
   "src/components/MarketAlertCard.test.tsx",
@@ -1447,6 +1448,7 @@ function hasEngineerFirstAudienceExamples(root, path) {
 
   const stalePatterns = [
     /placeholder=["'][^"']*(?:Senior\s+)?Software Engineer/i,
+    /placeholder=["'][^"']*San Francisco, CA/i,
     /placeholder=["'][^"']*React/i,
     /placeholder=["'][^"']*Frontend/i,
     /placeholder=["'][^"']*Remote Rust/i,
