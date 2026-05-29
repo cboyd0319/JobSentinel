@@ -132,6 +132,8 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Rebased the remaining resume-match unit fixture from backend-engineer and programming skills to operations/reporting examples after the bloat guard exposed stale matcher test data. |
+| 2026-05-29 | In progress | Rebased command database tests from Rust and backend engineer examples to program-coordinator and customer-support examples, with bloat coverage against old command test fixtures. |
 | 2026-05-29 | In progress | Rebased import command hash tests from Google software-engineering fixtures to community-program examples, with bloat coverage against old command hash fixture drift. |
 | 2026-05-29 | In progress | Rebased deep-link command tests from software-engineering, Rust, and San Francisco defaults to customer-support, care-coordination, Chicago, and remote examples, with bloat coverage against old command-test fixture drift. |
 | 2026-05-29 | In progress | Replaced the remaining setup location placeholder that used San Francisco and New York examples with broader Chicago and Austin examples, refreshed the active handoff after the latest push, and added bloat coverage so tech-hub location defaults do not return to setup. |

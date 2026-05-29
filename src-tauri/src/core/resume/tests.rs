@@ -421,15 +421,15 @@ async fn test_match_resume_to_job() {
     let pool = setup_test_db().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
-    let resume_text = "Python, JavaScript, Docker, AWS";
-    let resume_id = create_test_resume(&pool, "Dev Resume", resume_text).await;
+    let resume_text = "Excel, CRM, reporting, scheduling";
+    let resume_id = create_test_resume(&pool, "Operations Resume", resume_text).await;
 
     let job_hash = "job_123";
     create_test_job(
         &pool,
         job_hash,
-        "Backend Engineer",
-        "Python, JavaScript, PostgreSQL",
+        "Data Reporting Specialist",
+        "Excel, CRM, case notes, reporting",
     )
     .await;
 

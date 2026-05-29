@@ -114,8 +114,8 @@ mod tests {
         let state = create_test_app_state().await;
 
         // Insert test jobs with unique hashes
-        let mut job1 = create_test_job(1, "Rust Engineer", 0.95);
-        let mut job2 = create_test_job(2, "Backend Engineer", 0.85);
+        let mut job1 = create_test_job(1, "Program Coordinator", 0.95);
+        let mut job2 = create_test_job(2, "Customer Support Lead", 0.85);
         job1.hash = "unique_hash_1".to_string();
         job2.hash = "unique_hash_2".to_string();
 
