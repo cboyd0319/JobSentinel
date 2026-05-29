@@ -49,6 +49,35 @@ Use a proof ladder:
 6. **Next action:** download, read quick start, review research, contribute, or
    open a safe issue report.
 
+## README Design System
+
+Use this question-answer-proof-path pattern for each major section:
+
+| Section role | Reader question | Required answer | Proof or path |
+| ------------ | --------------- | --------------- | ------------- |
+| Identity | What is this? | Open-source, local-first job-search assistant for real, relevant, fairly compensated work | Product definition, badges, license |
+| Audience | Is this for me? | Technical and non-technical job seekers, plus reviewers and contributors | Start-here routing table |
+| Stakes | Why does it matter? | Ghost jobs, pay opacity, opaque screening, long searches, and privacy risk are product requirements | Research brief and source index |
+| Capabilities | What does it do today? | Monitoring, posting-risk review, pay protection, ATS transparency, application tracking, safe reports | Capability map and screenshots |
+| Trust | Why should I believe it? | Rule 0, no telemetry, local-first storage, optional external AI, review gates | Privacy docs, AI gateway, harness checks |
+| Limits | What will it not do? | No employer-side decisions, no deceptive resume help, no source-boundary evasion, no hidden data sharing | Responsible AI, privacy, scope table |
+| Contribution | How do I help? | Build, verify, report, discuss, fork, or reuse | Commands, docs, issue routes, MIT license |
+
+## Current README Audit
+
+The root README should avoid three failure modes:
+
+- **Fact pileup before orientation.** A reader should understand the project
+  before seeing deep implementation or release detail.
+- **Duplicate proof loops.** Privacy, research, and capability claims should
+  appear once in the front-door path, then route to maintained docs.
+- **Marketing tone.** Claims should be grounded in current product surfaces,
+  evidence, boundaries, and verification, not adjectives.
+
+The corrected structure uses compact front-door sections, then moves deeper
+detail into screenshots, privacy, sources, evaluation, download, development,
+release notes, FAQ, support, and references.
+
 ## README Structure Standard
 
 The root README should keep this order:
@@ -56,9 +85,9 @@ The root README should keep this order:
 1. Project name, required product definition, and core trust badges.
 2. One-sentence local-first and external-AI boundary.
 3. Audience route table.
-4. Product thesis and user problem.
-5. Capability map tied to product evidence.
-6. Privacy, security, and responsible-AI boundaries.
+4. Research brief and user problem.
+5. Current state and capability map tied to product evidence.
+6. Trust model, privacy, security, and responsible-AI boundaries.
 7. Download and first-run path.
 8. Architecture and verification map.
 9. Research, roadmap, and limitations.
