@@ -3281,8 +3281,24 @@ function hasRawFrontendSharedErrorLogging(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
+  const getErrorMessageStart = text.indexOf("export function getErrorMessage");
+  const getErrorMessageEnd =
+    getErrorMessageStart === -1
+      ? -1
+      : text.indexOf("\n/**", getErrorMessageStart + 1);
+  const getErrorMessageBody =
+    getErrorMessageStart === -1
+      ? ""
+      : text.slice(
+          getErrorMessageStart,
+          getErrorMessageEnd === -1 ? undefined : getErrorMessageEnd,
+        );
   return (
     /console\.error\(\s*message\s*,\s*error\s*\)/.test(text) ||
+    /\breturn\s+(?:error\.message|error|String\(\s*\([^)]*message|String\(\s*error)/.test(
+      getErrorMessageBody,
+    ) ||
+    !text.includes("getUserFriendlyError") ||
     !text.includes("sanitizeLoggedError") ||
     !text.includes("sanitizeTextForStorage") ||
     !text.includes("sanitizeContext")

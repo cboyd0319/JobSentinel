@@ -3,43 +3,66 @@ import { getErrorMessage, logError } from "./errorUtils";
 
 describe("errorUtils", () => {
   describe("getErrorMessage", () => {
-    it("extracts message from Error instance", () => {
+    it("returns generic safe copy for unknown Error instances", () => {
       const error = new Error("Something went wrong");
-      expect(getErrorMessage(error)).toBe("Something went wrong");
+      expect(getErrorMessage(error)).toContain("An unexpected error occurred");
+      expect(getErrorMessage(error)).toContain("safe debug report");
     });
 
-    it("returns string errors directly", () => {
-      expect(getErrorMessage("Direct string error")).toBe("Direct string error");
+    it("returns generic safe copy for string errors", () => {
+      expect(getErrorMessage("Direct string error")).toContain("An unexpected error occurred");
     });
 
-    it("extracts message from object with message property", () => {
+    it("returns generic safe copy for object message properties", () => {
       const error = { message: "Object error message" };
-      expect(getErrorMessage(error)).toBe("Object error message");
+      expect(getErrorMessage(error)).toContain("An unexpected error occurred");
     });
 
-    it("handles object with non-string message property", () => {
+    it("returns safe copy for object with non-string message property", () => {
       const error = { message: 123 };
-      expect(getErrorMessage(error)).toBe("123");
+      expect(getErrorMessage(error)).toContain("An unexpected error occurred");
     });
 
     it("returns default message for null", () => {
-      expect(getErrorMessage(null)).toBe("An unexpected error occurred");
+      expect(getErrorMessage(null)).toContain("An unexpected error occurred");
     });
 
     it("returns default message for undefined", () => {
-      expect(getErrorMessage(undefined)).toBe("An unexpected error occurred");
+      expect(getErrorMessage(undefined)).toContain("An unexpected error occurred");
     });
 
     it("returns default message for number", () => {
-      expect(getErrorMessage(42)).toBe("An unexpected error occurred");
+      expect(getErrorMessage(42)).toContain("An unexpected error occurred");
     });
 
     it("returns default message for empty object", () => {
-      expect(getErrorMessage({})).toBe("An unexpected error occurred");
+      expect(getErrorMessage({})).toContain("An unexpected error occurred");
     });
 
     it("returns default message for array", () => {
-      expect(getErrorMessage([1, 2, 3])).toBe("An unexpected error occurred");
+      expect(getErrorMessage([1, 2, 3])).toContain("An unexpected error occurred");
+    });
+
+    it("keeps useful known categories without exposing raw sensitive details", () => {
+      const message = getErrorMessage(
+        new Error("network timeout with token=abc123 at /Users/alice/private.txt")
+      );
+
+      expect(message).toContain("connect");
+      expect(message).toContain("internet connection");
+      expect(message).not.toContain("abc123");
+      expect(message).not.toContain("/Users/alice");
+    });
+
+    it("does not display raw paths, emails, or tokens from unknown errors", () => {
+      const message = getErrorMessage({
+        message: "token=abc123 for alice@example.com at /Users/alice/private.txt",
+      });
+
+      expect(message).toContain("An unexpected error occurred");
+      expect(message).not.toContain("abc123");
+      expect(message).not.toContain("alice@example.com");
+      expect(message).not.toContain("/Users/alice");
     });
   });
 

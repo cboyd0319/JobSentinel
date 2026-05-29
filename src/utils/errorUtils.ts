@@ -1,27 +1,26 @@
+import { sanitizeContext, sanitizeTextForStorage } from "./errorReporting";
+import { getUserFriendlyError } from "./errorMessages";
+
 /**
  * Extract a user-friendly error message from an unknown error.
- * 
+ *
+ * This helper is display-safe. It must not return raw exception text because
+ * caught errors can include paths, tokens, emails, provider responses, or local
+ * job-search details.
+ *
  * @param error - The caught error (unknown type from catch block)
  * @returns A string message suitable for displaying to users
  */
-import { sanitizeContext, sanitizeTextForStorage } from "./errorReporting";
-
 export function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-  if (typeof error === "string") {
-    return error;
-  }
-  if (error && typeof error === "object" && "message" in error) {
-    return String((error as { message: unknown }).message);
-  }
-  return "An unexpected error occurred";
+  const friendly = getUserFriendlyError(error);
+  return friendly.action
+    ? `${friendly.message}\n\n${friendly.action}`
+    : friendly.message;
 }
 
 /**
  * Log an error in development, optionally with context.
- * In production, this could be extended to send to an error tracking service.
+ * Production support uses locally generated safe debug reports.
  * 
  * @param message - Context message describing where the error occurred
  * @param error - The error to log
@@ -30,7 +29,6 @@ export function logError(message: string, error: unknown): void {
   if (import.meta.env.DEV) {
     console.error(sanitizeTextForStorage(message), sanitizeLoggedError(error));
   }
-  // In production, you could send to Sentry, LogRocket, etc.
 }
 
 interface SanitizedLoggedError {
