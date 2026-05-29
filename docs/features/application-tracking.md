@@ -264,8 +264,8 @@ tracker.update_last_contact(app_id).await?;
 // Add/update notes
 tracker.add_notes(
     app_id,
-    "Recruiter mentioned team is hiring 3 engineers this quarter. \
-     Salary range: $150-180K. Remote-first culture.",
+    "Recruiter mentioned team is hiring 3 coordinators this quarter. \
+     Salary range: $70-85K. Hybrid schedule.",
 ).await?;
 
 // Logs "note_added" event to timeline

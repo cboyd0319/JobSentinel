@@ -617,9 +617,10 @@ When pdf-extract returns < 100 characters, OCR automatically kicks in:
 JobSentinel uses a fully self-contained skill extraction system:
 
 1. **Broad recognized skill set** across technical, workplace, and role-specific categories
-2. **Categories**: programming languages, frameworks, tools, databases, cloud platforms,
-   soft skills, methodologies, certifications, security, data, marketing, sales,
-   healthcare, education, finance, operations, legal, creative, customer success
+2. **Categories**: workplace skills, certifications, methodologies, marketing,
+   sales, healthcare, education, finance, operations, legal, creative, customer
+   success, data, security, programming languages, frameworks, databases, and
+   cloud platforms
 3. **100% offline** - no external services or network calls required
 4. **Deterministic** - same input always produces same output
 

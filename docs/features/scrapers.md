@@ -325,10 +325,9 @@ Converts location name variations to canonical forms:
 Removes abbreviations and standardizes common terms:
 
 ```text
-"Sr. Software Engineer" becomes "Senior Software Engineer"
-"SWE" becomes "Software Engineer"
-"Sr Dev" becomes "Senior Developer"
-"Jr. Dev" becomes "Junior Developer"
+"Sr. Program Manager" becomes "Senior Program Manager"
+"Mgr" becomes "Manager"
+"Admin Asst" becomes "Administrative Assistant"
 "FTE" becomes "Full-Time Employee"
 ```
 

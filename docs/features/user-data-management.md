@@ -210,14 +210,14 @@ Control notifications for each job board independently:
    - **Minimum score** - Only notify for jobs scoring at or above the threshold
    - **Include ghost jobs** - Show or hide flagged postings
 
-### Keyword-Based Filtering
+### Search-Word Filtering
 
 Create inclusion and exclusion rules:
 
-1. **Include keywords** - Only notify if the posting contains ANY of these words
-   - Example: "Python OR TypeScript OR Go"
-2. **Exclude keywords** - Skip if the posting contains ANY of these words
-   - Example: "PHP NOT required"
+1. **Include words** - Only notify if the posting contains ANY of these words
+   - Example: "onboarding OR scheduling OR patient care"
+2. **Exclude words** - Skip if the posting contains ANY of these words
+   - Example: "commission only NOT required"
 3. **Company list** - Only notify from specific companies
    - Add company names, one per line
    - Helpful for tracking target employers
@@ -486,7 +486,7 @@ Create a new saved search.
 invoke("create_saved_search", {
   search: {
     id: "",
-    name: "SWE Remote 120k+",
+    name: "Remote operations 90k+",
     sortBy: "score-desc",
     scoreFilter: "all",
     sourceFilter: "all",
@@ -497,7 +497,7 @@ invoke("create_saved_search", {
     salaryMinFilter: 120000,
     salaryMaxFilter: null,
     ghostFilter: null,
-    textSearch: "senior software engineer",
+    textSearch: "operations manager",
     createdAt: "",
     lastUsedAt: null,
   },
@@ -590,11 +590,11 @@ invoke("save_notification_preferences", {
       quietHoursEnabled: false
     },
     advancedFilters: {
-      includeKeywords: ["Python", "TypeScript"],
-      excludeKeywords: ["PHP"],
+      includeKeywords: ["onboarding", "scheduling"],
+      excludeKeywords: ["commission only"],
       minSalary: 120,
       remoteOnly: true,
-      companyWhitelist: ["Google", "Meta"],
+      companyWhitelist: ["Acme Health", "Northstar Clinic"],
       companyBlacklist: []
     }
   }
@@ -611,7 +611,7 @@ invoke("save_notification_preferences", {
 Add a search to history.
 
 ```typescript
-invoke("add_search_history", { query: "senior rust engineer remote" });
+invoke("add_search_history", { query: "remote project coordinator" });
 // Returns: void
 ```
 

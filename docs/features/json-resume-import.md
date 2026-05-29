@@ -73,12 +73,12 @@ and convert them to internal resume drafts for editing and ATS optimization.
   "work": [
     {
       "name": "Acme Corp",
-      "position": "Senior Engineer",
+      "position": "Senior Program Coordinator",
       "startDate": "2020-01-01",
       "endDate": "2024-12-31",
       "highlights": [
-        "Led team of 5 engineers",
-        "Built microservices architecture"
+        "Led team of 5 coordinators",
+        "Improved client onboarding process"
       ]
     }
   ]

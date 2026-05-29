@@ -47,8 +47,8 @@ The skills factor measures how well your qualifications align with the job requi
 
 JobSentinel analyzes job requirements against your qualifications using three methods:
 
-1. **Title Allowlist/Blocklist** - Match or exclude job titles
-2. **Keyword Boost/Exclude** - Reward jobs with desired keywords or penalize those with excluded ones
+1. **Title preferences** - Match or exclude job titles
+2. **Job-word preferences** - Reward jobs with desired words or penalize excluded ones
 3. **Synonym Matching** - Recognize equivalent skills (e.g., "JavaScript" = "JS")
 4. **Resume-Based Scoring** - If you've uploaded a resume, compare your actual skills to requirements
 
@@ -61,93 +61,94 @@ JobSentinel analyzes job requirements against your qualifications using three me
   - Title matches blocklist: 0% (filtered out)
   - Neutral title: 50%
 
-- **Keyword Boost** (60% of skills factor)
-  - Each boosted keyword found: +10%
-  - Each excluded keyword found: -10%
+- **Job-word boost** (60% of skills factor)
+  - Each boosted word found: +10%
+  - Each excluded word found: -10%
   - Maximum: 100%, minimum: 0%
 
-**With Resume (70% resume match + 30% keyword boost):**
+**With Resume (70% resume match + 30% job-word boost):**
 
 - **Resume Match** (70%)
   - Matching skills ÷ Required skills = score
   - Example: You have 7/10 required skills = 70%
 
-- **Keyword Boost** (30%)
-  - Same keyword logic as above
+- **Job-word boost** (30%)
+  - Same preferred-word logic as above
 
 ### Configuration in Settings
 
 Navigate to **Settings > Scoring > Skills Matching**:
 
 1. **Title Preferences**
-   - Allowed job titles (e.g., "Software Engineer", "Backend Developer")
-   - Blocked job titles (e.g., "Salesforce Developer", "Technical Recruiter")
+   - Allowed job titles (e.g., "Customer Success Manager", "Clinic Manager")
+   - Blocked job titles (e.g., "Commission-Only Sales", "Night Supervisor")
 
-2. **Keyword Boosters**
-   - Keywords that increase score if found (e.g., "TypeScript", "AWS", "remote")
+2. **Job-word boosters**
+   - Words that increase score if found (e.g., "onboarding", "patient care", "remote")
    - Include common variations
 
-3. **Excluded Keywords**
-   - Keywords that decrease score if found (e.g., "Java", "on-site", "startup")
+3. **Excluded words**
+   - Words that decrease score if found (e.g., "commission only", "overnight", "heavy travel")
 
 4. **Resume-Based Scoring** (NEW in v2.2)
    - Toggle "Use Resume for Scoring" ON/OFF
    - Automatically compares your uploaded resume against job requirements
    - Shows exact skills you have vs. skills the job requires
 
-### Example: Software Engineer Position
+### Example: Customer Success Position
 
 **Job Requirements:**
 
-- React, Node.js, TypeScript, Docker, AWS
+- Account management, onboarding, retention, CRM, reporting
 
 **Your Configuration:**
 
-- Allowed titles: ["Software Engineer", "Backend Developer"]
-- Boosted keywords: ["React", "TypeScript", "AWS"]
-- Excluded keywords: ["VB.NET"]
+- Allowed titles: ["Customer Success Manager", "Client Success Manager"]
+- Boosted job words: ["Onboarding", "Retention", "CRM"]
+- Excluded job words: ["Commission only"]
 
 **Scoring:**
 
 ```text
-Title: "Senior Backend Engineer" matches "Backend Developer": 100%
+Title: "Senior Customer Success Manager" matches "Customer Success Manager": 100%
 
-Keyword Match:
-  React (found, boosted)       +10%
-  TypeScript (found, boosted)  +10%
-  AWS (found, boosted)         +10%
-  Node.js (found, not boosted) +5%
-  Docker (found, not boosted)  +5%
-  VB.NET (not found)           (not penalized)
+Job-Word Match:
+  Onboarding (found, boosted)          +10%
+  Retention (found, boosted)           +10%
+  CRM (found, boosted)                 +10%
+  Reporting (found, not boosted)       +5%
+  Account management (found)           +5%
+  Commission only (not found)          (not penalized)
 
-Keywords Score: 40%
+Job-word score: 40%
 
 Skills Factor: (100% × 0.4) + (40% × 0.6) = 40% + 24% = 64%
 ```
 
 **With Resume:**
 
-If your resume shows React, TypeScript, Docker, Node.js, and AWS, all five required skills match.
+If your resume shows onboarding, retention, CRM, reporting, and account
+management, all five required skills match.
 
 ```text
 Resume Match: 5/5 = 100%
-Keyword Boost: 40% (as above)
+Job-word boost: 40% (as above)
 
 Skills Factor: (100% × 0.7) + (40% × 0.3) = 70% + 12% = 82%
 ```
 
 ### Synonym Matching
 
-The system recognizes equivalent skills and keywords:
+The system recognizes equivalent skills and role words:
 
-| Category   | Synonyms                             |
-| ---------- | ------------------------------------ |
-| JavaScript | JS, JavaScript, Node                 |
-| React      | React, ReactJS, React.js             |
-| Python     | Python, Py                           |
-| SQL        | SQL, T-SQL, MySQL, PostgreSQL        |
-| AWS        | AWS, Amazon Web Services             |
-| CI/CD      | CI/CD, CI-CD, continuous integration |
+| Category | Synonyms |
+| -------- | -------- |
+| Customer success | customer success, client success, account success |
+| Operations | operations, ops, process improvement |
+| Healthcare | patient care, care coordination, clinic support |
+| Education | instruction, curriculum, lesson planning |
+| Finance | bookkeeping, accounts payable, reconciliation |
+| Data | reporting, analytics, dashboards |
 
 For complete synonym reference, see [Synonym Matching Guide](synonym-matching.md).
 
@@ -265,7 +266,7 @@ JobSentinel detects work arrangement from multiple sources:
 
 1. **Explicit `remote` field** in job posting (most reliable)
 2. **Location string** (e.g., "Remote - US", "New York (Hybrid)")
-3. **Job title** (e.g., "Remote Software Engineer")
+3. **Job title** (e.g., "Remote Case Manager")
 4. **Job description keywords**:
    - Remote: "remote", "work from home", "WFH", "distributed", "fully remote"
    - Hybrid: "hybrid", "flexible location", "remote + office"
@@ -304,9 +305,9 @@ Add companies you're interested in:
 
 **Example:**
 
-Your whitelist: ["Google", "Microsoft", "Apple"]
+Your whitelist: ["Acme Health", "Northstar Clinic", "BrightPath Services"]
 
-Job from Google: 100% company score (50% base + 50% exact match bonus)
+Job from Acme Health: 100% company score (50% base + 50% exact match bonus)
 
 ### Company Blacklist
 
@@ -422,14 +423,14 @@ Total Score: 78%
 Score Breakdown:
 - Skills (40%):       64% x 40% = 25.6%
   - Title Match:      100%
-  - Keywords:         40%
+  - Job words:        40%
   - Resume Match:     82%
 - Salary (25%):       80% x 25% = 20.0%
   - $145k vs target $150k
 - Location (20%):     90% x 20% = 18.0%
   - Hybrid vs your Remote Preferred
 - Company (10%):     100% x 10% = 10.0%
-  - Microsoft on whitelist
+  - Acme Health on favorite list
 - Recency (5%):       100% x 5% = 5.0%
   - Posted 3 days ago
 ```
@@ -463,27 +464,27 @@ In the breakdown modal, you can:
 
 Let's score a real job:
 
-**Job:** "Senior React Developer at Microsoft"
+**Job:** "Senior Customer Success Manager at Acme Health"
 
 ```text
-Title:       Senior React Developer
-Company:     Microsoft
-Location:    Seattle, WA (Hybrid with 2-3 days/week onsite)
-Salary:      $160,000/year
+Title:       Senior Customer Success Manager
+Company:     Acme Health
+Location:    Denver, CO (Hybrid with 2 days/week onsite)
+Salary:      $95,000/year
 Posted:      5 days ago
-Description: 5+ years React, TypeScript, Node.js, Docker, AWS,
+Description: 5+ years account management, onboarding, retention, CRM,
             strong communication, mentoring experience
 ```
 
 **Your Configuration:**
 
 ```text
-Target Salary:        $150,000
+Target Salary:        $95,000
 Preferred Location:   Remote Preferred (but open to hybrid)
-Skills Allowlist:     Software Engineer, React Developer, Backend Engineer
-Skills Boosters:      React, TypeScript, Docker, AWS
-Company Whitelist:    Microsoft, Google, Amazon
-Resume:              Uploaded (React, TypeScript, Docker, Node.js, AWS matched)
+Preferred titles:     Customer Success Manager, Client Success Manager
+Preferred words:      Onboarding, Retention, CRM
+Favorite companies:   Acme Health, Northstar Clinic
+Resume:              Uploaded (onboarding, retention, CRM, reporting matched)
 ```
 
 ### Calculation
@@ -492,22 +493,22 @@ Resume:              Uploaded (React, TypeScript, Docker, Node.js, AWS matched)
 
 ```text
 Title Match:
-  "Senior React Developer" matches "React Developer": 100%
+  "Senior Customer Success Manager" matches "Customer Success Manager": 100%
 
 Resume Match:
-  Your skills: React, TypeScript, Docker, Node.js, AWS (5/5 required)
+  Your skills: onboarding, retention, CRM, reporting, account management (5/5 required)
   Match: 5/5 = 100%
 
-Keywords Boost:
-  React       (boosted keyword found)
-  TypeScript  (boosted keyword found)
-  Docker      (boosted keyword found)
-  AWS         (boosted keyword found)
-  Node.js     (found, not boosted) +0%
-  Keywords Score: 100%
+Job-word boost:
+  Onboarding          (boosted word found)
+  Retention           (boosted word found)
+  CRM                 (boosted word found)
+  Reporting           (found, not boosted) +0%
+  Account management  (found, not boosted) +0%
+  Job-word score: 100%
 
 Skills Factor:
-  = (100% title × 0.3) + (100% resume × 0.7) + (100% keywords × adjusted)
+  = (100% title × 0.3) + (100% resume × 0.7) + (100% job words × adjusted)
   = 100%
 
 Contribution to Total: 100% × 40% = 40%
@@ -538,8 +539,8 @@ Contribution to Total: 70% × 20% = 14%
 **4. Company (10% weight)**
 
 ```text
-Job Company:     Microsoft
-Your Whitelist:  [Microsoft, Google, Amazon]
+Job Company:     Acme Health
+Your Whitelist:  [Acme Health, Northstar Clinic, BrightPath Services]
 
 Company Match:   Yes (exact match)
 Company Score:   100% (50% base + 50% whitelist bonus)
@@ -637,10 +638,10 @@ invoke("get_score_breakdown", { job_hash: "abc123" });
 
 // Update skills preferences
 invoke("set_skills_preferences", {
-  allowed_titles: ["Software Engineer", "Backend Developer"],
-  blocked_titles: ["Sales Engineer"],
-  boosted_keywords: ["React", "TypeScript"],
-  excluded_keywords: ["VB.NET"],
+  allowed_titles: ["Customer Success Manager", "Client Success Manager"],
+  blocked_titles: ["Commission-Only Sales"],
+  boosted_keywords: ["Onboarding", "Retention"],
+  excluded_keywords: ["Commission only"],
 });
 
 // Update salary preferences
@@ -657,7 +658,7 @@ invoke("set_location_preference", {
 
 // Update company whitelist/blacklist
 invoke("set_company_preferences", {
-  whitelist: ["Microsoft", "Google"],
+  whitelist: ["Acme Health", "Northstar Clinic"],
   blacklist: ["Spam Corp"],
 });
 ```
@@ -739,7 +740,7 @@ Least Impactful:       Recency (average 65%)
 
 **Common reasons:**
 
-- Job title doesn't match your allowlist: adjust title preferences
+- Job title doesn't match your preferred titles: adjust title preferences
 - Salary is below target: set realistic target or adjust weight
 - Location doesn't match: adjust location preference or weight
 - Old posting: adjust recency weight if you're desperate

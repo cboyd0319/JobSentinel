@@ -16,7 +16,7 @@ The system detects a job's remote status from multiple sources:
 
 - **Explicit `remote` field** in the job posting
 - **Location string** (e.g., "Remote - US", "New York (Hybrid)")
-- **Job title** (e.g., "Remote Software Engineer")
+- **Job title** (e.g., "Remote Case Manager")
 - **Job description** with keywords like:
   - Remote: "remote", "work from home", "WFH", "distributed", "fully remote"
   - Hybrid: "hybrid", "flexible location", "remote with occasional office"

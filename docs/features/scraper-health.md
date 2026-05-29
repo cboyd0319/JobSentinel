@@ -447,8 +447,8 @@ Status:          Success
 Started:         2026-01-17 14:30:00 UTC
 Completed:       2026-01-17 14:32:15 UTC
 Duration:        2m 15s
-Query:           "software engineer"
-Location:        "San Francisco, CA"
+Query:           "case manager"
+Location:        "Denver, CO"
 Jobs Found:      42
 New Jobs:        38 (4 were duplicates)
 Deduplication:   Cross-referenced with 12 other sources

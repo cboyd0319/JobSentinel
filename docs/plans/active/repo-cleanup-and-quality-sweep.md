@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Broadened maintained feature-doc examples away from software-engineer-only scenarios, including market intelligence, saved searches, smart scoring, application notes, scraper-health examples, JSON resume import, and resume skill categories. |
 | 2026-05-29 | In progress | Added mechanical bloat coverage for the free-forever MIT project ethos so README, quick-start, and harness docs cannot silently lose that commitment. |
 | 2026-05-29 | In progress | Reworked safe debug-report event details so the preview and formatted report use readable labels instead of raw JSON-shaped event data, while continuing to redact private values before sharing. |
 | 2026-05-29 | In progress | Simplified feedback submission copy for zero-technical-knowledge users: GitHub remains the recommended trackable path, but the no-account safe feedback-file fallback is visible, success steps no longer imply the report is already submitted, and regression tests cover the support choices. |

@@ -161,11 +161,11 @@ for skill in trending_skills {
 **Example Output:**
 
 ```text
-Python: 1,250 jobs (avg salary: $135,000)
-React: 1,100 jobs (avg salary: $130,000)
-TypeScript: 950 jobs (avg salary: $140,000)
-AWS: 800 jobs (avg salary: $145,000)
-Docker: 750 jobs (avg salary: $138,000)
+Project management: 1,250 jobs (avg salary: $95,000)
+Customer onboarding: 1,100 jobs (avg salary: $88,000)
+Care coordination: 950 jobs (avg salary: $82,000)
+Budgeting: 800 jobs (avg salary: $92,000)
+CRM: 750 jobs (avg salary: $86,000)
 ```
 
 ### 3. Track Company Hiring Activity
@@ -186,11 +186,11 @@ for company in active_companies {
 **Example Output:**
 
 ```text
-Google: 125 jobs posted, 450 active (trend: increasing)
-Meta: 100 jobs posted, 380 active (trend: stable)
-Amazon: 95 jobs posted, 520 active (trend: increasing)
-Microsoft: 85 jobs posted, 410 active (trend: stable)
-Netflix: 50 jobs posted, 180 active (trend: decreasing)
+Acme Health: 125 jobs posted, 450 active (trend: increasing)
+Northstar Clinic: 100 jobs posted, 380 active (trend: stable)
+BrightPath Services: 95 jobs posted, 520 active (trend: increasing)
+Metro Community College: 85 jobs posted, 410 active (trend: stable)
+Westside Logistics: 50 jobs posted, 180 active (trend: decreasing)
 ```
 
 ### 4. Identify Hot Job Markets
@@ -236,16 +236,16 @@ for alert in alerts {
 **Example Output:**
 
 ```text
-[INFO] [SKILL+] Rust demand surging!
-  The skill 'Rust' saw a 75% increase in job postings this week (140 to 245 mentions).
-  Change: +75.0%
+[INFO] [SKILL+] Care coordination demand surging!
+  The skill 'care coordination' saw a 45% increase in job postings this week (140 to 203 mentions).
+  Change: +45.0%
 
-[INFO] [SALARY+] Software Engineer salaries jumping in San Francisco, CA
-  Salaries for 'software engineer' in san francisco, ca increased by 12.5% (median: $175,000).
+[INFO] [SALARY+] Operations Manager salaries jumping in Chicago, IL
+  Salaries for 'operations manager' in chicago, il increased by 12.5% (median: $105,000).
   Change: +12.5%
 
-[INFO] [HIRING] Google hiring aggressively
-  Google posted 25 new jobs today (450 total active positions).
+[INFO] [HIRING] Acme Health hiring aggressively
+  Acme Health posted 25 new jobs today (450 total active positions).
   Change: N/A
 ```
 
@@ -366,8 +366,8 @@ LIMIT 20;
 **Example:**
 
 ```text
-Rust demand surging!
-The skill 'Rust' saw a 75% increase in job postings this week (140 to 245 mentions).
+Care coordination demand surging!
+The skill 'care coordination' saw a 45% increase in job postings this week (140 to 203 mentions).
 ```
 
 **Action:** Consider learning this skill if it aligns with your career goals.
@@ -379,8 +379,8 @@ The skill 'Rust' saw a 75% increase in job postings this week (140 to 245 mentio
 **Example:**
 
 ```text
-DevOps Engineer salaries jumping in Austin, TX
-Salaries for 'devops engineer' in austin, tx increased by 28.0% (median: $145,000).
+Clinic Manager salaries jumping in Austin, TX
+Salaries for 'clinic manager' in austin, tx increased by 28.0% (median: $92,000).
 ```
 
 **Action:** Great time to negotiate or switch roles in this market.
@@ -392,11 +392,11 @@ Salaries for 'devops engineer' in austin, tx increased by 28.0% (median: $145,00
 **Example:**
 
 ```text
-Meta hiring aggressively
-Meta posted 35 new jobs today (520 total active positions).
+Acme Health hiring aggressively
+Acme Health posted 35 new jobs today (520 total active positions).
 ```
 
-**Action:** Prime opportunity to apply - company is scaling fast.
+**Action:** Check current openings and verify role freshness before tailoring.
 
 ### 4. Hiring Freeze
 
@@ -657,26 +657,26 @@ Market Snapshot (Jan 20, 2026): Bullish
 - New Today: 150
 - Median Salary: $145,000
 - Remote Jobs: 35.5%
-- Top Skill: Python
+- Top Skill: Project management
 
 Trending Skills (Last 30 Days)
-1. Python: 1,250 jobs, $135k average, +15%
-2. React: 1,100 jobs, $130k average, +22%
-3. TypeScript: 950 jobs, $140k average, +18%
-4. AWS: 800 jobs, $145k average, +10%
-5. Docker: 750 jobs, $138k average, +25%
+1. Project management: 1,250 jobs, $95k average, +15%
+2. Customer onboarding: 1,100 jobs, $88k average, +22%
+3. Care coordination: 950 jobs, $82k average, +18%
+4. Budgeting: 800 jobs, $92k average, +10%
+5. CRM: 750 jobs, $86k average, +25%
 
 Most Active Companies
-1. Google: 125 posted, 450 active, rising
-2. Meta: 100 posted, 380 active, stable
-3. Amazon: 95 posted, 520 active, rising
-4. Microsoft: 85 posted, 410 active, stable
-5. Netflix: 50 posted, 180 active, falling
+1. Acme Health: 125 posted, 450 active, rising
+2. Northstar Clinic: 100 posted, 380 active, stable
+3. BrightPath Services: 95 posted, 520 active, rising
+4. Metro Community College: 85 posted, 410 active, stable
+5. Westside Logistics: 50 posted, 180 active, falling
 
 Market Alerts (3 unread)
-- [SKILL+] Rust demand surging! (+75%)
-- [SALARY+] DevOps salaries spiking in Austin (+28%)
-- [HIRING] Meta hiring aggressively (35 jobs today)
+- [SKILL+] Care coordination demand surging! (+45%)
+- [SALARY+] Clinic manager salaries spiking in Austin (+28%)
+- [HIRING] Acme Health hiring aggressively (35 jobs today)
 ```
 
 ---
@@ -718,7 +718,7 @@ let fastest_growing = skills.iter()
 
 ```rust
 // Is my offer competitive?
-let trend = analyzer.get_salary_trend("software engineer", "san francisco, ca").await?;
+let trend = analyzer.get_salary_trend("operations manager", "chicago, il").await?;
 if my_offer < trend.median_salary {
     println!("Below market median by ${}", trend.median_salary - my_offer);
 }
