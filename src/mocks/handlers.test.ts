@@ -166,7 +166,7 @@ const atsResume = {
 
 const savedSearchInput: BackendSavedSearch = {
   id: "",
-  name: "Remote Rust",
+  name: "Remote Support",
   sortBy: "score-desc",
   scoreFilter: "all",
   sourceFilter: "all",
@@ -174,10 +174,10 @@ const savedSearchInput: BackendSavedSearch = {
   bookmarkFilter: "all",
   notesFilter: "all",
   postedDateFilter: "7d",
-  salaryMinFilter: 120000,
-  salaryMaxFilter: 180000,
+  salaryMinFilter: 55000,
+  salaryMaxFilter: 72000,
   ghostFilter: null,
-  textSearch: "rust",
+  textSearch: "support",
   createdAt: "",
   lastUsedAt: null,
 };
@@ -223,7 +223,7 @@ describe("mock Tauri handlers", () => {
 
     expect(created).toMatchObject({
       id: "mock-saved-search-1",
-      name: "Remote Rust",
+      name: "Remote Support",
       sortBy: "score-desc",
       scoreFilter: "all",
       sourceFilter: "all",
@@ -231,10 +231,10 @@ describe("mock Tauri handlers", () => {
       bookmarkFilter: "all",
       notesFilter: "all",
       postedDateFilter: "7d",
-      salaryMinFilter: 120000,
-      salaryMaxFilter: 180000,
+      salaryMinFilter: 55000,
+      salaryMaxFilter: 72000,
       ghostFilter: null,
-      textSearch: "rust",
+      textSearch: "support",
       lastUsedAt: null,
     });
     expect(created.createdAt).toEqual(expect.any(String));
@@ -579,14 +579,14 @@ describe("mock Tauri handlers", () => {
 
   it("handles runtime frontend command names in dev mocks", async () => {
     const benchmark = await mockInvoke<SalaryBenchmark | null>("get_salary_benchmark", {
-      jobTitle: "Senior Software Engineer",
-      location: "Denver, CO",
-      seniority: "senior",
+      jobTitle: "Customer Support Lead",
+      location: "Chicago, IL",
+      seniority: "mid",
     });
     expect(benchmark).toMatchObject({
-      job_title: "Senior Software Engineer",
-      location: "Denver, CO",
-      seniority_level: "Senior",
+      job_title: "Customer Support Lead",
+      location: "Chicago, IL",
+      seniority_level: "Mid",
       p25_salary: expect.any(Number),
       median_salary: expect.any(Number),
       p75_salary: expect.any(Number),
@@ -597,13 +597,13 @@ describe("mock Tauri handlers", () => {
     const script = await mockInvoke<string>("generate_negotiation_script", {
       scenario: "initial_offer",
       params: {
-        job_title: "Senior Software Engineer",
-        target_salary: "180000",
-        current_offer: "150000",
+        job_title: "Customer Support Lead",
+        target_salary: "72000",
+        current_offer: "64000",
       },
     });
-    expect(script).toContain("Senior Software Engineer");
-    expect(script).toContain("$180,000");
+    expect(script).toContain("Customer Support Lead");
+    expect(script).toContain("$72,000");
 
     const ats = await mockInvoke<AtsDetectionResponse>("detect_ats_platform", {
       url: "https://boards.greenhouse.io/example/jobs/123",

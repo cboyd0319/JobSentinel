@@ -607,6 +607,15 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src/mocks/handlers.test.ts",
+      [
+        'name: "Remote Rust",',
+        'jobTitle: "Senior Software Engineer",',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "tests/e2e/playwright/one-click-apply.spec.ts",
       '"https://github.com/caseysentinel"; "GitHub profile link if relevant to your role";\n',
     );
@@ -649,6 +658,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/components/JobImportModal.tsx",
         "src/mocks/data.ts",
         "src/mocks/handlers.ts",
+        "src/mocks/handlers.test.ts",
         "src-tauri/src/core/resume/templates.rs",
         "src/pages/ResumeBuilder.tsx",
         "src/pages/ResumeOptimizer.tsx",
@@ -694,6 +704,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/components/JobImportModal.tsx",
       "src/mocks/data.ts",
       "src/mocks/handlers.ts",
+      "src/mocks/handlers.test.ts",
       "src-tauri/src/core/resume/templates.rs",
       "src/pages/ResumeBuilder.tsx",
       "src/pages/ResumeOptimizer.tsx",

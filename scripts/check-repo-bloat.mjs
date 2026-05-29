@@ -505,6 +505,7 @@ const broadAudienceExamplePaths = new Set([
   "src/components/MarketSnapshotCard.test.tsx",
   "src/mocks/data.ts",
   "src/mocks/handlers.ts",
+  "src/mocks/handlers.test.ts",
   "src/pages/hooks/useDashboardFilters.test.ts",
   "src/pages/hooks/useDashboardJobOps.test.ts",
   "src/pages/hooks/useDashboardSavedSearches.test.ts",
