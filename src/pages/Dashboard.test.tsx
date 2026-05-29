@@ -1,8 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { invoke } from "@tauri-apps/api/core";
+import {
+  getDashboardLoadErrorMessage,
+  getDashboardSearchErrorCopy,
+} from "./dashboardErrorCopy";
 
 vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),
+}));
+
+vi.mock("@tauri-apps/api/event", () => ({
+  listen: vi.fn(),
 }));
 
 // safeInvoke calls invoke internally — mock at that boundary
@@ -242,5 +250,27 @@ describe("Dashboard handleSearchNow pre-flight check", () => {
       expect(warn).not.toHaveBeenCalled();
       expect(result).toBe("allowed");
     });
+  });
+});
+
+describe("Dashboard safe error copy", () => {
+  const privateFailure = new Error(
+    "token=raw-secret chad@example.com /Users/chad/private/resume.pdf",
+  );
+
+  it("does not expose raw private details in load errors", () => {
+    const message = getDashboardLoadErrorMessage(privateFailure);
+
+    expect(message).toContain("safe debug report");
+    expect(message).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
+  });
+
+  it("does not expose raw private details in search errors", () => {
+    const copy = getDashboardSearchErrorCopy(privateFailure);
+    const visibleText = `${copy.title} ${copy.message}`;
+
+    expect(copy.title).toBe("Job Search Failed");
+    expect(visibleText).toContain("safe debug report");
+    expect(visibleText).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
   });
 });

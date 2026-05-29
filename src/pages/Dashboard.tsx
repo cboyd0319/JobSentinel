@@ -24,7 +24,7 @@ import { FocusTrap } from "../components/FocusTrap";
 import { DashboardSkeleton } from "../components/Skeleton";
 import { useToast } from "../contexts";
 import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
-import { getErrorMessage, logError } from "../utils/errorUtils";
+import { logError } from "../utils/errorUtils";
 import { SCORE_THRESHOLD_GOOD } from "../utils/constants";
 import { notifyScrapingComplete } from "../utils/notifications";
 import {
@@ -35,6 +35,10 @@ import {
 import { PanelSkeleton, WidgetSkeleton } from "../components/LoadingFallbacks";
 import { isValidJobUrl } from "../utils/urlValidation";
 import { openDeepLink } from "../services/deeplinks";
+import {
+  getDashboardLoadErrorMessage,
+  getDashboardSearchErrorCopy,
+} from "./dashboardErrorCopy";
 
 // Lazy load heavy components to reduce initial bundle size
 const DashboardWidgets = lazy(() =>
@@ -187,7 +191,7 @@ export default function Dashboard({
       }
     } catch (err: unknown) {
       logError("Failed to fetch dashboard data:", err);
-      setError(getErrorMessage(err));
+      setError(getDashboardLoadErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -348,17 +352,9 @@ export default function Dashboard({
         cooldownTimeoutRef.current = null;
       }, 30000);
     } catch (err: unknown) {
-      const enhancedError = err as Error & {
-        userFriendly?: { title: string; message: string; action?: string };
-      };
-      setError(enhancedError.userFriendly?.message || getErrorMessage(err));
-      toast.error(
-        enhancedError.userFriendly?.title || "Job Search Failed",
-        enhancedError.userFriendly?.action
-          ? `${enhancedError.userFriendly.message}\n\n${enhancedError.userFriendly.action}`
-          : enhancedError.userFriendly?.message ||
-              "Couldn't scan for jobs. Check your internet connection and job board settings, then try again.",
-      );
+      const safeError = getDashboardSearchErrorCopy(err);
+      setError(safeError.message);
+      toast.error(safeError.title, safeError.message);
       // Reset cooldown on error so user can retry
       setSearchCooldown(false);
       setCooldownSeconds(0);

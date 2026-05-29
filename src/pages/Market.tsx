@@ -10,6 +10,7 @@ import { ChartSkeleton } from "../components/LoadingFallbacks";
 import { useToast } from "../contexts";
 import { safeInvoke, safeInvokeWithToast } from "../utils/api";
 import { formatCurrency } from "../utils/formatUtils";
+import { getMarketDataErrorCopy } from "./marketErrorCopy";
 
 // Lazy load TrendChart to defer recharts bundle
 const TrendChart = lazy(() => import("../components/TrendChart").then(m => ({ default: m.TrendChart })));
@@ -184,12 +185,9 @@ export default function Market({ onBack }: MarketProps) {
       setLastFetched(new Date());
     } catch (error: unknown) {
       if (signal?.aborted) return;
-      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
-      setError(enhanced.message || "Failed to load market data");
-      toast.error(
-        enhanced.userFriendly?.title || "Market data unavailable",
-        enhanced.userFriendly?.message || "Couldn't load market intelligence. Check your connection and make sure market analysis has been run at least once."
-      );
+      const safeError = getMarketDataErrorCopy(error);
+      setError(safeError.inlineMessage);
+      toast.error(safeError.toastTitle, safeError.toastMessage);
     } finally {
       if (!signal?.aborted) {
         setLoading(false);

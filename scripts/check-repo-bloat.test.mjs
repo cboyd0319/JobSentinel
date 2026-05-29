@@ -790,7 +790,17 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     writeFixtureFile(
       root,
       "src/pages/Dashboard.tsx",
-      '"This job posting URL is not valid or safe to open"; "Unable to open the job posting URL";\n',
+      [
+        '"This job posting URL is not valid or safe to open"; "Unable to open the job posting URL";',
+        "setError(getErrorMessage(err));",
+        "setError(enhancedError.userFriendly?.message || getErrorMessage(err));",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Market.tsx",
+      "setError(enhanced.message || \"Failed to load market data\");\n",
     );
     writeFixtureFile(
       root,
@@ -921,6 +931,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/pages/Applications.tsx",
         "src/pages/Dashboard.tsx",
         "src/pages/DashboardUI/QuickActions.tsx",
+        "src/pages/Market.tsx",
         "src/pages/ResumeBuilder.tsx",
         "src/pages/Salary.tsx",
         "src/pages/Settings.tsx",
@@ -967,6 +978,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/pages/Applications.tsx",
       "src/pages/Dashboard.tsx",
       "src/pages/DashboardUI/QuickActions.tsx",
+      "src/pages/Market.tsx",
       "src/pages/ResumeBuilder.tsx",
       "src/pages/Salary.tsx",
       "src/pages/Settings.tsx",
