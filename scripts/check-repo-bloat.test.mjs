@@ -5902,6 +5902,45 @@ test("checkRepoBloat rejects notification webhook saves without validation", () 
   });
 });
 
+test("checkRepoBloat rejects notification webhook keyring storage without validation", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/credentials/mod.rs",
+      [
+        "enum CredentialKey { LinkedInCookie, SlackWebhook, DiscordWebhook, TeamsWebhook }",
+        "fn validate_credential_value(key: CredentialKey, value: &str) -> Result<(), String> {",
+        "  if key != CredentialKey::LinkedInCookie { return Ok(()); }",
+        "  if value.len() > MAX_LINKEDIN_COOKIE_LEN { return Err(\"LinkedIn cookie is too long\".to_string()); }",
+        "  if value.chars().any(|ch| ch.is_ascii_control() || ch == ';') {",
+        "    return Err(\"LinkedIn cookie contains unsupported characters\".to_string());",
+        "  }",
+        "  Ok(())",
+        "}",
+        "fn store(key: CredentialKey, value: &str) -> Result<(), String> {",
+        "  validate_credential_value(key, value)?;",
+        "  Ok(())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/credentials/mod.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "validate notification webhook credentials before keyring storage: src-tauri/src/core/credentials/mod.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale settings partial-save messages", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

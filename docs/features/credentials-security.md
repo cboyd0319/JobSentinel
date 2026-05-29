@@ -159,5 +159,7 @@ Backend parsing also accepts prefixed forms such as
   keys, tokens, and sensitive URL parts.
 - Credential command logs use parsed allowlisted key names only. Invalid key
   errors stay generic and do not echo frontend input.
+- Slack, Discord, and Teams connection links are validated against provider
+  hosts and paths before keyring storage.
 - Config export recursively clears supported credential field names, including
   legacy plaintext fields, before writing JSON.

@@ -138,16 +138,85 @@ fn credential_entry(key: CredentialKey) -> Result<Entry, String> {
 }
 
 fn validate_credential_value(key: CredentialKey, value: &str) -> Result<(), String> {
-    if key != CredentialKey::LinkedInCookie {
-        return Ok(());
+    match key {
+        CredentialKey::LinkedInCookie => validate_linkedin_cookie(value),
+        CredentialKey::SlackWebhook => validate_webhook_credential(
+            value,
+            &["hooks.slack.com"],
+            "/services/",
+            "Slack",
+            "hooks.slack.com",
+        ),
+        CredentialKey::DiscordWebhook => validate_webhook_credential(
+            value,
+            &["discord.com", "discordapp.com"],
+            "/api/webhooks/",
+            "Discord",
+            "discord.com or discordapp.com",
+        ),
+        CredentialKey::TeamsWebhook => validate_webhook_credential(
+            value,
+            &["outlook.office.com", "outlook.office365.com"],
+            "/webhook/",
+            "Teams",
+            "outlook.office.com or outlook.office365.com",
+        ),
+        _ => Ok(()),
     }
+}
 
+fn validate_linkedin_cookie(value: &str) -> Result<(), String> {
     if value.len() > MAX_LINKEDIN_COOKIE_LEN {
         return Err("LinkedIn cookie is too long".to_string());
     }
 
     if value.chars().any(|ch| ch.is_ascii_control() || ch == ';') {
         return Err("LinkedIn cookie contains unsupported characters".to_string());
+    }
+
+    Ok(())
+}
+
+fn validate_webhook_credential(
+    value: &str,
+    allowed_hosts: &[&str],
+    required_path_prefix: &str,
+    provider_label: &str,
+    host_label: &str,
+) -> Result<(), String> {
+    let url = url::Url::parse(value).map_err(|_| "Enter a valid connection link".to_string())?;
+
+    if url.scheme() != "https" {
+        return Err(format!(
+            "{provider_label} connection link must start with https://"
+        ));
+    }
+
+    if !url.username().is_empty() || url.password().is_some() {
+        return Err(format!(
+            "{provider_label} connection link must not include a username or password"
+        ));
+    }
+
+    if let Some(port) = url.port() {
+        if port != 443 {
+            return Err(format!(
+                "{provider_label} connection link must use the standard secure web port"
+            ));
+        }
+    }
+
+    if !url
+        .host_str()
+        .is_some_and(|host| allowed_hosts.contains(&host))
+    {
+        return Err(format!(
+            "{provider_label} connection link must use {host_label}"
+        ));
+    }
+
+    if !url.path().starts_with(required_path_prefix) {
+        return Err(format!("Paste the full {provider_label} connection link"));
     }
 
     Ok(())

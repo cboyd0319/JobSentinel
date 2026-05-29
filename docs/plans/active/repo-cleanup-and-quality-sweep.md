@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Moved Slack, Discord, and Teams connection-link validation into backend credential storage so invalid webhook values cannot be written to the OS keyring through direct IPC or future callers; added command tests, docs, and bloat coverage. |
 | 2026-05-29 | In progress | Removed the discontinued Stack Overflow Jobs deep-link source from backend site metadata, URL generation, frontend mocks, and user docs; updated site counts and added bloat coverage against reintroducing that dead job board. |
 | 2026-05-29 | In progress | Reframed match-score copy from celebratory recommendations to protective evidence language: Strong Match, Some Match, source-check and must-have review guidance, plus bloat coverage against overconfident score copy. |
 | 2026-05-29 | In progress | Reworded Telegram notification setup from bot-token-first copy to connection-token and step-by-step Telegram guidance, with bloat coverage for raw bot-token setup wording. |

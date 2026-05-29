@@ -117,4 +117,55 @@ mod tests {
             "validation error must not echo cookie value: {err}"
         );
     }
+
+    #[tokio::test]
+    async fn slack_webhook_validation_rejects_wrong_host_before_keyring() {
+        let err = store_credential(
+            "slack_webhook".to_string(),
+            "https://evil.example/services/T/B/secret".to_string(),
+        )
+        .await
+        .unwrap_err();
+
+        assert_eq!(err, "Slack connection link must use hooks.slack.com");
+        assert!(
+            !err.contains("secret") && !err.contains("evil.example"),
+            "validation error must not echo webhook value: {err}"
+        );
+    }
+
+    #[tokio::test]
+    async fn discord_webhook_validation_rejects_wrong_path_before_keyring() {
+        let err = store_credential(
+            "discord_webhook".to_string(),
+            "https://discord.com/webhooks/123/secret".to_string(),
+        )
+        .await
+        .unwrap_err();
+
+        assert_eq!(err, "Paste the full Discord connection link");
+        assert!(
+            !err.contains("secret") && !err.contains("123"),
+            "validation error must not echo webhook value: {err}"
+        );
+    }
+
+    #[tokio::test]
+    async fn teams_webhook_validation_rejects_embedded_credentials_before_keyring() {
+        let err = store_credential(
+            "teams_webhook".to_string(),
+            "https://user:secret@outlook.office.com/webhook/abc".to_string(),
+        )
+        .await
+        .unwrap_err();
+
+        assert_eq!(
+            err,
+            "Teams connection link must not include a username or password"
+        );
+        assert!(
+            !err.contains("secret") && !err.contains("abc"),
+            "validation error must not echo webhook value: {err}"
+        );
+    }
 }

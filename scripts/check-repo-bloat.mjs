@@ -2288,6 +2288,20 @@ function hasMissingLinkedInCookieStorageValidation(root, path) {
   return false;
 }
 
+function hasMissingWebhookCredentialStorageValidation(root, path) {
+  if (path !== "src-tauri/src/core/credentials/mod.rs") {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    !/CredentialKey::SlackWebhook\s*=>\s*validate_webhook_credential/.test(productionText) ||
+    !/CredentialKey::DiscordWebhook\s*=>\s*validate_webhook_credential/.test(productionText) ||
+    !/CredentialKey::TeamsWebhook\s*=>\s*validate_webhook_credential/.test(productionText) ||
+    !/fn\s+validate_webhook_credential/.test(productionText)
+  );
+}
+
 function hasRendererCredentialSecretRead(root, path) {
   if (!credentialSecretReadIpcPaths.has(path)) {
     return false;
@@ -3784,6 +3798,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasMissingLinkedInCookieStorageValidation(root, path)) {
       violations.push(`validate LinkedIn cookies before keyring storage: ${path}`);
+    }
+
+    if (hasMissingWebhookCredentialStorageValidation(root, path)) {
+      violations.push(`validate notification webhook credentials before keyring storage: ${path}`);
     }
 
     if (hasRendererCredentialSecretRead(root, path)) {
