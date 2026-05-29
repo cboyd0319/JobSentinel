@@ -19,8 +19,8 @@
 //! use jobsentinel::core::deeplinks::{SearchCriteria, generate_all_links};
 //!
 //! let criteria = SearchCriteria {
-//!     query: "Software Engineer".to_string(),
-//!     location: Some("San Francisco, CA".to_string()),
+//!     query: "Marketing Manager".to_string(),
+//!     location: Some("Chicago, IL".to_string()),
 //!     experience_level: None,
 //!     job_type: None,
 //!     remote_type: None,
@@ -36,7 +36,7 @@
 //!
 //! - **General**: Indeed, Monster, CareerBuilder, SimplyHired, ZipRecruiter
 //! - **Professional**: LinkedIn, Glassdoor
-//! - **Tech**: Dice, Stack Overflow Jobs
+//! - **Tech**: Dice
 //! - **Government**: USAJobs, GovernmentJobs, CalCareers (CA), CAPPS (TX)
 //! - **Cleared**: ClearanceJobs
 //! - **Remote**: FlexJobs, We Work Remotely, Remote OK

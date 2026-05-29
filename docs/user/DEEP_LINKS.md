@@ -4,7 +4,7 @@ Create ready-to-use job searches for sites JobSentinel cannot scan automatically
 
 ## Overview
 
-JobSentinel creates search links for 19+ job sites with your search already
+JobSentinel creates search links for 18 job sites with your search already
 filled in. Click any link to open the search in your browser.
 
 **Benefits:**
@@ -14,7 +14,7 @@ filled in. Click any link to open the search in your browser.
 - Access sites that block automated scans
 - Quick way to search multiple sites at once
 
-## Supported Sites (19)
+## Supported Sites (18)
 
 ### General Job Boards (5)
 
@@ -29,10 +29,9 @@ filled in. Click any link to open the search in your browser.
 - **LinkedIn** - Professional network (requires login)
 - **Glassdoor** - Jobs with company reviews and salaries (requires login)
 
-### Tech-Specific (2)
+### Tech-Specific (1)
 
 - **Dice** - Tech-focused job board for IT professionals
-- **Stack Overflow Jobs** - Developer-focused jobs
 
 ### Government (4)
 
@@ -97,9 +96,9 @@ Filter by "Government" category to see only USAJobs, GovernmentJobs, etc.
 
 After generating links, use the category filters to narrow down results:
 
-- **All** - Show all sites (19)
+- **All** - Show all sites (18)
 - **General** - Large job boards (5)
-- **Tech** - Developer and IT-focused (2)
+- **Tech** - Technology and IT-focused (1)
 - **Government** - Federal, state, local (4)
 - **Remote** - Remote work specialists (3)
 - **Startups** - Early-stage companies (2)

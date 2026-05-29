@@ -42,7 +42,6 @@ fn generate_url_for_site(site_id: &str, criteria: &SearchCriteria) -> Result<Str
         "simplyhired" => generate_simplyhired_url(criteria),
         "ziprecruiter" => generate_ziprecruiter_url(criteria),
         "dice" => generate_dice_url(criteria),
-        "stackoverflow" => generate_stackoverflow_url(criteria),
         "usajobs" => generate_usajobs_url(criteria),
         "governmentjobs" => generate_governmentjobs_url(criteria),
         "cajobs" => generate_cajobs_url(criteria),
@@ -214,23 +213,6 @@ fn generate_dice_url(criteria: &SearchCriteria) -> Result<String> {
 
     if criteria.remote_type == Some(RemoteType::Remote) {
         url.push_str("&filters.isRemote=true");
-    }
-
-    Ok(url)
-}
-
-fn generate_stackoverflow_url(criteria: &SearchCriteria) -> Result<String> {
-    let mut url = format!(
-        "https://stackoverflow.com/jobs?q={}",
-        encode(&criteria.query)
-    );
-
-    if let Some(location) = &criteria.location {
-        url.push_str(&format!("&l={}", encode(location)));
-    }
-
-    if criteria.remote_type == Some(RemoteType::Remote) {
-        url.push_str("&r=true");
     }
 
     Ok(url)

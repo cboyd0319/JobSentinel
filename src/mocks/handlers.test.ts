@@ -363,7 +363,11 @@ describe("mock Tauri handlers", () => {
     expect(techSites).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ id: "dice", category: SiteCategory.Tech }),
-        expect.objectContaining({ id: "stackoverflow", category: SiteCategory.Tech }),
+      ]),
+    );
+    expect(techSites).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: "stackoverflow" }),
       ]),
     );
     expect(techSites.every((site) => site.category === SiteCategory.Tech)).toBe(true);

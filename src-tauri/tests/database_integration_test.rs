@@ -170,12 +170,10 @@ async fn test_all_tables_created() {
     ];
 
     for table in expected_tables {
-        let result = sqlx::query(&format!(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='{}'",
-            table
-        ))
-        .fetch_optional(&pool)
-        .await;
+        let result = sqlx::query("SELECT name FROM sqlite_master WHERE type='table' AND name=?")
+            .bind(table)
+            .fetch_optional(&pool)
+            .await;
 
         assert!(
             result.is_ok() && result.unwrap().is_some(),

@@ -498,6 +498,15 @@ const protectiveScoreCopyPaths = new Set([
   "src/components/ScoreDisplay.tsx",
   "src/components/ScoreBreakdownModal.tsx",
 ]);
+const staleStackOverflowJobsPaths = new Set([
+  "docs/user/DEEP_LINKS.md",
+  "src/mocks/handlers.ts",
+  "src/types/deeplinks.ts",
+  "src-tauri/src/core/deeplinks/generator.rs",
+  "src-tauri/src/core/deeplinks/mod.rs",
+  "src-tauri/src/core/deeplinks/sites.rs",
+  "src-tauri/src/core/deeplinks/types.rs",
+]);
 
 const applicationAssistFramingPaths = new Set([
   "README.md",
@@ -3181,6 +3190,15 @@ function hasNonProtectiveScoreCopy(root, path) {
   return /Great Match!|Highly recommended!|You might want to skip it/i.test(text);
 }
 
+function hasStaleStackOverflowJobsDeepLink(root, path) {
+  if (!staleStackOverflowJobsPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /Stack Overflow Jobs|stackoverflow\.com\/jobs|\bstackoverflow\b/i.test(text);
+}
+
 function hasStaleResumeOptimizerMockHandlers(root, path) {
   if (path !== "src/mocks/handlers.ts") {
     return false;
@@ -4022,6 +4040,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasNonProtectiveScoreCopy(root, path)) {
       violations.push(`keep score copy protective: ${path}`);
+    }
+
+    if (hasStaleStackOverflowJobsDeepLink(root, path)) {
+      violations.push(`remove discontinued Stack Overflow Jobs deep link: ${path}`);
     }
 
     if (hasStaleResumeOptimizerMockHandlers(root, path)) {

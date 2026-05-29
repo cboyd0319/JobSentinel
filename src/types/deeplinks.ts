@@ -121,7 +121,7 @@ export const CATEGORY_METADATA: Record<SiteCategory, CategoryMetadata> = {
   [SiteCategory.Tech]: {
     category: SiteCategory.Tech,
     label: "Tech",
-    description: "Developer and IT-focused job boards",
+    description: "Technology and IT-focused job boards",
     icon: "laptop",
     selectedClassName: "bg-purple-600 text-white",
   },

@@ -72,15 +72,7 @@ pub fn get_all_sites() -> Vec<SiteInfo> {
             category: SiteCategory::Tech,
             requires_login: false,
             logo_url: Some("https://www.dice.com/favicon.ico".to_string()),
-            notes: Some("Tech-focused job board for IT professionals".to_string()),
-        },
-        SiteInfo {
-            id: "stackoverflow".to_string(),
-            name: "Stack Overflow Jobs".to_string(),
-            category: SiteCategory::Tech,
-            requires_login: false,
-            logo_url: Some("https://stackoverflow.com/favicon.ico".to_string()),
-            notes: Some("Developer-focused jobs from Stack Overflow".to_string()),
+            notes: Some("Technology and IT-focused job board".to_string()),
         },
         // Government
         SiteInfo {

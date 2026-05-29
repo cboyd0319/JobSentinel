@@ -92,7 +92,7 @@ pub struct SiteInfo {
 pub enum SiteCategory {
     /// General job boards (Indeed, Monster, etc.)
     General,
-    /// Tech-specific boards (Dice, Stack Overflow, etc.)
+    /// Technology and IT-focused boards (Dice, etc.)
     Tech,
     /// Government job boards (USAJobs, GovernmentJobs, etc.)
     Government,

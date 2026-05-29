@@ -6794,6 +6794,60 @@ test("checkRepoBloat rejects non-protective score copy", () => {
   });
 });
 
+test("checkRepoBloat rejects discontinued Stack Overflow Jobs deep links", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/user/DEEP_LINKS.md",
+      "- **Stack Overflow Jobs** - Developer-focused jobs\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/deeplinks/generator.rs",
+      '"stackoverflow" => "https://stackoverflow.com/jobs?q=test";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      'const id = "stackoverflow";\n',
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "docs/user/DEEP_LINKS.md",
+        "src-tauri/src/core/deeplinks/generator.rs",
+        "src/mocks/handlers.ts",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove discontinued Stack Overflow Jobs deep link: docs/user/DEEP_LINKS.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove discontinued Stack Overflow Jobs deep link: src-tauri/src/core/deeplinks/generator.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove discontinued Stack Overflow Jobs deep link: src/mocks/handlers.ts",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale resume optimizer mock handlers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

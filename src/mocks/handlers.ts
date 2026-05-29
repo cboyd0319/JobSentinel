@@ -584,15 +584,7 @@ const MOCK_DEEP_LINK_SITES = [
     category: SiteCategory.Tech,
     requires_login: false,
     logo_url: "https://www.dice.com/favicon.ico",
-    notes: "Tech-focused job board for IT professionals",
-  },
-  {
-    id: "stackoverflow",
-    name: "Stack Overflow Jobs",
-    category: SiteCategory.Tech,
-    requires_login: false,
-    logo_url: "https://stackoverflow.com/favicon.ico",
-    notes: "Developer-focused jobs from Stack Overflow",
+    notes: "Technology and IT-focused job board",
   },
   {
     id: "usajobs",
@@ -1061,12 +1053,6 @@ function generateMockDeepLinkUrl(siteId: string, criteria: SearchCriteria): stri
         "location",
         criteria,
       ) + (criteria.remote_type === RemoteType.Remote ? "&filters.isRemote=true" : "");
-    case "stackoverflow":
-      return appendLocation(
-        `https://stackoverflow.com/jobs?q=${encodeQuery(criteria.query)}`,
-        "l",
-        criteria,
-      ) + (criteria.remote_type === RemoteType.Remote ? "&r=true" : "");
     case "usajobs":
       return appendLocation(
         `https://www.usajobs.gov/Search/Results?k=${encodeQuery(criteria.query)}`,
