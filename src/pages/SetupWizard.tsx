@@ -237,6 +237,10 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   };
 
   const canProceedFromStep1 = config.title_allowlist.length > 0;
+  const hasSelectedWorkType =
+    config.location_preferences.allow_remote ||
+    config.location_preferences.allow_hybrid ||
+    config.location_preferences.allow_onsite;
   const [slackWebhookError, setSlackWebhookError] = useState<string | undefined>();
 
   const handleDetectLocation = useCallback(async () => {
@@ -289,6 +293,14 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       setValidationAnnouncement("Add at least one job title to continue");
     }
   }, [step, canProceedFromStep1]);
+
+  useEffect(() => {
+    if (step === 2 && !hasSelectedWorkType) {
+      setValidationAnnouncement("Choose at least one work location option to continue");
+    } else if (step === 2 && hasSelectedWorkType) {
+      setValidationAnnouncement("");
+    }
+  }, [step, hasSelectedWorkType]);
 
   const handleAddTitle = () => {
     const trimmed = titleInput.trim();
@@ -385,6 +397,12 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   };
 
   const handleComplete = async () => {
+    if (!hasSelectedWorkType) {
+      setStep(2);
+      setValidationAnnouncement("Choose at least one work location option to continue");
+      return;
+    }
+
     try {
       // Store Slack notification connection link in secure storage if provided.
       const webhookUrl = config.alerts.slack.webhook_url;
@@ -866,10 +884,20 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 <Button variant="secondary" onClick={() => setStep(1)} className="flex-1" size="lg">
                   Back
                 </Button>
-                <Button onClick={() => setStep(3)} className="flex-1" size="lg">
+                <Button
+                  onClick={() => setStep(3)}
+                  disabled={!hasSelectedWorkType}
+                  className="flex-1"
+                  size="lg"
+                >
                   Continue
                 </Button>
               </div>
+              {!hasSelectedWorkType && (
+                <p className="mt-3 text-center text-sm text-amber-600">
+                  Choose at least one work location option to continue
+                </p>
+              )}
             </div>
           )}
 

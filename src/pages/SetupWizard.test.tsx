@@ -322,6 +322,37 @@ describe("SetupWizard Accessibility", () => {
         expect(mockInvoke).toHaveBeenCalledWith("detect_location", {});
       });
     });
+
+    it("blocks continuing when no work location option is selected", async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
+
+      await user.click(screen.getByRole("button", { name: /continue with my own search/i }));
+      await user.type(screen.getByPlaceholderText("Add a job title..."), "Office Manager{enter}");
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+
+      const remoteOption = await screen.findByRole("checkbox", {
+        name: /remote: work from anywhere/i,
+      });
+      fireEvent.keyDown(remoteOption, { key: " " });
+
+      const continueButton = screen.getByRole("button", { name: /^continue$/i });
+      expect(continueButton).toBeDisabled();
+      expect(
+        screen.getAllByText("Choose at least one work location option to continue").length,
+      ).toBeGreaterThanOrEqual(2);
+
+      const validationRegion = Array.from(
+        document.querySelectorAll('[aria-live="assertive"]'),
+      ).find((region) => region.className?.includes("sr-only"));
+      expect(validationRegion?.textContent).toContain(
+        "Choose at least one work location option to continue",
+      );
+
+      fireEvent.keyDown(remoteOption, { key: " " });
+      expect(continueButton).toBeEnabled();
+      expect(validationRegion?.textContent).toBe("");
+    });
   });
 
   describe("Screen Reader Support", () => {
