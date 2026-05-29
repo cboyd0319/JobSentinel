@@ -17,17 +17,17 @@ const renderWithToast = (ui: React.ReactElement) => {
 
 const mockJob = {
   id: 1,
-  title: "Senior Software Engineer",
-  company: "Tech Corp",
-  location: "San Francisco, CA",
+  title: "Customer Support Lead",
+  company: "CareBridge Services",
+  location: "Chicago, IL",
   url: "https://example.com/job/1",
   source: "LinkedIn",
   score: 0.85,
   created_at: new Date().toISOString(),
   description:
-    "We are looking for a talented software engineer to join our team.",
-  salary_min: 120000,
-  salary_max: 180000,
+    "We are looking for a helpful support lead to guide our care team.",
+  salary_min: 55000,
+  salary_max: 72000,
   remote: false,
   bookmarked: false,
   notes: null,
@@ -42,9 +42,11 @@ describe("JobCard", () => {
     it("renders job title and company", () => {
       renderWithToast(<JobCard job={mockJob} />);
       expect(screen.getByTestId("job-title")).toHaveTextContent(
-        "Senior Software Engineer",
+        "Customer Support Lead",
       );
-      expect(screen.getByTestId("job-company")).toHaveTextContent("Tech Corp");
+      expect(screen.getByTestId("job-company")).toHaveTextContent(
+        "CareBridge Services",
+      );
     });
 
     it("renders with job card container", () => {
@@ -56,7 +58,7 @@ describe("JobCard", () => {
 
     it("renders location information", () => {
       renderWithToast(<JobCard job={mockJob} />);
-      expect(screen.getByText("San Francisco, CA")).toBeInTheDocument();
+      expect(screen.getByText("Chicago, IL")).toBeInTheDocument();
     });
 
     it("renders remote label when job is remote", () => {
@@ -109,13 +111,13 @@ describe("JobCard", () => {
 
     it("renders salary range when available", () => {
       renderWithToast(<JobCard job={mockJob} />);
-      expect(screen.getByText("$120k - $180k")).toBeInTheDocument();
+      expect(screen.getByText("$55k - $72k")).toBeInTheDocument();
     });
 
     it("renders description snippet when available", () => {
       renderWithToast(<JobCard job={mockJob} />);
       expect(
-        screen.getByText(/We are looking for a talented software engineer/),
+        screen.getByText(/We are looking for a helpful support lead/),
       ).toBeInTheDocument();
     });
 
@@ -236,7 +238,7 @@ describe("JobCard", () => {
   describe("salary formatting", () => {
     it("renders salary with both min and max", () => {
       renderWithToast(<JobCard job={mockJob} />);
-      expect(screen.getByText("$120k - $180k")).toBeInTheDocument();
+      expect(screen.getByText("$55k - $72k")).toBeInTheDocument();
     });
 
     it("renders salary with only min", () => {
@@ -288,7 +290,7 @@ describe("JobCard", () => {
     });
 
     it("does not warn when listed pay reaches the user's floor", () => {
-      renderWithToast(<JobCard job={mockJob} salaryFloorUsd={150000} />);
+      renderWithToast(<JobCard job={mockJob} salaryFloorUsd={65000} />);
 
       expect(screen.queryByTestId("pay-floor-guidance")).not.toBeInTheDocument();
     });
@@ -470,7 +472,7 @@ describe("JobCard", () => {
       const researchBtn = screen.getByTestId("btn-research");
       await user.click(researchBtn);
 
-      expect(onResearchCompany).toHaveBeenCalledWith("Tech Corp");
+      expect(onResearchCompany).toHaveBeenCalledWith("CareBridge Services");
     });
   });
 
