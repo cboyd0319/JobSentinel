@@ -19,15 +19,15 @@ scope:
 
 Latest pushed slice before this handoff refresh:
 
-- `76403aa5 Broaden undo toast fixture`
+- `62421101 Refine README information design`
 
 Current local branch note:
 
-- `main` was pushed to `origin/main` through `76403aa5` on 2026-05-29 after
-  focused docs, bloat, frontend, and Rust checks.
-- Continuation cleanup commits after `76403aa5` are local only until the user
-  explicitly asks for another push or the full-goal completion pass requires
-  remote verification.
+- `main` was pushed to `origin/main` through `62421101` on 2026-05-29 after
+  focused docs, bloat, harness, and README information-design checks.
+- The user explicitly requested this README correction push. Avoid later remote
+  CI triggers unless the user explicitly asks again or the full-goal completion
+  pass requires remote verification.
 - Continue using small verified commits. Avoid remote CI unless the user
   explicitly asks or the full-goal completion pass requires it.
 
@@ -79,6 +79,9 @@ Current cleanup posture:
   tech-hub defaults.
 - Release notes now use Resume Match and resume-readability framing instead of
   older optimization and score-first language.
+- Root README now has the product screenshot, route map, abstract, at-a-glance
+  table, download path, safety model, research model, and source index in the
+  maintained information-design order.
 
 ## Recent Work Landed
 
