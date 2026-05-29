@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Confirmed GitHub connector shows zero open PRs, including Dependabot PRs; updated the only outdated npm direct dependency, `web-vitals`, from 5.2.0 to 5.3.0. `cargo update` found no lockfile updates within current manifest constraints. |
 | 2026-05-29 | In progress | Sanitized ErrorReporter storage warning console output so local storage parse/persist failures do not echo raw exception details, and added bloat coverage to block regressions. |
 | 2026-05-29 | In progress | Replaced cache IPC command unit-error returns with string error channels so renderer failures are inspectable instead of opaque, and added bloat coverage to block future `Result<_, ()>` Tauri command surfaces. |
 | 2026-05-29 | In progress | Sanitized final residual database/browser/scraper error display paths so database user messages, browser handler events, and scraper task panics no longer expose raw contexts, queries, validation reasons, provider internals, or task error strings; expanded bloat coverage. |
