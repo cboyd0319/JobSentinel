@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Reworded repeated-crash reset recovery so users see that saved jobs and applications stay saved on this device instead of reading local-database terminology; added error-boundary and bloat coverage. |
 | 2026-05-29 | In progress | Reworded visible command-palette hints, shortcut help, search placeholder, empty state, and quick-start shortcut copy to quick actions language; added bloat coverage against command-palette jargon returning to user-facing surfaces. |
 | 2026-05-29 | In progress | Replaced stale Salary AI and AI Resume-Job Matcher labels in maintained docs with Pay Protection and local resume fit review language; added bloat coverage so those confusing AI labels cannot return. |
 | 2026-05-29 | In progress | Renamed visible Resume Optimizer navigation, shortcut, recovery, builder guidance, and maintained user docs to Resume Match so resume help reads as truthful fit review instead of optimization framing; added bloat coverage. |

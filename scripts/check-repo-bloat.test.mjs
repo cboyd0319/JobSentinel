@@ -724,7 +724,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     writeFixtureFile(
       root,
       "src/components/ErrorBoundary.tsx",
-      '"Copy Debug Report"; "Debug report copied";\n',
+      '"Copy Debug Report"; "Debug report copied"; "saved jobs and applications stay in the local database";\n',
     );
     writeFixtureFile(
       root,

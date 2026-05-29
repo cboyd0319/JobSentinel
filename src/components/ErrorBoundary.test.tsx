@@ -227,7 +227,7 @@ describe("ErrorBoundary", () => {
         screen.getByText(/copy or save a safe debug report first/i),
       ).toBeInTheDocument();
       expect(
-        screen.getByText(/saved jobs and applications stay in the local database/i),
+        screen.getByText(/saved jobs and applications stay saved on this device/i),
       ).toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: /reset window state.*reload/i }),

@@ -1523,6 +1523,7 @@ function hasTechnicalFirstUserCopy(root, path) {
     /Database Busy/i,
     /exists in the database/i,
     /Database Corruption/i,
+    /stay in the local database/i,
     /["']Configuration Missing["']/i,
     /["']Configuration Error["']/i,
     /app configuration file/i,
