@@ -2766,6 +2766,18 @@ function hasRawJobsWithGptSmokeEndpointError(root, path) {
   );
 }
 
+function hasRawSourceCheckResultError(root, path) {
+  if (!healthSmokePrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /error:\s*Some\(\s*e\.to_string\(\)\s*\)/.test(productionText) ||
+    /"error"\s*:\s*format!\([^)]*e\.without_url\(\)/.test(productionText)
+  );
+}
+
 function hasStaleLinkedInCredentialDocs(root, path) {
   if (!linkedInCredentialDocsPaths.has(path)) {
     return false;
@@ -4605,6 +4617,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawJobsWithGptSmokeEndpointError(root, path)) {
       violations.push(`sanitize JobsWithGPT smoke-test endpoint errors: ${path}`);
+    }
+
+    if (hasRawSourceCheckResultError(root, path)) {
+      violations.push(`sanitize source-check result errors: ${path}`);
     }
 
     if (hasStaleLinkedInCredentialDocs(root, path)) {

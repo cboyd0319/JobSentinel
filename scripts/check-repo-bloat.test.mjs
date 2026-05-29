@@ -5431,6 +5431,41 @@ test("checkRepoBloat rejects raw JobsWithGPT smoke-test endpoint errors", () => 
   });
 });
 
+test("checkRepoBloat rejects raw source-check result errors", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/health/smoke_tests.rs",
+      [
+        "let smoke_result = match result {",
+        "  Err(e) => SmokeTestResult {",
+        "    passed: false,",
+        "    error: Some(e.to_string()),",
+        "    details: Some(serde_json::json!({",
+        "      \"error\": format!(\"connect error: {}\", e.without_url())",
+        "    })),",
+        "  },",
+        "};",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/health/smoke_tests.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize source-check result errors: src-tauri/src/core/health/smoke_tests.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale LinkedIn credential docs", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

@@ -27,6 +27,18 @@ const SMOKE_TEST_SCRAPERS: &[&str] = &[
     "simplyhired",
     "glassdoor",
 ];
+const SOURCE_CHECK_RATE_LIMITED: &str =
+    "This source is asking JobSentinel to wait before checking again.";
+const SOURCE_CHECK_REJECTED: &str =
+    "This source rejected the check. Review saved connection settings or try later.";
+const SOURCE_CHECK_BAD_RESPONSE: &str =
+    "This source returned an unexpected response. Try again later.";
+const SOURCE_CHECK_NETWORK_ERROR: &str =
+    "JobSentinel could not reach this source. Check your internet connection or try again later.";
+const SOURCE_CHECK_READ_ERROR: &str =
+    "JobSentinel could not read this source response. Try again later.";
+const SOURCE_CHECK_DEFAULT_ERROR: &str =
+    "This source check could not finish. Try again later or attach a safe debug report.";
 
 #[must_use]
 pub fn smoke_test_scrapers() -> &'static [&'static str] {
@@ -40,6 +52,42 @@ pub fn is_known_scraper_name(scraper_name: &str) -> bool {
 
 fn sanitized_request_error(context: &'static str, error: reqwest::Error) -> anyhow::Error {
     anyhow::anyhow!("{}: {}", context, error.without_url())
+}
+
+fn source_check_error_message(error: &anyhow::Error) -> String {
+    let text = error.to_string().to_ascii_lowercase();
+
+    if text.contains("http 429") || text.contains("rate limit") {
+        return SOURCE_CHECK_RATE_LIMITED.to_string();
+    }
+
+    if text.contains("http 401") || text.contains("http 403") || text.contains("auth") {
+        return SOURCE_CHECK_REJECTED.to_string();
+    }
+
+    if text.contains("http ") {
+        return SOURCE_CHECK_BAD_RESPONSE.to_string();
+    }
+
+    if text.contains("timeout")
+        || text.contains("timed out")
+        || text.contains("connect")
+        || text.contains("network")
+        || text.contains("dns")
+        || text.contains("request")
+    {
+        return SOURCE_CHECK_NETWORK_ERROR.to_string();
+    }
+
+    if text.contains("parse")
+        || text.contains("json")
+        || text.contains("body")
+        || text.contains("response")
+    {
+        return SOURCE_CHECK_READ_ERROR.to_string();
+    }
+
+    SOURCE_CHECK_DEFAULT_ERROR.to_string()
 }
 
 /// Run a connectivity smoke test for a specific scraper
@@ -86,7 +134,7 @@ pub async fn run_smoke_test(
             passed: false,
             duration_ms,
             details: None,
-            error: Some(e.to_string()),
+            error: Some(source_check_error_message(&e)),
         },
     };
 
@@ -401,7 +449,7 @@ async fn test_jobswithgpt(config: &Config) -> Result<serde_json::Value> {
         })),
         Err(e) if e.is_connect() => Ok(serde_json::json!({
             "status": "unreachable",
-            "error": format!("connect error: {}", e.without_url())
+            "error": SOURCE_CHECK_NETWORK_ERROR
         })),
         Err(e) => Err(sanitized_request_error(
             "JobsWithGPT smoke test request failed",
@@ -609,4 +657,50 @@ async fn test_glassdoor() -> Result<serde_json::Value> {
         "selectors_found": has_jobs,
         "html_size_kb": html.len() / 1024
     }))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn source_check_error_message_hides_raw_urls_and_tokens() {
+        let error = anyhow::anyhow!(
+            "JobsWithGPT smoke test request failed: error sending request for url https://example.test/jobs?token=secret"
+        );
+        let message = source_check_error_message(&error);
+
+        assert_eq!(message, SOURCE_CHECK_NETWORK_ERROR);
+        assert!(!message.contains("https://"));
+        assert!(!message.contains("token"));
+        assert!(!message.contains("secret"));
+        assert!(!message.contains("JobsWithGPT"));
+    }
+
+    #[test]
+    fn source_check_error_message_keeps_status_actionable_without_provider_detail() {
+        let cases = [
+            (
+                anyhow::anyhow!("HTTP 429 Too Many Requests"),
+                SOURCE_CHECK_RATE_LIMITED,
+            ),
+            (anyhow::anyhow!("HTTP 403 Forbidden"), SOURCE_CHECK_REJECTED),
+            (
+                anyhow::anyhow!("HTTP 500 Internal Server Error"),
+                SOURCE_CHECK_BAD_RESPONSE,
+            ),
+            (
+                anyhow::anyhow!("Failed to parse JSON response from https://example.test/private"),
+                SOURCE_CHECK_READ_ERROR,
+            ),
+        ];
+
+        for (error, expected) in cases {
+            let message = source_check_error_message(&error);
+            assert_eq!(message, expected);
+            assert!(!message.contains("https://"));
+            assert!(!message.contains("Forbidden"));
+            assert!(!message.contains("Internal Server Error"));
+        }
+    }
 }
