@@ -560,6 +560,15 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/CoverLetterTemplates.tsx",
+      [
+        "setError(errorMsg);",
+        "toast.error('Failed to save template', String(error));",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/components/DeepLinkGenerator.tsx",
       [
         "<h2>Deep Link Generator</h2>",
@@ -884,6 +893,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/pages/Settings.tsx",
         "src/pages/SetupWizard.tsx",
         "src/components/BookmarkletGenerator.tsx",
+        "src/components/CoverLetterTemplates.tsx",
         "src/components/DeepLinkGenerator.tsx",
         "src/components/ErrorBoundary.tsx",
         "src/components/ErrorLogPanel.tsx",
@@ -925,6 +935,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/pages/Settings.tsx",
       "src/pages/SetupWizard.tsx",
       "src/components/BookmarkletGenerator.tsx",
+      "src/components/CoverLetterTemplates.tsx",
       "src/components/DeepLinkGenerator.tsx",
       "src/components/ErrorBoundary.tsx",
       "src/components/ErrorLogPanel.tsx",
@@ -7002,6 +7013,16 @@ test("checkRepoBloat rejects raw visible error-boundary details", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
+      "src/components/ComponentErrorBoundary.tsx",
+      [
+        "export function ComponentErrorBoundary({ error }) {",
+        "  return <p>{this.state.error.message}</p>;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/components/ErrorBoundary.tsx",
       [
         "export function ErrorBoundary({ error }) {",
@@ -7026,6 +7047,7 @@ test("checkRepoBloat rejects raw visible error-boundary details", () => {
       [
         "add",
         "package.json",
+        "src/components/ComponentErrorBoundary.tsx",
         "src/components/ErrorBoundary.tsx",
         "src/components/PageErrorBoundary.tsx",
       ],
@@ -7034,6 +7056,12 @@ test("checkRepoBloat rejects raw visible error-boundary details", () => {
 
     const violations = checkRepoBloat(root);
 
+    assert.ok(
+      violations.includes(
+        "sanitize visible error-boundary details: src/components/ComponentErrorBoundary.tsx",
+      ),
+      violations.join("\n"),
+    );
     assert.ok(
       violations.includes(
         "sanitize visible error-boundary details: src/components/ErrorBoundary.tsx",

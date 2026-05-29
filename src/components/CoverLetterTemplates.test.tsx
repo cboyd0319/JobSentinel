@@ -120,6 +120,12 @@ describe("fillTemplatePlaceholders", () => {
 });
 
 describe("CoverLetterTemplates", () => {
+  const privateFailure = new Error(
+    "token=raw-secret chad@example.com /Users/chad/private/resume.pdf"
+  );
+
+  const toastErrorText = () => mockToast.error.mock.calls.flat().join(" ");
+
   beforeEach(() => {
     vi.clearAllMocks();
     mockInvoke.mockReset();
@@ -154,6 +160,23 @@ describe("CoverLetterTemplates", () => {
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "Try Again" })).toBeInTheDocument();
       });
+    });
+
+    it("does not show raw private details when loading fails", async () => {
+      mockInvoke.mockRejectedValue(privateFailure);
+
+      renderWithProviders(<CoverLetterTemplates />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Failed to Load Templates")).toBeInTheDocument();
+      });
+
+      expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
+      expect(toastErrorText()).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
+      expect(mockToast.error).toHaveBeenCalledWith(
+        "Could not load templates",
+        expect.stringContaining("safe debug report")
+      );
     });
 
     it("retries loading when Try Again is clicked", async () => {
@@ -371,6 +394,33 @@ describe("CoverLetterTemplates", () => {
         });
       });
     });
+
+    it("does not show raw private details when deletion fails", async () => {
+      mockInvoke.mockReset();
+      mockInvoke
+        .mockResolvedValueOnce(0) // seed_default_templates
+        .mockResolvedValueOnce([mockTemplate]) // list_cover_letter_templates
+        .mockRejectedValueOnce(privateFailure); // delete_cover_letter_template
+
+      renderWithProviders(<CoverLetterTemplates />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "Delete" })).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+      const deleteButtons = screen.getAllByRole("button", { name: "Delete" });
+      fireEvent.click(deleteButtons[deleteButtons.length - 1]);
+
+      await waitFor(() => {
+        expect(mockToast.error).toHaveBeenCalledWith(
+          "Could not delete template",
+          expect.stringContaining("safe debug report")
+        );
+      });
+
+      expect(toastErrorText()).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
+    });
   });
 
   describe("create functionality", () => {
@@ -443,6 +493,38 @@ describe("CoverLetterTemplates", () => {
       fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
 
       expect(screen.queryByLabelText("Template Name")).not.toBeInTheDocument();
+    });
+
+    it("does not show raw private details when creation fails", async () => {
+      mockInvoke.mockReset();
+      mockInvoke
+        .mockResolvedValueOnce(0) // seed_default_templates
+        .mockResolvedValueOnce([]) // list_cover_letter_templates
+        .mockRejectedValueOnce(privateFailure); // create_cover_letter_template
+
+      renderWithProviders(<CoverLetterTemplates />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "New Template" })).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole("button", { name: "New Template" }));
+      fireEvent.change(screen.getByLabelText("Template Name"), {
+        target: { value: "Follow-up" },
+      });
+      fireEvent.change(screen.getByPlaceholderText("Write your cover letter template here..."), {
+        target: { value: "Thanks for reviewing my application." },
+      });
+      fireEvent.click(screen.getByRole("button", { name: "Create Template" }));
+
+      await waitFor(() => {
+        expect(mockToast.error).toHaveBeenCalledWith(
+          "Could not save template",
+          expect.stringContaining("safe debug report")
+        );
+      });
+
+      expect(toastErrorText()).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
     });
   });
 

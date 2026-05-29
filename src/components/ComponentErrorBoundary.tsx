@@ -1,5 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { errorReporter } from '../utils/errorReporting';
+import { errorReporter, sanitizeTextForStorage } from '../utils/errorReporting';
 import { logError } from '../utils/errorUtils';
 
 interface Props {
@@ -13,6 +13,22 @@ interface Props {
 interface State {
   hasError: boolean;
   error: Error | null;
+}
+
+function safeComponentErrorMessage(error: Error | null): string {
+  if (!error?.message) {
+    return 'This section failed to load. Try again, or copy a safe debug report if it keeps happening.';
+  }
+
+  return sanitizeTextForStorage(error.message);
+}
+
+function safeComponentErrorDetails(error: Error | null): string {
+  if (!error?.stack) {
+    return 'No error details available.';
+  }
+
+  return sanitizeTextForStorage(error.stack);
 }
 
 /**
@@ -101,7 +117,7 @@ class ComponentErrorBoundary extends Component<Props, State> {
                 {this.props.componentName} Error
               </p>
               <p className="text-sm text-red-700 dark:text-red-400 mt-1">
-                {this.state.error.message || 'This component failed to load'}
+                {safeComponentErrorMessage(this.state.error)}
               </p>
               {import.meta.env.DEV && (
                 <details className="mt-2">
@@ -109,7 +125,7 @@ class ComponentErrorBoundary extends Component<Props, State> {
                     Show details
                   </summary>
                   <pre className="mt-1 text-xs text-red-600 dark:text-red-500 overflow-auto max-h-32 whitespace-pre-wrap">
-                    {this.state.error.stack}
+                    {safeComponentErrorDetails(this.state.error)}
                   </pre>
                 </details>
               )}

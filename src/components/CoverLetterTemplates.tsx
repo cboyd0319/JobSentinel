@@ -9,6 +9,7 @@ import { useUndo } from '../hooks/useUndo';
 import { LoadingSpinner } from './LoadingSpinner';
 import { logError } from '../utils/errorUtils';
 import { fillTemplatePlaceholders, type JobForTemplate } from '../utils/coverLetterUtils';
+import { getUserFriendlyError } from '../utils/errorMessages';
 
 type TemplateCategory = 'general' | 'tech' | 'creative' | 'finance' | 'healthcare' | 'sales' | 'custom' | 'thankyou' | 'followup' | 'withdrawal';
 
@@ -45,6 +46,11 @@ const PLACEHOLDER_HINTS = [
   { placeholder: '{your_name}', description: 'Your full name' },
   { placeholder: '{date}', description: 'Today\'s date' },
 ];
+
+function getTemplateErrorAction(error: unknown): string {
+  const friendly = getUserFriendlyError(error);
+  return friendly.action ?? friendly.message;
+}
 
 interface TemplateEditorProps {
   template: CoverLetterTemplate | null;
@@ -291,10 +297,10 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
       }
     } catch (err) {
       logError('Failed to load templates:', err);
-      const errorMsg = String(err);
+      const friendly = getUserFriendlyError(err);
       if (isMountedRef.current) {
-        setError(errorMsg);
-        toast.error('Failed to load templates', errorMsg);
+        setError(friendly.message);
+        toast.error('Could not load templates', friendly.action ?? friendly.message);
       }
     } finally {
       if (isMountedRef.current) {
@@ -400,7 +406,7 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
     } catch (error: unknown) {
       logError('Failed to save template:', error);
       if (isMountedRef.current) {
-        toast.error('Failed to save template', String(error));
+        toast.error('Could not save template', getTemplateErrorAction(error));
       }
     } finally {
       if (isMountedRef.current) {
@@ -447,7 +453,7 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
     } catch (error: unknown) {
       logError('Failed to delete template:', error);
       if (isMountedRef.current) {
-        toast.error('Failed to delete template', String(error));
+        toast.error('Could not delete template', getTemplateErrorAction(error));
       }
     }
     if (isMountedRef.current) {

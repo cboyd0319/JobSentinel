@@ -8,7 +8,11 @@ vi.mock('../utils/errorReporting', () => ({
     captureReactError: vi.fn(),
   },
   sanitizeContext: (context: Record<string, unknown> | undefined) => context,
-  sanitizeTextForStorage: (value: string) => value,
+  sanitizeTextForStorage: (value: string) =>
+    value
+      .replace(/\btoken=[^\s]+/gi, '[TOKEN]')
+      .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL]')
+      .replace(/\/Users\/[^/\s]+/g, '/[USER_PATH]'),
 }));
 
 // Suppress console.error in tests
@@ -45,6 +49,20 @@ describe('ComponentErrorBoundary', () => {
     expect(screen.getByText((content, element) => {
       return element?.tagName === 'P' && content.includes('Something went wrong');
     })).toBeInTheDocument();
+  });
+
+  it('redacts private details in default error UI', () => {
+    render(
+      <ComponentErrorBoundary componentName="PrivateComponent">
+        <ThrowError error="token=raw-secret chad@example.com /Users/chad/private/resume.pdf" />
+      </ComponentErrorBoundary>
+    );
+
+    expect(screen.getByText('PrivateComponent Error')).toBeInTheDocument();
+    expect(screen.getByText((content, element) => {
+      return element?.tagName === 'P' && content.includes('[TOKEN]');
+    })).toBeInTheDocument();
+    expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
   });
 
   it('uses custom fallback when provided', () => {

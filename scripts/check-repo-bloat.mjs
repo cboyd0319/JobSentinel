@@ -509,6 +509,7 @@ const problemHistoryContextFormattingPaths = new Set([
   "src/components/ErrorLogPanel.tsx",
 ]);
 const errorBoundaryDisplayPaths = new Set([
+  "src/components/ComponentErrorBoundary.tsx",
   "src/components/ErrorBoundary.tsx",
   "src/components/PageErrorBoundary.tsx",
 ]);
@@ -1360,6 +1361,9 @@ function hasTechnicalFirstUserCopy(root, path) {
     /contact support with the error details below/i,
     /technical:\s*technicalMessage/i,
     /JSON\.stringify\(error\)/i,
+    /toast\.error\([^)]*String\(error\)/s,
+    /toast\.error\([^)]*String\(err\)/s,
+    /\bsetError\(errorMsg\)/,
     /Get job alerts via Telegram bot/i,
     /\bBot Token\b/i,
     /Paste your bot token from @BotFather/i,
