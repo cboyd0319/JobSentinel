@@ -20,16 +20,16 @@ describe("export utilities", () => {
       const jobs = [
         {
           id: 1,
-          title: "Software Engineer",
+          title: "Customer Support Coordinator",
           company: "Acme Corp",
-          location: "San Francisco, CA",
+          location: "Chicago, IL",
           url: "https://example.com/job/1",
           source: "linkedin",
           score: 0.85,
           created_at: "2024-01-15T10:00:00Z",
           remote: true,
-          salary_min: 100000,
-          salary_max: 150000,
+          salary_min: 55000,
+          salary_max: 72000,
         },
       ];
 
@@ -38,12 +38,12 @@ describe("export utilities", () => {
 
       expect(lines).toHaveLength(2); // header + 1 row
       expect(lines[1]).toContain("1");
-      expect(lines[1]).toContain("Software Engineer");
+      expect(lines[1]).toContain("Customer Support Coordinator");
       expect(lines[1]).toContain("Acme Corp");
       expect(lines[1]).toContain("85%");
       expect(lines[1]).toContain("Yes");
-      expect(lines[1]).toContain("100000");
-      expect(lines[1]).toContain("150000");
+      expect(lines[1]).toContain("55000");
+      expect(lines[1]).toContain("72000");
     });
 
     it("exports multiple jobs", () => {
@@ -102,9 +102,9 @@ describe("export utilities", () => {
       const jobs = [
         {
           id: 1,
-          title: "Senior Engineer, Backend",
-          company: "Company, Inc.",
-          location: "New York, NY",
+          title: "Care Coordinator, Intake",
+          company: "Community Care, Inc.",
+          location: "Austin, TX",
           url: "https://example.com",
           source: "linkedin",
           score: 0.7,
@@ -114,9 +114,9 @@ describe("export utilities", () => {
 
       const csv = jobsToCSV(jobs);
       // Values with commas should be quoted
-      expect(csv).toContain('"Senior Engineer, Backend"');
-      expect(csv).toContain('"Company, Inc."');
-      expect(csv).toContain('"New York, NY"');
+      expect(csv).toContain('"Care Coordinator, Intake"');
+      expect(csv).toContain('"Community Care, Inc."');
+      expect(csv).toContain('"Austin, TX"');
     });
 
     it("escapes quotes in values", () => {

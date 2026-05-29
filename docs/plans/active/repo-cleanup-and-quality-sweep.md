@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Rebased CSV export utility test fixtures from software-engineering, San Francisco, New York, and high-pay examples to customer-support, care-coordination, Chicago, Austin, and realistic support-role pay examples, with bloat coverage against old export fixture drift. |
 | 2026-05-29 | In progress | Rebased Interview Scheduler component test fixtures from software-engineering, frontend, TechCorp, and WebStart examples to customer-support, program-assistant, care-service, and community-organization examples, with bloat coverage against old scheduler fixture drift. |
 | 2026-05-29 | In progress | Rebased cover-letter placeholder test fixtures from software-engineering, TechCorp, San Francisco, and John Doe examples to customer-support, CareBridge, Chicago, and Jordan Lee examples, with bloat coverage against old template fixture drift. |
 | 2026-05-29 | In progress | Rebased Job Card component test fixtures from software-engineering, tech-company, San Francisco, and high-pay examples to customer-support, care-service, Chicago, and realistic support-role pay examples, with bloat coverage against old card fixture drift. |

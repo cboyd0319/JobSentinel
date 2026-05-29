@@ -578,6 +578,16 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src/utils/export.test.ts",
+      [
+        'title: "Software Engineer",',
+        'location: "San Francisco, CA",',
+        'location: "New York, NY",',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "tests/e2e/playwright/one-click-apply.spec.ts",
       '"https://github.com/caseysentinel"; "GitHub profile link if relevant to your role";\n',
     );
@@ -632,6 +642,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/components/JobCard.test.tsx",
         "src/components/CoverLetterTemplates.test.tsx",
         "src/components/InterviewScheduler.test.tsx",
+        "src/utils/export.test.ts",
         "tests/e2e/playwright/market-intelligence.spec.ts",
         "tests/e2e/playwright/one-click-apply.spec.ts",
         "tests/e2e/playwright/page-objects/OneClickApplyPage.ts",
@@ -673,6 +684,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/components/JobCard.test.tsx",
       "src/components/CoverLetterTemplates.test.tsx",
       "src/components/InterviewScheduler.test.tsx",
+      "src/utils/export.test.ts",
       "tests/e2e/playwright/market-intelligence.spec.ts",
       "tests/e2e/playwright/one-click-apply.spec.ts",
       "tests/e2e/playwright/page-objects/OneClickApplyPage.ts",
