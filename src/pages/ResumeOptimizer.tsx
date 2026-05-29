@@ -862,7 +862,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
       >
         <div className="space-y-4">
           <p className="text-sm text-surface-600 dark:text-surface-400">
-            These action verbs are commonly recognized by resume screening tools. Use only words that honestly fit your experience.
+            These action verbs can make bullet points easier to scan. Use only words that honestly fit your experience.
           </p>
           {powerWords.length > 0 ? (
             <div className="flex flex-wrap gap-2 max-h-96 overflow-y-auto p-2">

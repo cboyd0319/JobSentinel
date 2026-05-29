@@ -146,7 +146,7 @@ Weak bullet points hurt your resume. The improver helps you write stronger ones.
 
 > "Led 12-person security team, reducing incident response time by 35%"
 
-### Power Words
+### Action Words
 
 JobSentinel suggests 45+ action verbs that can make resume bullets clearer:
 

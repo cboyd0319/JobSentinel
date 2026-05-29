@@ -707,6 +707,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         '<CardHeader title={`Missing Keywords (${analysisResult.missing_keywords.length})`} />',
         '"Consider adding these keywords to improve your match score"',
         '"These action verbs and keywords are commonly recognized by ATS systems."',
+        '"These action verbs are commonly recognized by resume screening tools."',
         "",
       ].join("\n"),
     );

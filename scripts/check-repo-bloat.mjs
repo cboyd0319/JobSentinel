@@ -1387,6 +1387,7 @@ function hasEngineerFirstAudienceExamples(root, path) {
       /Missing Keywords/i,
       /Consider adding these keywords/i,
       /These action verbs and keywords are commonly recognized by ATS systems/i,
+      /resume screening tools/i,
     ];
 
     if (resumeOptimizerPatterns.some((pattern) => pattern.test(text))) {

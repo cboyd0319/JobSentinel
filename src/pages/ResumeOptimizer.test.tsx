@@ -193,7 +193,7 @@ describe("ResumeOptimizer", () => {
     expect(screen.queryByText(/Missing Keywords/i)).not.toBeInTheDocument();
   });
 
-  it("explains strong resume words without ATS jargon", async () => {
+  it("explains strong resume words without screening-tool framing", async () => {
     const user = userEvent.setup();
     mockInvoke.mockResolvedValueOnce(["Led", "Improved"]);
     render(<ResumeOptimizer onBack={vi.fn()} />);
@@ -201,8 +201,9 @@ describe("ResumeOptimizer", () => {
     await user.click(screen.getByRole("button", { name: /view strong resume words/i }));
 
     expect(await screen.findByText("Strong Resume Words")).toBeInTheDocument();
-    expect(screen.getByText(/resume screening tools/i)).toBeInTheDocument();
+    expect(screen.getByText(/make bullet points easier to scan/i)).toBeInTheDocument();
     expect(screen.queryByText(/ATS systems/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/screening tools/i)).not.toBeInTheDocument();
   });
 
   it("does not show raw private details when job analysis fails", async () => {
