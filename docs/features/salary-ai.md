@@ -10,6 +10,7 @@ fixed by asking harder.
 
 - Compare a role against public salary records and local benchmark data.
 - Let users enter a salary floor as a walk-away number.
+- Show "Pay not listed" on job cards when structured salary fields are empty.
 - Flag when a floor is below credible range evidence or when an offer may be
   under-leveled.
 - Draft editable negotiation notes grounded in role scope, written ranges, and
@@ -32,7 +33,8 @@ inputs, not as self-worth scores.
 - Warn when listed or estimated pay is below the user's floor.
 - Warn when the user's target is below the 25th percentile or below a credible
   posted midpoint.
-- Treat missing pay as useful evidence about transparency, not as neutral.
+- Treat missing pay as useful evidence about transparency, not as neutral or as
+  proof of bad intent.
 - Check whether title, scope, decision rights, team size, budget, and promotion
   path match the offered level.
 - Help users redirect salary-history questions toward the role range and target

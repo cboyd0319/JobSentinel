@@ -145,7 +145,9 @@ export const JobCard = memo(function JobCard({
       : safeScore >= SCORE_THRESHOLD_GOOD
         ? ", good match"
         : ""
-  }${postingRiskGuidance ? `, ${postingRiskGuidance.ariaLabel}` : ""}`;
+  }${salaryText ? "" : ", pay not listed"}${
+    postingRiskGuidance ? `, ${postingRiskGuidance.ariaLabel}` : ""
+  }`;
 
   return (
     <>
@@ -270,10 +272,15 @@ export const JobCard = memo(function JobCard({
                 </span>
 
                 {/* Salary */}
-                {salaryText && (
+                {salaryText ? (
                   <span className="inline-flex items-center gap-1 text-success font-medium">
                     <SalaryIcon />
                     {salaryText}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium">
+                    <SalaryIcon />
+                    Pay not listed
                   </span>
                 )}
 

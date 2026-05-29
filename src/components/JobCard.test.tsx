@@ -214,10 +214,16 @@ describe("JobCard", () => {
       expect(screen.getByText("Up to $150k")).toBeInTheDocument();
     });
 
-    it("does not render salary section when both are null", () => {
+    it("shows a missing-pay cue when both salary fields are null", () => {
       const jobNoSalary = { ...mockJob, salary_min: null, salary_max: null };
       renderWithToast(<JobCard job={jobNoSalary} />);
+      expect(screen.getByText("Pay not listed")).toBeInTheDocument();
       expect(screen.queryByText(/\$/)).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("article", {
+          name: /pay not listed/i,
+        }),
+      ).toBeInTheDocument();
     });
   });
 

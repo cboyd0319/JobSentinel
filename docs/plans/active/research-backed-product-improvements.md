@@ -1173,18 +1173,63 @@ Rollback:
 Remove the visible guidance block and keep the existing compact posting-risk
 badge behavior.
 
+## Change contract: missing-pay cue on job cards
+
+Problem:
+When a job omits pay, the current card can look like nothing is wrong because
+the salary row disappears. For a job seeker trying to avoid underpayment or
+wasted effort, missing pay should be visible as a transparency signal.
+
+Scope:
+Show a plain "Pay not listed" cue on job cards when neither minimum nor maximum
+salary is available. Keep listed salary formatting unchanged. Do not infer pay,
+compare against a user floor, add jurisdiction-specific law guidance, or call an
+employer non-compliant in this slice.
+
+Acceptance criteria:
+
+- Jobs with a minimum, maximum, or range keep existing salary display.
+- Jobs with no listed pay show "Pay not listed" in the metadata row.
+- Screen-reader labels include the missing-pay signal.
+- Copy stays non-judgmental and frames missing pay as transparency, not proof
+  of bad intent or legal violation.
+- No new network call, external AI call, or database field is introduced.
+
+Likely files:
+
+- `src/components/JobCard.tsx`
+- `src/components/JobCard.test.tsx`
+- `docs/features/salary-ai.md`
+
+Risks:
+
+- Some postings may disclose pay in the description but not parsed fields. This
+  cue should say "not listed" only for structured display data and can be
+  refined later with better extraction.
+
+Sensors:
+
+- Focused component tests for listed pay and missing-pay cards.
+- `npm run test:run -- src/components/JobCard.test.tsx`
+- `npm run lint:docs`
+- `npm run lint:bloat`
+- `npx tsc --noEmit`
+
+Rollback:
+Hide the missing-pay cue and return to omitting the salary row when structured
+salary fields are empty.
+
 ## Handoff
 
 - Current state: plan updated with six source documents plus first-class
   protective product priorities from the latest goal guidance. The guided setup
   preference for fresh and verified postings is implemented and covered by
-  focused tests. The current implementation slice is visible posting-risk
-  guidance on job cards.
+  focused tests. The visible posting-risk guidance and missing-pay cue slices
+  are implemented and covered by focused tests.
 - Evidence: source documents, selected primary sources, and local PDF text
   extraction reviewed on
   2026-05-28.
-- Next step: implement and verify the visible posting-risk guidance slice, then
-  choose the next narrow research-backed implementation slice.
+- Next step: choose the next narrow research-backed implementation slice.
 - Open risks: exact source statistics need re-check before product copy or
   implementation claims; this plan does not prove feasibility of every listed
   feature.
