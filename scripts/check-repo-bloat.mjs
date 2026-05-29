@@ -404,6 +404,9 @@ const credentialCommandPrivacyPaths = new Set([
   "src-tauri/src/commands/credentials.rs",
   "src-tauri/src/core/credentials/mod.rs",
 ]);
+const credentialStorageErrorPrivacyPaths = new Set([
+  "src-tauri/src/core/credentials/mod.rs",
+]);
 const credentialSecretReadIpcPaths = new Set([
   "src-tauri/src/commands/credentials.rs",
   "src-tauri/src/commands/mod.rs",
@@ -2598,6 +2601,25 @@ function hasCredentialKeyInputEcho(root, path) {
   );
 }
 
+function hasRawCredentialStorageErrors(root, path) {
+  if (!credentialStorageErrorPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /format!\(\s*"Failed to (?:initialize native keyring store|create keyring entry):\s*\{e\}"/.test(
+      productionText,
+    ) ||
+    /format!\(\s*"Failed to (?:store|retrieve|delete) credential[^"]*:\s*\{e\}"/.test(
+      productionText,
+    ) ||
+    /map_err\(\s*\|e\|\s*format!\([\s\S]{0,160}(?:keyring|credential)[\s\S]{0,80}\{e\}/i.test(
+      productionText,
+    )
+  );
+}
+
 function hasMissingLinkedInCredentialStorageDisable(root, path) {
   if (!credentialCommandPrivacyPaths.has(path)) {
     return false;
@@ -4543,6 +4565,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasCredentialKeyInputEcho(root, path)) {
       violations.push(`avoid echoing credential key input: ${path}`);
+    }
+
+    if (hasRawCredentialStorageErrors(root, path)) {
+      violations.push(`sanitize credential storage errors: ${path}`);
     }
 
     if (hasMissingLinkedInCredentialStorageDisable(root, path)) {

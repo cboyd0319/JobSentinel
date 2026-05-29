@@ -120,21 +120,23 @@ const SERVICE_NAME: &str = "JobSentinel";
 const MAX_LINKEDIN_COOKIE_LEN: usize = 500;
 const LINKEDIN_CREDENTIAL_STORAGE_DISABLED: &str =
     "LinkedIn automatic monitoring is disabled by JobSentinel source policy";
+const SECURE_STORAGE_UNAVAILABLE: &str =
+    "JobSentinel could not use your device's secure storage. Check system permission prompts, then try again.";
 static KEYRING_STORE_INIT: OnceLock<Result<(), String>> = OnceLock::new();
 
 fn ensure_keyring_store() -> Result<(), String> {
     KEYRING_STORE_INIT
-        .get_or_init(|| {
-            keyring::use_native_store(true)
-                .map_err(|e| format!("Failed to initialize native keyring store: {e}"))
-        })
+        .get_or_init(|| keyring::use_native_store(true).map_err(|_| secure_storage_error()))
         .clone()
 }
 
 fn credential_entry(key: CredentialKey) -> Result<Entry, String> {
     ensure_keyring_store()?;
-    Entry::new(SERVICE_NAME, key.as_str())
-        .map_err(|e| format!("Failed to create keyring entry: {e}"))
+    Entry::new(SERVICE_NAME, key.as_str()).map_err(|_| secure_storage_error())
+}
+
+fn secure_storage_error() -> String {
+    SECURE_STORAGE_UNAVAILABLE.to_string()
 }
 
 fn validate_credential_value(key: CredentialKey, value: &str) -> Result<(), String> {
@@ -305,7 +307,7 @@ impl CredentialStore {
 
         entry
             .set_password(value)
-            .map_err(|e| format!("Failed to store credential '{}': {e}", key.as_str()))?;
+            .map_err(|_| secure_storage_error())?;
 
         tracing::debug!("Stored credential: {}", key.as_str());
         Ok(())
@@ -332,10 +334,7 @@ impl CredentialStore {
         match entry.get_password() {
             Ok(password) => Ok(Some(password)),
             Err(KeyringError::NoEntry) => Ok(None),
-            Err(e) => Err(format!(
-                "Failed to retrieve credential '{}': {e}",
-                key.as_str()
-            )),
+            Err(_) => Err(secure_storage_error()),
         }
     }
 
@@ -355,10 +354,7 @@ impl CredentialStore {
                 Ok(())
             }
             Err(KeyringError::NoEntry) => Ok(()), // Already deleted
-            Err(e) => Err(format!(
-                "Failed to delete credential '{}': {e}",
-                key.as_str()
-            )),
+            Err(_) => Err(secure_storage_error()),
         }
     }
 
@@ -681,6 +677,26 @@ mod tests {
 
         assert_eq!(err, LINKEDIN_CREDENTIAL_STORAGE_DISABLED);
         assert!(!err.contains(secret));
+    }
+
+    #[test]
+    fn secure_storage_error_does_not_echo_provider_details() {
+        let err = secure_storage_error();
+
+        assert_eq!(err, SECURE_STORAGE_UNAVAILABLE);
+        for raw_detail in [
+            "keyring",
+            "jobsentinel_smtp_password",
+            "NoEntry",
+            "os error",
+            "secret",
+            "Failed to",
+        ] {
+            assert!(
+                !err.contains(raw_detail),
+                "secure storage error must not echo raw provider details: {err}"
+            );
+        }
     }
 
     #[test]

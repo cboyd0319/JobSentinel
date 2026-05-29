@@ -4988,6 +4988,40 @@ test("checkRepoBloat rejects credential key input echo", () => {
   });
 });
 
+test("checkRepoBloat rejects raw credential storage errors", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/credentials/mod.rs",
+      [
+        "fn ensure_keyring_store() -> Result<(), String> {",
+        '  keyring::use_native_store(true).map_err(|e| format!("Failed to initialize native keyring store: {e}"))',
+        "}",
+        "impl CredentialStore {",
+        "  pub fn store(key: CredentialKey, value: &str) -> Result<(), String> {",
+        '    entry.set_password(value).map_err(|e| format!("Failed to store credential \'{}\': {e}", key.as_str()))',
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/credentials/mod.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize credential storage errors: src-tauri/src/core/credentials/mod.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects enabled LinkedIn credential storage", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
