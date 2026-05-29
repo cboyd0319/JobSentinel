@@ -48,6 +48,7 @@ with warnings-as-errors as a required local or CI gate.
 | URL, file path, command, or HTML input | Unit tests for malicious input |
 | Credential handling | Keyring behavior check and no plaintext path |
 | External network destination | Privacy docs update and explicit user configuration |
+| External AI provider path | AI gateway test, privacy label update, payload preview gate, and no direct provider call outside `src/services/aiGateway.ts` |
 | Browser automation | Human-in-the-loop submit behavior preserved |
 | Scraper behavior | Rate limit and error handling tests |
 

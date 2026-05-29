@@ -4,18 +4,27 @@ JobSentinel uses AI-adjacent and automation-adjacent features only to help job
 seekers understand, organize, and protect their own search. It is candidate-side
 software, not an employer screening system.
 
+External AI is optional, disabled by default, and routed through one AI gateway.
+Core workflows must work locally. Sensitive job-search data must stay local
+unless the user opts in, reviews the exact payload, and approves sending it.
+
 ## Boundaries
 
 JobSentinel does not:
 
-- Automate bulk applications.
+- Submit application spam or bulk application batches.
 - Encourage deceptive resume optimization.
 - Use hidden keyword stuffing.
 - Support resume prompt injection.
-- Circumvent ATS systems.
-- Collect from restricted sites or evade anti-bot controls.
+- Manipulate ATS systems.
+- Solve CAPTCHAs.
+- Collect from restricted sites or evade platform controls.
+- Upload the user's entire local database.
+- Silently send resumes, notes, salary floors, or application history.
+- Collect private candidate data for research without informed consent.
 - Invent skills, credentials, employers, titles, dates, offers, or legal claims.
 - Infer protected-class traits for scoring or salary guidance.
+- Make final employment decisions.
 - Present match scores as hiring guarantees.
 
 JobSentinel supports:
@@ -23,10 +32,29 @@ JobSentinel supports:
 - Candidate-side explainability.
 - ATS-readable application clarity.
 - Ghost-job risk explanations.
+- Truthful application readability.
 - Salary transparency analysis.
 - Pay-equity support grounded in role scope, range evidence, and user facts.
 - Privacy-preserving job-search workflows.
 - Human review before any form is filled or submitted.
+
+## External AI Use
+
+AI may help with:
+
+- Summarizing job descriptions.
+- Extracting structured job-posting fields.
+- Explaining job fit from user-selected data.
+- Explaining ghost-job or stale-posting risk.
+- Improving truthful application readability.
+- Checking salary transparency.
+- Preparing compensation questions.
+- Generating documentation or synthetic test fixtures.
+
+Every external AI request needs opt-in, payload minimization, payload preview,
+user approval, and local metadata logging. Sensitive payloads need explicit
+selection by the user. Public-data-only requests must not include private notes,
+application history, resumes, salary floors, or unrelated local data.
 
 ## ATS transparency
 
@@ -86,3 +114,5 @@ JobSentinel must keep the user in charge:
 - The user can edit generated notes before using them.
 - The user can export, delete, or stop using local data.
 - The user can generate a sanitized report when something breaks.
+
+AI outputs are advisory. Users remain in control.

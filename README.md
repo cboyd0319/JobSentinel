@@ -11,6 +11,10 @@ control.**
 Find better jobs, avoid stale postings, protect your salary floor, and keep the
 private details of your search on your own computer.
 
+Core workflows work locally. External AI, including OpenAI or another provider,
+is optional, disabled by default, and must use an inspectable AI gateway with
+payload preview, redaction, cancellation, approval, and local request logging.
+
 [![CI](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml)
 [![Docs Harness](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-harness.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-harness.yml)
 <img src="https://img.shields.io/badge/Version-2.6.4-2563eb" alt="Version 2.6.4">
@@ -138,6 +142,7 @@ not depend on a hosted JobSentinel service.
 | Desktop notifications | Your computer |
 | External alerts | Only the channels you configure |
 | Optional location detection | FreeIPAPI HTTPS lookup only after you click **Detect location**; cached for the session |
+| Optional external AI | Disabled by default; every request needs opt-in, preview, approval, minimization, and local metadata logging |
 | Telemetry and analytics | Not collected |
 
 Credentials use platform storage:
@@ -155,6 +160,15 @@ choose to add it.
 
 Learn more in [secure credential storage](docs/security/KEYRING.md) and the
 [security docs](docs/security/README.md).
+
+External AI support must go through the documented
+[privacy-first AI gateway](docs/architecture/privacy-first-ai-gateway.md). AI
+can help summarize public job descriptions, explain fit, explain stale-posting
+risk, check salary transparency, and prepare compensation questions. It must not
+submit applications, fabricate qualifications, hide keywords, add resume prompt
+injection, manipulate ATS systems, solve CAPTCHAs, collect private candidate
+data for research, infer protected characteristics, or send full local database
+dumps.
 
 ---
 

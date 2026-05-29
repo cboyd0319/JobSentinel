@@ -1,8 +1,13 @@
 # JobSentinel Privacy
 
-Job-search data is sensitive. JobSentinel is designed local-first so users keep
-control over job history, applications, salary floors, resumes, notes, and
-search constraints.
+JobSentinel is local-first. Default assumption: job-search data is sensitive and
+should remain under user control.
+
+Job-search data can reveal employment status, salary expectations, salary
+floors, resume history, location preferences, application activity, career
+goals, job-search urgency, personal circumstances, private notes, and sensitive
+identity or contextual information. Core JobSentinel workflows work locally
+without a cloud account or external AI provider.
 
 ## What stays local
 
@@ -39,10 +44,39 @@ Possible network activity:
   paths.
 - Source-specific sign-in or session validation when the user enables a source
   that requires their own session.
+- Optional external AI requests only after the user enables a provider, reviews
+  the exact payload, and approves sending it.
 
 These requests may reveal normal network metadata to the destination service,
 such as IP address, request time, and destination host. External channels may
 receive the job or alert details the user chooses to send.
+
+## External AI
+
+External AI is optional and disabled by default. JobSentinel may support
+providers such as OpenAI, but external AI is an assistive layer, not the
+foundation of the product.
+
+All external AI calls must use the AI gateway described in
+[docs/architecture/privacy-first-ai-gateway.md](docs/architecture/privacy-first-ai-gateway.md).
+That gateway must enforce:
+
+- Explicit user opt-in before any external AI request.
+- Payload minimization: send only fields needed for the selected feature.
+- Payload preview before sending.
+- Redaction, edit, and cancel paths where UI exists.
+- Local metadata logging of feature, provider, timestamp, and high-level data
+  categories sent.
+- No full database uploads.
+- No private notes or unrelated application history unless explicitly selected.
+- No resume text or salary floor sharing unless explicitly selected.
+- Local-only fallback or a clear external-AI-required label for features that
+  cannot run locally.
+
+API keys and provider credentials must not be hardcoded. If a user configures a
+provider key, it should live in the operating system credential store where
+supported. Logs must record only metadata, never raw prompts, resumes, notes,
+salary floors, credentials, or full responses.
 
 ## What JobSentinel does not collect
 
@@ -56,6 +90,11 @@ It does not collect:
 - Centralized resume copies.
 - Centralized salary floors or offer history.
 - Background contact uploads.
+- Model training on user data by JobSentinel.
+
+JobSentinel does not train models on user data. External providers may have
+their own terms, retention settings, and privacy controls; users should review
+provider terms before enabling optional external AI.
 
 ## User controls
 
@@ -85,3 +124,29 @@ Debug reports should redact:
 
 New features must describe their data flow before they ship: what stays local,
 what may be sent out, why it is needed, and what the user can turn off.
+
+## Research And Evaluation
+
+Research and grant evaluation use public postings and synthetic candidate data
+by default.
+
+Allowed by default:
+
+- Public official job postings.
+- Public ATS postings.
+- Synthetic resumes.
+- Synthetic salary floors.
+- Synthetic candidate profiles.
+- Synthetic suspicious, scam, or adversarial postings.
+- Aggregate evaluation metrics.
+
+Disallowed unless explicit informed consent exists:
+
+- Real user resumes.
+- Real application history.
+- Private notes.
+- Salary floors tied to a real person.
+- Demographic-linked outcomes.
+- Contact lists.
+- Recruiter communications.
+- Any PII-heavy dataset.
