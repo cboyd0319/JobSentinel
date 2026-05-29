@@ -468,6 +468,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/CompanyResearchPanel.test.tsx",
+      '<CompanyResearchPanel companyName="TestCorp" />\n',
+    );
+    writeFixtureFile(
+      root,
       "src/components/CoverLetterTemplates.tsx",
       '<Input placeholder="e.g., Tech Company Application" />\n',
     );
@@ -841,6 +846,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/components/automation/ApplicationPreview.tsx",
         "src/components/automation/ApplyButton.test.tsx",
         "src/components/AtsLiveScorePanel.test.tsx",
+        "src/components/CompanyResearchPanel.test.tsx",
         "src/components/JobCard.test.tsx",
         "src/components/LocationHeatmap.test.tsx",
         "src/contexts/UndoIntegration.test.tsx",
@@ -920,6 +926,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/components/automation/ApplicationPreview.tsx",
       "src/components/automation/ApplyButton.test.tsx",
       "src/components/AtsLiveScorePanel.test.tsx",
+      "src/components/CompanyResearchPanel.test.tsx",
       "src/components/JobCard.test.tsx",
       "src/components/LocationHeatmap.test.tsx",
       "src/contexts/UndoIntegration.test.tsx",

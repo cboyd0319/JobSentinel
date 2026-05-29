@@ -490,6 +490,7 @@ const frontendStatusEmojiPaths = new Set([
 const broadAudienceExamplePaths = new Set([
   "src/components/CoverLetterTemplates.tsx",
   "src/components/CompanyResearchPanel.tsx",
+  "src/components/CompanyResearchPanel.test.tsx",
   "src/components/DeepLinkGenerator.tsx",
   "src/components/InterviewScheduler.test.tsx",
   "src/components/JobImportModal.tsx",
@@ -1514,6 +1515,7 @@ function hasEngineerFirstAudienceExamples(root, path) {
     /location:\s*["']San Francisco, CA["']/i,
     /company:\s*["']TechCorp["']/i,
     /company:\s*["']Tech Corp["']/i,
+    /companyName=["']TestCorp["']/i,
     /create_test_job\([^)]*["']TechCorp["']/i,
     /calculate_job_hash\([^)]*["']Software Engineer["']/i,
     /create_test_job\([^)]*["'](?:Rust Engineer|Backend Engineer)["']/i,

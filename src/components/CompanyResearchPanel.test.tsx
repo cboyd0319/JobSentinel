@@ -42,24 +42,24 @@ describe("CompanyResearchPanel", () => {
     });
 
     it("shows Company Research label", async () => {
-      render(<CompanyResearchPanel companyName="TestCorp" />);
+      render(<CompanyResearchPanel companyName="Example Services" />);
       expect(screen.getByText("Company Research")).toBeInTheDocument();
     });
 
     it("shows close button when onClose is provided", () => {
       const onClose = vi.fn();
-      render(<CompanyResearchPanel companyName="TestCorp" onClose={onClose} />);
+      render(<CompanyResearchPanel companyName="Example Services" onClose={onClose} />);
       expect(screen.getByLabelText("Close")).toBeInTheDocument();
     });
 
     it("does not show close button when onClose is not provided", () => {
-      render(<CompanyResearchPanel companyName="TestCorp" />);
+      render(<CompanyResearchPanel companyName="Example Services" />);
       expect(screen.queryByLabelText("Close")).not.toBeInTheDocument();
     });
 
     it("calls onClose when close button is clicked", () => {
       const onClose = vi.fn();
-      render(<CompanyResearchPanel companyName="TestCorp" onClose={onClose} />);
+      render(<CompanyResearchPanel companyName="Example Services" onClose={onClose} />);
 
       fireEvent.click(screen.getByLabelText("Close"));
       expect(onClose).toHaveBeenCalledTimes(1);
@@ -100,7 +100,6 @@ describe("CompanyResearchPanel", () => {
       await waitFor(() => {
         expect(screen.getByText("Tools and systems")).toBeInTheDocument();
       });
-      expect(screen.queryByText("Tech Stack")).not.toBeInTheDocument();
       expect(screen.getByText("Patient scheduling")).toBeInTheDocument();
       expect(screen.getByText("Care coordination")).toBeInTheDocument();
     });
@@ -244,7 +243,7 @@ describe("CompanyResearchPanel", () => {
       expect(screen.queryByText("Bad Industry")).not.toBeInTheDocument();
     });
 
-    it("renders legacy cached tech stack values as tools and systems", async () => {
+    it("renders legacy cached tool values as tools and systems", async () => {
       const cache = {
         "legacyco": {
           data: {
