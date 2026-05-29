@@ -794,6 +794,9 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         '"The database is currently in use by another operation."',
         '"Check your webhook URL in Settings"',
         '"make sure your SMTP credentials are correct"',
+        '"contact support with the error details below"',
+        "technical: technicalMessage",
+        "JSON.stringify(error)",
         "",
       ].join("\n"),
     );

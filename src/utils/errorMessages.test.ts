@@ -51,6 +51,21 @@ describe("errorMessages", () => {
       const result = getUserFriendlyError(new Error("some random error"));
       expect(result.title).toBeDefined();
       expect(result.message).toBeDefined();
+      expect(result.action).toContain("safe debug report");
+    });
+
+    it("redacts private values from technical error details", () => {
+      const result = getUserFriendlyError({
+        message:
+          "unexpected token=secret123 for chad@example.com at /Users/chad/private/resume.pdf",
+      });
+
+      expect(result.technical).toContain("[TOKEN]");
+      expect(result.technical).toContain("[EMAIL]");
+      expect(result.technical).toContain("/[USER_PATH]");
+      expect(result.technical).not.toContain("secret123");
+      expect(result.technical).not.toContain("chad@example.com");
+      expect(result.technical).not.toContain("/Users/chad");
     });
 
     it("handles string errors", () => {
@@ -170,12 +185,15 @@ describe("errorMessages", () => {
         "Test Title",
         "Test Message",
         "Test Action",
-        "Technical details"
+        "token=secret123 in /Users/chad/private/resume.pdf"
       );
       expect(error.title).toBe("Test Title");
       expect(error.message).toBe("Test Message");
       expect(error.action).toBe("Test Action");
-      expect(error.technical).toBe("Technical details");
+      expect(error.technical).toContain("[TOKEN]");
+      expect(error.technical).toContain("/[USER_PATH]");
+      expect(error.technical).not.toContain("secret123");
+      expect(error.technical).not.toContain("/Users/chad");
     });
 
     it("creates error with optional fields", () => {

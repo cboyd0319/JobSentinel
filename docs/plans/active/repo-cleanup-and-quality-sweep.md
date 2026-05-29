@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Sanitized `getUserFriendlyError` technical details before they can reach UI/support paths, changed unknown-error guidance to safe debug reports, and added bloat coverage against raw technical-message fallbacks returning. |
 | 2026-05-29 | In progress | Removed engineer-first and technical recovery wording from user-data docs: saved-search examples now cover office, design, and clinic roles, migration copy hides localStorage jargon, and deletion recovery points users to safe debug reports instead of manual SQLite file copying. |
 | 2026-05-29 | In progress | Reworded notification match filters from score-threshold jargon into match-strength controls and source alert rules, refreshed user-data docs, and extended bloat coverage for recurring notification-score copy. |
 | 2026-05-29 | In progress | Reworked Settings posting-risk controls from ghost-detection threshold jargon into plain freshness choices that match setup: widest search, balanced, and fresh and verified first, with custom controls renamed around warnings instead of scoring thresholds. |

@@ -5,6 +5,8 @@
  * helping them understand what went wrong and what they can do about it.
  */
 
+import { sanitizeTextForStorage } from './errorReporting';
+
 export interface UserFriendlyError {
   title: string;
   message: string;
@@ -120,7 +122,7 @@ const ALL_ERROR_PATTERNS = [
 const GENERIC_ERROR: UserFriendlyError = {
   title: 'Something Went Wrong',
   message: 'An unexpected error occurred.',
-  action: 'Try again in a moment. If the problem continues, please contact support with the error details below.',
+  action: 'Try again in a moment. If the problem continues, copy a safe debug report and attach it to a GitHub issue.',
 };
 
 /**
@@ -147,12 +149,7 @@ function extractErrorMessage(error: unknown): string {
       return error.msg;
     }
 
-    // Fallback to JSON stringify
-    try {
-      return JSON.stringify(error);
-    } catch {
-      return String(error);
-    }
+    return 'Unknown object error';
   }
 
   return String(error);
@@ -175,16 +172,17 @@ function extractErrorMessage(error: unknown): string {
  * ```
  */
 export function getUserFriendlyError(error: unknown): UserFriendlyError {
-  const technicalMessage = extractErrorMessage(error);
+  const rawTechnicalMessage = extractErrorMessage(error);
+  const safeTechnicalMessage = sanitizeTextForStorage(rawTechnicalMessage);
 
   // Try to match against known error patterns
   for (const pattern of ALL_ERROR_PATTERNS) {
-    if (pattern.pattern.test(technicalMessage)) {
+    if (pattern.pattern.test(rawTechnicalMessage)) {
       return {
         title: pattern.title,
         message: pattern.message,
         action: pattern.action,
-        technical: technicalMessage,
+        technical: safeTechnicalMessage,
       };
     }
   }
@@ -192,7 +190,7 @@ export function getUserFriendlyError(error: unknown): UserFriendlyError {
   // No match found, return generic error
   return {
     ...GENERIC_ERROR,
-    technical: technicalMessage,
+    technical: safeTechnicalMessage,
   };
 }
 
@@ -261,5 +259,10 @@ export function createUserError(
   action?: string,
   technical?: string
 ): UserFriendlyError {
-  return { title, message, action, technical };
+  return {
+    title,
+    message,
+    action,
+    technical: technical ? sanitizeTextForStorage(technical) : undefined,
+  };
 }
