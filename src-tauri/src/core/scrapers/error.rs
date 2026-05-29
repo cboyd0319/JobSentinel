@@ -78,13 +78,8 @@ pub enum ScraperError {
 impl fmt::Display for ScraperError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::HttpRequest { url, source } => {
-                write!(
-                    f,
-                    "HTTP request failed for {}: {}",
-                    Self::sanitize_url(url),
-                    source
-                )
+            Self::HttpRequest { url, source: _ } => {
+                write!(f, "HTTP request failed for {}", Self::sanitize_url(url))
             }
             Self::HttpStatus {
                 status,
@@ -105,14 +100,13 @@ impl fmt::Display for ScraperError {
             Self::ParseError {
                 format,
                 url,
-                source,
+                source: _,
             } => {
                 write!(
                     f,
-                    "Failed to parse {} from {}: {}",
+                    "Failed to parse {} from {}",
                     format,
-                    Self::sanitize_url(url),
-                    source
+                    Self::sanitize_url(url)
                 )
             }
             Self::SelectorNotFound { url, selector } => {
@@ -166,13 +160,8 @@ impl fmt::Display for ScraperError {
                     Self::sanitize_url(url)
                 )
             }
-            Self::Network { url, source } => {
-                write!(
-                    f,
-                    "Network error for {}: {}",
-                    Self::sanitize_url(url),
-                    source
-                )
+            Self::Network { url, source: _ } => {
+                write!(f, "Network error for {}", Self::sanitize_url(url))
             }
             Self::InvalidConfiguration { scraper, message } => {
                 write!(f, "Invalid configuration for {scraper}: {message}")
@@ -214,7 +203,39 @@ impl ScraperError {
     pub fn from_anyhow(scraper: impl Into<String>, error: anyhow::Error) -> Self {
         Self::Generic {
             scraper: scraper.into(),
-            message: error.to_string(),
+            message: Self::safe_anyhow_message(&error),
+        }
+    }
+
+    fn safe_anyhow_message(error: &anyhow::Error) -> String {
+        let message = error.to_string();
+
+        if let Some(status) = Self::extract_http_status(&message) {
+            return format!("HTTP {status}");
+        }
+
+        if message.contains("response body") || message.contains("Response body") {
+            return "Job source response could not be read".to_string();
+        }
+
+        if message.contains("parse") || message.contains("JSON") {
+            return "Job source response could not be parsed".to_string();
+        }
+
+        "Job source request failed".to_string()
+    }
+
+    fn extract_http_status(message: &str) -> Option<u16> {
+        let status_text = message.strip_prefix("HTTP ")?;
+        let status_digits: String = status_text
+            .chars()
+            .take_while(|ch| ch.is_ascii_digit())
+            .collect();
+
+        if status_digits.len() == 3 {
+            status_digits.parse().ok()
+        } else {
+            None
         }
     }
 
@@ -412,7 +433,8 @@ impl From<crate::core::http_body::HttpBodyReadError> for ScraperError {
                     scraper: "http".to_string(),
                     message: format!(
                         "Response body from {} exceeded {} byte limit",
-                        url, max_bytes
+                        Self::sanitize_url(&url),
+                        max_bytes
                     ),
                 }
             }
@@ -529,5 +551,57 @@ mod tests {
         let no_results_text = no_results.to_string();
         assert!(no_results_text.contains("linkedin"));
         assert!(!no_results_text.contains("secret job search"));
+    }
+
+    #[test]
+    fn test_from_anyhow_does_not_expose_raw_error_details() {
+        let raw_error = anyhow::anyhow!(
+            "Failed to send request: https://user:pass@example.com/jobs?token=secret123&query=private#fragment"
+        );
+
+        let error = ScraperError::from_anyhow("dice", raw_error);
+        let text = error.to_string();
+
+        assert!(text.contains("Job source request failed"));
+        assert!(!text.contains("example.com"));
+        assert!(!text.contains("secret123"));
+        assert!(!text.contains("query=private"));
+        assert!(!text.contains("user"));
+        assert!(!text.contains("pass"));
+        assert!(!text.contains("fragment"));
+    }
+
+    #[test]
+    fn test_from_anyhow_preserves_status_without_url() {
+        let raw_error =
+            anyhow::anyhow!("HTTP 503: https://example.com/jobs?token=secret123&query=private");
+
+        let error = ScraperError::from_anyhow("dice", raw_error);
+        let text = error.to_string();
+
+        assert!(text.contains("HTTP 503"));
+        assert!(!text.contains("example.com"));
+        assert!(!text.contains("secret123"));
+        assert!(!text.contains("query=private"));
+    }
+
+    #[test]
+    fn test_http_body_too_large_conversion_sanitizes_url() {
+        let raw_url = "https://user:pass@example.com/jobs?token=secret123&query=private#fragment";
+        let source = crate::core::http_body::HttpBodyReadError::ResponseTooLarge {
+            url: raw_url.to_string(),
+            max_bytes: 1024,
+        };
+
+        let error = ScraperError::from(source);
+        let text = error.to_string();
+
+        assert!(text.contains("https://example.com/jobs"));
+        assert!(text.contains("1024 byte limit"));
+        assert!(!text.contains("secret123"));
+        assert!(!text.contains("query=private"));
+        assert!(!text.contains("user"));
+        assert!(!text.contains("pass"));
+        assert!(!text.contains("fragment"));
     }
 }

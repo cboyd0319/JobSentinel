@@ -6126,10 +6126,47 @@ test("checkRepoBloat rejects raw URL error display", () => {
         "",
       ].join("\n"),
     );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/error.rs",
+      [
+        "impl std::fmt::Display for ScraperError {",
+        "  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {",
+        "    match self {",
+        '      Self::HttpRequest { url, source } => write!(f, "HTTP request failed for {}: {}", Self::sanitize_url(url), source),',
+        '      Self::Network { url, source } => write!(f, "Network error for {}: {}", Self::sanitize_url(url), source),',
+        '      Self::ParseError { format, url, source } => write!(f, "Failed to parse {} from {}: {}", format, Self::sanitize_url(url), source),',
+        "    }",
+        "  }",
+        "}",
+        "impl ScraperError {",
+        "  pub fn from_anyhow(scraper: impl Into<String>, error: anyhow::Error) -> Self {",
+        "    Self::Generic { scraper: scraper.into(), message: error.to_string() }",
+        "  }",
+        "}",
+        "impl From<HttpBodyReadError> for ScraperError {",
+        "  fn from(error: HttpBodyReadError) -> Self {",
+        "    match error {",
+        '      HttpBodyReadError::ResponseTooLarge { url, max_bytes } => Self::Generic { scraper: "http".to_string(), message: format!("Response body from {} exceeded {} byte limit", url, max_bytes) },',
+        "    }",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
 
-    execFileSync("git", ["add", "package.json", "src-tauri/src/core/automation/error.rs"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/automation/error.rs",
+        "src-tauri/src/core/scrapers/error.rs",
+      ],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
@@ -6137,6 +6174,10 @@ test("checkRepoBloat rejects raw URL error display", () => {
       violations.includes(
         "replace raw URL error display: src-tauri/src/core/automation/error.rs",
       ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace raw URL error display: src-tauri/src/core/scrapers/error.rs"),
       violations.join("\n"),
     );
   });

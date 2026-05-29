@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Sanitized shared scraper error display so raw upstream source errors, arbitrary `anyhow` messages, and response-too-large URLs cannot expose query strings, credentials, or fragments through generic scraper failures; added Rust and bloat coverage for recurrence. |
 | 2026-05-29 | In progress | Reworked the root README under the source-backed README information-design standard: added first-screen start routes, reframed the front door as a professional research project brief, made product differentiation evidence-based, and synced the harness design doc to prevent drift. |
 | 2026-05-29 | In progress | Sanitized notification-preference serialization failures so saved-search, company, filter, or schedule settings cannot be echoed through raw JSON serializer details inside database protocol errors; added Rust and bloat coverage for recurrence. |
 | 2026-05-29 | In progress | Sanitized Greenhouse and Lever per-company scrape-loop failures so backend logs no longer combine company names with raw scraper errors when one company board fails and the scraper continues; added Rust and bloat coverage for recurrence. |

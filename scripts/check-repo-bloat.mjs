@@ -2914,7 +2914,24 @@ function hasRawUrlErrorDisplay(root, path) {
     return false;
   }
 
-  return /#\[error\("[^"]*\{url\}/.test(readFileSync(join(root, path), "utf8"));
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  if (/#\[error\("[^"]*\{url\}/.test(productionText)) {
+    return true;
+  }
+
+  if (path !== "src-tauri/src/core/scrapers/error.rs") {
+    return false;
+  }
+
+  return (
+    /"HTTP request failed for \{\}: \{\}"[\s\S]{0,180}\bsource\b/.test(productionText) ||
+    /"Network error for \{\}: \{\}"[\s\S]{0,180}\bsource\b/.test(productionText) ||
+    /"Failed to parse \{\} from \{\}: \{\}"[\s\S]{0,220}\bsource\b/.test(productionText) ||
+    /message:\s*error\.to_string\(\)/.test(productionText) ||
+    /format!\(\s*"Response body from \{\} exceeded \{\} byte limit"\s*,\s*url\s*,/.test(
+      productionText,
+    )
+  );
 }
 
 function hasRawPathOrQueryErrorDisplay(root, path) {
