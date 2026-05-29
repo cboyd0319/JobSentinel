@@ -3781,6 +3781,11 @@ test("checkRepoBloat rejects synonym and remote preference doc drift", () => {
       [
         "| Hybrid | 0.5 | ⚠ Prefer remote-only |",
         "- All preference × job type combinations",
+        "**Module:** `src-tauri/src/core/scoring/remote.rs`",
+        "### User Preference Modes",
+        "### Graduated Scoring Matrix",
+        "### Scoring Weight",
+        "| Job Type | Score | Meaning |",
         "Potential improvements for v2.0+:",
         "**Version:** 2.6.4 | **Last Updated:** March 18, 2026",
         "",

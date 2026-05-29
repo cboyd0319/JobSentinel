@@ -1,175 +1,99 @@
-# Remote Work Preference Scoring
+# Remote And Work-Mode Matching
 
-**Module:** `src-tauri/src/core/scoring/remote.rs`
+JobSentinel uses remote, hybrid, and on-site preferences as guidance instead of
+treating every mismatch as an automatic rejection.
 
-## Overview
+This matters because work mode is often a real constraint. Commute, disability,
+caregiving, schedule, transportation, privacy, and local labor-market options
+can all change whether a job is worth reviewing.
 
-JobSentinel includes graduated scoring for remote/hybrid/onsite job preferences.
-Instead of binary allow/reject logic, the system assigns partial scores based on
-how well a job's work arrangement matches the user's preferences.
+## What Users Control
 
-## Features
+Users choose which work modes are acceptable:
 
-### 1. Enhanced Job Type Detection
+- Remote.
+- Hybrid.
+- On-site.
 
-The system detects a job's remote status from multiple sources:
+Choosing more than one mode keeps more jobs visible. Choosing only one mode
+makes JobSentinel treat that mode as a stronger preference.
 
-- **Explicit `remote` field** in the job posting
-- **Location string** (e.g., "Remote - US", "New York (Hybrid)")
-- **Job title** (e.g., "Remote Case Manager")
-- **Job description** with keywords like:
-  - Remote: "remote", "work from home", "WFH", "distributed", "fully remote"
-  - Hybrid: "hybrid", "flexible location", "remote with occasional office"
-  - Onsite: "on-site", "in-office", "office-based"
+## What JobSentinel Looks At
 
-**Job types:**
+JobSentinel reads work-mode signals from:
 
-- `Remote` - Fully remote position
-- `Hybrid` - Mix of remote and on-site work
-- `Onsite` - Fully on-site position
-- `Unspecified` - Work arrangement not clearly stated
+- A clear remote, hybrid, or on-site label from the job source, when one exists.
+- The location line, such as "Remote", "Hybrid", or a city and state.
+- The job title, when it clearly names remote work.
+- The posting text, when it clearly describes work from home, hybrid days, an
+  office requirement, travel, or a required location.
 
-### 2. User Preference Modes
+If a posting does not clearly say how work is handled, JobSentinel keeps it
+visible and marks the work mode as uncertain instead of pretending it knows.
 
-Users can express their work preference through config flags (`allow_remote`, `allow_hybrid`, `allow_onsite`):
+## How Matching Behaves
 
-| Flags                  | Derived Preference | Meaning                                                 |
-| ---------------------- | ------------------ | ------------------------------------------------------- |
-| `(true, false, false)` | `RemoteOnly`       | Only accept remote jobs                                 |
-| `(true, true, false)`  | `RemotePreferred`  | Prefer remote, accept hybrid/onsite with penalty        |
-| `(false, true, false)` | `HybridPreferred`  | Prefer hybrid, accept remote/onsite with slight penalty |
-| `(false, false, true)` | `OnsitePreferred`  | Prefer onsite, accept hybrid/remote with penalty        |
-| `(true, true, true)`   | `Flexible`         | Accept all work arrangements equally                    |
+| User choice | Job posting says | JobSentinel behavior |
+| ----------- | ---------------- | -------------------- |
+| Remote only | Remote | Treats as a strong location fit |
+| Remote only | Hybrid or on-site | Keeps visible but lowers location fit |
+| Remote preferred | Remote | Treats as strongest location fit |
+| Remote preferred | Hybrid | Keeps visible as a possible fit |
+| Hybrid preferred | Hybrid | Treats as strongest location fit |
+| On-site preferred | On-site | Treats as strongest location fit |
+| Flexible | Remote, hybrid, or on-site | Treats each mode as acceptable |
+| Any choice | Not stated | Keeps visible and shows uncertainty |
 
-### 3. Graduated Scoring Matrix
+The goal is to reduce false negatives. A job seeker should not lose a useful
+role only because a posting uses vague wording, but a hard constraint should
+still be visible when a role conflicts with it.
 
-Instead of 0 or 1.0, jobs receive graduated scores based on preference match:
+## Protective Copy Rules
 
-#### RemoteOnly Preference
+Remote and work-mode copy should:
 
-| Job Type    | Score | Meaning                                |
-| ----------- | ----- | -------------------------------------- |
-| Remote      | 1.0   | Perfect match                          |
-| Hybrid      | 0.5   | Remote-only preferred                  |
-| Onsite      | 0.1   | Remote-only preferred                  |
-| Unspecified | 0.3   | Work arrangement not specified         |
+- Say what the posting appears to state.
+- Separate "not stated" from "not allowed."
+- Avoid shaming users for commute, schedule, disability, caregiving, or
+  transportation constraints.
+- Avoid implying JobSentinel knows more than the posting says.
+- Keep uncertainty visible when the text is thin or contradictory.
 
-#### RemotePreferred
+Examples:
 
-| Job Type    | Score | Meaning                        |
-| ----------- | ----- | ------------------------------ |
-| Remote      | 1.0   | Preferred                      |
-| Hybrid      | 0.7   | Acceptable                     |
-| Onsite      | 0.4   | Remote preferred               |
-| Unspecified | 0.6   | Work arrangement not specified |
+- "Remote fit is strong."
+- "Hybrid may work, but check commute and required office days."
+- "Work mode is not clear. Verify before tailoring."
+- "On-site conflicts with your saved preference."
 
-#### HybridPreferred
+## Settings
 
-| Job Type    | Score | Meaning                        |
-| ----------- | ----- | ------------------------------ |
-| Hybrid      | 1.0   | Preferred                      |
-| Remote      | 0.8   | Acceptable                     |
-| Onsite      | 0.6   | Acceptable                     |
-| Unspecified | 0.7   | Work arrangement not specified |
+Users can change work-mode preferences in setup or Settings. These preferences
+affect match strength and explanations. They do not send data outside the
+device and they do not require external AI.
 
-#### OnsitePreferred
+## Developer Notes
 
-| Job Type    | Score | Meaning                        |
-| ----------- | ----- | ------------------------------ |
-| Onsite      | 1.0   | Preferred                      |
-| Hybrid      | 0.7   | Acceptable                     |
-| Remote      | 0.5   | Onsite preferred               |
-| Unspecified | 0.6   | Work arrangement not specified |
+<details>
+<summary><strong>Implementation reference</strong></summary>
 
-#### Flexible
+The backend work-mode logic lives in `src-tauri/src/core/scoring/remote.rs` and
+feeds the location factor used by the main scoring engine.
 
-| Job Type    | Score | Meaning                        |
-| ----------- | ----- | ------------------------------ |
-| Remote      | 1.0   | Remote job                      |
-| Hybrid      | 1.0   | Hybrid job                      |
-| Onsite      | 1.0   | Onsite job                      |
-| Unspecified | 0.8   | Work arrangement not specified |
+The current configuration uses existing `LocationPreferences` flags:
 
-## Implementation Details
+- `allow_remote`
+- `allow_hybrid`
+- `allow_onsite`
 
-### Module Structure
+The backend keeps compatibility with those fields while translating them into a
+remote-only, remote-preferred, hybrid-preferred, on-site-preferred, or flexible
+matching mode.
 
-- **`remote.rs`**: Core remote preference logic
-  - `RemoteStatus` enum: Detected job type
-  - `UserRemotePreference` enum: User's work preference
-  - `detect_remote_status(job)`: Detect job type from multiple sources
-  - `score_remote_match(pref, status)`: Calculate score multiplier
-
-- **`mod.rs`**: Integration with scoring engine
-  - `score_location()` method updated to use graduated scoring
-  - Exports remote types for use elsewhere
-
-### Scoring Weight
-
-The remote preference scoring accounts for **20% of the total job score** (unchanged from previous implementation).
-
-Example: A job with RemoteOnly preference and Hybrid job type:
-
-- Location score: `0.20 * 0.5 = 0.10` (10% of total)
-
-### Backward Compatibility
-
-The implementation preserves the existing `LocationPreferences` config structure.
-The existing boolean flags (`allow_remote`, `allow_hybrid`, `allow_onsite`) are
-automatically converted to preference modes.
-
-## Usage Example
-
-```rust
-use jobsentinel::core::scoring::{
-    detect_remote_status, score_remote_match,
-    RemoteStatus, UserRemotePreference
-};
-
-// Detect job type
-let job_status = detect_remote_status(&job);
-
-// Get user preference from config
-let user_pref = UserRemotePreference::from_flags(
-    config.location_preferences.allow_remote,
-    config.location_preferences.allow_hybrid,
-    config.location_preferences.allow_onsite,
-);
-
-// Calculate score
-let (multiplier, reason) = score_remote_match(user_pref, job_status);
-let location_score = 0.20 * multiplier;
-```
-
-## Testing
-
-The module includes comprehensive tests covering:
-
-- Job type detection from various sources (title, location, description)
-- User preference derivation from config flags
-- All preference and job type combinations
-- Edge cases (unspecified work arrangements, conflicting keywords)
-
-**Test file:** `src-tauri/src/core/scoring/remote.rs` (tests module)
-
-**Run tests:**
+Focused tests live with the Rust module:
 
 ```bash
 cd src-tauri && cargo test --lib scoring::remote
 ```
 
-## Benefits
-
-1. **Flexibility:** Users no longer need to strictly filter out jobs that don't perfectly match
-2. **Discovery:** Jobs that aren't ideal but still acceptable get scored (vs. hidden)
-3. **Gradual migration:** Someone preferring remote but open to hybrid gets both, with remote scored higher
-4. **Unspecified handling:** Jobs that don't mention work arrangement get partial credit instead of being rejected
-
-## Potential Follow-Ups
-
-Potential improvements:
-
-1. **Explicit RemotePreference enum in config** - Replace boolean flags with explicit preference selection
-2. **Custom score multipliers** - Let users customize the penalty for non-preferred arrangements
-3. **Location-aware scoring** - Combine remote preference with city/state preferences for hybrid/onsite jobs
-4. **Resume-based detection** - Use resume's remote work experience to suggest preference
+</details>

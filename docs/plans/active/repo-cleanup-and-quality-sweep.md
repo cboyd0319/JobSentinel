@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Rewrote remote and work-mode matching docs from scoring-matrix internals into plain user control, uncertainty, and protective-copy guidance, with bloat coverage against the old module-first shape returning. |
 | 2026-05-29 | In progress | Replaced the last visible score-tooltip "Weight" header with "Priority" so match details use user-facing preference language while internal scoring math stays unchanged. |
 | 2026-05-29 | In progress | Replaced raw job-card source IDs with plain source labels and source-check hints so users see hiring page, job board, saved-by-you, or connected-source language instead of internal scraper names. |
 | 2026-05-29 | In progress | Reworded visible match-priority copy in Settings, job score details, resume match breakdown, and smart-scoring docs away from weight/scoring jargon toward plain match priorities and user-adjustable preferences, with bloat coverage for recurrence. |

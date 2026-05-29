@@ -909,6 +909,7 @@ against:
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Reframed remote and work-mode matching docs around user constraints, uncertainty, commute/schedule protection, and local-only preferences instead of score matrices. |
 | 2026-05-29 | In progress | Replaced visible score-tooltip weight language with priority language so match factors stay explainable without exposing scoring-model jargon. |
 | 2026-05-29 | In progress | Started job-card source labels so raw source IDs become plain source-check cues such as hiring page, job board, saved by you, or connected job source without changing stored source values. |
 | 2026-05-29 | In progress | Added job-card pay-floor warnings using the saved salary floor so roles with listed pay below the user's floor are visible but flagged before tailoring. |

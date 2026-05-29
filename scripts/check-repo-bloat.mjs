@@ -1859,6 +1859,11 @@ function hasSynonymOrRemotePreferenceDocDrift(root, path) {
       text,
     ) ||
     /Potential improvements for v2\.0\+/.test(text) ||
+    /^\*\*Module:\*\*/m.test(text) ||
+    /(?:User Preference Modes|Graduated Scoring Matrix|Scoring Weight)/i.test(
+      text,
+    ) ||
+    /\|\s*Score\s*\|\s*Meaning\s*\|/i.test(text) ||
     /preference × job type/.test(text) ||
     /\*\*Last Updated:\*\* March 18, 2026/.test(text)
   );
