@@ -347,6 +347,10 @@ pub struct NotificationPreferences {
     pub advanced_filters: AdvancedFilters,
 }
 
+fn notification_preferences_serialization_error() -> sqlx::Error {
+    sqlx::Error::Protocol("Could not save notification preferences".to_string())
+}
+
 impl Default for NotificationPreferences {
     fn default() -> Self {
         let defaults = SourceConfigs::default();
@@ -897,10 +901,10 @@ impl UserDataManager {
         };
 
         let source_configs_json = serde_json::to_string(&source_configs)
-            .map_err(|e| sqlx::Error::Protocol(format!("JSON serialization error: {}", e)))?;
+            .map_err(|_| notification_preferences_serialization_error())?;
 
         let advanced_filters_json = serde_json::to_string(&prefs.advanced_filters)
-            .map_err(|e| sqlx::Error::Protocol(format!("JSON serialization error: {}", e)))?;
+            .map_err(|_| notification_preferences_serialization_error())?;
 
         let now = Utc::now().to_rfc3339();
         let global_enabled: i64 = if prefs.global.enabled { 1 } else { 0 };
@@ -1186,6 +1190,16 @@ mod tests {
         assert!(!prefs.linkedin.enabled);
         assert!(!prefs.linkedin.sound_enabled);
         assert_eq!(prefs.linkedin.min_score_threshold, 70);
+    }
+
+    #[test]
+    fn test_notification_preferences_serialization_error_is_safe() {
+        let error = notification_preferences_serialization_error().to_string();
+
+        assert!(error.contains("Could not save notification preferences"));
+        assert!(!error.contains("JSON serialization error"));
+        assert!(!error.contains("secret"));
+        assert!(!error.contains("favoriteCompanies"));
     }
 
     #[test]

@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Sanitized notification-preference serialization failures so saved-search, company, filter, or schedule settings cannot be echoed through raw JSON serializer details inside database protocol errors; added Rust and bloat coverage for recurrence. |
 | 2026-05-29 | In progress | Sanitized Greenhouse and Lever per-company scrape-loop failures so backend logs no longer combine company names with raw scraper errors when one company board fails and the scraper continues; added Rust and bloat coverage for recurrence. |
 | 2026-05-29 | In progress | Sanitized guided form-fill browser setup and resume-upload failures so raw browser config errors, CDP builder details, invalid path encodings, and local resume paths cannot surface through formatted automation errors; added Rust plus bloat coverage for recurrence. |
 | 2026-05-29 | In progress | Sanitized guided form-fill screening-question output so prepared-form results and dev mocks report only saved-answer counts, not question text or saved answer patterns; sanitized browser question-discovery errors and added Rust plus bloat coverage for recurrence. |

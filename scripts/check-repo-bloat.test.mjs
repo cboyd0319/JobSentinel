@@ -8011,6 +8011,8 @@ test("checkRepoBloat rejects raw user-data privacy logging", () => {
         "    Ok(())",
         "}",
         "",
+        'serde_json::to_string(&prefs).map_err(|e| sqlx::Error::Protocol(format!("JSON serialization error: {}", e)))?;',
+        "",
       ].join("\n"),
     );
 

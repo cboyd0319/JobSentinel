@@ -2404,6 +2404,7 @@ function hasRawUserDataPrivacyLogging(root, path) {
     /Creating template:\s*\{\}/.test(text) ||
     /Creating saved search:\s*\{\}/.test(text) ||
     /Adding search history:\s*\{\}/.test(text) ||
+    /JSON serialization error:\s*\{\}/.test(text) ||
     /#\[instrument\(skip\(self,\s*content\)\)\]\s*pub async fn (?:create|update)_template/.test(
       text,
     ) ||
