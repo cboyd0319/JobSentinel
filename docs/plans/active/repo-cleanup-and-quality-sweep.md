@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Reworded Company Research and scoring presets away from tech-stack-only framing toward broader tools, systems, and skills language so company prep fits technical and non-technical job seekers. |
 | 2026-05-29 | In progress | Reworded Settings notification setup away from service-internal webhook/token labels toward connection links, alert codes, and destination numbers, with regression and bloat coverage for recurring jargon. |
 | 2026-05-29 | In progress | Replaced visible App Problem History stack/component text with plain safe-report guidance so non-technical users are not asked to inspect developer traces, while preserving sanitized report copy/save paths for support. |
 | 2026-05-29 | In progress | Centralized safe toast copy for remaining enhanced frontend errors in dashboard actions, saved searches, resume builder, resume loading, interview loading, and screening-answer loading so raw `userFriendly` messages cannot surface private paths, emails, or token-like values. |

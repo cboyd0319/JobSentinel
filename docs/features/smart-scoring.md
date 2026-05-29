@@ -576,7 +576,7 @@ Not all factors matter equally to you. Customize weights to match your prioritie
 
 - **Job hopping?** Increase recency (find fresh opportunities)
 - **Salary negotiation?** Increase salary (find high-paying roles)
-- **Specific tech stack?** Increase skills (prioritize exact match)
+- **Specific tools or systems?** Increase skills (prioritize exact match)
 - **Dream companies?** Increase company (prioritize whitelisted)
 - **Full remote required?** Increase location (filter aggressively)
 
@@ -599,7 +599,7 @@ The system ensures total always equals 100%.
 
 Quick shortcuts for common scenarios:
 
-- **Tech Stack Focus** - Skills 50%, Salary 20%, Location 15%, Company 10%, Recency 5%
+- **Skills Focus** - Skills 50%, Salary 20%, Location 15%, Company 10%, Recency 5%
 - **Location Focused** - Skills 30%, Salary 20%, Location 35%, Company 10%, Recency 5%
 - **Company Focused** - Skills 30%, Salary 20%, Location 15%, Company 25%, Recency 10%
 - **Salary Maximized** - Skills 25%, Salary 40%, Location 15%, Company 10%, Recency 10%

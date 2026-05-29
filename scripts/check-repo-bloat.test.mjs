@@ -435,6 +435,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "docs/features/smart-scoring.md",
+      "- **Tech Stack Focus** - Skills 50%, Salary 20%, Location 15%, Company 10%, Recency 5%\n",
+    );
+    writeFixtureFile(
+      root,
       "src/pages/DashboardUI/DashboardFiltersBar.tsx",
       "<p>Comma or OR: react, vue</p><p>AND: senior AND engineer</p>\n",
     );
@@ -442,6 +447,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       root,
       "src/pages/Dashboard.tsx",
       '<input placeholder="e.g., Remote Rust Jobs" />\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/CompanyResearchPanel.tsx",
+      "<p>Tech Stack</p>\n",
     );
     writeFixtureFile(
       root,
@@ -491,6 +501,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/pages/Dashboard.tsx",
         "src/pages/Salary.tsx",
         "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+        "src/components/CompanyResearchPanel.tsx",
         "src/components/CoverLetterTemplates.tsx",
         "src/components/JobImportModal.tsx",
         "src/mocks/data.ts",
@@ -501,6 +512,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "docs/README.md",
         "docs/ROADMAP.md",
         "docs/features/resume-builder.md",
+        "docs/features/smart-scoring.md",
         "docs/features/scrapers.md",
         "docs/features/resume-matcher.md",
         "docs/features/user-data-management.md",
@@ -515,6 +527,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/pages/Salary.tsx",
       "src/pages/Dashboard.tsx",
       "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+      "src/components/CompanyResearchPanel.tsx",
       "src/components/CoverLetterTemplates.tsx",
       "src/components/JobImportModal.tsx",
       "src/mocks/data.ts",
@@ -523,6 +536,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/components/resume-builder/steps/SummaryStep.tsx",
       "src/components/resume-builder/steps/SkillsStep.tsx",
       "docs/features/resume-builder.md",
+      "docs/features/smart-scoring.md",
       "docs/features/scrapers.md",
       "docs/features/resume-matcher.md",
       "docs/features/user-data-management.md",

@@ -869,11 +869,11 @@ export const CompanyResearchPanel = memo(function CompanyResearchPanel({ company
               </div>
             )}
 
-            {/* Tech Stack */}
+            {/* Tools and systems */}
             {info.techStack && info.techStack.length > 0 && (
               <div className="pt-3 border-t border-surface-200 dark:border-surface-700">
                 <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-2">
-                  Tech Stack
+                  Tools and systems
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {info.techStack.map((tech) => (

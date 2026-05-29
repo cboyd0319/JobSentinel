@@ -219,8 +219,8 @@ Click the notes icon (or press `n`) on any job to add your own comments.
 
 ### Company Research
 
-Click on any company name (or press `c`) to see info like tech stack, company size,
-and Glassdoor ratings.
+Click on any company name (or press `c`) to see info like tools, systems,
+company size, and Glassdoor ratings.
 
 ---
 

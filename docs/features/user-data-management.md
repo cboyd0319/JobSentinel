@@ -105,7 +105,7 @@ When you schedule an interview in JobSentinel:
 2. Click **Schedule Interview**
 3. A prep checklist automatically generates with:
    - **Research Items** - Company background, recent news, product overview
-   - **Technical Items** - Data structures, system design, coding problems
+   - **Role-specific Items** - Work samples, role tasks, or field-specific questions
    - **Behavioral Items** - STAR method stories, culture fit, questions to ask
    - **Logistics Items** - Dial-in link, timezone check, equipment test
 
@@ -124,7 +124,7 @@ You can mark items complete or incomplete at any time—progress is automaticall
 JobSentinel links your prep checklist to the company research panel:
 
 - When you open an interview checklist, the company research panel appears on the right
-- Read recent news, Glassdoor reviews, tech stack, and company social media
+- Read recent news, Glassdoor reviews, tools, systems, and company social media
 - Add your own notes in the research panel
 - All research is saved for future reference
 

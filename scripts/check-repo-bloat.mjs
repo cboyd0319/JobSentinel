@@ -418,6 +418,7 @@ const frontendStatusEmojiPaths = new Set([
 ]);
 const broadAudienceExamplePaths = new Set([
   "src/components/CoverLetterTemplates.tsx",
+  "src/components/CompanyResearchPanel.tsx",
   "src/components/DeepLinkGenerator.tsx",
   "src/components/JobImportModal.tsx",
   "src/components/resume-builder/steps/SkillsStep.tsx",
@@ -436,6 +437,7 @@ const broadAudienceExamplePaths = new Set([
   "docs/README.md",
   "docs/ROADMAP.md",
   "docs/features/resume-builder.md",
+  "docs/features/smart-scoring.md",
   "docs/features/scrapers.md",
   "docs/features/resume-matcher.md",
   "docs/features/user-data-management.md",
@@ -1276,6 +1278,8 @@ function hasEngineerFirstAudienceExamples(root, path) {
     /Perfect for engineering roles/i,
     /Engineering roles - skills first/i,
     /Tech companies - clean and minimal/i,
+    /Tech Stack\b/i,
+    /Tech Stack Focus/i,
     /Technical & soft skills/i,
     /Technical and professional skills/i,
     /Enter your job title or keywords \(e\.g\., "Software Engineer"\)/i,

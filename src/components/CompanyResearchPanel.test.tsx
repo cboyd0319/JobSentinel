@@ -104,12 +104,13 @@ describe("CompanyResearchPanel", () => {
       expect(screen.getByText("Late Stage")).toBeInTheDocument();
     });
 
-    it("displays tech stack for known company", async () => {
+    it("displays tools and systems for known company", async () => {
       render(<CompanyResearchPanel companyName="Discord" />);
 
       await waitFor(() => {
-        expect(screen.getByText("Tech Stack")).toBeInTheDocument();
+        expect(screen.getByText("Tools and systems")).toBeInTheDocument();
       });
+      expect(screen.queryByText("Tech Stack")).not.toBeInTheDocument();
       expect(screen.getByText("Rust")).toBeInTheDocument();
       expect(screen.getByText("Python")).toBeInTheDocument();
     });
