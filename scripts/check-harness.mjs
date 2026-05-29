@@ -140,6 +140,7 @@ const readmeReferenceHeading = "## References and external sources";
 // Research packet URLs are intentionally portable: no local file paths and no
 // grant packet content. User explicitly excluded the grant application packet.
 const requiredReadmeReferenceUrls = [
+  "http://www.pon.harvard.edu/courses-and-training/3-day/special-three-day-combined-program/",
   "https://arxiv.org/abs/2006.16099",
   "https://arxiv.org/abs/2202.03602",
   "https://arxiv.org/abs/2203.03565",
@@ -170,6 +171,7 @@ const requiredReadmeReferenceUrls = [
   "https://arxiv.org/abs/2603.18390",
   "https://arxiv.org/abs/2603.22714",
   "https://business.vanderbilt.edu/news/2023/09/05/stop-blaming-women-for-the-gender-pay-gap/",
+  "https://boards-api.greenhouse.io/v1/boards/{company}/jobs",
   "https://ceur-ws.org/Vol-3908/paper_26.pdf",
   "https://ceur-ws.org/Vol-4046/RecSysHR2025-paper_9.pdf",
   "https://clarifycapital.com/ghost-jobs",
@@ -251,6 +253,13 @@ const requiredReadmeReferenceUrls = [
   "https://www.pon.harvard.edu/daily/salary-negotiations/salary-negotiation-skills-different-for-men-and-women/",
   "https://www.pon.harvard.edu/daily/salary-negotiations/salary-negotiations-a-lesson-from-meryl-streep/",
   "https://www.pon.harvard.edu/daily/salary-negotiations/the-backlash-effect-for-women-negotiators-in-hollywood-and-beyond-nb/",
+  "https://www.pon.harvard.edu/author/pon_staff/",
+  "https://www.pon.harvard.edu/blog/",
+  "https://www.pon.harvard.edu/category/daily/salary-negotiations/",
+  "https://www.pon.harvard.edu/events/",
+  "https://www.pon.harvard.edu/executive-education/",
+  "https://www.pon.harvard.edu/faculty-and-research/",
+  "https://www.pon.harvard.edu/teaching-materials-publications/",
   "https://www.resumebuilder.com/3-in-10-companies-currently-have-fake-job-posting-listed/",
   "https://www.sciencedirect.com/science/article/abs/pii/S0167268124002312",
   "https://www.sciencedirect.com/science/article/abs/pii/S0749597806000884",

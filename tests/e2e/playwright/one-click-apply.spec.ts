@@ -25,7 +25,7 @@ test.describe("Application Assist Settings", () => {
     await expect(applyPage.profileTab).toBeVisible();
     await expect(applyPage.screeningTab).toBeVisible();
     await expect(page.getByRole("heading", { name: "How Application Assist Works" })).toBeVisible();
-    await expect(page.getByText("Submit Yourself")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Submit Yourself" })).toBeVisible();
     await expect(page.getByText("JobSentinel never clicks Submit")).toBeVisible();
   });
 
