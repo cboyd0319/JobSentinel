@@ -291,6 +291,10 @@ const rawImportRedirectDisplayPaths = new Set(["src-tauri/src/core/import/types.
 const rawAutomationQuestionLoggingPaths = new Set([
   "src-tauri/src/core/automation/form_filler.rs",
 ]);
+const automationFormPrivacyPaths = new Set([
+  "src-tauri/src/core/automation/form_filler.rs",
+  "src/mocks/handlers.ts",
+]);
 const importCommandPrivacyPaths = new Set(["src-tauri/src/commands/import.rs"]);
 const importBookmarkletCommandPrivacyPaths = new Set([
   "src-tauri/src/commands/import.rs",
@@ -3173,6 +3177,26 @@ function hasRawAutomationQuestionLogging(root, path) {
   );
 }
 
+function hasRawAutomationFormResultData(root, path) {
+  if (!automationFormPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const text = path.endsWith(".rs")
+    ? stripRustTestModules(readFileSync(join(root, path), "utf8"))
+    : readFileSync(join(root, path), "utf8");
+
+  if (path === "src-tauri/src/core/automation/form_filler.rs") {
+    return (
+      /format!\(\s*"screening:\{\}"\s*,\s*(?:field_name|question_text)/.test(text) ||
+      /truncate_question\(&question_text/.test(text) ||
+      /Failed to (?:execute|parse) question finder (?:script|result):\s*\{\}/.test(text)
+    );
+  }
+
+  return /`screening:\$\{answer\.questionPattern\}`/.test(text);
+}
+
 function hasRawNotificationJobTitleLogging(root, path) {
   if (!rawNotificationJobTitleLoggingPaths.has(path)) {
     return false;
@@ -4741,6 +4765,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawAutomationQuestionLogging(root, path)) {
       violations.push(`replace raw automation screening question logging: ${path}`);
+    }
+
+    if (hasRawAutomationFormResultData(root, path)) {
+      violations.push(`sanitize automation form result data: ${path}`);
     }
 
     if (hasRawNotificationJobTitleLogging(root, path)) {

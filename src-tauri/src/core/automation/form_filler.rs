@@ -13,6 +13,9 @@ use regex::Regex;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
+const SCREENING_FIELD_LABEL: &str = "screening:saved_answer";
+const QUESTION_DISCOVERY_ERROR: &str = "Could not inspect screening questions on this page";
+
 /// Form filler - fills application forms based on ATS platform
 pub struct FormFiller {
     profile: ApplicationProfile,
@@ -350,19 +353,13 @@ impl FormFiller {
 
                         // Try to fill the associated input
                         if let Ok(true) = page.fill(&input_selector, &answer).await {
-                            let field_name = Self::truncate_question(&question_text, 30);
-                            result
-                                .filled_fields
-                                .push(format!("screening:{}", field_name));
+                            result.filled_fields.push(SCREENING_FIELD_LABEL.to_string());
                             tracing::debug!(
                                 question_chars,
                                 "Filled screening question with answer"
                             );
                         } else if let Ok(true) = page.select(&input_selector, &answer).await {
-                            let field_name = Self::truncate_question(&question_text, 30);
-                            result
-                                .filled_fields
-                                .push(format!("screening:{}", field_name));
+                            result.filled_fields.push(SCREENING_FIELD_LABEL.to_string());
                             tracing::debug!(question_chars, "Selected screening answer");
                         }
                     }
@@ -441,12 +438,11 @@ impl FormFiller {
             .inner()
             .evaluate(script)
             .await
-            .map_err(|e| anyhow::anyhow!("Failed to execute question finder script: {}", e))?;
+            .map_err(|_| question_discovery_error())?;
 
         // Parse the result - expecting array of [question, selector] pairs
-        let result_value: serde_json::Value = value
-            .into_value()
-            .map_err(|e| anyhow::anyhow!("Failed to parse question finder result: {}", e))?;
+        let result_value: serde_json::Value =
+            value.into_value().map_err(|_| question_discovery_error())?;
 
         let pairs: Vec<(String, String)> = match result_value {
             serde_json::Value::Array(arr) => arr
@@ -486,15 +482,6 @@ impl FormFiller {
         }
 
         None
-    }
-
-    /// Truncate question text for logging/display
-    fn truncate_question(text: &str, max_len: usize) -> String {
-        if text.len() <= max_len {
-            text.to_string()
-        } else {
-            format!("{}...", &text[..max_len - 3])
-        }
     }
 
     /// Get field selectors for each ATS platform
@@ -680,6 +667,10 @@ impl FormFiller {
     }
 }
 
+fn question_discovery_error() -> anyhow::Error {
+    anyhow::anyhow!(QUESTION_DISCOVERY_ERROR)
+}
+
 /// Field types for form filling
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum FieldType {
@@ -820,17 +811,20 @@ mod tests {
     }
 
     #[test]
-    fn test_truncate_question() {
-        assert_eq!(
-            FormFiller::truncate_question("Short", 30),
-            "Short".to_string()
-        );
-        assert_eq!(
-            FormFiller::truncate_question(
-                "This is a very long question that should be truncated",
-                30
-            ),
-            "This is a very long questio...".to_string()
-        );
+    fn screening_field_label_does_not_echo_question_text() {
+        assert_eq!(SCREENING_FIELD_LABEL, "screening:saved_answer");
+        assert!(!SCREENING_FIELD_LABEL.contains("salary"));
+        assert!(!SCREENING_FIELD_LABEL.contains("authorized"));
+    }
+
+    #[test]
+    fn question_discovery_error_does_not_echo_browser_detail() {
+        let error = question_discovery_error().to_string();
+
+        assert_eq!(error, QUESTION_DISCOVERY_ERROR);
+        assert!(!error.contains("https://"));
+        assert!(!error.contains("token"));
+        assert!(!error.contains("selector"));
+        assert!(!error.contains("John Doe"));
     }
 }

@@ -5940,6 +5940,57 @@ test("checkRepoBloat rejects raw automation screening question logging", () => {
   });
 });
 
+test("checkRepoBloat rejects raw automation form result data", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/automation/form_filler.rs",
+      [
+        "let field_name = Self::truncate_question(&question_text, 30);",
+        'result.filled_fields.push(format!("screening:{}", field_name));',
+        'page.inner().evaluate(script).await.map_err(|e| anyhow::anyhow!("Failed to execute question finder script: {}", e))?;',
+        'value.into_value().map_err(|e| anyhow::anyhow!("Failed to parse question finder result: {}", e))?;',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      [
+        "const screeningFields = screeningAnswers.slice(0, 2).map((answer) =>",
+        "  `screening:${answer.questionPattern}`,",
+        ");",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/automation/form_filler.rs",
+        "src/mocks/handlers.ts",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize automation form result data: src-tauri/src/core/automation/form_filler.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("sanitize automation form result data: src/mocks/handlers.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw notification job title logging", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

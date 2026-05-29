@@ -2077,9 +2077,9 @@ function fillMockApplicationForm(args?: Record<string, unknown>): MockFillResult
   const platform = getMockAtsPlatform(jobUrl);
   const hasJobHash = Boolean(getStringArg(args, "jobHash") ?? getStringArg(args, "job_hash"));
   const attemptId = hasJobHash ? nextAutomationAttemptId++ : null;
-  const screeningFields = screeningAnswers.slice(0, 2).map((answer) =>
-    `screening:${answer.questionPattern}`,
-  );
+  const screeningFields = screeningAnswers
+    .slice(0, 2)
+    .map((_, index) => `screening:savedAnswer${index + 1}`);
 
   return {
     filledFields: ["firstName", "lastName", "email", "phone", "resume", ...screeningFields],
