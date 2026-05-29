@@ -549,7 +549,7 @@ Get the user's notification settings.
 invoke("get_notification_preferences");
 // Returns: NotificationPreferences
 // {
-//   linkedin: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
+//   linkedin: { enabled: false, minScoreThreshold: 70, soundEnabled: false },
 //   indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
 //   greenhouse: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
 //   lever: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
@@ -578,7 +578,7 @@ Update notification preferences.
 ```typescript
 invoke("save_notification_preferences", {
   prefs: {
-    linkedin: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
+    linkedin: { enabled: false, minScoreThreshold: 70, soundEnabled: false },
     indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
     greenhouse: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
     lever: { enabled: true, minScoreThreshold: 80, soundEnabled: true },

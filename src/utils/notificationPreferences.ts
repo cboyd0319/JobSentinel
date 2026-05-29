@@ -46,7 +46,7 @@ export const DEFAULT_ADVANCED_FILTERS: AdvancedFilters = {
 };
 
 export const DEFAULT_PREFERENCES: NotificationPreferences = {
-  linkedin: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
+  linkedin: { enabled: false, minScoreThreshold: 70, soundEnabled: false },
   indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
   greenhouse: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
   lever: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
@@ -82,7 +82,7 @@ export async function loadNotificationPreferencesAsync(): Promise<NotificationPr
     });
     if (stored) {
       // Merge with defaults to handle new fields
-      return { ...DEFAULT_PREFERENCES, ...stored };
+      return normalizeNotificationPreferences({ ...DEFAULT_PREFERENCES, ...stored });
     }
   } catch {
     // Silent failure - return defaults
@@ -90,10 +90,23 @@ export async function loadNotificationPreferencesAsync(): Promise<NotificationPr
   return DEFAULT_PREFERENCES;
 }
 
+export function normalizeNotificationPreferences(
+  prefs: NotificationPreferences
+): NotificationPreferences {
+  return {
+    ...prefs,
+    linkedin: {
+      ...prefs.linkedin,
+      enabled: false,
+      soundEnabled: false,
+    },
+  };
+}
+
 // Async save to backend
 export async function saveNotificationPreferencesAsync(prefs: NotificationPreferences): Promise<boolean> {
   try {
-    await safeInvoke('save_notification_preferences', { prefs }, {
+    await safeInvoke('save_notification_preferences', { prefs: normalizeNotificationPreferences(prefs) }, {
       logContext: "Save notification preferences"
     });
     return true;
@@ -129,6 +142,8 @@ export function shouldNotifyForJob(
 
   // Check source-specific settings
   const sourceKey = source.toLowerCase().replace(/\s+/g, '') as SourceKey;
+  if (sourceKey === 'linkedin') return false;
+
   const sourceConfig = prefs[sourceKey];
   const scorePercent = score * 100;
 

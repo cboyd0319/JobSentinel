@@ -183,7 +183,7 @@ const savedSearchInput: BackendSavedSearch = {
 };
 
 const notificationPreferencesInput: NotificationPreferences = {
-  linkedin: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
+  linkedin: { enabled: false, minScoreThreshold: 70, soundEnabled: false },
   indeed: { enabled: false, minScoreThreshold: 85, soundEnabled: false },
   greenhouse: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
   lever: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
@@ -333,6 +333,11 @@ describe("mock Tauri handlers", () => {
       enabled: true,
       minScoreThreshold: 70,
       soundEnabled: true,
+    });
+    expect(defaults.linkedin).toEqual({
+      enabled: false,
+      minScoreThreshold: 70,
+      soundEnabled: false,
     });
 
     await mockInvoke<void>("save_notification_preferences", {

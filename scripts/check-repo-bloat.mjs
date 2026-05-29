@@ -245,6 +245,13 @@ const linkedInAutomationBoundaryPaths = new Set([
   "docs/features/credentials-security.md",
   "docs/security/KEYRING.md",
 ]);
+const linkedInNotificationBoundaryPaths = new Set([
+  "src/utils/notificationPreferences.ts",
+  "src/components/NotificationPreferences.tsx",
+  "src/mocks/handlers.ts",
+  "docs/features/user-data-management.md",
+  "src-tauri/src/core/user_data/mod.rs",
+]);
 
 const databaseLogEmojiPaths = new Set([
   "src-tauri/src/core/db/connection.rs",
@@ -1682,6 +1689,10 @@ function hasStaleScraperHealthCoverage(root, path) {
     path !== "docs/features/scrapers.md" &&
     path !== "docs/features/scraper-health.md" &&
     path !== "docs/ROADMAP.md" &&
+    path !== "docs/user/QUICK_START.md" &&
+    path !== "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md" &&
+    path !== "docs/developer/WHY_TAURI.md" &&
+    path !== "docs/releases/v2.1.md" &&
     path !== "src/mocks/handlers.ts" &&
     path !== "src/pages/Dashboard.tsx" &&
     path !== "src/components/ScraperHealthDashboard.tsx"
@@ -1691,7 +1702,7 @@ function hasStaleScraperHealthCoverage(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
   if (
-    /13 scrapers|13 job boards|Testing 13 scrapers|updated with 13 scrapers|usa_jobs/.test(
+    /13 scrapers|13 job boards|13 job sources|Testing 13 scrapers|updated with 13 scrapers|usa_jobs/.test(
       text,
     )
   ) {
@@ -2439,6 +2450,19 @@ function hasLinkedInAutomationBoundaryDrift(root, path) {
     /start_run\(db,\s*"linkedin"\)|scraper_name:\s*"linkedin"/.test(text) ||
     /LinkedIn\s+(?:scraper|cookie health|cookie expiry)/i.test(text) ||
     /SMOKE_TEST_SCRAPERS[\s\S]*"linkedin"/.test(text)
+  );
+}
+
+function hasLinkedInNotificationBoundaryDrift(root, path) {
+  if (!linkedInNotificationBoundaryPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /linkedin:\s*\{\s*enabled:\s*true/.test(text) ||
+    /\blinkedin\s*[:=]\s*SourceNotificationConfig\s*\{\s*enabled:\s*true/.test(text) ||
+    /linkedin:\s*\{[^}]*name:\s*['"]LinkedIn['"]/.test(text)
   );
 }
 
@@ -3907,6 +3931,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasLinkedInAutomationBoundaryDrift(root, path)) {
       violations.push(`remove automated LinkedIn collection boundary drift: ${path}`);
+    }
+
+    if (hasLinkedInNotificationBoundaryDrift(root, path)) {
+      violations.push(`remove LinkedIn notification source drift: ${path}`);
     }
 
     if (hasDatabaseLogEmojiMarkers(root, path)) {

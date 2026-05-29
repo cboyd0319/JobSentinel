@@ -296,9 +296,9 @@ impl Default for SourceConfigs {
     fn default() -> Self {
         Self {
             linkedin: SourceNotificationConfig {
-                enabled: true,
+                enabled: false,
                 min_score_threshold: 70,
-                sound_enabled: true,
+                sound_enabled: false,
             },
             indeed: SourceNotificationConfig {
                 enabled: true,
@@ -321,6 +321,16 @@ impl Default for SourceConfigs {
                 sound_enabled: true,
             },
         }
+    }
+}
+
+fn disable_linkedin_notification_source(
+    config: SourceNotificationConfig,
+) -> SourceNotificationConfig {
+    SourceNotificationConfig {
+        enabled: false,
+        sound_enabled: false,
+        ..config
     }
 }
 
@@ -847,7 +857,7 @@ impl UserDataManager {
                     serde_json::from_str(&r.advanced_filters).unwrap_or_default();
 
                 Ok(NotificationPreferences {
-                    linkedin: source_configs.linkedin,
+                    linkedin: disable_linkedin_notification_source(source_configs.linkedin),
                     indeed: source_configs.indeed,
                     greenhouse: source_configs.greenhouse,
                     lever: source_configs.lever,
@@ -879,7 +889,7 @@ impl UserDataManager {
         debug!("Saving notification preferences");
 
         let source_configs = SourceConfigs {
-            linkedin: prefs.linkedin.clone(),
+            linkedin: disable_linkedin_notification_source(prefs.linkedin.clone()),
             indeed: prefs.indeed.clone(),
             greenhouse: prefs.greenhouse.clone(),
             lever: prefs.lever.clone(),
@@ -1173,8 +1183,22 @@ mod tests {
         assert!(prefs.global.enabled);
         assert!(!prefs.global.quiet_hours_enabled);
         assert_eq!(prefs.global.quiet_hours_start, "22:00");
-        assert!(prefs.linkedin.enabled);
+        assert!(!prefs.linkedin.enabled);
+        assert!(!prefs.linkedin.sound_enabled);
         assert_eq!(prefs.linkedin.min_score_threshold, 70);
+    }
+
+    #[test]
+    fn test_linkedin_notification_source_forced_disabled() {
+        let config = disable_linkedin_notification_source(SourceNotificationConfig {
+            enabled: true,
+            min_score_threshold: 95,
+            sound_enabled: true,
+        });
+
+        assert!(!config.enabled);
+        assert!(!config.sound_enabled);
+        assert_eq!(config.min_score_threshold, 95);
     }
 
     #[test]

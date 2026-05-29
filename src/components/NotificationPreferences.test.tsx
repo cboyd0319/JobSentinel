@@ -28,7 +28,7 @@ vi.mock("../contexts", () => ({
 }));
 
 const DEFAULT_PREFS: NotificationPreferences = {
-  linkedin: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
+  linkedin: { enabled: false, minScoreThreshold: 70, soundEnabled: false },
   indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
   greenhouse: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
   lever: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
@@ -57,11 +57,11 @@ describe("shouldNotifyForJob", () => {
   describe("global settings", () => {
     it("returns false when global.enabled is false", () => {
       const prefs = { ...DEFAULT_PREFS, global: { ...DEFAULT_PREFS.global, enabled: false } };
-      expect(shouldNotifyForJob("linkedin", 0.9, prefs)).toBe(false);
+      expect(shouldNotifyForJob("indeed", 0.9, prefs)).toBe(false);
     });
 
     it("returns true when global.enabled is true and score meets threshold", () => {
-      expect(shouldNotifyForJob("linkedin", 0.8, DEFAULT_PREFS)).toBe(true);
+      expect(shouldNotifyForJob("indeed", 0.8, DEFAULT_PREFS)).toBe(true);
     });
   });
 
@@ -69,22 +69,32 @@ describe("shouldNotifyForJob", () => {
     it("returns false when source is disabled", () => {
       const prefs = {
         ...DEFAULT_PREFS,
-        linkedin: { enabled: false, minScoreThreshold: 70, soundEnabled: true },
+        indeed: { enabled: false, minScoreThreshold: 70, soundEnabled: true },
       };
-      expect(shouldNotifyForJob("linkedin", 0.9, prefs)).toBe(false);
+      expect(shouldNotifyForJob("indeed", 0.9, prefs)).toBe(false);
+    });
+
+    it("does not alert for LinkedIn because it is user-opened search links only", () => {
+      const legacySource = "linkedin";
+      const legacyPrefs = {
+        ...DEFAULT_PREFS,
+        [legacySource]: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
+      };
+
+      expect(shouldNotifyForJob(legacySource, 0.95, legacyPrefs)).toBe(false);
     });
 
     it("returns false when score is below threshold", () => {
-      expect(shouldNotifyForJob("linkedin", 0.5, DEFAULT_PREFS)).toBe(false); // 50% < 70%
+      expect(shouldNotifyForJob("indeed", 0.5, DEFAULT_PREFS)).toBe(false); // 50% < 70%
     });
 
     it("returns true when score meets threshold", () => {
-      expect(shouldNotifyForJob("linkedin", 0.75, DEFAULT_PREFS)).toBe(true); // 75% >= 70%
+      expect(shouldNotifyForJob("indeed", 0.75, DEFAULT_PREFS)).toBe(true); // 75% >= 70%
     });
 
     it("handles different source thresholds", () => {
-      // LinkedIn threshold is 70%, Greenhouse is 80%
-      expect(shouldNotifyForJob("linkedin", 0.75, DEFAULT_PREFS)).toBe(true);
+      // Indeed threshold is 70%, Greenhouse is 80%
+      expect(shouldNotifyForJob("indeed", 0.75, DEFAULT_PREFS)).toBe(true);
       expect(shouldNotifyForJob("greenhouse", 0.75, DEFAULT_PREFS)).toBe(false);
     });
 
@@ -94,8 +104,8 @@ describe("shouldNotifyForJob", () => {
     });
 
     it("normalizes source names (lowercase, no spaces)", () => {
-      expect(shouldNotifyForJob("LinkedIn", 0.8, DEFAULT_PREFS)).toBe(true);
-      expect(shouldNotifyForJob("LINKEDIN", 0.8, DEFAULT_PREFS)).toBe(true);
+      expect(shouldNotifyForJob("Indeed", 0.8, DEFAULT_PREFS)).toBe(true);
+      expect(shouldNotifyForJob("INDEED", 0.8, DEFAULT_PREFS)).toBe(true);
     });
   });
 
@@ -109,10 +119,10 @@ describe("shouldNotifyForJob", () => {
         },
       };
       const job: JobForNotification = { title: "Senior Engineer", company: "TechCorp" };
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, job)).toBe(true);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, job)).toBe(true);
 
       const juniorJob: JobForNotification = { title: "Engineer", company: "TechCorp" };
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, juniorJob)).toBe(false);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, juniorJob)).toBe(false);
     });
 
     it("filters by exclude keywords", () => {
@@ -124,10 +134,10 @@ describe("shouldNotifyForJob", () => {
         },
       };
       const job: JobForNotification = { title: "Junior Engineer", company: "TechCorp" };
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, job)).toBe(false);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, job)).toBe(false);
 
       const seniorJob: JobForNotification = { title: "Senior Engineer", company: "TechCorp" };
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, seniorJob)).toBe(true);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, seniorJob)).toBe(true);
     });
 
     it("keyword matching is case-insensitive", () => {
@@ -139,7 +149,7 @@ describe("shouldNotifyForJob", () => {
         },
       };
       const job: JobForNotification = { title: "Software Intern", company: "TechCorp" };
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, job)).toBe(false);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, job)).toBe(false);
     });
   });
 
@@ -159,7 +169,7 @@ describe("shouldNotifyForJob", () => {
         company: "Corp",
         salary_max: 80000,
       };
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, lowPayJob)).toBe(false);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, lowPayJob)).toBe(false);
 
       // Job with salary meeting minimum
       const goodPayJob: JobForNotification = {
@@ -167,7 +177,7 @@ describe("shouldNotifyForJob", () => {
         company: "Corp",
         salary_max: 120000,
       };
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, goodPayJob)).toBe(true);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, goodPayJob)).toBe(true);
     });
 
     it("uses salary_max over salary_min", () => {
@@ -185,7 +195,7 @@ describe("shouldNotifyForJob", () => {
         salary_min: 80000,
         salary_max: 120000,
       };
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, job)).toBe(true);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, job)).toBe(true);
     });
 
     it("passes jobs without salary info when salary filter is set", () => {
@@ -202,7 +212,7 @@ describe("shouldNotifyForJob", () => {
         company: "Corp",
       };
       // Jobs with 0 or no salary info pass the filter
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, jobNoSalary)).toBe(true);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, jobNoSalary)).toBe(true);
     });
   });
 
@@ -221,14 +231,14 @@ describe("shouldNotifyForJob", () => {
         company: "Corp",
         remote: true,
       };
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, remoteJob)).toBe(true);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, remoteJob)).toBe(true);
 
       const onsiteJob: JobForNotification = {
         title: "Engineer",
         company: "Corp",
         remote: false,
       };
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, onsiteJob)).toBe(false);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, onsiteJob)).toBe(false);
     });
 
     it("detects remote from location field", () => {
@@ -245,7 +255,7 @@ describe("shouldNotifyForJob", () => {
         company: "Corp",
         location: "Remote - US",
       };
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, job)).toBe(true);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, job)).toBe(true);
     });
 
     it("detects remote from title", () => {
@@ -261,7 +271,7 @@ describe("shouldNotifyForJob", () => {
         title: "Remote Software Engineer",
         company: "Corp",
       };
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, job)).toBe(true);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, job)).toBe(true);
     });
   });
 
@@ -279,13 +289,13 @@ describe("shouldNotifyForJob", () => {
         title: "Engineer",
         company: "Google",
       };
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, favoriteJob)).toBe(true);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, favoriteJob)).toBe(true);
 
       const otherJob: JobForNotification = {
         title: "Engineer",
         company: "Random Corp",
       };
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, otherJob)).toBe(false);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, otherJob)).toBe(false);
     });
 
     it("filters by companies to skip (blacklist)", () => {
@@ -301,13 +311,13 @@ describe("shouldNotifyForJob", () => {
         title: "Engineer",
         company: "BadCorp",
       };
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, badJob)).toBe(false);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, badJob)).toBe(false);
 
       const goodJob: JobForNotification = {
         title: "Engineer",
         company: "GoodCompany",
       };
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, goodJob)).toBe(true);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, goodJob)).toBe(true);
     });
 
     it("company matching is case-insensitive", () => {
@@ -323,7 +333,7 @@ describe("shouldNotifyForJob", () => {
         title: "Engineer",
         company: "GOOGLE",
       };
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, job)).toBe(true);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, job)).toBe(true);
     });
 
     it("company matching is partial", () => {
@@ -339,7 +349,7 @@ describe("shouldNotifyForJob", () => {
         title: "Engineer",
         company: "Google LLC",
       };
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, job)).toBe(true);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, job)).toBe(true);
     });
   });
 
@@ -364,7 +374,7 @@ describe("shouldNotifyForJob", () => {
         salary_max: 150000,
         remote: true,
       };
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, perfectJob)).toBe(true);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, perfectJob)).toBe(true);
 
       // Job failing include keyword
       const noKeywordJob: JobForNotification = {
@@ -373,7 +383,7 @@ describe("shouldNotifyForJob", () => {
         salary_max: 150000,
         remote: true,
       };
-      expect(shouldNotifyForJob("linkedin", 0.8, prefs, noKeywordJob)).toBe(false);
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, noKeywordJob)).toBe(false);
     });
   });
 });
@@ -436,7 +446,7 @@ describe("NotificationPreferences Component", () => {
 
       await waitFor(() => {
         expect(screen.getByText("Per-Source Settings")).toBeInTheDocument();
-        expect(screen.getByText("LinkedIn")).toBeInTheDocument();
+        expect(screen.queryByText("LinkedIn")).not.toBeInTheDocument();
         expect(screen.getByText("Indeed")).toBeInTheDocument();
         expect(screen.getByText("Greenhouse")).toBeInTheDocument();
         expect(screen.getByText("Lever")).toBeInTheDocument();

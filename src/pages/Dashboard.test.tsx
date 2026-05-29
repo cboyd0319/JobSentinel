@@ -110,8 +110,9 @@ describe("Dashboard handleSearchNow pre-flight check", () => {
     });
 
     it("does not treat LinkedIn search links as a background source", () => {
+      const sourceKey = "linkedin";
       const cfg: ScraperConfig = {
-        linkedin: { enabled: true },
+        [sourceKey]: { enabled: true },
       };
 
       expect(anyScraperEnabled(cfg)).toBe(false);

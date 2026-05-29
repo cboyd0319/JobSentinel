@@ -627,7 +627,8 @@ JobSentinel uses a fully self-contained skill extraction system:
 ### Future Enhancements
 
 - [ ] **DOCX Support** - Parse Microsoft Word resumes
-- [ ] **LinkedIn Import** - Import profile directly from LinkedIn
+- [ ] **Profile Import Review** - Evaluate privacy-preserving ways to import
+      user-provided career history files
 - [ ] **A/B Testing** - Track which resume versions perform best
 - [ ] **Skill Trend Analysis** - See which skills are growing in demand
 - [ ] **Resume Optimization** - Suggest keywords to add
@@ -764,7 +765,7 @@ pub struct MatchResult {
 
 ### Future
 
-- [ ] LinkedIn profile import
+- [ ] User-provided career history import
 - [ ] A/B testing for resume versions
 - [ ] Skill trend analysis
 - [ ] Cover letter generation from resume

@@ -14,10 +14,9 @@ import {
 } from '../utils/notificationPreferences';
 
 // Type for source keys only (excluding global and advancedFilters)
-type SourceKey = 'linkedin' | 'indeed' | 'greenhouse' | 'lever' | 'jobswithgpt';
+type AlertSourceKey = 'indeed' | 'greenhouse' | 'lever' | 'jobswithgpt';
 
-const SOURCE_INFO: Record<string, { name: string; color: string; icon: string }> = {
-  linkedin: { name: 'LinkedIn', color: '#0077B5', icon: 'in' },
+const SOURCE_INFO: Record<AlertSourceKey, { name: string; color: string; icon: string }> = {
   indeed: { name: 'Indeed', color: '#2557A7', icon: 'I' },
   greenhouse: { name: 'Greenhouse', color: '#3AB549', icon: 'G' },
   lever: { name: 'Lever', color: '#6B46C1', icon: 'L' },
@@ -25,7 +24,7 @@ const SOURCE_INFO: Record<string, { name: string; color: string; icon: string }>
 };
 
 interface SourceConfigRowProps {
-  sourceKey: string;
+  sourceKey: AlertSourceKey;
   config: SourceNotificationConfig;
   onChange: (config: SourceNotificationConfig) => void;
 }
@@ -137,7 +136,7 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
     }
   }, [prefs, toast]);
 
-  const handleSourceChange = useCallback((sourceKey: string, config: SourceNotificationConfig) => {
+  const handleSourceChange = useCallback((sourceKey: AlertSourceKey, config: SourceNotificationConfig) => {
     const updated = { ...prefs, [sourceKey]: config };
     savePrefs(updated);
   }, [prefs, savePrefs]);
@@ -272,11 +271,11 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
           <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-3 uppercase tracking-wide">
             Per-Source Settings
           </p>
-          {Object.keys(SOURCE_INFO).map((sourceKey) => (
+          {(Object.keys(SOURCE_INFO) as AlertSourceKey[]).map((sourceKey) => (
             <SourceConfigRow
               key={sourceKey}
               sourceKey={sourceKey}
-              config={prefs[sourceKey as SourceKey]}
+              config={prefs[sourceKey]}
               onChange={(config) => handleSourceChange(sourceKey, config)}
             />
           ))}

@@ -2373,7 +2373,7 @@ function normalizeSourceNotificationConfig(value: unknown, fallback: SourceNotif
 
 function getDefaultNotificationPreferences(): NotificationPreferences {
   return {
-    linkedin: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
+    linkedin: { enabled: false, minScoreThreshold: 70, soundEnabled: false },
     indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
     greenhouse: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
     lever: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
@@ -2402,7 +2402,11 @@ function normalizeNotificationPreferences(value: unknown): NotificationPreferenc
   const advancedFilters = isRecord(source.advancedFilters) ? source.advancedFilters : {};
 
   return {
-    linkedin: normalizeSourceNotificationConfig(source.linkedin, defaults.linkedin),
+    linkedin: {
+      ...normalizeSourceNotificationConfig(source.linkedin, defaults.linkedin),
+      enabled: false,
+      soundEnabled: false,
+    },
     indeed: normalizeSourceNotificationConfig(source.indeed, defaults.indeed),
     greenhouse: normalizeSourceNotificationConfig(source.greenhouse, defaults.greenhouse),
     lever: normalizeSourceNotificationConfig(source.lever, defaults.lever),

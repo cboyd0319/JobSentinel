@@ -86,8 +86,8 @@ Chrome extensions seem like an obvious choice for a job search tool, but they ha
 
 ### 1. No Background Processing
 
-Extensions can't run scheduled tasks when Chrome is closed. JobSentinel needs to scrape job
-boards every 2 hours, even when you're not actively browsing.
+Extensions can't run scheduled tasks when Chrome is closed. JobSentinel needs
+to check allowed sources on a schedule, even when you're not actively browsing.
 
 ### 2. No Local Database
 
@@ -96,8 +96,9 @@ uses SQLite with full-text search, storing thousands of jobs with rich metadata.
 
 ### 3. No Desktop Notifications (When Chrome Closed)
 
-If a dream job appears at 3am, an extension can't notify you unless Chrome is open. Tauri
-apps can send native OS notifications anytime.
+If a strong match appears outside your browser session, an extension can't
+notify you unless Chrome is open. Tauri apps can send native OS notifications
+anytime.
 
 ### 4. Chrome Required
 
@@ -211,7 +212,7 @@ Real-world measurements on a 2024 MacBook Pro:
 | -------------------- | ------ |
 | Cold start           | 0.4s   |
 | Hot start            | 0.2s   |
-| Scrape 13 job boards | 30-60s |
+| Check allowed job sources | 30-60s |
 | Search 10,000 jobs   | <50ms  |
 | Memory (idle)        | 45MB   |
 | Memory (active)      | 80MB   |

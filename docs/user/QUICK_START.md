@@ -180,7 +180,7 @@ Change anything that looks wrong, then start finding jobs.
 
 ## Step 3: Review matches
 
-JobSentinel is now watching 13 job sources for you.
+JobSentinel is now watching the allowed sources you enabled.
 
 Here's what happens automatically:
 
@@ -207,7 +207,7 @@ The dashboard shows:
 ### Manual Search
 
 Don't want to wait 2 hours? Right-click the tray/menu bar icon and select
-**"Search Now"** to scan all job boards immediately.
+**"Search Now"** to scan allowed sources immediately.
 
 ### Bookmark Jobs
 

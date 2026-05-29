@@ -3363,6 +3363,26 @@ test("checkRepoBloat rejects stale scraper health coverage", () => {
       "src/pages/Dashboard.tsx",
       "const emptyState = '13 job boards on your schedule';\n",
     );
+    writeFixtureFile(
+      root,
+      "docs/user/QUICK_START.md",
+      "JobSentinel is now watching 13 job sources for you.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
+      "| vague | JobSentinel checks 13 job boards every hour |\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/WHY_TAURI.md",
+      "| Scrape 13 job boards | 30-60s |\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/releases/v2.1.md",
+      "All 13 scrapers wired\n",
+    );
 
     execFileSync(
       "git",
@@ -3372,6 +3392,10 @@ test("checkRepoBloat rejects stale scraper health coverage", () => {
         "docs/features/scraper-health.md",
         "src/mocks/handlers.ts",
         "src/pages/Dashboard.tsx",
+        "docs/user/QUICK_START.md",
+        "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
+        "docs/developer/WHY_TAURI.md",
+        "docs/releases/v2.1.md",
       ],
       { cwd: root },
     );
@@ -3388,6 +3412,24 @@ test("checkRepoBloat rejects stale scraper health coverage", () => {
     );
     assert.ok(
       violations.includes("sync scraper health source coverage: src/pages/Dashboard.tsx"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("sync scraper health source coverage: docs/user/QUICK_START.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "sync scraper health source coverage: docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("sync scraper health source coverage: docs/developer/WHY_TAURI.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("sync scraper health source coverage: docs/releases/v2.1.md"),
       violations.join("\n"),
     );
   });
@@ -5022,6 +5064,31 @@ test("checkRepoBloat rejects automated LinkedIn collection drift", () => {
     );
     writeFixtureFile(
       root,
+      "src/utils/notificationPreferences.ts",
+      "export const DEFAULT_PREFERENCES = { linkedin: { enabled: true } };\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/components/NotificationPreferences.tsx",
+      "const SOURCE_INFO = { linkedin: { name: 'LinkedIn' } };\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      "function defaults() { return { linkedin: { enabled: true } }; }\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/user-data-management.md",
+      "linkedin: { enabled: true, minScoreThreshold: 70, soundEnabled: true }\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/user_data/mod.rs",
+      "let linkedin = SourceNotificationConfig { enabled: true, min_score_threshold: 70, sound_enabled: true };\n",
+    );
+    writeFixtureFile(
+      root,
       "docs/features/scrapers.md",
       `Click **${["Connect", "LinkedIn"].join(" ")}** to run the ${["LinkedIn", "scraper"].join(" ")}.\n`,
     );
@@ -5033,6 +5100,11 @@ test("checkRepoBloat rejects automated LinkedIn collection drift", () => {
         "package.json",
         "src-tauri/src/core/scrapers/linkedin.rs",
         "src/pages/Settings.tsx",
+        "src/utils/notificationPreferences.ts",
+        "src/components/NotificationPreferences.tsx",
+        "src/mocks/handlers.ts",
+        "docs/features/user-data-management.md",
+        "src-tauri/src/core/user_data/mod.rs",
         "docs/features/scrapers.md",
       ],
       { cwd: root },
@@ -5049,6 +5121,36 @@ test("checkRepoBloat rejects automated LinkedIn collection drift", () => {
     assert.ok(
       violations.includes(
         "remove automated LinkedIn collection boundary drift: src/pages/Settings.tsx",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove LinkedIn notification source drift: src/utils/notificationPreferences.ts",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove LinkedIn notification source drift: src/components/NotificationPreferences.tsx",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove LinkedIn notification source drift: src/mocks/handlers.ts",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove LinkedIn notification source drift: docs/features/user-data-management.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove LinkedIn notification source drift: src-tauri/src/core/user_data/mod.rs",
       ),
       violations.join("\n"),
     );

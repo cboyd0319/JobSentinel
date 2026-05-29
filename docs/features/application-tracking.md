@@ -427,7 +427,7 @@ WHERE status IN ('applied', 'rejected', 'ghosted');
 - [ ] **Document Vault** - Store resumes, cover letters per application
 - [ ] **Analytics Dashboard** - Visual charts for success rates, timelines
 - [ ] **Bulk Actions** - Update multiple applications at once
-- [ ] **Tags/Labels** - Categorize applications (dream job, backup, practice)
+- [ ] **Tags/Labels** - Categorize applications (priority, backup, practice)
 - [ ] **Salary Negotiation Tracker** - Track offer negotiations
 - [ ] **Application Templates** - Save common application patterns
 

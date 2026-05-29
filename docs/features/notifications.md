@@ -1,9 +1,10 @@
 # Notifications
 
-**Get pinged when your dream job appears.**
+**Get notified when a strong match needs review.**
 
 JobSentinel can alert you the moment it finds a job that matches your criteria.
-No more checking job boards manually - let the jobs come to you.
+Notifications stay optional and user-controlled so you can review jobs on your
+schedule.
 
 ![Notification Settings](../images/settings.png)
 
@@ -30,7 +31,13 @@ Pick whichever channels work best for you:
 | **Telegram**        | Prefer mobile notifications    |
 | **Desktop**         | Want instant on-screen alerts  |
 
-You can enable multiple channels at once - they all fire simultaneously.
+You can enable multiple channels at once. JobSentinel only sends alerts to
+channels you configure.
+
+## Source Boundaries
+
+Notifications only cover sources JobSentinel monitors locally. LinkedIn is a
+user-opened search-link destination, not a background notification source.
 
 ---
 
@@ -47,7 +54,7 @@ You can enable multiple channels at once - they all fire simultaneously.
 7. Copy the connection link
 8. In JobSentinel: Settings > Notifications > Slack > Paste link
 
-**What you'll get:** Rich formatted messages with job details and a "View Job" button.
+**What you'll get:** Formatted messages with job details and a "View Job" button.
 
 ---
 

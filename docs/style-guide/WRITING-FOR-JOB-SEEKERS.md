@@ -101,7 +101,7 @@ Vague language doesn't help anyone.
 
 | Vague | Specific |
 |-------|----------|
-| "JobSentinel helps you" | "JobSentinel checks 13 job boards every hour" |
+| "JobSentinel helps you" | "JobSentinel checks allowed sources on your schedule" |
 | "Save time" | "Stop refreshing job boards manually" |
 | "Better results" | "See jobs ranked by how well they match your skills" |
 
