@@ -358,18 +358,18 @@ mod tests {
         let parser = ResumeParser::new();
 
         let resume_text = r#"
-John Doe
-Software Engineer
+Jordan Lee
+Program Coordinator
 
 SUMMARY
-Experienced software engineer with 5 years of experience.
+Experienced program coordinator with 5 years of client-service experience.
 
 EXPERIENCE
-Senior Engineer at TechCorp
-Built scalable systems.
+Program Operations Lead at Harbor Community Services
+Improved intake scheduling.
 
 SKILLS
-Python, Rust, React
+Scheduling, case documentation, Spanish
         "#;
 
         let sections = parser.extract_sections(resume_text);
@@ -379,8 +379,8 @@ Python, Rust, React
         assert!(sections.contains_key("skills"));
 
         let skills_section = sections.get("skills").unwrap();
-        assert!(skills_section.contains("Python"));
-        assert!(skills_section.contains("Rust"));
+        assert!(skills_section.contains("Scheduling"));
+        assert!(skills_section.contains("Spanish"));
     }
 
     #[test]
@@ -476,19 +476,19 @@ Rust
     fn test_extract_sections_multiple_section_types() {
         let parser = ResumeParser::new();
         let resume_text = r#"
-John Doe
+Jordan Lee
 
 PROFILE
-Senior Engineer
+Program Coordinator
 
 PROJECTS
-Built cool stuff
+Improved intake process
 
 CERTIFICATIONS
-AWS Certified
+CPR Certified
 
 EDUCATION
-BS Computer Science
+BA Public Administration
         "#;
 
         let sections = parser.extract_sections(resume_text);

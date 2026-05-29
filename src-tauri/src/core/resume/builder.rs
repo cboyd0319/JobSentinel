@@ -464,13 +464,13 @@ mod tests {
         let resume_id = builder.create_resume().await.unwrap();
 
         let contact = ContactInfo {
-            name: "John Doe".to_string(),
-            email: "john@example.com".to_string(),
+            name: "Jordan Lee".to_string(),
+            email: "jordan@example.com".to_string(),
             phone: Some("+1-555-0100".to_string()),
-            linkedin: Some("linkedin.com/in/johndoe".to_string()),
-            github: Some("github.com/johndoe".to_string()),
-            location: Some("San Francisco, CA".to_string()),
-            website: Some("johndoe.com".to_string()),
+            linkedin: Some("linkedin.com/in/jordan-lee".to_string()),
+            github: None,
+            location: Some("Portland, OR".to_string()),
+            website: Some("jordanlee.example.com".to_string()),
         };
 
         builder
@@ -479,8 +479,8 @@ mod tests {
             .unwrap();
 
         let resume = builder.get_resume(resume_id).await.unwrap().unwrap();
-        assert_eq!(resume.contact.name, "John Doe");
-        assert_eq!(resume.contact.email, "john@example.com");
+        assert_eq!(resume.contact.name, "Jordan Lee");
+        assert_eq!(resume.contact.email, "jordan@example.com");
         assert_eq!(resume.contact.phone.unwrap(), "+1-555-0100");
     }
 
@@ -493,15 +493,15 @@ mod tests {
 
         let exp = Experience {
             id: 0, // Will be assigned
-            company: "TechCorp".to_string(),
-            title: "Senior Engineer".to_string(),
+            company: "Harbor Community Services".to_string(),
+            title: "Program Operations Lead".to_string(),
             location: Some("Remote".to_string()),
             start_date: "2020-01".to_string(),
             end_date: None,
             is_current: true,
             bullets: vec![
-                "Led team of 5 engineers".to_string(),
-                "Shipped 3 major features".to_string(),
+                "Coordinated a 5-person intake team".to_string(),
+                "Reduced client intake turnaround by 30%".to_string(),
             ],
         };
 
@@ -510,7 +510,7 @@ mod tests {
 
         let resume = builder.get_resume(resume_id).await.unwrap().unwrap();
         assert_eq!(resume.experience.len(), 1);
-        assert_eq!(resume.experience[0].company, "TechCorp");
+        assert_eq!(resume.experience[0].company, "Harbor Community Services");
         assert_eq!(resume.experience[0].bullets.len(), 2);
     }
 
@@ -523,8 +523,8 @@ mod tests {
 
         let exp = Experience {
             id: 0,
-            company: "TechCorp".to_string(),
-            title: "Senior Engineer".to_string(),
+            company: "Harbor Community Services".to_string(),
+            title: "Program Operations Lead".to_string(),
             location: None,
             start_date: "2020-01".to_string(),
             end_date: None,

@@ -617,8 +617,14 @@ impl AtsAnalyzer {
     fn extract_keywords_from_text(text: &str) -> Vec<String> {
         let mut keywords = HashSet::new();
 
-        // Common tech keywords pattern
-        let tech_patterns = [
+        let keyword_patterns = [
+            r"(?i)\b(customer service|client service|client services|case management|case notes|case documentation)\b",
+            r"(?i)\b(scheduling|calendar management|appointment setting|intake|onboarding|training)\b",
+            r"(?i)\b(sales|account management|crm|salesforce|hubspot|pipeline|prospecting)\b",
+            r"(?i)\b(payroll|bookkeeping|quickbooks|accounts payable|accounts receivable|billing)\b",
+            r"(?i)\b(inventory|logistics|shipping|receiving|procurement|vendor management)\b",
+            r"(?i)\b(reporting|budget tracking|grant reporting|grant writing|program evaluation)\b",
+            r"(?i)\b(compliance|hipaa|osha|quality assurance|data entry|excel)\b",
             r"(?i)\b(rust|python|javascript|typescript|java|c\+\+|go|kotlin|swift)\b",
             r"(?i)\b(react|vue|angular|node\.?js|django|flask|spring|express)\b",
             r"(?i)\b(aws|azure|gcp|docker|kubernetes|terraform|ansible)\b",
@@ -626,7 +632,7 @@ impl AtsAnalyzer {
             r"(?i)\b(git|ci/cd|agile|scrum|rest|graphql|microservices)\b",
         ];
 
-        for pattern in &tech_patterns {
+        for pattern in &keyword_patterns {
             if let Ok(re) = regex::Regex::new(pattern) {
                 for cap in re.captures_iter(text) {
                     if let Some(m) = cap.get(0) {
@@ -666,6 +672,25 @@ impl AtsAnalyzer {
             "etl",
             "analytics",
             // General
+            "customer service",
+            "client services",
+            "case management",
+            "scheduling",
+            "intake",
+            "training",
+            "sales",
+            "account management",
+            "crm",
+            "payroll",
+            "bookkeeping",
+            "inventory",
+            "logistics",
+            "reporting",
+            "budget tracking",
+            "compliance",
+            "quality assurance",
+            "data entry",
+            "excel",
             "tdd",
             "testing",
             "automation",
@@ -688,64 +713,65 @@ mod tests {
     fn sample_resume() -> ResumeData {
         ResumeData {
             contact_info: ContactInfo {
-                name: "John Doe".to_string(),
-                email: "john@example.com".to_string(),
+                name: "Jordan Lee".to_string(),
+                email: "jordan@example.com".to_string(),
                 phone: "555-1234".to_string(),
-                location: "San Francisco, CA".to_string(),
-                linkedin: Some("linkedin.com/in/johndoe".to_string()),
-                github: Some("github.com/johndoe".to_string()),
+                location: "Portland, OR".to_string(),
+                linkedin: Some("linkedin.com/in/jordan-lee".to_string()),
+                github: None,
                 website: None,
             },
-            summary: "Senior software engineer with 5 years of experience in Rust and Python"
-                .to_string(),
+            summary:
+                "Program operations lead with 5 years of client services and intake scheduling"
+                    .to_string(),
             experience: vec![Experience {
-                title: "Senior Software Engineer".to_string(),
-                company: "Tech Corp".to_string(),
-                location: "San Francisco, CA".to_string(),
+                title: "Program Operations Lead".to_string(),
+                company: "Harbor Community Services".to_string(),
+                location: "Portland, OR".to_string(),
                 start_date: "Jan 2020".to_string(),
                 end_date: "Present".to_string(),
                 achievements: vec![
-                    "Led development of microservices using Rust".to_string(),
-                    "Improved system performance by 40%".to_string(),
+                    "Led client intake scheduling across three service teams".to_string(),
+                    "Improved case documentation accuracy by 40%".to_string(),
                 ],
                 current: true,
             }],
             skills: vec![
                 Skill {
-                    name: "Rust".to_string(),
-                    category: "Programming Languages".to_string(),
+                    name: "Case management".to_string(),
+                    category: "Client Services".to_string(),
                     proficiency: None,
                 },
                 Skill {
-                    name: "Python".to_string(),
-                    category: "Programming Languages".to_string(),
+                    name: "Scheduling".to_string(),
+                    category: "Operations".to_string(),
                     proficiency: None,
                 },
                 Skill {
-                    name: "Docker".to_string(),
-                    category: "DevOps".to_string(),
+                    name: "CRM".to_string(),
+                    category: "Tools".to_string(),
                     proficiency: None,
                 },
                 Skill {
-                    name: "Kubernetes".to_string(),
-                    category: "DevOps".to_string(),
+                    name: "Reporting".to_string(),
+                    category: "Operations".to_string(),
                     proficiency: None,
                 },
                 Skill {
-                    name: "PostgreSQL".to_string(),
-                    category: "Databases".to_string(),
+                    name: "Compliance".to_string(),
+                    category: "Quality".to_string(),
                     proficiency: None,
                 },
                 Skill {
-                    name: "AWS".to_string(),
-                    category: "Cloud".to_string(),
+                    name: "Excel".to_string(),
+                    category: "Tools".to_string(),
                     proficiency: None,
                 },
             ],
             education: vec![Education {
-                degree: "BS Computer Science".to_string(),
-                institution: "Stanford University".to_string(),
-                location: "Stanford, CA".to_string(),
+                degree: "BA Public Administration".to_string(),
+                institution: "State University".to_string(),
+                location: "Portland, OR".to_string(),
                 graduation_date: "2018".to_string(),
                 gpa: Some(3.8),
                 honors: vec![],
@@ -798,27 +824,27 @@ mod tests {
     fn test_extract_job_keywords() {
         // Use double newlines to separate sections properly
         let job_desc = r#"
-Required: Rust, Python, Docker, Kubernetes
+Required: case management, scheduling, CRM
 
-Nice to have: AWS, GraphQL
+Nice to have: compliance, Excel
         "#;
 
         let keywords = AtsAnalyzer::extract_job_keywords(job_desc);
 
-        // Rust should be extracted as Required
+        // Case management should be extracted as Required.
         assert!(keywords
             .iter()
-            .any(|(k, i)| k == "rust" && *i == KeywordImportance::Required));
-        // AWS should be extracted as Preferred (from "nice to have" section)
+            .any(|(k, i)| k == "case management" && *i == KeywordImportance::Required));
+        // Compliance should be extracted as Preferred from "nice to have".
         assert!(keywords
             .iter()
-            .any(|(k, i)| k == "aws" && *i == KeywordImportance::Preferred));
+            .any(|(k, i)| k == "compliance" && *i == KeywordImportance::Preferred));
     }
 
     #[test]
     fn test_analyze_for_job_high_match() {
         let resume = sample_resume();
-        let job_desc = "Required: Rust, Python, Docker";
+        let job_desc = "Required: case management, scheduling, CRM";
 
         let result = AtsAnalyzer::analyze_for_job(&resume, job_desc);
 
@@ -845,9 +871,9 @@ Nice to have: AWS, GraphQL
     fn test_keyword_importance_ordering() {
         let resume = sample_resume();
         let job_desc = r#"
-            Required: Rust
-            Preferred: Docker
-            AWS is also good
+            Required: case management
+            Preferred: reporting
+            Compliance is also good
         "#;
 
         let result = AtsAnalyzer::analyze_for_job(&resume, job_desc);
@@ -873,7 +899,7 @@ Nice to have: AWS, GraphQL
 
     #[test]
     fn test_improve_bullet_with_power_word() {
-        let bullet = "Led development of microservices using Rust";
+        let bullet = "Led client intake scheduling project";
         let improved = AtsAnalyzer::improve_bullet(bullet, None);
 
         // Already starts with power word
@@ -882,7 +908,7 @@ Nice to have: AWS, GraphQL
 
     #[test]
     fn test_improve_bullet_without_power_word() {
-        let bullet = "Was responsible for developing microservices";
+        let bullet = "Was responsible for updating intake schedules";
         let improved = AtsAnalyzer::improve_bullet(bullet, None);
 
         // Should replace with power word
@@ -891,7 +917,7 @@ Nice to have: AWS, GraphQL
 
     #[test]
     fn test_improve_bullet_missing_metrics() {
-        let bullet = "Led development of microservices";
+        let bullet = "Led intake scheduling";
         let improved = AtsAnalyzer::improve_bullet(bullet, None);
 
         // Should suggest adding metrics
@@ -900,12 +926,12 @@ Nice to have: AWS, GraphQL
 
     #[test]
     fn test_improve_bullet_with_job_context() {
-        let bullet = "Led development of backend services";
-        let job_desc = "Required: Rust, Kubernetes, Docker";
+        let bullet = "Led intake coordination";
+        let job_desc = "Required: case management, scheduling, CRM";
         let improved = AtsAnalyzer::improve_bullet(bullet, Some(job_desc));
 
         // Should suggest adding required keywords
-        assert!(improved.contains("Rust") || improved.contains("consider adding"));
+        assert!(improved.contains("case management") || improved.contains("consider adding"));
     }
 
     #[test]

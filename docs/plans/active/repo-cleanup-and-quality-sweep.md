@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Rebased backend resume parsing, rendering, export, JSON Resume, builder, and readability-analysis fixtures from `John Doe`, `TechCorp`, and software-engineering defaults to community-program and client-service examples; broadened keyword extraction beyond software roles and added bloat coverage against recurrence. |
 | 2026-05-29 | In progress | Rebased Dashboard hook test fixtures from software-engineering and Remote Rust examples to customer-support, CareBridge, and Remote Support examples, with bloat coverage against old dashboard hook fixture drift. |
 | 2026-05-29 | In progress | Rebased mock handler saved-search and runtime-command fixtures from Remote Rust and senior software-engineer examples to remote support and customer-support lead examples, with bloat coverage against old mock handler test drift. |
 | 2026-05-29 | In progress | Rebased automation apply-button fixture from a senior software-engineering example to a customer-support lead example, with bloat coverage against old automation test fixture drift. |

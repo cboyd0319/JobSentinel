@@ -19,11 +19,11 @@ scope:
 
 Latest pushed slice before this handoff refresh:
 
-- `a6b928d5 Tighten README information design`
+- `d41ac4ef Broaden style and source comments`
 
 Current local branch note:
 
-- Continuation cleanup commits after `a6b928d5` are local only until the user
+- Continuation cleanup commits after `d41ac4ef` are local only until the user
   explicitly asks for another push or the full-goal completion pass requires
   remote verification.
 - Continue using small verified commits. Avoid remote CI unless the user
@@ -64,6 +64,10 @@ Current cleanup posture:
   inside that docs index.
 - The plans index includes all current active plans, including the
   research-backed product improvements plan.
+- Backend resume parsing, rendering, export, JSON Resume, builder, and
+  readability-analysis fixtures now use community-program and client-service
+  examples instead of engineer-first defaults, and the readability keyword
+  extractor covers common non-software role terms.
 
 ## Recent Work Landed
 
@@ -72,6 +76,8 @@ Recent cleanup slices on `main` include:
 - Protective ghost/posting-risk wording across UI and maintained docs, replacing
   fake/real verdict language with stale, low-trust, needs-review, and
   verify-before-tailoring guidance.
+- Backend resume fixture cleanup and broader role keyword extraction for
+  resume readability checks.
 - WebKit E2E shortcut delivery and dashboard count stabilization.
 - Chromium E2E stabilization after full-suite failures.
 - Active research-backed product planning for job-seeker behavior, ATS-aware

@@ -622,43 +622,38 @@ mod tests {
     fn create_test_resume() -> ResumeData {
         ResumeData {
             personal: PersonalInfo {
-                full_name: "John Doe".to_string(),
-                email: "john.doe@example.com".to_string(),
+                full_name: "Jordan Lee".to_string(),
+                email: "jordan.lee@example.com".to_string(),
                 phone: "+1-555-0123".to_string(),
-                location: "San Francisco, CA".to_string(),
-                linkedin_url: Some("linkedin.com/in/johndoe".to_string()),
-                website_url: Some("johndoe.dev".to_string()),
+                location: "Portland, OR".to_string(),
+                linkedin_url: Some("linkedin.com/in/jordan-lee".to_string()),
+                website_url: Some("jordanlee.example.com".to_string()),
             },
             summary: Some(
-                "Experienced software engineer with 5+ years in full-stack development."
-                    .to_string(),
+                "Experienced program coordinator with 5+ years in client services.".to_string(),
             ),
             experience: vec![ExperienceEntry {
-                company: "Tech Corp".to_string(),
-                job_title: "Senior Software Engineer".to_string(),
+                company: "Harbor Community Services".to_string(),
+                job_title: "Program Operations Lead".to_string(),
                 start_date: "Jan 2020".to_string(),
                 end_date: None,
-                location: Some("San Francisco, CA".to_string()),
+                location: Some("Portland, OR".to_string()),
                 responsibilities: vec![
-                    "Built scalable microservices in Rust".to_string(),
-                    "Led team of 5 engineers".to_string(),
+                    "Coordinated client intake scheduling".to_string(),
+                    "Led a 5-person case coordination team".to_string(),
                 ],
             }],
             education: vec![EducationEntry {
-                institution: "Stanford University".to_string(),
+                institution: "State University".to_string(),
                 degree: "B.S.".to_string(),
-                field_of_study: "Computer Science".to_string(),
+                field_of_study: "Public Administration".to_string(),
                 graduation_year: "2019".to_string(),
                 gpa: Some(3.8),
                 honors: None,
             }],
             skills: vec![SkillCategory {
-                category: "Programming Languages".to_string(),
-                skills: vec![
-                    "Rust".to_string(),
-                    "TypeScript".to_string(),
-                    "Python".to_string(),
-                ],
+                category: "Client Services".to_string(),
+                skills: vec!["Case documentation".to_string(), "Scheduling".to_string()],
             }],
             certifications: vec![],
             projects: vec![],
@@ -670,11 +665,11 @@ mod tests {
         let resume = create_test_resume();
         let text = ResumeExporter::export_text(&resume);
 
-        assert!(text.contains("John Doe"));
-        assert!(text.contains("john.doe@example.com"));
-        assert!(text.contains("Tech Corp"));
-        assert!(text.contains("Stanford University"));
-        assert!(text.contains("Rust"));
+        assert!(text.contains("Jordan Lee"));
+        assert!(text.contains("jordan.lee@example.com"));
+        assert!(text.contains("Harbor Community Services"));
+        assert!(text.contains("State University"));
+        assert!(text.contains("Scheduling"));
     }
 
     #[test]
@@ -696,10 +691,10 @@ mod tests {
 
         assert!(!html.is_empty());
         assert!(html.contains("<html"));
-        assert!(html.contains("John Doe"));
-        assert!(html.contains("john.doe@example.com"));
-        assert!(html.contains("Tech Corp"));
-        assert!(html.contains("Stanford University"));
+        assert!(html.contains("Jordan Lee"));
+        assert!(html.contains("jordan.lee@example.com"));
+        assert!(html.contains("Harbor Community Services"));
+        assert!(html.contains("State University"));
     }
 
     #[test]

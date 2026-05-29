@@ -594,6 +594,31 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src-tauri/src/core/resume/ats_analyzer.rs",
+      '"John Doe"; "Senior Software Engineer"; "Tech Corp";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/resume/builder.rs",
+      '"John Doe"; "TechCorp"; "Senior Software Engineer";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/resume/export.rs",
+      '"John Doe"; "Tech Corp"; "Senior Software Engineer";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/resume/json_resume.rs",
+      '"John Doe"; "Tech Corp"; "Software Engineer";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/resume/parser.rs",
+      '"John Doe"; "Software Engineer"; "TechCorp";\n',
+    );
+    writeFixtureFile(
+      root,
       "docs/developer/FRONTEND_TESTING.md",
       [
         'await user.type(input, "John Doe");',
@@ -755,6 +780,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/utils/formValidation.test.ts",
         "src/utils/export.test.ts",
         "src-tauri/src/core/health/smoke_tests.rs",
+        "src-tauri/src/core/resume/ats_analyzer.rs",
+        "src-tauri/src/core/resume/builder.rs",
+        "src-tauri/src/core/resume/export.rs",
+        "src-tauri/src/core/resume/json_resume.rs",
+        "src-tauri/src/core/resume/parser.rs",
         "src/pages/hooks/useDashboardFilters.test.ts",
         "src/pages/hooks/useDashboardJobOps.test.ts",
         "src/pages/hooks/useDashboardSavedSearches.test.ts",
@@ -814,6 +844,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/utils/formValidation.test.ts",
       "src/utils/export.test.ts",
       "src-tauri/src/core/health/smoke_tests.rs",
+      "src-tauri/src/core/resume/ats_analyzer.rs",
+      "src-tauri/src/core/resume/builder.rs",
+      "src-tauri/src/core/resume/export.rs",
+      "src-tauri/src/core/resume/json_resume.rs",
+      "src-tauri/src/core/resume/parser.rs",
       "src/pages/hooks/useDashboardFilters.test.ts",
       "src/pages/hooks/useDashboardJobOps.test.ts",
       "src/pages/hooks/useDashboardSavedSearches.test.ts",

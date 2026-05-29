@@ -571,27 +571,27 @@ mod tests {
     fn test_parse_valid_json_resume() {
         let json = r#"{
             "basics": {
-                "name": "John Doe",
-                "email": "john@example.com",
+                "name": "Jordan Lee",
+                "email": "jordan@example.com",
                 "phone": "555-1234",
-                "summary": "Software engineer with 5 years of experience"
+                "summary": "Program coordinator with 5 years of experience"
             },
             "work": [{
-                "name": "Acme Corp",
-                "position": "Senior Engineer",
+                "name": "Harbor Services",
+                "position": "Program Coordinator",
                 "startDate": "2020-01-01",
                 "endDate": "2024-12-31",
-                "highlights": ["Led team of 5", "Built microservices"]
+                "highlights": ["Led team of 5", "Improved intake scheduling"]
             }],
             "skills": [{
-                "name": "Programming",
+                "name": "Program Operations",
                 "level": "Advanced",
-                "keywords": ["Rust", "Python", "JavaScript"]
+                "keywords": ["Scheduling", "Reporting", "Client intake"]
             }]
         }"#;
 
         let resume = JsonResume::from_json(json).unwrap();
-        assert_eq!(resume.basics.name, "John Doe");
+        assert_eq!(resume.basics.name, "Jordan Lee");
         assert_eq!(resume.work.len(), 1);
         assert_eq!(resume.skills.len(), 1);
     }
@@ -611,17 +611,17 @@ mod tests {
     fn test_convert_contact_info() {
         let json = r#"{
             "basics": {
-                "name": "John Doe",
-                "email": "john@example.com",
+                "name": "Jordan Lee",
+                "email": "jordan@example.com",
                 "phone": "+1-555-1234",
-                "url": "https://johndoe.com",
+                "url": "https://jordanlee.example.com",
                 "location": {
-                    "city": "San Francisco",
-                    "region": "CA"
+                    "city": "Portland",
+                    "region": "OR"
                 },
                 "profiles": [
-                    {"network": "LinkedIn", "url": "https://linkedin.com/in/johndoe"},
-                    {"network": "GitHub", "url": "https://github.com/johndoe"}
+                    {"network": "LinkedIn", "url": "https://linkedin.com/in/jordan-lee"},
+                    {"network": "GitHub", "url": "https://github.com/jordan-lee"}
                 ]
             }
         }"#;
@@ -629,43 +629,46 @@ mod tests {
         let resume = JsonResume::from_json(json).unwrap();
         let contact = resume.convert_contact_info();
 
-        assert_eq!(contact.name, "John Doe");
-        assert_eq!(contact.email, "john@example.com");
+        assert_eq!(contact.name, "Jordan Lee");
+        assert_eq!(contact.email, "jordan@example.com");
         assert_eq!(contact.phone, "+1-555-1234");
-        assert_eq!(contact.location, "San Francisco, CA");
+        assert_eq!(contact.location, "Portland, OR");
         assert_eq!(
             contact.linkedin,
-            Some("https://linkedin.com/in/johndoe".to_string())
+            Some("https://linkedin.com/in/jordan-lee".to_string())
         );
         assert_eq!(
             contact.github,
-            Some("https://github.com/johndoe".to_string())
+            Some("https://github.com/jordan-lee".to_string())
         );
-        assert_eq!(contact.website, Some("https://johndoe.com".to_string()));
+        assert_eq!(
+            contact.website,
+            Some("https://jordanlee.example.com".to_string())
+        );
     }
 
     #[test]
     fn test_convert_experience() {
         let json = r#"{
             "work": [{
-                "name": "Tech Corp",
-                "position": "Software Engineer",
+                "name": "Harbor Services",
+                "position": "Program Coordinator",
                 "startDate": "2020-01-01",
                 "endDate": "2022-12-31",
-                "highlights": ["Built features", "Fixed bugs"]
+                "highlights": ["Improved intake scheduling", "Updated service guides"]
             }, {
-                "name": "Startup Inc",
-                "position": "Lead Developer",
+                "name": "Neighborhood Clinic",
+                "position": "Lead Scheduler",
                 "startDate": "2023-01-01",
                 "endDate": "",
                 "highlights": ["Leading team"]
             }],
             "volunteer": [{
-                "organization": "Code.org",
+                "organization": "Food Bank",
                 "position": "Mentor",
                 "startDate": "2021-01-01",
                 "endDate": "2021-12-31",
-                "highlights": ["Taught coding"]
+                "highlights": ["Trained volunteers"]
             }]
         }"#;
 
@@ -673,8 +676,8 @@ mod tests {
         let experience = resume.convert_experience();
 
         assert_eq!(experience.len(), 3);
-        assert_eq!(experience[0].company, "Tech Corp");
-        assert_eq!(experience[1].title, "Lead Developer");
+        assert_eq!(experience[0].company, "Harbor Services");
+        assert_eq!(experience[1].title, "Lead Scheduler");
         assert_eq!(experience[1].end_date, "Present");
         assert!(experience[1].current);
         assert_eq!(experience[2].title, "Mentor (Volunteer)");
@@ -684,12 +687,12 @@ mod tests {
     fn test_convert_education() {
         let json = r#"{
             "education": [{
-                "institution": "MIT",
+                "institution": "State University",
                 "studyType": "Bachelor",
-                "area": "Computer Science",
+                "area": "Public Administration",
                 "endDate": "2019-05-15",
                 "score": "3.8",
-                "courses": ["Algorithms", "Databases"]
+                "courses": ["Grant Writing", "Program Evaluation"]
             }]
         }"#;
 
@@ -697,10 +700,13 @@ mod tests {
         let education = resume.convert_education();
 
         assert_eq!(education.len(), 1);
-        assert_eq!(education[0].degree, "Bachelor in Computer Science");
-        assert_eq!(education[0].institution, "MIT");
+        assert_eq!(education[0].degree, "Bachelor in Public Administration");
+        assert_eq!(education[0].institution, "State University");
         assert_eq!(education[0].gpa, Some(3.8));
-        assert_eq!(education[0].honors, vec!["Algorithms", "Databases"]);
+        assert_eq!(
+            education[0].honors,
+            vec!["Grant Writing", "Program Evaluation"]
+        );
     }
 
     #[test]
@@ -708,14 +714,14 @@ mod tests {
         let json = r#"{
             "skills": [
                 {
-                    "name": "Programming",
+                    "name": "Client Services",
                     "level": "Advanced",
-                    "keywords": ["Rust", "Python"]
+                    "keywords": ["Scheduling", "Case notes"]
                 },
                 {
-                    "name": "Cloud",
+                    "name": "Operations",
                     "level": "Intermediate",
-                    "keywords": ["AWS", "Docker"]
+                    "keywords": ["Reporting", "Budget tracking"]
                 }
             ]
         }"#;
@@ -723,11 +729,11 @@ mod tests {
         let resume = JsonResume::from_json(json).unwrap();
         let skills = resume.convert_skills();
 
-        // Should have: Programming + Rust + Python + Cloud + AWS + Docker = 6 skills
+        // Should have category rows plus all expanded keyword skills.
         assert_eq!(skills.len(), 6);
-        assert_eq!(skills[0].name, "Programming");
+        assert_eq!(skills[0].name, "Client Services");
         assert_eq!(skills[0].proficiency, Some(Proficiency::Advanced));
-        assert_eq!(skills[1].name, "Rust");
+        assert_eq!(skills[1].name, "Scheduling");
         assert_eq!(skills[1].proficiency, Some(Proficiency::Advanced));
     }
 
@@ -741,7 +747,7 @@ mod tests {
             }],
             "awards": [{
                 "title": "Employee of the Year",
-                "awarder": "Tech Corp",
+                "awarder": "Harbor Services",
                 "date": "2022-12-01"
             }]
         }"#;

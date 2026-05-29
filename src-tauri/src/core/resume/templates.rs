@@ -1019,31 +1019,32 @@ mod tests {
     fn create_test_resume() -> ResumeData {
         ResumeData {
             contact: ContactInfo {
-                name: "John Doe".to_string(),
-                email: "john@example.com".to_string(),
+                name: "Jordan Lee".to_string(),
+                email: "jordan@example.com".to_string(),
                 phone: Some("555-1234".to_string()),
-                location: Some("San Francisco, CA".to_string()),
-                linkedin: Some("linkedin.com/in/johndoe".to_string()),
-                website: Some("johndoe.dev".to_string()),
+                location: Some("Portland, OR".to_string()),
+                linkedin: Some("linkedin.com/in/jordan-lee".to_string()),
+                website: Some("jordanlee.example.com".to_string()),
             },
             summary: Some(
-                "Experienced software engineer with 10 years in backend systems.".to_string(),
+                "Community programs manager with 10 years in client services and operations."
+                    .to_string(),
             ),
             experience: vec![Experience {
-                title: "Senior Software Engineer".to_string(),
-                company: "TechCorp".to_string(),
-                location: Some("San Francisco, CA".to_string()),
+                title: "Community Programs Manager".to_string(),
+                company: "Harbor Community Services".to_string(),
+                location: Some("Portland, OR".to_string()),
                 start_date: "Jan 2020".to_string(),
                 end_date: None,
                 achievements: vec![
-                    "Built distributed system handling 1M+ requests/day".to_string(),
-                    "Led team of 5 engineers".to_string(),
+                    "Coordinated intake program serving 1,000+ clients per year".to_string(),
+                    "Led a 5-person case coordination team".to_string(),
                 ],
             }],
             education: vec![Education {
-                degree: "BS Computer Science".to_string(),
-                institution: "Stanford University".to_string(),
-                location: Some("Stanford, CA".to_string()),
+                degree: "BA Public Administration".to_string(),
+                institution: "State University".to_string(),
+                location: Some("Portland, OR".to_string()),
                 graduation_date: Some("2014".to_string()),
                 gpa: Some("3.8".to_string()),
                 honors: vec![],
@@ -1051,11 +1052,14 @@ mod tests {
             skills: vec![
                 SkillCategory {
                     name: "Languages".to_string(),
-                    skills: vec!["Rust".to_string(), "Python".to_string(), "Go".to_string()],
+                    skills: vec!["English".to_string(), "Spanish".to_string()],
                 },
                 SkillCategory {
-                    name: "Frameworks".to_string(),
-                    skills: vec!["Tokio".to_string(), "Django".to_string()],
+                    name: "Operations".to_string(),
+                    skills: vec![
+                        "Case documentation".to_string(),
+                        "Grant reporting".to_string(),
+                    ],
                 },
             ],
             certifications: vec![],
@@ -1094,12 +1098,12 @@ mod tests {
         let html = TemplateRenderer::render_html(&resume, TemplateId::Classic);
 
         assert!(html.contains("<!DOCTYPE html>"));
-        assert!(html.contains("John Doe"));
-        assert!(html.contains("john@example.com"));
-        assert!(html.contains("Senior Software Engineer"));
-        assert!(html.contains("TechCorp"));
-        assert!(html.contains("Stanford University"));
-        assert!(html.contains("Rust"));
+        assert!(html.contains("Jordan Lee"));
+        assert!(html.contains("jordan@example.com"));
+        assert!(html.contains("Community Programs Manager"));
+        assert!(html.contains("Harbor Community Services"));
+        assert!(html.contains("State University"));
+        assert!(html.contains("Grant reporting"));
     }
 
     #[test]
@@ -1108,7 +1112,7 @@ mod tests {
         let html = TemplateRenderer::render_html(&resume, TemplateId::Modern);
 
         assert!(html.contains("<!DOCTYPE html>"));
-        assert!(html.contains("John Doe"));
+        assert!(html.contains("Jordan Lee"));
         assert!(html.contains("section-divider"));
     }
 
@@ -1120,7 +1124,7 @@ mod tests {
         assert!(html.contains("<!DOCTYPE html>"));
         assert!(html.contains("TECHNICAL SKILLS"));
         assert!(html.contains("Languages"));
-        assert!(html.contains("Rust"));
+        assert!(html.contains("Spanish"));
     }
 
     #[test]
@@ -1150,8 +1154,8 @@ mod tests {
         let resume = create_test_resume();
         let text = TemplateRenderer::render_plain_text(&resume);
 
-        assert!(text.contains("John Doe"));
-        assert!(text.contains("john@example.com"));
+        assert!(text.contains("Jordan Lee"));
+        assert!(text.contains("jordan@example.com"));
         assert!(text.contains("SUMMARY"));
         assert!(text.contains("EXPERIENCE"));
         assert!(text.contains("EDUCATION"));
