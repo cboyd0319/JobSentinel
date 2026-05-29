@@ -61,6 +61,17 @@ export interface DebugReportCopyResult {
 const DEBUG_REPORT_DESCRIPTION =
   "User generated a sanitized debug report from JobSentinel.";
 const MAX_FRONTEND_ERRORS_IN_REPORT = 20;
+const MAX_DEBUG_DETAIL_LENGTH = 120;
+
+const DEBUG_DETAIL_LABELS: Record<string, string> = {
+  command: "Action",
+  event: "Event",
+  reason: "Reason",
+  source: "Source",
+  status: "Status",
+  success: "Result",
+  type: "Type",
+};
 
 /**
  * Get system information for feedback report.
@@ -165,6 +176,58 @@ function formatFrontendErrorLog(errors: ErrorReport[]): string {
   }
 
   return lines.join("\n");
+}
+
+function formatDebugDetailValue(key: string, value: unknown): string | null {
+  if (typeof value === "boolean") {
+    if (key === "success") {
+      return value ? "succeeded" : "failed";
+    }
+    return value ? "yes" : "no";
+  }
+
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? String(value) : null;
+  }
+
+  if (typeof value === "string") {
+    const sanitized = sanitizeTextForStorage(value);
+    return sanitized.length > MAX_DEBUG_DETAIL_LENGTH
+      ? `${sanitized.slice(0, MAX_DEBUG_DETAIL_LENGTH)}...`
+      : sanitized;
+  }
+
+  if (value === null || typeof value === "undefined") {
+    return null;
+  }
+
+  return "details summarized";
+}
+
+function formatDebugDetailLabel(key: string): string {
+  return DEBUG_DETAIL_LABELS[key] ?? key.replace(/[_-]+/g, " ");
+}
+
+export function formatDebugEventDetails(
+  details: Record<string, unknown> | undefined
+): string {
+  const sanitizedDetails = sanitizeContext(details);
+
+  if (!sanitizedDetails) {
+    return "";
+  }
+
+  return Object.entries(sanitizedDetails)
+    .map(([key, value]) => {
+      const formattedValue = formatDebugDetailValue(key, value);
+      if (!formattedValue) {
+        return null;
+      }
+
+      return `${formatDebugDetailLabel(key)}: ${formattedValue}`;
+    })
+    .filter((line): line is string => Boolean(line))
+    .join("; ");
 }
 
 export async function buildSanitizedDebugReport(
@@ -281,9 +344,8 @@ export function formatDebugInfo(
       "───────────────────────────────────────────────────────────",
       "",
       ...debugEvents.map(event => {
-        const details = event.details
-          ? ` - ${JSON.stringify(event.details)}`
-          : "";
+        const formattedDetails = formatDebugEventDetails(event.details);
+        const details = formattedDetails ? ` - ${formattedDetails}` : "";
         return `[${event.time}] ${event.event}${details}`;
       }),
       ""

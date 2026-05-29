@@ -6555,6 +6555,53 @@ test("checkRepoBloat rejects stale feedback system-info architecture field", () 
   });
 });
 
+test("checkRepoBloat rejects raw feedback debug-event JSON", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/services/feedbackService.ts",
+      [
+        "export function formatDebugInfo(debugEvents) {",
+        "  return debugEvents.map(event => JSON.stringify(event.details));",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/feedback/DebugInfoPreview.tsx",
+      "export function DebugInfoPreview({ event }) { return JSON.stringify(event.details); }\n",
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src/services/feedbackService.ts",
+        "src/components/feedback/DebugInfoPreview.tsx",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "keep feedback debug event details readable: src/services/feedbackService.ts",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "keep feedback debug event details readable: src/components/feedback/DebugInfoPreview.tsx",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale resume optimizer mock handlers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

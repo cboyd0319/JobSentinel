@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   copySanitizedDebugReport,
+  formatDebugEventDetails,
   formatDebugInfo,
   getDebugLog,
   openGitHubIssue,
@@ -221,5 +222,60 @@ describe("feedbackService", () => {
 
     expect(debugInfo).toContain("Architecture: arm64");
     expect(debugInfo).not.toContain("Architecture: undefined");
+  });
+
+  it("formats debug event details without JSON or private values", () => {
+    const details = formatDebugEventDetails({
+      command: "search_jobs",
+      success: true,
+      url: "https://example.com/jobs?token=abc123",
+      owner_email: "candidate@example.com",
+      nested: { token: "secret" },
+    });
+
+    expect(details).toContain("Action: search_jobs");
+    expect(details).toContain("Result: succeeded");
+    expect(details).toContain("url: https://example.com/jobs");
+    expect(details).toContain("owner email: [EMAIL]");
+    expect(details).toContain("nested: details summarized");
+    expect(details).not.toContain("{");
+    expect(details).not.toContain("candidate@example.com");
+    expect(details).not.toContain("token=abc123");
+  });
+
+  it("uses readable debug event details in formatted reports", () => {
+    const debugInfo = formatDebugInfo(
+      {
+        app_version: "test-version",
+        platform: "macos",
+        os_version: "macOS 15.5",
+        architecture: "arm64",
+      },
+      {
+        scrapers_enabled: 3,
+        keywords_count: 4,
+        has_location_prefs: true,
+        has_salary_prefs: false,
+        has_company_blocklist: false,
+        has_company_allowlist: true,
+        notifications_configured: 2,
+        has_resume: true,
+      },
+      [
+        {
+          time: "2026-05-29T12:00:00Z",
+          event: "CommandInvoked",
+          details: {
+            command: "search_jobs",
+            success: false,
+          },
+        },
+      ],
+    );
+
+    expect(debugInfo).toContain(
+      "[2026-05-29T12:00:00Z] CommandInvoked - Action: search_jobs; Result: failed"
+    );
+    expect(debugInfo).not.toContain('{"command"');
   });
 });

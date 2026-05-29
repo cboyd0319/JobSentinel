@@ -479,6 +479,12 @@ const technicalFirstUserCopyPaths = new Set([
   "docs/user/DEEP_LINKS.md",
   "docs/user/QUICK_START.md",
 ]);
+
+const feedbackDebugEventFormattingPaths = new Set([
+  "src/components/feedback/DebugInfoPreview.tsx",
+  "src/services/feedbackService.ts",
+]);
+
 const applicationAssistFramingPaths = new Set([
   "README.md",
   "docs/README.md",
@@ -3087,6 +3093,15 @@ function hasStaleFeedbackSystemInfoArchitecture(root, path) {
   return /\bsystemInfo\.arch\b|\barch\s*:\s*string\b/.test(text);
 }
 
+function hasRawFeedbackDebugEventDetails(root, path) {
+  if (!feedbackDebugEventFormattingPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /JSON\.stringify\(event\.details\)/.test(text);
+}
+
 function hasStaleResumeOptimizerMockHandlers(root, path) {
   if (path !== "src/mocks/handlers.ts") {
     return false;
@@ -3908,6 +3923,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleFeedbackSystemInfoArchitecture(root, path)) {
       violations.push(`sync feedback system-info architecture field: ${path}`);
+    }
+
+    if (hasRawFeedbackDebugEventDetails(root, path)) {
+      violations.push(`keep feedback debug event details readable: ${path}`);
     }
 
     if (hasStaleResumeOptimizerMockHandlers(root, path)) {

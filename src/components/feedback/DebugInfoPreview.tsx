@@ -1,5 +1,10 @@
 import { memo, useState } from "react";
-import { SystemInfo, ConfigSummary, DebugEvent } from "../../services/feedbackService";
+import {
+  formatDebugEventDetails,
+  type ConfigSummary,
+  type DebugEvent,
+  type SystemInfo,
+} from "../../services/feedbackService";
 
 interface DebugInfoPreviewProps {
   systemInfo: SystemInfo | null;
@@ -97,18 +102,7 @@ export const DebugInfoPreview = memo(function DebugInfoPreview({
                   <Section title="Recent app activity">
                     <div className="space-y-1">
                       {debugEvents.slice(0, 10).map((event, idx) => (
-                        <div
-                          key={idx}
-                          className="text-surface-600 dark:text-surface-400"
-                        >
-                          <span className="text-surface-500 dark:text-surface-500">[{event.time}]</span>{" "}
-                          {event.event}
-                          {event.details && (
-                            <span className="text-surface-500 dark:text-surface-500">
-                              {" "}- {JSON.stringify(event.details)}
-                            </span>
-                          )}
-                        </div>
+                        <DebugEventRow event={event} key={idx} />
                       ))}
                       {debugEvents.length > 10 && (
                         <div className="text-surface-500 dark:text-surface-500 italic">
@@ -155,6 +149,24 @@ function InfoRow({ label, value }: { label: string; value: string | number }) {
     <div className="flex gap-2">
       <span className="text-surface-500 dark:text-surface-500">{label}:</span>
       <span className="text-surface-700 dark:text-surface-300">{value}</span>
+    </div>
+  );
+}
+
+function DebugEventRow({ event }: { event: DebugEvent }) {
+  const details = formatDebugEventDetails(event.details);
+
+  return (
+    <div className="text-surface-600 dark:text-surface-400">
+      <span className="text-surface-500 dark:text-surface-500">
+        [{event.time}]
+      </span>{" "}
+      {event.event}
+      {details && (
+        <span className="text-surface-500 dark:text-surface-500">
+          {" "}- {details}
+        </span>
+      )}
     </div>
   );
 }
