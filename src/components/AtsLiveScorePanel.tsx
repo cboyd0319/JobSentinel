@@ -14,6 +14,7 @@ import { Button } from "./Button";
 import { Modal, ModalFooter } from "./Modal";
 import { Tooltip } from "./Tooltip";
 import { logError } from "../utils/errorUtils";
+import { getUserFriendlyError } from "../utils/errorMessages";
 import { getScoreColor, getScoreBg, getScoreLabel } from "../utils/scoreUtils";
 import { readStorageValue, removeStorageValue } from "../utils/browserStorage";
 
@@ -285,7 +286,8 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
         setAnalysis(result);
       } catch (err: unknown) {
         logError("ATS analysis error:", err);
-        setError(err instanceof Error ? err.message : "Analysis failed");
+        const friendly = getUserFriendlyError(err);
+        setError(friendly.action ?? friendly.message);
       } finally {
         setAnalyzing(false);
       }

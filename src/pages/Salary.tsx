@@ -6,7 +6,8 @@ import { Input } from "../components/Input";
 import { Badge } from "../components/Badge";
 import { HelpIcon } from "../components/HelpIcon";
 import { useToast } from "../contexts";
-import { logError, getErrorMessage } from "../utils/errorUtils";
+import { logError } from "../utils/errorUtils";
+import { getUserFriendlyError } from "../utils/errorMessages";
 import { formatCurrency } from "../utils/formatUtils";
 
 interface SalaryBenchmark {
@@ -37,6 +38,11 @@ const SENIORITY_LEVELS: readonly { value: SalarySeniority; label: string }[] = [
   { value: "principal", label: "Principal/Executive (16+ years)" },
 ];
 
+function getSalaryErrorAction(error: unknown): string {
+  const friendly = getUserFriendlyError(error);
+  return friendly.action ?? friendly.message;
+}
+
 export default function Salary({ onBack }: SalaryProps) {
   const [jobTitle, setJobTitle] = useState("");
   const [location, setLocation] = useState("");
@@ -59,7 +65,7 @@ export default function Salary({ onBack }: SalaryProps) {
 
   const handleGetBenchmark = useCallback(async () => {
     if (!jobTitle.trim() || !location.trim()) {
-      toast.error("Missing fields", "Please enter job title and location");
+      toast.error("Add pay details", "Please enter a job title and location");
       return;
     }
 
@@ -80,7 +86,7 @@ export default function Salary({ onBack }: SalaryProps) {
       }
     } catch (err: unknown) {
       logError("Failed to get benchmark:", err);
-      toast.error("Benchmark failed", getErrorMessage(err));
+      toast.error("Could not check pay range", getSalaryErrorAction(err));
     } finally {
       setLoading(false);
     }
@@ -105,7 +111,7 @@ export default function Salary({ onBack }: SalaryProps) {
       toast.success("Notes drafted", "Negotiation notes are ready");
     } catch (err: unknown) {
       logError("Failed to generate script:", err);
-      toast.error("Note drafting failed", getErrorMessage(err));
+      toast.error("Could not draft notes", getSalaryErrorAction(err));
     } finally {
       setScriptLoading(false);
     }

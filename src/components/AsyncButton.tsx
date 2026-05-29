@@ -1,7 +1,8 @@
 import { forwardRef, memo, useState, useCallback } from "react";
 import { Button } from "./Button";
 import { useToast } from "../contexts";
-import { getErrorMessage, logError } from "../utils/errorUtils";
+import { logError } from "../utils/errorUtils";
+import { getUserFriendlyError } from "../utils/errorMessages";
 
 interface AsyncButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onClick"> {
   variant?: "primary" | "secondary" | "ghost" | "success" | "danger";
@@ -69,11 +70,12 @@ export const AsyncButton = memo(forwardRef<HTMLButtonElement, AsyncButtonProps>(
 
         onSuccess?.();
       } catch (error: unknown) {
-        const errMsg = getErrorMessage(error);
+        const friendly = getUserFriendlyError(error);
+        const safeMessage = friendly.action ?? friendly.message;
         logError("AsyncButton operation failed:", error);
 
         if (showErrorToast) {
-          toast.error("Error", errorMessage || errMsg);
+          toast.error("Error", errorMessage || safeMessage);
         }
 
         onError?.(error);

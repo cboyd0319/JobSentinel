@@ -6,6 +6,7 @@ import { Modal, ModalFooter } from "../Modal";
 import { useToast } from "../../contexts";
 import { logError } from "../../utils/errorUtils";
 import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
+import { getUserFriendlyError } from "../../utils/errorMessages";
 import { ApplicationPreview } from "./ApplicationPreview";
 import { readStorageValue, removeStorageValue, writeStorageValue } from "../../utils/browserStorage";
 
@@ -41,6 +42,15 @@ const ATS_DISPLAY_NAMES: Record<string, string> = {
   ashbyhq: "Ashby",
   unknown: "Unknown ATS",
 };
+
+function getSafeFormPreparationError(error: unknown) {
+  const friendly = getUserFriendlyError(error);
+  return {
+    title: friendly.title,
+    message: friendly.message,
+    action: friendly.action,
+  };
+}
 
 const ATS_COLORS: Record<string, string> = {
   greenhouse: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
@@ -159,9 +169,11 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
           "Please complete the CAPTCHA yourself, then continue review"
         );
       } else if (result.errorMessage) {
+        const safeError = getSafeFormPreparationError(result.errorMessage);
+        const actionHint = safeError.action ? `\n\n${safeError.action}` : "";
         // Keep modal open with error for retry
-        setFillError(result.errorMessage);
-        toast.error("Form preparation error", result.errorMessage);
+        setFillError(safeError.message + actionHint);
+        toast.error("Form preparation error", safeError.message + actionHint);
         return; // Don't close modal
       } else {
         const unfilled = result.unfilledFields.length;
@@ -196,19 +208,16 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
         // Ignore check failure
       }
 
-      const enhancedError = error as Error & {
-        userFriendly?: { title: string; message: string; action?: string };
-      };
-
-      const errorMsg = enhancedError.userFriendly?.message || enhancedError.message || "An unexpected error occurred";
+      const safeError = getSafeFormPreparationError(error);
+      const errorMsg = safeError.message;
       const recoveryHint = stillRunning ? " Browser is still open." : "";
-      const actionHint = enhancedError.userFriendly?.action ? `\n\n${enhancedError.userFriendly.action}` : "";
+      const actionHint = safeError.action ? `\n\n${safeError.action}` : "";
 
       // Keep modal open with error for retry
       setFillError(errorMsg + recoveryHint + actionHint);
       logError("Failed to prepare form:", error);
       toast.error(
-        enhancedError.userFriendly?.title || "Form Preparation Failed",
+        safeError.title || "Form Preparation Failed",
         errorMsg + (recoveryHint || actionHint ? recoveryHint + actionHint : "")
       );
     } finally {

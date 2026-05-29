@@ -180,14 +180,27 @@ describe("ScraperHealthDashboard", () => {
   });
 
   describe("error state", () => {
-    it("shows error message on load failure", async () => {
+    it("shows safe error guidance on load failure", async () => {
       mockInvoke.mockRejectedValue(new Error("Network error"));
 
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Network error")).toBeInTheDocument();
+        expect(screen.getByText(/check your internet connection/i)).toBeInTheDocument();
       });
+    });
+
+    it("does not show raw private details on load failure", async () => {
+      mockInvoke.mockRejectedValue(
+        new Error("token=raw-secret chad@example.com /Users/chad/private/resume.pdf")
+      );
+
+      render(<ScraperHealthDashboard onClose={onClose} />);
+
+      await waitFor(() => {
+        expect(screen.getByText(/safe debug report/i)).toBeInTheDocument();
+      });
+      expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
     });
 
     it("shows retry button on error", async () => {

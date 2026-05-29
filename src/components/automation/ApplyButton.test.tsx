@@ -456,7 +456,7 @@ describe("ApplyButton", () => {
       await user.click(screen.getByRole("button", { name: /prepare details/i }));
 
       await waitFor(() => {
-        expect(screen.getByText("Form Preparation Failed")).toBeInTheDocument();
+        expect(screen.getByRole("dialog")).toHaveTextContent(/safe debug report/i);
       });
     });
 
@@ -490,7 +490,7 @@ describe("ApplyButton", () => {
       await waitFor(() => {
         // Check for error in modal specifically (not toast)
         const dialog = screen.getByRole("dialog");
-        expect(dialog).toHaveTextContent(/connection timeout/i);
+        expect(dialog).toHaveTextContent(/check your internet connection/i);
       });
     });
 
@@ -579,6 +579,81 @@ describe("ApplyButton", () => {
       });
     });
 
+    it("does not show raw private details from form preparation failures", async () => {
+      const user = userEvent.setup();
+
+      mockInvoke.mockImplementation((cmd) => {
+        if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
+        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "is_browser_running") return Promise.resolve(false);
+        if (cmd === "fill_application_form") {
+          return Promise.resolve({
+            filledFields: [],
+            unfilledFields: [],
+            captchaDetected: false,
+            readyForReview: false,
+            errorMessage: "token=raw-secret chad@example.com /Users/chad/private/resume.pdf",
+            attemptId: null,
+            durationMs: 1000,
+            atsPlatform: "greenhouse",
+          });
+        }
+        return Promise.resolve(null);
+      });
+
+      renderWithToast(<ApplyButton job={mockJob} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /prepare form/i })).not.toBeDisabled();
+      });
+
+      await user.click(screen.getByRole("button", { name: /prepare form/i }));
+      await waitFor(() => {
+        expect(screen.getByRole("dialog")).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole("button", { name: /prepare details/i }));
+
+      await waitFor(() => {
+        expect(screen.getByRole("dialog")).toHaveTextContent(/safe debug report/i);
+      });
+      expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
+    });
+
+    it("does not show raw private details from thrown preparation errors", async () => {
+      const user = userEvent.setup();
+
+      mockInvoke.mockImplementation((cmd) => {
+        if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
+        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "is_browser_running") return Promise.resolve(false);
+        if (cmd === "fill_application_form") {
+          return Promise.reject(
+            new Error("token=raw-secret chad@example.com /Users/chad/private/resume.pdf")
+          );
+        }
+        return Promise.resolve(null);
+      });
+
+      renderWithToast(<ApplyButton job={mockJob} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /prepare form/i })).not.toBeDisabled();
+      });
+
+      await user.click(screen.getByRole("button", { name: /prepare form/i }));
+      await waitFor(() => {
+        expect(screen.getByRole("dialog")).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole("button", { name: /prepare details/i }));
+
+      await waitFor(() => {
+        expect(screen.getByRole("dialog")).toHaveTextContent(/safe debug report/i);
+      });
+      expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
+    });
+
     it("clears error when closing modal", async () => {
       const user = userEvent.setup();
       
@@ -608,7 +683,7 @@ describe("ApplyButton", () => {
 
       await waitFor(() => {
         const dialog = screen.getByRole("dialog");
-        expect(dialog).toHaveTextContent(/test error/i);
+        expect(dialog).toHaveTextContent(/safe debug report/i);
       });
 
       // Close modal

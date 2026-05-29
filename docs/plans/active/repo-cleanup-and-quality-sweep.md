@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Sanitized remaining pay-protection, async-button, live-resume-score, scraper-health, and application-preparation errors so private paths, emails, and token-like values stay out of visible UI; added tests and bloat sensors. |
 | 2026-05-29 | In progress | Replaced raw job-import, resume-analysis, and modal-boundary errors with safe user guidance, keeping sensitive paths, emails, and tokens out of visible failure copy and extending bloat checks. |
 | 2026-05-29 | In progress | Sanitized cover-letter template failure toasts and component-boundary default error messages so raw paths, emails, and tokens do not reach user-facing recovery surfaces; added focused tests and repo-harness checks against regressions. |
 | 2026-05-29 | In progress | Sanitized `getUserFriendlyError` technical details before they can reach UI/support paths, changed unknown-error guidance to safe debug reports, and added bloat coverage against raw technical-message fallbacks returning. |

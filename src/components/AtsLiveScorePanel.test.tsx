@@ -352,7 +352,7 @@ describe("AtsLiveScorePanel", () => {
   });
 
   describe("error handling", () => {
-    it("shows error message on analysis failure", async () => {
+    it("shows safe error guidance on analysis failure", async () => {
       mockInvoke.mockRejectedValue(new Error("Analysis failed"));
 
       render(
@@ -366,8 +366,29 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByText("Analysis failed")).toBeInTheDocument();
+        expect(screen.getByText(/safe debug report/i)).toBeInTheDocument();
       });
+    });
+
+    it("does not show raw private details on analysis failure", async () => {
+      mockInvoke.mockRejectedValue(
+        new Error("token=raw-secret chad@example.com /Users/chad/private/resume.pdf")
+      );
+
+      render(
+        <AtsLiveScorePanel
+          resumeData={mockResumeData}
+          currentStep={1}
+          debounceMs={10}
+        />
+      );
+
+      await waitForAnalysis();
+
+      await waitFor(() => {
+        expect(screen.getByText(/safe debug report/i)).toBeInTheDocument();
+      });
+      expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
     });
 
     it("shows dismiss button on error", async () => {
@@ -447,12 +468,12 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByText("Network error")).toBeInTheDocument();
+        expect(screen.getByText(/check your internet connection/i)).toBeInTheDocument();
       });
 
       fireEvent.click(screen.getByRole("button", { name: /dismiss/i }));
 
-      expect(screen.queryByText("Network error")).not.toBeInTheDocument();
+      expect(screen.queryByText(/check your internet connection/i)).not.toBeInTheDocument();
     });
   });
 

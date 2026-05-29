@@ -550,6 +550,11 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/AsyncButton.tsx",
+      'toast.error("Error", errorMessage || errMsg);\n',
+    );
+    writeFixtureFile(
+      root,
       "src/components/JobCard.tsx",
       [
         '"Invalid URL"',
@@ -600,6 +605,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       [
         '"Add LinkedIn profile for tech roles"',
         '"Add missing keywords: TypeScript, scheduling, support"',
+        'setError(err instanceof Error ? err.message : "Analysis failed");',
         '<ScoreBar label="Keywords" />',
         '"2 keywords matched"',
         '"Keyword Matches (2)"',
@@ -607,6 +613,11 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         '"Consider adding these keywords to improve your match score"',
         "",
       ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/ScraperHealthDashboard.tsx",
+      "setError(err instanceof Error ? err.message : String(err));\n",
     );
     writeFixtureFile(
       root,
@@ -661,6 +672,15 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         '<CardHeader title={`Missing Keywords (${analysisResult.missing_keywords.length})`} />',
         '"Consider adding these keywords to improve your match score"',
         '"These action verbs and keywords are commonly recognized by ATS systems."',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/automation/ApplyButton.tsx",
+      [
+        "setFillError(result.errorMessage);",
+        'toast.error("Form preparation error", result.errorMessage);',
         "",
       ].join("\n"),
     );
@@ -784,6 +804,15 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/pages/Salary.tsx",
+      [
+        'toast.error("Benchmark failed", getErrorMessage(err));',
+        'toast.error("Note drafting failed", getErrorMessage(err));',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/pages/SetupWizard.tsx",
       '<Input label="Slack Webhook URL (optional)" />"Skills & Keywords"\n',
     );
@@ -893,14 +922,17 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/pages/Dashboard.tsx",
         "src/pages/DashboardUI/QuickActions.tsx",
         "src/pages/ResumeBuilder.tsx",
+        "src/pages/Salary.tsx",
         "src/pages/Settings.tsx",
         "src/pages/SetupWizard.tsx",
+        "src/components/AsyncButton.tsx",
         "src/components/BookmarkletGenerator.tsx",
         "src/components/CoverLetterTemplates.tsx",
         "src/components/DeepLinkGenerator.tsx",
         "src/components/ErrorBoundary.tsx",
         "src/components/ErrorLogPanel.tsx",
         "src/components/ScoreBreakdownModal.tsx",
+        "src/components/ScraperHealthDashboard.tsx",
         "src/components/JobImportModal.tsx",
         "src/components/JobCard.tsx",
         "src/components/AtsLiveScorePanel.tsx",
@@ -908,6 +940,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/components/DashboardWidgets.tsx",
         "src/components/InterviewScheduler.tsx",
         "src/components/CareerProfileSelector.tsx",
+        "src/components/automation/ApplyButton.tsx",
         "src/components/automation/ScreeningAnswersForm.tsx",
         "src/components/feedback/DebugInfoPreview.tsx",
         "src/components/feedback/FeedbackModal.tsx",
@@ -935,14 +968,17 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/pages/Dashboard.tsx",
       "src/pages/DashboardUI/QuickActions.tsx",
       "src/pages/ResumeBuilder.tsx",
+      "src/pages/Salary.tsx",
       "src/pages/Settings.tsx",
       "src/pages/SetupWizard.tsx",
+      "src/components/AsyncButton.tsx",
       "src/components/BookmarkletGenerator.tsx",
       "src/components/CoverLetterTemplates.tsx",
       "src/components/DeepLinkGenerator.tsx",
       "src/components/ErrorBoundary.tsx",
       "src/components/ErrorLogPanel.tsx",
       "src/components/ScoreBreakdownModal.tsx",
+      "src/components/ScraperHealthDashboard.tsx",
       "src/components/JobImportModal.tsx",
       "src/components/JobCard.tsx",
       "src/components/AtsLiveScorePanel.tsx",
@@ -950,6 +986,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/components/DashboardWidgets.tsx",
       "src/components/InterviewScheduler.tsx",
       "src/components/CareerProfileSelector.tsx",
+      "src/components/automation/ApplyButton.tsx",
       "src/components/automation/ScreeningAnswersForm.tsx",
       "src/components/feedback/DebugInfoPreview.tsx",
       "src/components/feedback/FeedbackModal.tsx",

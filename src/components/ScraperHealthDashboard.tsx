@@ -7,6 +7,7 @@ import { StatCard } from "./StatCard";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { Tooltip } from "./Tooltip";
 import { Modal } from "./Modal";
+import { getUserFriendlyError } from "../utils/errorMessages";
 
 // Types matching Rust backend
 interface ScraperHealthMetrics {
@@ -255,7 +256,8 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
       setCredentials(credentialsData);
     } catch (err: unknown) {
       if (signal?.aborted) return;
-      setError(err instanceof Error ? err.message : String(err));
+      const friendly = getUserFriendlyError(err);
+      setError(friendly.action ?? friendly.message);
     } finally {
       if (!signal?.aborted) {
         setLoading(false);

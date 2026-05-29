@@ -251,7 +251,7 @@ describe("AsyncButton", () => {
       });
     });
 
-    it("shows default error message when no custom message", async () => {
+    it("shows safe default error guidance when no custom message", async () => {
       const user = userEvent.setup();
       const mockOnClick = vi.fn().mockRejectedValue(new Error("Something went wrong"));
 
@@ -259,7 +259,7 @@ describe("AsyncButton", () => {
 
       await user.click(screen.getByText("Fail"));
       await waitFor(() => {
-        expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+        expect(screen.getByText(/safe debug report/i)).toBeInTheDocument();
       });
     });
 
@@ -319,7 +319,7 @@ describe("AsyncButton", () => {
       await waitFor(() => expect(button).not.toBeDisabled());
     });
 
-    it("handles string errors", async () => {
+    it("handles string errors without showing raw details", async () => {
       const user = userEvent.setup();
       const mockOnClick = vi.fn().mockRejectedValue("String error");
 
@@ -327,8 +327,24 @@ describe("AsyncButton", () => {
 
       await user.click(screen.getByText("String Error"));
       await waitFor(() => {
-        expect(screen.getByText("String error")).toBeInTheDocument();
+        expect(screen.getByText(/safe debug report/i)).toBeInTheDocument();
       });
+      expect(screen.queryByText("String error")).not.toBeInTheDocument();
+    });
+
+    it("does not show raw private details from thrown errors", async () => {
+      const user = userEvent.setup();
+      const mockOnClick = vi.fn().mockRejectedValue(
+        new Error("token=raw-secret chad@example.com /Users/chad/private/resume.pdf")
+      );
+
+      renderWithToast(<AsyncButton onClick={mockOnClick}>Private Error</AsyncButton>);
+
+      await user.click(screen.getByText("Private Error"));
+      await waitFor(() => {
+        expect(screen.getByText(/safe debug report/i)).toBeInTheDocument();
+      });
+      expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
     });
 
     it("handles unknown error types", async () => {
