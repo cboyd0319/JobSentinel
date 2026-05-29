@@ -133,7 +133,7 @@ broad-audience design guidance, docs harness alignment
 - **User-opened job-site search links**: LinkedIn and other destinations opened
   by the user, not monitored in the background
 - **Ghost Job Detection** - Flags stale, reposted, and low-trust postings
-- Application Tracking System (ATS) with Kanban board + interview scheduler
+- Application board with a column view, reminders, quiet-period review, and interview scheduler
 - AI Resume-Job Matcher with PDF parsing
 - Salary AI with negotiation insights
 - Market Intelligence with trend analysis
@@ -229,7 +229,7 @@ broad-audience design guidance, docs harness alignment
 | Application Assist     | **v2.0** | [Application Assist](features/one-click-apply.md) |
 | Resume Builder         | **v2.0** | [Resume Builder](features/resume-builder.md)   |
 | Ghost Detection        | **v1.4** | [Ghost Detection](features/ghost-detection.md) |
-| Application Tracking   | Working  | [ATS](features/application-tracking.md)        |
+| Application Tracking   | Working  | [Application Tracking](features/application-tracking.md) |
 | Notifications          | Working  | [Notifications](features/notifications.md)     |
 | Resume Matcher         | Working  | [Resume Matcher](features/resume-matcher.md)   |
 | Salary AI              | Working  | [Salary](features/salary-ai.md)                |

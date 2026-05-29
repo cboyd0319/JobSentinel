@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Rewrote application-tracking docs from old module/API dump into local-first, protective, broad-audience job-search guidance, and added bloat coverage against stale Trello, ATS-module, technical-interview, future-phase, and API-reference copy returning. |
 | 2026-05-29 | In progress | Rewrote remote and work-mode matching docs from scoring-matrix internals into plain user control, uncertainty, and protective-copy guidance, with bloat coverage against the old module-first shape returning. |
 | 2026-05-29 | In progress | Replaced the last visible score-tooltip "Weight" header with "Priority" so match details use user-facing preference language while internal scoring math stays unchanged. |
 | 2026-05-29 | In progress | Replaced raw job-card source IDs with plain source labels and source-check hints so users see hiring page, job board, saved-by-you, or connected-source language instead of internal scraper names. |

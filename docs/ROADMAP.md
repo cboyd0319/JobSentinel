@@ -9,7 +9,7 @@ Use `package.json` for the current release package version.
   USAJobs, SimplyHired, Glassdoor
 - **User-opened search links**: LinkedIn and other destinations opened by the
   user, not monitored in the background
-- Application Tracking System (ATS): Kanban board, reminders, timeline, ghosting detection
+- Application board: column board, reminders, timeline, and quiet-period review
 - Interview Scheduler: iCal export, prep checklists, follow-up reminders
 - AI Resume-Job Matcher: PDF parsing, skill extraction, matching
 - Salary AI: Benchmarks, predictions, offer comparison, negotiation scripts

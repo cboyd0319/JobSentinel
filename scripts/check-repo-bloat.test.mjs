@@ -3962,6 +3962,18 @@ test("checkRepoBloat rejects stale application tracking doc claims", () => {
       "docs/features/application-tracking.md",
       [
         "## 🎨 UI Integration (Future)",
+        "**Never lose track of a job application again.**",
+        "a Trello board for your job search",
+        "JobSentinel's Application Tracking System provides comprehensive pipeline management",
+        "The ATS module has been refactored into 5 focused submodules",
+        "- Technical Interview",
+        "| `technical_interview` | Technical assessment |",
+        "### Phase 2 (Future)",
+        "### Phase 3 (Advanced)",
+        "- [ ] Machine Learning",
+        "- [ ] A/B Testing",
+        "## API Reference",
+        "## Implementation Status",
         "// src/pages/ApplicationTracker.tsx",
         "const kanban = await invoke<ApplicationsByStatus>('get_applications_by_status');",
         "- [ ] Tauri commands",
@@ -3981,6 +3993,32 @@ test("checkRepoBloat rejects stale application tracking doc claims", () => {
       violations.includes(
         "remove stale application tracking doc claims: docs/features/application-tracking.md",
       ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects confusing application tracking ATS labels", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/README.md",
+      [
+        "- Application Tracking System (ATS) with Kanban board",
+        "| Application Tracking | Working | [ATS](features/application-tracking.md) |",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/README.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace confusing application tracking ATS label: docs/README.md"),
       violations.join("\n"),
     );
   });

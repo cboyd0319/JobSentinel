@@ -909,6 +909,7 @@ against:
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Reframed application tracking as a local-first, sensitive workflow for pacing, follow-ups, quiet-period review, interview preparation, and pay/offer context, with broad status labels for technical and non-technical searches. |
 | 2026-05-29 | In progress | Reframed remote and work-mode matching docs around user constraints, uncertainty, commute/schedule protection, and local-only preferences instead of score matrices. |
 | 2026-05-29 | In progress | Replaced visible score-tooltip weight language with priority language so match factors stay explainable without exposing scoring-model jargon. |
 | 2026-05-29 | In progress | Started job-card source labels so raw source IDs become plain source-check cues such as hiring page, job board, saved by you, or connected job source without changing stored source values. |

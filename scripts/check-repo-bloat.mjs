@@ -445,6 +445,11 @@ const broadAudienceExamplePaths = new Set([
   "docs/features/resume-matcher.md",
   "docs/features/user-data-management.md",
 ]);
+const applicationTrackingPlainLabelPaths = new Set([
+  "docs/README.md",
+  "docs/ROADMAP.md",
+  "docs/features/application-tracking.md",
+]);
 const staleResumeOptimizerFramingPaths = new Set([
   "src/App.tsx",
   "src/components/AtsLiveScorePanel.tsx",
@@ -2144,12 +2149,36 @@ function hasStaleApplicationTrackingDocClaims(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
   return (
+    /Never lose track of a job application again/i.test(text) ||
+    /Trello board/i.test(text) ||
+    /Application Tracking System/i.test(text) ||
+    /ATS module/i.test(text) ||
+    /Technical Interview/i.test(text) ||
+    /technical_interview/i.test(text) ||
+    /Phase 2 \(Future\)/i.test(text) ||
+    /Phase 3 \(Advanced\)/i.test(text) ||
+    /Machine Learning/i.test(text) ||
+    /A\/B Testing/i.test(text) ||
+    /API Reference/i.test(text) ||
+    /Implementation Status/i.test(text) ||
     /UI Integration \(Future\)/.test(text) ||
     /src\/pages\/ApplicationTracker\.tsx/.test(text) ||
     /invoke<ApplicationsByStatus>\('get_applications_by_status'\)/.test(text) ||
     /- \[ \] Tauri commands/.test(text) ||
     /- \[ \] UI components \(Kanban board\)/.test(text) ||
     /UI Connections & Polish \(v1\.4 E4\)/.test(text)
+  );
+}
+
+function hasConfusingApplicationTrackingAtsLabel(root, path) {
+  if (!applicationTrackingPlainLabelPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /Application Tracking System \(ATS\)/i.test(text) ||
+    /\[ATS\]\(features\/application-tracking\.md\)/i.test(text)
   );
 }
 
@@ -3948,6 +3977,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleApplicationTrackingDocClaims(root, path)) {
       violations.push(`remove stale application tracking doc claims: ${path}`);
+    }
+
+    if (hasConfusingApplicationTrackingAtsLabel(root, path)) {
+      violations.push(`replace confusing application tracking ATS label: ${path}`);
     }
 
     if (hasStaleSmartScoringSalaryMarkerClaim(root, path)) {
