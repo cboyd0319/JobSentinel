@@ -581,6 +581,26 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "",
       ].join("\n"),
     );
+    writeFixtureFile(root, "src/components/StatCard.test.tsx", '"John Doe";\n');
+    writeFixtureFile(
+      root,
+      "src/utils/formValidation.test.ts",
+      '"linkedin.com/in/johndoe";\n',
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/FRONTEND_TESTING.md",
+      [
+        'await user.type(input, "John Doe");',
+        '{ id: 2, title: "Designer", company: "TechCorp" },',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/INTEGRATION_TESTING.md",
+      'create_test_job("hash1", "Security Engineer", "TechCorp");\n',
+    );
     writeFixtureFile(
       root,
       "src/components/CoverLetterTemplates.test.tsx",
@@ -699,8 +719,10 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/components/JobCard.test.tsx",
         "src/components/LocationHeatmap.test.tsx",
         "src/components/NotificationPreferences.test.tsx",
+        "src/components/StatCard.test.tsx",
         "src/components/CoverLetterTemplates.test.tsx",
         "src/components/InterviewScheduler.test.tsx",
+        "src/utils/formValidation.test.ts",
         "src/utils/export.test.ts",
         "src/pages/hooks/useDashboardFilters.test.ts",
         "src/pages/hooks/useDashboardJobOps.test.ts",
@@ -719,6 +741,8 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "docs/features/user-data-management.md",
         "docs/user/DEEP_LINKS.md",
         "docs/user/QUICK_START.md",
+        "docs/developer/FRONTEND_TESTING.md",
+        "docs/developer/INTEGRATION_TESTING.md",
       ],
       { cwd: root },
     );
@@ -748,8 +772,10 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/components/JobCard.test.tsx",
       "src/components/LocationHeatmap.test.tsx",
       "src/components/NotificationPreferences.test.tsx",
+      "src/components/StatCard.test.tsx",
       "src/components/CoverLetterTemplates.test.tsx",
       "src/components/InterviewScheduler.test.tsx",
+      "src/utils/formValidation.test.ts",
       "src/utils/export.test.ts",
       "src/pages/hooks/useDashboardFilters.test.ts",
       "src/pages/hooks/useDashboardJobOps.test.ts",
@@ -766,6 +792,8 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "docs/features/user-data-management.md",
       "docs/user/DEEP_LINKS.md",
       "docs/user/QUICK_START.md",
+      "docs/developer/FRONTEND_TESTING.md",
+      "docs/developer/INTEGRATION_TESTING.md",
     ]) {
       assert.ok(
         violations.includes(`replace engineer-first audience example: ${path}`),

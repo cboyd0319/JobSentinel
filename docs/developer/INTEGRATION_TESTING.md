@@ -410,14 +410,14 @@ async fn test_search_command_returns_scored_jobs() {
     let (db, config, _) = setup_test_env().await;
 
     // Insert jobs
-    let job1 = create_test_job("hash1", "Security Engineer", "TechCorp");
-    let job2 = create_test_job("hash2", "Backend Developer", "StartupXYZ");
+    let job1 = create_test_job("hash1", "Safety Coordinator", "CareBridge");
+    let job2 = create_test_job("hash2", "Office Administrator", "NeighborhoodWorks");
 
     db.upsert_job(&job1).await.unwrap();
     db.upsert_job(&job2).await.unwrap();
 
     // Search command should find and score
-    let results = db.search_jobs("Security").await.unwrap();
+    let results = db.search_jobs("Safety").await.unwrap();
 
     assert_eq!(results.len(), 1);
     assert_eq!(results[0].title, "Security Engineer");
@@ -530,15 +530,15 @@ async fn test_upsert_and_retrieve_job() {
     let (db, _) = setup_test_db().await;
 
     // Arrange
-    let job = create_test_job("hash123", "Engineer", "TechCorp");
+    let job = create_test_job("hash123", "Care Coordinator", "CareBridge");
 
     // Act
     let id = db.upsert_job(&job).await.unwrap();
     let retrieved = db.get_job(id).await.unwrap();
 
     // Assert
-    assert_eq!(retrieved.title, "Engineer");
-    assert_eq!(retrieved.company, "TechCorp");
+    assert_eq!(retrieved.title, "Care Coordinator");
+    assert_eq!(retrieved.company, "CareBridge");
 }
 ```
 

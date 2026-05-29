@@ -201,12 +201,12 @@ describe("Form", () => {
     render(<Form onSubmit={handleSubmit} />);
 
     const input = screen.getByRole("textbox", { name: "Name" });
-    await user.type(input, "John Doe");
+    await user.type(input, "Alex Rivera");
 
     const submitButton = screen.getByRole("button", { name: "Submit" });
     await user.click(submitButton);
 
-    expect(handleSubmit).toHaveBeenCalledWith({ name: "John Doe" });
+    expect(handleSubmit).toHaveBeenCalledWith({ name: "Alex Rivera" });
   });
 });
 ```
@@ -304,8 +304,8 @@ describe("JobsPanel", () => {
 
   it("should fetch jobs and display them", async () => {
     mockedInvoke.mockResolvedValue([
-      { id: 1, title: "Engineer", company: "Acme" },
-      { id: 2, title: "Designer", company: "TechCorp" },
+      { id: 1, title: "Care Coordinator", company: "Acme Health" },
+      { id: 2, title: "Designer", company: "Neighborhood Works" },
     ]);
 
     render(<JobsPanel />);

@@ -220,8 +220,8 @@ describe("StatCard", () => {
     });
 
     it("displays string value as-is without formatting", () => {
-      render(<StatCard label="Name" value="John Doe" />);
-      expect(screen.getByText("John Doe")).toBeInTheDocument();
+      render(<StatCard label="Name" value="Alex Rivera" />);
+      expect(screen.getByText("Alex Rivera")).toBeInTheDocument();
     });
   });
 

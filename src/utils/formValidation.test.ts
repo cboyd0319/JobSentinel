@@ -167,7 +167,7 @@ describe("formValidation", () => {
       expect(validateUrlWithOptionalProtocol("https://example.com")).toBeUndefined();
       expect(validateUrlWithOptionalProtocol("http://example.com")).toBeUndefined();
       expect(validateUrlWithOptionalProtocol("example.com")).toBeUndefined();
-      expect(validateUrlWithOptionalProtocol("linkedin.com/in/johndoe")).toBeUndefined();
+      expect(validateUrlWithOptionalProtocol("linkedin.com/in/alex-rivera")).toBeUndefined();
     });
 
     it("returns error message for non-http and deceptive http-prefixed schemes", () => {
