@@ -2999,6 +2999,17 @@ function hasRedundantDirectPlaywrightDependency(root, path) {
   return Boolean(directDeps["@playwright/test"] && directDeps.playwright);
 }
 
+function hasDirectPlaywrightE2eScript(root, path) {
+  if (path !== "package.json") {
+    return false;
+  }
+
+  const packageJson = readPackageManifest(root);
+  return Object.entries(packageJson.scripts ?? {}).some(([name, command]) => {
+    return name.startsWith("test:e2e") && /^playwright\b/.test(String(command).trim());
+  });
+}
+
 function hasRedundantDomPurifyTypesDependency(root, path) {
   if (path !== "package.json") {
     return false;
@@ -4025,6 +4036,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRedundantDirectPlaywrightDependency(root, path)) {
       violations.push(`remove redundant direct Playwright dependency: ${path}`);
+    }
+
+    if (hasDirectPlaywrightE2eScript(root, path)) {
+      violations.push(`route E2E scripts through Playwright wrapper: ${path}`);
     }
 
     if (hasRedundantDomPurifyTypesDependency(root, path)) {

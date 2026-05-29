@@ -1756,6 +1756,34 @@ test("checkRepoBloat rejects redundant direct Playwright dependency", () => {
   });
 });
 
+test("checkRepoBloat rejects direct Playwright E2E scripts", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(
+      root,
+      "package.json",
+      JSON.stringify(
+        {
+          scripts: {
+            "test:e2e": "playwright test --project=chromium",
+            "test:e2e:smoke": "node scripts/run-playwright.mjs test --grep @smoke",
+          },
+        },
+        null,
+        2,
+      ),
+    );
+
+    execFileSync("git", ["add", "package.json"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("route E2E scripts through Playwright wrapper: package.json"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects redundant DOMPurify stub types", () => {
   withGitFixture((root) => {
     writeFixtureFile(

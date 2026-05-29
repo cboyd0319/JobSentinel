@@ -590,6 +590,9 @@ test("should maintain layout on mobile", async ({ page }) => {
 
 ### Running Playwright Tests
 
+The npm commands below route through `scripts/run-playwright.mjs`, which keeps
+Playwright output clean on current Node versions without hiding test failures.
+
 ```bash
 # Run local Chromium functional E2E tests
 npm run test:e2e
