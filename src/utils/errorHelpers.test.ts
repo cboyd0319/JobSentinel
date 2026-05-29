@@ -90,10 +90,29 @@ describe("errorHelpers", () => {
       expect(getUserMessage(error)).toBe(ERROR_MESSAGES[ErrorType.NETWORK]);
     });
 
-    it("returns message from standard Error", () => {
+    it("returns type-based message from standard Error", () => {
       const error = new Error("Standard error message");
       
-      expect(getUserMessage(error)).toBe("Standard error message");
+      expect(getUserMessage(error)).toBe(ERROR_MESSAGES[ErrorType.UNKNOWN]);
+    });
+
+    it("never exposes raw sensitive details from standard Error messages", () => {
+      const error = new Error(
+        "Failed for token=abc123 at https://hooks.slack.com/services/T000/B000/secret and /Users/alice/private.txt"
+      );
+
+      const message = getUserMessage(error);
+
+      expect(message).toBe(ERROR_MESSAGES[ErrorType.UNKNOWN]);
+      expect(message).not.toContain("abc123");
+      expect(message).not.toContain("hooks.slack.com");
+      expect(message).not.toContain("/Users/alice");
+    });
+
+    it("keeps useful category messages without exposing raw error text", () => {
+      const error = new Error("Network failure for token=abc123");
+
+      expect(getUserMessage(error)).toBe(ERROR_MESSAGES[ErrorType.NETWORK]);
     });
 
     it("returns default message for unknown error types", () => {
@@ -178,8 +197,25 @@ describe("errorHelpers", () => {
       } catch (error) {
         expect(error).toBeInstanceOf(AppError);
         expect((error as AppError).type).toBe(ErrorType.NETWORK);
-        // handleApiError calls getUserMessage which returns original error message for non-AppError
-        expect((error as AppError).message).toBe("Network failure");
+        expect((error as AppError).message).toBe(ERROR_MESSAGES[ErrorType.NETWORK]);
+      }
+    });
+
+    it("sanitizes original error context before throwing", async () => {
+      const originalError = new Error(
+        "Failed for token=abc123 at https://hooks.slack.com/services/T000/B000/secret and /Users/alice/private.txt"
+      );
+
+      try {
+        await handleApiError(originalError);
+      } catch (error) {
+        const originalErrorContext = (error as AppError).context?.originalError;
+        expect(originalErrorContext).toBeTypeOf("string");
+        expect(originalErrorContext).not.toContain("abc123");
+        expect(originalErrorContext).not.toContain("hooks.slack.com/services");
+        expect(originalErrorContext).not.toContain("/Users/alice");
+        expect(originalErrorContext).toContain("[TOKEN]");
+        expect(originalErrorContext).toContain("[USER_PATH]");
       }
     });
 
@@ -665,7 +701,7 @@ describe("errorHelpers", () => {
         message: "Test error",
       }));
       expect(console.log).toHaveBeenCalledWith("Type:", ErrorType.UNKNOWN);
-      expect(console.log).toHaveBeenCalledWith("Message:", "Test error");
+      expect(console.log).toHaveBeenCalledWith("Message:", ERROR_MESSAGES[ErrorType.UNKNOWN]);
       expect(console.groupEnd).toHaveBeenCalled();
       
       vi.unstubAllEnvs();

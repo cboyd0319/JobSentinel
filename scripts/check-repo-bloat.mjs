@@ -3266,6 +3266,15 @@ function hasRawFrontendErrorHelperDebugLogging(root, path) {
   );
 }
 
+function hasRawFrontendErrorHelperUserMessage(root, path) {
+  if (!frontendErrorHelperDebugPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /function\s+getUserMessage[\s\S]*?\breturn\s+error\.message\s*;/.test(text);
+}
+
 function hasRawFrontendSharedErrorLogging(root, path) {
   if (!frontendErrorUtilsPaths.has(path)) {
     return false;
@@ -4534,6 +4543,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawUrlErrorDisplay(root, path)) {
       violations.push(`replace raw URL error display: ${path}`);
+    }
+
+    if (hasRawFrontendErrorHelperUserMessage(root, path)) {
+      violations.push(`sanitize frontend user error messages: ${path}`);
     }
 
     if (hasRawPathOrQueryErrorDisplay(root, path)) {

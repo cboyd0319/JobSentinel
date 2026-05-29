@@ -61,10 +61,7 @@ export function getUserMessage(error: unknown): string {
   if (error instanceof AppError) {
     return ERROR_MESSAGES[error.type] || error.message;
   }
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return ERROR_MESSAGES[ErrorType.UNKNOWN];
+  return ERROR_MESSAGES[classifyError(error)] || ERROR_MESSAGES[ErrorType.UNKNOWN];
 }
 
 /**
@@ -112,7 +109,7 @@ export async function handleApiError(
 
   const appError = new AppError(message, errorType, {
     ...context,
-    originalError: error instanceof Error ? error.message : String(error),
+    originalError: sanitizeTextForStorage(error instanceof Error ? error.message : String(error)),
   });
 
   // Report to error tracking

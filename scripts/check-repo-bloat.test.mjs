@@ -6806,6 +6806,34 @@ test("checkRepoBloat rejects raw frontend error helper debug logging", () => {
   });
 });
 
+test("checkRepoBloat rejects raw frontend user error messages", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/utils/errorHelpers.ts",
+      [
+        "export function getUserMessage(error) {",
+        "  if (error instanceof Error) {",
+        "    return error.message;",
+        "  }",
+        "  return 'An unexpected error occurred.';",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/utils/errorHelpers.ts"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sanitize frontend user error messages: src/utils/errorHelpers.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw shared frontend error logging", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
