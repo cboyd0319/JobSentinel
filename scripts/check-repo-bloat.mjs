@@ -494,6 +494,8 @@ const broadAudienceExamplePaths = new Set([
   "src/components/JobImportModal.tsx",
   "src/components/resume-builder/steps/SkillsStep.tsx",
   "src/components/resume-builder/steps/SummaryStep.tsx",
+  "src/components/MarketAlertCard.test.tsx",
+  "src/components/MarketSnapshotCard.test.tsx",
   "src/mocks/data.ts",
   "src/mocks/handlers.ts",
   "src/pages/Dashboard.tsx",
@@ -505,6 +507,7 @@ const broadAudienceExamplePaths = new Set([
   "src/pages/Settings.tsx",
   "src/types/deeplinks.ts",
   "tests/e2e/playwright/resume-upload-matching.spec.ts",
+  "tests/e2e/playwright/market-intelligence.spec.ts",
   "docs/user/DEEP_LINKS.md",
   "docs/user/QUICK_START.md",
   "docs/README.md",
@@ -1428,8 +1431,13 @@ function hasEngineerFirstAudienceExamples(root, path) {
     const marketMockPatterns = [
       /TypeScript demand is surging/i,
       /skill_name:\s*["']Kubernetes["']/i,
+      /top_skill:\s*["']React["']/i,
+      /top_company:\s*["']TechCorp["']/i,
       /top_skill:\s*["']TypeScript["']/i,
       /TechCorp|StartupXYZ|BigTech Inc/,
+      /Top Skill:\s*TypeScript/i,
+      /Top Company:\s*BigTech Inc/i,
+      /React Demand Spike/i,
     ];
 
     if (marketMockPatterns.some((pattern) => pattern.test(text))) {
@@ -1477,6 +1485,12 @@ function hasEngineerFirstAudienceExamples(root, path) {
     /Responsible for managing the security team/i,
     /Led 12-person security team/i,
     /If they say "Python"/i,
+    /top_skill:\s*["']React["']/i,
+    /top_company:\s*["']TechCorp["']/i,
+    /Top Skill:\s*TypeScript/i,
+    /Top Company:\s*BigTech Inc/i,
+    /React Demand Spike/i,
+    /TechCorp Hiring Pause/i,
     /\$ whoami/i,
     /JOHN DOE - Data Analyst/i,
     /\.\/experience/i,

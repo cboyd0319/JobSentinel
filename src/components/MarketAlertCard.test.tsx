@@ -11,12 +11,12 @@ vi.mock("@tauri-apps/api/core", () => ({
 const mockAlert = {
   id: 1,
   alert_type: "skill_surge",
-  title: "React Demand Spike",
-  description: "React job postings increased by 45% this week",
+  title: "Customer support demand is rising",
+  description: "Customer support and client success postings increased this week",
   severity: "warning",
-  related_entity: "React",
-  metric_value: 450,
-  metric_change_pct: 45.2,
+  related_entity: "Customer Support",
+  metric_value: 384,
+  metric_change_pct: 18.2,
   is_read: false,
   created_at: "2024-01-15T10:30:00Z",
 };
@@ -26,11 +26,11 @@ const mockAlerts = [
   {
     id: 2,
     alert_type: "salary_spike",
-    title: "Senior Engineer Salaries Up",
-    description: "Average senior engineer salary increased 12%",
+    title: "Patient care salary transparency improving",
+    description: "Average posted pay for patient care coordinator roles increased 12%",
     severity: "info",
-    related_entity: "Senior Engineer",
-    metric_value: 165000,
+    related_entity: "Patient Care",
+    metric_value: 72000,
     metric_change_pct: 12.5,
     is_read: true,
     created_at: "2024-01-14T09:00:00Z",
@@ -38,10 +38,10 @@ const mockAlerts = [
   {
     id: 3,
     alert_type: "hiring_freeze",
-    title: "TechCorp Hiring Pause",
-    description: "TechCorp has paused hiring across all departments",
+    title: "Metro Learning Center Hiring Pause",
+    description: "Metro Learning Center has paused hiring across several departments",
     severity: "critical",
-    related_entity: "TechCorp",
+    related_entity: "Metro Learning Center",
     metric_value: null,
     metric_change_pct: null,
     is_read: false,
@@ -53,12 +53,12 @@ describe("MarketAlertCard", () => {
   describe("rendering", () => {
     it("renders alert title", () => {
       render(<MarketAlertCard alert={mockAlert} />);
-      expect(screen.getByText("React Demand Spike")).toBeInTheDocument();
+      expect(screen.getByText("Customer support demand is rising")).toBeInTheDocument();
     });
 
     it("renders alert description", () => {
       render(<MarketAlertCard alert={mockAlert} />);
-      expect(screen.getByText(/react job postings increased by 45%/i)).toBeInTheDocument();
+      expect(screen.getByText(/customer support and client success postings increased/i)).toBeInTheDocument();
     });
 
     it("renders alert icon based on type", () => {
@@ -73,7 +73,7 @@ describe("MarketAlertCard", () => {
 
     it("renders related entity badge", () => {
       render(<MarketAlertCard alert={mockAlert} />);
-      expect(screen.getByText("React")).toBeInTheDocument();
+      expect(screen.getByText("Customer Support")).toBeInTheDocument();
     });
 
     it("renders formatted date", () => {
@@ -132,7 +132,7 @@ describe("MarketAlertCard", () => {
     it("displays alert type for skill_surge", () => {
       render(<MarketAlertCard alert={{ ...mockAlert, alert_type: "skill_surge" }} />);
       // Check for skill_surge related content
-      expect(screen.getByText(/react demand spike/i)).toBeInTheDocument();
+      expect(screen.getByText(/customer support demand is rising/i)).toBeInTheDocument();
     });
 
     it("displays alert type for salary_spike", () => {
@@ -169,7 +169,7 @@ describe("MarketAlertCard", () => {
   describe("metric display", () => {
     it("shows positive metric change with green color", () => {
       render(<MarketAlertCard alert={mockAlert} />);
-      const changeElement = screen.getByText("+45.2%");
+      const changeElement = screen.getByText("+18.2%");
       expect(changeElement).toHaveClass("text-green-600");
     });
 
@@ -250,7 +250,7 @@ describe("MarketAlertCard", () => {
 
     it("has descriptive aria-label", () => {
       render(<MarketAlertCard alert={mockAlert} />);
-      expect(screen.getByLabelText(/warning alert: react demand spike/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/warning alert: customer support demand is rising/i)).toBeInTheDocument();
     });
 
     it("has aria-live for unread alerts", () => {
@@ -272,9 +272,9 @@ describe("MarketAlertList", () => {
   describe("rendering", () => {
     it("renders multiple alerts", () => {
       render(<MarketAlertList alerts={mockAlerts} />);
-      expect(screen.getByText("React Demand Spike")).toBeInTheDocument();
-      expect(screen.getByText("Senior Engineer Salaries Up")).toBeInTheDocument();
-      expect(screen.getByText("TechCorp Hiring Pause")).toBeInTheDocument();
+      expect(screen.getByText("Customer support demand is rising")).toBeInTheDocument();
+      expect(screen.getByText("Patient care salary transparency improving")).toBeInTheDocument();
+      expect(screen.getByText("Metro Learning Center Hiring Pause")).toBeInTheDocument();
     });
 
     it("shows loading skeleton when loading", () => {

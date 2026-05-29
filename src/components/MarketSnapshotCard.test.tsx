@@ -15,9 +15,9 @@ const mockSnapshot = {
   avg_salary: 125000,
   median_salary: 115000,
   remote_job_percentage: 42.5,
-  top_skill: "React",
-  top_company: "TechCorp",
-  top_location: "San Francisco, CA",
+  top_skill: "Customer Support",
+  top_company: "CareBridge Health",
+  top_location: "Chicago, IL",
   total_companies_hiring: 1250,
   market_sentiment: "bullish",
 };
@@ -108,17 +108,17 @@ describe("MarketSnapshotCard", () => {
   describe("top highlights", () => {
     it("displays top skill badge", () => {
       render(<MarketSnapshotCard snapshot={mockSnapshot} />);
-      expect(screen.getByText(/top skill: react/i)).toBeInTheDocument();
+      expect(screen.getByText(/top skill: customer support/i)).toBeInTheDocument();
     });
 
     it("displays top company badge", () => {
       render(<MarketSnapshotCard snapshot={mockSnapshot} />);
-      expect(screen.getByText(/top company: techcorp/i)).toBeInTheDocument();
+      expect(screen.getByText(/top company: carebridge health/i)).toBeInTheDocument();
     });
 
     it("displays top location badge", () => {
       render(<MarketSnapshotCard snapshot={mockSnapshot} />);
-      expect(screen.getByText(/top location: san francisco, ca/i)).toBeInTheDocument();
+      expect(screen.getByText(/top location: chicago, il/i)).toBeInTheDocument();
     });
 
     it("displays companies hiring count", () => {

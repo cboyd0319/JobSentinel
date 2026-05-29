@@ -15,8 +15,8 @@ test.describe("Market Intelligence", () => {
     await expect(page.getByLabel("911 total jobs")).toBeVisible();
     await expect(page.getByLabel("47 new jobs today")).toBeVisible();
     await expect(page.getByLabel("42 percent remote jobs")).toBeVisible();
-    await expect(page.getByText("Top Skill: TypeScript")).toBeVisible();
-    await expect(page.getByText("Top Company: BigTech Inc")).toBeVisible();
+    await expect(page.getByText("Top Skill: Customer Support")).toBeVisible();
+    await expect(page.getByText("Top Company: CareBridge Health")).toBeVisible();
     await expect(page.getByRole("region", { name: "Skill Demand" })).toBeVisible();
     await expect(page.getByRole("region", { name: "Company Hiring Activity" })).toBeVisible();
     await expect(marketPage.locationRegion).toBeVisible();
@@ -36,10 +36,10 @@ test.describe("Market Intelligence", () => {
 
     await expect(page.getByRole("region", { name: "Skills by Demand" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Skill Trends" })).toBeVisible();
-    await expect(page.getByText("Rust", { exact: true }).first()).toBeVisible();
-    await expect(page.getByText("245 jobs")).toBeVisible();
-    await expect(page.getByText("+45.0%")).toBeVisible();
-    await expect(page.getByText("$175,000")).toBeVisible();
+    await expect(page.getByText("Customer Support", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("512 jobs")).toBeVisible();
+    await expect(page.getByText("+24.0%")).toBeVisible();
+    await expect(page.getByText("$62,000")).toBeVisible();
   });
 
   test("shows company hiring activity on the companies tab", async ({ page }) => {
@@ -48,7 +48,7 @@ test.describe("Market Intelligence", () => {
     await expect(page.getByRole("region", { name: "Companies by Hiring Volume" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Hiring Activity" })).toBeVisible();
     await expect(page.getByRole("columnheader", { name: "Company" })).toBeVisible();
-    await expect(page.getByRole("cell", { name: "TechCorp" })).toBeVisible();
+    await expect(page.getByRole("cell", { name: "CareBridge Health" })).toBeVisible();
     await expect(page.getByRole("cell", { name: "45" })).toBeVisible();
     await expect(page.getByText("+25.0%")).toBeVisible();
   });
@@ -57,8 +57,8 @@ test.describe("Market Intelligence", () => {
     await marketPage.switchToTab("Locations");
 
     await expect(marketPage.locationRegion).toBeVisible();
-    await expect(page.getByRole("listitem", { name: /San Francisco, CA: 245 jobs/ })).toBeVisible();
-    await expect(page.getByRole("listitem", { name: /New York, NY: 198 jobs/ })).toBeVisible();
+    await expect(page.getByRole("listitem", { name: /Chicago, IL: 245 jobs/ })).toBeVisible();
+    await expect(page.getByRole("listitem", { name: /Phoenix, AZ: 198 jobs/ })).toBeVisible();
     await expect(page.getByRole("img", { name: "Job density legend" })).toBeVisible();
   });
 
@@ -67,8 +67,8 @@ test.describe("Market Intelligence", () => {
 
     await expect(marketPage.alertsFeed).toBeVisible();
     await expect(page.getByText("2 unread alerts")).toBeVisible();
-    await expect(page.getByRole("article", { name: /warning alert: TypeScript demand is surging/ })).toBeVisible();
-    await page.getByRole("button", { name: "Mark TypeScript demand is surging as read" }).click();
+    await expect(page.getByRole("article", { name: /warning alert: Customer support demand is rising/ })).toBeVisible();
+    await page.getByRole("button", { name: "Mark Customer support demand is rising as read" }).click();
 
     await expect(page.getByText("1 unread alert")).toBeVisible();
     await page.getByRole("button", { name: "Mark all 1 alerts as read" }).click();
@@ -82,7 +82,7 @@ test.describe("Market Intelligence", () => {
 
     await expect(page.getByText("Analysis complete")).toBeVisible();
     await expect(marketPage.marketSnapshot).toBeVisible();
-    await expect(page.getByText("Top Skill: TypeScript")).toBeVisible();
+    await expect(page.getByText("Top Skill: Customer Support")).toBeVisible();
   });
 
   test("navigates all tabs without losing tab state", async () => {

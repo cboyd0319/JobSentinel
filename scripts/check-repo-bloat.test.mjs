@@ -516,6 +516,21 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/components/resume-builder/steps/SkillsStep.tsx",
       '<input placeholder="React" /><input placeholder="Frontend" />"Technical and professional skills"\n',
     );
+    writeFixtureFile(
+      root,
+      "tests/e2e/playwright/market-intelligence.spec.ts",
+      '"Top Skill: TypeScript"; "Top Company: BigTech Inc"; "TechCorp";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/MarketSnapshotCard.test.tsx",
+      'top_skill: "React"; top_company: "TechCorp";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/MarketAlertCard.test.tsx",
+      '"React Demand Spike"; "TechCorp Hiring Pause";\n',
+    );
 
     execFileSync(
       "git",
@@ -535,6 +550,9 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/pages/ResumeOptimizer.tsx",
         "src/components/resume-builder/steps/SummaryStep.tsx",
         "src/components/resume-builder/steps/SkillsStep.tsx",
+        "tests/e2e/playwright/market-intelligence.spec.ts",
+        "src/components/MarketSnapshotCard.test.tsx",
+        "src/components/MarketAlertCard.test.tsx",
         "docs/README.md",
         "docs/ROADMAP.md",
         "docs/features/resume-builder.md",
@@ -563,6 +581,9 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/pages/ResumeOptimizer.tsx",
       "src/components/resume-builder/steps/SummaryStep.tsx",
       "src/components/resume-builder/steps/SkillsStep.tsx",
+      "tests/e2e/playwright/market-intelligence.spec.ts",
+      "src/components/MarketSnapshotCard.test.tsx",
+      "src/components/MarketAlertCard.test.tsx",
       "docs/features/resume-builder.md",
       "docs/features/smart-scoring.md",
       "docs/features/scrapers.md",
