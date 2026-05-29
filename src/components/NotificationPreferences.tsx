@@ -58,11 +58,11 @@ const SourceConfigRow = memo(function SourceConfigRow({ sourceKey, config, onCha
         <div className="w-9 h-5 bg-surface-200 peer-focus:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-sentinel-300 dark:peer-focus-visible:ring-sentinel-800 rounded-full peer dark:bg-surface-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
       </label>
 
-      {/* Score threshold */}
+      {/* Match-strength slider */}
       <div className="flex items-center gap-2 flex-1">
         <label className="text-sm text-surface-600 dark:text-surface-400 whitespace-nowrap flex items-center gap-1">
-          Quality:
-          <HelpIcon text="Only alert for jobs above this match score. Higher = fewer but better matches." size="sm" />
+          Match strength:
+          <HelpIcon text="Only alert when JobSentinel sees a strong enough fit. Higher means fewer alerts." size="sm" />
         </label>
         <input
           type="range"
@@ -158,7 +158,7 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
     return (
       <Card>
         <div className="p-8 text-center text-surface-500">
-          Loading preferences...
+          Loading notification settings...
         </div>
       </Card>
     );
@@ -187,10 +187,10 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
           <div>
             <h3 className="font-medium text-surface-900 dark:text-white flex items-center gap-2">
               Which Jobs Alert You
-              <HelpIcon text="Control which jobs trigger notifications. You can set different rules for each job board and filter by salary, keywords, and more." />
+              <HelpIcon text="Control which jobs trigger notifications. You can set different rules for each source and filter by pay, search words, and more." />
             </h3>
             <p className="text-sm text-surface-500 dark:text-surface-400 mt-0.5">
-              Fine-tune when you get notified about new jobs
+              Choose which sources and filters can interrupt you
             </p>
           </div>
           {hasChanges && (
@@ -269,7 +269,7 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
         {/* Per-source settings */}
         <div className={prefs.global.enabled ? '' : 'opacity-50 pointer-events-none'}>
           <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-3 uppercase tracking-wide">
-            Per-Source Settings
+            Source Alert Rules
           </p>
           {(Object.keys(SOURCE_INFO) as AlertSourceKey[]).map((sourceKey) => (
             <SourceConfigRow

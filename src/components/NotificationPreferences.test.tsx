@@ -400,7 +400,7 @@ describe("NotificationPreferences Component", () => {
 
       render(<NotificationPreferencesComponent />);
 
-      expect(screen.getByText("Loading preferences...")).toBeInTheDocument();
+      expect(screen.getByText("Loading notification settings...")).toBeInTheDocument();
     });
   });
 
@@ -421,8 +421,20 @@ describe("NotificationPreferences Component", () => {
       render(<NotificationPreferencesComponent />);
 
       await waitFor(() => {
-        expect(screen.getByText("Fine-tune when you get notified about new jobs")).toBeInTheDocument();
+        expect(screen.getByText("Choose which sources and filters can interrupt you")).toBeInTheDocument();
       });
+    });
+
+    it("uses plain match-strength copy instead of score-threshold wording", async () => {
+      render(<NotificationPreferencesComponent />);
+
+      await waitFor(() => {
+        expect(screen.getAllByText("Match strength:").length).toBeGreaterThan(0);
+      });
+
+      expect(screen.queryByText("Quality:")).not.toBeInTheDocument();
+      expect(screen.queryByText(/score threshold/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/above this match score/i)).not.toBeInTheDocument();
     });
 
     it("renders All Notifications toggle", async () => {
@@ -445,7 +457,7 @@ describe("NotificationPreferences Component", () => {
       render(<NotificationPreferencesComponent />);
 
       await waitFor(() => {
-        expect(screen.getByText("Per-Source Settings")).toBeInTheDocument();
+        expect(screen.getByText("Source Alert Rules")).toBeInTheDocument();
         expect(screen.queryByText("LinkedIn")).not.toBeInTheDocument();
         expect(screen.getByText("Indeed")).toBeInTheDocument();
         expect(screen.getByText("Greenhouse")).toBeInTheDocument();
@@ -478,7 +490,7 @@ describe("NotificationPreferences Component", () => {
 
       await waitFor(() => {
         // The per-source section should have opacity class when disabled
-        const perSourceSection = screen.getByText("Per-Source Settings").parentElement;
+        const perSourceSection = screen.getByText("Source Alert Rules").parentElement;
         expect(perSourceSection?.className).toContain("opacity-50");
       });
     });

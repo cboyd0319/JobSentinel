@@ -163,7 +163,7 @@ Bookmark your favorite job searches and access them with one click.
 
 1. On the **Dashboard**, build a search query:
    - Use keywords, filters, AND/OR/NOT operators
-   - Set minimum score threshold
+   - Set minimum match strength
    - Filter by job type, location, salary range
 2. Click the **Save Search** button (bookmark icon)
 3. Give it a name (for example: "SWE Remote 120k+", "Design NYC Entry-level")
@@ -205,10 +205,10 @@ Fine-tune which jobs trigger alerts and how you receive them.
 Control notifications for each job board independently:
 
 1. Go to **Settings > Notifications > Advanced Filtering**
-2. For each source (LinkedIn, Indeed, Greenhouse, etc.):
+2. For each source (Indeed, Greenhouse, Lever, JobsWithGPT):
    - **Enable/disable** - Turn alerts on or off
-   - **Minimum score** - Only notify for jobs scoring at or above the threshold
-   - **Include ghost jobs** - Show or hide flagged postings
+   - **Match strength** - Send fewer or more alerts based on how strong the
+     job looks for your saved search
 
 ### Search-Word Filtering
 
@@ -222,18 +222,18 @@ Create inclusion and exclusion rules:
    - Add company names, one per line
    - Helpful for tracking target employers
 
-### Notification Thresholds
+### Alert Match Strength
 
-Set score thresholds per notification channel:
+Choose how selective each notification channel should be:
 
-| Channel      | Default Threshold | Recommendation              |
-| ------------ | ----------------- | --------------------------- |
-| **Desktop**  | 80%               | Adjust down for more alerts |
-| **Email**    | 85%               | Keeps inbox clean           |
-| **Slack**    | 90%               | Best for quality jobs       |
-| **Discord**  | 90%               | Best for quality jobs       |
-| **Telegram** | 85%               | Mobile-friendly             |
-| **Teams**    | 85%               | Corporate-friendly          |
+| Channel      | Default Strength | Recommendation              |
+| ------------ | ---------------- | --------------------------- |
+| **Desktop**  | 80%              | Lower for more alerts       |
+| **Email**    | 85%              | Keeps inbox clean           |
+| **Slack**    | 90%              | Strongest matches only      |
+| **Discord**  | 90%              | Strongest matches only      |
+| **Telegram** | 85%              | Mobile-friendly             |
+| **Teams**    | 85%              | Work-channel friendly       |
 
 ### Saving Preferences
 
@@ -717,7 +717,7 @@ CREATE TABLE notification_preferences (
 
 1. Check your notification preferences in **Settings > Notifications > Advanced Filtering**
 2. Verify the keyword rule is active (not disabled)
-3. Check the minimum score threshold isn't too high
+3. Lower the match-strength setting if it is too selective
 4. Ensure the job source is enabled
 5. Try a test search to see if any jobs match
 

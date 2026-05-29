@@ -6548,6 +6548,7 @@ test("checkRepoBloat rejects stale notification preference docs", () => {
         "  },",
         "  keyword_rules: { include: ['Rust'] },",
         "  thresholds: { slack: 0.9 },",
+        "Minimum score - Only notify for jobs scoring at or above the threshold",
         "});",
         "",
       ].join("\n"),

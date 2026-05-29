@@ -2995,6 +2995,7 @@ function hasStaleNotificationPreferenceDocs(root, path) {
   const text = readFileSync(join(root, path), "utf8");
   return (
     /per_source_settings|min_score|include_ghosts|keyword_rules|\bthresholds\s*:/.test(text) ||
+    /Minimum score|score thresholds per notification channel|minimum score threshold/i.test(text) ||
     /invoke\("save_notification_preferences",\s*\{\s*(?:\r?\n)?\s*(?:per_source_settings|linkedin):/m.test(text) ||
     !/indeed:\s*\{\s*enabled:\s*true,\s*minScoreThreshold:\s*70,\s*soundEnabled:\s*true\s*\}/.test(text) ||
     !/prefs:\s*\{[\s\S]*advancedFilters:/m.test(text)
