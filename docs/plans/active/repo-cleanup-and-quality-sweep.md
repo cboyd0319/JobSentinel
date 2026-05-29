@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Sanitized resume command failures and command logs so renderer-facing errors no longer echo parser/database/export internals, and resume skill/job-fit commands log content lengths instead of raw user skill text or job identifiers; added bloat coverage. |
 | 2026-05-29 | In progress | Sanitized scheduler scraper worker failures so source-health rows, scraping cycle errors, and logs use source-level failure categories instead of raw scraper, URL, query, credential, or keyring error text; added Rust helper tests and bloat coverage. |
 | 2026-05-29 | In progress | Sanitized notification-service delivery and keyring failure reporting so provider, credential, token, webhook, and SMTP error details are reduced to channel-level categories before logs or aggregate errors; added bloat coverage and focused Rust tests for recurrence. |
 | 2026-05-29 | In progress | Sanitized scheduler persistence and job upsert tracing so job titles and companies are not written into backend spans or scraping result errors; added bloat coverage to keep raw job content out of those diagnostic surfaces. |

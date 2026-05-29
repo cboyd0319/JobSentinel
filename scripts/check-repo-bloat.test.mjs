@@ -5971,6 +5971,43 @@ test("checkRepoBloat rejects raw resume import name logging", () => {
   });
 });
 
+test("checkRepoBloat rejects raw resume command error details", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/resume.rs",
+      [
+        "pub async fn upload_resume() -> Result<i64, String> {",
+        "    matcher.upload_resume().await.map_err(|e| format!(\"Failed to upload resume: {}\", e))",
+        "}",
+        "",
+        "pub async fn add_user_skill(skill: NewSkill) -> Result<i64, String> {",
+        "    tracing::info!(\"Command: add_user_skill (resume: {}, skill: {})\", resume_id, skill.skill_name);",
+        "    Ok(1)",
+        "}",
+        "",
+        "pub async fn match_resume_to_job(job_hash: String) -> Result<(), String> {",
+        "    tracing::info!(\"Command: match_resume_to_job (resume: {}, job: {})\", resume_id, job_hash);",
+        "    Ok(())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/resume.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sanitize resume command error details: src-tauri/src/commands/resume.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw command setup error display", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

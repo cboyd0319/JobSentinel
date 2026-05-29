@@ -413,6 +413,7 @@ const resumeCommandDtoPrivacyPaths = new Set([
   "src/mocks/handlers.ts",
   "docs/features/resume-matcher.md",
 ]);
+const resumeCommandErrorPrivacyPaths = new Set(["src-tauri/src/commands/resume.rs"]);
 const userDataPrivacyLoggingPaths = new Set([
   "src-tauri/src/commands/user_data.rs",
   "src-tauri/src/core/user_data/mod.rs",
@@ -2816,6 +2817,21 @@ function hasRawResumeNameLogging(root, path) {
   );
 }
 
+function hasRawResumeCommandErrorDetails(root, path) {
+  if (!resumeCommandErrorPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /map_err\(\|e\|\s*format!\(\s*"(?:Failed to|Export failed)[^"]*:\s*\{\}"\s*,\s*e\s*\)\)/.test(
+      productionText,
+    ) ||
+    /tracing::info!\([^;]*(?:job:\s*\{\}|skill:\s*\{\})[^;]*\)/.test(productionText) ||
+    /tracing::info!\([^;]*(?:\bjob_hash\b|skill\.skill_name)[^;]*\)/.test(productionText)
+  );
+}
+
 function resumeSummaryStructMissingOrPrivate(text) {
   const match = text.match(/pub\s+struct\s+ResumeSummary\s*\{([^}]*)\}/);
   return !match || /\b(?:file_path|parsed_text)\b/.test(match[1]);
@@ -4303,6 +4319,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawResumeNameLogging(root, path)) {
       violations.push(`sanitize resume import name logging: ${path}`);
+    }
+
+    if (hasRawResumeCommandErrorDetails(root, path)) {
+      violations.push(`sanitize resume command error details: ${path}`);
     }
 
     if (hasRawResumeCommandDtoExposure(root, path)) {

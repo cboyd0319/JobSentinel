@@ -3,6 +3,7 @@
 //! Commands for resume upload, skill extraction, job-resume matching,
 //! resume builder, and ATS analysis.
 
+use crate::commands::errors::user_friendly_error;
 use crate::commands::limits::validate_optional_command_limit_i64;
 use crate::commands::AppState;
 use crate::core::logging::path_label_for_logging;
@@ -55,7 +56,7 @@ pub async fn upload_resume(
     matcher
         .upload_resume(&name, &file_path)
         .await
-        .map_err(|e| format!("Failed to upload resume: {}", e))
+        .map_err(|e| user_friendly_error("Failed to upload resume", e))
 }
 
 /// Import resume from JSON Resume format
@@ -75,7 +76,7 @@ pub async fn import_json_resume(
     matcher
         .import_json_resume(name, &json_string)
         .await
-        .map_err(|e| format!("Failed to import JSON Resume: {}", e))
+        .map_err(|e| user_friendly_error("Failed to import JSON Resume", e))
 }
 
 /// Get active resume
@@ -90,7 +91,7 @@ pub async fn get_active_resume(
         .get_active_resume()
         .await
         .map(|resume| resume.map(ResumeSummary::from))
-        .map_err(|e| format!("Failed to get resume: {}", e))
+        .map_err(|e| user_friendly_error("Failed to get resume", e))
 }
 
 /// Set active resume
@@ -102,7 +103,7 @@ pub async fn set_active_resume(resume_id: i64, state: State<'_, AppState>) -> Re
     matcher
         .set_active_resume(resume_id)
         .await
-        .map_err(|e| format!("Failed to set active resume: {}", e))
+        .map_err(|e| user_friendly_error("Failed to set active resume", e))
 }
 
 /// Get user skills from active resume
@@ -117,7 +118,7 @@ pub async fn get_user_skills(
     matcher
         .get_user_skills(resume_id)
         .await
-        .map_err(|e| format!("Failed to get skills: {}", e))
+        .map_err(|e| user_friendly_error("Failed to get skills", e))
 }
 
 /// Match resume to a job
@@ -127,17 +128,14 @@ pub async fn match_resume_to_job(
     job_hash: String,
     state: State<'_, AppState>,
 ) -> Result<MatchResult, String> {
-    tracing::info!(
-        "Command: match_resume_to_job (resume: {}, job: {})",
-        resume_id,
-        job_hash
-    );
+    let job_hash_chars = job_hash.chars().count();
+    tracing::info!(resume_id, job_hash_chars, "Command: match_resume_to_job");
 
     let matcher = ResumeMatcher::new(state.database.pool().clone());
     matcher
         .match_resume_to_job(resume_id, &job_hash)
         .await
-        .map_err(|e| format!("Failed to match resume: {}", e))
+        .map_err(|e| user_friendly_error("Failed to match resume", e))
 }
 
 /// Get existing match result
@@ -147,17 +145,14 @@ pub async fn get_match_result(
     job_hash: String,
     state: State<'_, AppState>,
 ) -> Result<Option<MatchResult>, String> {
-    tracing::info!(
-        "Command: get_match_result (resume: {}, job: {})",
-        resume_id,
-        job_hash
-    );
+    let job_hash_chars = job_hash.chars().count();
+    tracing::info!(resume_id, job_hash_chars, "Command: get_match_result");
 
     let matcher = ResumeMatcher::new(state.database.pool().clone());
     matcher
         .get_match_result(resume_id, &job_hash)
         .await
-        .map_err(|e| format!("Failed to get match result: {}", e))
+        .map_err(|e| user_friendly_error("Failed to get match result", e))
 }
 
 /// Get recent match results for a resume
@@ -178,7 +173,7 @@ pub async fn get_recent_matches(
     matcher
         .get_recent_matches(resume_id, limit)
         .await
-        .map_err(|e| format!("Failed to get recent matches: {}", e))
+        .map_err(|e| user_friendly_error("Failed to get recent matches", e))
 }
 
 // ============================================================================
@@ -198,7 +193,7 @@ pub async fn update_user_skill(
     matcher
         .update_user_skill(skill_id, updates)
         .await
-        .map_err(|e| format!("Failed to update skill: {}", e))
+        .map_err(|e| user_friendly_error("Failed to update skill", e))
 }
 
 /// Delete a user skill
@@ -210,7 +205,7 @@ pub async fn delete_user_skill(skill_id: i64, state: State<'_, AppState>) -> Res
     matcher
         .delete_user_skill(skill_id)
         .await
-        .map_err(|e| format!("Failed to delete skill: {}", e))
+        .map_err(|e| user_friendly_error("Failed to delete skill", e))
 }
 
 /// Add a new skill manually
@@ -220,17 +215,14 @@ pub async fn add_user_skill(
     skill: NewSkill,
     state: State<'_, AppState>,
 ) -> Result<i64, String> {
-    tracing::info!(
-        "Command: add_user_skill (resume: {}, skill: {})",
-        resume_id,
-        skill.skill_name
-    );
+    let skill_name_chars = skill.skill_name.chars().count();
+    tracing::info!(resume_id, skill_name_chars, "Command: add_user_skill");
 
     let matcher = ResumeMatcher::new(state.database.pool().clone());
     matcher
         .add_user_skill(resume_id, skill)
         .await
-        .map_err(|e| format!("Failed to add skill: {}", e))
+        .map_err(|e| user_friendly_error("Failed to add skill", e))
 }
 
 // ============================================================================
@@ -247,7 +239,7 @@ pub async fn list_all_resumes(state: State<'_, AppState>) -> Result<Vec<ResumeSu
         .list_all_resumes()
         .await
         .map(|resumes| resumes.into_iter().map(ResumeSummary::from).collect())
-        .map_err(|e| format!("Failed to list resumes: {}", e))
+        .map_err(|e| user_friendly_error("Failed to list resumes", e))
 }
 
 /// Delete a resume
@@ -259,7 +251,7 @@ pub async fn delete_resume(resume_id: i64, state: State<'_, AppState>) -> Result
     matcher
         .delete_resume(resume_id)
         .await
-        .map_err(|e| format!("Failed to delete resume: {}", e))
+        .map_err(|e| user_friendly_error("Failed to delete resume", e))
 }
 
 // ============================================================================
@@ -275,7 +267,7 @@ pub async fn create_resume_draft(state: State<'_, AppState>) -> Result<i64, Stri
     builder
         .create_resume()
         .await
-        .map_err(|e| format!("Failed to create resume draft: {}", e))
+        .map_err(|e| user_friendly_error("Failed to create resume draft", e))
 }
 
 /// Get a resume draft by ID
@@ -290,7 +282,7 @@ pub async fn get_resume_draft(
     builder
         .get_resume(resume_id)
         .await
-        .map_err(|e| format!("Failed to get resume draft: {}", e))
+        .map_err(|e| user_friendly_error("Failed to get resume draft", e))
 }
 
 /// Update contact information in a resume draft
@@ -306,7 +298,7 @@ pub async fn update_resume_contact(
     builder
         .update_contact(resume_id, contact)
         .await
-        .map_err(|e| format!("Failed to update contact: {}", e))
+        .map_err(|e| user_friendly_error("Failed to update contact", e))
 }
 
 /// Update professional summary in a resume draft
@@ -322,7 +314,7 @@ pub async fn update_resume_summary(
     builder
         .update_summary(resume_id, summary)
         .await
-        .map_err(|e| format!("Failed to update summary: {}", e))
+        .map_err(|e| user_friendly_error("Failed to update summary", e))
 }
 
 /// Add work experience to a resume draft
@@ -338,7 +330,7 @@ pub async fn add_resume_experience(
     builder
         .add_experience(resume_id, experience)
         .await
-        .map_err(|e| format!("Failed to add experience: {}", e))
+        .map_err(|e| user_friendly_error("Failed to add experience", e))
 }
 
 /// Delete work experience from a resume draft
@@ -358,7 +350,7 @@ pub async fn delete_resume_experience(
     builder
         .delete_experience(resume_id, experience_id)
         .await
-        .map_err(|e| format!("Failed to delete experience: {}", e))
+        .map_err(|e| user_friendly_error("Failed to delete experience", e))
 }
 
 /// Add education to a resume draft
@@ -374,7 +366,7 @@ pub async fn add_resume_education(
     builder
         .add_education(resume_id, education)
         .await
-        .map_err(|e| format!("Failed to add education: {}", e))
+        .map_err(|e| user_friendly_error("Failed to add education", e))
 }
 
 /// Delete education from a resume draft
@@ -394,7 +386,7 @@ pub async fn delete_resume_education(
     builder
         .delete_education(resume_id, education_id)
         .await
-        .map_err(|e| format!("Failed to delete education: {}", e))
+        .map_err(|e| user_friendly_error("Failed to delete education", e))
 }
 
 /// Set skills for a resume draft (replaces existing)
@@ -410,7 +402,7 @@ pub async fn set_resume_skills(
     builder
         .set_skills(resume_id, skills)
         .await
-        .map_err(|e| format!("Failed to set skills: {}", e))
+        .map_err(|e| user_friendly_error("Failed to set skills", e))
 }
 
 /// Delete a resume draft
@@ -422,7 +414,7 @@ pub async fn delete_resume_draft(resume_id: i64, state: State<'_, AppState>) -> 
     builder
         .delete_resume(resume_id)
         .await
-        .map_err(|e| format!("Failed to delete resume draft: {}", e))
+        .map_err(|e| user_friendly_error("Failed to delete resume draft", e))
 }
 
 // ============================================================================
@@ -464,7 +456,8 @@ pub fn export_resume_docx(
     template: crate::core::resume::ExportTemplateId,
 ) -> Result<Vec<u8>, String> {
     tracing::info!("Command: export_resume_docx");
-    ResumeExporter::export_docx(&resume, template).map_err(|e| format!("Export failed: {}", e))
+    ResumeExporter::export_docx(&resume, template)
+        .map_err(|e| user_friendly_error("Failed to export resume", e))
 }
 
 /// Export resume to HTML format for browser-based PDF generation
