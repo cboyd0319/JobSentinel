@@ -11,7 +11,7 @@ function ApplicationStatusTest() {
   const simulateStatusChange = () => {
     pushAction({
       type: "status",
-      description: `Moved Software Engineer to Phone Screen`,
+      description: `Moved Customer Support Lead to Phone Screen`,
       undo: vi.fn().mockResolvedValue(undefined),
       redo: vi.fn().mockResolvedValue(undefined),
     });
@@ -160,7 +160,7 @@ describe("Undo/Redo Integration Tests", () => {
       });
 
       // The description should appear in the toast
-      const toastElements = screen.getAllByText(/Moved Software Engineer to Phone Screen/i);
+      const toastElements = screen.getAllByText(/Moved Customer Support Lead to Phone Screen/i);
       expect(toastElements.length).toBeGreaterThanOrEqual(1);
     });
 

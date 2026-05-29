@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Rebased Undo integration toast fixtures from software-engineering examples to customer-support examples, with bloat coverage against old undo fixture drift. |
 | 2026-05-29 | In progress | Rebased security XSS/DOMPurify resume examples from `John Doe` and software-engineering samples to broad program-coordinator examples, with bloat coverage against old security-doc fixture drift. |
 | 2026-05-29 | In progress | Updated the active research-backed product plan's resume framing contract from old optimizer wording to Resume Match and replaced score-first screening language with advisory preparation language. |
 | 2026-05-29 | In progress | Reworded release docs away from old optimization and score-first framing toward Resume Match and resume readability, with bloat coverage so old release-note language does not drift back. |
