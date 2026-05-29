@@ -1784,6 +1784,54 @@ test("checkRepoBloat rejects redundant DOMPurify stub types", () => {
   });
 });
 
+test("checkRepoBloat rejects Tailwind PostCSS plugin in Vite app", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(
+      root,
+      "package.json",
+      JSON.stringify(
+        {
+          devDependencies: {
+            "@tailwindcss/postcss": "^4.3.0",
+            tailwindcss: "^4.3.0",
+            vite: "^8.0.14",
+          },
+        },
+        null,
+        2,
+      ),
+    );
+    writeFixtureFile(
+      root,
+      "postcss.config.js",
+      [
+        "export default {",
+        "  plugins: {",
+        "    '@tailwindcss/postcss': {},",
+        "    autoprefixer: {},",
+        "  },",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "postcss.config.js"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("use Tailwind Vite plugin instead of PostCSS plugin: package.json"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "use Tailwind Vite plugin instead of PostCSS plugin: postcss.config.js",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale E2E runtime skip guidance", () => {
   withGitFixture((root) => {
     const runtimeSkipCall = ["test", "skip"].join(".");

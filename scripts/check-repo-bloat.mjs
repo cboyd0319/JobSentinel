@@ -3014,6 +3014,25 @@ function hasRedundantDomPurifyTypesDependency(root, path) {
   return Boolean(directDeps.dompurify && directDeps["@types/dompurify"]);
 }
 
+function hasTailwindPostcssPlugin(root, path) {
+  if (path === "package.json") {
+    const packageJson = readPackageManifest(root);
+    const directDeps = {
+      ...(packageJson.dependencies ?? {}),
+      ...(packageJson.devDependencies ?? {}),
+      ...(packageJson.optionalDependencies ?? {}),
+    };
+
+    return Boolean(directDeps["@tailwindcss/postcss"]);
+  }
+
+  if (path !== "postcss.config.js") {
+    return false;
+  }
+
+  return readFileSync(join(root, path), "utf8").includes("@tailwindcss/postcss");
+}
+
 function hasUnreferencedDocsImage(root, path) {
   if (!path.startsWith("docs/images/") || extname(path) !== ".png") {
     return false;
@@ -4010,6 +4029,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRedundantDomPurifyTypesDependency(root, path)) {
       violations.push(`remove redundant DOMPurify stub types dependency: ${path}`);
+    }
+
+    if (hasTailwindPostcssPlugin(root, path)) {
+      violations.push(`use Tailwind Vite plugin instead of PostCSS plugin: ${path}`);
     }
 
     if (hasUnreferencedDocsImage(root, path)) {
