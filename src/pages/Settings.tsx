@@ -2450,7 +2450,7 @@ export default function Settings({ onClose }: SettingsProps) {
                   <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
                     Telegram Notifications
                     <HelpIcon
-                      text="Get job alerts via Telegram bot. Create a bot with @BotFather and get your chat ID."
+                      text="Get job alerts in Telegram. Message @BotFather to create a private alert bot, then message @userinfobot to find where alerts should go."
                       position="right"
                     />
                   </label>
@@ -2488,7 +2488,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-sm text-surface-600 dark:text-surface-400">
-                              Bot Token
+                              Telegram Connection Token
                             </span>
                             <SecurityBadge
                               stored={credentialStatus.telegram_bot_token}
@@ -2505,18 +2505,18 @@ export default function Settings({ onClose }: SettingsProps) {
                             }
                             placeholder={
                               credentialStatus.telegram_bot_token
-                                ? "Enter new token to update"
-                                : "Paste your bot token from @BotFather"
+                                ? "Enter new Telegram connection token"
+                                : "Paste Telegram connection token"
                             }
-                            hint="Message @BotFather → /newbot → Copy the token"
+                            hint="In Telegram, message @BotFather, send /newbot, then copy the token it gives you"
                           />
                         </div>
                         <div>
                           <span className="text-sm text-surface-600 dark:text-surface-400 mb-1 block">
-                            Chat ID
+                            Telegram Chat ID
                           </span>
                           <Input
-                            placeholder="Chat ID (e.g., 123456789)"
+                            placeholder="Numbers from @userinfobot"
                             value={config.alerts.telegram?.chat_id ?? ""}
                             onChange={(e) =>
                               setConfig({
@@ -2531,7 +2531,7 @@ export default function Settings({ onClose }: SettingsProps) {
                                 },
                               })
                             }
-                            hint="Message @userinfobot to get your chat ID"
+                            hint="In Telegram, message @userinfobot and copy the ID it shows"
                           />
                         </div>
                       </div>

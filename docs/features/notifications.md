@@ -104,12 +104,13 @@ You can enable multiple channels at once - they all fire simultaneously.
 
 1. Message [@BotFather](https://t.me/BotFather) on Telegram
 2. Send `/newbot` and follow the prompts
-3. Copy the bot token (looks like `123456789:ABCdef...`)
-4. Add your bot to a group or channel
-5. Get your chat ID:
+3. Copy the connection token it gives you
+4. Add your Telegram alert bot to a group or channel
+5. Find the Telegram Chat ID for that group or channel:
    - For groups: Use [@userinfobot](https://t.me/userinfobot)
    - For channels: Forward a message to [@getmyid_bot](https://t.me/getmyid_bot)
-6. In JobSentinel: Settings > Notifications > Telegram > Enter token and chat ID
+6. In JobSentinel: Settings > Notifications > Telegram > Paste the connection
+   token and Telegram Chat ID
 
 **Note:** Chat IDs for groups start with `-` (it's a negative number).
 
