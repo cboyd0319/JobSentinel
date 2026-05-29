@@ -31,22 +31,22 @@ use thiserror::Error;
 /// ML-related errors
 #[derive(Error, Debug)]
 pub enum MlError {
-    #[error("model not downloaded: {0}")]
+    #[error("model not downloaded")]
     ModelNotDownloaded(String),
 
-    #[error("model loading failed: {0}")]
+    #[error("model loading failed")]
     ModelLoadFailed(String),
 
-    #[error("inference failed: {0}")]
+    #[error("inference failed")]
     InferenceFailed(String),
 
-    #[error("tokenization failed: {0}")]
+    #[error("tokenization failed")]
     TokenizationFailed(String),
 
-    #[error("download failed: {0}")]
+    #[error("download failed")]
     DownloadFailed(String),
 
-    #[error("IO error: {0}")]
+    #[error("local ML file operation failed")]
     Io(#[from] std::io::Error),
 }
 

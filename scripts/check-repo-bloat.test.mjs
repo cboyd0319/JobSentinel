@@ -4756,6 +4756,37 @@ test("checkRepoBloat rejects ML raw local path exposure", () => {
   });
 });
 
+test("checkRepoBloat rejects raw ML error display", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/ml/mod.rs",
+      [
+        "#[derive(Error, Debug)]",
+        "pub enum MlError {",
+        "  #[error(\"model loading failed: {0}\")]",
+        "  ModelLoadFailed(String),",
+        "  #[error(\"IO error: {0}\")]",
+        "  Io(#[from] std::io::Error),",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/ml/mod.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sanitize ML error display: src-tauri/src/core/ml/mod.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw JobsWithGPT Debug derives", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

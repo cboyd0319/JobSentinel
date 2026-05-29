@@ -223,6 +223,7 @@ const mlRawLocalPathExposurePaths = new Set([
   "src-tauri/src/commands/ml.rs",
   "src-tauri/src/core/ml/model.rs",
 ]);
+const mlErrorDisplayPrivacyPaths = new Set(["src-tauri/src/core/ml/mod.rs"]);
 
 const mlRawLocalPathDocPaths = new Set(["docs/ML_FEATURE.md", "docs/ML_QUICKSTART.md"]);
 
@@ -2510,6 +2511,17 @@ function hasMlRawLocalPathExposure(root, path) {
   );
 }
 
+function hasMlRawErrorDisplay(root, path) {
+  if (!mlErrorDisplayPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return /#\[error\("\s*(?:model not downloaded|model loading failed|inference failed|tokenization failed|download failed|IO error)[^"]*:\s*\{0\}"\)\]/.test(
+    productionText,
+  );
+}
+
 function hasMlRawLocalPathDoc(root, path) {
   if (!mlRawLocalPathDocPaths.has(path)) {
     return false;
@@ -4545,6 +4557,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasMlRawLocalPathExposure(root, path)) {
       violations.push(`remove ML raw local path exposure: ${path}`);
+    }
+
+    if (hasMlRawErrorDisplay(root, path)) {
+      violations.push(`sanitize ML error display: ${path}`);
     }
 
     if (hasMlRawLocalPathDoc(root, path)) {
