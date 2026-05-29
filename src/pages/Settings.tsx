@@ -874,7 +874,7 @@ export default function Settings({ onClose }: SettingsProps) {
       exportConfigToJSON(config);
       toast.success(
         "Config exported",
-        "Sensitive data (passwords, tokens) excluded for security",
+        "Saved passwords and connection codes are left out for safety.",
       );
     } catch (error: unknown) {
       logError("Failed to export config:", error);
@@ -1855,7 +1855,7 @@ export default function Settings({ onClose }: SettingsProps) {
                   <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
                     Slack Notifications
                     <HelpIcon
-                      text="Get job alerts in a Slack channel. In Slack, go to Apps → Incoming Webhooks → Create New → Copy link."
+                      text="Get job alerts in a Slack channel. In Slack, add the app that creates channel connection links, choose a channel, then copy the link."
                       position="right"
                     />
                     <SecurityBadge stored={credentialStatus.slack_webhook} />
@@ -2282,7 +2282,7 @@ export default function Settings({ onClose }: SettingsProps) {
                   <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
                     Discord Notifications
                     <HelpIcon
-                      text="Get job alerts in a Discord channel. In Discord, go to Server Settings → Integrations → Webhooks → New Webhook → Copy link."
+                      text="Get job alerts in a Discord channel. In Discord, create a channel connection link, then paste it here."
                       position="right"
                     />
                   </label>
@@ -2347,7 +2347,7 @@ export default function Settings({ onClose }: SettingsProps) {
                               ? "This doesn't look like a Discord connection link"
                               : undefined
                           }
-                          hint="Server Settings → Integrations → Webhooks → New Webhook → Copy link"
+                          hint="Server Settings → Integrations → create a channel connection → Copy link"
                           autoComplete="off"
                         />
                       </div>
@@ -2360,7 +2360,7 @@ export default function Settings({ onClose }: SettingsProps) {
                   <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
                     Microsoft Teams Notifications
                     <HelpIcon
-                      text="Get job alerts in a Teams channel. Copy a connection link from the incoming webhook connector."
+                      text="Get job alerts in a Teams channel. Create a channel connection link in Teams, then paste it here."
                       position="right"
                     />
                   </label>
@@ -2424,7 +2424,7 @@ export default function Settings({ onClose }: SettingsProps) {
                               : undefined
                           }
                           autoComplete="off"
-                          hint="Channel → Connectors → Incoming Webhook → Configure → Copy link"
+                          hint="Channel → Connectors → create a channel connection → Copy link"
                         />
                       </div>
                     )}
@@ -2474,7 +2474,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-sm text-surface-600 dark:text-surface-400">
-                              Telegram Connection Token
+                              Telegram alert code
                             </span>
                             <SecurityBadge
                               stored={credentialStatus.telegram_bot_token}
@@ -2491,15 +2491,15 @@ export default function Settings({ onClose }: SettingsProps) {
                             }
                             placeholder={
                               credentialStatus.telegram_bot_token
-                                ? "Enter new Telegram connection token"
-                                : "Paste Telegram connection token"
+                                ? "Enter new Telegram alert code"
+                                : "Paste Telegram alert code"
                             }
-                            hint="In Telegram, message @BotFather, send /newbot, then copy the token it gives you"
+                            hint="In Telegram, message @BotFather, send /newbot, then copy the code it gives you"
                           />
                         </div>
                         <div>
                           <span className="text-sm text-surface-600 dark:text-surface-400 mb-1 block">
-                            Telegram Chat ID
+                            Telegram destination number
                           </span>
                           <Input
                             placeholder="Numbers from @userinfobot"

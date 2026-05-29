@@ -45,10 +45,10 @@ user-opened search-link destination, not a background notification source.
 
 ### Slack
 
-1. Go to [Slack's Incoming Webhooks page](https://api.slack.com/messaging/webhooks)
+1. Go to [Slack's connection-link page](https://api.slack.com/messaging/webhooks)
 2. Click "Create New App" > "From Scratch"
 3. Name it "JobSentinel" and pick your workspace
-4. Enable "Incoming Webhooks"
+4. Turn on channel connection links
 5. Click "Add New Webhook to Workspace"
 6. Pick a channel (like #job-alerts)
 7. Copy the connection link
@@ -61,8 +61,8 @@ user-opened search-link destination, not a background notification source.
 ### Discord
 
 1. Open your Discord server
-2. Go to Server Settings > Integrations > Webhooks
-3. Click "New Webhook"
+2. Go to Server Settings > Integrations
+3. Create a channel connection link
 4. Name it "JobSentinel"
 5. Pick a channel
 6. Copy the connection link
@@ -78,7 +78,7 @@ user-opened search-link destination, not a background notification source.
 
 1. Open Teams and go to your target channel
 2. Click More options > Connectors
-3. Find "Incoming Webhook" and click Configure
+3. Find the connector that creates a channel connection link
 4. Name it "JobSentinel"
 5. Copy the connection link
 6. In JobSentinel: Settings > Notifications > Teams > Paste link
@@ -111,15 +111,15 @@ user-opened search-link destination, not a background notification source.
 
 1. Message [@BotFather](https://t.me/BotFather) on Telegram
 2. Send `/newbot` and follow the prompts
-3. Copy the connection token it gives you
+3. Copy the alert code it gives you
 4. Add your Telegram alert bot to a group or channel
-5. Find the Telegram Chat ID for that group or channel:
+5. Find the Telegram destination number for that group or channel:
    - For groups: Use [@userinfobot](https://t.me/userinfobot)
    - For channels: Forward a message to [@getmyid_bot](https://t.me/getmyid_bot)
-6. In JobSentinel: Settings > Notifications > Telegram > Paste the connection
-   token and Telegram Chat ID
+6. In JobSentinel: Settings > Notifications > Telegram > Paste the alert code
+   and destination number
 
-**Note:** Chat IDs for groups start with `-` (it's a negative number).
+**Note:** Group destination numbers usually start with `-`.
 
 **What you'll get:** Formatted messages right on your phone.
 

@@ -311,7 +311,7 @@ Your changes take effect immediately.
 
 ### Slack
 
-1. Go to [Slack's Incoming Webhooks page](https://api.slack.com/messaging/webhooks).
+1. Go to [Slack's connection-link page](https://api.slack.com/messaging/webhooks).
 2. Create a new connection link for your workspace.
 3. Copy the connection link.
 4. Paste it in JobSentinel Settings > Notifications > Slack.
@@ -319,14 +319,14 @@ Your changes take effect immediately.
 ### Discord
 
 1. Right-click your Discord channel > Edit Channel > Integrations
-2. Create a Webhook.
+2. Create a channel connection.
 3. Copy the connection link.
 4. Paste it in JobSentinel Settings > Notifications > Discord.
 
 ### Microsoft Teams
 
 1. In your Teams channel, click More options > Connectors
-2. Add "Incoming Webhook".
+2. Add a channel connection.
 3. Copy the connection link.
 4. Paste it in JobSentinel Settings > Notifications > Teams.
 

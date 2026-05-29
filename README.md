@@ -769,9 +769,9 @@ and fake example links are intentionally excluded.
 - [USAJobs search API](https://data.usajobs.gov/api/Search)
 - [USA Staffing support](https://help.usastaffing.gov/USAS/index.php?title=USA_Staffing_Support)
 - [LinkedIn system status](https://www.linkedin.com/system-status)
-- [Slack incoming webhooks](https://api.slack.com/messaging/webhooks)
-- [Discord webhook docs](https://discord.com/developers/docs/resources/webhook)
-- [Microsoft Teams connector webhooks](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/connectors-using)
+- [Slack connection-link docs](https://api.slack.com/messaging/webhooks)
+- [Discord connection-link docs](https://discord.com/developers/docs/resources/webhook)
+- [Microsoft Teams connector-link docs](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/connectors-using)
 - [Telegram BotFather](https://t.me/BotFather)
 
 ### Security, privacy, and reliability references

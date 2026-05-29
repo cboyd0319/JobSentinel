@@ -678,6 +678,39 @@ describe("Settings — handleSave flow", () => {
     );
   });
 
+  it("uses plain notification connection wording instead of service-internal jargon", async () => {
+    const user = userEvent.setup();
+    const config = makeConfig();
+    config.alerts.discord.enabled = true;
+    config.alerts.teams.enabled = true;
+    config.alerts.telegram.enabled = true;
+
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_config") return config;
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      return null;
+    });
+
+    const { container } = render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+
+    expect(screen.getByPlaceholderText("Paste Slack connection link")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Paste Discord connection link")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Paste Teams connection link")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Paste Telegram alert code")).toBeInTheDocument();
+    expect(screen.getByText("Telegram destination number")).toBeInTheDocument();
+    expect(container.innerHTML).not.toMatch(
+      /Incoming Webhooks|incoming webhook connector|Webhooks → New Webhook|Incoming Webhook → Configure|Telegram Connection Token|Telegram Chat ID|passwords, tokens/i,
+    );
+  });
+
   it("blocks saving an invalid Discord connection link", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
