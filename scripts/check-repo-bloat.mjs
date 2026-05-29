@@ -1439,6 +1439,7 @@ function hasStaleResumeOptimizerFraming(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
   const stalePatterns = [
+    /Resume Optimizer/i,
     /\bATS Optimizer\b/i,
     /ATS\s+Optimizer/i,
     /\bATS Resume Optimizer\b/i,

@@ -95,7 +95,7 @@ const navItems: NavItem[] = [
   { id: "market", label: "Market Intel", shortcut: "⌘5", icon: <MarketIcon /> },
   { id: "automation", label: "Application Assist", shortcut: "⌘6", icon: <AutomationIcon /> },
   { id: "resume-builder", label: "Resume Builder", shortcut: "⌘7", icon: <BuilderIcon /> },
-  { id: "ats-optimizer", label: "Resume Optimizer", shortcut: "⌘8", icon: <OptimizerIcon /> },
+  { id: "ats-optimizer", label: "Resume Match", shortcut: "⌘8", icon: <OptimizerIcon /> },
 ];
 
 export const Navigation = memo(function Navigation({ currentPage, onNavigate }: NavigationProps) {

@@ -190,7 +190,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
   const [error, setError] = useState<string | null>(null);
   const [retryTrigger, setRetryTrigger] = useState(0);
 
-  // Load job context from sessionStorage (set by Resume Optimizer)
+  // Load job context from sessionStorage (set by Resume Match)
   useEffect(() => {
     try {
       const stored = readStorageValue("session", JOB_CONTEXT_KEY);

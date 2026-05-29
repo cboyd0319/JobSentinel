@@ -109,7 +109,7 @@ broad-audience design guidance, docs harness alignment
 - **Resume Builder** - 7-step wizard for creating professional resumes
   - 5 readable templates (Classic, Modern, Skills-First, Executive, Military)
   - DOCX export with professional formatting
-- **Resume Optimizer** - Compare resumes against job descriptions
+- **Resume Match** - Compare resumes against job descriptions
   - Job-post evidence review and scoring
   - Bullet point improver with 45+ power words
 - **22 new Tauri commands** for resume operations
@@ -163,9 +163,9 @@ broad-audience design guidance, docs harness alignment
 | ------------------------------------------------------ | -------------------------------- |
 | ![Market Intelligence](images/market-intelligence.png) | ![Settings](images/settings.png) |
 
-| Resume Builder                               | Resume Optimizer                           |
+| Resume Builder                               | Resume Match                               |
 | -------------------------------------------- | ------------------------------------------ |
-| ![Resume Builder](images/resume-builder.png) | ![Resume Optimizer](images/ats-optimizer.png) |
+| ![Resume Builder](images/resume-builder.png) | ![Resume Match](images/ats-optimizer.png) |
 
 | Application Assist                                |
 | ------------------------------------------------- |

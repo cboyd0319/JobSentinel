@@ -1,4 +1,4 @@
-# Resume Builder & Resume Optimizer
+# Resume Builder & Resume Match
 
 **Create readable, job-aligned resumes without giving up control.**
 
@@ -6,9 +6,9 @@ JobSentinel helps you create clear resumes and compare them with specific job po
 It highlights where your evidence is strong, where important qualifications are
 unclear, and where truthful edits could improve readability.
 
-| Resume Builder                                  | Resume Optimizer                              |
+| Resume Builder                                  | Resume Match                                  |
 | ----------------------------------------------- | --------------------------------------------- |
-| ![Resume Builder](../images/resume-builder.png) | ![Resume Optimizer](../images/ats-optimizer.png) |
+| ![Resume Builder](../images/resume-builder.png) | ![Resume Match](../images/ats-optimizer.png) |
 
 ---
 
@@ -87,9 +87,9 @@ Download your resume as a Word document (.docx), ready to upload to any job appl
 
 ---
 
-## Resume Optimizer
+## Resume Match
 
-Already have a resume? Use the optimizer to see how clearly it aligns with a
+Already have a resume? Use Resume Match to see how clearly it aligns with a
 specific job post.
 
 ### How It Works
@@ -121,7 +121,7 @@ your resume, and which ones need truthful support.
 
 ## Job-Post Evidence Matching
 
-The optimizer groups important job-post language into three buckets:
+Resume Match groups important job-post language into three buckets:
 
 **Required Qualifications** - Skills and qualifications explicitly listed as required.
 Add them only when they are true for your background.
@@ -148,7 +148,7 @@ Weak bullet points hurt your resume. The improver helps you write stronger ones.
 
 ### Power Words
 
-The optimizer suggests 45+ action verbs that can make resume bullets clearer:
+JobSentinel suggests 45+ action verbs that can make resume bullets clearer:
 
 - **Leadership:** Led, Managed, Directed, Coordinated
 - **Achievement:** Achieved, Delivered, Exceeded, Reduced

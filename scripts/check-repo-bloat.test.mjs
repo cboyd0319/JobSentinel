@@ -1092,17 +1092,17 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
     writeFixtureFile(
       root,
       "src/components/Navigation.tsx",
-      '{ id: "ats-optimizer", label: "ATS Optimizer", shortcut: "⌘8" }\n',
+      '{ id: "ats-optimizer", label: "Resume Optimizer", shortcut: "⌘8" }\n',
     );
     writeFixtureFile(
       root,
       "src/contexts/KeyboardShortcutsContext.tsx",
-      'description: "Go to ATS Optimizer",\n',
+      'description: "Go to Resume Optimizer",\n',
     );
     writeFixtureFile(
       root,
       "src/App.tsx",
-      '<PageErrorBoundary pageName="ATS Optimizer">\n',
+      '<PageErrorBoundary pageName="Resume Optimizer">\n',
     );
     writeFixtureFile(
       root,

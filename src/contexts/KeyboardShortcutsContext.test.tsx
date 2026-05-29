@@ -399,7 +399,7 @@ describe("KeyboardShortcutsContext", () => {
       await waitFor(() => {
         expect(screen.getByText("Undo last action")).toBeInTheDocument();
         expect(screen.getByText("Redo last action")).toBeInTheDocument();
-        expect(screen.getByText("Go to Resume Optimizer")).toBeInTheDocument();
+        expect(screen.getByText("Go to Resume Match")).toBeInTheDocument();
         expect(screen.queryByText("Go to ATS Optimizer")).not.toBeInTheDocument();
       });
     });

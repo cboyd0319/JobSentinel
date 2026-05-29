@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Renamed visible Resume Optimizer navigation, shortcut, recovery, builder guidance, and maintained user docs to Resume Match so resume help reads as truthful fit review instead of optimization framing; added bloat coverage. |
 | 2026-05-29 | In progress | Reworded live resume-format review UI away from ATS score and optimizer framing toward resume readability, hiring-system readability, and Resume Match next steps; added component and bloat coverage. |
 | 2026-05-29 | In progress | Reworded saved-settings recovery errors away from configuration-file jargon so non-technical users get direct Settings and safe-debug-report next steps; added frontend and bloat coverage for recurrence. |
 | 2026-05-29 | In progress | Hardened the shared external HTTP body reader so oversized-body, body-read, and JSON-parse error display sanitizes URLs and suppresses raw source details even when future callers construct errors directly; added Rust and bloat coverage. |

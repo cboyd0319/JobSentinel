@@ -682,7 +682,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
         logContext: "Get active resume for skill import"
       });
       if (!activeResume) {
-        toast.warning("No resume uploaded", "Please upload a resume in Resume Optimizer first");
+        toast.warning("No resume uploaded", "Please upload a resume in Resume Match first");
         return;
       }
 
@@ -694,7 +694,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       });
 
       if (userSkills.length === 0) {
-        toast.info("No skills found", "Upload and review a resume in Resume Optimizer first");
+        toast.info("No skills found", "Upload and review a resume in Resume Match first");
         return;
       }
 
@@ -1625,7 +1625,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                   Tailoring for Job
                 </h4>
                 <p className="text-xs text-surface-500 dark:text-surface-400">
-                  Your resume is being analyzed against a saved job description from Resume Optimizer.
+                  Your resume is being checked against a saved job description from Resume Match.
                 </p>
                 <button
                   onClick={() => {
