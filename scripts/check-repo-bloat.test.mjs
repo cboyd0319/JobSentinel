@@ -6154,6 +6154,22 @@ test("checkRepoBloat rejects raw URL error display", () => {
         "",
       ].join("\n"),
     );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/http_body.rs",
+      [
+        "#[derive(Debug, Error)]",
+        "pub enum HttpBodyReadError {",
+        '    #[error("HTTP response body from {url} exceeded {max_bytes} byte limit")]',
+        "    ResponseTooLarge { url: String, max_bytes: usize },",
+        '    #[error("Failed to read HTTP response body from {url}: {source}")]',
+        "    Read { url: String, source: reqwest::Error },",
+        '    #[error("Failed to parse JSON response from {url}: {source}")]',
+        "    Json { url: String, source: serde_json::Error },",
+        "}",
+        "",
+      ].join("\n"),
+    );
 
     execFileSync(
       "git",
@@ -6161,6 +6177,7 @@ test("checkRepoBloat rejects raw URL error display", () => {
         "add",
         "package.json",
         "src-tauri/src/core/automation/error.rs",
+        "src-tauri/src/core/http_body.rs",
         "src-tauri/src/core/scrapers/error.rs",
       ],
       {
@@ -6178,6 +6195,10 @@ test("checkRepoBloat rejects raw URL error display", () => {
     );
     assert.ok(
       violations.includes("replace raw URL error display: src-tauri/src/core/scrapers/error.rs"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace raw URL error display: src-tauri/src/core/http_body.rs"),
       violations.join("\n"),
     );
   });

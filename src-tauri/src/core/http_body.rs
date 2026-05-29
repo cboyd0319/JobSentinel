@@ -2,29 +2,64 @@
 
 use crate::core::url_security::sanitize_url_for_logging;
 use serde::de::DeserializeOwned;
-use thiserror::Error;
+use std::fmt;
 
 /// Default maximum decoded HTTP response body size for scraper and import fetches.
 pub const DEFAULT_MAX_HTTP_BODY_BYTES: usize = 16 * 1024 * 1024;
 
-#[derive(Debug, Error)]
+#[derive(Debug)]
 pub enum HttpBodyReadError {
-    #[error("HTTP response body from {url} exceeded {max_bytes} byte limit")]
-    ResponseTooLarge { url: String, max_bytes: usize },
+    ResponseTooLarge {
+        url: String,
+        max_bytes: usize,
+    },
 
-    #[error("Failed to read HTTP response body from {url}: {source}")]
     Read {
         url: String,
-        #[source]
         source: reqwest::Error,
     },
 
-    #[error("Failed to parse JSON response from {url}: {source}")]
     Json {
         url: String,
-        #[source]
         source: serde_json::Error,
     },
+}
+
+impl fmt::Display for HttpBodyReadError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::ResponseTooLarge { url, max_bytes } => write!(
+                f,
+                "HTTP response body from {} exceeded {} byte limit",
+                sanitized_url(url),
+                max_bytes
+            ),
+            Self::Read { url, source: _ } => {
+                write!(
+                    f,
+                    "Failed to read HTTP response body from {}",
+                    sanitized_url(url)
+                )
+            }
+            Self::Json { url, source: _ } => {
+                write!(
+                    f,
+                    "Failed to parse JSON response from {}",
+                    sanitized_url(url)
+                )
+            }
+        }
+    }
+}
+
+impl std::error::Error for HttpBodyReadError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            Self::Read { source, .. } => Some(source),
+            Self::Json { source, .. } => Some(source),
+            Self::ResponseTooLarge { .. } => None,
+        }
+    }
 }
 
 fn sanitized_url(url: &str) -> String {
@@ -202,5 +237,49 @@ mod tests {
             .expect("json should parse");
 
         assert_eq!(parsed["ok"], true);
+    }
+
+    #[test]
+    fn display_sanitizes_raw_urls_for_direct_errors() {
+        let raw_url = "https://user:pass@example.com/jobs?token=secret123&query=private#fragment";
+        let cases = [
+            HttpBodyReadError::ResponseTooLarge {
+                url: raw_url.to_string(),
+                max_bytes: 128,
+            },
+            HttpBodyReadError::Json {
+                url: raw_url.to_string(),
+                source: serde_json::from_str::<serde_json::Value>("{")
+                    .expect_err("invalid json should fail"),
+            },
+        ];
+
+        for error in cases {
+            let message = error.to_string();
+            assert!(message.contains("https://example.com/jobs"));
+            assert!(!message.contains("secret123"));
+            assert!(!message.contains("query=private"));
+            assert!(!message.contains("user"));
+            assert!(!message.contains("pass"));
+            assert!(!message.contains("fragment"));
+        }
+    }
+
+    #[test]
+    fn display_does_not_echo_source_error_detail() {
+        let source = serde_json::from_str::<serde_json::Value>(
+            r#"{"email":"candidate@example.com","token":"secret123""#,
+        )
+        .expect_err("invalid json should fail");
+
+        let error = HttpBodyReadError::Json {
+            url: "https://example.com/jobs?token=secret123".to_string(),
+            source,
+        };
+        let message = error.to_string();
+
+        assert!(message.contains("Failed to parse JSON response"));
+        assert!(!message.contains("candidate@example.com"));
+        assert!(!message.contains("secret123"));
     }
 }

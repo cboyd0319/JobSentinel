@@ -273,6 +273,7 @@ const rawUrlLoggingPaths = new Set([
 
 const rawUrlErrorDisplayPaths = new Set([
   "src-tauri/src/core/automation/error.rs",
+  "src-tauri/src/core/http_body.rs",
   "src-tauri/src/core/scrapers/error.rs",
 ]);
 
