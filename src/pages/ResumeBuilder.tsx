@@ -1958,19 +1958,19 @@ function TemplateThumbnail({ templateId }: { templateId: TemplateId }) {
       </div>
     ),
     Technical: (
-      <div className="w-full h-full bg-surface-900 text-surface-100 p-2 text-[4px] leading-tight font-mono">
-        <div className="border-l-2 border-success pl-1 mb-1">
-          <div className="font-bold text-success">$ whoami</div>
-          <div>JOHN DOE - Data Analyst</div>
+      <div className="w-full h-full bg-white dark:bg-surface-800 p-2 text-[4px] leading-tight">
+        <div className="border-b-2 border-success pb-1 mb-1">
+          <div className="font-bold">JOHN DOE</div>
+          <div className="text-success">Community Program Lead</div>
         </div>
         <div className="space-y-1">
-          <div className="border-l-2 border-surface-600 pl-1">
-            <div className="text-warning">./experience</div>
-            <div className="text-surface-400">Analytics Lead</div>
+          <div className="border-l-2 border-surface-300 dark:border-surface-600 pl-1">
+            <div className="font-semibold text-success">SKILLS</div>
+            <div className="text-surface-600 dark:text-surface-400">Scheduling • Outreach</div>
           </div>
-          <div className="border-l-2 border-surface-600 pl-1">
-            <div className="text-warning">./education</div>
-            <div className="text-surface-400">B.S. CS</div>
+          <div className="border-l-2 border-surface-300 dark:border-surface-600 pl-1">
+            <div className="font-semibold text-success">EXPERIENCE</div>
+            <div className="text-surface-600 dark:text-surface-400">Program Coordinator</div>
           </div>
         </div>
       </div>

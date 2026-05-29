@@ -537,6 +537,8 @@ const staleResumeOptimizerFramingPaths = new Set([
   "src/contexts/KeyboardShortcutsContext.tsx",
   "src/pages/ResumeBuilder.tsx",
   "src/pages/ResumeOptimizer.tsx",
+  "src-tauri/src/core/resume/mod.rs",
+  "src-tauri/src/core/resume/templates.rs",
   "docs/README.md",
   "docs/ROADMAP.md",
   "docs/features/resume-builder.md",
@@ -1472,6 +1474,10 @@ function hasEngineerFirstAudienceExamples(root, path) {
     /Responsible for managing the security team/i,
     /Led 12-person security team/i,
     /If they say "Python"/i,
+    /\$ whoami/i,
+    /JOHN DOE - Data Analyst/i,
+    /\.\/experience/i,
+    /B\.S\. CS/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));
@@ -1504,6 +1510,10 @@ function hasStaleResumeOptimizerFraming(root, path) {
     /what keywords you're missing/i,
     /might get filtered out/i,
     /probably won't pass/i,
+    /ATS-compatible/i,
+    /ATS-parseable HTML/i,
+    /ATS-safe design rules/i,
+    /Works with any ATS/i,
     /ATS systems look for/i,
     /commonly recognized by ATS systems/i,
     /optimization recommendations/i,

@@ -174,7 +174,7 @@ test.describe("Resume Builder Wizard", () => {
     await expect(resumeBuilder.templateButton("Modern Minimal")).toHaveAttribute("aria-pressed", "true");
 
     await resumeBuilder.selectTemplate("Skills-First");
-    await expect(page.getByText("ATS Format Score")).toBeVisible();
+    await expect(page.getByText("Resume Format Readability")).toBeVisible();
     await expect(page.getByText("Jane Smith").first()).toBeVisible();
 
     await resumeBuilder.goNext(7, "Export");

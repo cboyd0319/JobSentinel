@@ -8,9 +8,9 @@
 //! - **Skill Extraction** - Identify technical, workplace, and role-specific skills
 //! - **Semantic Matching** - Compare resume skills against job requirements
 //! - **Gap Analysis** - Identify missing skills and strengths
-//! - **ATS-Optimized Templates** - 5 professional resume templates (Classic, Modern, Technical, Executive, Military)
+//! - **Application-readable Templates** - 5 professional resume templates
 //! - **Resume Builder** - Interactive resume creation with CRUD operations
-//! - **ATS Analyzer** - Keyword analysis and ATS compatibility scoring
+//! - **Resume Readability Analyzer** - job-word extraction and format clarity checks
 //!
 //! ## Usage
 //!

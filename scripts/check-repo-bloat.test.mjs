@@ -499,7 +499,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     writeFixtureFile(
       root,
       "src/pages/ResumeBuilder.tsx",
-      '"Technical & soft skills"\n',
+      ['"$ whoami"', '"JOHN DOE - Data Analyst"', '"B.S. CS"', ""].join("\n"),
     );
     writeFixtureFile(
       root,
@@ -1186,6 +1186,16 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
     );
     writeFixtureFile(
       root,
+      "src-tauri/src/core/resume/templates.rs",
+      [
+        "//! ATS-optimized resume templates for HTML rendering",
+        "//! to ATS-parseable HTML. All templates follow ATS-safe design rules:",
+        'description: "Clean, contemporary design with subtle styling. ATS-compatible."',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "docs/user/QUICK_START.md",
       [
         "Pick from 5 ATS-friendly templates",
@@ -1205,6 +1215,7 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
         "src/App.tsx",
         "src/components/AtsLiveScorePanel.tsx",
         "src/pages/ResumeBuilder.tsx",
+        "src-tauri/src/core/resume/templates.rs",
         "docs/user/QUICK_START.md",
       ],
       { cwd: root },
@@ -1218,6 +1229,7 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
       "src/App.tsx",
       "src/components/AtsLiveScorePanel.tsx",
       "src/pages/ResumeBuilder.tsx",
+      "src-tauri/src/core/resume/templates.rs",
       "docs/user/QUICK_START.md",
     ]) {
       assert.ok(

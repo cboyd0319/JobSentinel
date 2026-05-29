@@ -3,7 +3,7 @@
 //! ## Supported Formats
 //!
 //! - **HTML** - Browser-printable resume output
-//! - **DOCX** - ATS-friendly Word documents using docx-rs
+//! - **DOCX** - Application-readable Word documents using docx-rs
 //! - **Plain Text** - Simple text format for copying/pasting
 //!
 //! ## Usage
@@ -137,7 +137,7 @@ impl ResumeExporter {
     /// Export resume to DOCX format
     ///
     /// Returns DOCX bytes suitable for saving to file or sending to client.
-    /// Uses ATS-friendly formatting with Calibri font and standard structure.
+    /// Uses application-readable formatting with Calibri font and standard structure.
     pub fn export_docx(resume: &ResumeData, template: TemplateId) -> Result<Vec<u8>> {
         // Create new document
         let mut doc = Docx::new();

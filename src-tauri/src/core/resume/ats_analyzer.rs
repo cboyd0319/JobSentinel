@@ -1,7 +1,7 @@
-//! ATS (Applicant Tracking System) analyzer for resume optimization
+//! Resume readability analyzer for candidate-side explainability
 //!
-//! This module analyzes resumes for ATS compatibility, keyword optimization,
-//! and provides suggestions for improving ATS pass-through rates.
+//! This module analyzes resumes for job-word coverage, readable structure,
+//! and suggestions that improve truthful application clarity.
 #![allow(clippy::unwrap_used, clippy::expect_used)] // Regex patterns are compile-time constants
 
 use serde::{Deserialize, Serialize};
@@ -13,10 +13,10 @@ use super::types::{ContactInfo, Education, Experience, ResumeData, Skill};
 // Types
 // ============================================================================
 
-/// Complete ATS analysis result for a resume
+/// Complete readability analysis result for a resume
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AtsAnalysisResult {
-    /// Overall ATS compatibility score (0-100)
+    /// Overall application readability score (0-100)
     pub overall_score: f64,
     /// Keyword matching score (0-100)
     pub keyword_score: f64,
@@ -28,7 +28,7 @@ pub struct AtsAnalysisResult {
     pub keyword_matches: Vec<KeywordMatch>,
     /// Important keywords missing from resume
     pub missing_keywords: Vec<String>,
-    /// Format issues that may cause ATS problems
+    /// Format issues that may make a resume hard to parse
     pub format_issues: Vec<FormatIssue>,
     /// Improvement suggestions
     pub suggestions: Vec<AtsSuggestion>,
@@ -58,7 +58,7 @@ pub enum KeywordImportance {
     Industry,
 }
 
-/// A formatting issue that may affect ATS parsing
+/// A formatting issue that may affect resume parsing
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FormatIssue {
     /// How serious this issue is
@@ -72,7 +72,7 @@ pub struct FormatIssue {
 /// Severity level of a format issue
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub enum IssueSeverity {
-    /// Will likely cause ATS to fail parsing
+    /// Will likely cause a parser to miss content
     Critical,
     /// May cause parsing issues
     Warning,
@@ -80,7 +80,7 @@ pub enum IssueSeverity {
     Info,
 }
 
-/// Suggestion for improving ATS score
+/// Suggestion for improving application readability
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AtsSuggestion {
     /// Category of suggestion
@@ -91,7 +91,7 @@ pub struct AtsSuggestion {
     pub impact: String,
 }
 
-/// Category of ATS suggestion
+/// Category of readability suggestion
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub enum SuggestionCategory {
     /// Add missing keyword
@@ -107,7 +107,7 @@ pub enum SuggestionCategory {
 }
 
 // ============================================================================
-// ATS Analyzer
+// Resume Readability Analyzer
 // ============================================================================
 
 pub struct AtsAnalyzer;

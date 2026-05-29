@@ -1,7 +1,7 @@
-//! ATS-optimized resume templates for HTML rendering
+//! Application-readable resume templates for HTML rendering
 //!
 //! Provides 5 professional resume templates that render structured resume data
-//! to ATS-parseable HTML. All templates follow ATS-safe design rules:
+//! to clear HTML. All templates follow application readability rules:
 //! - Single-column layout only
 //! - Standard fonts (Arial, Calibri, Times New Roman)
 //! - No tables, graphics, or icons
@@ -14,8 +14,8 @@ use std::str::FromStr;
 /// Template identifier
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub enum TemplateId {
-    Classic,   // Traditional chronological, ATS-safe
-    Modern,    // Clean design, still ATS-parseable
+    Classic,   // Traditional chronological, readable by common systems
+    Modern,    // Clean design with readable structure
     Technical, // Skills-first template; stable internal id
     Executive, // Summary-focused for senior roles
     Military,  // Veteran→civilian with clearance support
@@ -130,13 +130,13 @@ impl TemplateRenderer {
                 id: TemplateId::Classic,
                 name: "Classic Professional",
                 description:
-                    "Traditional chronological format with clear sections. Works with any ATS.",
+                    "Traditional chronological format with clear sections. Works with most upload forms.",
                 preview_image: "/templates/classic-preview.png",
             },
             Template {
                 id: TemplateId::Modern,
                 name: "Modern Minimal",
-                description: "Clean, contemporary design with subtle styling. ATS-compatible.",
+                description: "Clean, contemporary design with subtle styling and readable structure.",
                 preview_image: "/templates/modern-preview.png",
             },
             Template {

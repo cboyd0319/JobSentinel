@@ -17,10 +17,10 @@ pub struct Resume {
 }
 
 // ============================================================================
-// ATS Analyzer Types
+// Resume Analysis Types
 // ============================================================================
 
-/// Contact information for ATS analysis
+/// Contact information for resume analysis
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ContactInfo {
     pub name: String,
@@ -32,7 +32,7 @@ pub struct ContactInfo {
     pub website: Option<String>,
 }
 
-/// Work experience entry for ATS analysis
+/// Work experience entry for resume analysis
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Experience {
     pub title: String,

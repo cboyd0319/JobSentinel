@@ -478,10 +478,10 @@ pub fn export_resume_text(resume: ExportResumeData) -> String {
 }
 
 // ============================================================================
-// ATS Analysis Commands
+// Resume Analysis Commands
 // ============================================================================
 
-/// Analyze resume against a job description for ATS compatibility
+/// Analyze resume against a job description for application readability
 #[tauri::command]
 pub fn analyze_resume_for_job(resume: AtsResumeData, job_description: String) -> AtsAnalysisResult {
     tracing::info!("Command: analyze_resume_for_job");
