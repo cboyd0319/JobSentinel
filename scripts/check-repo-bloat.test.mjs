@@ -636,6 +636,16 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src-tauri/tests/scraper_integration_test.rs",
+      [
+        '"company": "TechCorp",',
+        '"position": "Remote Rust Developer",',
+        '<title><![CDATA[Company ABC: Senior Software Engineer]]></title>',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src-tauri/src/core/import/README.md",
       'title: "Software Engineer"; "San Francisco, CA";\n',
     );
@@ -867,6 +877,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src-tauri/src/commands/import.rs",
         "src-tauri/src/commands/tests.rs",
         "src-tauri/tests/api_contract_test.rs",
+        "src-tauri/tests/scraper_integration_test.rs",
         "src-tauri/src/core/import/README.md",
         "src-tauri/src/core/import/schema_org.rs",
         "src-tauri/src/core/import/tests.rs",
@@ -948,6 +959,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src-tauri/src/commands/import.rs",
       "src-tauri/src/commands/tests.rs",
       "src-tauri/tests/api_contract_test.rs",
+      "src-tauri/tests/scraper_integration_test.rs",
       "src-tauri/src/core/import/README.md",
       "src-tauri/src/core/import/schema_org.rs",
       "src-tauri/src/core/import/tests.rs",

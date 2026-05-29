@@ -34,15 +34,15 @@ const GREENHOUSE_JSON_RESPONSE: &str = r#"{
     "jobs": [
         {
             "id": 12345,
-            "title": "Senior Rust Engineer",
+            "title": "Customer Support Lead",
             "location": {
-                "name": "San Francisco, CA"
+                "name": "Chicago, IL"
             },
             "absolute_url": "https://boards.greenhouse.io/company/jobs/12345"
         },
         {
             "id": 12346,
-            "title": "Backend Developer",
+            "title": "Care Coordinator",
             "location": {
                 "name": "Remote"
             },
@@ -54,10 +54,10 @@ const GREENHOUSE_JSON_RESPONSE: &str = r#"{
 const LEVER_JSON_RESPONSE: &str = r#"[
     {
         "id": "abc123",
-        "text": "Full Stack Engineer",
+        "text": "Program Manager",
         "categories": {
-            "location": "New York, NY",
-            "team": "Engineering"
+            "location": "Atlanta, GA",
+            "team": "Client Services"
         },
         "hostedUrl": "https://jobs.lever.co/company/abc123"
     }
@@ -67,18 +67,18 @@ const REMOTEOK_JSON_RESPONSE: &str = r#"[
     {"id": "legal"},
     {
         "id": "1",
-        "company": "TechCorp",
-        "position": "Remote Rust Developer",
+        "company": "CareBridge",
+        "position": "Remote Case Manager",
         "url": "https://remoteok.com/jobs/1",
         "location": "Worldwide",
-        "tags": ["rust", "remote"],
+        "tags": ["case-management", "remote"],
         "salary_min": 100000,
         "salary_max": 150000
     },
     {
         "id": "2",
-        "company": "StartupXYZ",
-        "position": "Backend Engineer",
+        "company": "CommunityWorks",
+        "position": "Program Coordinator",
         "url": "https://remoteok.com/jobs/2",
         "location": "US Only"
     }
@@ -89,9 +89,9 @@ const WEWORKREMOTELY_RSS_RESPONSE: &str = r#"<?xml version="1.0" encoding="UTF-8
 <channel>
 <title>We Work Remotely</title>
 <item>
-<title><![CDATA[Company ABC: Senior Software Engineer]]></title>
+<title><![CDATA[Company ABC: Customer Support Lead]]></title>
 <link>https://weworkremotely.com/jobs/1</link>
-<description><![CDATA[We are looking for a senior engineer.]]></description>
+<description><![CDATA[We are looking for a customer support lead.]]></description>
 </item>
 </channel>
 </rss>"#;
@@ -137,7 +137,7 @@ async fn test_mock_server_json_response() {
     assert_eq!(response.status().as_u16(), 200);
 
     let body = response.text().await.expect("body");
-    assert!(body.contains("Senior Rust Engineer"));
+    assert!(body.contains("Customer Support Lead"));
 }
 
 /// Test wiremock can return XML/RSS responses
@@ -357,12 +357,12 @@ fn test_lever_scraper_multiple_companies() {
 fn test_linkedin_scraper_construction() {
     let scraper = LinkedInScraper::new(
         "li_at=test_cookie".to_string(),
-        "software engineer".to_string(),
-        "San Francisco".to_string(),
+        "customer support".to_string(),
+        "Chicago".to_string(),
     );
     assert_eq!(scraper.name(), "LinkedIn");
-    assert_eq!(scraper.query, "software engineer");
-    assert_eq!(scraper.location, "San Francisco");
+    assert_eq!(scraper.query, "customer support");
+    assert_eq!(scraper.location, "Chicago");
 }
 
 #[test]

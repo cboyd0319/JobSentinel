@@ -545,6 +545,7 @@ const broadAudienceExamplePaths = new Set([
   "src-tauri/src/commands/tests.rs",
   "src-tauri/src/core/deeplinks/types.rs",
   "src-tauri/tests/api_contract_test.rs",
+  "src-tauri/tests/scraper_integration_test.rs",
   "src-tauri/src/main.rs",
   "src-tauri/migrations/00000000000000_initial_schema.sql",
   "tests/e2e/playwright/resume-upload-matching.spec.ts",
@@ -1493,6 +1494,25 @@ function hasEngineerFirstAudienceExamples(root, path) {
     ];
 
     if (marketMockPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "src-tauri/tests/scraper_integration_test.rs") {
+    const scraperIntegrationPatterns = [
+      /Senior Rust Engineer/i,
+      /Full Stack Engineer/i,
+      /Remote Rust Developer/i,
+      /Backend Engineer/i,
+      /Senior Software Engineer/i,
+      /software engineer/i,
+      /San Francisco/i,
+      /TechCorp|StartupXYZ/i,
+      /"team":\s*"Engineering"/i,
+      /"tags":\s*\["rust",\s*"remote"\]/i,
+    ];
+
+    if (scraperIntegrationPatterns.some((pattern) => pattern.test(text))) {
       return true;
     }
   }
