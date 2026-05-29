@@ -13,6 +13,9 @@ use std::path::Path;
 use std::time::Duration;
 use tokio::time::timeout;
 
+const FILE_UPLOAD_UNAVAILABLE: &str = "Could not attach the selected resume file";
+const FILE_UPLOAD_SETUP_ERROR: &str = "Could not prepare the resume upload field";
+
 /// Automation page wrapper
 pub struct AutomationPage {
     page: Page,
@@ -197,19 +200,21 @@ impl AutomationPage {
         use chromiumoxide::cdp::browser_protocol::dom::SetFileInputFilesParams;
 
         if !file_path.exists() {
-            return Err(anyhow::anyhow!("File does not exist: {:?}", file_path));
+            return Err(anyhow::anyhow!(FILE_UPLOAD_UNAVAILABLE));
         }
 
         match self.page.find_element(selector).await {
             Ok(element) => {
-                let path_str = file_path.to_str().context("Invalid file path encoding")?;
+                let path_str = file_path
+                    .to_str()
+                    .ok_or_else(|| anyhow::anyhow!(FILE_UPLOAD_UNAVAILABLE))?;
 
                 // Use CDP to set files on input element
                 let params = SetFileInputFilesParams::builder()
                     .files(vec![path_str.to_string()])
                     .node_id(element.node_id)
                     .build()
-                    .map_err(|e| anyhow::anyhow!("Failed to build file upload params: {}", e))?;
+                    .map_err(|_| anyhow::anyhow!(FILE_UPLOAD_SETUP_ERROR))?;
 
                 self.page
                     .execute(params)
@@ -332,5 +337,14 @@ mod tests {
         let result = FillResult::new().with_captcha();
         assert!(result.captcha_detected);
         assert!(result.error_message.is_some());
+    }
+
+    #[test]
+    fn file_upload_errors_do_not_echo_local_paths() {
+        for message in [FILE_UPLOAD_UNAVAILABLE, FILE_UPLOAD_SETUP_ERROR] {
+            assert!(!message.contains("/Users/"));
+            assert!(!message.contains("resume.pdf"));
+            assert!(!message.contains("CDP"));
+        }
     }
 }

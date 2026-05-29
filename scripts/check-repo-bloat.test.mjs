@@ -5991,6 +5991,56 @@ test("checkRepoBloat rejects raw automation form result data", () => {
   });
 });
 
+test("checkRepoBloat rejects raw automation browser errors", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/automation/browser/manager.rs",
+      [
+        'BrowserConfig::builder().build().map_err(|e| anyhow::anyhow!("Failed to build browser config: {}", e))?;',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/automation/browser/page.rs",
+      [
+        'return Err(anyhow::anyhow!("File does not exist: {:?}", file_path));',
+        'let path_str = file_path.to_str().context("Invalid file path encoding")?;',
+        'builder.build().map_err(|e| anyhow::anyhow!("Failed to build file upload params: {}", e))?;',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/automation/browser/manager.rs",
+        "src-tauri/src/core/automation/browser/page.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize automation browser errors: src-tauri/src/core/automation/browser/manager.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "sanitize automation browser errors: src-tauri/src/core/automation/browser/page.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw notification job title logging", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

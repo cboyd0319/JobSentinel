@@ -11,6 +11,8 @@ use tokio::sync::Mutex;
 
 use super::page::AutomationPage;
 
+const BROWSER_CONFIG_ERROR: &str = "Could not prepare browser settings for guided form filling";
+
 /// Browser manager for automation
 pub struct BrowserManager {
     browser: Arc<Mutex<Option<Browser>>>,
@@ -51,7 +53,7 @@ impl BrowserManager {
             // Disable automation detection where possible
             .arg("--disable-blink-features=AutomationControlled")
             .build()
-            .map_err(|e| anyhow::anyhow!("Failed to build browser config: {}", e))?;
+            .map_err(|_| anyhow::anyhow!(BROWSER_CONFIG_ERROR))?;
 
         // Launch browser
         let (browser, mut handler) = Browser::launch(config)
@@ -150,6 +152,13 @@ mod tests {
         let manager = BrowserManager::new();
         assert!(!manager.is_running().await);
         drop(manager);
+    }
+
+    #[test]
+    fn browser_config_error_does_not_echo_raw_detail() {
+        assert!(!BROWSER_CONFIG_ERROR.contains("Chrome"));
+        assert!(!BROWSER_CONFIG_ERROR.contains("--"));
+        assert!(!BROWSER_CONFIG_ERROR.contains("/Users/"));
     }
 
     #[tokio::test]

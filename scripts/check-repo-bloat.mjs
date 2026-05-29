@@ -295,6 +295,10 @@ const automationFormPrivacyPaths = new Set([
   "src-tauri/src/core/automation/form_filler.rs",
   "src/mocks/handlers.ts",
 ]);
+const automationBrowserErrorPrivacyPaths = new Set([
+  "src-tauri/src/core/automation/browser/manager.rs",
+  "src-tauri/src/core/automation/browser/page.rs",
+]);
 const importCommandPrivacyPaths = new Set(["src-tauri/src/commands/import.rs"]);
 const importBookmarkletCommandPrivacyPaths = new Set([
   "src-tauri/src/commands/import.rs",
@@ -3197,6 +3201,20 @@ function hasRawAutomationFormResultData(root, path) {
   return /`screening:\$\{answer\.questionPattern\}`/.test(text);
 }
 
+function hasRawAutomationBrowserErrors(root, path) {
+  if (!automationBrowserErrorPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /Failed to build browser config:\s*\{\}/.test(productionText) ||
+    /File does not exist:\s*\{:\?\}/.test(productionText) ||
+    /Invalid file path encoding/.test(productionText) ||
+    /Failed to build file upload params:\s*\{\}/.test(productionText)
+  );
+}
+
 function hasRawNotificationJobTitleLogging(root, path) {
   if (!rawNotificationJobTitleLoggingPaths.has(path)) {
     return false;
@@ -4769,6 +4787,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawAutomationFormResultData(root, path)) {
       violations.push(`sanitize automation form result data: ${path}`);
+    }
+
+    if (hasRawAutomationBrowserErrors(root, path)) {
+      violations.push(`sanitize automation browser errors: ${path}`);
     }
 
     if (hasRawNotificationJobTitleLogging(root, path)) {

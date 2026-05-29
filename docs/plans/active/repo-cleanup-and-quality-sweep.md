@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Sanitized guided form-fill browser setup and resume-upload failures so raw browser config errors, CDP builder details, invalid path encodings, and local resume paths cannot surface through formatted automation errors; added Rust plus bloat coverage for recurrence. |
 | 2026-05-29 | In progress | Sanitized guided form-fill screening-question output so prepared-form results and dev mocks report only saved-answer counts, not question text or saved answer patterns; sanitized browser question-discovery errors and added Rust plus bloat coverage for recurrence. |
 | 2026-05-29 | In progress | Sanitized optional local-ML error display so model, tokenizer, inference, download, and file-operation failures keep internal detail fields but no longer expose paths, URLs, tokens, or resume-like text when formatted; added embedded-ML coverage and bloat coverage for recurrence. |
 | 2026-05-29 | In progress | Sanitized source-check failure storage so live job-source smoke-test results and history save plain troubleshooting categories instead of raw provider, URL, token, parse, or network error details; added Rust coverage and bloat coverage for recurrence. |
