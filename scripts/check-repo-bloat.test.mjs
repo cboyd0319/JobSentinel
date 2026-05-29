@@ -1106,6 +1106,26 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/AtsLiveScorePanel.tsx",
+      [
+        '"ATS Score"',
+        '"Fix format issues to improve ATS parsing"',
+        '<Modal title="Full ATS Analysis" />',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/ResumeBuilder.tsx",
+      [
+        '"ATS Format Score"',
+        '"For detailed analysis and optimization recommendations, visit ATS"',
+        '"Optimizer."',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "docs/user/QUICK_START.md",
       [
         "Pick from 5 ATS-friendly templates",
@@ -1123,6 +1143,8 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
         "src/components/Navigation.tsx",
         "src/contexts/KeyboardShortcutsContext.tsx",
         "src/App.tsx",
+        "src/components/AtsLiveScorePanel.tsx",
+        "src/pages/ResumeBuilder.tsx",
         "docs/user/QUICK_START.md",
       ],
       { cwd: root },
@@ -1134,6 +1156,8 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
       "src/components/Navigation.tsx",
       "src/contexts/KeyboardShortcutsContext.tsx",
       "src/App.tsx",
+      "src/components/AtsLiveScorePanel.tsx",
+      "src/pages/ResumeBuilder.tsx",
       "docs/user/QUICK_START.md",
     ]) {
       assert.ok(

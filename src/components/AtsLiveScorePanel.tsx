@@ -1,8 +1,8 @@
 /**
- * AtsLiveScorePanel - Real-time ATS score visualization for Resume Builder
+ * AtsLiveScorePanel - real-time resume readability feedback for Resume Builder
  *
- * Shows live ATS scoring feedback as users build their resume, with detailed
- * breakdowns for keyword matching, format compliance, and completeness.
+ * Shows live readability feedback as users build their resume, with detailed
+ * breakdowns for job-word matching, format, and completeness.
  *
  * @version 2.5.5
  */
@@ -18,7 +18,7 @@ import { getUserFriendlyError } from "../utils/errorMessages";
 import { getScoreColor, getScoreBg, getScoreLabel } from "../utils/scoreUtils";
 import { readStorageValue, removeStorageValue } from "../utils/browserStorage";
 
-// Full ATS analysis result from backend
+// Full resume readability analysis result from backend
 export interface AtsAnalysisResult {
   overall_score: number;
   keyword_score: number;
@@ -148,7 +148,7 @@ const getStepTips = (step: number, analysis: AtsAnalysisResult | null): string[]
 
   // Tips based on analysis
   if (analysis.format_score < 70) {
-    tips.push("Fix format issues to improve ATS parsing");
+    tips.push("Use a simpler format so hiring systems can read it");
   }
   if (analysis.completeness_score < 70) {
     tips.push("Add more details to improve completeness");
@@ -285,7 +285,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
 
         setAnalysis(result);
       } catch (err: unknown) {
-        logError("ATS analysis error:", err);
+        logError("Resume readability analysis error:", err);
         const friendly = getUserFriendlyError(err);
         setError(friendly.action ?? friendly.message);
       } finally {
@@ -311,13 +311,13 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
             <svg className="w-4 h-4 text-sentinel-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            ATS Score
+            Resume Readability
             {analyzing && (
               <span className="text-xs text-surface-400 animate-pulse">analyzing...</span>
             )}
           </h3>
           {jobDescription && (
-            <Tooltip content="Analyzing against saved job description" position="left">
+            <Tooltip content="Checking against saved job description" position="left">
               <Badge variant="sentinel" size="sm">Job Context</Badge>
             </Tooltip>
           )}
@@ -430,7 +430,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
               </svg>
             </div>
             <p className="text-sm text-surface-500 dark:text-surface-400">
-              Fill in your resume to see ATS score
+              Fill in your resume to see readability feedback
             </p>
           </div>
         )}
@@ -457,7 +457,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
       <Modal
         isOpen={showDetailModal}
         onClose={() => setShowDetailModal(false)}
-        title="Full ATS Analysis"
+        title="Full Resume Readability Review"
         size="lg"
       >
         {analysis && (

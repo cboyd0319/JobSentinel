@@ -112,13 +112,13 @@ describe("AtsLiveScorePanel", () => {
     it("shows empty state when no resume data", () => {
       render(<AtsLiveScorePanel resumeData={null} currentStep={1} />);
 
-      expect(screen.getByText("Fill in your resume to see ATS score")).toBeInTheDocument();
+      expect(screen.getByText("Fill in your resume to see readability feedback")).toBeInTheDocument();
     });
 
-    it("shows ATS Score header", () => {
+    it("shows resume readability header", () => {
       render(<AtsLiveScorePanel resumeData={null} currentStep={1} />);
 
-      expect(screen.getByText("ATS Score")).toBeInTheDocument();
+      expect(screen.getByText("Resume Readability")).toBeInTheDocument();
     });
 
     it("does not analyze when contact info is incomplete", async () => {
@@ -523,7 +523,7 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByText("Fix format issues to improve ATS parsing")).toBeInTheDocument();
+        expect(screen.getByText("Use a simpler format so hiring systems can read it")).toBeInTheDocument();
       });
     });
   });
@@ -582,7 +582,7 @@ describe("AtsLiveScorePanel", () => {
 
       fireEvent.click(screen.getByRole("button", { name: /view full analysis/i }));
 
-      expect(screen.getByText("Full ATS Analysis")).toBeInTheDocument();
+      expect(screen.getByText("Full Resume Readability Review")).toBeInTheDocument();
     });
 
     it("displays job words found in modal", async () => {

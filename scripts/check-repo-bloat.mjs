@@ -1440,7 +1440,12 @@ function hasStaleResumeOptimizerFraming(root, path) {
   const text = readFileSync(join(root, path), "utf8");
   const stalePatterns = [
     /\bATS Optimizer\b/i,
+    /ATS\s+Optimizer/i,
     /\bATS Resume Optimizer\b/i,
+    /ATS\s+Score/i,
+    /ATS\s+Format\s+Score/i,
+    /Full\s+ATS\s+Analysis/i,
+    /ATS\s+parsing/i,
     /ATS-friendly templates/i,
     /ATS-optimized templates/i,
     /ATS-friendly language and power words/i,
@@ -1455,6 +1460,7 @@ function hasStaleResumeOptimizerFraming(root, path) {
     /probably won't pass/i,
     /ATS systems look for/i,
     /commonly recognized by ATS systems/i,
+    /optimization recommendations/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));

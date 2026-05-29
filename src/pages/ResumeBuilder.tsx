@@ -757,7 +757,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       });
       setPreviewHtml(html);
 
-      // Generate ATS analysis
+      // Generate resume readability analysis
       try {
         const analysis = await safeInvoke<BackendATSAnalysis>("analyze_resume_format", {
           resume: toAtsResumeData(resumeData),
@@ -1440,15 +1440,15 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                 ))}
               </div>
 
-              {/* ATS Score Card and Preview */}
+              {/* Resume readability card and preview */}
               {(atsAnalysis || previewHtml) && (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                  {/* ATS Score Card */}
+                  {/* Resume readability card */}
                   {atsAnalysis && (
                     <div className="lg:col-span-1">
                       <div className="border border-surface-200 dark:border-surface-600 rounded-lg p-4 bg-white dark:bg-surface-800">
                         <h3 className="text-sm font-semibold text-surface-800 dark:text-surface-200 mb-3">
-                          ATS Format Score
+                          Resume Format Readability
                         </h3>
                         <div className="flex items-center justify-center mb-4">
                           <div className="relative w-24 h-24">
@@ -1494,7 +1494,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                         {atsAnalysis.issues.length > 0 && (
                           <div className="mb-3">
                             <h4 className="text-xs font-semibold text-surface-700 dark:text-surface-300 mb-2">
-                              Quick Issues
+                              Things To Check
                             </h4>
                             <ul className="space-y-1">
                               {atsAnalysis.issues.slice(0, 3).map((issue, idx) => (
@@ -1516,8 +1516,8 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                         )}
 
                         <p className="text-xs text-surface-500 dark:text-surface-400 mb-3">
-                          For detailed analysis and optimization recommendations, visit ATS
-                          Optimizer.
+                          For a fuller review, use Resume Match with the job posting you care
+                          about.
                         </p>
                       </div>
                     </div>
@@ -1596,7 +1596,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
         </Card>
           </div>
 
-          {/* ATS Score Sidebar */}
+          {/* Resume readability sidebar */}
           <div className="lg:col-span-1 space-y-4">
             <AtsLiveScorePanel
               resumeData={
