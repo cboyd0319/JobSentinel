@@ -459,7 +459,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     writeFixtureFile(
       root,
       "src/components/CompanyResearchPanel.tsx",
-      "<p>Tech Stack</p>\n",
+      '<p>Tech Stack</p><p>Try searching for "{companyName}" on LinkedIn or Glassdoor.</p>\n',
     );
     writeFixtureFile(
       root,

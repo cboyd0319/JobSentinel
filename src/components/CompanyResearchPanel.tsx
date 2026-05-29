@@ -19,8 +19,10 @@ interface CompanyInfo {
   // Funding info (for startups)
   fundingStage?: string;
   totalFunding?: string;
-  // Culture signals
+  // Culture and role signals
   remotePolicy?: string;
+  toolsAndSystems?: string[];
+  // Legacy cache field kept so old local profile cache entries still render.
   techStack?: string[];
 }
 
@@ -88,6 +90,7 @@ function isCompanyInfo(value: unknown): value is CompanyInfo {
     !hasInvalidString &&
     (value.glassdoorRating === undefined ||
       (typeof value.glassdoorRating === "number" && Number.isFinite(value.glassdoorRating))) &&
+    (value.toolsAndSystems === undefined || isStringArray(value.toolsAndSystems)) &&
     (value.techStack === undefined || isStringArray(value.techStack))
   );
 }
@@ -133,8 +136,99 @@ function setCachedCompany(name: string, data: CompanyInfo): void {
   saveCache(cache);
 }
 
-// Well-known companies database (fallback when APIs aren't available)
+function getToolsAndSystems(info: CompanyInfo): string[] {
+  return info.toolsAndSystems ?? info.techStack ?? [];
+}
+
+// Well-known companies database (local fallback when live lookup is unavailable)
 const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
+  // Healthcare and care delivery
+  'kaiser': {
+    industry: 'Healthcare / Care Delivery',
+    employeeCount: 'Large employer',
+    website: 'https://www.kaiserpermanente.org',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Patient scheduling', 'Electronic health records', 'Care coordination', 'Member services'],
+  },
+  'mayo': {
+    industry: 'Healthcare / Research',
+    employeeCount: 'Large employer',
+    website: 'https://www.mayoclinic.org',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Patient care', 'Clinical research', 'Scheduling', 'Care coordination'],
+  },
+  'cvs': {
+    industry: 'Healthcare / Retail',
+    employeeCount: 'Large employer',
+    website: 'https://www.cvshealth.com',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Pharmacy systems', 'Customer service', 'Inventory', 'Benefits coordination'],
+  },
+  // Retail, service, and trades
+  'walmart': {
+    industry: 'Retail / Operations',
+    employeeCount: 'Large employer',
+    website: 'https://www.walmart.com',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Store operations', 'Inventory', 'Customer service', 'Supply chain'],
+  },
+  'target': {
+    industry: 'Retail',
+    employeeCount: 'Large employer',
+    website: 'https://www.target.com',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Guest service', 'Merchandising', 'Inventory', 'Fulfillment'],
+  },
+  'home depot': {
+    industry: 'Retail / Trades',
+    employeeCount: 'Large employer',
+    website: 'https://www.homedepot.com',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Customer projects', 'Merchandising', 'Inventory', 'Pro desk support'],
+  },
+  'starbucks': {
+    industry: 'Food Service / Retail',
+    employeeCount: 'Large employer',
+    website: 'https://www.starbucks.com',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Guest service', 'Scheduling', 'Store operations', 'Training'],
+  },
+  // Logistics, hospitality, finance, and public service
+  'ups': {
+    industry: 'Logistics',
+    employeeCount: 'Large employer',
+    website: 'https://www.ups.com',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Route planning', 'Package handling', 'Dispatch', 'Customer support'],
+  },
+  'marriott': {
+    industry: 'Hospitality',
+    employeeCount: 'Large employer',
+    website: 'https://www.marriott.com',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Guest service', 'Reservations', 'Event support', 'Property operations'],
+  },
+  'state farm': {
+    industry: 'Insurance',
+    employeeCount: 'Large employer',
+    website: 'https://www.statefarm.com',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Claims support', 'Customer service', 'Policy servicing', 'Sales support'],
+  },
+  'bank of america': {
+    industry: 'Banking / Financial Services',
+    employeeCount: 'Large employer',
+    website: 'https://www.bankofamerica.com',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Customer accounts', 'Financial services', 'Risk controls', 'Branch operations'],
+  },
+  'city of phoenix': {
+    industry: 'Government / Public Service',
+    employeeCount: 'Public employer',
+    website: 'https://www.phoenix.gov',
+    remotePolicy: 'Varies by department',
+    toolsAndSystems: ['Public service', 'Case tracking', 'Community programs', 'Resident support'],
+  },
   // FAANG / Big Tech
   'google': {
     industry: 'Technology',
@@ -144,7 +238,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://google.com',
     glassdoorRating: 4.4,
     remotePolicy: 'Hybrid',
-    techStack: ['Go', 'Python', 'C++', 'Java', 'Angular', 'Kubernetes', 'BigQuery', 'TensorFlow'],
+    toolsAndSystems: ['Go', 'Python', 'C++', 'Java', 'Angular', 'Kubernetes', 'BigQuery', 'TensorFlow'],
   },
   'meta': {
     industry: 'Technology / Social Media',
@@ -154,7 +248,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://meta.com',
     glassdoorRating: 4.1,
     remotePolicy: 'Hybrid',
-    techStack: ['React', 'Hack/PHP', 'Python', 'C++', 'GraphQL', 'PyTorch', 'Presto'],
+    toolsAndSystems: ['React', 'Hack/PHP', 'Python', 'C++', 'GraphQL', 'PyTorch', 'Presto'],
   },
   'amazon': {
     industry: 'Technology / E-commerce',
@@ -164,7 +258,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://amazon.com',
     glassdoorRating: 3.9,
     remotePolicy: 'Varies by team',
-    techStack: ['Java', 'Python', 'TypeScript', 'React', 'AWS', 'DynamoDB', 'Redshift'],
+    toolsAndSystems: ['Java', 'Python', 'TypeScript', 'React', 'AWS', 'DynamoDB', 'Redshift'],
   },
   'microsoft': {
     industry: 'Technology',
@@ -174,7 +268,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://microsoft.com',
     glassdoorRating: 4.3,
     remotePolicy: 'Hybrid',
-    techStack: ['C#', '.NET', 'TypeScript', 'React', 'Azure', 'SQL Server', 'PowerShell'],
+    toolsAndSystems: ['C#', '.NET', 'TypeScript', 'React', 'Azure', 'SQL Server', 'PowerShell'],
   },
   'apple': {
     industry: 'Technology / Consumer Electronics',
@@ -184,7 +278,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://apple.com',
     glassdoorRating: 4.2,
     remotePolicy: 'Mostly On-site',
-    techStack: ['Swift', 'Objective-C', 'Python', 'C++', 'Metal', 'Core ML'],
+    toolsAndSystems: ['Swift', 'Objective-C', 'Python', 'C++', 'Metal', 'Core ML'],
   },
   'netflix': {
     industry: 'Entertainment / Streaming',
@@ -194,7 +288,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://netflix.com',
     glassdoorRating: 4.0,
     remotePolicy: 'Hybrid',
-    techStack: ['Java', 'Python', 'Node.js', 'React', 'AWS', 'Cassandra', 'Kafka'],
+    toolsAndSystems: ['Java', 'Python', 'Node.js', 'React', 'AWS', 'Cassandra', 'Kafka'],
   },
   // AI Companies
   'openai': {
@@ -206,7 +300,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     glassdoorRating: 4.1,
     fundingStage: 'Late Stage',
     remotePolicy: 'On-site preferred',
-    techStack: ['Python', 'PyTorch', 'Rust', 'Go', 'Kubernetes', 'Azure'],
+    toolsAndSystems: ['Python', 'PyTorch', 'Rust', 'Go', 'Kubernetes', 'Azure'],
   },
   'anthropic': {
     industry: 'AI / Research',
@@ -216,7 +310,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://anthropic.com',
     fundingStage: 'Series D',
     remotePolicy: 'Hybrid',
-    techStack: ['Python', 'Rust', 'TypeScript', 'JAX', 'AWS', 'GCP'],
+    toolsAndSystems: ['Python', 'Rust', 'TypeScript', 'JAX', 'AWS', 'GCP'],
   },
   'deepmind': {
     industry: 'AI / Research',
@@ -226,7 +320,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://deepmind.com',
     glassdoorRating: 4.5,
     remotePolicy: 'Hybrid',
-    techStack: ['Python', 'JAX', 'TensorFlow', 'C++', 'GCP'],
+    toolsAndSystems: ['Python', 'JAX', 'TensorFlow', 'C++', 'GCP'],
   },
   'huggingface': {
     industry: 'AI / ML Platform',
@@ -237,7 +331,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     glassdoorRating: 4.6,
     fundingStage: 'Series D',
     remotePolicy: 'Remote-first',
-    techStack: ['Python', 'Rust', 'PyTorch', 'TypeScript', 'React'],
+    toolsAndSystems: ['Python', 'Rust', 'PyTorch', 'TypeScript', 'React'],
   },
   // Fintech
   'stripe': {
@@ -249,7 +343,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     glassdoorRating: 4.3,
     fundingStage: 'Late Stage',
     remotePolicy: 'Remote-friendly',
-    techStack: ['Ruby', 'Go', 'Scala', 'React', 'TypeScript', 'AWS'],
+    toolsAndSystems: ['Ruby', 'Go', 'Scala', 'React', 'TypeScript', 'AWS'],
   },
   'plaid': {
     industry: 'Fintech',
@@ -260,7 +354,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     glassdoorRating: 4.1,
     fundingStage: 'Series D',
     remotePolicy: 'Hybrid',
-    techStack: ['Go', 'Python', 'TypeScript', 'React', 'PostgreSQL', 'Kafka'],
+    toolsAndSystems: ['Go', 'Python', 'TypeScript', 'React', 'PostgreSQL', 'Kafka'],
   },
   'square': {
     industry: 'Fintech',
@@ -270,7 +364,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://squareup.com',
     glassdoorRating: 4.0,
     remotePolicy: 'Remote-friendly',
-    techStack: ['Java', 'Kotlin', 'Ruby', 'Go', 'React Native', 'MySQL'],
+    toolsAndSystems: ['Java', 'Kotlin', 'Ruby', 'Go', 'React Native', 'MySQL'],
   },
   'coinbase': {
     industry: 'Crypto / Fintech',
@@ -280,7 +374,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://coinbase.com',
     glassdoorRating: 3.9,
     remotePolicy: 'Remote-first',
-    techStack: ['Go', 'Ruby', 'React', 'TypeScript', 'PostgreSQL', 'MongoDB'],
+    toolsAndSystems: ['Go', 'Ruby', 'React', 'TypeScript', 'PostgreSQL', 'MongoDB'],
   },
   'robinhood': {
     industry: 'Fintech',
@@ -290,7 +384,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://robinhood.com',
     glassdoorRating: 3.7,
     remotePolicy: 'Hybrid',
-    techStack: ['Python', 'Go', 'Elixir', 'React Native', 'PostgreSQL', 'Kafka'],
+    toolsAndSystems: ['Python', 'Go', 'Elixir', 'React Native', 'PostgreSQL', 'Kafka'],
   },
   // Cloud / Infrastructure
   'cloudflare': {
@@ -301,7 +395,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://cloudflare.com',
     glassdoorRating: 4.2,
     remotePolicy: 'Hybrid',
-    techStack: ['Go', 'Rust', 'TypeScript', 'Lua', 'Workers', 'ClickHouse'],
+    toolsAndSystems: ['Go', 'Rust', 'TypeScript', 'Lua', 'Workers', 'ClickHouse'],
   },
   'datadog': {
     industry: 'Cloud / Monitoring',
@@ -311,7 +405,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://datadoghq.com',
     glassdoorRating: 4.2,
     remotePolicy: 'Hybrid',
-    techStack: ['Go', 'Python', 'React', 'Kubernetes', 'Cassandra', 'Kafka'],
+    toolsAndSystems: ['Go', 'Python', 'React', 'Kubernetes', 'Cassandra', 'Kafka'],
   },
   'snowflake': {
     industry: 'Cloud / Data',
@@ -321,7 +415,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://snowflake.com',
     glassdoorRating: 4.2,
     remotePolicy: 'Hybrid',
-    techStack: ['Java', 'C++', 'Python', 'React', 'AWS', 'Azure', 'GCP'],
+    toolsAndSystems: ['Java', 'C++', 'Python', 'React', 'AWS', 'Azure', 'GCP'],
   },
   'databricks': {
     industry: 'Cloud / Data',
@@ -332,7 +426,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     glassdoorRating: 4.4,
     fundingStage: 'Late Stage',
     remotePolicy: 'Hybrid',
-    techStack: ['Scala', 'Python', 'Spark', 'React', 'Delta Lake', 'Kubernetes'],
+    toolsAndSystems: ['Scala', 'Python', 'Spark', 'React', 'Delta Lake', 'Kubernetes'],
   },
   'vercel': {
     industry: 'Cloud / Developer Tools',
@@ -343,7 +437,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     glassdoorRating: 4.5,
     fundingStage: 'Series D',
     remotePolicy: 'Remote-first',
-    techStack: ['TypeScript', 'React', 'Next.js', 'Go', 'Rust', 'Edge Functions'],
+    toolsAndSystems: ['TypeScript', 'React', 'Next.js', 'Go', 'Rust', 'Edge Functions'],
   },
   'supabase': {
     industry: 'Cloud / Developer Tools',
@@ -354,7 +448,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     glassdoorRating: 4.6,
     fundingStage: 'Series B',
     remotePolicy: 'Remote-first',
-    techStack: ['TypeScript', 'PostgreSQL', 'Go', 'Elixir', 'React', 'Edge Functions'],
+    toolsAndSystems: ['TypeScript', 'PostgreSQL', 'Go', 'Elixir', 'React', 'Edge Functions'],
   },
   // E-commerce / Retail
   'shopify': {
@@ -365,7 +459,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://shopify.com',
     glassdoorRating: 4.0,
     remotePolicy: 'Remote-first',
-    techStack: ['Ruby', 'Go', 'React', 'TypeScript', 'GraphQL', 'MySQL'],
+    toolsAndSystems: ['Ruby', 'Go', 'React', 'TypeScript', 'GraphQL', 'MySQL'],
   },
   'instacart': {
     industry: 'E-commerce / Delivery',
@@ -375,7 +469,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://instacart.com',
     glassdoorRating: 3.8,
     remotePolicy: 'Hybrid',
-    techStack: ['Ruby', 'Python', 'Go', 'React Native', 'PostgreSQL', 'Kafka'],
+    toolsAndSystems: ['Ruby', 'Python', 'Go', 'React Native', 'PostgreSQL', 'Kafka'],
   },
   'doordash': {
     industry: 'Delivery / Logistics',
@@ -385,7 +479,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://doordash.com',
     glassdoorRating: 3.8,
     remotePolicy: 'Hybrid',
-    techStack: ['Kotlin', 'Python', 'Go', 'React Native', 'PostgreSQL', 'Kafka'],
+    toolsAndSystems: ['Kotlin', 'Python', 'Go', 'React Native', 'PostgreSQL', 'Kafka'],
   },
   // Travel / Hospitality
   'airbnb': {
@@ -396,7 +490,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://airbnb.com',
     glassdoorRating: 4.1,
     remotePolicy: 'Remote-friendly',
-    techStack: ['Ruby', 'Java', 'React', 'TypeScript', 'Airflow', 'Spark'],
+    toolsAndSystems: ['Ruby', 'Java', 'React', 'TypeScript', 'Airflow', 'Spark'],
   },
   'uber': {
     industry: 'Transportation / Tech',
@@ -406,7 +500,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://uber.com',
     glassdoorRating: 4.0,
     remotePolicy: 'Hybrid',
-    techStack: ['Go', 'Java', 'Python', 'Node.js', 'React', 'Cassandra', 'Kafka'],
+    toolsAndSystems: ['Go', 'Java', 'Python', 'Node.js', 'React', 'Cassandra', 'Kafka'],
   },
   'lyft': {
     industry: 'Transportation / Tech',
@@ -416,7 +510,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://lyft.com',
     glassdoorRating: 3.9,
     remotePolicy: 'Hybrid',
-    techStack: ['Python', 'Go', 'React Native', 'PostgreSQL', 'Kubernetes'],
+    toolsAndSystems: ['Python', 'Go', 'React Native', 'PostgreSQL', 'Kubernetes'],
   },
   // Social / Communication
   'discord': {
@@ -427,7 +521,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://discord.com',
     glassdoorRating: 4.2,
     remotePolicy: 'Remote-friendly',
-    techStack: ['Rust', 'Python', 'React', 'Elixir', 'Cassandra', 'ScyllaDB'],
+    toolsAndSystems: ['Rust', 'Python', 'React', 'Elixir', 'Cassandra', 'ScyllaDB'],
   },
   'slack': {
     industry: 'Enterprise / Communication',
@@ -437,7 +531,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://slack.com',
     glassdoorRating: 4.2,
     remotePolicy: 'Hybrid',
-    techStack: ['Java', 'PHP', 'Go', 'React', 'MySQL', 'Kafka'],
+    toolsAndSystems: ['Java', 'PHP', 'Go', 'React', 'MySQL', 'Kafka'],
   },
   'zoom': {
     industry: 'Communication / Video',
@@ -447,7 +541,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://zoom.us',
     glassdoorRating: 4.0,
     remotePolicy: 'Hybrid',
-    techStack: ['C++', 'Python', 'React', 'Node.js', 'WebRTC', 'AWS'],
+    toolsAndSystems: ['C++', 'Python', 'React', 'Node.js', 'WebRTC', 'AWS'],
   },
   'figma': {
     industry: 'Design / Collaboration',
@@ -457,7 +551,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://figma.com',
     glassdoorRating: 4.5,
     remotePolicy: 'Hybrid',
-    techStack: ['TypeScript', 'C++', 'React', 'WebGL', 'WebAssembly', 'Rust'],
+    toolsAndSystems: ['TypeScript', 'C++', 'React', 'WebGL', 'WebAssembly', 'Rust'],
   },
   'notion': {
     industry: 'Productivity / Collaboration',
@@ -468,7 +562,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     glassdoorRating: 4.4,
     fundingStage: 'Series C',
     remotePolicy: 'Hybrid',
-    techStack: ['TypeScript', 'React', 'Kotlin', 'PostgreSQL', 'Redis'],
+    toolsAndSystems: ['TypeScript', 'React', 'Kotlin', 'PostgreSQL', 'Redis'],
   },
   'linear': {
     industry: 'Productivity / Developer Tools',
@@ -479,7 +573,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     glassdoorRating: 4.8,
     fundingStage: 'Series B',
     remotePolicy: 'Remote-first',
-    techStack: ['TypeScript', 'React', 'Node.js', 'PostgreSQL', 'GraphQL'],
+    toolsAndSystems: ['TypeScript', 'React', 'Node.js', 'PostgreSQL', 'GraphQL'],
   },
   // Security
   '1password': {
@@ -491,7 +585,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     glassdoorRating: 4.5,
     fundingStage: 'Series C',
     remotePolicy: 'Remote-first',
-    techStack: ['Rust', 'Go', 'TypeScript', 'React', 'Swift', 'Electron'],
+    toolsAndSystems: ['Rust', 'Go', 'TypeScript', 'React', 'Swift', 'Electron'],
   },
   'crowdstrike': {
     industry: 'Cybersecurity',
@@ -501,7 +595,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://crowdstrike.com',
     glassdoorRating: 4.1,
     remotePolicy: 'Hybrid',
-    techStack: ['Go', 'Python', 'C++', 'Kafka', 'Cassandra', 'AWS'],
+    toolsAndSystems: ['Go', 'Python', 'C++', 'Kafka', 'Cassandra', 'AWS'],
   },
   'paloalto': {
     industry: 'Cybersecurity',
@@ -511,7 +605,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://paloaltonetworks.com',
     glassdoorRating: 4.1,
     remotePolicy: 'Hybrid',
-    techStack: ['Python', 'Go', 'C', 'React', 'Kubernetes', 'GCP'],
+    toolsAndSystems: ['Python', 'Go', 'C', 'React', 'Kubernetes', 'GCP'],
   },
   // Gaming
   'roblox': {
@@ -522,7 +616,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://roblox.com',
     glassdoorRating: 4.0,
     remotePolicy: 'Hybrid',
-    techStack: ['C++', 'Lua', 'Go', 'React', 'Kubernetes'],
+    toolsAndSystems: ['C++', 'Lua', 'Go', 'React', 'Kubernetes'],
   },
   'epic': {
     industry: 'Gaming',
@@ -532,7 +626,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://epicgames.com',
     glassdoorRating: 4.0,
     remotePolicy: 'Hybrid',
-    techStack: ['C++', 'Unreal Engine', 'Python', 'Go', 'AWS'],
+    toolsAndSystems: ['C++', 'Unreal Engine', 'Python', 'Go', 'AWS'],
   },
   // Healthcare Tech
   'oscar': {
@@ -543,7 +637,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://hioscar.com',
     glassdoorRating: 3.8,
     remotePolicy: 'Hybrid',
-    techStack: ['Python', 'Go', 'React', 'PostgreSQL', 'Kubernetes'],
+    toolsAndSystems: ['Python', 'Go', 'React', 'PostgreSQL', 'Kubernetes'],
   },
   // Startups / Hot Companies
   'cursor': {
@@ -554,7 +648,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://cursor.sh',
     fundingStage: 'Series A',
     remotePolicy: 'Remote-friendly',
-    techStack: ['TypeScript', 'Rust', 'Python', 'Electron', 'VS Code'],
+    toolsAndSystems: ['TypeScript', 'Rust', 'Python', 'Electron', 'VS Code'],
   },
   'replit': {
     industry: 'Developer Tools / Education',
@@ -565,7 +659,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     glassdoorRating: 4.3,
     fundingStage: 'Series B',
     remotePolicy: 'Remote-friendly',
-    techStack: ['Go', 'Python', 'TypeScript', 'React', 'Nix', 'GCP'],
+    toolsAndSystems: ['Go', 'Python', 'TypeScript', 'React', 'Nix', 'GCP'],
   },
   'railway': {
     industry: 'Cloud / Developer Tools',
@@ -575,7 +669,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://railway.app',
     fundingStage: 'Series A',
     remotePolicy: 'Remote-first',
-    techStack: ['Rust', 'TypeScript', 'Go', 'React', 'Kubernetes'],
+    toolsAndSystems: ['Rust', 'TypeScript', 'Go', 'React', 'Kubernetes'],
   },
   'fly': {
     industry: 'Cloud / Developer Tools',
@@ -585,7 +679,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://fly.io',
     fundingStage: 'Series B',
     remotePolicy: 'Remote-first',
-    techStack: ['Elixir', 'Rust', 'Go', 'React', 'Firecracker'],
+    toolsAndSystems: ['Elixir', 'Rust', 'Go', 'React', 'Firecracker'],
   },
   'planetscale': {
     industry: 'Cloud / Database',
@@ -596,7 +690,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     glassdoorRating: 4.5,
     fundingStage: 'Series C',
     remotePolicy: 'Remote-first',
-    techStack: ['Go', 'Vitess', 'MySQL', 'TypeScript', 'React'],
+    toolsAndSystems: ['Go', 'Vitess', 'MySQL', 'TypeScript', 'React'],
   },
   'neon': {
     industry: 'Cloud / Database',
@@ -606,7 +700,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://neon.tech',
     fundingStage: 'Series B',
     remotePolicy: 'Remote-first',
-    techStack: ['Rust', 'PostgreSQL', 'TypeScript', 'React', 'Kubernetes'],
+    toolsAndSystems: ['Rust', 'PostgreSQL', 'TypeScript', 'React', 'Kubernetes'],
   },
   'turso': {
     industry: 'Cloud / Database',
@@ -616,7 +710,7 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://turso.tech',
     fundingStage: 'Series A',
     remotePolicy: 'Remote-first',
-    techStack: ['Rust', 'SQLite', 'libSQL', 'TypeScript', 'Go'],
+    toolsAndSystems: ['Rust', 'SQLite', 'libSQL', 'TypeScript', 'Go'],
   },
 };
 
@@ -761,6 +855,7 @@ export const CompanyResearchPanel = memo(function CompanyResearchPanel({ company
     setRetryCount(c => c + 1);
   };
 
+  const toolsAndSystems = info ? getToolsAndSystems(info) : [];
   const hasDetailedInfo = info && (info.industry || info.founded || info.headquarters);
 
   return (
@@ -870,13 +965,13 @@ export const CompanyResearchPanel = memo(function CompanyResearchPanel({ company
             )}
 
             {/* Tools and systems */}
-            {info.techStack && info.techStack.length > 0 && (
+            {toolsAndSystems.length > 0 && (
               <div className="pt-3 border-t border-surface-200 dark:border-surface-700">
                 <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-2">
                   Tools and systems
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  {info.techStack.map((tech) => (
+                  {toolsAndSystems.map((tech) => (
                     <span
                       key={tech}
                       className="text-xs px-2 py-1 bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-300 rounded-md"
@@ -917,7 +1012,7 @@ export const CompanyResearchPanel = memo(function CompanyResearchPanel({ company
                   Limited information available for this company.
                 </p>
                 <p className="text-xs text-surface-400 mt-1">
-                  Try searching for "{companyName}" on LinkedIn or Glassdoor.
+                  Try the official careers page, LinkedIn, or Glassdoor for "{companyName}".
                 </p>
               </div>
             )}

@@ -1469,6 +1469,7 @@ function hasEngineerFirstAudienceExamples(root, path) {
     /Tech companies - clean and minimal/i,
     /Tech Stack\b/i,
     /Tech Stack Focus/i,
+    /Try searching for "\{companyName\}" on LinkedIn or Glassdoor/i,
     /Technical & soft skills/i,
     /Technical and professional skills/i,
     /Enter your job title or keywords \(e\.g\., "Software Engineer"\)/i,

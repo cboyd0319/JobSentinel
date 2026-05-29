@@ -67,64 +67,66 @@ describe("CompanyResearchPanel", () => {
   });
 
   describe("known companies", () => {
-    it("displays Google company info", async () => {
-      render(<CompanyResearchPanel companyName="Google" />);
+    it("displays healthcare company info", async () => {
+      render(<CompanyResearchPanel companyName="Kaiser" />);
 
       await waitFor(() => {
-        expect(screen.getByText("Technology")).toBeInTheDocument();
+        expect(screen.getByText("Healthcare / Care Delivery")).toBeInTheDocument();
       });
-      expect(screen.getByText("Mountain View, CA")).toBeInTheDocument();
-      expect(screen.getByText("1998")).toBeInTheDocument();
+      expect(screen.getByText("Large employer")).toBeInTheDocument();
     });
 
-    it("displays Meta company info", async () => {
-      render(<CompanyResearchPanel companyName="Meta" />);
+    it("displays retail company info", async () => {
+      render(<CompanyResearchPanel companyName="Target" />);
 
       await waitFor(() => {
-        expect(screen.getByText("Technology / Social Media")).toBeInTheDocument();
+        expect(screen.getByText("Retail")).toBeInTheDocument();
       });
-      expect(screen.getByText("Menlo Park, CA")).toBeInTheDocument();
+      expect(screen.getByText("Varies by role")).toBeInTheDocument();
     });
 
-    it("displays Anthropic company info", async () => {
-      render(<CompanyResearchPanel companyName="Anthropic" />);
+    it("displays public-service company info", async () => {
+      render(<CompanyResearchPanel companyName="City of Phoenix" />);
 
       await waitFor(() => {
-        expect(screen.getByText("AI / Research")).toBeInTheDocument();
+        expect(screen.getByText("Government / Public Service")).toBeInTheDocument();
       });
-      expect(screen.getByText("Series D")).toBeInTheDocument();
-    });
-
-    it("displays Stripe company info with funding stage", async () => {
-      render(<CompanyResearchPanel companyName="Stripe" />);
-
-      await waitFor(() => {
-        expect(screen.getByText("Fintech")).toBeInTheDocument();
-      });
-      expect(screen.getByText("Late Stage")).toBeInTheDocument();
+      expect(screen.getByText("Varies by department")).toBeInTheDocument();
     });
 
     it("displays tools and systems for known company", async () => {
-      render(<CompanyResearchPanel companyName="Discord" />);
+      render(<CompanyResearchPanel companyName="Kaiser" />);
 
       await waitFor(() => {
         expect(screen.getByText("Tools and systems")).toBeInTheDocument();
       });
       expect(screen.queryByText("Tech Stack")).not.toBeInTheDocument();
-      expect(screen.getByText("Rust")).toBeInTheDocument();
-      expect(screen.getByText("Python")).toBeInTheDocument();
+      expect(screen.getByText("Patient scheduling")).toBeInTheDocument();
+      expect(screen.getByText("Care coordination")).toBeInTheDocument();
     });
 
     it("displays remote policy badge", async () => {
-      render(<CompanyResearchPanel companyName="Vercel" />);
+      render(<CompanyResearchPanel companyName="UPS" />);
 
       await waitFor(() => {
-        expect(screen.getByText("Remote-first")).toBeInTheDocument();
+        expect(screen.getByText("Varies by role")).toBeInTheDocument();
       });
     });
 
     it("displays Glassdoor rating with stars", async () => {
-      render(<CompanyResearchPanel companyName="Google" />);
+      const cache = {
+        "ratedcompany": {
+          data: {
+            name: "RatedCompany",
+            industry: "Testing",
+            glassdoorRating: 4.4,
+          },
+          timestamp: Date.now(),
+        },
+      };
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(cache));
+
+      render(<CompanyResearchPanel companyName="RatedCompany" />);
 
       await waitFor(() => {
         expect(screen.getByText("Glassdoor Rating")).toBeInTheDocument();
@@ -133,23 +135,23 @@ describe("CompanyResearchPanel", () => {
     });
 
     it("displays employee count", async () => {
-      render(<CompanyResearchPanel companyName="Microsoft" />);
+      render(<CompanyResearchPanel companyName="Walmart" />);
 
       await waitFor(() => {
         expect(screen.getByText("Employees")).toBeInTheDocument();
       });
-      expect(screen.getByText("220,000+")).toBeInTheDocument();
+      expect(screen.getByText("Large employer")).toBeInTheDocument();
     });
 
     it("displays website link", async () => {
-      render(<CompanyResearchPanel companyName="Netflix" />);
+      render(<CompanyResearchPanel companyName="Marriott" />);
 
       await waitFor(() => {
         expect(screen.getByText("Visit Website")).toBeInTheDocument();
       });
 
       const link = screen.getByRole("link", { name: /visit website/i });
-      expect(link).toHaveAttribute("href", "https://netflix.com");
+      expect(link).toHaveAttribute("href", "https://www.marriott.com");
       expect(link).toHaveAttribute("target", "_blank");
     });
   });
@@ -163,11 +165,11 @@ describe("CompanyResearchPanel", () => {
       });
     });
 
-    it("suggests LinkedIn/Glassdoor search for unknown company", async () => {
+    it("suggests official-source search for unknown company", async () => {
       render(<CompanyResearchPanel companyName="MyNewCompany" />);
 
       await waitFor(() => {
-        expect(screen.getByText(/Try searching for "MyNewCompany" on LinkedIn or Glassdoor/)).toBeInTheDocument();
+        expect(screen.getByText(/Try the official careers page, LinkedIn, or Glassdoor for "MyNewCompany"/)).toBeInTheDocument();
       });
     });
 
@@ -182,10 +184,10 @@ describe("CompanyResearchPanel", () => {
 
   describe("caching", () => {
     it("caches company info in localStorage", async () => {
-      render(<CompanyResearchPanel companyName="Google" />);
+      render(<CompanyResearchPanel companyName="Kaiser" />);
 
       await waitFor(() => {
-        expect(screen.getByText("Technology")).toBeInTheDocument();
+        expect(screen.getByText("Healthcare / Care Delivery")).toBeInTheDocument();
       });
 
       // Verify cache was written
@@ -227,7 +229,7 @@ describe("CompanyResearchPanel", () => {
           data: {
             name: { text: "BadCo" },
             industry: "Bad Industry",
-            techStack: { length: 1 },
+            toolsAndSystems: { length: 1 },
           },
           timestamp: Date.now(),
         },
@@ -240,6 +242,28 @@ describe("CompanyResearchPanel", () => {
         expect(screen.getByText(/Limited information available/)).toBeInTheDocument();
       });
       expect(screen.queryByText("Bad Industry")).not.toBeInTheDocument();
+    });
+
+    it("renders legacy cached tech stack values as tools and systems", async () => {
+      const cache = {
+        "legacyco": {
+          data: {
+            name: "LegacyCo",
+            industry: "Saved cache",
+            techStack: ["Scheduling", "Customer support"],
+          },
+          timestamp: Date.now(),
+        },
+      };
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(cache));
+
+      render(<CompanyResearchPanel companyName="LegacyCo" />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Tools and systems")).toBeInTheDocument();
+      });
+      expect(screen.getByText("Scheduling")).toBeInTheDocument();
+      expect(screen.getByText("Customer support")).toBeInTheDocument();
     });
 
     it("ignores expired cache entries", async () => {
@@ -266,55 +290,91 @@ describe("CompanyResearchPanel", () => {
 
   describe("partial company name matching", () => {
     it("matches company by partial name (includes)", async () => {
-      render(<CompanyResearchPanel companyName="Google Inc" />);
+      render(<CompanyResearchPanel companyName="Kaiser Permanente" />);
 
       await waitFor(() => {
-        expect(screen.getByText("Technology")).toBeInTheDocument();
+        expect(screen.getByText("Healthcare / Care Delivery")).toBeInTheDocument();
       });
     });
 
     it("handles case-insensitive matching", async () => {
-      render(<CompanyResearchPanel companyName="OPENAI" />);
+      render(<CompanyResearchPanel companyName="WALMART" />);
 
       await waitFor(() => {
-        expect(screen.getByText("AI / Research")).toBeInTheDocument();
+        expect(screen.getByText("Retail / Operations")).toBeInTheDocument();
       });
     });
   });
 
   describe("company details", () => {
-    it("displays founded year", async () => {
-      render(<CompanyResearchPanel companyName="Apple" />);
+    it("displays founded year from saved company data", async () => {
+      const cache = {
+        "localclinic": {
+          data: {
+            name: "LocalClinic",
+            industry: "Healthcare",
+            founded: "1985",
+          },
+          timestamp: Date.now(),
+        },
+      };
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(cache));
+
+      render(<CompanyResearchPanel companyName="LocalClinic" />);
 
       await waitFor(() => {
         expect(screen.getByText("Founded")).toBeInTheDocument();
       });
-      expect(screen.getByText("1976")).toBeInTheDocument();
+      expect(screen.getByText("1985")).toBeInTheDocument();
     });
 
-    it("displays headquarters", async () => {
-      render(<CompanyResearchPanel companyName="Amazon" />);
+    it("displays headquarters from saved company data", async () => {
+      const cache = {
+        "regionalschool": {
+          data: {
+            name: "RegionalSchool",
+            industry: "Education",
+            headquarters: "Denver, CO",
+          },
+          timestamp: Date.now(),
+        },
+      };
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(cache));
+
+      render(<CompanyResearchPanel companyName="RegionalSchool" />);
 
       await waitFor(() => {
         expect(screen.getByText("Headquarters")).toBeInTheDocument();
       });
-      expect(screen.getByText("Seattle, WA")).toBeInTheDocument();
+      expect(screen.getByText("Denver, CO")).toBeInTheDocument();
     });
 
-    it("displays all tech stack items", async () => {
-      render(<CompanyResearchPanel companyName="Supabase" />);
+    it("displays all tools and systems", async () => {
+      render(<CompanyResearchPanel companyName="Walmart" />);
 
       await waitFor(() => {
-        expect(screen.getByText("TypeScript")).toBeInTheDocument();
+        expect(screen.getByText("Store operations")).toBeInTheDocument();
       });
-      expect(screen.getByText("PostgreSQL")).toBeInTheDocument();
-      expect(screen.getByText("Go")).toBeInTheDocument();
+      expect(screen.getByText("Inventory")).toBeInTheDocument();
+      expect(screen.getByText("Customer service")).toBeInTheDocument();
     });
   });
 
   describe("rating display", () => {
     it("renders rating number correctly", async () => {
-      render(<CompanyResearchPanel companyName="DeepMind" />);
+      const cache = {
+        "steadywork": {
+          data: {
+            name: "SteadyWork",
+            industry: "Operations",
+            glassdoorRating: 4.5,
+          },
+          timestamp: Date.now(),
+        },
+      };
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(cache));
+
+      render(<CompanyResearchPanel companyName="SteadyWork" />);
 
       await waitFor(() => {
         expect(screen.getByText("4.5")).toBeInTheDocument();
@@ -322,7 +382,19 @@ describe("CompanyResearchPanel", () => {
     });
 
     it("renders high rating correctly", async () => {
-      render(<CompanyResearchPanel companyName="Linear" />);
+      const cache = {
+        "communitycare": {
+          data: {
+            name: "CommunityCare",
+            industry: "Healthcare",
+            glassdoorRating: 4.8,
+          },
+          timestamp: Date.now(),
+        },
+      };
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(cache));
+
+      render(<CompanyResearchPanel companyName="CommunityCare" />);
 
       await waitFor(() => {
         expect(screen.getByText("4.8")).toBeInTheDocument();
@@ -332,81 +404,95 @@ describe("CompanyResearchPanel", () => {
 
   describe("info row display", () => {
     it("displays label and value correctly", async () => {
-      render(<CompanyResearchPanel companyName="Uber" />);
+      const cache = {
+        "neighborhoodbank": {
+          data: {
+            name: "NeighborhoodBank",
+            industry: "Banking",
+            founded: "1972",
+            employeeCount: "250+",
+          },
+          timestamp: Date.now(),
+        },
+      };
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(cache));
+
+      render(<CompanyResearchPanel companyName="NeighborhoodBank" />);
 
       await waitFor(() => {
         expect(screen.getByText("Founded")).toBeInTheDocument();
       });
-      expect(screen.getByText("2009")).toBeInTheDocument();
+      expect(screen.getByText("1972")).toBeInTheDocument();
       expect(screen.getByText("Employees")).toBeInTheDocument();
-      expect(screen.getByText("32,000+")).toBeInTheDocument();
+      expect(screen.getByText("250+")).toBeInTheDocument();
     });
   });
 
   describe("various company types", () => {
-    it("displays fintech company (Coinbase)", async () => {
-      render(<CompanyResearchPanel companyName="Coinbase" />);
+    it("displays healthcare and retail company (CVS)", async () => {
+      render(<CompanyResearchPanel companyName="CVS" />);
 
       await waitFor(() => {
-        expect(screen.getByText("Crypto / Fintech")).toBeInTheDocument();
+        expect(screen.getByText("Healthcare / Retail")).toBeInTheDocument();
       });
-      expect(screen.getByText("Remote-first")).toBeInTheDocument();
+      expect(screen.getByText("Pharmacy systems")).toBeInTheDocument();
     });
 
-    it("displays gaming company (Roblox)", async () => {
-      render(<CompanyResearchPanel companyName="Roblox" />);
+    it("displays food-service company (Starbucks)", async () => {
+      render(<CompanyResearchPanel companyName="Starbucks" />);
 
       await waitFor(() => {
-        expect(screen.getByText("Gaming / Metaverse")).toBeInTheDocument();
-      });
-    });
-
-    it("displays security company (CrowdStrike)", async () => {
-      render(<CompanyResearchPanel companyName="CrowdStrike" />);
-
-      await waitFor(() => {
-        expect(screen.getByText("Cybersecurity")).toBeInTheDocument();
+        expect(screen.getByText("Food Service / Retail")).toBeInTheDocument();
       });
     });
 
-    it("displays communication company (Slack)", async () => {
-      render(<CompanyResearchPanel companyName="Slack" />);
+    it("displays logistics company (UPS)", async () => {
+      render(<CompanyResearchPanel companyName="UPS" />);
 
       await waitFor(() => {
-        expect(screen.getByText("Enterprise / Communication")).toBeInTheDocument();
+        expect(screen.getByText("Logistics")).toBeInTheDocument();
+      });
+      expect(screen.getByText("Route planning")).toBeInTheDocument();
+    });
+
+    it("displays insurance company (State Farm)", async () => {
+      render(<CompanyResearchPanel companyName="State Farm" />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Insurance")).toBeInTheDocument();
       });
     });
 
-    it("displays AI startup (Cursor)", async () => {
-      render(<CompanyResearchPanel companyName="Cursor" />);
+    it("displays banking company (Bank of America)", async () => {
+      render(<CompanyResearchPanel companyName="Bank of America" />);
 
       await waitFor(() => {
-        expect(screen.getByText("AI / Developer Tools")).toBeInTheDocument();
+        expect(screen.getByText("Banking / Financial Services")).toBeInTheDocument();
       });
-      expect(screen.getByText("Series A")).toBeInTheDocument();
+      expect(screen.getByText("Risk controls")).toBeInTheDocument();
     });
 
-    it("displays cloud database company (PlanetScale)", async () => {
-      render(<CompanyResearchPanel companyName="PlanetScale" />);
+    it("displays trades-adjacent retail company (Home Depot)", async () => {
+      render(<CompanyResearchPanel companyName="Home Depot" />);
 
       await waitFor(() => {
-        expect(screen.getByText("Cloud / Database")).toBeInTheDocument();
-      });
-    });
-
-    it("displays travel company (Airbnb)", async () => {
-      render(<CompanyResearchPanel companyName="Airbnb" />);
-
-      await waitFor(() => {
-        expect(screen.getByText("Travel / Hospitality")).toBeInTheDocument();
+        expect(screen.getByText("Retail / Trades")).toBeInTheDocument();
       });
     });
 
-    it("displays productivity company (Notion)", async () => {
-      render(<CompanyResearchPanel companyName="Notion" />);
+    it("displays hospitality company (Marriott)", async () => {
+      render(<CompanyResearchPanel companyName="Marriott" />);
 
       await waitFor(() => {
-        expect(screen.getByText("Productivity / Collaboration")).toBeInTheDocument();
+        expect(screen.getByText("Hospitality")).toBeInTheDocument();
+      });
+    });
+
+    it("still supports technology companies without making them the default fixture", async () => {
+      render(<CompanyResearchPanel companyName="Google" />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Technology")).toBeInTheDocument();
       });
     });
   });
