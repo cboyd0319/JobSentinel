@@ -9,11 +9,11 @@
 
 // Example 1: normal resume HTML should preserve safe formatting.
 const normalResume = `
-  <h1 class="name">John Doe</h1>
-  <div class="contact">john@example.com - (555) 123-4567 - New York, NY</div>
+  <h1 class="name">Jordan Lee</h1>
+  <div class="contact">jordan@example.com - (555) 123-4567 - Chicago, IL</div>
   <hr class="section-divider">
   <h2>SUMMARY</h2>
-  <p>Experienced software engineer with 5+ years in web development.</p>
+  <p>Experienced program coordinator with 5+ years in client services.</p>
 `;
 
 console.log("Normal HTML:", DOMPurify.sanitize(normalResume));
@@ -21,13 +21,13 @@ console.log("Normal HTML:", DOMPurify.sanitize(normalResume));
 
 // Example 2: script tags should be blocked.
 const xssScript = `
-  <h1 class="name">John Doe</h1>
+  <h1 class="name">Jordan Lee</h1>
   <script>alert("XSS Attack!");</script>
   <p>Legitimate content</p>
 `;
 
 console.log("XSS Script:", DOMPurify.sanitize(xssScript));
-// Expected: <h1 class="name">John Doe</h1><p>Legitimate content</p>
+// Expected: <h1 class="name">Jordan Lee</h1><p>Legitimate content</p>
 
 // Example 3: event handlers should be blocked.
 const xssEvent = `
@@ -49,8 +49,8 @@ console.log("XSS URL:", DOMPurify.sanitize(xssUrl));
 
 // Example 5: safe inline styles should remain.
 const styledResume = `
-  <h1 style="color: #333; font-size: 24px;">John Doe</h1>
-  <p style="margin-bottom: 10px;">Software Engineer</p>
+  <h1 style="color: #333; font-size: 24px;">Jordan Lee</h1>
+  <p style="margin-bottom: 10px;">Program Coordinator</p>
 `;
 
 console.log("Styled HTML:", DOMPurify.sanitize(styledResume));
@@ -59,7 +59,7 @@ console.log("Styled HTML:", DOMPurify.sanitize(styledResume));
 // Example 6: complex dangerous content should be stripped.
 const complexXss = `
   <div>
-    <h1>John Doe</h1>
+    <h1>Jordan Lee</h1>
     <style>body { background: url('javascript:alert(1)'); }</style>
     <link rel="stylesheet" href="javascript:alert(1)">
     <object data="javascript:alert(1)"></object>

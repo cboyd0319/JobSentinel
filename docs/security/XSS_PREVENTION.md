@@ -84,13 +84,13 @@ Treat these inputs as untrusted:
 Safe resume formatting remains:
 
 ```html
-<h1 class="name" style="color: #333;">John Doe</h1>
+<h1 class="name" style="color: #333;">Jordan Lee</h1>
 <div class="contact">
-  <a href="mailto:john@example.com">john@example.com</a>
+  <a href="mailto:jordan@example.com">jordan@example.com</a>
 </div>
-<p style="margin-bottom: 10px;">Software Engineer</p>
+<p style="margin-bottom: 10px;">Program Coordinator</p>
 <ul>
-  <li><strong>Skill:</strong> Rust</li>
+  <li><strong>Skill:</strong> Case documentation</li>
   <li><em>Experience:</em> 5 years</li>
 </ul>
 ```

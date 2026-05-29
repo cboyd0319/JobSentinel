@@ -555,6 +555,8 @@ const broadAudienceExamplePaths = new Set([
   "docs/features/scrapers.md",
   "docs/features/resume-matcher.md",
   "docs/features/user-data-management.md",
+  "docs/security/dompurify-test-examples.js",
+  "docs/security/XSS_PREVENTION.md",
 ]);
 const applicationTrackingPlainLabelPaths = new Set([
   "docs/README.md",

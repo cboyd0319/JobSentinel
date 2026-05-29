@@ -614,6 +614,16 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "docs/security/dompurify-test-examples.js",
+      '"John Doe"; "Experienced software engineer";\n',
+    );
+    writeFixtureFile(
+      root,
+      "docs/security/XSS_PREVENTION.md",
+      '"John Doe"; "Software Engineer";\n',
+    );
+    writeFixtureFile(
+      root,
       "src-tauri/src/core/resume/ats_analyzer.rs",
       '"John Doe"; "Senior Software Engineer"; "Tech Corp";\n',
     );
@@ -814,6 +824,8 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src-tauri/src/core/import/README.md",
         "src-tauri/src/core/import/schema_org.rs",
         "src-tauri/src/core/import/tests.rs",
+        "docs/security/dompurify-test-examples.js",
+        "docs/security/XSS_PREVENTION.md",
         "src-tauri/src/core/resume/ats_analyzer.rs",
         "src-tauri/src/core/resume/builder.rs",
         "src-tauri/src/core/resume/export.rs",
@@ -884,6 +896,8 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src-tauri/src/core/import/README.md",
       "src-tauri/src/core/import/schema_org.rs",
       "src-tauri/src/core/import/tests.rs",
+      "docs/security/dompurify-test-examples.js",
+      "docs/security/XSS_PREVENTION.md",
       "src-tauri/src/core/resume/ats_analyzer.rs",
       "src-tauri/src/core/resume/builder.rs",
       "src-tauri/src/core/resume/export.rs",
