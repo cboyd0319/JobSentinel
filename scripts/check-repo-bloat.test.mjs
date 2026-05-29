@@ -5314,6 +5314,43 @@ test("checkRepoBloat rejects notification provider error body exposure", () => {
   });
 });
 
+test("checkRepoBloat rejects raw notification service error details", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/notify/mod.rs",
+      [
+        "pub async fn send_immediate_alert() -> anyhow::Result<()> {",
+        "  if let Err(e) = send_slack().await {",
+        "    tracing::error!(\"Failed to send Slack notification: {}\", e);",
+        "    errors.push(format!(\"Slack: {}\", e));",
+        "  }",
+        "  if let Err(e) = CredentialStore::retrieve(CredentialKey::TelegramBotToken) {",
+        "    tracing::error!(\"Failed to retrieve Telegram bot token from keyring: {}\", e);",
+        "    errors.push(format!(\"Telegram: {}\", e));",
+        "  }",
+        "  Ok(())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/notify/mod.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize notification service error details: src-tauri/src/core/notify/mod.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw JobsWithGPT smoke-test endpoint errors", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

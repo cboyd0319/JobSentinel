@@ -294,6 +294,7 @@ const importCommandPrivacyPaths = new Set(["src-tauri/src/commands/import.rs"]);
 const urlSecurityPrivacyPaths = new Set(["src-tauri/src/core/url_security.rs"]);
 
 const rawNotificationJobTitleLoggingPaths = new Set(["src-tauri/src/core/notify/mod.rs"]);
+const notificationServicePrivacyPaths = new Set(["src-tauri/src/core/notify/mod.rs"]);
 const rawSchedulerJobContentLoggingPaths = new Set([
   "src-tauri/src/core/db/crud.rs",
   "src-tauri/src/core/scheduler/workers/persistence.rs",
@@ -2637,6 +2638,23 @@ function hasRawNotificationProviderErrorBody(root, path) {
   );
 }
 
+function hasRawNotificationServiceErrorDetails(root, path) {
+  if (!notificationServicePrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /tracing::(?:error|warn)!\([^;]*\{\}[^;]*,\s*e\s*\)/.test(productionText) ||
+    /errors\.push\(format!\(\s*"(?:Slack|Email|Discord|Telegram|Teams):\s*\{\}"\s*,\s*e\s*\)\)/.test(
+      productionText,
+    ) ||
+    /anyhow::anyhow!\([^;]*errors\.join\([^)]*\)[\s\S]{0,120}\b(?:webhook|token|password|SMTP)\b/i.test(
+      productionText,
+    )
+  );
+}
+
 function hasRawJobsWithGptSmokeEndpointError(root, path) {
   if (!healthSmokePrivacyPaths.has(path)) {
     return false;
@@ -4211,6 +4229,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawNotificationProviderErrorBody(root, path)) {
       violations.push(`omit notification provider error bodies from errors: ${path}`);
+    }
+
+    if (hasRawNotificationServiceErrorDetails(root, path)) {
+      violations.push(`sanitize notification service error details: ${path}`);
     }
 
     if (hasRawJobsWithGptSmokeEndpointError(root, path)) {

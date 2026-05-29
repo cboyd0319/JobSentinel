@@ -41,6 +41,40 @@ fn log_notification_sent(channel: &'static str, notification: &Notification) {
     );
 }
 
+fn notification_channel_error(channel: &'static str, reason: &'static str) -> String {
+    format!("{}: {}", channel, reason)
+}
+
+fn record_notification_delivery_failure(errors: &mut Vec<String>, channel: &'static str) {
+    tracing::error!(
+        channel,
+        failure_kind = "delivery_failed",
+        "Notification channel failed"
+    );
+    errors.push(notification_channel_error(channel, "delivery failed"));
+}
+
+fn record_notification_configuration_missing(errors: &mut Vec<String>, channel: &'static str) {
+    tracing::warn!(
+        channel,
+        failure_kind = "credential_not_configured",
+        "Notification credential not configured"
+    );
+    errors.push(notification_channel_error(channel, "not configured"));
+}
+
+fn record_notification_credential_failure(errors: &mut Vec<String>, channel: &'static str) {
+    tracing::error!(
+        channel,
+        failure_kind = "credential_unavailable",
+        "Notification credential unavailable"
+    );
+    errors.push(notification_channel_error(
+        channel,
+        "credential unavailable",
+    ));
+}
+
 fn format_provider_failure_summary(
     status: reqwest::StatusCode,
     body_chars: Option<usize>,
@@ -96,21 +130,19 @@ impl NotificationService {
         if self.config.alerts.slack.enabled {
             match CredentialStore::retrieve(CredentialKey::SlackWebhook) {
                 Ok(Some(webhook_url)) => {
-                    if let Err(e) = slack::send_slack_notification(&webhook_url, notification).await
+                    if let Err(_e) =
+                        slack::send_slack_notification(&webhook_url, notification).await
                     {
-                        tracing::error!("Failed to send Slack notification: {}", e);
-                        errors.push(format!("Slack: {}", e));
+                        record_notification_delivery_failure(&mut errors, "Slack");
                     } else {
                         log_notification_sent("slack", notification);
                     }
                 }
                 Ok(None) => {
-                    tracing::warn!("Slack enabled but webhook not configured in keyring");
-                    errors.push("Slack: Webhook not configured".to_string());
+                    record_notification_configuration_missing(&mut errors, "Slack");
                 }
-                Err(e) => {
-                    tracing::error!("Failed to retrieve Slack webhook from keyring: {}", e);
-                    errors.push(format!("Slack: {}", e));
+                Err(_e) => {
+                    record_notification_credential_failure(&mut errors, "Slack");
                 }
             }
         }
@@ -130,22 +162,19 @@ impl NotificationService {
                         to_emails: self.config.alerts.email.to_emails.clone(),
                         use_starttls: self.config.alerts.email.use_starttls,
                     };
-                    if let Err(e) =
+                    if let Err(_e) =
                         email::send_email_notification(&email_config, notification).await
                     {
-                        tracing::error!("Failed to send email notification: {}", e);
-                        errors.push(format!("Email: {}", e));
+                        record_notification_delivery_failure(&mut errors, "Email");
                     } else {
                         log_notification_sent("email", notification);
                     }
                 }
                 Ok(None) => {
-                    tracing::warn!("Email enabled but SMTP password not configured in keyring");
-                    errors.push("Email: SMTP password not configured".to_string());
+                    record_notification_configuration_missing(&mut errors, "Email");
                 }
-                Err(e) => {
-                    tracing::error!("Failed to retrieve SMTP password from keyring: {}", e);
-                    errors.push(format!("Email: {}", e));
+                Err(_e) => {
+                    record_notification_credential_failure(&mut errors, "Email");
                 }
             }
         }
@@ -160,22 +189,19 @@ impl NotificationService {
                         webhook_url,
                         user_id_to_mention: self.config.alerts.discord.user_id_to_mention.clone(),
                     };
-                    if let Err(e) =
+                    if let Err(_e) =
                         discord::send_discord_notification(&discord_config, notification).await
                     {
-                        tracing::error!("Failed to send Discord notification: {}", e);
-                        errors.push(format!("Discord: {}", e));
+                        record_notification_delivery_failure(&mut errors, "Discord");
                     } else {
                         log_notification_sent("discord", notification);
                     }
                 }
                 Ok(None) => {
-                    tracing::warn!("Discord enabled but webhook not configured in keyring");
-                    errors.push("Discord: Webhook not configured".to_string());
+                    record_notification_configuration_missing(&mut errors, "Discord");
                 }
-                Err(e) => {
-                    tracing::error!("Failed to retrieve Discord webhook from keyring: {}", e);
-                    errors.push(format!("Discord: {}", e));
+                Err(_e) => {
+                    record_notification_credential_failure(&mut errors, "Discord");
                 }
             }
         }
@@ -190,22 +216,19 @@ impl NotificationService {
                         bot_token,
                         chat_id: self.config.alerts.telegram.chat_id.clone(),
                     };
-                    if let Err(e) =
+                    if let Err(_e) =
                         telegram::send_telegram_notification(&telegram_config, notification).await
                     {
-                        tracing::error!("Failed to send Telegram notification: {}", e);
-                        errors.push(format!("Telegram: {}", e));
+                        record_notification_delivery_failure(&mut errors, "Telegram");
                     } else {
                         log_notification_sent("telegram", notification);
                     }
                 }
                 Ok(None) => {
-                    tracing::warn!("Telegram enabled but bot token not configured in keyring");
-                    errors.push("Telegram: Bot token not configured".to_string());
+                    record_notification_configuration_missing(&mut errors, "Telegram");
                 }
-                Err(e) => {
-                    tracing::error!("Failed to retrieve Telegram bot token from keyring: {}", e);
-                    errors.push(format!("Telegram: {}", e));
+                Err(_e) => {
+                    record_notification_credential_failure(&mut errors, "Telegram");
                 }
             }
         }
@@ -214,21 +237,19 @@ impl NotificationService {
         if self.config.alerts.teams.enabled {
             match CredentialStore::retrieve(CredentialKey::TeamsWebhook) {
                 Ok(Some(webhook_url)) => {
-                    if let Err(e) = teams::send_teams_notification(&webhook_url, notification).await
+                    if let Err(_e) =
+                        teams::send_teams_notification(&webhook_url, notification).await
                     {
-                        tracing::error!("Failed to send Teams notification: {}", e);
-                        errors.push(format!("Teams: {}", e));
+                        record_notification_delivery_failure(&mut errors, "Teams");
                     } else {
                         log_notification_sent("teams", notification);
                     }
                 }
                 Ok(None) => {
-                    tracing::warn!("Teams enabled but webhook not configured in keyring");
-                    errors.push("Teams: Webhook not configured".to_string());
+                    record_notification_configuration_missing(&mut errors, "Teams");
                 }
-                Err(e) => {
-                    tracing::error!("Failed to retrieve Teams webhook from keyring: {}", e);
-                    errors.push(format!("Teams: {}", e));
+                Err(_e) => {
+                    record_notification_credential_failure(&mut errors, "Teams");
                 }
             }
         }
@@ -783,11 +804,11 @@ mod tests {
 
     #[test]
     fn test_error_message_format_single_channel() {
-        let errors = vec!["Slack: Connection timeout".to_string()];
+        let errors = vec!["Slack: delivery failed".to_string()];
         let error_msg = format!("All notification channels failed: {}", errors.join("; "));
 
         assert!(error_msg.contains("Slack"));
-        assert!(error_msg.contains("Connection timeout"));
+        assert!(error_msg.contains("delivery failed"));
         assert!(
             !error_msg.contains(";;"),
             "Should not have double semicolons"
@@ -797,9 +818,9 @@ mod tests {
     #[test]
     fn test_error_message_format_multiple_channels() {
         let errors = vec![
-            "Slack: Connection timeout".to_string(),
-            "Email: SMTP auth failed".to_string(),
-            "Discord: Invalid webhook".to_string(),
+            "Slack: delivery failed".to_string(),
+            "Email: credential unavailable".to_string(),
+            "Discord: not configured".to_string(),
         ];
         let error_msg = format!("All notification channels failed: {}", errors.join("; "));
 
@@ -826,19 +847,43 @@ mod tests {
     fn test_error_collection_accumulation() {
         let mut errors: Vec<String> = Vec::new();
 
-        errors.push("Slack: Error 1".to_string());
+        errors.push("Slack: delivery failed".to_string());
         assert_eq!(errors.len(), 1);
 
-        errors.push("Email: Error 2".to_string());
+        errors.push("Email: credential unavailable".to_string());
         assert_eq!(errors.len(), 2);
 
-        errors.push("Discord: Error 3".to_string());
+        errors.push("Discord: not configured".to_string());
         assert_eq!(errors.len(), 3);
     }
 
     #[test]
+    fn test_notification_failure_records_are_sanitized() {
+        let mut errors = Vec::new();
+
+        record_notification_delivery_failure(&mut errors, "Slack");
+        record_notification_configuration_missing(&mut errors, "Telegram");
+        record_notification_credential_failure(&mut errors, "Email");
+
+        assert_eq!(
+            errors,
+            vec![
+                "Slack: delivery failed",
+                "Telegram: not configured",
+                "Email: credential unavailable",
+            ]
+        );
+
+        let joined = errors.join("; ");
+        assert!(!joined.contains("https://"));
+        assert!(!joined.contains("token"));
+        assert!(!joined.contains("password"));
+        assert!(!joined.contains("webhook"));
+    }
+
+    #[test]
     fn test_partial_failure_condition() {
-        let errors = vec!["Slack: Error".to_string()];
+        let errors = vec!["Slack: delivery failed".to_string()];
         let enabled_count = 3; // Slack, Email, Discord enabled
 
         // Partial failure (1 error out of 3 enabled channels)
@@ -852,9 +897,9 @@ mod tests {
     #[test]
     fn test_total_failure_condition() {
         let errors = vec![
-            "Slack: Error".to_string(),
-            "Email: Error".to_string(),
-            "Discord: Error".to_string(),
+            "Slack: delivery failed".to_string(),
+            "Email: credential unavailable".to_string(),
+            "Discord: not configured".to_string(),
         ];
         let enabled_count = 3;
 
