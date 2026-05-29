@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Sanitized automation command failures and tracking logs so profile, screening-answer, answer-learning, attempt, and form-prep errors no longer echo database/browser internals, raw job hashes are reduced to lengths, and attempt-tracking failures log safe categories; added bloat coverage. |
 | 2026-05-29 | In progress | Reworked the root README front door against the maintained information-design system after a fresh prior-art check: it now opens as a professional research brief with product thesis, reader routes, implementation evidence, product model, research model, trust model, and architecture map while preserving Rule 0, local-first external-AI boundaries, free-forever MIT wording, and the source index. |
 | 2026-05-29 | In progress | Sanitized application-tracking command failures and logs so renderer-facing errors no longer echo database/status internals, and job identifiers, interview schedule text, outcomes, and note presence are reduced to lengths or booleans in command logs; added bloat coverage. |
 | 2026-05-29 | In progress | Sanitized resume command failures and command logs so renderer-facing errors no longer echo parser/database/export internals, and resume skill/job-fit commands log content lengths instead of raw user skill text or job identifiers; added bloat coverage. |

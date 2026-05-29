@@ -6049,6 +6049,48 @@ test("checkRepoBloat rejects raw application tracking command error details", ()
   });
 });
 
+test("checkRepoBloat rejects raw automation command error details", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/automation.rs",
+      [
+        "pub async fn create_automation_attempt(job_hash: String) -> Result<i64, String> {",
+        "    tracing::info!(\"Command: create_automation_attempt (job: {})\", job_hash);",
+        "    manager.create_attempt(&job_hash).await.map_err(|e| format!(\"Failed to create automation attempt: {}\", e))",
+        "}",
+        "",
+        "pub async fn get_application_profile() -> Result<(), String> {",
+        "    match manager.get_profile().await {",
+        "        Ok(_) => Ok(()),",
+        "        Err(e) => Err(format!(\"Failed to get profile: {}\", e)),",
+        "    }",
+        "}",
+        "",
+        "pub async fn fill_application_form() -> Result<(), String> {",
+        "    tracing::warn!(\"Failed to create automation attempt: {}\", e);",
+        "    Ok(())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/automation.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize automation command error details: src-tauri/src/commands/automation.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw command setup error display", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

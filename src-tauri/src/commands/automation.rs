@@ -81,7 +81,7 @@ pub async fn get_application_profile(
     match manager.get_profile().await {
         Ok(Some(profile)) => Ok(Some(ApplicationProfileResponse::from(profile))),
         Ok(None) => Ok(None),
-        Err(e) => Err(format!("Failed to get profile: {}", e)),
+        Err(e) => Err(user_friendly_error("Failed to get profile", e)),
     }
 }
 
@@ -156,7 +156,7 @@ pub async fn upsert_screening_answer(
     manager
         .upsert_screening_answer(&question_pattern, &answer, &answer_type, notes.as_deref())
         .await
-        .map_err(|e| format!("Failed to save screening answer: {}", e))
+        .map_err(|e| user_friendly_error("Failed to save screening answer", e))
 }
 
 /// Get all screening answers
@@ -172,7 +172,7 @@ pub async fn get_screening_answers(
             .into_iter()
             .map(ScreeningAnswerResponse::from)
             .collect()),
-        Err(e) => Err(format!("Failed to get screening answers: {}", e)),
+        Err(e) => Err(user_friendly_error("Failed to get screening answers", e)),
     }
 }
 
@@ -226,7 +226,7 @@ pub async fn find_answer_for_question(
     manager
         .find_answer_for_question(&question)
         .await
-        .map_err(|e| format!("Failed to find answer: {}", e))
+        .map_err(|e| user_friendly_error("Failed to find answer", e))
 }
 
 // ============================================================================
@@ -240,19 +240,20 @@ pub async fn create_automation_attempt(
     ats_platform: String,
     state: State<'_, AppState>,
 ) -> Result<i64, String> {
+    let platform = AtsPlatform::from_str(&ats_platform);
+
     tracing::info!(
-        "Command: create_automation_attempt (job: {}, platform: {})",
-        job_hash,
-        ats_platform
+        job_hash_chars = job_hash.chars().count(),
+        ats_platform = platform.as_str(),
+        "Command: create_automation_attempt"
     );
 
     let manager = AutomationManager::new(state.database.pool().clone());
-    let platform = AtsPlatform::from_str(&ats_platform);
 
     manager
         .create_attempt(&job_hash, platform)
         .await
-        .map_err(|e| format!("Failed to create automation attempt: {}", e))
+        .map_err(|e| user_friendly_error("Failed to create automation attempt", e))
 }
 
 /// Get an automation attempt by ID
@@ -266,7 +267,7 @@ pub async fn get_automation_attempt(
     let manager = AutomationManager::new(state.database.pool().clone());
     match manager.get_attempt(attempt_id).await {
         Ok(attempt) => Ok(AttemptResponse::from(attempt)),
-        Err(e) => Err(format!("Failed to get attempt: {}", e)),
+        Err(e) => Err(user_friendly_error("Failed to get attempt", e)),
     }
 }
 
@@ -319,7 +320,7 @@ pub async fn approve_automation_attempt(
     manager
         .approve_attempt(attempt_id)
         .await
-        .map_err(|e| format!("Failed to approve attempt: {}", e))
+        .map_err(|e| user_friendly_error("Failed to approve attempt", e))
 }
 
 /// Cancel an automation attempt
@@ -338,7 +339,7 @@ pub async fn cancel_automation_attempt(
             Some("Cancelled by user"),
         )
         .await
-        .map_err(|e| format!("Failed to cancel attempt: {}", e))
+        .map_err(|e| user_friendly_error("Failed to cancel attempt", e))
 }
 
 /// Get pending automation attempts (approved and ready to process)
@@ -353,7 +354,7 @@ pub async fn get_pending_attempts(
     let manager = AutomationManager::new(state.database.pool().clone());
     match manager.get_pending_attempts(limit).await {
         Ok(attempts) => Ok(attempts.into_iter().map(AttemptResponse::from).collect()),
-        Err(e) => Err(format!("Failed to get pending attempts: {}", e)),
+        Err(e) => Err(user_friendly_error("Failed to get pending attempts", e)),
     }
 }
 
@@ -366,7 +367,7 @@ pub async fn get_automation_stats(state: State<'_, AppState>) -> Result<Automati
     manager
         .get_stats()
         .await
-        .map_err(|e| format!("Failed to get automation stats: {}", e))
+        .map_err(|e| user_friendly_error("Failed to get automation stats", e))
 }
 
 // ============================================================================
@@ -515,7 +516,10 @@ pub async fn fill_application_form(
                 Some(id)
             }
             Err(e) => {
-                tracing::warn!("Failed to create automation attempt: {}", e);
+                tracing::warn!(
+                    error = %user_friendly_error("Failed to create automation attempt", e),
+                    "Skipped automation-attempt tracking"
+                );
                 None
             }
         }
@@ -652,7 +656,7 @@ pub async fn mark_attempt_submitted(
     manager
         .mark_submitted(attempt_id)
         .await
-        .map_err(|e| format!("Failed to mark attempt as submitted: {}", e))
+        .map_err(|e| user_friendly_error("Failed to mark attempt as submitted", e))
 }
 
 /// Get all automation attempts for a job
@@ -664,7 +668,10 @@ pub async fn get_attempts_for_job(
     job_hash: String,
     state: State<'_, AppState>,
 ) -> Result<Vec<AttemptResponse>, String> {
-    tracing::info!("Command: get_attempts_for_job (hash: {})", job_hash);
+    tracing::info!(
+        job_hash_chars = job_hash.chars().count(),
+        "Command: get_attempts_for_job"
+    );
 
     let rows = sqlx::query(
         r#"
@@ -680,7 +687,7 @@ pub async fn get_attempts_for_job(
     .bind(&job_hash)
     .fetch_all(state.database.pool())
     .await
-    .map_err(|e| format!("Failed to get attempts: {}", e))?;
+    .map_err(|e| user_friendly_error("Failed to get attempts", e))?;
 
     use sqlx::Row;
     let attempts: Vec<AttemptResponse> = rows
@@ -739,7 +746,7 @@ pub async fn get_suggested_answers(
     let suggestions = manager
         .get_suggested_answers(&question, limit)
         .await
-        .map_err(|e| format!("Failed to get suggestions: {}", e))?;
+        .map_err(|e| user_friendly_error("Failed to get suggestions", e))?;
 
     Ok(suggestions
         .into_iter()
@@ -780,7 +787,7 @@ pub async fn record_answer_usage(
             application_attempt_id,
         )
         .await
-        .map_err(|e| format!("Failed to record usage: {}", e))
+        .map_err(|e| user_friendly_error("Failed to record usage", e))
 }
 
 /// Get statistics for a specific answer pattern
@@ -800,7 +807,7 @@ pub async fn get_answer_statistics(
     match manager.get_answer_statistics(&pattern).await {
         Ok(Some(stats)) => Ok(Some(AnswerStatisticsResponse::from(stats))),
         Ok(None) => Ok(None),
-        Err(e) => Err(format!("Failed to get statistics: {}", e)),
+        Err(e) => Err(user_friendly_error("Failed to get statistics", e)),
     }
 }
 
@@ -825,7 +832,7 @@ pub async fn clear_answer_history(
     manager
         .clear_answer_history(pattern.as_deref())
         .await
-        .map_err(|e| format!("Failed to clear history: {}", e))
+        .map_err(|e| user_friendly_error("Failed to clear history", e))
 }
 
 // Response types for learning commands
