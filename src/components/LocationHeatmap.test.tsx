@@ -13,21 +13,21 @@ describe("LocationHeatmap", () => {
       remote_percent: number;
     }> = {}
   ) => ({
-    location: "San Francisco, CA",
-    city: "San Francisco",
-    state: "CA",
+    location: "Chicago, IL",
+    city: "Chicago",
+    state: "IL",
     total_jobs: 100,
-    avg_median_salary: 150000,
+    avg_median_salary: 82000,
     remote_percent: 50,
     ...overrides,
   });
 
   const defaultLocations = [
-    createLocation({ location: "San Francisco, CA", total_jobs: 500 }),
+    createLocation({ location: "Chicago, IL", total_jobs: 500 }),
     createLocation({
-      location: "New York, NY",
-      city: "New York",
-      state: "NY",
+      location: "Austin, TX",
+      city: "Austin",
+      state: "TX",
       total_jobs: 450,
     }),
     createLocation({
@@ -38,9 +38,9 @@ describe("LocationHeatmap", () => {
       remote_percent: 100,
     }),
     createLocation({
-      location: "Seattle, WA",
-      city: "Seattle",
-      state: "WA",
+      location: "Atlanta, GA",
+      city: "Atlanta",
+      state: "GA",
       total_jobs: 200,
     }),
   ];
@@ -76,9 +76,9 @@ describe("LocationHeatmap", () => {
     it("renders location names", () => {
       render(<LocationHeatmap locations={defaultLocations} />);
 
-      expect(screen.getByText("San Francisco, CA")).toBeInTheDocument();
-      expect(screen.getByText("New York, NY")).toBeInTheDocument();
-      expect(screen.getByText("Seattle, WA")).toBeInTheDocument();
+      expect(screen.getByText("Chicago, IL")).toBeInTheDocument();
+      expect(screen.getByText("Austin, TX")).toBeInTheDocument();
+      expect(screen.getByText("Atlanta, GA")).toBeInTheDocument();
     });
 
     it("renders Remote location", () => {
@@ -155,13 +155,13 @@ describe("LocationHeatmap", () => {
     it("does not show details initially", () => {
       render(<LocationHeatmap locations={defaultLocations} />);
 
-      expect(screen.queryByRole("region", { name: /San Francisco/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole("region", { name: /Chicago/i })).not.toBeInTheDocument();
     });
 
     it("shows details when location is clicked", () => {
       render(<LocationHeatmap locations={defaultLocations} />);
 
-      fireEvent.click(screen.getByText("San Francisco, CA"));
+      fireEvent.click(screen.getByText("Chicago, IL"));
 
       expect(screen.getByText("Total Jobs")).toBeInTheDocument();
       expect(screen.getByText("Median Salary")).toBeInTheDocument();
@@ -171,7 +171,7 @@ describe("LocationHeatmap", () => {
     it("displays selected location job count in details", () => {
       render(<LocationHeatmap locations={defaultLocations} />);
 
-      fireEvent.click(screen.getByText("San Francisco, CA"));
+      fireEvent.click(screen.getByText("Chicago, IL"));
 
       // "500" appears both in the button and the detail panel
       const jobCounts = screen.getAllByText("500");
@@ -181,15 +181,15 @@ describe("LocationHeatmap", () => {
     it("displays selected location salary in details", () => {
       render(<LocationHeatmap locations={defaultLocations} />);
 
-      fireEvent.click(screen.getByText("San Francisco, CA"));
+      fireEvent.click(screen.getByText("Chicago, IL"));
 
-      expect(screen.getByText("$150,000")).toBeInTheDocument();
+      expect(screen.getByText("$82,000")).toBeInTheDocument();
     });
 
     it("displays selected location remote percentage in details", () => {
       render(<LocationHeatmap locations={defaultLocations} />);
 
-      fireEvent.click(screen.getByText("San Francisco, CA"));
+      fireEvent.click(screen.getByText("Chicago, IL"));
 
       // In the detail panel, remote % is shown with one decimal
       expect(screen.getByText("50.0%")).toBeInTheDocument();
@@ -198,22 +198,22 @@ describe("LocationHeatmap", () => {
     it("toggles selection when clicking same location twice", () => {
       render(<LocationHeatmap locations={defaultLocations} />);
 
-      const sfButton = screen.getByRole("listitem", {
-        name: /San Francisco, CA: 500 jobs/i,
+      const chicagoButton = screen.getByRole("listitem", {
+        name: /Chicago, IL: 500 jobs/i,
       });
 
-      fireEvent.click(sfButton);
+      fireEvent.click(chicagoButton);
       expect(screen.getByText("Total Jobs")).toBeInTheDocument();
 
-      fireEvent.click(sfButton);
+      fireEvent.click(chicagoButton);
       expect(screen.queryByText("Total Jobs")).not.toBeInTheDocument();
     });
 
     it("switches to different location when clicking another", () => {
       render(<LocationHeatmap locations={defaultLocations} />);
 
-      fireEvent.click(screen.getByText("San Francisco, CA"));
-      expect(screen.getByText("$150,000")).toBeInTheDocument();
+      fireEvent.click(screen.getByText("Chicago, IL"));
+      expect(screen.getByText("$82,000")).toBeInTheDocument();
 
       fireEvent.click(screen.getByText("Remote"));
       // Selected location should change, still showing details
@@ -223,7 +223,7 @@ describe("LocationHeatmap", () => {
     it("has close button that deselects location", () => {
       render(<LocationHeatmap locations={defaultLocations} />);
 
-      fireEvent.click(screen.getByText("San Francisco, CA"));
+      fireEvent.click(screen.getByText("Chicago, IL"));
       expect(screen.getByText("Total Jobs")).toBeInTheDocument();
 
       fireEvent.click(screen.getByRole("button", { name: "Close location details" }));
@@ -233,13 +233,13 @@ describe("LocationHeatmap", () => {
     it("sets aria-pressed correctly on selected location", () => {
       render(<LocationHeatmap locations={defaultLocations} />);
 
-      const sfButton = screen.getByRole("listitem", {
-        name: /San Francisco, CA: 500 jobs/i,
+      const chicagoButton = screen.getByRole("listitem", {
+        name: /Chicago, IL: 500 jobs/i,
       });
-      expect(sfButton).toHaveAttribute("aria-pressed", "false");
+      expect(chicagoButton).toHaveAttribute("aria-pressed", "false");
 
-      fireEvent.click(sfButton);
-      expect(sfButton).toHaveAttribute("aria-pressed", "true");
+      fireEvent.click(chicagoButton);
+      expect(chicagoButton).toHaveAttribute("aria-pressed", "true");
     });
   });
 
@@ -248,18 +248,18 @@ describe("LocationHeatmap", () => {
       render(<LocationHeatmap locations={defaultLocations} />);
 
       expect(
-        screen.getByRole("listitem", { name: /San Francisco, CA: 500 jobs/i })
+        screen.getByRole("listitem", { name: /Chicago, IL: 500 jobs/i })
       ).toBeInTheDocument();
     });
 
     it("has aria-live on selected location details", () => {
       render(<LocationHeatmap locations={defaultLocations} />);
 
-      fireEvent.click(screen.getByText("San Francisco, CA"));
+      fireEvent.click(screen.getByText("Chicago, IL"));
 
       // The detail region should be polite live region
       const detailRegion = screen.getByRole("region", {
-        name: /San Francisco, CA/i,
+        name: /Chicago, IL/i,
       });
       expect(detailRegion).toHaveAttribute("aria-live", "polite");
     });

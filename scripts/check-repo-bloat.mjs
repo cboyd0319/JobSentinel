@@ -494,6 +494,7 @@ const broadAudienceExamplePaths = new Set([
   "src/components/InterviewScheduler.test.tsx",
   "src/components/JobImportModal.tsx",
   "src/components/JobCard.test.tsx",
+  "src/components/LocationHeatmap.test.tsx",
   "src/components/NotificationPreferences.test.tsx",
   "src/components/resume-builder/steps/ContactStep.tsx",
   "src/components/resume-builder/steps/SkillsStep.tsx",
