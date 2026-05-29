@@ -183,6 +183,19 @@ const GHOST_PRESET_DESCRIPTIONS: Record<GhostPresetSelection, string> = {
   custom: "Use detailed controls if you want to tune how early warnings appear.",
 };
 
+function formatPostingRiskWarningLabel(value: number): string {
+  if (value <= 0.2) return "Very early";
+  if (value <= 0.35) return "Early";
+  if (value <= 0.5) return "Balanced";
+  return "Later";
+}
+
+function formatPostingRiskHideLabel(value: number): string {
+  if (value <= 0.55) return "Hide more flagged jobs";
+  if (value <= 0.75) return "Balanced";
+  return "Keep more visible";
+}
+
 // Credentials stored in OS keyring (macOS Keychain, Windows Credential Manager)
 interface Credentials {
   slack_webhook: string;
@@ -3402,8 +3415,8 @@ export default function Settings({ onClose }: SettingsProps) {
                         <div className="space-y-3">
                           <div>
                             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
-                              Early warning point:{" "}
-                              {ghostConfig.warning_threshold.toFixed(2)}
+                              Show posting-risk warning:{" "}
+                              {formatPostingRiskWarningLabel(ghostConfig.warning_threshold)}
                             </label>
                             <input
                               type="range"
@@ -3420,14 +3433,14 @@ export default function Settings({ onClose }: SettingsProps) {
                               className="w-full h-2 bg-surface-200 dark:bg-surface-700 rounded-lg appearance-none cursor-pointer accent-sentinel-500"
                             />
                             <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">
-                              Jobs above this point show a posting-risk warning
+                              Move left to warn sooner. Move right to warn later.
                             </p>
                           </div>
 
                           <div>
                             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
-                              Hide-by-default point:{" "}
-                              {ghostConfig.hide_threshold.toFixed(2)}
+                              Hide risky postings:{" "}
+                              {formatPostingRiskHideLabel(ghostConfig.hide_threshold)}
                             </label>
                             <input
                               type="range"
@@ -3444,7 +3457,7 @@ export default function Settings({ onClose }: SettingsProps) {
                               className="w-full h-2 bg-surface-200 dark:bg-surface-700 rounded-lg appearance-none cursor-pointer accent-red-500"
                             />
                             <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">
-                              Jobs above this point are hidden unless you choose to review them
+                              Move left to hide more flagged jobs by default. Move right to keep more visible.
                             </p>
                           </div>
                         </div>

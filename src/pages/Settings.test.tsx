@@ -399,11 +399,15 @@ describe("Settings — loadConfig flow", () => {
 
     expect(screen.getByText("Stale-posting warning after (days)")).toBeInTheDocument();
     expect(screen.getByText("Repeated-posting warning count")).toBeInTheDocument();
-    expect(screen.getByText(/Early warning point:/)).toBeInTheDocument();
-    expect(screen.getByText(/Hide-by-default point:/)).toBeInTheDocument();
+    expect(screen.getByText(/Show posting-risk warning:/)).toBeInTheDocument();
+    expect(screen.getByText(/Hide risky postings:/)).toBeInTheDocument();
     expect(screen.queryByText("Stale Threshold (days)")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Early warning point:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Hide-by-default point:/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Warning Threshold:/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Hide Threshold:/)).not.toBeInTheDocument();
+    expect(screen.queryByText("0.30")).not.toBeInTheDocument();
+    expect(screen.queryByText("0.70")).not.toBeInTheDocument();
   });
 
   it("exposes email alert toggle with an accessible name", async () => {

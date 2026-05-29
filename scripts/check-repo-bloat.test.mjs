@@ -802,6 +802,9 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         '"resume match + 30% keywords"',
         '"scoring falls back to keyword matching"',
         '"Job title and keyword matches"',
+        '"Early warning point:"',
+        '"Hide-by-default point:"',
+        "ghostConfig.warning_threshold.toFixed(2)",
         "",
       ].join("\n"),
     );
