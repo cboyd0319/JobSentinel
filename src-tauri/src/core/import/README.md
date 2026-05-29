@@ -115,14 +115,14 @@ cargo test import
 {
   "@context": "https://schema.org",
   "@type": "JobPosting",
-  "title": "Software Engineer",
+  "title": "Customer Support Lead",
   "hiringOrganization": {
-    "name": "Example Corp"
+    "name": "Example Services"
   },
   "jobLocation": {
     "address": {
-      "addressLocality": "San Francisco",
-      "addressRegion": "CA"
+      "addressLocality": "Chicago",
+      "addressRegion": "IL"
     }
   }
 }

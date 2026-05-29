@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Rebased backend import/schema.org and deep-link generator examples from software-engineering and San Francisco defaults to customer-support, care-coordination, Chicago, and Austin examples, with bloat coverage against old backend fixture drift. |
 | 2026-05-29 | In progress | Rebased resume match database fixtures from `Software Engineer`, `TechCorp`, and programming-only skill examples to client-support, community-service, and case-management examples; fixed degree detection so words like "management" do not get misread as "M.A."; added bloat and regression coverage. |
 | 2026-05-29 | In progress | Rebased backend resume parsing, rendering, export, JSON Resume, builder, and readability-analysis fixtures from `John Doe`, `TechCorp`, and software-engineering defaults to community-program and client-service examples; broadened keyword extraction beyond software roles and added bloat coverage against recurrence. |
 | 2026-05-29 | In progress | Rebased Dashboard hook test fixtures from software-engineering and Remote Rust examples to customer-support, CareBridge, and Remote Support examples, with bloat coverage against old dashboard hook fixture drift. |

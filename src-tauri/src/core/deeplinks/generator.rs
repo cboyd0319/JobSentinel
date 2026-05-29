@@ -361,8 +361,8 @@ mod tests {
 
     fn create_basic_criteria() -> SearchCriteria {
         SearchCriteria {
-            query: "Software Engineer".to_string(),
-            location: Some("San Francisco, CA".to_string()),
+            query: "Customer Support Lead".to_string(),
+            location: Some("Chicago, IL".to_string()),
             experience_level: None,
             job_type: None,
             remote_type: None,
@@ -374,8 +374,8 @@ mod tests {
         let criteria = create_basic_criteria();
         let url = generate_indeed_url(&criteria).unwrap();
         assert!(url.contains("indeed.com"));
-        assert!(url.contains("Software%20Engineer"));
-        assert!(url.contains("San%20Francisco"));
+        assert!(url.contains("Customer%20Support%20Lead"));
+        assert!(url.contains("Chicago"));
     }
 
     #[test]
@@ -391,8 +391,8 @@ mod tests {
         let criteria = create_basic_criteria();
         let url = generate_linkedin_url(&criteria).unwrap();
         assert!(url.contains("linkedin.com"));
-        assert!(url.contains("keywords=Software%20Engineer"));
-        assert!(url.contains("location=San%20Francisco"));
+        assert!(url.contains("keywords=Customer%20Support%20Lead"));
+        assert!(url.contains("location=Chicago"));
     }
 
     #[test]
@@ -444,16 +444,16 @@ mod tests {
     #[test]
     fn test_url_encoding() {
         let criteria = SearchCriteria {
-            query: "Senior Software Engineer (C++)".to_string(),
-            location: Some("New York, NY".to_string()),
+            query: "Care Coordinator (Bilingual)".to_string(),
+            location: Some("Austin, TX".to_string()),
             experience_level: None,
             job_type: None,
             remote_type: None,
         };
 
         let url = generate_indeed_url(&criteria).unwrap();
-        assert!(url.contains("Senior%20Software%20Engineer"));
-        assert!(url.contains("New%20York"));
+        assert!(url.contains("Care%20Coordinator"));
+        assert!(url.contains("Austin"));
     }
 
     #[test]

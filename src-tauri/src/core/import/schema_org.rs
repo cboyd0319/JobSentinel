@@ -353,14 +353,14 @@ mod tests {
             {
                 "@context": "https://schema.org",
                 "@type": "JobPosting",
-                "title": "Software Engineer",
+                "title": "Customer Support Lead",
                 "hiringOrganization": {
-                    "name": "Example Corp"
+                    "name": "Example Services"
                 },
                 "jobLocation": {
                     "address": {
-                        "addressLocality": "San Francisco",
-                        "addressRegion": "CA"
+                        "addressLocality": "Chicago",
+                        "addressRegion": "IL"
                     }
                 }
             }
@@ -372,7 +372,7 @@ mod tests {
 
         let postings = result.unwrap();
         assert_eq!(postings.len(), 1);
-        assert_eq!(postings[0].title.as_deref(), Some("Software Engineer"));
+        assert_eq!(postings[0].title.as_deref(), Some("Customer Support Lead"));
     }
 
     #[test]

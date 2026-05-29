@@ -72,6 +72,9 @@ Current cleanup posture:
   examples instead of relying on software-engineering and TechCorp defaults.
 - Resume match degree parsing now guards against false M.A. matches inside
   words such as "management".
+- Backend import/schema.org and deep-link generator examples now use
+  customer-support and care-coordination examples instead of engineer and
+  tech-hub defaults.
 
 ## Recent Work Landed
 
@@ -84,6 +87,7 @@ Recent cleanup slices on `main` include:
   resume readability checks.
 - Resume match fixture cleanup for broad-audience scoring examples.
 - Degree-detection regression coverage for case-management job descriptions.
+- Backend import/deep-link fixture cleanup for broad-audience examples.
 - WebKit E2E shortcut delivery and dashboard count stabilization.
 - Chromium E2E stabilization after full-suite failures.
 - Active research-backed product planning for job-seeker behavior, ATS-aware

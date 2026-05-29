@@ -8,24 +8,24 @@ mod tests {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Software Engineer at Example Corp</title>
+    <title>Customer Support Lead at Example Services</title>
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "JobPosting",
-        "title": "Software Engineer",
-        "description": "We are looking for a talented software engineer to join our team.",
+        "title": "Customer Support Lead",
+        "description": "We are looking for a customer support lead to coordinate service requests.",
         "hiringOrganization": {
             "@type": "Organization",
-            "name": "Example Corp",
+            "name": "Example Services",
             "logo": "https://example.com/logo.png"
         },
         "jobLocation": {
             "@type": "Place",
             "address": {
                 "@type": "PostalAddress",
-                "addressLocality": "San Francisco",
-                "addressRegion": "CA",
+                "addressLocality": "Chicago",
+                "addressRegion": "IL",
                 "addressCountry": "US"
             }
         },
@@ -34,8 +34,8 @@ mod tests {
             "currency": "USD",
             "value": {
                 "@type": "QuantitativeValue",
-                "minValue": 100000,
-                "maxValue": 150000
+                "minValue": 45000,
+                "maxValue": 65000
             }
         },
         "employmentType": "FULL_TIME",
@@ -46,8 +46,8 @@ mod tests {
     </script>
 </head>
 <body>
-    <h1>Software Engineer</h1>
-    <p>Example Corp is hiring!</p>
+    <h1>Customer Support Lead</h1>
+    <p>Example Services is hiring!</p>
 </body>
 </html>
 "#;
@@ -65,7 +65,7 @@ mod tests {
         assert_eq!(postings.len(), 1);
 
         let posting = &postings[0];
-        assert_eq!(posting.title.as_deref(), Some("Software Engineer"));
+        assert_eq!(posting.title.as_deref(), Some("Customer Support Lead"));
         assert!(posting.hiring_organization.is_some());
         assert_eq!(
             posting
@@ -74,7 +74,7 @@ mod tests {
                 .unwrap()
                 .name
                 .as_deref(),
-            Some("Example Corp")
+            Some("Example Services")
         );
     }
 
@@ -88,26 +88,27 @@ mod tests {
     #[test]
     fn test_create_preview() {
         let posting = SchemaOrgJobPosting {
-            title: Some("Software Engineer".to_string()),
+            title: Some("Customer Support Lead".to_string()),
             description: Some(
-                "We are looking for a talented software engineer to join our team.".to_string(),
+                "We are looking for a customer support lead to coordinate service requests."
+                    .to_string(),
             ),
             hiring_organization: Some(types::HiringOrganization {
-                name: Some("Example Corp".to_string()),
+                name: Some("Example Services".to_string()),
                 logo: None,
                 same_as: None,
             }),
             job_location: Some(serde_json::json!({
                 "address": {
-                    "addressLocality": "San Francisco",
-                    "addressRegion": "CA"
+                    "addressLocality": "Chicago",
+                    "addressRegion": "IL"
                 }
             })),
             base_salary: Some(serde_json::json!({
                 "currency": "USD",
                 "value": {
-                    "minValue": 100000,
-                    "maxValue": 150000
+                    "minValue": 45000,
+                    "maxValue": 65000
                 }
             })),
             date_posted: Some("2024-01-15T00:00:00Z".to_string()),
@@ -129,11 +130,11 @@ mod tests {
         assert!(preview.is_ok(), "Failed to create preview: {:?}", preview);
 
         let preview = preview.unwrap();
-        assert_eq!(preview.title, "Software Engineer");
-        assert_eq!(preview.company, "Example Corp");
+        assert_eq!(preview.title, "Customer Support Lead");
+        assert_eq!(preview.company, "Example Services");
         assert_eq!(preview.url, "https://example.com/jobs/1");
         assert!(preview.remote);
-        assert_eq!(preview.location, Some("San Francisco, CA".to_string()));
+        assert_eq!(preview.location, Some("Chicago, IL".to_string()));
         assert!(preview.missing_fields.is_empty());
     }
 

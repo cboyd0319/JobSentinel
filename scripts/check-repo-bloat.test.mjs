@@ -594,6 +594,26 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src-tauri/src/core/deeplinks/generator.rs",
+      'query: "Software Engineer"; location: "San Francisco, CA";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/import/README.md",
+      'title: "Software Engineer"; "San Francisco, CA";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/import/schema_org.rs",
+      'title: "Software Engineer"; "San Francisco, CA";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/import/tests.rs",
+      'title: "Software Engineer"; "San Francisco, CA";\n',
+    );
+    writeFixtureFile(
+      root,
       "src-tauri/src/core/resume/ats_analyzer.rs",
       '"John Doe"; "Senior Software Engineer"; "Tech Corp";\n',
     );
@@ -790,6 +810,10 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/utils/formValidation.test.ts",
         "src/utils/export.test.ts",
         "src-tauri/src/core/health/smoke_tests.rs",
+        "src-tauri/src/core/deeplinks/generator.rs",
+        "src-tauri/src/core/import/README.md",
+        "src-tauri/src/core/import/schema_org.rs",
+        "src-tauri/src/core/import/tests.rs",
         "src-tauri/src/core/resume/ats_analyzer.rs",
         "src-tauri/src/core/resume/builder.rs",
         "src-tauri/src/core/resume/export.rs",
@@ -856,6 +880,10 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/utils/formValidation.test.ts",
       "src/utils/export.test.ts",
       "src-tauri/src/core/health/smoke_tests.rs",
+      "src-tauri/src/core/deeplinks/generator.rs",
+      "src-tauri/src/core/import/README.md",
+      "src-tauri/src/core/import/schema_org.rs",
+      "src-tauri/src/core/import/tests.rs",
       "src-tauri/src/core/resume/ats_analyzer.rs",
       "src-tauri/src/core/resume/builder.rs",
       "src-tauri/src/core/resume/export.rs",
