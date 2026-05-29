@@ -3242,6 +3242,7 @@ function hasUnsanitizedFrontendErrorReportStorage(root, path) {
     /logError\(`\[ErrorReporter\]\[\$\{type\}\]`,\s*error\.message/.test(text) ||
     /\boriginalError:\s*error\b/.test(text) ||
     /logError\(`\[ErrorReporter\]\[\$\{type\}\]`[\s\S]{0,160}\breport,\s*$/m.test(text) ||
+    /console\.warn\(\s*["']\[ErrorReporter\][^;]*,\s*(?:e|error)\s*\)/.test(text) ||
     !/token\(\?:\\s\+\|=\)/.test(text) ||
     text.includes("hooks\\.slack\\.com\\/services") ||
     !text.includes("discord(?:app)?\\.com\\/api\\/webhooks") ||

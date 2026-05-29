@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { errorReporter, parseStoredErrorReports, withErrorCapture } from "./errorReporting";
+import {
+  errorReporter,
+  parseStoredErrorReports,
+  sanitizeStorageWarningError,
+  withErrorCapture,
+} from "./errorReporting";
 
 /**
  * These tests avoid calling errorReporter.init() because the singleton modifies
@@ -119,6 +124,25 @@ describe("errorReporting", () => {
     expect(serialized).not.toContain("hooks.slack.com/T000");
     expect(serialized).not.toContain("discord-secret");
     expect(serialized).not.toContain("team-secret");
+  });
+
+  it("sanitizes storage warning errors before console output", () => {
+    const error = new Error(
+      "Failed for jane@example.com in /Users/alice/resume.pdf with token=abc at https://example.com/apply?token=secret#frag"
+    );
+    error.stack = [
+      error.message,
+      "at readStorage (/Users/alice/project/src/utils/errorReporting.ts:1:1)",
+    ].join("\n");
+
+    const serialized = JSON.stringify(sanitizeStorageWarningError(error));
+
+    expect(serialized).toContain("https://example.com/apply");
+    expect(serialized).toContain("/[USER_PATH]");
+    expect(serialized).not.toContain("jane@example.com");
+    expect(serialized).not.toContain("/Users/alice");
+    expect(serialized).not.toContain("token=abc");
+    expect(serialized).not.toContain("token=secret");
   });
 
   it("filters malformed stored reports while preserving valid entries", () => {

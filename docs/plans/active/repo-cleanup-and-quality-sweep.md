@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Sanitized ErrorReporter storage warning console output so local storage parse/persist failures do not echo raw exception details, and added bloat coverage to block regressions. |
 | 2026-05-29 | In progress | Replaced cache IPC command unit-error returns with string error channels so renderer failures are inspectable instead of opaque, and added bloat coverage to block future `Result<_, ()>` Tauri command surfaces. |
 | 2026-05-29 | In progress | Sanitized final residual database/browser/scraper error display paths so database user messages, browser handler events, and scraper task panics no longer expose raw contexts, queries, validation reasons, provider internals, or task error strings; expanded bloat coverage. |
 | 2026-05-29 | In progress | Sanitized residual core error/log paths for USAJobs credentials, config/database directory creation, pre-migration backup cleanup, JSON-LD and YC parsing, OCR fallback, ML model download, scheduler cycle failures, and resume template IDs so raw local paths, provider errors, user inputs, and parser details are not echoed; added bloat coverage. |

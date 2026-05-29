@@ -128,6 +128,10 @@ export function sanitizeContext(context?: Record<string, unknown>): Record<strin
   return sanitizeContextValue(context) as Record<string, unknown>;
 }
 
+export function sanitizeStorageWarningError(error: unknown): unknown {
+  return sanitizeContextValue(error);
+}
+
 const ERROR_REPORT_TYPES = new Set<ErrorReport['type']>([
   'render',
   'unhandled',
@@ -436,7 +440,7 @@ class ErrorReporter {
         this.saveToStorage();
       }
     } catch (e: unknown) {
-      console.warn('[ErrorReporter] Failed to load from storage:', e);
+      console.warn('[ErrorReporter] Failed to load from storage:', sanitizeStorageWarningError(e));
       this.errors = [];
       removeStorageValue('local', STORAGE_KEY);
     }
@@ -446,7 +450,7 @@ class ErrorReporter {
     try {
       writeStorageValue('local', STORAGE_KEY, JSON.stringify(this.errors));
     } catch (e: unknown) {
-      console.warn('[ErrorReporter] Failed to save to storage:', e);
+      console.warn('[ErrorReporter] Failed to save to storage:', sanitizeStorageWarningError(e));
     }
   }
 }

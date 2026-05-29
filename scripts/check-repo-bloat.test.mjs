@@ -6747,6 +6747,38 @@ test("checkRepoBloat rejects unsanitized frontend error report storage", () => {
   });
 });
 
+test("checkRepoBloat rejects raw ErrorReporter storage warning details", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/utils/errorReporting.ts",
+      [
+        "const TOKEN_PATTERN = /token(?:\\s+|=)/;",
+        "const WEBHOOK_PATTERN = /https:\\/\\/(?:discord(?:app)?\\.com\\/api\\/webhooks|outlook\\.office(?:365)?\\.com\\/webhook)/;",
+        "function sanitizeStoredReport(report) { return report; }",
+        "function isErrorReport(report) { return Boolean(report); }",
+        "function parseStoredErrorReports(stored) { return []; }",
+        "class ErrorReporter {",
+        "  load(e) {",
+        "    console.warn('[ErrorReporter] Failed to load from storage:', e);",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/utils/errorReporting.ts"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sanitize frontend error report storage: src/utils/errorReporting.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw frontend error helper debug logging", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
