@@ -111,59 +111,59 @@ describe("ResumeOptimizer", () => {
     mockInvoke.mockResolvedValue(mockAnalysis);
   });
 
-  it("validates resume JSON shape before format analysis", async () => {
+  it("validates exported resume details before format review", async () => {
     const user = userEvent.setup();
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
-    fireEvent.change(screen.getByLabelText(/structured resume data/i), {
+    fireEvent.change(screen.getByLabelText(/exported resume details/i), {
       target: { value: JSON.stringify({ contact_info: { name: "Jane" } }) },
     });
 
-    await user.click(screen.getByRole("button", { name: /format only/i }));
+    await user.click(screen.getByRole("button", { name: /review format only/i }));
 
     expect(mockToast.error).toHaveBeenCalledWith(
-      "Resume data not recognized",
-      "Paste structured resume data exported from JobSentinel or another supported tool.",
+      "Resume details not recognized",
+      "Paste resume details exported from JobSentinel or another supported tool.",
     );
     expect(mockInvoke).not.toHaveBeenCalledWith("analyze_resume_format", expect.anything());
   });
 
-  it("validates resume JSON shape before job analysis", async () => {
+  it("validates exported resume details before match review", async () => {
     const user = userEvent.setup();
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
-    fireEvent.change(screen.getByLabelText(/^job description$/i), {
+    fireEvent.change(screen.getByLabelText(/^job post$/i), {
       target: { value: "Need onboarding and retention experience" },
     });
-    fireEvent.change(screen.getByLabelText(/structured resume data/i), {
+    fireEvent.change(screen.getByLabelText(/exported resume details/i), {
       target: { value: JSON.stringify("not a resume") },
     });
 
-    await user.click(screen.getByRole("button", { name: /analyze with job/i }));
+    await user.click(screen.getByRole("button", { name: /review match/i }));
 
     expect(mockToast.error).toHaveBeenCalledWith(
-      "Resume data not recognized",
-      "Paste structured resume data exported from JobSentinel or another supported tool.",
+      "Resume details not recognized",
+      "Paste resume details exported from JobSentinel or another supported tool.",
     );
     expect(mockInvoke).not.toHaveBeenCalledWith("analyze_resume_for_job", expect.anything());
   });
 
-  it("submits valid resume JSON for format analysis", async () => {
+  it("submits valid resume details for format review", async () => {
     const user = userEvent.setup();
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
-    fireEvent.change(screen.getByLabelText(/structured resume data/i), {
+    fireEvent.change(screen.getByLabelText(/exported resume details/i), {
       target: { value: JSON.stringify(validResume) },
     });
 
-    await user.click(screen.getByRole("button", { name: /format only/i }));
+    await user.click(screen.getByRole("button", { name: /review format only/i }));
 
     await waitFor(() => {
       expect(mockInvoke).toHaveBeenCalledWith("analyze_resume_format", {
         resume: validResume,
       });
     });
-    expect(mockToast.success).toHaveBeenCalledWith("Format analysis complete", "Format score: 84%");
+    expect(mockToast.success).toHaveBeenCalledWith("Format review complete", "Format score: 84%");
   });
 
   it("uses plain job-word copy for job match results", async () => {
@@ -171,14 +171,14 @@ describe("ResumeOptimizer", () => {
     mockInvoke.mockResolvedValueOnce(mockJobAnalysis);
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
-    fireEvent.change(screen.getByLabelText(/^job description$/i), {
+    fireEvent.change(screen.getByLabelText(/^job post$/i), {
       target: { value: "Need onboarding, retention, and account management experience" },
     });
-    fireEvent.change(screen.getByLabelText(/structured resume data/i), {
+    fireEvent.change(screen.getByLabelText(/exported resume details/i), {
       target: { value: JSON.stringify(validResume) },
     });
 
-    await user.click(screen.getByRole("button", { name: /analyze with job/i }));
+    await user.click(screen.getByRole("button", { name: /review match/i }));
 
     await waitFor(() => {
       expect(screen.getByText("Resume Match")).toBeInTheDocument();
@@ -211,18 +211,18 @@ describe("ResumeOptimizer", () => {
     mockInvoke.mockRejectedValueOnce(privateFailure);
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
-    fireEvent.change(screen.getByLabelText(/^job description$/i), {
+    fireEvent.change(screen.getByLabelText(/^job post$/i), {
       target: { value: "Need onboarding and retention experience" },
     });
-    fireEvent.change(screen.getByLabelText(/structured resume data/i), {
+    fireEvent.change(screen.getByLabelText(/exported resume details/i), {
       target: { value: JSON.stringify(validResume) },
     });
 
-    await user.click(screen.getByRole("button", { name: /analyze with job/i }));
+    await user.click(screen.getByRole("button", { name: /review match/i }));
 
     await waitFor(() => {
       expect(mockToast.error).toHaveBeenCalledWith(
-        "Analysis could not run",
+        "Review could not run",
         expect.stringContaining("safe debug report")
       );
     });
@@ -235,15 +235,15 @@ describe("ResumeOptimizer", () => {
     mockInvoke.mockRejectedValueOnce(privateFailure);
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
-    fireEvent.change(screen.getByLabelText(/structured resume data/i), {
+    fireEvent.change(screen.getByLabelText(/exported resume details/i), {
       target: { value: JSON.stringify(validResume) },
     });
 
-    await user.click(screen.getByRole("button", { name: /format only/i }));
+    await user.click(screen.getByRole("button", { name: /review format only/i }));
 
     await waitFor(() => {
       expect(mockToast.error).toHaveBeenCalledWith(
-        "Analysis could not run",
+        "Review could not run",
         expect.stringContaining("safe debug report")
       );
     });

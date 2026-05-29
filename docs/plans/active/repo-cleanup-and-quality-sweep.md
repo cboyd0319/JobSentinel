@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Reworded Resume Match form, empty state, toasts, and docs from job-description/resume-data/analyze language to job-post, resume-details, and review-match language; added bloat coverage for recurrence. |
 | 2026-05-29 | In progress | Reworded strong-resume-word guidance away from screening-tool recognition toward easier-to-scan bullet clarity, renamed the maintained docs heading to Action Words, and added bloat coverage. |
 | 2026-05-29 | In progress | Replaced the resume bullet-improver placeholder from a database-performance example to a broad appointment-outcome example, with bloat coverage so engineer-first resume examples do not return. |
 | 2026-05-29 | In progress | Reworded repeated-crash reset button and guidance away from window-state jargon toward resetting the app window; added bloat coverage to keep technical recovery wording out of error-boundary surfaces. |

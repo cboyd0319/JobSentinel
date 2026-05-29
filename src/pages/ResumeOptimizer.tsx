@@ -221,20 +221,20 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
   // Analyze resume
   const handleAnalyze = async () => {
     if (!jobDescription.trim()) {
-      toast.error("Missing input", "Please enter a job description");
+      toast.error("Missing input", "Please paste a job post first");
       return;
     }
 
     if (!resumeJson.trim()) {
-      toast.error("Missing input", "Please enter your resume data");
+      toast.error("Missing input", "Please paste your resume details first");
       return;
     }
 
     const resume = parseAtsResumeInput(resumeJson);
     if (!resume) {
       toast.error(
-        "Resume data not recognized",
-        "Paste structured resume data exported from JobSentinel or another supported tool.",
+        "Resume details not recognized",
+        "Paste resume details exported from JobSentinel or another supported tool.",
       );
       return;
     }
@@ -247,9 +247,9 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
       });
 
       setAnalysisResult(result);
-      toast.success("Analysis complete", `Overall score: ${Math.round(result.overall_score)}%`);
+      toast.success("Review complete", `Overall match: ${Math.round(result.overall_score)}%`);
     } catch (err: unknown) {
-      toast.error("Analysis could not run", getResumeAnalysisErrorAction(err));
+      toast.error("Review could not run", getResumeAnalysisErrorAction(err));
       logError("Analysis error:", err);
     } finally {
       setAnalyzing(false);
@@ -259,15 +259,15 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
   // Analyze format only
   const handleAnalyzeFormat = async () => {
     if (!resumeJson.trim()) {
-      toast.error("Missing input", "Please enter your resume data");
+      toast.error("Missing input", "Please paste your resume details first");
       return;
     }
 
     const resume = parseAtsResumeInput(resumeJson);
     if (!resume) {
       toast.error(
-        "Resume data not recognized",
-        "Paste structured resume data exported from JobSentinel or another supported tool.",
+        "Resume details not recognized",
+        "Paste resume details exported from JobSentinel or another supported tool.",
       );
       return;
     }
@@ -279,9 +279,9 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
       });
 
       setAnalysisResult(result);
-      toast.success("Format analysis complete", `Format score: ${Math.round(result.format_score)}%`);
+      toast.success("Format review complete", `Format score: ${Math.round(result.format_score)}%`);
     } catch (err: unknown) {
-      toast.error("Analysis could not run", getResumeAnalysisErrorAction(err));
+      toast.error("Review could not run", getResumeAnalysisErrorAction(err));
       logError("Format analysis error:", err);
     } finally {
       setAnalyzing(false);
@@ -461,39 +461,39 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
           {/* Left Panel - Input */}
           <div className="space-y-6">
             <Card>
-              <CardHeader title="Job Description" />
-              <label htmlFor="job-description-input" className="sr-only">Job Description</label>
+              <CardHeader title="Job Post" />
+              <label htmlFor="job-description-input" className="sr-only">Job Post</label>
               <textarea
                 id="job-description-input"
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
-                placeholder="Paste the job description here..."
+                placeholder="Paste the job post here..."
                 className="w-full h-64 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus-visible:ring-sentinel-400 resize-none font-mono"
               />
             </Card>
 
             <Card>
-              <CardHeader title="Resume Data" />
-              <label htmlFor="resume-json-input" className="sr-only">Structured resume data</label>
+              <CardHeader title="Resume Details" />
+              <label htmlFor="resume-json-input" className="sr-only">Exported resume details</label>
               <textarea
                 id="resume-json-input"
                 value={resumeJson}
                 onChange={(e) => setResumeJson(e.target.value)}
-                placeholder="Paste exported resume data here"
+                placeholder="Paste exported resume details here"
                 aria-describedby="resume-json-hint"
                 className="w-full h-96 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus-visible:ring-sentinel-400 resize-none font-mono"
               />
               <p id="resume-json-hint" className="text-xs text-surface-500 dark:text-surface-400 mt-2">
-                Paste structured resume data from JobSentinel or a supported resume tool.
+                Paste resume details exported from JobSentinel or a supported resume tool.
               </p>
             </Card>
 
             <div className="flex gap-3">
               <Button onClick={handleAnalyze} loading={analyzing} className="flex-1">
-                Analyze with Job
+                Review Match
               </Button>
               <Button onClick={handleAnalyzeFormat} loading={analyzing} variant="secondary" className="flex-1">
-                Format Only
+                Review Format Only
               </Button>
             </div>
 
@@ -526,7 +526,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
               <Card className="flex items-center justify-center py-32">
                 <div className="text-center">
                   <LoadingSpinner size="lg" />
-                  <p className="mt-4 text-surface-600 dark:text-surface-400">Analyzing resume...</p>
+                  <p className="mt-4 text-surface-600 dark:text-surface-400">Reviewing resume...</p>
                 </div>
               </Card>
             ) : analysisResult ? (
@@ -843,10 +843,10 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                   </svg>
                 </div>
                 <h3 className="font-display text-display-md text-surface-900 dark:text-white mb-2">
-                  No analysis yet
+                  No review yet
                 </h3>
                 <p className="text-surface-500 dark:text-surface-400">
-                  Enter your job description and resume data, then click Analyze
+                  Paste a job post and resume details, then choose Review Match
                 </p>
               </Card>
             )}

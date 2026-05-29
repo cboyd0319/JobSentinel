@@ -281,8 +281,8 @@ clear, missing, or worth rewriting. It does not promise hiring outcomes or trick
 screening software:
 
 1. Click **Resume Match** in the sidebar
-2. Paste the job description
-3. Enter your resume info
+2. Paste the job post
+3. Add your resume details
 4. Get feedback on job-post evidence, readability, and truthful edits
 
 ### Application Assist

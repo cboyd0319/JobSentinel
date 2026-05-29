@@ -94,10 +94,10 @@ specific job post.
 
 ### How It Works
 
-1. Paste the job description
-2. Enter your resume info
-3. Click **Analyze**
-4. Get instant feedback
+1. Paste the job post
+2. Add your resume details
+3. Choose **Review Match**
+4. Review job-post evidence, readability, and truthful edits
 
 ### What You'll See
 

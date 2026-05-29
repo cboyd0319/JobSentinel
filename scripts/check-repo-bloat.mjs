@@ -1388,6 +1388,15 @@ function hasEngineerFirstAudienceExamples(root, path) {
       /Consider adding these keywords/i,
       /These action verbs and keywords are commonly recognized by ATS systems/i,
       /resume screening tools/i,
+      /CardHeader title=["']Job Description["']/i,
+      /CardHeader title=["']Resume Data["']/i,
+      /Structured resume data/i,
+      /Please enter your resume data/i,
+      /Resume data not recognized/i,
+      /Paste structured resume data/i,
+      /Analyze with Job/i,
+      /No analysis yet/i,
+      /Enter your job description and resume data/i,
     ];
 
     if (resumeOptimizerPatterns.some((pattern) => pattern.test(text))) {
