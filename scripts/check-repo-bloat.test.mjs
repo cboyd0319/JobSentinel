@@ -474,6 +474,17 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src/mocks/handlers.ts",
+      [
+        '"TypeScript demand is surging"',
+        '{ skill_name: "Kubernetes" }',
+        'top_skill: "TypeScript"',
+        '"BigTech Inc"',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src-tauri/src/core/resume/templates.rs",
       '"Technical Skills-First"; "Perfect for engineering roles";\n',
     );
@@ -505,6 +516,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/components/CoverLetterTemplates.tsx",
         "src/components/JobImportModal.tsx",
         "src/mocks/data.ts",
+        "src/mocks/handlers.ts",
         "src-tauri/src/core/resume/templates.rs",
         "src/pages/ResumeBuilder.tsx",
         "src/components/resume-builder/steps/SummaryStep.tsx",
@@ -531,6 +543,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/components/CoverLetterTemplates.tsx",
       "src/components/JobImportModal.tsx",
       "src/mocks/data.ts",
+      "src/mocks/handlers.ts",
       "src-tauri/src/core/resume/templates.rs",
       "src/pages/ResumeBuilder.tsx",
       "src/components/resume-builder/steps/SummaryStep.tsx",

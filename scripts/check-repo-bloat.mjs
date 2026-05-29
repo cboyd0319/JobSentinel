@@ -1366,6 +1366,19 @@ function hasEngineerFirstAudienceExamples(root, path) {
     }
   }
 
+  if (path === "src/mocks/handlers.ts") {
+    const marketMockPatterns = [
+      /TypeScript demand is surging/i,
+      /skill_name:\s*["']Kubernetes["']/i,
+      /top_skill:\s*["']TypeScript["']/i,
+      /TechCorp|StartupXYZ|BigTech Inc/,
+    ];
+
+    if (marketMockPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
   const stalePatterns = [
     /placeholder=["'][^"']*(?:Senior\s+)?Software Engineer/i,
     /placeholder=["'][^"']*React/i,
