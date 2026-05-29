@@ -587,6 +587,9 @@ const staleResumeOptimizerFramingPaths = new Set([
   "docs/ROADMAP.md",
   "docs/features/resume-builder.md",
   "docs/features/resume-matcher.md",
+  "docs/releases/v2.0.md",
+  "docs/releases/v2.4.md",
+  "docs/releases/v2.6.0.md",
   "docs/user/QUICK_START.md",
 ]);
 const resumeTemplateAudiencePaths = new Set([

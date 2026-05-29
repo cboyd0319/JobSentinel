@@ -75,6 +75,8 @@ Current cleanup posture:
 - Backend import/schema.org and deep-link generator examples now use
   customer-support and care-coordination examples instead of engineer and
   tech-hub defaults.
+- Release notes now use Resume Match and resume-readability framing instead of
+  older optimization and score-first language.
 
 ## Recent Work Landed
 
@@ -88,12 +90,13 @@ Recent cleanup slices on `main` include:
 - Resume match fixture cleanup for broad-audience scoring examples.
 - Degree-detection regression coverage for case-management job descriptions.
 - Backend import/deep-link fixture cleanup for broad-audience examples.
+- Release-note copy cleanup for current resume framing.
 - WebKit E2E shortcut delivery and dashboard count stabilization.
 - Chromium E2E stabilization after full-suite failures.
 - Active research-backed product planning for job-seeker behavior, ATS-aware
   preparation, ghost/stale-post research, local source collection, salary
   negotiation, and pay-equity support.
-- Resume Optimizer copy moved from ATS/keyword jargon to resume-match and
+- Resume Match copy moved from ATS/keyword jargon to resume-match and
   job-word language.
 - Root and nested junk scan removed local `.DS_Store` artifacts and confirmed
   no tracked or untracked disposable artifacts remain outside expected ignored

@@ -1553,6 +1553,9 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
         "",
       ].join("\n"),
     );
+    writeFixtureFile(root, "docs/releases/v2.0.md", "Resume Optimizer\n");
+    writeFixtureFile(root, "docs/releases/v2.4.md", "Resume Optimizer\n");
+    writeFixtureFile(root, "docs/releases/v2.6.0.md", "ATS score calculation\n");
 
     execFileSync(
       "git",
@@ -1567,6 +1570,9 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
         "src/pages/ResumeBuilder.tsx",
         "src-tauri/src/core/resume/templates.rs",
         "docs/user/QUICK_START.md",
+        "docs/releases/v2.0.md",
+        "docs/releases/v2.4.md",
+        "docs/releases/v2.6.0.md",
       ],
       { cwd: root },
     );
@@ -1582,6 +1588,9 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
       "src/pages/ResumeBuilder.tsx",
       "src-tauri/src/core/resume/templates.rs",
       "docs/user/QUICK_START.md",
+      "docs/releases/v2.0.md",
+      "docs/releases/v2.4.md",
+      "docs/releases/v2.6.0.md",
     ]) {
       assert.ok(
         violations.includes(`replace stale Resume Optimizer framing: ${path}`),
