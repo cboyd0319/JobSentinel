@@ -20,10 +20,12 @@ open-source project README patterns.
 | ------ | ---------------- | -------------------- |
 | [GitHub Docs, About READMEs](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes) | README should say what the project does, why it is useful, how to start, where to get help, and who maintains it. | Keep those five questions visible in the first screen and route deeper detail to docs. |
 | [Google README guide](https://google.github.io/styleguide/docguide/READMEs.html) | README is a short directory-level summary with status, usage, contacts, and links to deeper docs. | Treat README as map, not full manual. |
+| [Google documentation best practices](https://google.github.io/styleguide/docguide/best_practices.html) | README should orient new users, point to deeper guides, and avoid duplicating common docs. | Keep root README as orientation and proof map, not a duplicated manual. |
 | [Diataxis](https://diataxis.fr/) | Separate tutorial, how-to, reference, and explanation needs instead of mixing them into one scroll. | Use README as explanation plus routing; keep how-to depth in `docs/user/` and reference depth in `docs/developer/`. |
 | [GOV.UK content design](https://www.gov.uk/guidance/content-design/what-is-content-design) | Start with user needs and make content quick to find, understand, and act on. | Use audience routes for job seekers, reviewers, and contributors. |
 | [GOV.UK user needs](https://www.gov.uk/guidance/content-design/user-needs) | Every content unit should meet a valid user need and help complete a task. | Remove vanity sections unless they answer a likely visitor question. |
 | [GOV.UK heading guidance](https://design-system.service.gov.uk/styles/headings/) | Headings should create consistent structure and aid navigation. | Use direct H2 labels and avoid nested novelty headings. |
+| [Digital.gov heading guidance](https://digital.gov/guides/plain-language/design/headings) | Question and statement headings help readers scan for known needs; vague topic headings slow action. | Use direct section names such as "Start here", "Current status", and "Download and first run". |
 | [DHS plain language guidance](https://www.dhs.gov/digital-experience/plain-language) | Organize logically, make content easy to scan, and use headings. | Prefer short tables, task labels, and plain-language summaries. |
 | [Kubernetes README](https://github.com/kubernetes/kubernetes) | Short project identity, clear start paths, support, governance, and roadmap links. | Keep high-level governance and roadmap links near top. |
 | [AlphaFold README](https://github.com/google-deepmind/alphafold) | Research projects state package scope, citation/use expectations, install limits, and first-run path. | Make research boundaries and limitations explicit, not buried. |
@@ -78,8 +80,27 @@ The root README should avoid three failure modes:
   evidence, boundaries, and verification, not adjectives.
 
 The corrected structure uses compact front-door sections, then moves deeper
-detail into screenshots, privacy, sources, evaluation, download, development,
-release notes, FAQ, support, and references.
+detail into interface screenshots, local-data boundaries, source coverage,
+download, development, release notes, FAQ, support, and references.
+
+## Front-Door Structure
+
+The README front door must read like a professional research project brief
+before it reads like a developer manual:
+
+1. Required product definition.
+2. Trust badges.
+3. Project abstract for broad-audience readers.
+4. Local-first and optional external-AI boundary.
+5. Rule 0 privacy and security guarantee.
+6. Free-forever MIT license and reuse invitation.
+7. Audience route table.
+8. Current implementation status.
+9. Problem statement.
+10. Capability map.
+11. Research and evaluation model.
+12. Trust, privacy, and responsible-AI boundaries.
+13. Architecture and maintenance map.
 
 ## README Structure Standard
 
@@ -87,15 +108,26 @@ The root README should keep this order:
 
 1. Project name, required product definition, and core trust badges.
 2. One-sentence local-first and external-AI boundary.
-3. Audience route table.
-4. Research brief and user problem.
+3. Rule 0, free-forever MIT, and fork/reuse invitation.
+4. Audience route table.
 5. Current state and capability map tied to product evidence.
-6. Trust model, privacy, security, and responsible-AI boundaries.
-7. Download and first-run path.
-8. Architecture and verification map.
-9. Research, roadmap, and limitations.
-10. Support, contribution, license, and fork/reuse invitation.
-11. External references.
+6. Research problem and evaluation model.
+7. Trust model, privacy, security, and responsible-AI boundaries.
+8. Architecture and maintenance map.
+9. Interface overview and local-data boundaries.
+10. Source coverage and download path.
+11. Scope, limitations, development, release notes, FAQ, support, and references.
+
+## Section Budget
+
+Keep the first screen crisp and proof-bearing:
+
+| Zone | Budget | Required job |
+| ---- | ------ | ------------ |
+| Title and badges | 10 lines | Establish status, license, local-first posture, no telemetry, and optional AI. |
+| Abstract | 4 short paragraphs | Say who JobSentinel helps, what it does, what stays local, and why privacy is release-blocking. |
+| Start table | 5 rows | Route job seekers, reviewers, privacy/security readers, contributors, and support requests. |
+| Status table | 8 rows or fewer | Show release, stack, storage, AI posture, source surface, and checks without marketing copy. |
 
 ## Badge Policy
 
