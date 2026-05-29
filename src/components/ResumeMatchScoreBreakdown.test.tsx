@@ -14,7 +14,7 @@ describe("ResumeMatchScoreBreakdown", () => {
     it("renders title", () => {
       render(<ResumeMatchScoreBreakdown {...defaultProps} />);
 
-      expect(screen.getByText("Resume Match Breakdown")).toBeInTheDocument();
+      expect(screen.getByText("Resume Match Details")).toBeInTheDocument();
     });
 
     it("renders overall score", () => {
@@ -52,7 +52,7 @@ describe("ResumeMatchScoreBreakdown", () => {
       render(<ResumeMatchScoreBreakdown {...defaultProps} />);
 
       const skillsBar = screen.getByRole("progressbar", {
-        name: /Skills Match score: 85%/i,
+        name: /Skills Match result: 85%/i,
       });
       expect(skillsBar).toHaveAttribute("aria-valuenow", "85");
     });
@@ -61,7 +61,7 @@ describe("ResumeMatchScoreBreakdown", () => {
       render(<ResumeMatchScoreBreakdown {...defaultProps} />);
 
       const experienceBar = screen.getByRole("progressbar", {
-        name: /Experience Match score: 70%/i,
+        name: /Experience Match result: 70%/i,
       });
       expect(experienceBar).toHaveAttribute("aria-valuenow", "70");
     });
@@ -70,7 +70,7 @@ describe("ResumeMatchScoreBreakdown", () => {
       render(<ResumeMatchScoreBreakdown {...defaultProps} />);
 
       const educationBar = screen.getByRole("progressbar", {
-        name: /Education Match score: 90%/i,
+        name: /Education Match result: 90%/i,
       });
       expect(educationBar).toHaveAttribute("aria-valuenow", "90");
     });
@@ -97,43 +97,39 @@ describe("ResumeMatchScoreBreakdown", () => {
       render(<ResumeMatchScoreBreakdown {...defaultProps} />);
 
       const skillsBar = screen.getByRole("progressbar", {
-        name: /Skills Match score/i,
+        name: /Skills Match result/i,
       });
       expect(skillsBar).toHaveStyle({ width: "85%" });
     });
   });
 
-  describe("weights display", () => {
-    it("shows weights by default", () => {
+  describe("priority display", () => {
+    it("shows priorities by default", () => {
       render(<ResumeMatchScoreBreakdown {...defaultProps} />);
 
-      expect(screen.getByText("(50% weight)")).toBeInTheDocument(); // skills
-      expect(screen.getByText("(30% weight)")).toBeInTheDocument(); // experience
-      expect(screen.getByText("(20% weight)")).toBeInTheDocument(); // education
+      expect(screen.getByText("(50% priority)")).toBeInTheDocument(); // skills
+      expect(screen.getByText("(30% priority)")).toBeInTheDocument(); // experience
+      expect(screen.getByText("(20% priority)")).toBeInTheDocument(); // education
     });
 
-    it("hides weights when showWeights is false", () => {
+    it("hides priorities when showWeights is false", () => {
       render(<ResumeMatchScoreBreakdown {...defaultProps} showWeights={false} />);
 
-      expect(screen.queryByText("(50% weight)")).not.toBeInTheDocument();
-      expect(screen.queryByText("(30% weight)")).not.toBeInTheDocument();
-      expect(screen.queryByText("(20% weight)")).not.toBeInTheDocument();
+      expect(screen.queryByText("(50% priority)")).not.toBeInTheDocument();
+      expect(screen.queryByText("(30% priority)")).not.toBeInTheDocument();
+      expect(screen.queryByText("(20% priority)")).not.toBeInTheDocument();
     });
 
-    it("shows weighted average explanation when showWeights is true", () => {
+    it("shows priority explanation when showWeights is true", () => {
       render(<ResumeMatchScoreBreakdown {...defaultProps} />);
 
-      expect(
-        screen.getByText(/weighted averages based on component importance/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/default priorities/i)).toBeInTheDocument();
     });
 
-    it("hides weighted average explanation when showWeights is false", () => {
+    it("hides priority explanation when showWeights is false", () => {
       render(<ResumeMatchScoreBreakdown {...defaultProps} showWeights={false} />);
 
-      expect(
-        screen.queryByText(/weighted averages based on component importance/i)
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText(/default priorities/i)).not.toBeInTheDocument();
     });
   });
 
@@ -163,7 +159,7 @@ describe("ResumeMatchScoreBreakdown", () => {
       );
 
       expect(
-        screen.getByText("Upload a resume to see detailed scoring breakdown")
+        screen.getByText("Upload a resume to see detailed match information")
       ).toBeInTheDocument();
     });
 
@@ -178,7 +174,7 @@ describe("ResumeMatchScoreBreakdown", () => {
       );
 
       expect(
-        screen.queryByText("Upload a resume to see detailed scoring breakdown")
+        screen.queryByText("Upload a resume to see detailed match information")
       ).not.toBeInTheDocument();
     });
 
@@ -193,7 +189,7 @@ describe("ResumeMatchScoreBreakdown", () => {
       );
 
       const skillsBar = screen.getByRole("progressbar", {
-        name: /Skills Match score: N\/A/i,
+        name: /Skills Match result: N\/A/i,
       });
       expect(skillsBar).toHaveAttribute("aria-valuenow", "0");
     });
@@ -209,7 +205,7 @@ describe("ResumeMatchScoreBreakdown", () => {
       );
 
       const skillsBar = screen.getByRole("progressbar", {
-        name: /Skills Match score: N\/A/i,
+        name: /Skills Match result: N\/A/i,
       });
       expect(skillsBar.className).toContain("opacity-30");
     });
@@ -234,7 +230,7 @@ describe("ResumeMatchScoreBreakdown", () => {
       render(<ResumeMatchScoreBreakdown {...defaultProps} />);
 
       expect(
-        screen.getByRole("button", { name: "Learn more about scoring" })
+        screen.getByRole("button", { name: "Learn more about resume match" })
       ).toBeInTheDocument();
     });
   });
@@ -306,7 +302,7 @@ describe("ResumeMatchScoreBreakdown", () => {
       render(<ResumeMatchScoreBreakdown {...defaultProps} />);
 
       const skillsBar = screen.getByRole("progressbar", {
-        name: /Skills Match score/i,
+        name: /Skills Match result/i,
       });
       expect(skillsBar.className).toContain("bg-sentinel-500");
     });
@@ -315,7 +311,7 @@ describe("ResumeMatchScoreBreakdown", () => {
       render(<ResumeMatchScoreBreakdown {...defaultProps} />);
 
       const experienceBar = screen.getByRole("progressbar", {
-        name: /Experience Match score/i,
+        name: /Experience Match result/i,
       });
       expect(experienceBar.className).toContain("bg-orange-500");
     });
@@ -324,7 +320,7 @@ describe("ResumeMatchScoreBreakdown", () => {
       render(<ResumeMatchScoreBreakdown {...defaultProps} />);
 
       const educationBar = screen.getByRole("progressbar", {
-        name: /Education Match score/i,
+        name: /Education Match result/i,
       });
       expect(educationBar.className).toContain("bg-blue-500");
     });

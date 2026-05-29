@@ -3535,17 +3535,17 @@ export default function Settings({ onClose }: SettingsProps) {
                 </div>
               </section>
 
-              {/* Job Scoring Weights */}
+              {/* Match Priority Guide */}
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
-                  Job Scoring Weights
-                  <HelpIcon text="These weights determine how jobs are scored. Higher scores mean better matches. Click on any job score to see the full breakdown." />
+                  Match Priority Guide
+                  <HelpIcon text="These percentages show which signals matter most when JobSentinel sorts jobs. Click any match label to see the details." />
                 </h3>
                 <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 bg-surface-50 dark:bg-surface-900/20">
                   <p className="text-sm text-surface-600 dark:text-surface-400 mb-4">
-                    Each job is scored from 0-100% based on how well it matches
-                    your preferences. Click any job score to see a detailed
-                    breakdown.
+                    JobSentinel reviews each job against your preferences and
+                    shows a match label. These percentages explain the default
+                    priority order.
                   </p>
                   <div className="space-y-3">
                     {/* Skills */}
@@ -3566,7 +3566,7 @@ export default function Settings({ onClose }: SettingsProps) {
                           40%
                         </div>
                         <div className="text-xs text-surface-500 dark:text-surface-400">
-                          weight
+                          priority
                         </div>
                       </div>
                     </div>
@@ -3589,7 +3589,7 @@ export default function Settings({ onClose }: SettingsProps) {
                           25%
                         </div>
                         <div className="text-xs text-surface-500 dark:text-surface-400">
-                          weight
+                          priority
                         </div>
                       </div>
                     </div>
@@ -3612,7 +3612,7 @@ export default function Settings({ onClose }: SettingsProps) {
                           20%
                         </div>
                         <div className="text-xs text-surface-500 dark:text-surface-400">
-                          weight
+                          priority
                         </div>
                       </div>
                     </div>
@@ -3635,7 +3635,7 @@ export default function Settings({ onClose }: SettingsProps) {
                           10%
                         </div>
                         <div className="text-xs text-surface-500 dark:text-surface-400">
-                          weight
+                          priority
                         </div>
                       </div>
                     </div>
@@ -3658,7 +3658,7 @@ export default function Settings({ onClose }: SettingsProps) {
                           5%
                         </div>
                         <div className="text-xs text-surface-500 dark:text-surface-400">
-                          weight
+                          priority
                         </div>
                       </div>
                     </div>
@@ -3667,9 +3667,9 @@ export default function Settings({ onClose }: SettingsProps) {
                     <p className="flex items-start gap-1.5 text-xs text-surface-500 dark:text-surface-400">
                       <SettingsSymbol icon="lightbulb" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
                       <span>
-                        <strong>Tip:</strong> These weights are optimized for
-                        best results. Customize your preferences in the sections
-                        above to improve your job matches.
+                        <strong>Tip:</strong> The default priorities keep search
+                        words, pay, and location easy to review. Change your
+                        preferences above to improve your job matches.
                       </span>
                     </p>
                   </div>

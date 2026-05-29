@@ -525,8 +525,10 @@ const errorBoundaryDisplayPaths = new Set([
 ]);
 const protectiveScoreCopyPaths = new Set([
   "docs/features/smart-scoring.md",
+  "src/components/ResumeMatchScoreBreakdown.tsx",
   "src/components/ScoreDisplay.tsx",
   "src/components/ScoreBreakdownModal.tsx",
+  "src/pages/Settings.tsx",
 ]);
 const plainJobSearchDocPaths = new Set([
   "docs/features/application-tracking.md",
@@ -3369,7 +3371,7 @@ function hasNonProtectiveScoreCopy(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /Great Match!|Highly recommended!|You might want to skip it|if you're desperate|if you are desperate|\{reason\}\s*<\/div>/i.test(text);
+  return /Great Match!|Highly recommended!|You might want to skip it|if you're desperate|if you are desperate|\{reason\}\s*<\/div>|Job Scoring Weights|These weights determine|scoring weights|Configurable weights|Customize Weights|Weight Presets|Weight in overall score|\b\d+%\s+weight\b|weighted averages based on component importance/i.test(text);
 }
 
 function hasLegacyPreferenceListCopy(root, path) {

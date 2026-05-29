@@ -1,777 +1,186 @@
 # Smart Scoring System
 
-**Find the best job matches automatically with intelligent multi-factor scoring.**
+**Understand why a job appears high or low without turning the search into a
+black box.**
 
 ## Overview
 
-JobSentinel's Smart Scoring System analyzes every job across five key factors to give you a
-single, meaningful score (0-100%). Instead of manually filtering through hundreds of jobs, let the
-algorithm prioritize the best matches for you.
+JobSentinel reviews every job against saved preferences and shows a match
+percentage. The percentage is a sorting aid, not a verdict. It helps a job
+seeker decide which roles deserve careful review, which need verification, and
+which are likely poor fits for stated constraints.
 
-### Key Features
+The match explanation must stay plain-language:
 
-- **Multi-factor analysis** - Evaluates skills, salary, location, company, and recency
-- **Configurable weights** - Customize how much each factor matters to you
-- **Resume integration** - Match jobs against your actual skills
-- **Score breakdown** - Click any score to see exactly why it was calculated
-- **Real-time preview** - See updated scores instantly when you adjust settings
+- What matched.
+- What did not match.
+- Which setting affected the result.
+- What the user can change if the result is not useful.
 
-### Screenshot
+## Match Factors
 
-![Smart Scoring Dashboard](../images/dashboard.png)
+JobSentinel uses five visible factors. The default priorities explain how much
+each factor contributes to the match percentage.
 
----
+| Factor | Default priority | What it checks |
+| ------ | ---------------- | -------------- |
+| **Skills and search words** | 40% | Job title, selected work words, resume skills if enabled |
+| **Salary** | 25% | Listed pay, salary floor, target pay, and missing-pay handling |
+| **Location** | 20% | Remote, hybrid, onsite, commute, and selected locations |
+| **Company** | 10% | Favorite companies and hidden companies |
+| **Freshness** | 5% | How recently the posting appeared |
 
-## The 5-Factor Scoring Algorithm
+The priority guide is visible in **Settings > Advanced Settings**. Most users
+should change job titles, work words, salary floor, location, and company
+preferences before touching advanced scoring configuration.
 
-Every job score is calculated by evaluating five factors and combining them into a single 0-100%
-score. Here's what each factor measures:
+## Reading a Match
 
-| Factor           | Weight | What It Measures                                        |
-| ---------------- | ------ | ------------------------------------------------------- |
-| **Skills Match** | 40%    | How well your skills match the job requirements         |
-| **Salary**       | 25%    | How the job salary compares to your target              |
-| **Location**     | 20%    | How well the job matches your remote/onsite preferences |
-| **Company**      | 10%    | Whether the company is marked favorite or hidden        |
-| **Recency**      | 5%     | How fresh the job posting is                            |
+Job cards and match details should help users make a decision without guessing.
 
-**Total always equals 100%.** These weights are defaults—you can customize them in Settings.
+| Label | Meaning | Next step |
+| ----- | ------- | --------- |
+| **Strong Match** | The posting fits most saved preferences | Review source, pay, and posting-risk signals before tailoring |
+| **Good Match** | The posting has several useful signals | Check weaker factors before spending serious time |
+| **Some Match** | The posting fits part of the search | Review only if the role or company is worth extra effort |
+| **Low Match** | The posting conflicts with saved preferences | Skip or update preferences if the result is wrong |
 
----
+High match does not mean the job is real, fair, or worth applying to. Always
+review posting risk, salary, source, and application route.
 
-## 1. Skills Match (40%)
+## Factor Details
 
-The skills factor measures how well your qualifications align with the job requirements.
+### Skills And Search Words
 
-### How It Works
+Skills and search words compare the job title and posting text against what the
+user wants to do more of or avoid.
 
-JobSentinel analyzes job requirements against your qualifications using three methods:
+Inputs include:
 
-1. **Title preferences** - Match or exclude job titles
-2. **Work-word preferences** - Raise jobs with desired words and lower jobs
-   with words to avoid
-3. **Synonym Matching** - Recognize equivalent skills (e.g., "JavaScript" = "JS")
-4. **Resume-Based Scoring** - If you've uploaded a resume, compare your actual skills to requirements
+- Job titles to show more often.
+- Job titles to avoid.
+- Work words to show more often.
+- Work words to avoid.
+- Uploaded resume skills when resume matching is enabled.
+- Synonym matching for equivalent words, such as "customer support" and
+  "client support."
 
-### Scoring Breakdown
+When resume matching is off, JobSentinel uses saved titles and work words. When
+resume matching is on, resume skills add more context without replacing the
+user's stated preferences.
 
-**Without Resume:**
+### Salary
 
-- **Title Match** (40% of skills factor)
-  - Title matches preferred titles: +100%
-  - Title matches avoided titles: 0% (filtered out)
-  - Neutral title: 50%
+Salary review compares listed pay to the user's salary floor and target pay.
+Missing pay should not hide every job automatically, but it should remain visible
+as a warning because missing pay can waste time and increase underpayment risk.
 
-- **Work words to show more often** (60% of skills factor)
-  - Each preferred word found: +10%
-  - Each word to avoid found: -10%
-  - Maximum: 100%, minimum: 0%
+Salary support is evidence-bounded. JobSentinel should help users protect their
+floor and ask better questions; it is not a compensation authority or legal
+adviser.
 
-**With Resume (70% resume match + 30% preferred work words):**
+### Location
 
-- **Resume Match** (70%)
-  - Matching skills ÷ Required skills = score
-  - Example: You have 7/10 required skills = 70%
+Location review checks remote, hybrid, onsite, commute, and selected city or
+state preferences. A remote-only user should see onsite conflicts clearly. A
+hybrid-open user should still see commute and location warnings.
 
-- **Work words to show more often** (30%)
-  - Same preferred-word logic as above
+### Company
 
-### Configuration in Settings
+Company review uses user-owned preference lists:
 
-Navigate to **Settings > Scoring > Skills Matching**:
+- Favorite companies can raise a role for review.
+- Hidden companies can lower or hide roles the user no longer wants to see.
 
-1. **Title Preferences**
-   - Allowed job titles (e.g., "Customer Success Manager", "Clinic Manager")
-   - Blocked job titles (e.g., "Commission-Only Sales", "Night Supervisor")
+Company matching should explain the visible reason and avoid loaded labels.
 
-2. **Work words to show more often**
-   - Words that increase score if found (e.g., "onboarding", "patient care", "remote")
-   - Include common variations
+### Freshness
 
-3. **Work words to avoid**
-   - Words that decrease score if found (e.g., "commission only", "overnight", "heavy travel")
+Freshness favors newer postings. Older postings can still be useful, but they
+should be checked alongside ghost-job and stale-posting signals before a user
+spends tailoring time.
 
-4. **Resume-Based Scoring**
-   - Toggle "Use Resume for Scoring" ON/OFF
-   - Automatically compares your uploaded resume against job requirements
-   - Shows exact skills you have vs. skills the job requires
+## Example
 
-### Example: Customer Success Position
-
-**Job Requirements:**
-
-- Account management, onboarding, retention, CRM, reporting
-
-**Your Configuration:**
-
-- Allowed titles: ["Customer Success Manager", "Client Success Manager"]
-- Work words to show more often: ["Onboarding", "Retention", "CRM"]
-- Work words to avoid: ["Commission only"]
-
-**Scoring:**
-
-```text
-Title: "Senior Customer Success Manager" matches "Customer Success Manager": 100%
-
-Work-Word Match:
-  Onboarding (preferred word found)    +10%
-  Retention (preferred word found)     +10%
-  CRM (preferred word found)           +10%
-  Reporting (found, not preferred)     +5%
-  Account management (found)           +5%
-  Commission only (not found)          (not penalized)
-
-Preferred-word score: 40%
-
-Skills Factor: (100% × 0.4) + (40% × 0.6) = 40% + 24% = 64%
-```
-
-**With Resume:**
-
-If your resume shows onboarding, retention, CRM, reporting, and account
-management, all five required skills match.
-
-```text
-Resume Match: 5/5 = 100%
-Preferred-word score: 40% (as above)
-
-Skills Factor: (100% × 0.7) + (40% × 0.3) = 70% + 12% = 82%
-```
-
-### Synonym Matching
-
-The system recognizes equivalent skills and role words:
-
-| Category | Synonyms |
-| -------- | -------- |
-| Customer success | customer success, client success, account success |
-| Operations | operations, ops, process improvement |
-| Healthcare | patient care, care coordination, clinic support |
-| Education | instruction, curriculum, lesson planning |
-| Finance | bookkeeping, accounts payable, reconciliation |
-| Data | reporting, analytics, dashboards |
-
-For complete synonym reference, see [Synonym Matching Guide](synonym-matching.md).
-
----
-
-## 2. Salary (25%)
-
-The salary factor rewards jobs that match your target salary range and penalizes outliers.
-
-### Graduated Scoring Model
-
-Instead of a simple yes/no, salary scoring is graduated:
-
-| Salary Range           | Score   | Meaning                     |
-| ---------------------- | ------- | --------------------------- |
-| **120%+** of target    | 100%    | Excellent, pays premium     |
-| **100-120%** of target | 100%    | Perfect match               |
-| **80-100%** of target  | 80-100% | Good, slightly below target |
-| **60-80%** of target   | 60-80%  | Acceptable but low          |
-| **30-60%** of target   | 20-40%  | Significantly below target  |
-| **<30%** of target     | 0-20%   | Too low to consider         |
-
-### Example
-
-Your target salary: **$150,000**
-
-| Job Salary | Calculation    | Score |
-| ---------- | -------------- | ----- |
-| $200,000   | 133% of target | 100%  |
-| $150,000   | 100% of target | 100%  |
-| $120,000   | 80% of target  | 80%   |
-| $90,000    | 60% of target  | 60%   |
-| $50,000    | 33% of target  | 20%   |
-
-### How It Handles Missing Data
-
-If a job doesn't list salary:
-
-- **With target range set:** 60% score (assumes market average)
-- **Without target range:** 70% score (neutral, not penalized)
-
-### Configuration in Settings
-
-Navigate to **Settings > Scoring > Salary**:
-
-1. **Target Salary**
-   - Your desired annual salary (e.g., $150,000)
-   - Used as the baseline for scoring
-
-2. **Minimum Acceptable**
-   - Lowest salary you'd consider (e.g., $100,000)
-   - Jobs below this get 0% or very low scores
-
-3. **Preferred Range**
-   - Set both minimum and maximum for more precise scoring
-
-4. **Currency**
-   - Select your currency for accurate calculations
-
-### AI Salary Prediction
-
-If a job doesn't list salary, JobSentinel uses AI to predict it based on:
-
-- Job title and seniority
-- Required skills and experience
-- Company size and location
-- Historical salary data
-
-Predicted salaries feed scoring and market views so jobs with missing salary
-info can still be compared against your target range.
-
-For details, see [Salary AI Feature](salary-ai.md).
-
----
-
-## 3. Location (20%)
-
-The location factor prioritizes jobs that match your remote/hybrid/onsite preferences.
-
-### Remote Preference Modes
-
-Choose your ideal work arrangement:
-
-| Preference           | Accepts                  | Best Score Job Type                       |
-| -------------------- | ------------------------ | ----------------------------------------- |
-| **Remote Only**      | Remote jobs only         | Remote                                    |
-| **Remote Preferred** | Remote + Hybrid + Onsite | Remote (100%), Hybrid (70%), Onsite (40%) |
-| **Hybrid Preferred** | Hybrid + Remote + Onsite | Hybrid (100%), Remote (80%), Onsite (60%) |
-| **Onsite Preferred** | Onsite + Hybrid + Remote | Onsite (100%), Hybrid (70%), Remote (50%) |
-| **Flexible**         | All work arrangements    | All (100%)                                |
-
-### Graduated Scoring Examples
-
-**If you prefer Remote:**
-
-| Job Type     | Score | Reasoning                       |
-| ------------ | ----- | ------------------------------- |
-| Fully Remote | 100%  | Perfect match                   |
-| Hybrid       | 70%   | Mostly remote, acceptable       |
-| Onsite       | 40%   | Not what you want, but possible |
-| Unspecified  | 60%   | Unknown, give benefit of doubt  |
-
-**If you prefer Hybrid:**
-
-| Job Type    | Score | Reasoning                    |
-| ----------- | ----- | ---------------------------- |
-| Hybrid      | 100%  | Perfect match                |
-| Remote      | 80%   | More flexibility, acceptable |
-| Onsite      | 60%   | Less flexible, acceptable    |
-| Unspecified | 70%   | Unknown, assume reasonable   |
-
-### Detection from Job Data
-
-JobSentinel detects work arrangement from multiple sources:
-
-1. **Explicit `remote` field** in job posting (most reliable)
-2. **Location string** (e.g., "Remote - US", "New York (Hybrid)")
-3. **Job title** (e.g., "Remote Case Manager")
-4. **Job description keywords**:
-   - Remote: "remote", "work from home", "WFH", "distributed", "fully remote"
-   - Hybrid: "hybrid", "flexible location", "remote + office"
-   - Onsite: "on-site", "in-office", "office-based"
-
-### Configuration in Settings
-
-Navigate to **Settings > Scoring > Location Preferences**:
-
-1. **Work Arrangement Preference**
-   - Select from 5 modes above
-   - Changes live preview showing affected jobs
-
-2. **Preferred Cities/Regions** (for onsite/hybrid)
-   - Add preferred locations for jobs you'd relocate to
-   - Jobs in preferred locations get small bonuses
-
-3. **Exclude Countries/Regions**
-   - Block jobs in certain areas
-
-For deep dive, see [Remote Work Preference Scoring](remote-preference-scoring.md).
-
----
-
-## 4. Company (10%)
-
-The company factor rewards jobs from companies you want to work for and penalizes those you don't.
-
-### Favorite Companies
-
-Add companies you're interested in:
-
-- Jobs from favorite companies: +50% to company score
-- Each favorite-company match: +1% bonus
-- Maximum: 100% company score
-
-**Example:**
-
-Favorite companies: ["Acme Health", "Northstar Clinic", "BrightPath Services"]
-
-Job from Acme Health: 100% company score (50% base + 50% exact match bonus)
-
-### Hidden Companies
-
-Exclude companies you want to avoid:
-
-- Jobs from hidden companies: 0% company score
-- Filtered out from dashboard unless you explicitly show them
-
-**Example:**
-
-Hidden companies: ["Contractor Corp", "Spam Recruiting Inc"]
-
-Jobs from these companies won't appear in your job list.
-
-### Fuzzy Matching
-
-The system uses smart fuzzy matching to recognize companies:
-
-**Handles variations:**
-
-- "Microsoft Inc" = "Microsoft Inc." = "Microsoft" = "MSFT"
-- "Amazon.com Inc" = "Amazon"
-- Strips company suffixes: Inc, LLC, Ltd, Corp, Co, PLC, GmbH, AG
-
-**Prevents false matches:**
-
-- "Apple" doesn't match "Pineapple"
-- "Tech Solutions" doesn't match "Solutions Inc"
-
-### Configuration in Settings
-
-Navigate to **Settings > Scoring > Company Preferences**:
-
-1. **Favorite companies**
-   - Add company names you want to prioritize
-   - Companies added get +50% company score bonus
-
-2. **Hidden companies**
-   - Add company names to exclude
-   - Jobs from hidden companies are hidden
-
-3. **Fuzzy Matching Sensitivity**
-   - Tight: Exact company name match required
-   - Loose: Allow variations (Inc, LLC, punctuation differences)
-
-### Integration with Market Intelligence
-
-JobSentinel combines company preferences with company research data:
-
-- **Company ratings** from Glassdoor/Indeed
-- **Funding status** (for startups)
-- **Industry classification**
-- **Size** (startup, small, mid-market, enterprise)
-
-When you research a company in Market Intelligence, you can mark it favorite or
-hidden directly.
-
----
-
-## 5. Recency (5%)
-
-The recency factor prioritizes fresh job postings over stale ones.
-
-### How It Works
-
-Newer jobs score higher than older ones, with a gradual decline over time:
-
-| Posting Age          | Score |
-| -------------------- | ----- |
-| Posted today         | 100%  |
-| Posted 1 week ago    | 90%   |
-| Posted 2 weeks ago   | 80%   |
-| Posted 1 month ago   | 70%   |
-| Posted 2 months ago  | 40%   |
-| Posted 3+ months ago | 10%   |
-
-### Why It Matters
-
-- **Fresh jobs** are more likely to be actively hiring
-- **Old postings** are often ghosts or already filled
-- **Recency as a signal** of company engagement
-
-Recency also factors into [Ghost Job Detection](ghost-detection.md). Very old
-jobs get flagged for review before tailoring.
-
-### Configuration in Settings
-
-Navigate to **Settings > Scoring > Recency**:
-
-1. **Recency Weight Impact**
-   - By default: 5% of total score
-   - Can be adjusted (minimum 1%, maximum 20%)
-
-2. **Decay Curve**
-   - Linear: Score decreases steadily
-   - Aggressive: Score drops quickly after 1 month
-   - Lenient: Score stays high for up to 3 months
-
-3. **Minimum Age to Filter**
-   - Hide jobs older than X days (optional)
-   - Example: Hide jobs over 60 days old
-
----
-
-## Score Breakdown Modal
-
-Click any score to see exactly how it was calculated.
-
-### What You'll See
-
-```text
-Total Score: 78%
-
-Score Breakdown:
-- Skills (40%):       64% x 40% = 25.6%
-  - Title Match:      100%
-  - Job words:        40%
-  - Resume Match:     82%
-- Salary (25%):       80% x 25% = 20.0%
-  - $145k vs target $150k
-- Location (20%):     90% x 20% = 18.0%
-  - Hybrid vs your Remote Preferred
-- Company (10%):     100% x 10% = 10.0%
-  - Acme Health on favorite list
-- Recency (5%):       100% x 5% = 5.0%
-  - Posted 3 days ago
-```
-
-### Why Each Factor Was Scored
-
-Each factor shows:
-
-- **Current score** for that factor
-- **Weight in overall score** (e.g., 40% for skills)
-- **Contribution** to your total (e.g., 64% × 40% = 25.6%)
-- **Reason** for the score
-
-This helps you understand what made the algorithm score the job high or low—useful for deciding
-whether to override the score and apply anyway.
-
-### Adjusting Weights
-
-In the breakdown modal, you can:
-
-1. **See current weights** (default 40/25/20/10/5)
-2. **Click "Customize Weights"** to adjust them
-3. **Preview updated scores** across your entire job list
-4. **Save changes** to apply permanently
-
----
-
-## How Scores Are Calculated
-
-### Step-by-Step Example
-
-Let's score a real job:
-
-**Job:** "Senior Customer Success Manager at Acme Health"
-
-```text
-Title:       Senior Customer Success Manager
-Company:     Acme Health
-Location:    Denver, CO (Hybrid with 2 days/week onsite)
-Salary:      $95,000/year
-Posted:      5 days ago
-Description: 5+ years account management, onboarding, retention, CRM,
-            strong communication, mentoring experience
-```
-
-**Your Configuration:**
-
-```text
-Target Salary:        $95,000
-Preferred Location:   Remote Preferred (but open to hybrid)
-Preferred titles:     Customer Success Manager, Client Success Manager
-Preferred words:      Onboarding, Retention, CRM
-Favorite companies:   Acme Health, Northstar Clinic
-Resume:              Uploaded (onboarding, retention, CRM, reporting matched)
-```
-
-### Calculation
-
-**1. Skills (40% weight)**
-
-```text
-Title Match:
-  "Senior Customer Success Manager" matches "Customer Success Manager": 100%
-
-Resume Match:
-  Your skills: onboarding, retention, CRM, reporting, account management (5/5 required)
-  Match: 5/5 = 100%
-
-Preferred work words:
-  Onboarding          (preferred word found)
-  Retention           (preferred word found)
-  CRM                 (preferred word found)
-  Reporting           (found, not preferred) +0%
-  Account management  (found, not preferred) +0%
-  Preferred-word score: 100%
-
-Skills Factor:
-  = (100% title × 0.3) + (100% resume × 0.7) + (100% work words × adjusted)
-  = 100%
-
-Contribution to Total: 100% × 40% = 40%
-```
-
-**2. Salary (25% weight)**
-
-```text
-Job Salary:      $160,000
-Target Salary:   $150,000
-Ratio:           160,000 ÷ 150,000 = 107% (above target)
-
-Salary Score:    100% (107% is in the 100-120% range = full score)
-
-Contribution to Total: 100% × 25% = 25%
-```
-
-**3. Location (20% weight)**
-
-```text
-Your Preference:     Remote Preferred
-Job Type:           Hybrid
-Score for Hybrid when Remote Preferred: 70%
-
-Contribution to Total: 70% × 20% = 14%
-```
-
-**4. Company (10% weight)**
-
-```text
-Job Company:     Acme Health
-Favorite Companies: [Acme Health, Northstar Clinic, BrightPath Services]
-
-Company Match:   Yes (exact match)
-Company Score:   100% (50% base + 50% favorite-company bonus)
-
-Contribution to Total: 100% × 10% = 10%
-```
-
-**5. Recency (5% weight)**
-
-```text
-Posted:        5 days ago
-Score Curve:   Linear decay from 100% at day 0 to 10% at day 90
-
-Days:          5
-Score:         100% - (5 ÷ 90 × 90%) = 95%
-
-Contribution to Total: 95% × 5% = 4.75%
-```
-
-### Final Score
-
-```text
-Total = 40% + 25% + 14% + 10% + 4.75% = 93.75% ≈ 94%
-```
-
----
-
-## Customizing Weights
-
-Not all factors matter equally to you. Customize weights to match your priorities.
-
-### When to Adjust Weights
-
-- **Job hopping?** Increase recency (find fresh opportunities)
-- **Salary negotiation?** Increase salary (find high-paying roles)
-- **Specific tools or systems?** Increase skills (prioritize exact match)
-- **Dream companies?** Increase company (prioritize favorite companies)
-- **Full remote required?** Increase location (filter aggressively)
-
-### How to Customize
-
-1. **Navigate to Settings > Scoring**
-2. **Click "Customize Weights"**
-3. **Adjust sliders** for each factor:
-   - Skills: 20-60% (default 40%)
-   - Salary: 10-40% (default 25%)
-   - Location: 10-30% (default 20%)
-   - Company: 5-20% (default 10%)
-   - Recency: 1-15% (default 5%)
-4. **Preview updated scores** on your job list (live)
-5. **Save changes**
-
-The system ensures total always equals 100%.
-
-### Weight Presets
-
-Quick shortcuts for common scenarios:
-
-- **Skills Focus** - Skills 50%, Salary 20%, Location 15%, Company 10%, Recency 5%
-- **Location Focused** - Skills 30%, Salary 20%, Location 35%, Company 10%, Recency 5%
-- **Company Focused** - Skills 30%, Salary 20%, Location 15%, Company 25%, Recency 10%
-- **Salary Maximized** - Skills 25%, Salary 40%, Location 15%, Company 10%, Recency 10%
-- **Balanced** - Skills 40%, Salary 25%, Location 20%, Company 10%, Recency 5% (default)
-
----
-
-## API Reference
-
-### Tauri Commands
-
-```typescript
-// Get job score and breakdown
-invoke("get_job_score", { job_hash: "abc123" });
-// Returns: { total: 0.78, breakdown: {...}, reasons: [...] }
-
-// Score all jobs
-invoke("score_all_jobs");
-
-// Get current scoring config
-invoke("get_scoring_config");
-// Returns: ScoringConfig
-
-// Update scoring weights
-invoke("set_scoring_weights", {
-  skills_weight: 0.4,
-  salary_weight: 0.25,
-  location_weight: 0.2,
-  company_weight: 0.1,
-  recency_weight: 0.05,
-});
-
-// Get job score breakdown with explanations
-invoke("get_score_breakdown", { job_hash: "abc123" });
-// Returns detailed breakdown with human-readable reasons
-
-// Update skills preferences
-invoke("set_skills_preferences", {
-  allowed_titles: ["Customer Success Manager", "Client Success Manager"],
-  blocked_titles: ["Commission-Only Sales"],
-  // Current backend field names.
-  boosted_keywords: ["Onboarding", "Retention"],
-  excluded_keywords: ["Commission only"],
-});
-
-// Update salary preferences
-invoke("set_salary_preferences", {
-  target_salary: 150000,
-  minimum_salary: 100000,
-  currency: "USD",
-});
-
-// Update location preferences
-invoke("set_location_preference", {
-  preference: "RemotePreferred", // or RemoteOnly, HybridPreferred, OnsitePreferred, Flexible
-});
-
-// Update company preference lists
-invoke("set_company_preferences", {
-  // Current backend field names.
-  whitelist: ["Acme Health", "Northstar Clinic"],
-  blacklist: ["Spam Corp"],
-});
-```
-
-### Rust API
-
-```rust
-use jobsentinel::core::scoring::{ScoringEngine, ScoringConfig};
-
-// Create scoring engine
-let scoring_config = ScoringConfig::default();
-let engine = ScoringEngine::with_scoring_config(config, scoring_config);
-
-// Score a single job
-let job_score = engine.score(&job);
-println!("Total: {:.0}%", job_score.total * 100.0);
-println!("Skills: {:.0}%", job_score.breakdown.skills * 100.0);
-
-// Score with resume matching
-let job_score = engine.score_async(&job).await;
-```
-
----
-
-## Score Distribution & Analytics
-
-### View Score Statistics
-
-Navigate to **Analytics** to see:
-
-- **Score distribution** - Histogram of all job scores
-- **Average score** - Mean across all jobs
-- **High scorers** - Top 10% of jobs by score
-- **Trends** - How scores change over time
-- **Factor breakdown** - Which factor contributes most to your scores
-
-### Example Report
-
-```text
-Total Jobs Analyzed:    437
-Average Score:          62%
-Score Range:            12% - 98%
-
-Distribution:
-  90-100%: 12 jobs    (3%)
-  80-89%:  45 jobs    (10%)
-  70-79%:  98 jobs    (22%)
-  60-69%:  127 jobs   (29%)
-  50-59%:  95 jobs    (22%)
-  40-49%:  42 jobs    (10%)
-  <40%:    18 jobs    (4%)
-
-Most Impactful Factor:  Skills (average 82%)
-Least Impactful:       Recency (average 65%)
-```
-
----
+| Detail | Example |
+| ------ | ------- |
+| Job | Customer Success Manager at Acme Health |
+| Location | Denver, CO, hybrid |
+| Pay | $95,000 listed |
+| Posted | 5 days ago |
+| Description | Onboarding, retention, CRM, reporting, account management |
+
+**Saved preferences:**
+
+- Job title: Customer Success Manager.
+- Work words to show more often: onboarding, retention, CRM.
+- Salary floor: $90,000.
+- Work mode: remote preferred, open to hybrid.
+- Favorite companies: Acme Health, Northstar Clinic.
+
+**Likely match explanation:**
+
+- Title and work words fit the saved search.
+- Listed pay is above the salary floor.
+- Hybrid work is acceptable but not the strongest location fit.
+- Company is in the user's favorite companies.
+- Posting is fresh.
+
+The result should tell the user why the role is worth review, while still
+showing source, posting-risk, and pay-transparency signals.
+
+## Settings
+
+Useful settings live in normal language:
+
+| Setting | User-facing purpose |
+| ------- | ------------------- |
+| Job titles | Show more of the roles the user wants |
+| Work words | Raise work the user wants and lower work they want to avoid |
+| Salary floor | Warn when listed pay is below the user's minimum |
+| Location | Reflect remote, hybrid, onsite, commute, city, and state needs |
+| Company preferences | Raise favorite companies and lower hidden companies |
+| Resume matching | Include resume skills in match explanations when enabled |
+| Match Priority Guide | Explain default factor priorities |
+
+## Boundaries
+
+Smart scoring must not:
+
+- Claim a job is guaranteed to be good.
+- Hide salary-floor conflicts.
+- Treat missing salary as neutral without explanation.
+- Replace ghost-job or source verification.
+- Encourage deceptive resume changes.
+- Submit applications for the user.
+- Send private job-search data to an external provider.
+
+Smart scoring should:
+
+- Explain visible factors.
+- Help users recover from bad matches by changing settings.
+- Use protective language for stale postings, below-floor pay, and weak source
+  signals.
+- Stay useful for technical and non-technical roles.
+
+## Developer Notes
+
+Current Tauri commands:
+
+- `get_scoring_config`
+- `update_scoring_config`
+- `reset_scoring_config_cmd`
+- `validate_scoring_config`
+
+The backend `ScoringConfig` stores skills, salary, location, company, and
+recency proportions and validates that they form one complete scoring model.
+Internal field names may still use scoring terminology for compatibility, but
+user-facing copy should explain these as match priorities and preferences.
 
 ## Related Documentation
 
-- [Synonym Matching Guide](synonym-matching.md) - How equivalent skills are recognized
-- [Remote Work Preference Scoring](remote-preference-scoring.md) - Deep dive on location scoring
-- [Resume Matcher Integration](resume-matcher.md) - Using AI resume matching
-- [Salary AI Feature](salary-ai.md) - Salary prediction algorithm
-- [Ghost Job Detection](ghost-detection.md) - Flagging stale or low-trust postings
-
----
-
-## Troubleshooting
-
-### Why is my score lower than expected?
-
-**Check the breakdown:**
-
-1. Click the job's score
-2. Review which saved settings affected the match
-3. Look for a missing title, pay, location, freshness, or company signal
-4. Update the saved setting only if the warning does not match what you want
-
-**Common reasons:**
-
-- Job title does not match your preferred titles: add or remove job titles
-- Salary is below your floor: keep it visible with a warning or update your
-  floor
-- Location does not match: update location, commute, or work-mode preferences
-- Posting is older: treat it as lower priority or choose a fresher-posting
-  preference
-
-### Why don't I see my resume skills contributing?
-
-**Check resume use:**
-
-1. Go to **Settings > Scoring > Skills**
-2. Check that "Use Resume for Scoring" is ON
-3. Ensure you've uploaded a resume in the **Resume** tab
-
-Without these, JobSentinel uses your saved job titles, work words, and other
-settings only.
-
-### A high-match job was not worth the time
-
-**Manual feedback:**
-
-1. After applying or interviewing, mark the job as "Good" or "Bad"
-2. Add a note about what made it weak or not worth tailoring
-3. Update your saved preferences if the same issue should lower similar jobs
-
-**What to adjust:**
-
-- Update your preferences based on what went wrong
-- Add work words you want to see more often or avoid
-- Hide the company if you do not want to see similar roles
+- [Synonym Matching Guide](synonym-matching.md) - Equivalent work and skill words.
+- [Remote Work Preference Scoring](remote-preference-scoring.md) - Location and work-mode matching.
+- [Resume Matcher Integration](resume-matcher.md) - Resume-based match context.
+- [Pay Protection](salary-ai.md) - Salary floor, pay transparency, and offer comparison.
+- [Ghost Job Detection](ghost-detection.md) - Stale or low-trust posting warnings.

@@ -47,7 +47,7 @@ function ScoreBar({
           {label}
           {showWeight && (
             <span className="ml-1.5 text-xs text-surface-500 dark:text-surface-400">
-              ({weight}% weight)
+              ({weight}% priority)
             </span>
           )}
         </span>
@@ -71,7 +71,7 @@ function ScoreBar({
           aria-valuenow={percentage}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-label={`${label} score: ${formatPercentage(score)}`}
+          aria-label={`${label} result: ${formatPercentage(score)}`}
         />
       </div>
     </div>
@@ -119,7 +119,7 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
 
   const tooltipContent = (
     <div className="max-w-xs space-y-1 text-xs">
-      <p className="font-semibold mb-2">How scoring works:</p>
+      <p className="font-semibold mb-2">How this match is reviewed:</p>
       <p>
         <strong>Skills (50%):</strong> Matches required and preferred skills from the job description
       </p>
@@ -131,7 +131,7 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
       </p>
       {!hasAnyScore && (
         <p className="mt-2 text-surface-400">
-          Upload a resume to see detailed scoring breakdown
+          Upload a resume to see detailed match information
         </p>
       )}
     </div>
@@ -141,12 +141,12 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-surface-800 dark:text-white flex items-center gap-2">
-          Resume Match Breakdown
+          Resume Match Details
           <Tooltip content={tooltipContent} position="top">
             <button
               type="button"
               className="text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors"
-              aria-label="Learn more about scoring"
+              aria-label="Learn more about resume match"
             >
               <svg
                 className="w-4 h-4"
@@ -173,7 +173,7 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
       {!hasAnyScore && (
         <div className="p-3 bg-surface-50 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 rounded-lg">
           <p className="text-sm text-surface-600 dark:text-surface-400 text-center">
-            Upload a resume to see detailed scoring breakdown
+            Upload a resume to see detailed match information
           </p>
         </div>
       )}
@@ -194,7 +194,7 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
       {hasAnyScore && showWeights && (
         <div className="pt-3 border-t border-surface-200 dark:border-surface-700">
           <p className="text-xs text-surface-500 dark:text-surface-400">
-            Overall score is calculated using weighted averages based on component importance
+            Overall match uses these default priorities.
           </p>
         </div>
       )}

@@ -7236,12 +7236,22 @@ test("checkRepoBloat rejects non-protective score copy", () => {
     writeFixtureFile(
       root,
       "src/components/ScoreBreakdownModal.tsx",
-      'const detail = "You might want to skip it";\n',
+      'const detail = "You might want to skip it"; const help = "You can adjust scoring weights in Settings";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/ResumeMatchScoreBreakdown.tsx",
+      '"Overall score is calculated using weighted averages based on component importance"; "(50% weight)";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Settings.tsx",
+      '"Job Scoring Weights"; "These weights determine how jobs are scored.";\n',
     );
     writeFixtureFile(
       root,
       "docs/features/smart-scoring.md",
-      "- Old posting: adjust recency weight if you're desperate\n",
+      "- Old posting: adjust recency weight if you're desperate\n## Weight Presets\n",
     );
 
     execFileSync(
@@ -7250,8 +7260,10 @@ test("checkRepoBloat rejects non-protective score copy", () => {
         "add",
         "package.json",
         "docs/features/smart-scoring.md",
+        "src/components/ResumeMatchScoreBreakdown.tsx",
         "src/components/ScoreDisplay.tsx",
         "src/components/ScoreBreakdownModal.tsx",
+        "src/pages/Settings.tsx",
       ],
       { cwd: root },
     );
@@ -7264,6 +7276,14 @@ test("checkRepoBloat rejects non-protective score copy", () => {
     );
     assert.ok(
       violations.includes("keep score copy protective: src/components/ScoreBreakdownModal.tsx"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("keep score copy protective: src/components/ResumeMatchScoreBreakdown.tsx"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("keep score copy protective: src/pages/Settings.tsx"),
       violations.join("\n"),
     );
     assert.ok(

@@ -26,7 +26,7 @@ describe("ScoreBreakdownModal", () => {
     it("renders title", () => {
       render(<ScoreBreakdownModal {...defaultProps} />);
 
-      expect(screen.getByText("Score Breakdown")).toBeInTheDocument();
+      expect(screen.getByText("Match Details")).toBeInTheDocument();
     });
   });
 
@@ -117,14 +117,14 @@ describe("ScoreBreakdownModal", () => {
       expect(screen.getByText("How fresh the posting is")).toBeInTheDocument();
     });
 
-    it("displays factor weights", () => {
+    it("displays factor priorities", () => {
       render(<ScoreBreakdownModal {...defaultProps} />);
 
-      expect(screen.getByText("40% weight")).toBeInTheDocument();
-      expect(screen.getByText("25% weight")).toBeInTheDocument();
-      expect(screen.getByText("20% weight")).toBeInTheDocument();
-      expect(screen.getByText("10% weight")).toBeInTheDocument();
-      expect(screen.getByText("5% weight")).toBeInTheDocument();
+      expect(screen.getByText("40% priority")).toBeInTheDocument();
+      expect(screen.getByText("25% priority")).toBeInTheDocument();
+      expect(screen.getByText("20% priority")).toBeInTheDocument();
+      expect(screen.getByText("10% priority")).toBeInTheDocument();
+      expect(screen.getByText("5% priority")).toBeInTheDocument();
     });
   });
 
@@ -168,14 +168,14 @@ describe("ScoreBreakdownModal", () => {
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons="not valid json" />);
 
       // Should render without errors
-      expect(screen.getByText("Score Breakdown")).toBeInTheDocument();
+      expect(screen.getByText("Match Details")).toBeInTheDocument();
     });
 
     it("ignores malformed valid JSON reason shapes", () => {
       const reasons = JSON.stringify([null, { text: "bad" }, "Salary meets target"]);
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);
 
-      expect(screen.getByText("Score Breakdown")).toBeInTheDocument();
+      expect(screen.getByText("Match Details")).toBeInTheDocument();
       expect(screen.getByText("Salary meets target")).toBeInTheDocument();
       expect(screen.queryByText("bad")).not.toBeInTheDocument();
     });
@@ -183,7 +183,7 @@ describe("ScoreBreakdownModal", () => {
     it("handles null reasons", () => {
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons={null} />);
 
-      expect(screen.getByText("Score Breakdown")).toBeInTheDocument();
+      expect(screen.getByText("Match Details")).toBeInTheDocument();
     });
 
     it("categorizes hybrid/onsite to location", () => {
@@ -224,7 +224,7 @@ describe("ScoreBreakdownModal", () => {
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);
 
       // Should render without errors
-      expect(screen.getByText("Score Breakdown")).toBeInTheDocument();
+      expect(screen.getByText("Match Details")).toBeInTheDocument();
     });
   });
 
@@ -249,13 +249,13 @@ describe("ScoreBreakdownModal", () => {
     it("displays help text", () => {
       render(<ScoreBreakdownModal {...defaultProps} />);
 
-      expect(screen.getByText(/Scores are calculated based on/)).toBeInTheDocument();
+      expect(screen.getByText(/JobSentinel reviews how this job matches/)).toBeInTheDocument();
     });
 
-    it("mentions Settings for adjusting weights", () => {
+    it("mentions Settings for adjusting preferences", () => {
       render(<ScoreBreakdownModal {...defaultProps} />);
 
-      expect(screen.getByText(/You can adjust scoring weights in Settings/)).toBeInTheDocument();
+      expect(screen.getByText(/You can adjust your preferences in Settings/)).toBeInTheDocument();
     });
   });
 
@@ -285,7 +285,7 @@ describe("ScoreBreakdownModal", () => {
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);
 
       // Should parse and display partial score
-      expect(screen.getByText("Score Breakdown")).toBeInTheDocument();
+      expect(screen.getByText("Match Details")).toBeInTheDocument();
     });
   });
 
@@ -309,7 +309,7 @@ describe("ScoreBreakdownModal", () => {
     it("handles empty reasons array", () => {
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons="[]" />);
 
-      expect(screen.getByText("Score Breakdown")).toBeInTheDocument();
+      expect(screen.getByText("Match Details")).toBeInTheDocument();
     });
   });
 });

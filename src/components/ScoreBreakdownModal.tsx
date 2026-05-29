@@ -20,7 +20,7 @@ interface ScoreBreakdownModalProps {
 }
 
 /**
- * Scoring weights (must match backend in scoring/mod.rs)
+ * Match priorities (must match backend scoring defaults).
  */
 const FACTOR_WEIGHTS = {
   skills: { weight: 0.40, label: "Skills Match", icon: "target", description: "Job title and search-word matches" },
@@ -265,7 +265,7 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
   const scoreLabel = getScoreLabel();
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Score Breakdown">
+    <Modal isOpen={isOpen} onClose={onClose} title="Match Details">
       <div className="space-y-6">
         {/* Overall Score */}
         <div className="text-center pb-4 border-b border-surface-200 dark:border-surface-700">
@@ -285,7 +285,7 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
         {/* Factor Breakdown */}
         <div className="space-y-4">
           <h3 className="text-sm font-semibold text-surface-700 dark:text-surface-300 uppercase tracking-wide">
-            Scoring Factors
+            Match Factors
           </h3>
 
           {(Object.keys(FACTOR_WEIGHTS) as Array<keyof typeof FACTOR_WEIGHTS>).map((key) => {
@@ -315,7 +315,7 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
                       {factorPercentage}%
                     </span>
                     <span className="text-xs text-surface-400 dark:text-surface-500">
-                      {Math.round(factor.weight * 100)}% weight
+                      {Math.round(factor.weight * 100)}% priority
                     </span>
                   </div>
                 </div>
@@ -360,8 +360,8 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
         {/* Help text */}
         <div className="pt-4 border-t border-surface-200 dark:border-surface-700">
           <p className="text-xs text-surface-500 dark:text-surface-400">
-            Scores are calculated based on how well this job matches your configured preferences.
-            You can adjust scoring weights in Settings.
+            JobSentinel reviews how this job matches your configured
+            preferences. You can adjust your preferences in Settings.
           </p>
         </div>
       </div>
