@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Sanitized scheduler persistence and job upsert tracing so job titles and companies are not written into backend spans or scraping result errors; added bloat coverage to keep raw job content out of those diagnostic surfaces. |
 | 2026-05-29 | In progress | Rewrote JSON Resume Import docs from a code/API mapping dump into a local-only sensitive-data import guide with safe defaults, user-facing failure states, broad-audience requirements, privacy-safe developer contract, and current verification. Sanitized `import_json_resume` logging so resume names and raw JSON content are not written to logs, and added bloat coverage for recurrence. |
 | 2026-05-29 | In progress | Rewrote optional local ML docs so embedded semantic matching is clearly disabled by default, not required for core workflows, local-only for matching, explicit for model downloads, and separate from external AI gateway behavior. Replaced old API-dump quickstart with developer commands and user-facing consent requirements. |
 | 2026-05-29 | In progress | Replaced the stale `docs/ROADMAP.md` release-log dump with a current developer roadmap that routes readers to the public pillar roadmap, active plans, tech-debt tracker, source policy, privacy/AI boundary, optional local ML status, and verification map. Updated docs index, getting-started, and contributing links so current planning and technical debt have one maintained home. |

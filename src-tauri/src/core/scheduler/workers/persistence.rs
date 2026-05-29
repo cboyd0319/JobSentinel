@@ -8,6 +8,25 @@ use crate::core::{
 };
 use std::sync::Arc;
 
+fn database_error_kind(error: &sqlx::Error) -> &'static str {
+    match error {
+        sqlx::Error::Database(_) => "database",
+        sqlx::Error::Decode(_) => "decode",
+        sqlx::Error::Encode(_) => "encode",
+        sqlx::Error::Io(_) => "io",
+        sqlx::Error::PoolClosed => "pool_closed",
+        sqlx::Error::PoolTimedOut => "pool_timed_out",
+        sqlx::Error::Protocol(_) => "protocol",
+        sqlx::Error::RowNotFound => "row_not_found",
+        sqlx::Error::Tls(_) => "tls",
+        sqlx::Error::TypeNotFound { .. } => "type_not_found",
+        sqlx::Error::ColumnIndexOutOfBounds { .. }
+        | sqlx::Error::ColumnNotFound(_)
+        | sqlx::Error::ColumnDecode { .. } => "column",
+        _ => "unknown",
+    }
+}
+
 /// Statistics from persistence and notification operations
 #[derive(Debug)]
 pub struct PersistenceStats {
@@ -55,13 +74,14 @@ pub async fn persist_and_notify(
 
         if let Err(e) = database.upsert_job(job).await {
             tracing::error!(
-                job_title = %job.title,
-                job_company = %job.company,
                 job_hash = %job.hash,
-                error = %e,
+                error_kind = database_error_kind(&e),
                 "Failed to upsert job"
             );
-            errors.push(format!("Database error for {}: {}", job.title, e));
+            errors.push(format!(
+                "Database error while saving one job ({})",
+                database_error_kind(&e)
+            ));
         }
 
         // Track reposts for ghost detection
@@ -70,8 +90,8 @@ pub async fn persist_and_notify(
             .await
         {
             tracing::debug!(
-                job_title = %job.title,
-                error = %e,
+                job_hash = %job.hash,
+                error_kind = database_error_kind(&e),
                 "Failed to track repost"
             );
         }
@@ -108,8 +128,7 @@ pub async fn persist_and_notify(
                 {
                     Ok(()) => {
                         tracing::info!(
-                            job_title = %job.title,
-                            job_company = %job.company,
+                            job_hash = %job.hash,
                             job_score = score.total,
                             "Notification alert sent"
                         );
@@ -124,25 +143,24 @@ pub async fn persist_and_notify(
                             if let Err(e) = database.mark_alert_sent(existing_job.id).await {
                                 tracing::error!(
                                     job_id = existing_job.id,
-                                    job_title = %job.title,
-                                    error = %e,
+                                    job_hash = %job.hash,
+                                    error_kind = database_error_kind(&e),
                                     "Failed to mark alert as sent"
                                 );
                                 errors.push(format!(
-                                    "Failed to mark alert sent for {}: {}",
-                                    job.title, e
+                                    "Database error while updating one alert state ({})",
+                                    database_error_kind(&e)
                                 ));
                             }
                         }
                     }
-                    Err(e) => {
+                    Err(_e) => {
                         tracing::error!(
-                            job_title = %job.title,
-                            job_company = %job.company,
-                            error = %e,
+                            job_hash = %job.hash,
+                            error_kind = "notification_delivery",
                             "Failed to send notification alert"
                         );
-                        errors.push(format!("Notification error for {}: {}", job.title, e));
+                        errors.push("Notification delivery error for one job".to_string());
                     }
                 }
             }

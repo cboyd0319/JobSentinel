@@ -294,6 +294,10 @@ const importCommandPrivacyPaths = new Set(["src-tauri/src/commands/import.rs"]);
 const urlSecurityPrivacyPaths = new Set(["src-tauri/src/core/url_security.rs"]);
 
 const rawNotificationJobTitleLoggingPaths = new Set(["src-tauri/src/core/notify/mod.rs"]);
+const rawSchedulerJobContentLoggingPaths = new Set([
+  "src-tauri/src/core/db/crud.rs",
+  "src-tauri/src/core/scheduler/workers/persistence.rs",
+]);
 
 const rawBookmarkletLoggingPaths = new Set(["src-tauri/src/core/bookmarklet/server.rs"]);
 const bookmarkletGeneratorPaths = new Set(["src/components/BookmarkletGenerator.tsx"]);
@@ -2330,6 +2334,22 @@ function hasRawUserDataPrivacyLogging(root, path) {
   );
 }
 
+function hasRawSchedulerJobContentLogging(root, path) {
+  if (!rawSchedulerJobContentLoggingPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /(?:job_title|job_company)\s*=/.test(text) ||
+    /tracing::(?:debug|info|warn|error)!\([^;]*(?:job\.title|job\.company)/.test(text) ||
+    /errors\.push\(format!\([^;]*(?:job\.title|job\.company)/.test(text) ||
+    /(?:Database error for|Notification error for|Failed to mark alert sent for)\s+\{\}/.test(
+      text,
+    )
+  );
+}
+
 function hasRawScraperUrlOrQueryLogging(root, path) {
   if (!rawScraperLoggingPaths.has(path)) {
     return false;
@@ -4107,6 +4127,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawUserDataPrivacyLogging(root, path)) {
       violations.push(`replace raw user-data privacy logging: ${path}`);
+    }
+
+    if (hasRawSchedulerJobContentLogging(root, path)) {
+      violations.push(`sanitize scheduler job content logging: ${path}`);
     }
 
     if (hasRawScraperUrlOrQueryLogging(root, path)) {

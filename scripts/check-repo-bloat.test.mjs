@@ -7120,6 +7120,60 @@ test("checkRepoBloat rejects raw user-data privacy logging", () => {
   });
 });
 
+test("checkRepoBloat rejects raw scheduler job content logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/crud.rs",
+      [
+        "#[tracing::instrument(skip(self, job), fields(",
+        "    job_hash = %job.hash,",
+        "    job_title = %job.title,",
+        "    job_company = %job.company,",
+        "))]",
+        "pub async fn upsert_job(&self, job: &Job) -> Result<i64, Error> {",
+        "    Ok(1)",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scheduler/workers/persistence.rs",
+      [
+        "pub async fn persist_and_notify(job: Job) {",
+        "    tracing::error!(job_title = %job.title, job_company = %job.company, \"Failed\");",
+        "    errors.push(format!(\"Notification error for {}: {}\", job.title, error));",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", [
+      "add",
+      "package.json",
+      "src-tauri/src/core/db/crud.rs",
+      "src-tauri/src/core/scheduler/workers/persistence.rs",
+    ], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sanitize scheduler job content logging: src-tauri/src/core/db/crud.rs"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "sanitize scheduler job content logging: src-tauri/src/core/scheduler/workers/persistence.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale user-data mock handlers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

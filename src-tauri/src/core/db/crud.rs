@@ -23,8 +23,6 @@ impl Database {
         skip(self, job),
         fields(
             job_hash = %job.hash,
-            job_title = %job.title,
-            job_company = %job.company,
             job_source = %job.source,
             job_score = ?job.score
         ),
