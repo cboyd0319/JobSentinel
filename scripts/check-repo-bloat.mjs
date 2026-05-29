@@ -511,6 +511,7 @@ const problemHistoryContextFormattingPaths = new Set([
 const errorBoundaryDisplayPaths = new Set([
   "src/components/ComponentErrorBoundary.tsx",
   "src/components/ErrorBoundary.tsx",
+  "src/components/ModalErrorBoundary.tsx",
   "src/components/PageErrorBoundary.tsx",
 ]);
 const protectiveScoreCopyPaths = new Set([
@@ -1364,6 +1365,9 @@ function hasTechnicalFirstUserCopy(root, path) {
     /toast\.error\([^)]*String\(error\)/s,
     /toast\.error\([^)]*String\(err\)/s,
     /\bsetError\(errorMsg\)/,
+    /\bsetError\(errorMessage\)/,
+    /const\s+message\s*=\s*err\s+instanceof\s+Error\s*\?\s*err\.message\s*:\s*String\(err\)/,
+    /toast\.error\(["'`](?:Analysis|Improvement) failed["'`],\s*message\)/,
     /Get job alerts via Telegram bot/i,
     /\bBot Token\b/i,
     /Paste your bot token from @BotFather/i,

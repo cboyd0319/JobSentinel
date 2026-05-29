@@ -4,9 +4,15 @@ import userEvent from "@testing-library/user-event";
 import ModalErrorBoundary from "./ModalErrorBoundary";
 
 // Component that throws an error
-function ThrowError({ shouldThrow = false }: { shouldThrow?: boolean }) {
+function ThrowError({
+  shouldThrow = false,
+  message = "Modal test error",
+}: {
+  shouldThrow?: boolean;
+  message?: string;
+}) {
   if (shouldThrow) {
-    throw new Error("Modal test error");
+    throw new Error(message);
   }
   return <div>Modal content working</div>;
 }
@@ -72,6 +78,23 @@ describe("ModalErrorBoundary", () => {
       );
 
       expect(screen.getByText("Modal test error")).toBeInTheDocument();
+    });
+
+    it("redacts private details in fallback UI", () => {
+      render(
+        <ModalErrorBoundary>
+          <ThrowError
+            shouldThrow={true}
+            message="token=raw-secret chad@example.com /Users/chad/private/resume.pdf"
+          />
+        </ModalErrorBoundary>
+      );
+
+      expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+      expect(screen.getByText((content, element) => {
+        return element?.tagName === "P" && content.includes("[TOKEN]");
+      })).toBeInTheDocument();
+      expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
     });
 
     it("shows safety message", () => {

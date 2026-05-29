@@ -10,6 +10,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { Modal, ModalFooter } from "./Modal";
 import { Button } from "./Button";
 import { useToast } from "../contexts";
+import { getUserFriendlyError } from "../utils/errorMessages";
 
 interface JobImportPreview {
   title: string;
@@ -30,6 +31,14 @@ interface JobImportModalProps {
   isOpen: boolean;
   onClose: () => void;
   onImportSuccess?: () => void;
+}
+
+function getSafeJobImportError(error: unknown) {
+  const friendly = getUserFriendlyError(error);
+  return {
+    message: friendly.message,
+    action: friendly.action ?? friendly.message,
+  };
 }
 
 export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportModalProps) {
@@ -79,9 +88,9 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
         toast.info("Job already saved", "This job is already in your saved jobs");
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      setError(errorMessage);
-      toast.error("Could not check job link", errorMessage);
+      const safeError = getSafeJobImportError(err);
+      setError(safeError.message);
+      toast.error("Could not check job link", safeError.action);
     } finally {
       setLoading(false);
     }
@@ -107,9 +116,9 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
       // Close modal
       onClose();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      setError(errorMessage);
-      toast.error("Could not save job", errorMessage);
+      const safeError = getSafeJobImportError(err);
+      setError(safeError.message);
+      toast.error("Could not save job", safeError.action);
     } finally {
       setImporting(false);
     }

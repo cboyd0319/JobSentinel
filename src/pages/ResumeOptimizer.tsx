@@ -7,6 +7,7 @@ import { LoadingSpinner } from "../components/LoadingSpinner";
 import { Modal, ModalFooter } from "../components/Modal";
 import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
+import { getUserFriendlyError } from "../utils/errorMessages";
 import { getScoreColor, getScoreBg } from "../utils/scoreUtils";
 import { writeStorageValue } from "../utils/browserStorage";
 
@@ -187,6 +188,11 @@ function parseAtsResumeInput(value: string): AtsResumeData | null {
   }
 }
 
+function getResumeAnalysisErrorAction(error: unknown): string {
+  const friendly = getUserFriendlyError(error);
+  return friendly.action ?? friendly.message;
+}
+
 export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerProps) {
   const [jobDescription, setJobDescription] = useState("");
   const [resumeJson, setResumeJson] = useState("");
@@ -243,8 +249,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
       setAnalysisResult(result);
       toast.success("Analysis complete", `Overall score: ${Math.round(result.overall_score)}%`);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      toast.error("Analysis failed", message);
+      toast.error("Analysis could not run", getResumeAnalysisErrorAction(err));
       logError("Analysis error:", err);
     } finally {
       setAnalyzing(false);
@@ -276,8 +281,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
       setAnalysisResult(result);
       toast.success("Format analysis complete", `Format score: ${Math.round(result.format_score)}%`);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      toast.error("Analysis failed", message);
+      toast.error("Analysis could not run", getResumeAnalysisErrorAction(err));
       logError("Format analysis error:", err);
     } finally {
       setAnalyzing(false);
@@ -301,8 +305,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
       setImprovedBullet(improved);
       toast.success("Bullet improved", "See the improved version below");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      toast.error("Improvement failed", message);
+      toast.error("Could not improve bullet", getResumeAnalysisErrorAction(err));
       logError("Bullet improvement error:", err);
     } finally {
       setImprovingBullet(false);

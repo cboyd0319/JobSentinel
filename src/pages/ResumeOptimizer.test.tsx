@@ -100,6 +100,12 @@ const mockJobAnalysis = {
 };
 
 describe("ResumeOptimizer", () => {
+  const privateFailure = new Error(
+    "token=raw-secret chad@example.com /Users/chad/private/resume.pdf"
+  );
+
+  const toastErrorText = () => mockToast.error.mock.calls.flat().join(" ");
+
   beforeEach(() => {
     vi.clearAllMocks();
     mockInvoke.mockResolvedValue(mockAnalysis);
@@ -197,5 +203,71 @@ describe("ResumeOptimizer", () => {
     expect(await screen.findByText("Strong Resume Words")).toBeInTheDocument();
     expect(screen.getByText(/resume screening tools/i)).toBeInTheDocument();
     expect(screen.queryByText(/ATS systems/i)).not.toBeInTheDocument();
+  });
+
+  it("does not show raw private details when job analysis fails", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockRejectedValueOnce(privateFailure);
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    fireEvent.change(screen.getByLabelText(/^job description$/i), {
+      target: { value: "Need onboarding and retention experience" },
+    });
+    fireEvent.change(screen.getByLabelText(/structured resume data/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /analyze with job/i }));
+
+    await waitFor(() => {
+      expect(mockToast.error).toHaveBeenCalledWith(
+        "Analysis could not run",
+        expect.stringContaining("safe debug report")
+      );
+    });
+
+    expect(toastErrorText()).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
+  });
+
+  it("does not show raw private details when format analysis fails", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockRejectedValueOnce(privateFailure);
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    fireEvent.change(screen.getByLabelText(/structured resume data/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /format only/i }));
+
+    await waitFor(() => {
+      expect(mockToast.error).toHaveBeenCalledWith(
+        "Analysis could not run",
+        expect.stringContaining("safe debug report")
+      );
+    });
+
+    expect(toastErrorText()).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
+  });
+
+  it("does not show raw private details when bullet improvement fails", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockRejectedValueOnce(privateFailure);
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    await user.click(screen.getByRole("button", { name: /improve bullet point/i }));
+    fireEvent.change(screen.getByPlaceholderText(/worked on improving database performance/i), {
+      target: { value: "Improved customer onboarding." },
+    });
+    await user.click(screen.getByRole("button", { name: "Improve" }));
+
+    await waitFor(() => {
+      expect(mockToast.error).toHaveBeenCalledWith(
+        "Could not improve bullet",
+        expect.stringContaining("safe debug report")
+      );
+    });
+
+    expect(toastErrorText()).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
   });
 });

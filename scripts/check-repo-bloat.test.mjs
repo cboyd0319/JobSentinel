@@ -654,6 +654,8 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         '"= Missing keywords"',
         '"({required.length} keywords)"',
         '"Opacity indicates keyword frequency."',
+        "const message = err instanceof Error ? err.message : String(err);",
+        'toast.error("Analysis failed", message);',
         '<ScoreItem label="Keywords" />',
         '<CardHeader title={`Keyword Matches (${analysisResult.keyword_matches.length})`} />',
         '<CardHeader title={`Missing Keywords (${analysisResult.missing_keywords.length})`} />',
@@ -691,6 +693,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         '"Failed to preview import"',
         '"Successfully imported"',
         '"Preview Import"',
+        "setError(errorMessage);",
         '"Change URL"',
         '"Import Job"',
         "",
@@ -7033,6 +7036,16 @@ test("checkRepoBloat rejects raw visible error-boundary details", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/ModalErrorBoundary.tsx",
+      [
+        "export function ModalErrorBoundary({ error }) {",
+        "  return <pre>{this.state.error.stack}</pre>;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/components/PageErrorBoundary.tsx",
       [
         "export function PageErrorBoundary({ error }) {",
@@ -7049,6 +7062,7 @@ test("checkRepoBloat rejects raw visible error-boundary details", () => {
         "package.json",
         "src/components/ComponentErrorBoundary.tsx",
         "src/components/ErrorBoundary.tsx",
+        "src/components/ModalErrorBoundary.tsx",
         "src/components/PageErrorBoundary.tsx",
       ],
       { cwd: root },
@@ -7065,6 +7079,12 @@ test("checkRepoBloat rejects raw visible error-boundary details", () => {
     assert.ok(
       violations.includes(
         "sanitize visible error-boundary details: src/components/ErrorBoundary.tsx",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "sanitize visible error-boundary details: src/components/ModalErrorBoundary.tsx",
       ),
       violations.join("\n"),
     );

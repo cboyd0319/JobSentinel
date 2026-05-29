@@ -1,9 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { ToastProvider } from "../contexts/ToastContext";
 import { JobImportModal } from "./JobImportModal";
+
+const mockInvoke = vi.mocked(invoke);
 
 const renderModal = () =>
   render(
@@ -13,6 +15,25 @@ const renderModal = () =>
   );
 
 describe("JobImportModal", () => {
+  const privateFailure = new Error(
+    "token=raw-secret chad@example.com /Users/chad/private/resume.pdf",
+  );
+
+  const preview = {
+    title: "Office Manager",
+    company: "Example Co",
+    url: "https://example.com/jobs/office-manager",
+    location: "Denver, CO",
+    description_preview: "Coordinate office operations.",
+    salary: "$60,000-$70,000",
+    date_posted: "2026-05-01",
+    valid_through: null,
+    employment_types: ["Full-time"],
+    remote: false,
+    missing_fields: [],
+    already_exists: false,
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -42,5 +63,40 @@ describe("JobImportModal", () => {
       await screen.findByText("Please enter a full link that starts with http:// or https://"),
     ).toBeInTheDocument();
     expect(invoke).not.toHaveBeenCalled();
+  });
+
+  it("does not show raw private details when preview fails", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockRejectedValueOnce(privateFailure);
+    renderModal();
+
+    fireEvent.change(screen.getByLabelText("Job link"), {
+      target: { value: "https://example.com/jobs/office-manager" },
+    });
+    await user.click(screen.getByRole("button", { name: "Check Job Link" }));
+
+    expect(await screen.findByText("An unexpected error occurred.")).toBeInTheDocument();
+    expect(screen.getByText(/safe debug report/i)).toBeInTheDocument();
+    expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
+  });
+
+  it("does not show raw private details when saving fails", async () => {
+    const user = userEvent.setup();
+    mockInvoke
+      .mockResolvedValueOnce(preview)
+      .mockRejectedValueOnce(privateFailure);
+    renderModal();
+
+    fireEvent.change(screen.getByLabelText("Job link"), {
+      target: { value: "https://example.com/jobs/office-manager" },
+    });
+    await user.click(screen.getByRole("button", { name: "Check Job Link" }));
+    expect(await screen.findByText("Office Manager")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Save Job" }));
+
+    expect(await screen.findByText("An unexpected error occurred.")).toBeInTheDocument();
+    expect(screen.getByText(/safe debug report/i)).toBeInTheDocument();
+    expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
   });
 });

@@ -1,5 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { errorReporter } from '../utils/errorReporting';
+import { errorReporter, sanitizeTextForStorage } from '../utils/errorReporting';
 import { logError } from '../utils/errorUtils';
 
 interface Props {
@@ -13,6 +13,22 @@ interface State {
   hasError: boolean;
   error: Error | null;
   retryCount: number;
+}
+
+function safeModalErrorMessage(error: Error | null): string {
+  if (!error?.message) {
+    return 'An unexpected error occurred';
+  }
+
+  return sanitizeTextForStorage(error.message);
+}
+
+function safeModalErrorDetails(error: Error | null): string {
+  if (!error?.stack) {
+    return 'No error details available.';
+  }
+
+  return sanitizeTextForStorage(error.stack);
 }
 
 /**
@@ -109,7 +125,7 @@ class ModalErrorBoundary extends Component<Props, State> {
                 {this.props.title || 'Something went wrong'}
               </h3>
               <p className="text-sm text-surface-600 dark:text-surface-400 mb-1">
-                {this.state.error?.message || 'An unexpected error occurred'}
+                {safeModalErrorMessage(this.state.error)}
               </p>
               <p className="text-xs text-surface-500 dark:text-surface-400">
                 {showRetryWarning
@@ -156,7 +172,7 @@ class ModalErrorBoundary extends Component<Props, State> {
                   Error Stack (Development Only)
                 </summary>
                 <pre className="mt-2 text-xs text-red-600 dark:text-red-400 overflow-auto max-h-32 whitespace-pre-wrap">
-                  {this.state.error.stack}
+                  {safeModalErrorDetails(this.state.error)}
                 </pre>
               </details>
             )}

@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Replaced raw job-import, resume-analysis, and modal-boundary errors with safe user guidance, keeping sensitive paths, emails, and tokens out of visible failure copy and extending bloat checks. |
 | 2026-05-29 | In progress | Sanitized cover-letter template failure toasts and component-boundary default error messages so raw paths, emails, and tokens do not reach user-facing recovery surfaces; added focused tests and repo-harness checks against regressions. |
 | 2026-05-29 | In progress | Sanitized `getUserFriendlyError` technical details before they can reach UI/support paths, changed unknown-error guidance to safe debug reports, and added bloat coverage against raw technical-message fallbacks returning. |
 | 2026-05-29 | In progress | Removed engineer-first and technical recovery wording from user-data docs: saved-search examples now cover office, design, and clinic roles, migration copy hides localStorage jargon, and deletion recovery points users to safe debug reports instead of manual SQLite file copying. |
