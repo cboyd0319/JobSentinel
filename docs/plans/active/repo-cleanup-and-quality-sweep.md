@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Tightened the user quick-start path for zero-technical-knowledge use: installer-first setup, source-build content collapsed for developers, protective match and notification wording, optional keyboard shortcuts, clear local-data wording, and safe debug-report support steps. |
 | 2026-05-29 | In progress | Reworked the root README using a 12-project professional README research pool: Kubernetes, AlphaFold, TensorFlow, PyTorch, scikit-learn, OpenTelemetry Collector, DuckDB, Transformers, Apache Spark, Ray, Airflow, and Rust. Adopted clearer thesis, status, architecture, scope, verification, and research-boundary framing while preserving the required source index. |
 | 2026-05-29 | In progress | Replaced promise-heavy setup and onboarding tour copy with practical saved-search and strong-match wording; added regression coverage so tour copy avoids promise-heavy ranking, profile, and score-jargon phrasing. |
 | 2026-05-29 | In progress | Locked privacy-first external-AI boundaries into docs, harness, and a disabled-by-default gateway with tests for opt-in, payload preview, sensitive-data blocking, full-database blocking, public-data-only payloads, and local metadata logging. |

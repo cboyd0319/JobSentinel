@@ -1,8 +1,9 @@
 # Getting Started with JobSentinel
 
-**Your job search, supercharged.**
+**A private, local-first job-search assistant.**
 
-Welcome! This guide will get you up and running in about 5 minutes.
+This guide helps you install JobSentinel, create a first saved search, and know
+where to get help if something does not work.
 
 ---
 
@@ -10,7 +11,7 @@ Welcome! This guide will get you up and running in about 5 minutes.
 
 You'll need to install JobSentinel on your computer. Here's the quick version:
 
-**Option A: Download the Installer** (Recommended)
+**Download the installer** (recommended)
 
 1. Go to [GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases)
 2. Download the installer for your platform:
@@ -18,13 +19,14 @@ You'll need to install JobSentinel on your computer. Here's the quick version:
    - **macOS:** the `.dmg` file
    - **Linux:** the `.AppImage` or `.deb` file when present on the release
 3. Double-click and follow the prompts
-4. Done!
+4. Open JobSentinel.
 
 <details>
 <summary><strong>First time on Mac? (Gatekeeper warning)</strong></summary>
 <br>
 
-macOS may show "JobSentinel can't be opened because Apple cannot check it for malicious software."
+macOS may show "JobSentinel can't be opened because Apple cannot check it for
+malicious software."
 
 **To fix this:**
 
@@ -32,7 +34,8 @@ macOS may show "JobSentinel can't be opened because Apple cannot check it for ma
 2. Scroll down and click **"Open Anyway"** next to the JobSentinel message
 3. Click **Open** in the confirmation dialog
 
-This only happens once. JobSentinel is safe — it's open source and you can verify the code yourself.
+This can happen because JobSentinel is a new open-source app. You only need to
+approve it once.
 
 </details>
 
@@ -47,13 +50,15 @@ Windows SmartScreen may show "Windows protected your PC" because JobSentinel is 
 1. Click **"More info"**
 2. Click **"Run anyway"**
 
-This is normal for new apps. JobSentinel is safe — it's open source and you can verify the code yourself.
+This can happen because JobSentinel is a new open-source app.
 
 </details>
 
-**Option B: Build from Source**
+<details>
+<summary><strong>For developers: build from source</strong></summary>
+<br>
 
-If you're comfortable with command-line basics:
+Most users should download the installer. Developers can build locally:
 
 ```bash
 git clone https://github.com/cboyd0319/JobSentinel
@@ -64,6 +69,8 @@ npm run tauri:build
 
 Need more detail? See [Developer Setup](../developer/GETTING_STARTED.md).
 
+</details>
+
 ---
 
 ## Step 1: Open JobSentinel
@@ -73,13 +80,13 @@ After installation:
 - **Windows:** JobSentinel appears in your system tray (bottom-right corner)
 - **macOS:** JobSentinel appears in your menu bar (top of screen)
 
-Left-click the icon to open the dashboard. That's your command center.
+Left-click the icon to open the dashboard.
 
 ---
 
 ## Step 2: Complete the setup wizard
 
-The first time you open JobSentinel, a friendly wizard walks you through a few simple questions.
+The first time you open JobSentinel, setup asks a few plain questions.
 
 ### Question 1: What kind of work are you looking for?
 
@@ -95,7 +102,8 @@ Type in job titles that match what you want. Examples:
 - "Project Manager"
 - "Bookkeeper"
 
-**Tip:** You can add multiple titles. The more specific you are, the better your matches.
+**Tip:** You can add multiple titles. Specific titles help JobSentinel find
+more relevant roles.
 
 ### Question 3: What work do you want more of?
 
@@ -145,7 +153,7 @@ settings later.
 
 ### Question 8: Want instant alerts? (Optional)
 
-Connect Slack, Discord, or Teams to get notified when great jobs appear.
+Connect Slack, Discord, or Teams to get notified when strong matches are found.
 
 Some apps ask you to create a connection link so JobSentinel can send messages
 there. Skip this for now and add it later in Settings if you want.
@@ -165,16 +173,16 @@ Change anything that looks wrong, then start finding jobs.
 
 ---
 
-## Step 3: Let It Work
+## Step 3: Review matches
 
-**That's it!** JobSentinel is now watching 13 job boards for you.
+JobSentinel is now watching 13 job sources for you.
 
 Here's what happens automatically:
 
-- Every 2 hours, JobSentinel checks for new jobs
-- Each job gets scored based on YOUR preferences
-- High-scoring jobs (90%+) trigger instant notifications (if you set them up)
-- Stale, reposted, or low-trust postings are flagged with warnings
+- Every 2 hours, JobSentinel checks for new jobs.
+- Each job is scored against your saved search.
+- Strong matches can trigger notifications if you set them up.
+- Stale, reposted, or low-trust postings are flagged with warnings.
 
 ### Your Dashboard
 
@@ -189,7 +197,7 @@ The dashboard shows:
 
 ---
 
-## Quick Actions
+## Quick actions
 
 ### Manual Search
 
@@ -211,9 +219,9 @@ and Glassdoor ratings.
 
 ---
 
-## Keyboard Shortcuts
+## Optional keyboard shortcuts
 
-For power users who hate using the mouse:
+You can use JobSentinel with the mouse. Keyboard shortcuts are optional.
 
 Use `Cmd` on macOS and `Ctrl` on Windows or Linux.
 
@@ -235,7 +243,7 @@ Press `?` anytime to see the full list.
 
 ---
 
-## Features You'll Love
+## Useful features
 
 ### Ghost Job Detection
 
@@ -298,24 +306,24 @@ Your changes take effect immediately.
 
 ### Slack
 
-1. Go to [Slack's Incoming Webhooks page](https://api.slack.com/messaging/webhooks)
-2. Create a new connection link for your workspace
-3. Copy the connection link
-4. Paste it in JobSentinel Settings > Notifications > Slack
+1. Go to [Slack's Incoming Webhooks page](https://api.slack.com/messaging/webhooks).
+2. Create a new connection link for your workspace.
+3. Copy the connection link.
+4. Paste it in JobSentinel Settings > Notifications > Slack.
 
 ### Discord
 
 1. Right-click your Discord channel > Edit Channel > Integrations
-2. Create a Webhook
-3. Copy the connection link
-4. Paste it in JobSentinel Settings > Notifications > Discord
+2. Create a Webhook.
+3. Copy the connection link.
+4. Paste it in JobSentinel Settings > Notifications > Discord.
 
 ### Microsoft Teams
 
 1. In your Teams channel, click More options > Connectors
-2. Add "Incoming Webhook"
-3. Copy the connection link
-4. Paste it in JobSentinel Settings > Notifications > Teams
+2. Add "Incoming Webhook".
+3. Copy the connection link.
+4. Paste it in JobSentinel Settings > Notifications > Teams.
 
 ---
 
@@ -323,12 +331,14 @@ Your changes take effect immediately.
 
 Everything stays on your computer. No cloud, no accounts, no tracking.
 
-**Saved jobs and settings:** Your local JobSentinel file
+**Saved jobs and settings:** your local JobSentinel file. You do not need to
+open this file unless support asks for it.
 
 - Windows: `%LOCALAPPDATA%\JobSentinel\jobs.db`
 - macOS: `~/Library/Application Support/JobSentinel/jobs.db`
 
-**Saved passwords and notification details:** Stored in your operating system's secure vault
+**Saved passwords and notification details:** stored in your operating system's
+secure vault.
 
 - Windows: Credential Manager
 - macOS: Keychain
@@ -356,8 +366,9 @@ Everything stays on your computer. No cloud, no accounts, no tracking.
 1. Open Settings in JobSentinel.
 2. Click **Save Safe Debug Report** to create an attachment, or click
    **Copy Safe Debug Report** if you prefer to paste it.
-3. [Open an issue on GitHub](https://github.com/cboyd0319/JobSentinel/issues).
-4. Attach or paste the safe report.
+3. Open **Send Feedback** or
+   [open an issue on GitHub](https://github.com/cboyd0319/JobSentinel/issues).
+4. Attach or paste the safe report. It is already sanitized before sharing.
 
 Also include:
 
@@ -369,15 +380,14 @@ Also include:
 
 ## Next Steps
 
-Now that you're set up:
+Next useful steps:
 
-- **Star the repo** on [GitHub](https://github.com/cboyd0319/JobSentinel)
 - **Learn more** about [Ghost Detection](../features/ghost-detection.md)
 - **Build your resume** with the [Resume Builder](../features/resume-builder.md)
 - **Review applications faster** with [Application Assist](../features/one-click-apply.md)
 
 ---
 
-**Good luck with your search.**
+**JobSentinel keeps practical job-search support local and under your control.**
 
 *JobSentinel - Your data stays yours. Always.*
