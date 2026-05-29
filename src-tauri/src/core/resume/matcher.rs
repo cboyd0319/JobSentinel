@@ -173,22 +173,22 @@ impl JobMatcher {
         let degree_patterns = [
             // PhD patterns
             (
-                r"(?i)(?:ph\.?d|doctorate)\s*(?:degree)?(?:\s+in\s+([a-zA-Z\s,]+))?",
+                r"(?i)(?:\bph\.?d\b|\bdoctorate\b)\s*(?:degree)?(?:\s+in\s+([a-zA-Z\s,]+))?",
                 DegreeLevel::PhD,
             ),
             // Master's patterns
             (
-                r"(?i)(?:master'?s?|m\.?s\.?|m\.?a\.?|mba)\s*(?:degree)?(?:\s+in\s+([a-zA-Z\s,]+))?",
+                r"(?i)(?:\bmaster'?s?\b|\bm\.?s\.?(?=\s|$)|\bm\.?a\.?(?=\s|$)|\bmba\b)\s*(?:degree)?(?:\s+in\s+([a-zA-Z\s,]+))?",
                 DegreeLevel::Master,
             ),
             // Bachelor's patterns
             (
-                r"(?i)(?:bachelor'?s?|b\.?s\.?|b\.?a\.?|undergraduate)\s*(?:degree)?(?:\s+in\s+([a-zA-Z\s,]+))?",
+                r"(?i)(?:\bbachelor'?s?\b|\bb\.?s\.?(?=\s|$)|\bb\.?a\.?(?=\s|$)|\bundergraduate\b)\s*(?:degree)?(?:\s+in\s+([a-zA-Z\s,]+))?",
                 DegreeLevel::Bachelor,
             ),
             // Associate patterns
             (
-                r"(?i)(?:associate'?s?|a\.?s\.?|a\.?a\.?)\s*(?:degree)?(?:\s+in\s+([a-zA-Z\s,]+))?",
+                r"(?i)(?:\bassociate'?s?\b|\ba\.?s\.?(?=\s|$)|\ba\.?a\.?(?=\s|$))\s*(?:degree)?(?:\s+in\s+([a-zA-Z\s,]+))?",
                 DegreeLevel::Associate,
             ),
         ];
@@ -781,10 +781,10 @@ mod tests {
             "#,
         )
         .bind(job_hash)
-        .bind("Software Engineer")
-        .bind("TechCorp")
+        .bind("Client Support Coordinator")
+        .bind("Harbor Community Services")
         .bind("Remote")
-        .bind("Looking for Python and React developer")
+        .bind("Looking for Case Management and CRM coordinator")
         .bind("https://example.com/job")
         .bind(0.9)
         .bind("greenhouse")
@@ -802,14 +802,14 @@ mod tests {
         )
         .bind("Test Resume")
         .bind("/tmp/test.pdf")
-        .bind("Python, JavaScript, Docker experience")
+        .bind("Case Management, Care Coordination, CRM experience")
         .execute(pool)
         .await
         .unwrap();
         let resume_id = result.last_insert_rowid();
 
         // Add user skills
-        for skill in &["Python", "JavaScript", "Docker"] {
+        for skill in &["Case Management", "Care Coordination", "CRM"] {
             sqlx::query(
                 r#"
                 INSERT INTO user_skills (resume_id, skill_name, skill_category, confidence_score, source)
@@ -818,7 +818,7 @@ mod tests {
             )
             .bind(resume_id)
             .bind(*skill)
-            .bind("programming_language")
+            .bind("client_services")
             .bind(0.9)
             .bind("resume")
             .execute(pool)
@@ -839,8 +839,8 @@ mod tests {
 
         let skills = matcher.extract_job_skills(job_hash).await.unwrap();
 
-        assert!(skills.contains(&"Python".to_string()));
-        assert!(skills.contains(&"React".to_string()));
+        assert!(skills.contains(&"Case Management".to_string()));
+        assert!(skills.contains(&"CRM".to_string()));
     }
 
     #[tokio::test]
@@ -866,16 +866,19 @@ mod tests {
     async fn test_gap_analysis() {
         let matcher = JobMatcher::new(SqlitePool::connect("sqlite::memory:").await.unwrap());
 
-        let matching = vec!["Python".to_string(), "JavaScript".to_string()];
-        let missing = vec!["React".to_string(), "TypeScript".to_string()];
+        let matching = vec![
+            "Case Management".to_string(),
+            "Care Coordination".to_string(),
+        ];
+        let missing = vec!["Budgeting".to_string(), "Reporting".to_string()];
 
         let analysis = matcher.generate_gap_analysis(&matching, &missing, 0.5);
 
         assert!(analysis.contains("50%"));
-        assert!(analysis.contains("Python"));
-        assert!(analysis.contains("JavaScript"));
-        assert!(analysis.contains("React"));
-        assert!(analysis.contains("TypeScript"));
+        assert!(analysis.contains("Case Management"));
+        assert!(analysis.contains("Care Coordination"));
+        assert!(analysis.contains("Budgeting"));
+        assert!(analysis.contains("Reporting"));
         assert!(analysis.contains("Matching Skills (2)"));
         assert!(analysis.contains("Missing Skills (2)"));
     }
@@ -890,13 +893,18 @@ mod tests {
         let resume_id = create_test_resume_with_skills(&pool).await;
 
         // Add job skills manually for precise testing
-        for skill in &["Python", "JavaScript", "TypeScript", "React"] {
+        for skill in &[
+            "Case Management",
+            "Care Coordination",
+            "Budgeting",
+            "Reporting",
+        ] {
             sqlx::query(
                 "INSERT INTO job_skills (job_hash, skill_name, is_required, skill_category) VALUES (?, ?, 1, ?)",
             )
             .bind(job_hash)
             .bind(*skill)
-            .bind("programming_language")
+            .bind("client_services")
             .execute(&pool)
             .await
             .unwrap();
@@ -904,7 +912,7 @@ mod tests {
 
         let match_result = matcher.calculate_match(resume_id, job_hash).await.unwrap();
 
-        // User has Python, JavaScript (2/4 = 50%)
+        // User has Case Management and Care Coordination (2/4 = 50%)
         assert_eq!(match_result.skills_match_score, Some(0.5));
         assert_eq!(match_result.matching_skills.len(), 2);
         assert_eq!(match_result.missing_skills.len(), 2);
@@ -955,7 +963,7 @@ mod tests {
         // Add job skills
         sqlx::query("INSERT INTO job_skills (job_hash, skill_name, is_required) VALUES (?, ?, 1)")
             .bind(job_hash)
-            .bind("Python")
+            .bind("Case Management")
             .execute(&pool)
             .await
             .unwrap();
@@ -973,11 +981,11 @@ mod tests {
         let matcher = JobMatcher::new(SqlitePool::connect("sqlite::memory:").await.unwrap());
 
         let matching = vec![
-            "Python".to_string(),
-            "JavaScript".to_string(),
-            "React".to_string(),
+            "Case Management".to_string(),
+            "Care Coordination".to_string(),
+            "CRM".to_string(),
         ];
-        let missing = vec!["TypeScript".to_string()];
+        let missing = vec!["Reporting".to_string()];
 
         let analysis = matcher.generate_gap_analysis(&matching, &missing, 0.85);
 
@@ -990,8 +998,11 @@ mod tests {
     async fn test_gap_analysis_good_match() {
         let matcher = JobMatcher::new(SqlitePool::connect("sqlite::memory:").await.unwrap());
 
-        let matching = vec!["Python".to_string(), "JavaScript".to_string()];
-        let missing = vec!["React".to_string()];
+        let matching = vec![
+            "Case Management".to_string(),
+            "Care Coordination".to_string(),
+        ];
+        let missing = vec!["Reporting".to_string()];
 
         let analysis = matcher.generate_gap_analysis(&matching, &missing, 0.67);
 
@@ -1004,8 +1015,8 @@ mod tests {
     async fn test_gap_analysis_moderate_match() {
         let matcher = JobMatcher::new(SqlitePool::connect("sqlite::memory:").await.unwrap());
 
-        let matching = vec!["Python".to_string()];
-        let missing = vec!["JavaScript".to_string(), "React".to_string()];
+        let matching = vec!["Case Management".to_string()];
+        let missing = vec!["Care Coordination".to_string(), "Reporting".to_string()];
 
         let analysis = matcher.generate_gap_analysis(&matching, &missing, 0.5);
 
@@ -1020,9 +1031,9 @@ mod tests {
 
         let matching = vec![];
         let missing = vec![
-            "Python".to_string(),
-            "JavaScript".to_string(),
-            "React".to_string(),
+            "Case Management".to_string(),
+            "Care Coordination".to_string(),
+            "Reporting".to_string(),
         ];
 
         let analysis = matcher.generate_gap_analysis(&matching, &missing, 0.2);
@@ -1083,6 +1094,29 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_education_detection_ignores_management_words() {
+        let matcher = JobMatcher::new(SqlitePool::connect("sqlite::memory:").await.unwrap());
+
+        let requirement = matcher.extract_education_requirements(
+            "Looking for Case Management and CRM coordination experience.",
+        );
+
+        assert!(requirement.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_education_detection_keeps_degree_requirement() {
+        let matcher = JobMatcher::new(SqlitePool::connect("sqlite::memory:").await.unwrap());
+
+        let requirement = matcher
+            .extract_education_requirements("Bachelor's degree required for this role.")
+            .unwrap();
+
+        assert_eq!(requirement.degree_level, DegreeLevel::Bachelor);
+        assert!(requirement.is_required);
+    }
+
+    #[tokio::test]
     async fn test_calculate_match_errors_when_education_lookup_fails() {
         let pool = setup_test_db().await;
         let matcher = JobMatcher::new(pool.clone());
@@ -1090,7 +1124,7 @@ mod tests {
         let job_hash = "job_requires_degree";
         create_test_job(&pool, job_hash).await;
         sqlx::query("UPDATE jobs SET description = ? WHERE hash = ?")
-            .bind("Bachelor's degree required. Looking for Python developer.")
+            .bind("Bachelor's degree required. Looking for client-services coordinator.")
             .bind(job_hash)
             .execute(&pool)
             .await
@@ -1156,7 +1190,7 @@ mod tests {
             "INSERT INTO user_skills (resume_id, skill_name, confidence_score, source) VALUES (?, ?, ?, ?)"
         )
         .bind(resume_id)
-        .bind("python") // lowercase
+        .bind("case management") // lowercase
         .bind(0.9)
         .bind("resume")
         .execute(&pool)
@@ -1166,7 +1200,7 @@ mod tests {
         // Add job skill with different case
         sqlx::query("INSERT INTO job_skills (job_hash, skill_name, is_required) VALUES (?, ?, 1)")
             .bind(job_hash)
-            .bind("Python") // capitalized
+            .bind("Case Management") // capitalized
             .execute(&pool)
             .await
             .unwrap();
@@ -1193,8 +1227,8 @@ mod tests {
             "#,
         )
         .bind(job_hash)
-        .bind("Software Engineer")
-        .bind("TechCorp")
+        .bind("Client Support Coordinator")
+        .bind("Harbor Community Services")
         .bind("https://example.com/job")
         .bind(0.9)
         .bind("greenhouse")
@@ -1229,8 +1263,8 @@ mod tests {
             "#
         )
         .bind(resume_id)
-        .bind("Python")
-        .bind("programming_language")
+        .bind("Case Management")
+        .bind("client_services")
         .bind(0.95)
         .bind(5.5)
         .bind("expert")
@@ -1243,11 +1277,8 @@ mod tests {
         assert_eq!(skills.len(), 1);
 
         let skill = &skills[0];
-        assert_eq!(skill.skill_name, "Python");
-        assert_eq!(
-            skill.skill_category,
-            Some("programming_language".to_string())
-        );
+        assert_eq!(skill.skill_name, "Case Management");
+        assert_eq!(skill.skill_category, Some("client_services".to_string()));
         assert_eq!(skill.confidence_score, 0.95);
         assert_eq!(skill.years_experience, Some(5.5));
         assert_eq!(skill.proficiency_level, Some("expert".to_string()));

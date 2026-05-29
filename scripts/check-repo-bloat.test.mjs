@@ -614,8 +614,18 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src-tauri/src/core/resume/matcher.rs",
+      'title: "Software Engineer", company: "TechCorp";\n',
+    );
+    writeFixtureFile(
+      root,
       "src-tauri/src/core/resume/parser.rs",
       '"John Doe"; "Software Engineer"; "TechCorp";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/resume/tests.rs",
+      'title: "Software Engineer", company: "TechCorp";\n',
     );
     writeFixtureFile(
       root,
@@ -784,7 +794,9 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src-tauri/src/core/resume/builder.rs",
         "src-tauri/src/core/resume/export.rs",
         "src-tauri/src/core/resume/json_resume.rs",
+        "src-tauri/src/core/resume/matcher.rs",
         "src-tauri/src/core/resume/parser.rs",
+        "src-tauri/src/core/resume/tests.rs",
         "src/pages/hooks/useDashboardFilters.test.ts",
         "src/pages/hooks/useDashboardJobOps.test.ts",
         "src/pages/hooks/useDashboardSavedSearches.test.ts",
@@ -848,7 +860,9 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src-tauri/src/core/resume/builder.rs",
       "src-tauri/src/core/resume/export.rs",
       "src-tauri/src/core/resume/json_resume.rs",
+      "src-tauri/src/core/resume/matcher.rs",
       "src-tauri/src/core/resume/parser.rs",
+      "src-tauri/src/core/resume/tests.rs",
       "src/pages/hooks/useDashboardFilters.test.ts",
       "src/pages/hooks/useDashboardJobOps.test.ts",
       "src/pages/hooks/useDashboardSavedSearches.test.ts",

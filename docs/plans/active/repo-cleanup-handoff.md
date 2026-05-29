@@ -68,6 +68,10 @@ Current cleanup posture:
   readability-analysis fixtures now use community-program and client-service
   examples instead of engineer-first defaults, and the readability keyword
   extractor covers common non-software role terms.
+- Resume match database fixtures now cover client-support and case-management
+  examples instead of relying on software-engineering and TechCorp defaults.
+- Resume match degree parsing now guards against false M.A. matches inside
+  words such as "management".
 
 ## Recent Work Landed
 
@@ -78,6 +82,8 @@ Recent cleanup slices on `main` include:
   verify-before-tailoring guidance.
 - Backend resume fixture cleanup and broader role keyword extraction for
   resume readability checks.
+- Resume match fixture cleanup for broad-audience scoring examples.
+- Degree-detection regression coverage for case-management job descriptions.
 - WebKit E2E shortcut delivery and dashboard count stabilization.
 - Chromium E2E stabilization after full-suite failures.
 - Active research-backed product planning for job-seeker behavior, ATS-aware

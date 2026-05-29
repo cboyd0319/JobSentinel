@@ -159,7 +159,7 @@ async fn create_test_job(pool: &SqlitePool, job_hash: &str, title: &str, descrip
     )
     .bind(job_hash)
     .bind(title)
-    .bind("TechCorp")
+    .bind("Harbor Community Services")
     .bind("Remote")
     .bind(description)
     .bind("https://example.com/job")
