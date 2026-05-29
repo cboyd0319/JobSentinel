@@ -3848,7 +3848,12 @@ function hasRawErrorBoundaryDetails(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /\bthis\.state\.error\.(?:message|stack)\b/.test(text);
+  return (
+    /\bthis\.state\.error\.(?:message|stack)\b/.test(text) ||
+    /sanitizeTextForStorage\(\s*(?:message|error\.message|this\.state\.error\.message)\s*\)/.test(
+      text,
+    )
+  );
 }
 
 function hasNonProtectiveScoreCopy(root, path) {

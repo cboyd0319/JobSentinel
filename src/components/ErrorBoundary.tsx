@@ -10,8 +10,9 @@ const VISUAL_PREFERENCE_KEYS = [
 ] as const;
 
 function getSafeErrorMessage(error: Error | null): string {
-  const message = error?.message?.trim();
-  return message ? sanitizeTextForStorage(message) : 'An unexpected error occurred';
+  return error
+    ? 'JobSentinel ran into a problem. Your data is safe. Try again, or copy a safe debug report if it keeps happening.'
+    : 'An unexpected error occurred';
 }
 
 function getSafeErrorStack(error: Error | null): string | null {

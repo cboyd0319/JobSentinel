@@ -6,9 +6,8 @@ import { logError } from "../utils/errorUtils";
 import { saveSanitizedDebugReport } from "../services/feedbackService";
 
 function getSafeErrorMessage(error: Error | null): string {
-  const message = error?.message?.trim();
-  return message
-    ? sanitizeTextForStorage(message)
+  return error
+    ? "Something went wrong loading this page. Your data is safe. Try again, go back, or save a safe debug report if it keeps happening."
     : "Something went wrong loading this page. Your data is safe.";
 }
 

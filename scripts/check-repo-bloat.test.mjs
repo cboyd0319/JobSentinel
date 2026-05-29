@@ -8189,7 +8189,8 @@ test("checkRepoBloat rejects raw visible error-boundary details", () => {
       "src/components/PageErrorBoundary.tsx",
       [
         "export function PageErrorBoundary({ error }) {",
-        "  return <pre>{this.state.error.stack}</pre>;",
+        "  const message = error.message;",
+        "  return <p>{sanitizeTextForStorage(message)}</p>;",
         "}",
         "",
       ].join("\n"),

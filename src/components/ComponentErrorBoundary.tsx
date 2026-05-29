@@ -15,12 +15,8 @@ interface State {
   error: Error | null;
 }
 
-function safeComponentErrorMessage(error: Error | null): string {
-  if (!error?.message) {
-    return 'This section failed to load. Try again, or copy a safe debug report if it keeps happening.';
-  }
-
-  return sanitizeTextForStorage(error.message);
+function safeComponentErrorMessage(): string {
+  return 'This section failed to load. Try again, or copy a safe debug report if it keeps happening.';
 }
 
 function safeComponentErrorDetails(error: Error | null): string {
@@ -117,7 +113,7 @@ class ComponentErrorBoundary extends Component<Props, State> {
                 {this.props.componentName} Error
               </p>
               <p className="text-sm text-red-700 dark:text-red-400 mt-1">
-                {safeComponentErrorMessage(this.state.error)}
+                {safeComponentErrorMessage()}
               </p>
               {import.meta.env.DEV && (
                 <details className="mt-2">

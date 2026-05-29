@@ -16,11 +16,9 @@ interface State {
 }
 
 function safeModalErrorMessage(error: Error | null): string {
-  if (!error?.message) {
-    return 'An unexpected error occurred';
-  }
-
-  return sanitizeTextForStorage(error.message);
+  return error
+    ? 'This window failed to load. Your data is safe. Close it and try again.'
+    : 'An unexpected error occurred';
 }
 
 function safeModalErrorDetails(error: Error | null): string {

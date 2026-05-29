@@ -119,17 +119,21 @@ describe("PageErrorBoundary", () => {
       expect(screen.getByText("Dashboard Error")).toBeInTheDocument();
     });
 
-    it("displays error message in description", () => {
+    it("displays protective message in description", () => {
       render(
         <PageErrorBoundary>
           <ThrowError shouldThrow={true} />
         </PageErrorBoundary>
       );
 
-      expect(screen.getByText("Page test error")).toBeInTheDocument();
+      expect(screen.getByText(/something went wrong loading this page/i)).toBeInTheDocument();
+      expect(screen.getByText(/save a safe debug report/i)).toBeInTheDocument();
+      expect(screen.queryByText("Page test error")).not.toBeInTheDocument();
     });
 
-    it("redacts private details from visible page error messages", () => {
+    it("does not expose private details in visible page error messages", () => {
+      vi.stubEnv("DEV", false);
+
       const { container } = render(
         <PageErrorBoundary>
           <ThrowError
@@ -139,12 +143,15 @@ describe("PageErrorBoundary", () => {
         </PageErrorBoundary>
       );
 
-      expect(container.textContent).toContain("/[USER_PATH]/private.txt");
-      expect(container.textContent).toContain("[TOKEN]");
-      expect(container.textContent).toContain("[EMAIL]");
+      expect(container.textContent).toContain("Something went wrong loading this page");
       expect(container.textContent).not.toContain("/Users/alice");
       expect(container.textContent).not.toContain("token=abc");
       expect(container.textContent).not.toContain("candidate@example.com");
+      expect(container.textContent).not.toContain("[USER_PATH]");
+      expect(container.textContent).not.toContain("[TOKEN]");
+      expect(container.textContent).not.toContain("[EMAIL]");
+
+      vi.unstubAllEnvs();
     });
 
     it("uses EmptyState with error illustration", () => {
@@ -294,9 +301,7 @@ describe("PageErrorBoundary", () => {
         </PageErrorBoundary>
       );
 
-      // The "Page test error" message is shown, not the default message
-      // The default message with "Your data is safe" only shows when error.message is undefined
-      const description = screen.getByText("Page test error");
+      const description = screen.getByText(/something went wrong loading this page/i);
       expect(description).toBeInTheDocument();
     });
 

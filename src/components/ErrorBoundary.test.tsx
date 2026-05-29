@@ -86,17 +86,21 @@ describe("ErrorBoundary", () => {
       expect(screen.getByText("Something Went Wrong")).toBeInTheDocument();
     });
 
-    it("displays error message", () => {
+    it("displays protective error message", () => {
       render(
         <ErrorBoundary>
           <ThrowError shouldThrow={true} />
         </ErrorBoundary>
       );
 
-      expect(screen.getByText("Test error message")).toBeInTheDocument();
+      expect(screen.getByText(/JobSentinel ran into a problem/i)).toBeInTheDocument();
+      expect(screen.getByText(/copy a safe debug report/i)).toBeInTheDocument();
+      expect(screen.queryByText("Test error message")).not.toBeInTheDocument();
     });
 
-    it("redacts private details from visible error messages", () => {
+    it("does not expose private details in visible error messages", () => {
+      vi.stubEnv("DEV", false);
+
       const { container } = render(
         <ErrorBoundary>
           <ThrowError
@@ -106,12 +110,15 @@ describe("ErrorBoundary", () => {
         </ErrorBoundary>
       );
 
-      expect(container.textContent).toContain("/[USER_PATH]/private.txt");
-      expect(container.textContent).toContain("[TOKEN]");
-      expect(container.textContent).toContain("[EMAIL]");
+      expect(container.textContent).toContain("JobSentinel ran into a problem");
       expect(container.textContent).not.toContain("/Users/alice");
       expect(container.textContent).not.toContain("token=abc");
       expect(container.textContent).not.toContain("candidate@example.com");
+      expect(container.textContent).not.toContain("[USER_PATH]");
+      expect(container.textContent).not.toContain("[TOKEN]");
+      expect(container.textContent).not.toContain("[EMAIL]");
+
+      vi.unstubAllEnvs();
     });
 
     it("shows reload button", () => {
@@ -134,9 +141,7 @@ describe("ErrorBoundary", () => {
         </ErrorBoundary>
       );
 
-      expect(
-        screen.getByText(/your data is safe/i)
-      ).toBeInTheDocument();
+      expect(screen.getAllByText(/your data is safe/i).length).toBeGreaterThan(0);
     });
 
     it("copies a sanitized debug report from the crash screen", async () => {
@@ -294,7 +299,7 @@ describe("ErrorBoundary", () => {
         </ErrorBoundary>
       );
 
-      expect(screen.getByText("An unexpected error occurred")).toBeInTheDocument();
+      expect(screen.getByText(/JobSentinel ran into a problem/i)).toBeInTheDocument();
     });
   });
 

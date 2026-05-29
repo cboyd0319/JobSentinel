@@ -45,13 +45,15 @@ describe('ComponentErrorBoundary', () => {
     );
 
     expect(screen.getByText('TestComponent Error')).toBeInTheDocument();
-    // Use getByRole to find the specific paragraph, not the stack trace
     expect(screen.getByText((content, element) => {
-      return element?.tagName === 'P' && content.includes('Something went wrong');
+      return element?.tagName === 'P' && content.includes('This section failed to load');
     })).toBeInTheDocument();
+    expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
   });
 
-  it('redacts private details in default error UI', () => {
+  it('does not expose private details in default error UI', () => {
+    vi.stubEnv('DEV', false);
+
     render(
       <ComponentErrorBoundary componentName="PrivateComponent">
         <ThrowError error="token=raw-secret chad@example.com /Users/chad/private/resume.pdf" />
@@ -60,9 +62,14 @@ describe('ComponentErrorBoundary', () => {
 
     expect(screen.getByText('PrivateComponent Error')).toBeInTheDocument();
     expect(screen.getByText((content, element) => {
-      return element?.tagName === 'P' && content.includes('[TOKEN]');
+      return element?.tagName === 'P' && content.includes('safe debug report');
     })).toBeInTheDocument();
-    expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
+    expect(document.body.textContent).not.toContain('raw-secret');
+    expect(document.body.textContent).not.toContain('chad@example.com');
+    expect(document.body.textContent).not.toContain('/Users/chad');
+    expect(document.body.textContent).not.toContain('[TOKEN]');
+
+    vi.unstubAllEnvs();
   });
 
   it('uses custom fallback when provided', () => {

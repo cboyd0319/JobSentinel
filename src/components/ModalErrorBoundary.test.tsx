@@ -70,17 +70,20 @@ describe("ModalErrorBoundary", () => {
       expect(screen.getByText("Custom Error Title")).toBeInTheDocument();
     });
 
-    it("displays error message", () => {
+    it("displays protective error message", () => {
       render(
         <ModalErrorBoundary>
           <ThrowError shouldThrow={true} />
         </ModalErrorBoundary>
       );
 
-      expect(screen.getByText("Modal test error")).toBeInTheDocument();
+      expect(screen.getByText(/this window failed to load/i)).toBeInTheDocument();
+      expect(screen.queryByText("Modal test error")).not.toBeInTheDocument();
     });
 
-    it("redacts private details in fallback UI", () => {
+    it("does not expose private details in fallback UI", () => {
+      vi.stubEnv("DEV", false);
+
       render(
         <ModalErrorBoundary>
           <ThrowError
@@ -92,9 +95,14 @@ describe("ModalErrorBoundary", () => {
 
       expect(screen.getByText("Something went wrong")).toBeInTheDocument();
       expect(screen.getByText((content, element) => {
-        return element?.tagName === "P" && content.includes("[TOKEN]");
+        return element?.tagName === "P" && content.includes("This window failed to load");
       })).toBeInTheDocument();
-      expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
+      expect(document.body.textContent).not.toContain("raw-secret");
+      expect(document.body.textContent).not.toContain("chad@example.com");
+      expect(document.body.textContent).not.toContain("/Users/chad");
+      expect(document.body.textContent).not.toContain("[TOKEN]");
+
+      vi.unstubAllEnvs();
     });
 
     it("shows safety message", () => {
@@ -104,9 +112,7 @@ describe("ModalErrorBoundary", () => {
         </ModalErrorBoundary>
       );
 
-      expect(
-        screen.getByText(/your data is safe/i)
-      ).toBeInTheDocument();
+      expect(screen.getAllByText(/your data is safe/i).length).toBeGreaterThan(0);
     });
 
     it("shows Close button", () => {
@@ -191,7 +197,7 @@ describe("ModalErrorBoundary", () => {
         </ModalErrorBoundary>
       );
 
-      expect(screen.getByText("An unexpected error occurred")).toBeInTheDocument();
+      expect(screen.getByText(/this window failed to load/i)).toBeInTheDocument();
     });
 
     it("calls onClose and resets state when dismissed", async () => {
