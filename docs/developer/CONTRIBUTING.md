@@ -20,10 +20,10 @@ After any significant change, update all relevant docs:
 
 | Change Type       | Must Update                                                      |
 | ----------------- | ---------------------------------------------------------------- |
-| New feature       | `CHANGELOG.md`, `docs/features/`, `README.md`, `docs/ROADMAP.md` |
+| New feature       | `CHANGELOG.md`, `docs/features/`, `README.md`, active plan or roadmap |
 | New Tauri command | `AGENTS.md` if workflow changes, `docs/harness/`, `docs/README.md` |
 | Bug fix           | `CHANGELOG.md`                                                   |
-| Refactoring       | `docs/ROADMAP.md` (Technical Debt section)                       |
+| Refactoring       | `docs/plans/tech-debt-tracker.md` when debt changes              |
 | New scraper       | `docs/features/scrapers.md`, `CHANGELOG.md`                      |
 | Test changes      | `docs/developer/TESTING.md`                                      |
 
@@ -36,12 +36,13 @@ Before committing, ask: "Did I update all relevant docs?"
 **Test organization:** Move test modules to separate `tests.rs` files when a file exceeds 400
 lines. This keeps the main logic focused and tests discoverable.
 
-See the Technical Debt section in `docs/ROADMAP.md` for files needing refactoring.
+See `docs/plans/tech-debt-tracker.md` for current refactor and debt items.
 
 ### Check Current Status
 
 Check `package.json` for the current release package version. See
-`docs/ROADMAP.md` for current plans and technical debt tracking.
+`ROADMAP.md` for public product priorities, `docs/ROADMAP.md` for developer
+planning, and `docs/plans/tech-debt-tracker.md` for current technical debt.
 
 ---
 

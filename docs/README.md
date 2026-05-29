@@ -14,15 +14,16 @@ Welcome to JobSentinel documentation.
 
 ### Current Version: 2.6.4
 
-Current release package version is `2.6.4`. Unreleased `2.7.x` work is tracked in
-[CHANGELOG.md](../CHANGELOG.md) and [ROADMAP.md](ROADMAP.md).
+Current release package version is `2.6.4`. Unreleased work is tracked in
+[CHANGELOG.md](../CHANGELOG.md), the public [root roadmap](../ROADMAP.md), and
+[plans index](plans/README.md).
 
 ---
 
 ## Current Status
 
 **Release version:** 2.6.4
-**Unreleased `2.7.x` work implemented on main:** Beta feedback, one-click
+**Unreleased work implemented on main:** Beta feedback, one-click
 sanitized debug reports, zero-technical-knowledge UX requirements,
 broad-audience design guidance, docs harness alignment
 **Verification:** Use `npm run harness:check`, `npm run lint`, `npm run test:run`, and Rust checks from
@@ -257,7 +258,8 @@ broad-audience design guidance, docs harness alignment
 
 ### Planning
 
-- **[Roadmap](ROADMAP.md)** - Feature roadmap and priorities
+- **[Public roadmap](../ROADMAP.md)** - Product pillars and priorities
+- **[Developer roadmap](ROADMAP.md)** - Implementation state and active-plan routing
 - **[Plans](plans/README.md)** - Active, completed, and template plans
   - [v2.6.0 UX Improvements](plans/completed/v2.6.0-ux-improvements.md) - Completed sprint
 
@@ -272,7 +274,8 @@ broad-audience design guidance, docs harness alignment
 | Understand ghost detection | [Ghost Detection](features/ghost-detection.md)  |
 | Contribute code            | [Contributing](developer/CONTRIBUTING.md)       |
 | Understand architecture    | [Architecture](developer/ARCHITECTURE.md)       |
-| See the roadmap            | [Roadmap](ROADMAP.md)                           |
+| See product priorities     | [Public roadmap](../ROADMAP.md)                 |
+| See developer planning     | [Developer roadmap](ROADMAP.md)                 |
 
 ---
 
@@ -281,7 +284,7 @@ broad-audience design guidance, docs harness alignment
 Docs layout:
 
 - `docs/README.md`: this file
-- `docs/ROADMAP.md`: feature roadmap
+- `docs/ROADMAP.md`: developer roadmap and active-plan routing
 - `docs/CLAUDE.md`: compatibility pointer; `AGENTS.md` is authoritative
 - `docs/exec-plans.md`: exec plan format
 - `docs/harness/`: harness engineering guides and sensors

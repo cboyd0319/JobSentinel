@@ -309,15 +309,16 @@ To maintain code quality and regenerability, all files follow the LLM-first codi
 - **Modular structure**: Each module has clear boundaries and minimal coupling
 - **Separated concerns**: Tests go in `tests.rs` files, not inline `#[cfg(test)]` blocks
 
-Historical modularization status lives in [ROADMAP.md](../ROADMAP.md).
-For current refactor candidates, use live line counts and ownership checks
-instead of copying fixed size snapshots into setup docs.
+Current refactor candidates live in
+[tech-debt-tracker.md](../plans/tech-debt-tracker.md). Use live line counts and
+ownership checks instead of copying fixed size snapshots into setup docs.
 
 ---
 
 ## Next Steps
 
-1. Read [ROADMAP.md](../ROADMAP.md) for current priorities and technical debt
+1. Read the [root roadmap](../../ROADMAP.md) for product priorities and
+   [developer roadmap](../ROADMAP.md) for active implementation routing
 2. Read [Quick Start Guide](../user/QUICK_START.md) for user documentation
 3. Check [GitHub Issues](https://github.com/cboyd0319/JobSentinel/issues) for tasks
 4. Review [Feature Documentation](../README.md#features) for implementation details
