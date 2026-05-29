@@ -266,7 +266,6 @@ export default function Dashboard({
           await safeInvoke<Record<string, { enabled?: boolean }>>("get_config");
         if (cfg) {
           const scraperKeys = [
-            "linkedin",
             "remoteok",
             "weworkremotely",
             "builtin",
@@ -667,10 +666,10 @@ export default function Dashboard({
                     </div>
                     <div>
                       <p className="text-sm font-medium text-surface-700 dark:text-surface-300">
-                        We search
+                        Scan allowed sources
                       </p>
                       <p className="text-xs text-surface-500 dark:text-surface-400">
-                        13 job boards on your schedule
+                        Local checks run on your schedule
                       </p>
                     </div>
                   </div>
@@ -680,10 +679,10 @@ export default function Dashboard({
                     </div>
                     <div>
                       <p className="text-sm font-medium text-surface-700 dark:text-surface-300">
-                        We match
+                        Show useful evidence
                       </p>
                       <p className="text-xs text-surface-500 dark:text-surface-400">
-                        Based on your skills
+                        Match, pay, and posting risk stay visible
                       </p>
                     </div>
                   </div>
@@ -693,10 +692,10 @@ export default function Dashboard({
                     </div>
                     <div>
                       <p className="text-sm font-medium text-surface-700 dark:text-surface-300">
-                        You apply
+                        You choose
                       </p>
                       <p className="text-xs text-surface-500 dark:text-surface-400">
-                        To jobs that fit you
+                        Open the source, save notes, or skip
                       </p>
                     </div>
                   </div>

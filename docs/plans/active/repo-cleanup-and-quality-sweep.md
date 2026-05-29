@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Removed a stale dashboard "13 job boards" empty-state claim, replaced it with protective source/pay/posting-risk copy, and stopped treating LinkedIn search-link settings as an enabled background source during dashboard preflight. |
 | 2026-05-29 | In progress | Extended pay protection from setup into job cards by passing the saved salary floor into Dashboard results and warning when listed pay tops out below the user's floor. |
 | 2026-05-29 | In progress | Continued guided-intake pay protection by adding an optional setup pay-floor field, summary coverage, and quick-start wording so users can set below-floor warnings before first scan without hiding missing-pay roles. |
 | 2026-05-29 | In progress | Locked the LinkedIn source boundary to user-opened search links only: disabled background collection, disabled new session credential storage, removed LinkedIn from smoke tests and Settings credential checks, rewrote source-health docs, and added bloat coverage for recurrence. |

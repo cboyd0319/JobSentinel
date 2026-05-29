@@ -14,7 +14,6 @@ const mockInvoke = vi.mocked(invoke);
 // ---------------------------------------------------------------------------
 
 const SCRAPER_KEYS = [
-  "linkedin",
   "remoteok",
   "weworkremotely",
   "builtin",
@@ -110,10 +109,18 @@ describe("Dashboard handleSearchNow pre-flight check", () => {
       expect(anyScraperEnabled(cfg)).toBe(false);
     });
 
+    it("does not treat LinkedIn search links as a background source", () => {
+      const cfg: ScraperConfig = {
+        linkedin: { enabled: true },
+      };
+
+      expect(anyScraperEnabled(cfg)).toBe(false);
+    });
+
     it("returns true for the first matching enabled scraper without checking the rest", () => {
       // Only the first key in SCRAPER_KEYS is enabled
       const cfg: ScraperConfig = {
-        linkedin: { enabled: true },
+        remoteok: { enabled: true },
       };
       expect(anyScraperEnabled(cfg)).toBe(true);
     });
@@ -134,7 +141,7 @@ describe("Dashboard handleSearchNow pre-flight check", () => {
     });
 
     it("does NOT call warn and returns 'allowed' when one scraper is enabled", async () => {
-      const cfg: ScraperConfig = { linkedin: { enabled: true } };
+      const cfg: ScraperConfig = { remoteok: { enabled: true } };
       const getConfig = vi.fn().mockResolvedValue(cfg);
       const warn = vi.fn();
 
@@ -205,7 +212,7 @@ describe("Dashboard handleSearchNow pre-flight check", () => {
 
   describe("safeInvoke integration (via mocked invoke)", () => {
     it("invoke is called with 'get_config' during pre-flight", async () => {
-      mockInvoke.mockResolvedValueOnce({ linkedin: { enabled: true } });
+      mockInvoke.mockResolvedValueOnce({ remoteok: { enabled: true } });
 
       const { safeInvoke } = await import("../utils/api");
       const cfg = await safeInvoke<ScraperConfig>("get_config");

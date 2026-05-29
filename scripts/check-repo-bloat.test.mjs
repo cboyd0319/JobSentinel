@@ -3358,10 +3358,21 @@ test("checkRepoBloat rejects stale scraper health coverage", () => {
         "",
       ].join("\n"),
     );
+    writeFixtureFile(
+      root,
+      "src/pages/Dashboard.tsx",
+      "const emptyState = '13 job boards on your schedule';\n",
+    );
 
     execFileSync(
       "git",
-      ["add", "package.json", "docs/features/scraper-health.md", "src/mocks/handlers.ts"],
+      [
+        "add",
+        "package.json",
+        "docs/features/scraper-health.md",
+        "src/mocks/handlers.ts",
+        "src/pages/Dashboard.tsx",
+      ],
       { cwd: root },
     );
 
@@ -3373,6 +3384,10 @@ test("checkRepoBloat rejects stale scraper health coverage", () => {
     );
     assert.ok(
       violations.includes("sync scraper health source coverage: src/mocks/handlers.ts"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("sync scraper health source coverage: src/pages/Dashboard.tsx"),
       violations.join("\n"),
     );
   });

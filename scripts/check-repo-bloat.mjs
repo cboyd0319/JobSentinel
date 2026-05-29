@@ -1683,13 +1683,18 @@ function hasStaleScraperHealthCoverage(root, path) {
     path !== "docs/features/scraper-health.md" &&
     path !== "docs/ROADMAP.md" &&
     path !== "src/mocks/handlers.ts" &&
+    path !== "src/pages/Dashboard.tsx" &&
     path !== "src/components/ScraperHealthDashboard.tsx"
   ) {
     return false;
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  if (/13 scrapers|Testing 13 scrapers|updated with 13 scrapers|usa_jobs/.test(text)) {
+  if (
+    /13 scrapers|13 job boards|Testing 13 scrapers|updated with 13 scrapers|usa_jobs/.test(
+      text,
+    )
+  ) {
     return true;
   }
 
