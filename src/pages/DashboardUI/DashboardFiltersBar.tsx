@@ -5,6 +5,7 @@ import { memo, RefObject, useState, useEffect, useRef } from "react";
 import { Dropdown } from "../../components/Dropdown";
 import { Tooltip } from "../../components/Tooltip";
 import { useDebouncedValue } from "../../hooks";
+import { scoreFilterOptions, sortOptions } from "./filterLabels";
 import {
   KeyboardIcon,
   ExportIcon,
@@ -275,13 +276,7 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
             label="Sort"
             value={sortBy}
             onChange={(value) => setSortBy(value as SortOption)}
-            options={[
-              { value: "score-desc", label: "Best Match First" },
-              { value: "score-asc", label: "Weakest Match First" },
-              { value: "date-desc", label: "Date (Newest)" },
-              { value: "date-asc", label: "Date (Oldest)" },
-              { value: "company-asc", label: "Company (A-Z)" },
-            ]}
+            options={sortOptions}
           />
 
           {/* Match Filter */}
@@ -289,12 +284,7 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
             label="Match"
             value={scoreFilter}
             onChange={(value) => setScoreFilter(value as ScoreFilter)}
-            options={[
-              { value: "all", label: "All Matches" },
-              { value: "high", label: "Strong (70%+)" },
-              { value: "medium", label: "Some (40-69%)" },
-              { value: "low", label: "Low (<40%)" },
-            ]}
+            options={scoreFilterOptions}
           />
 
           {/* Source Filter */}

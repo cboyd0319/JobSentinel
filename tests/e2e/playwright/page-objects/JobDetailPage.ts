@@ -65,7 +65,7 @@ export class JobDetailPage extends BasePage {
   }
 
   get matchScore(): Locator {
-    return this.activeCard.getByLabel(/^Match score:/);
+    return this.activeCard.getByLabel(/^Match strength:/);
   }
 
   async openJobDetail(index: number = 0) {
@@ -186,7 +186,7 @@ export class JobDetailPage extends BasePage {
 
   async getMatchScore(): Promise<number | null> {
     const label = await this.matchScore.getAttribute("aria-label");
-    const match = label?.match(/Match score:\s*(\d+)%/);
+    const match = label?.match(/Match strength:\s*(\d+)%/);
     return match ? parseInt(match[1], 10) : null;
   }
 }

@@ -30,7 +30,7 @@ export const defaultTourSteps = [
   {
     target: "[data-tour='job-filters']",
     title: "Filter Your Results",
-    content: "Too many jobs? Use these filters to narrow by match score, source, or bookmarked jobs.",
+    content: "Too many jobs? Use these filters to narrow by match strength, source, or bookmarked jobs.",
     placement: "bottom" as const,
   },
 ];

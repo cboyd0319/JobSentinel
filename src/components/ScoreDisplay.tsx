@@ -87,7 +87,7 @@ function parseScoreReasons(reasonsJson?: string | null): {
 }
 
 /**
- * Get a human-friendly label and explanation for a job match score
+ * Get a human-friendly label and explanation for job match strength.
  */
 function getScoreInfo(score: number) {
   if (score >= SCORE_THRESHOLD_HIGH)
@@ -382,7 +382,7 @@ export const ScoreDisplay = memo(function ScoreDisplay({
         tabIndex={onClick ? 0 : undefined}
         aria-label={
           onClick
-            ? `Match score: ${percentage}%. ${scoreInfo.label}`
+            ? `Match strength: ${percentage}%. ${scoreInfo.label}`
             : undefined
         }
         className={`inline-flex flex-col items-center gap-1 ${onClick ? "cursor-pointer" : "cursor-help"}`}

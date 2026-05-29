@@ -107,10 +107,10 @@ test.describe("Job Interactions and Tracking", () => {
     test("should search for jobs with keyword", async ({ page }) => {
       const { dashboard } = await openDashboard(page);
 
-      await dashboard.searchForJobs("engineer");
+      await dashboard.searchForJobs("manager");
 
       await expect(dashboard.jobCards.first()).toBeVisible();
-      await expect(dashboard.jobCards.filter({ hasText: /engineer/i }).first()).toBeVisible();
+      await expect(dashboard.jobCards.filter({ hasText: /manager/i }).first()).toBeVisible();
     });
 
     test("should filter jobs by remote location", async ({ page }) => {
@@ -132,7 +132,7 @@ test.describe("Job Interactions and Tracking", () => {
       const { dashboard } = await openDashboard(page);
       const initialCount = await dashboard.getVisibleJobCount();
 
-      await dashboard.searchForJobs("engineer");
+      await dashboard.searchForJobs("manager");
       await dashboard.applyFilter("location", "remote");
       await dashboard.clearAllFilters();
 
@@ -141,8 +141,8 @@ test.describe("Job Interactions and Tracking", () => {
     });
   });
 
-  test.describe("Match Score Display", () => {
-    test("should display match score for jobs", async ({ page }) => {
+  test.describe("Match Strength Display", () => {
+    test("should display match strength for jobs", async ({ page }) => {
       const { jobDetail } = await openDashboard(page);
 
       await jobDetail.openJobDetail(0);
@@ -156,17 +156,17 @@ test.describe("Job Interactions and Tracking", () => {
   });
 
   test.describe("Combined User Flow", () => {
-    test("should combine search, bookmark toggle, and score checks", async ({
+    test("should combine search, bookmark toggle, and match checks", async ({
       page,
     }) => {
       const { jobDetail, dashboard } = await openDashboard(page);
 
-      await dashboard.searchForJobs("engineer");
-      await jobDetail.openJobDetailByTitle(/engineer/i);
+      await dashboard.searchForJobs("manager");
+      await jobDetail.openJobDetailByTitle(/manager/i);
 
       const title = await jobDetail.getJobTitle();
       const company = await jobDetail.getCompanyName();
-      expect(title).toMatch(/engineer/i);
+      expect(title).toMatch(/manager/i);
       expect(company.length).toBeGreaterThan(0);
 
       const initialBookmarked = await jobDetail.isBookmarked();

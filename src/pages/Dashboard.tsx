@@ -78,6 +78,10 @@ import { DashboardFiltersBar } from "./DashboardUI/DashboardFiltersBar";
 import { DashboardHeader } from "./DashboardUI/DashboardHeader";
 import { DashboardStats } from "./DashboardUI/DashboardStats";
 import { QuickActions } from "./DashboardUI/QuickActions";
+import {
+  formatScoreFilter,
+  formatSortOption,
+} from "./DashboardUI/filterLabels";
 
 export default function Dashboard({
   onNavigate: _onNavigate,
@@ -846,9 +850,9 @@ export default function Dashboard({
           <div className="text-xs text-surface-500 dark:text-surface-400">
             <p className="font-medium mb-1">Current filters:</p>
             <ul className="list-disc list-inside space-y-0.5">
-              <li>Sort: {filters.sortBy}</li>
+              <li>Sort: {formatSortOption(filters.sortBy)}</li>
               {filters.scoreFilter !== "all" && (
-                <li>Score: {filters.scoreFilter}</li>
+                <li>Match: {formatScoreFilter(filters.scoreFilter)}</li>
               )}
               {filters.sourceFilter !== "all" && (
                 <li>Source: {filters.sourceFilter}</li>
@@ -1038,7 +1042,7 @@ export default function Dashboard({
                   </thead>
                   <tbody className="divide-y divide-surface-200 dark:divide-surface-700">
                     <CompareRow
-                      label="Match Score"
+                      label="Match Strength"
                       values={jobOps.comparedJobs.map((j) =>
                         j.score != null
                           ? `${Math.round(j.score * 100)}%`

@@ -127,6 +127,15 @@ describe("ScoreDisplay", () => {
       expect(container.querySelector(".cursor-pointer")).toBeInTheDocument();
     });
 
+    it("uses match-strength aria copy when clickable", () => {
+      render(<ScoreDisplay score={0.8} onClick={() => {}} />);
+
+      expect(
+        screen.getByRole("button", { name: /match strength: 80%\. good match/i }),
+      ).toBeInTheDocument();
+      expect(screen.queryByLabelText(/match score/i)).not.toBeInTheDocument();
+    });
+
     it("applies cursor-help when no onClick", () => {
       const { container } = render(<ScoreDisplay score={0.8} />);
       expect(container.querySelector(".cursor-help")).toBeInTheDocument();

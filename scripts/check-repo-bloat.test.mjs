@@ -7306,6 +7306,7 @@ test("checkRepoBloat rejects non-protective score copy", () => {
       [
         'const label = "Great Match!";',
         'const detail = "This job is Highly recommended!";',
+        'const aria = "Match score: 80%. Good Match";',
         "return <div>{reason}</div>;",
         "",
       ].join("\n"),
@@ -7337,6 +7338,16 @@ test("checkRepoBloat rejects non-protective score copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/pages/Dashboard.tsx",
+      'return <><li>Sort: {filters.sortBy}</li><li>Score: {filters.scoreFilter}</li><CompareRow label="Match Score" /></>;\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/config/tourSteps.ts",
+      '"Too many jobs? Use these filters to narrow by match score, source, or bookmarked jobs.";\n',
+    );
+    writeFixtureFile(
+      root,
       "docs/user/QUICK_START.md",
       "Each job is scored against your saved search.\nEvery job found, sorted by match score.\n",
     );
@@ -7359,9 +7370,11 @@ test("checkRepoBloat rejects non-protective score copy", () => {
         "docs/features/notifications.md",
         "docs/features/smart-scoring.md",
         "docs/user/QUICK_START.md",
+        "src/config/tourSteps.ts",
         "src/components/ResumeMatchScoreBreakdown.tsx",
         "src/components/ScoreDisplay.tsx",
         "src/components/ScoreBreakdownModal.tsx",
+        "src/pages/Dashboard.tsx",
         "src/pages/DashboardUI/DashboardFiltersBar.tsx",
         "src/pages/Settings.tsx",
       ],
@@ -7388,6 +7401,14 @@ test("checkRepoBloat rejects non-protective score copy", () => {
     );
     assert.ok(
       violations.includes("keep score copy protective: src/pages/DashboardUI/DashboardFiltersBar.tsx"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("keep score copy protective: src/pages/Dashboard.tsx"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("keep score copy protective: src/config/tourSteps.ts"),
       violations.join("\n"),
     );
     assert.ok(

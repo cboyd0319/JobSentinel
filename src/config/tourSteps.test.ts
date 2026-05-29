@@ -8,6 +8,6 @@ describe("defaultTourSteps", () => {
       .join(" ");
 
     expect(tourCopy).toMatch(/saved search/i);
-    expect(tourCopy).not.toMatch(/\b(best|great|profile|quality score)\b/i);
+    expect(tourCopy).not.toMatch(/\b(best|great|profile|quality score|match score)\b/i);
   });
 });
