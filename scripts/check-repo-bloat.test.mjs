@@ -4099,10 +4099,17 @@ test("checkRepoBloat rejects confusing Resume Matcher AI labels", () => {
         "",
       ].join("\n"),
     );
+    writeFixtureFile(
+      root,
+      "docs/developer/ARCHITECTURE.md",
+      ["#### `core/resume/`", "", "**Purpose**: AI Resume-Job Matcher", ""].join("\n"),
+    );
 
-    execFileSync("git", ["add", "package.json", "docs/ROADMAP.md"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/ROADMAP.md", "docs/developer/ARCHITECTURE.md"],
+      { cwd: root },
+    );
 
     const violations = checkRepoBloat(root);
 
@@ -4110,6 +4117,50 @@ test("checkRepoBloat rejects confusing Resume Matcher AI labels", () => {
       violations.includes("replace confusing Resume Matcher AI label: docs/ROADMAP.md"),
       violations.join("\n"),
     );
+    assert.ok(
+      violations.includes(
+        "replace confusing Resume Matcher AI label: docs/developer/ARCHITECTURE.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects confusing Salary AI labels", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(root, "docs/README.md", "- Salary AI with negotiation insights\n");
+    writeFixtureFile(
+      root,
+      "docs/developer/ARCHITECTURE.md",
+      ["#### `core/salary/`", "", "**Purpose**: Salary AI", ""].join("\n"),
+    );
+    writeFixtureFile(root, "docs/features/salary-ai.md", "# Salary AI\n");
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "docs/README.md",
+        "docs/developer/ARCHITECTURE.md",
+        "docs/features/salary-ai.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of [
+      "docs/README.md",
+      "docs/developer/ARCHITECTURE.md",
+      "docs/features/salary-ai.md",
+    ]) {
+      assert.ok(
+        violations.includes(`replace confusing Salary AI label: ${path}`),
+        violations.join("\n"),
+      );
+    }
   });
 });
 

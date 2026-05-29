@@ -136,7 +136,7 @@ broad-audience design guidance, docs harness alignment
 - **Ghost Job Detection** - Flags stale, reposted, and low-trust postings
 - Application board with a column view, reminders, quiet-period review, and interview scheduler
 - Local Resume Matcher with PDF parsing and fit review
-- Salary AI with negotiation insights
+- Pay Protection with salary transparency and negotiation prep
 - Market Intelligence with trend analysis
 - Multi-factor scoring algorithm
 - Notifications: Slack, Discord, Teams, Desktop, Email (SMTP)
@@ -155,9 +155,9 @@ broad-audience design guidance, docs harness alignment
 | ---------------------------------- | -------------------------------------------------------- |
 | ![Dashboard](images/dashboard.png) | ![Application Tracking](images/application-tracking.png) |
 
-| Resume Matcher                               | Salary AI                          |
+| Resume Matcher                               | Pay Protection                     |
 | -------------------------------------------- | ---------------------------------- |
-| ![Resume Matcher](images/resume-matcher.png) | ![Salary AI](images/salary-ai.png) |
+| ![Resume Matcher](images/resume-matcher.png) | ![Pay Protection](images/salary-ai.png) |
 
 | Market Intelligence                                    | Settings                         |
 | ------------------------------------------------------ | -------------------------------- |
@@ -177,7 +177,7 @@ broad-audience design guidance, docs harness alignment
 - **ATS**: Kanban, reminders, ghosting detection, interviews, and application stats
 - **Resume Matcher**: JSON Resume import, uploaded resumes, matching, and skill profile management
 - **Resume Builder**: drafts, sections, templates, rendering, exports, and ATS analysis
-- **Salary AI**: predictions, benchmarking, negotiation scripts, and offer comparison
+- **Pay Protection**: salary benchmarks, salary-floor checks, negotiation questions, and offer comparison
 - **Market Intelligence**: trends, companies, locations, alerts, snapshots, and history
 - **Ghost Detection**: posting-risk signals, statistics, filtered search, feedback, and configuration
 - **User Data**: templates, prep checklists, saved searches, notifications, migration, and history
@@ -233,7 +233,7 @@ broad-audience design guidance, docs harness alignment
 | Application Tracking   | Working  | [Application Tracking](features/application-tracking.md) |
 | Notifications          | Working  | [Notifications](features/notifications.md)     |
 | Resume Matcher         | Working  | [Resume Matcher](features/resume-matcher.md)   |
-| Salary AI              | Working  | [Salary](features/salary-ai.md)                |
+| Pay Protection         | Working  | [Salary](features/salary-ai.md)                |
 | Job Scrapers           | Working  | [Scrapers](features/scrapers.md)               |
 
 ### Release Notes

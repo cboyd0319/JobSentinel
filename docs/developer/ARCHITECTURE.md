@@ -318,7 +318,7 @@ lookup results, sanitized error reports, and transient recovery hints.
 
 #### `core/resume/`
 
-**Purpose**: AI Resume-Job Matcher
+**Purpose**: Local resume fit review and parsing
 
 - PDF resume parsing
 - Skill extraction
@@ -326,11 +326,11 @@ lookup results, sanitized error reports, and transient recovery hints.
 
 #### `core/salary/`
 
-**Purpose**: Salary AI
+**Purpose**: Pay protection and salary transparency
 
 - H1B data-based predictions
 - Salary benchmarks by role/location
-- Negotiation script generation
+- Negotiation question drafting
 - Offer comparison
 
 #### `core/market_intelligence/` (4 submodules)

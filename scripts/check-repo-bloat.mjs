@@ -521,7 +521,13 @@ const applicationTrackingPlainLabelPaths = new Set([
 const resumeMatcherPlainLabelPaths = new Set([
   "docs/README.md",
   "docs/ROADMAP.md",
+  "docs/developer/ARCHITECTURE.md",
   "docs/features/resume-matcher.md",
+]);
+const salaryPlainLabelPaths = new Set([
+  "docs/README.md",
+  "docs/developer/ARCHITECTURE.md",
+  "docs/features/salary-ai.md",
 ]);
 const staleResumeOptimizerFramingPaths = new Set([
   "src/App.tsx",
@@ -2246,6 +2252,14 @@ function hasConfusingResumeMatcherAiLabel(root, path) {
   }
 
   return /AI Resume-Job Matcher/i.test(readFileSync(join(root, path), "utf8"));
+}
+
+function hasConfusingSalaryAiLabel(root, path) {
+  if (!salaryPlainLabelPaths.has(path)) {
+    return false;
+  }
+
+  return /Salary AI/i.test(readFileSync(join(root, path), "utf8"));
 }
 
 function hasSmartScoringDocGlyphMarkers(root, path) {
@@ -4560,6 +4574,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasConfusingResumeMatcherAiLabel(root, path)) {
       violations.push(`replace confusing Resume Matcher AI label: ${path}`);
+    }
+
+    if (hasConfusingSalaryAiLabel(root, path)) {
+      violations.push(`replace confusing Salary AI label: ${path}`);
     }
 
     if (hasSmartScoringDocGlyphMarkers(root, path)) {
