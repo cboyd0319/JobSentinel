@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Reworded ghost-detection feature docs away from posting-risk score, threshold, and weight setup jargon toward plain review labels, cautious settings, and verify-before-tailoring guidance, with bloat coverage against threshold/weight wording returning. |
 | 2026-05-29 | In progress | Reworked the root README through the maintained information-design system: clearer visitor routing, research brief, trust model, evidence model, privacy/AI boundaries, and professional release/support framing, while preserving required product definition, Rule 0, free-forever MIT commitment, and source index. |
 | 2026-05-29 | In progress | Reworded maintained smart-scoring and application-tracking docs away from whitelist/blacklist and booster/excluder labels toward favorite companies, hidden companies, and work words to show more often or avoid. |
 | 2026-05-29 | In progress | Translated legacy score-reason allowlist/blocklist terms before they appear in score tooltips or breakdown modals, with tests and bloat coverage so raw reason strings cannot be rendered directly. |

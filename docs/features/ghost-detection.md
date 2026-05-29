@@ -25,17 +25,18 @@ Scam warnings are separate. Scam signals include requests for money, early
 sensitive information, suspicious domains, fake checks, unrealistic pay, or
 non-company communication.
 
-## How JobSentinel Scores Posting Risk
+## How JobSentinel Labels Posting Risk
 
 Every job gets checked against multiple signals. The user-facing result is a
-posting-risk estimate from 0% to 100%.
+plain posting-risk label that helps you decide whether to apply, verify first,
+or save your tailoring energy.
 
-| Score      | What It Means                              |
-| ---------- | ------------------------------------------ |
-| **0-49%**  | Lower risk from available evidence         |
-| **50-59%** | Needs light review                         |
-| **60-74%** | Multiple warning signs                     |
-| **75%+**   | Verify before spending serious time        |
+| Label | What it means |
+| ----- | ------------- |
+| **Lower risk** | Available evidence does not show strong warning signs |
+| **Needs light review** | Check the source before spending much time |
+| **Multiple warning signs** | Verify the role before tailoring |
+| **Verify before tailoring** | Do not spend serious time until the posting is confirmed |
 
 ## What JobSentinel Looks For
 
@@ -81,9 +82,9 @@ source before tailoring.
 
 Jobs with posting-risk signals show a badge:
 
-- **Yellow** - Needs light review (50-59%)
-- **Orange** - Multiple warning signs (60-74%)
-- **Red** - Verify before tailoring (75%+)
+- **Yellow** - Needs light review.
+- **Orange** - Multiple warning signs.
+- **Red** - Verify before tailoring.
 
 Hover over the badge to see why it was flagged. Job cards can also show "Seen
 on X sources" when the same role appears in more than one place.
@@ -91,15 +92,15 @@ on X sources" when the same role appears in more than one place.
 When posting risk is elevated, the job card also shows plain guidance before
 the user spends tailoring time:
 
-- **60-74%** - Review before tailoring.
-- **75%+** - Verify before tailoring.
+- **Review before tailoring.**
+- **Verify before tailoring.**
 
 ### Posting Risk Filter
 
 Use the posting-risk filter above your job list:
 
 - **All Jobs** - Show everything.
-- **Lower Risk** - Hide jobs above the warning threshold.
+- **Lower Risk** - Hide postings that need a warning.
 - **Needs Review** - Show only jobs with posting-risk warnings.
 
 Use "Lower Risk" when you are low on time or energy. Use "Needs Review" when
@@ -107,37 +108,32 @@ you want to check old or suspicious listings before deciding what to do.
 
 ### Settings
 
-Customize detection sensitivity in **Settings > Detection > Ghost Detection
-Settings**:
+Choose how cautious JobSentinel should be in **Settings > Detection > Ghost
+Detection Settings**:
 
-- **Stale Job Threshold** - How old a job needs to be before it is flagged as
-  stale.
-- **Repost Threshold** - How many times a job must be reposted before it is
-  flagged.
-- **Weight Adjustments** - Fine-tune how much each signal affects the warning.
-  - Stale postings weight
-  - Repost frequency weight
-  - Generic description weight
-  - Vague title weight
-  - Unrealistic requirements weight
-  - Missing salary weight
+- **Widest search** - Warns less often so more roles stay in normal review.
+- **Balanced** - Keeps most roles visible and warns on older, reposted, vague,
+  or hard-to-verify postings.
+- **Fresh and verified first** - Warns sooner so older or weak-source postings
+  move lower before you spend tailoring time.
 
+Most users can leave the balanced setting on. Advanced controls are available
+for people who want exact stale-day, repost-count, or signal-strength settings.
 Changes take effect immediately with a live preview showing how many listings
-would be flagged.
+would need review.
 
 ## What To Do With Flagged Jobs
 
 Use the warning as a time-protection signal:
 
-**Yellow (50-59%)** - Review quickly. Apply if the role still fits.
+**Yellow** - Review quickly. Apply if the role still fits.
 
-**Orange (60-74%)** - Verify first if tailoring would take real effort. Check
-the company site, exact title, posting age, and source.
+**Orange** - Verify first if tailoring would take real effort. Check the company
+site, exact title, posting age, and source.
 
-**Red (75%+)** - Do not spend serious tailoring time until you have stronger
-evidence the role is active. Check the company or ATS page, look for recent
-updates, and consider contacting a recruiter or hiring contact if one is
-available.
+**Red** - Do not spend serious tailoring time until you have stronger evidence
+the role is active. Check the company or ATS page, look for recent updates, and
+consider contacting a recruiter or hiring contact if one is available.
 
 ## Limits
 
@@ -152,8 +148,8 @@ Ghost detection is not perfect:
 - **Source dependent** - Company-site or ATS presence is stronger evidence, but
   it is not absolute proof that hiring is active.
 
-Use posting-risk scores as one signal. If a flagged role still looks worthwhile,
-verify it and decide based on your own situation.
+Use posting-risk warnings as one signal. If a flagged role still looks
+worthwhile, verify it and decide based on your own situation.
 
 ## User Feedback
 

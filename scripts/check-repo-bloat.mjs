@@ -1600,6 +1600,16 @@ function hasOverconfidentGhostCopy(root, path) {
     /posting that isn't real/i,
     /ghost score from 0\.0/i,
     /ghost jobs, statistics/i,
+    /warning threshold/i,
+    /Stale Job Threshold/i,
+    /Repost Threshold/i,
+    /Weight Adjustments/i,
+    /Stale postings weight/i,
+    /Repost frequency weight/i,
+    /Generic description weight/i,
+    /Vague title weight/i,
+    /Unrealistic requirements weight/i,
+    /Missing salary weight/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));

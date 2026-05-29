@@ -1226,6 +1226,9 @@ test("checkRepoBloat rejects overconfident ghost-risk copy", () => {
         "Stop wasting time on fake job postings.",
         "Real Jobs Only hides anything with ghost score.",
         "Red means Probably fake.",
+        "Lower Risk hides jobs above the warning threshold.",
+        "Stale Job Threshold",
+        "Weight Adjustments",
         "",
       ].join("\n"),
     );
