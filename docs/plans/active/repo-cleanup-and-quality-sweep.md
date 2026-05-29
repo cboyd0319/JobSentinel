@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Added mechanical bloat coverage for the free-forever MIT project ethos so README, quick-start, and harness docs cannot silently lose that commitment. |
 | 2026-05-29 | In progress | Reworked safe debug-report event details so the preview and formatted report use readable labels instead of raw JSON-shaped event data, while continuing to redact private values before sharing. |
 | 2026-05-29 | In progress | Simplified feedback submission copy for zero-technical-knowledge users: GitHub remains the recommended trackable path, but the no-account safe feedback-file fallback is visible, success steps no longer imply the report is already submitted, and regression tests cover the support choices. |
 | 2026-05-29 | In progress | Tightened the user quick-start path for zero-technical-knowledge use: installer-first setup, source-build content collapsed for developers, protective match and notification wording, optional keyboard shortcuts, clear local-data wording, and safe debug-report support steps. |

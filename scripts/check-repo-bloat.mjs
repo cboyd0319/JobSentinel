@@ -549,6 +549,28 @@ const productFramingTextExtensions = new Set([
 ]);
 const requiredReadmeProductDefinition =
   "JobSentinel is an open-source, local-first job-search assistant for finding real, relevant, fairly compensated work while keeping sensitive job-search data under user control.";
+const requiredFreeForeverText = new Map([
+  [
+    "README.md",
+    [
+      "JobSentinel will always remain free under the MIT license",
+      "JobSentinel is free, will always stay free, and will always remain MIT licensed",
+    ],
+  ],
+  [
+    "docs/harness/README.md",
+    [
+      "JobSentinel is free, will always stay free, and will always remain MIT licensed",
+      "fork this code, adapt it, and help more job seekers",
+    ],
+  ],
+  [
+    "docs/user/QUICK_START.md",
+    [
+      "JobSentinel is free, will always stay free, and will always remain MIT licensed",
+    ],
+  ],
+]);
 const forbiddenJobSearchFramingPatterns = [
   new RegExp(["bypass", "\\s+", "ATS"].join(""), "i"),
   new RegExp(["ATS", "[-\\s]+", "bypass"].join(""), "i"),
@@ -1109,6 +1131,16 @@ function hasMissingReadmeProductDefinition(root, path) {
 
   const normalizedText = readFileSync(join(root, path), "utf8").replace(/\s+/g, " ");
   return !normalizedText.includes(requiredReadmeProductDefinition);
+}
+
+function hasMissingFreeForeverEthos(root, path) {
+  const requiredPhrases = requiredFreeForeverText.get(path);
+  if (!requiredPhrases) {
+    return false;
+  }
+
+  const normalizedText = readFileSync(join(root, path), "utf8").replace(/\s+/g, " ");
+  return requiredPhrases.some((phrase) => !normalizedText.includes(phrase));
 }
 
 function isJobSearchProductTextPath(path) {
@@ -3416,6 +3448,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasMissingReadmeProductDefinition(root, path)) {
       violations.push(`add required README product definition: ${path}`);
+    }
+
+    if (hasMissingFreeForeverEthos(root, path)) {
+      violations.push(`add free-forever MIT wording: ${path}`);
     }
 
     if (hasForbiddenJobSearchFraming(root, path)) {

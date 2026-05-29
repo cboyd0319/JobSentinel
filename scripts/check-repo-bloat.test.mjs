@@ -276,6 +276,57 @@ test("checkRepoBloat requires README product definition", () => {
   });
 });
 
+test("checkRepoBloat requires free-forever MIT wording", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(
+      root,
+      "README.md",
+      [
+        "# JobSentinel",
+        "",
+        "JobSentinel is an open-source, local-first job-search assistant for finding real, relevant, fairly compensated work while keeping sensitive job-search data under user control.",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/harness/README.md",
+      "# Harness\n\nJobSentinel is for any job seeker.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/user/QUICK_START.md",
+      "# Getting Started\n\nDownload the installer.\n",
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "README.md",
+        "docs/harness/README.md",
+        "docs/user/QUICK_START.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("add free-forever MIT wording: README.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("add free-forever MIT wording: docs/harness/README.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("add free-forever MIT wording: docs/user/QUICK_START.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat requires grant-facing docs in the main repo", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", '{ "name": "jobsentinel" }\n');
