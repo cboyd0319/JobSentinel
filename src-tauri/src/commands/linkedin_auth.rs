@@ -5,6 +5,7 @@
 //! state fail closed instead of reaching hidden endpoints or collecting
 //! session cookies.
 
+use crate::commands::errors::user_friendly_error;
 use crate::core::credentials::{CredentialKey, CredentialStore};
 use tauri::{AppHandle, Manager};
 
@@ -55,8 +56,10 @@ pub async fn is_linkedin_connected() -> Result<bool, String> {
 /// Remove legacy LinkedIn session entries from the OS credential store.
 #[tauri::command]
 pub async fn disconnect_linkedin() -> Result<(), String> {
-    CredentialStore::delete(CredentialKey::LinkedInCookie)?;
-    CredentialStore::delete(CredentialKey::LinkedInCookieExpiry)?;
+    CredentialStore::delete(CredentialKey::LinkedInCookie)
+        .map_err(|e| user_friendly_error("Failed to remove legacy LinkedIn credential", e))?;
+    CredentialStore::delete(CredentialKey::LinkedInCookieExpiry)
+        .map_err(|e| user_friendly_error("Failed to remove legacy LinkedIn credential", e))?;
     tracing::info!("Removed legacy LinkedIn credential entries");
     Ok(())
 }
@@ -67,7 +70,7 @@ pub async fn close_linkedin_login(app: AppHandle) -> Result<(), String> {
     if let Some(window) = app.get_webview_window("linkedin-login") {
         window
             .close()
-            .map_err(|e| format!("Failed to close legacy LinkedIn window: {}", e))?;
+            .map_err(|e| user_friendly_error("Failed to close legacy LinkedIn window", e))?;
     }
     Ok(())
 }

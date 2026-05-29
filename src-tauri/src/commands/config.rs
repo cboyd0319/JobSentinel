@@ -91,8 +91,8 @@ pub async fn save_config(config: Value, _state: State<'_, AppState>) -> Result<(
     tracing::info!("Command: save_config");
 
     // Parse config from JSON
-    let parsed_config: Config =
-        serde_json::from_value(config).map_err(|e| format!("Invalid configuration: {}", e))?;
+    let parsed_config: Config = serde_json::from_value(config)
+        .map_err(|e| user_friendly_error("Invalid configuration", e))?;
 
     // Save to file
     let config_path = Config::default_path();
@@ -115,7 +115,8 @@ pub async fn save_config(config: Value, _state: State<'_, AppState>) -> Result<(
 pub async fn get_config(state: State<'_, AppState>) -> Result<Value, String> {
     tracing::info!("Command: get_config");
 
-    serde_json::to_value(&*state.config).map_err(|e| format!("Failed to serialize config: {}", e))
+    serde_json::to_value(&*state.config)
+        .map_err(|e| user_friendly_error("Failed to serialize config", e))
 }
 
 /// Validate Slack webhook URL
@@ -153,8 +154,8 @@ pub async fn complete_setup(config: Value) -> Result<(), String> {
     tracing::info!("Command: complete_setup");
 
     // Parse config from JSON
-    let parsed_config: Config =
-        serde_json::from_value(config).map_err(|e| format!("Invalid configuration: {}", e))?;
+    let parsed_config: Config = serde_json::from_value(config)
+        .map_err(|e| user_friendly_error("Invalid configuration", e))?;
 
     // Ensure config directory exists
     let config_path = Config::default_path();

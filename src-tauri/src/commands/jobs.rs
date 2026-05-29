@@ -42,8 +42,9 @@ pub async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
             }))
         }
         Err(e) => {
-            tracing::error!(error = %e, "Manual search failed");
-            Err(format!("Scraping failed: {}", e))
+            let message = user_friendly_error("Search failed", e);
+            tracing::error!(error = %message, "Manual search failed");
+            Err(message)
         }
     }
 }
@@ -66,9 +67,13 @@ pub async fn get_recent_jobs(
                 .into_iter()
                 .filter_map(|job| {
                     serde_json::to_value(&job)
-                        .map_err(|e| {
-                            tracing::error!(job_id = job.id, error = %e, "Failed to serialize job");
-                            e
+                        .inspect_err(|e| {
+                            let message = user_friendly_error("Failed to serialize job", e);
+                            tracing::error!(
+                                job_id = job.id,
+                                error = %message,
+                                "Skipped job serialization"
+                            );
                         })
                         .ok()
                 })
@@ -78,7 +83,10 @@ pub async fn get_recent_jobs(
             Ok(jobs_json)
         }
         Err(e) => {
-            tracing::error!(error = %e, "Failed to get recent jobs from database");
+            tracing::error!(
+                error = %user_friendly_error("Failed to get recent jobs", &e),
+                "Failed to get recent jobs from database"
+            );
             Err(user_friendly_error("Failed to load jobs", e))
         }
     }
@@ -94,15 +102,22 @@ pub async fn get_job_by_id(id: i64, state: State<'_, AppState>) -> Result<Option
             tracing::debug!(found, "Job lookup complete");
             Ok(job.and_then(|j| {
                 serde_json::to_value(&j)
-                    .map_err(|e| {
-                        tracing::error!(job_id = j.id, error = %e, "Failed to serialize job");
-                        e
+                    .inspect_err(|e| {
+                        let message = user_friendly_error("Failed to serialize job", e);
+                        tracing::error!(
+                            job_id = j.id,
+                            error = %message,
+                            "Skipped job serialization"
+                        );
                     })
                     .ok()
             }))
         }
         Err(e) => {
-            tracing::error!(error = %e, "Failed to get job from database");
+            tracing::error!(
+                error = %user_friendly_error("Failed to get job", &e),
+                "Failed to get job from database"
+            );
             Err(user_friendly_error("Failed to load job details", e))
         }
     }
@@ -129,9 +144,13 @@ pub async fn search_jobs_query(
                 .into_iter()
                 .filter_map(|job| {
                     serde_json::to_value(&job)
-                        .map_err(|e| {
-                            tracing::error!("Failed to serialize job {}: {}", job.id, e);
-                            e
+                        .inspect_err(|e| {
+                            let message = user_friendly_error("Failed to serialize job", e);
+                            tracing::error!(
+                                job_id = job.id,
+                                error = %message,
+                                "Skipped job serialization"
+                            );
                         })
                         .ok()
                 })
@@ -140,7 +159,10 @@ pub async fn search_jobs_query(
             Ok(jobs_json)
         }
         Err(e) => {
-            tracing::error!("Search failed: {}", e);
+            tracing::error!(
+                error = %user_friendly_error("Search failed", &e),
+                "Search failed"
+            );
             Err(user_friendly_error("Database operation failed", e))
         }
     }
@@ -157,7 +179,10 @@ pub async fn hide_job(id: i64, state: State<'_, AppState>) -> Result<(), String>
             Ok(())
         }
         Err(e) => {
-            tracing::error!("Failed to hide job: {}", e);
+            tracing::error!(
+                error = %user_friendly_error("Failed to hide job", &e),
+                "Failed to hide job"
+            );
             Err(user_friendly_error("Database operation failed", e))
         }
     }
@@ -174,7 +199,10 @@ pub async fn unhide_job(id: i64, state: State<'_, AppState>) -> Result<(), Strin
             Ok(())
         }
         Err(e) => {
-            tracing::error!("Failed to unhide job: {}", e);
+            tracing::error!(
+                error = %user_friendly_error("Failed to unhide job", &e),
+                "Failed to unhide job"
+            );
             Err(user_friendly_error("Database operation failed", e))
         }
     }
@@ -191,7 +219,10 @@ pub async fn toggle_bookmark(id: i64, state: State<'_, AppState>) -> Result<bool
             Ok(new_state)
         }
         Err(e) => {
-            tracing::error!("Failed to toggle bookmark: {}", e);
+            tracing::error!(
+                error = %user_friendly_error("Failed to toggle bookmark", &e),
+                "Failed to toggle bookmark"
+            );
             Err(user_friendly_error("Database operation failed", e))
         }
     }
@@ -212,9 +243,13 @@ pub async fn get_bookmarked_jobs(
                 .into_iter()
                 .filter_map(|job| {
                     serde_json::to_value(&job)
-                        .map_err(|e| {
-                            tracing::error!("Failed to serialize job {}: {}", job.id, e);
-                            e
+                        .inspect_err(|e| {
+                            let message = user_friendly_error("Failed to serialize job", e);
+                            tracing::error!(
+                                job_id = job.id,
+                                error = %message,
+                                "Skipped job serialization"
+                            );
                         })
                         .ok()
                 })
@@ -223,7 +258,10 @@ pub async fn get_bookmarked_jobs(
             Ok(jobs_json)
         }
         Err(e) => {
-            tracing::error!("Failed to get bookmarked jobs: {}", e);
+            tracing::error!(
+                error = %user_friendly_error("Failed to get bookmarked jobs", &e),
+                "Failed to get bookmarked jobs"
+            );
             Err(user_friendly_error("Database operation failed", e))
         }
     }
@@ -248,7 +286,10 @@ pub async fn set_job_notes(
             Ok(())
         }
         Err(e) => {
-            tracing::error!("Failed to save notes: {}", e);
+            tracing::error!(
+                error = %user_friendly_error("Failed to save notes", &e),
+                "Failed to save notes"
+            );
             Err(user_friendly_error("Database operation failed", e))
         }
     }
@@ -262,7 +303,10 @@ pub async fn get_job_notes(id: i64, state: State<'_, AppState>) -> Result<Option
     match state.database.get_job_notes(id).await {
         Ok(notes) => Ok(notes),
         Err(e) => {
-            tracing::error!("Failed to get notes: {}", e);
+            tracing::error!(
+                error = %user_friendly_error("Failed to get notes", &e),
+                "Failed to get notes"
+            );
             Err(user_friendly_error("Database operation failed", e))
         }
     }
@@ -274,11 +318,13 @@ pub async fn get_statistics(state: State<'_, AppState>) -> Result<Value, String>
     tracing::info!("Command: get_statistics");
 
     match state.database.get_statistics().await {
-        Ok(stats) => {
-            serde_json::to_value(&stats).map_err(|e| format!("Failed to serialize stats: {}", e))
-        }
+        Ok(stats) => serde_json::to_value(&stats)
+            .map_err(|e| user_friendly_error("Failed to serialize stats", e)),
         Err(e) => {
-            tracing::error!("Failed to get statistics: {}", e);
+            tracing::error!(
+                error = %user_friendly_error("Failed to get statistics", &e),
+                "Failed to get statistics"
+            );
             Err(user_friendly_error("Database operation failed", e))
         }
     }
@@ -308,7 +354,7 @@ pub async fn find_duplicates(state: State<'_, AppState>) -> Result<Vec<Duplicate
         .database
         .find_duplicate_groups()
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 /// Merge duplicate jobs: keep primary, hide duplicates
@@ -319,16 +365,16 @@ pub async fn merge_duplicates(
     state: State<'_, AppState>,
 ) -> Result<(), String> {
     tracing::info!(
-        "Command: merge_duplicates (primary: {}, duplicates: {:?})",
         primary_id,
-        duplicate_ids
+        duplicate_count = duplicate_ids.len(),
+        "Command: merge_duplicates"
     );
 
     state
         .database
         .merge_duplicates(primary_id, &duplicate_ids)
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 /// Job count by source for analytics
@@ -352,7 +398,7 @@ pub async fn get_jobs_by_source(state: State<'_, AppState>) -> Result<Vec<JobsBy
                 .map(|(source, count)| JobsBySource { source, count })
                 .collect()
         })
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 /// Salary range for analytics
@@ -378,5 +424,5 @@ pub async fn get_salary_distribution(
                 .map(|(range, count)| SalaryRange { range, count })
                 .collect()
         })
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }

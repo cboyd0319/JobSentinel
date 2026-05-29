@@ -421,6 +421,14 @@ const sensitiveCommandErrorPrivacyPaths = new Set([
   "src-tauri/src/commands/salary.rs",
   "src-tauri/src/commands/market.rs",
 ]);
+const utilityCommandErrorPrivacyPaths = new Set([
+  "src-tauri/src/commands/jobs.rs",
+  "src-tauri/src/commands/ghost.rs",
+  "src-tauri/src/commands/deeplinks.rs",
+  "src-tauri/src/commands/geo.rs",
+  "src-tauri/src/commands/config.rs",
+  "src-tauri/src/commands/linkedin_auth.rs",
+]);
 const userDataPrivacyLoggingPaths = new Set([
   "src-tauri/src/commands/user_data.rs",
   "src-tauri/src/core/user_data/mod.rs",
@@ -2906,6 +2914,28 @@ function hasRawSensitiveCommandErrorDetails(root, path) {
   );
 }
 
+function hasRawUtilityCommandErrorDetails(root, path) {
+  if (!utilityCommandErrorPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /format!\(\s*"(?:Scraping failed|Database error|Failed to [^"]*|Invalid (?:configuration|ghost config)):\s*\{\}"\s*,\s*e\s*\)/.test(
+      productionText,
+    ) ||
+    /format!\(\s*"Failed to [^"]*\{\}:\s*\{\}"\s*,\s*[^,]+,\s*e\s*\)/.test(
+      productionText,
+    ) ||
+    /tracing::error!\(\s*"[^"]*:\s*\{\}"\s*,\s*e\s*\)/.test(productionText) ||
+    /tracing::error!\(\s*"Failed to serialize job \{\}:\s*\{\}"\s*,\s*job\.id\s*,\s*e\s*\)/.test(
+      productionText,
+    ) ||
+    /tracing::error!\([^;]*error\s*=\s*%e/.test(productionText) ||
+    /DeepLinkOpenedEvent\s*\{\s*url:\s*url\.clone\(\)\s*\}/.test(productionText)
+  );
+}
+
 function resumeSummaryStructMissingOrPrivate(text) {
   const match = text.match(/pub\s+struct\s+ResumeSummary\s*\{([^}]*)\}/);
   return !match || /\b(?:file_path|parsed_text)\b/.test(match[1]);
@@ -4409,6 +4439,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawSensitiveCommandErrorDetails(root, path)) {
       violations.push(`sanitize sensitive command error details: ${path}`);
+    }
+
+    if (hasRawUtilityCommandErrorDetails(root, path)) {
+      violations.push(`sanitize utility command error details: ${path}`);
     }
 
     if (hasRawResumeCommandDtoExposure(root, path)) {

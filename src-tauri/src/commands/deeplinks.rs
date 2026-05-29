@@ -2,6 +2,7 @@
 //!
 //! Tauri commands for generating job search deep links.
 
+use crate::commands::errors::user_friendly_error;
 use crate::core::deeplinks::{
     generate_all_links, generate_link_for_site, get_all_sites, DeepLink, SearchCriteria,
     SiteCategory, SiteInfo,
@@ -20,8 +21,9 @@ pub async fn generate_deep_links(
     tracing::info!("Generating deep links for all sites");
 
     generate_all_links(&criteria).map_err(|e| {
-        tracing::error!(error = %e, "Failed to generate deep links");
-        format!("Failed to generate deep links: {}", e)
+        let message = user_friendly_error("Failed to generate deep links", &e);
+        tracing::error!(error = %message, "Failed to generate deep links");
+        message
     })
 }
 
@@ -36,8 +38,9 @@ pub async fn generate_deep_link(
     tracing::info!("Generating deep link for site: {}", site_id);
 
     generate_link_for_site(&site_id, &criteria).map_err(|e| {
-        tracing::error!(error = %e, site_id = %site_id, "Failed to generate deep link");
-        format!("Failed to generate deep link for {}: {}", site_id, e)
+        let message = user_friendly_error("Failed to generate deep link", &e);
+        tracing::error!(error = %message, site_id = %site_id, "Failed to generate deep link");
+        message
     })
 }
 
@@ -81,13 +84,14 @@ pub async fn open_deep_link(app: tauri::AppHandle, url: String) -> Result<(), St
     let shell = app.shell();
     #[allow(deprecated)]
     shell.open(&url, None).map_err(|e| {
-        tracing::error!(error = %e, url = %url_label, "Failed to open URL");
-        format!("Failed to open URL: {}", e)
+        let message = user_friendly_error("Failed to open URL", &e);
+        tracing::error!(error = %message, url = %url_label, "Failed to open URL");
+        message
     })?;
 
     // Emit event for analytics/tracking
-    app.emit("deep-link-opened", DeepLinkOpenedEvent { url: url.clone() })
-        .map_err(|e| format!("Failed to emit event: {}", e))?;
+    app.emit("deep-link-opened", DeepLinkOpenedEvent { url: url_label })
+        .map_err(|e| user_friendly_error("Failed to emit event", e))?;
 
     Ok(())
 }

@@ -46,8 +46,9 @@ pub async fn get_ghost_jobs(
             Ok(jobs_json)
         }
         Err(e) => {
-            tracing::error!("Failed to get ghost jobs: {}", e);
-            Err(format!("Database error: {}", e))
+            let message = user_friendly_error("Failed to get posting warnings", &e);
+            tracing::error!(error = %message, "Failed to get ghost jobs");
+            Err(user_friendly_error("Database operation failed", e))
         }
     }
 }
@@ -61,10 +62,11 @@ pub async fn get_ghost_statistics(state: State<'_, AppState>) -> Result<Value, S
 
     match state.database.get_ghost_statistics().await {
         Ok(stats) => serde_json::to_value(&stats)
-            .map_err(|e| format!("Failed to serialize ghost statistics: {}", e)),
+            .map_err(|e| user_friendly_error("Failed to serialize ghost statistics", e)),
         Err(e) => {
-            tracing::error!("Failed to get ghost statistics: {}", e);
-            Err(format!("Database error: {}", e))
+            let message = user_friendly_error("Failed to get posting-risk statistics", &e);
+            tracing::error!(error = %message, "Failed to get ghost statistics");
+            Err(user_friendly_error("Database operation failed", e))
         }
     }
 }
@@ -101,8 +103,9 @@ pub async fn get_recent_jobs_filtered(
             Ok(jobs_json)
         }
         Err(e) => {
-            tracing::error!("Failed to get filtered jobs: {}", e);
-            Err(format!("Database error: {}", e))
+            let message = user_friendly_error("Failed to get filtered jobs", &e);
+            tracing::error!(error = %message, "Failed to get filtered jobs");
+            Err(user_friendly_error("Database operation failed", e))
         }
     }
 }
@@ -120,7 +123,7 @@ pub async fn get_ghost_config(state: State<'_, AppState>) -> Result<Value, Strin
         .unwrap_or_else(GhostConfig::default);
 
     serde_json::to_value(&ghost_config)
-        .map_err(|e| format!("Failed to serialize ghost config: {}", e))
+        .map_err(|e| user_friendly_error("Failed to serialize ghost config", e))
 }
 
 /// Update ghost detection configuration
@@ -129,8 +132,8 @@ pub async fn set_ghost_config(config: Value, _state: State<'_, AppState>) -> Res
     tracing::info!("Command: set_ghost_config");
 
     // Parse GhostConfig from JSON
-    let ghost_config: GhostConfig =
-        serde_json::from_value(config).map_err(|e| format!("Invalid ghost config: {}", e))?;
+    let ghost_config: GhostConfig = serde_json::from_value(config)
+        .map_err(|e| user_friendly_error("Invalid ghost config", e))?;
 
     // Validate ranges
     if ghost_config.stale_threshold_days < 1 {
@@ -235,8 +238,9 @@ pub async fn mark_job_as_real(job_id: i64, state: State<'_, AppState>) -> Result
     tracing::info!("Command: mark_job_as_real (job_id: {})", job_id);
 
     state.database.mark_job_as_real(job_id).await.map_err(|e| {
-        tracing::error!("Failed to mark job as real: {}", e);
-        format!("Database error: {}", e)
+        let message = user_friendly_error("Failed to update posting feedback", &e);
+        tracing::error!(error = %message, "Failed to mark job as real");
+        user_friendly_error("Database operation failed", e)
     })
 }
 
@@ -246,8 +250,9 @@ pub async fn mark_job_as_ghost(job_id: i64, state: State<'_, AppState>) -> Resul
     tracing::info!("Command: mark_job_as_ghost (job_id: {})", job_id);
 
     state.database.mark_job_as_ghost(job_id).await.map_err(|e| {
-        tracing::error!("Failed to mark job as ghost: {}", e);
-        format!("Database error: {}", e)
+        let message = user_friendly_error("Failed to update posting feedback", &e);
+        tracing::error!(error = %message, "Failed to mark job as ghost");
+        user_friendly_error("Database operation failed", e)
     })
 }
 
@@ -266,8 +271,9 @@ pub async fn get_ghost_feedback(
         .get_ghost_feedback(job_id)
         .await
         .map_err(|e| {
-            tracing::error!("Failed to get ghost feedback: {}", e);
-            format!("Database error: {}", e)
+            let message = user_friendly_error("Failed to get posting feedback", &e);
+            tracing::error!(error = %message, "Failed to get ghost feedback");
+            user_friendly_error("Database operation failed", e)
         })
 }
 
@@ -281,8 +287,9 @@ pub async fn clear_ghost_feedback(job_id: i64, state: State<'_, AppState>) -> Re
         .clear_ghost_feedback(job_id)
         .await
         .map_err(|e| {
-            tracing::error!("Failed to clear ghost feedback: {}", e);
-            format!("Database error: {}", e)
+            let message = user_friendly_error("Failed to clear posting feedback", &e);
+            tracing::error!(error = %message, "Failed to clear ghost feedback");
+            user_friendly_error("Database operation failed", e)
         })
 }
 

@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Sanitized utility command failures across jobs, ghost-posting review, deep links, geolocation, config, and legacy LinkedIn cleanup so raw database, provider, URL, serialization, and credential-store details no longer reach user-facing command errors; sanitized the local deep-link event URL and added bloat coverage. |
 | 2026-05-29 | In progress | Sanitized ML, salary, and market command failures so model, semantic-match, pay-protection, and market-analysis errors return safe categories instead of raw database/serialization/provider details; reduced raw job-hash and negotiation-scenario logs to lengths and added bloat coverage. |
 | 2026-05-29 | In progress | Sanitized automation command failures and tracking logs so profile, screening-answer, answer-learning, attempt, and form-prep errors no longer echo database/browser internals, raw job hashes are reduced to lengths, and attempt-tracking failures log safe categories; added bloat coverage. |
 | 2026-05-29 | In progress | Reworked the root README front door against the maintained information-design system after a fresh prior-art check: it now opens as a professional research brief with product thesis, reader routes, implementation evidence, product model, research model, trust model, and architecture map while preserving Rule 0, local-first external-AI boundaries, free-forever MIT wording, and the source index. |

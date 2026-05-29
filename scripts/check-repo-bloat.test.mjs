@@ -6154,6 +6154,75 @@ test("checkRepoBloat rejects raw sensitive command error details", () => {
   });
 });
 
+test("checkRepoBloat rejects raw utility command error details", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/jobs.rs",
+      [
+        "pub async fn search_jobs() -> Result<(), String> {",
+        "    tracing::error!(error = %e, \"Manual search failed\");",
+        "    Err(format!(\"Scraping failed: {}\", e))",
+        "}",
+        "",
+        "pub async fn get_statistics() -> Result<(), String> {",
+        "    serde_json::to_value(&stats).map_err(|e| format!(\"Failed to serialize stats: {}\", e))",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/ghost.rs",
+      [
+        "pub async fn get_ghost_jobs() -> Result<(), String> {",
+        "    tracing::error!(\"Failed to get ghost jobs: {}\", e);",
+        "    Err(format!(\"Database error: {}\", e))",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/deeplinks.rs",
+      [
+        "pub async fn open_deep_link(url: String) -> Result<(), String> {",
+        "    app.emit(\"deep-link-opened\", DeepLinkOpenedEvent { url: url.clone() });",
+        "    format!(\"Failed to generate deep link for {}: {}\", site_id, e);",
+        "    Ok(())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/commands/jobs.rs",
+        "src-tauri/src/commands/ghost.rs",
+        "src-tauri/src/commands/deeplinks.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of [
+      "src-tauri/src/commands/jobs.rs",
+      "src-tauri/src/commands/ghost.rs",
+      "src-tauri/src/commands/deeplinks.rs",
+    ]) {
+      assert.ok(
+        violations.includes(`sanitize utility command error details: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
 test("checkRepoBloat rejects raw command setup error display", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

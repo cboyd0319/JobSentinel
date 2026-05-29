@@ -2,6 +2,7 @@
 //!
 //! Tauri commands for detecting user location from IP address.
 
+use crate::commands::errors::user_friendly_error;
 use crate::core::geo::{detect_location as core_detect_location, LocationInfo};
 
 /// Detect location from IP address
@@ -21,7 +22,7 @@ use crate::core::geo::{detect_location as core_detect_location, LocationInfo};
 pub async fn detect_location() -> Result<LocationInfo, String> {
     core_detect_location()
         .await
-        .map_err(|e| format!("Failed to detect location: {}", e))
+        .map_err(|e| user_friendly_error("Failed to detect location", e))
 }
 
 #[cfg(test)]
