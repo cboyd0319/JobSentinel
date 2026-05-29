@@ -11,9 +11,12 @@ vi.mock("../hooks/useErrorReporting", () => ({
 }));
 
 const mockCopySanitizedDebugReport = vi.fn();
+const mockSaveSanitizedDebugReport = vi.fn();
 vi.mock("../services/feedbackService", () => ({
   copySanitizedDebugReport: (...args: unknown[]) =>
     mockCopySanitizedDebugReport(...args),
+  saveSanitizedDebugReport: (...args: unknown[]) =>
+    mockSaveSanitizedDebugReport(...args),
 }));
 
 const createMockError = (overrides: Partial<ErrorReport> = {}): ErrorReport => ({
@@ -35,6 +38,7 @@ describe("ErrorLogPanel", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockSaveSanitizedDebugReport.mockReset();
     mockUseErrorReporting.mockReturnValue(defaultMockReturn);
   });
 
@@ -134,6 +138,14 @@ describe("ErrorLogPanel", () => {
 
       expect(
         screen.getByRole("button", { name: "Copy Safe Debug Report" })
+      ).toBeInTheDocument();
+    });
+
+    it("shows one-click debug report save action even before errors exist", () => {
+      render(<ErrorLogPanel />);
+
+      expect(
+        screen.getByRole("button", { name: "Save Safe Debug Report" })
       ).toBeInTheDocument();
     });
   });
@@ -307,6 +319,28 @@ describe("ErrorLogPanel", () => {
 
       expect(mockCopySanitizedDebugReport).toHaveBeenCalledWith(errors);
       expect(await screen.findByText("Safe debug report copied")).toBeInTheDocument();
+    });
+
+    it("saves a sanitized debug report with current errors", async () => {
+      const user = userEvent.setup();
+      const errors = [createMockError({ id: "error-123" })];
+      mockSaveSanitizedDebugReport.mockResolvedValueOnce({
+        fileName: "jobsentinel-debug-report.txt",
+        revealToken: "feedback-token",
+      });
+      mockUseErrorReporting.mockReturnValue({
+        ...defaultMockReturn,
+        errors,
+      });
+
+      render(<ErrorLogPanel />);
+
+      await user.click(screen.getByRole("button", { name: "Save Safe Debug Report" }));
+
+      expect(mockSaveSanitizedDebugReport).toHaveBeenCalledWith(errors);
+      expect(
+        await screen.findByText("Safe debug report saved: jobsentinel-debug-report.txt")
+      ).toBeInTheDocument();
     });
 
     it("calls clearErrors when Clear All clicked", () => {

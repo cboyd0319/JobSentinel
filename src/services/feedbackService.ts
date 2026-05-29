@@ -193,6 +193,18 @@ export async function copySanitizedDebugReport(
   };
 }
 
+export async function saveSanitizedDebugReport(
+  errors: ErrorReport[] = errorReporter.getErrors()
+): Promise<SavedFeedbackFile | null> {
+  const content = await buildSanitizedDebugReport(errors);
+  const suggestedFilename = await invoke<string>("get_feedback_filename");
+
+  return await invoke<SavedFeedbackFile | null>("save_feedback_file", {
+    content,
+    suggestedFilename,
+  });
+}
+
 /**
  * Open GitHub Issues with pre-filled template.
  * Copies debug info to clipboard if included.

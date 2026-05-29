@@ -267,7 +267,8 @@ uses include theme preferences, onboarding completion, cached company research,
 sanitized error logs, and temporary one-click-apply recovery hints. Those entries
 are not cloud-synced, and error reports are sanitized before local persistence or
 export. The Settings screen and crash screen both expose **Copy Safe Debug Report**
-so non-technical users can paste a sanitized report directly into a GitHub issue.
+and **Save Safe Debug Report** so non-technical users can paste or attach a
+sanitized report directly into a GitHub issue.
 
 ### Migration from localStorage
 

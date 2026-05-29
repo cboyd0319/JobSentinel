@@ -8,6 +8,7 @@ import {
   openGitHubIssue,
   openGoogleDriveFeedbackFolder,
   revealSavedFeedbackFile,
+  saveSanitizedDebugReport,
   saveFeedbackReport,
 } from "./feedbackService";
 
@@ -135,6 +136,47 @@ describe("feedbackService", () => {
       content: "final sanitized report",
       copied: true,
       errorCount: 1,
+    });
+  });
+
+  it("saves a backend-sanitized debug report for GitHub issue attachments", async () => {
+    mockInvoke
+      .mockResolvedValueOnce("base report from backend")
+      .mockResolvedValueOnce("final sanitized report")
+      .mockResolvedValueOnce("jobsentinel-debug-report.txt")
+      .mockResolvedValueOnce({
+        fileName: "jobsentinel-debug-report.txt",
+        revealToken: "feedback-token",
+      });
+
+    const result = await saveSanitizedDebugReport([
+      {
+        id: "err-1",
+        timestamp: "2026-05-28T10:15:00.000Z",
+        message: "Failed at /Users/alice/secret.txt with token=abc123",
+        type: "api",
+        url: "http://localhost/?token=abc123",
+        userAgent: "test-agent",
+      },
+    ]);
+
+    expect(mockInvoke).toHaveBeenNthCalledWith(1, "generate_feedback_report", {
+      category: "bug",
+      description:
+        "User generated a sanitized debug report from JobSentinel.",
+      includeDebugInfo: true,
+    });
+    expect(mockInvoke).toHaveBeenNthCalledWith(2, "sanitize_feedback_text", {
+      content: expect.stringContaining("FRONTEND ERROR LOG"),
+    });
+    expect(mockInvoke).toHaveBeenNthCalledWith(3, "get_feedback_filename");
+    expect(mockInvoke).toHaveBeenNthCalledWith(4, "save_feedback_file", {
+      content: "final sanitized report",
+      suggestedFilename: "jobsentinel-debug-report.txt",
+    });
+    expect(result).toEqual({
+      fileName: "jobsentinel-debug-report.txt",
+      revealToken: "feedback-token",
     });
   });
 

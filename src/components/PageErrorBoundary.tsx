@@ -3,6 +3,7 @@ import { Button } from "./Button";
 import { EmptyState } from "./EmptyState";
 import { errorReporter } from "../utils/errorReporting";
 import { logError } from "../utils/errorUtils";
+import { saveSanitizedDebugReport } from "../services/feedbackService";
 
 interface Props {
   children: ReactNode;
@@ -15,6 +16,8 @@ interface State {
   hasError: boolean;
   error: Error | null;
   retryCount: number;
+  reportStatus: "idle" | "saving" | "saved" | "failed";
+  reportFileName: string | null;
 }
 
 /**
@@ -33,10 +36,12 @@ class PageErrorBoundary extends Component<Props, State> {
     hasError: false,
     error: null,
     retryCount: 0,
+    reportStatus: "idle",
+    reportFileName: null,
   };
 
   public static getDerivedStateFromError(error: Error): Partial<State> {
-    return { hasError: true, error };
+    return { hasError: true, error, reportStatus: "idle", reportFileName: null };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
@@ -69,8 +74,29 @@ class PageErrorBoundary extends Component<Props, State> {
 
   private handleBack = () => {
     // Reset state before navigating
-    this.setState({ hasError: false, error: null, retryCount: 0 });
+    this.setState({
+      hasError: false,
+      error: null,
+      retryCount: 0,
+      reportStatus: "idle",
+      reportFileName: null,
+    });
     this.props.onBack?.();
+  };
+
+  private handleSaveDebugReport = async () => {
+    this.setState({ reportStatus: "saving", reportFileName: null });
+
+    try {
+      const savedFile = await saveSanitizedDebugReport(errorReporter.getErrors());
+      this.setState({
+        reportStatus: savedFile ? "saved" : "idle",
+        reportFileName: savedFile?.fileName ?? null,
+      });
+    } catch (error) {
+      logError("Failed to save debug report from page error boundary:", error);
+      this.setState({ reportStatus: "failed" });
+    }
   };
 
   public render() {
@@ -128,7 +154,26 @@ class PageErrorBoundary extends Component<Props, State> {
                   Reload App
                 </Button>
               )}
+              <Button
+                variant="secondary"
+                onClick={this.handleSaveDebugReport}
+                loading={this.state.reportStatus === "saving"}
+                loadingText="Saving..."
+              >
+                Save Safe Debug Report
+              </Button>
             </div>
+
+            {this.state.reportStatus === "saved" && this.state.reportFileName && (
+              <p className="text-center text-sm text-success mt-4" role="status">
+                Safe debug report saved: {this.state.reportFileName}
+              </p>
+            )}
+            {this.state.reportStatus === "failed" && (
+              <p className="text-center text-sm text-danger mt-4" role="status">
+                Could not save safe debug report
+              </p>
+            )}
 
             {import.meta.env.DEV && this.state.error.stack && (
               <details className="mt-6 p-4 bg-surface-100 dark:bg-surface-800 rounded-lg text-sm">

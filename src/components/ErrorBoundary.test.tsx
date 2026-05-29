@@ -14,9 +14,12 @@ vi.mock("../utils/errorReporting", () => ({
 }));
 
 const mockCopySanitizedDebugReport = vi.fn();
+const mockSaveSanitizedDebugReport = vi.fn();
 vi.mock("../services/feedbackService", () => ({
   copySanitizedDebugReport: (...args: unknown[]) =>
     mockCopySanitizedDebugReport(...args),
+  saveSanitizedDebugReport: (...args: unknown[]) =>
+    mockSaveSanitizedDebugReport(...args),
 }));
 
 // Component that throws an error
@@ -32,6 +35,7 @@ const originalError = console.error;
 beforeEach(() => {
   console.error = vi.fn();
   mockCopySanitizedDebugReport.mockReset();
+  mockSaveSanitizedDebugReport.mockReset();
   return () => {
     console.error = originalError;
   };
@@ -126,6 +130,29 @@ describe("ErrorBoundary", () => {
 
       expect(mockCopySanitizedDebugReport).toHaveBeenCalledTimes(1);
       expect(screen.getByText("Safe debug report copied")).toBeInTheDocument();
+    });
+
+    it("saves a sanitized debug report from the crash screen", async () => {
+      const user = userEvent.setup();
+      mockSaveSanitizedDebugReport.mockResolvedValueOnce({
+        fileName: "jobsentinel-debug-report.txt",
+        revealToken: "feedback-token",
+      });
+
+      render(
+        <ErrorBoundary>
+          <ThrowError shouldThrow={true} />
+        </ErrorBoundary>
+      );
+
+      await user.click(
+        screen.getByRole("button", { name: /save safe debug report/i })
+      );
+
+      expect(mockSaveSanitizedDebugReport).toHaveBeenCalledTimes(1);
+      expect(
+        screen.getByText("Safe debug report saved: jobsentinel-debug-report.txt")
+      ).toBeInTheDocument();
     });
 
     it("reloads window when reload button is clicked", async () => {

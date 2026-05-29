@@ -24,9 +24,16 @@ vi.mock("./EmptyState", () => ({
 vi.mock("../utils/errorReporting", () => ({
   errorReporter: {
     captureReactError: vi.fn(),
+    getErrors: vi.fn(() => []),
   },
   sanitizeContext: (context: Record<string, unknown> | undefined) => context,
   sanitizeTextForStorage: (value: string) => value,
+}));
+
+const mockSaveSanitizedDebugReport = vi.fn();
+vi.mock("../services/feedbackService", () => ({
+  saveSanitizedDebugReport: (...args: unknown[]) =>
+    mockSaveSanitizedDebugReport(...args),
 }));
 
 // Component that throws an error
@@ -41,6 +48,7 @@ function ThrowError({ shouldThrow = false }: { shouldThrow?: boolean }) {
 const originalError = console.error;
 beforeEach(() => {
   console.error = vi.fn();
+  mockSaveSanitizedDebugReport.mockReset();
   return () => {
     console.error = originalError;
   };
@@ -129,6 +137,29 @@ describe("PageErrorBoundary", () => {
       );
 
       expect(screen.getByRole("button", { name: /try again/i })).toBeInTheDocument();
+    });
+
+    it("saves a sanitized debug report from the page error screen", async () => {
+      const user = userEvent.setup();
+      mockSaveSanitizedDebugReport.mockResolvedValueOnce({
+        fileName: "jobsentinel-debug-report.txt",
+        revealToken: "feedback-token",
+      });
+
+      render(
+        <PageErrorBoundary>
+          <ThrowError shouldThrow={true} />
+        </PageErrorBoundary>
+      );
+
+      await user.click(
+        screen.getByRole("button", { name: /save safe debug report/i })
+      );
+
+      expect(mockSaveSanitizedDebugReport).toHaveBeenCalledTimes(1);
+      expect(
+        screen.getByText("Safe debug report saved: jobsentinel-debug-report.txt")
+      ).toBeInTheDocument();
     });
 
     it("shows Go Back button when onBack is provided", () => {

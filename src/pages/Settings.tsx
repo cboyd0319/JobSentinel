@@ -10,7 +10,7 @@ import { HelpIcon } from "../components/HelpIcon";
 import { ScraperHealthDashboard } from "../components/ScraperHealthDashboard";
 import { FeedbackModal } from "../components/feedback/FeedbackModal";
 import { FeedbackIcon } from "./DashboardIcons";
-import { copySanitizedDebugReport } from "../services/feedbackService";
+import { copySanitizedDebugReport, saveSanitizedDebugReport } from "../services/feedbackService";
 import { BookmarkletGenerator } from "../components/BookmarkletGenerator";
 import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
@@ -327,6 +327,7 @@ export default function Settings({ onClose }: SettingsProps) {
   const [showHealthDashboard, setShowHealthDashboard] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [copyingDebugReport, setCopyingDebugReport] = useState(false);
+  const [savingDebugReport, setSavingDebugReport] = useState(false);
   const [ghostConfig, setGhostConfig] = useState<GhostConfig | null>(null);
   const [ghostConfigLoading, setGhostConfigLoading] = useState(false);
   const [ghostPreset, setGhostPreset] = useState<
@@ -361,6 +362,30 @@ export default function Settings({ onClose }: SettingsProps) {
       );
     } finally {
       setCopyingDebugReport(false);
+    }
+  }, [toast]);
+
+  const handleSaveDebugReport = useCallback(async () => {
+    setSavingDebugReport(true);
+
+    try {
+      const savedFile = await saveSanitizedDebugReport();
+      if (savedFile) {
+        toast.success(
+          "Safe debug report saved",
+          `Attach ${savedFile.fileName} to a GitHub issue if you need help.`
+        );
+      } else {
+        toast.info("Safe debug report not saved", "No file was created.");
+      }
+    } catch (error) {
+      logError("Failed to save debug report:", error);
+      toast.error(
+        "Could not save safe debug report",
+        "Try Copy Safe Debug Report instead."
+      );
+    } finally {
+      setSavingDebugReport(false);
     }
   }, [toast]);
 
@@ -4041,6 +4066,17 @@ export default function Settings({ onClose }: SettingsProps) {
               {copyingDebugReport
                 ? "Copying Safe Report..."
                 : "Copy Safe Debug Report"}
+            </button>
+            <button
+              onClick={handleSaveDebugReport}
+              disabled={savingDebugReport}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors disabled:opacity-50 disabled:pointer-events-none"
+              title="Save a safe report you can attach to a GitHub issue"
+            >
+              <SettingsSymbol icon="document" className="w-4 h-4" />
+              {savingDebugReport
+                ? "Saving Safe Report..."
+                : "Save Safe Debug Report"}
             </button>
           </div>
 

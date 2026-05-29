@@ -185,6 +185,30 @@ describe("Settings — loadConfig flow", () => {
     );
   });
 
+  it("saves a sanitized debug report from settings with one click", async () => {
+    const user = userEvent.setup();
+    const saveSpy = vi
+      .spyOn(feedbackService, "saveSanitizedDebugReport")
+      .mockResolvedValueOnce({
+        fileName: "jobsentinel-debug-report.txt",
+        revealToken: "feedback-token",
+      });
+    setupHappyPath();
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("button", { name: "Save Safe Debug Report" }));
+
+    expect(saveSpy).toHaveBeenCalledTimes(1);
+    expect(mockToast.success).toHaveBeenCalledWith(
+      "Safe debug report saved",
+      "Attach jobsentinel-debug-report.txt to a GitHub issue if you need help."
+    );
+  });
+
   it("shows error state with Retry button when get_config throws", async () => {
     mockInvoke.mockImplementation(async (cmd: string) => {
       if (cmd === "get_config") throw new Error("DB locked");

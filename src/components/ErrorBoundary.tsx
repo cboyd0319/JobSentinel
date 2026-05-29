@@ -2,7 +2,7 @@ import { Component, ErrorInfo, ReactNode } from 'react';
 import { errorReporter } from '../utils/errorReporting';
 import { clearStorage, readStorageValue, writeStorageValue } from '../utils/browserStorage';
 import { logError } from '../utils/errorUtils';
-import { copySanitizedDebugReport } from '../services/feedbackService';
+import { copySanitizedDebugReport, saveSanitizedDebugReport } from '../services/feedbackService';
 
 const VISUAL_PREFERENCE_KEYS = [
   'jobsentinel-theme',
@@ -18,7 +18,8 @@ interface State {
   hasError: boolean;
   error: Error | null;
   errorCount: number;
-  debugReportStatus: 'idle' | 'copying' | 'copied' | 'failed';
+  debugReportStatus: 'idle' | 'copying' | 'copied' | 'saving' | 'saved' | 'failed';
+  debugReportFileName: string | null;
 }
 
 /**
@@ -37,10 +38,11 @@ class ErrorBoundary extends Component<Props, State> {
     error: null,
     errorCount: 0,
     debugReportStatus: 'idle',
+    debugReportFileName: null,
   };
 
   public static getDerivedStateFromError(error: Error): Partial<State> {
-    return { hasError: true, error, debugReportStatus: 'idle' };
+    return { hasError: true, error, debugReportStatus: 'idle', debugReportFileName: null };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
@@ -79,13 +81,28 @@ class ErrorBoundary extends Component<Props, State> {
   };
 
   private handleCopyDebugReport = async () => {
-    this.setState({ debugReportStatus: 'copying' });
+    this.setState({ debugReportStatus: 'copying', debugReportFileName: null });
 
     try {
       await copySanitizedDebugReport(errorReporter.getErrors());
       this.setState({ debugReportStatus: 'copied' });
     } catch (error) {
       logError('Failed to copy debug report from error boundary:', error);
+      this.setState({ debugReportStatus: 'failed' });
+    }
+  };
+
+  private handleSaveDebugReport = async () => {
+    this.setState({ debugReportStatus: 'saving', debugReportFileName: null });
+
+    try {
+      const savedFile = await saveSanitizedDebugReport(errorReporter.getErrors());
+      this.setState({
+        debugReportStatus: savedFile ? 'saved' : 'idle',
+        debugReportFileName: savedFile?.fileName ?? null,
+      });
+    } catch (error) {
+      logError('Failed to save debug report from error boundary:', error);
       this.setState({ debugReportStatus: 'failed' });
     }
   };
@@ -189,14 +206,29 @@ class ErrorBoundary extends Component<Props, State> {
                   : 'Copy Safe Debug Report'}
               </button>
 
+              <button
+                onClick={this.handleSaveDebugReport}
+                disabled={this.state.debugReportStatus === 'saving'}
+                className="w-full bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-700 dark:text-surface-200 font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-800 disabled:opacity-50 disabled:pointer-events-none"
+              >
+                {this.state.debugReportStatus === 'saving'
+                  ? 'Saving...'
+                  : 'Save Safe Debug Report'}
+              </button>
+
               {this.state.debugReportStatus === 'copied' && (
                 <p className="text-center text-sm text-success" role="status">
                   Safe debug report copied
                 </p>
               )}
+              {this.state.debugReportStatus === 'saved' && this.state.debugReportFileName && (
+                <p className="text-center text-sm text-success" role="status">
+                  Safe debug report saved: {this.state.debugReportFileName}
+                </p>
+              )}
               {this.state.debugReportStatus === 'failed' && (
                 <p className="text-center text-sm text-danger" role="status">
-                  Could not copy safe debug report
+                  Could not create safe debug report
                 </p>
               )}
 

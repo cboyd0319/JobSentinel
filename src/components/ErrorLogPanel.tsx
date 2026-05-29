@@ -4,7 +4,7 @@ import { Button } from './Button';
 import { Badge } from './Badge';
 import { Card } from './Card';
 import type { ErrorReport } from '../utils/errorReporting';
-import { copySanitizedDebugReport } from '../services/feedbackService';
+import { copySanitizedDebugReport, saveSanitizedDebugReport } from '../services/feedbackService';
 import { logError } from '../utils/errorUtils';
 
 const TYPE_LABELS: Record<ErrorReport['type'], { label: string; variant: 'danger' | 'alert' | 'surface' }> = {
@@ -128,6 +128,7 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
 export const ErrorLogPanel = memo(function ErrorLogPanel() {
   const { errors, clearErrors, clearError, exportErrors } = useErrorReporting();
   const [copyingReport, setCopyingReport] = useState(false);
+  const [savingReport, setSavingReport] = useState(false);
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
 
   const handleCopyDebugReport = async () => {
@@ -142,6 +143,25 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
       setCopyMessage("Could not copy safe debug report");
     } finally {
       setCopyingReport(false);
+    }
+  };
+
+  const handleSaveDebugReport = async () => {
+    setSavingReport(true);
+    setCopyMessage(null);
+
+    try {
+      const savedFile = await saveSanitizedDebugReport(errors);
+      setCopyMessage(
+        savedFile
+          ? `Safe debug report saved: ${savedFile.fileName}`
+          : "Safe debug report save canceled"
+      );
+    } catch (error) {
+      logError("Failed to save debug report:", error);
+      setCopyMessage("Could not save safe debug report");
+    } finally {
+      setSavingReport(false);
     }
   };
 
@@ -176,6 +196,15 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
               loadingText="Copying..."
             >
               Copy Safe Debug Report
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={handleSaveDebugReport}
+              loading={savingReport}
+              loadingText="Saving..."
+            >
+              Save Safe Debug Report
             </Button>
             {errors.length > 0 && (
               <>

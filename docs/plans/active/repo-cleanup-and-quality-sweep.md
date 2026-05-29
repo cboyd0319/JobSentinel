@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Added saved sanitized debug reports for GitHub issue attachments from Settings, App Problem History, crash recovery, and page-error recovery surfaces; refreshed README badges, front-door layout, and bottom reference index from maintained docs plus user-provided research packets. |
 | 2026-05-28 | In progress | Reframed the visible Application Assist surface with review-first wording, protective submit-yourself guardrails, daily review language, updated feature docs/tests, and bloat coverage for one-click, quick-apply, speed, and form-automation drift. |
 | 2026-05-28 | In progress | Reframed Salary AI into Pay Protection with salary-floor warnings, salary-history redirect guidance, under-leveling cues, evidence-bounded negotiation notes, sanitized salary command logging, and bloat coverage for overconfident pay advice plus raw salary-query logs. |
 | 2026-05-28 | In progress | Added grant-facing front-door docs: root roadmap organized by the six design pillars, root privacy policy, responsible-AI boundaries, and condensed research briefs for job-seeker behavior, ATS transparency, ghost jobs, job-site data sources, pay equity, and salary negotiation; added bloat coverage requiring those docs in the main repo. |
