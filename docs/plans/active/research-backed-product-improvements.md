@@ -210,8 +210,8 @@ First-class product requirements:
 - Let users mark answers as "must have", "prefer", or "avoid".
 - Add "not sure" options for salary, title, location, commute, schedule, and
   adjacent roles.
-- Add review-volume preference: few high-confidence jobs, balanced list, or
-  broad discovery.
+- Review-volume preference now exists in setup: smaller list, balanced list, or
+  broad discovery. It maps to existing local source limits and alert strength.
 - Ask whether to show adjacent roles separately instead of mixing them into the
   main list.
 - Let users import a resume for suggestions, but show extracted skills before
@@ -909,6 +909,7 @@ against:
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Added guided setup review-volume preference with smaller list, balanced list, and broad discovery choices; mapped the answer to existing local source limits and alert strength, updated Quick Start, and added focused setup tests. |
 | 2026-05-29 | In progress | Reframed user-data management as a sensitive local-control surface with safe debug reports, explicit external-channel setup, non-technical troubleshooting, and no default cloud or external AI dependency. |
 | 2026-05-29 | In progress | Reframed market intelligence as local evidence review for source freshness, skill demand, company activity, salary transparency, location/work-mode constraints, and sample-bias caution instead of broad market prediction. |
 | 2026-05-29 | In progress | Reframed resume matching as local, advisory, truthful fit review that supports broad careers without deceptive resume optimization, hidden keywords, ATS manipulation, or default external AI. |
@@ -1045,6 +1046,9 @@ against:
   protective tone, and local-first privacy.
 - First implementation slice: guided setup fresh-and-verified posting
   preference, backed by a feature-specific change contract.
+- Second implementation slice: guided setup review-volume preference so users
+  can choose a smaller list, balanced list, or broad discovery before first
+  scan.
 
 ## Change contract: resume optimizer framing
 

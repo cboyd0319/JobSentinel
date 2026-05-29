@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Added a plain setup review-volume question so users can choose a smaller list, balanced list, or broad discovery; mapped it to existing local source limits and alert strength, and updated Quick Start plus focused tests. |
 | 2026-05-29 | In progress | Reworked the root README under the README information-design system: restrained badges, formal project abstract, research contributions, reader map, current status, evaluation model, and updated harness guidance. |
 | 2026-05-29 | In progress | Reworded Resume Match form, empty state, toasts, and docs from job-description/resume-data/analyze language to job-post, resume-details, and review-match language; added bloat coverage for recurrence. |
 | 2026-05-29 | In progress | Reworded strong-resume-word guidance away from screening-tool recognition toward easier-to-scan bullet clarity, renamed the maintained docs heading to Action Words, and added bloat coverage. |

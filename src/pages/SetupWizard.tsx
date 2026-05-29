@@ -45,7 +45,19 @@ interface FreshnessOption {
   description: string;
 }
 
+type ReviewVolumePreference =
+  | "focused"
+  | "balanced"
+  | "broad";
+
+interface ReviewVolumeOption {
+  id: ReviewVolumePreference;
+  label: string;
+  description: string;
+}
+
 const DEFAULT_FRESHNESS_PREFERENCE: FreshnessPreference = "fresh_verified_first";
+const DEFAULT_REVIEW_VOLUME_PREFERENCE: ReviewVolumePreference = "balanced";
 
 const FRESHNESS_GHOST_CONFIGS = {
   fresh_verified_first: {
@@ -92,6 +104,50 @@ const FRESHNESS_OPTIONS: FreshnessOption[] = [
   },
 ];
 
+const REVIEW_VOLUME_CONFIGS = {
+  focused: {
+    immediate_alert_threshold: 0.92,
+    remoteok_limit: 25,
+    hn_hiring_limit: 50,
+    weworkremotely_limit: 25,
+  },
+  balanced: {
+    immediate_alert_threshold: 0.9,
+    remoteok_limit: 50,
+    hn_hiring_limit: 100,
+    weworkremotely_limit: 50,
+  },
+  broad: {
+    immediate_alert_threshold: 0.85,
+    remoteok_limit: 75,
+    hn_hiring_limit: 150,
+    weworkremotely_limit: 75,
+  },
+} satisfies Record<ReviewVolumePreference, {
+  immediate_alert_threshold: number;
+  remoteok_limit: number;
+  hn_hiring_limit: number;
+  weworkremotely_limit: number;
+}>;
+
+const REVIEW_VOLUME_OPTIONS: ReviewVolumeOption[] = [
+  {
+    id: "focused",
+    label: "Smaller list",
+    description: "Show fewer jobs and focus alerts on the strongest matches.",
+  },
+  {
+    id: "balanced",
+    label: "Balanced list",
+    description: "Recommended. Keep a manageable list without hiding useful roles.",
+  },
+  {
+    id: "broad",
+    label: "Broad discovery",
+    description: "Show more possible roles, including weaker or adjacent matches.",
+  },
+];
+
 function ghostConfigForFreshnessPreference(
   preference: FreshnessPreference
 ): GhostConfig {
@@ -109,6 +165,45 @@ function freshnessSummary(preference: FreshnessPreference) {
   }
 }
 
+function reviewVolumeSummary(preference: ReviewVolumePreference) {
+  switch (preference) {
+    case "focused":
+      return "Smaller list";
+    case "balanced":
+      return "Balanced list";
+    case "broad":
+      return "Broad discovery";
+  }
+}
+
+function applyReviewVolumePreference<T extends {
+  immediate_alert_threshold?: number;
+  remoteok: { limit: number };
+  hn_hiring: { limit: number };
+  weworkremotely: { limit: number };
+}>(
+  config: T,
+  preference: ReviewVolumePreference
+): T {
+  const volume = REVIEW_VOLUME_CONFIGS[preference];
+  return {
+    ...config,
+    immediate_alert_threshold: volume.immediate_alert_threshold,
+    remoteok: {
+      ...config.remoteok,
+      limit: volume.remoteok_limit,
+    },
+    hn_hiring: {
+      ...config.hn_hiring,
+      limit: volume.hn_hiring_limit,
+    },
+    weworkremotely: {
+      ...config.weworkremotely,
+      limit: volume.weworkremotely_limit,
+    },
+  };
+}
+
 // Step 0 is profile selection, then simplified flow
 const STEPS = [
   { id: 0, title: "Career Path", description: "What kind of work are you looking for?" },
@@ -124,6 +219,9 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
   const [freshnessPreference, setFreshnessPreference] = useState<FreshnessPreference>(
     DEFAULT_FRESHNESS_PREFERENCE
+  );
+  const [reviewVolumePreference, setReviewVolumePreference] = useState<ReviewVolumePreference>(
+    DEFAULT_REVIEW_VOLUME_PREFERENCE
   );
   const [titleInput, setTitleInput] = useState("");
   const [skillInput, setSkillInput] = useState("");
@@ -160,6 +258,8 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
         show_when_focused: false,
       },
     },
+    immediate_alert_threshold:
+      REVIEW_VOLUME_CONFIGS[DEFAULT_REVIEW_VOLUME_PREFERENCE].immediate_alert_threshold,
     ghost_config: ghostConfigForFreshnessPreference(DEFAULT_FRESHNESS_PREFERENCE),
     // Enable free scrapers by default (no auth required, work out of the box)
     remoteok: {
@@ -185,14 +285,15 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       const profile = getProfileById(profileId);
       if (profile) {
         const profileConfig = profileToConfig(profile);
-        setConfig(prev => ({
+        setConfig(prev => applyReviewVolumePreference({
           ...prev,
           ...profileConfig,
-        }));
+        }, reviewVolumePreference));
       }
     } else {
       // Reset to empty for the user's own search.
       setFreshnessPreference(DEFAULT_FRESHNESS_PREFERENCE);
+      setReviewVolumePreference(DEFAULT_REVIEW_VOLUME_PREFERENCE);
       setConfig({
         title_allowlist: [],
         title_blocklist: [],
@@ -216,6 +317,8 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
             show_when_focused: false,
           },
         },
+        immediate_alert_threshold:
+          REVIEW_VOLUME_CONFIGS[DEFAULT_REVIEW_VOLUME_PREFERENCE].immediate_alert_threshold,
         ghost_config: ghostConfigForFreshnessPreference(DEFAULT_FRESHNESS_PREFERENCE),
         // Enable free scrapers by default
         remoteok: {
@@ -372,6 +475,11 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     }));
   };
 
+  const handleReviewVolumePreferenceChange = (preference: ReviewVolumePreference) => {
+    setReviewVolumePreference(preference);
+    setConfig((prev) => applyReviewVolumePreference(prev, preference));
+  };
+
   const handleAddCity = () => {
     const trimmed = cityInput.trim();
     if (trimmed && !config.location_preferences.cities.includes(trimmed)) {
@@ -446,6 +554,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     ),
     location: formatLocationSummary(config.location_preferences),
     freshness: freshnessSummary(freshnessPreference),
+    reviewVolume: reviewVolumeSummary(reviewVolumePreference),
     pay:
       config.salary_floor_usd > 0
         ? `At least $${config.salary_floor_usd.toLocaleString()}/year`
@@ -950,6 +1059,52 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 </div>
               </fieldset>
 
+              <fieldset
+                className="mb-6"
+                aria-describedby="setup-review-volume-help"
+              >
+                <legend className="font-semibold text-surface-800 mb-2">
+                  Jobs to review
+                </legend>
+                <p id="setup-review-volume-help" className="mb-3 text-sm text-surface-500">
+                  Choose how broad the first results and alerts should feel.
+                </p>
+                <div className="space-y-2">
+                  {REVIEW_VOLUME_OPTIONS.map((option) => {
+                    const checked = reviewVolumePreference === option.id;
+                    return (
+                      <label
+                        key={option.id}
+                        className={`
+                          flex items-start gap-3 rounded-lg border-2 p-3 cursor-pointer transition-all duration-150
+                          ${checked
+                            ? "border-sentinel-500 bg-sentinel-50"
+                            : "border-surface-200 hover:border-surface-300"
+                          }
+                        `}
+                      >
+                        <input
+                          type="radio"
+                          name="review-volume-preference"
+                          value={option.id}
+                          checked={checked}
+                          onChange={() => handleReviewVolumePreferenceChange(option.id)}
+                          className="mt-1 h-4 w-4 border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
+                        />
+                        <span>
+                          <span className="block font-medium text-surface-800">
+                            {option.label}
+                          </span>
+                          <span className="block text-sm text-surface-500">
+                            {option.description}
+                          </span>
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </fieldset>
+
               <div className="mb-6">
                 <p className="text-surface-600 mb-4 text-center">
                   Get notified when JobSentinel finds strong matches for your saved search
@@ -1042,6 +1197,10 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                   <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
                     <dt className="font-medium text-surface-600">Freshness</dt>
                     <dd className="text-surface-800">{searchSummary.freshness}</dd>
+                  </div>
+                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
+                    <dt className="font-medium text-surface-600">Review list</dt>
+                    <dd className="text-surface-800">{searchSummary.reviewVolume}</dd>
                   </div>
                   <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
                     <dt className="font-medium text-surface-600">Pay</dt>

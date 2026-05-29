@@ -159,7 +159,16 @@ Pick how JobSentinel should handle older or hard-to-verify postings:
 - **Widest search** - Show more older postings and warn only when risk looks
   clearer
 
-### Question 8: Want instant alerts? (Optional)
+### Question 8: How many jobs do you want to review?
+
+Pick how broad the first results and alerts should feel:
+
+- **Smaller list** - Show fewer jobs and focus alerts on the strongest matches
+- **Balanced list** - Keep a manageable list without hiding useful roles
+- **Broad discovery** - Show more possible roles, including weaker or adjacent
+  matches
+
+### Question 9: Want instant alerts? (Optional)
 
 Connect Slack, Discord, or Teams to get notified when strong matches are found.
 
@@ -175,6 +184,7 @@ Before scanning starts, JobSentinel shows the answers it will use to rank jobs:
 - Work to rank lower
 - Location
 - Freshness
+- Review list
 - Pay
 
 Change anything that looks wrong, then start finding jobs.

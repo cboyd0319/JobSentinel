@@ -222,6 +222,41 @@ Use defaults that avoid blocking progress:
   verified for every new intake screen.
 - Match explanations identify source inputs and do not present scores as facts.
 
+## Change contract: review volume setup preference
+
+Problem:
+Job seekers have different bandwidth. Some need a small, protective list; some
+want broad discovery. Setup should ask this in plain language before scanning
+starts.
+
+Scope:
+Add a local setup preference for review volume. Map the choice to existing
+source limits and alert strength so the first result set matches the user's
+chosen bandwidth without adding a new data store or network path.
+
+Out of scope:
+Do not add new database fields, a recommendation model, external AI, or a
+separate review-queue system in this slice.
+
+Acceptance criteria:
+
+- Setup offers three plain choices: smaller list, balanced list, and broad
+  discovery.
+- Default stays balanced and preserves existing result limits.
+- The final review summarizes the selected review-list behavior before scanning
+  starts.
+- `complete_setup` receives source limits and alert threshold matching the
+  selected preference.
+- Copy assumes no technical knowledge and supports technical and non-technical
+  roles.
+- Intake answers remain local and no new network call is introduced.
+
+Progress:
+
+- 2026-05-29: Implemented setup review-volume choices, review summary copy,
+  config mapping to existing source limits and alert threshold, Quick Start
+  guidance, and focused setup tests.
+
 ## Change contract: fresh and verified setup preference
 
 Problem:

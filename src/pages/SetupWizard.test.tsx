@@ -113,6 +113,16 @@ describe("SetupWizard Accessibility", () => {
               keywords_boost: ["Scheduling"],
               keywords_exclude: ["night shift"],
               salary_floor_usd: 65000,
+              immediate_alert_threshold: 0.9,
+              remoteok: expect.objectContaining({
+                limit: 50,
+              }),
+              hn_hiring: expect.objectContaining({
+                limit: 100,
+              }),
+              weworkremotely: expect.objectContaining({
+                limit: 50,
+              }),
               ghost_config: expect.objectContaining({
                 stale_threshold_days: 30,
                 repost_threshold: 2,
@@ -155,6 +165,8 @@ describe("SetupWizard Accessibility", () => {
       expect(screen.getByText("remote")).toBeInTheDocument();
       expect(review.getByText("Freshness")).toBeInTheDocument();
       expect(review.getByText("Fresh and verified first")).toBeInTheDocument();
+      expect(review.getByText("Review list")).toBeInTheDocument();
+      expect(review.getByText("Balanced list")).toBeInTheDocument();
       expect(
         screen.getByText("At least $65,000/year"),
       ).toBeInTheDocument();
@@ -192,6 +204,45 @@ describe("SetupWizard Accessibility", () => {
                 repost_threshold: 5,
                 warning_threshold: 0.5,
                 hide_threshold: 0.85,
+              }),
+            }),
+          }),
+        );
+      });
+    });
+
+    it("saves broad review volume as a wider local search", async () => {
+      const user = userEvent.setup();
+      mockInvoke.mockResolvedValue(undefined);
+      renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
+
+      await user.click(screen.getByRole("button", { name: /continue with my own search/i }));
+      await user.type(screen.getByPlaceholderText("Add a job title..."), "Medical Assistant{enter}");
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+
+      await user.click(screen.getByRole("radio", { name: /broad discovery/i }));
+
+      expect(screen.getByText("Review list")).toBeInTheDocument();
+      expect(screen.getAllByText("Broad discovery").length).toBeGreaterThan(0);
+
+      await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith(
+          "complete_setup",
+          expect.objectContaining({
+            config: expect.objectContaining({
+              title_allowlist: ["Medical Assistant"],
+              immediate_alert_threshold: 0.85,
+              remoteok: expect.objectContaining({
+                limit: 75,
+              }),
+              hn_hiring: expect.objectContaining({
+                limit: 150,
+              }),
+              weworkremotely: expect.objectContaining({
+                limit: 75,
               }),
             }),
           }),
