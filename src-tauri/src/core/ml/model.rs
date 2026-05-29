@@ -75,7 +75,9 @@ impl ModelManager {
         // Create cache directory
         std::fs::create_dir_all(&self.cache_dir).context("Failed to create cache directory")?;
 
-        let api = Api::new().map_err(|e| MlError::DownloadFailed(e.to_string()))?;
+        let api = Api::new().map_err(|_e| {
+            MlError::DownloadFailed("Failed to initialize model download client".to_string())
+        })?;
 
         let repo = api.repo(Repo::new(MODEL_ID.to_string(), RepoType::Model));
 
@@ -86,8 +88,8 @@ impl ModelManager {
         for file in MODEL_FILES {
             tracing::info!("Downloading {}", file);
 
-            let remote_path = repo.get(file).await.map_err(|e| {
-                MlError::DownloadFailed(format!("Failed to download {}: {}", file, e))
+            let remote_path = repo.get(file).await.map_err(|_e| {
+                MlError::DownloadFailed(format!("Failed to download required model file: {file}"))
             })?;
 
             let target_path = model_dir.join(file);

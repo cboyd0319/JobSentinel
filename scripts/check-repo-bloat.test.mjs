@@ -6527,6 +6527,65 @@ test("checkRepoBloat rejects raw scheduler scoring privacy leaks", () => {
   });
 });
 
+test("checkRepoBloat rejects residual core privacy leaks", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    const fixtures = new Map([
+      [
+        "src-tauri/src/core/config/io.rs",
+        'std::fs::create_dir_all(parent).map_err(|e| format!("Failed to create config directory: {}", e))?;\n',
+      ],
+      [
+        "src-tauri/src/core/db/connection.rs",
+        'tracing::warn!("Failed to create database directory: {}", e);\n',
+      ],
+      [
+        "src-tauri/src/core/import/schema_org.rs",
+        'tracing::debug!(error = %e, "Skipping invalid JSON-LD script tag");\n',
+      ],
+      [
+        "src-tauri/src/core/ml/model.rs",
+        'let api = Api::new().map_err(|e| MlError::DownloadFailed(e.to_string()))?;\n',
+      ],
+      [
+        "src-tauri/src/core/resume/parser.rs",
+        'tracing::warn!("OCR extraction failed: {}", e);\n',
+      ],
+      [
+        "src-tauri/src/core/resume/templates.rs",
+        'Err(format!("Invalid template ID: {}", s))\n',
+      ],
+      [
+        "src-tauri/src/core/scheduler/mod.rs",
+        'tracing::error!("Scraping cycle failed: {}", e);\n',
+      ],
+      [
+        "src-tauri/src/core/scrapers/usajobs.rs",
+        'message: format!("Invalid API key: {}", e),\n',
+      ],
+      [
+        "src-tauri/src/core/scrapers/yc_startup.rs",
+        'tracing::warn!("YC scraper: failed to parse Inertia JSON: {}", e);\n',
+      ],
+    ]);
+
+    for (const [path, content] of fixtures) {
+      writeFixtureFile(root, path, content);
+    }
+
+    execFileSync("git", ["add", "package.json", ...fixtures.keys()], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of fixtures.keys()) {
+      assert.ok(
+        violations.includes(`replace residual core privacy leaks: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
 test("checkRepoBloat rejects manual bookmarklet JSON error responses", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

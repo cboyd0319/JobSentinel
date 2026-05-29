@@ -314,6 +314,17 @@ const schedulerScoringPrivacyPaths = new Set([
   "src-tauri/src/core/scoring/db.rs",
 ]);
 const scoringCachePrivacyPaths = new Set(["src-tauri/src/core/scoring/cache.rs"]);
+const residualCorePrivacyPaths = new Set([
+  "src-tauri/src/core/config/io.rs",
+  "src-tauri/src/core/db/connection.rs",
+  "src-tauri/src/core/import/schema_org.rs",
+  "src-tauri/src/core/ml/model.rs",
+  "src-tauri/src/core/resume/parser.rs",
+  "src-tauri/src/core/resume/templates.rs",
+  "src-tauri/src/core/scheduler/mod.rs",
+  "src-tauri/src/core/scrapers/usajobs.rs",
+  "src-tauri/src/core/scrapers/yc_startup.rs",
+]);
 
 const rawBookmarkletLoggingPaths = new Set(["src-tauri/src/core/bookmarklet/server.rs"]);
 const bookmarkletGeneratorPaths = new Set(["src/components/BookmarkletGenerator.tsx"]);
@@ -3152,6 +3163,26 @@ function hasRawSchedulerScoringPrivacyLeak(root, path) {
   );
 }
 
+function hasResidualCorePrivacyLeak(root, path) {
+  if (!residualCorePrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /format!\(\s*"(?:Invalid template ID|Failed to create config directory|Invalid email for User-Agent header|Invalid API key|Failed to build HTTP client):\s*\{\}"/.test(
+      productionText,
+    ) ||
+    /MlError::DownloadFailed\(\s*e\.to_string\(\)/.test(productionText) ||
+    /MlError::DownloadFailed\(\s*format!\(\s*"Failed to download \{\}:\s*\{\}"/.test(
+      productionText,
+    ) ||
+    /tracing::(?:debug|warn|error)!\([^;]*(?:error\s*=\s*%e|failed to parse Inertia JSON:\s*\{\}|OCR extraction failed:\s*\{\}|Scraping cycle failed:\s*\{\}|Errors during scraping:\s*\{:?\}|(?:database|backup|config)[^"]*:\s*\{\}")/.test(
+      productionText,
+    )
+  );
+}
+
 function hasManualBookmarkletJsonErrorResponses(root, path) {
   if (!rawBookmarkletLoggingPaths.has(path)) {
     return false;
@@ -4569,6 +4600,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawSchedulerScoringPrivacyLeak(root, path)) {
       violations.push(`replace raw scheduler scoring privacy leaks: ${path}`);
+    }
+
+    if (hasResidualCorePrivacyLeak(root, path)) {
+      violations.push(`replace residual core privacy leaks: ${path}`);
     }
 
     if (hasManualBookmarkletJsonErrorResponses(root, path)) {

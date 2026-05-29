@@ -132,7 +132,11 @@ impl YcStartupScraper {
         let data: serde_json::Value = match serde_json::from_str(&payload) {
             Ok(v) => v,
             Err(e) => {
-                tracing::warn!("YC scraper: failed to parse Inertia JSON: {}", e);
+                tracing::warn!(
+                    line = e.line(),
+                    column = e.column(),
+                    "YC scraper: failed to parse Inertia JSON"
+                );
                 return vec![];
             }
         };

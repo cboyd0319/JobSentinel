@@ -26,7 +26,7 @@ impl Config {
         // Ensure parent directory exists
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)
-                .map_err(|e| format!("Failed to create config directory: {}", e))?;
+                .map_err(|_e| std::io::Error::other("Failed to create config directory"))?;
         }
 
         std::fs::write(path, content)?;

@@ -139,17 +139,19 @@ impl UsaJobsScraper {
         headers.insert(HOST, HeaderValue::from_static("data.usajobs.gov"));
         headers.insert(
             USER_AGENT,
-            HeaderValue::from_str(&self.email).map_err(|e| ScraperError::InvalidConfiguration {
-                scraper: "usajobs".to_string(),
-                message: format!("Invalid email for User-Agent header: {}", e),
+            HeaderValue::from_str(&self.email).map_err(|_e| {
+                ScraperError::InvalidConfiguration {
+                    scraper: "usajobs".to_string(),
+                    message: "Invalid email for User-Agent header".to_string(),
+                }
             })?,
         );
         headers.insert(
             "Authorization-Key",
-            HeaderValue::from_str(&self.api_key).map_err(|e| {
+            HeaderValue::from_str(&self.api_key).map_err(|_e| {
                 ScraperError::InvalidConfiguration {
                     scraper: "usajobs".to_string(),
-                    message: format!("Invalid API key: {}", e),
+                    message: "Invalid API key".to_string(),
                 }
             })?,
         );
@@ -158,9 +160,9 @@ impl UsaJobsScraper {
             .default_headers(headers)
             .timeout(std::time::Duration::from_secs(DEFAULT_TIMEOUT_SECS))
             .build()
-            .map_err(|e| ScraperError::Generic {
+            .map_err(|_e| ScraperError::Generic {
                 scraper: "usajobs".to_string(),
-                message: format!("Failed to build HTTP client: {}", e),
+                message: "Failed to build HTTP client".to_string(),
             })
     }
 

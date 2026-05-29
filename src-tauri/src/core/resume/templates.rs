@@ -43,7 +43,7 @@ impl FromStr for TemplateId {
             "technical" => Ok(TemplateId::Technical),
             "executive" => Ok(TemplateId::Executive),
             "military" => Ok(TemplateId::Military),
-            _ => Err(format!("Invalid template ID: {}", s)),
+            _ => Err("Invalid template ID".to_string()),
         }
     }
 }

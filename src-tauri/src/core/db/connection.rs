@@ -21,7 +21,10 @@ impl Database {
         // Ensure parent directory exists
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent).map_err(|e| {
-                tracing::warn!("Failed to create database directory: {}", e);
+                tracing::warn!(
+                    error_kind = ?e.kind(),
+                    "Failed to create database directory"
+                );
                 sqlx::Error::Io(e)
             })?;
         }
@@ -337,11 +340,8 @@ impl Database {
                 > 0;
 
             if is_existing_db {
-                if let Err(e) = Self::backup_pre_migration(db_path) {
-                    tracing::warn!(
-                        "Pre-migration backup failed (migration will continue): {}",
-                        e
-                    );
+                if let Err(_e) = Self::backup_pre_migration(db_path) {
+                    tracing::warn!("Pre-migration backup failed; migration will continue");
                 }
             }
         }
@@ -393,7 +393,10 @@ impl Database {
                 })
                 .collect(),
             Err(e) => {
-                tracing::warn!("Could not read backup directory for pruning: {}", e);
+                tracing::warn!(
+                    error_kind = ?e.kind(),
+                    "Could not read backup directory for pruning"
+                );
                 return;
             }
         };
@@ -414,7 +417,7 @@ impl Database {
             if let Err(e) = std::fs::remove_file(entry.path()) {
                 tracing::warn!(
                     backup_path = %path_label_for_logging(entry.path()),
-                    error = %e,
+                    error_kind = ?e.kind(),
                     "Failed to delete old pre-migration backup"
                 );
             } else {

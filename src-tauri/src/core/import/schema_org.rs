@@ -26,7 +26,11 @@ pub fn parse_schema_org_job_posting(html: &str) -> ImportResult<Vec<SchemaOrgJob
         let json_value: serde_json::Value = match serde_json::from_str(&json_text) {
             Ok(v) => v,
             Err(e) => {
-                tracing::debug!(error = %e, "Skipping invalid JSON-LD script tag");
+                tracing::debug!(
+                    line = e.line(),
+                    column = e.column(),
+                    "Skipping invalid JSON-LD script tag"
+                );
                 continue;
             }
         };

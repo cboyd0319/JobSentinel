@@ -74,11 +74,14 @@ impl Scheduler {
                             );
 
                             if !result.errors.is_empty() {
-                                tracing::warn!("Errors during scraping: {:?}", result.errors);
+                                tracing::warn!(
+                                    error_count = result.errors.len(),
+                                    "Errors occurred during scraping"
+                                );
                             }
                         }
-                        Err(e) => {
-                            tracing::error!("Scraping cycle failed: {}", e);
+                        Err(_e) => {
+                            tracing::error!("Scraping cycle failed");
                         }
                     }
                 }

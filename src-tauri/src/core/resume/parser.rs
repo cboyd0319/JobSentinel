@@ -127,8 +127,8 @@ impl ResumeParser {
                         return Ok(ocr_text);
                     }
                 }
-                Err(e) => {
-                    tracing::warn!("OCR extraction failed: {}", e);
+                Err(_e) => {
+                    tracing::warn!("OCR extraction failed");
                     // Fall back to original text
                 }
             }
