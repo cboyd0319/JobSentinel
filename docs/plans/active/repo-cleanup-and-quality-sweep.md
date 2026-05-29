@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Rewrote Market Intelligence docs from stale analytics/API/status dump into local evidence guidance with sample-bias warnings, salary-transparency use, official-source verification, privacy labels, and bloat coverage for old technical-documentation framing. |
 | 2026-05-29 | In progress | Rewrote Resume Matcher docs from old API/scoring dump into local-first, advisory, broad-audience fit-review guidance, renamed front-door references away from AI Resume-Job Matcher, and added bloat coverage for stale keyword/optimization/API framing. |
 | 2026-05-29 | In progress | Rewrote application-tracking docs from old module/API dump into local-first, protective, broad-audience job-search guidance, and added bloat coverage against stale Trello, ATS-module, technical-interview, future-phase, and API-reference copy returning. |
 | 2026-05-29 | In progress | Rewrote remote and work-mode matching docs from scoring-matrix internals into plain user control, uncertainty, and protective-copy guidance, with bloat coverage against the old module-first shape returning. |

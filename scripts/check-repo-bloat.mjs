@@ -2055,6 +2055,29 @@ function hasMarketIntelligenceDocGlyphMarkers(root, path) {
   );
 }
 
+function hasStaleMarketIntelligenceDocShape(root, path) {
+  if (path !== "docs/features/market-intelligence.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /Technical Documentation/i.test(text) ||
+    /Real-Time Analytics & Trend Visualization/i.test(text) ||
+    /comprehensive market insights/i.test(text) ||
+    /## Architecture/i.test(text) ||
+    /### Database Schema/i.test(text) ||
+    /## Usage Guide/i.test(text) ||
+    /## API Reference/i.test(text) ||
+    /## Implementation Status/i.test(text) ||
+    /Phase 2: Enhanced Analytics Planned/i.test(text) ||
+    /Phase 3: Advanced Visualization/i.test(text) ||
+    /Machine learning trend prediction/i.test(text) ||
+    /## Scheduled Jobs/i.test(text) ||
+    /Daily Analysis \(Recommended: 2 AM\)/i.test(text)
+  );
+}
+
 function hasResumeOrSalaryFeatureDocEmojiMarkers(root, path) {
   if (path !== "docs/features/resume-matcher.md" && path !== "docs/features/salary-ai.md") {
     return false;
@@ -3964,6 +3987,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasMarketIntelligenceDocGlyphMarkers(root, path)) {
       violations.push(`replace Market Intelligence doc glyph/stale indicator markers: ${path}`);
+    }
+
+    if (hasStaleMarketIntelligenceDocShape(root, path)) {
+      violations.push(`sync Market Intelligence docs with local evidence guidance: ${path}`);
     }
 
     if (hasResumeOrSalaryFeatureDocEmojiMarkers(root, path)) {

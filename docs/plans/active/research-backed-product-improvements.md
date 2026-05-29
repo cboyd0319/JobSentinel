@@ -909,6 +909,7 @@ against:
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Reframed market intelligence as local evidence review for source freshness, skill demand, company activity, salary transparency, location/work-mode constraints, and sample-bias caution instead of broad market prediction. |
 | 2026-05-29 | In progress | Reframed resume matching as local, advisory, truthful fit review that supports broad careers without deceptive resume optimization, hidden keywords, ATS manipulation, or default external AI. |
 | 2026-05-29 | In progress | Reframed application tracking as a local-first, sensitive workflow for pacing, follow-ups, quiet-period review, interview preparation, and pay/offer context, with broad status labels for technical and non-technical searches. |
 | 2026-05-29 | In progress | Reframed remote and work-mode matching docs around user constraints, uncertainty, commute/schedule protection, and local-only preferences instead of score matrices. |

@@ -3857,6 +3857,45 @@ test("checkRepoBloat rejects Market Intelligence doc glyph markers", () => {
   });
 });
 
+test("checkRepoBloat rejects stale Market Intelligence doc shape", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/market-intelligence.md",
+      [
+        "## Technical Documentation",
+        "## Real-Time Analytics & Trend Visualization",
+        "data-driven career decisions with comprehensive market insights",
+        "## Architecture",
+        "### Database Schema",
+        "## Usage Guide",
+        "## API Reference",
+        "## Implementation Status",
+        "### Phase 2: Enhanced Analytics Planned",
+        "### Phase 3: Advanced Visualization Complete",
+        "- [ ] Machine learning trend prediction",
+        "## Scheduled Jobs",
+        "### Daily Analysis (Recommended: 2 AM)",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/features/market-intelligence.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sync Market Intelligence docs with local evidence guidance: docs/features/market-intelligence.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects Resume Matcher and Salary AI feature doc emoji markers", () => {
   withGitFixture((root) => {
     const targetIcon = String.fromCodePoint(0x1f3af);
