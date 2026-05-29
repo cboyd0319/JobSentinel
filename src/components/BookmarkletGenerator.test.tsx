@@ -53,9 +53,31 @@ describe("BookmarkletGenerator", () => {
     expect(screen.getByRole("button", { name: /turn off/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /copy setup code/i })).toBeInTheDocument();
     expect(screen.getByText(/setup code is hidden/i)).toBeInTheDocument();
+    expect(screen.getByText(/local safety code/i)).toBeInTheDocument();
     expect(screen.queryByText(/server port/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/bookmarklet code/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/bookmarklet/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/local safety token/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/schema\.org/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/DOM parsing/i)).not.toBeInTheDocument();
+  });
+
+  it("shows safe copy guidance when browser clipboard copy fails", async () => {
+    mockInvoke.mockResolvedValueOnce({
+      port: 4321,
+      enabled: true,
+      authToken: "token-123",
+    });
+    writeText.mockRejectedValueOnce(new Error("token=secret /Users/chad/private.txt"));
+
+    render(<BookmarkletGenerator />);
+
+    const copyButton = await screen.findByRole("button", { name: /copy setup code/i });
+    fireEvent.click(copyButton);
+
+    expect(await screen.findByText(/could not copy setup code/i)).toBeInTheDocument();
+    expect(screen.getByText(/allow clipboard access and try again/i)).toBeInTheDocument();
+    expect(screen.queryByText(/token=secret/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/\/Users\/chad/i)).not.toBeInTheDocument();
   });
 });

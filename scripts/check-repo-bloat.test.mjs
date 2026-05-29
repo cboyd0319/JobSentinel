@@ -624,6 +624,9 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/components/BookmarkletGenerator.tsx",
       [
         '"Browser Bookmarklet"',
+        '"Import jobs from any website"',
+        '"Paste a job link from any website"',
+        '"We\'ll automatically extract the job details."',
         '"Bookmarklet Code"',
         '"Server Port"',
         '"Start Server"',
@@ -631,6 +634,8 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         '"Any with Schema.org data"',
         '"Works best with sites that use structured Schema.org JobPosting data."',
         '"Falls back to smart DOM parsing for others."',
+        '"Setup code is hidden because it is long and includes a local safety token."',
+        '"The job will be imported automatically"',
         "",
       ].join("\n"),
     );

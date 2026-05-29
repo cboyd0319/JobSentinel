@@ -3269,7 +3269,7 @@ export default function Settings({ onClose }: SettingsProps) {
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
                   Browser Integration
-                  <HelpIcon text="Import jobs from any website by installing a bookmarklet in your browser." />
+                  <HelpIcon text="Save many job pages into JobSentinel with a browser button you control." />
                 </h3>
                 <BookmarkletGenerator />
               </section>

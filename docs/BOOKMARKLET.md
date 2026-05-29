@@ -91,7 +91,7 @@ fill in any blank details in JobSentinel.
 ## Privacy
 
 - JobSentinel creates the setup code on your computer.
-- The setup code includes a local safety token and is hidden in the app.
+- The setup code includes a local safety code and is hidden in the app.
 - Job data stays local unless you choose to share it.
 - Debug reports must redact the setup code and saved job details.
 
@@ -101,7 +101,7 @@ The browser import button is implemented by the bookmarklet module. The user
 interface should keep technical details hidden:
 
 - Do not show the generated script in the UI.
-- Do not expose the local safety token.
+- Do not expose the local safety code.
 - Prefer "browser import button", "import helper", "setup code", and
   "connection number" in user-facing copy.
 - Keep lower-level implementation details in developer docs or code comments,

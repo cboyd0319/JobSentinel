@@ -43,12 +43,15 @@ describe("JobImportModal", () => {
 
     expect(screen.getByRole("heading", { name: "Import Job from Link" })).toBeInTheDocument();
     expect(
-      screen.getByText(/Paste a job link from any website/),
+      screen.getByText(/Paste a link to an individual job page/),
     ).toBeInTheDocument();
+    expect(screen.getByText(/review before saving/i)).toBeInTheDocument();
 
     const input = screen.getByLabelText("Job link");
     expect(input).toHaveAttribute("placeholder", "https://example.com/jobs/office-manager");
     expect(screen.queryByText("Job URL")).not.toBeInTheDocument();
+    expect(screen.queryByText(/any website/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/automatically extract/i)).not.toBeInTheDocument();
     expect(screen.queryByPlaceholderText(/software-engineer/i)).not.toBeInTheDocument();
   });
 

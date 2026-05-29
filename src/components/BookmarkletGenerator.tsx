@@ -91,11 +91,18 @@ export function BookmarkletGenerator() {
     return `javascript:(function(){var scripts=document.querySelectorAll('script[type="application/ld+json"]');var job=null;scripts.forEach(function(s){try{var data=JSON.parse(s.textContent);if(data['@type']==='JobPosting')job=data;}catch(e){}});if(!job){var title=document.querySelector('h1');var company=document.querySelector('[class*="company"]')||document.querySelector('[class*="employer"]');var desc=document.querySelector('[class*="description"]')||document.querySelector('[class*="desc"]');job={title:title?title.textContent:'',company:company?company.textContent:'',description:desc?desc.textContent:'',url:window.location.href};}else{job.url=window.location.href;}fetch('http://localhost:${port}/api/bookmarklet/import',{method:'POST',headers:{'Content-Type':'application/json','X-JobSentinel-Token':${token}},body:JSON.stringify(job)}).then(function(r){if(r.ok){alert('Job imported to JobSentinel.');}else{alert('Could not save job. Make sure JobSentinel is open.');}}).catch(function(e){alert('Cannot connect to JobSentinel. Turn on the import helper in Settings.');});})();`;
   };
 
-  const copyBookmarklet = () => {
+  const copyBookmarklet = async () => {
     const code = generateBookmarkletCode();
-    navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setError(null);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      logError("Failed to copy browser import setup code:", err);
+      setCopied(false);
+      setError("Could not copy setup code. Allow clipboard access and try again.");
+    }
   };
 
   if (loading && !config) {
@@ -112,7 +119,7 @@ export function BookmarkletGenerator() {
         <div>
           <h3 className="text-lg font-semibold text-white mb-2">Browser Import Button</h3>
           <p className="text-sm text-gray-400">
-            Import jobs from any website with one click
+            Save many job pages into JobSentinel from your browser
           </p>
         </div>
         <HelpIcon
@@ -184,7 +191,7 @@ export function BookmarkletGenerator() {
                 </Button>
               </div>
               <p className="text-xs text-gray-500">
-                Setup code is hidden because it is long and includes a local safety token.
+                Setup code is hidden because it is long and includes a local safety code.
               </p>
             </div>
 
@@ -205,8 +212,8 @@ export function BookmarkletGenerator() {
               <h5 className="text-sm font-medium text-green-400 mb-2">How to Use:</h5>
               <ol className="text-sm text-gray-300 space-y-2 list-decimal list-inside">
                 <li>Browse to any job posting (LinkedIn, Indeed, etc.)</li>
-                <li>Click the "Import to JobSentinel" bookmark</li>
-                <li>The job will be imported automatically</li>
+                <li>Click the "Import to JobSentinel" button in your bookmarks bar</li>
+                <li>JobSentinel saves a copy of the job details</li>
                 <li>You'll see a confirmation message</li>
               </ol>
             </div>

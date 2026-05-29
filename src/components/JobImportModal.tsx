@@ -147,8 +147,8 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
       <div className="space-y-4">
         {/* Description */}
         <p id="import-job-description" className="text-sm text-gray-600 dark:text-gray-400">
-          Paste a job link from any website (Indeed, LinkedIn, Glassdoor, company career pages, etc.).
-          We'll automatically extract the job details.
+          Paste a link to an individual job page from a job board or company career site.
+          JobSentinel will check for job details you can review before saving.
         </p>
 
         {/* URL Input */}
