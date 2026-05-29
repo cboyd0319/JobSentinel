@@ -186,7 +186,7 @@ class ErrorBoundary extends Component<Props, State> {
             <div className="p-4 bg-surface-50 dark:bg-surface-900/50 rounded-lg mb-6">
               <p className="text-sm text-surface-500 dark:text-surface-400">
                 {showClearData
-                  ? "Multiple errors detected. Try clearing app data or reloading."
+                  ? "Multiple errors detected. Copy or save a safe debug report first. If reload does not work, reset local window state; saved jobs and applications stay in the local database."
                   : "Your data is safe. Try reloading the app to continue."}
               </p>
             </div>
@@ -249,7 +249,7 @@ class ErrorBoundary extends Component<Props, State> {
                   onClick={this.handleClearData}
                   className="w-full bg-danger/10 hover:bg-danger/20 text-danger font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-danger focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-800"
                 >
-                  Clear App Data & Reload
+                  Reset Window State & Reload
                 </button>
               )}
             </div>

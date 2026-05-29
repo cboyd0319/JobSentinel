@@ -207,7 +207,30 @@ describe("ErrorBoundary", () => {
       expect(reloadMock).toHaveBeenCalledTimes(1);
     });
 
-    it("preserves visual preferences when clearing app data", async () => {
+    it("uses protective reset wording after repeated crashes", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <ErrorBoundary>
+          <ThrowError shouldThrow={true} />
+        </ErrorBoundary>
+      );
+
+      await user.click(screen.getByRole("button", { name: /try again/i }));
+
+      expect(
+        screen.getByText(/copy or save a safe debug report first/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/saved jobs and applications stay in the local database/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /reset window state.*reload/i }),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/clear app data/i)).not.toBeInTheDocument();
+    });
+
+    it("preserves visual preferences when resetting window state", async () => {
       const user = userEvent.setup();
       const reloadMock = vi.fn();
       const storage = new Map<string, string>();
@@ -240,7 +263,7 @@ describe("ErrorBoundary", () => {
 
       await user.click(screen.getByRole("button", { name: /try again/i }));
       await user.click(
-        await screen.findByRole("button", { name: /clear app data/i })
+        await screen.findByRole("button", { name: /reset window state/i })
       );
 
       expect(localStorage.getItem("jobsentinel-theme")).toBe("dark");
