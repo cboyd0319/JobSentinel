@@ -41,8 +41,8 @@ describe("InterviewScheduler", () => {
   const mockOnClose = vi.fn();
 
   const mockApplications = [
-    { id: 1, job_title: "Software Engineer", company: "TechCorp" },
-    { id: 2, job_title: "Frontend Developer", company: "WebStart" },
+    { id: 1, job_title: "Customer Support Coordinator", company: "CareBridge Services" },
+    { id: 2, job_title: "Program Assistant", company: "Neighborhood Works" },
   ];
 
   const mockUpcomingInterviews = [
@@ -53,14 +53,14 @@ describe("InterviewScheduler", () => {
       scheduled_at: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days
       duration_minutes: 60,
       location: "Zoom Meeting",
-      interviewer_name: "John Smith",
-      interviewer_title: "Engineering Manager",
-      notes: "Prepare system design",
+      interviewer_name: "Morgan Rivera",
+      interviewer_title: "Support Operations Manager",
+      notes: "Review customer escalation examples",
       completed: false,
       outcome: null,
       post_interview_notes: null,
-      job_title: "Software Engineer",
-      company: "TechCorp",
+      job_title: "Customer Support Coordinator",
+      company: "CareBridge Services",
     },
     {
       id: 2,
@@ -75,8 +75,8 @@ describe("InterviewScheduler", () => {
       completed: false,
       outcome: null,
       post_interview_notes: null,
-      job_title: "Frontend Developer",
-      company: "WebStart",
+      job_title: "Program Assistant",
+      company: "Neighborhood Works",
     },
   ];
 
@@ -88,14 +88,14 @@ describe("InterviewScheduler", () => {
       scheduled_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
       duration_minutes: 45,
       location: "Google Meet",
-      interviewer_name: "Jane Doe",
-      interviewer_title: "HR Manager",
+      interviewer_name: "Avery Patel",
+      interviewer_title: "Recruiting Coordinator",
       notes: null,
       completed: true,
       outcome: "passed",
       post_interview_notes: "Went well, moving to next round",
-      job_title: "Software Engineer",
-      company: "TechCorp",
+      job_title: "Customer Support Coordinator",
+      company: "CareBridge Services",
     },
   ];
 
@@ -195,8 +195,8 @@ describe("InterviewScheduler", () => {
       render(<InterviewScheduler onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Software Engineer")).toBeInTheDocument();
-        expect(screen.getByText("TechCorp")).toBeInTheDocument();
+        expect(screen.getByText("Customer Support Coordinator")).toBeInTheDocument();
+        expect(screen.getByText("CareBridge Services")).toBeInTheDocument();
       });
     });
 
@@ -237,7 +237,7 @@ describe("InterviewScheduler", () => {
       render(<InterviewScheduler onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText(/John Smith/)).toBeInTheDocument();
+        expect(screen.getByText(/Morgan Rivera/)).toBeInTheDocument();
       });
     });
 
@@ -474,11 +474,11 @@ describe("InterviewScheduler", () => {
       render(<InterviewScheduler onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Software Engineer")).toBeInTheDocument();
+        expect(screen.getByText("Customer Support Coordinator")).toBeInTheDocument();
       });
 
       // Click on the interview card
-      fireEvent.click(screen.getByText("Software Engineer"));
+      fireEvent.click(screen.getByText("Customer Support Coordinator"));
 
       await waitFor(() => {
         // Modal shows interview prep section
@@ -492,10 +492,10 @@ describe("InterviewScheduler", () => {
       render(<InterviewScheduler onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Software Engineer")).toBeInTheDocument();
+        expect(screen.getByText("Customer Support Coordinator")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Software Engineer"));
+      fireEvent.click(screen.getByText("Customer Support Coordinator"));
 
       await waitFor(() => {
         expect(screen.getByText("Research company background")).toBeInTheDocument();
@@ -510,10 +510,10 @@ describe("InterviewScheduler", () => {
       render(<InterviewScheduler onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Software Engineer")).toBeInTheDocument();
+        expect(screen.getByText("Customer Support Coordinator")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Software Engineer"));
+      fireEvent.click(screen.getByText("Customer Support Coordinator"));
 
       await waitFor(() => {
         expect(screen.getByText("Add to Calendar")).toBeInTheDocument();
@@ -526,10 +526,10 @@ describe("InterviewScheduler", () => {
       render(<InterviewScheduler onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Software Engineer")).toBeInTheDocument();
+        expect(screen.getByText("Customer Support Coordinator")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Software Engineer"));
+      fireEvent.click(screen.getByText("Customer Support Coordinator"));
 
       await waitFor(() => {
         expect(screen.getByText("Mark as Complete")).toBeInTheDocument();
@@ -542,10 +542,10 @@ describe("InterviewScheduler", () => {
       render(<InterviewScheduler onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Software Engineer")).toBeInTheDocument();
+        expect(screen.getByText("Customer Support Coordinator")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Software Engineer"));
+      fireEvent.click(screen.getByText("Customer Support Coordinator"));
 
       await waitFor(() => {
         expect(screen.getByText("Passed")).toBeInTheDocument();
@@ -560,10 +560,10 @@ describe("InterviewScheduler", () => {
       render(<InterviewScheduler onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Software Engineer")).toBeInTheDocument();
+        expect(screen.getByText("Customer Support Coordinator")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Software Engineer"));
+      fireEvent.click(screen.getByText("Customer Support Coordinator"));
 
       await waitFor(() => {
         expect(screen.getByText("Passed")).toBeInTheDocument();
@@ -582,10 +582,10 @@ describe("InterviewScheduler", () => {
       render(<InterviewScheduler onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Software Engineer")).toBeInTheDocument();
+        expect(screen.getByText("Customer Support Coordinator")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Software Engineer"));
+      fireEvent.click(screen.getByText("Customer Support Coordinator"));
 
       await waitFor(() => {
         expect(screen.getByText("Delete")).toBeInTheDocument();
@@ -598,10 +598,10 @@ describe("InterviewScheduler", () => {
       render(<InterviewScheduler onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Software Engineer")).toBeInTheDocument();
+        expect(screen.getByText("Customer Support Coordinator")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Software Engineer"));
+      fireEvent.click(screen.getByText("Customer Support Coordinator"));
 
       await waitFor(() => {
         expect(screen.getByText("Delete")).toBeInTheDocument();
