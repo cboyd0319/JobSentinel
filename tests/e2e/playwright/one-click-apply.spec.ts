@@ -31,13 +31,13 @@ test.describe("Application Assist Settings", () => {
 
   test("loads existing application profile into editable fields", async () => {
     await expect(applyPage.profileForm).toBeVisible();
-    await expect(applyPage.fullNameInput).toHaveValue("John Doe");
-    await expect(applyPage.emailInput).toHaveValue("john@example.com");
+    await expect(applyPage.fullNameInput).toHaveValue("Jordan Lee");
+    await expect(applyPage.emailInput).toHaveValue("jordan@example.com");
     await expect(applyPage.phoneInput).toHaveValue("+1 (555) 123-4567");
-    await expect(applyPage.linkedInInput).toHaveValue("https://linkedin.com/in/johndoe");
-    await expect(applyPage.githubInput).toHaveValue("https://github.com/johndoe");
-    await expect(applyPage.portfolioInput).toHaveValue("https://johndoe.com");
-    await expect(applyPage.websiteInput).toHaveValue("https://blog.johndoe.com");
+    await expect(applyPage.linkedInInput).toHaveValue("https://linkedin.com/in/jordanlee");
+    await expect(applyPage.githubInput).toHaveValue("");
+    await expect(applyPage.portfolioInput).toHaveValue("https://jordanlee.example.com/work");
+    await expect(applyPage.websiteInput).toHaveValue("https://jordanlee.example.com");
     await expect(applyPage.maxApplicationsSelect).toHaveValue("10");
     await expect(applyPage.manualApprovalCheckbox).toBeChecked();
     await expect(applyPage.browseResumeButton).toBeVisible();
@@ -65,7 +65,7 @@ test.describe("Application Assist Settings", () => {
       email: "casey@example.com",
       phone: "+1 (555) 765-4321",
       linkedin: "https://linkedin.com/in/caseysentinel",
-      github: "https://github.com/caseysentinel",
+      github: "https://code.example.com/caseysentinel",
       portfolio: "https://casey.example.com",
       website: "https://blog.casey.example.com",
       maxApplications: "20",
@@ -87,7 +87,7 @@ test.describe("Application Assist Settings", () => {
     await expect(applyPage.emailInput).toHaveValue("casey@example.com");
     await expect(applyPage.phoneInput).toHaveValue("+1 (555) 765-4321");
     await expect(applyPage.linkedInInput).toHaveValue("https://linkedin.com/in/caseysentinel");
-    await expect(applyPage.githubInput).toHaveValue("https://github.com/caseysentinel");
+    await expect(applyPage.githubInput).toHaveValue("https://code.example.com/caseysentinel");
     await expect(applyPage.portfolioInput).toHaveValue("https://casey.example.com");
     await expect(applyPage.websiteInput).toHaveValue("https://blog.casey.example.com");
     await expect(applyPage.maxApplicationsSelect).toHaveValue("20");

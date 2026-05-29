@@ -60,9 +60,9 @@ Before using Application Assist, fill in your information:
 
 ### Links
 
-- LinkedIn profile link
-- GitHub profile link if relevant to your role
-- Portfolio or personal website link
+- LinkedIn profile link, if you use one
+- Code profile link, if relevant to your role
+- Portfolio, work samples, personal website, or credential page
 
 ### Work Authorization
 

@@ -82,9 +82,9 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
     { label: "Email", value: profile.email, willFill: true },
     { label: "Phone", value: profile.phone, willFill: !!profile.phone },
     { label: "LinkedIn", value: profile.linkedinUrl, willFill: !!profile.linkedinUrl },
-    { label: "GitHub", value: profile.githubUrl, willFill: !!profile.githubUrl },
+    { label: "Code profile", value: profile.githubUrl, willFill: !!profile.githubUrl },
     { label: "Portfolio", value: profile.portfolioUrl, willFill: !!profile.portfolioUrl },
-    { label: "Website", value: profile.websiteUrl, willFill: !!profile.websiteUrl },
+    { label: "Personal website or credential page", value: profile.websiteUrl, willFill: !!profile.websiteUrl },
     {
       label: "US Work Authorization",
       value: profile.usWorkAuthorized ? "Yes" : "No",

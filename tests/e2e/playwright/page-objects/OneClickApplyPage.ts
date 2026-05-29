@@ -50,7 +50,7 @@ export class OneClickApplyPage extends BasePage {
   }
 
   get githubInput(): Locator {
-    return this.page.getByRole("textbox", { name: "GitHub" });
+    return this.page.getByRole("textbox", { name: "Code profile (if relevant)" });
   }
 
   get portfolioInput(): Locator {
@@ -58,7 +58,7 @@ export class OneClickApplyPage extends BasePage {
   }
 
   get websiteInput(): Locator {
-    return this.page.getByRole("textbox", { name: "Website" });
+    return this.page.getByRole("textbox", { name: "Personal website or credential page" });
   }
 
   get resumePathInput(): Locator {

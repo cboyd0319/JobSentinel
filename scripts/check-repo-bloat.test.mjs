@@ -523,6 +523,26 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/automation/ProfileForm.tsx",
+      '<Input label="GitHub" placeholder="https://github.com/johndoe" />\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/automation/ApplicationPreview.tsx",
+      '{ label: "GitHub", value: profile.githubUrl };\n',
+    );
+    writeFixtureFile(
+      root,
+      "tests/e2e/playwright/one-click-apply.spec.ts",
+      '"https://github.com/caseysentinel"; "GitHub profile link if relevant to your role";\n',
+    );
+    writeFixtureFile(
+      root,
+      "tests/e2e/playwright/page-objects/OneClickApplyPage.ts",
+      'getByRole("textbox", { name: "GitHub" });\n',
+    );
+    writeFixtureFile(
+      root,
       "tests/e2e/playwright/market-intelligence.spec.ts",
       '"Top Skill: TypeScript"; "Top Company: BigTech Inc"; "TechCorp";\n',
     );
@@ -556,7 +576,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/components/resume-builder/steps/SummaryStep.tsx",
         "src/components/resume-builder/steps/ContactStep.tsx",
         "src/components/resume-builder/steps/SkillsStep.tsx",
+        "src/components/automation/ProfileForm.tsx",
+        "src/components/automation/ApplicationPreview.tsx",
         "tests/e2e/playwright/market-intelligence.spec.ts",
+        "tests/e2e/playwright/one-click-apply.spec.ts",
+        "tests/e2e/playwright/page-objects/OneClickApplyPage.ts",
         "src/components/MarketSnapshotCard.test.tsx",
         "src/components/MarketAlertCard.test.tsx",
         "docs/README.md",
@@ -588,7 +612,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/components/resume-builder/steps/SummaryStep.tsx",
       "src/components/resume-builder/steps/ContactStep.tsx",
       "src/components/resume-builder/steps/SkillsStep.tsx",
+      "src/components/automation/ProfileForm.tsx",
+      "src/components/automation/ApplicationPreview.tsx",
       "tests/e2e/playwright/market-intelligence.spec.ts",
+      "tests/e2e/playwright/one-click-apply.spec.ts",
+      "tests/e2e/playwright/page-objects/OneClickApplyPage.ts",
       "src/components/MarketSnapshotCard.test.tsx",
       "src/components/MarketAlertCard.test.tsx",
       "docs/features/resume-builder.md",

@@ -13,9 +13,9 @@ const mockInvoke = vi.mocked(invoke);
 const mockJob = {
   id: 1,
   hash: "test-hash-123",
-  title: "Senior Software Engineer",
-  company: "Tech Corp",
-  location: "San Francisco, CA",
+  title: "Customer Support Manager",
+  company: "CareBridge Health",
+  location: "Chicago, IL",
   url: "https://example.com/jobs/123",
   description: "Great opportunity",
   score: 85,
@@ -23,13 +23,13 @@ const mockJob = {
 
 const mockProfile = {
   id: 1,
-  fullName: "John Doe",
-  email: "john@example.com",
+  fullName: "Jordan Lee",
+  email: "jordan@example.com",
   phone: "+1 (555) 123-4567",
-  linkedinUrl: "https://linkedin.com/in/johndoe",
-  githubUrl: "https://github.com/johndoe",
-  portfolioUrl: "https://johndoe.com",
-  websiteUrl: "https://blog.johndoe.com",
+  linkedinUrl: "https://linkedin.com/in/jordanlee",
+  githubUrl: "https://code.example.com/jordanlee",
+  portfolioUrl: "https://jordanlee.example.com/work",
+  websiteUrl: "https://jordanlee.example.com",
   usWorkAuthorized: true,
   requiresSponsorship: false,
 };
@@ -110,7 +110,7 @@ describe("ApplicationPreview", () => {
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        expect(screen.getByText("Senior Software Engineer")).toBeInTheDocument();
+        expect(screen.getByText("Customer Support Manager")).toBeInTheDocument();
       });
     });
 
@@ -120,7 +120,7 @@ describe("ApplicationPreview", () => {
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        expect(screen.getByText(/Tech Corp/)).toBeInTheDocument();
+        expect(screen.getByText(/CareBridge Health/)).toBeInTheDocument();
       });
     });
 
@@ -130,7 +130,7 @@ describe("ApplicationPreview", () => {
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        expect(screen.getByText(/San Francisco, CA/)).toBeInTheDocument();
+        expect(screen.getByText(/Chicago, IL/)).toBeInTheDocument();
       });
     });
 
@@ -175,7 +175,7 @@ describe("ApplicationPreview", () => {
 
       await waitFor(() => {
         expect(screen.getByText("Full Name")).toBeInTheDocument();
-        expect(screen.getByText("John Doe")).toBeInTheDocument();
+        expect(screen.getByText("Jordan Lee")).toBeInTheDocument();
       });
     });
 
@@ -186,7 +186,7 @@ describe("ApplicationPreview", () => {
 
       await waitFor(() => {
         expect(screen.getByText("Email")).toBeInTheDocument();
-        expect(screen.getByText("john@example.com")).toBeInTheDocument();
+        expect(screen.getByText("jordan@example.com")).toBeInTheDocument();
       });
     });
 
@@ -208,18 +208,18 @@ describe("ApplicationPreview", () => {
 
       await waitFor(() => {
         expect(screen.getByText("LinkedIn")).toBeInTheDocument();
-        expect(screen.getByText("https://linkedin.com/in/johndoe")).toBeInTheDocument();
+        expect(screen.getByText("https://linkedin.com/in/jordanlee")).toBeInTheDocument();
       });
     });
 
-    it("displays GitHub when provided", async () => {
+    it("displays code profile when provided", async () => {
       mockInvoke.mockResolvedValue(mockProfile);
 
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        expect(screen.getByText("GitHub")).toBeInTheDocument();
-        expect(screen.getByText("https://github.com/johndoe")).toBeInTheDocument();
+        expect(screen.getByText("Code profile")).toBeInTheDocument();
+        expect(screen.getByText("https://code.example.com/jordanlee")).toBeInTheDocument();
       });
     });
 
@@ -230,7 +230,7 @@ describe("ApplicationPreview", () => {
 
       await waitFor(() => {
         expect(screen.getByText("Portfolio")).toBeInTheDocument();
-        expect(screen.getByText("https://johndoe.com")).toBeInTheDocument();
+        expect(screen.getByText("https://jordanlee.example.com/work")).toBeInTheDocument();
       });
     });
 
@@ -240,8 +240,8 @@ describe("ApplicationPreview", () => {
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        expect(screen.getByText("Website")).toBeInTheDocument();
-        expect(screen.getByText("https://blog.johndoe.com")).toBeInTheDocument();
+        expect(screen.getByText("Personal website or credential page")).toBeInTheDocument();
+        expect(screen.getByText("https://jordanlee.example.com")).toBeInTheDocument();
       });
     });
 
@@ -326,7 +326,7 @@ describe("ApplicationPreview", () => {
       });
     });
 
-    it("does not show GitHub when null", async () => {
+    it("does not show code profile when null", async () => {
       mockInvoke.mockResolvedValue({
         ...mockProfile,
         githubUrl: null,
@@ -335,7 +335,7 @@ describe("ApplicationPreview", () => {
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        expect(screen.queryByText("GitHub")).not.toBeInTheDocument();
+        expect(screen.queryByText("Code profile")).not.toBeInTheDocument();
       });
     });
 
@@ -604,7 +604,7 @@ describe("ApplicationPreview", () => {
       });
 
       expect(container).toBeEmptyDOMElement();
-      expect(screen.queryByText("John Doe")).not.toBeInTheDocument();
+      expect(screen.queryByText("Jordan Lee")).not.toBeInTheDocument();
     });
   });
 
@@ -619,7 +619,7 @@ describe("ApplicationPreview", () => {
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        expect(screen.getByText("John Doe")).toBeInTheDocument();
+        expect(screen.getByText("Jordan Lee")).toBeInTheDocument();
         // Empty strings should not be displayed
         expect(screen.queryByText("Phone")).not.toBeInTheDocument();
         expect(screen.queryByText("LinkedIn")).not.toBeInTheDocument();
