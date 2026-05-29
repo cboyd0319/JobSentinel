@@ -97,6 +97,19 @@ The active plan progress table has detailed slice history.
 
 The latest cleanup slices were verified with:
 
+- `npm run lint`
+- `npx tsc --noEmit`
+- `npm run test:run`
+- `npm run lint:bloat`
+- `npm run lint:tauri-invokes`
+- `npm run lint:tests`
+- `cd src-tauri && cargo fmt --all -- --check`
+- `cd src-tauri && cargo clippy -- -D warnings`
+- `cd src-tauri && cargo test --lib`
+- `npm run test:e2e:smoke`
+- `npm audit --audit-level=moderate`
+- `cd src-tauri && cargo audit`
+- `cd src-tauri && cargo deny check advisories`
 - `npm run test:run -- src/components/AtsLiveScorePanel.test.tsx`
 - `npm run test:run -- src/components/ErrorLogPanel.test.tsx`
 - `npm run test:run -- src/components/BookmarkletGenerator.test.tsx`

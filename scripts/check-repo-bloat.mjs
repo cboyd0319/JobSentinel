@@ -1161,6 +1161,15 @@ function hasStaleUserDataManagementDocShape(root, path) {
   );
 }
 
+function hasStaleCargoDenyIgnore(root, path) {
+  if (path !== "src-tauri/deny.toml") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /RUSTSEC-2025-0057/.test(text);
+}
+
 function hasOverbroadLocalStorageMigrationClaim(root, path) {
   if (path !== "docs/ROADMAP.md") {
     return false;
@@ -3823,6 +3832,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleUserDataManagementDocShape(root, path)) {
       violations.push(`sync user-data docs with local privacy guidance: ${path}`);
+    }
+
+    if (hasStaleCargoDenyIgnore(root, path)) {
+      violations.push(`remove stale cargo-deny advisory ignore: ${path}`);
     }
 
     if (hasOverbroadLocalStorageMigrationClaim(root, path)) {

@@ -3118,6 +3118,34 @@ test("checkRepoBloat rejects stale user-data management doc shape", () => {
   });
 });
 
+test("checkRepoBloat rejects stale cargo-deny advisory ignores", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/deny.toml",
+      [
+        "[advisories]",
+        "ignore = [",
+        '  "RUSTSEC-2025-0057", # fxhash',
+        "]",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/deny.toml"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("remove stale cargo-deny advisory ignore: src-tauri/deny.toml"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects overbroad localStorage migration claims", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

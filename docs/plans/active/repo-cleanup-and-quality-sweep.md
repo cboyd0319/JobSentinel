@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Ran broad local quality gates: frontend lint, TypeScript no-emit, 2,524 Vitest tests, bloat, Tauri invoke, test-quality, Rust fmt, Rust clippy, 2,393 Rust lib tests, Chromium smoke E2E, npm audit, cargo audit, and cargo-deny advisories. Removed a stale cargo-deny `fxhash` ignore, corrected RustSec comments, added bloat coverage for stale advisory ignores, and opened SEC-002 for current Rust informational advisory watch. |
 | 2026-05-29 | In progress | Rewrote user-data management docs around local control, sensitive data, safe debug reports, migrations, deletion risk, and plain troubleshooting while moving command/storage details into a collapsed developer contract with bloat coverage for old API/database doc shape. |
 | 2026-05-29 | In progress | Rewrote Market Intelligence docs from stale analytics/API/status dump into local evidence guidance with sample-bias warnings, salary-transparency use, official-source verification, privacy labels, and bloat coverage for old technical-documentation framing. |
 | 2026-05-29 | In progress | Rewrote Resume Matcher docs from old API/scoring dump into local-first, advisory, broad-audience fit-review guidance, renamed front-door references away from AI Resume-Job Matcher, and added bloat coverage for stale keyword/optimization/API framing. |

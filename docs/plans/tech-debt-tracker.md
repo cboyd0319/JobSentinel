@@ -7,6 +7,7 @@ security, or developer workflow.
 
 | ID | Area | Evidence | Risk | Next step | Status |
 | -- | ---- | -------- | ---- | --------- | ------ |
+| SEC-002 | Rust informational advisory watch | `cargo audit` on 2026-05-29 reports 0 vulnerabilities and 19 informational warnings: GTK3/glib advisories through Tauri's Linux stack, `unic-*` through Tauri `urlpattern`, `paste` and `number_prefix` through ML/tokenizer dependencies, and `proc-macro-error` through proc-macro dependencies. | These are not current direct vulnerability findings, but stale upstream transitive dependencies can become real security or maintenance risk if ignored. | Keep Tauri, wry, tao, tokenizers, candle, and related crates on latest stable; rerun `cargo audit` and `cargo deny check advisories` after dependency changes; remove ignores as soon as upstream paths disappear. | Open |
 | BLOAT-003 | Removing bloat and junk | User reported root clutter and likely nested junk after the disposable-artifact sensor was already passing. | Artifact-only sensors can miss stale docs, redundant root files, duplicate examples, or obsolete nested content that still slows maintenance. | Classify root files, sweep nested paths for stale or duplicate content, remove or relocate confirmed bloat, then add sensors for recurring junk classes. | Open |
 
 ## Closed Items
