@@ -181,6 +181,6 @@ user-facing copy should explain these as match priorities and preferences.
 
 - [Synonym Matching Guide](synonym-matching.md) - Equivalent work and skill words.
 - [Remote Work Preference Scoring](remote-preference-scoring.md) - Location and work-mode matching.
-- [Resume Matcher Integration](resume-matcher.md) - Resume-based match context.
+- [Resume Match integration](resume-matcher.md) - Resume-based match context.
 - [Pay Protection](salary-ai.md) - Salary floor, pay transparency, and offer comparison.
 - [Ghost Job Detection](ghost-detection.md) - Stale or low-trust posting warnings.

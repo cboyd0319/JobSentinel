@@ -60,7 +60,7 @@ skill to get value.
 | --- | --- |
 | Ghost-job and stale-posting protection | [Ghost Detection](features/ghost-detection.md) |
 | Pay protection and salary transparency | [Pay Protection](features/salary-ai.md) |
-| Resume fit review | [Resume Matcher](features/resume-matcher.md) |
+| Resume fit review | [Resume Match](features/resume-matcher.md) |
 | Resume writing | [Resume Builder](features/resume-builder.md) |
 | Application board | [Application Tracking](features/application-tracking.md) |
 | Review-first application form help | [Application Assist](features/one-click-apply.md) |

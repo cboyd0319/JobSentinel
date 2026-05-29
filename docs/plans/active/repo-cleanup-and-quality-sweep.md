@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Reworded live Resume page headings and empty state from Resume Matcher and AI-powered matching to Resume Match, local review, and fit evidence; refreshed Resume Match docs and browser specs, broadened resume-upload E2E fixture data to a community-program role, and added bloat coverage. |
 | 2026-05-29 | In progress | Replaced the skills-first resume template thumbnail's terminal and CS sample with broad community-program wording, updated stale Resume Builder E2E copy, and reworded Rust resume comments/descriptions from ATS optimization to application readability with bloat coverage. |
 | 2026-05-29 | In progress | Reworded Resume Builder docs away from security-engineer-first examples, LinkedIn/GitHub-first contact guidance, poor-fit score language, and security-team bullet examples; added bloat coverage so broad-audience resume guidance stays protective. |
 | 2026-05-29 | In progress | Replaced stale `docs/README.md` release-log content with a current documentation hub for users, reviewers, contributors, research, privacy, responsible AI, harness, and active plans; added bloat coverage against release-log drift returning. |

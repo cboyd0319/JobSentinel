@@ -47,8 +47,8 @@ interface ResumeSeedState {
 
 const activeResume: SeedResume = {
   id: 101,
-  name: "portfolio-resume.pdf",
-  file_path: "/tmp/portfolio-resume.pdf",
+  name: "community-program-resume.pdf",
+  file_path: "/tmp/community-program-resume.pdf",
   is_active: true,
   created_at: "2026-05-18T16:00:00.000Z",
   updated_at: "2026-05-18T16:00:00.000Z",
@@ -67,8 +67,8 @@ const seededSkills: SeedSkill[] = [
   {
     id: 1,
     resume_id: activeResume.id,
-    skill_name: "React",
-    skill_category: "Frameworks",
+    skill_name: "Community Outreach",
+    skill_category: "Work Skills",
     confidence_score: 0.95,
     years_experience: 5,
     proficiency_level: "Expert",
@@ -77,8 +77,8 @@ const seededSkills: SeedSkill[] = [
   {
     id: 2,
     resume_id: activeResume.id,
-    skill_name: "TypeScript",
-    skill_category: "Programming Languages",
+    skill_name: "Client Intake",
+    skill_category: "Customer or Patient Support",
     confidence_score: 0.9,
     years_experience: 4,
     proficiency_level: "Advanced",
@@ -87,8 +87,8 @@ const seededSkills: SeedSkill[] = [
   {
     id: 3,
     resume_id: activeResume.id,
-    skill_name: "SQL",
-    skill_category: "Databases",
+    skill_name: "Spreadsheet Reporting",
+    skill_category: "Tools and Systems",
     confidence_score: 0.72,
     years_experience: 3,
     proficiency_level: "Intermediate",
@@ -101,15 +101,15 @@ const seededMatches: SeedMatch[] = [
     id: 50,
     resume_id: activeResume.id,
     job_hash: "job-hash-2",
-    job_title: "Senior Software Engineer",
-    company: "Stripe",
+    job_title: "Community Program Coordinator",
+    company: "Neighborhood Health Center",
     overall_match_score: 0.86,
     skills_match_score: 0.88,
     experience_match_score: 0.82,
     education_match_score: 0.74,
-    matching_skills: ["React", "TypeScript"],
-    missing_skills: ["Go"],
-    gap_analysis: "React experience matches\nAdd Go examples",
+    matching_skills: ["Community Outreach", "Client Intake"],
+    missing_skills: ["Volunteer Scheduling"],
+    gap_analysis: "Outreach and intake experience match\nAdd volunteer scheduling examples",
     created_at: "2026-05-19T16:00:00.000Z",
   },
 ];
@@ -159,7 +159,7 @@ test.describe("Resume Upload and Matching", () => {
     await expect(resumePage.emptyState).toBeVisible();
     await expect(resumePage.uploadResumeButton).toBeVisible();
     await expect(resumePage.importJsonButton).toBeVisible();
-    await expect(page.getByText("Upload your resume to enable AI-powered job matching")).toBeVisible();
+    await expect(page.getByText("Upload your resume to review skills")).toBeVisible();
   });
 
   test("renders active resume, extracted skills, and recent matches @smoke", async ({ page }) => {
@@ -169,14 +169,14 @@ test.describe("Resume Upload and Matching", () => {
 
     await expect(resumePage.activeResumeHeading).toBeVisible();
     await expect(page.getByText(activeResume.name)).toBeVisible();
-    await expect(page.getByText("Skills Extracted (3)")).toBeVisible();
-    await expect(page.getByText("React", { exact: true }).first()).toBeVisible();
-    await expect(page.getByText("TypeScript", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("Saved Skills (3)")).toBeVisible();
+    await expect(page.getByText("Community Outreach", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("Client Intake", { exact: true }).first()).toBeVisible();
     await expect(resumePage.recentMatchesHeading).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Senior Software Engineer" })).toBeVisible();
-    await expect(page.getByText("Matched Skills (2)")).toBeVisible();
-    await expect(page.getByText("Missing Skills (1)")).toBeVisible();
-    await expect(page.getByText("Add Go examples")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Community Program Coordinator" })).toBeVisible();
+    await expect(page.getByText("Skills found in both (2)")).toBeVisible();
+    await expect(page.getByText("Skills to review (1)")).toBeVisible();
+    await expect(page.getByText("Add volunteer scheduling examples")).toBeVisible();
   });
 
   test("adds a manual skill and persists it after reload", async ({ page }) => {
@@ -185,17 +185,17 @@ test.describe("Resume Upload and Matching", () => {
     await resumePage.navigateTo();
     await resumePage.openAddSkillForm();
     await resumePage.fillSkillForm({
-      name: "GraphQL",
+      name: "Grant Reporting",
       proficiency: "Advanced",
-      category: "Frameworks",
+      category: "Tools and Systems",
       years: "2",
     });
     await resumePage.saveNewSkill();
 
-    await expect(page.getByText("GraphQL", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("Grant Reporting", { exact: true }).first()).toBeVisible();
     await page.reload();
     await resumePage.navigateTo();
-    await expect(page.getByText("GraphQL", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("Grant Reporting", { exact: true }).first()).toBeVisible();
   });
 
   test("opens the add-skill form from empty extracted-skills state", async ({ page }) => {
@@ -205,41 +205,41 @@ test.describe("Resume Upload and Matching", () => {
     });
 
     await resumePage.navigateTo();
-    await expect(page.getByText("No skills extracted yet")).toBeVisible();
+    await expect(page.getByText("No skills saved yet")).toBeVisible();
 
     await resumePage.openEmptyStateAddSkillForm();
     await resumePage.fillSkillForm({
-      name: "Rust",
+      name: "Appointment Scheduling",
       proficiency: "Intermediate",
-      category: "Programming Languages",
+      category: "Operations and Administration",
     });
     await resumePage.saveNewSkill();
 
-    await expect(page.getByText("Rust", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("Appointment Scheduling", { exact: true }).first()).toBeVisible();
   });
 
   test("edits and deletes a skill", async ({ page }) => {
     await seedResumeState(page);
 
     await resumePage.navigateTo();
-    await resumePage.editSkill("SQL", "PostgreSQL", "Advanced");
+    await resumePage.editSkill("Spreadsheet Reporting", "Budget Tracking", "Advanced");
 
-    await expect(page.getByText("PostgreSQL", { exact: true }).first()).toBeVisible();
-    await expect(page.getByText("SQL", { exact: true })).not.toBeVisible();
+    await expect(page.getByText("Budget Tracking", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("Spreadsheet Reporting", { exact: true })).not.toBeVisible();
 
-    await resumePage.deleteSkill("PostgreSQL");
+    await resumePage.deleteSkill("Budget Tracking");
 
-    await expect(page.getByText("PostgreSQL", { exact: true })).not.toBeVisible();
+    await expect(page.getByText("Budget Tracking", { exact: true })).not.toBeVisible();
   });
 
   test("filters skills by category", async ({ page }) => {
     await seedResumeState(page);
 
     await resumePage.navigateTo();
-    await resumePage.categoryFilter.selectOption("Frameworks");
+    await resumePage.categoryFilter.selectOption("Work Skills");
 
-    await expect(page.getByText("React", { exact: true }).first()).toBeVisible();
-    await expect(page.getByText("SQL", { exact: true })).not.toBeVisible();
+    await expect(page.getByText("Community Outreach", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("Spreadsheet Reporting", { exact: true })).not.toBeVisible();
   });
 
   test("switches active resume from the library", async ({ page }) => {
@@ -250,7 +250,7 @@ test.describe("Resume Upload and Matching", () => {
           id: 4,
           resume_id: archivedResume.id,
           skill_name: "Lifecycle Marketing",
-          skill_category: "Soft Skills",
+          skill_category: "Work Skills",
           confidence_score: 0.81,
           years_experience: 6,
           proficiency_level: "Advanced",
@@ -266,7 +266,7 @@ test.describe("Resume Upload and Matching", () => {
 
     await expect(page.getByText(archivedResume.name)).toBeVisible();
     await expect(page.getByText("Lifecycle Marketing", { exact: true }).first()).toBeVisible();
-    await expect(page.getByText("React", { exact: true })).not.toBeVisible();
+    await expect(page.getByText("Community Outreach", { exact: true })).not.toBeVisible();
   });
 
   test("deletes an inactive resume from the library", async ({ page }) => {

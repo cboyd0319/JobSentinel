@@ -1186,6 +1186,11 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
     );
     writeFixtureFile(
       root,
+      "src/pages/Resume.tsx",
+      '"AI-powered resume analysis and job matching"\n',
+    );
+    writeFixtureFile(
+      root,
       "src-tauri/src/core/resume/templates.rs",
       [
         "//! ATS-optimized resume templates for HTML rendering",
@@ -1214,6 +1219,7 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
         "src/contexts/KeyboardShortcutsContext.tsx",
         "src/App.tsx",
         "src/components/AtsLiveScorePanel.tsx",
+        "src/pages/Resume.tsx",
         "src/pages/ResumeBuilder.tsx",
         "src-tauri/src/core/resume/templates.rs",
         "docs/user/QUICK_START.md",
@@ -1228,6 +1234,7 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
       "src/contexts/KeyboardShortcutsContext.tsx",
       "src/App.tsx",
       "src/components/AtsLiveScorePanel.tsx",
+      "src/pages/Resume.tsx",
       "src/pages/ResumeBuilder.tsx",
       "src-tauri/src/core/resume/templates.rs",
       "docs/user/QUICK_START.md",
@@ -4204,10 +4211,17 @@ test("checkRepoBloat rejects confusing Resume Matcher AI labels", () => {
       "docs/developer/ARCHITECTURE.md",
       ["#### `core/resume/`", "", "**Purpose**: AI Resume-Job Matcher", ""].join("\n"),
     );
+    writeFixtureFile(root, "docs/features/resume-matcher.md", "# Resume Matcher\n");
 
     execFileSync(
       "git",
-      ["add", "package.json", "docs/ROADMAP.md", "docs/developer/ARCHITECTURE.md"],
+      [
+        "add",
+        "package.json",
+        "docs/ROADMAP.md",
+        "docs/developer/ARCHITECTURE.md",
+        "docs/features/resume-matcher.md",
+      ],
       { cwd: root },
     );
 
@@ -4221,6 +4235,10 @@ test("checkRepoBloat rejects confusing Resume Matcher AI labels", () => {
       violations.includes(
         "replace confusing Resume Matcher AI label: docs/developer/ARCHITECTURE.md",
       ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace confusing Resume Matcher AI label: docs/features/resume-matcher.md"),
       violations.join("\n"),
     );
   });

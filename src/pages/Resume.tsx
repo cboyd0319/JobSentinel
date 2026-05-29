@@ -429,10 +429,10 @@ export default function Resume({ onBack }: ResumeProps) {
               </button>
               <div>
                 <h1 className="font-display text-display-md text-surface-900 dark:text-white">
-                  Resume Matcher
+                  Resume Match
                 </h1>
                 <p className="text-sm text-surface-500 dark:text-surface-400">
-                  AI-powered resume analysis and job matching
+                  Local resume review and job fit evidence
                 </p>
               </div>
             </div>
@@ -530,8 +530,8 @@ export default function Resume({ onBack }: ResumeProps) {
               No Resume Uploaded
             </h3>
             <p className="text-surface-500 dark:text-surface-400 mb-6 max-w-md mx-auto">
-              Upload your resume to enable AI-powered job matching. We'll extract your skills
-              and match them against job requirements.
+              Upload your resume to review skills, compare fit evidence, and keep match
+              history local.
             </p>
             <div className="flex gap-3 justify-center">
               <Button onClick={handleUploadResume} loading={uploading} loadingText="Uploading...">

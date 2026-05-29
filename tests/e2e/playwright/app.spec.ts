@@ -7,12 +7,12 @@ const NAV_DESTINATIONS: Array<{
 }> = [
   { label: "Dashboard", heading: "JobSentinel" },
   { label: "Applications", heading: "Application Tracker" },
-  { label: "Resumes", heading: "Resume Matcher" },
-  { label: "Salary", heading: "Salary AI" },
+  { label: "Resumes", heading: "Resume Match" },
+  { label: "Salary", heading: "Pay Protection" },
   { label: "Market Intel", heading: "Market Intelligence" },
   { label: "Application Assist", heading: "Application Assist Settings" },
   { label: "Resume Builder", heading: "Resume Builder" },
-  { label: "ATS Optimizer", heading: "ATS Resume Optimizer" },
+  { label: "Resume Match", heading: "Resume Match Helper" },
 ];
 
 async function openApp(page: Page): Promise<BasePage> {

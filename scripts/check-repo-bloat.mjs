@@ -504,6 +504,7 @@ const broadAudienceExamplePaths = new Set([
   "src/pages/Salary.tsx",
   "src/pages/Settings.tsx",
   "src/types/deeplinks.ts",
+  "tests/e2e/playwright/resume-upload-matching.spec.ts",
   "docs/user/DEEP_LINKS.md",
   "docs/user/QUICK_START.md",
   "docs/README.md",
@@ -535,10 +536,12 @@ const staleResumeOptimizerFramingPaths = new Set([
   "src/components/AtsLiveScorePanel.tsx",
   "src/components/Navigation.tsx",
   "src/contexts/KeyboardShortcutsContext.tsx",
+  "src/pages/Resume.tsx",
   "src/pages/ResumeBuilder.tsx",
   "src/pages/ResumeOptimizer.tsx",
   "src-tauri/src/core/resume/mod.rs",
   "src-tauri/src/core/resume/templates.rs",
+  "tests/e2e/playwright/resume-upload-matching.spec.ts",
   "docs/README.md",
   "docs/ROADMAP.md",
   "docs/features/resume-builder.md",
@@ -1497,6 +1500,8 @@ function hasStaleResumeOptimizerFraming(root, path) {
     /ATS\s+Score/i,
     /ATS\s+Format\s+Score/i,
     /Full\s+ATS\s+Analysis/i,
+    /AI-powered resume analysis/i,
+    /AI-powered job matching/i,
     /ATS\s+parsing/i,
     /ATS-friendly templates/i,
     /ATS-optimized templates/i,
@@ -2329,7 +2334,9 @@ function hasConfusingResumeMatcherAiLabel(root, path) {
     return false;
   }
 
-  return /AI Resume-Job Matcher/i.test(readFileSync(join(root, path), "utf8"));
+  return /\b(?:AI Resume-Job Matcher|Resume Matcher)\b/i.test(
+    readFileSync(join(root, path), "utf8"),
+  );
 }
 
 function hasConfusingSalaryAiLabel(root, path) {

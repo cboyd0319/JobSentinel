@@ -50,7 +50,7 @@ current maintained surface at the time of the latest docs sweep.
 | Job monitoring and source health | [Source adapters](features/scrapers.md), [source health](features/scraper-health.md) |
 | Ghost and stale-posting review | [Ghost detection](features/ghost-detection.md), [research plan](plans/active/research-backed-product-improvements.md) |
 | Salary and pay protection | [Salary support](features/salary-ai.md), [pay-equity research](research/pay-equity.md) |
-| Resume builder and fit review | [Resume builder](features/resume-builder.md), [resume matcher](features/resume-matcher.md) |
+| Resume builder and fit review | [Resume builder](features/resume-builder.md), [resume match](features/resume-matcher.md) |
 | Application tracking | [Application tracking](features/application-tracking.md) |
 | Application Assist | [Application Assist](features/one-click-apply.md) |
 | Saved data and recovery | [User data management](features/user-data-management.md), [privacy policy](../PRIVACY.md) |

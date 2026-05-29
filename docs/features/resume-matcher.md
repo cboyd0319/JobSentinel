@@ -1,4 +1,4 @@
-# Resume Matcher
+# Resume Match
 
 **Compare a resume with a job posting locally, then decide where careful
 tailoring is worth the time.**
@@ -8,7 +8,7 @@ without sending the resume to a cloud service by default. It is not a promise
 that an employer will respond, and it is not a tool for deceptive resume tricks.
 It is a local, advisory signal for readability, fit, and preparation.
 
-![Resume Matcher Interface](../images/resume-matcher.png)
+![Resume Match interface](../images/resume-matcher.png)
 
 ## Privacy Labels
 

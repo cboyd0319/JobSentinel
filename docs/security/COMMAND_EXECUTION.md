@@ -569,7 +569,7 @@ fn test_command_injection_attempts() {
 - [URL Validation Security](./URL_VALIDATION.md)
 - [Security Policy](../../SECURITY.md)
 - [Resume Builder](../features/resume-builder.md)
-- [Resume Matcher](../features/resume-matcher.md)
+- [Resume Match](../features/resume-matcher.md)
 
 ## References
 

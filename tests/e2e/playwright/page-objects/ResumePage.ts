@@ -17,7 +17,7 @@ export class ResumePage extends BasePage {
   }
 
   get heading(): Locator {
-    return this.page.getByRole("heading", { name: "Resume Matcher" });
+    return this.page.getByRole("heading", { name: "Resume Match", exact: true });
   }
 
   get emptyState(): Locator {
@@ -41,7 +41,7 @@ export class ResumePage extends BasePage {
   }
 
   get recentMatchesHeading(): Locator {
-    return this.page.getByRole("heading", { name: "Recent Match Results" });
+    return this.page.getByRole("heading", { name: "Recent Resume Matches" });
   }
 
   get libraryButton(): Locator {
@@ -128,6 +128,8 @@ export class ResumePage extends BasePage {
 
   async activateResume(name: string) {
     await this.page.getByText(name).click();
+    await expect(this.page.getByRole("heading", { name: "Resume Library" })).toBeHidden();
+    await expect(this.page.locator("#main-content").getByText(name, { exact: true }).first()).toBeVisible();
     await this.waitForReady();
   }
 
