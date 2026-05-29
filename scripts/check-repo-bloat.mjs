@@ -3311,7 +3311,7 @@ function hasRawProblemHistoryContextDetails(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /JSON\.stringify\(error\.context\)/.test(text);
+  return /JSON\.stringify\(error\.context\)|\{error\.(?:stack|componentStack)\}/.test(text);
 }
 
 function hasRawErrorBoundaryDetails(root, path) {

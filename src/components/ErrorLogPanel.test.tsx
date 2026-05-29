@@ -208,13 +208,18 @@ describe("ErrorLogPanel", () => {
   });
 
   describe("error expansion", () => {
-    it("expands error details on click", () => {
+    it("expands support details without showing raw stack text", () => {
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
-        errors: [createMockError({ stack: "Test stack trace" })],
+        errors: [
+          createMockError({
+            stack:
+              "Error: token=abc for candidate@example.com at /Users/chad/private/resume.pdf",
+          }),
+        ],
       });
 
-      render(<ErrorLogPanel />);
+      const { container } = render(<ErrorLogPanel />);
 
       // Stack trace not visible initially
       expect(screen.queryByText("Details for support")).not.toBeInTheDocument();
@@ -222,12 +227,16 @@ describe("ErrorLogPanel", () => {
       // Click to expand
       fireEvent.click(screen.getByText("Test error message"));
 
-      // Now stack trace should be visible
       expect(screen.getByText("Details for support")).toBeInTheDocument();
-      expect(screen.getByText("Test stack trace")).toBeInTheDocument();
+      expect(
+        screen.getByText(/Extra problem details are included/)
+      ).toBeInTheDocument();
+      expect(container.textContent).not.toContain("token=abc");
+      expect(container.textContent).not.toContain("candidate@example.com");
+      expect(container.textContent).not.toContain("/Users/chad");
     });
 
-    it("shows component stack when available", () => {
+    it("summarizes screen details without showing raw component stack", () => {
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
         errors: [createMockError({ componentStack: "at MyComponent" })],
@@ -237,8 +246,8 @@ describe("ErrorLogPanel", () => {
 
       fireEvent.click(screen.getByText("Test error message"));
 
-      expect(screen.getByText("Screen details")).toBeInTheDocument();
-      expect(screen.getByText("at MyComponent")).toBeInTheDocument();
+      expect(screen.getByText("Details for support")).toBeInTheDocument();
+      expect(screen.queryByText("at MyComponent")).not.toBeInTheDocument();
     });
 
     it("shows readable sanitized context when available", () => {
@@ -480,7 +489,8 @@ describe("ErrorLogPanel", () => {
       // Expand first error
       fireEvent.click(screen.getByText("First error"));
 
-      expect(screen.getByText("Stack 1")).toBeInTheDocument();
+      expect(screen.getByText("Details for support")).toBeInTheDocument();
+      expect(screen.queryByText("Stack 1")).not.toBeInTheDocument();
       expect(screen.queryByText("Stack 2")).not.toBeInTheDocument();
     });
   });

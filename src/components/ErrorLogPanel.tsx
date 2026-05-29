@@ -94,6 +94,7 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
   const [expanded, setExpanded] = useState(false);
   const typeInfo = TYPE_LABELS[error.type];
   const appDetailRows = getReadableContextRows(error.context);
+  const hasSupportDetails = Boolean(error.stack || error.componentStack);
 
   return (
     <div className="border-b border-surface-200 dark:border-surface-700 last:border-b-0">
@@ -128,25 +129,15 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
 
       {expanded && (
         <div className="px-4 pb-4 space-y-3">
-          {error.stack && (
+          {hasSupportDetails && (
             <div>
               <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">
                 Details for support
               </p>
-              <pre className="text-xs bg-surface-100 dark:bg-surface-800 p-2 rounded overflow-x-auto text-surface-700 dark:text-surface-300 max-h-40">
-                {error.stack}
-              </pre>
-            </div>
-          )}
-
-          {error.componentStack && (
-            <div>
-              <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">
-                Screen details
+              <p className="text-xs bg-surface-100 dark:bg-surface-800 p-2 rounded text-surface-700 dark:text-surface-300">
+                Extra problem details are included when you copy or save a safe
+                debug report.
               </p>
-              <pre className="text-xs bg-surface-100 dark:bg-surface-800 p-2 rounded overflow-x-auto text-surface-700 dark:text-surface-300 max-h-32">
-                {error.componentStack}
-              </pre>
             </div>
           )}
 
