@@ -1486,6 +1486,7 @@ function hasEngineerFirstAudienceExamples(root, path) {
     /Technical & soft skills/i,
     /Technical and professional skills/i,
     /Enter your job title or keywords \(e\.g\., "Software Engineer"\)/i,
+    /Optionally enter a location \(e\.g\., "San Francisco, CA" or "Remote"\)/i,
     /jobs\/software-engineer/i,
     /^- "Software Engineer"$/m,
     /Examples:\s*\n\s*- "Software Engineer"/i,

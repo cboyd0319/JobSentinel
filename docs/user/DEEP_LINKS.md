@@ -61,7 +61,7 @@ filled in. Click any link to open the search in your browser.
 
 1. Go to the Job Site Search Links page
 2. Enter your job title or work words (for example, "Marketing Manager")
-3. Optionally enter a location (e.g., "San Francisco, CA" or "Remote")
+3. Optionally enter a location, such as "Chicago, IL" or "Remote"
 4. Optionally choose a job type or work mode
 5. Click "Create Search Links"
 6. Click any site to open the search in your browser

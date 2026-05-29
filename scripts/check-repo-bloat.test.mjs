@@ -556,6 +556,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/components/MarketAlertCard.test.tsx",
       '"React Demand Spike"; "TechCorp Hiring Pause";\n',
     );
+    writeFixtureFile(
+      root,
+      "docs/user/DEEP_LINKS.md",
+      '3. Optionally enter a location (e.g., "San Francisco, CA" or "Remote")\n',
+    );
 
     execFileSync(
       "git",
@@ -590,6 +595,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "docs/features/scrapers.md",
         "docs/features/resume-matcher.md",
         "docs/features/user-data-management.md",
+        "docs/user/DEEP_LINKS.md",
         "docs/user/QUICK_START.md",
       ],
       { cwd: root },
@@ -624,6 +630,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "docs/features/scrapers.md",
       "docs/features/resume-matcher.md",
       "docs/features/user-data-management.md",
+      "docs/user/DEEP_LINKS.md",
       "docs/user/QUICK_START.md",
     ]) {
       assert.ok(

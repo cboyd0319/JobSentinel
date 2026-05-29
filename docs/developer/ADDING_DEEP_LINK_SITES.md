@@ -41,8 +41,8 @@ Parameters:
 **LinkedIn:**
 
 ```text
-Search: "Product Manager" in "New York, NY"
-URL: https://www.linkedin.com/jobs/search/?keywords=Product+Manager&location=New+York%2C+NY
+Search: "Project Coordinator" in "Chicago, IL"
+URL: https://www.linkedin.com/jobs/search/?keywords=Project+Coordinator&location=Chicago%2C+IL
 
 Parameters:
 - keywords = query
