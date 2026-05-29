@@ -436,7 +436,7 @@ WHERE status IN ('applied', 'rejected', 'ghosted');
 - [ ] **Machine Learning** - Predict offer likelihood based on timeline
 - [ ] **A/B Testing** - Track which resumes/cover letters work best
 - [ ] **Recruiter CRM** - Build relationships with recruiters over time
-- [ ] **Company Blacklist** - Never apply to bad companies again
+- [ ] **Hidden Companies** - Keep poor-fit companies out of normal review
 - [ ] **Application Insights** - "You typically get ghosted at X days"
 
 ---

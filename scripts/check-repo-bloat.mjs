@@ -528,6 +528,10 @@ const protectiveScoreCopyPaths = new Set([
   "src/components/ScoreDisplay.tsx",
   "src/components/ScoreBreakdownModal.tsx",
 ]);
+const plainJobSearchDocPaths = new Set([
+  "docs/features/application-tracking.md",
+  "docs/features/smart-scoring.md",
+]);
 const staleStackOverflowJobsPaths = new Set([
   "docs/user/DEEP_LINKS.md",
   "src/mocks/handlers.ts",
@@ -3358,6 +3362,15 @@ function hasNonProtectiveScoreCopy(root, path) {
   return /Great Match!|Highly recommended!|You might want to skip it|if you're desperate|if you are desperate|\{reason\}\s*<\/div>/i.test(text);
 }
 
+function hasLegacyPreferenceListCopy(root, path) {
+  if (!plainJobSearchDocPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /Company Whitelist|Company Blacklist|Your Whitelist|Your blacklist|whitelisted companies|blacklisted companies|whitelist\/blacklist|Title matches allowlist|Title matches blocklist|Job-word boosters|Job-word boost|Boosted job words|Excluded job words|Job-Word Match|found, boosted|not boosted|boosters\/excluders/i.test(text);
+}
+
 function hasStaleStackOverflowJobsDeepLink(root, path) {
   if (!staleStackOverflowJobsPaths.has(path)) {
     return false;
@@ -4232,6 +4245,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasNonProtectiveScoreCopy(root, path)) {
       violations.push(`keep score copy protective: ${path}`);
+    }
+
+    if (hasLegacyPreferenceListCopy(root, path)) {
+      violations.push(`keep job-search docs plain-language: ${path}`);
     }
 
     if (hasStaleStackOverflowJobsDeepLink(root, path)) {

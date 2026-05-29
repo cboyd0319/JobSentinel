@@ -32,7 +32,7 @@ score. Here's what each factor measures:
 | **Skills Match** | 40%    | How well your skills match the job requirements         |
 | **Salary**       | 25%    | How the job salary compares to your target              |
 | **Location**     | 20%    | How well the job matches your remote/onsite preferences |
-| **Company**      | 10%    | Whether you've whitelisted or blacklisted the company   |
+| **Company**      | 10%    | Whether the company is marked favorite or hidden        |
 | **Recency**      | 5%     | How fresh the job posting is                            |
 
 **Total always equals 100%.** These weights are defaults—you can customize them in Settings.
@@ -48,7 +48,8 @@ The skills factor measures how well your qualifications align with the job requi
 JobSentinel analyzes job requirements against your qualifications using three methods:
 
 1. **Title preferences** - Match or exclude job titles
-2. **Job-word preferences** - Reward jobs with desired words or penalize excluded ones
+2. **Work-word preferences** - Raise jobs with desired words and lower jobs
+   with words to avoid
 3. **Synonym Matching** - Recognize equivalent skills (e.g., "JavaScript" = "JS")
 4. **Resume-Based Scoring** - If you've uploaded a resume, compare your actual skills to requirements
 
@@ -57,22 +58,22 @@ JobSentinel analyzes job requirements against your qualifications using three me
 **Without Resume:**
 
 - **Title Match** (40% of skills factor)
-  - Title matches allowlist: +100%
-  - Title matches blocklist: 0% (filtered out)
+  - Title matches preferred titles: +100%
+  - Title matches avoided titles: 0% (filtered out)
   - Neutral title: 50%
 
-- **Job-word boost** (60% of skills factor)
-  - Each boosted word found: +10%
-  - Each excluded word found: -10%
+- **Work words to show more often** (60% of skills factor)
+  - Each preferred word found: +10%
+  - Each word to avoid found: -10%
   - Maximum: 100%, minimum: 0%
 
-**With Resume (70% resume match + 30% job-word boost):**
+**With Resume (70% resume match + 30% preferred work words):**
 
 - **Resume Match** (70%)
   - Matching skills ÷ Required skills = score
   - Example: You have 7/10 required skills = 70%
 
-- **Job-word boost** (30%)
+- **Work words to show more often** (30%)
   - Same preferred-word logic as above
 
 ### Configuration in Settings
@@ -83,14 +84,14 @@ Navigate to **Settings > Scoring > Skills Matching**:
    - Allowed job titles (e.g., "Customer Success Manager", "Clinic Manager")
    - Blocked job titles (e.g., "Commission-Only Sales", "Night Supervisor")
 
-2. **Job-word boosters**
+2. **Work words to show more often**
    - Words that increase score if found (e.g., "onboarding", "patient care", "remote")
    - Include common variations
 
-3. **Excluded words**
+3. **Work words to avoid**
    - Words that decrease score if found (e.g., "commission only", "overnight", "heavy travel")
 
-4. **Resume-Based Scoring** (NEW in v2.2)
+4. **Resume-Based Scoring**
    - Toggle "Use Resume for Scoring" ON/OFF
    - Automatically compares your uploaded resume against job requirements
    - Shows exact skills you have vs. skills the job requires
@@ -104,23 +105,23 @@ Navigate to **Settings > Scoring > Skills Matching**:
 **Your Configuration:**
 
 - Allowed titles: ["Customer Success Manager", "Client Success Manager"]
-- Boosted job words: ["Onboarding", "Retention", "CRM"]
-- Excluded job words: ["Commission only"]
+- Work words to show more often: ["Onboarding", "Retention", "CRM"]
+- Work words to avoid: ["Commission only"]
 
 **Scoring:**
 
 ```text
 Title: "Senior Customer Success Manager" matches "Customer Success Manager": 100%
 
-Job-Word Match:
-  Onboarding (found, boosted)          +10%
-  Retention (found, boosted)           +10%
-  CRM (found, boosted)                 +10%
-  Reporting (found, not boosted)       +5%
+Work-Word Match:
+  Onboarding (preferred word found)    +10%
+  Retention (preferred word found)     +10%
+  CRM (preferred word found)           +10%
+  Reporting (found, not preferred)     +5%
   Account management (found)           +5%
   Commission only (not found)          (not penalized)
 
-Job-word score: 40%
+Preferred-word score: 40%
 
 Skills Factor: (100% × 0.4) + (40% × 0.6) = 40% + 24% = 64%
 ```
@@ -132,7 +133,7 @@ management, all five required skills match.
 
 ```text
 Resume Match: 5/5 = 100%
-Job-word boost: 40% (as above)
+Preferred-word score: 40% (as above)
 
 Skills Factor: (100% × 0.7) + (40% × 0.3) = 70% + 12% = 82%
 ```
@@ -295,30 +296,30 @@ For deep dive, see [Remote Work Preference Scoring](remote-preference-scoring.md
 
 The company factor rewards jobs from companies you want to work for and penalizes those you don't.
 
-### Company Whitelist
+### Favorite Companies
 
 Add companies you're interested in:
 
-- Jobs from whitelisted companies: +50% to company score
-- Each whitelisted company match: +1% bonus
+- Jobs from favorite companies: +50% to company score
+- Each favorite-company match: +1% bonus
 - Maximum: 100% company score
 
 **Example:**
 
-Your whitelist: ["Acme Health", "Northstar Clinic", "BrightPath Services"]
+Favorite companies: ["Acme Health", "Northstar Clinic", "BrightPath Services"]
 
 Job from Acme Health: 100% company score (50% base + 50% exact match bonus)
 
-### Company Blacklist
+### Hidden Companies
 
 Exclude companies you want to avoid:
 
-- Jobs from blacklisted companies: 0% company score
+- Jobs from hidden companies: 0% company score
 - Filtered out from dashboard unless you explicitly show them
 
 **Example:**
 
-Your blacklist: ["Contractor Corp", "Spam Recruiting Inc"]
+Hidden companies: ["Contractor Corp", "Spam Recruiting Inc"]
 
 Jobs from these companies won't appear in your job list.
 
@@ -341,13 +342,13 @@ The system uses smart fuzzy matching to recognize companies:
 
 Navigate to **Settings > Scoring > Company Preferences**:
 
-1. **Whitelist**
+1. **Favorite companies**
    - Add company names you want to prioritize
    - Companies added get +50% company score bonus
 
-2. **Blacklist**
+2. **Hidden companies**
    - Add company names to exclude
-   - Jobs from blacklisted companies are hidden
+   - Jobs from hidden companies are hidden
 
 3. **Fuzzy Matching Sensitivity**
    - Tight: Exact company name match required
@@ -362,7 +363,8 @@ JobSentinel combines company preferences with company research data:
 - **Industry classification**
 - **Size** (startup, small, mid-market, enterprise)
 
-When you research a company in Market Intelligence, you can save it to whitelist/blacklist directly.
+When you research a company in Market Intelligence, you can mark it favorite or
+hidden directly.
 
 ---
 
@@ -499,16 +501,16 @@ Resume Match:
   Your skills: onboarding, retention, CRM, reporting, account management (5/5 required)
   Match: 5/5 = 100%
 
-Job-word boost:
-  Onboarding          (boosted word found)
-  Retention           (boosted word found)
-  CRM                 (boosted word found)
-  Reporting           (found, not boosted) +0%
-  Account management  (found, not boosted) +0%
-  Job-word score: 100%
+Preferred work words:
+  Onboarding          (preferred word found)
+  Retention           (preferred word found)
+  CRM                 (preferred word found)
+  Reporting           (found, not preferred) +0%
+  Account management  (found, not preferred) +0%
+  Preferred-word score: 100%
 
 Skills Factor:
-  = (100% title × 0.3) + (100% resume × 0.7) + (100% job words × adjusted)
+  = (100% title × 0.3) + (100% resume × 0.7) + (100% work words × adjusted)
   = 100%
 
 Contribution to Total: 100% × 40% = 40%
@@ -540,10 +542,10 @@ Contribution to Total: 70% × 20% = 14%
 
 ```text
 Job Company:     Acme Health
-Your Whitelist:  [Acme Health, Northstar Clinic, BrightPath Services]
+Favorite Companies: [Acme Health, Northstar Clinic, BrightPath Services]
 
 Company Match:   Yes (exact match)
-Company Score:   100% (50% base + 50% whitelist bonus)
+Company Score:   100% (50% base + 50% favorite-company bonus)
 
 Contribution to Total: 100% × 10% = 10%
 ```
@@ -577,7 +579,7 @@ Not all factors matter equally to you. Customize weights to match your prioritie
 - **Job hopping?** Increase recency (find fresh opportunities)
 - **Salary negotiation?** Increase salary (find high-paying roles)
 - **Specific tools or systems?** Increase skills (prioritize exact match)
-- **Dream companies?** Increase company (prioritize whitelisted)
+- **Dream companies?** Increase company (prioritize favorite companies)
 - **Full remote required?** Increase location (filter aggressively)
 
 ### How to Customize
@@ -640,6 +642,7 @@ invoke("get_score_breakdown", { job_hash: "abc123" });
 invoke("set_skills_preferences", {
   allowed_titles: ["Customer Success Manager", "Client Success Manager"],
   blocked_titles: ["Commission-Only Sales"],
+  // Current backend field names.
   boosted_keywords: ["Onboarding", "Retention"],
   excluded_keywords: ["Commission only"],
 });
@@ -656,8 +659,9 @@ invoke("set_location_preference", {
   preference: "RemotePreferred", // or RemoteOnly, HybridPreferred, OnsitePreferred, Flexible
 });
 
-// Update company whitelist/blacklist
+// Update company preference lists
 invoke("set_company_preferences", {
+  // Current backend field names.
   whitelist: ["Acme Health", "Northstar Clinic"],
   blacklist: ["Spam Corp"],
 });

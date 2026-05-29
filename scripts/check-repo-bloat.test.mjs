@@ -7270,6 +7270,53 @@ test("checkRepoBloat rejects non-protective score copy", () => {
   });
 });
 
+test("checkRepoBloat rejects legacy preference-list docs copy", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/features/smart-scoring.md",
+      [
+        "### Company Whitelist",
+        "- Jobs from whitelisted companies: +50% to company score",
+        "- Title matches allowlist: +100%",
+        "2. **Job-word boosters**",
+        '- Boosted job words: ["Onboarding"]',
+        "Job-Word Match:",
+        "  Onboarding (found, boosted) +10%",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/application-tracking.md",
+      "- [ ] **Company Blacklist** - Never apply to bad companies again\n",
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "docs/features/smart-scoring.md",
+        "docs/features/application-tracking.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("keep job-search docs plain-language: docs/features/smart-scoring.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("keep job-search docs plain-language: docs/features/application-tracking.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects discontinued Stack Overflow Jobs deep links", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
