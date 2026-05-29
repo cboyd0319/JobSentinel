@@ -6,47 +6,57 @@ control.**
 
 [![CI](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml)
 [![Docs Harness](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-harness.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-harness.yml)
-<img src="https://img.shields.io/badge/Version-2.6.4-2563eb" alt="Version 2.6.4">
+[![Release](https://img.shields.io/github/v/release/cboyd0319/JobSentinel?label=release&color=2563eb)](https://github.com/cboyd0319/JobSentinel/releases/latest)
 [![MIT License](https://img.shields.io/badge/license-MIT-111827)](LICENSE)
+[![Free Forever](https://img.shields.io/badge/free-forever-0f766e)](LICENSE)
+[![Rule 0](https://img.shields.io/badge/rule%200-privacy%20%26%20security-991b1b)](PRIVACY.md)
 [![Local First](https://img.shields.io/badge/data-local--first-0f766e)](PRIVACY.md)
 [![No Telemetry](https://img.shields.io/badge/telemetry-none-111827)](PRIVACY.md)
 [![External AI Optional](https://img.shields.io/badge/external%20AI-optional-2563eb)](docs/architecture/privacy-first-ai-gateway.md)
 [![Research Backed](https://img.shields.io/badge/research-backed-334155)](docs/research/README.md)
 
-**Start here:** [Download](#download-and-first-run) |
+**Primary paths:** [Download](#download-and-first-run) |
 [Quick start](docs/user/QUICK_START.md) | [Privacy](PRIVACY.md) |
 [Roadmap](ROADMAP.md) | [Research](docs/research/README.md) |
 [Report a problem](https://github.com/cboyd0319/JobSentinel/issues/new)
 
-## Project Abstract
+## Project Thesis
 
-JobSentinel is a desktop product and applied research project for job seekers,
-not an employer-side hiring system. It is designed for technical and
-non-technical roles, career changes, long searches, and users who should not
-need terminal commands, GitHub knowledge, or debugging skill to get value.
+JobSentinel is candidate-side job-search infrastructure: a desktop product and
+applied research project for people trying to find work. It is built for
+technical and non-technical roles, career changes, long searches, and users who
+should not need terminal commands, GitHub knowledge, or debugging skill to get
+value.
 
-The project studies a practical question: can candidate-side software help
-people spend less time on stale postings, avoid underpaid work, understand
-opaque screening signals, and keep sensitive search data under their control?
+The research question is practical: can local-first software help job seekers
+spend less time on stale postings, avoid underpaid work, understand opaque
+screening signals, and keep sensitive search data under their control?
+
+| Job-seeker risk | Product response | Boundary |
+| --------------- | ---------------- | -------- |
+| Stale or unverifiable postings | Ghost-job detection, first-seen and last-seen tracking, repost context, and official-source checks | Warnings show evidence, not accusations |
+| Pay opacity and underpayment risk | Salary floors, pay-transparency review, under-leveling cues, and compensation preparation | Guidance is advisory and evidence-bounded |
+| Opaque screening systems | ATS transparency, candidate-side explainability, and application readability review | No ATS manipulation or deceptive resume advice |
+| Sensitive search data exposure | Local tracking, safe debug reports, optional external channels, and external-AI review gates | No telemetry, no silent provider calls, no full database uploads |
 
 Core workflows work locally. Job tracking, saved searches, application notes,
 salary floors, resume records, source health, and safe debug reports work
 without a hosted account, telemetry, cloud sync, or external AI provider.
-External AI, including OpenAI or another provider,
-is optional, disabled by default, and must go through the
+External AI, including OpenAI or another provider, is optional, disabled by
+default, and must go through the
 [privacy-first AI gateway](docs/architecture/privacy-first-ai-gateway.md).
 Every external request must support minimization before data leaves the device.
-External-AI gate: payload preview, redaction, cancellation, approval, and local request logging.
+Required gates are payload preview, redaction, cancellation, approval, and local
+request logging.
 
 **Rule 0: user privacy and security are non-negotiable.** No feature,
 integration, support shortcut, AI provider, research workflow, test fixture, or
 convenience path may weaken local control, credential safety, source
 boundaries, explicit review, or privacy-preserving defaults.
 
-JobSentinel will always remain free under the MIT license. JobSentinel is free,
-will always stay free, and will always remain MIT licensed. This code exists to
-help job seekers. Fork it, adapt it, improve it, or build something better with
-it if that helps more people.
+JobSentinel is free, will always stay free, and will always remain MIT
+licensed. This code exists to help job seekers. Fork it, adapt it, improve it,
+or build something better with it if that helps more people.
 
 ## Research Contributions
 
@@ -485,8 +495,9 @@ Developer docs:
 - Continued broad-audience review for technical and non-technical roles.
 - Local matching improvements.
 
-Read [docs/README.md](docs/README.md), [CHANGELOG.md](CHANGELOG.md), and
-[ROADMAP.md](docs/ROADMAP.md) for more release detail.
+Read [docs/README.md](docs/README.md), [CHANGELOG.md](CHANGELOG.md),
+[ROADMAP.md](ROADMAP.md), and the [developer roadmap](docs/ROADMAP.md) for more
+release detail.
 
 ---
 
@@ -850,6 +861,7 @@ and fake example links are intentionally excluded.
 ### Community and Project References
 
 - [Contributor Covenant](https://www.contributor-covenant.org/)
+- [Shields.io badges](https://shields.io/)
 - [JobSentinel GitHub repository](https://github.com/cboyd0319/JobSentinel)
 - [JobSentinel releases](https://github.com/cboyd0319/JobSentinel/releases)
 - [JobSentinel discussions](https://github.com/cboyd0319/JobSentinel/discussions)

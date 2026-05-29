@@ -727,7 +727,6 @@ const requiredFreeForeverText = new Map([
   [
     "README.md",
     [
-      "JobSentinel will always remain free under the MIT license",
       "JobSentinel is free, will always stay free, and will always remain MIT licensed",
     ],
   ],

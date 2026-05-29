@@ -391,8 +391,10 @@ for (const [path, snippets] of Object.entries(requiredHarnessSnippets)) {
   }
 
   const text = read(path);
+  const normalizedText = text.replace(/\s+/g, " ");
   for (const snippet of snippets) {
-    if (!text.includes(snippet)) {
+    const normalizedSnippet = snippet.replace(/\s+/g, " ");
+    if (!normalizedText.includes(normalizedSnippet)) {
       errors.push(`${path} must include harness snippet: ${snippet}`);
     }
   }
@@ -514,7 +516,7 @@ if (cargoVersion !== packageJson.version) {
 
 const currentVersion = packageJson.version;
 const versionClaims = {
-  "README.md": [`Version-${currentVersion}`, `alt="Version ${currentVersion}"`],
+  "README.md": [`v${currentVersion}`, "github/v/release/cboyd0319/JobSentinel"],
   "docs/README.md": [`Package metadata version: \`${currentVersion}\``],
   "docs/ROADMAP.md": ["Use `package.json` for the current release package version."],
 };

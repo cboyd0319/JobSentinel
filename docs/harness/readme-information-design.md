@@ -16,7 +16,10 @@ answer four questions quickly:
 The source pool combines README guidance, content-design guidance, and mature
 open-source project README patterns. Any major README redesign must check at
 least 10 sources, including at least six mature project READMEs and at least
-two neutral documentation or content-design guides.
+two neutral documentation or content-design guides. The 2026-05-29 front-door
+correction checked GitHub Docs, Google README guidance, Google documentation
+best practices, Diataxis, GOV.UK content design, Kubernetes, AlphaFold,
+TensorFlow, PyTorch, scikit-learn, Visual Studio Code, and Rust.
 
 | Source | Pattern observed | JobSentinel adoption |
 | ------ | ---------------- | -------------------- |
@@ -27,7 +30,7 @@ two neutral documentation or content-design guides.
 | [GOV.UK content design](https://www.gov.uk/guidance/content-design/what-is-content-design) | Start with user needs and make content quick to find, understand, and act on. | Use audience routes for job seekers, reviewers, and contributors. |
 | [GOV.UK user needs](https://www.gov.uk/guidance/content-design/user-needs) | Every content unit should meet a valid user need and help complete a task. | Remove vanity sections unless they answer a likely visitor question. |
 | [GOV.UK heading guidance](https://design-system.service.gov.uk/styles/headings/) | Headings should create consistent structure and aid navigation. | Use direct H2 labels and avoid nested novelty headings. |
-| [Digital.gov heading guidance](https://digital.gov/guides/plain-language/design/headings) | Question and statement headings help readers scan for known needs; vague topic headings slow action. | Use direct section names such as "Project Abstract", "Reader Map", and "Download and first run". |
+| [Digital.gov heading guidance](https://digital.gov/guides/plain-language/design/headings) | Question and statement headings help readers scan for known needs; vague topic headings slow action. | Use direct section names such as "Project Thesis", "Reader Map", and "Download and first run". |
 | [DHS plain language guidance](https://www.dhs.gov/digital-experience/plain-language) | Organize logically, make content easy to scan, and use headings. | Prefer short tables, task labels, and plain-language summaries. |
 | [Kubernetes README](https://github.com/kubernetes/kubernetes) | Short project identity, clear start paths, support, governance, and roadmap links. | Keep high-level governance and roadmap links near top. |
 | [AlphaFold README](https://github.com/google-deepmind/alphafold) | Research projects state package scope, citation/use expectations, install limits, and first-run path. | Make research boundaries and limitations explicit, not buried. |
@@ -106,8 +109,9 @@ The root README now uses professional research-project front matter:
 1. Required product definition and a restrained badge set.
 2. First-screen routes for download, quick start, privacy, roadmap, research,
    and issue reporting.
-3. Project abstract with audience, research question, local-first posture,
-   optional external-AI boundary, Rule 0, and free-forever MIT commitment.
+3. Project thesis with audience, research question, harm-to-product framing,
+   local-first posture, optional external-AI boundary, Rule 0, and
+   free-forever MIT commitment.
 4. Research contributions table mapping product commitments to inspectable
    repo evidence.
 5. Reader map for job seekers, grant or research reviewers, privacy or
@@ -179,11 +183,13 @@ Keep the first screen crisp and proof-bearing:
 ## Badge Policy
 
 Badges should prove current trust signals without creating visual noise. Keep
-badges for CI, docs harness, release, MIT license, local-first privacy, no
-telemetry, optional external AI, and research backing. Put free-forever and Rule
-0 commitments in the abstract where they can be read as governing text, not
-only as badges. Move stack details such as React, Rust, Tauri, and TypeScript
-into tables where they are easier to read and update.
+badges for CI, docs harness, release, MIT license, free-forever licensing, Rule
+0, local-first privacy, no telemetry, optional external AI, and research
+backing. The release badge should use the current GitHub release signal rather
+than a static version string. Put free-forever and Rule 0 commitments in the
+thesis where they can be read as governing text, not only as badges. Move stack
+details such as React, Rust, Tauri, and TypeScript into tables where they are
+easier to read and update.
 
 ## Quality Bar
 
