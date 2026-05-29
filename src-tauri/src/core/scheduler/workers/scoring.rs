@@ -59,10 +59,7 @@ pub async fn score_jobs(
             };
 
             job.score = Some(score.total);
-            job.score_reasons = Some(serde_json::to_string(&score.reasons).unwrap_or_else(|e| {
-                tracing::warn!(error = %e, job_hash = %job.hash, "Failed to serialize score reasons");
-                String::new()
-            }));
+            job.score_reasons = Some(serialize_score_reasons(&job.hash, &score.reasons));
             scored_jobs.push((job, score));
         }
     } else {
@@ -81,10 +78,7 @@ pub async fn score_jobs(
             };
 
             job.score = Some(score.total);
-            job.score_reasons = Some(serde_json::to_string(&score.reasons).unwrap_or_else(|e| {
-                tracing::warn!(error = %e, job_hash = %job.hash, "Failed to serialize score reasons");
-                String::new()
-            }));
+            job.score_reasons = Some(serialize_score_reasons(&job.hash, &score.reasons));
             scored_jobs.push((job, score));
         }
     }
@@ -158,15 +152,11 @@ pub async fn score_jobs(
 
         if analysis.score >= 0.5 {
             tracing::debug!(
-                "Ghost indicator for '{}' at {}: score={:.2}, reasons={:?}",
-                job.title,
-                job.company,
-                analysis.score,
-                analysis
-                    .reasons
-                    .iter()
-                    .map(|r| &r.description)
-                    .collect::<Vec<_>>()
+                title_chars = job.title.chars().count(),
+                company_chars = job.company.chars().count(),
+                score = analysis.score,
+                reason_count = analysis.reasons.len(),
+                "Ghost indicator detected"
             );
         }
     }
@@ -183,4 +173,14 @@ pub async fn score_jobs(
     );
 
     scored_jobs
+}
+
+fn serialize_score_reasons(job_hash: &str, reasons: &[String]) -> String {
+    serde_json::to_string(reasons).unwrap_or_else(|_e| {
+        tracing::warn!(
+            job_hash_len = job_hash.len(),
+            "Failed to serialize score reasons"
+        );
+        String::new()
+    })
 }

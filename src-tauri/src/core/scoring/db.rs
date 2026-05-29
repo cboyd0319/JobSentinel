@@ -18,7 +18,7 @@ pub async fn load_scoring_config(pool: &SqlitePool) -> Result<ScoringConfig, Str
         company_weight: row.company_weight,
         recency_weight: row.recency_weight,
     })
-    .map_err(|e| format!("Failed to load scoring config: {}", e))
+    .map_err(|_e| "Database operation failed while loading scoring config".to_string())
 }
 
 /// Save scoring configuration to database
@@ -39,7 +39,7 @@ pub async fn save_scoring_config(pool: &SqlitePool, config: &ScoringConfig) -> R
     .bind(config.recency_weight)
     .execute(pool)
     .await
-    .map_err(|e| format!("Failed to save scoring config: {}", e))?;
+    .map_err(|_e| "Database operation failed while saving scoring config".to_string())?;
 
     Ok(())
 }

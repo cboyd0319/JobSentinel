@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Sanitized scheduler scoring and scoring-config persistence failures so raw score-reason serialization errors, full job hashes, job title/company ghost indicators, and SQLx scoring config errors do not leak through logs or returned strings; added bloat coverage. |
 | 2026-05-29 | In progress | Sanitized import, bookmarklet, scoring, and template-category command failures so URL validation details, page parse details, database internals, local server errors, raw JSON parse details, full job hashes, and raw category inputs do not leak through user-facing errors or logs; removed raw scoring-cache hash logs, isolated global cache tests, and added bloat coverage. |
 | 2026-05-29 | In progress | Sanitized utility command failures across jobs, ghost-posting review, deep links, geolocation, config, and legacy LinkedIn cleanup so raw database, provider, URL, serialization, and credential-store details no longer reach user-facing command errors; sanitized the local deep-link event URL and added bloat coverage. |
 | 2026-05-29 | In progress | Sanitized ML, salary, and market command failures so model, semantic-match, pay-protection, and market-analysis errors return safe categories instead of raw database/serialization/provider details; reduced raw job-hash and negotiation-scenario logs to lengths and added bloat coverage. |

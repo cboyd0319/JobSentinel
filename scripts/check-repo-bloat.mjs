@@ -309,6 +309,10 @@ const rawSchedulerJobContentLoggingPaths = new Set([
 const schedulerScraperWorkerPrivacyPaths = new Set([
   "src-tauri/src/core/scheduler/workers/scrapers.rs",
 ]);
+const schedulerScoringPrivacyPaths = new Set([
+  "src-tauri/src/core/scheduler/workers/scoring.rs",
+  "src-tauri/src/core/scoring/db.rs",
+]);
 const scoringCachePrivacyPaths = new Set(["src-tauri/src/core/scoring/cache.rs"]);
 
 const rawBookmarkletLoggingPaths = new Set(["src-tauri/src/core/bookmarklet/server.rs"]);
@@ -3128,6 +3132,26 @@ function hasRawScoringCacheJobHashLogging(root, path) {
   );
 }
 
+function hasRawSchedulerScoringPrivacyLeak(root, path) {
+  if (!schedulerScoringPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /tracing::warn!\([^;]*error\s*=\s*%e[^;]*job_hash\s*=\s*%job\.hash/.test(
+      productionText,
+    ) ||
+    /tracing::debug!\([^;]*Ghost indicator for '\{\}' at \{\}/.test(productionText) ||
+    /tracing::debug!\([^;]*(?:job_title\s*=\s*%job\.title|job_company\s*=\s*%job\.company|,\s*job\.title\s*,\s*job\.company)/s.test(
+      productionText,
+    ) ||
+    /format!\(\s*"Failed to (?:load|save) scoring config:\s*\{\}"\s*,\s*e\s*\)/.test(
+      productionText,
+    )
+  );
+}
+
 function hasManualBookmarkletJsonErrorResponses(root, path) {
   if (!rawBookmarkletLoggingPaths.has(path)) {
     return false;
@@ -4541,6 +4565,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawScoringCacheJobHashLogging(root, path)) {
       violations.push(`replace raw scoring cache job hash logging: ${path}`);
+    }
+
+    if (hasRawSchedulerScoringPrivacyLeak(root, path)) {
+      violations.push(`replace raw scheduler scoring privacy leaks: ${path}`);
     }
 
     if (hasManualBookmarkletJsonErrorResponses(root, path)) {

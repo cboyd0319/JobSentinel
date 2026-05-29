@@ -6483,6 +6483,50 @@ test("checkRepoBloat rejects raw scoring cache job hash logging", () => {
   });
 });
 
+test("checkRepoBloat rejects raw scheduler scoring privacy leaks", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scheduler/workers/scoring.rs",
+      [
+        'tracing::warn!(error = %e, job_hash = %job.hash, "Failed to serialize score reasons");',
+        'tracing::debug!("Ghost indicator for \'{}\' at {}: score={:.2}", job.title, job.company, analysis.score);',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scoring/db.rs",
+      'sqlx_call.map_err(|e| format!("Failed to load scoring config: {}", e));\n',
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/scheduler/workers/scoring.rs",
+        "src-tauri/src/core/scoring/db.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace raw scheduler scoring privacy leaks: src-tauri/src/core/scheduler/workers/scoring.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace raw scheduler scoring privacy leaks: src-tauri/src/core/scoring/db.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects manual bookmarklet JSON error responses", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
