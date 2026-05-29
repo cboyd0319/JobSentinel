@@ -83,6 +83,24 @@ The corrected structure uses compact front-door sections, then moves deeper
 detail into interface screenshots, local-data boundaries, source coverage,
 download, development, release notes, FAQ, support, and references.
 
+## Applied Redesign
+
+The root README now uses a research-brief front door:
+
+1. Required product definition and trust badges.
+2. Project brief with audience, product thesis, local-first posture, optional
+   external-AI boundary, Rule 0, and free-forever MIT commitment.
+3. Reader route table for job seekers, research reviewers, privacy reviewers,
+   contributors, and people reporting problems.
+4. At-a-glance evidence table for release, runtime, storage, privacy, AI,
+   source surface, backend surface, and verification surface.
+5. Product model table mapping job-seeker problems to maintained product
+   responses.
+6. Research model table for the six design pillars and evaluation questions.
+7. Trust model table for privacy, telemetry, external channels, external AI,
+   candidate-side framing, protective tone, and license posture.
+8. Architecture map and maintained deep links.
+
 ## Front-Door Structure
 
 The README front door must read like a professional research project brief
@@ -95,12 +113,11 @@ before it reads like a developer manual:
 5. Rule 0 privacy and security guarantee.
 6. Free-forever MIT license and reuse invitation.
 7. Audience route table.
-8. Current implementation status.
-9. Problem statement.
-10. Capability map.
-11. Research and evaluation model.
-12. Trust, privacy, and responsible-AI boundaries.
-13. Architecture and maintenance map.
+8. At-a-glance implementation evidence.
+9. Product model tied to job-seeker problems.
+10. Research model and evaluation questions.
+11. Trust, privacy, and responsible-AI boundaries.
+12. Architecture and maintenance map.
 
 ## README Structure Standard
 
@@ -110,13 +127,14 @@ The root README should keep this order:
 2. One-sentence local-first and external-AI boundary.
 3. Rule 0, free-forever MIT, and fork/reuse invitation.
 4. Audience route table.
-5. Current state and capability map tied to product evidence.
-6. Research problem and evaluation model.
-7. Trust model, privacy, security, and responsible-AI boundaries.
-8. Architecture and maintenance map.
-9. Interface overview and local-data boundaries.
-10. Source coverage and download path.
-11. Scope, limitations, development, release notes, FAQ, support, and references.
+5. At-a-glance implementation evidence.
+6. Product model tied to job-seeker problems.
+7. Research model and evaluation questions.
+8. Trust model, privacy, security, and responsible-AI boundaries.
+9. Architecture and maintenance map.
+10. Interface overview and local-data boundaries.
+11. Source coverage and download path.
+12. Scope, limitations, development, release notes, FAQ, support, and references.
 
 ## Section Budget
 
@@ -132,9 +150,10 @@ Keep the first screen crisp and proof-bearing:
 ## Badge Policy
 
 Badges should prove current trust signals. Keep badges for CI, docs harness,
-version, license, free-forever status, local-first privacy, and no telemetry.
-Move stack details such as React, Rust, Tauri, and TypeScript into tables where
-they are easier to read and update.
+version, license, free-forever status, local-first privacy, no telemetry,
+optional external AI, and research backing. Move stack details such as React,
+Rust, Tauri, and TypeScript into tables where they are easier to read and
+update.
 
 ## Quality Bar
 

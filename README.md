@@ -12,16 +12,19 @@ control.**
 [![Local First](https://img.shields.io/badge/privacy-local--first-0f766e)](PRIVACY.md)
 [![No Telemetry](https://img.shields.io/badge/telemetry-none-111827)](PRIVACY.md)
 [![External AI Optional](https://img.shields.io/badge/AI-optional%20by%20design-2563eb)](docs/architecture/privacy-first-ai-gateway.md)
+[![Research Backed](https://img.shields.io/badge/research-backed-334155)](docs/research/README.md)
 
-JobSentinel is a public-interest desktop app and research project for anyone
-trying to find a new job. It is designed for technical and non-technical
-searches, assumes zero technical knowledge, and treats user privacy as the
-first release condition.
+## Project brief
 
-It helps job seekers monitor official and public job sources, avoid stale or
-low-trust postings, protect salary floors, understand application readability,
-track the search, and generate safe issue reports without exposing private
-job-search records.
+JobSentinel is a public-interest desktop app and applied research project for
+job seekers, reviewers, and contributors who care about verifiable roles,
+fair compensation, readable applications, and local control of sensitive search
+data. It is designed for technical and non-technical jobs, and for people with
+no technical background.
+
+The product thesis is practical: job seekers should spend more time on real,
+relevant, fairly compensated opportunities and less time on stale postings,
+opaque screening, underpaid roles, and unsafe support workflows.
 
 Core workflows work locally. External AI, including OpenAI or another provider,
 is optional, disabled by default, and routed through the
@@ -40,95 +43,75 @@ will always remain MIT licensed.
 
 ## Start here
 
-| Visitor | Best first path |
-| ------- | --------------- |
-| Job seeker | [Download and first run](#download-and-first-run), then follow the setup wizard |
-| Grant or research reviewer | [Research and evaluation model](#research-and-evaluation-model), [references](#references-and-external-sources), and [roadmap](ROADMAP.md) |
-| Privacy or security reviewer | [Trust, privacy, and AI boundaries](#trust-privacy-and-ai-boundaries), [PRIVACY.md](PRIVACY.md), and [RESPONSIBLE_AI.md](RESPONSIBLE_AI.md) |
-| Contributor | [Architecture and maintenance](#architecture-and-maintenance), [development and verification](#development-and-verification), and [contributing guide](docs/developer/CONTRIBUTING.md) |
+| Reader | First path |
+| ------ | ---------- |
+| Job seeker | [Download and first run](#download-and-first-run), then use the setup wizard |
+| Grant or research reviewer | [Research model](#research-model), [roadmap](ROADMAP.md), and [references](#references-and-external-sources) |
+| Privacy or security reviewer | [Trust model](#trust-model), [PRIVACY.md](PRIVACY.md), and [RESPONSIBLE_AI.md](RESPONSIBLE_AI.md) |
+| Contributor | [Architecture](#architecture), [development](#development-and-verification), and [contributing guide](docs/developer/CONTRIBUTING.md) |
 | Person reporting a problem | Use the in-app safe debug report, then [open an issue](https://github.com/cboyd0319/JobSentinel/issues/new) |
 
-## Current status
+## At a glance
 
-| Dimension | Current state |
-| --------- | ------------- |
-| Release | `v2.6.4`, with Windows, macOS, and Linux assets |
-| Runtime | Tauri 2 desktop app with React 19 frontend and Rust backend |
+| Dimension | Current evidence |
+| --------- | ---------------- |
+| Release | `v2.6.4` with Windows, macOS, and Linux installers |
+| Runtime | Tauri 2 desktop app, React 19 frontend, Rust 2021 backend |
 | Storage | Local SQLite database with SQLx offline mode |
-| User data posture | Local-first, no telemetry, no hosted account required |
-| External AI posture | Optional, disabled by default, gateway-bound, preview-required |
+| User-data posture | Local-first, no telemetry, no hosted account required |
+| External-AI posture | Optional, disabled by default, gateway-bound, preview-required |
 | Job-source surface | 12 scheduled source adapters, 15 source-health checks, and user-opened job-site search links |
 | Backend surface | 190 registered Tauri commands |
-| Routine quality gates | Docs harness, bloat guard, test-quality guard, Vitest, Playwright, Rust fmt, Rust clippy, Rust tests |
+| Verification surface | Docs harness, bloat guard, test-quality guard, Vitest, Playwright, Rust fmt, Rust clippy, Rust tests |
 
-Main has additional hardening for safe debug reports, dependency refreshes,
-Playwright speed, and source-policy boundaries.
+## Product model
 
-## Why this exists
+| Problem for job seekers | JobSentinel response |
+| ----------------------- | -------------------- |
+| Stale or low-trust postings waste time and morale | Ghost-job detection, stale-posting warnings, repost context, official-source checks, and verify-before-tailoring guidance |
+| Pay opacity creates underpaid searches | Salary-floor protection, salary transparency checks, salary-history guardrails, under-leveling cues, and compensation prep |
+| Automated screening is hard to interpret | ATS transparency, candidate-side explainability, application readability checks, and truthful fit review |
+| Long searches create fatigue and false signals | Local tracking, pacing support, weekly summaries, fresh-role focus, and non-shaming gap framing |
+| Cold applications disappear into opaque systems | Bias-aware application routes, direct-source emphasis, recruiter context, referral prompts, and hiring-signal review |
+| Support requests can expose private data | Sanitized debug reports from normal settings and recovery surfaces |
 
-Job search is noisy, expensive, and often demoralizing. Stale postings waste
-tailoring time. Missing pay data hides bad tradeoffs. Opaque screening tools
-make candidates guess what happened. Long searches create fatigue, stigma, and
-false signals about worker value. Many cloud job-search tools centralize
-resumes, notes, salary floors, application history, and urgency signals.
+JobSentinel does not try to maximize application volume. It helps the user
+decide which opportunities deserve attention, which claims need verification,
+and what private data should remain on the user's device.
 
-JobSentinel treats those conditions as product requirements. The product goal
-is not more applications. It is better use of time, stronger compensation
-control, clearer evidence, and private local ownership of the search.
+## Research model
 
-## What JobSentinel does
-
-| User need | Current product surface |
-| --------- | ----------------------- |
-| Find current roles | Official-source job monitoring, source health checks, deduplication, and posting freshness cues |
-| Avoid wasted tailoring | Ghost-job risk explanations, stale-posting warnings, repost context, and source trust labels |
-| Protect compensation | Pay Protection, salary-floor filters, salary transparency checks, salary-history guardrails, and negotiation prep |
-| Understand screening risk | ATS transparency, candidate-side explainability, application readability, and resume/job fit explanation |
-| Stay organized | Local saved searches, local application tracking, notes, follow-ups, reminders, and weekly summaries |
-| Get help safely | Sanitized debug reports users can attach to a GitHub issue without exposing private search data |
-| Keep control | Local-first storage, no telemetry, review-before-action workflows, optional external channels only |
-
-## Research and evaluation model
-
-JobSentinel is a research-backed product project, not a growth funnel. Research
-inputs shape product choices around ghost-job risk, pay transparency, automated
-hiring, long-term unemployment, bias-aware application routes, and responsible
-source access.
+JobSentinel is evidence-backed, but it keeps research separate from user
+surveillance. Product direction is driven by public research, public job
+postings, synthetic candidate profiles, and explicit limitations. Real user
+data is not research data without informed consent.
 
 | Design pillar | Product stance | Evaluation question |
 | ------------- | -------------- | ------------------- |
-| Ghost-job and stale-posting detection | Prioritize fresh, verifiable roles; warn before a user spends time tailoring weak postings. | Does JobSentinel reduce time spent on stale or low-trust roles without hiding useful options? |
-| Pay equity and salary-floor protection | Treat salary floors, pay transparency, under-leveling risk, and negotiation prep as core search features. | Does JobSentinel help users avoid underpaid opportunities and preserve compensation goals? |
+| Ghost-job and stale-posting detection | Prioritize fresh, verifiable roles and warn before a user spends time tailoring weak postings. | Does JobSentinel reduce time spent on stale or low-trust roles without hiding useful options? |
+| Pay equity and salary-floor protection | Treat salary floors, pay transparency, under-leveling risk, and compensation prep as core search features. | Does JobSentinel help users avoid underpaid opportunities and preserve compensation goals? |
 | Long-term unemployment support | Support pacing, fresh-role focus, weekly summaries, and gap framing without shame or pressure. | Does JobSentinel reduce fatigue and improve search control for people in long searches? |
 | Bias-aware application strategy | Favor direct sources, official ATS postings, recruiter context, referral routes, and verifiable signals over opaque black holes. | Does JobSentinel shift effort toward channels with better evidence and clearer next steps? |
-| Protective, non-cheerleader UX | Use practical warnings and plain next actions instead of hollow motivation. | Does JobSentinel protect time, confidence, and dignity under rejection-heavy conditions? |
-| Privacy-first local control | Keep sensitive job-search data local by default; make every external path explicit, inspectable, and cancellable. | Does JobSentinel preserve user control even when optional integrations are enabled? |
-
-Evaluation uses public job postings and synthetic candidate profiles by default.
-Real user data requires explicit informed consent.
+| Protective, non-cheerleader UX | Use practical warnings and next actions instead of hollow motivation. | Does JobSentinel protect time, confidence, and dignity under rejection-heavy conditions? |
+| Privacy-first local control | Keep sensitive job-search data local by default and make every external path explicit, inspectable, and cancellable. | Does JobSentinel preserve user control when optional integrations are enabled? |
 
 Research notes live in [docs/research](docs/research/README.md). Product
 direction lives in [ROADMAP.md](ROADMAP.md) and active plans under
-[docs/plans](docs/plans/README.md). External sources are indexed at the end of
-this README. The README information design standard lives in
-[docs/harness/readme-information-design.md](docs/harness/readme-information-design.md).
+[docs/plans](docs/plans/README.md). The README information design standard
+lives in [docs/harness/readme-information-design.md](docs/harness/readme-information-design.md).
 
-## Trust, privacy, and AI boundaries
+## Trust model
 
-JobSentinel is designed for people with no technical background. Setup,
-warnings, recovery, and support paths should not require command-line skill,
-GitHub knowledge, hiring-system jargon, or debugging experience.
-
-| Principle | Product implication |
-| --------- | ------------------- |
-| Rule 0 | Privacy and security are release blockers, not preferences |
-| Local-first | Jobs, searches, resumes, notes, salary floors, applications, and reports stay on the user's device by default |
-| No telemetry | JobSentinel does not collect analytics or behavioral telemetry |
-| Optional external channels | Slack, Discord, Teams, Telegram, email, GitHub feedback, and Google Drive are user-configured only |
-| Optional external AI | Provider calls need opt-in, payload minimization, preview, approval, redaction or cancellation, and local metadata logging |
-| Candidate-side framing | Explanations help the job seeker understand fit, source risk, pay transparency, and readability |
-| Protective tone | The app should surface warnings, tradeoffs, and next safe actions instead of hollow motivation |
-| Free forever | JobSentinel stays MIT licensed and free for reuse, forks, and contribution |
+| Principle | Repository commitment |
+| --------- | --------------------- |
+| Rule 0 | Privacy and security are release blockers, not preferences. |
+| Local-first | Jobs, searches, resumes, notes, salary floors, applications, and reports stay on the user's device by default. |
+| No telemetry | JobSentinel does not collect analytics or behavioral telemetry. |
+| Optional external channels | Slack, Discord, Teams, Telegram, email, GitHub feedback, and Google Drive are user-configured only. |
+| Optional external AI | Provider calls need opt-in, payload minimization, preview, approval, redaction or cancellation, and local metadata logging. |
+| Candidate-side framing | Explanations help the job seeker understand fit, source risk, pay transparency, and readability. |
+| Protective tone | The app surfaces warnings, tradeoffs, and next safe actions instead of hollow motivation. |
+| Free forever | JobSentinel stays MIT licensed and free for reuse, forks, and contribution. |
 
 No account is required. JobSentinel stores search data locally and only sends
 data outside the app when the user explicitly configures a channel or approves
@@ -143,7 +126,7 @@ injection, manipulate ATS systems, solve CAPTCHAs, collect private candidate
 data for research, infer protected characteristics, or send full local database
 dumps.
 
-## Architecture and maintenance
+## Architecture
 
 JobSentinel is a desktop application, not a hosted job-search service.
 
@@ -165,7 +148,7 @@ React 19 + TypeScript UI
 | External AI | All provider calls must go through the AI gateway; no scattered provider calls are allowed |
 | Research mode | Public postings and synthetic candidate profiles are the default evaluation data |
 
-Important architecture docs:
+Architecture and maintenance docs:
 
 - [Developer architecture](docs/developer/ARCHITECTURE.md)
 - [Privacy-first AI gateway](docs/architecture/privacy-first-ai-gateway.md)
