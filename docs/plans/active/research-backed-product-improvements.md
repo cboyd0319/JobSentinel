@@ -870,7 +870,7 @@ Do not build:
   tone, and local-first privacy into first-class product requirements.
 - [x] Create this active plan with a combined improvement backlog.
 - [x] Re-run docs-only verification after the pay-equity source update.
-- [ ] For the next implementation goal, choose one prioritized slice and write
+- [x] For the next implementation goal, choose one prioritized slice and write
   a feature-specific change contract before code edits.
 
 ## Verification
@@ -1123,17 +1123,68 @@ Rollback:
 Restore visible labels and remove the new bloat rule if route or docs
 compatibility requires the old name.
 
+## Change contract: visible posting-risk guidance on job cards
+
+Problem:
+Posting-risk badges are useful, but a tiny badge is easy to miss when a job
+seeker is tired, short on time, or reviewing many jobs. High-risk postings
+should interrupt the card enough to protect tailoring time without making a
+definitive claim about employer intent.
+
+Scope:
+Add plain, visible job-card guidance when a posting has elevated stale,
+repost, or low-verification signals. Keep the existing score, badge, and
+feedback controls. Do not add new collection, external checks, network calls,
+database fields, or source-ranking models in this slice.
+
+Acceptance criteria:
+
+- Job cards with posting risk at or above 75% show "Verify before tailoring".
+- Job cards with posting risk from 60% through 74% show a lighter review prompt.
+- Job cards below the warning threshold stay visually quiet.
+- Copy stays protective, practical, and cautious. It must not call an employer
+  fake or claim JobSentinel knows intent.
+- Screen-reader labels include the high-risk warning on affected cards.
+- Existing bookmark, notes, hide, company research, and view actions still work.
+
+Likely files:
+
+- `src/components/JobCard.tsx`
+- `src/components/JobCard.test.tsx`
+- `docs/features/ghost-detection.md`
+
+Risks:
+
+- Extra guidance can make dense lists feel noisy. This slice limits visible
+  guidance to elevated risk and keeps lower scores on the existing compact
+  badge path.
+- Current ghost scores are heuristics. Copy must frame them as warning signs,
+  not proof.
+
+Sensors:
+
+- Focused component tests for high, medium, and quiet posting-risk cards.
+- `npm run test:run -- src/components/JobCard.test.tsx`
+- `npm run lint:docs`
+- `npm run lint:bloat`
+- `npx tsc --noEmit`
+
+Rollback:
+Remove the visible guidance block and keep the existing compact posting-risk
+badge behavior.
+
 ## Handoff
 
 - Current state: plan updated with six source documents plus first-class
-  protective product priorities from the latest goal guidance. The current
-  implementation slice is the guided setup preference for fresh and verified
-  postings.
+  protective product priorities from the latest goal guidance. The guided setup
+  preference for fresh and verified postings is implemented and covered by
+  focused tests. The current implementation slice is visible posting-risk
+  guidance on job cards.
 - Evidence: source documents, selected primary sources, and local PDF text
   extraction reviewed on
   2026-05-28.
-- Next step: after this setup slice is committed, choose the next narrow
-  research-backed implementation slice with its own change contract.
+- Next step: implement and verify the visible posting-risk guidance slice, then
+  choose the next narrow research-backed implementation slice.
 - Open risks: exact source statistics need re-check before product copy or
   implementation claims; this plan does not prove feasibility of every listed
   feature.

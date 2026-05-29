@@ -53,6 +53,43 @@ interface JobCardProps {
   isSelected?: boolean;
 }
 
+interface PostingRiskGuidance {
+  level: "medium" | "high";
+  title: string;
+  description: string;
+  ariaLabel: string;
+}
+
+function getPostingRiskGuidance(
+  ghostScore: number | null | undefined,
+): PostingRiskGuidance | null {
+  if (ghostScore == null || !Number.isFinite(ghostScore)) {
+    return null;
+  }
+
+  if (ghostScore >= 0.75) {
+    return {
+      level: "high",
+      title: "Verify before tailoring",
+      description:
+        "This posting has strong stale, repost, or low-detail signals. Check the source before spending serious time.",
+      ariaLabel: "verify before tailoring",
+    };
+  }
+
+  if (ghostScore >= 0.6) {
+    return {
+      level: "medium",
+      title: "Review before tailoring",
+      description:
+        "This posting has multiple warning signs. A quick source check can protect your time.",
+      ariaLabel: "review before tailoring",
+    };
+  }
+
+  return null;
+}
+
 export const JobCard = memo(function JobCard({
   job,
   onViewJob,
@@ -101,6 +138,14 @@ export const JobCard = memo(function JobCard({
   const isGoodMatch = safeScore >= SCORE_THRESHOLD_GOOD;
   const salaryText = formatSalaryRange(job.salary_min, job.salary_max);
   const descSnippet = truncateText(job.description);
+  const postingRiskGuidance = getPostingRiskGuidance(job.ghost_score);
+  const cardAriaLabel = `${job.title} at ${job.company}${
+    safeScore >= SCORE_THRESHOLD_HIGH
+      ? ", high match"
+      : safeScore >= SCORE_THRESHOLD_GOOD
+        ? ", good match"
+        : ""
+  }${postingRiskGuidance ? `, ${postingRiskGuidance.ariaLabel}` : ""}`;
 
   return (
     <>
@@ -133,7 +178,7 @@ export const JobCard = memo(function JobCard({
         data-job-id={job.id}
         data-selected={isSelected || undefined}
         role="article"
-        aria-label={`${job.title} at ${job.company}${safeScore >= SCORE_THRESHOLD_HIGH ? ", high match" : safeScore >= SCORE_THRESHOLD_GOOD ? ", good match" : ""}`}
+        aria-label={cardAriaLabel}
       >
         {/* High match indicator */}
         {isHighMatch && (
@@ -175,6 +220,34 @@ export const JobCard = memo(function JobCard({
                 <p className="text-sm text-surface-500 dark:text-surface-400 mb-2 line-clamp-2">
                   {descSnippet}
                 </p>
+              )}
+
+              {postingRiskGuidance && (
+                <div
+                  data-testid="posting-risk-guidance"
+                  className={`
+                    mb-2 flex items-start gap-2 rounded-lg border px-3 py-2 text-sm
+                    ${
+                      postingRiskGuidance.level === "high"
+                        ? "border-red-200 bg-red-50 text-red-800 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-200"
+                        : "border-orange-200 bg-orange-50 text-orange-800 dark:border-orange-900/60 dark:bg-orange-950/30 dark:text-orange-200"
+                    }
+                  `}
+                >
+                  <RiskIcon
+                    className={
+                      postingRiskGuidance.level === "high"
+                        ? "mt-0.5 h-4 w-4 flex-shrink-0 text-red-600 dark:text-red-300"
+                        : "mt-0.5 h-4 w-4 flex-shrink-0 text-orange-600 dark:text-orange-300"
+                    }
+                  />
+                  <div>
+                    <p className="font-semibold">{postingRiskGuidance.title}</p>
+                    <p className="text-xs leading-5 opacity-90">
+                      {postingRiskGuidance.description}
+                    </p>
+                  </div>
+                </div>
               )}
 
               {/* Meta info */}
@@ -522,6 +595,25 @@ const ResearchIcon = memo(function ResearchIcon() {
         strokeLinejoin="round"
         strokeWidth={1.5}
         d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+      />
+    </svg>
+  );
+});
+
+const RiskIcon = memo(function RiskIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
       />
     </svg>
   );

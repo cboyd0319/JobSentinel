@@ -88,6 +88,12 @@ Jobs with posting-risk signals show a badge:
 Hover over the badge to see why it was flagged. Job cards can also show "Seen
 on X sources" when the same role appears in more than one place.
 
+When posting risk is elevated, the job card also shows plain guidance before
+the user spends tailoring time:
+
+- **60-74%** - Review before tailoring.
+- **75%+** - Verify before tailoring.
+
 ### Posting Risk Filter
 
 Use the posting-risk filter above your job list:

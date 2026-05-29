@@ -155,6 +155,47 @@ describe("JobCard", () => {
     });
   });
 
+  describe("posting risk guidance", () => {
+    it("shows verify-before-tailoring guidance for high posting risk", () => {
+      const highRiskJob = { ...mockJob, ghost_score: 0.82 };
+
+      renderWithToast(<JobCard job={highRiskJob} />);
+
+      expect(screen.getByTestId("posting-risk-guidance")).toHaveTextContent(
+        "Verify before tailoring",
+      );
+      expect(
+        screen.getByText(/check the source before spending serious time/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("article", {
+          name: /verify before tailoring/i,
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it("shows lighter review guidance for medium posting risk", () => {
+      const mediumRiskJob = { ...mockJob, ghost_score: 0.67 };
+
+      renderWithToast(<JobCard job={mediumRiskJob} />);
+
+      expect(screen.getByTestId("posting-risk-guidance")).toHaveTextContent(
+        "Review before tailoring",
+      );
+      expect(
+        screen.getByText(/quick source check can protect your time/i),
+      ).toBeInTheDocument();
+    });
+
+    it("keeps lower posting-risk jobs visually quiet", () => {
+      const lowerRiskJob = { ...mockJob, ghost_score: 0.52 };
+
+      renderWithToast(<JobCard job={lowerRiskJob} />);
+
+      expect(screen.queryByTestId("posting-risk-guidance")).not.toBeInTheDocument();
+    });
+  });
+
   describe("salary formatting", () => {
     it("renders salary with both min and max", () => {
       renderWithToast(<JobCard job={mockJob} />);
