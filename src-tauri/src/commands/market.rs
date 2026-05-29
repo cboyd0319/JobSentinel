@@ -2,6 +2,7 @@
 //!
 //! Commands for skill trends, company activity, location analysis, and market alerts.
 
+use crate::commands::errors::user_friendly_error;
 use crate::commands::limits::validate_command_limit_usize;
 use crate::commands::AppState;
 use crate::core::market_intelligence::{
@@ -36,7 +37,7 @@ pub async fn get_trending_skills(
     intel
         .get_trending_skills(limit)
         .await
-        .map_err(|e| format!("Failed to get trending skills: {}", e))
+        .map_err(|e| user_friendly_error("Failed to get trending skills", e))
 }
 
 /// Get most active hiring companies
@@ -52,7 +53,7 @@ pub async fn get_active_companies(
     intel
         .get_most_active_companies(limit)
         .await
-        .map_err(|e| format!("Failed to get active companies: {}", e))
+        .map_err(|e| user_friendly_error("Failed to get active companies", e))
 }
 
 /// Get hottest job market locations
@@ -68,7 +69,7 @@ pub async fn get_hottest_locations(
     intel
         .get_hottest_locations(limit)
         .await
-        .map_err(|e| format!("Failed to get hottest locations: {}", e))
+        .map_err(|e| user_friendly_error("Failed to get hottest locations", e))
 }
 
 /// Get unread market alerts
@@ -80,7 +81,7 @@ pub async fn get_market_alerts(state: State<'_, AppState>) -> Result<Vec<MarketA
     intel
         .get_unread_alerts()
         .await
-        .map_err(|e| format!("Failed to get market alerts: {}", e))
+        .map_err(|e| user_friendly_error("Failed to get market alerts", e))
 }
 
 /// Run market analysis (manual trigger)
@@ -91,8 +92,8 @@ pub async fn run_market_analysis(state: State<'_, AppState>) -> Result<Value, St
     let intel = MarketIntelligence::new(state.database.pool().clone());
     match intel.run_daily_analysis().await {
         Ok(snapshot) => serde_json::to_value(&snapshot)
-            .map_err(|e| format!("Failed to serialize snapshot: {}", e)),
-        Err(e) => Err(format!("Failed to run market analysis: {}", e)),
+            .map_err(|e| user_friendly_error("Failed to serialize snapshot", e)),
+        Err(e) => Err(user_friendly_error("Failed to run market analysis", e)),
     }
 }
 
@@ -107,7 +108,7 @@ pub async fn get_market_snapshot(
     intel
         .get_market_snapshot()
         .await
-        .map_err(|e| format!("Failed to get market snapshot: {}", e))
+        .map_err(|e| user_friendly_error("Failed to get market snapshot", e))
 }
 
 /// Get historical market snapshots
@@ -123,7 +124,7 @@ pub async fn get_historical_snapshots(
     intel
         .get_historical_snapshots(days)
         .await
-        .map_err(|e| format!("Failed to get historical snapshots: {}", e))
+        .map_err(|e| user_friendly_error("Failed to get historical snapshots", e))
 }
 
 /// Mark a single alert as read
@@ -135,7 +136,7 @@ pub async fn mark_alert_read(id: i64, state: State<'_, AppState>) -> Result<bool
     intel
         .mark_alert_read(id)
         .await
-        .map_err(|e| format!("Failed to mark alert as read: {}", e))
+        .map_err(|e| user_friendly_error("Failed to mark alert as read", e))
 }
 
 /// Mark all alerts as read
@@ -147,7 +148,7 @@ pub async fn mark_all_alerts_read(state: State<'_, AppState>) -> Result<u64, Str
     intel
         .mark_all_alerts_read()
         .await
-        .map_err(|e| format!("Failed to mark all alerts as read: {}", e))
+        .map_err(|e| user_friendly_error("Failed to mark all alerts as read", e))
 }
 
 #[cfg(test)]

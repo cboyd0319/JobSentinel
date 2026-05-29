@@ -6091,6 +6091,69 @@ test("checkRepoBloat rejects raw automation command error details", () => {
   });
 });
 
+test("checkRepoBloat rejects raw sensitive command error details", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/ml.rs",
+      [
+        "pub async fn match_resume_semantic(job_hash: String) -> Result<(), String> {",
+        "    tracing::info!(\"Command: match_resume_semantic (job: {})\", job_hash);",
+        "    matcher.match_skills().map_err(|e| format!(\"Failed to match skills: {}\", e))",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/salary.rs",
+      [
+        "pub async fn generate_negotiation_script(scenario: String) -> Result<(), String> {",
+        "    tracing::info!(\"Command: generate_negotiation_script (scenario: {})\", scenario);",
+        "    analyzer.generate().await.map_err(|e| format!(\"Failed to generate script: {}\", e))",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/market.rs",
+      [
+        "pub async fn run_market_analysis() -> Result<(), String> {",
+        "    Err(e) => Err(format!(\"Failed to run market analysis: {}\", e)),",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/commands/ml.rs",
+        "src-tauri/src/commands/salary.rs",
+        "src-tauri/src/commands/market.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of [
+      "src-tauri/src/commands/ml.rs",
+      "src-tauri/src/commands/salary.rs",
+      "src-tauri/src/commands/market.rs",
+    ]) {
+      assert.ok(
+        violations.includes(`sanitize sensitive command error details: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
 test("checkRepoBloat rejects raw command setup error display", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

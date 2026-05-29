@@ -2,6 +2,7 @@
 //!
 //! Commands for salary prediction, benchmarking, and offer comparison.
 
+use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
 use crate::core::salary::{OfferComparison, SalaryAnalyzer, SalaryPrediction, SeniorityLevel};
 use serde_json::Value;
@@ -25,7 +26,7 @@ pub async fn predict_salary(
     analyzer
         .predict_salary_for_job(&job_hash, years_experience)
         .await
-        .map_err(|e| format!("Failed to predict salary: {}", e))
+        .map_err(|e| user_friendly_error("Failed to predict salary", e))
 }
 
 /// Get salary benchmark for a role
@@ -52,9 +53,9 @@ pub async fn get_salary_benchmark(
     {
         Ok(Some(benchmark)) => serde_json::to_value(&benchmark)
             .map(Some)
-            .map_err(|e| format!("Failed to serialize benchmark: {}", e)),
+            .map_err(|e| user_friendly_error("Failed to serialize benchmark", e)),
         Ok(None) => Ok(None),
-        Err(e) => Err(format!("Failed to get benchmark: {}", e)),
+        Err(e) => Err(user_friendly_error("Failed to get benchmark", e)),
     }
 }
 
@@ -66,15 +67,15 @@ pub async fn generate_negotiation_script(
     state: State<'_, AppState>,
 ) -> Result<String, String> {
     tracing::info!(
-        "Command: generate_negotiation_script (scenario: {})",
-        scenario
+        scenario_chars = scenario.chars().count(),
+        "Command: generate_negotiation_script"
     );
 
     let analyzer = SalaryAnalyzer::new(state.database.pool().clone());
     analyzer
         .generate_negotiation_script(&scenario, params)
         .await
-        .map_err(|e| format!("Failed to generate script: {}", e))
+        .map_err(|e| user_friendly_error("Failed to generate script", e))
 }
 
 /// Compare multiple job offers
@@ -89,5 +90,5 @@ pub async fn compare_offers(
     analyzer
         .compare_offers(offer_ids)
         .await
-        .map_err(|e| format!("Failed to compare offers: {}", e))
+        .map_err(|e| user_friendly_error("Failed to compare offers", e))
 }

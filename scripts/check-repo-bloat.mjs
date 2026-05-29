@@ -416,6 +416,11 @@ const resumeCommandDtoPrivacyPaths = new Set([
 const resumeCommandErrorPrivacyPaths = new Set(["src-tauri/src/commands/resume.rs"]);
 const atsCommandErrorPrivacyPaths = new Set(["src-tauri/src/commands/ats.rs"]);
 const automationCommandErrorPrivacyPaths = new Set(["src-tauri/src/commands/automation.rs"]);
+const sensitiveCommandErrorPrivacyPaths = new Set([
+  "src-tauri/src/commands/ml.rs",
+  "src-tauri/src/commands/salary.rs",
+  "src-tauri/src/commands/market.rs",
+]);
 const userDataPrivacyLoggingPaths = new Set([
   "src-tauri/src/commands/user_data.rs",
   "src-tauri/src/core/user_data/mod.rs",
@@ -2878,6 +2883,29 @@ function hasRawAutomationCommandErrorDetails(root, path) {
   );
 }
 
+function hasRawSensitiveCommandErrorDetails(root, path) {
+  if (!sensitiveCommandErrorPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /map_err\(\|e\|\s*format!\(\s*"Failed to [^"]*:\s*\{\}"\s*,\s*e\s*\)\)/.test(
+      productionText,
+    ) ||
+    /Err\(e\)\s*=>\s*Err\(format!\(\s*"Failed to [^"]*:\s*\{\}"\s*,\s*e\s*\)\)/.test(
+      productionText,
+    ) ||
+    /serde_json::to_value\([^)]*\)\.map_err\(\|e\|\s*format!\(\s*"Failed to [^"]*:\s*\{\}"\s*,\s*e\s*\)\)/.test(
+      productionText,
+    ) ||
+    /tracing::info!\([^;]*(?:job:\s*\{\}|scenario:\s*\{\})[^;]*\)/.test(productionText) ||
+    /tracing::info!\([^;]*(?:\bjob_hash\b\s*,|\bscenario\b\s*,|\bjob_hash\s*=\s*[%?]?\s*job_hash\b|\bscenario\s*=\s*[%?]?\s*scenario\b)[^;]*\)/.test(
+      productionText,
+    )
+  );
+}
+
 function resumeSummaryStructMissingOrPrivate(text) {
   const match = text.match(/pub\s+struct\s+ResumeSummary\s*\{([^}]*)\}/);
   return !match || /\b(?:file_path|parsed_text)\b/.test(match[1]);
@@ -4377,6 +4405,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawAutomationCommandErrorDetails(root, path)) {
       violations.push(`sanitize automation command error details: ${path}`);
+    }
+
+    if (hasRawSensitiveCommandErrorDetails(root, path)) {
+      violations.push(`sanitize sensitive command error details: ${path}`);
     }
 
     if (hasRawResumeCommandDtoExposure(root, path)) {

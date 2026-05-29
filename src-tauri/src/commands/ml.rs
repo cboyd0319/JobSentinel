@@ -4,6 +4,7 @@
 
 #![cfg(feature = "embedded-ml")]
 
+use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
 use crate::core::logging::path_label_for_logging;
 use crate::core::ml::{ModelManager, ModelStatus, SemanticMatcher};
@@ -29,7 +30,7 @@ pub async fn download_ml_model() -> Result<String, String> {
     let model_path = manager
         .download_model()
         .await
-        .map_err(|e| format!("Failed to download model: {}", e))?;
+        .map_err(|e| user_friendly_error("Failed to download model", e))?;
 
     tracing::info!(
         model_path = %path_label_for_logging(&model_path),
@@ -62,13 +63,13 @@ pub async fn semantic_match_skills(
 
     let app_data_dir = platforms::get_data_dir();
     let matcher = SemanticMatcher::new(app_data_dir)
-        .map_err(|e| format!("Failed to create matcher: {}", e))?;
+        .map_err(|e| user_friendly_error("Failed to create matcher", e))?;
 
     let result = matcher
         .match_skills(&user_skills, &job_requirements)
-        .map_err(|e| format!("Failed to match skills: {}", e))?;
+        .map_err(|e| user_friendly_error("Failed to match skills", e))?;
 
-    serde_json::to_value(&result).map_err(|e| format!("Failed to serialize result: {}", e))
+    serde_json::to_value(&result).map_err(|e| user_friendly_error("Failed to serialize result", e))
 }
 
 /// Enhanced resume matching with semantic understanding
@@ -79,9 +80,9 @@ pub async fn match_resume_semantic(
     state: State<'_, AppState>,
 ) -> Result<serde_json::Value, String> {
     tracing::info!(
-        "Command: match_resume_semantic (resume: {}, job: {})",
         resume_id,
-        job_hash
+        job_hash_chars = job_hash.chars().count(),
+        "Command: match_resume_semantic"
     );
 
     // Get app data directory
@@ -104,7 +105,7 @@ pub async fn match_resume_semantic(
     .bind(resume_id)
     .fetch_all(state.database.pool())
     .await
-    .map_err(|e| format!("Failed to fetch user skills: {}", e))?;
+    .map_err(|e| user_friendly_error("Failed to fetch user skills", e))?;
 
     // Get job requirements
     let job_skills = sqlx::query_scalar::<_, String>(
@@ -117,15 +118,15 @@ pub async fn match_resume_semantic(
     .bind(&job_hash)
     .fetch_all(state.database.pool())
     .await
-    .map_err(|e| format!("Failed to fetch job skills: {}", e))?;
+    .map_err(|e| user_friendly_error("Failed to fetch job skills", e))?;
 
     // Perform semantic matching
     let matcher = SemanticMatcher::new(app_data_dir)
-        .map_err(|e| format!("Failed to create matcher: {}", e))?;
+        .map_err(|e| user_friendly_error("Failed to create matcher", e))?;
 
     let result = matcher
         .match_skills(&user_skills, &job_skills)
-        .map_err(|e| format!("Failed to match skills: {}", e))?;
+        .map_err(|e| user_friendly_error("Failed to match skills", e))?;
 
-    serde_json::to_value(&result).map_err(|e| format!("Failed to serialize result: {}", e))
+    serde_json::to_value(&result).map_err(|e| user_friendly_error("Failed to serialize result", e))
 }
