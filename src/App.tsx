@@ -159,7 +159,7 @@ function App() {
                 </PageErrorBoundary>
               )}
               {currentPage === "ats-optimizer" && (
-                <PageErrorBoundary pageName="ATS Optimizer" onBack={() => navigateTo("dashboard")}>
+                <PageErrorBoundary pageName="Resume Optimizer" onBack={() => navigateTo("dashboard")}>
                   <ResumeOptimizer onBack={() => navigateTo("dashboard")} onNavigate={navigateTo} />
                 </PageErrorBoundary>
               )}

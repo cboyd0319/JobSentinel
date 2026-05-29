@@ -1669,13 +1669,13 @@ function getResumeTemplates(): MockResumeTemplate[] {
     {
       id: "Classic",
       name: "Classic Professional",
-      description: "Traditional chronological format with clear sections. Works with any ATS.",
+      description: "Traditional chronological format with clear sections. Works with most upload forms.",
       preview_image: "/templates/classic-preview.png",
     },
     {
       id: "Modern",
       name: "Modern Minimal",
-      description: "Clean, contemporary design with subtle styling. ATS-compatible.",
+      description: "Clean, contemporary design with subtle styling and upload-friendly structure.",
       preview_image: "/templates/modern-preview.png",
     },
     {

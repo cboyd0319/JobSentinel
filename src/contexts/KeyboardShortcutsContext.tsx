@@ -156,7 +156,7 @@ export function KeyboardShortcutsProvider({
       {
         key: "8",
         modifiers: ["meta"],
-        description: "Go to ATS Optimizer",
+        description: "Go to Resume Optimizer",
         action: () => onNavigate?.("ats-optimizer"),
         category: "navigation",
       },

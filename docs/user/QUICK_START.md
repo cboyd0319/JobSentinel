@@ -255,19 +255,19 @@ Create professional resumes right inside JobSentinel:
 
 1. Click **Resume Builder** in the sidebar
 2. Follow the 7-step wizard
-3. Pick from 5 ATS-friendly templates (designed to pass company resume-filtering software)
+3. Pick from 5 clean templates designed for readable applications
 4. Export to Word (.docx)
 
-### ATS Optimizer
+### Resume Optimizer
 
-ATS stands for "Applicant Tracking System" — it's software that companies use to filter
-resumes before a human ever sees them. The optimizer helps you see how your resume scores
-against a specific job so you can improve it:
+Resume Optimizer compares your resume with a job post and shows which evidence is
+clear, missing, or worth rewriting. It does not promise hiring outcomes or trick
+screening software:
 
 1. Click **Resume Optimizer** in the sidebar
 2. Paste the job description
 3. Enter your resume info
-4. Get instant feedback on what keywords you're missing
+4. Get feedback on job-post evidence, readability, and truthful edits
 
 ### Application Assist
 

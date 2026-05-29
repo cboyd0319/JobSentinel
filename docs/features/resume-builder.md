@@ -1,14 +1,14 @@
-# Resume Builder & ATS Optimizer
+# Resume Builder & Resume Optimizer
 
-**Create resumes that actually get past the robots.**
+**Create readable, job-aligned resumes without giving up control.**
 
-Most companies use software called "ATS" (Applicant Tracking Systems) to filter resumes
-before a human ever sees them. JobSentinel helps you create resumes that pass these
-filters and land on a recruiter's desk.
+JobSentinel helps you create clear resumes and compare them with specific job posts.
+It highlights where your evidence is strong, where important qualifications are
+unclear, and where truthful edits could improve readability.
 
-| Resume Builder                                  | ATS Optimizer                                 |
+| Resume Builder                                  | Resume Optimizer                              |
 | ----------------------------------------------- | --------------------------------------------- |
-| ![Resume Builder](../images/resume-builder.png) | ![ATS Optimizer](../images/ats-optimizer.png) |
+| ![Resume Builder](../images/resume-builder.png) | ![Resume Optimizer](../images/ats-optimizer.png) |
 
 ---
 
@@ -64,7 +64,7 @@ List skills that match the jobs you want:
 
 ### Step 6: Preview
 
-Choose from 5 ATS-friendly templates:
+Choose from 5 readable templates:
 
 | Template           | Best For                              |
 | ------------------ | ------------------------------------- |
@@ -74,12 +74,12 @@ Choose from 5 ATS-friendly templates:
 | **Executive**      | Senior positions - leadership focus   |
 | **Military**       | Veterans - civilian-friendly language |
 
-All templates are designed to pass ATS filters:
+All templates are designed for application readability:
 
-- Single column (no tables that confuse robots)
-- Standard fonts (no fancy stuff)
+- Single column for consistent upload previews
+- Standard fonts
 - Clear section headers
-- No graphics or icons
+- No graphics or icons that distract from the content
 
 ### Step 7: Export
 
@@ -87,9 +87,10 @@ Download your resume as a Word document (.docx), ready to upload to any job appl
 
 ---
 
-## ATS Optimizer
+## Resume Optimizer
 
-Already have a resume? Use the optimizer to see how it scores against a specific job.
+Already have a resume? Use the optimizer to see how clearly it aligns with a
+specific job post.
 
 ### How It Works
 
@@ -100,38 +101,36 @@ Already have a resume? Use the optimizer to see how it scores against a specific
 
 ### What You'll See
 
-**Overall Score** - Your combined ATS compatibility (aim for 80+)
+**Overall Score** - Combined application readability and job-post alignment.
 
-**Keyword Match** - How many job description keywords appear in your resume.
-ATS systems look for specific terms - if they're not in your resume, you might
-get filtered out.
+**Job-Post Language** - Which important role terms and evidence are clear in
+your resume, and which ones need truthful support.
 
-**Format Score** - Is your resume ATS-friendly? Single column? Standard fonts?
-Clear sections?
+**Readability Score** - Single column, standard fonts, and clear sections.
 
 **Completeness** - Are all important sections filled in?
 
 ### Color Coding
 
-- **80-100** - Excellent! You're likely to pass ATS filters
-- **60-79** - Good, but could be better
-- **40-59** - Needs work - you might get filtered
-- **0-39** - Major issues - probably won't pass
+- **80-100** - Strong alignment
+- **60-79** - Useful match with places to improve
+- **40-59** - Several gaps worth reviewing
+- **0-39** - Poor fit for your current resume
 
 ---
 
-## Keyword Matching
+## Job-Post Evidence Matching
 
-The optimizer extracts three types of keywords from job descriptions:
+The optimizer groups important job-post language into three buckets:
 
-**Required Keywords** - Skills and qualifications explicitly mentioned as required.
-These are must-haves - make sure they're in your resume.
+**Required Qualifications** - Skills and qualifications explicitly listed as required.
+Add them only when they are true for your background.
 
-**Preferred Keywords** - Nice-to-haves that give you bonus points.
-Include if you have them.
+**Preferred Qualifications** - Nice-to-haves that can strengthen fit.
+Include them when you have real evidence.
 
-**Industry Keywords** - Common terms in your field.
-Shows you speak the language.
+**Role Language** - Common terms for the role or field.
+Use familiar wording when it accurately describes your experience.
 
 ---
 
@@ -149,7 +148,7 @@ Weak bullet points hurt your resume. The improver helps you write stronger ones.
 
 ### Power Words
 
-The optimizer suggests 45+ action verbs proven to improve resumes:
+The optimizer suggests 45+ action verbs that can make resume bullets clearer:
 
 - **Leadership:** Led, Managed, Directed, Coordinated
 - **Achievement:** Achieved, Delivered, Exceeded, Reduced
@@ -158,16 +157,17 @@ The optimizer suggests 45+ action verbs proven to improve resumes:
 
 ---
 
-## Tips for Better Scores
+## Tips for Better Alignment
 
-1. **Mirror the job description** - Use the same words they use. If they say
-   "Python", say "Python" (not "python programming language").
+1. **Use employer language truthfully** - If they say "Python" and you have
+   Python experience, use "Python" instead of a vague phrase.
 
 2. **Include numbers** - "Increased sales by 25%" beats "Increased sales."
 
 3. **Use standard section headers** - "Experience" not "Professional Journey."
 
-4. **Skip the graphics** - ATS can't read images, logos, or fancy formatting.
+4. **Skip the graphics** - Some upload previews and review tools cannot read
+   images, logos, or fancy formatting.
 
 5. **Keep it simple** - One column, standard fonts, clear hierarchy.
 
@@ -200,7 +200,7 @@ Resumes are stored as JSON in the `resume_drafts` table, auto-saved after each s
 
 - `export_resume_docx`, `export_resume_text`
 
-**ATS Analysis:**
+**Resume Analysis:**
 
 - `analyze_resume_for_job`, `analyze_resume_format`
 - `extract_job_keywords`, `get_ats_power_words`, `improve_bullet_point`

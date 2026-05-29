@@ -132,7 +132,7 @@ Major security release with OS-native keyring integration, Resume Builder, and A
 | 5 credential commands                 | **Done** | store, retrieve, delete, has, get_status       |
 | Updated Settings UI                   | **Done** | Credential status indicators                   |
 | **P3 Integration Tests**              | **Done** | Integration suite documented; use fresh command output for counts |
-| **P4 Resume Builder + ATS Optimizer** | **Done** | Full resume creation and optimization          |
+| **P4 Resume Builder + Resume Optimizer** | **Done** | Full resume creation and optimization       |
 | **P5 Application Assist**                | **Done** | Form preparation with human review |
 
 **Credentials secured:**
@@ -149,9 +149,9 @@ See [docs/security/KEYRING.md](security/KEYRING.md) for full documentation.
 **P4 Resume Builder Features:**
 
 - 7-step resume wizard (contact, summary, experience, education, skills, preview, export)
-- 5 ATS-optimized templates (Classic, Modern, Skills-First, Executive, Military)
+- 5 readable templates (Classic, Modern, Skills-First, Executive, Military)
 - DOCX export with professional formatting
-- ATS Analyzer with keyword extraction and scoring
+- Resume analyzer with job-post evidence review and scoring
 - Bullet point improver with 45+ power words
 - 22 new Tauri commands
 
@@ -240,7 +240,7 @@ overall_score = (skills × 0.5) + (experience × 0.3) + (education × 0.2)
 
 See [docs/features/resume-matcher.md](features/resume-matcher.md) for full documentation.
 
-### v2.4 - Resume Builder + ATS Optimizer UI Enhancements (COMPLETED)
+### v2.4 - Resume Builder + Resume Optimizer UI Enhancements (COMPLETED)
 
 Enhanced user interfaces for resume management with visual improvements and seamless workflow integration.
 

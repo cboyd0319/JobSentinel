@@ -881,6 +881,64 @@ test("checkRepoBloat rejects technical-first user copy", () => {
   });
 });
 
+test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/Navigation.tsx",
+      '{ id: "ats-optimizer", label: "ATS Optimizer", shortcut: "⌘8" }\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/contexts/KeyboardShortcutsContext.tsx",
+      'description: "Go to ATS Optimizer",\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/App.tsx",
+      '<PageErrorBoundary pageName="ATS Optimizer">\n',
+    );
+    writeFixtureFile(
+      root,
+      "docs/user/QUICK_START.md",
+      [
+        "Pick from 5 ATS-friendly templates",
+        'ATS stands for "Applicant Tracking System"',
+        "Get instant feedback on what keywords you're missing",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src/components/Navigation.tsx",
+        "src/contexts/KeyboardShortcutsContext.tsx",
+        "src/App.tsx",
+        "docs/user/QUICK_START.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of [
+      "src/components/Navigation.tsx",
+      "src/contexts/KeyboardShortcutsContext.tsx",
+      "src/App.tsx",
+      "docs/user/QUICK_START.md",
+    ]) {
+      assert.ok(
+        violations.includes(`replace stale Resume Optimizer framing: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
 test("checkRepoBloat rejects application-assist automation framing", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

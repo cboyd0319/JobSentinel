@@ -403,13 +403,13 @@ Recent matches show:
 - Matched and missing skill lists.
 - Color-coded gap analysis lines.
 
-### ATS Optimizer with Job Comparison
+### Resume Optimizer with Job Comparison
 
 ```typescript
-// Side-by-side job comparison view with keyword density heatmap
-const AtsOptimizerView = ({ resumeDraft, selectedJob }: Props) => {
+// Side-by-side job comparison view with job-post evidence review
+const ResumeOptimizerView = ({ resumeDraft, selectedJob }: Props) => {
   return (
-    <div className="ats-optimizer">
+    <div className="resume-optimizer">
       {/* Side-by-side comparison */}
       <div className="comparison-panels">
         <div className="resume-panel">

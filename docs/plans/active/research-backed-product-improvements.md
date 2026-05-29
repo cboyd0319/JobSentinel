@@ -1036,6 +1036,93 @@ against:
 - First implementation slice: guided setup fresh-and-verified posting
   preference, backed by a feature-specific change contract.
 
+## Change contract: resume optimizer framing
+
+Problem:
+Some maintained user-facing surfaces still frame resume help as "ATS
+Optimizer" and missing-keyword work. That framing is narrower and more
+technical than JobSentinel's goal of candidate-side explainability,
+application readability, and honest fit for any job seeker.
+
+Scope:
+Rename visible app and user-doc surfaces from ATS Optimizer to Resume Optimizer
+where the user is navigating or learning the feature. Keep internal route IDs,
+stored keys, type names, and implementation fields stable unless a user-facing
+label depends on them. Reword maintained user docs away from resume filtering
+and missing keywords toward readable, job-aligned resume evidence.
+
+Out of scope:
+Do not rewrite resume scoring internals, database fields, route IDs, test
+fixtures that intentionally model backend field names, or developer-only API
+docs in this slice.
+
+Acceptance criteria:
+
+- Main navigation and page error boundary show "Resume Optimizer" instead of
+  "ATS Optimizer".
+- Resume Builder guidance points users to Resume Optimizer with non-technical
+  wording.
+- Quick Start, resume feature docs, release notes, and docs front doors describe
+  resume templates and resume review as application readability and job-post
+  evidence, not resume-filtering tricks or missing keywords.
+- Regression tests cover visible label changes.
+- Bloat sensor blocks recurrence of "ATS Optimizer" in user-facing frontend and
+  maintained user-facing docs.
+
+Audience and ease:
+
+- Audience is any job seeker, including non-technical users and people applying
+  outside software roles.
+- Technical knowledge assumed: none.
+- Users should understand the feature as help making their resume readable and
+  relevant, not as a way to game hidden systems.
+
+Source-of-truth docs:
+
+- `docs/plans/active/research-backed-product-improvements.md`
+- `docs/plans/active/repo-cleanup-and-quality-sweep.md`
+- `docs/user/QUICK_START.md`
+- `docs/features/resume-builder.md`
+- `docs/README.md`
+- `docs/ROADMAP.md`
+
+Likely files:
+
+- `src/components/Navigation.tsx`
+- `src/App.tsx`
+- `src/pages/ResumeBuilder.tsx`
+- `src/contexts/KeyboardShortcutsContext.tsx`
+- `src/pages/ResumeOptimizer.tsx`
+- `src/mocks/handlers.ts`
+- `docs/user/QUICK_START.md`
+- `docs/features/resume-builder.md`
+- `docs/features/resume-matcher.md`
+- `docs/README.md`
+- `docs/ROADMAP.md`
+- `docs/releases/v2.0.md`
+- `docs/releases/v2.4.md`
+- `scripts/check-repo-bloat.mjs`
+- `scripts/check-repo-bloat.test.mjs`
+
+Risks:
+
+- Route IDs and backend field names may still include `ats`; changing them
+  would create avoidable churn, so this slice only changes visible copy.
+- Some developer docs may still need later cleanup; this slice targets normal
+  user-facing surfaces first.
+
+Sensors:
+
+- Focused component/page tests for changed labels.
+- `npm run test:run -- <focused test files>`
+- `npm run lint:bloat`
+- `npm run lint:docs`
+- `npx tsc --noEmit`
+
+Rollback:
+Restore visible labels and remove the new bloat rule if route or docs
+compatibility requires the old name.
+
 ## Handoff
 
 - Current state: plan updated with six source documents plus first-class

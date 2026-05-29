@@ -420,6 +420,19 @@ const broadAudienceExamplePaths = new Set([
   "docs/features/scrapers.md",
   "docs/features/resume-matcher.md",
 ]);
+const staleResumeOptimizerFramingPaths = new Set([
+  "src/App.tsx",
+  "src/components/AtsLiveScorePanel.tsx",
+  "src/components/Navigation.tsx",
+  "src/contexts/KeyboardShortcutsContext.tsx",
+  "src/pages/ResumeBuilder.tsx",
+  "src/pages/ResumeOptimizer.tsx",
+  "docs/README.md",
+  "docs/ROADMAP.md",
+  "docs/features/resume-builder.md",
+  "docs/features/resume-matcher.md",
+  "docs/user/QUICK_START.md",
+]);
 const resumeTemplateAudiencePaths = new Set([
   "src-tauri/src/core/resume/templates.rs",
   "src/mocks/handlers.ts",
@@ -1180,6 +1193,34 @@ function hasEngineerFirstAudienceExamples(root, path) {
     /^- "Software Engineer"$/m,
     /Examples:\s*\n\s*- "Software Engineer"/i,
     /^\*\*Software Engineer in San Francisco\*\*$/m,
+  ];
+
+  return stalePatterns.some((pattern) => pattern.test(text));
+}
+
+function hasStaleResumeOptimizerFraming(root, path) {
+  if (!staleResumeOptimizerFramingPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const stalePatterns = [
+    /\bATS Optimizer\b/i,
+    /\bATS Resume Optimizer\b/i,
+    /ATS-friendly templates/i,
+    /ATS-optimized templates/i,
+    /ATS-friendly language and power words/i,
+    /get past the robots/i,
+    /resume-filtering software/i,
+    /software that companies use to filter/i,
+    /filter resumes before a human/i,
+    /pass these filters/i,
+    /pass ATS filters/i,
+    /what keywords you're missing/i,
+    /might get filtered out/i,
+    /probably won't pass/i,
+    /ATS systems look for/i,
+    /commonly recognized by ATS systems/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));
@@ -3371,6 +3412,10 @@ export function checkRepoBloat(root = defaultRoot) {
       hasEngineerFirstResumeTemplateCopy(root, path)
     ) {
       violations.push(`replace engineer-first audience example: ${path}`);
+    }
+
+    if (hasStaleResumeOptimizerFraming(root, path)) {
+      violations.push(`replace stale Resume Optimizer framing: ${path}`);
     }
 
     if (hasTechnicalFirstUserCopy(root, path)) {

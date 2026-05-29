@@ -892,7 +892,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
       >
         <div className="space-y-4">
           <p className="text-sm text-surface-600 dark:text-surface-400">
-            Enter a resume bullet point and we'll improve it using ATS-friendly language and power words.
+            Enter a resume bullet point and we'll improve it with clear, job-aligned language.
           </p>
           <div>
             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">

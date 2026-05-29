@@ -103,11 +103,11 @@ describe("Navigation", () => {
       expect(onNavigate).toHaveBeenCalledWith("resume-builder");
     });
 
-    it("calls onNavigate when ATS Optimizer is clicked", () => {
+    it("calls onNavigate when Resume Optimizer is clicked", () => {
       const onNavigate = vi.fn();
       render(<Navigation currentPage="dashboard" onNavigate={onNavigate} />);
 
-      const btn = screen.getByTitle("ATS Optimizer (⌘8)");
+      const btn = screen.getByTitle("Resume Optimizer (⌘8)");
       fireEvent.click(btn);
 
       expect(onNavigate).toHaveBeenCalledWith("ats-optimizer");
