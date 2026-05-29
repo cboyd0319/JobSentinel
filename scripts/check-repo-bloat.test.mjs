@@ -7211,6 +7211,43 @@ test("checkRepoBloat rejects raw scheduler job content logging", () => {
   });
 });
 
+test("checkRepoBloat rejects raw scheduler scraper error details", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scheduler/workers/scrapers.rs",
+      [
+        "async fn run_scrapers() {",
+        "  let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None).await;",
+        "  let error_msg = format!(\"Dice scraper failed: {}\", e);",
+        "  tracing::error!(\"{}\", error_msg);",
+        "  errors.push(error_msg);",
+        "  let error_msg = format!(\"Failed to retrieve USAJobs API key from keyring: {}\", e);",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", [
+      "add",
+      "package.json",
+      "src-tauri/src/core/scheduler/workers/scrapers.rs",
+    ], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize scheduler scraper error details: src-tauri/src/core/scheduler/workers/scrapers.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale user-data mock handlers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

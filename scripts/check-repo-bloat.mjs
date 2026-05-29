@@ -299,6 +299,9 @@ const rawSchedulerJobContentLoggingPaths = new Set([
   "src-tauri/src/core/db/crud.rs",
   "src-tauri/src/core/scheduler/workers/persistence.rs",
 ]);
+const schedulerScraperWorkerPrivacyPaths = new Set([
+  "src-tauri/src/core/scheduler/workers/scrapers.rs",
+]);
 
 const rawBookmarkletLoggingPaths = new Set(["src-tauri/src/core/bookmarklet/server.rs"]);
 const bookmarkletGeneratorPaths = new Set(["src/components/BookmarkletGenerator.tsx"]);
@@ -2351,6 +2354,21 @@ function hasRawSchedulerJobContentLogging(root, path) {
   );
 }
 
+function hasRawSchedulerScraperErrorDetails(root, path) {
+  if (!schedulerScraperWorkerPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /fail_run\(db,[\s\S]{0,180}&e\.to_string\(\)/.test(productionText) ||
+    /format!\(\s*"[^"]*scraper failed:\s*\{\}"\s*,\s*e\s*\)/.test(productionText) ||
+    /Failed to retrieve USAJobs API key from keyring:\s*\{\}/.test(productionText) ||
+    /tracing::error!\(\s*"\{\}"\s*,\s*error_msg\s*\)/.test(productionText) ||
+    /errors\.push\(error_msg\)/.test(productionText)
+  );
+}
+
 function hasRawScraperUrlOrQueryLogging(root, path) {
   if (!rawScraperLoggingPaths.has(path)) {
     return false;
@@ -4149,6 +4167,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawSchedulerJobContentLogging(root, path)) {
       violations.push(`sanitize scheduler job content logging: ${path}`);
+    }
+
+    if (hasRawSchedulerScraperErrorDetails(root, path)) {
+      violations.push(`sanitize scheduler scraper error details: ${path}`);
     }
 
     if (hasRawScraperUrlOrQueryLogging(root, path)) {
