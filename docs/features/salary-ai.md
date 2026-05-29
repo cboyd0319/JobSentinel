@@ -11,6 +11,8 @@ fixed by asking harder.
 - Compare a role against public salary records and local benchmark data.
 - Let users enter a salary floor as a walk-away number.
 - Show "Pay not listed" on job cards when structured salary fields are empty.
+- Show a below-floor warning on job cards when listed pay tops out below the
+  user's saved floor.
 - Flag when a floor is below credible range evidence or when an offer may be
   under-leveled.
 - Draft editable negotiation notes grounded in role scope, written ranges, and

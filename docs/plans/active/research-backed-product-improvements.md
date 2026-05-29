@@ -909,6 +909,7 @@ against:
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Added job-card pay-floor warnings using the saved salary floor so roles with listed pay below the user's floor are visible but flagged before tailoring. |
 | 2026-05-29 | In progress | Added an optional setup pay-floor question so any job seeker can set below-floor warnings before first scan while keeping missing-pay jobs visible and marked. |
 | 2026-05-29 | In progress | Reframed match-score copy from celebratory recommendations to protective evidence language: Strong Match, Some Match, source-check and must-have review guidance, plus bloat coverage against overconfident score copy. |
 | 2026-05-28 | In progress | Chose Application Assist as the next implementation slice and reframed the visible flow around review-first form preparation, user-controlled Submit, and anti-volume guardrails. |

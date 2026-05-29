@@ -100,6 +100,7 @@ export default function Dashboard({
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const [researchCompany, setResearchCompany] = useState<string | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [salaryFloorUsd, setSalaryFloorUsd] = useState<number | null>(null);
 
   const toast = useToast();
 
@@ -168,16 +169,18 @@ export default function Dashboard({
 
       // Load auto-refresh config
       try {
-        const config = await cachedInvoke<{ auto_refresh?: AutoRefreshConfig }>(
-          "get_config",
-          undefined,
-          60_000,
-        );
+        const config = await cachedInvoke<{
+          auto_refresh?: AutoRefreshConfig;
+          salary_floor_usd?: number | null;
+        }>("get_config", undefined, 60_000);
         if (config?.auto_refresh) {
           setAutoRefreshEnabled(config.auto_refresh.enabled);
           setAutoRefreshInterval(
             config.auto_refresh.interval_minutes || 30,
           );
+        }
+        if (typeof config?.salary_floor_usd === "number") {
+          setSalaryFloorUsd(config.salary_floor_usd);
         }
       } catch {
         // Config might not have auto_refresh yet, use defaults
@@ -771,6 +774,7 @@ export default function Dashboard({
                           jobOps.bulkMode ? undefined : setResearchCompany
                         }
                         isSelected={isKeyboardActive && index === selectedIndex}
+                        salaryFloorUsd={salaryFloorUsd}
                       />
                     </div>
                   </div>

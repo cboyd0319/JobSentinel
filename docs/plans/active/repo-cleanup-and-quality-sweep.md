@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Extended pay protection from setup into job cards by passing the saved salary floor into Dashboard results and warning when listed pay tops out below the user's floor. |
 | 2026-05-29 | In progress | Continued guided-intake pay protection by adding an optional setup pay-floor field, summary coverage, and quick-start wording so users can set below-floor warnings before first scan without hiding missing-pay roles. |
 | 2026-05-29 | In progress | Locked the LinkedIn source boundary to user-opened search links only: disabled background collection, disabled new session credential storage, removed LinkedIn from smoke tests and Settings credential checks, rewrote source-health docs, and added bloat coverage for recurrence. |
 | 2026-05-29 | In progress | Routed Playwright npm scripts through a small wrapper that removes conflicting color environment settings and suppresses only the known upstream Node 26 `DEP0205` deprecation warning from Playwright/Tailwind internals; added script tests and bloat coverage so fast E2E output stays readable. |

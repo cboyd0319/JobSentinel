@@ -225,6 +225,36 @@ describe("JobCard", () => {
         }),
       ).toBeInTheDocument();
     });
+
+    it("warns when listed pay is below the user's floor", () => {
+      const belowFloorJob = {
+        ...mockJob,
+        salary_min: 45000,
+        salary_max: 55000,
+      };
+
+      renderWithToast(
+        <JobCard job={belowFloorJob} salaryFloorUsd={65000} />,
+      );
+
+      expect(screen.getByTestId("pay-floor-guidance")).toHaveTextContent(
+        "Below your pay floor",
+      );
+      expect(
+        screen.getByText(/listed pay tops out below \$65,000\/year/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("article", {
+          name: /below your pay floor/i,
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it("does not warn when listed pay reaches the user's floor", () => {
+      renderWithToast(<JobCard job={mockJob} salaryFloorUsd={150000} />);
+
+      expect(screen.queryByTestId("pay-floor-guidance")).not.toBeInTheDocument();
+    });
   });
 
   describe("date formatting", () => {

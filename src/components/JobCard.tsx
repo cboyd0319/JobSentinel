@@ -51,10 +51,17 @@ interface JobCardProps {
   onEditNotes?: (id: number, currentNotes?: string | null) => void;
   onResearchCompany?: (company: string) => void;
   isSelected?: boolean;
+  salaryFloorUsd?: number | null;
 }
 
 interface PostingRiskGuidance {
   level: "medium" | "high";
+  title: string;
+  description: string;
+  ariaLabel: string;
+}
+
+interface PayFloorGuidance {
   title: string;
   description: string;
   ariaLabel: string;
@@ -90,6 +97,40 @@ function getPostingRiskGuidance(
   return null;
 }
 
+function formatPayFloor(salaryFloorUsd: number) {
+  return `$${salaryFloorUsd.toLocaleString()}/year`;
+}
+
+function getPayFloorGuidance(
+  salaryMin: number | null | undefined,
+  salaryMax: number | null | undefined,
+  salaryFloorUsd: number | null | undefined,
+): PayFloorGuidance | null {
+  if (
+    salaryFloorUsd == null ||
+    !Number.isFinite(salaryFloorUsd) ||
+    salaryFloorUsd <= 0
+  ) {
+    return null;
+  }
+
+  const highestListedPay = salaryMax ?? salaryMin;
+  if (
+    highestListedPay == null ||
+    !Number.isFinite(highestListedPay) ||
+    highestListedPay >= salaryFloorUsd
+  ) {
+    return null;
+  }
+
+  const formattedFloor = formatPayFloor(salaryFloorUsd);
+  return {
+    title: "Below your pay floor",
+    description: `Listed pay tops out below ${formattedFloor}. Verify before tailoring.`,
+    ariaLabel: "below your pay floor",
+  };
+}
+
 export const JobCard = memo(function JobCard({
   job,
   onViewJob,
@@ -98,6 +139,7 @@ export const JobCard = memo(function JobCard({
   onEditNotes,
   onResearchCompany,
   isSelected = false,
+  salaryFloorUsd,
 }: JobCardProps) {
   const [isScoreModalOpen, setIsScoreModalOpen] = useState(false);
   const toast = useToast();
@@ -139,6 +181,11 @@ export const JobCard = memo(function JobCard({
   const salaryText = formatSalaryRange(job.salary_min, job.salary_max);
   const descSnippet = truncateText(job.description);
   const postingRiskGuidance = getPostingRiskGuidance(job.ghost_score);
+  const payFloorGuidance = getPayFloorGuidance(
+    job.salary_min,
+    job.salary_max,
+    salaryFloorUsd,
+  );
   const cardAriaLabel = `${job.title} at ${job.company}${
     safeScore >= SCORE_THRESHOLD_HIGH
       ? ", high match"
@@ -147,7 +194,7 @@ export const JobCard = memo(function JobCard({
         : ""
   }${salaryText ? "" : ", pay not listed"}${
     postingRiskGuidance ? `, ${postingRiskGuidance.ariaLabel}` : ""
-  }`;
+  }${payFloorGuidance ? `, ${payFloorGuidance.ariaLabel}` : ""}`;
 
   return (
     <>
@@ -247,6 +294,21 @@ export const JobCard = memo(function JobCard({
                     <p className="font-semibold">{postingRiskGuidance.title}</p>
                     <p className="text-xs leading-5 opacity-90">
                       {postingRiskGuidance.description}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {payFloorGuidance && (
+                <div
+                  data-testid="pay-floor-guidance"
+                  className="mb-2 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200"
+                >
+                  <SalaryIcon />
+                  <div>
+                    <p className="font-semibold">{payFloorGuidance.title}</p>
+                    <p className="text-xs leading-5 opacity-90">
+                      {payFloorGuidance.description}
                     </p>
                   </div>
                 </div>
