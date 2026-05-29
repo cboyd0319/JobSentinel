@@ -546,6 +546,7 @@ const broadAudienceExamplePaths = new Set([
   "src-tauri/src/core/deeplinks/types.rs",
   "src-tauri/tests/api_contract_test.rs",
   "src-tauri/tests/scraper_integration_test.rs",
+  "src-tauri/tests/scraping_pipeline_integration.rs",
   "src-tauri/src/main.rs",
   "src-tauri/migrations/00000000000000_initial_schema.sql",
   "tests/e2e/playwright/resume-upload-matching.spec.ts",
@@ -1513,6 +1514,26 @@ function hasEngineerFirstAudienceExamples(root, path) {
     ];
 
     if (scraperIntegrationPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "src-tauri/tests/scraping_pipeline_integration.rs") {
+    const pipelineIntegrationPatterns = [
+      /Security Engineer/i,
+      /Rust Developer/i,
+      /Senior Rust/i,
+      /Build secure systems in Rust/i,
+      /Build amazing Rust applications/i,
+      /TechCorp|RustCorp|SecureCo|TestCo/i,
+      /San Francisco/i,
+      /keywords_boost:\s*vec!\[[^\]]*"Rust"/i,
+      /keywords_exclude:\s*vec!\[[^\]]*"PHP"/i,
+      /Search for "Rust"/i,
+      /Search for "Security"/i,
+    ];
+
+    if (pipelineIntegrationPatterns.some((pattern) => pattern.test(text))) {
       return true;
     }
   }

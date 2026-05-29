@@ -14,21 +14,21 @@ use std::sync::Arc;
 fn create_test_config() -> Config {
     Config {
         title_allowlist: vec![
-            "Security Engineer".to_string(),
-            "Rust Developer".to_string(),
+            "Care Coordinator".to_string(),
+            "Customer Support Lead".to_string(),
         ],
         title_blocklist: vec!["Manager".to_string()],
-        keywords_boost: vec!["Rust".to_string(), "Security".to_string()],
-        keywords_exclude: vec!["PHP".to_string()],
+        keywords_boost: vec!["CRM".to_string(), "case management".to_string()],
+        keywords_exclude: vec!["commission-only".to_string()],
         location_preferences: LocationPreferences {
             allow_remote: true,
             allow_hybrid: false,
             allow_onsite: false,
-            cities: vec!["San Francisco".to_string()],
-            states: vec!["CA".to_string()],
+            cities: vec!["Chicago".to_string()],
+            states: vec!["IL".to_string()],
             country: "US".to_string(),
         },
-        salary_floor_usd: 120000,
+        salary_floor_usd: 50000,
         salary_target_usd: None,
         penalize_missing_salary: false,
         auto_refresh: Default::default(),
@@ -122,17 +122,17 @@ async fn test_scoring_engine_integration() {
     let job = Job {
         id: 0,
         hash: "test123".to_string(),
-        title: "Senior Rust Security Engineer".to_string(),
-        company: "TechCorp".to_string(),
+        title: "Senior Care Coordinator".to_string(),
+        company: "CareBridge".to_string(),
         url: "https://example.com/job".to_string(),
         location: Some("Remote".to_string()),
-        description: Some("Build secure systems in Rust".to_string()),
+        description: Some("Coordinate care plans with CRM and case management".to_string()),
         score: None,
         score_reasons: None,
         source: "test".to_string(),
         remote: Some(true),
-        salary_min: Some(150000),
-        salary_max: Some(200000),
+        salary_min: Some(65000),
+        salary_max: Some(85000),
         currency: Some("USD".to_string()),
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
@@ -151,7 +151,7 @@ async fn test_scoring_engine_integration() {
 
     let score = scoring_engine.score(&job);
 
-    // Should score highly: matches title, has Rust/Security keywords, remote, good salary
+    // Should score highly: matches title, has CRM/case-management keywords, remote, good salary
     assert!(score.total > 0.8, "High-quality job should score above 0.8");
 }
 
@@ -163,10 +163,10 @@ async fn test_database_upsert_pipeline() {
     let mut job = Job {
         id: 0,
         hash: "unique_hash_123".to_string(),
-        title: "Test Engineer".to_string(),
-        company: "TestCo".to_string(),
+        title: "Test Coordinator".to_string(),
+        company: "Example Services".to_string(),
         url: "https://example.com/job".to_string(),
-        location: Some("San Francisco".to_string()),
+        location: Some("Chicago".to_string()),
         description: None,
         score: Some(0.75),
         score_reasons: None,
@@ -198,7 +198,7 @@ async fn test_database_upsert_pipeline() {
     let fetched = db.get_job_by_hash(&job.hash).await.unwrap();
     assert!(fetched.is_some());
     let fetched_job = fetched.unwrap();
-    assert_eq!(fetched_job.title, "Test Engineer");
+    assert_eq!(fetched_job.title, "Test Coordinator");
     assert_eq!(fetched_job.times_seen, 1);
 
     // Second insert (should update times_seen)
@@ -406,17 +406,17 @@ async fn test_pipeline_search_functionality() {
     let job1 = Job {
         id: 0,
         hash: "search_job_1".to_string(),
-        title: "Senior Rust Developer".to_string(),
-        company: "RustCorp".to_string(),
-        url: "https://example.com/rust".to_string(),
+        title: "Senior Care Coordinator".to_string(),
+        company: "CareBridge".to_string(),
+        url: "https://example.com/care".to_string(),
         location: Some("Remote".to_string()),
-        description: Some("Build amazing Rust applications".to_string()),
+        description: Some("Coordinate care plans with CRM".to_string()),
         score: Some(0.9),
         score_reasons: None,
         source: "test".to_string(),
         remote: Some(true),
-        salary_min: Some(150000),
-        salary_max: Some(200000),
+        salary_min: Some(65000),
+        salary_max: Some(85000),
         currency: Some("USD".to_string()),
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
@@ -436,17 +436,17 @@ async fn test_pipeline_search_functionality() {
     let job2 = Job {
         id: 0,
         hash: "search_job_2".to_string(),
-        title: "Security Engineer".to_string(),
-        company: "SecureCo".to_string(),
-        url: "https://example.com/security".to_string(),
-        location: Some("San Francisco".to_string()),
-        description: Some("Protect our infrastructure".to_string()),
+        title: "Customer Support Lead".to_string(),
+        company: "SupportWorks".to_string(),
+        url: "https://example.com/support".to_string(),
+        location: Some("Chicago".to_string()),
+        description: Some("Resolve customer issues and coach support staff".to_string()),
         score: Some(0.85),
         score_reasons: None,
         source: "test".to_string(),
         remote: None,
-        salary_min: Some(140000),
-        salary_max: Some(180000),
+        salary_min: Some(55000),
+        salary_max: Some(75000),
         currency: Some("USD".to_string()),
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
@@ -466,22 +466,20 @@ async fn test_pipeline_search_functionality() {
     db.upsert_job(&job1).await.unwrap();
     db.upsert_job(&job2).await.unwrap();
 
-    // Search for "Rust"
-    let rust_results = db.search_jobs("Rust", 10).await.unwrap();
-    assert!(!rust_results.is_empty(), "Should find Rust jobs");
+    // Search for "Care"
+    let care_results = db.search_jobs("Care", 10).await.unwrap();
+    assert!(!care_results.is_empty(), "Should find care jobs");
     assert!(
-        rust_results.iter().any(|j| j.title.contains("Rust")),
-        "Results should contain Rust job"
+        care_results.iter().any(|j| j.title.contains("Care")),
+        "Results should contain care job"
     );
 
-    // Search for "Security"
-    let security_results = db.search_jobs("Security", 10).await.unwrap();
-    assert!(!security_results.is_empty(), "Should find Security jobs");
+    // Search for "Support"
+    let support_results = db.search_jobs("Support", 10).await.unwrap();
+    assert!(!support_results.is_empty(), "Should find support jobs");
     assert!(
-        security_results
-            .iter()
-            .any(|j| j.title.contains("Security")),
-        "Results should contain Security job"
+        support_results.iter().any(|j| j.title.contains("Support")),
+        "Results should contain support job"
     );
 }
 
@@ -652,11 +650,11 @@ async fn test_scoring_title_matching() {
     let matching_job = Job {
         id: 0,
         hash: "match_test".to_string(),
-        title: "Security Engineer".to_string(), // Matches allowlist
+        title: "Care Coordinator".to_string(), // Matches allowlist
         company: "Company".to_string(),
         url: "https://example.com/job".to_string(),
         location: None,
-        description: None,
+        description: Some("CRM case management and care planning".to_string()),
         score: None,
         score_reasons: None,
         source: "test".to_string(),
@@ -682,11 +680,11 @@ async fn test_scoring_title_matching() {
     let non_matching_job = Job {
         id: 0,
         hash: "no_match_test".to_string(),
-        title: "PHP Developer".to_string(), // Contains excluded keyword
+        title: "Commission-Only Sales Representative".to_string(), // Contains excluded keyword
         company: "Company".to_string(),
         url: "https://example.com/job".to_string(),
         location: None,
-        description: None,
+        description: Some("commission-only sales territory role".to_string()),
         score: None,
         score_reasons: None,
         source: "test".to_string(),
@@ -726,7 +724,7 @@ async fn test_scoring_salary_influence() {
     let high_salary_job = Job {
         id: 0,
         hash: "high_salary".to_string(),
-        title: "Security Engineer".to_string(),
+        title: "Care Coordinator".to_string(),
         company: "Company".to_string(),
         url: "https://example.com/high".to_string(),
         location: None,
@@ -735,8 +733,8 @@ async fn test_scoring_salary_influence() {
         score_reasons: None,
         source: "test".to_string(),
         remote: None,
-        salary_min: Some(180000),
-        salary_max: Some(220000),
+        salary_min: Some(65000),
+        salary_max: Some(85000),
         currency: Some("USD".to_string()),
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
@@ -756,7 +754,7 @@ async fn test_scoring_salary_influence() {
     let low_salary_job = Job {
         id: 0,
         hash: "low_salary".to_string(),
-        title: "Security Engineer".to_string(),
+        title: "Care Coordinator".to_string(),
         company: "Company".to_string(),
         url: "https://example.com/low".to_string(),
         location: None,
@@ -765,8 +763,8 @@ async fn test_scoring_salary_influence() {
         score_reasons: None,
         source: "test".to_string(),
         remote: None,
-        salary_min: Some(80000),
-        salary_max: Some(100000),
+        salary_min: Some(30000),
+        salary_max: Some(35000),
         currency: Some("USD".to_string()),
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),

@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Rebased scraping-pipeline integration scoring, upsert, and search fixtures from Rust/security/San Francisco examples to care, support, CRM, case-management, Chicago, and realistic broad-role salary examples, with path-specific bloat coverage. |
 | 2026-05-29 | In progress | Rebased scraper integration mock payloads and LinkedIn constructor tests from engineer, Rust, TechCorp, and San Francisco fixtures to support, care, program, client-service, Chicago, and Atlanta examples, with path-specific bloat coverage. |
 | 2026-05-29 | In progress | Rebased remaining command database-search fixtures from Rust and Python developer examples to care-coordination and program-assistant examples after the bloat guard exposed the helper test drift. |
 | 2026-05-29 | In progress | Rebased API contract fixtures from engineer/TestCorp/San Francisco examples to care-coordination, program-assistant, customer-support, Example Services, Chicago, and broad repost examples, with bloat coverage against old contract-test drift. |
