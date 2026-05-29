@@ -13,6 +13,9 @@ use async_trait::async_trait;
 use chrono::Utc;
 use sha2::{Digest, Sha256};
 
+const COMPANY_SCRAPE_FAILED: &str =
+    "Company board scrape failed; continuing with other company boards";
+
 /// Lever scraper configuration
 #[derive(Debug, Clone)]
 pub struct LeverScraper {
@@ -177,8 +180,12 @@ impl JobScraper for LeverScraper {
                 Ok(jobs) => {
                     all_jobs.extend(jobs);
                 }
-                Err(e) => {
-                    tracing::error!("Failed to scrape {}: {}", company.name, e);
+                Err(_) => {
+                    tracing::warn!(
+                        source = "lever",
+                        message = COMPANY_SCRAPE_FAILED,
+                        "Company board scrape failed"
+                    );
                     // Continue with other companies
                 }
             }

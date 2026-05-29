@@ -4462,6 +4462,48 @@ test("checkRepoBloat rejects raw scraper URL and query logging", () => {
   });
 });
 
+test("checkRepoBloat rejects raw scraper loop error logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/greenhouse.rs",
+      'tracing::error!("Failed to scrape {}: {}", company.name, e);\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/lever/mod.rs",
+      'tracing::warn!("Failed to scrape {}: {}", company.name, e);\n',
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/scrapers/greenhouse.rs",
+        "src-tauri/src/core/scrapers/lever/mod.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize scraper loop error logging: src-tauri/src/core/scrapers/greenhouse.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "sanitize scraper loop error logging: src-tauri/src/core/scrapers/lever/mod.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects unbounded external response body reads", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

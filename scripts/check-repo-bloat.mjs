@@ -204,6 +204,10 @@ const rawScraperLoggingPaths = new Set([
   "src-tauri/src/core/scrapers/simplyhired.rs",
   "src-tauri/src/core/scrapers/usajobs.rs",
 ]);
+const scraperLoopErrorLoggingPaths = new Set([
+  "src-tauri/src/core/scrapers/greenhouse.rs",
+  "src-tauri/src/core/scrapers/lever/mod.rs",
+]);
 
 const rawLocalPathLoggingPaths = new Set([
   "src-tauri/src/commands/ml.rs",
@@ -2455,6 +2459,17 @@ function hasRawScraperUrlOrQueryLogging(root, path) {
     /format!\([^)]*\{url\}/.test(text);
 }
 
+function hasRawScraperLoopErrorLogging(root, path) {
+  if (!scraperLoopErrorLoggingPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return /tracing::(?:error|warn)!\(\s*"Failed to scrape \{\}:\s*\{\}"\s*,\s*company\.name\s*,\s*e\s*\)/.test(
+    productionText,
+  );
+}
+
 function stripRustTestModules(text) {
   const testModuleIndex = text.search(/(?:^|\n)\s*#\[cfg\(test\)\]/);
   if (testModuleIndex === -1) {
@@ -4583,6 +4598,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawScraperUrlOrQueryLogging(root, path)) {
       violations.push(`replace raw scraper URL/query logging: ${path}`);
+    }
+
+    if (hasRawScraperLoopErrorLogging(root, path)) {
+      violations.push(`sanitize scraper loop error logging: ${path}`);
     }
 
     if (hasUnboundedExternalResponseBodyRead(root, path)) {

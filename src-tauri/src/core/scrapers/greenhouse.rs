@@ -14,6 +14,9 @@ use chrono::Utc;
 use scraper::{Html, Selector};
 use sha2::{Digest, Sha256};
 
+const COMPANY_SCRAPE_FAILED: &str =
+    "Company board scrape failed; continuing with other company boards";
+
 /// Greenhouse scraper configuration
 #[derive(Debug, Clone)]
 pub struct GreenhouseScraper {
@@ -296,8 +299,12 @@ impl JobScraper for GreenhouseScraper {
                 Ok(jobs) => {
                     all_jobs.extend(jobs);
                 }
-                Err(e) => {
-                    tracing::error!("Failed to scrape {}: {}", company.name, e);
+                Err(_) => {
+                    tracing::warn!(
+                        source = "greenhouse",
+                        message = COMPANY_SCRAPE_FAILED,
+                        "Company board scrape failed"
+                    );
                     // Continue with other companies
                 }
             }
@@ -447,6 +454,14 @@ mod tests {
     fn test_scraper_name() {
         let scraper = GreenhouseScraper::new(vec![]);
         assert_eq!(scraper.name(), "greenhouse");
+    }
+
+    #[test]
+    fn test_company_scrape_failure_copy_omits_company_and_error_detail() {
+        assert!(!COMPANY_SCRAPE_FAILED.contains("{}"));
+        assert!(!COMPANY_SCRAPE_FAILED.contains("https://"));
+        assert!(!COMPANY_SCRAPE_FAILED.contains("secret"));
+        assert!(!COMPANY_SCRAPE_FAILED.contains("Cloudflare"));
     }
 
     #[test]

@@ -195,6 +195,14 @@ fn test_scraper_name() {
 }
 
 #[test]
+fn test_company_scrape_failure_copy_omits_company_and_error_detail() {
+    assert!(!COMPANY_SCRAPE_FAILED.contains("{}"));
+    assert!(!COMPANY_SCRAPE_FAILED.contains("https://"));
+    assert!(!COMPANY_SCRAPE_FAILED.contains("secret"));
+    assert!(!COMPANY_SCRAPE_FAILED.contains("Netflix"));
+}
+
+#[test]
 fn test_new_scraper_with_companies() {
     let companies = vec![
         LeverCompany {
