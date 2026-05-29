@@ -799,6 +799,16 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/pages/hooks/useDashboardJobOps.ts",
+      "toast.error(enhancedError.userFriendly?.title || \"Bulk Bookmark Failed\", enhancedError.userFriendly?.message || \"Try again\");\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/hooks/useDashboardSavedSearches.ts",
+      "toast.error(enhanced.userFriendly?.title || \"Search wasn't saved\", enhanced.userFriendly?.message || \"Try again\");\n",
+    );
+    writeFixtureFile(
+      root,
       "src/pages/Market.tsx",
       "setError(enhanced.message || \"Failed to load market data\");\n",
     );
@@ -930,6 +940,8 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/pages/ResumeOptimizer.tsx",
         "src/pages/Applications.tsx",
         "src/pages/Dashboard.tsx",
+        "src/pages/hooks/useDashboardJobOps.ts",
+        "src/pages/hooks/useDashboardSavedSearches.ts",
         "src/pages/DashboardUI/QuickActions.tsx",
         "src/pages/Market.tsx",
         "src/pages/ResumeBuilder.tsx",
@@ -977,6 +989,8 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/pages/ResumeOptimizer.tsx",
       "src/pages/Applications.tsx",
       "src/pages/Dashboard.tsx",
+      "src/pages/hooks/useDashboardJobOps.ts",
+      "src/pages/hooks/useDashboardSavedSearches.ts",
       "src/pages/DashboardUI/QuickActions.tsx",
       "src/pages/Market.tsx",
       "src/pages/ResumeBuilder.tsx",

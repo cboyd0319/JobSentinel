@@ -9,6 +9,7 @@ import { useUndo } from "../../hooks/useUndo";
 import { logError } from "../../utils/errorUtils";
 import { exportJobsToCSV } from "../../utils/export";
 import { invalidateCacheByCommand, safeInvokeWithToast } from "../../utils/api";
+import { getSafeErrorToastCopy } from "../../utils/safeErrorCopy";
 
 export function useDashboardJobOps(
   jobs: Job[],
@@ -448,13 +449,14 @@ export function useDashboardJobOps(
         });
       } catch (err: unknown) {
         logError("Failed to bulk bookmark jobs:", err);
-        const enhancedError = err as Error & {
-          userFriendly?: { title: string; message: string; action?: string };
-        };
-        toast.error(
-          enhancedError.userFriendly?.title || "Bulk Bookmark Failed",
-          enhancedError.userFriendly?.message ||
+        const safeError = getSafeErrorToastCopy(err, {
+          fallbackTitle: "Bulk Bookmark Failed",
+          fallbackMessage:
             "Your bookmarks weren't changed. Try bookmarking jobs individually, or restart the app if this continues.",
+        });
+        toast.error(
+          safeError.title,
+          safeError.message,
         );
       }
     },

@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Centralized safe toast copy for remaining enhanced frontend errors in dashboard actions, saved searches, resume builder, resume loading, interview loading, and screening-answer loading so raw `userFriendly` messages cannot surface private paths, emails, or token-like values. |
 | 2026-05-29 | In progress | Replaced raw Market and Dashboard load/search error display with safe user guidance and added helper tests plus bloat sensors so backend/provider messages do not surface private paths, emails, or token-like values. |
 | 2026-05-29 | In progress | Sanitized remaining pay-protection, async-button, live-resume-score, scraper-health, and application-preparation errors so private paths, emails, and token-like values stay out of visible UI; added tests and bloat sensors. |
 | 2026-05-29 | In progress | Replaced raw job-import, resume-analysis, and modal-boundary errors with safe user guidance, keeping sensitive paths, emails, and tokens out of visible failure copy and extending bloat checks. |

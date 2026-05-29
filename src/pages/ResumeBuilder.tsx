@@ -10,6 +10,7 @@ import { useToast } from "../hooks/useToast";
 import { safeInvoke, safeInvokeWithToast } from "../utils/api";
 import { readStorageValue, removeStorageValue } from "../utils/browserStorage";
 import { getResumeContactValidationMessage } from "../utils/resumeContactValidation";
+import { getSafeErrorToastCopy } from "../utils/safeErrorCopy";
 
 // TypeScript Types
 interface Resume {
@@ -444,11 +445,12 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
 
       toast.success("Resume created", "Let's build your resume");
     } catch (error: unknown) {
-      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
-      toast.error(
-        enhanced.userFriendly?.title || "Resume builder unavailable",
-        enhanced.userFriendly?.message || "Couldn't start the resume builder. Try restarting JobSentinel."
-      );
+      const safeError = getSafeErrorToastCopy(error, {
+        fallbackTitle: "Resume builder unavailable",
+        fallbackMessage:
+          "Couldn't start the resume builder. Try restarting JobSentinel.",
+      });
+      toast.error(safeError.title, safeError.message);
     } finally {
       setLoading(false);
     }
@@ -478,11 +480,12 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
         setSkills(data.skills);
       }
     } catch (error: unknown) {
-      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
-      toast.error(
-        enhanced.userFriendly?.title || "Couldn't load your resume",
-        enhanced.userFriendly?.message || "Your resume data couldn't be retrieved. Try restarting the app or creating a new resume."
-      );
+      const safeError = getSafeErrorToastCopy(error, {
+        fallbackTitle: "Couldn't load your resume",
+        fallbackMessage:
+          "Your resume data couldn't be retrieved. Try restarting the app or creating a new resume.",
+      });
+      toast.error(safeError.title, safeError.message);
     }
   }, [resumeId, toast]);
 
@@ -513,11 +516,12 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
 
       await loadResumeData();
     } catch (error: unknown) {
-      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
-      toast.error(
-        enhanced.userFriendly?.title || "Your changes weren't saved",
-        enhanced.userFriendly?.message || "The resume section couldn't be saved. Copy your work to a safe place and try again."
-      );
+      const safeError = getSafeErrorToastCopy(error, {
+        fallbackTitle: "Your changes weren't saved",
+        fallbackMessage:
+          "The resume section couldn't be saved. Copy your work to a safe place and try again.",
+      });
+      toast.error(safeError.title, safeError.message);
       throw error;
     } finally {
       setSaving(false);
@@ -715,11 +719,10 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       setSkills([...skills, ...newSkills]);
       toast.success(`Imported ${newSkills.length} skills`, "Skills added from resume");
     } catch (error: unknown) {
-      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
-      toast.error(
-        enhanced.userFriendly?.title || "Failed to import skills",
-        enhanced.userFriendly?.message
-      );
+      const safeError = getSafeErrorToastCopy(error, {
+        fallbackTitle: "Failed to import skills",
+      });
+      toast.error(safeError.title, safeError.message);
     } finally {
       setImportingSkills(false);
     }
@@ -767,11 +770,10 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
         // Non-critical, don't block preview
       }
     } catch (error: unknown) {
-      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
-      toast.error(
-        enhanced.userFriendly?.title || "Failed to generate preview",
-        enhanced.userFriendly?.message
-      );
+      const safeError = getSafeErrorToastCopy(error, {
+        fallbackTitle: "Failed to generate preview",
+      });
+      toast.error(safeError.title, safeError.message);
     } finally {
       setLoading(false);
     }
@@ -811,11 +813,10 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
 
       toast.success("Resume exported", "Downloaded as DOCX");
     } catch (error: unknown) {
-      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
-      toast.error(
-        enhanced.userFriendly?.title || "Export failed",
-        enhanced.userFriendly?.message
-      );
+      const safeError = getSafeErrorToastCopy(error, {
+        fallbackTitle: "Export failed",
+      });
+      toast.error(safeError.title, safeError.message);
     } finally {
       setExporting(false);
     }
@@ -878,11 +879,10 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
 
       toast.success("Print dialog opened", "Save as PDF using your browser's print dialog");
     } catch (error: unknown) {
-      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
-      toast.error(
-        enhanced.userFriendly?.title || "Export failed",
-        enhanced.userFriendly?.message
-      );
+      const safeError = getSafeErrorToastCopy(error, {
+        fallbackTitle: "Export failed",
+      });
+      toast.error(safeError.title, safeError.message);
     } finally {
       setExporting(false);
     }

@@ -7,6 +7,7 @@ import type { SavedSearch, SortOption, ScoreFilter, PostedDateFilter } from "../
 import { useToast } from "../../contexts";
 import { useUndo } from "../../hooks/useUndo";
 import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
+import { getSafeErrorToastCopy } from "../../utils/safeErrorCopy";
 
 type BackendSavedSearch = {
   id: string;
@@ -128,11 +129,12 @@ export function useDashboardSavedSearches() {
       setNewSearchName("");
       toast.success("Search saved", `"${newSearch.name}" can now be loaded anytime`);
     } catch (error: unknown) {
-      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
-      toast.error(
-        enhanced.userFriendly?.title || "Search wasn't saved",
-        enhanced.userFriendly?.message || "Your search filters couldn't be saved. Make sure you entered a unique name and try again."
-      );
+      const safeError = getSafeErrorToastCopy(error, {
+        fallbackTitle: "Search wasn't saved",
+        fallbackMessage:
+          "Your search filters couldn't be saved. Make sure you entered a unique name and try again.",
+      });
+      toast.error(safeError.title, safeError.message);
     }
   }, [newSearchName, toast]);
 

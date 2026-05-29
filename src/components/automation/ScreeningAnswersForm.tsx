@@ -8,6 +8,7 @@ import { Modal, ModalFooter } from "../Modal";
 import { useToast } from "../../contexts";
 import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
 import { validateRequiredRegex, validateRequired } from "../../utils/formValidation";
+import { getSafeErrorToastCopy } from "../../utils/safeErrorCopy";
 
 // Lookup object for answer type badges (better performance than switch)
 const ANSWER_TYPE_BADGES: Record<string, ReactElement> = {
@@ -97,11 +98,11 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
       });
       setAnswers(data || []);
     } catch (error: unknown) {
-      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
-      toast.error(
-        enhanced.userFriendly?.title || "Failed to load answers",
-        enhanced.userFriendly?.message || "Please try again"
-      );
+      const safeError = getSafeErrorToastCopy(error, {
+        fallbackTitle: "Failed to load answers",
+        fallbackMessage: "Please try again.",
+      });
+      toast.error(safeError.title, safeError.message);
       setAnswers([]); // Ensure answers is always an array even on error
     } finally {
       setLoading(false);

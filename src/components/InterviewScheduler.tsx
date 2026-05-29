@@ -7,6 +7,7 @@ import { CompanyResearchPanel } from "./CompanyResearchPanel";
 import { useToast } from "../contexts";
 import { formatInterviewDate, getRelativeTimeUntil } from "../utils/formatUtils";
 import { MIN_INTERVIEW_DURATION, MAX_INTERVIEW_DURATION } from "../utils/constants";
+import { getSafeErrorToastCopy } from "../utils/safeErrorCopy";
 
 interface Interview {
   id: number;
@@ -312,11 +313,10 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
       setInterviews(upcomingData);
       setPastInterviews(pastData);
     } catch (err: unknown) {
-      const enhanced = err as Error & { userFriendly?: { title: string; message: string } };
-      toast.error(
-        enhanced.userFriendly?.title || "Failed to load interviews",
-        enhanced.userFriendly?.message
-      );
+      const safeError = getSafeErrorToastCopy(err, {
+        fallbackTitle: "Failed to load interviews",
+      });
+      toast.error(safeError.title, safeError.message);
     } finally {
       setLoading(false);
     }

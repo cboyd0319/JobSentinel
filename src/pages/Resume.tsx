@@ -8,6 +8,7 @@ import { Modal, ModalFooter } from "../components/Modal";
 import { ResumeSkeleton } from "../components/Skeleton";
 import { useToast } from "../contexts";
 import { safeInvoke, safeInvokeWithToast } from "../utils/api";
+import { getSafeErrorToastCopy } from "../utils/safeErrorCopy";
 import { scoreFractionToPercent } from "../utils/scoreUtils";
 
 // Proficiency color lookup (better performance than switch)
@@ -200,11 +201,10 @@ export default function Resume({ onBack }: ResumeProps) {
         }
       } catch (error: unknown) {
         if (cancelled) return;
-        const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
-        toast.error(
-          enhanced.userFriendly?.title || "Failed to load resume",
-          enhanced.userFriendly?.message
-        );
+        const safeError = getSafeErrorToastCopy(error, {
+          fallbackTitle: "Failed to load resume",
+        });
+        toast.error(safeError.title, safeError.message);
       } finally {
         if (!cancelled) {
           setLoading(false);
@@ -239,11 +239,10 @@ export default function Resume({ onBack }: ResumeProps) {
         setRecentMatches(matchesData);
       }
     } catch (error: unknown) {
-      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
-      toast.error(
-        enhanced.userFriendly?.title || "Failed to load resume",
-        enhanced.userFriendly?.message
-      );
+      const safeError = getSafeErrorToastCopy(error, {
+        fallbackTitle: "Failed to load resume",
+      });
+      toast.error(safeError.title, safeError.message);
     } finally {
       setLoading(false);
     }
