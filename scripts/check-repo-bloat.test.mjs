@@ -7188,6 +7188,7 @@ test("checkRepoBloat rejects raw problem-history context JSON", () => {
       "src/components/ErrorLogPanel.tsx",
       [
         "export function ErrorLogPanel({ error }) {",
+        "  return <p>{error.message}</p>;",
         "  return <pre>{JSON.stringify(error.context)}</pre>;",
         "  return <pre>{error.stack}</pre>;",
         "  return <pre>{error.componentStack}</pre>;",

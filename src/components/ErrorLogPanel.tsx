@@ -3,7 +3,11 @@ import { useErrorReporting } from '../hooks/useErrorReporting';
 import { Button } from './Button';
 import { Badge } from './Badge';
 import { Card } from './Card';
-import { sanitizeContext, type ErrorReport } from '../utils/errorReporting';
+import {
+  sanitizeContext,
+  sanitizeTextForStorage,
+  type ErrorReport,
+} from '../utils/errorReporting';
 import { copySanitizedDebugReport, saveSanitizedDebugReport } from '../services/feedbackService';
 import { logError } from '../utils/errorUtils';
 
@@ -95,6 +99,7 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
   const typeInfo = TYPE_LABELS[error.type];
   const appDetailRows = getReadableContextRows(error.context);
   const hasSupportDetails = Boolean(error.stack || error.componentStack);
+  const displayMessage = sanitizeTextForStorage(error.message);
 
   return (
     <div className="border-b border-surface-200 dark:border-surface-700 last:border-b-0">
@@ -110,7 +115,7 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
         </span>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-surface-900 dark:text-white truncate">
-            {error.message}
+            {displayMessage}
           </p>
           <p className="text-xs text-surface-500 mt-0.5">
             {formatRelativeTime(error.timestamp)}

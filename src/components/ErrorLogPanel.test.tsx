@@ -104,6 +104,27 @@ describe("ErrorLogPanel", () => {
       expect(screen.getByText("Something went wrong")).toBeInTheDocument();
     });
 
+    it("sanitizes stored error messages before display", () => {
+      mockUseErrorReporting.mockReturnValue({
+        ...defaultMockReturn,
+        errors: [
+          createMockError({
+            message:
+              "Failed for candidate@example.com with token=abc123 at /Users/chad/private/resume.pdf",
+          }),
+        ],
+      });
+
+      const { container } = render(<ErrorLogPanel />);
+
+      expect(container.textContent).toContain("[EMAIL]");
+      expect(container.textContent).toContain("[TOKEN]");
+      expect(container.textContent).toContain("/[USER_PATH]");
+      expect(container.textContent).not.toContain("candidate@example.com");
+      expect(container.textContent).not.toContain("token=abc123");
+      expect(container.textContent).not.toContain("/Users/chad");
+    });
+
     it("shows Save Problem List button when errors exist", () => {
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
