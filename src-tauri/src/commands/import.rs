@@ -200,7 +200,7 @@ pub async fn import_job_from_url(url: String, state: State<'_, AppState>) -> Res
         .ok_or_else(|| "Job was imported but could not be retrieved".to_string())?;
 
     // Convert to JSON
-    serde_json::to_value(&job).map_err(|e| format!("Failed to serialize job: {}", e))
+    serde_json::to_value(&job).map_err(|e| user_friendly_error("Failed to serialize job", e))
 }
 
 /// Calculate job hash for deduplication
@@ -309,9 +309,7 @@ fn format_import_error(error: &ImportError) -> String {
         ImportError::Timeout => {
             "The request timed out. Please check your internet connection and try again.".to_string()
         }
-        ImportError::InvalidUrl(msg) => {
-            format!("Invalid URL: {}", msg)
-        }
+        ImportError::InvalidUrl(msg) => user_friendly_error("Invalid URL", msg),
         ImportError::RedirectBlocked { location } => {
             let location_label = sanitize_url_for_logging(location);
             format!(
@@ -339,17 +337,15 @@ fn format_import_error(error: &ImportError) -> String {
             )
         }
         ImportError::HttpBodyRead(error) => {
-            format!("Failed to read the job page response: {}", error)
+            user_friendly_error("Failed to read the job page response", error)
         }
-        ImportError::HtmlParseError(msg) => {
-            format!("Failed to parse the page: {}", msg)
+        ImportError::HtmlParseError(_) => {
+            "Could not read structured job data from this page. Try using a direct official job posting URL.".to_string()
         }
-        ImportError::InvalidJsonLd(msg) => {
-            format!("Invalid Schema.org data format: {}", msg)
+        ImportError::InvalidJsonLd(_) => {
+            "Could not read the page's structured job data. Try using a direct official job posting URL.".to_string()
         }
-        ImportError::DatabaseError(msg) => {
-            format!("Database error: {}", msg)
-        }
+        ImportError::DatabaseError(msg) => user_friendly_error("Database operation failed", msg),
     }
 }
 
@@ -401,5 +397,27 @@ mod tests {
         assert!(!message.contains("user"));
         assert!(!message.contains("pass"));
         assert!(!message.contains("private"));
+    }
+
+    #[test]
+    fn test_format_import_error_sanitizes_internal_details() {
+        let cases = [
+            ImportError::InvalidUrl(
+                "https://user:pass@example.com/job?token=secret#private".to_string(),
+            ),
+            ImportError::HtmlParseError("selector failed near private-page-content".to_string()),
+            ImportError::InvalidJsonLd(
+                "unexpected token in candidate-specific payload".to_string(),
+            ),
+            ImportError::DatabaseError("sqlite locked at /Users/c/private/jobs.db".to_string()),
+        ];
+
+        for error in cases {
+            let message = format_import_error(&error);
+            assert!(!message.contains("secret"));
+            assert!(!message.contains("private-page-content"));
+            assert!(!message.contains("candidate-specific"));
+            assert!(!message.contains("/Users/c/private"));
+        }
     }
 }

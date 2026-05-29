@@ -52,9 +52,9 @@ pub async fn create_cover_letter_template(
     category: String,
     state: State<'_, AppState>,
 ) -> Result<CoverLetterTemplate, String> {
-    let category: TemplateCategory = category
-        .parse()
-        .map_err(|e: String| format!("Invalid category: {}", e))?;
+    let category: TemplateCategory = category.parse().map_err(|_e: String| {
+        "Invalid category. Choose an available template category.".to_string()
+    })?;
     tracing::info!(
         name_len = name.chars().count(),
         category = %category,
@@ -79,9 +79,9 @@ pub async fn update_cover_letter_template(
 ) -> Result<Option<CoverLetterTemplate>, String> {
     tracing::info!("Command: update_cover_letter_template (id: {})", id);
 
-    let category: TemplateCategory = category
-        .parse()
-        .map_err(|e: String| format!("Invalid category: {}", e))?;
+    let category: TemplateCategory = category.parse().map_err(|_e: String| {
+        "Invalid category. Choose an available template category.".to_string()
+    })?;
 
     let manager = UserDataManager::new(state.database.pool().clone());
     manager

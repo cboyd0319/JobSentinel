@@ -291,6 +291,13 @@ const rawAutomationQuestionLoggingPaths = new Set([
   "src-tauri/src/core/automation/form_filler.rs",
 ]);
 const importCommandPrivacyPaths = new Set(["src-tauri/src/commands/import.rs"]);
+const importBookmarkletCommandPrivacyPaths = new Set([
+  "src-tauri/src/commands/import.rs",
+  "src-tauri/src/commands/user_data.rs",
+  "src-tauri/src/commands/scoring.rs",
+  "src-tauri/src/commands/bookmarklet.rs",
+  "src-tauri/src/core/bookmarklet/server.rs",
+]);
 const urlSecurityPrivacyPaths = new Set(["src-tauri/src/core/url_security.rs"]);
 
 const rawNotificationJobTitleLoggingPaths = new Set(["src-tauri/src/core/notify/mod.rs"]);
@@ -302,6 +309,7 @@ const rawSchedulerJobContentLoggingPaths = new Set([
 const schedulerScraperWorkerPrivacyPaths = new Set([
   "src-tauri/src/core/scheduler/workers/scrapers.rs",
 ]);
+const scoringCachePrivacyPaths = new Set(["src-tauri/src/core/scoring/cache.rs"]);
 
 const rawBookmarkletLoggingPaths = new Set(["src-tauri/src/core/bookmarklet/server.rs"]);
 const bookmarkletGeneratorPaths = new Set(["src/components/BookmarkletGenerator.tsx"]);
@@ -3013,8 +3021,9 @@ function hasRawImportRedirectDisplay(root, path) {
     return false;
   }
 
-  return /Redirect blocked while fetching URL: \{location\}/.test(
-    readFileSync(join(root, path), "utf8"),
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return /(?:Redirect blocked while fetching URL: \{location\}|URL validation failed: \{0\}|Invalid JSON-LD format: \{0\}|HTML parsing failed: \{0\}|Database error: \{0\}|HTTP request failed: \{0\})/.test(
+    productionText,
   );
 }
 
@@ -3037,6 +3046,30 @@ function hasRawImportHttpErrorReturn(root, path) {
 
   const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
   return /Failed to fetch the page:\s*\{\}[\s\S]{0,80},\s*e\b/.test(productionText);
+}
+
+function hasRawImportBookmarkletCommandErrorDetails(root, path) {
+  if (!importBookmarkletCommandPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /format!\(\s*"(?:Failed to serialize job|Invalid URL|Failed to read the job page response|Failed to parse the page|Invalid Schema\.org data format|Database error):\s*\{\}"/.test(
+      productionText,
+    ) ||
+    /format!\(\s*"Invalid category:\s*\{\}"/.test(productionText) ||
+    /tracing::(?:error|warn)!\(\s*"[^"]*(?:scoring config|bookmarklet server|Connection error|Accept error|job data|Database error)[^"]*:\s*\{\}"\s*,\s*e\s*\)/.test(
+      productionText,
+    ) ||
+    /tracing::error!\([^;]*error\s*=\s*%e/.test(productionText) ||
+    /json_error_response\(\s*format!\(\s*"[^"]*\{e\}[^"]*"\s*\)\s*\)/.test(
+      productionText,
+    ) ||
+    /json_error_response\(\s*format!\(\s*r#"\{\{"error":"[^"]*\{\}[^"]*"\}\}"#,\s*e\s*\)\s*\)/.test(
+      productionText,
+    )
+  );
 }
 
 function hasNonPublicIpErrorEcho(root, path) {
@@ -3073,8 +3106,25 @@ function hasRawBookmarkletImportLogging(root, path) {
     return false;
   }
 
-  return /tracing::info!\([^;]*title\s*=\s*%title[^;]*company\s*=\s*%company/s.test(
-    readFileSync(join(root, path), "utf8"),
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /tracing::info!\([^;]*title\s*=\s*%title[^;]*company\s*=\s*%company/s.test(
+      productionText,
+    ) ||
+    /tracing::info!\([^;]*(?:\bjob_hash\b\s*,|\bjob_hash\s*=\s*%job_hash\b)/.test(
+      productionText,
+    )
+  );
+}
+
+function hasRawScoringCacheJobHashLogging(root, path) {
+  if (!scoringCachePrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return /tracing::(?:debug|info|warn|error)!\([^;]*(?:job_hash=\{\}|job_hash\s*=\s*[%?]?(?:key\.)?job_hash|\bjob_hash\b\s*,)/.test(
+    productionText,
   );
 }
 
@@ -4469,6 +4519,10 @@ export function checkRepoBloat(root = defaultRoot) {
       violations.push(`sanitize job import HTTP errors: ${path}`);
     }
 
+    if (hasRawImportBookmarkletCommandErrorDetails(root, path)) {
+      violations.push(`sanitize import and bookmarklet command error details: ${path}`);
+    }
+
     if (hasNonPublicIpErrorEcho(root, path)) {
       violations.push(`sanitize non-public IP validation errors: ${path}`);
     }
@@ -4483,6 +4537,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawBookmarkletImportLogging(root, path)) {
       violations.push(`replace raw bookmarklet import metadata logging: ${path}`);
+    }
+
+    if (hasRawScoringCacheJobHashLogging(root, path)) {
+      violations.push(`replace raw scoring cache job hash logging: ${path}`);
     }
 
     if (hasManualBookmarkletJsonErrorResponses(root, path)) {

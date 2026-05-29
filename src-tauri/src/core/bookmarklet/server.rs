@@ -18,6 +18,10 @@ const BOOKMARKLET_TOKEN_HEADER: &str = "x-jobsentinel-token";
 const CONTENT_LENGTH_HEADER: &str = "content-length";
 const HEADER_BODY_SEPARATOR: &[u8] = b"\r\n\r\n";
 const MAX_BOOKMARKLET_REQUEST_BYTES: usize = 8192;
+const INVALID_BOOKMARKLET_PAYLOAD_MESSAGE: &str =
+    "Invalid bookmarklet payload. Reload the page and try again.";
+const BOOKMARKLET_DATABASE_FAILURE_MESSAGE: &str =
+    "JobSentinel could not save this job. Restart the app and try again.";
 
 /// Bookmarklet server configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -106,7 +110,7 @@ impl BookmarkletServer {
         // Spawn server task
         let handle = tokio::spawn(async move {
             if let Err(e) = run_server(port, auth_token, database, shutdown_rx).await {
-                tracing::error!(error = %e, "Bookmarklet server error");
+                tracing::error!(error = %bookmarklet_error_label(&e), "Bookmarklet server error");
             }
         });
 
@@ -170,13 +174,16 @@ async fn run_server(
                         let db = database.clone();
                         let token = auth_token.clone();
                         tokio::spawn(async move {
-                            if let Err(e) = handle_connection(stream, token, db).await {
-                                tracing::error!("Connection error: {}", e);
+                            if let Err(_e) = handle_connection(stream, token, db).await {
+                                tracing::error!("Bookmarklet connection failed");
                             }
                         });
                     }
                     Err(e) => {
-                        tracing::error!("Accept error: {}", e);
+                        tracing::error!(
+                            error_kind = ?e.kind(),
+                            "Bookmarklet connection accept failed"
+                        );
                     }
                 }
             }
@@ -322,9 +329,13 @@ async fn handle_import_request(request: &str, database: Arc<Database>) -> (Strin
     let job_data: BookmarkletJobData = match serde_json::from_str(body) {
         Ok(data) => data,
         Err(e) => {
-            tracing::error!("Failed to parse job data: {}", e);
+            tracing::error!(
+                line = e.line(),
+                column = e.column(),
+                "Failed to parse bookmarklet job data"
+            );
             return (
-                json_error_response(format!("Invalid JSON: {e}")),
+                json_error_response(INVALID_BOOKMARKLET_PAYLOAD_MESSAGE),
                 "application/json".to_string(),
             );
         }
@@ -359,10 +370,13 @@ async fn handle_import_request(request: &str, database: Arc<Database>) -> (Strin
             );
         }
         Ok(false) => {}
-        Err(e) => {
-            tracing::error!("Database error checking job existence: {}", e);
+        Err(_e) => {
+            tracing::error!(
+                error_kind = "database",
+                "Database error checking bookmarklet job existence"
+            );
             return (
-                json_error_response(format!("Database error: {e}")),
+                json_error_response(BOOKMARKLET_DATABASE_FAILURE_MESSAGE),
                 "application/json".to_string(),
             );
         }
@@ -396,7 +410,7 @@ async fn handle_import_request(request: &str, database: Arc<Database>) -> (Strin
     match result {
         Ok(_) => {
             tracing::info!(
-                job_hash = %job_hash,
+                job_hash_len = job_hash.len(),
                 title_chars = title.chars().count(),
                 company_chars = company.chars().count(),
                 has_location = location.is_some(),
@@ -408,13 +422,26 @@ async fn handle_import_request(request: &str, database: Arc<Database>) -> (Strin
                 "application/json".to_string(),
             )
         }
-        Err(e) => {
-            tracing::error!("Database error inserting job: {}", e);
+        Err(_e) => {
+            tracing::error!(
+                error_kind = "database",
+                "Database error inserting bookmarklet job"
+            );
             (
-                json_error_response(format!("Failed to import job: {e}")),
+                json_error_response(BOOKMARKLET_DATABASE_FAILURE_MESSAGE),
                 "application/json".to_string(),
             )
         }
+    }
+}
+
+fn bookmarklet_error_label(error: &BookmarkletError) -> &'static str {
+    match error {
+        BookmarkletError::AlreadyRunning => "already_running",
+        BookmarkletError::NotRunning => "not_running",
+        BookmarkletError::BindError { .. } => "bind_error",
+        BookmarkletError::DatabaseError(_) => "database_error",
+        BookmarkletError::InvalidData(_) => "invalid_data",
     }
 }
 

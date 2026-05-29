@@ -2,7 +2,7 @@
 //!
 //! Commands for managing user-configurable scoring weights.
 
-use crate::commands::AppState;
+use crate::commands::{errors::user_friendly_error, AppState};
 use crate::core::scoring::{
     load_scoring_config, reset_scoring_config, save_scoring_config, ScoringConfig,
 };
@@ -16,8 +16,9 @@ pub async fn get_scoring_config(state: State<'_, AppState>) -> Result<ScoringCon
     load_scoring_config(state.database.pool())
         .await
         .map_err(|e| {
-            tracing::error!("Failed to load scoring config: {}", e);
-            e
+            let message = user_friendly_error("Failed to load scoring config", &e);
+            tracing::error!(error = %message, "Failed to load scoring config");
+            message
         })
 }
 
@@ -32,17 +33,17 @@ pub async fn update_scoring_config(
     tracing::info!("Command: update_scoring_config");
 
     // Validate config
-    config.validate().map_err(|e| {
-        tracing::error!("Invalid scoring config: {}", e);
-        e
+    config.validate().inspect_err(|_| {
+        tracing::error!("Invalid scoring config");
     })?;
 
     // Save to database
     save_scoring_config(state.database.pool(), &config)
         .await
         .map_err(|e| {
-            tracing::error!("Failed to save scoring config: {}", e);
-            e
+            let message = user_friendly_error("Failed to save scoring config", &e);
+            tracing::error!(error = %message, "Failed to save scoring config");
+            message
         })?;
 
     tracing::info!("Scoring config updated successfully");
@@ -64,8 +65,9 @@ pub async fn reset_scoring_config_cmd(state: State<'_, AppState>) -> Result<Scor
     reset_scoring_config(state.database.pool())
         .await
         .map_err(|e| {
-            tracing::error!("Failed to reset scoring config: {}", e);
-            e
+            let message = user_friendly_error("Failed to reset scoring config", &e);
+            tracing::error!(error = %message, "Failed to reset scoring config");
+            message
         })?;
 
     // Return the default config
@@ -85,7 +87,7 @@ pub async fn validate_scoring_config(config: ScoringConfig) -> Result<bool, Stri
     match config.validate() {
         Ok(()) => Ok(true),
         Err(e) => {
-            tracing::warn!("Scoring config validation failed: {}", e);
+            tracing::warn!("Scoring config validation failed");
             Err(e)
         }
     }

@@ -7,10 +7,10 @@ use thiserror::Error;
 /// Import-specific errors
 #[derive(Error, Debug)]
 pub enum ImportError {
-    #[error("HTTP request failed: {0}")]
+    #[error("HTTP request failed")]
     HttpError(#[from] reqwest::Error),
 
-    #[error("{0}")]
+    #[error("HTTP response body read failed")]
     HttpBodyRead(#[from] crate::core::http_body::HttpBodyReadError),
 
     #[error("No Schema.org JobPosting data found at URL")]
@@ -22,13 +22,13 @@ pub enum ImportError {
     #[error("Missing required field: {field}")]
     MissingRequiredField { field: String },
 
-    #[error("Invalid JSON-LD format: {0}")]
+    #[error("Invalid JSON-LD format")]
     InvalidJsonLd(String),
 
-    #[error("HTML parsing failed: {0}")]
+    #[error("HTML parsing failed")]
     HtmlParseError(String),
 
-    #[error("Database error: {0}")]
+    #[error("Database operation failed")]
     DatabaseError(String),
 
     #[error("Timeout while fetching URL")]
@@ -37,7 +37,7 @@ pub enum ImportError {
     #[error("Redirect blocked while fetching URL")]
     RedirectBlocked { location: String },
 
-    #[error("URL validation failed: {0}")]
+    #[error("URL validation failed")]
     InvalidUrl(String),
 }
 
@@ -59,6 +59,26 @@ mod tests {
         assert!(!message.contains("user"));
         assert!(!message.contains("pass"));
         assert!(!message.contains("private"));
+    }
+
+    #[test]
+    fn test_import_error_display_does_not_expose_internal_details() {
+        let cases = [
+            ImportError::InvalidUrl(
+                "https://user:pass@example.com/job?token=secret#private".to_string(),
+            ),
+            ImportError::InvalidJsonLd("candidate-specific JSON-LD content".to_string()),
+            ImportError::HtmlParseError("private parser detail".to_string()),
+            ImportError::DatabaseError("sqlite error at /Users/c/private/jobs.db".to_string()),
+        ];
+
+        for error in cases {
+            let message = error.to_string();
+            assert!(!message.contains("secret"));
+            assert!(!message.contains("candidate-specific"));
+            assert!(!message.contains("private parser detail"));
+            assert!(!message.contains("/Users/c/private"));
+        }
     }
 }
 

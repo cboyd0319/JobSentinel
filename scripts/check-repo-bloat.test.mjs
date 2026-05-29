@@ -6223,6 +6223,78 @@ test("checkRepoBloat rejects raw utility command error details", () => {
   });
 });
 
+test("checkRepoBloat rejects raw import and bookmarklet command error details", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/import.rs",
+      [
+        "fn format_import_error(error: ImportError) -> String {",
+        "    format!(\"Failed to read the job page response: {}\", error)",
+        "}",
+        "fn serialize(e: Error) -> String {",
+        "    format!(\"Failed to serialize job: {}\", e)",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/user_data.rs",
+      'category.parse().map_err(|e: String| format!("Invalid category: {}", e))?;\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/scoring.rs",
+      'tracing::error!("Failed to load scoring config: {}", e);\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/bookmarklet.rs",
+      'tracing::error!(error = %e, "Failed to start bookmarklet server");\n',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/bookmarklet/server.rs",
+      [
+        'tracing::error!("Failed to parse job data: {}", e);',
+        'json_error_response(format!("Failed to import job: {e}"));',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/commands/import.rs",
+        "src-tauri/src/commands/user_data.rs",
+        "src-tauri/src/commands/scoring.rs",
+        "src-tauri/src/commands/bookmarklet.rs",
+        "src-tauri/src/core/bookmarklet/server.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of [
+      "src-tauri/src/commands/import.rs",
+      "src-tauri/src/commands/user_data.rs",
+      "src-tauri/src/commands/scoring.rs",
+      "src-tauri/src/commands/bookmarklet.rs",
+      "src-tauri/src/core/bookmarklet/server.rs",
+    ]) {
+      assert.ok(
+        violations.includes(`sanitize import and bookmarklet command error details: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
 test("checkRepoBloat rejects raw command setup error display", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -6330,6 +6402,10 @@ test("checkRepoBloat rejects raw import redirect display", () => {
         "pub enum ImportError {",
         '    #[error("Redirect blocked while fetching URL: {location}")]',
         "    RedirectBlocked { location: String },",
+        '    #[error("URL validation failed: {0}")]',
+        "    InvalidUrl(String),",
+        '    #[error("Database error: {0}")]',
+        "    DatabaseError(String),",
         "}",
         "",
       ].join("\n"),
@@ -6373,6 +6449,34 @@ test("checkRepoBloat rejects raw bookmarklet import metadata logging", () => {
     assert.ok(
       violations.includes(
         "replace raw bookmarklet import metadata logging: src-tauri/src/core/bookmarklet/server.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw scoring cache job hash logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scoring/cache.rs",
+      [
+        'tracing::debug!("Score cache HIT for job_hash={}", key.job_hash);',
+        'tracing::info!(job_hash = %job_hash, "Invalidated cached score");',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/scoring/cache.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace raw scoring cache job hash logging: src-tauri/src/core/scoring/cache.rs",
       ),
       violations.join("\n"),
     );

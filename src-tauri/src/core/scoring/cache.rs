@@ -105,17 +105,20 @@ impl ScoringCache {
             if entry.is_fresh(self.duration) {
                 entry.touch();
                 self.hits += 1;
-                tracing::debug!("Score cache HIT for job_hash={}", key.job_hash);
+                tracing::debug!(job_hash_len = key.job_hash.len(), "Score cache hit");
                 return Some(Arc::clone(&entry.score));
             } else {
                 // Entry expired, remove it
-                tracing::debug!("Score cache entry EXPIRED for job_hash={}", key.job_hash);
+                tracing::debug!(
+                    job_hash_len = key.job_hash.len(),
+                    "Score cache entry expired"
+                );
                 self.cache.remove(key);
             }
         }
 
         self.misses += 1;
-        tracing::debug!("Score cache MISS for job_hash={}", key.job_hash);
+        tracing::debug!(job_hash_len = key.job_hash.len(), "Score cache miss");
         None
     }
 
@@ -124,12 +127,15 @@ impl ScoringCache {
         // Evict if at capacity - remove least recently accessed
         if self.cache.len() >= MAX_CACHE_ENTRIES {
             if let Some(lru_key) = self.find_lru_key() {
-                tracing::debug!("Evicting LRU entry: job_hash={}", lru_key.job_hash);
+                tracing::debug!(
+                    job_hash_len = lru_key.job_hash.len(),
+                    "Evicting LRU score cache entry"
+                );
                 self.cache.remove(&lru_key);
             }
         }
 
-        tracing::debug!("Caching score for job_hash={}", key.job_hash);
+        tracing::debug!(job_hash_len = key.job_hash.len(), "Caching score");
         self.cache.insert(key, CacheEntry::new(score));
     }
 
@@ -152,9 +158,8 @@ impl ScoringCache {
 
         for key in to_remove {
             tracing::debug!(
-                "Invalidating cached score for job_hash={} (resume_id={})",
-                key.job_hash,
-                resume_id
+                job_hash_len = key.job_hash.len(),
+                "Invalidating cached score for resume"
             );
             self.cache.remove(&key);
         }
@@ -170,7 +175,10 @@ impl ScoringCache {
             .collect();
 
         for key in to_remove {
-            tracing::debug!("Invalidating cached score for job_hash={}", job_hash);
+            tracing::debug!(
+                job_hash_len = key.job_hash.len(),
+                "Invalidating cached score for job"
+            );
             self.cache.remove(&key);
         }
     }
@@ -235,7 +243,7 @@ pub async fn set_cached_score(key: ScoreCacheKey, score: JobScore) {
 pub async fn invalidate_resume(resume_id: i64) {
     let mut cache = CACHE.write().await;
     cache.invalidate_resume(resume_id);
-    tracing::info!("Invalidated all cached scores for resume_id={}", resume_id);
+    tracing::info!("Invalidated cached scores for resume");
 }
 
 /// Invalidate all scores for a specific job
@@ -260,9 +268,13 @@ pub async fn score_cache_stats() -> ScoreCacheStats {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use tokio::sync::Mutex;
+
+    static TEST_CACHE_LOCK: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
 
     #[tokio::test]
     async fn test_cache_miss() {
+        let _guard = TEST_CACHE_LOCK.lock().await;
         clear_score_cache().await;
 
         let key = ScoreCacheKey::base("test_job_1");
@@ -272,6 +284,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_cache_hit() {
+        let _guard = TEST_CACHE_LOCK.lock().await;
         clear_score_cache().await;
 
         let key = ScoreCacheKey::base("test_job_2");
@@ -299,6 +312,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_invalidate_resume() {
+        let _guard = TEST_CACHE_LOCK.lock().await;
         clear_score_cache().await;
 
         let resume_id = 123;
@@ -324,6 +338,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_invalidate_job() {
+        let _guard = TEST_CACHE_LOCK.lock().await;
         clear_score_cache().await;
 
         let job_hash = "test_job_4";

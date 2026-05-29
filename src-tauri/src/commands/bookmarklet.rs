@@ -57,8 +57,9 @@ pub async fn start_bookmarklet_server(state: State<'_, AppState>, port: u16) -> 
         .start(config, state.database.clone())
         .await
         .map_err(|e| {
-            tracing::error!(error = %e, "Failed to start bookmarklet server");
-            user_friendly_error("Failed to start bookmarklet server", e)
+            let message = user_friendly_error("Failed to start bookmarklet server", &e);
+            tracing::error!(error = %message, "Failed to start bookmarklet server");
+            message
         })?;
 
     tracing::info!(port = port, "Bookmarklet server started successfully");
@@ -78,8 +79,9 @@ pub async fn stop_bookmarklet_server(state: State<'_, AppState>) -> Result<(), S
     }
 
     server_guard.stop().await.map_err(|e| {
-        tracing::error!(error = %e, "Failed to stop bookmarklet server");
-        user_friendly_error("Failed to stop bookmarklet server", e)
+        let message = user_friendly_error("Failed to stop bookmarklet server", &e);
+        tracing::error!(error = %message, "Failed to stop bookmarklet server");
+        message
     })?;
 
     tracing::info!("Bookmarklet server stopped successfully");
