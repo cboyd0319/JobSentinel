@@ -154,6 +154,23 @@ function getReasonStatus(reason: string): "pass" | "fail" | "neutral" {
   return "neutral";
 }
 
+function displayReasonText(reason: string): string {
+  return reason
+    .replace(LEGACY_PASS_PREFIX, "")
+    .replace(LEGACY_FAIL_PREFIX, "")
+    .replace(/^not in allowlist$/i, "Not in your preferred job titles")
+    .replace(/not in allowlist/gi, "not in your preferred job titles")
+    .replace(
+      /\bcompany\s+is\s+in blocklist\b/gi,
+      "Company matches something you chose to avoid",
+    )
+    .replace(/\bin blocklist\b/gi, "matches something you chose to avoid")
+    .replace(/\bblocklisted\b/gi, "marked as something to avoid")
+    .replace(/\ballowlist\b/gi, "preferred list")
+    .replace(/\bblocklist\b/gi, "avoid list")
+    .trim();
+}
+
 function FactorIcon({
   icon,
   className = "w-3 h-3 inline-block mr-1 align-text-bottom",
@@ -300,7 +317,7 @@ function ScoreBreakdownTooltip({
         .slice(0, 2)
         .map((reason, i) => (
           <div key={i} className="mt-1.5 text-xs text-surface-300 truncate">
-            {reason}
+            {displayReasonText(reason)}
           </div>
         ))}
     </div>

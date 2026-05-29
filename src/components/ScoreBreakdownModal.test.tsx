@@ -269,6 +269,17 @@ describe("ScoreBreakdownModal", () => {
       expect(percentBadges.length).toBeGreaterThan(0);
     });
 
+    it("shows legacy list reasons in plain language", () => {
+      const reasons = JSON.stringify(["Not in allowlist", "Company is in blocklist"]);
+      render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);
+
+      expect(screen.getByText("Not in your preferred job titles")).toBeInTheDocument();
+      expect(
+        screen.getByText("Company matches something you chose to avoid"),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/allowlist|blocklist/i)).not.toBeInTheDocument();
+    });
+
     it("extracts percentage from reasons", () => {
       const reasons = JSON.stringify(["50% skills match"]);
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);

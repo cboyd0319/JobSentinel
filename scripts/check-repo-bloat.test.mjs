@@ -7226,6 +7226,7 @@ test("checkRepoBloat rejects non-protective score copy", () => {
       [
         'const label = "Great Match!";',
         'const detail = "This job is Highly recommended!";',
+        "return <div>{reason}</div>;",
         "",
       ].join("\n"),
     );

@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Translated legacy score-reason allowlist/blocklist terms before they appear in score tooltips or breakdown modals, with tests and bloat coverage so raw reason strings cannot be rendered directly. |
 | 2026-05-29 | In progress | Reworded saved/copied safe debug report configuration labels from company allowlist/blocklist to favorite and hidden companies, with regression and bloat coverage so issue attachments stay plain-language for non-technical users. |
 | 2026-05-29 | In progress | Broadened synonym matching beyond software terms by adding customer support, office, project coordination, healthcare, education, sales, HR, operations, design, marketing, and accounting groups; refreshed synonym docs and bloat coverage against tech-only examples returning. |
 | 2026-05-29 | In progress | Replaced shaming smart-scoring troubleshooting copy with protective next steps for stale postings, salary-floor warnings, settings review, and user notes; added bloat coverage so desperation language cannot return. |

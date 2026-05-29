@@ -179,6 +179,23 @@ describe("ScoreDisplay", () => {
         expect(screen.getByText("Salary meets minimum")).toBeInTheDocument();
       });
     });
+
+    it("shows legacy list reasons in plain language", async () => {
+      const reasons = JSON.stringify(["Not in allowlist", "Company is in blocklist"]);
+      const { container } = render(<ScoreDisplay score={0.4} scoreReasons={reasons} />);
+
+      const trigger = container.querySelector(".cursor-help");
+      expect(trigger).not.toBeNull();
+      fireEvent.mouseEnter(trigger as Element);
+
+      await waitFor(() => {
+        expect(screen.getByText("Not in your preferred job titles")).toBeInTheDocument();
+        expect(
+          screen.getByText("Company matches something you chose to avoid"),
+        ).toBeInTheDocument();
+      });
+      expect(screen.queryByText(/allowlist|blocklist/i)).not.toBeInTheDocument();
+    });
   });
 
   describe("SVG rendering", () => {

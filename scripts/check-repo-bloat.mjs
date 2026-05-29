@@ -3355,7 +3355,7 @@ function hasNonProtectiveScoreCopy(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /Great Match!|Highly recommended!|You might want to skip it|if you're desperate|if you are desperate/i.test(text);
+  return /Great Match!|Highly recommended!|You might want to skip it|if you're desperate|if you are desperate|\{reason\}\s*<\/div>/i.test(text);
 }
 
 function hasStaleStackOverflowJobsDeepLink(root, path) {
