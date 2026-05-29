@@ -25,7 +25,7 @@ impl Default for SynonymMap {
 }
 
 impl SynonymMap {
-    /// Create a new synonym map with default tech industry synonyms
+    /// Create a new synonym map with default job-search synonyms
     pub fn new() -> Self {
         let mut map = Self {
             keyword_to_group: HashMap::new(),
@@ -56,6 +56,102 @@ impl SynonymMap {
         ]);
         map.add_synonym_group(&["Lead", "Principal", "Staff", "lead", "principal", "staff"]);
         map.add_synonym_group(&["Manager", "Mgr", "mgr", "manager"]);
+
+        // Customer, office, and coordination roles
+        map.add_synonym_group(&[
+            "Customer Support",
+            "Customer Service",
+            "Client Support",
+            "Client Service",
+            "Member Support",
+            "Support Specialist",
+        ]);
+        map.add_synonym_group(&[
+            "Administrative Assistant",
+            "Admin Assistant",
+            "Office Assistant",
+            "Office Administrator",
+            "Office Coordinator",
+        ]);
+        map.add_synonym_group(&[
+            "Project Coordinator",
+            "Program Coordinator",
+            "Project Administrator",
+            "Project Specialist",
+        ]);
+        map.add_synonym_group(&[
+            "Operations",
+            "Ops",
+            "Operations Coordinator",
+            "Operations Specialist",
+        ]);
+
+        // Sales, people, and finance roles
+        map.add_synonym_group(&[
+            "Sales Representative",
+            "Sales Rep",
+            "Sales Associate",
+            "Account Executive",
+            "Business Development Representative",
+            "BDR",
+        ]);
+        map.add_synonym_group(&[
+            "Human Resources",
+            "HR",
+            "People Operations",
+            "People Ops",
+            "Talent Acquisition",
+            "Recruiting",
+        ]);
+        map.add_synonym_group(&[
+            "Bookkeeper",
+            "Accounting Clerk",
+            "Accounts Payable",
+            "Accounts Receivable",
+        ]);
+
+        // Healthcare, education, and care roles
+        map.add_synonym_group(&["Registered Nurse", "RN", "Staff Nurse", "Clinical Nurse"]);
+        map.add_synonym_group(&[
+            "Certified Nursing Assistant",
+            "CNA",
+            "Nursing Assistant",
+            "Patient Care Assistant",
+        ]);
+        map.add_synonym_group(&[
+            "Medical Assistant",
+            "Clinical Assistant",
+            "Patient Care Technician",
+            "PCT",
+        ]);
+        map.add_synonym_group(&[
+            "Teacher",
+            "Educator",
+            "Instructor",
+            "Tutor",
+            "Training Specialist",
+        ]);
+        map.add_synonym_group(&[
+            "Instructional Designer",
+            "Curriculum Developer",
+            "Learning Designer",
+            "Course Developer",
+        ]);
+
+        // Creative, marketing, and product roles
+        map.add_synonym_group(&[
+            "Graphic Designer",
+            "Visual Designer",
+            "Brand Designer",
+            "Creative Designer",
+        ]);
+        map.add_synonym_group(&["User Experience", "UX", "UX Designer", "Product Designer"]);
+        map.add_synonym_group(&[
+            "Marketing Coordinator",
+            "Marketing Specialist",
+            "Digital Marketing",
+            "Growth Marketing",
+        ]);
 
         // Frameworks & Libraries
         map.add_synonym_group(&["React", "ReactJS", "React.js", "react", "reactjs"]);
@@ -271,6 +367,21 @@ mod tests {
 
         assert!(map.matches_with_synonyms("Junior", "Jr. Developer"));
         assert!(map.matches_with_synonyms("Jr", "Junior position"));
+    }
+
+    #[test]
+    fn test_broad_job_search_synonyms() {
+        let map = SynonymMap::new();
+
+        assert!(map.matches_with_synonyms("Customer Support", "Client Service Specialist opening"));
+        assert!(map.matches_with_synonyms("Admin Assistant", "Office Coordinator role"));
+        assert!(map.matches_with_synonyms("Project Coordinator", "Program Coordinator needed"));
+        assert!(map.matches_with_synonyms("Human Resources", "People Ops partner"));
+        assert!(map.matches_with_synonyms("Registered Nurse", "RN evening shift"));
+        assert!(map.matches_with_synonyms("Certified Nursing Assistant", "CNA position"));
+        assert!(map.matches_with_synonyms("Teacher", "Educator role"));
+        assert!(map.matches_with_synonyms("Graphic Designer", "Visual Designer opening"));
+        assert!(!map.matches_with_synonyms("RN", "internship coordinator"));
     }
 
     #[test]

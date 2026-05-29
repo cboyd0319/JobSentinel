@@ -3695,6 +3695,9 @@ test("checkRepoBloat rejects synonym and remote preference doc drift", () => {
       [
         '- ✅ "py" matches "py script"',
         '- "Kuberntes" → "Kubernetes"',
+        'The system comes with synonym groups for common tech terms:',
+        '- "Python developer needed"',
+        '"title_allowlist": ["Senior Engineer"]',
         "### Custom Synonyms (v2.1+)",
         "**Version:** 2.6.4 | **Last Updated:** March 18, 2026",
         "",

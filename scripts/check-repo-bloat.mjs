@@ -1804,6 +1804,9 @@ function hasSynonymOrRemotePreferenceDocDrift(root, path) {
     /Custom Synonyms \(v2\.1\+\)|Database-backed Synonyms \(v2\.2\+\)|Fuzzy Matching \(v2\.3\+\)/.test(
       text,
     ) ||
+    /common tech terms|Python developer needed|"title_allowlist": \["Senior Engineer"\]/i.test(
+      text,
+    ) ||
     /Potential improvements for v2\.0\+/.test(text) ||
     /preference × job type/.test(text) ||
     /\*\*Last Updated:\*\* March 18, 2026/.test(text)

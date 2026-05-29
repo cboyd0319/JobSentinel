@@ -5,37 +5,79 @@
 ## Overview
 
 JobSentinel includes **intelligent synonym matching** for keyword scoring,
-allowing flexible matching of job descriptions without requiring exact keyword matches.
+allowing flexible matching of job descriptions without requiring exact keyword
+matches.
 
 ## Key Features
 
 ### 1. Bidirectional Synonym Matching
 
-When you configure a keyword like "Python", the system automatically matches:
+When you configure a work phrase like "Customer Support", JobSentinel can also
+match common nearby wording:
 
-- Python
-- Python3
-- py
+- Customer Service
+- Client Support
+- Client Service
 
-And vice versa - searching for "py" will also match "Python" and "Python3".
+And vice versa: searching for "Client Service" can also match "Customer
+Support".
 
 ### 2. Word Boundary Detection
 
 The system is smart enough to avoid false positives:
 
-- Match: "py" matches "py script"
-- Match: "py" matches "Experience with py"
-- No match: "py" does not match "spy" or "espionage"
+- Match: "RN" matches "RN evening shift"
+- Match: "RN" matches "Registered Nurse"
+- No match: "RN" does not match "internship"
 
 ### 3. Case Insensitivity
 
 All matching is case-insensitive:
 
-- "python" matches "PYTHON", "Python", "PyThOn", etc.
+- "customer service" matches "Customer Service" and "CUSTOMER SERVICE".
 
 ### 4. Pre-populated Synonym Groups
 
-The system comes with synonym groups for common tech terms:
+The system comes with synonym groups for common job titles, work areas, and
+tools across technical and non-technical searches.
+
+#### Customer, Office, and Coordination Roles
+
+- **Customer Support**: Customer Support, Customer Service, Client Support,
+  Client Service, Member Support, Support Specialist
+- **Administrative Assistant**: Administrative Assistant, Admin Assistant,
+  Office Assistant, Office Administrator, Office Coordinator
+- **Project Coordinator**: Project Coordinator, Program Coordinator, Project
+  Administrator, Project Specialist
+- **Operations**: Operations, Ops, Operations Coordinator, Operations Specialist
+
+#### Sales, People, and Finance Roles
+
+- **Sales Representative**: Sales Representative, Sales Rep, Sales Associate,
+  Account Executive, Business Development Representative, BDR
+- **Human Resources**: Human Resources, HR, People Operations, People Ops,
+  Talent Acquisition, Recruiting
+- **Bookkeeper**: Bookkeeper, Accounting Clerk, Accounts Payable, Accounts
+  Receivable
+
+#### Healthcare, Education, and Care Roles
+
+- **Registered Nurse**: Registered Nurse, RN, Staff Nurse, Clinical Nurse
+- **Certified Nursing Assistant**: Certified Nursing Assistant, CNA, Nursing
+  Assistant, Patient Care Assistant
+- **Medical Assistant**: Medical Assistant, Clinical Assistant, Patient Care
+  Technician, PCT
+- **Teacher**: Teacher, Educator, Instructor, Tutor, Training Specialist
+- **Instructional Designer**: Instructional Designer, Curriculum Developer,
+  Learning Designer, Course Developer
+
+#### Creative, Marketing, and Product Roles
+
+- **Graphic Designer**: Graphic Designer, Visual Designer, Brand Designer,
+  Creative Designer
+- **User Experience**: User Experience, UX, UX Designer, Product Designer
+- **Marketing Coordinator**: Marketing Coordinator, Marketing Specialist,
+  Digital Marketing, Growth Marketing
 
 #### Programming Languages
 
@@ -110,14 +152,14 @@ The system comes with synonym groups for common tech terms:
 
 ## How It Works
 
-### Configuration Example
+### Saved Setting Example
 
-In your `config.json`:
+For a broad search, saved settings can include work phrases such as:
 
 ```json
 {
-  "keywords_boost": ["Python", "Kubernetes", "Machine Learning"],
-  "keywords_exclude": ["sales"]
+  "keywords_boost": ["Customer Support", "Project Coordinator", "Scheduling"],
+  "keywords_exclude": ["overnight"]
 }
 ```
 
@@ -125,16 +167,17 @@ In your `config.json`:
 
 **Job Description:**
 
-> "We're looking for a Sr. Python3 developer with K8s experience and ML background."
+> "We are hiring a client service program coordinator for patient scheduling
+> and front desk support."
 
 **Matches:**
 
-- "Python" matches "Python3"
-- "Kubernetes" matches "K8s"
-- "Machine Learning" matches "ML"
-- "Senior" matches "Sr." when `Senior` is configured as a keyword
+- "Customer Support" matches "client service"
+- "Project Coordinator" matches "program coordinator"
+- "Scheduling" matches directly
 
-**Result:** High score boost from 3 matched keywords!
+**Result:** JobSentinel has more evidence that this role matches the user's
+saved work interests.
 
 ### Architecture
 
@@ -166,8 +209,8 @@ A future config surface could expose user-defined groups like this:
 ```json
 {
   "custom_synonyms": {
-    "Rust": ["Rust", "rustlang", "rust-lang"],
-    "API": ["API", "REST", "GraphQL", "gRPC"]
+    "Care Coordinator": ["Care Navigator", "Patient Navigator"],
+    "Grant Writer": ["Proposal Writer", "Development Writer"]
   }
 }
 ```
@@ -180,8 +223,8 @@ Store user-defined synonyms in SQLite for persistence across sessions.
 
 Extend to include edit-distance-based fuzzy matching for typos:
 
-- "Kuberntes" to "Kubernetes"
-- "Pythoon" to "Python"
+- "Custmer Service" to "Customer Service"
+- "Scheduing" to "Scheduling"
 
 ## Testing
 
@@ -204,53 +247,53 @@ cd src-tauri && cargo test --lib scoring::synonyms
 
 ## Examples
 
-### Example 1: Language Variants
+### Example 1: Customer Support Variants
 
 **Config:**
 
 ```json
 {
-  "keywords_boost": ["Python"]
+  "keywords_boost": ["Customer Support"]
 }
 ```
 
 **Matches:**
 
-- "Python developer needed"
-- "Python3 experience required"
-- "Strong py skills"
+- "Customer Service Representative"
+- "Client Support Specialist"
+- "Member Support Associate"
 
-### Example 2: Title Abbreviations
+### Example 2: Coordination Variants
 
 **Config:**
 
 ```json
 {
-  "title_allowlist": ["Senior Engineer"]
+  "keywords_boost": ["Project Coordinator"]
 }
 ```
 
 **Matches:**
 
-- "Senior Engineer"
-- "Sr. Engineer"
-- "Sr Engineer"
+- "Program Coordinator"
+- "Project Administrator"
+- "Project Specialist"
 
-### Example 3: Cloud Platforms
+### Example 3: Healthcare Abbreviations
 
 **Config:**
 
 ```json
 {
-  "keywords_boost": ["Kubernetes", "AWS"]
+  "keywords_boost": ["Registered Nurse", "Certified Nursing Assistant"]
 }
 ```
 
 **Matches:**
 
-- "K8s deployment experience"
-- "Amazon Web Services infrastructure"
-- "kubernetes and aws certified"
+- "RN evening shift"
+- "Staff Nurse"
+- "CNA position"
 
 ## Compatibility
 
