@@ -589,6 +589,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src-tauri/src/core/health/smoke_tests.rs",
+      '"https://www.indeed.com/jobs?q=software+engineer&l=remote";\n',
+    );
+    writeFixtureFile(
+      root,
       "docs/developer/FRONTEND_TESTING.md",
       [
         'await user.type(input, "John Doe");',
@@ -724,6 +729,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/components/InterviewScheduler.test.tsx",
         "src/utils/formValidation.test.ts",
         "src/utils/export.test.ts",
+        "src-tauri/src/core/health/smoke_tests.rs",
         "src/pages/hooks/useDashboardFilters.test.ts",
         "src/pages/hooks/useDashboardJobOps.test.ts",
         "src/pages/hooks/useDashboardSavedSearches.test.ts",
@@ -777,6 +783,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/components/InterviewScheduler.test.tsx",
       "src/utils/formValidation.test.ts",
       "src/utils/export.test.ts",
+      "src-tauri/src/core/health/smoke_tests.rs",
       "src/pages/hooks/useDashboardFilters.test.ts",
       "src/pages/hooks/useDashboardJobOps.test.ts",
       "src/pages/hooks/useDashboardSavedSearches.test.ts",

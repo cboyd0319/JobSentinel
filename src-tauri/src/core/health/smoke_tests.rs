@@ -246,7 +246,7 @@ async fn test_lever() -> Result<serde_json::Value> {
 }
 
 async fn test_indeed() -> Result<serde_json::Value> {
-    let url = "https://www.indeed.com/jobs?q=software+engineer&l=remote";
+    let url = "https://www.indeed.com/jobs?q=customer+support&l=remote";
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(10))
         .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
@@ -515,7 +515,7 @@ async fn test_yc_startup() -> Result<serde_json::Value> {
 }
 
 async fn test_ziprecruiter() -> Result<serde_json::Value> {
-    let url = "https://www.ziprecruiter.com/jobs-rss?search=software+engineer&location=Remote";
+    let url = "https://www.ziprecruiter.com/jobs-rss?search=customer+support&location=Remote";
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(10))
         .build()?;
@@ -596,7 +596,7 @@ async fn test_usajobs(config: &Config) -> Result<serde_json::Value> {
 }
 
 async fn test_simplyhired() -> Result<serde_json::Value> {
-    let url = "https://www.simplyhired.com/search?q=software+engineer&l=remote&output=rss";
+    let url = "https://www.simplyhired.com/search?q=customer+support&l=remote&output=rss";
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(10))
         .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36")
@@ -628,7 +628,7 @@ async fn test_simplyhired() -> Result<serde_json::Value> {
 }
 
 async fn test_glassdoor() -> Result<serde_json::Value> {
-    let url = "https://www.glassdoor.com/Job/jobs.htm?sc.keyword=software+engineer&jobType=all";
+    let url = "https://www.glassdoor.com/Job/jobs.htm?sc.keyword=customer+support&jobType=all";
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(10))
         .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36")
