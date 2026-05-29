@@ -276,23 +276,23 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
             value={sortBy}
             onChange={(value) => setSortBy(value as SortOption)}
             options={[
-              { value: "score-desc", label: "Score (High → Low)" },
-              { value: "score-asc", label: "Score (Low → High)" },
+              { value: "score-desc", label: "Best Match First" },
+              { value: "score-asc", label: "Weakest Match First" },
               { value: "date-desc", label: "Date (Newest)" },
               { value: "date-asc", label: "Date (Oldest)" },
               { value: "company-asc", label: "Company (A-Z)" },
             ]}
           />
 
-          {/* Score Filter */}
+          {/* Match Filter */}
           <Dropdown
-            label="Score"
+            label="Match"
             value={scoreFilter}
             onChange={(value) => setScoreFilter(value as ScoreFilter)}
             options={[
-              { value: "all", label: "All Scores" },
-              { value: "high", label: "High (70%+)" },
-              { value: "medium", label: "Medium (40-69%)" },
+              { value: "all", label: "All Matches" },
+              { value: "high", label: "Strong (70%+)" },
+              { value: "medium", label: "Some (40-69%)" },
               { value: "low", label: "Low (<40%)" },
             ]}
           />

@@ -1620,7 +1620,7 @@ export default function Settings({ onClose }: SettingsProps) {
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
                   Salary Preferences
-                  <HelpIcon text="Set your minimum and target salary. Jobs are scored based on how close they are to your target." />
+                  <HelpIcon text="Set your minimum and target salary. Job matches show whether listed pay is close to your target." />
                 </h3>
                 <div className="space-y-4">
                   <div>
@@ -1655,7 +1655,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         })
                       }
                       placeholder="e.g., 100000"
-                      hint="Your ideal salary - jobs at or above this get top scores"
+                      hint="Your ideal salary - jobs at or above this show stronger pay fit"
                     />
                   </div>
                 </div>

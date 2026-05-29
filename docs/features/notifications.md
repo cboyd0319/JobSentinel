@@ -141,11 +141,13 @@ That's it! No connection link needed.
 
 ## When Do Notifications Fire?
 
-By default, JobSentinel sends notifications for jobs scoring **90% or higher**.
+By default, JobSentinel sends notifications for jobs with a **90% or higher**
+match-strength setting.
 
-You can adjust this threshold in Settings > Notifications > Alert Threshold.
+You can adjust this in Settings > Notifications > Match strength.
 
-**Tip:** Start at 90% to avoid notification spam. Lower it to 80% if you want more alerts.
+**Tip:** Start at 90% to avoid too many alerts. Lower it to 80% if you want
+more alerts.
 
 ---
 
@@ -183,7 +185,7 @@ If it doesn't work:
 
 1. Verify the channel is **enabled** in Settings
 2. Check that your connection link is correct
-3. Make sure jobs are scoring above your threshold
+3. Make sure jobs meet your match-strength setting
 4. Click "Send Test" to verify the connection
 
 ### Slack says token is invalid?

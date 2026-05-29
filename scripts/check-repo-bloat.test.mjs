@@ -7304,7 +7304,27 @@ test("checkRepoBloat rejects non-protective score copy", () => {
     writeFixtureFile(
       root,
       "src/pages/Settings.tsx",
-      '"Job Scoring Weights"; "These weights determine how jobs are scored.";\n',
+      [
+        '"Job Scoring Weights"; "These weights determine how jobs are scored.";',
+        '"Jobs are scored based on how close they are to your target.";',
+        '"Your ideal salary - jobs at or above this get top scores";',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+      '"Score (High → Low)"; "Score (Low → High)"; label="Score"; "All Scores";\n',
+    );
+    writeFixtureFile(
+      root,
+      "docs/user/QUICK_START.md",
+      "Each job is scored against your saved search.\nEvery job found, sorted by match score.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/notifications.md",
+      "Jobs scoring above your threshold can notify you. Settings > Notifications > Alert Threshold.\n",
     );
     writeFixtureFile(
       root,
@@ -7317,10 +7337,13 @@ test("checkRepoBloat rejects non-protective score copy", () => {
       [
         "add",
         "package.json",
+        "docs/features/notifications.md",
         "docs/features/smart-scoring.md",
+        "docs/user/QUICK_START.md",
         "src/components/ResumeMatchScoreBreakdown.tsx",
         "src/components/ScoreDisplay.tsx",
         "src/components/ScoreBreakdownModal.tsx",
+        "src/pages/DashboardUI/DashboardFiltersBar.tsx",
         "src/pages/Settings.tsx",
       ],
       { cwd: root },
@@ -7342,6 +7365,18 @@ test("checkRepoBloat rejects non-protective score copy", () => {
     );
     assert.ok(
       violations.includes("keep score copy protective: src/pages/Settings.tsx"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("keep score copy protective: src/pages/DashboardUI/DashboardFiltersBar.tsx"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("keep score copy protective: docs/user/QUICK_START.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("keep score copy protective: docs/features/notifications.md"),
       violations.join("\n"),
     );
     assert.ok(

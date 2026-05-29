@@ -524,10 +524,13 @@ const errorBoundaryDisplayPaths = new Set([
   "src/components/PageErrorBoundary.tsx",
 ]);
 const protectiveScoreCopyPaths = new Set([
+  "docs/features/notifications.md",
   "docs/features/smart-scoring.md",
+  "docs/user/QUICK_START.md",
   "src/components/ResumeMatchScoreBreakdown.tsx",
   "src/components/ScoreDisplay.tsx",
   "src/components/ScoreBreakdownModal.tsx",
+  "src/pages/DashboardUI/DashboardFiltersBar.tsx",
   "src/pages/Settings.tsx",
 ]);
 const plainJobSearchDocPaths = new Set([
@@ -3392,7 +3395,7 @@ function hasNonProtectiveScoreCopy(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /Great Match!|Highly recommended!|You might want to skip it|if you're desperate|if you are desperate|\{reason\}\s*<\/div>|Job Scoring Weights|These weights determine|scoring weights|Configurable weights|Customize Weights|Weight Presets|Weight in overall score|\b\d+%\s+weight\b|weighted averages based on component importance/i.test(text);
+  return /Great Match!|Highly recommended!|You might want to skip it|if you're desperate|if you are desperate|\{reason\}\s*<\/div>|Job Scoring Weights|These weights determine|scoring weights|Configurable weights|Customize Weights|Weight Presets|Weight in overall score|\b\d+%\s+weight\b|weighted averages based on component importance|Score \(High|Score \(Low|All Scores|label="Score"|Jobs are scored based|top scores|Each job is scored|sorted by match score|jobs scoring|Alert Threshold|scoring above your threshold/i.test(text);
 }
 
 function hasLegacyPreferenceListCopy(root, path) {

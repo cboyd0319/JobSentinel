@@ -185,7 +185,7 @@ JobSentinel is now watching the allowed sources you enabled.
 Here's what happens automatically:
 
 - Every 2 hours, JobSentinel checks for new jobs.
-- Each job is scored against your saved search.
+- Each job is compared with your saved search.
 - Strong matches can trigger notifications if you set them up.
 - Stale, reposted, or low-trust postings are flagged with warnings.
 
@@ -195,7 +195,7 @@ Here's what happens automatically:
 
 The dashboard shows:
 
-- **Job List** - Every job found, sorted by match score
+- **Job List** - Every job found, sorted by match strength
 - **Posting Risk Filter** - Hide postings that need review first
 - **Search Bar** - Find jobs by keyword, company, or location
 - **Statistics** - See how many jobs match your criteria
