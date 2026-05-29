@@ -590,6 +590,7 @@ const staleResumeOptimizerFramingPaths = new Set([
   "docs/releases/v2.0.md",
   "docs/releases/v2.4.md",
   "docs/releases/v2.6.0.md",
+  "docs/plans/active/research-backed-product-improvements.md",
   "docs/user/QUICK_START.md",
 ]);
 const resumeTemplateAudiencePaths = new Set([

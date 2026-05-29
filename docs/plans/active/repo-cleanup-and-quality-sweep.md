@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Updated the active research-backed product plan's resume framing contract from old optimizer wording to Resume Match and replaced score-first screening language with advisory preparation language. |
 | 2026-05-29 | In progress | Reworded release docs away from old optimization and score-first framing toward Resume Match and resume readability, with bloat coverage so old release-note language does not drift back. |
 | 2026-05-29 | In progress | Rebased backend import/schema.org and deep-link generator examples from software-engineering and San Francisco defaults to customer-support, care-coordination, Chicago, and Austin examples, with bloat coverage against old backend fixture drift. |
 | 2026-05-29 | In progress | Rebased resume match database fixtures from `Software Engineer`, `TechCorp`, and programming-only skill examples to client-support, community-service, and case-management examples; fixed degree detection so words like "management" do not get misread as "M.A."; added bloat and regression coverage. |
