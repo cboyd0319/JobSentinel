@@ -533,6 +533,16 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/automation/ApplyButton.test.tsx",
+      [
+        'title: "Senior Software Engineer",',
+        'company: "Tech Corp",',
+        'location: "San Francisco, CA",',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/components/AtsLiveScorePanel.test.tsx",
       [
         'name: "John Doe",',
@@ -667,6 +677,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/components/resume-builder/steps/SkillsStep.tsx",
         "src/components/automation/ProfileForm.tsx",
         "src/components/automation/ApplicationPreview.tsx",
+        "src/components/automation/ApplyButton.test.tsx",
         "src/components/AtsLiveScorePanel.test.tsx",
         "src/components/JobCard.test.tsx",
         "src/components/CoverLetterTemplates.test.tsx",
@@ -713,6 +724,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/components/resume-builder/steps/SkillsStep.tsx",
       "src/components/automation/ProfileForm.tsx",
       "src/components/automation/ApplicationPreview.tsx",
+      "src/components/automation/ApplyButton.test.tsx",
       "src/components/AtsLiveScorePanel.test.tsx",
       "src/components/JobCard.test.tsx",
       "src/components/CoverLetterTemplates.test.tsx",

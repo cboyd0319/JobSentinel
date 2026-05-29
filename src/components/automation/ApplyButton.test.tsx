@@ -20,9 +20,9 @@ const renderWithToast = (ui: React.ReactElement) => {
 const mockJob = {
   id: 1,
   hash: "test-hash-123",
-  title: "Senior Software Engineer",
-  company: "Tech Corp",
-  location: "San Francisco, CA",
+  title: "Customer Support Lead",
+  company: "CareBridge Services",
+  location: "Chicago, IL",
   url: "https://example.com/jobs/123",
   description: "Great opportunity",
   score: 85,

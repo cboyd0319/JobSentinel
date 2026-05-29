@@ -498,6 +498,7 @@ const broadAudienceExamplePaths = new Set([
   "src/components/resume-builder/steps/SkillsStep.tsx",
   "src/components/resume-builder/steps/SummaryStep.tsx",
   "src/components/automation/ApplicationPreview.tsx",
+  "src/components/automation/ApplyButton.test.tsx",
   "src/components/automation/ProfileForm.tsx",
   "src/components/AtsLiveScorePanel.test.tsx",
   "src/components/CoverLetterTemplates.test.tsx",
