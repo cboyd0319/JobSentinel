@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Reworded Resume Builder docs away from security-engineer-first examples, LinkedIn/GitHub-first contact guidance, poor-fit score language, and security-team bullet examples; added bloat coverage so broad-audience resume guidance stays protective. |
 | 2026-05-29 | In progress | Replaced stale `docs/README.md` release-log content with a current documentation hub for users, reviewers, contributors, research, privacy, responsible AI, harness, and active plans; added bloat coverage against release-log drift returning. |
 | 2026-05-29 | In progress | Reworded Resume page skill categories and match-result labels away from engineer-first categories, score-breakdown jargon, and overconfident missing-skill copy; updated resume docs and bloat coverage. |
 | 2026-05-29 | In progress | Reworded browser import button copy away from bookmarklet, any-website, safety-token, and auto-import language; added clipboard failure handling plus bloat and component coverage. |

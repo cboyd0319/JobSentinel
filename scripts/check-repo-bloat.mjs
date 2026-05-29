@@ -1464,6 +1464,14 @@ function hasEngineerFirstAudienceExamples(root, path) {
     /Examples:\s*\n\s*- "Software Engineer"/i,
     /^\*\*Software Engineer in San Francisco\*\*$/m,
     /SWE Remote/i,
+    /Build a professional resume in 7 easy steps/i,
+    /LinkedIn URL \(highly recommended\)/i,
+    /GitHub, portfolio, or personal website \(optional\)/i,
+    /Security engineer with 8 years/i,
+    /Poor fit for your current resume/i,
+    /Responsible for managing the security team/i,
+    /Led 12-person security team/i,
+    /If they say "Python"/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));

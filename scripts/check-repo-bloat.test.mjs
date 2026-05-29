@@ -430,6 +430,14 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       [
         "| **Modern** | Tech companies - clean and minimal |",
         "| **Technical** | Engineering roles - skills first |",
+        "Build a professional resume in 7 easy steps",
+        "- LinkedIn URL (highly recommended)",
+        "- GitHub, portfolio, or personal website (optional)",
+        "> Security engineer with 8 years of experience",
+        "- **0-39** - Poor fit for your current resume",
+        '> "Responsible for managing the security team"',
+        '> "Led 12-person security team, reducing incident response time by 35%"',
+        'If they say "Python" and you have Python experience',
         "",
       ].join("\n"),
     );

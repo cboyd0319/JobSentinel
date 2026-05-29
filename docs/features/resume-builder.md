@@ -14,15 +14,15 @@ unclear, and where truthful edits could improve readability.
 
 ## Resume Builder
 
-Build a professional resume in 7 easy steps:
+Build a readable resume in 7 steps:
 
 ### Step 1: Contact Info
 
 Enter your basics:
 
 - Name, email, phone, location
-- LinkedIn URL (highly recommended)
-- GitHub, portfolio, or personal website (optional)
+- Professional profile link, if you want to include one
+- Portfolio, work samples, personal website, or credential page, if useful
 
 ### Step 2: Professional Summary
 
@@ -30,9 +30,9 @@ Write 2-3 sentences about who you are professionally. Think of it as your elevat
 
 **Good example:**
 
-> "Security engineer with 8 years of experience protecting financial services
-> infrastructure. Led incident response for a $50B+ organization and reduced
-> security incidents by 40%."
+> "Clinic operations coordinator with 8 years of experience managing patient
+> scheduling, intake, and staff handoffs. Reduced missed appointments by 18%
+> by improving reminder workflows across 6 locations."
 
 ### Step 3: Work Experience
 
@@ -43,7 +43,8 @@ Add your jobs, starting with the most recent. For each position:
 - Start and end dates
 - 3-5 bullet points highlighting achievements (not just duties)
 
-**Pro tip:** Start each bullet with an action verb and include numbers when possible.
+Useful pattern: start each bullet with an action verb and include numbers when
+possible.
 
 ### Step 4: Education
 
@@ -101,7 +102,7 @@ specific job post.
 
 ### What You'll See
 
-**Overall Score** - Combined application readability and job-post alignment.
+**Overall Review** - Combined application readability and job-post alignment.
 
 **Job-Post Language** - Which important role terms and evidence are clear in
 your resume, and which ones need truthful support.
@@ -110,12 +111,12 @@ your resume, and which ones need truthful support.
 
 **Completeness** - Are all important sections filled in?
 
-### Color Coding
+### Review Labels
 
-- **80-100** - Strong alignment
+- **80-100** - Strong visible evidence
 - **60-79** - Useful match with places to improve
 - **40-59** - Several gaps worth reviewing
-- **0-39** - Poor fit for your current resume
+- **0-39** - Not enough evidence for careful tailoring yet
 
 ---
 
@@ -136,15 +137,17 @@ Use familiar wording when it accurately describes your experience.
 
 ## Bullet Point Improver
 
-Weak bullet points hurt your resume. The improver helps you write stronger ones.
+Vague bullet points make useful experience harder to see. The improver helps
+you write clearer ones.
 
 **Before:**
 
-> "Responsible for managing the security team"
+> "Responsible for handling appointment reminders"
 
 **After:**
 
-> "Led 12-person security team, reducing incident response time by 35%"
+> "Coordinated daily appointment reminders for 300 patients, reducing missed
+> visits by 18%"
 
 ### Action Words
 
@@ -152,15 +155,15 @@ JobSentinel suggests 45+ action verbs that can make resume bullets clearer:
 
 - **Leadership:** Led, Managed, Directed, Coordinated
 - **Achievement:** Achieved, Delivered, Exceeded, Reduced
-- **Creation:** Developed, Built, Designed, Implemented
+- **Creation:** Created, Built, Designed, Launched
 - **Analysis:** Analyzed, Assessed, Evaluated, Identified
 
 ---
 
 ## Tips for Better Alignment
 
-1. **Use employer language truthfully** - If they say "Python" and you have
-   Python experience, use "Python" instead of a vague phrase.
+1. **Use employer language truthfully** - If they say "customer intake" and you
+   have that experience, use "customer intake" instead of a vague phrase.
 
 2. **Include numbers** - "Increased sales by 25%" beats "Increased sales."
 
@@ -173,16 +176,16 @@ JobSentinel suggests 45+ action verbs that can make resume bullets clearer:
 
 ---
 
-## Technical Details
+## Developer Details
 
 <details>
 <summary><strong>For developers and the curious</strong></summary>
 
-### Database
+### Local Storage Model
 
-Resumes are stored as JSON in the `resume_drafts` table, auto-saved after each step.
+Resume drafts are saved locally in the `resume_drafts` table after each step.
 
-### Tauri Commands (22 total)
+### Tauri Commands
 
 **Builder:**
 
@@ -200,7 +203,7 @@ Resumes are stored as JSON in the `resume_drafts` table, auto-saved after each s
 
 - `export_resume_docx`, `export_resume_text`
 
-**Resume Analysis:**
+**Resume Review:**
 
 - `analyze_resume_for_job`, `analyze_resume_format`
 - `extract_job_keywords`, `get_ats_power_words`, `improve_bullet_point`
@@ -210,6 +213,6 @@ Resumes are stored as JSON in the `resume_drafts` table, auto-saved after each s
 - `builder.rs` - Resume data model and CRUD
 - `templates.rs` - HTML template rendering
 - `export.rs` - DOCX generation
-- `ats_analyzer.rs` - Keyword extraction and scoring
+- `ats_analyzer.rs` - Job-word extraction and readability scoring
 
 </details>
