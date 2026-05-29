@@ -95,6 +95,11 @@ the user spends tailoring time:
 - **Review before tailoring.**
 - **Verify before tailoring.**
 
+Job cards also translate source IDs into plain labels such as "Greenhouse
+hiring page", "LinkedIn job board", or "Saved by you." A closer employer source
+is stronger evidence, not proof the role is active, so still verify before
+spending serious tailoring time.
+
 ### Posting Risk Filter
 
 Use the posting-risk filter above your job list:

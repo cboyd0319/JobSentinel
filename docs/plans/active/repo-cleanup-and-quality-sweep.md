@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Replaced raw job-card source IDs with plain source labels and source-check hints so users see hiring page, job board, saved-by-you, or connected-source language instead of internal scraper names. |
 | 2026-05-29 | In progress | Reworded visible match-priority copy in Settings, job score details, resume match breakdown, and smart-scoring docs away from weight/scoring jargon toward plain match priorities and user-adjustable preferences, with bloat coverage for recurrence. |
 | 2026-05-29 | In progress | Reworded ghost-detection feature docs away from posting-risk score, threshold, and weight setup jargon toward plain review labels, cautious settings, and verify-before-tailoring guidance, with bloat coverage against threshold/weight wording returning. |
 | 2026-05-29 | In progress | Reworked the root README through the maintained information-design system: clearer visitor routing, research brief, trust model, evidence model, privacy/AI boundaries, and professional release/support framing, while preserving required product definition, Rule 0, free-forever MIT commitment, and source index. |

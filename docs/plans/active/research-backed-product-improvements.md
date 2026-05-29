@@ -909,6 +909,7 @@ against:
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Started job-card source labels so raw source IDs become plain source-check cues such as hiring page, job board, saved by you, or connected job source without changing stored source values. |
 | 2026-05-29 | In progress | Added job-card pay-floor warnings using the saved salary floor so roles with listed pay below the user's floor are visible but flagged before tailoring. |
 | 2026-05-29 | In progress | Added an optional setup pay-floor question so any job seeker can set below-floor warnings before first scan while keeping missing-pay jobs visible and marked. |
 | 2026-05-29 | In progress | Reframed match-score copy from celebratory recommendations to protective evidence language: Strong Match, Some Match, source-check and must-have review guidance, plus bloat coverage against overconfident score copy. |
@@ -1221,6 +1222,59 @@ Sensors:
 Rollback:
 Hide the missing-pay cue and return to omitting the salary row when structured
 salary fields are empty.
+
+## Change contract: plain source labels on job cards
+
+Problem:
+Job cards can expose raw source IDs such as `greenhouse`, `hn_hiring`, or
+`jobswithgpt`. Those names are useful internally, but they do not help a tired
+job seeker decide whether a posting came from a closer employer source, a job
+board, or a manual save.
+
+Scope:
+Translate job-card source IDs into plain labels and source-check hints. Keep
+the stored source values, filters, database fields, and scraper IDs unchanged.
+Do not add new collection, verification, network calls, source-ranking models,
+or legal conclusions in this slice.
+
+Acceptance criteria:
+
+- Job cards do not render raw lowercase or underscored source IDs directly.
+- Employer-side sources such as Greenhouse, Lever, and USAJobs use plain labels
+  that signal a closer hiring-page source.
+- Job-board, community, imported, and unknown sources use readable labels.
+- Screen-reader labels include the plain source label and the source-check hint.
+- Copy stays cautious: a closer source is stronger evidence, not proof the role
+  is active.
+
+Likely files:
+
+- `src/components/JobCard.tsx`
+- `src/components/JobCard.test.tsx`
+- `docs/features/ghost-detection.md`
+- `scripts/check-repo-bloat.mjs`
+- `scripts/check-repo-bloat.test.mjs`
+
+Risks:
+
+- Source IDs are still needed for filters, saved searches, and backend logic, so
+  this slice must only change visible labels.
+- Some sources have mixed quality. The hint should ask users to verify instead
+  of treating any source as fully trusted.
+
+Sensors:
+
+- Focused component tests for employer-side, job-board, imported, connected, and
+  unknown sources.
+- `npm run test:run -- src/components/JobCard.test.tsx`
+- `npm run test:scripts -- scripts/check-repo-bloat.test.mjs`
+- `npm run lint:docs`
+- `npm run lint:bloat`
+- `npx tsc --noEmit`
+
+Rollback:
+Return job cards to the previous source display and remove the bloat guard if a
+source-filter compatibility issue appears.
 
 ## Handoff
 

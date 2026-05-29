@@ -572,6 +572,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/components/JobCard.tsx",
       [
         '"Invalid URL"',
+        "<SourceIcon />{job.source}",
         '"This job posting URL is not valid or safe to open"',
         '"Unable to open the job posting URL"',
         "",

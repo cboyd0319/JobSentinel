@@ -65,9 +65,46 @@ describe("JobCard", () => {
       expect(screen.getByText("Remote")).toBeInTheDocument();
     });
 
-    it("renders source information", () => {
+    it("renders plain source information", () => {
       renderWithToast(<JobCard job={mockJob} />);
-      expect(screen.getByText("LinkedIn")).toBeInTheDocument();
+      expect(screen.getByText("LinkedIn job board")).toBeInTheDocument();
+    });
+
+    it("labels employer-side hiring sources without raw source IDs", () => {
+      const greenhouseJob = { ...mockJob, source: "greenhouse" };
+
+      renderWithToast(<JobCard job={greenhouseJob} />);
+
+      expect(screen.getByText("Greenhouse hiring page")).toBeInTheDocument();
+      expect(screen.queryByText("greenhouse")).not.toBeInTheDocument();
+      expect(
+        screen.getByLabelText(/source: greenhouse hiring page/i),
+      ).toHaveAccessibleDescription(/closer to the employer source/i);
+    });
+
+    it("labels connected and imported sources in plain language", () => {
+      const { rerender } = renderWithToast(
+        <JobCard job={{ ...mockJob, source: "jobswithgpt" }} />,
+      );
+
+      expect(screen.getByText("Connected job source")).toBeInTheDocument();
+      expect(screen.queryByText("jobswithgpt")).not.toBeInTheDocument();
+
+      rerender(
+        <ToastProvider>
+          <JobCard job={{ ...mockJob, source: "import" }} />
+        </ToastProvider>,
+      );
+
+      expect(screen.getByText("Saved by you")).toBeInTheDocument();
+      expect(screen.queryByText("import")).not.toBeInTheDocument();
+    });
+
+    it("cleans unknown source IDs before rendering", () => {
+      renderWithToast(<JobCard job={{ ...mockJob, source: "city_careers" }} />);
+
+      expect(screen.getByText("City Careers")).toBeInTheDocument();
+      expect(screen.queryByText("city_careers")).not.toBeInTheDocument();
     });
 
     it("renders salary range when available", () => {

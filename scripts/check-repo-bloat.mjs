@@ -1474,6 +1474,7 @@ function hasTechnicalFirstUserCopy(root, path) {
     /Blocked unsafe job import URL/i,
     /Blocked unsafe application URL/i,
     /Invalid URL/i,
+    /<SourceIcon\s*\/>\s*\{job\.source\}/s,
     /This job posting URL is not valid or safe to open/i,
     /Unable to open the job posting URL/i,
     /Import a job from any website URL/i,
