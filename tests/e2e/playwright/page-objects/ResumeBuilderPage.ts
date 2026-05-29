@@ -65,7 +65,7 @@ export class ResumeBuilderPage extends BasePage {
   }
 
   get fullNameInput(): Locator {
-    return this.page.getByPlaceholder("John Doe");
+    return this.page.getByPlaceholder("Jordan Lee");
   }
 
   get emailInput(): Locator {

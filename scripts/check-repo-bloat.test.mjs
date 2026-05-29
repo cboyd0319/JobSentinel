@@ -519,7 +519,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     writeFixtureFile(
       root,
       "src/components/resume-builder/steps/ContactStep.tsx",
-      '<Input label="GitHub" placeholder="San Francisco, CA" />\n',
+      '<Input label="GitHub" placeholder="John Doe" /><Input placeholder="San Francisco, CA" />\n',
     );
     writeFixtureFile(
       root,

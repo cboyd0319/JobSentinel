@@ -57,7 +57,7 @@ const ContactStep = memo(function ContactStep({ contact, setContact }: ContactSt
           label="Full Name"
           value={contact.name}
           onChange={(e) => setContact({ ...contact, name: e.target.value })}
-          placeholder="John Doe"
+          placeholder="Jordan Lee"
           maxLength={100}
           required
           error={!contact.name.trim() ? "Name is required" : undefined}

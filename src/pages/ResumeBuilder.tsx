@@ -996,7 +996,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                     value={contact.name}
                     onChange={(e) => setContact({ ...contact, name: e.target.value })}
                     className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                    placeholder="John Doe"
+                    placeholder="Jordan Lee"
                   />
                 </div>
                 <div>
