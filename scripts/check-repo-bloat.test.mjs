@@ -435,6 +435,16 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src/pages/Dashboard.tsx",
+      '<input placeholder="e.g., Remote Rust Jobs" />\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/CoverLetterTemplates.tsx",
+      '<Input placeholder="e.g., Tech Company Application" />\n',
+    );
+    writeFixtureFile(
+      root,
       "src/components/JobImportModal.tsx",
       '<input placeholder="https://example.com/jobs/software-engineer" />\n',
     );
@@ -473,8 +483,10 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       [
         "add",
         "package.json",
+        "src/pages/Dashboard.tsx",
         "src/pages/Salary.tsx",
         "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+        "src/components/CoverLetterTemplates.tsx",
         "src/components/JobImportModal.tsx",
         "src/mocks/data.ts",
         "src-tauri/src/core/resume/templates.rs",
@@ -495,7 +507,9 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
 
     for (const path of [
       "src/pages/Salary.tsx",
+      "src/pages/Dashboard.tsx",
       "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+      "src/components/CoverLetterTemplates.tsx",
       "src/components/JobImportModal.tsx",
       "src/mocks/data.ts",
       "src-tauri/src/core/resume/templates.rs",

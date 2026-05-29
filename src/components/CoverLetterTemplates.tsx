@@ -89,7 +89,7 @@ function TemplateEditor({ template, onSave, onCancel, saving }: TemplateEditorPr
           label="Template Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="e.g., Tech Company Application"
+          placeholder="e.g., Customer Support Application"
           autoComplete="off"
           disabled={saving}
         />

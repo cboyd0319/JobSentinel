@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Removed remaining tech-only placeholder examples from saved-search naming and cover-letter template creation, replacing them with broader customer-support examples and adding bloat coverage for recurrence. |
 | 2026-05-29 | In progress | Sanitized visible crash and page-error messages before rendering so local paths, tokens, and email addresses do not appear on recovery screens; added bloat coverage to prevent raw error-boundary message or stack display from returning. |
 | 2026-05-29 | In progress | Made App Problem History details easier and safer for non-technical support requests by replacing raw JSON context with readable sanitized rows that redact emails, strip URL tokens, and summarize nested data. |
 | 2026-05-29 | In progress | Broadened maintained feature-doc examples away from software-engineer-only scenarios, including market intelligence, saved searches, smart scoring, application notes, scraper-health examples, JSON resume import, and resume skill categories. |

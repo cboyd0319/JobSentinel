@@ -835,7 +835,7 @@ export default function Dashboard({
               type="text"
               value={savedSearches.newSearchName}
               onChange={(e) => savedSearches.setNewSearchName(e.target.value)}
-              placeholder="e.g., Remote Rust Jobs"
+              placeholder="e.g., Remote Customer Support"
               className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus-visible:ring-sentinel-400"
               autoFocus
               onKeyDown={(e) => {
