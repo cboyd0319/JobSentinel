@@ -19,11 +19,13 @@ scope:
 
 Latest pushed slice before this handoff refresh:
 
-- `d41ac4ef Broaden style and source comments`
+- `76403aa5 Broaden undo toast fixture`
 
 Current local branch note:
 
-- Continuation cleanup commits after `d41ac4ef` are local only until the user
+- `main` was pushed to `origin/main` through `76403aa5` on 2026-05-29 after
+  focused docs, bloat, frontend, and Rust checks.
+- Continuation cleanup commits after `76403aa5` are local only until the user
   explicitly asks for another push or the full-goal completion pass requires
   remote verification.
 - Continue using small verified commits. Avoid remote CI unless the user

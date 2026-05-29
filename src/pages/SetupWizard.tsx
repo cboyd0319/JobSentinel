@@ -957,7 +957,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
 
                   <div className="flex gap-2 mb-3">
                     <Input
-                      placeholder="e.g., San Francisco, New York"
+                      placeholder="e.g., Chicago, Austin"
                       value={cityInput}
                       onChange={(e) => setCityInput(e.target.value)}
                       onKeyDown={(e) => {

@@ -458,6 +458,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src/pages/SetupWizard.tsx",
+      '<Input placeholder="e.g., San Francisco, New York" />\n',
+    );
+    writeFixtureFile(
+      root,
       "src/components/CompanyResearchPanel.tsx",
       '<p>Tech Stack</p><p>Try searching for "{companyName}" on LinkedIn or Glassdoor.</p>\n',
     );
@@ -798,6 +803,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "add",
         "package.json",
         "src/pages/Dashboard.tsx",
+        "src/pages/SetupWizard.tsx",
         "src/pages/Salary.tsx",
         "src/pages/DashboardUI/DashboardFiltersBar.tsx",
         "src/components/CompanyResearchPanel.tsx",
@@ -872,6 +878,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     for (const path of [
       "src/pages/Salary.tsx",
       "src/pages/Dashboard.tsx",
+      "src/pages/SetupWizard.tsx",
       "src/pages/DashboardUI/DashboardFiltersBar.tsx",
       "src/components/CompanyResearchPanel.tsx",
       "src/components/CoverLetterTemplates.tsx",
