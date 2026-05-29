@@ -636,6 +636,17 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src-tauri/tests/database_integration_test.rs",
+      [
+        'let job = create_test_job("idempotent_001", "Test Job", "TestCorp");',
+        'title: "Senior Rust Engineer".to_string(),',
+        'location: Some("San Francisco, CA".to_string()),',
+        'let results = db.search_jobs("Rust", 10).await.unwrap();',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src-tauri/tests/scraper_integration_test.rs",
       [
         '"company": "TechCorp",',
@@ -900,6 +911,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src-tauri/src/commands/import.rs",
         "src-tauri/src/commands/tests.rs",
         "src-tauri/tests/api_contract_test.rs",
+        "src-tauri/tests/database_integration_test.rs",
         "src-tauri/tests/scraper_integration_test.rs",
         "src-tauri/tests/scraping_pipeline_integration.rs",
         "src-tauri/tests/scheduler_integration_test.rs",
@@ -984,6 +996,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src-tauri/src/commands/import.rs",
       "src-tauri/src/commands/tests.rs",
       "src-tauri/tests/api_contract_test.rs",
+      "src-tauri/tests/database_integration_test.rs",
       "src-tauri/tests/scraper_integration_test.rs",
       "src-tauri/tests/scraping_pipeline_integration.rs",
       "src-tauri/tests/scheduler_integration_test.rs",

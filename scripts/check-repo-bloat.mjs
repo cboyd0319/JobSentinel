@@ -545,6 +545,7 @@ const broadAudienceExamplePaths = new Set([
   "src-tauri/src/commands/tests.rs",
   "src-tauri/src/core/deeplinks/types.rs",
   "src-tauri/tests/api_contract_test.rs",
+  "src-tauri/tests/database_integration_test.rs",
   "src-tauri/tests/scraper_integration_test.rs",
   "src-tauri/tests/scraping_pipeline_integration.rs",
   "src-tauri/tests/scheduler_integration_test.rs",
@@ -1560,6 +1561,25 @@ function hasEngineerFirstAudienceExamples(root, path) {
     ];
 
     if (schedulerIntegrationPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "src-tauri/tests/database_integration_test.rs") {
+    const databaseIntegrationPatterns = [
+      /TestCorp/i,
+      /Senior Rust Engineer/i,
+      /Rust Developer/i,
+      /Rust Security Engineer/i,
+      /Python Developer/i,
+      /Java Developer/i,
+      /RustCorp|SecureCorp|PyCorp|JavaCorp/i,
+      /San Francisco/i,
+      /Search for Rust/i,
+      /search_jobs\("Rust"/i,
+    ];
+
+    if (databaseIntegrationPatterns.some((pattern) => pattern.test(text))) {
       return true;
     }
   }

@@ -97,7 +97,7 @@ async fn test_migrations_are_idempotent() {
     db1.migrate().await.unwrap();
 
     // Insert a job
-    let job = create_test_job("idempotent_001", "Test Job", "TestCorp");
+    let job = create_test_job("idempotent_001", "Program Coordinator", "Example Services");
     db1.upsert_job(&job).await.unwrap();
 
     // Connect again and run migrations (should be no-op)
@@ -107,7 +107,7 @@ async fn test_migrations_are_idempotent() {
     // Verify data is preserved
     let retrieved = db2.get_job_by_hash("idempotent_001").await.unwrap();
     assert!(retrieved.is_some());
-    assert_eq!(retrieved.unwrap().title, "Test Job");
+    assert_eq!(retrieved.unwrap().title, "Program Coordinator");
 }
 
 #[tokio::test]
@@ -227,7 +227,7 @@ async fn test_applications_foreign_key_constraint() {
     sqlx::query(
         r#"
         INSERT INTO jobs (hash, title, company, url, source)
-        VALUES ('app_fk_test', 'Test Job', 'TestCorp', 'https://example.com', 'test')
+        VALUES ('app_fk_test', 'Program Coordinator', 'Example Services', 'https://example.com', 'test')
         "#,
     )
     .execute(&pool)
@@ -258,7 +258,7 @@ async fn test_interviews_foreign_key_constraint() {
     sqlx::query(
         r#"
         INSERT INTO jobs (hash, title, company, url, source)
-        VALUES ('interview_job_test', 'Test Job', 'TestCorp', 'https://example.com', 'test')
+        VALUES ('interview_job_test', 'Program Coordinator', 'Example Services', 'https://example.com', 'test')
         "#,
     )
     .execute(&pool)
@@ -482,15 +482,15 @@ async fn test_concurrent_reads_and_writes() {
 async fn test_upsert_atomicity() {
     let (db, _temp_dir) = setup_test_db().await;
 
-    let job = create_test_job("atomic_001", "Test Job", "TestCorp");
+    let job = create_test_job("atomic_001", "Program Coordinator", "Example Services");
 
     // Upsert should be atomic
     db.upsert_job(&job).await.unwrap();
 
     // Verify complete state
     let retrieved = db.get_job_by_hash("atomic_001").await.unwrap().unwrap();
-    assert_eq!(retrieved.title, "Test Job");
-    assert_eq!(retrieved.company, "TestCorp");
+    assert_eq!(retrieved.title, "Program Coordinator");
+    assert_eq!(retrieved.company, "Example Services");
     assert!(retrieved.score.is_some());
 }
 
@@ -506,17 +506,19 @@ async fn test_job_data_preserved_on_upsert() {
     let job = Job {
         id: 0,
         hash: "preserve_001".to_string(),
-        title: "Senior Rust Engineer".to_string(),
-        company: "RustCorp".to_string(),
+        title: "Senior Care Coordinator".to_string(),
+        company: "CareBridge".to_string(),
         url: "https://example.com/job/preserve_001".to_string(),
-        location: Some("San Francisco, CA".to_string()),
-        description: Some("Build amazing things with Rust".to_string()),
+        location: Some("Chicago, IL".to_string()),
+        description: Some(
+            "Coordinate care plans with CRM records and patient scheduling.".to_string(),
+        ),
         score: Some(0.92),
         score_reasons: Some(r#"{"title_match": 0.9, "salary": 0.95}"#.to_string()),
         source: "greenhouse".to_string(),
         remote: Some(true),
-        salary_min: Some(180000),
-        salary_max: Some(250000),
+        salary_min: Some(65000),
+        salary_max: Some(85000),
         currency: Some("USD".to_string()),
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
@@ -538,16 +540,16 @@ async fn test_job_data_preserved_on_upsert() {
     // Retrieve and verify core job fields are preserved
     let retrieved = db.get_job_by_hash("preserve_001").await.unwrap().unwrap();
 
-    assert_eq!(retrieved.title, "Senior Rust Engineer");
-    assert_eq!(retrieved.company, "RustCorp");
-    assert_eq!(retrieved.location, Some("San Francisco, CA".to_string()));
+    assert_eq!(retrieved.title, "Senior Care Coordinator");
+    assert_eq!(retrieved.company, "CareBridge");
+    assert_eq!(retrieved.location, Some("Chicago, IL".to_string()));
     assert!(retrieved.description.is_some());
     assert!(retrieved.score.is_some());
     assert!((retrieved.score.unwrap() - 0.92).abs() < 0.01);
     assert_eq!(retrieved.source, "greenhouse");
     assert_eq!(retrieved.remote, Some(true));
-    assert_eq!(retrieved.salary_min, Some(180000));
-    assert_eq!(retrieved.salary_max, Some(250000));
+    assert_eq!(retrieved.salary_min, Some(65000));
+    assert_eq!(retrieved.salary_max, Some(85000));
     assert_eq!(retrieved.currency, Some("USD".to_string()));
 
     // User interaction fields (bookmarked, notes, hidden) are NOT preserved by upsert
@@ -607,36 +609,36 @@ async fn test_search_jobs_basic() {
     let (db, _temp_dir) = setup_test_db().await;
 
     let jobs = vec![
-        create_test_job("search_001", "Rust Developer", "RustCorp"),
-        create_test_job("search_002", "Python Developer", "PyCorp"),
-        create_test_job("search_003", "Rust Security Engineer", "SecureCorp"),
-        create_test_job("search_004", "Java Developer", "JavaCorp"),
+        create_test_job("search_001", "Care Coordinator", "WellBridge"),
+        create_test_job("search_002", "Support Specialist", "SupportWorks"),
+        create_test_job("search_003", "Patient Care Specialist", "HealthBridge"),
+        create_test_job("search_004", "Program Assistant", "CommunityWorks"),
     ];
 
     for job in jobs {
         db.upsert_job(&job).await.unwrap();
     }
 
-    // Search for Rust
-    let results = db.search_jobs("Rust", 10).await.unwrap();
+    // Search for care
+    let results = db.search_jobs("Care", 10).await.unwrap();
     assert_eq!(results.len(), 2);
 
-    // Search for Developer
-    let results = db.search_jobs("Developer", 10).await.unwrap();
-    assert_eq!(results.len(), 3);
+    // Search for Specialist
+    let results = db.search_jobs("Specialist", 10).await.unwrap();
+    assert_eq!(results.len(), 2);
 }
 
 #[tokio::test]
 async fn test_search_jobs_case_insensitive() {
     let (db, _temp_dir) = setup_test_db().await;
 
-    let job = create_test_job("case_001", "Senior RUST Engineer", "Corp");
+    let job = create_test_job("case_001", "Senior CARE Coordinator", "Corp");
     db.upsert_job(&job).await.unwrap();
 
     // Search with different cases
-    let results1 = db.search_jobs("rust", 10).await.unwrap();
-    let results2 = db.search_jobs("RUST", 10).await.unwrap();
-    let results3 = db.search_jobs("Rust", 10).await.unwrap();
+    let results1 = db.search_jobs("care", 10).await.unwrap();
+    let results2 = db.search_jobs("CARE", 10).await.unwrap();
+    let results3 = db.search_jobs("Care", 10).await.unwrap();
 
     assert_eq!(results1.len(), 1);
     assert_eq!(results2.len(), 1);
