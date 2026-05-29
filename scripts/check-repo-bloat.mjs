@@ -414,6 +414,7 @@ const resumeCommandDtoPrivacyPaths = new Set([
   "docs/features/resume-matcher.md",
 ]);
 const resumeCommandErrorPrivacyPaths = new Set(["src-tauri/src/commands/resume.rs"]);
+const atsCommandErrorPrivacyPaths = new Set(["src-tauri/src/commands/ats.rs"]);
 const userDataPrivacyLoggingPaths = new Set([
   "src-tauri/src/commands/user_data.rs",
   "src-tauri/src/core/user_data/mod.rs",
@@ -2832,6 +2833,25 @@ function hasRawResumeCommandErrorDetails(root, path) {
   );
 }
 
+function hasRawAtsCommandErrorDetails(root, path) {
+  if (!atsCommandErrorPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /map_err\(\|e\|\s*format!\(\s*"(?:Failed to|Invalid status)[^"]*:\s*\{\}"\s*,\s*e\s*\)\)/.test(
+      productionText,
+    ) ||
+    /tracing::info!\([^;]*(?:job_hash:\s*\{\}|status:\s*\{\}|type:\s*\{\}|at:\s*\{\}|outcome:\s*\{\})[^;]*\)/.test(
+      productionText,
+    ) ||
+    /tracing::info!\([^;]*(?:\bjob_hash\b|\bstatus\b|\binterview_type\b|\bscheduled_at\b|\boutcome\b)[^;]*\)/.test(
+      productionText,
+    )
+  );
+}
+
 function resumeSummaryStructMissingOrPrivate(text) {
   const match = text.match(/pub\s+struct\s+ResumeSummary\s*\{([^}]*)\}/);
   return !match || /\b(?:file_path|parsed_text)\b/.test(match[1]);
@@ -4323,6 +4343,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawResumeCommandErrorDetails(root, path)) {
       violations.push(`sanitize resume command error details: ${path}`);
+    }
+
+    if (hasRawAtsCommandErrorDetails(root, path)) {
+      violations.push(`sanitize application tracking command error details: ${path}`);
     }
 
     if (hasRawResumeCommandDtoExposure(root, path)) {

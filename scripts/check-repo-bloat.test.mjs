@@ -6008,6 +6008,47 @@ test("checkRepoBloat rejects raw resume command error details", () => {
   });
 });
 
+test("checkRepoBloat rejects raw application tracking command error details", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/ats.rs",
+      [
+        "pub async fn create_application(job_hash: String) -> Result<i64, String> {",
+        "    tracing::info!(\"Command: create_application (job_hash: {})\", job_hash);",
+        "    tracker.create_application(&job_hash).await.map_err(|e| format!(\"Failed to create application: {}\", e))",
+        "}",
+        "",
+        "pub async fn schedule_interview(interview_type: String, scheduled_at: String) -> Result<i64, String> {",
+        "    tracing::info!(\"Command: schedule_interview (app: {}, type: {}, at: {})\", application_id, interview_type, scheduled_at);",
+        "    Ok(1)",
+        "}",
+        "",
+        "pub async fn complete_interview(outcome: String) -> Result<(), String> {",
+        "    tracing::info!(\"Command: complete_interview (id: {}, outcome: {})\", interview_id, outcome);",
+        "    status.parse().map_err(|e| format!(\"Invalid status: {}\", e))?;",
+        "    Ok(())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/ats.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize application tracking command error details: src-tauri/src/commands/ats.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw command setup error display", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

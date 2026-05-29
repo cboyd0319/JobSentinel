@@ -2,6 +2,7 @@
 //!
 //! Commands for managing job applications, interviews, reminders, and ghosting detection.
 
+use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
 use crate::core::ats::{
     ApplicationStatus, ApplicationTracker, ApplicationsByStatus, PendingReminder,
@@ -15,13 +16,14 @@ pub async fn create_application(
     job_hash: String,
     state: State<'_, AppState>,
 ) -> Result<i64, String> {
-    tracing::info!("Command: create_application (job_hash: {})", job_hash);
+    let job_hash_chars = job_hash.chars().count();
+    tracing::info!(job_hash_chars, "Command: create_application");
 
     let tracker = ApplicationTracker::new(state.database.pool().clone());
     tracker
         .create_application(&job_hash)
         .await
-        .map_err(|e| format!("Failed to create application: {}", e))
+        .map_err(|e| user_friendly_error("Failed to create application", e))
 }
 
 /// Get applications grouped by status (for Kanban board)
@@ -35,7 +37,7 @@ pub async fn get_applications_kanban(
     tracker
         .get_applications_by_status()
         .await
-        .map_err(|e| format!("Failed to get applications: {}", e))
+        .map_err(|e| user_friendly_error("Failed to get applications", e))
 }
 
 /// Update application status
@@ -45,21 +47,22 @@ pub async fn update_application_status(
     status: String,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
+    let status_chars = status.chars().count();
     tracing::info!(
-        "Command: update_application_status (id: {}, status: {})",
         application_id,
-        status
+        status_chars,
+        "Command: update_application_status"
     );
 
     let tracker = ApplicationTracker::new(state.database.pool().clone());
     let new_status: ApplicationStatus = status
         .parse()
-        .map_err(|e| format!("Invalid status: {}", e))?;
+        .map_err(|e| user_friendly_error("Invalid status", e))?;
 
     tracker
         .update_status(application_id, new_status)
         .await
-        .map_err(|e| format!("Failed to update status: {}", e))
+        .map_err(|e| user_friendly_error("Failed to update status", e))
 }
 
 /// Add notes to an application
@@ -75,7 +78,7 @@ pub async fn add_application_notes(
     tracker
         .add_notes(application_id, &notes)
         .await
-        .map_err(|e| format!("Failed to add notes: {}", e))
+        .map_err(|e| user_friendly_error("Failed to add notes", e))
 }
 
 /// Get pending reminders
@@ -89,7 +92,7 @@ pub async fn get_pending_reminders(
     tracker
         .get_pending_reminders()
         .await
-        .map_err(|e| format!("Failed to get reminders: {}", e))
+        .map_err(|e| user_friendly_error("Failed to get reminders", e))
 }
 
 /// Mark reminder as completed
@@ -101,7 +104,7 @@ pub async fn complete_reminder(reminder_id: i64, state: State<'_, AppState>) -> 
     tracker
         .complete_reminder(reminder_id)
         .await
-        .map_err(|e| format!("Failed to complete reminder: {}", e))
+        .map_err(|e| user_friendly_error("Failed to complete reminder", e))
 }
 
 /// Auto-detect ghosted applications
@@ -113,7 +116,7 @@ pub async fn detect_ghosted_applications(state: State<'_, AppState>) -> Result<u
     tracker
         .auto_detect_ghosted()
         .await
-        .map_err(|e| format!("Failed to detect ghosted: {}", e))
+        .map_err(|e| user_friendly_error("Failed to detect ghosted", e))
 }
 
 /// Get application statistics for analytics dashboard
@@ -125,7 +128,7 @@ pub async fn get_application_stats(state: State<'_, AppState>) -> Result<Applica
     tracker
         .get_application_stats()
         .await
-        .map_err(|e| format!("Failed to get application stats: {}", e))
+        .map_err(|e| user_friendly_error("Failed to get application stats", e))
 }
 
 /// Schedule a new interview
@@ -141,11 +144,18 @@ pub async fn schedule_interview(
     notes: Option<String>,
     state: State<'_, AppState>,
 ) -> Result<i64, String> {
+    let interview_type_chars = interview_type.chars().count();
+    let scheduled_at_chars = scheduled_at.chars().count();
     tracing::info!(
-        "Command: schedule_interview (app: {}, type: {}, at: {})",
         application_id,
-        interview_type,
-        scheduled_at
+        interview_type_chars,
+        scheduled_at_chars,
+        duration_minutes,
+        has_location = location.is_some(),
+        has_interviewer_name = interviewer_name.is_some(),
+        has_interviewer_title = interviewer_title.is_some(),
+        has_notes = notes.is_some(),
+        "Command: schedule_interview"
     );
 
     let tracker = ApplicationTracker::new(state.database.pool().clone());
@@ -161,7 +171,7 @@ pub async fn schedule_interview(
             notes.as_deref(),
         )
         .await
-        .map_err(|e| format!("Failed to schedule interview: {}", e))
+        .map_err(|e| user_friendly_error("Failed to schedule interview", e))
 }
 
 /// Get upcoming interviews
@@ -175,7 +185,7 @@ pub async fn get_upcoming_interviews(
     tracker
         .get_upcoming_interviews()
         .await
-        .map_err(|e| format!("Failed to get interviews: {}", e))
+        .map_err(|e| user_friendly_error("Failed to get interviews", e))
 }
 
 /// Get past interviews (completed, last 90 days)
@@ -189,7 +199,7 @@ pub async fn get_past_interviews(
     tracker
         .get_past_interviews()
         .await
-        .map_err(|e| format!("Failed to get past interviews: {}", e))
+        .map_err(|e| user_friendly_error("Failed to get past interviews", e))
 }
 
 /// Complete an interview with outcome
@@ -200,17 +210,19 @@ pub async fn complete_interview(
     notes: Option<String>,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
+    let outcome_chars = outcome.chars().count();
     tracing::info!(
-        "Command: complete_interview (id: {}, outcome: {})",
         interview_id,
-        outcome
+        outcome_chars,
+        has_notes = notes.is_some(),
+        "Command: complete_interview"
     );
 
     let tracker = ApplicationTracker::new(state.database.pool().clone());
     tracker
         .complete_interview(interview_id, &outcome, notes.as_deref())
         .await
-        .map_err(|e| format!("Failed to complete interview: {}", e))
+        .map_err(|e| user_friendly_error("Failed to complete interview", e))
 }
 
 /// Delete an interview
@@ -222,5 +234,5 @@ pub async fn delete_interview(interview_id: i64, state: State<'_, AppState>) -> 
     tracker
         .delete_interview(interview_id)
         .await
-        .map_err(|e| format!("Failed to delete interview: {}", e))
+        .map_err(|e| user_friendly_error("Failed to delete interview", e))
 }
