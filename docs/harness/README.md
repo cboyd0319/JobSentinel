@@ -139,6 +139,7 @@ that prevents the observed failure.
 ## Related Docs
 
 - [Sources](sources.md)
+- [README information design](readme-information-design.md)
 - [Agent operating model](agent-operating-model.md)
 - [Change contract](change-contract.md)
 - [Verification matrix](verification-matrix.md)
