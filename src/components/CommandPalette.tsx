@@ -250,7 +250,7 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
         onKeyDown={handlePaletteKeyDown}
         role="dialog"
         aria-modal="true"
-        aria-label="Command palette"
+        aria-label="Quick actions"
         data-testid="command-palette"
       >
         {/* Screen reader announcements */}
@@ -285,7 +285,7 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Type a command or search..."
+            placeholder="Search actions or pages..."
             className="w-full px-3 py-4 bg-transparent text-surface-900 dark:text-white placeholder-surface-400 focus:outline-none"
             data-testid="command-palette-input"
             role="combobox"
@@ -313,7 +313,7 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
               role="status"
               aria-live="polite"
             >
-              No commands found
+              No actions found
             </div>
           ) : (
             sortedCategories.map((category) => (

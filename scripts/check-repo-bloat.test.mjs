@@ -867,6 +867,14 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/pages/ResumeBuilder.tsx",
       '"Try restarting the app or check if the database is accessible."\n',
     );
+    writeFixtureFile(root, "src/components/CommandPalette.tsx", '"Type a command or search..."\n');
+    writeFixtureFile(root, "src/components/KeyboardShortcutsHelp.tsx", '"Open command palette"\n');
+    writeFixtureFile(root, "src/components/Navigation.tsx", '"for command palette"\n');
+    writeFixtureFile(
+      root,
+      "src/contexts/KeyboardShortcutsContext.tsx",
+      '"Close dialog / command palette"\n',
+    );
     writeFixtureFile(
       root,
       "src/pages/Salary.tsx",
@@ -1011,11 +1019,15 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/components/DashboardWidgets.tsx",
         "src/components/InterviewScheduler.tsx",
         "src/components/CareerProfileSelector.tsx",
+        "src/components/CommandPalette.tsx",
+        "src/components/KeyboardShortcutsHelp.tsx",
+        "src/components/Navigation.tsx",
         "src/components/automation/ApplyButton.tsx",
         "src/components/automation/ScreeningAnswersForm.tsx",
         "src/components/feedback/DebugInfoPreview.tsx",
         "src/components/feedback/FeedbackModal.tsx",
         "src/components/feedback/SuccessScreen.tsx",
+        "src/contexts/KeyboardShortcutsContext.tsx",
         "src/mocks/handlers.ts",
         "src/utils/formValidation.ts",
         "src/utils/errorMessages.ts",
@@ -1061,11 +1073,15 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/components/DashboardWidgets.tsx",
       "src/components/InterviewScheduler.tsx",
       "src/components/CareerProfileSelector.tsx",
+      "src/components/CommandPalette.tsx",
+      "src/components/KeyboardShortcutsHelp.tsx",
+      "src/components/Navigation.tsx",
       "src/components/automation/ApplyButton.tsx",
       "src/components/automation/ScreeningAnswersForm.tsx",
       "src/components/feedback/DebugInfoPreview.tsx",
       "src/components/feedback/FeedbackModal.tsx",
       "src/components/feedback/SuccessScreen.tsx",
+      "src/contexts/KeyboardShortcutsContext.tsx",
       "src/mocks/handlers.ts",
       "src/utils/formValidation.ts",
       "src/utils/errorMessages.ts",

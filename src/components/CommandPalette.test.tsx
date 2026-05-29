@@ -34,7 +34,7 @@ describe("CommandPalette", () => {
     {
       key: "k",
       modifiers: ["meta"],
-      description: "Open command palette",
+      description: "Open quick actions",
       action: vi.fn(),
       category: "ui",
     },
@@ -86,7 +86,7 @@ describe("CommandPalette", () => {
 
       expect(screen.getByRole("dialog")).toHaveAttribute(
         "aria-label",
-        "Command palette"
+        "Quick actions"
       );
     });
   });
@@ -102,7 +102,7 @@ describe("CommandPalette", () => {
       render(<CommandPalette />);
 
       expect(
-        screen.getByPlaceholderText("Type a command or search...")
+        screen.getByPlaceholderText("Search actions or pages...")
       ).toBeInTheDocument();
     });
 
@@ -124,7 +124,7 @@ describe("CommandPalette", () => {
         target: { value: "xyz123nonexistent" },
       });
 
-      expect(screen.getByText("No commands found")).toBeInTheDocument();
+      expect(screen.getByText("No actions found")).toBeInTheDocument();
     });
   });
 
@@ -140,7 +140,7 @@ describe("CommandPalette", () => {
 
       expect(screen.getByText("Go to Dashboard")).toBeInTheDocument();
       expect(screen.getByText("Go to Applications")).toBeInTheDocument();
-      expect(screen.getByText("Open command palette")).toBeInTheDocument();
+      expect(screen.getByText("Open quick actions")).toBeInTheDocument();
     });
 
     it("displays additional commands prop", () => {

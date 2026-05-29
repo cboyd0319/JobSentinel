@@ -452,7 +452,7 @@ describe("KeyboardShortcutsContext", () => {
         </KeyboardShortcutsProvider>
       );
 
-      // Open command palette
+      // Open quick actions
       fireEvent.click(screen.getByTestId("open-palette"));
       await waitFor(() => {
         expect(screen.getByTestId("command-palette-open")).toHaveTextContent("true");

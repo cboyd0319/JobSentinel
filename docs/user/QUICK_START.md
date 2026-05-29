@@ -235,7 +235,7 @@ Use `Cmd` on macOS and `Ctrl` on Windows or Linux.
 
 | Key | What It Does                  |
 | --- | ----------------------------- |
-| `Cmd/Ctrl + K` | Open the command palette |
+| `Cmd/Ctrl + K` | Open quick actions |
 | `Cmd/Ctrl + 1-8` | Switch pages |
 | `Cmd/Ctrl + ,` | Open settings |
 | `Cmd/Ctrl + Z` | Undo the last action |

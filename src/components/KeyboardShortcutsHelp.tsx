@@ -32,7 +32,7 @@ const SHORTCUTS = {
   global: {
     title: 'Global',
     shortcuts: [
-      { keys: ['⌘K'], description: 'Open command palette' },
+      { keys: ['⌘K'], description: 'Open quick actions' },
       { keys: ['⌘,'], description: 'Open settings' },
       { keys: ['⌘1-8'], description: 'Switch pages' },
       { keys: ['⌘Z'], description: 'Undo last action' },

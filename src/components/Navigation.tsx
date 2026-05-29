@@ -158,7 +158,7 @@ export const Navigation = memo(function Navigation({ currentPage, onNavigate }: 
         {isExpanded && (
           <div className="px-4 py-3 border-t border-surface-200 dark:border-surface-700">
             <p className="text-xs text-surface-500 dark:text-surface-400">
-              Press <kbd className="px-1 py-0.5 bg-surface-200 dark:bg-surface-700 rounded text-xs">⌘K</kbd> for command palette
+              Press <kbd className="px-1 py-0.5 bg-surface-200 dark:bg-surface-700 rounded text-xs">⌘K</kbd> for quick actions
             </p>
           </div>
         )}

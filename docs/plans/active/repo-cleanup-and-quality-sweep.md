@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Reworded visible command-palette hints, shortcut help, search placeholder, empty state, and quick-start shortcut copy to quick actions language; added bloat coverage against command-palette jargon returning to user-facing surfaces. |
 | 2026-05-29 | In progress | Replaced stale Salary AI and AI Resume-Job Matcher labels in maintained docs with Pay Protection and local resume fit review language; added bloat coverage so those confusing AI labels cannot return. |
 | 2026-05-29 | In progress | Renamed visible Resume Optimizer navigation, shortcut, recovery, builder guidance, and maintained user docs to Resume Match so resume help reads as truthful fit review instead of optimization framing; added bloat coverage. |
 | 2026-05-29 | In progress | Reworded live resume-format review UI away from ATS score and optimizer framing toward resume readability, hiring-system readability, and Resume Match next steps; added component and bloat coverage. |

@@ -137,10 +137,10 @@ describe("KeyboardShortcutsHelp", () => {
   });
 
   describe("global shortcuts", () => {
-    it("shows command palette shortcut", () => {
+    it("shows quick actions shortcut", () => {
       render(<KeyboardShortcutsHelp isOpen={true} onClose={vi.fn()} />);
 
-      expect(screen.getByText("Open command palette")).toBeInTheDocument();
+      expect(screen.getByText("Open quick actions")).toBeInTheDocument();
     });
 
     it("shows settings shortcut", () => {

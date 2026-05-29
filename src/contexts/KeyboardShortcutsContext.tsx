@@ -93,7 +93,7 @@ export function KeyboardShortcutsProvider({
       {
         key: "k",
         modifiers: ["meta"],
-        description: "Open command palette",
+        description: "Open quick actions",
         action: toggleCommandPalette,
         category: "ui",
       },
@@ -163,7 +163,7 @@ export function KeyboardShortcutsProvider({
       {
         key: "Escape",
         modifiers: [],
-        description: "Close dialog / command palette",
+        description: "Close dialog / quick actions",
         action: () => {
           closeCommandPalette();
           closeHelp();
