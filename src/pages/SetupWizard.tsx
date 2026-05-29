@@ -344,6 +344,14 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     }));
   };
 
+  const handleSalaryFloorChange = (value: string) => {
+    const parsed = Number.parseInt(value, 10);
+    setConfig((prev) => ({
+      ...prev,
+      salary_floor_usd: Number.isFinite(parsed) && parsed > 0 ? parsed : 0,
+    }));
+  };
+
   const handleFreshnessPreferenceChange = (preference: FreshnessPreference) => {
     setFreshnessPreference(preference);
     setConfig((prev) => ({
@@ -657,17 +665,35 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 )}
               </div>
 
-              {/* Salary indicator (pre-populated from profile) */}
-              {config.salary_floor_usd > 0 && (
-                <div className="p-3 bg-surface-50 rounded-lg">
-                  <p className="text-sm text-surface-600">
-                    Looking for jobs paying at least{" "}
+              {/* Pay floor */}
+              <div>
+                <h3 className="font-semibold text-surface-800 mb-3 flex items-center gap-2">
+                  <PayIcon /> Pay Floor
+                </h3>
+                <p className="mb-3 text-sm text-surface-500">
+                  Optional. Add the minimum yearly pay that would make a job worth considering.
+                </p>
+                <Input
+                  label="Minimum yearly pay"
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  step={1000}
+                  placeholder="e.g., 60000"
+                  value={config.salary_floor_usd || ""}
+                  onChange={(e) => handleSalaryFloorChange(e.target.value)}
+                  hint="Leave blank if unsure. Jobs without pay stay visible and marked."
+                />
+                {config.salary_floor_usd > 0 && (
+                  <p className="mt-2 text-sm text-surface-600">
+                    JobSentinel will warn when listed pay is below{" "}
                     <span className="font-semibold text-surface-800">
                       ${config.salary_floor_usd.toLocaleString()}/year
                     </span>
+                    .
                   </p>
-                </div>
-              )}
+                )}
+              </div>
 
               {!canProceedFromStep1 && (
                 <p className="text-center text-sm text-amber-600">
@@ -1161,6 +1187,14 @@ function AvoidIcon() {
   return (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6.72 6.72a7.5 7.5 0 1010.56 10.56M6.72 6.72l10.56 10.56M6.72 6.72a7.5 7.5 0 0110.56 10.56" />
+    </svg>
+  );
+}
+
+function PayIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v12m3-9.5A3.5 3.5 0 0012 7a3.5 3.5 0 000 7 3.5 3.5 0 010 7 3.5 3.5 0 01-3-1.5" />
     </svg>
   );
 }

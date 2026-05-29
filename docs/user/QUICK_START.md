@@ -132,7 +132,13 @@ Add words or phrases that should rank jobs lower. Examples:
 
 Skip this if nothing comes to mind.
 
-### Question 5: Where do you want to work?
+### Question 5: What pay would make a job worth considering? (Optional)
+
+Add a minimum yearly pay amount if you know it. Leave it blank if you are not
+sure yet. Jobs without listed pay stay visible and marked, and jobs below your
+floor are warned about instead of silently hidden.
+
+### Question 6: Where do you want to work?
 
 Pick any combination:
 
@@ -140,7 +146,7 @@ Pick any combination:
 - **Hybrid** - Mix of office and home
 - **On-site** - Full-time in the office
 
-### Question 6: Should fresh and verified jobs show first?
+### Question 7: Should fresh and verified jobs show first?
 
 Pick how JobSentinel should handle older or hard-to-verify postings:
 
@@ -149,12 +155,6 @@ Pick how JobSentinel should handle older or hard-to-verify postings:
 - **Balanced** - Use normal posting-risk warnings while keeping the list broad
 - **Widest search** - Show more older postings and warn only when risk looks
   clearer
-
-### Question 7: What about pay?
-
-Some starter paths include a starting pay floor. If no pay floor is set,
-JobSentinel still shows jobs with missing or unlisted pay. You can change pay
-settings later.
 
 ### Question 8: Want instant alerts? (Optional)
 

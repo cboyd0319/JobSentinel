@@ -96,6 +96,7 @@ describe("SetupWizard Accessibility", () => {
         screen.getByPlaceholderText("e.g., night shift, heavy travel"),
         "night shift{enter}",
       );
+      await user.type(screen.getByLabelText("Minimum yearly pay"), "65000");
 
       expect(screen.getByText("night shift")).toBeInTheDocument();
 
@@ -111,6 +112,7 @@ describe("SetupWizard Accessibility", () => {
               title_allowlist: ["Office Manager"],
               keywords_boost: ["Scheduling"],
               keywords_exclude: ["night shift"],
+              salary_floor_usd: 65000,
               ghost_config: expect.objectContaining({
                 stale_threshold_days: 30,
                 repost_threshold: 2,
@@ -134,6 +136,7 @@ describe("SetupWizard Accessibility", () => {
         screen.getByPlaceholderText("e.g., night shift, heavy travel"),
         "night shift{enter}",
       );
+      await user.type(screen.getByLabelText("Minimum yearly pay"), "65000");
 
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
@@ -153,7 +156,7 @@ describe("SetupWizard Accessibility", () => {
       expect(review.getByText("Freshness")).toBeInTheDocument();
       expect(review.getByText("Fresh and verified first")).toBeInTheDocument();
       expect(
-        screen.getByText("Show jobs even when pay is missing or not listed"),
+        screen.getByText("At least $65,000/year"),
       ).toBeInTheDocument();
       expect(
         screen.getByText(/strong matches for your saved search/i),

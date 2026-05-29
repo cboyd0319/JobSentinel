@@ -909,6 +909,7 @@ against:
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Added an optional setup pay-floor question so any job seeker can set below-floor warnings before first scan while keeping missing-pay jobs visible and marked. |
 | 2026-05-29 | In progress | Reframed match-score copy from celebratory recommendations to protective evidence language: Strong Match, Some Match, source-check and must-have review guidance, plus bloat coverage against overconfident score copy. |
 | 2026-05-28 | In progress | Chose Application Assist as the next implementation slice and reframed the visible flow around review-first form preparation, user-controlled Submit, and anti-volume guardrails. |
 | 2026-05-28 | In progress | Promoted ghost-job protection, pay-equity safeguards, long-term-unemployment support, bias-aware application routes, protective tone, and local-first privacy from research notes into first-class product requirements and prioritization. |
