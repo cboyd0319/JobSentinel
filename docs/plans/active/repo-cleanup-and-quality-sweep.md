@@ -132,6 +132,8 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Rebased remaining command database-search fixtures from Rust and Python developer examples to care-coordination and program-assistant examples after the bloat guard exposed the helper test drift. |
+| 2026-05-29 | In progress | Rebased API contract fixtures from engineer/TestCorp/San Francisco examples to care-coordination, program-assistant, customer-support, Example Services, Chicago, and broad repost examples, with bloat coverage against old contract-test drift. |
 | 2026-05-29 | In progress | Replaced fake `TestCorp` Company Research test labels with broader Example Services fixtures, while leaving factual company headquarters untouched pending a sourced data pass. |
 | 2026-05-29 | In progress | Replaced remaining Jane Doe frontend resume fixtures with Jordan Lee examples, broadened the sample education field away from computer science, and added bloat coverage for those frontend test paths. |
 | 2026-05-29 | In progress | Rebased the remaining resume-match unit fixture from backend-engineer and programming skills to operations/reporting examples after the bloat guard exposed stale matcher test data. |

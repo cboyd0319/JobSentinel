@@ -392,11 +392,11 @@ mod tests {
         let state = create_test_app_state().await;
 
         // Insert jobs with searchable content
-        let mut job1 = create_test_job(0, "Senior Rust Engineer", 0.9);
-        let mut job2 = create_test_job(0, "Python Developer", 0.8);
+        let mut job1 = create_test_job(0, "Senior Care Coordinator", 0.9);
+        let mut job2 = create_test_job(0, "Program Assistant", 0.8);
 
-        job1.hash = "rust_hash".to_string();
-        job2.hash = "python_hash".to_string();
+        job1.hash = "care_hash".to_string();
+        job2.hash = "program_hash".to_string();
 
         state
             .database
@@ -411,7 +411,7 @@ mod tests {
 
         // Note: Full-text search requires FTS5 table which may not be set up in test migrations
         // This test verifies the search doesn't panic
-        let result = state.database.search_jobs("Rust", 10).await;
+        let result = state.database.search_jobs("Care", 10).await;
         // The result might fail if FTS5 isn't properly set up in tests,
         // but should handle it gracefully
         assert!(

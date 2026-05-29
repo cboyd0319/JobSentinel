@@ -31,10 +31,10 @@ async fn setup_test_env() -> (Arc<Database>, Arc<Config>, TempDir) {
 /// Create test config
 fn create_test_config() -> Config {
     Config {
-        title_allowlist: vec!["Security Engineer".to_string()],
+        title_allowlist: vec!["Care Coordinator".to_string()],
         title_blocklist: vec!["Manager".to_string()],
-        keywords_boost: vec!["Rust".to_string()],
-        keywords_exclude: vec!["PHP".to_string()],
+        keywords_boost: vec!["CRM".to_string()],
+        keywords_exclude: vec!["commission-only".to_string()],
         location_preferences: LocationPreferences {
             allow_remote: true,
             allow_hybrid: false,
@@ -135,7 +135,7 @@ mod job_commands {
     async fn test_get_job_by_id_returns_option() {
         let (database, _config, _temp_dir) = setup_test_env().await;
 
-        let job = create_test_job("by_id_001", "Test Job", "TestCorp");
+        let job = create_test_job("by_id_001", "Test Job", "Example Services");
         database.upsert_job(&job).await.unwrap();
 
         // Get the actual ID via hash lookup
@@ -158,16 +158,16 @@ mod job_commands {
     async fn test_search_jobs_returns_vec() {
         let (database, _config, _temp_dir) = setup_test_env().await;
 
-        let rust_job = create_test_job("search_rust", "Rust Developer", "RustCorp");
-        database.upsert_job(&rust_job).await.unwrap();
+        let care_job = create_test_job("search_care", "Care Coordinator", "CareBridge");
+        database.upsert_job(&care_job).await.unwrap();
 
-        let python_job = create_test_job("search_python", "Python Developer", "PyCorp");
-        database.upsert_job(&python_job).await.unwrap();
+        let program_job = create_test_job("search_program", "Program Assistant", "CommunityWorks");
+        database.upsert_job(&program_job).await.unwrap();
 
         // search_jobs takes query: &str, limit: i64
-        let results = database.search_jobs("Rust", 10).await.unwrap();
+        let results = database.search_jobs("Care", 10).await.unwrap();
         assert_eq!(results.len(), 1);
-        assert!(results[0].title.contains("Rust"));
+        assert!(results[0].title.contains("Care"));
     }
 
     #[tokio::test]
@@ -295,7 +295,7 @@ mod ats_commands {
         let (tracker, database, _temp_dir) = setup_ats_env().await;
 
         // Create a job first (required for foreign key)
-        let job = create_test_job("app_job_001", "Test Job", "TestCorp");
+        let job = create_test_job("app_job_001", "Test Job", "Example Services");
         database.upsert_job(&job).await.unwrap();
 
         // create_application takes job_hash: &str, returns i64
@@ -307,7 +307,7 @@ mod ats_commands {
     async fn test_get_applications_kanban_returns_grouped() {
         let (tracker, database, _temp_dir) = setup_ats_env().await;
 
-        let job = create_test_job("kanban_job", "Test Job", "TestCorp");
+        let job = create_test_job("kanban_job", "Test Job", "Example Services");
         database.upsert_job(&job).await.unwrap();
         tracker.create_application("kanban_job").await.unwrap();
 
@@ -322,7 +322,7 @@ mod ats_commands {
     async fn test_update_application_status() {
         let (tracker, database, _temp_dir) = setup_ats_env().await;
 
-        let job = create_test_job("status_job", "Test Job", "TestCorp");
+        let job = create_test_job("status_job", "Test Job", "Example Services");
         database.upsert_job(&job).await.unwrap();
         let app_id = tracker.create_application("status_job").await.unwrap();
 
@@ -395,7 +395,7 @@ mod salary_commands {
         let (database, _config, _temp_dir) = setup_test_env().await;
 
         // Create a test job
-        let job = create_test_job("salary_test", "Software Engineer", "TestCorp");
+        let job = create_test_job("salary_test", "Customer Support Lead", "Example Services");
         database.upsert_job(&job).await.unwrap();
 
         let analyzer = SalaryAnalyzer::new(database.pool().clone());
@@ -416,11 +416,7 @@ mod salary_commands {
 
         // get_benchmark returns Option<SalaryBenchmark>
         let benchmark = analyzer
-            .get_benchmark(
-                "Software Engineer",
-                "San Francisco, CA",
-                SeniorityLevel::Mid,
-            )
+            .get_benchmark("Customer Support Lead", "Chicago, IL", SeniorityLevel::Mid)
             .await
             .unwrap();
 
@@ -523,14 +519,19 @@ mod ghost_commands {
 
         // track_repost returns repost count
         let count = database
-            .track_repost("TestCorp", "Engineer", "test_source", "test_hash")
+            .track_repost(
+                "Example Services",
+                "Program Coordinator",
+                "test_source",
+                "test_hash",
+            )
             .await
             .unwrap();
         assert!(count >= 1);
 
         // get_repost_count retrieves the count
         let retrieved = database
-            .get_repost_count("TestCorp", "Engineer", "test_source")
+            .get_repost_count("Example Services", "Program Coordinator", "test_source")
             .await
             .unwrap();
         assert_eq!(retrieved, count);
