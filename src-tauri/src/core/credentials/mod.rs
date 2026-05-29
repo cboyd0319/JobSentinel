@@ -40,9 +40,9 @@ pub enum CredentialKey {
     DiscordWebhook,
     /// Microsoft Teams webhook URL for Teams notifications.
     TeamsWebhook,
-    /// LinkedIn session cookie (li_at) for authenticated scraping.
+    /// Legacy LinkedIn session entry retained only for cleanup and redaction.
     LinkedInCookie,
-    /// LinkedIn cookie expiry timestamp (ISO 8601 format) for proactive renewal.
+    /// Legacy LinkedIn expiry entry retained only for cleanup and redaction.
     LinkedInCookieExpiry,
     /// USAJobs API key (free from developer.usajobs.gov) for API access.
     UsaJobsApiKey,
@@ -65,7 +65,7 @@ impl CredentialKey {
         }
     }
 
-    /// Return all credential keys (used for migration and diagnostics).
+    /// Return active credential keys used for migration and diagnostics.
     ///
     /// # Examples
     ///
@@ -82,8 +82,6 @@ impl CredentialKey {
             Self::SlackWebhook,
             Self::DiscordWebhook,
             Self::TeamsWebhook,
-            Self::LinkedInCookie,
-            Self::LinkedInCookieExpiry,
             Self::UsaJobsApiKey,
         ]
     }
@@ -120,6 +118,8 @@ impl FromStr for CredentialKey {
 /// Service name for all keyring entries (used as namespace).
 const SERVICE_NAME: &str = "JobSentinel";
 const MAX_LINKEDIN_COOKIE_LEN: usize = 500;
+const LINKEDIN_CREDENTIAL_STORAGE_DISABLED: &str =
+    "LinkedIn automatic monitoring is disabled by JobSentinel source policy";
 static KEYRING_STORE_INIT: OnceLock<Result<(), String>> = OnceLock::new();
 
 fn ensure_keyring_store() -> Result<(), String> {
@@ -139,7 +139,7 @@ fn credential_entry(key: CredentialKey) -> Result<Entry, String> {
 
 fn validate_credential_value(key: CredentialKey, value: &str) -> Result<(), String> {
     match key {
-        CredentialKey::LinkedInCookie => validate_linkedin_cookie(value),
+        CredentialKey::LinkedInCookie => validate_legacy_linkedin_cookie(value),
         CredentialKey::SlackWebhook => validate_webhook_credential(
             value,
             &["hooks.slack.com"],
@@ -165,13 +165,28 @@ fn validate_credential_value(key: CredentialKey, value: &str) -> Result<(), Stri
     }
 }
 
-fn validate_linkedin_cookie(value: &str) -> Result<(), String> {
+fn reject_disabled_credential_storage(key: CredentialKey) -> Result<(), String> {
+    if is_disabled_credential(key) {
+        Err(LINKEDIN_CREDENTIAL_STORAGE_DISABLED.to_string())
+    } else {
+        Ok(())
+    }
+}
+
+fn is_disabled_credential(key: CredentialKey) -> bool {
+    matches!(
+        key,
+        CredentialKey::LinkedInCookie | CredentialKey::LinkedInCookieExpiry
+    )
+}
+
+fn validate_legacy_linkedin_cookie(value: &str) -> Result<(), String> {
     if value.len() > MAX_LINKEDIN_COOKIE_LEN {
-        return Err("LinkedIn cookie is too long".to_string());
+        return Err("Legacy LinkedIn credential is too long".to_string());
     }
 
     if value.chars().any(|ch| ch.is_ascii_control() || ch == ';') {
-        return Err("LinkedIn cookie contains unsupported characters".to_string());
+        return Err("Legacy LinkedIn credential contains unsupported characters".to_string());
     }
 
     Ok(())
@@ -283,6 +298,7 @@ impl CredentialStore {
             return Self::delete(key);
         }
 
+        reject_disabled_credential_storage(key)?;
         validate_credential_value(key, value)?;
 
         let entry = credential_entry(key)?;
@@ -307,6 +323,10 @@ impl CredentialStore {
     /// - `Ok(None)` - Credential doesn't exist (not an error)
     /// - `Err(_)` - Keyring error or permission denied
     pub fn retrieve(key: CredentialKey) -> Result<Option<String>, String> {
+        if is_disabled_credential(key) {
+            return Ok(None);
+        }
+
         let entry = credential_entry(key)?;
 
         match entry.get_password() {
@@ -352,6 +372,10 @@ impl CredentialStore {
     ///
     /// `true` if credential exists, `false` otherwise.
     pub fn exists(key: CredentialKey) -> Result<bool, String> {
+        if is_disabled_credential(key) {
+            return Ok(false);
+        }
+
         Self::retrieve(key).map(|opt| opt.is_some())
     }
 
@@ -371,12 +395,14 @@ impl CredentialStore {
     }
 }
 
-/// Migration utilities for moving credentials from plaintext config to secure keyring.
+/// Migration utilities for moving active credentials from plaintext config to secure keyring.
 ///
 /// Security-sensitive migration.
 ///
 /// Early versions of JobSentinel stored credentials in plaintext `config.json`.
-/// This module migrates those credentials to OS keyring and clears them from config.
+/// This module migrates active credentials to OS keyring and clears all known
+/// plaintext credential fields from config. Legacy LinkedIn session values are
+/// cleared but not migrated because LinkedIn automatic monitoring is disabled.
 ///
 /// # Migration Process
 ///
@@ -487,15 +513,6 @@ pub mod migration {
             .filter(|s| !s.is_empty())
         {
             credentials.push((CredentialKey::TeamsWebhook, url.to_string()));
-        }
-
-        // Extract LinkedIn cookie
-        if let Some(cookie) = config
-            .pointer("/linkedin/session_cookie")
-            .and_then(|v| v.as_str())
-            .filter(|s| !s.is_empty())
-        {
-            credentials.push((CredentialKey::LinkedInCookie, cookie.to_string()));
         }
 
         // Extract USAJobs API key
@@ -620,7 +637,7 @@ mod tests {
         let cookie = format!("AQ{}", "x".repeat(MAX_LINKEDIN_COOKIE_LEN));
         let err = validate_credential_value(CredentialKey::LinkedInCookie, &cookie).unwrap_err();
 
-        assert_eq!(err, "LinkedIn cookie is too long");
+        assert_eq!(err, "Legacy LinkedIn credential is too long");
         assert!(
             !err.contains(&cookie),
             "validation error must not echo cookie value: {err}"
@@ -632,7 +649,10 @@ mod tests {
         let cookie = "AQvalidPrefix; other_cookie=secret";
         let err = validate_credential_value(CredentialKey::LinkedInCookie, cookie).unwrap_err();
 
-        assert_eq!(err, "LinkedIn cookie contains unsupported characters");
+        assert_eq!(
+            err,
+            "Legacy LinkedIn credential contains unsupported characters"
+        );
         assert!(
             !err.contains("secret"),
             "validation error must not echo cookie value: {err}"
@@ -644,11 +664,23 @@ mod tests {
         let cookie = "AQvalidPrefix\r\nx-secret: value";
         let err = validate_credential_value(CredentialKey::LinkedInCookie, cookie).unwrap_err();
 
-        assert_eq!(err, "LinkedIn cookie contains unsupported characters");
+        assert_eq!(
+            err,
+            "Legacy LinkedIn credential contains unsupported characters"
+        );
         assert!(
             !err.contains("x-secret"),
             "validation error must not echo cookie value: {err}"
         );
+    }
+
+    #[test]
+    fn linkedin_credential_storage_is_disabled_before_keyring() {
+        let secret = "legacy-session-secret";
+        let err = CredentialStore::store(CredentialKey::LinkedInCookie, secret).unwrap_err();
+
+        assert_eq!(err, LINKEDIN_CREDENTIAL_STORAGE_DISABLED);
+        assert!(!err.contains(secret));
     }
 
     #[test]
@@ -661,7 +693,7 @@ mod tests {
               "alerts": {
                 "email": { "smtp_password": "smtp-secret" }
               },
-              "linkedin": { "session_cookie": "linkedin-secret" },
+              "linkedin": { "session_cookie": "legacy-linkedin-secret" },
               "usajobs": {
                 "api_key": "usajobs-secret",
                 "email": "user@example.com"
@@ -672,6 +704,9 @@ mod tests {
 
         let credentials = migration::extract_plaintext_credentials(&config_path).unwrap();
         assert!(credentials.contains(&(CredentialKey::UsaJobsApiKey, "usajobs-secret".to_string())));
+        assert!(!credentials
+            .iter()
+            .any(|(key, _)| matches!(key, CredentialKey::LinkedInCookie)));
 
         migration::clear_config_credentials(&config_path).unwrap();
 
@@ -684,5 +719,6 @@ mod tests {
             Some("user@example.com")
         );
         assert!(cleaned_json.pointer("/usajobs/api_key").is_none());
+        assert!(cleaned_json.pointer("/linkedin/session_cookie").is_none());
     }
 }

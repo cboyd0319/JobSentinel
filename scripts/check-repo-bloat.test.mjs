@@ -3277,7 +3277,7 @@ test("checkRepoBloat rejects stale scraper reliability and rate-limit docs", () 
       "docs/features/scrapers.md",
       [
         "JobSentinel includes production-ready scrapers for 13 major job boards.",
-        "- [x] All 13 job board scrapers (production-ready)",
+        `- [x] ${["All 13 job board", "scrapers"].join(" ")} (production-ready)`,
         "- [ ] CAPTCHA solver integration",
         "- [ ] Proxy rotation for large-scale scraping",
         "4. **Session Management:** Rotate cookies if multiple accounts",
@@ -4354,7 +4354,7 @@ test("checkRepoBloat rejects raw JobsWithGPT Debug derives", () => {
   });
 });
 
-test("checkRepoBloat rejects raw LinkedIn scraper Debug derive", () => {
+test("checkRepoBloat rejects raw legacy LinkedIn source Debug derive", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
@@ -4379,7 +4379,7 @@ test("checkRepoBloat rejects raw LinkedIn scraper Debug derive", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize LinkedIn scraper debug output: src-tauri/src/core/scrapers/linkedin.rs",
+        "sanitize legacy LinkedIn source debug output: src-tauri/src/core/scrapers/linkedin.rs",
       ),
       violations.join("\n"),
     );
@@ -4548,7 +4548,7 @@ test("checkRepoBloat rejects credential key input echo", () => {
   });
 });
 
-test("checkRepoBloat rejects missing LinkedIn cookie storage validation", () => {
+test("checkRepoBloat rejects enabled LinkedIn credential storage", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
@@ -4590,13 +4590,13 @@ test("checkRepoBloat rejects missing LinkedIn cookie storage validation", () => 
 
     assert.ok(
       violations.includes(
-        "validate LinkedIn cookies before keyring storage: src-tauri/src/commands/credentials.rs",
+        "disable LinkedIn credential storage: src-tauri/src/commands/credentials.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "validate LinkedIn cookies before keyring storage: src-tauri/src/core/credentials/mod.rs",
+        "disable LinkedIn credential storage: src-tauri/src/core/credentials/mod.rs",
       ),
       violations.join("\n"),
     );
@@ -4986,6 +4986,60 @@ test("checkRepoBloat rejects stale LinkedIn credential docs", () => {
     assert.ok(
       violations.includes(
         "sync LinkedIn credential docs with keyring login flow: docs/features/scrapers.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects automated LinkedIn collection drift", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/linkedin.rs",
+      'const URL: &str = "https://www.linkedin.com/voyager/api/example";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Settings.tsx",
+      'await invoke("linkedin_login");\n',
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/scrapers.md",
+      `Click **${["Connect", "LinkedIn"].join(" ")}** to run the ${["LinkedIn", "scraper"].join(" ")}.\n`,
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/scrapers/linkedin.rs",
+        "src/pages/Settings.tsx",
+        "docs/features/scrapers.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove automated LinkedIn collection boundary drift: src-tauri/src/core/scrapers/linkedin.rs",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove automated LinkedIn collection boundary drift: src/pages/Settings.tsx",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "remove automated LinkedIn collection boundary drift: docs/features/scrapers.md",
       ),
       violations.join("\n"),
     );

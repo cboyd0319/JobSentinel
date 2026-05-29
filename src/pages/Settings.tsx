@@ -169,7 +169,6 @@ interface Config {
 interface Credentials {
   slack_webhook: string;
   smtp_password: string;
-  linkedin_cookie: string;
   discord_webhook: string;
   teams_webhook: string;
   telegram_bot_token: string;
@@ -180,20 +179,10 @@ interface Credentials {
 type CredentialKey =
   | "slack_webhook"
   | "smtp_password"
-  | "linkedin_cookie"
   | "discord_webhook"
   | "teams_webhook"
   | "telegram_bot_token"
   | "usajobs_api_key";
-
-// LinkedIn cookie expiry status (must match backend LinkedInExpiryStatus)
-interface LinkedInExpiryStatus {
-  connected: boolean;
-  expires_at: string | null;
-  days_remaining: number | null;
-  expiry_warning: boolean;
-  expired: boolean;
-}
 
 // Helper to store a credential in secure storage
 async function storeCredential(
@@ -298,7 +287,6 @@ export default function Settings({ onClose }: SettingsProps) {
   const [credentials, setCredentials] = useState<Credentials>({
     slack_webhook: "",
     smtp_password: "",
-    linkedin_cookie: "",
     discord_webhook: "",
     teams_webhook: "",
     telegram_bot_token: "",
@@ -309,7 +297,6 @@ export default function Settings({ onClose }: SettingsProps) {
   >({
     slack_webhook: false,
     smtp_password: false,
-    linkedin_cookie: false,
     discord_webhook: false,
     teams_webhook: false,
     telegram_bot_token: false,
@@ -337,12 +324,9 @@ export default function Settings({ onClose }: SettingsProps) {
     "custom" | "gmail" | "outlook" | "yahoo"
   >("custom");
   const [activeTab, setActiveTab] = useState<"basic" | "advanced">("basic");
-  const [linkedInExpiry, setLinkedInExpiry] =
-    useState<LinkedInExpiryStatus | null>(null);
   // Loading states for async test/connect buttons
   const [testingSlack, setTestingSlack] = useState(false);
   const [testingEmail, setTestingEmail] = useState(false);
-  const [connectingLinkedIn, setConnectingLinkedIn] = useState(false);
   const toast = useToast();
 
   const handleCopyDebugReport = useCallback(async () => {
@@ -661,14 +645,19 @@ export default function Settings({ onClose }: SettingsProps) {
 
       // Load config (non-sensitive settings)
       const configData = await invoke<Config>("get_config");
-      setConfig(configData);
+      setConfig({
+        ...configData,
+        linkedin: {
+          ...configData.linkedin,
+          enabled: false,
+        },
+      });
 
       // Check which credentials exist in secure storage (don't load actual values)
       // Use allSettled so a single keyring failure doesn't block the entire Settings page
       const credentialKeys: CredentialKey[] = [
         "slack_webhook",
         "smtp_password",
-        "linkedin_cookie",
         "discord_webhook",
         "teams_webhook",
         "telegram_bot_token",
@@ -698,20 +687,6 @@ export default function Settings({ onClose }: SettingsProps) {
         );
       }
 
-      // Fetch LinkedIn expiry status if connected
-      if (newStatus.linkedin_cookie) {
-        try {
-          const expiryStatus = await invoke<LinkedInExpiryStatus>(
-            "get_linkedin_expiry_status",
-          );
-          setLinkedInExpiry(expiryStatus);
-        } catch (err) {
-          logError(
-            "Failed to fetch LinkedIn expiry status (non-critical):",
-            err,
-          );
-        }
-      }
     } catch (error: unknown) {
       logError("Failed to load config:", error);
       const friendly = getUserFriendlyError(error);
@@ -790,11 +765,6 @@ export default function Settings({ onClose }: SettingsProps) {
       if (credentials.smtp_password) {
         credentialSaves.push(
           storeCredential("smtp_password", credentials.smtp_password),
-        );
-      }
-      if (credentials.linkedin_cookie) {
-        credentialSaves.push(
-          storeCredential("linkedin_cookie", credentials.linkedin_cookie),
         );
       }
       if (credentials.discord_webhook) {
@@ -2668,317 +2638,21 @@ export default function Settings({ onClose }: SettingsProps) {
                         LinkedIn
                       </span>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={config.linkedin?.enabled ?? false}
-                        onChange={(e) =>
-                          setConfig({
-                            ...config,
-                            linkedin: {
-                              ...config.linkedin,
-                              enabled: e.target.checked,
-                            },
-                          })
-                        }
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus-visible:ring-4 peer-focus-visible:ring-sentinel-300 dark:peer-focus-visible:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
-                    </label>
+                    <Badge variant="surface">Search links only</Badge>
                   </div>
 
-                  {config.linkedin?.enabled && (
-                    <div className="space-y-3">
-                      {/* Connection Status */}
-                      {credentialStatus.linkedin_cookie ? (
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                            <div className="flex items-center gap-3">
-                              <SettingsSymbol icon="check" className="h-4 w-4 text-green-600 dark:text-green-400" />
-                              <span className="text-sm font-medium text-green-800 dark:text-green-200">
-                                LinkedIn Connected
-                              </span>
-                              <SecurityBadge stored={true} />
-                            </div>
-                            <button
-                              type="button"
-                              disabled={connectingLinkedIn}
-                              onClick={async () => {
-                                setConnectingLinkedIn(true);
-                                try {
-                                  await invoke("disconnect_linkedin");
-                                  setCredentialStatus((prev) => ({
-                                    ...prev,
-                                    linkedin_cookie: false,
-                                  }));
-                                  setLinkedInExpiry(null);
-                                  toast.success(
-                                    "Disconnected",
-                                    "LinkedIn has been disconnected",
-                                  );
-                                } catch {
-                                  toast.error(
-                                    "Error",
-                                    "Failed to disconnect LinkedIn",
-                                  );
-                                } finally {
-                                  setConnectingLinkedIn(false);
-                                }
-                              }}
-                              className="text-sm text-red-600 dark:text-red-400 hover:underline disabled:opacity-50"
-                            >
-                              {connectingLinkedIn ? "..." : "Disconnect"}
-                            </button>
-                          </div>
-
-                          {/* Expiry Warning */}
-                          {linkedInExpiry?.expired && (
-                            <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                              <svg
-                                className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                                />
-                              </svg>
-                              <div className="flex-1">
-                                <p className="text-sm font-medium text-red-800 dark:text-red-200">
-                                  Session Expired
-                                </p>
-                                <p className="text-xs text-red-600 dark:text-red-400">
-                                  Your LinkedIn session has expired. Please
-                                  reconnect to continue searching LinkedIn jobs.
-                                </p>
-                              </div>
-                              <button
-                                type="button"
-                                disabled={connectingLinkedIn}
-                                onClick={async () => {
-                                  setConnectingLinkedIn(true);
-                                  try {
-                                    await invoke("disconnect_linkedin");
-                                    setCredentialStatus((prev) => ({
-                                      ...prev,
-                                      linkedin_cookie: false,
-                                    }));
-                                    setLinkedInExpiry(null);
-                                  } catch {
-                                    // Ignore disconnect errors
-                                  } finally {
-                                    setConnectingLinkedIn(false);
-                                  }
-                                }}
-                                className="text-xs font-medium text-red-700 dark:text-red-300 hover:underline disabled:opacity-50"
-                              >
-                                {connectingLinkedIn ? "..." : "Reconnect"}
-                              </button>
-                            </div>
-                          )}
-
-                          {linkedInExpiry?.expiry_warning &&
-                            !linkedInExpiry?.expired && (
-                              <div className="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                                <svg
-                                  className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                  />
-                                </svg>
-                                <div className="flex-1">
-                                  <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
-                                    Session Expiring Soon
-                                  </p>
-                                  <p className="text-xs text-amber-600 dark:text-amber-400">
-                                    {linkedInExpiry.days_remaining !== null &&
-                                    linkedInExpiry.days_remaining > 0
-                                      ? `Expires in ${linkedInExpiry.days_remaining} day${linkedInExpiry.days_remaining !== 1 ? "s" : ""}`
-                                      : "Expires soon"}
-                                    . Reconnect to refresh your session.
-                                  </p>
-                                </div>
-                              </div>
-                            )}
-
-                          {linkedInExpiry?.expires_at &&
-                            !linkedInExpiry?.expiry_warning &&
-                            !linkedInExpiry?.expired && (
-                              <p className="text-xs text-surface-500 dark:text-surface-400 px-1">
-                                Session valid until{" "}
-                                {new Date(
-                                  linkedInExpiry.expires_at,
-                                ).toLocaleDateString("en-US", {
-                                  month: "short",
-                                  day: "numeric",
-                                  year: "numeric",
-                                })}
-                              </p>
-                            )}
-                        </div>
-                      ) : (
-                        <div className="space-y-3">
-                          <p className="text-sm text-surface-500 dark:text-surface-400">
-                            Connect your LinkedIn account to search for jobs.
-                            Your session is stored securely in your system
-                            keychain.
-                          </p>
-                          <button
-                            type="button"
-                            disabled={connectingLinkedIn}
-                            onClick={async () => {
-                              setConnectingLinkedIn(true);
-                              try {
-                                toast.info(
-                                  "Connecting...",
-                                  "Please log in to LinkedIn in the window that opens",
-                                );
-                                await invoke("linkedin_login");
-                                // If we get here without throwing, login was successful
-                                setCredentialStatus((prev) => ({
-                                  ...prev,
-                                  linkedin_cookie: true,
-                                }));
-                                // Fetch expiry status for the new session
-                                try {
-                                  const expiryStatus =
-                                    await invoke<LinkedInExpiryStatus>(
-                                      "get_linkedin_expiry_status",
-                                    );
-                                  setLinkedInExpiry(expiryStatus);
-                                } catch {
-                                  // Non-critical, ignore
-                                }
-                                toast.success(
-                                  "Connected!",
-                                  "LinkedIn connected successfully",
-                                );
-                              } catch (err) {
-                                const errorStr = String(err);
-                                if (errorStr.includes("cancelled")) {
-                                  toast.info(
-                                    "Cancelled",
-                                    "LinkedIn login was cancelled",
-                                  );
-                                } else if (
-                                  errorStr.includes("cookie") &&
-                                  errorStr.includes("not found")
-                                ) {
-                                  toast.error(
-                                    "Login incomplete",
-                                    "Please make sure you're fully logged in before closing the window",
-                                  );
-                                } else {
-                                  toast.error("Error", errorStr);
-                                }
-                              } finally {
-                                setConnectingLinkedIn(false);
-                              }
-                            }}
-                            className="w-full py-2.5 px-4 bg-[#0077B5] hover:bg-[#006399] disabled:bg-[#0077B5]/50 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
-                          >
-                            <LinkedInIcon className="w-5 h-5" />
-                            {connectingLinkedIn
-                              ? "Connecting..."
-                              : "Connect LinkedIn"}
-                          </button>
-                          <p className="text-xs text-surface-500 dark:text-surface-400 text-center">
-                            A secure login window will open. Just log in
-                            normally – no copy/paste needed!
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Search Configuration (only show when connected) */}
-                      {credentialStatus.linkedin_cookie && (
-                        <>
-                          <div className="grid grid-cols-2 gap-3">
-                            <Input
-                              label="Search Query"
-                              value={config.linkedin?.query ?? ""}
-                              onChange={(e) =>
-                                setConfig({
-                                  ...config,
-                                  linkedin: {
-                                    ...config.linkedin,
-                                    query: e.target.value,
-                                  },
-                                })
-                              }
-                              placeholder="e.g., Security Engineer"
-                            />
-                            <Input
-                              label="Location"
-                              value={config.linkedin?.location ?? ""}
-                              onChange={(e) =>
-                                setConfig({
-                                  ...config,
-                                  linkedin: {
-                                    ...config.linkedin,
-                                    location: e.target.value,
-                                  },
-                                })
-                              }
-                              placeholder="e.g., United States"
-                            />
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={config.linkedin?.remote_only ?? false}
-                                onChange={(e) =>
-                                  setConfig({
-                                    ...config,
-                                    linkedin: {
-                                      ...config.linkedin,
-                                      remote_only: e.target.checked,
-                                    },
-                                  })
-                                }
-                                className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
-                              />
-                              <span className="text-sm text-surface-700 dark:text-surface-300">
-                                Remote only
-                              </span>
-                            </label>
-                            <div className="flex items-center gap-2">
-                              <label className="text-sm text-surface-700 dark:text-surface-300">
-                                Max results:
-                              </label>
-                              <input
-                                type="number"
-                                min="10"
-                                max="100"
-                                value={config.linkedin?.limit ?? 25}
-                                onChange={(e) =>
-                                  setConfig({
-                                    ...config,
-                                    linkedin: {
-                                      ...config.linkedin,
-                                      limit: parseInt(e.target.value) || 25,
-                                    },
-                                  })
-                                }
-                                className="w-20 px-2 py-1 text-sm border border-surface-300 dark:border-surface-600 rounded bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100"
-                              />
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )}
+                  <div className="space-y-2">
+                    <p className="text-sm text-surface-600 dark:text-surface-300">
+                      JobSentinel does not log in to LinkedIn or monitor it in
+                      the background. Use job-site search links when you want to
+                      open LinkedIn yourself.
+                    </p>
+                    <p className="text-xs text-surface-500 dark:text-surface-400">
+                      For automatic monitoring, prefer official company pages
+                      and public ATS sources such as Greenhouse, Lever, Ashby,
+                      SmartRecruiters, and USAJobs.
+                    </p>
+                  </div>
                 </div>
 
                 {/* USAJobs */}

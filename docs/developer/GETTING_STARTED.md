@@ -168,10 +168,10 @@ All core functionality is in `src-tauri/src/core/` and works identically on all 
 - **notify**: Multi-channel notifications (Slack, Discord, Teams, Email, Telegram, Desktop)
 - **resume**: AI-powered resume-job matching with skill extraction
 - **salary**: Salary prediction and benchmarking
-- **scheduler**: Periodic job scraping with configurable interval and auto-refresh
+- **scheduler**: Periodic source checks with configurable interval and auto-refresh
 - **scoring**: Multi-factor job scoring (0-1 scale)
-- **scrapers**: 13 job board scrapers with parallel execution (Greenhouse, Lever, LinkedIn,
-  RemoteOK, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice,
+- **scrapers**: Scheduled source adapters with parallel execution (Greenhouse,
+  Lever, RemoteOK, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice,
   YC Startup Jobs, USAJobs, SimplyHired, Glassdoor)
 
 ### Platform-Specific Code

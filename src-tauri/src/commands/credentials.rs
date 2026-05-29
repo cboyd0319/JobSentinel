@@ -7,6 +7,8 @@ use crate::core::credentials::{CredentialKey, CredentialStore};
 use serde::{Deserialize, Serialize};
 
 const UNKNOWN_CREDENTIAL_KEY: &str = "Unknown credential key";
+const LINKEDIN_CREDENTIALS_DISABLED: &str =
+    "LinkedIn automatic monitoring is disabled by JobSentinel source policy";
 
 /// Credential status for frontend display
 #[derive(Debug, Serialize, Deserialize)]
@@ -27,10 +29,26 @@ fn normalize_credential_value(key: CredentialKey, value: String) -> String {
     }
 }
 
+fn reject_disabled_credential_storage(key: CredentialKey) -> Result<(), String> {
+    if is_disabled_credential(key) {
+        Err(LINKEDIN_CREDENTIALS_DISABLED.to_string())
+    } else {
+        Ok(())
+    }
+}
+
+fn is_disabled_credential(key: CredentialKey) -> bool {
+    matches!(
+        key,
+        CredentialKey::LinkedInCookie | CredentialKey::LinkedInCookieExpiry
+    )
+}
+
 /// Store a credential in the OS keyring
 #[tauri::command]
 pub async fn store_credential(key: String, value: String) -> Result<(), String> {
     let cred_key = parse_credential_key(&key)?;
+    reject_disabled_credential_storage(cred_key)?;
     let value = normalize_credential_value(cred_key, value);
 
     tracing::info!("Command: store_credential for {}", cred_key.as_str());
@@ -54,6 +72,10 @@ pub async fn has_credential(key: String) -> Result<bool, String> {
     let cred_key = parse_credential_key(&key)?;
 
     tracing::info!("Command: has_credential for {}", cred_key.as_str());
+
+    if is_disabled_credential(cred_key) {
+        return Ok(false);
+    }
 
     CredentialStore::exists(cred_key)
 }
@@ -91,13 +113,13 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn linkedin_cookie_validation_rejects_oversized_values_before_keyring() {
-        let cookie = format!("AQ{}", "x".repeat(500));
-        let err = store_credential("linkedin_cookie".to_string(), cookie.clone())
+    async fn linkedin_cookie_storage_is_disabled_before_keyring() {
+        let cookie = "legacy-session-value";
+        let err = store_credential("linkedin_cookie".to_string(), cookie.to_string())
             .await
             .unwrap_err();
 
-        assert_eq!(err, "LinkedIn cookie is too long");
+        assert_eq!(err, LINKEDIN_CREDENTIALS_DISABLED);
         assert!(
             !err.contains(&cookie),
             "validation error must not echo cookie value: {err}"
@@ -105,17 +127,22 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn linkedin_cookie_validation_rejects_header_separator_before_keyring() {
-        let cookie = "AQvalidPrefix; other_cookie=secret";
-        let err = store_credential("linkedin_cookie".to_string(), cookie.to_string())
+    async fn linkedin_cookie_expiry_storage_is_disabled_before_keyring() {
+        let expiry = "2099-01-01T00:00:00Z";
+        let err = store_credential("linkedin_cookie_expiry".to_string(), expiry.to_string())
             .await
             .unwrap_err();
 
-        assert_eq!(err, "LinkedIn cookie contains unsupported characters");
+        assert_eq!(err, LINKEDIN_CREDENTIALS_DISABLED);
         assert!(
-            !err.contains("secret"),
-            "validation error must not echo cookie value: {err}"
+            !err.contains(expiry),
+            "validation error must not echo expiry value: {err}"
         );
+    }
+
+    #[tokio::test]
+    async fn disabled_linkedin_credential_presence_returns_false() {
+        assert!(!has_credential("linkedin_cookie".to_string()).await.unwrap());
     }
 
     #[tokio::test]

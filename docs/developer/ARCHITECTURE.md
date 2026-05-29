@@ -234,7 +234,7 @@ pub enum CredentialKey {
     SlackWebhookUrl,
     DiscordWebhookUrl,
     TeamsWebhookUrl,
-    LinkedInSessionCookie,
+    UsaJobsAccessCode,
 }
 
 pub struct CredentialStore {
@@ -247,7 +247,7 @@ pub struct CredentialStore {
 - SMTP password (email notifications)
 - Telegram bot token
 - Slack/Discord/Teams webhook URLs
-- LinkedIn session cookie
+- USAJobs access code
 
 See [Security: Keyring Integration](../security/KEYRING.md) for full documentation.
 

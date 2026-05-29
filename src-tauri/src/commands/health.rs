@@ -118,7 +118,7 @@ pub async fn run_all_smoke_tests(
         .map_err(|e| health_command_error("Failed to run scraper smoke tests", e))
 }
 
-/// Get LinkedIn cookie health status
+/// Get inactive legacy LinkedIn credential status.
 #[tauri::command]
 pub async fn get_linkedin_cookie_health(
     db: State<'_, Arc<Mutex<Database>>>,

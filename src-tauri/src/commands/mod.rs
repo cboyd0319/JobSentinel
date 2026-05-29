@@ -166,7 +166,7 @@ pub use geo::detect_location;
 // Credential commands
 pub use credentials::{delete_credential, get_credential_status, has_credential, store_credential};
 
-// LinkedIn auth commands
+// Legacy LinkedIn source-policy commands
 pub use linkedin_auth::{
     close_linkedin_login, disconnect_linkedin, get_linkedin_expiry_status, is_linkedin_connected,
     linkedin_login, store_linkedin_cookie,

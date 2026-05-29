@@ -13,7 +13,6 @@ use super::types::{SmokeTestResult, SmokeTestType};
 const SMOKE_TEST_SCRAPERS: &[&str] = &[
     "greenhouse",
     "lever",
-    "linkedin",
     "indeed",
     "remoteok",
     "wellfound",
@@ -54,7 +53,6 @@ pub async fn run_smoke_test(
     let result = match scraper_name {
         "greenhouse" => test_greenhouse().await,
         "lever" => test_lever().await,
-        "linkedin" => test_linkedin(config).await,
         "indeed" => test_indeed().await,
         "remoteok" => test_remoteok().await,
         "wellfound" => test_wellfound().await,
@@ -196,37 +194,6 @@ async fn test_lever() -> Result<serde_json::Value> {
         "status": status.as_u16(),
         "jobs_found": job_count,
         "api_version": "v0"
-    }))
-}
-
-async fn test_linkedin(config: &Config) -> Result<serde_json::Value> {
-    // LinkedIn requires authentication - just check if we can reach the site
-    if !config.linkedin.enabled {
-        return Ok(serde_json::json!({
-            "status": "skipped",
-            "reason": "LinkedIn scraping not enabled"
-        }));
-    }
-
-    let url = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search";
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(10))
-        .build()?;
-
-    let resp = client
-        .get(url)
-        .query(&[("keywords", "software"), ("start", "0")])
-        .send()
-        .await
-        .map_err(|e| sanitized_request_error("LinkedIn smoke test request failed", e))?;
-
-    let status = resp.status();
-
-    // LinkedIn may return 400 without auth, but that means we can reach it
-    Ok(serde_json::json!({
-        "status": status.as_u16(),
-        "reachable": true,
-        "note": "Full functionality requires li_at cookie"
     }))
 }
 

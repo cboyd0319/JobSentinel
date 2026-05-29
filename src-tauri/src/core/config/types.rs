@@ -60,7 +60,7 @@ pub struct Config {
     #[serde(default)]
     pub lever_urls: Vec<String>,
 
-    /// LinkedIn scraper configuration
+    /// LinkedIn source configuration
     #[serde(default)]
     pub linkedin: LinkedInConfig,
 
@@ -372,22 +372,17 @@ pub struct DesktopConfig {
     pub play_sound: bool,
 }
 
-/// LinkedIn scraper configuration
+/// LinkedIn search-link configuration.
 ///
-/// LinkedIn requires authentication via a session cookie captured by the
-/// Connect LinkedIn flow after the user signs in.
-///
-/// # Security
-/// The session cookie is stored securely in the OS keyring (macOS Keychain,
-/// Windows Credential Manager, Linux Secret Service).
+/// Background monitoring is disabled by source policy. LinkedIn can still be
+/// opened through user-controlled job-site search links.
 #[derive(Clone, Serialize, Deserialize, Default)]
 pub struct LinkedInConfig {
-    /// Enable LinkedIn job scraping
+    /// Must remain false unless a future source-specific review approves an official path.
     #[serde(default)]
     pub enabled: bool,
 
-    /// LinkedIn session cookie (li_at value)
-    /// Stored securely in OS keyring (macOS Keychain, Windows Credential Manager)
+    /// Legacy field kept only so old configs can deserialize.
     #[serde(skip)]
     pub session_cookie: String,
 

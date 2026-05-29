@@ -4,8 +4,11 @@ Use `package.json` for the current release package version.
 
 ## Working Features
 
-- **13 Job scrapers**: Greenhouse, Lever, LinkedIn, RemoteOK, WeWorkRemotely,
-  BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, Glassdoor
+- **12 scheduled source adapters**: Greenhouse, Lever, RemoteOK,
+  WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs,
+  USAJobs, SimplyHired, Glassdoor
+- **User-opened search links**: LinkedIn and other destinations opened by the
+  user, not monitored in the background
 - Application Tracking System (ATS): Kanban board, reminders, timeline, ghosting detection
 - Interview Scheduler: iCal export, prep checklists, follow-up reminders
 - AI Resume-Job Matcher: PDF parsing, skill extraction, matching
@@ -142,7 +145,7 @@ Major security release with OS-native keyring integration, Resume Builder, and A
 - `slack_webhook_url` - Slack incoming webhook URL
 - `discord_webhook_url` - Discord webhook URL
 - `teams_webhook_url` - Microsoft Teams webhook URL
-- `linkedin_session_cookie` - LinkedIn session cookie
+- `usajobs_api_key` - USAJobs access code
 
 See [docs/security/KEYRING.md](security/KEYRING.md) for full documentation.
 
@@ -172,28 +175,29 @@ See [docs/features/one-click-apply.md](features/one-click-apply.md) for full doc
 
 ### v2.1 - Scraper Health Monitoring (COMPLETED)
 
-Comprehensive health monitoring system for all 13 job board scrapers.
+Comprehensive health monitoring system for scheduled source adapters and
+smoke-test source checks.
 
 | Feature                       | Status   | Notes                           |
 | ----------------------------- | -------- | ------------------------------- |
-| **All 13 Scrapers Wired**     | **Done** | Previously only 5/13 connected  |
+| **Scheduled source adapters wired** | **Done** | 12 scheduled adapters active |
 | **Health Dashboard**          | **Done** | Settings > Troubleshooting      |
 | **Run History Tracking**      | **Done** | Per-scraper execution logs      |
 | **Exponential Backoff Retry** | **Done** | Auto-retry on 429, 5xx errors   |
 | **Smoke Tests**               | **Done** | Test individual or all scrapers |
-| **LinkedIn Cookie Expiry**    | **Done** | 30-day warning threshold        |
+| **LinkedIn search-link policy** | **Done** | User-opened links only; no background monitoring |
 | **9 New Tauri Commands**      | **Done** | Health monitoring API           |
 | **4 New Database Tables**     | **Done** | + 1 aggregation view            |
 
-**Scrapers now fully wired (previously missing 8):**
+**Scheduled source adapters now wired:**
 
 - RemoteOK, WeWorkRemotely, BuiltIn
 - HN Who's Hiring, Dice, YC Startup Jobs, USAJobs, SimplyHired, Glassdoor
 
 **Health Dashboard features:**
 
-- Summary stats (healthy/degraded/down/disabled scrapers)
-- Scraper table with success rate, avg duration, jobs found
+- Summary stats (healthy/degraded/down/disabled sources)
+- Source table with success rate, avg duration, jobs found
 - Run history panel with error details
 - Smoke test results modal
 - Credential expiry warnings
@@ -389,14 +393,18 @@ See [CHANGELOG.md](../CHANGELOG.md) for detailed v2.6.3 changes.
 
 ---
 
-## Scraper Expansion Plan
+## Source Expansion Plan
 
-**Legal Compliance is NON-NEGOTIABLE.** JobSentinel stays 100% legal. No exceptions.
+**User privacy, security, and source boundaries are non-negotiable.**
+JobSentinel favors official APIs, public feeds, and official company or ATS
+postings.
 
-Currently JobSentinel has **13 Rust scraper adapters**. The goal is to cover more job sources while respecting
-legal boundaries. This helps everyone — job seekers, veterans, career changers.
+Currently JobSentinel has **12 scheduled Rust source adapters** plus user-opened
+search links. The goal is to cover more job sources while respecting source
+boundaries. This helps everyone: job seekers, veterans, career changers, and
+people searching outside software roles.
 
-### New Scrapers (Legal - API or Permissible Scraping)
+### New Sources (official API or public feed first)
 
 | Source          | Method       | Priority | Status  | Notes                                 |
 | --------------- | ------------ | -------- | ------- | ------------------------------------- |
@@ -409,7 +417,7 @@ Files implemented:
 - `src-tauri/src/core/scrapers/simplyhired.rs` - SimplyHired RSS scraper
 - Backend integration: `src-tauri/src/core/scheduler/workers/scrapers.rs` (lines 286-384)
 - Frontend config: `src/pages/Settings.tsx` (USAJobs, SimplyHired sections)
-- Documentation: `docs/features/scrapers.md` (updated with 16 scraper sources)
+- Documentation: `docs/features/scrapers.md`
 
 ### Restricted Sites (Legal Alternatives Only)
 
@@ -423,7 +431,8 @@ These sites explicitly prohibit scraping in their Terms of Service. **DO NOT SCR
 
 ### Legal Maximum Value Features
 
-Instead of scraping restricted sites, we provide maximum value through legal means:
+Instead of automating restricted sites, JobSentinel provides value through
+user-controlled and official-source paths:
 
 #### 1. Universal Job Importer (Schema.org Parser)
 
@@ -443,7 +452,8 @@ Build pre-filled search URLs that open in user's browser.
    `https://www.governmentjobs.com/jobs?keyword=security+engineer&location=Denver`.
 3. User clicks the generated link and opens the search in their browser.
 
-- **Why legal:** Building URLs, not scraping. User's browser, user's session.
+- **Why allowed:** Building URLs only. The user opens the destination in their
+  own browser.
 - **Sites:** GovernmentJobs, ClearanceJobs, Glassdoor, LinkedIn, Indeed, Monster, CareerBuilder,
   FlexJobs, Dice, ZipRecruiter, state gov portals, + more
 - **Implementation:** `src-tauri/src/core/deeplinks/` module, Tauri commands, and Deep Links UI
@@ -589,7 +599,8 @@ Base app should stay under 100MB. Larger models (LLMs) should be optional downlo
 
 Current Rust scraper adapters are integrated with scheduler and Settings UI.
 
-- LinkedIn: Requires li_at session cookie, configurable query/location/remote-only
+- LinkedIn: User-opened search links only; no background monitoring or session
+  credential collection
 - USAJobs: Requires free API key and user email
 - SimplyHired and Glassdoor: May return empty results when blocked by anti-bot protection
 
@@ -685,7 +696,7 @@ See [docs/features/one-click-apply.md](features/one-click-apply.md) for full doc
 - E2E tests: Playwright test suite
 - All modules enabled and functional
 - **190 registered Tauri commands** for backend modules
-- 13 job board scrapers with parallel execution
+- 12 scheduled source adapters with parallel execution
 - Ghost job detection with repost tracking
 - Backend persistence for job-search records and preferences, with frontend
   localStorage limited to non-authoritative UI preferences, caches, sanitized
@@ -700,7 +711,7 @@ See [docs/features/one-click-apply.md](features/one-click-apply.md) for full doc
 - [x] SQLx query! macros - converted to runtime queries
 - [x] All compilation errors fixed
 - [x] All clippy warnings fixed (with comprehensive lint configuration)
-- [x] Current 13 scraper adapters integrated
+- [x] Current scheduled source adapters integrated
 - [x] Desktop notifications implemented
 - [x] All backend modules exposed via Tauri commands
 - [x] Accessibility improvements (ARIA labels, keyboard nav, focus styles)

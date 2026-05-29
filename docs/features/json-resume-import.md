@@ -173,7 +173,7 @@ and convert them to internal resume drafts for editing and ATS optimization.
     {
       "name": "JobSentinel",
       "description": "Job-search assistant tool",
-      "highlights": ["Built Rust backend", "Integrated 13 scrapers"],
+      "highlights": ["Coordinated local data migration", "Improved source monitoring"],
       "startDate": "2024-01-01",
       "endDate": "",
       "url": "https://github.com/chad/jobsentinel",

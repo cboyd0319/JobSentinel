@@ -1211,120 +1211,19 @@ mod tests {
     // ========================================
 
     #[test]
-    fn test_linkedin_enabled_but_empty_session_cookie_fails() {
+    fn test_linkedin_enabled_fails_by_source_policy() {
         let mut config = create_valid_config();
         config.linkedin.enabled = true;
-        config.linkedin.session_cookie = "".to_string();
-        config.linkedin.query = "software engineer".to_string();
 
         let result = validate_config(&config);
         assert!(
             result.is_err(),
-            "Empty LinkedIn session cookie when enabled should fail"
+            "LinkedIn automatic monitoring should fail validation"
         );
         assert!(result
             .unwrap_err()
             .to_string()
-            .contains("LinkedIn session cookie is required"));
-    }
-
-    #[test]
-    fn test_linkedin_enabled_but_empty_query_fails() {
-        let mut config = create_valid_config();
-        config.linkedin.enabled = true;
-        config.linkedin.session_cookie = "abc123".to_string();
-        config.linkedin.query = "".to_string();
-
-        let result = validate_config(&config);
-        assert!(
-            result.is_err(),
-            "Empty LinkedIn query when enabled should fail"
-        );
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("LinkedIn search query is required"));
-    }
-
-    #[test]
-    fn test_linkedin_session_cookie_too_long_fails() {
-        let mut config = create_valid_config();
-        config.linkedin.enabled = true;
-        config.linkedin.session_cookie = "c".repeat(501);
-        config.linkedin.query = "software engineer".to_string();
-
-        let result = validate_config(&config);
-        assert!(
-            result.is_err(),
-            "LinkedIn session cookie > 500 chars should fail"
-        );
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("LinkedIn session cookie too long"));
-    }
-
-    #[test]
-    fn test_linkedin_query_too_long_fails() {
-        let mut config = create_valid_config();
-        config.linkedin.enabled = true;
-        config.linkedin.session_cookie = "abc123".to_string();
-        config.linkedin.query = "q".repeat(201);
-
-        let result = validate_config(&config);
-        assert!(result.is_err(), "LinkedIn query > 200 chars should fail");
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("LinkedIn search query too long"));
-    }
-
-    #[test]
-    fn test_linkedin_location_too_long_fails() {
-        let mut config = create_valid_config();
-        config.linkedin.enabled = true;
-        config.linkedin.session_cookie = "abc123".to_string();
-        config.linkedin.query = "software engineer".to_string();
-        config.linkedin.location = "l".repeat(101);
-
-        let result = validate_config(&config);
-        assert!(result.is_err(), "LinkedIn location > 100 chars should fail");
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("LinkedIn location too long"));
-    }
-
-    #[test]
-    fn test_linkedin_limit_exceeds_max_fails() {
-        let mut config = create_valid_config();
-        config.linkedin.enabled = true;
-        config.linkedin.session_cookie = "abc123".to_string();
-        config.linkedin.query = "software engineer".to_string();
-        config.linkedin.limit = 101;
-
-        let result = validate_config(&config);
-        assert!(result.is_err(), "LinkedIn limit > 100 should fail");
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("LinkedIn result limit cannot exceed 100"));
-    }
-
-    #[test]
-    fn test_linkedin_limit_zero_fails() {
-        let mut config = create_valid_config();
-        config.linkedin.enabled = true;
-        config.linkedin.session_cookie = "abc123".to_string();
-        config.linkedin.query = "software engineer".to_string();
-        config.linkedin.limit = 0;
-
-        let result = validate_config(&config);
-        assert!(result.is_err(), "LinkedIn limit of 0 should fail");
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("LinkedIn result limit must be at least 1"));
+            .contains("LinkedIn automatic monitoring is disabled"));
     }
 
     #[test]
@@ -1338,22 +1237,6 @@ mod tests {
         assert!(
             validate_config(&config).is_ok(),
             "Invalid LinkedIn config should pass when disabled"
-        );
-    }
-
-    #[test]
-    fn test_linkedin_valid_configuration_passes() {
-        let mut config = create_valid_config();
-        config.linkedin.enabled = true;
-        config.linkedin.session_cookie = "AQEDATXNMjA...".to_string();
-        config.linkedin.query = "rust developer".to_string();
-        config.linkedin.location = "San Francisco, CA".to_string();
-        config.linkedin.remote_only = true;
-        config.linkedin.limit = 75;
-
-        assert!(
-            validate_config(&config).is_ok(),
-            "Valid LinkedIn configuration should pass"
         );
     }
 

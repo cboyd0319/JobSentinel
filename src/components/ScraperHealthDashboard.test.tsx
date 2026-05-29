@@ -93,7 +93,7 @@ const mockScrapers = [
 
 const mockCredentials = [
   {
-    key: "linkedin_cookie",
+    key: "smtp_password",
     created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
     last_validated: new Date().toISOString(),
     expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
@@ -413,7 +413,7 @@ describe("ScraperHealthDashboard", () => {
       await waitFor(() => {
         expect(screen.getByText("Credential Warnings")).toBeInTheDocument();
       });
-      expect(screen.getByText("linkedin_cookie")).toBeInTheDocument();
+      expect(screen.getByText("smtp_password")).toBeInTheDocument();
       expect(screen.getByText(/expires in 7 days/i)).toBeInTheDocument();
     });
 

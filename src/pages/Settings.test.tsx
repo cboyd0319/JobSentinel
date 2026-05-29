@@ -312,10 +312,10 @@ describe("Settings — loadConfig flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    // Should warn about all 7 credential failures
+    // Should warn about all active credential failures
     expect(mockToast.warning).toHaveBeenCalledWith(
       "Some credentials unavailable",
-      expect.stringContaining("7"),
+      expect.stringContaining("6"),
     );
   });
 
@@ -340,22 +340,13 @@ describe("Settings — loadConfig flow", () => {
     );
   });
 
-  it("fetches LinkedIn expiry status when linkedin credential exists", async () => {
-    const expiryStatus = {
-      connected: true,
-      expires_at: "2026-04-01T00:00:00Z",
-      days_remaining: 14,
-      expiry_warning: false,
-      expired: false,
-    };
-
+  it("keeps LinkedIn as a user-opened search link instead of a connected source", async () => {
     mockInvoke.mockImplementation(async (cmd: string, args?: unknown) => {
       if (cmd === "get_config") return makeConfig();
       if (cmd === "has_credential") {
         const { key } = args as { key: string };
-        return key === "linkedin_cookie";
+        return key === "slack_webhook";
       }
-      if (cmd === "get_linkedin_expiry_status") return expiryStatus;
       if (cmd === "get_ghost_config") return makeGhostConfig();
       if (cmd === "detect_location") return null;
       return null;
@@ -367,8 +358,15 @@ describe("Settings — loadConfig flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    // Verify linkedin expiry was fetched
-    expect(mockInvoke).toHaveBeenCalledWith("get_linkedin_expiry_status");
+    await userEvent.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+
+    expect(screen.getByText("Search links only")).toBeInTheDocument();
+    expect(
+      screen.getByText(/JobSentinel does not log in to LinkedIn/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /connect linkedin/i })).not.toBeInTheDocument();
+    expect(mockInvoke).not.toHaveBeenCalledWith("get_linkedin_expiry_status");
+    expect(mockInvoke).not.toHaveBeenCalledWith("linkedin_login");
   });
 
   it("exposes email alert toggle with an accessible name", async () => {
@@ -414,12 +412,12 @@ describe("Settings — loadConfig flow", () => {
     expect(screen.queryByText(/keyword-only scoring/i)).not.toBeInTheDocument();
   });
 
-  it("does NOT fetch LinkedIn expiry when linkedin credential check fails", async () => {
+  it("does not check LinkedIn credentials when loading settings", async () => {
     mockInvoke.mockImplementation(async (cmd: string, args?: unknown) => {
       if (cmd === "get_config") return makeConfig();
       if (cmd === "has_credential") {
         const { key } = args as { key: string };
-        if (key === "linkedin_cookie") throw new Error("Keyring locked");
+        expect(key).not.toBe("linkedin_cookie");
         return false;
       }
       if (cmd === "get_ghost_config") return makeGhostConfig();
@@ -433,7 +431,6 @@ describe("Settings — loadConfig flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    // LinkedIn expiry should NOT have been fetched (credential check failed → false)
     expect(mockInvoke).not.toHaveBeenCalledWith("get_linkedin_expiry_status");
   });
 });

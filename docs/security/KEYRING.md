@@ -2,7 +2,7 @@
 
 JobSentinel stores sensitive credentials in the operating system credential
 store, not in plaintext app config. This applies to notification secrets, API
-keys, and authenticated scraper cookies.
+keys, and passwords.
 
 ## Supported Credential Stores
 
@@ -24,8 +24,6 @@ the `jobsentinel_` prefix.
 | `jobsentinel_slack_webhook` | `SlackWebhook` | Slack notifications |
 | `jobsentinel_discord_webhook` | `DiscordWebhook` | Discord notifications |
 | `jobsentinel_teams_webhook` | `TeamsWebhook` | Microsoft Teams notifications |
-| `jobsentinel_linkedin_cookie` | `LinkedInCookie` | LinkedIn authenticated scraping |
-| `jobsentinel_linkedin_cookie_expiry` | `LinkedInCookieExpiry` | LinkedIn cookie renewal checks |
 | `jobsentinel_usajobs_api_key` | `UsaJobsApiKey` | USAJobs API access |
 
 The Tauri credential commands accept either the prefixed storage key or the
@@ -54,6 +52,10 @@ Backend notification and scraper code uses `CredentialStore` directly when it
 needs credentials outside the frontend command path. Both paths use the same
 service name and storage keys.
 
+Legacy LinkedIn credential keys may exist on older installations. They are
+supported only for cleanup and redaction. JobSentinel does not collect new
+LinkedIn session credentials or use LinkedIn as a background source.
+
 `tauri-plugin-secure-storage` remains registered with the app, but the current
 React credential flow uses Tauri commands backed by `CredentialStore`.
 `CredentialStore` initializes the `keyring` native store once at startup, then
@@ -70,8 +72,6 @@ pub enum CredentialKey {
     SlackWebhook,
     DiscordWebhook,
     TeamsWebhook,
-    LinkedInCookie,
-    LinkedInCookieExpiry,
     UsaJobsApiKey,
 }
 
@@ -141,9 +141,8 @@ Settings displays credential presence without returning credential values:
   and body length are kept because provider failures can echo job payload data.
 - Credential command logs use parsed allowlisted key names only. Invalid key
   errors stay generic and do not echo caller input.
-- LinkedIn cookie values are trimmed at the credential command boundary, capped
-  at 500 bytes, and rejected if they contain control characters or cookie
-  separators before they can be stored or used in scraper headers.
+- Legacy LinkedIn session values are not accepted for new storage. Existing
+  legacy entries can be deleted and are redacted from logs and debug reports.
 
 Non-sensitive config remains in `config.json`, including job titles, keywords,
 locations, scraping intervals, alert thresholds, company URLs, and search query
@@ -182,7 +181,7 @@ should remain empty during normal use:
     }
   },
   "linkedin": {
-    "enabled": true,
+    "enabled": false,
     "session_cookie": ""
   },
   "usajobs": {

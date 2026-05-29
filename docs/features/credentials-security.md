@@ -1,7 +1,7 @@
 # Secure Credential Storage
 
-JobSentinel keeps notification secrets, API keys, passwords, and authenticated
-scraper cookies in the operating system credential store. Secrets do not belong
+JobSentinel keeps notification secrets, API keys, and passwords in the
+operating system credential store. Secrets do not belong
 in `config.json`, localStorage, docs, logs, or screenshots.
 
 ## Why It Matters
@@ -28,12 +28,14 @@ Supported stores:
 | Microsoft Teams webhook URL | `jobsentinel_teams_webhook` | Teams notifications |
 | Email SMTP password | `jobsentinel_smtp_password` | Email alerts |
 | Telegram bot token | `jobsentinel_telegram_bot_token` | Telegram notifications |
-| LinkedIn session cookie | `jobsentinel_linkedin_cookie` | Authenticated LinkedIn scraping |
-| LinkedIn cookie expiry | `jobsentinel_linkedin_cookie_expiry` | Cookie renewal checks |
 | USAJobs access code | `jobsentinel_usajobs_api_key` | USAJobs connection |
 
 Non-secret app settings, such as enabled sources, search filters, thresholds,
 locations, and notification preferences, remain in local app config or SQLite.
+
+Legacy LinkedIn credential keys may exist on older installations. They are kept
+only so JobSentinel can delete or redact old values. New LinkedIn session
+credential storage is disabled by source policy.
 
 ## How It Works
 
@@ -95,8 +97,6 @@ pub enum CredentialKey {
     SlackWebhook,
     DiscordWebhook,
     TeamsWebhook,
-    LinkedInCookie,
-    LinkedInCookieExpiry,
     UsaJobsApiKey,
 }
 ```
@@ -109,8 +109,6 @@ Self::TelegramBotToken => "jobsentinel_telegram_bot_token",
 Self::SlackWebhook => "jobsentinel_slack_webhook",
 Self::DiscordWebhook => "jobsentinel_discord_webhook",
 Self::TeamsWebhook => "jobsentinel_teams_webhook",
-Self::LinkedInCookie => "jobsentinel_linkedin_cookie",
-Self::LinkedInCookieExpiry => "jobsentinel_linkedin_cookie_expiry",
 Self::UsaJobsApiKey => "jobsentinel_usajobs_api_key",
 ```
 

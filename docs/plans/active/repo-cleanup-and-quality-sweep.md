@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Locked the LinkedIn source boundary to user-opened search links only: disabled background collection, disabled new session credential storage, removed LinkedIn from smoke tests and Settings credential checks, rewrote source-health docs, and added bloat coverage for recurrence. |
 | 2026-05-29 | In progress | Routed Playwright npm scripts through a small wrapper that removes conflicting color environment settings and suppresses only the known upstream Node 26 `DEP0205` deprecation warning from Playwright/Tailwind internals; added script tests and bloat coverage so fast E2E output stays readable. |
 | 2026-05-29 | In progress | Switched Tailwind 4 from the PostCSS plugin path to the official Vite plugin to remove PostCSS parser warnings from local E2E and build output while keeping autoprefixer in PostCSS. |
 | 2026-05-29 | In progress | Moved Slack, Discord, and Teams connection-link validation into backend credential storage so invalid webhook values cannot be written to the OS keyring through direct IPC or future callers; added command tests, docs, and bloat coverage. |
@@ -222,7 +223,7 @@ changes or Playwright-specific work.
 | 2026-05-21 | In progress | Sanitized resume library command responses so renderer DTOs no longer include backend resume file paths or parsed text, and added frontend, mock, docs, and bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Changed feedback file save flow so the renderer receives only a filename and opaque reveal token, not a full local save path; reveal now uses backend-held saved-file paths and bloat coverage prevents raw path returns. |
 | 2026-05-21 | In progress | Removed renderer access to stored credential values by retiring the `retrieve_credential` IPC command and moving existing Slack/SMTP test fallback reads into backend-only credential-store paths; synced docs, mocks, tests, and bloat coverage. |
-| 2026-05-21 | In progress | Added backend LinkedIn cookie validation before keyring storage so credential IPC and direct credential-store calls reject oversized, control-character, and cookie-separator values before scraper header use; added bloat coverage. |
+| 2026-05-21 | In progress | Disabled new LinkedIn session credential storage by source policy, kept legacy cleanup/redaction paths, and added bloat coverage. |
 | 2026-05-21 | In progress | Sanitized job import URL failure paths so non-public IP validation and fallback HTTP errors do not echo user-supplied hosts, URLs, queries, or provider error URLs; added bloat coverage. |
 | 2026-05-21 | In progress | Sanitized database backup restore missing-file errors so backup filenames and local paths are not exposed, with regression and bloat coverage. |
 | 2026-05-21 | In progress | Sanitized resume PDF parser failures so renderer-visible upload errors do not expose local file paths; synced command-execution docs and added bloat coverage for raw parser path displays. |
@@ -230,7 +231,7 @@ changes or Playwright-specific work.
 | 2026-05-21 | In progress | Split Settings save failure handling so config write failures are reported as save failures even when credential writes succeed, with UI and bloat coverage for stale partial-save copy. |
 | 2026-05-21 | In progress | Sanitized Slack webhook validation command failures so webhook URLs and token paths are never returned or logged raw from the IPC wrapper; added bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Sanitized test email command failures so raw SMTP URLs, usernames, hosts, and passwords cannot be returned to the renderer; added bloat coverage for recurrence. |
-| 2026-05-21 | In progress | Kept LinkedIn login session cookies confined to the backend/keyring by returning only a success message to the renderer, with bloat coverage preventing raw cookie return regressions. |
+| 2026-05-21 | In progress | Retired the earlier LinkedIn login experiment in favor of user-opened search links and official-source monitoring. |
 | 2026-05-21 | In progress | Synced scraper health smoke tests, frontend result shapes, mocks, and docs with the current 16 configured scraper sources, replacing stale `usa_jobs` and `success`/`response_time_ms` smoke-result assumptions. |
 | 2026-05-21 | In progress | Sanitized frontend-visible config/setup/ghost command errors so database URLs, local paths, and raw setup failures are not echoed into command responses; added bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Wired hardened Resume Builder contact validation into the live next/save gate so invalid emails, phone numbers, deceptive profile URL schemes, and URL credentials cannot be saved by bypassing blur-time field validation. |
@@ -260,8 +261,8 @@ changes or Playwright-specific work.
 | 2026-05-21 | In progress | Replaced the active scraper feature doc's box diagram, arrow-heavy examples, and versioned section labels with plain flow/list text, and widened scraper doc bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Normalized active user-facing setup and application-tracking docs from arrow/tree glyphs to plain menu paths and list text, with bloat coverage for recurrence. |
 | 2026-05-21 | In progress | Removed remaining box-drawing and arrow glyphs from the active Salary AI feature doc examples and widened resume/salary doc bloat coverage to catch those markers. |
-| 2026-05-21 | In progress | Synced LinkedIn scraper source comments and user docs with the current keyring-backed Connect LinkedIn flow, removing stale config-file, DevTools, and future-interactive-login guidance; added bloat coverage. |
-| 2026-05-21 | In progress | Replaced raw LinkedIn scraper `Debug` output with shape-only metadata so debug formatting cannot expose session cookies, search terms, or locations; added regression and bloat coverage. |
+| 2026-05-21 | In progress | Synced LinkedIn source comments and user docs with the current user-opened search-link model, removing stale credential setup guidance; added bloat coverage. |
+| 2026-05-21 | In progress | Replaced raw legacy LinkedIn source `Debug` output with shape-only metadata so debug formatting cannot expose session values, search terms, or locations; added regression and bloat coverage. |
 | 2026-05-21 | In progress | Replaced raw JobsWithGPT scraper/query `Debug` output with shape-only metadata so debug formatting cannot expose configured endpoints, searched titles, or locations; added regression and bloat coverage. |
 | 2026-05-21 | In progress | Sanitized USAJobs HTTP error messages so external API response bodies cannot echo private keywords, locations, or diagnostics into scraper logs; added regression and bloat coverage. |
 | 2026-05-21 | In progress | Sanitized JobsWithGPT MCP error handling so external JSON-RPC errors cannot echo searched titles, locations, endpoint tokens, or response data into scraper logs; added regression and bloat coverage. |
@@ -335,7 +336,7 @@ changes or Playwright-specific work.
 | 2026-05-20 | In progress | Sanitized LinkedIn auth navigation logs so login redirects are written as sanitized URL labels, with bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Replaced raw automation screening question debug logs with question-length metadata, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Sanitized job-import spans and result logs so raw import URLs, titles, and companies are not written to logs, with bloat coverage for recurrence. |
-| 2026-05-20 | In progress | Replaced raw LinkedIn scraper query and location span fields with length metadata, and extended scraper-log bloat coverage. |
+| 2026-05-20 | In progress | Replaced raw legacy LinkedIn source query and location span fields with length metadata, and extended source-log bloat coverage. |
 | 2026-05-20 | In progress | Sanitized remaining raw URL logging in URL normalization parse failures and browser automation spans, and added bloat coverage for recurrence. |
 | 2026-05-20 | In progress | Replaced raw local path logging with non-identifying path labels for resume, automation, database, platform, startup, and ML model paths. |
 | 2026-05-20 | In progress | Sanitized scraper cache, fetch, and query logs so source adapters no longer write raw search queries or full fetch URLs. |
@@ -578,7 +579,7 @@ changes or Playwright-specific work.
   user-controlled URLs. Raw URL logs outside approved sanitizer paths are
   forbidden; use `sanitize_url_for_logging` before writing URL fields or
   messages to logs.
-- The LinkedIn scraper span still recorded raw search query and location fields.
+- The legacy LinkedIn source span still recorded raw search query and location fields.
   These values are user-authored job criteria and should be logged only as
   non-content metadata such as character counts.
 - Job import commands still recorded raw import URLs in tracing spans and logged

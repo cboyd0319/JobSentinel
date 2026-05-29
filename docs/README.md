@@ -74,14 +74,13 @@ broad-audience design guidance, docs harness alignment
 
 - See [v2.6.0 Release Notes](releases/v2.6.0.md) for full details
 
-### What's New in v2.5.3
+### Source Policy Update
 
-- **LinkedIn Auto-Connect** - Zero-copy authentication, no technical knowledge required
-  - Click "Connect LinkedIn", log in normally, and finish.
-  - Native macOS WebKit integration for automatic cookie extraction
-  - No more DevTools, no more copy-paste
-  - Cookie stored securely in OS keychain
-- See [LinkedIn Setup](features/scrapers.md#-linkedin-scraper) for details
+- **LinkedIn search links only** - LinkedIn opens in the user's browser through
+  Deep Links.
+- JobSentinel does not collect LinkedIn session credentials, call hidden
+  endpoints, or monitor LinkedIn in the background.
+- See [Job Source Adapters](features/scrapers.md) for details.
 
 ### What's New in v2.5
 
@@ -99,7 +98,8 @@ broad-audience design guidance, docs harness alignment
 
 - **OS-Native Keyring Integration** - All credentials securely stored in OS credential managers
   - macOS: Keychain | Windows: Credential Manager | Linux: Secret Service
-- **6 credentials secured**: SMTP password, Telegram token, Slack/Discord/Teams webhooks, LinkedIn cookie
+- **6 active credentials secured**: SMTP password, Telegram token, Slack, Discord,
+  and Teams webhooks, plus the USAJobs access code
 - **Automatic migration** - Existing plaintext credentials migrated on first launch
 - See [Keyring Documentation](security/KEYRING.md) for full details
 
@@ -127,8 +127,11 @@ broad-audience design guidance, docs harness alignment
 
 ### Working Features
 
-- **13 Job scrapers**: Greenhouse, Lever, LinkedIn, RemoteOK, WeWorkRemotely, BuiltIn,
-  HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, Glassdoor
+- **12 scheduled source adapters**: Greenhouse, Lever, RemoteOK,
+  WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup
+  Jobs, USAJobs, SimplyHired, Glassdoor
+- **User-opened job-site search links**: LinkedIn and other destinations opened
+  by the user, not monitored in the background
 - **Ghost Job Detection** - Flags stale, reposted, and low-trust postings
 - Application Tracking System (ATS) with Kanban board + interview scheduler
 - AI Resume-Job Matcher with PDF parsing
@@ -169,7 +172,7 @@ broad-audience design guidance, docs harness alignment
 
 ### Backend Modules (190 registered Tauri commands)
 
-- **Core**: config, db, scoring, scheduler, scrapers (13 with parallel scraping), notify, ghost
+- **Core**: config, db, scoring, scheduler, source adapters, notify, ghost
 - **ATS**: Kanban, reminders, ghosting detection, interviews, and application stats
 - **Resume Matcher**: JSON Resume import, uploaded resumes, matching, and skill profile management
 - **Resume Builder**: drafts, sections, templates, rendering, exports, and ATS analysis
@@ -178,7 +181,7 @@ broad-audience design guidance, docs harness alignment
 - **Ghost Detection**: posting-risk signals, statistics, filtered search, feedback, and configuration
 - **User Data**: templates, prep checklists, saved searches, notifications, migration, and history
 - **Application Assist**: profile, screening answers, review attempts, ATS detection, and browser control
-- **Health**: scraper health, smoke tests, run history, and credential expiry
+- **Health**: source health, smoke tests, run history, and supported credential expiry
 - **Feedback**: GitHub, Google Drive, one-click sanitized debug reports, debug summaries, and log events
 
 ### Planned / Unreleased Features
@@ -236,7 +239,8 @@ broad-audience design guidance, docs harness alignment
 
 - **[v2.6.3 - Security & Stability](releases/v2.6.3.md)** - Security fixes, memory leaks, standardized errors
 - **[v2.6.0 - UX Improvements](releases/v2.6.0.md)** - Error recovery, loading states, accessibility, performance
-- **[v2.5.3 - LinkedIn Auto-Connect](releases/v2.5.3.md)** - Zero-copy LinkedIn authentication
+- **[v2.5.3 - Superseded LinkedIn experiment](releases/v2.5.3.md)** -
+  Historical note; current behavior is user-opened search links
 - **[v2.5.2 - Bug Fixes](releases/v2.5.2.md)** - Onboarding and settings fixes
 - **[v2.5.1 - Production Release](releases/v2.5.1.md)** - Official installers for Windows and macOS
 - **[v2.5 - Market Intelligence UI](releases/v2.5.md)** - Interactive charts, tabbed layout, heatmaps

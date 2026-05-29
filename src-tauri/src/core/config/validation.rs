@@ -427,52 +427,12 @@ fn validate_scrapers(config: &Config, errors: &mut ValidationErrors) {
     const MAX_LOCATION_LENGTH: usize = 100;
     const MAX_EMAIL_LENGTH: usize = 100;
 
-    // Validate LinkedIn scraper
     if config.linkedin.enabled {
-        // Note: session_cookie is stored in keyring but we check it during validation
-        // since old configs may still have it populated for validation tests
-        if config.linkedin.session_cookie.is_empty() {
-            errors.add(ValidationError::required_field(
-                "linkedin.session_cookie",
-                "required when LinkedIn is enabled",
-            ));
-        } else if config.linkedin.session_cookie.len() > 500 {
-            errors.add(ValidationError::too_long(
-                "linkedin.session_cookie",
-                config.linkedin.session_cookie.len(),
-                500,
-            ));
-        }
-
-        if config.linkedin.query.is_empty() {
-            errors.add(ValidationError::required_field(
-                "linkedin.query",
-                "required when LinkedIn scraper is enabled",
-            ));
-        } else if config.linkedin.query.len() > MAX_QUERY_LENGTH {
-            errors.add(ValidationError::too_long(
-                "linkedin.query",
-                config.linkedin.query.len(),
-                MAX_QUERY_LENGTH,
-            ));
-        }
-
-        if config.linkedin.location.len() > MAX_LOCATION_LENGTH {
-            errors.add(ValidationError::too_long(
-                "linkedin.location",
-                config.linkedin.location.len(),
-                MAX_LOCATION_LENGTH,
-            ));
-        }
-
-        if config.linkedin.limit == 0 || config.linkedin.limit > 100 {
-            errors.add(ValidationError::out_of_range(
-                "linkedin.limit",
-                config.linkedin.limit,
-                Some(1_usize),
-                Some(100_usize),
-            ));
-        }
+        errors.add(ValidationError::invalid_value(
+            "linkedin.enabled",
+            true,
+            "LinkedIn automatic monitoring is disabled by JobSentinel source policy",
+        ));
     }
 
     // Validate RemoteOK scraper

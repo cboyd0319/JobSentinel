@@ -235,6 +235,16 @@ const linkedInCredentialDocsPaths = new Set([
   "docs/features/scrapers.md",
   "docs/features/scraper-health.md",
 ]);
+const linkedInAutomationBoundaryPaths = new Set([
+  "src-tauri/src/core/scrapers/linkedin.rs",
+  "src-tauri/src/core/scheduler/workers/scrapers.rs",
+  "src-tauri/src/core/health/smoke_tests.rs",
+  "src/pages/Settings.tsx",
+  "docs/features/scrapers.md",
+  "docs/features/scraper-health.md",
+  "docs/features/credentials-security.md",
+  "docs/security/KEYRING.md",
+]);
 
 const databaseLogEmojiPaths = new Set([
   "src-tauri/src/core/db/connection.rs",
@@ -1639,9 +1649,12 @@ function hasStaleScraperDocReliabilityClaim(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
+  const staleAllSourcesClaim = new RegExp(
+    ["All 13 job board", "scrapers \\(production-ready\\)"].join(" "),
+  );
   return (
     /production-ready scrapers for 13 major job boards/.test(text) ||
-    /All 13 job board scrapers \(production-ready\)/.test(text) ||
+    staleAllSourcesClaim.test(text) ||
     /CAPTCHA Solver|CAPTCHA solver integration|Proxy rotation for large-scale scraping/.test(text) ||
     /Rotate cookies if multiple accounts/.test(text) ||
     /Conservative 5-second delays/.test(text) ||
@@ -2260,7 +2273,7 @@ function hasCredentialKeyInputEcho(root, path) {
   );
 }
 
-function hasMissingLinkedInCookieStorageValidation(root, path) {
+function hasMissingLinkedInCredentialStorageDisable(root, path) {
   if (!credentialCommandPrivacyPaths.has(path)) {
     return false;
   }
@@ -2269,19 +2282,20 @@ function hasMissingLinkedInCookieStorageValidation(root, path) {
 
   if (path === "src-tauri/src/core/credentials/mod.rs") {
     return (
-      !productionText.includes("MAX_LINKEDIN_COOKIE_LEN") ||
-      !productionText.includes("is_ascii_control()") ||
-      !productionText.includes("ch == ';'") ||
+      !productionText.includes("LINKEDIN_CREDENTIAL_STORAGE_DISABLED") ||
+      !/fn\s+reject_disabled_credential_storage/.test(productionText) ||
+      !/CredentialKey::LinkedInCookie\s*\|\s*CredentialKey::LinkedInCookieExpiry/.test(productionText) ||
+      !/reject_disabled_credential_storage\(key\)\?/.test(productionText) ||
       !/validate_credential_value\(key,\s*value\)\?/.test(productionText)
     );
   }
 
   if (path === "src-tauri/src/commands/credentials.rs") {
     return (
-      !productionText.includes("normalize_credential_value") ||
-      !/CredentialKey::LinkedInCookie\s*=>\s*value\.trim\(\)\.to_string\(\)/.test(
-        productionText,
-      )
+      !productionText.includes("LINKEDIN_CREDENTIALS_DISABLED") ||
+      !/fn\s+reject_disabled_credential_storage/.test(productionText) ||
+      !/CredentialKey::LinkedInCookie\s*\|\s*CredentialKey::LinkedInCookieExpiry/.test(productionText) ||
+      !/reject_disabled_credential_storage\(cred_key\)\?/.test(productionText)
     );
   }
 
@@ -2397,6 +2411,30 @@ function hasStaleLinkedInCredentialDocs(root, path) {
   return /session cookie\s+via the config file|no credential storage|No credentials stored|Cookie expires after ~90 days|Open DevTools|Find and copy\s+\*\*?li_at|Paste into Settings > Scrapers > LinkedIn|Paste the new cookie|Update LinkedIn Cookie/.test(
     text,
   ) || /\[\s\]\s+\*\*Interactive Login:\*\* No manual cookie extraction/.test(text);
+}
+
+function hasLinkedInAutomationBoundaryDrift(root, path) {
+  if (!linkedInAutomationBoundaryPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const linkedInAutomationCopyPattern = new RegExp(
+    [
+      ["Connect", "LinkedIn"].join(" "),
+      ["LinkedIn", "Connected"].join(" "),
+      ["LinkedIn", "Session Cookie"].join(" "),
+      ["Authenticated LinkedIn", "scraping"].join(" "),
+    ].join("|"),
+  );
+  return (
+    /voyager\/api|jobs-guest\/jobs\/api|parse_linkedin_html|fetch_linkedin_html|csrf-token/.test(text) ||
+    linkedInAutomationCopyPattern.test(text) ||
+    /linkedin_login|get_linkedin_expiry_status|CredentialKey::LinkedInCookie/.test(text) ||
+    /start_run\(db,\s*"linkedin"\)|scraper_name:\s*"linkedin"/.test(text) ||
+    /LinkedIn\s+(?:scraper|cookie health|cookie expiry)/i.test(text) ||
+    /SMOKE_TEST_SCRAPERS[\s\S]*"linkedin"/.test(text)
+  );
 }
 
 function hasDatabaseLogEmojiMarkers(root, path) {
@@ -2886,7 +2924,7 @@ function hasStaleKeyringSecurityDocs(root, path) {
     /HashMap<String, bool>|list_status\(\) -> Result/.test(text) ||
     /v2\.0\.0 introduces|[✅❌⚠️✓→←]|\*\*(?:Last Updated|Version|Security Level)\*\*:/.test(text) ||
     !text.includes("jobsentinel_usajobs_api_key") ||
-    !text.includes("LinkedInCookieExpiry") ||
+    !text.includes("Legacy LinkedIn credential") ||
     !text.includes("store_credential")
   );
 }
@@ -3803,7 +3841,7 @@ export function checkRepoBloat(root = defaultRoot) {
     }
 
     if (hasRawLinkedInDebug(root, path)) {
-      violations.push(`sanitize LinkedIn scraper debug output: ${path}`);
+      violations.push(`sanitize legacy LinkedIn source debug output: ${path}`);
     }
 
     if (hasLinkedInLoginCookieReturn(root, path)) {
@@ -3826,8 +3864,8 @@ export function checkRepoBloat(root = defaultRoot) {
       violations.push(`avoid echoing credential key input: ${path}`);
     }
 
-    if (hasMissingLinkedInCookieStorageValidation(root, path)) {
-      violations.push(`validate LinkedIn cookies before keyring storage: ${path}`);
+    if (hasMissingLinkedInCredentialStorageDisable(root, path)) {
+      violations.push(`disable LinkedIn credential storage: ${path}`);
     }
 
     if (hasMissingWebhookCredentialStorageValidation(root, path)) {
@@ -3860,6 +3898,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleLinkedInCredentialDocs(root, path)) {
       violations.push(`sync LinkedIn credential docs with keyring login flow: ${path}`);
+    }
+
+    if (hasLinkedInAutomationBoundaryDrift(root, path)) {
+      violations.push(`remove automated LinkedIn collection boundary drift: ${path}`);
     }
 
     if (hasDatabaseLogEmojiMarkers(root, path)) {

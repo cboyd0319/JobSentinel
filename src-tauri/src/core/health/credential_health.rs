@@ -1,79 +1,29 @@
-//! Credential health tracking - especially LinkedIn cookie expiry
+//! Credential health tracking for user-configured external channels.
 
 use crate::core::Database;
 use anyhow::Result;
-use chrono::{Duration, Utc};
+use chrono::Utc;
 
 use super::types::{CredentialHealth, CredentialStatus};
-
-/// LinkedIn cookies typically last 1 year
-const LINKEDIN_COOKIE_EXPIRY_DAYS: i64 = 365;
 
 /// Warning threshold - alert when less than 30 days remaining
 const WARNING_THRESHOLD_DAYS: i64 = 30;
 
-/// Check LinkedIn cookie health status
-pub async fn check_linkedin_cookie_health(db: &Database) -> Result<CredentialHealth> {
-    let record = sqlx::query!(
-        r#"
-        SELECT credential_key, created_at, last_validated, expires_at, validation_status
-        FROM credential_health
-        WHERE credential_key = 'linkedin_cookie'
-        "#,
-    )
-    .fetch_optional(db.pool())
-    .await?;
-
-    if let Some(r) = record {
-        let now = Utc::now();
-
-        // Calculate expiry based on creation date if not explicitly set
-        let expires_at = r.expires_at.map(|dt| dt.and_utc()).or_else(|| {
-            r.created_at
-                .map(|c| c.and_utc() + Duration::days(LINKEDIN_COOKIE_EXPIRY_DAYS))
-        });
-
-        let days_left = expires_at
-            .map(|exp| (exp - now).num_days())
-            .unwrap_or(LINKEDIN_COOKIE_EXPIRY_DAYS);
-
-        let status = if days_left < 0 {
-            CredentialStatus::Expired
-        } else if days_left < WARNING_THRESHOLD_DAYS {
-            CredentialStatus::Expiring
-        } else {
-            CredentialStatus::Valid
-        };
-
-        Ok(CredentialHealth {
-            key: "linkedin_cookie".to_string(),
-            created_at: r.created_at.map(|dt| dt.and_utc()),
-            last_validated: r.last_validated.map(|dt| dt.and_utc()),
-            expires_at,
-            status,
-            days_until_expiry: Some(days_left.max(0)),
-        })
-    } else {
-        // No record exists - credential not yet stored
-        Ok(CredentialHealth {
-            key: "linkedin_cookie".to_string(),
-            created_at: None,
-            last_validated: None,
-            expires_at: None,
-            status: CredentialStatus::Unknown,
-            days_until_expiry: None,
-        })
-    }
+/// Return inactive status for the legacy LinkedIn credential surface.
+pub async fn check_linkedin_cookie_health(_db: &Database) -> Result<CredentialHealth> {
+    Ok(CredentialHealth {
+        key: "linkedin_search_links".to_string(),
+        created_at: None,
+        last_validated: None,
+        expires_at: None,
+        status: CredentialStatus::Unknown,
+        days_until_expiry: None,
+    })
 }
 
 /// Record when a credential is stored (call from credential store)
 pub async fn record_credential_created(db: &Database, key: &str) -> Result<()> {
-    let expiry_days = match key {
-        "linkedin_cookie" => LINKEDIN_COOKIE_EXPIRY_DAYS,
-        _ => 365, // Default 1 year for unknown credentials
-    };
-
-    let expiry_modifier = format!("+{} days", expiry_days);
+    let expiry_modifier = "+365 days";
 
     sqlx::query(
         r#"
@@ -87,8 +37,8 @@ pub async fn record_credential_created(db: &Database, key: &str) -> Result<()> {
         "#,
     )
     .bind(key)
-    .bind(&expiry_modifier)
-    .bind(&expiry_modifier)
+    .bind(expiry_modifier)
+    .bind(expiry_modifier)
     .execute(db.pool())
     .await?;
 
@@ -192,6 +142,7 @@ pub async fn get_expiring_credentials(db: &Database) -> Result<Vec<CredentialHea
     let now = Utc::now();
     let credentials = rows
         .into_iter()
+        .filter(|r| r.credential_key.as_deref() != Some("linkedin_cookie"))
         .map(|r| {
             let expires_at = r.expires_at.map(|dt| dt.and_utc());
             let days_left = expires_at.map(|exp| (exp - now).num_days()).unwrap_or(0);

@@ -76,12 +76,13 @@ fn test_smoke_test_type_serialization() {
 fn test_smoke_test_scraper_list_matches_configured_sources() {
     let scrapers = smoke_test_scrapers();
 
-    assert_eq!(scrapers.len(), 16);
+    assert_eq!(scrapers.len(), 15);
     assert!(scrapers.contains(&"greenhouse"));
     assert!(scrapers.contains(&"yc_startup"));
     assert!(scrapers.contains(&"usajobs"));
     assert!(scrapers.contains(&"simplyhired"));
     assert!(scrapers.contains(&"glassdoor"));
+    assert!(!scrapers.contains(&"linkedin"));
     assert!(!scrapers.contains(&"usa_jobs"));
 }
 

@@ -9,7 +9,7 @@
 //! - **Health Metrics**: Calculate success rate, average duration, last success time
 //! - **Retry Logic**: Exponential backoff for transient failures (429, 503, timeouts)
 //! - **Smoke Tests**: Live API connectivity verification before scraping
-//! - **Credential Health**: Track LinkedIn cookie expiry and validation status
+//! - **Credential Health**: Track user-configured external channel expiry where applicable
 //! - **Selector Monitoring**: Detect broken HTML selectors for HTML scrapers
 //!
 //! ## Architecture
@@ -101,7 +101,7 @@ impl HealthManager {
     ///
     /// # Arguments
     ///
-    /// * `scraper_name` - Scraper identifier (e.g. "greenhouse", "linkedin")
+    /// * `scraper_name` - Scraper identifier (e.g. "greenhouse")
     /// * `limit` - Maximum number of runs to return
     ///
     /// # Returns
@@ -118,7 +118,7 @@ impl HealthManager {
     ///
     /// # Arguments
     ///
-    /// * `scraper_name` - Scraper to test (e.g. "greenhouse", "linkedin")
+    /// * `scraper_name` - Scraper to test (e.g. "greenhouse")
     /// * `config` - Application config (contains API keys, rate limits)
     ///
     /// # Returns
@@ -132,7 +132,7 @@ impl HealthManager {
     /// # use jobsentinel::core::health::HealthManager;
     /// # use std::sync::Arc;
     /// # async fn example(manager: &HealthManager, config: &Config) -> anyhow::Result<()> {
-    /// let result = manager.run_smoke_test("linkedin", config).await?;
+    /// let result = manager.run_smoke_test("greenhouse", config).await?;
     /// if !result.passed {
     ///     eprintln!("Smoke test failed: {:?}", result.error);
     /// }

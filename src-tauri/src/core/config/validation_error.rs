@@ -252,16 +252,6 @@ impl fmt::Display for ValidationError {
                         f,
                         "Telegram chat ID is required when Telegram alerts are enabled"
                     )
-                } else if field.contains("linkedin.session_cookie") {
-                    write!(
-                        f,
-                        "LinkedIn session cookie is required when LinkedIn is enabled"
-                    )
-                } else if field.contains("linkedin.query") {
-                    write!(
-                        f,
-                        "LinkedIn search query is required when LinkedIn is enabled"
-                    )
                 } else {
                     write!(f, "{}: {}", field.replace(['_', '.'], " "), reason)
                 }
@@ -288,12 +278,6 @@ impl fmt::Display for ValidationError {
                     write!(f, "Recipient email too long (max: {} chars)", max)
                 } else if field.contains("telegram.chat_id") {
                     write!(f, "Telegram chat ID too long (max: {} chars)", max)
-                } else if field.contains("linkedin.session_cookie") {
-                    write!(f, "LinkedIn session cookie too long (max: {} chars)", max)
-                } else if field.contains("linkedin.query") {
-                    write!(f, "LinkedIn search query too long (max: {} chars)", max)
-                } else if field.contains("linkedin.location") {
-                    write!(f, "LinkedIn location too long (max: {} chars)", max)
                 } else if field.contains("title_allowlist") || field.contains("title_blocklist") {
                     write!(f, "Title too long (max: {} chars)", max)
                 } else if field.contains("keywords") {

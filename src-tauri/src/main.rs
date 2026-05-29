@@ -54,8 +54,14 @@ fn main() {
         match migration::extract_plaintext_credentials(&config_path) {
             Ok(credentials) => {
                 let mark_migration_complete = if credentials.is_empty() {
-                    tracing::info!("No plaintext credentials found, marking as migrated");
-                    true
+                    tracing::info!("No active plaintext credentials found");
+                    if let Err(e) = migration::clear_config_credentials(&config_path) {
+                        tracing::error!("Failed to clear legacy credential fields: {}", e);
+                        tracing::warn!("Keyring migration will retry on next startup");
+                        false
+                    } else {
+                        true
+                    }
                 } else {
                     tracing::info!(
                         "Found {} plaintext credentials to migrate",
@@ -253,7 +259,7 @@ fn main() {
             commands::credentials::delete_credential,
             commands::credentials::has_credential,
             commands::credentials::get_credential_status,
-            // LinkedIn auth commands (in-app login flow)
+            // Legacy LinkedIn source-policy commands
             commands::linkedin_auth::linkedin_login,
             commands::linkedin_auth::store_linkedin_cookie,
             commands::linkedin_auth::is_linkedin_connected,

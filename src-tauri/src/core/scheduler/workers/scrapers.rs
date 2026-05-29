@@ -15,8 +15,7 @@ use crate::core::{
         hn_hiring::HnHiringScraper,
         jobswithgpt::{JobQuery, JobsWithGptScraper},
         lever::{LeverCompany, LeverScraper},
-        linkedin::LinkedInScraper,
-        rate_limiter::RateLimiter,
+        linkedin::LINKEDIN_AUTOMATION_DISABLED_MESSAGE,
         remoteok::RemoteOkScraper,
         simplyhired::SimplyHiredScraper,
         usajobs::UsaJobsScraper,
@@ -187,70 +186,10 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
         }
     }
 
-    // 4. LinkedIn scraper - requires session cookie from secure storage
+    // 4. LinkedIn automatic monitoring is disabled by source policy.
     if config.linkedin.enabled {
-        match CredentialStore::retrieve(CredentialKey::LinkedInCookie) {
-            Ok(Some(session_cookie)) => {
-                tracing::info!("Running LinkedIn scraper");
-                let linkedin = LinkedInScraper {
-                    session_cookie,
-                    query: config.linkedin.query.clone(),
-                    location: config.linkedin.location.clone(),
-                    remote_only: config.linkedin.remote_only,
-                    limit: config.linkedin.limit,
-                    rate_limiter: RateLimiter::new(),
-                };
-
-                {
-                    let _tid = crate::core::health::start_run(db, "linkedin")
-                        .await
-                        .unwrap_or(0);
-                    let _ts = std::time::Instant::now();
-                    match linkedin.scrape().await {
-                        Ok(jobs) => {
-                            let _ = crate::core::health::complete_run(
-                                db,
-                                _tid,
-                                _ts.elapsed().as_millis() as i64,
-                                jobs.len(),
-                                0,
-                            )
-                            .await;
-                            tracing::info!("LinkedIn: {} jobs found", jobs.len());
-                            all_jobs.extend(jobs);
-                        }
-                        Err(e) => {
-                            let _dur = _ts.elapsed().as_millis() as i64;
-                            if matches!(e, crate::core::scrapers::ScraperError::Timeout { .. }) {
-                                let _ = crate::core::health::timeout_run(db, _tid, _dur).await;
-                            } else {
-                                let _ = crate::core::health::fail_run(
-                                    db,
-                                    _tid,
-                                    _dur,
-                                    &e.to_string(),
-                                    None,
-                                )
-                                .await;
-                            }
-                            let error_msg = format!("LinkedIn scraper failed: {}", e);
-                            tracing::error!("{}", error_msg);
-                            errors.push(error_msg);
-                        }
-                    }
-                }
-            }
-            Ok(None) => {
-                tracing::warn!("LinkedIn enabled but session cookie not configured in keyring");
-            }
-            Err(e) => {
-                tracing::warn!(
-                    "LinkedIn skipped: could not access keyring ({}). \
-                     This is expected in environments without a secret service.",
-                    e
-                );
-            }
-        }
+        tracing::warn!("{}", LINKEDIN_AUTOMATION_DISABLED_MESSAGE);
+        errors.push(LINKEDIN_AUTOMATION_DISABLED_MESSAGE.to_string());
     }
 
     // 5. RemoteOK scraper - public JSON API

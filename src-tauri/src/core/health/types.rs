@@ -277,7 +277,7 @@ pub struct SmokeTestResult {
 
 /// Credential validation status.
 ///
-/// Tracks expiry for time-limited credentials (e.g. LinkedIn cookies).
+/// Tracks expiry for time-limited external-channel credentials.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CredentialStatus {
@@ -309,10 +309,10 @@ impl CredentialStatus {
 /// Health information for a stored credential.
 ///
 /// Tracks validation status and expiry for time-limited credentials
-/// like LinkedIn session cookies.
+/// such as user-configured alert-provider credentials.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CredentialHealth {
-    /// Credential key (e.g. "linkedin_cookie").
+    /// Credential key.
     pub key: String,
     /// When credential was first stored.
     pub created_at: Option<DateTime<Utc>>,

@@ -92,7 +92,6 @@ const TEMPLATE_CATEGORIES: readonly MockTemplateCategory[] = [
 type MockCredentialKey =
   | "slack_webhook"
   | "smtp_password"
-  | "linkedin_cookie"
   | "discord_webhook"
   | "teams_webhook"
   | "telegram_bot_token"
@@ -509,7 +508,6 @@ const MOCK_SCRAPERS: readonly MockScraperDefinition[] = [
   { scraper_name: "remoteok", display_name: "Remote OK", requires_auth: false, scraper_type: "api", rate_limit_per_hour: 120 },
   { scraper_name: "hn_hiring", display_name: "HN Who's Hiring", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 30 },
   { scraper_name: "weworkremotely", display_name: "We Work Remotely", requires_auth: false, scraper_type: "rss", rate_limit_per_hour: 60 },
-  { scraper_name: "linkedin", display_name: "LinkedIn", requires_auth: true, scraper_type: "api", rate_limit_per_hour: 30 },
   { scraper_name: "indeed", display_name: "Indeed", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 60 },
   { scraper_name: "wellfound", display_name: "Wellfound", requires_auth: true, scraper_type: "html", rate_limit_per_hour: 45 },
   { scraper_name: "builtin", display_name: "Built In", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 60 },
@@ -2201,18 +2199,7 @@ function getMockSmokeTestResult(scraperName: string): MockSmokeTestResult {
 }
 
 function getMockExpiringCredentials(): MockCredentialHealth[] {
-  return credentials.linkedin_cookie
-    ? [
-        {
-          key: "linkedin_cookie",
-          created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-          last_validated: new Date().toISOString(),
-          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-          status: "expiring",
-          days_until_expiry: 7,
-        },
-      ]
-    : [];
+  return [];
 }
 
 function getInterviewIdArg(args?: Record<string, unknown>): number | undefined {
@@ -2278,7 +2265,6 @@ function isCredentialKey(value: unknown): value is MockCredentialKey {
   return (
     value === "slack_webhook" ||
     value === "smtp_password" ||
-    value === "linkedin_cookie" ||
     value === "discord_webhook" ||
     value === "teams_webhook" ||
     value === "telegram_bot_token" ||
@@ -2848,7 +2834,6 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     }
 
     case "disconnect_linkedin":
-      delete credentials.linkedin_cookie;
       config = {
         ...config,
         linkedin: { ...config.linkedin, enabled: false },
@@ -2857,21 +2842,13 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       return undefined as T;
 
     case "linkedin_login":
-      credentials.linkedin_cookie = "mock-linkedin-session";
-      config = {
-        ...config,
-        linkedin: { ...config.linkedin, enabled: true },
-      };
-      saveMockState();
-      return undefined as T;
+      throw new Error("LinkedIn automatic monitoring is disabled by JobSentinel source policy");
 
     case "get_linkedin_expiry_status":
       return {
-        connected: Boolean(credentials.linkedin_cookie),
-        expires_at: credentials.linkedin_cookie
-          ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-          : null,
-        days_remaining: credentials.linkedin_cookie ? 7 : null,
+        connected: false,
+        expires_at: null,
+        days_remaining: null,
         expiry_warning: false,
         expired: false,
       } as T;
