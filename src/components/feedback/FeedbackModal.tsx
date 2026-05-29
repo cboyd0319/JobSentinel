@@ -168,7 +168,7 @@ function getTitle(step: string): string {
     case "submit":
       return "Choose Submission Method";
     case "success":
-      return "Feedback Submitted";
+      return "Finish Feedback";
     default:
       return "Send Feedback";
   }

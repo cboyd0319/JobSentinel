@@ -14,7 +14,7 @@ export const SubmitOptions = memo(function SubmitOptions({
 }: SubmitOptionsProps) {
   return (
     <div className="space-y-4">
-      {/* GitHub Issues - RECOMMENDED */}
+      {/* GitHub Issues - recommended when the user wants a trackable report */}
       <div className="border-2 border-sentinel-500 rounded-lg overflow-hidden bg-sentinel-50/50 dark:bg-sentinel-900/10">
         <div className="px-4 py-3 bg-sentinel-500 text-white">
           <div className="flex items-center gap-2">
@@ -27,14 +27,13 @@ export const SubmitOptions = memo(function SubmitOptions({
 
         <div className="p-4 space-y-3">
           <h3 className="font-semibold text-surface-800 dark:text-surface-200 text-lg">
-            Submit via GitHub Issues
+            Open a report with replies
           </h3>
 
           <div className="space-y-2 text-sm text-surface-600 dark:text-surface-400">
-            <BenefitItem text="Public - Helps other users find solutions" />
-            <BenefitItem text="Trackable - See when your issue is addressed" />
-            <BenefitItem text="Searchable - Check if already reported" />
-            <BenefitItem text="Community - Others can add context" />
+            <BenefitItem text="Opens a prepared GitHub issue in your browser" />
+            <BenefitItem text="Copies your safe debug report so you can paste it" />
+            <BenefitItem text="Keeps private details out before sharing" />
           </div>
 
           <Button
@@ -45,19 +44,11 @@ export const SubmitOptions = memo(function SubmitOptions({
             className="w-full"
             icon={<GitHubIcon />}
           >
-            Open GitHub Issue
+            Open GitHub issue
           </Button>
 
           <p className="text-xs text-surface-500 dark:text-surface-400 text-center">
-            Don't have a GitHub account?{" "}
-            <a
-              href="https://github.com/signup"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sentinel-600 dark:text-sentinel-400 hover:underline"
-            >
-              It's free to sign up
-            </a>
+            No GitHub account or not sure? Save a feedback file instead.
           </p>
         </div>
       </div>
@@ -74,15 +65,15 @@ export const SubmitOptions = memo(function SubmitOptions({
         </div>
       </div>
 
-      {/* Google Drive - Secondary */}
+      {/* Saved file - secondary path when GitHub is unfamiliar */}
       <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 space-y-3">
         <h3 className="font-semibold text-surface-800 dark:text-surface-200">
-          Submit Privately via Google Drive
+          Save a feedback file
         </h3>
 
         <p className="text-sm text-surface-600 dark:text-surface-400">
-          Prefer not to use GitHub? Save your feedback to a file and upload it to our
-          Google Drive folder.
+          Use this if GitHub is unfamiliar or you want to share the report
+          another way. JobSentinel saves a safe report file first.
         </p>
 
         <Button
@@ -93,7 +84,7 @@ export const SubmitOptions = memo(function SubmitOptions({
           className="w-full"
           icon={<DriveIcon />}
         >
-          Save & Upload to Drive
+          Save Feedback File
         </Button>
       </div>
     </div>

@@ -30,12 +30,13 @@ export const SuccessScreen = memo(function SuccessScreen({
       {submittedVia === "github" && (
         <div className="text-center space-y-4">
           <h3 className="text-xl font-semibold text-surface-800 dark:text-surface-200">
-            Ready to Submit!
+            Ready to finish the report
           </h3>
 
           <div className="space-y-3 text-sm text-surface-600 dark:text-surface-400">
             <p>
-              GitHub should have opened in your browser. Your safe debug report is in your clipboard.
+              GitHub should have opened in your browser. Your safe debug report
+              is in your clipboard.
             </p>
 
             <div className="bg-surface-50 dark:bg-surface-900 rounded-lg p-4 border border-surface-200 dark:border-surface-700">
@@ -43,14 +44,14 @@ export const SuccessScreen = memo(function SuccessScreen({
                 Next steps:
               </p>
               <ol className="list-decimal list-inside space-y-1 text-left">
-                <li>Fill out the issue form with additional details</li>
-                <li>Paste the safe debug report from your clipboard</li>
-                <li>Review and submit the issue</li>
+                <li>Add anything else you want us to know.</li>
+                <li>Paste the safe report if it is not already included.</li>
+                <li>Review the issue, then submit it.</li>
               </ol>
             </div>
 
             <p className="text-xs">
-              You'll be able to track the issue and receive updates when it's addressed.
+              The issue page keeps replies and updates in one place.
             </p>
           </div>
 
@@ -64,7 +65,7 @@ export const SuccessScreen = memo(function SuccessScreen({
       {submittedVia === "drive" && savedFeedbackFile && (
         <div className="text-center space-y-4">
           <h3 className="text-xl font-semibold text-surface-800 dark:text-surface-200">
-            File Saved!
+            Feedback file saved
           </h3>
 
           <div className="space-y-3 text-sm text-surface-600 dark:text-surface-400">
@@ -83,9 +84,9 @@ export const SuccessScreen = memo(function SuccessScreen({
                 Next steps:
               </p>
               <ol className="list-decimal list-inside space-y-1 text-left">
-                <li>Open the Google Drive feedback folder</li>
-                <li>Drag your saved file into the folder</li>
-                <li>That's it - we'll review your feedback!</li>
+                <li>Open the feedback folder.</li>
+                <li>Upload the saved file.</li>
+                <li>Keep the file if you want a local copy.</li>
               </ol>
             </div>
           </div>
@@ -97,7 +98,7 @@ export const SuccessScreen = memo(function SuccessScreen({
               icon={<ExternalLinkIcon />}
               className="w-full"
             >
-              Open Google Drive Folder
+              Open Feedback Folder
             </Button>
 
             <Button

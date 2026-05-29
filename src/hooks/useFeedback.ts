@@ -199,7 +199,7 @@ export function useFeedback(): UseFeedbackResult {
       setState(prev => ({
         ...prev,
         submitting: false,
-        error: "Failed to open GitHub. Please try the Google Drive option.",
+        error: "Failed to open GitHub. Please try saving a feedback file instead.",
       }));
     }
   }, [state.category, state.description, getFormattedDebugInfo]);
@@ -239,7 +239,7 @@ export function useFeedback(): UseFeedbackResult {
       setState(prev => ({
         ...prev,
         submitting: false,
-        error: "Failed to save file. Please try again or use GitHub Issues.",
+        error: "Failed to save file. Please try again or open a GitHub issue.",
       }));
     }
   }, [state.category, state.description, state.includeDebugInfo]);
