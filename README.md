@@ -12,10 +12,11 @@ control.**
 [![Local First](https://img.shields.io/badge/privacy-local--first-0f766e)](PRIVACY.md)
 [![No Telemetry](https://img.shields.io/badge/telemetry-none-111827)](PRIVACY.md)
 
-JobSentinel is a desktop app and research project for job seekers in technical
-and non-technical roles. It helps people monitor official and public job
-sources, avoid stale or low-trust postings, protect salary floors, understand
-application readability, and keep private job-search data on their own device.
+JobSentinel is a desktop app and research project for anyone trying to find a
+new job, including technical and non-technical roles. It helps job seekers
+monitor official and public job sources, avoid stale or low-trust postings,
+protect salary floors, understand application readability, and keep private
+job-search data on their own device.
 
 Core workflows work locally. External AI, including OpenAI or another provider,
 is optional, disabled by default, and routed through the
@@ -32,17 +33,29 @@ help people. If you can fork it, adapt it, and help more job seekers, that is a
 good outcome. JobSentinel is free, will always stay free, and will always remain
 MIT licensed.
 
+## Project brief
+
+| Question | Answer |
+| -------- | ------ |
+| What is it? | Local-first desktop assistant for finding real, relevant, fairly compensated work. |
+| Who is it for? | Any job seeker, across technical and non-technical roles, with no technical knowledge required. |
+| What makes it different? | Ghost-job detection, salary transparency, pay-equity support, ATS transparency, privacy-preserving job search, and safe debug reports. |
+| What stays local? | Searches, saved jobs, notes, applications, salary floors, resumes, reports, and core workflow state. |
+| What can leave device? | User-configured alert channels or explicitly approved external AI payloads after preview and redaction. |
+| What is research mode? | Public job postings and synthetic candidate profiles by default; real user data requires explicit informed consent. |
+| How is it licensed? | MIT, free now, free always. Forking or adapting it to help more job seekers is welcome. |
+
 ## Start here
 
 | Visitor | Best first path |
 | ------- | --------------- |
 | Job seeker | [Download](#download), then follow [first run](#first-run) |
-| Grant or research reviewer | [Research brief](#research-brief), [evidence model](#evidence-model), [references](#references-and-external-sources) |
+| Grant or research reviewer | [Research thesis](#research-thesis), [evidence model](#evidence-model), [references](#references-and-external-sources) |
 | Privacy or security reviewer | [Trust model](#trust-model), [PRIVACY.md](PRIVACY.md), [RESPONSIBLE_AI.md](RESPONSIBLE_AI.md) |
 | Contributor | [Architecture](#architecture), [development and verification](#development-and-verification), [contributing guide](docs/developer/CONTRIBUTING.md) |
 | Person reporting a problem | Use the in-app safe debug report, then [open an issue](https://github.com/cboyd0319/JobSentinel/issues/new) |
 
-## Research brief
+## Research thesis
 
 Job search is noisy, expensive, and often demoralizing. Stale postings waste
 tailoring time. Missing pay data hides bad tradeoffs. Opaque screening tools
@@ -52,21 +65,36 @@ resumes, notes, salary floors, application history, and urgency signals.
 
 JobSentinel treats those conditions as product requirements, not edge cases.
 
-| Research problem | Product response | Review question |
-| ---------------- | ---------------- | --------------- |
-| Stale or low-trust postings waste effort | Ghost-job and stale-posting detection, repost context, source verification, and verify-before-tailoring prompts | Does the app reduce time spent on weak postings without hiding useful roles? |
-| Missing or weak pay data increases underpayment risk | Pay Protection, salary-floor warnings, salary transparency review, pay-quality cues, and negotiation prep | Does the app help users preserve their compensation floor? |
-| Screening systems are hard to understand | ATS transparency, candidate-side explainability, truthful application readability, and parse-friendly resume checks | Does the app explain readability without encouraging deception? |
-| Long-term unemployment changes search behavior | Fresh-role filters, pacing support, quiet progress summaries, and gap-framing support | Does the app reduce search burden and avoid shame language? |
-| Opaque routes create black-hole applications | Direct-source preference, official ATS posting links, recruiter/referral context, and hiring-manager signals | Does the app shift effort toward more verifiable routes? |
-| Job-search data is sensitive | Local-first storage, no telemetry, safe debug reports, optional external channels, and review-before-sharing workflows | Does the app preserve user control by default? |
+## Design pillars
+
+| Pillar | Product stance | Evaluation question |
+| ------ | -------------- | ------------------- |
+| Ghost-job and stale-posting detection | Prioritize fresh, verifiable roles; warn before a user spends time tailoring weak postings. | Does JobSentinel reduce time spent on stale or low-trust roles without hiding useful options? |
+| Pay equity and salary-floor protection | Treat salary floors, pay transparency, under-leveling risk, and negotiation prep as core search features. | Does JobSentinel help users avoid underpaid opportunities and preserve compensation goals? |
+| Long-term unemployment support | Support pacing, fresh-role focus, weekly summaries, and gap framing without shame or pressure. | Does JobSentinel reduce fatigue and improve search control for people in long searches? |
+| Bias-aware application strategy | Favor direct sources, official ATS postings, recruiter context, referral routes, and verifiable signals over opaque black holes. | Does JobSentinel shift effort toward channels with better evidence and clearer next steps? |
+| Protective, non-cheerleader UX | Use practical warnings and plain next actions instead of hollow motivation. | Does JobSentinel protect time, confidence, and dignity under rejection-heavy conditions? |
+| Privacy-first local control | Keep sensitive job-search data local by default; make every external path explicit, inspectable, and cancellable. | Does JobSentinel preserve user control even when optional integrations are enabled? |
 
 Research notes live in [docs/research](docs/research/README.md). Product
 direction lives in [ROADMAP.md](ROADMAP.md) and active plans under
 [docs/plans](docs/plans/README.md). External sources are indexed at the end of
-this README.
+this README. The README information design standard lives in
+[docs/harness/readme-information-design.md](docs/harness/readme-information-design.md).
 
-## Current state
+## Product surface
+
+| User need | JobSentinel surface |
+| --------- | ------------------- |
+| Find current jobs | Official-source job monitoring, source health checks, deduplication, and posting freshness cues |
+| Avoid wasted tailoring | Ghost-job risk explanations, stale-posting warnings, repost context, and source trust labels |
+| Protect compensation | Pay Protection, salary-floor filters, salary transparency checks, salary-history guardrails, and negotiation prep |
+| Understand screening risk | ATS transparency, candidate-side explainability, application readability, and resume/job fit explanation |
+| Stay organized | Local saved searches, local application tracking, notes, follow-ups, reminders, and weekly summaries |
+| Get help safely | Sanitized debug reports users can attach to a GitHub issue without exposing private search data |
+| Keep control | Local-first storage, no telemetry, review-before-action workflows, optional external channels only |
+
+## Current implementation
 
 | Area | Current state |
 | ---- | ------------- |
@@ -84,18 +112,6 @@ The current `v2.6.4` release has Windows, macOS, and Linux assets on
 [GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases/latest).
 Main has additional hardening for safe debug reports, dependency refreshes,
 Playwright speed, and source-policy boundaries.
-
-## What JobSentinel does
-
-| User need | JobSentinel surface |
-| --------- | ------------------- |
-| Find current jobs | Official-source job monitoring, source health checks, deduplication, and posting freshness cues |
-| Avoid wasted tailoring | Ghost-job risk explanations, stale-posting warnings, repost context, and source trust labels |
-| Protect compensation | Pay Protection, salary-floor filters, salary transparency checks, salary-history guardrails, and negotiation prep |
-| Understand screening risk | ATS transparency, candidate-side explainability, application readability, and resume/job fit explanation |
-| Stay organized | Local saved searches, local application tracking, notes, follow-ups, reminders, and weekly summaries |
-| Get help safely | Sanitized debug reports users can attach to a GitHub issue without exposing private search data |
-| Keep control | Local-first storage, no telemetry, review-before-action workflows, optional external channels only |
 
 ## Trust model
 
@@ -134,7 +150,7 @@ React 19 + TypeScript UI
 | -------- | ---- |
 | Renderer to backend | UI calls typed Tauri commands and handles errors with user-safe messages |
 | Storage | SQLite stores search state, saved jobs, notes, applications, and local reports |
-| Secrets | Alert connection details, email passwords, and USAJobs access codes use the OS credential store |
+| Secrets | Alert connection details, email credentials, and USAJobs access codes use the OS credential store |
 | Source adapters | Adapters use bounded requests, source-specific rate limits, and shared retry helpers |
 | External alerts | Slack, Discord, Teams, Telegram, email, GitHub, and Google Drive are user-configured |
 | External AI | All provider calls must go through the AI gateway; no scattered provider calls are allowed |
@@ -146,6 +162,7 @@ Important architecture docs:
 - [Privacy-first AI gateway](docs/architecture/privacy-first-ai-gateway.md)
 - [Security docs](docs/security/README.md)
 - [Harness engineering](docs/harness/README.md)
+- [README information design](docs/harness/readme-information-design.md)
 
 ---
 
@@ -712,6 +729,7 @@ and fake example links are intentionally excluded.
 - [Pew Research Center gender pay gap overview](https://www.pewresearch.org/short-reads/2025/03/04/gender-pay-gap-in-us-has-narrowed-slightly-over-2-decades/)
 - [Pew Research Center enduring grip of the gender pay gap](https://www.pewresearch.org/social-trends/2023/03/01/the-enduring-grip-of-the-gender-pay-gap/)
 - [Pew Research Center gender pay gap facts](https://www.pewresearch.org/short-reads/2023/03/01/gender-pay-gap-facts/)
+- [Pew Research Center gender pay gap facts, parenthood note](https://www.pewresearch.org/short-reads/2023/03/01/gender-pay-gap-facts/#:~:text=Parents%20with%20children%20younger%20than,among%20both%20men%20and%20women)
 - [Pew Research Center racial and gender wage gaps](https://www.pewresearch.org/short-reads/2016/07/01/racial-gender-wage-gaps-persist-in-u-s-despite-some-progress/)
 - [SHRM on Black workers' earnings](https://www.shrm.org/topics-tools/news/benefits-compensation/black-workers-still-earn-less-white-counterparts)
 - [Stateline on salary transparency laws](https://stateline.org/2024/07/10/more-states-enact-salary-transparency-laws-to-fight-gender-racial-pay-gaps/)

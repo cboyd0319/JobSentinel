@@ -34,6 +34,9 @@ open-source project README patterns.
 | [OpenTelemetry Collector README](https://github.com/open-telemetry/opentelemetry-collector) | Header links, project objectives, community, stability, and extension points. | Make objectives and boundaries scannable. |
 | [Rust README](https://github.com/rust-lang/rust) | Front-door navigation, concise purpose, why section, quick start, help, contribution, and license. | Keep license/free commitment and help paths visible. |
 | [Apache Spark README](https://github.com/apache/spark) | Short project scope, official docs, build status, build commands, and contribution links. | Use README to point to official docs and verification instead of duplicating them. |
+| [Apache Airflow README](https://github.com/apache/airflow) | Mature project README combines a strong identity, supported integrations, community routes, and release signals. | Keep capability proof tied to maintained docs and support paths. |
+| [Hugging Face Transformers README](https://github.com/huggingface/transformers) | Large project README uses a clear promise, quick install, examples, model scope, and community pathways. | Keep JobSentinel's front door outcome-led, then route implementation depth elsewhere. |
+| [Ray README](https://github.com/ray-project/ray) | Complex technical project presents product scope, ecosystem map, docs links, and contribution paths without burying the opening definition. | Keep architecture and verification visible but secondary to user value and trust. |
 
 ## Information Design Model
 
