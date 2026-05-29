@@ -401,7 +401,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       await safeInvokeWithToast("complete_setup", { config: configToSave }, toast, {
         logContext: "Complete setup wizard"
       });
-      toast.success("Setup complete!", "Let's find you some great jobs");
+      toast.success("Setup complete", "Your saved search is ready.");
       onComplete();
     } catch {
       // Error already logged and shown to user
@@ -898,7 +898,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
 
               <div className="mb-6">
                 <p className="text-surface-600 mb-4 text-center">
-                  Get notified when we find great matches for you
+                  Get notified when JobSentinel finds strong matches for your saved search
                 </p>
                 
                 {/* Slack notification info */}

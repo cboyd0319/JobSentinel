@@ -6,13 +6,13 @@ export const defaultTourSteps = [
   {
     target: "[data-tour='search-button']",
     title: "Find New Jobs",
-    content: "Click here to search for jobs! We'll scan multiple job boards and show you the best matches based on your profile.",
+    content: "Click here to search for jobs. JobSentinel checks your selected sources and shows matches based on your saved search.",
     placement: "bottom" as const,
   },
   {
     target: "[data-tour='settings-button']",
     title: "Customize Your Search",
-    content: "Change your job titles, skills, salary preferences, or set up notifications to get alerts when great jobs appear.",
+    content: "Change your job titles, skills, salary preferences, or notifications so alerts match your current search.",
     placement: "bottom" as const,
   },
   {
@@ -30,7 +30,7 @@ export const defaultTourSteps = [
   {
     target: "[data-tour='job-filters']",
     title: "Filter Your Results",
-    content: "Too many jobs? Use these filters to narrow down by quality score, job board source, or just show bookmarked jobs.",
+    content: "Too many jobs? Use these filters to narrow by match score, source, or bookmarked jobs.",
     placement: "bottom" as const,
   },
 ];

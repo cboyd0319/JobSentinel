@@ -155,6 +155,10 @@ describe("SetupWizard Accessibility", () => {
       expect(
         screen.getByText("Show jobs even when pay is missing or not listed"),
       ).toBeInTheDocument();
+      expect(
+        screen.getByText(/strong matches for your saved search/i),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/great matches|great jobs/i)).not.toBeInTheDocument();
     });
 
     it("saves a wider freshness preference without technical setup", async () => {

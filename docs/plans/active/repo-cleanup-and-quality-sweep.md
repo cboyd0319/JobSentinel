@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Replaced promise-heavy setup and onboarding tour copy with practical saved-search and strong-match wording; added regression coverage so tour copy avoids "best", "great", profile, and quality-score phrasing. |
 | 2026-05-29 | In progress | Locked privacy-first external-AI boundaries into docs, harness, and a disabled-by-default gateway with tests for opt-in, payload preview, sensitive-data blocking, full-database blocking, public-data-only payloads, and local metadata logging. |
 | 2026-05-29 | In progress | Repaired the fast Playwright smoke gate after latest broad-audience mock data made the old software-engineer search assertion stale and Application Assist copy created a strict-selector collision; `npm run test:e2e:smoke` passed at 9 Chromium smoke tests in 6 seconds, and the two edited Chromium spec files passed 25 tests in 12 seconds. Double-confirmed the README reference index against 6 files in `/Users/c/Downloads` with 137 unique source URLs and 0 missing references. |
 | 2026-05-29 | In progress | Added saved sanitized debug reports for GitHub issue attachments from Settings, App Problem History, crash recovery, and page-error recovery surfaces; refreshed README badges, front-door layout, and bottom reference index from maintained docs plus user-provided research packets. |
