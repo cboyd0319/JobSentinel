@@ -6626,6 +6626,34 @@ test("checkRepoBloat rejects manual bookmarklet JSON error responses", () => {
   });
 });
 
+test("checkRepoBloat rejects opaque command unit errors", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/cache.rs",
+      [
+        "#[tauri::command]",
+        "pub async fn get_cache_health() -> Result<serde_json::Value, ()> {",
+        "    Ok(serde_json::json!({\"status\":\"healthy\"}))",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/cache.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace opaque command unit errors: src-tauri/src/commands/cache.rs"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects unauthenticated bookmarklet imports", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

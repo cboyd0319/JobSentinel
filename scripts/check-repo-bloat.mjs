@@ -3189,6 +3189,17 @@ function hasResidualCorePrivacyLeak(root, path) {
   );
 }
 
+function hasOpaqueCommandUnitError(root, path) {
+  if (!path.startsWith("src-tauri/src/commands/") || !path.endsWith(".rs")) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return /#\[tauri::command\][\s\S]{0,320}->\s*Result\s*<[^>{;]*(?:<[^>]*>)?[^>{;]*,\s*\(\s*\)>/.test(
+    productionText,
+  );
+}
+
 function hasManualBookmarkletJsonErrorResponses(root, path) {
   if (!rawBookmarkletLoggingPaths.has(path)) {
     return false;
@@ -4610,6 +4621,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasResidualCorePrivacyLeak(root, path)) {
       violations.push(`replace residual core privacy leaks: ${path}`);
+    }
+
+    if (hasOpaqueCommandUnitError(root, path)) {
+      violations.push(`replace opaque command unit errors: ${path}`);
     }
 
     if (hasManualBookmarkletJsonErrorResponses(root, path)) {
