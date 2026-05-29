@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Refreshed the active handoff after user-requested pushes, replaced stale developer-doc resume AI wording with local resume fit review, broadened deep-link developer examples, and kept application-prep profile-link docs role-neutral. |
 | 2026-05-29 | In progress | Broadened company research starter profiles beyond software employers with healthcare, retail, logistics, hospitality, finance, public-service, and trades-adjacent examples; renamed the local profile signal from tech stack to tools and systems while preserving legacy cache compatibility. |
 | 2026-05-29 | In progress | Synced market-intelligence E2E and component tests with broad customer-support, care, education, and location fixtures already used by mock handlers; extended bloat coverage so market test fixtures do not drift back to tech-only examples. |
 | 2026-05-29 | In progress | Reworded live Resume page headings and empty state from Resume Matcher and AI-powered matching to Resume Match, local review, and fit evidence; refreshed Resume Match docs and browser specs, broadened resume-upload E2E fixture data to a community-program role, and added bloat coverage. |

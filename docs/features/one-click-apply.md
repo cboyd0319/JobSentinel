@@ -128,7 +128,7 @@ capitalization.
 
 - First name and last name
 - Email and phone
-- LinkedIn, GitHub, portfolio, or website links
+- LinkedIn, portfolio, personal website, or other professional profile links
 - Work authorization details
 - Sponsorship details
 - Saved screening answers when the question wording is clear

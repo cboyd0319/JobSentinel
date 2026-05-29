@@ -17,19 +17,19 @@ scope:
 - `repo-cleanup-handoff.md`
 - `research-backed-product-improvements.md`
 
-Latest local committed slices before this handoff refresh:
+Latest pushed slices before this handoff refresh:
 
-- `e732e092 Refresh documentation hub`
-- `b4b6b21f Broaden resume match copy`
-- `3ea229ef Harden browser import copy flow`
-- `d9bcf467 Add setup review volume preference`
-- `0e8021a7 Rework README as research front door`
+- `9beba4bc Broaden company research fixtures`
+- `350299ee Broaden market test fixtures`
+- `ecec1bca Broaden resume match e2e copy`
+- `7fe95ca8 Broaden resume template copy`
+- `f9d31271 Broaden resume builder docs`
 
 Current local branch note:
 
-- Local `main` is intentionally ahead of `origin/main` while the broader goal
-  continues. Do not push again until the full goal is complete or the user
-  explicitly asks.
+- Local `main` is even with `origin/main` after user-requested push slices.
+  Continue using small verified commits. Avoid remote CI unless the user
+  explicitly asks or the full-goal completion pass requires it.
 
 Current cleanup posture:
 
@@ -113,6 +113,10 @@ Recent cleanup slices on `main` include:
 - Resume page copy now uses broad skill categories, plain match labels, and
   cautious skill-gap language instead of engineer-first categories or raw
   score-breakdown wording.
+- Resume Builder, Resume Match, market intelligence, and company research test
+  fixtures now use broader customer-support, care, education, retail,
+  logistics, hospitality, finance, public-service, and community-program
+  examples.
 - `docs/README.md` now routes users, contributors, privacy reviewers, research
   reviewers, and coding agents to maintained docs without duplicating release
   notes.

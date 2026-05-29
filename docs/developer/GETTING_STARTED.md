@@ -166,7 +166,7 @@ All core functionality is in `src-tauri/src/core/` and works identically on all 
 - **ghost**: Ghost job detection with repost tracking and stale detection
 - **market_intelligence**: Market analytics with trends and location insights
 - **notify**: Multi-channel notifications (Slack, Discord, Teams, Email, Telegram, Desktop)
-- **resume**: AI-powered resume-job matching with skill extraction
+- **resume**: local resume fit review with skill extraction
 - **salary**: Salary prediction and benchmarking
 - **scheduler**: Periodic source checks with configurable interval and auto-refresh
 - **scoring**: Multi-factor job scoring (0-1 scale)

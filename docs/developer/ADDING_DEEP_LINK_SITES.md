@@ -19,7 +19,7 @@ Before adding a site, you need to understand its URL structure.
 ### Manual Testing
 
 1. Visit the job site
-2. Perform a manual search (e.g., "Software Engineer" in "San Francisco, CA")
+2. Perform a manual search (e.g., "Customer Support" in "Chicago, IL")
 3. Look at the URL in the address bar
 4. Try different searches and note the URL patterns
 
@@ -28,8 +28,8 @@ Before adding a site, you need to understand its URL structure.
 **Indeed:**
 
 ```text
-Search: "Software Engineer" in "San Francisco, CA"
-URL: https://www.indeed.com/jobs?q=Software+Engineer&l=San+Francisco%2C+CA
+Search: "Customer Support" in "Chicago, IL"
+URL: https://www.indeed.com/jobs?q=Customer+Support&l=Chicago%2C+IL
 
 Parameters:
 - q = query (job title/keywords)
@@ -229,8 +229,8 @@ Add a test for your new site in the `#[cfg(test)]` mod tests section:
 #[test]
 fn test_generate_newsite_url() {
     let criteria = SearchCriteria {
-        query: "Software Engineer".to_string(),
-        location: Some("San Francisco, CA".to_string()),
+        query: "Customer Support".to_string(),
+        location: Some("Chicago, IL".to_string()),
         experience_level: None,
         job_type: None,
         remote_type: None,
@@ -238,8 +238,8 @@ fn test_generate_newsite_url() {
 
     let url = generate_newsite_url(&criteria).unwrap();
     assert!(url.contains("newsite.com"));
-    assert!(url.contains("Software%20Engineer"));
-    assert!(url.contains("San%20Francisco"));
+    assert!(url.contains("Customer%20Support"));
+    assert!(url.contains("Chicago"));
 }
 
 #[test]
@@ -406,7 +406,7 @@ When submitting a PR to add a new site:
 
 ### Example URL
 
-https://example.com/jobs?q=Software%20Engineer&location=San%20Francisco%2C%20CA&remote=true
+https://example.com/jobs?q=Customer%20Support&location=Chicago%2C%20IL&remote=true
 ```
 
 ## Questions?
