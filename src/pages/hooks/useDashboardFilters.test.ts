@@ -11,8 +11,8 @@ import type { Job } from "../DashboardTypes";
 function makeJob(overrides: Partial<Job> = {}): Job {
   return {
     id: 1,
-    title: "Software Engineer",
-    company: "Acme Corp",
+    title: "Customer Support Coordinator",
+    company: "CareBridge Services",
     location: "Remote",
     url: "https://example.com/job/1",
     source: "linkedin",

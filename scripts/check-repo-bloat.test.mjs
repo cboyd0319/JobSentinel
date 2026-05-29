@@ -588,6 +588,25 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src/pages/hooks/useDashboardFilters.test.ts",
+      'title: "Software Engineer",\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/hooks/useDashboardJobOps.test.ts",
+      'description: "Unbookmarked: Software Engineer",\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/hooks/useDashboardSavedSearches.test.ts",
+      [
+        'name: "Remote Rust",',
+        'result.current.setNewSearchName("Remote Rust");',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "tests/e2e/playwright/one-click-apply.spec.ts",
       '"https://github.com/caseysentinel"; "GitHub profile link if relevant to your role";\n',
     );
@@ -643,6 +662,9 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/components/CoverLetterTemplates.test.tsx",
         "src/components/InterviewScheduler.test.tsx",
         "src/utils/export.test.ts",
+        "src/pages/hooks/useDashboardFilters.test.ts",
+        "src/pages/hooks/useDashboardJobOps.test.ts",
+        "src/pages/hooks/useDashboardSavedSearches.test.ts",
         "tests/e2e/playwright/market-intelligence.spec.ts",
         "tests/e2e/playwright/one-click-apply.spec.ts",
         "tests/e2e/playwright/page-objects/OneClickApplyPage.ts",
@@ -685,6 +707,9 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/components/CoverLetterTemplates.test.tsx",
       "src/components/InterviewScheduler.test.tsx",
       "src/utils/export.test.ts",
+      "src/pages/hooks/useDashboardFilters.test.ts",
+      "src/pages/hooks/useDashboardJobOps.test.ts",
+      "src/pages/hooks/useDashboardSavedSearches.test.ts",
       "tests/e2e/playwright/market-intelligence.spec.ts",
       "tests/e2e/playwright/one-click-apply.spec.ts",
       "tests/e2e/playwright/page-objects/OneClickApplyPage.ts",

@@ -31,8 +31,8 @@ const mockInvoke = vi.mocked(invoke);
 function makeJob(overrides: Partial<Job> = {}): Job {
   return {
     id: 1,
-    title: "Software Engineer",
-    company: "Acme Corp",
+    title: "Customer Support Coordinator",
+    company: "CareBridge Services",
     location: "Remote",
     url: "https://example.com/job/1",
     source: "linkedin",
@@ -106,7 +106,7 @@ describe("handleToggleBookmark", () => {
     expect(mockPushAction).toHaveBeenCalledOnce();
     expect(mockPushAction.mock.calls[0][0]).toMatchObject({
       type: "bookmark",
-      description: "Unbookmarked: Software Engineer",
+      description: "Unbookmarked: Customer Support Coordinator",
     });
   });
 

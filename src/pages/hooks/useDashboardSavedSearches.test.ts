@@ -37,8 +37,8 @@ const currentFilters = {
   bookmarkFilter: "all",
   notesFilter: "all",
   postedDateFilter: "week" as const,
-  salaryMinFilter: 120000,
-  salaryMaxFilter: 180000,
+  salaryMinFilter: 55000,
+  salaryMaxFilter: 72000,
 };
 
 describe("useDashboardSavedSearches", () => {
@@ -51,7 +51,7 @@ describe("useDashboardSavedSearches", () => {
     mockSafeInvoke.mockResolvedValueOnce([
       {
         id: "search-1",
-        name: "Remote Rust",
+        name: "Remote Support",
         sortBy: "score-desc",
         scoreFilter: "high",
         sourceFilter: "linkedin",
@@ -59,8 +59,8 @@ describe("useDashboardSavedSearches", () => {
         bookmarkFilter: "bookmarked",
         notesFilter: "with-notes",
         postedDateFilter: "week",
-        salaryMinFilter: 100000,
-        salaryMaxFilter: 200000,
+        salaryMinFilter: 50000,
+        salaryMaxFilter: 80000,
         ghostFilter: null,
         textSearch: null,
         createdAt: "2026-05-20T00:00:00Z",
@@ -74,7 +74,7 @@ describe("useDashboardSavedSearches", () => {
       expect(result.current.savedSearches).toEqual([
         {
           id: "search-1",
-          name: "Remote Rust",
+          name: "Remote Support",
           filters: {
             sortBy: "score-desc",
             scoreFilter: "high",
@@ -83,8 +83,8 @@ describe("useDashboardSavedSearches", () => {
             bookmarkFilter: "bookmarked",
             notesFilter: "with-notes",
             postedDateFilter: "week",
-            salaryMinFilter: 100000,
-            salaryMaxFilter: 200000,
+            salaryMinFilter: 50000,
+            salaryMaxFilter: 80000,
           },
           createdAt: "2026-05-20T00:00:00Z",
         },
@@ -97,14 +97,14 @@ describe("useDashboardSavedSearches", () => {
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce({
         id: "search-2",
-        name: "Remote Rust",
+        name: "Remote Support",
         createdAt: "2026-05-20T00:00:00Z",
       });
 
     const { result } = renderHook(() => useDashboardSavedSearches());
 
     act(() => {
-      result.current.setNewSearchName("Remote Rust");
+      result.current.setNewSearchName("Remote Support");
     });
 
     await act(async () => {
@@ -116,7 +116,7 @@ describe("useDashboardSavedSearches", () => {
       {
         search: {
           id: "",
-          name: "Remote Rust",
+          name: "Remote Support",
           sortBy: "score-desc",
           scoreFilter: "all",
           sourceFilter: "all",
@@ -124,8 +124,8 @@ describe("useDashboardSavedSearches", () => {
           bookmarkFilter: "all",
           notesFilter: "all",
           postedDateFilter: "week",
-          salaryMinFilter: 120000,
-          salaryMaxFilter: 180000,
+          salaryMinFilter: 55000,
+          salaryMaxFilter: 72000,
           ghostFilter: null,
           textSearch: null,
           createdAt: "",
