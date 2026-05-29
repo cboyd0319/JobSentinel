@@ -77,74 +77,79 @@ Use this question-answer-proof-path pattern for each major section:
 
 ## Current README Audit
 
-The root README should avoid three failure modes:
+The root README should avoid these failure modes:
 
-- **Fact pileup before orientation.** A reader should understand the project
-  before seeing deep implementation or release detail.
-- **Duplicate proof loops.** Privacy, research, and capability claims should
-  appear once in the front-door path, then route to maintained docs.
+- **Research wall before product proof.** A reader should understand the
+  desktop product, see a real screen, and find a next action before parsing a
+  full research agenda.
+- **Primary action latency.** Download, quick start, privacy, research, roadmap,
+  and issue routes must appear before the first H2.
+- **Hero-shot burial.** Desktop software needs immediate visual proof; keep the
+  dashboard screenshot near the top.
+- **Duplicate trust loops.** Privacy, AI, Rule 0, free-forever licensing, and
+  research claims should appear once in the front-door path, then route to
+  maintained docs.
+- **Low-signal status facts.** Stack details belong in architecture and
+  developer sections, not in the first-screen value proposition.
+- **Badge noise.** Badges should signal project state and hard commitments, not
+  replace readable governing text.
 - **Marketing tone.** Claims should be grounded in current product surfaces,
   evidence, boundaries, and verification, not adjectives.
-- **Badge noise.** Status badges should signal maintained project state, not
-  substitute for readable trust claims in the abstract.
-- **Research buried as appendix.** A research-facing project needs the problem,
-  contribution, method, ethics, and limitations visible before screenshots or
-  developer commands.
+- **Reference sprawl above the footer.** The root README must keep the complete
+  source index at the bottom by project decision, but all narrative sections
+  should route to it instead of duplicating citations inline.
 
-The latest correction also treats "what do I do next?" as a first-screen
-requirement. A serious project README needs an immediate route for job seekers,
-reviewers, privacy/security readers, contributors, and people reporting
-problems before it asks them to parse screenshots or release notes.
-
-The corrected structure uses research-paper front matter: abstract,
-contributions, reader map, current status, research agenda, privacy and
-responsible-AI commitments, evaluation model, and architecture map. Deeper
-detail stays in interface screenshots, data boundaries, source coverage,
-download, development, release notes, FAQ, support, and references.
+The current correction treats "what do I do next?" as a first-screen
+requirement and "why should I trust it?" as a front-door proof requirement. A
+serious project README needs immediate routes for job seekers, reviewers,
+privacy/security readers, contributors, and people reporting problems before it
+asks them to parse release notes or developer commands.
 
 ## Applied Redesign
 
-The root README now uses professional research-project front matter:
+The root README uses professional research-project front matter without burying
+the product:
 
-1. Required product definition and a restrained badge set.
-2. First-screen routes for download, quick start, privacy, roadmap, research,
+1. Required product definition and restrained trust badges.
+2. First-screen routes for download, quick start, privacy, research, roadmap,
    and issue reporting.
-3. Project thesis with audience, research question, harm-to-product framing,
-   local-first posture, optional external-AI boundary, Rule 0, and
-   free-forever MIT commitment.
-4. Research contributions table mapping product commitments to inspectable
-   repo evidence.
-5. Reader map for job seekers, grant or research reviewers, privacy or
-   security reviewers, contributors, and people reporting problems.
-6. Current status table for release, runtime, storage, privacy, AI, source
-   surface, support posture, and verification surface.
-7. Research agenda table for the six design pillars and evaluation questions.
-8. Privacy, security, and responsible-AI table for local control, telemetry,
-   external channels, external AI, candidate-side framing, protective tone, and
-   license posture.
-9. Evaluation model separating public postings and synthetic candidate data
-   from real user data.
-10. Architecture map and maintained deep links.
+3. Dashboard screenshot before dense research tables.
+4. Abstract with audience, research thesis, local-first posture, Rule 0,
+   optional external-AI boundary, and free-forever MIT commitment.
+5. At-a-glance table for audience, optimization target, local data, external
+   paths, AI requirement, license, and release.
+6. Reader map for job seekers, grant or research reviewers, privacy or security
+   reviewers, contributors, and people reporting problems.
+7. Product response table mapping job-seeker problems to inspectable evidence
+   or boundaries.
+8. Download and first-run path before deep architecture or source coverage.
+9. Safety model for privacy, external channels, external AI, candidate-side
+   framing, protective tone, and license posture.
+10. Research model for the six design pillars and synthetic-data-first
+    evaluation.
+11. Architecture, screenshots, data boundaries, source coverage, limitations,
+    build, verification, release notes, FAQ, support, and complete references.
 
 ## Front-Door Structure
 
 The README front door must read like a professional research project brief
-before it reads like a developer manual:
+and usable desktop-product entrypoint before it reads like a developer manual:
 
 1. Required product definition.
 2. Trust badges.
 3. Start-here route line.
-4. Research project brief for broad-audience readers.
-5. Local-first and optional external-AI boundary.
-6. Rule 0 privacy and security guarantee.
-7. Free-forever MIT license and reuse invitation.
-8. Research contributions evidence table.
-9. Audience route table.
-10. Current repository evidence.
-11. Research model and evaluation questions.
-12. Trust, privacy, security, and responsible-AI boundaries.
-13. Evaluation model.
-14. System design and maintenance map.
+4. Dashboard screenshot.
+5. Abstract for broad-audience readers.
+6. Local-first and optional external-AI boundary.
+7. Rule 0 privacy and security guarantee.
+8. Free-forever MIT license and reuse invitation.
+9. At-a-glance table.
+10. Audience route table.
+11. Product response and evidence table.
+12. Download and first-run path.
+13. Safety model.
+14. Research model and evaluation questions.
+15. System design and maintenance map.
 
 ## README Structure Standard
 
@@ -152,21 +157,20 @@ The root README should keep this order:
 
 1. Project name, required product definition, and core trust badges.
 2. First-screen route line for the main visitor tasks.
-3. Research project brief: who it helps, what outcome it targets, what stays
-   local.
-4. Local-first and optional external-AI boundary.
-5. Rule 0, free-forever MIT, and fork/reuse invitation.
-6. Research contributions evidence table.
-7. Reader route table.
-8. Current implementation evidence.
-9. Research thesis and evaluation questions.
-10. Trust model, privacy, security, and responsible-AI boundaries.
-11. Evaluation model.
-12. System design and maintenance map.
-13. Interface overview and data boundaries.
-14. Source coverage and download path.
-15. Scope, limitations, development, release notes, FAQ, support, and
-    references.
+3. Dashboard screenshot.
+4. Abstract: who it helps, what outcome it targets, what stays local, what AI
+   cannot do silently, and why Rule 0 governs the repo.
+5. At-a-glance table.
+6. Reader route table.
+7. Product response and evidence table.
+8. Download and first-run path.
+9. Safety model, privacy, security, and responsible-AI boundaries.
+10. Research model and evaluation questions.
+11. Architecture and maintenance map.
+12. Interface overview and data boundaries.
+13. Source coverage.
+14. Scope, limitations, build, keyboard shortcuts, development, release notes,
+    FAQ, support, and references.
 
 ## Section Budget
 
@@ -174,27 +178,29 @@ Keep the first screen crisp and proof-bearing:
 
 | Zone | Budget | Required job |
 | ---- | ------ | ------------ |
-| Title and badges | 10 lines | Establish status, license, free-forever posture, Rule 0, local-first posture, no telemetry, optional AI, and research backing. |
-| Abstract | 5 short paragraphs or fewer | Say who JobSentinel helps, what it does, what stays local, and why privacy is release-blocking. |
-| Contributions table | 6 rows or fewer | Tie job-seeker harms to product responses and proof paths. |
+| Title and badges | 10 lines | Establish status, release, license, Rule 0, local-first posture, no telemetry, optional AI, and research backing. |
+| Route line | 4 links plus issue route | Give each high-probability visitor an immediate next step. |
+| Dashboard screenshot | 1 image | Prove this is a real desktop product before research detail. |
+| Abstract | 6 short paragraphs or fewer | Say who JobSentinel helps, what it does, what stays local, why privacy is release-blocking, how external AI works, and why the code stays free. |
+| At-a-glance table | 7 rows or fewer | Answer fit, purpose, local data, external data, AI requirement, license, and release. |
 | Reader map | 5 rows | Route job seekers, reviewers, privacy/security readers, contributors, and support requests. |
-| Status table | 9 rows or fewer | Show release, stack, storage, AI posture, source surface, safe support, and checks without marketing copy. |
+| Product table | 6 rows or fewer | Tie job-seeker harms to product responses and proof paths. |
 
 ## Badge Policy
 
 Badges should prove current trust signals without creating visual noise. Keep
-badges for CI, docs harness, release, MIT license, free-forever licensing, Rule
-0, local-first privacy, no telemetry, optional external AI, and research
-backing. The release badge should use the current GitHub release signal rather
-than a static version string. Put free-forever and Rule 0 commitments in the
-thesis where they can be read as governing text, not only as badges. Move stack
-details such as React, Rust, Tauri, and TypeScript into tables where they are
+badges for CI, docs harness, release, MIT license, Rule 0, local-first privacy,
+no telemetry, optional external AI, and research backing. The release badge
+should use the current GitHub release signal rather than a static version
+string. Put free-forever and Rule 0 commitments in the abstract where they can
+be read as governing text, not only as badges. Move stack details such as React,
+Rust, Tauri, and TypeScript into architecture or developer tables where they are
 easier to read and update.
 
 ## Quality Bar
 
-- First 140 lines answer what JobSentinel is, who it helps, why it matters, how
-  privacy works, and where to go next.
+- First 120 lines answer what JobSentinel is, who it helps, what it looks like,
+  how privacy works, and where to go next.
 - Headings are direct and task-oriented.
 - No section exists only because similar projects have one.
 - Details use progressive disclosure with links or `<details>` blocks.
