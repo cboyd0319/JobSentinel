@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Reworded Resume Builder contact fields away from GitHub-first and `johndoe` examples toward optional professional profiles, portfolios, work samples, personal websites, and credential pages; synced E2E page objects and bloat coverage. |
 | 2026-05-29 | In progress | Replaced San Francisco-first location placeholders in live resume, pay, and deep-link flows with broader Chicago examples, synced Resume Builder E2E page objects, and added bloat coverage so location placeholders do not drift back to tech-hub defaults. |
 | 2026-05-29 | In progress | Refreshed the active handoff after user-requested pushes, replaced stale developer-doc resume AI wording with local resume fit review, broadened deep-link developer examples, and kept application-prep profile-link docs role-neutral. |
 | 2026-05-29 | In progress | Broadened company research starter profiles beyond software employers with healthcare, retail, logistics, hospitality, finance, public-service, and trades-adjacent examples; renamed the local profile signal from tech stack to tools and systems while preserving legacy cache compatibility. |

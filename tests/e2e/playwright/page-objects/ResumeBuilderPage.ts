@@ -81,15 +81,15 @@ export class ResumeBuilderPage extends BasePage {
   }
 
   get linkedinInput(): Locator {
-    return this.page.getByPlaceholder("linkedin.com/in/johndoe");
+    return this.page.getByPlaceholder("linkedin.com/in/your-name");
   }
 
   get githubInput(): Locator {
-    return this.page.getByPlaceholder("github.com/johndoe");
+    return this.page.getByPlaceholder("portfolio.example.com");
   }
 
   get websiteInput(): Locator {
-    return this.page.getByPlaceholder("https://johndoe.com");
+    return this.page.getByPlaceholder("https://your-name.example.com");
   }
 
   get summaryTextarea(): Locator {
@@ -145,8 +145,8 @@ export class ResumeBuilderPage extends BasePage {
       phone: "+1-555-987-6543",
       location: "Chicago, IL",
       linkedin: "linkedin.com/in/janesmith",
-      github: "github.com/janesmith",
-      website: "https://janesmith.dev",
+      github: "portfolio.janesmith.example.com",
+      website: "https://janesmith.example.com",
       ...data,
     });
     await this.goNext(2, "Summary");

@@ -1449,6 +1449,9 @@ function hasEngineerFirstAudienceExamples(root, path) {
   const stalePatterns = [
     /placeholder=["'][^"']*(?:Senior\s+)?Software Engineer/i,
     /placeholder=["'][^"']*San Francisco, CA/i,
+    /placeholder=["'][^"']*github\.com\/johndoe/i,
+    /label=["']GitHub["']/i,
+    />\s*GitHub\s*</i,
     /placeholder=["'][^"']*React/i,
     /placeholder=["'][^"']*Frontend/i,
     /placeholder=["'][^"']*Remote Rust/i,

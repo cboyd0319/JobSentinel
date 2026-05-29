@@ -1050,12 +1050,12 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                       setContact({ ...contact, linkedin: e.target.value || null })
                     }
                     className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                    placeholder="linkedin.com/in/johndoe"
+                    placeholder="linkedin.com/in/your-name"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                    GitHub
+                    Portfolio or work samples
                   </label>
                   <input
                     type="url"
@@ -1064,12 +1064,12 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                       setContact({ ...contact, github: e.target.value || null })
                     }
                     className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                    placeholder="github.com/johndoe"
+                    placeholder="portfolio.example.com"
                   />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                    Website
+                    Personal website or credential page
                   </label>
                   <input
                     type="url"
@@ -1078,7 +1078,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                       setContact({ ...contact, website: e.target.value || null })
                     }
                     className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
-                    placeholder="https://johndoe.com"
+                    placeholder="https://your-name.example.com"
                   />
                 </div>
               </div>

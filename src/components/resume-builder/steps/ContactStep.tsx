@@ -103,30 +103,30 @@ const ContactStep = memo(function ContactStep({ contact, setContact }: ContactSt
           value={contact.linkedin || ""}
           onChange={(e) => setContact({ ...contact, linkedin: e.target.value || null })}
           onBlur={() => handleBlur("linkedin", contact.linkedin || "")}
-          placeholder="linkedin.com/in/johndoe"
+          placeholder="linkedin.com/in/your-name"
           maxLength={255}
           error={errors.linkedin}
           autoComplete="url"
         />
         <Input
-          label="GitHub"
+          label="Portfolio or work samples"
           type="url"
           value={contact.github || ""}
           onChange={(e) => setContact({ ...contact, github: e.target.value || null })}
           onBlur={() => handleBlur("github", contact.github || "")}
-          placeholder="github.com/johndoe"
+          placeholder="portfolio.example.com"
           maxLength={255}
           error={errors.github}
           autoComplete="url"
         />
         <div className="md:col-span-2">
           <Input
-            label="Website"
+            label="Personal website or credential page"
             type="url"
             value={contact.website || ""}
             onChange={(e) => setContact({ ...contact, website: e.target.value || null })}
             onBlur={() => handleBlur("website", contact.website || "")}
-            placeholder="https://johndoe.com"
+            placeholder="https://your-name.example.com"
             maxLength={255}
             error={errors.website}
             autoComplete="url"
