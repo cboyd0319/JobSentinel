@@ -1,5 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { errorReporter } from '../utils/errorReporting';
+import { errorReporter, sanitizeTextForStorage } from '../utils/errorReporting';
 import { clearStorage, readStorageValue, writeStorageValue } from '../utils/browserStorage';
 import { logError } from '../utils/errorUtils';
 import { copySanitizedDebugReport, saveSanitizedDebugReport } from '../services/feedbackService';
@@ -8,6 +8,16 @@ const VISUAL_PREFERENCE_KEYS = [
   'jobsentinel-theme',
   'jobsentinel-high-contrast',
 ] as const;
+
+function getSafeErrorMessage(error: Error | null): string {
+  const message = error?.message?.trim();
+  return message ? sanitizeTextForStorage(message) : 'An unexpected error occurred';
+}
+
+function getSafeErrorStack(error: Error | null): string | null {
+  const stack = error?.stack?.trim();
+  return stack ? sanitizeTextForStorage(stack) : null;
+}
 
 interface Props {
   children: ReactNode;
@@ -132,6 +142,8 @@ class ErrorBoundary extends Component<Props, State> {
 
       // Default error UI
       const showClearData = this.state.errorCount >= 2;
+      const safeErrorMessage = getSafeErrorMessage(this.state.error);
+      const safeErrorStack = getSafeErrorStack(this.state.error);
 
       return (
         <div className="min-h-screen bg-surface-900 flex items-center justify-center px-6">
@@ -162,7 +174,7 @@ class ErrorBoundary extends Component<Props, State> {
                 Something Went Wrong
               </h3>
               <p className="text-surface-600 dark:text-surface-400 mb-2">
-                {this.state.error.message || 'An unexpected error occurred'}
+                {safeErrorMessage}
               </p>
               {this.state.errorCount > 1 && (
                 <p className="text-xs text-danger">
@@ -242,13 +254,13 @@ class ErrorBoundary extends Component<Props, State> {
               )}
             </div>
 
-            {import.meta.env.DEV && this.state.error.stack && (
+            {import.meta.env.DEV && safeErrorStack && (
               <details className="mt-6 p-4 bg-surface-100 dark:bg-surface-900/50 rounded-lg">
                 <summary className="cursor-pointer text-sm text-surface-600 dark:text-surface-400 font-medium">
                   Error Details (Development Only)
                 </summary>
                 <pre className="mt-2 text-xs text-danger overflow-auto max-h-48 whitespace-pre-wrap">
-                  {this.state.error.stack}
+                  {safeErrorStack}
                 </pre>
               </details>
             )}

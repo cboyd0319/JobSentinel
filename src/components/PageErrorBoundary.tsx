@@ -1,9 +1,21 @@
 import { Component, ErrorInfo, ReactNode } from "react";
 import { Button } from "./Button";
 import { EmptyState } from "./EmptyState";
-import { errorReporter } from "../utils/errorReporting";
+import { errorReporter, sanitizeTextForStorage } from "../utils/errorReporting";
 import { logError } from "../utils/errorUtils";
 import { saveSanitizedDebugReport } from "../services/feedbackService";
+
+function getSafeErrorMessage(error: Error | null): string {
+  const message = error?.message?.trim();
+  return message
+    ? sanitizeTextForStorage(message)
+    : "Something went wrong loading this page. Your data is safe.";
+}
+
+function getSafeErrorStack(error: Error | null): string | null {
+  const stack = error?.stack?.trim();
+  return stack ? sanitizeTextForStorage(stack) : null;
+}
 
 interface Props {
   children: ReactNode;
@@ -110,6 +122,8 @@ class PageErrorBoundary extends Component<Props, State> {
 
       // Show warning if multiple retries
       const showRetryWarning = this.state.retryCount >= 2;
+      const safeErrorMessage = getSafeErrorMessage(this.state.error);
+      const safeErrorStack = getSafeErrorStack(this.state.error);
 
       return (
         <div className="min-h-[60vh] flex items-center justify-center px-4">
@@ -117,10 +131,7 @@ class PageErrorBoundary extends Component<Props, State> {
             <EmptyState
               illustration="error"
               title={`${pageName || "Page"} Error`}
-              description={
-                this.state.error.message ||
-                "Something went wrong loading this page. Your data is safe."
-              }
+              description={safeErrorMessage}
             />
 
             {showRetryWarning && (
@@ -175,13 +186,13 @@ class PageErrorBoundary extends Component<Props, State> {
               </p>
             )}
 
-            {import.meta.env.DEV && this.state.error.stack && (
+            {import.meta.env.DEV && safeErrorStack && (
               <details className="mt-6 p-4 bg-surface-100 dark:bg-surface-800 rounded-lg text-sm">
                 <summary className="cursor-pointer text-surface-600 dark:text-surface-400 font-medium">
                   Technical Details (Development Only)
                 </summary>
                 <pre className="mt-2 overflow-auto text-xs text-red-600 dark:text-red-400 whitespace-pre-wrap max-h-64">
-                  {this.state.error.stack}
+                  {safeErrorStack}
                 </pre>
               </details>
             )}

@@ -4,14 +4,19 @@ import userEvent from "@testing-library/user-event";
 import ErrorBoundary from "./ErrorBoundary";
 
 // Mock error reporter
-vi.mock("../utils/errorReporting", () => ({
-  errorReporter: {
-    captureReactError: vi.fn(),
-    getErrors: vi.fn(() => []),
-  },
-  sanitizeContext: (context: Record<string, unknown> | undefined) => context,
-  sanitizeTextForStorage: (value: string) => value,
-}));
+vi.mock("../utils/errorReporting", async () => {
+  const actual = await vi.importActual<typeof import("../utils/errorReporting")>(
+    "../utils/errorReporting"
+  );
+
+  return {
+    ...actual,
+    errorReporter: {
+      captureReactError: vi.fn(),
+      getErrors: vi.fn(() => []),
+    },
+  };
+});
 
 const mockCopySanitizedDebugReport = vi.fn();
 const mockSaveSanitizedDebugReport = vi.fn();
@@ -23,9 +28,15 @@ vi.mock("../services/feedbackService", () => ({
 }));
 
 // Component that throws an error
-function ThrowError({ shouldThrow = false }: { shouldThrow?: boolean }) {
+function ThrowError({
+  shouldThrow = false,
+  message = "Test error message",
+}: {
+  shouldThrow?: boolean;
+  message?: string;
+}) {
   if (shouldThrow) {
-    throw new Error("Test error message");
+    throw new Error(message);
   }
   return <div>Working component</div>;
 }
@@ -83,6 +94,24 @@ describe("ErrorBoundary", () => {
       );
 
       expect(screen.getByText("Test error message")).toBeInTheDocument();
+    });
+
+    it("redacts private details from visible error messages", () => {
+      const { container } = render(
+        <ErrorBoundary>
+          <ThrowError
+            shouldThrow={true}
+            message="Failed at /Users/alice/private.txt with token=abc and candidate@example.com"
+          />
+        </ErrorBoundary>
+      );
+
+      expect(container.textContent).toContain("/[USER_PATH]/private.txt");
+      expect(container.textContent).toContain("[TOKEN]");
+      expect(container.textContent).toContain("[EMAIL]");
+      expect(container.textContent).not.toContain("/Users/alice");
+      expect(container.textContent).not.toContain("token=abc");
+      expect(container.textContent).not.toContain("candidate@example.com");
     });
 
     it("shows reload button", () => {

@@ -487,6 +487,10 @@ const feedbackDebugEventFormattingPaths = new Set([
 const problemHistoryContextFormattingPaths = new Set([
   "src/components/ErrorLogPanel.tsx",
 ]);
+const errorBoundaryDisplayPaths = new Set([
+  "src/components/ErrorBoundary.tsx",
+  "src/components/PageErrorBoundary.tsx",
+]);
 
 const applicationAssistFramingPaths = new Set([
   "README.md",
@@ -3146,6 +3150,15 @@ function hasRawProblemHistoryContextDetails(root, path) {
   return /JSON\.stringify\(error\.context\)/.test(text);
 }
 
+function hasRawErrorBoundaryDetails(root, path) {
+  if (!errorBoundaryDisplayPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /\bthis\.state\.error\.(?:message|stack)\b/.test(text);
+}
+
 function hasStaleResumeOptimizerMockHandlers(root, path) {
   if (path !== "src/mocks/handlers.ts") {
     return false;
@@ -3979,6 +3992,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawProblemHistoryContextDetails(root, path)) {
       violations.push(`keep problem-history context details readable: ${path}`);
+    }
+
+    if (hasRawErrorBoundaryDetails(root, path)) {
+      violations.push(`sanitize visible error-boundary details: ${path}`);
     }
 
     if (hasStaleResumeOptimizerMockHandlers(root, path)) {

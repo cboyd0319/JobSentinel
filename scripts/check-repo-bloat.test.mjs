@@ -6682,6 +6682,58 @@ test("checkRepoBloat rejects raw problem-history context JSON", () => {
   });
 });
 
+test("checkRepoBloat rejects raw visible error-boundary details", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/ErrorBoundary.tsx",
+      [
+        "export function ErrorBoundary({ error }) {",
+        "  return <p>{this.state.error.message}</p>;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/PageErrorBoundary.tsx",
+      [
+        "export function PageErrorBoundary({ error }) {",
+        "  return <pre>{this.state.error.stack}</pre>;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src/components/ErrorBoundary.tsx",
+        "src/components/PageErrorBoundary.tsx",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize visible error-boundary details: src/components/ErrorBoundary.tsx",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "sanitize visible error-boundary details: src/components/PageErrorBoundary.tsx",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale resume optimizer mock handlers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
