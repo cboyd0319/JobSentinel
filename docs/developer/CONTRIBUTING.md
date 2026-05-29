@@ -71,6 +71,18 @@ Check `package.json` for the current release package version. See
 
 ---
 
+## Project Ethos
+
+JobSentinel is free, will always stay free, and will always remain MIT
+licensed. The code is here to help people find work without giving up privacy
+or control.
+
+Contributions to JobSentinel are welcome. So are forks, adaptations, and better
+tools built from this code. If this repository helps someone serve more job
+seekers, that is a good outcome.
+
+---
+
 ## Getting Started
 
 ### Prerequisites

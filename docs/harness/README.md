@@ -12,6 +12,11 @@ checks, and leave durable evidence for the next run. For user-facing work,
 the harness also protects product ease: JobSentinel is for any job seeker, not
 only engineers, and it must not assume terminal, debugging, or GitHub skill.
 
+JobSentinel is free, will always stay free, and will always remain MIT
+licensed. Contributions are welcome, but reuse is also welcome: if someone can
+fork this code, adapt it, and help more job seekers, that fits the project
+mission.
+
 ## Rule 0
 
 User privacy and security are non-negotiable. No code change, documentation

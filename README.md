@@ -8,6 +8,7 @@ control.**
 [![Docs Harness](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-harness.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-harness.yml)
 <img src="https://img.shields.io/badge/Version-2.6.4-2563eb" alt="Version 2.6.4">
 [![License: MIT](https://img.shields.io/badge/license-MIT-7c3aed)](LICENSE)
+[![Free Forever](https://img.shields.io/badge/cost-free%20forever-0f766e)](LICENSE)
 [![Local First](https://img.shields.io/badge/privacy-local--first-0f766e)](PRIVACY.md)
 [![No Telemetry](https://img.shields.io/badge/telemetry-none-111827)](PRIVACY.md)
 [![Tauri 2](https://img.shields.io/badge/desktop-Tauri%202-2563eb)](https://tauri.app/)
@@ -89,6 +90,7 @@ README.
 | Principle | Product implication |
 | --------- | ------------------- |
 | Candidate-side by design | Explain fit, source risk, pay transparency, and application readability from the job seeker's perspective |
+| Free forever | JobSentinel will always remain free under the MIT license |
 | Local-first by default | Store jobs, notes, resumes, settings, salary floors, and application history on the user's device |
 | Research-backed | Tie product direction to job-seeker behavior, automated hiring, ghost-job, pay-equity, and source-governance research |
 | Plain-language first | Avoid requiring technical knowledge to set up, recover, report issues, or understand warnings |
@@ -491,6 +493,10 @@ Read [docs/README.md](docs/README.md), [CHANGELOG.md](CHANGELOG.md), and
 
 Yes. JobSentinel is open source under the MIT license.
 
+JobSentinel is free, will always stay free, and will always remain MIT
+licensed. This project exists to help job seekers, not to lock them into a paid
+service.
+
 </details>
 
 <details>
@@ -554,6 +560,8 @@ See [quick start](docs/user/QUICK_START.md#wheres-my-data) for exact paths.
 - Found a bug? [Open an issue](https://github.com/cboyd0319/JobSentinel/issues/new).
 - Have an idea? [Start a discussion](https://github.com/cboyd0319/JobSentinel/discussions).
 - Want to contribute? Read the [contributing guide](docs/developer/CONTRIBUTING.md).
+- Want to build something better? Fork the code, adapt it, and use it to help
+  more people. That is part of the point.
 
 ---
 

@@ -11,6 +11,11 @@ where to get help if something does not work.
 
 You'll need to install JobSentinel on your computer. Here's the quick version:
 
+**Is JobSentinel free?**
+
+Yes. JobSentinel is free, will always stay free, and will always remain MIT
+licensed. You do not need a paid account to use the core app.
+
 **Download the installer** (recommended)
 
 1. Go to [GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases)
