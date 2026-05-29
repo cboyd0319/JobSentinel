@@ -904,7 +904,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
             <textarea
               value={bulletInput}
               onChange={(e) => setBulletInput(e.target.value)}
-              placeholder="e.g., Worked on improving database performance"
+              placeholder="e.g., Helped reduce missed appointments by 20%"
               className="w-full h-24 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus-visible:ring-sentinel-400 resize-none"
               autoFocus
             />

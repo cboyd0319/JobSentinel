@@ -256,7 +256,7 @@ describe("ResumeOptimizer", () => {
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
     await user.click(screen.getByRole("button", { name: /improve bullet point/i }));
-    fireEvent.change(screen.getByPlaceholderText(/worked on improving database performance/i), {
+    fireEvent.change(screen.getByPlaceholderText(/reduce missed appointments/i), {
       target: { value: "Improved customer onboarding." },
     });
     await user.click(screen.getByRole("button", { name: "Improve" }));

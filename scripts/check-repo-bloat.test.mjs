@@ -495,6 +495,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src/pages/ResumeOptimizer.tsx",
+      '<textarea placeholder="e.g., Worked on improving database performance" />\n',
+    );
+    writeFixtureFile(
+      root,
       "src/components/resume-builder/steps/SummaryStep.tsx",
       '<textarea placeholder="Experienced software engineer with 5+ years building apps." />\n',
     );
@@ -519,6 +524,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/mocks/handlers.ts",
         "src-tauri/src/core/resume/templates.rs",
         "src/pages/ResumeBuilder.tsx",
+        "src/pages/ResumeOptimizer.tsx",
         "src/components/resume-builder/steps/SummaryStep.tsx",
         "src/components/resume-builder/steps/SkillsStep.tsx",
         "docs/README.md",
@@ -546,6 +552,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/mocks/handlers.ts",
       "src-tauri/src/core/resume/templates.rs",
       "src/pages/ResumeBuilder.tsx",
+      "src/pages/ResumeOptimizer.tsx",
       "src/components/resume-builder/steps/SummaryStep.tsx",
       "src/components/resume-builder/steps/SkillsStep.tsx",
       "docs/features/resume-builder.md",
