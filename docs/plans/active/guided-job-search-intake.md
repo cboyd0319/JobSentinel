@@ -325,3 +325,6 @@ The UI maps one of three setup choices to the existing serialized
 - The field is optional and can be skipped.
 - The final setup screen summarizes look-for titles, work to show more often,
   work to rank lower, location, freshness, and pay before scanning starts.
+- Settings uses the same plain freshness choices so users can change warning
+  behavior later without understanding scoring thresholds. Custom controls stay
+  available under warning-focused labels.

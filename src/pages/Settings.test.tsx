@@ -335,7 +335,7 @@ describe("Settings — loadConfig flow", () => {
     });
 
     expect(mockToast.warning).toHaveBeenCalledWith(
-      "Ghost detection defaults loaded",
+      "Posting risk defaults loaded",
       expect.stringContaining("defaults"),
     );
   });
@@ -367,6 +367,43 @@ describe("Settings — loadConfig flow", () => {
     expect(screen.queryByRole("button", { name: /connect linkedin/i })).not.toBeInTheDocument();
     expect(mockInvoke).not.toHaveBeenCalledWith("get_linkedin_expiry_status");
     expect(mockInvoke).not.toHaveBeenCalledWith("linkedin_login");
+  });
+
+  it("uses plain posting-risk copy for freshness settings", async () => {
+    const user = userEvent.setup();
+
+    setupHappyPath();
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+
+    expect(screen.getByText("Posting Risk and Freshness")).toBeInTheDocument();
+    expect(screen.getByText("Freshness behavior:")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Widest search" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Balanced" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Fresh and verified first" })).toBeInTheDocument();
+    expect(
+      screen.getByText(/keeps jobs visible while warning sooner/i),
+    ).toBeInTheDocument();
+
+    expect(screen.queryByText("Ghost Detection Settings")).not.toBeInTheDocument();
+    expect(screen.queryByText("Detection Level:")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Lenient" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Strict" })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Custom" }));
+
+    expect(screen.getByText("Stale-posting warning after (days)")).toBeInTheDocument();
+    expect(screen.getByText("Repeated-posting warning count")).toBeInTheDocument();
+    expect(screen.getByText(/Early warning point:/)).toBeInTheDocument();
+    expect(screen.getByText(/Hide-by-default point:/)).toBeInTheDocument();
+    expect(screen.queryByText("Stale Threshold (days)")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Warning Threshold:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Hide Threshold:/)).not.toBeInTheDocument();
   });
 
   it("exposes email alert toggle with an accessible name", async () => {

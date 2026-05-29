@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Reworked Settings posting-risk controls from ghost-detection threshold jargon into plain freshness choices that match setup: widest search, balanced, and fresh and verified first, with custom controls renamed around warnings instead of scoring thresholds. |
 | 2026-05-29 | In progress | Removed remaining stale 13-source wording from quick-start, writing guide, Tauri docs, release notes, and dashboard sensors; disabled LinkedIn as a notification source in frontend and backend defaults while preserving it as a user-opened search-link destination only. |
 | 2026-05-29 | In progress | Removed a stale dashboard source-count claim, replaced it with protective source/pay/posting-risk copy, and stopped treating LinkedIn search-link settings as an enabled background source during dashboard preflight. |
 | 2026-05-29 | In progress | Extended pay protection from setup into job cards by passing the saved salary floor into Dashboard results and warning when listed pay tops out below the user's floor. |

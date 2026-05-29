@@ -165,6 +165,24 @@ interface Config {
   use_resume_matching: boolean;
 }
 
+type GhostPreset = "lenient" | "balanced" | "strict";
+type GhostPresetSelection = GhostPreset | "custom";
+
+const GHOST_PRESETS: GhostPreset[] = ["lenient", "balanced", "strict"];
+
+const GHOST_PRESET_LABELS: Record<GhostPreset, string> = {
+  lenient: "Widest search",
+  balanced: "Balanced",
+  strict: "Fresh and verified first",
+};
+
+const GHOST_PRESET_DESCRIPTIONS: Record<GhostPresetSelection, string> = {
+  lenient: "Shows the broadest list and warns only on stronger stale-posting signals.",
+  balanced: "Recommended. Keeps jobs visible while warning sooner when posting evidence is weak.",
+  strict: "Warns sooner about old, reposted, missing-pay, or thin postings. Some legitimate jobs may need review.",
+  custom: "Use detailed controls if you want to tune how early warnings appear.",
+};
+
 // Credentials stored in OS keyring (macOS Keychain, Windows Credential Manager)
 interface Credentials {
   slack_webhook: string;
@@ -317,9 +335,7 @@ export default function Settings({ onClose }: SettingsProps) {
   const [savingDebugReport, setSavingDebugReport] = useState(false);
   const [ghostConfig, setGhostConfig] = useState<GhostConfig | null>(null);
   const [ghostConfigLoading, setGhostConfigLoading] = useState(false);
-  const [ghostPreset, setGhostPreset] = useState<
-    "lenient" | "balanced" | "strict" | "custom"
-  >("balanced");
+  const [ghostPreset, setGhostPreset] = useState<GhostPresetSelection>("balanced");
   const [emailProvider, setEmailProvider] = useState<
     "custom" | "gmail" | "outlook" | "yahoo"
   >("custom");
@@ -436,7 +452,7 @@ export default function Settings({ onClose }: SettingsProps) {
   };
 
   // Apply ghost detection preset
-  const applyGhostPreset = (preset: "lenient" | "balanced" | "strict") => {
+  const applyGhostPreset = (preset: GhostPreset) => {
     setGhostPreset(preset);
     setGhostConfig({ ...ghostPresets[preset] });
   };
@@ -713,8 +729,8 @@ export default function Settings({ onClose }: SettingsProps) {
         hide_threshold: 0.7,
       });
       toast.warning(
-        "Ghost detection defaults loaded",
-        "Couldn't load your saved ghost detection settings. Using defaults.",
+        "Posting risk defaults loaded",
+        "Couldn't load your saved posting-risk settings. Using defaults.",
       );
     } finally {
       setGhostConfigLoading(false);
@@ -1047,8 +1063,8 @@ export default function Settings({ onClose }: SettingsProps) {
       setGhostConfigLoading(true);
       await invoke("set_ghost_config", { config: ghostConfig });
       toast.success(
-        "Ghost Detection Settings Saved",
-        "Settings will apply to new job scans",
+        "Posting risk settings saved",
+        "New scans use this warning behavior.",
       );
     } catch (error: unknown) {
       logError("Failed to save ghost config:", error);
@@ -1065,8 +1081,8 @@ export default function Settings({ onClose }: SettingsProps) {
       await invoke("reset_ghost_config");
       await loadGhostConfig();
       toast.success(
-        "Reset to Defaults",
-        "Ghost detection settings have been reset",
+        "Posting risk defaults restored",
+        "Balanced warnings are back on.",
       );
     } catch (error: unknown) {
       logError("Failed to reset ghost config:", error);
@@ -3245,44 +3261,38 @@ export default function Settings({ onClose }: SettingsProps) {
                 <BookmarkletGenerator />
               </section>
 
-              {/* Ghost Detection Settings */}
+              {/* Posting risk and freshness settings */}
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
-                  Ghost Detection Settings
-                  <HelpIcon text="Adjust how JobSentinel flags stale, reposted, or low-trust job postings. Choose a preset or customize." />
+                  Posting Risk and Freshness
+                  <HelpIcon text="Choose how strongly JobSentinel warns about stale, reposted, or low-trust job postings." />
                 </h3>
                 {ghostConfig && (
                   <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 space-y-4">
                     {/* Preset Buttons */}
                     <div className="flex items-center gap-3">
                       <span className="text-sm font-medium text-surface-700 dark:text-surface-300">
-                        Detection Level:
+                        Freshness behavior:
                       </span>
                       <div className="flex gap-2">
-                        {(["lenient", "balanced", "strict"] as const).map(
-                          (preset) => (
-                            <button
-                              key={preset}
-                              type="button"
-                              onClick={() => applyGhostPreset(preset)}
-                              className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-                                ghostPreset === preset
-                                  ? preset === "lenient"
-                                    ? "bg-green-500 text-white"
-                                    : preset === "balanced"
-                                      ? "bg-sentinel-500 text-white"
-                                      : "bg-red-500 text-white"
-                                  : "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-600"
-                              }`}
-                            >
-                              {preset === "lenient"
-                                ? "Lenient"
-                                : preset === "balanced"
-                                  ? "Balanced"
-                                  : "Strict"}
-                            </button>
-                          ),
-                        )}
+                        {GHOST_PRESETS.map((preset) => (
+                          <button
+                            key={preset}
+                            type="button"
+                            onClick={() => applyGhostPreset(preset)}
+                            className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                              ghostPreset === preset
+                                ? preset === "lenient"
+                                  ? "bg-green-500 text-white"
+                                  : preset === "balanced"
+                                    ? "bg-sentinel-500 text-white"
+                                    : "bg-red-500 text-white"
+                                : "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-600"
+                            }`}
+                          >
+                            {GHOST_PRESET_LABELS[preset]}
+                          </button>
+                        ))}
                         <button
                           type="button"
                           onClick={() => setGhostPreset("custom")}
@@ -3297,14 +3307,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       </div>
                     </div>
                     <p className="text-xs text-surface-500 dark:text-surface-400 -mt-2">
-                      {ghostPreset === "lenient" &&
-                        "Shows most jobs, rarely flags anything. Best if you don't want to miss opportunities."}
-                      {ghostPreset === "balanced" &&
-                        "Good default. Flags obviously stale or suspicious jobs without being too aggressive."}
-                      {ghostPreset === "strict" &&
-                        "Aggressively filters old, reposted, or incomplete job listings. May hide some legitimate jobs."}
-                      {ghostPreset === "custom" &&
-                        "Fine-tune each setting below to match your preferences."}
+                      {GHOST_PRESET_DESCRIPTIONS[ghostPreset]}
                     </p>
 
                     {/* Show detailed settings only in custom mode */}
@@ -3313,7 +3316,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                              Stale Threshold (days)
+                              Stale-posting warning after (days)
                             </label>
                             <Input
                               type="number"
@@ -3327,12 +3330,12 @@ export default function Settings({ onClose }: SettingsProps) {
                                     parseInt(e.target.value) || 60,
                                 })
                               }
-                              hint="Jobs older than this are flagged as stale"
+                              hint="Older postings get a stale-posting warning"
                             />
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                              Repost Threshold
+                              Repeated-posting warning count
                             </label>
                             <Input
                               type="number"
@@ -3346,14 +3349,14 @@ export default function Settings({ onClose }: SettingsProps) {
                                     parseInt(e.target.value) || 3,
                                 })
                               }
-                              hint="Flag jobs seen this many times or more"
+                              hint="Repeated postings get an earlier review warning"
                             />
                           </div>
                         </div>
 
                         <div>
                           <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                            Min Description Length (characters)
+                            Very short description limit (characters)
                           </label>
                           <Input
                             type="number"
@@ -3367,7 +3370,7 @@ export default function Settings({ onClose }: SettingsProps) {
                                   parseInt(e.target.value) || 200,
                               })
                             }
-                            hint="Jobs with shorter descriptions are flagged"
+                            hint="Shorter descriptions get a low-detail warning"
                           />
                         </div>
 
@@ -3390,7 +3393,7 @@ export default function Settings({ onClose }: SettingsProps) {
                               </span>
                             </label>
                             <HelpIcon
-                              text="Many legitimate jobs don't list salary. Enable this for stricter detection."
+                              text="Many legitimate jobs don't list pay. Turn this on when missing pay should trigger an earlier review warning."
                               position="right"
                             />
                           </div>
@@ -3399,7 +3402,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <div className="space-y-3">
                           <div>
                             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
-                              Warning Threshold:{" "}
+                              Early warning point:{" "}
                               {ghostConfig.warning_threshold.toFixed(2)}
                             </label>
                             <input
@@ -3417,13 +3420,13 @@ export default function Settings({ onClose }: SettingsProps) {
                               className="w-full h-2 bg-surface-200 dark:bg-surface-700 rounded-lg appearance-none cursor-pointer accent-sentinel-500"
                             />
                             <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">
-                              Jobs above this score show a warning indicator
+                              Jobs above this point show a posting-risk warning
                             </p>
                           </div>
 
                           <div>
                             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
-                              Hide Threshold:{" "}
+                              Hide-by-default point:{" "}
                               {ghostConfig.hide_threshold.toFixed(2)}
                             </label>
                             <input
@@ -3441,7 +3444,7 @@ export default function Settings({ onClose }: SettingsProps) {
                               className="w-full h-2 bg-surface-200 dark:bg-surface-700 rounded-lg appearance-none cursor-pointer accent-red-500"
                             />
                             <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">
-                              Jobs above this score are hidden by default
+                              Jobs above this point are hidden unless you choose to review them
                             </p>
                           </div>
                         </div>
