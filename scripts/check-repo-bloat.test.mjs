@@ -7693,6 +7693,40 @@ test("checkRepoBloat rejects unsanitized feedback file saves", () => {
   });
 });
 
+test("checkRepoBloat rejects raw feedback support-open errors", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/feedback/mod.rs",
+      [
+        "pub async fn open_github_issues() -> Result<(), String> {",
+        "    app.shell().open(url, None).map_err(|e| format!(\"Failed to open browser: {e}\"))?;",
+        "    Command::new(\"open\").arg(\"-R\").arg(path).spawn().map_err(|e| format!(\"Failed to reveal file: {e}\"))?;",
+        "    app.shell().open(parent, None).map_err(|e| format!(\"Failed to open directory: {e}\"))?;",
+        "    Ok(())",
+        "}",
+        "fn feedback_file_content(content: &str) -> String { Sanitizer::sanitize(content) }",
+        "struct SavedFeedbackFile { reveal_token: String }",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/feedback/mod.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize feedback support-open errors: src-tauri/src/commands/feedback/mod.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw user-data privacy logging", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

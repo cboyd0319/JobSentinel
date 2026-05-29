@@ -114,6 +114,16 @@ fn remember_feedback_file(path: PathBuf) -> Result<SavedFeedbackFile, String> {
     })
 }
 
+fn feedback_page_open_error() -> String {
+    "Could not open the support page automatically. Open it manually if this keeps happening."
+        .to_string()
+}
+
+fn feedback_reveal_error() -> String {
+    "Could not show the saved debug report automatically. Open it from the folder where you saved it."
+        .to_string()
+}
+
 /// Open GitHub Issues page for bug reports
 #[tauri::command]
 #[allow(deprecated)]
@@ -133,7 +143,7 @@ pub async fn open_github_issues(app: AppHandle, template: Option<String>) -> Res
 
     app.shell()
         .open(&url, None)
-        .map_err(|e| format!("Failed to open browser: {e}"))?;
+        .map_err(|_| feedback_page_open_error())?;
 
     Ok(())
 }
@@ -146,7 +156,7 @@ pub async fn open_google_drive(app: AppHandle) -> Result<(), String> {
 
     app.shell()
         .open(url, None)
-        .map_err(|e| format!("Failed to open browser: {e}"))?;
+        .map_err(|_| feedback_page_open_error())?;
 
     Ok(())
 }
@@ -160,32 +170,32 @@ fn reveal_canonical_path(app: AppHandle, canonical: PathBuf) -> Result<(), Strin
             .arg("-R")
             .arg(canonical.as_os_str())
             .spawn()
-            .map_err(|e| format!("Failed to reveal file: {e}"))?;
+            .map_err(|_| feedback_reveal_error())?;
     }
 
     #[cfg(target_os = "windows")]
     {
         let _ = &app;
         use std::process::Command;
-        let path_str = canonical.to_str().ok_or("Invalid path encoding")?;
+        let path_str = canonical.to_str().ok_or_else(feedback_reveal_error)?;
         Command::new("explorer")
             .arg(format!("/select,{}", path_str))
             .spawn()
-            .map_err(|e| format!("Failed to reveal file: {e}"))?;
+            .map_err(|_| feedback_reveal_error())?;
     }
 
     #[cfg(target_os = "linux")]
     {
         let parent = canonical
             .parent()
-            .ok_or("Invalid path")?
+            .ok_or_else(feedback_reveal_error)?
             .to_str()
-            .ok_or("Invalid path encoding")?;
+            .ok_or_else(feedback_reveal_error)?;
 
         #[allow(deprecated)]
         app.shell()
             .open(parent, None)
-            .map_err(|e| format!("Failed to open directory: {e}"))?;
+            .map_err(|_| feedback_reveal_error())?;
     }
 
     Ok(())
@@ -401,6 +411,18 @@ mod tests {
         assert!(sanitized.contains("[EMAIL]"));
         assert!(sanitized.contains("[USER_PATH]"));
         assert!(sanitized.contains("[WEBHOOK_CONFIGURED]"));
+    }
+
+    #[test]
+    fn test_feedback_open_errors_do_not_echo_raw_system_details() {
+        for message in [feedback_page_open_error(), feedback_reveal_error()] {
+            assert!(!message.contains("Failed to"));
+            assert!(!message.contains("{e}"));
+            assert!(!message.contains("/Users/"));
+            assert!(!message.contains("C:\\"));
+            assert!(!message.contains("open directory"));
+            assert!(!message.contains("reveal file"));
+        }
     }
 
     #[test]

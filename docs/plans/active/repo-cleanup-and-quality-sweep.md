@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Sanitized safe-report support-open failures so GitHub, Drive, and reveal-in-folder helpers no longer return raw OS/browser/file-manager errors to the renderer; added Rust coverage and bloat coverage for recurrence. |
 | 2026-05-29 | In progress | Rebalanced mock market-intelligence data away from software-only signals by using customer support, project coordination, patient care, bilingual communication, and data reporting examples, with broader company/location fixtures and bloat coverage against tech-only market demo data returning. |
 | 2026-05-29 | In progress | Reworded visible recovery headings and repeat-failure labels across global, page, section, modal, and job-source-health failure surfaces so users see plain next steps instead of component/page error jargon; added bloat coverage so technical recovery copy cannot return. |
 | 2026-05-29 | In progress | Replaced visible default error-boundary exception text with protective generic recovery copy across app, page, modal, and section boundaries; raw details stay only in sanitized development detail sections and safe debug reports, with tests and bloat coverage against sanitized raw messages returning to user-facing boundary copy. |

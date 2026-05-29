@@ -3598,6 +3598,17 @@ function hasUnsanitizedFeedbackFileSave(root, path) {
   );
 }
 
+function hasRawFeedbackOpenErrors(root, path) {
+  if (!feedbackCommandPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /format!\(\s*["']Failed to (?:open browser|reveal file|open directory): \{e\}["']\s*\)/.test(
+    text,
+  );
+}
+
 function hasUnownedStorybookAddon(root, path) {
   if (path !== ".storybook/main.ts") {
     return false;
@@ -4796,6 +4807,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasUnsanitizedFeedbackFileSave(root, path)) {
       violations.push(`sanitize feedback file content before saving: ${path}`);
+    }
+
+    if (hasRawFeedbackOpenErrors(root, path)) {
+      violations.push(`sanitize feedback support-open errors: ${path}`);
     }
 
     if (hasUnownedStorybookAddon(root, path)) {
