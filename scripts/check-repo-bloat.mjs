@@ -1215,6 +1215,21 @@ function hasFrontDoorDocStaleFooter(root, path) {
   return /\*\*Last Updated:\*\*/.test(readFileSync(join(root, path), "utf8"));
 }
 
+function hasDocsReadmeReleaseLogShape(root, path) {
+  if (path !== "docs/README.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /## Current Status[\s\S]{0,400}\*\*Release version:\*\*/.test(text) ||
+    /### What's New in v\d+\.\d+/i.test(text) ||
+    /### Backend Modules \(\d+ registered Tauri commands\)/.test(text) ||
+    /### Planned \/ Unreleased Features/.test(text) ||
+    /\*\*Unreleased work implemented on main:\*\*/.test(text)
+  );
+}
+
 function hasStaleUserDataExportRoadmapClaim(root, path) {
   if (path !== "docs/features/user-data-management.md") {
     return false;
@@ -4405,6 +4420,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasFrontDoorDocStaleFooter(root, path)) {
       violations.push(`replace front-door doc stale footer: ${path}`);
+    }
+
+    if (hasDocsReadmeReleaseLogShape(root, path)) {
+      violations.push(`replace docs README release-log shape: ${path}`);
     }
 
     if (hasStaleUserDataExportRoadmapClaim(root, path)) {

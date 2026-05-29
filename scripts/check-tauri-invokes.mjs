@@ -27,7 +27,6 @@ const ignoredFilePatterns = [
 
 const requiredCommandClaimFiles = [
   "README.md",
-  "docs/README.md",
   "docs/ROADMAP.md",
 ];
 

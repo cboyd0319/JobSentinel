@@ -2974,6 +2974,34 @@ test("checkRepoBloat rejects front-door docs stale footer", () => {
   });
 });
 
+test("checkRepoBloat rejects docs README release-log shape", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/README.md",
+      [
+        "## Current Status",
+        "**Release version:** 2.6.4",
+        "**Unreleased work implemented on main:** Beta feedback",
+        "### What's New in v2.6.4",
+        "### Backend Modules (190 registered Tauri commands)",
+        "### Planned / Unreleased Features",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/README.md"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace docs README release-log shape: docs/README.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale informal maintainer footers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

@@ -515,7 +515,7 @@ if (cargoVersion !== packageJson.version) {
 const currentVersion = packageJson.version;
 const versionClaims = {
   "README.md": [`Version-${currentVersion}`, `alt="Version ${currentVersion}"`],
-  "docs/README.md": [`Current Version: ${currentVersion}`, `Release version:** ${currentVersion}`],
+  "docs/README.md": [`Package metadata version: \`${currentVersion}\``],
   "docs/ROADMAP.md": ["Use `package.json` for the current release package version."],
 };
 
@@ -537,7 +537,7 @@ if (!generateHandlerMatch) {
 const registeredCommandCount = (generateHandlerMatch?.[1].match(/commands::/g) ?? []).length;
 const measuredCommandClaim = `${registeredCommandCount} registered Tauri commands`;
 
-for (const path of ["README.md", "docs/README.md", "docs/ROADMAP.md"]) {
+for (const path of ["README.md", "docs/ROADMAP.md"]) {
   if (!read(path).includes(measuredCommandClaim)) {
     errors.push(`${path} must include current command claim: ${measuredCommandClaim}`);
   }

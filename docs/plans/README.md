@@ -19,6 +19,7 @@ See [Exec Plans](../exec-plans.md) for required format.
 | Guided job-search intake | [Active plan](active/guided-job-search-intake.md) |
 | Repo cleanup and quality sweep | [Active plan](active/repo-cleanup-and-quality-sweep.md) |
 | Repo cleanup handoff | [Current handoff](active/repo-cleanup-handoff.md) |
+| Research-backed product improvements | [Active plan](active/research-backed-product-improvements.md) |
 
 ## Plan Requirements
 

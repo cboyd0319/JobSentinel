@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Replaced stale `docs/README.md` release-log content with a current documentation hub for users, reviewers, contributors, research, privacy, responsible AI, harness, and active plans; added bloat coverage against release-log drift returning. |
 | 2026-05-29 | In progress | Reworded Resume page skill categories and match-result labels away from engineer-first categories, score-breakdown jargon, and overconfident missing-skill copy; updated resume docs and bloat coverage. |
 | 2026-05-29 | In progress | Reworded browser import button copy away from bookmarklet, any-website, safety-token, and auto-import language; added clipboard failure handling plus bloat and component coverage. |
 | 2026-05-29 | In progress | Added a plain setup review-volume question so users can choose a smaller list, balanced list, or broad discovery; mapped it to existing local source limits and alert strength, and updated Quick Start plus focused tests. |
