@@ -8,8 +8,8 @@ application tracking. The research notes in the six user-provided source files
 show additional ways to make those features more useful, more honest, safer,
 and easier for job seekers from many backgrounds.
 
-This plan turns the research into a product improvement backlog. It is planning
-only. No code changes are part of this goal.
+This plan turns the research into a product improvement backlog and tracks
+narrow implementation slices chosen from that backlog.
 
 ## Source files
 
@@ -66,8 +66,9 @@ claims need source-level re-verification before exact wording ships.
 
 In scope:
 
-- Product, UX, privacy, security, accessibility, and research-backed planning.
-- Future implementation areas across dashboard, setup, scoring, resume,
+- Product, UX, privacy, security, accessibility, implementation planning, and
+  focused implementation slices backed by research.
+- Implementation areas across dashboard, setup, scoring, resume,
   application tracking, Application Assist, market intelligence, scrapers, and
   docs.
 - Legitimate ATS-aware optimization: accurate machine readability, truthful
@@ -80,20 +81,24 @@ In scope:
 
 Out of scope:
 
-- Code changes during this research goal.
-- Deceptive ATS manipulation tactics, fabricated experience, hidden text, white-text
-  keywords, prompt injection, CAPTCHA bypass, final-submit automation, or terms-of-service
-  evasion.
+- Broad feature rewrites without a feature-specific change contract, focused
+  tests, docs updates, and rollback notes.
+- Deceptive resume tactics, fabricated experience, hidden text, white-text
+  keywords, prompt injection, unreviewed application sending, or
+  terms-of-service evasion.
 - External AI, cloud sync, contact upload, or social features unless a later
   product decision explicitly accepts the privacy tradeoff.
-- Employer-side hiring decisions or automated employment decision tools.
-- Full job-site scraping, public job-board operation, broad commercial
-  aggregation, resale, redistribution, or AI training datasets.
-- Scraping candidate profiles, recruiter profiles, employee lists, social graph
-  data, authenticated job-board content, or login-only surfaces.
-- Bypassing logins, CAPTCHAs, paywalls, blocks, rate limits, robots directives,
-  or other technical access controls.
+- Employer-side hiring decisions, candidate ranking for employers, or automated
+  employment decision tools.
+- Public job-board operation, broad commercial aggregation, resale,
+  redistribution, or AI training datasets.
+- Candidate-profile, recruiter-profile, employee-list, social-graph,
+  authenticated-content, or login-only data collection.
+- Solving CAPTCHAs, crossing paywalls, ignoring blocks, ignoring rate limits,
+  ignoring robots directives, or defeating other technical access controls.
 - Proxy networks, IP rotation, session-cookie reuse, or any anti-bot evasion.
+- Legal, financial, or compensation claims that have not been re-verified from
+  current primary or authoritative sources before user-facing release.
 
 ## Success criteria
 
@@ -104,8 +109,10 @@ Out of scope:
   scoring, resume, ATS, ghost detection, applications, market intelligence,
   accessibility, privacy, and security.
 - The plan flags unsafe or unethical ATS manipulation paths as non-goals.
-- The plan includes future file areas and verification commands.
-- Current goal remains documentation and planning only.
+- The plan includes file areas, verification commands, and change-contract
+  requirements for implementation slices.
+- Active implementation slices update user-facing docs and tests before they
+  are committed.
 
 ## Audience and ease
 
@@ -1026,17 +1033,20 @@ against:
 - Product priorities now explicitly center ghost-job protection, pay-equity
   safeguards, long-term-unemployment support, bias-aware application routes,
   protective tone, and local-first privacy.
-- Docs-only verification is complete for this planning slice.
+- First implementation slice: guided setup fresh-and-verified posting
+  preference, backed by a feature-specific change contract.
 
 ## Handoff
 
 - Current state: plan updated with six source documents plus first-class
-  protective product priorities from the latest goal guidance.
+  protective product priorities from the latest goal guidance. The current
+  implementation slice is the guided setup preference for fresh and verified
+  postings.
 - Evidence: source documents, selected primary sources, and local PDF text
   extraction reviewed on
   2026-05-28.
-- Next step: choose a first implementation slice and write a feature-specific
-  change contract before code edits.
+- Next step: after this setup slice is committed, choose the next narrow
+  research-backed implementation slice with its own change contract.
 - Open risks: exact source statistics need re-check before product copy or
   implementation claims; this plan does not prove feasibility of every listed
   feature.

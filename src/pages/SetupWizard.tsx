@@ -25,6 +25,90 @@ interface LocationPreferences {
   cities: string[];
 }
 
+interface GhostConfig {
+  stale_threshold_days: number;
+  repost_threshold: number;
+  min_description_length: number;
+  penalize_missing_salary: boolean;
+  warning_threshold: number;
+  hide_threshold: number;
+}
+
+type FreshnessPreference =
+  | "fresh_verified_first"
+  | "balanced"
+  | "wide_search";
+
+interface FreshnessOption {
+  id: FreshnessPreference;
+  label: string;
+  description: string;
+}
+
+const DEFAULT_FRESHNESS_PREFERENCE: FreshnessPreference = "fresh_verified_first";
+
+const FRESHNESS_GHOST_CONFIGS = {
+  fresh_verified_first: {
+    stale_threshold_days: 30,
+    repost_threshold: 2,
+    min_description_length: 200,
+    penalize_missing_salary: false,
+    warning_threshold: 0.2,
+    hide_threshold: 0.75,
+  },
+  balanced: {
+    stale_threshold_days: 60,
+    repost_threshold: 3,
+    min_description_length: 200,
+    penalize_missing_salary: false,
+    warning_threshold: 0.3,
+    hide_threshold: 0.7,
+  },
+  wide_search: {
+    stale_threshold_days: 120,
+    repost_threshold: 5,
+    min_description_length: 100,
+    penalize_missing_salary: false,
+    warning_threshold: 0.5,
+    hide_threshold: 0.85,
+  },
+} satisfies Record<FreshnessPreference, GhostConfig>;
+
+const FRESHNESS_OPTIONS: FreshnessOption[] = [
+  {
+    id: "fresh_verified_first",
+    label: "Fresh and verified first",
+    description: "Warn earlier when a posting looks old, reposted, or hard to verify.",
+  },
+  {
+    id: "balanced",
+    label: "Balanced",
+    description: "Use normal posting-risk warnings while keeping the list broad.",
+  },
+  {
+    id: "wide_search",
+    label: "Widest search",
+    description: "Show more older postings and warn only when risk looks clearer.",
+  },
+];
+
+function ghostConfigForFreshnessPreference(
+  preference: FreshnessPreference
+): GhostConfig {
+  return { ...FRESHNESS_GHOST_CONFIGS[preference] };
+}
+
+function freshnessSummary(preference: FreshnessPreference) {
+  switch (preference) {
+    case "fresh_verified_first":
+      return "Fresh and verified first";
+    case "balanced":
+      return "Balanced";
+    case "wide_search":
+      return "Widest search";
+  }
+}
+
 // Step 0 is profile selection, then simplified flow
 const STEPS = [
   { id: 0, title: "Career Path", description: "What kind of work are you looking for?" },
@@ -38,6 +122,9 @@ const STEPS = [
 export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const [step, setStep] = useState(0); // Start at step 0 (profile selection)
   const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
+  const [freshnessPreference, setFreshnessPreference] = useState<FreshnessPreference>(
+    DEFAULT_FRESHNESS_PREFERENCE
+  );
   const [titleInput, setTitleInput] = useState("");
   const [skillInput, setSkillInput] = useState("");
   const [avoidInput, setAvoidInput] = useState("");
@@ -73,6 +160,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
         show_when_focused: false,
       },
     },
+    ghost_config: ghostConfigForFreshnessPreference(DEFAULT_FRESHNESS_PREFERENCE),
     // Enable free scrapers by default (no auth required, work out of the box)
     remoteok: {
       enabled: true,
@@ -104,6 +192,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       }
     } else {
       // Reset to empty for the user's own search.
+      setFreshnessPreference(DEFAULT_FRESHNESS_PREFERENCE);
       setConfig({
         title_allowlist: [],
         title_blocklist: [],
@@ -127,6 +216,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
             show_when_focused: false,
           },
         },
+        ghost_config: ghostConfigForFreshnessPreference(DEFAULT_FRESHNESS_PREFERENCE),
         // Enable free scrapers by default
         remoteok: {
           enabled: true,
@@ -254,6 +344,14 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     }));
   };
 
+  const handleFreshnessPreferenceChange = (preference: FreshnessPreference) => {
+    setFreshnessPreference(preference);
+    setConfig((prev) => ({
+      ...prev,
+      ghost_config: ghostConfigForFreshnessPreference(preference),
+    }));
+  };
+
   const handleAddCity = () => {
     const trimmed = cityInput.trim();
     if (trimmed && !config.location_preferences.cities.includes(trimmed)) {
@@ -321,6 +419,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       "Nothing selected"
     ),
     location: formatLocationSummary(config.location_preferences),
+    freshness: freshnessSummary(freshnessPreference),
     pay:
       config.salary_floor_usd > 0
         ? `At least $${config.salary_floor_usd.toLocaleString()}/year`
@@ -751,6 +850,52 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
           {/* Step 3: Notifications */}
           {step === 3 && (
             <div className="motion-safe:animate-slide-up">
+              <fieldset
+                className="mb-6"
+                aria-describedby="setup-freshness-help"
+              >
+                <legend className="font-semibold text-surface-800 mb-2">
+                  Fresh and verified jobs
+                </legend>
+                <p id="setup-freshness-help" className="mb-3 text-sm text-surface-500">
+                  Choose how JobSentinel handles older or hard-to-verify postings.
+                </p>
+                <div className="space-y-2">
+                  {FRESHNESS_OPTIONS.map((option) => {
+                    const checked = freshnessPreference === option.id;
+                    return (
+                      <label
+                        key={option.id}
+                        className={`
+                          flex items-start gap-3 rounded-lg border-2 p-3 cursor-pointer transition-all duration-150
+                          ${checked
+                            ? "border-sentinel-500 bg-sentinel-50"
+                            : "border-surface-200 hover:border-surface-300"
+                          }
+                        `}
+                      >
+                        <input
+                          type="radio"
+                          name="freshness-preference"
+                          value={option.id}
+                          checked={checked}
+                          onChange={() => handleFreshnessPreferenceChange(option.id)}
+                          className="mt-1 h-4 w-4 border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
+                        />
+                        <span>
+                          <span className="block font-medium text-surface-800">
+                            {option.label}
+                          </span>
+                          <span className="block text-sm text-surface-500">
+                            {option.description}
+                          </span>
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </fieldset>
+
               <div className="mb-6">
                 <p className="text-surface-600 mb-4 text-center">
                   Get notified when we find great matches for you
@@ -839,6 +984,10 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                   <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
                     <dt className="font-medium text-surface-600">Location</dt>
                     <dd className="text-surface-800">{searchSummary.location}</dd>
+                  </div>
+                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
+                    <dt className="font-medium text-surface-600">Freshness</dt>
+                    <dd className="text-surface-800">{searchSummary.freshness}</dd>
                   </div>
                   <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
                     <dt className="font-medium text-surface-600">Pay</dt>

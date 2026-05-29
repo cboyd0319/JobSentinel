@@ -127,13 +127,23 @@ Pick any combination:
 - **Hybrid** - Mix of office and home
 - **On-site** - Full-time in the office
 
-### Question 6: What's your minimum salary?
+### Question 6: Should fresh and verified jobs show first?
 
-Enter a number (in USD). JobSentinel will filter out jobs that pay less.
+Pick how JobSentinel should handle older or hard-to-verify postings:
 
-Not sure? Start with $0 to see everything, then raise it later.
+- **Fresh and verified first** - Warn earlier when a posting looks old,
+  reposted, or hard to verify
+- **Balanced** - Use normal posting-risk warnings while keeping the list broad
+- **Widest search** - Show more older postings and warn only when risk looks
+  clearer
 
-### Question 7: Want instant alerts? (Optional)
+### Question 7: What about pay?
+
+Some starter paths include a starting pay floor. If no pay floor is set,
+JobSentinel still shows jobs with missing or unlisted pay. You can change pay
+settings later.
+
+### Question 8: Want instant alerts? (Optional)
 
 Connect Slack, Discord, or Teams to get notified when great jobs appear.
 
@@ -148,6 +158,7 @@ Before scanning starts, JobSentinel shows the answers it will use to rank jobs:
 - Work to show more often
 - Work to rank lower
 - Location
+- Freshness
 - Pay
 
 Change anything that looks wrong, then start finding jobs.

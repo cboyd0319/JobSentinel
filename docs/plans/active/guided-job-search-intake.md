@@ -222,12 +222,106 @@ Use defaults that avoid blocking progress:
   verified for every new intake screen.
 - Match explanations identify source inputs and do not present scores as facts.
 
+## Change contract: fresh and verified setup preference
+
+Problem:
+Job seekers need to protect time and morale by avoiding stale or hard-to-verify
+postings early in setup, not only after they find the Settings page.
+
+Scope:
+Add a plain setup preference for how strongly JobSentinel should prioritize
+fresh and verifiable postings. Persist the choice through existing ghost-job
+configuration so first-run setup immediately affects stale/repost warning
+sensitivity.
+
+Out of scope:
+Do not add new database fields, new external services, company-site closure
+verification, source-ranking models, or application-route strategy in this
+slice.
+
+Acceptance criteria:
+
+- Setup offers three plain choices: fresh and verified first, balanced, and
+  widest search.
+- Default protects time without hiding too much: stale or hard-to-verify
+  postings remain visible but get earlier warnings.
+- Final review summarizes the selected freshness behavior before scanning
+  starts.
+- `complete_setup` receives a `ghost_config` object matching the selected
+  preference.
+- Copy assumes no technical knowledge and avoids pressure language.
+- Intake answers remain local and no new network call is introduced.
+
+Audience and ease:
+
+- Audience is any job seeker, including non-technical, non-software, unemployed,
+  employed, hourly, salaried, and career-change users.
+- Technical knowledge assumed: none.
+- The user should choose from plain outcomes, not thresholds or scoring terms.
+
+Source-of-truth docs:
+
+- `docs/plans/active/guided-job-search-intake.md`
+- `docs/plans/active/research-backed-product-improvements.md`
+- `docs/user/QUICK_START.md`
+
+Likely files:
+
+- `src/pages/SetupWizard.tsx`
+- `src/pages/SetupWizard.test.tsx`
+- `docs/user/QUICK_START.md`
+
+Risks:
+
+- Existing ghost thresholds are imperfect proxies for "verified first"; this
+  slice improves first-run risk sensitivity but does not prove employer intent.
+- Stricter defaults can over-warn on legitimate jobs with weak public details.
+
+Sensors:
+
+- Focused setup tests for radio selection, review summary, and saved
+  `ghost_config`.
+- `npm run test:run -- src/pages/SetupWizard.test.tsx`
+- `npm run lint:docs`
+- `npm run lint:bloat`
+
+Harness impact:
+
+- No new harness script needed.
+- This closes the active-plan requirement to write a feature-specific contract
+  before code edits for the chosen implementation slice.
+
+Rollback:
+Remove the setup preference UI and omit `ghost_config` from setup config; Rust
+will fall back to `GhostConfig::default()`.
+
+User story:
+As a job seeker with limited energy, I want JobSentinel to warn me sooner about
+old or hard-to-verify postings so I can spend tailoring time on stronger
+opportunities.
+
+UX states:
+The preference is local state only, has no loading or error state, supports
+keyboard radio selection, works in narrow width, and is summarized before the
+success action.
+
+Support path:
+Users can change ghost-job sensitivity later in Settings without editing files
+or understanding thresholds.
+
+Data model:
+The UI maps one of three setup choices to the existing serialized
+`ghost_config`. No migration is required.
+
 ## Current implementation
 
 - Setup asks for job titles, work the user wants, and work to avoid before
   scanning starts.
 - Work to avoid maps to `keywords_exclude`, so matching jobs can rank lower
   without adding new backend fields.
+- Setup asks how strongly JobSentinel should prioritize fresh and verified
+  postings, then maps that plain choice to existing `ghost_config` warning
+  sensitivity.
 - The field is optional and can be skipped.
 - The final setup screen summarizes look-for titles, work to show more often,
-  work to rank lower, location, and pay before scanning starts.
+  work to rank lower, location, freshness, and pay before scanning starts.

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import SetupWizard from "./SetupWizard";
@@ -111,6 +111,12 @@ describe("SetupWizard Accessibility", () => {
               title_allowlist: ["Office Manager"],
               keywords_boost: ["Scheduling"],
               keywords_exclude: ["night shift"],
+              ghost_config: expect.objectContaining({
+                stale_threshold_days: 30,
+                repost_threshold: 2,
+                warning_threshold: 0.2,
+                hide_threshold: 0.75,
+              }),
             }),
           }),
         );
@@ -132,9 +138,11 @@ describe("SetupWizard Accessibility", () => {
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
 
-      expect(
-        screen.getByRole("heading", { name: /review your search/i }),
-      ).toBeInTheDocument();
+      const reviewHeading = screen.getByRole("heading", { name: /review your search/i });
+      const reviewSection = reviewHeading.closest("section");
+      expect(reviewSection).not.toBeNull();
+      const review = within(reviewSection as HTMLElement);
+
       expect(screen.getByText("Look for")).toBeInTheDocument();
       expect(screen.getByText("Office Manager")).toBeInTheDocument();
       expect(screen.getByText("Show more")).toBeInTheDocument();
@@ -142,9 +150,46 @@ describe("SetupWizard Accessibility", () => {
       expect(screen.getByText("Rank lower")).toBeInTheDocument();
       expect(screen.getByText("night shift")).toBeInTheDocument();
       expect(screen.getByText("remote")).toBeInTheDocument();
+      expect(review.getByText("Freshness")).toBeInTheDocument();
+      expect(review.getByText("Fresh and verified first")).toBeInTheDocument();
       expect(
         screen.getByText("Show jobs even when pay is missing or not listed"),
       ).toBeInTheDocument();
+    });
+
+    it("saves a wider freshness preference without technical setup", async () => {
+      const user = userEvent.setup();
+      mockInvoke.mockResolvedValue(undefined);
+      renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
+
+      await user.click(screen.getByRole("button", { name: /continue with my own search/i }));
+      await user.type(screen.getByPlaceholderText("Add a job title..."), "Bookkeeper{enter}");
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+
+      await user.click(screen.getByRole("radio", { name: /widest search/i }));
+
+      expect(screen.getByText("Freshness")).toBeInTheDocument();
+      expect(screen.getAllByText("Widest search").length).toBeGreaterThan(0);
+
+      await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith(
+          "complete_setup",
+          expect.objectContaining({
+            config: expect.objectContaining({
+              title_allowlist: ["Bookkeeper"],
+              ghost_config: expect.objectContaining({
+                stale_threshold_days: 120,
+                repost_threshold: 5,
+                warning_threshold: 0.5,
+                hide_threshold: 0.85,
+              }),
+            }),
+          }),
+        );
+      });
     });
 
     it("should have aria-live region for validation errors", () => {
