@@ -221,7 +221,11 @@ describe("feedbackService", () => {
     );
 
     expect(debugInfo).toContain("Architecture: arm64");
+    expect(debugInfo).toContain("Hidden companies: not configured");
+    expect(debugInfo).toContain("Favorite companies: configured");
     expect(debugInfo).not.toContain("Architecture: undefined");
+    expect(debugInfo).not.toContain("Company blocklist");
+    expect(debugInfo).not.toContain("Company allowlist");
   });
 
   it("formats debug event details without JSON or private values", () => {

@@ -3322,6 +3322,15 @@ function hasRawFeedbackDebugEventDetails(root, path) {
   return /JSON\.stringify\(event\.details\)/.test(text);
 }
 
+function hasFeedbackTechnicalCompanyLabels(root, path) {
+  if (path !== "src/services/feedbackService.ts") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /Company (?:blocklist|allowlist)/.test(text);
+}
+
 function hasRawProblemHistoryContextDetails(root, path) {
   if (!problemHistoryContextFormattingPaths.has(path)) {
     return false;
@@ -4207,6 +4216,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawFeedbackDebugEventDetails(root, path)) {
       violations.push(`keep feedback debug event details readable: ${path}`);
+    }
+
+    if (hasFeedbackTechnicalCompanyLabels(root, path)) {
+      violations.push(`keep feedback reports plain-language: ${path}`);
     }
 
     if (hasRawProblemHistoryContextDetails(root, path)) {

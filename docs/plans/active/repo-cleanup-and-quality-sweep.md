@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Reworded saved/copied safe debug report configuration labels from company allowlist/blocklist to favorite and hidden companies, with regression and bloat coverage so issue attachments stay plain-language for non-technical users. |
 | 2026-05-29 | In progress | Broadened synonym matching beyond software terms by adding customer support, office, project coordination, healthcare, education, sales, HR, operations, design, marketing, and accounting groups; refreshed synonym docs and bloat coverage against tech-only examples returning. |
 | 2026-05-29 | In progress | Replaced shaming smart-scoring troubleshooting copy with protective next steps for stale postings, salary-floor warnings, settings review, and user notes; added bloat coverage so desperation language cannot return. |
 | 2026-05-29 | In progress | Reworded Company Research and scoring presets away from tech-stack-only framing toward broader tools, systems, and skills language so company prep fits technical and non-technical job seekers. |

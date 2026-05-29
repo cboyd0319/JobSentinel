@@ -7071,6 +7071,35 @@ test("checkRepoBloat rejects raw feedback debug-event JSON", () => {
   });
 });
 
+test("checkRepoBloat rejects technical company labels in feedback reports", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/services/feedbackService.ts",
+      [
+        "export function formatDebugInfo(configSummary) {",
+        '  return `Company blocklist: ${configSummary.has_company_blocklist}\\nCompany allowlist: ${configSummary.has_company_allowlist}`;',
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "src/services/feedbackService.ts"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("keep feedback reports plain-language: src/services/feedbackService.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw problem-history context JSON", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
