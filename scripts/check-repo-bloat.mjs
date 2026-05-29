@@ -315,13 +315,16 @@ const schedulerScoringPrivacyPaths = new Set([
 ]);
 const scoringCachePrivacyPaths = new Set(["src-tauri/src/core/scoring/cache.rs"]);
 const residualCorePrivacyPaths = new Set([
+  "src-tauri/src/core/automation/browser/manager.rs",
   "src-tauri/src/core/config/io.rs",
   "src-tauri/src/core/db/connection.rs",
+  "src-tauri/src/core/db/error.rs",
   "src-tauri/src/core/import/schema_org.rs",
   "src-tauri/src/core/ml/model.rs",
   "src-tauri/src/core/resume/parser.rs",
   "src-tauri/src/core/resume/templates.rs",
   "src-tauri/src/core/scheduler/mod.rs",
+  "src-tauri/src/core/scrapers/mod.rs",
   "src-tauri/src/core/scrapers/usajobs.rs",
   "src-tauri/src/core/scrapers/yc_startup.rs",
 ]);
@@ -3178,6 +3181,9 @@ function hasResidualCorePrivacyLeak(root, path) {
       productionText,
     ) ||
     /tracing::(?:debug|warn|error)!\([^;]*(?:error\s*=\s*%e|failed to parse Inertia JSON:\s*\{\}|OCR extraction failed:\s*\{\}|Scraping cycle failed:\s*\{\}|Errors during scraping:\s*\{:?\}|(?:database|backup|config)[^"]*:\s*\{\}")/.test(
+      productionText,
+    ) ||
+    /format!\(\s*"(?:Database operation failed|Database query timed out|Invalid [^"]*):\s*\{\}"/.test(
       productionText,
     )
   );

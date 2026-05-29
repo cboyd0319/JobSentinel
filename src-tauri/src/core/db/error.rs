@@ -93,14 +93,17 @@ impl fmt::Display for DatabaseError {
         match self {
             Self::Query { context, .. } => write!(f, "Database query error: {context}"),
             Self::Connection { path, source } => {
+                let _ = source;
                 write!(
                     f,
-                    "Failed to connect to database at {}: {}",
-                    Self::sanitize_path(path),
-                    source
+                    "Failed to connect to database at {}",
+                    Self::sanitize_path(path)
                 )
             }
-            Self::Migration { source } => write!(f, "Database migration failed: {source}"),
+            Self::Migration { source } => {
+                let _ = source;
+                write!(f, "Database migration failed")
+            }
             Self::Timeout {
                 timeout_secs,
                 query,
@@ -128,7 +131,8 @@ impl fmt::Display for DatabaseError {
                 )
             }
             Self::Validation { field, reason } => {
-                write!(f, "Validation error for {field}: {reason}")
+                let _ = reason;
+                write!(f, "Validation error for {field}")
             }
             Self::FieldTooLong {
                 field,
@@ -140,33 +144,38 @@ impl fmt::Display for DatabaseError {
                     "Field '{field}' exceeds maximum length of {max_length} (actual: {actual_length})"
                 )
             }
-            Self::InvalidField { field, reason } => write!(f, "Invalid {field}: {reason}"),
-            Self::Integrity { message } => {
-                write!(f, "Database integrity check failed: {message}")
+            Self::InvalidField { field, reason } => {
+                let _ = reason;
+                write!(f, "Invalid {field}")
             }
-            Self::Corruption { details } => write!(f, "Database corruption detected: {details}"),
+            Self::Integrity { message } => {
+                let _ = message;
+                write!(f, "Database integrity check failed")
+            }
+            Self::Corruption { details } => {
+                let _ = details;
+                write!(f, "Database corruption detected")
+            }
             Self::Backup { path, source } => {
-                write!(
-                    f,
-                    "Backup failed at {}: {}",
-                    Self::sanitize_path(path),
-                    source
-                )
+                let _ = source;
+                write!(f, "Backup failed at {}", Self::sanitize_path(path))
             }
             Self::Restore { path, reason } => {
-                write!(
-                    f,
-                    "Restore failed from {}: {}",
-                    Self::sanitize_path(path),
-                    reason
-                )
+                let _ = reason;
+                write!(f, "Restore failed from {}", Self::sanitize_path(path))
             }
             Self::Transaction { operation, .. } => write!(f, "Transaction failed: {operation}"),
             Self::Locked { retry_after_ms } => {
                 write!(f, "Database is locked - retry in {retry_after_ms}ms")
             }
-            Self::Io { source } => write!(f, "Disk I/O error: {source}"),
-            Self::Generic { message } => write!(f, "Database error: {message}"),
+            Self::Io { source } => {
+                let _ = source;
+                write!(f, "Disk I/O error")
+            }
+            Self::Generic { message } => {
+                let _ = message;
+                write!(f, "Database error")
+            }
         }
     }
 }
@@ -284,7 +293,8 @@ impl DatabaseError {
     pub fn user_message(&self) -> String {
         match self {
             Self::Query { context, .. } => {
-                format!("Database operation failed: {}", context)
+                let _ = context;
+                "Database operation failed. Please try again.".to_string()
             }
             Self::Connection { .. } => {
                 "Failed to connect to database. Please check if the database file exists and is accessible.".to_string()
@@ -293,7 +303,8 @@ impl DatabaseError {
                 "Database schema migration failed. Please check for updates or restore from backup.".to_string()
             }
             Self::Timeout { query, .. } => {
-                format!("Database query timed out: {}. The database may be under heavy load.", Self::sanitize_query(query))
+                let _ = query;
+                "Database query timed out. The database may be under heavy load.".to_string()
             }
             Self::NotFound { entity, .. } => {
                 format!("{} not found.", Self::capitalize(entity))
@@ -302,13 +313,15 @@ impl DatabaseError {
                 format!("A {} with this {} already exists.", entity, field)
             }
             Self::Validation { field, reason } => {
-                format!("Invalid {}: {}", field, reason)
+                let _ = reason;
+                format!("Invalid {}.", field)
             }
             Self::FieldTooLong { field, max_length, actual_length } => {
                 format!("{} is too long ({} characters, maximum {})", Self::capitalize(field), actual_length, max_length)
             }
             Self::InvalidField { field, reason } => {
-                format!("Invalid {}: {}", field, reason)
+                let _ = reason;
+                format!("Invalid {}.", field)
             }
             Self::Corruption { .. } => {
                 "Database corruption detected. Please restore from a backup.".to_string()

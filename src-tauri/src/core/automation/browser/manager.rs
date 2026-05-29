@@ -61,8 +61,8 @@ impl BrowserManager {
         // Spawn handler task to process browser events
         tokio::spawn(async move {
             while let Some(event) = handler.next().await {
-                if let Err(e) = event {
-                    tracing::debug!(error = %e, "Browser handler event error");
+                if let Err(_e) = event {
+                    tracing::debug!("Browser handler event error");
                 }
             }
             tracing::debug!("Browser handler task terminated");

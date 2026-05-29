@@ -6532,12 +6532,20 @@ test("checkRepoBloat rejects residual core privacy leaks", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     const fixtures = new Map([
       [
+        "src-tauri/src/core/automation/browser/manager.rs",
+        'tracing::debug!(error = %e, "Browser handler event error");\n',
+      ],
+      [
         "src-tauri/src/core/config/io.rs",
         'std::fs::create_dir_all(parent).map_err(|e| format!("Failed to create config directory: {}", e))?;\n',
       ],
       [
         "src-tauri/src/core/db/connection.rs",
         'tracing::warn!("Failed to create database directory: {}", e);\n',
+      ],
+      [
+        "src-tauri/src/core/db/error.rs",
+        'format!("Database operation failed: {}", context)\n',
       ],
       [
         "src-tauri/src/core/import/schema_org.rs",
@@ -6558,6 +6566,10 @@ test("checkRepoBloat rejects residual core privacy leaks", () => {
       [
         "src-tauri/src/core/scheduler/mod.rs",
         'tracing::error!("Scraping cycle failed: {}", e);\n',
+      ],
+      [
+        "src-tauri/src/core/scrapers/mod.rs",
+        'tracing::error!(error = %e, "Scraper task panicked");\n',
       ],
       [
         "src-tauri/src/core/scrapers/usajobs.rs",
