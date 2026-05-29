@@ -438,6 +438,7 @@ const broadAudienceExamplePaths = new Set([
   "docs/features/resume-builder.md",
   "docs/features/scrapers.md",
   "docs/features/resume-matcher.md",
+  "docs/features/user-data-management.md",
 ]);
 const staleResumeOptimizerFramingPaths = new Set([
   "src/App.tsx",
@@ -1273,6 +1274,7 @@ function hasEngineerFirstAudienceExamples(root, path) {
     /^- "Software Engineer"$/m,
     /Examples:\s*\n\s*- "Software Engineer"/i,
     /^\*\*Software Engineer in San Francisco\*\*$/m,
+    /SWE Remote/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));

@@ -406,6 +406,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "docs/features/user-data-management.md",
+      'Give it a name (for example: "SWE Remote 120k+", "Design NYC Entry-level")\n',
+    );
+    writeFixtureFile(
+      root,
       "docs/features/scrapers.md",
       '{ "linkedin": { "query": "software engineer" } }\n',
     );
@@ -498,6 +503,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "docs/features/resume-builder.md",
         "docs/features/scrapers.md",
         "docs/features/resume-matcher.md",
+        "docs/features/user-data-management.md",
         "docs/user/QUICK_START.md",
       ],
       { cwd: root },
@@ -519,6 +525,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "docs/features/resume-builder.md",
       "docs/features/scrapers.md",
       "docs/features/resume-matcher.md",
+      "docs/features/user-data-management.md",
       "docs/user/QUICK_START.md",
     ]) {
       assert.ok(

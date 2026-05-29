@@ -162,11 +162,12 @@ Bookmark your favorite job searches and access them with one click.
 ### Creating a Saved Search
 
 1. On the **Dashboard**, build a search query:
-   - Use keywords, filters, AND/OR/NOT operators
+   - Use job titles, search words, and filters
    - Set minimum match strength
    - Filter by job type, location, salary range
 2. Click the **Save Search** button (bookmark icon)
-3. Give it a name (for example: "SWE Remote 120k+", "Design NYC Entry-level")
+3. Give it a name, such as "Office manager remote", "Design NYC
+   entry-level", or "Clinic scheduler part-time"
 4. Click **Save**
 
 ### Using Saved Searches
@@ -175,7 +176,7 @@ Go to **Saved Searches** in the sidebar and click any search to:
 
 - Load the filters immediately
 - See when the search was last used
-- View result count and average score
+- View result count and average match strength
 
 ### Search History
 
@@ -270,14 +271,14 @@ export. The Settings screen and crash screen both expose **Copy Safe Debug Repor
 and **Save Safe Debug Report** so non-technical users can paste or attach a
 sanitized report directly into a GitHub issue.
 
-### Migration from localStorage
+### Migration from older browser-saved data
 
 If you used JobSentinel before version 1.4:
 
-1. Your existing data (templates, searches) was stored in browser localStorage
-2. On first launch of v1.4+, JobSentinel automatically detects localStorage data
-3. Click **Migrate Data** to import everything into SQLite
-4. After migration, localStorage is cleared
+1. JobSentinel checks for older saved templates and searches
+2. If older data is found, the app shows a **Migrate Data** prompt
+3. Click **Migrate Data** to move it into the current local storage
+4. After migration, the old browser-saved copy is removed
 
 **Note:** This one-time import happens automatically. You don't need to do anything.
 
@@ -286,8 +287,8 @@ If you used JobSentinel before version 1.4:
 - **Zero telemetry** - JobSentinel does not collect analytics or telemetry
 - **Local-first** - Your data stays on your computer
 - **Explicit location lookup** - **Detect location** contacts FreeIPAPI over HTTPS only after you request it
-- **Manual backup** - Close JobSentinel and copy the SQLite database file if
-  you need a full user-data backup
+- **Manual backup** - A built-in backup flow is still planned. Until then,
+  avoid deleting important templates unless you already have another copy.
 - **Delete anytime** - Delete individual templates and saved searches, and
   clear search history without affecting the app
 
@@ -699,10 +700,10 @@ CREATE TABLE notification_preferences (
 
 ## Troubleshooting
 
-### My templates didn't migrate from localStorage
+### My older templates did not move into JobSentinel
 
 1. Check that you're using v1.4 or later (go to **Settings > About**)
-2. Reload the app completely (not just refresh)
+2. Close JobSentinel and open it again
 3. Look for a "Migrate Data" prompt on first launch
 4. If no prompt appears, go to **Settings > Data > Migrate from Browser** manually
 
@@ -723,9 +724,8 @@ CREATE TABLE notification_preferences (
 
 ### I accidentally deleted a template
 
-Templates deleted in v1.4+ cannot be recovered (they're removed from SQLite immediately).
-Close JobSentinel and copy the SQLite database file before deleting important
-templates if you need a manual backup.
+Deleted templates cannot be recovered from inside JobSentinel yet. If something
+seems wrong, copy a safe debug report before changing more data.
 
 ---
 
