@@ -909,6 +909,7 @@ against:
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Implemented guided setup fresh-and-verified posting preference with plain choices mapped to local ghost-posting warning sensitivity, Settings parity, Quick Start guidance, and focused setup tests. |
 | 2026-05-29 | In progress | Added guided setup review-volume preference with smaller list, balanced list, and broad discovery choices; mapped the answer to existing local source limits and alert strength, updated Quick Start, and added focused setup tests. |
 | 2026-05-29 | In progress | Reframed user-data management as a sensitive local-control surface with safe debug reports, explicit external-channel setup, non-technical troubleshooting, and no default cloud or external AI dependency. |
 | 2026-05-29 | In progress | Reframed market intelligence as local evidence review for source freshness, skill demand, company activity, salary transparency, location/work-mode constraints, and sample-bias caution instead of broad market prediction. |

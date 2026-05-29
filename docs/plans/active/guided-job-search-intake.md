@@ -256,6 +256,9 @@ Progress:
 - 2026-05-29: Implemented setup review-volume choices, review summary copy,
   config mapping to existing source limits and alert threshold, Quick Start
   guidance, and focused setup tests.
+- 2026-05-29: Implemented setup fresh-and-verified choices, review summary
+  copy, config mapping to existing ghost-posting warning sensitivity, Settings
+  parity, Quick Start guidance, and focused setup tests.
 
 ## Change contract: fresh and verified setup preference
 

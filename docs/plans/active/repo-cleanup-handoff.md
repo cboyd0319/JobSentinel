@@ -17,18 +17,16 @@ scope:
 - `repo-cleanup-handoff.md`
 - `research-backed-product-improvements.md`
 
-Latest pushed slices before this handoff refresh:
+Latest pushed slice before this handoff refresh:
 
-- `9beba4bc Broaden company research fixtures`
-- `350299ee Broaden market test fixtures`
-- `ecec1bca Broaden resume match e2e copy`
-- `7fe95ca8 Broaden resume template copy`
-- `f9d31271 Broaden resume builder docs`
+- `a6b928d5 Tighten README information design`
 
 Current local branch note:
 
-- Local `main` is even with `origin/main` after user-requested push slices.
-  Continue using small verified commits. Avoid remote CI unless the user
+- Continuation cleanup commits after `a6b928d5` are local only until the user
+  explicitly asks for another push or the full-goal completion pass requires
+  remote verification.
+- Continue using small verified commits. Avoid remote CI unless the user
   explicitly asks or the full-goal completion pass requires it.
 
 Current cleanup posture:
@@ -120,6 +118,11 @@ Recent cleanup slices on `main` include:
 - `docs/README.md` now routes users, contributors, privacy reviewers, research
   reviewers, and coding agents to maintained docs without duplicating release
   notes.
+- Dashboard hooks, dev mock handlers, Application Assist, notifications,
+  location heatmap, developer testing docs, and small validation/stat fixtures
+  were rebased away from engineer-first examples and covered with bloat
+  sensors. Remaining scan hits are intentional technical profile support,
+  career-profile coverage, and real company-location sample data.
 
 The active plan progress table has detailed slice history.
 
