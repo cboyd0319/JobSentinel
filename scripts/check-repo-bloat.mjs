@@ -450,6 +450,11 @@ const applicationTrackingPlainLabelPaths = new Set([
   "docs/ROADMAP.md",
   "docs/features/application-tracking.md",
 ]);
+const resumeMatcherPlainLabelPaths = new Set([
+  "docs/README.md",
+  "docs/ROADMAP.md",
+  "docs/features/resume-matcher.md",
+]);
 const staleResumeOptimizerFramingPaths = new Set([
   "src/App.tsx",
   "src/components/AtsLiveScorePanel.tsx",
@@ -2067,11 +2072,33 @@ function hasStaleResumeMatcherDocShape(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
   return (
+    /^# AI Resume-Job Matcher/m.test(text) ||
+    /Intelligent Resume Analysis & Job Compatibility Scoring/i.test(text) ||
+    /Stop manually comparing job requirements/i.test(text) ||
+    /## Architecture/i.test(text) ||
+    /### Database Schema/i.test(text) ||
+    /## Usage Guide/i.test(text) ||
+    /## Matching Algorithm/i.test(text) ||
+    /### Future Enhancements/i.test(text) ||
+    /A\/B Testing/i.test(text) ||
+    /## API Reference/i.test(text) ||
+    /## Implementation Status/i.test(text) ||
+    /keyword match against job description/i.test(text) ||
+    /Keyword-based skill extraction/i.test(text) ||
+    /Resume Optimization[\s\S]*Suggest keywords to add/i.test(text) ||
     /src\/pages\/ResumeManager\.tsx/.test(text) ||
     /match\.matching_skills\.filter\(skill => skill\.category/.test(text) ||
     /match\.(?:skills_score|experience_score|education_score)\b/.test(text) ||
     /\bskill\.(?:name|confidence|years_experience)\b/.test(text)
   );
+}
+
+function hasConfusingResumeMatcherAiLabel(root, path) {
+  if (!resumeMatcherPlainLabelPaths.has(path)) {
+    return false;
+  }
+
+  return /AI Resume-Job Matcher/i.test(readFileSync(join(root, path), "utf8"));
 }
 
 function hasSmartScoringDocGlyphMarkers(root, path) {
@@ -3945,6 +3972,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleResumeMatcherDocShape(root, path)) {
       violations.push(`sync resume matcher docs with live Resume page shape: ${path}`);
+    }
+
+    if (hasConfusingResumeMatcherAiLabel(root, path)) {
+      violations.push(`replace confusing Resume Matcher AI label: ${path}`);
     }
 
     if (hasSmartScoringDocGlyphMarkers(root, path)) {

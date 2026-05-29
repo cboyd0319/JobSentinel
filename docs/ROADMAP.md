@@ -11,7 +11,7 @@ Use `package.json` for the current release package version.
   user, not monitored in the background
 - Application board: column board, reminders, timeline, and quiet-period review
 - Interview Scheduler: iCal export, prep checklists, follow-up reminders
-- AI Resume-Job Matcher: PDF parsing, skill extraction, matching
+- Local Resume Matcher: PDF parsing, skill extraction, and fit review
 - Salary AI: Benchmarks, predictions, offer comparison, negotiation scripts
 - Market Intelligence: Trends, snapshots, alerts, hiring velocity
 - Multi-factor scoring algorithm
@@ -604,7 +604,7 @@ Current Rust scraper adapters are integrated with scheduler and Settings UI.
 - USAJobs: Requires free API key and user email
 - SimplyHired and Glassdoor: May return empty results when blocked by anti-bot protection
 
-### AI Resume-Job Matcher (Working)
+### Local Resume Matcher (Working)
 
 Automatically parse resumes and match skills against job requirements.
 

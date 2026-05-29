@@ -3909,6 +3909,20 @@ test("checkRepoBloat rejects stale Resume Matcher doc UI shape", () => {
       root,
       "docs/features/resume-matcher.md",
       [
+        "# AI Resume-Job Matcher",
+        "## Intelligent Resume Analysis & Job Compatibility Scoring",
+        "Stop manually comparing job requirements and let JobSentinel do the matching work.",
+        "## Architecture",
+        "### Database Schema",
+        "## Usage Guide",
+        "## Matching Algorithm",
+        "### Future Enhancements",
+        "- [ ] A/B Testing",
+        "- [ ] Resume Optimization - Suggest keywords to add",
+        "## API Reference",
+        "## Implementation Status",
+        "keyword match against job description",
+        "Keyword-based skill extraction",
         "// src/pages/ResumeManager.tsx",
         "const filteredSkills = match.matching_skills.filter(skill => skill.category === selectedCategory);",
         "return <ResumeMatchScoreBreakdown skillsScore={match.skills_score} />;",
@@ -3927,6 +3941,32 @@ test("checkRepoBloat rejects stale Resume Matcher doc UI shape", () => {
       violations.includes(
         "sync resume matcher docs with live Resume page shape: docs/features/resume-matcher.md",
       ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects confusing Resume Matcher AI labels", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/ROADMAP.md",
+      [
+        "- AI Resume-Job Matcher: PDF parsing, skill extraction, matching",
+        "### AI Resume-Job Matcher (Working)",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/ROADMAP.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace confusing Resume Matcher AI label: docs/ROADMAP.md"),
       violations.join("\n"),
     );
   });

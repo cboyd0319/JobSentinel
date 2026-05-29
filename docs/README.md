@@ -134,7 +134,7 @@ broad-audience design guidance, docs harness alignment
   by the user, not monitored in the background
 - **Ghost Job Detection** - Flags stale, reposted, and low-trust postings
 - Application board with a column view, reminders, quiet-period review, and interview scheduler
-- AI Resume-Job Matcher with PDF parsing
+- Local Resume Matcher with PDF parsing and fit review
 - Salary AI with negotiation insights
 - Market Intelligence with trend analysis
 - Multi-factor scoring algorithm
