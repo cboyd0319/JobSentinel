@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Reworded visible recovery headings and repeat-failure labels across global, page, section, modal, and job-source-health failure surfaces so users see plain next steps instead of component/page error jargon; added bloat coverage so technical recovery copy cannot return. |
 | 2026-05-29 | In progress | Replaced visible default error-boundary exception text with protective generic recovery copy across app, page, modal, and section boundaries; raw details stay only in sanitized development detail sections and safe debug reports, with tests and bloat coverage against sanitized raw messages returning to user-facing boundary copy. |
 | 2026-05-29 | In progress | Made the legacy shared `getErrorMessage` helper display-safe by routing through user-friendly error categories instead of raw exception strings, removed external error-tracking suggestion copy from the logger comment, and expanded bloat coverage so raw shared frontend error messages cannot return. |
 | 2026-05-29 | In progress | Sanitized shared frontend user error messages so generic `Error` instances are converted to safe type-based copy instead of raw exception text, sanitized `handleApiError` original-error context before throwing, and added regression plus bloat coverage against returning `error.message` to users. |

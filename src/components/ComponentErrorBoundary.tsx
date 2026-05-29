@@ -110,7 +110,7 @@ class ComponentErrorBoundary extends Component<Props, State> {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-red-800 dark:text-red-300">
-                {this.props.componentName} Error
+                This section needs attention
               </p>
               <p className="text-sm text-red-700 dark:text-red-400 mt-1">
                 {safeComponentErrorMessage()}

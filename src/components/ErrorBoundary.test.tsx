@@ -71,7 +71,7 @@ describe("ErrorBoundary", () => {
         </ErrorBoundary>
       );
 
-      expect(screen.queryByText("Something Went Wrong")).not.toBeInTheDocument();
+      expect(screen.queryByText("JobSentinel needs attention")).not.toBeInTheDocument();
     });
   });
 
@@ -83,7 +83,7 @@ describe("ErrorBoundary", () => {
         </ErrorBoundary>
       );
 
-      expect(screen.getByText("Something Went Wrong")).toBeInTheDocument();
+      expect(screen.getByText("JobSentinel needs attention")).toBeInTheDocument();
     });
 
     it("displays protective error message", () => {
@@ -311,7 +311,7 @@ describe("ErrorBoundary", () => {
         </ErrorBoundary>
       );
 
-      const heading = screen.getByRole("heading", { name: /something went wrong/i });
+      const heading = screen.getByRole("heading", { name: /JobSentinel needs attention/i });
       expect(heading).toBeInTheDocument();
     });
 
@@ -347,7 +347,7 @@ describe("ErrorBoundary", () => {
         </ErrorBoundary>
       );
 
-      const heading = screen.getByRole("heading", { name: /something went wrong/i });
+      const heading = screen.getByRole("heading", { name: /JobSentinel needs attention/i });
       expect(heading).toBeInTheDocument();
     });
 

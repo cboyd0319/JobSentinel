@@ -44,7 +44,7 @@ describe('ComponentErrorBoundary', () => {
       </ComponentErrorBoundary>
     );
 
-    expect(screen.getByText('TestComponent Error')).toBeInTheDocument();
+    expect(screen.getByText('This section needs attention')).toBeInTheDocument();
     expect(screen.getByText((content, element) => {
       return element?.tagName === 'P' && content.includes('This section failed to load');
     })).toBeInTheDocument();
@@ -60,7 +60,7 @@ describe('ComponentErrorBoundary', () => {
       </ComponentErrorBoundary>
     );
 
-    expect(screen.getByText('PrivateComponent Error')).toBeInTheDocument();
+    expect(screen.getByText('This section needs attention')).toBeInTheDocument();
     expect(screen.getByText((content, element) => {
       return element?.tagName === 'P' && content.includes('safe debug report');
     })).toBeInTheDocument();
@@ -111,13 +111,14 @@ describe('ComponentErrorBoundary', () => {
     }));
   });
 
-  it('displays component name in error message', () => {
+  it('does not expose component names in the visible error message', () => {
     render(
       <ComponentErrorBoundary componentName="MySpecialComponent">
         <ThrowError />
       </ComponentErrorBoundary>
     );
 
-    expect(screen.getByText('MySpecialComponent Error')).toBeInTheDocument();
+    expect(screen.getByText('This section needs attention')).toBeInTheDocument();
+    expect(screen.queryByText('MySpecialComponent Error')).not.toBeInTheDocument();
   });
 });

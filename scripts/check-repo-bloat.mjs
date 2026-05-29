@@ -588,6 +588,10 @@ const errorBoundaryDisplayPaths = new Set([
   "src/components/ModalErrorBoundary.tsx",
   "src/components/PageErrorBoundary.tsx",
 ]);
+const plainRecoveryCopyPaths = new Set([
+  ...errorBoundaryDisplayPaths,
+  "src/components/ScraperHealthDashboard.tsx",
+]);
 const protectiveScoreCopyPaths = new Set([
   "docs/features/notifications.md",
   "docs/features/smart-scoring.md",
@@ -3856,6 +3860,25 @@ function hasRawErrorBoundaryDetails(root, path) {
   );
 }
 
+function hasTechnicalRecoveryCopy(root, path) {
+  if (!plainRecoveryCopyPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const stalePatterns = [
+    /\{this\.props\.componentName\}\s*Error/,
+    /\$\{pageName\s*\|\|\s*["']Page["']\}\s*Error/,
+    /Error occurred\s*\{/,
+    /Multiple errors detected/,
+    /Retry attempt\s*\{/,
+    /aria-label=["']Close error dialog["']/,
+    /CardHeader\s+title=["']Error["']/,
+  ];
+
+  return stalePatterns.some((pattern) => pattern.test(text));
+}
+
 function hasNonProtectiveScoreCopy(root, path) {
   if (!protectiveScoreCopyPaths.has(path)) {
     return false;
@@ -4828,6 +4851,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasRawErrorBoundaryDetails(root, path)) {
       violations.push(`sanitize visible error-boundary details: ${path}`);
+    }
+
+    if (hasTechnicalRecoveryCopy(root, path)) {
+      violations.push(`keep recovery copy plain-language: ${path}`);
     }
 
     if (hasNonProtectiveScoreCopy(root, path)) {

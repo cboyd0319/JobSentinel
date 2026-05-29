@@ -203,13 +203,14 @@ describe("ScraperHealthDashboard", () => {
       expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
     });
 
-    it("shows retry button on error", async () => {
+    it("shows plain recovery actions on error", async () => {
       mockInvoke.mockRejectedValue(new Error("Failed"));
 
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Retry")).toBeInTheDocument();
+        expect(screen.getByText("Could not check job sources")).toBeInTheDocument();
+        expect(screen.getByText("Try Again")).toBeInTheDocument();
       });
     });
 
@@ -233,7 +234,7 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Retry")).toBeInTheDocument();
+        expect(screen.getByText("Try Again")).toBeInTheDocument();
       });
 
       // Now setup successful responses for retry
@@ -244,7 +245,7 @@ describe("ScraperHealthDashboard", () => {
         return Promise.resolve(null);
       });
 
-      await user.click(screen.getByText("Retry"));
+      await user.click(screen.getByText("Try Again"));
 
       await waitFor(() => {
         expect(screen.getByText("Job Source Health")).toBeInTheDocument();

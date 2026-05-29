@@ -448,10 +448,10 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
     return (
       <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
-          <CardHeader title="Error" />
+          <CardHeader title="Could not check job sources" />
           <p className="text-danger mb-4">{error}</p>
           <div className="flex gap-2">
-            <Button onClick={() => loadHealthData()}>Retry</Button>
+            <Button onClick={() => loadHealthData()}>Try Again</Button>
             <Button variant="secondary" onClick={onClose}>
               Close
             </Button>

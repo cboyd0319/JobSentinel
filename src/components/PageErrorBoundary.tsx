@@ -129,14 +129,14 @@ class PageErrorBoundary extends Component<Props, State> {
           <div className="max-w-md w-full">
             <EmptyState
               illustration="error"
-              title={`${pageName || "Page"} Error`}
+              title={`${pageName || "This page"} needs attention`}
               description={safeErrorMessage}
             />
 
             {showRetryWarning && (
               <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
                 <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                  Multiple errors detected. This page may be temporarily unavailable.
+                  This keeps happening. This page may be temporarily unavailable.
                   {onBack && " Try going back to the previous page."}
                 </p>
               </div>
@@ -144,7 +144,7 @@ class PageErrorBoundary extends Component<Props, State> {
 
             {this.state.retryCount > 0 && (
               <p className="text-center text-sm text-surface-500 dark:text-surface-400 mt-4">
-                Retry attempt {this.state.retryCount}
+                Tried again {this.state.retryCount} {this.state.retryCount === 1 ? "time" : "times"}
               </p>
             )}
 

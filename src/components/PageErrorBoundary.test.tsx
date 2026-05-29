@@ -106,7 +106,7 @@ describe("PageErrorBoundary", () => {
         </PageErrorBoundary>
       );
 
-      expect(screen.getByText("Page Error")).toBeInTheDocument();
+      expect(screen.getByText("This page needs attention")).toBeInTheDocument();
     });
 
     it("displays custom page name in title", () => {
@@ -116,7 +116,7 @@ describe("PageErrorBoundary", () => {
         </PageErrorBoundary>
       );
 
-      expect(screen.getByText("Dashboard Error")).toBeInTheDocument();
+      expect(screen.getByText("Dashboard needs attention")).toBeInTheDocument();
     });
 
     it("displays protective message in description", () => {

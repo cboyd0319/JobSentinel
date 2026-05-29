@@ -127,12 +127,12 @@ class ModalErrorBoundary extends Component<Props, State> {
               </p>
               <p className="text-xs text-surface-500 dark:text-surface-400">
                 {showRetryWarning
-                  ? "Multiple errors detected. Please close and try again later."
+                  ? "This keeps happening. Please close and try again later."
                   : "Your data is safe. You can close this and try again."}
               </p>
               {this.state.retryCount > 0 && (
                 <p className="text-xs text-red-600 dark:text-red-400 mt-2">
-                  Retry attempt {this.state.retryCount}
+                  Tried again {this.state.retryCount} {this.state.retryCount === 1 ? "time" : "times"}
                 </p>
               )}
             </div>
@@ -149,7 +149,7 @@ class ModalErrorBoundary extends Component<Props, State> {
               <button
                 onClick={this.handleDismiss}
                 className="flex-1 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-700 dark:text-surface-200 font-medium py-2.5 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-surface-400 focus:ring-offset-2"
-                aria-label="Close error dialog"
+                aria-label="Close problem dialog"
               >
                 Close
               </button>

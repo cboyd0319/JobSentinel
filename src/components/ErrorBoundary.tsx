@@ -172,14 +172,14 @@ class ErrorBoundary extends Component<Props, State> {
                 </svg>
               </div>
               <h3 className="font-display text-display-lg text-surface-900 dark:text-white mb-2">
-                Something Went Wrong
+                JobSentinel needs attention
               </h3>
               <p className="text-surface-600 dark:text-surface-400 mb-2">
                 {safeErrorMessage}
               </p>
               {this.state.errorCount > 1 && (
                 <p className="text-xs text-danger">
-                  Error occurred {this.state.errorCount} times
+                  This happened {this.state.errorCount} times
                 </p>
               )}
             </div>
@@ -187,7 +187,7 @@ class ErrorBoundary extends Component<Props, State> {
             <div className="p-4 bg-surface-50 dark:bg-surface-900/50 rounded-lg mb-6">
               <p className="text-sm text-surface-500 dark:text-surface-400">
                 {showClearData
-                  ? "Multiple errors detected. Copy or save a safe debug report first. If reload does not work, reset local window state; saved jobs and applications stay in the local database."
+                  ? "This keeps happening. Copy or save a safe debug report first. If reload does not work, reset local window state; saved jobs and applications stay in the local database."
                   : "Your data is safe. Try reloading the app to continue."}
               </p>
             </div>

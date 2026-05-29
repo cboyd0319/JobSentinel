@@ -8238,6 +8238,91 @@ test("checkRepoBloat rejects raw visible error-boundary details", () => {
   });
 });
 
+test("checkRepoBloat rejects technical recovery copy", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/ComponentErrorBoundary.tsx",
+      [
+        "export function ComponentErrorBoundary() {",
+        "  return <p>{this.props.componentName} Error</p>;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/ErrorBoundary.tsx",
+      [
+        "export function ErrorBoundary({ count }) {",
+        "  return <p>Error occurred {count} times</p>;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/ModalErrorBoundary.tsx",
+      [
+        "export function ModalErrorBoundary() {",
+        "  return <button aria-label=\"Close error dialog\">Close</button>;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/PageErrorBoundary.tsx",
+      [
+        "export function PageErrorBoundary({ pageName }) {",
+        "  return <EmptyState title={`${pageName || \"Page\"} Error`} />;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/ScraperHealthDashboard.tsx",
+      [
+        "export function ScraperHealthDashboard() {",
+        "  return <CardHeader title=\"Error\" />;",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src/components/ComponentErrorBoundary.tsx",
+        "src/components/ErrorBoundary.tsx",
+        "src/components/ModalErrorBoundary.tsx",
+        "src/components/PageErrorBoundary.tsx",
+        "src/components/ScraperHealthDashboard.tsx",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of [
+      "src/components/ComponentErrorBoundary.tsx",
+      "src/components/ErrorBoundary.tsx",
+      "src/components/ModalErrorBoundary.tsx",
+      "src/components/PageErrorBoundary.tsx",
+      "src/components/ScraperHealthDashboard.tsx",
+    ]) {
+      assert.ok(
+        violations.includes(`keep recovery copy plain-language: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
 test("checkRepoBloat rejects non-protective score copy", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
