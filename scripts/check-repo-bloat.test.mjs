@@ -898,6 +898,8 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         '"Your credentials or API key aren\'t working."',
         '"API Limit Reached"',
         '"The database is currently in use by another operation."',
+        '"Configuration Missing"',
+        '"The app configuration file is missing or couldn\'t be found."',
         '"Check your webhook URL in Settings"',
         '"make sure your SMTP credentials are correct"',
         '"contact support with the error details below"',

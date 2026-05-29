@@ -66,8 +66,8 @@ const SCRAPER_ERRORS = [
  * Configuration error patterns
  */
 const CONFIG_ERRORS = [
-  { pattern: /config.*not.*found|config.*missing/i, title: 'Configuration Missing', message: 'The app configuration file is missing or couldn\'t be found.', action: 'Try resetting your settings to defaults, or reinstall the app if the problem continues.' },
-  { pattern: /config.*invalid|config.*corrupt/i, title: 'Configuration Error', message: 'The configuration file is damaged or has invalid settings.', action: 'Go to Settings and check for any error messages. You may need to reset to defaults.' },
+  { pattern: /config.*not.*found|config.*missing/i, title: 'Saved Settings Need Attention', message: 'JobSentinel could not find your saved settings.', action: 'Open Settings and save them again. If this keeps happening, copy a safe debug report before resetting anything.' },
+  { pattern: /config.*invalid|config.*corrupt/i, title: 'Saved Settings Need Attention', message: 'JobSentinel could not read your saved settings.', action: 'Open Settings and save them again. If this keeps happening, copy a safe debug report before resetting anything.' },
   { pattern: /permission|access.*denied|EACCES/i, title: 'Permission Denied', message: 'The app doesn\'t have permission to access a file or folder.', action: 'Make sure the app has the necessary permissions in your system settings.' },
   { pattern: /file.*not.*found|ENOENT/i, title: 'File Not Found', message: 'A required file is missing.', action: 'The file may have been moved or deleted. Try reinstalling the app.' },
 ];

@@ -35,10 +35,12 @@ describe("errorMessages", () => {
         getUserFriendlyError(new Error("slack webhook failed")),
         getUserFriendlyError(new Error("smtp error")),
         getUserFriendlyError(new Error("openai model error")),
+        getUserFriendlyError(new Error("config missing")),
+        getUserFriendlyError(new Error("config invalid")),
       ].flatMap((result) => [result.title, result.message, result.action ?? ""]);
 
       expect(userCopy.join("\n")).not.toMatch(
-        /API key|API Limit|job board's API|Database Busy|database|Database Corruption|webhook URL|SMTP credentials|special API access/i,
+        /API key|API Limit|job board's API|Database Busy|database|Database Corruption|webhook URL|SMTP credentials|special API access|Configuration|configuration file|app config/i,
       );
     });
 
