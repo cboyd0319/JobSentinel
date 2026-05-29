@@ -657,6 +657,18 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src-tauri/tests/scheduler_integration_test.rs",
+      [
+        'title_allowlist: vec!["Security Engineer".to_string()],',
+        'keywords_boost: vec!["Rust".to_string()],',
+        'keywords_exclude: vec!["PHP".to_string()],',
+        'cities: vec!["San Francisco".to_string()],',
+        'let results = db.search_jobs("Rust", 10).await.unwrap();',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src-tauri/src/core/import/README.md",
       'title: "Software Engineer"; "San Francisco, CA";\n',
     );
@@ -890,6 +902,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src-tauri/tests/api_contract_test.rs",
         "src-tauri/tests/scraper_integration_test.rs",
         "src-tauri/tests/scraping_pipeline_integration.rs",
+        "src-tauri/tests/scheduler_integration_test.rs",
         "src-tauri/src/core/import/README.md",
         "src-tauri/src/core/import/schema_org.rs",
         "src-tauri/src/core/import/tests.rs",
@@ -973,6 +986,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src-tauri/tests/api_contract_test.rs",
       "src-tauri/tests/scraper_integration_test.rs",
       "src-tauri/tests/scraping_pipeline_integration.rs",
+      "src-tauri/tests/scheduler_integration_test.rs",
       "src-tauri/src/core/import/README.md",
       "src-tauri/src/core/import/schema_org.rs",
       "src-tauri/src/core/import/tests.rs",

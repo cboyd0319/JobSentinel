@@ -547,6 +547,7 @@ const broadAudienceExamplePaths = new Set([
   "src-tauri/tests/api_contract_test.rs",
   "src-tauri/tests/scraper_integration_test.rs",
   "src-tauri/tests/scraping_pipeline_integration.rs",
+  "src-tauri/tests/scheduler_integration_test.rs",
   "src-tauri/src/main.rs",
   "src-tauri/migrations/00000000000000_initial_schema.sql",
   "tests/e2e/playwright/resume-upload-matching.spec.ts",
@@ -1534,6 +1535,31 @@ function hasEngineerFirstAudienceExamples(root, path) {
     ];
 
     if (pipelineIntegrationPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "src-tauri/tests/scheduler_integration_test.rs") {
+    const schedulerIntegrationPatterns = [
+      /Security Engineer/i,
+      /Rust Developer/i,
+      /Backend Engineer/i,
+      /Senior Rust/i,
+      /Rust Security Engineer/i,
+      /Rust Backend Developer/i,
+      /Python Developer/i,
+      /Kubernetes/i,
+      /PHP WordPress Developer/i,
+      /PHP Developer/i,
+      /TechCorp|TestCorp|AgencyCorp/i,
+      /San Francisco|Seattle/i,
+      /keywords_boost:\s*vec!\[[^\]]*"Rust"/i,
+      /keywords_exclude:\s*vec!\[[^\]]*"PHP"/i,
+      /Search for Rust/i,
+      /search_jobs\("Rust"/i,
+    ];
+
+    if (schedulerIntegrationPatterns.some((pattern) => pattern.test(text))) {
       return true;
     }
   }

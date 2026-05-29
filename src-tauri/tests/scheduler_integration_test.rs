@@ -20,26 +20,26 @@ use std::time::Duration;
 fn create_test_config() -> Config {
     Config {
         title_allowlist: vec![
-            "Security Engineer".to_string(),
-            "Rust Developer".to_string(),
-            "Backend Engineer".to_string(),
+            "Care Coordinator".to_string(),
+            "Customer Support Lead".to_string(),
+            "Program Coordinator".to_string(),
         ],
         title_blocklist: vec!["Manager".to_string(), "Director".to_string()],
         keywords_boost: vec![
-            "Rust".to_string(),
-            "Security".to_string(),
-            "Kubernetes".to_string(),
+            "CRM".to_string(),
+            "case management".to_string(),
+            "patient scheduling".to_string(),
         ],
-        keywords_exclude: vec!["PHP".to_string(), "Wordpress".to_string()],
+        keywords_exclude: vec!["commission-only".to_string(), "unpaid trial".to_string()],
         location_preferences: LocationPreferences {
             allow_remote: true,
             allow_hybrid: true,
             allow_onsite: false,
-            cities: vec!["San Francisco".to_string(), "Seattle".to_string()],
-            states: vec!["CA".to_string(), "WA".to_string()],
+            cities: vec!["Chicago".to_string(), "Austin".to_string()],
+            states: vec!["IL".to_string(), "TX".to_string()],
             country: "US".to_string(),
         },
-        salary_floor_usd: 120000,
+        salary_floor_usd: 50000,
         salary_target_usd: None,
         penalize_missing_salary: false,
         auto_refresh: Default::default(),
@@ -83,7 +83,7 @@ fn create_test_job(
         location: if remote {
             Some("Remote".to_string())
         } else {
-            Some("San Francisco, CA".to_string())
+            Some("Chicago, IL".to_string())
         },
         // Use title-based description to avoid interfering with search tests
         description: Some(format!("Job description for {} at {}.", title, company)),
@@ -215,12 +215,15 @@ async fn test_scoring_engine_integration() {
     let scoring_engine = ScoringEngine::new(Arc::clone(&config));
 
     // High-quality job: matches title, keywords, remote, good salary
-    let high_quality_job = create_test_job(
+    let mut high_quality_job = create_test_job(
         "hq_001",
-        "Senior Rust Security Engineer",
-        "TechCorp",
+        "Senior Care Coordinator",
+        "CareBridge",
         true,
-        Some(150000),
+        Some(65000),
+    );
+    high_quality_job.description = Some(
+        "Coordinate care plans with CRM, patient scheduling, and case management.".to_string(),
     );
 
     let score = scoring_engine.score(&high_quality_job);
@@ -232,12 +235,19 @@ async fn test_scoring_engine_integration() {
 
     // Low-quality job: doesn't match title, onsite, low salary
     let low_quality_job = Job {
-        title: "PHP WordPress Developer".to_string(),
+        title: "Commission-Only Sales Representative".to_string(),
         remote: Some(false),
-        salary_min: Some(50000),
-        salary_max: Some(60000),
+        salary_min: Some(30000),
+        salary_max: Some(35000),
         location: Some("NYC".to_string()),
-        ..create_test_job("lq_001", "PHP Developer", "AgencyCorp", false, Some(50000))
+        description: Some("Commission-only role with an unpaid trial period.".to_string()),
+        ..create_test_job(
+            "lq_001",
+            "Sales Representative",
+            "SalesWorks",
+            false,
+            Some(30000),
+        )
     };
 
     let score = scoring_engine.score(&low_quality_job);
@@ -254,17 +264,21 @@ async fn test_title_matching_scoring() {
     let scoring_engine = ScoringEngine::new(Arc::clone(&config));
 
     // Exact title match
-    let exact_match = create_test_job("tm_001", "Security Engineer", "Company", true, None);
+    let mut exact_match = create_test_job("tm_001", "Care Coordinator", "Company", true, None);
+    exact_match.description =
+        Some("Use CRM records and case management notes to coordinate care.".to_string());
     let score1 = scoring_engine.score(&exact_match);
 
     // Partial title match
-    let partial_match = create_test_job(
+    let mut partial_match = create_test_job(
         "tm_002",
-        "Senior Security Engineer Lead",
+        "Senior Care Coordinator Lead",
         "Company",
         true,
         None,
     );
+    partial_match.description =
+        Some("Use CRM records and case management notes to coordinate care.".to_string());
     let score2 = scoring_engine.score(&partial_match);
 
     // No title match
@@ -287,21 +301,33 @@ async fn test_salary_influence_on_scoring() {
     let scoring_engine = ScoringEngine::new(Arc::clone(&config));
 
     // Job with salary above floor
-    let good_salary = create_test_job("sal_001", "Rust Developer", "TechCorp", true, Some(150000));
+    let good_salary = create_test_job(
+        "sal_001",
+        "Care Coordinator",
+        "CareBridge",
+        true,
+        Some(65000),
+    );
     let score_good = scoring_engine.score(&good_salary);
 
     // Job with salary below floor
     let bad_salary = create_test_job(
         "sal_002",
-        "Rust Developer",
-        "StartupCorp",
+        "Care Coordinator",
+        "Example Services",
         true,
-        Some(80000),
+        Some(30000),
     );
     let score_bad = scoring_engine.score(&bad_salary);
 
     // Job with no salary
-    let no_salary = create_test_job("sal_003", "Rust Developer", "MystCorp", true, None);
+    let no_salary = create_test_job(
+        "sal_003",
+        "Care Coordinator",
+        "Mystery Services",
+        true,
+        None,
+    );
     let score_none = scoring_engine.score(&no_salary);
 
     assert!(
@@ -317,11 +343,23 @@ async fn test_remote_preference_scoring() {
     let scoring_engine = ScoringEngine::new(Arc::clone(&config));
 
     // Remote job
-    let remote_job = create_test_job("rem_001", "Rust Developer", "TechCorp", true, Some(140000));
+    let remote_job = create_test_job(
+        "rem_001",
+        "Care Coordinator",
+        "CareBridge",
+        true,
+        Some(60000),
+    );
     let score_remote = scoring_engine.score(&remote_job);
 
     // Onsite job (config has allow_onsite: false)
-    let onsite_job = create_test_job("rem_002", "Rust Developer", "TechCorp", false, Some(140000));
+    let onsite_job = create_test_job(
+        "rem_002",
+        "Care Coordinator",
+        "CareBridge",
+        false,
+        Some(60000),
+    );
     let score_onsite = scoring_engine.score(&onsite_job);
 
     assert!(
@@ -341,10 +379,10 @@ async fn test_job_upsert_creates_new() {
 
     let job = create_test_job(
         "upsert_001",
-        "Test Engineer",
-        "TestCorp",
+        "Program Coordinator",
+        "Example Services",
         true,
-        Some(120000),
+        Some(60000),
     );
 
     // Upsert new job
@@ -354,7 +392,7 @@ async fn test_job_upsert_creates_new() {
     // Verify it exists
     let retrieved = db.get_job_by_hash("upsert_001").await.unwrap();
     assert!(retrieved.is_some());
-    assert_eq!(retrieved.unwrap().title, "Test Engineer");
+    assert_eq!(retrieved.unwrap().title, "Program Coordinator");
 }
 
 #[tokio::test]
@@ -366,21 +404,27 @@ async fn test_job_upsert_updates_existing() {
     // Use unique hash for this test to avoid any potential collisions
     let test_hash = format!("upsert_update_{}", std::process::id());
 
-    let mut job1 = create_test_job(&test_hash, "Test Engineer", "TestCorp", true, Some(120000));
+    let mut job1 = create_test_job(
+        &test_hash,
+        "Program Coordinator",
+        "Example Services",
+        true,
+        Some(60000),
+    );
     // Ensure score_reasons is valid JSON
     job1.score_reasons = Some("[]".to_string());
     db.upsert_job(&job1).await.unwrap();
 
     // Update with same hash but different data
     let mut job2 = job1.clone();
-    job2.title = "Senior Test Engineer".to_string();
-    job2.salary_min = Some(150000);
+    job2.title = "Senior Program Coordinator".to_string();
+    job2.salary_min = Some(70000);
 
     db.upsert_job(&job2).await.unwrap();
 
     // Verify update
     let retrieved = db.get_job_by_hash(&test_hash).await.unwrap().unwrap();
-    assert_eq!(retrieved.title, "Senior Test Engineer");
+    assert_eq!(retrieved.title, "Senior Program Coordinator");
 }
 
 #[tokio::test]
@@ -388,7 +432,13 @@ async fn test_job_times_seen_increments() {
     let db = Database::connect_memory().await.unwrap();
     db.migrate().await.unwrap();
 
-    let job = create_test_job("seen_001", "Test Engineer", "TestCorp", true, Some(120000));
+    let job = create_test_job(
+        "seen_001",
+        "Program Coordinator",
+        "Example Services",
+        true,
+        Some(60000),
+    );
 
     // First upsert
     db.upsert_job(&job).await.unwrap();
@@ -566,24 +616,24 @@ async fn test_database_search_after_upsert() {
     let jobs = vec![
         create_test_job(
             "search_001",
-            "Rust Security Engineer",
-            "SecureCorp",
+            "Care Coordinator",
+            "WellBridge",
             true,
-            Some(150000),
+            Some(65000),
         ),
         create_test_job(
             "search_002",
-            "Python Developer",
-            "PyCorp",
+            "Customer Support Lead",
+            "SupportWorks",
             true,
-            Some(120000),
+            Some(52000),
         ),
         create_test_job(
             "search_003",
-            "Rust Backend Developer",
-            "BackendCorp",
+            "Patient Care Specialist",
+            "HealthBridge",
             true,
-            Some(140000),
+            Some(55000),
         ),
     ];
 
@@ -591,16 +641,16 @@ async fn test_database_search_after_upsert() {
         db.upsert_job(job).await.unwrap();
     }
 
-    // Search for Rust jobs (should match title containing "Rust")
-    let results = db.search_jobs("Rust", 10).await.unwrap();
+    // Search for care jobs (should match title containing "Care")
+    let results = db.search_jobs("Care", 10).await.unwrap();
 
-    // Should find exactly 2 Rust jobs by title
-    assert_eq!(results.len(), 2, "Should find exactly 2 Rust jobs");
+    // Should find exactly 2 care jobs by title
+    assert_eq!(results.len(), 2, "Should find exactly 2 care jobs");
 
     let titles: Vec<_> = results.iter().map(|j| j.title.as_str()).collect();
-    assert!(titles.contains(&"Rust Security Engineer"));
-    assert!(titles.contains(&"Rust Backend Developer"));
-    assert!(!titles.contains(&"Python Developer"));
+    assert!(titles.contains(&"Care Coordinator"));
+    assert!(titles.contains(&"Patient Care Specialist"));
+    assert!(!titles.contains(&"Customer Support Lead"));
 }
 
 #[tokio::test]
