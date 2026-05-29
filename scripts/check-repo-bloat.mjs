@@ -321,7 +321,10 @@ const storageJsonParserPaths = new Set([
 ]);
 const settingsCredentialPaths = new Set(["src/pages/Settings.tsx"]);
 const feedbackSanitizerPaths = new Set(["src-tauri/src/commands/feedback/sanitizer.rs"]);
-const notificationDocsPaths = new Set(["docs/features/notifications.md"]);
+const notificationDocsPaths = new Set([
+  "docs/features/notifications.md",
+  "docs/user/QUICK_START.md",
+]);
 const webhookSecurityDocsPaths = new Set(["docs/security/WEBHOOK_SECURITY.md"]);
 const commandExecutionSecurityDocsPaths = new Set(["docs/security/COMMAND_EXECUTION.md"]);
 const urlValidationSecurityDocsPaths = new Set(["docs/security/URL_VALIDATION.md"]);
@@ -2974,7 +2977,10 @@ function hasStaleNotificationWebhookDocs(root, path) {
   const text = readFileSync(join(root, path), "utf8");
   return (
     /Discord:\*\* Must start with `https:\/\/discord\.com\/api\/webhooks\/`/.test(text) ||
-    /Teams:\*\* Must start with `https:\/\/outlook\.office\.com\/webhook\/`/.test(text)
+    /Teams:\*\* Must start with `https:\/\/outlook\.office\.com\/webhook\/`/.test(text) ||
+    /Slack says token is invalid|sign-in\s+tokens|Color-coded embeds|high scores|Send Test|Discord embed looks broken|chat ID/i.test(
+      text,
+    )
   );
 }
 

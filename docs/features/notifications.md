@@ -68,7 +68,7 @@ user-opened search-link destination, not a background notification source.
 6. Copy the connection link
 7. In JobSentinel: Settings > Notifications > Discord > Paste link
 
-**What you'll get:** Color-coded embeds (green for high scores, yellow for medium).
+**What you'll get:** Alert cards that make stronger matches easy to spot.
 
 **Bonus:** Add your Discord user ID to get @mentioned on alerts.
 
@@ -103,7 +103,7 @@ user-opened search-link destination, not a background notification source.
 3. Generate a password for "Mail"
 4. Use that password in JobSentinel
 
-**What you'll get:** Beautiful HTML emails with all job details.
+**What you'll get:** Email messages with job details.
 
 ---
 
@@ -139,7 +139,7 @@ That's it! No connection link needed.
 
 ---
 
-## When Do Notifications Fire?
+## When Do Notifications Send?
 
 By default, JobSentinel sends notifications for jobs with a **90% or higher**
 match-strength setting.
@@ -153,8 +153,8 @@ more alerts.
 
 ## Security Note
 
-**Your saved details are safe.** Notification links, app passwords, and sign-in
-tokens are stored in your operating system's secure credential manager:
+**Your saved details are safe.** Notification links, app passwords, and alert
+codes are stored in your operating system's secure credential manager:
 
 - **macOS:** Keychain
 - **Windows:** Credential Manager
@@ -166,7 +166,7 @@ Saved details are never stored in plain text configuration files.
 
 ## Testing Your Setup
 
-After configuring a channel, click **"Send Test"** to verify it works.
+After configuring a channel, click **"Test"** to verify it works.
 
 You should receive a test notification within a few seconds.
 
@@ -186,9 +186,9 @@ If it doesn't work:
 1. Verify the channel is **enabled** in Settings
 2. Check that your connection link is correct
 3. Make sure jobs meet your match-strength setting
-4. Click "Send Test" to verify the connection
+4. Click "Test" to verify the connection
 
-### Slack says token is invalid?
+### Slack says the link is invalid?
 
 Your connection link was deleted or expired. Create a new one in Slack.
 
@@ -196,14 +196,14 @@ Your connection link was deleted or expired. Create a new one in Slack.
 
 You need an App Password. Regular passwords don't work for app email sending.
 
-### Discord embed looks broken?
+### Discord alert looks broken?
 
 Make sure your connection link starts with `https://discord.com/api/webhooks/`.
 
 ### Telegram says "chat not found"?
 
 1. Make sure the bot is added to your group/channel
-2. Verify the chat ID is correct (negative number for groups)
+2. Verify the destination number is correct (negative number for groups)
 3. If it's a channel, make the bot an admin
 
 ---

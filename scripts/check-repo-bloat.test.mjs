@@ -6430,19 +6430,38 @@ test("checkRepoBloat rejects stale notification webhook docs", () => {
         "- **Slack:** Must start with `https://hooks.slack.com/services/`",
         "- **Discord:** Must start with `https://discord.com/api/webhooks/`",
         "- **Teams:** Must start with `https://outlook.office.com/webhook/`",
+        "### Slack says token is invalid?",
+        "Sign-in tokens are stored safely.",
+        "Click \"Send Test\" to verify the connection.",
+        "Discord embed looks broken? Check high scores and chat ID.",
         "",
       ].join("\n"),
     );
+    writeFixtureFile(
+      root,
+      "docs/user/QUICK_START.md",
+      "Test it by clicking \"Send Test\" in Settings.\n",
+    );
 
-    execFileSync("git", ["add", "package.json", "docs/features/notifications.md"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/features/notifications.md", "docs/user/QUICK_START.md"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
       violations.includes(
         "document all notification webhook provider hosts: docs/features/notifications.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "document all notification webhook provider hosts: docs/user/QUICK_START.md",
       ),
       violations.join("\n"),
     );

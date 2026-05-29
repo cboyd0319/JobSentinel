@@ -364,7 +364,7 @@ secure vault.
 
 1. Double-check your notification connection link in Settings
 2. Make sure the notification channel is enabled
-3. Test it by clicking "Send Test" in Settings
+3. Test it by clicking **Test** in Settings
 
 ### Something else wrong?
 
