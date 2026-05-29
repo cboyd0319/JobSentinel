@@ -19,9 +19,17 @@ scope:
 
 Latest local committed slices before this handoff refresh:
 
-- `766fe294 Expand research-backed product plan`
-- `d0383a24 Simplify resume optimizer match copy`
-- `c4b7c3d0 Add research-backed product plan`
+- `e732e092 Refresh documentation hub`
+- `b4b6b21f Broaden resume match copy`
+- `3ea229ef Harden browser import copy flow`
+- `d9bcf467 Add setup review volume preference`
+- `0e8021a7 Rework README as research front door`
+
+Current local branch note:
+
+- Local `main` is intentionally ahead of `origin/main` while the broader goal
+  continues. Do not push again until the full goal is complete or the user
+  explicitly asks.
 
 Current cleanup posture:
 
@@ -53,6 +61,11 @@ Current cleanup posture:
   check guards those template snippets.
 - Root README was rechecked against live release assets, package version,
   current command count, and product direction.
+- `docs/README.md` is now a current documentation hub instead of a stale
+  release log. Harness checks no longer require volatile command-count claims
+  inside that docs index.
+- The plans index includes all current active plans, including the
+  research-backed product improvements plan.
 
 ## Recent Work Landed
 
@@ -90,6 +103,19 @@ Recent cleanup slices on `main` include:
   privacy hardening.
 - Maintained docs normalization to remove stale status markers, glyph-heavy
   diagrams, stale release promises, and version drift.
+- Root README was redesigned as a professional research-project front door and
+  pushed to `origin/main`; Docs Harness passed for that commit, while the remote
+  full CI run was still pending during the latest poll.
+- Setup now asks for review volume in plain language and maps the answer to
+  existing local source limits and alert strength.
+- Browser import copy now avoids bookmarklet, any-website, safety-token, and
+  auto-import language; clipboard failures show safe copy guidance.
+- Resume page copy now uses broad skill categories, plain match labels, and
+  cautious skill-gap language instead of engineer-first categories or raw
+  score-breakdown wording.
+- `docs/README.md` now routes users, contributors, privacy reviewers, research
+  reviewers, and coding agents to maintained docs without duplicating release
+  notes.
 
 The active plan progress table has detailed slice history.
 
@@ -129,8 +155,13 @@ The latest cleanup slices were verified with:
 - `npm run lint:docs`
 - `npx tsc --noEmit`
 - `git diff --check`
+- `npm run test:run -- src/components/BookmarkletGenerator.test.tsx src/components/JobImportModal.test.tsx`
+- `npm run test:run -- src/pages/Resume.test.tsx`
+- `npm run lint:tauri-invokes`
+- `npm run lint:security`
+- `npm run lint:architecture`
 
-For this handoff and research-plan refresh, rerun docs and bloat checks before
+For later handoff or active-plan refreshes, rerun docs and bloat checks before
 committing.
 
 ## Known Remaining Work
