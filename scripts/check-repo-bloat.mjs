@@ -537,6 +537,7 @@ const broadAudienceExamplePaths = new Set([
   "src-tauri/src/core/resume/matcher.rs",
   "src-tauri/src/core/resume/parser.rs",
   "src-tauri/src/core/resume/tests.rs",
+  "src-tauri/src/commands/deeplinks.rs",
   "src-tauri/src/core/deeplinks/types.rs",
   "src-tauri/src/main.rs",
   "src-tauri/migrations/00000000000000_initial_schema.sql",

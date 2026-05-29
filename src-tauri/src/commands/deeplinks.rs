@@ -110,8 +110,8 @@ mod tests {
     #[test]
     fn test_generate_deep_links_basic() {
         let criteria = SearchCriteria {
-            query: "Software Engineer".to_string(),
-            location: Some("San Francisco, CA".to_string()),
+            query: "Customer Support Lead".to_string(),
+            location: Some("Chicago, IL".to_string()),
             experience_level: None,
             job_type: None,
             remote_type: None,
@@ -121,13 +121,13 @@ mod tests {
         assert!(!links.is_empty());
         assert!(links
             .iter()
-            .any(|link| link.url.contains("Software") && link.url.contains("Engineer")));
+            .any(|link| link.url.contains("Customer") && link.url.contains("Support")));
     }
 
     #[test]
     fn test_search_criteria_serialization() {
         let criteria = SearchCriteria {
-            query: "Rust Developer".to_string(),
+            query: "Care Coordinator".to_string(),
             location: Some("Remote".to_string()),
             experience_level: None,
             job_type: None,
@@ -135,11 +135,11 @@ mod tests {
         };
 
         let json = serde_json::to_string(&criteria).unwrap();
-        assert!(json.contains("Rust Developer"));
+        assert!(json.contains("Care Coordinator"));
         assert!(json.contains("Remote"));
 
         let deserialized: SearchCriteria = serde_json::from_str(&json).unwrap();
-        assert_eq!(deserialized.query, "Rust Developer");
+        assert_eq!(deserialized.query, "Care Coordinator");
     }
 
     // ========================================================================

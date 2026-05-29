@@ -132,6 +132,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-29 | In progress | Rebased deep-link command tests from software-engineering, Rust, and San Francisco defaults to customer-support, care-coordination, Chicago, and remote examples, with bloat coverage against old command-test fixture drift. |
 | 2026-05-29 | In progress | Replaced the remaining setup location placeholder that used San Francisco and New York examples with broader Chicago and Austin examples, refreshed the active handoff after the latest push, and added bloat coverage so tech-hub location defaults do not return to setup. |
 | 2026-05-29 | In progress | Rebased Undo integration toast fixtures from software-engineering examples to customer-support examples, with bloat coverage against old undo fixture drift. |
 | 2026-05-29 | In progress | Rebased security XSS/DOMPurify resume examples from `John Doe` and software-engineering samples to broad program-coordinator examples, with bloat coverage against old security-doc fixture drift. |
