@@ -8,8 +8,8 @@ function validContact(
   overrides: Partial<ResumeContactValidationInput> = {}
 ): ResumeContactValidationInput {
   return {
-    name: "Jane Doe",
-    email: "jane@example.com",
+    name: "Jordan Lee",
+    email: "jordan@example.com",
     phone: null,
     linkedin: null,
     github: null,
@@ -40,9 +40,9 @@ describe("getResumeContactValidationMessage", () => {
 
   it("accepts profile links with or without protocol", () => {
     const contact = validContact({
-      linkedin: "linkedin.com/in/jane",
-      github: "https://github.com/jane",
-      website: "jane.dev",
+      linkedin: "linkedin.com/in/jordanlee",
+      github: "https://github.com/jordanlee",
+      website: "jordanlee.example",
     });
 
     expect(getResumeContactValidationMessage(contact)).toBeUndefined();

@@ -27,8 +27,8 @@ const mockInvoke = vi.mocked(invoke);
 
 const validResume = {
   contact_info: {
-    name: "Jane Doe",
-    email: "jane@example.com",
+    name: "Jordan Lee",
+    email: "jordan@example.com",
     phone: "555-1234",
     location: "Denver, CO",
     linkedin: null,
@@ -56,7 +56,7 @@ const validResume = {
   ],
   education: [
     {
-      degree: "BS Computer Science",
+      degree: "BA Communications",
       institution: "Example University",
       location: "Denver, CO",
       graduation_date: "2018",

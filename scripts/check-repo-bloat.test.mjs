@@ -511,6 +511,8 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/pages/ResumeOptimizer.tsx",
       '<textarea placeholder="e.g., Worked on improving database performance" />\n',
     );
+    writeFixtureFile(root, "src/pages/ResumeOptimizer.test.tsx", 'name: "Jane Doe";\n');
+    writeFixtureFile(root, "src/utils/resumeContactValidation.test.ts", 'name: "Jane Doe";\n');
     writeFixtureFile(
       root,
       "src/components/resume-builder/steps/SummaryStep.tsx",
@@ -830,6 +832,8 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src-tauri/src/core/resume/templates.rs",
         "src/pages/ResumeBuilder.tsx",
         "src/pages/ResumeOptimizer.tsx",
+        "src/pages/ResumeOptimizer.test.tsx",
+        "src/utils/resumeContactValidation.test.ts",
         "src/components/resume-builder/steps/SummaryStep.tsx",
         "src/components/resume-builder/steps/ContactStep.tsx",
         "src/components/resume-builder/steps/SkillsStep.tsx",
@@ -907,6 +911,8 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src-tauri/src/core/resume/templates.rs",
       "src/pages/ResumeBuilder.tsx",
       "src/pages/ResumeOptimizer.tsx",
+      "src/pages/ResumeOptimizer.test.tsx",
+      "src/utils/resumeContactValidation.test.ts",
       "src/components/resume-builder/steps/SummaryStep.tsx",
       "src/components/resume-builder/steps/ContactStep.tsx",
       "src/components/resume-builder/steps/SkillsStep.tsx",
