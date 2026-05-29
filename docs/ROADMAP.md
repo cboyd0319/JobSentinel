@@ -173,18 +173,18 @@ See [docs/features/resume-builder.md](features/resume-builder.md) for full docum
 
 See [docs/features/one-click-apply.md](features/one-click-apply.md) for full documentation.
 
-### v2.1 - Scraper Health Monitoring (COMPLETED)
+### v2.1 - Job Source Health (COMPLETED)
 
 Comprehensive health monitoring system for scheduled source adapters and
-smoke-test source checks.
+source availability checks.
 
 | Feature                       | Status   | Notes                           |
 | ----------------------------- | -------- | ------------------------------- |
 | **Scheduled source adapters wired** | **Done** | 12 scheduled adapters active |
 | **Health Dashboard**          | **Done** | Settings > Troubleshooting      |
-| **Run History Tracking**      | **Done** | Per-scraper execution logs      |
+| **Run History Tracking**      | **Done** | Per-source check history        |
 | **Exponential Backoff Retry** | **Done** | Auto-retry on 429, 5xx errors   |
-| **Smoke Tests**               | **Done** | Test individual or all scrapers |
+| **Source Checks**             | **Done** | Check individual or all sources |
 | **LinkedIn search-link policy** | **Done** | User-opened links only; no background monitoring |
 | **9 New Tauri Commands**      | **Done** | Health monitoring API           |
 | **4 New Database Tables**     | **Done** | + 1 aggregation view            |
@@ -197,10 +197,10 @@ smoke-test source checks.
 **Health Dashboard features:**
 
 - Summary stats (healthy/degraded/down/disabled sources)
-- Source table with success rate, avg duration, jobs found
-- Run history panel with error details
-- Smoke test results modal
-- Credential expiry warnings
+- Source table with recent success, average check time, and jobs found
+- Check history panel with safe issue details
+- Source check results modal
+- Connection expiry warnings
 
 See [docs/features/scrapers.md](features/scrapers.md) for full documentation.
 

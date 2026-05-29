@@ -181,7 +181,7 @@ broad-audience design guidance, docs harness alignment
 - **Ghost Detection**: posting-risk signals, statistics, filtered search, feedback, and configuration
 - **User Data**: templates, prep checklists, saved searches, notifications, migration, and history
 - **Application Assist**: profile, screening answers, review attempts, ATS detection, and browser control
-- **Health**: source health, smoke tests, run history, and supported credential expiry
+- **Health**: source health, source checks, run history, and supported credential expiry
 - **Feedback**: GitHub, Google Drive, one-click sanitized debug reports, debug summaries, and log events
 
 ### Planned / Unreleased Features
@@ -245,7 +245,7 @@ broad-audience design guidance, docs harness alignment
 - **[v2.5.1 - Production Release](releases/v2.5.1.md)** - Official installers for Windows and macOS
 - **[v2.5 - Market Intelligence UI](releases/v2.5.md)** - Interactive charts, tabbed layout, heatmaps
 - **[v2.4 - Resume UI Enhancements](releases/v2.4.md)** - Skill visualization, comparison views
-- **[v2.3 - Health Monitoring](releases/v2.3.md)** - Scraper health, smoke tests
+- **[v2.3 - Health Monitoring](releases/v2.3.md)** - Job source health and source checks
 - **[v2.2 - Additional Features](releases/v2.2.md)** - Bug fixes and improvements
 - **[v2.1 - CI/CD](releases/v2.1.md)** - Build pipeline, testing improvements
 - **[v2.0 - Security Hardening](releases/v2.0.md)** - OS-native keyring integration

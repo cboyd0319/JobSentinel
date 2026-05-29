@@ -1776,6 +1776,27 @@ function hasStaleScraperHealthCoverage(root, path) {
   );
 }
 
+function hasTechnicalSourceHealthUserCopy(root, path) {
+  if (
+    path !== "README.md" &&
+    path !== "docs/README.md" &&
+    path !== "docs/ROADMAP.md" &&
+    path !== "docs/features/scraper-health.md" &&
+    path !== "docs/features/scrapers.md" &&
+    path !== "docs/releases/v2.1.md" &&
+    path !== "src/components/ScraperHealthDashboard.tsx" &&
+    path !== "src/components/ScraperHealthDashboard.test.tsx" &&
+    path !== "src/pages/Settings.tsx"
+  ) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /Scraper Health (?:Dashboard|Monitoring)|Loading scraper health|Total Scrapers|Credential Warnings|Monitor scraper status|run smoke tests|Run smoke test|Smoke Test Results|Test All|scraper health status|\(auth\)|recent runs|No recent runs found|\/ \d+ runs|\b(?:PASS|FAIL)\b|\b[Ss]moke[- ]tests?\b/.test(
+    text,
+  );
+}
+
 function hasFeatureStatusColorEmojiMarkers(root, path) {
   if (
     path !== "docs/features/ghost-detection.md" &&
@@ -3797,6 +3818,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleScraperHealthCoverage(root, path)) {
       violations.push(`sync scraper health source coverage: ${path}`);
+    }
+
+    if (hasTechnicalSourceHealthUserCopy(root, path)) {
+      violations.push(`keep source-health copy plain-language: ${path}`);
     }
 
     if (hasFeatureStatusColorEmojiMarkers(root, path)) {

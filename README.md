@@ -233,9 +233,9 @@ dumps.
 
 JobSentinel supports 12 scheduled source adapters with rate limits,
 deduplication, health checks, and shared retry helpers for adapters that route
-requests through the common scraper HTTP client. The health system also has
-15 source-health checks. LinkedIn is a user-opened search-link destination,
-not a background source.
+requests through the common source HTTP client. The health system also has 15
+source-health checks. LinkedIn is a user-opened search-link destination, not a
+background source.
 
 | Category | Sources |
 | -------- | ------- |
@@ -252,8 +252,8 @@ source-specific boundaries, and favors public ATS feeds or official company
 sources when available. Large platforms with restricted automation policies
 should be opened by the user through search links.
 
-Read the full [scraper guide](docs/features/scrapers.md) and
-[scraper health docs](docs/features/scraper-health.md).
+Read the full [job source adapter guide](docs/features/scrapers.md) and
+[job source health docs](docs/features/scraper-health.md).
 
 ---
 

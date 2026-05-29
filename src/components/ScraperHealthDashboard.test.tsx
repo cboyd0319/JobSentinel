@@ -174,7 +174,7 @@ describe("ScraperHealthDashboard", () => {
       await vi.advanceTimersByTimeAsync(0); // Flush any pending React updates
 
       // Check for the loading role status element with the loading message
-      expect(screen.getByRole("status", { name: /loading scraper health/i })).toBeInTheDocument();
+      expect(screen.getByRole("status", { name: /loading job source health/i })).toBeInTheDocument();
       vi.useRealTimers();
     });
   });
@@ -247,7 +247,7 @@ describe("ScraperHealthDashboard", () => {
       await user.click(screen.getByText("Retry"));
 
       await waitFor(() => {
-        expect(screen.getByText("Scraper Health Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Job Source Health")).toBeInTheDocument();
       });
     });
 
@@ -280,7 +280,7 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Scraper Health Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Job Source Health")).toBeInTheDocument();
       });
     });
 
@@ -288,15 +288,15 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText(/monitor the health and performance of all 13 job board scrapers/i)).toBeInTheDocument();
+        expect(screen.getByText(/check whether job sources are available/i)).toBeInTheDocument();
       });
     });
 
-    it("shows Test All button", async () => {
+    it("shows Check All Sources button", async () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Test All")).toBeInTheDocument();
+        expect(screen.getByText("Check All Sources")).toBeInTheDocument();
       });
     });
 
@@ -322,7 +322,7 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Scraper Health Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Job Source Health")).toBeInTheDocument();
       });
 
       const closeButtons = screen.getAllByText("Close");
@@ -341,11 +341,11 @@ describe("ScraperHealthDashboard", () => {
       });
     });
 
-    it("displays total scrapers count", async () => {
+    it("displays total sources count", async () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Total Scrapers")).toBeInTheDocument();
+        expect(screen.getByText("Total Sources")).toBeInTheDocument();
       });
       expect(screen.getByText("13")).toBeInTheDocument();
     });
@@ -424,9 +424,10 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Credential Warnings")).toBeInTheDocument();
+        expect(screen.getByText("Connection Warnings")).toBeInTheDocument();
       });
-      expect(screen.getByText("smtp_password")).toBeInTheDocument();
+      expect(screen.getByText("Email password")).toBeInTheDocument();
+      expect(screen.queryByText("smtp_password")).not.toBeInTheDocument();
       expect(screen.getByText(/expires in 7 days/i)).toBeInTheDocument();
     });
 
@@ -441,9 +442,9 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Scraper Health Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Job Source Health")).toBeInTheDocument();
       });
-      expect(screen.queryByText("Credential Warnings")).not.toBeInTheDocument();
+      expect(screen.queryByText("Connection Warnings")).not.toBeInTheDocument();
     });
 
     it("shows expired credential status when provided", async () => {
@@ -467,7 +468,7 @@ describe("ScraperHealthDashboard", () => {
     });
   });
 
-  describe("scraper table", () => {
+  describe("source table", () => {
     beforeEach(() => {
       mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
@@ -477,7 +478,7 @@ describe("ScraperHealthDashboard", () => {
       });
     });
 
-    it("displays scraper display names", async () => {
+    it("displays source display names", async () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
@@ -488,20 +489,20 @@ describe("ScraperHealthDashboard", () => {
       expect(screen.getByText("Monster")).toBeInTheDocument();
     });
 
-    it("displays scraper names", async () => {
+    it("does not display internal source ids", async () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("indeed")).toBeInTheDocument();
+        expect(screen.queryByText("indeed")).not.toBeInTheDocument();
       });
-      expect(screen.getByText(/linkedin/)).toBeInTheDocument();
+      expect(screen.queryByText("glassdoor")).not.toBeInTheDocument();
     });
 
-    it("shows auth indicator for scrapers requiring auth", async () => {
+    it("shows setup label for sources requiring setup", async () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("(auth)")).toBeInTheDocument();
+        expect(screen.getByText("Needs setup")).toBeInTheDocument();
       });
     });
 
@@ -517,16 +518,14 @@ describe("ScraperHealthDashboard", () => {
       expect(screen.getAllByText("Degraded").length).toBeGreaterThan(0);
     });
 
-    it("displays scraper type badges", async () => {
+    it("displays source access labels", async () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("table", { name: /scraper health status/i })).toBeInTheDocument();
+        expect(screen.getByRole("table", { name: /job source health status/i })).toBeInTheDocument();
       });
-      // Check for type badges - multiple HTML scrapers exist
-      expect(screen.getAllByText("HTML").length).toBeGreaterThanOrEqual(1);
-      expect(screen.getByText("API")).toBeInTheDocument();
-      expect(screen.getByText("HYBRID")).toBeInTheDocument();
+      expect(screen.getAllByText("Website page").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getByText("Official feed")).toBeInTheDocument();
     });
 
     it("displays success rates with color coding", async () => {
@@ -554,7 +553,7 @@ describe("ScraperHealthDashboard", () => {
       await waitFor(() => {
         expect(screen.getByText("150")).toBeInTheDocument();
       });
-      expect(screen.getByText("/ 24 runs")).toBeInTheDocument();
+      expect(screen.getByText("/ 24 checks")).toBeInTheDocument();
     });
 
     it("displays relative time for last success", async () => {
@@ -566,7 +565,7 @@ describe("ScraperHealthDashboard", () => {
       expect(screen.getByText("2h ago")).toBeInTheDocument();
     });
 
-    it("shows 'Never' for scrapers that never succeeded", async () => {
+    it("shows 'Never' for sources that never succeeded", async () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
@@ -574,25 +573,25 @@ describe("ScraperHealthDashboard", () => {
       });
     });
 
-    it("displays selector health for html/hybrid scrapers", async () => {
+    it("displays page-check health for website sources", async () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("OK")).toBeInTheDocument(); // healthy selector
+        expect(screen.getByText("OK")).toBeInTheDocument();
       });
-      expect(screen.getByText("Broken")).toBeInTheDocument(); // broken selector
+      expect(screen.getByText("Broken")).toBeInTheDocument();
     });
 
     it("has accessible table structure", async () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("table", { name: /scraper health status/i })).toBeInTheDocument();
+        expect(screen.getByRole("table", { name: /job source health status/i })).toBeInTheDocument();
       });
     });
   });
 
-  describe("scraper actions", () => {
+  describe("source actions", () => {
     beforeEach(() => {
       mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
@@ -604,7 +603,7 @@ describe("ScraperHealthDashboard", () => {
       });
     });
 
-    it("toggles scraper enabled state", async () => {
+    it("toggles source enabled state", async () => {
       const user = userEvent.setup();
       render(<ScraperHealthDashboard onClose={onClose} />);
 
@@ -612,13 +611,7 @@ describe("ScraperHealthDashboard", () => {
         expect(screen.getByText("Indeed")).toBeInTheDocument();
       });
 
-      // Find enable/disable buttons (they have tooltips)
-      const toggleButtons = screen.getAllByRole("button").filter(
-        (btn) => btn.querySelector("svg") && btn.classList.contains("p-1.5")
-      );
-
-      // Click first toggle button (Indeed is enabled, so this should disable)
-      await user.click(toggleButtons[0]);
+      await user.click(screen.getByRole("button", { name: /turn indeed off/i }));
 
       expect(mockInvoke).toHaveBeenCalledWith("set_scraper_enabled", {
         scraperName: "indeed",
@@ -626,7 +619,7 @@ describe("ScraperHealthDashboard", () => {
       });
     });
 
-    it("runs smoke test for single scraper", async () => {
+    it("runs source check for one source", async () => {
       const user = userEvent.setup();
       render(<ScraperHealthDashboard onClose={onClose} />);
 
@@ -634,25 +627,17 @@ describe("ScraperHealthDashboard", () => {
         expect(screen.getByText("Indeed")).toBeInTheDocument();
       });
 
-      // Find play buttons (smoke test buttons)
-      const playButtons = screen.getAllByRole("button").filter((btn) => {
-        const svg = btn.querySelector("svg");
-        return svg && btn.classList.contains("p-1.5") && btn.querySelector('path[d*="14.752"]');
-      });
+      await user.click(screen.getByRole("button", { name: /check indeed now/i }));
 
-      if (playButtons.length > 0) {
-        await user.click(playButtons[0]);
-
-        await waitFor(() => {
-          expect(mockInvoke).toHaveBeenCalledWith("run_scraper_smoke_test", {
-            scraperName: "indeed",
-          });
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith("run_scraper_smoke_test", {
+          scraperName: "indeed",
         });
-      }
+      });
     });
   });
 
-  describe("run history", () => {
+  describe("check history", () => {
     beforeEach(() => {
       mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
@@ -663,7 +648,7 @@ describe("ScraperHealthDashboard", () => {
       });
     });
 
-    it("shows run history when scraper is selected", async () => {
+    it("shows check history when source is selected", async () => {
       const user = userEvent.setup();
       render(<ScraperHealthDashboard onClose={onClose} />);
 
@@ -674,11 +659,11 @@ describe("ScraperHealthDashboard", () => {
       await user.click(screen.getByText("Indeed"));
 
       await waitFor(() => {
-        expect(screen.getByText(/recent runs: indeed/i)).toBeInTheDocument();
+        expect(screen.getByText(/recent checks: indeed/i)).toBeInTheDocument();
       });
     });
 
-    it("loads run history data when scraper selected", async () => {
+    it("loads check history data when source selected", async () => {
       const user = userEvent.setup();
       render(<ScraperHealthDashboard onClose={onClose} />);
 
@@ -696,7 +681,7 @@ describe("ScraperHealthDashboard", () => {
       });
     });
 
-    it("displays run status badges", async () => {
+    it("displays check status badges", async () => {
       const user = userEvent.setup();
       render(<ScraperHealthDashboard onClose={onClose} />);
 
@@ -707,12 +692,12 @@ describe("ScraperHealthDashboard", () => {
       await user.click(screen.getByText("Indeed"));
 
       await waitFor(() => {
-        expect(screen.getByText("success")).toBeInTheDocument();
+        expect(screen.getByText("Worked")).toBeInTheDocument();
       });
-      expect(screen.getByText(/error.*retry 1/i)).toBeInTheDocument();
+      expect(screen.getByText(/needs review.*retry 1/i)).toBeInTheDocument();
     });
 
-    it("displays job counts in run history", async () => {
+    it("displays job counts in check history", async () => {
       const user = userEvent.setup();
       render(<ScraperHealthDashboard onClose={onClose} />);
 
@@ -723,13 +708,13 @@ describe("ScraperHealthDashboard", () => {
       await user.click(screen.getByText("Indeed"));
 
       await waitFor(() => {
-        const historyPanel = screen.getByRole("region", { name: /recent runs/i });
+        const historyPanel = screen.getByRole("region", { name: /recent checks/i });
         expect(within(historyPanel).getByText("15")).toBeInTheDocument();
         expect(within(historyPanel).getByText("+3")).toBeInTheDocument();
       });
     });
 
-    it("displays error messages in run history", async () => {
+    it("displays safe issue guidance in check history", async () => {
       const user = userEvent.setup();
       render(<ScraperHealthDashboard onClose={onClose} />);
 
@@ -740,11 +725,12 @@ describe("ScraperHealthDashboard", () => {
       await user.click(screen.getByText("Indeed"));
 
       await waitFor(() => {
-        expect(screen.getByText("Timeout")).toBeInTheDocument();
+        expect(screen.getByText(/check your internet connection/i)).toBeInTheDocument();
       });
+      expect(screen.queryByText("Timeout")).not.toBeInTheDocument();
     });
 
-    it("hides run history when same scraper is clicked again", async () => {
+    it("hides check history when same source is clicked again", async () => {
       const user = userEvent.setup();
       render(<ScraperHealthDashboard onClose={onClose} />);
 
@@ -754,16 +740,16 @@ describe("ScraperHealthDashboard", () => {
 
       await user.click(screen.getByText("Indeed"));
       await waitFor(() => {
-        expect(screen.getByText(/recent runs: indeed/i)).toBeInTheDocument();
+        expect(screen.getByText(/recent checks: indeed/i)).toBeInTheDocument();
       });
 
       await user.click(screen.getByText("Indeed"));
       await waitFor(() => {
-        expect(screen.queryByText(/recent runs: indeed/i)).not.toBeInTheDocument();
+        expect(screen.queryByText(/recent checks: indeed/i)).not.toBeInTheDocument();
       });
     });
 
-    it("shows no recent runs message when empty", async () => {
+    it("shows no recent checks message when empty", async () => {
       mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
         if (cmd === "get_scraper_health") return Promise.resolve(mockScrapers);
@@ -782,12 +768,12 @@ describe("ScraperHealthDashboard", () => {
       await user.click(screen.getByText("Indeed"));
 
       await waitFor(() => {
-        expect(screen.getByText("No recent runs found.")).toBeInTheDocument();
+        expect(screen.getByText("No recent checks found.")).toBeInTheDocument();
       });
     });
   });
 
-  describe("smoke test all", () => {
+  describe("source check all", () => {
     beforeEach(() => {
       mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
@@ -798,15 +784,15 @@ describe("ScraperHealthDashboard", () => {
       });
     });
 
-    it("runs all smoke tests when button clicked", async () => {
+    it("runs all source checks when button clicked", async () => {
       const user = userEvent.setup();
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Test All")).toBeInTheDocument();
+        expect(screen.getByText("Check All Sources")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Test All"));
+      await user.click(screen.getByText("Check All Sources"));
 
       await waitFor(() => {
         expect(mockInvoke).toHaveBeenCalledWith("run_all_smoke_tests", {});
@@ -828,13 +814,13 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Test All")).toBeInTheDocument();
+        expect(screen.getByText("Check All Sources")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Test All"));
+      await user.click(screen.getByText("Check All Sources"));
 
       await waitFor(() => {
-        expect(screen.getByText("Testing...")).toBeInTheDocument();
+        expect(screen.getByText("Checking...")).toBeInTheDocument();
       });
     });
 
@@ -843,29 +829,29 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Test All")).toBeInTheDocument();
+        expect(screen.getByText("Check All Sources")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Test All"));
+      await user.click(screen.getByText("Check All Sources"));
 
       await waitFor(() => {
-        expect(screen.getByText("Smoke Test Results")).toBeInTheDocument();
+        expect(screen.getByText("Source Check Results")).toBeInTheDocument();
       });
     });
 
-    it("displays pass/fail badges in results", async () => {
+    it("displays safe status badges in results", async () => {
       const user = userEvent.setup();
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Test All")).toBeInTheDocument();
+        expect(screen.getByText("Check All Sources")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Test All"));
+      await user.click(screen.getByText("Check All Sources"));
 
       await waitFor(() => {
-        expect(screen.getByText("PASS")).toBeInTheDocument();
-        expect(screen.getByText("FAIL")).toBeInTheDocument();
+        expect(screen.getByText("Worked")).toBeInTheDocument();
+        expect(screen.getByText("Needs review")).toBeInTheDocument();
       });
     });
 
@@ -874,10 +860,10 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Test All")).toBeInTheDocument();
+        expect(screen.getByText("Check All Sources")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Test All"));
+      await user.click(screen.getByText("Check All Sources"));
 
       await waitFor(() => {
         expect(screen.getByText("1200ms")).toBeInTheDocument();
@@ -885,19 +871,20 @@ describe("ScraperHealthDashboard", () => {
       });
     });
 
-    it("displays error messages for failed tests", async () => {
+    it("displays safe issue guidance for failed checks", async () => {
       const user = userEvent.setup();
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Test All")).toBeInTheDocument();
+        expect(screen.getByText("Check All Sources")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Test All"));
+      await user.click(screen.getByText("Check All Sources"));
 
       await waitFor(() => {
-        expect(screen.getByText("Connection refused")).toBeInTheDocument();
+        expect(screen.getByText(/check your internet connection/i)).toBeInTheDocument();
       });
+      expect(screen.queryByText("Connection refused")).not.toBeInTheDocument();
     });
 
     it("closes results modal when close clicked", async () => {
@@ -905,13 +892,13 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Test All")).toBeInTheDocument();
+        expect(screen.getByText("Check All Sources")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Test All"));
+      await user.click(screen.getByText("Check All Sources"));
 
       await waitFor(() => {
-        expect(screen.getByText("Smoke Test Results")).toBeInTheDocument();
+        expect(screen.getByText("Source Check Results")).toBeInTheDocument();
       });
 
       // Find close button in modal
@@ -919,7 +906,7 @@ describe("ScraperHealthDashboard", () => {
       await user.click(closeButtons[closeButtons.length - 1]);
 
       await waitFor(() => {
-        expect(screen.queryByText("Smoke Test Results")).not.toBeInTheDocument();
+        expect(screen.queryByText("Source Check Results")).not.toBeInTheDocument();
       });
     });
   });

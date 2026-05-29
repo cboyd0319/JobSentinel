@@ -127,6 +127,52 @@ function formatCredentialWarning(credential: CredentialHealth): string {
   return "Status unknown";
 }
 
+function formatCredentialLabel(key: string): string {
+  const labels: Record<string, string> = {
+    discord_webhook: "Discord connection",
+    smtp_password: "Email password",
+    slack_webhook: "Slack connection",
+    teams_webhook: "Teams connection",
+    telegram_bot_token: "Telegram connection",
+    usajobs_api_key: "USAJobs access code",
+  };
+
+  return labels[key] ?? "Saved connection";
+}
+
+function formatSourceType(type: ScraperHealthMetrics["scraper_type"]): string {
+  switch (type) {
+    case "api":
+    case "graphql":
+      return "Official feed";
+    case "rss":
+      return "Feed";
+    case "html":
+    case "hybrid":
+      return "Website page";
+  }
+}
+
+function formatRunStatus(status: ScraperRun["status"], retryAttempt: number): string {
+  const labels: Record<ScraperRun["status"], string> = {
+    error: "Needs review",
+    rate_limited: "Waiting",
+    running: "Checking",
+    success: "Worked",
+  };
+  const label = labels[status];
+  return retryAttempt > 0 ? `${label} (retry ${retryAttempt})` : label;
+}
+
+function formatSafeIssue(message: string | null): string {
+  if (!message) {
+    return "-";
+  }
+
+  const friendly = getUserFriendlyError(message);
+  return friendly.action ?? friendly.message;
+}
+
 // Status icon component
 function StatusIcon({ status }: { status: string }) {
   const icons = {
@@ -224,6 +270,11 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
   const [testResults, setTestResults] = useState<SmokeTestResult[]>([]);
   const [showTestResults, setShowTestResults] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const sourceNameById = new Map(
+    scrapers.map((scraper) => [scraper.scraper_name, scraper.display_name]),
+  );
+  const getSourceDisplayName = (sourceName: string) =>
+    sourceNameById.get(sourceName) ?? sourceName;
 
   // Load health data
   const loadHealthData = useCallback(async (signal?: AbortSignal) => {
@@ -240,7 +291,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
         safeInvoke<ScraperHealthMetrics[]>(
           "get_scraper_health",
           {},
-          { logContext: "Load scraper health" },
+          { logContext: "Load source health" },
         ),
         safeInvoke<CredentialHealth[]>(
           "get_expiring_credentials",
@@ -265,7 +316,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
     }
   }, []);
 
-  // Load run history for a scraper
+  // Load check history for a source
   const loadRunHistory = useCallback(
     async (scraperName: string, signal?: AbortSignal) => {
       try {
@@ -277,7 +328,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
             limit: 20,
           },
           {
-            logContext: "Load scraper run history",
+            logContext: "Load source check history",
             silent: true,
           },
         );
@@ -296,7 +347,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
     [],
   );
 
-  // Toggle scraper enabled
+  // Toggle source enabled
   const toggleScraper = useCallback(
     async (scraperName: string, enabled: boolean) => {
       try {
@@ -304,7 +355,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
           "set_scraper_enabled",
           { scraperName, enabled },
           {
-            logContext: "Toggle scraper enabled",
+            logContext: "Toggle source enabled",
           },
         );
         // Reload data
@@ -316,7 +367,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
     [loadHealthData],
   );
 
-  // Run smoke test for single scraper
+  // Run source check for one source
   const runSmokeTest = useCallback(
     async (scraperName: string) => {
       try {
@@ -325,7 +376,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
           "run_scraper_smoke_test",
           { scraperName },
           {
-            logContext: "Run smoke test",
+            logContext: "Run source check",
           },
         );
         setTestResults([result]);
@@ -341,7 +392,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
     [loadHealthData],
   );
 
-  // Run smoke tests for all scrapers
+  // Run source checks for all sources
   const runAllSmokeTests = useCallback(async () => {
     try {
       setTestingAll(true);
@@ -349,7 +400,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
         "run_all_smoke_tests",
         {},
         {
-          logContext: "Run all smoke tests",
+          logContext: "Run all source checks",
         },
       );
       setTestResults(results);
@@ -387,7 +438,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
     return (
       <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
         <Card className="w-full max-w-md">
-          <LoadingSpinner message="Loading scraper health..." />
+          <LoadingSpinner message="Loading job source health..." />
         </Card>
       </div>
     );
@@ -419,11 +470,11 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="font-display text-display-lg text-surface-900 dark:text-white">
-                  Scraper Health Dashboard
+                  Job Source Health
                 </h2>
                 <p className="text-sm text-surface-500 dark:text-surface-400 mt-1">
-                  Monitor the health and performance of all 13 job board
-                  scrapers
+                  Check whether job sources are available and when they last
+                  found jobs.
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -432,7 +483,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                   onClick={runAllSmokeTests}
                   disabled={testingAll}
                 >
-                  {testingAll ? "Testing..." : "Test All"}
+                  {testingAll ? "Checking..." : "Check All Sources"}
                 </Button>
                 <Button variant="secondary" onClick={() => loadHealthData()}>
                   Refresh
@@ -451,7 +502,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                 aria-label="Health summary statistics"
               >
                 <StatCard
-                  label="Total Scrapers"
+                  label="Total Sources"
                   value={summary.total_scrapers}
                   accentColor="surface"
                 />
@@ -487,7 +538,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
               </div>
             )}
 
-            {/* Credential Warnings */}
+            {/* Connection Warnings */}
             {credentials.length > 0 && (
               <div
                 className="mb-6 p-4 bg-alert-50 dark:bg-alert-900/20 rounded-lg border border-alert-200 dark:border-alert-800"
@@ -495,7 +546,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                 aria-live="polite"
               >
                 <h3 className="font-medium text-alert-700 dark:text-alert-400 mb-2">
-                  Credential Warnings
+                  Connection Warnings
                 </h3>
                 <div className="space-y-2">
                   {credentials.map((cred) => (
@@ -504,7 +555,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                       className="flex items-center justify-between text-sm"
                     >
                       <span className="text-alert-600 dark:text-alert-300">
-                        {cred.key}
+                        {formatCredentialLabel(cred.key)}
                       </span>
                       <span className="text-alert-500 dark:text-alert-400">
                         {formatCredentialWarning(cred)}
@@ -515,12 +566,12 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
               </div>
             )}
 
-            {/* Scraper List */}
+            {/* Source List */}
             <div className="overflow-x-auto">
               <table
                 className="w-full text-sm"
                 role="table"
-                aria-label="Scraper health status"
+                aria-label="Job source health status"
               >
                 <thead>
                   <tr
@@ -528,28 +579,28 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                     role="row"
                   >
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Scraper
+                      Source
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
                       Status
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Type
+                      Access
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Success Rate
+                      Recent Success
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Avg Duration
+                      Avg Check Time
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
                       Jobs (24h)
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Last Success
+                      Last Found
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Selectors
+                      Page Check
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
                       Actions
@@ -587,10 +638,9 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                               {scraper.display_name}
                             </div>
                             <div className="text-xs text-surface-500">
-                              {scraper.scraper_name}
                               {scraper.requires_auth && (
                                 <span className="ml-1 text-alert-500">
-                                  (auth)
+                                  Needs setup
                                 </span>
                               )}
                             </div>
@@ -604,7 +654,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                         </td>
                         <td className="py-3 px-4">
                           <Badge variant="surface" size="sm">
-                            {scraper.scraper_type.toUpperCase()}
+                            {formatSourceType(scraper.scraper_type)}
                           </Badge>
                         </td>
                         <td className="py-3 px-4 text-right">
@@ -627,7 +677,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                           {scraper.jobs_found_24h === 0 &&
                           scraper.total_runs_24h > 0 &&
                           scraper.health_status === "healthy" ? (
-                            <Tooltip content="Scraper ran successfully but found 0 jobs. Check your search terms or this source may be empty.">
+                            <Tooltip content="This source checked successfully but found 0 jobs. Check your search terms or this source may be empty.">
                               <span className="font-medium text-amber-600 dark:text-amber-400 cursor-help">
                                 <span className="inline-flex items-center justify-end gap-1">
                                   0
@@ -641,7 +691,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                             </span>
                           )}
                           <span className="text-surface-500 ml-1">
-                            / {scraper.total_runs_24h} runs
+                            / {scraper.total_runs_24h} checks
                           </span>
                         </td>
                         <td className="py-3 px-4 text-surface-600 dark:text-surface-400">
@@ -654,17 +704,24 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                               {selectorConfig.label}
                             </Badge>
                           ) : (
-                            <span className="text-surface-400">-</span>
+                            <span className="text-surface-400">Not needed</span>
                           )}
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
                             <Tooltip
                               content={
-                                scraper.is_enabled ? "Disable" : "Enable"
+                                scraper.is_enabled
+                                  ? "Turn this source off"
+                                  : "Turn this source on"
                               }
                             >
                               <button
+                                aria-label={
+                                  scraper.is_enabled
+                                    ? `Turn ${scraper.display_name} off`
+                                    : `Turn ${scraper.display_name} on`
+                                }
                                 onClick={() =>
                                   toggleScraper(
                                     scraper.scraper_name,
@@ -708,8 +765,9 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                                 )}
                               </button>
                             </Tooltip>
-                            <Tooltip content="Run smoke test">
+                            <Tooltip content="Check this source now">
                               <button
+                                aria-label={`Check ${scraper.display_name} now`}
                                 onClick={() =>
                                   runSmokeTest(scraper.scraper_name)
                                 }
@@ -771,7 +829,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
               </table>
             </div>
 
-            {/* Run History Panel */}
+            {/* Check History Panel */}
             {selectedScraper && (
               <div
                 className="mt-6 p-4 bg-surface-50 dark:bg-surface-700/30 rounded-lg"
@@ -783,47 +841,47 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                   id="run-history-title"
                   className="font-medium text-surface-900 dark:text-white mb-4"
                 >
-                  Recent Runs:{" "}
+                  Recent Checks:{" "}
                   {
                     scrapers.find((s) => s.scraper_name === selectedScraper)
                       ?.display_name
                   }
                 </h3>
                 {runsLoading ? (
-                  <LoadingSpinner message="Loading run history..." />
+                  <LoadingSpinner message="Loading check history..." />
                 ) : runs.length === 0 ? (
                   <p
                     className="text-surface-500 dark:text-surface-400"
                     role="status"
                   >
-                    No recent runs found.
+                    No recent checks found.
                   </p>
                 ) : (
                   <div className="overflow-x-auto">
                     <table
                       className="w-full text-sm"
                       role="table"
-                      aria-label="Run history"
+                      aria-label="Source check history"
                     >
                       <thead>
                         <tr className="border-b border-surface-200 dark:border-surface-600">
                           <th className="text-left py-2 px-3 font-medium text-surface-600 dark:text-surface-400">
-                            Started
+                            Checked
                           </th>
                           <th className="text-left py-2 px-3 font-medium text-surface-600 dark:text-surface-400">
                             Status
                           </th>
                           <th className="text-right py-2 px-3 font-medium text-surface-600 dark:text-surface-400">
-                            Duration
+                            Time
                           </th>
                           <th className="text-right py-2 px-3 font-medium text-surface-600 dark:text-surface-400">
-                            Jobs Found
+                            Jobs found
                           </th>
                           <th className="text-right py-2 px-3 font-medium text-surface-600 dark:text-surface-400">
-                            New Jobs
+                            New jobs
                           </th>
                           <th className="text-left py-2 px-3 font-medium text-surface-600 dark:text-surface-400">
-                            Error
+                            Issue
                           </th>
                         </tr>
                       </thead>
@@ -849,9 +907,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                                 }
                                 size="sm"
                               >
-                                {run.status}
-                                {run.retry_attempt > 0 &&
-                                  ` (retry ${run.retry_attempt})`}
+                                {formatRunStatus(run.status, run.retry_attempt)}
                               </Badge>
                             </td>
                             <td className="py-2 px-3 text-right text-surface-600 dark:text-surface-400">
@@ -864,7 +920,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                               +{run.jobs_new}
                             </td>
                             <td className="py-2 px-3 text-surface-500 dark:text-surface-400 max-w-xs truncate">
-                              {run.error_message || "-"}
+                              {formatSafeIssue(run.error_message)}
                             </td>
                           </tr>
                         ))}
@@ -878,11 +934,11 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
         </div>
       </div>
 
-      {/* Smoke Test Results Modal */}
+      {/* Source Check Results Modal */}
       <Modal
         isOpen={showTestResults}
         onClose={() => setShowTestResults(false)}
-        title="Smoke Test Results"
+        title="Source Check Results"
         size="lg"
       >
         <div className="space-y-3">
@@ -897,7 +953,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
             >
               <div className="flex items-center justify-between">
                 <span className="font-medium text-surface-900 dark:text-white">
-                  {result.scraper_name}
+                  {getSourceDisplayName(result.scraper_name)}
                 </span>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-surface-500 dark:text-surface-400">
@@ -907,13 +963,13 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                     variant={result.passed ? "success" : "danger"}
                     size="sm"
                   >
-                    {result.passed ? "PASS" : "FAIL"}
+                    {result.passed ? "Worked" : "Needs review"}
                   </Badge>
                 </div>
               </div>
               {result.error && (
                 <p className="text-sm text-red-600 dark:text-red-400 mt-1">
-                  {result.error}
+                  {formatSafeIssue(result.error)}
                 </p>
               )}
             </div>

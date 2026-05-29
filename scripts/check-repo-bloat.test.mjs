@@ -3548,6 +3548,64 @@ test("checkRepoBloat rejects stale scraper health coverage", () => {
   });
 });
 
+test("checkRepoBloat rejects technical source-health user copy", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/ScraperHealthDashboard.tsx",
+      [
+        "const title = 'Scraper Health Dashboard';",
+        "const loading = 'Loading scraper health...';",
+        "const results = 'Smoke Test Results';",
+        "const badge = 'PASS';",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Settings.tsx",
+      "const help = 'Monitor scraper status, run smoke tests, and view run history';\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/scraper-health.md",
+      "# Scraper Health Monitoring\n\nRun smoke tests from the dashboard.\n",
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src/components/ScraperHealthDashboard.tsx",
+        "src/pages/Settings.tsx",
+        "docs/features/scraper-health.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "keep source-health copy plain-language: src/components/ScraperHealthDashboard.tsx",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("keep source-health copy plain-language: src/pages/Settings.tsx"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "keep source-health copy plain-language: docs/features/scraper-health.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects feature status color emoji markers", () => {
   withGitFixture((root) => {
     const yellowIcon = String.fromCodePoint(0x1f7e1);

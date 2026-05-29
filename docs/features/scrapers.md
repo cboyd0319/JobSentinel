@@ -13,7 +13,7 @@ call hidden LinkedIn endpoints, or read LinkedIn pages in the background.
 | Category | Sources |
 | -------- | ------- |
 | Scheduled adapters | Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, Glassdoor |
-| Smoke-test adapters | Scheduled adapters plus Indeed, Wellfound, and ZipRecruiter connectivity checks |
+| Source-check adapters | Scheduled adapters plus Indeed, Wellfound, and ZipRecruiter availability checks |
 | User-opened search links | LinkedIn and other destination links opened by the user |
 | Preferred expansion path | Official company career pages and public ATS APIs such as Greenhouse, Lever, Ashby, Workable, SmartRecruiters, and USAJobs |
 
@@ -25,7 +25,7 @@ call hidden LinkedIn endpoints, or read LinkedIn pages in the background.
 | No restricted-site automation | Do not add hidden endpoint use, session-cookie collection, CAPTCHA bypass, or platform-control evasion |
 | Local-first storage | Source results, run history, and notes stay local |
 | Rate limits | Every adapter must use source-specific limits and shared retry helpers where feasible |
-| Bounded reads | HTML, RSS, JSON, smoke-test, and import fetches cap decoded bodies at 16 MiB |
+| Bounded reads | HTML, RSS, JSON, source-check, and import fetches cap decoded bodies at 16 MiB |
 | User control | Job-site search links open in the user's browser and do not run in the background |
 
 ## Adapter Flow
@@ -43,15 +43,15 @@ Configured source
 
 ## Health And Diagnostics
 
-The scraper health dashboard tracks source status without requiring users to
+The job source health dashboard tracks source status without requiring users to
 understand HTTP, selectors, credentials, or logs.
 
 | Surface | Purpose |
 | ------- | ------- |
 | Summary stats | Healthy, degraded, down, disabled, and unknown source counts |
-| Source table | Success rate, average duration, jobs found, last run, and latest safe error |
-| Run history | Recent source attempts with timing and sanitized errors |
-| Smoke tests | Connectivity checks for known supported sources |
+| Source table | Recent success, average check time, jobs found, last run, and latest safe issue |
+| Check history | Recent source attempts with timing and sanitized issues |
+| Source checks | Availability checks for known supported sources |
 | Troubleshooting | Plain-language next steps and sanitized debug report support |
 
 Source health must never leak credentials, raw cookies, full URLs containing
@@ -131,7 +131,7 @@ checks. Source-boundary changes also need docs and bloat-guard updates.
 - Use official APIs or public feeds where available.
 - Confirm source terms, robots policy, and practical access boundaries.
 - Add rate limits and bounded response reads.
-- Add parser fixtures or smoke-test coverage.
+- Add parser fixtures or source-check coverage.
 - Add health metadata and user-safe errors.
 - Add docs and bloat checks for source-policy drift.
 - Do not add hidden endpoints, session-cookie collection, CAPTCHA bypass, or

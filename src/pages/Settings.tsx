@@ -3683,18 +3683,18 @@ export default function Settings({ onClose }: SettingsProps) {
                   <HelpIcon text="If something isn't working right, these logs can help diagnose the problem." />
                 </h3>
 
-                {/* Scraper Health Dashboard Button */}
+                {/* Job Source Health Button */}
                 <div className="mb-4">
                   <button
                     onClick={() => setShowHealthDashboard(true)}
                     className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-surface-700 dark:text-surface-300 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors w-full justify-center"
                   >
                     <HealthIcon className="w-5 h-5 text-sentinel-500" />
-                    View Scraper Health Dashboard
+                    View Job Source Health
                   </button>
                   <p className="text-xs text-surface-500 dark:text-surface-400 mt-1 text-center">
-                    Monitor scraper status, run smoke tests, and view run
-                    history
+                    Check source availability, recent job results, and safe
+                    issue history
                   </p>
                 </div>
 
@@ -3774,7 +3774,7 @@ export default function Settings({ onClose }: SettingsProps) {
         </div>
       </Card>
 
-      {/* Scraper Health Dashboard Modal */}
+      {/* Job Source Health Modal */}
       {showHealthDashboard && (
         <ScraperHealthDashboard onClose={() => setShowHealthDashboard(false)} />
       )}
