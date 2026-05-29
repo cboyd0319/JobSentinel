@@ -1,304 +1,127 @@
-# Embedded ML Feature
+# Optional Local Semantic Matching
 
-Embedded ML is an optional feature enabled with the `embedded-ml` Cargo feature.
-It uses `sentence-transformers/all-MiniLM-L6-v2` with cached `safetensors`
-weights.
+JobSentinel has an optional `embedded-ml` Cargo feature for local semantic skill
+matching experiments. It is not required for core workflows, and it is separate
+from external AI.
 
-## Overview
+## Status
 
-JobSentinel's embedded ML feature provides semantic skill matching using on-device inference with the Candle
-framework. This enhances the resume matcher by understanding semantic similarity between skills, not just exact
-keyword matches.
+| Area | Current state |
+| ---- | ------------- |
+| Feature flag | `embedded-ml` |
+| Default app behavior | Disabled unless built with the feature |
+| Core workflow dependency | None; deterministic matching remains available |
+| Data flow | Resume and job-skill matching runs locally |
+| Model source | `sentence-transformers/all-MiniLM-L6-v2` model files from Hugging Face Hub |
+| Network behavior | Model download only, when the model is explicitly requested |
+| User data sent during model download | None |
+| Runtime stack | Candle, tokenizers, `safetensors`, optional macOS Metal acceleration |
 
-## Features
+Privacy label: **Local only** for matching. Model download is an explicit
+external file fetch and must not send resume text, salary floors, notes,
+application history, or job-search records.
 
-- **Semantic skill matching** - Matches "Machine Learning" with "ML experience" automatically
-- **On-device inference** - All processing happens locally, no cloud API required
-- **Metal acceleration** - Uses Apple Metal GPU on macOS for fast inference
-- **Tiny binary size** - Only adds ~2-5MB to binary size
-- **Lazy loading** - Model downloads on first use (~20MB)
-- **Graceful fallback** - If disabled or model unavailable, falls back to keyword matching
+## Product contract
 
-## Architecture
+- Local semantic matching is assistive and advisory.
+- It may help compare a user's skills with visible job requirements.
+- It must not replace plain, inspectable match explanations.
+- It must not claim to predict hiring outcomes.
+- It must fall back to deterministic matching when unavailable.
+- If exposed in user-facing UI, model download must have clear consent,
+  progress, retry, cancel, and plain fallback copy.
 
-ML code lives under `src-tauri/src/core/ml/`:
+Do not confuse this feature with external AI. External AI remains optional,
+disabled by default, and routed through
+[the privacy-first AI gateway](architecture/privacy-first-ai-gateway.md).
 
-- `mod.rs`: module entry and feature flag
-- `model.rs`: model download, loading, and inference
-- `embeddings.rs`: embedding generation
-- `matcher.rs`: semantic skill matching
-- `tests.rs`: unit and integration tests
+## Code map
 
-## Building
+| Path | Purpose |
+| ---- | ------- |
+| `src-tauri/src/core/ml/mod.rs` | Feature-gated module entry and error types |
+| `src-tauri/src/core/ml/model.rs` | Model download, cache checks, loading, and inference |
+| `src-tauri/src/core/ml/embeddings.rs` | Embedding generation and vector similarity |
+| `src-tauri/src/core/ml/matcher.rs` | Semantic skill matching logic |
+| `src-tauri/src/core/ml/tests.rs` | Feature-gated tests |
+| `src-tauri/src/commands/ml.rs` | Feature-gated Tauri commands |
 
-### With ML support
+## Build and test
 
-```bash
-cd src-tauri
-cargo build --release --features embedded-ml
-```
-
-### Without ML support (smaller binary)
+Build without local ML:
 
 ```bash
 cd src-tauri
 cargo build --release
 ```
 
-## Usage
-
-### Download Model (First Use)
-
-```typescript
-import { invoke } from '@tauri-apps/api/core';
-
-// Download model from HuggingFace Hub
-await invoke('download_ml_model');
-```
-
-### Check ML Status
-
-```typescript
-const status = await invoke('get_ml_status');
-console.log(status.is_downloaded); // true/false
-console.log(status.model_size_bytes); // Size in bytes
-```
-
-### Semantic Skill Matching
-
-```typescript
-const result = await invoke('semantic_match_skills', {
-  userSkills: ['Python programming', 'Machine Learning'],
-  jobRequirements: ['Python', 'ML experience', 'Java'],
-});
-
-console.log(result.overall_score); // 0.0-1.0
-console.log(result.matched_skills); // [{ job_skill, user_skill, similarity }]
-console.log(result.unmatched_requirements); // ['Java']
-```
-
-### Enhanced Resume Matching
-
-```typescript
-const result = await invoke('match_resume_semantic', {
-  resumeId: 1,
-  jobHash: 'job-hash-123',
-});
-
-console.log(result.overall_score);
-console.log(result.matched_skills);
-```
-
-## Model Details
-
-### all-MiniLM-L6-v2
-
-- **Type:** Sentence transformer (BERT-based)
-- **Parameters:** ~22M (quantized)
-- **Embedding dimension:** 384
-- **Max sequence length:** 128 tokens
-- **Performance:** ~10-20ms per sentence (Metal), ~50-100ms (CPU)
-- **Source:** [HuggingFace Hub](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
-
-### Download Process
-
-1. Model files downloaded to `{app_data_dir}/ml_models/`
-2. Files cached for reuse
-3. Lazy loading - only downloads when first needed
-4. Total download size: ~20MB
-
-## Implementation Details
-
-### Semantic Matching Algorithm
-
-1. **Tokenize** user skills and job requirements
-2. **Generate embeddings** using all-MiniLM-L6-v2
-3. **Normalize** embeddings to unit length
-4. **Compute similarity** using cosine similarity
-5. **Match** each job requirement to best user skill (threshold: 0.7)
-6. **Score** based on coverage (70%) and average similarity (30%)
-
-### Similarity Threshold
-
-- **0.7+** - Skills match semantically
-- **0.5-0.7** - Potentially related
-- **< 0.5** - Not considered a match
-
-### Performance
-
-- **Batch processing** - Processes multiple skills in parallel
-- **Metal acceleration** - ~5x faster on Apple Silicon
-- **Memory usage** - ~50MB for model + ~10MB per batch
-- **Cold start** - ~500ms (model loading)
-- **Warm inference** - ~10-20ms per sentence
-
-## API Reference
-
-### Tauri Commands
-
-#### `download_ml_model()`
-
-Downloads the ML model from HuggingFace Hub.
-
-**Returns:** `Result<string, string>`
-
-#### `get_ml_status()`
-
-Gets current model status.
-
-**Returns:** `Result<ModelStatus, string>`
-
-```typescript
-interface ModelStatus {
-  is_downloaded: boolean;
-  model_size_bytes?: number;
-}
-```
-
-#### `semantic_match_skills(user_skills, job_requirements)`
-
-Matches user skills against job requirements semantically.
-
-**Parameters:**
-
-- `user_skills: string[]` - List of user skills
-- `job_requirements: string[]` - List of job requirements
-
-**Returns:** `Result<SemanticMatchResult, string>`
-
-```typescript
-interface SemanticMatchResult {
-  overall_score: number; // 0.0-1.0
-  matched_skills: SkillMatch[];
-  unmatched_requirements: string[];
-  unused_skills: string[];
-}
-
-interface SkillMatch {
-  job_skill: string;
-  user_skill: string;
-  similarity: number; // 0.0-1.0
-}
-```
-
-#### `match_resume_semantic(resume_id, job_hash)`
-
-Enhanced resume matching with semantic understanding.
-
-**Parameters:**
-
-- `resume_id: number` - Resume ID
-- `job_hash: string` - Job hash
-
-**Returns:** `Result<SemanticMatchResult, string>`
-
-## Testing
-
-### Unit Tests (No Model Required)
+Build with local ML:
 
 ```bash
+cd src-tauri
+cargo build --release --features embedded-ml
+```
+
+Run feature-gated tests:
+
+```bash
+cd src-tauri
 cargo test --features embedded-ml
 ```
 
-### Integration Tests (Requires Model)
+Run ignored tests that require model files:
 
 ```bash
-# Download model first
-cargo run --features embedded-ml --example download_model
-
-# Run integration tests
+cd src-tauri
 cargo test --features embedded-ml -- --ignored
 ```
 
-### Test Coverage
+## Commands
 
-- Model download and caching
-- Embedding normalization
-- Cosine similarity calculation
-- Semantic skill matching
-- Batch processing
-- Error handling
+These commands are registered only when the app is built with `embedded-ml`:
+
+| Command | Purpose |
+| ------- | ------- |
+| `download_ml_model` | Downloads model files into the app data model cache |
+| `get_ml_status` | Reports whether model files are available locally |
+| `semantic_match_skills` | Compares user skills with job requirements |
+| `match_resume_semantic` | Compares stored resume skills with stored job skills |
+
+Developer note: do not expose these commands in user-facing UI without the
+product contract above.
+
+## Current matching behavior
+
+The local matcher:
+
+1. Tokenizes visible skill or requirement strings.
+2. Generates sentence embeddings with the local model.
+3. Compares vectors with cosine similarity.
+4. Matches each visible job requirement to the closest user skill.
+5. Returns matched skills, unmatched requirements, unused skills, and an
+   advisory overall result.
+
+The current similarity threshold is implementation detail. User-facing copy
+should describe outcomes as estimates based on visible evidence, not objective
+truth.
 
 ## Troubleshooting
 
-### Model Download Fails
+| Problem | Safe response |
+| ------- | ------------- |
+| Model download fails | Keep deterministic matching available and let the user retry later. |
+| Metal acceleration is unavailable | Fall back to CPU inference. |
+| Model files are missing | Show local matching fallback and an explicit download action. |
+| Matching output looks wrong | Let the user edit skills and visible assumptions before using the result. |
 
-**Error:** "Failed to download model"
-
-**Solutions:**
-
-1. Check internet connection
-2. Verify HuggingFace Hub is accessible
-3. Check disk space (~50MB required)
-4. Retry download
-
-### Metal Initialization Fails (macOS)
-
-**Error:** "Metal not available"
-
-**Fallback:** Automatically falls back to CPU inference
-
-**Impact:** ~5x slower inference, still functional
-
-### Out of Memory
-
-**Error:** "Failed to allocate memory"
-
-**Solutions:**
-
-1. Reduce batch size (process fewer skills at once)
-2. Close other applications
-3. Disable ML feature and use keyword matching
-
-### Model Not Found
-
-**Error:** "Model not downloaded"
-
-**Solution:** Call `download_ml_model()` first
-
-## Benchmarks
-
-Tested on M1 MacBook Pro (16GB RAM):
-
-| Operation | Metal | CPU | Notes |
-|-----------|-------|-----|-------|
-| Model loading | 450ms | 480ms | One-time cost |
-| Single embedding | 12ms | 65ms | Per skill |
-| Batch (10 skills) | 18ms | 95ms | Amortized |
-| Full match (20 skills) | 35ms | 180ms | End-to-end |
-
-## Future Enhancements
-
-- [ ] Support for additional models (larger, more accurate)
-- [ ] Fine-tuning on job-specific data
-- [ ] Skill clustering and visualization
-- [ ] Multi-language support
-- [ ] Resume content understanding (not just skills)
-- [ ] Contextual skill importance weighting
-
-## License Compliance
-
-### all-MiniLM-L6-v2
-
-- **License:** Apache 2.0
-- **Source:** HuggingFace Transformers
-- **Attribution:** sentence-transformers team
-
-### Candle
-
-- **License:** Apache 2.0 / MIT
-- **Source:** [huggingface/candle](https://github.com/huggingface/candle)
-
-### HuggingFace Hub
-
-- **License:** Apache 2.0
-- **Source:** [huggingface/hf-hub](https://github.com/huggingface/hf-hub)
-
-All licenses are compatible with JobSentinel's MIT license.
+Do not log raw resume text, private notes, salary floors, local file paths, or
+application history while debugging local ML.
 
 ## References
 
-- [Candle Documentation](https://huggingface.co/docs/candle)
-- [all-MiniLM-L6-v2 Model Card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
+- [Candle documentation](https://huggingface.co/docs/candle)
+- [all-MiniLM-L6-v2 model card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
 - [Sentence Transformers](https://www.sbert.net/)
-- [BERT Paper](https://arxiv.org/abs/1810.04805)
+- [BERT paper](https://arxiv.org/abs/1810.04805)
+- [Hugging Face Candle](https://github.com/huggingface/candle)
+- [Hugging Face Hub client](https://github.com/huggingface/hf-hub)
