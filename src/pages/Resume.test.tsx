@@ -67,11 +67,23 @@ describe("Resume page", () => {
       expect(screen.getByText("Senior Frontend Engineer")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("Skills (50%)")).toBeInTheDocument();
-    expect(screen.getByText("Experience (30%)")).toBeInTheDocument();
-    expect(screen.getByText("Education (20%)")).toBeInTheDocument();
+    expect(screen.getByText("Recent Resume Matches")).toBeInTheDocument();
+    expect(screen.getByText("Saved Skills (0)")).toBeInTheDocument();
+    expect(screen.getByText("Match Details")).toBeInTheDocument();
+    expect(screen.getByText("Skills fit")).toBeInTheDocument();
+    expect(screen.getByText("Experience fit")).toBeInTheDocument();
+    expect(screen.getByText("Education fit")).toBeInTheDocument();
+    expect(screen.getByText("Skills found in both (1)")).toBeInTheDocument();
+    expect(screen.getByText("Skills to review (1)")).toBeInTheDocument();
     expect(screen.getByText("75%")).toBeInTheDocument();
     expect(screen.getByText("50%")).toBeInTheDocument();
     expect(screen.getByText("25%")).toBeInTheDocument();
+    expect(screen.getByText("No skills saved yet")).toBeInTheDocument();
+    expect(
+      screen.getByText("JobSentinel can suggest skills from a resume, or you can add them yourself."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/score breakdown/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/matched skills|missing skills/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/skills extracted|extract skills automatically/i)).not.toBeInTheDocument();
   });
 });

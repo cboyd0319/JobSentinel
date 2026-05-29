@@ -1514,6 +1514,26 @@ function hasTechnicalFirstUserCopy(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
+  if (path === "src/pages/Resume.tsx") {
+    const resumePagePatterns = [
+      /Programming Languages/i,
+      /Cloud & DevOps/i,
+      /Skills Extracted/i,
+      /No skills extracted yet/i,
+      /extract skills automatically/i,
+      /Recent Match Results/i,
+      /Score Breakdown/i,
+      /Matched Skills/i,
+      /["'`]Missing Skills/i,
+      /You have all required skills!/i,
+      /Gap Analysis/i,
+    ];
+
+    if (resumePagePatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
   const stalePatterns = [
     /Import JSON Resume/i,
     /Invalid JSON/i,

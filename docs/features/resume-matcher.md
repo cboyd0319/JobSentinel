@@ -42,9 +42,10 @@ External AI is not required for resume matching.
 
 1. Open **Resumes**.
 2. Upload a PDF resume or import structured resume data.
-3. Review detected skills and add anything important that was missed.
-4. Open job details from the dashboard to see recent match results.
-5. Use matched and missing skills as evidence for a decision:
+3. Review suggested skills and add anything important that was missed.
+4. Open job details from the dashboard to see recent resume matches.
+5. Use skills found in both places and skills to review as evidence for a
+   decision:
    tailor carefully, save for later, ask a question, or skip.
 
 JobSentinel should explain fit in plain language. A person should not need to
@@ -55,10 +56,10 @@ understand parsing, scoring, or ATS internals to use the result.
 | Signal | Meaning | Use it for |
 | --- | --- | --- |
 | Overall match | Combined fit signal from skills, experience, and education. | Decide whether the role deserves more attention. |
-| Skills match | Resume skills that appear relevant to the posting. | Find real strengths to make clearer. |
+| Skills fit | Resume skills that appear relevant to the posting. | Find real strengths to make clearer. |
 | Experience match | Years or level signals found in the posting and resume. | Notice under-leveling or stretch-role risk. |
 | Education match | Degree or credential signals found in the posting and resume. | Spot requirements that may need explanation. |
-| Missing skills | Posting requirements not clearly represented in the resume. | Decide whether to revise, ask, learn, or skip. |
+| Skills to review | Posting requirements not clearly represented in the resume. | Decide whether to revise, ask, learn, or skip. |
 
 Low match does not mean "do not apply." It means "review fit before spending
 extra time." Strong match does not guarantee a response. It means the resume and

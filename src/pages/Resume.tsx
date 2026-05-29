@@ -75,12 +75,10 @@ interface MatchResult {
 
 function ScoreBreakdownRow({
   label,
-  weight,
   score,
   barClassName,
 }: {
   label: string;
-  weight: number;
   score: number;
   barClassName: string;
 }) {
@@ -89,7 +87,7 @@ function ScoreBreakdownRow({
   return (
     <div className="flex items-center gap-2">
       <span className="text-xs text-surface-600 dark:text-surface-400 w-24">
-        {label} ({weight}%)
+        {label}
       </span>
       <div className="flex-1 h-4 bg-surface-200 dark:bg-surface-800 rounded overflow-hidden">
         <div className={`h-full ${barClassName}`} style={{ width: `${percentage}%` }} />
@@ -103,12 +101,14 @@ function ScoreBreakdownRow({
 
 const PROFICIENCY_LEVELS = ["Beginner", "Intermediate", "Advanced", "Expert"];
 const SKILL_CATEGORIES = [
-  "Programming Languages",
-  "Frameworks",
-  "Cloud & DevOps",
-  "Databases",
-  "Tools",
-  "Soft Skills",
+  "Work Skills",
+  "Tools and Systems",
+  "People and Communication",
+  "Customer or Patient Support",
+  "Operations and Administration",
+  "Leadership",
+  "Languages",
+  "Licenses and Credentials",
   "Other",
 ];
 
@@ -569,7 +569,7 @@ export default function Resume({ onBack }: ResumeProps) {
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-sm font-medium text-surface-700 dark:text-surface-300">
-                    Skills Extracted ({skills.length})
+                    Saved Skills ({skills.length})
                   </h3>
                   <Button
                     variant="ghost"
@@ -762,10 +762,10 @@ export default function Resume({ onBack }: ResumeProps) {
                     </svg>
                   </div>
                   <p className="font-medium text-surface-700 dark:text-surface-300 mb-1">
-                    No skills extracted yet
+                    No skills saved yet
                   </p>
                   <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
-                    Upload a resume to extract skills automatically, or add them manually
+                    JobSentinel can suggest skills from a resume, or you can add them yourself.
                   </p>
                   <div className="flex gap-2 justify-center">
                     <Button
@@ -941,7 +941,7 @@ export default function Resume({ onBack }: ResumeProps) {
             {/* Recent Matches */}
             <Card className="lg:col-span-3 dark:bg-surface-800">
               <h2 className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
-                Recent Match Results
+                Recent Resume Matches
               </h2>
 
               {recentMatches.length === 0 ? (
@@ -972,35 +972,32 @@ export default function Resume({ onBack }: ResumeProps) {
                         <ScoreDisplay score={match.overall_match_score} size="sm" />
                       </div>
 
-                      {/* Score Breakdown */}
+                      {/* Match details */}
                       {(match.skills_match_score !== null ||
                         match.experience_match_score !== null ||
                         match.education_match_score !== null) && (
                         <div className="mb-4 p-3 bg-surface-50 dark:bg-surface-700 rounded-lg">
                           <p className="text-xs font-medium text-surface-600 dark:text-surface-400 mb-2">
-                            Score Breakdown
+                            Match Details
                           </p>
                           <div className="space-y-2">
                             {match.skills_match_score !== null && (
                               <ScoreBreakdownRow
-                                label="Skills"
-                                weight={50}
+                                label="Skills fit"
                                 score={match.skills_match_score}
                                 barClassName="bg-sentinel-500"
                               />
                             )}
                             {match.experience_match_score !== null && (
                               <ScoreBreakdownRow
-                                label="Experience"
-                                weight={30}
+                                label="Experience fit"
                                 score={match.experience_match_score}
                                 barClassName="bg-alert-500"
                               />
                             )}
                             {match.education_match_score !== null && (
                               <ScoreBreakdownRow
-                                label="Education"
-                                weight={20}
+                                label="Education fit"
                                 score={match.education_match_score}
                                 barClassName="bg-blue-500"
                               />
@@ -1013,7 +1010,7 @@ export default function Resume({ onBack }: ResumeProps) {
                         <div>
                           <p className="text-xs font-medium text-green-600 dark:text-green-400 mb-2 flex items-center gap-1">
                             <CheckIcon className="w-3.5 h-3.5" />
-                            Matched Skills ({match.matching_skills.length})
+                            Skills found in both ({match.matching_skills.length})
                           </p>
                           <div className="flex flex-wrap gap-1.5">
                             {match.matching_skills.length > 0 ? (
@@ -1028,7 +1025,7 @@ export default function Resume({ onBack }: ResumeProps) {
                               ))
                             ) : (
                               <span className="text-xs text-surface-400 dark:text-surface-500 italic">
-                                No matching skills found
+                                No shared skills found in the available text
                               </span>
                             )}
                           </div>
@@ -1037,7 +1034,7 @@ export default function Resume({ onBack }: ResumeProps) {
                         <div>
                           <p className="text-xs font-medium text-red-600 dark:text-red-400 mb-2 flex items-center gap-1">
                             <XIcon className="w-3.5 h-3.5" />
-                            Missing Skills ({match.missing_skills.length})
+                            Skills to review ({match.missing_skills.length})
                           </p>
                           <div className="flex flex-wrap gap-1.5">
                             {match.missing_skills.length > 0 ? (
@@ -1052,7 +1049,7 @@ export default function Resume({ onBack }: ResumeProps) {
                               ))
                             ) : (
                               <span className="text-xs text-green-600 dark:text-green-400">
-                                You have all required skills!
+                                No obvious skill gaps found in the available text.
                               </span>
                             )}
                           </div>
@@ -1062,7 +1059,7 @@ export default function Resume({ onBack }: ResumeProps) {
                       {match.gap_analysis && (
                         <div className="mt-3 pt-3 border-t border-surface-200 dark:border-surface-700">
                           <p className="text-xs font-medium text-surface-600 dark:text-surface-400 mb-2">
-                            Gap Analysis
+                            What to Review
                           </p>
                           <ul className="space-y-1">
                             {match.gap_analysis.split("\n").map((line, idx) => {

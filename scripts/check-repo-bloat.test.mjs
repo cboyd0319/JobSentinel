@@ -687,7 +687,21 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     writeFixtureFile(
       root,
       "src/pages/Resume.tsx",
-      '<Button>Import JSON Resume</Button><p>Your JSON Resume has been imported</p>\n',
+      [
+        '<Button>Import JSON Resume</Button><p>Your JSON Resume has been imported</p>',
+        '"Programming Languages"',
+        '"Cloud & DevOps"',
+        '"Skills Extracted"',
+        '"No skills extracted yet"',
+        '"Upload a resume to extract skills automatically, or add them manually"',
+        '"Recent Match Results"',
+        '"Score Breakdown"',
+        '"Matched Skills"',
+        '"Missing Skills"',
+        '"You have all required skills!"',
+        '"Gap Analysis"',
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(
       root,
