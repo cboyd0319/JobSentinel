@@ -120,6 +120,8 @@ Required process:
   policy into `docs/harness/manifest.json`.
 - [x] Add compact active-goal status and archive older progress rows so restart
   context stays current without losing provenance.
+- [x] Start bloat-sensor modularization by extracting filesystem artifact
+  policy into `scripts/harness/checks/repo-artifacts.mjs`.
 - [ ] Audit primary user workflows for zero-technical-knowledge ease.
 - [ ] Audit user-facing flows and copy for engineer-only assumptions.
 - [ ] Run relevant verification and push each cleanup slice.
@@ -148,6 +150,9 @@ the repo harness rather than changing user-facing product behavior:
 - Added `docs/plans/active/status.md` as the compact active-goal restart
   surface and archived older progress rows in
   `docs/plans/archive/progress-history-2026-05-28-to-2026-05-29.md`.
+- Extracted root-entry, local-artifact, and tracked-disposable checks from
+  `scripts/check-repo-bloat.mjs` into
+  `scripts/harness/checks/repo-artifacts.mjs` with focused script tests.
 - Updated active plan and handoff docs for the user-requested commit and push.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
@@ -179,6 +184,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-31 | In progress | Started the sensor-modularity finding by extracting filesystem and tracked-artifact bloat policy into `scripts/harness/checks/repo-artifacts.mjs`, keeping `checkRepoBloat` outputs unchanged and adding focused module tests. |
 | 2026-05-31 | In progress | Closed the active-plan compaction finding by adding `docs/plans/active/status.md`, archiving older progress rows, and routing the plan index, harness guide, agent guide, and handoff toward the compact status surface. |
 | 2026-05-31 | In progress | Closed the hardcoded harness-policy finding from the deep audit by moving required file, policy-snippet, and README reference-source lists into `docs/harness/manifest.json`, then making `scripts/check-harness.mjs` consume that manifest with focused script coverage. |
 | 2026-05-31 | In progress | Closed the environment doctor platform-coverage finding from the deep audit: `npm run doctor` now checks Linux Tauri packages, `patchelf`, Playwright Chromium launch readiness, and Node/Rust CI-baseline drift; `npm run doctor:e2e` makes Playwright readiness a strict E2E gate. |

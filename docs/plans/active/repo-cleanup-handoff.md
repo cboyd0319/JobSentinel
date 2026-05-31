@@ -40,6 +40,10 @@ Current branch note:
 Current cleanup posture:
 
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
+- Root-entry, local-artifact, and tracked-disposable bloat checks now live in
+  `scripts/harness/checks/repo-artifacts.mjs`; the main bloat script still
+  owns docs drift, product copy, privacy logging, dependency ownership, and
+  fixture-quality checks.
 - Docs harness exists and runs through `npm run harness:check`.
 - Environment readiness is now checked through `npm run doctor`; E2E/browser
   readiness uses `npm run doctor:e2e`.
@@ -63,8 +67,8 @@ Current cleanup posture:
 - A deep harness audit on 2026-05-31 identified harness debt. CI harness
   coverage, release preflight, hardcoded harness policy extraction, external AI
   provider scan breadth, doctor platform/E2E readiness, and active-plan
-  compaction are now closed; oversized mixed sensors remain tracked in
-  `docs/plans/tech-debt-tracker.md`.
+  compaction are now closed; oversized mixed sensors remain tracked as
+  in-progress debt in `docs/plans/tech-debt-tracker.md`.
 - `docs/plans/active/status.md` now provides the compact restart surface for
   active goal state, next work, and the completion bar; older progress rows are
   archived under `docs/plans/archive/`.
@@ -196,10 +200,23 @@ Recent cleanup slices on `main` include:
 - Added `docs/plans/active/status.md`, archived older active-plan progress
   rows, routed the plan index and harness/agent guides toward the compact
   status surface, and closed `HE-011`.
+- Extracted repo artifact policy from `scripts/check-repo-bloat.mjs` into
+  `scripts/harness/checks/repo-artifacts.mjs` with focused
+  `scripts/check-repo-artifacts.test.mjs` coverage.
 
 The active plan progress table has detailed slice history.
 
 ## Verified Recently
+
+Latest sensor-modularity slice checks on 2026-05-31:
+
+- `node --check scripts/check-repo-bloat.mjs`
+- `node --check scripts/harness/checks/repo-artifacts.mjs`
+- `npm run test:scripts`
+- `npm run lint:bloat`
+- `npm run harness:check`
+- `npm run lint:docs`
+- `git diff --check`
 
 Latest active-plan documentation slice checks on 2026-05-31:
 
