@@ -46,9 +46,10 @@ Status:
 
 ## Current Harness Debt
 
-| ID | Area | Evidence | Risk | Next step |
-| -- | ---- | -------- | ---- | --------- |
-| HE-004 | Plans | Active/completed plan folders were added after earlier plans. | New work may skip plan lifecycle. | Move future broad work through `docs/plans/active/`. |
+Use `docs/plans/tech-debt-tracker.md` as the single current debt source. Keep
+audit detail in dated harness reviews such as
+`docs/harness/deep-harness-audit-2026-05-31.md`, then promote accepted work into
+the tracker. Do not keep a second live debt table here.
 
 ## Promotion Rule
 
