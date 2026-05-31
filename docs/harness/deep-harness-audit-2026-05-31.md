@@ -31,8 +31,8 @@ npm run test:scripts
 
 All passed.
 
-Follow-up on 2026-05-31: CI harness coverage and release preflight were
-implemented after this audit and closed in
+Follow-up on 2026-05-31: CI harness coverage, release preflight, and broader
+external-AI provider detection were implemented after this audit and closed in
 `docs/plans/tech-debt-tracker.md`. Remaining recommendations stay tracked
 there.
 

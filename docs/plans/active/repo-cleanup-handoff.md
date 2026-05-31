@@ -48,14 +48,19 @@ Current cleanup posture:
   tests, so sensor changes no longer bypass the docs workflow path filter.
 - Release and manual Linux/Windows build workflows now validate release version
   metadata and run preflight checks before artifact build or upload.
+- External-AI provider detection now runs through `npm run lint:external-ai`
+  and through `npm run harness:check`. It scans code plus JSON, YAML, TOML, and
+  env-style config for direct provider endpoints, SDKs, hosted inference
+  endpoints, dependency declarations, and provider API-key variables outside
+  `src/services/aiGateway.ts`.
 - Walking Labs harness material has been evaluated twice: Lecture 02 mapped the
   repo against instructions, tools, environment, state, and feedback; the
   `harness-creator` skill evaluation recorded the external validator mismatch
   as an interoperability gap, not a repo quality score.
 - A deep harness audit on 2026-05-31 identified harness debt. CI harness
-  coverage and release preflight are now closed; hardcoded harness policy data,
-  oversized mixed sensors, external AI provider scan breadth, doctor platform
-  coverage, and active-plan compaction remain tracked in
+  coverage, release preflight, and external AI provider scan breadth are now
+  closed; hardcoded harness policy data, oversized mixed sensors, doctor
+  platform coverage, and active-plan compaction remain tracked in
   `docs/plans/tech-debt-tracker.md`.
 - Chromium and WebKit focused E2E flows were stabilized for keyboard navigation
   and job filtering in the latest slice.
@@ -174,6 +179,8 @@ Recent cleanup slices on `main` include:
   tracker.
 - Added normal-CI harness coverage, widened Docs Harness script coverage, and
   added release/manual-build preflight gates with release metadata validation.
+- Added standalone external-AI provider scanning for code and config files and
+  covered it with focused script tests.
 
 The active plan progress table has detailed slice history.
 
@@ -182,6 +189,7 @@ The active plan progress table has detailed slice history.
 Latest CI/release-preflight slice checks on 2026-05-31:
 
 - `npm run release:check-version -- v2.6.4`
+- `npm run lint:external-ai`
 - `npm run test:scripts`
 - `npm run harness:check`
 - `npm run lint:md`
@@ -276,8 +284,8 @@ Next high-value passes:
    - Promote any repeated ease, privacy, or flaky-test failure into a guide or
      sensor instead of leaving it in chat.
    - Prioritize the remaining top harness debt: harness manifest extraction,
-     sensor modularity, broader external-AI provider scanning, environment
-     doctor platform checks, and active-plan compaction.
+     sensor modularity, environment doctor platform checks, and active-plan
+     compaction.
 8. Continue protective job-search UX review.
    - Make ghost/stale detection central on job cards and saved jobs.
    - Make salary floor, pay transparency, salary-history guardrails, and

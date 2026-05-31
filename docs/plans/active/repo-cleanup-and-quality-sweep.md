@@ -111,6 +111,9 @@ Required process:
 - [x] Add release and manual-build preflight gates for version agreement,
   harness checks, script tests, markdown linting, frontend build, Rust fmt,
   clippy, and Rust unit tests.
+- [x] Broaden external-AI provider detection across code and config files so
+  provider calls, SDKs, hosted inference endpoints, and provider API-key
+  variables stay routed through the AI gateway boundary.
 - [ ] Audit primary user workflows for zero-technical-knowledge ease.
 - [ ] Audit user-facing flows and copy for engineer-only assumptions.
 - [ ] Run relevant verification and push each cleanup slice.
@@ -128,6 +131,9 @@ the repo harness rather than changing user-facing product behavior:
 - Added a normal-CI harness job, expanded Docs Harness coverage for script
   changes, and added release/manual-build preflight gates with version
   metadata validation.
+- Added a standalone external-AI gateway sensor and wired it into the harness
+  so code, JSON, YAML, TOML, and env-style config cannot add direct provider
+  paths outside `src/services/aiGateway.ts`.
 - Updated active plan and handoff docs for the user-requested commit and push.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
@@ -157,6 +163,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-31 | In progress | Closed the external-AI provider surface finding from the deep audit by adding `npm run lint:external-ai`, wiring it into `harness:check`, and testing OpenAI, Anthropic, Gemini/API-key, dependency, gateway-allowlist, and company-name false-positive cases. |
 | 2026-05-31 | In progress | Closed the top P0 harness-delivery findings from the deep audit: normal CI now runs harness and script tests, Docs Harness watches the whole script set, and release/manual build workflows validate release metadata before running harness, docs, frontend, and Rust preflight checks. |
 | 2026-05-31 | In progress | Refreshed all active plan and handoff docs before the user-requested push to `main`; current push is explicitly authorized and includes the environment doctor, Walking Labs evaluations, deep harness audit, and active-plan refresh. |
 | 2026-05-29 | In progress | Rebased safe debug-report sanitizer test examples away from Rust/software-engineering job titles toward program-coordination and care-coordination examples, with bloat coverage against old feedback fixture drift. |

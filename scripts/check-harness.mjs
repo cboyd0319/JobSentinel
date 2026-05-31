@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { dirname, extname, join, normalize, relative, resolve } from "node:path";
+import { dirname, join, normalize, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { checkFrontendBoundaries } from "./check-frontend-boundaries.mjs";
+import { checkExternalAiGateway } from "./check-external-ai-gateway.mjs";
 import {
   checkSecuritySensors,
   formatSecuritySensorSummary,
@@ -131,19 +132,6 @@ const requiredHarnessSnippets = {
     "sensitive_payload_blocked",
   ],
 };
-
-const externalAiProviderCallPatterns = [
-  /api\.openai\.com/i,
-  /chat\/completions/i,
-  /\/v1\/responses/i,
-  /from\s+["']openai["']/i,
-  /new\s+OpenAI\s*\(/i,
-];
-
-const externalAiProviderAllowedPaths = new Set([
-  "src/services/aiGateway.ts",
-  "src/services/aiGateway.test.ts",
-]);
 
 const readmeReferenceHeading = "## References and external sources";
 
@@ -360,30 +348,6 @@ function collectMarkdownFiles(dir = root) {
   return files.sort();
 }
 
-function collectCodeFiles(dir = root) {
-  const entries = readdirSync(dir, { withFileTypes: true });
-  const files = [];
-  const codeExtensions = new Set([".js", ".jsx", ".mjs", ".rs", ".ts", ".tsx"]);
-
-  for (const entry of entries) {
-    const fullPath = join(dir, entry.name);
-    const rel = relative(root, fullPath);
-    const parts = rel.split(/[\\/]/);
-
-    if (parts.some((part) => ignoredPathParts.has(part))) {
-      continue;
-    }
-
-    if (entry.isDirectory()) {
-      files.push(...collectCodeFiles(fullPath));
-    } else if (entry.isFile() && codeExtensions.has(extname(entry.name))) {
-      files.push(rel);
-    }
-  }
-
-  return files.sort();
-}
-
 for (const path of requiredFiles) {
   if (!existsSync(repoPath(path))) {
     errors.push(`missing required harness file: ${path}`);
@@ -423,17 +387,6 @@ if (existsSync(repoPath("README.md"))) {
     if (!readmeExternalReferences.has(normalizeExternalUrl(url))) {
       errors.push(`README.md reference index missing required research source: ${url}`);
     }
-  }
-}
-
-for (const path of collectCodeFiles()) {
-  if (externalAiProviderAllowedPaths.has(path)) {
-    continue;
-  }
-
-  const text = read(path);
-  if (externalAiProviderCallPatterns.some((pattern) => pattern.test(text))) {
-    errors.push(`external AI provider calls must go through src/services/aiGateway.ts: ${path}`);
   }
 }
 
@@ -610,6 +563,10 @@ for (const path of rustLintPolicyDocs) {
 }
 
 for (const violation of checkFrontendBoundaries(root)) {
+  errors.push(violation);
+}
+
+for (const violation of checkExternalAiGateway(root)) {
   errors.push(violation);
 }
 

@@ -14,6 +14,7 @@ behavior, security, storage, or release flow changes.
 | Frontend architecture boundary rules | `npm run lint:architecture` and `npm run harness:check` |
 | Tauri invoke command map | `npm run lint:tauri-invokes` and `npm run harness:check` |
 | Security sensor policy | `npm run lint:security` and `npm run harness:check` |
+| External AI provider detection | `npm run lint:external-ai` and `npm run harness:check` |
 | Test quality policy | `npm run lint:tests` and `npm run harness:check` |
 | Repo bloat policy | `npm run lint:bloat` and `npm run harness:check` |
 | Any claim of completion | Name exact checks run |
@@ -49,7 +50,7 @@ with warnings-as-errors as a required local or CI gate.
 | URL, file path, command, or HTML input | Unit tests for malicious input |
 | Credential handling | Keyring behavior check and no plaintext path |
 | External network destination | Privacy docs update and explicit user configuration |
-| External AI provider path | AI gateway test, privacy label update, payload preview gate, and no direct provider call outside `src/services/aiGateway.ts` |
+| External AI provider path | `npm run lint:external-ai`, AI gateway test, privacy label update, payload preview gate, and no direct provider call outside `src/services/aiGateway.ts` |
 | Browser automation | Human-in-the-loop submit behavior preserved |
 | Scraper behavior | Rate limit and error handling tests |
 

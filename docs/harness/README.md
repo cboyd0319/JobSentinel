@@ -87,6 +87,7 @@ Sensors:
 
 - TypeScript checks and ESLint.
 - Frontend architecture boundary checks.
+- External AI gateway checks across code and config files.
 - Security sensor coverage checks.
 - Test quality checks for no-op, focused, and skipped unit tests.
 - Repo bloat checks for disposable artifacts and tracked generated output.
