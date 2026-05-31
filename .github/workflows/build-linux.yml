@@ -41,6 +41,7 @@ jobs:
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
         with:
           toolchain: stable
+          components: clippy, rustfmt
           targets: x86_64-unknown-linux-gnu
 
       - name: Cache cargo
@@ -50,6 +51,33 @@ jobs:
 
       - name: Install frontend dependencies
         run: npm ci
+
+      - name: Validate requested version
+        run: npm run release:check-version -- "${{ github.event.inputs.version }}"
+
+      - name: Run harness checks
+        run: npm run harness:check
+
+      - name: Run harness script tests
+        run: npm run test:scripts
+
+      - name: Run markdown lint
+        run: npm run lint:md
+
+      - name: Run frontend build
+        run: npm run build
+
+      - name: Check Rust formatting
+        working-directory: src-tauri
+        run: cargo fmt --all -- --check
+
+      - name: Run Rust clippy
+        working-directory: src-tauri
+        run: cargo clippy -- -D warnings
+
+      - name: Run Rust tests
+        working-directory: src-tauri
+        run: cargo test --lib
 
       - name: Build Tauri app
         run: npx tauri build --target x86_64-unknown-linux-gnu

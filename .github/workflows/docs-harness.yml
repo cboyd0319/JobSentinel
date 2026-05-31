@@ -8,7 +8,7 @@ on:
       - "CLAUDE.md"
       - "README.md"
       - "docs/**"
-      - "scripts/check-harness.mjs"
+      - "scripts/**"
       - "package.json"
       - "package-lock.json"
       - ".github/PULL_REQUEST_TEMPLATE.md"
@@ -21,7 +21,7 @@ on:
       - "CLAUDE.md"
       - "README.md"
       - "docs/**"
-      - "scripts/check-harness.mjs"
+      - "scripts/**"
       - "package.json"
       - "package-lock.json"
       - ".github/PULL_REQUEST_TEMPLATE.md"
@@ -49,6 +49,9 @@ jobs:
 
       - name: Run harness check
         run: npm run harness:check
+
+      - name: Run harness script tests
+        run: npm run test:scripts
 
       - name: Run markdown lint
         run: npm run lint:md

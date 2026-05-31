@@ -106,6 +106,11 @@ Required process:
 - [x] Add a one-click sanitized debug-report path for GitHub issue reporting.
 - [x] Improve harness docs and templates from current harness-engineering
   references.
+- [x] Add normal-CI coverage for `npm run harness:check` and
+  `npm run test:scripts`.
+- [x] Add release and manual-build preflight gates for version agreement,
+  harness checks, script tests, markdown linting, frontend build, Rust fmt,
+  clippy, and Rust unit tests.
 - [ ] Audit primary user workflows for zero-technical-knowledge ease.
 - [ ] Audit user-facing flows and copy for engineer-only assumptions.
 - [ ] Run relevant verification and push each cleanup slice.
@@ -120,6 +125,9 @@ the repo harness rather than changing user-facing product behavior:
 - Recorded Walking Labs Lecture 02 and `harness-creator` skill evaluations.
 - Recorded a deep harness audit and promoted top findings into
   `docs/plans/tech-debt-tracker.md`.
+- Added a normal-CI harness job, expanded Docs Harness coverage for script
+  changes, and added release/manual-build preflight gates with version
+  metadata validation.
 - Updated active plan and handoff docs for the user-requested commit and push.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
@@ -149,6 +157,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-31 | In progress | Closed the top P0 harness-delivery findings from the deep audit: normal CI now runs harness and script tests, Docs Harness watches the whole script set, and release/manual build workflows validate release metadata before running harness, docs, frontend, and Rust preflight checks. |
 | 2026-05-31 | In progress | Refreshed all active plan and handoff docs before the user-requested push to `main`; current push is explicitly authorized and includes the environment doctor, Walking Labs evaluations, deep harness audit, and active-plan refresh. |
 | 2026-05-29 | In progress | Rebased safe debug-report sanitizer test examples away from Rust/software-engineering job titles toward program-coordination and care-coordination examples, with bloat coverage against old feedback fixture drift. |
 | 2026-05-29 | In progress | Rebased database integration fixtures from TestCorp/Rust/San Francisco search examples to program-coordinator, care-coordination, support-specialist, Chicago, and realistic broad-role salary examples, with bloat coverage against old database fixture drift. |

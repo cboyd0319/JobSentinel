@@ -17,24 +17,23 @@ scope:
 - `repo-cleanup-handoff.md`
 - `research-backed-product-improvements.md`
 
-Latest local commits before this handoff refresh:
+Latest pushed harness commits before this slice:
 
+- `ea907c99 Refresh active plan handoff`
 - `55761c07 Record deep harness audit`
 - `03af1711 Document harness creator skill evaluation`
 - `5b88f700 Add harness environment doctor`
 
 Current branch note:
 
-- `main` is clean and was ahead of `origin/main` by three commits before this
-  handoff refresh.
-- The user explicitly requested this active-plan refresh, commit, and push to
-  `main` on 2026-05-31, so this push is authorized even though earlier guidance
-  was to avoid remote CI until the full goal is complete.
-- After this refresh is pushed, `origin/main` should include the environment
-  doctor, Walking Labs harness skill evaluation, deep harness audit, and this
-  active-plan refresh.
-- Continue using small verified commits after this push. Avoid later remote CI
-  unless the user explicitly asks or the full-goal completion pass requires it.
+- `main` was clean and synced with `origin/main` before the current CI and
+  release-preflight slice.
+- The 2026-05-31 Docs Harness run for `ea907c99` passed, and the matching
+  remote CI run passed.
+- The current slice is authorized because the user requested active plan and
+  handoff docs stay accurate and committed to `main` while the goal continues.
+- Continue using small verified commits. Avoid later remote CI unless the user
+  explicitly asks or the full-goal completion pass requires it.
 
 Current cleanup posture:
 
@@ -43,14 +42,20 @@ Current cleanup posture:
 - Environment readiness is now checked through `npm run doctor`.
 - Test-quality guard exists and blocks focused tests, runtime skips, and weak
   E2E assertions through `npm run lint:tests`.
+- Normal CI now runs `npm run harness:check` and `npm run test:scripts` in a
+  dedicated harness job.
+- Docs Harness now watches the whole `scripts/**` set and runs harness script
+  tests, so sensor changes no longer bypass the docs workflow path filter.
+- Release and manual Linux/Windows build workflows now validate release version
+  metadata and run preflight checks before artifact build or upload.
 - Walking Labs harness material has been evaluated twice: Lecture 02 mapped the
   repo against instructions, tools, environment, state, and feedback; the
   `harness-creator` skill evaluation recorded the external validator mismatch
   as an interoperability gap, not a repo quality score.
-- A deep harness audit on 2026-05-31 identified top harness debt: CI harness
-  coverage, release preflight, hardcoded harness policy data, oversized mixed
-  sensors, external AI provider scan breadth, doctor platform coverage, and
-  active-plan compaction. These are tracked in
+- A deep harness audit on 2026-05-31 identified harness debt. CI harness
+  coverage and release preflight are now closed; hardcoded harness policy data,
+  oversized mixed sensors, external AI provider scan breadth, doctor platform
+  coverage, and active-plan compaction remain tracked in
   `docs/plans/tech-debt-tracker.md`.
 - Chromium and WebKit focused E2E flows were stabilized for keyboard navigation
   and job filtering in the latest slice.
@@ -141,8 +146,8 @@ Recent cleanup slices on `main` include:
 - Maintained docs normalization to remove stale status markers, glyph-heavy
   diagrams, stale release promises, and version drift.
 - Root README was redesigned as a professional research-project front door and
-  pushed to `origin/main`; Docs Harness passed for that commit, while the remote
-  full CI run was still pending during the latest poll.
+  pushed to `origin/main`; the latest remote Docs Harness and CI runs passed
+  before this handoff refresh.
 - Setup now asks for review volume in plain language and maps the answer to
   existing local source limits and alert strength.
 - Browser import copy now avoids bookmarklet, any-website, safety-token, and
@@ -167,19 +172,25 @@ Recent cleanup slices on `main` include:
   adding duplicate root state files.
 - Recorded the deep harness audit and promoted top findings into the debt
   tracker.
+- Added normal-CI harness coverage, widened Docs Harness script coverage, and
+  added release/manual-build preflight gates with release metadata validation.
 
 The active plan progress table has detailed slice history.
 
 ## Verified Recently
 
-Latest active-plan refresh checks on 2026-05-31:
+Latest CI/release-preflight slice checks on 2026-05-31:
 
-- `npm run doctor`
-- `npm run harness:check`
-- `npm run lint:docs`
+- `npm run release:check-version -- v2.6.4`
 - `npm run test:scripts`
+- `npm run harness:check`
 - `npm run lint:md`
+- `npm run lint:docs`
 - `npm run lint:bloat`
+- `npm run build`
+- `npx --yes github-actionlint@1.7.12` against the updated workflow files.
+- `ruby -e 'require "yaml"; ARGV.each { |path| YAML.load_file(path) }'`
+  against the updated workflow files.
 - `git diff --check`
 
 The latest cleanup slices were verified with:
@@ -264,10 +275,9 @@ Next high-value passes:
      work.
    - Promote any repeated ease, privacy, or flaky-test failure into a guide or
      sensor instead of leaving it in chat.
-   - Prioritize the new top harness debt: CI harness coverage, release
-     preflight, harness manifest extraction, sensor modularity, broader
-     external-AI provider scanning, environment doctor platform checks, and
-     active-plan compaction.
+   - Prioritize the remaining top harness debt: harness manifest extraction,
+     sensor modularity, broader external-AI provider scanning, environment
+     doctor platform checks, and active-plan compaction.
 8. Continue protective job-search UX review.
    - Make ghost/stale detection central on job cards and saved jobs.
    - Make salary floor, pay transparency, salary-history guardrails, and
