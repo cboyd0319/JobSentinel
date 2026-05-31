@@ -40,7 +40,8 @@ In scope:
   it is completed, superseded, or moved out of active plans. Current active
   goal inputs are `guided-job-search-intake.md`,
   `repo-cleanup-and-quality-sweep.md`, `repo-cleanup-handoff.md`, and
-  `research-backed-product-improvements.md`.
+  `research-backed-product-improvements.md`, plus the compact
+  `status.md` restart surface.
 
 Out of scope:
 
@@ -129,6 +130,8 @@ Required process:
   `scripts/harness/checks/source-structure.mjs`.
 - [x] Extract E2E helper ownership checks into
   `scripts/harness/checks/e2e-helpers.mjs`.
+- [x] Extract product-framing checks into
+  `scripts/harness/checks/product-framing.mjs`.
 - [ ] Audit primary user workflows for zero-technical-knowledge ease.
 - [ ] Audit user-facing flows and copy for engineer-only assumptions.
 - [ ] Run relevant verification and push each cleanup slice.
@@ -167,6 +170,9 @@ the repo harness rather than changing user-facing product behavior:
   `scripts/harness/checks/source-structure.mjs` with focused script tests.
 - Extracted E2E helper ownership checks from `scripts/check-repo-bloat.mjs`
   into `scripts/harness/checks/e2e-helpers.mjs` with focused script tests.
+- Extracted README product definition, free-forever MIT wording, and banned
+  job-search framing checks from `scripts/check-repo-bloat.mjs` into
+  `scripts/harness/checks/product-framing.mjs` with focused script tests.
 - Updated active plan and handoff docs for the user-requested commit and push.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
@@ -198,6 +204,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting product-framing checks for the README definition, free-forever MIT wording, and banned job-search phrases into `scripts/harness/checks/product-framing.mjs`. |
 | 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting E2E helper ownership into `scripts/harness/checks/e2e-helpers.mjs`, with focused coverage for referenced and unreferenced helper cases. |
 | 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting source-structure checks for unreferenced settings helpers, hooks, helper modules, local barrels, and stale notification preference wrappers into `scripts/harness/checks/source-structure.mjs`. |
 | 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting package and dependency ownership checks into `scripts/harness/checks/dependency-ownership.mjs`, keeping existing bloat violation messages and adding focused module tests. |

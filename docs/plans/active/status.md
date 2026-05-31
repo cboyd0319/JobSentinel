@@ -29,10 +29,10 @@ the work is completed, superseded, or moved out of active plans.
 - Latest local work closed the active-plan compaction debt by adding this
   compact status file, archiving older progress rows, and routing the plan
   index, harness guide, agent guide, and handoff toward the compact state.
-- Current local work started the sensor-modularity debt by extracting
-  filesystem, tracked-artifact, dependency-ownership, source-structure, and
-  E2E-helper ownership policy from `scripts/check-repo-bloat.mjs` into
-  `scripts/harness/checks/` modules with focused tests.
+- Current local work continues the sensor-modularity debt by extracting
+  filesystem, tracked-artifact, dependency-ownership, source-structure,
+  E2E-helper, and product-framing policy from `scripts/check-repo-bloat.mjs`
+  into `scripts/harness/checks/` modules with focused tests.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.
@@ -47,8 +47,8 @@ the work is completed, superseded, or moved out of active plans.
 ## Next Best Work
 
 1. Continue splitting oversized mixed sensors, especially docs-drift,
-   privacy-logging, product-copy, and fixture checks still inside
-   `scripts/check-repo-bloat.mjs`.
+   privacy-logging, fixture-quality, and remaining product-copy checks still
+   inside `scripts/check-repo-bloat.mjs`.
 2. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
 3. Continue broad-audience review so non-technical and technical job searches

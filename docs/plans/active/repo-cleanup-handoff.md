@@ -30,12 +30,14 @@ Latest pushed harness commits before this slice:
 Current branch note:
 
 - At the start of this handoff refresh, `main` was ahead of `origin/main` by
-  the local harness-policy-manifest commit.
-- The 2026-05-31 Docs Harness and CI runs for `10a5fe09` passed.
-- The current slice is authorized because the user requested active plan and
-  handoff docs stay accurate and committed to `main` while the goal continues.
-- Continue using small verified commits. Avoid later remote CI unless the user
-  explicitly asks or the full-goal completion pass requires it.
+  local sensor-modularity commits and had an uncommitted product-framing split.
+- The 2026-05-31 Docs Harness and CI runs for `10a5fe09` passed before the
+  local sensor-modularity series.
+- The current push is explicitly authorized because the user requested all
+  active plan and handoff docs be fully updated, committed, and pushed to
+  `main`.
+- After this push, avoid later remote CI unless the user explicitly asks or the
+  full-goal completion pass requires it.
 
 Current cleanup posture:
 
@@ -50,6 +52,11 @@ Current cleanup posture:
   `scripts/harness/checks/source-structure.mjs`.
 - E2E helper ownership checks now live in
   `scripts/harness/checks/e2e-helpers.mjs`.
+- Product-framing checks for the README definition, free-forever MIT wording,
+  and banned job-search phrases now live in
+  `scripts/harness/checks/product-framing.mjs`.
+- `scripts/check-repo-bloat.mjs` still owns docs drift, privacy logging,
+  fixture-quality checks, and remaining product-copy checks.
 - Docs harness exists and runs through `npm run harness:check`.
 - Environment readiness is now checked through `npm run doctor`; E2E/browser
   readiness uses `npm run doctor:e2e`.
@@ -219,6 +226,9 @@ Recent cleanup slices on `main` include:
 - Extracted E2E helper ownership checks from `scripts/check-repo-bloat.mjs`
   into `scripts/harness/checks/e2e-helpers.mjs` with focused
   `scripts/check-e2e-helpers.test.mjs` coverage.
+- Extracted product-framing checks from `scripts/check-repo-bloat.mjs` into
+  `scripts/harness/checks/product-framing.mjs` with focused
+  `scripts/check-product-framing.test.mjs` coverage.
 
 The active plan progress table has detailed slice history.
 
@@ -231,6 +241,8 @@ Latest sensor-modularity slice checks on 2026-05-31:
 - `node --check scripts/harness/checks/dependency-ownership.mjs`
 - `node --check scripts/harness/checks/source-structure.mjs`
 - `node --check scripts/harness/checks/e2e-helpers.mjs`
+- `node --check scripts/harness/checks/product-framing.mjs`
+- `node --test scripts/check-product-framing.test.mjs scripts/check-repo-bloat.test.mjs`
 - `npm run test:scripts`
 - `npm run lint:bloat`
 - `npm run harness:check`
@@ -353,8 +365,9 @@ Next high-value passes:
      work.
    - Promote any repeated ease, privacy, or flaky-test failure into a guide or
      sensor instead of leaving it in chat.
-   - Prioritize the remaining top harness debt: sensor modularity and
-     machine-readable plan status.
+   - Prioritize the remaining top harness debt: sensor modularity, diff-aware
+     verification selection, feature privacy labels, and machine-readable plan
+     status.
 8. Continue protective job-search UX review.
    - Make ghost/stale detection central on job cards and saved jobs.
    - Make salary floor, pay transparency, salary-history guardrails, and
