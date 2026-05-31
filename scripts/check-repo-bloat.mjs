@@ -11,6 +11,7 @@ import {
   hasUnownedStorybookAddon,
   readPackageManifest,
 } from "./harness/checks/dependency-ownership.mjs";
+import { hasUnreferencedE2eTestHelper } from "./harness/checks/e2e-helpers.mjs";
 import {
   collectFilesystemBloat,
   collectUnexpectedRootEntries,
@@ -24,7 +25,6 @@ import {
   hasUnreferencedHookModule,
   hasUnreferencedSettingsHelperComponent,
   hasUnreferencedSourceHelper,
-  importSpecifiers,
 } from "./harness/checks/source-structure.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
@@ -1971,26 +1971,6 @@ function hasFixedWaitInE2ePageObject(root, path) {
   }
 
   return /\.waitForTimeout\(/.test(readFileSync(join(root, path), "utf8"));
-}
-
-function hasUnreferencedE2eTestHelper(root, path) {
-  if (path !== "tests/e2e/playwright/test-helpers.ts") {
-    return false;
-  }
-
-  return !listTrackedFiles(root).some((trackedPath) => {
-    if (
-      trackedPath === path ||
-      !trackedPath.startsWith("tests/e2e/playwright/") ||
-      !trackedPath.endsWith(".ts")
-    ) {
-      return false;
-    }
-
-    return importSpecifiers(root, trackedPath).some(
-      (specifier) => specifier === "./test-helpers" || specifier.endsWith("/test-helpers"),
-    );
-  });
 }
 
 function hasStaleGettingStartedToolingDocs(root, path) {

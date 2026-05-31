@@ -127,6 +127,8 @@ Required process:
 - [x] Extract source-structure checks for unreferenced helpers, hooks, barrels,
   and notification preference wrappers into
   `scripts/harness/checks/source-structure.mjs`.
+- [x] Extract E2E helper ownership checks into
+  `scripts/harness/checks/e2e-helpers.mjs`.
 - [ ] Audit primary user workflows for zero-technical-knowledge ease.
 - [ ] Audit user-facing flows and copy for engineer-only assumptions.
 - [ ] Run relevant verification and push each cleanup slice.
@@ -163,6 +165,8 @@ the repo harness rather than changing user-facing product behavior:
   `scripts/harness/checks/dependency-ownership.mjs` with focused script tests.
 - Extracted source-structure checks from `scripts/check-repo-bloat.mjs` into
   `scripts/harness/checks/source-structure.mjs` with focused script tests.
+- Extracted E2E helper ownership checks from `scripts/check-repo-bloat.mjs`
+  into `scripts/harness/checks/e2e-helpers.mjs` with focused script tests.
 - Updated active plan and handoff docs for the user-requested commit and push.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
@@ -194,6 +198,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting E2E helper ownership into `scripts/harness/checks/e2e-helpers.mjs`, with focused coverage for referenced and unreferenced helper cases. |
 | 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting source-structure checks for unreferenced settings helpers, hooks, helper modules, local barrels, and stale notification preference wrappers into `scripts/harness/checks/source-structure.mjs`. |
 | 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting package and dependency ownership checks into `scripts/harness/checks/dependency-ownership.mjs`, keeping existing bloat violation messages and adding focused module tests. |
 | 2026-05-31 | In progress | Started the sensor-modularity finding by extracting filesystem and tracked-artifact bloat policy into `scripts/harness/checks/repo-artifacts.mjs`, keeping `checkRepoBloat` outputs unchanged and adding focused module tests. |

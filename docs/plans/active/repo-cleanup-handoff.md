@@ -48,6 +48,8 @@ Current cleanup posture:
 - Source-structure checks for unreferenced settings helpers, hooks, helper
   modules, local barrels, and notification preference wrappers now live in
   `scripts/harness/checks/source-structure.mjs`.
+- E2E helper ownership checks now live in
+  `scripts/harness/checks/e2e-helpers.mjs`.
 - Docs harness exists and runs through `npm run harness:check`.
 - Environment readiness is now checked through `npm run doctor`; E2E/browser
   readiness uses `npm run doctor:e2e`.
@@ -214,6 +216,9 @@ Recent cleanup slices on `main` include:
 - Extracted source-structure checks from `scripts/check-repo-bloat.mjs` into
   `scripts/harness/checks/source-structure.mjs` with focused
   `scripts/check-source-structure.test.mjs` coverage.
+- Extracted E2E helper ownership checks from `scripts/check-repo-bloat.mjs`
+  into `scripts/harness/checks/e2e-helpers.mjs` with focused
+  `scripts/check-e2e-helpers.test.mjs` coverage.
 
 The active plan progress table has detailed slice history.
 
@@ -225,6 +230,7 @@ Latest sensor-modularity slice checks on 2026-05-31:
 - `node --check scripts/harness/checks/repo-artifacts.mjs`
 - `node --check scripts/harness/checks/dependency-ownership.mjs`
 - `node --check scripts/harness/checks/source-structure.mjs`
+- `node --check scripts/harness/checks/e2e-helpers.mjs`
 - `npm run test:scripts`
 - `npm run lint:bloat`
 - `npm run harness:check`
