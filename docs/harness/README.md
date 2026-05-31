@@ -35,6 +35,7 @@ Use this structure:
 | Entry guide | `AGENTS.md` | Short map and hard repo rules |
 | Knowledge base | `docs/` | Versioned source of truth |
 | Change contract | `docs/harness/change-contract.md` | Acceptance criteria before edits |
+| Policy manifest | `docs/harness/manifest.json` | Required harness files, policy snippets, and README reference-source coverage |
 | Plans | `docs/plans/` | Multi-step work, progress, decisions |
 | Sensors | `docs/harness/verification-matrix.md` | Checks by change type |
 | Environment doctor | `npm run doctor`, `npm run doctor:e2e` | Local readiness check for Node, npm, Rust, Tauri, SQLx offline setup, Linux Tauri packages, and Playwright browser launch |

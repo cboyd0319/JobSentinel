@@ -19,6 +19,7 @@ scope:
 
 Latest pushed harness commits before this slice:
 
+- `10a5fe09 Extend environment doctor checks`
 - `c6bbd4d4 Broaden external AI gateway sensor`
 - `ea907c99 Refresh active plan handoff`
 - `55761c07 Record deep harness audit`
@@ -28,8 +29,8 @@ Latest pushed harness commits before this slice:
 Current branch note:
 
 - `main` was clean and synced with `origin/main` before the current
-  environment-doctor platform/E2E readiness slice.
-- The 2026-05-31 Docs Harness and CI runs for `c6bbd4d4` passed.
+  harness-policy-manifest slice.
+- The 2026-05-31 Docs Harness and CI runs for `10a5fe09` passed.
 - The current slice is authorized because the user requested active plan and
   handoff docs stay accurate and committed to `main` while the goal continues.
 - Continue using small verified commits. Avoid later remote CI unless the user
@@ -59,9 +60,9 @@ Current cleanup posture:
   `harness-creator` skill evaluation recorded the external validator mismatch
   as an interoperability gap, not a repo quality score.
 - A deep harness audit on 2026-05-31 identified harness debt. CI harness
-  coverage, release preflight, external AI provider scan breadth, and doctor
-  platform/E2E readiness are now closed; hardcoded harness policy data,
-  oversized mixed sensors, and active-plan compaction remain tracked in
+  coverage, release preflight, hardcoded harness policy extraction, external AI
+  provider scan breadth, and doctor platform/E2E readiness are now closed;
+  oversized mixed sensors and active-plan compaction remain tracked in
   `docs/plans/tech-debt-tracker.md`.
 - Chromium and WebKit focused E2E flows were stabilized for keyboard navigation
   and job filtering in the latest slice.
@@ -185,6 +186,9 @@ Recent cleanup slices on `main` include:
 - Extended `npm run doctor` with Linux Tauri package checks, `patchelf`,
   Playwright Chromium launch readiness, and Node/Rust CI-baseline drift
   warnings; added `npm run doctor:e2e` as the strict E2E readiness gate.
+- Added `docs/harness/manifest.json` so `npm run harness:check` reads required
+  harness files, policy snippets, and README reference-source coverage from
+  data instead of hardcoded checker tables.
 
 The active plan progress table has detailed slice history.
 
@@ -192,6 +196,14 @@ The active plan progress table has detailed slice history.
 
 Latest harness/readiness slice checks on 2026-05-31:
 
+- `node --check scripts/check-harness.mjs`
+- `node --test scripts/check-harness-policy.test.mjs`
+- `npm run harness:check`
+- `npm run test:scripts`
+- `npm run lint:docs`
+- `npm run lint:bloat`
+- `npm run lint -- scripts/check-harness.mjs scripts/check-harness-policy.test.mjs`
+- `git diff --check`
 - `npm run doctor`
 - `npm run doctor:e2e`
 - `node --test scripts/doctor.test.mjs`
@@ -290,8 +302,8 @@ Next high-value passes:
      work.
    - Promote any repeated ease, privacy, or flaky-test failure into a guide or
      sensor instead of leaving it in chat.
-   - Prioritize the remaining top harness debt: harness manifest extraction,
-     sensor modularity, and active-plan compaction.
+   - Prioritize the remaining top harness debt: sensor modularity and
+     active-plan compaction.
 8. Continue protective job-search UX review.
    - Make ghost/stale detection central on job cards and saved jobs.
    - Make salary floor, pay transparency, salary-history guardrails, and

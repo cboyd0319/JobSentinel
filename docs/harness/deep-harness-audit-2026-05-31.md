@@ -31,9 +31,10 @@ npm run test:scripts
 
 All passed.
 
-Follow-up on 2026-05-31: CI harness coverage, release preflight, broader
-external-AI provider detection, and environment doctor platform/E2E readiness
-checks were implemented after this audit and closed in
+Follow-up on 2026-05-31: CI harness coverage, release preflight, hardcoded
+harness policy extraction, broader external-AI provider detection, and
+environment doctor platform/E2E readiness checks were implemented after this
+audit and closed in
 `docs/plans/tech-debt-tracker.md`. Remaining recommendations stay tracked
 there.
 
@@ -43,7 +44,7 @@ there.
 | -------- | ----------- | -------- | ---- | --------------- |
 | P0 | Run harness sensors in normal CI | `.github/workflows/ci.yml` runs TypeScript, ESLint, unit tests, Rust tests, and advisory checks, but not `npm run harness:check` or `npm run test:scripts`. | Code-only PRs can break architecture boundaries, Tauri invoke contracts, test-quality rules, README/reference checks, or privacy drift sensors without CI failure. | Add a lightweight `harness` job or add `npm run harness:check` and `npm run test:scripts` to the frontend CI job. |
 | P0 | Make release workflows require a preflight gate | `.github/workflows/release.yml`, `build-linux.yml`, and `build-windows.yml` build packages without first running the local harness, docs, unit, Rust, and version/tag checks. | A tag or manual build can ship stale docs, broken local-first claims, or version mismatch even if ordinary CI would have caught it. | Add release preflight: `npm run harness:check`, `npm run doctor` where appropriate, `npm run build`, Rust fmt/clippy/tests, and tag/package version agreement. |
-| P0 | Extract hardcoded harness policy data from `check-harness.mjs` | `scripts/check-harness.mjs` owns required files, snippets, external-source URLs, AI-provider patterns, and version checks in one script. | Source additions require code edits, increase merge conflict risk, and make reference maintenance harder than it needs to be. | Move source URL policy and snippet policy to a structured `docs/harness/manifest.json` or equivalent, then keep the script as a validator. |
+| P0 | Extract hardcoded harness policy data from `check-harness.mjs` | `docs/harness/manifest.json` now owns required harness files, policy snippets, and README reference-source URLs; `scripts/check-harness.mjs` reads the manifest and remains the validator. | Closed: source and snippet policy changes are reviewable as data instead of script edits. | Keep new harness policy lists in the manifest unless logic, not policy data, changes. |
 | P1 | Split `check-repo-bloat.mjs` into named sensors | `scripts/check-repo-bloat.mjs` is over 5,400 lines and covers root clutter, stale docs, privacy logging, product phrasing, dependency ownership, fixtures, and source security patterns. | Large mixed-purpose sensors are hard to review, hard to extend safely, and invite accidental broad edits. | Create a registry under `scripts/harness/checks/` with separate modules for repo bloat, docs drift, privacy logging, product copy, dependency ownership, fixture quality, and release metadata. |
 | P1 | Strengthen security sensors beyond doc-presence checks | `scripts/check-security-sensors.mjs` verifies required security docs, matrix entries, and CI phrases. Many implementation privacy checks live inside the bloat sensor instead. | Security enforcement is split across script names in a way agents will not predict. Some checks prove text exists, not that unsafe patterns are blocked. | Move security-sensitive implementation pattern checks into `check-security-sensors.mjs` or a shared security registry, then keep `check-repo-bloat.mjs` focused on bloat and drift. |
 | P1 | Add diff-aware verification selection | `docs/harness/verification-matrix.md` is clear but manual. There is no command that maps changed files to required sensors. | Agents may over-run slow checks or under-run required checks, especially during long sessions. | Add `npm run harness:plan -- --since origin/main` to inspect changed files and print required commands from the matrix. |
@@ -113,11 +114,10 @@ there.
 
 1. Add CI harness coverage and script-test coverage.
 2. Add release preflight and version-input validation.
-3. Extract `check-harness.mjs` policy data into a manifest.
-4. Split `check-repo-bloat.mjs` into named sensor modules.
-5. Add diff-aware `harness:plan`.
-6. Add feature privacy label manifest and broader external AI provider scans.
-7. Compact active plans and add machine-readable plan status.
-8. Add E2E runtime budget tracking.
-9. Build a generic harness compatibility adapter only after the native harness
+3. Split `check-repo-bloat.mjs` into named sensor modules.
+4. Add diff-aware `harness:plan`.
+5. Add feature privacy label manifest and broader external AI provider scans.
+6. Compact active plans and add machine-readable plan status.
+7. Add E2E runtime budget tracking.
+8. Build a generic harness compatibility adapter only after the native harness
     state is compact.

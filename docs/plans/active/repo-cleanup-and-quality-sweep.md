@@ -116,6 +116,8 @@ Required process:
   variables stay routed through the AI gateway boundary.
 - [x] Extend `npm run doctor` to cover Linux Tauri system packages, Playwright
   browser readiness, and Node/Rust CI-baseline drift warnings.
+- [x] Extract hardcoded harness file, snippet, and README reference-source
+  policy into `docs/harness/manifest.json`.
 - [ ] Audit primary user workflows for zero-technical-knowledge ease.
 - [ ] Audit user-facing flows and copy for engineer-only assumptions.
 - [ ] Run relevant verification and push each cleanup slice.
@@ -138,6 +140,9 @@ the repo harness rather than changing user-facing product behavior:
 - Added a standalone external-AI gateway sensor and wired it into the harness
   so code, JSON, YAML, TOML, and env-style config cannot add direct provider
   paths outside `src/services/aiGateway.ts`.
+- Added `docs/harness/manifest.json` so required harness files, policy
+  snippets, and README reference-source coverage are reviewable as data instead
+  of being hardcoded inside `scripts/check-harness.mjs`.
 - Updated active plan and handoff docs for the user-requested commit and push.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
@@ -167,6 +172,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-31 | In progress | Closed the hardcoded harness-policy finding from the deep audit by moving required file, policy-snippet, and README reference-source lists into `docs/harness/manifest.json`, then making `scripts/check-harness.mjs` consume that manifest with focused script coverage. |
 | 2026-05-31 | In progress | Closed the environment doctor platform-coverage finding from the deep audit: `npm run doctor` now checks Linux Tauri packages, `patchelf`, Playwright Chromium launch readiness, and Node/Rust CI-baseline drift; `npm run doctor:e2e` makes Playwright readiness a strict E2E gate. |
 | 2026-05-31 | In progress | Closed the external-AI provider surface finding from the deep audit by adding `npm run lint:external-ai`, wiring it into `harness:check`, and testing OpenAI, Anthropic, Gemini/API-key, dependency, gateway-allowlist, and company-name false-positive cases. |
 | 2026-05-31 | In progress | Closed the top P0 harness-delivery findings from the deep audit: normal CI now runs harness and script tests, Docs Harness watches the whole script set, and release/manual build workflows validate release metadata before running harness, docs, frontend, and Rust preflight checks. |
