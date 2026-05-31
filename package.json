@@ -20,6 +20,7 @@
     "lint:tauri-invokes": "node scripts/check-tauri-invokes.mjs",
     "lint:tests": "node scripts/check-test-quality.mjs",
     "harness:check": "node scripts/check-harness.mjs",
+    "doctor": "node scripts/doctor.mjs",
     "lint:harness": "npm run harness:check",
     "lint:docs": "npm run harness:check && npm run lint:md && npm run lint:prose",
     "test": "vitest",

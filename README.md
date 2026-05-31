@@ -786,6 +786,10 @@ and fake example links are intentionally excluded.
 - [Digital.gov heading guidance](https://digital.gov/guides/plain-language/design/headings)
 - [DHS plain language guidance](https://www.dhs.gov/digital-experience/plain-language)
 
+### Harness Engineering References
+
+- [Walking Labs, Lecture 02. What a Harness Actually Is](https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-02-what-a-harness-actually-is/)
+
 ### Engineering and Test References
 
 - [Kubernetes repository README](https://github.com/kubernetes/kubernetes)

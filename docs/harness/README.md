@@ -37,6 +37,7 @@ Use this structure:
 | Change contract | `docs/harness/change-contract.md` | Acceptance criteria before edits |
 | Plans | `docs/plans/` | Multi-step work, progress, decisions |
 | Sensors | `docs/harness/verification-matrix.md` | Checks by change type |
+| Environment doctor | `npm run doctor` | Local readiness check for Node, npm, Rust, Tauri, and SQLx offline setup |
 | Experience contract | `docs/style-guide/` | Plain-language, broad-audience, zero-technical-skill review |
 | Support path | `docs/user/QUICK_START.md`, issue templates | Recovery and debug-report flow users can operate |
 | Privacy/AI boundary | `PRIVACY.md`, `RESPONSIBLE_AI.md`, `docs/architecture/privacy-first-ai-gateway.md` | Local-first defaults, external AI opt-in, payload preview, and responsible-use guardrails |
@@ -93,6 +94,7 @@ Sensors:
 - Vitest unit and integration tests.
 - Playwright E2E tests.
 - Rust formatting, clippy, and tests.
+- `npm run doctor`.
 - `npm run harness:check`.
 - PR review checklist.
 - Human review for product, security, and irreversible behavior.
@@ -139,6 +141,7 @@ that prevents the observed failure.
 ## Related Docs
 
 - [Sources](sources.md)
+- [Walking Labs Lecture 02 evaluation](walkinglabs-lecture-02-evaluation.md)
 - [README information design](readme-information-design.md)
 - [Agent operating model](agent-operating-model.md)
 - [Change contract](change-contract.md)
