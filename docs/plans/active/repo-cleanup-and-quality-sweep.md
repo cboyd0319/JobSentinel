@@ -124,6 +124,9 @@ Required process:
   policy into `scripts/harness/checks/repo-artifacts.mjs`.
 - [x] Extract package and dependency ownership checks into
   `scripts/harness/checks/dependency-ownership.mjs`.
+- [x] Extract source-structure checks for unreferenced helpers, hooks, barrels,
+  and notification preference wrappers into
+  `scripts/harness/checks/source-structure.mjs`.
 - [ ] Audit primary user workflows for zero-technical-knowledge ease.
 - [ ] Audit user-facing flows and copy for engineer-only assumptions.
 - [ ] Run relevant verification and push each cleanup slice.
@@ -158,6 +161,8 @@ the repo harness rather than changing user-facing product behavior:
 - Extracted package and dependency ownership checks from
   `scripts/check-repo-bloat.mjs` into
   `scripts/harness/checks/dependency-ownership.mjs` with focused script tests.
+- Extracted source-structure checks from `scripts/check-repo-bloat.mjs` into
+  `scripts/harness/checks/source-structure.mjs` with focused script tests.
 - Updated active plan and handoff docs for the user-requested commit and push.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
@@ -189,6 +194,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting source-structure checks for unreferenced settings helpers, hooks, helper modules, local barrels, and stale notification preference wrappers into `scripts/harness/checks/source-structure.mjs`. |
 | 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting package and dependency ownership checks into `scripts/harness/checks/dependency-ownership.mjs`, keeping existing bloat violation messages and adding focused module tests. |
 | 2026-05-31 | In progress | Started the sensor-modularity finding by extracting filesystem and tracked-artifact bloat policy into `scripts/harness/checks/repo-artifacts.mjs`, keeping `checkRepoBloat` outputs unchanged and adding focused module tests. |
 | 2026-05-31 | In progress | Closed the active-plan compaction finding by adding `docs/plans/active/status.md`, archiving older progress rows, and routing the plan index, harness guide, agent guide, and handoff toward the compact status surface. |
