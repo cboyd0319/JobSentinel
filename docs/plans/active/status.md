@@ -31,7 +31,7 @@ the work is completed, superseded, or moved out of active plans.
   index, harness guide, agent guide, and handoff toward the compact state.
 - Current local work continues the sensor-modularity debt by extracting
   filesystem, tracked-artifact, dependency-ownership, source-structure,
-  E2E-helper, product-framing, and product-copy policy from
+  E2E-helper, product-framing, product-copy, and release-promise policy from
   `scripts/check-repo-bloat.mjs` into `scripts/harness/checks/` modules with
   focused tests.
 - The previous local slice closed the hardcoded harness-policy debt by moving

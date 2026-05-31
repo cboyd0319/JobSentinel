@@ -24,6 +24,10 @@ import {
   hasMissingReadmeProductDefinition,
 } from "./harness/checks/product-framing.mjs";
 import {
+  hasFrontDoorReleaseVersionPromise,
+  hasSourceReleaseVersionPromise,
+} from "./harness/checks/release-promises.mjs";
+import {
   hasApplicationAssistAutomationFraming,
   hasEngineerFirstResumeTemplateCopy,
   hasOverconfidentGhostCopy,
@@ -825,26 +829,6 @@ function hasFrontDoorDocEmojiMarkers(root, path) {
   }
 
   return /[\u{2705}\u{274c}\u{26a0}\u{23f3}\u{26a1}\u{1f517}\u{1f512}\u{1f4c4}\u{1f4dd}\u{1f7e2}\u{1f7e1}\u{1f534}\u{1f4ca}\u{1f4e7}\u{1f4c8}\u{1f4c9}\u{1f3af}\u{1f680}\u{1f4a1}\u{1f50d}\u{2b50}]/u.test(
-    readFileSync(join(root, path), "utf8"),
-  );
-}
-
-function hasFrontDoorReleaseVersionPromise(root, path) {
-  if (path !== "README.md") {
-    return false;
-  }
-
-  return /(?:Planned for v\d+\.\d+|coming in v\d+\.\d+|tracked for v\d+\.\d+)/i.test(
-    readFileSync(join(root, path), "utf8"),
-  );
-}
-
-function hasSourceReleaseVersionPromise(root, path) {
-  if (!isRuntimeFrontendSource(path)) {
-    return false;
-  }
-
-  return /(?:Coming in v\d+\.\d+|planned for v\d+\.\d+)/i.test(
     readFileSync(join(root, path), "utf8"),
   );
 }

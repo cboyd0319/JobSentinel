@@ -56,6 +56,8 @@ Current cleanup posture:
   audience copy, Application Assist automation framing, ghost-risk
   overconfidence, and pay-guidance overconfidence now live in
   `scripts/harness/checks/product-copy.mjs`.
+- Release-promise drift checks now live in
+  `scripts/harness/checks/release-promises.mjs`.
 - `scripts/check-repo-bloat.mjs` still owns docs drift, privacy logging,
   fixture-quality checks, broad-audience checks, technical-first copy checks,
   and source security patterns.
@@ -234,6 +236,9 @@ Recent cleanup slices on `main` include:
 - Extracted product-copy checks from `scripts/check-repo-bloat.mjs` into
   `scripts/harness/checks/product-copy.mjs` with focused
   `scripts/check-product-copy.test.mjs` coverage.
+- Extracted release-promise checks from `scripts/check-repo-bloat.mjs` into
+  `scripts/harness/checks/release-promises.mjs` with focused
+  `scripts/check-release-promises.test.mjs` coverage.
 
 The active plan progress table has detailed slice history.
 
@@ -248,8 +253,10 @@ Latest sensor-modularity slice checks on 2026-05-31:
 - `node --check scripts/harness/checks/e2e-helpers.mjs`
 - `node --check scripts/harness/checks/product-framing.mjs`
 - `node --check scripts/harness/checks/product-copy.mjs`
+- `node --check scripts/harness/checks/release-promises.mjs`
 - `node --test scripts/check-product-framing.test.mjs scripts/check-repo-bloat.test.mjs`
 - `node --test scripts/check-product-copy.test.mjs scripts/check-repo-bloat.test.mjs`
+- `node --test scripts/check-release-promises.test.mjs scripts/check-repo-bloat.test.mjs`
 - `npm run test:scripts`
 - `npm run lint:bloat`
 - `npm run harness:check`
