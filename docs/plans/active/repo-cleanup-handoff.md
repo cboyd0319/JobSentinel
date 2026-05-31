@@ -42,8 +42,9 @@ Current cleanup posture:
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
 - Root-entry, local-artifact, and tracked-disposable bloat checks now live in
   `scripts/harness/checks/repo-artifacts.mjs`; the main bloat script still
-  owns docs drift, product copy, privacy logging, dependency ownership, and
-  fixture-quality checks.
+  owns docs drift, product copy, privacy logging, and fixture-quality checks.
+- Package and dependency ownership checks now live in
+  `scripts/harness/checks/dependency-ownership.mjs`.
 - Docs harness exists and runs through `npm run harness:check`.
 - Environment readiness is now checked through `npm run doctor`; E2E/browser
   readiness uses `npm run doctor:e2e`.
@@ -203,6 +204,10 @@ Recent cleanup slices on `main` include:
 - Extracted repo artifact policy from `scripts/check-repo-bloat.mjs` into
   `scripts/harness/checks/repo-artifacts.mjs` with focused
   `scripts/check-repo-artifacts.test.mjs` coverage.
+- Extracted package and dependency ownership checks from
+  `scripts/check-repo-bloat.mjs` into
+  `scripts/harness/checks/dependency-ownership.mjs` with focused
+  `scripts/check-dependency-ownership.test.mjs` coverage.
 
 The active plan progress table has detailed slice history.
 
@@ -212,6 +217,7 @@ Latest sensor-modularity slice checks on 2026-05-31:
 
 - `node --check scripts/check-repo-bloat.mjs`
 - `node --check scripts/harness/checks/repo-artifacts.mjs`
+- `node --check scripts/harness/checks/dependency-ownership.mjs`
 - `npm run test:scripts`
 - `npm run lint:bloat`
 - `npm run harness:check`

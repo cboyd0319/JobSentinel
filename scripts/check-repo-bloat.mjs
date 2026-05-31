@@ -4,6 +4,14 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import {
+  hasDirectPlaywrightE2eScript,
+  hasRedundantDirectPlaywrightDependency,
+  hasRedundantDomPurifyTypesDependency,
+  hasTailwindPostcssPlugin,
+  hasUnownedStorybookAddon,
+  readPackageManifest,
+} from "./harness/checks/dependency-ownership.mjs";
+import {
   collectFilesystemBloat,
   collectUnexpectedRootEntries,
   isTrackedBloat,
@@ -727,10 +735,6 @@ const developerLayoutDocGlyphPaths = new Set([
   "docs/developer/INTEGRATION_TESTING.md",
   "docs/developer/TESTING.md",
 ]);
-
-function readPackageManifest(root) {
-  return JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
-}
 
 function isJobSentinelProject(root) {
   try {
@@ -3769,86 +3773,6 @@ function hasRawFeedbackOpenErrors(root, path) {
   return /format!\(\s*["']Failed to (?:open browser|reveal file|open directory): \{e\}["']\s*\)/.test(
     text,
   );
-}
-
-function hasUnownedStorybookAddon(root, path) {
-  if (path !== ".storybook/main.ts") {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  const addons = text.match(/["']addons["']\s*:\s*\[([\s\S]*?)\]/)?.[1] ?? "";
-  const packageJson = readPackageManifest(root);
-  const ownedPackages = new Set([
-    ...Object.keys(packageJson.dependencies ?? {}),
-    ...Object.keys(packageJson.devDependencies ?? {}),
-    ...Object.keys(packageJson.optionalDependencies ?? {}),
-    ...Object.keys(packageJson.peerDependencies ?? {}),
-  ]);
-
-  return [...addons.matchAll(/["']([^"']+)["']/g)].some(([, addon]) => {
-    return !addon.startsWith(".") && !ownedPackages.has(addon);
-  });
-}
-
-function hasRedundantDirectPlaywrightDependency(root, path) {
-  if (path !== "package.json") {
-    return false;
-  }
-
-  const packageJson = readPackageManifest(root);
-  const directDeps = {
-    ...(packageJson.dependencies ?? {}),
-    ...(packageJson.devDependencies ?? {}),
-    ...(packageJson.optionalDependencies ?? {}),
-  };
-
-  return Boolean(directDeps["@playwright/test"] && directDeps.playwright);
-}
-
-function hasDirectPlaywrightE2eScript(root, path) {
-  if (path !== "package.json") {
-    return false;
-  }
-
-  const packageJson = readPackageManifest(root);
-  return Object.entries(packageJson.scripts ?? {}).some(([name, command]) => {
-    return name.startsWith("test:e2e") && /^playwright\b/.test(String(command).trim());
-  });
-}
-
-function hasRedundantDomPurifyTypesDependency(root, path) {
-  if (path !== "package.json") {
-    return false;
-  }
-
-  const packageJson = readPackageManifest(root);
-  const directDeps = {
-    ...(packageJson.dependencies ?? {}),
-    ...(packageJson.devDependencies ?? {}),
-    ...(packageJson.optionalDependencies ?? {}),
-  };
-
-  return Boolean(directDeps.dompurify && directDeps["@types/dompurify"]);
-}
-
-function hasTailwindPostcssPlugin(root, path) {
-  if (path === "package.json") {
-    const packageJson = readPackageManifest(root);
-    const directDeps = {
-      ...(packageJson.dependencies ?? {}),
-      ...(packageJson.devDependencies ?? {}),
-      ...(packageJson.optionalDependencies ?? {}),
-    };
-
-    return Boolean(directDeps["@tailwindcss/postcss"]);
-  }
-
-  if (path !== "postcss.config.js") {
-    return false;
-  }
-
-  return readFileSync(join(root, path), "utf8").includes("@tailwindcss/postcss");
 }
 
 function hasUnreferencedDocsImage(root, path) {
