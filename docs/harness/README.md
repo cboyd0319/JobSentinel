@@ -142,6 +142,7 @@ that prevents the observed failure.
 
 - [Sources](sources.md)
 - [Walking Labs Lecture 02 evaluation](walkinglabs-lecture-02-evaluation.md)
+- [Walking Labs harness creator skill evaluation](walkinglabs-harness-creator-skill-evaluation.md)
 - [README information design](readme-information-design.md)
 - [Agent operating model](agent-operating-model.md)
 - [Change contract](change-contract.md)

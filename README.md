@@ -789,6 +789,8 @@ and fake example links are intentionally excluded.
 ### Harness Engineering References
 
 - [Walking Labs, Lecture 02. What a Harness Actually Is](https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-02-what-a-harness-actually-is/)
+- [Walking Labs harness engineering skills](https://github.com/walkinglabs/learn-harness-engineering/tree/main/skills)
+- [Walking Labs harness-creator skill](https://github.com/walkinglabs/learn-harness-engineering/tree/main/skills/harness-creator)
 
 ### Engineering and Test References
 
