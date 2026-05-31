@@ -22,6 +22,7 @@
     "lint:tests": "node scripts/check-test-quality.mjs",
     "harness:check": "node scripts/check-harness.mjs",
     "doctor": "node scripts/doctor.mjs",
+    "doctor:e2e": "node scripts/doctor.mjs --e2e",
     "release:check-version": "node scripts/validate-release-version.mjs",
     "lint:harness": "npm run harness:check",
     "lint:docs": "npm run harness:check && npm run lint:md && npm run lint:prose",

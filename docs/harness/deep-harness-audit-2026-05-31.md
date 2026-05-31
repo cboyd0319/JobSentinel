@@ -31,8 +31,9 @@ npm run test:scripts
 
 All passed.
 
-Follow-up on 2026-05-31: CI harness coverage, release preflight, and broader
-external-AI provider detection were implemented after this audit and closed in
+Follow-up on 2026-05-31: CI harness coverage, release preflight, broader
+external-AI provider detection, and environment doctor platform/E2E readiness
+checks were implemented after this audit and closed in
 `docs/plans/tech-debt-tracker.md`. Remaining recommendations stay tracked
 there.
 
@@ -61,9 +62,9 @@ there.
 
 | Priority | Improvement | Evidence | Risk | Recommended fix |
 | -------- | ----------- | -------- | ---- | --------------- |
-| P1 | Extend `npm run doctor` for Linux Tauri dependencies | `scripts/doctor.mjs` checks Node, npm, Rust, Tauri CLI, lockfiles, SQLx cache, and SQLx config. Linux system packages used in workflows are not checked. | Linux contributors can pass doctor and still fail Tauri build because WebKitGTK, appindicator, or `pkg-config` are missing. | On Linux only, check `pkg-config` packages for Tauri dependencies and print install guidance. |
-| P1 | Pin local toolchain expectations | CI pins Node 20 and stable Rust, but local repo has no `.nvmrc`, `engines.node`, or `rust-toolchain.toml`. | Local Node/Rust drift can create reproducibility differences before CI catches them. | Add low-churn toolchain files or make `doctor` warn when runtime differs from CI baseline. |
-| P2 | Check Playwright browser install state | `doctor` does not check whether Playwright browsers are installed. | E2E work can fail after doctor passes. | Add an optional Playwright readiness check or a `doctor:e2e` mode. |
+| P1 | Extend `npm run doctor` for Linux Tauri dependencies | `scripts/doctor.mjs` now checks WebKitGTK, GTK, appindicator, librsvg, and `patchelf` on Linux. | Closed: Linux contributors get an early failure with install guidance before Tauri build. | Keep package names current with Tauri Linux requirements. |
+| P1 | Pin local toolchain expectations | `doctor` now warns when local Node major differs from CI Node 20 or Rust reports nightly/beta instead of stable. | Closed as a low-churn warning gate; exact pin files remain optional if reproducibility problems appear. | Revisit `.nvmrc` or `rust-toolchain.toml` only if warning-based guidance proves insufficient. |
+| P2 | Check Playwright browser install state | `doctor` now launches Playwright Chromium as a warning by default, and `npm run doctor:e2e` makes that launch a failure gate. | Closed: E2E setup can fail early with the browser install command before test runs. | Keep `doctor:e2e` in E2E setup and troubleshooting docs. |
 
 ## Verification Speed Improvements
 
@@ -117,7 +118,6 @@ there.
 5. Add diff-aware `harness:plan`.
 6. Add feature privacy label manifest and broader external AI provider scans.
 7. Compact active plans and add machine-readable plan status.
-8. Extend `doctor` for Linux system packages and local toolchain pin drift.
-9. Add E2E runtime budget tracking.
-10. Build a generic harness compatibility adapter only after the native harness
+8. Add E2E runtime budget tracking.
+9. Build a generic harness compatibility adapter only after the native harness
     state is compact.

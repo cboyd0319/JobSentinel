@@ -67,6 +67,9 @@ npm test -- --reporter=verbose src/components/Button.test.tsx
 ### End-to-End Tests (Playwright)
 
 ```bash
+# Check local E2E readiness
+npm run doctor:e2e
+
 # Run local Chromium functional E2E tests
 npm run test:e2e
 
@@ -592,8 +595,13 @@ test("should maintain layout on mobile", async ({ page }) => {
 
 The npm commands below route through `scripts/run-playwright.mjs`, which keeps
 Playwright output clean on current Node versions without hiding test failures.
+Run `npm run doctor:e2e` first when setting up Playwright locally or diagnosing
+browser-launch failures.
 
 ```bash
+# Check local E2E readiness
+npm run doctor:e2e
+
 # Run local Chromium functional E2E tests
 npm run test:e2e
 

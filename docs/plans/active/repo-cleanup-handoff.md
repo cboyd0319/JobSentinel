@@ -19,6 +19,7 @@ scope:
 
 Latest pushed harness commits before this slice:
 
+- `c6bbd4d4 Broaden external AI gateway sensor`
 - `ea907c99 Refresh active plan handoff`
 - `55761c07 Record deep harness audit`
 - `03af1711 Document harness creator skill evaluation`
@@ -26,10 +27,9 @@ Latest pushed harness commits before this slice:
 
 Current branch note:
 
-- `main` was clean and synced with `origin/main` before the current CI and
-  release-preflight slice.
-- The 2026-05-31 Docs Harness run for `ea907c99` passed, and the matching
-  remote CI run passed.
+- `main` was clean and synced with `origin/main` before the current
+  environment-doctor platform/E2E readiness slice.
+- The 2026-05-31 Docs Harness and CI runs for `c6bbd4d4` passed.
 - The current slice is authorized because the user requested active plan and
   handoff docs stay accurate and committed to `main` while the goal continues.
 - Continue using small verified commits. Avoid later remote CI unless the user
@@ -39,7 +39,8 @@ Current cleanup posture:
 
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
 - Docs harness exists and runs through `npm run harness:check`.
-- Environment readiness is now checked through `npm run doctor`.
+- Environment readiness is now checked through `npm run doctor`; E2E/browser
+  readiness uses `npm run doctor:e2e`.
 - Test-quality guard exists and blocks focused tests, runtime skips, and weak
   E2E assertions through `npm run lint:tests`.
 - Normal CI now runs `npm run harness:check` and `npm run test:scripts` in a
@@ -58,9 +59,9 @@ Current cleanup posture:
   `harness-creator` skill evaluation recorded the external validator mismatch
   as an interoperability gap, not a repo quality score.
 - A deep harness audit on 2026-05-31 identified harness debt. CI harness
-  coverage, release preflight, and external AI provider scan breadth are now
-  closed; hardcoded harness policy data, oversized mixed sensors, doctor
-  platform coverage, and active-plan compaction remain tracked in
+  coverage, release preflight, external AI provider scan breadth, and doctor
+  platform/E2E readiness are now closed; hardcoded harness policy data,
+  oversized mixed sensors, and active-plan compaction remain tracked in
   `docs/plans/tech-debt-tracker.md`.
 - Chromium and WebKit focused E2E flows were stabilized for keyboard navigation
   and job filtering in the latest slice.
@@ -181,13 +182,19 @@ Recent cleanup slices on `main` include:
   added release/manual-build preflight gates with release metadata validation.
 - Added standalone external-AI provider scanning for code and config files and
   covered it with focused script tests.
+- Extended `npm run doctor` with Linux Tauri package checks, `patchelf`,
+  Playwright Chromium launch readiness, and Node/Rust CI-baseline drift
+  warnings; added `npm run doctor:e2e` as the strict E2E readiness gate.
 
 The active plan progress table has detailed slice history.
 
 ## Verified Recently
 
-Latest CI/release-preflight slice checks on 2026-05-31:
+Latest harness/readiness slice checks on 2026-05-31:
 
+- `npm run doctor`
+- `npm run doctor:e2e`
+- `node --test scripts/doctor.test.mjs`
 - `npm run release:check-version -- v2.6.4`
 - `npm run lint:external-ai`
 - `npm run test:scripts`
@@ -284,8 +291,7 @@ Next high-value passes:
    - Promote any repeated ease, privacy, or flaky-test failure into a guide or
      sensor instead of leaving it in chat.
    - Prioritize the remaining top harness debt: harness manifest extraction,
-     sensor modularity, environment doctor platform checks, and active-plan
-     compaction.
+     sensor modularity, and active-plan compaction.
 8. Continue protective job-search UX review.
    - Make ghost/stale detection central on job cards and saved jobs.
    - Make salary floor, pay transparency, salary-history guardrails, and

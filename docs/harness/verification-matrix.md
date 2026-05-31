@@ -10,7 +10,7 @@ behavior, security, storage, or release flow changes.
 | Agent docs, plans, or harness files | `npm run harness:check` |
 | Markdown docs | `npm run lint:md` |
 | Package scripts | `npm run harness:check` and affected script command |
-| Environment readiness or setup commands | `npm run doctor` and `npm run harness:check` |
+| Environment readiness or setup commands | `npm run doctor`, `npm run doctor:e2e` when E2E readiness matters, and `npm run harness:check` |
 | Frontend architecture boundary rules | `npm run lint:architecture` and `npm run harness:check` |
 | Tauri invoke command map | `npm run lint:tauri-invokes` and `npm run harness:check` |
 | Security sensor policy | `npm run lint:security` and `npm run harness:check` |
@@ -74,7 +74,7 @@ with warnings-as-errors as a required local or CI gate.
 | `docs/plans/templates/*` | `npm run harness:check` and `npm run lint:md` |
 | README developer links | `npm run harness:check` |
 | PR template or CI docs | Manual link check plus `npm run harness:check` |
-| Local environment setup docs | `npm run doctor` and `npm run harness:check` |
+| Local environment setup docs | `npm run doctor`, `npm run doctor:e2e` when Playwright setup is described, and `npm run harness:check` |
 
 ## Full Local Gates
 
@@ -83,6 +83,7 @@ Use after broad shared changes:
 ```bash
 npm run harness:check
 npm run doctor
+npm run doctor:e2e
 npm run lint
 npm run test:run
 npm run build

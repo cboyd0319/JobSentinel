@@ -475,7 +475,14 @@ Tailwind internals. It does not silence test failures or application warnings.
 
 ### Running E2E Tests
 
+Run `npm run doctor:e2e` when setting up Playwright locally or when browser
+tests fail before app code loads. It makes Playwright Chromium launch a hard
+readiness gate and prints the install command if the browser is missing.
+
 ```bash
+# Check local E2E readiness
+npm run doctor:e2e
+
 # Run local Chromium functional E2E tests
 npm run test:e2e
 

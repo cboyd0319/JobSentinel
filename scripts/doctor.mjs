@@ -51,6 +51,10 @@ export function platformBin(command, platform = process.platform) {
   return command;
 }
 
+function pushResult(results, status, label, detail) {
+  results.push({ status, label, detail });
+}
+
 function checkPath(results, root, relativePath, label, options = {}) {
   const fullPath = join(root, relativePath);
 
@@ -94,84 +98,255 @@ function checkPath(results, root, relativePath, label, options = {}) {
 
 function runVersionCheck(results, command, args, label, options = {}) {
   const executable = platformBin(command, options.platform);
+  const exec = options.execFileSync ?? execFileSync;
 
   try {
-    const output = execFileSync(executable, args, {
+    const output = exec(executable, args, {
       cwd: options.cwd,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],
+      timeout: options.timeout,
     }).trim();
 
     if (options.minimum && compareVersions(output, options.minimum) < 0) {
-      results.push({
-        status: "fail",
-        label,
-        detail: `${output}; need ${options.minimum} or newer`,
-      });
-      return;
+      pushResult(results, "fail", label, `${output}; need ${options.minimum} or newer`);
+      return { ok: false, output };
     }
 
-    results.push({
-      status: "pass",
+    pushResult(
+      results,
+      "pass",
       label,
-      detail: options.minimum ? `${output}; need ${options.minimum}+` : output,
-    });
+      options.minimum ? `${output}; need ${options.minimum}+` : output,
+    );
+    return { ok: true, output };
   } catch {
-    results.push({
-      status: "fail",
+    pushResult(
+      results,
+      options.warnOnly ? "warn" : "fail",
       label,
-      detail: `${command} unavailable${options.fix ? `. ${options.fix}` : ""}`,
+      `${command} unavailable${options.fix ? `. ${options.fix}` : ""}`,
+    );
+    return { ok: false, output: "" };
+  }
+}
+
+function runCommandCheck(results, command, args, label, options = {}) {
+  const executable = platformBin(command, options.platform);
+  const exec = options.execFileSync ?? execFileSync;
+
+  try {
+    exec(executable, args, {
+      cwd: options.cwd,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+      timeout: options.timeout,
+    });
+    pushResult(results, "pass", label, options.detail ?? "available");
+    return true;
+  } catch {
+    pushResult(
+      results,
+      options.warnOnly ? "warn" : "fail",
+      label,
+      `${options.detailOnFailure ?? "unavailable"}${options.fix ? `. ${options.fix}` : ""}`,
+    );
+    return false;
+  }
+}
+
+function checkPkgConfigRequirement(results, packageNames, label, options = {}) {
+  const exec = options.execFileSync ?? execFileSync;
+  const executable = platformBin("pkg-config", options.platform);
+
+  for (const packageName of packageNames) {
+    try {
+      exec(executable, ["--exists", packageName], {
+        cwd: options.cwd,
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"],
+        timeout: options.timeout,
+      });
+      pushResult(results, "pass", label, packageName);
+      return true;
+    } catch {
+      // Try the next package name because distributions expose different
+      // appindicator pkg-config names.
+    }
+  }
+
+  pushResult(
+    results,
+    "fail",
+    label,
+    `missing ${packageNames.join(" or ")}${options.fix ? `. ${options.fix}` : ""}`,
+  );
+  return false;
+}
+
+function checkLinuxTauriDependencies(results, root, options = {}) {
+  if (options.platform !== "linux") {
+    return;
+  }
+
+  const pkgConfig = runVersionCheck(results, "pkg-config", ["--version"], "pkg-config CLI", {
+    cwd: root,
+    platform: options.platform,
+    execFileSync: options.execFileSync,
+    fix: "Install pkg-config and the Linux Tauri development packages",
+  });
+
+  if (pkgConfig.ok) {
+    checkPkgConfigRequirement(results, ["webkit2gtk-4.1"], "Linux WebKitGTK dev package", {
+      cwd: root,
+      platform: options.platform,
+      execFileSync: options.execFileSync,
+      fix: "Install libwebkit2gtk-4.1-dev",
+    });
+    checkPkgConfigRequirement(results, ["gtk+-3.0"], "Linux GTK dev package", {
+      cwd: root,
+      platform: options.platform,
+      execFileSync: options.execFileSync,
+      fix: "Install libgtk-3-dev",
+    });
+    checkPkgConfigRequirement(
+      results,
+      ["ayatana-appindicator3-0.1", "appindicator3-0.1"],
+      "Linux AppIndicator dev package",
+      {
+        cwd: root,
+        platform: options.platform,
+        execFileSync: options.execFileSync,
+        fix: "Install libayatana-appindicator3-dev or libappindicator3-dev",
+      },
+    );
+    checkPkgConfigRequirement(results, ["librsvg-2.0"], "Linux librsvg dev package", {
+      cwd: root,
+      platform: options.platform,
+      execFileSync: options.execFileSync,
+      fix: "Install librsvg2-dev",
     });
   }
+
+  runCommandCheck(results, "patchelf", ["--version"], "Linux patchelf CLI", {
+    cwd: root,
+    platform: options.platform,
+    execFileSync: options.execFileSync,
+    fix: "Install patchelf",
+  });
+}
+
+function checkPlaywrightReadiness(results, root, options = {}) {
+  if (!existsSync(join(root, "node_modules/@playwright/test"))) {
+    pushResult(
+      results,
+      options.strict ? "fail" : "warn",
+      "Playwright package",
+      "node_modules/@playwright/test is missing. Run npm ci",
+    );
+    return;
+  }
+
+  const script = `
+import { chromium } from "@playwright/test";
+const browser = await chromium.launch({ headless: true });
+await browser.close();
+`;
+
+  runCommandCheck(
+    results,
+    process.execPath,
+    ["--input-type=module", "-e", script],
+    "Playwright Chromium launch",
+    {
+      cwd: root,
+      execFileSync: options.execFileSync,
+      warnOnly: !options.strict,
+      timeout: 30000,
+      detail: "Chromium launches headless",
+      detailOnFailure: "Chromium cannot launch",
+      fix:
+        options.platform === "linux"
+          ? "Run npx playwright install --with-deps chromium"
+          : "Run npx playwright install chromium",
+    },
+  );
 }
 
 export function runDoctor(options = {}) {
   const root = options.root ?? defaultRoot;
   const platform = options.platform ?? process.platform;
+  const nodeVersion = options.nodeVersion ?? process.version;
   const results = [];
 
-  if (compareVersions(process.version, "20.0.0") < 0) {
+  if (compareVersions(nodeVersion, "20.0.0") < 0) {
     results.push({
       status: "fail",
       label: "Node.js runtime",
-      detail: `${process.version}; need 20.0.0 or newer`,
+      detail: `${nodeVersion}; need 20.0.0 or newer`,
     });
   } else {
     results.push({
       status: "pass",
       label: "Node.js runtime",
-      detail: `${process.version}; need 20.0.0+`,
+      detail: `${nodeVersion}; need 20.0.0+`,
+    });
+  }
+
+  const nodeMajor = parseVersion(nodeVersion)?.[0];
+  if (nodeMajor && nodeMajor !== 20) {
+    results.push({
+      status: "warn",
+      label: "Node.js CI baseline",
+      detail: `${nodeVersion}; CI uses Node 20. Use Node 20 if behavior differs.`,
     });
   }
 
   runVersionCheck(results, "npm", ["--version"], "npm CLI", {
     cwd: root,
     platform,
+    execFileSync: options.execFileSync,
     fix: "Install Node.js 20+ with npm",
   });
 
   runVersionCheck(results, "cargo", ["--version"], "Cargo CLI", {
     cwd: join(root, "src-tauri"),
     platform,
+    execFileSync: options.execFileSync,
     fix: "Install stable Rust with Cargo",
   });
 
-  runVersionCheck(results, "rustc", ["--version"], "Rust compiler", {
+  const rustc = runVersionCheck(results, "rustc", ["--version"], "Rust compiler", {
     cwd: join(root, "src-tauri"),
     platform,
+    execFileSync: options.execFileSync,
     fix: "Install stable Rust",
   });
+  if (rustc.ok && /\b(?:nightly|beta)\b/i.test(rustc.output)) {
+    results.push({
+      status: "warn",
+      label: "Rust CI baseline",
+      detail: `${rustc.output}; CI uses stable Rust.`,
+    });
+  }
 
   runVersionCheck(results, "cargo", ["fmt", "--version"], "Rust formatter", {
     cwd: join(root, "src-tauri"),
     platform,
+    execFileSync: options.execFileSync,
     fix: "Install rustfmt with rustup component add rustfmt",
   });
 
   runVersionCheck(results, "cargo", ["clippy", "--version"], "Rust linter", {
     cwd: join(root, "src-tauri"),
     platform,
+    execFileSync: options.execFileSync,
     fix: "Install clippy with rustup component add clippy",
+  });
+
+  checkLinuxTauriDependencies(results, root, {
+    platform,
+    execFileSync: options.execFileSync,
   });
 
   checkPath(results, root, "package-lock.json", "npm lockfile");
@@ -197,6 +372,12 @@ export function runDoctor(options = {}) {
     "SQLx offline env config",
     { mustContain: 'SQLX_OFFLINE = "true"' },
   );
+
+  checkPlaywrightReadiness(results, root, {
+    platform,
+    execFileSync: options.execFileSync,
+    strict: options.strictPlaywright ?? false,
+  });
 
   return results;
 }
@@ -235,7 +416,7 @@ export function formatDoctorResults(results) {
 }
 
 if (process.argv[1] === scriptPath) {
-  const results = runDoctor();
+  const results = runDoctor({ strictPlaywright: process.argv.includes("--e2e") });
   console.log(formatDoctorResults(results));
   process.exitCode = summarizeDoctorResults(results).exitCode;
 }

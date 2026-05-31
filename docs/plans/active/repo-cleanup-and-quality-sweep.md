@@ -114,6 +114,8 @@ Required process:
 - [x] Broaden external-AI provider detection across code and config files so
   provider calls, SDKs, hosted inference endpoints, and provider API-key
   variables stay routed through the AI gateway boundary.
+- [x] Extend `npm run doctor` to cover Linux Tauri system packages, Playwright
+  browser readiness, and Node/Rust CI-baseline drift warnings.
 - [ ] Audit primary user workflows for zero-technical-knowledge ease.
 - [ ] Audit user-facing flows and copy for engineer-only assumptions.
 - [ ] Run relevant verification and push each cleanup slice.
@@ -123,8 +125,10 @@ Required process:
 As of 2026-05-31, the active plan remains open. The latest local work improved
 the repo harness rather than changing user-facing product behavior:
 
-- Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, and
-  SQLx offline readiness checks.
+- Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
+  offline, Linux Tauri package, Playwright browser, and toolchain drift
+  readiness checks; added `npm run doctor:e2e` as the strict Playwright
+  readiness gate.
 - Recorded Walking Labs Lecture 02 and `harness-creator` skill evaluations.
 - Recorded a deep harness audit and promoted top findings into
   `docs/plans/tech-debt-tracker.md`.
@@ -163,6 +167,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-31 | In progress | Closed the environment doctor platform-coverage finding from the deep audit: `npm run doctor` now checks Linux Tauri packages, `patchelf`, Playwright Chromium launch readiness, and Node/Rust CI-baseline drift; `npm run doctor:e2e` makes Playwright readiness a strict E2E gate. |
 | 2026-05-31 | In progress | Closed the external-AI provider surface finding from the deep audit by adding `npm run lint:external-ai`, wiring it into `harness:check`, and testing OpenAI, Anthropic, Gemini/API-key, dependency, gateway-allowlist, and company-name false-positive cases. |
 | 2026-05-31 | In progress | Closed the top P0 harness-delivery findings from the deep audit: normal CI now runs harness and script tests, Docs Harness watches the whole script set, and release/manual build workflows validate release metadata before running harness, docs, frontend, and Rust preflight checks. |
 | 2026-05-31 | In progress | Refreshed all active plan and handoff docs before the user-requested push to `main`; current push is explicitly authorized and includes the environment doctor, Walking Labs evaluations, deep harness audit, and active-plan refresh. |
