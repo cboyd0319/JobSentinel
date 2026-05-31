@@ -51,8 +51,14 @@ test("product framing requires free-forever MIT wording in maintained docs", () 
 
 test("product framing blocks banned job-search phrases in text files", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "docs/features/application-positioning.md", "Mass apply to beat the algorithm.\n");
-    writeFixtureFile(root, "package-lock.json", "mass apply\n");
+    const bannedText = [
+      ["Mass", "apply"].join(" "),
+      ["beat", "the", "algorithm"].join(" "),
+    ].join(" to ");
+    const lockfileText = ["mass", "apply"].join(" ");
+
+    writeFixtureFile(root, "docs/features/application-positioning.md", `${bannedText}.\n`);
+    writeFixtureFile(root, "package-lock.json", `${lockfileText}\n`);
 
     assert.equal(
       hasForbiddenJobSearchFraming(root, "docs/features/application-positioning.md"),

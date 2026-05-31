@@ -132,6 +132,10 @@ Required process:
   `scripts/harness/checks/e2e-helpers.mjs`.
 - [x] Extract product-framing checks into
   `scripts/harness/checks/product-framing.mjs`.
+- [x] Extract product-copy checks for stale resume framing, Application Assist
+  automation wording, ghost-risk overconfidence, pay-guidance overconfidence,
+  and resume-template audience copy into
+  `scripts/harness/checks/product-copy.mjs`.
 - [ ] Audit primary user workflows for zero-technical-knowledge ease.
 - [ ] Audit user-facing flows and copy for engineer-only assumptions.
 - [ ] Run relevant verification and push each cleanup slice.
@@ -173,6 +177,10 @@ the repo harness rather than changing user-facing product behavior:
 - Extracted README product definition, free-forever MIT wording, and banned
   job-search framing checks from `scripts/check-repo-bloat.mjs` into
   `scripts/harness/checks/product-framing.mjs` with focused script tests.
+- Extracted stale Resume Optimizer, resume-template audience, Application
+  Assist automation, ghost-risk, and pay-guidance copy checks from
+  `scripts/check-repo-bloat.mjs` into
+  `scripts/harness/checks/product-copy.mjs` with focused script tests.
 - Updated active plan and handoff docs for the user-requested commit and push.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
@@ -204,6 +212,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting product-copy checks for stale resume framing, Application Assist automation framing, ghost-risk overconfidence, pay-guidance overconfidence, and resume-template audience copy into `scripts/harness/checks/product-copy.mjs`. |
 | 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting product-framing checks for the README definition, free-forever MIT wording, and banned job-search phrases into `scripts/harness/checks/product-framing.mjs`. |
 | 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting E2E helper ownership into `scripts/harness/checks/e2e-helpers.mjs`, with focused coverage for referenced and unreferenced helper cases. |
 | 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting source-structure checks for unreferenced settings helpers, hooks, helper modules, local barrels, and stale notification preference wrappers into `scripts/harness/checks/source-structure.mjs`. |

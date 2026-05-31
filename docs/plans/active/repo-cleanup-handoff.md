@@ -29,22 +29,19 @@ Latest pushed harness commits before this slice:
 
 Current branch note:
 
-- At the start of this handoff refresh, `main` was ahead of `origin/main` by
-  local sensor-modularity commits and had an uncommitted product-framing split.
+- At the start of this continuation, `main` matched `origin/main` at
+  `ed223733`.
 - The 2026-05-31 Docs Harness and CI runs for `10a5fe09` passed before the
-  local sensor-modularity series.
-- The current push is explicitly authorized because the user requested all
-  active plan and handoff docs be fully updated, committed, and pushed to
-  `main`.
-- After this push, avoid later remote CI unless the user explicitly asks or the
-  full-goal completion pass requires it.
+  local sensor-modularity series; later sensor-modularity slices were locally
+  verified before push.
+- Continue using small verified commits. Avoid later remote CI unless the user
+  explicitly asks or the full-goal completion pass requires it.
 
 Current cleanup posture:
 
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
 - Root-entry, local-artifact, and tracked-disposable bloat checks now live in
-  `scripts/harness/checks/repo-artifacts.mjs`; the main bloat script still
-  owns docs drift, product copy, privacy logging, and fixture-quality checks.
+  `scripts/harness/checks/repo-artifacts.mjs`.
 - Package and dependency ownership checks now live in
   `scripts/harness/checks/dependency-ownership.mjs`.
 - Source-structure checks for unreferenced settings helpers, hooks, helper
@@ -55,8 +52,13 @@ Current cleanup posture:
 - Product-framing checks for the README definition, free-forever MIT wording,
   and banned job-search phrases now live in
   `scripts/harness/checks/product-framing.mjs`.
+- Product-copy checks for stale Resume Optimizer framing, resume-template
+  audience copy, Application Assist automation framing, ghost-risk
+  overconfidence, and pay-guidance overconfidence now live in
+  `scripts/harness/checks/product-copy.mjs`.
 - `scripts/check-repo-bloat.mjs` still owns docs drift, privacy logging,
-  fixture-quality checks, and remaining product-copy checks.
+  fixture-quality checks, broad-audience checks, technical-first copy checks,
+  and source security patterns.
 - Docs harness exists and runs through `npm run harness:check`.
 - Environment readiness is now checked through `npm run doctor`; E2E/browser
   readiness uses `npm run doctor:e2e`.
@@ -229,6 +231,9 @@ Recent cleanup slices on `main` include:
 - Extracted product-framing checks from `scripts/check-repo-bloat.mjs` into
   `scripts/harness/checks/product-framing.mjs` with focused
   `scripts/check-product-framing.test.mjs` coverage.
+- Extracted product-copy checks from `scripts/check-repo-bloat.mjs` into
+  `scripts/harness/checks/product-copy.mjs` with focused
+  `scripts/check-product-copy.test.mjs` coverage.
 
 The active plan progress table has detailed slice history.
 
@@ -242,7 +247,9 @@ Latest sensor-modularity slice checks on 2026-05-31:
 - `node --check scripts/harness/checks/source-structure.mjs`
 - `node --check scripts/harness/checks/e2e-helpers.mjs`
 - `node --check scripts/harness/checks/product-framing.mjs`
+- `node --check scripts/harness/checks/product-copy.mjs`
 - `node --test scripts/check-product-framing.test.mjs scripts/check-repo-bloat.test.mjs`
+- `node --test scripts/check-product-copy.test.mjs scripts/check-repo-bloat.test.mjs`
 - `npm run test:scripts`
 - `npm run lint:bloat`
 - `npm run harness:check`
