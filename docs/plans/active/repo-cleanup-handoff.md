@@ -16,6 +16,7 @@ scope:
 - `repo-cleanup-and-quality-sweep.md`
 - `repo-cleanup-handoff.md`
 - `research-backed-product-improvements.md`
+- `status.md`
 
 Latest pushed harness commits before this slice:
 
@@ -28,8 +29,8 @@ Latest pushed harness commits before this slice:
 
 Current branch note:
 
-- `main` was clean and synced with `origin/main` before the current
-  harness-policy-manifest slice.
+- At the start of this handoff refresh, `main` was ahead of `origin/main` by
+  the local harness-policy-manifest commit.
 - The 2026-05-31 Docs Harness and CI runs for `10a5fe09` passed.
 - The current slice is authorized because the user requested active plan and
   handoff docs stay accurate and committed to `main` while the goal continues.
@@ -61,9 +62,12 @@ Current cleanup posture:
   as an interoperability gap, not a repo quality score.
 - A deep harness audit on 2026-05-31 identified harness debt. CI harness
   coverage, release preflight, hardcoded harness policy extraction, external AI
-  provider scan breadth, and doctor platform/E2E readiness are now closed;
-  oversized mixed sensors and active-plan compaction remain tracked in
+  provider scan breadth, doctor platform/E2E readiness, and active-plan
+  compaction are now closed; oversized mixed sensors remain tracked in
   `docs/plans/tech-debt-tracker.md`.
+- `docs/plans/active/status.md` now provides the compact restart surface for
+  active goal state, next work, and the completion bar; older progress rows are
+  archived under `docs/plans/archive/`.
 - Chromium and WebKit focused E2E flows were stabilized for keyboard navigation
   and job filtering in the latest slice.
 - Root README now points developers to the quality gates that protect this work.
@@ -189,10 +193,21 @@ Recent cleanup slices on `main` include:
 - Added `docs/harness/manifest.json` so `npm run harness:check` reads required
   harness files, policy snippets, and README reference-source coverage from
   data instead of hardcoded checker tables.
+- Added `docs/plans/active/status.md`, archived older active-plan progress
+  rows, routed the plan index and harness/agent guides toward the compact
+  status surface, and closed `HE-011`.
 
 The active plan progress table has detailed slice history.
 
 ## Verified Recently
+
+Latest active-plan documentation slice checks on 2026-05-31:
+
+- `npm run harness:check`
+- `npm run test:scripts`
+- `npm run lint:docs`
+- `npm run lint:bloat`
+- `git diff --check`
 
 Latest harness/readiness slice checks on 2026-05-31:
 
@@ -303,7 +318,7 @@ Next high-value passes:
    - Promote any repeated ease, privacy, or flaky-test failure into a guide or
      sensor instead of leaving it in chat.
    - Prioritize the remaining top harness debt: sensor modularity and
-     active-plan compaction.
+     machine-readable plan status.
 8. Continue protective job-search UX review.
    - Make ghost/stale detection central on job cards and saved jobs.
    - Make salary floor, pay transparency, salary-history guardrails, and

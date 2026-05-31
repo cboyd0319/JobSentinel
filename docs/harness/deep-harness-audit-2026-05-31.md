@@ -33,8 +33,8 @@ All passed.
 
 Follow-up on 2026-05-31: CI harness coverage, release preflight, hardcoded
 harness policy extraction, broader external-AI provider detection, and
-environment doctor platform/E2E readiness checks were implemented after this
-audit and closed in
+environment doctor platform/E2E readiness checks, and active-plan status
+compaction were implemented after this audit and closed in
 `docs/plans/tech-debt-tracker.md`. Remaining recommendations stay tracked
 there.
 
@@ -48,7 +48,7 @@ there.
 | P1 | Split `check-repo-bloat.mjs` into named sensors | `scripts/check-repo-bloat.mjs` is over 5,400 lines and covers root clutter, stale docs, privacy logging, product phrasing, dependency ownership, fixtures, and source security patterns. | Large mixed-purpose sensors are hard to review, hard to extend safely, and invite accidental broad edits. | Create a registry under `scripts/harness/checks/` with separate modules for repo bloat, docs drift, privacy logging, product copy, dependency ownership, fixture quality, and release metadata. |
 | P1 | Strengthen security sensors beyond doc-presence checks | `scripts/check-security-sensors.mjs` verifies required security docs, matrix entries, and CI phrases. Many implementation privacy checks live inside the bloat sensor instead. | Security enforcement is split across script names in a way agents will not predict. Some checks prove text exists, not that unsafe patterns are blocked. | Move security-sensitive implementation pattern checks into `check-security-sensors.mjs` or a shared security registry, then keep `check-repo-bloat.mjs` focused on bloat and drift. |
 | P1 | Add diff-aware verification selection | `docs/harness/verification-matrix.md` is clear but manual. There is no command that maps changed files to required sensors. | Agents may over-run slow checks or under-run required checks, especially during long sessions. | Add `npm run harness:plan -- --since origin/main` to inspect changed files and print required commands from the matrix. |
-| P1 | Compact active plan state | `docs/plans/active/repo-cleanup-and-quality-sweep.md` and `research-backed-product-improvements.md` are large enough that agents will avoid reading them fully. The handoff also records older pushed state while local commits may be ahead. | State exists, but it is too heavy and partly stale for fast restart. | Add a short `docs/plans/active/status.md` or `status.json`, archive old progress rows, and keep active plans focused on current scope, blockers, next steps, and verification. |
+| P1 | Compact active plan state | `docs/plans/active/status.md` now gives the compact restart state, while older progress rows live in `docs/plans/archive/progress-history-2026-05-28-to-2026-05-29.md`. | Closed: active state is easier to restart without losing provenance. Drift can return if future slices update long plans but skip the compact status. | Keep `docs/plans/active/status.md` current and archive old progress rows when they become history, not active state. |
 
 ## Privacy And Rule 0 Improvements
 
@@ -117,7 +117,7 @@ there.
 3. Split `check-repo-bloat.mjs` into named sensor modules.
 4. Add diff-aware `harness:plan`.
 5. Add feature privacy label manifest and broader external AI provider scans.
-6. Compact active plans and add machine-readable plan status.
+6. Add machine-readable plan status.
 7. Add E2E runtime budget tracking.
 8. Build a generic harness compatibility adapter only after the native harness
     state is compact.

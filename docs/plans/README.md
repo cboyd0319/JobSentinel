@@ -6,6 +6,7 @@ harness work.
 ## Structure
 
 - `active/` - Work in progress.
+- `archive/` - Preserved historical plan state that should not slow restarts.
 - `completed/` - Finished plans with outcomes.
 - `templates/` - Reusable plan and change-contract templates.
 - `tech-debt-tracker.md` - Durable debt and harness drift.
@@ -16,6 +17,7 @@ See [Exec Plans](../exec-plans.md) for required format.
 
 | Workstream | Document |
 | ---------- | -------- |
+| Current active status | [Compact status](active/status.md) |
 | Guided job-search intake | [Active plan](active/guided-job-search-intake.md) |
 | Repo cleanup and quality sweep | [Active plan](active/repo-cleanup-and-quality-sweep.md) |
 | Repo cleanup handoff | [Current handoff](active/repo-cleanup-handoff.md) |
@@ -48,3 +50,5 @@ Each release plan includes:
 
 Starting with the harness alignment work, broad changes should use
 `docs/plans/active/` and move completed plans to `docs/plans/completed/`.
+Historical progress rows can move to `docs/plans/archive/` when they are useful
+for provenance but too noisy for active restart context.

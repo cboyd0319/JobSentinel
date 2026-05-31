@@ -907,29 +907,12 @@ against:
 
 ## Progress
 
+Current progress rows stay here. Older rows are preserved in [progress history](../archive/progress-history-2026-05-28-to-2026-05-29.md#research-backed-product-improvements).
+
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-31 | In progress | Added the compact active status surface and archived older progress rows so future research-backed product work can restart from current ghost/stale, pay protection, long-term-unemployment, bias-aware route, protective-tone, and local-first privacy priorities. |
 | 2026-05-31 | In progress | Refreshed active-plan status after harness-focused work. No product implementation changed in this plan; the next product slices remain ghost/stale detection, pay protection, long-term-unemployment support, bias-aware application routes, protective tone, and local-first privacy. |
-| 2026-05-29 | In progress | Implemented guided setup fresh-and-verified posting preference with plain choices mapped to local ghost-posting warning sensitivity, Settings parity, Quick Start guidance, and focused setup tests. |
-| 2026-05-29 | In progress | Added guided setup review-volume preference with smaller list, balanced list, and broad discovery choices; mapped the answer to existing local source limits and alert strength, updated Quick Start, and added focused setup tests. |
-| 2026-05-29 | In progress | Reframed user-data management as a sensitive local-control surface with safe debug reports, explicit external-channel setup, non-technical troubleshooting, and no default cloud or external AI dependency. |
-| 2026-05-29 | In progress | Reframed market intelligence as local evidence review for source freshness, skill demand, company activity, salary transparency, location/work-mode constraints, and sample-bias caution instead of broad market prediction. |
-| 2026-05-29 | In progress | Reframed resume matching as local, advisory, truthful fit review that supports broad careers without deceptive resume optimization, hidden keywords, ATS manipulation, or default external AI. |
-| 2026-05-29 | In progress | Reframed application tracking as a local-first, sensitive workflow for pacing, follow-ups, quiet-period review, interview preparation, and pay/offer context, with broad status labels for technical and non-technical searches. |
-| 2026-05-29 | In progress | Reframed remote and work-mode matching docs around user constraints, uncertainty, commute/schedule protection, and local-only preferences instead of score matrices. |
-| 2026-05-29 | In progress | Replaced visible score-tooltip weight language with priority language so match factors stay explainable without exposing scoring-model jargon. |
-| 2026-05-29 | In progress | Started job-card source labels so raw source IDs become plain source-check cues such as hiring page, job board, saved by you, or connected job source without changing stored source values. |
-| 2026-05-29 | In progress | Added job-card pay-floor warnings using the saved salary floor so roles with listed pay below the user's floor are visible but flagged before tailoring. |
-| 2026-05-29 | In progress | Added an optional setup pay-floor question so any job seeker can set below-floor warnings before first scan while keeping missing-pay jobs visible and marked. |
-| 2026-05-29 | In progress | Reframed match-score copy from celebratory recommendations to protective evidence language: Strong Match, Some Match, source-check and must-have review guidance, plus bloat coverage against overconfident score copy. |
-| 2026-05-28 | In progress | Chose Application Assist as the next implementation slice and reframed the visible flow around review-first form preparation, user-controlled Submit, and anti-volume guardrails. |
-| 2026-05-28 | In progress | Promoted ghost-job protection, pay-equity safeguards, long-term-unemployment support, bias-aware application routes, protective tone, and local-first privacy from research notes into first-class product requirements and prioritization. |
-| 2026-05-28 | Verified | Added pay-equity source. Added compensation intelligence, salary-history guardrails, market-anchor support, leveling checks, range-quality scoring, review-cycle tracking, employer transparency signals, protected-class guardrails, and re-ran docs-only checks. |
-| 2026-05-28 | Verified | Added final scraping and salary-negotiation sources. Scoped scraping guidance to a local-first single-job-seeker app, added source-governance guardrails, added negotiation guidance that avoids blaming job seekers for structural pay gaps, and re-ran docs-only checks. |
-| 2026-05-28 | Verified | Second pass inventoried 52 URLs, extracted 45 accessible sources, reviewed an alternate fairness-survey PDF, recorded blocked sources, added missed guidance around fresh-post urgency, intermediaries, hidden workers, fairness/proxy risks, company-site limits, and regulatory fields, then re-ran docs-only checks. |
-| 2026-05-28 | Verified | Added plan to active repo docs and ran docs-only checks for the initial planning slice. |
-| 2026-05-28 | Planned | Added ghost-job detection research and guidance: working definition, scam separation, source-verification workflow, freshness and repost signals, company-site mismatch, employer behavior, risk labels, and candidate-facing verification paths. |
-| 2026-05-28 | Planned | Created combined research-backed product improvement plan from both user-provided research docs and primary-source spot checks. |
 
 ## Discoveries
 

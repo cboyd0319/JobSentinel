@@ -21,11 +21,12 @@ JobSentinel is a privacy-first desktop job search app.
 Read in this order for non-trivial work:
 
 1. `docs/harness/README.md` for agent operating model.
-2. `docs/harness/verification-matrix.md` for required checks.
-3. `docs/harness/change-contract.md` for feature, bug, and refactor specs.
-4. `docs/developer/ARCHITECTURE.md` for system layout.
-5. `docs/developer/TESTING.md` for test patterns and commands.
-6. Closest feature doc under `docs/features/` for user-facing behavior.
+2. `docs/plans/active/status.md` for current active-goal state.
+3. `docs/harness/verification-matrix.md` for required checks.
+4. `docs/harness/change-contract.md` for feature, bug, and refactor specs.
+5. `docs/developer/ARCHITECTURE.md` for system layout.
+6. `docs/developer/TESTING.md` for test patterns and commands.
+7. Closest feature doc under `docs/features/` for user-facing behavior.
 
 Use `CLAUDE.md` and `.github/copilot-instructions.md` as compatibility
 wrappers. If they conflict with this file or `docs/harness/`, this file and

@@ -34,6 +34,7 @@ Use this structure:
 | ----- | -------------------- | ------- |
 | Entry guide | `AGENTS.md` | Short map and hard repo rules |
 | Knowledge base | `docs/` | Versioned source of truth |
+| Active status | `docs/plans/active/status.md` | Compact restart surface for current goal state, next work, and completion bar |
 | Change contract | `docs/harness/change-contract.md` | Acceptance criteria before edits |
 | Policy manifest | `docs/harness/manifest.json` | Required harness files, policy snippets, and README reference-source coverage |
 | Plans | `docs/plans/` | Multi-step work, progress, decisions |
