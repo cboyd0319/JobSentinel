@@ -110,6 +110,23 @@ Required process:
 - [ ] Audit user-facing flows and copy for engineer-only assumptions.
 - [ ] Run relevant verification and push each cleanup slice.
 
+## Current Status
+
+As of 2026-05-31, the active plan remains open. The latest local work improved
+the repo harness rather than changing user-facing product behavior:
+
+- Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, and
+  SQLx offline readiness checks.
+- Recorded Walking Labs Lecture 02 and `harness-creator` skill evaluations.
+- Recorded a deep harness audit and promoted top findings into
+  `docs/plans/tech-debt-tracker.md`.
+- Updated active plan and handoff docs for the user-requested commit and push.
+
+Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
+assumption audit, final stale-doc/reference sweep, backend/scraper privacy edge
+review, frontend boundary review, protective job-search UX review, and final
+broad verification.
+
 ## Verification
 
 ```bash
@@ -132,6 +149,7 @@ changes or Playwright-specific work.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-31 | In progress | Refreshed all active plan and handoff docs before the user-requested push to `main`; current push is explicitly authorized and includes the environment doctor, Walking Labs evaluations, deep harness audit, and active-plan refresh. |
 | 2026-05-29 | In progress | Rebased safe debug-report sanitizer test examples away from Rust/software-engineering job titles toward program-coordination and care-coordination examples, with bloat coverage against old feedback fixture drift. |
 | 2026-05-29 | In progress | Rebased database integration fixtures from TestCorp/Rust/San Francisco search examples to program-coordinator, care-coordination, support-specialist, Chicago, and realistic broad-role salary examples, with bloat coverage against old database fixture drift. |
 | 2026-05-29 | In progress | Rebased scheduler integration scoring, persistence, remote-preference, and search fixtures from Rust/security/TechCorp/San Francisco examples to care-coordination, customer-support, program-coordination, Chicago, and realistic broad-role salary examples, with bloat coverage against old scheduler fixture drift. |

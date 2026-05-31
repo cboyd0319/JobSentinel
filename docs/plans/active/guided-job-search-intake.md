@@ -353,16 +353,23 @@ The UI maps one of three setup choices to the existing serialized
 
 ## Current implementation
 
+- Status as of 2026-05-31: the implemented setup slices remain active and
+  accurate. No product code changed in the 2026-05-31 harness refresh.
 - Setup asks for job titles, work the user wants, and work to avoid before
   scanning starts.
 - Work to avoid maps to `keywords_exclude`, so matching jobs can rank lower
   without adding new backend fields.
+- Setup asks for pay floor before scanning starts and keeps missing-pay jobs
+  visible with review guidance.
+- Setup asks how many jobs the user wants to review at once and maps that
+  answer to existing local source limits and alert strength.
 - Setup asks how strongly JobSentinel should prioritize fresh and verified
   postings, then maps that plain choice to existing `ghost_config` warning
   sensitivity.
 - The field is optional and can be skipped.
 - The final setup screen summarizes look-for titles, work to show more often,
-  work to rank lower, location, freshness, and pay before scanning starts.
+  work to rank lower, location, review volume, freshness, and pay before
+  scanning starts.
 - Settings uses the same plain freshness choices so users can change warning
   behavior later without understanding scoring thresholds. Custom controls stay
   available under warning-focused labels.

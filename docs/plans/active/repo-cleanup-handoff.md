@@ -17,26 +17,41 @@ scope:
 - `repo-cleanup-handoff.md`
 - `research-backed-product-improvements.md`
 
-Latest pushed slice before this handoff refresh:
+Latest local commits before this handoff refresh:
 
-- `62421101 Refine README information design`
+- `55761c07 Record deep harness audit`
+- `03af1711 Document harness creator skill evaluation`
+- `5b88f700 Add harness environment doctor`
 
-Current local branch note:
+Current branch note:
 
-- `main` was pushed to `origin/main` through `62421101` on 2026-05-29 after
-  focused docs, bloat, harness, and README information-design checks.
-- The user explicitly requested this README correction push. Avoid later remote
-  CI triggers unless the user explicitly asks again or the full-goal completion
-  pass requires remote verification.
-- Continue using small verified commits. Avoid remote CI unless the user
-  explicitly asks or the full-goal completion pass requires it.
+- `main` is clean and was ahead of `origin/main` by three commits before this
+  handoff refresh.
+- The user explicitly requested this active-plan refresh, commit, and push to
+  `main` on 2026-05-31, so this push is authorized even though earlier guidance
+  was to avoid remote CI until the full goal is complete.
+- After this refresh is pushed, `origin/main` should include the environment
+  doctor, Walking Labs harness skill evaluation, deep harness audit, and this
+  active-plan refresh.
+- Continue using small verified commits after this push. Avoid later remote CI
+  unless the user explicitly asks or the full-goal completion pass requires it.
 
 Current cleanup posture:
 
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
 - Docs harness exists and runs through `npm run harness:check`.
+- Environment readiness is now checked through `npm run doctor`.
 - Test-quality guard exists and blocks focused tests, runtime skips, and weak
   E2E assertions through `npm run lint:tests`.
+- Walking Labs harness material has been evaluated twice: Lecture 02 mapped the
+  repo against instructions, tools, environment, state, and feedback; the
+  `harness-creator` skill evaluation recorded the external validator mismatch
+  as an interoperability gap, not a repo quality score.
+- A deep harness audit on 2026-05-31 identified top harness debt: CI harness
+  coverage, release preflight, hardcoded harness policy data, oversized mixed
+  sensors, external AI provider scan breadth, doctor platform coverage, and
+  active-plan compaction. These are tracked in
+  `docs/plans/tech-debt-tracker.md`.
 - Chromium and WebKit focused E2E flows were stabilized for keyboard navigation
   and job filtering in the latest slice.
 - Root README now points developers to the quality gates that protect this work.
@@ -147,10 +162,25 @@ Recent cleanup slices on `main` include:
   were rebased away from engineer-first examples and covered with bloat
   sensors. Remaining scan hits are intentional technical profile support,
   career-profile coverage, and real company-location sample data.
+- Added `npm run doctor` and script tests for local environment readiness.
+- Recorded Walking Labs `harness-creator` skill compatibility findings without
+  adding duplicate root state files.
+- Recorded the deep harness audit and promoted top findings into the debt
+  tracker.
 
 The active plan progress table has detailed slice history.
 
 ## Verified Recently
+
+Latest active-plan refresh checks on 2026-05-31:
+
+- `npm run doctor`
+- `npm run harness:check`
+- `npm run lint:docs`
+- `npm run test:scripts`
+- `npm run lint:md`
+- `npm run lint:bloat`
+- `git diff --check`
 
 The latest cleanup slices were verified with:
 
@@ -234,6 +264,10 @@ Next high-value passes:
      work.
    - Promote any repeated ease, privacy, or flaky-test failure into a guide or
      sensor instead of leaving it in chat.
+   - Prioritize the new top harness debt: CI harness coverage, release
+     preflight, harness manifest extraction, sensor modularity, broader
+     external-AI provider scanning, environment doctor platform checks, and
+     active-plan compaction.
 8. Continue protective job-search UX review.
    - Make ghost/stale detection central on job cards and saved jobs.
    - Make salary floor, pay transparency, salary-history guardrails, and
