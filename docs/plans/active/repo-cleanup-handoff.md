@@ -26,13 +26,14 @@ Latest pushed checkpoints include:
 - `5cf659ff Use plain source address copy`
 - `5c0d954a Sanitize toast support details`
 
-Current branch note:
+Recent remote integration evidence:
 
-- `main` was pushed through `e9292268`. CI run `26778739829` passed for that
-  push. CI covered harness checks, harness script tests, TypeScript, ESLint,
-  frontend unit tests, Rust fmt, Rust clippy, Rust library tests, npm audit,
-  and cargo-deny advisories. Docs Harness last ran on `f050070d` as run
-  `26778490093` and passed.
+- `e9292268` passed CI run `26778739829`. CI covered harness checks, harness
+  script tests, TypeScript, ESLint, frontend unit tests, Rust fmt, Rust clippy,
+  Rust library tests, npm audit, and cargo-deny advisories. Docs Harness ran on
+  `f050070d` as run `26778490093` and passed. Use `npm run harness:session`
+  and `gh run list --branch main` for the live branch head after later
+  continuation slices.
 - The latest pushed harness slice adds `npm run harness:plan -- --since
   origin/main`, a changed-file command planner for focused verification.
 - The latest pushed slice removes stale hardcoded employer rating claims from
