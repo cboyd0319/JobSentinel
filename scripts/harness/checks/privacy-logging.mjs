@@ -126,6 +126,22 @@ const importCommandPrivacyPaths = new Set(["src-tauri/src/commands/import.rs"]);
 const rawImportRedirectDisplayPaths = new Set(["src-tauri/src/core/import/types.rs"]);
 const urlSecurityPrivacyPaths = new Set(["src-tauri/src/core/url_security.rs"]);
 
+const rawAutomationQuestionLoggingPaths = new Set([
+  "src-tauri/src/core/automation/form_filler.rs",
+]);
+
+const automationFormPrivacyPaths = new Set([
+  "src-tauri/src/core/automation/form_filler.rs",
+  "src/mocks/handlers.ts",
+]);
+
+const automationBrowserErrorPrivacyPaths = new Set([
+  "src-tauri/src/core/automation/browser/manager.rs",
+  "src-tauri/src/core/automation/browser/page.rs",
+]);
+
+const rawNotificationJobTitleLoggingPaths = new Set(["src-tauri/src/core/notify/mod.rs"]);
+
 function stripRustTestModules(text) {
   let output = text;
 
@@ -655,4 +671,58 @@ export function hasNonPublicIpErrorEcho(root, path) {
 
   const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
   return /Blocked non-public IP address ['"]?\{[^}]*}/.test(productionText);
+}
+
+export function hasRawAutomationQuestionLogging(root, path) {
+  if (!rawAutomationQuestionLoggingPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /tracing::debug!\([^;]*(?:screening question|screening answer)[^;]*'\{\}'[^;]*question_text/.test(
+    text,
+  );
+}
+
+export function hasRawAutomationFormResultData(root, path) {
+  if (!automationFormPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const text = path.endsWith(".rs")
+    ? stripRustTestModules(readFileSync(join(root, path), "utf8"))
+    : readFileSync(join(root, path), "utf8");
+
+  if (path === "src-tauri/src/core/automation/form_filler.rs") {
+    return (
+      /format!\(\s*"screening:\{\}"\s*,\s*(?:field_name|question_text)/.test(text) ||
+      /truncate_question\(&question_text/.test(text) ||
+      /Failed to (?:execute|parse) question finder (?:script|result):\s*\{\}/.test(text)
+    );
+  }
+
+  return /`screening:\$\{answer\.questionPattern\}`/.test(text);
+}
+
+export function hasRawAutomationBrowserErrors(root, path) {
+  if (!automationBrowserErrorPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /Failed to build browser config:\s*\{\}/.test(productionText) ||
+    /File does not exist:\s*\{:\?\}/.test(productionText) ||
+    /Invalid file path encoding/.test(productionText) ||
+    /Failed to build file upload params:\s*\{\}/.test(productionText)
+  );
+}
+
+export function hasRawNotificationJobTitleLogging(root, path) {
+  if (!rawNotificationJobTitleLoggingPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /tracing::info!\([^;]*notification\.job\.title/.test(text);
 }

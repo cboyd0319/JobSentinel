@@ -45,7 +45,10 @@ import {
   hasUnreferencedSourceHelper,
 } from "./harness/checks/source-structure.mjs";
 import {
+  hasRawAutomationBrowserErrors,
   hasRawAutomationDropdownValueLogging,
+  hasRawAutomationFormResultData,
+  hasRawAutomationQuestionLogging,
   hasRawFrontendErrorReporterForwarding,
   hasLinkedInLoginCookieReturn,
   hasCredentialKeyInputEcho,
@@ -66,9 +69,10 @@ import {
   hasRawConfigValidationUrlDisplay,
   hasRawImportHttpErrorReturn,
   hasRawImportRedirectDisplay,
+  hasRawJobImportLogging,
+  hasRawNotificationJobTitleLogging,
   hasRawNotificationProviderErrorBody,
   hasRawNotificationServiceErrorDetails,
-  hasRawJobImportLogging,
   hasRawPrivateQueryLogging,
   hasRawScraperLoopErrorLogging,
   hasRawScraperUrlOrQueryLogging,
@@ -154,17 +158,6 @@ const databaseLogEmojiPaths = new Set([
 
 const rawResumeParserPathDisplayPaths = new Set(["src-tauri/src/core/resume/parser.rs"]);
 const rawResumeNameLoggingPaths = new Set(["src-tauri/src/commands/resume.rs"]);
-const rawAutomationQuestionLoggingPaths = new Set([
-  "src-tauri/src/core/automation/form_filler.rs",
-]);
-const automationFormPrivacyPaths = new Set([
-  "src-tauri/src/core/automation/form_filler.rs",
-  "src/mocks/handlers.ts",
-]);
-const automationBrowserErrorPrivacyPaths = new Set([
-  "src-tauri/src/core/automation/browser/manager.rs",
-  "src-tauri/src/core/automation/browser/page.rs",
-]);
 const importBookmarkletCommandPrivacyPaths = new Set([
   "src-tauri/src/commands/import.rs",
   "src-tauri/src/commands/user_data.rs",
@@ -172,7 +165,6 @@ const importBookmarkletCommandPrivacyPaths = new Set([
   "src-tauri/src/commands/bookmarklet.rs",
   "src-tauri/src/core/bookmarklet/server.rs",
 ]);
-const rawNotificationJobTitleLoggingPaths = new Set(["src-tauri/src/core/notify/mod.rs"]);
 const notificationServicePrivacyPaths = new Set(["src-tauri/src/core/notify/mod.rs"]);
 const rawSchedulerJobContentLoggingPaths = new Set([
   "src-tauri/src/core/db/crud.rs",
@@ -1817,60 +1809,6 @@ function hasRawImportBookmarkletCommandErrorDetails(root, path) {
       productionText,
     )
   );
-}
-
-function hasRawAutomationQuestionLogging(root, path) {
-  if (!rawAutomationQuestionLoggingPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return /tracing::debug!\([^;]*(?:screening question|screening answer)[^;]*'\{\}'[^;]*question_text/.test(
-    text,
-  );
-}
-
-function hasRawAutomationFormResultData(root, path) {
-  if (!automationFormPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const text = path.endsWith(".rs")
-    ? stripRustTestModules(readFileSync(join(root, path), "utf8"))
-    : readFileSync(join(root, path), "utf8");
-
-  if (path === "src-tauri/src/core/automation/form_filler.rs") {
-    return (
-      /format!\(\s*"screening:\{\}"\s*,\s*(?:field_name|question_text)/.test(text) ||
-      /truncate_question\(&question_text/.test(text) ||
-      /Failed to (?:execute|parse) question finder (?:script|result):\s*\{\}/.test(text)
-    );
-  }
-
-  return /`screening:\$\{answer\.questionPattern\}`/.test(text);
-}
-
-function hasRawAutomationBrowserErrors(root, path) {
-  if (!automationBrowserErrorPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /Failed to build browser config:\s*\{\}/.test(productionText) ||
-    /File does not exist:\s*\{:\?\}/.test(productionText) ||
-    /Invalid file path encoding/.test(productionText) ||
-    /Failed to build file upload params:\s*\{\}/.test(productionText)
-  );
-}
-
-function hasRawNotificationJobTitleLogging(root, path) {
-  if (!rawNotificationJobTitleLoggingPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return /tracing::info!\([^;]*notification\.job\.title/.test(text);
 }
 
 function hasRawBookmarkletImportLogging(root, path) {

@@ -14,6 +14,9 @@ import {
   hasMissingWebhookCredentialStorageValidation,
   hasNonPublicIpErrorEcho,
   hasRawAutomationDropdownValueLogging,
+  hasRawAutomationBrowserErrors,
+  hasRawAutomationFormResultData,
+  hasRawAutomationQuestionLogging,
   hasRawBackupPathError,
   hasRawCommandSetupErrorDisplay,
   hasRawConfigValidationUrlDisplay,
@@ -28,6 +31,7 @@ import {
   hasRawLinkedInDebug,
   hasRawLocalPathLogging,
   hasRawNotificationProviderErrorBody,
+  hasRawNotificationJobTitleLogging,
   hasRawNotificationServiceErrorDetails,
   hasRawPathOrQueryErrorDisplay,
   hasRawPrivateQueryLogging,
@@ -80,6 +84,63 @@ test("privacy logging rejects raw automation dropdown selected values", () => {
     );
     assert.equal(
       hasRawAutomationDropdownValueLogging(root, "src-tauri/src/core/automation/form_filler.rs"),
+      false,
+    );
+  });
+});
+
+test("privacy logging rejects raw automation question and form data", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/automation/form_filler.rs",
+      [
+        'tracing::debug!("screening question \'{}\'", question_text);',
+        'format!("screening:{}", question_text);',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(root, "src/mocks/handlers.ts", "`screening:${answer.questionPattern}`");
+
+    assert.equal(
+      hasRawAutomationQuestionLogging(root, "src-tauri/src/core/automation/form_filler.rs"),
+      true,
+    );
+    assert.equal(
+      hasRawAutomationFormResultData(root, "src-tauri/src/core/automation/form_filler.rs"),
+      true,
+    );
+    assert.equal(hasRawAutomationFormResultData(root, "src/mocks/handlers.ts"), true);
+    assert.equal(
+      hasRawAutomationQuestionLogging(root, "src-tauri/src/core/automation/browser/page.rs"),
+      false,
+    );
+  });
+});
+
+test("privacy logging rejects raw automation browser errors and notification titles", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/automation/browser/manager.rs",
+      'format!("Failed to build browser config: {}", e);',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/notify/mod.rs",
+      "tracing::info!(notification.job.title);",
+    );
+
+    assert.equal(
+      hasRawAutomationBrowserErrors(root, "src-tauri/src/core/automation/browser/manager.rs"),
+      true,
+    );
+    assert.equal(
+      hasRawNotificationJobTitleLogging(root, "src-tauri/src/core/notify/mod.rs"),
+      true,
+    );
+    assert.equal(
+      hasRawAutomationBrowserErrors(root, "src-tauri/src/core/automation/form_filler.rs"),
       false,
     );
   });
