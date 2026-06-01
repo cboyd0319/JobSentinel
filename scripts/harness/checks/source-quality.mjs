@@ -20,6 +20,8 @@ const storageJsonParserPaths = new Set([
   "src/components/CompanyResearchPanel.tsx",
 ]);
 
+const staticCompanyFallbackPaths = new Set(["src/components/CompanyResearchPanel.tsx"]);
+
 const settingsCredentialPaths = new Set(["src/pages/Settings.tsx"]);
 
 const frontendStatusEmojiPaths = new Set([
@@ -214,6 +216,22 @@ export function hasUnsafeStorageJsonParsing(root, path) {
     !/function\s+isCacheEntry/.test(text) ||
     !/function\s+isCompanyInfo/.test(text)
   );
+}
+
+export function hasStaticCompanyRatingFallback(root, path) {
+  if (!staticCompanyFallbackPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const start = text.indexOf("const KNOWN_COMPANIES");
+  const end = text.indexOf("\n};\n\nasync function fetchCompanyInfo", start);
+
+  if (start === -1 || end === -1) {
+    return false;
+  }
+
+  return /\bglassdoorRating\s*:/.test(text.slice(start, end));
 }
 
 export function hasNotificationWebhookSaveWithoutValidation(root, path) {

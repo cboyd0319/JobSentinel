@@ -184,7 +184,8 @@ and record actionable findings in this active-plan surface.
 - Latest local privacy-logging harness work moves privacy/logging violation
   orchestration out of `scripts/check-repo-bloat.mjs` and into
   `collectPrivacyLoggingViolations`; focused privacy-logging coverage now
-  verifies the collector and `scripts/check-repo-bloat.mjs` is 564 lines.
+  verifies the collector and `scripts/check-repo-bloat.mjs` is now a small
+  569-line orchestrator after the latest source-quality guard.
 - Latest local broad-audience fixture work replaces engineer-first defaults in
   `SkillCategoryFilter`, Cow utility, API-contract, scraper-construction, and
   ignored live-scraper tests with operations, support, accounting, and care
@@ -197,6 +198,14 @@ and record actionable findings in this active-plan surface.
 - Latest local screenshot work refreshes `docs/images/*.png` with current
   broad-audience UI data and fixes the settings screenshot capture so it opens
   the real settings modal instead of duplicating the dashboard.
+- Latest pushed checkpoint is `a4dade40 Refresh documentation screenshots`.
+  The 2026-06-01 remote Docs Harness run `26741447318` and CI run
+  `26741447297` both passed on `main`.
+- Latest local company-research accuracy work removes hardcoded employer
+  rating claims from the static fallback data, keeps cached/live rating
+  rendering covered by component tests, changes unknown-company guidance to
+  official and public-source research language, and adds a source-quality
+  harness check so static fallback ratings cannot drift back.
 - Latest local docs-drift harness work moves the docs-drift violation messages
   out of `scripts/check-repo-bloat.mjs` and into
   `scripts/harness/checks/docs-drift.mjs` through
@@ -302,8 +311,8 @@ and record actionable findings in this active-plan surface.
    preserve tech-specific cases only when they test explicit branch behavior or
    source-realism parser contracts.
 2. Continue splitting oversized harness modules only where the ownership
-   boundary is clear; the main bloat runner is now 564 lines after docs-drift
-   and privacy-logging orchestration moved into modules.
+   boundary is clear; the main bloat runner is now 569 lines after docs-drift,
+   privacy-logging, and source-quality ownership moved into modules.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
 4. Continue broad-audience review so non-technical and technical job searches

@@ -18,24 +18,22 @@ scope:
 - `research-backed-product-improvements.md`
 - `status.md`
 
-Latest pushed harness commits before this slice:
+Latest pushed checkpoints include:
 
-- `10a5fe09 Extend environment doctor checks`
-- `c6bbd4d4 Broaden external AI gateway sensor`
-- `ea907c99 Refresh active plan handoff`
-- `55761c07 Record deep harness audit`
-- `03af1711 Document harness creator skill evaluation`
-- `5b88f700 Add harness environment doctor`
+- `30394e48 Extract privacy logging bloat rules`
+- `8208976a Broaden utility fixture examples`
+- `7a1728c6 Broaden config and profile seeds`
+- `a4dade40 Refresh documentation screenshots`
 
 Current branch note:
 
-- At the start of this privacy-audit slice, `main` was ahead of `origin/main`
-  by two local sensor-modularity commits:
-  `9fe69e0e Split product copy checks` and
-  `c335575c Split release promise checks`.
-- The 2026-06-01 Docs Harness and CI runs for `32078c1f` passed after the
-  local sensor-modularity, privacy, and broad-audience fixture series were
-  pushed to `main`.
+- `main` was clean against `origin/main` after pushing `a4dade40`.
+- The 2026-06-01 Docs Harness run `26741447318` and CI run `26741447297`
+  passed for `a4dade40` after the broad-audience fixture, seed, screenshot,
+  and harness modularity slices were pushed to `main`.
+- The current local slice removes stale hardcoded employer rating claims from
+  static company fallback data and adds source-quality coverage against
+  reintroducing them.
 - Continue using small verified commits. Run remote CI only when the user
   explicitly asks or the full-goal completion pass requires it.
 
@@ -59,8 +57,8 @@ Current cleanup posture:
   overconfidence, and pay-guidance overconfidence now live in
   `scripts/harness/checks/product-copy.mjs`.
 - Privacy/logging bloat-runner orchestration now lives in
-  `collectPrivacyLoggingViolations`; `scripts/check-repo-bloat.mjs` is down to
-  564 lines.
+  `collectPrivacyLoggingViolations`; `scripts/check-repo-bloat.mjs` is now a
+  small 569-line orchestrator after the latest source-quality guard.
 - Broad-audience fixture checks now cover generic skill-filter categories, Cow
   utility tests, API-contract search history, and ignored live-scraper probes
   so technical defaults do not quietly drift back into broad examples.
@@ -70,6 +68,9 @@ Current cleanup posture:
 - Documentation screenshots were refreshed with current broad-audience UI data;
   the settings screenshot now opens the settings modal instead of duplicating
   the dashboard.
+- Static company fallback data no longer ships hardcoded employer ratings;
+  cached or live company data can still render a rating when that data exists,
+  and `npm run lint:bloat` now rejects hardcoded fallback ratings.
 - Release-promise drift checks now live in
   `scripts/harness/checks/release-promises.mjs`.
 - Initial privacy-logging checks for raw automation dropdown values and raw
@@ -170,9 +171,10 @@ Current cleanup posture:
   profile calls outside the profile editor, Dashboard full-config calls, raw
   post-preview import URLs, full imported-job returns, and stale minimized mocks
   fail through `npm run lint:bloat`.
-- `scripts/check-repo-bloat.mjs` still owns docs drift, most privacy logging,
-  fixture-quality checks, broad-audience checks, technical-first copy checks,
-  and source security patterns.
+- `scripts/check-repo-bloat.mjs` is now a small orchestrator for modular
+  harness checks. Docs drift, privacy logging, broad-audience fixtures,
+  technical-first copy, source quality, and security-doc patterns have focused
+  modules under `scripts/harness/checks/`.
 - Docs harness exists and runs through `npm run harness:check`.
 - Environment readiness is now checked through `npm run doctor`; E2E/browser
   readiness uses `npm run doctor:e2e`.

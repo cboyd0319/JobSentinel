@@ -16,6 +16,7 @@ import {
   hasProductionSourceGlyphMarkers,
   hasProductionTypeErrorSuppression,
   hasRawSalaryCommandLogging,
+  hasStaticCompanyRatingFallback,
   hasStaleResumeExportPdfStub,
   hasStaleScrapeAllStub,
   hasStaleSettingsPartialSaveMessage,
@@ -172,5 +173,30 @@ test("source quality rejects unsafe settings saves and raw salary logging", () =
     assert.equal(hasNotificationWebhookSaveWithoutValidation(root, "src/pages/Settings.tsx"), true);
     assert.equal(hasStaleSettingsPartialSaveMessage(root, "src/pages/Settings.tsx"), true);
     assert.equal(hasRawSalaryCommandLogging(root, "src-tauri/src/commands/salary.rs"), true);
+  });
+});
+
+test("source quality rejects static company fallback ratings", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/components/CompanyResearchPanel.tsx",
+      [
+        "const KNOWN_COMPANIES = {",
+        "  example: {",
+        '    industry: "Healthcare",',
+        "    glassdoorRating: 4.7,",
+        "  },",
+        "};",
+        "",
+        "async function fetchCompanyInfo(companyName) { return companyName; }",
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasStaticCompanyRatingFallback(root, "src/components/CompanyResearchPanel.tsx"),
+      true,
+    );
   });
 });

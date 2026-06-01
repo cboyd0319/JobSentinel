@@ -164,11 +164,13 @@ describe("CompanyResearchPanel", () => {
       });
     });
 
-    it("suggests official-source search for unknown company", async () => {
+    it("suggests official and public-source research for unknown company", async () => {
       render(<CompanyResearchPanel companyName="MyNewCompany" />);
 
       await waitFor(() => {
-        expect(screen.getByText(/Try the official careers page, LinkedIn, or Glassdoor for "MyNewCompany"/)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Try the official careers page and public job or review pages for "MyNewCompany"/),
+        ).toBeInTheDocument();
       });
     });
 
@@ -493,6 +495,15 @@ describe("CompanyResearchPanel", () => {
       await waitFor(() => {
         expect(screen.getByText("Technology")).toBeInTheDocument();
       });
+    });
+
+    it("does not ship hardcoded employer ratings in the local fallback", async () => {
+      render(<CompanyResearchPanel companyName="Google" />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Technology")).toBeInTheDocument();
+      });
+      expect(screen.queryByText("Glassdoor Rating")).not.toBeInTheDocument();
     });
   });
 });

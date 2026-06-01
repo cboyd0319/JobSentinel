@@ -94,6 +94,7 @@ import {
   hasProductionSourceGlyphMarkers,
   hasProductionTypeErrorSuppression,
   hasRawSalaryCommandLogging,
+  hasStaticCompanyRatingFallback,
   hasStaleResumeExportPdfStub,
   hasStaleScrapeAllStub,
   hasStaleSettingsPartialSaveMessage,
@@ -251,6 +252,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasSalaryAudienceExampleDrift(root, path)) {
       violations.push(`replace salary audience example: ${path}`);
+    }
+
+    if (hasStaticCompanyRatingFallback(root, path)) {
+      violations.push(`remove stale static company ratings: ${path}`);
     }
 
     if (hasProductionExplicitAnySuppression(root, path)) {
