@@ -26,6 +26,7 @@ import {
   validateSlackWebhook,
   validateTeamsWebhook,
 } from "../utils/formValidation";
+import { searchLooksTechFocused } from "../utils/profiles";
 
 // Ghost detection configuration interface
 interface GhostConfig {
@@ -505,13 +506,15 @@ export default function Settings({ onClose }: SettingsProps) {
     ].map((k) => k.toLowerCase());
     const allowRemote = config?.location_preferences?.allow_remote ?? false;
     const cities = config?.location_preferences?.cities ?? [];
+    const isTechFocused = searchLooksTechFocused(keywords);
+    const hasRemoteIntent = allowRemote || keywords.some((k) => k.includes("remote"));
 
-    // Remote-focused boards
-    if (allowRemote || keywords.some((k) => k.includes("remote"))) {
+    // Remote tech-focused boards
+    if (isTechFocused && hasRemoteIntent) {
       if (!config?.remoteok?.enabled) {
         recommendations.push({
           board: "RemoteOK",
-          reason: "You prefer remote work",
+          reason: "Useful for remote tech roles",
           enable: () =>
             setConfig({
               ...config!,
@@ -527,7 +530,7 @@ export default function Settings({ onClose }: SettingsProps) {
       if (!config?.weworkremotely?.enabled) {
         recommendations.push({
           board: "WeWorkRemotely",
-          reason: "Great for remote positions",
+          reason: "Useful for remote tech and product roles",
           enable: () =>
             setConfig({
               ...config!,
@@ -568,19 +571,12 @@ export default function Settings({ onClose }: SettingsProps) {
       }
     }
 
-    // Software/startup keywords
-    if (
-      keywords.some(
-        (k) =>
-          k.includes("engineer") ||
-          k.includes("developer") ||
-          k.includes("programmer"),
-      )
-    ) {
+    // Software/product/data/security keywords
+    if (isTechFocused) {
       if (!config?.hn_hiring?.enabled) {
         recommendations.push({
           board: "HN Who's Hiring",
-          reason: "Active monthly hiring threads",
+          reason: "Active monthly tech hiring threads",
           enable: () =>
             setConfig({
               ...config!,
@@ -596,7 +592,7 @@ export default function Settings({ onClose }: SettingsProps) {
       if (!config?.dice?.enabled) {
         recommendations.push({
           board: "Dice",
-          reason: "Tech-focused job board",
+          reason: "Technology roles",
           enable: () =>
             setConfig({
               ...config!,
@@ -636,8 +632,9 @@ export default function Settings({ onClose }: SettingsProps) {
       }
     }
 
-    // If they have US cities, suggest BuiltIn
+    // If they have US cities and a tech-focused search, suggest BuiltIn
     if (
+      isTechFocused &&
       cities.some(
         (c) =>
           c.toLowerCase().includes("san francisco") ||
@@ -650,7 +647,7 @@ export default function Settings({ onClose }: SettingsProps) {
       if (!config?.builtin?.enabled) {
         recommendations.push({
           board: "BuiltIn",
-          reason: "Great for tech hubs like " + cities[0],
+          reason: "Tech and startup jobs near " + cities[0],
           enable: () =>
             setConfig({
               ...config!,

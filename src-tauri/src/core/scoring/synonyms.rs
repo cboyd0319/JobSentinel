@@ -65,6 +65,10 @@ impl SynonymMap {
             "Client Service",
             "Member Support",
             "Support Specialist",
+            "Help Desk",
+            "Call Center",
+            "Contact Center",
+            "Customer Care",
         ]);
         map.add_synonym_group(&[
             "Administrative Assistant",
@@ -72,18 +76,26 @@ impl SynonymMap {
             "Office Assistant",
             "Office Administrator",
             "Office Coordinator",
+            "Front Desk",
+            "Receptionist",
+            "Administrative Coordinator",
         ]);
         map.add_synonym_group(&[
             "Project Coordinator",
             "Program Coordinator",
             "Project Administrator",
             "Project Specialist",
+            "Program Specialist",
+            "Program Assistant",
         ]);
         map.add_synonym_group(&[
             "Operations",
             "Ops",
             "Operations Coordinator",
             "Operations Specialist",
+            "Business Operations",
+            "Office Operations",
+            "Operations Assistant",
         ]);
 
         // Sales, people, and finance roles
@@ -105,24 +117,57 @@ impl SynonymMap {
         ]);
         map.add_synonym_group(&[
             "Bookkeeper",
+            "Bookkeeping",
+            "Accounting",
             "Accounting Clerk",
+            "Accounting Assistant",
             "Accounts Payable",
             "Accounts Receivable",
+            "AP",
+            "AR",
+            "Payroll",
         ]);
 
         // Healthcare, education, and care roles
-        map.add_synonym_group(&["Registered Nurse", "RN", "Staff Nurse", "Clinical Nurse"]);
+        map.add_synonym_group(&[
+            "Registered Nurse",
+            "RN",
+            "Staff Nurse",
+            "Clinical Nurse",
+            "Nurse",
+        ]);
         map.add_synonym_group(&[
             "Certified Nursing Assistant",
             "CNA",
             "Nursing Assistant",
             "Patient Care Assistant",
+            "Patient Care Aide",
+            "Caregiver",
         ]);
         map.add_synonym_group(&[
             "Medical Assistant",
             "Clinical Assistant",
             "Patient Care Technician",
             "PCT",
+            "Clinic Assistant",
+        ]);
+        map.add_synonym_group(&[
+            "Care Coordination",
+            "Care Coordinator",
+            "Patient Navigator",
+            "Care Navigator",
+            "Case Management",
+            "Case Manager",
+            "Service Coordinator",
+        ]);
+        map.add_synonym_group(&[
+            "Healthcare Administration",
+            "Medical Office",
+            "Medical Receptionist",
+            "Patient Access",
+            "Patient Services",
+            "Clinic Coordinator",
+            "Practice Coordinator",
         ]);
         map.add_synonym_group(&[
             "Teacher",
@@ -130,12 +175,94 @@ impl SynonymMap {
             "Instructor",
             "Tutor",
             "Training Specialist",
+            "Trainer",
         ]);
         map.add_synonym_group(&[
             "Instructional Designer",
             "Curriculum Developer",
             "Learning Designer",
             "Course Developer",
+        ]);
+        map.add_synonym_group(&[
+            "Training",
+            "Training Coordinator",
+            "Learning and Development",
+            "L&D",
+            "Staff Development",
+            "Workforce Development",
+        ]);
+
+        // Common business, healthcare, education, and public-sector tools
+        map.add_synonym_group(&[
+            "EMR",
+            "EHR",
+            "Electronic Medical Record",
+            "Electronic Health Record",
+            "Medical Records System",
+            "Charting System",
+        ]);
+        map.add_synonym_group(&[
+            "LMS",
+            "Learning Management System",
+            "Training Platform",
+            "Course Platform",
+        ]);
+        map.add_synonym_group(&[
+            "CRM",
+            "Customer Relationship Management",
+            "Salesforce",
+            "Client Database",
+            "Donor Database",
+            "Constituent Database",
+        ]);
+        map.add_synonym_group(&[
+            "POS",
+            "Point of Sale",
+            "Cash Register",
+            "Register System",
+            "Retail System",
+        ]);
+        map.add_synonym_group(&[
+            "Inventory",
+            "Inventory Control",
+            "Stock Control",
+            "Stockroom",
+            "Warehouse Inventory",
+            "Materials Management",
+        ]);
+        map.add_synonym_group(&[
+            "QuickBooks",
+            "Quick Books",
+            "QuickBooks Online",
+            "QBO",
+            "NetSuite",
+            "Oracle NetSuite",
+            "Accounting Software",
+        ]);
+        map.add_synonym_group(&[
+            "Scheduling",
+            "Appointment Scheduling",
+            "Calendar Management",
+            "Staff Scheduling",
+            "Dispatch",
+            "Rostering",
+        ]);
+        map.add_synonym_group(&[
+            "Compliance",
+            "Regulatory Compliance",
+            "Policy Compliance",
+            "Audit Readiness",
+            "Records Compliance",
+        ]);
+        map.add_synonym_group(&[
+            "Public Sector",
+            "Government",
+            "Municipal",
+            "County",
+            "State Agency",
+            "Public Health",
+            "Social Services",
+            "Human Services",
         ]);
 
         // Creative, marketing, and product roles
@@ -374,7 +501,9 @@ mod tests {
         let map = SynonymMap::new();
 
         assert!(map.matches_with_synonyms("Customer Support", "Client Service Specialist opening"));
+        assert!(map.matches_with_synonyms("Customer Support", "Contact Center Representative"));
         assert!(map.matches_with_synonyms("Admin Assistant", "Office Coordinator role"));
+        assert!(map.matches_with_synonyms("Administrative Assistant", "Front Desk Receptionist"));
         assert!(map.matches_with_synonyms("Project Coordinator", "Program Coordinator needed"));
         assert!(map.matches_with_synonyms("Human Resources", "People Ops partner"));
         assert!(map.matches_with_synonyms("Registered Nurse", "RN evening shift"));
@@ -382,6 +511,41 @@ mod tests {
         assert!(map.matches_with_synonyms("Teacher", "Educator role"));
         assert!(map.matches_with_synonyms("Graphic Designer", "Visual Designer opening"));
         assert!(!map.matches_with_synonyms("RN", "internship coordinator"));
+    }
+
+    #[test]
+    fn test_broad_business_tool_synonyms() {
+        let map = SynonymMap::new();
+
+        assert!(map.matches_with_synonyms("EMR", "Electronic Health Record charting required"));
+        assert!(map.matches_with_synonyms("EHR", "Medical Records System experience"));
+        assert!(map.matches_with_synonyms("LMS", "Learning Management System administrator"));
+        assert!(map.matches_with_synonyms("CRM", "Salesforce and client database updates"));
+        assert!(map.matches_with_synonyms("POS", "Point of Sale register system support"));
+        assert!(map.matches_with_synonyms("Inventory", "Stock control and materials management"));
+        assert!(map.matches_with_synonyms("QuickBooks", "QBO bookkeeping role"));
+        assert!(map.matches_with_synonyms("NetSuite", "Accounting software migration"));
+        assert!(map.matches_with_synonyms(
+            "Scheduling",
+            "Appointment scheduling and calendar management"
+        ));
+        assert!(!map.matches_with_synonyms("EMR", "summer camp counselor"));
+    }
+
+    #[test]
+    fn test_broad_care_public_sector_and_operations_synonyms() {
+        let map = SynonymMap::new();
+
+        assert!(map.matches_with_synonyms("Care Coordination", "Patient Navigator opening"));
+        assert!(map.matches_with_synonyms("Case Management", "Care Coordinator needed"));
+        assert!(map.matches_with_synonyms("Healthcare Administration", "Patient Access Specialist"));
+        assert!(map.matches_with_synonyms("Compliance", "Regulatory compliance coordinator"));
+        assert!(
+            map.matches_with_synonyms("Public Sector", "County human services program assistant")
+        );
+        assert!(map.matches_with_synonyms("Operations", "Business operations assistant"));
+        assert!(map.matches_with_synonyms("Training", "Learning and Development coordinator"));
+        assert!(map.matches_with_synonyms("Bookkeeping", "Accounts receivable and payroll clerk"));
     }
 
     #[test]

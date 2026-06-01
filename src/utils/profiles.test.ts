@@ -2,7 +2,9 @@ import { describe, it, expect } from "vitest";
 import {
   CAREER_PROFILES,
   getProfileById,
+  getSearchSourceDefaults,
   profileToConfig,
+  searchLooksTechFocused,
 } from "./profiles";
 
 describe("profiles", () => {
@@ -66,6 +68,21 @@ describe("profiles", () => {
       expect(config.location_preferences.allow_hybrid).toBe(profile.locationPreferences.allow_hybrid);
       expect(config.location_preferences.allow_onsite).toBe(profile.locationPreferences.allow_onsite);
       expect(config.location_preferences.cities).toEqual([]);
+      expect(config.remoteok.enabled).toBe(true);
+      expect(config.hn_hiring.enabled).toBe(true);
+      expect(config.weworkremotely.enabled).toBe(true);
+    });
+
+    it("keeps broad profiles off tech-heavy sources by default", () => {
+      const profile = getProfileById("healthcare");
+      expect(profile).toBeDefined();
+      if (!profile) return;
+
+      const config = profileToConfig(profile);
+
+      expect(config.remoteok.enabled).toBe(false);
+      expect(config.hn_hiring.enabled).toBe(false);
+      expect(config.weworkremotely.enabled).toBe(false);
     });
 
     it("creates independent copies of arrays", () => {
@@ -82,6 +99,40 @@ describe("profiles", () => {
       // Original profile should be unchanged
       expect(profile.titleAllowlist).not.toContain("Test Title");
       expect(profile.keywordsBoost).not.toContain("Test Keyword");
+    });
+  });
+
+  describe("source defaults", () => {
+    it("recognizes technical and non-technical search terms", () => {
+      expect(searchLooksTechFocused(["Software Engineer"])).toBe(true);
+      expect(searchLooksTechFocused(["Product Designer"])).toBe(true);
+      expect(searchLooksTechFocused(["Office Manager", "Scheduling"])).toBe(false);
+      expect(searchLooksTechFocused(["Medical Assistant", "EMR"])).toBe(false);
+    });
+
+    it("enables tech-heavy source defaults only for technical searches", () => {
+      expect(
+        getSearchSourceDefaults({
+          titles: ["Software Engineer"],
+          keywords: ["React"],
+          allowRemote: true,
+        }),
+      ).toEqual({
+        remoteokEnabled: true,
+        hnHiringEnabled: true,
+        weworkremotelyEnabled: true,
+      });
+      expect(
+        getSearchSourceDefaults({
+          titles: ["Office Manager"],
+          keywords: ["Scheduling"],
+          allowRemote: true,
+        }),
+      ).toEqual({
+        remoteokEnabled: false,
+        hnHiringEnabled: false,
+        weworkremotelyEnabled: false,
+      });
     });
   });
 });

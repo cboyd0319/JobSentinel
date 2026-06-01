@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import Settings from "./Settings";
@@ -743,6 +743,68 @@ describe("Settings — handleSave flow", () => {
     expect(container.innerHTML).not.toMatch(
       /Incoming Webhooks|incoming webhook connector|Webhooks → New Webhook|Incoming Webhook → Configure|Telegram Connection Token|Telegram Chat ID|passwords, tokens/i,
     );
+  });
+
+  it("does not recommend tech-heavy sources for broad remote searches", async () => {
+    const user = userEvent.setup();
+    const config = makeConfig();
+    config.title_allowlist = ["Office Manager"];
+    config.keywords_boost = ["Scheduling"];
+    config.location_preferences.allow_remote = true;
+    config.location_preferences.cities = ["Austin"];
+
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_config") return config;
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      return null;
+    });
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+
+    expect(screen.queryByText("Recommended for you")).not.toBeInTheDocument();
+  });
+
+  it("recommends tech-heavy sources for technical searches", async () => {
+    const user = userEvent.setup();
+    const config = makeConfig();
+    config.title_allowlist = ["Software Engineer"];
+    config.keywords_boost = ["React"];
+    config.location_preferences.allow_remote = true;
+    config.location_preferences.cities = ["Austin"];
+
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_config") return config;
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      return null;
+    });
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+
+    const recommended = screen.getByText("Recommended for you");
+    const panel = recommended.parentElement?.parentElement;
+    expect(panel).toBeInstanceOf(HTMLElement);
+    const panelQueries = within(panel as HTMLElement);
+
+    expect(panelQueries.getByText("RemoteOK")).toBeInTheDocument();
+    expect(panelQueries.getByText("WeWorkRemotely")).toBeInTheDocument();
+    expect(panelQueries.getByText("HN Who's Hiring")).toBeInTheDocument();
+    expect(panelQueries.getByText(/remote tech roles/i)).toBeInTheDocument();
   });
 
   it("blocks saving an invalid Discord connection link", async () => {

@@ -218,6 +218,11 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   advanced problem export is framed as support-only, and job-link import
   failures point users to copy the browser address bar instead of exposing
   Schema.org or URL terminology.
+- Fixed additional broad-audience findings: setup defaults and Settings source
+  recommendations no longer put every remote or city-based search on
+  tech-heavy boards, and synonym matching/docs now cover healthcare, office,
+  operations, public-sector, customer support, accounting, education, retail,
+  and non-software tool vocabulary as first-class search language.
 - Started broad-audience drift cleanup by rebalancing company autocomplete
   suggestions across healthcare, retail, logistics, finance, public service,
   education, hospitality, and technology; replacing tech-first placeholders and

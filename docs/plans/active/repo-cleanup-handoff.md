@@ -127,6 +127,12 @@ Current cleanup posture:
   provider-first connection-link actions, labels raw problem export as an
   advanced support action, and changes failed job-link import guidance to the
   browser-address-bar action instead of Schema.org or URL wording.
+- Latest broad-audience source follow-up keeps tech-heavy source defaults and
+  recommendations gated to technical searches, adds regression coverage for
+  broad remote searches such as office management and medical assistant work,
+  and expands synonym matching/docs across healthcare, office, operations,
+  public-sector, customer support, accounting, education, retail, and
+  non-software tool vocabulary.
 - Latest IPC minimization work added `has_application_profile`,
   `get_application_profile_preview`, `get_dashboard_preferences`, canonical
   import URLs before preview/hash/storage, and minimized import responses to

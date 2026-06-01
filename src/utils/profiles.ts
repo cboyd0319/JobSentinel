@@ -22,6 +22,78 @@ export interface CareerProfile {
   sampleTitles: string[]; // First 3-4 titles for preview
 }
 
+export interface SourceDefaults {
+  remoteokEnabled: boolean;
+  hnHiringEnabled: boolean;
+  weworkremotelyEnabled: boolean;
+}
+
+const TECH_SOURCE_PROFILE_IDS = new Set([
+  "software-engineering",
+  "cybersecurity",
+  "data-science",
+  "product-management",
+]);
+
+const TECH_SOURCE_TERMS = [
+  "software",
+  "developer",
+  "engineer",
+  "programmer",
+  "devops",
+  "sre",
+  "site reliability",
+  "platform",
+  "cloud",
+  "cybersecurity",
+  "security engineer",
+  "security analyst",
+  "soc analyst",
+  "appsec",
+  "data scientist",
+  "machine learning",
+  "ml engineer",
+  "ai engineer",
+  "data engineer",
+  "analytics engineer",
+  "product manager",
+  "product designer",
+  "ux designer",
+  "ux researcher",
+];
+
+function buildSourceDefaults(isTechFocused: boolean, allowRemote: boolean): SourceDefaults {
+  return {
+    remoteokEnabled: isTechFocused && allowRemote,
+    hnHiringEnabled: isTechFocused,
+    weworkremotelyEnabled: isTechFocused && allowRemote,
+  };
+}
+
+export function searchLooksTechFocused(terms: string[]): boolean {
+  return terms
+    .map((term) => term.toLowerCase())
+    .some((term) => TECH_SOURCE_TERMS.some((techTerm) => term.includes(techTerm)));
+}
+
+export function getProfileSourceDefaults(profile: CareerProfile): SourceDefaults {
+  return buildSourceDefaults(
+    TECH_SOURCE_PROFILE_IDS.has(profile.id),
+    profile.locationPreferences.allow_remote,
+  );
+}
+
+export function getSearchSourceDefaults(search: {
+  titles: string[];
+  keywords: string[];
+  allowRemote: boolean;
+}): SourceDefaults {
+  return buildSourceDefaults(
+    searchLooksTechFocused([...search.titles, ...search.keywords]),
+    search.allowRemote,
+  );
+}
+
 // Career profiles embedded at build time for instant loading
 // Data sourced from profiles/*.json
 export const CAREER_PROFILES: CareerProfile[] = [
@@ -418,6 +490,8 @@ export function getProfileById(id: string): CareerProfile | undefined {
  * Convert a career profile to config format for the setup wizard
  */
 export function profileToConfig(profile: CareerProfile) {
+  const sourceDefaults = getProfileSourceDefaults(profile);
+
   return {
     title_allowlist: [...profile.titleAllowlist],
     title_blocklist: [...profile.titleBlocklist],
@@ -439,19 +513,19 @@ export function profileToConfig(profile: CareerProfile) {
         show_when_focused: false,
       },
     },
-    // Enable free scrapers by default (no auth required, work out of the box)
+    // Tech-heavy sources are enabled only for profiles where they fit.
     remoteok: {
-      enabled: true,
+      enabled: sourceDefaults.remoteokEnabled,
       tags: [] as string[],
       limit: 50,
     },
     hn_hiring: {
-      enabled: true,
+      enabled: sourceDefaults.hnHiringEnabled,
       remote_only: false,
       limit: 100,
     },
     weworkremotely: {
-      enabled: true,
+      enabled: sourceDefaults.weworkremotelyEnabled,
       limit: 50,
     },
   };

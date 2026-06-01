@@ -115,12 +115,15 @@ describe("SetupWizard Accessibility", () => {
               salary_floor_usd: 65000,
               immediate_alert_threshold: 0.9,
               remoteok: expect.objectContaining({
+                enabled: false,
                 limit: 50,
               }),
               hn_hiring: expect.objectContaining({
+                enabled: false,
                 limit: 100,
               }),
               weworkremotely: expect.objectContaining({
+                enabled: false,
                 limit: 50,
               }),
               ghost_config: expect.objectContaining({
@@ -236,14 +239,43 @@ describe("SetupWizard Accessibility", () => {
               title_allowlist: ["Medical Assistant"],
               immediate_alert_threshold: 0.85,
               remoteok: expect.objectContaining({
+                enabled: false,
                 limit: 75,
               }),
               hn_hiring: expect.objectContaining({
+                enabled: false,
                 limit: 150,
               }),
               weworkremotely: expect.objectContaining({
+                enabled: false,
                 limit: 75,
               }),
+            }),
+          }),
+        );
+      });
+    });
+
+    it("turns on tech-heavy sources for technical searches only", async () => {
+      const user = userEvent.setup();
+      mockInvoke.mockResolvedValue(undefined);
+      renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
+
+      await user.click(screen.getByRole("button", { name: /continue with my own search/i }));
+      await user.type(screen.getByPlaceholderText("Add a job title..."), "Software Engineer{enter}");
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith(
+          "complete_setup",
+          expect.objectContaining({
+            config: expect.objectContaining({
+              title_allowlist: ["Software Engineer"],
+              remoteok: expect.objectContaining({ enabled: true }),
+              hn_hiring: expect.objectContaining({ enabled: true }),
+              weworkremotely: expect.objectContaining({ enabled: true }),
             }),
           }),
         );

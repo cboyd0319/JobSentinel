@@ -85,6 +85,13 @@ and record actionable findings in this active-plan surface.
   keeps advanced raw problem export behind support wording, and gives failed
   job-link imports a browser-address-bar action instead of Schema.org or URL
   terminology.
+- Latest local broad-audience source work keeps tech-heavy RemoteOK,
+  WeWorkRemotely, HN Who's Hiring, Dice, and BuiltIn suggestions tied to
+  technical searches instead of every remote or city-based search. It also
+  broadens synonym matching and docs for healthcare, office, operations,
+  public-sector, customer support, accounting, education, retail, and common
+  non-software tools such as EMR/EHR, LMS, CRM, POS, inventory, QuickBooks,
+  scheduling, compliance, and care coordination.
 - Latest local broad-audience fixture work rebalanced generic market
   intelligence, notifications, config, database, ATS, ghost detection, salary,
   scoring, generic scraper adapters, command, frontend mock, sample JSON

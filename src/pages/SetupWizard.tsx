@@ -6,7 +6,12 @@ import { Card } from "../components/Card";
 import { CareerProfileSelector } from "../components/CareerProfileSelector";
 import { useToast } from "../contexts";
 import { safeInvoke, safeInvokeWithToast } from "../utils/api";
-import { CAREER_PROFILES, getProfileById, profileToConfig } from "../utils/profiles";
+import {
+  CAREER_PROFILES,
+  getProfileById,
+  getSearchSourceDefaults,
+  profileToConfig,
+} from "../utils/profiles";
 import { validateSlackWebhook } from "../utils/formValidation";
 import {
   cacheDetectedLocation,
@@ -261,19 +266,19 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     immediate_alert_threshold:
       REVIEW_VOLUME_CONFIGS[DEFAULT_REVIEW_VOLUME_PREFERENCE].immediate_alert_threshold,
     ghost_config: ghostConfigForFreshnessPreference(DEFAULT_FRESHNESS_PREFERENCE),
-    // Enable free scrapers by default (no auth required, work out of the box)
+    // Keep tech-heavy sources off until the saved search calls for them.
     remoteok: {
-      enabled: true,
+      enabled: false,
       tags: [] as string[],
       limit: 50,
     },
     hn_hiring: {
-      enabled: true,
+      enabled: false,
       remote_only: false,
       limit: 100,
     },
     weworkremotely: {
-      enabled: true,
+      enabled: false,
       limit: 50,
     },
   });
@@ -320,19 +325,19 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
         immediate_alert_threshold:
           REVIEW_VOLUME_CONFIGS[DEFAULT_REVIEW_VOLUME_PREFERENCE].immediate_alert_threshold,
         ghost_config: ghostConfigForFreshnessPreference(DEFAULT_FRESHNESS_PREFERENCE),
-        // Enable free scrapers by default
+        // Keep tech-heavy sources off until the saved search calls for them.
         remoteok: {
-          enabled: true,
+          enabled: false,
           tags: [],
           limit: 50,
         },
         hn_hiring: {
-          enabled: true,
+          enabled: false,
           remote_only: false,
           limit: 100,
         },
         weworkremotely: {
-          enabled: true,
+          enabled: false,
           limit: 50,
         },
       });
@@ -520,13 +525,34 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
         });
       }
 
+      const sourceDefaults = getSearchSourceDefaults({
+        titles: config.title_allowlist,
+        keywords: config.keywords_boost,
+        allowRemote: config.location_preferences.allow_remote,
+      });
+      const configWithSourceDefaults = {
+        ...config,
+        remoteok: {
+          ...config.remoteok,
+          enabled: config.remoteok.enabled || sourceDefaults.remoteokEnabled,
+        },
+        hn_hiring: {
+          ...config.hn_hiring,
+          enabled: config.hn_hiring.enabled || sourceDefaults.hnHiringEnabled,
+        },
+        weworkremotely: {
+          ...config.weworkremotely,
+          enabled: config.weworkremotely.enabled || sourceDefaults.weworkremotelyEnabled,
+        },
+      };
+
       // Create config object without the webhook_url (it's stored in keyring, not config file)
       const configToSave = {
-        ...config,
+        ...configWithSourceDefaults,
         alerts: {
-          ...config.alerts,
+          ...configWithSourceDefaults.alerts,
           slack: {
-            enabled: config.alerts.slack.enabled,
+            enabled: configWithSourceDefaults.alerts.slack.enabled,
             // webhook_url is intentionally omitted - stored in OS keyring
           },
         },

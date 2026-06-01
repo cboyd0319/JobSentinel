@@ -8,19 +8,25 @@ JobSentinel includes **intelligent synonym matching** for keyword scoring,
 allowing flexible matching of job descriptions without requiring exact keyword
 matches.
 
+Synonyms are intentionally broad-audience. Healthcare, office, operations,
+public-sector, customer support, accounting, education, retail, and technical
+roles are all treated as first-class examples.
+
 ## Key Features
 
 ### 1. Bidirectional Synonym Matching
 
-When you configure a work phrase like "Customer Support", JobSentinel can also
-match common nearby wording:
+When you configure a work phrase like "Customer Support" or "EMR",
+JobSentinel can also match common nearby wording:
 
 - Customer Service
 - Client Support
 - Client Service
+- EHR
+- Electronic Health Record
 
 And vice versa: searching for "Client Service" can also match "Customer
-Support".
+Support", and searching for "EHR" can also match "EMR".
 
 ### 2. Word Boundary Detection
 
@@ -44,12 +50,15 @@ tools across technical and non-technical searches.
 #### Customer, Office, and Coordination Roles
 
 - **Customer Support**: Customer Support, Customer Service, Client Support,
-  Client Service, Member Support, Support Specialist
+  Client Service, Member Support, Support Specialist, Help Desk, Call Center,
+  Contact Center, Customer Care
 - **Administrative Assistant**: Administrative Assistant, Admin Assistant,
-  Office Assistant, Office Administrator, Office Coordinator
+  Office Assistant, Office Administrator, Office Coordinator, Front Desk,
+  Receptionist, Administrative Coordinator
 - **Project Coordinator**: Project Coordinator, Program Coordinator, Project
-  Administrator, Project Specialist
-- **Operations**: Operations, Ops, Operations Coordinator, Operations Specialist
+  Administrator, Project Specialist, Program Specialist, Program Assistant
+- **Operations**: Operations, Ops, Operations Coordinator, Operations Specialist,
+  Business Operations, Office Operations, Operations Assistant
 
 #### Sales, People, and Finance Roles
 
@@ -57,19 +66,46 @@ tools across technical and non-technical searches.
   Account Executive, Business Development Representative, BDR
 - **Human Resources**: Human Resources, HR, People Operations, People Ops,
   Talent Acquisition, Recruiting
-- **Bookkeeper**: Bookkeeper, Accounting Clerk, Accounts Payable, Accounts
-  Receivable
+- **Bookkeeper**: Bookkeeper, Bookkeeping, Accounting, Accounting Clerk,
+  Accounting Assistant, Accounts Payable, Accounts Receivable, AP, AR, Payroll
 
 #### Healthcare, Education, and Care Roles
 
-- **Registered Nurse**: Registered Nurse, RN, Staff Nurse, Clinical Nurse
+- **Registered Nurse**: Registered Nurse, RN, Staff Nurse, Clinical Nurse, Nurse
 - **Certified Nursing Assistant**: Certified Nursing Assistant, CNA, Nursing
-  Assistant, Patient Care Assistant
+  Assistant, Patient Care Assistant, Patient Care Aide, Caregiver
 - **Medical Assistant**: Medical Assistant, Clinical Assistant, Patient Care
-  Technician, PCT
-- **Teacher**: Teacher, Educator, Instructor, Tutor, Training Specialist
+  Technician, PCT, Clinic Assistant
+- **Care Coordination**: Care Coordination, Care Coordinator, Patient Navigator,
+  Care Navigator, Case Management, Case Manager, Service Coordinator
+- **Healthcare Administration**: Healthcare Administration, Medical Office,
+  Medical Receptionist, Patient Access, Patient Services, Clinic Coordinator,
+  Practice Coordinator
+- **Teacher**: Teacher, Educator, Instructor, Tutor, Training Specialist,
+  Trainer
 - **Instructional Designer**: Instructional Designer, Curriculum Developer,
   Learning Designer, Course Developer
+- **Training**: Training, Training Coordinator, Learning and Development, L&D,
+  Staff Development, Workforce Development
+
+#### Common Business, Healthcare, Education, and Public-Sector Tools
+
+- **EMR**: EMR, EHR, Electronic Medical Record, Electronic Health Record,
+  Medical Records System, Charting System
+- **LMS**: LMS, Learning Management System, Training Platform, Course Platform
+- **CRM**: CRM, Customer Relationship Management, Salesforce, Client Database,
+  Donor Database, Constituent Database
+- **POS**: POS, Point of Sale, Cash Register, Register System, Retail System
+- **Inventory**: Inventory, Inventory Control, Stock Control, Stockroom,
+  Warehouse Inventory, Materials Management
+- **QuickBooks**: QuickBooks, Quick Books, QuickBooks Online, QBO, NetSuite,
+  Oracle NetSuite, Accounting Software
+- **Scheduling**: Scheduling, Appointment Scheduling, Calendar Management,
+  Staff Scheduling, Dispatch, Rostering
+- **Compliance**: Compliance, Regulatory Compliance, Policy Compliance,
+  Audit Readiness, Records Compliance
+- **Public Sector**: Public Sector, Government, Municipal, County, State Agency,
+  Public Health, Social Services, Human Services
 
 #### Creative, Marketing, and Product Roles
 
@@ -158,7 +194,7 @@ For a broad search, saved settings can include work phrases such as:
 
 ```json
 {
-  "keywords_boost": ["Customer Support", "Project Coordinator", "Scheduling"],
+  "keywords_boost": ["Customer Support", "Care Coordination", "Scheduling"],
   "keywords_exclude": ["overnight"]
 }
 ```
@@ -167,13 +203,13 @@ For a broad search, saved settings can include work phrases such as:
 
 **Job Description:**
 
-> "We are hiring a client service program coordinator for patient scheduling
-> and front desk support."
+> "We are hiring a client service care navigator for patient scheduling and
+> front desk support."
 
 **Matches:**
 
 - "Customer Support" matches "client service"
-- "Project Coordinator" matches "program coordinator"
+- "Care Coordination" matches "care navigator"
 - "Scheduling" matches directly
 
 **Result:** JobSentinel has more evidence that this role matches the user's
@@ -262,38 +298,57 @@ cd src-tauri && cargo test --lib scoring::synonyms
 - "Customer Service Representative"
 - "Client Support Specialist"
 - "Member Support Associate"
+- "Contact Center Representative"
 
-### Example 2: Coordination Variants
-
-**Config:**
-
-```json
-{
-  "keywords_boost": ["Project Coordinator"]
-}
-```
-
-**Matches:**
-
-- "Program Coordinator"
-- "Project Administrator"
-- "Project Specialist"
-
-### Example 3: Healthcare Abbreviations
+### Example 2: Healthcare and Care Coordination Variants
 
 **Config:**
 
 ```json
 {
-  "keywords_boost": ["Registered Nurse", "Certified Nursing Assistant"]
+  "keywords_boost": ["EMR", "Care Coordination", "Scheduling"]
 }
 ```
 
 **Matches:**
 
-- "RN evening shift"
-- "Staff Nurse"
-- "CNA position"
+- "EHR experience"
+- "Electronic Health Record chart review"
+- "Patient Navigator"
+- "Appointment Scheduling"
+
+### Example 3: Accounting, Retail, and Operations Variants
+
+**Config:**
+
+```json
+{
+  "keywords_boost": ["QuickBooks", "POS", "Inventory", "Operations"]
+}
+```
+
+**Matches:**
+
+- "QBO bookkeeping assistant"
+- "Point of Sale register system"
+- "Stock control coordinator"
+- "Business operations assistant"
+
+### Example 4: Technical Variants
+
+**Config:**
+
+```json
+{
+  "keywords_boost": ["Python", "React", "Kubernetes"]
+}
+```
+
+**Matches:**
+
+- "Python3 automation"
+- "ReactJS frontend"
+- "K8s deployment"
 
 ## Compatibility
 
