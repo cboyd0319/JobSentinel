@@ -1,0 +1,25 @@
+const APPLICATION_FORM_NAMES: Record<string, string> = {
+  greenhouse: "Greenhouse",
+  lever: "Lever",
+  workday: "Workday",
+  taleo: "Taleo",
+  icims: "iCIMS",
+  bamboohr: "BambooHR",
+  ashbyhq: "Ashby",
+};
+
+function titleCasePlatformId(platform: string): string {
+  return platform
+    .split(/[_-]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+export function getApplicationFormDisplayName(platform: string | null | undefined): string | null {
+  if (!platform || platform === "unknown") {
+    return null;
+  }
+
+  return APPLICATION_FORM_NAMES[platform] ?? titleCasePlatformId(platform);
+}

@@ -96,7 +96,9 @@ and record actionable findings in this active-plan surface.
 - Latest local Application Assist readiness follow-up stops optional
   application-form detection from blocking the Prepare Form action. If form
   recognition is still loading, users with a saved profile can still open the
-  review modal and continue.
+  review modal and continue. Application Assist now also shares plain
+  application-form display labels across job-card badges and the review modal,
+  so raw platform IDs such as `greenhouse` do not appear in the preview.
 - Latest local privacy follow-up removes raw screening-question text and saved
   answer patterns from backend debug logs in Application Assist. Logs now keep
   only character counts for matched questions and patterns, and

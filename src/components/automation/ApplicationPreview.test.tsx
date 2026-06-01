@@ -152,8 +152,19 @@ describe("ApplicationPreview", () => {
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        expect(screen.getByText("greenhouse")).toBeInTheDocument();
-        expect(screen.getByLabelText("Application form: greenhouse")).toBeInTheDocument();
+        expect(screen.getByText("Greenhouse")).toBeInTheDocument();
+        expect(screen.getByLabelText("Application form: Greenhouse")).toBeInTheDocument();
+      });
+    });
+
+    it("formats unknown recognized platform ids as readable labels", async () => {
+      mockInvoke.mockResolvedValue(mockProfile);
+
+      render(<ApplicationPreview job={mockJob} atsPlatform="smart_recruiters" />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Smart Recruiters")).toBeInTheDocument();
+        expect(screen.getByLabelText("Application form: Smart Recruiters")).toBeInTheDocument();
       });
     });
 

@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { Badge } from "../Badge";
 import { Card } from "../Card";
 import { logError } from "../../utils/errorUtils";
+import { getApplicationFormDisplayName } from "./applicationFormLabels";
 
 interface Job {
   id: number;
@@ -95,6 +96,7 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
       willFill: true,
     },
   ];
+  const applicationFormName = getApplicationFormDisplayName(atsPlatform);
 
   return (
     <div className="space-y-6" role="region" aria-label="Application preview">
@@ -109,8 +111,10 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
               {job.company} • {job.location}
             </p>
           </div>
-          {atsPlatform && atsPlatform !== "unknown" && (
-            <Badge variant="surface" aria-label={`Application form: ${atsPlatform}`}>{atsPlatform}</Badge>
+          {applicationFormName && (
+            <Badge variant="surface" aria-label={`Application form: ${applicationFormName}`}>
+              {applicationFormName}
+            </Badge>
           )}
         </div>
       </Card>

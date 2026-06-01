@@ -8,6 +8,7 @@ import { logError } from "../../utils/errorUtils";
 import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
 import { getUserFriendlyError } from "../../utils/errorMessages";
 import { ApplicationPreview } from "./ApplicationPreview";
+import { getApplicationFormDisplayName } from "./applicationFormLabels";
 import { readStorageValue, removeStorageValue, writeStorageValue } from "../../utils/browserStorage";
 
 interface Job {
@@ -32,17 +33,6 @@ interface ApplyButtonProps {
   onApplied?: () => void;
   onOpenApplicationAssist?: () => void;
 }
-
-const ATS_DISPLAY_NAMES: Record<string, string> = {
-  greenhouse: "Greenhouse",
-  lever: "Lever",
-  workday: "Workday",
-  taleo: "Taleo",
-  icims: "iCIMS",
-  bamboohr: "BambooHR",
-  ashbyhq: "Ashby",
-  unknown: "Unknown ATS",
-};
 
 const APPLICATION_PLATFORM_HELP = "Recognized application form";
 
@@ -280,18 +270,20 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
     toast.info("Browser closed", "Not added to your board");
   };
 
+  const applicationFormName = getApplicationFormDisplayName(atsPlatform);
+
   return (
     <>
       <div className="flex items-center gap-2">
         {/* ATS Platform Badge */}
         {atsLoading ? (
           <span className="w-16 h-6 bg-surface-200 dark:bg-surface-700 rounded-full animate-pulse" />
-        ) : atsPlatform && atsPlatform !== "unknown" ? (
+        ) : applicationFormName ? (
           <span
             className={`px-2 py-1 text-xs font-medium rounded-full ${ATS_COLORS[atsPlatform] || ATS_COLORS.unknown}`}
             title={APPLICATION_PLATFORM_HELP}
           >
-            {ATS_DISPLAY_NAMES[atsPlatform] || atsPlatform}
+            {applicationFormName}
           </span>
         ) : null}
 
@@ -415,14 +407,15 @@ export const AtsBadge = memo(function AtsBadge({ url }: { url: string }) {
   }, [url]);
 
   // Don't show badge on error or unknown platform
-  if (error || !platform || platform === "unknown") return null;
+  const applicationFormName = getApplicationFormDisplayName(platform);
+  if (error || !applicationFormName) return null;
 
   // Use inline styles since Badge doesn't support className
   return (
     <span
       className={`px-2 py-1 text-xs font-medium rounded-full ${ATS_COLORS[platform] || ATS_COLORS.unknown}`}
     >
-      {ATS_DISPLAY_NAMES[platform] || platform}
+      {applicationFormName}
     </span>
   );
 });
