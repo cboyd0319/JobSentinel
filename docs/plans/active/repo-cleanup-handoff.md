@@ -38,6 +38,10 @@ Current branch note:
   keeps setup focused on official career pages and public job pages the user
   opened, and adds product-copy coverage so large-board support claims do not
   drift back.
+- The current local search-link slice replaces automated-scan language in the
+  Job Site Search Links UI and user docs with direct-monitoring boundaries,
+  removes overconfident legal wording, and adds product-copy coverage against
+  old scraper-comparison language.
 - Continue using small verified commits. Run remote CI only when the user
   explicitly asks or the full-goal completion pass requires it.
 
@@ -78,6 +82,9 @@ Current cleanup posture:
 - Browser import copy no longer promises support for any job posting or named
   large job boards. It now explains official/public page boundaries and says
   JobSentinel does not bypass controls when a board blocks page import.
+- Search-link copy now describes browser-opened searches instead of automated
+  scan avoidance, and user docs avoid legal guarantees or scanner comparison
+  language.
 - Release-promise drift checks now live in
   `scripts/harness/checks/release-promises.mjs`.
 - Initial privacy-logging checks for raw automation dropdown values and raw

@@ -211,6 +211,11 @@ and record actionable findings in this active-plan surface.
   toward official career pages and public job pages opened by them, states that
   JobSentinel does not bypass blocking controls, and adds product-copy coverage
   against overbroad import promises.
+- Latest local search-link boundary work replaces automated-scan language in
+  the Job Site Search Links UI and user docs with direct-monitoring and
+  browser-opened search wording, removes overconfident legal claims, and adds
+  product-copy coverage so automated-scan and scraper-comparison wording cannot
+  drift back into that user path.
 - Latest local docs-drift harness work moves the docs-drift violation messages
   out of `scripts/check-repo-bloat.mjs` and into
   `scripts/harness/checks/docs-drift.mjs` through

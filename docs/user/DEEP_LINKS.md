@@ -1,17 +1,19 @@
 # Job Site Search Links
 
-Create ready-to-use job searches for sites JobSentinel cannot scan automatically.
+Create ready-to-use searches for sites JobSentinel does not monitor directly.
 
 ## Overview
 
 JobSentinel creates search links for 18 job sites with your search already
-filled in. Click any link to open the search in your browser.
+filled in. Click any link to open the search in your browser. JobSentinel does
+not log in for you, read the results page in the background, or bypass site
+controls.
 
 **Benefits:**
 
 - Your browser opens the site, the same as a manual search
-- No job-board limits from automated scanning
-- Access sites that block automated scans
+- Useful for sites that are better searched directly in your browser
+- Clear boundary: you open the site and decide what to save
 - Quick way to search multiple sites at once
 
 ## Supported Sites (18)
@@ -131,34 +133,36 @@ Search links can include:
 
 Not all sites support every filter. JobSentinel uses what each site supports.
 
-## Privacy & Legal
+## Privacy And Source Boundaries
 
-**100% Private:**
+**Privacy:**
 
 - No data is sent to JobSentinel servers
 - Search links are created locally in your app
 - Your browser opens the job site
 - No tracking or analytics
 
-**100% Legal:**
+**Source boundaries:**
 
 - JobSentinel only creates a browser search link for these sites
-- Respects site Terms of Service
-- User's browser makes the request (same as manual search)
-- No automation or bots involved
+- You decide whether to open the site and log in there
+- JobSentinel does not collect session cookies for these sites
+- JobSentinel does not bypass CAPTCHA, login, or anti-bot controls
 
 ## FAQ
 
-### Why can't JobSentinel scan these sites automatically?
+### Why does JobSentinel use browser-opened links for these sites?
 
-Many sites (LinkedIn, Glassdoor, Indeed, etc.) actively block automated scans:
+Some sites limit background collection or require you to view results in your
+own browser:
 
 - Rate limiting
 - CAPTCHA challenges
-- IP bans
-- Terms of Service prohibitions
+- Login requirements
+- Terms or policy restrictions
 
-Search links let you search these sites legally without automated scans.
+Search links keep that boundary clear. JobSentinel creates the search, your
+browser opens it, and you decide what to save.
 
 ### Can I save my searches?
 
@@ -183,19 +187,18 @@ link, save a safe support report and share it only if you want help:
 Yes. Search links are easy to add. See the [developer guide](../developer/ADDING_DEEP_LINK_SITES.md)
 for details on adding new sites.
 
-## Comparison with Scrapers
+## Comparison With Monitored Sources
 
-| Feature | Search Links | Scanners |
-|---------|------------|----------|
-| **Legal** | Always | Site-dependent |
-| **Job-board limits** | Avoided | Common issue |
-| **CAPTCHA** | No problem | Blocks automated scanning |
-| **Up-to-date** | Always current | Breaks on changes |
-| **Automation** | Manual | Fully automated |
-| **Data Storage** | View only | Saved locally |
+| Feature | Search Links | Monitored sources |
+|---------|--------------|-------------------|
+| **Who opens the site** | You, in your browser | JobSentinel, where allowed |
+| **Login and CAPTCHA** | Handled by you on the site | Not bypassed |
+| **Page changes** | You still see the site directly | Source rules may need updates |
+| **Saving jobs** | You choose what to save | Saved locally when a monitored source returns a job |
+| **Best for** | Sites with login, anti-bot, or policy limits | Official or public sources that allow local monitoring |
 
-**Use scanners for:** Sites that allow it (Greenhouse, Lever, USAJobs)
-**Use search links for:** Everything else (LinkedIn, Indeed, Glassdoor, etc.)
+**Use monitored sources for:** Official or public sources that allow local monitoring.
+**Use search links for:** Sites that are best opened by you in your browser.
 
 ## Troubleshooting
 
@@ -225,7 +228,7 @@ This is expected - log in to view results.
 
 ## Related Features
 
-- **Scanners** - Automatic searches for supported sites
+- **Monitored sources** - Local checks for supported official or public sources
 - **Search-link favorites** (not yet implemented) - Save favorite search-link searches
 - **Job Tracker** - Track applications from manual searches
 

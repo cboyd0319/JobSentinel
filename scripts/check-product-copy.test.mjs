@@ -206,3 +206,29 @@ test("product copy rejects overbroad browser import promises", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/BOOKMARKLET.md"), true);
   });
 });
+
+test("product copy rejects automated-scan deep-link wording", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/components/DeepLinkGenerator.tsx",
+      "Create ready-to-use searches for job sites that JobSentinel cannot scan automatically.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/user/DEEP_LINKS.md",
+      [
+        "# Job Site Search Links",
+        "Access sites that block automated scans",
+        "**100% Legal:**",
+        "Search links let you search these sites legally without automated scans.",
+        "## Comparison with Scrapers",
+        "**Use scanners for:** Sites that allow it",
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/DeepLinkGenerator.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/DEEP_LINKS.md"), true);
+  });
+});
