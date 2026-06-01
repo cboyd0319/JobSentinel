@@ -252,6 +252,9 @@ and record actionable findings in this active-plan surface.
 - Latest zero-technical copy work changes Market Intelligence refresh and empty
   states from "run analysis" language to "refresh market data" language, with
   focused component tests and smoke-budget E2E evidence.
+- Latest dashboard plain-language work changes job-list export actions to
+  download copy, removes advanced-search wording from the main search box, and
+  adds focused DashboardFiltersBar and QuickActions tests for the visible copy.
 - Latest local docs-drift harness work moves the docs-drift violation messages
   out of `scripts/check-repo-bloat.mjs` and into
   `scripts/harness/checks/docs-drift.mjs` through

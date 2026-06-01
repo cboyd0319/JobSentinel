@@ -189,10 +189,10 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
             <Tooltip
               content={
                 <div className="text-xs space-y-1">
-                  <p className="font-medium">Advanced Search:</p>
-                  <p>• Comma or OR: marketing, nurse (any match)</p>
-                  <p>• AND: senior AND manager (all match)</p>
-                  <p>• NOT or -: -intern (exclude term)</p>
+                  <p className="font-medium">Search tips:</p>
+                  <p>• Use commas for either word: marketing, nurse</p>
+                  <p>• Use AND for words that must both appear: senior AND manager</p>
+                  <p>• Use a minus sign to leave out a word: -intern</p>
                 </div>
               }
               position="bottom"
@@ -210,9 +210,9 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
                     setShowSearchHistory(false);
                   }
                 }}
-                placeholder="Search (AND, OR, NOT)..."
+                placeholder="Search jobs"
                 className="w-48 sm:w-56 pl-8 pr-8 py-1.5 text-sm bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus:border-transparent"
-                aria-label="Search jobs with advanced syntax"
+                aria-label="Search jobs"
                 autoComplete="off"
                 data-testid="search-input"
               />
@@ -429,14 +429,14 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
           </Tooltip>
 
           {/* Export button */}
-          <Tooltip content="Export jobs to CSV" position="bottom">
+          <Tooltip content="Download job list" position="bottom">
             <button
               onClick={onExportJobs}
               className="flex items-center gap-2 px-3 py-1.5 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors"
-              aria-label="Export jobs to CSV"
+              aria-label="Download job list"
             >
               <ExportIcon className="w-4 h-4" />
-              <span className="hidden sm:inline">Export</span>
+              <span className="hidden sm:inline">Download</span>
             </button>
           </Tooltip>
 
@@ -497,10 +497,10 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
                 <button
                   onClick={handleBulkExport}
                   className="flex items-center gap-1 px-2 py-1 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 hover:bg-surface-200 dark:hover:bg-surface-700 rounded transition-colors"
-                  aria-label={`Export ${selectedJobIds.size} selected jobs to CSV`}
+                  aria-label={`Download ${selectedJobIds.size} selected jobs`}
                 >
                   <ExportIcon className="w-4 h-4" />
-                  Export
+                  Download
                 </button>
                 <button
                   onClick={handleCompareJobs}

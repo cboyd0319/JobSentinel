@@ -469,8 +469,8 @@ export function useDashboardJobOps(
       if (selectedJobs.length === 0) return;
       exportJobsToCSV(selectedJobs);
       toast.success(
-        `Exported ${selectedJobs.length} jobs`,
-        "CSV file downloaded",
+        `Downloaded ${selectedJobs.length} jobs`,
+        "Job list downloaded to your computer.",
       );
     },
     [selectedJobIds, toast],

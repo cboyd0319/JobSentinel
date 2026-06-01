@@ -392,14 +392,14 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
                 <option value="60">Last 60 Days</option>
                 <option value="90">Last 90 Days</option>
               </select>
-              {/* Export Button */}
+              {/* Download Button */}
               <button
                 onClick={handleExportCSV}
                 className="flex items-center gap-1 text-sm px-3 py-1.5 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg text-surface-700 dark:text-surface-300 transition-colors"
-                title="Export to CSV"
+                title="Download analytics data"
               >
                 <ExportIcon />
-                Export
+                Download
               </button>
               <button
                 onClick={onClose}

@@ -75,6 +75,9 @@ Current branch note:
 - The latest pushed zero-technical copy slice changes Market Intelligence
   refresh and empty-state wording from "run analysis" to "refresh market data"
   and updates component plus smoke E2E expectations.
+- The current local dashboard plain-language slice changes job-list export
+  actions to download copy, removes advanced-search wording from the main
+  search box, and adds DashboardFiltersBar plus QuickActions tests.
 - Continue using small verified commits. Avoid another remote CI run until the
   next explicit integration gate or full-goal completion pass.
 

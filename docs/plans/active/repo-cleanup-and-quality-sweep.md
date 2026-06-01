@@ -297,6 +297,9 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
 - The latest zero-technical copy slice changes Market Intelligence refresh and
   empty-state wording from "run analysis" to "refresh market data" and keeps
   component plus smoke E2E expectations aligned.
+- The latest dashboard plain-language slice changes job-list export actions to
+  download copy, removes advanced-search wording from the main search box, and
+  adds focused DashboardFiltersBar plus QuickActions tests.
 - Updated active plan and handoff docs for the latest local cleanup slice.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
@@ -328,6 +331,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-01 | In progress | Reworded Dashboard job-list actions from export/CSV copy to download copy, changed the main search placeholder to "Search jobs," and added focused DashboardFiltersBar plus QuickActions tests. |
 | 2026-06-01 | In progress | Pushed through `1976fd9e`; remote Docs Harness `26744671097` and CI `26744671092` both passed. CI covered harness checks, harness script tests, TypeScript, ESLint, frontend unit tests, Rust fmt, Rust clippy, Rust library tests, npm audit, and cargo-deny advisories. |
 | 2026-06-01 | In progress | Reworded Market Intelligence refresh and empty states from "run analysis" to "refresh market data"; focused component tests passed and smoke-budget E2E measured 9 Chromium smoke tests in 5.75 seconds against a 30-second budget. |
 | 2026-06-01 | In progress | Added Rule 0 PR review evidence requirements and manifest-backed harness snippets for privacy/security, local-first workflows, external AI gateway routing, safe support reports, responsible use, broad audience, and zero-technical-knowledge support. |
