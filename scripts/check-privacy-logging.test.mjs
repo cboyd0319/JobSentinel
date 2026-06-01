@@ -145,6 +145,7 @@ test("privacy logging rejects raw automation question and form data", () => {
       "src-tauri/src/core/automation/form_filler.rs",
       [
         'tracing::debug!("screening question \'{}\'", question_text);',
+        'tracing::debug!("Matched pattern \'{}\' for question \'{}\'", answer.question_pattern, question);',
         'format!("screening:{}", question_text);',
         "",
       ].join("\n"),

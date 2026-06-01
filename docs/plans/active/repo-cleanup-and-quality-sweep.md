@@ -218,6 +218,10 @@ boundaries, and harness modularity:
 - Reworked Resume saved-skill chips and rows so users see "Found in resume" or
   "Added by you" instead of unlabeled confidence percentages, with product-copy
   coverage against confidence-score display drift.
+- Removed raw screening-question text and saved answer patterns from
+  Application Assist debug logs. The trace now records only character counts
+  when a saved answer matches, with privacy-logging coverage against raw trace
+  drift.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright

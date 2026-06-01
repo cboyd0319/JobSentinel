@@ -89,6 +89,10 @@ and record actionable findings in this active-plan surface.
 - Latest local Resume skills follow-up replaces unlabeled skill confidence
   percentages with plain labels such as "Found in resume" and "Added by you,"
   and extends product-copy coverage against confidence-score display drift.
+- Latest local privacy follow-up removes raw screening-question text and saved
+  answer patterns from backend debug logs in Application Assist. Logs now keep
+  only character counts for matched questions and patterns, and
+  privacy-logging sensors reject the old raw trace shape.
 - Latest local zero-technical provider setup work labels USAJobs as optional
   advanced federal monitoring with a no-setup browser-search path first, keeps
   Telegram bot details behind an advanced chat-alert path, and adds

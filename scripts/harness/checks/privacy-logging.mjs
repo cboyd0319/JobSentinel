@@ -1312,8 +1312,13 @@ export function hasRawAutomationQuestionLogging(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /tracing::debug!\([^;]*(?:screening question|screening answer)[^;]*'\{\}'[^;]*question_text/.test(
-    text,
+  return (
+    /tracing::debug!\([^;]*(?:screening question|screening answer)[^;]*'\{\}'[^;]*question_text/.test(
+      text,
+    ) ||
+    /tracing::debug!\([^;]*Matched pattern[\s\S]*answer\.question_pattern[\s\S]*question/.test(
+      text,
+    )
   );
 }
 

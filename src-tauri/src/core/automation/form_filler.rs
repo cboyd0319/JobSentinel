@@ -472,9 +472,9 @@ impl FormFiller {
             if let Ok(regex) = Regex::new(&format!("(?i){}", answer.question_pattern)) {
                 if regex.is_match(&question_lower) {
                     tracing::debug!(
-                        "Matched pattern '{}' for question '{}'",
-                        answer.question_pattern,
-                        question
+                        pattern_chars = answer.question_pattern.chars().count(),
+                        question_chars = question.chars().count(),
+                        "Matched saved screening answer"
                     );
                     return Some(answer.answer.clone());
                 }
