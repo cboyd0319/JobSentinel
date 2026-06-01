@@ -186,6 +186,39 @@ export function hasApplicationAssistAutomaticResumeUpload(root, path) {
   );
 }
 
+export function hasApplicationAssistUntrustedFormTarget(root, path) {
+  if (path !== "src-tauri/src/commands/automation.rs") {
+    return false;
+  }
+
+  const text = stripRustTestModules(readIfPresent(root, path));
+  const fillStart = text.indexOf("pub async fn fill_application_form");
+  if (fillStart === -1) {
+    return false;
+  }
+
+  const profileLoad = text.indexOf("ProfileManager::new", fillStart);
+  const targetCheck = text.indexOf("prepare_form_target(&job_url)", fillStart);
+
+  return profileLoad !== -1 && (targetCheck === -1 || targetCheck > profileLoad);
+}
+
+export function hasAutomationScreenshotPathIpcExposure(root, path) {
+  if (path !== "src-tauri/src/commands/automation.rs") {
+    return false;
+  }
+
+  const text = stripRustTestModules(readIfPresent(root, path));
+  return (
+    /pub\s+struct\s+AttemptResponse\s*\{[^}]*\b(?:screenshot_path|confirmation_screenshot_path)\b/.test(
+      text,
+    ) ||
+    /AttemptResponse\s*\{[^}]*\b(?:screenshot_path|confirmation_screenshot_path)\s*:/.test(
+      text,
+    )
+  );
+}
+
 export function hasAnswerHistoryRendererInvoke(root, path) {
   if (
     !path.startsWith("src/") ||

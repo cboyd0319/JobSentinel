@@ -53,13 +53,13 @@ describe("getResumeContactValidationMessage", () => {
       getResumeContactValidationMessage(
         validContact({ linkedin: "httpjavascript://example.com" })
       )
-    ).toBe("LinkedIn: URL must use http:// or https://");
+    ).toBe("LinkedIn: Paste a normal web link. Start with https:// if the link does not work.");
 
     expect(
       getResumeContactValidationMessage(
         validContact({ website: "https://user:pass@example.com" })
       )
-    ).toBe("Website: URL must not include credentials");
+    ).toBe("Website: Remove any sign-in name or password from the link, then try again.");
   });
 
   it("uses non-technical field labels for work sample links", () => {
@@ -67,6 +67,6 @@ describe("getResumeContactValidationMessage", () => {
       getResumeContactValidationMessage(
         validContact({ github: "https://user:pass@example.com" })
       )
-    ).toBe("Portfolio or work samples: URL must not include credentials");
+    ).toBe("Portfolio or work samples: Remove any sign-in name or password from the link, then try again.");
   });
 });

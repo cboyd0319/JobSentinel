@@ -124,7 +124,9 @@ import { collectPrivacyLoggingViolations } from "./harness/checks/privacy-loggin
 import {
   hasAnswerHistoryRendererInvoke,
   hasApplicationAssistAutomaticResumeUpload,
+  hasApplicationAssistUntrustedFormTarget,
   hasApplicationProfileResumePathExposure,
+  hasAutomationScreenshotPathIpcExposure,
   hasBookmarkletTokenIpcExposure,
   hasDashboardFullConfigInvoke,
   hasFullImportedJobReturn,
@@ -469,6 +471,14 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasApplicationAssistAutomaticResumeUpload(root, path)) {
       violations.push(`keep Application Assist resume attachment manual: ${path}`);
+    }
+
+    if (hasApplicationAssistUntrustedFormTarget(root, path)) {
+      violations.push(`validate Application Assist target before profile load: ${path}`);
+    }
+
+    if (hasAutomationScreenshotPathIpcExposure(root, path)) {
+      violations.push(`keep automation screenshot paths out of renderer IPC: ${path}`);
     }
 
     if (hasRawAnswerHistoryIpcExposure(root, path)) {

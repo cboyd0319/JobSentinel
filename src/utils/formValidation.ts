@@ -69,10 +69,10 @@ export function validateUrlWithOptionalProtocol(url: string): string | undefined
   try {
     const parsed = new URL(hasScheme ? trimmed : `https://${trimmed}`);
     if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
-      return "URL must use http:// or https://";
+      return "Paste a normal web link. Start with https:// if the link does not work.";
     }
     if (parsed.username || parsed.password) {
-      return "URL must not include credentials";
+      return "Remove any sign-in name or password from the link, then try again.";
     }
     return undefined;
   } catch {

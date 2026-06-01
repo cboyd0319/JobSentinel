@@ -137,7 +137,7 @@ describe("ErrorLogPanel", () => {
       render(<ErrorLogPanel />);
 
       expect(
-        screen.getByRole("button", { name: "Save Extra Support Details" })
+        screen.getByRole("button", { name: "Save extra app details (support only)" })
       ).toBeInTheDocument();
       expect(
         screen.queryByRole("button", { name: /advanced/i })
@@ -159,7 +159,7 @@ describe("ErrorLogPanel", () => {
       render(<ErrorLogPanel />);
 
       expect(
-        screen.queryByRole("button", { name: "Save Extra Support Details" })
+        screen.queryByRole("button", { name: "Save extra app details (support only)" })
       ).not.toBeInTheDocument();
       expect(screen.queryByRole("button", { name: "Clear All" })).not.toBeInTheDocument();
     });
@@ -356,7 +356,7 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      fireEvent.click(screen.getByRole("button", { name: "Save Extra Support Details" }));
+      fireEvent.click(screen.getByRole("button", { name: "Save extra app details (support only)" }));
 
       expect(exportErrors).toHaveBeenCalledTimes(1);
     });

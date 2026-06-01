@@ -6,7 +6,9 @@ import test from "node:test";
 import {
   hasAnswerHistoryRendererInvoke,
   hasApplicationAssistAutomaticResumeUpload,
+  hasApplicationAssistUntrustedFormTarget,
   hasApplicationProfileResumePathExposure,
+  hasAutomationScreenshotPathIpcExposure,
   hasBookmarkletTokenIpcExposure,
   hasDashboardFullConfigInvoke,
   hasFullImportedJobReturn,
@@ -238,6 +240,50 @@ test("ipc minimization rejects automatic resume uploads from Application Assist"
     assert.equal(
       hasApplicationAssistAutomaticResumeUpload(root, "src-tauri/src/commands/jobs.rs"),
       false,
+    );
+  });
+});
+
+test("ipc minimization rejects Application Assist profile load before target trust check", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/automation.rs",
+      [
+        "pub async fn fill_application_form(job_url: String) -> Result<(), String> {",
+        "  let profile_manager = ProfileManager::new(state.database.pool().clone());",
+        "  let (job_url, platform) = prepare_form_target(&job_url)?;",
+        "  Ok(())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasApplicationAssistUntrustedFormTarget(root, "src-tauri/src/commands/automation.rs"),
+      true,
+    );
+  });
+});
+
+test("ipc minimization rejects automation screenshot path IPC", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/automation.rs",
+      [
+        "pub struct AttemptResponse {",
+        "  pub screenshot_path: Option<String>,",
+        "  pub confirmation_screenshot_path: Option<String>,",
+        "}",
+        "let response = AttemptResponse { screenshot_path: a.screenshot_path };",
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasAutomationScreenshotPathIpcExposure(root, "src-tauri/src/commands/automation.rs"),
+      true,
     );
   });
 });

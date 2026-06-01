@@ -189,12 +189,15 @@ const technicalFirstUserCopyPaths = new Set([
   "src/components/automation/ScreeningAnswersForm.tsx",
   "src/components/feedback/DebugInfoPreview.tsx",
   "src/components/feedback/FeedbackModal.tsx",
+  "src/components/feedback/SubmitOptions.tsx",
   "src/components/feedback/SuccessScreen.tsx",
   "src/hooks/useFeedback.ts",
   "src/mocks/handlers.ts",
   "src/contexts/UndoContext.tsx",
   "src/contexts/KeyboardShortcutsContext.tsx",
   "src-tauri/src/commands/errors.rs",
+  "src-tauri/src/core/automation/error.rs",
+  "src-tauri/src/core/scrapers/error.rs",
   "src/utils/api.ts",
   "src/pages/Resume.tsx",
   "src/pages/hooks/useDashboardAutoRefresh.ts",
@@ -216,6 +219,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/pages/Salary.tsx",
   "src/pages/Settings.tsx",
   "src/pages/SetupWizard.tsx",
+  "src/utils/errorHelpers.ts",
   "src/utils/errorMessages.ts",
   "src/utils/safeErrorCopy.ts",
   "src/utils/formValidation.ts",
@@ -583,6 +587,20 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
+
+  if (
+    path === "src-tauri/src/core/automation/error.rs" ||
+    path === "src-tauri/src/core/scrapers/error.rs"
+  ) {
+    const start = text.indexOf("pub fn user_message");
+    const end = text.indexOf("/// Sanitize", start);
+    const userMessageBody = start === -1 ? "" : text.slice(start, end === -1 ? undefined : end);
+
+    return /Failed to|Request timed out|CAPTCHA detected|Authentication required|Please check your credentials|An automation error occurred|manual intervention|required before submission|Resume issue|Form element .*not found|Page took too long to load \(/i.test(
+      userMessageBody,
+    );
+  }
+
   if (path === "src/pages/Resume.tsx") {
     const resumePagePatterns = [
       /Programming Languages/i,
@@ -978,6 +996,12 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /webhook URL/i,
     /Slack Webhook URL/i,
     /Paste your (?:Slack|Discord|Teams) webhook URL/i,
+    /URL must use http:\/\/ or https:\/\//i,
+    /URL must not include credentials/i,
+    /Advanced: build from source/i,
+    /Save Extra Support Details/i,
+    /Optional maintainer issue/i,
+    /\bpay floor\b/i,
     /contact support with the error details below/i,
     /technical:\s*technicalMessage/i,
     /JSON\.stringify\(error\)/i,
@@ -997,6 +1021,13 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /toast\.error\(["'`]Something went wrong["'`]/i,
     /Something Went Wrong/i,
     /An unexpected error occurred/i,
+    /Network connection issue/i,
+    /Service temporarily unavailable/i,
+    /Invalid input/i,
+    /Data format error/i,
+    /requested resource/i,
+    /permission to access/i,
+    /Request timed out/i,
     /External AI transport is not configured/i,
     /Error Details \(Development Only\)/i,
     /Error Stack \(Development Only\)/i,

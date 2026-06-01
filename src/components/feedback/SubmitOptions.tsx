@@ -65,10 +65,10 @@ export const SubmitOptions = memo(function SubmitOptions({
         </div>
       </div>
 
-      {/* Optional maintainer issue path */}
+      {/* Optional maintainer feedback path */}
       <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 space-y-3">
         <h3 className="font-semibold text-surface-800 dark:text-surface-200">
-          Optional maintainer issue
+          Send to maintainers (optional)
         </h3>
 
         <p className="text-sm text-surface-600 dark:text-surface-400">

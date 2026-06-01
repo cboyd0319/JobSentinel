@@ -613,9 +613,68 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/utils/errorHelpers.ts",
+      [
+        "Network connection issue.",
+        "Service temporarily unavailable.",
+        "Invalid input.",
+        "Data format error.",
+        "The requested resource was not found.",
+        "You do not have permission to access this.",
+        "Request timed out.",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/utils/formValidation.ts",
+      "URL must use http:// or https://\nURL must not include credentials\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/error.rs",
+      [
+        "pub fn user_message(&self) -> String {",
+        "  \"CAPTCHA detected. Please complete the challenge in your browser.\".to_string()",
+        "  \"Request timed out after 30 seconds. Please check your connection.\".to_string()",
+        "}",
+        "/// Sanitize URL for display",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/automation/error.rs",
+      [
+        "pub fn user_message(&self) -> String {",
+        "  \"Failed to launch browser. Please ensure Chrome is installed.\".to_string()",
+        "  \"An automation error occurred. Please try again.\".to_string()",
+        "}",
+        "/// Sanitize URL for display",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/components/ScoreBreakdownModal.tsx",
       "Company preference (if configured)\nconfigured preferences\n",
     );
+    writeFixtureFile(
+      root,
+      "src/components/ErrorLogPanel.tsx",
+      "Save Extra Support Details\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/components/feedback/SubmitOptions.tsx",
+      "Optional maintainer issue\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/DashboardUI/noJobsEmptyStateCopy.ts",
+      "pay floor\n",
+    );
+    writeFixtureFile(root, "src/components/JobCard.tsx", "Below your pay floor\n");
     writeFixtureFile(
       root,
       "src/pages/DashboardUI/DashboardHeader.tsx",
@@ -661,7 +720,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/DashboardUI/noJobsEmptyStateCopy.ts",
-      "Scan allowed sources\nLocal checks run on your schedule\n",
+      "Scan allowed sources\nLocal checks run on your schedule\npay floor\n",
     );
     writeFixtureFile(
       root,
@@ -745,7 +804,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/components/ErrorLogPanel.tsx",
-      "Advanced: Save Support Details\n",
+      "Advanced: Save Support Details\nSave Extra Support Details\n",
     );
     writeFixtureFile(
       root,
@@ -845,8 +904,13 @@ test("product copy rejects technical-first settings copy", () => {
       true,
     );
     assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/errorMessages.ts"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/errorHelpers.ts"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/formValidation.ts"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/safeErrorCopy.ts"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/services/aiGateway.ts"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src-tauri/src/core/scrapers/error.rs"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src-tauri/src/core/automation/error.rs"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/feedback/SubmitOptions.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/AtsLiveScorePanel.tsx"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/components/NotificationPreferences.tsx"),

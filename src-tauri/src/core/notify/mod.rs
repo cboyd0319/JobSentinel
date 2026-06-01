@@ -103,12 +103,16 @@ pub(crate) async fn notification_provider_failure_summary(
 
 fn validate_webhook_url_security_parts(url: &url::Url) -> Result<()> {
     if !url.username().is_empty() || url.password().is_some() {
-        return Err(anyhow!("Webhook URL must not include credentials"));
+        return Err(anyhow!(
+            "Remove any sign-in name or password from the connection link, then try again."
+        ));
     }
 
     if let Some(port) = url.port() {
         if port != 443 {
-            return Err(anyhow!("Webhook URL must use the default HTTPS port"));
+            return Err(anyhow!(
+                "Paste the standard connection link from the alert service and try again."
+            ));
         }
     }
 

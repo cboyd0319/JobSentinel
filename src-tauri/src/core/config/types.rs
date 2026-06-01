@@ -100,7 +100,11 @@ pub struct Config {
     #[serde(default)]
     pub glassdoor: GlassdoorConfig,
 
-    /// JobsWithGPT MCP endpoint URL
+    /// Optional JobsWithGPT MCP endpoint URL.
+    ///
+    /// Empty by default. When configured, scheduled source checks send saved
+    /// job titles, location, remote preference, and result limit to the
+    /// configured endpoint.
     #[serde(default = "super::defaults::default_jobswithgpt_endpoint")]
     pub jobswithgpt_endpoint: String,
 

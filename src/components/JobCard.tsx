@@ -129,9 +129,9 @@ function getPayFloorGuidance(
 
   const formattedFloor = formatPayFloor(salaryFloorUsd);
   return {
-    title: "Below your pay floor",
+    title: "Below the lowest pay you want",
     description: `Listed pay tops out below ${formattedFloor}. Verify before tailoring.`,
-    ariaLabel: "below your pay floor",
+    ariaLabel: "below the lowest pay you want",
   };
 }
 

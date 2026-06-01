@@ -788,10 +788,10 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 )}
               </div>
 
-              {/* Pay floor */}
+              {/* Lowest pay */}
               <div>
                 <h3 className="font-semibold text-surface-800 mb-3 flex items-center gap-2">
-                  <PayIcon /> Pay Floor
+                  <PayIcon /> Lowest Pay
                 </h3>
                 <p className="mb-3 text-sm text-surface-500">
                   Optional. Add the minimum yearly pay that would make a job worth considering.

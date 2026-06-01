@@ -80,6 +80,14 @@ Representative adapter limits:
 Adapters that cannot operate within source boundaries should fail closed and
 show a clear user-facing explanation.
 
+## User-Configured External Sources
+
+JobsWithGPT is disabled unless the user adds an endpoint. When enabled, source
+checks send only the search fields needed by that endpoint: saved job titles,
+location, remote preference, and result limit. Do not send resumes, salary
+floors, private notes, application history, screening answers, or unrelated
+profile details to a job-source endpoint.
+
 ## Deduplication
 
 JobSentinel normalizes posting links, titles, and locations before hashing

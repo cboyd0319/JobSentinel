@@ -44,13 +44,13 @@ export class AppError extends Error {
  * User-friendly error messages
  */
 export const ERROR_MESSAGES: Record<ErrorType, string> = {
-  [ErrorType.NETWORK]: 'Network connection issue. Please check your internet connection.',
-  [ErrorType.API]: 'Service temporarily unavailable. Please try again later.',
-  [ErrorType.VALIDATION]: 'Invalid input. Please check your entries.',
-  [ErrorType.PARSE]: 'Data format error. Please contact support.',
-  [ErrorType.NOT_FOUND]: 'The requested resource was not found.',
-  [ErrorType.UNAUTHORIZED]: 'You do not have permission to access this.',
-  [ErrorType.TIMEOUT]: 'Request timed out. Please try again.',
+  [ErrorType.NETWORK]: 'Could not connect. Check your internet connection.',
+  [ErrorType.API]: 'This service is unavailable right now. Please try again later.',
+  [ErrorType.VALIDATION]: 'Some information needs review. Check your entries.',
+  [ErrorType.PARSE]: 'JobSentinel could not read that data. Try again, or copy a safe support report if you need help.',
+  [ErrorType.NOT_FOUND]: 'This item could not be found. It may have been moved or deleted.',
+  [ErrorType.UNAUTHORIZED]: 'JobSentinel could not open this. Check sign-in or access details.',
+  [ErrorType.TIMEOUT]: 'This took too long. Please try again.',
   [ErrorType.UNKNOWN]: 'JobSentinel ran into a problem. Please try again.',
 };
 

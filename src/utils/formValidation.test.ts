@@ -180,20 +180,20 @@ describe("formValidation", () => {
     it("returns error message for non-http and deceptive http-prefixed schemes", () => {
       // Arrange & Act & Assert
       expect(validateUrlWithOptionalProtocol("javascript:alert(1)")).toBe(
-        "URL must use http:// or https://"
+        "Paste a normal web link. Start with https:// if the link does not work."
       );
       expect(validateUrlWithOptionalProtocol("httpjavascript://example.com")).toBe(
-        "URL must use http:// or https://"
+        "Paste a normal web link. Start with https:// if the link does not work."
       );
       expect(validateUrlWithOptionalProtocol("ftp://example.com")).toBe(
-        "URL must use http:// or https://"
+        "Paste a normal web link. Start with https:// if the link does not work."
       );
     });
 
     it("returns error message for embedded credentials", () => {
       // Arrange & Act & Assert
       expect(validateUrlWithOptionalProtocol("https://user:pass@example.com")).toBe(
-        "URL must not include credentials"
+        "Remove any sign-in name or password from the link, then try again."
       );
     });
   });

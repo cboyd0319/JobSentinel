@@ -12,23 +12,28 @@ use serde_json::json;
 fn validate_webhook_url(url: &str) -> Result<()> {
     // Parse URL first to validate host/origin, not just string prefix
     // This prevents bypass attacks like "https://evil.com?https://hooks.slack.com/services/..."
-    let url_parsed = url::Url::parse(url).map_err(|e| anyhow!("Invalid URL format: {}", e))?;
+    let url_parsed =
+        url::Url::parse(url).map_err(|_| anyhow!("Paste the full Slack connection link."))?;
 
     // Ensure HTTPS
     if url_parsed.scheme() != "https" {
-        return Err(anyhow!("Webhook URL must use HTTPS"));
+        return Err(anyhow!("Paste the full Slack connection link."));
     }
 
     validate_webhook_url_security_parts(&url_parsed)?;
 
     // Ensure correct host (validate host BEFORE checking string prefix)
     if url_parsed.host_str() != Some("hooks.slack.com") {
-        return Err(anyhow!("Webhook URL must use hooks.slack.com domain"));
+        return Err(anyhow!(
+            "Paste the full Slack connection link copied from Slack."
+        ));
     }
 
     // Ensure path starts with /services/
     if !url_parsed.path().starts_with("/services/") {
-        return Err(anyhow!("Invalid Slack webhook path"));
+        return Err(anyhow!(
+            "Paste the full Slack connection link copied from Slack."
+        ));
     }
 
     Ok(())
@@ -238,7 +243,10 @@ mod tests {
             "http://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "HTTP (not HTTPS) webhook should fail");
-        assert!(result.unwrap_err().to_string().contains("HTTPS"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("full Slack connection link"));
     }
 
     #[test]
@@ -246,7 +254,10 @@ mod tests {
         let invalid_url = "https://evil.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "Wrong domain should fail validation");
-        assert!(result.unwrap_err().to_string().contains("hooks.slack.com"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("connection link copied from Slack"));
     }
 
     #[test]
@@ -254,7 +265,10 @@ mod tests {
         let invalid_url = "https://hooks.slack.com/wrong/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "Wrong path prefix should fail validation");
-        assert!(result.unwrap_err().to_string().contains("Slack webhook"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("connection link copied from Slack"));
     }
 
     #[test]
@@ -280,7 +294,10 @@ mod tests {
             result.is_err(),
             "Query param bypass attack should be blocked"
         );
-        assert!(result.unwrap_err().to_string().contains("hooks.slack.com"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("connection link copied from Slack"));
     }
 
     #[test]
@@ -289,7 +306,10 @@ mod tests {
         let attack_url = "https://evil.com/steal#https://hooks.slack.com/services/T00/B00/XXX";
         let result = validate_webhook_url(attack_url);
         assert!(result.is_err(), "Fragment bypass attack should be blocked");
-        assert!(result.unwrap_err().to_string().contains("hooks.slack.com"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("connection link copied from Slack"));
     }
 
     #[test]
@@ -298,7 +318,10 @@ mod tests {
         let attack_url = "https://evil.com/hooks.slack.com/services/T00/B00/XXX";
         let result = validate_webhook_url(attack_url);
         assert!(result.is_err(), "Path bypass attack should be blocked");
-        assert!(result.unwrap_err().to_string().contains("hooks.slack.com"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("connection link copied from Slack"));
     }
 
     #[test]
@@ -307,7 +330,10 @@ mod tests {
         let attack_url = "https://hooks.slack.com.evil.com/services/T00/B00/XXX";
         let result = validate_webhook_url(attack_url);
         assert!(result.is_err(), "Subdomain bypass attack should be blocked");
-        assert!(result.unwrap_err().to_string().contains("hooks.slack.com"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("connection link copied from Slack"));
     }
 
     #[test]
@@ -1020,9 +1046,18 @@ mod tests {
     #[test]
     fn test_validate_webhook_url_error_messages() {
         let test_cases = vec![
-            ("http://hooks.slack.com/services/T/B/X", "HTTPS"),
-            ("https://evil.com/services/T/B/X", "hooks.slack.com"),
-            ("https://hooks.slack.com/wrong/T/B/X", "Slack webhook"),
+            (
+                "http://hooks.slack.com/services/T/B/X",
+                "full Slack connection link",
+            ),
+            (
+                "https://evil.com/services/T/B/X",
+                "connection link copied from Slack",
+            ),
+            (
+                "https://hooks.slack.com/wrong/T/B/X",
+                "connection link copied from Slack",
+            ),
         ];
 
         for (url, expected_error_part) in test_cases {
@@ -1045,8 +1080,10 @@ mod tests {
         let url = "not a url";
         let result = validate_webhook_url(url);
         assert!(result.is_err(), "Malformed URL should fail");
-        // This fails URL parsing
-        assert!(result.unwrap_err().to_string().contains("Invalid URL"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("full Slack connection link"));
     }
 
     #[test]

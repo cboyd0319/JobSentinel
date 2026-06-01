@@ -183,7 +183,9 @@ fn get_specific_hint(error: &str) -> Option<&'static str> {
 
     // Network specific
     if lower.contains("timeout") {
-        return Some("Request timed out. The server may be slow or your connection unstable.");
+        return Some(
+            "This took too long. The site may be slow, or your connection may be unstable.",
+        );
     }
     if lower.contains("connection refused") {
         return Some("Could not connect. Check if the service is available.");
@@ -265,7 +267,7 @@ mod tests {
         let certificate =
             user_friendly_error("Failed to refresh jobs", "ssl certificate verify failed");
 
-        assert!(timeout.contains("Request timed out"));
+        assert!(timeout.contains("This took too long"));
         assert!(certificate.contains("Secure connection problem"));
         assert!(!certificate.contains(&["SSL", "certificate", "error"].join(" ")));
         assert!(!timeout.contains(&["Connection", "Error"].join(" ")));

@@ -13,11 +13,12 @@ use serde_json::json;
 fn validate_webhook_url(url: &str) -> Result<()> {
     // Parse URL first to validate host/origin, not just string prefix
     // This prevents bypass attacks like "https://evil.com?https://discord.com/api/webhooks/..."
-    let url_parsed = url::Url::parse(url).map_err(|e| anyhow!("Invalid URL format: {}", e))?;
+    let url_parsed =
+        url::Url::parse(url).map_err(|_| anyhow!("Paste the full Discord connection link."))?;
 
     // Ensure HTTPS
     if url_parsed.scheme() != "https" {
-        return Err(anyhow!("Webhook URL must use HTTPS"));
+        return Err(anyhow!("Paste the full Discord connection link."));
     }
 
     validate_webhook_url_security_parts(&url_parsed)?;
@@ -25,16 +26,18 @@ fn validate_webhook_url(url: &str) -> Result<()> {
     // Ensure correct host (validate host BEFORE checking string prefix)
     let host = url_parsed
         .host_str()
-        .ok_or_else(|| anyhow!("Invalid webhook URL host"))?;
+        .ok_or_else(|| anyhow!("Paste the full Discord connection link copied from Discord."))?;
     if host != "discord.com" && host != "discordapp.com" {
         return Err(anyhow!(
-            "Webhook URL must use discord.com or discordapp.com domain"
+            "Paste the full Discord connection link copied from Discord."
         ));
     }
 
     // Ensure path starts with /api/webhooks/
     if !url_parsed.path().starts_with("/api/webhooks/") {
-        return Err(anyhow!("Invalid Discord webhook path"));
+        return Err(anyhow!(
+            "Paste the full Discord connection link copied from Discord."
+        ));
     }
 
     Ok(())
@@ -257,7 +260,10 @@ mod tests {
         let invalid_url = "http://discord.com/api/webhooks/123456789/token";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "HTTP (not HTTPS) webhook should fail");
-        assert!(result.unwrap_err().to_string().contains("HTTPS"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("full Discord connection link"));
     }
 
     #[test]
@@ -265,7 +271,10 @@ mod tests {
         let invalid_url = "https://evil.com/api/webhooks/123456789/token";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "Wrong domain should fail validation");
-        assert!(result.unwrap_err().to_string().contains("discord.com"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("connection link copied from Discord"));
     }
 
     #[test]
@@ -273,7 +282,10 @@ mod tests {
         let invalid_url = "https://discord.com/wrong/path/123456789/token";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "Wrong path should fail validation");
-        assert!(result.unwrap_err().to_string().contains("webhook"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("connection link copied from Discord"));
     }
 
     #[test]
@@ -299,7 +311,10 @@ mod tests {
             result.is_err(),
             "Query param bypass attack should be blocked"
         );
-        assert!(result.unwrap_err().to_string().contains("discord.com"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("connection link copied from Discord"));
     }
 
     #[test]
@@ -1173,9 +1188,18 @@ mod tests {
     #[test]
     fn test_webhook_url_validation_error_messages() {
         let test_cases = vec![
-            ("http://discord.com/api/webhooks/123/token", "HTTPS"),
-            ("https://evil.com/api/webhooks/123/token", "discord.com"),
-            ("https://discord.com/wrong/path", "webhook"),
+            (
+                "http://discord.com/api/webhooks/123/token",
+                "full Discord connection link",
+            ),
+            (
+                "https://evil.com/api/webhooks/123/token",
+                "connection link copied from Discord",
+            ),
+            (
+                "https://discord.com/wrong/path",
+                "connection link copied from Discord",
+            ),
         ];
 
         for (url, expected_fragment) in test_cases {

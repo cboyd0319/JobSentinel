@@ -231,6 +231,30 @@ Current cleanup posture:
   `JobSentinel needs attention` / `JobSentinel ran into a problem` wording in
   user-facing recovery surfaces, Rust command error titles, and external AI
   setup errors. Product-copy sensors cover the old generic labels.
+- Current local shared error-helper follow-up changes older helper messages
+  away from `Invalid input`, `Data format error`, requested-resource wording,
+  and permission jargon toward plain review, unreadable-data, missing-item, and
+  sign-in/access guidance. Product-copy sensors cover the stale helper labels.
+- Current local Rust source-error follow-up changes scraper and Prepare Form
+  `user_message()` copy away from parse, CAPTCHA, request-timeout, browser
+  launch, raw selector, resume-reason, and automation wording toward plain job
+  source, human-check, page-load, browser, form-field, and review guidance.
+- Current local zero-technical sidecar follow-up closes read-only UX audit
+  findings in link validation, Quick Start install routing, support-detail
+  export copy, maintainer feedback copy, empty job-list pay wording, job-card
+  pay warning copy, and alert connection-link validation.
+- Current local Application Assist security follow-up validates recognized
+  application-form targets before profile or saved screening-answer data is
+  loaded, keeps unknown-platform generic selectors disabled, and returns
+  screenshot presence flags instead of raw local screenshot paths over IPC.
+  IPC-minimization sensors cover both target-validation order and screenshot
+  path exposure.
+- Current local user-configured source privacy follow-up documents the
+  default-off JobsWithGPT endpoint boundary in privacy docs, scraper docs,
+  feature privacy labels, and config comments. If enabled, it receives only
+  saved job titles, location, remote preference, and result limit, not resumes,
+  salary floors, private notes, application history, screening answers, or
+  profile details.
 - Current local interview-outcome follow-up keeps the persisted `failed`
   interview outcome value while changing visible outcome buttons and chips to
   plain, non-shaming labels such as `Did not go well`. Focused component tests
@@ -331,7 +355,7 @@ Current cleanup posture:
   `scripts/harness/checks/product-copy.mjs`.
 - Privacy/logging bloat-runner orchestration now lives in
   `collectPrivacyLoggingViolations`; `scripts/check-repo-bloat.mjs` is now a
-  small 594-line orchestrator after the latest IPC-minimization guard.
+  small 604-line orchestrator after the latest IPC-minimization guard.
 - Broad-audience fixture checks now cover generic skill-filter categories, Cow
   utility tests, API-contract search history, and ignored live-scraper probes
   so technical defaults do not quietly drift back into broad examples.

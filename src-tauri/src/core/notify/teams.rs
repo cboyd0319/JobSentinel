@@ -12,11 +12,12 @@ use serde_json::json;
 fn validate_webhook_url(url: &str) -> Result<()> {
     // Parse URL first to validate host/origin, not just string prefix
     // This prevents bypass attacks like "https://evil.com?https://outlook.office.com/webhook/..."
-    let url_parsed = url::Url::parse(url).map_err(|e| anyhow!("Invalid URL format: {}", e))?;
+    let url_parsed =
+        url::Url::parse(url).map_err(|_| anyhow!("Paste the full Teams connection link."))?;
 
     // Ensure HTTPS
     if url_parsed.scheme() != "https" {
-        return Err(anyhow!("Webhook URL must use HTTPS"));
+        return Err(anyhow!("Paste the full Teams connection link."));
     }
 
     validate_webhook_url_security_parts(&url_parsed)?;
@@ -24,16 +25,18 @@ fn validate_webhook_url(url: &str) -> Result<()> {
     // Ensure correct host (validate host BEFORE checking string prefix)
     let host = url_parsed
         .host_str()
-        .ok_or_else(|| anyhow!("Invalid webhook URL host"))?;
+        .ok_or_else(|| anyhow!("Paste the full Teams connection link copied from Teams."))?;
     if host != "outlook.office.com" && host != "outlook.office365.com" {
         return Err(anyhow!(
-            "Webhook URL must use outlook.office.com or outlook.office365.com domain"
+            "Paste the full Teams connection link copied from Teams."
         ));
     }
 
     // Ensure path starts with /webhook/
     if !url_parsed.path().starts_with("/webhook/") {
-        return Err(anyhow!("Invalid Teams webhook path"));
+        return Err(anyhow!(
+            "Paste the full Teams connection link copied from Teams."
+        ));
     }
 
     Ok(())
@@ -263,7 +266,10 @@ mod tests {
         let invalid_url = "http://outlook.office.com/webhook/123/456";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "HTTP (not HTTPS) webhook should fail");
-        assert!(result.unwrap_err().to_string().contains("HTTPS"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("full Teams connection link"));
     }
 
     #[test]
@@ -271,7 +277,10 @@ mod tests {
         let invalid_url = "https://evil.com/webhook/123/456";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "Wrong domain should fail validation");
-        assert!(result.unwrap_err().to_string().contains("outlook.office"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("connection link copied from Teams"));
     }
 
     #[test]
@@ -279,7 +288,10 @@ mod tests {
         let invalid_url = "https://outlook.office.com/wrong/123/456";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "Wrong path should fail validation");
-        assert!(result.unwrap_err().to_string().contains("webhook"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("connection link copied from Teams"));
     }
 
     #[test]
@@ -306,7 +318,10 @@ mod tests {
             result.is_err(),
             "Query param bypass attack should be blocked"
         );
-        assert!(result.unwrap_err().to_string().contains("outlook.office"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("connection link copied from Teams"));
     }
 
     #[test]
@@ -799,7 +814,7 @@ mod tests {
         let result = validate_webhook_url("http://outlook.office.com/webhook/123");
         assert!(result.is_err());
         let error = result.unwrap_err().to_string();
-        assert!(error.contains("HTTPS"));
+        assert!(error.contains("full Teams connection link"));
     }
 
     #[test]
@@ -807,7 +822,7 @@ mod tests {
         let result = validate_webhook_url("https://evil.com/webhook/123");
         assert!(result.is_err());
         let error = result.unwrap_err().to_string();
-        assert!(error.contains("outlook.office.com") || error.contains("outlook.office365.com"));
+        assert!(error.contains("connection link copied from Teams"));
     }
 
     #[test]
@@ -815,7 +830,7 @@ mod tests {
         let result = validate_webhook_url("https://outlook.office.com/badpath/123");
         assert!(result.is_err());
         let error = result.unwrap_err().to_string();
-        assert!(error.contains("webhook"));
+        assert!(error.contains("connection link copied from Teams"));
     }
 
     #[test]
@@ -823,7 +838,7 @@ mod tests {
         let result = validate_webhook_url("not-a-url");
         assert!(result.is_err());
         let error = result.unwrap_err().to_string();
-        assert!(error.contains("Invalid"));
+        assert!(error.contains("full Teams connection link"));
     }
 
     #[test]
@@ -1655,10 +1670,19 @@ mod tests {
     #[test]
     fn test_webhook_url_validation_error_messages_specificity() {
         let cases = vec![
-            ("http://outlook.office.com/webhook/123", "HTTPS"),
-            ("https://evil.com/webhook/123", "outlook.office"),
-            ("https://outlook.office.com/badpath/123", "webhook"),
-            ("not-a-url", "Invalid"),
+            (
+                "http://outlook.office.com/webhook/123",
+                "full Teams connection link",
+            ),
+            (
+                "https://evil.com/webhook/123",
+                "connection link copied from Teams",
+            ),
+            (
+                "https://outlook.office.com/badpath/123",
+                "connection link copied from Teams",
+            ),
+            ("not-a-url", "full Teams connection link"),
         ];
 
         for (url, expected_substring) in cases {

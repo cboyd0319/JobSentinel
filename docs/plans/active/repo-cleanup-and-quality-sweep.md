@@ -328,6 +328,33 @@ boundaries, and harness modularity:
   plain `JobSentinel needs attention` / `JobSentinel ran into a problem` /
   `External AI sending is not set up` wording, with product-copy coverage
   against the old labels.
+- Fixed older shared error-helper messages that still used technical labels
+  such as `Invalid input`, `Data format error`, requested-resource wording, and
+  permission jargon. They now use plainer review, unreadable-data,
+  missing-item, and sign-in/access guidance, with product-copy coverage against
+  the stale helper labels.
+- Fixed scraper and Prepare Form `user_message()` copy that still used parse,
+  CAPTCHA, request-timeout, browser-launch, raw selector, resume-reason, and
+  automation wording. They now use plain job-source, human-check, page-load,
+  browser, form-field, and review guidance, with focused Rust tests and
+  product-copy coverage.
+- Fixed read-only UX audit findings in link validation, Quick Start install
+  routing, support-detail export copy, maintainer feedback copy, empty
+  job-list pay wording, job-card pay warning copy, and alert connection-link
+  validation. Focused component, utility, Rust, and product-copy checks cover
+  the updated wording.
+- Hardened Application Assist after security audit: Prepare Form now validates
+  that the target is a recognized application site before loading profile data
+  or saved screening answers, unknown-platform generic selectors stay disabled,
+  and automation-attempt responses expose screenshot presence flags instead of
+  raw local screenshot paths. Harness sensors now reject target-validation drift
+  and screenshot-path IPC exposure.
+- Clarified the default-off JobsWithGPT privacy boundary across privacy docs,
+  scraper docs, feature privacy labels, and config comments. If a user
+  configures that endpoint, scheduled checks send only saved job titles,
+  location, remote preference, and result limit; resumes, salary floors,
+  private notes, application history, screening answers, and profile details
+  remain out of that external source request.
 - Fixed visible interview outcome labels that still used pass/fail framing.
   The internal saved value remains `failed`, but visible buttons and chips now
   use plain, non-shaming labels such as `Did not go well`, with focused

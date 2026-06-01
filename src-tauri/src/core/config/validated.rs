@@ -130,7 +130,9 @@ pub struct WebhookUrl(String);
 impl WebhookUrl {
     pub fn new(url: String) -> anyhow::Result<Self> {
         if !url.starts_with("http://") && !url.starts_with("https://") {
-            anyhow::bail!("Webhook URL must start with http:// or https://");
+            anyhow::bail!(
+                "Paste a normal connection link. Start with https:// if the link does not work."
+            );
         }
         Ok(Self(url))
     }

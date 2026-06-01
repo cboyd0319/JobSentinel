@@ -77,8 +77,8 @@ describe("errorHelpers", () => {
     it("provides user-friendly messages", () => {
       expect(ERROR_MESSAGES[ErrorType.NETWORK]).toContain("connection");
       expect(ERROR_MESSAGES[ErrorType.API]).toContain("unavailable");
-      expect(ERROR_MESSAGES[ErrorType.VALIDATION]).toContain("Invalid");
-      expect(ERROR_MESSAGES[ErrorType.TIMEOUT]).toContain("timed out");
+      expect(ERROR_MESSAGES[ErrorType.VALIDATION]).toContain("needs review");
+      expect(ERROR_MESSAGES[ErrorType.TIMEOUT]).toContain("took too long");
     });
   });
 

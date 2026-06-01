@@ -303,14 +303,14 @@ describe("JobCard", () => {
       );
 
       expect(screen.getByTestId("pay-floor-guidance")).toHaveTextContent(
-        "Below your pay floor",
+        "Below the lowest pay you want",
       );
       expect(
         screen.getByText(/listed pay tops out below \$65,000\/year/i),
       ).toBeInTheDocument();
       expect(
         screen.getByRole("article", {
-          name: /below your pay floor/i,
+          name: /below the lowest pay you want/i,
         }),
       ).toBeInTheDocument();
     });

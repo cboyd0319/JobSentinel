@@ -63,6 +63,14 @@ impl FormFiller {
         tracing::info!("Starting form auto-fill");
         let mut result = FillResult::new();
 
+        if *platform == AtsPlatform::Unknown {
+            result.error_message = Some(
+                "Prepare Form only works on recognized application sites. Open this page yourself, or apply manually."
+                    .to_string(),
+            );
+            return Ok(result);
+        }
+
         // Check for CAPTCHA first
         if page.has_captcha().await {
             tracing::warn!("CAPTCHA detected before filling, aborting auto-fill");
@@ -629,8 +637,7 @@ impl FormFiller {
                 selectors.insert(FieldType::LinkedIn, vec!["input[name*='linkedin']"]);
                 selectors.insert(FieldType::Resume, vec!["input[type='file']"]);
             }
-            _ => {
-                // Generic selectors for unknown platforms
+            AtsPlatform::Icims | AtsPlatform::BambooHr => {
                 selectors.insert(
                     FieldType::FirstName,
                     vec!["input[name*='first']", "input[id*='first']", "#firstName"],
@@ -661,6 +668,7 @@ impl FormFiller {
                 );
                 selectors.insert(FieldType::Resume, vec!["input[type='file']"]);
             }
+            AtsPlatform::Unknown => {}
         }
 
         selectors
@@ -750,9 +758,7 @@ mod tests {
     #[test]
     fn test_get_unknown_selectors() {
         let selectors = FormFiller::get_field_selectors(&AtsPlatform::Unknown);
-        // Unknown platform should still have generic selectors
-        assert!(selectors.contains_key(&FieldType::Email));
-        assert!(selectors.contains_key(&FieldType::Resume));
+        assert!(selectors.is_empty());
     }
 
     #[test]

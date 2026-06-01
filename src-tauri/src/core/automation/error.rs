@@ -315,38 +315,29 @@ impl AutomationError {
     pub fn user_message(&self) -> String {
         match self {
             Self::BrowserLaunch { .. } => {
-                "Failed to launch browser. Please ensure Chrome is installed and up to date."
-                    .to_string()
+                "Could not open the browser. Install or update Chrome, then try again.".to_string()
             }
             Self::BrowserNotRunning => {
-                "Browser has stopped running. The automation will restart.".to_string()
+                "The browser closed. Open Prepare Form again when you are ready.".to_string()
             }
-            Self::Navigation { url, .. } => {
-                format!(
-                    "Failed to open {}. Please check your internet connection.",
-                    Self::sanitize_url(url)
-                )
+            Self::Navigation { .. } => {
+                "Could not open the job page. Check your internet connection and try again."
+                    .to_string()
             }
-            Self::PageLoadTimeout { url, timeout_secs } => {
-                format!(
-                    "Page took too long to load ({} seconds): {}",
-                    timeout_secs,
-                    Self::sanitize_url(url)
-                )
+            Self::PageLoadTimeout { .. } => {
+                "The page took too long to load. Check your connection, or try again later."
+                    .to_string()
             }
-            Self::ElementNotFound { selector, .. } => {
-                format!(
-                    "Form element '{}' not found. The page layout may have changed.",
-                    Self::sanitize_selector(selector)
-                )
+            Self::ElementNotFound { .. } => {
+                "Could not find a form field. The page may have changed.".to_string()
             }
             Self::CaptchaDetected { .. } => {
-                "CAPTCHA detected. Please complete the challenge in your browser and try again."
+                "This site asked for a human check. Complete it in your browser, then try again."
                     .to_string()
             }
             Self::MfaRequired { platform } => {
                 format!(
-                    "Multi-factor authentication required for {}. Please complete verification.",
+                    "This site needs extra sign-in verification for {}. Complete it in your browser.",
                     platform
                 )
             }
@@ -362,25 +353,17 @@ impl AutomationError {
                     missing_fields.join(", ")
                 )
             }
-            Self::ResumeError { reason } => {
-                format!("Resume issue: {}", reason)
+            Self::ResumeError { .. } => {
+                "Resume details need review before this can continue.".to_string()
             }
-            Self::FileUploadError { file_type, .. } => {
-                format!(
-                    "Failed to upload {}. Please check the file and try again.",
-                    file_type
-                )
+            Self::FileUploadError { .. } => {
+                "Could not upload the file. Choose a file you can open and try again.".to_string()
             }
-            Self::ApprovalRequired => {
-                "This application requires your approval before submission.".to_string()
+            Self::ApprovalRequired => "Review and approve before anything is sent.".to_string(),
+            Self::DailyLimitReached { .. } => {
+                "Daily Prepare Form limit reached. Try again tomorrow.".to_string()
             }
-            Self::DailyLimitReached { current, max } => {
-                format!(
-                    "Daily application limit reached ({}/{}). Try again tomorrow.",
-                    current, max
-                )
-            }
-            _ => "An automation error occurred. Please try again.".to_string(),
+            _ => "JobSentinel ran into a problem. Please try again.".to_string(),
         }
     }
 
@@ -459,7 +442,35 @@ mod tests {
             max: 10,
         };
         let msg = err.user_message();
-        assert!(msg.contains("10/10"));
+        assert!(msg.contains("Daily Prepare Form limit"));
+    }
+
+    #[test]
+    fn test_user_message_uses_plain_prepare_form_copy() {
+        let captcha = AutomationError::CaptchaDetected {
+            url: "https://example.com/jobs?token=secret".to_string(),
+        };
+        let timeout = AutomationError::PageLoadTimeout {
+            url: "https://example.com/jobs?token=secret".to_string(),
+            timeout_secs: 30,
+        };
+        let resume = AutomationError::ResumeError {
+            reason: "raw private resume parse failure".to_string(),
+        };
+
+        let copy = [
+            captcha.user_message(),
+            timeout.user_message(),
+            resume.user_message(),
+        ]
+        .join("\n");
+
+        assert!(!copy.contains("CAPTCHA"));
+        assert!(!copy.contains("token=secret"));
+        assert!(!copy.contains("raw private resume"));
+        assert!(copy.contains("human check"));
+        assert!(copy.contains("page took too long"));
+        assert!(copy.contains("Resume details need review"));
     }
 
     #[test]

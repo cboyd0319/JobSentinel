@@ -326,61 +326,42 @@ impl ScraperError {
     pub fn user_message(&self) -> String {
         match self {
             Self::HttpRequest { url, .. } => {
-                format!("Failed to connect to {}", Self::sanitize_url(url))
+                let _ = url;
+                "Could not connect to this job source. Check your internet connection and try again."
+                    .to_string()
             }
-            Self::HttpStatus { status, url, .. } => {
-                format!(
-                    "Server returned error {} for {}",
-                    status,
-                    Self::sanitize_url(url)
-                )
+            Self::HttpStatus { .. } => {
+                "This job source could not respond right now. Try again later.".to_string()
             }
             Self::RateLimit { scraper, .. } => {
-                format!(
-                    "Rate limit reached for {}. Please try again later.",
-                    scraper
-                )
+                format!("{scraper} asked JobSentinel to slow down. Try again later.")
             }
-            Self::ParseError { format, url, .. } => {
-                format!(
-                    "Failed to parse {} from {}",
-                    format,
-                    Self::sanitize_url(url)
-                )
+            Self::ParseError { .. } => {
+                "JobSentinel could not read this job source. The site may have changed."
+                    .to_string()
             }
             Self::Authentication { scraper, .. } => {
-                format!(
-                    "Authentication required for {}. Please check your credentials.",
-                    scraper
-                )
+                format!("{scraper} needs sign-in or access details. Review the source settings.")
             }
             Self::SessionExpired { scraper, .. } => {
-                format!("Your {} session has expired. Please log in again.", scraper)
+                format!("Sign in to {scraper} again, then try again.")
             }
             Self::CaptchaDetected { .. } => {
-                "CAPTCHA detected. Please complete the challenge in your browser.".to_string()
+                "This site asked for a human check. Open it in your browser, complete the check, then try again.".to_string()
             }
-            Self::BotProtection {
-                protection_type, ..
-            } => {
-                format!(
-                    "{} protection detected. Please try again later or use a different method.",
-                    protection_type
-                )
+            Self::BotProtection { .. } => {
+                "This site is limiting checks. Open it yourself, or try again later.".to_string()
             }
-            Self::Timeout { timeout_secs, .. } => {
-                format!(
-                    "Request timed out after {} seconds. Please check your connection.",
-                    timeout_secs
-                )
+            Self::Timeout { .. } => {
+                "This took too long. Check your internet connection, or try again later."
+                    .to_string()
             }
             Self::NoResults { scraper, .. } => {
-                format!(
-                    "No jobs found on {}. Try adjusting your search criteria.",
-                    scraper
-                )
+                format!("No jobs found on {scraper}. Try changing your search words or filters.")
             }
-            _ => self.to_string(),
+            _ => {
+                "JobSentinel could not check this job source. Try again, or save a safe support report if it keeps happening.".to_string()
+            }
         }
     }
 
@@ -507,9 +488,40 @@ mod tests {
     fn test_user_message() {
         let err = ScraperError::rate_limit("linkedin", "limit exceeded");
         let msg = err.user_message();
-        assert!(msg.contains("Rate limit"));
+        assert!(msg.contains("asked JobSentinel to slow down"));
         assert!(msg.contains("linkedin"));
         assert!(!msg.contains("limit exceeded")); // Internal message hidden
+    }
+
+    #[test]
+    fn test_user_message_uses_plain_source_copy() {
+        let parse_error = ScraperError::ParseError {
+            format: "JSON".to_string(),
+            url: "https://example.com/jobs?token=secret".to_string(),
+            source: Box::new(std::io::Error::new(std::io::ErrorKind::InvalidData, "raw")),
+        };
+        let captcha_error = ScraperError::CaptchaDetected {
+            url: "https://example.com/jobs".to_string(),
+        };
+        let timeout_error = ScraperError::Timeout {
+            url: "https://example.com/jobs".to_string(),
+            timeout_secs: 30,
+        };
+
+        let copy = [
+            parse_error.user_message(),
+            captcha_error.user_message(),
+            timeout_error.user_message(),
+        ]
+        .join("\n");
+
+        assert!(!copy.contains("Failed to parse"));
+        assert!(!copy.contains("CAPTCHA"));
+        assert!(!copy.contains("Request timed out"));
+        assert!(!copy.contains("token=secret"));
+        assert!(copy.contains("could not read this job source"));
+        assert!(copy.contains("human check"));
+        assert!(copy.contains("took too long"));
     }
 
     #[test]

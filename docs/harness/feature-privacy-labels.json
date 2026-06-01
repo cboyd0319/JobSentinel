@@ -85,6 +85,19 @@
       "sensitivityNote": "Uses posting metadata rather than private candidate records."
     },
     {
+      "id": "user-configured-job-source-endpoints",
+      "name": "User-configured job-source endpoints",
+      "labels": ["Sensitive"],
+      "dataCategories": ["career_goals", "location_preferences"],
+      "defaultDataFlow": "Off unless the user configures an endpoint. JobsWithGPT source checks send saved job titles, location, remote preference, and result limit to the configured endpoint.",
+      "externalAi": {
+        "allowed": false,
+        "required": false,
+        "fallback": "Leave the endpoint blank and use local, official, or user-opened source paths."
+      },
+      "sensitivityNote": "Search titles and locations can reveal career goals. Do not send resumes, salary floors, private notes, application history, screening answers, or profile details to source endpoints."
+    },
+    {
       "id": "ghost-job-heuristic-scoring",
       "name": "Ghost-job heuristic scoring",
       "labels": ["Local only", "Public-data only"],

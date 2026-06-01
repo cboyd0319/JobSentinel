@@ -27,6 +27,8 @@ use uuid::Uuid;
 
 const APPLICATION_RESUME_DIR: &str = "application-resumes";
 const ALLOWED_APPLICATION_RESUME_EXTENSIONS: &[&str] = &["pdf", "docx", "doc"];
+const UNSUPPORTED_PREPARE_FORM_TARGET: &str =
+    "Prepare Form only works on recognized application sites. Open this page yourself, or apply manually.";
 
 fn resume_file_display_name(path: &str) -> Option<String> {
     let trimmed = path.trim();
@@ -216,6 +218,23 @@ fn trusted_application_resume_path(
     }
 
     Ok(Some(canonical_stored))
+}
+
+fn prepare_form_target(job_url: &str) -> Result<(String, AtsPlatform), String> {
+    let job_url = validate_external_http_url(job_url)
+        .map(|url| url.to_string())
+        .map_err(|reason| format!("Cannot open that job link. {reason}"))?;
+
+    let platform = AtsDetector::detect_from_url(&job_url);
+    if platform == AtsPlatform::Unknown {
+        return Err(UNSUPPORTED_PREPARE_FORM_TARGET.to_string());
+    }
+
+    Ok((job_url, platform))
+}
+
+fn has_stored_path(path: Option<&str>) -> bool {
+    path.is_some_and(|path| !path.trim().is_empty())
 }
 
 fn copy_selected_resume_to_managed_storage(
@@ -570,8 +589,8 @@ pub struct AttemptResponse {
     pub status: String,
     pub ats_platform: String,
     pub error_message: Option<String>,
-    pub screenshot_path: Option<String>,
-    pub confirmation_screenshot_path: Option<String>,
+    pub has_screenshot: bool,
+    pub has_confirmation_screenshot: bool,
     pub automation_duration_ms: Option<i64>,
     pub user_approved: bool,
     pub submitted_at: Option<String>,
@@ -580,6 +599,10 @@ pub struct AttemptResponse {
 
 impl From<ApplicationAttempt> for AttemptResponse {
     fn from(a: ApplicationAttempt) -> Self {
+        let has_screenshot = has_stored_path(a.screenshot_path.as_deref());
+        let has_confirmation_screenshot =
+            has_stored_path(a.confirmation_screenshot_path.as_deref());
+
         Self {
             id: a.id,
             job_hash: a.job_hash,
@@ -587,8 +610,8 @@ impl From<ApplicationAttempt> for AttemptResponse {
             status: a.status.as_str().to_string(),
             ats_platform: a.ats_platform.as_str().to_string(),
             error_message: a.error_message,
-            screenshot_path: a.screenshot_path,
-            confirmation_screenshot_path: a.confirmation_screenshot_path,
+            has_screenshot,
+            has_confirmation_screenshot,
             automation_duration_ms: a.automation_duration_ms,
             user_approved: a.user_approved,
             submitted_at: a.submitted_at.map(|dt| dt.to_rfc3339()),
@@ -769,9 +792,8 @@ pub async fn fill_application_form(
         sanitize_url_for_logging(&job_url)
     );
     let start_time = std::time::Instant::now();
-    let job_url = validate_external_http_url(&job_url)
-        .map(|url| url.to_string())
-        .map_err(|reason| format!("Cannot open that job link. {reason}"))?;
+    let (job_url, platform) = prepare_form_target(&job_url)?;
+    tracing::info!("Detected application platform: {}", platform.as_str());
 
     // Get profile
     let profile_manager = ProfileManager::new(state.database.pool().clone());
@@ -791,10 +813,6 @@ pub async fn fill_application_form(
         "Loaded {} screening answer patterns",
         screening_answers.len()
     );
-
-    // Detect ATS platform
-    let platform = AtsDetector::detect_from_url(&job_url);
-    tracing::info!("Detected ATS platform: {:?}", platform);
 
     // Create automation attempt for tracking (if job_hash provided)
     let attempt_id = if let Some(ref hash) = job_hash {
@@ -909,6 +927,56 @@ mod tests {
 
         assert_eq!(sanitized, "<invalid-url>");
     }
+
+    #[test]
+    fn prepare_form_target_accepts_recognized_application_site() {
+        let (url, platform) =
+            prepare_form_target("https://jobs.lever.co/example/123").expect("recognized target");
+
+        assert!(url.starts_with("https://jobs.lever.co/example/123"));
+        assert_eq!(platform, AtsPlatform::Lever);
+    }
+
+    #[test]
+    fn prepare_form_target_rejects_unknown_application_site() {
+        let err = prepare_form_target("https://example.com/apply").unwrap_err();
+
+        assert!(err.contains("recognized application sites"));
+    }
+
+    #[test]
+    fn prepare_form_target_rejects_unsafe_application_site() {
+        let err = prepare_form_target("http://localhost:3000/apply").unwrap_err();
+
+        assert!(err.contains("Cannot open that job link"));
+    }
+
+    #[test]
+    fn attempt_response_exposes_screenshot_presence_not_paths() {
+        let attempt = ApplicationAttempt {
+            id: 1,
+            job_hash: "job_hash".to_string(),
+            application_id: None,
+            status: AutomationStatus::Pending,
+            ats_platform: AtsPlatform::Greenhouse,
+            error_message: None,
+            screenshot_path: Some("/Users/jordan/private/apply.png".to_string()),
+            confirmation_screenshot_path: None,
+            automation_duration_ms: Some(1200),
+            user_approved: false,
+            submitted_at: None,
+            created_at: chrono::Utc::now(),
+        };
+
+        let response = AttemptResponse::from(attempt);
+        let json = serde_json::to_string(&response).unwrap();
+
+        assert!(response.has_screenshot);
+        assert!(!response.has_confirmation_screenshot);
+        assert!(json.contains("hasScreenshot"));
+        assert!(!json.contains("/Users/jordan"));
+        assert!(!json.contains("screenshotPath"));
+    }
 }
 
 /// Extended fill result with tracking info
@@ -978,6 +1046,9 @@ pub async fn get_attempts_for_job(
         .map(|row| {
             let submitted_at: Option<String> = row.get("submitted_at");
             let created_at: String = row.get("created_at");
+            let screenshot_path: Option<String> = row.get("screenshot_path");
+            let confirmation_screenshot_path: Option<String> =
+                row.get("confirmation_screenshot_path");
             AttemptResponse {
                 id: row.get("id"),
                 job_hash: row.get("job_hash"),
@@ -985,8 +1056,10 @@ pub async fn get_attempts_for_job(
                 status: row.get("status"),
                 ats_platform: row.get("ats_platform"),
                 error_message: row.get("error_message"),
-                screenshot_path: row.get("screenshot_path"),
-                confirmation_screenshot_path: row.get("confirmation_screenshot_path"),
+                has_screenshot: has_stored_path(screenshot_path.as_deref()),
+                has_confirmation_screenshot: has_stored_path(
+                    confirmation_screenshot_path.as_deref(),
+                ),
                 automation_duration_ms: row.get("automation_duration_ms"),
                 user_approved: row.get::<i32, _>("user_approved") != 0,
                 submitted_at,

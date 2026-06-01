@@ -333,7 +333,7 @@ export default function Salary({ onBack }: SalaryProps) {
                     }`}
                   >
                     <p className="text-sm font-medium text-surface-900 dark:text-surface-100">
-                      Pay floor check
+                      Lowest-pay check
                     </p>
                     <p className="mt-1 text-sm text-surface-700 dark:text-surface-300">
                       {floorGuidance.message}

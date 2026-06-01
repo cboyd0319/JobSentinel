@@ -184,6 +184,30 @@ and record actionable findings in this active-plan surface.
   across shared error helpers, Rust command error titles, boundaries,
   Dashboard, job import, and external AI setup errors. Product-copy sensors
   now reject those old generic labels.
+- Latest local shared error-helper follow-up also changes legacy helper
+  messages away from `Invalid input`, `Data format error`, `requested
+  resource`, and permission jargon toward plain review, unreadable-data,
+  missing-item, and sign-in/access guidance, with product-copy coverage.
+- Latest local Rust source-error follow-up changes scraper and Prepare Form
+  `user_message()` copy away from parse, CAPTCHA, request-timeout, browser
+  launch, raw selector, resume-reason, and automation wording toward plain job
+  source, human-check, page-load, browser, form-field, and review guidance.
+- Latest local zero-technical sidecar follow-up closes read-only UX audit
+  findings in link validation, Quick Start install routing, support-detail
+  export copy, maintainer feedback copy, empty job-list pay wording, job-card
+  pay warning copy, and alert connection-link validation.
+- Latest local Application Assist security follow-up rejects unknown
+  application-form targets before profile or saved screening-answer data is
+  loaded, keeps unknown-platform generic selectors disabled as a second guard,
+  and changes automation-attempt IPC to expose screenshot presence flags
+  instead of raw local screenshot paths. IPC-minimization sensors cover both
+  trust-boundary and screenshot-path regressions.
+- Latest local user-configured source privacy follow-up documents the
+  default-off JobsWithGPT endpoint boundary in privacy docs, scraper docs,
+  feature privacy labels, and config comments: if enabled, it receives only
+  saved job titles, location, remote preference, and result limit, never
+  resumes, salary floors, private notes, application history, screening
+  answers, or profile details.
 - Latest local interview-outcome follow-up keeps the internal `failed`
   interview outcome value but changes visible outcome buttons and chips to
   plain, non-shaming labels such as `Did not go well`, with component and
@@ -502,7 +526,7 @@ and record actionable findings in this active-plan surface.
   orchestration out of `scripts/check-repo-bloat.mjs` and into
   `collectPrivacyLoggingViolations`; focused privacy-logging coverage now
   verifies the collector and `scripts/check-repo-bloat.mjs` is now a small
-  594-line orchestrator after the latest IPC-minimization guard.
+  604-line orchestrator after the latest IPC-minimization guard.
 - Latest local broad-audience fixture work replaces engineer-first defaults in
   `SkillCategoryFilter`, Cow utility, API-contract, scraper-construction, and
   ignored live-scraper tests with operations, support, accounting, and care
@@ -751,7 +775,7 @@ and record actionable findings in this active-plan surface.
    preserve tech-specific cases only when they test explicit branch behavior or
    source-realism parser contracts.
 2. Continue splitting oversized harness modules only where the ownership
-   boundary is clear; the main bloat runner is now 594 lines after docs-drift,
+   boundary is clear; the main bloat runner is now 604 lines after docs-drift,
    privacy-logging, source-quality, and IPC-minimization ownership moved into
    modules.
 3. Continue zero-technical-knowledge UX review across setup, settings,
