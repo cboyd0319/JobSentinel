@@ -9,7 +9,7 @@ interface DescriptionInputProps {
 }
 
 const PLACEHOLDERS: Record<FeedbackCategory, string> = {
-  bug: "Describe what went wrong...\n\nFor example:\n- What were you trying to do?\n- What happened instead?\n- Can you reproduce it?",
+  bug: "Describe what went wrong...\n\nFor example:\n- What were you trying to do?\n- What happened instead?\n- Can you make it happen again?",
   feature: "Describe your idea...\n\nFor example:\n- What problem would this solve?\n- How would you like it to work?\n- Are there any examples?",
   question: "What would you like to know?\n\nFor example:\n- Ask about a feature\n- Share general feedback\n- Suggest improvements",
 };
@@ -22,7 +22,7 @@ export const DescriptionInput = memo(function DescriptionInput({
 }: DescriptionInputProps) {
   const id = useId();
   const errorId = `${id}-error`;
-  const placeholder = category ? PLACEHOLDERS[category] : "Select a category first...";
+  const placeholder = category ? PLACEHOLDERS[category] : "Choose a topic first...";
 
   return (
     <div className="space-y-2">

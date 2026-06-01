@@ -82,6 +82,10 @@ Current branch note:
   from bug-report and feature-request wording to report-a-problem,
   suggest-an-improvement, and ask-a-question wording, with CategorySelector
   coverage.
+- The current safe-support-report slice changes repeat-step prompts, feedback
+  modal step labels, frontend activity names, backend report type labels, and
+  backend recent-activity lines to plain-language support wording; product-copy
+  harness coverage now blocks the old technical labels.
 - Continue using small verified commits. Avoid another remote CI run until the
   next explicit integration gate or full-goal completion pass.
 

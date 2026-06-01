@@ -258,6 +258,10 @@ and record actionable findings in this active-plan surface.
 - Latest support-language work changes feedback choices from bug-report and
   feature-request wording to report-a-problem, suggest-an-improvement, and
   ask-a-question wording, with focused CategorySelector coverage.
+- Latest safe-support-report work changes repeat-step prompts, feedback modal
+  step labels, frontend activity names, backend report type labels, and backend
+  recent-activity lines from developer-style labels to plain-language support
+  wording, with product-copy harness coverage for recurrence.
 - Latest local docs-drift harness work moves the docs-drift violation messages
   out of `scripts/check-repo-bloat.mjs` and into
   `scripts/harness/checks/docs-drift.mjs` through

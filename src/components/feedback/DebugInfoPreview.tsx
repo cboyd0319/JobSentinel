@@ -1,6 +1,7 @@
 import { memo, useState } from "react";
 import {
   formatDebugEventDetails,
+  formatDebugEventName,
   type ConfigSummary,
   type DebugEvent,
   type SystemInfo,
@@ -161,7 +162,7 @@ function DebugEventRow({ event }: { event: DebugEvent }) {
       <span className="text-surface-500 dark:text-surface-500">
         [{event.time}]
       </span>{" "}
-      {event.event}
+      {formatDebugEventName(event.event)}
       {details && (
         <span className="text-surface-500 dark:text-surface-500">
           {" "}- {details}

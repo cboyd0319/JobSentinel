@@ -123,9 +123,36 @@ test("product copy rejects debug-report roadmap wording", () => {
   withFixture((root) => {
     writeFixtureFile(root, "ROADMAP.md", "One-click sanitized debug report flow\n");
     writeFixtureFile(root, "docs/ROADMAP.md", "| Debug reports | Sanitized reports |\n");
+    writeFixtureFile(
+      root,
+      "src/components/feedback/DescriptionInput.tsx",
+      "Can you reproduce it?\nSelect a category first...\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/feedback/report.rs",
+      "Report type: Bug Report\nformat!(\"[{}] {:?}\\n\")\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/feedback/debug_log.rs",
+      "Debug Log ({} events):\n[COMMAND]\n",
+    );
 
     assert.equal(hasFeedbackLocalReportDrift(root, "ROADMAP.md"), true);
     assert.equal(hasFeedbackLocalReportDrift(root, "docs/ROADMAP.md"), true);
+    assert.equal(
+      hasFeedbackLocalReportDrift(root, "src/components/feedback/DescriptionInput.tsx"),
+      true,
+    );
+    assert.equal(
+      hasFeedbackLocalReportDrift(root, "src-tauri/src/commands/feedback/report.rs"),
+      true,
+    );
+    assert.equal(
+      hasFeedbackLocalReportDrift(root, "src-tauri/src/commands/feedback/debug_log.rs"),
+      true,
+    );
   });
 });
 

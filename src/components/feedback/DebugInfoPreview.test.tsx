@@ -51,11 +51,13 @@ describe("DebugInfoPreview", () => {
     expect(screen.getByText(/app and device/i)).toBeInTheDocument();
     expect(screen.getByText(/settings summary/i)).toBeInTheDocument();
     expect(screen.getByText(/recent app activity/i)).toBeInTheDocument();
-    expect(screen.getByText(/Action: search_jobs/i)).toBeInTheDocument();
+    expect(screen.getByText(/app action/i)).toBeInTheDocument();
+    expect(screen.getByText(/Action: search jobs/i)).toBeInTheDocument();
     expect(screen.getByText(/Result: succeeded/i)).toBeInTheDocument();
     expect(screen.getByText(/owner email: \[EMAIL\]/i)).toBeInTheDocument();
     expect(screen.getByText(/nested: details summarized/i)).toBeInTheDocument();
     expect(screen.queryByText(/\{"command"/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/CommandInvoked/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/candidate@example\.com/i)).not.toBeInTheDocument();
   });
 

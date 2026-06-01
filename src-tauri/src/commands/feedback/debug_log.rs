@@ -243,6 +243,83 @@ fn sanitize_debug_event(event: DebugEvent) -> DebugEvent {
     }
 }
 
+fn readable_debug_value(value: &str) -> String {
+    Sanitizer::sanitize(value)
+        .replace(['_', '-'], " ")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+fn support_status(success: bool) -> &'static str {
+    if success {
+        "succeeded"
+    } else {
+        "failed"
+    }
+}
+
+pub fn format_event_for_support(event: &DebugEvent) -> String {
+    match event {
+        DebugEvent::AppStarted { version } => {
+            format!("App opened: Version {}", Sanitizer::sanitize(version))
+        }
+        DebugEvent::ViewNavigated { from, to } => {
+            format!(
+                "Screen changed: {} to {}",
+                readable_debug_value(from),
+                readable_debug_value(to)
+            )
+        }
+        DebugEvent::CommandInvoked {
+            command,
+            success,
+            error_code,
+        } => {
+            let error_suffix = error_code
+                .as_ref()
+                .map(|code| format!("; Support code: {}", Sanitizer::sanitize(code)))
+                .unwrap_or_default();
+            format!(
+                "App action: {}; Result: {}{}",
+                readable_debug_value(command),
+                support_status(*success),
+                error_suffix
+            )
+        }
+        DebugEvent::ErrorOccurred { code, message } => {
+            format!(
+                "App problem: {}; Message: {}",
+                Sanitizer::sanitize(code),
+                Sanitizer::sanitize_error(message)
+            )
+        }
+        DebugEvent::ScraperRun {
+            scraper,
+            jobs_found,
+            success,
+        } => {
+            format!(
+                "Job source checked: {}; Result: {}; Jobs found: {}",
+                readable_debug_value(scraper),
+                support_status(*success),
+                jobs_found
+            )
+        }
+        DebugEvent::FeatureUsed { feature, metadata } => {
+            let meta_str = metadata
+                .as_ref()
+                .map(|m| format!("; Details: {}", readable_debug_value(m)))
+                .unwrap_or_default();
+            format!(
+                "Feature used: {}{}",
+                readable_debug_value(feature),
+                meta_str
+            )
+        }
+    }
+}
+
 /// Clear the global debug buffer
 pub fn clear_debug_log() {
     if let Ok(mut buffer) = DEBUG_LOG.write() {
@@ -255,55 +332,15 @@ pub fn format_debug_log() -> String {
     let events = get_debug_log();
 
     if events.is_empty() {
-        return "No debug events recorded.".to_string();
+        return "No app activity recorded.".to_string();
     }
 
     let mut output = String::new();
-    output.push_str(&format!("Debug Log ({} events):\n\n", events.len()));
+    output.push_str(&format!("Safe app activity ({} events):\n\n", events.len()));
 
     for event in events {
         let timestamp = event.timestamp.format("%Y-%m-%d %H:%M:%S UTC");
-        let event_str = match event.event {
-            DebugEvent::AppStarted { version } => {
-                format!("[APP_STARTED] Version: {}", version)
-            }
-            DebugEvent::ViewNavigated { from, to } => {
-                format!("[VIEW_NAVIGATED] {} → {}", from, to)
-            }
-            DebugEvent::CommandInvoked {
-                command,
-                success,
-                error_code,
-            } => {
-                let status = if success { "SUCCESS" } else { "FAILED" };
-                let error_suffix = error_code
-                    .map(|code| format!(" (error: {})", code))
-                    .unwrap_or_default();
-                format!("[COMMAND] {} → {}{}", command, status, error_suffix)
-            }
-            DebugEvent::ErrorOccurred { code, message } => {
-                // Sanitize error message (defense in depth)
-                let sanitized = Sanitizer::sanitize_error(&message);
-                format!("[ERROR] {} - {}", code, sanitized)
-            }
-            DebugEvent::ScraperRun {
-                scraper,
-                jobs_found,
-                success,
-            } => {
-                let status = if success { "SUCCESS" } else { "FAILED" };
-                format!(
-                    "[SCRAPER] {} → {} ({} jobs found)",
-                    scraper, status, jobs_found
-                )
-            }
-            DebugEvent::FeatureUsed { feature, metadata } => {
-                let meta_str = metadata
-                    .map(|m| format!(" ({})", Sanitizer::sanitize(&m)))
-                    .unwrap_or_default();
-                format!("[FEATURE] {}{}", feature, meta_str)
-            }
-        };
+        let event_str = format_event_for_support(&event.event);
 
         output.push_str(&format!("{} {}\n", timestamp, event_str));
     }
@@ -497,6 +534,23 @@ mod tests {
             assert_eq!(feature, "resume_builder");
             assert_eq!(metadata.as_ref().unwrap(), "classic_template");
         }
+    }
+
+    #[test]
+    fn test_support_event_format_uses_plain_language() {
+        let event = DebugEvent::CommandInvoked {
+            command: "search_jobs".to_string(),
+            success: false,
+            error_code: Some("network_error".to_string()),
+        };
+
+        let formatted = format_event_for_support(&event);
+
+        assert!(formatted.contains("App action: search jobs"));
+        assert!(formatted.contains("Result: failed"));
+        assert!(formatted.contains("Support code: network_error"));
+        assert!(!formatted.contains("CommandInvoked"));
+        assert!(!formatted.contains("search_jobs"));
     }
 
     #[test]

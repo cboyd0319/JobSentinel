@@ -94,11 +94,16 @@ const feedbackLocalReportPaths = new Set([
   "src/components/ComponentErrorBoundary.tsx",
   "src/components/ErrorBoundary.tsx",
   "src/components/PageErrorBoundary.tsx",
+  "src/components/feedback/DescriptionInput.tsx",
   "src/components/feedback/FeedbackModal.tsx",
   "src/components/feedback/SubmitOptions.tsx",
   "src/components/feedback/SuccessScreen.tsx",
   "src/hooks/useFeedback.ts",
   "src/pages/Settings.tsx",
+  "src/services/feedbackService.ts",
+  "src-tauri/src/commands/feedback/debug_log.rs",
+  "src-tauri/src/commands/feedback/report.rs",
+  "src/mocks/handlers.ts",
   "src/utils/errorMessages.ts",
 ]);
 
@@ -384,6 +389,17 @@ export function hasFeedbackLocalReportDrift(root, path) {
     /onSubmitDrive/i,
     /DriveIcon/i,
     /Google Drive flow/i,
+    /Can you reproduce it/i,
+    /Select a category first/i,
+    /Continue to Submit/i,
+    /Choose Submission Method/i,
+    /Describe Your Feedback/i,
+    /Report type:\s*(?:Bug Report|Feature Idea)/i,
+    /return\s+["'`](?:Bug Report|Feature Idea)["'`]/i,
+    /No debug events recorded/i,
+    /Debug Log \(\{\} events\)/i,
+    /\[(?:APP_STARTED|VIEW_NAVIGATED|COMMAND|ERROR|SCRAPER|FEATURE)\]/i,
+    /format!\(\s*["'`]\[\{\}\]\s+\{\:\?\}\\n["'`]/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));

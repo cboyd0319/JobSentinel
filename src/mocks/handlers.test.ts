@@ -520,7 +520,7 @@ describe("mock Tauri handlers", () => {
       includeDebugInfo: true,
     });
     expect(report).toContain("JOBSENTINEL SAFE SUPPORT REPORT");
-    expect(report).toContain("Report type: Bug Report");
+    expect(report).toContain("Report type: Problem Report");
     expect(report).toContain("Crash after search");
     expect(report).toContain("JOBSENTINEL SETUP");
 

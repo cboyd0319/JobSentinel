@@ -7,7 +7,7 @@ use chrono::{DateTime, Local, Utc};
 use serde::Serialize;
 use tauri::State;
 
-use super::debug_log::get_recent_events;
+use super::debug_log::{format_event_for_support, get_recent_events};
 use super::sanitizer::{ConfigSummary, Sanitizer};
 use super::system_info::{summarize_config, SystemInfo};
 use crate::commands::AppState;
@@ -24,8 +24,8 @@ pub enum FeedbackCategory {
 impl FeedbackCategory {
     pub fn as_str(&self) -> &str {
         match self {
-            Self::Bug => "Bug Report",
-            Self::Feature => "Feature Idea",
+            Self::Bug => "Problem Report",
+            Self::Feature => "Improvement Idea",
             Self::Question => "General Feedback",
         }
     }
@@ -194,9 +194,9 @@ fn format_feedback_report(
         for event in debug_events {
             let time_str = event.timestamp.format("%H:%M:%S");
             report.push_str(&format!(
-                "[{}] {:?}\n",
+                "[{}] {}\n",
                 time_str,
-                Sanitizer::sanitize(&format!("{:?}", event.event))
+                format_event_for_support(&event.event)
             ));
         }
         report.push_str("\n");
@@ -272,7 +272,7 @@ mod tests {
 
         // Should contain all required sections
         assert!(report.contains("JOBSENTINEL SAFE SUPPORT REPORT"));
-        assert!(report.contains("Report type: Bug Report"));
+        assert!(report.contains("Report type: Problem Report"));
         assert!(report.contains("WHAT YOU WROTE"));
         assert!(report.contains("Test bug description"));
         assert!(report.contains("APP AND DEVICE"));
@@ -342,9 +342,11 @@ mod tests {
         let report = format_feedback_report(&category, description, &system_info, None, &events);
 
         assert!(report.contains("RECENT APP ACTIVITY"));
-        assert!(report.contains("ViewNavigated"));
-        assert!(report.contains("ScraperRun"));
+        assert!(report.contains("Screen changed: Jobs to Dashboard"));
+        assert!(report.contains("Job source checked: indeed; Result: failed; Jobs found: 0"));
         assert!(report.contains("indeed"));
+        assert!(!report.contains("ViewNavigated"));
+        assert!(!report.contains("ScraperRun"));
     }
 
     #[test]
@@ -364,8 +366,8 @@ mod tests {
 
     #[test]
     fn test_feedback_category_as_str() {
-        assert_eq!(FeedbackCategory::Bug.as_str(), "Bug Report");
-        assert_eq!(FeedbackCategory::Feature.as_str(), "Feature Idea");
+        assert_eq!(FeedbackCategory::Bug.as_str(), "Problem Report");
+        assert_eq!(FeedbackCategory::Feature.as_str(), "Improvement Idea");
         assert_eq!(FeedbackCategory::Question.as_str(), "General Feedback");
     }
 }

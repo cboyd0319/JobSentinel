@@ -304,6 +304,10 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   bug-report and feature-request wording to report-a-problem,
   suggest-an-improvement, and ask-a-question wording, with focused
   CategorySelector coverage.
+- The latest safe-support-report slice changes repeat-step prompts, feedback
+  modal step labels, frontend activity names, backend report type labels, and
+  backend recent-activity lines from developer-style labels to plain-language
+  support wording, with product-copy harness coverage against recurrence.
 - Updated active plan and handoff docs for the latest local cleanup slice.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
@@ -335,6 +339,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-01 | In progress | Reworded safe-support-report prompts, feedback modal steps, frontend activity labels, backend report type labels, and backend recent-activity lines to plain-language support copy; added product-copy harness coverage against old technical labels. |
 | 2026-06-01 | In progress | Reworded feedback choices from bug-report and feature-request labels to report-a-problem, suggest-an-improvement, and ask-a-question labels; added focused CategorySelector tests. |
 | 2026-06-01 | In progress | Reworded Dashboard job-list actions from export/CSV copy to download copy, changed the main search placeholder to "Search jobs," and added focused DashboardFiltersBar plus QuickActions tests. |
 | 2026-06-01 | In progress | Pushed through `1976fd9e`; remote Docs Harness `26744671097` and CI `26744671092` both passed. CI covered harness checks, harness script tests, TypeScript, ESLint, frontend unit tests, Rust fmt, Rust clippy, Rust library tests, npm audit, and cargo-deny advisories. |

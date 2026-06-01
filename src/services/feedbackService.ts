@@ -73,6 +73,15 @@ const DEBUG_DETAIL_LABELS: Record<string, string> = {
   type: "Type",
 };
 
+const DEBUG_EVENT_LABELS: Record<string, string> = {
+  AppStarted: "App opened",
+  CommandInvoked: "App action",
+  ErrorOccurred: "App problem",
+  FeatureUsed: "Feature used",
+  ScraperRun: "Job source checked",
+  ViewNavigated: "Screen changed",
+};
+
 /**
  * Get system information for feedback report.
  * Data is anonymized by the backend before being returned.
@@ -191,7 +200,10 @@ function formatDebugDetailValue(key: string, value: unknown): string | null {
   }
 
   if (typeof value === "string") {
-    const sanitized = sanitizeTextForStorage(value);
+    const sanitized =
+      key === "command" || key === "feature" || key === "source" || key === "type"
+        ? formatDebugLabel(value)
+        : sanitizeTextForStorage(value);
     return sanitized.length > MAX_DEBUG_DETAIL_LENGTH
       ? `${sanitized.slice(0, MAX_DEBUG_DETAIL_LENGTH)}...`
       : sanitized;
@@ -206,6 +218,17 @@ function formatDebugDetailValue(key: string, value: unknown): string | null {
 
 function formatDebugDetailLabel(key: string): string {
   return DEBUG_DETAIL_LABELS[key] ?? key.replace(/[_-]+/g, " ");
+}
+
+export function formatDebugEventName(event: string): string {
+  return DEBUG_EVENT_LABELS[event] ?? formatDebugLabel(event);
+}
+
+function formatDebugLabel(value: string): string {
+  return sanitizeTextForStorage(value)
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 export function formatDebugEventDetails(
@@ -346,7 +369,7 @@ export function formatDebugInfo(
       ...debugEvents.map(event => {
         const formattedDetails = formatDebugEventDetails(event.details);
         const details = formattedDetails ? ` - ${formattedDetails}` : "";
-        return `[${event.time}] ${event.event}${details}`;
+        return `[${event.time}] ${formatDebugEventName(event.event)}${details}`;
       }),
       ""
     );

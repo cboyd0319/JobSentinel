@@ -86,7 +86,7 @@ export const FeedbackModal = memo(function FeedbackModal({
             </>
           )}
 
-          {/* Step: Review (Debug Info) */}
+          {/* Step: Review safe app details */}
           {feedback.step === "review" && (
             <>
               <DebugInfoPreview
@@ -108,7 +108,7 @@ export const FeedbackModal = memo(function FeedbackModal({
                   Back
                 </Button>
                 <Button variant="primary" onClick={feedback.nextStep}>
-                  Continue to Submit
+                  Choose How to Send
                 </Button>
               </ModalFooter>
             </>
@@ -161,11 +161,11 @@ function getTitle(step: string): string {
     case "category":
       return "Send Feedback";
     case "description":
-      return "Describe Your Feedback";
+      return "Tell Us What Happened";
     case "review":
-      return "Include Safe App Details?";
+      return "Review Safe App Details";
     case "submit":
-      return "Choose Submission Method";
+      return "Choose How to Send";
     case "success":
       return "Finish Feedback";
     default:

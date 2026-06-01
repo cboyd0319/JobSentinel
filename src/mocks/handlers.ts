@@ -1474,9 +1474,9 @@ function getMockFeedbackCategory(args?: Record<string, unknown>): MockFeedbackCa
 function getMockFeedbackCategoryLabel(category: MockFeedbackCategory): string {
   switch (category) {
     case "bug":
-      return "Bug Report";
+      return "Problem Report";
     case "feature":
-      return "Feature Idea";
+      return "Improvement Idea";
     case "question":
       return "General Feedback";
   }

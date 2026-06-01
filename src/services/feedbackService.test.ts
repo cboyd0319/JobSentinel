@@ -241,7 +241,7 @@ describe("feedbackService", () => {
       nested: { token: "secret" },
     });
 
-    expect(details).toContain("Action: search_jobs");
+    expect(details).toContain("Action: search jobs");
     expect(details).toContain("Result: succeeded");
     expect(details).toContain("url: https://example.com/jobs");
     expect(details).toContain("owner email: [EMAIL]");
@@ -282,8 +282,9 @@ describe("feedbackService", () => {
     );
 
     expect(debugInfo).toContain(
-      "[2026-05-29T12:00:00Z] CommandInvoked - Action: search_jobs; Result: failed"
+      "[2026-05-29T12:00:00Z] App action - Action: search jobs; Result: failed"
     );
+    expect(debugInfo).not.toContain("CommandInvoked");
     expect(debugInfo).not.toContain('{"command"');
   });
 });
