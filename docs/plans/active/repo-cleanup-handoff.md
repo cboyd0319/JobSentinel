@@ -274,11 +274,12 @@ Current cleanup posture:
   and raw backend exception text from propagated enhanced errors. The wrapper
   now throws display-safe copy with count/type-only argument summaries; privacy
   logging coverage rejects raw invoke arguments and raw fallback errors.
-- Latest structured-resume import follow-up moved local JSON Resume file reads
-  from renderer `file://` fetches into `import_json_resume_file` on the Rust
-  side, keeping raw resume JSON out of browser fetch code and making Windows
-  paths with backslashes usable. Source-quality coverage rejects the old
-  renderer file-fetch path.
+- Latest resume import boundary follow-up routes PDF and JSON Resume file
+  selection through backend native file-picker commands. The renderer no
+  longer receives or submits raw resume file paths for upload/import, JSON
+  import still checks file type and size before import, PDF uploads copy the
+  selected file into app-owned local storage before parsing, and source-quality
+  coverage rejects renderer-owned file picker imports.
 - Latest Resume Match UX follow-up makes choose/upload the primary route,
   keeps resume-app export paste behind an explicit Import from Resume App
   action, removes the circular PDF-upload hint, and adds focused UI plus

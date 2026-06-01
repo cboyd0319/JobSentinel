@@ -25,9 +25,9 @@ By default, these stay on the user's computer:
 - Interview reminders, follow-up notes, and weekly progress data.
 - Resume versions, resume parsing results, match explanations, and application
   drafts.
-- Application Assist resume file copies selected through the native file picker.
-  The renderer sees only a local app-owned token and display name, not the
-  original file path.
+- Resume file copies selected through native file pickers for Resume Match and
+  Application Assist. The renderer sees only app-owned tokens, command results,
+  or display names where needed, not original file paths.
 - Salary floors, salary preferences, offer notes, and negotiation notes.
 - Local problem history and sanitized debug reports before the user chooses to
   share them.

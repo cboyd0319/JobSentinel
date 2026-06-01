@@ -162,9 +162,9 @@ fn main() {
             commands::ats::complete_interview,
             commands::ats::delete_interview,
             // Resume Match commands
-            commands::resume::upload_resume,
+            commands::resume::select_and_upload_resume,
             commands::resume::import_json_resume,
-            commands::resume::import_json_resume_file,
+            commands::resume::select_and_import_json_resume,
             commands::resume::get_active_resume,
             commands::resume::set_active_resume,
             commands::resume::get_user_skills,

@@ -3317,10 +3317,8 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       return undefined as T;
     }
 
-    case "upload_resume": {
-      const name = getStringArg(args, "name") ?? "Resume.pdf";
-      const filePath = getStringArg(args, "filePath") ?? getStringArg(args, "file_path") ?? "";
-      return createMockResume(name, filePath) as T;
+    case "select_and_upload_resume": {
+      return createMockResume("Mock Resume", "app-owned://resume-uploads/mock-resume.pdf") as T;
     }
 
     case "import_json_resume": {
@@ -3328,10 +3326,8 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       return createMockResume(`${name}.json`, `${name}.json`) as T;
     }
 
-    case "import_json_resume_file": {
-      const name = getStringArg(args, "name") ?? "Imported Resume";
-      const filePath = getStringArg(args, "filePath") ?? getStringArg(args, "file_path") ?? `${name}.json`;
-      return createMockResume(`${name}.json`, filePath) as T;
+    case "select_and_import_json_resume": {
+      return createMockResume("Imported Resume", "app-owned://resume-imports/imported-resume.json") as T;
     }
 
     case "delete_resume": {

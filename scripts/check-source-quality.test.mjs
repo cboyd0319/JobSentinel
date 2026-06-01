@@ -172,6 +172,23 @@ test("source quality rejects frontend file URL resume imports", () => {
   });
 });
 
+test("source quality rejects renderer-owned resume file picker imports", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/pages/Resume.tsx",
+      [
+        'import { open } from "@tauri-apps/plugin-dialog";',
+        "const selected = await open({ multiple: false });",
+        'await safeInvokeWithToast("import_json_resume_file", { filePath: selected }, toast);',
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(hasFrontendFileUrlResumeImport(root, "src/pages/Resume.tsx"), true);
+  });
+});
+
 test("source quality rejects unsafe settings saves and raw salary logging", () => {
   withFixture((root) => {
     writeFixtureFile(

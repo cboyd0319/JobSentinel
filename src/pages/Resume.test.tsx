@@ -3,7 +3,6 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Resume from "./Resume";
 import { safeInvoke, safeInvokeWithToast } from "../utils/api";
-import { open } from "@tauri-apps/plugin-dialog";
 
 vi.mock("../utils/api", () => ({
   safeInvoke: vi.fn(),
@@ -18,13 +17,8 @@ vi.mock("../contexts", () => ({
   }),
 }));
 
-vi.mock("@tauri-apps/plugin-dialog", () => ({
-  open: vi.fn(),
-}));
-
 const mockSafeInvoke = vi.mocked(safeInvoke);
 const mockSafeInvokeWithToast = vi.mocked(safeInvokeWithToast);
-const mockOpen = vi.mocked(open);
 
 describe("Resume page", () => {
   beforeEach(() => {
@@ -174,13 +168,11 @@ describe("Resume page", () => {
     expect(screen.queryByText("(100%)")).not.toBeInTheDocument();
   });
 
-  it("imports structured resumes through backend file handling", async () => {
+  it("imports structured resumes through backend-owned file handling", async () => {
     const user = userEvent.setup();
-    const selectedPath = String.raw`C:\Resume Files\resume export.JSON`;
     const fetchSpy = vi.fn();
 
     vi.stubGlobal("fetch", fetchSpy);
-    mockOpen.mockResolvedValue(selectedPath);
     mockSafeInvokeWithToast.mockResolvedValue(42);
     mockSafeInvoke.mockImplementation((command: string) => {
       switch (command) {
@@ -204,8 +196,8 @@ describe("Resume page", () => {
     await user.click(screen.getAllByRole("button", { name: "Import from resume app" })[0]);
 
     expect(mockSafeInvokeWithToast).toHaveBeenCalledWith(
-      "import_json_resume_file",
-      { name: "resume export", filePath: selectedPath },
+      "select_and_import_json_resume",
+      undefined,
       expect.anything(),
       { logContext: "Import structured resume data" },
     );

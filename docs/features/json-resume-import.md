@@ -68,10 +68,11 @@ resume text in user-facing error copy.
 
 ## Developer contract
 
-The renderer imports selected files through `import_json_resume_file`, which
-reads the local file in the Rust command layer and then calls the existing
-`import_json_resume` importer. The renderer must not fetch `file://` URLs or
-pass raw resume JSON through browser fetch code.
+The renderer starts import through `select_and_import_json_resume`. The Rust
+command opens the native file picker, reads the selected local file in the
+backend command layer, and then calls the existing `import_json_resume` importer.
+The renderer must not receive raw local file paths, fetch `file://` URLs, or pass
+raw resume JSON through browser fetch code.
 
 Implementation paths:
 

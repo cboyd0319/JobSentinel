@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from "react";
-import { open } from "@tauri-apps/plugin-dialog";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 import { Badge } from "../components/Badge";
@@ -32,13 +31,6 @@ function getSkillSourceLabel(source: string) {
     return "Found in resume";
   }
   return "Saved skill";
-}
-
-function fileNameFromPath(filePath: string, fallback: string) {
-  return filePath
-    .split(/[\\/]/)
-    .pop()
-    ?.replace(/\.json$/i, "") || fallback;
 }
 
 // Backend types (matching Rust types)
@@ -268,20 +260,11 @@ export default function Resume({ onBack }: ResumeProps) {
 
   const handleUploadResume = async () => {
     try {
-      const selected = await open({
-        multiple: false,
-        filters: [{ name: "PDF", extensions: ["pdf"] }],
-      });
-
-      if (!selected) return;
-
       setUploading(true);
-      const filePath = selected as string;
-      const fileName = fileNameFromPath(filePath, "Resume");
-
-      await safeInvokeWithToast("upload_resume", { name: fileName, filePath }, toast, {
+      const resumeId = await safeInvokeWithToast<number | null>("select_and_upload_resume", undefined, toast, {
         logContext: "Upload resume"
       });
+      if (!resumeId) return;
       toast.success("Resume uploaded", "Your resume has been parsed and analyzed");
       refetchData();
     } catch {
@@ -293,20 +276,11 @@ export default function Resume({ onBack }: ResumeProps) {
 
   const handleImportJsonResume = async () => {
     try {
-      const selected = await open({
-        multiple: false,
-        filters: [{ name: "Resume App Export", extensions: ["json"] }],
-      });
-
-      if (!selected) return;
-
       setUploading(true);
-      const filePath = selected as string;
-      const fileName = fileNameFromPath(filePath, "Resume");
-
-      await safeInvokeWithToast("import_json_resume_file", { name: fileName, filePath }, toast, {
+      const resumeId = await safeInvokeWithToast<number | null>("select_and_import_json_resume", undefined, toast, {
         logContext: "Import structured resume data"
       });
+      if (!resumeId) return;
       toast.success("Resume imported", "Your resume data has been imported and analyzed");
       refetchData();
     } catch {

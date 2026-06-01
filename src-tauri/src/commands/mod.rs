@@ -107,7 +107,6 @@ pub use resume::{
     get_user_skills,
     // Import commands
     import_json_resume,
-    import_json_resume_file,
     improve_bullet_point,
     list_all_resumes,
     // Template commands
@@ -115,12 +114,13 @@ pub use resume::{
     match_resume_to_job,
     render_resume_html,
     render_resume_text,
+    select_and_import_json_resume,
+    select_and_upload_resume,
     set_active_resume,
     set_resume_skills,
     update_resume_contact,
     update_resume_summary,
     update_user_skill,
-    upload_resume,
 };
 
 // Salary commands

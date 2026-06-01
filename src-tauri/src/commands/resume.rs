@@ -13,12 +13,16 @@ use crate::core::resume::{
     NewSkill, Resume, ResumeBuilder, ResumeExporter, ResumeMatcher, SkillEntry, SkillUpdate,
     Template, TemplateId, TemplateRenderer, UserSkill,
 };
+use crate::platforms;
 use chrono::{DateTime, Utc};
 use serde::Serialize;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use tauri::State;
+use tauri_plugin_dialog::DialogExt;
+use uuid::Uuid;
 
 const MAX_JSON_RESUME_IMPORT_BYTES: u64 = 5 * 1024 * 1024;
+const MANAGED_RESUME_UPLOAD_DIR: &str = "resume-uploads";
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ResumeSummary {
@@ -48,15 +52,49 @@ pub async fn upload_resume(
     file_path: String,
     state: State<'_, AppState>,
 ) -> Result<i64, String> {
+    let _ = (name, state);
+    reject_renderer_resume_file_path(&file_path)?;
+    unreachable!("renderer resume file path rejection always returns an error")
+}
+
+/// Select, copy, and parse a PDF resume without exposing source paths to renderer IPC.
+#[tauri::command]
+pub async fn select_and_upload_resume(
+    app: tauri::AppHandle,
+    state: State<'_, AppState>,
+) -> Result<Option<i64>, String> {
+    let Some(file_path) = app
+        .dialog()
+        .file()
+        .add_filter("PDF", &["pdf"])
+        .blocking_pick_file()
+    else {
+        return Ok(None);
+    };
+
+    let source_path = file_path
+        .into_path()
+        .map_err(|_| "Could not read the selected resume file.".to_string())?;
+    let (name, managed_path) = copy_selected_pdf_resume_to_managed_storage(&source_path)?;
+    let resume_id = upload_resume_from_managed_path(name, managed_path, state).await?;
+
+    Ok(Some(resume_id))
+}
+
+async fn upload_resume_from_managed_path(
+    name: String,
+    file_path: PathBuf,
+    state: State<'_, AppState>,
+) -> Result<i64, String> {
     tracing::info!(
         name_chars = name.chars().count(),
-        file_path = %path_label_for_logging(Path::new(&file_path)),
+        file_path = %path_label_for_logging(&file_path),
         "Command: upload_resume"
     );
 
     let matcher = ResumeMatcher::new(state.database.pool().clone());
     matcher
-        .upload_resume(&name, &file_path)
+        .upload_resume(&name, &file_path.to_string_lossy())
         .await
         .map_err(|e| user_friendly_error("Failed to upload resume", e))
 }
@@ -88,7 +126,40 @@ pub async fn import_json_resume_file(
     file_path: String,
     state: State<'_, AppState>,
 ) -> Result<i64, String> {
-    let path = Path::new(&file_path);
+    let _ = (name, state);
+    reject_renderer_resume_file_path(&file_path)?;
+    unreachable!("renderer resume file path rejection always returns an error")
+}
+
+/// Select and import a JSON Resume file without exposing source paths to renderer IPC.
+#[tauri::command]
+pub async fn select_and_import_json_resume(
+    app: tauri::AppHandle,
+    state: State<'_, AppState>,
+) -> Result<Option<i64>, String> {
+    let Some(file_path) = app
+        .dialog()
+        .file()
+        .add_filter("Resume App Export", &["json"])
+        .blocking_pick_file()
+    else {
+        return Ok(None);
+    };
+
+    let path = file_path
+        .into_path()
+        .map_err(|_| "Could not read the selected resume file.".to_string())?;
+    let name = selected_resume_name(&path, "Resume");
+    let resume_id = import_json_resume_from_selected_path(name, &path, state).await?;
+
+    Ok(Some(resume_id))
+}
+
+async fn import_json_resume_from_selected_path(
+    name: String,
+    path: &Path,
+    state: State<'_, AppState>,
+) -> Result<i64, String> {
     tracing::info!(
         name_chars = name.chars().count(),
         file_path = %path_label_for_logging(path),
@@ -304,6 +375,98 @@ fn has_json_extension(path: &Path) -> bool {
     path.extension()
         .and_then(|extension| extension.to_str())
         .is_some_and(|extension| extension.eq_ignore_ascii_case("json"))
+}
+
+fn has_pdf_extension(path: &Path) -> bool {
+    path.extension()
+        .and_then(|extension| extension.to_str())
+        .is_some_and(|extension| extension.eq_ignore_ascii_case("pdf"))
+}
+
+fn reject_renderer_resume_file_path(_file_path: &str) -> Result<(), String> {
+    Err("Choose Resume inside JobSentinel so the app can handle the file privately.".to_string())
+}
+
+fn managed_resume_upload_dir() -> PathBuf {
+    platforms::get_data_dir().join(MANAGED_RESUME_UPLOAD_DIR)
+}
+
+fn selected_resume_name(path: &Path, fallback: &str) -> String {
+    path.file_stem()
+        .and_then(|value| value.to_str())
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .map(ToOwned::to_owned)
+        .unwrap_or_else(|| fallback.to_string())
+}
+
+fn safe_resume_upload_file_name(path: &Path) -> String {
+    let raw_stem = selected_resume_name(path, "resume");
+    let mut safe_stem = String::new();
+    let mut previous_dash = false;
+
+    for ch in raw_stem.chars() {
+        let next = if ch.is_ascii_alphanumeric() || ch == '_' || ch == '-' {
+            previous_dash = false;
+            Some(ch)
+        } else if ch.is_ascii_whitespace() || ch == '.' {
+            if previous_dash {
+                None
+            } else {
+                previous_dash = true;
+                Some('-')
+            }
+        } else if previous_dash {
+            None
+        } else {
+            previous_dash = true;
+            Some('-')
+        };
+
+        if let Some(ch) = next {
+            safe_stem.push(ch);
+        }
+
+        if safe_stem.len() >= 80 {
+            break;
+        }
+    }
+
+    let safe_stem = safe_stem.trim_matches('-');
+    let safe_stem = if safe_stem.is_empty() {
+        "resume"
+    } else {
+        safe_stem
+    };
+
+    format!("{}--{safe_stem}.pdf", Uuid::new_v4())
+}
+
+fn validate_selected_pdf_resume(path: &Path) -> Result<(), String> {
+    if !has_pdf_extension(path) {
+        return Err("Choose a PDF resume file.".to_string());
+    }
+
+    let metadata = std::fs::metadata(path)
+        .map_err(|_| "JobSentinel could not read that resume file.".to_string())?;
+    if !metadata.is_file() {
+        return Err("Choose a resume file, not a folder.".to_string());
+    }
+
+    Ok(())
+}
+
+fn copy_selected_pdf_resume_to_managed_storage(path: &Path) -> Result<(String, PathBuf), String> {
+    validate_selected_pdf_resume(path)?;
+    let name = selected_resume_name(path, "Resume");
+    let managed_dir = managed_resume_upload_dir();
+    std::fs::create_dir_all(&managed_dir)
+        .map_err(|_| "Could not prepare local resume storage.".to_string())?;
+    let destination = managed_dir.join(safe_resume_upload_file_name(path));
+    std::fs::copy(path, &destination)
+        .map_err(|_| "Could not copy the selected resume file.".to_string())?;
+
+    Ok((name, destination))
 }
 
 /// Delete a resume
@@ -614,5 +777,13 @@ mod tests {
         assert!(has_json_extension(Path::new(r"C:\Resume\resume.json")));
         assert!(!has_json_extension(Path::new("resume.pdf")));
         assert!(!has_json_extension(Path::new("resume")));
+    }
+
+    #[test]
+    fn renderer_supplied_resume_file_paths_are_rejected() {
+        let err = reject_renderer_resume_file_path("/Users/jordan/private/resume.pdf").unwrap_err();
+
+        assert!(err.contains("Choose"));
+        assert!(err.contains("Resume"));
     }
 }

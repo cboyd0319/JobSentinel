@@ -244,6 +244,9 @@ export function hasFrontendFileUrlResumeImport(root, path) {
   const text = readFileSync(join(root, path), "utf8");
   return (
     /fetch\(\s*`file:\/\/\$\{filePath\}`\s*\)/.test(text) ||
+    /@tauri-apps\/plugin-dialog[\s\S]{0,900}safeInvokeWithToast\(\s*["'`](?:upload_resume|import_json_resume_file)["'`]/.test(
+      text,
+    ) ||
     /JSON\.parse\(jsonString\)[\s\S]{0,520}safeInvokeWithToast\(\s*["'`]import_json_resume["'`]/.test(
       text,
     )

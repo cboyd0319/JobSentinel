@@ -453,11 +453,12 @@ and record actionable findings in this active-plan surface.
   them with display-safe error text plus a count/type-only argument summary.
   Focused API tests and privacy-logging harness coverage guard against raw
   invoke arguments returning.
-- Latest local structured-resume import work moves JSON Resume file reading
-  out of renderer `file://` fetches and into a Rust command that checks local
-  file type and size before import. Frontend coverage now verifies Windows
-  paths stay usable, and source-quality harness coverage blocks the old fetch
-  path.
+- Latest local resume import boundary work routes PDF and JSON Resume file
+  selection through backend native file-picker commands. The renderer no
+  longer receives or submits raw resume file paths for upload/import, JSON
+  import still checks file type and size before import, PDF uploads copy the
+  selected file into app-owned local storage before parsing, and source-quality
+  coverage rejects renderer-owned file picker imports.
 - Latest local harness-session work fixes `npm run harness:session -- --json`
   so the JSON flag no longer gets treated as the repo root; the normal and
   machine-readable restart snapshots now report the same live repo state.
