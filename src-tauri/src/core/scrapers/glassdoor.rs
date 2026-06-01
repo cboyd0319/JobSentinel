@@ -489,7 +489,7 @@ mod tests {
 
     #[test]
     fn test_scraper_name() {
-        let scraper = GlassdoorScraper::new("rust".to_string(), None, 10);
+        let scraper = GlassdoorScraper::new("care coordinator".to_string(), None, 10);
         assert_eq!(scraper.name(), "glassdoor");
     }
 
@@ -519,13 +519,13 @@ mod tests {
     fn test_compute_hash_deterministic() {
         let hash1 = GlassdoorScraper::compute_hash(
             "Company",
-            "Engineer",
+            "Program Coordinator",
             Some("NYC"),
             "https://glassdoor.com/job/123",
         );
         let hash2 = GlassdoorScraper::compute_hash(
             "Company",
-            "Engineer",
+            "Program Coordinator",
             Some("NYC"),
             "https://glassdoor.com/job/123",
         );
@@ -573,23 +573,23 @@ mod tests {
 
         let data = serde_json::json!({
             "@type": "JobPosting",
-            "title": "Software Engineer",
+            "title": "Customer Support Manager",
             "url": "https://glassdoor.com/job/123",
             "hiringOrganization": {
-                "name": "TechCorp"
+                "name": "FreshMart"
             },
             "jobLocation": {
                 "address": {
                     "addressLocality": "San Francisco"
                 }
             },
-            "description": "Build amazing products"
+            "description": "Support customer care operations"
         });
 
         let job = scraper.json_ld_to_job(&data).unwrap();
 
-        assert_eq!(job.title, "Software Engineer");
-        assert_eq!(job.company, "TechCorp");
+        assert_eq!(job.title, "Customer Support Manager");
+        assert_eq!(job.company, "FreshMart");
         assert_eq!(job.location, Some("San Francisco".to_string()));
         assert_eq!(job.source, "glassdoor");
     }

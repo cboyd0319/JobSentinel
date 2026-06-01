@@ -520,14 +520,14 @@ mod tests {
     #[test]
     fn test_builder_methods() {
         let scraper = UsaJobsScraper::new("key".to_string(), "email".to_string())
-            .with_keywords("software engineer")
+            .with_keywords("public health analyst")
             .with_location("Washington, DC", Some(25))
             .remote_only()
             .with_pay_grade(Some(11), Some(14))
             .posted_within_days(7)
             .with_limit(50);
 
-        assert_eq!(scraper.keywords, Some("software engineer".to_string()));
+        assert_eq!(scraper.keywords, Some("public health analyst".to_string()));
         assert_eq!(scraper.location, Some("Washington, DC".to_string()));
         assert_eq!(scraper.radius, Some(25));
         assert!(scraper.remote_only);
@@ -562,7 +562,7 @@ mod tests {
     #[test]
     fn test_build_query_params_full() {
         let scraper = UsaJobsScraper::new("key".to_string(), "email".to_string())
-            .with_keywords("developer")
+            .with_keywords("program coordinator")
             .with_location("Denver, CO", Some(50))
             .remote_only()
             .with_pay_grade(Some(12), Some(15))
@@ -572,7 +572,7 @@ mod tests {
 
         assert!(params
             .iter()
-            .any(|(k, v)| *k == "Keyword" && v == "developer"));
+            .any(|(k, v)| *k == "Keyword" && v == "program coordinator"));
         assert!(params
             .iter()
             .any(|(k, v)| *k == "LocationName" && v == "Denver, CO"));
@@ -591,14 +591,14 @@ mod tests {
     #[test]
     fn test_compute_hash_deterministic() {
         let hash1 = UsaJobsScraper::compute_hash(
-            "Department of Defense",
-            "Software Engineer",
+            "Department of Health and Human Services",
+            "Public Health Analyst",
             Some("Washington, DC"),
             "https://www.usajobs.gov/job/123456",
         );
         let hash2 = UsaJobsScraper::compute_hash(
-            "Department of Defense",
-            "Software Engineer",
+            "Department of Health and Human Services",
+            "Public Health Analyst",
             Some("Washington, DC"),
             "https://www.usajobs.gov/job/123456",
         );
@@ -609,10 +609,18 @@ mod tests {
 
     #[test]
     fn test_compute_hash_unique() {
-        let hash1 =
-            UsaJobsScraper::compute_hash("DOD", "Engineer", Some("DC"), "https://usajobs.gov/1");
-        let hash2 =
-            UsaJobsScraper::compute_hash("DOD", "Analyst", Some("DC"), "https://usajobs.gov/2");
+        let hash1 = UsaJobsScraper::compute_hash(
+            "City Health Department",
+            "Care Coordinator",
+            Some("DC"),
+            "https://usajobs.gov/1",
+        );
+        let hash2 = UsaJobsScraper::compute_hash(
+            "City Health Department",
+            "Public Health Analyst",
+            Some("DC"),
+            "https://usajobs.gov/2",
+        );
 
         assert_ne!(hash1, hash2);
     }
@@ -682,11 +690,12 @@ mod tests {
 
     #[test]
     fn test_api_error_message_does_not_echo_response_body() {
-        let body = r#"{"error":"No results for Secret Security Role in Private City, CO"}"#;
+        let body =
+            r#"{"error":"No results for Hidden Program Coordinator Role in Private City, CO"}"#;
         let message = UsaJobsScraper::api_error_message(400, Some(body.chars().count()));
 
-        assert_eq!(message, "USAJobs API error: 400 (response_body_chars: 67)");
-        assert!(!message.contains("Secret Security Role"));
+        assert_eq!(message, "USAJobs API error: 400 (response_body_chars: 78)");
+        assert!(!message.contains("Hidden Program Coordinator Role"));
         assert!(!message.contains("Private City"));
     }
 
@@ -705,11 +714,11 @@ mod tests {
         let item = SearchResultItem {
             matched_object_id: "123456".to_string(),
             matched_object_descriptor: JobDescriptor {
-                position_title: "IT Specialist".to_string(),
+                position_title: "Public Health Analyst".to_string(),
                 position_uri: "https://www.usajobs.gov/job/123456".to_string(),
                 position_location_display: "Washington, DC".to_string(),
-                organization_name: "Defense Information Systems Agency".to_string(),
-                department_name: "Department of Defense".to_string(),
+                organization_name: "Centers for Medicare & Medicaid Services".to_string(),
+                department_name: "Department of Health and Human Services".to_string(),
                 position_remuneration: vec![Remuneration {
                     minimum_range: "100000".to_string(),
                     maximum_range: "130000".to_string(),
@@ -717,7 +726,7 @@ mod tests {
                 }],
                 user_area: Some(UserArea {
                     details: Some(JobDetails {
-                        job_summary: Some("Support IT systems".to_string()),
+                        job_summary: Some("Support community health programs".to_string()),
                         major_duties: None,
                     }),
                 }),
@@ -726,13 +735,16 @@ mod tests {
 
         let job = scraper.parse_job(&item).unwrap();
 
-        assert_eq!(job.title, "IT Specialist");
-        assert_eq!(job.company, "Defense Information Systems Agency");
+        assert_eq!(job.title, "Public Health Analyst");
+        assert_eq!(job.company, "Centers for Medicare & Medicaid Services");
         assert_eq!(job.url, "https://www.usajobs.gov/job/123456");
         assert_eq!(job.location, Some("Washington, DC".to_string()));
         assert_eq!(job.salary_min, Some(100000));
         assert_eq!(job.salary_max, Some(130000));
-        assert_eq!(job.description, Some("Support IT systems".to_string()));
+        assert_eq!(
+            job.description,
+            Some("Support community health programs".to_string())
+        );
         assert_eq!(job.source, "usajobs");
         assert_eq!(job.currency, Some("USD".to_string()));
     }
@@ -744,11 +756,11 @@ mod tests {
         let item = SearchResultItem {
             matched_object_id: "789".to_string(),
             matched_object_descriptor: JobDescriptor {
-                position_title: "Remote Developer".to_string(),
+                position_title: "Remote Program Coordinator".to_string(),
                 position_uri: "https://www.usajobs.gov/job/789".to_string(),
                 position_location_display: "Anywhere in the U.S. (remote job)".to_string(),
-                organization_name: "GSA".to_string(),
-                department_name: "General Services Administration".to_string(),
+                organization_name: "Administration for Community Living".to_string(),
+                department_name: "Department of Health and Human Services".to_string(),
                 position_remuneration: vec![],
                 user_area: None,
             },
@@ -806,7 +818,7 @@ mod tests {
         let item = SearchResultItem {
             matched_object_id: "888".to_string(),
             matched_object_descriptor: JobDescriptor {
-                position_title: "Engineer".to_string(),
+                position_title: "Inventory Planner".to_string(),
                 position_uri: "".to_string(),
                 position_location_display: "DC".to_string(),
                 organization_name: "Test".to_string(),

@@ -358,7 +358,7 @@ pub async fn get_with_retry_cached(url: &str, use_cache: bool) -> Result<String>
 /// ```ignore
 /// use crate::core::scrapers::http_client::post_with_retry;
 ///
-/// let body = serde_json::json!({"query": "rust developer"});
+/// let body = serde_json::json!({"query": "care coordinator"});
 /// let response = post_with_retry("https://example.com/api/search", body).await?;
 /// ```
 pub async fn post_with_retry<T: serde::Serialize + Send + Sync>(

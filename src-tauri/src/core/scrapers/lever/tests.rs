@@ -4,49 +4,67 @@ use super::*;
 #[test]
 fn test_infer_remote_from_title_remote() {
     assert!(LeverScraper::infer_remote(
-        "Software Engineer (Remote)",
+        "Care Coordinator (Remote)",
         None
     ));
     assert!(LeverScraper::infer_remote(
-        "REMOTE - Backend Developer",
+        "REMOTE - Program Coordinator",
         None
     ));
-    assert!(LeverScraper::infer_remote("DevOps Engineer - remote", None));
+    assert!(LeverScraper::infer_remote(
+        "Inventory Planner - remote",
+        None
+    ));
 }
 
 #[test]
 fn test_infer_remote_from_title_wfh() {
     assert!(LeverScraper::infer_remote(
-        "Frontend Dev (Work From Home)",
+        "Program Coordinator (Work From Home)",
         None
     ));
-    assert!(LeverScraper::infer_remote("WFH - Data Engineer", None));
+    assert!(LeverScraper::infer_remote(
+        "WFH - Public Health Analyst",
+        None
+    ));
 }
 
 #[test]
 fn test_infer_remote_from_location_remote() {
     assert!(LeverScraper::infer_remote(
-        "Backend Developer",
+        "Program Coordinator",
         Some("Remote")
     ));
-    assert!(LeverScraper::infer_remote("Engineer", Some("Remote - US")));
-    assert!(LeverScraper::infer_remote("Developer", Some("REMOTE")));
+    assert!(LeverScraper::infer_remote(
+        "Care Coordinator",
+        Some("Remote - US")
+    ));
+    assert!(LeverScraper::infer_remote(
+        "Inventory Planner",
+        Some("REMOTE")
+    ));
 }
 
 #[test]
 fn test_infer_remote_from_location_anywhere() {
-    assert!(LeverScraper::infer_remote("Engineer", Some("Anywhere")));
     assert!(LeverScraper::infer_remote(
-        "Developer",
+        "Care Coordinator",
+        Some("Anywhere")
+    ));
+    assert!(LeverScraper::infer_remote(
+        "Program Coordinator",
         Some("anywhere in USA")
     ));
 }
 
 #[test]
 fn test_infer_remote_from_location_worldwide() {
-    assert!(LeverScraper::infer_remote("Engineer", Some("Worldwide")));
     assert!(LeverScraper::infer_remote(
-        "Developer",
+        "Public Health Analyst",
+        Some("Worldwide")
+    ));
+    assert!(LeverScraper::infer_remote(
+        "Inventory Planner",
         Some("worldwide - remote")
     ));
 }
@@ -54,43 +72,49 @@ fn test_infer_remote_from_location_worldwide() {
 #[test]
 fn test_infer_remote_false_for_onsite() {
     assert!(!LeverScraper::infer_remote(
-        "Frontend Engineer",
+        "Customer Support Manager",
         Some("San Francisco")
     ));
     assert!(!LeverScraper::infer_remote(
-        "Backend Dev",
+        "Program Coordinator",
         Some("New York, NY")
     ));
-    assert!(!LeverScraper::infer_remote("DevOps", Some("Seattle")));
+    assert!(!LeverScraper::infer_remote(
+        "Inventory Planner",
+        Some("Seattle")
+    ));
 }
 
 #[test]
 fn test_infer_remote_false_no_indicators() {
-    assert!(!LeverScraper::infer_remote("Software Engineer", None));
+    assert!(!LeverScraper::infer_remote("Care Coordinator", None));
     assert!(!LeverScraper::infer_remote(
-        "Data Scientist",
+        "Inventory Planner",
         Some("Boston")
     ));
 }
 
 #[test]
 fn test_infer_remote_case_insensitive() {
-    assert!(LeverScraper::infer_remote("Engineer (REMOTE)", None));
-    assert!(LeverScraper::infer_remote("Dev", Some("ReMoTe")));
+    assert!(LeverScraper::infer_remote(
+        "Care Coordinator (REMOTE)",
+        None
+    ));
+    assert!(LeverScraper::infer_remote("Planner", Some("ReMoTe")));
 }
 
 // Hash computation tests
 #[test]
 fn test_compute_hash_deterministic() {
     let hash1 = LeverScraper::compute_hash(
-        "Shopify",
-        "Engineer",
+        "FreshMart",
+        "Care Coordinator",
         Some("Remote"),
         "https://example.com/1",
     );
     let hash2 = LeverScraper::compute_hash(
-        "Shopify",
-        "Engineer",
+        "FreshMart",
+        "Care Coordinator",
         Some("Remote"),
         "https://example.com/1",
     );
@@ -101,8 +125,18 @@ fn test_compute_hash_deterministic() {
 
 #[test]
 fn test_compute_hash_different_company() {
-    let hash1 = LeverScraper::compute_hash("Shopify", "Engineer", None, "https://example.com/1");
-    let hash2 = LeverScraper::compute_hash("Netflix", "Engineer", None, "https://example.com/1");
+    let hash1 = LeverScraper::compute_hash(
+        "FreshMart",
+        "Care Coordinator",
+        None,
+        "https://example.com/1",
+    );
+    let hash2 = LeverScraper::compute_hash(
+        "Community Care Network",
+        "Care Coordinator",
+        None,
+        "https://example.com/1",
+    );
 
     assert_ne!(
         hash1, hash2,
@@ -114,12 +148,16 @@ fn test_compute_hash_different_company() {
 fn test_compute_hash_different_title() {
     let hash1 = LeverScraper::compute_hash(
         "Company",
-        "Frontend Engineer",
+        "Customer Support Manager",
         None,
         "https://example.com/1",
     );
-    let hash2 =
-        LeverScraper::compute_hash("Company", "Backend Engineer", None, "https://example.com/1");
+    let hash2 = LeverScraper::compute_hash(
+        "Company",
+        "Inventory Planner",
+        None,
+        "https://example.com/1",
+    );
 
     assert_ne!(
         hash1, hash2,
@@ -131,12 +169,16 @@ fn test_compute_hash_different_title() {
 fn test_compute_hash_different_location() {
     let hash1 = LeverScraper::compute_hash(
         "Company",
-        "Engineer",
+        "Care Coordinator",
         Some("Remote"),
         "https://example.com/1",
     );
-    let hash2 =
-        LeverScraper::compute_hash("Company", "Engineer", Some("SF"), "https://example.com/1");
+    let hash2 = LeverScraper::compute_hash(
+        "Company",
+        "Care Coordinator",
+        Some("SF"),
+        "https://example.com/1",
+    );
 
     assert_ne!(
         hash1, hash2,
@@ -146,10 +188,11 @@ fn test_compute_hash_different_location() {
 
 #[test]
 fn test_compute_hash_location_none_vs_some() {
-    let hash1 = LeverScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
+    let hash1 =
+        LeverScraper::compute_hash("Company", "Care Coordinator", None, "https://example.com/1");
     let hash2 = LeverScraper::compute_hash(
         "Company",
-        "Engineer",
+        "Care Coordinator",
         Some("Remote"),
         "https://example.com/1",
     );
@@ -159,8 +202,10 @@ fn test_compute_hash_location_none_vs_some() {
 
 #[test]
 fn test_compute_hash_different_url() {
-    let hash1 = LeverScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
-    let hash2 = LeverScraper::compute_hash("Company", "Engineer", None, "https://example.com/2");
+    let hash1 =
+        LeverScraper::compute_hash("Company", "Care Coordinator", None, "https://example.com/1");
+    let hash2 =
+        LeverScraper::compute_hash("Company", "Care Coordinator", None, "https://example.com/2");
 
     assert_ne!(hash1, hash2, "Different URL should produce different hash");
 }
@@ -179,7 +224,7 @@ fn test_compute_hash_empty_strings() {
 fn test_compute_hash_special_characters() {
     let hash = LeverScraper::compute_hash(
         "Company™",
-        "Senior Engineer (Remote) 🚀",
+        "Senior Care Coordinator (Remote) 🚀",
         Some("San Francisco, CA"),
         "https://jobs.lever.co/company/job-id?ref=test&utm_source=linkedin",
     );
@@ -199,30 +244,30 @@ fn test_company_scrape_failure_copy_omits_company_and_error_detail() {
     assert!(!COMPANY_SCRAPE_FAILED.contains("{}"));
     assert!(!COMPANY_SCRAPE_FAILED.contains("https://"));
     assert!(!COMPANY_SCRAPE_FAILED.contains("secret"));
-    assert!(!COMPANY_SCRAPE_FAILED.contains("Netflix"));
+    assert!(!COMPANY_SCRAPE_FAILED.contains("Community Care Network"));
 }
 
 #[test]
 fn test_new_scraper_with_companies() {
     let companies = vec![
         LeverCompany {
-            id: "shopify".to_string(),
-            name: "Shopify".to_string(),
-            url: "https://jobs.lever.co/shopify".to_string(),
+            id: "freshmart".to_string(),
+            name: "FreshMart".to_string(),
+            url: "https://jobs.lever.co/freshmart".to_string(),
         },
         LeverCompany {
-            id: "netflix".to_string(),
-            name: "Netflix".to_string(),
-            url: "https://jobs.lever.co/netflix".to_string(),
+            id: "community-care-network".to_string(),
+            name: "Community Care Network".to_string(),
+            url: "https://jobs.lever.co/community-care-network".to_string(),
         },
     ];
 
     let scraper = LeverScraper::new(companies.clone());
 
     assert_eq!(scraper.companies.len(), 2);
-    assert_eq!(scraper.companies[0].name, "Shopify");
-    assert_eq!(scraper.companies[1].name, "Netflix");
-    assert_eq!(scraper.companies[0].id, "shopify");
+    assert_eq!(scraper.companies[0].name, "FreshMart");
+    assert_eq!(scraper.companies[1].name, "Community Care Network");
+    assert_eq!(scraper.companies[0].id, "freshmart");
 }
 
 #[test]
@@ -236,22 +281,22 @@ fn test_parse_response_single_job() {
     let json_data = r#"
     [
         {
-            "text": "Senior Backend Engineer",
-            "hostedUrl": "https://jobs.lever.co/shopify/abc123",
+            "text": "Senior Public Health Analyst",
+            "hostedUrl": "https://jobs.lever.co/city-health-department/abc123",
             "categories": {
                 "location": "Remote",
-                "team": "Engineering"
+                "team": "Community Care"
             },
-            "description": "<p>Join our backend team</p>",
-            "descriptionPlain": "Join our backend team"
+            "description": "<p>Join our care coordination team</p>",
+            "descriptionPlain": "Join our care coordination team"
         }
     ]
     "#;
 
     let _scraper = LeverScraper::new(vec![LeverCompany {
-        id: "shopify".to_string(),
-        name: "Shopify".to_string(),
-        url: "https://jobs.lever.co/shopify".to_string(),
+        id: "city-health-department".to_string(),
+        name: "City Health Department".to_string(),
+        url: "https://jobs.lever.co/city-health-department".to_string(),
     }]);
 
     let parsed: serde_json::Value = serde_json::from_str(json_data).unwrap();
@@ -264,8 +309,8 @@ fn test_parse_response_single_job() {
         let url = posting["hostedUrl"].as_str().unwrap();
         let location = posting["categories"]["location"].as_str();
 
-        assert_eq!(title, "Senior Backend Engineer");
-        assert_eq!(url, "https://jobs.lever.co/shopify/abc123");
+        assert_eq!(title, "Senior Public Health Analyst");
+        assert_eq!(url, "https://jobs.lever.co/city-health-department/abc123");
         assert_eq!(location, Some("Remote"));
     }
 }
@@ -275,22 +320,22 @@ fn test_parse_response_multiple_jobs() {
     let json_data = r#"
     [
         {
-            "text": "Frontend Engineer",
-            "hostedUrl": "https://jobs.lever.co/netflix/job1",
+            "text": "Customer Support Manager",
+            "hostedUrl": "https://jobs.lever.co/community-care-network/job1",
             "categories": {
-                "location": "Los Gatos, CA"
+                "location": "Chicago, IL"
             }
         },
         {
-            "text": "Platform Engineer",
-            "hostedUrl": "https://jobs.lever.co/netflix/job2",
+            "text": "Inventory Planner",
+            "hostedUrl": "https://jobs.lever.co/community-care-network/job2",
             "categories": {
-                "team": "Infrastructure"
+                "team": "Regional Support"
             }
         },
         {
-            "text": "DevOps Engineer",
-            "hostedUrl": "https://jobs.lever.co/netflix/job3",
+            "text": "Program Coordinator",
+            "hostedUrl": "https://jobs.lever.co/community-care-network/job3",
             "categories": {
                 "location": "Remote - US"
             }
@@ -303,21 +348,24 @@ fn test_parse_response_multiple_jobs() {
     if let Some(postings) = parsed.as_array() {
         assert_eq!(postings.len(), 3);
 
-        assert_eq!(postings[0]["text"].as_str(), Some("Frontend Engineer"));
-        assert_eq!(postings[1]["text"].as_str(), Some("Platform Engineer"));
-        assert_eq!(postings[2]["text"].as_str(), Some("DevOps Engineer"));
+        assert_eq!(
+            postings[0]["text"].as_str(),
+            Some("Customer Support Manager")
+        );
+        assert_eq!(postings[1]["text"].as_str(), Some("Inventory Planner"));
+        assert_eq!(postings[2]["text"].as_str(), Some("Program Coordinator"));
 
         // First has location in categories.location
         assert_eq!(
             postings[0]["categories"]["location"].as_str(),
-            Some("Los Gatos, CA")
+            Some("Chicago, IL")
         );
 
         // Second has team instead of location
         assert_eq!(postings[1]["categories"]["location"].as_str(), None);
         assert_eq!(
             postings[1]["categories"]["team"].as_str(),
-            Some("Infrastructure")
+            Some("Regional Support")
         );
 
         // Third has remote location
@@ -343,14 +391,14 @@ fn test_parse_response_missing_fields() {
     let json_data = r#"
     [
         {
-            "text": "Engineer",
+            "text": "Care Coordinator",
             "hostedUrl": "https://jobs.lever.co/company/job1"
         },
         {
             "hostedUrl": "https://jobs.lever.co/company/job2"
         },
         {
-            "text": "Developer"
+            "text": "Program Coordinator"
         },
         {
             "text": "",
@@ -436,25 +484,25 @@ fn test_parse_response_with_description_variants() {
 fn test_infer_remote_from_combined_indicators() {
     // Both title and location indicate remote
     assert!(LeverScraper::infer_remote(
-        "Remote Senior Engineer",
+        "Remote Senior Care Coordinator",
         Some("Remote - Global")
     ));
 
     // Title says remote, location doesn't
     assert!(LeverScraper::infer_remote(
-        "Remote Engineer",
+        "Remote Program Coordinator",
         Some("San Francisco")
     ));
 
     // Location says remote, title doesn't
     assert!(LeverScraper::infer_remote(
-        "Senior Engineer",
+        "Senior Public Health Analyst",
         Some("Remote - US")
     ));
 
     // Neither indicates remote
     assert!(!LeverScraper::infer_remote(
-        "Senior Engineer",
+        "Senior Public Health Analyst",
         Some("New York, NY")
     ));
 }
@@ -466,29 +514,29 @@ fn test_infer_remote_edge_cases() {
 
     // Multiple remote indicators
     assert!(LeverScraper::infer_remote(
-        "Remote Work From Home Engineer",
+        "Remote Work From Home Care Coordinator",
         Some("Anywhere")
     ));
 
     // Empty location
-    assert!(!LeverScraper::infer_remote("Engineer", Some("")));
+    assert!(!LeverScraper::infer_remote("Care Coordinator", Some("")));
 
     // None location with non-remote title
-    assert!(!LeverScraper::infer_remote("Senior Engineer", None));
+    assert!(!LeverScraper::infer_remote("Senior Care Coordinator", None));
 }
 
 #[test]
 fn test_api_url_construction() {
     let companies = vec![
         LeverCompany {
-            id: "shopify".to_string(),
-            name: "Shopify".to_string(),
-            url: "https://jobs.lever.co/shopify".to_string(),
+            id: "freshmart".to_string(),
+            name: "FreshMart".to_string(),
+            url: "https://jobs.lever.co/freshmart".to_string(),
         },
         LeverCompany {
-            id: "netflix".to_string(),
-            name: "Netflix".to_string(),
-            url: "https://jobs.lever.co/netflix".to_string(),
+            id: "community-care-network".to_string(),
+            name: "Community Care Network".to_string(),
+            url: "https://jobs.lever.co/community-care-network".to_string(),
         },
     ];
 
@@ -501,10 +549,10 @@ fn test_api_url_construction() {
 
 #[test]
 fn test_hash_with_json_data() {
-    let company = "Shopify";
-    let title = "Senior Backend Engineer";
+    let company = "FreshMart";
+    let title = "Senior Public Health Analyst";
     let location = Some("Remote");
-    let url = "https://jobs.lever.co/shopify/abc123";
+    let url = "https://jobs.lever.co/freshmart/abc123";
 
     let hash = LeverScraper::compute_hash(company, title, location, url);
 
@@ -518,19 +566,19 @@ fn test_hash_remote_locations_normalized() {
     // so they should produce the SAME hash (improved deduplication)
     let hash1 = LeverScraper::compute_hash(
         "Company",
-        "Engineer",
+        "Care Coordinator",
         Some("Remote"),
         "https://example.com/1",
     );
     let hash2 = LeverScraper::compute_hash(
         "Company",
-        "Engineer",
+        "Care Coordinator",
         Some("Remote - US"),
         "https://example.com/1",
     );
     let hash3 = LeverScraper::compute_hash(
         "Company",
-        "Engineer",
+        "Care Coordinator",
         Some("Remote - Global"),
         "https://example.com/1",
     );
@@ -583,11 +631,11 @@ fn test_parse_response_filters_empty_url() {
     let json_data = r#"
     [
         {
-            "text": "Engineer",
+            "text": "Care Coordinator",
             "hostedUrl": ""
         },
         {
-            "text": "Developer",
+            "text": "Program Coordinator",
             "hostedUrl": "https://jobs.lever.co/company/job2"
         }
     ]
@@ -676,11 +724,11 @@ fn test_parse_response_nested_categories() {
     let json_data = r#"
     [
         {
-            "text": "Engineer",
+            "text": "Care Coordinator",
             "hostedUrl": "https://jobs.lever.co/company/1",
             "categories": {
                 "location": "Remote",
-                "team": "Engineering",
+                "team": "Community Care",
                 "commitment": "Full-time"
             }
         }
@@ -698,7 +746,7 @@ fn test_parse_response_nested_categories() {
 
         // Test team fallback availability
         let team = posting["categories"]["team"].as_str();
-        assert_eq!(team, Some("Engineering"));
+        assert_eq!(team, Some("Community Care"));
     }
 }
 
@@ -707,7 +755,7 @@ fn test_parse_response_null_categories() {
     let json_data = r#"
     [
         {
-            "text": "Engineer",
+            "text": "Care Coordinator",
             "hostedUrl": "https://jobs.lever.co/company/1",
             "categories": null
         }
@@ -788,31 +836,40 @@ fn test_infer_remote_partial_word_matches() {
 #[test]
 fn test_infer_remote_location_variations() {
     // Various remote location formats
-    assert!(LeverScraper::infer_remote("Engineer", Some("Remote (US)")));
     assert!(LeverScraper::infer_remote(
-        "Engineer",
+        "Care Coordinator",
+        Some("Remote (US)")
+    ));
+    assert!(LeverScraper::infer_remote(
+        "Care Coordinator",
         Some("Remote/Hybrid")
     ));
-    assert!(LeverScraper::infer_remote("Engineer", Some("100% Remote")));
-    assert!(LeverScraper::infer_remote("Engineer", Some("REMOTE FIRST")));
+    assert!(LeverScraper::infer_remote(
+        "Care Coordinator",
+        Some("100% Remote")
+    ));
+    assert!(LeverScraper::infer_remote(
+        "Care Coordinator",
+        Some("REMOTE FIRST")
+    ));
 
     // Worldwide variations
     assert!(LeverScraper::infer_remote(
-        "Engineer",
+        "Care Coordinator",
         Some("Worldwide Remote")
     ));
     assert!(LeverScraper::infer_remote(
-        "Engineer",
+        "Care Coordinator",
         Some("Global/Worldwide")
     ));
 
     // Anywhere variations
     assert!(LeverScraper::infer_remote(
-        "Engineer",
+        "Care Coordinator",
         Some("Work from Anywhere")
     ));
     assert!(LeverScraper::infer_remote(
-        "Engineer",
+        "Care Coordinator",
         Some("Anywhere in Europe")
     ));
 }
@@ -821,7 +878,7 @@ fn test_infer_remote_location_variations() {
 fn test_hash_consistency_across_runs() {
     // Generate hash multiple times to ensure consistency
     let company = "Test Company™";
-    let title = "Senior Engineer (Remote) 🚀";
+    let title = "Senior Care Coordinator (Remote) 🚀";
     let location = Some("San Francisco, CA");
     let url = "https://jobs.lever.co/test/abc123?ref=linkedin";
 
@@ -841,19 +898,19 @@ fn test_hash_with_query_parameters_normalized() {
     // so URLs that differ only in tracking params should produce the SAME hash
     let hash1 = LeverScraper::compute_hash(
         "Company",
-        "Engineer",
+        "Care Coordinator",
         None,
         "https://jobs.lever.co/company/job?ref=linkedin",
     );
     let hash2 = LeverScraper::compute_hash(
         "Company",
-        "Engineer",
+        "Care Coordinator",
         None,
         "https://jobs.lever.co/company/job?ref=twitter",
     );
     let hash3 = LeverScraper::compute_hash(
         "Company",
-        "Engineer",
+        "Care Coordinator",
         None,
         "https://jobs.lever.co/company/job",
     );
@@ -896,7 +953,7 @@ fn test_company_struct_debug() {
 fn test_infer_remote_empty_strings() {
     assert!(!LeverScraper::infer_remote("", None));
     assert!(!LeverScraper::infer_remote("", Some("")));
-    assert!(!LeverScraper::infer_remote("Engineer", Some("")));
+    assert!(!LeverScraper::infer_remote("Care Coordinator", Some("")));
 }
 
 #[test]
@@ -904,23 +961,23 @@ fn test_infer_remote_false_positives_prevention() {
     // Current implementation matches "remote" anywhere in the string
     // This is a known limitation - any "remote" substring matches
     assert!(LeverScraper::infer_remote(
-        "Engineer",
+        "Care Coordinator",
         Some("Remote Street, Boston")
     ));
 
     // Should match if it's clearly about work arrangement
     assert!(LeverScraper::infer_remote(
-        "Engineer",
+        "Care Coordinator",
         Some("Remote - Boston preferred")
     ));
 
     // Location names that definitely aren't remote work
     assert!(!LeverScraper::infer_remote(
-        "Engineer",
+        "Care Coordinator",
         Some("Paris, France")
     ));
     assert!(!LeverScraper::infer_remote(
-        "Engineer",
+        "Care Coordinator",
         Some("Downtown NYC")
     ));
 }
@@ -967,10 +1024,10 @@ fn test_parse_response_location_fallback_to_team() {
     let json_data = r#"
     [
         {
-            "text": "Engineer",
+            "text": "Care Coordinator",
             "hostedUrl": "https://jobs.lever.co/company/job1",
             "categories": {
-                "team": "Platform Team"
+                "team": "Care Operations Team"
             }
         }
     ]
@@ -991,7 +1048,7 @@ fn test_parse_response_location_fallback_to_team() {
                     .map(|s| s.to_string())
             });
 
-        assert_eq!(location, Some("Platform Team".to_string()));
+        assert_eq!(location, Some("Care Operations Team".to_string()));
     }
 }
 
@@ -1000,12 +1057,12 @@ fn test_parse_response_special_characters_in_json() {
     let json_data = r#"
     [
         {
-            "text": "Senior Engineer (Backend) - 🚀",
+            "text": "Senior Program Coordinator (Regional) - 🚀",
             "hostedUrl": "https://jobs.lever.co/company™/job-id",
             "categories": {
                 "location": "San Francisco, CA / Remote"
             },
-            "description": "We're looking for a <strong>talented</strong> engineer!"
+            "description": "We're looking for a <strong>talented</strong> program coordinator!"
         }
     ]
     "#;
@@ -1047,22 +1104,22 @@ async fn test_scrape_company_creates_jobs_from_api_response() {
     // but we can test the JSON processing logic that it uses
     let json_response = serde_json::json!([
         {
-            "text": "Senior Backend Engineer",
+            "text": "Senior Public Health Analyst",
             "hostedUrl": "https://jobs.lever.co/test-company/job1",
             "categories": {
                 "location": "Remote",
-                "team": "Engineering"
+                "team": "Community Care"
             },
-            "description": "<p>Join our backend team</p>",
-            "descriptionPlain": "Join our backend team"
+            "description": "<p>Join our care coordination team</p>",
+            "descriptionPlain": "Join our care coordination team"
         },
         {
-            "text": "Frontend Developer",
+            "text": "Customer Support Manager",
             "hostedUrl": "https://jobs.lever.co/test-company/job2",
             "categories": {
                 "location": "San Francisco, CA"
             },
-            "descriptionPlain": "Build great UIs"
+            "descriptionPlain": "Support neighbors across multiple channels"
         },
         {
             "text": "",
@@ -1138,13 +1195,13 @@ async fn test_scrape_company_creates_jobs_from_api_response() {
     );
 
     // Validate first job
-    assert_eq!(jobs[0].title, "Senior Backend Engineer");
+    assert_eq!(jobs[0].title, "Senior Public Health Analyst");
     assert_eq!(jobs[0].company, "Test Company");
     assert_eq!(jobs[0].url, "https://jobs.lever.co/test-company/job1");
     assert_eq!(jobs[0].location, Some("Remote".to_string()));
     assert_eq!(
         jobs[0].description,
-        Some("<p>Join our backend team</p>".to_string())
+        Some("<p>Join our care coordination team</p>".to_string())
     );
     assert_eq!(jobs[0].source, "lever");
     assert_eq!(jobs[0].remote, Some(true));
@@ -1156,7 +1213,7 @@ async fn test_scrape_company_creates_jobs_from_api_response() {
     assert_eq!(jobs[0].hash.len(), 64);
 
     // Validate second job
-    assert_eq!(jobs[1].title, "Frontend Developer");
+    assert_eq!(jobs[1].title, "Customer Support Manager");
     assert_eq!(jobs[1].company, "Test Company");
     assert_eq!(jobs[1].remote, Some(false));
     assert_eq!(jobs[1].location, Some("San Francisco, CA".to_string()));
@@ -1283,7 +1340,7 @@ async fn test_scrape_with_empty_companies() {
 fn test_job_struct_fields_are_populated_correctly() {
     // Test that Job struct is created with all required fields
     let company_name = "Test Co";
-    let title = "Software Engineer (Remote)";
+    let title = "Care Coordinator (Remote)";
     let location = Some("Remote - US");
     let url = "https://jobs.lever.co/test/abc";
     let description = Some("<p>Description</p>".to_string());
@@ -1321,7 +1378,7 @@ fn test_job_struct_fields_are_populated_correctly() {
         included_in_digest: false,
     };
 
-    assert_eq!(job.title, "Software Engineer (Remote)");
+    assert_eq!(job.title, "Care Coordinator (Remote)");
     assert_eq!(job.company, "Test Co");
     assert_eq!(job.source, "lever");
     assert_eq!(job.remote, Some(true));
@@ -1339,7 +1396,7 @@ fn test_job_struct_with_missing_optional_fields() {
     let job = Job {
         id: 0,
         hash: "test-hash".to_string(),
-        title: "Engineer".to_string(),
+        title: "Care Coordinator".to_string(),
         company: "Company".to_string(),
         url: "https://test.com".to_string(),
         location: None,
@@ -1377,7 +1434,7 @@ fn test_job_struct_with_missing_optional_fields() {
 fn test_description_extraction_priority() {
     // Test description field has priority over descriptionPlain
     let json = serde_json::json!({
-        "text": "Engineer",
+        "text": "Care Coordinator",
         "hostedUrl": "https://test.com/job",
         "description": "<p>HTML description</p>",
         "descriptionPlain": "Plain description"
@@ -1392,7 +1449,7 @@ fn test_description_extraction_priority() {
 
     // Test descriptionPlain fallback
     let json2 = serde_json::json!({
-        "text": "Engineer",
+        "text": "Care Coordinator",
         "hostedUrl": "https://test.com/job",
         "descriptionPlain": "Plain description"
     });
@@ -1411,7 +1468,7 @@ fn test_location_extraction_with_team_fallback() {
     let json = serde_json::json!({
         "categories": {
             "location": "Remote",
-            "team": "Engineering"
+            "team": "Community Care"
         }
     });
 
@@ -1425,7 +1482,7 @@ fn test_location_extraction_with_team_fallback() {
     // Test team fallback when location is missing
     let json2 = serde_json::json!({
         "categories": {
-            "team": "Platform"
+            "team": "Care Operations"
         }
     });
 
@@ -1434,7 +1491,7 @@ fn test_location_extraction_with_team_fallback() {
         .map(|s| s.to_string())
         .or_else(|| json2["categories"]["team"].as_str().map(|s| s.to_string()));
 
-    assert_eq!(location2, Some("Platform".to_string()));
+    assert_eq!(location2, Some("Care Operations".to_string()));
 
     // Test neither field exists
     let json3 = serde_json::json!({
@@ -1452,14 +1509,14 @@ fn test_location_extraction_with_team_fallback() {
 #[test]
 fn test_api_url_format() {
     let company = LeverCompany {
-        id: "shopify".to_string(),
-        name: "Shopify".to_string(),
-        url: "https://jobs.lever.co/shopify".to_string(),
+        id: "freshmart".to_string(),
+        name: "FreshMart".to_string(),
+        url: "https://jobs.lever.co/freshmart".to_string(),
     };
 
     let api_url = format!("https://api.lever.co/v0/postings/{}", company.id);
 
-    assert_eq!(api_url, "https://api.lever.co/v0/postings/shopify");
+    assert_eq!(api_url, "https://api.lever.co/v0/postings/freshmart");
     assert!(api_url.starts_with("https://api.lever.co/v0/postings/"));
 }
 
@@ -1549,15 +1606,15 @@ async fn test_scrape_company_full_job_creation_with_all_fields() {
 
     let json_response = serde_json::json!([
         {
-            "text": "Senior Backend Engineer (Remote)",
+            "text": "Senior Care Coordinator (Remote)",
             "hostedUrl": "https://jobs.lever.co/comprehensive-test/job1",
             "categories": {
                 "location": "Remote - Global",
-                "team": "Engineering",
+                "team": "Community Care",
                 "commitment": "Full-time"
             },
-            "description": "<h1>Join our team</h1><p>We are looking for passionate engineers</p>",
-            "descriptionPlain": "Join our team. We are looking for passionate engineers."
+            "description": "<h1>Join our team</h1><p>We are looking for passionate coordinators</p>",
+            "descriptionPlain": "Join our team. We are looking for passionate coordinators."
         }
     ]);
 
@@ -1623,7 +1680,7 @@ async fn test_scrape_company_full_job_creation_with_all_fields() {
 
         // Verify all fields are set correctly
         let job = &jobs[0];
-        assert_eq!(job.title, "Senior Backend Engineer (Remote)");
+        assert_eq!(job.title, "Senior Care Coordinator (Remote)");
         assert_eq!(job.company, "Comprehensive Test Co");
         assert_eq!(job.url, "https://jobs.lever.co/comprehensive-test/job1");
         assert_eq!(job.location, Some("Remote - Global".to_string()));
@@ -1655,7 +1712,7 @@ async fn test_scrape_company_with_descriptionplain_only() {
 
     let json_response = serde_json::json!([
         {
-            "text": "Engineer",
+            "text": "Program Coordinator",
             "hostedUrl": "https://jobs.lever.co/test/job1",
             "descriptionPlain": "This is a plain text description"
         }
@@ -1687,10 +1744,10 @@ async fn test_scrape_company_with_team_fallback_location() {
 
     let json_response = serde_json::json!([
         {
-            "text": "Platform Engineer",
+            "text": "Inventory Planner",
             "hostedUrl": "https://jobs.lever.co/test/job1",
             "categories": {
-                "team": "Infrastructure Team"
+                "team": "Regional Support Team"
             }
         }
     ]);
@@ -1707,7 +1764,7 @@ async fn test_scrape_company_with_team_fallback_location() {
                     .map(|s| s.to_string())
             });
 
-        assert_eq!(location, Some("Infrastructure Team".to_string()));
+        assert_eq!(location, Some("Regional Support Team".to_string()));
     }
 }
 
@@ -1725,7 +1782,7 @@ async fn test_scrape_company_filters_jobs_with_empty_title() {
             "hostedUrl": "https://jobs.lever.co/test/job1"
         },
         {
-            "text": "Valid Engineer",
+            "text": "Valid Program Coordinator",
             "hostedUrl": "https://jobs.lever.co/test/job2"
         }
     ]);
@@ -1743,18 +1800,18 @@ async fn test_scrape_company_filters_jobs_with_empty_title() {
     }
 
     assert_eq!(jobs.len(), 1);
-    assert_eq!(jobs[0].0, "Valid Engineer");
+    assert_eq!(jobs[0].0, "Valid Program Coordinator");
 }
 
 #[tokio::test]
 async fn test_scrape_company_filters_jobs_with_empty_url() {
     let json_response = serde_json::json!([
         {
-            "text": "Engineer",
+            "text": "Care Coordinator",
             "hostedUrl": ""
         },
         {
-            "text": "Valid Engineer",
+            "text": "Valid Program Coordinator",
             "hostedUrl": "https://jobs.lever.co/test/job2"
         }
     ]);
@@ -1772,7 +1829,7 @@ async fn test_scrape_company_filters_jobs_with_empty_url() {
     }
 
     assert_eq!(jobs.len(), 1);
-    assert_eq!(jobs[0].0, "Valid Engineer");
+    assert_eq!(jobs[0].0, "Valid Program Coordinator");
 }
 
 #[tokio::test]
@@ -1824,12 +1881,12 @@ async fn test_scrape_company_computes_hash_for_each_job() {
 async fn test_scrape_company_infers_remote_for_each_job() {
     let json_response = serde_json::json!([
         {
-            "text": "Remote Engineer",
+            "text": "Remote Care Coordinator",
             "hostedUrl": "https://jobs.lever.co/test/job1",
             "categories": {}
         },
         {
-            "text": "Onsite Engineer",
+            "text": "Onsite Inventory Planner",
             "hostedUrl": "https://jobs.lever.co/test/job2",
             "categories": {
                 "location": "San Francisco, CA"
@@ -1851,8 +1908,8 @@ async fn test_scrape_company_infers_remote_for_each_job() {
     }
 
     assert_eq!(remote_flags.len(), 2);
-    assert!(remote_flags[0]); // Remote Engineer should be remote
-    assert!(!remote_flags[1]); // Onsite Engineer should not be remote
+    assert!(remote_flags[0]); // Remote Care Coordinator should be remote
+    assert!(!remote_flags[1]); // Onsite Inventory Planner should not be remote
 }
 
 #[tokio::test]
@@ -2004,23 +2061,26 @@ async fn test_scrape_with_multiple_companies() {
 #[test]
 fn test_infer_remote_with_work_from_home_in_title() {
     assert!(LeverScraper::infer_remote(
-        "Software Engineer (Work From Home)",
+        "Care Coordinator (Work From Home)",
         None
     ));
     assert!(LeverScraper::infer_remote(
-        "Backend Dev - Work from Home",
+        "Program Coordinator - Work from Home",
         None
     ));
-    assert!(LeverScraper::infer_remote("Work From Home Engineer", None));
+    assert!(LeverScraper::infer_remote(
+        "Work From Home Care Coordinator",
+        None
+    ));
 }
 
 #[test]
 fn test_location_extraction_fallback_chain() {
     let json = serde_json::json!({
-        "text": "Engineer",
+        "text": "Care Coordinator",
         "hostedUrl": "https://jobs.lever.co/company/job1",
         "categories": {
-            "team": "Engineering Team"
+            "team": "Community Care Team"
         }
     });
 
@@ -2030,7 +2090,7 @@ fn test_location_extraction_fallback_chain() {
         .map(|s| s.to_string())
         .or_else(|| json["categories"]["team"].as_str().map(|s| s.to_string()));
 
-    assert_eq!(location, Some("Engineering Team".to_string()));
+    assert_eq!(location, Some("Community Care Team".to_string()));
 }
 
 #[tokio::test]
@@ -2081,19 +2141,19 @@ async fn test_scrape_company_multiple_jobs_all_valid() {
 
     let json_response = serde_json::json!([
         {
-            "text": "Frontend Engineer",
+            "text": "Customer Support Manager",
             "hostedUrl": "https://jobs.lever.co/multi/fe",
             "categories": {"location": "Remote"}
         },
         {
-            "text": "Backend Engineer",
+            "text": "Inventory Planner",
             "hostedUrl": "https://jobs.lever.co/multi/be",
             "categories": {"location": "NYC"}
         },
         {
-            "text": "DevOps Engineer",
-            "hostedUrl": "https://jobs.lever.co/multi/devops",
-            "categories": {"team": "Infrastructure"}
+            "text": "Public Health Analyst",
+            "hostedUrl": "https://jobs.lever.co/multi/public-health",
+            "categories": {"team": "Regional Support"}
         }
     ]);
 
@@ -2165,7 +2225,7 @@ proptest! {
     fn prop_remote_inference_from_location(
         location in "(Remote|remote|REMOTE|Anywhere|anywhere|Worldwide|worldwide)",
     ) {
-        prop_assert!(LeverScraper::infer_remote("Engineer", Some(&location)));
+        prop_assert!(LeverScraper::infer_remote("Care Coordinator", Some(&location)));
     }
 
     /// Property: Non-remote titles don't trigger false positives

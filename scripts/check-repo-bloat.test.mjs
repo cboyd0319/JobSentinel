@@ -511,6 +511,34 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src-tauri/src/core/scrapers/jobswithgpt.rs",
+      [
+        'titles: vec!["Rust Developer".to_string()],',
+        '"company": "TechCorp",',
+        "",
+      ].join("\n"),
+    );
+    for (const path of [
+      "src-tauri/src/core/scrapers/glassdoor.rs",
+      "src-tauri/src/core/scrapers/greenhouse.rs",
+      "src-tauri/src/core/scrapers/http_client.rs",
+      "src-tauri/src/core/scrapers/lever/tests.rs",
+      "src-tauri/src/core/scrapers/usajobs.rs",
+      "src-tauri/src/core/scrapers/weworkremotely.rs",
+    ]) {
+      writeFixtureFile(
+        root,
+        path,
+        [
+          '"title": "Software Engineer",',
+          '"company": "TechCorp",',
+          'let query = "rust developer";',
+          "",
+        ].join("\n"),
+      );
+    }
+    writeFixtureFile(
+      root,
       "src/mocks/handlers.ts",
       [
         '"TypeScript demand is surging"',
@@ -948,7 +976,14 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src-tauri/src/commands/import.rs",
         "src-tauri/src/commands/tests.rs",
         "src-tauri/src/core/market_intelligence/tests.rs",
+        "src-tauri/src/core/scrapers/glassdoor.rs",
+        "src-tauri/src/core/scrapers/greenhouse.rs",
+        "src-tauri/src/core/scrapers/http_client.rs",
+        "src-tauri/src/core/scrapers/jobswithgpt.rs",
+        "src-tauri/src/core/scrapers/lever/tests.rs",
         "src-tauri/src/core/scrapers/simplyhired.rs",
+        "src-tauri/src/core/scrapers/usajobs.rs",
+        "src-tauri/src/core/scrapers/weworkremotely.rs",
         "src-tauri/tests/api_contract_test.rs",
         "src-tauri/tests/database_integration_test.rs",
         "src-tauri/tests/scraper_integration_test.rs",
@@ -1038,7 +1073,14 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src-tauri/src/commands/import.rs",
       "src-tauri/src/commands/tests.rs",
       "src-tauri/src/core/market_intelligence/tests.rs",
+      "src-tauri/src/core/scrapers/glassdoor.rs",
+      "src-tauri/src/core/scrapers/greenhouse.rs",
+      "src-tauri/src/core/scrapers/http_client.rs",
+      "src-tauri/src/core/scrapers/jobswithgpt.rs",
+      "src-tauri/src/core/scrapers/lever/tests.rs",
       "src-tauri/src/core/scrapers/simplyhired.rs",
+      "src-tauri/src/core/scrapers/usajobs.rs",
+      "src-tauri/src/core/scrapers/weworkremotely.rs",
       "src-tauri/tests/api_contract_test.rs",
       "src-tauri/tests/database_integration_test.rs",
       "src-tauri/tests/scraper_integration_test.rs",

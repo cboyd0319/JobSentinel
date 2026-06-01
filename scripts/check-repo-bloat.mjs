@@ -441,7 +441,14 @@ const broadAudienceExamplePaths = new Set([
   "src-tauri/src/commands/tests.rs",
   "src-tauri/src/core/deeplinks/types.rs",
   "src-tauri/src/core/market_intelligence/tests.rs",
+  "src-tauri/src/core/scrapers/glassdoor.rs",
+  "src-tauri/src/core/scrapers/greenhouse.rs",
+  "src-tauri/src/core/scrapers/http_client.rs",
+  "src-tauri/src/core/scrapers/jobswithgpt.rs",
+  "src-tauri/src/core/scrapers/lever/tests.rs",
   "src-tauri/src/core/scrapers/simplyhired.rs",
+  "src-tauri/src/core/scrapers/usajobs.rs",
+  "src-tauri/src/core/scrapers/weworkremotely.rs",
   "src-tauri/tests/api_contract_test.rs",
   "src-tauri/tests/database_integration_test.rs",
   "src-tauri/tests/scraper_integration_test.rs",
@@ -484,6 +491,16 @@ const salaryPlainLabelPaths = new Set([
   "docs/README.md",
   "docs/developer/ARCHITECTURE.md",
   "docs/features/salary-ai.md",
+]);
+const genericScraperFixturePaths = new Set([
+  "src-tauri/src/core/scrapers/glassdoor.rs",
+  "src-tauri/src/core/scrapers/greenhouse.rs",
+  "src-tauri/src/core/scrapers/http_client.rs",
+  "src-tauri/src/core/scrapers/jobswithgpt.rs",
+  "src-tauri/src/core/scrapers/lever/tests.rs",
+  "src-tauri/src/core/scrapers/simplyhired.rs",
+  "src-tauri/src/core/scrapers/usajobs.rs",
+  "src-tauri/src/core/scrapers/weworkremotely.rs",
 ]);
 const technicalFirstUserCopyPaths = new Set([
   "README.md",
@@ -1033,15 +1050,26 @@ function hasEngineerFirstAudienceExamples(root, path) {
     return marketIntelligenceTestPatterns.some((pattern) => pattern.test(text));
   }
 
-  if (path === "src-tauri/src/core/scrapers/simplyhired.rs") {
-    const simplyHiredTestPatterns = [
-      /rust developer/i,
+  if (genericScraperFixturePaths.has(path)) {
+    const genericScraperFixturePatterns = [
+      /\bEngineer\b/,
+      /\bDeveloper\b/,
       /Software Engineer/i,
+      /Backend Engineer/i,
+      /Frontend Developer/i,
+      /Full Stack/i,
+      /Senior Rust/i,
+      /Rust Developer/i,
+      /Rust Engineer/i,
+      /Python Developer/i,
+      /\bTypeScript\b/i,
+      /\bKubernetes\b/i,
+      /TechCorp|StartupXYZ|BigTech/i,
       /Developer at TechStartup/i,
-      /"Engineer"/i,
+      /rust developer/i,
     ];
 
-    return simplyHiredTestPatterns.some((pattern) => pattern.test(text));
+    return genericScraperFixturePatterns.some((pattern) => pattern.test(text));
   }
 
   const stalePatterns = [

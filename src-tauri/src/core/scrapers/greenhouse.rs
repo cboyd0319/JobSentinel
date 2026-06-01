@@ -1,7 +1,7 @@
 //! Greenhouse ATS Scraper
 //!
 //! Scrapes jobs from Greenhouse-powered career pages.
-//! Greenhouse is used by companies like Cloudflare, Stripe, Figma, etc.
+//! Greenhouse is used by companies and organizations across many industries.
 
 use super::error::ScraperError;
 use super::http_client::{get_with_retry, read_json_with_limit, read_text_with_limit};
@@ -325,14 +325,14 @@ mod tests {
     #[test]
     fn test_compute_hash_deterministic() {
         let hash1 = GreenhouseScraper::compute_hash(
-            "Cloudflare",
-            "Security Engineer",
+            "Community Care Network",
+            "Care Coordinator",
             Some("Remote"),
             "https://example.com/1",
         );
         let hash2 = GreenhouseScraper::compute_hash(
-            "Cloudflare",
-            "Security Engineer",
+            "Community Care Network",
+            "Care Coordinator",
             Some("Remote"),
             "https://example.com/1",
         );
@@ -344,13 +344,17 @@ mod tests {
     #[test]
     fn test_compute_hash_different_company() {
         let hash1 = GreenhouseScraper::compute_hash(
-            "Cloudflare",
-            "Engineer",
+            "Community Care Network",
+            "Program Coordinator",
             None,
             "https://example.com/1",
         );
-        let hash2 =
-            GreenhouseScraper::compute_hash("Stripe", "Engineer", None, "https://example.com/1");
+        let hash2 = GreenhouseScraper::compute_hash(
+            "FreshMart",
+            "Program Coordinator",
+            None,
+            "https://example.com/1",
+        );
 
         assert_ne!(
             hash1, hash2,
@@ -362,13 +366,13 @@ mod tests {
     fn test_compute_hash_different_title() {
         let hash1 = GreenhouseScraper::compute_hash(
             "Company",
-            "Security Engineer",
+            "Care Coordinator",
             None,
             "https://example.com/1",
         );
         let hash2 = GreenhouseScraper::compute_hash(
             "Company",
-            "Software Engineer",
+            "Public Health Analyst",
             None,
             "https://example.com/1",
         );
@@ -383,13 +387,13 @@ mod tests {
     fn test_compute_hash_different_location() {
         let hash1 = GreenhouseScraper::compute_hash(
             "Company",
-            "Engineer",
+            "Program Coordinator",
             Some("Remote"),
             "https://example.com/1",
         );
         let hash2 = GreenhouseScraper::compute_hash(
             "Company",
-            "Engineer",
+            "Program Coordinator",
             Some("Hybrid"),
             "https://example.com/1",
         );
@@ -402,11 +406,15 @@ mod tests {
 
     #[test]
     fn test_compute_hash_location_none_vs_some() {
-        let hash1 =
-            GreenhouseScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
+        let hash1 = GreenhouseScraper::compute_hash(
+            "Company",
+            "Program Coordinator",
+            None,
+            "https://example.com/1",
+        );
         let hash2 = GreenhouseScraper::compute_hash(
             "Company",
-            "Engineer",
+            "Program Coordinator",
             Some("Remote"),
             "https://example.com/1",
         );
@@ -419,10 +427,18 @@ mod tests {
 
     #[test]
     fn test_compute_hash_different_url() {
-        let hash1 =
-            GreenhouseScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
-        let hash2 =
-            GreenhouseScraper::compute_hash("Company", "Engineer", None, "https://example.com/2");
+        let hash1 = GreenhouseScraper::compute_hash(
+            "Company",
+            "Program Coordinator",
+            None,
+            "https://example.com/1",
+        );
+        let hash2 = GreenhouseScraper::compute_hash(
+            "Company",
+            "Program Coordinator",
+            None,
+            "https://example.com/2",
+        );
 
         assert_ne!(hash1, hash2, "Different URL should produce different hash");
     }
@@ -441,9 +457,9 @@ mod tests {
     #[test]
     fn test_compute_hash_special_characters() {
         let hash = GreenhouseScraper::compute_hash(
-            "Company™",
-            "Senior Engineer (Remote) - 🚀",
-            Some("San Francisco, CA"),
+            "Community Care Network™",
+            "Senior Care Coordinator (Remote) - 🚀",
+            Some("Denver, CO"),
             "https://example.com/jobs?id=123&ref=test",
         );
 
@@ -461,29 +477,29 @@ mod tests {
         assert!(!COMPANY_SCRAPE_FAILED.contains("{}"));
         assert!(!COMPANY_SCRAPE_FAILED.contains("https://"));
         assert!(!COMPANY_SCRAPE_FAILED.contains("secret"));
-        assert!(!COMPANY_SCRAPE_FAILED.contains("Cloudflare"));
+        assert!(!COMPANY_SCRAPE_FAILED.contains("Community Care Network"));
     }
 
     #[test]
     fn test_new_scraper_with_companies() {
         let companies = vec![
             GreenhouseCompany {
-                id: "cloudflare".to_string(),
-                name: "Cloudflare".to_string(),
-                url: "https://boards.greenhouse.io/cloudflare".to_string(),
+                id: "communitycarenetwork".to_string(),
+                name: "Community Care Network".to_string(),
+                url: "https://boards.greenhouse.io/communitycarenetwork".to_string(),
             },
             GreenhouseCompany {
-                id: "stripe".to_string(),
-                name: "Stripe".to_string(),
-                url: "https://boards.greenhouse.io/stripe".to_string(),
+                id: "freshmart".to_string(),
+                name: "FreshMart".to_string(),
+                url: "https://boards.greenhouse.io/freshmart".to_string(),
             },
         ];
 
         let scraper = GreenhouseScraper::new(companies.clone());
 
         assert_eq!(scraper.companies.len(), 2);
-        assert_eq!(scraper.companies[0].name, "Cloudflare");
-        assert_eq!(scraper.companies[1].name, "Stripe");
+        assert_eq!(scraper.companies[0].name, "Community Care Network");
+        assert_eq!(scraper.companies[1].name, "FreshMart");
     }
 
     #[test]
@@ -502,14 +518,14 @@ mod tests {
     fn test_parse_job_element_basic() {
         let scraper = GreenhouseScraper::new(vec![]);
         let company = GreenhouseCompany {
-            id: "cloudflare".to_string(),
-            name: "Cloudflare".to_string(),
-            url: "https://boards.greenhouse.io/cloudflare".to_string(),
+            id: "communitycarenetwork".to_string(),
+            name: "Community Care Network".to_string(),
+            url: "https://boards.greenhouse.io/communitycarenetwork".to_string(),
         };
 
         let html = r#"
             <div class="opening">
-                <a href="/cloudflare/jobs/123456">Software Engineer - Security</a>
+                <a href="/communitycarenetwork/jobs/123456">Care Coordinator - Community Outreach</a>
                 <span class="location">Remote</span>
             </div>
         "#;
@@ -523,10 +539,10 @@ mod tests {
             .expect("should parse job")
             .expect("should have job");
 
-        assert_eq!(job.title, "Software Engineer - Security");
-        assert_eq!(job.company, "Cloudflare");
+        assert_eq!(job.title, "Care Coordinator - Community Outreach");
+        assert_eq!(job.company, "Community Care Network");
         assert_eq!(job.location, Some("Remote".to_string()));
-        assert!(job.url.contains("/cloudflare/jobs/123456"));
+        assert!(job.url.contains("/communitycarenetwork/jobs/123456"));
         assert_eq!(job.source, "greenhouse");
         assert_eq!(job.hash.len(), 64);
     }
@@ -535,15 +551,15 @@ mod tests {
     fn test_parse_job_element_with_absolute_url() {
         let scraper = GreenhouseScraper::new(vec![]);
         let company = GreenhouseCompany {
-            id: "stripe".to_string(),
-            name: "Stripe".to_string(),
+            id: "freshmart".to_string(),
+            name: "FreshMart".to_string(),
             url: "https://stripe.com/jobs".to_string(),
         };
 
         let html = r#"
             <div class="opening">
-                <a href="https://boards.greenhouse.io/stripe/jobs/789">Backend Engineer</a>
-                <span class="location">San Francisco, CA</span>
+                <a href="https://boards.greenhouse.io/freshmart/jobs/789">Inventory Planner</a>
+                <span class="location">Denver, CO</span>
             </div>
         "#;
 
@@ -556,7 +572,7 @@ mod tests {
             .expect("should parse job")
             .expect("should have job");
 
-        assert_eq!(job.url, "https://boards.greenhouse.io/stripe/jobs/789");
+        assert_eq!(job.url, "https://boards.greenhouse.io/freshmart/jobs/789");
     }
 
     #[test]
@@ -601,7 +617,7 @@ mod tests {
 
         let html = r#"
             <div class="opening">
-                <span class="title">Software Engineer</span>
+                <span class="title">Program Coordinator</span>
                 <span class="location">Remote</span>
             </div>
         "#;
@@ -621,14 +637,14 @@ mod tests {
     fn test_parse_job_element_with_data_attributes() {
         let scraper = GreenhouseScraper::new(vec![]);
         let company = GreenhouseCompany {
-            id: "figma".to_string(),
-            name: "Figma".to_string(),
-            url: "https://boards.greenhouse.io/figma".to_string(),
+            id: "cityhealthdepartment".to_string(),
+            name: "City Health Department".to_string(),
+            url: "https://boards.greenhouse.io/cityhealthdepartment".to_string(),
         };
 
         let html = r#"
             <div data-gh-job-id="456789">
-                <a href="/figma/jobs/456789" data-gh-job-title="Product Designer">Product Designer</a>
+                <a href="/cityhealthdepartment/jobs/456789" data-gh-job-title="Public Health Analyst">Public Health Analyst</a>
                 <span data-gh-job-location="Remote - US</span>
             </div>
         "#;
@@ -642,8 +658,8 @@ mod tests {
             .expect("should parse job")
             .expect("should have job");
 
-        assert_eq!(job.title, "Product Designer");
-        assert_eq!(job.company, "Figma");
+        assert_eq!(job.title, "Public Health Analyst");
+        assert_eq!(job.company, "City Health Department");
     }
 
     #[test]
@@ -658,7 +674,7 @@ mod tests {
         let html = r#"
             <div class="opening">
                 <a href="/test/jobs/1">
-                    Senior Engineer
+                    Senior Care Coordinator
                 </a>
                 <span class="location">
                     Remote - Global
@@ -675,7 +691,7 @@ mod tests {
             .expect("should parse job")
             .expect("should have job");
 
-        assert_eq!(job.title, "Senior Engineer");
+        assert_eq!(job.title, "Senior Care Coordinator");
         assert_eq!(job.location, Some("Remote - Global".to_string()));
     }
 
@@ -690,7 +706,7 @@ mod tests {
 
         let html = r#"
             <div class="opening">
-                <a href="/test/jobs/123">Frontend Engineer</a>
+                <a href="/test/jobs/123">Customer Support Manager</a>
             </div>
         "#;
 
@@ -703,7 +719,7 @@ mod tests {
             .expect("should parse job")
             .expect("should have job");
 
-        assert_eq!(job.title, "Frontend Engineer");
+        assert_eq!(job.title, "Customer Support Manager");
         assert_eq!(job.location, None);
     }
 
@@ -718,7 +734,7 @@ mod tests {
 
         let html = r#"
             <div class="opening">
-                <a href="/test/jobs/123">Engineer</a>
+                <a href="/test/jobs/123">Program Coordinator</a>
             </div>
         "#;
 
@@ -746,7 +762,7 @@ mod tests {
 
         let html = r#"
             <div class="opening">
-                <a href="/test/jobs/123">DevOps Engineer</a>
+                <a href="/test/jobs/123">Inventory Planner</a>
                 <span class="location">Seattle, WA</span>
             </div>
         "#;
@@ -773,14 +789,14 @@ mod tests {
         let scraper = GreenhouseScraper::new(vec![]);
         let company = GreenhouseCompany {
             id: "test".to_string(),
-            name: "Test™ Company".to_string(),
+            name: "Community Care Network™".to_string(),
             url: "https://boards.greenhouse.io/test".to_string(),
         };
 
         let html = r#"
             <div class="opening">
-                <a href="/test/jobs/1">Senior Engineer (Remote) 🚀</a>
-                <span class="location">San Francisco, CA / Remote</span>
+                <a href="/test/jobs/1">Senior Care Coordinator (Remote) 🚀</a>
+                <span class="location">Denver, CO / Remote</span>
             </div>
         "#;
 
@@ -809,7 +825,7 @@ mod tests {
 
         let html = r#"
             <div class="opening">
-                <a href="/test/jobs/123">Engineer</a>
+                <a href="/test/jobs/123">Program Coordinator</a>
                 <a href="/test/apply/123">Apply</a>
                 <span class="location">Remote</span>
             </div>
@@ -832,22 +848,22 @@ mod tests {
     fn test_scraper_initialization() {
         let companies = vec![
             GreenhouseCompany {
-                id: "cloudflare".to_string(),
-                name: "Cloudflare".to_string(),
-                url: "https://boards.greenhouse.io/cloudflare".to_string(),
+                id: "communitycarenetwork".to_string(),
+                name: "Community Care Network".to_string(),
+                url: "https://boards.greenhouse.io/communitycarenetwork".to_string(),
             },
             GreenhouseCompany {
-                id: "stripe".to_string(),
-                name: "Stripe".to_string(),
-                url: "https://boards.greenhouse.io/stripe".to_string(),
+                id: "freshmart".to_string(),
+                name: "FreshMart".to_string(),
+                url: "https://boards.greenhouse.io/freshmart".to_string(),
             },
         ];
 
         let scraper = GreenhouseScraper::new(companies.clone());
 
         assert_eq!(scraper.companies.len(), 2);
-        assert_eq!(scraper.companies[0].id, "cloudflare");
-        assert_eq!(scraper.companies[1].id, "stripe");
+        assert_eq!(scraper.companies[0].id, "communitycarenetwork");
+        assert_eq!(scraper.companies[1].id, "freshmart");
     }
 
     #[test]
@@ -889,7 +905,7 @@ mod tests {
             "jobs": [
                 {
                     "id": 123456,
-                    "title": "Backend Engineer",
+                    "title": "Inventory Planner",
                     "location": {
                         "name": "Remote"
                     }
@@ -905,7 +921,7 @@ mod tests {
 
             let job = &jobs_array[0];
             assert_eq!(job["id"].as_i64(), Some(123456));
-            assert_eq!(job["title"].as_str(), Some("Backend Engineer"));
+            assert_eq!(job["title"].as_str(), Some("Inventory Planner"));
             assert_eq!(job["location"]["name"].as_str(), Some("Remote"));
         } else {
             panic!("jobs should be an array");
@@ -919,21 +935,21 @@ mod tests {
             "jobs": [
                 {
                     "id": 1,
-                    "title": "Frontend Engineer",
+                    "title": "Care Coordinator",
                     "location": {
-                        "name": "San Francisco, CA"
+                        "name": "Denver, CO"
                     }
                 },
                 {
                     "id": 2,
-                    "title": "Backend Engineer",
+                    "title": "Public Health Analyst",
                     "location": {
                         "name": "Remote"
                     }
                 },
                 {
                     "id": 3,
-                    "title": "DevOps Engineer",
+                    "title": "Customer Support Manager",
                     "location": {
                         "name": "New York, NY"
                     }
@@ -947,9 +963,15 @@ mod tests {
         if let Some(jobs_array) = parsed["jobs"].as_array() {
             assert_eq!(jobs_array.len(), 3);
 
-            assert_eq!(jobs_array[0]["title"].as_str(), Some("Frontend Engineer"));
-            assert_eq!(jobs_array[1]["title"].as_str(), Some("Backend Engineer"));
-            assert_eq!(jobs_array[2]["title"].as_str(), Some("DevOps Engineer"));
+            assert_eq!(jobs_array[0]["title"].as_str(), Some("Care Coordinator"));
+            assert_eq!(
+                jobs_array[1]["title"].as_str(),
+                Some("Public Health Analyst")
+            );
+            assert_eq!(
+                jobs_array[2]["title"].as_str(),
+                Some("Customer Support Manager")
+            );
         }
     }
 
@@ -990,7 +1012,7 @@ mod tests {
             "jobs": [
                 {
                     "id": 123,
-                    "title": "Engineer"
+                    "title": "Program Coordinator"
                 }
             ]
         }
@@ -1039,7 +1061,7 @@ mod tests {
         {
             "jobs": [
                 {
-                    "title": "Engineer",
+                    "title": "Inventory Planner",
                     "location": {
                         "name": "Remote"
                     }
@@ -1061,7 +1083,7 @@ mod tests {
 
     #[test]
     fn test_api_url_construction() {
-        let company_id = "cloudflare";
+        let company_id = "communitycarenetwork";
         let api_url = format!(
             "https://boards-api.greenhouse.io/v1/boards/{}/jobs",
             company_id
@@ -1069,20 +1091,20 @@ mod tests {
 
         assert_eq!(
             api_url,
-            "https://boards-api.greenhouse.io/v1/boards/cloudflare/jobs"
+            "https://boards-api.greenhouse.io/v1/boards/communitycarenetwork/jobs"
         );
     }
 
     #[test]
     fn test_api_url_from_company_url() {
-        let company_url = "https://boards.greenhouse.io/cloudflare";
+        let company_url = "https://boards.greenhouse.io/communitycarenetwork";
         let company_id = company_url
             .trim_end_matches('/')
             .split('/')
             .next_back()
             .unwrap();
 
-        assert_eq!(company_id, "cloudflare");
+        assert_eq!(company_id, "communitycarenetwork");
 
         let api_url = format!(
             "https://boards-api.greenhouse.io/v1/boards/{}/jobs",
@@ -1090,39 +1112,42 @@ mod tests {
         );
         assert_eq!(
             api_url,
-            "https://boards-api.greenhouse.io/v1/boards/cloudflare/jobs"
+            "https://boards-api.greenhouse.io/v1/boards/communitycarenetwork/jobs"
         );
     }
 
     #[test]
     fn test_api_url_with_trailing_slash() {
-        let company_url = "https://boards.greenhouse.io/stripe/";
+        let company_url = "https://boards.greenhouse.io/freshmart/";
         let company_id = company_url
             .trim_end_matches('/')
             .split('/')
             .next_back()
             .unwrap();
 
-        assert_eq!(company_id, "stripe");
+        assert_eq!(company_id, "freshmart");
     }
 
     #[test]
     fn test_job_url_construction_from_api() {
-        let company_id = "figma";
+        let company_id = "cityhealthdepartment";
         let job_id = 987654;
         let url = format!(
             "https://boards.greenhouse.io/{}/jobs/{}",
             company_id, job_id
         );
 
-        assert_eq!(url, "https://boards.greenhouse.io/figma/jobs/987654");
+        assert_eq!(
+            url,
+            "https://boards.greenhouse.io/cityhealthdepartment/jobs/987654"
+        );
     }
 
     #[test]
     fn test_hash_consistency_across_runs() {
-        let company = "Test Company™";
-        let title = "Senior Engineer (Remote) 🚀";
-        let location = Some("San Francisco, CA");
+        let company = "Community Care Network™";
+        let title = "Senior Care Coordinator (Remote) 🚀";
+        let location = Some("Denver, CO");
         let url = "https://boards.greenhouse.io/test/jobs/123";
 
         let hashes: Vec<String> = (0..10)
@@ -1140,19 +1165,19 @@ mod tests {
         // so URLs that differ only in tracking params should produce the SAME hash
         let hash1 = GreenhouseScraper::compute_hash(
             "Company",
-            "Engineer",
+            "Program Coordinator",
             None,
             "https://boards.greenhouse.io/company/jobs/1?ref=linkedin",
         );
         let hash2 = GreenhouseScraper::compute_hash(
             "Company",
-            "Engineer",
+            "Program Coordinator",
             None,
             "https://boards.greenhouse.io/company/jobs/1?ref=twitter",
         );
         let hash3 = GreenhouseScraper::compute_hash(
             "Company",
-            "Engineer",
+            "Program Coordinator",
             None,
             "https://boards.greenhouse.io/company/jobs/1",
         );
@@ -1174,7 +1199,7 @@ mod tests {
 
         let html = r#"
             <div class="opening">
-                <a href="/test/jobs/999">Full Stack Engineer</a>
+                <a href="/test/jobs/999">Customer Support Manager</a>
                 <span class="location">Remote - Worldwide</span>
             </div>
         "#;
@@ -1188,7 +1213,7 @@ mod tests {
             .expect("should parse job")
             .expect("should have job");
 
-        assert_eq!(job.title, "Full Stack Engineer");
+        assert_eq!(job.title, "Customer Support Manager");
         assert_eq!(job.company, "Test Company");
         assert_eq!(job.location, Some("Remote - Worldwide".to_string()));
         assert_eq!(job.source, "greenhouse");
@@ -1210,7 +1235,7 @@ mod tests {
             <div class="opening">
                 <a href="/test/jobs/1">
                     <span class="title">Senior</span>
-                    <span>Engineer</span>
+                    <span>Coordinator</span>
                 </a>
                 <span class="location">Boston, MA</span>
             </div>
@@ -1227,7 +1252,7 @@ mod tests {
 
         // Text collection should concatenate all text nodes
         assert!(job.title.contains("Senior"));
-        assert!(job.title.contains("Engineer"));
+        assert!(job.title.contains("Coordinator"));
     }
 
     #[test]

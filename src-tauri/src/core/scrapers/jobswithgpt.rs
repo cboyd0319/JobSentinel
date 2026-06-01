@@ -253,15 +253,15 @@ mod tests {
     #[test]
     fn test_compute_hash_deterministic() {
         let hash1 = JobsWithGptScraper::compute_hash(
-            "Apple",
-            "iOS Engineer",
-            Some("Cupertino"),
+            "CommunityCare",
+            "Care Coordinator",
+            Some("Denver"),
             "https://example.com/1",
         );
         let hash2 = JobsWithGptScraper::compute_hash(
-            "Apple",
-            "iOS Engineer",
-            Some("Cupertino"),
+            "CommunityCare",
+            "Care Coordinator",
+            Some("Denver"),
             "https://example.com/1",
         );
 
@@ -271,10 +271,18 @@ mod tests {
 
     #[test]
     fn test_compute_hash_different_company() {
-        let hash1 =
-            JobsWithGptScraper::compute_hash("Apple", "Engineer", None, "https://example.com/1");
-        let hash2 =
-            JobsWithGptScraper::compute_hash("Google", "Engineer", None, "https://example.com/1");
+        let hash1 = JobsWithGptScraper::compute_hash(
+            "CommunityCare",
+            "Program Coordinator",
+            None,
+            "https://example.com/1",
+        );
+        let hash2 = JobsWithGptScraper::compute_hash(
+            "FreshMart",
+            "Program Coordinator",
+            None,
+            "https://example.com/1",
+        );
 
         assert_ne!(
             hash1, hash2,
@@ -286,13 +294,13 @@ mod tests {
     fn test_compute_hash_different_title() {
         let hash1 = JobsWithGptScraper::compute_hash(
             "Company",
-            "iOS Engineer",
+            "Care Coordinator",
             None,
             "https://example.com/1",
         );
         let hash2 = JobsWithGptScraper::compute_hash(
             "Company",
-            "Android Engineer",
+            "Inventory Planner",
             None,
             "https://example.com/1",
         );
@@ -307,14 +315,14 @@ mod tests {
     fn test_compute_hash_different_location() {
         let hash1 = JobsWithGptScraper::compute_hash(
             "Company",
-            "Engineer",
-            Some("SF"),
+            "Program Coordinator",
+            Some("Denver"),
             "https://example.com/1",
         );
         let hash2 = JobsWithGptScraper::compute_hash(
             "Company",
-            "Engineer",
-            Some("NY"),
+            "Program Coordinator",
+            Some("Chicago"),
             "https://example.com/1",
         );
 
@@ -326,11 +334,15 @@ mod tests {
 
     #[test]
     fn test_compute_hash_location_none_vs_some() {
-        let hash1 =
-            JobsWithGptScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
+        let hash1 = JobsWithGptScraper::compute_hash(
+            "Company",
+            "Program Coordinator",
+            None,
+            "https://example.com/1",
+        );
         let hash2 = JobsWithGptScraper::compute_hash(
             "Company",
-            "Engineer",
+            "Program Coordinator",
             Some("Remote"),
             "https://example.com/1",
         );
@@ -340,10 +352,18 @@ mod tests {
 
     #[test]
     fn test_compute_hash_different_url() {
-        let hash1 =
-            JobsWithGptScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
-        let hash2 =
-            JobsWithGptScraper::compute_hash("Company", "Engineer", None, "https://example.com/2");
+        let hash1 = JobsWithGptScraper::compute_hash(
+            "Company",
+            "Program Coordinator",
+            None,
+            "https://example.com/1",
+        );
+        let hash2 = JobsWithGptScraper::compute_hash(
+            "Company",
+            "Program Coordinator",
+            None,
+            "https://example.com/2",
+        );
 
         assert_ne!(hash1, hash2, "Different URL should produce different hash");
     }
@@ -362,8 +382,8 @@ mod tests {
     fn test_compute_hash_special_characters() {
         let hash = JobsWithGptScraper::compute_hash(
             "Company™",
-            "Senior Engineer (Remote) 🎯",
-            Some("San Francisco, CA / Remote"),
+            "Senior Care Coordinator (Remote) 🎯",
+            Some("Denver, CO / Remote"),
             "https://jobs.example.com/job?id=123&utm_source=jobswithgpt",
         );
 
@@ -380,7 +400,7 @@ mod tests {
         let scraper = JobsWithGptScraper::new(
             "http://localhost:3000/mcp".to_string(),
             JobQuery {
-                titles: vec!["Engineer".to_string()],
+                titles: vec!["Care Coordinator".to_string()],
                 location: None,
                 remote_only: false,
                 limit: 10,
@@ -388,27 +408,30 @@ mod tests {
         );
 
         let job_data = serde_json::json!({
-            "title": "Senior Rust Engineer",
-            "company": "TechCorp",
+            "title": "Care Coordinator",
+            "company": "Community Care Network",
             "url": "https://example.com/job/123",
             "location": "Remote",
-            "description": "Build amazing things",
+            "description": "Coordinate services and follow-up for community members",
             "remote": true,
-            "salary_min": 150000,
-            "salary_max": 200000,
+            "salary_min": 55000,
+            "salary_max": 72000,
             "currency": "USD"
         });
 
         let job = scraper.parse_mcp_job(&job_data).unwrap().unwrap();
 
-        assert_eq!(job.title, "Senior Rust Engineer");
-        assert_eq!(job.company, "TechCorp");
+        assert_eq!(job.title, "Care Coordinator");
+        assert_eq!(job.company, "Community Care Network");
         assert_eq!(job.url, "https://example.com/job/123");
         assert_eq!(job.location, Some("Remote".to_string()));
-        assert_eq!(job.description, Some("Build amazing things".to_string()));
+        assert_eq!(
+            job.description,
+            Some("Coordinate services and follow-up for community members".to_string())
+        );
         assert_eq!(job.remote, Some(true));
-        assert_eq!(job.salary_min, Some(150000));
-        assert_eq!(job.salary_max, Some(200000));
+        assert_eq!(job.salary_min, Some(55000));
+        assert_eq!(job.salary_max, Some(72000));
         assert_eq!(job.currency, Some("USD".to_string()));
         assert_eq!(job.source, "jobswithgpt");
     }
@@ -426,15 +449,15 @@ mod tests {
         );
 
         let job_data = serde_json::json!({
-            "title": "Engineer",
-            "company": "Company",
+            "title": "Program Coordinator",
+            "company": "Community Services",
             "url": "https://example.com/job"
         });
 
         let job = scraper.parse_mcp_job(&job_data).unwrap().unwrap();
 
-        assert_eq!(job.title, "Engineer");
-        assert_eq!(job.company, "Company");
+        assert_eq!(job.title, "Program Coordinator");
+        assert_eq!(job.company, "Community Services");
         assert_eq!(job.url, "https://example.com/job");
         assert_eq!(job.location, None);
         assert_eq!(job.description, None);
@@ -479,7 +502,7 @@ mod tests {
         );
 
         let job_data = serde_json::json!({
-            "title": "Engineer",
+            "title": "Program Coordinator",
             "company": "Company",
             "url": ""
         });
@@ -501,7 +524,7 @@ mod tests {
         );
 
         let job_data = serde_json::json!({
-            "title": "Engineer",
+            "title": "Program Coordinator",
             "url": "https://example.com/job"
         });
 
@@ -513,15 +536,18 @@ mod tests {
     #[test]
     fn test_job_query_creation() {
         let query = JobQuery {
-            titles: vec!["Rust Engineer".to_string(), "Backend Developer".to_string()],
-            location: Some("San Francisco".to_string()),
+            titles: vec![
+                "Care Coordinator".to_string(),
+                "Inventory Planner".to_string(),
+            ],
+            location: Some("Denver".to_string()),
             remote_only: true,
             limit: 50,
         };
 
         assert_eq!(query.titles.len(), 2);
-        assert_eq!(query.titles[0], "Rust Engineer");
-        assert_eq!(query.location, Some("San Francisco".to_string()));
+        assert_eq!(query.titles[0], "Care Coordinator");
+        assert_eq!(query.location, Some("Denver".to_string()));
         assert!(query.remote_only);
         assert_eq!(query.limit, 50);
     }
@@ -529,7 +555,7 @@ mod tests {
     #[test]
     fn test_job_query_remote_only() {
         let query = JobQuery {
-            titles: vec!["Engineer".to_string()],
+            titles: vec!["Care Coordinator".to_string()],
             location: None,
             remote_only: true,
             limit: 100,
@@ -559,7 +585,7 @@ mod tests {
     fn test_new_scraper_with_endpoint() {
         let endpoint = "https://api.jobswithgpt.com/mcp".to_string();
         let query = JobQuery {
-            titles: vec!["Engineer".to_string()],
+            titles: vec!["Care Coordinator".to_string()],
             location: Some("Remote".to_string()),
             remote_only: true,
             limit: 25,
@@ -632,7 +658,7 @@ mod tests {
             limit in 1usize..1000usize,
         ) {
             let query = JobQuery {
-                titles: vec!["Engineer".to_string()],
+                titles: vec!["Care Coordinator".to_string()],
                 location: None,
                 remote_only: false,
                 limit,
@@ -682,7 +708,7 @@ mod tests {
         let scraper = JobsWithGptScraper::new(
             "http://localhost:3000/mcp".to_string(),
             JobQuery {
-                titles: vec!["Rust Engineer".to_string()],
+                titles: vec!["Care Coordinator".to_string()],
                 location: Some("Remote".to_string()),
                 remote_only: true,
                 limit: 10,
@@ -702,7 +728,7 @@ mod tests {
         let scraper = JobsWithGptScraper::new(
             "https://user:pass@api.jobswithgpt.com/mcp".to_string(),
             JobQuery {
-                titles: vec!["Rust Engineer".to_string()],
+                titles: vec!["Care Coordinator".to_string()],
                 location: None,
                 remote_only: true,
                 limit: 10,
@@ -718,9 +744,9 @@ mod tests {
     fn test_mcp_error_message_does_not_echo_private_query_data() {
         let error = serde_json::json!({
             "code": -32602,
-            "message": "No jobs found for Secret Staff Engineer",
+            "message": "No jobs found for Secret Care Coordinator",
             "data": {
-                "titles": ["Secret Staff Engineer"],
+                "titles": ["Secret Care Coordinator"],
                 "location": "Private City, CO",
                 "endpoint": "https://api.jobswithgpt.example/mcp?token=private"
             }
@@ -732,7 +758,7 @@ mod tests {
             message,
             "MCP error response (code: -32602, has_message: true, data_type: object)"
         );
-        assert!(!message.contains("Secret Staff Engineer"));
+        assert!(!message.contains("Secret Care Coordinator"));
         assert!(!message.contains("Private City"));
         assert!(!message.contains("token=private"));
     }
@@ -750,8 +776,8 @@ mod tests {
         );
 
         let job_data = serde_json::json!({
-            "title": "Onsite Engineer",
-            "company": "TechCorp",
+            "title": "Onsite Program Coordinator",
+            "company": "FreshMart",
             "url": "https://example.com/job/123",
             "remote": false
         });
@@ -773,27 +799,30 @@ mod tests {
         );
 
         let job_data = serde_json::json!({
-            "title": "Full Stack Engineer",
-            "company": "Startup Inc",
+            "title": "Inventory Planner",
+            "company": "FreshMart",
             "url": "https://example.com/job/456",
-            "location": "San Francisco, CA",
-            "description": "Build amazing products",
+            "location": "Chicago, IL",
+            "description": "Plan inventory levels across regional stores",
             "remote": true,
-            "salary_min": 120000,
-            "salary_max": 180000,
+            "salary_min": 58000,
+            "salary_max": 72000,
             "currency": "USD"
         });
 
         let job = scraper.parse_mcp_job(&job_data).unwrap().unwrap();
 
-        assert_eq!(job.title, "Full Stack Engineer");
-        assert_eq!(job.company, "Startup Inc");
+        assert_eq!(job.title, "Inventory Planner");
+        assert_eq!(job.company, "FreshMart");
         assert_eq!(job.url, "https://example.com/job/456");
-        assert_eq!(job.location, Some("San Francisco, CA".to_string()));
-        assert_eq!(job.description, Some("Build amazing products".to_string()));
+        assert_eq!(job.location, Some("Chicago, IL".to_string()));
+        assert_eq!(
+            job.description,
+            Some("Plan inventory levels across regional stores".to_string())
+        );
         assert_eq!(job.remote, Some(true));
-        assert_eq!(job.salary_min, Some(120000));
-        assert_eq!(job.salary_max, Some(180000));
+        assert_eq!(job.salary_min, Some(58000));
+        assert_eq!(job.salary_max, Some(72000));
         assert_eq!(job.currency, Some("USD".to_string()));
         assert_eq!(job.source, "jobswithgpt");
     }
@@ -832,8 +861,8 @@ mod tests {
         );
 
         let job_data = serde_json::json!({
-            "title": "Engineer",
-            "company": "Company"
+            "title": "Program Coordinator",
+            "company": "Community Services"
         });
 
         let result = scraper.parse_mcp_job(&job_data).unwrap();
@@ -853,8 +882,8 @@ mod tests {
         );
 
         let job_data = serde_json::json!({
-            "title": "Engineer",
-            "company": "Company",
+            "title": "Program Coordinator",
+            "company": "Community Services",
             "url": "https://example.com/job",
             "location": null,
             "description": null,
@@ -890,7 +919,7 @@ mod tests {
     #[test]
     fn test_job_query_clone() {
         let query = JobQuery {
-            titles: vec!["Engineer".to_string()],
+            titles: vec!["Care Coordinator".to_string()],
             location: Some("Remote".to_string()),
             remote_only: true,
             limit: 50,
@@ -907,8 +936,8 @@ mod tests {
     #[test]
     fn test_job_query_debug_format() {
         let query = JobQuery {
-            titles: vec!["Rust Developer".to_string()],
-            location: Some("San Francisco".to_string()),
+            titles: vec!["Care Coordinator".to_string()],
+            location: Some("Denver".to_string()),
             remote_only: true,
             limit: 25,
         };
@@ -918,8 +947,8 @@ mod tests {
         assert!(debug_str.contains("has_location: true"));
         assert!(debug_str.contains("remote_only: true"));
         assert!(debug_str.contains("limit: 25"));
-        assert!(!debug_str.contains("Rust Developer"));
-        assert!(!debug_str.contains("San Francisco"));
+        assert!(!debug_str.contains("Care Coordinator"));
+        assert!(!debug_str.contains("Denver"));
     }
 
     #[test]
@@ -927,7 +956,7 @@ mod tests {
         let scraper = JobsWithGptScraper::new(
             "https://api.jobswithgpt.example/mcp?token=private".to_string(),
             JobQuery {
-                titles: vec!["Secret Rust Developer".to_string()],
+                titles: vec!["Secret Care Coordinator".to_string()],
                 location: Some("Private City".to_string()),
                 remote_only: true,
                 limit: 25,
@@ -938,7 +967,7 @@ mod tests {
         assert!(debug_str.contains("endpoint_configured: true"));
         assert!(debug_str.contains("title_count: 1"));
         assert!(!debug_str.contains("token=private"));
-        assert!(!debug_str.contains("Secret Rust Developer"));
+        assert!(!debug_str.contains("Secret Care Coordinator"));
         assert!(!debug_str.contains("Private City"));
     }
 
@@ -955,8 +984,8 @@ mod tests {
         );
 
         let job_data = serde_json::json!({
-            "title": "Engineer",
-            "company": "Company",
+            "title": "Program Coordinator",
+            "company": "Community Services",
             "url": "https://example.com/job"
         });
 
@@ -976,17 +1005,17 @@ mod tests {
     #[test]
     fn test_compute_hash_with_all_fields() {
         let hash1 = JobsWithGptScraper::compute_hash(
-            "TechCorp",
-            "Senior Rust Engineer",
+            "Community Care Network",
+            "Care Coordinator",
             Some("Remote - US"),
-            "https://jobs.techcorp.com/rust-123",
+            "https://jobs.example.org/care-coordinator-123",
         );
 
         let hash2 = JobsWithGptScraper::compute_hash(
-            "TechCorp",
-            "Senior Rust Engineer",
+            "Community Care Network",
+            "Care Coordinator",
             Some("Remote - US"),
-            "https://jobs.techcorp.com/rust-123",
+            "https://jobs.example.org/care-coordinator-123",
         );
 
         assert_eq!(hash1, hash2);
@@ -997,9 +1026,9 @@ mod tests {
     fn test_multiple_titles_in_query() {
         let query = JobQuery {
             titles: vec![
-                "Rust Engineer".to_string(),
-                "Backend Developer".to_string(),
-                "Systems Programmer".to_string(),
+                "Care Coordinator".to_string(),
+                "Inventory Planner".to_string(),
+                "Customer Support Manager".to_string(),
             ],
             location: None,
             remote_only: false,
@@ -1007,8 +1036,10 @@ mod tests {
         };
 
         assert_eq!(query.titles.len(), 3);
-        assert!(query.titles.contains(&"Rust Engineer".to_string()));
-        assert!(query.titles.contains(&"Backend Developer".to_string()));
-        assert!(query.titles.contains(&"Systems Programmer".to_string()));
+        assert!(query.titles.contains(&"Care Coordinator".to_string()));
+        assert!(query.titles.contains(&"Inventory Planner".to_string()));
+        assert!(query
+            .titles
+            .contains(&"Customer Support Manager".to_string()));
     }
 }

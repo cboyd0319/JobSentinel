@@ -155,7 +155,8 @@ Required process:
   access or developer jargon.
 - [ ] Audit primary user workflows for zero-technical-knowledge ease.
 - [ ] Audit user-facing flows and copy for engineer-only assumptions.
-- [ ] Run relevant verification and push each cleanup slice.
+- [ ] Run relevant verification and commit each cleanup slice locally. Push only
+  when the full goal is complete or the user explicitly reopens remote CI.
 
 ## Current Status
 
@@ -264,6 +265,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-31 | In progress | Rebalanced generic scraper adapter fixtures for Greenhouse, Glassdoor, USAJobs, JobsWithGPT, Lever, We Work Remotely, and shared HTTP examples toward broad job-seeker examples without changing fetch, retry, cache, URL, or parser behavior; added bloat coverage for these cleaned generic scraper paths. |
 | 2026-05-31 | In progress | Rebalanced generic frontend mock, E2E, notification, config, database, ATS, ghost, salary, scoring, market-intelligence, SimplyHired, command, and mock job fixtures away from software-only defaults toward broad job-seeker examples, and added focused bloat coverage so recurring generic paths cannot drift back to software-only examples. |
 | 2026-05-31 | In progress | Fixed visible zero-technical UX and broad-audience defaults from parallel audits: Settings failure escape, application empty-state routing, Dashboard no-jobs recovery guidance, browser import advanced settings, location copy, broad company suggestions, Skills Interview E2E labels, and broad resume/mock ATS fixtures. Logged remaining IPC minimization and broad fixture drift as active debt. |
 | 2026-05-31 | In progress | Continued sensor modularity by extracting raw automation dropdown-value and frontend error-forwarding checks into `scripts/harness/checks/privacy-logging.mjs` with focused `scripts/check-privacy-logging.test.mjs` coverage. |
@@ -282,7 +284,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 | 2026-05-31 | In progress | Closed the environment doctor platform-coverage finding from the deep audit: `npm run doctor` now checks Linux Tauri packages, `patchelf`, Playwright Chromium launch readiness, and Node/Rust CI-baseline drift; `npm run doctor:e2e` makes Playwright readiness a strict E2E gate. |
 | 2026-05-31 | In progress | Closed the external-AI provider surface finding from the deep audit by adding `npm run lint:external-ai`, wiring it into `harness:check`, and testing OpenAI, Anthropic, Gemini/API-key, dependency, gateway-allowlist, and company-name false-positive cases. |
 | 2026-05-31 | In progress | Closed the top P0 harness-delivery findings from the deep audit: normal CI now runs harness and script tests, Docs Harness watches the whole script set, and release/manual build workflows validate release metadata before running harness, docs, frontend, and Rust preflight checks. |
-| 2026-05-31 | In progress | Refreshed all active plan and handoff docs before the user-requested push to `main`; current push is explicitly authorized and includes the environment doctor, Walking Labs evaluations, deep harness audit, and active-plan refresh. |
+| 2026-05-31 | In progress | Refreshed all active plan and handoff docs for the environment doctor, Walking Labs evaluations, deep harness audit, and active-plan refresh. Later cleanup slices are committed locally while remote CI remains deferred until the full goal is complete or the user explicitly reopens it. |
 | 2026-05-31 | In progress | Evaluated the harness against Walking Labs Lecture 02's five-subsystem exercise, identified environment readiness as the weakest subsystem, added `npm run doctor`, and recorded the ablation and affordance analysis under `docs/harness/`. |
 | 2026-05-31 | In progress | Evaluated Walking Labs' `harness-creator` skill and direct structural validator output. Recorded the low generic-validator score as an interoperability gap caused by root-file assumptions, while keeping JobSentinel's `docs/plans/` harness state as the source of truth. |
 | 2026-05-31 | In progress | Completed a deep harness audit across docs, scripts, workflows, issue templates, active plans, and CI/release surfaces; recorded ranked improvements in `docs/harness/deep-harness-audit-2026-05-31.md` and promoted top risks into the technical debt tracker. |

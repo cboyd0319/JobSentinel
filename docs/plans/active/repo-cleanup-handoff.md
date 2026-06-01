@@ -84,10 +84,10 @@ Current cleanup posture:
   "Skills Interview" label.
 - Latest backend fixture follow-up rebalanced generic market-intelligence,
   notification, config, database, ATS, ghost detection, salary, scoring,
-  SimplyHired, command, and mock job examples toward care coordination, public
-  health, operations, training, inventory planning, account management, and
-  customer support, then added focused bloat coverage for recurring
-  generic-fixture paths.
+  generic scraper adapters, command, and mock job examples toward care
+  coordination, public health, operations, training, inventory planning,
+  account management, and customer support, then added focused bloat coverage
+  for recurring generic-fixture paths.
 - Latest IPC minimization work added `has_application_profile`,
   `get_application_profile_preview`, `get_dashboard_preferences`, canonical
   import URLs before preview/hash/storage, and minimized import responses to
@@ -359,6 +359,15 @@ Latest active-plan documentation slice checks on 2026-05-31:
 - `npm run test:scripts`
 - `npm run lint:docs`
 - `npm run lint:bloat`
+- `git diff --check`
+
+Latest generic scraper broad-audience fixture slice checks on 2026-05-31:
+
+- `cd src-tauri && cargo fmt --all -- --check`
+- `cd src-tauri && cargo test --lib scrapers`
+- `npm run lint:bloat`
+- `npm run test:scripts -- check-repo-bloat`
+- `npm run lint:docs`
 - `git diff --check`
 
 Latest harness/readiness slice checks on 2026-05-31:

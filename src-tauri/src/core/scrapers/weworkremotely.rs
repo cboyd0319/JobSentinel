@@ -271,13 +271,13 @@ mod tests {
     fn test_compute_hash_deterministic() {
         let hash1 = WeWorkRemotelyScraper::compute_hash(
             "Company",
-            "Remote Engineer",
+            "Remote Care Coordinator",
             Some("Worldwide"),
             "https://weworkremotely.com/job/123",
         );
         let hash2 = WeWorkRemotelyScraper::compute_hash(
             "Company",
-            "Remote Engineer",
+            "Remote Care Coordinator",
             Some("Worldwide"),
             "https://weworkremotely.com/job/123",
         );
@@ -351,10 +351,10 @@ mod tests {
             <rss>
                 <channel>
                     <item>
-                        <title><![CDATA[TechCorp: Senior Rust Engineer]]></title>
+                        <title><![CDATA[City Health Department: Senior Public Health Analyst]]></title>
                         <link>https://weworkremotely.com/jobs/12345</link>
                         <description><![CDATA[
-                            We're hiring a Senior Rust Engineer to join our distributed team.
+                            We're hiring a Senior Public Health Analyst to join our distributed team.
                             Work from anywhere worldwide. Competitive salary and benefits.
                         ]]></description>
                     </item>
@@ -365,8 +365,8 @@ mod tests {
         let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
 
         assert_eq!(jobs.len(), 1);
-        assert_eq!(jobs[0].title, "Senior Rust Engineer");
-        assert_eq!(jobs[0].company, "TechCorp");
+        assert_eq!(jobs[0].title, "Senior Public Health Analyst");
+        assert_eq!(jobs[0].company, "City Health Department");
         assert_eq!(jobs[0].url, "https://weworkremotely.com/jobs/12345");
         assert_eq!(jobs[0].source, "weworkremotely");
         assert_eq!(jobs[0].remote, Some(true));
@@ -381,17 +381,17 @@ mod tests {
             <rss>
                 <channel>
                     <item>
-                        <title>Company A: Backend Developer</title>
+                        <title>FreshMart: Inventory Planner</title>
                         <link>https://weworkremotely.com/jobs/1</link>
                         <description>Join our remote team. USA only.</description>
                     </item>
                     <item>
-                        <title>Company B: Frontend Engineer</title>
+                        <title>Community Care Network: Customer Support Manager</title>
                         <link>https://weworkremotely.com/jobs/2</link>
                         <description>Remote position open to Europe.</description>
                     </item>
                     <item>
-                        <title>Company C: Full Stack Developer</title>
+                        <title>City Health Department: Program Coordinator</title>
                         <link>https://weworkremotely.com/jobs/3</link>
                         <description>Position is open to North America timezone.</description>
                     </item>
@@ -402,16 +402,16 @@ mod tests {
         let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
 
         assert_eq!(jobs.len(), 3);
-        assert_eq!(jobs[0].company, "Company A");
-        assert_eq!(jobs[0].title, "Backend Developer");
+        assert_eq!(jobs[0].company, "FreshMart");
+        assert_eq!(jobs[0].title, "Inventory Planner");
         assert_eq!(jobs[0].location, Some("USA".to_string()));
 
-        assert_eq!(jobs[1].company, "Company B");
-        assert_eq!(jobs[1].title, "Frontend Engineer");
+        assert_eq!(jobs[1].company, "Community Care Network");
+        assert_eq!(jobs[1].title, "Customer Support Manager");
         assert_eq!(jobs[1].location, Some("Europe".to_string()));
 
-        assert_eq!(jobs[2].company, "Company C");
-        assert_eq!(jobs[2].title, "Full Stack Developer");
+        assert_eq!(jobs[2].company, "City Health Department");
+        assert_eq!(jobs[2].title, "Program Coordinator");
         assert_eq!(jobs[2].location, Some("North America".to_string()));
     }
 
@@ -422,7 +422,7 @@ mod tests {
             <rss>
                 <channel>
                     <item>
-                        <title>Tech &amp; Data Corp: Software Engineer &amp; Architect</title>
+                        <title>Community Care &amp; Data Network: Public Health Analyst &amp; Planner</title>
                         <link>https://weworkremotely.com/jobs/123</link>
                         <description>&lt;p&gt;Great remote opportunity&lt;/p&gt; &quot;Join us&quot;</description>
                     </item>
@@ -433,8 +433,8 @@ mod tests {
         let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
 
         assert_eq!(jobs.len(), 1);
-        assert_eq!(jobs[0].company, "Tech & Data Corp");
-        assert_eq!(jobs[0].title, "Software Engineer & Architect");
+        assert_eq!(jobs[0].company, "Community Care & Data Network");
+        assert_eq!(jobs[0].title, "Public Health Analyst & Planner");
         assert!(jobs[0]
             .description
             .as_ref()
@@ -526,7 +526,7 @@ mod tests {
             <rss>
                 <channel>
                     <item>
-                        <title>TechCorp: Software Engineer</title>
+                        <title>FreshMart: Inventory Planner</title>
                         <description>Great opportunity</description>
                     </item>
                 </channel>
@@ -546,7 +546,7 @@ mod tests {
             <rss>
                 <channel>
                     <item>
-                        <title>Software Engineer Position</title>
+                        <title>Care Coordinator Position</title>
                         <link>https://weworkremotely.com/jobs/123</link>
                         <description>Join our team</description>
                     </item>
@@ -558,7 +558,7 @@ mod tests {
 
         assert_eq!(jobs.len(), 1);
         assert_eq!(jobs[0].company, "Unknown Company");
-        assert_eq!(jobs[0].title, "Software Engineer Position");
+        assert_eq!(jobs[0].title, "Care Coordinator Position");
     }
 
     #[test]
@@ -568,7 +568,7 @@ mod tests {
             <rss>
                 <channel>
                     <item>
-                        <title>Acme Corp: Senior Engineer: Backend Team</title>
+                        <title>FreshMart: Senior Inventory Planner: Regional Team</title>
                         <link>https://weworkremotely.com/jobs/123</link>
                         <description>Join us</description>
                     </item>
@@ -579,8 +579,8 @@ mod tests {
         let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
 
         assert_eq!(jobs.len(), 1);
-        assert_eq!(jobs[0].company, "Acme Corp");
-        assert_eq!(jobs[0].title, "Senior Engineer: Backend Team");
+        assert_eq!(jobs[0].company, "FreshMart");
+        assert_eq!(jobs[0].title, "Senior Inventory Planner: Regional Team");
     }
 
     #[test]
@@ -638,14 +638,14 @@ mod tests {
     #[test]
     fn test_hash_consistency() {
         let hash1 = WeWorkRemotelyScraper::compute_hash(
-            "TechCorp",
-            "Rust Engineer",
+            "City Health Department",
+            "Public Health Analyst",
             Some("Worldwide"),
             "https://weworkremotely.com/jobs/123",
         );
         let hash2 = WeWorkRemotelyScraper::compute_hash(
-            "TechCorp",
-            "Rust Engineer",
+            "City Health Department",
+            "Public Health Analyst",
             Some("Worldwide"),
             "https://weworkremotely.com/jobs/123",
         );
@@ -657,14 +657,14 @@ mod tests {
     #[test]
     fn test_hash_differs_with_different_location() {
         let hash1 = WeWorkRemotelyScraper::compute_hash(
-            "TechCorp",
-            "Engineer",
+            "FreshMart",
+            "Inventory Planner",
             Some("USA"),
             "https://weworkremotely.com/jobs/123",
         );
         let hash2 = WeWorkRemotelyScraper::compute_hash(
-            "TechCorp",
-            "Engineer",
+            "FreshMart",
+            "Inventory Planner",
             Some("Europe"),
             "https://weworkremotely.com/jobs/123",
         );
@@ -674,9 +674,12 @@ mod tests {
 
     #[test]
     fn test_strip_html_tags_preserves_text() {
-        let html = "<div><p>Looking for a <strong>talented</strong> developer.</p> <ul> <li>Item 1</li> <li>Item 2</li> </ul></div>";
+        let html = "<div><p>Looking for a <strong>talented</strong> care coordinator.</p> <ul> <li>Item 1</li> <li>Item 2</li> </ul></div>";
         let result = WeWorkRemotelyScraper::strip_html_tags(html);
-        assert_eq!(result, "Looking for a talented developer. Item 1 Item 2");
+        assert_eq!(
+            result,
+            "Looking for a talented care coordinator. Item 1 Item 2"
+        );
     }
 
     #[test]
@@ -704,7 +707,7 @@ mod tests {
             <rss>
                 <channel>
                     <item>
-                        <title>Company: Engineer</title>
+                        <title>Company: Program Coordinator</title>
                         <link>https://weworkremotely.com/jobs/1</link>
                         <description>Remote job</description>
                     </item>
@@ -727,7 +730,7 @@ mod tests {
                 <channel>
                     <item>
                         <title>
-                            TechStartup  :  Senior Engineer
+                            Community Care Network  :  Senior Care Coordinator
                         </title>
                         <link>  https://weworkremotely.com/jobs/123  </link>
                         <description>
@@ -741,8 +744,8 @@ mod tests {
         let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
 
         assert_eq!(jobs.len(), 1);
-        assert_eq!(jobs[0].company, "TechStartup");
-        assert_eq!(jobs[0].title, "Senior Engineer");
+        assert_eq!(jobs[0].company, "Community Care Network");
+        assert_eq!(jobs[0].title, "Senior Care Coordinator");
     }
 
     #[test]
@@ -824,7 +827,7 @@ mod tests {
             <rss>
                 <channel>
                     <item>
-                        <title>TechCo: Engineer</title>
+                        <title>FreshMart: Inventory Planner</title>
                         <link>https://weworkremotely.com/jobs/123</link>
                         <description>Great opportunity with competitive salary.</description>
                     </item>
