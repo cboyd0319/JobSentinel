@@ -236,13 +236,13 @@ mod tests {
 
     #[test]
     fn test_detect_remote_from_title() {
-        let job = create_test_job("Remote Care Coordinator", Some("San Francisco"), None, None);
+        let job = create_test_job("Remote Care Coordinator", Some("Chicago"), None, None);
         assert_eq!(detect_remote_status(&job), RemoteStatus::Remote);
     }
 
     #[test]
     fn test_detect_hybrid_from_location() {
-        let job = create_test_job("Care Coordinator", Some("New York (Hybrid)"), None, None);
+        let job = create_test_job("Care Coordinator", Some("Austin (Hybrid)"), None, None);
         assert_eq!(detect_remote_status(&job), RemoteStatus::Hybrid);
     }
 
@@ -250,7 +250,7 @@ mod tests {
     fn test_detect_hybrid_from_description() {
         let job = create_test_job(
             "Care Coordinator",
-            Some("New York"),
+            Some("Austin"),
             Some("Flexible location - hybrid remote and office"),
             None,
         );
@@ -261,7 +261,7 @@ mod tests {
     fn test_detect_onsite_from_description() {
         let job = create_test_job(
             "Care Coordinator",
-            Some("San Francisco"),
+            Some("Chicago"),
             Some("This is an on-site position"),
             None,
         );
@@ -272,7 +272,7 @@ mod tests {
     fn test_detect_unspecified() {
         let job = create_test_job(
             "Care Coordinator",
-            Some("New York, NY"),
+            Some("Austin, TX"),
             Some("Great benefits"),
             None,
         );

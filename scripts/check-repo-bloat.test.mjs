@@ -830,6 +830,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src-tauri/src/core/scoring/mod.rs",
+      'job.location = Some("San Francisco, CA (Hybrid)".to_string());\n',
+    );
+    writeFixtureFile(
+      root,
       "src-tauri/src/core/scoring/remote.rs",
       'create_test_job("Engineer", Some("Remote - US"), None, None);\n',
     );
@@ -1043,6 +1048,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src-tauri/src/core/resume/tests.rs",
         "src-tauri/src/core/bookmarklet/mod.rs",
         "src-tauri/src/core/bookmarklet/server.rs",
+        "src-tauri/src/core/scoring/mod.rs",
         "src-tauri/src/core/scoring/remote.rs",
         "src/pages/hooks/useDashboardFilters.test.ts",
         "src/pages/hooks/useDashboardJobOps.test.ts",
@@ -1146,6 +1152,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src-tauri/src/core/resume/tests.rs",
       "src-tauri/src/core/bookmarklet/mod.rs",
       "src-tauri/src/core/bookmarklet/server.rs",
+      "src-tauri/src/core/scoring/mod.rs",
       "src-tauri/src/core/scoring/remote.rs",
       "src/pages/hooks/useDashboardFilters.test.ts",
       "src/pages/hooks/useDashboardJobOps.test.ts",

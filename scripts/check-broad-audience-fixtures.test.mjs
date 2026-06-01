@@ -118,3 +118,31 @@ test("salary audience fixtures reject engineer-centered salary examples", () => 
     assert.equal(hasSalaryAudienceExampleDrift(root, "src-tauri/src/core/salary/mod.rs"), false);
   });
 });
+
+test("broad audience fixtures reject tech-hub scoring location defaults", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scoring/mod.rs",
+      'job.location = Some("San Francisco, CA (Hybrid)".to_string());',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scoring/remote.rs",
+      [
+        'let job = create_test_job("Care Coordinator", Some("New York, NY"), None, None);',
+        'let fallback = create_test_job("Engineer", Some("Remote - US"), None, None);',
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasEngineerFirstAudienceExamples(root, "src-tauri/src/core/scoring/mod.rs"),
+      true,
+    );
+    assert.equal(
+      hasEngineerFirstAudienceExamples(root, "src-tauri/src/core/scoring/remote.rs"),
+      true,
+    );
+  });
+});

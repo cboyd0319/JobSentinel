@@ -62,6 +62,7 @@ const broadAudienceExamplePaths = new Set([
   "src-tauri/src/core/resume/tests.rs",
   "src-tauri/src/core/bookmarklet/mod.rs",
   "src-tauri/src/core/bookmarklet/server.rs",
+  "src-tauri/src/core/scoring/mod.rs",
   "src-tauri/src/core/scoring/remote.rs",
   "src-tauri/src/commands/deeplinks.rs",
   "src-tauri/src/commands/feedback/debug_log.rs",
@@ -319,6 +320,21 @@ export function hasEngineerFirstAudienceExamples(root, path) {
     ];
 
     return marketIntelligenceTestPatterns.some((pattern) => pattern.test(text));
+  }
+
+  if (
+    path === "src-tauri/src/core/scoring/mod.rs" ||
+    path === "src-tauri/src/core/scoring/remote.rs"
+  ) {
+    const scoringLocationFixturePatterns = [
+      /create_test_job\(["']Engineer["']/i,
+      /Some\(["']San Francisco(?:,\s*CA)?(?:\s*\(Hybrid\))?["']\)/i,
+      /Some\(["']New York(?:,\s*NY)?(?:\s*\(Hybrid\))?["']\)/i,
+      /job\.location\s*=\s*Some\(["']San Francisco,\s*CA(?:\s*\(Hybrid\))?["']\.to_string\(\)\)/i,
+      /job\.location\s*=\s*Some\(["']New York,\s*NY["']\.to_string\(\)\)/i,
+    ];
+
+    return scoringLocationFixturePatterns.some((pattern) => pattern.test(text));
   }
 
   if (genericScraperFixturePaths.has(path)) {

@@ -101,6 +101,10 @@ Current cleanup posture:
   and Rust Application Assist profile examples away from old `John Doe`,
   `Jane Doe`, GitHub, San Francisco, and New York fixtures; the
   broad-audience fixture sensor now covers those paths.
+- Latest broad fixture follow-up rebased scoring location examples away from
+  San Francisco and New York defaults toward Chicago and Austin examples; the
+  broad-audience fixture sensor now rejects those tech-hub defaults in scoring
+  paths.
 - Latest E2E reliability follow-up removed the hard sleep from keyboard
   search-focus coverage and expanded the fixed-wait sensor from page objects
   to every active Playwright runtime file. Screenshot capture remains allowed
@@ -439,6 +443,12 @@ Latest mock/profile broad-audience fixture slice checks on 2026-06-01:
 - `node --test scripts/check-broad-audience-fixtures.test.mjs`
 - `npm run lint:bloat`
 - `npm run test:scripts -- --test-name-pattern broad audience`
+
+Latest scoring broad-audience fixture slice checks on 2026-06-01:
+
+- `node --test scripts/check-broad-audience-fixtures.test.mjs`
+- `cargo test --manifest-path src-tauri/Cargo.toml core::scoring --lib`
+- `rg "San Francisco|New York" src-tauri/src/core/scoring/mod.rs src-tauri/src/core/scoring/remote.rs`
 
 Latest active E2E fixed-wait slice checks on 2026-06-01:
 

@@ -1034,7 +1034,7 @@ mod tests {
         let config = create_test_config();
         let mut job = create_test_job();
         job.remote = Some(false);
-        job.location = Some("San Francisco, CA (Hybrid)".to_string());
+        job.location = Some("Chicago, IL (Hybrid)".to_string());
 
         let engine = ScoringEngine::new(Arc::new(config));
         let score = engine.score(&job);
@@ -1050,7 +1050,7 @@ mod tests {
         let config = create_test_config();
         let mut job = create_test_job();
         job.remote = Some(false);
-        job.location = Some("New York, NY".to_string());
+        job.location = Some("Austin, TX".to_string());
 
         let engine = ScoringEngine::new(Arc::new(config));
         let score = engine.score(&job);
@@ -1303,7 +1303,7 @@ mod tests {
 
         let mut job = create_test_job();
         job.remote = Some(false);
-        job.location = Some("San Francisco, CA (Hybrid)".to_string());
+        job.location = Some("Chicago, IL (Hybrid)".to_string());
 
         let engine = ScoringEngine::new(Arc::new(config));
         let score = engine.score(&job);
@@ -1324,7 +1324,7 @@ mod tests {
 
         let mut job = create_test_job();
         job.remote = Some(false);
-        job.location = Some("New York, NY".to_string());
+        job.location = Some("Austin, TX".to_string());
 
         let engine = ScoringEngine::new(Arc::new(config));
         let score = engine.score(&job);
@@ -1500,7 +1500,7 @@ mod tests {
 
         // Test onsite
         job.remote = Some(false);
-        job.location = Some("New York, NY".to_string());
+        job.location = Some("Austin, TX".to_string());
         let score = engine.score(&job);
         assert_eq!(score.breakdown.location, 0.20, "Onsite should score full");
     }
