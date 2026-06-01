@@ -290,6 +290,10 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
 - The latest E2E budget slice adds Playwright JSON budget commands for smoke
   and full E2E runs, with the latest smoke budget evidence at 9 Chromium smoke
   tests in 5.97 seconds against a 30-second budget.
+- The latest Rule 0 review slice updates the PR template so human review must
+  show privacy/security, local-first, external AI gateway, safe-support-report,
+  responsible-use, broad-audience, and zero-technical-knowledge evidence; the
+  harness manifest now blocks drift in those review requirements.
 - Updated active plan and handoff docs for the latest local cleanup slice.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
@@ -321,6 +325,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-01 | In progress | Added Rule 0 PR review evidence requirements and manifest-backed harness snippets for privacy/security, local-first workflows, external AI gateway routing, safe support reports, responsible use, broad audience, and zero-technical-knowledge support. |
 | 2026-06-01 | In progress | Pushed `a4dade40` to `main`; remote Docs Harness `26741447318` and CI `26741447297` both passed. Per the current goal posture, avoid another remote CI run until full-goal completion or explicit user request. |
 | 2026-06-01 | In progress | Removed hardcoded employer rating claims from static company fallback data, kept cached rating rendering covered by component tests, changed unknown-company guidance toward official/public-source research, and added source-quality harness coverage so static fallback ratings cannot drift back. |
 | 2026-06-01 | In progress | Narrowed browser import UI and docs away from any-job/large-board support promises toward official career pages and user-opened public job pages, explicitly stated that JobSentinel does not bypass blocking controls, and added product-copy coverage against overbroad import promises. |

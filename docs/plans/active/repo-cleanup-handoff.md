@@ -67,6 +67,11 @@ Current branch note:
 - The current local E2E budget slice adds Playwright JSON budget commands for
   smoke and full-suite runs. Latest local smoke budget evidence: 9 Chromium
   smoke tests in 5.97 seconds against a 30-second budget.
+- The current local Rule 0 review slice updates `.github/PULL_REQUEST_TEMPLATE.md`
+  with privacy/security, local-first, external AI gateway, payload preview,
+  responsible-use, safe-support-report, broad-audience, and
+  zero-technical-knowledge checks. Manifest snippets now make
+  `npm run harness:check` fail when those PR review requirements drift.
 - Pending integration gate: commit accumulated local slices, push to `main`,
   confirm CI passes, and then continue broader goal work when ready for the
   next remote verification run.

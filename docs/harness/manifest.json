@@ -2,6 +2,7 @@
   "version": 1,
   "requiredFiles": [
     ".nvmrc",
+    ".github/PULL_REQUEST_TEMPLATE.md",
     "AGENTS.md",
     "PRIVACY.md",
     "RESPONSIBLE_AI.md",
@@ -82,6 +83,13 @@
     "docs/harness/verification-matrix.md": [
       "## Experience And Support",
       "External AI provider path"
+    ],
+    ".github/PULL_REQUEST_TEMPLATE.md": [
+      "Rule 0: user privacy and security are non-negotiable.",
+      "External AI remains optional, disabled by default, and routed through the privacy-first AI gateway.",
+      "Payload preview, redaction, cancellation, approval, and local request logging stay intact.",
+      "Safe support report path stays easy, local-first, and sanitized.",
+      "Zero-technical-knowledge users and technical plus non-technical job searches stay supported."
     ],
     "docs/harness/sources.md": [
       "AgentPatterns.ai",

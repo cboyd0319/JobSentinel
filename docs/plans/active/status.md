@@ -244,6 +244,10 @@ and record actionable findings in this active-plan surface.
   `npm run test:e2e:smoke:budget`, and `npm run test:e2e:all:budget`; the
   latest measured smoke budget run completed 9 Chromium smoke tests in
   5.97 seconds against a 30-second budget.
+- Latest Rule 0 harness work updates `.github/PULL_REQUEST_TEMPLATE.md` so PRs
+  must show privacy/security, optional external AI, safe-support-report,
+  responsible-use, broad-audience, and zero-technical-knowledge evidence; the
+  template is now covered by manifest snippets in `npm run harness:check`.
 - Latest local docs-drift harness work moves the docs-drift violation messages
   out of `scripts/check-repo-bloat.mjs` and into
   `scripts/harness/checks/docs-drift.mjs` through

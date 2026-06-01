@@ -14,9 +14,15 @@ test("harness policy manifest owns required docs and source policy", () => {
 
   assert.equal(manifest.version, 1);
   assert.ok(manifest.requiredFiles.includes("AGENTS.md"));
+  assert.ok(manifest.requiredFiles.includes(".github/PULL_REQUEST_TEMPLATE.md"));
   assert.ok(manifest.requiredFiles.includes(manifestPath));
   assert.ok(manifest.requiredFiles.includes(featurePrivacyLabelsPath));
   assert.ok(manifest.requiredHarnessSnippets["README.md"].includes("Core workflows work locally."));
+  assert.ok(
+    manifest.requiredHarnessSnippets[".github/PULL_REQUEST_TEMPLATE.md"].includes(
+      "Rule 0: user privacy and security are non-negotiable.",
+    ),
+  );
   assert.equal(manifest.readmeReferences.heading, "## References and external sources");
   assert.equal(manifest.readmeReferences.excludedTestUrlExplanation, "Security test payloads");
   assert.ok(

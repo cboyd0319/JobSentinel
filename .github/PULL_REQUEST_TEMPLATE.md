@@ -12,11 +12,25 @@
 - [ ] CI/CD or build changes
 - [ ] Dependency update
 
-## Privacy Checklist
+## Rule 0 Privacy And Security
 
-- [ ] No data is sent externally without explicit user configuration
-- [ ] No new telemetry or tracking added
-- [ ] Sensitive data is stored using OS keyring (not plaintext)
+- [ ] Rule 0: user privacy and security are non-negotiable.
+- [ ] Core workflows still work locally without a cloud account or external AI provider.
+- [ ] No data is sent externally without explicit user opt-in and review.
+- [ ] External AI remains optional, disabled by default, and routed through the privacy-first AI gateway.
+- [ ] Payload preview, redaction, cancellation, approval, and local request logging stay intact.
+- [ ] No full database upload, private notes, application history, resume, or salary floor is sent by default.
+- [ ] No new telemetry or tracking added.
+- [ ] Sensitive data is stored using OS keyring when credentials are required, not plaintext.
+
+## Responsible Use And User Ease
+
+- [ ] No automated mass applications, deceptive resume optimization, hidden
+  keyword stuffing, ATS manipulation, CAPTCHA bypass, restricted-site scraping,
+  or platform-control evasion added.
+- [ ] Safe support report path stays easy, local-first, and sanitized.
+- [ ] Zero-technical-knowledge users and technical plus non-technical job searches stay supported.
+- [ ] User-facing copy stays protective, plain-language, and broad-audience.
 
 ## Testing
 
