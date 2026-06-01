@@ -112,6 +112,8 @@ export function validatePhone(phone: string): string | undefined {
  */
 export function validateSlackWebhook(url: string): string | undefined {
   if (!url.trim()) return undefined; // Empty is valid (optional field)
+  const help =
+    "Paste the full Slack connection link copied from Slack. If you are not sure, leave it blank and set it up later.";
 
   // Parse URL to validate host/origin, not just string prefix
   // This prevents bypass attacks like "https://evil.com?https://hooks.slack.com/services/..."
@@ -120,30 +122,30 @@ export function validateSlackWebhook(url: string): string | undefined {
     
     // Validate scheme
     if (parsed.protocol !== "https:") {
-      return "Slack connection link must start with https://";
+      return help;
     }
 
     if (parsed.username || parsed.password) {
-      return "Slack connection link must not include a username or password";
+      return help;
     }
 
     if (parsed.port && parsed.port !== "443") {
-      return "Slack connection link must use the standard secure web port";
+      return help;
     }
     
     // Validate host
     if (parsed.hostname !== "hooks.slack.com") {
-      return "Paste a Slack connection link from hooks.slack.com";
+      return help;
     }
     
     // Validate path
     if (!parsed.pathname.startsWith("/services/")) {
-      return "Paste the full Slack connection link";
+      return help;
     }
     
     return undefined;
   } catch {
-    return "Enter a valid connection link";
+    return help;
   }
 }
 
@@ -154,6 +156,8 @@ export function validateSlackWebhook(url: string): string | undefined {
  */
 export function validateDiscordWebhook(url: string): string | undefined {
   if (!url.trim()) return undefined; // Empty is valid (optional field)
+  const help =
+    "Paste the full Discord connection link copied from Discord. If you are not sure, leave it blank and set it up later.";
 
   // Parse URL to validate host/origin, not just string prefix
   // This prevents bypass attacks like "https://evil.com?https://discord.com/api/webhooks/..."
@@ -162,30 +166,30 @@ export function validateDiscordWebhook(url: string): string | undefined {
     
     // Validate scheme
     if (parsed.protocol !== "https:") {
-      return "Discord connection link must start with https://";
+      return help;
     }
 
     if (parsed.username || parsed.password) {
-      return "Discord connection link must not include a username or password";
+      return help;
     }
 
     if (parsed.port && parsed.port !== "443") {
-      return "Discord connection link must use the standard secure web port";
+      return help;
     }
     
     // Validate host
     if (parsed.hostname !== "discord.com" && parsed.hostname !== "discordapp.com") {
-      return "Paste a Discord connection link from discord.com or discordapp.com";
+      return help;
     }
     
     // Validate path
     if (!parsed.pathname.startsWith("/api/webhooks/")) {
-      return "Paste the full Discord connection link";
+      return help;
     }
     
     return undefined;
   } catch {
-    return "Enter a valid connection link";
+    return help;
   }
 }
 
@@ -196,6 +200,8 @@ export function validateDiscordWebhook(url: string): string | undefined {
  */
 export function validateTeamsWebhook(url: string): string | undefined {
   if (!url.trim()) return undefined; // Empty is valid (optional field)
+  const help =
+    "Paste the full Teams connection link copied from Teams. If you are not sure, leave it blank and set it up later.";
 
   // Parse URL to validate host/origin, not just string prefix
   // This prevents bypass attacks like "https://evil.com?https://outlook.office.com/webhook/..."
@@ -204,30 +210,30 @@ export function validateTeamsWebhook(url: string): string | undefined {
 
     // Validate scheme
     if (parsed.protocol !== "https:") {
-      return "Teams connection link must start with https://";
+      return help;
     }
 
     if (parsed.username || parsed.password) {
-      return "Teams connection link must not include a username or password";
+      return help;
     }
 
     if (parsed.port && parsed.port !== "443") {
-      return "Teams connection link must use the standard secure web port";
+      return help;
     }
 
     // Validate host
     if (parsed.hostname !== "outlook.office.com" && parsed.hostname !== "outlook.office365.com") {
-      return "Paste a Teams connection link from outlook.office.com or outlook.office365.com";
+      return help;
     }
 
     // Validate path
     if (!parsed.pathname.startsWith("/webhook/")) {
-      return "Paste the full Teams connection link";
+      return help;
     }
 
     return undefined;
   } catch {
-    return "Enter a valid connection link";
+    return help;
   }
 }
 

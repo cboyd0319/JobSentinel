@@ -65,7 +65,7 @@ describe("JobImportModal", () => {
     await user.click(screen.getByRole("button", { name: "Check Job Link" }));
 
     expect(
-      await screen.findByText("Please enter a full link that starts with http:// or https://"),
+      await screen.findByText("Please paste the full job link from your browser address bar"),
     ).toBeInTheDocument();
     expect(invoke).not.toHaveBeenCalled();
   });

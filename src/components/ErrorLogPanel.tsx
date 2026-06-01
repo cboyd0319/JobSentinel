@@ -281,8 +281,13 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
             </Button>
             {errors.length > 0 && (
               <>
-                <Button size="sm" variant="secondary" onClick={exportErrors}>
-                  Save Problem Details
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={exportErrors}
+                  title="For support only. Copy or save a safe report first."
+                >
+                  Advanced: Save Support Details
                 </Button>
                 <Button size="sm" variant="danger" onClick={clearErrors}>
                   Clear All

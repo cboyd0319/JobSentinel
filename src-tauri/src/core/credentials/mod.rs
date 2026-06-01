@@ -199,27 +199,24 @@ fn validate_webhook_credential(
     allowed_hosts: &[&str],
     required_path_prefix: &str,
     provider_label: &str,
-    host_label: &str,
+    _host_label: &str,
 ) -> Result<(), String> {
-    let url = url::Url::parse(value).map_err(|_| "Enter a valid connection link".to_string())?;
+    let help = format!(
+        "Paste the full {provider_label} connection link copied from {provider_label}. If you are not sure, leave it blank and set it up later."
+    );
+    let url = url::Url::parse(value).map_err(|_| help.clone())?;
 
     if url.scheme() != "https" {
-        return Err(format!(
-            "{provider_label} connection link must start with https://"
-        ));
+        return Err(help);
     }
 
     if !url.username().is_empty() || url.password().is_some() {
-        return Err(format!(
-            "{provider_label} connection link must not include a username or password"
-        ));
+        return Err(help);
     }
 
     if let Some(port) = url.port() {
         if port != 443 {
-            return Err(format!(
-                "{provider_label} connection link must use the standard secure web port"
-            ));
+            return Err(help);
         }
     }
 
@@ -227,13 +224,11 @@ fn validate_webhook_credential(
         .host_str()
         .is_some_and(|host| allowed_hosts.contains(&host))
     {
-        return Err(format!(
-            "{provider_label} connection link must use {host_label}"
-        ));
+        return Err(help);
     }
 
     if !url.path().starts_with(required_path_prefix) {
-        return Err(format!("Paste the full {provider_label} connection link"));
+        return Err(help);
     }
 
     Ok(())

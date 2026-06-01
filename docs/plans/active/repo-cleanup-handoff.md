@@ -121,6 +121,12 @@ Current cleanup posture:
   USAJobs access as an access code with no coding needed, changes screening
   answer setup from matching text to plain question wording, and removes
   GitHub-first Deep Links troubleshooting copy.
+- Latest recovery-copy follow-up removes stale `Settings > Database > Restore
+  from backup` guidance, distinguishes cancelled settings restore from
+  unreadable backup files, replaces webhook protocol/port/host errors with
+  provider-first connection-link actions, labels raw problem export as an
+  advanced support action, and changes failed job-link import guidance to the
+  browser-address-bar action instead of Schema.org or URL wording.
 - Latest IPC minimization work added `has_application_profile`,
   `get_application_profile_preview`, `get_dashboard_preferences`, canonical
   import URLs before preview/hash/storage, and minimized import responses to

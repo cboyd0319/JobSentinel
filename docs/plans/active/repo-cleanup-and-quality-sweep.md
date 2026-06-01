@@ -160,7 +160,7 @@ Required process:
 
 ## Current Status
 
-As of 2026-05-31, the active plan remains open. Latest local work improved
+As of 2026-06-01, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, and harness modularity:
 
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
@@ -211,6 +211,13 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   state gives search-preference recovery guidance, browser import hides
   connection details behind Advanced, and location lookup copy explains the
   public internet address lookup in plain language.
+- Fixed additional recovery-copy findings: database damage guidance no longer
+  points to a nonexistent restore screen, settings restore now reports
+  unreadable backup files instead of failing silently, notification
+  connection-link errors use provider-first copy without protocol/port jargon,
+  advanced problem export is framed as support-only, and job-link import
+  failures point users to copy the browser address bar instead of exposing
+  Schema.org or URL terminology.
 - Started broad-audience drift cleanup by rebalancing company autocomplete
   suggestions across healthcare, retail, logistics, finance, public service,
   education, hospitality, and technology; replacing tech-first placeholders and

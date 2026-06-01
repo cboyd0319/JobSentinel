@@ -4,8 +4,10 @@ import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import Settings from "./Settings";
 import * as feedbackService from "../services/feedbackService";
+import { importConfigFromJSON } from "../utils/export";
 
 const mockInvoke = vi.mocked(invoke);
+const mockImportConfigFromJSON = vi.mocked(importConfigFromJSON);
 
 // Mock toast
 const mockToast = {
@@ -597,6 +599,30 @@ describe("Settings — handleSave flow", () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
+  it("shows clear feedback when a settings backup cannot be read", async () => {
+    const user = userEvent.setup();
+
+    setupHappyPath();
+    mockImportConfigFromJSON.mockResolvedValueOnce({ status: "invalid" });
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("button", { name: "Restore Settings" }));
+
+    expect(mockToast.error).toHaveBeenCalledWith(
+      "Could not read settings backup",
+      "Choose another JobSentinel settings backup file.",
+    );
+    expect(mockToast.success).not.toHaveBeenCalledWith(
+      "Config imported",
+      expect.any(String),
+    );
+  });
+
   it("tests an existing Slack webhook without retrieving it into the renderer", async () => {
     const user = userEvent.setup();
 
@@ -750,7 +776,7 @@ describe("Settings — handleSave flow", () => {
 
     expect(mockToast.error).toHaveBeenCalledWith(
       "Check Discord connection link",
-      "Paste a Discord connection link from discord.com or discordapp.com that starts with https://.",
+      "Paste the full Discord connection link copied from Discord. If you are not sure, leave it blank and set it up later.",
     );
     expect(mockInvoke).not.toHaveBeenCalledWith("save_config", expect.anything());
     expect(mockInvoke).not.toHaveBeenCalledWith(
@@ -791,7 +817,7 @@ describe("Settings — handleSave flow", () => {
 
     expect(mockToast.error).toHaveBeenCalledWith(
       "Check Teams connection link",
-      "Paste a Teams connection link from outlook.office.com or outlook.office365.com that starts with https://.",
+      "Paste the full Teams connection link copied from Teams. If you are not sure, leave it blank and set it up later.",
     );
     expect(mockInvoke).not.toHaveBeenCalledWith("save_config", expect.anything());
     expect(mockInvoke).not.toHaveBeenCalledWith(

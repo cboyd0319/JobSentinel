@@ -254,7 +254,7 @@ function getCredentialValidationError(
     return {
       title: "Check Slack connection link",
       message:
-        "Paste a Slack connection link from hooks.slack.com that starts with https://.",
+        "Paste the full Slack connection link copied from Slack. If you are not sure, leave it blank and set it up later.",
     };
   }
 
@@ -262,7 +262,7 @@ function getCredentialValidationError(
     return {
       title: "Check Discord connection link",
       message:
-        "Paste a Discord connection link from discord.com or discordapp.com that starts with https://.",
+        "Paste the full Discord connection link copied from Discord. If you are not sure, leave it blank and set it up later.",
     };
   }
 
@@ -270,7 +270,7 @@ function getCredentialValidationError(
     return {
       title: "Check Teams connection link",
       message:
-        "Paste a Teams connection link from outlook.office.com or outlook.office365.com that starts with https://.",
+        "Paste the full Teams connection link copied from Teams. If you are not sure, leave it blank and set it up later.",
     };
   }
 
@@ -898,14 +898,21 @@ export default function Settings({ onClose }: SettingsProps) {
 
   const handleImportConfig = async () => {
     try {
-      const imported = await importConfigFromJSON<Config>();
-      if (!imported) {
+      const result = await importConfigFromJSON<Config>();
+      if (result.status === "cancelled") {
         return; // User cancelled
+      }
+      if (result.status === "invalid") {
+        toast.error(
+          "Could not read settings backup",
+          "Choose another JobSentinel settings backup file.",
+        );
+        return;
       }
 
       // Credentials are stored in OS keyring, not in config file
       // So we just import the non-sensitive config settings
-      setConfig(imported);
+      setConfig(result.config);
       toast.success(
         "Config imported",
         "Review settings and click Save to apply. Note: Credentials must be re-entered (they are stored securely and not exported).",

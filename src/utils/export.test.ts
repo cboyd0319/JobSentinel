@@ -634,16 +634,16 @@ describe("export utilities", () => {
       await promise;
     });
 
-    it("returns null when cancelled", async () => {
+    it("returns cancelled when picker is closed", async () => {
       const promise = importConfigFromJSON();
 
       mockInput.oncancel?.();
 
       const result = await promise;
-      expect(result).toBeNull();
+      expect(result).toEqual({ status: "cancelled" });
     });
 
-    it("returns null when no file selected", async () => {
+    it("returns cancelled when no file selected", async () => {
       const promise = importConfigFromJSON();
 
       // Simulate change event with no files
@@ -651,10 +651,10 @@ describe("export utilities", () => {
       mockInput.onchange?.({ target: mockInput } as unknown as Event);
 
       const result = await promise;
-      expect(result).toBeNull();
+      expect(result).toEqual({ status: "cancelled" });
     });
 
-    it("returns null when files array is empty", async () => {
+    it("returns cancelled when files array is empty", async () => {
       const promise = importConfigFromJSON();
 
       // Simulate change event with empty files
@@ -662,7 +662,7 @@ describe("export utilities", () => {
       mockInput.onchange?.({ target: mockInput } as unknown as Event);
 
       const result = await promise;
-      expect(result).toBeNull();
+      expect(result).toEqual({ status: "cancelled" });
     });
 
     it("parses and returns valid JSON file", async () => {
@@ -685,10 +685,10 @@ describe("export utilities", () => {
       mockInput.onchange?.({ target: mockInput } as unknown as Event);
 
       const result = await promise;
-      expect(result).toEqual(testConfig);
+      expect(result).toEqual({ status: "ok", config: testConfig });
     });
 
-    it("returns null for invalid JSON", async () => {
+    it("returns invalid for unreadable JSON", async () => {
       // Create a mock file with invalid JSON content
       const mockFile = {
         text: vi.fn().mockResolvedValue("not valid json {{{"),
@@ -704,7 +704,7 @@ describe("export utilities", () => {
       mockInput.onchange?.({ target: mockInput } as unknown as Event);
 
       const result = await promise;
-      expect(result).toBeNull();
+      expect(result).toEqual({ status: "invalid" });
     });
   });
 });

@@ -158,10 +158,17 @@ function scrubSensitiveFields(value: unknown): void {
 }
 
 /**
- * Import config from JSON file
- * Returns parsed config or null if cancelled/invalid
+ * Result of importing a settings backup.
  */
-export function importConfigFromJSON<T>(): Promise<T | null> {
+export type ImportConfigResult<T> =
+  | { status: "ok"; config: T }
+  | { status: "cancelled" }
+  | { status: "invalid" };
+
+/**
+ * Import config from JSON file.
+ */
+export function importConfigFromJSON<T>(): Promise<ImportConfigResult<T>> {
   return new Promise((resolve) => {
     const input = document.createElement("input");
     input.type = "file";
@@ -172,20 +179,20 @@ export function importConfigFromJSON<T>(): Promise<T | null> {
       const file = target.files?.[0];
 
       if (!file) {
-        resolve(null);
+        resolve({ status: "cancelled" });
         return;
       }
 
       try {
         const text = await file.text();
         const parsed = JSON.parse(text) as T;
-        resolve(parsed);
+        resolve({ status: "ok", config: parsed });
       } catch {
-        resolve(null);
+        resolve({ status: "invalid" });
       }
     };
 
-    input.oncancel = () => resolve(null);
+    input.oncancel = () => resolve({ status: "cancelled" });
     input.click();
   });
 }

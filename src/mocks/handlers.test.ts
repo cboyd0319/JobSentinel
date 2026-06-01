@@ -465,7 +465,7 @@ describe("mock Tauri handlers", () => {
       mockInvoke<JobImportPreview>("preview_job_import", {
         url: "http://localhost:3000/jobs/care-coordinator",
       }),
-    ).rejects.toThrow("Use a full job link that starts with http:// or https://");
+    ).rejects.toThrow("Please paste the full job link from your browser address bar");
   });
 
   it("returns minimized application profile and dashboard preferences mocks", async () => {

@@ -177,7 +177,7 @@ fn get_specific_hint(error: &str) -> Option<&'static str> {
         return Some("Your disk may be full. Free up some space and try again.");
     }
     if lower.contains("corrupt") || lower.contains("malformed") {
-        return Some("Database may be corrupted. Go to Settings > Database > Restore from backup.");
+        return Some("Database may be damaged. Restart JobSentinel. If this keeps happening, save a safe support report and restore from a backup if you have one.");
     }
 
     // Network specific

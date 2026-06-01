@@ -361,7 +361,7 @@ fn extract_salary_info(
 fn format_import_error(error: &ImportError) -> String {
     match error {
         ImportError::NoSchemaOrgData => {
-            "No Schema.org job data found on this page. This URL may not contain structured job posting data. Try using a direct link to a specific job listing.".to_string()
+            "Could not read this page as a single job posting. Open one job posting, copy its browser address, or save the job with the details JobSentinel can find.".to_string()
         }
         ImportError::MultipleJobPostings(count) => {
             format!(
@@ -406,10 +406,10 @@ fn format_import_error(error: &ImportError) -> String {
             user_friendly_error("Failed to read the job page response", error)
         }
         ImportError::HtmlParseError(_) => {
-            "Could not read structured job data from this page. Try using a direct official job posting URL.".to_string()
+            "Could not read this as one job posting. Open one job posting and copy its browser address.".to_string()
         }
         ImportError::InvalidJsonLd(_) => {
-            "Could not read the page's structured job data. Try using a direct official job posting URL.".to_string()
+            "Could not read this as one job posting. Open one job posting and copy its browser address.".to_string()
         }
         ImportError::DatabaseError(msg) => user_friendly_error("Database operation failed", msg),
     }

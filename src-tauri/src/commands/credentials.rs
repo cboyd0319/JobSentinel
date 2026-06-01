@@ -154,7 +154,10 @@ mod tests {
         .await
         .unwrap_err();
 
-        assert_eq!(err, "Slack connection link must use hooks.slack.com");
+        assert_eq!(
+            err,
+            "Paste the full Slack connection link copied from Slack. If you are not sure, leave it blank and set it up later."
+        );
         assert!(
             !err.contains("secret") && !err.contains("evil.example"),
             "validation error must not echo webhook value: {err}"
@@ -170,7 +173,10 @@ mod tests {
         .await
         .unwrap_err();
 
-        assert_eq!(err, "Paste the full Discord connection link");
+        assert_eq!(
+            err,
+            "Paste the full Discord connection link copied from Discord. If you are not sure, leave it blank and set it up later."
+        );
         assert!(
             !err.contains("secret") && !err.contains("123"),
             "validation error must not echo webhook value: {err}"
@@ -188,7 +194,7 @@ mod tests {
 
         assert_eq!(
             err,
-            "Teams connection link must not include a username or password"
+            "Paste the full Teams connection link copied from Teams. If you are not sure, leave it blank and set it up later."
         );
         assert!(
             !err.contains("secret") && !err.contains("abc"),

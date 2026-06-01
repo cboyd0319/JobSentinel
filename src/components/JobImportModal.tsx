@@ -1,7 +1,7 @@
 /**
  * JobImportModal - Universal Job Importer
  *
- * Allows users to import jobs from any URL by parsing Schema.org/JobPosting data.
+ * Lets users save a job from one job-posting page and review details first.
  * User-initiated, single-page fetching for legal compliance.
  */
 
@@ -76,7 +76,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
     try {
       new URL(url);
     } catch {
-      setError("Please enter a full link that starts with http:// or https://");
+      setError("Please paste the full job link from your browser address bar");
       return;
     }
 

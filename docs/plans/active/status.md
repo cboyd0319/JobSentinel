@@ -1,6 +1,6 @@
 # Active Plan Status
 
-Last updated: 2026-05-31.
+Last updated: 2026-06-01.
 
 Read this file before opening long active plans. It is the compact restart
 surface for the active goal; the detailed plans remain authoritative for scope,
@@ -79,6 +79,12 @@ and record actionable findings in this active-plan surface.
   "question wording to look for", softens optional email setup language, labels
   USAJobs access as an access code with no coding needed, and removes
   GitHub-first wording from Deep Links troubleshooting.
+- Latest local recovery-copy work replaces stale database recovery directions,
+  separates cancelled settings restores from unreadable backup files, makes bad
+  connection-link guidance provider-first without protocol or port jargon,
+  keeps advanced raw problem export behind support wording, and gives failed
+  job-link imports a browser-address-bar action instead of Schema.org or URL
+  terminology.
 - Latest local broad-audience fixture work rebalanced generic market
   intelligence, notifications, config, database, ATS, ghost detection, salary,
   scoring, generic scraper adapters, command, frontend mock, sample JSON
