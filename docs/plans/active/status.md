@@ -110,6 +110,13 @@ and record actionable findings in this active-plan surface.
   sanitization, and raw support-open error sensors into
   `scripts/harness/checks/privacy-logging.mjs`; focused privacy-logging
   coverage is now 35 tests and `scripts/check-repo-bloat.mjs` is 3,052 lines.
+- Latest local frontend feedback/report presentation harness work moves raw
+  feedback debug-event details, technical company-label report copy, raw
+  problem-history context display, raw error-boundary detail display,
+  technical recovery copy, non-protective score copy, and legacy
+  allowlist/blocklist preference copy sensors into
+  `scripts/harness/checks/product-copy.mjs`; focused product-copy coverage is
+  now 10 tests and `scripts/check-repo-bloat.mjs` is 2,947 lines.
 - Latest local privacy work removes raw automation dropdown-answer logging and
   raw frontend error forwarding, then adds bloat sensors and `errorReporting`
   unit coverage so those regressions fail locally.
@@ -205,9 +212,9 @@ and record actionable findings in this active-plan surface.
 1. Continue broad-audience fixture audit in less obvious fixture paths outside
    current sensors, while preserving tech-specific cases only when they test
    explicit branch behavior or source-realism parser contracts.
-2. Continue splitting oversized mixed sensors, especially remaining frontend
-   feedback/report presentation, fixture-quality, broad-audience, and
-   source-security checks still inside `scripts/check-repo-bloat.mjs`.
+2. Continue splitting oversized mixed sensors, especially remaining
+   fixture-quality, broad-audience, and source-security checks still inside
+   `scripts/check-repo-bloat.mjs`.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
 4. Continue broad-audience review so non-technical and technical job searches

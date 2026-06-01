@@ -6,9 +6,16 @@ import test from "node:test";
 import {
   hasApplicationAssistAutomationFraming,
   hasEngineerFirstResumeTemplateCopy,
+  hasFeedbackTechnicalCompanyLabels,
+  hasLegacyPreferenceListCopy,
+  hasNonProtectiveScoreCopy,
   hasOverconfidentGhostCopy,
   hasOverconfidentPayGuidance,
+  hasRawErrorBoundaryDetails,
+  hasRawFeedbackDebugEventDetails,
+  hasRawProblemHistoryContextDetails,
   hasStaleResumeOptimizerFraming,
+  hasTechnicalRecoveryCopy,
   hasTechnicalFirstUserCopy,
 } from "./harness/checks/product-copy.mjs";
 
@@ -82,6 +89,69 @@ test("product copy rejects overconfident pay guidance", () => {
     writeFixtureFile(root, "docs/features/salary-ai.md", "Always negotiate.\n");
 
     assert.equal(hasOverconfidentPayGuidance(root, "docs/features/salary-ai.md"), true);
+  });
+});
+
+test("product copy rejects raw feedback report presentation", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/components/feedback/DebugInfoPreview.tsx",
+      "JSON.stringify(event.details)",
+    );
+    writeFixtureFile(root, "src/services/feedbackService.ts", "Company blocklist\n");
+    writeFixtureFile(root, "src/components/ErrorLogPanel.tsx", "JSON.stringify(error.context)");
+
+    assert.equal(
+      hasRawFeedbackDebugEventDetails(root, "src/components/feedback/DebugInfoPreview.tsx"),
+      true,
+    );
+    assert.equal(
+      hasFeedbackTechnicalCompanyLabels(root, "src/services/feedbackService.ts"),
+      true,
+    );
+    assert.equal(
+      hasRawProblemHistoryContextDetails(root, "src/components/ErrorLogPanel.tsx"),
+      true,
+    );
+    assert.equal(hasRawFeedbackDebugEventDetails(root, "src/components/ErrorLogPanel.tsx"), false);
+  });
+});
+
+test("product copy rejects technical recovery and raw error details", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/components/ErrorBoundary.tsx",
+      [
+        "const title = `${pageName || 'Page'} Error`;",
+        "return this.state.error.message;",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(root, "src/components/ScraperHealthDashboard.tsx", "window state");
+
+    assert.equal(hasRawErrorBoundaryDetails(root, "src/components/ErrorBoundary.tsx"), true);
+    assert.equal(hasTechnicalRecoveryCopy(root, "src/components/ErrorBoundary.tsx"), true);
+    assert.equal(
+      hasTechnicalRecoveryCopy(root, "src/components/ScraperHealthDashboard.tsx"),
+      true,
+    );
+    assert.equal(hasRawErrorBoundaryDetails(root, "src/components/ScraperHealthDashboard.tsx"), false);
+  });
+});
+
+test("product copy rejects non-protective scoring and legacy preference copy", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "src/components/ScoreDisplay.tsx", "Great Match!");
+    writeFixtureFile(root, "docs/features/application-tracking.md", "Company Whitelist");
+
+    assert.equal(hasNonProtectiveScoreCopy(root, "src/components/ScoreDisplay.tsx"), true);
+    assert.equal(
+      hasLegacyPreferenceListCopy(root, "docs/features/application-tracking.md"),
+      true,
+    );
+    assert.equal(hasNonProtectiveScoreCopy(root, "src/components/ErrorBoundary.tsx"), false);
   });
 });
 

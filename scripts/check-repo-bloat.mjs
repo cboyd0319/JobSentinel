@@ -30,10 +30,17 @@ import {
 import {
   hasApplicationAssistAutomationFraming,
   hasEngineerFirstResumeTemplateCopy,
+  hasFeedbackTechnicalCompanyLabels,
   hasFeedbackLocalReportDrift,
+  hasLegacyPreferenceListCopy,
+  hasNonProtectiveScoreCopy,
   hasOverconfidentGhostCopy,
   hasOverconfidentPayGuidance,
+  hasRawErrorBoundaryDetails,
+  hasRawFeedbackDebugEventDetails,
+  hasRawProblemHistoryContextDetails,
   hasStaleResumeOptimizerFraming,
+  hasTechnicalRecoveryCopy,
   hasTechnicalFirstUserCopy,
 } from "./harness/checks/product-copy.mjs";
 import {
@@ -385,39 +392,6 @@ const genericScraperFixturePaths = new Set([
   "src-tauri/src/core/scrapers/simplyhired.rs",
   "src-tauri/src/core/scrapers/usajobs.rs",
   "src-tauri/src/core/scrapers/weworkremotely.rs",
-]);
-const feedbackDebugEventFormattingPaths = new Set([
-  "src/components/feedback/DebugInfoPreview.tsx",
-  "src/services/feedbackService.ts",
-]);
-const problemHistoryContextFormattingPaths = new Set([
-  "src/components/ErrorLogPanel.tsx",
-]);
-const errorBoundaryDisplayPaths = new Set([
-  "src/components/ComponentErrorBoundary.tsx",
-  "src/components/ErrorBoundary.tsx",
-  "src/components/ModalErrorBoundary.tsx",
-  "src/components/PageErrorBoundary.tsx",
-]);
-const plainRecoveryCopyPaths = new Set([
-  ...errorBoundaryDisplayPaths,
-  "src/components/ScraperHealthDashboard.tsx",
-]);
-const protectiveScoreCopyPaths = new Set([
-  "docs/features/notifications.md",
-  "docs/features/smart-scoring.md",
-  "docs/user/QUICK_START.md",
-  "src/config/tourSteps.ts",
-  "src/components/ResumeMatchScoreBreakdown.tsx",
-  "src/components/ScoreDisplay.tsx",
-  "src/components/ScoreBreakdownModal.tsx",
-  "src/pages/Dashboard.tsx",
-  "src/pages/DashboardUI/DashboardFiltersBar.tsx",
-  "src/pages/Settings.tsx",
-]);
-const plainJobSearchDocPaths = new Set([
-  "docs/features/application-tracking.md",
-  "docs/features/smart-scoring.md",
 ]);
 const staleStackOverflowJobsPaths = new Set([
   "docs/user/DEEP_LINKS.md",
@@ -1866,85 +1840,6 @@ function hasStaleFeedbackSystemInfoArchitecture(root, path) {
   }
 
   return /\bsystemInfo\.arch\b|\barch\s*:\s*string\b/.test(text);
-}
-
-function hasRawFeedbackDebugEventDetails(root, path) {
-  if (!feedbackDebugEventFormattingPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return /JSON\.stringify\(event\.details\)/.test(text);
-}
-
-function hasFeedbackTechnicalCompanyLabels(root, path) {
-  if (path !== "src/services/feedbackService.ts") {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return /Company (?:blocklist|allowlist)/.test(text);
-}
-
-function hasRawProblemHistoryContextDetails(root, path) {
-  if (!problemHistoryContextFormattingPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return /JSON\.stringify\(error\.context\)|\{error\.(?:message|stack|componentStack)\}/.test(text);
-}
-
-function hasRawErrorBoundaryDetails(root, path) {
-  if (!errorBoundaryDisplayPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return (
-    /\bthis\.state\.error\.(?:message|stack)\b/.test(text) ||
-    /sanitizeTextForStorage\(\s*(?:message|error\.message|this\.state\.error\.message)\s*\)/.test(
-      text,
-    )
-  );
-}
-
-function hasTechnicalRecoveryCopy(root, path) {
-  if (!plainRecoveryCopyPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  const stalePatterns = [
-    /\{this\.props\.componentName\}\s*Error/,
-    /\$\{pageName\s*\|\|\s*["']Page["']\}\s*Error/,
-    /Error occurred\s*\{/,
-    /Multiple errors detected/,
-    /Retry attempt\s*\{/,
-    /aria-label=["']Close error dialog["']/,
-    /CardHeader\s+title=["']Error["']/,
-    /window state/i,
-  ];
-
-  return stalePatterns.some((pattern) => pattern.test(text));
-}
-
-function hasNonProtectiveScoreCopy(root, path) {
-  if (!protectiveScoreCopyPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return /Great Match!|Highly recommended!|You might want to skip it|if you're desperate|if you are desperate|\{reason\}\s*<\/div>|Job Scoring Weights|These weights determine|scoring weights|Configurable weights|Customize Weights|Weight Presets|Weight in overall score|\b\d+%\s+weight\b|weighted averages based on component importance|Score \(High|Score \(Low|All Scores|label="Score"|Jobs are scored based|top scores|Each job is scored|sorted by match score|jobs scoring|Alert Threshold|scoring above your threshold|match score, source|Match Score|Match score:|Score:\s*\{filters\.scoreFilter\}|Sort:\s*\{filters\.sortBy\}/i.test(text);
-}
-
-function hasLegacyPreferenceListCopy(root, path) {
-  if (!plainJobSearchDocPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return /Company Whitelist|Company Blacklist|Your Whitelist|Your blacklist|whitelisted companies|blacklisted companies|whitelist\/blacklist|Title matches allowlist|Title matches blocklist|Job-word boosters|Job-word boost|Boosted job words|Excluded job words|Job-Word Match|found, boosted|not boosted|boosters\/excluders/i.test(text);
 }
 
 function hasStaleStackOverflowJobsDeepLink(root, path) {
