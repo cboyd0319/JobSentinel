@@ -161,7 +161,7 @@ pub struct JobImportPreview {
     /// Company name
     pub company: String,
 
-    /// Original URL
+    /// Canonical job URL after removing userinfo, fragments, and sensitive query parameters.
     pub url: String,
 
     /// Location (formatted)

@@ -22,7 +22,6 @@ const mockJob = {
 };
 
 const mockProfile = {
-  id: 1,
   fullName: "Jordan Lee",
   email: "jordan@example.com",
   phone: "+1 (555) 123-4567",
@@ -67,6 +66,19 @@ describe("ApplicationPreview", () => {
       await waitFor(() => {
         expect(screen.queryByRole("status", { name: /loading/i })).not.toBeInTheDocument();
       });
+    });
+
+    it("loads only the application profile preview", async () => {
+      mockInvoke.mockResolvedValue(mockProfile);
+
+      render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Jordan Lee")).toBeInTheDocument();
+      });
+
+      expect(mockInvoke).toHaveBeenCalledWith("get_application_profile_preview");
+      expect(mockInvoke).not.toHaveBeenCalledWith("get_application_profile");
     });
   });
 
@@ -341,7 +353,6 @@ describe("ApplicationPreview", () => {
 
     it("handles minimal profile with only required fields", async () => {
       mockInvoke.mockResolvedValue({
-        id: 1,
         fullName: "Jane Smith",
         email: "jane@example.com",
         phone: null,

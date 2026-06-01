@@ -4,7 +4,7 @@
 
 use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
-use crate::core::config::{Config, EmailConfig};
+use crate::core::config::{AutoRefreshConfig, Config, EmailConfig};
 use crate::core::credentials::{CredentialKey, CredentialStore};
 use crate::core::db::Database;
 use crate::core::logging::path_label_for_logging;
@@ -117,6 +117,55 @@ pub async fn get_config(state: State<'_, AppState>) -> Result<Value, String> {
 
     serde_json::to_value(&*state.config)
         .map_err(|e| user_friendly_error("Failed to serialize config", e))
+}
+
+/// Minimal dashboard preferences. Avoids exposing full settings to dashboard UI.
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DashboardPreferences {
+    pub auto_refresh: AutoRefreshConfig,
+    pub salary_floor_usd: i64,
+    pub any_job_source_enabled: bool,
+}
+
+impl DashboardPreferences {
+    fn from_config(config: &Config) -> Self {
+        Self {
+            auto_refresh: config.auto_refresh.clone(),
+            salary_floor_usd: config.salary_floor_usd,
+            any_job_source_enabled: any_job_source_enabled(config),
+        }
+    }
+}
+
+#[tauri::command]
+pub async fn get_dashboard_preferences(
+    state: State<'_, AppState>,
+) -> Result<DashboardPreferences, String> {
+    tracing::info!("Command: get_dashboard_preferences");
+    Ok(DashboardPreferences::from_config(state.config.as_ref()))
+}
+
+fn any_job_source_enabled(config: &Config) -> bool {
+    config.remoteok.enabled
+        || config.weworkremotely.enabled
+        || config.builtin.enabled
+        || config.hn_hiring.enabled
+        || config.dice.enabled
+        || config.yc_startup.enabled
+        || config.usajobs.enabled
+        || config.simplyhired.enabled
+        || config.glassdoor.enabled
+        || config
+            .greenhouse_urls
+            .iter()
+            .any(|url| !url.trim().is_empty())
+        || config.lever_urls.iter().any(|url| !url.trim().is_empty())
+        || (!config.jobswithgpt_endpoint.trim().is_empty()
+            && config
+                .title_allowlist
+                .iter()
+                .any(|title| !title.trim().is_empty()))
 }
 
 /// Validate Slack webhook URL
@@ -233,6 +282,48 @@ pub async fn test_email_notification(email_config: TestEmailConfig) -> Result<()
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::core::config::{AlertConfig, LocationPreferences};
+
+    fn create_dashboard_test_config() -> Config {
+        Config {
+            title_allowlist: vec![],
+            title_blocklist: vec![],
+            keywords_boost: vec![],
+            keywords_exclude: vec![],
+            location_preferences: LocationPreferences {
+                allow_remote: true,
+                allow_hybrid: false,
+                allow_onsite: false,
+                cities: vec![],
+                states: vec![],
+                country: "US".to_string(),
+            },
+            salary_floor_usd: 70_000,
+            salary_target_usd: None,
+            penalize_missing_salary: false,
+            auto_refresh: AutoRefreshConfig::default(),
+            immediate_alert_threshold: 0.8,
+            scraping_interval_hours: 2,
+            alerts: AlertConfig::default(),
+            greenhouse_urls: vec![],
+            lever_urls: vec![],
+            linkedin: Default::default(),
+            remoteok: Default::default(),
+            weworkremotely: Default::default(),
+            builtin: Default::default(),
+            hn_hiring: Default::default(),
+            dice: Default::default(),
+            yc_startup: Default::default(),
+            usajobs: Default::default(),
+            simplyhired: Default::default(),
+            glassdoor: Default::default(),
+            jobswithgpt_endpoint: String::new(),
+            ghost_config: None,
+            use_resume_matching: false,
+            company_whitelist: vec![],
+            company_blacklist: vec![],
+        }
+    }
 
     #[test]
     fn test_email_config_debug_does_not_leak_password() {
@@ -253,6 +344,45 @@ mod tests {
             "TestEmailConfig Debug output must not contain password. Got: {}",
             debug_output
         );
+    }
+
+    #[test]
+    fn test_dashboard_preferences_are_minimal() {
+        let mut config = create_dashboard_test_config();
+        config.salary_floor_usd = 88_000;
+        config.auto_refresh.enabled = true;
+        config.auto_refresh.interval_minutes = 45;
+        config.remoteok.enabled = true;
+
+        let preferences = DashboardPreferences::from_config(&config);
+
+        assert_eq!(preferences.salary_floor_usd, 88_000);
+        assert!(preferences.auto_refresh.enabled);
+        assert_eq!(preferences.auto_refresh.interval_minutes, 45);
+        assert!(preferences.any_job_source_enabled);
+    }
+
+    #[test]
+    fn test_dashboard_source_check_handles_arrays_and_endpoint_sources() {
+        let disabled = create_dashboard_test_config();
+        assert!(!any_job_source_enabled(&disabled));
+
+        let mut greenhouse = create_dashboard_test_config();
+        greenhouse.greenhouse_urls = vec!["https://boards.greenhouse.io/example".to_string()];
+        assert!(any_job_source_enabled(&greenhouse));
+
+        let mut lever = create_dashboard_test_config();
+        lever.lever_urls = vec!["https://jobs.lever.co/example".to_string()];
+        assert!(any_job_source_enabled(&lever));
+
+        let mut jobswithgpt_without_titles = create_dashboard_test_config();
+        jobswithgpt_without_titles.jobswithgpt_endpoint =
+            "https://api.jobswithgpt.com/mcp".to_string();
+        assert!(!any_job_source_enabled(&jobswithgpt_without_titles));
+
+        let mut jobswithgpt = jobswithgpt_without_titles;
+        jobswithgpt.title_allowlist = vec!["Case Manager".to_string()];
+        assert!(any_job_source_enabled(&jobswithgpt));
     }
 
     #[test]

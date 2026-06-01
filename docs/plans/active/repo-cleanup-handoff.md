@@ -82,10 +82,10 @@ Current cleanup posture:
   tech-first resume/mock ATS fixtures, switched E2E examples toward customer
   support and care coordination, and aligned tests with the visible
   "Skills Interview" label.
-- Latest security audit found no new reviewed raw logging sink. It left open
-  IPC minimization work for application profile payloads, imported URL
-  canonicalization/return shape, and Dashboard config over-fetch; see the
-  technical debt tracker before claiming the privacy goal is complete.
+- Latest IPC minimization work added `has_application_profile`,
+  `get_application_profile_preview`, `get_dashboard_preferences`, canonical
+  import URLs before preview/hash/storage, and minimized import responses to
+  `{ jobId }`.
 - `scripts/check-repo-bloat.mjs` still owns docs drift, most privacy logging,
   fixture-quality checks, broad-audience checks, technical-first copy checks,
   and source security patterns.

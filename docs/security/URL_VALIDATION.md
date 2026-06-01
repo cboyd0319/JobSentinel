@@ -149,6 +149,12 @@ It is used by:
 - `src-tauri/src/core/config/validation.rs`, `src-tauri/src/core/scrapers/jobswithgpt.rs`,
   and `src-tauri/src/core/health/smoke_tests.rs` before using a configured JobsWithGPT endpoint.
 
+Job import commands canonicalize the pasted URL before preview, fetch, duplicate
+hashing, and storage. Canonicalization removes embedded credentials, fragments,
+tracking parameters, and sensitive query parameters such as tokens, sessions,
+auth values, email fields, passwords, and candidate identifiers while preserving
+public job identifiers such as `gh_jid`.
+
 The frontend guard in `src/utils/urlValidation.ts` mirrors these external job
 URL rules before calling the backend open command.
 

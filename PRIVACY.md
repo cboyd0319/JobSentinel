@@ -80,6 +80,13 @@ That gateway must enforce:
 - Local-only fallback or a clear external-AI-required label for features that
   cannot run locally.
 
+The same minimization rule applies to local IPC boundaries. Non-settings
+screens request narrow profile existence or preview commands instead of the
+full application profile. Dashboard uses a small preferences DTO instead of
+full settings. Job import removes embedded credentials, fragments, tracking
+parameters, and sensitive query parameters before preview, hashing, storage,
+or returning a result; the import command returns only the saved job id.
+
 API keys and provider credentials must not be hardcoded. If a user configures a
 provider key, it should live in the operating system credential store where
 supported. Logs must record only metadata, never raw prompts, resumes, notes,

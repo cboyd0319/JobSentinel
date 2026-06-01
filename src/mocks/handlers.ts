@@ -247,6 +247,19 @@ interface MockApplicationProfile {
   updatedAt: string;
 }
 
+type MockApplicationProfilePreview = Pick<
+  MockApplicationProfile,
+  | "fullName"
+  | "email"
+  | "phone"
+  | "linkedinUrl"
+  | "githubUrl"
+  | "portfolioUrl"
+  | "websiteUrl"
+  | "usWorkAuthorized"
+  | "requiresSponsorship"
+>;
+
 interface MockScreeningAnswer {
   id: number;
   questionPattern: string;
@@ -290,6 +303,16 @@ interface MockJobImportPreview {
   remote: boolean;
   missing_fields: string[];
   already_exists: boolean;
+}
+
+interface MockJobImportResult {
+  jobId: number;
+}
+
+interface MockDashboardPreferences {
+  autoRefresh: MockConfig["auto_refresh"];
+  salaryFloorUsd: number;
+  anyJobSourceEnabled: boolean;
 }
 
 type MockFeedbackCategory = "bug" | "feature" | "question";
@@ -1164,7 +1187,7 @@ function previewMockJobImport(args?: Record<string, unknown>): MockJobImportPrev
   };
 }
 
-function importMockJobFromUrl(args?: Record<string, unknown>): MockJob {
+function importMockJobFromUrl(args?: Record<string, unknown>): MockJobImportResult {
   const preview = previewMockJobImport(args);
   if (preview.already_exists) {
     throw new Error("This job is already in your saved jobs");
@@ -1192,7 +1215,7 @@ function importMockJobFromUrl(args?: Record<string, unknown>): MockJob {
 
   jobs = [job, ...jobs];
   saveMockState();
-  return { ...job };
+  return { jobId: job.id };
 }
 
 function getJobImportUrl(args?: Record<string, unknown>): string {
@@ -1201,7 +1224,53 @@ function getJobImportUrl(args?: Record<string, unknown>): string {
     throw new Error("Use a full job link that starts with http:// or https://");
   }
 
-  return url;
+  return canonicalizeMockJobImportUrl(url);
+}
+
+const STRIPPED_JOB_IMPORT_QUERY_KEYS = new Set([
+  "fbclid",
+  "gclid",
+  "igshid",
+  "mc_cid",
+  "mc_eid",
+  "msclkid",
+  "ref",
+  "referrer",
+  "source",
+]);
+
+const STRIPPED_JOB_IMPORT_QUERY_MARKERS = [
+  "token",
+  "session",
+  "auth",
+  "credential",
+  "password",
+  "email",
+  "candidate",
+];
+
+function canonicalizeMockJobImportUrl(url: string): string {
+  const parsed = new URL(url);
+  parsed.username = "";
+  parsed.password = "";
+  parsed.hash = "";
+
+  const keptParams = new URLSearchParams();
+  parsed.searchParams.forEach((value, key) => {
+    const normalizedKey = key.toLowerCase();
+    if (
+      normalizedKey.startsWith("utm_") ||
+      STRIPPED_JOB_IMPORT_QUERY_KEYS.has(normalizedKey) ||
+      STRIPPED_JOB_IMPORT_QUERY_MARKERS.some((marker) => normalizedKey.includes(marker))
+    ) {
+      return;
+    }
+    keptParams.append(key, value);
+  });
+
+  const query = keptParams.toString();
+  parsed.search = query ? `?${query}` : "";
+  return parsed.toString();
 }
 
 function getMockImportTitle(url: string): string {
@@ -1225,6 +1294,66 @@ function hashString(value: string): string {
     hash = (hash * 31 + value.charCodeAt(index)) >>> 0;
   }
   return hash.toString(16).padStart(8, "0");
+}
+
+function getMockDashboardPreferences(): MockDashboardPreferences {
+  return {
+    autoRefresh: { ...config.auto_refresh },
+    salaryFloorUsd: config.salary_floor_usd,
+    anyJobSourceEnabled: anyMockJobSourceEnabled(),
+  };
+}
+
+function anyMockJobSourceEnabled(): boolean {
+  const configRecord = config as Record<string, unknown>;
+  return (
+    MOCK_SCRAPERS.some((scraper) => hasEnabledMockSource(configRecord, scraper.scraper_name)) ||
+    hasConfiguredUrlList(configRecord, "greenhouse_urls") ||
+    hasConfiguredUrlList(configRecord, "lever_urls") ||
+    hasConfiguredJobsWithGpt(configRecord)
+  );
+}
+
+function hasEnabledMockSource(configRecord: Record<string, unknown>, key: string): boolean {
+  const value = configRecord[key];
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "enabled" in value &&
+    (value as { enabled?: unknown }).enabled === true
+  );
+}
+
+function hasConfiguredUrlList(configRecord: Record<string, unknown>, key: string): boolean {
+  const value = configRecord[key];
+  return Array.isArray(value) && value.some((item) => typeof item === "string" && item.trim());
+}
+
+function hasConfiguredJobsWithGpt(configRecord: Record<string, unknown>): boolean {
+  const endpoint = configRecord.jobswithgpt_endpoint;
+  const titles = configRecord.title_allowlist;
+  return (
+    typeof endpoint === "string" &&
+    endpoint.trim().length > 0 &&
+    Array.isArray(titles) &&
+    titles.some((title) => typeof title === "string" && title.trim().length > 0)
+  );
+}
+
+function getMockApplicationProfilePreview(): MockApplicationProfilePreview | null {
+  if (!applicationProfile) return null;
+
+  return {
+    fullName: applicationProfile.fullName,
+    email: applicationProfile.email,
+    phone: applicationProfile.phone,
+    linkedinUrl: applicationProfile.linkedinUrl,
+    githubUrl: applicationProfile.githubUrl,
+    portfolioUrl: applicationProfile.portfolioUrl,
+    websiteUrl: applicationProfile.websiteUrl,
+    usWorkAuthorized: applicationProfile.usWorkAuthorized,
+    requiresSponsorship: applicationProfile.requiresSponsorship,
+  };
 }
 
 function generateMockFeedbackReport(args?: Record<string, unknown>): string {
@@ -2818,6 +2947,9 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "get_config":
       return config as T;
 
+    case "get_dashboard_preferences":
+      return getMockDashboardPreferences() as T;
+
     case "save_config":
       config = { ...config, ...(getArg(args, "config") as object) };
       saveMockState();
@@ -3472,6 +3604,12 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       return undefined as T;
 
     // Application Assist
+    case "has_application_profile":
+      return Boolean(applicationProfile) as T;
+
+    case "get_application_profile_preview":
+      return getMockApplicationProfilePreview() as T;
+
     case "get_application_profile":
       return applicationProfile as T;
 

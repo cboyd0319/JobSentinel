@@ -83,6 +83,12 @@ import {
   formatSortOption,
 } from "./DashboardUI/filterLabels";
 
+interface DashboardPreferences {
+  autoRefresh: AutoRefreshConfig;
+  salaryFloorUsd: number | null;
+  anyJobSourceEnabled: boolean;
+}
+
 export default function Dashboard({
   onNavigate: _onNavigate,
   showSettings: showSettingsProp,
@@ -183,23 +189,24 @@ export default function Dashboard({
       setStatistics(statsData);
       setScrapingStatus(statusData);
 
-      // Load auto-refresh config
+      // Load only dashboard preferences needed by this page.
       try {
-        const config = await cachedInvoke<{
-          auto_refresh?: AutoRefreshConfig;
-          salary_floor_usd?: number | null;
-        }>("get_config", undefined, 60_000);
-        if (config?.auto_refresh) {
-          setAutoRefreshEnabled(config.auto_refresh.enabled);
+        const preferences = await cachedInvoke<DashboardPreferences>(
+          "get_dashboard_preferences",
+          undefined,
+          60_000,
+        );
+        if (preferences?.autoRefresh) {
+          setAutoRefreshEnabled(preferences.autoRefresh.enabled);
           setAutoRefreshInterval(
-            config.auto_refresh.interval_minutes || 30,
+            preferences.autoRefresh.interval_minutes || 30,
           );
         }
-        if (typeof config?.salary_floor_usd === "number") {
-          setSalaryFloorUsd(config.salary_floor_usd);
+        if (typeof preferences?.salaryFloorUsd === "number") {
+          setSalaryFloorUsd(preferences.salaryFloorUsd);
         }
       } catch {
-        // Config might not have auto_refresh yet, use defaults
+        // Preferences may be unavailable during startup; use defaults.
       }
     } catch (err: unknown) {
       logError("Failed to fetch dashboard data:", err);
@@ -278,36 +285,18 @@ export default function Dashboard({
     try {
       // Pre-flight check: warn if no scrapers are enabled
       try {
-        const cfg =
-          await safeInvoke<Record<string, { enabled?: boolean }>>("get_config");
-        if (cfg) {
-          const scraperKeys = [
-            "remoteok",
-            "weworkremotely",
-            "builtin",
-            "hn_hiring",
-            "dice",
-            "yc_startup",
-            "usajobs",
-            "simplyhired",
-            "glassdoor",
-            "greenhouse",
-            "lever",
-            "jobswithgpt",
-          ];
-          const anyEnabled = scraperKeys.some(
-            (k) => cfg[k] && cfg[k].enabled === true,
+        const preferences = await safeInvoke<DashboardPreferences>(
+          "get_dashboard_preferences",
+        );
+        if (!preferences.anyJobSourceEnabled) {
+          toast.warning(
+            "No job sources enabled",
+            "Enable at least one job board in Settings before searching.",
           );
-          if (!anyEnabled) {
-            toast.warning(
-              "No job sources enabled",
-              "Enable at least one job board in Settings before searching.",
-            );
-            return;
-          }
+          return;
         }
       } catch {
-        // Config check failed — proceed with search anyway
+        // Preferences check failed; proceed with search anyway.
       }
 
       setSearching(true);

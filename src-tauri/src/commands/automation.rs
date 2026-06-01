@@ -14,7 +14,8 @@ use crate::commands::AppState;
 use crate::core::automation::{
     ats_detector::AtsDetector,
     profile::{ApplicationProfileInput, ProfileManager, ScreeningAnswer},
-    ApplicationAttempt, AtsPlatform, AutomationManager, AutomationStats, AutomationStatus,
+    ApplicationAttempt, ApplicationProfile, AtsPlatform, AutomationManager, AutomationStats,
+    AutomationStatus,
 };
 use serde::{Deserialize, Serialize};
 use tauri::State;
@@ -85,6 +86,33 @@ pub async fn get_application_profile(
     }
 }
 
+/// Check whether an application profile exists without returning profile data
+#[tauri::command]
+pub async fn has_application_profile(state: State<'_, AppState>) -> Result<bool, String> {
+    tracing::info!("Command: has_application_profile");
+
+    let manager = ProfileManager::new(state.database.pool().clone());
+    manager
+        .has_profile()
+        .await
+        .map_err(|e| user_friendly_error("Failed to check profile", e))
+}
+
+/// Get only the profile fields needed for a user-facing application preview
+#[tauri::command]
+pub async fn get_application_profile_preview(
+    state: State<'_, AppState>,
+) -> Result<Option<ApplicationProfilePreviewResponse>, String> {
+    tracing::info!("Command: get_application_profile_preview");
+
+    let manager = ProfileManager::new(state.database.pool().clone());
+    match manager.get_profile().await {
+        Ok(Some(profile)) => Ok(Some(ApplicationProfilePreviewResponse::from(profile))),
+        Ok(None) => Ok(None),
+        Err(e) => Err(user_friendly_error("Failed to get profile preview", e)),
+    }
+}
+
 /// Response type for application profile (frontend-friendly)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -108,8 +136,8 @@ pub struct ApplicationProfileResponse {
     pub updated_at: String,
 }
 
-impl From<crate::core::automation::ApplicationProfile> for ApplicationProfileResponse {
-    fn from(p: crate::core::automation::ApplicationProfile) -> Self {
+impl From<ApplicationProfile> for ApplicationProfileResponse {
+    fn from(p: ApplicationProfile) -> Self {
         Self {
             id: p.id,
             full_name: p.full_name,
@@ -128,6 +156,37 @@ impl From<crate::core::automation::ApplicationProfile> for ApplicationProfileRes
             require_manual_approval: p.require_manual_approval,
             created_at: p.created_at.to_rfc3339(),
             updated_at: p.updated_at.to_rfc3339(),
+        }
+    }
+}
+
+/// Minimal profile preview response for non-settings UI surfaces.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ApplicationProfilePreviewResponse {
+    pub full_name: String,
+    pub email: String,
+    pub phone: Option<String>,
+    pub linkedin_url: Option<String>,
+    pub github_url: Option<String>,
+    pub portfolio_url: Option<String>,
+    pub website_url: Option<String>,
+    pub us_work_authorized: bool,
+    pub requires_sponsorship: bool,
+}
+
+impl From<ApplicationProfile> for ApplicationProfilePreviewResponse {
+    fn from(p: ApplicationProfile) -> Self {
+        Self {
+            full_name: p.full_name,
+            email: p.email,
+            phone: p.phone,
+            linkedin_url: p.linkedin_url,
+            github_url: p.github_url,
+            portfolio_url: p.portfolio_url,
+            website_url: p.website_url,
+            us_work_authorized: p.us_work_authorized,
+            requires_sponsorship: p.requires_sponsorship,
         }
     }
 }

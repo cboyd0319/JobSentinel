@@ -16,50 +16,37 @@ vi.mock("@tauri-apps/api/event", () => ({
 // safeInvoke calls invoke internally — mock at that boundary
 const mockInvoke = vi.mocked(invoke);
 
-// ---------------------------------------------------------------------------
-// Pre-flight logic extracted verbatim from Dashboard.tsx (lines 260-294).
-// Tested as a standalone function to avoid rendering the full Dashboard tree.
-// ---------------------------------------------------------------------------
+type DashboardPreferences = {
+  autoRefresh: {
+    enabled: boolean;
+    interval_minutes: number;
+  };
+  salaryFloorUsd: number | null;
+  anyJobSourceEnabled: boolean;
+};
 
-const SCRAPER_KEYS = [
-  "remoteok",
-  "weworkremotely",
-  "builtin",
-  "hn_hiring",
-  "dice",
-  "yc_startup",
-  "usajobs",
-  "simplyhired",
-  "glassdoor",
-  "greenhouse",
-  "lever",
-  "jobswithgpt",
-] as const;
-
-type ScraperConfig = Record<string, { enabled?: boolean }>;
-
-function anyScraperEnabled(cfg: ScraperConfig | null): boolean {
-  if (!cfg) return true; // null config → allow search (defensive)
-  return SCRAPER_KEYS.some((k) => cfg[k] && cfg[k].enabled === true);
+function canSearchFromPreferences(preferences: DashboardPreferences | null): boolean {
+  if (!preferences) return true;
+  return preferences.anyJobSourceEnabled;
 }
 
 /**
  * Mirrors the Dashboard pre-flight check.
- * Returns "blocked" when no scrapers are enabled, "allowed" otherwise.
- * If the config call throws, search proceeds ("allowed").
+ * Returns "blocked" when no job sources are enabled, "allowed" otherwise.
+ * If the preferences call throws, search proceeds ("allowed").
  */
 async function runPreflight(
-  getConfig: () => Promise<ScraperConfig | null>,
+  getPreferences: () => Promise<DashboardPreferences | null>,
   warn: () => void,
 ): Promise<"allowed" | "blocked"> {
   try {
-    const cfg = await getConfig();
-    if (!anyScraperEnabled(cfg)) {
+    const preferences = await getPreferences();
+    if (!canSearchFromPreferences(preferences)) {
       warn();
       return "blocked";
     }
   } catch {
-    // Config check failed — proceed with search anyway
+    // Preferences check failed; proceed with search anyway.
   }
   return "allowed";
 }
@@ -71,163 +58,111 @@ describe("Dashboard handleSearchNow pre-flight check", () => {
     mockInvoke.mockClear();
   });
 
-  describe("anyScraperEnabled", () => {
-    it("returns false when no scrapers have enabled:true", () => {
-      const cfg: ScraperConfig = {
-        linkedin: { enabled: false },
-        remoteok: { enabled: false },
-        glassdoor: {},
-      };
-      expect(anyScraperEnabled(cfg)).toBe(false);
+  describe("canSearchFromPreferences", () => {
+    it("returns false when no job source is enabled", () => {
+      expect(
+        canSearchFromPreferences({
+          autoRefresh: { enabled: false, interval_minutes: 30 },
+          salaryFloorUsd: 80000,
+          anyJobSourceEnabled: false,
+        }),
+      ).toBe(false);
     });
 
-    it("returns true when exactly one scraper is enabled", () => {
-      const cfg: ScraperConfig = {
-        linkedin: { enabled: false },
-        remoteok: { enabled: true },
-        glassdoor: { enabled: false },
-      };
-      expect(anyScraperEnabled(cfg)).toBe(true);
+    it("returns true when any job source is enabled", () => {
+      expect(
+        canSearchFromPreferences({
+          autoRefresh: { enabled: true, interval_minutes: 30 },
+          salaryFloorUsd: 80000,
+          anyJobSourceEnabled: true,
+        }),
+      ).toBe(true);
     });
 
-    it("returns true when all scrapers are enabled", () => {
-      const cfg: ScraperConfig = Object.fromEntries(
-        SCRAPER_KEYS.map((k) => [k, { enabled: true }]),
-      );
-      expect(anyScraperEnabled(cfg)).toBe(true);
-    });
-
-    it("returns true when cfg is null (defensive fallback)", () => {
-      expect(anyScraperEnabled(null)).toBe(true);
-    });
-
-    it("treats missing enabled field as disabled", () => {
-      // Every key present but none have enabled:true
-      const cfg: ScraperConfig = Object.fromEntries(
-        SCRAPER_KEYS.map((k) => [k, {}]),
-      );
-      expect(anyScraperEnabled(cfg)).toBe(false);
-    });
-
-    it("ignores unknown config keys that don't match any scraper", () => {
-      const cfg: ScraperConfig = {
-        totally_unknown_board: { enabled: true },
-        another_mystery: { enabled: true },
-      };
-      expect(anyScraperEnabled(cfg)).toBe(false);
-    });
-
-    it("does not treat LinkedIn search links as a background source", () => {
-      const sourceKey = "linkedin";
-      const cfg: ScraperConfig = {
-        [sourceKey]: { enabled: true },
-      };
-
-      expect(anyScraperEnabled(cfg)).toBe(false);
-    });
-
-    it("returns true for the first matching enabled scraper without checking the rest", () => {
-      // Only the first key in SCRAPER_KEYS is enabled
-      const cfg: ScraperConfig = {
-        remoteok: { enabled: true },
-      };
-      expect(anyScraperEnabled(cfg)).toBe(true);
+    it("returns true when preferences are null", () => {
+      expect(canSearchFromPreferences(null)).toBe(true);
     });
   });
 
   describe("runPreflight (integration with warning + return path)", () => {
-    it("calls warn and returns 'blocked' when no scrapers are enabled", async () => {
-      const cfg: ScraperConfig = Object.fromEntries(
-        SCRAPER_KEYS.map((k) => [k, { enabled: false }]),
-      );
-      const getConfig = vi.fn().mockResolvedValue(cfg);
+    it("calls warn and returns 'blocked' when no job sources are enabled", async () => {
+      const getPreferences = vi.fn().mockResolvedValue({
+        autoRefresh: { enabled: false, interval_minutes: 30 },
+        salaryFloorUsd: 80000,
+        anyJobSourceEnabled: false,
+      } satisfies DashboardPreferences);
       const warn = vi.fn();
 
-      const result = await runPreflight(getConfig, warn);
+      const result = await runPreflight(getPreferences, warn);
 
       expect(warn).toHaveBeenCalledOnce();
       expect(result).toBe("blocked");
     });
 
-    it("does NOT call warn and returns 'allowed' when one scraper is enabled", async () => {
-      const cfg: ScraperConfig = { remoteok: { enabled: true } };
-      const getConfig = vi.fn().mockResolvedValue(cfg);
+    it("does NOT call warn and returns 'allowed' when one source is enabled", async () => {
+      const getPreferences = vi.fn().mockResolvedValue({
+        autoRefresh: { enabled: true, interval_minutes: 30 },
+        salaryFloorUsd: 80000,
+        anyJobSourceEnabled: true,
+      } satisfies DashboardPreferences);
       const warn = vi.fn();
 
-      const result = await runPreflight(getConfig, warn);
+      const result = await runPreflight(getPreferences, warn);
 
       expect(warn).not.toHaveBeenCalled();
       expect(result).toBe("allowed");
     });
 
-    it("returns 'allowed' without warning when config is null", async () => {
-      const getConfig = vi.fn().mockResolvedValue(null);
+    it("returns 'allowed' without warning when preferences are null", async () => {
+      const getPreferences = vi.fn().mockResolvedValue(null);
       const warn = vi.fn();
 
-      const result = await runPreflight(getConfig, warn);
+      const result = await runPreflight(getPreferences, warn);
 
       expect(warn).not.toHaveBeenCalled();
       expect(result).toBe("allowed");
     });
 
-    it("proceeds ('allowed') without warning when config call throws", async () => {
-      const getConfig = vi.fn().mockRejectedValue(new Error("IPC failure"));
+    it("proceeds ('allowed') without warning when preferences call throws", async () => {
+      const getPreferences = vi.fn().mockRejectedValue(new Error("IPC failure"));
       const warn = vi.fn();
 
-      const result = await runPreflight(getConfig, warn);
+      const result = await runPreflight(getPreferences, warn);
 
       expect(warn).not.toHaveBeenCalled();
       expect(result).toBe("allowed");
     });
 
-    it("does NOT warn when config has all scrapers enabled", async () => {
-      const cfg: ScraperConfig = Object.fromEntries(
-        SCRAPER_KEYS.map((k) => [k, { enabled: true }]),
-      );
-      const getConfig = vi.fn().mockResolvedValue(cfg);
+    it("warns exactly once when preferences report no enabled source", async () => {
+      const getPreferences = vi.fn().mockResolvedValue({
+        autoRefresh: { enabled: false, interval_minutes: 30 },
+        salaryFloorUsd: 80000,
+        anyJobSourceEnabled: false,
+      } satisfies DashboardPreferences);
       const warn = vi.fn();
 
-      const result = await runPreflight(getConfig, warn);
-
-      expect(warn).not.toHaveBeenCalled();
-      expect(result).toBe("allowed");
-    });
-
-    it("blocks when config exists but no known scraper keys are present", async () => {
-      const cfg: ScraperConfig = {
-        unknown_board: { enabled: true },
-      };
-      const getConfig = vi.fn().mockResolvedValue(cfg);
-      const warn = vi.fn();
-
-      const result = await runPreflight(getConfig, warn);
-
-      expect(warn).toHaveBeenCalledOnce();
-      expect(result).toBe("blocked");
-    });
-
-    it("warns exactly once even with many disabled scrapers", async () => {
-      const cfg: ScraperConfig = Object.fromEntries(
-        SCRAPER_KEYS.map((k) => [k, { enabled: false }]),
-      );
-      const getConfig = vi.fn().mockResolvedValue(cfg);
-      const warn = vi.fn();
-
-      await runPreflight(getConfig, warn);
+      await runPreflight(getPreferences, warn);
 
       expect(warn).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("safeInvoke integration (via mocked invoke)", () => {
-    it("invoke is called with 'get_config' during pre-flight", async () => {
-      mockInvoke.mockResolvedValueOnce({ remoteok: { enabled: true } });
+    it("invoke is called with 'get_dashboard_preferences' during pre-flight", async () => {
+      mockInvoke.mockResolvedValueOnce({
+        autoRefresh: { enabled: true, interval_minutes: 30 },
+        salaryFloorUsd: 80000,
+        anyJobSourceEnabled: true,
+      } satisfies DashboardPreferences);
 
       const { safeInvoke } = await import("../utils/api");
-      const cfg = await safeInvoke<ScraperConfig>("get_config");
+      const preferences = await safeInvoke<DashboardPreferences>(
+        "get_dashboard_preferences",
+      );
 
-      expect(mockInvoke).toHaveBeenCalledWith("get_config", undefined);
-      expect(anyScraperEnabled(cfg)).toBe(true);
+      expect(mockInvoke).toHaveBeenCalledWith("get_dashboard_preferences", undefined);
+      expect(mockInvoke).not.toHaveBeenCalledWith("get_config", undefined);
+      expect(canSearchFromPreferences(preferences)).toBe(true);
     });
 
     it("pre-flight allows search when invoke throws (network/IPC error)", async () => {
@@ -238,13 +173,15 @@ describe("Dashboard handleSearchNow pre-flight check", () => {
 
       let result: "allowed" | "blocked" = "allowed";
       try {
-        const cfg = await safeInvoke<ScraperConfig>("get_config");
-        if (!anyScraperEnabled(cfg)) {
+        const preferences = await safeInvoke<DashboardPreferences>(
+          "get_dashboard_preferences",
+        );
+        if (!canSearchFromPreferences(preferences)) {
           warn();
           result = "blocked";
         }
       } catch {
-        // mirrors Dashboard: config check failed → proceed
+        // mirrors Dashboard: preferences check failed, proceed
       }
 
       expect(warn).not.toHaveBeenCalled();

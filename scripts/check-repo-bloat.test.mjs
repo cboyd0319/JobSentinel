@@ -9048,6 +9048,82 @@ test("checkRepoBloat rejects stale job-import mock handlers", () => {
   });
 });
 
+test("checkRepoBloat rejects job-import mocks returning full jobs", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      [
+        "function importMockJobFromUrl() {",
+        "  const job = { id: 1, title: 'Care Coordinator' };",
+        "  return { ...job };",
+        "}",
+        "export async function mockInvoke(cmd) {",
+        "  switch (cmd) {",
+        "    case 'preview_job_import':",
+        "      return {};",
+        "    case 'import_job_from_url':",
+        "      return importMockJobFromUrl();",
+        "    default:",
+        "      return undefined;",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/mocks/handlers.ts"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sync job-import mock command handlers: src/mocks/handlers.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat accepts job-import mocks returning only job id", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      [
+        "function importMockJobFromUrl() {",
+        "  const job = { id: 1, title: 'Care Coordinator' };",
+        "  return { jobId: job.id };",
+        "}",
+        "export async function mockInvoke(cmd) {",
+        "  switch (cmd) {",
+        "    case 'preview_job_import':",
+        "      return {};",
+        "    case 'import_job_from_url':",
+        "      return importMockJobFromUrl();",
+        "    default:",
+        "      return undefined;",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/mocks/handlers.ts"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      !violations.includes("sync job-import mock command handlers: src/mocks/handlers.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale feedback mock handlers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

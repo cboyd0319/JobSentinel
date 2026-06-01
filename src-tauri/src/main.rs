@@ -140,6 +140,7 @@ fn main() {
             // Config commands
             commands::config::save_config,
             commands::config::get_config,
+            commands::config::get_dashboard_preferences,
             commands::config::validate_slack_webhook,
             commands::config::is_first_run,
             commands::config::complete_setup,
@@ -269,6 +270,8 @@ fn main() {
             // Automation commands (Application Assist)
             commands::automation::upsert_application_profile,
             commands::automation::get_application_profile,
+            commands::automation::has_application_profile,
+            commands::automation::get_application_profile_preview,
             commands::automation::upsert_screening_answer,
             commands::automation::get_screening_answers,
             commands::automation::find_answer_for_question,

@@ -444,6 +444,7 @@ search_jobs()              // Trigger manual scrape
 get_recent_jobs(limit)     // Get N recent jobs
 get_job_by_id(id)          // Get specific job
 get_config()               // Get user config
+get_dashboard_preferences() // Get minimal Dashboard-only preferences
 save_config(config)        // Save user config
 validate_slack_webhook()   // Test webhook
 get_statistics()           // Get aggregate stats
@@ -499,6 +500,7 @@ add_search_history(), get_search_history(), clear_search_history()
 ```rust
 // Application Profile
 upsert_application_profile(), get_application_profile(),
+has_application_profile(), get_application_profile_preview(),
 // Screening Answers
 upsert_screening_answer(), get_screening_answers(),
 delete_screening_answer(), find_answer_for_question(),
@@ -518,6 +520,12 @@ is_browser_running(), fill_application_form()
 - All commands return `Result<T, String>`
 - Errors logged with `tracing`
 - User-friendly error messages
+- Renderer-facing commands use the smallest practical DTO. Non-settings
+  application assist screens use `has_application_profile` or
+  `get_application_profile_preview`; the full profile response is for the
+  settings editor. Dashboard reads `get_dashboard_preferences` instead of full
+  config. Job imports canonicalize URLs before preview/hash/storage and
+  `import_job_from_url` returns only `{ jobId }`.
 
 ### 3. Platforms (`src/platforms/`)
 

@@ -9,9 +9,10 @@ use crate::core::import::{
 };
 use crate::core::url_security::sanitize_url_for_logging;
 use chrono::Utc;
-use serde_json::Value;
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use tauri::State;
+use url::{form_urlencoded::Serializer, Url};
 
 /// Preview a job import from a URL
 ///
@@ -24,9 +25,10 @@ pub async fn preview_job_import(
     state: State<'_, AppState>,
 ) -> Result<JobImportPreview, String> {
     tracing::info!("Previewing job import from URL");
+    let canonical_url = canonicalize_import_url(&url).map_err(|e| format_import_error(&e))?;
 
     // Fetch the page HTML
-    let html = fetch_job_page(&url)
+    let html = fetch_job_page(&canonical_url)
         .await
         .map_err(|e| format_import_error(&e))?;
 
@@ -51,7 +53,7 @@ pub async fn preview_job_import(
             .and_then(|o| o.name.as_deref())
             .unwrap_or(""),
         posting.title.as_deref().unwrap_or(""),
-        &url,
+        &canonical_url,
     );
 
     let already_exists = state
@@ -61,7 +63,7 @@ pub async fn preview_job_import(
         .unwrap_or(false);
 
     // Create preview
-    let preview = create_preview(posting, url.clone(), already_exists)
+    let preview = create_preview(posting, canonical_url, already_exists)
         .map_err(|e| format_import_error(&e))?;
 
     tracing::info!(
@@ -78,14 +80,18 @@ pub async fn preview_job_import(
 /// Import a job from a URL
 ///
 /// Fetches the URL, parses Schema.org data, and imports the job into the database.
-/// Returns the created job object.
+/// Returns only the created job id.
 #[tauri::command]
 #[tracing::instrument(skip(state, url), fields(url = %sanitize_url_for_logging(&url)), level = "info")]
-pub async fn import_job_from_url(url: String, state: State<'_, AppState>) -> Result<Value, String> {
+pub async fn import_job_from_url(
+    url: String,
+    state: State<'_, AppState>,
+) -> Result<ImportedJobSummary, String> {
     tracing::info!("Importing job from URL");
+    let canonical_url = canonicalize_import_url(&url).map_err(|e| format_import_error(&e))?;
 
     // Fetch the page HTML
-    let html = fetch_job_page(&url)
+    let html = fetch_job_page(&canonical_url)
         .await
         .map_err(|e| format_import_error(&e))?;
 
@@ -115,7 +121,7 @@ pub async fn import_job_from_url(url: String, state: State<'_, AppState>) -> Res
         .ok_or_else(|| "Missing required field: company name".to_string())?;
 
     // Calculate job hash for deduplication
-    let job_hash = calculate_job_hash(company, title, &url);
+    let job_hash = calculate_job_hash(company, title, &canonical_url);
 
     // Check if job already exists
     if state
@@ -166,7 +172,7 @@ pub async fn import_job_from_url(url: String, state: State<'_, AppState>) -> Res
     .bind(&job_hash)
     .bind(title)
     .bind(company)
-    .bind(&url)
+    .bind(&canonical_url)
     .bind(&location)
     .bind(&description)
     .bind("import")
@@ -191,16 +197,13 @@ pub async fn import_job_from_url(url: String, state: State<'_, AppState>) -> Res
         "Job imported successfully"
     );
 
-    // Fetch the created job
-    let job = state
-        .database
-        .get_job_by_id(job_id)
-        .await
-        .map_err(|e| user_friendly_error("Failed to fetch imported job", e))?
-        .ok_or_else(|| "Job was imported but could not be retrieved".to_string())?;
+    Ok(ImportedJobSummary { job_id })
+}
 
-    // Convert to JSON
-    serde_json::to_value(&job).map_err(|e| user_friendly_error("Failed to serialize job", e))
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ImportedJobSummary {
+    pub job_id: i64,
 }
 
 /// Calculate job hash for deduplication
@@ -210,6 +213,69 @@ fn calculate_job_hash(company: &str, title: &str, url: &str) -> String {
     hasher.update(title.to_lowercase().as_bytes());
     hasher.update(url.as_bytes());
     hex::encode(hasher.finalize())
+}
+
+fn canonicalize_import_url(url: &str) -> Result<String, ImportError> {
+    let mut parsed =
+        Url::parse(url).map_err(|_| ImportError::InvalidUrl("Invalid URL format".to_string()))?;
+
+    let _ = parsed.set_username("");
+    let _ = parsed.set_password(None);
+    parsed.set_fragment(None);
+
+    let retained_pairs: Vec<(String, String)> = parsed
+        .query_pairs()
+        .filter(|(name, _)| !is_sensitive_import_query_param(name))
+        .map(|(name, value)| (name.into_owned(), value.into_owned()))
+        .collect();
+
+    let encoded_query = Serializer::new(String::new())
+        .extend_pairs(
+            retained_pairs
+                .iter()
+                .map(|(name, value)| (name.as_str(), value.as_str())),
+        )
+        .finish();
+
+    if encoded_query.is_empty() {
+        parsed.set_query(None);
+    } else {
+        parsed.set_query(Some(&encoded_query));
+    }
+
+    crate::core::url_security::validate_external_http_url(parsed.as_str())
+        .map_err(ImportError::InvalidUrl)?;
+
+    Ok(parsed.to_string())
+}
+
+fn is_sensitive_import_query_param(name: &str) -> bool {
+    let normalized = name.to_ascii_lowercase();
+
+    normalized.starts_with("utm_")
+        || matches!(
+            normalized.as_str(),
+            "fbclid"
+                | "gclid"
+                | "msclkid"
+                | "mc_cid"
+                | "mc_eid"
+                | "igshid"
+                | "source"
+                | "ref"
+                | "referrer"
+        )
+        || [
+            "token",
+            "session",
+            "auth",
+            "credential",
+            "password",
+            "email",
+            "candidate",
+        ]
+        .iter()
+        .any(|marker| normalized.contains(marker))
 }
 
 /// Extract location string from Schema.org JobLocation
@@ -376,6 +442,45 @@ mod tests {
 
         // Different URL should produce different hash
         assert_ne!(hash1, hash3);
+    }
+
+    #[test]
+    fn test_canonicalize_import_url_minimizes_user_controlled_data() {
+        let canonical = canonicalize_import_url(
+            "https://user:pass@example.com/jobs?utm_source=newsletter&gh_jid=123&token=secret&query=care&candidate_id=44#private",
+        )
+        .expect("public URL should canonicalize");
+
+        assert_eq!(canonical, "https://example.com/jobs?gh_jid=123&query=care");
+        assert!(!canonical.contains("user"));
+        assert!(!canonical.contains("pass"));
+        assert!(!canonical.contains("token"));
+        assert!(!canonical.contains("candidate_id"));
+        assert!(!canonical.contains("utm_source"));
+        assert!(!canonical.contains("private"));
+    }
+
+    #[test]
+    fn test_canonicalize_import_url_rejects_private_destinations_after_minimizing() {
+        let result = canonicalize_import_url("http://127.0.0.1/jobs?token=secret");
+
+        assert!(matches!(result, Err(ImportError::InvalidUrl(_))));
+    }
+
+    #[test]
+    fn test_canonicalized_import_url_keeps_duplicate_hash_stable() {
+        let first = canonicalize_import_url(
+            "https://example.com/job?utm_source=share&gh_jid=123&session=private",
+        )
+        .expect("public URL should canonicalize");
+        let second = canonicalize_import_url("https://example.com/job?gh_jid=123")
+            .expect("public URL should canonicalize");
+
+        assert_eq!(first, second);
+        assert_eq!(
+            calculate_job_hash("Example Org", "Care Coordinator", &first),
+            calculate_job_hash("Example Org", "Care Coordinator", &second)
+        );
     }
 
     #[test]

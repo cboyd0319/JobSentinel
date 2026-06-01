@@ -452,3 +452,35 @@ export async function saveSearch() {
     );
   });
 });
+
+test("checkTauriInvokes rejects unregistered wrapper command calls", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/pages/Dashboard.tsx",
+      `
+import { cachedInvoke, safeInvoke } from "../utils/api";
+
+export async function loadDashboard() {
+  await cachedInvoke("missing_cached_command");
+  await safeInvoke("missing_safe_command");
+}
+`,
+    );
+
+    const violations = checkTauriInvokes(root);
+
+    assert.ok(
+      violations.some((violation) =>
+        violation.includes("invokes unregistered Tauri command: missing_cached_command"),
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.some((violation) =>
+        violation.includes("invokes unregistered Tauri command: missing_safe_command"),
+      ),
+      violations.join("\n"),
+    );
+  });
+});

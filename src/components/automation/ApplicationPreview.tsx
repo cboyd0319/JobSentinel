@@ -15,8 +15,7 @@ interface Job {
   score?: number;
 }
 
-interface ApplicationProfile {
-  id: number;
+interface ApplicationProfilePreview {
   fullName: string;
   email: string;
   phone: string | null;
@@ -34,12 +33,12 @@ interface ApplicationPreviewProps {
 }
 
 export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPlatform }: ApplicationPreviewProps) {
-  const [profile, setProfile] = useState<ApplicationProfile | null>(null);
+  const [profile, setProfile] = useState<ApplicationProfilePreview | null>(null);
   const [loading, setLoading] = useState(true);
 
   const loadProfile = useCallback(async (signal?: AbortSignal) => {
     try {
-      const data = await invoke<ApplicationProfile | null>("get_application_profile");
+      const data = await invoke<ApplicationProfilePreview | null>("get_application_profile_preview");
       
       if (signal?.aborted) return;
       setProfile(data);

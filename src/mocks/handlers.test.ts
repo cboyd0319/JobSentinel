@@ -47,17 +47,29 @@ type JobImportPreview = {
   already_exists: boolean;
 };
 
-type ImportedJob = {
-  id: number;
-  hash: string;
-  title: string;
-  company: string;
-  url: string;
-  location: string;
-  description: string;
-  source: string;
-  remote: boolean;
-  score: number;
+type ImportedJobResult = {
+  jobId: number;
+};
+
+type ApplicationProfilePreview = {
+  fullName: string;
+  email: string;
+  phone: string | null;
+  linkedinUrl: string | null;
+  githubUrl: string | null;
+  portfolioUrl: string | null;
+  websiteUrl: string | null;
+  usWorkAuthorized: boolean;
+  requiresSponsorship: boolean;
+};
+
+type DashboardPreferences = {
+  autoRefresh: {
+    enabled: boolean;
+    interval_minutes: number;
+  };
+  salaryFloorUsd: number;
+  anyJobSourceEnabled: boolean;
 };
 
 type FeedbackSystemInfo = {
@@ -415,15 +427,17 @@ describe("mock Tauri handlers", () => {
     ).rejects.toThrow("This job-site link is not safe to open");
   });
 
-  it("previews and imports jobs with the real backend command names", async () => {
-    const url = "https://jobs.example.com/careers/care-coordinator";
+  it("previews and imports jobs with minimized backend command payloads", async () => {
+    const url =
+      "https://alice:secret@jobs.example.com/careers/care-coordinator?jobId=123&utm_source=newsletter&token=raw-secret#private";
+    const canonicalUrl = "https://jobs.example.com/careers/care-coordinator?jobId=123";
 
     const preview = await mockInvoke<JobImportPreview>("preview_job_import", { url });
 
     expect(preview).toMatchObject({
       title: "Care Coordinator",
       company: "jobs.example.com",
-      url,
+      url: canonicalUrl,
       location: "Remote",
       description_preview: expect.stringContaining("Care Coordinator"),
       salary: "$120k-$180k",
@@ -434,22 +448,16 @@ describe("mock Tauri handlers", () => {
     });
     expect(preview.date_posted).toEqual(expect.any(String));
 
-    const imported = await mockInvoke<ImportedJob>("import_job_from_url", { url });
-
-    expect(imported).toMatchObject({
-      title: "Care Coordinator",
-      company: "jobs.example.com",
-      url,
-      source: "import",
-      remote: true,
-      score: 1,
+    const imported = await mockInvoke<ImportedJobResult>("import_job_from_url", {
+      url: preview.url,
     });
-    expect(imported.hash).toContain("mock-import-");
+
+    expect(imported).toEqual({ jobId: expect.any(Number) });
 
     const duplicatePreview = await mockInvoke<JobImportPreview>("preview_job_import", { url });
     expect(duplicatePreview.already_exists).toBe(true);
 
-    await expect(mockInvoke<ImportedJob>("import_job_from_url", { url })).rejects.toThrow(
+    await expect(mockInvoke<ImportedJobResult>("import_job_from_url", { url })).rejects.toThrow(
       "This job is already in your saved jobs",
     );
 
@@ -458,6 +466,41 @@ describe("mock Tauri handlers", () => {
         url: "http://localhost:3000/jobs/care-coordinator",
       }),
     ).rejects.toThrow("Use a full job link that starts with http:// or https://");
+  });
+
+  it("returns minimized application profile and dashboard preferences mocks", async () => {
+    expect(await mockInvoke<boolean>("has_application_profile")).toBe(true);
+
+    const preview = await mockInvoke<ApplicationProfilePreview>(
+      "get_application_profile_preview",
+    );
+    expect(preview).toMatchObject({
+      fullName: expect.any(String),
+      email: expect.any(String),
+      phone: expect.anything(),
+      usWorkAuthorized: expect.any(Boolean),
+      requiresSponsorship: expect.any(Boolean),
+    });
+    expect(Object.keys(preview).sort()).toEqual([
+      "email",
+      "fullName",
+      "githubUrl",
+      "linkedinUrl",
+      "phone",
+      "portfolioUrl",
+      "requiresSponsorship",
+      "usWorkAuthorized",
+      "websiteUrl",
+    ]);
+
+    const preferences = await mockInvoke<DashboardPreferences>(
+      "get_dashboard_preferences",
+    );
+    expect(preferences).toEqual({
+      autoRefresh: { enabled: true, interval_minutes: 30 },
+      salaryFloorUsd: 80000,
+      anyJobSourceEnabled: false,
+    });
   });
 
   it("generates feedback reports with the real backend command names", async () => {

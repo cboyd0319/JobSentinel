@@ -3382,9 +3382,14 @@ function hasStaleJobImportMockHandlers(root, path) {
   const text = readFileSync(join(root, path), "utf8");
   const requiredCommands = ["preview_job_import", "import_job_from_url"];
 
-  return requiredCommands.some((command) => {
+  const missingCommand = requiredCommands.some((command) => {
     return !new RegExp(`case\\s+["']${command}["']`).test(text);
   });
+
+  const importReturnsOnlyId = /return\s*\{\s*jobId\s*:\s*job\.id\s*\}\s*;/.test(text);
+  const importReturnsFullJob = /return\s*\{\s*\.\.\.job\s*\}\s*;/.test(text);
+
+  return missingCommand || !importReturnsOnlyId || importReturnsFullJob;
 }
 
 function hasStaleFeedbackMockHandlers(root, path) {

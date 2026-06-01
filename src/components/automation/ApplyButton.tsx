@@ -106,10 +106,10 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
   // Check if user has configured a profile
   const checkProfile = useCallback(async () => {
     try {
-      const profile = await safeInvoke<unknown | null>("get_application_profile", undefined, {
+      const profileExists = await safeInvoke<boolean>("has_application_profile", undefined, {
         silent: true,
       });
-      setHasProfile(profile !== null);
+      setHasProfile(profileExists);
     } catch {
       // Silently fail - will show error when user tries to apply
     }

@@ -27,6 +27,10 @@ interface JobImportPreview {
   already_exists: boolean;
 }
 
+interface JobImportResult {
+  jobId: number;
+}
+
 interface JobImportModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -106,7 +110,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
     setError(null);
 
     try {
-      await invoke("import_job_from_url", { url: url.trim() });
+      await invoke<JobImportResult>("import_job_from_url", { url: preview.url });
 
       toast.success("Job saved", `Saved "${preview.title}"`);
 
@@ -122,7 +126,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
     } finally {
       setImporting(false);
     }
-  }, [preview, url, toast, onImportSuccess, onClose]);
+  }, [preview, toast, onImportSuccess, onClose]);
 
   // Handle Enter key in URL input
   const handleKeyDown = useCallback(

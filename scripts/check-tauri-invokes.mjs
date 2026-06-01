@@ -9,6 +9,12 @@ const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
 
 const sourceExtensions = new Set([".ts", ".tsx"]);
+const frontendInvokeFunctionNames = new Set([
+  "invoke",
+  "safeInvoke",
+  "safeInvokeWithToast",
+  "cachedInvoke",
+]);
 const ignoredPathParts = new Set([
   "node_modules",
   "dist",
@@ -119,7 +125,7 @@ function collectFrontendInvokes(root) {
       if (
         ts.isCallExpression(node) &&
         ts.isIdentifier(node.expression) &&
-        node.expression.text === "invoke" &&
+        frontendInvokeFunctionNames.has(node.expression.text) &&
         node.arguments.length > 0
       ) {
         const [firstArg] = node.arguments;
@@ -305,9 +311,7 @@ function collectFrontendRequiredArgViolations(root) {
       if (
         ts.isCallExpression(node) &&
         ts.isIdentifier(node.expression) &&
-        ["invoke", "safeInvoke", "safeInvokeWithToast", "cachedInvoke"].includes(
-          node.expression.text,
-        ) &&
+        frontendInvokeFunctionNames.has(node.expression.text) &&
         node.arguments.length > 0
       ) {
         const [firstArg, secondArg] = node.arguments;

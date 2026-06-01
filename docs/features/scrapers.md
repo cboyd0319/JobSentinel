@@ -87,6 +87,11 @@ records.
 This reduces duplicate postings across ATS feeds, job boards, social shares,
 and company pages.
 
+User-imported job links are canonicalized before preview, duplicate hashing, and
+storage. The importer removes embedded credentials, fragments, tracking
+parameters, and sensitive query parameters while preserving public posting
+identifiers needed to recognize the posting.
+
 ```text
 SHA256(
   normalized_title +

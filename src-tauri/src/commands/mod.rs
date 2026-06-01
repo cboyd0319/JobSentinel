@@ -158,7 +158,10 @@ pub use user_data::{
 };
 
 // Config commands
-pub use config::{complete_setup, get_config, is_first_run, save_config, validate_slack_webhook};
+pub use config::{
+    complete_setup, get_config, get_dashboard_preferences, is_first_run, save_config,
+    validate_slack_webhook,
+};
 
 // Geo commands
 pub use geo::detect_location;
@@ -185,10 +188,12 @@ pub use automation::{
     fill_application_form,
     find_answer_for_question,
     get_application_profile,
+    get_application_profile_preview,
     get_automation_attempt,
     get_automation_stats,
     get_pending_attempts,
     get_screening_answers,
+    has_application_profile,
     is_browser_running,
     launch_automation_browser,
     upsert_application_profile,

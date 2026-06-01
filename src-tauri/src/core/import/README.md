@@ -60,8 +60,8 @@ const preview = await invoke("preview_job_import", {
   url: "https://example.com/jobs/123"
 });
 
-// Import job
-const job = await invoke("import_job_from_url", {
+// Import job; returns only the saved job id
+const result = await invoke("import_job_from_url", {
   url: "https://example.com/jobs/123"
 });
 ```

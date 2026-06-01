@@ -47,7 +47,7 @@ describe("ApplyButton", () => {
     it("renders prepare form button", async () => {
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         return Promise.resolve(null);
       });
@@ -62,7 +62,7 @@ describe("ApplyButton", () => {
     it("renders with bolt icon", async () => {
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         return Promise.resolve(null);
       });
@@ -79,7 +79,7 @@ describe("ApplyButton", () => {
     it("button has appropriate title text when ready", async () => {
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         return Promise.resolve(null);
       });
@@ -91,13 +91,31 @@ describe("ApplyButton", () => {
         expect(button).toHaveAttribute("title", "Prepare application form for your review");
       });
     });
+
+    it("checks profile existence without loading profile details", async () => {
+      mockInvoke.mockImplementation((cmd) => {
+        if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
+        if (cmd === "has_application_profile") return Promise.resolve(true);
+        if (cmd === "is_browser_running") return Promise.resolve(false);
+        return Promise.resolve(null);
+      });
+
+      renderWithToast(<ApplyButton job={mockJob} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /prepare form/i })).not.toBeDisabled();
+      });
+
+      expect(mockInvoke).toHaveBeenCalledWith("has_application_profile", undefined);
+      expect(mockInvoke).not.toHaveBeenCalledWith("get_application_profile", undefined);
+    });
   });
 
   describe("ATS platform detection", () => {
     it("shows loading skeleton during ATS detection", () => {
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return new Promise(() => {}); // Never resolves
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         return Promise.resolve(null);
       });
@@ -111,7 +129,7 @@ describe("ApplyButton", () => {
     it("displays Greenhouse badge when detected", async () => {
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         return Promise.resolve(null);
       });
@@ -128,7 +146,7 @@ describe("ApplyButton", () => {
         if (cmd === "detect_ats_platform") {
           return Promise.resolve({ ...mockAtsDetection, platform: "lever" });
         }
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         return Promise.resolve(null);
       });
@@ -145,7 +163,7 @@ describe("ApplyButton", () => {
         if (cmd === "detect_ats_platform") {
           return Promise.resolve({ ...mockAtsDetection, platform: "workday" });
         }
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         return Promise.resolve(null);
       });
@@ -162,7 +180,7 @@ describe("ApplyButton", () => {
         if (cmd === "detect_ats_platform") {
           return Promise.resolve({ ...mockAtsDetection, platform: "unknown" });
         }
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         return Promise.resolve(null);
       });
@@ -179,7 +197,7 @@ describe("ApplyButton", () => {
     it("badge has automation notes in title attribute", async () => {
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         return Promise.resolve(null);
       });
@@ -195,7 +213,7 @@ describe("ApplyButton", () => {
     it("handles ATS detection failure gracefully", async () => {
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.reject(new Error("Network error"));
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         return Promise.resolve(null);
       });
@@ -215,7 +233,7 @@ describe("ApplyButton", () => {
     it("button is disabled when no profile exists", async () => {
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve(null);
+        if (cmd === "has_application_profile") return Promise.resolve(false);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         return Promise.resolve(null);
       });
@@ -231,7 +249,7 @@ describe("ApplyButton", () => {
     it("button shows helper text when no profile", async () => {
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve(null);
+        if (cmd === "has_application_profile") return Promise.resolve(false);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         return Promise.resolve(null);
       });
@@ -247,7 +265,7 @@ describe("ApplyButton", () => {
     it("button is enabled when profile exists", async () => {
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         return Promise.resolve(null);
       });
@@ -263,7 +281,7 @@ describe("ApplyButton", () => {
     it("handles profile check failure gracefully", async () => {
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.reject(new Error("Failed to load"));
+        if (cmd === "has_application_profile") return Promise.reject(new Error("Failed to load"));
         if (cmd === "is_browser_running") return Promise.resolve(false);
         return Promise.resolve(null);
       });
@@ -281,7 +299,7 @@ describe("ApplyButton", () => {
     it("shows error toast when clicking without profile", async () => {
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve(null);
+        if (cmd === "has_application_profile") return Promise.resolve(false);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         return Promise.resolve(null);
       });
@@ -301,7 +319,7 @@ describe("ApplyButton", () => {
       const user = userEvent.setup();
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         return Promise.resolve(null);
       });
@@ -326,7 +344,7 @@ describe("ApplyButton", () => {
       
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         if (cmd === "fill_application_form") {
           return Promise.resolve({
@@ -367,7 +385,7 @@ describe("ApplyButton", () => {
     it("button is disabled during ATS detection", () => {
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return new Promise(() => {}); // Never resolves
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         return Promise.resolve(null);
       });
@@ -385,7 +403,7 @@ describe("ApplyButton", () => {
       
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         if (cmd === "fill_application_form") {
           return new Promise((resolve) => {
@@ -433,7 +451,7 @@ describe("ApplyButton", () => {
       
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         if (cmd === "fill_application_form") {
           return Promise.reject(new Error("Failed to open browser"));
@@ -465,7 +483,7 @@ describe("ApplyButton", () => {
       
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         if (cmd === "fill_application_form") {
           return Promise.reject(new Error("Connection timeout"));
@@ -499,7 +517,7 @@ describe("ApplyButton", () => {
       
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         if (cmd === "fill_application_form") {
           return Promise.reject(new Error("Network error"));
@@ -532,7 +550,7 @@ describe("ApplyButton", () => {
       
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         if (cmd === "fill_application_form") {
           callCount++;
@@ -584,7 +602,7 @@ describe("ApplyButton", () => {
 
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         if (cmd === "fill_application_form") {
           return Promise.resolve({
@@ -625,7 +643,7 @@ describe("ApplyButton", () => {
 
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         if (cmd === "fill_application_form") {
           return Promise.reject(
@@ -659,7 +677,7 @@ describe("ApplyButton", () => {
       
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         if (cmd === "fill_application_form") {
           return Promise.reject(new Error("Test error"));
@@ -709,7 +727,7 @@ describe("ApplyButton", () => {
     it("shows Close Browser button when browser is running", async () => {
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(true);
         return Promise.resolve(null);
       });
@@ -726,7 +744,7 @@ describe("ApplyButton", () => {
       
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         if (cmd === "fill_application_form") {
           return Promise.resolve({
@@ -767,7 +785,7 @@ describe("ApplyButton", () => {
       
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(true);
         if (cmd === "close_automation_browser") return Promise.resolve(null);
         return Promise.resolve(null);
@@ -793,7 +811,7 @@ describe("ApplyButton", () => {
       
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         if (cmd === "fill_application_form") {
           return Promise.resolve({
@@ -836,7 +854,7 @@ describe("ApplyButton", () => {
       
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         if (cmd === "fill_application_form") {
           return Promise.resolve({
@@ -879,7 +897,7 @@ describe("ApplyButton", () => {
       
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         if (cmd === "fill_application_form") {
           return Promise.resolve({
@@ -920,7 +938,7 @@ describe("ApplyButton", () => {
       
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         return Promise.resolve(null);
       });
@@ -938,7 +956,7 @@ describe("ApplyButton", () => {
       
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(true);
         if (cmd === "close_automation_browser") return Promise.resolve(null);
         return Promise.resolve(null);
@@ -963,7 +981,7 @@ describe("ApplyButton", () => {
       
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(true);
         if (cmd === "close_automation_browser") return Promise.resolve(null);
         if (cmd === "mark_attempt_submitted") return Promise.resolve(null);
@@ -995,7 +1013,7 @@ describe("ApplyButton", () => {
       
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(true);
         if (cmd === "close_automation_browser") return Promise.resolve(null);
         if (cmd === "mark_attempt_submitted") return Promise.resolve(null);
@@ -1027,7 +1045,7 @@ describe("ApplyButton", () => {
       
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(true);
         if (cmd === "close_automation_browser") return Promise.resolve(null);
         return Promise.resolve(null);
@@ -1058,7 +1076,7 @@ describe("ApplyButton", () => {
     it("button has proper role", async () => {
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         return Promise.resolve(null);
       });
@@ -1075,7 +1093,7 @@ describe("ApplyButton", () => {
       
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "get_application_profile") return Promise.resolve({ fullName: "Test User" });
+        if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         return Promise.resolve(null);
       });

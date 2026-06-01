@@ -54,11 +54,10 @@ and record actionable findings in this active-plan surface.
   Advanced, explains location lookup without protocol jargon, broadens company
   suggestions and placeholders beyond technology, refreshes broad resume/mock
   ATS fixtures, and aligns E2E labels with the visible "Skills Interview" copy.
-- Latest local security audit found no new reviewed raw logging sink, but
-  recorded open IPC minimization work: application profile commands return too
-  much private data for non-settings screens, import URLs should be
-  canonicalized before preview/hash/storage and return less data, and Dashboard
-  should use a minimal preferences DTO instead of full config.
+- Latest local IPC minimization work added narrow application profile
+  existence/preview commands, canonicalizes imported URLs before
+  preview/hash/storage, returns only `{ jobId }` from job import, and moves
+  Dashboard to a minimal preferences DTO instead of full config.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.
@@ -72,8 +71,8 @@ and record actionable findings in this active-plan surface.
 
 ## Next Best Work
 
-1. Shrink non-settings IPC payloads for application profile, job import, and
-   Dashboard preferences.
+1. Continue verification and regression sensors for minimized IPC payloads
+   across application profile, job import, and Dashboard preferences.
 2. Continue splitting oversized mixed sensors, especially docs-drift,
    privacy-logging, fixture-quality, broad-audience, and technical-first copy
    checks still inside `scripts/check-repo-bloat.mjs`.

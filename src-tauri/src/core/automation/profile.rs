@@ -171,6 +171,15 @@ impl ProfileManager {
         }
     }
 
+    /// Check whether an application profile exists without returning private profile data.
+    pub async fn has_profile(&self) -> Result<bool> {
+        let profile_id = sqlx::query_scalar::<_, i64>("SELECT id FROM application_profile LIMIT 1")
+            .fetch_optional(&self.db)
+            .await?;
+
+        Ok(profile_id.is_some())
+    }
+
     /// Add or update screening answer
     pub async fn upsert_screening_answer(
         &self,

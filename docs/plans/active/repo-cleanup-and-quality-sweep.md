@@ -224,10 +224,10 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   Start notification setup wording.
 - Reworded problem-history/export labels, saved-report success steps, and
   generated safe-report section names into plain support language.
-- The latest security read-only audit found no new raw logging leak in the
-  reviewed sinks, but did identify IPC minimization work for application
-  profile payloads, import URL canonicalization/return shape, and Dashboard
-  config over-fetch. Those remain open in the technical debt tracker.
+- The latest IPC minimization work added narrow application-profile
+  existence/preview commands, canonical import URLs before
+  preview/hash/storage, minimized import responses to `{ jobId }`, and a
+  Dashboard-only preferences DTO.
 - Updated active plan and handoff docs for the latest local cleanup slice.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
