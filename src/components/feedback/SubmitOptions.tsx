@@ -14,7 +14,7 @@ export const SubmitOptions = memo(function SubmitOptions({
 }: SubmitOptionsProps) {
   return (
     <div className="space-y-4">
-      {/* GitHub Issues - recommended when the user wants a trackable report */}
+      {/* Safe local file - easiest path for non-technical users */}
       <div className="border-2 border-sentinel-500 rounded-lg overflow-hidden bg-sentinel-50/50 dark:bg-sentinel-900/10">
         <div className="px-4 py-3 bg-sentinel-500 text-white">
           <div className="flex items-center gap-2">
@@ -27,28 +27,28 @@ export const SubmitOptions = memo(function SubmitOptions({
 
         <div className="p-4 space-y-3">
           <h3 className="font-semibold text-surface-800 dark:text-surface-200 text-lg">
-            Open a report with replies
+            Save a safe report
           </h3>
 
           <div className="space-y-2 text-sm text-surface-600 dark:text-surface-400">
-            <BenefitItem text="Opens a prepared GitHub issue in your browser" />
-            <BenefitItem text="Copies your safe debug report so you can paste it" />
-            <BenefitItem text="Keeps private details out before sharing" />
+            <BenefitItem text="Saves a sanitized report on your computer" />
+            <BenefitItem text="Works without a GitHub or Google account" />
+            <BenefitItem text="You choose whether and where to share it" />
           </div>
 
           <Button
             variant="primary"
             size="lg"
-            onClick={onSubmitGitHub}
+            onClick={onSubmitDrive}
             loading={submitting}
             className="w-full"
-            icon={<GitHubIcon />}
+            icon={<DriveIcon />}
           >
-            Open GitHub issue
+            Save Safe Report
           </Button>
 
           <p className="text-xs text-surface-500 dark:text-surface-400 text-center">
-            No GitHub account or not sure? Save a feedback file instead.
+            Private details are removed before the file is created.
           </p>
         </div>
       </div>
@@ -65,27 +65,31 @@ export const SubmitOptions = memo(function SubmitOptions({
         </div>
       </div>
 
-      {/* Saved file - secondary path when GitHub is unfamiliar */}
+      {/* GitHub Issues - optional when the user wants a trackable report */}
       <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 space-y-3">
         <h3 className="font-semibold text-surface-800 dark:text-surface-200">
-          Save a feedback file
+          Open a report with replies
         </h3>
 
         <p className="text-sm text-surface-600 dark:text-surface-400">
-          Use this if GitHub is unfamiliar or you want to share the report
-          another way. JobSentinel saves a safe report file first.
+          Use this if you want a trackable GitHub issue. JobSentinel copies the
+          safe report so you can paste it before submitting.
         </p>
 
         <Button
           variant="secondary"
           size="md"
-          onClick={onSubmitDrive}
+          onClick={onSubmitGitHub}
           loading={submitting}
           className="w-full"
-          icon={<DriveIcon />}
+          icon={<GitHubIcon />}
         >
-          Save Feedback File
+          Open GitHub Issue
         </Button>
+
+        <p className="text-xs text-surface-500 dark:text-surface-400 text-center">
+          A GitHub account may be needed to submit the issue.
+        </p>
       </div>
     </div>
   );

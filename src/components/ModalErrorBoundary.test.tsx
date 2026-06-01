@@ -2,6 +2,22 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import ModalErrorBoundary from "./ModalErrorBoundary";
+import {
+  copySanitizedDebugReport,
+  saveSanitizedDebugReport,
+} from "../services/feedbackService";
+
+vi.mock("../services/feedbackService", () => ({
+  copySanitizedDebugReport: vi.fn().mockResolvedValue({
+    content: "safe report",
+    copied: true,
+    errorCount: 1,
+  }),
+  saveSanitizedDebugReport: vi.fn().mockResolvedValue({
+    fileName: "jobsentinel-debug-report.txt",
+    revealToken: "feedback-token",
+  }),
+}));
 
 // Component that throws an error
 function ThrowError({
@@ -21,6 +37,8 @@ function ThrowError({
 const originalError = console.error;
 beforeEach(() => {
   console.error = vi.fn();
+  vi.mocked(copySanitizedDebugReport).mockClear();
+  vi.mocked(saveSanitizedDebugReport).mockClear();
   return () => {
     console.error = originalError;
   };
@@ -133,6 +151,49 @@ describe("ModalErrorBoundary", () => {
       );
 
       expect(screen.getByRole("button", { name: /try again/i })).toBeInTheDocument();
+    });
+
+    it("shows safe report actions", () => {
+      render(
+        <ModalErrorBoundary>
+          <ThrowError shouldThrow={true} />
+        </ModalErrorBoundary>
+      );
+
+      expect(screen.getByRole("button", { name: /copy safe report/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /save safe report/i })).toBeInTheDocument();
+    });
+
+    it("copies a safe report from the modal fallback", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <ModalErrorBoundary>
+          <ThrowError shouldThrow={true} />
+        </ModalErrorBoundary>
+      );
+
+      await user.click(screen.getByRole("button", { name: /copy safe report/i }));
+
+      expect(copySanitizedDebugReport).toHaveBeenCalledTimes(1);
+      expect(await screen.findByText(/safe report copied/i)).toBeInTheDocument();
+    });
+
+    it("saves a safe report from the modal fallback", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <ModalErrorBoundary>
+          <ThrowError shouldThrow={true} />
+        </ModalErrorBoundary>
+      );
+
+      await user.click(screen.getByRole("button", { name: /save safe report/i }));
+
+      expect(saveSanitizedDebugReport).toHaveBeenCalledTimes(1);
+      expect(
+        await screen.findByText(/safe report saved: jobsentinel-debug-report.txt/i)
+      ).toBeInTheDocument();
     });
 
     it("calls onClose when Close button is clicked", async () => {

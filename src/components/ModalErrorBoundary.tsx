@@ -1,6 +1,10 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { errorReporter, sanitizeTextForStorage } from '../utils/errorReporting';
 import { logError } from '../utils/errorUtils';
+import {
+  copySanitizedDebugReport,
+  saveSanitizedDebugReport,
+} from '../services/feedbackService';
 
 interface Props {
   children: ReactNode;
@@ -13,6 +17,8 @@ interface State {
   hasError: boolean;
   error: Error | null;
   retryCount: number;
+  debugReportStatus: 'idle' | 'copying' | 'copied' | 'saving' | 'saved' | 'failed';
+  debugReportFileName: string | null;
 }
 
 function safeModalErrorMessage(error: Error | null): string {
@@ -45,6 +51,8 @@ class ModalErrorBoundary extends Component<Props, State> {
     hasError: false,
     error: null,
     retryCount: 0,
+    debugReportStatus: 'idle',
+    debugReportFileName: null,
   };
 
   public static getDerivedStateFromError(error: Error): Partial<State> {
@@ -84,7 +92,36 @@ class ModalErrorBoundary extends Component<Props, State> {
       hasError: false,
       error: null,
       retryCount: prev.retryCount + 1,
+      debugReportStatus: 'idle',
+      debugReportFileName: null,
     }));
+  };
+
+  private handleCopyDebugReport = async () => {
+    this.setState({ debugReportStatus: 'copying', debugReportFileName: null });
+
+    try {
+      await copySanitizedDebugReport(errorReporter.getErrors());
+      this.setState({ debugReportStatus: 'copied' });
+    } catch (error) {
+      logError('Failed to copy debug report from modal boundary:', error);
+      this.setState({ debugReportStatus: 'failed' });
+    }
+  };
+
+  private handleSaveDebugReport = async () => {
+    this.setState({ debugReportStatus: 'saving', debugReportFileName: null });
+
+    try {
+      const savedFile = await saveSanitizedDebugReport(errorReporter.getErrors());
+      this.setState({
+        debugReportStatus: savedFile ? 'saved' : 'idle',
+        debugReportFileName: savedFile?.fileName ?? null,
+      });
+    } catch (error) {
+      logError('Failed to save debug report from modal boundary:', error);
+      this.setState({ debugReportStatus: 'failed' });
+    }
   };
 
   public render() {
@@ -144,6 +181,44 @@ class ModalErrorBoundary extends Component<Props, State> {
                 </p>
               </div>
             )}
+
+            <div className="mb-4 grid grid-cols-1 gap-2">
+              <button
+                onClick={this.handleCopyDebugReport}
+                disabled={this.state.debugReportStatus === 'copying'}
+                className="w-full bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-700 dark:text-surface-200 font-medium py-2.5 px-4 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none"
+              >
+                {this.state.debugReportStatus === 'copying'
+                  ? 'Copying...'
+                  : 'Copy Safe Report'}
+              </button>
+
+              <button
+                onClick={this.handleSaveDebugReport}
+                disabled={this.state.debugReportStatus === 'saving'}
+                className="w-full bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-700 dark:text-surface-200 font-medium py-2.5 px-4 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none"
+              >
+                {this.state.debugReportStatus === 'saving'
+                  ? 'Saving...'
+                  : 'Save Safe Report'}
+              </button>
+
+              {this.state.debugReportStatus === 'copied' && (
+                <p className="text-center text-sm text-success" role="status">
+                  Safe report copied
+                </p>
+              )}
+              {this.state.debugReportStatus === 'saved' && this.state.debugReportFileName && (
+                <p className="text-center text-sm text-success" role="status">
+                  Safe report saved: {this.state.debugReportFileName}
+                </p>
+              )}
+              {this.state.debugReportStatus === 'failed' && (
+                <p className="text-center text-sm text-danger" role="status">
+                  Could not create safe report
+                </p>
+              )}
+            </div>
 
             <div className="flex gap-3">
               <button

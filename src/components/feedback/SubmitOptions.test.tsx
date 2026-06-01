@@ -19,23 +19,23 @@ function renderSubmitOptions(submitting = false) {
 }
 
 describe("SubmitOptions", () => {
-  it("keeps a plain no-account feedback-file path visible", () => {
+  it("makes the no-account safe report path primary", () => {
     renderSubmitOptions();
 
     expect(screen.getByText("Recommended")).toBeInTheDocument();
     expect(
+      screen.getByRole("heading", { name: /save a safe report/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/works without a github or google account/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/you choose whether and where to share it/i)
+    ).toBeInTheDocument();
+    expect(
       screen.getByRole("heading", { name: /open a report with replies/i })
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(/copies your safe debug report/i)
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/no github account or not sure/i)
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: /save a feedback file/i })
-    ).toBeInTheDocument();
-    expect(screen.getByText(/safe report file first/i)).toBeInTheDocument();
+    expect(screen.getByText(/a github account may be needed/i)).toBeInTheDocument();
     expect(screen.queryByText(/sign up/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/community/i)).not.toBeInTheDocument();
   });
@@ -45,14 +45,14 @@ describe("SubmitOptions", () => {
     const { onSubmitGitHub, onSubmitDrive } = renderSubmitOptions();
 
     await user.click(
-      screen.getByRole("button", { name: /open github issue/i })
+      screen.getByRole("button", { name: /save safe report/i })
     );
     await user.click(
-      screen.getByRole("button", { name: /save feedback file/i })
+      screen.getByRole("button", { name: /open github issue/i })
     );
 
-    expect(onSubmitGitHub).toHaveBeenCalledTimes(1);
     expect(onSubmitDrive).toHaveBeenCalledTimes(1);
+    expect(onSubmitGitHub).toHaveBeenCalledTimes(1);
   });
 
   it("disables both submit paths while a report is being prepared", () => {

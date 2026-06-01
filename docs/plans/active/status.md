@@ -42,11 +42,12 @@ and record actionable findings in this active-plan surface.
 - Latest local privacy work removes raw automation dropdown-answer logging and
   raw frontend error forwarding, then adds bloat sensors and `errorReporting`
   unit coverage so those regressions fail locally.
-- Read-only sub-agent UX audit findings remain open: support options still make
-  GitHub/Drive too central for non-technical users, settings crash recovery
-  lacks a safe debug-report action, problem-history/export copy remains too
-  technical, and user docs mention notification providers beyond the setup
-  wizard's current flow.
+- Latest local UX work makes saving a safe local report the primary feedback
+  path, adds safe-report copy/save actions to modal crash recovery, and updates
+  Quick Start notification setup wording to match the current wizard.
+- Remaining read-only UX audit findings stay open for follow-up:
+  problem-history/export copy remains too technical, and the saved-report
+  success flow still needs a clearer account-optional path.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

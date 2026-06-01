@@ -63,6 +63,9 @@ Current cleanup posture:
 - Privacy audit follow-up removed raw automation dropdown-answer logging and
   raw frontend error forwarding. The bloat sensor now rejects those patterns,
   and `errorReporting` unit tests cover sanitized console forwarding.
+- UX audit follow-up made safe local report saving the recommended feedback
+  submit path, added safe-report copy/save actions to modal crash recovery, and
+  aligned Quick Start notification setup wording with the current wizard.
 - `scripts/check-repo-bloat.mjs` still owns docs drift, privacy logging,
   fixture-quality checks, broad-audience checks, technical-first copy checks,
   and source security patterns.
@@ -251,6 +254,9 @@ Recent cleanup slices on `main` include:
 - Used read-only UX and security sub-agents. Closed the security findings for
   raw dropdown-answer logging and raw frontend console forwarding in code and
   tests. Recorded remaining UX support/recovery findings as open debt.
+- Improved zero-technical support recovery by making local safe report saving
+  primary, keeping GitHub optional, adding safe-report actions to modal crash
+  recovery, and updating notification setup docs.
 
 The active plan progress table has detailed slice history.
 
@@ -283,6 +289,14 @@ Latest privacy-audit slice checks on 2026-05-31:
 - `npm run lint`
 - `cd src-tauri && cargo fmt --all -- --check`
 - `git diff --check`
+
+Latest UX support-recovery slice checks on 2026-05-31:
+
+- `npm run test:run -- src/components/feedback/SubmitOptions.test.tsx src/components/ModalErrorBoundary.test.tsx`
+- `npm run lint:bloat`
+- `npm run lint:docs`
+- `npm run lint`
+- `npm run build`
 
 Latest active-plan documentation slice checks on 2026-05-31:
 

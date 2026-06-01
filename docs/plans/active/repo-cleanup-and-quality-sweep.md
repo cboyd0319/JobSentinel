@@ -144,6 +144,9 @@ Required process:
   `scripts/harness/checks/release-promises.mjs`.
 - [x] Harden raw automation dropdown logging and frontend error forwarding
   found by the privacy audit, with focused bloat and unit-test coverage.
+- [x] Make the feedback submit flow prefer saving a safe local report, add safe
+  report actions to modal crash recovery, and align setup notification docs
+  with the current Slack-only wizard step.
 - [ ] Audit primary user workflows for zero-technical-knowledge ease.
 - [ ] Audit user-facing flows and copy for engineer-only assumptions.
 - [ ] Run relevant verification and push each cleanup slice.
@@ -195,6 +198,9 @@ the repo harness rather than changing user-facing product behavior:
 - Removed raw automation dropdown-answer logging and raw frontend error
   forwarding from local/browser output paths. Added bloat sensors for both
   regressions and unit coverage for sanitized console forwarding.
+- Made the safe local report the recommended feedback submit path, added
+  copy/save safe report actions to modal error recovery, and corrected Quick
+  Start notification setup wording.
 - Updated active plan and handoff docs for the user-requested commit and push.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
@@ -226,6 +232,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-31 | In progress | Improved zero-technical support recovery by making safe local reports the recommended feedback submit path, adding safe-report copy/save actions to modal crash recovery, and aligning Quick Start notification setup wording with the current wizard. |
 | 2026-05-31 | In progress | Used authorized read-only sub-agents for UX and security audits; fixed the security audit's raw dropdown-answer log and frontend error-forwarding findings with bloat sensors and `errorReporting` unit coverage. |
 | 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting front-door and runtime source release-promise checks into `scripts/harness/checks/release-promises.mjs`. |
 | 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting product-copy checks for stale resume framing, Application Assist automation framing, ghost-risk overconfidence, pay-guidance overconfidence, and resume-template audience copy into `scripts/harness/checks/product-copy.mjs`. |
@@ -556,6 +563,11 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   settings modal recovery path lacks a safe report action, report/problem
   labels expose jargon, and notification setup docs mention providers beyond
   the wizard's current flow.
+- Follow-up UX work made safe local report saving primary in the feedback
+  submit flow, added modal fallback copy/save safe report actions, and aligned
+  setup notification docs with the current Slack-only wizard step. Remaining
+  support UX debt is concentrated in problem-history/export labels and the
+  saved-report success path.
 
 ## Decisions
 

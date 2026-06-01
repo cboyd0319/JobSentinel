@@ -199,7 +199,7 @@ export function useFeedback(): UseFeedbackResult {
       setState(prev => ({
         ...prev,
         submitting: false,
-        error: "Failed to open GitHub. Please try saving a feedback file instead.",
+        error: "Could not open GitHub. Please save a safe report instead.",
       }));
     }
   }, [state.category, state.description, getFormattedDebugInfo]);
@@ -239,7 +239,7 @@ export function useFeedback(): UseFeedbackResult {
       setState(prev => ({
         ...prev,
         submitting: false,
-        error: "Failed to save file. Please try again or open a GitHub issue.",
+        error: "Could not save a safe report. Please try again or open a GitHub issue.",
       }));
     }
   }, [state.category, state.description, state.includeDebugInfo]);
