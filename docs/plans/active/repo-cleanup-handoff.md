@@ -78,6 +78,10 @@ Current branch note:
 - The current local dashboard plain-language slice changes job-list export
   actions to download copy, removes advanced-search wording from the main
   search box, and adds DashboardFiltersBar plus QuickActions tests.
+- The current local support-language slice changes feedback category choices
+  from bug-report and feature-request wording to report-a-problem,
+  suggest-an-improvement, and ask-a-question wording, with CategorySelector
+  coverage.
 - Continue using small verified commits. Avoid another remote CI run until the
   next explicit integration gate or full-goal completion pass.
 

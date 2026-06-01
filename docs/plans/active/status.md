@@ -255,6 +255,9 @@ and record actionable findings in this active-plan surface.
 - Latest dashboard plain-language work changes job-list export actions to
   download copy, removes advanced-search wording from the main search box, and
   adds focused DashboardFiltersBar and QuickActions tests for the visible copy.
+- Latest support-language work changes feedback choices from bug-report and
+  feature-request wording to report-a-problem, suggest-an-improvement, and
+  ask-a-question wording, with focused CategorySelector coverage.
 - Latest local docs-drift harness work moves the docs-drift violation messages
   out of `scripts/check-repo-bloat.mjs` and into
   `scripts/harness/checks/docs-drift.mjs` through

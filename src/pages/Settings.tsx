@@ -3766,7 +3766,7 @@ export default function Settings({ onClose }: SettingsProps) {
             <button
               onClick={() => setShowFeedbackModal(true)}
               className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors"
-              title="Report a bug, suggest a feature, or ask a question"
+              title="Get help, report a problem, or suggest an improvement"
             >
               <FeedbackIcon className="w-4 h-4" />
               Send Feedback

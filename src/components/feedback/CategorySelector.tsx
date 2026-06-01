@@ -22,7 +22,7 @@ export const CategorySelector = memo(function CategorySelector({
           selected={selected === "bug"}
           onSelect={onSelect}
           icon={<BugIcon />}
-          title="Bug Report"
+          title="Report a problem"
           description="Something isn't working right"
         />
 
@@ -31,8 +31,8 @@ export const CategorySelector = memo(function CategorySelector({
           selected={selected === "feature"}
           onSelect={onSelect}
           icon={<IdeaIcon />}
-          title="Feature Request"
-          description="Suggest an improvement or new feature"
+          title="Suggest an improvement"
+          description="Share an idea that would help your job search"
         />
 
         <CategoryButton
@@ -40,8 +40,8 @@ export const CategorySelector = memo(function CategorySelector({
           selected={selected === "question"}
           onSelect={onSelect}
           icon={<QuestionIcon />}
-          title="Question or Comment"
-          description="Ask a question or share feedback"
+          title="Ask a question"
+          description="Ask for help or share general feedback"
         />
       </div>
     </div>
