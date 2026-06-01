@@ -511,6 +511,9 @@ Recent cleanup slices on `main` include:
   auth headers from the browser-helper flow. It keeps the copied helper token
   session-scoped but still records stronger short-lived/session-bound approval
   as open security debt.
+- Latest local zero-technical setup follow-up removes raw Slack connection-link
+  setup from first-run onboarding and replaces it with a plain note that
+  optional chat alerts can be added later in Settings.
 - Improved zero-technical support recovery by making local safe support report
   saving primary, keeping GitHub optional, adding safe support report actions to
   modal crash recovery, and updating notification setup docs.

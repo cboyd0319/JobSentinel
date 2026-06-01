@@ -179,6 +179,22 @@ describe("SetupWizard Accessibility", () => {
       expect(screen.queryByText(/great matches|great jobs/i)).not.toBeInTheDocument();
     });
 
+    it("keeps raw chat alert setup out of first-run setup", async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
+
+      await user.click(screen.getByRole("button", { name: /continue with my own search/i }));
+      await user.type(screen.getByPlaceholderText("Add a job title..."), "Office Manager{enter}");
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+
+      expect(
+        screen.getByText(/optional chat alerts can be added later in settings/i),
+      ).toBeInTheDocument();
+      expect(screen.queryByLabelText(/slack connection link/i)).not.toBeInTheDocument();
+      expect(screen.queryByPlaceholderText(/hooks\.slack/i)).not.toBeInTheDocument();
+    });
+
     it("saves a wider freshness preference without technical setup", async () => {
       const user = userEvent.setup();
       mockInvoke.mockResolvedValue(undefined);

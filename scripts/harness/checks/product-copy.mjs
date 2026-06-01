@@ -531,6 +531,17 @@ export function hasTechnicalFirstUserCopy(root, path) {
     }
   }
 
+  if (path === "src/pages/SetupWizard.tsx") {
+    const setupWizardPatterns = [
+      /Slack connection link/i,
+      /hooks\.slack\.com\/services/i,
+    ];
+
+    if (setupWizardPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
   const stalePatterns = [
     /Import JSON Resume/i,
     /Import Resume Data/i,

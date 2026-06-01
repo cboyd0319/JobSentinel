@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
 import { Badge } from "../components/Badge";
@@ -12,7 +12,6 @@ import {
   getSearchSourceDefaults,
   profileToConfig,
 } from "../utils/profiles";
-import { validateSlackWebhook } from "../utils/formValidation";
 import {
   cacheDetectedLocation,
   readCachedDetectedLocation,
@@ -235,7 +234,6 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const toast = useToast();
   const [stepAnnouncement, setStepAnnouncement] = useState("");
   const [validationAnnouncement, setValidationAnnouncement] = useState("");
-  const announcementTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [detectedLocation, setDetectedLocation] = useState<LocationInfo | null>(
     () => readCachedDetectedLocation()
   );
@@ -349,7 +347,6 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     config.location_preferences.allow_remote ||
     config.location_preferences.allow_hybrid ||
     config.location_preferences.allow_onsite;
-  const [slackWebhookError, setSlackWebhookError] = useState<string | undefined>();
 
   const handleDetectLocation = useCallback(async () => {
     setIsDetectingLocation(true);
@@ -375,25 +372,6 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       setStepAnnouncement(`Step ${step + 1} of ${STEPS.length}: ${currentStep.title}`);
     }
   }, [step]);
-
-  // Announce validation errors for screen readers
-  useEffect(() => {
-    if (slackWebhookError) {
-      setValidationAnnouncement(slackWebhookError);
-      // Clear after announcement
-      if (announcementTimeoutRef.current) {
-        clearTimeout(announcementTimeoutRef.current);
-      }
-      announcementTimeoutRef.current = setTimeout(() => {
-        setValidationAnnouncement("");
-      }, 1000);
-    }
-    return () => {
-      if (announcementTimeoutRef.current) {
-        clearTimeout(announcementTimeoutRef.current);
-      }
-    };
-  }, [slackWebhookError]);
 
   // Announce when user cannot proceed from step 1
   useEffect(() => {
@@ -517,14 +495,6 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     }
 
     try {
-      // Store Slack notification connection link in secure storage if provided.
-      const webhookUrl = config.alerts.slack.webhook_url;
-      if (webhookUrl && !validateSlackWebhook(webhookUrl)) {
-        await safeInvoke("store_credential", { key: "slack_webhook", value: webhookUrl }, {
-          logContext: "Store Slack connection credential"
-        });
-      }
-
       const sourceDefaults = getSearchSourceDefaults({
         titles: config.title_allowlist,
         keywords: config.keywords_boost,
@@ -1137,60 +1107,12 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                   Get notified when JobSentinel finds strong matches for your saved search
                 </p>
                 
-                {/* Slack notification info */}
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center gap-3 p-4 rounded-lg border-2 border-surface-200">
-                    <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                      <SlackIcon />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-surface-700">Slack</p>
-                      <p className="text-sm text-surface-500">Get alerts in your Slack workspace</p>
-                    </div>
-                    {config.alerts.slack.enabled && config.alerts.slack.webhook_url.length > 0 && (
-                      <span className="text-xs font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full">
-                        Enabled
-                      </span>
-                    )}
-                  </div>
+                <div className="mb-6 rounded-lg border-2 border-surface-200 p-4">
+                  <p className="font-medium text-surface-700">Alerts</p>
+                  <p className="mt-1 text-sm text-surface-500">
+                    Start with in-app alerts now. Optional chat alerts can be added later in Settings.
+                  </p>
                 </div>
-
-                {/* Slack notification connection link input */}
-                <Input
-                  label="Slack connection link (optional)"
-                  type="url"
-                  value={config.alerts.slack.webhook_url}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setConfig((prev) => ({
-                      ...prev,
-                      alerts: {
-                        ...prev.alerts,
-                        slack: {
-                          enabled: value.length > 0 && !validateSlackWebhook(value),
-                          webhook_url: value,
-                        },
-                      },
-                    }));
-                    // Real-time validation
-                    if (value.trim()) {
-                      setSlackWebhookError(validateSlackWebhook(value));
-                    } else {
-                      setSlackWebhookError(undefined);
-                    }
-                  }}
-                  onBlur={(e) => {
-                    const value = e.target.value;
-                    if (value.trim()) {
-                      setSlackWebhookError(validateSlackWebhook(value));
-                    }
-                  }}
-                  placeholder="https://hooks.slack.com/services/..."
-                  leftIcon={<SlackIcon />}
-                  error={slackWebhookError}
-                  hint="Don't have Slack? No problem! Skip this and check the app directly."
-                  maxLength={500}
-                />
               </div>
 
               <section
@@ -1252,7 +1174,6 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 </Button>
                 <Button
                   onClick={handleComplete}
-                  disabled={Boolean(slackWebhookError)}
                   variant="success"
                   className="flex-1"
                   size="lg"
@@ -1434,14 +1355,6 @@ function OfficeIcon() {
   return (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-    </svg>
-  );
-}
-
-function SlackIcon() {
-  return (
-    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/>
     </svg>
   );
 }

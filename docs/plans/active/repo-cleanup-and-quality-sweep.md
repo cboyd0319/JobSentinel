@@ -193,6 +193,8 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
 - Removed wildcard CORS and custom auth headers from the bookmarklet
   browser-helper flow; stronger short-lived/session-bound token approval remains
   open.
+- Removed raw Slack connection-link setup from first-run onboarding and kept
+  optional chat alerts as a later Settings task.
 - Extracted root-entry, local-artifact, and tracked-disposable checks from
   `scripts/check-repo-bloat.mjs` into
   `scripts/harness/checks/repo-artifacts.mjs` with focused script tests.
@@ -372,6 +374,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-01 | In progress | Removed raw Slack connection-link setup from first-run onboarding and added focused SetupWizard plus product-copy coverage so webhook-shaped setup does not drift back into the first-run path. |
 | 2026-06-01 | In progress | Removed wildcard CORS and custom auth headers from bookmarklet browser-helper imports by using a `no-cors` text-body token envelope; kept stronger short-lived/session-bound token approval open. |
 | 2026-06-01 | In progress | Moved production scraper constructors to a shared process-wide rate limiter and added focused coverage proving exhausted source buckets survive fresh handles. |
 | 2026-06-01 | In progress | Routed bookmarklet imports through public HTTP(S) URL validation and shared job storage validation, with focused tests for unsafe URLs, overlong fields, and valid storage. |

@@ -236,6 +236,11 @@ test("product copy rejects non-protective scoring and legacy preference copy", (
 test("product copy rejects technical-first settings copy", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/pages/Settings.tsx", "Config imported\nAdvanced Settings\n");
+    writeFixtureFile(
+      root,
+      "src/pages/SetupWizard.tsx",
+      'placeholder="https://hooks.slack.com/services/..." label="Slack connection link"',
+    );
     writeFixtureFile(root, "src/pages/Settings.test.tsx", "Config imported\n");
     writeFixtureFile(root, "docs/features/smart-scoring.md", "Settings > Advanced Settings\n");
     writeFixtureFile(
@@ -252,6 +257,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/SetupWizard.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.test.tsx"), false);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "docs/features/smart-scoring.md"),
