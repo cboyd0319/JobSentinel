@@ -210,10 +210,9 @@ picker when you decide to attach a resume.
 2. Some forms expect different formats, such as phone numbers without dashes.
 3. Update your profile and prepare the form again.
 
-### CAPTCHA Keeps Appearing
+### Human Check Keeps Appearing
 
-Complete CAPTCHA verification yourself. JobSentinel leaves human verification to
-you.
+Complete the human check yourself. JobSentinel leaves that step to you.
 
 ---
 
@@ -222,7 +221,7 @@ you.
 ### What JobSentinel Does Not Do
 
 - It does not click Submit.
-- It does not solve CAPTCHAs.
+- It does not complete human checks.
 - It does not apply to jobs without you.
 - It does not share your profile details.
 - It does not work around site security controls.

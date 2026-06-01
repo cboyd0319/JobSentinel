@@ -177,7 +177,8 @@ Current cleanup posture:
   application-form detection is still loading, preventing a slow recognition
   check from blocking the review path. The same slice now shares plain
   application-form display labels across job-card badges and the review modal
-  so raw platform IDs do not appear in the preview.
+  so raw platform IDs do not appear in the preview, and Application Assist docs
+  now use human-check wording instead of CAPTCHA-first troubleshooting copy.
 - Current local privacy follow-up removes raw screening-question text and saved
   answer patterns from Application Assist debug logs. The trace now records
   only question/pattern character counts when a saved answer matches, and

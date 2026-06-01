@@ -374,6 +374,16 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
+      "docs/features/one-click-apply.md",
+      [
+        "### CAPTCHA Keeps Appearing",
+        "Complete CAPTCHA verification yourself.",
+        "- It does not solve CAPTCHAs.",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/utils/errorMessages.ts",
       [
         "Bot Detection Triggered",
@@ -432,6 +442,10 @@ test("product copy rejects technical-first settings copy", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/automation/ApplyButton.tsx"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/components/automation/ApplicationPreview.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/features/one-click-apply.md"),
       true,
     );
     assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/errorMessages.ts"), true);

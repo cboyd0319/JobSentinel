@@ -99,6 +99,8 @@ and record actionable findings in this active-plan surface.
   review modal and continue. Application Assist now also shares plain
   application-form display labels across job-card badges and the review modal,
   so raw platform IDs such as `greenhouse` do not appear in the preview.
+  Application Assist docs now use human-check wording instead of
+  CAPTCHA-first troubleshooting copy, with product-copy coverage against drift.
 - Latest local privacy follow-up removes raw screening-question text and saved
   answer patterns from backend debug logs in Application Assist. Logs now keep
   only character counts for matched questions and patterns, and
