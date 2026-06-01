@@ -231,6 +231,10 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   page-check, loading, and result labels now use plain job-source wording,
   LinkedIn is removed from source-health test fixtures, and source-boundary
   harness coverage blocks stale status labels from returning.
+- Fixed additional support-copy UX findings: troubleshooting helper text and
+  safe app detail copy no longer use logs, diagnosis, or troubleshooting
+  jargon, and product-copy harness coverage blocks those phrases from
+  returning.
 - Started broad-audience drift cleanup by rebalancing company autocomplete
   suggestions across healthcare, retail, logistics, finance, public service,
   education, hospitality, and technology; replacing tech-first placeholders and

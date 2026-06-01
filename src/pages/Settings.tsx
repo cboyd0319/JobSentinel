@@ -3719,7 +3719,7 @@ export default function Settings({ onClose }: SettingsProps) {
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
                   Troubleshooting
-                  <HelpIcon text="If something isn't working right, these logs can help diagnose the problem." />
+                  <HelpIcon text="If something is not working, these details can help explain what happened." />
                 </h3>
 
                 {/* Job Sources Button */}

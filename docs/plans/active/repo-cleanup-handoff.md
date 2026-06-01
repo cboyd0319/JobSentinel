@@ -93,6 +93,9 @@ Current branch note:
   page-check, loading, and result labels to plain job-source wording, removes
   LinkedIn from source-health test fixtures, and adds source-boundary harness
   coverage for stale status labels.
+- The current support-copy UX slice changes troubleshooting helper text and
+  safe app detail copy away from logs, diagnosis, and troubleshooting jargon,
+  with product-copy harness coverage against those phrases.
 - Continue using small verified commits. Avoid another remote CI run until the
   next explicit integration gate or full-goal completion pass.
 
@@ -235,6 +238,9 @@ Current cleanup posture:
   page-check, loading, and result labels to plain job-source wording, removes
   LinkedIn from source-health test fixtures, and expands source-boundary
   harness coverage for stale status labels.
+- Latest support-copy UX follow-up changes troubleshooting helper text and safe
+  app detail copy away from logs, diagnosis, and troubleshooting jargon, with
+  product-copy harness coverage against those phrases.
 - Latest IPC minimization work added `has_application_profile`,
   `get_application_profile_preview`, `get_dashboard_preferences`, canonical
   import URLs before preview/hash/storage, and minimized import responses to

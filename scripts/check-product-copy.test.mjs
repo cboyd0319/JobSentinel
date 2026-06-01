@@ -219,6 +219,23 @@ test("product copy rejects technical-first settings copy", () => {
   });
 });
 
+test("product copy rejects support troubleshooting jargon", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "src/pages/Settings.tsx", "These logs can help diagnose it.\n");
+    writeFixtureFile(
+      root,
+      "src/components/feedback/DebugInfoPreview.tsx",
+      "Helps troubleshoot faster.",
+    );
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/feedback/DebugInfoPreview.tsx"),
+      true,
+    );
+  });
+});
+
 test("product copy rejects technical issue-template support wording", () => {
   withFixture((root) => {
     writeFixtureFile(

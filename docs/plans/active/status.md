@@ -334,6 +334,9 @@ and record actionable findings in this active-plan surface.
   page-check, loading, and result labels to plain job-source wording, removes
   LinkedIn from source-health test fixtures, and adds source-boundary harness
   coverage for stale status labels.
+- Latest local support-copy UX work changes troubleshooting helper text and
+  safe app detail copy away from logs, diagnosis, and troubleshooting jargon,
+  with product-copy harness coverage against those phrases.
 - Latest local email-setup UX work changes the primary email alert path from
   server/password setup toward provider-first app-password guidance, hides
   sending server details behind Advanced, and updates notification docs so

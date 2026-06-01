@@ -619,6 +619,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Loading system information/i,
     /Loading debug information/i,
     /Anonymized Debug Information/i,
+    /logs can help diagnose/i,
+    /Helps troubleshoot faster/i,
     /Privacy guaranteed/i,
     /["'`]Error Logs["'`]/i,
     /["'`]Stack Trace["'`]/i,

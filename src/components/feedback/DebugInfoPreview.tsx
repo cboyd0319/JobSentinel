@@ -52,7 +52,7 @@ export const DebugInfoPreview = memo(function DebugInfoPreview({
             Include safe app details
           </label>
           <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">
-            Helps troubleshoot faster. JobSentinel removes private details before sharing.
+            Helps support understand the problem faster. JobSentinel removes private details before sharing.
           </p>
         </div>
       </div>
