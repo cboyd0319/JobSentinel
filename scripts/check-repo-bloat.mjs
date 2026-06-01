@@ -49,7 +49,12 @@ import {
   hasRawAutomationDropdownValueLogging,
   hasRawAutomationFormResultData,
   hasRawAutomationQuestionLogging,
+  hasHardcodedFrontendErrorExportVersion,
   hasRawFrontendErrorReporterForwarding,
+  hasRawFrontendDirectErrorLogging,
+  hasRawFrontendErrorHelperDebugLogging,
+  hasRawFrontendErrorHelperUserMessage,
+  hasRawFrontendSharedErrorLogging,
   hasLinkedInLoginCookieReturn,
   hasCredentialKeyInputEcho,
   hasIncompleteConfigExportRedaction,
@@ -86,6 +91,8 @@ import {
   hasNonPublicIpErrorEcho,
   hasRendererCredentialSecretRead,
   hasSecretBearingDebugDerive,
+  hasUnsafeErrorReportStorageParsing,
+  hasUnsanitizedFrontendErrorReportStorage,
   hasUnboundedExternalResponseBodyRead,
 } from "./harness/checks/privacy-logging.mjs";
 import {
@@ -195,19 +202,6 @@ const residualCorePrivacyPaths = new Set([
 
 const rawBookmarkletLoggingPaths = new Set(["src-tauri/src/core/bookmarklet/server.rs"]);
 const bookmarkletGeneratorPaths = new Set(["src/components/BookmarkletGenerator.tsx"]);
-const frontendErrorReportingPaths = new Set(["src/utils/errorReporting.ts"]);
-const frontendErrorHelperDebugPaths = new Set(["src/utils/errorHelpers.ts"]);
-const frontendErrorUtilsPaths = new Set(["src/utils/errorUtils.ts"]);
-const frontendDirectErrorLoggingPaths = new Set([
-  "src/components/BookmarkletGenerator.tsx",
-  "src/components/ComponentErrorBoundary.tsx",
-  "src/components/DeepLinkGenerator.tsx",
-  "src/components/ErrorBoundary.tsx",
-  "src/components/ModalErrorBoundary.tsx",
-  "src/components/PageErrorBoundary.tsx",
-  "src/hooks/useFeedback.ts",
-  "src/services/feedbackService.ts",
-]);
 const scoreReasonJsonParserPaths = new Set([
   "src/components/ScoreDisplay.tsx",
   "src/components/ScoreBreakdownModal.tsx",
@@ -1919,113 +1913,6 @@ function hasBookmarkletCodeWithoutTokenHeader(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
   return /api\/bookmarklet\/import/.test(text) && !/X-JobSentinel-Token/.test(text);
-}
-
-function hasUnsanitizedFrontendErrorReportStorage(root, path) {
-  if (!frontendErrorReportingPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return (
-    /this\.errors\.unshift\(report\)/.test(text) ||
-    (/localStorage\.setItem\(STORAGE_KEY,\s*JSON\.stringify\(this\.errors\)\)/.test(text) &&
-      !/sanitizeStoredReport/.test(text)) ||
-    /logError\(`\[ErrorReporter\]\[\$\{type\}\]`,\s*error\.message/.test(text) ||
-    /\boriginalError:\s*error\b/.test(text) ||
-    /logError\(`\[ErrorReporter\]\[\$\{type\}\]`[\s\S]{0,160}\breport,\s*$/m.test(text) ||
-    /console\.warn\(\s*["']\[ErrorReporter\][^;]*,\s*(?:e|error)\s*\)/.test(text) ||
-    !/token\(\?:\\s\+\|=\)/.test(text) ||
-    text.includes("hooks\\.slack\\.com\\/services") ||
-    !text.includes("discord(?:app)?\\.com\\/api\\/webhooks") ||
-    !text.includes("outlook\\.office(?:365)?\\.com\\/webhook")
-  );
-}
-
-function hasRawFrontendErrorHelperDebugLogging(root, path) {
-  if (!frontendErrorHelperDebugPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return (
-    /console\.error\(\s*["']Error:["']\s*,\s*error\s*\)/.test(text) ||
-    /console\.log\(\s*["']Context:["']\s*,\s*context\s*\)/.test(text) ||
-    /console\.log\(\s*["']Stack:["']\s*,\s*error\.stack\s*\)/.test(text) ||
-    !text.includes("sanitizeDebugValue") ||
-    !text.includes("sanitizeTextForStorage") ||
-    !text.includes("sanitizeContext")
-  );
-}
-
-function hasRawFrontendErrorHelperUserMessage(root, path) {
-  if (!frontendErrorHelperDebugPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return /function\s+getUserMessage[\s\S]*?\breturn\s+error\.message\s*;/.test(text);
-}
-
-function hasRawFrontendSharedErrorLogging(root, path) {
-  if (!frontendErrorUtilsPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  const getErrorMessageStart = text.indexOf("export function getErrorMessage");
-  const getErrorMessageEnd =
-    getErrorMessageStart === -1
-      ? -1
-      : text.indexOf("\n/**", getErrorMessageStart + 1);
-  const getErrorMessageBody =
-    getErrorMessageStart === -1
-      ? ""
-      : text.slice(
-          getErrorMessageStart,
-          getErrorMessageEnd === -1 ? undefined : getErrorMessageEnd,
-        );
-  return (
-    /console\.error\(\s*message\s*,\s*error\s*\)/.test(text) ||
-    /\breturn\s+(?:error\.message|error|String\(\s*\([^)]*message|String\(\s*error)/.test(
-      getErrorMessageBody,
-    ) ||
-    !text.includes("getUserFriendlyError") ||
-    !text.includes("sanitizeLoggedError") ||
-    !text.includes("sanitizeTextForStorage") ||
-    !text.includes("sanitizeContext")
-  );
-}
-
-function hasRawFrontendDirectErrorLogging(root, path) {
-  if (!frontendDirectErrorLoggingPaths.has(path)) {
-    return false;
-  }
-
-  return /console\.error\(/.test(readFileSync(join(root, path), "utf8"));
-}
-
-function hasUnsafeErrorReportStorageParsing(root, path) {
-  if (!frontendErrorReportingPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return (
-    /JSON\.parse\(stored\)\.map/.test(text) ||
-    !/function\s+isErrorReport/.test(text) ||
-    !/parseStoredErrorReports/.test(text)
-  );
-}
-
-function hasHardcodedFrontendErrorExportVersion(root, path) {
-  if (!frontendErrorReportingPaths.has(path)) {
-    return false;
-  }
-
-  return /app_version:\s*["']\d+\.\d+(?:\.\d+)?["']/.test(
-    readFileSync(join(root, path), "utf8"),
-  );
 }
 
 function hasUnsafeScoreReasonJsonParsing(root, path) {

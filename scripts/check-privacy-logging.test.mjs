@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 import test from "node:test";
 import {
   hasCredentialKeyInputEcho,
+  hasHardcodedFrontendErrorExportVersion,
   hasIncompleteConfigExportRedaction,
   hasLinkedInLoginCookieReturn,
   hasMlRawErrorDisplay,
@@ -22,7 +23,11 @@ import {
   hasRawConfigValidationUrlDisplay,
   hasRawCredentialStorageErrors,
   hasRawEmailTestErrorReturn,
+  hasRawFrontendDirectErrorLogging,
+  hasRawFrontendErrorHelperDebugLogging,
+  hasRawFrontendErrorHelperUserMessage,
   hasRawFrontendErrorReporterForwarding,
+  hasRawFrontendSharedErrorLogging,
   hasRawImportHttpErrorReturn,
   hasRawImportRedirectDisplay,
   hasRawJobsWithGptDebug,
@@ -45,6 +50,8 @@ import {
   hasRawWebhookTokenRequestError,
   hasRendererCredentialSecretRead,
   hasSecretBearingDebugDerive,
+  hasUnsafeErrorReportStorageParsing,
+  hasUnsanitizedFrontendErrorReportStorage,
   hasUnboundedExternalResponseBodyRead,
 } from "./harness/checks/privacy-logging.mjs";
 
@@ -163,6 +170,90 @@ test("privacy logging rejects raw frontend error forwarding", () => {
 
     assert.equal(hasRawFrontendErrorReporterForwarding(root, "src/utils/errorReporting.ts"), true);
     assert.equal(hasRawFrontendErrorReporterForwarding(root, "src/utils/errorUtils.ts"), false);
+  });
+});
+
+test("privacy logging rejects unsafe frontend error report storage", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/utils/errorReporting.ts",
+      [
+        "class ErrorReporter {",
+        "  save(report) {",
+        "    this.errors.unshift(report);",
+        "    localStorage.setItem(STORAGE_KEY, JSON.stringify(this.errors));",
+        "  }",
+        "}",
+        "const parsed = JSON.parse(stored).map(Boolean);",
+        'const exportPayload = { app_version: "1.2.3" };',
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasUnsanitizedFrontendErrorReportStorage(root, "src/utils/errorReporting.ts"),
+      true,
+    );
+    assert.equal(hasUnsafeErrorReportStorageParsing(root, "src/utils/errorReporting.ts"), true);
+    assert.equal(
+      hasHardcodedFrontendErrorExportVersion(root, "src/utils/errorReporting.ts"),
+      true,
+    );
+    assert.equal(hasUnsafeErrorReportStorageParsing(root, "src/utils/errorUtils.ts"), false);
+  });
+});
+
+test("privacy logging rejects raw frontend error helper output", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/utils/errorHelpers.ts",
+      [
+        "function getUserMessage(error) {",
+        "  return error.message;",
+        "}",
+        "console.error('Error:', error);",
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasRawFrontendErrorHelperDebugLogging(root, "src/utils/errorHelpers.ts"),
+      true,
+    );
+    assert.equal(
+      hasRawFrontendErrorHelperUserMessage(root, "src/utils/errorHelpers.ts"),
+      true,
+    );
+    assert.equal(
+      hasRawFrontendErrorHelperDebugLogging(root, "src/utils/errorReporting.ts"),
+      false,
+    );
+  });
+});
+
+test("privacy logging rejects raw shared and direct frontend error logging", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/utils/errorUtils.ts",
+      [
+        "export function getErrorMessage(error) {",
+        "  return error.message;",
+        "}",
+        "/** next helper */",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(root, "src/components/ErrorBoundary.tsx", "console.error(error);");
+
+    assert.equal(hasRawFrontendSharedErrorLogging(root, "src/utils/errorUtils.ts"), true);
+    assert.equal(
+      hasRawFrontendDirectErrorLogging(root, "src/components/ErrorBoundary.tsx"),
+      true,
+    );
+    assert.equal(hasRawFrontendDirectErrorLogging(root, "src/utils/errorUtils.ts"), false);
   });
 });
 

@@ -2,6 +2,18 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const frontendErrorReportingPaths = new Set(["src/utils/errorReporting.ts"]);
+const frontendErrorHelperDebugPaths = new Set(["src/utils/errorHelpers.ts"]);
+const frontendErrorUtilsPaths = new Set(["src/utils/errorUtils.ts"]);
+const frontendDirectErrorLoggingPaths = new Set([
+  "src/components/BookmarkletGenerator.tsx",
+  "src/components/ComponentErrorBoundary.tsx",
+  "src/components/DeepLinkGenerator.tsx",
+  "src/components/ErrorBoundary.tsx",
+  "src/components/ModalErrorBoundary.tsx",
+  "src/components/PageErrorBoundary.tsx",
+  "src/hooks/useFeedback.ts",
+  "src/services/feedbackService.ts",
+]);
 
 const rawPrivateQueryLoggingPaths = new Set([
   "src-tauri/src/commands/automation.rs",
@@ -188,6 +200,113 @@ export function hasRawFrontendErrorReporterForwarding(root, path) {
     /window\.onunhandledrejection\s*=\s*\([\s\S]{0,720}if\s*\(\s*!import\.meta\.env\.DEV\s*\)\s*\{[\s\S]{0,120}event\.preventDefault\(\)/.test(
       text,
     )
+  );
+}
+
+export function hasUnsanitizedFrontendErrorReportStorage(root, path) {
+  if (!frontendErrorReportingPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /this\.errors\.unshift\(report\)/.test(text) ||
+    (/localStorage\.setItem\(STORAGE_KEY,\s*JSON\.stringify\(this\.errors\)\)/.test(text) &&
+      !/sanitizeStoredReport/.test(text)) ||
+    /logError\(`\[ErrorReporter\]\[\$\{type\}\]`,\s*error\.message/.test(text) ||
+    /\boriginalError:\s*error\b/.test(text) ||
+    /logError\(`\[ErrorReporter\]\[\$\{type\}\]`[\s\S]{0,160}\breport,\s*$/m.test(text) ||
+    /console\.warn\(\s*["']\[ErrorReporter\][^;]*,\s*(?:e|error)\s*\)/.test(text) ||
+    !/token\(\?:\\s\+\|=\)/.test(text) ||
+    text.includes("hooks\\.slack\\.com\\/services") ||
+    !text.includes("discord(?:app)?\\.com\\/api\\/webhooks") ||
+    !text.includes("outlook\\.office(?:365)?\\.com\\/webhook")
+  );
+}
+
+export function hasRawFrontendErrorHelperDebugLogging(root, path) {
+  if (!frontendErrorHelperDebugPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /console\.error\(\s*["']Error:["']\s*,\s*error\s*\)/.test(text) ||
+    /console\.log\(\s*["']Context:["']\s*,\s*context\s*\)/.test(text) ||
+    /console\.log\(\s*["']Stack:["']\s*,\s*error\.stack\s*\)/.test(text) ||
+    !text.includes("sanitizeDebugValue") ||
+    !text.includes("sanitizeTextForStorage") ||
+    !text.includes("sanitizeContext")
+  );
+}
+
+export function hasRawFrontendErrorHelperUserMessage(root, path) {
+  if (!frontendErrorHelperDebugPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /function\s+getUserMessage[\s\S]*?\breturn\s+error\.message\s*;/.test(text);
+}
+
+export function hasRawFrontendSharedErrorLogging(root, path) {
+  if (!frontendErrorUtilsPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const getErrorMessageStart = text.indexOf("export function getErrorMessage");
+  const getErrorMessageEnd =
+    getErrorMessageStart === -1
+      ? -1
+      : text.indexOf("\n/**", getErrorMessageStart + 1);
+  const getErrorMessageBody =
+    getErrorMessageStart === -1
+      ? ""
+      : text.slice(
+          getErrorMessageStart,
+          getErrorMessageEnd === -1 ? undefined : getErrorMessageEnd,
+        );
+  return (
+    /console\.error\(\s*message\s*,\s*error\s*\)/.test(text) ||
+    /\breturn\s+(?:error\.message|error|String\(\s*\([^)]*message|String\(\s*error)/.test(
+      getErrorMessageBody,
+    ) ||
+    !text.includes("getUserFriendlyError") ||
+    !text.includes("sanitizeLoggedError") ||
+    !text.includes("sanitizeTextForStorage") ||
+    !text.includes("sanitizeContext")
+  );
+}
+
+export function hasRawFrontendDirectErrorLogging(root, path) {
+  if (!frontendDirectErrorLoggingPaths.has(path)) {
+    return false;
+  }
+
+  return /console\.error\(/.test(readFileSync(join(root, path), "utf8"));
+}
+
+export function hasUnsafeErrorReportStorageParsing(root, path) {
+  if (!frontendErrorReportingPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /JSON\.parse\(stored\)\.map/.test(text) ||
+    !/function\s+isErrorReport/.test(text) ||
+    !/parseStoredErrorReports/.test(text)
+  );
+}
+
+export function hasHardcodedFrontendErrorExportVersion(root, path) {
+  if (!frontendErrorReportingPaths.has(path)) {
+    return false;
+  }
+
+  return /app_version:\s*["']\d+\.\d+(?:\.\d+)?["']/.test(
+    readFileSync(join(root, path), "utf8"),
   );
 }
 

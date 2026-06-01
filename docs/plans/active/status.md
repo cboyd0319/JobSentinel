@@ -85,6 +85,12 @@ and record actionable findings in this active-plan surface.
   automation browser-error detail, and notification job-title logging sensors
   into `scripts/harness/checks/privacy-logging.mjs`; focused privacy-logging
   coverage is now 26 tests and `scripts/check-repo-bloat.mjs` is 3,609 lines.
+- Latest local frontend error/report privacy harness work moves unsafe
+  frontend error-report storage, raw error-helper output, raw shared and direct
+  frontend error logging, unsafe stored-report parsing, and hardcoded error
+  export-version sensors into `scripts/harness/checks/privacy-logging.mjs`;
+  focused privacy-logging coverage is now 29 tests and
+  `scripts/check-repo-bloat.mjs` is 3,496 lines.
 - Latest local privacy work removes raw automation dropdown-answer logging and
   raw frontend error forwarding, then adds bloat sensors and `errorReporting`
   unit coverage so those regressions fail locally.
@@ -180,8 +186,8 @@ and record actionable findings in this active-plan surface.
 1. Continue broad-audience fixture audit in less obvious fixture paths outside
    current sensors, while preserving tech-specific cases only when they test
    explicit branch behavior or source-realism parser contracts.
-2. Continue splitting oversized mixed sensors, especially remaining frontend
-   error/report privacy, fixture-quality, broad-audience, and source-security
+2. Continue splitting oversized mixed sensors, especially remaining backend
+   command/report privacy, fixture-quality, broad-audience, and source-security
    checks still inside `scripts/check-repo-bloat.mjs`.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
