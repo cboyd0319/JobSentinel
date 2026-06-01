@@ -109,10 +109,14 @@ import {
   hasRendererCredentialSecretRead,
   hasResidualCorePrivacyLeak,
   hasSecretBearingDebugDerive,
+  hasStaleFeedbackWebhookSanitizer,
   hasUnauthenticatedBookmarkletImports,
   hasUnsafeErrorReportStorageParsing,
+  hasUnsanitizedFeedbackFileSave,
   hasUnsanitizedFrontendErrorReportStorage,
+  hasUnsanitizedStructuredDebugLogEvents,
   hasUnboundedExternalResponseBodyRead,
+  hasRawFeedbackOpenErrors,
 } from "./harness/checks/privacy-logging.mjs";
 import {
   hasApplicationProfileResumePathExposure,
@@ -194,7 +198,6 @@ const storageJsonParserPaths = new Set([
   "src/components/CompanyResearchPanel.tsx",
 ]);
 const settingsCredentialPaths = new Set(["src/pages/Settings.tsx"]);
-const feedbackSanitizerPaths = new Set(["src-tauri/src/commands/feedback/sanitizer.rs"]);
 const notificationDocsPaths = new Set([
   "docs/features/notifications.md",
   "docs/user/QUICK_START.md",
@@ -240,8 +243,6 @@ const keyringSecurityDocsPaths = new Set([
 const keyringMigrationPaths = new Set(["src-tauri/src/main.rs"]);
 const credentialArchitecturePaths = new Set(["src-tauri/src/core/credentials/mod.rs"]);
 const userDataDocsPaths = new Set(["docs/features/user-data-management.md"]);
-const structuredDebugLogPaths = new Set(["src-tauri/src/commands/feedback/debug_log.rs"]);
-const feedbackCommandPaths = new Set(["src-tauri/src/commands/feedback/mod.rs"]);
 const cacheUsageDocPaths = new Set(["docs/CACHE_USAGE.md"]);
 const frontendJobUrlOpenPaths = new Set([
   "src/components/JobCard.tsx",
@@ -1600,19 +1601,6 @@ function hasStaleSettingsPartialSaveMessage(root, path) {
   return /credential\(s\) failed to save\. Config was saved/.test(text);
 }
 
-function hasStaleFeedbackWebhookSanitizer(root, path) {
-  if (!feedbackSanitizerPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return (
-    text.includes("hooks\\.(slack|discord|teams)\\.com") ||
-    !text.includes("discord(?:app)?\\.com/api/webhooks") ||
-    !text.includes("outlook\\.office(?:365)?\\.com/webhook")
-  );
-}
-
 function hasStaleNotificationWebhookDocs(root, path) {
   if (!notificationDocsPaths.has(path)) {
     return false;
@@ -1736,47 +1724,6 @@ function hasStaleNotificationPreferenceDocs(root, path) {
     /invoke\("save_notification_preferences",\s*\{\s*(?:\r?\n)?\s*(?:per_source_settings|linkedin):/m.test(text) ||
     !/indeed:\s*\{\s*enabled:\s*true,\s*minScoreThreshold:\s*70,\s*soundEnabled:\s*true\s*\}/.test(text) ||
     !/prefs:\s*\{[\s\S]*advancedFilters:/m.test(text)
-  );
-}
-
-function hasUnsanitizedStructuredDebugLogEvents(root, path) {
-  if (!structuredDebugLogPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return (
-    !text.includes("sanitize_timestamped_event") ||
-    /pub fn get_debug_log\(\)[\s\S]*?\.map\(\|buffer\| buffer\.get_all\(\)\)/.test(text) ||
-    /pub fn get_recent_events\([^)]*\)[\s\S]*?\.map\(\|buffer\| buffer\.get_recent\(n\)\)/.test(
-      text,
-    )
-  );
-}
-
-function hasUnsanitizedFeedbackFileSave(root, path) {
-  if (!feedbackCommandPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return (
-    /std::fs::write\(&path,\s*content\)/.test(text) ||
-    /Ok\(Some\(path\.to_string_lossy\(\)/.test(text) ||
-    /Result<Option<String>,\s*String>/.test(text) ||
-    !text.includes("feedback_file_content") ||
-    !text.includes("reveal_token")
-  );
-}
-
-function hasRawFeedbackOpenErrors(root, path) {
-  if (!feedbackCommandPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return /format!\(\s*["']Failed to (?:open browser|reveal file|open directory): \{e\}["']\s*\)/.test(
-    text,
   );
 }
 

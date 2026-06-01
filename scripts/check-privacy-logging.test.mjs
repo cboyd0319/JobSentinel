@@ -68,10 +68,14 @@ import {
   hasRendererCredentialSecretRead,
   hasResidualCorePrivacyLeak,
   hasSecretBearingDebugDerive,
+  hasStaleFeedbackWebhookSanitizer,
   hasUnauthenticatedBookmarkletImports,
   hasUnsafeErrorReportStorageParsing,
+  hasUnsanitizedFeedbackFileSave,
   hasUnsanitizedFrontendErrorReportStorage,
+  hasUnsanitizedStructuredDebugLogEvents,
   hasUnboundedExternalResponseBodyRead,
+  hasRawFeedbackOpenErrors,
 } from "./harness/checks/privacy-logging.mjs";
 
 function writeFixtureFile(root, path, content = "") {
@@ -654,6 +658,51 @@ test("privacy logging rejects renderer credential reads and incomplete export re
     assert.equal(hasRendererCredentialSecretRead(root, "src/pages/Dashboard.tsx"), false);
     assert.equal(hasIncompleteConfigExportRedaction(root, "src/utils/export.ts"), true);
     assert.equal(hasIncompleteConfigExportRedaction(root, "src/utils/import.ts"), false);
+  });
+});
+
+test("privacy logging rejects unsanitized feedback report handling", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/feedback/sanitizer.rs",
+      'let stale = "hooks\\.(slack|discord|teams)\\.com";',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/feedback/debug_log.rs",
+      "pub fn get_debug_log() { DEBUG_LOG.lock().ok().map(|buffer| buffer.get_all()) }",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/feedback/mod.rs",
+      [
+        "pub fn save_feedback_file(content: String) -> Result<Option<String>, String> {",
+        "  std::fs::write(&path, content);",
+        "  Ok(Some(path.to_string_lossy().to_string()))",
+        "}",
+        'format!("Failed to reveal file: {e}");',
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasStaleFeedbackWebhookSanitizer(root, "src-tauri/src/commands/feedback/sanitizer.rs"),
+      true,
+    );
+    assert.equal(
+      hasUnsanitizedStructuredDebugLogEvents(
+        root,
+        "src-tauri/src/commands/feedback/debug_log.rs",
+      ),
+      true,
+    );
+    assert.equal(
+      hasUnsanitizedFeedbackFileSave(root, "src-tauri/src/commands/feedback/mod.rs"),
+      true,
+    );
+    assert.equal(hasRawFeedbackOpenErrors(root, "src-tauri/src/commands/feedback/mod.rs"), true);
+    assert.equal(hasRawFeedbackOpenErrors(root, "src-tauri/src/commands/jobs.rs"), false);
   });
 });
 

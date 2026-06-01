@@ -105,6 +105,11 @@ and record actionable findings in this active-plan surface.
   bookmarklet token-header sensors into
   `scripts/harness/checks/privacy-logging.mjs`; focused privacy-logging
   coverage is now 34 tests and `scripts/check-repo-bloat.mjs` is 3,105 lines.
+- Latest local feedback/report privacy harness work moves stale feedback
+  webhook sanitizer, structured debug-log sanitization, feedback-file save
+  sanitization, and raw support-open error sensors into
+  `scripts/harness/checks/privacy-logging.mjs`; focused privacy-logging
+  coverage is now 35 tests and `scripts/check-repo-bloat.mjs` is 3,052 lines.
 - Latest local privacy work removes raw automation dropdown-answer logging and
   raw frontend error forwarding, then adds bloat sensors and `errorReporting`
   unit coverage so those regressions fail locally.
@@ -200,8 +205,8 @@ and record actionable findings in this active-plan surface.
 1. Continue broad-audience fixture audit in less obvious fixture paths outside
    current sensors, while preserving tech-specific cases only when they test
    explicit branch behavior or source-realism parser contracts.
-2. Continue splitting oversized mixed sensors, especially remaining
-   feedback/report privacy, fixture-quality, broad-audience, and
+2. Continue splitting oversized mixed sensors, especially remaining frontend
+   feedback/report presentation, fixture-quality, broad-audience, and
    source-security checks still inside `scripts/check-repo-bloat.mjs`.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.

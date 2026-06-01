@@ -90,6 +90,10 @@ const credentialSecretReadIpcPaths = new Set([
 
 const configExportPrivacyPaths = new Set(["src/utils/export.ts"]);
 
+const feedbackSanitizerPaths = new Set(["src-tauri/src/commands/feedback/sanitizer.rs"]);
+const structuredDebugLogPaths = new Set(["src-tauri/src/commands/feedback/debug_log.rs"]);
+const feedbackCommandPaths = new Set(["src-tauri/src/commands/feedback/mod.rs"]);
+
 const telegramNotificationPrivacyPaths = new Set([
   "src-tauri/src/core/notify/telegram.rs",
 ]);
@@ -727,6 +731,60 @@ export function hasIncompleteConfigExportRedaction(root, path) {
       "usajobs_api_key",
       "webhook_url",
     ].some((fieldName) => !text.includes(`"${fieldName}"`))
+  );
+}
+
+export function hasStaleFeedbackWebhookSanitizer(root, path) {
+  if (!feedbackSanitizerPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    text.includes("hooks\\.(slack|discord|teams)\\.com") ||
+    !text.includes("discord(?:app)?\\.com/api/webhooks") ||
+    !text.includes("outlook\\.office(?:365)?\\.com/webhook")
+  );
+}
+
+export function hasUnsanitizedStructuredDebugLogEvents(root, path) {
+  if (!structuredDebugLogPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    !text.includes("sanitize_timestamped_event") ||
+    /pub fn get_debug_log\(\)[\s\S]*?\.map\(\|buffer\| buffer\.get_all\(\)\)/.test(text) ||
+    /pub fn get_recent_events\([^)]*\)[\s\S]*?\.map\(\|buffer\| buffer\.get_recent\(n\)\)/.test(
+      text,
+    )
+  );
+}
+
+export function hasUnsanitizedFeedbackFileSave(root, path) {
+  if (!feedbackCommandPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /std::fs::write\(&path,\s*content\)/.test(text) ||
+    /Ok\(Some\(path\.to_string_lossy\(\)/.test(text) ||
+    /Result<Option<String>,\s*String>/.test(text) ||
+    !text.includes("feedback_file_content") ||
+    !text.includes("reveal_token")
+  );
+}
+
+export function hasRawFeedbackOpenErrors(root, path) {
+  if (!feedbackCommandPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /format!\(\s*["']Failed to (?:open browser|reveal file|open directory): \{e\}["']\s*\)/.test(
+    text,
   );
 }
 
