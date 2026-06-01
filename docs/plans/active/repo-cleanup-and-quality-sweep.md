@@ -223,6 +223,10 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   tech-heavy boards, and synonym matching/docs now cover healthcare, office,
   operations, public-sector, customer support, accounting, education, retail,
   and non-software tool vocabulary as first-class search language.
+- Fixed additional source-health UX findings: rows now say what to do next,
+  connection warnings point users back to Settings, check speeds avoid
+  millisecond jargon where possible, and advanced source warnings give
+  search-link or browser-link recovery instead of Cloudflare-protection jargon.
 - Started broad-audience drift cleanup by rebalancing company autocomplete
   suggestions across healthcare, retail, logistics, finance, public service,
   education, hospitality, and technology; replacing tech-first placeholders and

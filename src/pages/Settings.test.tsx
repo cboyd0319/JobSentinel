@@ -807,6 +807,36 @@ describe("Settings — handleSave flow", () => {
     expect(panelQueries.getByText(/remote tech roles/i)).toBeInTheDocument();
   });
 
+  it("uses plain source-check guidance without site-protection jargon", async () => {
+    const user = userEvent.setup();
+    const config = makeConfig();
+    config.simplyhired.enabled = true;
+    config.glassdoor.enabled = true;
+
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_config") return config;
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      return null;
+    });
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+
+    expect(screen.getAllByText(/This site sometimes blocks automatic checks/i)).toHaveLength(2);
+    expect(screen.getAllByText(/use Job Site Search Links/i)).toHaveLength(2);
+    expect(
+      screen.getByText("See which sources are working and what to try next"),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Cloudflare protection/i)).not.toBeInTheDocument();
+  });
+
   it("blocks saving an invalid Discord connection link", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();

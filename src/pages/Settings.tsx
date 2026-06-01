@@ -3228,7 +3228,11 @@ export default function Settings({ onClose }: SettingsProps) {
                       {config.simplyhired?.enabled && (
                         <div className="mt-3 flex items-start gap-1.5 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2">
                           <SettingsSymbol icon="warning" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-                          <span>May be blocked by Cloudflare protection</span>
+                          <span>
+                            This site sometimes blocks automatic checks. If few
+                            jobs appear, use Job Site Search Links or import a
+                            job from its browser address.
+                          </span>
                         </div>
                       )}
                     </div>
@@ -3268,7 +3272,11 @@ export default function Settings({ onClose }: SettingsProps) {
                       {config.glassdoor?.enabled && (
                         <div className="mt-3 flex items-start gap-1.5 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2">
                           <SettingsSymbol icon="warning" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-                          <span>May be blocked by Cloudflare protection</span>
+                          <span>
+                            This site sometimes blocks automatic checks. If few
+                            jobs appear, use Job Site Search Links or import a
+                            job from its browser address.
+                          </span>
                         </div>
                       )}
                     </div>
@@ -3725,8 +3733,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     View Job Source Health
                   </button>
                   <p className="text-xs text-surface-500 dark:text-surface-400 mt-1 text-center">
-                    Check source availability, recent job results, and safe
-                    issue history
+                    See which sources are working and what to try next
                   </p>
                 </div>
 

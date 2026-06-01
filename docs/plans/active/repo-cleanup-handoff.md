@@ -133,6 +133,10 @@ Current cleanup posture:
   and expands synonym matching/docs across healthcare, office, operations,
   public-sector, customer support, accounting, education, retail, and
   non-software tool vocabulary.
+- Latest source-health UX follow-up adds a plain "What To Do" column to the job
+  source health table, changes connection and check-speed wording away from
+  diagnostic jargon, and replaces Cloudflare-protection warnings in advanced
+  sources with search-link/browser-link recovery guidance.
 - Latest IPC minimization work added `has_application_profile`,
   `get_application_profile_preview`, `get_dashboard_preferences`, canonical
   import URLs before preview/hash/storage, and minimized import responses to

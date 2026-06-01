@@ -425,8 +425,9 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Connection Warnings")).toBeInTheDocument();
+        expect(screen.getByText("Connections Needing Attention")).toBeInTheDocument();
       });
+      expect(screen.getByText(/update these saved connections/i)).toBeInTheDocument();
       expect(screen.getByText("Email password")).toBeInTheDocument();
       expect(screen.queryByText("smtp_password")).not.toBeInTheDocument();
       expect(screen.getByText(/expires in 7 days/i)).toBeInTheDocument();
@@ -445,7 +446,7 @@ describe("ScraperHealthDashboard", () => {
       await waitFor(() => {
         expect(screen.getByText("Job Source Health")).toBeInTheDocument();
       });
-      expect(screen.queryByText("Connection Warnings")).not.toBeInTheDocument();
+      expect(screen.queryByText("Connections Needing Attention")).not.toBeInTheDocument();
     });
 
     it("shows expired credential status when provided", async () => {
@@ -589,6 +590,19 @@ describe("ScraperHealthDashboard", () => {
       await waitFor(() => {
         expect(screen.getByRole("table", { name: /job source health status/i })).toBeInTheDocument();
       });
+    });
+
+    it("shows plain next steps for each source", async () => {
+      render(<ScraperHealthDashboard onClose={onClose} />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Working. No action needed.")).toBeInTheDocument();
+      });
+      expect(
+        screen.getByText("Update connection in Settings if this keeps happening."),
+      ).toBeInTheDocument();
+      expect(screen.getByText("Off. Turn on if useful.")).toBeInTheDocument();
+      expect(screen.getByText("Try again later or turn this source off.")).toBeInTheDocument();
     });
   });
 
@@ -856,7 +870,7 @@ describe("ScraperHealthDashboard", () => {
       });
     });
 
-    it("displays response times in results", async () => {
+    it("displays plain check speeds in results", async () => {
       const user = userEvent.setup();
       render(<ScraperHealthDashboard onClose={onClose} />);
 
@@ -867,8 +881,11 @@ describe("ScraperHealthDashboard", () => {
       await user.click(screen.getByText("Check All Sources"));
 
       await waitFor(() => {
-        expect(screen.getByText("1200ms")).toBeInTheDocument();
-        expect(screen.getByText("5000ms")).toBeInTheDocument();
+        const resultsDialog = screen.getByRole("dialog", {
+          name: /source check results/i,
+        });
+        expect(within(resultsDialog).getByText("1.2s")).toBeInTheDocument();
+        expect(within(resultsDialog).getByText("5.0s")).toBeInTheDocument();
       });
     });
 
@@ -964,15 +981,15 @@ describe("ScraperHealthDashboard", () => {
       });
     });
 
-    it("formats milliseconds correctly", async () => {
+    it("formats short checks without millisecond jargon", async () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("500ms")).toBeInTheDocument();
+        expect(screen.getByText("under 1s")).toBeInTheDocument();
       });
     });
 
-    it("shows dash for null duration", async () => {
+    it("shows plain copy for sources not checked yet", async () => {
       mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
         if (cmd === "get_scraper_health") return Promise.resolve([mockScrapers[2]]); // Glassdoor with null duration
@@ -983,9 +1000,7 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        // Check for dash indicating null duration
-        const cells = screen.getAllByText("-");
-        expect(cells.length).toBeGreaterThan(0);
+        expect(screen.getByText("Not checked yet")).toBeInTheDocument();
       });
     });
   });

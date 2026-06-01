@@ -92,6 +92,11 @@ and record actionable findings in this active-plan surface.
   public-sector, customer support, accounting, education, retail, and common
   non-software tools such as EMR/EHR, LMS, CRM, POS, inventory, QuickBooks,
   scheduling, compliance, and care coordination.
+- Latest local source-health UX work adds plain "what to do" guidance to job
+  source health rows, replaces connection-warning and check-speed jargon with
+  support-action copy, and removes Cloudflare-protection wording from
+  SimplyHired/Glassdoor setup warnings in favor of search-link or browser-link
+  recovery paths.
 - Latest local broad-audience fixture work rebalanced generic market
   intelligence, notifications, config, database, ATS, ghost detection, salary,
   scoring, generic scraper adapters, command, frontend mock, sample JSON

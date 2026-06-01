@@ -90,8 +90,8 @@ const selectorHealthConfig = {
 
 // Format duration in ms to human readable
 function formatDuration(ms: number | null): string {
-  if (ms === null) return "-";
-  if (ms < 1000) return `${ms}ms`;
+  if (ms === null) return "Not checked yet";
+  if (ms < 1000) return "under 1s";
   return `${(ms / 1000).toFixed(1)}s`;
 }
 
@@ -151,6 +151,34 @@ function formatSourceType(type: ScraperHealthMetrics["scraper_type"]): string {
     case "hybrid":
       return "Website page";
   }
+}
+
+function formatSourceNextStep(scraper: ScraperHealthMetrics): string {
+  if (!scraper.is_enabled) {
+    return "Off. Turn on if useful.";
+  }
+
+  if (scraper.requires_auth && scraper.health_status !== "healthy") {
+    return "Update connection in Settings if this keeps happening.";
+  }
+
+  if (scraper.health_status === "down") {
+    return "Try again later or turn this source off.";
+  }
+
+  if (scraper.health_status === "degraded" || scraper.success_rate_24h < 70) {
+    return "Try again later. Use search links if urgent.";
+  }
+
+  if (
+    scraper.jobs_found_24h === 0 &&
+    scraper.total_runs_24h > 0 &&
+    scraper.health_status === "healthy"
+  ) {
+    return "Adjust search words or use search links.";
+  }
+
+  return "Working. No action needed.";
 }
 
 function formatRunStatus(status: ScraperRun["status"], retryAttempt: number): string {
@@ -546,8 +574,12 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                 aria-live="polite"
               >
                 <h3 className="font-medium text-alert-700 dark:text-alert-400 mb-2">
-                  Connection Warnings
+                  Connections Needing Attention
                 </h3>
+                <p className="text-sm text-alert-600 dark:text-alert-300 mb-3">
+                  Open Settings and update these saved connections if alerts or
+                  source checks stop working.
+                </p>
                 <div className="space-y-2">
                   {credentials.map((cred) => (
                     <div
@@ -582,25 +614,28 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                       Source
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Status
+                      Current State
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
                       Access
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Recent Success
+                      Reliability
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Avg Check Time
+                      Check Speed
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Jobs (24h)
+                      Jobs Found
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Last Found
+                      Last Good Check
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Page Check
+                      Page Status
+                    </th>
+                    <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
+                      What To Do
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
                       Actions
@@ -706,6 +741,9 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                           ) : (
                             <span className="text-surface-400">Not needed</span>
                           )}
+                        </td>
+                        <td className="py-3 px-4 text-surface-700 dark:text-surface-300 max-w-xs">
+                          {formatSourceNextStep(scraper)}
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
@@ -957,7 +995,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                 </span>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-surface-500 dark:text-surface-400">
-                    {result.duration_ms}ms
+                    {formatDuration(result.duration_ms)}
                   </span>
                   <Badge
                     variant={result.passed ? "success" : "danger"}
