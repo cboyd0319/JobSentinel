@@ -377,10 +377,18 @@ not.
 
 ## Where's My Data?
 
-Everything stays on your computer. No cloud, no accounts, no tracking.
+Your saved job-search data stays on your computer by default. Core workflows do
+not need a cloud account or a JobSentinel account. When you turn on job sources
+or alerts, JobSentinel contacts only the sources or alert providers you choose.
 
-**Saved jobs and settings:** your local JobSentinel file. You do not need to
-open this file unless support asks for it.
+<details>
+<summary><strong>Support file locations</strong></summary>
+<br>
+
+You do not need these locations for normal use. They help only when you choose
+to inspect local files or share a safe support report.
+
+**Saved jobs and settings:** your local JobSentinel file.
 
 - Windows: `%LOCALAPPDATA%\JobSentinel\jobs.db`
 - macOS: `~/Library/Application Support/JobSentinel/jobs.db`
@@ -391,6 +399,8 @@ secure vault.
 - Windows: Credential Manager
 - macOS: Keychain
 - Linux: Secret Service
+
+</details>
 
 ---
 

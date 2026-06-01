@@ -1164,7 +1164,8 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
               <div className="p-4 bg-surface-50 rounded-lg mb-6">
                 <p className="text-sm text-surface-600">
                   <span className="font-medium text-surface-700">Your privacy matters:</span> JobSentinel 
-                  stores all your data on your computer. Nothing is sent anywhere unless you set up notifications.
+                  saves your search on this computer. It only contacts job sources or alert services
+                  needed for features you turn on.
                 </p>
               </div>
 

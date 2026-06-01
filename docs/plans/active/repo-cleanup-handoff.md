@@ -137,6 +137,11 @@ Current cleanup posture:
 - Current local support follow-up makes README and feedback submit copy frame
   GitHub issue sharing as optional; local safe support report saving stays
   primary and account-free.
+- Current local support/privacy follow-up moves README support links and
+  broken-link help to in-app safe support reports and Send Feedback first,
+  keeps GitHub as an optional maintainer path, and clarifies setup/Quick Start
+  privacy copy so selected job sources and alert providers are contacted only
+  for features the user turns on.
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
 - `npm run harness:plan -- --since origin/main` now maps changed files to
   focused verification commands from the harness matrix.
@@ -883,14 +888,17 @@ Next high-value passes:
      screens for plain-language actions and no terminal/developer assumptions.
    - Keep safe support report generation one click from Settings, Error
      Logs, and crash/error recovery surfaces.
-   - The concrete findings from the latest read-only zero-technical audit are
-     closed locally; continue looking for new issues as new surfaces change.
+   - The latest support-path and privacy-copy findings are closed locally.
+     Remaining known follow-ups include USAJobs setup fallback wording and
+     Telegram bot setup as an advanced chat-alert path.
 6. Continue broad-audience UX review.
    - Recheck onboarding, examples, placeholders, filters, profile presets, docs,
      and empty states for engineer-only assumptions.
    - Make sure technical and non-technical job searches both feel first-class.
-   - Latest read-only audit found no high-confidence maintained-surface
-     engineer-first violations; keep this as evidence, not a completion claim.
+   - Latest read-only audit found tech-heavy source heuristics can still
+     misclassify broad roles such as sales engineer, curriculum developer,
+     support engineer, and technical product manager as software-focused by
+     default.
 7. Keep harness evidence current.
    - Use the updated change-contract and plan templates for broad follow-up
      work.

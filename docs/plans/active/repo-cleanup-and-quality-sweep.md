@@ -190,6 +190,10 @@ boundaries, and harness modularity:
 - Reworded the feedback submit path and README reader map so GitHub issue
   sharing is an optional maintainer path, while saving the safe support report
   remains the no-account primary path.
+- Reworked front-door support and privacy copy so README support links,
+  broken-link help, setup review, and Quick Start data guidance lead with
+  in-app safe support reports, Send Feedback, and local-first defaults without
+  claiming selected job sources or alert providers are never contacted.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright
@@ -401,6 +405,12 @@ Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
 assumption audit, final stale-doc/reference sweep, backend/scraper privacy edge
 review, frontend boundary review, protective job-search UX review, and final
 broad verification.
+
+Known follow-ups from the latest read-only audits: USAJobs setup still needs a
+less technical fallback path, Telegram setup should be treated as advanced chat
+setup, and tech-heavy source heuristics must stop classifying broad roles such
+as sales engineer, curriculum developer, support engineer, and technical
+product manager as software-focused by default.
 
 ## Verification
 

@@ -179,7 +179,10 @@ Not currently. For now, use the category filters to narrow results.
 ### What if a site changes how search links work?
 
 We'll update the search-link rules in new releases. If you notice a broken
-link, save a safe support report and share it only if you want help:
+link, open **Settings**, choose **Send Feedback**, and save a safe support
+report. Share the report only if you want help.
+
+GitHub is optional for maintainers and contributors:
 <https://github.com/cboyd0319/JobSentinel/issues>
 
 ### Can I add more sites?

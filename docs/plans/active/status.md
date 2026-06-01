@@ -34,6 +34,12 @@ and record actionable findings in this active-plan surface.
 - Latest local synonym taxonomy work reorders the Rust synonym map so broad
   job-search roles and tools appear before programming and engineering groups,
   and adds harness coverage against tech-first synonym ordering drift.
+- Latest local support/privacy wording work moves README and broken-link help
+  to in-app safe support reports and Send Feedback first, labels GitHub as an
+  optional maintainer path, clarifies that selected job sources and alert
+  providers may be contacted only when users turn them on, and adds
+  product-copy coverage against GitHub-first support and overbroad privacy
+  claims.
 - Latest local broad-profile source work removes preloaded company-source URLs
   from product, UX, content, and marketing profile JSON files. Harness coverage
   now rejects official company source URLs in broad non-technical starter
@@ -512,12 +518,14 @@ and record actionable findings in this active-plan surface.
    privacy-logging, and source-quality ownership moved into modules.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
-   The concrete findings from the latest read-only zero-technical audit are
-   closed locally; continue looking for new issues as later slices touch copy.
+   The latest support-path and privacy-copy findings are closed locally.
+   Remaining known zero-technical UX follow-ups include the advanced USAJobs
+   setup path and Telegram bot setup language.
 4. Continue broad-audience review so non-technical and technical job searches
    both feel first-class.
-   Latest read-only scan found no high-confidence maintained-surface
-   engineer-first violations, but keep auditing as new slices touch copy.
+   Latest read-only scan found tech-heavy source heuristics can still classify
+   broad roles such as sales engineer, curriculum developer, support engineer,
+   and technical product manager too broadly; fix that before final completion.
 5. Continue backend/scraper and frontend privacy-edge review.
    The concrete findings from the latest read-only security audit are closed
    locally; continue looking for new issues as later slices touch trust

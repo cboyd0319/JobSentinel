@@ -17,7 +17,7 @@ control.**
 **Start here:** [Download](#download-and-first-run) |
 [Quick start](docs/user/QUICK_START.md) | [Privacy](PRIVACY.md) |
 [Research](docs/research/README.md) | [Roadmap](ROADMAP.md) |
-[Report a problem](https://github.com/cboyd0319/JobSentinel/issues/new)
+[Support](#support-and-community)
 
 <p align="center">
   <img src="docs/images/dashboard.png" alt="JobSentinel dashboard" width="840">
@@ -76,7 +76,7 @@ or build something better with it if that helps more people.
 | Grant or research reviewer | [Research model](#research-model), [Roadmap](ROADMAP.md), and [references](#references-and-external-sources) | What is evidence-backed and how real user data is protected. |
 | Privacy or security reviewer | [Safety model](#safety-model), [PRIVACY.md](PRIVACY.md), and [RESPONSIBLE_AI.md](RESPONSIBLE_AI.md) | What can leave the device and which review gates are mandatory. |
 | Contributor | [Architecture](#architecture), [development](#development-and-verification), and [contributing](docs/developer/CONTRIBUTING.md) | How the app is structured, tested, and governed. |
-| Person reporting a problem | Save the in-app safe support report first; sharing it in a GitHub issue is optional | How to keep useful app details local unless you choose to share them. |
+| Person reporting a problem | Save the in-app safe support report first; use Send Feedback if you want replies | How to keep useful app details local unless you choose to share them. |
 
 ## What JobSentinel Does
 
@@ -548,11 +548,20 @@ See [quick start](docs/user/QUICK_START.md#wheres-my-data) for exact paths.
 
 ## Support and Community
 
-- Found a bug? [Open an issue](https://github.com/cboyd0319/JobSentinel/issues/new).
-- Have an idea? [Start a discussion](https://github.com/cboyd0319/JobSentinel/discussions).
-- Want to contribute? Read the [contributing guide](docs/developer/CONTRIBUTING.md).
-- Want to build something better? Fork the code, adapt it, and use it to help
-  more people. That is part of the point.
+For job seekers, the easiest support path starts inside JobSentinel:
+
+1. Open **Settings**.
+2. Choose **Save Safe Support Report** or **Copy Safe Support Report**.
+3. Choose **Send Feedback** if you want a report that can receive replies.
+4. Share the safe support report only if you want help.
+
+GitHub is optional. Maintainers and contributors can
+[open an issue](https://github.com/cboyd0319/JobSentinel/issues/new), start a
+[discussion](https://github.com/cboyd0319/JobSentinel/discussions), or read the
+[contributing guide](docs/developer/CONTRIBUTING.md).
+
+Want to build something better? Fork the code, adapt it, and use it to help
+more people. That is part of the point.
 
 ---
 

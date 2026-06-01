@@ -176,6 +176,9 @@ describe("SetupWizard Accessibility", () => {
       expect(
         screen.getByText(/strong matches for your saved search/i),
       ).toBeInTheDocument();
+      expect(screen.getByText(/saves your search on this computer/i)).toBeInTheDocument();
+      expect(screen.getByText(/only contacts job sources or alert services/i)).toBeInTheDocument();
+      expect(screen.queryByText(/nothing is sent anywhere/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/great matches|great jobs/i)).not.toBeInTheDocument();
     });
 

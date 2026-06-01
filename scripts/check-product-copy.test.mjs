@@ -309,6 +309,42 @@ test("product copy rejects support troubleshooting jargon", () => {
   });
 });
 
+test("product copy rejects GitHub-first support and overbroad privacy copy", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "README.md",
+      [
+        "[Report a problem](https://github.com/cboyd0319/JobSentinel/issues/new)",
+        "- Found a bug? [Open an issue](https://github.com/cboyd0319/JobSentinel/issues/new).",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/user/DEEP_LINKS.md",
+      [
+        "If you notice a broken link, save a safe support report and share it only if you want help:",
+        "<https://github.com/cboyd0319/JobSentinel/issues>",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/SetupWizard.tsx",
+      "Nothing is sent anywhere unless you set up notifications.",
+    );
+    writeFixtureFile(
+      root,
+      "docs/user/QUICK_START.md",
+      "Everything stays on your computer. No cloud, no accounts, no tracking.",
+    );
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/DEEP_LINKS.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/SetupWizard.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/QUICK_START.md"), true);
+  });
+});
+
 test("product copy rejects stale zero-technical resume and shortcut copy", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/pages/Resume.tsx", "Import Resume Data\n");
