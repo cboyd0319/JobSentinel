@@ -644,7 +644,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/components/InterviewScheduler.tsx",
-      'fallbackTitle: "Failed to load interviews"\n',
+      'fallbackTitle: "Failed to load interviews"\nMark as Complete\n>Failed<\nfeedbackOutcome.charAt(0).toUpperCase()\nInterview Outcome:\n',
     );
     writeFixtureFile(
       root,

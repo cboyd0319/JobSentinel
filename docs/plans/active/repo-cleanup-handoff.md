@@ -226,6 +226,10 @@ Current cleanup posture:
   fallback titles away from visible failure labels to `Could not...` wording.
   Focused page/component/utility tests and product-copy sensors cover the old
   labels.
+- Current local interview-outcome follow-up keeps the persisted `failed`
+  interview outcome value while changing visible outcome buttons and chips to
+  plain, non-shaming labels such as `Did not go well`. Focused component tests
+  and product-copy sensors cover the old labels.
 - Current local skill-label follow-up replaces vague self-rating labels such as
   beginner, intermediate, advanced, expert, and seniority level with
   behavior-based skill strength and role-stage copy across Resume, Resume

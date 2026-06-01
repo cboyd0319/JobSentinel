@@ -532,7 +532,7 @@ describe("InterviewScheduler", () => {
       fireEvent.click(screen.getByText("Customer Support Coordinator"));
 
       await waitFor(() => {
-        expect(screen.getByText("Mark as Complete")).toBeInTheDocument();
+        expect(screen.getByText("How did it go?")).toBeInTheDocument();
       });
     });
 
@@ -548,9 +548,9 @@ describe("InterviewScheduler", () => {
       fireEvent.click(screen.getByText("Customer Support Coordinator"));
 
       await waitFor(() => {
-        expect(screen.getByText("Passed")).toBeInTheDocument();
-        expect(screen.getByText("Pending")).toBeInTheDocument();
-        expect(screen.getByText("Failed")).toBeInTheDocument();
+        expect(screen.getByText("Went well")).toBeInTheDocument();
+        expect(screen.getByText("Not sure yet")).toBeInTheDocument();
+        expect(screen.getByText("Did not go well")).toBeInTheDocument();
       });
     });
 
@@ -566,13 +566,14 @@ describe("InterviewScheduler", () => {
       fireEvent.click(screen.getByText("Customer Support Coordinator"));
 
       await waitFor(() => {
-        expect(screen.getByText("Passed")).toBeInTheDocument();
+        expect(screen.getByText("Went well")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Passed"));
+      fireEvent.click(screen.getByText("Went well"));
 
       await waitFor(() => {
-        expect(screen.getByText("Interview Outcome:")).toBeInTheDocument();
+        expect(screen.getByText("Interview outcome:")).toBeInTheDocument();
+        expect(screen.getByText("Went well")).toBeInTheDocument();
       });
     });
 

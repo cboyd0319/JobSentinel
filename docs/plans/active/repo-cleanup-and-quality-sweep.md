@@ -321,6 +321,10 @@ boundaries, and harness modularity:
   save/test, notification, reminder, modal recovery, feedback-details, and API
   fallback paths. They now use `Could not...` wording, with focused
   page/component/utility tests and product-copy coverage against old labels.
+- Fixed visible interview outcome labels that still used pass/fail framing.
+  The internal saved value remains `failed`, but visible buttons and chips now
+  use plain, non-shaming labels such as `Did not go well`, with focused
+  component tests and product-copy coverage.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright

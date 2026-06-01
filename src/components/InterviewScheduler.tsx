@@ -69,6 +69,16 @@ const OUTCOME_COLORS: Record<string, string> = {
   failed: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
 };
 
+const OUTCOME_LABELS: Record<string, string> = {
+  passed: "Went well",
+  pending: "Not sure yet",
+  failed: "Did not go well",
+};
+
+function formatOutcomeLabel(outcome: string): string {
+  return OUTCOME_LABELS[outcome] ?? "Not sure yet";
+}
+
 // Interview prep checklist items
 const PREP_CHECKLIST = [
   { id: "research", label: "Research company background", icon: "search" },
@@ -1021,7 +1031,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                 {!showFeedbackForm ? (
                   <>
                     <p className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-3">
-                      Mark as Complete
+                      How did it go?
                     </p>
                     <div className="flex gap-2">
                       <Button
@@ -1029,21 +1039,21 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                         onClick={() => { setFeedbackOutcome("passed"); setShowFeedbackForm(true); }}
                         className="flex-1"
                       >
-                        Passed
+                        Went well
                       </Button>
                       <Button
                         variant="secondary"
                         onClick={() => { setFeedbackOutcome("pending"); setShowFeedbackForm(true); }}
                         className="flex-1"
                       >
-                        Pending
+                        Not sure yet
                       </Button>
                       <Button
                         variant="secondary"
                         onClick={() => { setFeedbackOutcome("failed"); setShowFeedbackForm(true); }}
                         className="flex-1"
                       >
-                        Failed
+                        Did not go well
                       </Button>
                     </div>
                   </>
@@ -1051,10 +1061,10 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-medium text-surface-700 dark:text-surface-300">
-                        Interview Outcome:
+                        Interview outcome:
                       </p>
                       <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${OUTCOME_COLORS[feedbackOutcome] || OUTCOME_COLORS.pending}`}>
-                        {feedbackOutcome.charAt(0).toUpperCase() + feedbackOutcome.slice(1)}
+                        {formatOutcomeLabel(feedbackOutcome)}
                       </span>
                     </div>
                     <div>
