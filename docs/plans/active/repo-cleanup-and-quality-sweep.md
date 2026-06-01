@@ -380,6 +380,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 | Date | Status | Notes |
 | ---- | ------ | ----- |
 | 2026-06-01 | In progress | Updated Quick Start, Deep Links, and credential-security docs so download, notification, site-request, and Linux keyring guidance starts with normal user actions before optional developer or command-line paths. |
+| 2026-06-01 | In progress | Reran the Rust advisory watch: `cargo audit` and `cargo deny check advisories` both exit 0, with the remaining allowed upstream/transitive RustSec warnings recorded under `SEC-002`. |
 | 2026-06-01 | In progress | Removed raw Slack connection-link setup from first-run onboarding and added focused SetupWizard plus product-copy coverage so webhook-shaped setup does not drift back into the first-run path. |
 | 2026-06-01 | In progress | Removed wildcard CORS and custom auth headers from bookmarklet browser-helper imports, refreshed the local safety code only after the browser button copies successfully, kept the previous button usable on clipboard failure, surfaced occupied helper ports before reporting running state, expired copied codes after about one hour, and added focused auth-state, bind-error, and expired-token coverage. |
 | 2026-06-01 | In progress | Moved production scraper constructors to a shared process-wide rate limiter and added focused coverage proving exhausted source buckets survive fresh handles. |

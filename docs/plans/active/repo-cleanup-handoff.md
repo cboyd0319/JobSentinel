@@ -421,6 +421,9 @@ Recent cleanup slices on `main` include:
   stabilization.
 - Resume sub-score percentage rendering fix.
 - JSDOM download navigation noise cleanup.
+- Rust advisory watch recheck: `cargo audit` and
+  `cargo deny check advisories` both exit 0 on 2026-06-01; remaining allowed
+  upstream/transitive warnings stay tracked under `SEC-002`.
 - Empty source-directory bloat guard.
 - Frontend development logging sanitization.
 - Context hook split to remove react-refresh suppressions.
