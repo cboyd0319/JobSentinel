@@ -12,7 +12,10 @@ schedule.
 
 ## What is a connection link?
 
-Slack, Discord, and Teams give you a private connection link for job alerts.
+Desktop alerts do not need a connection link. Email alerts use your email
+provider's app password or sending settings.
+
+Slack, Discord, and Teams give you a private connection link for chat alerts.
 They may call it an "incoming webhook" in their settings. Copy that link, then
 paste it into JobSentinel.
 
@@ -22,14 +25,14 @@ paste it into JobSentinel.
 
 Pick whichever channels work best for you:
 
-| Channel             | Best For                       |
-| ------------------- | ------------------------------ |
-| **Slack**           | Already live in Slack for work |
-| **Discord**         | Have a personal Discord server |
-| **Microsoft Teams** | Your company uses Teams        |
-| **Email**           | Want a record in your inbox    |
-| **Telegram**        | Prefer mobile notifications    |
-| **Desktop**         | Want instant on-screen alerts  |
+| Channel             | Best For                         |
+| ------------------- | -------------------------------- |
+| **Desktop**         | Easiest instant on-screen alerts |
+| **Email**           | Want a record in your inbox      |
+| **Slack**           | Already live in Slack for work   |
+| **Discord**         | Have a personal Discord server   |
+| **Microsoft Teams** | Your company uses Teams          |
+| **Telegram**        | Prefer mobile notifications      |
 
 You can enable multiple channels at once. JobSentinel only sends alerts to
 channels you configure.
@@ -42,6 +45,45 @@ user-opened search-link destination, not a background notification source.
 ---
 
 ## Setting Up Notifications
+
+Start with desktop alerts if you want the simplest setup. Use email if you want
+an inbox copy. Use chat alerts only if Slack, Discord, Teams, or Telegram are
+already part of your routine.
+
+### Desktop Notifications
+
+1. In JobSentinel, open Settings, choose More Settings, then turn on Desktop
+   Notifications
+
+That's it. No connection link needed.
+
+**What you'll get:** Native OS notifications:
+
+- **Windows:** Toast notifications in Action Center
+- **macOS:** Notification Center alerts
+- **Linux:** System notification daemon alerts
+
+---
+
+### Email
+
+1. In JobSentinel, open Settings, choose More Settings, then turn on Email
+   Alerts
+2. Choose Gmail, Outlook, Yahoo, or Other
+3. Enter the email address that should send alerts
+4. Enter an app password if your email provider requires one
+5. Add recipient email addresses
+6. Use Email provider details only if your provider gives you manual email
+   details
+
+**Gmail and Yahoo users:** Use an app password from your account security page.
+JobSentinel links to those pages from the Email settings panel.
+
+**What you'll get:** Email messages with job details.
+
+---
+
+## Optional Chat Alerts
 
 ### Slack
 
@@ -90,24 +132,6 @@ user-opened search-link destination, not a background notification source.
 
 ---
 
-### Email
-
-1. In JobSentinel, open Settings, choose More Settings, then turn on Email
-   Alerts
-2. Choose Gmail, Outlook, Yahoo, or Other
-3. Enter the email address that should send alerts
-4. Enter an app password if your email provider requires one
-5. Add recipient email addresses
-6. Use Email provider details only if your provider gives you manual email
-   details
-
-**Gmail and Yahoo users:** Use an app password from your account security page.
-JobSentinel links to those pages from the Email settings panel.
-
-**What you'll get:** Email messages with job details.
-
----
-
 ### Telegram
 
 1. Message [@BotFather](https://t.me/BotFather) on Telegram
@@ -123,21 +147,6 @@ JobSentinel links to those pages from the Email settings panel.
 **Note:** Group destination numbers usually start with `-`.
 
 **What you'll get:** Formatted messages right on your phone.
-
----
-
-### Desktop Notifications
-
-1. In JobSentinel, open Settings, choose More Settings, then turn on Desktop
-   Notifications
-
-That's it! No connection link needed.
-
-**What you'll get:** Native OS notifications:
-
-- **Windows:** Toast notifications in Action Center
-- **macOS:** Notification Center alerts
-- **Linux:** System notification daemon alerts
 
 ---
 

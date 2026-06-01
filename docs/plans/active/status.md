@@ -31,6 +31,9 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local broad-audience notification work makes Settings and user docs
+  present desktop alerts first, email second, and chat integrations as optional
+  paths for people already using Slack, Discord, Teams, or Telegram.
 - Latest local support UX work makes GitHub issue sharing more explicitly
   optional in the README and feedback submit choice. The local safe support
   report remains the primary path and does not require an account.

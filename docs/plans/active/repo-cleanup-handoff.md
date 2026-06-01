@@ -111,6 +111,10 @@ Current branch note:
 
 Current cleanup posture:
 
+- Current local broad-audience notification follow-up makes desktop alerts the
+  first Settings and docs path, email the second path, and Slack, Discord,
+  Teams, and Telegram explicitly optional chat paths for people already using
+  those tools.
 - Current local security follow-up tightens external output boundaries:
   renderer CSP keeps `connect-src 'self'`; saved job storage and Application
   Assist browser launch use the shared public HTTP(S) URL validator; alert

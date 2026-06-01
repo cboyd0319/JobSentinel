@@ -164,6 +164,10 @@ As of 2026-06-01, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Reordered notification setup for broad non-technical users: Settings now
+  starts with desktop alerts, follows with email, and presents Slack, Discord,
+  Teams, and Telegram as optional chat alerts for users who already use those
+  tools. Quick Start and notification docs mirror this order.
 - Tightened external output boundaries after sub-agent security audit:
   renderer CSP is self-only for `connect-src`, `Database::upsert_job` rejects
   localhost/private/userinfo/non-HTTP job links before storage, Application

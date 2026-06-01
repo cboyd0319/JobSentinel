@@ -171,11 +171,12 @@ Pick how broad the first results and alerts should feel:
 
 ### Question 9: Want instant alerts? (Optional)
 
-Connect Slack during setup if you want alerts when strong matches are found.
-Discord and Teams can be added later in Settings.
+Turn on desktop alerts if you want the easiest notification path. They do not
+need another account.
 
-Some apps ask you to create a connection link so JobSentinel can send messages
-there. Skip this for now and add it later if you want.
+Email and chat alerts can be added later in Settings. Some apps ask you to
+create a connection link so JobSentinel can send messages there. Skip this for
+now and add it later if you want.
 
 ### Review your search
 

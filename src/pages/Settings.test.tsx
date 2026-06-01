@@ -856,6 +856,48 @@ describe("Settings — handleSave flow", () => {
     );
   });
 
+  it("presents desktop and email alerts before optional chat alerts", async () => {
+    const user = userEvent.setup();
+    const config = makeConfig();
+
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_config") return config;
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      return null;
+    });
+
+    const { container } = render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+
+    expect(
+      screen.getByText(/Start with desktop alerts/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("checkbox", { name: "Enable desktop alerts" }),
+    ).toBeInTheDocument();
+
+    const notificationText = container.textContent ?? "";
+    const desktopIndex = notificationText.indexOf("Desktop Notifications");
+    const emailIndex = notificationText.indexOf("Email Alerts");
+    const chatIndex = notificationText.indexOf("Optional chat alerts");
+    const slackIndex = notificationText.indexOf("Slack Notifications");
+
+    expect(desktopIndex).toBeGreaterThanOrEqual(0);
+    expect(emailIndex).toBeGreaterThanOrEqual(0);
+    expect(chatIndex).toBeGreaterThanOrEqual(0);
+    expect(slackIndex).toBeGreaterThanOrEqual(0);
+    expect(desktopIndex).toBeLessThan(emailIndex);
+    expect(emailIndex).toBeLessThan(chatIndex);
+    expect(chatIndex).toBeLessThan(slackIndex);
+  });
+
   it("does not recommend tech-heavy sources for broad remote searches", async () => {
     const user = userEvent.setup();
     const config = makeConfig();
