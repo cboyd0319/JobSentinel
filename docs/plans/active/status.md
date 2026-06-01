@@ -202,10 +202,11 @@ and record actionable findings in this active-plan surface.
 - Latest local screenshot work refreshes `docs/images/*.png` with current
   broad-audience UI data and fixes the settings screenshot capture so it opens
   the real settings modal instead of duplicating the dashboard.
-- Latest remote checkpoint is `2b120e60 Fix bookmarklet copy test race`. Docs
-  Harness run `26743031643` and CI run `26743031608` passed for that push after
-  the bookmarklet copy-failure test was changed to wait for the browser-button
-  action to become enabled before clicking.
+- Latest remote checkpoint is `1976fd9e Use plain market refresh copy`. Docs
+  Harness run `26744671097` and CI run `26744671092` passed for that push.
+  Remote CI covered harness checks, harness script tests, TypeScript, ESLint,
+  frontend unit tests, Rust fmt, Rust clippy, Rust library tests, npm audit,
+  and cargo-deny advisories.
 - Latest local company-research accuracy work removes hardcoded employer
   rating claims from the static fallback data, keeps cached/live rating
   rendering covered by component tests, changes unknown-company guidance to

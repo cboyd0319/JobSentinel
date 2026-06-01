@@ -29,57 +29,54 @@ Latest pushed checkpoints include:
 
 Current branch note:
 
-- `main` was pushed through `2b120e60`. Docs Harness run `26743031643` and CI
-  run `26743031608` both passed for that push after the bookmarklet
-  copy-failure test was changed to wait for the browser-button action to become
-  enabled before clicking.
-- The current local harness slice adds `npm run harness:plan -- --since
+- `main` was pushed through `1976fd9e`. Docs Harness run `26744671097` and CI
+  run `26744671092` both passed for that push. CI covered harness checks,
+  harness script tests, TypeScript, ESLint, frontend unit tests, Rust fmt,
+  Rust clippy, Rust library tests, npm audit, and cargo-deny advisories.
+- The latest pushed harness slice adds `npm run harness:plan -- --since
   origin/main`, a changed-file command planner for focused verification.
-- The current local slice removes stale hardcoded employer rating claims from
+- The latest pushed slice removes stale hardcoded employer rating claims from
   static company fallback data and adds source-quality coverage against
   reintroducing them.
-- The current local browser-import slice removes overbroad import promises,
+- The latest pushed browser-import slice removes overbroad import promises,
   keeps setup focused on official career pages and public job pages the user
   opened, and adds product-copy coverage so large-board support claims do not
   drift back.
-- The current local search-link slice replaces automated-scan language in the
+- The latest pushed search-link slice replaces automated-scan language in the
   Job Site Search Links UI and user docs with direct-monitoring boundaries,
   removes overconfident legal wording, and adds product-copy coverage against
   old scraper-comparison language.
-- The current local harness-doc accuracy slice reconciles
+- The latest pushed harness-doc accuracy slice reconciles
   `docs/harness/deep-harness-audit-2026-05-31.md` with live CI,
   docs-harness, release/manual-build, toolchain-pin, plan-index, and
   bloat-runner evidence so closed findings no longer look open.
-- The current local support-template UX slice changes issue templates from
+- The latest pushed support-template UX slice changes issue templates from
   debug-report and scraper-first wording to safe support report and job source
   wording, with product-copy coverage against the old terms.
-- The current local profile-doc UX slice changes `profiles/README.md` from
+- The latest pushed profile-doc UX slice changes `profiles/README.md` from
   command-line-first setup to app setup first, moves manual file copying into
   advanced context, and adds product-copy coverage against recurrence.
-- The current local broad-audience support wording slice moves the advanced
+- The latest pushed broad-audience support wording slice moves the advanced
   config profile list to broad-first ordering, changes roadmap wording from
   debug reports to safe support reports, and adds sensor coverage for both
   drift classes.
-- The current local feature-privacy harness slice adds
+- The latest pushed feature-privacy harness slice adds
   `docs/harness/feature-privacy-labels.json` plus `harness:check`
   validation for labels, sensitive data categories, external-AI allowance, and
   local fallback guidance.
-- The current local E2E budget slice adds Playwright JSON budget commands for
+- The latest pushed E2E budget slice adds Playwright JSON budget commands for
   smoke and full-suite runs. Latest local smoke budget evidence: 9 Chromium
   smoke tests in 5.97 seconds against a 30-second budget.
-- The current local Rule 0 review slice updates `.github/PULL_REQUEST_TEMPLATE.md`
+- The latest pushed Rule 0 review slice updates `.github/PULL_REQUEST_TEMPLATE.md`
   with privacy/security, local-first, external AI gateway, payload preview,
   responsible-use, safe-support-report, broad-audience, and
   zero-technical-knowledge checks. Manifest snippets now make
   `npm run harness:check` fail when those PR review requirements drift.
-- The current local zero-technical copy slice changes Market Intelligence
+- The latest pushed zero-technical copy slice changes Market Intelligence
   refresh and empty-state wording from "run analysis" to "refresh market data"
   and updates component plus smoke E2E expectations.
-- Pending integration gate: commit accumulated local slices, push to `main`,
-  confirm CI passes, and then continue broader goal work when ready for the
-  next remote verification run.
-- Continue using small verified commits. Run remote CI only when the user
-  explicitly asks or the full-goal completion pass requires it.
+- Continue using small verified commits. Avoid another remote CI run until the
+  next explicit integration gate or full-goal completion pass.
 
 Current cleanup posture:
 
