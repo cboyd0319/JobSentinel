@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import { existsSync, readFileSync } from "node:fs";
-import { dirname, extname, join, resolve } from "node:path";
+import { existsSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   hasDirectPlaywrightE2eScript,
@@ -9,7 +9,6 @@ import {
   hasRedundantDomPurifyTypesDependency,
   hasTailwindPostcssPlugin,
   hasUnownedStorybookAddon,
-  readPackageManifest,
 } from "./harness/checks/dependency-ownership.mjs";
 import { hasUnreferencedE2eTestHelper } from "./harness/checks/e2e-helpers.mjs";
 import {
@@ -112,6 +111,12 @@ import {
   hasStaleXssSecurityDocs,
   hasUnsafeKeyringMigration,
 } from "./harness/checks/security-docs.mjs";
+import {
+  hasContradictoryPlansIndexReleaseStatus,
+  hasDuplicateDocsScreenshotCapture,
+  hasUnreferencedDocsImage,
+  isJobSentinelProject,
+} from "./harness/checks/repo-integrity.mjs";
 import {
   hasBookmarkletCodeWithoutTokenHeader,
   hasManualBookmarkletJsonErrorResponses,
@@ -254,66 +259,6 @@ import {
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
-
-function isJobSentinelProject(root) {
-  try {
-    return readPackageManifest(root).name === "jobsentinel";
-  } catch {
-    return false;
-  }
-}
-
-function hasUnreferencedDocsImage(root, path) {
-  if (!path.startsWith("docs/images/") || extname(path) !== ".png") {
-    return false;
-  }
-
-  const fileName = path.split("/").at(-1);
-  if (!fileName) {
-    return true;
-  }
-
-  const references = [`docs/images/${fileName}`, `images/${fileName}`, `../images/${fileName}`];
-
-  return !listTrackedFiles(root).some((trackedPath) => {
-    if (
-      trackedPath.startsWith("docs/archive/") ||
-      trackedPath.startsWith("docs/releases/") ||
-      !trackedPath.endsWith(".md") ||
-      (trackedPath !== "README.md" && !trackedPath.startsWith("docs/"))
-    ) {
-      return false;
-    }
-
-    const text = readFileSync(join(root, trackedPath), "utf8");
-    return references.some((reference) => text.includes(reference));
-  });
-}
-
-function hasDuplicateDocsScreenshotCapture(root, path) {
-  if (path !== "tests/e2e/playwright/screenshots.spec.ts") {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  const captures = [...text.matchAll(/screenshotPath\(\s*testInfo,\s*["']([^"']+)["']\s*\)/g)].map(
-    (match) => match[1],
-  );
-
-  return new Set(captures).size !== captures.length;
-}
-
-function hasContradictoryPlansIndexReleaseStatus(root, path) {
-  if (path !== "docs/plans/README.md") {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return (
-    /## Current Release Plans[\s\S]*\|\s*v\d+\.\d+\.\d+\s*\|\s*Unreleased\s*\|/.test(text) &&
-    /## Archived Plans[\s\S]*\|\s*v\d+\.\d+\.\d+\s*\|\s*Complete on main\s*\|/.test(text)
-  );
-}
 
 export function checkRepoBloat(root = defaultRoot) {
   const violations = [];
