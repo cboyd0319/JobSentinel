@@ -39,7 +39,7 @@ export class DashboardPage extends BasePage {
   }
 
   get salaryFilter(): Locator {
-    return this.page.getByLabel("Minimum salary in thousands");
+    return this.page.getByLabel("Minimum yearly salary");
   }
 
   get experienceFilter(): Locator {

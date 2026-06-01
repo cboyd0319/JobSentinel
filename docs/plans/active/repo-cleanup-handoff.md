@@ -187,6 +187,11 @@ Current cleanup posture:
   preview tasks, and one-click application docs away from CAPTCHA-first wording
   toward human-check wording. The responsible-use boundary remains explicit:
   JobSentinel pauses and the user completes site checks themselves.
+- Current local Dashboard salary-filter follow-up makes the filter accept full
+  yearly dollars, not thousands. A value like 60000 now matches a $65,000 role
+  instead of being treated as $60,000,000; labels, current-filter summaries,
+  E2E page-object selectors, focused hook/UI tests, and product-copy sensors
+  were updated.
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
 - `npm run harness:plan -- --since origin/main` now maps changed files to
   focused verification commands from the harness matrix.

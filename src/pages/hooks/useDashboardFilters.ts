@@ -11,7 +11,6 @@ import type {
   SearchQuery,
 } from "../DashboardTypes";
 import {
-  SALARY_THOUSANDS_MULTIPLIER,
   GHOST_SCORE_THRESHOLD,
   SCORE_THRESHOLD_GOOD,
 } from "../../utils/constants";
@@ -230,14 +229,12 @@ export function useDashboardFilters(jobs: Job[]): FilterState &
         const jobMin = job.salary_min ?? job.salary_max ?? 0;
         const jobMax = job.salary_max ?? job.salary_min ?? 0;
 
-        // Check against filters (salary filter is in thousands, job salary is in actual dollars)
+        // Salary filters use full yearly dollars, matching job salary storage.
         if (salaryMinFilter !== null) {
-          const minThreshold = salaryMinFilter * SALARY_THOUSANDS_MULTIPLIER;
-          if (jobMax < minThreshold) return false;
+          if (jobMax < salaryMinFilter) return false;
         }
         if (salaryMaxFilter !== null) {
-          const maxThreshold = salaryMaxFilter * SALARY_THOUSANDS_MULTIPLIER;
-          if (jobMin > maxThreshold) return false;
+          if (jobMin > salaryMaxFilter) return false;
         }
         return true;
       });

@@ -23,6 +23,41 @@ function makeJob(overrides: Partial<Job> = {}): Job {
 }
 
 describe("useDashboardFilters — score edge cases", () => {
+  describe("salary filtering", () => {
+    it("treats salary filter values as full yearly dollars", () => {
+      const jobs: Job[] = [
+        makeJob({
+          id: 1,
+          title: "Customer Support Lead",
+          salary_min: 65000,
+          salary_max: 72000,
+        }),
+        makeJob({
+          id: 2,
+          title: "Front Desk Coordinator",
+          salary_min: 42000,
+          salary_max: 52000,
+        }),
+        makeJob({
+          id: 3,
+          title: "Operations Manager",
+          salary_min: 90000,
+          salary_max: 110000,
+        }),
+      ];
+
+      const { result } = renderHook(() => useDashboardFilters(jobs));
+
+      act(() => result.current.setSalaryMinFilter(60000));
+
+      expect(result.current.filteredAndSortedJobs.map((j) => j.id).sort()).toEqual([1, 3]);
+
+      act(() => result.current.setSalaryMaxFilter(80000));
+
+      expect(result.current.filteredAndSortedJobs.map((j) => j.id)).toEqual([1]);
+    });
+  });
+
   describe("sorting with non-finite scores", () => {
     it("sorts null scores to the bottom in score-desc", () => {
       const jobs: Job[] = [

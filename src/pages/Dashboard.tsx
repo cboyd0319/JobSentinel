@@ -27,6 +27,7 @@ import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
 import { logError } from "../utils/errorUtils";
 import { SCORE_THRESHOLD_GOOD } from "../utils/constants";
 import { notifyScrapingComplete } from "../utils/notifications";
+import { formatSalaryNumber } from "../utils/formatUtils";
 import { formatJobSourceLabel } from "../utils/sourceLabels";
 import {
   cachedInvoke,
@@ -908,10 +909,10 @@ export default function Dashboard({
                 </li>
               )}
               {filters.salaryMinFilter !== null && (
-                <li>Min salary: ${filters.salaryMinFilter}K</li>
+                <li>Min salary: {formatSalaryNumber(filters.salaryMinFilter)}</li>
               )}
               {filters.salaryMaxFilter !== null && (
-                <li>Max salary: ${filters.salaryMaxFilter}K</li>
+                <li>Max salary: {formatSalaryNumber(filters.salaryMaxFilter)}</li>
               )}
             </ul>
           </div>

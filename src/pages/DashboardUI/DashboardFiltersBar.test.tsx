@@ -96,6 +96,15 @@ describe("DashboardFiltersBar plain-language actions", () => {
       "Search jobs",
     );
     expect(screen.getByRole("button", { name: "Download job list" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Minimum yearly salary")).toHaveAttribute(
+      "placeholder",
+      "Min $/year",
+    );
+    expect(screen.getByLabelText("Maximum yearly salary")).toHaveAttribute(
+      "placeholder",
+      "Max $/year",
+    );
+    expect(screen.queryByLabelText(/salary in thousands/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Export jobs to CSV" })).not.toBeInTheDocument();
     expect(screen.queryByText("j/k/o/h")).not.toBeInTheDocument();
     expect(screen.queryByText(/Navigate: j\/k/i)).not.toBeInTheDocument();

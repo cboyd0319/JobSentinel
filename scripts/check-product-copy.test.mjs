@@ -335,6 +335,8 @@ test("product copy rejects technical-first settings copy", () => {
       [
         "Use AND for words that must both appear",
         "Start with a minus sign to leave out a word: -intern",
+        'placeholder="Min $K"',
+        'aria-label="Minimum salary in thousands"',
         'label: source === "all" ? "All Sources" : source',
         "",
       ].join("\n"),
@@ -391,6 +393,8 @@ test("product copy rejects technical-first settings copy", () => {
       [
         "<li>Source: {filters.sourceFilter}</li>",
         "<span>{job.source}</span>",
+        "Min salary: ${filters.salaryMinFilter}K",
+        "Max salary: ${filters.salaryMaxFilter}K",
         "",
       ].join("\n"),
     );

@@ -108,6 +108,10 @@ and record actionable findings in this active-plan surface.
 - Latest local human-check copy follow-up changes Application Assist CAPTCHA
   prompts and docs to plain human-check wording while preserving the boundary
   that JobSentinel pauses and users complete site checks themselves.
+- Latest local Dashboard salary-filter follow-up fixes a zero-technical
+  high-impact bug: salary filters now accept full yearly dollars such as
+  60000, the labels no longer say "in thousands," current-filter summaries use
+  salary formatting, and product-copy coverage rejects the old `$K` drift.
 - Latest local zero-technical provider setup work labels USAJobs as optional
   advanced federal monitoring with a no-setup browser-search path first, keeps
   Telegram bot details behind an advanced chat-alert path, and adds

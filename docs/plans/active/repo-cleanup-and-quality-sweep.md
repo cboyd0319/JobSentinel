@@ -237,6 +237,10 @@ boundaries, and harness modularity:
   preview tasks, and one-click application docs say human check instead of
   leading with CAPTCHA terminology, while still saying JobSentinel leaves that
   step to the user.
+- Fixed Dashboard salary filtering so users enter full yearly dollars instead
+  of `$K` shorthand. The filter logic now compares against stored yearly
+  salaries directly, the UI labels say yearly salary, current-filter summaries
+  use salary formatting, and coverage rejects old thousand-based wording.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright
