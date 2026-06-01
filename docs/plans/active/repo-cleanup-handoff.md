@@ -260,6 +260,10 @@ Current cleanup posture:
   `docs/releases/README.md` as the historical release-notes index. Docs-drift
   coverage now rejects unlinked Linux build docs, stale Linux build trigger
   claims, and unindexed release-note files.
+- Latest Application Assist wording follow-up replaces user-visible
+  automation-browser close copy with plain browser-window copy, stops exposing
+  raw backend platform notes as badge hover text, and adds product-copy
+  coverage against both drift classes.
 - Latest support/privacy follow-up keeps saved support reports local in the
   primary flow, removes GitHub-first and shared-folder copy from support
   surfaces, replaces visible old report wording with safe support report

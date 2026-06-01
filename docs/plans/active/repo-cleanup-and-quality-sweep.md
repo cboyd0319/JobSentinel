@@ -213,6 +213,10 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   GitHub Actions workflow, and historical release notes now have a maintained
   index. Added docs-drift harness coverage so those links and workflow claims
   stay current.
+- Fixed additional Application Assist copy drift: the Prepare Form flow no
+  longer exposes backend application-platform notes as hover text or says
+  "automation browser" in user-facing close messages. Product-copy coverage
+  rejects those strings returning.
 - Updated user docs so downloads, notifications, site requests, and Linux
   credential recovery put non-technical paths before advanced contributor or
   command-line details.

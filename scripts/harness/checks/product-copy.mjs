@@ -303,7 +303,10 @@ export function hasApplicationAssistAutomationFraming(root, path) {
     new RegExp(["automated", "\\s+", "browsers"].join(""), "i"),
     new RegExp(["automated", "\\s+", "submission"].join(""), "i"),
     new RegExp(["form", "\\s+", "filling", "\\s+", "automation"].join(""), "i"),
+    new RegExp(["supports", "\\s+", "form", "\\s+", "automation"].join(""), "i"),
+    new RegExp(["automation", "\\s+", "browser"].join(""), "i"),
     new RegExp(["Privacy-first", "\\s+", "job", "\\s+", "search", "\\s+", "automation"].join(""), "i"),
+    /title=\{atsInfo\?\.automationNotes/i,
     /Settings\s*>\s*Application Assist/i,
     /Code profile/i,
   ];

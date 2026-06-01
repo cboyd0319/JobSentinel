@@ -220,6 +220,11 @@ and record actionable findings in this active-plan surface.
   release docs are discoverable without becoming the current release log. The
   docs-drift harness now rejects unlinked Linux build docs, stale Linux build
   trigger claims, and unindexed release-note files.
+- Current local Application Assist wording follow-up removes user-visible
+  automation-browser copy and raw application-platform help text from the
+  Prepare Form flow, replacing it with review-first wording and fixed
+  plain-language hover copy. Product-copy harness coverage now rejects those
+  automation-framed strings and raw platform-note hover wiring.
 - Latest local harness benchmark work adds `npm run harness:benchmark`, a
   tested portable before/after report for score, session metrics, active next
   work, and harness-tuning recommendations, modeled on the WalkingLabs

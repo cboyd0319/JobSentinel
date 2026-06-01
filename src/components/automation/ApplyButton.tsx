@@ -44,6 +44,8 @@ const ATS_DISPLAY_NAMES: Record<string, string> = {
   unknown: "Unknown ATS",
 };
 
+const APPLICATION_PLATFORM_HELP = "Recognized application form";
+
 function getSafeFormPreparationError(error: unknown) {
   const friendly = getUserFriendlyError(error);
   return {
@@ -67,7 +69,6 @@ const ATS_COLORS: Record<string, string> = {
 export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApplicationAssist }: ApplyButtonProps) {
   const [atsPlatform, setAtsPlatform] = useState<string | null>(null);
   const [atsLoading, setAtsLoading] = useState(true);
-  const [atsInfo, setAtsInfo] = useState<AtsDetectionResponse | null>(null);
   const [hasProfile, setHasProfile] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [isFilling, setIsFilling] = useState(false);
@@ -96,7 +97,6 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
         url: job.url,
       }, { silent: true }); // Silent mode - ATS detection is optional
       setAtsPlatform(result.platform);
-      setAtsInfo(result);
     } catch {
       // Silently fail - ATS detection is optional
     } finally {
@@ -230,7 +230,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
       setFillError(errorMsg + recoveryHint + actionHint);
       logError("Failed to prepare form:", error);
       toast.error(
-        safeError.title || "Form Preparation Failed",
+        safeError.title || "Form preparation failed",
         errorMsg + (recoveryHint || actionHint ? recoveryHint + actionHint : "")
       );
     } finally {
@@ -241,7 +241,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
   const closeBrowser = async () => {
     try {
       await safeInvokeWithToast("close_automation_browser", undefined, toast, {
-        logContext: "Close automation browser",
+        logContext: "Close application review browser",
       });
       setBrowserRunning(false);
 
@@ -249,7 +249,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
       if (lastAttemptId) {
         setShowSubmitConfirm(true);
       } else {
-        toast.info("Browser closed", "The automation browser has been closed");
+        toast.info("Browser closed", "The browser window has been closed");
       }
     } catch {
       // Error already logged and shown to user
@@ -277,7 +277,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
     removeStorageValue("local", `lastAttempt_${job.hash}`);
     setLastAttemptId(null);
     setShowSubmitConfirm(false);
-    toast.info("Browser closed", "Application not tracked");
+    toast.info("Browser closed", "Not added to your board");
   };
 
   return (
@@ -289,7 +289,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
         ) : atsPlatform && atsPlatform !== "unknown" ? (
           <span
             className={`px-2 py-1 text-xs font-medium rounded-full ${ATS_COLORS[atsPlatform] || ATS_COLORS.unknown}`}
-            title={atsInfo?.automationNotes || undefined}
+            title={APPLICATION_PLATFORM_HELP}
           >
             {ATS_DISPLAY_NAMES[atsPlatform] || atsPlatform}
           </span>

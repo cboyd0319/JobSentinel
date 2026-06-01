@@ -524,7 +524,7 @@ pub async fn launch_automation_browser() -> Result<(), String> {
         .map_err(|e| user_friendly_error("Failed to launch browser", e))
 }
 
-/// Close the automation browser
+/// Close the application review browser
 #[tauri::command]
 pub async fn close_automation_browser() -> Result<(), String> {
     tracing::info!("Command: close_automation_browser");

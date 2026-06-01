@@ -68,10 +68,23 @@ test("product copy rejects engineer-first resume template copy", () => {
 
 test("product copy rejects application automation framing", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "docs/features/one-click-apply.md", "One-Click Apply\n");
+    writeFixtureFile(
+      root,
+      "docs/features/one-click-apply.md",
+      "One-Click Apply\nThis application platform supports form automation.\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/components/automation/ApplyButton.tsx",
+      "const badge = <span title={atsInfo?.automationNotes || undefined} />;\n",
+    );
 
     assert.equal(
       hasApplicationAssistAutomationFraming(root, "docs/features/one-click-apply.md"),
+      true,
+    );
+    assert.equal(
+      hasApplicationAssistAutomationFraming(root, "src/components/automation/ApplyButton.tsx"),
       true,
     );
   });

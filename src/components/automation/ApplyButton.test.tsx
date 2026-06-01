@@ -31,7 +31,7 @@ const mockJob = {
 const mockAtsDetection = {
   platform: "greenhouse",
   commonFields: ["email", "phone", "name"],
-  automationNotes: "Greenhouse supports form automation",
+  automationNotes: "Greenhouse recognized",
 };
 
 describe("ApplyButton", () => {
@@ -194,7 +194,7 @@ describe("ApplyButton", () => {
       expect(screen.queryByText("Unknown ATS")).not.toBeInTheDocument();
     });
 
-    it("badge has automation notes in title attribute", async () => {
+    it("badge uses fixed plain-language help text", async () => {
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
         if (cmd === "has_application_profile") return Promise.resolve(true);
@@ -206,7 +206,7 @@ describe("ApplyButton", () => {
 
       await waitFor(() => {
         const badge = screen.getByText("Greenhouse");
-        expect(badge).toHaveAttribute("title", "Greenhouse supports form automation");
+        expect(badge).toHaveAttribute("title", "Recognized application form");
       });
     });
 
@@ -1090,7 +1090,7 @@ describe("ApplyButton", () => {
 
       await waitFor(() => {
         expect(localStorage.removeItem).toHaveBeenCalledWith("lastAttempt_test-hash-123");
-        expect(screen.getByText("Application not tracked")).toBeInTheDocument();
+        expect(screen.getByText("Not added to your board")).toBeInTheDocument();
       });
     });
   });
