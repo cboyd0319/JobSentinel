@@ -105,6 +105,10 @@ and record actionable findings in this active-plan surface.
   sending server details behind Advanced, and updates notification docs so
   non-technical users only need manual server details when their provider gives
   them.
+- Latest local settings backup UX work replaces visible `Config` and
+  `credentials` backup/restore wording with settings-backup and saved
+  connection-detail language, and adds bloat coverage so the old technical
+  copy cannot drift back into Settings.
 - Latest local broad-audience fixture work rebalanced generic market
   intelligence, notifications, config, database, ATS, ghost detection, salary,
   scoring, generic scraper adapters, command, frontend mock, sample JSON

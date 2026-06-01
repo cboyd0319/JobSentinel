@@ -4,9 +4,10 @@ import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import Settings from "./Settings";
 import * as feedbackService from "../services/feedbackService";
-import { importConfigFromJSON } from "../utils/export";
+import { exportConfigToJSON, importConfigFromJSON } from "../utils/export";
 
 const mockInvoke = vi.mocked(invoke);
+const mockExportConfigToJSON = vi.mocked(exportConfigToJSON);
 const mockImportConfigFromJSON = vi.mocked(importConfigFromJSON);
 
 // Mock toast
@@ -292,7 +293,7 @@ describe("Settings — loadConfig flow", () => {
 
     // Should warn about credential failures
     expect(mockToast.warning).toHaveBeenCalledWith(
-      "Some credentials unavailable",
+      "Some saved connection details unavailable",
       expect.stringContaining("2"),
     );
 
@@ -320,7 +321,7 @@ describe("Settings — loadConfig flow", () => {
 
     // Should warn about all active credential failures
     expect(mockToast.warning).toHaveBeenCalledWith(
-      "Some credentials unavailable",
+      "Some saved connection details unavailable",
       expect.stringContaining("6"),
     );
   });
@@ -572,7 +573,7 @@ describe("Settings — handleSave flow", () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
-  it("reports config save failure separately from successful credential saves", async () => {
+  it("reports settings save failure separately from saved connection details", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
 
@@ -607,7 +608,7 @@ describe("Settings — handleSave flow", () => {
     });
 
     expect(mockToast.warning).not.toHaveBeenCalledWith(
-      "Partially saved",
+      "Some connection details were not saved",
       expect.stringContaining("Config was saved"),
     );
     expect(mockInvoke).toHaveBeenCalledWith("store_credential", {
@@ -636,9 +637,46 @@ describe("Settings — handleSave flow", () => {
       "Choose another JobSentinel settings backup file.",
     );
     expect(mockToast.success).not.toHaveBeenCalledWith(
-      "Config imported",
+      "Settings restored",
       expect.any(String),
     );
+  });
+
+  it("uses plain backup wording for settings export and restore", async () => {
+    const user = userEvent.setup();
+    const restoredConfig = {
+      ...makeConfig(),
+      salary_floor_usd: 85000,
+    };
+
+    setupHappyPath();
+    mockImportConfigFromJSON.mockResolvedValueOnce({
+      status: "ok",
+      config: restoredConfig,
+    });
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("button", { name: "Backup Settings" }));
+
+    expect(mockExportConfigToJSON).toHaveBeenCalledTimes(1);
+    expect(mockToast.success).toHaveBeenCalledWith(
+      "Settings backup saved",
+      "Saved passwords and connection codes are left out for safety.",
+    );
+
+    await user.click(screen.getByRole("button", { name: "Restore Settings" }));
+
+    expect(mockToast.success).toHaveBeenCalledWith(
+      "Settings restored",
+      "Review settings and click Save. Saved connection details are not included in backups, so add them again if needed.",
+    );
+    expect(screen.queryByText(/Config imported/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Credentials must/i)).not.toBeInTheDocument();
   });
 
   it("tests an existing Slack webhook without retrieving it into the renderer", async () => {

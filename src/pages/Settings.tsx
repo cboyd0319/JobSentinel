@@ -708,8 +708,8 @@ export default function Settings({ onClose }: SettingsProps) {
 
       if (credFailures > 0) {
         toast.warning(
-          "Some credentials unavailable",
-          `Couldn't check ${credFailures} stored credential(s). Your system keychain may be locked.`,
+          "Some saved connection details unavailable",
+          `Couldn't check ${credFailures} saved connection detail(s). Unlock your system password manager if needed.`,
         );
       }
 
@@ -836,7 +836,7 @@ export default function Settings({ onClose }: SettingsProps) {
         toast.error(
           "Save failed",
           credentialFailures.length > 0
-            ? "Settings and some credentials could not be saved. Try saving again."
+            ? "Settings and some saved connection details could not be saved. Try saving again."
             : "Settings could not be saved. Try saving again.",
         );
         return;
@@ -848,13 +848,13 @@ export default function Settings({ onClose }: SettingsProps) {
           credentialFailures.map((f) => f.reason),
         );
         toast.warning(
-          "Partially saved",
-          `${credentialFailures.length} credential(s) failed to save. Settings were saved. Try saving again.`,
+          "Some connection details were not saved",
+          `${credentialFailures.length} saved connection detail(s) failed to save. Settings were saved. Try saving again.`,
         );
       } else {
         toast.success(
           "Settings saved!",
-          "Credentials stored securely in your system keychain",
+          "Saved connection details are stored in your system password manager.",
         );
         onClose();
       }
@@ -883,7 +883,7 @@ export default function Settings({ onClose }: SettingsProps) {
     try {
       exportConfigToJSON(config);
       toast.success(
-        "Config exported",
+        "Settings backup saved",
         "Saved passwords and connection codes are left out for safety.",
       );
     } catch (error: unknown) {
@@ -907,18 +907,17 @@ export default function Settings({ onClose }: SettingsProps) {
         return;
       }
 
-      // Credentials are stored in OS keyring, not in config file
-      // So we just import the non-sensitive config settings
+      // Connection secrets stay in OS secure storage, not in backup files.
       setConfig(result.config);
       toast.success(
-        "Config imported",
-        "Review settings and click Save to apply. Note: Credentials must be re-entered (they are stored securely and not exported).",
+        "Settings restored",
+        "Review settings and click Save. Saved connection details are not included in backups, so add them again if needed.",
       );
     } catch (error: unknown) {
-      logError("Failed to import config:", error);
+      logError("Failed to restore settings backup:", error);
       toast.error(
-        "Failed to import config",
-        "The file may be corrupted or invalid",
+        "Could not restore settings",
+        "Choose another JobSentinel settings backup file.",
       );
     }
   };

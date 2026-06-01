@@ -1488,6 +1488,12 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/pages/Settings.tsx",
       [
         '"Invalid Discord webhook"',
+        '"Config imported"',
+        '"Failed to import config"',
+        '"Some credentials unavailable"',
+        '"Credentials stored securely"',
+        '"Partially saved"',
+        '"1 credential(s) failed to save"',
         '"Paste your Discord webhook URL"',
         '"This doesn\'t look like a valid Teams webhook URL"',
         '"Get job alerts via Telegram bot"',
