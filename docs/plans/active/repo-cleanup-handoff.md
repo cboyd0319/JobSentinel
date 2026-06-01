@@ -64,6 +64,12 @@ Current branch note:
   `docs/harness/feature-privacy-labels.json` plus `harness:check`
   validation for labels, sensitive data categories, external-AI allowance, and
   local fallback guidance.
+- The current local E2E budget slice adds Playwright JSON budget commands for
+  smoke and full-suite runs. Latest local smoke budget evidence: 9 Chromium
+  smoke tests in 5.97 seconds against a 30-second budget.
+- Pending integration gate: commit accumulated local slices, push to `main`,
+  confirm CI passes, and then continue broader goal work when ready for the
+  next remote verification run.
 - Continue using small verified commits. Run remote CI only when the user
   explicitly asks or the full-goal completion pass requires it.
 
@@ -222,6 +228,8 @@ Current cleanup posture:
   E2E assertions through `npm run lint:tests`.
 - Normal CI now runs `npm run harness:check` and `npm run test:scripts` in a
   dedicated harness job.
+- E2E runtime budget tracking now exists through
+  `npm run test:e2e:smoke:budget` and `npm run test:e2e:all:budget`.
 - Docs Harness now watches the whole `scripts/**` set and runs harness script
   tests, so sensor changes no longer bypass the docs workflow path filter.
 - Release and manual Linux/Windows build workflows now validate release version
@@ -678,6 +686,7 @@ The latest cleanup slices were verified with:
 - `npm run lint:tauri-invokes`
 - `npm run lint:security`
 - `npm run lint:architecture`
+- `npm run test:e2e:smoke:budget`
 
 For later handoff or active-plan refreshes, rerun docs and bloat checks before
 committing.
@@ -722,7 +731,8 @@ Next high-value passes:
    - Promote any repeated ease, privacy, or flaky-test failure into a guide or
      sensor instead of leaving it in chat.
    - Prioritize the remaining top harness debt: sensor modularity, evidence
-     ledger, harness architecture map, and optional external harness adapter.
+     ledger, harness architecture map, optional external harness adapter, and
+     scheduled/manual reference health checks.
 8. Continue protective job-search UX review.
    - Make ghost/stale detection central on job cards and saved jobs.
    - Make salary floor, pay transparency, salary-history guardrails, and

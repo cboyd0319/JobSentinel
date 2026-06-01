@@ -76,7 +76,7 @@ module-ownership work below. Remaining recommendations stay tracked here and in
 
 | Priority | Improvement | Evidence | Risk | Recommended fix |
 | -------- | ----------- | -------- | ---- | --------------- |
-| P1 | Add runtime budget tracking for E2E | Playwright commands are faster than before, but timings live in plan prose and terminal output, not a maintained artifact. | Slow tests can regress until developers are back to long local loops. | Use Playwright JSON output for smoke/full runs and add a budget check for smoke gate duration and test count. |
+| P1 | Add runtime budget tracking for E2E | Closed: `npm run test:e2e:smoke:budget` and `npm run test:e2e:all:budget` run Playwright through JSON output and fail when duration or test count exceeds maintained budgets. | Closed for explicit budget runs; normal E2E commands still prioritize familiar output and do not enforce budgets by default. | Use budget commands for performance-sensitive E2E checks and update budgets only with measured evidence. |
 | P1 | Add changed-test suggestion support | Closed: `npm run harness:plan -- --since origin/main` suggests adjacent Vitest tests, changed Playwright specs, script tests, Rust gates, Tauri invoke checks, and fallback unit suites when no adjacent frontend test exists. | Closed for current repo layout; new test roots must be added with focused coverage. | Update the planner and `scripts/harness-plan.test.mjs` when test layout changes. |
 | P2 | Add CI smoke E2E only when UI paths change | Normal CI does not run Playwright. | UI regressions can pass PR CI when unit tests miss a workflow issue. | Add path-filtered Chromium smoke E2E for UI/workflow paths or keep it as a manual required release gate if CI time is too high. |
 
@@ -121,7 +121,7 @@ module-ownership work below. Remaining recommendations stay tracked here and in
    clear and focused tests can prove the split.
 2. Keep diff-aware `harness:plan` mappings current as source and test roots evolve.
 3. Keep feature privacy label manifest current as sensitive or external-AI-capable features evolve.
-4. Add E2E runtime budget tracking.
+4. Keep E2E runtime budgets current with measured smoke and full-suite evidence.
 5. Add a sensor registry or harness architecture map for discoverability.
 6. Build a generic harness compatibility adapter only after the native harness
    state is compact.

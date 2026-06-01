@@ -107,21 +107,27 @@ and the line reporter. Override local concurrency with
 
 ```bash
 npm run test:e2e:smoke
+npm run test:e2e:smoke:budget
 npm run test:e2e:smoke:all
 ```
 
 Use smoke tests during routine frontend work. They cover app load, search,
 keyboard focus, applications, settings, resume, Application Assist, resume
 builder, and market intelligence without running every browser-flow assertion.
+The budget command runs the Chromium smoke suite with Playwright JSON output
+and fails when duration or test count exceeds the maintained budget.
 
 ### Full Cross-Browser Tests
 
 ```bash
 npm run test:e2e:all
+npm run test:e2e:all:budget
 ```
 
 Runs Chromium and WebKit functional E2E tests. `npm run test:e2e:ci` is the
-same full-suite command for CI-oriented runs.
+same full-suite command for CI-oriented runs. Use the budget command when
+checking that the full suite has not drifted back into slow local feedback
+loops.
 
 ### Last Failed Tests
 

@@ -240,6 +240,10 @@ and record actionable findings in this active-plan surface.
   `docs/harness/feature-privacy-labels.json` and validates required labels,
   data categories, sensitive-label alignment, external-AI allowance, local
   fallbacks, and core feature entries through `npm run harness:check`.
+- Latest local E2E budget work adds `scripts/e2e-budget.mjs`,
+  `npm run test:e2e:smoke:budget`, and `npm run test:e2e:all:budget`; the
+  latest measured smoke budget run completed 9 Chromium smoke tests in
+  5.97 seconds against a 30-second budget.
 - Latest local docs-drift harness work moves the docs-drift violation messages
   out of `scripts/check-repo-bloat.mjs` and into
   `scripts/harness/checks/docs-drift.mjs` through

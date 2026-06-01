@@ -39,6 +39,10 @@ user-facing workflow risk requires more evidence.
 | Styling or layout | Component test if present | Browser screenshot or Playwright flow |
 | Build config | `npm run build` | CI dry run when possible |
 
+Use `npm run test:e2e:smoke:budget` when a frontend workflow change should
+stay inside the fast smoke budget. Use `npm run test:e2e:all:budget` before
+broad E2E performance claims.
+
 ## Rust And Tauri
 
 | Change | Required sensor | Add when risk increases |
