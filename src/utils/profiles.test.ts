@@ -123,9 +123,13 @@ describe("profiles", () => {
       expect(searchLooksTechFocused(["Curriculum Developer"])).toBe(false);
       expect(searchLooksTechFocused(["Support Engineer"])).toBe(false);
       expect(searchLooksTechFocused(["Customer Success Engineer"])).toBe(false);
+      expect(searchLooksTechFocused(["Accountant", "SQL"])).toBe(false);
+      expect(searchLooksTechFocused(["Operations Manager", "Python"])).toBe(false);
+      expect(searchLooksTechFocused(["Sales Manager", "AWS"])).toBe(false);
       expect(searchLooksTechFocused(["Product Designer"])).toBe(false);
       expect(searchLooksTechFocused(["Office Manager", "Scheduling"])).toBe(false);
       expect(searchLooksTechFocused(["Medical Assistant", "EMR"])).toBe(false);
+      expect(searchLooksTechFocused(["React Developer"])).toBe(true);
     });
 
     it("enables tech-heavy source defaults only for technical searches", () => {
@@ -155,6 +159,17 @@ describe("profiles", () => {
         getSearchSourceDefaults({
           titles: ["Sales Engineer", "Curriculum Developer", "Support Engineer"],
           keywords: ["customer onboarding", "training"],
+          allowRemote: true,
+        }),
+      ).toEqual({
+        remoteokEnabled: false,
+        hnHiringEnabled: false,
+        weworkremotelyEnabled: false,
+      });
+      expect(
+        getSearchSourceDefaults({
+          titles: ["Accountant"],
+          keywords: ["SQL", "Excel"],
           allowRemote: true,
         }),
       ).toEqual({

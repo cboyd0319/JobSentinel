@@ -197,6 +197,7 @@ export function hasEngineerFirstAudienceExamples(root, path) {
       /["'`]developer["'`]/i,
       /["'`]engineer["'`]/i,
       /["'`]technical product manager["'`]/i,
+      /["'`](?:react|typescript|javascript|python|rust|java|kubernetes|aws|gcp|azure|docker|terraform|node\.js|sql|postgresql)["'`]/i,
     ];
     const broadSubstringMatcherPatterns = [
       /term\.includes\(techTerm\)/,

@@ -339,6 +339,8 @@ test("broad audience fixtures reject broad role tech-source heuristics", () => {
         '  "developer",',
         '  "engineer",',
         '  "technical product manager",',
+        '  "sql",',
+        '  "python",',
         "];",
         "terms.some((term) => TECH_SOURCE_TERMS.some((techTerm) => term.includes(techTerm)));",
         "",

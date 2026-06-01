@@ -967,6 +967,33 @@ describe("Settings — handleSave flow", () => {
     expect(screen.queryByText("Recommended for you")).not.toBeInTheDocument();
   });
 
+  it("does not recommend tech-heavy sources for broad searches with common tool keywords", async () => {
+    const user = userEvent.setup();
+    const config = makeConfig();
+    config.title_allowlist = ["Accountant"];
+    config.keywords_boost = ["SQL", "Excel"];
+    config.location_preferences.allow_remote = true;
+    config.location_preferences.cities = ["Austin"];
+
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_config") return config;
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      return null;
+    });
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+
+    expect(screen.queryByText("Recommended for you")).not.toBeInTheDocument();
+  });
+
   it("recommends tech-heavy sources for technical searches", async () => {
     const user = userEvent.setup();
     const config = makeConfig();

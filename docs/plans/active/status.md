@@ -45,6 +45,10 @@ and record actionable findings in this active-plan surface.
   engineer, and customer success engineer from enabling tech-heavy job source
   defaults. Unit and harness coverage now reject generic `developer` and
   `engineer` substring matching.
+- Latest local source-default follow-up also stops standalone stack or tool
+  keywords such as SQL, Python, and AWS from enabling tech-heavy sources for
+  broad roles like accounting, operations, or sales management. Explicit
+  software/data/security role phrases still enable those sources.
 - Latest local zero-technical provider setup work labels USAJobs as optional
   advanced federal monitoring with a no-setup browser-search path first, keeps
   Telegram bot details behind an advanced chat-alert path, and adds

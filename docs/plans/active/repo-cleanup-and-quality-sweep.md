@@ -197,8 +197,10 @@ boundaries, and harness modularity:
 - Narrowed tech-source heuristics so broad roles such as sales engineer,
   curriculum developer, support engineer, customer success engineer, and
   technical product manager do not inherit RemoteOK, HN, WeWorkRemotely, Dice,
-  or BuiltIn recommendations unless explicit software/data/security or stack
-  signals are present.
+  or BuiltIn recommendations unless explicit software/data/security role
+  signals are present. A follow-up also prevents standalone stack or tool
+  keywords such as SQL, Python, and AWS from enabling tech-heavy sources for
+  broad accounting, operations, or sales searches.
 - Reworked optional provider setup in Settings so USAJobs starts with a
   no-setup browser-search path before optional advanced monitoring, and
   Telegram bot details stay behind an advanced chat-alert path for users who

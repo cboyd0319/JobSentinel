@@ -34,17 +34,21 @@ const TECH_SOURCE_PROFILE_IDS = new Set([
   "data-science",
 ]);
 
-// Keep this list specific so broad roles like Sales Engineer or Curriculum
-// Developer do not inherit software-job-board defaults.
+// Keep this list role-specific so broad roles with common tools, such as
+// Accountant + SQL, do not inherit software-job-board defaults.
 const TECH_SOURCE_TERMS = [
   "software",
   "software engineer",
   "software developer",
+  "web developer",
   "frontend",
   "front end",
+  "frontend developer",
   "backend",
   "back end",
+  "backend developer",
   "full stack",
+  "full stack developer",
   "programmer",
   "devops",
   "sre",
@@ -66,21 +70,14 @@ const TECH_SOURCE_TERMS = [
   "analytics engineer",
   "ux engineer",
   "design engineer",
-  "react",
-  "typescript",
-  "javascript",
-  "python",
-  "rust",
-  "java",
-  "kubernetes",
-  "aws",
-  "gcp",
-  "azure",
-  "docker",
-  "terraform",
-  "node.js",
-  "sql",
-  "postgresql",
+  "react developer",
+  "typescript developer",
+  "javascript developer",
+  "python developer",
+  "rust developer",
+  "java developer",
+  "node developer",
+  "node.js developer",
 ];
 
 function buildSourceDefaults(isTechFocused: boolean, allowRemote: boolean): SourceDefaults {

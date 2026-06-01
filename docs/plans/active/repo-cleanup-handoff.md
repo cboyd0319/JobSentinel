@@ -146,7 +146,9 @@ Current cleanup posture:
   titles such as sales engineer, curriculum developer, support engineer,
   customer success engineer, and technical product manager from turning on
   tech-heavy sources by substring match. Utility and broad-audience harness
-  tests now guard this behavior.
+  tests now guard this behavior. The latest refinement also keeps standalone
+  stack or tool keywords such as SQL, Python, and AWS from enabling tech-heavy
+  source defaults for broad accounting, operations, or sales searches.
 - Current local zero-technical provider setup follow-up makes USAJobs lead with
   a no-setup browser-search path before optional advanced monitoring, keeps
   Telegram bot details behind an advanced chat-alert path, and adds
