@@ -16,8 +16,10 @@ import {
   hasNonPublicIpErrorEcho,
   hasRawAutomationDropdownValueLogging,
   hasRawAutomationBrowserErrors,
+  hasRawAutomationCommandErrorDetails,
   hasRawAutomationFormResultData,
   hasRawAutomationQuestionLogging,
+  hasRawAtsCommandErrorDetails,
   hasRawBackupPathError,
   hasRawCommandSetupErrorDisplay,
   hasRawConfigValidationUrlDisplay,
@@ -40,13 +42,19 @@ import {
   hasRawNotificationServiceErrorDetails,
   hasRawPathOrQueryErrorDisplay,
   hasRawPrivateQueryLogging,
+  hasRawResumeCommandDtoExposure,
+  hasRawResumeCommandErrorDetails,
+  hasRawResumeNameLogging,
+  hasRawResumeParserPathDisplay,
   hasRawScraperLoopErrorLogging,
   hasRawScraperUrlOrQueryLogging,
+  hasRawSensitiveCommandErrorDetails,
   hasRawSlackWebhookValidationErrorReturn,
   hasRawSourceCheckResultError,
   hasRawTelegramBotTokenRequestError,
   hasRawUrlErrorDisplay,
   hasRawUrlLogging,
+  hasRawUtilityCommandErrorDetails,
   hasRawWebhookTokenRequestError,
   hasRendererCredentialSecretRead,
   hasSecretBearingDebugDerive,
@@ -642,6 +650,74 @@ test("privacy logging rejects raw path, query, and config URL displays", () => {
       true,
     );
     assert.equal(hasRawCommandSetupErrorDisplay(root, "src-tauri/src/commands/jobs.rs"), false);
+  });
+});
+
+test("privacy logging rejects raw resume command details", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/resume/parser.rs",
+      "let shown = file_path.display();",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/resume.rs",
+      [
+        'tracing::info!("import_json_resume name={}", name);',
+        'map_err(|e| format!("Failed to export resume: {}", e))?',
+        "pub struct ResumeSummary {",
+        "  file_path: String,",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasRawResumeParserPathDisplay(root, "src-tauri/src/core/resume/parser.rs"),
+      true,
+    );
+    assert.equal(hasRawResumeNameLogging(root, "src-tauri/src/commands/resume.rs"), true);
+    assert.equal(hasRawResumeCommandErrorDetails(root, "src-tauri/src/commands/resume.rs"), true);
+    assert.equal(hasRawResumeCommandDtoExposure(root, "src-tauri/src/commands/resume.rs"), true);
+    assert.equal(hasRawResumeCommandDtoExposure(root, "src-tauri/src/commands/jobs.rs"), false);
+  });
+});
+
+test("privacy logging rejects raw backend command error details", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/ats.rs",
+      'map_err(|e| format!("Failed to save status: {}", e))?',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/automation.rs",
+      'Err(e) => Err(format!("Failed to fill form: {}", e)),',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/ml.rs",
+      'serde_json::to_value(value).map_err(|e| format!("Failed to serialize: {}", e))?',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/jobs.rs",
+      'format!("Database error: {}", e);',
+    );
+
+    assert.equal(hasRawAtsCommandErrorDetails(root, "src-tauri/src/commands/ats.rs"), true);
+    assert.equal(
+      hasRawAutomationCommandErrorDetails(root, "src-tauri/src/commands/automation.rs"),
+      true,
+    );
+    assert.equal(hasRawSensitiveCommandErrorDetails(root, "src-tauri/src/commands/ml.rs"), true);
+    assert.equal(hasRawUtilityCommandErrorDetails(root, "src-tauri/src/commands/jobs.rs"), true);
+    assert.equal(
+      hasRawUtilityCommandErrorDetails(root, "src-tauri/src/commands/resume.rs"),
+      false,
+    );
   });
 });
 

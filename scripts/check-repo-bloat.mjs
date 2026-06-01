@@ -49,6 +49,8 @@ import {
   hasRawAutomationDropdownValueLogging,
   hasRawAutomationFormResultData,
   hasRawAutomationQuestionLogging,
+  hasRawAtsCommandErrorDetails,
+  hasRawAutomationCommandErrorDetails,
   hasHardcodedFrontendErrorExportVersion,
   hasRawFrontendErrorReporterForwarding,
   hasRawFrontendDirectErrorLogging,
@@ -79,14 +81,20 @@ import {
   hasRawNotificationProviderErrorBody,
   hasRawNotificationServiceErrorDetails,
   hasRawPrivateQueryLogging,
+  hasRawResumeCommandDtoExposure,
+  hasRawResumeCommandErrorDetails,
+  hasRawResumeNameLogging,
+  hasRawResumeParserPathDisplay,
   hasRawScraperLoopErrorLogging,
   hasRawScraperUrlOrQueryLogging,
+  hasRawSensitiveCommandErrorDetails,
   hasRawSlackWebhookValidationErrorReturn,
   hasRawSourceCheckResultError,
   hasRawTelegramBotTokenRequestError,
   hasRawPathOrQueryErrorDisplay,
   hasRawUrlErrorDisplay,
   hasRawUrlLogging,
+  hasRawUtilityCommandErrorDetails,
   hasRawWebhookTokenRequestError,
   hasNonPublicIpErrorEcho,
   hasRendererCredentialSecretRead,
@@ -163,8 +171,6 @@ const databaseLogEmojiPaths = new Set([
   "src-tauri/src/core/db/integrity/mod.rs",
 ]);
 
-const rawResumeParserPathDisplayPaths = new Set(["src-tauri/src/core/resume/parser.rs"]);
-const rawResumeNameLoggingPaths = new Set(["src-tauri/src/commands/resume.rs"]);
 const importBookmarkletCommandPrivacyPaths = new Set([
   "src-tauri/src/commands/import.rs",
   "src-tauri/src/commands/user_data.rs",
@@ -261,29 +267,6 @@ const credentialArchitecturePaths = new Set(["src-tauri/src/core/credentials/mod
 const userDataDocsPaths = new Set(["docs/features/user-data-management.md"]);
 const structuredDebugLogPaths = new Set(["src-tauri/src/commands/feedback/debug_log.rs"]);
 const feedbackCommandPaths = new Set(["src-tauri/src/commands/feedback/mod.rs"]);
-const resumeCommandDtoPrivacyPaths = new Set([
-  "src-tauri/src/commands/resume.rs",
-  "src/pages/Resume.tsx",
-  "src/pages/ResumeBuilder.tsx",
-  "src/mocks/handlers.ts",
-  "docs/features/resume-matcher.md",
-]);
-const resumeCommandErrorPrivacyPaths = new Set(["src-tauri/src/commands/resume.rs"]);
-const atsCommandErrorPrivacyPaths = new Set(["src-tauri/src/commands/ats.rs"]);
-const automationCommandErrorPrivacyPaths = new Set(["src-tauri/src/commands/automation.rs"]);
-const sensitiveCommandErrorPrivacyPaths = new Set([
-  "src-tauri/src/commands/ml.rs",
-  "src-tauri/src/commands/salary.rs",
-  "src-tauri/src/commands/market.rs",
-]);
-const utilityCommandErrorPrivacyPaths = new Set([
-  "src-tauri/src/commands/jobs.rs",
-  "src-tauri/src/commands/ghost.rs",
-  "src-tauri/src/commands/deeplinks.rs",
-  "src-tauri/src/commands/geo.rs",
-  "src-tauri/src/commands/config.rs",
-  "src-tauri/src/commands/linkedin_auth.rs",
-]);
 const userDataPrivacyLoggingPaths = new Set([
   "src-tauri/src/commands/user_data.rs",
   "src-tauri/src/core/user_data/mod.rs",
@@ -1610,175 +1593,6 @@ function hasFrontendDirectOpenDeepLinkFallback(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
   return /\bopenDeepLink\(/.test(text) && /\bwindow\.open\(/.test(text);
-}
-
-function hasRawResumeParserPathDisplay(root, path) {
-  if (!rawResumeParserPathDisplayPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return /(?:file_path|canonical_path)\.display\(\)/.test(productionText);
-}
-
-function hasRawResumeNameLogging(root, path) {
-  if (!rawResumeNameLoggingPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return /tracing::(?:debug|info|warn|error)!\([^;]*import_json_resume[^;]*(?:\bname\s*[:=]\s*\{\}|\bname\s*=\s*%?name\b)/.test(
-    productionText,
-  );
-}
-
-function hasRawResumeCommandErrorDetails(root, path) {
-  if (!resumeCommandErrorPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /map_err\(\|e\|\s*format!\(\s*"(?:Failed to|Export failed)[^"]*:\s*\{\}"\s*,\s*e\s*\)\)/.test(
-      productionText,
-    ) ||
-    /tracing::info!\([^;]*(?:job:\s*\{\}|skill:\s*\{\})[^;]*\)/.test(productionText) ||
-    /tracing::info!\([^;]*(?:\bjob_hash\b|skill\.skill_name)[^;]*\)/.test(productionText)
-  );
-}
-
-function hasRawAtsCommandErrorDetails(root, path) {
-  if (!atsCommandErrorPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /map_err\(\|e\|\s*format!\(\s*"(?:Failed to|Invalid status)[^"]*:\s*\{\}"\s*,\s*e\s*\)\)/.test(
-      productionText,
-    ) ||
-    /tracing::info!\([^;]*(?:job_hash:\s*\{\}|status:\s*\{\}|type:\s*\{\}|at:\s*\{\}|outcome:\s*\{\})[^;]*\)/.test(
-      productionText,
-    ) ||
-    /tracing::info!\([^;]*(?:\bjob_hash\b|\bstatus\b|\binterview_type\b|\bscheduled_at\b|\boutcome\b)[^;]*\)/.test(
-      productionText,
-    )
-  );
-}
-
-function hasRawAutomationCommandErrorDetails(root, path) {
-  if (!automationCommandErrorPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /map_err\(\|e\|\s*format!\(\s*"Failed to [^"]*:\s*\{\}"\s*,\s*e\s*\)\)/.test(
-      productionText,
-    ) ||
-    /Err\(e\)\s*=>\s*Err\(format!\(\s*"Failed to [^"]*:\s*\{\}"\s*,\s*e\s*\)\)/.test(
-      productionText,
-    ) ||
-    /tracing::(?:info|warn)!\([^;]*(?:job:\s*\{\}|hash:\s*\{\})[^;]*\)/.test(
-      productionText,
-    ) ||
-    /tracing::(?:info|warn)!\([^;]*(?:\bjob_hash\b\s*,|\bjob_hash\s*=\s*[%?]?\s*job_hash\b)[^;]*\)/.test(
-      productionText,
-    ) ||
-    /tracing::warn!\(\s*"Failed to create automation attempt:\s*\{\}"\s*,\s*e\s*\)/.test(
-      productionText,
-    )
-  );
-}
-
-function hasRawSensitiveCommandErrorDetails(root, path) {
-  if (!sensitiveCommandErrorPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /map_err\(\|e\|\s*format!\(\s*"Failed to [^"]*:\s*\{\}"\s*,\s*e\s*\)\)/.test(
-      productionText,
-    ) ||
-    /Err\(e\)\s*=>\s*Err\(format!\(\s*"Failed to [^"]*:\s*\{\}"\s*,\s*e\s*\)\)/.test(
-      productionText,
-    ) ||
-    /serde_json::to_value\([^)]*\)\.map_err\(\|e\|\s*format!\(\s*"Failed to [^"]*:\s*\{\}"\s*,\s*e\s*\)\)/.test(
-      productionText,
-    ) ||
-    /tracing::info!\([^;]*(?:job:\s*\{\}|scenario:\s*\{\})[^;]*\)/.test(productionText) ||
-    /tracing::info!\([^;]*(?:\bjob_hash\b\s*,|\bscenario\b\s*,|\bjob_hash\s*=\s*[%?]?\s*job_hash\b|\bscenario\s*=\s*[%?]?\s*scenario\b)[^;]*\)/.test(
-      productionText,
-    )
-  );
-}
-
-function hasRawUtilityCommandErrorDetails(root, path) {
-  if (!utilityCommandErrorPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /format!\(\s*"(?:Scraping failed|Database error|Failed to [^"]*|Invalid (?:configuration|ghost config)):\s*\{\}"\s*,\s*e\s*\)/.test(
-      productionText,
-    ) ||
-    /format!\(\s*"Failed to [^"]*\{\}:\s*\{\}"\s*,\s*[^,]+,\s*e\s*\)/.test(
-      productionText,
-    ) ||
-    /tracing::error!\(\s*"[^"]*:\s*\{\}"\s*,\s*e\s*\)/.test(productionText) ||
-    /tracing::error!\(\s*"Failed to serialize job \{\}:\s*\{\}"\s*,\s*job\.id\s*,\s*e\s*\)/.test(
-      productionText,
-    ) ||
-    /tracing::error!\([^;]*error\s*=\s*%e/.test(productionText) ||
-    /DeepLinkOpenedEvent\s*\{\s*url:\s*url\.clone\(\)\s*\}/.test(productionText)
-  );
-}
-
-function resumeSummaryStructMissingOrPrivate(text) {
-  const match = text.match(/pub\s+struct\s+ResumeSummary\s*\{([^}]*)\}/);
-  return !match || /\b(?:file_path|parsed_text)\b/.test(match[1]);
-}
-
-function hasRawResumeCommandDtoExposure(root, path) {
-  if (!resumeCommandDtoPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-
-  if (path === "src-tauri/src/commands/resume.rs") {
-    const productionText = stripRustTestModules(text);
-    return (
-      /Result\s*<\s*Option\s*<\s*Resume\s*>\s*,\s*String\s*>/.test(productionText) ||
-      /Result\s*<\s*Vec\s*<\s*Resume\s*>\s*,\s*String\s*>/.test(productionText) ||
-      resumeSummaryStructMissingOrPrivate(productionText)
-    );
-  }
-
-  if (path === "src/pages/Resume.tsx") {
-    return /interface\s+ResumeData\s*\{[\s\S]{0,320}\b(?:file_path|parsed_text)\b/.test(text);
-  }
-
-  if (path === "src/pages/ResumeBuilder.tsx") {
-    return /interface\s+Resume\s*\{[\s\S]{0,320}\b(?:file_path|parsed_text)\b/.test(text);
-  }
-
-  if (path === "src/mocks/handlers.ts") {
-    return (
-      !/toMockResumeSummary/.test(text) ||
-      /case\s+["']get_active_resume["']:[\s\S]{0,180}return\s+getActiveResume\(\)\s+as\s+T/.test(
-        text,
-      ) ||
-      /case\s+["']list_all_resumes["']:[\s\S]{0,120}return\s+resumes\s+as\s+T/.test(text)
-    );
-  }
-
-  return (
-    /invoke<Resume>\(["']get_active_resume["']\)/.test(text) ||
-    resumeSummaryStructMissingOrPrivate(text)
-  );
 }
 
 function hasRawImportBookmarkletCommandErrorDetails(root, path) {
