@@ -227,6 +227,10 @@ boundaries, and harness modularity:
   raw severity values are mapped before display, format issues become details
   to check, fix and impact labels become how-to-fix and why-it-helps copy, and
   the Resume Builder handoff toast no longer says job context.
+- Reworked generic user-facing error fallbacks so related-data, email,
+  file-permission, resume-read, and long-document failures use plain titles and
+  recovery steps instead of technical labels. Product-copy sensors now reject
+  the old fallback wording.
 - Removed raw screening-question text and saved answer patterns from
   Application Assist debug logs. The trace now records only character counts
   when a saved answer matches, with privacy-logging coverage against raw trace

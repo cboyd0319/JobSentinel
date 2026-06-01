@@ -34,7 +34,7 @@ const NETWORK_ERRORS = [
 const DATABASE_ERRORS = [
   { pattern: /database.*locked|SQLITE_BUSY/i, title: 'Local Data Busy', message: 'JobSentinel is already saving or reading your local data.', action: 'Wait a moment and try again. If this keeps happening, restart the app.' },
   { pattern: /constraint|unique|duplicate/i, title: 'Duplicate Entry', message: 'This item is already saved.', action: 'Check your existing entries before adding it again.' },
-  { pattern: /foreign.?key|reference/i, title: 'Data Relationship Error', message: 'This action would break a connection between related data.', action: 'Make sure all related information exists before trying this action.' },
+  { pattern: /foreign.?key|reference/i, title: 'Related Information Missing', message: 'This action needs another saved item before it can continue.', action: 'Check that the related job, application, or setting still exists, then try again.' },
   { pattern: /corrupt|malformed|integrity/i, title: 'Local Data Problem', message: 'JobSentinel\'s local data file may be damaged.', action: 'Copy a safe support report and restore from a backup if you have one. Don\'t delete app data yet.' },
   { pattern: /disk|storage|space/i, title: 'Storage Full', message: 'Your computer is running out of disk space.', action: 'Free up some storage space on your hard drive and try again.' },
 ];
@@ -44,7 +44,7 @@ const DATABASE_ERRORS = [
  */
 const VALIDATION_ERRORS = [
   { pattern: /required|missing|empty/i, title: 'Missing Information', message: 'Some required information is missing.', action: 'Fill in all required fields and try again.' },
-  { pattern: /invalid.*email/i, title: 'Invalid Email', message: 'The email address isn\'t in the correct format.', action: 'Check the email address and make sure it looks like: name@example.com' },
+  { pattern: /invalid.*email/i, title: 'Email Not Recognized', message: 'The email address does not look complete.', action: 'Check the email address and make sure it looks like: name@example.com' },
   { pattern: /invalid.*url|invalid.*webhook/i, title: 'Web Address Not Recognized', message: 'The web address is not in a format JobSentinel can use.', action: 'Copy the full address again. It should usually start with https://.' },
   { pattern: /invalid.*json/i, title: 'Data Not Recognized', message: 'The selected data is not in a format JobSentinel can use.', action: 'Try exporting it again from the original app, or copy a safe support report if you need help.' },
   { pattern: /password.*weak|password.*short/i, title: 'Weak Password', message: 'The password doesn\'t meet security requirements.', action: 'Use a longer password with a mix of letters, numbers, and special characters.' },
@@ -68,7 +68,7 @@ const SCRAPER_ERRORS = [
 const CONFIG_ERRORS = [
   { pattern: /config.*not.*found|config.*missing/i, title: 'Saved Settings Need Attention', message: 'JobSentinel could not find your saved settings.', action: 'Open Settings and save them again. If this keeps happening, copy a safe support report before resetting anything.' },
   { pattern: /config.*invalid|config.*corrupt/i, title: 'Saved Settings Need Attention', message: 'JobSentinel could not read your saved settings.', action: 'Open Settings and save them again. If this keeps happening, copy a safe support report before resetting anything.' },
-  { pattern: /permission|access.*denied|EACCES/i, title: 'Permission Denied', message: 'The app doesn\'t have permission to access a file or folder.', action: 'Make sure the app has the necessary permissions in your system settings.' },
+  { pattern: /permission|access.*denied|EACCES/i, title: 'Permission Needed', message: 'JobSentinel needs permission to open that file or folder.', action: 'Check your system privacy settings, then try again.' },
   { pattern: /file.*not.*found|ENOENT/i, title: 'File Not Found', message: 'A required file is missing.', action: 'The file may have been moved or deleted. Try reinstalling the app.' },
 ];
 
@@ -97,9 +97,9 @@ const ATS_ERRORS = [
  */
 const AI_ERRORS = [
   { pattern: /resume.*not.*found|resume.*missing/i, title: 'Resume Not Found', message: 'No resume has been uploaded yet.', action: 'Upload your resume in the Resume section before using this feature.' },
-  { pattern: /parsing.*failed|extract.*failed/i, title: 'Resume Parsing Failed', message: 'We couldn\'t read the information from your resume.', action: 'Make sure your resume is in a supported format (PDF, DOCX, or TXT).' },
+  { pattern: /parsing.*failed|extract.*failed/i, title: 'Resume Could Not Be Read', message: 'JobSentinel could not read the information from your resume.', action: 'Use a PDF, DOCX, or TXT resume, or choose a different file.' },
   { pattern: /ai.*error|model.*error|openai/i, title: 'Resume Analysis Problem', message: 'The resume analysis service had a problem.', action: 'Try again in a moment. If this keeps happening, check any analysis service you connected in Settings.' },
-  { pattern: /token.*limit|context.*length/i, title: 'Document Too Large', message: 'Your resume or the job description is too long for processing.', action: 'Try using a shorter resume or job description. Remove any unnecessary content.' },
+  { pattern: /token.*limit|context.*length/i, title: 'Resume or Job Post Too Long', message: 'The resume or job post is too long for this review.', action: 'Try a shorter resume or job post. Remove repeated sections first.' },
 ];
 
 /**

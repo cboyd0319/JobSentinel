@@ -42,16 +42,21 @@ describe("errorMessages", () => {
       const userCopy = [
         getUserFriendlyError(new Error("401 unauthorized api key rejected")),
         getUserFriendlyError(new Error("database is locked")),
+        getUserFriendlyError(new Error("foreign key constraint failed")),
+        getUserFriendlyError(new Error("invalid email")),
+        getUserFriendlyError(new Error("permission denied")),
         getUserFriendlyError(new Error("api quota exceeded")),
         getUserFriendlyError(new Error("slack webhook failed")),
         getUserFriendlyError(new Error("smtp error")),
         getUserFriendlyError(new Error("openai model error")),
+        getUserFriendlyError(new Error("resume parsing failed")),
+        getUserFriendlyError(new Error("context length exceeded")),
         getUserFriendlyError(new Error("config missing")),
         getUserFriendlyError(new Error("config invalid")),
       ].flatMap((result) => [result.title, result.message, result.action ?? ""]);
 
       expect(userCopy.join("\n")).not.toMatch(
-        /API key|API Limit|job board's API|Database Busy|database|Database Corruption|webhook URL|configured channel|SMTP credentials|special API access|Configuration|configuration file|app config/i,
+        /API key|API Limit|job board's API|Database Busy|database|Database Corruption|Data Relationship|Invalid Email|Permission Denied|Resume Parsing|Document Too Large|processing|webhook URL|configured channel|SMTP credentials|special API access|Configuration|configuration file|app config/i,
       );
     });
 

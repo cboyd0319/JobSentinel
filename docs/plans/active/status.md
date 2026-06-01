@@ -134,6 +134,10 @@ and record actionable findings in this active-plan surface.
   changes format issues to details to check, changes fix and impact labels to
   how-to-fix and why-it-helps copy, and replaces job-context saved toasts with
   a plain Resume Builder handoff message.
+- Latest local generic-error copy follow-up replaces technical fallback labels
+  for related-data, email, file-permission, resume-read, and long-document
+  failures with plain recovery wording, and expands product-copy coverage so
+  those old labels do not return.
 - Latest local Application Assist readiness follow-up stops optional
   application-form detection from blocking the Prepare Form action. If form
   recognition is still loading, users with a saved profile can still open the

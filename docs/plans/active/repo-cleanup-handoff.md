@@ -179,6 +179,9 @@ Current cleanup posture:
   mapped before display, fix and impact labels became how-to-fix and
   why-it-helps copy, and the Resume Builder handoff toast no longer says job
   context.
+- Current local generic-error copy follow-up replaces technical fallback labels
+  for related-data, email, permission, resume-read, and long-document failures
+  with plain recovery copy. Unit and product-copy tests reject the old wording.
 - Current local skill-label follow-up replaces vague self-rating labels such as
   beginner, intermediate, advanced, expert, and seniority level with
   behavior-based skill strength and role-stage copy across Resume, Resume

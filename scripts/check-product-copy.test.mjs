@@ -604,7 +604,19 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/utils/errorMessages.ts",
-      "Too Many Requests\nYou've made too many requests to this job board.\nConsider increasing the delay between searches.\nconfigured channel\n",
+      [
+        "Too Many Requests",
+        "You've made too many requests to this job board.",
+        "Consider increasing the delay between searches.",
+        "configured channel",
+        "Data Relationship Error",
+        "title: 'Invalid Email'",
+        "Permission Denied",
+        "Resume Parsing Failed",
+        "Document Too Large",
+        "too long for processing",
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(
       root,
