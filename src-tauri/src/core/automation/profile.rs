@@ -351,11 +351,11 @@ mod tests {
         let manager = ProfileManager::new(pool);
 
         let input = ApplicationProfileInput {
-            full_name: "John Doe".to_string(),
-            email: "john@example.com".to_string(),
+            full_name: "Jordan Lee".to_string(),
+            email: "jordan@example.com".to_string(),
             phone: Some("+1234567890".to_string()),
-            linkedin_url: Some("https://linkedin.com/in/johndoe".to_string()),
-            github_url: Some("https://github.com/johndoe".to_string()),
+            linkedin_url: Some("https://linkedin.com/in/jordanlee".to_string()),
+            github_url: None,
             portfolio_url: None,
             website_url: None,
             default_resume_id: None,
@@ -374,8 +374,8 @@ mod tests {
         let profile = manager.get_profile().await.unwrap();
         assert!(profile.is_some());
         let profile = profile.unwrap();
-        assert_eq!(profile.full_name, "John Doe");
-        assert_eq!(profile.email, "john@example.com");
+        assert_eq!(profile.full_name, "Jordan Lee");
+        assert_eq!(profile.email, "jordan@example.com");
         assert!(profile.us_work_authorized);
     }
 
@@ -385,8 +385,8 @@ mod tests {
         let manager = ProfileManager::new(pool);
 
         let input1 = ApplicationProfileInput {
-            full_name: "John Doe".to_string(),
-            email: "john@example.com".to_string(),
+            full_name: "Jordan Lee".to_string(),
+            email: "jordan@example.com".to_string(),
             phone: None,
             linkedin_url: None,
             github_url: None,
@@ -406,8 +406,8 @@ mod tests {
 
         // Update
         let input2 = ApplicationProfileInput {
-            full_name: "Jane Doe".to_string(),
-            email: "jane@example.com".to_string(),
+            full_name: "Sam Rivera".to_string(),
+            email: "sam@example.com".to_string(),
             ..input1
         };
 
@@ -417,8 +417,8 @@ mod tests {
         assert_eq!(id1, id2);
 
         let profile = manager.get_profile().await.unwrap().unwrap();
-        assert_eq!(profile.full_name, "Jane Doe");
-        assert_eq!(profile.email, "jane@example.com");
+        assert_eq!(profile.full_name, "Sam Rivera");
+        assert_eq!(profile.email, "sam@example.com");
     }
 
     #[tokio::test]

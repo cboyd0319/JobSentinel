@@ -120,8 +120,10 @@ and record actionable findings in this active-plan surface.
 - Latest local broad-audience fixture harness work moves engineer-first
   example, generic scraper fixture, and salary-audience drift sensors into
   `scripts/harness/checks/broad-audience-fixtures.mjs`; focused
-  broad-audience fixture coverage is now 4 tests and
-  `scripts/check-repo-bloat.mjs` is 2,486 lines.
+  broad-audience fixture coverage is now 5 tests. The latest slice also
+  broadens generic mock location defaults and Rust Application Assist profile
+  examples away from old `John Doe`, `Jane Doe`, GitHub, San Francisco, and
+  New York fixtures, with sensor coverage for those paths.
 - Latest local developer-doc drift harness work moves stale test-guidance,
   developer testing/architecture/maintenance doc marker, active-doc marker,
   E2E fixed-wait, getting-started tooling, macOS development, and SQLite

@@ -697,11 +697,11 @@ mod tests {
     fn make_test_profile() -> ApplicationProfile {
         ApplicationProfile {
             id: 1,
-            full_name: "John Doe".to_string(),
-            email: "john@example.com".to_string(),
+            full_name: "Jordan Lee".to_string(),
+            email: "jordan@example.com".to_string(),
             phone: Some("+1234567890".to_string()),
-            linkedin_url: Some("https://linkedin.com/in/johndoe".to_string()),
-            github_url: Some("https://github.com/johndoe".to_string()),
+            linkedin_url: Some("https://linkedin.com/in/jordanlee".to_string()),
+            github_url: None,
             portfolio_url: None,
             website_url: None,
             default_resume_id: None,
@@ -825,6 +825,6 @@ mod tests {
         assert!(!error.contains("https://"));
         assert!(!error.contains("token"));
         assert!(!error.contains("selector"));
-        assert!(!error.contains("John Doe"));
+        assert!(!error.contains("Jordan Lee"));
     }
 }

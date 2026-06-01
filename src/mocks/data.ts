@@ -159,7 +159,7 @@ export const mockConfig = {
     allow_remote: true,
     allow_hybrid: true,
     allow_onsite: true,
-    cities: ["Remote", "San Francisco", "New York"],
+    cities: ["Remote", "Chicago", "Austin", "Atlanta"],
   },
   salary_floor_usd: 80000,
   alerts: {

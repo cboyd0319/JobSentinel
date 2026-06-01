@@ -73,6 +73,27 @@ test("broad audience fixtures reject stale placeholder examples", () => {
   });
 });
 
+test("broad audience fixtures reject narrow mock defaults and profile examples", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/mocks/data.ts",
+      'cities: ["Remote", "San Francisco", "New York"]',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/automation/profile.rs",
+      '"John Doe".to_string()\n"https://github.com/johndoe".to_string()',
+    );
+
+    assert.equal(hasEngineerFirstAudienceExamples(root, "src/mocks/data.ts"), true);
+    assert.equal(
+      hasEngineerFirstAudienceExamples(root, "src-tauri/src/core/automation/profile.rs"),
+      true,
+    );
+  });
+});
+
 test("salary audience fixtures reject engineer-centered salary examples", () => {
   withFixture((root) => {
     writeFixtureFile(

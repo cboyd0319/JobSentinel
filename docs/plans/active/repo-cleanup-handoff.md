@@ -97,6 +97,10 @@ Current cleanup posture:
   care coordination, customer support, public health, inventory planning, and
   other broad job-seeker roles; bloat coverage now rejects drift in the newly
   cleaned sample-resume, bookmarklet, search-history, and score-modal paths.
+- Latest broad fixture follow-up also broadened generic mock location defaults
+  and Rust Application Assist profile examples away from old `John Doe`,
+  `Jane Doe`, GitHub, San Francisco, and New York fixtures; the
+  broad-audience fixture sensor now covers those paths.
 - Latest zero-technical UX follow-up fixed the highest dashboard/application
   assist blockers from the audit: missing-detail job-import previews can still
   be saved, job cards expose Prepare Form when dashboard navigation is
@@ -425,6 +429,12 @@ Latest salary broad-audience fixture slice checks on 2026-05-31:
 - `cd src-tauri && cargo test --lib salary`
 - `npm run lint:bloat`
 - `npm run test:scripts -- check-repo-bloat`
+
+Latest mock/profile broad-audience fixture slice checks on 2026-06-01:
+
+- `node --test scripts/check-broad-audience-fixtures.test.mjs`
+- `npm run lint:bloat`
+- `npm run test:scripts -- --test-name-pattern broad audience`
 
 Latest harness/readiness slice checks on 2026-05-31:
 
