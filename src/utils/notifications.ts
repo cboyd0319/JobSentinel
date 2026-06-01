@@ -49,17 +49,17 @@ export async function requestNotificationPermission(): Promise<boolean> {
  * Send a desktop notification for a new high-match job.
  */
 export async function notifyNewJob(
-  title: string,
-  company: string,
-  score: number
+  _title: string,
+  _company: string,
+  _score: number
 ): Promise<void> {
   const hasPermission = await hasNotificationPermission();
   if (!hasPermission) return;
 
   try {
     sendNotification({
-      title: "New High-Match Job Found!",
-      body: `${title} at ${company} - ${Math.round(score * 100)}% match`,
+      title: "JobSentinel update",
+      body: "A strong job match is ready to review in JobSentinel.",
     });
   } catch (error: unknown) {
     logError("Failed to send notification:", error);
@@ -70,17 +70,17 @@ export async function notifyNewJob(
  * Send a desktop notification for application reminder.
  */
 export async function notifyReminder(
-  jobTitle: string,
-  company: string,
-  message: string
+  _jobTitle: string,
+  _company: string,
+  _message: string
 ): Promise<void> {
   const hasPermission = await hasNotificationPermission();
   if (!hasPermission) return;
 
   try {
     sendNotification({
-      title: `Reminder: ${jobTitle} at ${company}`,
-      body: message,
+      title: "JobSentinel reminder",
+      body: "Open JobSentinel to review your saved reminder.",
     });
   } catch (error: unknown) {
     logError("Failed to send notification:", error);
@@ -102,8 +102,8 @@ export async function notifyScrapingComplete(
 
   try {
     sendNotification({
-      title: "Job Search Complete",
-      body: `Found ${newJobs} new jobs, ${highMatches} high matches!`,
+      title: "JobSentinel update",
+      body: `New matches are ready to review. ${highMatches} need attention.`,
     });
   } catch (error: unknown) {
     logError("Failed to send notification:", error);

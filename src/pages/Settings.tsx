@@ -2145,6 +2145,10 @@ export default function Settings({ onClose }: SettingsProps) {
                     />
                   </label>
                   <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
+                    <p className="mb-3 text-xs text-surface-500 dark:text-surface-400">
+                      Desktop alerts use private wording. They do not show job
+                      titles, company names, salary notes, or reminder text.
+                    </p>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <SettingsSymbol icon="bell" className="h-5 w-5 text-surface-500 dark:text-surface-400" />

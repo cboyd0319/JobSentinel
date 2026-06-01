@@ -63,6 +63,11 @@ That's it. No connection link needed.
 - **macOS:** Notification Center alerts
 - **Linux:** System notification daemon alerts
 
+Desktop alerts use privacy-preserving wording by default. They tell you that a
+match or reminder is ready in JobSentinel without showing job titles, company
+names, salary notes, or reminder text on the operating system notification
+surface.
+
 ---
 
 ### Email

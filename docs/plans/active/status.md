@@ -110,6 +110,10 @@ and record actionable findings in this active-plan surface.
   CAPTCHA-bypass, anti-bot, endpoint, and selector phrasing in source health
   and source adapter docs with employer, application-platform, human-check, and
   source-boundary language.
+- Latest local notification privacy follow-up makes desktop notification
+  payloads privacy-preserving by default. OS-level alerts no longer include job
+  titles, company names, match scores, salary notes, or reminder text; users
+  open JobSentinel to review those details locally.
 - Latest local privacy follow-up removes raw screening-question text and saved
   answer patterns from backend debug logs in Application Assist. Logs now keep
   only character counts for matched questions and patterns, and
