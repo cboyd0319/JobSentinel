@@ -897,7 +897,9 @@ describe("Settings — handleSave flow", () => {
 
     expect(screen.getAllByText(/Optional chat alert/i).length).toBeGreaterThan(0);
     expect(
-      screen.getByText(/Use desktop or email alerts unless you already use Telegram bots/i),
+      screen.getByText(
+        /Use desktop or email alerts unless you already use Telegram for automatic alerts/i,
+      ),
     ).toBeInTheDocument();
     expect(screen.queryByPlaceholderText("Paste Telegram alert code")).not.toBeInTheDocument();
     expect(screen.queryByText("Telegram destination number")).not.toBeInTheDocument();

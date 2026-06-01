@@ -373,6 +373,7 @@ impl AutomationError {
     }
 
     /// Sanitize selector for display (make it human-readable)
+    #[cfg(test)]
     fn sanitize_selector(selector: &str) -> String {
         // Convert CSS selectors to friendly names
         selector

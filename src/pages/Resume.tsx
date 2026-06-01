@@ -298,7 +298,7 @@ export default function Resume({ onBack }: ResumeProps) {
         logContext: "Upload resume"
       });
       if (!resumeId) return;
-      toast.success("Resume uploaded", "Your resume has been parsed and analyzed");
+      toast.success("Resume uploaded", "Your resume is ready for local review.");
       refetchData();
     } catch {
       // Error already logged and shown to user

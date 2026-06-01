@@ -27,6 +27,9 @@ pub struct Notification {
     pub score: JobScore,
 }
 
+pub(crate) const LOCAL_MATCH_DETAILS_MESSAGE: &str =
+    "Open JobSentinel to review match details saved on this computer.";
+
 /// Notification service
 pub struct NotificationService {
     config: Arc<Config>,

@@ -87,6 +87,14 @@ impl AutomationPage {
         Self { page }
     }
 
+    /// Return the browser's current page URL after navigation.
+    pub async fn current_url(&self) -> Result<Option<String>> {
+        self.page
+            .url()
+            .await
+            .context("Failed to read current page URL")
+    }
+
     /// Navigate to a URL
     pub async fn navigate(&self, url: &str) -> Result<()> {
         self.page

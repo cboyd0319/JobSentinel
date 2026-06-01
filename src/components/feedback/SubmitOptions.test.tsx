@@ -33,7 +33,7 @@ describe("SubmitOptions", () => {
       screen.getByText(/you choose whether and where to share it/i)
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: /optional maintainer issue/i })
+      screen.getByRole("heading", { name: /send to maintainers \(optional\)/i })
     ).toBeInTheDocument();
     expect(
       screen.getByText(/saving the report above does not need an account/i)

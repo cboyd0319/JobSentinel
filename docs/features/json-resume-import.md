@@ -1,4 +1,4 @@
-# JSON Resume Import
+# Import from Resume App
 
 JobSentinel can import a resume saved in the
 [JSON Resume](https://jsonresume.org/) format and turn it into an editable

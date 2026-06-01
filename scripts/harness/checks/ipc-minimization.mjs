@@ -198,7 +198,13 @@ export function hasApplicationAssistUntrustedFormTarget(root, path) {
   }
 
   const profileLoad = text.indexOf("ProfileManager::new", fillStart);
-  const targetCheck = text.indexOf("prepare_form_target(&job_url)", fillStart);
+  const targetCheck = [
+    "prepare_form_target(&job_url)",
+    "prepare_form_target_for_fill(&job_url)",
+  ]
+    .map((snippet) => text.indexOf(snippet, fillStart))
+    .filter((index) => index !== -1)
+    .sort((left, right) => left - right)[0];
 
   return profileLoad !== -1 && (targetCheck === -1 || targetCheck > profileLoad);
 }

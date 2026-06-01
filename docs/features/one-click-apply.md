@@ -79,9 +79,9 @@ Before using Application Assist, fill in your information:
 ### Resume File
 
 If you select a resume file, JobSentinel copies it into local app storage and
-shows only the file name in the app. The original file path stays out of the
-renderer. Application Assist does not attach the resume automatically; attach it
-yourself on the application site after reviewing the page.
+shows only the file name in the app, not the folder path. Application Assist
+does not attach the resume automatically; attach it yourself on the application
+site after reviewing the page.
 
 ---
 

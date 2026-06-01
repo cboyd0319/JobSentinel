@@ -263,6 +263,24 @@ test("ipc minimization rejects Application Assist profile load before target tru
       hasApplicationAssistUntrustedFormTarget(root, "src-tauri/src/commands/automation.rs"),
       true,
     );
+
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/automation.rs",
+      [
+        "pub async fn fill_application_form(job_url: String) -> Result<(), String> {",
+        "  let (job_url, platform) = prepare_form_target_for_fill(&job_url).await?;",
+        "  let profile_manager = ProfileManager::new(state.database.pool().clone());",
+        "  Ok(())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasApplicationAssistUntrustedFormTarget(root, "src-tauri/src/commands/automation.rs"),
+      false,
+    );
   });
 });
 

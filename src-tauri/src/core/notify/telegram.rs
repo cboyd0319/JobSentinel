@@ -2,7 +2,7 @@
 //!
 //! Sends formatted job alerts to Telegram using the Bot API with Markdown.
 
-use super::{notification_provider_failure_summary, Notification};
+use super::{notification_provider_failure_summary, Notification, LOCAL_MATCH_DETAILS_MESSAGE};
 use crate::core::config::TelegramConfig;
 use anyhow::{anyhow, Result};
 use serde_json::json;
@@ -178,13 +178,7 @@ fn format_telegram_message(
 
     let score_percent = escape(&format!("{:.0}%", score.total * 100.0));
 
-    // Format reasons (escape each reason)
-    let reasons = score
-        .reasons
-        .iter()
-        .map(|r| format!("  {}", escape(r)))
-        .collect::<Vec<_>>()
-        .join("\n");
+    let reasons = format!("  {}", escape(LOCAL_MATCH_DETAILS_MESSAGE));
 
     // Build message with MarkdownV2 formatting
     format!(
@@ -355,15 +349,15 @@ mod tests {
     }
 
     #[test]
-    fn test_telegram_includes_all_reasons() {
+    fn test_telegram_keeps_match_reasons_local() {
         let notification = create_test_notification();
         let message = format_telegram_message(&notification.job, &notification.score);
 
-        // Check that all reasons are included (note: some special chars will be escaped)
-        assert!(message.contains("Title matches"));
-        assert!(message.contains("Keyword match: case management"));
-        assert!(message.contains("Salary"));
-        assert!(message.contains("Remote job"));
+        assert!(message.contains("Open JobSentinel to review match details saved on this computer"));
+        assert!(!message.contains("Title matches"));
+        assert!(!message.contains("Keyword match: case management"));
+        assert!(!message.contains("Salary 120%"));
+        assert!(!message.contains("Remote job"));
     }
 
     #[test]
@@ -644,7 +638,8 @@ mod tests {
         notification.score.reasons = vec!["Only one reason".to_string()];
 
         let message = format_telegram_message(&notification.job, &notification.score);
-        assert!(message.contains("Only one reason"));
+        assert!(message.contains("Open JobSentinel to review match details saved on this computer"));
+        assert!(!message.contains("Only one reason"));
     }
 
     #[test]

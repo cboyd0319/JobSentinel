@@ -14,7 +14,7 @@ import { getSafeErrorToastCopy } from "../../utils/safeErrorCopy";
 const ANSWER_TYPE_BADGES: Record<string, ReactElement> = {
   yes_no: <Badge variant="success">Yes/No</Badge>,
   textarea: <Badge variant="alert">Long text</Badge>,
-  select: <Badge variant="sentinel">Dropdown</Badge>,
+  select: <Badge variant="sentinel">Menu choice</Badge>,
   text: <Badge variant="surface">Text</Badge>,
 };
 

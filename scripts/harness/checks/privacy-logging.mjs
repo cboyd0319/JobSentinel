@@ -111,6 +111,14 @@ const notificationProviderErrorBodyPaths = new Set([
   "src-tauri/src/core/notify/telegram.rs",
 ]);
 
+const externalAlertMatchReasonPaths = new Set([
+  "src-tauri/src/core/notify/discord.rs",
+  "src-tauri/src/core/notify/email.rs",
+  "src-tauri/src/core/notify/slack.rs",
+  "src-tauri/src/core/notify/teams.rs",
+  "src-tauri/src/core/notify/telegram.rs",
+]);
+
 const notificationServicePrivacyPaths = new Set(["src-tauri/src/core/notify/mod.rs"]);
 const frontendDesktopNotificationPrivacyPaths = new Set(["src/utils/notifications.ts"]);
 const healthSmokePrivacyPaths = new Set(["src-tauri/src/core/health/smoke_tests.rs"]);
@@ -875,6 +883,15 @@ export function hasRawNotificationProviderErrorBody(root, path) {
   );
 }
 
+export function hasExternalAlertRawScoreReasons(root, path) {
+  if (!externalAlertMatchReasonPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return /(?:score|notification\.score)\s*\.\s*reasons/.test(productionText);
+}
+
 export function hasRawNotificationServiceErrorDetails(root, path) {
   if (!notificationServicePrivacyPaths.has(path)) {
     return false;
@@ -1456,6 +1473,7 @@ const privacyLoggingViolationChecks = [
   [hasRawTelegramBotTokenRequestError, "remove Telegram bot-token URLs from request errors"],
   [hasRawWebhookTokenRequestError, "remove webhook token URLs from request errors"],
   [hasRawNotificationProviderErrorBody, "omit notification provider error bodies from errors"],
+  [hasExternalAlertRawScoreReasons, "keep raw match reasons out of external alerts"],
   [hasRawNotificationServiceErrorDetails, "sanitize notification service error details"],
   [
     hasFrontendDesktopNotificationPassthrough,

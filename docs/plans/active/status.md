@@ -31,6 +31,17 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local sidecar-audit follow-up hardens Application Assist so fill
+  requests verify a public supported application URL before loading profile
+  data, verify the final browser page stays on the same supported application
+  platform before and after filling, and create tracking attempts only after the
+  page trust check. External alerts now keep raw local match reasons inside
+  JobSentinel, and privacy-logging coverage rejects raw `score.reasons` in
+  Slack, Discord, Teams, Telegram, or email payload code.
+- Latest local zero-technical copy follow-up rewords resume upload success,
+  resume-app import docs, resume file privacy docs, screening-answer type
+  labels, Telegram setup copy, notification troubleshooting, Dashboard filter
+  recovery, and JobsWithGPT source-health copy from the read-only UX audit.
 - Latest local synonym taxonomy work reorders the Rust synonym map so broad
   job-search roles and tools appear before programming and engineering groups,
   and adds harness coverage against tech-first synonym ordering drift.
@@ -791,7 +802,8 @@ and record actionable findings in this active-plan surface.
 5. Continue backend/scraper and frontend privacy-edge review.
    The screening-answer IPC and ATS timeline findings from the latest read-only
    security audit are closed locally; continue looking for new issues as later
-   slices touch trust boundaries.
+   slices touch trust boundaries. JobsWithGPT inspectable endpoint approval is
+   tracked as `SEC-019`.
 6. Continue the next zero-technical-knowledge UX audit area outside
    support/reporting.
 7. Run final broad verification only when the remaining known work has evidence.

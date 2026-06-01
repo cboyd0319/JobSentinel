@@ -42,6 +42,15 @@ channels you configure.
 Notifications only cover sources JobSentinel monitors locally. LinkedIn is a
 user-opened search-link destination, not a background notification source.
 
+## Alert Privacy
+
+Desktop alerts keep job details inside JobSentinel. Optional email and chat
+alerts may include job title, company, location, salary, remote status, match
+score, source, and job link because those services deliver the alert outside
+the app. Raw local match reasons, saved search strategy, salary-floor details,
+private notes, and application history stay inside JobSentinel; open the app to
+review those details.
+
 ---
 
 ## Setting Up Notifications
@@ -142,9 +151,9 @@ email alerts are easier to set up.
 
 ### Telegram
 
-Use desktop or email alerts unless you already use Telegram bots. Telegram
-alerts are an advanced chat-alert path because Telegram requires an alert code
-and destination number.
+Use desktop or email alerts unless you already use Telegram for automatic
+alerts. Telegram alerts are an advanced chat-alert path because Telegram
+requires an alert code and destination number.
 
 <details>
 <summary><strong>Advanced Telegram setup</strong></summary>
@@ -203,7 +212,7 @@ If it doesn't work:
 
 1. Double-check the connection link or password
 2. Make sure the channel is enabled
-3. Check if your firewall blocks the connection
+3. Check whether your computer or network is blocking alerts
 4. Create a fresh connection link
 
 ---

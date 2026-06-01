@@ -2,7 +2,7 @@
 //!
 //! Sends rich-formatted job alerts to Slack via incoming webhooks.
 
-use super::{validate_webhook_url_security_parts, Notification};
+use super::{validate_webhook_url_security_parts, Notification, LOCAL_MATCH_DETAILS_MESSAGE};
 use anyhow::{anyhow, Result};
 use serde_json::json;
 
@@ -78,7 +78,18 @@ fn build_fields_section_block(notification: &Notification) -> serde_json::Value 
     })
 }
 
-/// Build reasons section block
+/// Build match details section without exporting private local scoring reasons.
+fn build_match_details_section_block() -> serde_json::Value {
+    json!({
+        "type": "section",
+        "text": {
+            "type": "mrkdwn",
+            "text": format!("*Why this matches:*\n{}", LOCAL_MATCH_DETAILS_MESSAGE)
+        }
+    })
+}
+
+#[cfg(test)]
 fn build_reasons_section_block(reasons: &[String]) -> serde_json::Value {
     json!({
         "type": "section",
@@ -113,7 +124,7 @@ fn build_slack_payload(notification: &Notification) -> serde_json::Value {
         "blocks": [
             build_header_block(&notification.job.title),
             build_fields_section_block(notification),
-            build_reasons_section_block(&notification.score.reasons),
+            build_match_details_section_block(),
             build_actions_block(&notification.job.url),
         ]
     })
@@ -1558,8 +1569,9 @@ mod tests {
         let payload = build_slack_payload(&notification);
 
         let reasons_text = payload["blocks"][2]["text"]["text"].as_str().unwrap();
-        assert!(reasons_text.contains("Title matches"));
-        assert!(reasons_text.contains("Keyword match: case management"));
+        assert!(reasons_text.contains(LOCAL_MATCH_DETAILS_MESSAGE));
+        assert!(!reasons_text.contains("Title matches"));
+        assert!(!reasons_text.contains("Keyword match: case management"));
     }
 
     #[test]
@@ -1616,7 +1628,10 @@ mod tests {
 
         let payload = build_slack_payload(&notification);
         let reasons_text = payload["blocks"][2]["text"]["text"].as_str().unwrap();
-        assert_eq!(reasons_text, "*Why this matches:*\n");
+        assert_eq!(
+            reasons_text,
+            format!("*Why this matches:*\n{}", LOCAL_MATCH_DETAILS_MESSAGE)
+        );
     }
 
     #[test]
@@ -1685,7 +1700,7 @@ mod tests {
         // Test individual builders
         let header = build_header_block(&notification.job.title);
         let fields = build_fields_section_block(&notification);
-        let reasons = build_reasons_section_block(&notification.score.reasons);
+        let reasons = build_match_details_section_block();
         let actions = build_actions_block(&notification.job.url);
 
         // Verify they can be assembled

@@ -2847,13 +2847,13 @@ export default function Settings({ onClose }: SettingsProps) {
                     Telegram Notifications
                     <Badge variant="surface" size="sm">Optional chat alert</Badge>
                     <HelpIcon
-                      text="Use desktop or email alerts unless you already use Telegram bots."
+                      text="Use desktop or email alerts unless you already use Telegram for automatic alerts."
                       position="right"
                     />
                   </label>
                   <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
                     <p className="text-xs text-surface-500 dark:text-surface-400 mb-3">
-                      Use desktop or email alerts unless you already use Telegram bots.
+                      Use desktop or email alerts unless you already use Telegram for automatic alerts.
                       Telegram needs an alert code and destination number from Telegram.
                     </p>
                     <div className="flex items-center justify-between">
@@ -2886,8 +2886,8 @@ export default function Settings({ onClose }: SettingsProps) {
                             Advanced Telegram setup
                           </p>
                           <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">
-                            Continue only if you already use Telegram bots or
-                            want to create one for private job alerts.
+                            Continue only if you already use Telegram for automatic
+                            alerts or want to create a private job-alert path.
                           </p>
                         </div>
                         <div>

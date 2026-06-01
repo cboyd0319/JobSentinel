@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 import test from "node:test";
 import {
   collectPrivacyLoggingViolations,
+  hasExternalAlertRawScoreReasons,
   hasBookmarkletCodeWithoutTokenHeader,
   hasCredentialKeyInputEcho,
   hasHardcodedFrontendErrorExportVersion,
@@ -700,6 +701,25 @@ test("privacy logging rejects raw email and webhook errors", () => {
       true,
     );
     assert.equal(hasRawEmailTestErrorReturn(root, "src-tauri/src/commands/jobs.rs"), false);
+  });
+});
+
+test("privacy logging rejects raw match reasons in external alerts", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/notify/slack.rs",
+      "fn build(notification: &Notification) { notification.score.reasons.join(\"\\n\"); }",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/notify/email.rs",
+      "fn format(score: &JobScore) { score.reasons.iter(); }",
+    );
+
+    assert.equal(hasExternalAlertRawScoreReasons(root, "src-tauri/src/core/notify/slack.rs"), true);
+    assert.equal(hasExternalAlertRawScoreReasons(root, "src-tauri/src/core/notify/email.rs"), true);
+    assert.equal(hasExternalAlertRawScoreReasons(root, "src-tauri/src/core/notify/mod.rs"), false);
   });
 });
 

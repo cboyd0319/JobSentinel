@@ -313,7 +313,7 @@ describe("ScreeningAnswersForm", () => {
       });
     });
 
-    it("shows Dropdown badge for select type", async () => {
+    it("shows menu-choice badge for select type", async () => {
       mockInvoke.mockResolvedValue([
         { ...mockAnswers[0], answerType: "select" },
       ]);
@@ -321,7 +321,7 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByText("Dropdown")).toBeInTheDocument();
+        expect(screen.getByText("Menu choice")).toBeInTheDocument();
       });
     });
 

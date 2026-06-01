@@ -17,7 +17,9 @@ use crate::core::automation::{
     ApplicationAttempt, ApplicationProfile, AtsPlatform, AutomationManager, AutomationStats,
     AutomationStatus,
 };
-use crate::core::url_security::{sanitize_url_for_logging, validate_external_http_url};
+use crate::core::url_security::{sanitize_url_for_logging, validate_external_http_url_for_fetch};
+#[cfg(test)]
+use crate::core::url_security::validate_external_http_url;
 use crate::platforms;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
@@ -220,6 +222,7 @@ fn trusted_application_resume_path(
     Ok(Some(canonical_stored))
 }
 
+#[cfg(test)]
 fn prepare_form_target(job_url: &str) -> Result<(String, AtsPlatform), String> {
     let job_url = validate_external_http_url(job_url)
         .map(|url| url.to_string())
@@ -231,6 +234,48 @@ fn prepare_form_target(job_url: &str) -> Result<(String, AtsPlatform), String> {
     }
 
     Ok((job_url, platform))
+}
+
+async fn prepare_form_target_for_fill(job_url: &str) -> Result<(String, AtsPlatform), String> {
+    let job_url = validate_external_http_url_for_fetch(job_url)
+        .await
+        .map(|url| url.to_string())
+        .map_err(|reason| format!("Cannot open that job link. {reason}"))?;
+
+    let platform = AtsDetector::detect_from_url(&job_url);
+    if platform == AtsPlatform::Unknown {
+        return Err(UNSUPPORTED_PREPARE_FORM_TARGET.to_string());
+    }
+
+    Ok((job_url, platform))
+}
+
+fn application_page_matches_platform(page_url: &str, expected_platform: &AtsPlatform) -> bool {
+    let detected = AtsDetector::detect_from_url(page_url);
+    detected != AtsPlatform::Unknown && detected == *expected_platform
+}
+
+async fn verify_application_form_page_url(
+    page_url: Option<String>,
+    expected_platform: &AtsPlatform,
+) -> Result<(), String> {
+    let page_url = page_url.ok_or_else(|| {
+        "Could not confirm the application page stayed on a supported site.".to_string()
+    })?;
+
+    let page_url = validate_external_http_url_for_fetch(&page_url)
+        .await
+        .map(|url| url.to_string())
+        .map_err(|reason| format!("Stopped before filling the form. {reason}"))?;
+
+    if !application_page_matches_platform(&page_url, expected_platform) {
+        return Err(
+            "Stopped before filling the form because the page moved to a different site."
+                .to_string(),
+        );
+    }
+
+    Ok(())
 }
 
 fn has_stored_path(path: Option<&str>) -> bool {
@@ -792,29 +837,33 @@ pub async fn fill_application_form(
         sanitize_url_for_logging(&job_url)
     );
     let start_time = std::time::Instant::now();
-    let (job_url, platform) = prepare_form_target(&job_url)?;
+    let (job_url, platform) = prepare_form_target_for_fill(&job_url).await?;
     tracing::info!("Detected application platform: {}", platform.as_str());
 
-    // Get profile
-    let profile_manager = ProfileManager::new(state.database.pool().clone());
-    let profile = profile_manager
-        .get_profile()
+    // Launch browser if not running
+    let manager = BROWSER_MANAGER.lock().await;
+    if !manager.is_running().await {
+        manager
+            .launch()
+            .await
+            .map_err(|e| user_friendly_error("Failed to launch browser", e))?;
+    }
+
+    // Create new page and navigate
+    let page = manager
+        .new_page(&job_url)
         .await
-        .map_err(|e| user_friendly_error("Failed to load profile", e))?
-        .ok_or("No application profile configured. Open Application Assist from the sidebar and save your profile details first.")?;
+        .map_err(|e| user_friendly_error("Failed to open job page", e))?;
 
-    // Get saved screening answers for matching questions
-    let screening_answers = profile_manager
-        .get_screening_answers()
-        .await
-        .map_err(|e| user_friendly_error("Failed to load screening answers", e))?;
+    verify_application_form_page_url(
+        page.current_url()
+            .await
+            .map_err(|e| user_friendly_error("Failed to confirm job page", e))?,
+        &platform,
+    )
+    .await?;
 
-    tracing::info!(
-        "Loaded {} screening answer patterns",
-        screening_answers.len()
-    );
-
-    // Create automation attempt for tracking (if job_hash provided)
+    // Create automation attempt for tracking only after the page stays on a trusted application site.
     let attempt_id = if let Some(ref hash) = job_hash {
         let automation_manager = AutomationManager::new(state.database.pool().clone());
         match automation_manager
@@ -837,20 +886,24 @@ pub async fn fill_application_form(
         None
     };
 
-    // Launch browser if not running
-    let manager = BROWSER_MANAGER.lock().await;
-    if !manager.is_running().await {
-        manager
-            .launch()
-            .await
-            .map_err(|e| user_friendly_error("Failed to launch browser", e))?;
-    }
-
-    // Create new page and navigate
-    let page = manager
-        .new_page(&job_url)
+    // Get profile only after the page is confirmed to still be on the supported site.
+    let profile_manager = ProfileManager::new(state.database.pool().clone());
+    let profile = profile_manager
+        .get_profile()
         .await
-        .map_err(|e| user_friendly_error("Failed to open job page", e))?;
+        .map_err(|e| user_friendly_error("Failed to load profile", e))?
+        .ok_or("No application profile configured. Open Application Assist from the sidebar and save your profile details first.")?;
+
+    // Get saved screening answers for matching questions.
+    let screening_answers = profile_manager
+        .get_screening_answers()
+        .await
+        .map_err(|e| user_friendly_error("Failed to load screening answers", e))?;
+
+    tracing::info!(
+        "Loaded {} screening answer patterns",
+        screening_answers.len()
+    );
 
     // Validate saved resume state without uploading it. Resume attachment stays manual.
     let _resume_path = trusted_application_resume_path(
@@ -865,6 +918,14 @@ pub async fn fill_application_form(
         .fill_page(&page, &platform)
         .await
         .map_err(|e| user_friendly_error("Failed to fill application form", e))?;
+
+    verify_application_form_page_url(
+        page.current_url()
+            .await
+            .map_err(|e| user_friendly_error("Failed to confirm job page", e))?,
+        &platform,
+    )
+    .await?;
 
     let duration_ms = start_time.elapsed().as_millis() as i64;
 
@@ -949,6 +1010,34 @@ mod tests {
         let err = prepare_form_target("http://localhost:3000/apply").unwrap_err();
 
         assert!(err.contains("Cannot open that job link"));
+    }
+
+    #[test]
+    fn application_page_match_accepts_same_platform_url() {
+        assert!(application_page_matches_platform(
+            "https://jobs.lever.co/example/123",
+            &AtsPlatform::Lever
+        ));
+    }
+
+    #[test]
+    fn application_page_match_rejects_cross_platform_redirect() {
+        assert!(!application_page_matches_platform(
+            "https://boards.greenhouse.io/example/jobs/123",
+            &AtsPlatform::Lever
+        ));
+    }
+
+    #[test]
+    fn application_page_match_rejects_unknown_or_lookalike_url() {
+        assert!(!application_page_matches_platform(
+            "https://example.com/apply",
+            &AtsPlatform::Lever
+        ));
+        assert!(!application_page_matches_platform(
+            "https://jobs.lever.co.evil.example/apply",
+            &AtsPlatform::Lever
+        ));
     }
 
     #[test]

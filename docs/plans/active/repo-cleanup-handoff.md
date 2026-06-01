@@ -1120,9 +1120,9 @@ Next high-value passes:
      provider-body leaks.
    - Recheck scraper request caps, retry handling, rate limits, and health
      result shapes.
-   - The concrete findings from the latest read-only security audit are closed
-     locally; continue looking for new issues as later slices touch trust
-     boundaries.
+   - The latest read-only security audit's Application Assist redirect/origin
+     and external alert-reason findings are closed locally. JobsWithGPT
+     inspectable endpoint approval remains open as `SEC-019`.
    - Keep no-bypass and local-first product rules intact.
 4. Continue frontend boundary review.
    - Recheck stored JSON parsing, URL validation, error rendering, direct

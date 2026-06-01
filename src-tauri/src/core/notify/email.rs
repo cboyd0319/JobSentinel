@@ -2,7 +2,7 @@
 //!
 //! Sends rich HTML-formatted job alerts via email using SMTP.
 
-use super::Notification;
+use super::{Notification, LOCAL_MATCH_DETAILS_MESSAGE};
 use crate::core::config::EmailConfig;
 use crate::core::url_security::validate_external_http_url;
 use anyhow::{anyhow, Context, Result};
@@ -97,12 +97,7 @@ fn format_html_email(job: &crate::core::db::Job, score: &crate::core::scoring::J
     };
     let salary_display = escape_html(&salary_display);
 
-    let reason_items = score
-        .reasons
-        .iter()
-        .map(|r| format!("<li>{}</li>", escape_html(r)))
-        .collect::<Vec<_>>()
-        .join("\n                    ");
+    let reason_items = format!("<li>{}</li>", escape_html(LOCAL_MATCH_DETAILS_MESSAGE));
 
     let job_link = validated_job_href(&job.url)
         .map(|href| {
@@ -241,6 +236,7 @@ fn format_text_email(job: &crate::core::db::Job, score: &crate::core::scoring::J
     } else {
         "Not specified".to_string()
     };
+    let local_match_details = format!("  - {}", LOCAL_MATCH_DETAILS_MESSAGE);
 
     format!(
         r#"🎯 HIGH MATCH JOB ALERT
@@ -273,12 +269,7 @@ You can adjust your notification preferences in the app settings.
         } else {
             "No"
         },
-        score
-            .reasons
-            .iter()
-            .map(|r| format!("  - {}", r))
-            .collect::<Vec<_>>()
-            .join("\n"),
+        local_match_details,
         job.url,
         score.total * 100.0,
     )
@@ -411,7 +402,8 @@ mod tests {
         assert!(html.contains("REMOTE"));
         assert!(html.contains("$180,000 - $220,000"));
         assert!(html.contains("greenhouse"));
-        assert!(html.contains("Title matches: Care Coordinator"));
+        assert!(html.contains(LOCAL_MATCH_DETAILS_MESSAGE));
+        assert!(!html.contains("Title matches: Care Coordinator"));
         assert!(html.contains("https://example.com/jobs/123"));
     }
 
@@ -426,7 +418,8 @@ mod tests {
         assert!(text.contains("95%"));
         assert!(text.contains("Yes")); // Remote
         assert!(text.contains("$180,000 - $220,000"));
-        assert!(text.contains("Title matches: Care Coordinator"));
+        assert!(text.contains(LOCAL_MATCH_DETAILS_MESSAGE));
+        assert!(!text.contains("Title matches: Care Coordinator"));
     }
 
     #[test]
@@ -458,28 +451,30 @@ mod tests {
     }
 
     #[test]
-    fn test_html_email_includes_all_reasons() {
+    fn test_html_email_keeps_match_reasons_local() {
         let notification = create_test_notification();
         let html = format_html_email(&notification.job, &notification.score);
 
+        assert!(html.contains(LOCAL_MATCH_DETAILS_MESSAGE));
         for reason in &notification.score.reasons {
             assert!(
-                html.contains(reason),
-                "HTML should contain reason: {}",
+                !html.contains(reason),
+                "HTML should not contain raw match reason: {}",
                 reason
             );
         }
     }
 
     #[test]
-    fn test_text_email_includes_all_reasons() {
+    fn test_text_email_keeps_match_reasons_local() {
         let notification = create_test_notification();
         let text = format_text_email(&notification.job, &notification.score);
 
+        assert!(text.contains(LOCAL_MATCH_DETAILS_MESSAGE));
         for reason in &notification.score.reasons {
             assert!(
-                text.contains(reason),
-                "Text should contain reason: {}",
+                !text.contains(reason),
+                "Text should not contain raw match reason: {}",
                 reason
             );
         }
@@ -754,9 +749,9 @@ mod tests {
 
         let html = format_html_email(&notification.job, &notification.score);
 
-        // Should contain the reasons (newlines preserved in HTML)
-        assert!(html.contains("Reason with\nnewline"));
-        assert!(html.contains("Another reason"));
+        assert!(html.contains(LOCAL_MATCH_DETAILS_MESSAGE));
+        assert!(!html.contains("Reason with\nnewline"));
+        assert!(!html.contains("Another reason"));
     }
 
     #[test]
@@ -769,8 +764,9 @@ mod tests {
 
         let text = format_text_email(&notification.job, &notification.score);
 
-        assert!(text.contains(r#"Matches "preferred" keyword"#));
-        assert!(text.contains("Uses 'best practices'"));
+        assert!(text.contains(LOCAL_MATCH_DETAILS_MESSAGE));
+        assert!(!text.contains(r#"Matches "preferred" keyword"#));
+        assert!(!text.contains("Uses 'best practices'"));
     }
 
     #[test]
@@ -865,9 +861,9 @@ mod tests {
 
         let html = format_html_email(&notification.job, &notification.score);
 
-        // Each reason should be in an <li> tag
+        assert!(html.contains(&format!("<li>{}</li>", LOCAL_MATCH_DETAILS_MESSAGE)));
         for reason in &notification.score.reasons {
-            assert!(html.contains(&format!("<li>{}</li>", reason)));
+            assert!(!html.contains(reason));
         }
     }
 
@@ -882,9 +878,9 @@ mod tests {
 
         let text = format_text_email(&notification.job, &notification.score);
 
-        // Each reason should have list marker
+        assert!(text.contains(&format!("  - {}", LOCAL_MATCH_DETAILS_MESSAGE)));
         for reason in &notification.score.reasons {
-            assert!(text.contains(&format!("  - {}", reason)));
+            assert!(!text.contains(reason));
         }
     }
 
@@ -895,7 +891,8 @@ mod tests {
 
         let html = format_html_email(&notification.job, &notification.score);
 
-        assert!(html.contains("<li>Only one reason</li>"));
+        assert!(html.contains(&format!("<li>{}</li>", LOCAL_MATCH_DETAILS_MESSAGE)));
+        assert!(!html.contains("Only one reason"));
     }
 
     #[test]
@@ -905,7 +902,8 @@ mod tests {
 
         let text = format_text_email(&notification.job, &notification.score);
 
-        assert!(text.contains("  - Only one reason"));
+        assert!(text.contains(&format!("  - {}", LOCAL_MATCH_DETAILS_MESSAGE)));
+        assert!(!text.contains("Only one reason"));
     }
 
     #[test]
@@ -1093,8 +1091,9 @@ mod tests {
 
         let html = format_html_email(&notification.job, &notification.score);
 
-        assert!(html.contains("Matches &lt;keyword&gt;"));
-        assert!(html.contains("Has &amp; symbol"));
+        assert!(html.contains(LOCAL_MATCH_DETAILS_MESSAGE));
+        assert!(!html.contains("Matches &lt;keyword&gt;"));
+        assert!(!html.contains("Has &amp; symbol"));
     }
 
     #[test]

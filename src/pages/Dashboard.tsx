@@ -745,7 +745,7 @@ export default function Dashboard({
                 No jobs match your filters
               </h3>
               <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
-                Try adjusting your filter criteria to see more results.
+                Try changing or clearing filters to see more jobs.
               </p>
               <button
                 onClick={filters.clearFilters}

@@ -52,7 +52,9 @@ Possible network activity:
   needed for that source check. These endpoints are off unless configured.
 - User-requested location detection through FreeIPAPI.
 - External alerts through configured Slack, Discord, Teams, Telegram, or email
-  channels.
+  channels. Alert payloads may include public job details and match score, but
+  raw local match reasons, salary-floor details, private notes, and application
+  history stay in JobSentinel.
 - Feedback or issue-report sharing through configured GitHub or Google Drive
   paths.
 - Source-specific sign-in or session validation when the user enables a source

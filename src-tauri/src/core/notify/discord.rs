@@ -4,6 +4,7 @@
 
 use super::{
     notification_provider_failure_summary, validate_webhook_url_security_parts, Notification,
+    LOCAL_MATCH_DETAILS_MESSAGE,
 };
 use crate::core::config::DiscordConfig;
 use anyhow::{anyhow, Result};
@@ -96,7 +97,7 @@ pub async fn send_discord_notification(
             },
             {
                 "name": "✨ Why this matches",
-                "value": score.reasons.join("\n"),
+                "value": LOCAL_MATCH_DETAILS_MESSAGE,
                 "inline": false
             }
         ],

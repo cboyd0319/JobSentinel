@@ -4,6 +4,7 @@
 
 use super::{
     notification_provider_failure_summary, validate_webhook_url_security_parts, Notification,
+    LOCAL_MATCH_DETAILS_MESSAGE,
 };
 use anyhow::{anyhow, Result};
 use serde_json::json;
@@ -102,7 +103,7 @@ pub async fn send_teams_notification(webhook_url: &str, notification: &Notificat
                         "value": format!("{}%", (score.total * 100.0).round())
                     }
                 ],
-                "text": format!("**Why this matches:**\n\n{}", score.reasons.join("\n\n"))
+                "text": format!("**Why this matches:**\n\n{}", LOCAL_MATCH_DETAILS_MESSAGE)
             }
         ],
         "potentialAction": [
