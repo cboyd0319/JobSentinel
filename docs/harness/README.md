@@ -38,6 +38,7 @@ Use this structure:
 | Change contract | `docs/harness/change-contract.md` | Acceptance criteria before edits |
 | Policy manifest | `docs/harness/manifest.json` | Required harness files, policy snippets, and README reference-source coverage |
 | Plans | `docs/plans/` | Multi-step work, progress, decisions |
+| Session snapshot | `npm run harness:session` | One-command restart surface for branch state, active plan count, harness module/test counts, bloat-runner size, and next work |
 | Sensors | `docs/harness/verification-matrix.md` | Checks by change type |
 | Environment doctor | `npm run doctor`, `npm run doctor:e2e` | Local readiness check for Node, npm, Rust, Tauri, SQLx offline setup, Linux Tauri packages, and Playwright browser launch |
 | Experience contract | `docs/style-guide/` | Plain-language, broad-audience, zero-technical-skill review |
@@ -63,13 +64,15 @@ For non-trivial work, capture this before edits:
 
 1. Start from `AGENTS.md`.
 2. Read relevant docs and code paths.
-3. Write or update a change contract for non-trivial work.
-4. Choose user, privacy, and verification sensors before edits.
-5. Implement the smallest coherent slice.
-6. Run sensors from `verification-matrix.md`.
-7. Remove disposable artifacts and inspect the diff.
-8. Update docs and plan state.
-9. Record remaining gaps in `docs/plans/tech-debt-tracker.md`.
+3. Run `npm run harness:session` when resuming a broad goal or handing off a
+   long session.
+4. Write or update a change contract for non-trivial work.
+5. Choose user, privacy, and verification sensors before edits.
+6. Implement the smallest coherent slice.
+7. Run sensors from `verification-matrix.md`.
+8. Remove disposable artifacts and inspect the diff.
+9. Update docs and plan state.
+10. Record remaining gaps in `docs/plans/tech-debt-tracker.md`.
 
 ## Guide And Sensor Model
 
@@ -145,6 +148,7 @@ that prevents the observed failure.
 ## Related Docs
 
 - [Sources](sources.md)
+- [Five-tuple harness audit](five-tuple-audit-2026-06-01.md)
 - [Deep harness audit](deep-harness-audit-2026-05-31.md)
 - [Walking Labs Lecture 02 evaluation](walkinglabs-lecture-02-evaluation.md)
 - [Walking Labs harness creator skill evaluation](walkinglabs-harness-creator-skill-evaluation.md)

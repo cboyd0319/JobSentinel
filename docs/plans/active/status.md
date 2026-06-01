@@ -165,6 +165,10 @@ and record actionable findings in this active-plan surface.
   contradictory release-plan status checks into
   `scripts/harness/checks/repo-integrity.mjs`; focused repo-integrity coverage
   is now 4 tests and `scripts/check-repo-bloat.mjs` is 1,176 lines.
+- Latest local lifecycle harness work adds the five-tuple harness audit and
+  `npm run harness:session`, a tested one-command restart snapshot for branch
+  state, latest commit, active plan count, harness module/test counts,
+  bloat-runner size, audit path, and next-best work.
 - Latest local privacy work removes raw automation dropdown-answer logging and
   raw frontend error forwarding, then adds bloat sensors and `errorReporting`
   unit coverage so those regressions fail locally.
