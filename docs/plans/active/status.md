@@ -62,8 +62,8 @@ and record actionable findings in this active-plan surface.
   Assist E2E, and mock data examples toward care coordination, public health,
   operations, training, inventory planning, account management, and customer
   support; it also extends the bloat sensor so the generic market-intelligence,
-  generic scraper, and code-profile fixture paths cannot drift back to
-  software-only examples.
+  generic scraper, salary-normalization, and code-profile fixture paths cannot
+  drift back to software-only examples outside explicit branch coverage.
 - Latest local IPC minimization work added narrow application profile
   existence/preview commands, canonicalizes imported URLs before
   preview/hash/storage, returns only `{ jobId }` from job import, and moves
@@ -81,9 +81,9 @@ and record actionable findings in this active-plan surface.
 
 ## Next Best Work
 
-1. Continue broad-audience fixture cleanup in salary-normalization examples
-   that are not explicit
-   software-engineer/SWE branch tests.
+1. Continue broad-audience fixture audit in less obvious fixture paths outside
+   current sensors, while preserving tech-specific cases only when they test
+   explicit branch behavior or source-realism parser contracts.
 2. Continue splitting oversized mixed sensors, especially docs-drift,
    privacy-logging, fixture-quality, broad-audience, and technical-first copy
    checks still inside `scripts/check-repo-bloat.mjs`.

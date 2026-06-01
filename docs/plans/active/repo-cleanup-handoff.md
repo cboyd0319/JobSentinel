@@ -88,6 +88,9 @@ Current cleanup posture:
   coordination, public health, operations, training, inventory planning,
   account management, and customer support, then added focused bloat coverage
   for recurring generic-fixture paths.
+- Latest salary fixture follow-up broadened prediction, seniority, and
+  normalization examples outside explicit software-engineer/SWE branch coverage,
+  then added focused bloat coverage for those salary fixture paths.
 - Latest IPC minimization work added `has_application_profile`,
   `get_application_profile_preview`, `get_dashboard_preferences`, canonical
   import URLs before preview/hash/storage, and minimized import responses to
@@ -369,6 +372,13 @@ Latest generic scraper broad-audience fixture slice checks on 2026-05-31:
 - `npm run test:scripts -- check-repo-bloat`
 - `npm run lint:docs`
 - `git diff --check`
+
+Latest salary broad-audience fixture slice checks on 2026-05-31:
+
+- `cd src-tauri && cargo fmt --all -- --check`
+- `cd src-tauri && cargo test --lib salary`
+- `npm run lint:bloat`
+- `npm run test:scripts -- check-repo-bloat`
 
 Latest harness/readiness slice checks on 2026-05-31:
 

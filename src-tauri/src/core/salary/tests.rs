@@ -132,19 +132,19 @@ fn test_seniority_from_years() {
 #[test]
 fn test_seniority_from_title() {
     assert_eq!(
-        SeniorityLevel::from_job_title("Junior Software Engineer"),
+        SeniorityLevel::from_job_title("Junior Case Manager"),
         SeniorityLevel::Entry
     );
     assert_eq!(
-        SeniorityLevel::from_job_title("Senior Software Engineer"),
+        SeniorityLevel::from_job_title("Senior Program Coordinator"),
         SeniorityLevel::Senior
     );
     assert_eq!(
-        SeniorityLevel::from_job_title("Staff Engineer"),
+        SeniorityLevel::from_job_title("Staff Case Manager"),
         SeniorityLevel::Staff
     );
     assert_eq!(
-        SeniorityLevel::from_job_title("Principal Engineer"),
+        SeniorityLevel::from_job_title("Principal Operations Analyst"),
         SeniorityLevel::Principal
     );
 }
@@ -153,59 +153,59 @@ fn test_seniority_from_title() {
 fn test_seniority_from_title_variations() {
     // Principal variants
     assert_eq!(
-        SeniorityLevel::from_job_title("Principal Software Engineer"),
+        SeniorityLevel::from_job_title("Principal Case Manager"),
         SeniorityLevel::Principal
     );
     assert_eq!(
-        SeniorityLevel::from_job_title("Distinguished Engineer"),
+        SeniorityLevel::from_job_title("Distinguished Operations Analyst"),
         SeniorityLevel::Principal
     );
 
     // Staff variants
     assert_eq!(
-        SeniorityLevel::from_job_title("Staff Software Engineer"),
+        SeniorityLevel::from_job_title("Staff Case Manager"),
         SeniorityLevel::Staff
     );
     assert_eq!(
-        SeniorityLevel::from_job_title("Software Architect"),
+        SeniorityLevel::from_job_title("Operations Architect"),
         SeniorityLevel::Staff
     );
 
     // Senior variants
     assert_eq!(
-        SeniorityLevel::from_job_title("Senior Engineer"),
+        SeniorityLevel::from_job_title("Senior Program Coordinator"),
         SeniorityLevel::Senior
     );
     assert_eq!(
-        SeniorityLevel::from_job_title("Sr. Developer"),
+        SeniorityLevel::from_job_title("Sr. Care Coordinator"),
         SeniorityLevel::Senior
     );
     assert_eq!(
-        SeniorityLevel::from_job_title("Lead Engineer"),
+        SeniorityLevel::from_job_title("Lead Training Coordinator"),
         SeniorityLevel::Senior
     );
 
     // Entry variants
     assert_eq!(
-        SeniorityLevel::from_job_title("Junior Developer"),
+        SeniorityLevel::from_job_title("Junior Inventory Planner"),
         SeniorityLevel::Entry
     );
     assert_eq!(
-        SeniorityLevel::from_job_title("Jr. Software Engineer"),
+        SeniorityLevel::from_job_title("Jr. Case Manager"),
         SeniorityLevel::Entry
     );
     assert_eq!(
-        SeniorityLevel::from_job_title("Associate Engineer"),
+        SeniorityLevel::from_job_title("Associate Care Coordinator"),
         SeniorityLevel::Entry
     );
 
     // Mid (default)
     assert_eq!(
-        SeniorityLevel::from_job_title("Software Engineer"),
+        SeniorityLevel::from_job_title("Case Manager"),
         SeniorityLevel::Mid
     );
     assert_eq!(
-        SeniorityLevel::from_job_title("Backend Developer"),
+        SeniorityLevel::from_job_title("Inventory Planner"),
         SeniorityLevel::Mid
     );
 }
@@ -213,15 +213,15 @@ fn test_seniority_from_title_variations() {
 #[test]
 fn test_seniority_from_title_case_insensitive() {
     assert_eq!(
-        SeniorityLevel::from_job_title("SENIOR SOFTWARE ENGINEER"),
+        SeniorityLevel::from_job_title("SENIOR CASE MANAGER"),
         SeniorityLevel::Senior
     );
     assert_eq!(
-        SeniorityLevel::from_job_title("principal engineer"),
+        SeniorityLevel::from_job_title("principal operations analyst"),
         SeniorityLevel::Principal
     );
     assert_eq!(
-        SeniorityLevel::from_job_title("StAfF EnGiNeEr"),
+        SeniorityLevel::from_job_title("StAfF CaSe MaNaGeR"),
         SeniorityLevel::Staff
     );
 }
@@ -268,8 +268,8 @@ fn test_normalize_job_title() {
 
     // Other titles remain normalized
     assert_eq!(
-        analyzer.normalize_job_title("DevOps Engineer"),
-        "devops engineer"
+        analyzer.normalize_job_title("Care Coordinator"),
+        "care coordinator"
     );
 }
 
@@ -282,8 +282,8 @@ fn test_normalize_job_title_removes_variations() {
         "software engineer"
     );
     assert_eq!(
-        analyzer.normalize_job_title("Jr. Developer"),
-        "junior developer"
+        analyzer.normalize_job_title("Jr. Care Coordinator"),
+        "junior care coordinator"
     );
 }
 
@@ -292,8 +292,8 @@ fn test_normalize_job_title_handles_double_spaces() {
     let analyzer = create_test_analyzer();
 
     assert_eq!(
-        analyzer.normalize_job_title("Software  Engineer"),
-        "software engineer"
+        analyzer.normalize_job_title("Care  Coordinator"),
+        "care coordinator"
     );
 }
 
@@ -469,15 +469,15 @@ fn test_seniority_from_negative_years() {
 #[test]
 fn test_seniority_from_title_with_unicode() {
     assert_eq!(
-        SeniorityLevel::from_job_title("Senior Software Engineer™"),
+        SeniorityLevel::from_job_title("Senior Case Manager™"),
         SeniorityLevel::Senior
     );
     assert_eq!(
-        SeniorityLevel::from_job_title("Principal Engineér"),
+        SeniorityLevel::from_job_title("Principal Analýst"),
         SeniorityLevel::Principal
     );
     assert_eq!(
-        SeniorityLevel::from_job_title("Júnior Developer"),
+        SeniorityLevel::from_job_title("Júnior Coordinator"),
         SeniorityLevel::Mid
     );
 }
@@ -485,7 +485,7 @@ fn test_seniority_from_title_with_unicode() {
 #[test]
 fn test_seniority_from_title_multiple_keywords() {
     assert_eq!(
-        SeniorityLevel::from_job_title("Principal Staff Engineer"),
+        SeniorityLevel::from_job_title("Principal Staff Coordinator"),
         SeniorityLevel::Principal
     );
     assert_eq!(
@@ -493,7 +493,7 @@ fn test_seniority_from_title_multiple_keywords() {
         SeniorityLevel::Staff
     );
     assert_eq!(
-        SeniorityLevel::from_job_title("Staff Senior Engineer"),
+        SeniorityLevel::from_job_title("Staff Senior Coordinator"),
         SeniorityLevel::Staff
     );
 }

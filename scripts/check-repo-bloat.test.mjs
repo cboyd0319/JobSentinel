@@ -1129,6 +1129,54 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
   });
 });
 
+test("checkRepoBloat rejects salary audience example drift", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/salary/tests.rs",
+      [
+        'SeniorityLevel::from_job_title("Junior Software Engineer");',
+        'SeniorityLevel::from_job_title("Software Architect");',
+        'analyzer.normalize_job_title("Software  Engineer");',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/salary/predictor.rs",
+      [
+        'insert_test_job(&pool, "job_entry", "Junior Developer", "Remote").await;',
+        'predictor.normalize_title("DevOps Engineer");',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src-tauri/src/core/salary/tests.rs",
+        "src-tauri/src/core/salary/predictor.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of [
+      "src-tauri/src/core/salary/tests.rs",
+      "src-tauri/src/core/salary/predictor.rs",
+    ]) {
+      assert.ok(
+        violations.includes(`replace salary audience example: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
 test("checkRepoBloat rejects technical-first user copy", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

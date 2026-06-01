@@ -387,16 +387,10 @@ mod tests {
     #[tokio::test]
     async fn test_predict_for_job_exact_match() {
         let pool = create_test_db().await;
-        insert_test_job(
-            &pool,
-            "job123",
-            "Senior Software Engineer",
-            "San Francisco, CA",
-        )
-        .await;
+        insert_test_job(&pool, "job123", "Senior Case Manager", "San Francisco, CA").await;
         insert_benchmark(
             &pool,
-            "software engineer",
+            "senior case manager",
             "san francisco, ca",
             "senior",
             150000,
@@ -424,10 +418,16 @@ mod tests {
     async fn test_predict_for_job_with_experience_override() {
         let pool = create_test_db().await;
         // Job title suggests "senior" but we override with experience for "entry"
-        insert_test_job(&pool, "job456", "Senior Software Engineer", "New York, NY").await;
+        insert_test_job(
+            &pool,
+            "job456",
+            "Senior Program Coordinator",
+            "New York, NY",
+        )
+        .await;
         insert_benchmark(
             &pool,
-            "software engineer",
+            "senior program coordinator",
             "new york, ny",
             "entry",
             90000,
@@ -452,12 +452,12 @@ mod tests {
     #[tokio::test]
     async fn test_predict_for_job_fallback_average() {
         let pool = create_test_db().await;
-        insert_test_job(&pool, "job789", "Software Engineer", "Austin, TX").await;
+        insert_test_job(&pool, "job789", "Case Manager", "Austin, TX").await;
 
         // No exact location match, but have data for same title/seniority in other locations
         insert_benchmark(
             &pool,
-            "software engineer",
+            "case manager",
             "san francisco, ca",
             "mid",
             140000,
@@ -468,7 +468,7 @@ mod tests {
         .await;
         insert_benchmark(
             &pool,
-            "software engineer",
+            "case manager",
             "new york, ny",
             "mid",
             130000,
@@ -495,7 +495,7 @@ mod tests {
     #[tokio::test]
     async fn test_predict_for_job_default_fallback_entry() {
         let pool = create_test_db().await;
-        insert_test_job(&pool, "job_entry", "Junior Developer", "Remote").await;
+        insert_test_job(&pool, "job_entry", "Junior Inventory Planner", "Remote").await;
 
         let predictor = SalaryPredictor::new(pool);
         // No benchmark data at all, should use defaults
@@ -514,7 +514,13 @@ mod tests {
     #[tokio::test]
     async fn test_predict_for_job_default_fallback_senior() {
         let pool = create_test_db().await;
-        insert_test_job(&pool, "job_senior", "Staff Engineer", "Portland, OR").await;
+        insert_test_job(
+            &pool,
+            "job_senior",
+            "Senior Training Coordinator",
+            "Portland, OR",
+        )
+        .await;
 
         let predictor = SalaryPredictor::new(pool);
         let result = predictor.predict_for_job("job_senior", Some(10)).await; // 10 years = Senior
@@ -529,7 +535,7 @@ mod tests {
     #[tokio::test]
     async fn test_predict_for_job_default_fallback_staff() {
         let pool = create_test_db().await;
-        insert_test_job(&pool, "job_staff", "Staff Software Engineer", "Seattle, WA").await;
+        insert_test_job(&pool, "job_staff", "Staff Case Manager", "Seattle, WA").await;
 
         let predictor = SalaryPredictor::new(pool);
         let result = predictor.predict_for_job("job_staff", Some(12)).await; // 12 years = Staff
@@ -544,7 +550,13 @@ mod tests {
     #[tokio::test]
     async fn test_predict_for_job_default_fallback_principal() {
         let pool = create_test_db().await;
-        insert_test_job(&pool, "job_principal", "Principal Engineer", "Boston, MA").await;
+        insert_test_job(
+            &pool,
+            "job_principal",
+            "Principal Operations Analyst",
+            "Boston, MA",
+        )
+        .await;
 
         let predictor = SalaryPredictor::new(pool);
         let result = predictor.predict_for_job("job_principal", Some(18)).await; // 18 years = Principal
@@ -632,7 +644,7 @@ mod tests {
     #[tokio::test]
     async fn test_predict_for_job_empty_location() {
         let pool = create_test_db().await;
-        insert_test_job(&pool, "job_noloc", "Backend Engineer", "").await;
+        insert_test_job(&pool, "job_noloc", "Program Coordinator", "").await;
 
         let predictor = SalaryPredictor::new(pool);
         let result = predictor.predict_for_job("job_noloc", Some(3)).await;
@@ -646,7 +658,7 @@ mod tests {
     #[tokio::test]
     async fn test_get_prediction_exists() {
         let pool = create_test_db().await;
-        insert_test_job(&pool, "job_get", "DevOps Engineer", "Atlanta, GA").await;
+        insert_test_job(&pool, "job_get", "Training Coordinator", "Atlanta, GA").await;
 
         let predictor = SalaryPredictor::new(pool);
         predictor.predict_for_job("job_get", Some(7)).await.unwrap();
@@ -677,10 +689,10 @@ mod tests {
     #[tokio::test]
     async fn test_get_prediction_returns_correct_data() {
         let pool = create_test_db().await;
-        insert_test_job(&pool, "job_data", "ML Engineer", "Los Angeles, CA").await;
+        insert_test_job(&pool, "job_data", "Workforce Analyst", "Los Angeles, CA").await;
         insert_benchmark(
             &pool,
-            "ml engineer",
+            "workforce analyst",
             "los angeles, ca",
             "mid",
             125000,
@@ -726,8 +738,8 @@ mod tests {
             "product manager"
         );
         assert_eq!(
-            predictor.normalize_title("DevOps Engineer"),
-            "devops engineer"
+            predictor.normalize_title("Care Coordinator"),
+            "care coordinator"
         );
     }
 
@@ -749,17 +761,11 @@ mod tests {
     #[tokio::test]
     async fn test_prediction_with_location_like_pattern() {
         let pool = create_test_db().await;
-        insert_test_job(
-            &pool,
-            "job_like",
-            "Software Engineer",
-            "San Francisco Bay Area",
-        )
-        .await;
+        insert_test_job(&pool, "job_like", "Case Manager", "San Francisco Bay Area").await;
         // Benchmark for "san francisco, ca" should match "san francisco bay area" due to LIKE %...%
         insert_benchmark(
             &pool,
-            "software engineer",
+            "case manager",
             "san francisco, ca",
             "mid",
             140000,
@@ -785,10 +791,10 @@ mod tests {
         let pool = create_test_db().await;
 
         // Entry level
-        insert_test_job(&pool, "job_jr", "Junior Software Engineer", "Remote").await;
+        insert_test_job(&pool, "job_jr", "Junior Case Manager", "Remote").await;
         insert_benchmark(
             &pool,
-            "software engineer",
+            "junior case manager",
             "remote",
             "entry",
             70000,
@@ -803,10 +809,10 @@ mod tests {
         assert_eq!(result.predicted_median, 85000);
 
         // Senior level (use cloned pool)
-        insert_test_job(&pool, "job_sr", "Senior Software Engineer", "Remote").await;
+        insert_test_job(&pool, "job_sr", "Senior Case Manager", "Remote").await;
         insert_benchmark(
             &pool,
-            "software engineer",
+            "senior case manager",
             "remote",
             "senior",
             150000,
@@ -877,14 +883,17 @@ mod tests {
         let predictor = create_test_predictor();
 
         assert_eq!(
-            predictor.normalize_title("DevOps Engineer"),
-            "devops engineer"
+            predictor.normalize_title("Care Coordinator"),
+            "care coordinator"
         );
         assert_eq!(
-            predictor.normalize_title("Backend Developer"),
-            "backend developer"
+            predictor.normalize_title("Inventory Planner"),
+            "inventory planner"
         );
-        assert_eq!(predictor.normalize_title("QA Engineer"), "qa engineer");
+        assert_eq!(
+            predictor.normalize_title("Customer Support Manager"),
+            "customer support manager"
+        );
     }
 
     #[test]
@@ -966,12 +975,12 @@ mod tests {
         let predictor = create_test_predictor();
         // Should return lowercase version of original
         assert_eq!(
-            predictor.normalize_title("Machine Learning Engineer"),
-            "machine learning engineer"
+            predictor.normalize_title("Community Outreach Coordinator"),
+            "community outreach coordinator"
         );
         assert_eq!(
-            predictor.normalize_title("Frontend Developer"),
-            "frontend developer"
+            predictor.normalize_title("Inventory Planner"),
+            "inventory planner"
         );
     }
 
@@ -990,10 +999,13 @@ mod tests {
     fn test_normalize_title_special_characters() {
         let predictor = create_test_predictor();
         // Special characters in non-matching titles
-        assert_eq!(predictor.normalize_title("C++ Developer"), "c++ developer");
         assert_eq!(
-            predictor.normalize_title("ML/AI Engineer"),
-            "ml/ai engineer"
+            predictor.normalize_title("Case Manager / Intake"),
+            "case manager / intake"
+        );
+        assert_eq!(
+            predictor.normalize_title("Inventory Planner (Part-Time)"),
+            "inventory planner (part-time)"
         );
         // Special characters with matching pattern
         assert_eq!(
