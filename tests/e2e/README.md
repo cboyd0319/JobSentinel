@@ -214,7 +214,7 @@ const hasElement = await element.isVisible().catch(() => false);
 ```typescript
 const dashboard = new DashboardPage(page);
 await dashboard.navigateTo();
-await dashboard.searchForJobs("software engineer");
+await dashboard.searchForJobs("customer support");
 const card = await dashboard.getJobCard(0);
 await card.bookmark();
 ```

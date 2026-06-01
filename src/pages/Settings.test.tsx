@@ -217,13 +217,17 @@ describe("Settings — loadConfig flow", () => {
       return false;
     });
 
-    render(<Settings onClose={vi.fn()} />);
+    const onClose = vi.fn();
+    render(<Settings onClose={onClose} />);
 
     await waitFor(() => {
-      expect(screen.getByText(/failed to load settings/i)).toBeInTheDocument();
+      expect(screen.getByText(/settings could not load/i)).toBeInTheDocument();
     });
 
     expect(screen.getByText("Retry")).toBeInTheDocument();
+    expect(screen.getByText("Close")).toBeInTheDocument();
+    await userEvent.click(screen.getByText("Close"));
+    expect(onClose).toHaveBeenCalledOnce();
     expect(mockToast.error).toHaveBeenCalled();
   });
 
@@ -256,7 +260,7 @@ describe("Settings — loadConfig flow", () => {
     await waitFor(() => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
       expect(
-        screen.queryByText(/failed to load settings/i),
+        screen.queryByText(/settings could not load/i),
       ).not.toBeInTheDocument();
     });
   });
@@ -292,7 +296,7 @@ describe("Settings — loadConfig flow", () => {
 
     // Should NOT show error state
     expect(
-      screen.queryByText(/failed to load settings/i),
+      screen.queryByText(/settings could not load/i),
     ).not.toBeInTheDocument();
   });
 

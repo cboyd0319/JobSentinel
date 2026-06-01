@@ -21,8 +21,8 @@ async function seedUploadedResumeSkills(page: import("@playwright/test").Page): 
         {
           id: 1,
           resume_id: 9001,
-          skill_name: "TypeScript",
-          skill_category: "Frontend",
+          skill_name: "Client Intake",
+          skill_category: "Operations",
           confidence_score: 0.95,
           years_experience: 6,
           proficiency_level: "advanced",
@@ -31,8 +31,8 @@ async function seedUploadedResumeSkills(page: import("@playwright/test").Page): 
         {
           id: 2,
           resume_id: 9001,
-          skill_name: "Rust",
-          skill_category: "Systems",
+          skill_name: "Care Coordination",
+          skill_category: "Healthcare",
           confidence_score: 0.88,
           years_experience: 2,
           proficiency_level: "intermediate",
@@ -162,8 +162,8 @@ test.describe("Resume Builder Wizard", () => {
     await resumeBuilder.importSkillsButton.click();
 
     await expect(page.getByText("Imported 2 skills")).toBeVisible();
-    await expect(page.getByText("TypeScript")).toBeVisible();
-    await expect(page.getByText("Rust")).toBeVisible();
+    await expect(page.getByText("Client Intake")).toBeVisible();
+    await expect(page.getByText("Care Coordination")).toBeVisible();
   });
 
   test("previews, changes template, and exports DOCX", async ({ page }) => {

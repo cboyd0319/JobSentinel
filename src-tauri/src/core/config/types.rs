@@ -387,7 +387,7 @@ pub struct LinkedInConfig {
     pub session_cookie: String,
 
     /// Search query (job title, keywords)
-    /// Example: "software engineer", "rust developer"
+    /// Example: "registered nurse", "program coordinator"
     #[serde(default)]
     pub query: String,
 
@@ -514,7 +514,7 @@ pub struct DiceConfig {
     #[serde(default)]
     pub enabled: bool,
 
-    /// Search query (e.g., "rust developer", "software engineer")
+    /// Search query for this tech-focused source (e.g., "IT support", "security analyst")
     #[serde(default)]
     pub query: String,
 
@@ -560,7 +560,7 @@ pub struct SimplyHiredConfig {
     #[serde(default)]
     pub enabled: bool,
 
-    /// Search query (e.g., "rust developer", "software engineer")
+    /// Search query (e.g., "marketing manager", "care coordinator")
     #[serde(default)]
     pub query: String,
 
@@ -583,7 +583,7 @@ pub struct GlassdoorConfig {
     #[serde(default)]
     pub enabled: bool,
 
-    /// Search query (e.g., "software engineer", "data scientist")
+    /// Search query (e.g., "office manager", "data analyst")
     #[serde(default)]
     pub query: String,
 
@@ -617,7 +617,7 @@ pub struct UsaJobsConfig {
     #[serde(default)]
     pub email: String,
 
-    /// Search keywords (e.g., "software engineer", "data scientist")
+    /// Search keywords (e.g., "program analyst", "data analyst")
     #[serde(default)]
     pub keywords: Option<String>,
 

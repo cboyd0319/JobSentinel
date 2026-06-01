@@ -159,8 +159,8 @@ Required process:
 
 ## Current Status
 
-As of 2026-05-31, the active plan remains open. The latest local work improved
-the repo harness rather than changing user-facing product behavior:
+As of 2026-05-31, the active plan remains open. Latest local work improved
+visible zero-technical UX, broad-audience defaults, and harness modularity:
 
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
@@ -204,6 +204,18 @@ the repo harness rather than changing user-facing product behavior:
 - Extracted initial privacy-logging checks for raw automation dropdown values
   and raw frontend error reporter forwarding into
   `scripts/harness/checks/privacy-logging.mjs` with focused module tests.
+- Fixed several zero-technical UX audit findings: Settings load failure now has
+  a close path and plain restart/report guidance, empty application tracking
+  now explains how to begin and can route to job import, the Dashboard no-jobs
+  state gives search-preference recovery guidance, browser import hides
+  connection details behind Advanced, and location lookup copy explains the
+  public internet address lookup in plain language.
+- Started broad-audience drift cleanup by rebalancing company autocomplete
+  suggestions across healthcare, retail, logistics, finance, public service,
+  education, hospitality, and technology; replacing tech-first placeholders and
+  generic fixtures; refreshing resume, mock ATS, and E2E examples; and keeping
+  the persisted `technical_interview` key while using the visible
+  "Skills Interview" label in tests.
 - Removed raw automation dropdown-answer logging and raw frontend error
   forwarding from local/browser output paths. Added bloat sensors for both
   regressions and unit coverage for sanitized console forwarding.
@@ -212,7 +224,11 @@ the repo harness rather than changing user-facing product behavior:
   Start notification setup wording.
 - Reworded problem-history/export labels, saved-report success steps, and
   generated safe-report section names into plain support language.
-- Updated active plan and handoff docs for the user-requested commit and push.
+- The latest security read-only audit found no new raw logging leak in the
+  reviewed sinks, but did identify IPC minimization work for application
+  profile payloads, import URL canonicalization/return shape, and Dashboard
+  config over-fetch. Those remain open in the technical debt tracker.
+- Updated active plan and handoff docs for the latest local cleanup slice.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
 assumption audit, final stale-doc/reference sweep, backend/scraper privacy edge
@@ -243,6 +259,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-31 | In progress | Fixed visible zero-technical UX and broad-audience defaults from parallel audits: Settings failure escape, application empty-state routing, Dashboard no-jobs recovery guidance, browser import advanced settings, location copy, broad company suggestions, Skills Interview E2E labels, and broad resume/mock ATS fixtures. Logged remaining IPC minimization and broad fixture drift as active debt. |
 | 2026-05-31 | In progress | Continued sensor modularity by extracting raw automation dropdown-value and frontend error-forwarding checks into `scripts/harness/checks/privacy-logging.mjs` with focused `scripts/check-privacy-logging.test.mjs` coverage. |
 | 2026-05-31 | In progress | Closed the current support/recovery UX audit findings by simplifying problem-history/export labels, making saved-report success steps account-optional, and rewording generated safe-report headings and fields away from developer jargon. |
 | 2026-05-31 | In progress | Improved zero-technical support recovery by making safe local reports the recommended feedback submit path, adding safe-report copy/save actions to modal crash recovery, and aligning Quick Start notification setup wording with the current wizard. |

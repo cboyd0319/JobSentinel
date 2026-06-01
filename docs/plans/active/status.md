@@ -47,6 +47,18 @@ and record actionable findings in this active-plan surface.
   Quick Start notification setup wording to match the current wizard, simplifies
   problem-history/export labels, makes the saved-report success path
   account-optional, and rewords generated reports with plain support language.
+- Latest local zero-technical and broad-audience work adds a close path and
+  plain recovery copy to Settings load failure, gives the empty application
+  tracker clear "Go to Jobs" and "Import Job" paths, improves the Dashboard
+  no-jobs recovery state, hides browser-import connection details under
+  Advanced, explains location lookup without protocol jargon, broadens company
+  suggestions and placeholders beyond technology, refreshes broad resume/mock
+  ATS fixtures, and aligns E2E labels with the visible "Skills Interview" copy.
+- Latest local security audit found no new reviewed raw logging sink, but
+  recorded open IPC minimization work: application profile commands return too
+  much private data for non-settings screens, import URLs should be
+  canonicalized before preview/hash/storage and return less data, and Dashboard
+  should use a minimal preferences DTO instead of full config.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.
@@ -60,17 +72,19 @@ and record actionable findings in this active-plan surface.
 
 ## Next Best Work
 
-1. Continue splitting oversized mixed sensors, especially docs-drift,
+1. Shrink non-settings IPC payloads for application profile, job import, and
+   Dashboard preferences.
+2. Continue splitting oversized mixed sensors, especially docs-drift,
    privacy-logging, fixture-quality, broad-audience, and technical-first copy
    checks still inside `scripts/check-repo-bloat.mjs`.
-2. Continue zero-technical-knowledge UX review across setup, settings,
+3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
-3. Continue broad-audience review so non-technical and technical job searches
+4. Continue broad-audience review so non-technical and technical job searches
    both feel first-class.
-4. Continue backend/scraper and frontend privacy-edge review.
-5. Continue the next zero-technical-knowledge UX audit area outside
+5. Continue backend/scraper and frontend privacy-edge review.
+6. Continue the next zero-technical-knowledge UX audit area outside
    support/reporting.
-6. Run final broad verification only when the remaining known work has evidence.
+7. Run final broad verification only when the remaining known work has evidence.
 
 ## Completion Bar
 

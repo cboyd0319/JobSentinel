@@ -47,21 +47,21 @@ describe("CompanyAutocomplete", () => {
       const onChange = vi.fn();
       render(<CompanyAutocomplete {...defaultProps} onChange={onChange} />);
 
-      fireEvent.change(screen.getByRole("textbox"), { target: { value: "goo" } });
+      fireEvent.change(screen.getByRole("textbox"), { target: { value: "may" } });
 
-      expect(onChange).toHaveBeenCalledWith("goo");
+      expect(onChange).toHaveBeenCalledWith("may");
     });
 
     it("shows value in input", () => {
-      render(<CompanyAutocomplete {...defaultProps} value="Google" />);
+      render(<CompanyAutocomplete {...defaultProps} value="Mayo Clinic" />);
 
-      expect(screen.getByRole("textbox")).toHaveValue("Google");
+      expect(screen.getByRole("textbox")).toHaveValue("Mayo Clinic");
     });
   });
 
   describe("suggestions dropdown", () => {
     it("shows suggestions when typing at least 1 character", () => {
-      render(<CompanyAutocomplete {...defaultProps} value="goo" />);
+      render(<CompanyAutocomplete {...defaultProps} value="may" />);
 
       fireEvent.focus(screen.getByRole("textbox"));
 
@@ -77,42 +77,42 @@ describe("CompanyAutocomplete", () => {
     });
 
     it("filters suggestions based on input", () => {
-      render(<CompanyAutocomplete {...defaultProps} value="goo" />);
+      render(<CompanyAutocomplete {...defaultProps} value="may" />);
 
       fireEvent.focus(screen.getByRole("textbox"));
 
-      expect(screen.getByText("Google")).toBeInTheDocument();
+      expect(screen.getByText("Mayo Clinic")).toBeInTheDocument();
       expect(screen.queryByText("Meta")).not.toBeInTheDocument();
     });
 
     it("shows company industry in suggestions", () => {
-      render(<CompanyAutocomplete {...defaultProps} value="goo" />);
+      render(<CompanyAutocomplete {...defaultProps} value="may" />);
 
       fireEvent.focus(screen.getByRole("textbox"));
 
-      expect(screen.getByText("Technology")).toBeInTheDocument();
+      expect(screen.getByText("Healthcare")).toBeInTheDocument();
     });
 
     it("shows remote policy badge for companies", () => {
-      render(<CompanyAutocomplete {...defaultProps} value="goo" />);
+      render(<CompanyAutocomplete {...defaultProps} value="unit" />);
 
       fireEvent.focus(screen.getByRole("textbox"));
 
-      expect(screen.getByText("Hybrid")).toBeInTheDocument();
+      expect(screen.getByText("Remote-friendly")).toBeInTheDocument();
     });
 
     it("excludes already added companies from suggestions", () => {
       render(
         <CompanyAutocomplete
           {...defaultProps}
-          value="goo"
-          existingCompanies={["Google"]}
+          value="may"
+          existingCompanies={["Mayo Clinic"]}
         />
       );
 
       fireEvent.focus(screen.getByRole("textbox"));
 
-      expect(screen.queryByText("Google")).not.toBeInTheDocument();
+      expect(screen.queryByText("Mayo Clinic")).not.toBeInTheDocument();
     });
 
     it("limits suggestions to 6 items", () => {
@@ -144,32 +144,32 @@ describe("CompanyAutocomplete", () => {
   describe("selection", () => {
     it("calls onAdd when clicking a suggestion", () => {
       const onAdd = vi.fn();
-      render(<CompanyAutocomplete {...defaultProps} value="goo" onAdd={onAdd} />);
+      render(<CompanyAutocomplete {...defaultProps} value="may" onAdd={onAdd} />);
 
       fireEvent.focus(screen.getByRole("textbox"));
-      fireEvent.click(screen.getByText("Google"));
+      fireEvent.click(screen.getByText("Mayo Clinic"));
 
-      expect(onAdd).toHaveBeenCalledWith("Google");
+      expect(onAdd).toHaveBeenCalledWith("Mayo Clinic");
     });
 
     it("clears input after selecting", () => {
       const onChange = vi.fn();
-      render(<CompanyAutocomplete {...defaultProps} value="goo" onChange={onChange} />);
+      render(<CompanyAutocomplete {...defaultProps} value="may" onChange={onChange} />);
 
       fireEvent.focus(screen.getByRole("textbox"));
-      fireEvent.click(screen.getByText("Google"));
+      fireEvent.click(screen.getByText("Mayo Clinic"));
 
       expect(onChange).toHaveBeenCalledWith("");
     });
 
     it("closes dropdown after selecting", () => {
       const onChange = vi.fn();
-      render(<CompanyAutocomplete {...defaultProps} value="goo" onChange={onChange} />);
+      render(<CompanyAutocomplete {...defaultProps} value="may" onChange={onChange} />);
 
       fireEvent.focus(screen.getByRole("textbox"));
       expect(screen.getByRole("listbox")).toBeInTheDocument();
 
-      fireEvent.click(screen.getByText("Google"));
+      fireEvent.click(screen.getByText("Mayo Clinic"));
 
       // After selection, the input is cleared and dropdown closes
       // The onChange is called with empty string
@@ -217,7 +217,7 @@ describe("CompanyAutocomplete", () => {
 
   describe("keyboard navigation", () => {
     it("opens dropdown on focus", () => {
-      render(<CompanyAutocomplete {...defaultProps} value="goo" />);
+      render(<CompanyAutocomplete {...defaultProps} value="may" />);
 
       fireEvent.focus(screen.getByRole("textbox"));
 
@@ -225,7 +225,7 @@ describe("CompanyAutocomplete", () => {
     });
 
     it("navigates down with ArrowDown", () => {
-      render(<CompanyAutocomplete {...defaultProps} value="str" />);
+      render(<CompanyAutocomplete {...defaultProps} value="co" />);
 
       fireEvent.focus(screen.getByRole("textbox"));
       fireEvent.keyDown(screen.getByRole("textbox"), { key: "ArrowDown" });
@@ -235,7 +235,7 @@ describe("CompanyAutocomplete", () => {
     });
 
     it("navigates up with ArrowUp", () => {
-      render(<CompanyAutocomplete {...defaultProps} value="str" />);
+      render(<CompanyAutocomplete {...defaultProps} value="co" />);
 
       fireEvent.focus(screen.getByRole("textbox"));
       fireEvent.keyDown(screen.getByRole("textbox"), { key: "ArrowDown" });
@@ -247,7 +247,7 @@ describe("CompanyAutocomplete", () => {
     });
 
     it("wraps around at the end", () => {
-      // Use a search that returns exactly 2 results for easier testing
+      // Use a search that returns at least one result for wrap testing
       render(<CompanyAutocomplete {...defaultProps} value="stripe" />);
 
       fireEvent.focus(screen.getByRole("textbox"));
@@ -264,12 +264,12 @@ describe("CompanyAutocomplete", () => {
 
     it("selects suggestion on Enter", () => {
       const onAdd = vi.fn();
-      render(<CompanyAutocomplete {...defaultProps} value="goo" onAdd={onAdd} />);
+      render(<CompanyAutocomplete {...defaultProps} value="may" onAdd={onAdd} />);
 
       fireEvent.focus(screen.getByRole("textbox"));
       fireEvent.keyDown(screen.getByRole("textbox"), { key: "Enter" });
 
-      expect(onAdd).toHaveBeenCalledWith("Google");
+      expect(onAdd).toHaveBeenCalledWith("Mayo Clinic");
     });
 
     it("adds custom value on Enter when no suggestions shown", () => {
@@ -283,7 +283,7 @@ describe("CompanyAutocomplete", () => {
     });
 
     it("closes dropdown on Escape", () => {
-      render(<CompanyAutocomplete {...defaultProps} value="goo" />);
+      render(<CompanyAutocomplete {...defaultProps} value="may" />);
 
       fireEvent.focus(screen.getByRole("textbox"));
       expect(screen.getByRole("listbox")).toBeInTheDocument();
@@ -298,7 +298,7 @@ describe("CompanyAutocomplete", () => {
     it("closes dropdown when clicking outside", () => {
       render(
         <div>
-          <CompanyAutocomplete {...defaultProps} value="goo" />
+          <CompanyAutocomplete {...defaultProps} value="may" />
           <button data-testid="outside">Outside</button>
         </div>
       );
@@ -314,7 +314,7 @@ describe("CompanyAutocomplete", () => {
 
   describe("hover highlighting", () => {
     it("highlights option on mouse enter", () => {
-      render(<CompanyAutocomplete {...defaultProps} value="str" />);
+      render(<CompanyAutocomplete {...defaultProps} value="co" />);
 
       fireEvent.focus(screen.getByRole("textbox"));
       const options = screen.getAllByRole("option");
@@ -326,7 +326,7 @@ describe("CompanyAutocomplete", () => {
 
   describe("accessibility", () => {
     it("has screen reader announcement for suggestions count", () => {
-      render(<CompanyAutocomplete {...defaultProps} value="str" />);
+      render(<CompanyAutocomplete {...defaultProps} value="co" />);
 
       fireEvent.focus(screen.getByRole("textbox"));
 
@@ -339,7 +339,7 @@ describe("CompanyAutocomplete", () => {
     });
 
     it("sets aria-activedescendant when navigating", () => {
-      render(<CompanyAutocomplete {...defaultProps} value="goo" />);
+      render(<CompanyAutocomplete {...defaultProps} value="may" />);
 
       fireEvent.focus(screen.getByRole("textbox"));
 
@@ -399,11 +399,12 @@ describe("CompanyAutocomplete", () => {
       }
     });
 
-    it("includes major tech companies", () => {
+    it("includes companies across multiple fields", () => {
       const names = COMPANY_SUGGESTIONS.map(c => c.name);
+      expect(names).toContain("mayoclinic");
+      expect(names).toContain("target");
+      expect(names).toContain("cityofdenver");
       expect(names).toContain("google");
-      expect(names).toContain("meta");
-      expect(names).toContain("amazon");
     });
   });
 });

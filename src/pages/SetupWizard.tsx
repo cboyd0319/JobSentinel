@@ -950,7 +950,8 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                         id="setup-location-detection-privacy"
                         className="mt-2 text-xs text-surface-500"
                       >
-                        Uses HTTPS IP lookup. Not saved unless added.
+                        Looks up your approximate city from your internet
+                        address. Not saved unless added.
                       </p>
                     </div>
                   )}

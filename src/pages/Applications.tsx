@@ -72,6 +72,7 @@ interface PendingReminder {
 
 interface ApplicationsProps {
   onBack: () => void;
+  onImportJob?: () => void;
 }
 
 const STATUS_COLUMNS = [
@@ -192,11 +193,13 @@ const DroppableColumn = memo(function DroppableColumn({
   apps,
   onCardClick,
   formatDate,
+  showDropHint,
 }: {
   column: typeof STATUS_COLUMNS[number];
   apps: Application[];
   onCardClick: (app: Application) => void;
   formatDate: (date: string) => string;
+  showDropHint: boolean;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: column.key });
 
@@ -231,7 +234,7 @@ const DroppableColumn = memo(function DroppableColumn({
             />
           ))}
 
-          {apps.length === 0 && (
+          {apps.length === 0 && showDropHint && (
             <p className="text-sm text-surface-400 dark:text-surface-500 text-center py-4">
               Drop here
             </p>
@@ -284,7 +287,7 @@ function KanbanSkeleton() {
   );
 }
 
-export default function Applications({ onBack }: ApplicationsProps) {
+export default function Applications({ onBack, onImportJob }: ApplicationsProps) {
   const [applications, setApplications] = useState<ApplicationsByStatus | null>(null);
   const [reminders, setReminders] = useState<PendingReminder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -572,6 +575,11 @@ export default function Applications({ onBack }: ApplicationsProps) {
     };
   }, [applications]);
 
+  const hasAnyApplications = useMemo(() => {
+    if (!applications) return false;
+    return STATUS_COLUMNS.some((column) => applications[column.key].length > 0);
+  }, [applications]);
+
   if (loading) {
     return <KanbanSkeleton />;
   }
@@ -706,7 +714,29 @@ export default function Applications({ onBack }: ApplicationsProps) {
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
-              <div className="overflow-x-auto pb-4" data-testid="kanban-board">
+          <div className="overflow-x-auto pb-4" data-testid="kanban-board">
+            {!hasAnyApplications && (
+              <Card
+                className="mb-4 max-w-xl dark:bg-surface-800"
+                role="status"
+                aria-live="polite"
+              >
+                <h2 className="font-display text-display-sm text-surface-900 dark:text-white mb-2">
+                  No applications tracked yet
+                </h2>
+                <p className="text-sm text-surface-600 dark:text-surface-400 mb-4">
+                  Save or import a job to start tracking it here.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Button onClick={onBack}>Go to Jobs</Button>
+                  {onImportJob && (
+                    <Button onClick={onImportJob} variant="secondary">
+                      Import Job
+                    </Button>
+                  )}
+                </div>
+              </Card>
+            )}
             <div className="flex gap-4 min-w-max">
               {STATUS_COLUMNS.map((column) => {
                 const apps = applications?.[column.key as keyof ApplicationsByStatus] || [];
@@ -717,6 +747,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
                     apps={apps}
                     onCardClick={setSelectedApp}
                     formatDate={formatEventDate}
+                    showDropHint={hasAnyApplications}
                   />
                 );
               })}

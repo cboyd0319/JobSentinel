@@ -87,6 +87,8 @@ export default function Dashboard({
   onNavigate: _onNavigate,
   showSettings: showSettingsProp,
   onShowSettingsChange,
+  openImportOnMount = false,
+  onImportHandled,
 }: DashboardProps) {
   // Core state
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -127,6 +129,12 @@ export default function Dashboard({
     null,
   );
   const cooldownTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!openImportOnMount) return;
+    setShowImportModal(true);
+    onImportHandled?.();
+  }, [openImportOnMount, onImportHandled]);
 
   // Stable callback for data updates
   const handleDataUpdate = useCallback(
@@ -646,15 +654,25 @@ export default function Dashboard({
               </div>
               <CardHeader
                 title="No jobs yet"
-                subtitle="Start by searching for jobs"
+                subtitle="Search for fresh roles, import a posting, or adjust your preferences."
               />
-              <Button
-                onClick={handleSearchNow}
-                loading={searching}
-                className="mt-4"
-              >
-                Search Now
-              </Button>
+              <div className="mt-4 flex flex-wrap justify-center gap-3">
+                <Button
+                  onClick={handleSearchNow}
+                  loading={searching}
+                >
+                  Search Now
+                </Button>
+                <Button
+                  onClick={() => setShowSettings(true)}
+                  variant="secondary"
+                >
+                  Adjust Search Preferences
+                </Button>
+              </div>
+              <p className="mt-3 text-sm text-surface-500 dark:text-surface-400">
+                If a search comes back empty, broaden the role title, location, or pay floor.
+              </p>
               <div className="mt-8 pt-6 border-t border-surface-200 dark:border-surface-700">
                 <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
                   How JobSentinel works:

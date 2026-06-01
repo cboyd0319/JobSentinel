@@ -6,7 +6,7 @@ const STATUS_LABELS: Record<string, string> = {
   applied: "Applied",
   screening_call: "Screening Call",
   phone_interview: "Phone Interview",
-  technical_interview: "Technical Interview",
+  technical_interview: "Skills Interview",
   onsite_interview: "Onsite Interview",
   offer_received: "Offer Received",
   offer_accepted: "Offer Accepted",

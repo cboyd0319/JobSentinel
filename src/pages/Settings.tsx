@@ -1129,16 +1129,24 @@ export default function Settings({ onClose }: SettingsProps) {
       <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50">
         <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4">
           <div className="flex flex-col items-center justify-center py-12 gap-4">
-            <p className="text-sm text-red-500 dark:text-red-400">
-              Failed to load settings. Check that the app has storage
-              permissions.
+            <p className="text-sm text-red-500 dark:text-red-400 text-center max-w-md">
+              Settings could not load. Restart JobSentinel. If this keeps
+              happening, save a safe report from Help.
             </p>
-            <button
-              onClick={() => void loadConfig()}
-              className="px-4 py-2 text-sm rounded bg-sentinel-500 text-white hover:bg-sentinel-600"
-            >
-              Retry
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => void loadConfig()}
+                className="px-4 py-2 text-sm rounded bg-sentinel-500 text-white hover:bg-sentinel-600"
+              >
+                Retry
+              </button>
+              <button
+                onClick={onClose}
+                className="px-4 py-2 text-sm rounded bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-200 hover:bg-surface-200 dark:hover:bg-surface-600"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </Card>
       </div>
@@ -1586,10 +1594,11 @@ export default function Settings({ onClose }: SettingsProps) {
                           </Button>
                         </div>
                         <p
-                          id="settings-location-detection-privacy"
-                          className="mt-2 text-xs text-surface-500 dark:text-surface-400"
-                        >
-                          Uses HTTPS IP lookup. Not saved unless added.
+                        id="settings-location-detection-privacy"
+                        className="mt-2 text-xs text-surface-500 dark:text-surface-400"
+                      >
+                          Looks up your approximate city from your internet
+                          address. Not saved unless added.
                         </p>
                       </div>
                     )}
@@ -2112,57 +2121,35 @@ export default function Settings({ onClose }: SettingsProps) {
                             </Button>
                           )}
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <Input
-                          label="Email Server"
-                          value={config.alerts.email?.smtp_server ?? ""}
-                          onChange={(e) =>
-                            setConfig({
-                              ...config,
-                              alerts: {
-                                ...config.alerts,
-                                email: {
-                                  ...config.alerts.email,
-                                  smtp_server: e.target.value,
-                                },
-                              },
-                            })
-                          }
-                          placeholder="smtp.gmail.com"
-                          hint="Your email provider's sending server"
-                        />
-                        <div className="flex gap-2">
-                          <div className="flex-1">
-                            <Input
-                              label="Port"
-                              type="number"
-                              value={config.alerts.email?.smtp_port ?? 587}
-                              onChange={(e) =>
-                                setConfig({
-                                  ...config,
-                                  alerts: {
-                                    ...config.alerts,
-                                    email: {
-                                      ...config.alerts.email,
-                                      smtp_port:
-                                        parseInt(e.target.value) || 587,
-                                    },
+                      <details className="rounded-lg border border-surface-200 dark:border-surface-700 p-3">
+                        <summary className="cursor-pointer text-sm font-medium text-surface-700 dark:text-surface-300">
+                          Manual email settings
+                        </summary>
+                        <div className="grid grid-cols-2 gap-3 mt-3">
+                          <Input
+                            label="Email Server"
+                            value={config.alerts.email?.smtp_server ?? ""}
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                alerts: {
+                                  ...config.alerts,
+                                  email: {
+                                    ...config.alerts.email,
+                                    smtp_server: e.target.value,
                                   },
-                                })
-                              }
-                              hint="Usually 587"
-                            />
-                          </div>
-                          <div className="flex items-end pb-2">
-                            <label
-                              className="flex items-center gap-2 cursor-pointer"
-                              title="Enable secure connection (recommended)"
-                            >
-                              <input
-                                type="checkbox"
-                                checked={
-                                  config.alerts.email?.use_starttls ?? true
-                                }
+                                },
+                              })
+                            }
+                            placeholder="smtp.gmail.com"
+                            hint="Your email provider's sending server"
+                          />
+                          <div className="flex gap-2">
+                            <div className="flex-1">
+                              <Input
+                                label="Port"
+                                type="number"
+                                value={config.alerts.email?.smtp_port ?? 587}
                                 onChange={(e) =>
                                   setConfig({
                                     ...config,
@@ -2170,23 +2157,50 @@ export default function Settings({ onClose }: SettingsProps) {
                                       ...config.alerts,
                                       email: {
                                         ...config.alerts.email,
-                                        use_starttls: e.target.checked,
+                                        smtp_port:
+                                          parseInt(e.target.value) || 587,
                                       },
                                     },
                                   })
                                 }
-                                className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
+                                hint="Usually 587"
                               />
-                              <span className="text-sm text-surface-700 dark:text-surface-300">
-                                Secure
-                              </span>
-                            </label>
+                            </div>
+                            <div className="flex items-end pb-2">
+                              <label
+                                className="flex items-center gap-2 cursor-pointer"
+                                title="Enable secure connection (recommended)"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={
+                                    config.alerts.email?.use_starttls ?? true
+                                  }
+                                  onChange={(e) =>
+                                    setConfig({
+                                      ...config,
+                                      alerts: {
+                                        ...config.alerts,
+                                        email: {
+                                          ...config.alerts.email,
+                                          use_starttls: e.target.checked,
+                                        },
+                                      },
+                                    })
+                                  }
+                                  className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
+                                />
+                                <span className="text-sm text-surface-700 dark:text-surface-300">
+                                  Secure
+                                </span>
+                              </label>
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      </details>
                       <div className="grid grid-cols-2 gap-3">
                         <Input
-                          label="Your Email"
+                          label="Email Account"
                           value={config.alerts.email?.smtp_username ?? ""}
                           onChange={(e) =>
                             setConfig({

@@ -81,6 +81,8 @@ export interface DashboardProps {
   onNavigate?: (page: Page) => void;
   showSettings?: boolean;
   onShowSettingsChange?: (show: boolean) => void;
+  openImportOnMount?: boolean;
+  onImportHandled?: () => void;
 }
 
 export interface SearchQuery {

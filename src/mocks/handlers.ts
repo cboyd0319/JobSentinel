@@ -487,19 +487,20 @@ const ATS_POWER_WORDS = [
 ] as const;
 
 const ATS_KNOWN_KEYWORDS = [
-  "Rust",
-  "React",
-  "TypeScript",
-  "JavaScript",
-  "Node.js",
-  "Python",
   "SQL",
-  "Kubernetes",
-  "Docker",
-  "AWS",
   "automation",
   "testing",
   "leadership",
+  "scheduling",
+  "case management",
+  "client intake",
+  "customer support",
+  "project coordination",
+  "inventory",
+  "budgeting",
+  "bilingual",
+  "data analysis",
+  "training",
 ] as const;
 
 const MOCK_SCRAPERS: readonly MockScraperDefinition[] = [
@@ -3275,8 +3276,8 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
         experience_match_score: Math.max(0, Math.round(job.score * 100) - 5),
         education_match_score: null,
         matching_skills: skills.slice(0, 3),
-        missing_skills: ["Kubernetes"],
-        gap_analysis: "Matching: Existing skills align\nMissing: Add Kubernetes evidence",
+        missing_skills: ["Role-specific evidence"],
+        gap_analysis: "Matching: Existing skills align\nMissing: Add one role-specific example",
         created_at: new Date().toISOString(),
       };
       recentMatches = [

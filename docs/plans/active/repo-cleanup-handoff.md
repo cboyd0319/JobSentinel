@@ -73,6 +73,19 @@ Current cleanup posture:
   labels are plainer, saved-report success steps are account-optional, and
   generated safe-report headings use support language instead of
   system/config/structured-data language.
+- Latest zero-technical UX follow-up fixed Settings load failure escape and
+  guidance, application tracker first-use empty state, Dashboard no-jobs
+  recovery guidance, browser import Advanced connection hiding, install wording
+  in Quick Start, and location lookup copy.
+- Latest broad-audience follow-up rebalanced company suggestions and
+  notification placeholders across multiple fields, replaced generic
+  tech-first resume/mock ATS fixtures, switched E2E examples toward customer
+  support and care coordination, and aligned tests with the visible
+  "Skills Interview" label.
+- Latest security audit found no new reviewed raw logging sink. It left open
+  IPC minimization work for application profile payloads, imported URL
+  canonicalization/return shape, and Dashboard config over-fetch; see the
+  technical debt tracker before claiming the privacy goal is complete.
 - `scripts/check-repo-bloat.mjs` still owns docs drift, most privacy logging,
   fixture-quality checks, broad-audience checks, technical-first copy checks,
   and source security patterns.
@@ -271,6 +284,20 @@ Recent cleanup slices on `main` include:
 The active plan progress table has detailed slice history.
 
 ## Verified Recently
+
+Latest zero-technical and broad-audience UX slice checks on 2026-05-31:
+
+- `npm run test:run -- src/components/BookmarkletGenerator.test.tsx
+  src/components/CompanyAutocomplete.test.tsx src/pages/Settings.test.tsx
+  src/pages/Resume.test.tsx src/mocks/handlers.test.ts`
+- `npm run lint:docs`
+- `npm run lint:bloat`
+- `npm run lint`
+- `npm run build`
+- `npm run test:e2e -- tests/e2e/playwright/application-tracking.spec.ts
+  tests/e2e/playwright/resume-builder.spec.ts`
+- `cd src-tauri && cargo fmt --all -- --check`
+- `git diff --check`
 
 Latest sensor-modularity slice checks on 2026-05-31:
 

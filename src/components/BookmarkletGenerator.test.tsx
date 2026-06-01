@@ -18,7 +18,7 @@ describe("BookmarkletGenerator", () => {
     });
   });
 
-  it("copies hidden setup code with the local auth token", async () => {
+  it("copies hidden browser button with the local auth token", async () => {
     mockInvoke.mockResolvedValueOnce({
       port: 4321,
       enabled: true,
@@ -27,7 +27,7 @@ describe("BookmarkletGenerator", () => {
 
     render(<BookmarkletGenerator />);
 
-    const copyButton = await screen.findByRole("button", { name: /copy setup code/i });
+    const copyButton = await screen.findByRole("button", { name: /copy browser button/i });
     await waitFor(() => expect(copyButton).toBeEnabled());
     fireEvent.click(copyButton);
 
@@ -46,14 +46,16 @@ describe("BookmarkletGenerator", () => {
     render(<BookmarkletGenerator />);
 
     expect(
-      await screen.findByRole("heading", { name: /browser import button/i }),
+      await screen.findByRole("heading", { name: /install browser button/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Connection Number")).toBeInTheDocument();
+    expect(screen.queryByText("Connection Number")).not.toBeInTheDocument();
     expect(screen.getByText("Import Helper")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /turn off/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /copy setup code/i })).toBeInTheDocument();
-    expect(screen.getByText(/setup code is hidden/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /copy browser button/i })).toBeInTheDocument();
+    expect(screen.getByText(/you do not need to read or edit it/i)).toBeInTheDocument();
     expect(screen.getByText(/local safety code/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /advanced connection settings/i }));
+    expect(screen.getByText("Connection Number")).toBeInTheDocument();
     expect(screen.queryByText(/server port/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/bookmarklet code/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/bookmarklet/i)).not.toBeInTheDocument();
@@ -72,10 +74,10 @@ describe("BookmarkletGenerator", () => {
 
     render(<BookmarkletGenerator />);
 
-    const copyButton = await screen.findByRole("button", { name: /copy setup code/i });
+    const copyButton = await screen.findByRole("button", { name: /copy browser button/i });
     fireEvent.click(copyButton);
 
-    expect(await screen.findByText(/could not copy setup code/i)).toBeInTheDocument();
+    expect(await screen.findByText(/could not copy browser button/i)).toBeInTheDocument();
     expect(screen.getByText(/allow clipboard access and try again/i)).toBeInTheDocument();
     expect(screen.queryByText(/token=secret/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/\/Users\/chad/i)).not.toBeInTheDocument();

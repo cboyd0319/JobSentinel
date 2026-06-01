@@ -33,6 +33,7 @@ export function BookmarkletGenerator() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const loadConfig = useCallback(async () => {
     try {
@@ -99,9 +100,9 @@ export function BookmarkletGenerator() {
       setError(null);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      logError("Failed to copy browser import setup code:", err);
+      logError("Failed to copy browser import button:", err);
       setCopied(false);
-      setError("Could not copy setup code. Allow clipboard access and try again.");
+      setError("Could not copy browser button. Allow clipboard access and try again.");
     }
   };
 
@@ -117,9 +118,9 @@ export function BookmarkletGenerator() {
     <Card className="p-6 space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-white mb-2">Browser Import Button</h3>
+          <h3 className="text-lg font-semibold text-white mb-2">Install Browser Button</h3>
           <p className="text-sm text-gray-400">
-            Save many job pages into JobSentinel from your browser
+            Save job pages into JobSentinel from your browser
           </p>
         </div>
         <HelpIcon
@@ -136,24 +137,6 @@ export function BookmarkletGenerator() {
 
       <div className="space-y-4">
         <div className="flex items-center gap-4">
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Connection Number
-            </label>
-            <input
-              type="number"
-              value={config.port}
-              onChange={(e) => updatePort(Number(e.target.value))}
-              disabled={config.enabled || loading}
-              className="w-32 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-              min="1024"
-              max="65535"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Default: 4321. Change only if support asks.
-            </p>
-          </div>
-
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Import Helper
@@ -174,24 +157,54 @@ export function BookmarkletGenerator() {
           </div>
         </div>
 
+        <div>
+          <button
+            type="button"
+            onClick={() => setShowAdvanced((current) => !current)}
+            className="text-sm text-gray-400 hover:text-white underline"
+            aria-expanded={showAdvanced}
+          >
+            Advanced connection settings
+          </button>
+          {showAdvanced && (
+            <div className="mt-3 rounded-lg border border-gray-700 p-4">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Connection Number
+              </label>
+              <input
+                type="number"
+                value={config.port}
+                onChange={(e) => updatePort(Number(e.target.value))}
+                disabled={config.enabled || loading}
+                className="w-32 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                min="1024"
+                max="65535"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Default: 4321. Change only if support asks.
+              </p>
+            </div>
+          )}
+        </div>
+
         <div className="border-t border-gray-700 pt-4">
           <h4 className="text-sm font-medium text-gray-300 mb-3">Set Up Browser Button</h4>
 
           <div className="space-y-3">
             <div className="bg-gray-800/50 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-gray-400">Browser button setup code</span>
+                <span className="text-xs text-gray-400">Browser button</span>
                 <Button
                   onClick={copyBookmarklet}
                   size="sm"
                   variant="ghost"
                   disabled={!config.enabled}
                 >
-                  {copied ? "Copied!" : "Copy Setup Code"}
+                  {copied ? "Copied!" : "Copy Browser Button"}
                 </Button>
               </div>
               <p className="text-xs text-gray-500">
-                Setup code is hidden because it is long and includes a local safety code.
+                Hidden details include a local safety code. You do not need to read or edit it.
               </p>
             </div>
 
@@ -199,12 +212,12 @@ export function BookmarkletGenerator() {
               <h5 className="text-sm font-medium text-blue-400 mb-2">How to Set Up:</h5>
               <ol className="text-sm text-gray-300 space-y-2 list-decimal list-inside">
                 <li>Turn on the import helper above</li>
-                <li>Copy the setup code using the button above</li>
+                <li>Copy the browser button using the button above</li>
                 <li>Create a new bookmark in your browser (Cmd/Ctrl+D)</li>
                 <li>Name it "Import to JobSentinel"</li>
-                <li>Paste the copied setup code into the bookmark address field</li>
+                <li>Paste the copied text into the bookmark address field</li>
                 <li>Save the bookmark to your bookmarks bar</li>
-                <li>Copy fresh setup code after changing the connection number or restarting JobSentinel</li>
+                <li>Copy the browser button again after changing advanced settings or restarting JobSentinel</li>
               </ol>
             </div>
 

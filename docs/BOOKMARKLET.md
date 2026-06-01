@@ -22,15 +22,15 @@ Use the browser import button when:
 ## Set It Up
 
 1. Open JobSentinel Settings.
-2. Find **Browser Import Button**.
+2. Find **Install Browser Button**.
 3. Turn on the import helper.
-4. Click **Copy Setup Code**.
+4. Click **Copy Browser Button**.
 5. Create a new browser bookmark.
 6. Name it **Import to JobSentinel**.
-7. Paste the copied setup code into the bookmark address field.
+7. Paste the copied text into the bookmark address field.
 8. Save it to your bookmarks bar.
 
-Copy fresh setup code after changing the connection number or restarting
+Copy the browser button again after changing advanced settings or restarting
 JobSentinel.
 
 ## Save A Job
@@ -69,7 +69,7 @@ job page first.
 
 - Make sure JobSentinel is open.
 - Turn on the import helper in Settings.
-- Copy fresh setup code if you restarted JobSentinel.
+- Copy the browser button again if you restarted JobSentinel.
 - If your firewall asks, allow connections for JobSentinel.
 
 ### Job Already Exists
@@ -90,10 +90,10 @@ fill in any blank details in JobSentinel.
 
 ## Privacy
 
-- JobSentinel creates the setup code on your computer.
-- The setup code includes a local safety code and is hidden in the app.
+- JobSentinel creates the browser button on your computer.
+- Hidden details include a local safety code that stays out of normal setup.
 - Job data stays local unless you choose to share it.
-- Debug reports must redact the setup code and saved job details.
+- Debug reports must redact the browser button details and saved job details.
 
 ## For Maintainers
 
@@ -102,7 +102,7 @@ interface should keep technical details hidden:
 
 - Do not show the generated script in the UI.
 - Do not expose the local safety code.
-- Prefer "browser import button", "import helper", "setup code", and
-  "connection number" in user-facing copy.
+- Prefer "browser import button", "import helper", and
+  "advanced connection settings" in user-facing copy.
 - Keep lower-level implementation details in developer docs or code comments,
   not in the user setup path.

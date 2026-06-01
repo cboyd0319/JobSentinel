@@ -66,6 +66,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState<Page>("dashboard");
   const [showSettings, setShowSettings] = useState(false);
+  const [openImportOnDashboard, setOpenImportOnDashboard] = useState(false);
   const [shouldStartTour, setShouldStartTour] = useState(false);
 
   const checkFirstRun = useCallback(async () => {
@@ -97,6 +98,11 @@ function App() {
   // Moved before early returns to comply with hooks rules
   const openSettings = useCallback(() => {
     setShowSettings(true);
+  }, []);
+
+  const openJobImportFromApplications = useCallback(() => {
+    setOpenImportOnDashboard(true);
+    setCurrentPage("dashboard");
   }, []);
 
   if (loading) {
@@ -140,12 +146,17 @@ function App() {
                     onNavigate={navigateTo}
                     showSettings={showSettings}
                     onShowSettingsChange={setShowSettings}
+                    openImportOnMount={openImportOnDashboard}
+                    onImportHandled={() => setOpenImportOnDashboard(false)}
                   />
                 </PageErrorBoundary>
               )}
               {currentPage === "applications" && (
                 <PageErrorBoundary pageName="Applications" onBack={() => navigateTo("dashboard")}>
-                  <Applications onBack={() => navigateTo("dashboard")} />
+                  <Applications
+                    onBack={() => navigateTo("dashboard")}
+                    onImportJob={openJobImportFromApplications}
+                  />
                 </PageErrorBoundary>
               )}
               {currentPage === "resume" && (

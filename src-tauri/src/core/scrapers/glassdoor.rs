@@ -19,7 +19,7 @@ use sha2::{Digest, Sha256};
 /// Glassdoor job scraper
 #[derive(Debug, Clone)]
 pub struct GlassdoorScraper {
-    /// Search query (e.g., "software engineer")
+    /// Search query (e.g., "office manager")
     pub query: String,
     /// Location filter (e.g., "San Francisco, CA")
     pub location: Option<String>,

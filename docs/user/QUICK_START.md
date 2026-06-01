@@ -19,10 +19,10 @@ licensed. You do not need a paid account to use the core app.
 **Download the installer** (recommended)
 
 1. Go to [GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases)
-2. Download the installer for your platform:
-   - **Windows:** the `.msi` file
-   - **macOS:** the `.dmg` file
-   - **Linux:** the `.AppImage` or `.deb` file when present on the release
+2. Download the installer for your computer:
+   - **Windows installer**
+   - **Mac installer**
+   - **Linux installer** when present on the release
 3. Double-click and follow the prompts
 4. Open JobSentinel.
 

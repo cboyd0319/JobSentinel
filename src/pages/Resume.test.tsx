@@ -29,7 +29,7 @@ describe("Resume page", () => {
         case "get_active_resume":
           return Promise.resolve({
             id: 1,
-            name: "Senior Engineer Resume",
+            name: "Care Coordinator Resume",
             is_active: true,
             created_at: "2026-05-21T12:00:00Z",
             updated_at: "2026-05-21T12:00:00Z",
@@ -44,14 +44,14 @@ describe("Resume page", () => {
               id: 10,
               resume_id: 1,
               job_hash: "job-hash",
-              job_title: "Senior Frontend Engineer",
-              company: "Acme",
+              job_title: "Care Coordinator",
+              company: "Community Health Partners",
               overall_match_score: 0.82,
               skills_match_score: 0.75,
               experience_match_score: 0.5,
               education_match_score: 0.25,
-              matching_skills: ["React"],
-              missing_skills: ["Kubernetes"],
+              matching_skills: ["Scheduling"],
+              missing_skills: ["Case Management"],
               gap_analysis: null,
               created_at: "2026-05-21T12:00:00Z",
             },
@@ -64,7 +64,7 @@ describe("Resume page", () => {
     render(<Resume onBack={vi.fn()} />);
 
     await waitFor(() => {
-      expect(screen.getByText("Senior Frontend Engineer")).toBeInTheDocument();
+      expect(screen.getByText("Care Coordinator")).toBeInTheDocument();
     });
 
     expect(screen.getByText("Recent Resume Matches")).toBeInTheDocument();

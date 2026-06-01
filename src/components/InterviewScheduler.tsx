@@ -75,7 +75,7 @@ const PREP_CHECKLIST = [
   { id: "review_jd", label: "Review job description", icon: "doc" },
   { id: "prepare_questions", label: "Prepare questions to ask", icon: "question" },
   { id: "star_stories", label: "Prepare STAR stories", icon: "star" },
-  { id: "tech_review", label: "Review relevant tech/skills", icon: "code" },
+  { id: "tech_review", label: "Review role requirements", icon: "code" },
 ];
 
 // Types for backend API responses

@@ -503,7 +503,7 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
               value={favoriteCompanyInput}
               onChange={setFavoriteCompanyInput}
               onAdd={addFavoriteCompany}
-              placeholder="e.g., Google, Stripe, Anthropic"
+              placeholder="e.g., Mayo Clinic, Target, City of Denver"
               existingCompanies={filters.companyWhitelist}
               buttonColor="blue"
             />

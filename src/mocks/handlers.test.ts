@@ -142,21 +142,21 @@ const atsResume = {
     github: null,
     website: null,
   },
-  summary: "Rust engineer building React tools and automation.",
+  summary: "Care coordinator supporting intake, scheduling, and case management.",
   experience: [
     {
-      title: "Platform Engineer",
-      company: "ExampleCo",
+      title: "Care Coordinator",
+      company: "Community Health Partners",
       location: "Remote",
       start_date: "2021-01",
       end_date: "Present",
-      achievements: ["Developed Rust services", "Improved React dashboards by 40%"],
+      achievements: ["Coordinated client intake", "Improved scheduling follow-up by 40%"],
       current: true,
     },
   ],
   skills: [
-    { name: "Rust", category: "Languages", proficiency: "advanced" },
-    { name: "React", category: "Frameworks", proficiency: "advanced" },
+    { name: "Scheduling", category: "Operations", proficiency: "advanced" },
+    { name: "Case Management", category: "Client Support", proficiency: "advanced" },
   ],
   education: [],
   certifications: [],
@@ -205,7 +205,7 @@ const notificationPreferencesInput: NotificationPreferences = {
 };
 
 const deepLinkCriteria: SearchCriteria = {
-  query: "Rust Developer",
+  query: "Care Coordinator",
   location: "Denver, CO",
   job_type: JobType.FullTime,
   remote_type: RemoteType.Remote,
@@ -385,7 +385,7 @@ describe("mock Tauri handlers", () => {
       expect.arrayContaining([
         expect.objectContaining({
           site: expect.objectContaining({ id: "indeed" }),
-          url: expect.stringContaining("https://www.indeed.com/jobs?q=Rust%20Developer"),
+          url: expect.stringContaining("https://www.indeed.com/jobs?q=Care%20Coordinator"),
         }),
       ]),
     );
@@ -397,35 +397,35 @@ describe("mock Tauri handlers", () => {
     expect(linkedin).toMatchObject({
       site: expect.objectContaining({ id: "linkedin", name: "LinkedIn" }),
     });
-    expect(linkedin.url).toContain("keywords=Rust%20Developer");
+    expect(linkedin.url).toContain("keywords=Care%20Coordinator");
     expect(linkedin.url).toContain("location=Denver%2C%20CO");
     expect(linkedin.url).toContain("f_JT=F");
     expect(linkedin.url).toContain("f_WT=2");
 
     await expect(
       mockInvoke<void>("open_deep_link", {
-        url: "https://www.linkedin.com/jobs/search/?keywords=Rust%20Developer",
+        url: "https://www.linkedin.com/jobs/search/?keywords=Care%20Coordinator",
       }),
     ).resolves.toBeUndefined();
 
     await expect(
       mockInvoke<void>("open_deep_link", {
-        url: "http://localhost:3000/jobs?query=Rust%20Developer",
+        url: "http://localhost:3000/jobs?query=Care%20Coordinator",
       }),
     ).rejects.toThrow("This job-site link is not safe to open");
   });
 
   it("previews and imports jobs with the real backend command names", async () => {
-    const url = "https://jobs.example.com/careers/rust-platform-engineer";
+    const url = "https://jobs.example.com/careers/care-coordinator";
 
     const preview = await mockInvoke<JobImportPreview>("preview_job_import", { url });
 
     expect(preview).toMatchObject({
-      title: "Rust Platform Engineer",
+      title: "Care Coordinator",
       company: "jobs.example.com",
       url,
       location: "Remote",
-      description_preview: expect.stringContaining("Rust Platform Engineer"),
+      description_preview: expect.stringContaining("Care Coordinator"),
       salary: "$120k-$180k",
       employment_types: ["FULL_TIME"],
       remote: true,
@@ -437,7 +437,7 @@ describe("mock Tauri handlers", () => {
     const imported = await mockInvoke<ImportedJob>("import_job_from_url", { url });
 
     expect(imported).toMatchObject({
-      title: "Rust Platform Engineer",
+      title: "Care Coordinator",
       company: "jobs.example.com",
       url,
       source: "import",
@@ -455,7 +455,7 @@ describe("mock Tauri handlers", () => {
 
     await expect(
       mockInvoke<JobImportPreview>("preview_job_import", {
-        url: "http://localhost:3000/jobs/rust-platform-engineer",
+        url: "http://localhost:3000/jobs/care-coordinator",
       }),
     ).rejects.toThrow("Use a full job link that starts with http:// or https://");
   });
@@ -540,39 +540,39 @@ describe("mock Tauri handlers", () => {
 
     const jobResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: atsResume,
-      jobDescription: "Required: Rust, React, TypeScript. Preferred: automation.",
+      jobDescription: "Required: scheduling, case management, bilingual. Preferred: client intake.",
     });
     expect(jobResult.keyword_matches).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          keyword: "Rust",
+          keyword: "scheduling",
           found_in: expect.arrayContaining(["summary", "experience", "skills"]),
           frequency: expect.any(Number),
           importance: "Required",
         }),
         expect.objectContaining({
-          keyword: "React",
-          found_in: expect.arrayContaining(["summary", "experience", "skills"]),
+          keyword: "case management",
+          found_in: expect.arrayContaining(["summary", "skills"]),
           frequency: expect.any(Number),
           importance: "Required",
         }),
       ]),
     );
-    expect(jobResult.missing_keywords).toContain("TypeScript");
+    expect(jobResult.missing_keywords).toContain("bilingual");
     expect(jobResult.suggestions).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           category: "AddKeyword",
-          suggestion: expect.stringContaining("TypeScript"),
+          suggestion: expect.stringContaining("bilingual"),
         }),
       ]),
     );
 
     const improved = await mockInvoke<string>("improve_bullet_point", {
-      bullet: "worked on dashboards",
-      jobContext: "Required: React, TypeScript",
+      bullet: "helped with client scheduling",
+      jobContext: "Required: scheduling, case management",
     });
-    expect(improved).toContain("Developed dashboards");
+    expect(improved).toContain("Contributed to client scheduling");
     expect(improved).toContain("add specific metrics");
     expect(improved).toContain("consider adding");
   });
