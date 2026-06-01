@@ -62,11 +62,11 @@ This can happen because JobSentinel is a new open-source app.
 </details>
 
 <details>
-<summary><strong>Need developer setup?</strong></summary>
+<summary><strong>Optional: build it yourself</strong></summary>
 <br>
 
-Most users should download the installer. Build instructions live in
-[Developer Setup](../developer/GETTING_STARTED.md).
+Most users should download the installer and skip this section. If you prefer to
+build the app yourself, use [Developer Setup](../developer/GETTING_STARTED.md).
 
 Developers can build locally after installing Node, Rust, and the Tauri
 requirements:

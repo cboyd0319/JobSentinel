@@ -717,6 +717,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
     const quickStartPatterns = [
       /Assets section/i,
       /For developers:\s*build from source/i,
+      /Need developer setup/i,
       /low-trust postings/i,
       /scan allowed sources immediately/i,
       /Ghost Job Detection/i,

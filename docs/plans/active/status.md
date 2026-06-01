@@ -31,6 +31,10 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local zero-technical Quick Start follow-up relabels the early
+  developer-build disclosure as an optional self-build path and adds
+  product-copy coverage so first-run install help does not drift back toward
+  developer-setup wording.
 - Latest local sidecar-audit follow-up hardens Application Assist so fill
   requests verify a public supported application URL before loading profile
   data, verify the final browser page stays on the same supported application

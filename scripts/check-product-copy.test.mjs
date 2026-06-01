@@ -474,6 +474,7 @@ test("product copy rejects technical-first settings copy", () => {
         "Yes. JobSentinel is free and MIT licensed.",
         "Look for the Assets section.",
         "<summary><strong>For developers: build from source</strong></summary>",
+        "<summary><strong>Need developer setup?</strong></summary>",
         "Stale, reposted, or low-trust postings",
         "scan allowed sources immediately",
         "### Ghost Job Detection",
