@@ -67,9 +67,12 @@ pub struct BookmarkletJobData {
 impl BookmarkletJobData {
     /// Validate that required fields are present
     pub fn validate(&self) -> Result<(), String> {
-        if self.url.is_empty() {
+        if self.url.trim().is_empty() {
             return Err("URL is required".to_string());
         }
+
+        crate::core::url_security::validate_external_http_url(self.url.trim())
+            .map_err(|_| "Job link must be a public http or https address".to_string())?;
 
         // Try to get title from Schema.org or fallback field
         let title = if let Some(ref schema_type) = self.schema_type {
@@ -196,6 +199,34 @@ mod tests {
         };
 
         assert!(data.validate().is_err());
+    }
+
+    #[test]
+    fn test_bookmarklet_job_data_rejects_unsafe_urls() {
+        for url in [
+            "javascript:alert(1)",
+            "file:///etc/passwd",
+            "http://127.0.0.1/internal",
+            "http://127.0.0.1.nip.io/internal",
+        ] {
+            let data = BookmarkletJobData {
+                title: "Care Coordinator".to_string(),
+                company: "Community Care".to_string(),
+                description: "A great job".to_string(),
+                url: url.to_string(),
+                location: None,
+                salary: None,
+                remote: None,
+                schema_type: None,
+                hiring_organization: None,
+                job_location: None,
+                base_salary: None,
+                date_posted: None,
+                job_location_type: None,
+            };
+
+            assert!(data.validate().is_err(), "{url}");
+        }
     }
 
     #[test]

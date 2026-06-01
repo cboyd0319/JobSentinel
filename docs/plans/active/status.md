@@ -36,6 +36,10 @@ and record actionable findings in this active-plan surface.
   IP hostnames, user-entered job imports and JobsWithGPT use fetch-time DNS
   checks before network requests, shared scraper clients do not follow
   redirects, and focused Rust tests cover the new gates.
+- Latest local bookmarklet security work routes browser-helper imports through
+  public HTTP(S) URL validation and shared `Database::upsert_job` storage
+  validation, with focused tests for unsafe URLs, overlong fields, and valid
+  storage.
 - Latest local work closed the active-plan compaction debt by adding this
   compact status file, archiving older progress rows, and routing the plan
   index, harness guide, agent guide, and handoff toward the compact state.
@@ -452,8 +456,7 @@ and record actionable findings in this active-plan surface.
    engineer-first violations, but keep auditing as new slices touch copy.
 5. Continue backend/scraper and frontend privacy-edge review.
    Current open security follow-ups are bookmarklet local-server token/CORS
-   hardening, bookmarklet import validation reuse, and process-wide scraper
-   cooldowns for repeated manual runs.
+   hardening and process-wide scraper cooldowns for repeated manual runs.
 6. Continue the next zero-technical-knowledge UX audit area outside
    support/reporting.
 7. Run final broad verification only when the remaining known work has evidence.

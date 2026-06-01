@@ -3,7 +3,7 @@
 //! Runs a simple HTTP server on localhost to receive job data from browser bookmarklets.
 
 use super::BookmarkletJobData;
-use crate::core::db::Database;
+use crate::core::db::{Database, Job};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -347,16 +347,22 @@ async fn handle_import_request(request: &str, database: Arc<Database>) -> (Strin
     }
 
     // Extract fields
-    let title = job_data.title.clone();
-    let company = job_data.get_company().unwrap_or_default();
-    let description = if job_data.description.is_empty() {
+    let title = job_data.title.trim().to_string();
+    let company = job_data
+        .get_company()
+        .map(|value| value.trim().to_string())
+        .unwrap_or_default();
+    let description = if job_data.description.trim().is_empty() {
         None
     } else {
-        Some(job_data.description.clone())
+        Some(job_data.description.trim().to_string())
     };
-    let location = job_data.get_location();
+    let location = job_data
+        .get_location()
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty());
     let remote = job_data.is_remote();
-    let url = job_data.url.clone();
+    let url = job_data.url.trim().to_string();
 
     // Calculate job hash for deduplication
     let job_hash = calculate_job_hash(&company, &title, &url);
@@ -382,34 +388,44 @@ async fn handle_import_request(request: &str, database: Arc<Database>) -> (Strin
         }
     }
 
-    // Insert job into database
+    // Insert job into database through the shared job storage validator.
     let created_at = Utc::now();
-    let result = sqlx::query(
-        r#"
-        INSERT INTO jobs (
-            hash, title, company, url, location, description,
-            source, remote, created_at, updated_at, last_seen, times_seen
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        "#,
-    )
-    .bind(&job_hash)
-    .bind(&title)
-    .bind(&company)
-    .bind(&url)
-    .bind(&location)
-    .bind(&description)
-    .bind("bookmarklet")
-    .bind(remote)
-    .bind(created_at)
-    .bind(created_at)
-    .bind(created_at)
-    .bind(1)
-    .execute(database.pool())
-    .await;
+    let job = Job {
+        id: 0,
+        hash: job_hash.clone(),
+        title: title.clone(),
+        company: company.clone(),
+        url: url.clone(),
+        location: location.clone(),
+        description: description.clone(),
+        score: None,
+        score_reasons: None,
+        source: "bookmarklet".to_string(),
+        remote: Some(remote),
+        salary_min: None,
+        salary_max: None,
+        currency: None,
+        created_at,
+        updated_at: created_at,
+        last_seen: created_at,
+        times_seen: 1,
+        immediate_alert_sent: false,
+        included_in_digest: false,
+        hidden: false,
+        bookmarked: false,
+        notes: None,
+        ghost_score: None,
+        ghost_reasons: None,
+        first_seen: Some(created_at),
+        repost_count: 0,
+    };
+
+    let result = database.upsert_job(&job).await;
 
     match result {
-        Ok(_) => {
+        Ok(job_id) => {
             tracing::info!(
+                job_id,
                 job_hash_len = job_hash.len(),
                 title_chars = title.chars().count(),
                 company_chars = company.chars().count(),
@@ -461,6 +477,7 @@ fn calculate_job_hash(company: &str, title: &str, url: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::Arc;
 
     #[test]
     fn test_calculate_job_hash() {
@@ -520,6 +537,106 @@ mod tests {
         assert!(request_buffer_has_complete_body(
             b"OPTIONS /api/bookmarklet/import HTTP/1.1\r\nHost: localhost\r\n\r\n"
         ));
+    }
+
+    fn bookmarklet_import_request(body: &str) -> String {
+        format!(
+            "POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost\r\nContent-Length: {}\r\n\r\n{}",
+            body.len(),
+            body
+        )
+    }
+
+    async fn bookmarklet_test_database() -> Arc<Database> {
+        let database = Database::connect_memory()
+            .await
+            .expect("test database should connect");
+        database
+            .migrate()
+            .await
+            .expect("test database should migrate");
+        Arc::new(database)
+    }
+
+    async fn stored_job_count(database: &Database) -> i64 {
+        sqlx::query_scalar("SELECT COUNT(*) FROM jobs")
+            .fetch_one(database.pool())
+            .await
+            .expect("job count should load")
+    }
+
+    #[tokio::test]
+    async fn test_bookmarklet_import_rejects_unsafe_url_without_insert() {
+        let database = bookmarklet_test_database().await;
+        let body = serde_json::json!({
+            "title": "Care Coordinator",
+            "company": "Community Care",
+            "url": "javascript:alert(1)"
+        })
+        .to_string();
+
+        let (response, content_type) =
+            handle_import_request(&bookmarklet_import_request(&body), database.clone()).await;
+        let parsed: serde_json::Value =
+            serde_json::from_str(&response).expect("error response should be JSON");
+
+        assert_eq!(content_type, "application/json");
+        assert_eq!(
+            parsed["error"],
+            "Job link must be a public http or https address"
+        );
+        assert_eq!(stored_job_count(&database).await, 0);
+    }
+
+    #[tokio::test]
+    async fn test_bookmarklet_import_uses_shared_job_length_validation() {
+        let database = bookmarklet_test_database().await;
+        let body = serde_json::json!({
+            "title": "T".repeat(501),
+            "company": "Community Care",
+            "url": "https://example.com/jobs/1"
+        })
+        .to_string();
+
+        let (response, content_type) =
+            handle_import_request(&bookmarklet_import_request(&body), database.clone()).await;
+        let parsed: serde_json::Value =
+            serde_json::from_str(&response).expect("error response should be JSON");
+
+        assert_eq!(content_type, "application/json");
+        assert_eq!(parsed["error"], BOOKMARKLET_DATABASE_FAILURE_MESSAGE);
+        assert_eq!(stored_job_count(&database).await, 0);
+    }
+
+    #[tokio::test]
+    async fn test_bookmarklet_import_stores_valid_job_through_shared_path() {
+        let database = bookmarklet_test_database().await;
+        let body = serde_json::json!({
+            "title": "Care Coordinator",
+            "company": "Community Care",
+            "description": "Coordinate care appointments",
+            "url": "https://example.com/jobs/1",
+            "location": "Denver, CO",
+            "remote": true
+        })
+        .to_string();
+
+        let (response, content_type) =
+            handle_import_request(&bookmarklet_import_request(&body), database.clone()).await;
+        let parsed: serde_json::Value =
+            serde_json::from_str(&response).expect("success response should be JSON");
+        let stored: (String, String, String, bool) =
+            sqlx::query_as("SELECT title, company, source, remote FROM jobs LIMIT 1")
+                .fetch_one(database.pool())
+                .await
+                .expect("stored job should load");
+
+        assert_eq!(content_type, "application/json");
+        assert_eq!(parsed["success"], true);
+        assert_eq!(stored.0, "Care Coordinator");
+        assert_eq!(stored.1, "Community Care");
+        assert_eq!(stored.2, "bookmarklet");
+        assert!(stored.3);
     }
 
     #[tokio::test]

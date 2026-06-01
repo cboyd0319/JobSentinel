@@ -501,6 +501,9 @@ Recent cleanup slices on `main` include:
   IP hostnames, user-entered job-page imports and JobsWithGPT do fetch-time DNS
   checks before sending, shared scraper clients no longer follow redirects, and
   remaining bookmarklet/rate-limit findings are recorded in the debt tracker.
+- Latest local bookmarklet security follow-up routes browser-helper imports
+  through public HTTP(S) URL validation and shared job storage validation,
+  closing the raw insert bypass for unsafe URLs and oversize job fields.
 - Improved zero-technical support recovery by making local safe support report
   saving primary, keeping GitHub optional, adding safe support report actions to
   modal crash recovery, and updating notification setup docs.
@@ -805,8 +808,8 @@ Next high-value passes:
    - Recheck scraper request caps, retry handling, rate limits, and health
      result shapes.
    - Continue the 2026-06-01 security audit follow-ups: bookmarklet
-     local-server token/CORS hardening, bookmarklet import validation reuse,
-     and process-wide source cooldowns for repeated manual runs.
+     local-server token/CORS hardening and process-wide source cooldowns for
+     repeated manual runs.
    - Keep no-bypass and local-first product rules intact.
 4. Continue frontend boundary review.
    - Recheck stored JSON parsing, URL validation, error rendering, direct
