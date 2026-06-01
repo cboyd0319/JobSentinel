@@ -229,6 +229,10 @@ boundaries, and harness modularity:
   avoid bot-detection language, Auto-Search help avoids "never miss" pressure,
   and Slack notification docs are framed as advanced chat setup behind easier
   desktop/email alert paths.
+- Reworked Application Assist screening-answer suggestion cards so users see
+  Suggested Answers, review-state labels, edit-frequency labels, and saved or
+  used source labels instead of "Smart Suggestions," confidence percentages,
+  modification percentages, or raw Manual/Learned/History badges.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright

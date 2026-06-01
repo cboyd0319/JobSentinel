@@ -351,6 +351,17 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/automation/ScreeningAnswerSuggestions.tsx",
+      [
+        "Smart Suggestions",
+        "Based on your history",
+        "{confidencePercent}% confident",
+        "(modified {Math.round(suggestion.modificationRate * 100)}%)",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/utils/errorMessages.ts",
       [
         "Bot Detection Triggered",
@@ -398,6 +409,10 @@ test("product copy rejects technical-first settings copy", () => {
     );
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/components/automation/ScreeningAnswersForm.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/automation/ScreeningAnswerSuggestions.tsx"),
       true,
     );
     assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/errorMessages.ts"), true);

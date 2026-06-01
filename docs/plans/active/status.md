@@ -100,6 +100,11 @@ and record actionable findings in this active-plan surface.
   site challenge errors use human-check wording instead of bot-detection
   language, Auto-Search copy avoids "never miss" pressure, and Slack docs are
   labeled as advanced chat setup after desktop and email alerts.
+- Latest local Application Assist suggestion follow-up changes screening-answer
+  suggestion cards from "Smart Suggestions," raw confidence percentages,
+  modification percentages, and Manual/Learned/History source badges to plain
+  suggested-answer, review-state, edit-frequency, and saved/used labels. A
+  focused component test and product-copy sensor now cover the surface.
 - Latest local zero-technical provider setup work labels USAJobs as optional
   advanced federal monitoring with a no-setup browser-search path first, keeps
   Telegram bot details behind an advanced chat-alert path, and adds

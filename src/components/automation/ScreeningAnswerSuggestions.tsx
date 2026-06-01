@@ -84,7 +84,7 @@ export const ScreeningAnswerSuggestions = memo(function ScreeningAnswerSuggestio
         <div className="flex items-center gap-2 mb-2">
           <LightbulbIcon className="w-4 h-4 text-sentinel-500" />
           <h4 className="text-sm font-medium text-surface-700 dark:text-surface-300">
-            Smart Suggestions
+            Suggested Answers
           </h4>
         </div>
         <Skeleton className="h-16" />
@@ -113,9 +113,9 @@ export const ScreeningAnswerSuggestions = memo(function ScreeningAnswerSuggestio
       <div className="flex items-center gap-2 mb-3">
         <LightbulbIcon className="w-4 h-4 text-sentinel-500" />
         <h4 className="text-sm font-medium text-surface-700 dark:text-surface-300">
-          Smart Suggestions
+          Suggested Answers
         </h4>
-        <span className="text-xs text-surface-500">Based on your history</span>
+        <span className="text-xs text-surface-500">From answers you saved or used before</span>
       </div>
 
       <div className="space-y-2">
@@ -140,9 +140,19 @@ interface SuggestionCardProps {
 }
 
 function SuggestionCard({ suggestion, rank, onSelect }: SuggestionCardProps) {
-  const confidencePercent = Math.round(suggestion.confidence * 100);
   const isHighConfidence = suggestion.confidence >= 0.8;
   const isMediumConfidence = suggestion.confidence >= 0.5;
+  const confidenceLabel = isHighConfidence
+    ? "Usually matches"
+    : isMediumConfidence
+      ? "Review before using"
+      : "Needs review";
+  const editLabel =
+    suggestion.modificationRate >= 0.5
+      ? "Often edited"
+      : suggestion.modificationRate > 0
+        ? "Sometimes edited"
+        : null;
 
   return (
     <div className="group relative p-3 bg-white dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700 hover:border-sentinel-300 dark:hover:border-sentinel-700 transition-all">
@@ -167,7 +177,7 @@ function SuggestionCard({ suggestion, rank, onSelect }: SuggestionCardProps) {
               }
             >
               <CheckIcon className="w-3 h-3 mr-1" />
-              {confidencePercent}% confident
+              {confidenceLabel}
             </Badge>
 
             {/* Source badge */}
@@ -176,12 +186,8 @@ function SuggestionCard({ suggestion, rank, onSelect }: SuggestionCardProps) {
             {/* Usage stats */}
             {suggestion.timesUsed > 0 && (
               <span className="text-xs text-surface-500">
-                Used {suggestion.timesUsed}×
-                {suggestion.modificationRate > 0 && (
-                  <span className="text-warning ml-1">
-                    (modified {Math.round(suggestion.modificationRate * 100)}%)
-                  </span>
-                )}
+                Used {suggestion.timesUsed} {suggestion.timesUsed === 1 ? "time" : "times"}
+                {editLabel && <span className="text-warning ml-1">{editLabel}</span>}
               </span>
             )}
 
@@ -216,21 +222,21 @@ function SourceBadge({ source }: { source: AnswerSource }) {
       return (
         <Badge variant="surface" className="text-xs">
           <UserIcon className="w-3 h-3 mr-1" />
-          Manual
+          Saved by you
         </Badge>
       );
     case "learned":
       return (
         <Badge variant="sentinel" className="text-xs">
           <SparklesIcon className="w-3 h-3 mr-1" />
-          Learned
+          Learned from use
         </Badge>
       );
     case "historical":
       return (
         <Badge variant="surface" className="text-xs">
           <ClockIcon className="w-3 h-3 mr-1" />
-          History
+          Used before
         </Badge>
       );
     default:

@@ -178,6 +178,11 @@ Current cleanup posture:
   see plain labels for question matches and answer-learning state, human-check
   wording for site challenges, less absolute alert copy, and Slack labeled as
   advanced chat setup after easier desktop/email paths.
+- Current local Application Assist suggestion follow-up changes suggested
+  screening answers away from smart/history framing, confidence percentages,
+  modification percentages, and raw Manual/Learned/History source badges.
+  Users now see Suggested Answers, review-state labels, edit-frequency labels,
+  and saved/used source labels, with focused UI and product-copy coverage.
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
 - `npm run harness:plan -- --since origin/main` now maps changed files to
   focused verification commands from the harness matrix.
