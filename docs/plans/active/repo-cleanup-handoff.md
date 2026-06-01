@@ -25,15 +25,16 @@ Latest pushed checkpoints include:
 - `7a1728c6 Broaden config and profile seeds`
 - `a4dade40 Refresh documentation screenshots`
 - `378d8c56 Make profile docs app-first`
+- `2b120e60 Fix bookmarklet copy test race`
 
 Current branch note:
 
-- `main` was pushed through `378d8c56`. Docs Harness passed for that push.
-  CI run `26742720063` failed only in frontend unit tests because
-  `BookmarkletGenerator.test.tsx` clicked the browser-button copy action before
-  async setup enabled it.
-- The current local CI-correction waits for the enabled button before testing
-  the bookmarklet copy-failure path.
+- `main` was pushed through `2b120e60`. Docs Harness run `26743031643` and CI
+  run `26743031608` both passed for that push after the bookmarklet
+  copy-failure test was changed to wait for the browser-button action to become
+  enabled before clicking.
+- The current local harness slice adds `npm run harness:plan -- --since
+  origin/main`, a changed-file command planner for focused verification.
 - The current local slice removes stale hardcoded employer rating claims from
   static company fallback data and adds source-quality coverage against
   reintroducing them.
@@ -61,6 +62,8 @@ Current branch note:
 Current cleanup posture:
 
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
+- `npm run harness:plan -- --since origin/main` now maps changed files to
+  focused verification commands from the harness matrix.
 - Root-entry, local-artifact, and tracked-disposable bloat checks now live in
   `scripts/harness/checks/repo-artifacts.mjs`.
 - Package and dependency ownership checks now live in
@@ -708,9 +711,8 @@ Next high-value passes:
      work.
    - Promote any repeated ease, privacy, or flaky-test failure into a guide or
      sensor instead of leaving it in chat.
-   - Prioritize the remaining top harness debt: sensor modularity, diff-aware
-     verification selection, feature privacy labels, and machine-readable plan
-     status.
+   - Prioritize the remaining top harness debt: sensor modularity, feature
+     privacy labels, evidence ledger, and harness architecture map.
 8. Continue protective job-search UX review.
    - Make ghost/stale detection central on job cards and saved jobs.
    - Make salary floor, pay transparency, salary-history guardrails, and

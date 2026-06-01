@@ -42,6 +42,7 @@ Use this structure:
 | Session snapshot | `npm run harness:session` | One-command restart surface for branch state, active plan count, indexed workstreams, harness score, harness module/test counts, bloat-runner size, and next work |
 | Harness score | `npm run harness:score` | Repo-native five-tuple evidence score for the WalkingLabs lecture and harness-creator tuples |
 | Harness benchmark | `npm run harness:benchmark` | Portable before/after benchmark output for score, session metrics, next work, and recommendation |
+| Verification plan | `npm run harness:plan -- --since origin/main` | Diff-aware command plan for changed files, focused tests, and required harness sensors |
 | Sensors | `docs/harness/verification-matrix.md` | Checks by change type |
 | Environment doctor | `npm run doctor`, `npm run doctor:e2e` | Local readiness check for Node, npm, Rust, Tauri, SQLx offline setup, Linux Tauri packages, and Playwright browser launch |
 | Experience contract | `docs/style-guide/` | Plain-language, broad-audience, zero-technical-skill review |
@@ -74,13 +75,15 @@ For non-trivial work, capture this before edits:
    lifecycle.
 5. Run `npm run harness:benchmark` before or after harness-tuning sessions
    where before/after evidence matters.
-6. Write or update a change contract for non-trivial work.
-7. Choose user, privacy, and verification sensors before edits.
-8. Implement the smallest coherent slice.
-9. Run sensors from `verification-matrix.md`.
-10. Remove disposable artifacts and inspect the diff.
-11. Update docs and plan state.
-12. Record remaining gaps in `docs/plans/tech-debt-tracker.md`.
+6. Run `npm run harness:plan -- --since origin/main` when changed files need a
+   focused verification set.
+7. Write or update a change contract for non-trivial work.
+8. Choose user, privacy, and verification sensors before edits.
+9. Implement the smallest coherent slice.
+10. Run sensors from `verification-matrix.md`.
+11. Remove disposable artifacts and inspect the diff.
+12. Update docs and plan state.
+13. Record remaining gaps in `docs/plans/tech-debt-tracker.md`.
 
 ## Guide And Sensor Model
 

@@ -181,6 +181,10 @@ and record actionable findings in this active-plan surface.
   tested portable before/after report for score, session metrics, active next
   work, and harness-tuning recommendations, modeled on the WalkingLabs
   benchmark/report scripts without generating tracked report files by default.
+- Latest local diff-aware harness work adds `npm run harness:plan -- --since
+  origin/main`, a tested changed-file command planner that maps docs, scripts,
+  frontend, Playwright, Rust, Tauri invoke, security/privacy, package, and
+  user-facing copy paths to focused verification commands.
 - Latest local privacy-logging harness work moves privacy/logging violation
   orchestration out of `scripts/check-repo-bloat.mjs` and into
   `collectPrivacyLoggingViolations`; focused privacy-logging coverage now
@@ -198,12 +202,10 @@ and record actionable findings in this active-plan surface.
 - Latest local screenshot work refreshes `docs/images/*.png` with current
   broad-audience UI data and fixes the settings screenshot capture so it opens
   the real settings modal instead of duplicating the dashboard.
-- Latest remote checkpoint before the current corrective commit was
-  `378d8c56 Make profile docs app-first`. Docs Harness passed for that push;
-  CI run `26742720063` failed only in frontend unit tests because
-  `BookmarkletGenerator.test.tsx` clicked the browser-button copy action before
-  async setup enabled it. The latest local CI-correction waits for the enabled
-  button before testing the copy-failure path.
+- Latest remote checkpoint is `2b120e60 Fix bookmarklet copy test race`. Docs
+  Harness run `26743031643` and CI run `26743031608` passed for that push after
+  the bookmarklet copy-failure test was changed to wait for the browser-button
+  action to become enabled before clicking.
 - Latest local company-research accuracy work removes hardcoded employer
   rating claims from the static fallback data, keeps cached/live rating
   rendering covered by component tests, changes unknown-company guidance to

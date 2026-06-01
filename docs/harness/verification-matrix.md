@@ -3,6 +3,16 @@
 Use the smallest command set that proves the change. Broaden when shared
 behavior, security, storage, or release flow changes.
 
+For a changed-file command plan, run:
+
+```bash
+npm run harness:plan -- --since origin/main
+```
+
+The planner suggests focused tests and matrix-backed sensors. Treat it as a
+starting point, then broaden when privacy, security, storage, release, or
+user-facing workflow risk requires more evidence.
+
 ## Always
 
 | Change | Required sensor |

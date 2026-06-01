@@ -52,7 +52,7 @@ module-ownership work below. Remaining recommendations stay tracked here and in
 | P0 | Extract hardcoded harness policy data from `check-harness.mjs` | `docs/harness/manifest.json` now owns required harness files, policy snippets, and README reference-source URLs; `scripts/check-harness.mjs` reads the manifest and remains the validator. | Closed: source and snippet policy changes are reviewable as data instead of script edits. | Keep new harness policy lists in the manifest unless logic, not policy data, changes. |
 | P1 | Split `check-repo-bloat.mjs` into named sensors | Closed for the main runner: `scripts/check-repo-bloat.mjs` is now a 569-line orchestrator. Named modules live under `scripts/harness/checks/`; the largest remaining modules are `privacy-logging.mjs`, `docs-drift.mjs`, `product-copy.mjs`, and `broad-audience-fixtures.mjs`. | Residual review cost now sits in large named modules instead of one mixed runner. | Continue splitting named modules only where the ownership boundary is clear and focused tests can prove the split. |
 | P1 | Strengthen security sensors beyond doc-presence checks | Partly closed: security-sensitive implementation checks now live in named modules including `privacy-logging.mjs`, `security-docs.mjs`, `source-quality.mjs`, `source-boundaries.mjs`, and `ipc-minimization.mjs`. | Remaining risk is discoverability across several security-adjacent modules rather than absence of implementation checks. | Add a sensor registry or harness architecture map that names each security-sensitive module, owner, source, and retire condition. |
-| P1 | Add diff-aware verification selection | `docs/harness/verification-matrix.md` is clear but manual. There is no command that maps changed files to required sensors. | Agents may over-run slow checks or under-run required checks, especially during long sessions. | Add `npm run harness:plan -- --since origin/main` to inspect changed files and print required commands from the matrix. |
+| P1 | Add diff-aware verification selection | Closed: `npm run harness:plan -- --since origin/main` maps changed files to required sensors and focused test commands from the verification matrix. | Closed for current high-signal paths; future risk is new source roots or workflows not being added to the planner. | Keep planner mappings updated when new source roots, workflows, or sensor commands are added. |
 | P1 | Compact active plan state | `docs/plans/active/status.md` now gives the compact restart state, while older progress rows live in `docs/plans/archive/progress-history-2026-05-28-to-2026-05-29.md`. | Closed: active state is easier to restart without losing provenance. Drift can return if future slices update long plans but skip the compact status. | Keep `docs/plans/active/status.md` current and archive old progress rows when they become history, not active state. |
 
 ## Privacy And Rule 0 Improvements
@@ -77,7 +77,7 @@ module-ownership work below. Remaining recommendations stay tracked here and in
 | Priority | Improvement | Evidence | Risk | Recommended fix |
 | -------- | ----------- | -------- | ---- | --------------- |
 | P1 | Add runtime budget tracking for E2E | Playwright commands are faster than before, but timings live in plan prose and terminal output, not a maintained artifact. | Slow tests can regress until developers are back to long local loops. | Use Playwright JSON output for smoke/full runs and add a budget check for smoke gate duration and test count. |
-| P1 | Add changed-test suggestion support | `test:e2e:last-failed` exists, but there is no repo command that maps changed files to focused Vitest/Playwright/Rust tests. | Agents may choose full suites too often or miss the right targeted test. | Extend the proposed `harness:plan` command to suggest focused tests from changed paths. |
+| P1 | Add changed-test suggestion support | Closed: `npm run harness:plan -- --since origin/main` suggests adjacent Vitest tests, changed Playwright specs, script tests, Rust gates, Tauri invoke checks, and fallback unit suites when no adjacent frontend test exists. | Closed for current repo layout; new test roots must be added with focused coverage. | Update the planner and `scripts/harness-plan.test.mjs` when test layout changes. |
 | P2 | Add CI smoke E2E only when UI paths change | Normal CI does not run Playwright. | UI regressions can pass PR CI when unit tests miss a workflow issue. | Add path-filtered Chromium smoke E2E for UI/workflow paths or keep it as a manual required release gate if CI time is too high. |
 
 ## State And Interoperability Improvements
@@ -119,7 +119,7 @@ module-ownership work below. Remaining recommendations stay tracked here and in
 
 1. Continue splitting oversized named sensor modules only where the boundary is
    clear and focused tests can prove the split.
-2. Add diff-aware `harness:plan`.
+2. Keep diff-aware `harness:plan` mappings current as source and test roots evolve.
 3. Add feature privacy label manifest and validation.
 4. Add E2E runtime budget tracking.
 5. Add a sensor registry or harness architecture map for discoverability.

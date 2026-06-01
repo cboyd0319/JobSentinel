@@ -38,6 +38,7 @@ function writeCompleteHarnessFixture(root) {
         "doctor:e2e": "node scripts/doctor.mjs --e2e",
         "harness:benchmark": "node scripts/harness-benchmark.mjs",
         "harness:check": "node scripts/check-harness.mjs",
+        "harness:plan": "node scripts/harness-plan.mjs",
         "harness:score": "node scripts/harness-score.mjs",
         "harness:session": "node scripts/harness-session.mjs",
         "lint:bloat": "node scripts/check-repo-bloat.mjs",
@@ -146,6 +147,7 @@ function writeCompleteHarnessFixture(root) {
   writeFixtureFile(root, "scripts/check-harness-policy.test.mjs", "");
   writeFixtureFile(root, "scripts/harness-benchmark.mjs", "");
   writeFixtureFile(root, "scripts/harness-benchmark.test.mjs", "");
+  writeFixtureFile(root, "scripts/harness-plan.mjs", "");
   writeFixtureFile(root, "scripts/harness-score.mjs", "");
   writeFixtureFile(root, "scripts/harness-score.test.mjs", "");
   writeFixtureFile(root, "scripts/harness-session.test.mjs", "");
