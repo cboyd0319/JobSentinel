@@ -44,9 +44,9 @@ and record actionable findings in this active-plan surface.
   process-wide shared rate limiter, so repeated manual runs preserve source
   cooldown state across fresh scheduler/scraper instances.
 - Latest local bookmarklet boundary work removes wildcard CORS and custom auth
-  headers from the browser-helper flow by sending the session token in a
-  `no-cors` text-body envelope. The remaining open issue is stronger
-  short-lived/session-bound approval for the copied helper token.
+  headers from the browser-helper flow, sends the local safety code in a
+  `no-cors` text-body envelope, refreshes it when copying the browser button,
+  and expires copied codes after about one hour.
 - Latest local zero-technical setup work removes raw Slack connection-link
   setup from first-run onboarding. Setup now tells users optional chat alerts
   can be added later in Settings, with focused UI and product-copy coverage.
@@ -465,8 +465,9 @@ and record actionable findings in this active-plan surface.
    Latest read-only scan found no high-confidence maintained-surface
    engineer-first violations, but keep auditing as new slices touch copy.
 5. Continue backend/scraper and frontend privacy-edge review.
-   Current open security follow-up from the latest audit is bookmarklet
-   local-server short-lived/session-bound token approval.
+   The concrete findings from the latest read-only security audit are closed
+   locally; continue looking for new issues as later slices touch trust
+   boundaries.
 6. Continue the next zero-technical-knowledge UX audit area outside
    support/reporting.
 7. Run final broad verification only when the remaining known work has evidence.

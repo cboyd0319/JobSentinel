@@ -46,7 +46,7 @@ describe("BookmarkletGenerator", () => {
     expect(screen.getByText("Import Helper")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /turn off/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /copy browser button/i })).toBeInTheDocument();
-    expect(screen.getByText(/you do not need to read or edit it/i)).toBeInTheDocument();
+    expect(screen.getByText(/copy it again after about one hour/i)).toBeInTheDocument();
     expect(screen.getByText(/local safety code/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /advanced connection settings/i }));
     expect(screen.getByText("Connection Number")).toBeInTheDocument();

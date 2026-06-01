@@ -4,7 +4,7 @@
 
 use super::BookmarkletJobData;
 use crate::core::db::{Database, Job};
-use chrono::Utc;
+use chrono::{DateTime, TimeDelta, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sha2::{Digest, Sha256};
@@ -18,6 +18,7 @@ const BOOKMARKLET_TOKEN_HEADER: &str = "x-jobsentinel-token";
 const CONTENT_LENGTH_HEADER: &str = "content-length";
 const HEADER_BODY_SEPARATOR: &[u8] = b"\r\n\r\n";
 const MAX_BOOKMARKLET_REQUEST_BYTES: usize = 8192;
+const BOOKMARKLET_TOKEN_LIFETIME_MINUTES: i64 = 60;
 const INVALID_BOOKMARKLET_PAYLOAD_MESSAGE: &str =
     "Invalid bookmarklet payload. Reload the page and try again.";
 const BOOKMARKLET_DATABASE_FAILURE_MESSAGE: &str =
@@ -28,6 +29,7 @@ const BOOKMARKLET_DATABASE_FAILURE_MESSAGE: &str =
 pub struct BookmarkletConfig {
     pub port: u16,
     pub auth_token: String,
+    pub auth_token_expires_at: DateTime<Utc>,
 }
 
 impl Default for BookmarkletConfig {
@@ -35,8 +37,25 @@ impl Default for BookmarkletConfig {
         Self {
             port: 4321,
             auth_token: Uuid::new_v4().to_string(),
+            auth_token_expires_at: bookmarklet_auth_expiry(),
         }
     }
+}
+
+impl BookmarkletConfig {
+    pub fn refresh_auth_token(&mut self) {
+        self.auth_token = Uuid::new_v4().to_string();
+        self.auth_token_expires_at = bookmarklet_auth_expiry();
+    }
+
+    #[must_use]
+    pub fn auth_token_is_current(&self, now: DateTime<Utc>) -> bool {
+        !self.auth_token.is_empty() && now <= self.auth_token_expires_at
+    }
+}
+
+fn bookmarklet_auth_expiry() -> DateTime<Utc> {
+    Utc::now() + TimeDelta::minutes(BOOKMARKLET_TOKEN_LIFETIME_MINUTES)
 }
 
 /// Bookmarklet server errors
@@ -101,15 +120,27 @@ impl BookmarkletServer {
         }
 
         self.config = config;
+        if !self.config.auth_token_is_current(Utc::now()) {
+            self.config.refresh_auth_token();
+        }
         let port = self.config.port;
         let auth_token = self.config.auth_token.clone();
+        let auth_token_expires_at = self.config.auth_token_expires_at;
 
         // Create shutdown channel
         let (shutdown_tx, shutdown_rx) = tokio::sync::oneshot::channel();
 
         // Spawn server task
         let handle = tokio::spawn(async move {
-            if let Err(e) = run_server(port, auth_token, database, shutdown_rx).await {
+            if let Err(e) = run_server(
+                port,
+                auth_token,
+                auth_token_expires_at,
+                database,
+                shutdown_rx,
+            )
+            .await
+            {
                 tracing::error!(error = %bookmarklet_error_label(&e), "Bookmarklet server error");
             }
         });
@@ -152,6 +183,7 @@ impl Default for BookmarkletServer {
 async fn run_server(
     port: u16,
     auth_token: String,
+    auth_token_expires_at: DateTime<Utc>,
     database: Arc<Database>,
     mut shutdown_rx: tokio::sync::oneshot::Receiver<()>,
 ) -> Result<(), BookmarkletError> {
@@ -173,8 +205,11 @@ async fn run_server(
                     Ok((stream, _)) => {
                         let db = database.clone();
                         let token = auth_token.clone();
+                        let token_expires_at = auth_token_expires_at;
                         tokio::spawn(async move {
-                            if let Err(_e) = handle_connection(stream, token, db).await {
+                            if let Err(_e) =
+                                handle_connection(stream, token, token_expires_at, db).await
+                            {
                                 tracing::error!("Bookmarklet connection failed");
                             }
                         });
@@ -201,6 +236,7 @@ async fn run_server(
 async fn handle_connection(
     stream: tokio::net::TcpStream,
     auth_token: String,
+    auth_token_expires_at: DateTime<Utc>,
     database: Arc<Database>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     use tokio::io::AsyncWriteExt;
@@ -233,7 +269,7 @@ async fn handle_connection(
 
     // Parse request
     let (response, content_type) = if request.starts_with("POST /api/bookmarklet/import") {
-        handle_import_request(&request, &auth_token, database).await
+        handle_import_request(&request, &auth_token, auth_token_expires_at, database).await
     } else if request.starts_with("OPTIONS") {
         ("OK".to_string(), "text/plain".to_string())
     } else {
@@ -333,6 +369,7 @@ fn request_buffer_has_complete_body(buffer: &[u8]) -> bool {
 async fn handle_import_request(
     request: &str,
     auth_token: &str,
+    auth_token_expires_at: DateTime<Utc>,
     database: Arc<Database>,
 ) -> (String, String) {
     // Extract JSON body from request
@@ -360,8 +397,9 @@ async fn handle_import_request(
         }
     };
 
-    if !has_valid_bookmarklet_token(request, auth_token)
-        && !body_has_valid_bookmarklet_token(&body_value, auth_token)
+    if Utc::now() > auth_token_expires_at
+        || (!has_valid_bookmarklet_token(request, auth_token)
+            && !body_has_valid_bookmarklet_token(&body_value, auth_token))
     {
         return (
             json_error_response("Unauthorized bookmarklet request"),
@@ -594,6 +632,21 @@ mod tests {
     }
 
     #[test]
+    fn test_bookmarklet_config_refreshes_auth_token_with_expiry() {
+        let mut config = BookmarkletConfig {
+            port: 4321,
+            auth_token: "old-token".to_string(),
+            auth_token_expires_at: Utc::now() - TimeDelta::minutes(1),
+        };
+
+        assert!(!config.auth_token_is_current(Utc::now()));
+        config.refresh_auth_token();
+
+        assert_ne!(config.auth_token, "old-token");
+        assert!(config.auth_token_is_current(Utc::now()));
+    }
+
+    #[test]
     fn test_request_buffer_waits_for_declared_body() {
         let headers_only = b"POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost\r\nContent-Length: 5\r\n\r\n";
         let complete_request = b"POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost\r\nContent-Length: 5\r\n\r\nhello";
@@ -651,6 +704,7 @@ mod tests {
         let (response, content_type) = handle_import_request(
             &bookmarklet_import_request(&body),
             TEST_AUTH_TOKEN,
+            bookmarklet_auth_expiry(),
             database.clone(),
         )
         .await;
@@ -680,6 +734,31 @@ mod tests {
         let (response, content_type) = handle_import_request(
             &bookmarklet_import_request(&body),
             TEST_AUTH_TOKEN,
+            bookmarklet_auth_expiry(),
+            database.clone(),
+        )
+        .await;
+        let parsed: serde_json::Value =
+            serde_json::from_str(&response).expect("error response should be JSON");
+
+        assert_eq!(content_type, "application/json");
+        assert_eq!(parsed["error"], "Unauthorized bookmarklet request");
+        assert_eq!(stored_job_count(&database).await, 0);
+    }
+
+    #[tokio::test]
+    async fn test_bookmarklet_import_rejects_expired_token_without_insert() {
+        let database = bookmarklet_test_database().await;
+        let body = bookmarklet_import_body(serde_json::json!({
+            "title": "Care Coordinator",
+            "company": "Community Care",
+            "url": "https://example.com/jobs/1"
+        }));
+
+        let (response, content_type) = handle_import_request(
+            &bookmarklet_import_request(&body),
+            TEST_AUTH_TOKEN,
+            Utc::now() - TimeDelta::minutes(1),
             database.clone(),
         )
         .await;
@@ -703,6 +782,7 @@ mod tests {
         let (response, content_type) = handle_import_request(
             &bookmarklet_import_request(&body),
             TEST_AUTH_TOKEN,
+            bookmarklet_auth_expiry(),
             database.clone(),
         )
         .await;
@@ -729,6 +809,7 @@ mod tests {
         let (response, content_type) = handle_import_request(
             &bookmarklet_import_request(&body),
             TEST_AUTH_TOKEN,
+            bookmarklet_auth_expiry(),
             database.clone(),
         )
         .await;

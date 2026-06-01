@@ -194,7 +194,8 @@ export function BookmarkletGenerator() {
                 </Button>
               </div>
               <p className="text-xs text-gray-500">
-                Hidden details include a local safety code. You do not need to read or edit it.
+                Hidden details include a local safety code. Copy it again after about one hour
+                or when JobSentinel restarts.
               </p>
             </div>
 
@@ -207,7 +208,7 @@ export function BookmarkletGenerator() {
                 <li>Name it "Import to JobSentinel"</li>
                 <li>Paste the copied text into the bookmark address field</li>
                 <li>Save the bookmark to your bookmarks bar</li>
-                <li>Copy the browser button again after changing advanced settings or restarting JobSentinel</li>
+                <li>Copy the browser button again after about one hour or when JobSentinel restarts</li>
               </ol>
             </div>
 

@@ -55,9 +55,32 @@ pub async fn get_bookmarklet_config(
 pub async fn copy_bookmarklet_code(state: State<'_, AppState>) -> Result<(), String> {
     tracing::debug!("Copying browser import button");
 
-    let server_guard = state.bookmarklet_server.read().await;
-    let config = server_guard.config().clone();
+    let mut server_guard = state.bookmarklet_server.write().await;
+    let was_running = server_guard.is_running();
+    let mut config = server_guard.config().clone();
+    config.refresh_auth_token();
     let code = bookmarklet_code(config.port, &config.auth_token);
+
+    if was_running {
+        server_guard.stop().await.map_err(|e| {
+            let message = user_friendly_error("Could not refresh browser button", &e);
+            tracing::error!(error = %message, "Failed to stop bookmarklet server for token refresh");
+            message
+        })?;
+
+        server_guard
+            .start(config, state.database.clone())
+            .await
+            .map_err(|e| {
+                let message = user_friendly_error("Could not refresh browser button", &e);
+                tracing::error!(error = %message, "Failed to restart bookmarklet server after token refresh");
+                message
+            })?;
+    } else {
+        server_guard.set_config(config);
+    }
+
+    drop(server_guard);
 
     Clipboard::new()
         .and_then(|mut clipboard| clipboard.set_text(code))

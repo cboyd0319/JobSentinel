@@ -508,9 +508,9 @@ Recent cleanup slices on `main` include:
   constructors to a process-wide shared rate limiter, preserving source
   cooldown state across repeated manual runs and fresh scheduler instances.
 - Latest local bookmarklet boundary follow-up removes wildcard CORS and custom
-  auth headers from the browser-helper flow. It keeps the copied helper token
-  session-scoped but still records stronger short-lived/session-bound approval
-  as open security debt.
+  auth headers from the browser-helper flow, refreshes the local safety code
+  when copying the browser button, and expires copied codes after about one
+  hour.
 - Latest local zero-technical setup follow-up removes raw Slack connection-link
   setup from first-run onboarding and replaces it with a plain note that
   optional chat alerts can be added later in Settings.
@@ -817,8 +817,9 @@ Next high-value passes:
      provider-body leaks.
    - Recheck scraper request caps, retry handling, rate limits, and health
      result shapes.
-   - Continue the remaining 2026-06-01 security audit follow-up: bookmarklet
-     local-server short-lived/session-bound token approval.
+   - The concrete findings from the latest read-only security audit are closed
+     locally; continue looking for new issues as later slices touch trust
+     boundaries.
    - Keep no-bypass and local-first product rules intact.
 4. Continue frontend boundary review.
    - Recheck stored JSON parsing, URL validation, error rendering, direct
