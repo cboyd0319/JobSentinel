@@ -117,7 +117,12 @@ describe("profiles", () => {
   describe("source defaults", () => {
     it("recognizes technical and non-technical search terms", () => {
       expect(searchLooksTechFocused(["Software Engineer"])).toBe(true);
-      expect(searchLooksTechFocused(["Technical Product Manager"])).toBe(true);
+      expect(searchLooksTechFocused(["Frontend Engineer", "React"])).toBe(true);
+      expect(searchLooksTechFocused(["Technical Product Manager"])).toBe(false);
+      expect(searchLooksTechFocused(["Sales Engineer"])).toBe(false);
+      expect(searchLooksTechFocused(["Curriculum Developer"])).toBe(false);
+      expect(searchLooksTechFocused(["Support Engineer"])).toBe(false);
+      expect(searchLooksTechFocused(["Customer Success Engineer"])).toBe(false);
       expect(searchLooksTechFocused(["Product Designer"])).toBe(false);
       expect(searchLooksTechFocused(["Office Manager", "Scheduling"])).toBe(false);
       expect(searchLooksTechFocused(["Medical Assistant", "EMR"])).toBe(false);
@@ -139,6 +144,17 @@ describe("profiles", () => {
         getSearchSourceDefaults({
           titles: ["Office Manager"],
           keywords: ["Scheduling"],
+          allowRemote: true,
+        }),
+      ).toEqual({
+        remoteokEnabled: false,
+        hnHiringEnabled: false,
+        weworkremotelyEnabled: false,
+      });
+      expect(
+        getSearchSourceDefaults({
+          titles: ["Sales Engineer", "Curriculum Developer", "Support Engineer"],
+          keywords: ["customer onboarding", "training"],
           allowRemote: true,
         }),
       ).toEqual({

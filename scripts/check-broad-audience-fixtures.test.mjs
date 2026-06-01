@@ -328,3 +328,26 @@ test("broad audience fixtures reject tech-first synonym ordering", () => {
     );
   });
 });
+
+test("broad audience fixtures reject broad role tech-source heuristics", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/utils/profiles.ts",
+      [
+        "const TECH_SOURCE_TERMS = [",
+        '  "developer",',
+        '  "engineer",',
+        '  "technical product manager",',
+        "];",
+        "terms.some((term) => TECH_SOURCE_TERMS.some((techTerm) => term.includes(techTerm)));",
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasEngineerFirstAudienceExamples(root, "src/utils/profiles.ts"),
+      true,
+    );
+  });
+});

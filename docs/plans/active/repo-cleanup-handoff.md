@@ -142,6 +142,11 @@ Current cleanup posture:
   keeps GitHub as an optional maintainer path, and clarifies setup/Quick Start
   privacy copy so selected job sources and alert providers are contacted only
   for features the user turns on.
+- Current local broad-source heuristic follow-up stops generic broad role
+  titles such as sales engineer, curriculum developer, support engineer,
+  customer success engineer, and technical product manager from turning on
+  tech-heavy sources by substring match. Utility and broad-audience harness
+  tests now guard this behavior.
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
 - `npm run harness:plan -- --since origin/main` now maps changed files to
   focused verification commands from the harness matrix.
@@ -895,10 +900,9 @@ Next high-value passes:
    - Recheck onboarding, examples, placeholders, filters, profile presets, docs,
      and empty states for engineer-only assumptions.
    - Make sure technical and non-technical job searches both feel first-class.
-   - Latest read-only audit found tech-heavy source heuristics can still
-     misclassify broad roles such as sales engineer, curriculum developer,
-     support engineer, and technical product manager as software-focused by
-     default.
+   - The latest tech-source heuristic finding is closed locally. Keep looking
+     for source recommendations, defaults, and profile examples that still
+     assume software roles.
 7. Keep harness evidence current.
    - Use the updated change-contract and plan templates for broad follow-up
      work.

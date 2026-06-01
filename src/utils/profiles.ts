@@ -34,16 +34,25 @@ const TECH_SOURCE_PROFILE_IDS = new Set([
   "data-science",
 ]);
 
+// Keep this list specific so broad roles like Sales Engineer or Curriculum
+// Developer do not inherit software-job-board defaults.
 const TECH_SOURCE_TERMS = [
   "software",
-  "developer",
-  "engineer",
+  "software engineer",
+  "software developer",
+  "frontend",
+  "front end",
+  "backend",
+  "back end",
+  "full stack",
   "programmer",
   "devops",
   "sre",
   "site reliability",
-  "platform",
-  "cloud",
+  "platform engineer",
+  "cloud engineer",
+  "infrastructure engineer",
+  "systems engineer",
   "cybersecurity",
   "security engineer",
   "security analyst",
@@ -55,9 +64,23 @@ const TECH_SOURCE_TERMS = [
   "ai engineer",
   "data engineer",
   "analytics engineer",
-  "technical product manager",
   "ux engineer",
   "design engineer",
+  "react",
+  "typescript",
+  "javascript",
+  "python",
+  "rust",
+  "java",
+  "kubernetes",
+  "aws",
+  "gcp",
+  "azure",
+  "docker",
+  "terraform",
+  "node.js",
+  "sql",
+  "postgresql",
 ];
 
 function buildSourceDefaults(isTechFocused: boolean, allowRemote: boolean): SourceDefaults {
@@ -70,8 +93,16 @@ function buildSourceDefaults(isTechFocused: boolean, allowRemote: boolean): Sour
 
 export function searchLooksTechFocused(terms: string[]): boolean {
   return terms
-    .map((term) => term.toLowerCase())
-    .some((term) => TECH_SOURCE_TERMS.some((techTerm) => term.includes(techTerm)));
+    .map((term) => normalizeSearchTerm(term))
+    .some((term) => TECH_SOURCE_TERMS.some((techTerm) => term.includes(` ${techTerm} `)));
+}
+
+function normalizeSearchTerm(term: string): string {
+  return ` ${term
+    .toLowerCase()
+    .replace(/[^a-z0-9+#.]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()} `;
 }
 
 export function getProfileSourceDefaults(profile: CareerProfile): SourceDefaults {

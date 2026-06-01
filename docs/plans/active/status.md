@@ -40,6 +40,11 @@ and record actionable findings in this active-plan surface.
   providers may be contacted only when users turn them on, and adds
   product-copy coverage against GitHub-first support and overbroad privacy
   claims.
+- Latest local broad-source heuristic work stops generic broad role titles such
+  as technical product manager, sales engineer, curriculum developer, support
+  engineer, and customer success engineer from enabling tech-heavy job source
+  defaults. Unit and harness coverage now reject generic `developer` and
+  `engineer` substring matching.
 - Latest local broad-profile source work removes preloaded company-source URLs
   from product, UX, content, and marketing profile JSON files. Harness coverage
   now rejects official company source URLs in broad non-technical starter
@@ -523,9 +528,9 @@ and record actionable findings in this active-plan surface.
    setup path and Telegram bot setup language.
 4. Continue broad-audience review so non-technical and technical job searches
    both feel first-class.
-   Latest read-only scan found tech-heavy source heuristics can still classify
-   broad roles such as sales engineer, curriculum developer, support engineer,
-   and technical product manager too broadly; fix that before final completion.
+   The latest tech-source heuristic finding is closed locally; keep auditing
+   setup defaults, examples, placeholders, and source recommendations as new
+   slices touch broad-role behavior.
 5. Continue backend/scraper and frontend privacy-edge review.
    The concrete findings from the latest read-only security audit are closed
    locally; continue looking for new issues as later slices touch trust

@@ -194,6 +194,11 @@ boundaries, and harness modularity:
   broken-link help, setup review, and Quick Start data guidance lead with
   in-app safe support reports, Send Feedback, and local-first defaults without
   claiming selected job sources or alert providers are never contacted.
+- Narrowed tech-source heuristics so broad roles such as sales engineer,
+  curriculum developer, support engineer, customer success engineer, and
+  technical product manager do not inherit RemoteOK, HN, WeWorkRemotely, Dice,
+  or BuiltIn recommendations unless explicit software/data/security or stack
+  signals are present.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright
@@ -407,10 +412,9 @@ review, frontend boundary review, protective job-search UX review, and final
 broad verification.
 
 Known follow-ups from the latest read-only audits: USAJobs setup still needs a
-less technical fallback path, Telegram setup should be treated as advanced chat
-setup, and tech-heavy source heuristics must stop classifying broad roles such
-as sales engineer, curriculum developer, support engineer, and technical
-product manager as software-focused by default.
+less technical fallback path, and Telegram setup should be treated as advanced
+chat setup. The tech-heavy source heuristic finding is closed locally with unit
+and broad-audience harness coverage.
 
 ## Verification
 

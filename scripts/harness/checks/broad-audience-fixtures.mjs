@@ -56,6 +56,7 @@ const broadAudienceExamplePaths = new Set([
   "src/pages/Settings.tsx",
   "src/pages/SetupWizard.tsx",
   "src/contexts/UndoIntegration.test.tsx",
+  "src/utils/profiles.ts",
   "src/utils/resumeContactValidation.test.ts",
   "src/utils/formValidation.test.ts",
   "src/types/deeplinks.ts",
@@ -185,6 +186,26 @@ export function hasEngineerFirstAudienceExamples(root, path) {
     ];
 
     if (profileSeedPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "src/utils/profiles.ts") {
+    const techSourceTerms = text.match(/const TECH_SOURCE_TERMS = \[([\s\S]*?)\];/);
+    const techSourceTermBody = techSourceTerms?.[1] ?? "";
+    const broadTitlePatterns = [
+      /["'`]developer["'`]/i,
+      /["'`]engineer["'`]/i,
+      /["'`]technical product manager["'`]/i,
+    ];
+    const broadSubstringMatcherPatterns = [
+      /term\.includes\(techTerm\)/,
+    ];
+
+    if (
+      broadTitlePatterns.some((pattern) => pattern.test(techSourceTermBody)) ||
+      broadSubstringMatcherPatterns.some((pattern) => pattern.test(text))
+    ) {
       return true;
     }
   }
