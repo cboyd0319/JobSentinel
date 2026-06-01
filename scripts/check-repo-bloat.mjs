@@ -47,6 +47,13 @@ import {
 import {
   hasRawAutomationDropdownValueLogging,
   hasRawFrontendErrorReporterForwarding,
+  hasLinkedInLoginCookieReturn,
+  hasMlRawErrorDisplay,
+  hasMlRawLocalPathDoc,
+  hasMlRawLocalPathExposure,
+  hasRawBackupPathError,
+  hasRawJobsWithGptDebug,
+  hasRawLinkedInDebug,
   hasRawLocalPathLogging,
   hasRawPrivateQueryLogging,
   hasRawScraperLoopErrorLogging,
@@ -91,19 +98,6 @@ import {
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
 
-const rawBackupPathErrorPaths = new Set(["src-tauri/src/core/db/integrity/backups.rs"]);
-
-const mlRawLocalPathExposurePaths = new Set([
-  "src-tauri/src/commands/ml.rs",
-  "src-tauri/src/core/ml/model.rs",
-]);
-const mlErrorDisplayPrivacyPaths = new Set(["src-tauri/src/core/ml/mod.rs"]);
-
-const mlRawLocalPathDocPaths = new Set(["docs/ML_FEATURE.md", "docs/ML_QUICKSTART.md"]);
-
-const jobsWithGptPrivacyPaths = new Set(["src-tauri/src/core/scrapers/jobswithgpt.rs"]);
-const linkedInPrivacyPaths = new Set(["src-tauri/src/core/scrapers/linkedin.rs"]);
-const linkedInAuthPrivacyPaths = new Set(["src-tauri/src/commands/linkedin_auth.rs"]);
 const emailCommandPrivacyPaths = new Set(["src-tauri/src/commands/config.rs"]);
 const linkedInCredentialDocsPaths = new Set([
   "src-tauri/src/core/scrapers/linkedin.rs",
@@ -1584,87 +1578,6 @@ function stripRustTestModules(text) {
   }
 
   return text.slice(0, testModuleIndex);
-}
-
-function hasRawBackupPathError(root, path) {
-  if (!rawBackupPathErrorPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return /Backup file not found:\s*\{\}[\s\S]{0,80}backup_path\.display\(\)/.test(
-    productionText,
-  );
-}
-
-function hasMlRawLocalPathExposure(root, path) {
-  if (!mlRawLocalPathExposurePaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /\bpub\s+model_path\s*:\s*PathBuf\b/.test(productionText) ||
-    /Ok\(format!\(\s*"Model downloaded to \{:\?\}"\s*,\s*model_path\s*\)\)/.test(
-      productionText,
-    ) ||
-    /tracing::info!\(\s*"Model downloaded successfully to \{:\?\}"\s*,\s*model_dir\s*\)/.test(
-      productionText,
-    ) ||
-    /failed to read model weights from \{:\?\}[\s\S]{0,120}model_path/.test(productionText)
-  );
-}
-
-function hasMlRawErrorDisplay(root, path) {
-  if (!mlErrorDisplayPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return /#\[error\("\s*(?:model not downloaded|model loading failed|inference failed|tokenization failed|download failed|IO error)[^"]*:\s*\{0\}"\)\]/.test(
-    productionText,
-  );
-}
-
-function hasMlRawLocalPathDoc(root, path) {
-  if (!mlRawLocalPathDocPaths.has(path)) {
-    return false;
-  }
-
-  return /\bmodel_path\s*:\s*string\b/.test(readFileSync(join(root, path), "utf8"));
-}
-
-function hasRawJobsWithGptDebug(root, path) {
-  if (!jobsWithGptPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return /#\[derive\([^)]*Debug[^)]*\)\]\s*pub struct (?:JobsWithGptScraper|JobQuery)\b/.test(
-    productionText,
-  );
-}
-
-function hasRawLinkedInDebug(root, path) {
-  if (!linkedInPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return /#\[derive\([^)]*Debug[^)]*\)\]\s*pub struct LinkedInScraper\b/.test(productionText);
-}
-
-function hasLinkedInLoginCookieReturn(root, path) {
-  if (!linkedInAuthPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /cookie_result\.map\(\s*\|\(\s*cookie\b/.test(productionText) ||
-    /tx\.send\(\s*cookie_result\.map\(\s*\|\([^)]*\)\|\s*cookie\s*\)\s*\)/.test(productionText) ||
-    /Send result back\s*\([^)]*cookie value/.test(productionText)
-  );
 }
 
 function hasRawEmailTestErrorReturn(root, path) {

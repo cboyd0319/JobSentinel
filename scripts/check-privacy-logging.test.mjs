@@ -4,8 +4,15 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import {
+  hasLinkedInLoginCookieReturn,
+  hasMlRawErrorDisplay,
+  hasMlRawLocalPathDoc,
+  hasMlRawLocalPathExposure,
   hasRawAutomationDropdownValueLogging,
+  hasRawBackupPathError,
   hasRawFrontendErrorReporterForwarding,
+  hasRawJobsWithGptDebug,
+  hasRawLinkedInDebug,
   hasRawLocalPathLogging,
   hasRawPrivateQueryLogging,
   hasRawScraperLoopErrorLogging,
@@ -162,5 +169,88 @@ test("privacy logging rejects raw local path logging", () => {
 
     assert.equal(hasRawLocalPathLogging(root, "src-tauri/src/commands/resume.rs"), true);
     assert.equal(hasRawLocalPathLogging(root, "src-tauri/src/commands/jobs.rs"), false);
+  });
+});
+
+test("privacy logging rejects raw backup path errors", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/integrity/backups.rs",
+      'return Err(format!("Backup file not found: {}", backup_path.display()));',
+    );
+
+    assert.equal(
+      hasRawBackupPathError(root, "src-tauri/src/core/db/integrity/backups.rs"),
+      true,
+    );
+    assert.equal(hasRawBackupPathError(root, "src-tauri/src/core/db/connection.rs"), false);
+  });
+});
+
+test("privacy logging rejects ML local path exposure", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "src-tauri/src/commands/ml.rs", "pub model_path: PathBuf,\n");
+    writeFixtureFile(root, "docs/ML_FEATURE.md", "model_path: string\n");
+
+    assert.equal(hasMlRawLocalPathExposure(root, "src-tauri/src/commands/ml.rs"), true);
+    assert.equal(hasMlRawLocalPathExposure(root, "src-tauri/src/commands/jobs.rs"), false);
+    assert.equal(hasMlRawLocalPathDoc(root, "docs/ML_FEATURE.md"), true);
+    assert.equal(hasMlRawLocalPathDoc(root, "docs/README.md"), false);
+  });
+});
+
+test("privacy logging rejects raw ML error display", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/ml/mod.rs",
+      '#[error("model loading failed: {0}")]\nstruct MlError;',
+    );
+
+    assert.equal(hasMlRawErrorDisplay(root, "src-tauri/src/core/ml/mod.rs"), true);
+    assert.equal(hasMlRawErrorDisplay(root, "src-tauri/src/core/ml/model.rs"), false);
+  });
+});
+
+test("privacy logging rejects sensitive Debug derives", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/jobswithgpt.rs",
+      "#[derive(Debug)]\npub struct JobQuery;",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/linkedin.rs",
+      "#[derive(Clone, Debug)]\npub struct LinkedInScraper;",
+    );
+
+    assert.equal(
+      hasRawJobsWithGptDebug(root, "src-tauri/src/core/scrapers/jobswithgpt.rs"),
+      true,
+    );
+    assert.equal(hasRawLinkedInDebug(root, "src-tauri/src/core/scrapers/linkedin.rs"), true);
+    assert.equal(hasRawJobsWithGptDebug(root, "src-tauri/src/core/scrapers/dice.rs"), false);
+    assert.equal(hasRawLinkedInDebug(root, "src-tauri/src/core/scrapers/dice.rs"), false);
+  });
+});
+
+test("privacy logging rejects LinkedIn cookie return", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/linkedin_auth.rs",
+      "tx.send(cookie_result.map(|(cookie, expires)| cookie))?;",
+    );
+
+    assert.equal(
+      hasLinkedInLoginCookieReturn(root, "src-tauri/src/commands/linkedin_auth.rs"),
+      true,
+    );
+    assert.equal(
+      hasLinkedInLoginCookieReturn(root, "src-tauri/src/commands/config.rs"),
+      false,
+    );
   });
 });
