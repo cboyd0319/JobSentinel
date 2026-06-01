@@ -2258,6 +2258,28 @@ test("checkRepoBloat rejects overconfident pay guidance", () => {
   });
 });
 
+test("checkRepoBloat rejects non-protective salary-floor troubleshooting", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/user/QUICK_START.md",
+      "Lower your minimum salary to $0 temporarily\n",
+    );
+
+    execFileSync("git", ["add", "package.json", "docs/user/QUICK_START.md"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("keep salary-floor troubleshooting protective: docs/user/QUICK_START.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw salary command logging", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

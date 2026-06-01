@@ -45,7 +45,7 @@ Source health must follow the same rules for job sources:
 - Check sites politely and avoid reading more page data than needed.
 - Do not add hidden source checks.
 - Do not collect restricted-site session credentials.
-- Do not bypass human checks or platform controls.
+- Do not get around human checks or platform controls.
 - Do not include raw credentials, cookies, private notes, resumes, salary floors,
   or application history in health errors or support reports.
 - For optional user-configured source addresses such as JobsWithGPT, disclose that

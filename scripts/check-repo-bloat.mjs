@@ -37,6 +37,7 @@ import {
   hasFeedbackSetupJargon,
   hasFeedbackLocalReportDrift,
   hasLegacyPreferenceListCopy,
+  hasNonProtectivePayFloorRecoveryCopy,
   hasNonProtectiveScoreCopy,
   hasOverconfidentGhostCopy,
   hasOverconfidentPayGuidance,
@@ -248,6 +249,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasOverconfidentPayGuidance(root, path)) {
       violations.push(`replace overconfident pay guidance: ${path}`);
+    }
+
+    if (hasNonProtectivePayFloorRecoveryCopy(root, path)) {
+      violations.push(`keep salary-floor troubleshooting protective: ${path}`);
     }
 
     if (hasFeedbackLocalReportDrift(root, path)) {

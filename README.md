@@ -152,7 +152,7 @@ request.
 
 | Principle | Repository commitment |
 | --------- | --------------------- |
-| Rule 0 | Privacy and security cannot be bypassed for convenience, automation, support, research, or speed. |
+| Rule 0 | Privacy and security cannot be set aside for convenience, automation, support, research, or speed. |
 | Local-first | Jobs, searches, resumes, notes, salary floors, applications, and reports stay on the user's device by default. |
 | No telemetry | JobSentinel does not collect analytics or behavioral telemetry. |
 | Optional external channels | Slack, Discord, Teams, Telegram, email, GitHub feedback, and Google Drive are user-configured only. |

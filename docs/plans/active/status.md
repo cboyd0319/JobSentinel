@@ -216,6 +216,20 @@ and record actionable findings in this active-plan surface.
   findings in link validation, Quick Start install routing, support-detail
   export copy, maintainer feedback copy, empty job-list pay wording, job-card
   pay warning copy, and alert connection-link validation.
+- Latest local pay-protection follow-up changes Quick Start troubleshooting so
+  users are not told to drop their salary floor to zero. No-jobs recovery now
+  keeps the user's lowest acceptable pay intact and explains that missing-pay
+  roles remain visible for review. Product-copy coverage rejects future
+  salary-floor troubleshooting that weakens pay protection.
+- Latest local search-link wording follow-up removes site-control workaround framing and
+  technical-contributor labeling from user-facing Job Site Search Links docs.
+  Search-link boundaries now say JobSentinel does not get around sign-in pages,
+  human checks, or site limits, and product-copy coverage rejects the old
+  wording.
+- Latest local Browser Button follow-up changes support-only connection labels
+  from `Connection settings` / `Connection Number` to `Support settings` /
+  `Support number`, preserving the support escape hatch without asking
+  non-technical users to reason about ports or connection internals.
 - Latest local Application Assist security follow-up rejects unknown
   application-form targets before profile or saved screening-answer data is
   loaded, keeps unknown-platform generic selectors disabled as a second guard,
@@ -246,7 +260,7 @@ and record actionable findings in this active-plan surface.
   wording with employer and application-platform language while keeping the
   cautious source-evidence boundary.
 - Latest local source-docs wording follow-up replaces user-facing ATS,
-  CAPTCHA-bypass, anti-bot, endpoint, and selector phrasing in source health
+  CAPTCHA-solving/control-evasion, anti-bot, endpoint, and selector phrasing in source health
   and source adapter docs with employer, application-platform, human-check, and
   source-boundary language.
 - Latest local notification privacy follow-up makes desktop notification
@@ -574,7 +588,7 @@ and record actionable findings in this active-plan surface.
 - Latest local browser-import boundary work removes broad "any job posting" and
   large-board support promises from the browser import UI and docs, points users
   toward official career pages and public job pages opened by them, states that
-  JobSentinel does not bypass blocking controls, and adds product-copy coverage
+  JobSentinel does not get around blocking controls, and adds product-copy coverage
   against overbroad import promises.
 - Latest local search-link boundary work replaces automated-scan language in
   the Job Site Search Links UI and user docs with direct-monitoring and

@@ -83,6 +83,10 @@ const payProtectionGuidancePaths = new Set([
   "src/pages/Salary.tsx",
 ]);
 
+const payFloorRecoveryCopyPaths = new Set([
+  "docs/user/QUICK_START.md",
+]);
+
 const feedbackLocalReportPaths = new Set([
   "README.md",
   "ROADMAP.md",
@@ -408,6 +412,22 @@ export function hasOverconfidentPayGuidance(root, path) {
     /women just need to ask/i,
     /confidence fixes pay gaps/i,
     /protected-class-based script/i,
+  ];
+
+  return stalePatterns.some((pattern) => pattern.test(text));
+}
+
+export function hasNonProtectivePayFloorRecoveryCopy(root, path) {
+  if (!payFloorRecoveryCopyPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const stalePatterns = [
+    /Lower your minimum salary to \$0 temporarily/i,
+    /set (?:your )?(?:minimum salary|salary floor|pay floor) to \$0/i,
+    /remove (?:your )?(?:minimum salary|salary floor|pay floor)/i,
+    /disable (?:your )?(?:minimum salary|salary floor|pay floor)/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));
@@ -1010,6 +1030,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Paste your (?:Slack|Discord|Teams) webhook URL/i,
     /URL must use http:\/\/ or https:\/\//i,
     /URL must not include credentials/i,
+    /Connection Number/i,
     /Advanced: build from source/i,
     /Save Extra Support Details/i,
     /Optional maintainer issue/i,
@@ -1224,6 +1245,10 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /website thinks you're a bot/i,
     /This is a safety measure\. Reduce search frequency/i,
     /does not bypass CAPTCHA/i,
+    /does not bypass site controls/i,
+    /does not bypass human checks/i,
+    /\|\s*Login and human checks\s*\|\s*Handled by you on the site\s*\|\s*Not bypassed\s*\|/i,
+    /\[technical contributor guide\]/i,
     /CAPTCHA challenges/i,
     /Login and CAPTCHA/i,
     /anti-bot, or policy limits/i,

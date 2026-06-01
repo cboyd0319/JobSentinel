@@ -43,6 +43,7 @@ describe("BookmarkletGenerator", () => {
       await screen.findByRole("heading", { name: /install browser button/i }),
     ).toBeInTheDocument();
     expect(screen.queryByText("Connection Number")).not.toBeInTheDocument();
+    expect(screen.queryByText("Support number")).not.toBeInTheDocument();
     expect(screen.getByText("Import Helper")).toBeInTheDocument();
     await waitFor(() =>
       expect(screen.getByRole("button", { name: /turn off/i })).toBeInTheDocument(),
@@ -51,8 +52,9 @@ describe("BookmarkletGenerator", () => {
     expect(screen.getAllByText(/copy.*after each saved job/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/copy a fresh browser button/i)).toBeInTheDocument();
     expect(screen.queryByText(/local safety code/i)).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /connection settings/i }));
-    expect(screen.getByText("Connection Number")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /support settings/i }));
+    expect(screen.getByText("Support number")).toBeInTheDocument();
+    expect(screen.queryByText("Connection Number")).not.toBeInTheDocument();
     expect(screen.queryByText(/server port/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/bookmarklet code/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/bookmarklet/i)).not.toBeInTheDocument();

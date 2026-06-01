@@ -6,7 +6,7 @@ OpenAI or any other external provider.
 
 Rule 0: user privacy and security are non-negotiable. The AI gateway is a
 guardrail, not a convenience wrapper. No AI provider, prompt path, local
-fallback, fixture, or developer shortcut may bypass opt-in, payload preview,
+fallback, fixture, or developer shortcut may skip opt-in, payload preview,
 redaction, approval, sensitive-data minimization, credential safety, or local
 metadata logging.
 

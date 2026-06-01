@@ -413,7 +413,8 @@ secure vault.
 
 1. Make sure your job titles aren't too specific
 2. Try enabling more location options (Remote + Hybrid + Onsite)
-3. Lower your minimum salary to $0 temporarily
+3. If you set a pay amount, keep it at the lowest pay you would actually
+   consider. Jobs without listed pay still stay visible and marked for review.
 4. Right-click the tray icon > "Search Now" to check again now
 
 ### Notifications not working?

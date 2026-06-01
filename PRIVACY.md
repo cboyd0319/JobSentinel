@@ -5,7 +5,7 @@ should remain under user control.
 
 Rule 0: user privacy and security are non-negotiable. No feature,
 integration, shortcut, test fixture, external AI provider, support workflow, or
-research workflow may bypass user privacy, local control, credential safety,
+research workflow may set aside user privacy, local control, credential safety,
 source boundaries, or explicit review gates. If privacy or security conflicts
 with convenience, automation, velocity, analytics, or research value, privacy
 and security win.

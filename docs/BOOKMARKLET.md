@@ -54,7 +54,7 @@ The browser import button works best on individual job pages from:
 - Pages you opened yourself in your browser.
 
 Job search result pages may not include enough job details. Some large job
-boards also block page import. JobSentinel does not bypass those controls; use
+boards also block page import. JobSentinel does not get around those limits; use
 JobSentinel's search link or add the job manually when import does not work.
 
 ## Troubleshooting

@@ -53,7 +53,7 @@ Out of scope:
   `README.md`, `LICENSE`, `SECURITY.md`, and `CODE_OF_CONDUCT.md`.
 - Removing required tool config files only to make the root look smaller.
 - Rewriting product behavior without a concrete defect or product decision.
-- Adding telemetry, cloud dependencies, or scraper bypass behavior.
+- Adding telemetry, cloud dependencies, or scraper control-workaround behavior.
 
 ## Cleanup Track: Removing Bloat And Junk
 
@@ -637,7 +637,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 | 2026-06-01 | In progress | Added Rule 0 PR review evidence requirements and manifest-backed harness snippets for privacy/security, local-first workflows, external AI gateway routing, safe support reports, responsible use, broad audience, and zero-technical-knowledge support. |
 | 2026-06-01 | In progress | Pushed `a4dade40` to `main`; remote Docs Harness `26741447318` and CI `26741447297` both passed. Per the current goal posture, avoid another remote CI run until full-goal completion or explicit user request. |
 | 2026-06-01 | In progress | Removed hardcoded employer rating claims from static company fallback data, kept cached rating rendering covered by component tests, changed unknown-company guidance toward official/public-source research, and added source-quality harness coverage so static fallback ratings cannot drift back. |
-| 2026-06-01 | In progress | Narrowed browser import UI and docs away from any-job/large-board support promises toward official career pages and user-opened public job pages, explicitly stated that JobSentinel does not bypass blocking controls, and added product-copy coverage against overbroad import promises. |
+| 2026-06-01 | In progress | Narrowed browser import UI and docs away from any-job/large-board support promises toward official career pages and user-opened public job pages, explicitly stated that JobSentinel does not get around blocking controls, and added product-copy coverage against overbroad import promises. |
 | 2026-06-01 | In progress | Reworded Job Site Search Links UI and user docs away from automated-scan and legal-guarantee language toward direct-monitoring boundaries and browser-opened searches; added product-copy coverage so old automated-scan and scraper-comparison wording cannot return. |
 | 2026-06-01 | In progress | Reconciled the deep harness audit against live workflow and harness evidence: normal CI, Docs Harness script coverage, release/manual-build preflight, toolchain pins, plan index, and main bloat-runner split now read as closed or narrowed to residual module-ownership work. |
 | 2026-06-01 | In progress | Replaced old report and scraper-first wording in GitHub issue templates with safe support report and job source language; added product-copy coverage so old issue-template attachment terms and scraper labels cannot return. |
@@ -656,9 +656,9 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 | 2026-06-01 | In progress | Replaced visible Application Assist form-preparation failure wording with `Could not prepare details`, and added ApplyButton plus product-copy coverage against the old preparation-error labels. |
 | 2026-06-01 | In progress | Shared plain application-form display labels between Application Assist job-card badges and the review modal, so raw platform IDs such as `greenhouse` are shown as readable names. Focused ApplyButton and ApplicationPreview tests cover known and fallback labels. |
 | 2026-06-01 | In progress | Replaced remaining CAPTCHA-first troubleshooting copy in Application Assist docs with human-check wording and added product-copy coverage so the old user-facing phrasing does not return. |
-| 2026-06-01 | In progress | Replaced Deep Links user-doc CAPTCHA/anti-bot phrasing with human-check and site-limits wording, while keeping the no-bypass boundary. Product-copy coverage now blocks the old user-facing search-link wording. |
+| 2026-06-01 | In progress | Replaced Deep Links user-doc CAPTCHA/anti-bot phrasing with human-check and site-limits wording, while keeping the no-control-workaround boundary. Product-copy coverage now blocks the old user-facing search-link wording. |
 | 2026-06-01 | In progress | Replaced user-visible ATS-source phrasing in ghost-detection docs with employer and application-platform wording, while preserving the cautious source-evidence boundary. Product-copy coverage now blocks the old ATS-source phrases in that doc. |
-| 2026-06-01 | In progress | Reworded source health and source adapter docs away from ATS, CAPTCHA-bypass, anti-bot, endpoint, and selector phrasing toward employer, application-platform, human-check, and source-boundary language. Product-copy coverage now blocks the old source-doc phrases. |
+| 2026-06-01 | In progress | Reworded source health and source adapter docs away from ATS, CAPTCHA-solving/control-evasion, anti-bot, endpoint, and selector phrasing toward employer, application-platform, human-check, and source-boundary language. Product-copy coverage now blocks the old source-doc phrases. |
 | 2026-06-01 | In progress | Hardened desktop notification privacy: OS-level alerts no longer include job titles, company names, match scores, salary notes, or reminder text. Settings and notification docs now explain that details stay inside JobSentinel, with focused utility tests covering notification payloads. |
 | 2026-06-01 | In progress | Removed the unused generic desktop notification passthrough helper and added privacy-logging coverage so future frontend desktop notifications cannot directly pass caller-provided titles, bodies, job titles, companies, reminder text, or scores to OS notifications. |
 | 2026-06-01 | In progress | Fixed `npm run harness:session -- --json` so JSON mode no longer treats the flag as the repo root and returns the real restart snapshot instead of unavailable zero counts. |

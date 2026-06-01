@@ -10,6 +10,7 @@ import {
   hasEngineerFirstResumeTemplateCopy,
   hasFeedbackTechnicalCompanyLabels,
   hasLegacyPreferenceListCopy,
+  hasNonProtectivePayFloorRecoveryCopy,
   hasNonProtectiveScoreCopy,
   hasOverconfidentGhostCopy,
   hasOverconfidentPayGuidance,
@@ -126,6 +127,25 @@ test("product copy rejects overconfident pay guidance", () => {
     writeFixtureFile(root, "docs/features/salary-ai.md", "Always negotiate.\n");
 
     assert.equal(hasOverconfidentPayGuidance(root, "docs/features/salary-ai.md"), true);
+  });
+});
+
+test("product copy rejects non-protective salary-floor troubleshooting", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "docs/user/QUICK_START.md",
+      "Lower your minimum salary to $0 temporarily\n",
+    );
+
+    assert.equal(
+      hasNonProtectivePayFloorRecoveryCopy(root, "docs/user/QUICK_START.md"),
+      true,
+    );
+    assert.equal(
+      hasNonProtectivePayFloorRecoveryCopy(root, "docs/features/salary-ai.md"),
+      false,
+    );
   });
 });
 
@@ -340,6 +360,7 @@ test("product copy rejects technical-first settings copy", () => {
         "Show even when app is focused",
         "SMTP server",
         "SMTP port",
+        "Connection Number",
         "For automatic monitoring",
         "Advanced federal monitoring",
         "Advanced chat alert",
@@ -1261,6 +1282,10 @@ test("product copy rejects automated-scan deep-link wording", () => {
         "Access sites that block automated scans",
         "**100% Legal:**",
         "Search links let you search these sites legally without automated scans.",
+        "JobSentinel does not bypass site controls.",
+        "JobSentinel does not bypass human checks, login, or site limits.",
+        "| Login and human checks | Handled by you on the site | Not bypassed |",
+        "[technical contributor guide](../developer/ADDING_DEEP_LINK_SITES.md)",
         "## Comparison with Scrapers",
         "**Use scanners for:** Sites that allow it",
         "",

@@ -275,7 +275,8 @@ Current cleanup posture:
   and application-platform source language instead of user-visible ATS-source
   phrasing. Source health and source adapter docs now use employer,
   application-platform, human-check, and source-boundary language instead of
-  user-facing ATS, CAPTCHA-bypass, anti-bot, endpoint, and selector phrasing.
+  user-facing ATS, CAPTCHA-solving/control-evasion, anti-bot, endpoint, and
+  selector phrasing.
 - Current local notification privacy follow-up keeps OS-level desktop
   notification payloads generic so job titles, company names, match scores,
   salary notes, and reminder text stay inside JobSentinel. The unused generic
@@ -370,7 +371,7 @@ Current cleanup posture:
   and `npm run lint:bloat` now rejects hardcoded fallback ratings.
 - Browser import copy no longer promises support for any job posting or named
   large job boards. It now explains official/public page boundaries and says
-  JobSentinel does not bypass controls when a board blocks page import.
+  JobSentinel does not get around controls when a board blocks page import.
 - Search-link copy now describes browser-opened searches instead of automated
   scan avoidance, and user docs avoid legal guarantees or scanner comparison
   language.
@@ -588,7 +589,7 @@ Current cleanup posture:
 - E2E runtime budget tracking now exists through
   `npm run test:e2e:smoke:budget` and `npm run test:e2e:all:budget`.
 - Docs Harness now watches the whole `scripts/**` set and runs harness script
-  tests, so sensor changes no longer bypass the docs workflow path filter.
+  tests, so sensor changes no longer skip the docs workflow path filter.
 - Release and manual Linux/Windows build workflows now validate release version
   metadata and run preflight checks before artifact build or upload.
 - External-AI provider detection now runs through `npm run lint:external-ai`
@@ -799,7 +800,7 @@ Recent cleanup slices on `main` include:
   remaining bookmarklet/rate-limit findings are recorded in the debt tracker.
 - Latest local bookmarklet security follow-up routes browser-helper imports
   through public HTTP(S) URL validation and shared job storage validation,
-  closing the raw insert bypass for unsafe URLs and oversize job fields.
+  closing the raw insert path for unsafe URLs and oversize job fields.
 - Latest local scraper reliability follow-up moves production scraper
   constructors to a process-wide shared rate limiter, preserving source
   cooldown state across repeated manual runs and fresh scheduler instances.
@@ -1124,7 +1125,7 @@ Next high-value passes:
      and external alert-reason findings are closed locally. JobsWithGPT
      exact-payload approval is landed locally; `SEC-019` remains open only for
      a visible last-sent source-request summary if needed.
-   - Keep no-bypass and local-first product rules intact.
+   - Keep no-control-workaround and local-first product rules intact.
 4. Continue frontend boundary review.
    - Recheck stored JSON parsing, URL validation, error rendering, direct
      browser-open paths, logging, and malformed input handling.

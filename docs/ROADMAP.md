@@ -65,7 +65,7 @@ user-opened browser links.
   source health checks.
 - Large platforms with restricted automation policies should be opened by the
   user through generated search links.
-- No source adapter may bypass access controls, solve CAPTCHAs, reuse session
+- No source adapter may get around access controls, solve CAPTCHAs, reuse session
   cookies, rotate proxies to evade controls, or ignore explicit source blocks.
 - New source work needs a feature doc update, fixture or parser coverage, and
   source-boundary review.

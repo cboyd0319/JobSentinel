@@ -714,7 +714,7 @@ Likely files later:
   user actionability, false-confidence avoidance, privacy, and accessibility.
 - Add test fixtures for broad job families, not only software engineering.
 - Add bloat sensors for unsafe ATS manipulation language such as hidden keywords,
-  white text, fake credentials, prompt injection, and CAPTCHA bypass.
+  white text, fake credentials, prompt injection, and CAPTCHA-solving/control-evasion.
 - Add bloat sensors for overconfident ghost-job copy such as "fake", "certain",
   or "scam" when the evidence only supports stale or unverified.
 - Add docs checks that prevent score language from claiming hiring guarantees.
@@ -728,7 +728,7 @@ Likely files later:
   reviewed, robots checked, public data only, no authentication, low bounded
   cadence, caching, backoff, stop list, provenance, no redistribution, and no
   evasion.
-- Add docs checks that prevent "scrape all jobs", "bypass bot detection",
+- Add docs checks that prevent "scrape all jobs", "evade bot detection",
   "ignore robots", "use proxies", or "scrape profiles" guidance.
 - Add docs checks that prevent "women just need to ask", "confidence fixes pay
   gaps", "protected-class-based script", or "guaranteed raise" language.
@@ -821,8 +821,8 @@ Do not build:
 - White-text or tiny-text keyword stuffing.
 - Fabricated skills, employers, titles, dates, education, or credentials.
 - Resume prompt injection.
-- CAPTCHA bypass.
-- Login-wall, paywall, block, or rate-limit bypass.
+- CAPTCHA-solving/control-evasion.
+- Login-wall, paywall, block, or rate-limit workarounds.
 - Proxy rotation, residential proxies, account automation, stolen/session
   cookies, or anti-bot evasion.
 - Broad scraping of LinkedIn, Indeed, Glassdoor, ZipRecruiter, Monster,

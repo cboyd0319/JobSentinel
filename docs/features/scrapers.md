@@ -22,7 +22,7 @@ call private LinkedIn systems, or read LinkedIn pages in the background.
 | Rule | Requirement |
 | ---- | ----------- |
 | Official source first | Prefer documented feeds or APIs, public feeds, and official company or application-platform postings |
-| No restricted-site automation | Do not add hidden data paths, session-cookie collection, human-check bypass, or platform-control evasion |
+| No restricted-site automation | Do not add hidden data paths, session-cookie collection, human-check workarounds, or platform-control evasion |
 | Local-first storage | Source results, run history, and notes stay local |
 | Rate limits | Every adapter must use source-specific limits and shared retry helpers where feasible |
 | Bounded reads | Page, feed, source-check, and import requests cap decoded bodies at 16 MiB |
@@ -144,5 +144,5 @@ checks. Source-boundary changes also need docs and bloat-guard updates.
 - Add parser fixtures or source-check coverage.
 - Add health metadata and user-safe errors.
 - Add docs and bloat checks for source-policy drift.
-- Do not add hidden data paths, session-cookie collection, human-check bypass,
+- Do not add hidden data paths, session-cookie collection, human-check workarounds,
   or evasion of platform controls.

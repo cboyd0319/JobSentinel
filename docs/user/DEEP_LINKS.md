@@ -6,8 +6,8 @@ Create ready-to-use searches for sites JobSentinel does not monitor directly.
 
 JobSentinel creates search links for 18 job sites with your search already
 filled in. Click any link to open the search in your browser. JobSentinel does
-not log in for you, read the results page in the background, or bypass site
-controls.
+not log in for you, read the results page in the background, or get around site
+rules.
 
 **Benefits:**
 
@@ -147,7 +147,7 @@ Not all sites support every filter. JobSentinel uses what each site supports.
 - JobSentinel only creates a browser search link for these sites
 - You decide whether to open the site and log in there
 - JobSentinel does not collect your signed-in website session for these sites
-- JobSentinel does not bypass human checks, login, or site limits
+- JobSentinel does not get around human checks, sign-in pages, or site limits
 
 ## FAQ
 
@@ -192,15 +192,14 @@ site. Include the site name and, if you are comfortable sharing it, an example
 public search page.
 
 Contributors can also add sites in code. See the
-[technical contributor guide](../developer/ADDING_DEEP_LINK_SITES.md) for that
-path.
+[contributor guide](../developer/ADDING_DEEP_LINK_SITES.md) for that path.
 
 ## Comparison With Monitored Sources
 
 | Feature | Search Links | Monitored sources |
 |---------|--------------|-------------------|
 | **Who opens the site** | You, in your browser | JobSentinel, where allowed |
-| **Login and human checks** | Handled by you on the site | Not bypassed |
+| **Login and human checks** | Handled by you on the site | Not worked around |
 | **Page changes** | You still see the site directly | Source rules may need updates |
 | **Saving jobs** | You choose what to save | Saved locally when a monitored source returns a job |
 | **Best for** | Sites with login, human checks, or policy limits | Official or public sources that allow local monitoring |

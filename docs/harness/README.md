@@ -21,7 +21,7 @@ mission.
 
 User privacy and security are non-negotiable. No code change, documentation
 change, test shortcut, external AI feature, source adapter, support flow, or
-research workflow may bypass local-first storage, credential safety, source
+research workflow may set aside local-first storage, credential safety, source
 boundaries, explicit user review, or privacy-preserving defaults. If Rule 0
 conflicts with convenience, automation, speed, analytics, or research value,
 Rule 0 wins.
