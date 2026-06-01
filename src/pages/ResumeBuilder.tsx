@@ -824,7 +824,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       toast.success("Resume exported", "Downloaded as DOCX");
     } catch (error: unknown) {
       const safeError = getSafeErrorToastCopy(error, {
-        fallbackTitle: "Export failed",
+        fallbackTitle: "Could not export resume",
       });
       toast.error(safeError.title, safeError.message);
     } finally {
@@ -890,7 +890,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       toast.success("Print dialog opened", "Save as PDF using your browser's print dialog");
     } catch (error: unknown) {
       const safeError = getSafeErrorToastCopy(error, {
-        fallbackTitle: "Export failed",
+        fallbackTitle: "Could not open print view",
       });
       toast.error(safeError.title, safeError.message);
     } finally {

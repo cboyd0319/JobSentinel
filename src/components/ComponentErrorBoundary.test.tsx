@@ -46,7 +46,7 @@ describe('ComponentErrorBoundary', () => {
 
     expect(screen.getByText('This section needs attention')).toBeInTheDocument();
     expect(screen.getByText((content, element) => {
-      return element?.tagName === 'P' && content.includes('This section failed to load');
+      return element?.tagName === 'P' && content.includes('This section could not load');
     })).toBeInTheDocument();
     expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
   });

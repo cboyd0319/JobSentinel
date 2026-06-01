@@ -170,6 +170,10 @@ and record actionable findings in this active-plan surface.
   `Failed to...` fallback titles in Resume, Resume Builder, Screening Answers,
   Interview Scheduler, and company-research fallback UI with `Could not...`
   recovery wording, and adds product-copy coverage against the old titles.
+- Latest local action-recovery follow-up replaces visible action failure labels
+  in undo/redo, bookmark, bulk-hide, duplicate-merge, resume export,
+  application-status, application-list, and section recovery paths with
+  `Could not...` wording, and adds product-copy coverage against old labels.
 - Latest local Application Assist readiness follow-up stops optional
   application-form detection from blocking the Prepare Form action. If form
   recognition is still loading, users with a saved profile can still open the

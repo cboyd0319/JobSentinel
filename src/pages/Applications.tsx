@@ -342,7 +342,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
       logError("Failed to fetch applications:", err);
       toast.error(
         "Couldn't load applications",
-        "Your applications list failed to load. Check your internet connection and restart the app if needed."
+        "Your applications list could not load. Check your internet connection and restart the app if needed."
       );
     } finally {
       setLoading(false);
@@ -833,7 +833,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
                     } catch (err: unknown) {
                       logError("Failed to update status:", err);
                       toast.error(
-                        "Status update failed",
+                        "Could not update status",
                         "The application status wasn't changed. Try again or restart JobSentinel."
                       );
                     }

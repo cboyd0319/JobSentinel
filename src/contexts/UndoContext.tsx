@@ -41,7 +41,7 @@ export function UndoProvider({ children }: { children: ReactNode }) {
           });
           toast.info("Undone", action.description);
         } catch {
-          toast.error("Undo failed", "Could not undo the action");
+          toast.error("Could not undo change", "Try refreshing if the change looks wrong.");
         }
       },
     });
@@ -59,7 +59,7 @@ export function UndoProvider({ children }: { children: ReactNode }) {
           setRedoStack(redoPrev => [action, ...redoPrev]);
           toast.info("Undone", action.description);
         } catch {
-          toast.error("Undo failed", "Could not undo the action");
+          toast.error("Could not undo change", "Try refreshing if the change looks wrong.");
           // Restore the action to undo stack on failure
           setUndoStack(p => [action, ...p]);
         }
@@ -81,7 +81,7 @@ export function UndoProvider({ children }: { children: ReactNode }) {
           setUndoStack(undoPrev => [action, ...undoPrev]);
           toast.info("Redone", action.description);
         } catch {
-          toast.error("Redo failed", "Could not redo the action");
+          toast.error("Could not redo change", "Try refreshing if the change looks wrong.");
           // Restore the action to redo stack on failure
           setRedoStack(p => [action, ...p]);
         }

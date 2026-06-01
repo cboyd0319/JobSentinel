@@ -63,7 +63,7 @@ export function useDashboardJobOps(
             } catch (err) {
               logError("Failed to undo hide:", err);
               toast.error(
-                "Undo failed",
+                "Could not undo change",
                 "Couldn't restore the hidden job. Try refreshing.",
               );
             }
@@ -77,7 +77,7 @@ export function useDashboardJobOps(
             } catch (err) {
               logError("Failed to redo hide:", err);
               toast.error(
-                "Redo failed",
+                "Could not redo change",
                 "Couldn't hide the job again. Try refreshing.",
               );
             }
@@ -135,7 +135,7 @@ export function useDashboardJobOps(
             } catch (err) {
               logError("Failed to undo bookmark:", err);
               toast.error(
-                "Undo failed",
+                "Could not undo change",
                 "Couldn't restore bookmark state. Try refreshing.",
               );
             }
@@ -151,7 +151,7 @@ export function useDashboardJobOps(
             } catch (err) {
               logError("Failed to redo bookmark:", err);
               toast.error(
-                "Redo failed",
+                "Could not redo change",
                 "Couldn't change bookmark. Try refreshing.",
               );
             }
@@ -165,7 +165,7 @@ export function useDashboardJobOps(
           ),
         );
         toast.error(
-          "Bookmark Failed",
+          "Could not update bookmark",
           "Couldn't update bookmark. Try again.",
         );
       }
@@ -224,7 +224,7 @@ export function useDashboardJobOps(
           } catch (err) {
             logError("Failed to undo notes:", err);
             toast.error(
-              "Undo failed",
+              "Could not undo change",
               "Couldn't restore previous notes. Try refreshing.",
             );
           }
@@ -241,7 +241,7 @@ export function useDashboardJobOps(
           } catch (err) {
             logError("Failed to redo notes:", err);
             toast.error(
-              "Redo failed",
+              "Could not redo change",
               "Couldn't reapply notes. Try refreshing.",
             );
           }
@@ -332,7 +332,7 @@ export function useDashboardJobOps(
           } catch (err) {
             logError("Failed to undo bulk hide:", err);
             toast.error(
-              "Undo failed",
+              "Could not undo change",
               "Couldn't restore some hidden jobs. Try refreshing.",
             );
           }
@@ -350,7 +350,7 @@ export function useDashboardJobOps(
           } catch (err) {
             logError("Failed to redo bulk hide:", err);
             toast.error(
-              "Redo failed",
+              "Could not redo change",
               "Couldn't hide some jobs again. Try refreshing.",
             );
           }
@@ -365,13 +365,13 @@ export function useDashboardJobOps(
       );
       if (failures.length === idsToHide.length) {
         toast.error(
-          "Bulk Hide Failed",
+          "Could not hide selected jobs",
           "None of the jobs could be hidden. Try hiding them one at a time, or refresh and try again.",
         );
       } else {
         toast.warning(
           "Partially hidden",
-          `${succeededIds.length} jobs hidden, ${failures.length} failed. Try hiding the rest individually.`,
+          `${succeededIds.length} jobs hidden. Try hiding the rest one at a time.`,
         );
       }
     }
@@ -450,7 +450,7 @@ export function useDashboardJobOps(
       } catch (err: unknown) {
         logError("Failed to bulk bookmark jobs:", err);
         const safeError = getSafeErrorToastCopy(err, {
-          fallbackTitle: "Bulk Bookmark Failed",
+          fallbackTitle: "Could not update bookmarks",
           fallbackMessage:
             "Your bookmarks weren't changed. Try bookmarking jobs individually, or restart the app if this continues.",
         });
@@ -577,7 +577,7 @@ export function useDashboardJobOps(
         );
         toast.warning(
           "Partially merged",
-          `${successCount} groups merged, ${failures.length} failed. Try merging the rest individually.`,
+          `${successCount} groups merged. Try merging the rest one at a time.`,
         );
       } else {
         logError(
@@ -585,7 +585,7 @@ export function useDashboardJobOps(
           failures.map((f) => f.reason),
         );
         toast.error(
-          "Bulk Merge Failed",
+          "Could not merge duplicates",
           "None of the duplicate groups could be merged. Try merging them individually.",
         );
       }

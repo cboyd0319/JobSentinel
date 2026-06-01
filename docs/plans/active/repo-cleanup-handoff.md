@@ -216,6 +216,11 @@ Current cleanup posture:
   Interview Scheduler, and company-research fallback UI to `Could not...`
   wording. Related component tests and product-copy sensors cover the old
   phrasing.
+- Current local action-recovery follow-up changes undo/redo, bookmark,
+  bulk-hide, duplicate-merge, resume export, application-status,
+  application-list, and section recovery paths away from visible failure labels
+  to `Could not...` wording. Focused hook/component tests and product-copy
+  sensors cover the old labels.
 - Current local skill-label follow-up replaces vague self-rating labels such as
   beginner, intermediate, advanced, expert, and seniority level with
   behavior-based skill strength and role-stage copy across Resume, Resume

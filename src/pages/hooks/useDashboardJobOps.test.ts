@@ -128,7 +128,7 @@ describe("handleToggleBookmark", () => {
     expect(rolledBackJobs[0].bookmarked).toBe(false);
 
     expect(mockToast.error).toHaveBeenCalledWith(
-      "Bookmark Failed",
+      "Could not update bookmark",
       expect.stringContaining("update bookmark"),
     );
     expect(mockPushAction).not.toHaveBeenCalled();
@@ -222,7 +222,7 @@ describe("handleBulkHide", () => {
       "Partially hidden",
       expect.stringContaining("2 jobs hidden"),
     );
-    expect(mockToast.warning.mock.calls[0][1]).toContain("1 failed");
+    expect(mockToast.warning.mock.calls[0][1]).toContain("rest one at a time");
 
     expect(mockToast.error).not.toHaveBeenCalled();
   });
@@ -246,7 +246,7 @@ describe("handleBulkHide", () => {
 
     expect(mockToast.error).toHaveBeenCalledOnce();
     expect(mockToast.error).toHaveBeenCalledWith(
-      "Bulk Hide Failed",
+      "Could not hide selected jobs",
       expect.any(String),
     );
 
@@ -329,7 +329,7 @@ describe("handleMergeAllDuplicates", () => {
       "Partially merged",
       expect.stringContaining("1 groups merged"),
     );
-    expect(mockToast.warning.mock.calls[0][1]).toContain("1 failed");
+    expect(mockToast.warning.mock.calls[0][1]).toContain("rest one at a time");
 
     expect(mockToast.error).not.toHaveBeenCalled();
     expect(mockToast.success).not.toHaveBeenCalled();
@@ -352,7 +352,7 @@ describe("handleMergeAllDuplicates", () => {
 
     expect(mockToast.error).toHaveBeenCalledOnce();
     expect(mockToast.error).toHaveBeenCalledWith(
-      "Bulk Merge Failed",
+      "Could not merge duplicates",
       expect.any(String),
     );
 

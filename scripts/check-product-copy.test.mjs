@@ -255,10 +255,19 @@ test("product copy rejects technical recovery and raw error details", () => {
         "",
       ].join("\n"),
     );
+    writeFixtureFile(
+      root,
+      "src/components/ComponentErrorBoundary.tsx",
+      "This section failed to load",
+    );
     writeFixtureFile(root, "src/components/ScraperHealthDashboard.tsx", "window state");
 
     assert.equal(hasRawErrorBoundaryDetails(root, "src/components/ErrorBoundary.tsx"), true);
     assert.equal(hasTechnicalRecoveryCopy(root, "src/components/ErrorBoundary.tsx"), true);
+    assert.equal(
+      hasTechnicalRecoveryCopy(root, "src/components/ComponentErrorBoundary.tsx"),
+      true,
+    );
     assert.equal(
       hasTechnicalRecoveryCopy(root, "src/components/ScraperHealthDashboard.tsx"),
       true,
@@ -630,7 +639,17 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/Applications.tsx",
-      "{reminder.reminder_type} - Due: {formatEventDate(reminder.reminder_time)}\n",
+      "{reminder.reminder_type} - Due: {formatEventDate(reminder.reminder_time)}\nYour applications list failed to load\nStatus update failed\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/hooks/useDashboardJobOps.ts",
+      "Undo failed\nRedo failed\nBookmark Failed\nBulk Hide Failed\nBulk Bookmark Failed\nBulk Merge Failed\n3 failed\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/contexts/UndoContext.tsx",
+      "Undo failed\nRedo failed\n",
     );
     writeFixtureFile(
       root,
@@ -763,6 +782,11 @@ test("product copy rejects technical-first settings copy", () => {
       true,
     );
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Applications.tsx"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/pages/hooks/useDashboardJobOps.ts"),
+      true,
+    );
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/contexts/UndoContext.tsx"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/pages/hooks/useDashboardAutoRefresh.ts"),
       true,
@@ -1020,7 +1044,7 @@ test("product copy rejects technical-first resume copy", () => {
     writeFixtureFile(
       root,
       "src/pages/ResumeBuilder.tsx",
-      'const PROFICIENCY_LEVELS = ["beginner", "intermediate", "advanced", "expert"]; Proficiency Select level Failed to import skills Failed to generate preview',
+      'const PROFICIENCY_LEVELS = ["beginner", "intermediate", "advanced", "expert"]; Proficiency Select level Failed to import skills Failed to generate preview Export failed',
     );
     writeFixtureFile(
       root,

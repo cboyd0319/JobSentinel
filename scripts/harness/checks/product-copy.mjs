@@ -190,6 +190,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/components/feedback/FeedbackModal.tsx",
   "src/components/feedback/SuccessScreen.tsx",
   "src/mocks/handlers.ts",
+  "src/contexts/UndoContext.tsx",
   "src/contexts/KeyboardShortcutsContext.tsx",
   "src-tauri/src/commands/errors.rs",
   "src/pages/Resume.tsx",
@@ -517,6 +518,7 @@ export function hasTechnicalRecoveryCopy(root, path) {
     /aria-label=["']Close error dialog["']/,
     /CardHeader\s+title=["']Error["']/,
     /window state/i,
+    /This section failed to load/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));
@@ -611,6 +613,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /charAt\(0\)\.toUpperCase\(\)\s*\+\s*level\.slice\(1\)/,
       /Failed to import skills/i,
       /Failed to generate preview/i,
+      /Export failed/i,
     ];
 
     if (resumeBuilderPatterns.some((pattern) => pattern.test(text))) {
@@ -780,9 +783,23 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/pages/Applications.tsx") {
-    if (/\{reminder\.reminder_type\}\s*-\s*Due:/i.test(text)) {
+    if (
+      /\{reminder\.reminder_type\}\s*-\s*Due:/i.test(text) ||
+      /applications list failed to load/i.test(text) ||
+      /Status update failed/i.test(text)
+    ) {
       return true;
     }
+  }
+
+  if (path === "src/pages/hooks/useDashboardJobOps.ts") {
+    return /Undo failed|Redo failed|Bookmark Failed|Bulk Hide Failed|Bulk Bookmark Failed|Bulk Merge Failed|\d+\s+failed/i.test(
+      text,
+    );
+  }
+
+  if (path === "src/contexts/UndoContext.tsx") {
+    return /Undo failed|Redo failed/i.test(text);
   }
 
   if (path === "src/pages/hooks/useDashboardAutoRefresh.ts") {
