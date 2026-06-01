@@ -307,12 +307,13 @@ background source.
 | Community and specialized feeds | HN Who's Hiring, JobsWithGPT, USAJobs |
 | User-opened search links | LinkedIn and other job-site destinations opened by the user |
 
-Some sources need setup. USAJobs uses a free access code. JobSentinel reports
-source health so you can see when a source is healthy, degraded, or blocked.
-Source collection is scoped to a single user's local search, follows
-source-specific boundaries, and favors public ATS feeds or official company
-sources when available. Large platforms with restricted automation policies
-should be opened by the user through search links.
+Some monitored sources have optional setup. USAJobs can use an access code for
+background monitoring, but users can open USAJobs through job-site search links
+without setup. JobSentinel reports source health so you can see when a source is
+healthy, degraded, or blocked. Source collection is scoped to a single user's
+local search, follows source-specific boundaries, and favors public ATS feeds or
+official company sources when available. Large platforms with restricted
+automation policies should be opened by the user through search links.
 
 Read the full [job source adapter guide](docs/features/scrapers.md) and
 [job source health docs](docs/features/scraper-health.md).

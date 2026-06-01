@@ -807,6 +807,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Get Free API Key/i,
     /Quick Setup \(2 minutes\)/i,
     /Get USAJobs Access Code/i,
+    /USAJobs uses a free access code/i,
     /Copy the API key from your email/i,
     /Copy API key from confirmation email/i,
     /Paste your API key here/i,

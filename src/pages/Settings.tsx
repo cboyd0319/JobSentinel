@@ -3022,7 +3022,7 @@ export default function Settings({ onClose }: SettingsProps) {
 
                   {config.usajobs?.enabled && (
                     <div className="space-y-3">
-                      {/* Quick Setup Guide */}
+                      {/* Advanced USAJobs setup */}
                       {!credentialStatus.usajobs_api_key && (
                         <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                           <p className="flex items-center gap-1.5 text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">

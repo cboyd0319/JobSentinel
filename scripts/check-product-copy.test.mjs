@@ -354,6 +354,7 @@ test("product copy rejects technical provider setup shortcuts", () => {
         "Message @BotFather to create a private alert bot.",
         "Quick Setup (2 minutes)",
         "Get USAJobs Access Code",
+        "USAJobs uses a free access code.",
       ].join("\n"),
     );
 
