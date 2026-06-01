@@ -386,8 +386,8 @@ secure vault.
 2. Click **Save Safe Support Report** to create a local file, or click
    **Copy Safe Support Report** if you prefer to paste it.
 3. Open **Send Feedback** if you want a report with replies.
-4. Share the safe report only if you want help. It is already sanitized before
-   sharing.
+4. Share the safe support report only if you want help. It is already
+   sanitized before sharing.
 
 Also include:
 

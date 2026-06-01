@@ -132,6 +132,21 @@ test("product copy rejects debug-report roadmap wording", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/ErrorLogPanel.tsx",
+      "Copy Safe Report\nSafe report details\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/components/ModalErrorBoundary.tsx",
+      "Save Safe Report\nSafe report copied\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/components/feedback/SubmitOptions.tsx",
+      "Save a safe report\nSafe report so you can paste it before submitting.\n",
+    );
+    writeFixtureFile(
+      root,
       "src/components/feedback/DescriptionInput.tsx",
       "Can you reproduce it?\nSelect a category first...\n",
     );
@@ -152,6 +167,18 @@ test("product copy rejects debug-report roadmap wording", () => {
     assert.equal(hasFeedbackLocalReportDrift(root, "docs/ROADMAP.md"), true);
     assert.equal(
       hasFeedbackLocalReportDrift(root, "docs/harness/verification-matrix.md"),
+      true,
+    );
+    assert.equal(
+      hasFeedbackLocalReportDrift(root, "src/components/ErrorLogPanel.tsx"),
+      true,
+    );
+    assert.equal(
+      hasFeedbackLocalReportDrift(root, "src/components/ModalErrorBoundary.tsx"),
+      true,
+    );
+    assert.equal(
+      hasFeedbackLocalReportDrift(root, "src/components/feedback/SubmitOptions.tsx"),
       true,
     );
     assert.equal(

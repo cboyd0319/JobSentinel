@@ -190,7 +190,7 @@ class ModalErrorBoundary extends Component<Props, State> {
               >
                 {this.state.debugReportStatus === 'copying'
                   ? 'Copying...'
-                  : 'Copy Safe Report'}
+                  : 'Copy Safe Support Report'}
               </button>
 
               <button
@@ -200,22 +200,22 @@ class ModalErrorBoundary extends Component<Props, State> {
               >
                 {this.state.debugReportStatus === 'saving'
                   ? 'Saving...'
-                  : 'Save Safe Report'}
+                  : 'Save Safe Support Report'}
               </button>
 
               {this.state.debugReportStatus === 'copied' && (
                 <p className="text-center text-sm text-success" role="status">
-                  Safe report copied
+                  Safe support report copied
                 </p>
               )}
               {this.state.debugReportStatus === 'saved' && this.state.debugReportFileName && (
                 <p className="text-center text-sm text-success" role="status">
-                  Safe report saved: {this.state.debugReportFileName}
+                  Safe support report saved: {this.state.debugReportFileName}
                 </p>
               )}
               {this.state.debugReportStatus === 'failed' && (
                 <p className="text-center text-sm text-danger" role="status">
-                  Could not create safe report
+                  Could not create safe support report
                 </p>
               )}
             </div>

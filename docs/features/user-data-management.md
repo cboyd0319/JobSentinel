@@ -74,7 +74,7 @@ Safe Support Report** from Settings, App Problem History, crash recovery, or
 page error recovery. Reports are local by default and should avoid raw private
 values.
 
-Safe reports can include high-level app state, feature names, timestamps,
+Safe support reports can include high-level app state, feature names, timestamps,
 sanitized error categories, and redacted configuration summaries. They should
 not include raw notes, resumes, full search text, salary floors, credentials,
 private paths, cookies, webhook links, tokens, or full application history.
@@ -111,7 +111,7 @@ Primary surfaces:
 
 - Templates UI: `src/components/CoverLetterTemplates.tsx`
 - Saved searches hook: `src/pages/hooks/useDashboardSavedSearches.ts`
-- Safe reports: `src/components/ErrorLogPanel.tsx`,
+- Safe support reports: `src/components/ErrorLogPanel.tsx`,
   `src/components/ErrorBoundary.tsx`, and `src/pages/Settings.tsx`
 - Backend core: `src-tauri/src/core/user_data/`
 - Tauri commands: `src-tauri/src/commands/user_data.rs`

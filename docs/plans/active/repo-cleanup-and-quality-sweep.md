@@ -147,12 +147,12 @@ Required process:
   `scripts/harness/checks/privacy-logging.mjs`.
 - [x] Harden raw automation dropdown logging and frontend error forwarding
   found by the privacy audit, with focused bloat and unit-test coverage.
-- [x] Make the feedback submit flow prefer saving a safe local report, add safe
-  report actions to modal crash recovery, and align setup notification docs
-  with the current Slack-only wizard step.
-- [x] Simplify problem-history/export labels, saved-report success steps, and
-  generated safe-report headings so support reporting no longer centers account
-  access or developer jargon.
+- [x] Make the feedback submit flow prefer saving a local safe support report,
+  add safe support report actions to modal crash recovery, and align setup
+  notification docs with the current Slack-only wizard step.
+- [x] Simplify problem-history/export labels, safe support report success steps,
+  and generated safe support report headings so support reporting no longer
+  centers account access or developer jargon.
 - [ ] Audit primary user workflows for zero-technical-knowledge ease.
 - [ ] Audit user-facing flows and copy for engineer-only assumptions.
 - [ ] Run relevant verification and commit each cleanup slice locally. Push only
@@ -255,11 +255,11 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
 - Removed raw automation dropdown-answer logging and raw frontend error
   forwarding from local/browser output paths. Added bloat sensors for both
   regressions and unit coverage for sanitized console forwarding.
-- Made the safe local report the recommended feedback submit path, added
-  copy/save safe report actions to modal error recovery, and corrected Quick
-  Start notification setup wording.
-- Reworded problem-history/export labels, saved-report success steps, and
-  generated safe-report section names into plain support language.
+- Made the local safe support report the recommended feedback submit path,
+  added copy/save safe support report actions to modal error recovery, and
+  corrected Quick Start notification setup wording.
+- Reworded problem-history/export labels, safe support report success steps,
+  and generated safe support report section names into plain support language.
 - The latest IPC minimization work added narrow application-profile
   existence/preview commands, canonical import URLs before
   preview/hash/storage, minimized import responses to `{ jobId }`, and a
@@ -378,6 +378,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 | 2026-06-01 | In progress | Reconciled the deep harness audit against live workflow and harness evidence: normal CI, Docs Harness script coverage, release/manual-build preflight, toolchain pins, plan index, and main bloat-runner split now read as closed or narrowed to residual module-ownership work. |
 | 2026-06-01 | In progress | Replaced old report and scraper-first wording in GitHub issue templates with safe support report and job source language; added product-copy coverage so old issue-template attachment terms and scraper labels cannot return. |
 | 2026-06-01 | In progress | Reworked profile README usage from command-line file copying to app setup first, moved manual local-file copying into advanced context, and added product-copy coverage against command-first profile docs. |
+| 2026-06-01 | In progress | Standardized visible crash, settings, and feedback flow copy on safe support report wording, and extended product-copy coverage so shorter safe report labels fail locally. |
 | 2026-06-01 | In progress | Pushed through `378d8c56`; Docs Harness passed and CI run `26742720063` failed only on a frontend unit-test race. Fixed `BookmarkletGenerator.test.tsx` so the copy-failure test waits for the browser-button action to become enabled before clicking. |
 | 2026-06-01 | In progress | Pushed `2b120e60`; remote Docs Harness run `26743031643` and CI run `26743031608` passed. Added local `harness:plan` work to make changed-file verification selection faster and less error-prone. |
 | 2026-06-01 | In progress | Moved advanced config profile ordering away from software-first defaults and replaced old roadmap report labels with safe support report wording; added bloat sensor coverage for both drift patterns. |
@@ -390,8 +391,8 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 | 2026-05-31 | In progress | Rebalanced generic frontend mock, E2E, notification, config, database, ATS, ghost, salary, scoring, market-intelligence, SimplyHired, command, and mock job fixtures away from software-only defaults toward broad job-seeker examples, and added focused bloat coverage so recurring generic paths cannot drift back to software-only examples. |
 | 2026-05-31 | In progress | Fixed visible zero-technical UX and broad-audience defaults from parallel audits: Settings failure escape, application empty-state routing, Dashboard no-jobs recovery guidance, browser import advanced settings, location copy, broad company suggestions, Skills Interview E2E labels, and broad resume/mock ATS fixtures. Logged remaining IPC minimization and broad fixture drift as active debt. |
 | 2026-05-31 | In progress | Continued sensor modularity by extracting raw automation dropdown-value and frontend error-forwarding checks into `scripts/harness/checks/privacy-logging.mjs` with focused `scripts/check-privacy-logging.test.mjs` coverage. |
-| 2026-05-31 | In progress | Closed the current support/recovery UX audit findings by simplifying problem-history/export labels, making saved-report success steps account-optional, and rewording generated safe-report headings and fields away from developer jargon. |
-| 2026-05-31 | In progress | Improved zero-technical support recovery by making safe local reports the recommended feedback submit path, adding safe-report copy/save actions to modal crash recovery, and aligning Quick Start notification setup wording with the current wizard. |
+| 2026-05-31 | In progress | Closed the current support/recovery UX audit findings by simplifying problem-history/export labels, making saved-report success steps account-optional, and rewording generated safe support report headings and fields away from developer jargon. |
+| 2026-05-31 | In progress | Improved zero-technical support recovery by making local safe support reports the recommended feedback submit path, adding safe support report copy/save actions to modal crash recovery, and aligning Quick Start notification setup wording with the current wizard. |
 | 2026-05-31 | In progress | Used authorized read-only sub-agents for UX and security audits; fixed the security audit's raw dropdown-answer log and frontend error-forwarding findings with bloat sensors and `errorReporting` unit coverage. |
 | 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting front-door and runtime source release-promise checks into `scripts/harness/checks/release-promises.mjs`. |
 | 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting product-copy checks for stale resume framing, Application Assist automation framing, ghost-risk overconfidence, pay-guidance overconfidence, and resume-template audience copy into `scripts/harness/checks/product-copy.mjs`. |
@@ -719,11 +720,11 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   sanitized capture.
 - UX audit found that support and recovery still assume too much technical
   comfort: GitHub/Drive are too central in submit options and docs, the
-  settings modal recovery path lacks a safe report action, report/problem
-  labels expose jargon, and notification setup docs mention providers beyond
-  the wizard's current flow.
-- Follow-up UX work made safe local report saving primary in the feedback
-  submit flow, added modal fallback copy/save safe report actions, and aligned
+  settings modal recovery path lacks a safe support report action,
+  report/problem labels expose jargon, and notification setup docs mention
+  providers beyond the wizard's current flow.
+- Follow-up UX work made local safe support report saving primary in the feedback
+  submit flow, added modal fallback copy/save safe support report actions, and aligned
   setup notification docs with the current Slack-only wizard step. Remaining
   support UX debt is concentrated in problem-history/export labels and the
   saved-report success path.

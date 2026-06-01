@@ -43,7 +43,7 @@ export const SuccessScreen = memo(function SuccessScreen({
               </p>
               <ol className="list-decimal list-inside space-y-1 text-left">
                 <li>Add anything else you want us to know.</li>
-                <li>Paste the safe report if it is not already included.</li>
+                <li>Paste the safe support report if it is not already included.</li>
                 <li>Review the issue, then submit it.</li>
               </ol>
             </div>
@@ -63,7 +63,7 @@ export const SuccessScreen = memo(function SuccessScreen({
       {submittedVia === "local" && savedFeedbackFile && (
         <div className="text-center space-y-4">
           <h3 className="text-xl font-semibold text-surface-800 dark:text-surface-200">
-            Safe report saved
+            Safe support report saved
           </h3>
 
           <div className="space-y-3 text-sm text-surface-600 dark:text-surface-400">

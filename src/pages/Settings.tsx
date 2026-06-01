@@ -1134,7 +1134,7 @@ export default function Settings({ onClose }: SettingsProps) {
           <div className="flex flex-col items-center justify-center py-12 gap-4">
             <p className="text-sm text-red-500 dark:text-red-400 text-center max-w-md">
               Settings could not load. Restart JobSentinel. If this keeps
-              happening, save a safe report from Help.
+              happening, save a safe support report from Help.
             </p>
             <div className="flex gap-3">
               <button
@@ -3775,22 +3775,22 @@ export default function Settings({ onClose }: SettingsProps) {
               onClick={handleCopyDebugReport}
               disabled={copyingDebugReport}
               className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors disabled:opacity-50 disabled:pointer-events-none"
-              title="Copy a safe report you can share only if you want help"
+              title="Copy a safe support report you can share only if you want help"
             >
               <SettingsSymbol icon="clipboard" className="w-4 h-4" />
               {copyingDebugReport
-                ? "Copying Safe Report..."
+                ? "Copying Safe Support Report..."
                 : "Copy Safe Support Report"}
             </button>
             <button
               onClick={handleSaveDebugReport}
               disabled={savingDebugReport}
               className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors disabled:opacity-50 disabled:pointer-events-none"
-              title="Save a safe report you can share only if you want help"
+              title="Save a safe support report you can share only if you want help"
             >
               <SettingsSymbol icon="document" className="w-4 h-4" />
               {savingDebugReport
-                ? "Saving Safe Report..."
+                ? "Saving Safe Support Report..."
                 : "Save Safe Support Report"}
             </button>
           </div>

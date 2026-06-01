@@ -262,6 +262,9 @@ and record actionable findings in this active-plan surface.
   step labels, frontend activity names, backend report type labels, and backend
   recent-activity lines from developer-style labels to plain-language support
   wording, with product-copy harness coverage for recurrence.
+- Latest local safe support report UI work standardizes crash recovery,
+  Settings, and feedback submit/success copy on safe support report wording,
+  with product-copy coverage against shorter safe report labels.
 - Latest notification-settings UX work changes source-rule, minimum-salary,
   saved-error, and loading-error copy to plain alert-settings wording, with
   focused NotificationPreferences and product-copy coverage.
@@ -277,11 +280,12 @@ and record actionable findings in this active-plan surface.
 - Latest local privacy work removes raw automation dropdown-answer logging and
   raw frontend error forwarding, then adds bloat sensors and `errorReporting`
   unit coverage so those regressions fail locally.
-- Latest local UX work makes saving a safe local report the primary feedback
-  path, adds safe-report copy/save actions to modal crash recovery, updates
-  Quick Start notification setup wording to match the current wizard, simplifies
-  problem-history/export labels, makes the saved-report success path
-  account-optional, and rewords generated reports with plain support language.
+- Latest local UX work makes saving a local safe support report the primary
+  feedback path, adds safe support report copy/save actions to modal crash
+  recovery, updates Quick Start notification setup wording to match the current
+  wizard, simplifies problem-history/export labels, makes the saved-report
+  success path account-optional, and rewords generated reports with plain
+  support language.
 - Latest local zero-technical and broad-audience work adds a close path and
   plain recovery copy to Settings load failure, gives the empty application
   tracker clear "Go to Jobs" and "Import Job" paths, improves the Dashboard

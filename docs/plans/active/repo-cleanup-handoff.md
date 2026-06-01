@@ -159,15 +159,19 @@ Current cleanup posture:
 - Privacy audit follow-up removed raw automation dropdown-answer logging and
   raw frontend error forwarding. The bloat sensor now rejects those patterns,
   and `errorReporting` unit tests cover sanitized console forwarding.
-- UX audit follow-up made safe local report saving the recommended feedback
-  submit path, added safe-report copy/save actions to modal crash recovery, and
-  aligned Quick Start notification setup wording with the current wizard.
+- UX audit follow-up made local safe support report saving the recommended
+  feedback submit path, added safe support report copy/save actions to modal
+  crash recovery, and aligned Quick Start notification setup wording with the
+  current wizard.
 - Support/reporting UX audit items are closed locally: problem-history/export
   labels are plainer, saved-report success steps are account-optional, and
-  generated safe-report headings use support language instead of
+  generated safe support report headings use support language instead of
   system/config/structured-data language.
 - Public roadmap and developer roadmap support report wording now use safe
   support report language instead of old report labels.
+- Visible crash recovery, Settings, and feedback submit/success copy now use
+  safe support report wording, and product-copy checks reject the shorter safe
+  report label on those surfaces.
 - Latest zero-technical UX follow-up fixed Settings load failure escape and
   guidance, application tracker first-use empty state, Dashboard no-jobs
   recovery guidance, browser import Advanced connection hiding, install wording
@@ -460,9 +464,9 @@ Recent cleanup slices on `main` include:
 - Used read-only UX and security sub-agents. Closed the security findings for
   raw dropdown-answer logging and raw frontend console forwarding in code and
   tests. Recorded remaining UX support/recovery findings as open debt.
-- Improved zero-technical support recovery by making local safe report saving
-  primary, keeping GitHub optional, adding safe-report actions to modal crash
-  recovery, and updating notification setup docs.
+- Improved zero-technical support recovery by making local safe support report
+  saving primary, keeping GitHub optional, adding safe support report actions to
+  modal crash recovery, and updating notification setup docs.
 - Simplified problem-history/export copy, made saved-report success steps
   account-optional, and reworded generated report headings and field names for
   non-technical users.

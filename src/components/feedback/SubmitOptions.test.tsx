@@ -19,12 +19,12 @@ function renderSubmitOptions(submitting = false) {
 }
 
 describe("SubmitOptions", () => {
-  it("makes the no-account safe report path primary", () => {
+  it("makes the no-account safe support report path primary", () => {
     renderSubmitOptions();
 
     expect(screen.getByText("Recommended")).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: /save a safe report/i })
+      screen.getByRole("heading", { name: /save a safe support report/i })
     ).toBeInTheDocument();
     expect(
       screen.getByText(/works without any account/i)
@@ -45,7 +45,7 @@ describe("SubmitOptions", () => {
     const { onSubmitGitHub, onSubmitLocalReport } = renderSubmitOptions();
 
     await user.click(
-      screen.getByRole("button", { name: /save safe report/i })
+      screen.getByRole("button", { name: /save safe support report/i })
     );
     await user.click(
       screen.getByRole("button", { name: /open github issue/i })

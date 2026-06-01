@@ -161,19 +161,19 @@ describe("ErrorLogPanel", () => {
       expect(screen.queryByRole("button", { name: "Clear All" })).not.toBeInTheDocument();
     });
 
-    it("shows one-click debug report copy action even before errors exist", () => {
+    it("shows one-click safe support report copy action even before errors exist", () => {
       render(<ErrorLogPanel />);
 
       expect(
-        screen.getByRole("button", { name: "Copy Safe Report" })
+        screen.getByRole("button", { name: "Copy Safe Support Report" })
       ).toBeInTheDocument();
     });
 
-    it("shows one-click debug report save action even before errors exist", () => {
+    it("shows one-click safe support report save action even before errors exist", () => {
       render(<ErrorLogPanel />);
 
       expect(
-        screen.getByRole("button", { name: "Save Safe Report" })
+        screen.getByRole("button", { name: "Save Safe Support Report" })
       ).toBeInTheDocument();
     });
   });
@@ -250,12 +250,12 @@ describe("ErrorLogPanel", () => {
       const { container } = render(<ErrorLogPanel />);
 
       // Stack trace not visible initially
-      expect(screen.queryByText("Safe report details")).not.toBeInTheDocument();
+      expect(screen.queryByText("Safe support report details")).not.toBeInTheDocument();
 
       // Click to expand
       fireEvent.click(screen.getByText("Test error message"));
 
-      expect(screen.getByText("Safe report details")).toBeInTheDocument();
+      expect(screen.getByText("Safe support report details")).toBeInTheDocument();
       expect(
         screen.getByText(/Extra problem details are included/)
       ).toBeInTheDocument();
@@ -274,7 +274,7 @@ describe("ErrorLogPanel", () => {
 
       fireEvent.click(screen.getByText("Test error message"));
 
-      expect(screen.getByText("Safe report details")).toBeInTheDocument();
+      expect(screen.getByText("Safe support report details")).toBeInTheDocument();
       expect(screen.queryByText("at MyComponent")).not.toBeInTheDocument();
     });
 
@@ -358,11 +358,11 @@ describe("ErrorLogPanel", () => {
       expect(exportErrors).toHaveBeenCalledTimes(1);
     });
 
-    it("copies a sanitized debug report with current errors", async () => {
+    it("copies a safe support report with current errors", async () => {
       const user = userEvent.setup();
       const errors = [createMockError({ id: "error-123" })];
       mockCopySanitizedDebugReport.mockResolvedValueOnce({
-        content: "safe report",
+        content: "safe support report",
         copied: true,
         errorCount: 1,
       });
@@ -373,13 +373,13 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      await user.click(screen.getByRole("button", { name: "Copy Safe Report" }));
+      await user.click(screen.getByRole("button", { name: "Copy Safe Support Report" }));
 
       expect(mockCopySanitizedDebugReport).toHaveBeenCalledWith(errors);
-      expect(await screen.findByText("Safe report copied")).toBeInTheDocument();
+      expect(await screen.findByText("Safe support report copied")).toBeInTheDocument();
     });
 
-    it("saves a sanitized debug report with current errors", async () => {
+    it("saves a safe support report with current errors", async () => {
       const user = userEvent.setup();
       const errors = [createMockError({ id: "error-123" })];
       mockSaveSanitizedDebugReport.mockResolvedValueOnce({
@@ -393,11 +393,11 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      await user.click(screen.getByRole("button", { name: "Save Safe Report" }));
+      await user.click(screen.getByRole("button", { name: "Save Safe Support Report" }));
 
       expect(mockSaveSanitizedDebugReport).toHaveBeenCalledWith(errors);
       expect(
-        await screen.findByText("Safe report saved: jobsentinel-debug-report.txt")
+        await screen.findByText("Safe support report saved: jobsentinel-debug-report.txt")
       ).toBeInTheDocument();
     });
 
@@ -517,7 +517,7 @@ describe("ErrorLogPanel", () => {
       // Expand first error
       fireEvent.click(screen.getByText("First error"));
 
-      expect(screen.getByText("Safe report details")).toBeInTheDocument();
+      expect(screen.getByText("Safe support report details")).toBeInTheDocument();
       expect(screen.queryByText("Stack 1")).not.toBeInTheDocument();
       expect(screen.queryByText("Stack 2")).not.toBeInTheDocument();
     });

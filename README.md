@@ -62,7 +62,7 @@ or build something better with it if that helps more people.
 | -------- | ------ |
 | Who is it for? | Anyone trying to find a new job, including technical and non-technical roles. |
 | What does it optimize for? | Real, relevant, fairly compensated work, not application volume. |
-| What stays local? | Searches, saved jobs, notes, resumes, salary floors, application history, and safe reports by default. |
+| What stays local? | Searches, saved jobs, notes, resumes, salary floors, application history, and safe support reports by default. |
 | What can leave the device? | Only user-configured alerts, optional location detection after a click, or explicitly approved external AI payloads. |
 | Is external AI required? | No. External AI is optional, disabled by default, preview-gated, and gateway-bound. |
 | Is it free? | Yes. JobSentinel is MIT licensed and free forever. |

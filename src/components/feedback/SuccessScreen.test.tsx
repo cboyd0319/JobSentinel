@@ -32,12 +32,14 @@ describe("SuccessScreen", () => {
     expect(
       screen.getByRole("heading", { name: /ready to finish the report/i })
     ).toBeInTheDocument();
-    expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/your safe support report is in your clipboard/i)
+    ).toBeInTheDocument();
     expect(
       screen.getByText(/add anything else you want us to know/i)
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/paste the safe report if it is not already included/i)
+      screen.getByText(/paste the safe support report if it is not already included/i)
     ).toBeInTheDocument();
     expect(
       screen.getByText(/keeps replies and updates in one place/i)
@@ -53,7 +55,7 @@ describe("SuccessScreen", () => {
     const { onRevealFile, onClose } =
       renderSuccessScreen("local");
 
-    expect(screen.getByRole("heading", { name: /safe report saved/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /safe support report saved/i })).toBeInTheDocument();
     expect(screen.getByText(savedFeedbackFile.fileName)).toBeInTheDocument();
     expect(screen.getByText(/show the saved file/i)).toBeInTheDocument();
     expect(screen.getByText(/share it only if you want help/i)).toBeInTheDocument();

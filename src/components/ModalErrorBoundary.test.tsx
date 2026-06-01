@@ -9,7 +9,7 @@ import {
 
 vi.mock("../services/feedbackService", () => ({
   copySanitizedDebugReport: vi.fn().mockResolvedValue({
-    content: "safe report",
+    content: "safe support report",
     copied: true,
     errorCount: 1,
   }),
@@ -153,18 +153,18 @@ describe("ModalErrorBoundary", () => {
       expect(screen.getByRole("button", { name: /try again/i })).toBeInTheDocument();
     });
 
-    it("shows safe report actions", () => {
+    it("shows safe support report actions", () => {
       render(
         <ModalErrorBoundary>
           <ThrowError shouldThrow={true} />
         </ModalErrorBoundary>
       );
 
-      expect(screen.getByRole("button", { name: /copy safe report/i })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: /save safe report/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /copy safe support report/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /save safe support report/i })).toBeInTheDocument();
     });
 
-    it("copies a safe report from the modal fallback", async () => {
+    it("copies a safe support report from the modal fallback", async () => {
       const user = userEvent.setup();
 
       render(
@@ -173,13 +173,13 @@ describe("ModalErrorBoundary", () => {
         </ModalErrorBoundary>
       );
 
-      await user.click(screen.getByRole("button", { name: /copy safe report/i }));
+      await user.click(screen.getByRole("button", { name: /copy safe support report/i }));
 
       expect(copySanitizedDebugReport).toHaveBeenCalledTimes(1);
-      expect(await screen.findByText(/safe report copied/i)).toBeInTheDocument();
+      expect(await screen.findByText(/safe support report copied/i)).toBeInTheDocument();
     });
 
-    it("saves a safe report from the modal fallback", async () => {
+    it("saves a safe support report from the modal fallback", async () => {
       const user = userEvent.setup();
 
       render(
@@ -188,11 +188,11 @@ describe("ModalErrorBoundary", () => {
         </ModalErrorBoundary>
       );
 
-      await user.click(screen.getByRole("button", { name: /save safe report/i }));
+      await user.click(screen.getByRole("button", { name: /save safe support report/i }));
 
       expect(saveSanitizedDebugReport).toHaveBeenCalledTimes(1);
       expect(
-        await screen.findByText(/safe report saved: jobsentinel-debug-report.txt/i)
+        await screen.findByText(/safe support report saved: jobsentinel-debug-report.txt/i)
       ).toBeInTheDocument();
     });
 

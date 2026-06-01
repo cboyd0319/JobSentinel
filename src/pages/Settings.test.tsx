@@ -168,7 +168,7 @@ describe("Settings — loadConfig flow", () => {
     const copySpy = vi
       .spyOn(feedbackService, "copySanitizedDebugReport")
       .mockResolvedValueOnce({
-        content: "safe report",
+        content: "safe support report",
         copied: true,
         errorCount: 0,
       });

@@ -147,7 +147,7 @@ describe("ErrorBoundary", () => {
     it("copies a sanitized debug report from the crash screen", async () => {
       const user = userEvent.setup();
       mockCopySanitizedDebugReport.mockResolvedValueOnce({
-        content: "safe report",
+        content: "safe support report",
         copied: true,
         errorCount: 1,
       });

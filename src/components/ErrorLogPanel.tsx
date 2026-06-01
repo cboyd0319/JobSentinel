@@ -149,7 +149,7 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
           {hasSupportDetails && (
             <div>
               <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">
-                Safe report details
+                Safe support report details
               </p>
               <p className="text-xs bg-surface-100 dark:bg-surface-800 p-2 rounded text-surface-700 dark:text-surface-300">
                 Extra problem details are included when you copy or save a safe
@@ -210,10 +210,10 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
 
     try {
       await copySanitizedDebugReport(errors);
-      setCopyMessage("Safe report copied");
+      setCopyMessage("Safe support report copied");
     } catch (error) {
       logError("Failed to copy debug report:", error);
-      setCopyMessage("Could not copy safe report");
+      setCopyMessage("Could not copy safe support report");
     } finally {
       setCopyingReport(false);
     }
@@ -227,12 +227,12 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
       const savedFile = await saveSanitizedDebugReport(errors);
       setCopyMessage(
         savedFile
-          ? `Safe report saved: ${savedFile.fileName}`
-          : "Safe report save canceled"
+          ? `Safe support report saved: ${savedFile.fileName}`
+          : "Safe support report save canceled"
       );
     } catch (error) {
       logError("Failed to save debug report:", error);
-      setCopyMessage("Could not save safe report");
+      setCopyMessage("Could not save safe support report");
     } finally {
       setSavingReport(false);
     }
@@ -268,7 +268,7 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
               loading={copyingReport}
               loadingText="Copying..."
             >
-              Copy Safe Report
+              Copy Safe Support Report
             </Button>
             <Button
               size="sm"
@@ -277,7 +277,7 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
               loading={savingReport}
               loadingText="Saving..."
             >
-              Save Safe Report
+              Save Safe Support Report
             </Button>
             {errors.length > 0 && (
               <>
@@ -285,7 +285,7 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
                   size="sm"
                   variant="secondary"
                   onClick={exportErrors}
-                  title="For support only. Copy or save a safe report first."
+                  title="For support only. Copy or save a safe support report first."
                 >
                   Advanced: Save Support Details
                 </Button>

@@ -27,7 +27,7 @@ export const SubmitOptions = memo(function SubmitOptions({
 
         <div className="p-4 space-y-3">
           <h3 className="font-semibold text-surface-800 dark:text-surface-200 text-lg">
-            Save a safe report
+            Save a safe support report
           </h3>
 
           <div className="space-y-2 text-sm text-surface-600 dark:text-surface-400">
@@ -44,7 +44,7 @@ export const SubmitOptions = memo(function SubmitOptions({
             className="w-full"
             icon={<FolderIcon />}
           >
-            Save Safe Report
+            Save Safe Support Report
           </Button>
 
           <p className="text-xs text-surface-500 dark:text-surface-400 text-center">
@@ -73,7 +73,7 @@ export const SubmitOptions = memo(function SubmitOptions({
 
         <p className="text-sm text-surface-600 dark:text-surface-400">
           Use this if you want a trackable GitHub issue. JobSentinel copies the
-          safe report so you can paste it before submitting.
+          safe support report so you can paste it before submitting.
         </p>
 
         <Button
