@@ -599,6 +599,8 @@ Recent cleanup slices on `main` include:
 - Company Research unknown-company copy now says JobSentinel has no local
   details yet instead of implying background gathering, and slow/error states
   avoid request-timeout language.
+- Market Snapshot now describes hiring outlook as more active, slower, or
+  steady instead of showing bullish, bearish, or neutral sentiment jargon.
 - Harness improvement from current public harness-engineering references and
   Persona/Bluepeak-AI sibling repo patterns.
 - Root README release/download accuracy update and WebKit slash-shortcut E2E

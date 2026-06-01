@@ -539,6 +539,21 @@ test("product copy rejects technical-first settings copy", () => {
         "",
       ].join("\n"),
     );
+    writeFixtureFile(
+      root,
+      "src/components/MarketSnapshotCard.tsx",
+      [
+        'aria-label={`Market sentiment: ${snapshot.market_sentiment}`}',
+        "<span>{snapshot.market_sentiment}</span>",
+        "<p>Market Sentiment</p>",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/MarketSnapshotCard.test.tsx",
+      "expect(screen.getByRole('status', { name: /market sentiment: bullish/i })).toBeInTheDocument();\n",
+    );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(
@@ -588,6 +603,14 @@ test("product copy rejects technical-first settings copy", () => {
     );
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/components/CompanyResearchPanel.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/MarketSnapshotCard.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/MarketSnapshotCard.test.tsx"),
       true,
     );
     assert.equal(

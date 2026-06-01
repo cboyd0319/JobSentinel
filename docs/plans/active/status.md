@@ -101,6 +101,10 @@ and record actionable findings in this active-plan surface.
   from implied background gathering to honest local-details wording, softens
   lookup delay/error messages, and adds product-copy coverage against stale
   "being gathered" and request-timeout phrasing.
+- Latest local Market Snapshot follow-up replaces finance-jargon
+  bullish/bearish/neutral sentiment labels with plain hiring-outlook labels:
+  more active, slower, and steady, with product-copy coverage against stale
+  sentiment wording returning.
 - Latest local Application Assist readiness follow-up stops optional
   application-form detection from blocking the Prepare Form action. If form
   recognition is still loading, users with a saved profile can still open the

@@ -548,6 +548,21 @@ export function hasTechnicalFirstUserCopy(root, path) {
     return companyResearchPatterns.some((pattern) => pattern.test(text));
   }
 
+  if (
+    path === "src/components/MarketSnapshotCard.tsx" ||
+    path === "src/components/MarketSnapshotCard.test.tsx"
+  ) {
+    const text = readFileSync(join(root, path), "utf8");
+    const marketSnapshotPatterns = [
+      /Market Sentiment/i,
+      /market sentiment:/i,
+      /<span>\{snapshot\.market_sentiment\}<\/span>/i,
+      /getByText\(\/(?:bearish|neutral)\/i/i,
+    ];
+
+    return marketSnapshotPatterns.some((pattern) => pattern.test(text));
+  }
+
   if (!technicalFirstUserCopyPaths.has(path)) {
     return false;
   }

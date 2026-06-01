@@ -25,17 +25,17 @@ interface MarketSnapshotCardProps {
 
 type SnapshotIconName = "trend-up" | "trend-down" | "trend-flat" | "tool" | "building" | "location" | "factory";
 
-// Lookup objects for sentiment styling (better performance than switch)
-const SENTIMENT_CONFIG: Record<string, { icon: SnapshotIconName; color: string }> = {
-  bullish: { icon: "trend-up", color: "text-green-600 dark:text-green-400" },
-  bearish: { icon: "trend-down", color: "text-red-600 dark:text-red-400" },
-  neutral: { icon: "trend-flat", color: "text-surface-600 dark:text-surface-400" },
+// Lookup objects for hiring outlook styling.
+const OUTLOOK_CONFIG: Record<string, { icon: SnapshotIconName; color: string; label: string }> = {
+  bullish: { icon: "trend-up", color: "text-green-600 dark:text-green-400", label: "More active" },
+  bearish: { icon: "trend-down", color: "text-red-600 dark:text-red-400", label: "Slower" },
+  neutral: { icon: "trend-flat", color: "text-surface-600 dark:text-surface-400", label: "Steady" },
 };
 
-const DEFAULT_SENTIMENT = SENTIMENT_CONFIG.neutral;
+const DEFAULT_OUTLOOK = OUTLOOK_CONFIG.neutral;
 
-const getSentimentConfig = (sentiment: string | undefined | null) =>
-  SENTIMENT_CONFIG[(sentiment ?? "neutral").toLowerCase()] ?? DEFAULT_SENTIMENT;
+const getOutlookConfig = (sentiment: string | undefined | null) =>
+  OUTLOOK_CONFIG[(sentiment ?? "neutral").toLowerCase()] ?? DEFAULT_OUTLOOK;
 
 function SnapshotIcon({ icon, className = "h-4 w-4" }: { icon: SnapshotIconName; className?: string }) {
   const commonProps = {
@@ -122,7 +122,7 @@ export const MarketSnapshotCard = memo(function MarketSnapshotCard({ snapshot, l
     );
   }
 
-  const sentimentConfig = getSentimentConfig(snapshot.market_sentiment);
+  const outlookConfig = getOutlookConfig(snapshot.market_sentiment);
 
   return (
     <Card className="dark:bg-surface-800" role="region" aria-label="Market snapshot">
@@ -155,13 +155,13 @@ export const MarketSnapshotCard = memo(function MarketSnapshotCard({ snapshot, l
           </div>
         </div>
 
-        {/* Sentiment */}
-        <div className="text-right" role="status" aria-label={`Market sentiment: ${snapshot.market_sentiment}`}>
-          <span className={`inline-flex items-center justify-end gap-2 text-2xl ${sentimentConfig?.color ?? ''}`} aria-hidden="true">
-            <SnapshotIcon icon={sentimentConfig?.icon ?? "trend-flat"} className="h-6 w-6" />
-            <span>{snapshot.market_sentiment}</span>
+        {/* Hiring outlook */}
+        <div className="text-right" role="status" aria-label={`Hiring outlook: ${outlookConfig.label}`}>
+          <span className={`inline-flex items-center justify-end gap-2 text-2xl ${outlookConfig.color}`} aria-hidden="true">
+            <SnapshotIcon icon={outlookConfig.icon} className="h-6 w-6" />
+            <span>{outlookConfig.label}</span>
           </span>
-          <p className="text-sm text-surface-500 dark:text-surface-400">Market Sentiment</p>
+          <p className="text-sm text-surface-500 dark:text-surface-400">Hiring Outlook</p>
         </div>
       </div>
 

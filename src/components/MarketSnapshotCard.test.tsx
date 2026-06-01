@@ -56,52 +56,52 @@ describe("MarketSnapshotCard", () => {
       expect(screen.getByText("Median Salary")).toBeInTheDocument();
     });
 
-    it("displays market sentiment", () => {
+    it("displays hiring outlook", () => {
       render(<MarketSnapshotCard snapshot={mockSnapshot} />);
-      expect(screen.getByRole("status", { name: /market sentiment/i })).toBeInTheDocument();
-      expect(screen.getByText("Market Sentiment")).toBeInTheDocument();
+      expect(screen.getByRole("status", { name: /hiring outlook/i })).toBeInTheDocument();
+      expect(screen.getByText("Hiring Outlook")).toBeInTheDocument();
     });
   });
 
-  describe("market sentiment", () => {
-    it("displays market sentiment", () => {
+  describe("hiring outlook", () => {
+    it("displays hiring outlook", () => {
       render(<MarketSnapshotCard snapshot={mockSnapshot} />);
-      expect(screen.getByRole("status", { name: /market sentiment/i })).toBeInTheDocument();
-      expect(screen.getByText("Market Sentiment")).toBeInTheDocument();
+      expect(screen.getByRole("status", { name: /hiring outlook/i })).toBeInTheDocument();
+      expect(screen.getByText("Hiring Outlook")).toBeInTheDocument();
     });
   });
 
-  describe("market sentiment styling", () => {
-    it("shows bullish sentiment with correct icon and color", () => {
+  describe("hiring outlook styling", () => {
+    it("shows more active outlook with correct icon and color", () => {
       render(<MarketSnapshotCard snapshot={mockSnapshot} />);
-      const sentimentStatus = screen.getByRole("status", { name: /market sentiment: bullish/i });
-      expect(sentimentStatus).toBeInTheDocument();
+      const outlookStatus = screen.getByRole("status", { name: /hiring outlook: more active/i });
+      expect(outlookStatus).toBeInTheDocument();
       // Check for green color class
-      const greenSpan = sentimentStatus.querySelector('[class*="green"]');
+      const greenSpan = outlookStatus.querySelector('[class*="green"]');
       expect(greenSpan).toBeInTheDocument();
     });
 
-    it("shows bearish sentiment with correct color", () => {
-      const bearishSnapshot = { ...mockSnapshot, market_sentiment: "bearish" };
-      render(<MarketSnapshotCard snapshot={bearishSnapshot} />);
-      const sentimentText = screen.getByText(/bearish/i);
-      expect(sentimentText).toBeInTheDocument();
+    it("shows slower outlook with correct color", () => {
+      const slowerSnapshot = { ...mockSnapshot, market_sentiment: "bearish" };
+      render(<MarketSnapshotCard snapshot={slowerSnapshot} />);
+      const outlookText = screen.getByText(/slower/i);
+      expect(outlookText).toBeInTheDocument();
       // Check for red color class
-      const sentimentContainer = sentimentText.closest('[class*="red"]');
-      expect(sentimentContainer).toBeInTheDocument();
+      const outlookContainer = outlookText.closest('[class*="red"]');
+      expect(outlookContainer).toBeInTheDocument();
     });
 
-    it("shows neutral sentiment", () => {
-      const neutralSnapshot = { ...mockSnapshot, market_sentiment: "neutral" };
-      render(<MarketSnapshotCard snapshot={neutralSnapshot} />);
-      expect(screen.getByText(/neutral/i)).toBeInTheDocument();
+    it("shows steady outlook", () => {
+      const steadySnapshot = { ...mockSnapshot, market_sentiment: "neutral" };
+      render(<MarketSnapshotCard snapshot={steadySnapshot} />);
+      expect(screen.getByText(/steady/i)).toBeInTheDocument();
     });
 
-    it("displays market sentiment", () => {
+    it("displays hiring outlook", () => {
       render(<MarketSnapshotCard snapshot={mockSnapshot} />);
-      // Check the sentiment is rendered via the status role
-      expect(screen.getByRole("status", { name: /market sentiment: bullish/i })).toBeInTheDocument();
-      expect(screen.getByText("Market Sentiment")).toBeInTheDocument();
+      // Check the outlook is rendered via the status role
+      expect(screen.getByRole("status", { name: /hiring outlook: more active/i })).toBeInTheDocument();
+      expect(screen.getByText("Hiring Outlook")).toBeInTheDocument();
     });
   });
 
@@ -281,10 +281,10 @@ describe("MarketSnapshotCard", () => {
       expect(screen.getByLabelText(/median salary \$115,000/i)).toBeInTheDocument();
     });
 
-    it("market sentiment has status role", () => {
+    it("hiring outlook has status role", () => {
       render(<MarketSnapshotCard snapshot={mockSnapshot} />);
-      const sentiment = screen.getByLabelText(/market sentiment: bullish/i);
-      expect(sentiment).toHaveAttribute("role", "status");
+      const outlook = screen.getByLabelText(/hiring outlook: more active/i);
+      expect(outlook).toHaveAttribute("role", "status");
     });
 
     it("highlights section has list structure", () => {
