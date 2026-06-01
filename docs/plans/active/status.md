@@ -117,6 +117,11 @@ and record actionable findings in this active-plan surface.
   allowlist/blocklist preference copy sensors into
   `scripts/harness/checks/product-copy.mjs`; focused product-copy coverage is
   now 10 tests and `scripts/check-repo-bloat.mjs` is 2,947 lines.
+- Latest local broad-audience fixture harness work moves engineer-first
+  example, generic scraper fixture, and salary-audience drift sensors into
+  `scripts/harness/checks/broad-audience-fixtures.mjs`; focused
+  broad-audience fixture coverage is now 4 tests and
+  `scripts/check-repo-bloat.mjs` is 2,486 lines.
 - Latest local privacy work removes raw automation dropdown-answer logging and
   raw frontend error forwarding, then adds bloat sensors and `errorReporting`
   unit coverage so those regressions fail locally.
@@ -213,8 +218,8 @@ and record actionable findings in this active-plan surface.
    current sensors, while preserving tech-specific cases only when they test
    explicit branch behavior or source-realism parser contracts.
 2. Continue splitting oversized mixed sensors, especially remaining
-   fixture-quality, broad-audience, and source-security checks still inside
-   `scripts/check-repo-bloat.mjs`.
+   fixture-quality, docs-shape, source-quality, and source-security checks
+   still inside `scripts/check-repo-bloat.mjs`.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
 4. Continue broad-audience review so non-technical and technical job searches
