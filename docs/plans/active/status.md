@@ -262,6 +262,9 @@ and record actionable findings in this active-plan surface.
   step labels, frontend activity names, backend report type labels, and backend
   recent-activity lines from developer-style labels to plain-language support
   wording, with product-copy harness coverage for recurrence.
+- Latest notification-settings UX work changes source-rule, minimum-salary,
+  saved-error, and loading-error copy to plain alert-settings wording, with
+  focused NotificationPreferences and product-copy coverage.
 - Latest local docs-drift harness work moves the docs-drift violation messages
   out of `scripts/check-repo-bloat.mjs` and into
   `scripts/harness/checks/docs-drift.mjs` through

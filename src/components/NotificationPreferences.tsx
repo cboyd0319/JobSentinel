@@ -110,7 +110,7 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
       setPrefs(loaded);
     } catch {
       // Error logged by safeInvoke in loadNotificationPreferencesAsync
-      setLoadError('Failed to load notification preferences');
+      setLoadError('Could not load notification settings');
     } finally {
       setLoading(false);
     }
@@ -132,7 +132,10 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
     } else {
       // Rollback on failure
       setPrefs(previousPrefs);
-      toast.error('Failed to save', 'Your changes have been reverted');
+      toast.error(
+        'Could not save alert settings',
+        'Your last change was undone. Try again.'
+      );
     }
   }, [prefs, toast]);
 
@@ -269,7 +272,7 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
         {/* Per-source settings */}
         <div className={prefs.global.enabled ? '' : 'opacity-50 pointer-events-none'}>
           <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-3 uppercase tracking-wide">
-            Source Alert Rules
+            Job Alert Sources
           </p>
           {(Object.keys(SOURCE_INFO) as AlertSourceKey[]).map((sourceKey) => (
             <SourceConfigRow
@@ -450,10 +453,10 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
 
       {/* Salary & Remote Filters */}
       <div className="grid grid-cols-2 gap-4 mb-4">
-        {/* Minimum Salary */}
+        {/* Minimum yearly pay */}
         <div>
           <label className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
-            Minimum Salary
+            Minimum yearly pay
           </label>
           <div className="flex items-center gap-2">
             <span className="text-surface-500">$</span>
@@ -463,10 +466,10 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
               onChange={(e) => onChange({
                 minSalary: e.target.value ? parseInt(e.target.value) : null
               })}
-              placeholder="e.g., 150"
+              placeholder="e.g., 90"
               className="w-24 px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100"
             />
-            <span className="text-surface-500 text-sm">K/year</span>
+            <span className="text-surface-500 text-sm">thousand per year</span>
           </div>
         </div>
 
@@ -539,7 +542,7 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
               value={skipCompanyInput}
               onChange={setSkipCompanyInput}
               onAdd={addSkipCompany}
-              placeholder="e.g., Acme Corp, BadCompany"
+              placeholder="e.g., Acme Services, Example Staffing"
               existingCompanies={filters.companyBlacklist}
               buttonColor="surface"
             />

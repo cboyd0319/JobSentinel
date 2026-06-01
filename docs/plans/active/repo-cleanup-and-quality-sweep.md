@@ -308,6 +308,9 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   modal step labels, frontend activity names, backend report type labels, and
   backend recent-activity lines from developer-style labels to plain-language
   support wording, with product-copy harness coverage against recurrence.
+- The latest notification-settings UX slice changes source-rule,
+  minimum-salary, saved-error, and loading-error copy to plain alert-settings
+  wording, with focused NotificationPreferences and product-copy coverage.
 - Updated active plan and handoff docs for the latest local cleanup slice.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
@@ -339,6 +342,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-01 | In progress | Reworded notification settings source-rule, minimum-salary, save-failure, and loading-failure copy to plain alert-settings wording; added focused NotificationPreferences and product-copy coverage. |
 | 2026-06-01 | In progress | Reworded safe-support-report prompts, feedback modal steps, frontend activity labels, backend report type labels, and backend recent-activity lines to plain-language support copy; added product-copy harness coverage against old technical labels. |
 | 2026-06-01 | In progress | Reworded feedback choices from bug-report and feature-request labels to report-a-problem, suggest-an-improvement, and ask-a-question labels; added focused CategorySelector tests. |
 | 2026-06-01 | In progress | Reworded Dashboard job-list actions from export/CSV copy to download copy, changed the main search placeholder to "Search jobs," and added focused DashboardFiltersBar plus QuickActions tests. |

@@ -457,7 +457,8 @@ describe("NotificationPreferences Component", () => {
       render(<NotificationPreferencesComponent />);
 
       await waitFor(() => {
-        expect(screen.getByText("Source Alert Rules")).toBeInTheDocument();
+        expect(screen.getByText("Job Alert Sources")).toBeInTheDocument();
+        expect(screen.queryByText("Source Alert Rules")).not.toBeInTheDocument();
         expect(screen.queryByText("LinkedIn")).not.toBeInTheDocument();
         expect(screen.getByText("Indeed")).toBeInTheDocument();
         expect(screen.getByText("Greenhouse")).toBeInTheDocument();
@@ -490,7 +491,7 @@ describe("NotificationPreferences Component", () => {
 
       await waitFor(() => {
         // The per-source section should have opacity class when disabled
-        const perSourceSection = screen.getByText("Source Alert Rules").parentElement;
+        const perSourceSection = screen.getByText("Job Alert Sources").parentElement;
         expect(perSourceSection?.className).toContain("opacity-50");
       });
     });
@@ -551,9 +552,11 @@ describe("NotificationPreferences Component", () => {
       render(<NotificationPreferencesComponent />);
 
       await waitFor(() => {
-        expect(screen.getByText("Minimum Salary")).toBeInTheDocument();
-        expect(screen.getByText("K/year")).toBeInTheDocument();
+        expect(screen.getByText("Minimum yearly pay")).toBeInTheDocument();
+        expect(screen.getByText("thousand per year")).toBeInTheDocument();
       });
+      expect(screen.queryByText("Minimum Salary")).not.toBeInTheDocument();
+      expect(screen.queryByText("K/year")).not.toBeInTheDocument();
     });
 
     it("renders remote only toggle", async () => {
@@ -630,8 +633,8 @@ describe("NotificationPreferences Component", () => {
 
       await waitFor(() => {
         expect(mockToast.error).toHaveBeenCalledWith(
-          "Failed to save",
-          "Your changes have been reverted"
+          "Could not save alert settings",
+          "Your last change was undone. Try again."
         );
       });
     });

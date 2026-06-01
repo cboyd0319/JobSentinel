@@ -86,6 +86,9 @@ Current branch note:
   modal step labels, frontend activity names, backend report type labels, and
   backend recent-activity lines to plain-language support wording; product-copy
   harness coverage now blocks the old technical labels.
+- The current notification-settings UX slice changes source-rule,
+  minimum-salary, saved-error, and loading-error copy to plain alert-settings
+  wording, with NotificationPreferences and product-copy coverage.
 - Continue using small verified commits. Avoid another remote CI run until the
   next explicit integration gate or full-goal completion pass.
 

@@ -197,9 +197,25 @@ test("product copy rejects technical-first settings copy", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/pages/Settings.tsx", "Config imported\n");
     writeFixtureFile(root, "src/pages/Settings.test.tsx", "Config imported\n");
+    writeFixtureFile(
+      root,
+      "src/components/NotificationPreferences.tsx",
+      [
+        "setLoadError('Failed to load notification preferences')",
+        "toast.error('Failed to save', 'Your changes have been reverted')",
+        "Source Alert Rules",
+        "Minimum Salary",
+        "K/year",
+        "",
+      ].join("\n"),
+    );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.test.tsx"), false);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/NotificationPreferences.tsx"),
+      true,
+    );
   });
 });
 
