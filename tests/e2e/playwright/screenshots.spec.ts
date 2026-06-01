@@ -61,8 +61,9 @@ test.describe("Documentation Screenshots", () => {
       await page.waitForLoadState("networkidle");
     }
 
-    // Settings modal can be opened from the gear icon in the header
-    // For now, just take a screenshot of the dashboard (settings is embedded)
+    await page.getByRole("button", { name: "Open settings" }).click();
+    await page.getByRole("dialog", { name: "Settings" }).waitFor({ state: "visible" });
+
     await page.screenshot({
       path: screenshotPath(testInfo, "settings.png"),
       fullPage: false,

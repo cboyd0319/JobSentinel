@@ -67,6 +67,9 @@ Current cleanup posture:
 - Broad-audience seed checks now cover example config company lists, broad
   non-engineering profile URL seeds, developer-doc examples, and salary
   location fixtures.
+- Documentation screenshots were refreshed with current broad-audience UI data;
+  the settings screenshot now opens the settings modal instead of duplicating
+  the dashboard.
 - Release-promise drift checks now live in
   `scripts/harness/checks/release-promises.mjs`.
 - Initial privacy-logging checks for raw automation dropdown values and raw
@@ -558,6 +561,15 @@ Latest broad-audience seed slice checks on 2026-06-01:
 - `npm run lint:docs`
 - `cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check`
 - `cargo test --manifest-path src-tauri/Cargo.toml core::salary --lib`
+
+Latest documentation screenshot slice checks on 2026-06-01:
+
+- `npm run docs:screenshots`
+- `npm run docs:screenshots -- --grep "settings screenshot"`
+- Visual check of refreshed `dashboard.png`, `application-tracking.png`,
+  `settings.png`, `resume-builder.png`, `resume-matcher.png`,
+  `ats-optimizer.png`, `salary-ai.png`, `market-intelligence.png`, and
+  `one-click-apply.png`
 
 Latest harness/readiness slice checks on 2026-05-31:
 

@@ -194,6 +194,9 @@ and record actionable findings in this active-plan surface.
   reorders `profiles/README.md` to match the broad-first UI posture, replaces
   engineer-first developer-doc examples, and moves salary-location fixtures off
   San Francisco, Seattle, and Austin defaults.
+- Latest local screenshot work refreshes `docs/images/*.png` with current
+  broad-audience UI data and fixes the settings screenshot capture so it opens
+  the real settings modal instead of duplicating the dashboard.
 - Latest local docs-drift harness work moves the docs-drift violation messages
   out of `scripts/check-repo-bloat.mjs` and into
   `scripts/harness/checks/docs-drift.mjs` through
@@ -295,10 +298,9 @@ and record actionable findings in this active-plan surface.
 
 ## Next Best Work
 
-1. Continue broad-audience fixture audit on screenshot assets, profile/config
-   seeds, developer-doc examples, and salary location defaults, while
-   preserving tech-specific cases only when they test explicit branch behavior
-   or source-realism parser contracts.
+1. Continue broad-audience review on remaining visual/user-facing copy and
+   preserve tech-specific cases only when they test explicit branch behavior or
+   source-realism parser contracts.
 2. Continue splitting oversized harness modules only where the ownership
    boundary is clear; the main bloat runner is now 564 lines after docs-drift
    and privacy-logging orchestration moved into modules.
