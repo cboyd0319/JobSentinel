@@ -220,6 +220,10 @@ and record actionable findings in this active-plan surface.
   `docs/harness/deep-harness-audit-2026-05-31.md` against live CI,
   docs-harness, release/manual-build, toolchain-pin, plan-index, and
   bloat-runner evidence so closed findings no longer read as open work.
+- Latest local support-template UX work changes GitHub issue templates from
+  debug-report and scraper-first wording to safe support report and job source
+  wording, then adds product-copy coverage so old template language cannot
+  drift back.
 - Latest local docs-drift harness work moves the docs-drift violation messages
   out of `scripts/check-repo-bloat.mjs` and into
   `scripts/harness/checks/docs-drift.mjs` through

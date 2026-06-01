@@ -1,24 +1,25 @@
-name: Scraper Issue
-description: Report a broken or misbehaving job board scraper
-title: "[Scraper]: "
+name: Job Source Issue
+description: Report job source results that look wrong
+title: "[Source]: "
 labels: ["scraper", "bug", "triage"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting a scraper issue!
+        Thanks for reporting a job source issue.
 
         **Important:** Please don't include any personal information like specific
         job titles, company names, or location details from your search.
 
-        In JobSentinel, click Settings, then Copy Debug Report. Paste that
-        sanitized report into the Debug Information box below.
+        JobSentinel can create a safe support report that redacts sensitive
+        details before you share it. Open Settings and click Copy Safe Support
+        Report, then paste that report below only if you want help.
 
   - type: dropdown
     id: scraper
     attributes:
-      label: Affected Scraper
-      description: Which job board scraper is affected?
+      label: Affected job source
+      description: Which job source is affected?
       options:
         - BuiltIn
         - Dice
@@ -42,12 +43,12 @@ body:
       label: Issue Type
       description: What kind of problem are you seeing?
       options:
-        - Scraper returns no jobs
-        - Scraper returns incomplete data
-        - Scraper crashes/errors
-        - Jobs are being incorrectly parsed
-        - Duplicate jobs being created
-        - Rate limiting or blocking issues
+        - No jobs appear
+        - Some job details are missing
+        - The source check crashes or shows an error
+        - Job details look wrong
+        - Duplicate jobs appear
+        - The site is blocking checks
         - Other
     validations:
       required: true
@@ -57,30 +58,30 @@ body:
     attributes:
       label: Description
       description: A clear description of what's wrong
-      placeholder: "When scraping X, I expected Y but got Z instead"
+      placeholder: "When I checked this source, I expected Y but got Z instead"
     validations:
       required: true
 
   - type: textarea
     id: example-url
     attributes:
-      label: Example Job URL
-      description: If applicable, provide a URL to a job posting that demonstrates the issue (make sure it doesn't contain personal info)
+      label: Example job link
+      description: If applicable, provide a link to a public job posting that demonstrates the issue. Make sure it does not contain personal info.
       placeholder: "https://example.com/jobs/..."
 
   - type: textarea
     id: health-dashboard
     attributes:
-      label: Scraper Health Dashboard Output
-      description: If available, paste the output from the Scraper Health Dashboard
-      render: shell
+      label: Job source health details
+      description: If available, paste the source health details from JobSentinel.
+      render: text
 
   - type: textarea
     id: debug-info
     attributes:
-      label: Debug Information
-      description: Paste the ANONYMIZED debug report from JobSentinel. Use Settings, then Copy Debug Report.
-      render: shell
+      label: Safe support report
+      description: Paste the safe support report from JobSentinel only if you want help.
+      render: text
 
   - type: dropdown
     id: os

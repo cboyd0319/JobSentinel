@@ -165,6 +165,38 @@ test("product copy rejects technical-first settings copy", () => {
   });
 });
 
+test("product copy rejects technical issue-template support wording", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      ".github/ISSUE_TEMPLATE/bug_report.yml",
+      [
+        "In JobSentinel, click Settings, then Copy Debug Report.",
+        "label: Debug Information",
+        "description: Paste the ANONYMIZED debug report from JobSentinel.",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      ".github/ISSUE_TEMPLATE/scraper_issue.yml",
+      [
+        "name: Scraper Issue",
+        "label: Affected Scraper",
+        "description: Which job board scraper is affected?",
+        "label: Scraper Health Dashboard Output",
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(hasTechnicalFirstUserCopy(root, ".github/ISSUE_TEMPLATE/bug_report.yml"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, ".github/ISSUE_TEMPLATE/scraper_issue.yml"),
+      true,
+    );
+  });
+});
+
 test("product copy rejects technical-first resume copy", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/pages/Resume.tsx", "Programming Languages\nGap Analysis\n");

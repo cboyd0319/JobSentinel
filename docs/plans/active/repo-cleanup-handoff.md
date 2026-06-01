@@ -46,6 +46,9 @@ Current branch note:
   `docs/harness/deep-harness-audit-2026-05-31.md` with live CI,
   docs-harness, release/manual-build, toolchain-pin, plan-index, and
   bloat-runner evidence so closed findings no longer look open.
+- The current local support-template UX slice changes issue templates from
+  debug-report and scraper-first wording to safe support report and job source
+  wording, with product-copy coverage against the old terms.
 - Continue using small verified commits. Run remote CI only when the user
   explicitly asks or the full-goal completion pass requires it.
 

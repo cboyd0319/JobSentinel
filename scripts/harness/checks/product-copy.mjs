@@ -140,6 +140,8 @@ const plainJobSearchDocPaths = new Set([
 ]);
 
 const technicalFirstUserCopyPaths = new Set([
+  ".github/ISSUE_TEMPLATE/bug_report.yml",
+  ".github/ISSUE_TEMPLATE/scraper_issue.yml",
   "README.md",
   "docs/BOOKMARKLET.md",
   "src/components/AsyncButton.tsx",
@@ -577,8 +579,12 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Sensitive data \(passwords, tokens\) excluded/i,
     /["'`]Copy Debug Report["'`]/i,
     /\*\*Copy Debug Report\*\*/i,
+    /Settings,\s*then\s*Copy Debug Report/i,
+    /Use Settings,\s*then\s*Copy Debug Report/i,
     /["'`]Debug report copied["'`]/i,
     /["'`]Could not copy debug report["'`]/i,
+    /ANONYMIZED debug report/i,
+    /label:\s*Debug Information/i,
     /Your debug report is in your clipboard/i,
     /Paste the debug report from your clipboard/i,
     /Debug Information box/i,
@@ -708,6 +714,14 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /SMTP credentials/i,
     /special API access/i,
     /check your API key/i,
+    /Scraper Issue/i,
+    /scraper issue/i,
+    /Affected Scraper/i,
+    /Which job board scraper/i,
+    /Scraper Health Dashboard/i,
+    /Scraper returns/i,
+    /Jobs are being incorrectly parsed/i,
+    /Rate limiting or blocking issues/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));
