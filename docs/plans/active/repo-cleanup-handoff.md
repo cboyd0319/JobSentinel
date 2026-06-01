@@ -101,6 +101,10 @@ Current cleanup posture:
   and Rust Application Assist profile examples away from old `John Doe`,
   `Jane Doe`, GitHub, San Francisco, and New York fixtures; the
   broad-audience fixture sensor now covers those paths.
+- Latest E2E reliability follow-up removed the hard sleep from keyboard
+  search-focus coverage and expanded the fixed-wait sensor from page objects
+  to every active Playwright runtime file. Screenshot capture remains allowed
+  to wait because it is excluded from normal E2E runs.
 - Latest zero-technical UX follow-up fixed the highest dashboard/application
   assist blockers from the audit: missing-detail job-import previews can still
   be saved, job cards expose Prepare Form when dashboard navigation is
@@ -435,6 +439,15 @@ Latest mock/profile broad-audience fixture slice checks on 2026-06-01:
 - `node --test scripts/check-broad-audience-fixtures.test.mjs`
 - `npm run lint:bloat`
 - `npm run test:scripts -- --test-name-pattern broad audience`
+
+Latest active E2E fixed-wait slice checks on 2026-06-01:
+
+- `rg "waitForTimeout" tests/e2e/playwright`
+- `node --test scripts/check-docs-drift.test.mjs scripts/check-repo-bloat.test.mjs`
+- `node scripts/run-playwright.mjs test --project=chromium --grep "focuses dashboard search"`
+- `npm run test:e2e:smoke`
+- `npm run lint:bloat`
+- `npm run test:scripts`
 
 Latest harness/readiness slice checks on 2026-05-31:
 

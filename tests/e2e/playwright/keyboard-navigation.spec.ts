@@ -92,23 +92,35 @@ async function expectActiveElement(locator: Locator): Promise<void> {
   await expect.poll(() => isActiveElement(locator)).toBe(true);
 }
 
+async function waitForActiveElement(locator: Locator, timeout = 300): Promise<boolean> {
+  try {
+    await expect
+      .poll(() => isActiveElement(locator), {
+        intervals: [25, 50, 100],
+        timeout,
+      })
+      .toBe(true);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function focusDashboardSearch(page: Page, searchInput: Locator, browserName: string): Promise<void> {
   for (let attempt = 0; attempt < 3; attempt += 1) {
     await page.keyboard.press("Slash");
 
-    if (await isActiveElement(searchInput)) {
+    if (await waitForActiveElement(searchInput)) {
       return;
     }
 
     if (browserName === "webkit") {
       await dispatchSearchFocusShortcut(page);
 
-      if (await isActiveElement(searchInput)) {
+      if (await waitForActiveElement(searchInput)) {
         return;
       }
     }
-
-    await page.waitForTimeout(100);
   }
 
   await expectActiveElement(searchInput);

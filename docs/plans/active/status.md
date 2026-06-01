@@ -171,6 +171,10 @@ and record actionable findings in this active-plan surface.
   `npm run harness:session`, a tested one-command restart snapshot for branch
   state, latest commit, active plan count, harness module/test counts,
   bloat-runner size, audit path, and next-best work.
+- Latest local E2E reliability work removes the hard sleep from keyboard
+  search-focus coverage and expands the fixed-wait sensor from page objects to
+  every active Playwright runtime file, while keeping screenshot-capture waits
+  out of the normal E2E path.
 - Latest local privacy work removes raw automation dropdown-answer logging and
   raw frontend error forwarding, then adds bloat sensors and `errorReporting`
   unit coverage so those regressions fail locally.

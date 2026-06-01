@@ -421,8 +421,12 @@ export function hasStaleE2eWaitGuidance(root, path) {
   );
 }
 
-export function hasFixedWaitInE2ePageObject(root, path) {
-  if (!path.startsWith("tests/e2e/playwright/page-objects/") || !path.endsWith(".ts")) {
+export function hasFixedWaitInActiveE2eRuntime(root, path) {
+  if (
+    !path.startsWith("tests/e2e/playwright/") ||
+    !path.endsWith(".ts") ||
+    path === "tests/e2e/playwright/screenshots.spec.ts"
+  ) {
     return false;
   }
 

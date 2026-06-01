@@ -3398,7 +3398,7 @@ test("checkRepoBloat rejects stale E2E wait guidance", () => {
   });
 });
 
-test("checkRepoBloat rejects fixed waits in E2E page objects", () => {
+test("checkRepoBloat rejects fixed waits in active E2E runtime files", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
@@ -3406,10 +3406,26 @@ test("checkRepoBloat rejects fixed waits in E2E page objects", () => {
       "tests/e2e/playwright/page-objects/BasePage.ts",
       "export async function wait(page) { await page.waitForTimeout(500); }\n",
     );
+    writeFixtureFile(
+      root,
+      "tests/e2e/playwright/app.spec.ts",
+      "await page.waitForTimeout(1000);\n",
+    );
+    writeFixtureFile(
+      root,
+      "tests/e2e/playwright/screenshots.spec.ts",
+      "await page.waitForTimeout(1000);\n",
+    );
 
     execFileSync(
       "git",
-      ["add", "package.json", "tests/e2e/playwright/page-objects/BasePage.ts"],
+      [
+        "add",
+        "package.json",
+        "tests/e2e/playwright/page-objects/BasePage.ts",
+        "tests/e2e/playwright/app.spec.ts",
+        "tests/e2e/playwright/screenshots.spec.ts",
+      ],
       { cwd: root },
     );
 
@@ -3417,7 +3433,17 @@ test("checkRepoBloat rejects fixed waits in E2E page objects", () => {
 
     assert.ok(
       violations.includes(
-        "replace fixed E2E page-object wait: tests/e2e/playwright/page-objects/BasePage.ts",
+        "replace fixed E2E runtime wait: tests/e2e/playwright/page-objects/BasePage.ts",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("replace fixed E2E runtime wait: tests/e2e/playwright/app.spec.ts"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      !violations.includes(
+        "replace fixed E2E runtime wait: tests/e2e/playwright/screenshots.spec.ts",
       ),
       violations.join("\n"),
     );

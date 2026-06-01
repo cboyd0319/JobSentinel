@@ -18,7 +18,7 @@ import {
   hasFeatureDocMetadataFooter,
   hasFeaturePlainDocGlyphMarkers,
   hasFeatureStatusColorEmojiMarkers,
-  hasFixedWaitInE2ePageObject,
+  hasFixedWaitInActiveE2eRuntime,
   hasFrontDoorDocEmojiMarkers,
   hasMaintainedDocGlyphMarkers,
   hasMarketIntelligenceDocGlyphMarkers,
@@ -150,6 +150,16 @@ test("docs drift check rejects stale test guidance and fixed waits", () => {
       "tests/e2e/playwright/page-objects/JobsPage.ts",
       "await page.waitForTimeout(1000);\n",
     );
+    writeFixtureFile(
+      root,
+      "tests/e2e/playwright/app.spec.ts",
+      "await page.waitForTimeout(1000);\n",
+    );
+    writeFixtureFile(
+      root,
+      "tests/e2e/playwright/screenshots.spec.ts",
+      "await page.waitForTimeout(1000);\n",
+    );
 
     assert.equal(
       hasStaleTestQualityDocGuidance(root, "docs/developer/FRONTEND_TESTING.md"),
@@ -160,10 +170,14 @@ test("docs drift check rejects stale test guidance and fixed waits", () => {
       true,
     );
     assert.equal(
-      hasFixedWaitInE2ePageObject(root, "tests/e2e/playwright/page-objects/JobsPage.ts"),
+      hasFixedWaitInActiveE2eRuntime(root, "tests/e2e/playwright/page-objects/JobsPage.ts"),
       true,
     );
-    assert.equal(hasFixedWaitInE2ePageObject(root, "tests/e2e/playwright/app.spec.ts"), false);
+    assert.equal(hasFixedWaitInActiveE2eRuntime(root, "tests/e2e/playwright/app.spec.ts"), true);
+    assert.equal(
+      hasFixedWaitInActiveE2eRuntime(root, "tests/e2e/playwright/screenshots.spec.ts"),
+      false,
+    );
   });
 });
 

@@ -214,7 +214,7 @@ import {
   hasDeveloperMaintenanceDocDrift,
   hasDeveloperTestingDocMarkers,
   hasDocsReadmeReleaseLogShape,
-  hasFixedWaitInE2ePageObject,
+  hasFixedWaitInActiveE2eRuntime,
   hasFeatureDocMetadataFooter,
   hasFeaturePlainDocGlyphMarkers,
   hasFeatureStatusColorEmojiMarkers,
@@ -549,8 +549,8 @@ export function checkRepoBloat(root = defaultRoot) {
       violations.push(`replace stale E2E wait guidance: ${path}`);
     }
 
-    if (hasFixedWaitInE2ePageObject(root, path)) {
-      violations.push(`replace fixed E2E page-object wait: ${path}`);
+    if (hasFixedWaitInActiveE2eRuntime(root, path)) {
+      violations.push(`replace fixed E2E runtime wait: ${path}`);
     }
 
     if (hasUnreferencedE2eTestHelper(root, path)) {
