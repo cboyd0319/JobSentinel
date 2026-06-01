@@ -128,6 +128,12 @@ and record actionable findings in this active-plan surface.
   configuration doc sensors into `scripts/harness/checks/docs-drift.mjs`;
   focused docs-drift coverage is now 8 tests and `scripts/check-repo-bloat.mjs`
   is 2,325 lines.
+- Latest local feature-doc drift harness work moves bookmarklet status,
+  feature metadata/glyph, synonym/remote-preference doc, Market Intelligence,
+  Resume Matcher, Salary AI, smart scoring, notifications, active user-doc,
+  maintained-doc, developer-layout, and application-tracking doc drift sensors
+  into `scripts/harness/checks/docs-drift.mjs`; focused docs-drift coverage is
+  now 11 tests and `scripts/check-repo-bloat.mjs` is 2,030 lines.
 - Latest local privacy work removes raw automation dropdown-answer logging and
   raw frontend error forwarding, then adds bloat sensors and `errorReporting`
   unit coverage so those regressions fail locally.
@@ -224,7 +230,7 @@ and record actionable findings in this active-plan surface.
    current sensors, while preserving tech-specific cases only when they test
    explicit branch behavior or source-realism parser contracts.
 2. Continue splitting oversized mixed sensors, especially remaining
-   feature-doc shape, source-quality, source-health, and source-security checks
+   source-quality, source-health, scraper-boundary, and source-security checks
    still inside `scripts/check-repo-bloat.mjs`.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.

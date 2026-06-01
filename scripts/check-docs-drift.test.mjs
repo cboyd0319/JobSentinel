@@ -4,23 +4,43 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import {
+  hasActiveUserDocGlyphMarkers,
+  hasBookmarkletDocStatusEmojiMarkers,
+  hasConfusingApplicationTrackingAtsLabel,
+  hasConfusingResumeMatcherAiLabel,
+  hasConfusingSalaryAiLabel,
   collectMissingGrantFacingDocs,
   hasDeveloperArchitectureDocMarkers,
+  hasDeveloperLayoutDocGlyphMarkers,
   hasDeveloperMaintenanceDocDrift,
   hasDeveloperTestingDocMarkers,
   hasDocsReadmeReleaseLogShape,
+  hasFeatureDocMetadataFooter,
+  hasFeaturePlainDocGlyphMarkers,
+  hasFeatureStatusColorEmojiMarkers,
   hasFixedWaitInE2ePageObject,
   hasFrontDoorDocEmojiMarkers,
+  hasMaintainedDocGlyphMarkers,
+  hasMarketIntelligenceDocGlyphMarkers,
+  hasNotificationsDocGlyphMarkers,
   hasOverbroadLocalStorageMigrationClaim,
   hasQuickStartEmojiMarkers,
+  hasResumeOrSalaryFeatureDocEmojiMarkers,
+  hasSmartScoringDocGlyphMarkers,
   hasSpeculativeCloudDeploymentDoc,
+  hasStaleApplicationTrackingDocClaims,
   hasStaleE2eWaitGuidance,
   hasStaleGettingStartedToolingDocs,
   hasStaleHardcodedMigrationCount,
   hasStaleInformalMaintainerFooter,
   hasStaleMacosDeveloperDocs,
+  hasStaleMarketIntelligenceDocShape,
+  hasStaleResumeMatcherDocShape,
+  hasStaleSalaryAiFutureUiClaim,
   hasStaleSqliteConfigurationDoc,
+  hasStaleSmartScoringSalaryMarkerClaim,
   hasStaleTestQualityDocGuidance,
+  hasSynonymOrRemotePreferenceDocDrift,
   hasTopLevelActiveDocDrift,
   hasTopLevelActiveDocGlyphMarkers,
 } from "./harness/checks/docs-drift.mjs";
@@ -197,6 +217,105 @@ test("docs drift check rejects active doc and platform tooling drift", () => {
     );
     assert.equal(
       hasStaleSqliteConfigurationDoc(root, "docs/developer/sqlite-configuration.md"),
+      true,
+    );
+  });
+});
+
+test("docs drift check rejects feature doc metadata and glyph drift", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "docs/BOOKMARKLET.md", "Saved ✓\n");
+    writeFixtureFile(root, "docs/features/ghost-detection.md", "🟢 **Ready**\n");
+    writeFixtureFile(root, "docs/features/json-resume-import.md", "Flow → next\n");
+    writeFixtureFile(root, "docs/features/resume-builder.md", "**Status:** Done\n");
+    writeFixtureFile(root, "docs/style-guide/GLOSSARY.md", "Done ✓\n");
+    writeFixtureFile(root, "docs/developer/TESTING.md", "A → B\n");
+
+    assert.equal(hasBookmarkletDocStatusEmojiMarkers(root, "docs/BOOKMARKLET.md"), true);
+    assert.equal(
+      hasFeatureStatusColorEmojiMarkers(root, "docs/features/ghost-detection.md"),
+      true,
+    );
+    assert.equal(
+      hasFeatureDocMetadataFooter(root, "docs/features/resume-builder.md"),
+      true,
+    );
+    assert.equal(
+      hasFeaturePlainDocGlyphMarkers(root, "docs/features/json-resume-import.md"),
+      true,
+    );
+    assert.equal(hasMaintainedDocGlyphMarkers(root, "docs/style-guide/GLOSSARY.md"), true);
+    assert.equal(hasDeveloperLayoutDocGlyphMarkers(root, "docs/developer/TESTING.md"), true);
+  });
+});
+
+test("docs drift check rejects feature doc stale product shapes", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "docs/features/market-intelligence.md",
+      "Technical Documentation\nseverity_emoji\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/resume-matcher.md",
+      "# AI Resume-Job Matcher\nStop manually comparing job requirements. Flow → match.\n",
+    );
+    writeFixtureFile(root, "docs/features/salary-ai.md", "Salary AI\n- [ ] UI components\n");
+    writeFixtureFile(root, "docs/README.md", "Resume Matcher\n");
+
+    assert.equal(
+      hasMarketIntelligenceDocGlyphMarkers(root, "docs/features/market-intelligence.md"),
+      true,
+    );
+    assert.equal(
+      hasStaleMarketIntelligenceDocShape(root, "docs/features/market-intelligence.md"),
+      true,
+    );
+    assert.equal(
+      hasResumeOrSalaryFeatureDocEmojiMarkers(root, "docs/features/resume-matcher.md"),
+      true,
+    );
+    assert.equal(hasStaleResumeMatcherDocShape(root, "docs/features/resume-matcher.md"), true);
+    assert.equal(hasStaleSalaryAiFutureUiClaim(root, "docs/features/salary-ai.md"), true);
+    assert.equal(hasConfusingResumeMatcherAiLabel(root, "docs/README.md"), true);
+    assert.equal(hasConfusingSalaryAiLabel(root, "docs/features/salary-ai.md"), true);
+  });
+});
+
+test("docs drift check rejects active feature labels and stale claims", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "docs/features/application-tracking.md",
+      "Application Tracking System (ATS)\nPhase 2 (Future)\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/smart-scoring.md",
+      "Predicted salaries are marked with a $ icon. ✓\n",
+    );
+    writeFixtureFile(root, "docs/features/notifications.md", "provider → channel\n");
+    writeFixtureFile(root, "docs/features/user-data-management.md", "data ├─ saved\n");
+    writeFixtureFile(root, "docs/features/synonym-matching.md", "Custom Synonyms (v2.1+)\n");
+
+    assert.equal(
+      hasStaleApplicationTrackingDocClaims(root, "docs/features/application-tracking.md"),
+      true,
+    );
+    assert.equal(
+      hasConfusingApplicationTrackingAtsLabel(root, "docs/features/application-tracking.md"),
+      true,
+    );
+    assert.equal(hasStaleSmartScoringSalaryMarkerClaim(root, "docs/features/smart-scoring.md"), true);
+    assert.equal(hasSmartScoringDocGlyphMarkers(root, "docs/features/smart-scoring.md"), true);
+    assert.equal(hasNotificationsDocGlyphMarkers(root, "docs/features/notifications.md"), true);
+    assert.equal(
+      hasActiveUserDocGlyphMarkers(root, "docs/features/user-data-management.md"),
+      true,
+    );
+    assert.equal(
+      hasSynonymOrRemotePreferenceDocDrift(root, "docs/features/synonym-matching.md"),
       true,
     );
   });
