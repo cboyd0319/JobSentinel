@@ -244,6 +244,9 @@ Current cleanup posture:
   keeps resume-app export paste behind an explicit Import from Resume App
   action, removes the circular PDF-upload hint, and adds focused UI plus
   product-copy coverage against the old raw export-data path.
+- Latest protective-tone follow-up changes resume readability score labels
+  away from judgmental terms such as Excellent, Great, and Poor toward
+  evidence-focused labels, with unit and product-copy coverage against drift.
 - Latest harness-session follow-up fixed the JSON mode argument parser so
   `npm run harness:session -- --json` no longer treats `--json` as the repo
   root and no longer returns a zeroed unavailable snapshot.

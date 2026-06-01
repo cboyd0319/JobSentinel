@@ -53,6 +53,9 @@ and record actionable findings in this active-plan surface.
   path, moves resume-app export paste behind an explicit Import from Resume App
   action, removes the circular PDF-upload hint, and adds focused UI plus
   product-copy coverage against the old raw export-data path.
+- Latest local protective-tone follow-up changes resume readability score
+  labels away from judgmental terms such as Excellent, Great, and Poor toward
+  evidence-focused labels, with unit and product-copy coverage against drift.
 - Latest local zero-technical provider setup work labels USAJobs as optional
   advanced federal monitoring with a no-setup browser-search path first, keeps
   Telegram bot details behind an advanced chat-alert path, and adds

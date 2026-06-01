@@ -236,12 +236,18 @@ test("product copy rejects non-protective scoring and legacy preference copy", (
   withFixture((root) => {
     writeFixtureFile(root, "src/components/ScoreDisplay.tsx", "Great Match!");
     writeFixtureFile(root, "docs/features/application-tracking.md", "Company Whitelist");
+    writeFixtureFile(
+      root,
+      "src/utils/scoreUtils.ts",
+      'if (score >= 90) return "Excellent";\nif (score >= 80) return "Great";\nreturn "Poor";\n',
+    );
 
     assert.equal(hasNonProtectiveScoreCopy(root, "src/components/ScoreDisplay.tsx"), true);
     assert.equal(
       hasLegacyPreferenceListCopy(root, "docs/features/application-tracking.md"),
       true,
     );
+    assert.equal(hasNonProtectiveScoreCopy(root, "src/utils/scoreUtils.ts"), true);
     assert.equal(hasNonProtectiveScoreCopy(root, "src/components/ErrorBoundary.tsx"), false);
   });
 });

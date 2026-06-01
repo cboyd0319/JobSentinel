@@ -167,7 +167,7 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByText("Good")).toBeInTheDocument();
+        expect(screen.getByText("Some")).toBeInTheDocument();
       });
     });
 
@@ -183,7 +183,7 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByText("Good")).toBeInTheDocument(); // 70-79 = Good
+        expect(screen.getByText("Some")).toBeInTheDocument(); // 70-79 = Some
       });
     });
 
@@ -314,7 +314,7 @@ describe("AtsLiveScorePanel", () => {
   });
 
   describe("score labels", () => {
-    it("shows 'Excellent' for scores >=90", async () => {
+    it("shows 'Strong' for scores >=90", async () => {
       mockInvoke.mockResolvedValue({ ...mockAnalysis, overall_score: 95 });
 
       render(
@@ -328,11 +328,11 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByText("Excellent")).toBeInTheDocument();
+        expect(screen.getByText("Strong")).toBeInTheDocument();
       });
     });
 
-    it("shows 'Poor' for scores <40", async () => {
+    it("shows 'Low evidence' for scores <40", async () => {
       mockInvoke.mockResolvedValue({ ...mockAnalysis, overall_score: 25 });
 
       render(
@@ -346,7 +346,7 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByText("Poor")).toBeInTheDocument();
+        expect(screen.getByText("Low evidence")).toBeInTheDocument();
       });
     });
   });
@@ -559,7 +559,7 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByText("Good")).toBeInTheDocument();
+        expect(screen.getByText("Some")).toBeInTheDocument();
       });
 
       expect(screen.queryByRole("button", { name: /view full analysis/i })).not.toBeInTheDocument();
@@ -824,7 +824,7 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByText("Good")).toBeInTheDocument();
+        expect(screen.getByText("Some")).toBeInTheDocument();
       });
 
       expect(screen.queryByText(/job words found/)).not.toBeInTheDocument();

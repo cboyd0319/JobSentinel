@@ -34,10 +34,10 @@ export function getScoreBg(score: number): string {
  * Get human-readable label for a score value
  */
 export function getScoreLabel(score: number): string {
-  if (score >= 90) return "Excellent";
-  if (score >= 80) return "Great";
-  if (score >= 70) return "Good";
-  if (score >= 60) return "Fair";
-  if (score >= 40) return "Needs Work";
-  return "Poor";
+  if (score >= 90) return "Strong";
+  if (score >= 80) return "Useful";
+  if (score >= 70) return "Some";
+  if (score >= 60) return "Review";
+  if (score >= 40) return "Needs review";
+  return "Low evidence";
 }

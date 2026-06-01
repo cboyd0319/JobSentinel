@@ -70,34 +70,34 @@ describe("scoreUtils", () => {
   });
 
   describe("getScoreLabel", () => {
-    it("returns 'Excellent' for scores >= 90", () => {
-      expect(getScoreLabel(90)).toBe("Excellent");
-      expect(getScoreLabel(100)).toBe("Excellent");
+    it("returns 'Strong' for scores >= 90", () => {
+      expect(getScoreLabel(90)).toBe("Strong");
+      expect(getScoreLabel(100)).toBe("Strong");
     });
 
-    it("returns 'Great' for scores >= 80 and < 90", () => {
-      expect(getScoreLabel(80)).toBe("Great");
-      expect(getScoreLabel(89)).toBe("Great");
+    it("returns 'Useful' for scores >= 80 and < 90", () => {
+      expect(getScoreLabel(80)).toBe("Useful");
+      expect(getScoreLabel(89)).toBe("Useful");
     });
 
-    it("returns 'Good' for scores >= 70 and < 80", () => {
-      expect(getScoreLabel(70)).toBe("Good");
-      expect(getScoreLabel(79)).toBe("Good");
+    it("returns 'Some' for scores >= 70 and < 80", () => {
+      expect(getScoreLabel(70)).toBe("Some");
+      expect(getScoreLabel(79)).toBe("Some");
     });
 
-    it("returns 'Fair' for scores >= 60 and < 70", () => {
-      expect(getScoreLabel(60)).toBe("Fair");
-      expect(getScoreLabel(69)).toBe("Fair");
+    it("returns 'Review' for scores >= 60 and < 70", () => {
+      expect(getScoreLabel(60)).toBe("Review");
+      expect(getScoreLabel(69)).toBe("Review");
     });
 
-    it("returns 'Needs Work' for scores >= 40 and < 60", () => {
-      expect(getScoreLabel(40)).toBe("Needs Work");
-      expect(getScoreLabel(59)).toBe("Needs Work");
+    it("returns 'Needs review' for scores >= 40 and < 60", () => {
+      expect(getScoreLabel(40)).toBe("Needs review");
+      expect(getScoreLabel(59)).toBe("Needs review");
     });
 
-    it("returns 'Poor' for scores < 40", () => {
-      expect(getScoreLabel(0)).toBe("Poor");
-      expect(getScoreLabel(39)).toBe("Poor");
+    it("returns 'Low evidence' for scores < 40", () => {
+      expect(getScoreLabel(0)).toBe("Low evidence");
+      expect(getScoreLabel(39)).toBe("Low evidence");
     });
   });
 });
