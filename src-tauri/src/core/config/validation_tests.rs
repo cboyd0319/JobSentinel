@@ -169,6 +169,9 @@ mod validation_tests {
             "http://10.0.0.5/mcp",
             "http://192.168.1.5/mcp",
             "http://[::1]/mcp",
+            "http://127.0.0.1.nip.io/mcp",
+            "http://192.168.1.5.sslip.io/mcp",
+            "http://internal.jobs.local/mcp",
             "https://user:pass@api.jobswithgpt.com/mcp",
         ] {
             let mut config = create_minimal_valid_config();

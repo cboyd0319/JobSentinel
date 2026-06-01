@@ -7,6 +7,7 @@
 use crate::core::scrapers::cache;
 use crate::core::url_security::sanitize_url_for_logging;
 use anyhow::{Context, Result};
+use reqwest::redirect::Policy;
 use std::time::Duration;
 
 pub use crate::core::http_body::{
@@ -35,7 +36,7 @@ static SHARED_CLIENT: once_cell::sync::OnceCell<reqwest::Client> = once_cell::sy
 
 /// Initialize the shared HTTP client
 fn init_shared_client() -> Result<reqwest::Client> {
-    reqwest::Client::builder()
+    scraper_client_builder()
         .user_agent(DEFAULT_USER_AGENT)
         .timeout(Duration::from_secs(DEFAULT_TIMEOUT_SECS))
         .pool_max_idle_per_host(10)
@@ -73,7 +74,7 @@ pub fn get_client() -> &'static reqwest::Client {
                     "Failed to create optimized HTTP client: {}. Using fallback.",
                     e
                 );
-                reqwest::Client::builder()
+                scraper_client_builder()
                     .timeout(Duration::from_secs(DEFAULT_TIMEOUT_SECS))
                     .build()
                     .unwrap_or_else(|_| {
@@ -104,12 +105,16 @@ pub fn get_client() -> &'static reqwest::Client {
 /// ```
 #[must_use = "this constructs a new HTTP client"]
 pub fn create_custom_client(user_agent: &str, timeout_secs: u64) -> Result<reqwest::Client> {
-    let client = reqwest::Client::builder()
+    let client = scraper_client_builder()
         .user_agent(user_agent)
         .timeout(Duration::from_secs(timeout_secs))
         .pool_max_idle_per_host(5)
         .build()?;
     Ok(client)
+}
+
+fn scraper_client_builder() -> reqwest::ClientBuilder {
+    reqwest::Client::builder().redirect(Policy::none())
 }
 
 /// Maximum number of retry attempts
@@ -679,6 +684,42 @@ mod tests {
             .expect("non-retryable statuses should be returned to callers");
 
         assert_eq!(response.status(), reqwest::StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
+    async fn test_send_with_retry_does_not_follow_redirects() {
+        use reqwest::StatusCode;
+        use wiremock::matchers::{method, path};
+        use wiremock::{Mock, MockServer, ResponseTemplate};
+
+        let server = MockServer::start().await;
+        let start_path = "/start";
+        let target_path = "/target";
+        let start_url = format!("{}{}", server.uri(), start_path);
+        let target_url = format!("{}{}", server.uri(), target_path);
+
+        Mock::given(method("GET"))
+            .and(path(start_path))
+            .respond_with(
+                ResponseTemplate::new(StatusCode::FOUND.as_u16())
+                    .append_header("Location", target_url),
+            )
+            .expect(1)
+            .mount(&server)
+            .await;
+
+        Mock::given(method("GET"))
+            .and(path(target_path))
+            .respond_with(ResponseTemplate::new(StatusCode::OK.as_u16()))
+            .expect(0)
+            .mount(&server)
+            .await;
+
+        let response = send_with_retry(&start_url, |client| client.get(&start_url))
+            .await
+            .expect("redirect response should be returned to caller");
+
+        assert_eq!(response.status(), StatusCode::FOUND);
     }
 
     #[tokio::test]

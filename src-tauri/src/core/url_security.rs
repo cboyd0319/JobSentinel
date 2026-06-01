@@ -1,9 +1,11 @@
 //! Shared URL validation for user-controlled external destinations.
 
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+use tokio::net::lookup_host;
 use url::Url;
 
 const MAX_LOG_URL_LEN: usize = 80;
+const BLOCKED_HOST_SUFFIXES: &[&str] = &["local", "lan", "home", "internal", "corp"];
 
 fn truncate_log_label(label: &str) -> String {
     if label.len() <= MAX_LOG_URL_LEN {
@@ -41,14 +43,14 @@ pub fn validate_external_http_url(url: &str) -> Result<Url, String> {
         return Err("Blocked URL with embedded credentials".to_string());
     }
 
-    let host = parsed
-        .host_str()
-        .ok_or_else(|| "URL must include a host".to_string())?
-        .trim_end_matches('.')
-        .to_ascii_lowercase();
+    let host = normalized_host(&parsed)?;
 
     if host == "localhost" || host.ends_with(".localhost") {
         return Err("Blocked localhost URL".to_string());
+    }
+
+    if has_blocked_host_suffix(&host) {
+        return Err("Blocked internal hostname".to_string());
     }
 
     let ip_host = host
@@ -61,6 +63,37 @@ pub fn validate_external_http_url(url: &str) -> Result<Url, String> {
             return Err("Blocked non-public IP address".to_string());
         }
     }
+
+    if let Some(ip) = embedded_ipv4_address(&host) {
+        if is_blocked_ip(IpAddr::V4(ip)) {
+            return Err("Blocked non-public IP address".to_string());
+        }
+    }
+
+    Ok(parsed)
+}
+
+/// Validate a URL for an actual HTTP fetch.
+///
+/// This keeps config validation deterministic while fetch paths also reject
+/// hostnames that resolve to loopback, private, link-local, or other non-public
+/// addresses.
+pub async fn validate_external_http_url_for_fetch(url: &str) -> Result<Url, String> {
+    let parsed = validate_external_http_url(url)?;
+    let host = normalized_host(&parsed)?;
+
+    if host.parse::<IpAddr>().is_ok() {
+        return Ok(parsed);
+    }
+
+    let port = parsed
+        .port_or_known_default()
+        .ok_or_else(|| "URL must include a valid port".to_string())?;
+    let addrs = lookup_host((host.as_str(), port))
+        .await
+        .map_err(|_| "Could not verify URL host".to_string())?;
+
+    validate_resolved_ips(addrs.map(|addr| addr.ip()))?;
 
     Ok(parsed)
 }
@@ -87,6 +120,54 @@ fn is_blocked_ip(ip: IpAddr) -> bool {
     match ip {
         IpAddr::V4(ip) => is_blocked_ipv4(ip),
         IpAddr::V6(ip) => is_blocked_ipv6(ip),
+    }
+}
+
+fn normalized_host(parsed: &Url) -> Result<String, String> {
+    Ok(parsed
+        .host_str()
+        .ok_or_else(|| "URL must include a host".to_string())?
+        .trim_end_matches('.')
+        .to_ascii_lowercase())
+}
+
+fn has_blocked_host_suffix(host: &str) -> bool {
+    BLOCKED_HOST_SUFFIXES
+        .iter()
+        .any(|suffix| host == *suffix || host.ends_with(&format!(".{suffix}")))
+}
+
+fn embedded_ipv4_address(host: &str) -> Option<Ipv4Addr> {
+    let labels: Vec<&str> = host.split('.').collect();
+
+    labels.windows(4).find_map(|window| {
+        let [a, b, c, d] = window else {
+            return None;
+        };
+
+        Some(Ipv4Addr::new(
+            a.parse().ok()?,
+            b.parse().ok()?,
+            c.parse().ok()?,
+            d.parse().ok()?,
+        ))
+    })
+}
+
+fn validate_resolved_ips(ips: impl IntoIterator<Item = IpAddr>) -> Result<(), String> {
+    let mut saw_ip = false;
+
+    for ip in ips {
+        saw_ip = true;
+        if is_blocked_ip(ip) {
+            return Err("Blocked non-public IP address".to_string());
+        }
+    }
+
+    if saw_ip {
+        Ok(())
+    } else {
+        Err("Could not verify URL host".to_string())
     }
 }
 
@@ -136,6 +217,19 @@ mod tests {
     }
 
     #[test]
+    fn blocks_private_host_suffixes() {
+        for url in [
+            "http://printer.local/jobs",
+            "http://search.lan/jobs",
+            "http://jobs.home/jobs",
+            "http://ats.internal/jobs",
+            "http://intranet.corp/jobs",
+        ] {
+            assert!(validate_external_http_url(url).is_err(), "{url}");
+        }
+    }
+
+    #[test]
     fn blocks_private_ipv4_ranges() {
         for url in [
             "http://127.0.0.1/jobs",
@@ -158,6 +252,20 @@ mod tests {
         assert_eq!(err, "Blocked non-public IP address");
         assert!(!err.contains("192.168.1.10"), "host leaked: {err}");
         assert!(!err.contains("secret"), "query leaked: {err}");
+    }
+
+    #[test]
+    fn blocks_embedded_private_ipv4_hostnames() {
+        for url in [
+            "http://127.0.0.1.nip.io/jobs",
+            "http://192.168.1.5.sslip.io/jobs",
+            "http://169.254.1.1.example.com/jobs",
+            "http://10.0.0.1.public.example/jobs",
+        ] {
+            assert!(validate_external_http_url(url).is_err(), "{url}");
+        }
+
+        assert!(validate_external_http_url("http://8.8.8.8.example.com/jobs").is_ok());
     }
 
     #[test]
@@ -221,5 +329,23 @@ mod tests {
         let sanitized = sanitize_url_for_logging("not a url with token=secret");
 
         assert_eq!(sanitized, "<invalid-url>");
+    }
+
+    #[test]
+    fn resolved_private_ips_are_rejected_without_echoing_host() {
+        let err = validate_resolved_ips([IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1))]).unwrap_err();
+
+        assert_eq!(err, "Blocked non-public IP address");
+        assert!(!err.contains("127.0.0.1"));
+    }
+
+    #[test]
+    fn empty_resolution_is_rejected() {
+        let ips: [IpAddr; 0] = [];
+
+        assert_eq!(
+            validate_resolved_ips(ips).unwrap_err(),
+            "Could not verify URL host"
+        );
     }
 }

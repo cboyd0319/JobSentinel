@@ -2,7 +2,7 @@
 
 use crate::core::{
     http_body::{read_json_with_limit, read_text_with_limit},
-    url_security::validate_external_http_url,
+    url_security::validate_external_http_url_for_fetch,
     Config, Database,
 };
 use anyhow::Result;
@@ -432,11 +432,13 @@ async fn test_jobswithgpt(config: &Config) -> Result<serde_json::Value> {
         }));
     }
 
-    let endpoint = validate_external_http_url(&config.jobswithgpt_endpoint)
+    let endpoint = validate_external_http_url_for_fetch(&config.jobswithgpt_endpoint)
+        .await
         .map_err(|reason| anyhow::anyhow!("Invalid JobsWithGPT endpoint: {}", reason))?;
 
     // Just verify the endpoint is reachable
     let client = reqwest::Client::builder()
+        .redirect(reqwest::redirect::Policy::none())
         .timeout(std::time::Duration::from_secs(10))
         .build()?;
 

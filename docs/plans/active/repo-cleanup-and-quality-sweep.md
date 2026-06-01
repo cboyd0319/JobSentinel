@@ -182,6 +182,10 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
 - Added `docs/plans/active/status.md` as the compact active-goal restart
   surface and archived older progress rows in
   `docs/plans/archive/progress-history-2026-05-28-to-2026-05-29.md`.
+- Hardened user-controlled external URL fetch paths: shared URL validation now
+  rejects private host suffixes and embedded private IP hostnames,
+  user-entered job-page imports and JobsWithGPT perform fetch-time DNS checks,
+  and shared scraper clients return redirects instead of following them.
 - Extracted root-entry, local-artifact, and tracked-disposable checks from
   `scripts/check-repo-bloat.mjs` into
   `scripts/harness/checks/repo-artifacts.mjs` with focused script tests.
@@ -361,6 +365,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-01 | In progress | Hardened external URL fetch boundaries for user-entered job imports and JobsWithGPT, disabled shared scraper redirects, added focused URL/security tests, and recorded remaining bookmarklet/rate-limit findings as open debt. |
 | 2026-06-01 | In progress | Replaced old report wording with safe support report wording in the root README, docs hub, harness docs, and credential docs; expanded product-copy coverage across front-door and harness files. |
 | 2026-06-01 | In progress | Pushed through `5c0d954a`; remote Docs Harness `26747322402` and CI `26747322398` both passed. CI covered harness checks, harness script tests, TypeScript, ESLint, frontend unit tests, Rust fmt, Rust clippy, Rust library tests, npm audit, and cargo-deny advisories. |
 | 2026-06-01 | In progress | Sanitized optional dev support details before toast display in `safeInvokeWithToast`; added focused API unit coverage and privacy-logging harness coverage against raw enhanced error messages. |

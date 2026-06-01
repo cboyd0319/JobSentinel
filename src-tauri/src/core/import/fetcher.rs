@@ -22,7 +22,8 @@ const HTTP_TIMEOUT: Duration = Duration::from_secs(30);
 /// - No cookies or authentication (user-initiated, public page)
 pub async fn fetch_job_page(url: &str) -> ImportResult<String> {
     // Validate URL
-    let parsed_url = crate::core::url_security::validate_external_http_url(url)
+    let parsed_url = crate::core::url_security::validate_external_http_url_for_fetch(url)
+        .await
         .map_err(ImportError::InvalidUrl)?;
 
     tracing::info!(url = %sanitize_url_for_logging(url), "Fetching job page");
@@ -104,6 +105,9 @@ mod tests {
         assert!(matches!(result, Err(ImportError::InvalidUrl(_))));
 
         let result = fetch_job_page("http://192.168.1.5/internal").await;
+        assert!(matches!(result, Err(ImportError::InvalidUrl(_))));
+
+        let result = fetch_job_page("http://127.0.0.1.nip.io/internal").await;
         assert!(matches!(result, Err(ImportError::InvalidUrl(_))));
     }
 
