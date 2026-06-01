@@ -411,6 +411,12 @@ async fn test_add_notes() {
     .await
     .unwrap();
     assert_eq!(events.len(), 1);
+    let event_data_raw: Option<String> = events[0].get("event_data");
+    let event_data: serde_json::Value =
+        serde_json::from_str(event_data_raw.as_ref().unwrap()).unwrap();
+    assert_eq!(event_data["has_notes"], true);
+    assert_eq!(event_data["note_chars"], 18);
+    assert!(!event_data_raw.unwrap().contains("Great opportunity!"));
 }
 
 #[tokio::test]
@@ -1615,5 +1621,8 @@ async fn test_event_logging_via_reminder_set() {
     let event_data: serde_json::Value =
         serde_json::from_str(event_data_raw.as_ref().unwrap()).unwrap();
     assert_eq!(event_data["type"], "custom");
-    assert_eq!(event_data["message"], "Custom reminder");
+    assert_eq!(event_data["has_message"], true);
+    assert_eq!(event_data["message_chars"], 15);
+    assert_eq!(event_data["time"], reminder_time.to_rfc3339());
+    assert!(!event_data_raw.unwrap().contains("Custom reminder"));
 }

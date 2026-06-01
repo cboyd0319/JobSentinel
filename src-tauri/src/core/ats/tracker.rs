@@ -276,7 +276,10 @@ impl ApplicationTracker {
         self.log_event(
             application_id,
             "note_added",
-            serde_json::json!({"notes": notes}),
+            serde_json::json!({
+                "has_notes": !notes.trim().is_empty(),
+                "note_chars": notes.chars().count()
+            }),
         )
         .await?;
 

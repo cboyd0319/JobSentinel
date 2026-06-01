@@ -34,7 +34,8 @@ impl ApplicationTracker {
             serde_json::json!({
                 "type": reminder_type,
                 "time": reminder_time_str,
-                "message": message
+                "has_message": !message.trim().is_empty(),
+                "message_chars": message.chars().count()
             }),
         )
         .await?;

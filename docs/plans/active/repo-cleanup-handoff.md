@@ -251,6 +251,11 @@ Current cleanup posture:
   responses no longer expose raw saved answer patterns, historical question
   text, original answers, or edited answer text; summary counts remain
   available locally, and IPC-minimization sensors reject drift.
+- Latest ATS timeline privacy follow-up stops `application_events.event_data`
+  from duplicating private note bodies or reminder messages. Notes and
+  reminders still keep their user-visible content in owning tables, timeline
+  events keep only presence/count metadata, legacy event payloads are scrubbed
+  by migration, and privacy-logging sensors reject drift.
 - Latest harness-session follow-up fixed the JSON mode argument parser so
   `npm run harness:session -- --json` no longer treats `--json` as the repo
   root and no longer returns a zeroed unavailable snapshot.

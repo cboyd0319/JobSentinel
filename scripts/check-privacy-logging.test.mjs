@@ -23,6 +23,7 @@ import {
   hasRawAutomationFormResultData,
   hasRawAutomationQuestionLogging,
   hasRawAtsCommandErrorDetails,
+  hasRawAtsTimelinePrivateEventData,
   hasRawBackupPathError,
   hasRawCommandSetupErrorDisplay,
   hasRawConfigValidationUrlDisplay,
@@ -191,6 +192,31 @@ test("privacy logging rejects raw automation browser errors and notification tit
       hasRawAutomationBrowserErrors(root, "src-tauri/src/core/automation/form_filler.rs"),
       false,
     );
+  });
+});
+
+test("privacy logging rejects raw ATS note and reminder timeline event data", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/ats/tracker.rs",
+      'serde_json::json!({"notes": notes})',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/ats/reminders.rs",
+      'serde_json::json!({"message": message})',
+    );
+
+    assert.equal(
+      hasRawAtsTimelinePrivateEventData(root, "src-tauri/src/core/ats/tracker.rs"),
+      true,
+    );
+    assert.equal(
+      hasRawAtsTimelinePrivateEventData(root, "src-tauri/src/core/ats/reminders.rs"),
+      true,
+    );
+    assert.equal(hasRawAtsTimelinePrivateEventData(root, "src-tauri/src/core/ats/types.rs"), false);
   });
 });
 

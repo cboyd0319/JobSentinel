@@ -140,6 +140,10 @@ const resumeCommandDtoPrivacyPaths = new Set([
 
 const resumeCommandErrorPrivacyPaths = new Set(["src-tauri/src/commands/resume.rs"]);
 const atsCommandErrorPrivacyPaths = new Set(["src-tauri/src/commands/ats.rs"]);
+const atsTimelineEventPrivacyPaths = new Set([
+  "src-tauri/src/core/ats/tracker.rs",
+  "src-tauri/src/core/ats/reminders.rs",
+]);
 const automationCommandErrorPrivacyPaths = new Set(["src-tauri/src/commands/automation.rs"]);
 
 const sensitiveCommandErrorPrivacyPaths = new Set([
@@ -984,6 +988,18 @@ export function hasRawAtsCommandErrorDetails(root, path) {
   );
 }
 
+export function hasRawAtsTimelinePrivateEventData(root, path) {
+  if (!atsTimelineEventPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  return (
+    /serde_json::json!\(\s*\{[\s\S]{0,220}"notes"\s*:\s*notes/.test(productionText) ||
+    /serde_json::json!\(\s*\{[\s\S]{0,260}"message"\s*:\s*message/.test(productionText)
+  );
+}
+
 export function hasRawAutomationCommandErrorDetails(root, path) {
   if (!automationCommandErrorPrivacyPaths.has(path)) {
     return false;
@@ -1386,6 +1402,7 @@ const privacyLoggingViolationChecks = [
   [hasRawResumeNameLogging, "sanitize resume import name logging"],
   [hasRawResumeCommandErrorDetails, "sanitize resume command error details"],
   [hasRawAtsCommandErrorDetails, "sanitize application tracking command error details"],
+  [hasRawAtsTimelinePrivateEventData, "keep private ATS timeline text out of event data"],
   [hasRawAutomationCommandErrorDetails, "sanitize automation command error details"],
   [hasRawSensitiveCommandErrorDetails, "sanitize sensitive command error details"],
   [hasRawUtilityCommandErrorDetails, "sanitize utility command error details"],

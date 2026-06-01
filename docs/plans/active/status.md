@@ -60,6 +60,11 @@ and record actionable findings in this active-plan surface.
   renderer responses no longer expose raw saved answer patterns, historical
   question text, original answers, or edited answer text; summary counts remain
   available locally, and IPC-minimization sensors reject drift.
+- Latest local ATS timeline privacy follow-up stops application event metadata
+  from duplicating private note bodies or reminder messages. Notes and reminder
+  messages stay in their owning tables, timeline events keep only counts and
+  presence metadata, a data migration scrubs legacy event payloads, and
+  privacy-logging sensors reject drift.
 - Latest local zero-technical provider setup work labels USAJobs as optional
   advanced federal monitoring with a no-setup browser-search path first, keeps
   Telegram bot details behind an advanced chat-alert path, and adds
@@ -539,7 +544,8 @@ and record actionable findings in this active-plan surface.
    source-realism parser contracts.
 2. Continue splitting oversized harness modules only where the ownership
    boundary is clear; the main bloat runner is now 584 lines after docs-drift,
-   privacy-logging, and source-quality ownership moved into modules.
+   privacy-logging, source-quality, and IPC-minimization ownership moved into
+   modules.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
    The latest support-path, privacy-copy, USAJobs setup, and Telegram setup
@@ -551,9 +557,9 @@ and record actionable findings in this active-plan surface.
    setup defaults, examples, placeholders, and source recommendations as new
    slices touch broad-role behavior.
 5. Continue backend/scraper and frontend privacy-edge review.
-   The concrete findings from the latest read-only security audit are closed
-   locally; continue looking for new issues as later slices touch trust
-   boundaries.
+   The screening-answer IPC and ATS timeline findings from the latest read-only
+   security audit are closed locally; continue looking for new issues as later
+   slices touch trust boundaries.
 6. Continue the next zero-technical-knowledge UX audit area outside
    support/reporting.
 7. Run final broad verification only when the remaining known work has evidence.
