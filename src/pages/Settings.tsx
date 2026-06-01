@@ -1017,7 +1017,7 @@ export default function Settings({ onClose }: SettingsProps) {
           );
         }
         toast.error(
-          "Save failed",
+          "Could not save settings",
           credentialFailures.length > 0
             ? "Settings and some saved connection details could not be saved. Try saving again."
             : "Settings could not be saved. Try saving again.",
@@ -1032,7 +1032,7 @@ export default function Settings({ onClose }: SettingsProps) {
         );
         toast.warning(
           "Some connection details were not saved",
-          `${credentialFailures.length} saved connection detail(s) failed to save. Settings were saved. Try saving again.`,
+          `${credentialFailures.length} saved connection detail(s) were not saved. Settings were saved. Try saving again.`,
         );
       } else {
         toast.success(
@@ -2390,7 +2390,7 @@ export default function Settings({ onClose }: SettingsProps) {
                                   );
                                 } catch {
                                   toast.error(
-                                    "Test failed",
+                                    "Could not send test",
                                     "Check the email account, app password, and recipient addresses.",
                                   );
                                 } finally {
@@ -2670,7 +2670,7 @@ export default function Settings({ onClose }: SettingsProps) {
                             );
                           } catch {
                             toast.error(
-                              "Test failed",
+                              "Could not send test",
                               "Check that the Slack connection link is correct and try again",
                             );
                           } finally {

@@ -76,11 +76,11 @@ const CONFIG_ERRORS = [
  * Notification and webhook error patterns
  */
 const NOTIFICATION_ERRORS = [
-  { pattern: /webhook.*failed|webhook.*invalid/i, title: 'Notification Setup Failed', message: 'We couldn\'t send notifications to your saved alert channel.', action: 'Open Settings, choose More Settings, then paste a fresh connection link for that channel.' },
-  { pattern: /slack.*error/i, title: 'Slack Notification Failed', message: 'Couldn\'t send a notification to Slack.', action: 'Paste a fresh Slack connection link in Settings and make sure the channel still exists.' },
-  { pattern: /discord.*error/i, title: 'Discord Notification Failed', message: 'Couldn\'t send a notification to Discord.', action: 'Paste a fresh Discord connection link in Settings and make sure the channel still exists.' },
-  { pattern: /teams.*error/i, title: 'Teams Notification Failed', message: 'Couldn\'t send a notification to Microsoft Teams.', action: 'Paste a fresh Teams connection link in Settings and make sure the connector is still active.' },
-  { pattern: /email.*error|smtp/i, title: 'Email Notification Failed', message: 'Couldn\'t send an email notification.', action: 'Check your email sending settings and saved password.' },
+  { pattern: /webhook.*failed|webhook.*invalid/i, title: 'Could not set up notifications', message: 'We couldn\'t send notifications to your saved alert channel.', action: 'Open Settings, choose More Settings, then paste a fresh connection link for that channel.' },
+  { pattern: /slack.*error/i, title: 'Could not send Slack notification', message: 'Couldn\'t send a notification to Slack.', action: 'Paste a fresh Slack connection link in Settings and make sure the channel still exists.' },
+  { pattern: /discord.*error/i, title: 'Could not send Discord notification', message: 'Couldn\'t send a notification to Discord.', action: 'Paste a fresh Discord connection link in Settings and make sure the channel still exists.' },
+  { pattern: /teams.*error/i, title: 'Could not send Teams notification', message: 'Couldn\'t send a notification to Microsoft Teams.', action: 'Paste a fresh Teams connection link in Settings and make sure the connector is still active.' },
+  { pattern: /email.*error|smtp/i, title: 'Could not send email notification', message: 'Couldn\'t send an email notification.', action: 'Check your email sending settings and saved password.' },
 ];
 
 /**
@@ -89,7 +89,7 @@ const NOTIFICATION_ERRORS = [
 const ATS_ERRORS = [
   { pattern: /application.*not.*found/i, title: 'Application Not Found', message: 'The job application you\'re looking for doesn\'t exist.', action: 'It may have been deleted. Check your applications list.' },
   { pattern: /interview.*conflict/i, title: 'Interview Time Conflict', message: 'This interview time overlaps with another one.', action: 'Choose a different time or reschedule one of the interviews.' },
-  { pattern: /reminder.*failed/i, title: 'Reminder Setup Failed', message: 'Couldn\'t create a reminder for this event.', action: 'Check your notification settings and try again.' },
+  { pattern: /reminder.*failed/i, title: 'Could not create reminder', message: 'Couldn\'t create a reminder for this event.', action: 'Check your notification settings and try again.' },
 ];
 
 /**

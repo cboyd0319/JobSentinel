@@ -260,12 +260,21 @@ test("product copy rejects technical recovery and raw error details", () => {
       "src/components/ComponentErrorBoundary.tsx",
       "This section failed to load",
     );
+    writeFixtureFile(
+      root,
+      "src/components/ModalErrorBoundary.tsx",
+      "This window failed to load",
+    );
     writeFixtureFile(root, "src/components/ScraperHealthDashboard.tsx", "window state");
 
     assert.equal(hasRawErrorBoundaryDetails(root, "src/components/ErrorBoundary.tsx"), true);
     assert.equal(hasTechnicalRecoveryCopy(root, "src/components/ErrorBoundary.tsx"), true);
     assert.equal(
       hasTechnicalRecoveryCopy(root, "src/components/ComponentErrorBoundary.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalRecoveryCopy(root, "src/components/ModalErrorBoundary.tsx"),
       true,
     );
     assert.equal(
@@ -512,13 +521,19 @@ test("product copy rejects technical-first settings copy", () => {
         "Bot Detection Triggered",
         "The website thinks you're a bot and blocked the request.",
         "This is a safety measure. Reduce search frequency or try again later.",
+        "Notification Setup Failed",
+        "Slack Notification Failed",
+        "Discord Notification Failed",
+        "Teams Notification Failed",
+        "Email Notification Failed",
+        "Reminder Setup Failed",
         "",
       ].join("\n"),
     );
     writeFixtureFile(
       root,
       "src/pages/Settings.tsx",
-      "Turn this on to never miss a new posting.\nAuto-scan job boards\nCompany preference (if configured)\n",
+      "Turn this on to never miss a new posting.\nAuto-scan job boards\nCompany preference (if configured)\nSave failed\nTest failed\nsaved connection detail(s) failed to save\n",
     );
     writeFixtureFile(
       root,
@@ -643,6 +658,21 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/pages/dashboardErrorCopy.ts",
+      "Job Search Failed\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/hooks/useFeedback.ts",
+      "Failed to load system information\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/utils/api.ts",
+      "Operation Failed\n",
+    );
+    writeFixtureFile(
+      root,
       "src/pages/hooks/useDashboardJobOps.ts",
       "Undo failed\nRedo failed\nBookmark Failed\nBulk Hide Failed\nBulk Bookmark Failed\nBulk Merge Failed\n3 failed\n",
     );
@@ -668,6 +698,12 @@ test("product copy rejects technical-first settings copy", () => {
         "title: 'Invalid Email'",
         "Permission Denied",
         "Resume Parsing Failed",
+        "Notification Setup Failed",
+        "Slack Notification Failed",
+        "Discord Notification Failed",
+        "Teams Notification Failed",
+        "Email Notification Failed",
+        "Reminder Setup Failed",
         "Document Too Large",
         "too long for processing",
         "",
@@ -782,6 +818,9 @@ test("product copy rejects technical-first settings copy", () => {
       true,
     );
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Applications.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/dashboardErrorCopy.ts"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/hooks/useFeedback.ts"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/api.ts"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/pages/hooks/useDashboardJobOps.ts"),
       true,

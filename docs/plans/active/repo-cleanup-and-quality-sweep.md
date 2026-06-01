@@ -317,6 +317,10 @@ boundaries, and harness modularity:
   application-list, and section recovery paths that still used failure-first
   wording. They now use `Could not...` wording, with focused hook/component
   tests and product-copy coverage against old labels.
+- Fixed remaining generic failure-first titles in job-search, settings
+  save/test, notification, reminder, modal recovery, feedback-details, and API
+  fallback paths. They now use `Could not...` wording, with focused
+  page/component/utility tests and product-copy coverage against old labels.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright

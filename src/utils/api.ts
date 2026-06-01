@@ -282,7 +282,7 @@ export async function safeInvokeWithToast<T>(
     };
     const { sanitizeTextForStorage } = await import("./errorReporting");
 
-    const title = options?.errorTitle || enhancedError.userFriendly?.title || "Operation Failed";
+    const title = options?.errorTitle || enhancedError.userFriendly?.title || "Could not complete action";
     const message = enhancedError.userFriendly?.message;
     const action = enhancedError.userFriendly?.action;
     const supportDetails =

@@ -95,7 +95,7 @@ describe("ModalErrorBoundary", () => {
         </ModalErrorBoundary>
       );
 
-      expect(screen.getByText(/this window failed to load/i)).toBeInTheDocument();
+      expect(screen.getByText(/this window could not load/i)).toBeInTheDocument();
       expect(screen.queryByText("Modal test error")).not.toBeInTheDocument();
     });
 
@@ -113,7 +113,7 @@ describe("ModalErrorBoundary", () => {
 
       expect(screen.getByText("Something went wrong")).toBeInTheDocument();
       expect(screen.getByText((content, element) => {
-        return element?.tagName === "P" && content.includes("This window failed to load");
+        return element?.tagName === "P" && content.includes("This window could not load");
       })).toBeInTheDocument();
       expect(document.body.textContent).not.toContain("raw-secret");
       expect(document.body.textContent).not.toContain("chad@example.com");
@@ -258,7 +258,7 @@ describe("ModalErrorBoundary", () => {
         </ModalErrorBoundary>
       );
 
-      expect(screen.getByText(/this window failed to load/i)).toBeInTheDocument();
+      expect(screen.getByText(/this window could not load/i)).toBeInTheDocument();
     });
 
     it("calls onClose and resets state when dismissed", async () => {

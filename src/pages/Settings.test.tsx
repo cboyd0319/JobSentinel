@@ -586,7 +586,7 @@ describe("Settings — handleSave flow", () => {
 
     await waitFor(() => {
       expect(mockToast.error).toHaveBeenCalledWith(
-        "Save failed",
+        "Could not save settings",
         expect.any(String),
       );
     });
@@ -624,7 +624,7 @@ describe("Settings — handleSave flow", () => {
 
     await waitFor(() => {
       expect(mockToast.error).toHaveBeenCalledWith(
-        "Save failed",
+        "Could not save settings",
         "Settings could not be saved. Try saving again.",
       );
     });

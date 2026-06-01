@@ -207,7 +207,7 @@ describe("Dashboard safe error copy", () => {
     const copy = getDashboardSearchErrorCopy(privateFailure);
     const visibleText = `${copy.title} ${copy.message}`;
 
-    expect(copy.title).toBe("Job Search Failed");
+    expect(copy.title).toBe("Could not search jobs");
     expect(visibleText).toContain("safe support report");
     expect(visibleText).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
   });

@@ -105,7 +105,7 @@ export function useFeedback(): UseFeedbackResult {
         logError("Failed to load feedback debug data:", error);
         setState(prev => ({
           ...prev,
-          error: "Failed to load system information. You can still submit feedback.",
+          error: "Could not load safe app details. You can still submit feedback.",
           loading: false,
         }));
       }

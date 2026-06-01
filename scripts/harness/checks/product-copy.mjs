@@ -189,10 +189,12 @@ const technicalFirstUserCopyPaths = new Set([
   "src/components/feedback/DebugInfoPreview.tsx",
   "src/components/feedback/FeedbackModal.tsx",
   "src/components/feedback/SuccessScreen.tsx",
+  "src/hooks/useFeedback.ts",
   "src/mocks/handlers.ts",
   "src/contexts/UndoContext.tsx",
   "src/contexts/KeyboardShortcutsContext.tsx",
   "src-tauri/src/commands/errors.rs",
+  "src/utils/api.ts",
   "src/pages/Resume.tsx",
   "src/pages/hooks/useDashboardAutoRefresh.ts",
   "src/pages/hooks/useDashboardJobOps.ts",
@@ -201,6 +203,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/pages/Applications.tsx",
   "src/pages/ApplicationProfile.tsx",
   "src/pages/Dashboard.tsx",
+  "src/pages/dashboardErrorCopy.ts",
   "src/pages/DashboardUI/DashboardHeader.tsx",
   "src/pages/DashboardUI/noJobsEmptyStateCopy.ts",
   "src/pages/DashboardUI/DashboardFiltersBar.tsx",
@@ -519,6 +522,7 @@ export function hasTechnicalRecoveryCopy(root, path) {
     /CardHeader\s+title=["']Error["']/,
     /window state/i,
     /This section failed to load/i,
+    /This window failed to load/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));
@@ -792,6 +796,24 @@ export function hasTechnicalFirstUserCopy(root, path) {
     }
   }
 
+  if (path === "src/pages/dashboardErrorCopy.ts") {
+    return /Job Search Failed/i.test(text);
+  }
+
+  if (path === "src/hooks/useFeedback.ts") {
+    return /Failed to load system information/i.test(text);
+  }
+
+  if (path === "src/utils/api.ts") {
+    return /Operation Failed/i.test(text);
+  }
+
+  if (path === "src/utils/errorMessages.ts") {
+    return /Notification Setup Failed|Slack Notification Failed|Discord Notification Failed|Teams Notification Failed|Email Notification Failed|Reminder Setup Failed|API key|API Limit|The database is currently in use|Configuration Missing|configuration file|webhook URL|SMTP credentials|contact support with the error details below|technical:\s*technicalMessage|JSON\.stringify\(error\)/i.test(
+      text,
+    );
+  }
+
   if (path === "src/pages/hooks/useDashboardJobOps.ts") {
     return /Undo failed|Redo failed|Bookmark Failed|Bulk Hide Failed|Bulk Bookmark Failed|Bulk Merge Failed|\d+\s+failed/i.test(
       text,
@@ -1002,6 +1024,9 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Invalid Discord webhook path/i,
     /Invalid Teams webhook path/i,
     /Double-check your webhook/i,
+    /["'`]Save failed["'`]/i,
+    /["'`]Test failed["'`]/i,
+    /saved connection detail\(s\) failed to save/i,
     /\*\*Database:\*\*/i,
     /\*\*Credentials:\*\*/i,
     /Some credentials unavailable/i,

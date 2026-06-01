@@ -174,6 +174,10 @@ and record actionable findings in this active-plan surface.
   in undo/redo, bookmark, bulk-hide, duplicate-merge, resume export,
   application-status, application-list, and section recovery paths with
   `Could not...` wording, and adds product-copy coverage against old labels.
+- Latest local generic-recovery follow-up replaces remaining generic failure
+  titles in job search, settings save/test, notification, reminder, modal
+  recovery, feedback-details, and API fallback paths with `Could not...`
+  wording, and extends product-copy coverage against the old titles.
 - Latest local Application Assist readiness follow-up stops optional
   application-form detection from blocking the Prepare Form action. If form
   recognition is still loading, users with a saved profile can still open the

@@ -23,7 +23,7 @@ interface State {
 
 function safeModalErrorMessage(error: Error | null): string {
   return error
-    ? 'This window failed to load. Your data is safe. Close it and try again.'
+    ? 'This window could not load. Your data is safe. Close it and try again.'
     : 'An unexpected error occurred';
 }
 
