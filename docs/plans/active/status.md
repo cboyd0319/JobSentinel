@@ -36,9 +36,9 @@ and record actionable findings in this active-plan surface.
   index, harness guide, agent guide, and handoff toward the compact state.
 - Current local work continues the sensor-modularity debt by extracting
   filesystem, tracked-artifact, dependency-ownership, source-structure,
-  E2E-helper, product-framing, product-copy, and release-promise policy from
-  `scripts/check-repo-bloat.mjs` into `scripts/harness/checks/` modules with
-  focused tests.
+  E2E-helper, product-framing, product-copy, release-promise, and initial
+  privacy-logging policy from `scripts/check-repo-bloat.mjs` into
+  `scripts/harness/checks/` modules with focused tests.
 - Latest local privacy work removes raw automation dropdown-answer logging and
   raw frontend error forwarding, then adds bloat sensors and `errorReporting`
   unit coverage so those regressions fail locally.

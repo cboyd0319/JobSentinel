@@ -60,6 +60,9 @@ Current cleanup posture:
   `scripts/harness/checks/product-copy.mjs`.
 - Release-promise drift checks now live in
   `scripts/harness/checks/release-promises.mjs`.
+- Initial privacy-logging checks for raw automation dropdown values and raw
+  frontend error forwarding now live in
+  `scripts/harness/checks/privacy-logging.mjs`.
 - Privacy audit follow-up removed raw automation dropdown-answer logging and
   raw frontend error forwarding. The bloat sensor now rejects those patterns,
   and `errorReporting` unit tests cover sanitized console forwarding.
@@ -70,7 +73,7 @@ Current cleanup posture:
   labels are plainer, saved-report success steps are account-optional, and
   generated safe-report headings use support language instead of
   system/config/structured-data language.
-- `scripts/check-repo-bloat.mjs` still owns docs drift, privacy logging,
+- `scripts/check-repo-bloat.mjs` still owns docs drift, most privacy logging,
   fixture-quality checks, broad-audience checks, technical-first copy checks,
   and source security patterns.
 - Docs harness exists and runs through `npm run harness:check`.
@@ -286,7 +289,9 @@ Latest sensor-modularity slice checks on 2026-05-31:
 
 Latest privacy-audit slice checks on 2026-05-31:
 
+- `node --check scripts/harness/checks/privacy-logging.mjs`
 - `node --check scripts/check-repo-bloat.mjs`
+- `node --test scripts/check-privacy-logging.test.mjs scripts/check-repo-bloat.test.mjs`
 - `node --test scripts/check-repo-bloat.test.mjs`
 - `npm run test:run -- src/utils/errorReporting.test.ts`
 - `npm run test:scripts`

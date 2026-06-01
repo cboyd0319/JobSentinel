@@ -42,6 +42,10 @@ import {
   hasUnreferencedSettingsHelperComponent,
   hasUnreferencedSourceHelper,
 } from "./harness/checks/source-structure.mjs";
+import {
+  hasRawAutomationDropdownValueLogging,
+  hasRawFrontendErrorReporterForwarding,
+} from "./harness/checks/privacy-logging.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
@@ -2787,17 +2791,6 @@ function hasRawAutomationBrowserErrors(root, path) {
   );
 }
 
-function hasRawAutomationDropdownValueLogging(root, path) {
-  if (path !== "src-tauri/src/core/automation/browser/page.rs") {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return /tracing::debug!\(\s*"Selected option[^"]*"[\s\S]{0,120},\s*value\b/.test(
-    productionText,
-  );
-}
-
 function hasRawNotificationJobTitleLogging(root, path) {
   if (!rawNotificationJobTitleLoggingPaths.has(path)) {
     return false;
@@ -2935,21 +2928,6 @@ function hasUnsanitizedFrontendErrorReportStorage(root, path) {
     text.includes("hooks\\.slack\\.com\\/services") ||
     !text.includes("discord(?:app)?\\.com\\/api\\/webhooks") ||
     !text.includes("outlook\\.office(?:365)?\\.com\\/webhook")
-  );
-}
-
-function hasRawFrontendErrorReporterForwarding(root, path) {
-  if (!frontendErrorReportingPaths.has(path)) {
-    return false;
-  }
-
-  const text = stripTypeScriptComments(readFileSync(join(root, path), "utf8"));
-  return (
-    /originalConsoleError\.apply\(\s*console\s*,\s*args\s*\)/.test(text) ||
-    /window\.onerror\s*=\s*\([\s\S]{0,640}return\s+false\s*;/.test(text) ||
-    /window\.onunhandledrejection\s*=\s*\([\s\S]{0,720}if\s*\(\s*!import\.meta\.env\.DEV\s*\)\s*\{[\s\S]{0,120}event\.preventDefault\(\)/.test(
-      text,
-    )
   );
 }
 

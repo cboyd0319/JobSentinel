@@ -142,6 +142,9 @@ Required process:
   `scripts/harness/checks/product-copy.mjs`.
 - [x] Extract release-promise drift checks into
   `scripts/harness/checks/release-promises.mjs`.
+- [x] Extract initial privacy-logging checks for automation dropdown values and
+  frontend error reporter forwarding into
+  `scripts/harness/checks/privacy-logging.mjs`.
 - [x] Harden raw automation dropdown logging and frontend error forwarding
   found by the privacy audit, with focused bloat and unit-test coverage.
 - [x] Make the feedback submit flow prefer saving a safe local report, add safe
@@ -198,6 +201,9 @@ the repo harness rather than changing user-facing product behavior:
 - Extracted front-door and runtime source release-promise checks from
   `scripts/check-repo-bloat.mjs` into
   `scripts/harness/checks/release-promises.mjs` with focused script tests.
+- Extracted initial privacy-logging checks for raw automation dropdown values
+  and raw frontend error reporter forwarding into
+  `scripts/harness/checks/privacy-logging.mjs` with focused module tests.
 - Removed raw automation dropdown-answer logging and raw frontend error
   forwarding from local/browser output paths. Added bloat sensors for both
   regressions and unit coverage for sanitized console forwarding.
@@ -237,6 +243,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-31 | In progress | Continued sensor modularity by extracting raw automation dropdown-value and frontend error-forwarding checks into `scripts/harness/checks/privacy-logging.mjs` with focused `scripts/check-privacy-logging.test.mjs` coverage. |
 | 2026-05-31 | In progress | Closed the current support/recovery UX audit findings by simplifying problem-history/export labels, making saved-report success steps account-optional, and rewording generated safe-report headings and fields away from developer jargon. |
 | 2026-05-31 | In progress | Improved zero-technical support recovery by making safe local reports the recommended feedback submit path, adding safe-report copy/save actions to modal crash recovery, and aligning Quick Start notification setup wording with the current wizard. |
 | 2026-05-31 | In progress | Used authorized read-only sub-agents for UX and security audits; fixed the security audit's raw dropdown-answer log and frontend error-forwarding findings with bloat sensors and `errorReporting` unit coverage. |
