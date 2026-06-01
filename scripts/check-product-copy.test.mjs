@@ -314,7 +314,30 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/Settings.tsx",
-      "Config imported\nAdvanced Settings\nGreenhouse, Lever, and other popular job boards\n",
+      [
+        "Config imported",
+        "Advanced Settings",
+        "Greenhouse, Lever, and other popular job boards",
+        "Get native OS notifications",
+        "Show even when app is focused",
+        "SMTP server",
+        "SMTP port",
+        "For automatic monitoring",
+        "Advanced federal monitoring",
+        "(Tech hubs)",
+        "HN Who's Hiring",
+        "(Tech careers)",
+        "This site sometimes blocks automatic checks",
+        "Browser Integration",
+        "low-trust job postings",
+        "Stale-posting warning after (days)",
+        "Repeated-posting warning count",
+        "Very short description limit (characters)",
+        "Hide risky postings",
+        "Resume-Based Scoring",
+        "70% resume match + 30% search words",
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(root, "src/pages/Settings.test.tsx", "Config imported\n");
     writeFixtureFile(

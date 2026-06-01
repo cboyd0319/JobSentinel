@@ -710,6 +710,33 @@ export function hasTechnicalFirstUserCopy(root, path) {
     }
   }
 
+  if (path === "src/pages/Settings.tsx") {
+    const settingsPatterns = [
+      /native OS notifications/i,
+      /app is focused/i,
+      /SMTP server/i,
+      /SMTP port/i,
+      /automatic monitoring/i,
+      /Advanced federal monitoring/i,
+      /\(Tech hubs\)/i,
+      /HN Who's Hiring/i,
+      /\(Tech careers\)/i,
+      /blocks automatic checks/i,
+      /Browser Integration/i,
+      /low-trust job postings/i,
+      /Stale-posting warning after \(days\)/i,
+      /Repeated-posting warning count/i,
+      /Very short description limit \(characters\)/i,
+      /Hide risky postings/i,
+      /Resume-Based Scoring/i,
+      /70%\s*resume match\s*\+\s*30%\s*search words/i,
+    ];
+
+    if (settingsPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
   const stalePatterns = [
     /Import JSON Resume/i,
     /Import Resume Data/i,

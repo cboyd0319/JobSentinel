@@ -213,6 +213,12 @@ Current cleanup posture:
   monitor-directly, official-feed, retry-count, Access, Source Controls, and
   Source Check Results phrases are removed and covered by focused tests plus
   product-copy sensors.
+- Current local Settings copy follow-up updates notification, email, LinkedIn,
+  USAJobs, optional-source, posting-risk, and resume-sorting copy found by the
+  sidecar audit. Focused Settings tests and product-copy sensors now reject the
+  old native-OS, focused-app, SMTP, automatic-monitoring, HN abbreviation,
+  source-blocking, Browser Integration, low-trust, risk-threshold, and
+  resume-score-formula wording.
 - Current local privacy follow-up removes raw screening-question text and saved
   answer patterns from Application Assist debug logs. The trace now records
   only question/pattern character counts when a saved answer matches, and

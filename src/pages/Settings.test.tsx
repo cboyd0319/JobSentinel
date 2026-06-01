@@ -408,11 +408,14 @@ describe("Settings — loadConfig flow", () => {
 
     await user.click(screen.getByRole("button", { name: "Custom" }));
 
-    expect(screen.getByText("Stale-posting warning after (days)")).toBeInTheDocument();
-    expect(screen.getByText("Repeated-posting warning count")).toBeInTheDocument();
+    expect(screen.getByText("Warn when a posting is older than")).toBeInTheDocument();
+    expect(screen.getByText("Warn after a posting appears this many times")).toBeInTheDocument();
     expect(screen.getByText(/Show posting-risk warning:/)).toBeInTheDocument();
-    expect(screen.getByText(/Hide risky postings:/)).toBeInTheDocument();
+    expect(screen.getByText(/Hide postings that need review:/)).toBeInTheDocument();
     expect(screen.queryByText("Stale Threshold (days)")).not.toBeInTheDocument();
+    expect(screen.queryByText("Stale-posting warning after (days)")).not.toBeInTheDocument();
+    expect(screen.queryByText("Repeated-posting warning count")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Hide risky postings:/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Early warning point:/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Hide-by-default point:/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Warning Threshold:/)).not.toBeInTheDocument();
@@ -477,9 +480,10 @@ describe("Settings — loadConfig flow", () => {
 
     await user.click(screen.getByRole("tab", { name: "More Settings" }));
 
-    expect(screen.getByText(/resume match \+ 30% search words/i)).toBeInTheDocument();
+    expect(screen.getByText(/resume skills first, then your search words/i)).toBeInTheDocument();
     expect(screen.getByText("Job title and search-word matches")).toBeInTheDocument();
     expect(screen.queryByText(/keyword-only scoring/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/resume match \+ 30% search words/i)).not.toBeInTheDocument();
   });
 
   it("uses protective auto-search helper copy", async () => {
@@ -1039,7 +1043,7 @@ describe("Settings — handleSave flow", () => {
 
     expect(panelQueries.getByText("RemoteOK")).toBeInTheDocument();
     expect(panelQueries.getByText("WeWorkRemotely")).toBeInTheDocument();
-    expect(panelQueries.getByText("HN Who's Hiring")).toBeInTheDocument();
+    expect(panelQueries.getByText("Hacker News Who's Hiring")).toBeInTheDocument();
     expect(panelQueries.getByText(/remote tech roles/i)).toBeInTheDocument();
   });
 
@@ -1065,7 +1069,9 @@ describe("Settings — handleSave flow", () => {
 
     await user.click(screen.getByRole("tab", { name: "More Settings" }));
 
-    expect(screen.getAllByText(/This site sometimes blocks automatic checks/i)).toHaveLength(2);
+    expect(
+      screen.getAllByText(/This site does not always let JobSentinel check listings/i),
+    ).toHaveLength(2);
     expect(screen.getAllByText(/use Job Site Search Links/i)).toHaveLength(2);
     expect(
       screen.getByText("See which sources are working and what to try next"),
@@ -1122,7 +1128,7 @@ describe("Settings — handleSave flow", () => {
 
     await user.click(screen.getByRole("tab", { name: "More Settings" }));
 
-    expect(screen.getByText(/Advanced federal monitoring/i)).toBeInTheDocument();
+    expect(screen.getByText(/Optional USAJobs auto-check/i)).toBeInTheDocument();
     expect(screen.getByText(/Skip this if you only want to open USAJobs/i)).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: /Open USAJobs search in your browser/i }),
@@ -1131,6 +1137,7 @@ describe("Settings — handleSave flow", () => {
       screen.getByRole("link", { name: /Get optional USAJobs access code/i }),
     ).toHaveAttribute("href", "https://developer.usajobs.gov/APIRequest/Index");
     expect(screen.queryByText(/Quick Setup/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Advanced federal monitoring/i)).not.toBeInTheDocument();
   });
 
   it("blocks saving an invalid Discord connection link", async () => {

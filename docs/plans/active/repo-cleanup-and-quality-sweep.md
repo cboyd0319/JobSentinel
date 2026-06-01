@@ -263,6 +263,15 @@ boundaries, and harness modularity:
   uses Official source, after another try, Source Type, Actions, and Job Source
   Check Results. Focused component tests and product-copy sensors cover the
   changes.
+- Reworked remaining More Settings copy from the sidecar audit. Desktop alert
+  help no longer says native OS notifications, focused-window wording now says
+  JobSentinel is open on screen, email details use email sending
+  address/number, LinkedIn and USAJobs setup says automatic checks and Optional
+  USAJobs auto-check, optional tech-source labels are expanded, site warnings
+  avoid blocks-automatic-checks phrasing, Browser Integration became Browser
+  Button, posting-risk custom labels use user-facing warnings, and
+  Resume-Based Scoring became Use Resume to Sort Jobs. Focused Settings tests
+  and product-copy sensors cover old phrasing.
 - Fixed Dashboard salary filtering so users enter full yearly dollars instead
   of `$K` shorthand. The filter logic now compares against stored yearly
   salaries directly, the UI labels say yearly salary, current-filter summaries

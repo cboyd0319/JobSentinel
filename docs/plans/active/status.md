@@ -143,6 +143,14 @@ and record actionable findings in this active-plan surface.
   block page import, monitor directly, official feed, retry counts, Access,
   Source Controls, and Source Check Results. Focused component tests and
   product-copy coverage guard the old wording.
+- Latest local Settings copy follow-up applies the sidecar audit to remaining
+  More Settings surfaces. Notifications, email provider details, LinkedIn and
+  USAJobs setup, optional job sources, posting-risk controls, and resume-based
+  sorting now use plainer labels such as desktop alerts from your computer,
+  JobSentinel is open on screen, email sending address/number, automatic
+  checks, Optional USAJobs auto-check, Browser Button, postings that need
+  review, and Use Resume to Sort Jobs. Settings tests and product-copy sensors
+  cover the old phrases.
 - Latest local privacy follow-up removes raw screening-question text and saved
   answer patterns from backend debug logs in Application Assist. Logs now keep
   only character counts for matched questions and patterns, and

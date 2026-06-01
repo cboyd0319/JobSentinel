@@ -754,7 +754,7 @@ export default function Settings({ onClose }: SettingsProps) {
     if (isTechFocused) {
       if (!config?.hn_hiring?.enabled) {
         recommendations.push({
-          board: "HN Who's Hiring",
+          board: "Hacker News Who's Hiring",
           reason: "Active monthly tech hiring threads",
           enable: () =>
             setConfig({
@@ -2140,7 +2140,7 @@ export default function Settings({ onClose }: SettingsProps) {
                   <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
                     Desktop Notifications
                     <HelpIcon
-                      text="Get native OS notifications when new jobs match your criteria. No extra account or connection link required."
+                      text="Get desktop alerts from your computer when new jobs match your criteria. No extra account or connection link required."
                       position="right"
                     />
                   </label>
@@ -2235,7 +2235,7 @@ export default function Settings({ onClose }: SettingsProps) {
                             className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
                           />
                           <span className="text-sm text-surface-600 dark:text-surface-300">
-                            Show even when app is focused
+                            Show even when JobSentinel is open on screen
                           </span>
                         </label>
                       </div>
@@ -2424,7 +2424,7 @@ export default function Settings({ onClose }: SettingsProps) {
                               })
                             }
                             placeholder="smtp.gmail.com"
-                            hint="Your email provider may call this the SMTP server"
+                            hint="Use the email sending address from your email provider."
                           />
                           <div className="flex gap-2">
                             <div className="flex-1">
@@ -2445,7 +2445,7 @@ export default function Settings({ onClose }: SettingsProps) {
                                     },
                                   })
                                 }
-                                hint="Your email provider may call this the SMTP port. Leave it alone unless your provider says otherwise."
+                                hint="Use the email sending number from your email provider. Leave it alone unless your provider says otherwise."
                               />
                             </div>
                             <div className="flex items-end pb-2">
@@ -2981,9 +2981,9 @@ export default function Settings({ onClose }: SettingsProps) {
                       open LinkedIn yourself.
                     </p>
                     <p className="text-xs text-surface-500 dark:text-surface-400">
-                      For automatic monitoring, prefer official company pages
-                      and public company application pages such as Greenhouse,
-                      Lever, Ashby, SmartRecruiters, and USAJobs.
+                      For automatic checks, prefer official company pages and
+                      public company application pages such as Greenhouse, Lever,
+                      Ashby, SmartRecruiters, and USAJobs.
                     </p>
                   </div>
                 </div>
@@ -3031,7 +3031,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                           <p className="flex items-center gap-1.5 text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
                             <SettingsSymbol icon="bolt" className="h-4 w-4" />
-                            <span>Advanced federal monitoring (optional)</span>
+                            <span>Optional USAJobs auto-check</span>
                           </p>
                           <p className="text-xs text-blue-700 dark:text-blue-300 mb-3">
                             Skip this if you only want to open USAJobs in your
@@ -3366,7 +3366,7 @@ export default function Settings({ onClose }: SettingsProps) {
                             BuiltIn
                           </span>
                           <span className="text-xs text-surface-500">
-                            (Tech hubs)
+                            (Technology-focused local jobs)
                           </span>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -3391,13 +3391,13 @@ export default function Settings({ onClose }: SettingsProps) {
                       </div>
                     </div>
 
-                    {/* HN Who's Hiring */}
+                    {/* Hacker News Who's Hiring */}
                     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <SettingsSymbol icon="chat" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                           <span className="font-medium text-surface-800 dark:text-surface-200">
-                            HN Who's Hiring
+                            Hacker News Who's Hiring
                           </span>
                           <span className="text-xs text-surface-500">
                             (Monthly thread)
@@ -3435,7 +3435,7 @@ export default function Settings({ onClose }: SettingsProps) {
                             Dice
                           </span>
                           <span className="text-xs text-surface-500">
-                            (Tech careers)
+                            (Technology-focused jobs)
                           </span>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -3531,9 +3531,9 @@ export default function Settings({ onClose }: SettingsProps) {
                         <div className="mt-3 flex items-start gap-1.5 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2">
                           <SettingsSymbol icon="warning" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
                           <span>
-                            This site sometimes blocks automatic checks. If few
-                            jobs appear, use Job Site Search Links or import a
-                            job from its browser address.
+                            This site does not always let JobSentinel check
+                            listings. If few jobs appear, use Job Site Search
+                            Links or import a job from its browser address.
                           </span>
                         </div>
                       )}
@@ -3575,9 +3575,9 @@ export default function Settings({ onClose }: SettingsProps) {
                         <div className="mt-3 flex items-start gap-1.5 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2">
                           <SettingsSymbol icon="warning" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
                           <span>
-                            This site sometimes blocks automatic checks. If few
-                            jobs appear, use Job Site Search Links or import a
-                            job from its browser address.
+                            This site does not always let JobSentinel check
+                            listings. If few jobs appear, use Job Site Search
+                            Links or import a job from its browser address.
                           </span>
                         </div>
                       )}
@@ -3594,10 +3594,10 @@ export default function Settings({ onClose }: SettingsProps) {
                 </details>
               </section>
 
-              {/* Browser Integration */}
+              {/* Browser Button */}
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
-                  Browser Integration
+                  Browser Button
                   <HelpIcon text="Save many job pages into JobSentinel with a browser button you control." />
                 </h3>
                 <BookmarkletGenerator />
@@ -3607,7 +3607,7 @@ export default function Settings({ onClose }: SettingsProps) {
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
                   Posting Risk and Freshness
-                  <HelpIcon text="Choose how strongly JobSentinel warns about stale, reposted, or low-trust job postings." />
+                  <HelpIcon text="Choose how strongly JobSentinel warns about stale, reposted, or postings that need review." />
                 </h3>
                 {ghostConfig && (
                   <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 space-y-4">
@@ -3658,7 +3658,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                              Stale-posting warning after (days)
+                              Warn when a posting is older than
                             </label>
                             <Input
                               type="number"
@@ -3677,7 +3677,7 @@ export default function Settings({ onClose }: SettingsProps) {
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                              Repeated-posting warning count
+                              Warn after a posting appears this many times
                             </label>
                             <Input
                               type="number"
@@ -3698,7 +3698,7 @@ export default function Settings({ onClose }: SettingsProps) {
 
                         <div>
                           <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                            Very short description limit (characters)
+                            Warn when a job description is very short
                           </label>
                           <Input
                             type="number"
@@ -3768,7 +3768,7 @@ export default function Settings({ onClose }: SettingsProps) {
 
                           <div>
                             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
-                              Hide risky postings:{" "}
+                              Hide postings that need review:{" "}
                               {formatPostingRiskHideLabel(ghostConfig.hide_threshold)}
                             </label>
                             <input
@@ -3829,10 +3829,10 @@ export default function Settings({ onClose }: SettingsProps) {
                 )}
               </section>
 
-              {/* Resume-Based Scoring */}
+              {/* Use Resume to Sort Jobs */}
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
-                  Resume-Based Scoring
+                  Use Resume to Sort Jobs
                   <HelpIcon text="When enabled, job scores use skills from your uploaded resume plus the search words you chose." />
                 </h3>
                 <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4">
@@ -3844,8 +3844,8 @@ export default function Settings({ onClose }: SettingsProps) {
                           Use Resume for Scoring
                         </div>
                         <div className="text-xs text-surface-500 dark:text-surface-400">
-                          Match jobs against your actual resume skills (70%
-                          resume match + 30% search words)
+                          Match jobs against your resume skills first, then your
+                          search words
                         </div>
                       </div>
                     </div>
