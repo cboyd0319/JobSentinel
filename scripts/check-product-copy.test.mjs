@@ -367,6 +367,8 @@ test("product copy rejects overbroad browser import promises", () => {
         "Supported Sites:",
         "Major Job Boards:",
         "Most modern career sites",
+        "Official ATS job pages",
+        "public ATS sources",
         "",
       ].join("\n"),
     );

@@ -62,7 +62,7 @@ describe("BookmarkletGenerator", () => {
     expect(screen.queryByText(/^LinkedIn$/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^Indeed$/i)).not.toBeInTheDocument();
     expect(screen.getByText(/official career pages usually work best/i)).toBeInTheDocument();
-    expect(screen.getByText(/official ATS job pages/i)).toBeInTheDocument();
+    expect(screen.getByText(/company application pages/i)).toBeInTheDocument();
     expect(screen.getByText(/does not bypass those controls/i)).toBeInTheDocument();
   });
 

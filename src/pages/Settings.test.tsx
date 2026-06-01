@@ -371,6 +371,10 @@ describe("Settings — loadConfig flow", () => {
     expect(
       screen.getByText(/JobSentinel does not log in to LinkedIn/i),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(/public company application pages such as Greenhouse/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/public ATS sources/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /connect linkedin/i })).not.toBeInTheDocument();
     expect(mockInvoke).not.toHaveBeenCalledWith("get_linkedin_expiry_status");
     expect(mockInvoke).not.toHaveBeenCalledWith("linkedin_login");

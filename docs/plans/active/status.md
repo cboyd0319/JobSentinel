@@ -265,6 +265,14 @@ and record actionable findings in this active-plan surface.
 - Latest local safe support report UI work standardizes crash recovery,
   Settings, and feedback submit/success copy on safe support report wording,
   with product-copy coverage against shorter safe report labels.
+- Latest local read-only audits found no high-confidence remaining
+  broad-audience violations in maintained UI and user docs, and found
+  zero-technical UX debt in Settings tab naming, source-health table/actions,
+  Resume readability import/copy, structured resume import, browser-session
+  storage recovery copy, and visible dashboard shortcut syntax.
+- Latest local browser-import wording work removes `ATS` jargon from browser
+  button setup and LinkedIn monitoring guidance, replacing it with company
+  application page language and product-copy coverage.
 - Latest notification-settings UX work changes source-rule, minimum-salary,
   saved-error, and loading-error copy to plain alert-settings wording, with
   focused NotificationPreferences and product-copy coverage.
@@ -395,8 +403,14 @@ and record actionable findings in this active-plan surface.
    privacy-logging, and source-quality ownership moved into modules.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
+   Current concrete open findings: Settings "Advanced Settings" naming,
+   source-health page-check/action labels, Resume readability paste/import
+   paths and category labels, structured resume import copy, browser-session
+   storage recovery copy, and visible dashboard shortcut syntax.
 4. Continue broad-audience review so non-technical and technical job searches
    both feel first-class.
+   Latest read-only scan found no high-confidence maintained-surface
+   engineer-first violations, but keep auditing as new slices touch copy.
 5. Continue backend/scraper and frontend privacy-edge review.
 6. Continue the next zero-technical-knowledge UX audit area outside
    support/reporting.

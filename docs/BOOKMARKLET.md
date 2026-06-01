@@ -48,7 +48,7 @@ If some details are missing, edit the saved job after import.
 The browser import button works best on individual job pages from:
 
 - Company career pages.
-- Official ATS job pages.
+- Company application pages.
 - Public pages that show the full job description, employer name, and location.
 - Pages you opened yourself in your browser.
 

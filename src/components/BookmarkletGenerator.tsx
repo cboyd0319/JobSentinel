@@ -228,7 +228,7 @@ export function BookmarkletGenerator() {
                   <p className="font-medium">Official sources:</p>
                   <ul className="list-disc list-inside text-xs space-y-1 mt-1">
                     <li>Company career pages</li>
-                    <li>Official ATS job pages</li>
+                    <li>Company application pages</li>
                     <li>Public pages with full job details</li>
                   </ul>
                 </div>

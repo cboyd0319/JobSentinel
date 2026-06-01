@@ -720,6 +720,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Make sure the app is running and bookmarklet server is enabled/i,
     /Paste the code into the URL\/Location field/i,
     /Any with Schema\.org data/i,
+    /Official ATS job pages/i,
+    /public ATS sources/i,
     /structured Schema\.org/i,
     /Schema\.org JobPosting/i,
     /Smart DOM Parsing/i,

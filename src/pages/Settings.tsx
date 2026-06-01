@@ -2695,8 +2695,8 @@ export default function Settings({ onClose }: SettingsProps) {
                     </p>
                     <p className="text-xs text-surface-500 dark:text-surface-400">
                       For automatic monitoring, prefer official company pages
-                      and public ATS sources such as Greenhouse, Lever, Ashby,
-                      SmartRecruiters, and USAJobs.
+                      and public company application pages such as Greenhouse,
+                      Lever, Ashby, SmartRecruiters, and USAJobs.
                     </p>
                   </div>
                 </div>
