@@ -8,6 +8,12 @@ vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),
 }));
 
+const mockWriteStorageValue = vi.hoisted(() => vi.fn(() => true));
+
+vi.mock("../utils/browserStorage", () => ({
+  writeStorageValue: mockWriteStorageValue,
+}));
+
 const mockToast = {
   success: vi.fn(),
   error: vi.fn(),
@@ -124,6 +130,7 @@ describe("ResumeOptimizer", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockWriteStorageValue.mockReturnValue(true);
     mockInvoke.mockResolvedValue(mockAnalysis);
   });
 
@@ -139,7 +146,7 @@ describe("ResumeOptimizer", () => {
 
     expect(mockToast.error).toHaveBeenCalledWith(
       "Resume details not recognized",
-      "Paste resume details exported from JobSentinel or another supported tool.",
+      "Use resume details exported from JobSentinel or another resume app. For a PDF resume, upload it on Resume Match first.",
     );
     expect(mockInvoke).not.toHaveBeenCalledWith("analyze_resume_format", expect.anything());
   });
@@ -159,7 +166,7 @@ describe("ResumeOptimizer", () => {
 
     expect(mockToast.error).toHaveBeenCalledWith(
       "Resume details not recognized",
-      "Paste resume details exported from JobSentinel or another supported tool.",
+      "Use resume details exported from JobSentinel or another resume app. For a PDF resume, upload it on Resume Match first.",
     );
     expect(mockInvoke).not.toHaveBeenCalledWith("analyze_resume_for_job", expect.anything());
   });
@@ -238,6 +245,31 @@ describe("ResumeOptimizer", () => {
     expect(screen.getByText("Rewrite bullet")).toBeInTheDocument();
     expect(screen.queryByText("AddKeyword")).not.toBeInTheDocument();
     expect(screen.queryByText("RewordBullet")).not.toBeInTheDocument();
+  });
+
+  it("gives a plain recovery path when Resume Builder cannot receive the job post", async () => {
+    const user = userEvent.setup();
+    const onNavigate = vi.fn();
+    mockWriteStorageValue.mockReturnValueOnce(false);
+    render(<ResumeOptimizer onBack={vi.fn()} onNavigate={onNavigate} />);
+
+    fireEvent.change(screen.getByLabelText(/^job post$/i), {
+      target: { value: "Need onboarding and retention experience" },
+    });
+    fireEvent.change(screen.getByLabelText(/exported resume details/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /review match/i }));
+
+    const tailorButton = await screen.findByRole("button", { name: /tailor resume for this job/i });
+    await user.click(tailorButton);
+
+    expect(mockToast.error).toHaveBeenCalledWith(
+      "Could not open Resume Builder with this job",
+      "Copy the job post and paste it in Resume Builder instead.",
+    );
+    expect(onNavigate).not.toHaveBeenCalled();
   });
 
   it("does not show raw private details when job analysis fails", async () => {

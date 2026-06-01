@@ -7,7 +7,6 @@ import { Tooltip } from "../../components/Tooltip";
 import { useDebouncedValue } from "../../hooks";
 import { scoreFilterOptions, sortOptions } from "./filterLabels";
 import {
-  KeyboardIcon,
   ExportIcon,
   DuplicateIcon,
   SelectIcon,
@@ -156,15 +155,6 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
           <h2 className="font-display text-display-lg text-surface-900 dark:text-white">
             Recent Jobs
           </h2>
-          {/* Keyboard shortcut hint */}
-          {jobs.length > 0 && (
-            <Tooltip content="Navigate: j/k, Open: o/Enter, Hide: h" position="right">
-              <span className="text-xs text-surface-400 dark:text-surface-500 px-2 py-1 bg-surface-100 dark:bg-surface-700 rounded">
-                <KeyboardIcon className="w-3 h-3 inline mr-1" />
-                j/k/o/h
-              </span>
-            </Tooltip>
-          )}
         </div>
         {jobs.length > 0 && (
           <>

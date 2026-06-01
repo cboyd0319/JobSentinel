@@ -282,6 +282,13 @@ and record actionable findings in this active-plan surface.
 - Latest local Resume readability UX work maps internal suggestion category
   keys to plain labels like "Add job words" and "Rewrite bullet", with focused
   ResumeOptimizer and product-copy coverage.
+- Latest local zero-technical UX work closes the remaining concrete findings
+  from the read-only audit: Resume Match Helper now explains resume-app exports
+  and PDF upload recovery, Resume Match labels structured import as "Import
+  from resume app", browser-session storage failures now give a copy/paste
+  recovery path, and dashboard job-list shortcut syntax moved behind the
+  existing Shortcuts control. Focused UI tests and product-copy coverage guard
+  those old phrases.
 - Latest notification-settings UX work changes source-rule, minimum-salary,
   saved-error, and loading-error copy to plain alert-settings wording, with
   focused NotificationPreferences and product-copy coverage.
@@ -412,9 +419,8 @@ and record actionable findings in this active-plan surface.
    privacy-logging, and source-quality ownership moved into modules.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
-   Current concrete open findings: Resume readability paste/import paths,
-   structured resume import copy, browser-session storage recovery copy, and
-   visible dashboard shortcut syntax.
+   The concrete findings from the latest read-only zero-technical audit are
+   closed locally; continue looking for new issues as later slices touch copy.
 4. Continue broad-audience review so non-technical and technical job searches
    both feel first-class.
    Latest read-only scan found no high-confidence maintained-surface

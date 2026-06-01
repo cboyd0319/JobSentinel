@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import Resume from "./Resume";
 import { safeInvoke } from "../utils/api";
 
@@ -23,6 +23,34 @@ vi.mock("@tauri-apps/plugin-dialog", () => ({
 const mockSafeInvoke = vi.mocked(safeInvoke);
 
 describe("Resume page", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("labels structured resume import as a resume-app file path", async () => {
+    mockSafeInvoke.mockImplementation((command: string) => {
+      switch (command) {
+        case "get_active_resume":
+          return Promise.resolve(null);
+        case "list_all_resumes":
+        case "get_user_skills":
+        case "get_recent_matches":
+          return Promise.resolve([]);
+        default:
+          return Promise.resolve(null);
+      }
+    });
+
+    render(<Resume onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("No Resume Uploaded")).toBeInTheDocument();
+    });
+
+    expect(screen.getAllByRole("button", { name: "Import from resume app" })).toHaveLength(2);
+    expect(screen.queryByRole("button", { name: "Import Resume Data" })).not.toBeInTheDocument();
+  });
+
   it("renders resume match sub-scores as percentages from backend fractions", async () => {
     mockSafeInvoke.mockImplementation((command: string) => {
       switch (command) {

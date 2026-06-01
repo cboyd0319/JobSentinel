@@ -247,7 +247,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     if (!resume) {
       toast.error(
         "Resume details not recognized",
-        "Paste resume details exported from JobSentinel or another supported tool.",
+        "Use resume details exported from JobSentinel or another resume app. For a PDF resume, upload it on Resume Match first.",
       );
       return;
     }
@@ -280,7 +280,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     if (!resume) {
       toast.error(
         "Resume details not recognized",
-        "Paste resume details exported from JobSentinel or another supported tool.",
+        "Use resume details exported from JobSentinel or another resume app. For a PDF resume, upload it on Resume Match first.",
       );
       return;
     }
@@ -432,8 +432,8 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     }));
     if (!saved) {
       toast.error(
-        "Could not save job context",
-        "Browser session storage is unavailable. Resume Builder cannot tailor against this job."
+        "Could not open Resume Builder with this job",
+        "Copy the job post and paste it in Resume Builder instead."
       );
       return;
     }
@@ -497,7 +497,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                 className="w-full h-96 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus-visible:ring-sentinel-400 resize-none font-mono"
               />
               <p id="resume-json-hint" className="text-xs text-surface-500 dark:text-surface-400 mt-2">
-                Paste resume details exported from JobSentinel or a supported resume tool.
+                Use resume details exported from JobSentinel or another resume app. For a PDF resume, upload it on Resume Match first.
               </p>
             </Card>
 

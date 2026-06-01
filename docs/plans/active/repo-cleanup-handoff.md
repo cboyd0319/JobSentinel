@@ -174,13 +174,17 @@ Current cleanup posture:
   report label on those surfaces.
 - Latest broad-audience read-only audit found no high-confidence remaining
   engineer-first violations across maintained UI and user docs. Latest
-  zero-technical read-only audit found open debt in Resume readability
-  import/copy and visible dashboard shortcut copy. Local follow-ups removed
+  zero-technical read-only audit found debt in Settings, source health, Resume
+  readability import/copy, structured resume import, browser-session storage
+  recovery, and visible dashboard shortcut copy. Local follow-ups removed
   remaining `ATS` jargon from browser button and LinkedIn monitoring guidance,
   renamed the old advanced tab to "More Settings", changed source-health
-  page-check and icon-only actions to plain labels, and mapped raw Resume
-  suggestion category keys to plain labels; each has product-copy coverage
-  against recurrence.
+  page-check and icon-only actions to plain labels, mapped raw Resume
+  suggestion category keys to plain labels, clarified resume-app export and
+  PDF upload recovery paths, labeled structured imports as "Import from resume
+  app", replaced browser-session storage wording with copy/paste recovery, and
+  moved dashboard shortcut syntax behind the existing Shortcuts control. Each
+  closed item has focused or product-copy coverage against recurrence.
 - Latest zero-technical UX follow-up fixed Settings load failure escape and
   guidance, application tracker first-use empty state, Dashboard no-jobs
   recovery guidance, browser import Advanced connection hiding, install wording
@@ -786,10 +790,8 @@ Next high-value passes:
      screens for plain-language actions and no terminal/developer assumptions.
    - Keep safe support report generation one click from Settings, Error
      Logs, and crash/error recovery surfaces.
-   - Current open read-only findings: make Resume readability import paths
-     clearer, replace browser-session-storage error copy, clarify structured
-     resume import, and move visible dashboard shortcuts behind a discoverable
-     control.
+   - The concrete findings from the latest read-only zero-technical audit are
+     closed locally; continue looking for new issues as new surfaces change.
 6. Continue broad-audience UX review.
    - Recheck onboarding, examples, placeholders, filters, profile presets, docs,
      and empty states for engineer-only assumptions.

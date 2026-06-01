@@ -290,6 +290,33 @@ test("product copy rejects support troubleshooting jargon", () => {
   });
 });
 
+test("product copy rejects stale zero-technical resume and shortcut copy", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "src/pages/Resume.tsx", "Import Resume Data\n");
+    writeFixtureFile(
+      root,
+      "src/pages/ResumeOptimizer.tsx",
+      [
+        "Paste resume details exported from JobSentinel or another supported tool.",
+        "Browser session storage is unavailable. Resume Builder cannot tailor against this job.",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+      "Navigate: j/k, Open: o/Enter, Hide: h\nj/k/o/h\n",
+    );
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Resume.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/pages/DashboardUI/DashboardFiltersBar.tsx"),
+      true,
+    );
+  });
+});
+
 test("product copy rejects non-protective no-response labels", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/pages/Applications.tsx", "Detect Ghosted\n");

@@ -277,7 +277,7 @@ export default function Resume({ onBack }: ResumeProps) {
     try {
       const selected = await open({
         multiple: false,
-        filters: [{ name: "Structured Resume Data", extensions: ["json"] }],
+        filters: [{ name: "Resume App Export", extensions: ["json"] }],
       });
 
       if (!selected) return;
@@ -451,8 +451,9 @@ export default function Resume({ onBack }: ResumeProps) {
                 onClick={handleImportJsonResume}
                 loading={uploading}
                 loadingText="Importing..."
+                title="Use a file exported from JobSentinel or another resume app"
               >
-                Import Resume Data
+                Import from resume app
               </Button>
               <Button onClick={handleUploadResume} loading={uploading} loadingText="Uploading...">
                 {resume ? "Upload New" : "Upload Resume"}
@@ -542,8 +543,9 @@ export default function Resume({ onBack }: ResumeProps) {
                 onClick={handleImportJsonResume}
                 loading={uploading}
                 loadingText="Importing..."
+                title="Use a file exported from JobSentinel or another resume app"
               >
-                Import Resume Data
+                Import from resume app
               </Button>
             </div>
           </Card>
