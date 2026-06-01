@@ -45,6 +45,8 @@ import {
   hasUnreferencedSourceHelper,
 } from "./harness/checks/source-structure.mjs";
 import {
+  hasBookmarkletCodeWithoutTokenHeader,
+  hasManualBookmarkletJsonErrorResponses,
   hasRawAutomationBrowserErrors,
   hasRawAutomationDropdownValueLogging,
   hasRawAutomationFormResultData,
@@ -76,7 +78,9 @@ import {
   hasRawConfigValidationUrlDisplay,
   hasRawImportHttpErrorReturn,
   hasRawImportRedirectDisplay,
+  hasRawImportBookmarkletCommandErrorDetails,
   hasRawJobImportLogging,
+  hasRawBookmarkletImportLogging,
   hasRawNotificationJobTitleLogging,
   hasRawNotificationProviderErrorBody,
   hasRawNotificationServiceErrorDetails,
@@ -87,6 +91,10 @@ import {
   hasRawResumeParserPathDisplay,
   hasRawScraperLoopErrorLogging,
   hasRawScraperUrlOrQueryLogging,
+  hasRawSchedulerJobContentLogging,
+  hasRawSchedulerScoringPrivacyLeak,
+  hasRawSchedulerScraperErrorDetails,
+  hasRawScoringCacheJobHashLogging,
   hasRawSensitiveCommandErrorDetails,
   hasRawSlackWebhookValidationErrorReturn,
   hasRawSourceCheckResultError,
@@ -94,11 +102,14 @@ import {
   hasRawPathOrQueryErrorDisplay,
   hasRawUrlErrorDisplay,
   hasRawUrlLogging,
+  hasRawUserDataPrivacyLogging,
   hasRawUtilityCommandErrorDetails,
   hasRawWebhookTokenRequestError,
   hasNonPublicIpErrorEcho,
   hasRendererCredentialSecretRead,
+  hasResidualCorePrivacyLeak,
   hasSecretBearingDebugDerive,
+  hasUnauthenticatedBookmarkletImports,
   hasUnsafeErrorReportStorageParsing,
   hasUnsanitizedFrontendErrorReportStorage,
   hasUnboundedExternalResponseBodyRead,
@@ -171,43 +182,7 @@ const databaseLogEmojiPaths = new Set([
   "src-tauri/src/core/db/integrity/mod.rs",
 ]);
 
-const importBookmarkletCommandPrivacyPaths = new Set([
-  "src-tauri/src/commands/import.rs",
-  "src-tauri/src/commands/user_data.rs",
-  "src-tauri/src/commands/scoring.rs",
-  "src-tauri/src/commands/bookmarklet.rs",
-  "src-tauri/src/core/bookmarklet/server.rs",
-]);
 const notificationServicePrivacyPaths = new Set(["src-tauri/src/core/notify/mod.rs"]);
-const rawSchedulerJobContentLoggingPaths = new Set([
-  "src-tauri/src/core/db/crud.rs",
-  "src-tauri/src/core/scheduler/workers/persistence.rs",
-]);
-const schedulerScraperWorkerPrivacyPaths = new Set([
-  "src-tauri/src/core/scheduler/workers/scrapers.rs",
-]);
-const schedulerScoringPrivacyPaths = new Set([
-  "src-tauri/src/core/scheduler/workers/scoring.rs",
-  "src-tauri/src/core/scoring/db.rs",
-]);
-const scoringCachePrivacyPaths = new Set(["src-tauri/src/core/scoring/cache.rs"]);
-const residualCorePrivacyPaths = new Set([
-  "src-tauri/src/core/automation/browser/manager.rs",
-  "src-tauri/src/core/config/io.rs",
-  "src-tauri/src/core/db/connection.rs",
-  "src-tauri/src/core/db/error.rs",
-  "src-tauri/src/core/import/schema_org.rs",
-  "src-tauri/src/core/ml/model.rs",
-  "src-tauri/src/core/resume/parser.rs",
-  "src-tauri/src/core/resume/templates.rs",
-  "src-tauri/src/core/scheduler/mod.rs",
-  "src-tauri/src/core/scrapers/mod.rs",
-  "src-tauri/src/core/scrapers/usajobs.rs",
-  "src-tauri/src/core/scrapers/yc_startup.rs",
-]);
-
-const rawBookmarkletLoggingPaths = new Set(["src-tauri/src/core/bookmarklet/server.rs"]);
-const bookmarkletGeneratorPaths = new Set(["src/components/BookmarkletGenerator.tsx"]);
 const scoreReasonJsonParserPaths = new Set([
   "src/components/ScoreDisplay.tsx",
   "src/components/ScoreBreakdownModal.tsx",
@@ -267,10 +242,6 @@ const credentialArchitecturePaths = new Set(["src-tauri/src/core/credentials/mod
 const userDataDocsPaths = new Set(["docs/features/user-data-management.md"]);
 const structuredDebugLogPaths = new Set(["src-tauri/src/commands/feedback/debug_log.rs"]);
 const feedbackCommandPaths = new Set(["src-tauri/src/commands/feedback/mod.rs"]);
-const userDataPrivacyLoggingPaths = new Set([
-  "src-tauri/src/commands/user_data.rs",
-  "src-tauri/src/core/user_data/mod.rs",
-]);
 const cacheUsageDocPaths = new Set(["docs/CACHE_USAGE.md"]);
 const frontendJobUrlOpenPaths = new Set([
   "src/components/JobCard.tsx",
@@ -1449,59 +1420,6 @@ function hasStaleResumeExportPdfStub(root, path) {
   );
 }
 
-function hasRawUserDataPrivacyLogging(root, path) {
-  if (!userDataPrivacyLoggingPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return (
-    /create_cover_letter_template \(name:\s*\{\}\)/.test(text) ||
-    /create_saved_search \(name:\s*\{\}\)/.test(text) ||
-    /Creating template:\s*\{\}/.test(text) ||
-    /Creating saved search:\s*\{\}/.test(text) ||
-    /Adding search history:\s*\{\}/.test(text) ||
-    /JSON serialization error:\s*\{\}/.test(text) ||
-    /#\[instrument\(skip\(self,\s*content\)\)\]\s*pub async fn (?:create|update)_template/.test(
-      text,
-    ) ||
-    /#\[instrument\(skip\(self\)\)\]\s*pub async fn (?:create_saved_search|add_search_history|save_notification_preferences)/.test(
-      text,
-    )
-  );
-}
-
-function hasRawSchedulerJobContentLogging(root, path) {
-  if (!rawSchedulerJobContentLoggingPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return (
-    /(?:job_title|job_company)\s*=/.test(text) ||
-    /tracing::(?:debug|info|warn|error)!\([^;]*(?:job\.title|job\.company)/.test(text) ||
-    /errors\.push\(format!\([^;]*(?:job\.title|job\.company)/.test(text) ||
-    /(?:Database error for|Notification error for|Failed to mark alert sent for)\s+\{\}/.test(
-      text,
-    )
-  );
-}
-
-function hasRawSchedulerScraperErrorDetails(root, path) {
-  if (!schedulerScraperWorkerPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /fail_run\(db,[\s\S]{0,180}&e\.to_string\(\)/.test(productionText) ||
-    /format!\(\s*"[^"]*scraper failed:\s*\{\}"\s*,\s*e\s*\)/.test(productionText) ||
-    /Failed to retrieve USAJobs API key from keyring:\s*\{\}/.test(productionText) ||
-    /tracing::error!\(\s*"\{\}"\s*,\s*error_msg\s*\)/.test(productionText) ||
-    /errors\.push\(error_msg\)/.test(productionText)
-  );
-}
-
 function stripRustTestModules(text) {
   const testModuleIndex = text.search(/(?:^|\n)\s*#\[cfg\(test\)\]/);
   if (testModuleIndex === -1) {
@@ -1595,100 +1513,6 @@ function hasFrontendDirectOpenDeepLinkFallback(root, path) {
   return /\bopenDeepLink\(/.test(text) && /\bwindow\.open\(/.test(text);
 }
 
-function hasRawImportBookmarkletCommandErrorDetails(root, path) {
-  if (!importBookmarkletCommandPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /format!\(\s*"(?:Failed to serialize job|Invalid URL|Failed to read the job page response|Failed to parse the page|Invalid Schema\.org data format|Database error):\s*\{\}"/.test(
-      productionText,
-    ) ||
-    /format!\(\s*"Invalid category:\s*\{\}"/.test(productionText) ||
-    /tracing::(?:error|warn)!\(\s*"[^"]*(?:scoring config|bookmarklet server|Connection error|Accept error|job data|Database error)[^"]*:\s*\{\}"\s*,\s*e\s*\)/.test(
-      productionText,
-    ) ||
-    /tracing::error!\([^;]*error\s*=\s*%e/.test(productionText) ||
-    /json_error_response\(\s*format!\(\s*"[^"]*\{e\}[^"]*"\s*\)\s*\)/.test(
-      productionText,
-    ) ||
-    /json_error_response\(\s*format!\(\s*r#"\{\{"error":"[^"]*\{\}[^"]*"\}\}"#,\s*e\s*\)\s*\)/.test(
-      productionText,
-    )
-  );
-}
-
-function hasRawBookmarkletImportLogging(root, path) {
-  if (!rawBookmarkletLoggingPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /tracing::info!\([^;]*title\s*=\s*%title[^;]*company\s*=\s*%company/s.test(
-      productionText,
-    ) ||
-    /tracing::info!\([^;]*(?:\bjob_hash\b\s*,|\bjob_hash\s*=\s*%job_hash\b)/.test(
-      productionText,
-    )
-  );
-}
-
-function hasRawScoringCacheJobHashLogging(root, path) {
-  if (!scoringCachePrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return /tracing::(?:debug|info|warn|error)!\([^;]*(?:job_hash=\{\}|job_hash\s*=\s*[%?]?(?:key\.)?job_hash|\bjob_hash\b\s*,)/.test(
-    productionText,
-  );
-}
-
-function hasRawSchedulerScoringPrivacyLeak(root, path) {
-  if (!schedulerScoringPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /tracing::warn!\([^;]*error\s*=\s*%e[^;]*job_hash\s*=\s*%job\.hash/.test(
-      productionText,
-    ) ||
-    /tracing::debug!\([^;]*Ghost indicator for '\{\}' at \{\}/.test(productionText) ||
-    /tracing::debug!\([^;]*(?:job_title\s*=\s*%job\.title|job_company\s*=\s*%job\.company|,\s*job\.title\s*,\s*job\.company)/s.test(
-      productionText,
-    ) ||
-    /format!\(\s*"Failed to (?:load|save) scoring config:\s*\{\}"\s*,\s*e\s*\)/.test(
-      productionText,
-    )
-  );
-}
-
-function hasResidualCorePrivacyLeak(root, path) {
-  if (!residualCorePrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /format!\(\s*"(?:Invalid template ID|Failed to create config directory|Invalid email for User-Agent header|Invalid API key|Failed to build HTTP client):\s*\{\}"/.test(
-      productionText,
-    ) ||
-    /MlError::DownloadFailed\(\s*e\.to_string\(\)/.test(productionText) ||
-    /MlError::DownloadFailed\(\s*format!\(\s*"Failed to download \{\}:\s*\{\}"/.test(
-      productionText,
-    ) ||
-    /tracing::(?:debug|warn|error)!\([^;]*(?:error\s*=\s*%e|failed to parse Inertia JSON:\s*\{\}|OCR extraction failed:\s*\{\}|Scraping cycle failed:\s*\{\}|Errors during scraping:\s*\{:?\}|(?:database|backup|config)[^"]*:\s*\{\}")/.test(
-      productionText,
-    ) ||
-    /format!\(\s*"(?:Database operation failed|Database query timed out|Invalid [^"]*):\s*\{\}"/.test(
-      productionText,
-    )
-  );
-}
-
 function hasOpaqueCommandUnitError(root, path) {
   if (!path.startsWith("src-tauri/src/commands/") || !path.endsWith(".rs")) {
     return false;
@@ -1698,35 +1522,6 @@ function hasOpaqueCommandUnitError(root, path) {
   return /#\[tauri::command\][\s\S]{0,320}->\s*Result\s*<[^>{;]*(?:<[^>]*>)?[^>{;]*,\s*\(\s*\)>/.test(
     productionText,
   );
-}
-
-function hasManualBookmarkletJsonErrorResponses(root, path) {
-  if (!rawBookmarkletLoggingPaths.has(path)) {
-    return false;
-  }
-
-  return /format!\(r#"\{\{"error":"[^"]*\{\}[^"]*"\}\}"#,\s*e\)/.test(
-    readFileSync(join(root, path), "utf8"),
-  );
-}
-
-function hasUnauthenticatedBookmarkletImports(root, path) {
-  if (!rawBookmarkletLoggingPaths.has(path)) {
-    return false;
-  }
-
-  return /if request\.starts_with\("POST \/api\/bookmarklet\/import"\)\s*\{\s*handle_import_request\(&request,\s*database\)\.await/s.test(
-    readFileSync(join(root, path), "utf8"),
-  );
-}
-
-function hasBookmarkletCodeWithoutTokenHeader(root, path) {
-  if (!bookmarkletGeneratorPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return /api\/bookmarklet\/import/.test(text) && !/X-JobSentinel-Token/.test(text);
 }
 
 function hasUnsafeScoreReasonJsonParsing(root, path) {

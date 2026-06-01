@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import {
+  hasBookmarkletCodeWithoutTokenHeader,
   hasCredentialKeyInputEcho,
   hasHardcodedFrontendErrorExportVersion,
   hasIncompleteConfigExportRedaction,
@@ -14,6 +15,7 @@ import {
   hasMissingLinkedInCredentialStorageDisable,
   hasMissingWebhookCredentialStorageValidation,
   hasNonPublicIpErrorEcho,
+  hasManualBookmarkletJsonErrorResponses,
   hasRawAutomationDropdownValueLogging,
   hasRawAutomationBrowserErrors,
   hasRawAutomationCommandErrorDetails,
@@ -30,6 +32,7 @@ import {
   hasRawFrontendErrorHelperUserMessage,
   hasRawFrontendErrorReporterForwarding,
   hasRawFrontendSharedErrorLogging,
+  hasRawImportBookmarkletCommandErrorDetails,
   hasRawImportHttpErrorReturn,
   hasRawImportRedirectDisplay,
   hasRawJobsWithGptDebug,
@@ -42,22 +45,30 @@ import {
   hasRawNotificationServiceErrorDetails,
   hasRawPathOrQueryErrorDisplay,
   hasRawPrivateQueryLogging,
+  hasRawBookmarkletImportLogging,
   hasRawResumeCommandDtoExposure,
   hasRawResumeCommandErrorDetails,
   hasRawResumeNameLogging,
   hasRawResumeParserPathDisplay,
   hasRawScraperLoopErrorLogging,
   hasRawScraperUrlOrQueryLogging,
+  hasRawSchedulerJobContentLogging,
+  hasRawSchedulerScoringPrivacyLeak,
+  hasRawSchedulerScraperErrorDetails,
+  hasRawScoringCacheJobHashLogging,
   hasRawSensitiveCommandErrorDetails,
   hasRawSlackWebhookValidationErrorReturn,
   hasRawSourceCheckResultError,
   hasRawTelegramBotTokenRequestError,
   hasRawUrlErrorDisplay,
   hasRawUrlLogging,
+  hasRawUserDataPrivacyLogging,
   hasRawUtilityCommandErrorDetails,
   hasRawWebhookTokenRequestError,
   hasRendererCredentialSecretRead,
+  hasResidualCorePrivacyLeak,
   hasSecretBearingDebugDerive,
+  hasUnauthenticatedBookmarkletImports,
   hasUnsafeErrorReportStorageParsing,
   hasUnsanitizedFrontendErrorReportStorage,
   hasUnboundedExternalResponseBodyRead,
@@ -275,6 +286,126 @@ test("privacy logging rejects raw private query fields", () => {
 
     assert.equal(hasRawPrivateQueryLogging(root, "src-tauri/src/commands/jobs.rs"), true);
     assert.equal(hasRawPrivateQueryLogging(root, "src-tauri/src/core/db/mod.rs"), false);
+  });
+});
+
+test("privacy logging rejects raw user-data and scheduler logging", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/user_data.rs",
+      'tracing::info!("Creating saved search: {}", name);',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scheduler/workers/persistence.rs",
+      "let job_title = job.title.clone();",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scheduler/workers/scrapers.rs",
+      "fail_run(db, scraper_run_id, &e.to_string()).await;",
+    );
+
+    assert.equal(hasRawUserDataPrivacyLogging(root, "src-tauri/src/commands/user_data.rs"), true);
+    assert.equal(
+      hasRawSchedulerJobContentLogging(
+        root,
+        "src-tauri/src/core/scheduler/workers/persistence.rs",
+      ),
+      true,
+    );
+    assert.equal(
+      hasRawSchedulerScraperErrorDetails(
+        root,
+        "src-tauri/src/core/scheduler/workers/scrapers.rs",
+      ),
+      true,
+    );
+    assert.equal(hasRawSchedulerScraperErrorDetails(root, "src-tauri/src/commands/jobs.rs"), false);
+  });
+});
+
+test("privacy logging rejects raw import and bookmarklet details", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/import.rs",
+      'format!("Invalid URL: {}", e);',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/bookmarklet/server.rs",
+      [
+        'tracing::info!(title = %title, company = %company, "imported");',
+        'format!(r#"{{"error":"{}"}}"#, e);',
+        'if request.starts_with("POST /api/bookmarklet/import") {',
+        "  handle_import_request(&request, database).await",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/BookmarkletGenerator.tsx",
+      'fetch("/api/bookmarklet/import", { method: "POST" });',
+    );
+
+    assert.equal(
+      hasRawImportBookmarkletCommandErrorDetails(root, "src-tauri/src/commands/import.rs"),
+      true,
+    );
+    assert.equal(
+      hasRawBookmarkletImportLogging(root, "src-tauri/src/core/bookmarklet/server.rs"),
+      true,
+    );
+    assert.equal(
+      hasManualBookmarkletJsonErrorResponses(root, "src-tauri/src/core/bookmarklet/server.rs"),
+      true,
+    );
+    assert.equal(
+      hasUnauthenticatedBookmarkletImports(root, "src-tauri/src/core/bookmarklet/server.rs"),
+      true,
+    );
+    assert.equal(
+      hasBookmarkletCodeWithoutTokenHeader(root, "src/components/BookmarkletGenerator.tsx"),
+      true,
+    );
+    assert.equal(hasRawBookmarkletImportLogging(root, "src-tauri/src/commands/import.rs"), false);
+  });
+});
+
+test("privacy logging rejects raw scheduler scoring and residual core leaks", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scoring/cache.rs",
+      "tracing::debug!(job_hash = %job_hash);",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scheduler/workers/scoring.rs",
+      "tracing::warn!(error = %e, job_hash = %job.hash);",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/config/io.rs",
+      'format!("Invalid API key: {}", e);',
+    );
+
+    assert.equal(
+      hasRawScoringCacheJobHashLogging(root, "src-tauri/src/core/scoring/cache.rs"),
+      true,
+    );
+    assert.equal(
+      hasRawSchedulerScoringPrivacyLeak(
+        root,
+        "src-tauri/src/core/scheduler/workers/scoring.rs",
+      ),
+      true,
+    );
+    assert.equal(hasResidualCorePrivacyLeak(root, "src-tauri/src/core/config/io.rs"), true);
+    assert.equal(hasResidualCorePrivacyLeak(root, "src-tauri/src/commands/import.rs"), false);
   });
 });
 
