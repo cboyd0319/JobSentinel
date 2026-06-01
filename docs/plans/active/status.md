@@ -31,6 +31,10 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local zero-technical UX work removes a no-source empty-state dead end:
+  Dashboard now remembers whether any job source is enabled and changes the
+  empty job list to a direct "Turn On Job Sources" recovery path, with import as
+  the secondary path, when searches cannot run yet.
 - Latest local privacy/security work tightens external output boundaries:
   renderer CSP now keeps `connect-src 'self'`, saved job links and Application
   Assist browser launches use the shared public HTTP(S) URL validator, and

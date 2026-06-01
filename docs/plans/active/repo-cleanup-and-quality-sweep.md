@@ -171,6 +171,10 @@ boundaries, and harness modularity:
   page, and alert email HTML escapes scraped job fields plus validates links
   before rendering `href` attributes. `npm run lint:security` now checks that
   known external hosts do not return to renderer CSP.
+- Fixed a no-source Dashboard recovery dead end: if no monitored job source is
+  enabled and the job list is empty, the primary action now opens Settings to
+  turn on job sources and the secondary action opens job-posting import instead
+  of offering a search that can only warn.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright

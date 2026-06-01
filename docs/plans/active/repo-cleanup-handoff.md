@@ -117,6 +117,9 @@ Current cleanup posture:
   email HTML escapes scraped job text and validates job links before rendering
   them as clickable links; `npm run lint:security` now guards the self-only
   renderer CSP.
+- Current local zero-technical follow-up changes the Dashboard empty job-list
+  recovery path when no job source is enabled: "Turn On Job Sources" opens
+  Settings and "Import a Job Posting" remains available as the secondary path.
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
 - `npm run harness:plan -- --since origin/main` now maps changed files to
   focused verification commands from the harness matrix.

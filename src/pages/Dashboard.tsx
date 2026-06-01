@@ -82,6 +82,7 @@ import {
   formatScoreFilter,
   formatSortOption,
 } from "./DashboardUI/filterLabels";
+import { getNoJobsEmptyStateCopy } from "./DashboardUI/noJobsEmptyStateCopy";
 
 interface DashboardPreferences {
   autoRefresh: AutoRefreshConfig;
@@ -117,6 +118,9 @@ export default function Dashboard({
   const [researchCompany, setResearchCompany] = useState<string | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
   const [salaryFloorUsd, setSalaryFloorUsd] = useState<number | null>(null);
+  const [anyJobSourceEnabled, setAnyJobSourceEnabled] = useState<
+    boolean | null
+  >(null);
 
   const toast = useToast();
 
@@ -205,6 +209,9 @@ export default function Dashboard({
         if (typeof preferences?.salaryFloorUsd === "number") {
           setSalaryFloorUsd(preferences.salaryFloorUsd);
         }
+        if (typeof preferences?.anyJobSourceEnabled === "boolean") {
+          setAnyJobSourceEnabled(preferences.anyJobSourceEnabled);
+        }
       } catch {
         // Preferences may be unavailable during startup; use defaults.
       }
@@ -289,12 +296,14 @@ export default function Dashboard({
           "get_dashboard_preferences",
         );
         if (!preferences.anyJobSourceEnabled) {
+          setAnyJobSourceEnabled(false);
           toast.warning(
-            "No job sources enabled",
-            "Enable at least one job board in Settings before searching.",
+            "Turn on a job source first",
+            "Open Settings, turn on a job source, then search again.",
           );
           return;
         }
+        setAnyJobSourceEnabled(true);
       } catch {
         // Preferences check failed; proceed with search anyway.
       }
@@ -541,6 +550,9 @@ export default function Dashboard({
     );
   }
 
+  const noJobsCopy = getNoJobsEmptyStateCopy(anyJobSourceEnabled);
+  const noSourcesEnabled = anyJobSourceEnabled === false;
+
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
       <DashboardHeader
@@ -642,25 +654,33 @@ export default function Dashboard({
                 <BriefcaseIcon className="w-6 h-6 text-sentinel-400" />
               </div>
               <CardHeader
-                title="No jobs yet"
-                subtitle="Search for fresh roles, import a posting, or adjust your preferences."
+                title={noJobsCopy.title}
+                subtitle={noJobsCopy.subtitle}
               />
               <div className="mt-4 flex flex-wrap justify-center gap-3">
                 <Button
-                  onClick={handleSearchNow}
-                  loading={searching}
+                  onClick={
+                    noSourcesEnabled
+                      ? () => setShowSettings(true)
+                      : handleSearchNow
+                  }
+                  loading={!noSourcesEnabled && searching}
                 >
-                  Search Now
+                  {noJobsCopy.primaryLabel}
                 </Button>
                 <Button
-                  onClick={() => setShowSettings(true)}
+                  onClick={
+                    noSourcesEnabled
+                      ? () => setShowImportModal(true)
+                      : () => setShowSettings(true)
+                  }
                   variant="secondary"
                 >
-                  Adjust Search Preferences
+                  {noJobsCopy.secondaryLabel}
                 </Button>
               </div>
               <p className="mt-3 text-sm text-surface-500 dark:text-surface-400">
-                If a search comes back empty, broaden the role title, location, or pay floor.
+                {noJobsCopy.helperText}
               </p>
               <div className="mt-8 pt-6 border-t border-surface-200 dark:border-surface-700">
                 <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
@@ -673,10 +693,10 @@ export default function Dashboard({
                     </div>
                     <div>
                       <p className="text-sm font-medium text-surface-700 dark:text-surface-300">
-                        Scan allowed sources
+                        {noJobsCopy.firstStepTitle}
                       </p>
                       <p className="text-xs text-surface-500 dark:text-surface-400">
-                        Local checks run on your schedule
+                        {noJobsCopy.firstStepDescription}
                       </p>
                     </div>
                   </div>

@@ -4,6 +4,7 @@ import {
   getDashboardLoadErrorMessage,
   getDashboardSearchErrorCopy,
 } from "./dashboardErrorCopy";
+import { getNoJobsEmptyStateCopy } from "./DashboardUI/noJobsEmptyStateCopy";
 
 vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),
@@ -209,5 +210,26 @@ describe("Dashboard safe error copy", () => {
     expect(copy.title).toBe("Job Search Failed");
     expect(visibleText).toContain("safe support report");
     expect(visibleText).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
+  });
+});
+
+describe("Dashboard no-jobs empty state copy", () => {
+  it("gives a direct source setup path when no source is enabled", () => {
+    const copy = getNoJobsEmptyStateCopy(false);
+
+    expect(copy.title).toBe("Turn on job sources");
+    expect(copy.primaryLabel).toBe("Turn On Job Sources");
+    expect(copy.secondaryLabel).toBe("Import a Job Posting");
+    expect(copy.helperText).toContain("More Settings");
+    expect(copy.firstStepTitle).toBe("Choose sources");
+  });
+
+  it("keeps normal first-run search copy when source status is unknown", () => {
+    const copy = getNoJobsEmptyStateCopy(null);
+
+    expect(copy.title).toBe("No jobs yet");
+    expect(copy.primaryLabel).toBe("Search Now");
+    expect(copy.secondaryLabel).toBe("Adjust Search Preferences");
+    expect(copy.firstStepTitle).toBe("Scan allowed sources");
   });
 });
