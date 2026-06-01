@@ -304,14 +304,14 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
         ) : (
           <Button
             onClick={handlePrepareApplication}
-            disabled={!hasProfile || atsLoading}
+            disabled={!hasProfile}
             size="sm"
             title={
-              atsLoading
-                ? "Detecting application platform..."
-                  : !hasProfile
-                    ? "Set up your application profile first in Application Assist"
-                    : "Prepare application form for your review"
+              !hasProfile
+                ? "Set up your application profile first in Application Assist"
+                : atsLoading
+                  ? "Form check is still running. You can prepare details now."
+                  : "Prepare application form for your review"
             }
           >
             <BoltIcon className="w-4 h-4 mr-1" />

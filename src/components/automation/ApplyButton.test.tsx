@@ -405,7 +405,7 @@ describe("ApplyButton", () => {
   });
 
   describe("loading states", () => {
-    it("button is disabled during ATS detection", () => {
+    it("keeps prepare available during form detection", async () => {
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return new Promise(() => {}); // Never resolves
         if (cmd === "has_application_profile") return Promise.resolve(true);
@@ -415,9 +415,14 @@ describe("ApplyButton", () => {
 
       renderWithToast(<ApplyButton job={mockJob} />);
 
-      const button = screen.getByRole("button", { name: /prepare form/i });
-      expect(button).toBeDisabled();
-      expect(button).toHaveAttribute("title", "Detecting application platform...");
+      await waitFor(() => {
+        const button = screen.getByRole("button", { name: /prepare form/i });
+        expect(button).not.toBeDisabled();
+        expect(button).toHaveAttribute(
+          "title",
+          "Form check is still running. You can prepare details now."
+        );
+      });
     });
 
     it("shows filling state during form fill", async () => {

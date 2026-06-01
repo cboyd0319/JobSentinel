@@ -93,6 +93,10 @@ and record actionable findings in this active-plan surface.
   beginner, intermediate, advanced, expert, and seniority level with
   behavior-based skill strength and role-stage copy across Resume, Resume
   Builder, Pay Protection, docs, and product-copy sensors.
+- Latest local Application Assist readiness follow-up stops optional
+  application-form detection from blocking the Prepare Form action. If form
+  recognition is still loading, users with a saved profile can still open the
+  review modal and continue.
 - Latest local privacy follow-up removes raw screening-question text and saved
   answer patterns from backend debug logs in Application Assist. Logs now keep
   only character counts for matched questions and patterns, and
