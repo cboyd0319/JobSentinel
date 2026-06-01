@@ -421,7 +421,6 @@ interface MockAnswerSuggestion {
   confidence: number;
   source: {
     type: "manual";
-    pattern: string;
     answerId: number;
   };
   timesUsed: number;
@@ -2260,7 +2259,6 @@ function getMockSuggestedAnswers(args?: Record<string, unknown>): MockAnswerSugg
       confidence: answer.confidenceScore ?? 0.8,
       source: {
         type: "manual",
-        pattern: answer.questionPattern,
         answerId: answer.id,
       },
       timesUsed: answer.timesUsed ?? 0,

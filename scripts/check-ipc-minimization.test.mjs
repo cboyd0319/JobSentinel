@@ -4,11 +4,13 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import {
+  hasAnswerHistoryRendererInvoke,
   hasApplicationProfileResumePathExposure,
   hasBookmarkletTokenIpcExposure,
   hasDashboardFullConfigInvoke,
   hasFullImportedJobReturn,
   hasNonSettingsFullApplicationProfileInvoke,
+  hasRawAnswerHistoryIpcExposure,
   hasRawJobImportUrlAfterPreview,
   hasStaleJobImportMockHandlers,
   hasStaleProfilePreviewMock,
@@ -207,5 +209,83 @@ test("ipc minimization rejects application resume path exposure across renderer 
     ]) {
       assert.equal(hasApplicationProfileResumePathExposure(root, path), true);
     }
+  });
+});
+
+test("ipc minimization rejects raw screening answer history IPC", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/automation.rs",
+      [
+        "pub struct AnswerStatisticsResponse {",
+        "  pub pattern: String,",
+        "  pub answer: String,",
+        "}",
+        "pub struct ModificationExampleResponse {",
+        "  pub original_answer: String,",
+        "  pub modified_to: String,",
+        "  pub question_text: String,",
+        "}",
+        "pub enum AnswerSourceResponse {",
+        "  Manual { pattern: String, answer_id: i64 },",
+        "  Historical { original_question: String },",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/automation/ScreeningAnswerSuggestions.tsx",
+      "type AnswerSource = { type: 'historical'; originalQuestion: string } | { type: 'manual'; pattern: string };\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      "const suggestion = { source: { type: 'historical', originalQuestion: 'What salary?' } };\n",
+    );
+
+    assert.equal(
+      hasRawAnswerHistoryIpcExposure(root, "src-tauri/src/commands/automation.rs"),
+      true,
+    );
+    assert.equal(
+      hasRawAnswerHistoryIpcExposure(
+        root,
+        "src/components/automation/ScreeningAnswerSuggestions.tsx",
+      ),
+      true,
+    );
+    assert.equal(hasRawAnswerHistoryIpcExposure(root, "src/mocks/handlers.ts"), true);
+  });
+});
+
+test("ipc minimization rejects renderer answer-history management calls", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/components/automation/ScreeningAnswerSuggestions.tsx",
+      'await invoke("get_answer_statistics", { pattern });\nawait invoke("clear_answer_history");\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/automation/ScreeningAnswerSuggestions.test.tsx",
+      'expect(command).toBe("get_answer_statistics");\n',
+    );
+
+    assert.equal(
+      hasAnswerHistoryRendererInvoke(
+        root,
+        "src/components/automation/ScreeningAnswerSuggestions.tsx",
+      ),
+      true,
+    );
+    assert.equal(
+      hasAnswerHistoryRendererInvoke(
+        root,
+        "src/components/automation/ScreeningAnswerSuggestions.test.tsx",
+      ),
+      false,
+    );
   });
 });

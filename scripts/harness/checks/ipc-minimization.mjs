@@ -159,3 +159,47 @@ export function hasApplicationProfileResumePathExposure(root, path) {
 
   return /\bresumeFilePath\b/.test(text);
 }
+
+export function hasAnswerHistoryRendererInvoke(root, path) {
+  if (
+    !path.startsWith("src/") ||
+    path.startsWith("src/mocks/") ||
+    /\.test\.[tj]sx?$/.test(path) ||
+    /\.spec\.[tj]sx?$/.test(path)
+  ) {
+    return false;
+  }
+
+  const text = stripTypeScriptComments(readIfPresent(root, path));
+  return /["'`](?:get_answer_statistics|clear_answer_history)["'`]/.test(text);
+}
+
+export function hasRawAnswerHistoryIpcExposure(root, path) {
+  if (
+    path !== "src-tauri/src/commands/automation.rs" &&
+    path !== "src/components/automation/ScreeningAnswerSuggestions.tsx" &&
+    path !== "src/mocks/handlers.ts"
+  ) {
+    return false;
+  }
+
+  const text =
+    path.endsWith(".rs")
+      ? stripRustTestModules(readIfPresent(root, path))
+      : stripTypeScriptComments(readIfPresent(root, path));
+
+  if (path === "src-tauri/src/commands/automation.rs") {
+    return (
+      /pub\s+struct\s+AnswerStatisticsResponse\s*\{[^}]*\bpub\s+(?:pattern|answer)\s*:/.test(
+        text,
+      ) ||
+      /pub\s+struct\s+ModificationExampleResponse\s*\{[^}]*\bpub\s+(?:original_answer|modified_to|question_text)\s*:/.test(
+        text,
+      ) ||
+      /AnswerSourceResponse[\s\S]{0,500}\boriginal_question\b/.test(text) ||
+      /AnswerSourceResponse[\s\S]{0,500}\bpattern\s*:\s*String/.test(text)
+    );
+  }
+
+  return /\boriginalQuestion\b|\bpattern\s*:\s*string\b/.test(text);
+}

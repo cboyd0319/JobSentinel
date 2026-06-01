@@ -174,7 +174,7 @@ Current cleanup posture:
   `scripts/harness/checks/product-copy.mjs`.
 - Privacy/logging bloat-runner orchestration now lives in
   `collectPrivacyLoggingViolations`; `scripts/check-repo-bloat.mjs` is now a
-  small 574-line orchestrator after the latest source-quality guard.
+  small 584-line orchestrator after the latest IPC-minimization guard.
 - Broad-audience fixture checks now cover generic skill-filter categories, Cow
   utility tests, API-contract search history, and ignored live-scraper probes
   so technical defaults do not quietly drift back into broad examples.
@@ -247,6 +247,10 @@ Current cleanup posture:
 - Latest protective-tone follow-up changes resume readability score labels
   away from judgmental terms such as Excellent, Great, and Poor toward
   evidence-focused labels, with unit and product-copy coverage against drift.
+- Latest security follow-up minimizes screening-answer learning IPC so renderer
+  responses no longer expose raw saved answer patterns, historical question
+  text, original answers, or edited answer text; summary counts remain
+  available locally, and IPC-minimization sensors reject drift.
 - Latest harness-session follow-up fixed the JSON mode argument parser so
   `npm run harness:session -- --json` no longer treats `--json` as the repo
   root and no longer returns a zeroed unavailable snapshot.

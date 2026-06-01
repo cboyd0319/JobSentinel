@@ -446,6 +446,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-01 | In progress | Minimized screening-answer learning IPC so renderer responses no longer expose raw saved answer patterns, historical question text, original answers, or edited answer text; summary counts remain available locally, with Rust response tests and IPC-minimization sensors against drift. |
 | 2026-06-01 | In progress | Changed resume readability score labels away from judgmental terms such as Excellent, Great, and Poor toward evidence-focused labels, with unit and product-copy coverage against drift. |
 | 2026-06-01 | In progress | Made Resume Match choose/upload the primary path, moved resume-app export paste behind an explicit Import from Resume App action, removed the circular PDF-upload hint, and added focused UI plus product-copy coverage against the old raw export-data path. |
 | 2026-06-01 | In progress | Updated Quick Start, Deep Links, and credential-security docs so download, notification, site-request, and Linux keyring guidance starts with normal user actions before optional developer or command-line paths. |

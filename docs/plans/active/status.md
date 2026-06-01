@@ -56,6 +56,10 @@ and record actionable findings in this active-plan surface.
 - Latest local protective-tone follow-up changes resume readability score
   labels away from judgmental terms such as Excellent, Great, and Poor toward
   evidence-focused labels, with unit and product-copy coverage against drift.
+- Latest local security follow-up minimizes screening-answer learning IPC:
+  renderer responses no longer expose raw saved answer patterns, historical
+  question text, original answers, or edited answer text; summary counts remain
+  available locally, and IPC-minimization sensors reject drift.
 - Latest local zero-technical provider setup work labels USAJobs as optional
   advanced federal monitoring with a no-setup browser-search path first, keeps
   Telegram bot details behind an advanced chat-alert path, and adds
@@ -288,7 +292,7 @@ and record actionable findings in this active-plan surface.
   orchestration out of `scripts/check-repo-bloat.mjs` and into
   `collectPrivacyLoggingViolations`; focused privacy-logging coverage now
   verifies the collector and `scripts/check-repo-bloat.mjs` is now a small
-  574-line orchestrator after the latest source-quality guard.
+  584-line orchestrator after the latest IPC-minimization guard.
 - Latest local broad-audience fixture work replaces engineer-first defaults in
   `SkillCategoryFilter`, Cow utility, API-contract, scraper-construction, and
   ignored live-scraper tests with operations, support, accounting, and care
@@ -534,7 +538,7 @@ and record actionable findings in this active-plan surface.
    preserve tech-specific cases only when they test explicit branch behavior or
    source-realism parser contracts.
 2. Continue splitting oversized harness modules only where the ownership
-   boundary is clear; the main bloat runner is now 574 lines after docs-drift,
+   boundary is clear; the main bloat runner is now 584 lines after docs-drift,
    privacy-logging, and source-quality ownership moved into modules.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.

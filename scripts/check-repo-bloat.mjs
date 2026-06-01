@@ -121,11 +121,13 @@ import {
 } from "./harness/checks/repo-integrity.mjs";
 import { collectPrivacyLoggingViolations } from "./harness/checks/privacy-logging.mjs";
 import {
+  hasAnswerHistoryRendererInvoke,
   hasApplicationProfileResumePathExposure,
   hasBookmarkletTokenIpcExposure,
   hasDashboardFullConfigInvoke,
   hasFullImportedJobReturn,
   hasNonSettingsFullApplicationProfileInvoke,
+  hasRawAnswerHistoryIpcExposure,
   hasRawJobImportUrlAfterPreview,
   hasStaleJobImportMockHandlers,
   hasStaleProfilePreviewMock,
@@ -461,6 +463,14 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasApplicationProfileResumePathExposure(root, path)) {
       violations.push(`keep application resume paths out of renderer IPC: ${path}`);
+    }
+
+    if (hasRawAnswerHistoryIpcExposure(root, path)) {
+      violations.push(`keep raw screening answer history out of renderer IPC: ${path}`);
+    }
+
+    if (hasAnswerHistoryRendererInvoke(root, path)) {
+      violations.push(`avoid renderer answer-history IPC: ${path}`);
     }
 
     if (hasNonSettingsFullApplicationProfileInvoke(root, path)) {

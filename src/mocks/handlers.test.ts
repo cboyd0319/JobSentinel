@@ -113,7 +113,7 @@ type FillResultWithAttempt = {
 type AnswerSuggestion = {
   answer: string;
   confidence: number;
-  source: { type: "manual"; pattern: string; answerId: number };
+  source: { type: "manual"; answerId: number };
   timesUsed: number;
   timesModified: number;
   lastUsedDaysAgo: number | null;

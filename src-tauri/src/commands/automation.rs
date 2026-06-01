@@ -912,35 +912,22 @@ impl From<AnswerSuggestion> for AnswerSuggestionResponse {
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum AnswerSourceResponse {
     Manual {
-        pattern: String,
         #[serde(rename = "answerId")]
         answer_id: i64,
     },
     Learned {
-        pattern: String,
         #[serde(rename = "learnedId")]
         learned_id: i64,
     },
-    Historical {
-        #[serde(rename = "originalQuestion")]
-        original_question: String,
-    },
+    Historical,
 }
 
 impl From<AnswerSource> for AnswerSourceResponse {
     fn from(source: AnswerSource) -> Self {
         match source {
-            AnswerSource::Manual { pattern, answer_id } => Self::Manual { pattern, answer_id },
-            AnswerSource::Learned {
-                pattern,
-                learned_id,
-            } => Self::Learned {
-                pattern,
-                learned_id,
-            },
-            AnswerSource::Historical { original_question } => {
-                Self::Historical { original_question }
-            }
+            AnswerSource::Manual { answer_id, .. } => Self::Manual { answer_id },
+            AnswerSource::Learned { learned_id, .. } => Self::Learned { learned_id },
+            AnswerSource::Historical { .. } => Self::Historical,
         }
     }
 }
@@ -948,8 +935,6 @@ impl From<AnswerSource> for AnswerSourceResponse {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AnswerStatisticsResponse {
-    pub pattern: String,
-    pub answer: String,
     pub times_used: i32,
     pub times_modified: i32,
     pub modification_rate: f64,
@@ -962,8 +947,6 @@ pub struct AnswerStatisticsResponse {
 impl From<AnswerStatistics> for AnswerStatisticsResponse {
     fn from(stats: AnswerStatistics) -> Self {
         Self {
-            pattern: stats.pattern,
-            answer: stats.answer,
             times_used: stats.times_used,
             times_modified: stats.times_modified,
             modification_rate: stats.modification_rate,
@@ -982,9 +965,9 @@ impl From<AnswerStatistics> for AnswerStatisticsResponse {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ModificationExampleResponse {
-    pub original_answer: String,
-    pub modified_to: String,
-    pub question_text: String,
+    pub before_chars: usize,
+    pub after_chars: usize,
+    pub question_chars: usize,
     pub modified_at: String,
 }
 
@@ -993,9 +976,9 @@ impl From<crate::core::automation::answer_learning::ModificationExample>
 {
     fn from(ex: crate::core::automation::answer_learning::ModificationExample) -> Self {
         Self {
-            original_answer: ex.original_answer,
-            modified_to: ex.modified_to,
-            question_text: ex.question_text,
+            before_chars: ex.original_answer.chars().count(),
+            after_chars: ex.modified_to.chars().count(),
+            question_chars: ex.question_text.chars().count(),
             modified_at: ex.modified_at.to_rfc3339(),
         }
     }
@@ -1053,5 +1036,84 @@ mod response_tests {
         let json = serde_json::to_string(&response).unwrap();
         assert_eq!(response.resume_file_name, Some("resume.docx".to_string()));
         assert!(!json.contains("C:\\\\Users"));
+    }
+
+    #[test]
+    fn answer_statistics_response_omits_raw_answer_history() {
+        let modified_at = chrono::DateTime::parse_from_rfc3339("2026-06-01T12:00:00Z")
+            .unwrap()
+            .with_timezone(&chrono::Utc);
+        let stats = AnswerStatistics {
+            pattern: "(?i)salary|compensation".to_string(),
+            answer: "My salary floor is 120000".to_string(),
+            times_used: 3,
+            times_modified: 1,
+            modification_rate: 1.0 / 3.0,
+            confidence_score: 0.75,
+            last_used_at: Some(modified_at),
+            created_at: modified_at,
+            recent_modifications: vec![
+                crate::core::automation::answer_learning::ModificationExample {
+                    original_answer: "Expected salary 110000".to_string(),
+                    modified_to: "Expected salary 120000".to_string(),
+                    question_text: "What salary range do you need?".to_string(),
+                    modified_at,
+                },
+            ],
+        };
+
+        let response = AnswerStatisticsResponse::from(stats);
+        let json = serde_json::to_string(&response).unwrap();
+
+        assert_eq!(response.times_used, 3);
+        assert_eq!(response.recent_modifications[0].before_chars, 22);
+        assert_eq!(response.recent_modifications[0].after_chars, 22);
+        assert_eq!(response.recent_modifications[0].question_chars, 30);
+        assert!(!json.contains("salary|compensation"));
+        assert!(!json.contains("salary floor"));
+        assert!(!json.contains("Expected salary"));
+        assert!(!json.contains("What salary range"));
+        assert!(!json.contains("originalAnswer"));
+        assert!(!json.contains("modifiedTo"));
+        assert!(!json.contains("questionText"));
+    }
+
+    #[test]
+    fn answer_suggestion_source_omits_raw_patterns_and_history_questions() {
+        let manual = AnswerSuggestion {
+            answer: "Yes".to_string(),
+            confidence: 0.9,
+            source: AnswerSource::Manual {
+                pattern: "(?i)authorized.*work".to_string(),
+                answer_id: 7,
+            },
+            times_used: 2,
+            times_modified: 0,
+            last_used_days_ago: Some(1),
+            modification_rate: 0.0,
+        };
+        let historical = AnswerSuggestion {
+            answer: "Expected salary 120000".to_string(),
+            confidence: 0.6,
+            source: AnswerSource::Historical {
+                original_question: "What salary range do you need?".to_string(),
+            },
+            times_used: 1,
+            times_modified: 0,
+            last_used_days_ago: None,
+            modification_rate: 0.0,
+        };
+
+        let manual_json = serde_json::to_string(&AnswerSuggestionResponse::from(manual)).unwrap();
+        let historical_json =
+            serde_json::to_string(&AnswerSuggestionResponse::from(historical)).unwrap();
+
+        assert!(manual_json.contains("\"type\":\"manual\""));
+        assert!(manual_json.contains("\"answerId\":7"));
+        assert!(!manual_json.contains("authorized"));
+        assert!(!manual_json.contains("pattern"));
+        assert!(historical_json.contains("\"type\":\"historical\""));
+        assert!(!historical_json.contains("originalQuestion"));
+        assert!(!historical_json.contains("What salary range"));
     }
 }

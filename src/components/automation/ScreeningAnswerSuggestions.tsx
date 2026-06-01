@@ -18,9 +18,9 @@ interface AnswerSuggestion {
 }
 
 type AnswerSource =
-  | { type: "manual"; pattern: string; answerId: number }
-  | { type: "learned"; pattern: string; learnedId: number }
-  | { type: "historical"; originalQuestion: string };
+  | { type: "manual"; answerId: number }
+  | { type: "learned"; learnedId: number }
+  | { type: "historical" };
 
 interface ScreeningAnswerSuggestionsProps {
   question: string;
