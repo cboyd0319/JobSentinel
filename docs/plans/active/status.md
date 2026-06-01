@@ -37,7 +37,7 @@ and record actionable findings in this active-plan surface.
 - Current local work continues the sensor-modularity debt by extracting
   filesystem, tracked-artifact, dependency-ownership, source-structure,
   E2E-helper, product-framing, product-copy including technical-first user
-  copy policy, release-promise, and initial privacy-logging policy from
+  copy policy, release-promise, and expanded privacy-logging policy from
   `scripts/check-repo-bloat.mjs` into
   `scripts/harness/checks/` modules with focused tests. The latest harness
   slices add `scripts/harness/checks/ipc-minimization.mjs` so minimized
@@ -49,6 +49,12 @@ and record actionable findings in this active-plan surface.
   sensor into `scripts/harness/checks/product-copy.mjs`, adds focused
   product-copy tests for Settings and Resume drift, and shrinks
   `scripts/check-repo-bloat.mjs` to roughly 4,200 lines.
+- Latest local privacy-harness work moves raw private-query logging, scraper
+  URL/query logging, scraper loop-error logging, unbounded response-body read,
+  and raw local-path logging sensors into
+  `scripts/harness/checks/privacy-logging.mjs`; focused privacy-logging tests
+  now cover those checks and `scripts/check-repo-bloat.mjs` is roughly 4,100
+  lines.
 - Latest local privacy work removes raw automation dropdown-answer logging and
   raw frontend error forwarding, then adds bloat sensors and `errorReporting`
   unit coverage so those regressions fail locally.
@@ -145,8 +151,8 @@ and record actionable findings in this active-plan surface.
    current sensors, while preserving tech-specific cases only when they test
    explicit branch behavior or source-realism parser contracts.
 2. Continue splitting oversized mixed sensors, especially docs-drift,
-   privacy-logging, fixture-quality, broad-audience, and source-security
-   checks still inside `scripts/check-repo-bloat.mjs`.
+   remaining privacy/security logging, fixture-quality, broad-audience, and
+   source-security checks still inside `scripts/check-repo-bloat.mjs`.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
 4. Continue broad-audience review so non-technical and technical job searches

@@ -6,6 +6,11 @@ import test from "node:test";
 import {
   hasRawAutomationDropdownValueLogging,
   hasRawFrontendErrorReporterForwarding,
+  hasRawLocalPathLogging,
+  hasRawPrivateQueryLogging,
+  hasRawScraperLoopErrorLogging,
+  hasRawScraperUrlOrQueryLogging,
+  hasUnboundedExternalResponseBodyRead,
 } from "./harness/checks/privacy-logging.mjs";
 
 function writeFixtureFile(root, path, content = "") {
@@ -66,5 +71,96 @@ test("privacy logging rejects raw frontend error forwarding", () => {
 
     assert.equal(hasRawFrontendErrorReporterForwarding(root, "src/utils/errorReporting.ts"), true);
     assert.equal(hasRawFrontendErrorReporterForwarding(root, "src/utils/errorUtils.ts"), false);
+  });
+});
+
+test("privacy logging rejects raw private query fields", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/jobs.rs",
+      'tracing::debug!("search query: {}", query);',
+    );
+
+    assert.equal(hasRawPrivateQueryLogging(root, "src-tauri/src/commands/jobs.rs"), true);
+    assert.equal(hasRawPrivateQueryLogging(root, "src-tauri/src/core/db/mod.rs"), false);
+  });
+});
+
+test("privacy logging rejects raw scraper URL and query output", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/http_client.rs",
+      'tracing::debug!("Fetching API for query: {}", query);',
+    );
+
+    assert.equal(
+      hasRawScraperUrlOrQueryLogging(root, "src-tauri/src/core/scrapers/http_client.rs"),
+      true,
+    );
+    assert.equal(
+      hasRawScraperUrlOrQueryLogging(root, "src-tauri/src/core/scrapers/mod.rs"),
+      false,
+    );
+  });
+});
+
+test("privacy logging rejects raw scraper loop errors outside tests", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/greenhouse.rs",
+      [
+        'tracing::warn!("Failed to scrape {}: {}", company.name, e);',
+        "#[cfg(test)]",
+        "mod tests {",
+        '  tracing::warn!("Failed to scrape {}: {}", company.name, e);',
+        "}",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasRawScraperLoopErrorLogging(root, "src-tauri/src/core/scrapers/greenhouse.rs"),
+      true,
+    );
+    assert.equal(hasRawScraperLoopErrorLogging(root, "src-tauri/src/core/scrapers/dice.rs"), false);
+  });
+});
+
+test("privacy logging rejects unbounded external response body reads", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/dice.rs",
+      "let body = response.text().await?;",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/http_body.rs",
+      "let body = response.text().await?;",
+    );
+
+    assert.equal(
+      hasUnboundedExternalResponseBodyRead(root, "src-tauri/src/core/scrapers/dice.rs"),
+      true,
+    );
+    assert.equal(
+      hasUnboundedExternalResponseBodyRead(root, "src-tauri/src/core/http_body.rs"),
+      false,
+    );
+  });
+});
+
+test("privacy logging rejects raw local path logging", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/resume.rs",
+      'tracing::error!("resume path: {}", path.display());',
+    );
+
+    assert.equal(hasRawLocalPathLogging(root, "src-tauri/src/commands/resume.rs"), true);
+    assert.equal(hasRawLocalPathLogging(root, "src-tauri/src/commands/jobs.rs"), false);
   });
 });
