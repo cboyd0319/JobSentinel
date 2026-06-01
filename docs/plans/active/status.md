@@ -161,6 +161,11 @@ and record actionable findings in this active-plan surface.
   `Failed to open link` / `Unable to open the job link` toasts with
   `Could not open job link` and browser-copy guidance across job cards and the
   Dashboard keyboard-open path, with JobCard and product-copy coverage.
+- Latest local dashboard-adjacent load-error follow-up replaces visible
+  `Failed to Load...` / `Failed to load analytics data` panels in Market,
+  Cover Letter Templates, Analytics, and Dashboard Widgets with `Could not
+  load...` wording, and changes cover-letter copy failures to `Could not copy
+  template`, with focused component tests and product-copy coverage.
 - Latest local Application Assist readiness follow-up stops optional
   application-form detection from blocking the Prepare Form action. If form
   recognition is still loading, users with a saved profile can still open the

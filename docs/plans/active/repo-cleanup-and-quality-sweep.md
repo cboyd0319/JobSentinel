@@ -302,6 +302,11 @@ boundaries, and harness modularity:
   link` and `Unable to open the job link`. Job cards and Dashboard keyboard
   opening now give plain browser-copy guidance, with JobCard tests and
   product-copy coverage against old wording.
+- Fixed visible Market, Cover Letter Templates, Analytics, and Dashboard
+  Widgets load-error panels that still used `Failed to Load...` or `Failed to
+  load analytics data` wording. They now use plain `Could not load...` labels,
+  and cover-letter copy failures now say `Could not copy template`, with
+  focused component tests and product-copy coverage against old wording.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright

@@ -310,6 +310,8 @@ describe("DashboardWidgets", () => {
       await waitFor(() => {
         expect(document.querySelector(".animate-spin")).not.toBeInTheDocument();
       });
+      expect(screen.getByText("Could not load application summary")).toBeInTheDocument();
+      expect(screen.queryByText("Failed to load analytics data")).not.toBeInTheDocument();
     });
 
     it("handles jobs by source error gracefully", async () => {

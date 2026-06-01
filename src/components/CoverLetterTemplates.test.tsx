@@ -133,6 +133,7 @@ describe("CoverLetterTemplates", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockInvoke.mockReset();
+    (navigator.clipboard.writeText as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
   });
 
   describe("loading state", () => {
@@ -152,7 +153,7 @@ describe("CoverLetterTemplates", () => {
       renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
-        expect(screen.getByText("Failed to Load Templates")).toBeInTheDocument();
+        expect(screen.getByText("Could not load templates")).toBeInTheDocument();
       });
     });
 
@@ -172,7 +173,7 @@ describe("CoverLetterTemplates", () => {
       renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
-        expect(screen.getByText("Failed to Load Templates")).toBeInTheDocument();
+        expect(screen.getByText("Could not load templates")).toBeInTheDocument();
       });
 
       expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
@@ -333,10 +334,29 @@ describe("CoverLetterTemplates", () => {
 
       await waitFor(() => {
         expect(mockToast.success).toHaveBeenCalledWith(
-          "Copied to clipboard",
+          "Template copied",
           "Review any blanks before sending"
         );
       });
+    });
+
+    it("uses plain recovery copy when template copying fails", async () => {
+      (navigator.clipboard.writeText as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+        new Error("copy denied"),
+      );
+
+      renderWithProviders(<CoverLetterTemplates />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole("button", { name: "Copy" }));
+
+      await waitFor(() => {
+        expect(mockToast.error).toHaveBeenCalledWith("Could not copy template", "Please try again");
+      });
+      expect(toastErrorText()).not.toContain("Failed to copy");
     });
   });
 
@@ -703,10 +723,29 @@ describe("CoverLetterTemplates", () => {
 
       await waitFor(() => {
         expect(mockToast.success).toHaveBeenCalledWith(
-          "Template filled and copied!",
-          "Check any bracketed blanks before sending"
+          "Draft copied",
+          "Review any blanks before sending"
         );
       });
+    });
+
+    it("uses plain recovery copy when filled template copying fails", async () => {
+      (navigator.clipboard.writeText as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+        new Error("copy denied"),
+      );
+
+      renderWithProviders(<CoverLetterTemplates selectedJob={selectedJob} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "Use for Job" })).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole("button", { name: "Use for Job" }));
+
+      await waitFor(() => {
+        expect(mockToast.error).toHaveBeenCalledWith("Could not copy template", "Please try again");
+      });
+      expect(toastErrorText()).not.toContain("Failed to copy");
     });
   });
 

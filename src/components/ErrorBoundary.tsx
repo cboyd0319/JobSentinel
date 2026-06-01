@@ -98,7 +98,7 @@ class ErrorBoundary extends Component<Props, State> {
       await copySanitizedDebugReport(errorReporter.getErrors());
       this.setState({ debugReportStatus: 'copied' });
     } catch (error) {
-      logError('Failed to copy debug report from error boundary:', error);
+      logError('Could not copy support report from error boundary:', error);
       this.setState({ debugReportStatus: 'failed' });
     }
   };

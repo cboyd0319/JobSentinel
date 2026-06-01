@@ -90,7 +90,7 @@ export function BookmarkletGenerator() {
       setError(null);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      logError("Failed to copy browser import button:", err);
+      logError("Could not copy browser import button:", err);
       setCopied(false);
       setError("Could not copy browser button. Allow clipboard access and try again.");
     }

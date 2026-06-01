@@ -548,7 +548,7 @@ export default function Settings({ onClose }: SettingsProps) {
         "Share it only if you want help. Private details are removed first."
       );
     } catch (error) {
-      logError("Failed to copy debug report:", error);
+      logError("Could not copy support report:", error);
       toast.error(
         "Could not copy safe support report",
         "Try saving the report instead."

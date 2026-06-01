@@ -205,6 +205,12 @@ Current cleanup posture:
   `Failed to open link` / `Unable to open the job link` toasts in job-card and
   Dashboard keyboard-open paths to plain browser-copy recovery guidance.
   JobCard tests and product-copy sensors cover the old phrasing.
+- Current local dashboard-adjacent load-error follow-up changes visible Market,
+  Cover Letter Templates, Analytics, and Dashboard Widgets error panels away
+  from `Failed to Load...` / `Failed to load analytics data` wording to plain
+  `Could not load...` wording. It also changes cover-letter copy failures to
+  `Could not copy template`. Focused component tests and product-copy sensors
+  cover the old phrasing.
 - Current local skill-label follow-up replaces vague self-rating labels such as
   beginner, intermediate, advanced, expert, and seniority level with
   behavior-based skill strength and role-stage copy across Resume, Resume

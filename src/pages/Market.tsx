@@ -259,7 +259,7 @@ export default function Market({ onBack }: MarketProps) {
               </svg>
             </div>
             <h2 className="font-display text-display-sm text-surface-900 dark:text-white mb-2">
-              Failed to Load Market Data
+              Could not load market data
             </h2>
             <p className="text-surface-600 dark:text-surface-400 mb-6">
               {error}

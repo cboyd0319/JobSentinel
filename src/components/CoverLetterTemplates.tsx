@@ -333,7 +333,7 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
         setTemplates(result);
       }
     } catch (err) {
-      logError('Failed to load templates:', err);
+      logError('Could not load templates:', err);
       const friendly = getUserFriendlyError(err);
       if (isMountedRef.current) {
         setError(friendly.message);
@@ -501,9 +501,9 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
   const handleCopyTemplate = async (template: CoverLetterTemplate) => {
     try {
       await navigator.clipboard.writeText(template.content);
-      toast.success('Copied to clipboard', 'Review any blanks before sending');
+      toast.success('Template copied', 'Review any blanks before sending');
     } catch {
-      toast.error('Failed to copy', 'Please try again');
+      toast.error('Could not copy template', 'Please try again');
     }
   };
 
@@ -511,11 +511,11 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
     try {
       await navigator.clipboard.writeText(filledContent);
       toast.success(
-        'Template filled and copied!',
-        'Check any bracketed blanks before sending'
+        'Draft copied',
+        'Review any blanks before sending'
       );
     } catch {
-      toast.error('Failed to copy', 'Please try again');
+      toast.error('Could not copy template', 'Please try again');
     }
   };
 
@@ -542,7 +542,7 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
             </svg>
           </div>
           <h4 className="font-medium text-surface-900 dark:text-white mb-2">
-            Failed to Load Templates
+            Could not load templates
           </h4>
           <p className="text-sm text-surface-600 dark:text-surface-400 mb-4">
             {error}

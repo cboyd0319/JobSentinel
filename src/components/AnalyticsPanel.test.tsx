@@ -144,7 +144,7 @@ describe("AnalyticsPanel", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText("Failed to load analytics data. Please try again.")
+          screen.getByText("Could not load application summary. Please try again.")
         ).toBeInTheDocument();
       });
     });

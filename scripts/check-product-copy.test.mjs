@@ -373,6 +373,7 @@ test("product copy rejects technical-first settings copy", () => {
         "Performance by Job Source",
         "Weekly Application Goal",
         "Goal achieved this week!",
+        "Failed to load analytics data. Please try again.",
         "",
       ].join("\n"),
     );
@@ -534,9 +535,15 @@ test("product copy rejects technical-first settings copy", () => {
         "<button>{placeholder}</button>",
         "Remember to replace the placeholders",
         "Check for [bracketed] placeholders that need manual editing",
+        "Failed to Load Templates",
+        "Failed to copy",
+        "Copied to clipboard",
+        "Template filled and copied!",
+        "Check any bracketed blanks before sending",
         "",
       ].join("\n"),
     );
+    writeFixtureFile(root, "src/pages/Market.tsx", "Failed to Load Market Data\n");
     writeFixtureFile(
       root,
       "src/components/CompanyResearchPanel.tsx",
@@ -712,6 +719,7 @@ test("product copy rejects technical-first settings copy", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/DashboardUI/DashboardHeader.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/SetupWizard.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Market.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.test.tsx"), false);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "docs/features/smart-scoring.md"),
