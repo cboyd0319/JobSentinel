@@ -535,6 +535,19 @@ export function hasLegacyPreferenceListCopy(root, path) {
 }
 
 export function hasTechnicalFirstUserCopy(root, path) {
+  if (path === "src/components/CompanyResearchPanel.tsx") {
+    const text = readFileSync(join(root, path), "utf8");
+    const companyResearchPatterns = [
+      /Information about .* is being gathered/i,
+      /Check back later for more details/i,
+      /Request timed out/i,
+      /Failed to load company information/i,
+      /Taking longer than expected/i,
+    ];
+
+    return companyResearchPatterns.some((pattern) => pattern.test(text));
+  }
+
   if (!technicalFirstUserCopyPaths.has(path)) {
     return false;
   }

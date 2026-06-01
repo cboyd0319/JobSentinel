@@ -781,10 +781,9 @@ async function fetchCompanyInfo(companyName: string): Promise<CompanyInfo> {
   }
 
   // For unknown companies, return basic info
-  // In a real implementation, this would call external APIs
   const info: CompanyInfo = {
     name: companyName,
-    description: `Information about ${companyName} is being gathered. Check back later for more details.`,
+    description: `JobSentinel does not have local company details for ${companyName} yet.`,
   };
 
   // Cache even basic info to avoid repeated lookups
@@ -848,7 +847,7 @@ export const CompanyResearchPanel = memo(function CompanyResearchPanel({ company
   useEffect(() => {
     let cancelled = false;
 
-    // Show "taking longer than expected" after 5 seconds
+    // Show local lookup delay message after 5 seconds.
     const slowLoadingId = setTimeout(() => {
       if (!cancelled) {
         setTakingLong(true);
@@ -858,7 +857,7 @@ export const CompanyResearchPanel = memo(function CompanyResearchPanel({ company
     // Timeout to prevent infinite spinner
     const timeoutId = setTimeout(() => {
       if (!cancelled) {
-        setError('Request timed out. The company lookup is taking too long.');
+        setError('Company details are taking too long to show.');
         setLoading(false);
       }
     }, 15000);
@@ -875,7 +874,7 @@ export const CompanyResearchPanel = memo(function CompanyResearchPanel({ company
         }
       } catch {
         if (!cancelled) {
-          setError('Failed to load company information');
+          setError('Could not show company details.');
         }
       } finally {
         if (!cancelled) {
@@ -935,7 +934,7 @@ export const CompanyResearchPanel = memo(function CompanyResearchPanel({ company
             <LoadingSpinner />
             {takingLong && (
               <p className="mt-3 text-sm text-surface-500 dark:text-surface-400 text-center">
-                Taking longer than expected...
+                Still checking local company details...
               </p>
             )}
           </div>
@@ -948,7 +947,7 @@ export const CompanyResearchPanel = memo(function CompanyResearchPanel({ company
               onClick={handleRetry}
               className="mt-3"
             >
-              Retry
+              Try Again
             </Button>
           </div>
         ) : info ? (

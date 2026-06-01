@@ -178,8 +178,11 @@ describe("CompanyResearchPanel", () => {
       render(<CompanyResearchPanel companyName="SomeCompany" />);
 
       await waitFor(() => {
-        expect(screen.getByText(/Information about SomeCompany is being gathered/)).toBeInTheDocument();
+        expect(
+          screen.getByText(/JobSentinel does not have local company details for SomeCompany yet/),
+        ).toBeInTheDocument();
       });
+      expect(screen.queryByText(/being gathered|check back later/i)).not.toBeInTheDocument();
     });
   });
 

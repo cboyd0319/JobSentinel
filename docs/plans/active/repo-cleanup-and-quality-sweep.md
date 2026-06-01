@@ -519,6 +519,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-01 | In progress | Reworked Company Research unknown-company and slow-lookup copy so local fallback details are not described as being gathered in the background; added focused CompanyResearchPanel tests and product-copy coverage against stale request-timeout and gathering language. |
 | 2026-06-01 | In progress | Reworked Pay Protection range labels and salary-floor guidance from percentile shorthand to lower/middle/higher/highest-seen sample language, with focused Salary page tests and product-copy coverage against the old percentile jargon. |
 | 2026-06-01 | In progress | Replaced vague skill proficiency and salary seniority labels with behavior-based skill strength and role-stage wording across Resume, Resume Builder, Pay Protection, docs, and product-copy sensors. |
 | 2026-06-01 | In progress | Hardened browser import safety-code replay: the helper now refreshes safety codes on start, accepts exact import routes only, consumes a copied code after the first valid local import attempt, and documents that users should copy the browser button again after each saved job. |

@@ -596,6 +596,9 @@ Recent cleanup slices on `main` include:
 - Pay Protection range labels and salary-floor guidance now explain lower,
   middle, higher, and highest-seen sample evidence without requiring users to
   understand percentile shorthand.
+- Company Research unknown-company copy now says JobSentinel has no local
+  details yet instead of implying background gathering, and slow/error states
+  avoid request-timeout language.
 - Harness improvement from current public harness-engineering references and
   Persona/Bluepeak-AI sibling repo patterns.
 - Root README release/download accuracy update and WebKit slash-shortcut E2E

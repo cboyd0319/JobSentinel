@@ -528,6 +528,17 @@ test("product copy rejects technical-first settings copy", () => {
         "",
       ].join("\n"),
     );
+    writeFixtureFile(
+      root,
+      "src/components/CompanyResearchPanel.tsx",
+      [
+        "Information about TestCo is being gathered. Check back later for more details.",
+        "Request timed out. The company lookup is taking too long.",
+        "Failed to load company information",
+        "Taking longer than expected...",
+        "",
+      ].join("\n"),
+    );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(
@@ -573,6 +584,10 @@ test("product copy rejects technical-first settings copy", () => {
     );
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/components/CoverLetterTemplates.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/CompanyResearchPanel.tsx"),
       true,
     );
     assert.equal(
