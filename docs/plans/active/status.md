@@ -176,6 +176,11 @@ and record actionable findings in this active-plan surface.
   `npm run harness:score`, then wires the score into `harness:session` and
   `harness:check` so both WalkingLabs five-tuple models stay at 100/100 for
   repo-managed harness evidence.
+- Latest local docs-drift harness work moves the docs-drift violation messages
+  out of `scripts/check-repo-bloat.mjs` and into
+  `scripts/harness/checks/docs-drift.mjs` through
+  `collectDocsDriftViolations`; focused docs-drift coverage now verifies the
+  collector and `scripts/check-repo-bloat.mjs` is 921 lines.
 - Latest local E2E reliability work removes the hard sleep from keyboard
   search-focus coverage and expands the fixed-wait sensor from page objects to
   every active Playwright runtime file, while keeping screenshot-capture waits
@@ -275,8 +280,8 @@ and record actionable findings in this active-plan surface.
 1. Continue broad-audience fixture audit in less obvious fixture paths outside
    current sensors, while preserving tech-specific cases only when they test
    explicit branch behavior or source-realism parser contracts.
-2. Continue splitting oversized mixed sensors and consider the next
-   orchestration cleanup inside `scripts/check-repo-bloat.mjs`.
+2. Continue splitting oversized mixed sensors; the main bloat runner is now
+   921 lines after docs-drift orchestration moved into its module.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
 4. Continue broad-audience review so non-technical and technical job searches

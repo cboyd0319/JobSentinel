@@ -9,6 +9,7 @@ import {
   hasConfusingApplicationTrackingAtsLabel,
   hasConfusingResumeMatcherAiLabel,
   hasConfusingSalaryAiLabel,
+  collectDocsDriftViolations,
   collectMissingGrantFacingDocs,
   hasDeveloperArchitectureDocMarkers,
   hasDeveloperLayoutDocGlyphMarkers,
@@ -90,6 +91,20 @@ test("docs drift check rejects speculative cloud deployment docs", () => {
       true,
     );
     assert.equal(hasSpeculativeCloudDeploymentDoc(root, "docs/README.md"), false);
+  });
+});
+
+test("docs drift collector returns repo-bloat violation messages", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "docs/developer/ARCHITECTURE.md",
+      "Cloud Architecture (not implemented)\n",
+    );
+
+    assert.deepEqual(collectDocsDriftViolations(root, "docs/developer/ARCHITECTURE.md"), [
+      "remove speculative cloud deployment doc: docs/developer/ARCHITECTURE.md",
+    ]);
   });
 });
 

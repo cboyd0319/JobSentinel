@@ -750,3 +750,64 @@ export function hasStaleSmartScoringSalaryMarkerClaim(root, path) {
     /\*\*Implementation Status:\*\* ✅ Complete/.test(text)
   );
 }
+
+const docsDriftRules = [
+  [hasSpeculativeCloudDeploymentDoc, "remove speculative cloud deployment doc"],
+  [hasStaleInformalMaintainerFooter, "replace stale informal maintainer footer"],
+  [hasStaleHardcodedMigrationCount, "remove stale hardcoded migration count"],
+  [hasStaleIntegrationFixtureDirectoryClaim, "remove stale integration fixture directory claim"],
+  [hasStaleSchedulerWorkerPathDocs, "remove stale scheduler worker path docs"],
+  [hasStaleSchedulerScraperPathDocs, "remove stale scheduler scraper path docs"],
+  [hasStaleErrorHandlingScrapeAllDoc, "remove stale scrape_all error-handling doc"],
+  [hasStaleRefactoringPriorityTable, "remove stale refactoring-priority table"],
+  [hasStaleLinuxPlatformStubMarkers, "replace stale Linux platform stub markers"],
+  [hasStaleShippedFeatureStatusDoc, "remove stale shipped-feature status doc"],
+  [hasRoadmapStatusEmoji, "replace roadmap status emoji with text"],
+  [hasRoadmapVersionDrift, "replace roadmap version drift markers"],
+  [hasFrontDoorDocStaleFooter, "replace front-door doc stale footer"],
+  [hasDocsReadmeReleaseLogShape, "replace docs README release-log shape"],
+  [hasStaleUserDataExportRoadmapClaim, "remove stale user-data export roadmap claim"],
+  [hasStaleUserDataManagementDocShape, "sync user-data docs with local privacy guidance"],
+  [hasStaleCargoDenyIgnore, "remove stale cargo-deny advisory ignore"],
+  [hasOverbroadLocalStorageMigrationClaim, "replace overbroad localStorage migration claim"],
+  [hasDeepLinksEmojiOrVersionPromise, "replace Deep Links doc emoji/version promises"],
+  [hasQuickStartEmojiMarkers, "replace Quick Start doc emoji markers"],
+  [hasFrontDoorDocEmojiMarkers, "replace front-door doc emoji markers"],
+  [hasBookmarkletDocStatusEmojiMarkers, "replace bookmarklet doc status emoji markers"],
+  [hasFeatureStatusColorEmojiMarkers, "replace feature status color emoji markers"],
+  [hasFeatureDocMetadataFooter, "replace feature doc stale metadata"],
+  [hasSynonymOrRemotePreferenceDocDrift, "sync synonym and remote preference docs"],
+  [hasStaleTestQualityDocGuidance, "replace stale test-quality doc guidance"],
+  [hasDeveloperTestingDocMarkers, "replace developer testing doc stale markers"],
+  [hasDeveloperArchitectureDocMarkers, "replace developer architecture doc stale markers"],
+  [hasDeveloperMaintenanceDocDrift, "replace developer maintenance doc stale markers"],
+  [hasTopLevelActiveDocDrift, "replace top-level active doc stale markers"],
+  [hasTopLevelActiveDocGlyphMarkers, "replace top-level active doc glyph markers"],
+  [hasStaleE2eWaitGuidance, "replace stale E2E wait guidance"],
+  [hasFixedWaitInActiveE2eRuntime, "replace fixed E2E runtime wait"],
+  [hasStaleGettingStartedToolingDocs, "sync getting-started tooling docs"],
+  [hasStaleMacosDeveloperDocs, "sync macOS developer docs"],
+  [hasStaleSqliteConfigurationDoc, "sync SQLite configuration doc"],
+  [hasMarketIntelligenceDocGlyphMarkers, "replace Market Intelligence doc glyph/stale indicator markers"],
+  [hasStaleMarketIntelligenceDocShape, "sync Market Intelligence docs with local evidence guidance"],
+  [hasResumeOrSalaryFeatureDocEmojiMarkers, "replace resume and salary feature doc emoji markers"],
+  [hasStaleResumeMatcherDocShape, "sync resume matcher docs with live Resume page shape"],
+  [hasConfusingResumeMatcherAiLabel, "replace confusing Resume Matcher AI label"],
+  [hasConfusingSalaryAiLabel, "replace confusing Salary AI label"],
+  [hasSmartScoringDocGlyphMarkers, "replace smart scoring doc glyph markers"],
+  [hasNotificationsDocGlyphMarkers, "replace notifications doc glyph markers"],
+  [hasActiveUserDocGlyphMarkers, "replace active user doc glyph markers"],
+  [hasFeaturePlainDocGlyphMarkers, "replace feature doc glyph markers"],
+  [hasMaintainedDocGlyphMarkers, "replace maintained doc glyph markers"],
+  [hasDeveloperLayoutDocGlyphMarkers, "replace developer layout doc glyph markers"],
+  [hasStaleSalaryAiFutureUiClaim, "remove stale Salary AI future UI claim"],
+  [hasStaleApplicationTrackingDocClaims, "remove stale application tracking doc claims"],
+  [hasConfusingApplicationTrackingAtsLabel, "replace confusing application tracking ATS label"],
+  [hasStaleSmartScoringSalaryMarkerClaim, "remove stale smart-scoring salary marker claim"],
+];
+
+export function collectDocsDriftViolations(root, path) {
+  return docsDriftRules
+    .filter(([predicate]) => predicate(root, path))
+    .map(([, message]) => `${message}: ${path}`);
+}

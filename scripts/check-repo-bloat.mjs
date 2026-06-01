@@ -202,59 +202,8 @@ import {
   hasStaleProfilePreviewMock,
 } from "./harness/checks/ipc-minimization.mjs";
 import {
-  hasActiveUserDocGlyphMarkers,
-  hasBookmarkletDocStatusEmojiMarkers,
-  hasConfusingApplicationTrackingAtsLabel,
-  hasConfusingResumeMatcherAiLabel,
-  hasConfusingSalaryAiLabel,
+  collectDocsDriftViolations,
   collectMissingGrantFacingDocs,
-  hasDeepLinksEmojiOrVersionPromise,
-  hasDeveloperArchitectureDocMarkers,
-  hasDeveloperLayoutDocGlyphMarkers,
-  hasDeveloperMaintenanceDocDrift,
-  hasDeveloperTestingDocMarkers,
-  hasDocsReadmeReleaseLogShape,
-  hasFixedWaitInActiveE2eRuntime,
-  hasFeatureDocMetadataFooter,
-  hasFeaturePlainDocGlyphMarkers,
-  hasFeatureStatusColorEmojiMarkers,
-  hasFrontDoorDocEmojiMarkers,
-  hasFrontDoorDocStaleFooter,
-  hasMaintainedDocGlyphMarkers,
-  hasMarketIntelligenceDocGlyphMarkers,
-  hasNotificationsDocGlyphMarkers,
-  hasOverbroadLocalStorageMigrationClaim,
-  hasQuickStartEmojiMarkers,
-  hasResumeOrSalaryFeatureDocEmojiMarkers,
-  hasRoadmapStatusEmoji,
-  hasRoadmapVersionDrift,
-  hasSmartScoringDocGlyphMarkers,
-  hasSpeculativeCloudDeploymentDoc,
-  hasStaleCargoDenyIgnore,
-  hasStaleApplicationTrackingDocClaims,
-  hasStaleErrorHandlingScrapeAllDoc,
-  hasStaleE2eWaitGuidance,
-  hasStaleGettingStartedToolingDocs,
-  hasStaleHardcodedMigrationCount,
-  hasStaleInformalMaintainerFooter,
-  hasStaleIntegrationFixtureDirectoryClaim,
-  hasStaleLinuxPlatformStubMarkers,
-  hasStaleMacosDeveloperDocs,
-  hasStaleMarketIntelligenceDocShape,
-  hasStaleRefactoringPriorityTable,
-  hasStaleResumeMatcherDocShape,
-  hasStaleSalaryAiFutureUiClaim,
-  hasStaleSchedulerScraperPathDocs,
-  hasStaleSchedulerWorkerPathDocs,
-  hasStaleShippedFeatureStatusDoc,
-  hasStaleSqliteConfigurationDoc,
-  hasStaleSmartScoringSalaryMarkerClaim,
-  hasStaleTestQualityDocGuidance,
-  hasSynonymOrRemotePreferenceDocDrift,
-  hasTopLevelActiveDocDrift,
-  hasTopLevelActiveDocGlyphMarkers,
-  hasStaleUserDataExportRoadmapClaim,
-  hasStaleUserDataManagementDocShape,
 } from "./harness/checks/docs-drift.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
@@ -286,6 +235,10 @@ export function checkRepoBloat(root = defaultRoot) {
       violations.push(`remove tracked generated or disposable file: ${path}`);
     }
 
+    for (const violation of collectDocsDriftViolations(root, path)) {
+      violations.push(violation);
+    }
+
     if (hasUnreferencedSettingsHelperComponent(root, path)) {
       violations.push(`remove unreferenced settings helper component: ${path}`);
     }
@@ -308,90 +261,6 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasUnreferencedBarrelModule(root, path)) {
       violations.push(`remove unreferenced barrel module: ${path}`);
-    }
-
-    if (hasSpeculativeCloudDeploymentDoc(root, path)) {
-      violations.push(`remove speculative cloud deployment doc: ${path}`);
-    }
-
-    if (hasStaleInformalMaintainerFooter(root, path)) {
-      violations.push(`replace stale informal maintainer footer: ${path}`);
-    }
-
-    if (hasStaleHardcodedMigrationCount(root, path)) {
-      violations.push(`remove stale hardcoded migration count: ${path}`);
-    }
-
-    if (hasStaleIntegrationFixtureDirectoryClaim(root, path)) {
-      violations.push(`remove stale integration fixture directory claim: ${path}`);
-    }
-
-    if (hasStaleSchedulerWorkerPathDocs(root, path)) {
-      violations.push(`remove stale scheduler worker path docs: ${path}`);
-    }
-
-    if (hasStaleSchedulerScraperPathDocs(root, path)) {
-      violations.push(`remove stale scheduler scraper path docs: ${path}`);
-    }
-
-    if (hasStaleErrorHandlingScrapeAllDoc(root, path)) {
-      violations.push(`remove stale scrape_all error-handling doc: ${path}`);
-    }
-
-    if (hasStaleRefactoringPriorityTable(root, path)) {
-      violations.push(`remove stale refactoring-priority table: ${path}`);
-    }
-
-    if (hasStaleLinuxPlatformStubMarkers(root, path)) {
-      violations.push(`replace stale Linux platform stub markers: ${path}`);
-    }
-
-    if (hasStaleShippedFeatureStatusDoc(root, path)) {
-      violations.push(`remove stale shipped-feature status doc: ${path}`);
-    }
-
-    if (hasRoadmapStatusEmoji(root, path)) {
-      violations.push(`replace roadmap status emoji with text: ${path}`);
-    }
-
-    if (hasRoadmapVersionDrift(root, path)) {
-      violations.push(`replace roadmap version drift markers: ${path}`);
-    }
-
-    if (hasFrontDoorDocStaleFooter(root, path)) {
-      violations.push(`replace front-door doc stale footer: ${path}`);
-    }
-
-    if (hasDocsReadmeReleaseLogShape(root, path)) {
-      violations.push(`replace docs README release-log shape: ${path}`);
-    }
-
-    if (hasStaleUserDataExportRoadmapClaim(root, path)) {
-      violations.push(`remove stale user-data export roadmap claim: ${path}`);
-    }
-
-    if (hasStaleUserDataManagementDocShape(root, path)) {
-      violations.push(`sync user-data docs with local privacy guidance: ${path}`);
-    }
-
-    if (hasStaleCargoDenyIgnore(root, path)) {
-      violations.push(`remove stale cargo-deny advisory ignore: ${path}`);
-    }
-
-    if (hasOverbroadLocalStorageMigrationClaim(root, path)) {
-      violations.push(`replace overbroad localStorage migration claim: ${path}`);
-    }
-
-    if (hasDeepLinksEmojiOrVersionPromise(root, path)) {
-      violations.push(`replace Deep Links doc emoji/version promises: ${path}`);
-    }
-
-    if (hasQuickStartEmojiMarkers(root, path)) {
-      violations.push(`replace Quick Start doc emoji markers: ${path}`);
-    }
-
-    if (hasFrontDoorDocEmojiMarkers(root, path)) {
-      violations.push(`replace front-door doc emoji markers: ${path}`);
     }
 
     if (hasFrontDoorReleaseVersionPromise(root, path)) {
@@ -485,10 +354,6 @@ export function checkRepoBloat(root = defaultRoot) {
       violations.push(`replace frontend status emoji markers: ${path}`);
     }
 
-    if (hasBookmarkletDocStatusEmojiMarkers(root, path)) {
-      violations.push(`replace bookmarklet doc status emoji markers: ${path}`);
-    }
-
     if (hasScraperDocEmojiMarkers(root, path)) {
       violations.push(`replace scraper doc emoji markers: ${path}`);
     }
@@ -509,128 +374,8 @@ export function checkRepoBloat(root = defaultRoot) {
       violations.push(`keep source-health copy plain-language: ${path}`);
     }
 
-    if (hasFeatureStatusColorEmojiMarkers(root, path)) {
-      violations.push(`replace feature status color emoji markers: ${path}`);
-    }
-
-    if (hasFeatureDocMetadataFooter(root, path)) {
-      violations.push(`replace feature doc stale metadata: ${path}`);
-    }
-
-    if (hasSynonymOrRemotePreferenceDocDrift(root, path)) {
-      violations.push(`sync synonym and remote preference docs: ${path}`);
-    }
-
-    if (hasStaleTestQualityDocGuidance(root, path)) {
-      violations.push(`replace stale test-quality doc guidance: ${path}`);
-    }
-
-    if (hasDeveloperTestingDocMarkers(root, path)) {
-      violations.push(`replace developer testing doc stale markers: ${path}`);
-    }
-
-    if (hasDeveloperArchitectureDocMarkers(root, path)) {
-      violations.push(`replace developer architecture doc stale markers: ${path}`);
-    }
-
-    if (hasDeveloperMaintenanceDocDrift(root, path)) {
-      violations.push(`replace developer maintenance doc stale markers: ${path}`);
-    }
-
-    if (hasTopLevelActiveDocDrift(root, path)) {
-      violations.push(`replace top-level active doc stale markers: ${path}`);
-    }
-
-    if (hasTopLevelActiveDocGlyphMarkers(root, path)) {
-      violations.push(`replace top-level active doc glyph markers: ${path}`);
-    }
-
-    if (hasStaleE2eWaitGuidance(root, path)) {
-      violations.push(`replace stale E2E wait guidance: ${path}`);
-    }
-
-    if (hasFixedWaitInActiveE2eRuntime(root, path)) {
-      violations.push(`replace fixed E2E runtime wait: ${path}`);
-    }
-
     if (hasUnreferencedE2eTestHelper(root, path)) {
       violations.push(`remove unreferenced E2E test helper: ${path}`);
-    }
-
-    if (hasStaleGettingStartedToolingDocs(root, path)) {
-      violations.push(`sync getting-started tooling docs: ${path}`);
-    }
-
-    if (hasStaleMacosDeveloperDocs(root, path)) {
-      violations.push(`sync macOS developer docs: ${path}`);
-    }
-
-    if (hasStaleSqliteConfigurationDoc(root, path)) {
-      violations.push(`sync SQLite configuration doc: ${path}`);
-    }
-
-    if (hasMarketIntelligenceDocGlyphMarkers(root, path)) {
-      violations.push(`replace Market Intelligence doc glyph/stale indicator markers: ${path}`);
-    }
-
-    if (hasStaleMarketIntelligenceDocShape(root, path)) {
-      violations.push(`sync Market Intelligence docs with local evidence guidance: ${path}`);
-    }
-
-    if (hasResumeOrSalaryFeatureDocEmojiMarkers(root, path)) {
-      violations.push(`replace resume and salary feature doc emoji markers: ${path}`);
-    }
-
-    if (hasStaleResumeMatcherDocShape(root, path)) {
-      violations.push(`sync resume matcher docs with live Resume page shape: ${path}`);
-    }
-
-    if (hasConfusingResumeMatcherAiLabel(root, path)) {
-      violations.push(`replace confusing Resume Matcher AI label: ${path}`);
-    }
-
-    if (hasConfusingSalaryAiLabel(root, path)) {
-      violations.push(`replace confusing Salary AI label: ${path}`);
-    }
-
-    if (hasSmartScoringDocGlyphMarkers(root, path)) {
-      violations.push(`replace smart scoring doc glyph markers: ${path}`);
-    }
-
-    if (hasNotificationsDocGlyphMarkers(root, path)) {
-      violations.push(`replace notifications doc glyph markers: ${path}`);
-    }
-
-    if (hasActiveUserDocGlyphMarkers(root, path)) {
-      violations.push(`replace active user doc glyph markers: ${path}`);
-    }
-
-    if (hasFeaturePlainDocGlyphMarkers(root, path)) {
-      violations.push(`replace feature doc glyph markers: ${path}`);
-    }
-
-    if (hasMaintainedDocGlyphMarkers(root, path)) {
-      violations.push(`replace maintained doc glyph markers: ${path}`);
-    }
-
-    if (hasDeveloperLayoutDocGlyphMarkers(root, path)) {
-      violations.push(`replace developer layout doc glyph markers: ${path}`);
-    }
-
-    if (hasStaleSalaryAiFutureUiClaim(root, path)) {
-      violations.push(`remove stale Salary AI future UI claim: ${path}`);
-    }
-
-    if (hasStaleApplicationTrackingDocClaims(root, path)) {
-      violations.push(`remove stale application tracking doc claims: ${path}`);
-    }
-
-    if (hasConfusingApplicationTrackingAtsLabel(root, path)) {
-      violations.push(`replace confusing application tracking ATS label: ${path}`);
-    }
-
-    if (hasStaleSmartScoringSalaryMarkerClaim(root, path)) {
-      violations.push(`remove stale smart-scoring salary marker claim: ${path}`);
     }
 
     if (hasStaleScrapeAllStub(root, path)) {

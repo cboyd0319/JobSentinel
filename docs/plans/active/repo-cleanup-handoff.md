@@ -470,6 +470,17 @@ Latest five-tuple harness score slice checks on 2026-06-01:
 - `npm run lint:docs`
 - `git diff --check`
 
+Latest docs-drift harness modularity slice checks on 2026-06-01:
+
+- `node --check scripts/check-repo-bloat.mjs`
+- `node --check scripts/harness/checks/docs-drift.mjs`
+- `node --test scripts/check-docs-drift.test.mjs`
+- `node --test scripts/check-repo-bloat.test.mjs`
+- `npm run lint:bloat`
+- `npm run harness:check`
+- `npm run harness:score`
+- `wc -l scripts/check-repo-bloat.mjs scripts/harness/checks/docs-drift.mjs`
+
 Latest harness/readiness slice checks on 2026-05-31:
 
 - `node --check scripts/check-harness.mjs`
