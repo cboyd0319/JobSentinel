@@ -116,6 +116,13 @@ and record actionable findings in this active-plan surface.
   open JobSentinel to review those details locally. The unused generic desktop
   notification passthrough helper was removed, and privacy-logging coverage now
   blocks raw title/body notification passthrough from returning.
+- Latest local frontend error-report privacy follow-up expands renderer-side
+  report sanitization beyond credentials and URLs to sensitive job-search
+  context. Salary floors, resume text, private notes, application history,
+  screening questions/answers, location preferences, career goals, personal
+  circumstances, and labeled sensitive text now redact before local
+  persistence, console forwarding, or exported support reports. Privacy-logging
+  coverage requires those sanitizer categories.
 - Latest local privacy follow-up removes raw screening-question text and saved
   answer patterns from backend debug logs in Application Assist. Logs now keep
   only character counts for matched questions and patterns, and

@@ -84,6 +84,45 @@ describe("errorReporting", () => {
     expect((stored.context?.nested as Record<string, unknown>).webhook).toBe("[REDACTED]");
   });
 
+  it("redacts sensitive job-search context keys and labeled text", () => {
+    const report = errorReporter.captureCustom(
+      [
+        "salary floor: $85000",
+        "screening answer: I need flexibility for medical appointments",
+        "private notes: do not mention current employer",
+      ].join(" | "),
+      {
+        salaryFloor: 85000,
+        resumeText: "Full resume body",
+        privateNotes: "Layoff timing and private context",
+        applicationHistory: ["Quiet Search Inc."],
+        screeningAnswer: "I need remote work",
+        locationPreference: "Only near home",
+        nested: {
+          careerGoals: "Move into healthcare operations",
+        },
+      },
+    );
+
+    const serialized = JSON.stringify(report);
+
+    expect(serialized).toContain("salary floor: [REDACTED]");
+    expect(serialized).toContain("screening answer: [REDACTED]");
+    expect(serialized).toContain("private notes: [REDACTED]");
+    expect(report.context?.salaryFloor).toBe("[REDACTED]");
+    expect(report.context?.resumeText).toBe("[REDACTED]");
+    expect(report.context?.privateNotes).toBe("[REDACTED]");
+    expect(report.context?.applicationHistory).toBe("[REDACTED]");
+    expect(report.context?.screeningAnswer).toBe("[REDACTED]");
+    expect(report.context?.locationPreference).toBe("[REDACTED]");
+    expect((report.context?.nested as Record<string, unknown>).careerGoals).toBe("[REDACTED]");
+    expect(serialized).not.toContain("85000");
+    expect(serialized).not.toContain("Full resume body");
+    expect(serialized).not.toContain("Layoff timing");
+    expect(serialized).not.toContain("Quiet Search Inc.");
+    expect(serialized).not.toContain("medical appointments");
+  });
+
   it("uses sanitized reports in development console logging", () => {
     vi.stubEnv("DEV", true);
 

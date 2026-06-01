@@ -190,6 +190,12 @@ Current cleanup posture:
   salary notes, and reminder text stay inside JobSentinel. The unused generic
   desktop notification passthrough helper is removed and privacy-logging
   coverage blocks raw title/body notification payloads.
+- Current local frontend error-report privacy follow-up expands renderer-side
+  report sanitization beyond credentials and URLs. Salary floors, resume text,
+  private notes, application history, screening questions and answers, location
+  preferences, career goals, personal circumstances, and labeled sensitive text
+  now redact before local persistence, dev console forwarding, and exported
+  safe support reports; privacy-logging coverage rejects drift.
 - Current local privacy follow-up removes raw screening-question text and saved
   answer patterns from Application Assist debug logs. The trace now records
   only question/pattern character counts when a saved answer matches, and

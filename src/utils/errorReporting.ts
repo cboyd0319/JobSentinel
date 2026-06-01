@@ -24,7 +24,34 @@ const STORAGE_KEY = 'jobsentinel_error_logs';
 const MAX_CONTEXT_DEPTH = 4;
 const MAX_STORED_STRING_LENGTH = 1_000;
 
-const SENSITIVE_KEY_PATTERN = /(?:password|passwd|secret|token|api[_-]?key|cookie|webhook|authorization|credential|li_at)/i;
+const SENSITIVE_KEY_PATTERN = new RegExp(
+  [
+    "password",
+    "passwd",
+    "secret",
+    "token",
+    "api[_-]?key",
+    "cookie",
+    "webhook",
+    "authorization",
+    "credential",
+    "li_at",
+    "salary",
+    "compensation",
+    "resume",
+    "cover[_-]?letter",
+    "private[_-]?notes?",
+    "notes?",
+    "application[_-]?(?:history|notes?)?",
+    "screening[_-]?(?:question|answer)",
+    "question[_-]?text",
+    "answer[_-]?text",
+    "location[_-]?(?:preference|prefs?)?",
+    "career[_-]?goals?",
+    "personal[_-]?circumstances?",
+  ].join("|"),
+  "i",
+);
 const URL_PATTERN = /https?:\/\/[^\s"'<>\\)]+/gi;
 const USER_PATH_PATTERN = /\/(?:Users|home)\/[^/\s]+/g;
 const WINDOWS_USER_PATH_PATTERN = /[A-Za-z]:\\Users\\[^\\\s]+/g;
@@ -32,6 +59,11 @@ const EMAIL_PATTERN = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
 const LINKEDIN_COOKIE_PATTERN = /li_at=[^\s;]+/g;
 const TOKEN_PATTERN = /\b(?:Bearer\s+[^\s]+|token(?:\s+|=)[^\s&]+|api_key=[^\s&]+|access_token=[^\s&]+|refresh_token=[^\s&]+|secret=[^\s&]+|password=[^\s&]+)/gi;
 const WEBHOOK_PATTERN = /https:\/\/(?:hooks\.slack\.com|discord(?:app)?\.com\/api\/webhooks|outlook\.office(?:365)?\.com\/webhook|hooks\.discord\.com\/api\/webhooks|hooks\.teams\.com\/workflows)[^\s"'<>\\)]*/gi;
+const SENSITIVE_LABELED_TEXT_PATTERNS = [
+  /\b((?:salary|compensation)(?:[_ -]?(?:floor|expectation|range|preference|prefs?))?\s*[:=]\s*)[^\n\r;|]+/gi,
+  /\b((?:resume|cover letter)(?:[_ -]?(?:text|data|content|summary))?\s*[:=]\s*)[^\n\r;|]+/gi,
+  /\b((?:private notes?|application history|application notes?|screening question|screening answer|answer text|question text|career goals?|personal circumstances?)\s*[:=]\s*)[^\n\r;|]+/gi,
+];
 
 function truncateStoredString(value: string): string {
   if (value.length <= MAX_STORED_STRING_LENGTH) {
@@ -64,6 +96,9 @@ export function sanitizeTextForStorage(value: string): string {
   sanitized = sanitized.replace(URL_PATTERN, (url) => sanitizeUrlForStorage(url));
   sanitized = sanitized.replace(EMAIL_PATTERN, '[EMAIL]');
   sanitized = sanitized.replace(TOKEN_PATTERN, '[TOKEN]');
+  for (const pattern of SENSITIVE_LABELED_TEXT_PATTERNS) {
+    sanitized = sanitized.replace(pattern, '$1[REDACTED]');
+  }
 
   return truncateStoredString(sanitized);
 }

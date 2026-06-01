@@ -237,6 +237,12 @@ boundaries, and harness modularity:
   preview tasks, and one-click application docs say human check instead of
   leading with CAPTCHA terminology, while still saying JobSentinel leaves that
   step to the user.
+- Expanded frontend error-report sanitization so sensitive job-search context
+  redacts before local persistence, dev console forwarding, and exported safe
+  support reports. The sanitizer now covers salary floors, resume text, private
+  notes, application history, screening questions and answers, location
+  preferences, career goals, personal circumstances, and labeled sensitive text,
+  with focused unit and privacy-logging harness coverage.
 - Fixed Dashboard salary filtering so users enter full yearly dollars instead
   of `$K` shorthand. The filter logic now compares against stored yearly
   salaries directly, the UI labels say yearly salary, current-filter summaries

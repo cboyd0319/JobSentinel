@@ -306,7 +306,11 @@ export function hasUnsanitizedFrontendErrorReportStorage(root, path) {
     !/token\(\?:\\s\+\|=\)/.test(text) ||
     text.includes("hooks\\.slack\\.com\\/services") ||
     !text.includes("discord(?:app)?\\.com\\/api\\/webhooks") ||
-    !text.includes("outlook\\.office(?:365)?\\.com\\/webhook")
+    !text.includes("outlook\\.office(?:365)?\\.com\\/webhook") ||
+    !/salary/.test(text) ||
+    !text.includes("screening[_-]?(?:question|answer)") ||
+    !text.includes("private[_-]?notes?") ||
+    !text.includes("SENSITIVE_LABELED_TEXT_PATTERNS")
   );
 }
 
