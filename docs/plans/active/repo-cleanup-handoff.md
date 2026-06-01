@@ -1122,7 +1122,8 @@ Next high-value passes:
      result shapes.
    - The latest read-only security audit's Application Assist redirect/origin
      and external alert-reason findings are closed locally. JobsWithGPT
-     inspectable endpoint approval remains open as `SEC-019`.
+     exact-payload approval is landed locally; `SEC-019` remains open only for
+     a visible last-sent source-request summary if needed.
    - Keep no-bypass and local-first product rules intact.
 4. Continue frontend boundary review.
    - Recheck stored JSON parsing, URL validation, error rendering, direct

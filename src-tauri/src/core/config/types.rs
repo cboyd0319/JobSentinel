@@ -102,11 +102,19 @@ pub struct Config {
 
     /// Optional JobsWithGPT MCP endpoint URL.
     ///
-    /// Empty by default. When configured, scheduled source checks send saved
-    /// job titles, location, remote preference, and result limit to the
-    /// configured endpoint.
+    /// Empty by default. A configured endpoint is not enough to send data:
+    /// scheduled source checks also require a matching reviewed payload in
+    /// `jobswithgpt_approval`.
     #[serde(default = "super::defaults::default_jobswithgpt_endpoint")]
     pub jobswithgpt_endpoint: String,
+
+    /// Local approval record for the exact JobsWithGPT payload.
+    ///
+    /// This duplicates the reviewed public-source payload locally so the
+    /// scheduler can block silent sends after endpoint, title, or remote-setting
+    /// changes.
+    #[serde(default)]
+    pub jobswithgpt_approval: JobsWithGptApproval,
 
     /// Ghost job detection configuration
     #[serde(default)]
@@ -127,6 +135,66 @@ pub struct Config {
     /// Jobs from companies in this list receive very low scores
     #[serde(default)]
     pub company_blacklist: Vec<String>,
+}
+
+pub const JOBSWITHGPT_DEFAULT_LIMIT: usize = 100;
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct JobsWithGptPayload {
+    pub endpoint: String,
+    pub titles: Vec<String>,
+    #[serde(default)]
+    pub location: Option<String>,
+    pub remote_only: bool,
+    pub limit: usize,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct JobsWithGptApproval {
+    #[serde(default)]
+    pub enabled: bool,
+    #[serde(default)]
+    pub payload: Option<JobsWithGptPayload>,
+    #[serde(default)]
+    pub approved_at: Option<String>,
+}
+
+impl Config {
+    pub fn jobswithgpt_payload_preview(&self) -> Option<JobsWithGptPayload> {
+        let endpoint = self.jobswithgpt_endpoint.trim().to_string();
+        if endpoint.is_empty() {
+            return None;
+        }
+
+        let titles: Vec<String> = self
+            .title_allowlist
+            .iter()
+            .map(|title| title.trim())
+            .filter(|title| !title.is_empty())
+            .map(ToOwned::to_owned)
+            .collect();
+        if titles.is_empty() {
+            return None;
+        }
+
+        Some(JobsWithGptPayload {
+            endpoint,
+            titles,
+            location: None,
+            remote_only: self.location_preferences.allow_remote
+                && !self.location_preferences.allow_onsite,
+            limit: JOBSWITHGPT_DEFAULT_LIMIT,
+        })
+    }
+
+    pub fn jobswithgpt_payload_approved(&self) -> bool {
+        if !self.jobswithgpt_approval.enabled {
+            return false;
+        }
+
+        self.jobswithgpt_payload_preview()
+            .is_some_and(|payload| self.jobswithgpt_approval.payload.as_ref() == Some(&payload))
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

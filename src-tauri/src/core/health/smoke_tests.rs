@@ -424,15 +424,25 @@ async fn test_hn_hiring() -> Result<serde_json::Value> {
 }
 
 async fn test_jobswithgpt(config: &Config) -> Result<serde_json::Value> {
-    // JobsWithGPT is an MCP server - check if endpoint is configured
-    if config.jobswithgpt_endpoint.is_empty() {
+    let Some(payload) = config.jobswithgpt_payload_preview() else {
         return Ok(serde_json::json!({
             "status": "skipped",
-            "reason": "JobsWithGPT endpoint not configured"
+            "reason": "JobsWithGPT endpoint and reviewed payload not configured"
+        }));
+    };
+
+    if !config.jobswithgpt_payload_approved() {
+        return Ok(serde_json::json!({
+            "status": "skipped",
+            "reason": "JobsWithGPT payload has not been reviewed and approved",
+            "title_count": payload.titles.len(),
+            "has_location": payload.location.is_some(),
+            "remote_only": payload.remote_only,
+            "limit": payload.limit
         }));
     }
 
-    let endpoint = validate_external_http_url_for_fetch(&config.jobswithgpt_endpoint)
+    let endpoint = validate_external_http_url_for_fetch(&payload.endpoint)
         .await
         .map_err(|reason| anyhow::anyhow!("Invalid JobsWithGPT endpoint: {}", reason))?;
 

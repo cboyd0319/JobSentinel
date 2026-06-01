@@ -29,6 +29,7 @@ mod validation_tests {
             linkedin: LinkedInConfig::default(),
             auto_refresh: AutoRefreshConfig::default(),
             jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
+            jobswithgpt_approval: Default::default(),
             remoteok: Default::default(),
             weworkremotely: Default::default(),
             builtin: Default::default(),

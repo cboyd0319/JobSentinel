@@ -47,6 +47,7 @@ mod tests {
             linkedin: LinkedInConfig::default(),
             auto_refresh: Default::default(),
             jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
+            jobswithgpt_approval: Default::default(),
             remoteok: Default::default(),
             weworkremotely: Default::default(),
             builtin: Default::default(),
@@ -72,6 +73,30 @@ mod tests {
             validate_config(&config).is_ok(),
             "Valid config should pass validation"
         );
+    }
+
+    #[test]
+    fn test_jobswithgpt_payload_requires_exact_local_approval() {
+        let mut config = create_valid_config();
+        config.title_allowlist = vec!["  Case Manager  ".to_string(), String::new()];
+        config.location_preferences.allow_remote = true;
+        config.location_preferences.allow_onsite = false;
+
+        let payload = config
+            .jobswithgpt_payload_preview()
+            .expect("payload should exist when endpoint and titles are configured");
+
+        assert_eq!(payload.titles, vec!["Case Manager"]);
+        assert!(payload.remote_only);
+        assert_eq!(payload.limit, JOBSWITHGPT_DEFAULT_LIMIT);
+        assert!(!config.jobswithgpt_payload_approved());
+
+        config.jobswithgpt_approval.enabled = true;
+        config.jobswithgpt_approval.payload = Some(payload);
+        assert!(config.jobswithgpt_payload_approved());
+
+        config.title_allowlist = vec!["Program Coordinator".to_string()];
+        assert!(!config.jobswithgpt_payload_approved());
     }
 
     #[test]

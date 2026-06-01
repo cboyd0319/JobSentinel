@@ -42,6 +42,20 @@ interface SettingsProps {
   onClose: () => void;
 }
 
+interface JobsWithGptPayload {
+  endpoint: string;
+  titles: string[];
+  location?: string | null;
+  remote_only: boolean;
+  limit: number;
+}
+
+interface JobsWithGptApproval {
+  enabled: boolean;
+  payload?: JobsWithGptPayload | null;
+  approved_at?: string | null;
+}
+
 // Config interface without sensitive credential fields (stored in OS keyring)
 interface Config {
   title_allowlist: string[];
@@ -163,6 +177,8 @@ interface Config {
     location?: string;
     limit: number;
   };
+  jobswithgpt_endpoint: string;
+  jobswithgpt_approval: JobsWithGptApproval;
   use_resume_matching: boolean;
 }
 
@@ -238,6 +254,59 @@ const isValidDiscordWebhook = (url: string): boolean =>
 const isValidTeamsWebhook = (url: string): boolean =>
   validateTeamsWebhook(url) === undefined;
 
+function buildJobsWithGptPayload(config: Config): JobsWithGptPayload | null {
+  const endpoint = config.jobswithgpt_endpoint.trim();
+  const titles = config.title_allowlist
+    .map((title) => title.trim())
+    .filter((title) => title.length > 0);
+
+  if (!endpoint || titles.length === 0) {
+    return null;
+  }
+
+  return {
+    endpoint,
+    titles,
+    location: null,
+    remote_only:
+      config.location_preferences.allow_remote &&
+      !config.location_preferences.allow_onsite,
+    limit: 100,
+  };
+}
+
+function sameStringArray(left: string[], right: string[]): boolean {
+  return (
+    left.length === right.length &&
+    left.every((value, index) => value === right[index])
+  );
+}
+
+function sameJobsWithGptPayload(
+  left?: JobsWithGptPayload | null,
+  right?: JobsWithGptPayload | null,
+): boolean {
+  if (!left || !right) return false;
+
+  return (
+    left.endpoint === right.endpoint &&
+    sameStringArray(left.titles, right.titles) &&
+    (left.location ?? null) === (right.location ?? null) &&
+    left.remote_only === right.remote_only &&
+    left.limit === right.limit
+  );
+}
+
+function isCurrentJobsWithGptPayloadApproved(
+  config: Config,
+  payload: JobsWithGptPayload | null,
+): boolean {
+  return (
+    config.jobswithgpt_approval.enabled &&
+    sameJobsWithGptPayload(config.jobswithgpt_approval.payload, payload)
+  );
+}
+
 const isValidEmail = (email: string): boolean => {
   if (!email) return true;
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -276,6 +345,17 @@ function hasOptionalStringField(
   return record[field] === undefined || typeof record[field] === "string";
 }
 
+function hasOptionalNullableStringField(
+  record: Record<string, unknown>,
+  field: string,
+): boolean {
+  return (
+    record[field] === undefined ||
+    record[field] === null ||
+    typeof record[field] === "string"
+  );
+}
+
 function hasOptionalNumberField(
   record: Record<string, unknown>,
   field: string,
@@ -289,6 +369,19 @@ function recordField(
 ): Record<string, unknown> | null {
   const value = record[field];
   return isPlainRecord(value) ? value : null;
+}
+
+function isOptionalJobsWithGptPayload(value: unknown): boolean {
+  if (value === undefined || value === null) return true;
+  if (!isPlainRecord(value)) return false;
+
+  return (
+    hasStringField(value, "endpoint") &&
+    hasStringArrayField(value, "titles") &&
+    hasOptionalNullableStringField(value, "location") &&
+    hasBooleanField(value, "remote_only") &&
+    hasNumberField(value, "limit")
+  );
 }
 
 function isSettingsBackupConfig(value: unknown): value is Config {
@@ -313,6 +406,7 @@ function isSettingsBackupConfig(value: unknown): value is Config {
   const usajobs = recordField(value, "usajobs");
   const simplyhired = recordField(value, "simplyhired");
   const glassdoor = recordField(value, "glassdoor");
+  const jobswithgptApproval = recordField(value, "jobswithgpt_approval");
 
   return (
     hasStringArrayField(value, "title_allowlist") &&
@@ -408,6 +502,11 @@ function isSettingsBackupConfig(value: unknown): value is Config {
     hasStringField(glassdoor, "query") &&
     hasOptionalStringField(glassdoor, "location") &&
     hasNumberField(glassdoor, "limit") &&
+    hasStringField(value, "jobswithgpt_endpoint") &&
+    !!jobswithgptApproval &&
+    hasBooleanField(jobswithgptApproval, "enabled") &&
+    isOptionalJobsWithGptPayload(jobswithgptApproval.payload) &&
+    hasOptionalNullableStringField(jobswithgptApproval, "approved_at") &&
     hasBooleanField(value, "use_resume_matching")
   );
 }
@@ -844,6 +943,50 @@ export default function Settings({ onClose }: SettingsProps) {
     return recommendations.slice(0, 3); // Show max 3 recommendations
   }, [config]);
 
+  const jobsWithGptPayload = useMemo(
+    () => (config ? buildJobsWithGptPayload(config) : null),
+    [config],
+  );
+  const jobsWithGptPayloadApproved = useMemo(
+    () =>
+      config
+        ? isCurrentJobsWithGptPayloadApproved(config, jobsWithGptPayload)
+        : false,
+    [config, jobsWithGptPayload],
+  );
+  const hasJobsWithGptEndpoint = Boolean(
+    config?.jobswithgpt_endpoint?.trim(),
+  );
+  const hasJobsWithGptTitles = Boolean(
+    config?.title_allowlist.some((title) => title.trim().length > 0),
+  );
+
+  const approveJobsWithGptPayload = useCallback(() => {
+    if (!config || !jobsWithGptPayload) return;
+
+    setConfig({
+      ...config,
+      jobswithgpt_approval: {
+        enabled: true,
+        payload: jobsWithGptPayload,
+        approved_at: new Date().toISOString(),
+      },
+    });
+  }, [config, jobsWithGptPayload]);
+
+  const clearJobsWithGptApproval = useCallback(() => {
+    if (!config) return;
+
+    setConfig({
+      ...config,
+      jobswithgpt_approval: {
+        enabled: false,
+        payload: null,
+        approved_at: null,
+      },
+    });
+  }, [config]);
+
   const loadConfig = useCallback(async () => {
     try {
       setLoading(true);
@@ -852,6 +995,12 @@ export default function Settings({ onClose }: SettingsProps) {
       const configData = await invoke<Config>("get_config");
       setConfig({
         ...configData,
+        jobswithgpt_endpoint: configData.jobswithgpt_endpoint ?? "",
+        jobswithgpt_approval: configData.jobswithgpt_approval ?? {
+          enabled: false,
+          payload: null,
+          approved_at: null,
+        },
         linkedin: {
           ...configData.linkedin,
           enabled: false,
@@ -3286,10 +3435,92 @@ export default function Settings({ onClose }: SettingsProps) {
                   <summary className="p-4 cursor-pointer hover:bg-surface-50 dark:hover:bg-surface-800/50 font-medium text-surface-800 dark:text-surface-200 flex items-center gap-2">
                     <span>More Job Boards</span>
                     <span className="text-xs text-surface-500 dark:text-surface-400 font-normal">
-                      (6 additional sources)
+                      (optional sources)
                     </span>
                   </summary>
                   <div className="p-4 pt-0 space-y-4">
+                    {/* JobsWithGPT */}
+                    <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-3 gap-3">
+                        <div className="flex min-w-0 items-center gap-2">
+                          <SettingsSymbol icon="settings" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
+                          <span className="font-medium text-surface-800 dark:text-surface-200">
+                            JobsWithGPT
+                          </span>
+                          <Badge
+                            variant={jobsWithGptPayloadApproved ? "success" : "surface"}
+                            size="sm"
+                          >
+                            {jobsWithGptPayloadApproved ? "Approved" : "Review required"}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      <Input
+                        label="Optional source address"
+                        value={config.jobswithgpt_endpoint ?? ""}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            jobswithgpt_endpoint: e.target.value,
+                          })
+                        }
+                        placeholder="https://example.com/jobswithgpt"
+                        hint="Off until you approve the details below"
+                      />
+
+                      {hasJobsWithGptEndpoint && !hasJobsWithGptTitles && (
+                        <div className="mt-3 flex items-start gap-1.5 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2">
+                          <SettingsSymbol icon="warning" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+                          <span>
+                            Add at least one job title in Basic Settings before
+                            this source can be approved.
+                          </span>
+                        </div>
+                      )}
+
+                      {jobsWithGptPayload && (
+                        <div className="mt-3 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800/50 p-3">
+                          <p className="text-xs font-semibold text-surface-700 dark:text-surface-200 mb-2">
+                            Review before anything is sent
+                          </p>
+                          <dl className="grid grid-cols-1 gap-2 text-xs text-surface-600 dark:text-surface-300 sm:grid-cols-[8rem_1fr]">
+                            <dt className="font-medium">Endpoint</dt>
+                            <dd className="break-all">{jobsWithGptPayload.endpoint}</dd>
+                            <dt className="font-medium">Job titles</dt>
+                            <dd>{jobsWithGptPayload.titles.join(", ")}</dd>
+                            <dt className="font-medium">Location</dt>
+                            <dd>Not sent</dd>
+                            <dt className="font-medium">Remote filter</dt>
+                            <dd>
+                              {jobsWithGptPayload.remote_only
+                                ? "Remote only"
+                                : "Not remote-only"}
+                            </dd>
+                            <dt className="font-medium">Result limit</dt>
+                            <dd>{jobsWithGptPayload.limit}</dd>
+                          </dl>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <Button
+                              size="sm"
+                              variant={jobsWithGptPayloadApproved ? "secondary" : "primary"}
+                              onClick={approveJobsWithGptPayload}
+                            >
+                              Approve these exact details
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={clearJobsWithGptApproval}
+                              disabled={!config.jobswithgpt_approval.enabled}
+                            >
+                              Remove approval
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
                     {/* RemoteOK */}
                     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">

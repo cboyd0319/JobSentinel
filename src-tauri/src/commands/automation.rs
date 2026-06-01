@@ -17,9 +17,9 @@ use crate::core::automation::{
     ApplicationAttempt, ApplicationProfile, AtsPlatform, AutomationManager, AutomationStats,
     AutomationStatus,
 };
-use crate::core::url_security::{sanitize_url_for_logging, validate_external_http_url_for_fetch};
 #[cfg(test)]
 use crate::core::url_security::validate_external_http_url;
+use crate::core::url_security::{sanitize_url_for_logging, validate_external_http_url_for_fetch};
 use crate::platforms;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};

@@ -1331,11 +1331,37 @@ function hasConfiguredUrlList(configRecord: Record<string, unknown>, key: string
 function hasConfiguredJobsWithGpt(configRecord: Record<string, unknown>): boolean {
   const endpoint = configRecord.jobswithgpt_endpoint;
   const titles = configRecord.title_allowlist;
+  const approval = configRecord.jobswithgpt_approval;
+  if (
+    typeof endpoint !== "string" ||
+    endpoint.trim().length === 0 ||
+    !Array.isArray(titles)
+  ) {
+    return false;
+  }
+
+  const payloadTitles = titles
+    .filter((title): title is string => typeof title === "string")
+    .map((title) => title.trim())
+    .filter((title) => title.length > 0);
+  if (payloadTitles.length === 0 || !isRecord(approval)) return false;
+
+  const payload = approval.payload;
+  if (approval.enabled !== true || !isRecord(payload)) return false;
+  const locationPreferences = configRecord.location_preferences;
+  const remoteOnly =
+    isRecord(locationPreferences) &&
+    locationPreferences.allow_remote === true &&
+    locationPreferences.allow_onsite !== true;
+
   return (
-    typeof endpoint === "string" &&
-    endpoint.trim().length > 0 &&
-    Array.isArray(titles) &&
-    titles.some((title) => typeof title === "string" && title.trim().length > 0)
+    payload.endpoint === endpoint.trim() &&
+    Array.isArray(payload.titles) &&
+    payload.titles.length === payloadTitles.length &&
+    payload.titles.every((title, index) => title === payloadTitles[index]) &&
+    (payload.location ?? null) === null &&
+    payload.remote_only === remoteOnly &&
+    payload.limit === 100
   );
 }
 

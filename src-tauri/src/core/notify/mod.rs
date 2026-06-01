@@ -413,6 +413,7 @@ mod tests {
             lever_urls: vec![],
             linkedin: LinkedInConfig::default(),
             jobswithgpt_endpoint: String::new(),
+            jobswithgpt_approval: Default::default(),
             remoteok: Default::default(),
             weworkremotely: Default::default(),
             builtin: Default::default(),

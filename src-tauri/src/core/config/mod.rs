@@ -12,7 +12,8 @@ mod validation_error;
 // Re-export public types
 pub use types::{
     AlertConfig, AutoRefreshConfig, Config, DesktopConfig, DiscordConfig, EmailConfig,
-    LinkedInConfig, LocationPreferences, SlackConfig, TeamsConfig, TelegramConfig,
+    JobsWithGptApproval, JobsWithGptPayload, LinkedInConfig, LocationPreferences, SlackConfig,
+    TeamsConfig, TelegramConfig,
 };
 pub use validation_error::{ValidationError, ValidationErrors};
 

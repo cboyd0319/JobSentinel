@@ -190,19 +190,36 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
     }
 
     // 3. JobsWithGPT MCP scraper
-    if !config.title_allowlist.is_empty() && !config.jobswithgpt_endpoint.is_empty() {
-        let jobswithgpt_query = JobQuery {
-            titles: config.title_allowlist.clone(),
-            location: None,
-            remote_only: config.location_preferences.allow_remote
-                && !config.location_preferences.allow_onsite,
-            limit: 100,
-        };
+    if let Some(jobswithgpt_payload) = config.jobswithgpt_payload_preview() {
+        if !config.jobswithgpt_payload_approved() {
+            tracing::warn!(
+                source = "JobsWithGPT",
+                title_count = jobswithgpt_payload.titles.len(),
+                has_location = jobswithgpt_payload.location.is_some(),
+                remote_only = jobswithgpt_payload.remote_only,
+                limit = jobswithgpt_payload.limit,
+                "JobsWithGPT source check skipped because the exact payload has not been reviewed and approved"
+            );
+        } else {
+            let jobswithgpt_query = JobQuery {
+                titles: jobswithgpt_payload.titles.clone(),
+                location: jobswithgpt_payload.location.clone(),
+                remote_only: jobswithgpt_payload.remote_only,
+                limit: jobswithgpt_payload.limit,
+            };
 
-        let jobswithgpt =
-            JobsWithGptScraper::new(config.jobswithgpt_endpoint.clone(), jobswithgpt_query);
+            let jobswithgpt =
+                JobsWithGptScraper::new(jobswithgpt_payload.endpoint.clone(), jobswithgpt_query);
 
-        {
+            tracing::info!(
+                source = "JobsWithGPT",
+                title_count = jobswithgpt_payload.titles.len(),
+                has_location = jobswithgpt_payload.location.is_some(),
+                remote_only = jobswithgpt_payload.remote_only,
+                limit = jobswithgpt_payload.limit,
+                "JobsWithGPT source check approved; sending minimized payload"
+            );
+
             let _tid = crate::core::health::start_run(db, "jobswithgpt")
                 .await
                 .unwrap_or(0);

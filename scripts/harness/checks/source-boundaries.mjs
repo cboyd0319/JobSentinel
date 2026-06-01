@@ -43,6 +43,13 @@ const staleStackOverflowJobsPaths = new Set([
   "src-tauri/src/core/deeplinks/types.rs",
 ]);
 
+const jobsWithGptApprovalPaths = new Set([
+  "src-tauri/src/core/scheduler/workers/scrapers.rs",
+  "src-tauri/src/core/health/smoke_tests.rs",
+  "src/pages/Settings.tsx",
+  "src/mocks/handlers.ts",
+]);
+
 export function hasScraperDocEmojiMarkers(root, path) {
   if (path !== "docs/features/scrapers.md") {
     return false;
@@ -237,4 +244,30 @@ export function hasStaleStackOverflowJobsDeepLink(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
   return /Stack Overflow Jobs|stackoverflow\.com\/jobs|\bstackoverflow\b/i.test(text);
+}
+
+export function hasJobsWithGptUnapprovedEndpointFlow(root, path) {
+  if (!jobsWithGptApprovalPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+
+  if (path === "src-tauri/src/core/scheduler/workers/scrapers.rs") {
+    return /JobsWithGptScraper::new/.test(text) && !/jobswithgpt_payload_approved\(\)/.test(text);
+  }
+
+  if (path === "src-tauri/src/core/health/smoke_tests.rs") {
+    return /validate_external_http_url_for_fetch\(&config\.jobswithgpt_endpoint\)/.test(text);
+  }
+
+  if (path === "src/pages/Settings.tsx") {
+    return /jobswithgpt_endpoint/.test(text) && !/Approve these exact details/.test(text);
+  }
+
+  if (path === "src/mocks/handlers.ts") {
+    return /jobswithgpt_endpoint/.test(text) && !/jobswithgpt_approval/.test(text);
+  }
+
+  return false;
 }

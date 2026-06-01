@@ -49,7 +49,8 @@ Possible network activity:
 - Job-source checks to enabled sources and official public job feeds.
 - Optional user-configured job-source endpoints, such as JobsWithGPT, may
   receive the saved job titles, location, remote preference, and result limit
-  needed for that source check. These endpoints are off unless configured.
+  needed for that source check. These endpoints are off unless configured and
+  the exact payload has been reviewed and approved locally.
 - User-requested location detection through FreeIPAPI.
 - External alerts through configured Slack, Discord, Teams, Telegram, or email
   channels. Alert payloads may include public job details and match score, but

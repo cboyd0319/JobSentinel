@@ -51,7 +51,7 @@ Source health must follow the same rules for job sources:
 - For optional user-configured endpoints such as JobsWithGPT, disclose that
   JobsWithGPT receives only saved job titles, location, remote preference, and
   result limit for source checks. These endpoints must stay off unless
-  configured.
+  configured and the exact payload is reviewed and approved locally.
 
 LinkedIn is intentionally handled as a user-opened search-link destination. It
 should not appear as a background source, credential-renewal prompt, or source

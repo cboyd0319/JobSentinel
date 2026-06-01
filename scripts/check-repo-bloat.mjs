@@ -57,6 +57,7 @@ import {
 } from "./harness/checks/source-structure.mjs";
 import {
   hasFrontendDirectOpenDeepLinkFallback,
+  hasJobsWithGptUnapprovedEndpointFlow,
   hasLinkedInAutomationBoundaryDrift,
   hasLinkedInNotificationBoundaryDrift,
   hasScraperDocEmojiMarkers,
@@ -355,6 +356,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasFrontendDirectOpenDeepLinkFallback(root, path)) {
       violations.push(`route job URL opens through backend guard only: ${path}`);
+    }
+
+    if (hasJobsWithGptUnapprovedEndpointFlow(root, path)) {
+      violations.push(`require JobsWithGPT payload review before source checks: ${path}`);
     }
 
     if (hasOpaqueCommandUnitError(root, path)) {

@@ -38,6 +38,11 @@ and record actionable findings in this active-plan surface.
   page trust check. External alerts now keep raw local match reasons inside
   JobSentinel, and privacy-logging coverage rejects raw `score.reasons` in
   Slack, Discord, Teams, Telegram, or email payload code.
+- Latest local JobsWithGPT privacy follow-up requires a locally approved exact
+  payload before the scheduler or source-health checks can contact a
+  user-configured JobsWithGPT endpoint. Settings now previews endpoint, saved
+  titles, location, remote filter, and result limit before approval; source
+  checks skip stale or unapproved payloads and log only high-level metadata.
 - Latest local zero-technical copy follow-up rewords resume upload success,
   resume-app import docs, resume file privacy docs, screening-answer type
   labels, Telegram setup copy, notification troubleshooting, Dashboard filter
@@ -802,8 +807,9 @@ and record actionable findings in this active-plan surface.
 5. Continue backend/scraper and frontend privacy-edge review.
    The screening-answer IPC and ATS timeline findings from the latest read-only
    security audit are closed locally; continue looking for new issues as later
-   slices touch trust boundaries. JobsWithGPT inspectable endpoint approval is
-   tracked as `SEC-019`.
+   slices touch trust boundaries. JobsWithGPT approval enforcement is landed
+   locally; `SEC-019` remains open only for a visible last-sent summary if that
+   becomes necessary.
 6. Continue the next zero-technical-knowledge UX audit area outside
    support/reporting.
 7. Run final broad verification only when the remaining known work has evidence.

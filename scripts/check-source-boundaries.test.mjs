@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 import test from "node:test";
 import {
   hasFrontendDirectOpenDeepLinkFallback,
+  hasJobsWithGptUnapprovedEndpointFlow,
   hasLinkedInAutomationBoundaryDrift,
   hasLinkedInNotificationBoundaryDrift,
   hasScraperDocEmojiMarkers,
@@ -139,5 +140,45 @@ test("source boundaries reject discontinued source references", () => {
 
     assert.equal(hasStaleStackOverflowJobsDeepLink(root, "docs/user/DEEP_LINKS.md"), true);
     assert.equal(hasStaleStackOverflowJobsDeepLink(root, "docs/user/QUICK_START.md"), false);
+  });
+});
+
+test("source boundaries reject unapproved JobsWithGPT endpoint flows", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scheduler/workers/scrapers.rs",
+      "let jobswithgpt = JobsWithGptScraper::new(config.jobswithgpt_endpoint.clone(), query);\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/health/smoke_tests.rs",
+      "let endpoint = validate_external_http_url_for_fetch(&config.jobswithgpt_endpoint).await?;\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Settings.tsx",
+      "value={config.jobswithgpt_endpoint}\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      "const endpoint = configRecord.jobswithgpt_endpoint;\n",
+    );
+
+    assert.equal(
+      hasJobsWithGptUnapprovedEndpointFlow(
+        root,
+        "src-tauri/src/core/scheduler/workers/scrapers.rs",
+      ),
+      true,
+    );
+    assert.equal(
+      hasJobsWithGptUnapprovedEndpointFlow(root, "src-tauri/src/core/health/smoke_tests.rs"),
+      true,
+    );
+    assert.equal(hasJobsWithGptUnapprovedEndpointFlow(root, "src/pages/Settings.tsx"), true);
+    assert.equal(hasJobsWithGptUnapprovedEndpointFlow(root, "src/mocks/handlers.ts"), true);
+    assert.equal(hasJobsWithGptUnapprovedEndpointFlow(root, "docs/features/scrapers.md"), false);
   });
 });

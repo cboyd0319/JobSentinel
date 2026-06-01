@@ -32,6 +32,7 @@ fn create_test_config() -> Config {
         lever_urls: vec![],
         linkedin: Default::default(),
         jobswithgpt_endpoint: String::new(),
+        jobswithgpt_approval: Default::default(),
         remoteok: Default::default(),
         weworkremotely: Default::default(),
         builtin: Default::default(),
@@ -48,6 +49,11 @@ fn create_test_config() -> Config {
         salary_target_usd: None,
         penalize_missing_salary: false,
     }
+}
+
+fn approve_jobswithgpt_payload(config: &mut Config) {
+    config.jobswithgpt_approval.enabled = true;
+    config.jobswithgpt_approval.payload = config.jobswithgpt_payload_preview();
 }
 
 #[test]
@@ -1176,6 +1182,7 @@ async fn test_scraping_cycle_with_jobswithgpt_remote_only() {
     config.jobswithgpt_endpoint = "not-a-url".to_string();
     config.location_preferences.allow_remote = true;
     config.location_preferences.allow_onsite = false;
+    approve_jobswithgpt_payload(&mut config);
     let config = Arc::new(config);
     let db = Database::connect_memory().await.unwrap();
     db.migrate().await.unwrap();
@@ -1197,6 +1204,7 @@ async fn test_scraping_cycle_with_jobswithgpt_not_remote_only() {
     config.jobswithgpt_endpoint = "not-a-url".to_string();
     config.location_preferences.allow_remote = false;
     config.location_preferences.allow_onsite = true;
+    approve_jobswithgpt_payload(&mut config);
     let config = Arc::new(config);
     let db = Database::connect_memory().await.unwrap();
     db.migrate().await.unwrap();
@@ -1598,6 +1606,7 @@ async fn test_scraping_cycle_jobswithgpt_error_path() {
     config.jobswithgpt_endpoint = "not-a-url".to_string();
     config.location_preferences.allow_remote = true;
     config.location_preferences.allow_onsite = false;
+    approve_jobswithgpt_payload(&mut config);
     let config = Arc::new(config);
     let db = Database::connect_memory().await.unwrap();
     db.migrate().await.unwrap();
@@ -1643,6 +1652,7 @@ async fn test_scraping_cycle_all_scrapers_error_accumulation() {
     config.lever_urls = vec!["https://jobs.lever.co/error".to_string()];
     config.title_allowlist = vec!["Engineer".to_string()];
     config.jobswithgpt_endpoint = "not-a-url".to_string();
+    approve_jobswithgpt_payload(&mut config);
     config.linkedin.enabled = true;
     config.linkedin.session_cookie = "invalid".to_string();
     config.linkedin.query = "Engineer".to_string();

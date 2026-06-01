@@ -161,11 +161,7 @@ fn any_job_source_enabled(config: &Config) -> bool {
             .iter()
             .any(|url| !url.trim().is_empty())
         || config.lever_urls.iter().any(|url| !url.trim().is_empty())
-        || (!config.jobswithgpt_endpoint.trim().is_empty()
-            && config
-                .title_allowlist
-                .iter()
-                .any(|title| !title.trim().is_empty()))
+        || config.jobswithgpt_payload_approved()
 }
 
 /// Validate Slack webhook URL
@@ -318,6 +314,7 @@ mod tests {
             simplyhired: Default::default(),
             glassdoor: Default::default(),
             jobswithgpt_endpoint: String::new(),
+            jobswithgpt_approval: Default::default(),
             ghost_config: None,
             use_resume_matching: false,
             company_whitelist: vec![],
@@ -382,7 +379,14 @@ mod tests {
 
         let mut jobswithgpt = jobswithgpt_without_titles;
         jobswithgpt.title_allowlist = vec!["Case Manager".to_string()];
+        assert!(!any_job_source_enabled(&jobswithgpt));
+
+        jobswithgpt.jobswithgpt_approval.enabled = true;
+        jobswithgpt.jobswithgpt_approval.payload = jobswithgpt.jobswithgpt_payload_preview();
         assert!(any_job_source_enabled(&jobswithgpt));
+
+        jobswithgpt.title_allowlist = vec!["Program Coordinator".to_string()];
+        assert!(!any_job_source_enabled(&jobswithgpt));
     }
 
     #[test]

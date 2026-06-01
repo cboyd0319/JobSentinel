@@ -100,6 +100,12 @@ function makeConfig() {
     },
     simplyhired: { enabled: false, query: "", limit: 25 },
     glassdoor: { enabled: false, query: "", limit: 25 },
+    jobswithgpt_endpoint: "",
+    jobswithgpt_approval: {
+      enabled: false,
+      payload: null,
+      approved_at: null,
+    },
     use_resume_matching: false,
   };
 }
@@ -560,6 +566,70 @@ describe("Settings — handleSave flow", () => {
     });
 
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it("saves JobsWithGPT only after exact payload approval", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    const loadedConfig = {
+      ...makeConfig(),
+      title_allowlist: ["Case Manager"],
+    };
+    let savedConfig: ReturnType<typeof makeConfig> | null = null;
+
+    mockInvoke.mockImplementation(async (cmd: string, args?: unknown) => {
+      if (cmd === "get_config") return loadedConfig;
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      if (cmd === "save_config") {
+        savedConfig = (args as { config: ReturnType<typeof makeConfig> }).config;
+        return null;
+      }
+      return null;
+    });
+
+    render(<Settings onClose={onClose} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByText("More Job Boards"));
+    await user.type(
+      screen.getByLabelText("Optional source address"),
+      "https://api.jobswithgpt.example/mcp",
+    );
+
+    expect(
+      screen.getByText("Review before anything is sent"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Case Manager")).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: "Approve these exact details" }),
+    );
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
+
+    await waitFor(() => {
+      expect(mockToast.success).toHaveBeenCalledWith(
+        "Settings saved!",
+        expect.any(String),
+      );
+    });
+
+    expect(savedConfig?.jobswithgpt_endpoint).toBe(
+      "https://api.jobswithgpt.example/mcp",
+    );
+    expect(savedConfig?.jobswithgpt_approval.enabled).toBe(true);
+    expect(savedConfig?.jobswithgpt_approval.payload).toEqual({
+      endpoint: "https://api.jobswithgpt.example/mcp",
+      titles: ["Case Manager"],
+      location: null,
+      remote_only: true,
+      limit: 100,
+    });
   });
 
   it("shows error toast when save_config fails completely", async () => {

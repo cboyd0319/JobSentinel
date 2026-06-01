@@ -406,6 +406,7 @@ fn main() {
                     simplyhired: Default::default(),
                     glassdoor: Default::default(),
                     jobswithgpt_endpoint: String::new(),
+                    jobswithgpt_approval: Default::default(),
                     salary_target_usd: None,
                     penalize_missing_salary: false,
                     company_whitelist: vec![],
