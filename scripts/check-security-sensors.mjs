@@ -16,6 +16,17 @@ const requiredSecurityDocs = [
   "docs/security/WEBHOOK_SECURITY.md",
 ];
 
+const forbiddenRendererConnectHosts = [
+  "https://hooks.slack.com",
+  "https://discord.com",
+  "https://outlook.office.com",
+  "https://boards.greenhouse.io",
+  "https://boards-api.greenhouse.io",
+  "https://jobs.lever.co",
+  "https://api.lever.co",
+  "https://api.jobswithgpt.com",
+];
+
 const requiredMatrixEntries = [
   {
     label: "input validation",
@@ -92,6 +103,7 @@ export function formatSecuritySensorSummary() {
     "workflow=1",
     "ci=2",
     `ci-docs=${ciDocsChecks.length}`,
+    "renderer-csp=1",
   ].join(" ");
 }
 
@@ -130,6 +142,23 @@ export function checkSecuritySensors(root = defaultRoot) {
     if (!includesAll(ciDocs, check.phrases)) {
       violations.push(`CI/CD docs are missing security gate: ${check.label}`);
     }
+  }
+
+  const tauriConfigText = readIfExists(root, "src-tauri/tauri.conf.json", violations);
+  try {
+    const tauriConfig = JSON.parse(tauriConfigText);
+    const csp = tauriConfig?.app?.security?.csp;
+    if (typeof csp !== "string" || !csp.includes("connect-src 'self'")) {
+      violations.push("Tauri renderer CSP must keep connect-src restricted to self");
+    }
+
+    for (const host of forbiddenRendererConnectHosts) {
+      if (typeof csp === "string" && csp.includes(host)) {
+        violations.push(`Tauri renderer CSP must not allow external connect host: ${host}`);
+      }
+    }
+  } catch {
+    violations.push("src-tauri/tauri.conf.json must be valid JSON for security sensor check");
   }
 
   return violations;

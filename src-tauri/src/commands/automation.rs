@@ -17,40 +17,9 @@ use crate::core::automation::{
     ApplicationAttempt, ApplicationProfile, AtsPlatform, AutomationManager, AutomationStats,
     AutomationStatus,
 };
+use crate::core::url_security::{sanitize_url_for_logging, validate_external_http_url};
 use serde::{Deserialize, Serialize};
 use tauri::State;
-use url::Url;
-
-const MAX_LOG_URL_LEN: usize = 80;
-
-fn truncate_log_label(label: &str) -> String {
-    if label.len() <= MAX_LOG_URL_LEN {
-        return label.to_string();
-    }
-
-    let end = label
-        .char_indices()
-        .map(|(index, _)| index)
-        .take_while(|index| *index <= MAX_LOG_URL_LEN)
-        .last()
-        .unwrap_or(MAX_LOG_URL_LEN);
-
-    format!("{}...", &label[..end])
-}
-
-fn sanitize_automation_log_url(url: &str) -> String {
-    let Ok(mut parsed_url) = Url::parse(url) else {
-        return "<invalid-url>".to_string();
-    };
-
-    let _ = parsed_url.set_username("");
-    let _ = parsed_url.set_password(None);
-    parsed_url.set_query(None);
-    parsed_url.set_fragment(None);
-
-    let sanitized = parsed_url.to_string();
-    truncate_log_label(&sanitized)
-}
 
 fn resume_file_display_name(path: &str) -> Option<String> {
     let trimmed = path.trim();
@@ -461,7 +430,7 @@ pub async fn get_automation_stats(state: State<'_, AppState>) -> Result<Automati
 pub async fn detect_ats_platform(url: String) -> Result<AtsDetectionResponse, String> {
     tracing::info!(
         "Command: detect_ats_platform (url: {})",
-        sanitize_automation_log_url(&url)
+        sanitize_url_for_logging(&url)
     );
 
     let platform = AtsDetector::detect_from_url(&url);
@@ -559,9 +528,12 @@ pub async fn fill_application_form(
 ) -> Result<FillResultWithAttempt, String> {
     tracing::info!(
         "Command: fill_application_form (url: {})",
-        sanitize_automation_log_url(&job_url)
+        sanitize_url_for_logging(&job_url)
     );
     let start_time = std::time::Instant::now();
+    let job_url = validate_external_http_url(&job_url)
+        .map(|url| url.to_string())
+        .map_err(|reason| format!("Cannot open that job link. {reason}"))?;
 
     // Get profile
     let profile_manager = ProfileManager::new(state.database.pool().clone());
@@ -676,7 +648,7 @@ mod tests {
 
     #[test]
     fn test_sanitize_automation_log_url_removes_sensitive_parts() {
-        let sanitized = sanitize_automation_log_url(
+        let sanitized = sanitize_url_for_logging(
             "https://user:pass@example.com/jobs/123?token=secret&session=abc#private",
         );
 
@@ -686,7 +658,7 @@ mod tests {
     #[test]
     fn test_sanitize_automation_log_url_truncates_long_path() {
         let sanitized =
-            sanitize_automation_log_url(&format!("https://example.com/jobs/{}", "a".repeat(120)));
+            sanitize_url_for_logging(&format!("https://example.com/jobs/{}", "a".repeat(120)));
 
         assert!(sanitized.starts_with("https://example.com/jobs/"));
         assert!(sanitized.ends_with("..."));
@@ -695,18 +667,9 @@ mod tests {
 
     #[test]
     fn test_sanitize_automation_log_url_handles_invalid_url() {
-        let sanitized = sanitize_automation_log_url("not a url with token=secret");
+        let sanitized = sanitize_url_for_logging("not a url with token=secret");
 
         assert_eq!(sanitized, "<invalid-url>");
-    }
-
-    #[test]
-    fn test_truncate_log_label_handles_unicode_boundaries() {
-        let label = format!("https://example.com/jobs/{}", "é".repeat(80));
-        let truncated = truncate_log_label(&label);
-
-        assert!(truncated.ends_with("..."));
-        assert!(truncated.is_char_boundary(truncated.len()));
     }
 }
 

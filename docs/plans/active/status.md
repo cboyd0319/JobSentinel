@@ -31,6 +31,11 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local privacy/security work tightens external output boundaries:
+  renderer CSP now keeps `connect-src 'self'`, saved job links and Application
+  Assist browser launches use the shared public HTTP(S) URL validator, and
+  alert email HTML escapes scraped job text plus validates job links before
+  creating `href` attributes. Focused Rust and harness tests cover these gates.
 - Latest local security work hardens user-controlled external URL fetches:
   shared URL validation now blocks private host suffixes and embedded private
   IP hostnames, user-entered job imports and JobsWithGPT use fetch-time DNS

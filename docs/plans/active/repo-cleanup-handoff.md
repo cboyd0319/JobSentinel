@@ -111,6 +111,12 @@ Current branch note:
 
 Current cleanup posture:
 
+- Current local security follow-up tightens external output boundaries:
+  renderer CSP keeps `connect-src 'self'`; saved job storage and Application
+  Assist browser launch use the shared public HTTP(S) URL validator; alert
+  email HTML escapes scraped job text and validates job links before rendering
+  them as clickable links; `npm run lint:security` now guards the self-only
+  renderer CSP.
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
 - `npm run harness:plan -- --since origin/main` now maps changed files to
   focused verification commands from the harness matrix.

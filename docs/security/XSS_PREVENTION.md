@@ -32,6 +32,8 @@ Treat these inputs as untrusted:
 - Imported resume JSON.
 - Job descriptions copied into resume tooling.
 - Template text and user-authored HTML-like content.
+- Scraped job titles, company names, locations, sources, URLs, and match
+  reasons rendered into notification emails.
 
 ## What DOMPurify Blocks
 
@@ -159,6 +161,8 @@ DOMPurify sanitizes HTML. Other contexts need different controls:
 - URLs: parse with structured URL APIs and enforce allowlists.
 - File paths: canonicalize and enforce allowed directories.
 - Logs and feedback reports: redact sensitive values before storage.
+- Email HTML: escape text and attribute values before formatting scraped job
+  content, and validate links before placing them in `href` attributes.
 
 ## Known Limits
 

@@ -145,10 +145,7 @@ mod tests {
 
         let result = db.upsert_job(&job).await;
         assert!(result.is_err(), "javascript: URL should be rejected");
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Invalid URL protocol"));
+        assert!(result.unwrap_err().to_string().contains("Blocked scheme"));
 
         // Test data: protocol
         job.url = "data:text/html,<script>alert('xss')</script>".to_string();
@@ -170,6 +167,24 @@ mod tests {
         job.url = "http://example.com/job/456".to_string();
         let result = db.upsert_job(&job).await;
         assert!(result.is_ok(), "http:// URL should be accepted");
+    }
+
+    #[tokio::test]
+    async fn test_upsert_job_rejects_non_public_urls() {
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+
+        for (hash, url) in [
+            ("hash_localhost", "http://localhost:3000/job"),
+            ("hash_private", "http://192.168.1.10/internal"),
+            ("hash_userinfo", "https://user:pass@example.com/job"),
+        ] {
+            let mut job = create_test_job(hash, "Test Job", 0.9);
+            job.url = url.to_string();
+
+            let result = db.upsert_job(&job).await;
+            assert!(result.is_err(), "{url} should be rejected");
+        }
     }
 
     #[tokio::test]

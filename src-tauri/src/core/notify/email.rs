@@ -4,6 +4,7 @@
 
 use super::Notification;
 use crate::core::config::EmailConfig;
+use crate::core::url_security::validate_external_http_url;
 use anyhow::{anyhow, Context, Result};
 use lettre::{
     message::{header::ContentType, Mailbox},
@@ -83,6 +84,10 @@ pub async fn send_email_notification(
 
 /// Format email as HTML
 fn format_html_email(job: &crate::core::db::Job, score: &crate::core::scoring::JobScore) -> String {
+    let title = escape_html(&job.title);
+    let company = escape_html(&job.company);
+    let location = escape_html(job.location.as_deref().unwrap_or("N/A"));
+    let source = escape_html(&job.source);
     let salary_display = if let (Some(min), Some(max)) = (job.salary_min, job.salary_max) {
         format!("${},000 - ${},000", min / 1000, max / 1000)
     } else if let Some(min) = job.salary_min {
@@ -90,6 +95,30 @@ fn format_html_email(job: &crate::core::db::Job, score: &crate::core::scoring::J
     } else {
         "Not specified".to_string()
     };
+    let salary_display = escape_html(&salary_display);
+
+    let reason_items = score
+        .reasons
+        .iter()
+        .map(|r| format!("<li>{}</li>", escape_html(r)))
+        .collect::<Vec<_>>()
+        .join("\n                    ");
+
+    let job_link = validated_job_href(&job.url)
+        .map(|href| {
+            format!(
+                r#"<a href="{}" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 16px;">
+                    View Full Job Posting
+                </a>"#,
+                escape_html(&href)
+            )
+        })
+        .unwrap_or_else(|| {
+            r#"<span style="display: inline-block; background: #6b7280; color: white; padding: 12px 32px; border-radius: 6px; font-weight: 600; font-size: 16px;">
+                    Open this job in JobSentinel
+                </span>"#
+                .to_string()
+        });
 
     let remote_badge = if job.remote.unwrap_or(false) {
         r#"<span style="background: #10b981; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">🌍 REMOTE</span>"#
@@ -165,9 +194,7 @@ fn format_html_email(job: &crate::core::db::Job, score: &crate::core::scoring::J
             </div>
 
             <div style="text-align: center; margin-top: 30px;">
-                <a href="{}" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 16px;">
-                    View Full Job Posting
-                </a>
+                {}
             </div>
         </div>
 
@@ -178,22 +205,31 @@ fn format_html_email(job: &crate::core::db::Job, score: &crate::core::scoring::J
     </div>
 </body>
 </html>"#,
-        job.title,
+        title,
         (score.total * 100.0).round(),
         remote_badge,
-        job.company,
-        job.location.as_deref().unwrap_or("N/A"),
+        company,
+        location,
         salary_display,
-        job.source,
-        score
-            .reasons
-            .iter()
-            .map(|r| format!("<li>{}</li>", r))
-            .collect::<Vec<_>>()
-            .join("\n                    "),
-        job.url,
+        source,
+        reason_items,
+        job_link,
         score.total * 100.0,
     )
+}
+
+fn validated_job_href(url: &str) -> Option<String> {
+    validate_external_http_url(url)
+        .ok()
+        .map(|validated| validated.to_string())
+}
+
+fn escape_html(s: &str) -> String {
+    s.replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
+        .replace('\'', "&#39;")
 }
 
 /// Format email as plain text (fallback for non-HTML clients)
@@ -641,9 +677,8 @@ mod tests {
 
         let html = format_html_email(&notification.job, &notification.score);
 
-        // Should contain the special characters as-is (not HTML-escaped in this implementation)
-        assert!(html.contains("Care Coordinator & Intake Lead"));
-        assert!(html.contains("Community Care Network <North Clinic>"));
+        assert!(html.contains("Care Coordinator &amp; Intake Lead"));
+        assert!(html.contains("Community Care Network &lt;North Clinic&gt;"));
     }
 
     #[test]
@@ -791,9 +826,20 @@ mod tests {
 
         let html = format_html_email(&notification.job, &notification.score);
 
-        assert!(
-            html.contains("href=\"https://example.com/jobs/123?utm_source=jobsentinel&ref=alert\"")
-        );
+        assert!(html.contains(
+            "href=\"https://example.com/jobs/123?utm_source=jobsentinel&amp;ref=alert\""
+        ));
+    }
+
+    #[test]
+    fn test_html_email_omits_invalid_job_href() {
+        let mut notification = create_test_notification();
+        notification.job.url = "http://localhost:3000/private".to_string();
+
+        let html = format_html_email(&notification.job, &notification.score);
+
+        assert!(!html.contains("href=\"http://localhost:3000/private\""));
+        assert!(html.contains("Open this job in JobSentinel"));
     }
 
     #[test]
@@ -1047,9 +1093,8 @@ mod tests {
 
         let html = format_html_email(&notification.job, &notification.score);
 
-        // Should preserve the text as-is (no HTML escaping in this implementation)
-        assert!(html.contains("Matches <keyword>"));
-        assert!(html.contains("Has & symbol"));
+        assert!(html.contains("Matches &lt;keyword&gt;"));
+        assert!(html.contains("Has &amp; symbol"));
     }
 
     #[test]

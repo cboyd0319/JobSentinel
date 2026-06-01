@@ -161,8 +161,16 @@ Required process:
 ## Current Status
 
 As of 2026-06-01, the active plan remains open. Latest local work improved
-visible zero-technical UX, broad-audience defaults, and harness modularity:
+visible zero-technical UX, broad-audience defaults, privacy/security
+boundaries, and harness modularity:
 
+- Tightened external output boundaries after sub-agent security audit:
+  renderer CSP is self-only for `connect-src`, `Database::upsert_job` rejects
+  localhost/private/userinfo/non-HTTP job links before storage, Application
+  Assist validates job links before loading profile data or opening a browser
+  page, and alert email HTML escapes scraped job fields plus validates links
+  before rendering `href` attributes. `npm run lint:security` now checks that
+  known external hosts do not return to renderer CSP.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright

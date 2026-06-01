@@ -144,10 +144,18 @@ validate_webhook_url("https://hooks.slack.com.evil.com/webhook")
 `validate_external_http_url` is the shared backend guard for user-controlled external URLs.
 It is used by:
 
+- `src-tauri/src/core/db/crud.rs` before a job link is stored in SQLite.
+- `src-tauri/src/commands/automation.rs` before Application Assist opens a
+  visible review browser and loads local profile data.
 - `src-tauri/src/commands/deeplinks.rs` before opening a job URL in the user's browser.
 - `src-tauri/src/core/import/fetcher.rs` before fetching a user-supplied job page.
 - `src-tauri/src/core/config/validation.rs`, `src-tauri/src/core/scrapers/jobswithgpt.rs`,
   and `src-tauri/src/core/health/smoke_tests.rs` before using a configured JobsWithGPT endpoint.
+
+Saved jobs now use this shared guard instead of a string prefix check, so
+stored job links cannot target localhost, private networks, embedded
+credentials, or non-HTTP schemes. Application Assist also validates the job link
+before loading profile data or creating a browser page.
 
 Job import commands canonicalize the pasted URL before preview, fetch, duplicate
 hashing, and storage. Canonicalization removes embedded credentials, fragments,
@@ -175,6 +183,12 @@ Frontend code calls `openDeepLink()` through Tauri IPC instead of importing
 `@tauri-apps/plugin-shell` directly or falling back to `window.open()`. The
 default Tauri capability does not grant frontend `shell:allow-open`; browser-open
 requests must pass the backend URL guard.
+
+The Tauri renderer Content Security Policy keeps `connect-src 'self'`. External
+network activity, such as job-source checks or notification delivery, belongs in
+validated Rust IPC paths instead of direct renderer `fetch()` calls. The security
+sensor fails if known external job-source or webhook hosts are added back to the
+renderer CSP.
 
 ### Slack Webhooks
 

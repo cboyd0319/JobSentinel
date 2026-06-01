@@ -40,14 +40,14 @@ models, and best practices.
 | **Webhook Notifications** | URL parsing, HTTPS-only, allowlisting                | [WEBHOOK_SECURITY.md](./WEBHOOK_SECURITY.md)   |
 | **OCR (Resume Parsing)**  | Path canonicalization, no shell invocation           | [COMMAND_EXECUTION.md](./COMMAND_EXECUTION.md) |
 | **Database**              | SQLx parameterized queries, SQL injection prevention | [../../SECURITY.md](../../SECURITY.md)         |
-| **Network**               | TLS everywhere (rustls), no HTTP fallback            | [../../SECURITY.md](../../SECURITY.md)         |
+| **Network**               | TLS, backend URL guards, self-only renderer CSP      | [URL_VALIDATION.md](./URL_VALIDATION.md)       |
 
 ### Security by Threat
 
 | Threat                         | Mitigation                                  | Documentation                                  |
 | ------------------------------ | ------------------------------------------- | ---------------------------------------------- |
 | **XSS (Cross-Site Scripting)** | DOMPurify HTML sanitization                 | [XSS_PREVENTION.md](./XSS_PREVENTION.md)       |
-| **Data Exfiltration**          | Webhook URL validation, domain allowlisting | [WEBHOOK_SECURITY.md](./WEBHOOK_SECURITY.md)   |
+| **Data Exfiltration**          | Backend URL validation, webhook allowlisting, renderer CSP | [URL_VALIDATION.md](./URL_VALIDATION.md) |
 | **Command Injection**          | No shell invocation, argument validation    | [COMMAND_EXECUTION.md](./COMMAND_EXECUTION.md) |
 | **Path Traversal**             | Path canonicalization, directory validation | [COMMAND_EXECUTION.md](./COMMAND_EXECUTION.md) |
 | **URL Bypass Attacks**         | Proper URL parsing with `url` crate         | [URL_VALIDATION.md](./URL_VALIDATION.md)       |
@@ -142,8 +142,9 @@ cargo tarpaulin --out Html
 ```
 
 `npm run lint:security` checks that required security docs exist, that the
-verification matrix preserves security-specific sensors, and that CI plus CI/CD
-docs keep dependency audit and Rust advisory gates visible.
+verification matrix preserves security-specific sensors, that CI plus CI/CD
+docs keep dependency audit and Rust advisory gates visible, and that the Tauri
+renderer CSP keeps external network calls out of the frontend.
 
 ### Manual Security Testing
 

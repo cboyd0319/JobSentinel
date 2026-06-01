@@ -4,6 +4,7 @@
 
 use super::connection::Database;
 use super::types::Job;
+use crate::core::url_security::validate_external_http_url;
 use chrono::Utc;
 use sqlx;
 
@@ -60,13 +61,9 @@ impl Database {
             )));
         }
 
-        // Security: Validate URL protocol to prevent javascript: and other dangerous protocols
-        if !job.url.starts_with("https://") && !job.url.starts_with("http://") {
-            return Err(sqlx::Error::Protocol(format!(
-                "Invalid URL protocol. Job URLs must use http:// or https:// (got: {})",
-                job.url.chars().take(50).collect::<String>()
-            )));
-        }
+        let canonical_job_url = validate_external_http_url(&job.url)
+            .map(|url| url.to_string())
+            .map_err(|reason| sqlx::Error::Protocol(format!("Invalid job URL: {reason}")))?;
 
         if let Some(location) = &job.location {
             if location.len() > MAX_LOCATION_LENGTH {
@@ -126,7 +123,7 @@ impl Database {
             )
             .bind(&job.title)
             .bind(&job.company)
-            .bind(&job.url)
+            .bind(&canonical_job_url)
             .bind(&job.location)
             .bind(&job.description)
             .bind(job.score)
@@ -165,7 +162,7 @@ impl Database {
             .bind(&job.hash)
             .bind(&job.title)
             .bind(&job.company)
-            .bind(&job.url)
+            .bind(&canonical_job_url)
             .bind(&job.location)
             .bind(&job.description)
             .bind(job.score)
