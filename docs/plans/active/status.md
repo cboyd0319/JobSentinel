@@ -82,6 +82,10 @@ and record actionable findings in this active-plan surface.
   shared helper and uses it in job cards, Dashboard filters, saved-search
   summaries, comparison rows, and duplicate-review rows so raw source IDs such
   as `manual_import` stay out of visible user copy.
+- Latest local Application Assist follow-up changes the preview badge
+  accessible label from "Application tracking system" to "Application form" and
+  adds product-copy coverage so broad-audience assistive text does not drift
+  back to ATS jargon.
 - Latest local zero-technical provider setup work labels USAJobs as optional
   advanced federal monitoring with a no-setup browser-search path first, keeps
   Telegram bot details behind an advanced chat-alert path, and adds

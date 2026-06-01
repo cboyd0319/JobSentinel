@@ -308,6 +308,7 @@ export function hasApplicationAssistAutomationFraming(root, path) {
     new RegExp(["supports", "\\s+", "form", "\\s+", "automation"].join(""), "i"),
     new RegExp(["automation", "\\s+", "browser"].join(""), "i"),
     new RegExp(["Privacy-first", "\\s+", "job", "\\s+", "search", "\\s+", "automation"].join(""), "i"),
+    /aria-label=\{`Application tracking system:/i,
     /title=\{atsInfo\?\.automationNotes/i,
     /Settings\s*>\s*Application Assist/i,
     /Code profile/i,

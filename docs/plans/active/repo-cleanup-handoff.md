@@ -162,6 +162,9 @@ Current cleanup posture:
   helper and applies it to job cards, Dashboard source filters, saved-search
   summaries, comparison rows, and duplicate-review rows so raw source IDs do
   not leak into broad-audience copy.
+- Current local Application Assist follow-up changes the preview badge
+  accessible label from "Application tracking system" to "Application form" and
+  adds product-copy coverage against that user-facing ATS-jargon regression.
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
 - `npm run harness:plan -- --since origin/main` now maps changed files to
   focused verification commands from the harness matrix.

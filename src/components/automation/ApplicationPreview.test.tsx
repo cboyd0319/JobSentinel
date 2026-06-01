@@ -146,34 +146,35 @@ describe("ApplicationPreview", () => {
       });
     });
 
-    it("shows ATS badge when platform is known", async () => {
+    it("shows application form badge when platform is known", async () => {
       mockInvoke.mockResolvedValue(mockProfile);
 
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
         expect(screen.getByText("greenhouse")).toBeInTheDocument();
+        expect(screen.getByLabelText("Application form: greenhouse")).toBeInTheDocument();
       });
     });
 
-    it("does not show ATS badge when platform is unknown", async () => {
+    it("does not show application form badge when platform is unknown", async () => {
       mockInvoke.mockResolvedValue(mockProfile);
 
       render(<ApplicationPreview job={mockJob} atsPlatform="unknown" />);
 
       await waitFor(() => {
-        const badge = screen.queryByLabelText(/application tracking system/i);
+        const badge = screen.queryByLabelText(/application form/i);
         expect(badge).not.toBeInTheDocument();
       });
     });
 
-    it("does not show ATS badge when platform is null", async () => {
+    it("does not show application form badge when platform is null", async () => {
       mockInvoke.mockResolvedValue(mockProfile);
 
       render(<ApplicationPreview job={mockJob} atsPlatform={null} />);
 
       await waitFor(() => {
-        const badge = screen.queryByLabelText(/application tracking system/i);
+        const badge = screen.queryByLabelText(/application form/i);
         expect(badge).not.toBeInTheDocument();
       });
     });

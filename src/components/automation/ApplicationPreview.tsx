@@ -110,7 +110,7 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
             </p>
           </div>
           {atsPlatform && atsPlatform !== "unknown" && (
-            <Badge variant="surface" aria-label={`Application tracking system: ${atsPlatform}`}>{atsPlatform}</Badge>
+            <Badge variant="surface" aria-label={`Application form: ${atsPlatform}`}>{atsPlatform}</Badge>
           )}
         </div>
       </Card>

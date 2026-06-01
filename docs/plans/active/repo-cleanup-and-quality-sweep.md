@@ -212,6 +212,9 @@ boundaries, and harness modularity:
 - Reworked source labels into a shared helper used by job cards, Dashboard
   filters, saved-search summaries, comparison rows, and duplicate-review rows
   so raw source IDs such as `manual_import` are not visible to users.
+- Reworked the Application Assist preview badge accessible label from
+  "Application tracking system" to "Application form" and added product-copy
+  coverage against that user-facing ATS-jargon regression.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright

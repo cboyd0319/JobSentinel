@@ -78,6 +78,11 @@ test("product copy rejects application automation framing", () => {
       "src/components/automation/ApplyButton.tsx",
       "const badge = <span title={atsInfo?.automationNotes || undefined} />;\n",
     );
+    writeFixtureFile(
+      root,
+      "src/components/automation/ApplicationPreview.tsx",
+      'aria-label={`Application tracking system: ${atsPlatform}`}\n',
+    );
 
     assert.equal(
       hasApplicationAssistAutomationFraming(root, "docs/features/one-click-apply.md"),
@@ -85,6 +90,13 @@ test("product copy rejects application automation framing", () => {
     );
     assert.equal(
       hasApplicationAssistAutomationFraming(root, "src/components/automation/ApplyButton.tsx"),
+      true,
+    );
+    assert.equal(
+      hasApplicationAssistAutomationFraming(
+        root,
+        "src/components/automation/ApplicationPreview.tsx",
+      ),
       true,
     );
   });
