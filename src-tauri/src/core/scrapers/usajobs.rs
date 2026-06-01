@@ -91,7 +91,7 @@ impl UsaJobsScraper {
             pay_grade_max: None,
             date_posted_days: Some(30), // Default to last 30 days
             limit: 100,
-            rate_limiter: RateLimiter::new(),
+            rate_limiter: RateLimiter::shared(),
         }
     }
 

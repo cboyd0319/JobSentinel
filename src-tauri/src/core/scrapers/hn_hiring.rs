@@ -30,7 +30,7 @@ impl HnHiringScraper {
         Self {
             limit,
             remote_only,
-            rate_limiter: RateLimiter::new(),
+            rate_limiter: RateLimiter::shared(),
         }
     }
 

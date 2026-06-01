@@ -37,7 +37,7 @@ impl GreenhouseScraper {
     pub fn new(companies: Vec<GreenhouseCompany>) -> Self {
         Self {
             companies,
-            rate_limiter: RateLimiter::new(),
+            rate_limiter: RateLimiter::shared(),
         }
     }
 

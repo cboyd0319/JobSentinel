@@ -36,7 +36,7 @@ impl LeverScraper {
     pub fn new(companies: Vec<LeverCompany>) -> Self {
         Self {
             companies,
-            rate_limiter: RateLimiter::new(),
+            rate_limiter: RateLimiter::shared(),
         }
     }
 

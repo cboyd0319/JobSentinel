@@ -64,7 +64,7 @@ impl JobsWithGptScraper {
         Self {
             endpoint: endpoint.into(),
             query,
-            rate_limiter: RateLimiter::new(),
+            rate_limiter: RateLimiter::shared(),
         }
     }
 

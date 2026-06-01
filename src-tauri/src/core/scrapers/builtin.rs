@@ -40,7 +40,7 @@ impl BuiltInScraper {
         Self {
             remote_only,
             limit,
-            rate_limiter: RateLimiter::new(),
+            rate_limiter: RateLimiter::shared(),
         }
     }
 
@@ -55,7 +55,7 @@ impl BuiltInScraper {
         Self {
             remote_only: false,
             limit,
-            rate_limiter: RateLimiter::new(),
+            rate_limiter: RateLimiter::shared(),
         }
     }
 

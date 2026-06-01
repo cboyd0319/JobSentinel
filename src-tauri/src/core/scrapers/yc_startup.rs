@@ -38,7 +38,7 @@ impl YcStartupScraper {
             query,
             remote_only,
             limit,
-            rate_limiter: RateLimiter::new(),
+            rate_limiter: RateLimiter::shared(),
         }
     }
 

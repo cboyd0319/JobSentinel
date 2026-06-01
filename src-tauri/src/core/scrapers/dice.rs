@@ -32,7 +32,7 @@ impl DiceScraper {
             query: query.into(),
             location,
             limit,
-            rate_limiter: RateLimiter::new(),
+            rate_limiter: RateLimiter::shared(),
         }
     }
 

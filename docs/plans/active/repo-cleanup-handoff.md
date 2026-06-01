@@ -504,6 +504,9 @@ Recent cleanup slices on `main` include:
 - Latest local bookmarklet security follow-up routes browser-helper imports
   through public HTTP(S) URL validation and shared job storage validation,
   closing the raw insert bypass for unsafe URLs and oversize job fields.
+- Latest local scraper reliability follow-up moves production scraper
+  constructors to a process-wide shared rate limiter, preserving source
+  cooldown state across repeated manual runs and fresh scheduler instances.
 - Improved zero-technical support recovery by making local safe support report
   saving primary, keeping GitHub optional, adding safe support report actions to
   modal crash recovery, and updating notification setup docs.
@@ -807,9 +810,8 @@ Next high-value passes:
      provider-body leaks.
    - Recheck scraper request caps, retry handling, rate limits, and health
      result shapes.
-   - Continue the 2026-06-01 security audit follow-ups: bookmarklet
-     local-server token/CORS hardening and process-wide source cooldowns for
-     repeated manual runs.
+   - Continue the remaining 2026-06-01 security audit follow-up: bookmarklet
+     local-server token/CORS hardening.
    - Keep no-bypass and local-first product rules intact.
 4. Continue frontend boundary review.
    - Recheck stored JSON parsing, URL validation, error rendering, direct

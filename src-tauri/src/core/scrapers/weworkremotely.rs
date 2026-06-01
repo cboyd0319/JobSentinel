@@ -29,7 +29,7 @@ impl WeWorkRemotelyScraper {
         Self {
             category,
             limit,
-            rate_limiter: RateLimiter::new(),
+            rate_limiter: RateLimiter::shared(),
         }
     }
 

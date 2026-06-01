@@ -8,6 +8,9 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::sync::Mutex;
 
+static SHARED_RATE_LIMITER: once_cell::sync::Lazy<RateLimiter> =
+    once_cell::sync::Lazy::new(RateLimiter::new);
+
 /// Rate limiter using token bucket algorithm
 #[derive(Debug, Clone)]
 pub struct RateLimiter {
@@ -33,6 +36,12 @@ impl RateLimiter {
         Self {
             buckets: Arc::new(Mutex::new(HashMap::new())),
         }
+    }
+
+    /// Return the process-wide limiter used by production scraper instances.
+    #[must_use]
+    pub fn shared() -> Self {
+        SHARED_RATE_LIMITER.clone()
     }
 
     /// Wait until request is allowed for given scraper
@@ -207,6 +216,29 @@ mod tests {
         // Should allow first request immediately
         assert!(limiter.is_allowed("test", 10).await);
         assert!(limiter.is_allowed("test", 10).await);
+    }
+
+    #[tokio::test]
+    async fn test_shared_rate_limiter_reuses_buckets_across_handles() {
+        let source = format!(
+            "shared-test-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("system time should be after epoch")
+                .as_nanos()
+        );
+        let first = RateLimiter::shared();
+        let second = RateLimiter::shared();
+
+        first.reset(&source).await;
+        first.wait(&source, 1).await;
+
+        assert!(
+            !second.is_allowed(&source, 1).await,
+            "shared limiter should preserve exhausted bucket state"
+        );
+
+        first.reset(&source).await;
     }
 
     #[tokio::test]
