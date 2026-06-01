@@ -419,6 +419,40 @@ describe("api utilities", () => {
       }
     });
 
+    it("sanitizes optional support details before showing them in dev toast", async () => {
+      const error = new Error(
+        [
+          "Upload failed",
+          "/Users/chad/private/resume.pdf",
+          "token=raw-secret",
+          "chad@example.com",
+          "https://hooks.slack.com/services/T000/B000/secret",
+        ].join(" ")
+      );
+      mockInvoke.mockRejectedValueOnce(error);
+
+      const { safeInvokeWithToast } = await import("./api");
+
+      try {
+        await safeInvokeWithToast("cmd", undefined, mockToast, {
+          showTechnical: true,
+        });
+        expect.fail("Should have thrown");
+      } catch {
+        const [[, message]] = mockToast.error.mock.calls;
+        expect(message).toContain("Support details:");
+        expect(message).not.toContain("Technical:");
+        expect(message).not.toContain("/Users/chad");
+        expect(message).not.toContain("raw-secret");
+        expect(message).not.toContain("chad@example.com");
+        expect(message).not.toContain("hooks.slack.com/services/T000/B000/secret");
+        expect(message).toContain("[USER_PATH]");
+        expect(message).toContain("[TOKEN]");
+        expect(message).toContain("[EMAIL]");
+        expect(message).toContain("[WEBHOOK_CONFIGURED]");
+      }
+    });
+
     it("works with undefined args", async () => {
       mockInvoke.mockResolvedValueOnce({ ok: true });
 

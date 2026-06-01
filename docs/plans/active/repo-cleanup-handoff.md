@@ -99,6 +99,9 @@ Current branch note:
 - The current application-tracking UX slice changes visible "Ghosted" labels
   and actions to "No Response" wording while keeping legacy internal status
   keys for compatibility, with product-copy coverage against old labels.
+- The current toast privacy slice sanitizes optional dev support details before
+  toast display and adds privacy-logging harness coverage so raw enhanced error
+  messages cannot be shown through `safeInvokeWithToast`.
 - Continue using small verified commits. Avoid another remote CI run until the
   next explicit integration gate or full-goal completion pass.
 
@@ -247,6 +250,9 @@ Current cleanup posture:
 - Latest application-tracking UX follow-up changes visible "Ghosted" labels and
   actions to "No Response" wording while keeping legacy internal status keys for
   compatibility, with product-copy coverage against old labels.
+- Latest toast privacy follow-up sanitizes optional dev support details before
+  toast display and adds privacy-logging harness coverage against raw
+  `enhancedError.message` display in `safeInvokeWithToast`.
 - Latest IPC minimization work added `has_application_profile`,
   `get_application_profile_preview`, `get_dashboard_preferences`, canonical
   import URLs before preview/hash/storage, and minimized import responses to

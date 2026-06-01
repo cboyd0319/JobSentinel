@@ -340,6 +340,9 @@ and record actionable findings in this active-plan surface.
 - Latest local application-tracking UX work changes visible "Ghosted" labels
   and actions to "No Response" wording while keeping legacy internal status
   keys for compatibility, with product-copy coverage against old labels.
+- Latest local toast privacy work sanitizes optional dev support details before
+  toast display and adds privacy-logging harness coverage so raw enhanced error
+  messages cannot be shown through `safeInvokeWithToast`.
 - Latest local email-setup UX work changes the primary email alert path from
   server/password setup toward provider-first app-password guidance, hides
   sending server details behind Advanced, and updates notification docs so

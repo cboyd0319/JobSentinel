@@ -33,6 +33,7 @@ import {
   hasRawFrontendErrorHelperUserMessage,
   hasRawFrontendErrorReporterForwarding,
   hasRawFrontendSharedErrorLogging,
+  hasRawFrontendToastSupportDetails,
   hasRawImportBookmarkletCommandErrorDetails,
   hasRawImportHttpErrorReturn,
   hasRawImportRedirectDisplay,
@@ -294,6 +295,32 @@ test("privacy logging rejects raw shared and direct frontend error logging", () 
       true,
     );
     assert.equal(hasRawFrontendDirectErrorLogging(root, "src/utils/errorUtils.ts"), false);
+  });
+});
+
+test("privacy logging rejects raw frontend toast support details", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/utils/api.ts",
+      [
+        "const fullMessage = options?.showTechnical && import.meta.env.DEV && enhancedError.message",
+        '  ? `${message || "An error occurred"}\\n\\nTechnical: ${enhancedError.message}`',
+        "  : message;",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/utils/errorUtils.ts",
+      "const fullMessage = enhancedError.message;",
+    );
+
+    assert.equal(hasRawFrontendToastSupportDetails(root, "src/utils/api.ts"), true);
+    assert.equal(hasRawFrontendToastSupportDetails(root, "src/utils/errorUtils.ts"), false);
+    assert.deepEqual(collectPrivacyLoggingViolations(root, "src/utils/api.ts"), [
+      "sanitize frontend toast support details: src/utils/api.ts",
+    ]);
   });
 });
 

@@ -4,6 +4,7 @@ import { join } from "node:path";
 const frontendErrorReportingPaths = new Set(["src/utils/errorReporting.ts"]);
 const frontendErrorHelperDebugPaths = new Set(["src/utils/errorHelpers.ts"]);
 const frontendErrorUtilsPaths = new Set(["src/utils/errorUtils.ts"]);
+const frontendToastSupportDetailPaths = new Set(["src/utils/api.ts"]);
 const frontendDirectErrorLoggingPaths = new Set([
   "src/components/BookmarkletGenerator.tsx",
   "src/components/ComponentErrorBoundary.tsx",
@@ -356,6 +357,22 @@ export function hasRawFrontendSharedErrorLogging(root, path) {
     !text.includes("sanitizeLoggedError") ||
     !text.includes("sanitizeTextForStorage") ||
     !text.includes("sanitizeContext")
+  );
+}
+
+export function hasRawFrontendToastSupportDetails(root, path) {
+  if (!frontendToastSupportDetailPaths.has(path)) {
+    return false;
+  }
+
+  const text = stripTypeScriptComments(readFileSync(join(root, path), "utf8"));
+  const fullMessageStart = text.indexOf("const fullMessage");
+  const fullMessageBody =
+    fullMessageStart === -1 ? "" : text.slice(fullMessageStart, fullMessageStart + 800);
+
+  return (
+    /(?:Technical|Support details):\s*\$\{\s*enhancedError\.message\s*\}/.test(text) ||
+    /showTechnical[\s\S]{0,360}enhancedError\.message/.test(fullMessageBody)
   );
 }
 
@@ -1394,6 +1411,7 @@ const privacyLoggingViolationChecks = [
   [hasRawFrontendErrorReporterForwarding, "sanitize frontend error reporter console forwarding"],
   [hasRawFrontendErrorHelperDebugLogging, "sanitize frontend error helper debug logging"],
   [hasRawFrontendSharedErrorLogging, "sanitize shared frontend error logging"],
+  [hasRawFrontendToastSupportDetails, "sanitize frontend toast support details"],
   [
     hasRawFrontendDirectErrorLogging,
     "route frontend direct error logging through sanitized logger",

@@ -247,7 +247,7 @@ export async function safeInvokeWithToast<T>(
     logContext?: string;
     silent?: boolean;
     errorTitle?: string; // Custom error title
-    showTechnical?: boolean; // Show technical details in dev mode
+    showTechnical?: boolean; // Show sanitized support details in dev mode
   }
 ): Promise<T> {
   try {
@@ -256,16 +256,20 @@ export async function safeInvokeWithToast<T>(
   } catch (error: unknown) {
     // Extract user-friendly error
     const enhancedError = error as Error & {
-      userFriendly?: { title: string; message: string; action?: string };
+      userFriendly?: { title: string; message: string; action?: string; technical?: string };
     };
+    const { sanitizeTextForStorage } = await import("./errorReporting");
 
     const title = options?.errorTitle || enhancedError.userFriendly?.title || "Operation Failed";
     const message = enhancedError.userFriendly?.message;
     const action = enhancedError.userFriendly?.action;
+    const supportDetails =
+      enhancedError.userFriendly?.technical ||
+      (enhancedError.message ? sanitizeTextForStorage(enhancedError.message) : "");
 
-    // Show technical details in dev mode if requested
-    const fullMessage = options?.showTechnical && import.meta.env.DEV && enhancedError.message
-      ? `${message || "An error occurred"}\n\nTechnical: ${enhancedError.message}`
+    // Show sanitized support details in dev mode if requested.
+    const fullMessage = options?.showTechnical && import.meta.env.DEV && supportDetails
+      ? `${message || "An error occurred"}\n\nSupport details: ${supportDetails}`
       : action
         ? `${message}\n\n${action}`
         : message;

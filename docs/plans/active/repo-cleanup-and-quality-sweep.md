@@ -239,6 +239,10 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   and actions now use "No Response" wording while legacy internal status keys
   remain for compatibility, and product-copy harness coverage blocks old labels
   from returning.
+- Fixed additional toast privacy findings: optional dev support details now use
+  sanitized support text before toast display, and privacy-logging harness
+  coverage blocks raw enhanced error messages from reaching
+  `safeInvokeWithToast`.
 - Started broad-audience drift cleanup by rebalancing company autocomplete
   suggestions across healthcare, retail, logistics, finance, public service,
   education, hospitality, and technology; replacing tech-first placeholders and
@@ -354,6 +358,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-01 | In progress | Sanitized optional dev support details before toast display in `safeInvokeWithToast`; added focused API unit coverage and privacy-logging harness coverage against raw enhanced error messages. |
 | 2026-06-01 | In progress | Reworded notification settings source-rule, minimum-salary, save-failure, and loading-failure copy to plain alert-settings wording; added focused NotificationPreferences and product-copy coverage. |
 | 2026-06-01 | In progress | Reworded safe-support-report prompts, feedback modal steps, frontend activity labels, backend report type labels, and backend recent-activity lines to plain-language support copy; added product-copy harness coverage against old technical labels. |
 | 2026-06-01 | In progress | Reworded feedback choices from bug-report and feature-request labels to report-a-problem, suggest-an-improvement, and ask-a-question labels; added focused CategorySelector tests. |
