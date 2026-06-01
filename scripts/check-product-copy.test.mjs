@@ -581,7 +581,12 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/Dashboard.tsx",
-      "Scanning job boards...\nScan complete!\n",
+      'Scanning job boards...\nScan complete!\ntoast.error("Failed to open link", "Unable to open the job link")\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/JobCard.tsx",
+      'toast.error("Failed to open link", "Unable to open the job link")\n',
     );
     writeFixtureFile(
       root,
@@ -703,6 +708,7 @@ test("product copy rejects technical-first settings copy", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/errorMessages.ts"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Dashboard.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/JobCard.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/DashboardUI/DashboardHeader.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/SetupWizard.tsx"), true);

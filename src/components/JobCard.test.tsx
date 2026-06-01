@@ -543,6 +543,11 @@ describe("JobCard", () => {
       await vi.waitFor(() => {
         expect(mockWindowOpen).not.toHaveBeenCalled();
       });
+      expect(await screen.findByText("Could not open job link")).toBeInTheDocument();
+      expect(
+        screen.getByText("Copy the link and open it in your browser."),
+      ).toBeInTheDocument();
+      expect(screen.queryByText("Failed to open link")).not.toBeInTheDocument();
     });
 
     it("has different styling for good match jobs", () => {

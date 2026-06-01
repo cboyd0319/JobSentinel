@@ -157,6 +157,10 @@ and record actionable findings in this active-plan surface.
   remaining `Failed to...` and `Please fix the errors` labels in profile and
   saved-answer flows with `Could not...` and `Check highlighted fields`
   wording, with focused component tests and product-copy coverage.
+- Latest local job-link recovery-copy follow-up replaces remaining
+  `Failed to open link` / `Unable to open the job link` toasts with
+  `Could not open job link` and browser-copy guidance across job cards and the
+  Dashboard keyboard-open path, with JobCard and product-copy coverage.
 - Latest local Application Assist readiness follow-up stops optional
   application-form detection from blocking the Prepare Form action. If form
   recognition is still loading, users with a saved profile can still open the

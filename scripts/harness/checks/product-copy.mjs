@@ -1032,6 +1032,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Auto-scan job boards/i,
     /Company preference \(if configured\)|configured preferences/i,
     /Failed to load application history/i,
+    /Failed to open link/i,
+    /Unable to open the job link/i,
     /toast\.success\(["'`]Success["'`]/i,
     /toast\.error\(["'`]Error["'`],\s*errorMessage/i,
     /Import Job from URL/i,

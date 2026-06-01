@@ -201,6 +201,10 @@ Current cleanup posture:
   profile load, resume selection, validation, save, and saved-answer loading
   failures away from `Failed to...` and `Please fix the errors` labels.
   Focused component tests and product-copy sensors cover the old phrasing.
+- Current local job-link recovery-copy follow-up changes remaining
+  `Failed to open link` / `Unable to open the job link` toasts in job-card and
+  Dashboard keyboard-open paths to plain browser-copy recovery guidance.
+  JobCard tests and product-copy sensors cover the old phrasing.
 - Current local skill-label follow-up replaces vague self-rating labels such as
   beginner, intermediate, advanced, expert, and seniority level with
   behavior-based skill strength and role-stage copy across Resume, Resume

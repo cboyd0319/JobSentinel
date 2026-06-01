@@ -298,6 +298,10 @@ boundaries, and harness modularity:
   that still used `Failed to...` or `Please fix the errors` wording. The UI
   now uses plain `Could not...` and `Check highlighted fields` recovery labels,
   with focused component tests and product-copy coverage against old wording.
+- Fixed remaining job-link open recovery copy that still used `Failed to open
+  link` and `Unable to open the job link`. Job cards and Dashboard keyboard
+  opening now give plain browser-copy guidance, with JobCard tests and
+  product-copy coverage against old wording.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright

@@ -175,7 +175,7 @@ export const JobCard = memo(function JobCard({
       await openDeepLink(url);
     } catch (err: unknown) {
       logError("Failed to open job link via Tauri command:", err);
-      toast.error("Failed to open link", "Unable to open the job link");
+      toast.error("Could not open job link", "Copy the link and open it in your browser.");
     }
   };
 
