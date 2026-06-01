@@ -591,6 +591,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Proficiency Distribution/i,
       /Proficiency level/i,
       /PROFICIENCY_LEVELS\s*=\s*\[[^\]]*Beginner[^\]]*Expert/i,
+      /Failed to load resume/i,
     ];
 
     if (resumePagePatterns.some((pattern) => pattern.test(text))) {
@@ -608,6 +609,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Select level/i,
       /PROFICIENCY_LEVELS\s*=\s*\[[^\]]*beginner[^\]]*expert/i,
       /charAt\(0\)\.toUpperCase\(\)\s*\+\s*level\.slice\(1\)/,
+      /Failed to import skills/i,
+      /Failed to generate preview/i,
     ];
 
     if (resumeBuilderPatterns.some((pattern) => pattern.test(text))) {
@@ -753,7 +756,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/components/automation/ScreeningAnswersForm.tsx") {
-    return /Dropdown selection|Please fix the errors/i.test(text);
+    return /Dropdown selection|Please fix the errors|Failed to load answers/i.test(text);
   }
 
   if (path === "src/components/automation/ScreeningAnswerSuggestions.tsx") {
@@ -765,7 +768,11 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/pages/Dashboard.tsx") {
-    return /Scanning job boards|Scan complete/i.test(text);
+    return /Scanning job boards|Scan complete|Failed to load company research/i.test(text);
+  }
+
+  if (path === "src/components/InterviewScheduler.tsx") {
+    return /Failed to load interviews|Technical Interview/i.test(text);
   }
 
   if (path === "src/pages/DashboardUI/DashboardHeader.tsx") {

@@ -1183,7 +1183,7 @@ export default function Dashboard({
               fallback={() => (
                 <div className="p-6 text-center">
                   <p className="text-red-600 dark:text-red-400 mb-4">
-                    Failed to load company research
+                    Could not load company research
                   </p>
                   <Button onClick={() => setResearchCompany(null)}>
                     Close

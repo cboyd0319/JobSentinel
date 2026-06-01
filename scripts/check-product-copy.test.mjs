@@ -588,7 +588,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/Dashboard.tsx",
-      'Scanning job boards...\nScan complete!\ntoast.error("Failed to open link", "Unable to open the job link")\n',
+      'Scanning job boards...\nScan complete!\ntoast.error("Failed to open link", "Unable to open the job link")\nFailed to load company research\n',
     );
     writeFixtureFile(
       root,
@@ -615,7 +615,12 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/components/automation/ScreeningAnswersForm.tsx",
-      "Dropdown selection\nPlease fix the errors\n",
+      "Dropdown selection\nPlease fix the errors\nFailed to load answers\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/components/InterviewScheduler.tsx",
+      'fallbackTitle: "Failed to load interviews"\n',
     );
     writeFixtureFile(
       root,
@@ -716,6 +721,7 @@ test("product copy rejects technical-first settings copy", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Dashboard.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/JobCard.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/InterviewScheduler.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/DashboardUI/DashboardHeader.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/SetupWizard.tsx"), true);
@@ -1007,13 +1013,14 @@ test("product copy rejects technical-first resume copy", () => {
         'const PROFICIENCY_LEVELS = ["Beginner", "Intermediate", "Advanced", "Expert"];',
         "Proficiency Distribution",
         "Proficiency level",
+        "Failed to load resume",
         "",
       ].join("\n"),
     );
     writeFixtureFile(
       root,
       "src/pages/ResumeBuilder.tsx",
-      'const PROFICIENCY_LEVELS = ["beginner", "intermediate", "advanced", "expert"]; Proficiency Select level',
+      'const PROFICIENCY_LEVELS = ["beginner", "intermediate", "advanced", "expert"]; Proficiency Select level Failed to import skills Failed to generate preview',
     );
     writeFixtureFile(
       root,

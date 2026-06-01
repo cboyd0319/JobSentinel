@@ -211,6 +211,11 @@ Current cleanup posture:
   `Could not load...` wording. It also changes cover-letter copy failures to
   `Could not copy template`. Focused component tests and product-copy sensors
   cover the old phrasing.
+- Current local recovery-title follow-up changes remaining visible
+  `Failed to...` fallback titles in Resume, Resume Builder, Screening Answers,
+  Interview Scheduler, and company-research fallback UI to `Could not...`
+  wording. Related component tests and product-copy sensors cover the old
+  phrasing.
 - Current local skill-label follow-up replaces vague self-rating labels such as
   beginner, intermediate, advanced, expert, and seniority level with
   behavior-based skill strength and role-stage copy across Resume, Resume

@@ -730,7 +730,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       toast.success(`Imported ${newSkills.length} skills`, "Skills added from resume");
     } catch (error: unknown) {
       const safeError = getSafeErrorToastCopy(error, {
-        fallbackTitle: "Failed to import skills",
+        fallbackTitle: "Could not import skills",
       });
       toast.error(safeError.title, safeError.message);
     } finally {
@@ -781,7 +781,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       }
     } catch (error: unknown) {
       const safeError = getSafeErrorToastCopy(error, {
-        fallbackTitle: "Failed to generate preview",
+        fallbackTitle: "Could not create preview",
       });
       toast.error(safeError.title, safeError.message);
     } finally {

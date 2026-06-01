@@ -307,6 +307,11 @@ boundaries, and harness modularity:
   load analytics data` wording. They now use plain `Could not load...` labels,
   and cover-letter copy failures now say `Could not copy template`, with
   focused component tests and product-copy coverage against old wording.
+- Fixed remaining visible fallback titles in Resume, Resume Builder, Screening
+  Answers, Interview Scheduler, and company-research fallback UI that still
+  used `Failed to...` wording. They now use plain `Could not...` recovery
+  wording, with focused component tests and product-copy coverage against old
+  wording.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright

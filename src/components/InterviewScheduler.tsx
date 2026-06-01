@@ -314,7 +314,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
       setPastInterviews(pastData);
     } catch (err: unknown) {
       const safeError = getSafeErrorToastCopy(err, {
-        fallbackTitle: "Failed to load interviews",
+        fallbackTitle: "Could not load interviews",
       });
       toast.error(safeError.title, safeError.message);
     } finally {

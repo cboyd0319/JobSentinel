@@ -245,7 +245,7 @@ export default function Resume({ onBack }: ResumeProps) {
       } catch (error: unknown) {
         if (cancelled) return;
         const safeError = getSafeErrorToastCopy(error, {
-          fallbackTitle: "Failed to load resume",
+          fallbackTitle: "Could not load resume",
         });
         toast.error(safeError.title, safeError.message);
       } finally {
@@ -283,7 +283,7 @@ export default function Resume({ onBack }: ResumeProps) {
       }
     } catch (error: unknown) {
       const safeError = getSafeErrorToastCopy(error, {
-        fallbackTitle: "Failed to load resume",
+        fallbackTitle: "Could not load resume",
       });
       toast.error(safeError.title, safeError.message);
     } finally {

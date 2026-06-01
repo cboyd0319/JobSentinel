@@ -166,6 +166,10 @@ and record actionable findings in this active-plan surface.
   Cover Letter Templates, Analytics, and Dashboard Widgets with `Could not
   load...` wording, and changes cover-letter copy failures to `Could not copy
   template`, with focused component tests and product-copy coverage.
+- Latest local recovery-title follow-up replaces remaining visible
+  `Failed to...` fallback titles in Resume, Resume Builder, Screening Answers,
+  Interview Scheduler, and company-research fallback UI with `Could not...`
+  recovery wording, and adds product-copy coverage against the old titles.
 - Latest local Application Assist readiness follow-up stops optional
   application-form detection from blocking the Prepare Form action. If form
   recognition is still loading, users with a saved profile can still open the

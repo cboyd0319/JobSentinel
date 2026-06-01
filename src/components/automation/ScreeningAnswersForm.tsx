@@ -120,7 +120,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
       setAnswers(data || []);
     } catch (error: unknown) {
       const safeError = getSafeErrorToastCopy(error, {
-        fallbackTitle: "Failed to load answers",
+        fallbackTitle: "Could not load saved answers",
         fallbackMessage: "Please try again.",
       });
       toast.error(safeError.title, safeError.message);
