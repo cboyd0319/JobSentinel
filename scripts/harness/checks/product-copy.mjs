@@ -803,6 +803,9 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Official feed/i,
       /\(retry\s+\$\{?retryAttempt\}?\)|\(retry\s+\d+\)/i,
       />\s*Access\s*</i,
+      />\s*Source Type\s*</i,
+      />\s*Recent Success\s*</i,
+      /Job Source Check Results/i,
       /Source Controls/i,
       /title=["']Source Check Results["']|\/\*\s*Source Check Results Modal\s*\*\//i,
     ];

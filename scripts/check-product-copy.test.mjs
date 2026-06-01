@@ -767,7 +767,7 @@ test("product copy rejects support troubleshooting jargon", () => {
     writeFixtureFile(
       root,
       "src/components/ScraperHealthDashboard.tsx",
-      ">Page Check<\n>Access<\nOfficial feed\n(retry ${retryAttempt})\nSource Controls\nSource Check Results\nNeeds update\n'Turn this source off'\n'Check this source now'\n",
+      ">Page Check<\n>Access<\n>Source Type<\n>Recent Success<\nOfficial feed\n(retry ${retryAttempt})\nSource Controls\nJob Source Check Results\nSource Check Results\nNeeds update\n'Turn this source off'\n'Check this source now'\n",
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);

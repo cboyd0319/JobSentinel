@@ -273,9 +273,9 @@ boundaries, and harness modularity:
   Browser Button setup now avoids advanced connection, local safety code,
   if-this-feels-hard, and block-page-import phrasing; Job Site Search Links now
   says JobSentinel does not check sites automatically; Job Source Status now
-  uses Official source, after another try, Source Type, Actions, and Job Source
-  Check Results. Focused component tests and product-copy sensors cover the
-  changes.
+  uses Official source, after another try, plain table/action labels, and
+  focused check results wording. Focused component tests and product-copy
+  sensors cover the changes.
 - Reworked remaining More Settings copy from the sidecar audit. Desktop alert
   help no longer says native OS notifications, focused-window wording now says
   JobSentinel is open on screen, email details use email sending

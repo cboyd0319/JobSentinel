@@ -138,6 +138,10 @@ and record actionable findings in this active-plan surface.
   for related-data, email, file-permission, resume-read, and long-document
   failures with plain recovery wording, and expands product-copy coverage so
   those old labels do not return.
+- Latest local Job Source Status follow-up replaces remaining source-panel
+  table and dialog jargon with `Kind`, `Checks Worked`, `Check Time`, and
+  `Check Results`, and expands product-copy coverage so `Source Type`,
+  `Recent Success`, and `Job Source Check Results` do not return.
 - Latest local Application Assist readiness follow-up stops optional
   application-form detection from blocking the Prepare Form action. If form
   recognition is still loading, users with a saved profile can still open the

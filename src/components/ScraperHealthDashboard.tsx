@@ -617,13 +617,13 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                       Status
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Source Type
+                      Kind
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Recent Success
+                      Checks Worked
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Time
+                      Check Time
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
                       Jobs Found
@@ -896,11 +896,11 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
         </div>
       </div>
 
-      {/* Job Source Check Results Modal */}
+      {/* Check Results Modal */}
       <Modal
         isOpen={showTestResults}
         onClose={() => setShowTestResults(false)}
-        title="Job Source Check Results"
+        title="Check Results"
         size="lg"
       >
         <div className="space-y-3">

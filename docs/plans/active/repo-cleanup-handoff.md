@@ -182,6 +182,10 @@ Current cleanup posture:
 - Current local generic-error copy follow-up replaces technical fallback labels
   for related-data, email, permission, resume-read, and long-document failures
   with plain recovery copy. Unit and product-copy tests reject the old wording.
+- Current local Job Source Status follow-up makes the remaining source-panel
+  table and dialog labels plainer: `Kind`, `Checks Worked`, `Check Time`, and
+  `Check Results` replace the older source-type and recent-success wording.
+  Component tests and product-copy sensors cover the old labels.
 - Current local skill-label follow-up replaces vague self-rating labels such as
   beginner, intermediate, advanced, expert, and seniority level with
   behavior-based skill strength and role-stage copy across Resume, Resume
