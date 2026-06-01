@@ -36,6 +36,7 @@ import {
   hasStaleInformalMaintainerFooter,
   hasStaleMacosDeveloperDocs,
   hasStaleMarketIntelligenceDocShape,
+  hasStaleLinuxBuildWorkflowTriggerDoc,
   hasStaleResumeMatcherDocShape,
   hasStaleSalaryAiFutureUiClaim,
   hasStaleSqliteConfigurationDoc,
@@ -44,6 +45,8 @@ import {
   hasSynonymOrRemotePreferenceDocDrift,
   hasTopLevelActiveDocDrift,
   hasTopLevelActiveDocGlyphMarkers,
+  hasUnindexedReleaseNote,
+  hasUnlinkedLinuxBuildGuide,
 } from "./harness/checks/docs-drift.mjs";
 
 function writeFixtureFile(root, path, content = "") {
@@ -248,6 +251,29 @@ test("docs drift check rejects active doc and platform tooling drift", () => {
       hasStaleSqliteConfigurationDoc(root, "docs/developer/sqlite-configuration.md"),
       true,
     );
+  });
+});
+
+test("docs drift check rejects unindexed release and Linux build docs", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "docs/README.md", "# Docs\n");
+    writeFixtureFile(
+      root,
+      "docs/developer/LINUX_BUILD.md",
+      "Runs on:\n- Push to `main` branch\n- Pull requests to `main`\n",
+    );
+    writeFixtureFile(root, "docs/releases/README.md", "# Release Notes Index\n");
+    writeFixtureFile(root, "docs/releases/v2.5.3.md", "# v2.5.3 Release Notes\n");
+
+    assert.equal(
+      hasUnlinkedLinuxBuildGuide(root, "docs/developer/LINUX_BUILD.md"),
+      true,
+    );
+    assert.equal(
+      hasStaleLinuxBuildWorkflowTriggerDoc(root, "docs/developer/LINUX_BUILD.md"),
+      true,
+    );
+    assert.equal(hasUnindexedReleaseNote(root, "docs/releases/v2.5.3.md"), true);
   });
 });
 

@@ -211,7 +211,8 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
 - Fixed additional docs-bloat findings: the Linux build guide is linked from
   the docs hub, its workflow trigger description now matches the manual
   GitHub Actions workflow, and historical release notes now have a maintained
-  index.
+  index. Added docs-drift harness coverage so those links and workflow claims
+  stay current.
 - Updated user docs so downloads, notifications, site requests, and Linux
   credential recovery put non-technical paths before advanced contributor or
   command-line details.

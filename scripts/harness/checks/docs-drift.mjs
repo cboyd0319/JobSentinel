@@ -478,6 +478,47 @@ export function hasStaleSqliteConfigurationDoc(root, path) {
   );
 }
 
+export function hasUnlinkedLinuxBuildGuide(root, path) {
+  if (path !== "docs/developer/LINUX_BUILD.md") {
+    return false;
+  }
+
+  const docsHubPath = join(root, "docs/README.md");
+  return (
+    !existsSync(docsHubPath) ||
+    !readFileSync(docsHubPath, "utf8").includes("(developer/LINUX_BUILD.md)")
+  );
+}
+
+export function hasStaleLinuxBuildWorkflowTriggerDoc(root, path) {
+  if (path !== "docs/developer/LINUX_BUILD.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /Push to `main` branch|Pull requests to `main`/.test(text) ||
+    !/workflow_dispatch/.test(text)
+  );
+}
+
+export function hasUnindexedReleaseNote(root, path) {
+  if (
+    !path.startsWith("docs/releases/") ||
+    !path.endsWith(".md") ||
+    path === "docs/releases/README.md"
+  ) {
+    return false;
+  }
+
+  const indexPath = join(root, "docs/releases/README.md");
+  const releaseFileName = path.slice("docs/releases/".length);
+  return (
+    !existsSync(indexPath) ||
+    !readFileSync(indexPath, "utf8").includes(`](${releaseFileName})`)
+  );
+}
+
 export function hasBookmarkletDocStatusEmojiMarkers(root, path) {
   if (path !== "docs/BOOKMARKLET.md") {
     return false;
@@ -790,6 +831,9 @@ const docsDriftRules = [
   [hasStaleGettingStartedToolingDocs, "sync getting-started tooling docs"],
   [hasStaleMacosDeveloperDocs, "sync macOS developer docs"],
   [hasStaleSqliteConfigurationDoc, "sync SQLite configuration doc"],
+  [hasUnlinkedLinuxBuildGuide, "link Linux build guide from docs hub"],
+  [hasStaleLinuxBuildWorkflowTriggerDoc, "sync Linux build workflow trigger doc"],
+  [hasUnindexedReleaseNote, "index historical release note"],
   [hasMarketIntelligenceDocGlyphMarkers, "replace Market Intelligence doc glyph/stale indicator markers"],
   [hasStaleMarketIntelligenceDocShape, "sync Market Intelligence docs with local evidence guidance"],
   [hasResumeOrSalaryFeatureDocEmojiMarkers, "replace resume and salary feature doc emoji markers"],

@@ -257,7 +257,9 @@ Current cleanup posture:
   retail, logistics, hospitality, education, public service, and insurance.
 - Latest docs-bloat follow-up links `docs/developer/LINUX_BUILD.md` from the
   docs hub, fixes its Linux build workflow trigger description, and adds
-  `docs/releases/README.md` as the historical release-notes index.
+  `docs/releases/README.md` as the historical release-notes index. Docs-drift
+  coverage now rejects unlinked Linux build docs, stale Linux build trigger
+  claims, and unindexed release-note files.
 - Latest support/privacy follow-up keeps saved support reports local in the
   primary flow, removes GitHub-first and shared-folder copy from support
   surfaces, replaces visible old report wording with safe support report
