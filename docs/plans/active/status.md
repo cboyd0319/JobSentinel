@@ -101,6 +101,8 @@ and record actionable findings in this active-plan surface.
   so raw platform IDs such as `greenhouse` do not appear in the preview.
   Application Assist docs now use human-check wording instead of
   CAPTCHA-first troubleshooting copy, with product-copy coverage against drift.
+  Deep Links user docs now use the same human-check and site-limits wording
+  instead of CAPTCHA/anti-bot phrasing.
 - Latest local privacy follow-up removes raw screening-question text and saved
   answer patterns from backend debug logs in Application Assist. Logs now keep
   only character counts for matched questions and patterns, and

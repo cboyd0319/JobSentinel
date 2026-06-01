@@ -147,7 +147,7 @@ Not all sites support every filter. JobSentinel uses what each site supports.
 - JobSentinel only creates a browser search link for these sites
 - You decide whether to open the site and log in there
 - JobSentinel does not collect session cookies for these sites
-- JobSentinel does not bypass CAPTCHA, login, or anti-bot controls
+- JobSentinel does not bypass human checks, login, or site limits
 
 ## FAQ
 
@@ -157,7 +157,7 @@ Some sites limit background collection or require you to view results in your
 own browser:
 
 - Rate limiting
-- CAPTCHA challenges
+- Human checks
 - Login requirements
 - Terms or policy restrictions
 
@@ -199,10 +199,10 @@ Contributors can also add sites in code. See the
 | Feature | Search Links | Monitored sources |
 |---------|--------------|-------------------|
 | **Who opens the site** | You, in your browser | JobSentinel, where allowed |
-| **Login and CAPTCHA** | Handled by you on the site | Not bypassed |
+| **Login and human checks** | Handled by you on the site | Not bypassed |
 | **Page changes** | You still see the site directly | Source rules may need updates |
 | **Saving jobs** | You choose what to save | Saved locally when a monitored source returns a job |
-| **Best for** | Sites with login, anti-bot, or policy limits | Official or public sources that allow local monitoring |
+| **Best for** | Sites with login, human checks, or policy limits | Official or public sources that allow local monitoring |
 
 **Use monitored sources for:** Official or public sources that allow local monitoring.
 **Use search links for:** Sites that are best opened by you in your browser.

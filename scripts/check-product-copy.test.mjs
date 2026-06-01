@@ -384,6 +384,17 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
+      "docs/user/DEEP_LINKS.md",
+      [
+        "JobSentinel does not bypass CAPTCHA, login, or anti-bot controls",
+        "- CAPTCHA challenges",
+        "| Login and CAPTCHA | Handled by you on the site | Not bypassed |",
+        "| Best for | Sites with login, anti-bot, or policy limits |",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/utils/errorMessages.ts",
       [
         "Bot Detection Triggered",
@@ -448,6 +459,7 @@ test("product copy rejects technical-first settings copy", () => {
       hasTechnicalFirstUserCopy(root, "docs/features/one-click-apply.md"),
       true,
     );
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/DEEP_LINKS.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/errorMessages.ts"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Dashboard.tsx"), true);
