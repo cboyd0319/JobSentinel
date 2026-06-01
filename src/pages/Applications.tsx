@@ -87,7 +87,7 @@ const STATUS_COLUMNS = [
   { key: "offer_rejected", label: "Offer Rejected", color: "bg-orange-500" },
   { key: "rejected", label: "Rejected", color: "bg-danger" },
   { key: "withdrawn", label: "Withdrawn", color: "bg-amber-500" },
-  { key: "ghosted", label: "Ghosted", color: "bg-surface-400" },
+  { key: "ghosted", label: "No Response", color: "bg-surface-400" },
 ] as const;
 
 type StatusKey = typeof STATUS_COLUMNS[number]["key"];
@@ -489,14 +489,14 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
     }
   };
 
-  const handleDetectGhosted = async () => {
+  const handleReviewNoResponses = async () => {
     try {
       const count = await safeInvokeWithToast<number>("detect_ghosted_applications", undefined, toast, {
-        logContext: "Detect ghosted applications",
+        logContext: "Review no-response applications",
       });
       // Invalidate cache after mutation
       invalidateCacheByCommand("get_applications_kanban");
-      toast.info("Ghosted detection complete", `${count} application(s) marked as ghosted`);
+      toast.info("No-response review complete", `${count} application(s) moved to No Response`);
       fetchData();
     } catch {
       // Error already logged and shown to user
@@ -632,8 +632,8 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
                 <AnalyticsIcon />
                 Analytics
               </Button>
-              <Button onClick={handleDetectGhosted} variant="secondary">
-                Detect Ghosted
+              <Button onClick={handleReviewNoResponses} variant="secondary">
+                Review No Responses
               </Button>
             </div>
           </div>

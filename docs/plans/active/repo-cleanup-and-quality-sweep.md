@@ -235,6 +235,10 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   safe app detail copy no longer use logs, diagnosis, or troubleshooting
   jargon, and product-copy harness coverage blocks those phrases from
   returning.
+- Fixed additional application-tracking UX findings: visible "Ghosted" labels
+  and actions now use "No Response" wording while legacy internal status keys
+  remain for compatibility, and product-copy harness coverage blocks old labels
+  from returning.
 - Started broad-audience drift cleanup by rebalancing company autocomplete
   suggestions across healthcare, retail, logistics, finance, public service,
   education, hospitality, and technology; replacing tech-first placeholders and

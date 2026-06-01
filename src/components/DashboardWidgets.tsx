@@ -326,7 +326,7 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
                   color="info"
                 />
                 <StatBox
-                  label="Ghosted"
+                  label="No Response"
                   value={String(appStats.by_status.ghosted)}
                   color={appStats.by_status.ghosted > 5 ? 'danger' : 'surface'}
                 />

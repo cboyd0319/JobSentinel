@@ -269,7 +269,7 @@ describe("DashboardWidgets", () => {
       expect(screen.getByText("31")).toBeInTheDocument();
     });
 
-    it("shows ghosted stat", async () => {
+    it("shows no-response stat", async () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
@@ -278,7 +278,7 @@ describe("DashboardWidgets", () => {
 
       fireEvent.click(screen.getByText("Analytics Dashboard"));
 
-      expect(screen.getByText("Ghosted")).toBeInTheDocument();
+      expect(screen.getByText("No Response")).toBeInTheDocument();
       expect(screen.getByText("2")).toBeInTheDocument();
     });
   });

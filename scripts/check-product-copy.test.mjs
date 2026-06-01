@@ -236,6 +236,28 @@ test("product copy rejects support troubleshooting jargon", () => {
   });
 });
 
+test("product copy rejects non-protective no-response labels", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "src/pages/Applications.tsx", "Detect Ghosted\n");
+    writeFixtureFile(root, "src/components/DashboardWidgets.tsx", 'label="Ghosted"\n');
+    writeFixtureFile(root, "src/components/AnalyticsPanel.tsx", 'ghosted: "Ghosted"\n');
+    writeFixtureFile(root, "tests/e2e/playwright/application-tracking.spec.ts", '["ghosted", "Ghosted"]\n');
+    writeFixtureFile(root, "docs/features/application-tracking.md", "| Ghosted | No response |\n");
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Applications.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/DashboardWidgets.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/AnalyticsPanel.tsx"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "tests/e2e/playwright/application-tracking.spec.ts"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/features/application-tracking.md"),
+      true,
+    );
+  });
+});
+
 test("product copy rejects technical issue-template support wording", () => {
   withFixture((root) => {
     writeFixtureFile(

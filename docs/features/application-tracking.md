@@ -48,7 +48,7 @@ External AI is not required for application tracking.
 2. Review the board and pending follow-ups.
 3. Move each card when status changes.
 4. Open a card to add notes, contact details, salary information, or next steps.
-5. Use interviews, reminders, analytics, and ghosting review to decide where to
+5. Use interviews, reminders, analytics, and no-response review to decide where to
    spend time next.
 
 JobSentinel should make this usable for a person who has never used a project
@@ -77,7 +77,7 @@ The application board supports the full job-search path:
 | Offer Accepted | User accepted an offer. |
 | Offer Rejected | User declined an offer. |
 | Rejected | Employer declined to continue. |
-| Ghosted | No response after the configured quiet period. |
+| No Response | No response after the configured quiet period. |
 | Withdrawn | User chose to stop pursuing the role. |
 
 Stored status keys may use legacy internal names for compatibility. Visible
@@ -89,7 +89,7 @@ Follow-up reminders should help the user spend energy carefully:
 
 - A reminder suggests a next step; it does not send messages automatically.
 - A quiet-period warning means "review this role" rather than "you failed."
-- Ghosting detection should help the user stop wasting time on stale or
+- No-response review should help the user stop wasting time on stale or
   non-responsive roles.
 - Weekly summaries should favor useful decisions over motivation copy.
 - Salary and offer notes should help users avoid accepting below-floor offers.

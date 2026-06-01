@@ -404,12 +404,12 @@ describe("AnalyticsPanel", () => {
     });
   });
 
-  describe("export functionality", () => {
-    it("renders export button", async () => {
+  describe("download functionality", () => {
+    it("renders download button", async () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /export/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /download/i })).toBeInTheDocument();
       });
     });
 
@@ -426,10 +426,10 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /export/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /download/i })).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByRole("button", { name: /export/i }));
+      fireEvent.click(screen.getByRole("button", { name: /download/i }));
 
       expect(mockCreateElement).toHaveBeenCalledWith("a");
       expect(mockCreateObjectURL).toHaveBeenCalled();

@@ -13,7 +13,7 @@ const STATUS_COLUMNS = [
   ["offer_rejected", "Offer Rejected"],
   ["rejected", "Rejected"],
   ["withdrawn", "Withdrawn"],
-  ["ghosted", "Ghosted"],
+  ["ghosted", "No Response"],
 ] as const;
 
 test.describe("Application Tracking", () => {
@@ -156,8 +156,8 @@ test.describe("Application Tracking", () => {
       await expect(applicationsPage.pendingReminders).toBeHidden();
     });
 
-    test("runs ghosted detection without losing the board", async () => {
-      await applicationsPage.detectGhostedButton.click();
+    test("runs no-response review without losing the board", async () => {
+      await applicationsPage.reviewNoResponsesButton.click();
 
       await expect(applicationsPage.kanbanBoard).toBeVisible();
       await expect(applicationsPage.applicationCards).toHaveCount(3);

@@ -99,7 +99,7 @@ const STATUS_LABELS: Record<string, string> = {
   offer_accepted: "Accepted",
   offer_rejected: "Declined",
   rejected: "Rejected",
-  ghosted: "Ghosted",
+  ghosted: "No Response",
   withdrawn: "Withdrawn",
 };
 

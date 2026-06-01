@@ -13,7 +13,7 @@ const STATUS_LABELS: Record<string, string> = {
   offer_rejected: "Offer Rejected",
   rejected: "Rejected",
   withdrawn: "Withdrawn",
-  ghosted: "Ghosted",
+  ghosted: "No Response",
 };
 
 /**
@@ -59,8 +59,8 @@ export class ApplicationsPage extends BasePage {
     return this.page.getByRole("button", { name: "Analytics" });
   }
 
-  get detectGhostedButton(): Locator {
-    return this.page.getByRole("button", { name: "Detect Ghosted" });
+  get reviewNoResponsesButton(): Locator {
+    return this.page.getByRole("button", { name: "Review No Responses" });
   }
 
   get pendingReminders(): Locator {
