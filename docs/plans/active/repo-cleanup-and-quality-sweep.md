@@ -519,6 +519,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-01 | In progress | Closed another broad-audience UX copy pass: Application Assist docs/E2E page objects, Dashboard status copy, Settings auto-search and company-preference labels, generic async toast titles, Application Assist history errors, and score explanations now use plain saved-preference/search wording with product-copy coverage. |
 | 2026-06-01 | In progress | Tightened backend safe-support-report sanitization for sensitive job-search free text, reworked another zero-technical copy slice across Application Preview, Error Log fallback reports, browser import troubleshooting, notification salary filters, profile review settings, screening-answer type labels, Dashboard empty states, reminder labels, rate-limit errors, and auto-refresh warnings, and fixed TypeScript build fallbacks found by `npm run build`. |
 | 2026-06-01 | In progress | Reworked Market Snapshot from bullish/bearish/neutral sentiment labels to plain hiring-outlook labels, with focused component tests and product-copy coverage against stale finance-jargon wording. |
 | 2026-06-01 | In progress | Reworked Company Research unknown-company and slow-lookup copy so local fallback details are not described as being gathered in the background; added focused CompanyResearchPanel tests and product-copy coverage against stale request-timeout and gathering language. |

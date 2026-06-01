@@ -64,10 +64,10 @@ export const DashboardHeader = memo(function DashboardHeader({
             <Tooltip
               content={
                 scrapingStatus.is_running
-                  ? "Currently scanning job boards"
+                  ? "Checking selected job sites"
                   : autoRefreshEnabled && nextRefreshTime
                     ? `Auto-refresh in ${formatTimeUntil(nextRefreshTime)}`
-                    : "Ready to scan"
+                    : "Ready to search"
               }
               position="bottom"
             >

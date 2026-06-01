@@ -50,7 +50,7 @@ Before using Application Assist, fill in your information:
 
 1. Open **Application Assist** in the sidebar.
 2. Fill out your profile.
-3. Keep **Require manual approval** enabled.
+3. Keep **Ask me before each form** enabled.
 
 ### Contact Info
 
@@ -73,7 +73,7 @@ Before using Application Assist, fill in your information:
 
 - **Daily review limit** - a guardrail against spending too much energy on
   forms in one day.
-- **Require manual approval** - shows a preview before JobSentinel prepares
+- **Ask me before each form** - shows a preview before JobSentinel prepares
   details on a form. Keep this on unless you have a clear reason to change it.
 
 ### Resume File

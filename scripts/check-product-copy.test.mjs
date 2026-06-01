@@ -423,6 +423,7 @@ test("product copy rejects technical-first settings copy", () => {
       "docs/features/one-click-apply.md",
       [
         "### CAPTCHA Keeps Appearing",
+        "Require manual approval",
         "Complete CAPTCHA verification yourself.",
         "- It does not solve CAPTCHAs.",
         "",
@@ -504,7 +505,12 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/Settings.tsx",
-      "Turn this on to never miss a new posting.\n",
+      "Turn this on to never miss a new posting.\nAuto-scan job boards\nCompany preference (if configured)\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/ApplicationProfile.tsx",
+      "Failed to load application history\n",
     );
     writeFixtureFile(
       root,
@@ -556,6 +562,21 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/AsyncButton.tsx",
+      'toast.success("Success", successMessage);\ntoast.error("Error", errorMessage || safeMessage);\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/ScoreBreakdownModal.tsx",
+      "Company preference (if configured)\nconfigured preferences\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/DashboardUI/DashboardHeader.tsx",
+      "Currently scanning job boards\nReady to scan\n",
+    );
+    writeFixtureFile(
+      root,
       "src/components/automation/ApplicationPreview.tsx",
       "No profile configured. Please set up your application profile first.\n",
     );
@@ -602,6 +623,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ApplicationProfile.tsx"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/components/BookmarkletGenerator.tsx"),
       true,
@@ -636,6 +658,7 @@ test("product copy rejects technical-first settings copy", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/errorMessages.ts"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Dashboard.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/DashboardUI/DashboardHeader.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/SetupWizard.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.test.tsx"), false);
@@ -647,6 +670,8 @@ test("product copy rejects technical-first settings copy", () => {
       hasTechnicalFirstUserCopy(root, "src/components/CoverLetterTemplates.tsx"),
       true,
     );
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/AsyncButton.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/ScoreBreakdownModal.tsx"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/components/CompanyResearchPanel.tsx"),
       true,

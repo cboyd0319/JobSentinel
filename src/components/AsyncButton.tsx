@@ -65,7 +65,7 @@ export const AsyncButton = memo(forwardRef<HTMLButtonElement, AsyncButtonProps>(
         await onClick();
 
         if (successMessage && showSuccessToast) {
-          toast.success("Success", successMessage);
+          toast.success("Done", successMessage);
         }
 
         onSuccess?.();
@@ -75,7 +75,7 @@ export const AsyncButton = memo(forwardRef<HTMLButtonElement, AsyncButtonProps>(
         logError("AsyncButton operation failed:", error);
 
         if (showErrorToast) {
-          toast.error("Error", errorMessage || safeMessage);
+          toast.error("Something went wrong", errorMessage || safeMessage);
         }
 
         onError?.(error);

@@ -26,7 +26,7 @@ const FACTOR_WEIGHTS = {
   skills: { weight: 0.40, label: "Skills Match", icon: "target", description: "Job title and search-word matches" },
   salary: { weight: 0.25, label: "Salary", icon: "currency", description: "Salary meets your requirements" },
   location: { weight: 0.20, label: "Location", icon: "location", description: "Remote/hybrid/onsite preference" },
-  company: { weight: 0.10, label: "Company", icon: "company", description: "Company preference (if configured)" },
+  company: { weight: 0.10, label: "Company", icon: "company", description: "Companies you prefer or hide" },
   recency: { weight: 0.05, label: "Recency", icon: "clock", description: "How fresh the posting is" },
 } as const;
 
@@ -360,7 +360,7 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
         {/* Help text */}
         <div className="pt-4 border-t border-surface-200 dark:border-surface-700">
           <p className="text-xs text-surface-500 dark:text-surface-400">
-            JobSentinel reviews how this job matches your configured
+            JobSentinel reviews how this job matches your saved
             preferences. You can adjust your preferences in Settings.
           </p>
         </div>

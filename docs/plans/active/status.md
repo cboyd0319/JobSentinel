@@ -117,6 +117,12 @@ and record actionable findings in this active-plan surface.
   state copy, reminder labels, rate-limit errors, and auto-refresh warnings to
   avoid setup jargon, raw enum values, thousand-dollar salary conversion, and
   operational scanning language.
+- Latest local broad-audience UX follow-up removes another stale phrase set
+  from maintained docs and visible UI: Application Assist docs and E2E page
+  objects now use "Ask me before each form," Dashboard status copy uses search
+  and selected-site wording, Settings avoids auto-scan and configured-company
+  phrasing, generic async toasts avoid "Success"/"Error" titles, and score
+  explanations use saved preference wording.
 - Latest local Application Assist readiness follow-up stops optional
   application-form detection from blocking the Prepare Form action. If form
   recognition is still loading, users with a saved profile can still open the

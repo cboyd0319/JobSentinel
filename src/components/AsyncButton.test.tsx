@@ -206,7 +206,7 @@ describe("AsyncButton", () => {
       const mockOnClick = vi.fn().mockResolvedValue(undefined);
 
       renderWithToast(
-        <AsyncButton onClick={mockOnClick} successMessage="Done">
+        <AsyncButton onClick={mockOnClick} successMessage="Saved">
           Click
         </AsyncButton>
       );
@@ -214,6 +214,7 @@ describe("AsyncButton", () => {
       await user.click(screen.getByText("Click"));
       await waitFor(() => {
         expect(screen.getByText("Done")).toBeInTheDocument();
+        expect(screen.getByText("Saved")).toBeInTheDocument();
       });
     });
   });

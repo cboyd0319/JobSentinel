@@ -113,7 +113,7 @@ describe("ScoreBreakdownModal", () => {
       expect(screen.getByText("Job title and search-word matches")).toBeInTheDocument();
       expect(screen.getByText("Salary meets your requirements")).toBeInTheDocument();
       expect(screen.getByText("Remote/hybrid/onsite preference")).toBeInTheDocument();
-      expect(screen.getByText("Company preference (if configured)")).toBeInTheDocument();
+      expect(screen.getByText("Companies you prefer or hide")).toBeInTheDocument();
       expect(screen.getByText("How fresh the posting is")).toBeInTheDocument();
     });
 

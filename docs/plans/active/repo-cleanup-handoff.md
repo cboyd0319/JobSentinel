@@ -582,6 +582,11 @@ Recent cleanup slices on `main` include:
   rate-limit errors, and auto-refresh warnings.
 - Build verification also caught nullable application-form style lookups and a
   missing Market Snapshot fallback; both are now type-safe.
+- A follow-up broad-audience copy pass replaced the stale "Require manual
+  approval" Application Assist doc/E2E wording, Dashboard scan status text,
+  Settings auto-scan and configured-company copy, generic Success/Error async
+  toast titles, Application Assist history failure copy, and score-explanation
+  configured-preference wording.
 - Protective ghost/posting-risk wording across UI and maintained docs, replacing
   fake/real verdict language with stale, low-trust, needs-review, and
   verify-before-tailoring guidance.

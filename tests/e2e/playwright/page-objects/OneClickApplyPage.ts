@@ -74,7 +74,7 @@ export class OneClickApplyPage extends BasePage {
   }
 
   get manualApprovalCheckbox(): Locator {
-    return this.page.getByLabel(/Require manual approval/);
+    return this.page.getByLabel(/Ask me before each form/);
   }
 
   get saveProfileButton(): Locator {

@@ -1527,6 +1527,8 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         '"resume match + 30% keywords"',
         '"scoring falls back to keyword matching"',
         '"Job title and keyword matches"',
+        '"Auto-scan job boards"',
+        '"Company preference (if configured)"',
         '"Early warning point:"',
         '"Hide-by-default point:"',
         "ghostConfig.warning_threshold.toFixed(2)",
@@ -1625,7 +1627,17 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     writeFixtureFile(
       root,
       "docs/features/one-click-apply.md",
-      "The patterns are flexible (regex), so they match variations.\n",
+      "The patterns are flexible (regex), so they match variations.\nRequire manual approval\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/ApplicationProfile.tsx",
+      '"Failed to load application history";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/DashboardUI/DashboardHeader.tsx",
+      '"Currently scanning job boards"; "Ready to scan";\n',
     );
     writeFixtureFile(
       root,
@@ -1696,7 +1708,9 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/pages/Resume.tsx",
         "src/pages/ResumeOptimizer.tsx",
         "src/pages/Applications.tsx",
+        "src/pages/ApplicationProfile.tsx",
         "src/pages/Dashboard.tsx",
+        "src/pages/DashboardUI/DashboardHeader.tsx",
         "src/pages/hooks/useDashboardJobOps.ts",
         "src/pages/hooks/useDashboardSavedSearches.ts",
         "src/pages/DashboardUI/QuickActions.tsx",
@@ -1750,7 +1764,9 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/pages/Resume.tsx",
       "src/pages/ResumeOptimizer.tsx",
       "src/pages/Applications.tsx",
+      "src/pages/ApplicationProfile.tsx",
       "src/pages/Dashboard.tsx",
+      "src/pages/DashboardUI/DashboardHeader.tsx",
       "src/pages/hooks/useDashboardJobOps.ts",
       "src/pages/hooks/useDashboardSavedSearches.ts",
       "src/pages/DashboardUI/QuickActions.tsx",

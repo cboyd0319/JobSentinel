@@ -2053,7 +2053,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     <div className="flex items-center gap-2">
                       <RefreshIcon className="w-5 h-5 text-sentinel-500" />
                       <span className="font-medium text-surface-800 dark:text-surface-200">
-                        Auto-scan job boards
+                        Check selected job sites on schedule
                       </span>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -3968,7 +3968,7 @@ export default function Settings({ onClose }: SettingsProps) {
                             Company
                           </div>
                           <div className="text-xs text-surface-500 dark:text-surface-400">
-                            Company preference (if configured)
+                            Companies you prefer or hide
                           </div>
                         </div>
                       </div>
