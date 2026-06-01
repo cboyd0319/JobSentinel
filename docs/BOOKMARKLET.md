@@ -62,6 +62,8 @@ JobSentinel's search link or add the job manually when import does not work.
 
 - Make sure JobSentinel is open.
 - Turn on the import helper in Settings.
+- If the helper will not turn on, choose another port in advanced settings and
+  try again.
 - Copy the browser button again if you restarted JobSentinel.
 - If your firewall asks, allow connections for JobSentinel.
 

@@ -172,13 +172,14 @@ impl BookmarkletServer {
         let port = self.config.port;
         sync_bookmarklet_auth(&self.auth_state, &self.config);
         let auth_state = self.auth_state.clone();
+        let listener = bookmarklet_listener(port).await?;
 
         // Create shutdown channel
         let (shutdown_tx, shutdown_rx) = tokio::sync::oneshot::channel();
 
         // Spawn server task
         let handle = tokio::spawn(async move {
-            if let Err(e) = run_server(port, auth_state, database, shutdown_rx).await {
+            if let Err(e) = run_server(listener, auth_state, database, shutdown_rx).await {
                 tracing::error!(error = %bookmarklet_error_label(&e), "Bookmarklet server error");
             }
         });
@@ -217,22 +218,25 @@ impl Default for BookmarkletServer {
     }
 }
 
-/// Run the HTTP server
+/// Bind the local listener before the UI reports the helper as running.
+async fn bookmarklet_listener(port: u16) -> Result<tokio::net::TcpListener, BookmarkletError> {
+    use std::net::{IpAddr, Ipv4Addr};
+
+    let addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), port);
+    tokio::net::TcpListener::bind(addr)
+        .await
+        .map_err(|e| BookmarkletError::BindError { port, source: e })
+}
+
 async fn run_server(
-    port: u16,
+    listener: tokio::net::TcpListener,
     auth_state: Arc<RwLock<BookmarkletAuthState>>,
     database: Arc<Database>,
     mut shutdown_rx: tokio::sync::oneshot::Receiver<()>,
 ) -> Result<(), BookmarkletError> {
-    use std::net::{IpAddr, Ipv4Addr};
-
-    // Create a simple HTTP listener
-    let addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), port);
-    let listener = tokio::net::TcpListener::bind(addr)
-        .await
-        .map_err(|e| BookmarkletError::BindError { port, source: e })?;
-
-    tracing::info!("Listening on http://{}", addr);
+    if let Ok(address) = listener.local_addr() {
+        tracing::info!(address = %address, "Listening on bookmarklet import port");
+    }
 
     // Accept connections until shutdown
     loop {
@@ -893,6 +897,34 @@ mod tests {
         assert_eq!(stored.1, "Community Care");
         assert_eq!(stored.2, "bookmarklet");
         assert!(stored.3);
+    }
+
+    #[tokio::test]
+    async fn test_bookmarklet_start_returns_bind_error_for_occupied_port() {
+        let occupied_listener = tokio::net::TcpListener::bind("127.0.0.1:0")
+            .await
+            .expect("test listener should bind");
+        let occupied_port = occupied_listener
+            .local_addr()
+            .expect("test listener should expose address")
+            .port();
+        let database = bookmarklet_test_database().await;
+        let mut server = BookmarkletServer::new(BookmarkletConfig {
+            port: occupied_port,
+            ..Default::default()
+        });
+        let config = server.config().clone();
+
+        let error = server
+            .start(config, database)
+            .await
+            .expect_err("occupied port should fail before server is marked running");
+
+        match error {
+            BookmarkletError::BindError { port, .. } => assert_eq!(port, occupied_port),
+            other => panic!("expected bind error, got {other:?}"),
+        }
+        assert!(!server.is_running());
     }
 
     #[tokio::test]

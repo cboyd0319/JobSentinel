@@ -511,7 +511,8 @@ Recent cleanup slices on `main` include:
   auth headers from the browser-helper flow, refreshes the local safety code
   only after the browser button is copied successfully, keeps the previous
   button usable on clipboard failure, and expires copied codes after about one
-  hour.
+  hour. The helper now binds the local port before reporting that it is running,
+  so occupied ports fail visibly instead of leaving stale running state.
 - Latest local zero-technical setup follow-up removes raw Slack connection-link
   setup from first-run onboarding and replaces it with a plain note that
   optional chat alerts can be added later in Settings.
