@@ -233,16 +233,8 @@ async fn handle_connection(
 
     // Parse request
     let (response, content_type) = if request.starts_with("POST /api/bookmarklet/import") {
-        if has_valid_bookmarklet_token(&request, &auth_token) {
-            handle_import_request(&request, database).await
-        } else {
-            (
-                json_error_response("Unauthorized bookmarklet request"),
-                "application/json".to_string(),
-            )
-        }
+        handle_import_request(&request, &auth_token, database).await
     } else if request.starts_with("OPTIONS") {
-        // Handle preflight CORS request
         ("OK".to_string(), "text/plain".to_string())
     } else {
         (
@@ -258,13 +250,7 @@ async fn handle_connection(
         "200 OK"
     };
 
-    let response_data = format!(
-        "HTTP/1.1 {}\r\nContent-Type: {}\r\nContent-Length: {}\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: POST, OPTIONS\r\nAccess-Control-Allow-Headers: Content-Type, X-JobSentinel-Token\r\n\r\n{}",
-        status,
-        content_type,
-        response.len(),
-        response
-    );
+    let response_data = http_response_data(status, &content_type, &response);
 
     let mut writable_stream = stream;
     writable_stream.write_all(response_data.as_bytes()).await?;
@@ -273,10 +259,40 @@ async fn handle_connection(
     Ok(())
 }
 
+fn http_response_data(status: &str, content_type: &str, response: &str) -> String {
+    format!(
+        "HTTP/1.1 {}\r\nContent-Type: {}\r\nContent-Length: {}\r\n\r\n{}",
+        status,
+        content_type,
+        response.len(),
+        response
+    )
+}
+
 fn has_valid_bookmarklet_token(request: &str, auth_token: &str) -> bool {
     !auth_token.is_empty()
         && request_header_value(request, BOOKMARKLET_TOKEN_HEADER)
             .is_some_and(|value| value == auth_token)
+}
+
+fn body_has_valid_bookmarklet_token(body: &serde_json::Value, auth_token: &str) -> bool {
+    !auth_token.is_empty()
+        && body
+            .get("token")
+            .and_then(serde_json::Value::as_str)
+            .is_some_and(|value| value == auth_token)
+}
+
+fn bookmarklet_job_value(mut body: serde_json::Value) -> serde_json::Value {
+    if let Some(job) = body.get("job") {
+        return job.clone();
+    }
+
+    if let serde_json::Value::Object(ref mut map) = body {
+        map.remove("token");
+    }
+
+    body
 }
 
 fn request_header_value<'a>(request: &'a str, header_name: &str) -> Option<&'a str> {
@@ -314,7 +330,11 @@ fn request_buffer_has_complete_body(buffer: &[u8]) -> bool {
 }
 
 /// Handle import request
-async fn handle_import_request(request: &str, database: Arc<Database>) -> (String, String) {
+async fn handle_import_request(
+    request: &str,
+    auth_token: &str,
+    database: Arc<Database>,
+) -> (String, String) {
     // Extract JSON body from request
     let body = if let Some(body_start) = request.find("\r\n\r\n") {
         &request[body_start + 4..]
@@ -325,8 +345,7 @@ async fn handle_import_request(request: &str, database: Arc<Database>) -> (Strin
         );
     };
 
-    // Parse JSON
-    let job_data: BookmarkletJobData = match serde_json::from_str(body) {
+    let body_value: serde_json::Value = match serde_json::from_str(body) {
         Ok(data) => data,
         Err(e) => {
             tracing::error!(
@@ -340,6 +359,27 @@ async fn handle_import_request(request: &str, database: Arc<Database>) -> (Strin
             );
         }
     };
+
+    if !has_valid_bookmarklet_token(request, auth_token)
+        && !body_has_valid_bookmarklet_token(&body_value, auth_token)
+    {
+        return (
+            json_error_response("Unauthorized bookmarklet request"),
+            "application/json".to_string(),
+        );
+    }
+
+    let job_data: BookmarkletJobData =
+        match serde_json::from_value(bookmarklet_job_value(body_value)) {
+            Ok(data) => data,
+            Err(_) => {
+                tracing::error!("Failed to parse bookmarklet job data");
+                return (
+                    json_error_response(INVALID_BOOKMARKLET_PAYLOAD_MESSAGE),
+                    "application/json".to_string(),
+                );
+            }
+        };
 
     // Validate job data
     if let Err(e) = job_data.validate() {
@@ -479,6 +519,8 @@ mod tests {
     use super::*;
     use std::sync::Arc;
 
+    const TEST_AUTH_TOKEN: &str = "secret-token";
+
     #[test]
     fn test_calculate_job_hash() {
         let hash1 = calculate_job_hash(
@@ -528,6 +570,30 @@ mod tests {
     }
 
     #[test]
+    fn test_bookmarklet_token_validation_accepts_body_envelope() {
+        let body = serde_json::json!({
+            "token": TEST_AUTH_TOKEN,
+            "job": {
+                "title": "Care Coordinator",
+                "company": "Community Care",
+                "url": "https://example.com/jobs/1"
+            }
+        });
+
+        assert!(body_has_valid_bookmarklet_token(&body, TEST_AUTH_TOKEN));
+        assert!(!body_has_valid_bookmarklet_token(&body, "other-token"));
+        assert!(!body_has_valid_bookmarklet_token(&body, ""));
+    }
+
+    #[test]
+    fn test_bookmarklet_http_response_does_not_advertise_wildcard_cors() {
+        let response = http_response_data("200 OK", "application/json", "{\"success\":true}");
+
+        assert!(!response.contains("Access-Control-Allow-Origin"));
+        assert!(!response.contains("Access-Control-Allow-Headers"));
+    }
+
+    #[test]
     fn test_request_buffer_waits_for_declared_body() {
         let headers_only = b"POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost\r\nContent-Length: 5\r\n\r\n";
         let complete_request = b"POST /api/bookmarklet/import HTTP/1.1\r\nHost: localhost\r\nContent-Length: 5\r\n\r\nhello";
@@ -545,6 +611,14 @@ mod tests {
             body.len(),
             body
         )
+    }
+
+    fn bookmarklet_import_body(job: serde_json::Value) -> String {
+        serde_json::json!({
+            "token": TEST_AUTH_TOKEN,
+            "job": job,
+        })
+        .to_string()
     }
 
     async fn bookmarklet_test_database() -> Arc<Database> {
@@ -568,15 +642,18 @@ mod tests {
     #[tokio::test]
     async fn test_bookmarklet_import_rejects_unsafe_url_without_insert() {
         let database = bookmarklet_test_database().await;
-        let body = serde_json::json!({
+        let body = bookmarklet_import_body(serde_json::json!({
             "title": "Care Coordinator",
             "company": "Community Care",
             "url": "javascript:alert(1)"
-        })
-        .to_string();
+        }));
 
-        let (response, content_type) =
-            handle_import_request(&bookmarklet_import_request(&body), database.clone()).await;
+        let (response, content_type) = handle_import_request(
+            &bookmarklet_import_request(&body),
+            TEST_AUTH_TOKEN,
+            database.clone(),
+        )
+        .await;
         let parsed: serde_json::Value =
             serde_json::from_str(&response).expect("error response should be JSON");
 
@@ -589,17 +666,46 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_bookmarklet_import_uses_shared_job_length_validation() {
+    async fn test_bookmarklet_import_rejects_missing_body_token_without_insert() {
         let database = bookmarklet_test_database().await;
         let body = serde_json::json!({
-            "title": "T".repeat(501),
-            "company": "Community Care",
-            "url": "https://example.com/jobs/1"
+            "job": {
+                "title": "Care Coordinator",
+                "company": "Community Care",
+                "url": "https://example.com/jobs/1"
+            }
         })
         .to_string();
 
-        let (response, content_type) =
-            handle_import_request(&bookmarklet_import_request(&body), database.clone()).await;
+        let (response, content_type) = handle_import_request(
+            &bookmarklet_import_request(&body),
+            TEST_AUTH_TOKEN,
+            database.clone(),
+        )
+        .await;
+        let parsed: serde_json::Value =
+            serde_json::from_str(&response).expect("error response should be JSON");
+
+        assert_eq!(content_type, "application/json");
+        assert_eq!(parsed["error"], "Unauthorized bookmarklet request");
+        assert_eq!(stored_job_count(&database).await, 0);
+    }
+
+    #[tokio::test]
+    async fn test_bookmarklet_import_uses_shared_job_length_validation() {
+        let database = bookmarklet_test_database().await;
+        let body = bookmarklet_import_body(serde_json::json!({
+            "title": "T".repeat(501),
+            "company": "Community Care",
+            "url": "https://example.com/jobs/1"
+        }));
+
+        let (response, content_type) = handle_import_request(
+            &bookmarklet_import_request(&body),
+            TEST_AUTH_TOKEN,
+            database.clone(),
+        )
+        .await;
         let parsed: serde_json::Value =
             serde_json::from_str(&response).expect("error response should be JSON");
 
@@ -611,18 +717,21 @@ mod tests {
     #[tokio::test]
     async fn test_bookmarklet_import_stores_valid_job_through_shared_path() {
         let database = bookmarklet_test_database().await;
-        let body = serde_json::json!({
+        let body = bookmarklet_import_body(serde_json::json!({
             "title": "Care Coordinator",
             "company": "Community Care",
             "description": "Coordinate care appointments",
             "url": "https://example.com/jobs/1",
             "location": "Denver, CO",
             "remote": true
-        })
-        .to_string();
+        }));
 
-        let (response, content_type) =
-            handle_import_request(&bookmarklet_import_request(&body), database.clone()).await;
+        let (response, content_type) = handle_import_request(
+            &bookmarklet_import_request(&body),
+            TEST_AUTH_TOKEN,
+            database.clone(),
+        )
+        .await;
         let parsed: serde_json::Value =
             serde_json::from_str(&response).expect("success response should be JSON");
         let stored: (String, String, String, bool) =

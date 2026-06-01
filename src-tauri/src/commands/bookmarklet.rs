@@ -27,7 +27,7 @@ fn bookmarklet_code(port: u16, auth_token: &str) -> String {
     };
 
     format!(
-        "javascript:(function(){{var scripts=document.querySelectorAll('script[type=\"application/ld+json\"]');var job=null;scripts.forEach(function(s){{try{{var data=JSON.parse(s.textContent);if(data['@type']==='JobPosting')job=data;}}catch(e){{}}}});if(!job){{var title=document.querySelector('h1');var company=document.querySelector('[class*=\"company\"]')||document.querySelector('[class*=\"employer\"]');var desc=document.querySelector('[class*=\"description\"]')||document.querySelector('[class*=\"desc\"]');job={{title:title?title.textContent:'',company:company?company.textContent:'',description:desc?desc.textContent:'',url:window.location.href}};}}else{{job.url=window.location.href;}}fetch('http://localhost:{port}/api/bookmarklet/import',{{method:'POST',headers:{{'Content-Type':'application/json','X-JobSentinel-Token':{token}}},body:JSON.stringify(job)}}).then(function(r){{if(r.ok){{alert('Job imported to JobSentinel.');}}else{{alert('Could not save job. Make sure JobSentinel is open.');}}}}).catch(function(e){{alert('Cannot connect to JobSentinel. Turn on the import helper in Settings.');}});}})();"
+        "javascript:(function(){{var scripts=document.querySelectorAll('script[type=\"application/ld+json\"]');var job=null;scripts.forEach(function(s){{try{{var data=JSON.parse(s.textContent);if(data['@type']==='JobPosting')job=data;}}catch(e){{}}}});if(!job){{var title=document.querySelector('h1');var company=document.querySelector('[class*=\"company\"]')||document.querySelector('[class*=\"employer\"]');var desc=document.querySelector('[class*=\"description\"]')||document.querySelector('[class*=\"desc\"]');job={{title:title?title.textContent:'',company:company?company.textContent:'',description:desc?desc.textContent:'',url:window.location.href}};}}else{{job.url=window.location.href;}}fetch('http://localhost:{port}/api/bookmarklet/import',{{method:'POST',mode:'no-cors',headers:{{'Content-Type':'text/plain'}},body:JSON.stringify({{token:{token},job:job}})}}).then(function(){{alert('Sent to JobSentinel. Check saved jobs.');}}).catch(function(e){{alert('Cannot connect to JobSentinel. Turn on the import helper in Settings.');}});}})();"
     )
 }
 
@@ -167,7 +167,8 @@ mod tests {
         let code = bookmarklet_code(4321, "test-token");
 
         assert!(code.contains("http://localhost:4321/api/bookmarklet/import"));
-        assert!(code.contains("X-JobSentinel-Token"));
+        assert!(code.contains("mode:'no-cors'"));
+        assert!(!code.contains("X-JobSentinel-Token"));
         assert!(code.contains("test-token"));
     }
 }

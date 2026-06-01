@@ -190,6 +190,9 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   validation and shared job storage validation instead of a raw insert path.
 - Moved production scraper constructors to a shared process-wide rate limiter
   so repeated manual checks keep source cooldown state.
+- Removed wildcard CORS and custom auth headers from the bookmarklet
+  browser-helper flow; stronger short-lived/session-bound token approval remains
+  open.
 - Extracted root-entry, local-artifact, and tracked-disposable checks from
   `scripts/check-repo-bloat.mjs` into
   `scripts/harness/checks/repo-artifacts.mjs` with focused script tests.
@@ -369,6 +372,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-01 | In progress | Removed wildcard CORS and custom auth headers from bookmarklet browser-helper imports by using a `no-cors` text-body token envelope; kept stronger short-lived/session-bound token approval open. |
 | 2026-06-01 | In progress | Moved production scraper constructors to a shared process-wide rate limiter and added focused coverage proving exhausted source buckets survive fresh handles. |
 | 2026-06-01 | In progress | Routed bookmarklet imports through public HTTP(S) URL validation and shared job storage validation, with focused tests for unsafe URLs, overlong fields, and valid storage. |
 | 2026-06-01 | In progress | Hardened external URL fetch boundaries for user-entered job imports and JobsWithGPT, disabled shared scraper redirects, added focused URL/security tests, and recorded remaining bookmarklet/rate-limit findings as open debt. |

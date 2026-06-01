@@ -43,6 +43,10 @@ and record actionable findings in this active-plan surface.
 - Latest local scraper reliability work gives production scraper constructors a
   process-wide shared rate limiter, so repeated manual runs preserve source
   cooldown state across fresh scheduler/scraper instances.
+- Latest local bookmarklet boundary work removes wildcard CORS and custom auth
+  headers from the browser-helper flow by sending the session token in a
+  `no-cors` text-body envelope. The remaining open issue is stronger
+  short-lived/session-bound approval for the copied helper token.
 - Latest local work closed the active-plan compaction debt by adding this
   compact status file, archiving older progress rows, and routing the plan
   index, harness guide, agent guide, and handoff toward the compact state.
@@ -459,7 +463,7 @@ and record actionable findings in this active-plan surface.
    engineer-first violations, but keep auditing as new slices touch copy.
 5. Continue backend/scraper and frontend privacy-edge review.
    Current open security follow-up from the latest audit is bookmarklet
-   local-server token/CORS hardening.
+   local-server short-lived/session-bound token approval.
 6. Continue the next zero-technical-knowledge UX audit area outside
    support/reporting.
 7. Run final broad verification only when the remaining known work has evidence.
