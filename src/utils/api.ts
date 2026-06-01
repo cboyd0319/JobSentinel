@@ -164,6 +164,30 @@ export interface InvokeError {
     message: string;
     action?: string;
   };
+  invokeCommand?: string;
+  invokeArgSummary?: InvokeArgSummary;
+}
+
+interface InvokeArgSummary {
+  count: number;
+  valueTypes: string[];
+}
+
+function summarizeInvokeArgs(args?: Record<string, unknown>): InvokeArgSummary {
+  if (!args) {
+    return { count: 0, valueTypes: [] };
+  }
+
+  return {
+    count: Object.keys(args).length,
+    valueTypes: Object.values(args).map(classifyArgValue),
+  };
+}
+
+function classifyArgValue(value: unknown): string {
+  if (Array.isArray(value)) return "array";
+  if (value === null) return "null";
+  return typeof value;
 }
 
 /**
@@ -204,14 +228,12 @@ export async function safeInvoke<T>(
 
     // Create enhanced error with user-friendly message
     const friendlyError = getUserFriendlyError(error);
-    const enhancedError = Object.assign(
-      error instanceof Error ? error : new Error(String(error)),
-      {
-        userFriendly: friendlyError,
-        invokeCommand: cmd,
-        invokeArgs: args,
-      }
-    );
+    const enhancedError = Object.assign(new Error(friendlyError.message), {
+      name: "JobSentinelInvokeError",
+      userFriendly: friendlyError,
+      invokeCommand: cmd,
+      invokeArgSummary: summarizeInvokeArgs(args),
+    });
 
     throw enhancedError;
   }

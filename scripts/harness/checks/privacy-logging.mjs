@@ -372,7 +372,9 @@ export function hasRawFrontendToastSupportDetails(root, path) {
 
   return (
     /(?:Technical|Support details):\s*\$\{\s*enhancedError\.message\s*\}/.test(text) ||
-    /showTechnical[\s\S]{0,360}enhancedError\.message/.test(fullMessageBody)
+    /showTechnical[\s\S]{0,360}enhancedError\.message/.test(fullMessageBody) ||
+    /invokeArgs\s*:\s*args/.test(text) ||
+    /error\s+instanceof\s+Error\s*\?\s*error\s*:\s*new\s+Error\(String\(error\)\)/.test(text)
   );
 }
 

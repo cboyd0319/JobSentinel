@@ -189,6 +189,10 @@ Current cleanup posture:
   category labels with plain local-data, saved-settings, connection, file, and
   information-review copy while preserving raw SQL/secret suppression; product
   copy now rejects the old backend error labels.
+- Latest frontend privacy follow-up removed raw `safeInvoke` command arguments
+  and raw backend exception text from propagated enhanced errors. The wrapper
+  now throws display-safe copy with count/type-only argument summaries; privacy
+  logging coverage rejects raw invoke arguments and raw fallback errors.
 - Latest zero-technical UX follow-up fixed Settings load failure escape and
   guidance, application tracker first-use empty state, Dashboard no-jobs
   recovery guidance, browser import Advanced connection hiding, install wording

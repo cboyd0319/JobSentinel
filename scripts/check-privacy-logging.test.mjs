@@ -306,6 +306,9 @@ test("privacy logging rejects raw frontend toast support details", () => {
       [
         "const fullMessage = options?.showTechnical && import.meta.env.DEV && enhancedError.message",
         '  ? `${message || "An error occurred"}\\n\\nTechnical: ${enhancedError.message}`',
+        "const enhancedError = Object.assign(error instanceof Error ? error : new Error(String(error)), {",
+        "  invokeArgs: args,",
+        "});",
         "  : message;",
         "",
       ].join("\n"),

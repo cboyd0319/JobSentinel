@@ -227,19 +227,38 @@ describe("api utilities", () => {
       ).rejects.toHaveProperty("userFriendly");
     });
 
-    it("includes invoke context in enhanced error", async () => {
-      const error = new Error("Test error");
+    it("includes invoke context without raw argument values", async () => {
+      const error = new Error("Test error token=raw-secret chad@example.com");
       mockInvoke.mockRejectedValueOnce(error);
 
       const { safeInvoke } = await import("./api");
 
       try {
-        await safeInvoke("test_cmd", { id: 1 });
+        await safeInvoke("test_cmd", {
+          filePath: "/Users/chad/private/resume.pdf",
+          token: "raw-secret",
+          salaryFloor: 90000,
+        });
         expect.fail("Should have thrown");
       } catch (e: unknown) {
-        const enhancedError = e as { invokeCommand?: string; invokeArgs?: unknown };
+        const enhancedError = e as {
+          invokeCommand?: string;
+          invokeArgs?: unknown;
+          invokeArgSummary?: { count: number; valueTypes: string[] };
+          message?: string;
+        };
         expect(enhancedError.invokeCommand).toBe("test_cmd");
-        expect(enhancedError.invokeArgs).toEqual({ id: 1 });
+        expect(enhancedError.invokeArgs).toBeUndefined();
+        expect(enhancedError.invokeArgSummary).toEqual({
+          count: 3,
+          valueTypes: ["string", "string", "number"],
+        });
+        const serialized = JSON.stringify(enhancedError);
+        expect(serialized).not.toContain("/Users/chad");
+        expect(serialized).not.toContain("raw-secret");
+        expect(serialized).not.toContain("90000");
+        expect(enhancedError.message).not.toContain("raw-secret");
+        expect(enhancedError.message).not.toContain("chad@example.com");
       }
     });
 

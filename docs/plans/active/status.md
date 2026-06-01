@@ -293,6 +293,11 @@ and record actionable findings in this active-plan surface.
   like database/configuration/input errors with plain local-data, saved-settings,
   and information-review copy, keeps raw SQL and secrets suppressed, and adds
   product-copy coverage against the old technical labels.
+- Latest local frontend privacy work removes raw Tauri command arguments and
+  raw backend exception text from propagated `safeInvoke` errors, replacing
+  them with display-safe error text plus a count/type-only argument summary.
+  Focused API tests and privacy-logging harness coverage guard against raw
+  invoke arguments returning.
 - Latest notification-settings UX work changes source-rule, minimum-salary,
   saved-error, and loading-error copy to plain alert-settings wording, with
   focused NotificationPreferences and product-copy coverage.
