@@ -2,6 +2,7 @@ import { useState, memo, lazy, Suspense } from "react";
 import { ScoreDisplay } from "./ScoreDisplay";
 import { GhostIndicatorCompact } from "./GhostIndicator";
 import { ModalSkeleton } from "./LoadingFallbacks";
+import { ApplyButton } from "./automation/ApplyButton";
 import { logError } from "../utils/errorUtils";
 import {
   formatRelativeDate,
@@ -22,6 +23,7 @@ const ScoreBreakdownModal = lazy(() =>
 
 interface Job {
   id: number;
+  hash?: string;
   title: string;
   company: string;
   location: string | null;
@@ -50,6 +52,7 @@ interface JobCardProps {
   onToggleBookmark?: (id: number) => void;
   onEditNotes?: (id: number, currentNotes?: string | null) => void;
   onResearchCompany?: (company: string) => void;
+  onOpenApplicationAssist?: () => void;
   isSelected?: boolean;
   salaryFloorUsd?: number | null;
 }
@@ -279,6 +282,7 @@ export const JobCard = memo(function JobCard({
   onToggleBookmark,
   onEditNotes,
   onResearchCompany,
+  onOpenApplicationAssist,
   isSelected = false,
   salaryFloorUsd,
 }: JobCardProps) {
@@ -575,6 +579,22 @@ export const JobCard = memo(function JobCard({
                 >
                   <BookmarkIcon filled={job.bookmarked} />
                 </button>
+              )}
+
+              {onOpenApplicationAssist && (
+                <ApplyButton
+                  job={{
+                    id: job.id,
+                    hash: job.hash ?? `job-${job.id}`,
+                    title: job.title,
+                    company: job.company,
+                    location: job.location ?? "",
+                    url: job.url,
+                    description: job.description ?? undefined,
+                    score: safeScore,
+                  }}
+                  onOpenApplicationAssist={onOpenApplicationAssist}
+                />
               )}
 
               <button

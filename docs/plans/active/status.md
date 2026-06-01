@@ -56,6 +56,11 @@ and record actionable findings in this active-plan surface.
   Advanced, explains location lookup without protocol jargon, broadens company
   suggestions and placeholders beyond technology, refreshes broad resume/mock
   ATS fixtures, and aligns E2E labels with the visible "Skills Interview" copy.
+- Latest local zero-technical UX work keeps job import from dead-ending when a
+  preview is missing details, wires Prepare Form into visible dashboard job
+  cards, adds a Set Up Profile recovery action, and replaces stale
+  `Settings > Application Assist` guidance with the sidebar Application Assist
+  path in frontend and Rust recovery copy.
 - Latest local broad-audience fixture work rebalanced generic market
   intelligence, notifications, config, database, ATS, ghost detection, salary,
   scoring, generic scraper adapters, command, frontend mock, sample JSON

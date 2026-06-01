@@ -546,7 +546,7 @@ pub async fn fill_application_form(
         .get_profile()
         .await
         .map_err(|e| user_friendly_error("Failed to load profile", e))?
-        .ok_or("No application profile configured. Please set up your profile first in Settings > Application Assist.")?;
+        .ok_or("No application profile configured. Open Application Assist from the sidebar and save your profile details first.")?;
 
     // Get saved screening answers for matching questions
     let screening_answers = profile_manager

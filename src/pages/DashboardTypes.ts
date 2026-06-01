@@ -14,11 +14,13 @@ export type Page =
   | "dashboard"
   | "applications"
   | "resume"
+  | "automation"
   | "salary"
   | "market";
 
 export interface Job {
   id: number;
+  hash?: string;
   title: string;
   company: string;
   location: string | null;

@@ -97,6 +97,12 @@ Current cleanup posture:
   care coordination, customer support, public health, inventory planning, and
   other broad job-seeker roles; bloat coverage now rejects drift in the newly
   cleaned sample-resume, bookmarklet, search-history, and score-modal paths.
+- Latest zero-technical UX follow-up fixed the highest dashboard/application
+  assist blockers from the audit: missing-detail job-import previews can still
+  be saved, job cards expose Prepare Form when dashboard navigation is
+  available, no-profile states show a Set Up Profile recovery action, and
+  stale `Settings > Application Assist` recovery copy is replaced by the
+  sidebar Application Assist path.
 - Latest IPC minimization work added `has_application_profile`,
   `get_application_profile_preview`, `get_dashboard_preferences`, canonical
   import URLs before preview/hash/storage, and minimized import responses to

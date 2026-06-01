@@ -191,7 +191,7 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
             <StepCard
               number={2}
               title="Choose Prepare Form"
-              description="Select a job and choose the Prepare Form button"
+              description="Use Prepare Form on a job card. If needed, choose Set Up Profile first."
             />
             <StepCard
               number={3}

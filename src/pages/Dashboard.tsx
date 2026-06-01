@@ -779,6 +779,9 @@ export default function Dashboard({
                         onResearchCompany={
                           jobOps.bulkMode ? undefined : setResearchCompany
                         }
+                        onOpenApplicationAssist={
+                          jobOps.bulkMode || !onNavigate ? undefined : () => onNavigate("automation")
+                        }
                         isSelected={isKeyboardActive && index === selectedIndex}
                         salaryFloorUsd={salaryFloorUsd}
                       />

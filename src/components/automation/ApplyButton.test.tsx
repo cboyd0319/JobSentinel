@@ -258,8 +258,31 @@ describe("ApplyButton", () => {
 
       await waitFor(() => {
         const button = screen.getByRole("button", { name: /prepare form/i });
-        expect(button).toHaveAttribute("title", "Set up your application profile first");
+        expect(button).toHaveAttribute(
+          "title",
+          "Set up your application profile first in Application Assist"
+        );
       });
+    });
+
+    it("shows a direct setup action when no profile exists", async () => {
+      const user = userEvent.setup();
+      const onOpenApplicationAssist = vi.fn();
+      mockInvoke.mockImplementation((cmd) => {
+        if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
+        if (cmd === "has_application_profile") return Promise.resolve(false);
+        if (cmd === "is_browser_running") return Promise.resolve(false);
+        return Promise.resolve(null);
+      });
+
+      renderWithToast(
+        <ApplyButton job={mockJob} onOpenApplicationAssist={onOpenApplicationAssist} />
+      );
+
+      const setupButton = await screen.findByRole("button", { name: /set up profile/i });
+      await user.click(setupButton);
+
+      expect(onOpenApplicationAssist).toHaveBeenCalledOnce();
     });
 
     it("button is enabled when profile exists", async () => {

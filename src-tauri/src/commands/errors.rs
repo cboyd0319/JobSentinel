@@ -205,7 +205,7 @@ fn get_specific_hint(error: &str) -> Option<&'static str> {
     // Profile specific
     if lower.contains("no application profile") || lower.contains("profile not") {
         return Some(
-            "Please set up your application profile first in Settings > Application Assist.",
+            "Open Application Assist from the sidebar and save your profile details first.",
         );
     }
 

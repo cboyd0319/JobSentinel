@@ -9,6 +9,12 @@ import { ToastProvider } from "../contexts/ToastContext";
 vi.mock("../services/deeplinks", () => ({
   openDeepLink: vi.fn(),
 }));
+vi.mock("@tauri-apps/api/core", () => ({
+  invoke: vi.fn(),
+}));
+
+const { invoke } = await import("@tauri-apps/api/core");
+const mockInvoke = vi.mocked(invoke);
 
 // Helper to wrap component with ToastProvider
 const renderWithToast = (ui: React.ReactElement) => {
@@ -36,6 +42,7 @@ const mockJob = {
 describe("JobCard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockInvoke.mockReset();
   });
 
   describe("rendering", () => {
@@ -119,6 +126,25 @@ describe("JobCard", () => {
       expect(
         screen.getByText(/We are looking for a helpful support lead/),
       ).toBeInTheDocument();
+    });
+
+    it("shows Prepare Form when Application Assist is available", async () => {
+      mockInvoke.mockImplementation((cmd) => {
+        if (cmd === "detect_ats_platform") {
+          return Promise.resolve({
+            platform: "greenhouse",
+            commonFields: ["email", "phone", "name"],
+            automationNotes: null,
+          });
+        }
+        if (cmd === "has_application_profile") return Promise.resolve(true);
+        if (cmd === "is_browser_running") return Promise.resolve(false);
+        return Promise.resolve(null);
+      });
+
+      renderWithToast(<JobCard job={mockJob} onOpenApplicationAssist={vi.fn()} />);
+
+      expect(await screen.findByRole("button", { name: /prepare form/i })).toBeInTheDocument();
     });
 
     it("truncates long descriptions", () => {

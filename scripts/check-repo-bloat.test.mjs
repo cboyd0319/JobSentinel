@@ -1923,7 +1923,7 @@ test("checkRepoBloat rejects application-assist automation framing", () => {
     writeFixtureFile(
       root,
       "src/components/automation/ApplyButton.tsx",
-      '"Quick Apply"; "Prepare to apply - fills form fields automatically";\n',
+      '"Quick Apply"; "Prepare to apply - fills form fields automatically"; "Settings > Application Assist";\n',
     );
     writeFixtureFile(
       root,

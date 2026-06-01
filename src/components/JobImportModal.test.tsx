@@ -102,4 +102,31 @@ describe("JobImportModal", () => {
     expect(screen.getByText(/safe debug report/i)).toBeInTheDocument();
     expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
   });
+
+  it("lets users save jobs even when the preview is missing details", async () => {
+    const user = userEvent.setup();
+    mockInvoke
+      .mockResolvedValueOnce({
+        ...preview,
+        missing_fields: ["salary", "date posted"],
+      })
+      .mockResolvedValueOnce({ jobId: 123 });
+
+    renderModal();
+
+    fireEvent.change(screen.getByLabelText("Job link"), {
+      target: { value: "https://example.com/jobs/office-manager" },
+    });
+    await user.click(screen.getByRole("button", { name: "Check Job Link" }));
+
+    expect(await screen.findByText(/You can still save this job/i)).toBeInTheDocument();
+    const saveButton = screen.getByRole("button", { name: "Save Job" });
+    expect(saveButton).not.toBeDisabled();
+
+    await user.click(saveButton);
+
+    expect(mockInvoke).toHaveBeenLastCalledWith("import_job_from_url", {
+      url: "https://example.com/jobs/office-manager",
+    });
+  });
 });

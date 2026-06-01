@@ -265,7 +265,10 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
                 <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded">
                   <p className="flex items-start gap-1.5 text-xs text-yellow-800 dark:text-yellow-200">
                     <WarningIcon className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-                    <span>Missing details: {preview.missing_fields.join(", ")}</span>
+                    <span>
+                      Missing details: {preview.missing_fields.join(", ")}. You can still save this job
+                      and verify the missing details before tailoring.
+                    </span>
                   </p>
                 </div>
               )}
@@ -297,7 +300,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
         {preview && !preview.already_exists && (
           <Button
             onClick={handleImport}
-            disabled={importing || preview.missing_fields.length > 0}
+            disabled={importing}
             loading={importing}
             variant="primary"
           >

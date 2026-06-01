@@ -265,6 +265,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-31 | In progress | Fixed high zero-technical UX blockers from the latest audit: job import previews with missing details no longer disable the save path, visible dashboard job cards now expose Prepare Form, no-profile states show a Set Up Profile recovery action, and stale `Settings > Application Assist` guidance is blocked by bloat coverage. |
 | 2026-05-31 | In progress | Rebalanced sample JSON Resume, company fallback, bookmarklet, import, remote-scoring, dashboard search, score-modal, undo, export, and feedback sanitizer examples toward broad job-seeker examples; extended bloat coverage for the newly cleaned sample-resume, bookmarklet, search-history, and score-modal fixture paths. |
 | 2026-05-31 | In progress | Rebalanced generic scraper adapter fixtures for Greenhouse, Glassdoor, USAJobs, JobsWithGPT, Lever, We Work Remotely, and shared HTTP examples toward broad job-seeker examples without changing fetch, retry, cache, URL, or parser behavior; added bloat coverage for these cleaned generic scraper paths. |
 | 2026-05-31 | In progress | Rebalanced salary prediction, seniority, and normalization fixtures away from software-only examples where they were not explicit software-engineer/SWE branch coverage; added bloat coverage so those salary fixture paths cannot drift back to engineer-only examples. |

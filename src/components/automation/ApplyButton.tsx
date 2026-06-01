@@ -30,6 +30,7 @@ interface AtsDetectionResponse {
 interface ApplyButtonProps {
   job: Job;
   onApplied?: () => void;
+  onOpenApplicationAssist?: () => void;
 }
 
 const ATS_DISPLAY_NAMES: Record<string, string> = {
@@ -63,7 +64,7 @@ const ATS_COLORS: Record<string, string> = {
   unknown: "bg-surface-100 text-surface-600 dark:bg-surface-700 dark:text-surface-300",
 };
 
-export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyButtonProps) {
+export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApplicationAssist }: ApplyButtonProps) {
   const [atsPlatform, setAtsPlatform] = useState<string | null>(null);
   const [atsLoading, setAtsLoading] = useState(true);
   const [atsInfo, setAtsInfo] = useState<AtsDetectionResponse | null>(null);
@@ -131,11 +132,23 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
     checkBrowser();
   }, [detectPlatform, checkProfile, checkBrowser]);
 
+  const handleOpenApplicationAssist = () => {
+    if (onOpenApplicationAssist) {
+      onOpenApplicationAssist();
+      return;
+    }
+
+    toast.info(
+      "Set up profile first",
+      "Open Application Assist from the sidebar and save the details you want JobSentinel to prepare."
+    );
+  };
+
   const handlePrepareApplication = () => {
     if (!hasProfile) {
       toast.error(
         "Profile required",
-        "Please set up your application profile first in Settings > Application Assist"
+        "Open Application Assist from the sidebar and save the details you want JobSentinel to prepare."
       );
       return;
     }
@@ -297,12 +310,22 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
               atsLoading
                 ? "Detecting application platform..."
                   : !hasProfile
-                    ? "Set up your application profile first"
+                    ? "Set up your application profile first in Application Assist"
                     : "Prepare application form for your review"
             }
           >
             <BoltIcon className="w-4 h-4 mr-1" />
             Prepare Form
+          </Button>
+        )}
+        {!browserRunning && !atsLoading && !hasProfile && (
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleOpenApplicationAssist}
+            title="Open Application Assist to set up your profile"
+          >
+            Set Up Profile
           </Button>
         )}
       </div>
