@@ -140,6 +140,12 @@ and record actionable findings in this active-plan surface.
   sensors into `scripts/harness/checks/source-boundaries.mjs`; focused
   source-boundary coverage is now 5 tests and `scripts/check-repo-bloat.mjs`
   is 1,826 lines.
+- Latest local frontend-contract harness work moves user-data, deep-link,
+  feedback, and resume optimizer mock-drift sensors, runtime invoke mock
+  coverage, unsafe Resume Optimizer JSON parsing, ATS keyword shape, salary,
+  interview, resume match, and resume E2E seed sensors into
+  `scripts/harness/checks/frontend-contracts.mjs`; focused frontend-contract
+  coverage is now 6 tests and `scripts/check-repo-bloat.mjs` is 1,624 lines.
 - Latest local privacy work removes raw automation dropdown-answer logging and
   raw frontend error forwarding, then adds bloat sensors and `errorReporting`
   unit coverage so those regressions fail locally.
@@ -236,8 +242,8 @@ and record actionable findings in this active-plan surface.
    current sensors, while preserving tech-specific cases only when they test
    explicit branch behavior or source-realism parser contracts.
 2. Continue splitting oversized mixed sensors, especially remaining
-   source-quality, frontend shape, mock-drift, and source-security checks still
-   inside `scripts/check-repo-bloat.mjs`.
+   source-quality, frontend status/glyph, backend shape, and source-security
+   checks still inside `scripts/check-repo-bloat.mjs`.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
 4. Continue broad-audience review so non-technical and technical job searches
