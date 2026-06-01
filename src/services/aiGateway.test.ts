@@ -76,6 +76,15 @@ describe("aiGateway", () => {
     expect(transport.send).not.toHaveBeenCalled();
   });
 
+  it("uses plain setup wording when no transport is provided", async () => {
+    const gateway = createExternalAiGateway(enabledSettings());
+
+    await expect(gateway.send(publicJobSummaryRequest)).rejects.toMatchObject({
+      code: "transport_missing",
+      message: "External AI sending is not set up.",
+    });
+  });
+
   it("rejects sensitive data by default", async () => {
     const transport = {
       send: vi.fn().mockResolvedValue({ text: "fit explanation" }),

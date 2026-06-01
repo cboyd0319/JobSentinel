@@ -5,42 +5,42 @@ describe("errorUtils", () => {
   describe("getErrorMessage", () => {
     it("returns generic safe copy for unknown Error instances", () => {
       const error = new Error("Something went wrong");
-      expect(getErrorMessage(error)).toContain("An unexpected error occurred");
+      expect(getErrorMessage(error)).toContain("JobSentinel ran into a problem");
       expect(getErrorMessage(error)).toContain("safe support report");
     });
 
     it("returns generic safe copy for string errors", () => {
-      expect(getErrorMessage("Direct string error")).toContain("An unexpected error occurred");
+      expect(getErrorMessage("Direct string error")).toContain("JobSentinel ran into a problem");
     });
 
     it("returns generic safe copy for object message properties", () => {
       const error = { message: "Object error message" };
-      expect(getErrorMessage(error)).toContain("An unexpected error occurred");
+      expect(getErrorMessage(error)).toContain("JobSentinel ran into a problem");
     });
 
     it("returns safe copy for object with non-string message property", () => {
       const error = { message: 123 };
-      expect(getErrorMessage(error)).toContain("An unexpected error occurred");
+      expect(getErrorMessage(error)).toContain("JobSentinel ran into a problem");
     });
 
     it("returns default message for null", () => {
-      expect(getErrorMessage(null)).toContain("An unexpected error occurred");
+      expect(getErrorMessage(null)).toContain("JobSentinel ran into a problem");
     });
 
     it("returns default message for undefined", () => {
-      expect(getErrorMessage(undefined)).toContain("An unexpected error occurred");
+      expect(getErrorMessage(undefined)).toContain("JobSentinel ran into a problem");
     });
 
     it("returns default message for number", () => {
-      expect(getErrorMessage(42)).toContain("An unexpected error occurred");
+      expect(getErrorMessage(42)).toContain("JobSentinel ran into a problem");
     });
 
     it("returns default message for empty object", () => {
-      expect(getErrorMessage({})).toContain("An unexpected error occurred");
+      expect(getErrorMessage({})).toContain("JobSentinel ran into a problem");
     });
 
     it("returns default message for array", () => {
-      expect(getErrorMessage([1, 2, 3])).toContain("An unexpected error occurred");
+      expect(getErrorMessage([1, 2, 3])).toContain("JobSentinel ran into a problem");
     });
 
     it("keeps useful known categories without exposing raw sensitive details", () => {
@@ -59,7 +59,7 @@ describe("errorUtils", () => {
         message: "token=abc123 for alice@example.com at /Users/alice/private.txt",
       });
 
-      expect(message).toContain("An unexpected error occurred");
+      expect(message).toContain("JobSentinel ran into a problem");
       expect(message).not.toContain("abc123");
       expect(message).not.toContain("alice@example.com");
       expect(message).not.toContain("/Users/alice");

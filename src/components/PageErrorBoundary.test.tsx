@@ -126,7 +126,9 @@ describe("PageErrorBoundary", () => {
         </PageErrorBoundary>
       );
 
-      expect(screen.getByText(/something went wrong loading this page/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/this page needs attention\. your data is safe/i),
+      ).toBeInTheDocument();
       expect(screen.getByText(/save a safe support report/i)).toBeInTheDocument();
       expect(screen.queryByText("Page test error")).not.toBeInTheDocument();
     });
@@ -143,7 +145,7 @@ describe("PageErrorBoundary", () => {
         </PageErrorBoundary>
       );
 
-      expect(container.textContent).toContain("Something went wrong loading this page");
+      expect(container.textContent).toContain("This page needs attention");
       expect(container.textContent).not.toContain("/Users/alice");
       expect(container.textContent).not.toContain("token=abc");
       expect(container.textContent).not.toContain("candidate@example.com");
@@ -273,7 +275,7 @@ describe("PageErrorBoundary", () => {
       );
 
       expect(
-        screen.getByText(/something went wrong loading this page. your data is safe./i)
+        screen.getByText(/this page needs attention. your data is safe./i)
       ).toBeInTheDocument();
     });
 
@@ -290,7 +292,7 @@ describe("PageErrorBoundary", () => {
       );
 
       expect(
-        screen.getByText(/something went wrong loading this page/i)
+        screen.getByText(/this page needs attention\. your data is safe/i)
       ).toBeInTheDocument();
     });
 
@@ -301,7 +303,7 @@ describe("PageErrorBoundary", () => {
         </PageErrorBoundary>
       );
 
-      const description = screen.getByText(/something went wrong loading this page/i);
+      const description = screen.getByText(/this page needs attention\. your data is safe/i);
       expect(description).toBeInTheDocument();
     });
 
@@ -317,7 +319,7 @@ describe("PageErrorBoundary", () => {
   });
 
   describe("development mode", () => {
-    it("shows technical details in dev mode", () => {
+    it("shows support details in dev mode", () => {
       // Mock dev environment
       vi.stubEnv("DEV", true);
 
@@ -327,12 +329,12 @@ describe("PageErrorBoundary", () => {
         </PageErrorBoundary>
       );
 
-      expect(screen.getByText(/technical details/i)).toBeInTheDocument();
+      expect(screen.getByText(/support details/i)).toBeInTheDocument();
 
       vi.unstubAllEnvs();
     });
 
-    it("technical details are in a collapsible section", () => {
+    it("support details are in a collapsible section", () => {
       vi.stubEnv("DEV", true);
 
       const { container } = render(
@@ -346,12 +348,12 @@ describe("PageErrorBoundary", () => {
 
       const summary = details?.querySelector("summary");
       expect(summary).toBeInTheDocument();
-      expect(summary).toHaveTextContent(/technical details/i);
+      expect(summary).toHaveTextContent(/support details/i);
 
       vi.unstubAllEnvs();
     });
 
-    it("shows error stack in technical details", () => {
+    it("shows error stack in support details", () => {
       vi.stubEnv("DEV", true);
 
       const { container } = render(

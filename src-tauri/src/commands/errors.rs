@@ -36,7 +36,7 @@ impl ErrorCategory {
             Self::Browser => "Browser problem",
             Self::NotFound => "Item not found",
             Self::Validation => "Information needs review",
-            Self::Unknown => "Something went wrong",
+            Self::Unknown => "JobSentinel needs attention",
         }
     }
 

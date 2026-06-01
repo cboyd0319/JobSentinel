@@ -8,7 +8,7 @@ export function getDashboardLoadErrorMessage(error: unknown): string {
 export function getDashboardSearchErrorCopy(error: unknown) {
   const friendly = getUserFriendlyError(error);
   return {
-    title: friendly.title === "Something Went Wrong" ? "Could not search jobs" : friendly.title,
+    title: friendly.title === "JobSentinel needs attention" ? "Could not search jobs" : friendly.title,
     message: friendly.action ? `${friendly.message}\n\n${friendly.action}` : friendly.message,
   };
 }

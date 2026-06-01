@@ -1,7 +1,7 @@
 import { getUserFriendlyError } from "./errorMessages";
 
-const GENERIC_ERROR_TITLE = "Something Went Wrong";
-const GENERIC_ERROR_MESSAGE = "An unexpected error occurred.";
+const GENERIC_ERROR_TITLE = "JobSentinel needs attention";
+const GENERIC_ERROR_MESSAGE = "JobSentinel ran into a problem.";
 
 type SafeErrorCopyOptions = {
   fallbackTitle?: string;

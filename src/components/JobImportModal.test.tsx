@@ -80,7 +80,7 @@ describe("JobImportModal", () => {
     });
     await user.click(screen.getByRole("button", { name: "Check Job Link" }));
 
-    expect(await screen.findByText("An unexpected error occurred.")).toBeInTheDocument();
+    expect(await screen.findByText("JobSentinel ran into a problem.")).toBeInTheDocument();
     expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
     expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
   });
@@ -100,7 +100,7 @@ describe("JobImportModal", () => {
 
     await user.click(screen.getByRole("button", { name: "Save Job" }));
 
-    expect(await screen.findByText("An unexpected error occurred.")).toBeInTheDocument();
+    expect(await screen.findByText("JobSentinel ran into a problem.")).toBeInTheDocument();
     expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
     expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
   });

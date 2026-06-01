@@ -529,7 +529,7 @@ pub async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
             } else if let Some(db_err) = e.downcast_ref::<DatabaseError>() {
                 db_err.user_message()
             } else {
-                "An unexpected error occurred. Please try again.".to_string()
+                "JobSentinel ran into a problem. Please try again.".to_string()
             };
 
             Err(user_msg)

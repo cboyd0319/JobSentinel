@@ -51,7 +51,7 @@ export const ERROR_MESSAGES: Record<ErrorType, string> = {
   [ErrorType.NOT_FOUND]: 'The requested resource was not found.',
   [ErrorType.UNAUTHORIZED]: 'You do not have permission to access this.',
   [ErrorType.TIMEOUT]: 'Request timed out. Please try again.',
-  [ErrorType.UNKNOWN]: 'An unexpected error occurred. Please try again.',
+  [ErrorType.UNKNOWN]: 'JobSentinel ran into a problem. Please try again.',
 };
 
 /**

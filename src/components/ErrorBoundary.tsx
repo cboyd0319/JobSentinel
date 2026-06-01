@@ -12,7 +12,7 @@ const VISUAL_PREFERENCE_KEYS = [
 function getSafeErrorMessage(error: Error | null): string {
   return error
     ? 'JobSentinel ran into a problem. Your data is safe. Try again, or copy a safe support report if it keeps happening.'
-    : 'An unexpected error occurred';
+    : 'JobSentinel ran into a problem. Your data is safe.';
 }
 
 function getSafeErrorStack(error: Error | null): string | null {
@@ -258,7 +258,7 @@ class ErrorBoundary extends Component<Props, State> {
             {import.meta.env.DEV && safeErrorStack && (
               <details className="mt-6 p-4 bg-surface-100 dark:bg-surface-900/50 rounded-lg">
                 <summary className="cursor-pointer text-sm text-surface-600 dark:text-surface-400 font-medium">
-                  Error Details (Development Only)
+                  Support details (development only)
                 </summary>
                 <pre className="mt-2 text-xs text-danger overflow-auto max-h-48 whitespace-pre-wrap">
                   {safeErrorStack}

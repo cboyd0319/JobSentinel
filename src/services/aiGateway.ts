@@ -189,7 +189,7 @@ function validateRequest(
   if (!transport) {
     throw new ExternalAiGatewayError(
       "transport_missing",
-      "External AI transport is not configured.",
+      "External AI sending is not set up.",
     );
   }
 
@@ -244,7 +244,7 @@ export function createExternalAiGateway(
       if (!transport) {
         throw new ExternalAiGatewayError(
           "transport_missing",
-          "External AI transport is not configured.",
+          "External AI sending is not set up.",
         );
       }
 

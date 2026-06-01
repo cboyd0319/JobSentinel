@@ -7,8 +7,8 @@ import { saveSanitizedDebugReport } from "../services/feedbackService";
 
 function getSafeErrorMessage(error: Error | null): string {
   return error
-    ? "Something went wrong loading this page. Your data is safe. Try again, go back, or save a safe support report if it keeps happening."
-    : "Something went wrong loading this page. Your data is safe.";
+    ? "This page needs attention. Your data is safe. Try again, go back, or save a safe support report if it keeps happening."
+    : "This page needs attention. Your data is safe.";
 }
 
 function getSafeErrorStack(error: Error | null): string | null {
@@ -188,7 +188,7 @@ class PageErrorBoundary extends Component<Props, State> {
             {import.meta.env.DEV && safeErrorStack && (
               <details className="mt-6 p-4 bg-surface-100 dark:bg-surface-800 rounded-lg text-sm">
                 <summary className="cursor-pointer text-surface-600 dark:text-surface-400 font-medium">
-                  Technical Details (Development Only)
+                  Support details (development only)
                 </summary>
                 <pre className="mt-2 overflow-auto text-xs text-red-600 dark:text-red-400 whitespace-pre-wrap max-h-64">
                   {safeErrorStack}

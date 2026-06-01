@@ -321,6 +321,13 @@ boundaries, and harness modularity:
   save/test, notification, reminder, modal recovery, feedback-details, and API
   fallback paths. They now use `Could not...` wording, with focused
   page/component/utility tests and product-copy coverage against old labels.
+- Fixed shared generic fallback copy that still used `Something went wrong`,
+  `An unexpected error occurred`, and `External AI transport is not configured`
+  wording. Shared helpers, Rust command error titles, error boundaries,
+  Dashboard recovery, job import, and external AI gateway setup errors now use
+  plain `JobSentinel needs attention` / `JobSentinel ran into a problem` /
+  `External AI sending is not set up` wording, with product-copy coverage
+  against the old labels.
 - Fixed visible interview outcome labels that still used pass/fail framing.
   The internal saved value remains `failed`, but visible buttons and chips now
   use plain, non-shaming labels such as `Did not go well`, with focused

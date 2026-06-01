@@ -120,8 +120,8 @@ const ALL_ERROR_PATTERNS = [
  * Generic fallback error
  */
 const GENERIC_ERROR: UserFriendlyError = {
-  title: 'Something Went Wrong',
-  message: 'An unexpected error occurred.',
+  title: 'JobSentinel needs attention',
+  message: 'JobSentinel ran into a problem.',
   action: 'Try again in a moment. If the problem continues, copy a safe support report and share it only if you want help.',
 };
 

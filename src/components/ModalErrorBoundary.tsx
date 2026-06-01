@@ -24,12 +24,12 @@ interface State {
 function safeModalErrorMessage(error: Error | null): string {
   return error
     ? 'This window could not load. Your data is safe. Close it and try again.'
-    : 'An unexpected error occurred';
+    : 'This window needs attention. Your data is safe.';
 }
 
 function safeModalErrorDetails(error: Error | null): string {
   if (!error?.stack) {
-    return 'No error details available.';
+    return 'No support details available.';
   }
 
   return sanitizeTextForStorage(error.stack);
@@ -157,7 +157,7 @@ class ModalErrorBoundary extends Component<Props, State> {
                 id="modal-error-title"
                 className="font-display text-display-md text-surface-900 dark:text-white mb-2"
               >
-                {this.props.title || 'Something went wrong'}
+                {this.props.title || 'This window needs attention'}
               </h3>
               <p className="text-sm text-surface-600 dark:text-surface-400 mb-1">
                 {safeModalErrorMessage(this.state.error)}
@@ -242,7 +242,7 @@ class ModalErrorBoundary extends Component<Props, State> {
             {import.meta.env.DEV && this.state.error?.stack && (
               <details className="mt-4 p-3 bg-surface-100 dark:bg-surface-900/50 rounded-lg">
                 <summary className="cursor-pointer text-xs text-surface-600 dark:text-surface-400 font-medium">
-                  Error Stack (Development Only)
+                  Support details (development only)
                 </summary>
                 <pre className="mt-2 text-xs text-red-600 dark:text-red-400 overflow-auto max-h-32 whitespace-pre-wrap">
                   {safeModalErrorDetails(this.state.error)}

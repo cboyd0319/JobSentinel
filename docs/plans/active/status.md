@@ -178,6 +178,12 @@ and record actionable findings in this active-plan surface.
   titles in job search, settings save/test, notification, reminder, modal
   recovery, feedback-details, and API fallback paths with `Could not...`
   wording, and extends product-copy coverage against the old titles.
+- Latest local generic error fallback follow-up replaces visible
+  `Something went wrong` and `An unexpected error occurred` fallback copy with
+  `JobSentinel needs attention` / `JobSentinel ran into a problem` wording
+  across shared error helpers, Rust command error titles, boundaries,
+  Dashboard, job import, and external AI setup errors. Product-copy sensors
+  now reject those old generic labels.
 - Latest local interview-outcome follow-up keeps the internal `failed`
   interview outcome value but changes visible outcome buttons and chips to
   plain, non-shaming labels such as `Did not go well`, with component and

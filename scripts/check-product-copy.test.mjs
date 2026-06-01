@@ -518,6 +518,8 @@ test("product copy rejects technical-first settings copy", () => {
       root,
       "src/utils/errorMessages.ts",
       [
+        "Something Went Wrong",
+        "An unexpected error occurred.",
         "Bot Detection Triggered",
         "The website thinks you're a bot and blocked the request.",
         "This is a safety measure. Reduce search frequency or try again later.",
@@ -597,7 +599,17 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/components/AsyncButton.tsx",
-      'toast.success("Success", successMessage);\ntoast.error("Error", errorMessage || safeMessage);\n',
+      'toast.success("Success", successMessage);\ntoast.error("Error", errorMessage || safeMessage);\ntoast.error("Something went wrong", errorMessage || safeMessage);\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/services/aiGateway.ts",
+      "External AI transport is not configured.\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/utils/safeErrorCopy.ts",
+      'const GENERIC_ERROR_TITLE = "Something Went Wrong";\n',
     );
     writeFixtureFile(
       root,
@@ -690,6 +702,8 @@ test("product copy rejects technical-first settings copy", () => {
       root,
       "src/utils/errorMessages.ts",
       [
+        "Something Went Wrong",
+        "An unexpected error occurred.",
         "Too Many Requests",
         "You've made too many requests to this job board.",
         "Consider increasing the delay between searches.",
@@ -831,6 +845,8 @@ test("product copy rejects technical-first settings copy", () => {
       true,
     );
     assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/errorMessages.ts"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/safeErrorCopy.ts"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/services/aiGateway.ts"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/AtsLiveScorePanel.tsx"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/components/NotificationPreferences.tsx"),

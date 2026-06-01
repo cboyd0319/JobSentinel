@@ -543,7 +543,7 @@ export default function Dashboard({
             <span className="text-red-600 dark:text-red-400 text-xl">!</span>
           </div>
           <h2 className="font-display text-display-md text-surface-900 dark:text-white mb-2">
-            Something went wrong
+            JobSentinel needs attention
           </h2>
           <p className="text-surface-500 dark:text-surface-400 mb-4">{error}</p>
           <Button onClick={fetchData}>Try Again</Button>

@@ -63,7 +63,7 @@ describe("ModalErrorBoundary", () => {
         </ModalErrorBoundary>
       );
 
-      expect(screen.queryByText("Something went wrong")).not.toBeInTheDocument();
+      expect(screen.queryByText("This window needs attention")).not.toBeInTheDocument();
     });
   });
 
@@ -75,7 +75,7 @@ describe("ModalErrorBoundary", () => {
         </ModalErrorBoundary>
       );
 
-      expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+      expect(screen.getByText("This window needs attention")).toBeInTheDocument();
     });
 
     it("displays custom title when provided", () => {
@@ -111,7 +111,7 @@ describe("ModalErrorBoundary", () => {
         </ModalErrorBoundary>
       );
 
-      expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+      expect(screen.getByText("This window needs attention")).toBeInTheDocument();
       expect(screen.getByText((content, element) => {
         return element?.tagName === "P" && content.includes("This window could not load");
       })).toBeInTheDocument();
@@ -221,7 +221,7 @@ describe("ModalErrorBoundary", () => {
         </ModalErrorBoundary>
       );
 
-      expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+      expect(screen.getByText("This window needs attention")).toBeInTheDocument();
 
       // Click Try Again button
       const tryAgainButton = screen.getByRole("button", { name: /try again/i });
@@ -233,7 +233,7 @@ describe("ModalErrorBoundary", () => {
       // The test verifies the button can be clicked
       // In a real app, this would reset the error boundary state
       // But since the child would throw again, the error UI persists
-      expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+      expect(screen.getByText("This window needs attention")).toBeInTheDocument();
     });
 
     it("does not render children after error", () => {
@@ -315,7 +315,7 @@ describe("ModalErrorBoundary", () => {
         </ModalErrorBoundary>
       );
 
-      const heading = screen.getByRole("heading", { name: /something went wrong/i });
+      const heading = screen.getByRole("heading", { name: /this window needs attention/i });
       expect(heading).toBeInTheDocument();
     });
 

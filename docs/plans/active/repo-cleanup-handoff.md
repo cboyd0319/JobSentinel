@@ -226,6 +226,11 @@ Current cleanup posture:
   fallback titles away from visible failure labels to `Could not...` wording.
   Focused page/component/utility tests and product-copy sensors cover the old
   labels.
+- Current local generic error fallback follow-up changes shared fallback copy
+  away from `Something went wrong` and `An unexpected error occurred` toward
+  `JobSentinel needs attention` / `JobSentinel ran into a problem` wording in
+  user-facing recovery surfaces, Rust command error titles, and external AI
+  setup errors. Product-copy sensors cover the old generic labels.
 - Current local interview-outcome follow-up keeps the persisted `failed`
   interview outcome value while changing visible outcome buttons and chips to
   plain, non-shaming labels such as `Did not go well`. Focused component tests
