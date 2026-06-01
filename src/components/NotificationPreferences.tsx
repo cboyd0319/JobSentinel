@@ -274,6 +274,9 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
           <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-3 uppercase tracking-wide">
             Job Alert Sources
           </p>
+          <p className="text-xs text-surface-500 dark:text-surface-400 mb-3">
+            Detailed rules currently apply to Indeed, Greenhouse, Lever, and JobsWithGPT. Other sources still follow the all-notifications switch and quiet hours.
+          </p>
           {(Object.keys(SOURCE_INFO) as AlertSourceKey[]).map((sourceKey) => (
             <SourceConfigRow
               key={sourceKey}

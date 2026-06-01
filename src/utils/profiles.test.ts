@@ -85,6 +85,18 @@ describe("profiles", () => {
       expect(config.weworkremotely.enabled).toBe(false);
     });
 
+    it("keeps product and design profiles off tech-heavy sources by default", () => {
+      const profile = getProfileById("product-management");
+      expect(profile).toBeDefined();
+      if (!profile) return;
+
+      const config = profileToConfig(profile);
+
+      expect(config.remoteok.enabled).toBe(false);
+      expect(config.hn_hiring.enabled).toBe(false);
+      expect(config.weworkremotely.enabled).toBe(false);
+    });
+
     it("creates independent copies of arrays", () => {
       const profile = getProfileById("software-engineering");
       expect(profile).toBeDefined();
@@ -105,7 +117,8 @@ describe("profiles", () => {
   describe("source defaults", () => {
     it("recognizes technical and non-technical search terms", () => {
       expect(searchLooksTechFocused(["Software Engineer"])).toBe(true);
-      expect(searchLooksTechFocused(["Product Designer"])).toBe(true);
+      expect(searchLooksTechFocused(["Technical Product Manager"])).toBe(true);
+      expect(searchLooksTechFocused(["Product Designer"])).toBe(false);
       expect(searchLooksTechFocused(["Office Manager", "Scheduling"])).toBe(false);
       expect(searchLooksTechFocused(["Medical Assistant", "EMR"])).toBe(false);
     });

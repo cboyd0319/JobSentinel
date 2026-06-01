@@ -458,6 +458,9 @@ describe("NotificationPreferences Component", () => {
 
       await waitFor(() => {
         expect(screen.getByText("Job Alert Sources")).toBeInTheDocument();
+        expect(
+          screen.getByText(/Detailed rules currently apply to Indeed/),
+        ).toBeInTheDocument();
         expect(screen.queryByText("Source Alert Rules")).not.toBeInTheDocument();
         expect(screen.queryByText("LinkedIn")).not.toBeInTheDocument();
         expect(screen.getByText("Indeed")).toBeInTheDocument();

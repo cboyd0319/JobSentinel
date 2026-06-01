@@ -57,7 +57,7 @@ const VALIDATION_ERRORS = [
 const SCRAPER_ERRORS = [
   { pattern: /parse|selector|element.*not.*found/i, title: 'Website Format Changed', message: 'The job board\'s website layout has changed and we can\'t read it properly.', action: 'This usually means we need to update our software. Check for app updates or contact support.' },
   { pattern: /no.*jobs.*found|empty.*results/i, title: 'No Jobs Found', message: 'No job listings matched your search criteria.', action: 'Try broadening your search filters or check different job boards.' },
-  { pattern: /scraper.*disabled|source.*unavailable/i, title: 'Job Source Disabled', message: 'This job board is currently disabled in your settings.', action: 'Go to Settings > Job Sources to enable this job board.' },
+  { pattern: /scraper.*disabled|source.*unavailable/i, title: 'Job Source Disabled', message: 'This job board is currently disabled in your settings.', action: 'Open Settings, choose More Settings, then View Job Sources.' },
   { pattern: /api.*key|api.*quota|api.*limit/i, title: 'Daily Job Board Limit Reached', message: 'This job board has stopped accepting more requests today.', action: 'Wait until tomorrow, or reduce how often JobSentinel checks this source.' },
   { pattern: /captcha|bot.*detection|cloudflare/i, title: 'Bot Detection Triggered', message: 'The website thinks you\'re a bot and blocked the request.', action: 'This is a safety measure. Reduce search frequency or try again later.' },
 ];
@@ -76,7 +76,7 @@ const CONFIG_ERRORS = [
  * Notification and webhook error patterns
  */
 const NOTIFICATION_ERRORS = [
-  { pattern: /webhook.*failed|webhook.*invalid/i, title: 'Notification Setup Failed', message: 'We couldn\'t send notifications to your configured channel.', action: 'Open Settings > Notifications and paste a fresh connection link for that channel.' },
+  { pattern: /webhook.*failed|webhook.*invalid/i, title: 'Notification Setup Failed', message: 'We couldn\'t send notifications to your configured channel.', action: 'Open Settings, choose More Settings, then paste a fresh connection link for that channel.' },
   { pattern: /slack.*error/i, title: 'Slack Notification Failed', message: 'Couldn\'t send a notification to Slack.', action: 'Paste a fresh Slack connection link in Settings and make sure the channel still exists.' },
   { pattern: /discord.*error/i, title: 'Discord Notification Failed', message: 'Couldn\'t send a notification to Discord.', action: 'Paste a fresh Discord connection link in Settings and make sure the channel still exists.' },
   { pattern: /teams.*error/i, title: 'Teams Notification Failed', message: 'Couldn\'t send a notification to Microsoft Teams.', action: 'Paste a fresh Teams connection link in Settings and make sure the connector is still active.' },

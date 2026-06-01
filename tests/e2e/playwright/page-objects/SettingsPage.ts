@@ -21,7 +21,7 @@ export class SettingsPage extends BasePage {
   }
 
   get advancedTab(): Locator {
-    return this.dialog.getByRole("tab", { name: "Advanced Settings" });
+    return this.dialog.getByRole("tab", { name: "More Settings" });
   }
 
   get saveButton(): Locator {

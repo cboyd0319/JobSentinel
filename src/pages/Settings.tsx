@@ -243,6 +243,175 @@ const isValidEmail = (email: string): boolean => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function hasStringArrayField(
+  record: Record<string, unknown>,
+  field: string,
+): boolean {
+  return (
+    Array.isArray(record[field]) &&
+    (record[field] as unknown[]).every((item) => typeof item === "string")
+  );
+}
+
+function hasBooleanField(record: Record<string, unknown>, field: string): boolean {
+  return typeof record[field] === "boolean";
+}
+
+function hasNumberField(record: Record<string, unknown>, field: string): boolean {
+  return typeof record[field] === "number";
+}
+
+function hasStringField(record: Record<string, unknown>, field: string): boolean {
+  return typeof record[field] === "string";
+}
+
+function hasOptionalStringField(
+  record: Record<string, unknown>,
+  field: string,
+): boolean {
+  return record[field] === undefined || typeof record[field] === "string";
+}
+
+function hasOptionalNumberField(
+  record: Record<string, unknown>,
+  field: string,
+): boolean {
+  return record[field] === undefined || typeof record[field] === "number";
+}
+
+function recordField(
+  record: Record<string, unknown>,
+  field: string,
+): Record<string, unknown> | null {
+  const value = record[field];
+  return isPlainRecord(value) ? value : null;
+}
+
+function isSettingsBackupConfig(value: unknown): value is Config {
+  if (!isPlainRecord(value)) return false;
+
+  const location = recordField(value, "location_preferences");
+  const alerts = recordField(value, "alerts");
+  const autoRefresh = recordField(value, "auto_refresh");
+  const slack = alerts ? recordField(alerts, "slack") : null;
+  const email = alerts ? recordField(alerts, "email") : null;
+  const discord = alerts ? recordField(alerts, "discord") : null;
+  const telegram = alerts ? recordField(alerts, "telegram") : null;
+  const teams = alerts ? recordField(alerts, "teams") : null;
+  const desktop = alerts ? recordField(alerts, "desktop") : null;
+  const linkedin = recordField(value, "linkedin");
+  const remoteok = recordField(value, "remoteok");
+  const weworkremotely = recordField(value, "weworkremotely");
+  const builtin = recordField(value, "builtin");
+  const hnHiring = recordField(value, "hn_hiring");
+  const dice = recordField(value, "dice");
+  const ycStartup = recordField(value, "yc_startup");
+  const usajobs = recordField(value, "usajobs");
+  const simplyhired = recordField(value, "simplyhired");
+  const glassdoor = recordField(value, "glassdoor");
+
+  return (
+    hasStringArrayField(value, "title_allowlist") &&
+    hasStringArrayField(value, "title_blocklist") &&
+    hasStringArrayField(value, "keywords_boost") &&
+    hasStringArrayField(value, "keywords_exclude") &&
+    hasStringArrayField(value, "company_whitelist") &&
+    hasStringArrayField(value, "company_blacklist") &&
+    hasNumberField(value, "salary_floor_usd") &&
+    hasOptionalNumberField(value, "salary_target_usd") &&
+    !!location &&
+    hasBooleanField(location, "allow_remote") &&
+    hasBooleanField(location, "allow_hybrid") &&
+    hasBooleanField(location, "allow_onsite") &&
+    hasStringArrayField(location, "cities") &&
+    !!autoRefresh &&
+    hasBooleanField(autoRefresh, "enabled") &&
+    hasNumberField(autoRefresh, "interval_minutes") &&
+    !!alerts &&
+    !!slack &&
+    hasBooleanField(slack, "enabled") &&
+    !!email &&
+    hasBooleanField(email, "enabled") &&
+    hasStringField(email, "smtp_server") &&
+    hasNumberField(email, "smtp_port") &&
+    hasStringField(email, "smtp_username") &&
+    hasStringField(email, "from_email") &&
+    hasStringArrayField(email, "to_emails") &&
+    hasBooleanField(email, "use_starttls") &&
+    !!discord &&
+    hasBooleanField(discord, "enabled") &&
+    hasOptionalStringField(discord, "user_id_to_mention") &&
+    !!telegram &&
+    hasBooleanField(telegram, "enabled") &&
+    hasOptionalStringField(telegram, "chat_id") &&
+    !!teams &&
+    hasBooleanField(teams, "enabled") &&
+    !!desktop &&
+    hasBooleanField(desktop, "enabled") &&
+    hasBooleanField(desktop, "show_when_focused") &&
+    hasBooleanField(desktop, "play_sound") &&
+    !!linkedin &&
+    hasBooleanField(linkedin, "enabled") &&
+    hasStringField(linkedin, "query") &&
+    hasStringField(linkedin, "location") &&
+    hasBooleanField(linkedin, "remote_only") &&
+    hasNumberField(linkedin, "limit") &&
+    !!remoteok &&
+    hasBooleanField(remoteok, "enabled") &&
+    hasStringArrayField(remoteok, "tags") &&
+    hasNumberField(remoteok, "limit") &&
+    !!weworkremotely &&
+    hasBooleanField(weworkremotely, "enabled") &&
+    hasOptionalStringField(weworkremotely, "category") &&
+    hasNumberField(weworkremotely, "limit") &&
+    !!builtin &&
+    hasBooleanField(builtin, "enabled") &&
+    hasStringArrayField(builtin, "cities") &&
+    hasOptionalStringField(builtin, "category") &&
+    hasNumberField(builtin, "limit") &&
+    !!hnHiring &&
+    hasBooleanField(hnHiring, "enabled") &&
+    hasBooleanField(hnHiring, "remote_only") &&
+    hasNumberField(hnHiring, "limit") &&
+    !!dice &&
+    hasBooleanField(dice, "enabled") &&
+    hasStringField(dice, "query") &&
+    hasOptionalStringField(dice, "location") &&
+    hasNumberField(dice, "limit") &&
+    !!ycStartup &&
+    hasBooleanField(ycStartup, "enabled") &&
+    hasOptionalStringField(ycStartup, "query") &&
+    hasBooleanField(ycStartup, "remote_only") &&
+    hasNumberField(ycStartup, "limit") &&
+    !!usajobs &&
+    hasBooleanField(usajobs, "enabled") &&
+    hasStringField(usajobs, "email") &&
+    hasOptionalStringField(usajobs, "keywords") &&
+    hasOptionalStringField(usajobs, "location") &&
+    hasOptionalNumberField(usajobs, "radius") &&
+    hasBooleanField(usajobs, "remote_only") &&
+    hasOptionalNumberField(usajobs, "pay_grade_min") &&
+    hasOptionalNumberField(usajobs, "pay_grade_max") &&
+    hasNumberField(usajobs, "date_posted_days") &&
+    hasNumberField(usajobs, "limit") &&
+    !!simplyhired &&
+    hasBooleanField(simplyhired, "enabled") &&
+    hasStringField(simplyhired, "query") &&
+    hasOptionalStringField(simplyhired, "location") &&
+    hasNumberField(simplyhired, "limit") &&
+    !!glassdoor &&
+    hasBooleanField(glassdoor, "enabled") &&
+    hasStringField(glassdoor, "query") &&
+    hasOptionalStringField(glassdoor, "location") &&
+    hasNumberField(glassdoor, "limit") &&
+    hasBooleanField(value, "use_resume_matching")
+  );
+}
+
 interface CredentialValidationError {
   title: string;
   message: string;
@@ -279,13 +448,6 @@ function getCredentialValidationError(
 }
 
 function SecurityBadge({ stored }: { stored?: boolean }) {
-  const platform = navigator.platform.toLowerCase();
-  const keychain = platform.includes("mac")
-    ? "macOS Keychain"
-    : platform.includes("win")
-      ? "Windows Credential Manager"
-      : "System Keyring";
-
   if (stored) {
     return (
       <span className="inline-flex items-center gap-1 text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-2 py-0.5 rounded-full">
@@ -296,7 +458,7 @@ function SecurityBadge({ stored }: { stored?: boolean }) {
             clipRule="evenodd"
           />
         </svg>
-        Stored in {keychain}
+        Saved securely on this computer
       </span>
     );
   }
@@ -309,7 +471,7 @@ function SecurityBadge({ stored }: { stored?: boolean }) {
           clipRule="evenodd"
         />
       </svg>
-      Will store in {keychain}
+      Will be saved securely on this computer
     </span>
   );
 }
@@ -433,7 +595,7 @@ export default function Settings({ onClose }: SettingsProps) {
       server: "",
       port: 587,
       starttls: true,
-      hint: "Use this only if your provider gives you sending server details",
+      hint: "Use this only if your provider gives you manual email details",
     },
   };
 
@@ -895,7 +1057,7 @@ export default function Settings({ onClose }: SettingsProps) {
 
   const handleImportConfig = async () => {
     try {
-      const result = await importConfigFromJSON<Config>();
+      const result = await importConfigFromJSON<unknown>();
       if (result.status === "cancelled") {
         return; // User cancelled
       }
@@ -903,6 +1065,13 @@ export default function Settings({ onClose }: SettingsProps) {
         toast.error(
           "Could not read settings backup",
           "Choose another JobSentinel settings backup file.",
+        );
+        return;
+      }
+      if (!isSettingsBackupConfig(result.config)) {
+        toast.error(
+          "That is not a JobSentinel settings backup",
+          "Choose a settings backup created from JobSentinel Settings.",
         );
         return;
       }
@@ -920,6 +1089,72 @@ export default function Settings({ onClose }: SettingsProps) {
         "Choose another JobSentinel settings backup file.",
       );
     }
+  };
+
+  const handleWebhookAlertToggle = (
+    channel: "discord" | "teams",
+    label: "Discord" | "Teams",
+    credentialKey: "discord_webhook" | "teams_webhook",
+    value: string,
+    validator: (value: string) => boolean,
+    enabled: boolean,
+  ) => {
+    if (!config) return;
+
+    const trimmed = value.trim();
+    if (enabled && !credentialStatus[credentialKey] && !trimmed) {
+      toast.info(
+        `Paste ${label} connection link first`,
+        `Then turn ${label} alerts on.`,
+      );
+      return;
+    }
+    if (enabled && trimmed && !validator(trimmed)) {
+      toast.error(
+        `Check ${label} connection link`,
+        `Paste the full ${label} connection link, then turn alerts on.`,
+      );
+      return;
+    }
+
+    setConfig({
+      ...config,
+      alerts: {
+        ...config.alerts,
+        [channel]: {
+          ...config.alerts[channel],
+          enabled,
+        },
+      },
+    });
+  };
+
+  const handleTelegramAlertToggle = (enabled: boolean) => {
+    if (!config) return;
+
+    const alertCode = credentials.telegram_bot_token.trim();
+    const destination = config.alerts.telegram?.chat_id?.trim() ?? "";
+    if (
+      enabled &&
+      ((!credentialStatus.telegram_bot_token && !alertCode) || !destination)
+    ) {
+      toast.info(
+        "Add Telegram alert details first",
+        "Paste the alert code and destination number, then turn alerts on.",
+      );
+      return;
+    }
+
+    setConfig({
+      ...config,
+      alerts: {
+        ...config.alerts,
+        telegram: {
+          ...config.alerts.telegram,
+          enabled,
+        },
+      },
+    });
   };
 
   const handleAddTitle = () => {
@@ -1338,7 +1573,7 @@ export default function Settings({ onClose }: SettingsProps) {
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
                   Your Skills
-                  <HelpIcon text="Jobs that mention these skills will rank higher. Add skills from your resume like 'Python' or 'Project Management'." />
+                  <HelpIcon text="Jobs that mention these skills will rank higher. Add skills from your resume like 'Project Management', 'Customer Service', or 'Scheduling'." />
                 </h3>
                 <div className="flex gap-2 mb-3">
                   <Input
@@ -1918,7 +2153,7 @@ export default function Settings({ onClose }: SettingsProps) {
                             ? "This doesn't look like a Slack connection link"
                             : undefined
                         }
-                        hint="Stored securely in your system keychain"
+                        hint="Saved securely on this computer"
                         autoComplete="off"
                       />
                     </div>
@@ -2126,11 +2361,11 @@ export default function Settings({ onClose }: SettingsProps) {
                       </div>
                       <details className="rounded-lg border border-surface-200 dark:border-surface-700 p-3">
                         <summary className="cursor-pointer text-sm font-medium text-surface-700 dark:text-surface-300">
-                          Advanced sending details
+                          Email provider details
                         </summary>
                         <div className="grid grid-cols-2 gap-3 mt-3">
                           <Input
-                            label="Sending server"
+                            label="Provider address"
                             value={config.alerts.email?.smtp_server ?? ""}
                             onChange={(e) =>
                               setConfig({
@@ -2145,12 +2380,12 @@ export default function Settings({ onClose }: SettingsProps) {
                               })
                             }
                             placeholder="smtp.gmail.com"
-                            hint="Provided by your email provider"
+                            hint="Your email provider may call this the SMTP server"
                           />
                           <div className="flex gap-2">
                             <div className="flex-1">
                               <Input
-                                label="Sending port"
+                                label="Provider number"
                                 type="number"
                                 value={config.alerts.email?.smtp_port ?? 587}
                                 onChange={(e) =>
@@ -2166,7 +2401,7 @@ export default function Settings({ onClose }: SettingsProps) {
                                     },
                                   })
                                 }
-                                hint="Usually 587. Leave this alone unless your provider says otherwise."
+                                hint="Your email provider may call this the SMTP port. Leave it alone unless your provider says otherwise."
                               />
                             </div>
                             <div className="flex items-end pb-2">
@@ -2327,25 +2562,26 @@ export default function Settings({ onClose }: SettingsProps) {
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
                           type="checkbox"
+                          aria-label="Enable Discord alerts"
                           checked={config.alerts.discord?.enabled ?? false}
                           onChange={(e) =>
-                            setConfig({
-                              ...config,
-                              alerts: {
-                                ...config.alerts,
-                                discord: {
-                                  ...config.alerts.discord,
-                                  enabled: e.target.checked,
-                                },
-                              },
-                            })
+                            handleWebhookAlertToggle(
+                              "discord",
+                              "Discord",
+                              "discord_webhook",
+                              credentials.discord_webhook,
+                              isValidDiscordWebhook,
+                              e.target.checked,
+                            )
                           }
                           className="sr-only peer"
                         />
                         <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus-visible:ring-4 peer-focus-visible:ring-sentinel-300 dark:peer-focus-visible:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
                       </label>
                     </div>
-                    {config.alerts.discord?.enabled && (
+                    {(config.alerts.discord?.enabled ||
+                      !credentialStatus.discord_webhook ||
+                      credentials.discord_webhook) && (
                       <div className="mt-3 space-y-2">
                         <div className="flex items-center gap-2">
                           <span className="text-sm text-surface-600 dark:text-surface-400">
@@ -2405,25 +2641,26 @@ export default function Settings({ onClose }: SettingsProps) {
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
                           type="checkbox"
+                          aria-label="Enable Teams alerts"
                           checked={config.alerts.teams?.enabled ?? false}
                           onChange={(e) =>
-                            setConfig({
-                              ...config,
-                              alerts: {
-                                ...config.alerts,
-                                teams: {
-                                  ...config.alerts.teams,
-                                  enabled: e.target.checked,
-                                },
-                              },
-                            })
+                            handleWebhookAlertToggle(
+                              "teams",
+                              "Teams",
+                              "teams_webhook",
+                              credentials.teams_webhook,
+                              isValidTeamsWebhook,
+                              e.target.checked,
+                            )
                           }
                           className="sr-only peer"
                         />
                         <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus-visible:ring-4 peer-focus-visible:ring-sentinel-300 dark:peer-focus-visible:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
                       </label>
                     </div>
-                    {config.alerts.teams?.enabled && (
+                    {(config.alerts.teams?.enabled ||
+                      !credentialStatus.teams_webhook ||
+                      credentials.teams_webhook) && (
                       <div className="mt-3 space-y-2">
                         <div className="flex items-center gap-2">
                           <span className="text-sm text-surface-600 dark:text-surface-400">
@@ -2481,25 +2718,20 @@ export default function Settings({ onClose }: SettingsProps) {
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
                           type="checkbox"
+                          aria-label="Enable Telegram alerts"
                           checked={config.alerts.telegram?.enabled ?? false}
                           onChange={(e) =>
-                            setConfig({
-                              ...config,
-                              alerts: {
-                                ...config.alerts,
-                                telegram: {
-                                  ...config.alerts.telegram,
-                                  enabled: e.target.checked,
-                                },
-                              },
-                            })
+                            handleTelegramAlertToggle(e.target.checked)
                           }
                           className="sr-only peer"
                         />
                         <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus-visible:ring-4 peer-focus-visible:ring-sentinel-300 dark:peer-focus-visible:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
                       </label>
                     </div>
-                    {config.alerts.telegram?.enabled && (
+                    {(config.alerts.telegram?.enabled ||
+                      !credentialStatus.telegram_bot_token ||
+                      !(config.alerts.telegram?.chat_id ?? "").trim() ||
+                      credentials.telegram_bot_token) && (
                       <div className="mt-3 space-y-3">
                         <div>
                           <div className="flex items-center gap-2 mb-1">
@@ -2751,7 +2983,7 @@ export default function Settings({ onClose }: SettingsProps) {
                             <li>
                               Sign up with your email (no credit card needed)
                             </li>
-                            <li>USAJobs calls this an API key. No coding is needed.</li>
+                            <li>No coding is needed</li>
                             <li>Copy the access code from your email</li>
                             <li>Paste it here and you're done</li>
                           </ol>

@@ -164,6 +164,27 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     remotePolicy: 'Varies by role',
     toolsAndSystems: ['Pharmacy systems', 'Customer service', 'Inventory', 'Benefits coordination'],
   },
+  'cleveland clinic': {
+    industry: 'Healthcare / Care Delivery',
+    employeeCount: 'Large employer',
+    website: 'https://my.clevelandclinic.org',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Patient care', 'Scheduling', 'Care coordination', 'Clinical operations'],
+  },
+  'hca healthcare': {
+    industry: 'Healthcare / Hospital Operations',
+    employeeCount: 'Large employer',
+    website: 'https://hcahealthcare.com',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Patient registration', 'Clinical support', 'Case management', 'Hospital operations'],
+  },
+  'unitedhealth group': {
+    industry: 'Healthcare / Insurance',
+    employeeCount: 'Large employer',
+    website: 'https://www.unitedhealthgroup.com',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Member services', 'Claims support', 'Care coordination', 'Benefits operations'],
+  },
   // Retail, service, and trades
   'walmart': {
     industry: 'Retail / Operations',
@@ -193,6 +214,27 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     remotePolicy: 'Varies by role',
     toolsAndSystems: ['Guest service', 'Scheduling', 'Store operations', 'Training'],
   },
+  'costco': {
+    industry: 'Retail / Warehouse',
+    employeeCount: 'Large employer',
+    website: 'https://www.costco.com',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Member service', 'Warehouse operations', 'Inventory', 'Merchandising'],
+  },
+  'lowes': {
+    industry: 'Retail / Home Improvement',
+    employeeCount: 'Large employer',
+    website: 'https://www.lowes.com',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Customer projects', 'Store operations', 'Inventory', 'Pro services'],
+  },
+  'mcdonalds': {
+    industry: 'Food Service',
+    employeeCount: 'Large employer',
+    website: 'https://www.mcdonalds.com',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Guest service', 'Store operations', 'Training', 'Scheduling'],
+  },
   // Logistics, hospitality, finance, and public service
   'ups': {
     industry: 'Logistics',
@@ -207,6 +249,27 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://www.marriott.com',
     remotePolicy: 'Varies by role',
     toolsAndSystems: ['Guest service', 'Reservations', 'Event support', 'Property operations'],
+  },
+  'fedex': {
+    industry: 'Logistics',
+    employeeCount: 'Large employer',
+    website: 'https://www.fedex.com',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Package handling', 'Dispatch', 'Route planning', 'Customer support'],
+  },
+  'southwest airlines': {
+    industry: 'Airlines / Travel',
+    employeeCount: 'Large employer',
+    website: 'https://www.southwest.com',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Guest service', 'Reservations', 'Airport operations', 'Scheduling'],
+  },
+  'hilton': {
+    industry: 'Hospitality',
+    employeeCount: 'Large employer',
+    website: 'https://www.hilton.com',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Guest service', 'Reservations', 'Property operations', 'Event support'],
   },
   'state farm': {
     industry: 'Insurance',
@@ -228,6 +291,27 @@ const KNOWN_COMPANIES: Record<string, Partial<CompanyInfo>> = {
     website: 'https://www.phoenix.gov',
     remotePolicy: 'Varies by department',
     toolsAndSystems: ['Public service', 'Case tracking', 'Community programs', 'Resident support'],
+  },
+  'usps': {
+    industry: 'Government / Postal Service',
+    employeeCount: 'Public employer',
+    website: 'https://www.usps.com',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Mail handling', 'Route operations', 'Customer service', 'Distribution'],
+  },
+  'denver public schools': {
+    industry: 'Education / Public Service',
+    employeeCount: 'Public employer',
+    website: 'https://www.dpsk12.org',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Student support', 'School operations', 'Family services', 'Program coordination'],
+  },
+  'progressive': {
+    industry: 'Insurance',
+    employeeCount: 'Large employer',
+    website: 'https://www.progressive.com',
+    remotePolicy: 'Varies by role',
+    toolsAndSystems: ['Claims support', 'Customer service', 'Policy servicing', 'Sales support'],
   },
   // Large technology and online service employers
   'google': {

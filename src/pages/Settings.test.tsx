@@ -443,7 +443,7 @@ describe("Settings — loadConfig flow", () => {
     expect(screen.getByRole("button", { name: "Other" })).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Use this only if your provider gives you sending server details",
+        "Use this only if your provider gives you manual email details",
       ),
     ).toBeInTheDocument();
 
@@ -452,9 +452,9 @@ describe("Settings — loadConfig flow", () => {
     expect(
       screen.getByText(/Use an app password from Google Account Security/),
     ).toBeInTheDocument();
-    expect(screen.getByText("Advanced sending details")).toBeInTheDocument();
-    expect(screen.getByText("Sending server")).toBeInTheDocument();
-    expect(screen.getByText("Sending port")).toBeInTheDocument();
+    expect(screen.getByText("Email provider details")).toBeInTheDocument();
+    expect(screen.getByText("Provider address")).toBeInTheDocument();
+    expect(screen.getByText("Provider number")).toBeInTheDocument();
     expect(screen.getByText("Email address")).toBeInTheDocument();
     expect(screen.queryByText(/regular password/i)).not.toBeInTheDocument();
     expect(screen.queryByText("Email Server")).not.toBeInTheDocument();
@@ -681,6 +681,57 @@ describe("Settings — handleSave flow", () => {
     );
     expect(screen.queryByText(/Config imported/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Credentials must/i)).not.toBeInTheDocument();
+  });
+
+  it("rejects JSON that is not a JobSentinel settings backup", async () => {
+    const user = userEvent.setup();
+
+    setupHappyPath();
+    mockImportConfigFromJSON.mockResolvedValueOnce({
+      status: "ok",
+      config: { setting: "value" },
+    });
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("button", { name: "Restore Settings" }));
+
+    expect(mockToast.error).toHaveBeenCalledWith(
+      "That is not a JobSentinel settings backup",
+      "Choose a settings backup created from JobSentinel Settings.",
+    );
+    expect(mockToast.success).not.toHaveBeenCalledWith(
+      "Settings restored",
+      expect.any(String),
+    );
+  });
+
+  it("does not turn on chat alerts before connection details exist", async () => {
+    const user = userEvent.setup();
+
+    setupHappyPath();
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    const discordToggle = screen.getByRole("checkbox", {
+      name: "Enable Discord alerts",
+    });
+
+    await user.click(discordToggle);
+
+    expect(discordToggle).not.toBeChecked();
+    expect(mockToast.info).toHaveBeenCalledWith(
+      "Paste Discord connection link first",
+      "Then turn Discord alerts on.",
+    );
   });
 
   it("tests an existing Slack webhook without retrieving it into the renderer", async () => {

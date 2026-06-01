@@ -328,7 +328,8 @@ Your changes take effect immediately.
 
 Desktop alerts do not need another account.
 
-1. Open **Settings > Notifications > Desktop**.
+1. Open Settings, choose **More Settings**, then find **Desktop
+   Notifications**.
 2. Turn desktop alerts on.
 3. Save settings.
 
@@ -337,7 +338,7 @@ Desktop alerts do not need another account.
 Email alerts are optional. Use them if your email provider gives you an app
 password or sending details.
 
-1. Open **Settings > Notifications > Email**.
+1. Open Settings, choose **More Settings**, then find **Email Alerts**.
 2. Choose your email provider when listed.
 3. Follow the provider guidance shown in JobSentinel.
 4. Save settings.
@@ -352,21 +353,24 @@ not.
 1. Go to [Slack's connection-link page](https://api.slack.com/messaging/webhooks).
 2. Create a new connection link for your workspace.
 3. Copy the connection link.
-4. Paste it in JobSentinel Settings > Notifications > Slack.
+4. In JobSentinel, open Settings, choose **More Settings**, then paste it in
+   **Slack Notifications**.
 
 #### Discord
 
 1. Right-click your Discord channel > Edit Channel > Integrations
 2. Create a channel connection.
 3. Copy the connection link.
-4. Paste it in JobSentinel Settings > Notifications > Discord.
+4. In JobSentinel, open Settings, choose **More Settings**, then paste it in
+   **Discord Notifications**.
 
 #### Microsoft Teams
 
 1. In your Teams channel, click More options > Connectors
 2. Add a channel connection.
 3. Copy the connection link.
-4. Paste it in JobSentinel Settings > Notifications > Teams.
+4. In JobSentinel, open Settings, choose **More Settings**, then paste it in
+   **Microsoft Teams Notifications**.
 
 ---
 

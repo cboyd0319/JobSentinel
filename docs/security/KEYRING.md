@@ -123,8 +123,9 @@ app thinks migration is complete.
 
 Settings displays credential presence without returning credential values:
 
-- `Stored in <keychain>`: credential exists in the OS keyring.
-- `Will store in <keychain>`: a newly entered credential will be saved there.
+- `Saved securely on this computer`: credential exists in the OS keyring.
+- `Will be saved securely on this computer`: a newly entered credential will be
+  saved there.
 - Empty credential fields mean no new credential value was entered.
 
 ## Security Considerations

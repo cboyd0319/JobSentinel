@@ -24,11 +24,11 @@ interface CoverLetterTemplate {
 
 const CATEGORY_LABELS: Record<TemplateCategory, string> = {
   general: 'General',
-  tech: 'Tech & Engineering',
-  creative: 'Creative & Design',
-  finance: 'Finance & Accounting',
   healthcare: 'Healthcare',
+  finance: 'Finance & Accounting',
   sales: 'Sales & Marketing',
+  creative: 'Creative & Design',
+  tech: 'IT & Software',
   custom: 'Custom',
   thankyou: 'Thank You Notes',
   followup: 'Follow-Up Emails',

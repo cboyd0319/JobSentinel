@@ -246,6 +246,15 @@ Current cleanup posture:
   available, no-profile states show a Set Up Profile recovery action, and
   stale `Settings > Application Assist` recovery copy is replaced by the
   sidebar Application Assist path.
+- Latest zero-technical Settings follow-up validates settings backups before
+  restore, blocks Discord/Teams/Telegram alert toggles until connection
+  details exist, uses saved-on-this-computer secret status copy, softens manual
+  email detail labels, clarifies alert-source rule scope, and updates
+  notification docs to match the current Settings tab layout.
+- Latest broad-audience follow-up keeps product/design roles off tech-heavy
+  boards unless explicitly technical, changes the cover-letter tech category
+  to IT/software wording, and broadens company fallback data across healthcare,
+  retail, logistics, hospitality, education, public service, and insurance.
 - Latest support/privacy follow-up keeps saved support reports local in the
   primary flow, removes GitHub-first and shared-folder copy from support
   surfaces, replaces visible old report wording with safe support report

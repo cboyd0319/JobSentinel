@@ -101,7 +101,7 @@ test.describe("Settings Save and Load", () => {
       await expect(settingsPage.dialog).toContainText("Slack Notifications");
       await expect(settingsPage.dialog).toContainText("Email Alerts");
       await expect(settingsPage.dialog).toContainText("Desktop Notifications");
-      await expect(settingsPage.dialog).toContainText("Ghost Detection Settings");
+      await expect(settingsPage.dialog).toContainText("Posting Risk and Freshness");
       await expect(settingsPage.backupButton).toBeVisible();
       await expect(settingsPage.restoreButton).toBeVisible();
       await expect(settingsPage.feedbackButton).toBeVisible();
@@ -110,7 +110,7 @@ test.describe("Settings Save and Load", () => {
     test("toggles email alerts and validates email fields", async () => {
       await settingsPage.toggleEmailAlerts();
 
-      await expect(settingsPage.dialog.getByText("Quick setup:")).toBeVisible();
+      await expect(settingsPage.dialog.getByText("Email provider details")).toBeVisible();
 
       await settingsPage.fromEmailInput.fill("invalid-email");
 
@@ -129,23 +129,25 @@ test.describe("Settings Save and Load", () => {
       await settingsPage.navigateTo();
       await settingsPage.switchTab("advanced");
 
-      await expect(settingsPage.section("Slack Notifications")).toContainText(/Stored in|Enter new Slack connection link/i);
+      await expect(settingsPage.section("Slack Notifications")).toContainText(
+        /Saved securely|Enter new Slack connection link/i,
+      );
     });
 
     test("updates ghost detection settings", async () => {
-      const ghostSection = settingsPage.section("Ghost Detection Settings");
+      const ghostSection = settingsPage.section("Posting Risk and Freshness");
       await ghostSection.getByRole("button", { name: /Custom/ }).click();
       const staleThresholdInput = ghostSection.locator("input[type='number']").first();
 
       await staleThresholdInput.fill("45");
       await ghostSection.getByRole("button", { name: "Save Settings" }).click();
 
-      await expect(settingsPage.page.getByText("Ghost Detection Settings Saved")).toBeVisible();
+      await expect(settingsPage.page.getByText("Posting risk settings saved")).toBeVisible();
       await expect(staleThresholdInput).toHaveValue("45");
     });
 
     test("resets ghost detection settings to defaults", async () => {
-      const ghostSection = settingsPage.section("Ghost Detection Settings");
+      const ghostSection = settingsPage.section("Posting Risk and Freshness");
       await ghostSection.getByRole("button", { name: /Custom/ }).click();
       const staleThresholdInput = ghostSection.locator("input[type='number']").first();
 

@@ -32,7 +32,6 @@ const TECH_SOURCE_PROFILE_IDS = new Set([
   "software-engineering",
   "cybersecurity",
   "data-science",
-  "product-management",
 ]);
 
 const TECH_SOURCE_TERMS = [
@@ -56,10 +55,9 @@ const TECH_SOURCE_TERMS = [
   "ai engineer",
   "data engineer",
   "analytics engineer",
-  "product manager",
-  "product designer",
-  "ux designer",
-  "ux researcher",
+  "technical product manager",
+  "ux engineer",
+  "design engineer",
 ];
 
 function buildSourceDefaults(isTechFocused: boolean, allowRemote: boolean): SourceDefaults {

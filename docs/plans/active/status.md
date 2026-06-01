@@ -206,6 +206,14 @@ and record actionable findings in this active-plan surface.
   `cargo deny check advisories` on 2026-06-01. Both commands exit 0; the
   remaining RustSec findings are allowed upstream/transitive warnings recorded
   under `SEC-002` in the technical debt tracker.
+- Current local zero-technical and broad-audience follow-up validates settings
+  backups before restore, blocks chat-alert toggles until connection details
+  exist, uses plain saved-securely copy for stored secrets, clarifies which job
+  sources have detailed alert rules, keeps product/design searches off
+  tech-heavy boards unless explicitly technical, renames the tech cover-letter
+  filter to IT/software wording, and broadens company fallback examples across
+  healthcare, retail, logistics, hospitality, education, public service, and
+  insurance.
 - Latest local harness benchmark work adds `npm run harness:benchmark`, a
   tested portable before/after report for score, session metrics, active next
   work, and harness-tuning recommendations, modeled on the WalkingLabs
@@ -425,10 +433,10 @@ and record actionable findings in this active-plan surface.
   harness docs; product-copy coverage now includes those front-door and harness
   files.
 - Latest local email-setup UX work changes the primary email alert path from
-  server/password setup toward provider-first app-password guidance, hides
-  sending server details behind Advanced, and updates notification docs so
-  non-technical users only need manual server details when their provider gives
-  them.
+  server/password setup toward provider-first app-password guidance, keeps
+  manual provider details in a secondary disclosure, and updates notification
+  docs so non-technical users only need manual email details when their
+  provider gives them.
 - Latest local settings backup UX work replaces visible `Config` and
   `credentials` backup/restore wording with settings-backup and saved
   connection-detail language, and adds bloat coverage so the old technical

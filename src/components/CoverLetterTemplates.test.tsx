@@ -590,7 +590,7 @@ describe("CoverLetterTemplates", () => {
 
       await waitFor(() => {
         expect(screen.getByText("General (1)")).toBeInTheDocument();
-        expect(screen.getByText("Tech & Engineering (1)")).toBeInTheDocument();
+        expect(screen.getByText("IT & Software (1)")).toBeInTheDocument();
         expect(screen.getByText("Creative & Design (1)")).toBeInTheDocument();
       });
     });

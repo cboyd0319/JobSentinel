@@ -197,6 +197,17 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   local helper port before reporting that the helper is running.
 - Removed raw Slack connection-link setup from first-run onboarding and kept
   optional chat alerts as a later Settings task.
+- Fixed additional zero-technical Settings blockers: restore now rejects JSON
+  that is not a JobSentinel settings backup, chat-alert toggles require
+  connection details before they can be turned on, stored secret status uses
+  plain saved-on-this-computer copy, email manual details avoid server/port
+  labels in primary wording, alert-source scope is explained in the UI, and
+  settings/help text uses broad non-coding examples.
+- Fixed additional broad-audience findings: product/design searches no longer
+  default to tech-heavy boards unless explicitly technical, the cover-letter
+  filter uses IT/software wording instead of broad engineering framing, and
+  company fallback examples now include healthcare, retail, logistics,
+  hospitality, education, public service, and insurance employers.
 - Updated user docs so downloads, notifications, site requests, and Linux
   credential recovery put non-technical paths before advanced contributor or
   command-line details.
