@@ -224,6 +224,9 @@ and record actionable findings in this active-plan surface.
   debug-report and scraper-first wording to safe support report and job source
   wording, then adds product-copy coverage so old template language cannot
   drift back.
+- Latest local profile-doc UX work changes `profiles/README.md` from
+  command-line-first setup to app setup first, keeps manual file copying
+  advanced, and adds product-copy coverage against command-first profile docs.
 - Latest local docs-drift harness work moves the docs-drift violation messages
   out of `scripts/check-repo-bloat.mjs` and into
   `scripts/harness/checks/docs-drift.mjs` through

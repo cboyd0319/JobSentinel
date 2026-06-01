@@ -1,6 +1,9 @@
 # JobSentinel Career Profiles
 
-Pre-configured job search profiles for different career paths. Copy one to use as your starting point.
+Pre-configured job search profiles for different career paths.
+
+Most users should choose a profile from JobSentinel setup. These files are
+starter templates for advanced manual setup, testing, and contributors.
 
 ## Available Profiles
 
@@ -20,21 +23,16 @@ Pre-configured job search profiles for different career paths. Copy one to use a
 
 ## How to Use
 
-### Option 1: Use a Profile Directly
+### Option 1: Choose a Profile in Setup
 
-```bash
-# macOS/Linux
-cp profiles/seo-digital-marketing.json ~/.config/jobsentinel/config.json
+Open JobSentinel setup and choose the profile closest to your search. You can
+edit job titles, skills, salary, work style, and locations before saving.
 
-# Windows
-copy profiles\seo-digital-marketing.json %LOCALAPPDATA%\JobSentinel\config.json
-```
+### Option 2: Use a Profile as a Starting Point
 
-### Option 2: Merge with Your Preferences
-
-1. Copy your chosen profile
-2. Customize the fields you want to change
-3. Keep the structure intact
+Open the profile closest to your search and copy the parts you want into your
+own local settings. Keep salary floors, locations, and favorite companies
+aligned with your real search constraints.
 
 ### Option 3: Create a Custom Profile
 
@@ -43,7 +41,20 @@ Start with `config/config.example.json` and fill in your own:
 - `title_allowlist`: Job titles you're targeting
 - `keywords_boost`: Your skills and tools
 - `salary_floor_usd`: Your minimum salary
-- `greenhouse_urls` / `lever_urls`: Official company boards you choose to monitor
+- `greenhouse_urls` / `lever_urls`: Official company pages you choose to monitor
+
+### Advanced Manual File Use
+
+Only use manual file copying if you are comfortable editing local app settings
+files.
+
+```bash
+# macOS/Linux
+cp profiles/seo-digital-marketing.json ~/.config/jobsentinel/config.json
+
+# Windows
+copy profiles\seo-digital-marketing.json %LOCALAPPDATA%\JobSentinel\config.json
+```
 
 ## Profile Fields Explained
 
@@ -55,8 +66,8 @@ Start with `config/config.example.json` and fill in your own:
 | `keywords_exclude` | Jobs with these terms are auto-rejected |
 | `salary_floor_usd` | Minimum salary (jobs below this score 0 on salary) |
 | `location_preferences` | Remote/hybrid/onsite + specific cities |
-| `greenhouse_urls` | Direct scraping from Greenhouse company pages |
-| `lever_urls` | Direct scraping from Lever company pages |
+| `greenhouse_urls` | Official Greenhouse company pages to monitor |
+| `lever_urls` | Official Lever company pages to monitor |
 
 ## Scoring Algorithm
 
@@ -65,7 +76,7 @@ Jobs are scored 0-100% based on:
 - **Skills Match (40%)**: Title + keyword matches
 - **Salary (25%)**: Meets or exceeds your floor
 - **Location (20%)**: Matches remote/hybrid/onsite preference
-- **Company (10%)**: (Future: company allowlist)
+- **Company (10%)**: Favorite companies and companies you want to avoid
 - **Recency (5%)**: Fresh jobs score higher
 
 ## Customization Tips

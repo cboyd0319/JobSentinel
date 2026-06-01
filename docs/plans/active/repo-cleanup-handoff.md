@@ -49,6 +49,9 @@ Current branch note:
 - The current local support-template UX slice changes issue templates from
   debug-report and scraper-first wording to safe support report and job source
   wording, with product-copy coverage against the old terms.
+- The current local profile-doc UX slice changes `profiles/README.md` from
+  command-line-first setup to app setup first, moves manual file copying into
+  advanced context, and adds product-copy coverage against recurrence.
 - Continue using small verified commits. Run remote CI only when the user
   explicitly asks or the full-goal completion pass requires it.
 

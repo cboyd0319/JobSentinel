@@ -142,6 +142,7 @@ const plainJobSearchDocPaths = new Set([
 const technicalFirstUserCopyPaths = new Set([
   ".github/ISSUE_TEMPLATE/bug_report.yml",
   ".github/ISSUE_TEMPLATE/scraper_issue.yml",
+  "profiles/README.md",
   "README.md",
   "docs/BOOKMARKLET.md",
   "src/components/AsyncButton.tsx",
@@ -722,6 +723,10 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Scraper returns/i,
     /Jobs are being incorrectly parsed/i,
     /Rate limiting or blocking issues/i,
+    /Pre-configured job search profiles[\s\S]{0,120}Copy one to use as your starting point/i,
+    /### Option 1:\s*Use a Profile Directly/i,
+    /Direct scraping from (?:Greenhouse|Lever) company pages/i,
+    /Future:\s*company allowlist/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));

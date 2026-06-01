@@ -275,6 +275,9 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
 - The latest support-template UX slice replaces debug-report and scraper-first
   GitHub issue template wording with safe support report and job source wording,
   then adds product-copy coverage for recurrence.
+- The latest profile-doc UX slice changes `profiles/README.md` from
+  command-line-first instructions to app setup first, keeps manual file copying
+  advanced, and adds product-copy coverage against recurrence.
 - Updated active plan and handoff docs for the latest local cleanup slice.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
@@ -312,6 +315,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 | 2026-06-01 | In progress | Reworded Job Site Search Links UI and user docs away from automated-scan and legal-guarantee language toward direct-monitoring boundaries and browser-opened searches; added product-copy coverage so old automated-scan and scraper-comparison wording cannot return. |
 | 2026-06-01 | In progress | Reconciled the deep harness audit against live workflow and harness evidence: normal CI, Docs Harness script coverage, release/manual-build preflight, toolchain pins, plan index, and main bloat-runner split now read as closed or narrowed to residual module-ownership work. |
 | 2026-06-01 | In progress | Replaced debug-report and scraper-first wording in GitHub issue templates with safe support report and job source language; added product-copy coverage so `ANONYMIZED debug report`, `Copy Debug Report`, and old scraper labels cannot return. |
+| 2026-06-01 | In progress | Reworked profile README usage from command-line file copying to app setup first, moved manual local-file copying into advanced context, and added product-copy coverage against command-first profile docs. |
 | 2026-05-31 | In progress | Fixed high zero-technical UX blockers from the latest audit: job import previews with missing details no longer disable the save path, visible dashboard job cards now expose Prepare Form, no-profile states show a Set Up Profile recovery action, and stale `Settings > Application Assist` guidance is blocked by bloat coverage. |
 | 2026-05-31 | In progress | Rebalanced sample JSON Resume, company fallback, bookmarklet, import, remote-scoring, dashboard search, score-modal, undo, export, and feedback sanitizer examples toward broad job-seeker examples; extended bloat coverage for the newly cleaned sample-resume, bookmarklet, search-history, and score-modal fixture paths. |
 | 2026-05-31 | In progress | Rebalanced generic scraper adapter fixtures for Greenhouse, Glassdoor, USAJobs, JobsWithGPT, Lever, We Work Remotely, and shared HTTP examples toward broad job-seeker examples without changing fetch, retry, cache, URL, or parser behavior; added bloat coverage for these cleaned generic scraper paths. |

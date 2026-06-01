@@ -197,6 +197,25 @@ test("product copy rejects technical issue-template support wording", () => {
   });
 });
 
+test("product copy rejects command-first profile docs", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "profiles/README.md",
+      [
+        "Pre-configured job search profiles for different career paths. Copy one to use as your starting point.",
+        "",
+        "### Option 1: Use a Profile Directly",
+        "Direct scraping from Greenhouse company pages",
+        "**Company (10%)**: (Future: company allowlist)",
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "profiles/README.md"), true);
+  });
+});
+
 test("product copy rejects technical-first resume copy", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/pages/Resume.tsx", "Programming Languages\nGap Analysis\n");
