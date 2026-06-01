@@ -32,31 +32,6 @@ impl SynonymMap {
             synonym_groups: Vec::new(),
         };
 
-        // Programming Languages
-        map.add_synonym_group(&["Python", "Python3", "py", "python3"]);
-        map.add_synonym_group(&["JavaScript", "JS", "js", "javascript"]);
-        map.add_synonym_group(&["TypeScript", "TS", "ts", "typescript"]);
-        map.add_synonym_group(&["C++", "CPP", "Cpp", "cpp", "c++"]);
-        map.add_synonym_group(&["C#", "CSharp", "csharp", "c#"]);
-        map.add_synonym_group(&["Golang", "Go", "golang", "go"]);
-        map.add_synonym_group(&["Rust", "rust", "rustlang"]);
-
-        // Job Titles
-        map.add_synonym_group(&["Senior", "Sr.", "Sr", "sr", "senior"]);
-        map.add_synonym_group(&["Junior", "Jr.", "Jr", "jr", "junior"]);
-        map.add_synonym_group(&[
-            "Engineer",
-            "Developer",
-            "Dev",
-            "SWE",
-            "engineer",
-            "developer",
-            "dev",
-            "swe",
-        ]);
-        map.add_synonym_group(&["Lead", "Principal", "Staff", "lead", "principal", "staff"]);
-        map.add_synonym_group(&["Manager", "Mgr", "mgr", "manager"]);
-
         // Customer, office, and coordination roles
         map.add_synonym_group(&[
             "Customer Support",
@@ -279,6 +254,31 @@ impl SynonymMap {
             "Digital Marketing",
             "Growth Marketing",
         ]);
+
+        // Programming Languages
+        map.add_synonym_group(&["Python", "Python3", "py", "python3"]);
+        map.add_synonym_group(&["JavaScript", "JS", "js", "javascript"]);
+        map.add_synonym_group(&["TypeScript", "TS", "ts", "typescript"]);
+        map.add_synonym_group(&["C++", "CPP", "Cpp", "cpp", "c++"]);
+        map.add_synonym_group(&["C#", "CSharp", "csharp", "c#"]);
+        map.add_synonym_group(&["Golang", "Go", "golang", "go"]);
+        map.add_synonym_group(&["Rust", "rust", "rustlang"]);
+
+        // Job Titles
+        map.add_synonym_group(&["Senior", "Sr.", "Sr", "sr", "senior"]);
+        map.add_synonym_group(&["Junior", "Jr.", "Jr", "jr", "junior"]);
+        map.add_synonym_group(&[
+            "Engineer",
+            "Developer",
+            "Dev",
+            "SWE",
+            "engineer",
+            "developer",
+            "dev",
+            "swe",
+        ]);
+        map.add_synonym_group(&["Lead", "Principal", "Staff", "lead", "principal", "staff"]);
+        map.add_synonym_group(&["Manager", "Mgr", "mgr", "manager"]);
 
         // Frameworks & Libraries
         map.add_synonym_group(&["React", "ReactJS", "React.js", "react", "reactjs"]);

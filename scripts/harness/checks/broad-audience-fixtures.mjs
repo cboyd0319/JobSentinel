@@ -76,6 +76,7 @@ const broadAudienceExamplePaths = new Set([
   "src-tauri/src/core/bookmarklet/server.rs",
   "src-tauri/src/core/scoring/mod.rs",
   "src-tauri/src/core/scoring/remote.rs",
+  "src-tauri/src/core/scoring/synonyms.rs",
   "src-tauri/src/commands/deeplinks.rs",
   "src-tauri/src/commands/feedback/debug_log.rs",
   "src-tauri/src/commands/feedback/sanitizer.rs",
@@ -451,6 +452,19 @@ export function hasEngineerFirstAudienceExamples(root, path) {
     ];
 
     return scoringLocationFixturePatterns.some((pattern) => pattern.test(text));
+  }
+
+  if (path === "src-tauri/src/core/scoring/synonyms.rs") {
+    const broadStartIndex = text.indexOf("// Customer, office, and coordination roles");
+    const technicalIndex = text.indexOf("// Programming Languages");
+
+    if (
+      broadStartIndex === -1 ||
+      technicalIndex === -1 ||
+      technicalIndex < broadStartIndex
+    ) {
+      return true;
+    }
   }
 
   if (genericScraperFixturePaths.has(path)) {

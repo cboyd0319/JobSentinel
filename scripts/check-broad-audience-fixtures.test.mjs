@@ -307,3 +307,24 @@ test("broad audience fixtures reject tech-hub scoring location defaults", () => 
     );
   });
 });
+
+test("broad audience fixtures reject tech-first synonym ordering", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scoring/synonyms.rs",
+      [
+        "// Programming Languages",
+        'map.add_synonym_group(&["Rust", "rust"]);',
+        "// Customer, office, and coordination roles",
+        'map.add_synonym_group(&["Customer Support", "Customer Service"]);',
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasEngineerFirstAudienceExamples(root, "src-tauri/src/core/scoring/synonyms.rs"),
+      true,
+    );
+  });
+});

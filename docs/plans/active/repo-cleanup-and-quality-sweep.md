@@ -164,6 +164,10 @@ As of 2026-06-01, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Reordered core synonym taxonomy so customer, office, care, public-sector,
+  business, creative, and product examples come before programming and
+  engineering groups. Broad-audience harness coverage now rejects tech-first
+  synonym ordering.
 - Removed preloaded company-source URLs from product, UX, content, and
   marketing profile JSON files so broad non-technical templates do not choose a
   narrow tech or SaaS employer list for the user. Broad-audience harness

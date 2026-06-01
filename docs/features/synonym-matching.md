@@ -47,6 +47,10 @@ All matching is case-insensitive:
 The system comes with synonym groups for common job titles, work areas, and
 tools across technical and non-technical searches.
 
+The list starts with broad customer, office, care, public-sector, business, and
+creative examples before technical examples so the default mental model stays
+job-seeker wide.
+
 #### Customer, Office, and Coordination Roles
 
 - **Customer Support**: Customer Support, Customer Service, Client Support,

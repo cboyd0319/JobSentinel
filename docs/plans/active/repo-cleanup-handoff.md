@@ -111,6 +111,10 @@ Current branch note:
 
 Current cleanup posture:
 
+- Current local synonym taxonomy follow-up reorders
+  `src-tauri/src/core/scoring/synonyms.rs` so broad job-search role and tool
+  groups come before programming and engineering groups. Harness coverage now
+  rejects tech-first synonym ordering.
 - Current local broad-profile source follow-up removes preloaded company-source
   URLs from product, UX, content, and marketing profile JSON files and extends
   broad-audience harness coverage so broad non-technical starter profiles stay

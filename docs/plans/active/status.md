@@ -31,6 +31,9 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local synonym taxonomy work reorders the Rust synonym map so broad
+  job-search roles and tools appear before programming and engineering groups,
+  and adds harness coverage against tech-first synonym ordering drift.
 - Latest local broad-profile source work removes preloaded company-source URLs
   from product, UX, content, and marketing profile JSON files. Harness coverage
   now rejects official company source URLs in broad non-technical starter
