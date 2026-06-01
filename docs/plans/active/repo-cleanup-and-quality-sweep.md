@@ -205,6 +205,10 @@ boundaries, and harness modularity:
   no-setup browser-search path before optional advanced monitoring, and
   Telegram bot details stay behind an advanced chat-alert path for users who
   already use Telegram bots.
+- Reworked cover-letter template auto-fill buttons so non-technical users see
+  plain labels instead of brace-token syntax. Token insertion remains available
+  internally, copy guidance now says blanks instead of placeholders, and
+  product-copy coverage rejects the old raw placeholder-chip wording.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright

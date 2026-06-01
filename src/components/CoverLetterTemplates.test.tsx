@@ -334,7 +334,7 @@ describe("CoverLetterTemplates", () => {
       await waitFor(() => {
         expect(mockToast.success).toHaveBeenCalledWith(
           "Copied to clipboard",
-          "Remember to replace the placeholders"
+          "Review any blanks before sending"
         );
       });
     });
@@ -448,7 +448,7 @@ describe("CoverLetterTemplates", () => {
       expect(screen.getByRole("combobox")).toBeInTheDocument();
     });
 
-    it("shows placeholder hints in editor", async () => {
+    it("shows plain-language auto-fill blank buttons in editor", async () => {
       renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
@@ -457,9 +457,25 @@ describe("CoverLetterTemplates", () => {
 
       fireEvent.click(screen.getByRole("button", { name: "New Template" }));
 
-      expect(screen.getByText("Available placeholders (click to insert):")).toBeInTheDocument();
-      expect(screen.getByText("{company}")).toBeInTheDocument();
-      expect(screen.getByText("{position}")).toBeInTheDocument();
+      expect(screen.getByText("Click a label to add an auto-fill blank:")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Insert Company" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Insert Job Title" })).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "{company}" })).not.toBeInTheDocument();
+    });
+
+    it("inserts the right template blank when a plain-language button is clicked", async () => {
+      renderWithProviders(<CoverLetterTemplates />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "New Template" })).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole("button", { name: "New Template" }));
+      fireEvent.click(screen.getByRole("button", { name: "Insert Company" }));
+
+      expect(screen.getByPlaceholderText("Write your cover letter template here...")).toHaveValue(
+        "{company}",
+      );
     });
 
     it("shows word and character count", async () => {
@@ -688,7 +704,7 @@ describe("CoverLetterTemplates", () => {
       await waitFor(() => {
         expect(mockToast.success).toHaveBeenCalledWith(
           "Template filled and copied!",
-          "Check for [bracketed] placeholders that need manual editing"
+          "Check any bracketed blanks before sending"
         );
       });
     });

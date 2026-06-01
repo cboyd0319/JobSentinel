@@ -74,6 +74,10 @@ and record actionable findings in this active-plan surface.
   analytics headings, weekly application pacing, and Dashboard search tips.
   Product-copy sensors now reject the old provider-heavy, browser-power-user,
   funnel/goal, and Boolean-search wording.
+- Latest local cover-letter follow-up replaces visible brace-token template
+  buttons with plain auto-fill blank labels, keeps token insertion internal,
+  changes copy/toast guidance to "blanks" language, and extends product-copy
+  coverage against raw placeholder-chip drift.
 - Latest local zero-technical provider setup work labels USAJobs as optional
   advanced federal monitoring with a no-setup browser-search path first, keeps
   Telegram bot details behind an advanced chat-alert path, and adds

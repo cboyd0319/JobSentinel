@@ -153,6 +153,11 @@ Current cleanup posture:
   a no-setup browser-search path before optional advanced monitoring, keeps
   Telegram bot details behind an advanced chat-alert path, and adds
   product-copy coverage against old provider setup shortcuts.
+- Current local cover-letter follow-up changes template auto-fill buttons from
+  raw brace tokens to plain labels such as Company and Job Title, keeps the
+  inserted token values internal, updates copy/toast guidance toward blanks
+  before sending, and adds product-copy coverage against raw placeholder-chip
+  drift.
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
 - `npm run harness:plan -- --since origin/main` now maps changed files to
   focused verification commands from the harness matrix.

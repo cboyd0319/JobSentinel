@@ -36,15 +36,51 @@ const CATEGORY_LABELS: Record<TemplateCategory, string> = {
 };
 
 const PLACEHOLDER_HINTS = [
-  { placeholder: '{company}', description: 'Company name' },
-  { placeholder: '{position}', description: 'Job title' },
-  { placeholder: '{location}', description: 'Job location' },
-  { placeholder: '{hiring_manager}', description: 'Hiring manager name (or "Hiring Manager")' },
-  { placeholder: '{skill1}', description: 'Your primary skill' },
-  { placeholder: '{skill2}', description: 'Your secondary skill' },
-  { placeholder: '{years_experience}', description: 'Years of experience' },
-  { placeholder: '{your_name}', description: 'Your full name' },
-  { placeholder: '{date}', description: 'Today\'s date' },
+  {
+    token: '{company}',
+    label: 'Company',
+    description: 'Adds the company name when you fill this for a job',
+  },
+  {
+    token: '{position}',
+    label: 'Job Title',
+    description: 'Adds the job title when you fill this for a job',
+  },
+  {
+    token: '{location}',
+    label: 'Location',
+    description: 'Adds the job location when available',
+  },
+  {
+    token: '{hiring_manager}',
+    label: 'Hiring Manager',
+    description: 'Adds the hiring manager name, or a general greeting if unknown',
+  },
+  {
+    token: '{skill1}',
+    label: 'Main Skill',
+    description: 'Adds a blank for your strongest relevant skill',
+  },
+  {
+    token: '{skill2}',
+    label: 'Second Skill',
+    description: 'Adds a blank for another relevant skill',
+  },
+  {
+    token: '{years_experience}',
+    label: 'Years Experience',
+    description: 'Adds a blank for your years of experience',
+  },
+  {
+    token: '{your_name}',
+    label: 'Your Name',
+    description: 'Adds your name when available',
+  },
+  {
+    token: '{date}',
+    label: 'Date',
+    description: 'Adds today\'s date',
+  },
 ];
 
 function getTemplateErrorAction(error: unknown): string {
@@ -141,18 +177,19 @@ function TemplateEditor({ template, onSave, onCancel, saving }: TemplateEditorPr
 
       <div className="p-3 bg-surface-50 dark:bg-surface-800/50 rounded-lg">
         <p className="text-xs font-medium text-surface-600 dark:text-surface-400 mb-2">
-          Available placeholders (click to insert):
+          Click a label to add an auto-fill blank:
         </p>
         <div className="flex flex-wrap gap-2">
-          {PLACEHOLDER_HINTS.map(({ placeholder, description }) => (
+          {PLACEHOLDER_HINTS.map(({ token, label, description }) => (
             <button
-              key={placeholder}
-              onClick={() => setContent((c) => c + placeholder)}
+              key={token}
+              onClick={() => setContent((c) => c + token)}
               disabled={saving}
               className="text-xs px-2 py-1 bg-surface-200 dark:bg-surface-700 rounded hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors disabled:opacity-50"
+              aria-label={`Insert ${label}`}
               title={description}
             >
-              {placeholder}
+              {label}
             </button>
           ))}
         </div>
@@ -464,7 +501,7 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
   const handleCopyTemplate = async (template: CoverLetterTemplate) => {
     try {
       await navigator.clipboard.writeText(template.content);
-      toast.success('Copied to clipboard', 'Remember to replace the placeholders');
+      toast.success('Copied to clipboard', 'Review any blanks before sending');
     } catch {
       toast.error('Failed to copy', 'Please try again');
     }
@@ -475,7 +512,7 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
       await navigator.clipboard.writeText(filledContent);
       toast.success(
         'Template filled and copied!',
-        'Check for [bracketed] placeholders that need manual editing'
+        'Check any bracketed blanks before sending'
       );
     } catch {
       toast.error('Failed to copy', 'Please try again');

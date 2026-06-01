@@ -322,6 +322,17 @@ test("product copy rejects technical-first settings copy", () => {
       "src/pages/DashboardUI/DashboardFiltersBar.tsx",
       "Use AND for words that must both appear\n",
     );
+    writeFixtureFile(
+      root,
+      "src/components/CoverLetterTemplates.tsx",
+      [
+        "Available placeholders (click to insert):",
+        "<button>{placeholder}</button>",
+        "Remember to replace the placeholders",
+        "Check for [bracketed] placeholders that need manual editing",
+        "",
+      ].join("\n"),
+    );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(
@@ -339,6 +350,10 @@ test("product copy rejects technical-first settings copy", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.test.tsx"), false);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "docs/features/smart-scoring.md"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/CoverLetterTemplates.tsx"),
       true,
     );
     assert.equal(
