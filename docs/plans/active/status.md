@@ -146,6 +146,13 @@ and record actionable findings in this active-plan surface.
   interview, resume match, and resume E2E seed sensors into
   `scripts/harness/checks/frontend-contracts.mjs`; focused frontend-contract
   coverage is now 6 tests and `scripts/check-repo-bloat.mjs` is 1,624 lines.
+- Latest local source-quality harness work moves raw salary command logging,
+  production/frontend glyph and lint-suppression sensors, backend and
+  notification scoring glyph sensors, stale Rust stub checks, database-log
+  glyph checks, opaque command unit-error checks, unsafe rendered JSON parsing
+  checks, and unsafe Settings webhook/partial-save checks into
+  `scripts/harness/checks/source-quality.mjs`; focused source-quality coverage
+  is now 6 tests and `scripts/check-repo-bloat.mjs` is 1,367 lines.
 - Latest local privacy work removes raw automation dropdown-answer logging and
   raw frontend error forwarding, then adds bloat sensors and `errorReporting`
   unit coverage so those regressions fail locally.
@@ -241,9 +248,9 @@ and record actionable findings in this active-plan surface.
 1. Continue broad-audience fixture audit in less obvious fixture paths outside
    current sensors, while preserving tech-specific cases only when they test
    explicit branch behavior or source-realism parser contracts.
-2. Continue splitting oversized mixed sensors, especially remaining
-   source-quality, frontend status/glyph, backend shape, and source-security
-   checks still inside `scripts/check-repo-bloat.mjs`.
+2. Continue splitting oversized mixed sensors, especially remaining security
+   docs, credential docs, docs-image, screenshot, and release-plan drift checks
+   still inside `scripts/check-repo-bloat.mjs`.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
 4. Continue broad-audience review so non-technical and technical job searches

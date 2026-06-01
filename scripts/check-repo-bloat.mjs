@@ -83,6 +83,25 @@ import {
   missingRuntimeMockInvokeCases,
 } from "./harness/checks/frontend-contracts.mjs";
 import {
+  hasBackendScoringReasonGlyphMarkers,
+  hasDatabaseLogEmojiMarkers,
+  hasFrontendStatusEmojiMarkers,
+  hasNotificationScoringReasonGlyphMarkers,
+  hasNotificationWebhookSaveWithoutValidation,
+  hasOpaqueCommandUnitError,
+  hasProductionExplicitAnySuppression,
+  hasProductionHookDependencySuppression,
+  hasProductionReactRefreshSuppression,
+  hasProductionSourceGlyphMarkers,
+  hasProductionTypeErrorSuppression,
+  hasRawSalaryCommandLogging,
+  hasStaleResumeExportPdfStub,
+  hasStaleScrapeAllStub,
+  hasStaleSettingsPartialSaveMessage,
+  hasUnsafeScoreReasonJsonParsing,
+  hasUnsafeStorageJsonParsing,
+} from "./harness/checks/source-quality.mjs";
+import {
   hasBookmarkletCodeWithoutTokenHeader,
   hasManualBookmarkletJsonErrorResponses,
   hasRawAutomationBrowserErrors,
@@ -225,24 +244,6 @@ import {
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
 
-const databaseLogEmojiPaths = new Set([
-  "src-tauri/src/core/db/connection.rs",
-  "src-tauri/src/core/db/integrity/backups.rs",
-  "src-tauri/src/core/db/integrity/diagnostics.rs",
-  "src-tauri/src/core/db/integrity/mod.rs",
-]);
-
-const notificationServicePrivacyPaths = new Set(["src-tauri/src/core/notify/mod.rs"]);
-const scoreReasonJsonParserPaths = new Set([
-  "src/components/ScoreDisplay.tsx",
-  "src/components/ScoreBreakdownModal.tsx",
-  "src/components/GhostIndicator.tsx",
-]);
-const storageJsonParserPaths = new Set([
-  "src/components/AnalyticsPanel.tsx",
-  "src/components/AtsLiveScorePanel.tsx",
-  "src/components/CompanyResearchPanel.tsx",
-]);
 const settingsCredentialPaths = new Set(["src/pages/Settings.tsx"]);
 const notificationDocsPaths = new Set([
   "docs/features/notifications.md",
@@ -263,28 +264,6 @@ const keyringSecurityDocsPaths = new Set([
 const keyringMigrationPaths = new Set(["src-tauri/src/main.rs"]);
 const credentialArchitecturePaths = new Set(["src-tauri/src/core/credentials/mod.rs"]);
 const userDataDocsPaths = new Set(["docs/features/user-data-management.md"]);
-const frontendStatusEmojiPaths = new Set([
-  "src/components/AnalyticsPanel.tsx",
-  "src/components/BookmarkletGenerator.tsx",
-  "src/components/InterviewScheduler.tsx",
-  "src/pages/Applications.tsx",
-]);
-
-const rawSalaryCommandLoggingPaths = new Set(["src-tauri/src/commands/salary.rs"]);
-const backendScoringReasonPaths = new Set([
-  "src-tauri/src/core/resume/matcher.rs",
-  "src-tauri/src/core/scoring/mod.rs",
-  "src-tauri/src/core/scoring/remote.rs",
-]);
-
-const notificationScoringReasonPaths = new Set([
-  "src-tauri/src/core/notify/discord.rs",
-  "src-tauri/src/core/notify/email.rs",
-  "src-tauri/src/core/notify/mod.rs",
-  "src-tauri/src/core/notify/slack.rs",
-  "src-tauri/src/core/notify/teams.rs",
-  "src-tauri/src/core/notify/telegram.rs",
-]);
 
 function isJobSentinelProject(root) {
   try {
@@ -292,189 +271,6 @@ function isJobSentinelProject(root) {
   } catch {
     return false;
   }
-}
-
-function hasRawSalaryCommandLogging(root, path) {
-  if (!rawSalaryCommandLoggingPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  const stalePatterns = [
-    /Command: predict_salary \(job: \{\}, years: \{:\?\}\)/,
-    /Command: get_salary_benchmark \(title: \{\}, location: \{\}\)/,
-    /tracing::info!\([\s\S]{0,240}"Command: get_salary_benchmark[\s\S]{0,240},\s*job_title,\s*location\s*\)/,
-  ];
-
-  return stalePatterns.some((pattern) => pattern.test(text));
-}
-
-function hasProductionSourceGlyphMarkers(root, path) {
-  if (!isRuntimeFrontendSource(path)) {
-    return false;
-  }
-
-  return /(?:\p{Extended_Pictographic}|[\u{2705}\u{274c}\u{26a0}\u{2139}\u{2713}\u{2717}])/u.test(
-    readFileSync(join(root, path), "utf8"),
-  );
-}
-
-function hasBackendScoringReasonGlyphMarkers(root, path) {
-  if (!backendScoringReasonPaths.has(path)) {
-    return false;
-  }
-
-  return /(?:\p{Extended_Pictographic}|[\u{2705}\u{274c}\u{26a0}\u{2139}\u{2713}\u{2717}\u{251c}\u{2514}\u{2500}\u{2022}])/u.test(
-    readFileSync(join(root, path), "utf8"),
-  );
-}
-
-function hasNotificationScoringReasonGlyphMarkers(root, path) {
-  if (!notificationScoringReasonPaths.has(path)) {
-    return false;
-  }
-
-  return /\u{2713}/u.test(readFileSync(join(root, path), "utf8"));
-}
-
-function hasFrontendStatusEmojiMarkers(root, path) {
-  if (!frontendStatusEmojiPaths.has(path)) {
-    return false;
-  }
-
-  return /[⏳📝📞🎉✓✗]/u.test(readFileSync(join(root, path), "utf8"));
-}
-
-function hasStaleScrapeAllStub(root, path) {
-  if (path !== "src-tauri/src/core/scrapers/mod.rs") {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return (
-    /pub async fn scrape_all\(\) -> Vec<Job>/.test(text) ||
-    /legacy function, use scrape_all_parallel/.test(text)
-  );
-}
-
-function hasStaleResumeExportPdfStub(root, path) {
-  if (path !== "src-tauri/src/core/resume/export.rs") {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return (
-    /Resume export functionality - PDF/.test(text) ||
-    /printpdf =/.test(text) ||
-    /pub fn export_pdf/.test(text) ||
-    /PDF export not yet implemented/.test(text)
-  );
-}
-
-function stripRustTestModules(text) {
-  const testModuleIndex = text.search(/(?:^|\n)\s*#\[cfg\(test\)\]/);
-  if (testModuleIndex === -1) {
-    return text;
-  }
-
-  return text.slice(0, testModuleIndex);
-}
-
-function hasDatabaseLogEmojiMarkers(root, path) {
-  if (!databaseLogEmojiPaths.has(path)) {
-    return false;
-  }
-
-  return /(?:\p{Extended_Pictographic}|[✅❌⚠️✓✗←→])/u.test(
-    readFileSync(join(root, path), "utf8"),
-  );
-}
-
-function hasOpaqueCommandUnitError(root, path) {
-  if (!path.startsWith("src-tauri/src/commands/") || !path.endsWith(".rs")) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return /#\[tauri::command\][\s\S]{0,320}->\s*Result\s*<[^>{;]*(?:<[^>]*>)?[^>{;]*,\s*\(\s*\)>/.test(
-    productionText,
-  );
-}
-
-function hasUnsafeScoreReasonJsonParsing(root, path) {
-  if (!scoreReasonJsonParserPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  if (path === "src/components/GhostIndicator.tsx") {
-    return (
-      /return\s+JSON\.parse\(reasonsJson\)/.test(text) ||
-      !/function\s+isGhostReason/.test(text) ||
-      !/Array\.isArray\(parsed\)/.test(text) ||
-      !/Number\.isFinite\(reason\.weight\)/.test(text)
-    );
-  }
-
-  return (
-    /const\s+reasons:\s*string\[\]\s*=\s*JSON\.parse\(reasonsJson\)/.test(text) ||
-    !/function\s+parseReasonList/.test(text) ||
-    !/Array\.isArray\(parsed\)/.test(text) ||
-    !/typeof reason === "string"/.test(text)
-  );
-}
-
-function hasUnsafeStorageJsonParsing(root, path) {
-  if (!storageJsonParserPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  if (path === "src/components/AnalyticsPanel.tsx") {
-    return (
-      /return\s+stored\s+\?\s+JSON\.parse\(stored\)\s+:\s+null/.test(text) ||
-      !/function\s+isWeeklyGoal/.test(text) ||
-      !/removeStorageValue\("local",\s*WEEKLY_GOALS_KEY\)/.test(text)
-    );
-  }
-
-  if (path === "src/components/AtsLiveScorePanel.tsx") {
-    return (
-      /const\s+parsed\s*=\s*JSON\.parse\(stored\)/.test(text) ||
-      !/function\s+isStoredJobContext/.test(text) ||
-      !/removeStorageValue\("session",\s*JOB_CONTEXT_KEY\)/.test(text)
-    );
-  }
-
-  return (
-    /return\s+stored\s+\?\s+JSON\.parse\(stored\)\s+:\s+\{\}/.test(text) ||
-    !/function\s+isCacheEntry/.test(text) ||
-    !/function\s+isCompanyInfo/.test(text)
-  );
-}
-
-function hasNotificationWebhookSaveWithoutValidation(root, path) {
-  if (!settingsCredentialPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  const savesNotificationWebhook =
-    /storeCredential\(\s*["'](?:slack|discord|teams)_webhook["']/.test(text);
-
-  return (
-    savesNotificationWebhook &&
-    !/getCredentialValidationError\(\s*credentials\s*\)/.test(text)
-  );
-}
-
-function hasStaleSettingsPartialSaveMessage(root, path) {
-  if (!settingsCredentialPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return /credential\(s\) failed to save\. Config was saved/.test(text);
 }
 
 function hasStaleNotificationWebhookDocs(root, path) {
@@ -653,59 +449,6 @@ function hasContradictoryPlansIndexReleaseStatus(root, path) {
     /## Current Release Plans[\s\S]*\|\s*v\d+\.\d+\.\d+\s*\|\s*Unreleased\s*\|/.test(text) &&
     /## Archived Plans[\s\S]*\|\s*v\d+\.\d+\.\d+\s*\|\s*Complete on main\s*\|/.test(text)
   );
-}
-
-function stripTypeScriptComments(text) {
-  return text
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/(^|[^:])\/\/.*$/gm, "$1");
-}
-
-function isRuntimeFrontendSource(path) {
-  return (
-    path.startsWith("src/") &&
-    /\.(ts|tsx)$/.test(path) &&
-    !path.endsWith(".d.ts") &&
-    !/\.test\.(ts|tsx)$/.test(path) &&
-    !/\.stories\.(ts|tsx)$/.test(path) &&
-    path !== "src/mocks/handlers.ts"
-  );
-}
-
-function hasProductionExplicitAnySuppression(root, path) {
-  if (!isRuntimeFrontendSource(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return /eslint-disable(?:-next-line|-line)?\s+@typescript-eslint\/no-explicit-any/.test(text);
-}
-
-function hasProductionTypeErrorSuppression(root, path) {
-  if (!isRuntimeFrontendSource(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return /@ts-(?:expect-error|ignore)\b/.test(text);
-}
-
-function hasProductionHookDependencySuppression(root, path) {
-  if (!isRuntimeFrontendSource(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return /eslint-disable(?:-next-line|-line)?\s+react-hooks\/exhaustive-deps/.test(text);
-}
-
-function hasProductionReactRefreshSuppression(root, path) {
-  if (!isRuntimeFrontendSource(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return /eslint-disable(?:-next-line|-line)?\s+react-refresh\/only-export-components/.test(text);
 }
 
 export function checkRepoBloat(root = defaultRoot) {

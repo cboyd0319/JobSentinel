@@ -1,0 +1,176 @@
+import assert from "node:assert/strict";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
+import test from "node:test";
+import {
+  hasBackendScoringReasonGlyphMarkers,
+  hasDatabaseLogEmojiMarkers,
+  hasFrontendStatusEmojiMarkers,
+  hasNotificationScoringReasonGlyphMarkers,
+  hasNotificationWebhookSaveWithoutValidation,
+  hasOpaqueCommandUnitError,
+  hasProductionExplicitAnySuppression,
+  hasProductionHookDependencySuppression,
+  hasProductionReactRefreshSuppression,
+  hasProductionSourceGlyphMarkers,
+  hasProductionTypeErrorSuppression,
+  hasRawSalaryCommandLogging,
+  hasStaleResumeExportPdfStub,
+  hasStaleScrapeAllStub,
+  hasStaleSettingsPartialSaveMessage,
+  hasUnsafeScoreReasonJsonParsing,
+  hasUnsafeStorageJsonParsing,
+} from "./harness/checks/source-quality.mjs";
+
+function writeFixtureFile(root, path, content = "") {
+  const fullPath = join(root, path);
+  mkdirSync(dirname(fullPath), { recursive: true });
+  writeFileSync(fullPath, content, "utf8");
+}
+
+function withFixture(callback) {
+  const root = mkdtempSync(join(tmpdir(), "jobsentinel-source-quality-"));
+
+  try {
+    callback(root);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+test("source quality rejects frontend glyphs and lint suppressions", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "src/pages/Market.tsx", 'icon: "📊";\n');
+    writeFixtureFile(
+      root,
+      "src/components/TrendChart.tsx",
+      "// eslint-disable-next-line @typescript-eslint/no-explicit-any\ntype Data = any;\n",
+    );
+    writeFixtureFile(root, "src/utils/vitals.ts", "// @ts-expect-error\nperformance.memory;\n");
+    writeFixtureFile(
+      root,
+      "src/components/CompanyResearchPanel.tsx",
+      "// eslint-disable-next-line react-hooks/exhaustive-deps\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/contexts/UndoContext.tsx",
+      "// eslint-disable-next-line react-refresh/only-export-components\n",
+    );
+    writeFixtureFile(root, "src/components/InterviewScheduler.tsx", "<Button>✓ Passed</Button>\n");
+
+    assert.equal(hasProductionSourceGlyphMarkers(root, "src/pages/Market.tsx"), true);
+    assert.equal(hasProductionExplicitAnySuppression(root, "src/components/TrendChart.tsx"), true);
+    assert.equal(hasProductionTypeErrorSuppression(root, "src/utils/vitals.ts"), true);
+    assert.equal(
+      hasProductionHookDependencySuppression(root, "src/components/CompanyResearchPanel.tsx"),
+      true,
+    );
+    assert.equal(hasProductionReactRefreshSuppression(root, "src/contexts/UndoContext.tsx"), true);
+    assert.equal(hasFrontendStatusEmojiMarkers(root, "src/components/InterviewScheduler.tsx"), true);
+  });
+});
+
+test("source quality ignores test and mock frontend files for production source checks", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "src/mocks/handlers.ts", 'icon: "📊";\n');
+    writeFixtureFile(root, "src/components/Example.test.tsx", "// @ts-ignore\n");
+
+    assert.equal(hasProductionSourceGlyphMarkers(root, "src/mocks/handlers.ts"), false);
+    assert.equal(hasProductionTypeErrorSuppression(root, "src/components/Example.test.tsx"), false);
+  });
+});
+
+test("source quality rejects backend glyphs and stale Rust stubs", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "src-tauri/src/core/scoring/mod.rs", '"✓ Title matches";\n');
+    writeFixtureFile(root, "src-tauri/src/core/notify/slack.rs", '"✓ Title matches";\n');
+    writeFixtureFile(root, "src-tauri/src/core/db/connection.rs", 'info!("✅ connected");\n');
+    writeFixtureFile(root, "src-tauri/src/core/scrapers/mod.rs", "pub async fn scrape_all() -> Vec<Job> {}\n");
+    writeFixtureFile(root, "src-tauri/src/core/resume/export.rs", "pub fn export_pdf() {}\n");
+
+    assert.equal(
+      hasBackendScoringReasonGlyphMarkers(root, "src-tauri/src/core/scoring/mod.rs"),
+      true,
+    );
+    assert.equal(
+      hasNotificationScoringReasonGlyphMarkers(root, "src-tauri/src/core/notify/slack.rs"),
+      true,
+    );
+    assert.equal(hasDatabaseLogEmojiMarkers(root, "src-tauri/src/core/db/connection.rs"), true);
+    assert.equal(hasStaleScrapeAllStub(root, "src-tauri/src/core/scrapers/mod.rs"), true);
+    assert.equal(hasStaleResumeExportPdfStub(root, "src-tauri/src/core/resume/export.rs"), true);
+  });
+});
+
+test("source quality rejects opaque command unit errors outside Rust tests", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/cache.rs",
+      "#[tauri::command]\npub async fn get_cache_health() -> Result<serde_json::Value, ()> { Ok(json!({})) }\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/test_only.rs",
+      "#[cfg(test)]\n#[tauri::command]\npub async fn test_command() -> Result<(), ()> { Ok(()) }\n",
+    );
+
+    assert.equal(hasOpaqueCommandUnitError(root, "src-tauri/src/commands/cache.rs"), true);
+    assert.equal(hasOpaqueCommandUnitError(root, "src-tauri/src/commands/test_only.rs"), false);
+  });
+});
+
+test("source quality rejects unsafe rendered JSON parsing", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/components/ScoreDisplay.tsx",
+      "const reasons: string[] = JSON.parse(reasonsJson);\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/components/GhostIndicator.tsx",
+      "function parseReasons(reasonsJson) { return JSON.parse(reasonsJson); }\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/components/AnalyticsPanel.tsx",
+      "return stored ? JSON.parse(stored) : null;\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/components/AtsLiveScorePanel.tsx",
+      "const parsed = JSON.parse(stored);\n",
+    );
+
+    assert.equal(hasUnsafeScoreReasonJsonParsing(root, "src/components/ScoreDisplay.tsx"), true);
+    assert.equal(hasUnsafeScoreReasonJsonParsing(root, "src/components/GhostIndicator.tsx"), true);
+    assert.equal(hasUnsafeStorageJsonParsing(root, "src/components/AnalyticsPanel.tsx"), true);
+    assert.equal(hasUnsafeStorageJsonParsing(root, "src/components/AtsLiveScorePanel.tsx"), true);
+  });
+});
+
+test("source quality rejects unsafe settings saves and raw salary logging", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/pages/Settings.tsx",
+      [
+        'await storeCredential("discord_webhook", credentials.discord_webhook);',
+        'toast.warning("Partially saved", `${failures.length} credential(s) failed to save. Config was saved.`);',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/salary.rs",
+      'tracing::info!("Command: get_salary_benchmark (title: {}, location: {})", job_title, location);\n',
+    );
+
+    assert.equal(hasNotificationWebhookSaveWithoutValidation(root, "src/pages/Settings.tsx"), true);
+    assert.equal(hasStaleSettingsPartialSaveMessage(root, "src/pages/Settings.tsx"), true);
+    assert.equal(hasRawSalaryCommandLogging(root, "src-tauri/src/commands/salary.rs"), true);
+  });
+});
