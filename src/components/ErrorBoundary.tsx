@@ -11,7 +11,7 @@ const VISUAL_PREFERENCE_KEYS = [
 
 function getSafeErrorMessage(error: Error | null): string {
   return error
-    ? 'JobSentinel ran into a problem. Your data is safe. Try again, or copy a safe debug report if it keeps happening.'
+    ? 'JobSentinel ran into a problem. Your data is safe. Try again, or copy a safe support report if it keeps happening.'
     : 'An unexpected error occurred';
 }
 
@@ -187,7 +187,7 @@ class ErrorBoundary extends Component<Props, State> {
             <div className="p-4 bg-surface-50 dark:bg-surface-900/50 rounded-lg mb-6">
               <p className="text-sm text-surface-500 dark:text-surface-400">
                 {showClearData
-                  ? "This keeps happening. Copy or save a safe debug report first. If reload does not work, reset the app window; saved jobs and applications stay saved on this device."
+                  ? "This keeps happening. Copy or save a safe support report first. If reload does not work, reset the app window; saved jobs and applications stay saved on this device."
                   : "Your data is safe. Try reloading the app to continue."}
               </p>
             </div>
@@ -216,7 +216,7 @@ class ErrorBoundary extends Component<Props, State> {
               >
                 {this.state.debugReportStatus === 'copying'
                   ? 'Copying...'
-                  : 'Copy Safe Debug Report'}
+                  : 'Copy Safe Support Report'}
               </button>
 
               <button
@@ -226,22 +226,22 @@ class ErrorBoundary extends Component<Props, State> {
               >
                 {this.state.debugReportStatus === 'saving'
                   ? 'Saving...'
-                  : 'Save Safe Debug Report'}
+                  : 'Save Safe Support Report'}
               </button>
 
               {this.state.debugReportStatus === 'copied' && (
                 <p className="text-center text-sm text-success" role="status">
-                  Safe debug report copied
+                  Safe support report copied
                 </p>
               )}
               {this.state.debugReportStatus === 'saved' && this.state.debugReportFileName && (
                 <p className="text-center text-sm text-success" role="status">
-                  Safe debug report saved: {this.state.debugReportFileName}
+                  Safe support report saved: {this.state.debugReportFileName}
                 </p>
               )}
               {this.state.debugReportStatus === 'failed' && (
                 <p className="text-center text-sm text-danger" role="status">
-                  Could not create safe debug report
+                  Could not create safe support report
                 </p>
               )}
 

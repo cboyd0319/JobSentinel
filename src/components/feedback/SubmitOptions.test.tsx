@@ -5,17 +5,17 @@ import { SubmitOptions } from "./SubmitOptions";
 
 function renderSubmitOptions(submitting = false) {
   const onSubmitGitHub = vi.fn();
-  const onSubmitDrive = vi.fn();
+  const onSubmitLocalReport = vi.fn();
 
   render(
     <SubmitOptions
       onSubmitGitHub={onSubmitGitHub}
-      onSubmitDrive={onSubmitDrive}
+      onSubmitLocalReport={onSubmitLocalReport}
       submitting={submitting}
     />
   );
 
-  return { onSubmitGitHub, onSubmitDrive };
+  return { onSubmitGitHub, onSubmitLocalReport };
 }
 
 describe("SubmitOptions", () => {
@@ -27,7 +27,7 @@ describe("SubmitOptions", () => {
       screen.getByRole("heading", { name: /save a safe report/i })
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/works without a github or google account/i)
+      screen.getByText(/works without any account/i)
     ).toBeInTheDocument();
     expect(
       screen.getByText(/you choose whether and where to share it/i)
@@ -42,7 +42,7 @@ describe("SubmitOptions", () => {
 
   it("routes each button to the matching submit action", async () => {
     const user = userEvent.setup();
-    const { onSubmitGitHub, onSubmitDrive } = renderSubmitOptions();
+    const { onSubmitGitHub, onSubmitLocalReport } = renderSubmitOptions();
 
     await user.click(
       screen.getByRole("button", { name: /save safe report/i })
@@ -51,7 +51,7 @@ describe("SubmitOptions", () => {
       screen.getByRole("button", { name: /open github issue/i })
     );
 
-    expect(onSubmitDrive).toHaveBeenCalledTimes(1);
+    expect(onSubmitLocalReport).toHaveBeenCalledTimes(1);
     expect(onSubmitGitHub).toHaveBeenCalledTimes(1);
   });
 

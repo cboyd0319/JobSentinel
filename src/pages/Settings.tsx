@@ -364,14 +364,14 @@ export default function Settings({ onClose }: SettingsProps) {
     try {
       await copySanitizedDebugReport();
       toast.success(
-        "Safe debug report copied",
-        "Paste it into a GitHub issue. Private details are removed first."
+        "Safe support report copied",
+        "Share it only if you want help. Private details are removed first."
       );
     } catch (error) {
       logError("Failed to copy debug report:", error);
       toast.error(
-        "Could not copy safe debug report",
-        "Try Send Feedback, then choose GitHub."
+        "Could not copy safe support report",
+        "Try saving the report instead."
       );
     } finally {
       setCopyingDebugReport(false);
@@ -385,17 +385,17 @@ export default function Settings({ onClose }: SettingsProps) {
       const savedFile = await saveSanitizedDebugReport();
       if (savedFile) {
         toast.success(
-          "Safe debug report saved",
-          `Attach ${savedFile.fileName} to a GitHub issue if you need help.`
+          "Safe support report saved",
+          `Share ${savedFile.fileName} only if you want help.`
         );
       } else {
-        toast.info("Safe debug report not saved", "No file was created.");
+        toast.info("Safe support report not saved", "No file was created.");
       }
     } catch (error) {
       logError("Failed to save debug report:", error);
       toast.error(
-        "Could not save safe debug report",
-        "Try Copy Safe Debug Report instead."
+        "Could not save safe support report",
+        "Try Copy Safe Support Report instead."
       );
     } finally {
       setSavingDebugReport(false);
@@ -3764,23 +3764,23 @@ export default function Settings({ onClose }: SettingsProps) {
               onClick={handleCopyDebugReport}
               disabled={copyingDebugReport}
               className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors disabled:opacity-50 disabled:pointer-events-none"
-              title="Copy a safe report you can paste into a GitHub issue"
+              title="Copy a safe report you can share only if you want help"
             >
               <SettingsSymbol icon="clipboard" className="w-4 h-4" />
               {copyingDebugReport
                 ? "Copying Safe Report..."
-                : "Copy Safe Debug Report"}
+                : "Copy Safe Support Report"}
             </button>
             <button
               onClick={handleSaveDebugReport}
               disabled={savingDebugReport}
               className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors disabled:opacity-50 disabled:pointer-events-none"
-              title="Save a safe report you can attach to a GitHub issue"
+              title="Save a safe report you can share only if you want help"
             >
               <SettingsSymbol icon="document" className="w-4 h-4" />
               {savingDebugReport
                 ? "Saving Safe Report..."
-                : "Save Safe Debug Report"}
+                : "Save Safe Support Report"}
             </button>
           </div>
 

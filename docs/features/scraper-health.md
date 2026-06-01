@@ -12,7 +12,7 @@ plain-language status and safe next steps.
 | Source-check coverage | Includes scheduled sources plus Indeed, Wellfound, and ZipRecruiter availability checks |
 | User-opened search links | LinkedIn and similar destination links are opened by the user, not monitored in the background |
 | Credentials | Tracks user-configured external channels where applicable; LinkedIn session credentials are not collected |
-| Debug reporting | Sanitized reports can be copied or saved for GitHub issue reports |
+| Support reports | Sanitized reports can be copied or saved locally before the user chooses whether to share |
 
 ## User States
 
@@ -33,7 +33,7 @@ The Settings troubleshooting dashboard should show:
   found, last run, and a sanitized latest issue.
 - Run history for recent attempts.
 - Source-check buttons for known supported sources.
-- Safe debug report actions when a user needs help.
+- Safe support report actions when a user needs help.
 
 ## Source Policy
 
@@ -45,7 +45,7 @@ Source health must follow the same source boundaries as adapters:
 - Do not collect restricted-site session credentials.
 - Do not attempt CAPTCHA bypass or platform-control evasion.
 - Do not include raw credentials, cookies, private notes, resumes, salary floors,
-  or application history in health errors or debug reports.
+  or application history in health errors or support reports.
 
 LinkedIn is intentionally handled as a user-opened search-link destination. It
 should not appear as a background source, credential-renewal prompt, or source

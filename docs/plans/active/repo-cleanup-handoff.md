@@ -103,6 +103,12 @@ Current cleanup posture:
   available, no-profile states show a Set Up Profile recovery action, and
   stale `Settings > Application Assist` recovery copy is replaced by the
   sidebar Application Assist path.
+- Latest support/privacy follow-up keeps saved support reports local in the
+  primary flow, removes GitHub-first and shared-folder copy from support
+  surfaces, replaces visible safe debug-report wording with safe support-report
+  wording, broadens generic Application Assist profile labels away from Code
+  profile, and hardens Rust report sanitization for full URLs, query secrets,
+  password-like values, and bookmarklet import tokens.
 - Latest IPC minimization work added `has_application_profile`,
   `get_application_profile_preview`, `get_dashboard_preferences`, canonical
   import URLs before preview/hash/storage, and minimized import responses to

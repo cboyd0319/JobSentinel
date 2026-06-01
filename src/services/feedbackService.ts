@@ -59,7 +59,7 @@ export interface DebugReportCopyResult {
 }
 
 const DEBUG_REPORT_DESCRIPTION =
-  "User generated a sanitized debug report from JobSentinel.";
+  "User generated a safe support report from JobSentinel.";
 const MAX_FRONTEND_ERRORS_IN_REPORT = 20;
 const MAX_DEBUG_DETAIL_LENGTH = 120;
 

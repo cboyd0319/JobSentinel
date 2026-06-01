@@ -91,7 +91,7 @@ describe("Salary", () => {
     await user.click(screen.getByRole("button", { name: "Check Pay Range" }));
 
     expect(await screen.findByText("Could not check pay range")).toBeInTheDocument();
-    expect(screen.getByText(/safe debug report/i)).toBeInTheDocument();
+    expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
     expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
   });
 
@@ -122,7 +122,7 @@ describe("Salary", () => {
     await user.click(screen.getByRole("button", { name: "Draft Negotiation Notes" }));
 
     expect(await screen.findByText("Could not draft notes")).toBeInTheDocument();
-    expect(screen.getByText(/safe debug report/i)).toBeInTheDocument();
+    expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
     expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
   });
 });

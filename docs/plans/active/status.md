@@ -61,6 +61,12 @@ and record actionable findings in this active-plan surface.
   cards, adds a Set Up Profile recovery action, and replaces stale
   `Settings > Application Assist` guidance with the sidebar Application Assist
   path in frontend and Rust recovery copy.
+- Latest local support/privacy work makes saved support reports local-only in
+  the UI, removes GitHub-first and shared-folder wording from the main support
+  path, renames visible safe debug-report copy to safe support-report copy,
+  broadens generic Application Assist profile labels beyond code profiles, and
+  hardens the Rust support-report sanitizer for full URLs plus common token,
+  password, and bookmarklet-token forms.
 - Latest local broad-audience fixture work rebalanced generic market
   intelligence, notifications, config, database, ATS, ghost detection, salary,
   scoring, generic scraper adapters, command, frontend mock, sample JSON

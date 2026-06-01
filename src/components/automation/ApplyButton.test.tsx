@@ -497,7 +497,7 @@ describe("ApplyButton", () => {
       await user.click(screen.getByRole("button", { name: /prepare details/i }));
 
       await waitFor(() => {
-        expect(screen.getByRole("dialog")).toHaveTextContent(/safe debug report/i);
+        expect(screen.getByRole("dialog")).toHaveTextContent(/safe support report/i);
       });
     });
 
@@ -656,7 +656,7 @@ describe("ApplyButton", () => {
       await user.click(screen.getByRole("button", { name: /prepare details/i }));
 
       await waitFor(() => {
-        expect(screen.getByRole("dialog")).toHaveTextContent(/safe debug report/i);
+        expect(screen.getByRole("dialog")).toHaveTextContent(/safe support report/i);
       });
       expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
     });
@@ -690,7 +690,7 @@ describe("ApplyButton", () => {
       await user.click(screen.getByRole("button", { name: /prepare details/i }));
 
       await waitFor(() => {
-        expect(screen.getByRole("dialog")).toHaveTextContent(/safe debug report/i);
+        expect(screen.getByRole("dialog")).toHaveTextContent(/safe support report/i);
       });
       expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
     });
@@ -724,7 +724,7 @@ describe("ApplyButton", () => {
 
       await waitFor(() => {
         const dialog = screen.getByRole("dialog");
-        expect(dialog).toHaveTextContent(/safe debug report/i);
+        expect(dialog).toHaveTextContent(/safe support report/i);
       });
 
       // Close modal

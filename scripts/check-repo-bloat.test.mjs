@@ -1928,7 +1928,7 @@ test("checkRepoBloat rejects application-assist automation framing", () => {
     writeFixtureFile(
       root,
       "src/components/automation/ApplicationPreview.tsx",
-      '"Fields that will be auto-filled";\n',
+      '"Fields that will be auto-filled"; "Code profile";\n',
     );
     writeFixtureFile(
       root,
@@ -2121,6 +2121,73 @@ test("checkRepoBloat rejects overconfident ghost-risk copy", () => {
     ]) {
       assert.ok(
         violations.includes(`replace overconfident ghost-risk copy: ${path}`),
+        violations.join("\n"),
+      );
+    }
+  });
+});
+
+test("checkRepoBloat rejects feedback support paths drifting away from local-first reports", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/components/feedback/SubmitOptions.tsx",
+      '"Works without a GitHub or Google account"; icon={<DriveIcon />}; onSubmitDrive();\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/feedback/SuccessScreen.tsx",
+      'submittedVia: "github" | "drive"; "Open Shared Folder";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/hooks/useFeedback.ts",
+      'submittedVia: "drive"; submitViaDrive();\n',
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/scrapers.md",
+      "Optional debug report uses GitHub or Google Drive flow.\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Settings.tsx",
+      '"Safe debug report copied"; "Paste it into a GitHub issue."; "Attach report.txt to a GitHub issue";\n',
+    );
+    writeFixtureFile(
+      root,
+      "docs/user/QUICK_START.md",
+      "Click Save Safe Debug Report, then open an issue on GitHub.\n",
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "src/components/feedback/SubmitOptions.tsx",
+        "src/components/feedback/SuccessScreen.tsx",
+        "src/hooks/useFeedback.ts",
+        "docs/features/scrapers.md",
+        "src/pages/Settings.tsx",
+        "docs/user/QUICK_START.md",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    for (const path of [
+      "src/components/feedback/SubmitOptions.tsx",
+      "src/components/feedback/SuccessScreen.tsx",
+      "src/hooks/useFeedback.ts",
+      "docs/features/scrapers.md",
+      "src/pages/Settings.tsx",
+      "docs/user/QUICK_START.md",
+    ]) {
+      assert.ok(
+        violations.includes(`keep feedback support path local-first: ${path}`),
         violations.join("\n"),
       );
     }

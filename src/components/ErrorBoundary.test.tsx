@@ -94,7 +94,7 @@ describe("ErrorBoundary", () => {
       );
 
       expect(screen.getByText(/JobSentinel ran into a problem/i)).toBeInTheDocument();
-      expect(screen.getByText(/copy a safe debug report/i)).toBeInTheDocument();
+      expect(screen.getByText(/copy a safe support report/i)).toBeInTheDocument();
       expect(screen.queryByText("Test error message")).not.toBeInTheDocument();
     });
 
@@ -159,11 +159,11 @@ describe("ErrorBoundary", () => {
       );
 
       await user.click(
-        screen.getByRole("button", { name: /copy safe debug report/i })
+        screen.getByRole("button", { name: /copy safe support report/i })
       );
 
       expect(mockCopySanitizedDebugReport).toHaveBeenCalledTimes(1);
-      expect(screen.getByText("Safe debug report copied")).toBeInTheDocument();
+      expect(screen.getByText("Safe support report copied")).toBeInTheDocument();
     });
 
     it("saves a sanitized debug report from the crash screen", async () => {
@@ -180,12 +180,12 @@ describe("ErrorBoundary", () => {
       );
 
       await user.click(
-        screen.getByRole("button", { name: /save safe debug report/i })
+        screen.getByRole("button", { name: /save safe support report/i })
       );
 
       expect(mockSaveSanitizedDebugReport).toHaveBeenCalledTimes(1);
       expect(
-        screen.getByText("Safe debug report saved: jobsentinel-debug-report.txt")
+        screen.getByText("Safe support report saved: jobsentinel-debug-report.txt")
       ).toBeInTheDocument();
     });
 
@@ -224,7 +224,7 @@ describe("ErrorBoundary", () => {
       await user.click(screen.getByRole("button", { name: /try again/i }));
 
       expect(
-        screen.getByText(/copy or save a safe debug report first/i),
+        screen.getByText(/copy or save a safe support report first/i),
       ).toBeInTheDocument();
       expect(
         screen.getByText(/saved jobs and applications stay saved on this device/i),

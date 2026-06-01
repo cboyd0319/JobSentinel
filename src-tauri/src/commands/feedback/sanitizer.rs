@@ -43,11 +43,19 @@ static LINKEDIN_COOKIE_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"li_at=[^\s;]+").expect("LinkedIn cookie regex pattern is valid and should compile")
 });
 
-// API tokens: Bearer eyJ... or token ghp_... → [TOKEN]
+// API tokens: Bearer eyJ..., token=..., access_token=..., or JSON/header token fields → [TOKEN]
 #[allow(clippy::expect_used)]
 static TOKEN_REGEX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(Bearer\s+[^\s]+|token\s+[^\s]+|api_key=[^\s&]+)")
+    Regex::new(
+        r#"(?i)(Bearer\s+[^\s"'<>]+|(?:access_token|refresh_token|api[_-]?key|token|secret|password|x-jobsentinel-token)=[^\s&"'<>\\)]+|["']?(?:access_token|refresh_token|api[_-]?key|token|secret|password|x-jobsentinel-token)["']?\s*:\s*["'][^"']+["']|(?:token|secret|password)\s+[^\s"'<>]+)"#,
+    )
         .expect("API token regex pattern is valid and should compile")
+});
+
+// Generic URLs can contain job-search details or query secrets → [URL]
+#[allow(clippy::expect_used)]
+static URL_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"https?://[^\s"'<>\\)]+"#).expect("URL regex pattern is valid and should compile")
 });
 
 // IP addresses: 192.168.1.1 → [IP_ADDRESS]
@@ -112,6 +120,9 @@ impl Sanitizer {
 
         // API tokens
         result = TOKEN_REGEX.replace_all(&result, "[TOKEN]").to_string();
+
+        // Generic URLs
+        result = URL_REGEX.replace_all(&result, "[URL]").to_string();
 
         // IP addresses (optional - some may want to keep local IPs)
         result = IP_REGEX.replace_all(&result, "[IP_ADDRESS]").to_string();
@@ -289,12 +300,40 @@ mod tests {
                 "URL: /api?api_key=secret123&foo=bar",
                 "URL: /api?[TOKEN]&foo=bar",
             ),
+            (
+                "Callback included access_token=abc123&state=ok",
+                "Callback included [TOKEN]&state=ok",
+            ),
+            (
+                "refresh_token=abc123 secret=hidden password=hunter2",
+                "[TOKEN] [TOKEN] [TOKEN]",
+            ),
+            (r#""X-JobSentinel-Token":"local-secret""#, "[TOKEN]"),
         ];
 
         for (input, expected) in tests {
             let output = Sanitizer::sanitize(input);
             assert_eq!(output, expected);
         }
+    }
+
+    #[test]
+    fn test_sanitize_generic_urls() {
+        let input = "Pasted job link https://example.com/jobs/123?candidate=alice&token=abc and http://localhost:4321/api/bookmarklet/import";
+        let output = Sanitizer::sanitize(input);
+
+        assert_eq!(output, "Pasted job link [URL] and [URL]");
+    }
+
+    #[test]
+    fn test_sanitize_bookmarklet_code() {
+        let input = r#"fetch('http://localhost:4321/api/bookmarklet/import',{headers:{'X-JobSentinel-Token':"secret-token"},body:JSON.stringify(job)});"#;
+        let output = Sanitizer::sanitize(input);
+
+        assert!(!output.contains("localhost:4321"));
+        assert!(!output.contains("secret-token"));
+        assert!(output.contains("[URL]"));
+        assert!(output.contains("[TOKEN]"));
     }
 
     #[test]

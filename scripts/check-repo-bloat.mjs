@@ -30,6 +30,7 @@ import {
 import {
   hasApplicationAssistAutomationFraming,
   hasEngineerFirstResumeTemplateCopy,
+  hasFeedbackLocalReportDrift,
   hasOverconfidentGhostCopy,
   hasOverconfidentPayGuidance,
   hasStaleResumeOptimizerFraming,
@@ -3984,6 +3985,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasOverconfidentPayGuidance(root, path)) {
       violations.push(`replace overconfident pay guidance: ${path}`);
+    }
+
+    if (hasFeedbackLocalReportDrift(root, path)) {
+      violations.push(`keep feedback support path local-first: ${path}`);
     }
 
     if (hasRawSalaryCommandLogging(root, path)) {

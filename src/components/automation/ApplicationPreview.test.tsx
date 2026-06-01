@@ -224,13 +224,13 @@ describe("ApplicationPreview", () => {
       });
     });
 
-    it("displays code profile when provided", async () => {
+    it("displays work sample profile when provided", async () => {
       mockInvoke.mockResolvedValue(mockProfile);
 
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        expect(screen.getByText("Code profile")).toBeInTheDocument();
+        expect(screen.getByText("Work samples or profile")).toBeInTheDocument();
         expect(screen.getByText("https://profile.example.com/jordanlee")).toBeInTheDocument();
       });
     });
@@ -338,7 +338,7 @@ describe("ApplicationPreview", () => {
       });
     });
 
-    it("does not show code profile when null", async () => {
+    it("does not show work sample profile when null", async () => {
       mockInvoke.mockResolvedValue({
         ...mockProfile,
         githubUrl: null,
@@ -347,7 +347,7 @@ describe("ApplicationPreview", () => {
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        expect(screen.queryByText("Code profile")).not.toBeInTheDocument();
+        expect(screen.queryByText("Work samples or profile")).not.toBeInTheDocument();
       });
     });
 

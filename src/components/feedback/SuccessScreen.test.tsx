@@ -8,22 +8,20 @@ const savedFeedbackFile = {
   revealToken: "feedback-file-token",
 };
 
-function renderSuccessScreen(submittedVia: "github" | "drive") {
+function renderSuccessScreen(submittedVia: "github" | "local") {
   const onRevealFile = vi.fn();
-  const onOpenDriveFolder = vi.fn();
   const onClose = vi.fn();
 
   render(
     <SuccessScreen
       submittedVia={submittedVia}
-      savedFeedbackFile={submittedVia === "drive" ? savedFeedbackFile : null}
+      savedFeedbackFile={submittedVia === "local" ? savedFeedbackFile : null}
       onRevealFile={onRevealFile}
-      onOpenDriveFolder={onOpenDriveFolder}
       onClose={onClose}
     />
   );
 
-  return { onRevealFile, onOpenDriveFolder, onClose };
+  return { onRevealFile, onClose };
 }
 
 describe("SuccessScreen", () => {
@@ -34,7 +32,7 @@ describe("SuccessScreen", () => {
     expect(
       screen.getByRole("heading", { name: /ready to finish the report/i })
     ).toBeInTheDocument();
-    expect(screen.getByText(/safe debug report/i)).toBeInTheDocument();
+    expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
     expect(
       screen.getByText(/add anything else you want us to know/i)
     ).toBeInTheDocument();
@@ -52,8 +50,8 @@ describe("SuccessScreen", () => {
 
   it("keeps the saved-file path plain and actionable", async () => {
     const user = userEvent.setup();
-    const { onRevealFile, onOpenDriveFolder, onClose } =
-      renderSuccessScreen("drive");
+    const { onRevealFile, onClose } =
+      renderSuccessScreen("local");
 
     expect(screen.getByRole("heading", { name: /safe report saved/i })).toBeInTheDocument();
     expect(screen.getByText(savedFeedbackFile.fileName)).toBeInTheDocument();
@@ -67,13 +65,10 @@ describe("SuccessScreen", () => {
     await user.click(
       screen.getByRole("button", { name: /show saved file/i })
     );
-    await user.click(
-      screen.getByRole("button", { name: /open shared folder/i })
-    );
+    expect(screen.queryByRole("button", { name: /open shared folder/i })).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /done/i }));
 
     expect(onRevealFile).toHaveBeenCalledTimes(1);
-    expect(onOpenDriveFolder).toHaveBeenCalledTimes(1);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

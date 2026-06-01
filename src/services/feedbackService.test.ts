@@ -124,7 +124,7 @@ describe("feedbackService", () => {
     expect(mockInvoke).toHaveBeenNthCalledWith(1, "generate_feedback_report", {
       category: "bug",
       description:
-        "User generated a sanitized debug report from JobSentinel.",
+        "User generated a safe support report from JobSentinel.",
       includeDebugInfo: true,
     });
     expect(mockInvoke).toHaveBeenNthCalledWith(2, "sanitize_feedback_text", {
@@ -164,7 +164,7 @@ describe("feedbackService", () => {
     expect(mockInvoke).toHaveBeenNthCalledWith(1, "generate_feedback_report", {
       category: "bug",
       description:
-        "User generated a sanitized debug report from JobSentinel.",
+        "User generated a safe support report from JobSentinel.",
       includeDebugInfo: true,
     });
     expect(mockInvoke).toHaveBeenNthCalledWith(2, "sanitize_feedback_text", {

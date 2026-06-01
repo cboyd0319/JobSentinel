@@ -449,7 +449,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
               maxLength={255}
             />
             <Input
-              label="Code profile (if relevant)"
+              label="Work samples or profile"
               type="url"
               value={githubUrl}
               onChange={(e) => handleChange("githubUrl", e.target.value, setGithubUrl)}

@@ -50,7 +50,7 @@ export class OneClickApplyPage extends BasePage {
   }
 
   get githubInput(): Locator {
-    return this.page.getByRole("textbox", { name: "Code profile (if relevant)" });
+    return this.page.getByRole("textbox", { name: "Work samples or profile" });
   }
 
   get portfolioInput(): Locator {

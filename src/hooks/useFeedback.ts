@@ -10,7 +10,6 @@ import {
   getDebugLog,
   saveFeedbackReport,
   openGitHubIssue,
-  openGoogleDriveFeedbackFolder,
   revealSavedFeedbackFile,
   formatDebugInfo,
 } from "../services/feedbackService";
@@ -37,7 +36,7 @@ export interface UseFeedbackState {
   submitting: boolean;
 
   // Success state
-  submittedVia: "github" | "drive" | null;
+  submittedVia: "github" | "local" | null;
   savedFeedbackFile: SavedFeedbackFile | null;
 
   // Errors
@@ -58,12 +57,11 @@ export interface UseFeedbackActions {
 
   // Submit actions
   submitViaGitHub: () => Promise<void>;
-  submitViaDrive: () => Promise<void>;
+  submitViaLocalReport: () => Promise<void>;
 
   // Utility
   getFormattedDebugInfo: () => string | null;
   revealSavedFile: () => Promise<void>;
-  openDriveFolder: () => Promise<void>;
 }
 
 export interface UseFeedbackResult extends UseFeedbackState, UseFeedbackActions {}
@@ -204,7 +202,7 @@ export function useFeedback(): UseFeedbackResult {
     }
   }, [state.category, state.description, getFormattedDebugInfo]);
 
-  const submitViaDrive = useCallback(async () => {
+  const submitViaLocalReport = useCallback(async () => {
     if (!state.category || !state.description.trim()) {
       setState(prev => ({ ...prev, error: "Please provide a category and description" }));
       return;
@@ -223,7 +221,7 @@ export function useFeedback(): UseFeedbackResult {
         setState(prev => ({
           ...prev,
           submitting: false,
-          submittedVia: "drive",
+          submittedVia: "local",
           savedFeedbackFile: filePath,
           step: "success",
         }));
@@ -254,14 +252,6 @@ export function useFeedback(): UseFeedbackResult {
     }
   }, [state.savedFeedbackFile]);
 
-  const openDriveFolder = useCallback(async () => {
-    try {
-      await openGoogleDriveFeedbackFolder();
-    } catch (error) {
-      logError("Failed to open feedback Drive folder:", error);
-    }
-  }, []);
-
   return {
     ...state,
     setStep,
@@ -272,9 +262,8 @@ export function useFeedback(): UseFeedbackResult {
     setDescription,
     setIncludeDebugInfo,
     submitViaGitHub,
-    submitViaDrive,
+    submitViaLocalReport,
     getFormattedDebugInfo,
     revealSavedFile,
-    openDriveFolder,
   };
 }

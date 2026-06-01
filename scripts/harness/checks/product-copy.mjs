@@ -83,6 +83,23 @@ const payProtectionGuidancePaths = new Set([
   "src/pages/Salary.tsx",
 ]);
 
+const feedbackLocalReportPaths = new Set([
+  "docs/features/json-resume-import.md",
+  "docs/features/scraper-health.md",
+  "docs/features/scrapers.md",
+  "docs/features/user-data-management.md",
+  "docs/user/QUICK_START.md",
+  "src/components/ComponentErrorBoundary.tsx",
+  "src/components/ErrorBoundary.tsx",
+  "src/components/PageErrorBoundary.tsx",
+  "src/components/feedback/FeedbackModal.tsx",
+  "src/components/feedback/SubmitOptions.tsx",
+  "src/components/feedback/SuccessScreen.tsx",
+  "src/hooks/useFeedback.ts",
+  "src/pages/Settings.tsx",
+  "src/utils/errorMessages.ts",
+]);
+
 export function hasStaleResumeOptimizerFraming(root, path) {
   if (!staleResumeOptimizerFramingPaths.has(path)) {
     return false;
@@ -174,6 +191,7 @@ export function hasApplicationAssistAutomationFraming(root, path) {
     new RegExp(["form", "\\s+", "filling", "\\s+", "automation"].join(""), "i"),
     new RegExp(["Privacy-first", "\\s+", "job", "\\s+", "search", "\\s+", "automation"].join(""), "i"),
     /Settings\s*>\s*Application Assist/i,
+    /Code profile/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));
@@ -244,6 +262,31 @@ export function hasOverconfidentPayGuidance(root, path) {
     /women just need to ask/i,
     /confidence fixes pay gaps/i,
     /protected-class-based script/i,
+  ];
+
+  return stalePatterns.some((pattern) => pattern.test(text));
+}
+
+export function hasFeedbackLocalReportDrift(root, path) {
+  if (!feedbackLocalReportPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const stalePatterns = [
+    /safe debug report/i,
+    /Open Shared Folder/i,
+    /Works without a GitHub or Google account/i,
+    /Paste it into a GitHub issue/i,
+    /Attach .* to a GitHub issue/i,
+    /attach it to a GitHub issue/i,
+    /open an issue on GitHub/i,
+    /submittedVia:\s*"github"\s*\|\s*"drive"/i,
+    /submittedVia\s*:\s*"drive"/i,
+    /submitViaDrive/i,
+    /onSubmitDrive/i,
+    /DriveIcon/i,
+    /Google Drive flow/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));

@@ -6,7 +6,7 @@ describe("errorUtils", () => {
     it("returns generic safe copy for unknown Error instances", () => {
       const error = new Error("Something went wrong");
       expect(getErrorMessage(error)).toContain("An unexpected error occurred");
-      expect(getErrorMessage(error)).toContain("safe debug report");
+      expect(getErrorMessage(error)).toContain("safe support report");
     });
 
     it("returns generic safe copy for string errors", () => {

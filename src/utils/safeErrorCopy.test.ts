@@ -24,7 +24,7 @@ describe("getSafeErrorToastCopy", () => {
 
     expect(copy.title).toBe("Resume unavailable");
     expect(copy.message).toContain("Your resume could not be loaded.");
-    expect(copy.message).toContain("safe debug report");
+    expect(copy.message).toContain("safe support report");
     expect(visibleCopy).not.toContain("super-secret");
     expect(visibleCopy).not.toContain("chad@example.com");
     expect(visibleCopy).not.toContain("/Users/chad");

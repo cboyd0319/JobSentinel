@@ -3,13 +3,13 @@ import { Button } from "../Button";
 
 interface SubmitOptionsProps {
   onSubmitGitHub: () => void;
-  onSubmitDrive: () => void;
+  onSubmitLocalReport: () => void;
   submitting: boolean;
 }
 
 export const SubmitOptions = memo(function SubmitOptions({
   onSubmitGitHub,
-  onSubmitDrive,
+  onSubmitLocalReport,
   submitting,
 }: SubmitOptionsProps) {
   return (
@@ -32,17 +32,17 @@ export const SubmitOptions = memo(function SubmitOptions({
 
           <div className="space-y-2 text-sm text-surface-600 dark:text-surface-400">
             <BenefitItem text="Saves a sanitized report on your computer" />
-            <BenefitItem text="Works without a GitHub or Google account" />
+            <BenefitItem text="Works without any account" />
             <BenefitItem text="You choose whether and where to share it" />
           </div>
 
           <Button
             variant="primary"
             size="lg"
-            onClick={onSubmitDrive}
+            onClick={onSubmitLocalReport}
             loading={submitting}
             className="w-full"
-            icon={<DriveIcon />}
+            icon={<FolderIcon />}
           >
             Save Safe Report
           </Button>
@@ -153,15 +153,21 @@ function GitHubIcon() {
   );
 }
 
-function DriveIcon() {
+function FolderIcon() {
   return (
     <svg
       className="w-5 h-5"
-      fill="currentColor"
+      fill="none"
       viewBox="0 0 24 24"
+      stroke="currentColor"
       aria-hidden="true"
     >
-      <path d="M7.71 3.5L1.15 15l2.85 5h5.7l6.56-11.5h-5.7L7.71 3.5zm11.44 0l-6.56 11.5h5.7l2.85-5-2.85-5h-5.7l6.56-11.5h5.7L22 8.5 15.15 20H9.44l6.56-11.5h-5.7L13.15 3.5h5.7z" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+      />
     </svg>
   );
 }

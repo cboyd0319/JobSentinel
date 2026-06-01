@@ -16,7 +16,7 @@ private circumstances. Core data workflows stay local by default.
 | Interview prep and follow-ups | Local only, Sensitive | Checklist state and reminders stay local. |
 | Saved searches | Local only, Sensitive | Search names, words, filters, and history stay local. |
 | Notification preferences | Local only, Sensitive | Preferences stay local; external channels are used only if configured. |
-| Safe debug reports | Local only, Sensitive | Reports are sanitized before copy or save. |
+| Safe support reports | Local only, Sensitive | Reports are sanitized before copy or save. |
 | Location detection | Sensitive | Public-IP lookup happens only after explicit user action. |
 
 External AI is not required for user-data management.
@@ -26,7 +26,7 @@ External AI is not required for user-data management.
 - Cover letter templates and generated drafts.
 - Interview prep checklists and follow-up reminders.
 - Saved searches, search history, and notification preferences.
-- Problem history and sanitized safe debug reports.
+- Problem history and sanitized safe support reports.
 - Local-only UI state such as theme, onboarding completion, temporary recovery
   hints, and sanitized app-error records.
 
@@ -67,12 +67,12 @@ Notification settings control which saved searches and job sources can create
 alerts. Plain labels should describe alert destinations and match strength
 instead of service internals.
 
-### Safe Debug Reports
+### Safe Support Reports
 
-When something breaks, users can choose **Copy Safe Debug Report** or **Save
-Safe Debug Report** from Settings, App Problem History, crash recovery, or page
-error recovery. Reports are designed for GitHub issue attachments and should
-avoid raw private values.
+When something breaks, users can choose **Copy Safe Support Report** or **Save
+Safe Support Report** from Settings, App Problem History, crash recovery, or
+page error recovery. Reports are local by default and should avoid raw private
+values.
 
 Safe reports can include high-level app state, feature names, timestamps,
 sanitized error categories, and redacted configuration summaries. They should
@@ -89,7 +89,7 @@ If no prompt appears, restart the app and check Settings.
 
 - Delete templates and saved searches carefully; deleted items may not be
   recoverable inside the app yet.
-- Use safe debug reports before changing more data if something looks wrong.
+- Use safe support reports before changing more data if something looks wrong.
 - A fuller backup and restore workflow remains a planned product need.
 
 ## Troubleshooting
@@ -100,7 +100,7 @@ If no prompt appears, restart the app and check Settings.
 | A saved search is missing | Open Saved Searches, then check recent search history. |
 | Alerts feel too noisy | Raise match strength or narrow the saved search. |
 | Alerts miss expected jobs | Lower match strength or check whether the source is enabled. |
-| A template was deleted | Stop editing, make a safe debug report, and check whether another copy exists. |
+| A template was deleted | Stop editing, make a safe support report, and check whether another copy exists. |
 
 ## Developer Notes
 
@@ -147,7 +147,7 @@ Implementation rule:
 
 - Do not log raw template names, saved-search text, private notes, salary
   floors, credentials, tokens, webhooks, cookies, or local paths.
-- Safe debug reports must sanitize at the write boundary, not only in the UI.
+- Safe support reports must sanitize at the write boundary, not only in the UI.
 - User-data docs should be user-facing first; command and storage details belong
   in developer references.
 - Do not add cloud sync, external AI, or telemetry without explicit product

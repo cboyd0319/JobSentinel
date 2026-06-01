@@ -59,7 +59,9 @@ describe("JobImportModal", () => {
     const user = userEvent.setup();
     renderModal();
 
-    await user.type(screen.getByLabelText("Job link"), "not a link");
+    fireEvent.change(screen.getByLabelText("Job link"), {
+      target: { value: "not a link" },
+    });
     await user.click(screen.getByRole("button", { name: "Check Job Link" }));
 
     expect(
@@ -79,7 +81,7 @@ describe("JobImportModal", () => {
     await user.click(screen.getByRole("button", { name: "Check Job Link" }));
 
     expect(await screen.findByText("An unexpected error occurred.")).toBeInTheDocument();
-    expect(screen.getByText(/safe debug report/i)).toBeInTheDocument();
+    expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
     expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
   });
 
@@ -99,7 +101,7 @@ describe("JobImportModal", () => {
     await user.click(screen.getByRole("button", { name: "Save Job" }));
 
     expect(await screen.findByText("An unexpected error occurred.")).toBeInTheDocument();
-    expect(screen.getByText(/safe debug report/i)).toBeInTheDocument();
+    expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
     expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
   });
 

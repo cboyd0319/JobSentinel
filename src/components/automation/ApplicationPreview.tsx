@@ -81,7 +81,7 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
     { label: "Email", value: profile.email, willFill: true },
     { label: "Phone", value: profile.phone, willFill: !!profile.phone },
     { label: "LinkedIn", value: profile.linkedinUrl, willFill: !!profile.linkedinUrl },
-    { label: "Code profile", value: profile.githubUrl, willFill: !!profile.githubUrl },
+    { label: "Work samples or profile", value: profile.githubUrl, willFill: !!profile.githubUrl },
     { label: "Portfolio", value: profile.portfolioUrl, willFill: !!profile.portfolioUrl },
     { label: "Personal website or credential page", value: profile.websiteUrl, willFill: !!profile.websiteUrl },
     {

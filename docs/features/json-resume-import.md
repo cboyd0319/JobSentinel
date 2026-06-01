@@ -61,7 +61,7 @@ those details manually after import.
 | File is not valid JSON | Explain that the file could not be read and let the user choose another file. |
 | File uses unsupported JSON Resume fields | Import supported fields and tell the user to review the draft. |
 | Imported details look wrong | Let the user edit or delete the draft locally. |
-| Import fails unexpectedly | Offer a safe debug report that redacts resume content by default. |
+| Import fails unexpectedly | Offer a safe support report that redacts resume content by default. |
 
 Do not show Rust errors, database terms, stack traces, local file paths, or raw
 resume text in user-facing error copy.
@@ -85,7 +85,7 @@ Privacy requirements:
 - Command logs may record non-identifying counts such as resume-name length and
   JSON character length.
 - Renderer DTOs must not expose local file paths or full parsed resume text.
-- Safe debug reports must redact resume content unless the user explicitly
+- Safe support reports must redact resume content unless the user explicitly
   includes it.
 
 Validation requirements:

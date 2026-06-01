@@ -234,6 +234,13 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   full profile IPC outside the profile editor, Dashboard full-config reads,
   raw import URLs after preview, full imported-job returns, and stale minimized
   mock payloads.
+- The latest zero-technical support and privacy slice keeps saved support
+  reports local in the primary UI, removes GitHub-first and shared-folder
+  wording from Settings, Quick Start, and support-report success paths, renames
+  visible safe debug-report copy to safe support-report copy, replaces generic
+  code-profile labels with work-sample/profile wording, and hardens Rust
+  support-report sanitization for full URLs, query secrets, password-like
+  values, and bookmarklet import tokens.
 - Updated active plan and handoff docs for the latest local cleanup slice.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only

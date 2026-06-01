@@ -90,7 +90,7 @@ interface DashboardPreferences {
 }
 
 export default function Dashboard({
-  onNavigate: _onNavigate,
+  onNavigate,
   showSettings: showSettingsProp,
   onShowSettingsChange,
   openImportOnMount = false,

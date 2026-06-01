@@ -35,7 +35,7 @@ const DATABASE_ERRORS = [
   { pattern: /database.*locked|SQLITE_BUSY/i, title: 'Local Data Busy', message: 'JobSentinel is already saving or reading your local data.', action: 'Wait a moment and try again. If this keeps happening, restart the app.' },
   { pattern: /constraint|unique|duplicate/i, title: 'Duplicate Entry', message: 'This item is already saved.', action: 'Check your existing entries before adding it again.' },
   { pattern: /foreign.?key|reference/i, title: 'Data Relationship Error', message: 'This action would break a connection between related data.', action: 'Make sure all related information exists before trying this action.' },
-  { pattern: /corrupt|malformed|integrity/i, title: 'Local Data Problem', message: 'JobSentinel\'s local data file may be damaged.', action: 'Copy a debug report and restore from a backup if you have one. Don\'t delete app data yet.' },
+  { pattern: /corrupt|malformed|integrity/i, title: 'Local Data Problem', message: 'JobSentinel\'s local data file may be damaged.', action: 'Copy a safe support report and restore from a backup if you have one. Don\'t delete app data yet.' },
   { pattern: /disk|storage|space/i, title: 'Storage Full', message: 'Your computer is running out of disk space.', action: 'Free up some storage space on your hard drive and try again.' },
 ];
 
@@ -46,7 +46,7 @@ const VALIDATION_ERRORS = [
   { pattern: /required|missing|empty/i, title: 'Missing Information', message: 'Some required information is missing.', action: 'Fill in all required fields and try again.' },
   { pattern: /invalid.*email/i, title: 'Invalid Email', message: 'The email address isn\'t in the correct format.', action: 'Check the email address and make sure it looks like: name@example.com' },
   { pattern: /invalid.*url|invalid.*webhook/i, title: 'Web Address Not Recognized', message: 'The web address is not in a format JobSentinel can use.', action: 'Copy the full address again. It should usually start with https://.' },
-  { pattern: /invalid.*json/i, title: 'Data Not Recognized', message: 'The selected data is not in a format JobSentinel can use.', action: 'Try exporting it again from the original app, or copy a debug report if you need help.' },
+  { pattern: /invalid.*json/i, title: 'Data Not Recognized', message: 'The selected data is not in a format JobSentinel can use.', action: 'Try exporting it again from the original app, or copy a safe support report if you need help.' },
   { pattern: /password.*weak|password.*short/i, title: 'Weak Password', message: 'The password doesn\'t meet security requirements.', action: 'Use a longer password with a mix of letters, numbers, and special characters.' },
   { pattern: /date|time.*invalid/i, title: 'Invalid Date or Time', message: 'The date or time format isn\'t recognized.', action: 'Use a standard date format like MM/DD/YYYY or check your system date/time settings.' },
 ];
@@ -66,8 +66,8 @@ const SCRAPER_ERRORS = [
  * Configuration error patterns
  */
 const CONFIG_ERRORS = [
-  { pattern: /config.*not.*found|config.*missing/i, title: 'Saved Settings Need Attention', message: 'JobSentinel could not find your saved settings.', action: 'Open Settings and save them again. If this keeps happening, copy a safe debug report before resetting anything.' },
-  { pattern: /config.*invalid|config.*corrupt/i, title: 'Saved Settings Need Attention', message: 'JobSentinel could not read your saved settings.', action: 'Open Settings and save them again. If this keeps happening, copy a safe debug report before resetting anything.' },
+  { pattern: /config.*not.*found|config.*missing/i, title: 'Saved Settings Need Attention', message: 'JobSentinel could not find your saved settings.', action: 'Open Settings and save them again. If this keeps happening, copy a safe support report before resetting anything.' },
+  { pattern: /config.*invalid|config.*corrupt/i, title: 'Saved Settings Need Attention', message: 'JobSentinel could not read your saved settings.', action: 'Open Settings and save them again. If this keeps happening, copy a safe support report before resetting anything.' },
   { pattern: /permission|access.*denied|EACCES/i, title: 'Permission Denied', message: 'The app doesn\'t have permission to access a file or folder.', action: 'Make sure the app has the necessary permissions in your system settings.' },
   { pattern: /file.*not.*found|ENOENT/i, title: 'File Not Found', message: 'A required file is missing.', action: 'The file may have been moved or deleted. Try reinstalling the app.' },
 ];
@@ -122,7 +122,7 @@ const ALL_ERROR_PATTERNS = [
 const GENERIC_ERROR: UserFriendlyError = {
   title: 'Something Went Wrong',
   message: 'An unexpected error occurred.',
-  action: 'Try again in a moment. If the problem continues, copy a safe debug report and attach it to a GitHub issue.',
+  action: 'Try again in a moment. If the problem continues, copy a safe support report and share it only if you want help.',
 };
 
 /**

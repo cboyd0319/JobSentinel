@@ -7,7 +7,7 @@ import { saveSanitizedDebugReport } from "../services/feedbackService";
 
 function getSafeErrorMessage(error: Error | null): string {
   return error
-    ? "Something went wrong loading this page. Your data is safe. Try again, go back, or save a safe debug report if it keeps happening."
+    ? "Something went wrong loading this page. Your data is safe. Try again, go back, or save a safe support report if it keeps happening."
     : "Something went wrong loading this page. Your data is safe.";
 }
 
@@ -170,18 +170,18 @@ class PageErrorBoundary extends Component<Props, State> {
                 loading={this.state.reportStatus === "saving"}
                 loadingText="Saving..."
               >
-                Save Safe Debug Report
+                Save Safe Support Report
               </Button>
             </div>
 
             {this.state.reportStatus === "saved" && this.state.reportFileName && (
               <p className="text-center text-sm text-success mt-4" role="status">
-                Safe debug report saved: {this.state.reportFileName}
+                Safe support report saved: {this.state.reportFileName}
               </p>
             )}
             {this.state.reportStatus === "failed" && (
               <p className="text-center text-sm text-danger mt-4" role="status">
-                Could not save safe debug report
+                Could not save safe support report
               </p>
             )}
 

@@ -119,7 +119,7 @@ export const FeedbackModal = memo(function FeedbackModal({
             <>
               <SubmitOptions
                 onSubmitGitHub={feedback.submitViaGitHub}
-                onSubmitDrive={feedback.submitViaDrive}
+                onSubmitLocalReport={feedback.submitViaLocalReport}
                 submitting={feedback.submitting}
               />
 
@@ -147,7 +147,6 @@ export const FeedbackModal = memo(function FeedbackModal({
               submittedVia={feedback.submittedVia}
               savedFeedbackFile={feedback.savedFeedbackFile}
               onRevealFile={feedback.revealSavedFile}
-              onOpenDriveFolder={feedback.openDriveFolder}
               onClose={handleClose}
             />
           )}

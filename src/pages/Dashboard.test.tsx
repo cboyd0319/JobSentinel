@@ -198,7 +198,7 @@ describe("Dashboard safe error copy", () => {
   it("does not expose raw private details in load errors", () => {
     const message = getDashboardLoadErrorMessage(privateFailure);
 
-    expect(message).toContain("safe debug report");
+    expect(message).toContain("safe support report");
     expect(message).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
   });
 
@@ -207,7 +207,7 @@ describe("Dashboard safe error copy", () => {
     const visibleText = `${copy.title} ${copy.message}`;
 
     expect(copy.title).toBe("Job Search Failed");
-    expect(visibleText).toContain("safe debug report");
+    expect(visibleText).toContain("safe support report");
     expect(visibleText).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
   });
 });

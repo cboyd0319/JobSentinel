@@ -127,7 +127,7 @@ describe("PageErrorBoundary", () => {
       );
 
       expect(screen.getByText(/something went wrong loading this page/i)).toBeInTheDocument();
-      expect(screen.getByText(/save a safe debug report/i)).toBeInTheDocument();
+      expect(screen.getByText(/save a safe support report/i)).toBeInTheDocument();
       expect(screen.queryByText("Page test error")).not.toBeInTheDocument();
     });
 
@@ -189,12 +189,12 @@ describe("PageErrorBoundary", () => {
       );
 
       await user.click(
-        screen.getByRole("button", { name: /save safe debug report/i })
+        screen.getByRole("button", { name: /save safe support report/i })
       );
 
       expect(mockSaveSanitizedDebugReport).toHaveBeenCalledTimes(1);
       expect(
-        screen.getByText("Safe debug report saved: jobsentinel-debug-report.txt")
+        screen.getByText("Safe support report saved: jobsentinel-debug-report.txt")
       ).toBeInTheDocument();
     });
 

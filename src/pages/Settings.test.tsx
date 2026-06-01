@@ -176,12 +176,12 @@ describe("Settings — loadConfig flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("button", { name: "Copy Safe Debug Report" }));
+    await user.click(screen.getByRole("button", { name: "Copy Safe Support Report" }));
 
     expect(copySpy).toHaveBeenCalledTimes(1);
     expect(mockToast.success).toHaveBeenCalledWith(
-      "Safe debug report copied",
-      "Paste it into a GitHub issue. Private details are removed first."
+      "Safe support report copied",
+      "Share it only if you want help. Private details are removed first."
     );
   });
 
@@ -200,12 +200,12 @@ describe("Settings — loadConfig flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("button", { name: "Save Safe Debug Report" }));
+    await user.click(screen.getByRole("button", { name: "Save Safe Support Report" }));
 
     expect(saveSpy).toHaveBeenCalledTimes(1);
     expect(mockToast.success).toHaveBeenCalledWith(
-      "Safe debug report saved",
-      "Attach jobsentinel-debug-report.txt to a GitHub issue if you need help."
+      "Safe support report saved",
+      "Share jobsentinel-debug-report.txt only if you want help."
     );
   });
 

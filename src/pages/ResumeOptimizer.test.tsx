@@ -223,7 +223,7 @@ describe("ResumeOptimizer", () => {
     await waitFor(() => {
       expect(mockToast.error).toHaveBeenCalledWith(
         "Review could not run",
-        expect.stringContaining("safe debug report")
+        expect.stringContaining("safe support report")
       );
     });
 
@@ -244,7 +244,7 @@ describe("ResumeOptimizer", () => {
     await waitFor(() => {
       expect(mockToast.error).toHaveBeenCalledWith(
         "Review could not run",
-        expect.stringContaining("safe debug report")
+        expect.stringContaining("safe support report")
       );
     });
 
@@ -265,7 +265,7 @@ describe("ResumeOptimizer", () => {
     await waitFor(() => {
       expect(mockToast.error).toHaveBeenCalledWith(
         "Could not improve bullet",
-        expect.stringContaining("safe debug report")
+        expect.stringContaining("safe support report")
       );
     });
 

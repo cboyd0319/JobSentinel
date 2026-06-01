@@ -20,7 +20,7 @@ export function getErrorMessage(error: unknown): string {
 
 /**
  * Log an error in development, optionally with context.
- * Production support uses locally generated safe debug reports.
+ * Production support uses locally generated safe support reports.
  * 
  * @param message - Context message describing where the error occurred
  * @param error - The error to log

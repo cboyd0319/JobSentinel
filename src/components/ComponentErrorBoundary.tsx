@@ -16,7 +16,7 @@ interface State {
 }
 
 function safeComponentErrorMessage(): string {
-  return 'This section failed to load. Try again, or copy a safe debug report if it keeps happening.';
+  return 'This section failed to load. Try again, or copy a safe support report if it keeps happening.';
 }
 
 function safeComponentErrorDetails(error: Error | null): string {

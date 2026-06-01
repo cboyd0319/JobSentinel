@@ -52,7 +52,7 @@ understand HTTP, selectors, credentials, or logs.
 | Source table | Recent success, average check time, jobs found, last run, and latest safe issue |
 | Check history | Recent source attempts with timing and sanitized issues |
 | Source checks | Availability checks for known supported sources |
-| Troubleshooting | Plain-language next steps and sanitized debug report support |
+| Troubleshooting | Plain-language next steps and sanitized support report help |
 
 Source health must never leak credentials, raw cookies, full URLs containing
 sensitive parameters, private notes, salary floors, resumes, or application
@@ -129,7 +129,7 @@ checks. Source-boundary changes also need docs and bloat-guard updates.
 | Scheduled source adapters | Local only, public-data only unless user configures an external source credential such as USAJobs |
 | Source health | Local only |
 | User-opened search links | Local only, user-controlled browser action |
-| Optional debug report | Local only until user chooses copy, save, GitHub, or Google Drive flow; sanitized by default |
+| Optional support report | Local only until user chooses copy, save, or GitHub issue flow; sanitized by default |
 
 ## Expansion Checklist
 

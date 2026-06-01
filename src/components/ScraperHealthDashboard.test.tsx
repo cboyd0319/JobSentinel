@@ -198,7 +198,7 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText(/safe debug report/i)).toBeInTheDocument();
+        expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
       });
       expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
     });

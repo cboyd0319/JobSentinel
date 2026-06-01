@@ -62,7 +62,7 @@ describe('ComponentErrorBoundary', () => {
 
     expect(screen.getByText('This section needs attention')).toBeInTheDocument();
     expect(screen.getByText((content, element) => {
-      return element?.tagName === 'P' && content.includes('safe debug report');
+      return element?.tagName === 'P' && content.includes('safe support report');
     })).toBeInTheDocument();
     expect(document.body.textContent).not.toContain('raw-secret');
     expect(document.body.textContent).not.toContain('chad@example.com');

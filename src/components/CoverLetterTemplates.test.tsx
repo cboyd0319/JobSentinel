@@ -179,7 +179,7 @@ describe("CoverLetterTemplates", () => {
       expect(toastErrorText()).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
       expect(mockToast.error).toHaveBeenCalledWith(
         "Could not load templates",
-        expect.stringContaining("safe debug report")
+        expect.stringContaining("safe support report")
       );
     });
 
@@ -419,7 +419,7 @@ describe("CoverLetterTemplates", () => {
       await waitFor(() => {
         expect(mockToast.error).toHaveBeenCalledWith(
           "Could not delete template",
-          expect.stringContaining("safe debug report")
+          expect.stringContaining("safe support report")
         );
       });
 
@@ -524,7 +524,7 @@ describe("CoverLetterTemplates", () => {
       await waitFor(() => {
         expect(mockToast.error).toHaveBeenCalledWith(
           "Could not save template",
-          expect.stringContaining("safe debug report")
+          expect.stringContaining("safe support report")
         );
       });
 

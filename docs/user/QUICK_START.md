@@ -383,11 +383,11 @@ secure vault.
 ### Something else wrong?
 
 1. Open Settings in JobSentinel.
-2. Click **Save Safe Debug Report** to create an attachment, or click
-   **Copy Safe Debug Report** if you prefer to paste it.
-3. Open **Send Feedback** or
-   [open an issue on GitHub](https://github.com/cboyd0319/JobSentinel/issues).
-4. Attach or paste the safe report. It is already sanitized before sharing.
+2. Click **Save Safe Support Report** to create a local file, or click
+   **Copy Safe Support Report** if you prefer to paste it.
+3. Open **Send Feedback** if you want a report with replies.
+4. Share the safe report only if you want help. It is already sanitized before
+   sharing.
 
 Also include:
 

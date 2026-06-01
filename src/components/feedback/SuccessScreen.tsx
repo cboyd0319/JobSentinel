@@ -3,10 +3,9 @@ import { Button } from "../Button";
 import type { SavedFeedbackFile } from "../../services/feedbackService";
 
 interface SuccessScreenProps {
-  submittedVia: "github" | "drive";
+  submittedVia: "github" | "local";
   savedFeedbackFile: SavedFeedbackFile | null;
   onRevealFile: () => void;
-  onOpenDriveFolder: () => void;
   onClose: () => void;
 }
 
@@ -14,7 +13,6 @@ export const SuccessScreen = memo(function SuccessScreen({
   submittedVia,
   savedFeedbackFile,
   onRevealFile,
-  onOpenDriveFolder,
   onClose,
 }: SuccessScreenProps) {
   return (
@@ -35,7 +33,7 @@ export const SuccessScreen = memo(function SuccessScreen({
 
           <div className="space-y-3 text-sm text-surface-600 dark:text-surface-400">
             <p>
-              GitHub should have opened in your browser. Your safe debug report
+              GitHub should have opened in your browser. Your safe support report
               is in your clipboard.
             </p>
 
@@ -61,8 +59,8 @@ export const SuccessScreen = memo(function SuccessScreen({
         </div>
       )}
 
-      {/* Drive Success */}
-      {submittedVia === "drive" && savedFeedbackFile && (
+      {/* Local report success */}
+      {submittedVia === "local" && savedFeedbackFile && (
         <div className="text-center space-y-4">
           <h3 className="text-xl font-semibold text-surface-800 dark:text-surface-200">
             Safe report saved
@@ -102,15 +100,6 @@ export const SuccessScreen = memo(function SuccessScreen({
             </Button>
 
             <Button
-              variant="secondary"
-              onClick={onOpenDriveFolder}
-              icon={<ExternalLinkIcon />}
-              className="w-full"
-            >
-              Open Shared Folder
-            </Button>
-
-            <Button
               variant="ghost"
               onClick={onClose}
               className="w-full"
@@ -138,25 +127,6 @@ function CheckCircleIcon({ className = "" }: { className?: string }) {
         strokeLinejoin="round"
         strokeWidth={2}
         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-      />
-    </svg>
-  );
-}
-
-function ExternalLinkIcon() {
-  return (
-    <svg
-      className="w-5 h-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
       />
     </svg>
   );

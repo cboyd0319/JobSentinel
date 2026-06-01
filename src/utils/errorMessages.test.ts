@@ -53,7 +53,7 @@ describe("errorMessages", () => {
       const result = getUserFriendlyError(new Error("some random error"));
       expect(result.title).toBeDefined();
       expect(result.message).toBeDefined();
-      expect(result.action).toContain("safe debug report");
+      expect(result.action).toContain("safe support report");
     });
 
     it("redacts private values from technical error details", () => {

@@ -259,7 +259,7 @@ describe("AsyncButton", () => {
 
       await user.click(screen.getByText("Fail"));
       await waitFor(() => {
-        expect(screen.getByText(/safe debug report/i)).toBeInTheDocument();
+        expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
       });
     });
 
@@ -327,7 +327,7 @@ describe("AsyncButton", () => {
 
       await user.click(screen.getByText("String Error"));
       await waitFor(() => {
-        expect(screen.getByText(/safe debug report/i)).toBeInTheDocument();
+        expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
       });
       expect(screen.queryByText("String error")).not.toBeInTheDocument();
     });
@@ -342,7 +342,7 @@ describe("AsyncButton", () => {
 
       await user.click(screen.getByText("Private Error"));
       await waitFor(() => {
-        expect(screen.getByText(/safe debug report/i)).toBeInTheDocument();
+        expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
       });
       expect(screen.queryByText(/raw-secret|chad@example\.com|\/Users\/chad/)).not.toBeInTheDocument();
     });
