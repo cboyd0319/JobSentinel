@@ -117,6 +117,10 @@ Current cleanup posture:
   from profile IPC and visible UI, returns only `hasResumeFile` plus
   `resumeFileName`, preserves the stored local path on unrelated profile edits,
   and adds IPC-minimization coverage for resume-path DTO drift.
+- Latest zero-technical copy follow-up softens optional email setup, labels
+  USAJobs access as an access code with no coding needed, changes screening
+  answer setup from matching text to plain question wording, and removes
+  GitHub-first Deep Links troubleshooting copy.
 - Latest IPC minimization work added `has_application_profile`,
   `get_application_profile_preview`, `get_dashboard_preferences`, canonical
   import URLs before preview/hash/storage, and minimized import responses to

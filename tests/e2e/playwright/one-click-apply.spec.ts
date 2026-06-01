@@ -130,7 +130,7 @@ test.describe("Application Assist Settings", () => {
     await applyPage.openBlankScreeningAnswer();
     await applyPage.saveAnswerButton.click();
 
-    await expect(page.getByText("Question text is required")).toBeVisible();
+    await expect(page.getByText("Question wording is required")).toBeVisible();
     await expect(page.getByText("Answer is required")).toBeVisible();
 
     await applyPage.saveScreeningAnswer({

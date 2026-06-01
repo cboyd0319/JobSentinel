@@ -248,6 +248,10 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   the backend-only local attach path, returns only a basename and presence flag
   to the renderer, preserves the saved path unless the user replaces or clears
   it, and adds IPC-minimization harness coverage for path DTO drift.
+- The latest zero-technical copy slice softens optional email setup, labels
+  USAJobs access as an access code with no coding needed, changes screening
+  answer setup from matching text to plain question wording, and removes
+  GitHub-first Deep Links troubleshooting copy.
 - Updated active plan and handoff docs for the latest local cleanup slice.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only

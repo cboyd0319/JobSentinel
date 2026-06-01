@@ -264,7 +264,7 @@ export function validateRegex(pattern: string): string | undefined {
  * @returns Error message if invalid, undefined if valid
  */
 export function validateRequiredRegex(pattern: string): string | undefined {
-  if (!pattern.trim()) return "Question text is required";
+  if (!pattern.trim()) return "Question wording is required";
   return validateRegex(pattern);
 }
 

@@ -312,7 +312,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
       >
         <div className="space-y-4">
           <Input
-            label="Question text to match *"
+            label="Question wording to look for *"
             value={questionPattern}
             onChange={(e) => {
               setQuestionPattern(e.target.value);
@@ -321,8 +321,8 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
               }
             }}
             onBlur={() => setFormErrors((prev) => ({ ...prev, pattern: validateRequiredRegex(questionPattern) }))}
-            placeholder="e.g., years of experience"
-            hint="Use words that appear in the screening question. Matching ignores capitalization."
+            placeholder="e.g., salary expectation"
+            hint="Use a few words from questions you see often. Matching ignores capitalization."
             error={formErrors.pattern}
             maxLength={200}
             required

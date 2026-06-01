@@ -237,7 +237,7 @@ export function useFeedback(): UseFeedbackResult {
       setState(prev => ({
         ...prev,
         submitting: false,
-        error: "Could not save a safe report. Please try again or open a GitHub issue.",
+        error: "Could not save a safe report. Please try again or copy the report instead.",
       }));
     }
   }, [state.category, state.description, state.includeDebugInfo]);

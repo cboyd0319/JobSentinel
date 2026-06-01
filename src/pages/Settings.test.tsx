@@ -432,7 +432,7 @@ describe("Settings — loadConfig flow", () => {
     await user.click(emailToggle);
 
     expect(emailToggle).toBeChecked();
-    expect(screen.getByText("Quick setup:")).toBeInTheDocument();
+    expect(screen.getByText("Optional setup:")).toBeInTheDocument();
   });
 
   it("uses plain search-word copy for matching settings", async () => {

@@ -559,8 +559,8 @@ describe("formValidation", () => {
 
     it("returns error message for empty string", () => {
       // Arrange & Act & Assert
-      expect(validateRequiredRegex("")).toBe("Question text is required");
-      expect(validateRequiredRegex("   ")).toBe("Question text is required");
+      expect(validateRequiredRegex("")).toBe("Question wording is required");
+      expect(validateRequiredRegex("   ")).toBe("Question wording is required");
     });
 
     it("returns error message for invalid question match patterns", () => {

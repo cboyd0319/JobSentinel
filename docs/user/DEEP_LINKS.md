@@ -86,7 +86,7 @@ Work Mode: Remote
 **Federal Government Jobs**
 
 ```text
-Job Title: IT Specialist
+Job Title: Public Health Advisor
 Location: Washington, DC
 ```
 
@@ -175,7 +175,7 @@ Not currently. For now, use the category filters to narrow results.
 ### What if a site changes how search links work?
 
 We'll update the search-link rules in new releases. If you notice a broken
-link, please report it on GitHub:
+link, save a safe support report and share it only if you want help:
 <https://github.com/cboyd0319/JobSentinel/issues>
 
 ### Can I add more sites?
@@ -203,7 +203,7 @@ for details on adding new sites.
 
 1. Check whether the site changed its search page
 2. Try opening the site manually and searching there
-3. Report the issue on GitHub with the site name
+3. Save a safe support report and include the site name if you want help
 
 ### Search results are wrong
 

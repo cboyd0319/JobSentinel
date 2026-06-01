@@ -102,7 +102,7 @@ export class OneClickApplyPage extends BasePage {
   }
 
   get questionPatternInput(): Locator {
-    return this.page.getByLabel(/Question text to match/);
+    return this.page.getByLabel(/Question wording to look for/);
   }
 
   get answerTypeSelect(): Locator {

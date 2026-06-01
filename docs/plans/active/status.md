@@ -75,6 +75,10 @@ and record actionable findings in this active-plan surface.
   out of renderer-facing profile IPC and UI, shows only a basename, preserves
   existing resume paths unless the user replaces or clears them, and adds
   IPC-minimization coverage for resume-path DTO drift.
+- Latest local zero-technical copy work makes screening-answer setup ask for
+  "question wording to look for", softens optional email setup language, labels
+  USAJobs access as an access code with no coding needed, and removes
+  GitHub-first wording from Deep Links troubleshooting.
 - Latest local broad-audience fixture work rebalanced generic market
   intelligence, notifications, config, database, ATS, ghost detection, salary,
   scoring, generic scraper adapters, command, frontend mock, sample JSON

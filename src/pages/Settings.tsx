@@ -1969,7 +1969,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       <span className="font-medium text-surface-800 dark:text-surface-200">
                         Email Alerts
                       </span>
-                      <HelpIcon text="Receive job alerts via email. Requires an email account that allows sending (like Gmail with an App Password)." />
+                      <HelpIcon text="Email alerts are optional. Leave this off unless your email provider gives you an app password or sending settings." />
                     </div>
                     <label
                       className="relative inline-flex items-center cursor-pointer"
@@ -2002,7 +2002,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       {/* Email Provider Quick Setup */}
                       <div className="flex items-center gap-2 -mt-1 mb-2">
                         <span className="text-sm text-surface-600 dark:text-surface-400">
-                          Quick setup:
+                          Optional setup:
                         </span>
                         <div className="flex gap-1">
                           {(
@@ -2123,7 +2123,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       </div>
                       <details className="rounded-lg border border-surface-200 dark:border-surface-700 p-3">
                         <summary className="cursor-pointer text-sm font-medium text-surface-700 dark:text-surface-300">
-                          Manual email settings
+                          Advanced email settings
                         </summary>
                         <div className="grid grid-cols-2 gap-3 mt-3">
                           <Input
@@ -2744,10 +2744,11 @@ export default function Settings({ onClose }: SettingsProps) {
                             <span>Quick Setup (2 minutes)</span>
                           </p>
                           <ol className="text-xs text-blue-700 dark:text-blue-300 space-y-1 ml-4 list-decimal">
-                            <li>Click "Get Free USAJobs Access" below</li>
+                            <li>Click "Get USAJobs Access Code" below</li>
                             <li>
                               Sign up with your email (no credit card needed)
                             </li>
+                            <li>USAJobs calls this an API key. No coding is needed.</li>
                             <li>Copy the access code from your email</li>
                             <li>Paste it here and you're done</li>
                           </ol>
@@ -2757,7 +2758,7 @@ export default function Settings({ onClose }: SettingsProps) {
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded transition-colors"
                           >
-                            Get Free USAJobs Access
+                            Get USAJobs Access Code
                           </a>
                         </div>
                       )}
