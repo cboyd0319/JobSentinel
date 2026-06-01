@@ -44,7 +44,9 @@ describe("BookmarkletGenerator", () => {
     ).toBeInTheDocument();
     expect(screen.queryByText("Connection Number")).not.toBeInTheDocument();
     expect(screen.getByText("Import Helper")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /turn off/i })).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /turn off/i })).toBeInTheDocument(),
+    );
     expect(screen.getByRole("button", { name: /copy browser button/i })).toBeInTheDocument();
     expect(screen.getAllByText(/copy.*after each saved job/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/copy a fresh browser button/i)).toBeInTheDocument();
