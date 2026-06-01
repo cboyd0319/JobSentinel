@@ -177,6 +177,10 @@ and record actionable findings in this active-plan surface.
   `npm run harness:score`, then wires the score into `harness:session` and
   `harness:check` so both WalkingLabs five-tuple models stay at 100/100 for
   repo-managed harness evidence.
+- Latest local harness benchmark work adds `npm run harness:benchmark`, a
+  tested portable before/after report for score, session metrics, active next
+  work, and harness-tuning recommendations, modeled on the WalkingLabs
+  benchmark/report scripts without generating tracked report files by default.
 - Latest local docs-drift harness work moves the docs-drift violation messages
   out of `scripts/check-repo-bloat.mjs` and into
   `scripts/harness/checks/docs-drift.mjs` through

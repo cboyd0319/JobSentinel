@@ -180,6 +180,11 @@ function buildFrameworks(root) {
               "package.json, scripts/harness-score.mjs",
             ),
             check(
+              "Harness benchmark command exists",
+              hasScript(root, "harness:benchmark") && exists(root, "scripts/harness-benchmark.mjs"),
+              "package.json, scripts/harness-benchmark.mjs",
+            ),
+            check(
               "Focused harness sensor commands exist",
               hasScripts(root, [
                 "lint:security",
@@ -355,6 +360,7 @@ function buildFrameworks(root) {
           checks: [
             check("Harness check command exists", hasScript(root, "harness:check"), "package.json"),
             check("Harness score command exists", hasScript(root, "harness:score"), "package.json"),
+            check("Harness benchmark command exists", hasScript(root, "harness:benchmark"), "package.json"),
             check("Script test command exists", hasScript(root, "test:scripts"), "package.json"),
             check(
               "Verification matrix lists exact commands",
@@ -415,6 +421,11 @@ function buildFrameworks(root) {
               "Score command is tested",
               exists(root, "scripts/harness-score.test.mjs"),
               "scripts/harness-score.test.mjs",
+            ),
+            check(
+              "Benchmark command is tested",
+              exists(root, "scripts/harness-benchmark.test.mjs"),
+              "scripts/harness-benchmark.test.mjs",
             ),
             check(
               "Harness guide gives operating loop",

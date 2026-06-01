@@ -41,6 +41,7 @@ Use this structure:
 | Active plan index | `docs/plans/index.json` | Machine-readable active workstream map for restart and scoring |
 | Session snapshot | `npm run harness:session` | One-command restart surface for branch state, active plan count, indexed workstreams, harness score, harness module/test counts, bloat-runner size, and next work |
 | Harness score | `npm run harness:score` | Repo-native five-tuple evidence score for the WalkingLabs lecture and harness-creator tuples |
+| Harness benchmark | `npm run harness:benchmark` | Portable before/after benchmark output for score, session metrics, next work, and recommendation |
 | Sensors | `docs/harness/verification-matrix.md` | Checks by change type |
 | Environment doctor | `npm run doctor`, `npm run doctor:e2e` | Local readiness check for Node, npm, Rust, Tauri, SQLx offline setup, Linux Tauri packages, and Playwright browser launch |
 | Experience contract | `docs/style-guide/` | Plain-language, broad-audience, zero-technical-skill review |
@@ -71,13 +72,15 @@ For non-trivial work, capture this before edits:
 4. Run `npm run harness:score` after harness changes that affect
    instructions, tools, environment, state, feedback, verification, scope, or
    lifecycle.
-5. Write or update a change contract for non-trivial work.
-6. Choose user, privacy, and verification sensors before edits.
-7. Implement the smallest coherent slice.
-8. Run sensors from `verification-matrix.md`.
-9. Remove disposable artifacts and inspect the diff.
-10. Update docs and plan state.
-11. Record remaining gaps in `docs/plans/tech-debt-tracker.md`.
+5. Run `npm run harness:benchmark` before or after harness-tuning sessions
+   where before/after evidence matters.
+6. Write or update a change contract for non-trivial work.
+7. Choose user, privacy, and verification sensors before edits.
+8. Implement the smallest coherent slice.
+9. Run sensors from `verification-matrix.md`.
+10. Remove disposable artifacts and inspect the diff.
+11. Update docs and plan state.
+12. Record remaining gaps in `docs/plans/tech-debt-tracker.md`.
 
 ## Guide And Sensor Model
 
@@ -109,6 +112,7 @@ Sensors:
 - `npm run doctor:e2e` when Playwright or browser-flow readiness matters.
 - `npm run harness:check`.
 - `npm run harness:score`.
+- `npm run harness:benchmark`.
 - PR review checklist.
 - Human review for product, security, and irreversible behavior.
 

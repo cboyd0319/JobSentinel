@@ -21,6 +21,7 @@
     "lint:tauri-invokes": "node scripts/check-tauri-invokes.mjs",
     "lint:tests": "node scripts/check-test-quality.mjs",
     "harness:check": "node scripts/check-harness.mjs",
+    "harness:benchmark": "node scripts/harness-benchmark.mjs",
     "harness:session": "node scripts/harness-session.mjs",
     "harness:score": "node scripts/harness-score.mjs",
     "doctor": "node scripts/doctor.mjs",

@@ -33,10 +33,10 @@ Current branch note:
   by two local sensor-modularity commits:
   `9fe69e0e Split product copy checks` and
   `c335575c Split release promise checks`.
-- The 2026-05-31 Docs Harness and CI runs for `10a5fe09` passed before the
-  local sensor-modularity series; later sensor-modularity and privacy slices
-  are locally verified before any future push.
-- Continue using small verified commits. Avoid later remote CI unless the user
+- The 2026-06-01 Docs Harness and CI runs for `32078c1f` passed after the
+  local sensor-modularity, privacy, and broad-audience fixture series were
+  pushed to `main`.
+- Continue using small verified commits. Run remote CI only when the user
   explicitly asks or the full-goal completion pass requires it.
 
 Current cleanup posture:
@@ -463,15 +463,18 @@ Latest five-tuple harness score slice checks on 2026-06-01:
 
 - `node --check scripts/harness-score.mjs`
 - `node --check scripts/harness-session.mjs`
+- `node --check scripts/harness-benchmark.mjs`
 - `node --check scripts/check-harness.mjs`
 - `node --check scripts/doctor.mjs`
 - `node --test scripts/harness-score.test.mjs`
 - `node --test scripts/harness-session.test.mjs`
+- `node --test scripts/harness-benchmark.test.mjs`
 - `node --test scripts/doctor.test.mjs`
 - `node --test scripts/check-harness-policy.test.mjs`
 - `node --test scripts/check-repo-artifacts.test.mjs`
 - `npm run harness:score`
 - `npm run harness:session`
+- `npm run harness:benchmark`
 - `npm run harness:check`
 - `npm run test:scripts`
 - `npm run doctor`
@@ -490,6 +493,18 @@ Latest docs-drift harness modularity slice checks on 2026-06-01:
 - `npm run harness:check`
 - `npm run harness:score`
 - `wc -l scripts/check-repo-bloat.mjs scripts/harness/checks/docs-drift.mjs`
+
+Latest harness benchmark slice checks on 2026-06-01:
+
+- `node --check scripts/harness-benchmark.mjs`
+- `node --test scripts/harness-benchmark.test.mjs scripts/harness-score.test.mjs`
+- `npm run harness:score`
+- `npm run harness:benchmark`
+- `npm run harness:check`
+- `npm run test:scripts`
+- `npm run lint:bloat`
+- `npm run lint:docs`
+- `git diff --check`
 
 Latest harness/readiness slice checks on 2026-05-31:
 
