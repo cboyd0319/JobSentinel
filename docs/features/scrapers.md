@@ -82,14 +82,14 @@ show a clear user-facing explanation.
 
 ## User-Configured External Sources
 
-JobsWithGPT is disabled unless the user adds an endpoint and approves the exact
-payload for that endpoint. Source checks send only the reviewed search fields
-needed by that endpoint: saved job titles, location, remote preference, and
-result limit. If titles, endpoint, or remote settings change, the approval no
-longer matches and the scheduler skips that source until the user reviews the
-new payload. Do not send resumes, salary floors, private notes, application
-history, screening answers, or unrelated profile details to a job-source
-endpoint.
+JobsWithGPT is disabled unless the user adds a source address and approves the
+exact details for that source address. Source checks send only the reviewed
+search fields needed by that address: saved job titles, location, remote
+preference, and result limit. If titles, source address, or remote settings
+change, the approval no longer matches and JobSentinel skips that source until
+the user reviews the new details. Do not send resumes, salary floors, private
+notes, application history, screening answers, or unrelated profile details to
+a job-source address.
 
 ## Deduplication
 

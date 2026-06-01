@@ -183,7 +183,7 @@ now and add it later if you want.
 
 ### Review your search
 
-Before scanning starts, JobSentinel shows the answers it will use to rank jobs:
+Before job checks start, JobSentinel shows the answers it will use to rank jobs:
 
 - Jobs to look for
 - Work to show more often

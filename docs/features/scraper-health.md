@@ -48,10 +48,10 @@ Source health must follow the same rules for job sources:
 - Do not bypass human checks or platform controls.
 - Do not include raw credentials, cookies, private notes, resumes, salary floors,
   or application history in health errors or support reports.
-- For optional user-configured endpoints such as JobsWithGPT, disclose that
+- For optional user-configured source addresses such as JobsWithGPT, disclose that
   JobsWithGPT receives only saved job titles, location, remote preference, and
-  result limit for source checks. These endpoints must stay off unless
-  configured and the exact payload is reviewed and approved locally.
+  result limit for source checks. These addresses must stay off unless
+  configured and the exact details are reviewed and approved locally.
 
 LinkedIn is intentionally handled as a user-opened search-link destination. It
 should not appear as a background source, credential-renewal prompt, or source

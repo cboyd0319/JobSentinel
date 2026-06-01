@@ -47,10 +47,10 @@ request or the user configures an external channel.
 Possible network activity:
 
 - Job-source checks to enabled sources and official public job feeds.
-- Optional user-configured job-source endpoints, such as JobsWithGPT, may
+- Optional user-configured job-source addresses, such as JobsWithGPT, may
   receive the saved job titles, location, remote preference, and result limit
-  needed for that source check. These endpoints are off unless configured and
-  the exact payload has been reviewed and approved locally.
+  needed for that source check. These addresses are off unless configured and
+  the exact details have been reviewed and approved locally.
 - User-requested location detection through FreeIPAPI.
 - External alerts through configured Slack, Discord, Teams, Telegram, or email
   channels. Alert payloads may include public job details and match score, but
@@ -61,7 +61,7 @@ Possible network activity:
 - Source-specific sign-in or session validation when the user enables a source
   that requires their own session.
 - Optional external AI requests only after the user enables a provider, reviews
-  the exact payload, and approves sending it.
+  the exact details, and approves sending them.
 
 These requests may reveal normal network metadata to the destination service,
 such as IP address, request time, and destination host. External channels may
