@@ -198,9 +198,12 @@ and record actionable findings in this active-plan surface.
 - Latest local screenshot work refreshes `docs/images/*.png` with current
   broad-audience UI data and fixes the settings screenshot capture so it opens
   the real settings modal instead of duplicating the dashboard.
-- Latest pushed checkpoint is `a4dade40 Refresh documentation screenshots`.
-  The 2026-06-01 remote Docs Harness run `26741447318` and CI run
-  `26741447297` both passed on `main`.
+- Latest remote checkpoint before the current corrective commit was
+  `378d8c56 Make profile docs app-first`. Docs Harness passed for that push;
+  CI run `26742720063` failed only in frontend unit tests because
+  `BookmarkletGenerator.test.tsx` clicked the browser-button copy action before
+  async setup enabled it. The latest local CI-correction waits for the enabled
+  button before testing the copy-failure path.
 - Latest local company-research accuracy work removes hardcoded employer
   rating claims from the static fallback data, keeps cached/live rating
   rendering covered by component tests, changes unknown-company guidance to

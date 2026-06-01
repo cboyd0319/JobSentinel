@@ -77,6 +77,7 @@ describe("BookmarkletGenerator", () => {
     render(<BookmarkletGenerator />);
 
     const copyButton = await screen.findByRole("button", { name: /copy browser button/i });
+    await waitFor(() => expect(copyButton).toBeEnabled());
     fireEvent.click(copyButton);
 
     expect(await screen.findByText(/could not copy browser button/i)).toBeInTheDocument();

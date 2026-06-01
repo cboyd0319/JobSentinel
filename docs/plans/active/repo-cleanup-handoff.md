@@ -24,13 +24,16 @@ Latest pushed checkpoints include:
 - `8208976a Broaden utility fixture examples`
 - `7a1728c6 Broaden config and profile seeds`
 - `a4dade40 Refresh documentation screenshots`
+- `378d8c56 Make profile docs app-first`
 
 Current branch note:
 
-- `main` was clean against `origin/main` after pushing `a4dade40`.
-- The 2026-06-01 Docs Harness run `26741447318` and CI run `26741447297`
-  passed for `a4dade40` after the broad-audience fixture, seed, screenshot,
-  and harness modularity slices were pushed to `main`.
+- `main` was pushed through `378d8c56`. Docs Harness passed for that push.
+  CI run `26742720063` failed only in frontend unit tests because
+  `BookmarkletGenerator.test.tsx` clicked the browser-button copy action before
+  async setup enabled it.
+- The current local CI-correction waits for the enabled button before testing
+  the bookmarklet copy-failure path.
 - The current local slice removes stale hardcoded employer rating claims from
   static company fallback data and adds source-quality coverage against
   reintroducing them.
@@ -320,8 +323,8 @@ Recent cleanup slices on `main` include:
 - Maintained docs normalization to remove stale status markers, glyph-heavy
   diagrams, stale release promises, and version drift.
 - Root README was redesigned as a professional research-project front door and
-  pushed to `origin/main`; the latest remote Docs Harness and CI runs passed
-  before this handoff refresh.
+  pushed to `origin/main`; the remote Docs Harness and CI runs for that README
+  slice passed before later cleanup work.
 - Setup now asks for review volume in plain language and maps the answer to
   existing local source limits and alert strength.
 - Browser import copy now avoids bookmarklet, any-website, safety-token, and
