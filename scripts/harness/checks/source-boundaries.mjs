@@ -43,6 +43,13 @@ const staleStackOverflowJobsPaths = new Set([
   "src-tauri/src/core/deeplinks/types.rs",
 ]);
 
+const userFacingSourceAddressCopyPaths = new Set([
+  "PRIVACY.md",
+  "docs/features/scraper-health.md",
+  "docs/features/scrapers.md",
+  "docs/user/QUICK_START.md",
+]);
+
 const jobsWithGptApprovalPaths = new Set([
   "src-tauri/src/core/scheduler/workers/scrapers.rs",
   "src-tauri/src/core/health/smoke_tests.rs",
@@ -129,11 +136,13 @@ export function hasStaleScraperHealthCoverage(root, path) {
 export function hasTechnicalSourceHealthUserCopy(root, path) {
   if (
     path !== "README.md" &&
+    path !== "PRIVACY.md" &&
     path !== "docs/README.md" &&
     path !== "docs/ROADMAP.md" &&
     path !== "docs/features/scraper-health.md" &&
     path !== "docs/features/scrapers.md" &&
     path !== "docs/releases/v2.1.md" &&
+    path !== "docs/user/QUICK_START.md" &&
     path !== "src/components/ScraperHealthDashboard.tsx" &&
     path !== "src/components/ScraperHealthDashboard.test.tsx" &&
     path !== "src/pages/Settings.tsx"
@@ -142,6 +151,16 @@ export function hasTechnicalSourceHealthUserCopy(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
+  if (userFacingSourceAddressCopyPaths.has(path)) {
+    const staleSourceAddressCopy =
+      /Before scanning starts|user-configured (?:job-source )?endpoints|These endpoints|source endpoints|exact payload|new payload|job-source endpoint|source endpoint/.test(
+        text,
+      );
+    if (staleSourceAddressCopy) {
+      return true;
+    }
+  }
+
   const staleGlobalCopy =
     /Scraper Health (?:Dashboard|Monitoring)|Job Source Health|Loading scraper health|Total Scrapers|Credential Warnings|Monitor scraper status|run smoke tests|Run smoke test|Smoke Test Results|Test All|scraper health status|job source health status|\(auth\)|recent runs|No recent runs found|\/ \d+ runs|\b(?:PASS|FAIL)\b|\b[Ss]moke[- ]tests?\b/.test(
       text,

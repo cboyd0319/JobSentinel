@@ -542,7 +542,7 @@ and record actionable findings in this active-plan surface.
   orchestration out of `scripts/check-repo-bloat.mjs` and into
   `collectPrivacyLoggingViolations`; focused privacy-logging coverage now
   verifies the collector and `scripts/check-repo-bloat.mjs` is now a small
-  604-line orchestrator after the latest IPC-minimization guard.
+  609-line orchestrator after the latest source-boundary guard.
 - Latest local broad-audience fixture work replaces engineer-first defaults in
   `SkillCategoryFilter`, Cow utility, API-contract, scraper-construction, and
   ignored live-scraper tests with operations, support, accounting, and care
@@ -791,7 +791,7 @@ and record actionable findings in this active-plan surface.
    preserve tech-specific cases only when they test explicit branch behavior or
    source-realism parser contracts.
 2. Continue splitting oversized harness modules only where the ownership
-   boundary is clear; the main bloat runner is now 604 lines after docs-drift,
+   boundary is clear; the main bloat runner is now 609 lines after docs-drift,
    privacy-logging, source-quality, and IPC-minimization ownership moved into
    modules.
 3. Continue zero-technical-knowledge UX review across setup, settings,

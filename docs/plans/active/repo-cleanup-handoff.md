@@ -355,7 +355,7 @@ Current cleanup posture:
   `scripts/harness/checks/product-copy.mjs`.
 - Privacy/logging bloat-runner orchestration now lives in
   `collectPrivacyLoggingViolations`; `scripts/check-repo-bloat.mjs` is now a
-  small 604-line orchestrator after the latest IPC-minimization guard.
+  small 609-line orchestrator after the latest source-boundary guard.
 - Broad-audience fixture checks now cover generic skill-filter categories, Cow
   utility tests, API-contract search history, and ignored live-scraper probes
   so technical defaults do not quietly drift back into broad examples.

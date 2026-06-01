@@ -82,6 +82,37 @@ test("source boundaries reject stale scraper docs and source health copy", () =>
   });
 });
 
+test("source boundaries reject technical source-address user copy", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "PRIVACY.md",
+      "Optional user-configured job-source endpoints use exact payload approval.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/user/QUICK_START.md",
+      "Before scanning starts, JobSentinel shows your search answers.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/scrapers.md",
+      "Review the new payload before using the source endpoint.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/scraper-health.md",
+      "These endpoints must stay off until configured.\n",
+    );
+
+    assert.equal(hasTechnicalSourceHealthUserCopy(root, "PRIVACY.md"), true);
+    assert.equal(hasTechnicalSourceHealthUserCopy(root, "docs/user/QUICK_START.md"), true);
+    assert.equal(hasTechnicalSourceHealthUserCopy(root, "docs/features/scrapers.md"), true);
+    assert.equal(hasTechnicalSourceHealthUserCopy(root, "docs/features/scraper-health.md"), true);
+    assert.equal(hasTechnicalSourceHealthUserCopy(root, "docs/developer/ARCHITECTURE.md"), false);
+  });
+});
+
 test("source boundaries reject stale source health coverage claims", () => {
   withFixture((root) => {
     writeFixtureFile(root, "docs/ROADMAP.md", "Testing 13 scrapers\n");
