@@ -122,6 +122,12 @@ and record actionable findings in this active-plan surface.
   `scripts/harness/checks/broad-audience-fixtures.mjs`; focused
   broad-audience fixture coverage is now 4 tests and
   `scripts/check-repo-bloat.mjs` is 2,486 lines.
+- Latest local developer-doc drift harness work moves stale test-guidance,
+  developer testing/architecture/maintenance doc marker, active-doc marker,
+  E2E fixed-wait, getting-started tooling, macOS development, and SQLite
+  configuration doc sensors into `scripts/harness/checks/docs-drift.mjs`;
+  focused docs-drift coverage is now 8 tests and `scripts/check-repo-bloat.mjs`
+  is 2,325 lines.
 - Latest local privacy work removes raw automation dropdown-answer logging and
   raw frontend error forwarding, then adds bloat sensors and `errorReporting`
   unit coverage so those regressions fail locally.
@@ -218,7 +224,7 @@ and record actionable findings in this active-plan surface.
    current sensors, while preserving tech-specific cases only when they test
    explicit branch behavior or source-realism parser contracts.
 2. Continue splitting oversized mixed sensors, especially remaining
-   fixture-quality, docs-shape, source-quality, and source-security checks
+   feature-doc shape, source-quality, source-health, and source-security checks
    still inside `scripts/check-repo-bloat.mjs`.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.

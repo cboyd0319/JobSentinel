@@ -22,6 +22,36 @@ const speculativeCloudDeploymentDocs = new Map([
   ["docs/ROADMAP.md", /GCP Cloud Run \/ AWS Lambda deployment/],
 ]);
 
+const topLevelActiveDocsPaths = new Set([
+  "docs/BOOKMARKLET.md",
+  "docs/ML_FEATURE.md",
+  "docs/ML_QUICKSTART.md",
+  "docs/developer/FRONTEND_TESTING.md",
+  "docs/developer/TESTING.md",
+]);
+
+const developerTestingDocsPaths = new Set([
+  "docs/developer/TESTING.md",
+  "docs/developer/FRONTEND_TESTING.md",
+  "docs/developer/INTEGRATION_TESTING.md",
+  "docs/developer/MUTATION_TESTING.md",
+]);
+
+const developerArchitectureDocsPaths = new Set([
+  "docs/developer/ARCHITECTURE.md",
+  "docs/developer/ERROR_HANDLING.md",
+]);
+
+const developerMaintenanceDocsPaths = new Set([
+  "docs/developer/ADDING_DEEP_LINK_SITES.md",
+  "docs/developer/CI_CD.md",
+  "docs/developer/CONTRIBUTING.md",
+  "docs/developer/GETTING_STARTED.md",
+  "docs/developer/MACOS_DEVELOPMENT.md",
+  "docs/developer/RELEASING.md",
+  "docs/developer/WHY_TAURI.md",
+]);
+
 const statusEmojiPattern =
   /[\u{2705}\u{274c}\u{26a0}\u{23f3}\u{26a1}\u{1f517}\u{1f512}\u{1f4c4}\u{1f4dd}\u{1f7e2}\u{1f7e1}\u{1f534}\u{1f4ca}\u{1f4e7}\u{1f4c8}\u{1f4c9}\u{1f3af}\u{1f680}\u{1f4a1}\u{1f50d}\u{2b50}]/u;
 const deepLinksStatusEmojiPattern =
@@ -251,4 +281,150 @@ export function hasFrontDoorDocEmojiMarkers(root, path) {
   }
 
   return statusEmojiPattern.test(readFileSync(join(root, path), "utf8"));
+}
+
+export function hasStaleTestQualityDocGuidance(root, path) {
+  if (path !== "tests/e2e/README.md" && path !== "docs/developer/FRONTEND_TESTING.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /\btest\.skip\s*\(|\b(?:it|test|describe)\.only\s*\(/.test(text) ||
+    /\bnpm\s+test\s+--\s+--grep\b/.test(text)
+  );
+}
+
+export function hasDeveloperTestingDocMarkers(root, path) {
+  if (!developerTestingDocsPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /[✅❌⚠️⏱️]|\*\*(?:Last Updated|Version|Maintained By|Stack|Target|Test Count|Test count)\*\*:|[\u{2190}-\u{21ff}\u{2500}-\u{257f}]/u.test(
+      text,
+    ) ||
+    /### DO|### DON'T|Good ✅|Bad ❌|\bAchieved\s+✅|⚠️\s+In Progress|CAUGHT by|MISSED -/.test(
+      text,
+    )
+  );
+}
+
+export function hasDeveloperArchitectureDocMarkers(root, path) {
+  if (!developerArchitectureDocsPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /[✅❌⚠️]|\*\*(?:Last Updated|Version|Maintained By)\*\*:|[\u{2190}-\u{21ff}\u{2500}-\u{257f}]/u.test(text) ||
+    /Good ✅|Bad ❌|DO ✅|DON'T ❌|No cloud dependencies \(v1\.0\)|JobSentinel v\d+\.\d+(?:\.\d+)? System Architecture/.test(
+      text,
+    )
+  );
+}
+
+export function hasDeveloperMaintenanceDocDrift(root, path) {
+  if (!developerMaintenanceDocsPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /(?:\p{Extended_Pictographic}|[\u{2190}-\u{21ff}\u{2500}-\u{257f}])/u.test(text) ||
+    /^\*\*(?:Last Updated|Last updated|Version|Current version)(?::\*\*|\*\*:)/im.test(
+      text,
+    ) ||
+    /^\*\*Version\s+\d+\.\d+(?:\.\d+)?\*\*$/m.test(text) ||
+    /^## Version History$/m.test(text) ||
+    /\bv\d+\.\d+(?:\.\d+)?\s+\(unreleased\)/.test(text) ||
+    /for v1\.5\+ priorities|Modular Architecture \(v1\.5\+\)|refactored v1\.5/.test(
+      text,
+    )
+  );
+}
+
+export function hasTopLevelActiveDocDrift(root, path) {
+  if (!topLevelActiveDocsPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /^\*\*(?:Status|Version|Model):\*\*/m.test(text) ||
+    /\bJobSentinel v\d+\.\d+(?:\.\d+)?\b/.test(text) ||
+    /With ML support \(default build\)/.test(text)
+  );
+}
+
+export function hasTopLevelActiveDocGlyphMarkers(root, path) {
+  if (!topLevelActiveDocsPaths.has(path)) {
+    return false;
+  }
+
+  return /(?:\p{Extended_Pictographic}|[\u{2190}-\u{21ff}\u{2500}-\u{257f}\u{2713}\u{2717}])/u.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
+export function hasStaleE2eWaitGuidance(root, path) {
+  if (path !== "tests/e2e/README.md" && path !== "docs/developer/FRONTEND_TESTING.md") {
+    return false;
+  }
+
+  return /waitForLoadState\(["']networkidle["']\)|waitForTimeout\(ms\)/.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
+export function hasFixedWaitInE2ePageObject(root, path) {
+  if (!path.startsWith("tests/e2e/playwright/page-objects/") || !path.endsWith(".ts")) {
+    return false;
+  }
+
+  return /\.waitForTimeout\(/.test(readFileSync(join(root, path), "utf8"));
+}
+
+export function hasStaleGettingStartedToolingDocs(root, path) {
+  if (path !== "docs/developer/GETTING_STARTED.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /cargo install tauri-cli@2\.1/.test(text) ||
+    /\*\*Tauri 2\.1\*\*/.test(text) ||
+    /# Frontend tests\s+npm test\b/.test(text) ||
+    /# Lint Rust code\s+cargo clippy\s*(?:\n|$)/.test(text)
+  );
+}
+
+export function hasStaleMacosDeveloperDocs(root, path) {
+  if (path !== "docs/developer/MACOS_DEVELOPMENT.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return /JobSentinel_1\.0\.0_aarch64\.dmg|[✅❌⚠️⏳🔐📄📝🟢🟡🔴📊📧📈📉🎯🚀💡🔍⭐🔄📋]/u.test(
+    text,
+  );
+}
+
+export function hasStaleSqliteConfigurationDoc(root, path) {
+  if (path !== "docs/developer/sqlite-configuration.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /\p{Extended_Pictographic}/u.test(text) ||
+    /SQLite Maximum Protection & Performance Configuration/.test(text) ||
+    /\*\*(?:Status|Last Reviewed):\*\*/.test(text) ||
+    /Status:\*\* ✅ Fully Implemented/.test(text) ||
+    /cache_size`\s*\|\s*\*\*-64000\*\*/.test(text) ||
+    /Cache size set \(`PRAGMA cache_size` returns -64000\)/.test(text) ||
+    /Cloud backup sync \(optional S3\/GCS upload\)/.test(text) ||
+    /Estimated Performance Gain:\*\* 200-300%/.test(text)
+  );
 }
