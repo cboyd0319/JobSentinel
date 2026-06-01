@@ -67,7 +67,7 @@ async fn test_lever_live() {
 #[tokio::test]
 #[ignore = "Live network scraper check; run manually"]
 async fn test_remoteok_live() {
-    let scraper = RemoteOkScraper::new(vec!["developer".to_string()], 50);
+    let scraper = RemoteOkScraper::new(vec!["customer-support".to_string()], 50);
 
     let result = scraper.scrape().await;
     match result {
@@ -101,7 +101,7 @@ async fn test_hn_hiring_live() {
 #[tokio::test]
 #[ignore = "Live network scraper check; run manually"]
 async fn test_weworkremotely_live() {
-    let scraper = WeWorkRemotelyScraper::new(Some("remote-programming-jobs".to_string()), 50);
+    let scraper = WeWorkRemotelyScraper::new(Some("remote-customer-support-jobs".to_string()), 50);
 
     let result = scraper.scrape().await;
     match result {
@@ -156,7 +156,11 @@ async fn test_builtin_remote_live() {
 #[tokio::test]
 #[ignore = "Live network scraper check; run manually"]
 async fn test_dice_live() {
-    let scraper = DiceScraper::new("rust developer".to_string(), Some("Remote".to_string()), 50);
+    let scraper = DiceScraper::new(
+        "project manager".to_string(),
+        Some("Remote".to_string()),
+        50,
+    );
 
     let result = scraper.scrape().await;
     match result {
@@ -173,7 +177,7 @@ async fn test_dice_live() {
 #[tokio::test]
 #[ignore = "Live network scraper check; run manually"]
 async fn test_yc_startups_live() {
-    let scraper = YcStartupScraper::new(Some("engineer".to_string()), false, 50);
+    let scraper = YcStartupScraper::new(Some("operations".to_string()), false, 50);
 
     let result = scraper.scrape().await;
     match result {
@@ -221,8 +225,11 @@ async fn test_jobswithgpt_live() {
 #[tokio::test]
 #[ignore = "Live network scraper check; run manually"]
 async fn test_simplyhired_live() {
-    let scraper =
-        SimplyHiredScraper::new("rust developer".to_string(), Some("Remote".to_string()), 50);
+    let scraper = SimplyHiredScraper::new(
+        "care coordinator".to_string(),
+        Some("Remote".to_string()),
+        50,
+    );
 
     let result = scraper.scrape().await;
     match result {
@@ -253,8 +260,8 @@ async fn test_simplyhired_live() {
 #[ignore = "Live network scraper check; run manually"]
 async fn test_glassdoor_live() {
     let scraper = GlassdoorScraper::new(
-        "software engineer".to_string(),
-        Some("San Francisco".to_string()),
+        "operations manager".to_string(),
+        Some("Denver".to_string()),
         50,
     );
 

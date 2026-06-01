@@ -4,7 +4,7 @@ import { SkillCategoryFilter } from "./SkillCategoryFilter";
 
 describe("SkillCategoryFilter", () => {
   const defaultProps = {
-    categories: ["Frontend", "Backend", "DevOps"],
+    categories: ["Customer Support", "Operations", "Sales"],
     selected: null,
     onChange: vi.fn(),
   };
@@ -17,21 +17,21 @@ describe("SkillCategoryFilter", () => {
     });
 
     it("shows selected category text", () => {
-      render(<SkillCategoryFilter {...defaultProps} selected="Frontend" />);
+      render(<SkillCategoryFilter {...defaultProps} selected="Customer Support" />);
 
-      expect(screen.getByRole("button")).toHaveTextContent("Frontend");
+      expect(screen.getByRole("button")).toHaveTextContent("Customer Support");
     });
 
     it("shows skill count when provided", () => {
       render(
         <SkillCategoryFilter
           {...defaultProps}
-          selected="Frontend"
-          skillCounts={{ Frontend: 5, Backend: 3, DevOps: 2 }}
+          selected="Customer Support"
+          skillCounts={{ "Customer Support": 5, Operations: 3, Sales: 2 }}
         />
       );
 
-      expect(screen.getByRole("button")).toHaveTextContent("Frontend (5)");
+      expect(screen.getByRole("button")).toHaveTextContent("Customer Support (5)");
     });
 
     it("has aria-haspopup listbox", () => {
@@ -88,16 +88,16 @@ describe("SkillCategoryFilter", () => {
       fireEvent.click(screen.getByRole("button"));
 
       const options = screen.getAllByRole("option");
-      expect(options[1]).toHaveTextContent("Frontend");
-      expect(options[2]).toHaveTextContent("Backend");
-      expect(options[3]).toHaveTextContent("DevOps");
+      expect(options[1]).toHaveTextContent("Customer Support");
+      expect(options[2]).toHaveTextContent("Operations");
+      expect(options[3]).toHaveTextContent("Sales");
     });
 
     it("shows skill counts in dropdown when provided", () => {
       render(
         <SkillCategoryFilter
           {...defaultProps}
-          skillCounts={{ Frontend: 5, Backend: 3, DevOps: 2 }}
+          skillCounts={{ "Customer Support": 5, Operations: 3, Sales: 2 }}
         />
       );
 
@@ -125,9 +125,9 @@ describe("SkillCategoryFilter", () => {
       render(<SkillCategoryFilter {...defaultProps} onChange={onChange} />);
 
       fireEvent.click(screen.getByRole("button"));
-      fireEvent.click(screen.getByText("Backend"));
+      fireEvent.click(screen.getByText("Operations"));
 
-      expect(onChange).toHaveBeenCalledWith("Backend");
+      expect(onChange).toHaveBeenCalledWith("Operations");
     });
 
     it("closes dropdown after selection", () => {
@@ -136,19 +136,19 @@ describe("SkillCategoryFilter", () => {
       fireEvent.click(screen.getByRole("button"));
       expect(screen.getByRole("listbox")).toBeInTheDocument();
 
-      fireEvent.click(screen.getByText("Frontend"));
+      fireEvent.click(screen.getByText("Customer Support"));
 
       expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
     });
 
     it("marks selected option with aria-selected true", () => {
-      render(<SkillCategoryFilter {...defaultProps} selected="Frontend" />);
+      render(<SkillCategoryFilter {...defaultProps} selected="Customer Support" />);
 
       fireEvent.click(screen.getByRole("button"));
 
       const options = screen.getAllByRole("option");
-      const frontendOption = options[1]; // index 0 is "All Categories", 1 is "Frontend"
-      expect(frontendOption).toHaveAttribute("aria-selected", "true");
+      const customerSupportOption = options[1]; // index 0 is "All Categories"
+      expect(customerSupportOption).toHaveAttribute("aria-selected", "true");
     });
 
     it("marks 'All Categories' as selected when selected is null", () => {
@@ -200,7 +200,7 @@ describe("SkillCategoryFilter", () => {
 
     it("wraps around at the end", () => {
       // Use a non-null selection so the first option isn't selected
-      render(<SkillCategoryFilter {...defaultProps} selected="Backend" />);
+      render(<SkillCategoryFilter {...defaultProps} selected="Operations" />);
 
       fireEvent.click(screen.getByRole("button"));
       // Press down 5 times to wrap around (0 -> 1 -> 2 -> 3 -> 0)
@@ -217,7 +217,7 @@ describe("SkillCategoryFilter", () => {
 
     it("navigates up with ArrowUp", () => {
       // Use a non-null selection so the first option isn't selected
-      render(<SkillCategoryFilter {...defaultProps} selected="Backend" />);
+      render(<SkillCategoryFilter {...defaultProps} selected="Operations" />);
 
       fireEvent.click(screen.getByRole("button"));
       // Move down twice then up once
@@ -246,10 +246,10 @@ describe("SkillCategoryFilter", () => {
 
       fireEvent.click(screen.getByRole("button"));
       fireEvent.keyDown(screen.getByRole("button"), { key: "ArrowDown" });
-      fireEvent.keyDown(screen.getByRole("button"), { key: "ArrowDown" }); // index 1 = Frontend
+      fireEvent.keyDown(screen.getByRole("button"), { key: "ArrowDown" }); // index 1
       fireEvent.keyDown(screen.getByRole("button"), { key: "Enter" });
 
-      expect(onChange).toHaveBeenCalledWith("Frontend");
+      expect(onChange).toHaveBeenCalledWith("Customer Support");
     });
 
     it("selects highlighted option on Space", () => {
@@ -298,10 +298,10 @@ describe("SkillCategoryFilter", () => {
       render(<SkillCategoryFilter {...defaultProps} />);
 
       fireEvent.click(screen.getByRole("button"));
-      fireEvent.mouseEnter(screen.getByText("Backend").closest('[role="option"]')!);
+      fireEvent.mouseEnter(screen.getByText("Operations").closest('[role="option"]')!);
 
-      const backendOption = screen.getByText("Backend").closest('[role="option"]');
-      expect(backendOption?.className).toContain("bg-surface-100");
+      const operationsOption = screen.getByText("Operations").closest('[role="option"]');
+      expect(operationsOption?.className).toContain("bg-surface-100");
     });
   });
 

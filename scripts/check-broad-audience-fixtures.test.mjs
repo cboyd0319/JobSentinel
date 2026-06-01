@@ -94,6 +94,48 @@ test("broad audience fixtures reject narrow mock defaults and profile examples",
   });
 });
 
+test("broad audience fixtures reject narrow utility and live scraper defaults", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/components/SkillCategoryFilter.test.tsx",
+      'categories: ["Frontend", "Backend", "DevOps"]',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/tests/api_contract_test.rs",
+      'manager.add_search_history("rust developer").await.unwrap();',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/tests/cow_zero_copy_tests.rs",
+      '"https://example.com/jobs/senior-engineer"\nlet title = "Software Engineer";',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/tests/live_scraper_test.rs",
+      'WeWorkRemotelyScraper::new(Some("remote-programming-jobs".to_string()), 50);',
+    );
+
+    assert.equal(
+      hasEngineerFirstAudienceExamples(root, "src/components/SkillCategoryFilter.test.tsx"),
+      true,
+    );
+    assert.equal(
+      hasEngineerFirstAudienceExamples(root, "src-tauri/tests/api_contract_test.rs"),
+      true,
+    );
+    assert.equal(
+      hasEngineerFirstAudienceExamples(root, "src-tauri/tests/cow_zero_copy_tests.rs"),
+      true,
+    );
+    assert.equal(
+      hasEngineerFirstAudienceExamples(root, "src-tauri/tests/live_scraper_test.rs"),
+      true,
+    );
+  });
+});
+
 test("salary audience fixtures reject engineer-centered salary examples", () => {
   withFixture((root) => {
     writeFixtureFile(

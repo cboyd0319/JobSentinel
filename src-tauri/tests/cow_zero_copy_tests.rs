@@ -10,7 +10,7 @@ use std::borrow::Cow;
 
 #[test]
 fn test_url_normalize_zero_copy_no_params() {
-    let url = "https://example.com/jobs/senior-engineer";
+    let url = "https://example.com/jobs/operations-manager";
     let result = normalize_url(url);
 
     // Should return borrowed variant (zero-copy)
@@ -22,7 +22,7 @@ fn test_url_normalize_zero_copy_no_params() {
 
 #[test]
 fn test_url_normalize_zero_copy_no_tracking() {
-    let url = "https://example.com/job?id=123&department=engineering";
+    let url = "https://example.com/job?id=123&department=operations";
     let result = normalize_url(url);
 
     // Should return borrowed variant when no tracking params
@@ -30,7 +30,7 @@ fn test_url_normalize_zero_copy_no_tracking() {
         Cow::Borrowed(_) | Cow::Owned(_) => {
             // Both are acceptable - depends on URL library behavior
             assert!(result.contains("id=123"));
-            assert!(result.contains("department=engineering"));
+            assert!(result.contains("department=operations"));
         }
     }
 }
@@ -60,7 +60,7 @@ fn test_url_normalize_malformed_zero_copy() {
 
 #[test]
 fn test_title_normalize_zero_copy_already_normalized() {
-    let title = "software engineer";
+    let title = "operations manager";
     let result = normalize_title(title);
 
     // Should return borrowed variant (already normalized)
@@ -72,25 +72,25 @@ fn test_title_normalize_zero_copy_already_normalized() {
 
 #[test]
 fn test_title_normalize_allocates_with_abbreviations() {
-    let title = "Sr. Software Engineer";
+    let title = "Sr. Operations Manager";
     let result = normalize_title(title);
 
     // Should return owned variant after normalization
     match result {
-        Cow::Owned(s) => assert_eq!(s, "senior software engineer"),
+        Cow::Owned(s) => assert_eq!(s, "senior operations manager"),
         Cow::Borrowed(_) => panic!("Expected Owned after expansion, got Borrowed"),
     }
 }
 
 #[test]
 fn test_title_normalize_allocates_with_level() {
-    let title = "Software Engineer (L5)";
+    let title = "Operations Manager (L5)";
     let result = normalize_title(title);
 
     // Should return owned variant after removing level
     match result {
         Cow::Owned(s) => {
-            assert_eq!(s, "software engineer");
+            assert_eq!(s, "operations manager");
             assert!(!s.contains("L5"));
         }
         Cow::Borrowed(_) => panic!("Expected Owned after level removal, got Borrowed"),
@@ -120,7 +120,7 @@ fn test_location_normalize_remote_zero_copy() {
 
 #[test]
 fn test_location_normalize_already_normalized_zero_copy() {
-    let location = "san francisco, california";
+    let location = "denver, colorado";
     let result = normalize_location(location);
 
     // Should return borrowed variant (already normalized)
@@ -136,12 +136,12 @@ fn test_location_normalize_already_normalized_zero_copy() {
 
 #[test]
 fn test_location_normalize_allocates_with_abbreviations() {
-    let location = "SF, CA";
+    let location = "DEN, CO";
     let result = normalize_location(location);
 
     // Should return owned variant after expansion
     match result {
-        Cow::Owned(s) => assert_eq!(s, "san francisco, california"),
+        Cow::Owned(s) => assert_eq!(s, "denver, colorado"),
         Cow::Borrowed(_) => panic!("Expected Owned after expansion, got Borrowed"),
     }
 }
@@ -171,8 +171,8 @@ fn test_url_normalize_hot_path_clean_urls() {
     // Simulate scraping 1000 jobs with clean URLs (no tracking params)
     let clean_urls = vec![
         "https://greenhouse.io/jobs/123",
-        "https://lever.co/company/senior-engineer",
-        "https://example.com/careers/backend-dev",
+        "https://lever.co/company/account-manager",
+        "https://example.com/careers/support-coordinator",
         "https://jobs.example.com/posting/456",
     ];
 
@@ -187,10 +187,10 @@ fn test_url_normalize_hot_path_clean_urls() {
 fn test_title_normalize_hot_path_common_titles() {
     // Simulate scoring 1000 jobs with common title patterns
     let common_titles = vec![
-        "Software Engineer",
-        "Senior Software Engineer",
-        "Backend Engineer",
-        "Frontend Developer",
+        "Operations Manager",
+        "Senior Operations Manager",
+        "Customer Success Manager",
+        "Accounting Analyst",
     ];
 
     for title in &common_titles {
@@ -203,7 +203,7 @@ fn test_title_normalize_hot_path_common_titles() {
 #[test]
 fn test_location_normalize_hot_path_common_locations() {
     // Simulate scoring 1000 jobs with common locations
-    let common_locations = vec!["Remote", "San Francisco, CA", "New York, NY", "Austin, TX"];
+    let common_locations = vec!["Remote", "Denver, CO", "Chicago, IL", "Atlanta, GA"];
 
     for location in &common_locations {
         let result = normalize_location(location);
@@ -216,8 +216,8 @@ fn test_location_normalize_hot_path_common_locations() {
 fn test_backward_compatibility_string_deref() {
     // Verify that Cow<str> works everywhere String worked
     let url_result: Cow<str> = normalize_url("https://example.com/job");
-    let title_result: Cow<str> = normalize_title("Engineer");
-    let location_result: Cow<str> = normalize_location("SF");
+    let title_result: Cow<str> = normalize_title("Manager");
+    let location_result: Cow<str> = normalize_location("DEN");
 
     // All should deref to &str
     let _url_str: &str = &url_result;

@@ -1178,9 +1178,10 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src-tauri/src/main.rs",
       "src-tauri/migrations/00000000000000_initial_schema.sql",
     ]) {
+      const expected = `replace engineer-first audience example: ${path}`;
       assert.ok(
-        violations.includes(`replace engineer-first audience example: ${path}`),
-        violations.join("\n"),
+        violations.includes(expected),
+        `${expected}\n\n${violations.join("\n")}`,
       );
     }
   });

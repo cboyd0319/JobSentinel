@@ -638,7 +638,10 @@ mod user_data_commands {
         let manager = UserDataManager::new(database.pool().clone());
 
         // Add - add_search_history takes &str (not count)
-        manager.add_search_history("rust developer").await.unwrap();
+        manager
+            .add_search_history("operations manager")
+            .await
+            .unwrap();
 
         // Get
         let history = manager.get_search_history(10).await.unwrap();

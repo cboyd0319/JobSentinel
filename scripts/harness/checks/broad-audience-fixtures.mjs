@@ -14,6 +14,7 @@ const broadAudienceExamplePaths = new Set([
   "src/components/NotificationPreferences.test.tsx",
   "src/components/ScoreBreakdownModal.test.tsx",
   "src/components/StatCard.test.tsx",
+  "src/components/SkillCategoryFilter.test.tsx",
   "src/components/resume-builder/steps/ContactStep.tsx",
   "src/components/resume-builder/steps/SkillsStep.tsx",
   "src/components/resume-builder/steps/SummaryStep.tsx",
@@ -59,6 +60,7 @@ const broadAudienceExamplePaths = new Set([
   "src-tauri/src/core/resume/json_resume.rs",
   "src-tauri/src/core/resume/matcher.rs",
   "src-tauri/src/core/resume/parser.rs",
+  "src-tauri/src/core/resume/templates.rs",
   "src-tauri/src/core/resume/tests.rs",
   "src-tauri/src/core/bookmarklet/mod.rs",
   "src-tauri/src/core/bookmarklet/server.rs",
@@ -80,7 +82,9 @@ const broadAudienceExamplePaths = new Set([
   "src-tauri/src/core/scrapers/usajobs.rs",
   "src-tauri/src/core/scrapers/weworkremotely.rs",
   "src-tauri/tests/api_contract_test.rs",
+  "src-tauri/tests/cow_zero_copy_tests.rs",
   "src-tauri/tests/database_integration_test.rs",
+  "src-tauri/tests/live_scraper_test.rs",
   "src-tauri/tests/scraper_integration_test.rs",
   "src-tauri/tests/scraping_pipeline_integration.rs",
   "src-tauri/tests/scheduler_integration_test.rs",
@@ -204,6 +208,8 @@ export function hasEngineerFirstAudienceExamples(root, path) {
       /Backend Engineer/i,
       /Senior Software Engineer/i,
       /software engineer/i,
+      /rust developer/i,
+      /DiceScraper::new\(["']python["']/i,
       /San Francisco/i,
       /TechCorp|StartupXYZ/i,
       /"team":\s*"Engineering"/i,
@@ -275,6 +281,43 @@ export function hasEngineerFirstAudienceExamples(root, path) {
     ];
 
     if (databaseIntegrationPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "src-tauri/tests/api_contract_test.rs") {
+    if (/add_search_history\(["']rust developer["']\)/i.test(text)) {
+      return true;
+    }
+  }
+
+  if (path === "src-tauri/tests/cow_zero_copy_tests.rs") {
+    const cowFixturePatterns = [
+      /jobs\/senior-engineer/i,
+      /department=engineering/i,
+      /software engineer/i,
+      /backend-dev/i,
+      /frontend developer/i,
+      /San Francisco, CA/i,
+      /New York, NY/i,
+    ];
+
+    if (cowFixturePatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "src-tauri/tests/live_scraper_test.rs") {
+    const liveScraperFixturePatterns = [
+      /"developer"\.to_string\(\)/i,
+      /remote-programming-jobs/i,
+      /rust developer/i,
+      /YcStartupScraper::new\(Some\(["']engineer["']/i,
+      /software engineer/i,
+      /Some\(["']San Francisco["']\.to_string\(\)\)/i,
+    ];
+
+    if (liveScraperFixturePatterns.some((pattern) => pattern.test(text))) {
       return true;
     }
   }
@@ -370,6 +413,7 @@ export function hasEngineerFirstAudienceExamples(root, path) {
     /name:\s*["']GitHub["']/i,
     /name:\s*["']John Doe["']/i,
     /name:\s*["']Jane Doe["']/i,
+    /categories:\s*\[\s*["']Frontend["'],\s*["']Backend["'],\s*["']DevOps["']\s*\]/i,
     /["']John Doe["']/i,
     /["']Jane Doe["']/i,
     />\s*GitHub\s*</i,

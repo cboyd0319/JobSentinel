@@ -185,6 +185,10 @@ and record actionable findings in this active-plan surface.
   orchestration out of `scripts/check-repo-bloat.mjs` and into
   `collectPrivacyLoggingViolations`; focused privacy-logging coverage now
   verifies the collector and `scripts/check-repo-bloat.mjs` is 564 lines.
+- Latest local broad-audience fixture work replaces engineer-first defaults in
+  `SkillCategoryFilter`, Cow utility, API-contract, scraper-construction, and
+  ignored live-scraper tests with operations, support, accounting, and care
+  examples; the broad-audience sensor now rejects those old fixtures.
 - Latest local docs-drift harness work moves the docs-drift violation messages
   out of `scripts/check-repo-bloat.mjs` and into
   `scripts/harness/checks/docs-drift.mjs` through
@@ -286,9 +290,10 @@ and record actionable findings in this active-plan surface.
 
 ## Next Best Work
 
-1. Continue broad-audience fixture audit in remaining less obvious fixture
-   paths, while preserving tech-specific cases only when they test explicit
-   branch behavior or source-realism parser contracts.
+1. Continue broad-audience fixture audit on screenshot assets, profile/config
+   seeds, developer-doc examples, and salary location defaults, while
+   preserving tech-specific cases only when they test explicit branch behavior
+   or source-realism parser contracts.
 2. Continue splitting oversized harness modules only where the ownership
    boundary is clear; the main bloat runner is now 564 lines after docs-drift
    and privacy-logging orchestration moved into modules.

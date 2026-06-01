@@ -61,6 +61,9 @@ Current cleanup posture:
 - Privacy/logging bloat-runner orchestration now lives in
   `collectPrivacyLoggingViolations`; `scripts/check-repo-bloat.mjs` is down to
   564 lines.
+- Broad-audience fixture checks now cover generic skill-filter categories, Cow
+  utility tests, API-contract search history, and ignored live-scraper probes
+  so technical defaults do not quietly drift back into broad examples.
 - Release-promise drift checks now live in
   `scripts/harness/checks/release-promises.mjs`.
 - Initial privacy-logging checks for raw automation dropdown values and raw
@@ -524,6 +527,24 @@ Latest privacy-logging orchestration split checks on 2026-06-01:
 - `npm run harness:score`
 - `git diff --check`
 - `wc -l scripts/check-repo-bloat.mjs scripts/harness/checks/privacy-logging.mjs`
+
+Latest broad-audience fixture slice checks on 2026-06-01:
+
+- `node --check scripts/harness/checks/broad-audience-fixtures.mjs`
+- `node --test scripts/check-broad-audience-fixtures.test.mjs`
+- `npm run test:run -- src/components/SkillCategoryFilter.test.tsx`
+- `cargo test --manifest-path src-tauri/Cargo.toml --test cow_zero_copy_tests`
+- `cargo test --manifest-path src-tauri/Cargo.toml --test api_contract_test test_search_history`
+- `cargo test --manifest-path src-tauri/Cargo.toml --test scraper_integration_test test_dice_scraper`
+- `cargo test --manifest-path src-tauri/Cargo.toml --test live_scraper_test --no-run`
+- `npm run lint:bloat`
+- `npm run test:scripts`
+- `npm run lint:docs`
+- `npm run harness:check`
+- `npm run harness:score`
+- `cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check`
+- `git diff --check`
+- `npm run harness:benchmark`
 
 Latest harness/readiness slice checks on 2026-05-31:
 

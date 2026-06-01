@@ -222,18 +222,18 @@ fn test_lever_company() -> LeverCompany {
 
 #[test]
 fn test_dice_scraper_construction() {
-    let scraper = DiceScraper::new("rust developer".to_string(), None, 20);
+    let scraper = DiceScraper::new("operations manager".to_string(), None, 20);
     assert_eq!(scraper.name(), "dice");
-    assert_eq!(scraper.query, "rust developer");
+    assert_eq!(scraper.query, "operations manager");
     assert_eq!(scraper.limit, 20);
     assert!(scraper.location.is_none());
 }
 
 #[test]
 fn test_dice_scraper_with_location() {
-    let scraper = DiceScraper::new("python".to_string(), Some("Austin, TX".to_string()), 10);
+    let scraper = DiceScraper::new("accountant".to_string(), Some("Denver, CO".to_string()), 10);
     assert_eq!(scraper.name(), "dice");
-    assert_eq!(scraper.location, Some("Austin, TX".to_string()));
+    assert_eq!(scraper.location, Some("Denver, CO".to_string()));
 }
 
 #[test]
