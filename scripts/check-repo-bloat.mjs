@@ -62,15 +62,24 @@ import {
   hasRawJobsWithGptSmokeEndpointError,
   hasRawLinkedInDebug,
   hasRawLocalPathLogging,
+  hasRawCommandSetupErrorDisplay,
+  hasRawConfigValidationUrlDisplay,
+  hasRawImportHttpErrorReturn,
+  hasRawImportRedirectDisplay,
   hasRawNotificationProviderErrorBody,
   hasRawNotificationServiceErrorDetails,
+  hasRawJobImportLogging,
   hasRawPrivateQueryLogging,
   hasRawScraperLoopErrorLogging,
   hasRawScraperUrlOrQueryLogging,
   hasRawSlackWebhookValidationErrorReturn,
   hasRawSourceCheckResultError,
   hasRawTelegramBotTokenRequestError,
+  hasRawPathOrQueryErrorDisplay,
+  hasRawUrlErrorDisplay,
+  hasRawUrlLogging,
   hasRawWebhookTokenRequestError,
+  hasNonPublicIpErrorEcho,
   hasRendererCredentialSecretRead,
   hasSecretBearingDebugDerive,
   hasUnboundedExternalResponseBodyRead,
@@ -143,34 +152,8 @@ const databaseLogEmojiPaths = new Set([
   "src-tauri/src/core/db/integrity/mod.rs",
 ]);
 
-const rawUrlLoggingPaths = new Set([
-  "src-tauri/src/commands/linkedin_auth.rs",
-  "src-tauri/src/core/automation/browser/manager.rs",
-  "src-tauri/src/core/scrapers/url_utils.rs",
-]);
-
-const rawUrlErrorDisplayPaths = new Set([
-  "src-tauri/src/core/automation/error.rs",
-  "src-tauri/src/core/http_body.rs",
-  "src-tauri/src/core/scrapers/error.rs",
-]);
-
-const rawPathOrQueryErrorDisplayPaths = new Set(["src-tauri/src/core/db/error.rs"]);
 const rawResumeParserPathDisplayPaths = new Set(["src-tauri/src/core/resume/parser.rs"]);
 const rawResumeNameLoggingPaths = new Set(["src-tauri/src/commands/resume.rs"]);
-const rawCommandSetupErrorDisplayPaths = new Set([
-  "src-tauri/src/commands/config.rs",
-  "src-tauri/src/commands/ghost.rs",
-  "src-tauri/src/main.rs",
-]);
-const configValidationPrivacyPaths = new Set([
-  "src-tauri/src/core/config/validation_error.rs",
-]);
-
-const rawJobImportLoggingPaths = new Set(["src-tauri/src/commands/import.rs"]);
-
-const rawImportRedirectDisplayPaths = new Set(["src-tauri/src/core/import/types.rs"]);
-
 const rawAutomationQuestionLoggingPaths = new Set([
   "src-tauri/src/core/automation/form_filler.rs",
 ]);
@@ -182,7 +165,6 @@ const automationBrowserErrorPrivacyPaths = new Set([
   "src-tauri/src/core/automation/browser/manager.rs",
   "src-tauri/src/core/automation/browser/page.rs",
 ]);
-const importCommandPrivacyPaths = new Set(["src-tauri/src/commands/import.rs"]);
 const importBookmarkletCommandPrivacyPaths = new Set([
   "src-tauri/src/commands/import.rs",
   "src-tauri/src/commands/user_data.rs",
@@ -190,8 +172,6 @@ const importBookmarkletCommandPrivacyPaths = new Set([
   "src-tauri/src/commands/bookmarklet.rs",
   "src-tauri/src/core/bookmarklet/server.rs",
 ]);
-const urlSecurityPrivacyPaths = new Set(["src-tauri/src/core/url_security.rs"]);
-
 const rawNotificationJobTitleLoggingPaths = new Set(["src-tauri/src/core/notify/mod.rs"]);
 const notificationServicePrivacyPaths = new Set(["src-tauri/src/core/notify/mod.rs"]);
 const rawSchedulerJobContentLoggingPaths = new Set([
@@ -1646,50 +1626,6 @@ function hasFrontendDirectOpenDeepLinkFallback(root, path) {
   return /\bopenDeepLink\(/.test(text) && /\bwindow\.open\(/.test(text);
 }
 
-function hasRawUrlLogging(root, path) {
-  if (!rawUrlLoggingPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return /(?:fields\(url\s*=\s*%url\)|tracing::(?:debug|info|warn|error)!\([^;]*(?:URL|url)[^;]*:\s*\{\})/.test(
-    text,
-  ) || /tracing::(?:debug|info|warn|error)!\([^;]*navigation:\s*\{\}[^;]*url_str/.test(text);
-}
-
-function hasRawUrlErrorDisplay(root, path) {
-  if (!rawUrlErrorDisplayPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  if (/#\[error\("[^"]*\{url\}/.test(productionText)) {
-    return true;
-  }
-
-  if (path !== "src-tauri/src/core/scrapers/error.rs") {
-    return false;
-  }
-
-  return (
-    /"HTTP request failed for \{\}: \{\}"[\s\S]{0,180}\bsource\b/.test(productionText) ||
-    /"Network error for \{\}: \{\}"[\s\S]{0,180}\bsource\b/.test(productionText) ||
-    /"Failed to parse \{\} from \{\}: \{\}"[\s\S]{0,220}\bsource\b/.test(productionText) ||
-    /message:\s*error\.to_string\(\)/.test(productionText) ||
-    /format!\(\s*"Response body from \{\} exceeded \{\} byte limit"\s*,\s*url\s*,/.test(
-      productionText,
-    )
-  );
-}
-
-function hasRawPathOrQueryErrorDisplay(root, path) {
-  if (!rawPathOrQueryErrorDisplayPaths.has(path)) {
-    return false;
-  }
-
-  return /#\[error\("[^"]*\{(?:path|query)\}/.test(readFileSync(join(root, path), "utf8"));
-}
-
 function hasRawResumeParserPathDisplay(root, path) {
   if (!rawResumeParserPathDisplayPaths.has(path)) {
     return false;
@@ -1859,65 +1795,6 @@ function hasRawResumeCommandDtoExposure(root, path) {
   );
 }
 
-function hasRawCommandSetupErrorDisplay(root, path) {
-  if (!rawCommandSetupErrorDisplayPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /map_err\(\s*\|e\|\s*format!\(\s*"Failed to (?:load config|save config|create config directory|connect to database|migrate database|run migrations): \{\}"\s*,\s*e\s*\)\s*\)/.test(
-      productionText,
-    ) ||
-    /format!\(\s*"Configuration error: \{\}"\s*,\s*e\s*\)/.test(productionText) ||
-    /tracing::error!\(\s*"Failed to load config: \{\}"\s*,\s*e\s*\)/.test(productionText) ||
-    /tracing::error!\([\s\S]{0,240}error\s*=\s*%e[\s\S]{0,240}"Failed to [^"]*(?:config|configuration|database)"/.test(
-      productionText,
-    )
-  );
-}
-
-function hasRawConfigValidationUrlDisplay(root, path) {
-  if (!configValidationPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return /Got:\s*\{\}"[\s\S]{0,120},\s*url\b/.test(productionText);
-}
-
-function hasRawImportRedirectDisplay(root, path) {
-  if (!rawImportRedirectDisplayPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return /(?:Redirect blocked while fetching URL: \{location\}|URL validation failed: \{0\}|Invalid JSON-LD format: \{0\}|HTML parsing failed: \{0\}|Database error: \{0\}|HTTP request failed: \{0\})/.test(
-    productionText,
-  );
-}
-
-function hasRawJobImportLogging(root, path) {
-  if (!rawJobImportLoggingPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return (
-    /#\[tracing::instrument\([^\]]*fields\(url\)/.test(text) ||
-    /tracing::info!\([^;]*(?:title|company)\s*=\s*%(?:preview\.)?(?:title|company)/.test(text)
-  );
-}
-
-function hasRawImportHttpErrorReturn(root, path) {
-  if (!importCommandPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return /Failed to fetch the page:\s*\{\}[\s\S]{0,80},\s*e\b/.test(productionText);
-}
-
 function hasRawImportBookmarkletCommandErrorDetails(root, path) {
   if (!importBookmarkletCommandPrivacyPaths.has(path)) {
     return false;
@@ -1940,15 +1817,6 @@ function hasRawImportBookmarkletCommandErrorDetails(root, path) {
       productionText,
     )
   );
-}
-
-function hasNonPublicIpErrorEcho(root, path) {
-  if (!urlSecurityPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return /Blocked non-public IP address ['"]?\{[^}]*}/.test(productionText);
 }
 
 function hasRawAutomationQuestionLogging(root, path) {

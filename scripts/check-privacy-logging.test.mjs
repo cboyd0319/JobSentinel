@@ -12,23 +12,32 @@ import {
   hasMlRawLocalPathExposure,
   hasMissingLinkedInCredentialStorageDisable,
   hasMissingWebhookCredentialStorageValidation,
+  hasNonPublicIpErrorEcho,
   hasRawAutomationDropdownValueLogging,
   hasRawBackupPathError,
+  hasRawCommandSetupErrorDisplay,
+  hasRawConfigValidationUrlDisplay,
   hasRawCredentialStorageErrors,
   hasRawEmailTestErrorReturn,
   hasRawFrontendErrorReporterForwarding,
+  hasRawImportHttpErrorReturn,
+  hasRawImportRedirectDisplay,
   hasRawJobsWithGptDebug,
   hasRawJobsWithGptSmokeEndpointError,
+  hasRawJobImportLogging,
   hasRawLinkedInDebug,
   hasRawLocalPathLogging,
   hasRawNotificationProviderErrorBody,
   hasRawNotificationServiceErrorDetails,
+  hasRawPathOrQueryErrorDisplay,
   hasRawPrivateQueryLogging,
   hasRawScraperLoopErrorLogging,
   hasRawScraperUrlOrQueryLogging,
   hasRawSlackWebhookValidationErrorReturn,
   hasRawSourceCheckResultError,
   hasRawTelegramBotTokenRequestError,
+  hasRawUrlErrorDisplay,
+  hasRawUrlLogging,
   hasRawWebhookTokenRequestError,
   hasRendererCredentialSecretRead,
   hasSecretBearingDebugDerive,
@@ -433,5 +442,93 @@ test("privacy logging rejects raw source health errors", () => {
       hasRawSourceCheckResultError(root, "src-tauri/src/core/health/mod.rs"),
       false,
     );
+  });
+});
+
+test("privacy logging rejects raw URL logs and URL error displays", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/url_utils.rs",
+      'tracing::debug!("Fetching URL: {}", url);',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/error.rs",
+      '#[error("HTTP request failed for {url}: {source}")]\nstruct ScraperError;',
+    );
+
+    assert.equal(hasRawUrlLogging(root, "src-tauri/src/core/scrapers/url_utils.rs"), true);
+    assert.equal(hasRawUrlLogging(root, "src-tauri/src/core/scrapers/mod.rs"), false);
+    assert.equal(hasRawUrlErrorDisplay(root, "src-tauri/src/core/scrapers/error.rs"), true);
+    assert.equal(hasRawUrlErrorDisplay(root, "src-tauri/src/core/scrapers/mod.rs"), false);
+  });
+});
+
+test("privacy logging rejects raw path, query, and config URL displays", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/db/error.rs",
+      '#[error("database query failed: {query}")]\nstruct DbError;',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/config.rs",
+      'map_err(|e| format!("Failed to load config: {}", e));',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/config/validation_error.rs",
+      'format!("Got: {}", url);',
+    );
+
+    assert.equal(hasRawPathOrQueryErrorDisplay(root, "src-tauri/src/core/db/error.rs"), true);
+    assert.equal(hasRawCommandSetupErrorDisplay(root, "src-tauri/src/commands/config.rs"), true);
+    assert.equal(
+      hasRawConfigValidationUrlDisplay(root, "src-tauri/src/core/config/validation_error.rs"),
+      true,
+    );
+    assert.equal(hasRawCommandSetupErrorDisplay(root, "src-tauri/src/commands/jobs.rs"), false);
+  });
+});
+
+test("privacy logging rejects raw import URL and HTTP errors", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/import/types.rs",
+      "Redirect blocked while fetching URL: {location}",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/import.rs",
+      [
+        "#[tracing::instrument(fields(url))]",
+        "fn preview() {}",
+        'format!("Failed to fetch the page: {}", e);',
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasRawImportRedirectDisplay(root, "src-tauri/src/core/import/types.rs"),
+      true,
+    );
+    assert.equal(hasRawJobImportLogging(root, "src-tauri/src/commands/import.rs"), true);
+    assert.equal(hasRawImportHttpErrorReturn(root, "src-tauri/src/commands/import.rs"), true);
+    assert.equal(hasRawJobImportLogging(root, "src-tauri/src/commands/jobs.rs"), false);
+  });
+});
+
+test("privacy logging rejects non-public IP echo", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/url_security.rs",
+      "return Err(format!(\"Blocked non-public IP address '{}'\", host));",
+    );
+
+    assert.equal(hasNonPublicIpErrorEcho(root, "src-tauri/src/core/url_security.rs"), true);
+    assert.equal(hasNonPublicIpErrorEcho(root, "src-tauri/src/core/import/types.rs"), false);
   });
 });

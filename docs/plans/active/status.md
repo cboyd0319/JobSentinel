@@ -74,6 +74,12 @@ and record actionable findings in this active-plan surface.
   `scripts/harness/checks/privacy-logging.mjs`; focused privacy-logging
   coverage is now 20 tests and `scripts/check-repo-bloat.mjs` is roughly
   3,800 lines.
+- Latest local URL/import privacy harness work moves raw URL logging, URL
+  error display, path/query error display, command setup/config URL display,
+  import redirect display, job-import logging, import HTTP error, and
+  non-public IP echo sensors into `scripts/harness/checks/privacy-logging.mjs`;
+  focused privacy-logging coverage is now 24 tests and
+  `scripts/check-repo-bloat.mjs` is roughly 3,700 lines.
 - Latest local privacy work removes raw automation dropdown-answer logging and
   raw frontend error forwarding, then adds bloat sensors and `errorReporting`
   unit coverage so those regressions fail locally.
@@ -170,7 +176,7 @@ and record actionable findings in this active-plan surface.
    current sensors, while preserving tech-specific cases only when they test
    explicit branch behavior or source-realism parser contracts.
 2. Continue splitting oversized mixed sensors, especially docs-drift,
-   remaining import/frontend privacy, fixture-quality, broad-audience, and
+   remaining frontend/automation/privacy, fixture-quality, broad-audience, and
    source-security checks still inside `scripts/check-repo-bloat.mjs`.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
