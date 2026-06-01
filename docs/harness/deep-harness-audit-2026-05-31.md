@@ -60,7 +60,7 @@ module-ownership work below. Remaining recommendations stay tracked here and in
 | Priority | Improvement | Evidence | Risk | Recommended fix |
 | -------- | ----------- | -------- | ---- | --------------- |
 | P0 | Broaden external AI provider detection | Closed: `npm run lint:external-ai` scans code plus JSON, YAML, TOML, and env-style config for direct provider endpoints, SDK imports, hosted inference endpoints, dependency declarations, and provider API-key variables outside `src/services/aiGateway.ts`; it runs through `npm run harness:check`. | Closed for the current provider set; new providers still need explicit sensor updates and AI-gateway review. | Keep all external AI additions routed through the gateway and update the provider-pattern sensor in the same change. |
-| P1 | Make feature privacy labels machine-readable | Privacy labels exist in `src/services/aiGateway.ts` and docs, but there is no repo-wide feature-label manifest. | Feature docs can drift from code, and reviewers must infer whether a feature is local-only, sensitive, or external-AI optional. | Add `docs/harness/feature-privacy-labels.json` or frontmatter in feature docs, then validate labels through `harness:check`. |
+| P1 | Make feature privacy labels machine-readable | Closed: `docs/harness/feature-privacy-labels.json` records core feature privacy labels, data categories, external-AI allowance, local fallbacks, and sensitivity notes; `npm run harness:check` validates its shape and required features. | Closed for core labeled features; future risk is new features shipping without a manifest entry. | Update the feature privacy-label manifest and harness tests with every new sensitive or external-AI-capable feature. |
 | P1 | Require Rule 0 evidence in PR template | `.github/PULL_REQUEST_TEMPLATE.md` has a privacy checklist but does not name Rule 0, external AI gateway routing, payload preview, broad audience, or zero-technical-skill support. | Human review can miss core project law when changes happen outside normal agent sessions. | Update PR template with Rule 0, external AI, support/debug-report, and user-ease checks. |
 | P2 | Normalize support template wording | Closed: issue templates now ask for a safe support report and point users to Copy Safe Support Report instead of "ANONYMIZED" debug-report wording. | Closed for current issue templates; future risk is adding new support paths with old debug-report or scraper-first language. | Keep issue-template support wording covered by the product-copy sensor. |
 
@@ -120,7 +120,7 @@ module-ownership work below. Remaining recommendations stay tracked here and in
 1. Continue splitting oversized named sensor modules only where the boundary is
    clear and focused tests can prove the split.
 2. Keep diff-aware `harness:plan` mappings current as source and test roots evolve.
-3. Add feature privacy label manifest and validation.
+3. Keep feature privacy label manifest current as sensitive or external-AI-capable features evolve.
 4. Add E2E runtime budget tracking.
 5. Add a sensor registry or harness architecture map for discoverability.
 6. Build a generic harness compatibility adapter only after the native harness

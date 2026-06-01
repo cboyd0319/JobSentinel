@@ -60,6 +60,10 @@ Current branch note:
   config profile list to broad-first ordering, changes roadmap wording from
   debug reports to safe support reports, and adds sensor coverage for both
   drift classes.
+- The current local feature-privacy harness slice adds
+  `docs/harness/feature-privacy-labels.json` plus `harness:check`
+  validation for labels, sensitive data categories, external-AI allowance, and
+  local fallback guidance.
 - Continue using small verified commits. Run remote CI only when the user
   explicitly asks or the full-goal completion pass requires it.
 
@@ -717,8 +721,8 @@ Next high-value passes:
      work.
    - Promote any repeated ease, privacy, or flaky-test failure into a guide or
      sensor instead of leaving it in chat.
-   - Prioritize the remaining top harness debt: sensor modularity, feature
-     privacy labels, evidence ledger, and harness architecture map.
+   - Prioritize the remaining top harness debt: sensor modularity, evidence
+     ledger, harness architecture map, and optional external harness adapter.
 8. Continue protective job-search UX review.
    - Make ghost/stale detection central on job cards and saved jobs.
    - Make salary floor, pay transparency, salary-history guardrails, and

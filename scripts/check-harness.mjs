@@ -29,6 +29,7 @@ const ignoredPathParts = new Set([
 ]);
 
 const harnessManifestPath = "docs/harness/manifest.json";
+const featurePrivacyLabelsPath = "docs/harness/feature-privacy-labels.json";
 const harnessManifest = JSON.parse(readFileSync(join(root, harnessManifestPath), "utf8"));
 const manifestSnippets = harnessManifest.requiredHarnessSnippets;
 const manifestReadmeReferences = harnessManifest.readmeReferences ?? {};
@@ -50,6 +51,33 @@ const requiredReadmeReferenceUrls = Array.isArray(manifestReadmeReferences.requi
   : [];
 
 const errors = [];
+const allowedFeaturePrivacyLabels = new Set([
+  "Local only",
+  "External AI optional",
+  "External AI required",
+  "Sensitive",
+  "Public-data only",
+]);
+const allowedExternalAiDataCategories = new Set([
+  "job_posting",
+  "public_metadata",
+  "resume",
+  "salary_floor",
+  "private_notes",
+  "application_history",
+  "career_goals",
+  "location_preferences",
+  "full_database",
+]);
+const sensitiveExternalAiDataCategories = new Set([
+  "resume",
+  "salary_floor",
+  "private_notes",
+  "application_history",
+  "career_goals",
+  "location_preferences",
+  "full_database",
+]);
 
 if (harnessManifest.version !== 1) {
   errors.push(`${harnessManifestPath} must use manifest version 1`);
@@ -144,6 +172,122 @@ function collectMarkdownFiles(dir = root) {
 for (const path of requiredFiles) {
   if (!existsSync(repoPath(path))) {
     errors.push(`missing required harness file: ${path}`);
+  }
+}
+
+if (existsSync(repoPath(featurePrivacyLabelsPath))) {
+  const featurePrivacyLabels = JSON.parse(read(featurePrivacyLabelsPath));
+
+  if (featurePrivacyLabels.version !== 1) {
+    errors.push(`${featurePrivacyLabelsPath} must use version 1`);
+  }
+
+  const declaredLabels = Array.isArray(featurePrivacyLabels.labels)
+    ? featurePrivacyLabels.labels
+    : [];
+
+  for (const label of allowedFeaturePrivacyLabels) {
+    if (!declaredLabels.includes(label)) {
+      errors.push(`${featurePrivacyLabelsPath} labels missing required label: ${label}`);
+    }
+  }
+
+  const features = Array.isArray(featurePrivacyLabels.features)
+    ? featurePrivacyLabels.features
+    : [];
+  const requiredFeatureIds = [
+    "job-tracking",
+    "saved-searches",
+    "application-kanban",
+    "first-seen-last-seen-job-tracking",
+    "ghost-job-heuristic-scoring",
+    "ghost-job-external-ai-explanation",
+    "job-description-summary",
+    "resume-job-fit-explanation",
+    "negotiation-prep",
+    "salary-floor-protection",
+    "salary-transparency-check",
+    "safe-support-report",
+    "research-evaluation",
+  ];
+  const featureIds = new Set();
+
+  if (features.length < requiredFeatureIds.length) {
+    errors.push(`${featurePrivacyLabelsPath} must list core privacy-labeled features`);
+  }
+
+  for (const feature of features) {
+    if (!feature || typeof feature !== "object") {
+      errors.push(`${featurePrivacyLabelsPath} contains a non-object feature entry`);
+      continue;
+    }
+
+    if (typeof feature.id !== "string" || feature.id.trim() === "") {
+      errors.push(`${featurePrivacyLabelsPath} contains a feature without id`);
+      continue;
+    }
+
+    if (featureIds.has(feature.id)) {
+      errors.push(`${featurePrivacyLabelsPath} has duplicate feature id: ${feature.id}`);
+    }
+    featureIds.add(feature.id);
+
+    if (typeof feature.name !== "string" || feature.name.trim() === "") {
+      errors.push(`${featurePrivacyLabelsPath} ${feature.id} must include a name`);
+    }
+
+    if (!Array.isArray(feature.labels) || feature.labels.length === 0) {
+      errors.push(`${featurePrivacyLabelsPath} ${feature.id} must include labels`);
+    } else {
+      for (const label of feature.labels) {
+        if (!allowedFeaturePrivacyLabels.has(label)) {
+          errors.push(`${featurePrivacyLabelsPath} ${feature.id} has unknown label: ${label}`);
+        }
+      }
+    }
+
+    if (!Array.isArray(feature.dataCategories) || feature.dataCategories.length === 0) {
+      errors.push(`${featurePrivacyLabelsPath} ${feature.id} must include dataCategories`);
+    } else {
+      for (const category of feature.dataCategories) {
+        if (!allowedExternalAiDataCategories.has(category)) {
+          errors.push(`${featurePrivacyLabelsPath} ${feature.id} has unknown data category: ${category}`);
+        }
+      }
+    }
+
+    const hasSensitiveCategory = feature.dataCategories?.some((category) =>
+      sensitiveExternalAiDataCategories.has(category),
+    );
+    if (hasSensitiveCategory && !feature.labels?.includes("Sensitive")) {
+      errors.push(`${featurePrivacyLabelsPath} ${feature.id} uses sensitive data without Sensitive label`);
+    }
+
+    if (feature.labels?.includes("Public-data only") && hasSensitiveCategory) {
+      errors.push(`${featurePrivacyLabelsPath} ${feature.id} cannot be Public-data only with sensitive data`);
+    }
+
+    if (feature.labels?.includes("External AI required") && !feature.externalAi?.required) {
+      errors.push(`${featurePrivacyLabelsPath} ${feature.id} must mark externalAi.required`);
+    }
+
+    if (feature.externalAi?.required && !feature.labels?.includes("External AI required")) {
+      errors.push(`${featurePrivacyLabelsPath} ${feature.id} requires external AI without required label`);
+    }
+
+    if (feature.externalAi?.allowed && !feature.labels?.some((label) => label.startsWith("External AI"))) {
+      errors.push(`${featurePrivacyLabelsPath} ${feature.id} allows external AI without external-AI label`);
+    }
+
+    if (typeof feature.externalAi?.fallback !== "string" || feature.externalAi.fallback.trim() === "") {
+      errors.push(`${featurePrivacyLabelsPath} ${feature.id} must include local fallback guidance`);
+    }
+  }
+
+  for (const requiredFeatureId of requiredFeatureIds) {
+    if (!featureIds.has(requiredFeatureId)) {
+      errors.push(`${featurePrivacyLabelsPath} missing required feature: ${requiredFeatureId}`);
+    }
   }
 }
 

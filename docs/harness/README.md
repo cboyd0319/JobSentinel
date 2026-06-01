@@ -37,6 +37,7 @@ Use this structure:
 | Active status | `docs/plans/active/status.md` | Compact restart surface for current goal state, next work, and completion bar |
 | Change contract | `docs/harness/change-contract.md` | Acceptance criteria before edits |
 | Policy manifest | `docs/harness/manifest.json` | Required harness files, policy snippets, and README reference-source coverage |
+| Feature privacy labels | `docs/harness/feature-privacy-labels.json` | Machine-readable feature labels for local-only, external-AI, sensitive, and public-data boundaries |
 | Plans | `docs/plans/` | Multi-step work, progress, decisions |
 | Active plan index | `docs/plans/index.json` | Machine-readable active workstream map for restart and scoring |
 | Session snapshot | `npm run harness:session` | One-command restart surface for branch state, active plan count, indexed workstreams, harness score, harness module/test counts, bloat-runner size, and next work |

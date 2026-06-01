@@ -1,0 +1,205 @@
+{
+  "version": 1,
+  "lastUpdated": "2026-06-01",
+  "labels": [
+    "Local only",
+    "External AI optional",
+    "External AI required",
+    "Sensitive",
+    "Public-data only"
+  ],
+  "dataCategories": [
+    "job_posting",
+    "public_metadata",
+    "resume",
+    "salary_floor",
+    "private_notes",
+    "application_history",
+    "career_goals",
+    "location_preferences"
+  ],
+  "features": [
+    {
+      "id": "job-tracking",
+      "name": "Job tracking",
+      "labels": ["Local only", "Sensitive"],
+      "dataCategories": ["job_posting", "public_metadata", "private_notes"],
+      "defaultDataFlow": "Stored locally in SQLite. No external AI or external channel is required.",
+      "externalAi": {
+        "allowed": false,
+        "required": false,
+        "fallback": "Core tracking works locally."
+      },
+      "sensitivityNote": "Saved jobs and notes can reveal employment status, career goals, and job-search urgency."
+    },
+    {
+      "id": "saved-searches",
+      "name": "Saved searches",
+      "labels": ["Local only", "Sensitive"],
+      "dataCategories": ["career_goals", "location_preferences"],
+      "defaultDataFlow": "Stored locally in SQLite. Searches run through configured local source settings.",
+      "externalAi": {
+        "allowed": false,
+        "required": false,
+        "fallback": "Saved searches work locally."
+      },
+      "sensitivityNote": "Search terms and locations can reveal career goals and relocation constraints."
+    },
+    {
+      "id": "application-kanban",
+      "name": "Application Kanban",
+      "labels": ["Local only", "Sensitive"],
+      "dataCategories": ["application_history", "private_notes"],
+      "defaultDataFlow": "Stored locally in SQLite. Optional external channels are user-configured only.",
+      "externalAi": {
+        "allowed": false,
+        "required": false,
+        "fallback": "Application tracking works locally."
+      },
+      "sensitivityNote": "Application stages, reminders, and notes are private job-search records."
+    },
+    {
+      "id": "first-seen-last-seen-job-tracking",
+      "name": "First-seen and last-seen job tracking",
+      "labels": ["Local only", "Public-data only"],
+      "dataCategories": ["job_posting", "public_metadata"],
+      "defaultDataFlow": "Stored locally from monitored public or official job sources.",
+      "externalAi": {
+        "allowed": false,
+        "required": false,
+        "fallback": "Posting age tracking works locally."
+      },
+      "sensitivityNote": "Uses posting metadata rather than private candidate records."
+    },
+    {
+      "id": "ghost-job-heuristic-scoring",
+      "name": "Ghost-job heuristic scoring",
+      "labels": ["Local only", "Public-data only"],
+      "dataCategories": ["job_posting", "public_metadata"],
+      "defaultDataFlow": "Scored locally from public posting signals, source history, and local recency data.",
+      "externalAi": {
+        "allowed": false,
+        "required": false,
+        "fallback": "Heuristic ghost-job scoring works locally."
+      },
+      "sensitivityNote": "Default scoring uses job-posting content and local source metadata."
+    },
+    {
+      "id": "ghost-job-external-ai-explanation",
+      "name": "Ghost-job explanation with external AI",
+      "labels": ["External AI optional", "Public-data only"],
+      "dataCategories": ["job_posting", "public_metadata"],
+      "defaultDataFlow": "Local explanation is preferred. Optional external AI may receive minimized public posting data only after preview and approval.",
+      "externalAi": {
+        "allowed": true,
+        "required": false,
+        "fallback": "Show local heuristic reasons without sending data."
+      },
+      "sensitivityNote": "Do not include resume, salary floor, private notes, or application history."
+    },
+    {
+      "id": "job-description-summary",
+      "name": "Job description summary",
+      "labels": ["External AI optional", "Public-data only"],
+      "dataCategories": ["job_posting", "public_metadata"],
+      "defaultDataFlow": "Local parsing and summary should be available where practical. Optional external AI may receive the minimized posting text after preview and approval.",
+      "externalAi": {
+        "allowed": true,
+        "required": false,
+        "fallback": "Show local extracted fields and original posting text."
+      },
+      "sensitivityNote": "Public-data-only summaries must not include unrelated candidate data."
+    },
+    {
+      "id": "resume-job-fit-explanation",
+      "name": "Resume/job fit explanation",
+      "labels": ["External AI optional", "Sensitive"],
+      "dataCategories": ["job_posting", "resume", "career_goals", "salary_floor"],
+      "defaultDataFlow": "Local scoring and readable fit signals should work without a provider. Optional external AI requires explicit sensitive-payload selection, preview, redaction, and approval.",
+      "externalAi": {
+        "allowed": true,
+        "required": false,
+        "fallback": "Show local fit score, transparent reasons, and user-editable application readability notes."
+      },
+      "sensitivityNote": "Resumes, salary floors, and career goals are sensitive and must not be sent by default."
+    },
+    {
+      "id": "negotiation-prep",
+      "name": "Negotiation prep",
+      "labels": ["External AI optional", "Sensitive"],
+      "dataCategories": ["job_posting", "salary_floor", "career_goals", "private_notes"],
+      "defaultDataFlow": "Local prompts and checklists should work without a provider. Optional external AI requires explicit sensitive-payload selection, preview, redaction, and approval.",
+      "externalAi": {
+        "allowed": true,
+        "required": false,
+        "fallback": "Show local compensation questions, salary-floor reminders, and written-range checks."
+      },
+      "sensitivityNote": "Negotiation notes can reveal salary expectations, urgency, and personal constraints."
+    },
+    {
+      "id": "salary-floor-protection",
+      "name": "Salary floor protection",
+      "labels": ["Local only", "Sensitive"],
+      "dataCategories": ["salary_floor", "career_goals"],
+      "defaultDataFlow": "Salary floors stay local by default and are used for local filtering, warnings, and score explanations.",
+      "externalAi": {
+        "allowed": false,
+        "required": false,
+        "fallback": "Salary-floor filtering and below-floor warnings work locally."
+      },
+      "sensitivityNote": "Salary floor and role constraints are sensitive user data."
+    },
+    {
+      "id": "salary-transparency-check",
+      "name": "Salary transparency check",
+      "labels": ["Local only", "Public-data only"],
+      "dataCategories": ["job_posting", "public_metadata"],
+      "defaultDataFlow": "Check listed pay range, range width, missing criteria, and public posting signals locally.",
+      "externalAi": {
+        "allowed": false,
+        "required": false,
+        "fallback": "Transparency checks work locally from posting text and metadata."
+      },
+      "sensitivityNote": "Default check uses public posting data only."
+    },
+    {
+      "id": "salary-transparency-ai-explanation",
+      "name": "Salary transparency explanation with external AI",
+      "labels": ["External AI optional", "Public-data only"],
+      "dataCategories": ["job_posting", "public_metadata"],
+      "defaultDataFlow": "Optional external AI may explain public pay-transparency signals only after payload preview and approval.",
+      "externalAi": {
+        "allowed": true,
+        "required": false,
+        "fallback": "Show local pay-transparency reasons."
+      },
+      "sensitivityNote": "Do not include the user's salary floor unless the feature is reclassified as Sensitive and explicitly approved."
+    },
+    {
+      "id": "safe-support-report",
+      "name": "Safe support report",
+      "labels": ["Local only", "Sensitive"],
+      "dataCategories": ["public_metadata", "application_history"],
+      "defaultDataFlow": "Generated and sanitized locally. User chooses whether to copy, save, or attach the report.",
+      "externalAi": {
+        "allowed": false,
+        "required": false,
+        "fallback": "Support report generation works locally."
+      },
+      "sensitivityNote": "Support reports may summarize app state and must redact names, emails, secrets, paths, URLs, private notes, and raw application content."
+    },
+    {
+      "id": "research-evaluation",
+      "name": "Research and evaluation",
+      "labels": ["External AI optional", "Public-data only"],
+      "dataCategories": ["job_posting", "public_metadata"],
+      "defaultDataFlow": "Use public job postings and synthetic candidate profiles by default.",
+      "externalAi": {
+        "allowed": true,
+        "required": false,
+        "fallback": "Run local or synthetic-data evaluation without external AI."
+      },
+      "sensitivityNote": "Real user resumes, salary floors, private notes, application history, or PII-heavy datasets require explicit informed consent."
+    }
+  ]
+}

@@ -236,6 +236,10 @@ and record actionable findings in this active-plan surface.
   profile list to broad-first ordering, changes roadmap support-report wording
   away from debug-report labels, and adds broad-audience/product-copy sensors
   for both drift classes.
+- Latest local feature-privacy harness work adds
+  `docs/harness/feature-privacy-labels.json` and validates required labels,
+  data categories, sensitive-label alignment, external-AI allowance, local
+  fallbacks, and core feature entries through `npm run harness:check`.
 - Latest local docs-drift harness work moves the docs-drift violation messages
   out of `scripts/check-repo-bloat.mjs` and into
   `scripts/harness/checks/docs-drift.mjs` through

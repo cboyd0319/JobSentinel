@@ -65,6 +65,10 @@ Required lifecycle:
 
 ## Feature Privacy Labels
 
+The machine-readable repo index lives at
+[`docs/harness/feature-privacy-labels.json`](../harness/feature-privacy-labels.json)
+and is validated by `npm run harness:check`.
+
 | Label | Meaning |
 | ----- | ------- |
 | Local only | No data leaves the device. |
