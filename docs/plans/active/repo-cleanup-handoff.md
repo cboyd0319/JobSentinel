@@ -380,10 +380,12 @@ Current cleanup posture:
   renderer-facing bookmarklet config and mocks, copies the browser import
   button through a Rust command, and adds IPC-minimization harness coverage for
   bookmarklet token DTO drift.
-- Latest Application Assist privacy follow-up removes raw saved resume paths
-  from profile IPC and visible UI, returns only `hasResumeFile` plus
-  `resumeFileName`, preserves the stored local path on unrelated profile edits,
-  and adds IPC-minimization coverage for resume-path DTO drift.
+- Latest Application Assist resume-boundary follow-up routes resume selection
+  through a backend native file-picker command, copies selected files into
+  app-owned local storage, sends the renderer only a token and display name,
+  rejects renderer-supplied resume paths, validates legacy saved paths before
+  form prep, and keeps resume attachment manual so saved resumes are not
+  uploaded automatically.
 - Latest zero-technical copy follow-up softens optional email setup, labels
   USAJobs access as an access code with no coding needed, changes screening
   answer setup from matching text to plain question wording, and removes

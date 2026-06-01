@@ -393,7 +393,7 @@ JobSentinel is built as a Tauri desktop app.
 | Storage | SQLite with SQLx offline mode |
 | Tests | Vitest, Playwright, Rust tests, docs harness checks |
 
-Current backend surface: **195 registered Tauri commands**.
+Current backend surface: **196 registered Tauri commands**.
 
 Common checks:
 

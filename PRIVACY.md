@@ -25,6 +25,9 @@ By default, these stay on the user's computer:
 - Interview reminders, follow-up notes, and weekly progress data.
 - Resume versions, resume parsing results, match explanations, and application
   drafts.
+- Application Assist resume file copies selected through the native file picker.
+  The renderer sees only a local app-owned token and display name, not the
+  original file path.
 - Salary floors, salary preferences, offer notes, and negotiation notes.
 - Local problem history and sanitized debug reports before the user chooses to
   share them.
@@ -57,6 +60,10 @@ Possible network activity:
 These requests may reveal normal network metadata to the destination service,
 such as IP address, request time, and destination host. External channels may
 receive the job or alert details the user chooses to send.
+
+Application Assist does not upload saved resume files automatically. If an
+application site requires a resume, the user attaches it through that site's own
+file picker after reviewing the page.
 
 ## External AI
 

@@ -395,10 +395,12 @@ boundaries, and harness modularity:
 - The latest bookmarklet privacy slice removes the browser import token from
   renderer-facing config and mocks, routes browser-button copying through Rust,
   and adds IPC-minimization harness coverage for token DTO drift.
-- The latest Application Assist privacy slice keeps raw saved resume paths in
-  the backend-only local attach path, returns only a basename and presence flag
-  to the renderer, preserves the saved path unless the user replaces or clears
-  it, and adds IPC-minimization harness coverage for path DTO drift.
+- The latest Application Assist resume-boundary slice routes resume selection
+  through a backend native file-picker command, copies selected files into
+  app-owned local storage, sends the renderer only a token and display name,
+  rejects renderer-supplied resume paths, validates legacy saved paths before
+  form prep, and keeps resume attachment manual so saved resumes are not
+  uploaded automatically.
 - The latest zero-technical copy slice softens optional email setup, labels
   USAJobs access as an access code with no coding needed, changes screening
   answer setup from matching text to plain question wording, and removes

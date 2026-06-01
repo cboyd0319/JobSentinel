@@ -186,7 +186,7 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText(/check your internet connection/i)).toBeInTheDocument();
+        expect(screen.getByText(/copy a safe support report/i)).toBeInTheDocument();
       });
     });
 

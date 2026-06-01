@@ -357,6 +357,8 @@ lookup results, sanitized error reports, and transient recovery hints.
 - Saved screening answers
 - ATS platform detection and specialized selectors
 - Visible browser control via Chrome DevTools Protocol
+- Resume file selection through backend-owned native dialog, copied into
+  app-owned local storage, with only token/display data crossing renderer IPC
 
 **Key Components:**
 
@@ -401,6 +403,8 @@ pub struct ScreeningAnswer {
 - CAPTCHA detection with user prompts
 - Daily review limit
 - Visible browser window (no headless mode)
+- Resume attachment remains manual; Application Assist does not upload saved
+  resume files automatically
 
 See [Application Assist Feature](../features/one-click-apply.md) for full documentation.
 

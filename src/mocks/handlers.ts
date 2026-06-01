@@ -1574,6 +1574,21 @@ function displayFileNameFromPath(value: unknown): string | null {
   return value.trim().split(/[\\/]/).filter(Boolean).pop() ?? "Selected resume";
 }
 
+function displayFileNameFromResumeToken(value: unknown): string | null {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    return null;
+  }
+
+  const token = value.trim();
+  const tokenParts = token.split("--");
+  const displayName = tokenParts.slice(1).join("--").trim();
+  if (tokenParts.length >= 2 && displayName.length > 0) {
+    return displayName;
+  }
+
+  return displayFileNameFromPath(token);
+}
+
 function normalizeScreeningAnswer(value: Partial<MockScreeningAnswer>): MockScreeningAnswer {
   const now = new Date().toISOString();
   return {
@@ -2698,7 +2713,7 @@ function upsertMockApplicationProfile(args?: Record<string, unknown>): number {
   const existing = applicationProfile ?? getDefaultApplicationProfile();
   const now = new Date().toISOString();
 
-  const selectedResumeFileName = displayFileNameFromPath(input.resume_file_path);
+  const selectedResumeFileName = displayFileNameFromResumeToken(input.resume_file_token);
   const clearResumeFile = booleanValue(input.clear_resume_file, false);
 
   applicationProfile = {
@@ -3636,6 +3651,12 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
 
     case "get_application_profile":
       return applicationProfile as T;
+
+    case "select_application_resume_file":
+      return {
+        token: "7d9d16a1-2e5d-4b32-9eb2-bfbffb4ee871--mock-resume.pdf",
+        fileName: "mock-resume.pdf",
+      } as T;
 
     case "upsert_application_profile":
       return upsertMockApplicationProfile(args) as T;

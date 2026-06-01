@@ -122,6 +122,7 @@ import {
 import { collectPrivacyLoggingViolations } from "./harness/checks/privacy-logging.mjs";
 import {
   hasAnswerHistoryRendererInvoke,
+  hasApplicationAssistAutomaticResumeUpload,
   hasApplicationProfileResumePathExposure,
   hasBookmarkletTokenIpcExposure,
   hasDashboardFullConfigInvoke,
@@ -463,6 +464,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasApplicationProfileResumePathExposure(root, path)) {
       violations.push(`keep application resume paths out of renderer IPC: ${path}`);
+    }
+
+    if (hasApplicationAssistAutomaticResumeUpload(root, path)) {
+      violations.push(`keep Application Assist resume attachment manual: ${path}`);
     }
 
     if (hasRawAnswerHistoryIpcExposure(root, path)) {

@@ -18,8 +18,15 @@ use crate::core::automation::{
     AutomationStatus,
 };
 use crate::core::url_security::{sanitize_url_for_logging, validate_external_http_url};
+use crate::platforms;
 use serde::{Deserialize, Serialize};
+use std::path::{Path, PathBuf};
 use tauri::State;
+use tauri_plugin_dialog::DialogExt;
+use uuid::Uuid;
+
+const APPLICATION_RESUME_DIR: &str = "application-resumes";
+const ALLOWED_APPLICATION_RESUME_EXTENSIONS: &[&str] = &["pdf", "docx", "doc"];
 
 fn resume_file_display_name(path: &str) -> Option<String> {
     let trimmed = path.trim();
@@ -33,12 +40,242 @@ fn resume_file_display_name(path: &str) -> Option<String> {
         .map(str::trim)
         .filter(|name| !name.is_empty())?;
 
+    if let Some((token_prefix, display_name)) = name.split_once("--") {
+        if Uuid::parse_str(token_prefix).is_ok() && !display_name.trim().is_empty() {
+            return Some(display_name.to_string());
+        }
+    }
+
     Some(name.to_string())
+}
+
+fn resume_reselect_error() -> String {
+    "Choose the resume file again before using Application Assist.".to_string()
+}
+
+fn application_resume_dir() -> PathBuf {
+    platforms::get_data_dir().join(APPLICATION_RESUME_DIR)
+}
+
+fn allowed_application_resume_extension(path: &Path) -> Result<&'static str, String> {
+    let extension = path
+        .extension()
+        .and_then(|value| value.to_str())
+        .map(|value| value.to_ascii_lowercase())
+        .ok_or_else(|| "Choose a PDF, DOCX, or DOC resume file.".to_string())?;
+
+    ALLOWED_APPLICATION_RESUME_EXTENSIONS
+        .iter()
+        .copied()
+        .find(|allowed| *allowed == extension)
+        .ok_or_else(|| "Choose a PDF, DOCX, or DOC resume file.".to_string())
+}
+
+fn safe_resume_file_name(path: &Path, extension: &str) -> String {
+    let raw_stem = path
+        .file_stem()
+        .and_then(|value| value.to_str())
+        .unwrap_or("resume");
+    let mut safe_stem = String::new();
+    let mut previous_dash = false;
+
+    for ch in raw_stem.chars() {
+        let next = if ch.is_ascii_alphanumeric() || ch == '_' || ch == '-' {
+            previous_dash = false;
+            Some(ch)
+        } else if ch.is_ascii_whitespace() || ch == '.' {
+            if previous_dash {
+                None
+            } else {
+                previous_dash = true;
+                Some('-')
+            }
+        } else if previous_dash {
+            None
+        } else {
+            previous_dash = true;
+            Some('-')
+        };
+
+        if let Some(ch) = next {
+            safe_stem.push(ch);
+        }
+
+        if safe_stem.len() >= 80 {
+            break;
+        }
+    }
+
+    let safe_stem = safe_stem.trim_matches('-');
+    let safe_stem = if safe_stem.is_empty() {
+        "resume"
+    } else {
+        safe_stem
+    };
+
+    format!("{safe_stem}.{extension}")
+}
+
+fn validate_application_resume_token(token: &str) -> Result<&str, String> {
+    let trimmed = token.trim();
+    if trimmed.is_empty() || trimmed != token {
+        return Err(resume_reselect_error());
+    }
+
+    if trimmed.contains(['/', '\\', ':']) || trimmed.contains("..") {
+        return Err(resume_reselect_error());
+    }
+
+    let Some((uuid_part, display_name)) = trimmed.split_once("--") else {
+        return Err(resume_reselect_error());
+    };
+
+    Uuid::parse_str(uuid_part).map_err(|_| resume_reselect_error())?;
+
+    if display_name.is_empty()
+        || display_name.len() > 120
+        || display_name.starts_with('.')
+        || display_name.ends_with('.')
+    {
+        return Err(resume_reselect_error());
+    }
+
+    allowed_application_resume_extension(Path::new(display_name))?;
+
+    Ok(trimmed)
+}
+
+fn resolve_application_resume_path(managed_dir: &Path, token: &str) -> Result<PathBuf, String> {
+    let token = validate_application_resume_token(token)?;
+    Ok(managed_dir.join(token))
+}
+
+fn prepare_application_profile_resume_input(
+    mut input: ApplicationProfileInput,
+    managed_dir: &Path,
+) -> Result<ApplicationProfileInput, String> {
+    if input.clear_resume_file.unwrap_or(false) {
+        input.resume_file_path = None;
+        input.resume_file_token = None;
+        return Ok(input);
+    }
+
+    if input
+        .resume_file_path
+        .as_deref()
+        .is_some_and(|path| !path.trim().is_empty())
+    {
+        return Err("Choose the resume file with Browse before saving.".to_string());
+    }
+    input.resume_file_path = None;
+
+    if let Some(token) = input
+        .resume_file_token
+        .as_deref()
+        .map(str::trim)
+        .filter(|token| !token.is_empty())
+    {
+        let managed_path = resolve_application_resume_path(managed_dir, token)?;
+        if !managed_path.is_file() {
+            return Err(resume_reselect_error());
+        }
+        input.resume_file_path = Some(managed_path.to_string_lossy().to_string());
+    }
+    input.resume_file_token = None;
+
+    Ok(input)
+}
+
+fn trusted_application_resume_path(
+    stored_path: Option<&str>,
+    managed_dir: &Path,
+) -> Result<Option<PathBuf>, String> {
+    let Some(stored_path) = stored_path.map(str::trim).filter(|path| !path.is_empty()) else {
+        return Ok(None);
+    };
+
+    let stored_path = PathBuf::from(stored_path);
+    let file_name = stored_path
+        .file_name()
+        .and_then(|value| value.to_str())
+        .ok_or_else(resume_reselect_error)?;
+    let expected_path = resolve_application_resume_path(managed_dir, file_name)?;
+
+    let canonical_dir = managed_dir
+        .canonicalize()
+        .map_err(|_| resume_reselect_error())?;
+    let canonical_stored = stored_path
+        .canonicalize()
+        .map_err(|_| resume_reselect_error())?;
+    let canonical_expected = expected_path
+        .canonicalize()
+        .map_err(|_| resume_reselect_error())?;
+
+    if canonical_stored != canonical_expected || !canonical_stored.starts_with(canonical_dir) {
+        return Err(resume_reselect_error());
+    }
+
+    Ok(Some(canonical_stored))
+}
+
+fn copy_selected_resume_to_managed_storage(
+    source_path: &Path,
+) -> Result<ApplicationResumeFileSelection, String> {
+    let extension = allowed_application_resume_extension(source_path)?;
+    let metadata = std::fs::metadata(source_path)
+        .map_err(|_| "Could not read the selected resume file.".to_string())?;
+    if !metadata.is_file() {
+        return Err("Choose a resume file, not a folder.".to_string());
+    }
+
+    let display_name = safe_resume_file_name(source_path, extension);
+    let token = format!("{}--{}", Uuid::new_v4(), display_name);
+    let managed_dir = application_resume_dir();
+    std::fs::create_dir_all(&managed_dir)
+        .map_err(|_| "Could not prepare local resume storage.".to_string())?;
+    let destination = resolve_application_resume_path(&managed_dir, &token)?;
+    std::fs::copy(source_path, &destination)
+        .map_err(|_| "Could not copy the selected resume file.".to_string())?;
+
+    Ok(ApplicationResumeFileSelection {
+        token,
+        file_name: display_name,
+    })
 }
 
 // ============================================================================
 // Profile Management Commands
 // ============================================================================
+
+/// Backend-owned resume selection result. Renderer receives only display data
+/// and an opaque app-owned token, never the user's source file path.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ApplicationResumeFileSelection {
+    pub token: String,
+    pub file_name: String,
+}
+
+/// Select a resume with the native file picker and copy it into app-owned storage.
+#[tauri::command]
+pub async fn select_application_resume_file(
+    app: tauri::AppHandle,
+) -> Result<Option<ApplicationResumeFileSelection>, String> {
+    let Some(file_path) = app
+        .dialog()
+        .file()
+        .add_filter("Resume", ALLOWED_APPLICATION_RESUME_EXTENSIONS)
+        .blocking_pick_file()
+    else {
+        return Ok(None);
+    };
+
+    let source_path = file_path
+        .into_path()
+        .map_err(|_| "Could not read the selected resume file.".to_string())?;
+
+    copy_selected_resume_to_managed_storage(&source_path).map(Some)
+}
 
 /// Upsert (create or update) the application profile
 #[tauri::command]
@@ -48,6 +285,7 @@ pub async fn upsert_application_profile(
 ) -> Result<i64, String> {
     tracing::info!("Command: upsert_application_profile");
 
+    let input = prepare_application_profile_resume_input(input, &application_resume_dir())?;
     let manager = ProfileManager::new(state.database.pool().clone());
     manager
         .upsert_profile(&input)
@@ -596,14 +834,14 @@ pub async fn fill_application_form(
         .await
         .map_err(|e| user_friendly_error("Failed to open job page", e))?;
 
-    // Get resume path from profile if configured
-    let resume_path = profile
-        .resume_file_path
-        .as_ref()
-        .map(std::path::PathBuf::from);
+    // Validate saved resume state without uploading it. Resume attachment stays manual.
+    let _resume_path = trusted_application_resume_path(
+        profile.resume_file_path.as_deref(),
+        &application_resume_dir(),
+    )?;
 
     // Create form filler with screening answers and fill the form
-    let filler = FormFiller::new(profile, resume_path).with_screening_answers(screening_answers);
+    let filler = FormFiller::new(profile, None).with_screening_answers(screening_answers);
 
     let result = filler
         .fill_page(&page, &platform)
@@ -1036,6 +1274,96 @@ mod response_tests {
         let json = serde_json::to_string(&response).unwrap();
         assert_eq!(response.resume_file_name, Some("resume.docx".to_string()));
         assert!(!json.contains("C:\\\\Users"));
+    }
+
+    fn valid_profile_input() -> ApplicationProfileInput {
+        ApplicationProfileInput {
+            full_name: "Jordan Lee".to_string(),
+            email: "jordan@example.com".to_string(),
+            phone: None,
+            linkedin_url: None,
+            github_url: None,
+            portfolio_url: None,
+            website_url: None,
+            default_resume_id: None,
+            resume_file_path: None,
+            resume_file_token: None,
+            clear_resume_file: None,
+            default_cover_letter_template: None,
+            us_work_authorized: true,
+            requires_sponsorship: false,
+            max_applications_per_day: 10,
+            require_manual_approval: true,
+        }
+    }
+
+    #[test]
+    fn application_profile_resume_input_rejects_renderer_file_paths() {
+        let managed_dir = tempfile::tempdir().unwrap();
+        let input = ApplicationProfileInput {
+            resume_file_path: Some("/Users/jordan/private/resume.pdf".to_string()),
+            ..valid_profile_input()
+        };
+
+        let err = prepare_application_profile_resume_input(input, managed_dir.path()).unwrap_err();
+
+        assert!(err.contains("Choose"));
+        assert!(err.contains("resume"));
+    }
+
+    #[test]
+    fn application_profile_resume_input_accepts_managed_tokens() {
+        let managed_dir = tempfile::tempdir().unwrap();
+        let token = "7d9d16a1-2e5d-4b32-9eb2-bfbffb4ee871--new-resume.docx";
+        let managed_resume = managed_dir.path().join(token);
+        std::fs::write(&managed_resume, b"resume").unwrap();
+        let input = ApplicationProfileInput {
+            resume_file_token: Some(token.to_string()),
+            ..valid_profile_input()
+        };
+
+        let prepared = prepare_application_profile_resume_input(input, managed_dir.path()).unwrap();
+
+        assert_eq!(
+            prepared.resume_file_path,
+            Some(managed_resume.to_string_lossy().to_string())
+        );
+        assert_eq!(prepared.resume_file_token, None);
+    }
+
+    #[test]
+    fn application_profile_resume_path_rejects_existing_unmanaged_paths() {
+        let managed_dir = tempfile::tempdir().unwrap();
+        let outside_dir = tempfile::tempdir().unwrap();
+        let outside_resume = outside_dir.path().join("resume.pdf");
+        std::fs::write(&outside_resume, b"resume").unwrap();
+
+        let err = trusted_application_resume_path(
+            Some(outside_resume.to_string_lossy().as_ref()),
+            managed_dir.path(),
+        )
+        .unwrap_err();
+
+        let err = err.to_ascii_lowercase();
+        assert!(err.contains("choose"));
+        assert!(err.contains("resume"));
+    }
+
+    #[test]
+    fn application_profile_response_shows_resume_name_without_token_prefix() {
+        let response = ApplicationProfileResponse::from(profile_with_resume_path(Some(
+            "/local/app/application-resumes/7d9d16a1-2e5d-4b32-9eb2-bfbffb4ee871--jordan-resume.pdf"
+                .to_string(),
+        )));
+
+        let json = serde_json::to_string(&response).unwrap();
+
+        assert_eq!(
+            response.resume_file_name,
+            Some("jordan-resume.pdf".to_string())
+        );
+        assert!(!json.contains("7d9d16a1"));
+        assert!(!json.contains("/local/app"));
     }
 
     #[test]

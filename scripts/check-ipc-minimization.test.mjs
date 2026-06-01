@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 import test from "node:test";
 import {
   hasAnswerHistoryRendererInvoke,
+  hasApplicationAssistAutomaticResumeUpload,
   hasApplicationProfileResumePathExposure,
   hasBookmarkletTokenIpcExposure,
   hasDashboardFullConfigInvoke,
@@ -188,18 +189,24 @@ test("ipc minimization rejects application resume path exposure across renderer 
         "pub struct ApplicationProfileResponse {",
         "  pub resume_file_path: Option<String>,",
         "}",
+        "let resume_path = profile.resume_file_path.as_ref().map(PathBuf::from);",
         "",
       ].join("\n"),
     );
     writeFixtureFile(
       root,
       "src/components/automation/ProfileForm.tsx",
-      "setResumeFilePath(data.resumeFilePath); const input = { value: resumeFilePath };\n",
+      [
+        'import { open } from "@tauri-apps/plugin-dialog";',
+        "setResumeFilePath(data.resumeFilePath);",
+        "const input = { resume_file_path: selectedResumeFilePath };",
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(
       root,
       "src/mocks/handlers.ts",
-      "const applicationProfile = { resumeFilePath: '/Users/jordan/private/resume.pdf' };\n",
+      "const applicationProfile = { resume_file_path: '/Users/jordan/private/resume.pdf' };\n",
     );
 
     for (const path of [
@@ -209,6 +216,29 @@ test("ipc minimization rejects application resume path exposure across renderer 
     ]) {
       assert.equal(hasApplicationProfileResumePathExposure(root, path), true);
     }
+  });
+});
+
+test("ipc minimization rejects automatic resume uploads from Application Assist", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/automation.rs",
+      [
+        "let resume_path = trusted_application_resume_path(profile.resume_file_path.as_deref(), dir)?;",
+        "let filler = FormFiller::new(profile, resume_path).with_screening_answers(screening_answers);",
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasApplicationAssistAutomaticResumeUpload(root, "src-tauri/src/commands/automation.rs"),
+      true,
+    );
+    assert.equal(
+      hasApplicationAssistAutomaticResumeUpload(root, "src-tauri/src/commands/jobs.rs"),
+      false,
+    );
   });
 });
 

@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef, memo } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { open } from "@tauri-apps/plugin-dialog";
 import { Button } from "../Button";
 import { Card } from "../Card";
 import { HelpIcon } from "../HelpIcon";
@@ -60,7 +59,7 @@ interface ApplicationProfileInput {
   portfolio_url?: string | null;
   website_url?: string | null;
   default_resume_id?: number | null;
-  resume_file_path?: string | null;
+  resume_file_token?: string | null;
   clear_resume_file?: boolean;
   default_cover_letter_template?: string | null;
   us_work_authorized: boolean;
@@ -73,8 +72,9 @@ interface ProfileFormProps {
   onSaved?: () => void;
 }
 
-function fileNameFromPath(path: string): string {
-  return path.trim().split(/[\\/]/).filter(Boolean).pop() || "Selected resume";
+interface ApplicationResumeFileSelection {
+  token: string;
+  fileName: string;
 }
 
 export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormProps) {
@@ -92,7 +92,8 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
   const [githubUrl, setGithubUrl] = useState("");
   const [portfolioUrl, setPortfolioUrl] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
-  const [selectedResumeFilePath, setSelectedResumeFilePath] = useState("");
+  const [selectedResumeFileToken, setSelectedResumeFileToken] = useState("");
+  const [selectedResumeFileName, setSelectedResumeFileName] = useState("");
   const [savedResumeFileName, setSavedResumeFileName] = useState("");
   const [resumeFileMarkedForClear, setResumeFileMarkedForClear] = useState(false);
   const [usWorkAuthorized, setUsWorkAuthorized] = useState(true);
@@ -160,14 +161,14 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
       githubUrl !== originalValues.githubUrl ||
       portfolioUrl !== originalValues.portfolioUrl ||
       websiteUrl !== originalValues.websiteUrl ||
-      selectedResumeFilePath.trim().length > 0 ||
+      selectedResumeFileToken.trim().length > 0 ||
       resumeFileMarkedForClear ||
       usWorkAuthorized !== originalValues.usWorkAuthorized ||
       requiresSponsorship !== originalValues.requiresSponsorship ||
       maxApplicationsPerDay !== originalValues.maxApplicationsPerDay ||
       requireManualApproval !== originalValues.requireManualApproval
     );
-  }, [originalValues, fullName, email, phone, linkedinUrl, githubUrl, portfolioUrl, websiteUrl, selectedResumeFilePath, resumeFileMarkedForClear, usWorkAuthorized, requiresSponsorship, maxApplicationsPerDay, requireManualApproval]);
+  }, [originalValues, fullName, email, phone, linkedinUrl, githubUrl, portfolioUrl, websiteUrl, selectedResumeFileToken, resumeFileMarkedForClear, usWorkAuthorized, requiresSponsorship, maxApplicationsPerDay, requireManualApproval]);
 
   const loadProfile = useCallback(async () => {
     try {
@@ -185,7 +186,8 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
         setPortfolioUrl(data.portfolioUrl || "");
         setWebsiteUrl(data.websiteUrl || "");
         setSavedResumeFileName(data.hasResumeFile ? data.resumeFileName || "Resume selected" : "");
-        setSelectedResumeFilePath("");
+        setSelectedResumeFileToken("");
+        setSelectedResumeFileName("");
         setResumeFileMarkedForClear(false);
         setUsWorkAuthorized(data.usWorkAuthorized);
         setRequiresSponsorship(data.requiresSponsorship);
@@ -221,7 +223,8 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
           requireManualApproval: true,
         });
         setSavedResumeFileName("");
-        setSelectedResumeFilePath("");
+        setSelectedResumeFileToken("");
+        setSelectedResumeFileName("");
         setResumeFileMarkedForClear(false);
       }
     } catch (error: unknown) {
@@ -250,25 +253,20 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     return () => clearTimeout(timeoutId);
   }, [loading]);
 
-  const resumeFileLabel = selectedResumeFilePath
-    ? fileNameFromPath(selectedResumeFilePath)
+  const resumeFileLabel = selectedResumeFileToken
+    ? selectedResumeFileName || "Selected resume"
     : resumeFileMarkedForClear
       ? ""
       : savedResumeFileName;
 
   const handleSelectResume = async (): Promise<void> => {
     try {
-      const selected = await open({
-        multiple: false,
-        filters: [
-          {
-            name: "Resume",
-            extensions: ["pdf", "docx", "doc"],
-          },
-        ],
-      });
-      if (selected && typeof selected === "string") {
-        setSelectedResumeFilePath(selected);
+      const selected = await invoke<ApplicationResumeFileSelection | null>(
+        "select_application_resume_file",
+      );
+      if (selected) {
+        setSelectedResumeFileToken(selected.token);
+        setSelectedResumeFileName(selected.fileName || "Selected resume");
         setResumeFileMarkedForClear(false);
       }
     } catch (error: unknown) {
@@ -309,7 +307,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
         github_url: githubUrl.trim() || null,
         portfolio_url: portfolioUrl.trim() || null,
         website_url: websiteUrl.trim() || null,
-        resume_file_path: selectedResumeFilePath.trim() || null,
+        resume_file_token: selectedResumeFileToken.trim() || null,
         clear_resume_file: resumeFileMarkedForClear,
         us_work_authorized: usWorkAuthorized,
         requires_sponsorship: requiresSponsorship,
@@ -321,11 +319,12 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
       showSuccess("Profile saved", "Your application profile has been updated");
       const nextSavedResumeFileName = resumeFileMarkedForClear
         ? ""
-        : selectedResumeFilePath.trim()
-          ? fileNameFromPath(selectedResumeFilePath)
+        : selectedResumeFileToken.trim()
+          ? selectedResumeFileName || "Selected resume"
           : savedResumeFileName;
       setSavedResumeFileName(nextSavedResumeFileName);
-      setSelectedResumeFilePath("");
+      setSelectedResumeFileToken("");
+      setSelectedResumeFileName("");
       setResumeFileMarkedForClear(false);
       // Update original values to mark form as clean
       setOriginalValues({
@@ -356,7 +355,8 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     githubUrl,
     portfolioUrl,
     websiteUrl,
-    selectedResumeFilePath,
+    selectedResumeFileToken,
+    selectedResumeFileName,
     savedResumeFileName,
     resumeFileMarkedForClear,
     usWorkAuthorized,
@@ -542,7 +542,8 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
             {resumeFileLabel && (
               <button
                 onClick={() => {
-                  setSelectedResumeFilePath("");
+                  setSelectedResumeFileToken("");
+                  setSelectedResumeFileName("");
                   setResumeFileMarkedForClear(true);
                 }}
                 className="p-2 text-surface-400 hover:text-red-500 transition-colors cursor-pointer"

@@ -8,14 +8,8 @@ vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),
 }));
 
-vi.mock("@tauri-apps/plugin-dialog", () => ({
-  open: vi.fn(),
-}));
-
 const { invoke } = await import("@tauri-apps/api/core");
-const { open } = await import("@tauri-apps/plugin-dialog");
 const mockInvoke = vi.mocked(invoke);
-const mockOpen = vi.mocked(open);
 
 function renderProfileForm() {
   return render(
@@ -83,7 +77,7 @@ describe("ProfileForm resume privacy", () => {
         expect.objectContaining({
           input: expect.objectContaining({
             full_name: "Jordan Parker",
-            resume_file_path: null,
+            resume_file_token: null,
             clear_resume_file: false,
           }),
         }),
@@ -94,7 +88,10 @@ describe("ProfileForm resume privacy", () => {
   it("shows only the file name after the user selects a replacement resume", async () => {
     const user = userEvent.setup();
     mockInvoke.mockResolvedValueOnce(mockProfile({ hasResumeFile: false, resumeFileName: null }));
-    mockOpen.mockResolvedValueOnce("/Users/jordan/private/new-resume.docx");
+    mockInvoke.mockResolvedValueOnce({
+      token: "7d9d16a1-2e5d-4b32-9eb2-bfbffb4ee871--new-resume.docx",
+      fileName: "new-resume.docx",
+    });
 
     renderProfileForm();
 
@@ -105,6 +102,31 @@ describe("ProfileForm resume privacy", () => {
       expect(screen.getByLabelText("Selected resume")).toHaveValue("new-resume.docx");
     });
     expect(screen.queryByDisplayValue(/Users\/jordan/)).not.toBeInTheDocument();
+  });
+
+  it("saves the backend resume token instead of a local file path", async () => {
+    const user = userEvent.setup();
+    const resumeToken = "7d9d16a1-2e5d-4b32-9eb2-bfbffb4ee871--new-resume.docx";
+    mockInvoke
+      .mockResolvedValueOnce(mockProfile({ hasResumeFile: false, resumeFileName: null }))
+      .mockResolvedValueOnce({ token: resumeToken, fileName: "new-resume.docx" })
+      .mockResolvedValueOnce(1);
+
+    renderProfileForm();
+
+    await screen.findByLabelText("Selected resume");
+    await user.click(screen.getByRole("button", { name: "Browse..." }));
+    await screen.findByDisplayValue("new-resume.docx");
+    await user.click(screen.getByRole("button", { name: "Save Profile" }));
+
+    await waitFor(() => {
+      const upsertCall = mockInvoke.mock.calls.find(
+        ([command]) => command === "upsert_application_profile",
+      );
+      const input = upsertCall?.[1]?.input as Record<string, unknown> | undefined;
+      expect(input).toEqual(expect.objectContaining({ resume_file_token: resumeToken }));
+      expect(input).not.toHaveProperty("resume_file_path");
+    });
   });
 
   it("sends an explicit clear flag when the user removes the saved resume", async () => {
@@ -122,7 +144,7 @@ describe("ProfileForm resume privacy", () => {
         "upsert_application_profile",
         expect.objectContaining({
           input: expect.objectContaining({
-            resume_file_path: null,
+            resume_file_token: null,
             clear_resume_file: true,
           }),
         }),

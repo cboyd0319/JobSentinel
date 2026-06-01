@@ -11,7 +11,7 @@ visible browser, then you inspect every field and decide whether to submit.
 ## How It Works
 
 1. **Save your profile once** - name, email, phone, links, work authorization,
-   and optional resume path.
+   and optional resume file.
 2. **Choose a job worth reviewing** from your dashboard.
 3. **Choose "Prepare Form"** - JobSentinel opens the application page in a
    visible browser.
@@ -76,6 +76,13 @@ Before using Application Assist, fill in your information:
 - **Require manual approval** - shows a preview before JobSentinel prepares
   details on a form. Keep this on unless you have a clear reason to change it.
 
+### Resume File
+
+If you select a resume file, JobSentinel copies it into local app storage and
+shows only the file name in the app. The original file path stays out of the
+renderer. Application Assist does not attach the resume automatically; attach it
+yourself on the application site after reviewing the page.
+
 ---
 
 ## Screening Questions
@@ -114,7 +121,7 @@ capitalization.
 4. Review the preview showing details JobSentinel can prepare.
 5. Choose **Prepare Details** in the review dialog.
 6. Complete any manual steps:
-   - Attach your resume if required.
+   - Attach your resume yourself if required.
    - Complete any human check if the site asks.
    - Answer any questions that were not saved.
 7. Review the full application one more time.
@@ -135,7 +142,7 @@ capitalization.
 
 ### You Complete And Decide
 
-- Resume attachment
+- Resume attachment on the application site
 - Cover letter
 - Human checks when the site asks
 - Unusual or role-specific questions
@@ -172,6 +179,13 @@ JobSentinel never clicks Submit. This keeps the decision with you:
 - You catch wrong or blank fields.
 - You avoid applying to roles that fail salary, location, fit, or trust checks.
 - You stay in control of the application.
+
+### Resume Attachment Is Manual
+
+Saved resume files stay local and are represented internally by an app-owned
+token. JobSentinel validates that saved resume state before preparing a form, but
+it does not send the resume file to the application site. Use the site's own file
+picker when you decide to attach a resume.
 
 ---
 

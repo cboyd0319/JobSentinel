@@ -59,6 +59,19 @@
       "sensitivityNote": "Application stages, reminders, and notes are private job-search records."
     },
     {
+      "id": "application-assist",
+      "name": "Application Assist",
+      "labels": ["Local only", "Sensitive"],
+      "dataCategories": ["resume", "application_history", "career_goals"],
+      "defaultDataFlow": "Profile details and selected resume file copies stay local. Resume selection uses a backend native picker and renderer IPC receives only an app-owned token plus display name.",
+      "externalAi": {
+        "allowed": false,
+        "required": false,
+        "fallback": "Application Assist prepares local profile details without external AI. Resume attachment remains manual."
+      },
+      "sensitivityNote": "Profile details and resumes are sensitive. Do not expose raw local paths to renderer IPC or upload saved resumes automatically."
+    },
+    {
       "id": "first-seen-last-seen-job-tracking",
       "name": "First-seen and last-seen job tracking",
       "labels": ["Local only", "Public-data only"],

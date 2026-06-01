@@ -153,11 +153,37 @@ export function hasApplicationProfileResumePathExposure(root, path) {
     return (
       /pub\s+struct\s+ApplicationProfileResponse\s*\{[^}]*\bresume_file_path\b[^}]*\}/.test(
         text,
-      ) || /\bresumeFilePath\b/.test(text)
+      ) ||
+      /\bresumeFilePath\b/.test(text) ||
+      /resume_file_path[\s\S]{0,160}\.map\s*\(\s*(?:std::path::)?PathBuf::from\s*\)/.test(
+        text,
+      ) ||
+      /pub\s+async\s+fn\s+upsert_application_profile[\s\S]{0,700}\.upsert_profile\s*\(\s*&input\s*\)[\s\S]{0,120}\.await/.test(
+        text,
+      ) &&
+        !/pub\s+async\s+fn\s+upsert_application_profile[\s\S]{0,350}prepare_application_profile_resume_input/.test(
+          text,
+        )
     );
   }
 
-  return /\bresumeFilePath\b/.test(text);
+  return (
+    /\bresumeFilePath\b/.test(text) ||
+    /\bresume_file_path\b/.test(text) ||
+    /@tauri-apps\/plugin-dialog/.test(text)
+  );
+}
+
+export function hasApplicationAssistAutomaticResumeUpload(root, path) {
+  if (path !== "src-tauri/src/commands/automation.rs") {
+    return false;
+  }
+
+  const text = stripRustTestModules(readIfPresent(root, path));
+  return (
+    /FormFiller::new\s*\(\s*profile\s*,\s*resume_path\s*\)/.test(text) ||
+    /FormFiller::new\s*\(\s*profile\s*,\s*Some\s*\(/.test(text)
+  );
 }
 
 export function hasAnswerHistoryRendererInvoke(root, path) {
