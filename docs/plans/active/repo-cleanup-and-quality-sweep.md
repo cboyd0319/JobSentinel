@@ -223,6 +223,10 @@ boundaries, and harness modularity:
   instead of full-analysis, job-context, raw severity, fix, or impact wording.
   Notification setup errors now point to a saved alert channel instead of a
   configured channel, and product-copy sensors reject the old phrases.
+- Reworked the Resume Match review details page to use the same plain labels:
+  raw severity values are mapped before display, format issues become details
+  to check, fix and impact labels become how-to-fix and why-it-helps copy, and
+  the Resume Builder handoff toast no longer says job context.
 - Removed raw screening-question text and saved answer patterns from
   Application Assist debug logs. The trace now records only character counts
   when a saved answer matches, with privacy-logging coverage against raw trace

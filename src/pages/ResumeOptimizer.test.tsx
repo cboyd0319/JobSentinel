@@ -121,6 +121,24 @@ const mockSuggestionAnalysis = {
   ],
 };
 
+const mockIssueAnalysis = {
+  ...mockAnalysis,
+  format_issues: [
+    {
+      severity: "Warning" as const,
+      issue: "Summary could be easier to read",
+      fix: "Use one short paragraph.",
+    },
+  ],
+  suggestions: [
+    {
+      category: "RewordBullet" as const,
+      suggestion: "Rewrite one bullet to show the result.",
+      impact: "Makes the outcome easier to understand.",
+    },
+  ],
+};
+
 async function openResumeAppImport(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole("button", { name: /import from resume app/i }));
 }
@@ -275,6 +293,28 @@ describe("ResumeOptimizer", () => {
     expect(screen.getByText("Rewrite bullet")).toBeInTheDocument();
     expect(screen.queryByText("AddKeyword")).not.toBeInTheDocument();
     expect(screen.queryByText("RewordBullet")).not.toBeInTheDocument();
+  });
+
+  it("uses plain labels for readability details", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce(mockIssueAnalysis);
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    await openResumeAppImport(user);
+    fireEvent.change(screen.getByLabelText(/resume app export/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /review format only/i }));
+
+    expect(await screen.findByText("Details to Check (1)")).toBeInTheDocument();
+    expect(screen.getByText("Review")).toBeInTheDocument();
+    expect(screen.getByText("Summary could be easier to read")).toBeInTheDocument();
+    expect(screen.getByText("How to fix: Use one short paragraph.")).toBeInTheDocument();
+    expect(screen.getByText("Why it helps: Makes the outcome easier to understand.")).toBeInTheDocument();
+    expect(screen.queryByText("Warning")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Fix:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Impact:/)).not.toBeInTheDocument();
   });
 
   it("gives a plain recovery path when Resume Builder cannot receive the job post", async () => {

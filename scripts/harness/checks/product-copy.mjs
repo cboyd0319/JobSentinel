@@ -631,6 +631,21 @@ export function hasTechnicalFirstUserCopy(root, path) {
     }
   }
 
+  if (path === "src/pages/ResumeOptimizer.tsx") {
+    const resumeMatchDetailPatterns = [
+      /Navigating to Resume Builder/i,
+      /Job context has been saved/i,
+      /Format Issues/i,
+      />\s*\{issue\.severity\}\s*</i,
+      /(^|[>\n])\s*Fix:\s*\{issue\.fix\}/i,
+      /Impact:\s*\{suggestion\.impact\}/i,
+    ];
+
+    if (resumeMatchDetailPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
   if (path === "src/components/AtsLiveScorePanel.tsx") {
     const resumeReadabilityPatterns = [
       /analyzing\.\.\./i,

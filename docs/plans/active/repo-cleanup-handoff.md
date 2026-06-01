@@ -174,6 +174,11 @@ Current cleanup posture:
   mapped before display, notification setup errors say saved alert channel
   instead of configured channel, and product-copy sensors now reject the old
   phrases.
+- Current local Resume Match detail follow-up mirrors that cleanup on the
+  review page: format issues are now details to check, raw issue severity is
+  mapped before display, fix and impact labels became how-to-fix and
+  why-it-helps copy, and the Resume Builder handoff toast no longer says job
+  context.
 - Current local skill-label follow-up replaces vague self-rating labels such as
   beginner, intermediate, advanced, expert, and seniority level with
   behavior-based skill strength and role-stage copy across Resume, Resume

@@ -94,6 +94,17 @@ function formatSuggestionCategory(category: SuggestionCategory): string {
   }
 }
 
+function formatIssueSeverity(severity: IssueSeverity): string {
+  switch (severity) {
+    case "Critical":
+      return "Fix first";
+    case "Warning":
+      return "Review";
+    case "Info":
+      return "Note";
+  }
+}
+
 interface AtsAnalysisResult {
   overall_score: number;
   keyword_score: number;
@@ -435,7 +446,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     return "opacity-40";
   };
 
-  // Navigate to resume builder with job context
+  // Send the saved job post to Resume Builder.
   const handleTailorResume = () => {
     if (!onNavigate) {
       toast.error("Navigation not available", "Cannot navigate to Resume Builder");
@@ -455,7 +466,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     }
 
     onNavigate("resume-builder");
-    toast.success("Navigating to Resume Builder", "Job context has been saved");
+    toast.success("Opening Resume Builder", "This job post is ready there.");
   };
 
   return (
@@ -837,10 +848,10 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                   </Card>
                 )}
 
-                {/* Format Issues */}
+                {/* Details to check */}
                 {analysisResult.format_issues.length > 0 && (
                   <Card>
-                    <CardHeader title={`Format Issues (${analysisResult.format_issues.length})`} />
+                    <CardHeader title={`Details to Check (${analysisResult.format_issues.length})`} />
                     <div className="space-y-3 max-h-80 overflow-y-auto">
                       {analysisResult.format_issues.map((issue, idx) => (
                         <div
@@ -849,14 +860,14 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                         >
                           <div className="flex items-start gap-2 mb-2">
                             <Badge variant={getSeverityVariant(issue.severity)} size="sm">
-                              {issue.severity}
+                              {formatIssueSeverity(issue.severity)}
                             </Badge>
                             <p className="font-medium text-surface-800 dark:text-surface-200 flex-1">
                               {issue.issue}
                             </p>
                           </div>
                           <p className="text-sm text-surface-600 dark:text-surface-400 bg-sentinel-50 dark:bg-sentinel-900/20 px-2 py-1 rounded">
-                            Fix: {issue.fix}
+                            How to fix: {issue.fix}
                           </p>
                         </div>
                       ))}
@@ -881,7 +892,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                             <span className="flex-1">{suggestion.suggestion}</span>
                           </summary>
                           <p className="text-sm text-surface-600 dark:text-surface-400 mt-2 pl-2">
-                            Impact: {suggestion.impact}
+                            Why it helps: {suggestion.impact}
                           </p>
                         </details>
                       ))}

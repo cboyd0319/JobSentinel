@@ -129,6 +129,11 @@ and record actionable findings in this active-plan surface.
   instead of full-analysis, job-context, raw severity, fix, or impact wording.
   Notification setup errors now say saved alert channel instead of configured
   channel. Product-copy sensors reject the old phrases.
+- Latest local Resume Match detail follow-up applies the same plain wording to
+  the Resume Match review page. It maps raw issue severity before display,
+  changes format issues to details to check, changes fix and impact labels to
+  how-to-fix and why-it-helps copy, and replaces job-context saved toasts with
+  a plain Resume Builder handoff message.
 - Latest local Application Assist readiness follow-up stops optional
   application-form detection from blocking the Prepare Form action. If form
   recognition is still loading, users with a saved profile can still open the

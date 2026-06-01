@@ -986,7 +986,20 @@ test("product copy rejects technical-first resume copy", () => {
       "Include proficiency levels if you want (expert, intermediate, etc.)\n",
     );
     writeFixtureFile(root, "docs/features/salary-ai.md", "Enter seniority level.\n");
-    writeFixtureFile(root, "src/pages/ResumeOptimizer.tsx", "{suggestion.category}\n");
+    writeFixtureFile(
+      root,
+      "src/pages/ResumeOptimizer.tsx",
+      [
+        "{suggestion.category}",
+        "Navigating to Resume Builder",
+        "Job context has been saved",
+        "Format Issues",
+        "<Badge>{issue.severity}</Badge>",
+        "Fix: {issue.fix}",
+        "Impact: {suggestion.impact}",
+        "",
+      ].join("\n"),
+    );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Resume.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeBuilder.tsx"), true);
