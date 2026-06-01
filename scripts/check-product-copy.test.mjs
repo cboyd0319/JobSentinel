@@ -362,6 +362,16 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/components/automation/ApplyButton.tsx",
+      "CAPTCHA detected\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/components/automation/ApplicationPreview.tsx",
+      "CAPTCHA verification (if present)\n",
+    );
+    writeFixtureFile(
+      root,
       "src/utils/errorMessages.ts",
       [
         "Bot Detection Triggered",
@@ -413,6 +423,11 @@ test("product copy rejects technical-first settings copy", () => {
     );
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/components/automation/ScreeningAnswerSuggestions.tsx"),
+      true,
+    );
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/automation/ApplyButton.tsx"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/automation/ApplicationPreview.tsx"),
       true,
     );
     assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/errorMessages.ts"), true);

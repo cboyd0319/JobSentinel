@@ -407,13 +407,14 @@ describe("ApplicationPreview", () => {
       });
     });
 
-    it("displays CAPTCHA task", async () => {
+    it("displays human-check task", async () => {
       mockInvoke.mockResolvedValue(mockProfile);
 
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        expect(screen.getByText(/captcha verification/i)).toBeInTheDocument();
+        expect(screen.getByText(/human check/i)).toBeInTheDocument();
+        expect(screen.queryByText(/captcha verification/i)).not.toBeInTheDocument();
       });
     });
 

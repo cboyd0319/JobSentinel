@@ -828,8 +828,8 @@ describe("ApplyButton", () => {
     });
   });
 
-  describe("CAPTCHA handling", () => {
-    it("shows CAPTCHA warning when detected", async () => {
+  describe("human-check handling", () => {
+    it("shows human-check warning when the site asks for one", async () => {
       const user = userEvent.setup();
       
       mockInvoke.mockImplementation((cmd) => {
@@ -866,7 +866,8 @@ describe("ApplyButton", () => {
       await user.click(screen.getByRole("button", { name: /prepare details/i }));
 
       await waitFor(() => {
-        expect(screen.getByText("CAPTCHA detected")).toBeInTheDocument();
+        expect(screen.getByText("Site asked for a human check")).toBeInTheDocument();
+        expect(screen.queryByText(/captcha detected/i)).not.toBeInTheDocument();
       });
     });
   });

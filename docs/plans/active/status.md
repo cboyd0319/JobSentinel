@@ -105,6 +105,9 @@ and record actionable findings in this active-plan surface.
   modification percentages, and Manual/Learned/History source badges to plain
   suggested-answer, review-state, edit-frequency, and saved/used labels. A
   focused component test and product-copy sensor now cover the surface.
+- Latest local human-check copy follow-up changes Application Assist CAPTCHA
+  prompts and docs to plain human-check wording while preserving the boundary
+  that JobSentinel pauses and users complete site checks themselves.
 - Latest local zero-technical provider setup work labels USAJobs as optional
   advanced federal monitoring with a no-setup browser-search path first, keeps
   Telegram bot details behind an advanced chat-alert path, and adds

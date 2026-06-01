@@ -109,13 +109,13 @@ capitalization.
 ## Using Application Assist
 
 1. Find a job on your dashboard.
-2. Check the application-system label if one appears.
+2. Check the application-form label if one appears.
 3. Choose **Prepare Form**.
 4. Review the preview showing details JobSentinel can prepare.
 5. Choose **Prepare Details** in the review dialog.
 6. Complete any manual steps:
    - Attach your resume if required.
-   - Complete CAPTCHA verification if present.
+   - Complete any human check if the site asks.
    - Answer any questions that were not saved.
 7. Review the full application one more time.
 8. Click Submit yourself only if you still want to apply.
@@ -137,18 +137,18 @@ capitalization.
 
 - Resume attachment
 - Cover letter
-- CAPTCHA verification
+- Human checks when the site asks
 - Unusual or role-specific questions
 - Any field that does not look right
 - Final Submit
 
 ---
 
-## CAPTCHA Verification
+## Human Checks
 
-Some sites ask you to prove you are human. When JobSentinel detects CAPTCHA
-verification, it pauses and leaves that step to you. It does not attempt to solve
-or work around human verification.
+Some sites ask you to prove you are human. When that happens, JobSentinel pauses
+and leaves that step to you. It does not attempt to solve or work around human
+verification.
 
 ---
 

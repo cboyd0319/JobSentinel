@@ -233,6 +233,10 @@ boundaries, and harness modularity:
   Suggested Answers, review-state labels, edit-frequency labels, and saved or
   used source labels instead of "Smart Suggestions," confidence percentages,
   modification percentages, or raw Manual/Learned/History badges.
+- Reworked Application Assist site-check copy so user-facing warnings,
+  preview tasks, and one-click application docs say human check instead of
+  leading with CAPTCHA terminology, while still saying JobSentinel leaves that
+  step to the user.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright

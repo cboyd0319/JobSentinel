@@ -162,7 +162,7 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
           </li>
           <li className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-            CAPTCHA verification (if present)
+            Human check (if the site asks)
           </li>
           <li className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-red-500" />

@@ -178,8 +178,8 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
 
       if (result.captchaDetected) {
         toast.warning(
-          "CAPTCHA detected",
-          "Please complete the CAPTCHA yourself, then continue review"
+          "Site asked for a human check",
+          "Complete the check in the browser, then continue review"
         );
       } else if (result.errorMessage) {
         const safeError = getSafeFormPreparationError(result.errorMessage);

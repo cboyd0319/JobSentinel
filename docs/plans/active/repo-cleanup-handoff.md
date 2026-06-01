@@ -183,6 +183,10 @@ Current cleanup posture:
   modification percentages, and raw Manual/Learned/History source badges.
   Users now see Suggested Answers, review-state labels, edit-frequency labels,
   and saved/used source labels, with focused UI and product-copy coverage.
+- Current local human-check copy follow-up changes Application Assist warnings,
+  preview tasks, and one-click application docs away from CAPTCHA-first wording
+  toward human-check wording. The responsible-use boundary remains explicit:
+  JobSentinel pauses and the user completes site checks themselves.
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
 - `npm run harness:plan -- --since origin/main` now maps changed files to
   focused verification commands from the harness matrix.

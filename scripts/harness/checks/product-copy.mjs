@@ -181,6 +181,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/components/KeyboardShortcutsHelp.tsx",
   "src/components/Navigation.tsx",
   "src/components/automation/ApplyButton.tsx",
+  "src/components/automation/ApplicationPreview.tsx",
   "src/components/automation/ScreeningAnswerSuggestions.tsx",
   "src/components/automation/ScreeningAnswersForm.tsx",
   "src/components/feedback/DebugInfoPreview.tsx",
@@ -550,6 +551,12 @@ export function hasTechnicalFirstUserCopy(root, path) {
     }
   }
 
+  if (path === "src/components/automation/ApplicationPreview.tsx") {
+    return [
+      /CAPTCHA verification \(if present\)/i,
+    ].some((pattern) => pattern.test(text));
+  }
+
   const stalePatterns = [
     /Import JSON Resume/i,
     /Import Resume Data/i,
@@ -779,6 +786,11 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Bot Detection Triggered/i,
     /website thinks you're a bot/i,
     /This is a safety measure\. Reduce search frequency/i,
+    /CAPTCHA detected/i,
+    /CAPTCHA verification \(if present\)/i,
+    /Complete CAPTCHA verification if present/i,
+    /^## CAPTCHA Verification/im,
+    /application-system label/i,
     /Available placeholders \(click to insert\):/i,
     /Remember to replace the placeholders/i,
     /Check for \[bracketed\] placeholders that need manual editing/i,
