@@ -358,6 +358,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-01 | In progress | Pushed through `5c0d954a`; remote Docs Harness `26747322402` and CI `26747322398` both passed. CI covered harness checks, harness script tests, TypeScript, ESLint, frontend unit tests, Rust fmt, Rust clippy, Rust library tests, npm audit, and cargo-deny advisories. |
 | 2026-06-01 | In progress | Sanitized optional dev support details before toast display in `safeInvokeWithToast`; added focused API unit coverage and privacy-logging harness coverage against raw enhanced error messages. |
 | 2026-06-01 | In progress | Reworded notification settings source-rule, minimum-salary, save-failure, and loading-failure copy to plain alert-settings wording; added focused NotificationPreferences and product-copy coverage. |
 | 2026-06-01 | In progress | Reworded safe-support-report prompts, feedback modal steps, frontend activity labels, backend report type labels, and backend recent-activity lines to plain-language support copy; added product-copy harness coverage against old technical labels. |

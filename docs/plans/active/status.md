@@ -202,8 +202,8 @@ and record actionable findings in this active-plan surface.
 - Latest local screenshot work refreshes `docs/images/*.png` with current
   broad-audience UI data and fixes the settings screenshot capture so it opens
   the real settings modal instead of duplicating the dashboard.
-- Latest remote checkpoint is `1976fd9e Use plain market refresh copy`. Docs
-  Harness run `26744671097` and CI run `26744671092` passed for that push.
+- Latest remote checkpoint is `5c0d954a Sanitize toast support details`. Docs
+  Harness run `26747322402` and CI run `26747322398` passed for that push.
   Remote CI covered harness checks, harness script tests, TypeScript, ESLint,
   frontend unit tests, Rust fmt, Rust clippy, Rust library tests, npm audit,
   and cargo-deny advisories.

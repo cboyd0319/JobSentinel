@@ -20,6 +20,7 @@ scope:
 
 Latest pushed checkpoints include:
 
+- `5c0d954a Sanitize toast support details`
 - `30394e48 Extract privacy logging bloat rules`
 - `8208976a Broaden utility fixture examples`
 - `7a1728c6 Broaden config and profile seeds`
@@ -29,8 +30,8 @@ Latest pushed checkpoints include:
 
 Current branch note:
 
-- `main` was pushed through `1976fd9e`. Docs Harness run `26744671097` and CI
-  run `26744671092` both passed for that push. CI covered harness checks,
+- `main` was pushed through `5c0d954a`. Docs Harness run `26747322402` and CI
+  run `26747322398` both passed for that push. CI covered harness checks,
   harness script tests, TypeScript, ESLint, frontend unit tests, Rust fmt,
   Rust clippy, Rust library tests, npm audit, and cargo-deny advisories.
 - The latest pushed harness slice adds `npm run harness:plan -- --since
@@ -75,31 +76,31 @@ Current branch note:
 - The latest pushed zero-technical copy slice changes Market Intelligence
   refresh and empty-state wording from "run analysis" to "refresh market data"
   and updates component plus smoke E2E expectations.
-- The current local dashboard plain-language slice changes job-list export
+- The latest pushed dashboard plain-language slice changes job-list export
   actions to download copy, removes advanced-search wording from the main
   search box, and adds DashboardFiltersBar plus QuickActions tests.
-- The current local support-language slice changes feedback category choices
+- The latest pushed support-language slice changes feedback category choices
   from bug-report and feature-request wording to report-a-problem,
   suggest-an-improvement, and ask-a-question wording, with CategorySelector
   coverage.
-- The current safe-support-report slice changes repeat-step prompts, feedback
+- The latest pushed safe-support-report slice changes repeat-step prompts, feedback
   modal step labels, frontend activity names, backend report type labels, and
   backend recent-activity lines to plain-language support wording; product-copy
   harness coverage now blocks the old technical labels.
-- The current notification-settings UX slice changes source-rule,
+- The latest pushed notification-settings UX slice changes source-rule,
   minimum-salary, saved-error, and loading-error copy to plain alert-settings
   wording, with NotificationPreferences and product-copy coverage.
-- The current source-status UX slice changes source-health summary, table,
+- The latest pushed source-status UX slice changes source-health summary, table,
   page-check, loading, and result labels to plain job-source wording, removes
   LinkedIn from source-health test fixtures, and adds source-boundary harness
   coverage for stale status labels.
-- The current support-copy UX slice changes troubleshooting helper text and
+- The latest pushed support-copy UX slice changes troubleshooting helper text and
   safe app detail copy away from logs, diagnosis, and troubleshooting jargon,
   with product-copy harness coverage against those phrases.
-- The current application-tracking UX slice changes visible "Ghosted" labels
+- The latest pushed application-tracking UX slice changes visible "Ghosted" labels
   and actions to "No Response" wording while keeping legacy internal status
   keys for compatibility, with product-copy coverage against old labels.
-- The current toast privacy slice sanitizes optional dev support details before
+- The latest pushed toast privacy slice sanitizes optional dev support details before
   toast display and adds privacy-logging harness coverage so raw enhanced error
   messages cannot be shown through `safeInvokeWithToast`.
 - Continue using small verified commits. Avoid another remote CI run until the
