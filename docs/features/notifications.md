@@ -90,18 +90,15 @@ user-opened search-link destination, not a background notification source.
 ### Email
 
 1. In JobSentinel: Settings > Notifications > Email
-2. Enter your email sending details. Your email provider may call this SMTP:
-   - **Gmail:** `smtp.gmail.com`, port `587`
-   - **Outlook:** `smtp-mail.outlook.com`, port `587`
-3. Enter your email and password
-4. Add recipient email addresses
+2. Choose Gmail, Outlook, Yahoo, or Other
+3. Enter the email address that should send alerts
+4. Enter an app password if your email provider requires one
+5. Add recipient email addresses
+6. Use Advanced sending details only if your provider gives you manual sending
+   server details
 
-**Gmail users:** You need an App Password, not your regular password:
-
-1. Enable 2-factor authentication on your Google account
-2. Go to Security > App Passwords
-3. Generate a password for "Mail"
-4. Use that password in JobSentinel
+**Gmail and Yahoo users:** Use an app password from your account security page.
+JobSentinel links to those pages from the Email settings panel.
 
 **What you'll get:** Email messages with job details.
 
@@ -194,7 +191,8 @@ Your connection link was deleted or expired. Create a new one in Slack.
 
 ### Gmail email not working?
 
-You need an App Password. Regular passwords don't work for app email sending.
+Use an app password from Google Account Security, then paste that app password
+into JobSentinel.
 
 ### Discord alert looks broken?
 
@@ -240,12 +238,14 @@ src-tauri/src/core/notify/
 - slack.rs     # Slack webhooks
 - discord.rs   # Discord webhooks
 - teams.rs     # Teams webhooks
-- email.rs     # SMTP email
+- email.rs     # Email sending
 - telegram.rs  # Telegram Bot API
 - desktop.rs   # Native OS notifications
 ```
 
-### SMTP Settings
+### Advanced Sending Server Reference
+
+Only needed for manual provider setup.
 
 | Provider | Server                | Port |
 | -------- | --------------------- | ---- |

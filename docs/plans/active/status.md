@@ -97,6 +97,11 @@ and record actionable findings in this active-plan surface.
   support-action copy, and removes Cloudflare-protection wording from
   SimplyHired/Glassdoor setup warnings in favor of search-link or browser-link
   recovery paths.
+- Latest local email-setup UX work changes the primary email alert path from
+  server/password setup toward provider-first app-password guidance, hides
+  sending server details behind Advanced, and updates notification docs so
+  non-technical users only need manual server details when their provider gives
+  them.
 - Latest local broad-audience fixture work rebalanced generic market
   intelligence, notifications, config, database, ATS, ghost detection, salary,
   scoring, generic scraper adapters, command, frontend mock, sample JSON

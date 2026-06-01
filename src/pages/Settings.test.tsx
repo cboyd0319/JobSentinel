@@ -435,6 +435,24 @@ describe("Settings — loadConfig flow", () => {
 
     expect(emailToggle).toBeChecked();
     expect(screen.getByText("Optional setup:")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Other" })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Use this only if your provider gives you sending server details",
+      ),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Gmail" }));
+
+    expect(
+      screen.getByText(/Use an app password from Google Account Security/),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Advanced sending details")).toBeInTheDocument();
+    expect(screen.getByText("Sending server")).toBeInTheDocument();
+    expect(screen.getByText("Sending port")).toBeInTheDocument();
+    expect(screen.getByText("Email address")).toBeInTheDocument();
+    expect(screen.queryByText(/regular password/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("Email Server")).not.toBeInTheDocument();
   });
 
   it("uses plain search-word copy for matching settings", async () => {
@@ -661,7 +679,7 @@ describe("Settings — handleSave flow", () => {
     );
   });
 
-  it("tests an existing SMTP password without retrieving it into the renderer", async () => {
+  it("tests an existing email app password without retrieving it into the renderer", async () => {
     const user = userEvent.setup();
     const config = makeConfig();
     config.alerts.email = {

@@ -415,25 +415,25 @@ export default function Settings({ onClose }: SettingsProps) {
       server: "smtp.gmail.com",
       port: 587,
       starttls: true,
-      hint: "Use an App Password, not your regular password",
+      hint: "Use an app password from Google Account Security",
     },
     outlook: {
       server: "smtp-mail.outlook.com",
       port: 587,
       starttls: true,
-      hint: "Use your Outlook.com password",
+      hint: "Use an app password if Outlook asks for one",
     },
     yahoo: {
       server: "smtp.mail.yahoo.com",
       port: 587,
       starttls: true,
-      hint: "Use an App Password from Yahoo Account Security",
+      hint: "Use an app password from Yahoo Account Security",
     },
     custom: {
       server: "",
       port: 587,
       starttls: true,
-      hint: "Enter your email provider's SMTP settings",
+      hint: "Use this only if your provider gives you sending server details",
     },
   };
 
@@ -2028,7 +2028,7 @@ export default function Settings({ onClose }: SettingsProps) {
                                   ? "Outlook"
                                   : provider === "yahoo"
                                     ? "Yahoo"
-                                    : "Custom"}
+                                    : "Other"}
                             </button>
                           ))}
                         </div>
@@ -2085,8 +2085,8 @@ export default function Settings({ onClose }: SettingsProps) {
                                     !credentialStatus.smtp_password
                                   ) {
                                     toast.error(
-                                      "No password",
-                                      "Please enter an SMTP password first",
+                                      "App password needed",
+                                      "Enter the app password from your email provider.",
                                     );
                                     return;
                                   }
@@ -2113,7 +2113,7 @@ export default function Settings({ onClose }: SettingsProps) {
                                 } catch {
                                   toast.error(
                                     "Test failed",
-                                    "Check your email settings and try again",
+                                    "Check the email account, app password, and recipient addresses.",
                                   );
                                 } finally {
                                   setTestingEmail(false);
@@ -2127,11 +2127,11 @@ export default function Settings({ onClose }: SettingsProps) {
                       </div>
                       <details className="rounded-lg border border-surface-200 dark:border-surface-700 p-3">
                         <summary className="cursor-pointer text-sm font-medium text-surface-700 dark:text-surface-300">
-                          Advanced email settings
+                          Advanced sending details
                         </summary>
                         <div className="grid grid-cols-2 gap-3 mt-3">
                           <Input
-                            label="Email Server"
+                            label="Sending server"
                             value={config.alerts.email?.smtp_server ?? ""}
                             onChange={(e) =>
                               setConfig({
@@ -2146,12 +2146,12 @@ export default function Settings({ onClose }: SettingsProps) {
                               })
                             }
                             placeholder="smtp.gmail.com"
-                            hint="Your email provider's sending server"
+                            hint="Provided by your email provider"
                           />
                           <div className="flex gap-2">
                             <div className="flex-1">
                               <Input
-                                label="Port"
+                                label="Sending port"
                                 type="number"
                                 value={config.alerts.email?.smtp_port ?? 587}
                                 onChange={(e) =>
@@ -2167,7 +2167,7 @@ export default function Settings({ onClose }: SettingsProps) {
                                     },
                                   })
                                 }
-                                hint="Usually 587"
+                                hint="Usually 587. Leave this alone unless your provider says otherwise."
                               />
                             </div>
                             <div className="flex items-end pb-2">
@@ -2204,7 +2204,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       </details>
                       <div className="grid grid-cols-2 gap-3">
                         <Input
-                          label="Email Account"
+                          label="Email address"
                           value={config.alerts.email?.smtp_username ?? ""}
                           onChange={(e) =>
                             setConfig({
@@ -2242,8 +2242,8 @@ export default function Settings({ onClose }: SettingsProps) {
                             }
                             placeholder={
                               credentialStatus.smtp_password
-                                ? "Enter new password to update"
-                                : "Your app-specific password"
+                                ? "Enter new app password to update"
+                                : "App password from your email provider"
                             }
                             autoComplete="current-password"
                           />
@@ -2266,7 +2266,7 @@ export default function Settings({ onClose }: SettingsProps) {
                             })
                           }
                           placeholder="your@gmail.com"
-                          hint="Usually same as 'Your Email'"
+                          hint="Usually same as your email address"
                           error={
                             !isValidFromEmail
                               ? "Please enter a valid email address"
