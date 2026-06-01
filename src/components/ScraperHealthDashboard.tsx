@@ -82,10 +82,10 @@ const healthStatusConfig = {
 };
 
 const selectorHealthConfig = {
-  healthy: { variant: "success" as const, label: "Working" },
-  degraded: { variant: "alert" as const, label: "May need updates" },
-  broken: { variant: "danger" as const, label: "Needs update" },
-  unknown: { variant: "surface" as const, label: "Not needed" },
+  healthy: { variant: "success" as const, label: "Yes" },
+  degraded: { variant: "alert" as const, label: "Having trouble" },
+  broken: { variant: "danger" as const, label: "Cannot read jobs" },
+  unknown: { variant: "surface" as const, label: "No action needed" },
 };
 
 // Format duration in ms to human readable
@@ -632,13 +632,13 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                       Last Worked
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Page Check
+                      Can Read Jobs
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
                       What To Do
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Actions
+                      Source Controls
                     </th>
                   </tr>
                 </thead>
@@ -747,117 +747,41 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Tooltip
-                              content={
+                            <button
+                              aria-label={
                                 scraper.is_enabled
-                                  ? "Turn this source off"
-                                  : "Turn this source on"
+                                  ? `Turn ${scraper.display_name} off`
+                                  : `Turn ${scraper.display_name} on`
                               }
+                              onClick={() =>
+                                toggleScraper(
+                                  scraper.scraper_name,
+                                  !scraper.is_enabled,
+                                )
+                              }
+                              className={`min-w-20 rounded px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                                scraper.is_enabled
+                                  ? "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300"
+                                  : "bg-surface-100 text-surface-600 hover:bg-surface-200 dark:bg-surface-700 dark:text-surface-300"
+                              }`}
                             >
-                              <button
-                                aria-label={
-                                  scraper.is_enabled
-                                    ? `Turn ${scraper.display_name} off`
-                                    : `Turn ${scraper.display_name} on`
-                                }
-                                onClick={() =>
-                                  toggleScraper(
-                                    scraper.scraper_name,
-                                    !scraper.is_enabled,
-                                  )
-                                }
-                                className={`p-1.5 rounded transition-colors ${
-                                  scraper.is_enabled
-                                    ? "bg-green-100 text-green-600 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400"
-                                    : "bg-surface-100 text-surface-400 hover:bg-surface-200 dark:bg-surface-700 dark:text-surface-500"
-                                }`}
-                              >
-                                {scraper.is_enabled ? (
-                                  <svg
-                                    className="w-4 h-4"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M5 13l4 4L19 7"
-                                    />
-                                  </svg>
-                                ) : (
-                                  <svg
-                                    className="w-4 h-4"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M6 18L18 6M6 6l12 12"
-                                    />
-                                  </svg>
-                                )}
-                              </button>
-                            </Tooltip>
-                            <Tooltip content="Check this source now">
-                              <button
-                                aria-label={`Check ${scraper.display_name} now`}
-                                onClick={() =>
-                                  runSmokeTest(scraper.scraper_name)
-                                }
-                                disabled={
-                                  testingSingle === scraper.scraper_name ||
-                                  !scraper.is_enabled
-                                }
-                                className="p-1.5 rounded bg-surface-100 text-surface-600 hover:bg-surface-200 dark:bg-surface-700 dark:text-surface-400 disabled:opacity-50 transition-colors"
-                              >
-                                {testingSingle === scraper.scraper_name ? (
-                                  <svg
-                                    className="w-4 h-4 animate-spin"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <circle
-                                      className="opacity-25"
-                                      cx="12"
-                                      cy="12"
-                                      r="10"
-                                      stroke="currentColor"
-                                      strokeWidth="4"
-                                    />
-                                    <path
-                                      className="opacity-75"
-                                      fill="currentColor"
-                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                    />
-                                  </svg>
-                                ) : (
-                                  <svg
-                                    className="w-4 h-4"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-                                    />
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                    />
-                                  </svg>
-                                )}
-                              </button>
-                            </Tooltip>
+                              {scraper.is_enabled ? "Turn Off" : "Turn On"}
+                            </button>
+                            <button
+                              aria-label={`Check ${scraper.display_name} now`}
+                              onClick={() =>
+                                runSmokeTest(scraper.scraper_name)
+                              }
+                              disabled={
+                                testingSingle === scraper.scraper_name ||
+                                !scraper.is_enabled
+                              }
+                              className="min-w-20 rounded bg-surface-100 px-2.5 py-1.5 text-xs font-medium text-surface-600 transition-colors hover:bg-surface-200 disabled:opacity-50 dark:bg-surface-700 dark:text-surface-300"
+                            >
+                              {testingSingle === scraper.scraper_name
+                                ? "Checking..."
+                                : "Check Now"}
+                            </button>
                           </div>
                         </td>
                       </tr>

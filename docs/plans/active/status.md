@@ -276,6 +276,9 @@ and record actionable findings in this active-plan surface.
 - Latest local Settings wording work renames the old advanced tab to "More
   Settings" and updates the smart-scoring doc plus product-copy coverage so the
   old tab label does not return.
+- Latest local source-health UX work changes page-check and icon-only action
+  columns to plain "Can Read Jobs" and visible "Turn On/Off" plus "Check Now"
+  controls, with focused component and product-copy coverage.
 - Latest notification-settings UX work changes source-rule, minimum-salary,
   saved-error, and loading-error copy to plain alert-settings wording, with
   focused NotificationPreferences and product-copy coverage.
@@ -406,10 +409,9 @@ and record actionable findings in this active-plan surface.
    privacy-logging, and source-quality ownership moved into modules.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
-   Current concrete open findings: source-health page-check/action labels,
-   Resume readability paste/import paths and category labels, structured
-   resume import copy, browser-session storage recovery copy, and visible
-   dashboard shortcut syntax.
+   Current concrete open findings: Resume readability paste/import paths and
+   category labels, structured resume import copy, browser-session storage
+   recovery copy, and visible dashboard shortcut syntax.
 4. Continue broad-audience review so non-technical and technical job searches
    both feel first-class.
    Latest read-only scan found no high-confidence maintained-surface

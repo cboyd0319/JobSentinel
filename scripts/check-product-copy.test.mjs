@@ -272,10 +272,19 @@ test("product copy rejects support troubleshooting jargon", () => {
       "src/components/feedback/DebugInfoPreview.tsx",
       "Helps troubleshoot faster.",
     );
+    writeFixtureFile(
+      root,
+      "src/components/ScraperHealthDashboard.tsx",
+      ">Page Check<\n>Actions<\nNeeds update\n'Turn this source off'\n'Check this source now'\n",
+    );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/components/feedback/DebugInfoPreview.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/ScraperHealthDashboard.tsx"),
       true,
     );
   });

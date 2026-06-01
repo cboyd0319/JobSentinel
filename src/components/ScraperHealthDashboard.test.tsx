@@ -577,13 +577,16 @@ describe("ScraperHealthDashboard", () => {
       });
     });
 
-    it("displays page-check health for website sources", async () => {
+    it("displays plain page-read health for website sources", async () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getAllByText("Working").length).toBeGreaterThan(0);
+        expect(screen.getByText("Can Read Jobs")).toBeInTheDocument();
       });
-      expect(screen.getByText("Needs update")).toBeInTheDocument();
+      expect(screen.queryByText("Page Check")).not.toBeInTheDocument();
+      expect(screen.getAllByText("Yes").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("Having trouble").length).toBeGreaterThan(0);
+      expect(screen.getByText("Cannot read jobs")).toBeInTheDocument();
     });
 
     it("has accessible table structure", async () => {
@@ -605,6 +608,18 @@ describe("ScraperHealthDashboard", () => {
       ).toBeInTheDocument();
       expect(screen.getByText("Off. Turn on if useful.")).toBeInTheDocument();
       expect(screen.getByText("Try again later or turn this source off.")).toBeInTheDocument();
+    });
+
+    it("shows visible source control labels instead of icon-only actions", async () => {
+      render(<ScraperHealthDashboard onClose={onClose} />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Source Controls")).toBeInTheDocument();
+      });
+      expect(screen.queryByText("Actions")).not.toBeInTheDocument();
+      expect(screen.getAllByText("Turn Off").length).toBeGreaterThan(0);
+      expect(screen.getByText("Turn On")).toBeInTheDocument();
+      expect(screen.getAllByText("Check Now").length).toBeGreaterThan(0);
     });
   });
 
