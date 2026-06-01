@@ -413,7 +413,7 @@ describe("NotificationPreferences Component", () => {
       render(<NotificationPreferencesComponent />);
 
       await waitFor(() => {
-        expect(screen.getByText("Which Jobs Alert You")).toBeInTheDocument();
+        expect(screen.getByText("Job Alert Rules")).toBeInTheDocument();
       });
     });
 
@@ -421,7 +421,9 @@ describe("NotificationPreferences Component", () => {
       render(<NotificationPreferencesComponent />);
 
       await waitFor(() => {
-        expect(screen.getByText("Choose which sources and filters can interrupt you")).toBeInTheDocument();
+        expect(
+          screen.getByText("Use alerts for jobs worth checking. Quiet hours protect your time."),
+        ).toBeInTheDocument();
       });
     });
 
@@ -457,11 +459,14 @@ describe("NotificationPreferences Component", () => {
       render(<NotificationPreferencesComponent />);
 
       await waitFor(() => {
-        expect(screen.getByText("Job Alert Sources")).toBeInTheDocument();
+        expect(screen.getByText("Alert sources")).toBeInTheDocument();
         expect(
-          screen.getByText(/Detailed rules currently apply to Indeed/),
+          screen.getByText(/Choose which job sources can send alerts/),
         ).toBeInTheDocument();
         expect(screen.queryByText("Source Alert Rules")).not.toBeInTheDocument();
+        expect(screen.queryByText("Which Jobs Alert You")).not.toBeInTheDocument();
+        expect(screen.queryByText(/interrupt you/i)).not.toBeInTheDocument();
+        expect(screen.queryByText(/Detailed rules currently apply/i)).not.toBeInTheDocument();
         expect(screen.queryByText("LinkedIn")).not.toBeInTheDocument();
         expect(screen.getByText("Indeed")).toBeInTheDocument();
         expect(screen.getByText("Greenhouse")).toBeInTheDocument();
@@ -494,7 +499,7 @@ describe("NotificationPreferences Component", () => {
 
       await waitFor(() => {
         // The per-source section should have opacity class when disabled
-        const perSourceSection = screen.getByText("Job Alert Sources").parentElement;
+        const perSourceSection = screen.getByText("Alert sources").parentElement;
         expect(perSourceSection?.className).toContain("opacity-50");
       });
     });

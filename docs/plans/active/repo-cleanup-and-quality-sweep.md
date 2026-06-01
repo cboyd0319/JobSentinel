@@ -446,6 +446,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-01 | In progress | Changed notification alert preferences away from "interrupt you," internal source-rule limits, and tech-career title examples; alert rules now use protective time-control wording, broader role examples, and product-copy coverage against drift. |
 | 2026-06-01 | In progress | Minimized ATS timeline event payloads so private application note bodies and reminder messages are not duplicated into `application_events.event_data`; notes/reminders remain in their owning tables, legacy event payloads are scrubbed by migration, and privacy-logging sensors reject drift. |
 | 2026-06-01 | In progress | Minimized screening-answer learning IPC so renderer responses no longer expose raw saved answer patterns, historical question text, original answers, or edited answer text; summary counts remain available locally, with Rust response tests and IPC-minimization sensors against drift. |
 | 2026-06-01 | In progress | Changed resume readability score labels away from judgmental terms such as Excellent, Great, and Poor toward evidence-focused labels, with unit and product-copy coverage against drift. |

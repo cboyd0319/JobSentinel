@@ -282,8 +282,12 @@ test("product copy rejects technical-first settings copy", () => {
         "setLoadError('Failed to load notification preferences')",
         "toast.error('Failed to save', 'Your changes have been reverted')",
         "Source Alert Rules",
+        "Which Jobs Alert You",
+        "Choose which sources and filters can interrupt you",
+        "Detailed rules currently apply to Indeed, Greenhouse, Lever, and JobsWithGPT",
         "Minimum Salary",
         "K/year",
+        "e.g., Senior, Lead, Staff",
         "",
       ].join("\n"),
     );

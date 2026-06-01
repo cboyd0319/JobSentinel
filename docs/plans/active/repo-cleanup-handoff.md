@@ -256,6 +256,10 @@ Current cleanup posture:
   reminders still keep their user-visible content in owning tables, timeline
   events keep only presence/count metadata, legacy event payloads are scrubbed
   by migration, and privacy-logging sensors reject drift.
+- Latest broad-audience notification follow-up changes alert preferences away
+  from "interrupt you," internal source-rule limits, and tech-career title
+  examples. Alert rules now use protective time-control wording, broader role
+  examples, and product-copy coverage against drift.
 - Latest harness-session follow-up fixed the JSON mode argument parser so
   `npm run harness:session -- --json` no longer treats `--json` as the repo
   root and no longer returns a zeroed unavailable snapshot.

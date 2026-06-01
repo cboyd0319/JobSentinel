@@ -65,6 +65,10 @@ and record actionable findings in this active-plan surface.
   messages stay in their owning tables, timeline events keep only counts and
   presence metadata, a data migration scrubs legacy event payloads, and
   privacy-logging sensors reject drift.
+- Latest local broad-audience notification follow-up changes alert preferences
+  away from "interrupt you," internal source-rule limits, and tech-career title
+  examples. The alert-rules panel now uses protective time-control wording,
+  broader role examples, and product-copy coverage against drift.
 - Latest local zero-technical provider setup work labels USAJobs as optional
   advanced federal monitoring with a no-setup browser-search path first, keeps
   Telegram bot details behind an advanced chat-alert path, and adds

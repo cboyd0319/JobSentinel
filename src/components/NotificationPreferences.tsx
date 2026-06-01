@@ -189,11 +189,11 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-medium text-surface-900 dark:text-white flex items-center gap-2">
-              Which Jobs Alert You
-              <HelpIcon text="Control which jobs trigger notifications. You can set different rules for each source and filter by pay, search words, and more." />
+              Job Alert Rules
+              <HelpIcon text="Choose when JobSentinel shows job alerts. You can keep all alerts on, set quiet hours, and narrow alerts by source, pay, title words, and company." />
             </h3>
             <p className="text-sm text-surface-500 dark:text-surface-400 mt-0.5">
-              Choose which sources and filters can interrupt you
+              Use alerts for jobs worth checking. Quiet hours protect your time.
             </p>
           </div>
           {hasChanges && (
@@ -272,10 +272,10 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
         {/* Per-source settings */}
         <div className={prefs.global.enabled ? '' : 'opacity-50 pointer-events-none'}>
           <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-3 uppercase tracking-wide">
-            Job Alert Sources
+            Alert sources
           </p>
           <p className="text-xs text-surface-500 dark:text-surface-400 mb-3">
-            Detailed rules currently apply to Indeed, Greenhouse, Lever, and JobsWithGPT. Other sources still follow the all-notifications switch and quiet hours.
+            Choose which job sources can send alerts. Sources not listed here still follow the main alert switch and quiet hours.
           </p>
           {(Object.keys(SOURCE_INFO) as AlertSourceKey[]).map((sourceKey) => (
             <SourceConfigRow
@@ -382,7 +382,7 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
               value={includeInput}
               onChange={(e) => setIncludeInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && addKeyword('include', includeInput)}
-              placeholder="e.g., Senior, Lead, Staff"
+              placeholder="e.g., Manager, Lead, Coordinator"
               className="flex-1 px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder:text-surface-400"
             />
             <button
@@ -423,7 +423,7 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
               value={excludeInput}
               onChange={(e) => setExcludeInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && addKeyword('exclude', excludeInput)}
-              placeholder="e.g., Junior, Intern, Contract"
+              placeholder="e.g., Intern, Contract, Temporary"
               className="flex-1 px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder:text-surface-400"
             />
             <button
