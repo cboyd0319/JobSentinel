@@ -144,7 +144,7 @@ function formatSourceType(type: ScraperHealthMetrics["scraper_type"]): string {
   switch (type) {
     case "api":
     case "graphql":
-      return "Official feed";
+      return "Official source";
     case "rss":
       return "Feed";
     case "html":
@@ -189,7 +189,7 @@ function formatRunStatus(status: ScraperRun["status"], retryAttempt: number): st
     success: "Worked",
   };
   const label = labels[status];
-  return retryAttempt > 0 ? `${label} (retry ${retryAttempt})` : label;
+  return retryAttempt > 0 ? `${label} after another try` : label;
 }
 
 function formatSafeIssue(message: string | null): string {
@@ -617,7 +617,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                       Status
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Access
+                      Source Type
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
                       Recent Success
@@ -638,7 +638,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                       What To Do
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Source Controls
+                      Actions
                     </th>
                   </tr>
                 </thead>
@@ -896,11 +896,11 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
         </div>
       </div>
 
-      {/* Source Check Results Modal */}
+      {/* Job Source Check Results Modal */}
       <Modal
         isOpen={showTestResults}
         onClose={() => setShowTestResults(false)}
-        title="Source Check Results"
+        title="Job Source Check Results"
         size="lg"
       >
         <div className="space-y-3">

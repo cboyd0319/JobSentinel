@@ -677,6 +677,39 @@ export function hasTechnicalFirstUserCopy(root, path) {
     ].some((pattern) => pattern.test(text));
   }
 
+  if (path === "src/components/BookmarkletGenerator.tsx") {
+    const browserButtonPatterns = [
+      /Advanced connection settings/i,
+      /local safety code/i,
+      /If this feels hard/i,
+      /block page import/i,
+    ];
+
+    if (browserButtonPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "src/components/DeepLinkGenerator.tsx") {
+    if (/does not monitor directly/i.test(text)) {
+      return true;
+    }
+  }
+
+  if (path === "src/components/ScraperHealthDashboard.tsx") {
+    const sourceStatusPatterns = [
+      /Official feed/i,
+      /\(retry\s+\$\{?retryAttempt\}?\)|\(retry\s+\d+\)/i,
+      />\s*Access\s*</i,
+      /Source Controls/i,
+      /title=["']Source Check Results["']|\/\*\s*Source Check Results Modal\s*\*\//i,
+    ];
+
+    if (sourceStatusPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
   const stalePatterns = [
     /Import JSON Resume/i,
     /Import Resume Data/i,
@@ -821,7 +854,6 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /logs can help diagnose/i,
     /Helps troubleshoot faster/i,
     />\s*Page Check\s*</i,
-    />\s*Actions\s*</i,
     /Needs update/i,
     /["'`]Turn this source (?:on|off)["'`]/i,
     /["'`]Check this source now["'`]/i,

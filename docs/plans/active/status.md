@@ -136,6 +136,13 @@ and record actionable findings in this active-plan surface.
   refreshes, signed-in website sessions, repeated-search limits, source rules,
   source checks, and maintainer-only sections. Product-copy coverage rejects
   the old doc phrases.
+- Latest local UI copy follow-up applies the same sidecar audit to smaller
+  source/setup surfaces. The browser import helper, Job Site Search Links
+  component, and Job Source Status table now avoid support-unfriendly phrases
+  such as advanced connection settings, local safety code, if this feels hard,
+  block page import, monitor directly, official feed, retry counts, Access,
+  Source Controls, and Source Check Results. Focused component tests and
+  product-copy coverage guard the old wording.
 - Latest local privacy follow-up removes raw screening-question text and saved
   answer patterns from backend debug logs in Application Assist. Logs now keep
   only character counts for matched questions and patterns, and

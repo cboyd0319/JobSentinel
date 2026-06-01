@@ -256,6 +256,13 @@ boundaries, and harness modularity:
   source-adapter implementation framing, hashing internals, and maintainer
   test-process headings in user-facing sections. Product-copy sensors now
   guard the audited phrases.
+- Reworked smaller source/setup UI surfaces from the sidecar audit:
+  Browser Button setup now avoids advanced connection, local safety code,
+  if-this-feels-hard, and block-page-import phrasing; Job Site Search Links now
+  says JobSentinel does not check sites automatically; Job Source Status now
+  uses Official source, after another try, Source Type, Actions, and Job Source
+  Check Results. Focused component tests and product-copy sensors cover the
+  changes.
 - Fixed Dashboard salary filtering so users enter full yearly dollars instead
   of `$K` shorthand. The filter logic now compares against stored yearly
   salaries directly, the UI labels say yearly salary, current-filter summaries

@@ -154,7 +154,7 @@ export function BookmarkletGenerator() {
             className="text-sm text-gray-400 hover:text-white underline"
             aria-expanded={showAdvanced}
           >
-            Advanced connection settings
+            Connection settings (support only)
           </button>
           {showAdvanced && (
             <div className="mt-3 rounded-lg border border-gray-700 p-4">
@@ -194,15 +194,15 @@ export function BookmarkletGenerator() {
                 </Button>
               </div>
               <p className="text-xs text-gray-500">
-                Hidden details include a local safety code. Copy it again after each saved job,
-                after about one hour, or when JobSentinel restarts.
+                For your safety, copy a fresh browser button after each saved job, after
+                about one hour, or when JobSentinel restarts.
               </p>
             </div>
 
             <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
               <h5 className="text-sm font-medium text-blue-400 mb-2">How to Set Up:</h5>
               <p className="text-sm text-gray-300 mb-3">
-                If this feels hard, import a job from its browser link instead.
+                Prefer a simpler import? Paste the job link into JobSentinel instead.
               </p>
               <ol className="text-sm text-gray-300 space-y-2 list-decimal list-inside">
                 <li>Turn on the import helper above</li>
@@ -246,8 +246,8 @@ export function BookmarkletGenerator() {
                 </div>
               </div>
               <p className="text-xs text-gray-400 mt-2">
-                Some large job boards block page import. JobSentinel does not bypass those
-                controls. If a job saves with missing details, edit it after saving or use
+                Some large job boards do not let JobSentinel read saved pages. JobSentinel
+                respects those controls. If a job saves with missing details, edit it after saving or use
                 JobSentinel's search link for that site.
               </p>
             </div>

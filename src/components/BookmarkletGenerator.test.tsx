@@ -47,8 +47,9 @@ describe("BookmarkletGenerator", () => {
     expect(screen.getByRole("button", { name: /turn off/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /copy browser button/i })).toBeInTheDocument();
     expect(screen.getAllByText(/copy.*after each saved job/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/local safety code/i)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /advanced connection settings/i }));
+    expect(screen.getByText(/copy a fresh browser button/i)).toBeInTheDocument();
+    expect(screen.queryByText(/local safety code/i)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /connection settings/i }));
     expect(screen.getByText("Connection Number")).toBeInTheDocument();
     expect(screen.queryByText(/server port/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/bookmarklet code/i)).not.toBeInTheDocument();
@@ -63,11 +64,12 @@ describe("BookmarkletGenerator", () => {
     expect(screen.queryByText(/^Indeed$/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Cmd\/Ctrl\+D/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/bookmark address field/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/import a job from its browser link instead/i)).toBeInTheDocument();
+    expect(screen.getByText(/prefer a simpler import/i)).toBeInTheDocument();
     expect(screen.getByText(/Use your browser's Add Bookmark option/i)).toBeInTheDocument();
     expect(screen.getByText(/official career pages usually work best/i)).toBeInTheDocument();
     expect(screen.getByText(/company application pages/i)).toBeInTheDocument();
-    expect(screen.getByText(/does not bypass those controls/i)).toBeInTheDocument();
+    expect(screen.getByText(/do not let JobSentinel read saved pages/i)).toBeInTheDocument();
+    expect(screen.getByText(/respects those controls/i)).toBeInTheDocument();
   });
 
   it("shows safe copy guidance when browser clipboard copy fails", async () => {

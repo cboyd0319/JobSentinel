@@ -207,6 +207,12 @@ Current cleanup posture:
   background collection, rate limiting, source adapters, hidden endpoints,
   raw format lists, and hashing internals. Product-copy harness coverage now
   blocks those audited doc phrases from returning.
+- Current local UI copy follow-up updates Browser Button setup, Job Site Search
+  Links, and Job Source Status wording from the sidecar audit. The old advanced
+  connection, local safety code, if-this-feels-hard, block-page-import,
+  monitor-directly, official-feed, retry-count, Access, Source Controls, and
+  Source Check Results phrases are removed and covered by focused tests plus
+  product-copy sensors.
 - Current local privacy follow-up removes raw screening-question text and saved
   answer patterns from Application Assist debug logs. The trace now records
   only question/pattern character counts when a saved answer matches, and

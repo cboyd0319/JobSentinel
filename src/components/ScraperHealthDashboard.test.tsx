@@ -529,7 +529,7 @@ describe("ScraperHealthDashboard", () => {
         expect(screen.getByRole("table", { name: /job source status/i })).toBeInTheDocument();
       });
       expect(screen.getAllByText("Website page").length).toBeGreaterThanOrEqual(1);
-      expect(screen.getByText("Official feed")).toBeInTheDocument();
+      expect(screen.getByText("Official source")).toBeInTheDocument();
     });
 
     it("displays success rates with color coding", async () => {
@@ -614,9 +614,9 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Source Controls")).toBeInTheDocument();
+        expect(screen.getByText("Actions")).toBeInTheDocument();
       });
-      expect(screen.queryByText("Actions")).not.toBeInTheDocument();
+      expect(screen.queryByText("Source Controls")).not.toBeInTheDocument();
       expect(screen.getAllByText("Turn Off").length).toBeGreaterThan(0);
       expect(screen.getByText("Turn On")).toBeInTheDocument();
       expect(screen.getAllByText("Check Now").length).toBeGreaterThan(0);
@@ -726,7 +726,7 @@ describe("ScraperHealthDashboard", () => {
       await waitFor(() => {
         expect(screen.getByText("Worked")).toBeInTheDocument();
       });
-      expect(screen.getByText(/problem found.*retry 1/i)).toBeInTheDocument();
+      expect(screen.getByText(/problem found after another try/i)).toBeInTheDocument();
     });
 
     it("displays job counts in check history", async () => {
@@ -867,7 +867,7 @@ describe("ScraperHealthDashboard", () => {
       await user.click(screen.getByText("Check All Sources"));
 
       await waitFor(() => {
-        expect(screen.getByText("Source Check Results")).toBeInTheDocument();
+        expect(screen.getByText("Job Source Check Results")).toBeInTheDocument();
       });
     });
 
@@ -899,7 +899,7 @@ describe("ScraperHealthDashboard", () => {
 
       await waitFor(() => {
         const resultsDialog = screen.getByRole("dialog", {
-          name: /source check results/i,
+          name: /job source check results/i,
         });
         expect(within(resultsDialog).getByText("1.2s")).toBeInTheDocument();
         expect(within(resultsDialog).getByText("5.0s")).toBeInTheDocument();
@@ -933,7 +933,7 @@ describe("ScraperHealthDashboard", () => {
       await user.click(screen.getByText("Check All Sources"));
 
       await waitFor(() => {
-        expect(screen.getByText("Source Check Results")).toBeInTheDocument();
+        expect(screen.getByText("Job Source Check Results")).toBeInTheDocument();
       });
 
       // Find close button in modal
@@ -941,7 +941,7 @@ describe("ScraperHealthDashboard", () => {
       await user.click(closeButtons[closeButtons.length - 1]);
 
       await waitFor(() => {
-        expect(screen.queryByText("Source Check Results")).not.toBeInTheDocument();
+        expect(screen.queryByText("Job Source Check Results")).not.toBeInTheDocument();
       });
     });
   });

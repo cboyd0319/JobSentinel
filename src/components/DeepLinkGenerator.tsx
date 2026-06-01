@@ -1,7 +1,7 @@
 /**
  * Deep Link Generator Component
  *
- * Generate pre-filled job search links for sites JobSentinel does not monitor directly.
+ * Generate pre-filled job search links for sites JobSentinel does not check automatically.
  */
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -178,7 +178,7 @@ export function DeepLinkGenerator({
         </h2>
         <p className="text-gray-600 dark:text-gray-400">
           Create ready-to-use searches for job sites that JobSentinel does not
-          monitor directly. Open any search in your browser.
+          check automatically. Open any search in your browser.
         </p>
       </div>
 

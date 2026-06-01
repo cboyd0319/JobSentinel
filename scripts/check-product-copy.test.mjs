@@ -564,16 +564,34 @@ test("product copy rejects support troubleshooting jargon", () => {
     writeFixtureFile(root, "src/pages/Settings.tsx", "These logs can help diagnose it.\n");
     writeFixtureFile(
       root,
+      "src/components/BookmarkletGenerator.tsx",
+      "Advanced connection settings\nlocal safety code\nIf this feels hard\nblock page import\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/components/DeepLinkGenerator.tsx",
+      "JobSentinel does not monitor directly.\n",
+    );
+    writeFixtureFile(
+      root,
       "src/components/feedback/DebugInfoPreview.tsx",
       "Helps troubleshoot faster.",
     );
     writeFixtureFile(
       root,
       "src/components/ScraperHealthDashboard.tsx",
-      ">Page Check<\n>Actions<\nNeeds update\n'Turn this source off'\n'Check this source now'\n",
+      ">Page Check<\n>Access<\nOfficial feed\n(retry ${retryAttempt})\nSource Controls\nSource Check Results\nNeeds update\n'Turn this source off'\n'Check this source now'\n",
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/BookmarkletGenerator.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/DeepLinkGenerator.tsx"),
+      true,
+    );
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/components/feedback/DebugInfoPreview.tsx"),
       true,
