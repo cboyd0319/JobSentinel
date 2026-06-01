@@ -206,6 +206,11 @@ and record actionable findings in this active-plan surface.
   rendering covered by component tests, changes unknown-company guidance to
   official and public-source research language, and adds a source-quality
   harness check so static fallback ratings cannot drift back.
+- Latest local browser-import boundary work removes broad "any job posting" and
+  large-board support promises from the browser import UI and docs, points users
+  toward official career pages and public job pages opened by them, states that
+  JobSentinel does not bypass blocking controls, and adds product-copy coverage
+  against overbroad import promises.
 - Latest local docs-drift harness work moves the docs-drift violation messages
   out of `scripts/check-repo-bloat.mjs` and into
   `scripts/harness/checks/docs-drift.mjs` through

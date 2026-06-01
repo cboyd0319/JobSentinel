@@ -56,6 +56,14 @@ describe("BookmarkletGenerator", () => {
     expect(screen.queryByText(/local safety token/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/schema\.org/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/DOM parsing/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/any job posting/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/supported sites/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/major job boards/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^LinkedIn$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Indeed$/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/official career pages usually work best/i)).toBeInTheDocument();
+    expect(screen.getByText(/official ATS job pages/i)).toBeInTheDocument();
+    expect(screen.getByText(/does not bypass those controls/i)).toBeInTheDocument();
   });
 
   it("shows safe copy guidance when browser clipboard copy fails", async () => {

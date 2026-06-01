@@ -34,6 +34,10 @@ Current branch note:
 - The current local slice removes stale hardcoded employer rating claims from
   static company fallback data and adds source-quality coverage against
   reintroducing them.
+- The current local browser-import slice removes overbroad import promises,
+  keeps setup focused on official career pages and public job pages the user
+  opened, and adds product-copy coverage so large-board support claims do not
+  drift back.
 - Continue using small verified commits. Run remote CI only when the user
   explicitly asks or the full-goal completion pass requires it.
 
@@ -71,6 +75,9 @@ Current cleanup posture:
 - Static company fallback data no longer ships hardcoded employer ratings;
   cached or live company data can still render a rating when that data exists,
   and `npm run lint:bloat` now rejects hardcoded fallback ratings.
+- Browser import copy no longer promises support for any job posting or named
+  large job boards. It now explains official/public page boundaries and says
+  JobSentinel does not bypass controls when a board blocks page import.
 - Release-promise drift checks now live in
   `scripts/harness/checks/release-promises.mjs`.
 - Initial privacy-logging checks for raw automation dropdown values and raw

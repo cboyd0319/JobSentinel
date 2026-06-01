@@ -114,7 +114,7 @@ export function BookmarkletGenerator() {
           </p>
         </div>
         <HelpIcon
-          text="The browser import button saves the job page you are viewing into JobSentinel. It works on many job boards and company career pages, and all processing stays on your computer."
+          text="The browser import button saves the job page you are viewing into JobSentinel. It works best on official career pages and public job pages that show the full posting, and all processing stays on your computer."
           position="left"
         />
       </div>
@@ -214,38 +214,37 @@ export function BookmarkletGenerator() {
             <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
               <h5 className="text-sm font-medium text-green-400 mb-2">How to Use:</h5>
               <ol className="text-sm text-gray-300 space-y-2 list-decimal list-inside">
-                <li>Browse to any job posting (LinkedIn, Indeed, etc.)</li>
+                <li>Open an individual job page. Official career pages usually work best.</li>
                 <li>Click the "Import to JobSentinel" button in your bookmarks bar</li>
-                <li>JobSentinel saves a copy of the job details</li>
+                <li>JobSentinel saves the details it can read from that page</li>
                 <li>You'll see a confirmation message</li>
               </ol>
             </div>
 
             <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
-              <h5 className="text-sm font-medium text-yellow-400 mb-2">Supported Sites:</h5>
+              <h5 className="text-sm font-medium text-yellow-400 mb-2">Where It Works Best:</h5>
               <div className="grid grid-cols-2 gap-2 text-sm text-gray-300">
                 <div>
-                  <p className="font-medium">Major Job Boards:</p>
+                  <p className="font-medium">Official sources:</p>
                   <ul className="list-disc list-inside text-xs space-y-1 mt-1">
-                    <li>LinkedIn</li>
-                    <li>Indeed</li>
-                    <li>Glassdoor</li>
-                    <li>ZipRecruiter</li>
+                    <li>Company career pages</li>
+                    <li>Official ATS job pages</li>
+                    <li>Public pages with full job details</li>
                   </ul>
                 </div>
                 <div>
-                  <p className="font-medium">Company Career Pages:</p>
+                  <p className="font-medium">Best page shape:</p>
                   <ul className="list-disc list-inside text-xs space-y-1 mt-1">
-                    <li>Google Careers</li>
-                    <li>Microsoft Careers</li>
                     <li>Career pages with job details on the page</li>
-                    <li>Most modern career sites</li>
+                    <li>One role per page</li>
+                    <li>Pages opened by you in your browser</li>
                   </ul>
                 </div>
               </div>
               <p className="text-xs text-gray-400 mt-2">
-                Works best on individual job pages. If a job imports with missing details,
-                edit it after saving.
+                Some large job boards block page import. JobSentinel does not bypass those
+                controls. If a job saves with missing details, edit it after saving or use
+                JobSentinel's search link for that site.
               </p>
             </div>
           </div>

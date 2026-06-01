@@ -172,3 +172,37 @@ test("product copy rejects technical-first resume copy", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Resume.tsx"), true);
   });
 });
+
+test("product copy rejects overbroad browser import promises", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/components/BookmarkletGenerator.tsx",
+      [
+        "Browse to any job posting (LinkedIn, Indeed, etc.)",
+        "Supported Sites:",
+        "Major Job Boards:",
+        "Most modern career sites",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/BOOKMARKLET.md",
+      [
+        "The browser import button works best on individual job pages from:",
+        "",
+        "- LinkedIn",
+        "- Indeed",
+        "- Glassdoor",
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/BookmarkletGenerator.tsx"),
+      true,
+    );
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/BOOKMARKLET.md"), true);
+  });
+});

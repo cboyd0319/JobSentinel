@@ -6,7 +6,8 @@ this up.
 
 ## What It Does
 
-- Saves jobs from many job boards and company career pages.
+- Saves jobs from official career pages and public job pages when the page
+  shows enough job details.
 - Uses the browser page you already opened.
 - Sends the job only to the JobSentinel app running on your computer.
 - Keeps the saved job local.
@@ -16,7 +17,7 @@ this up.
 Use the browser import button when:
 
 - You find a job while browsing outside JobSentinel.
-- A job site cannot be scanned automatically.
+- A job source does not load inside JobSentinel.
 - You want to save one job without copying details by hand.
 
 ## Set It Up
@@ -42,26 +43,18 @@ JobSentinel.
 
 If some details are missing, edit the saved job after import.
 
-## Supported Pages
+## Where It Works Best
 
 The browser import button works best on individual job pages from:
 
-- LinkedIn
-- Indeed
-- Glassdoor
-- ZipRecruiter
-- Dice
-- Monster
-- CareerBuilder
-- SimplyHired
-- We Work Remotely
-- Remote OK
-- FlexJobs
-- Wellfound
-- Company career pages
+- Company career pages.
+- Official ATS job pages.
+- Public pages that show the full job description, employer name, and location.
+- Pages you opened yourself in your browser.
 
-Job search result pages may not include enough job details. Open the specific
-job page first.
+Job search result pages may not include enough job details. Some large job
+boards also block page import. JobSentinel does not bypass those controls; use
+JobSentinel's search link or add the job manually when import does not work.
 
 ## Troubleshooting
 
