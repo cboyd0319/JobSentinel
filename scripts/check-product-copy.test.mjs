@@ -9,6 +9,7 @@ import {
   hasOverconfidentGhostCopy,
   hasOverconfidentPayGuidance,
   hasStaleResumeOptimizerFraming,
+  hasTechnicalFirstUserCopy,
 } from "./harness/checks/product-copy.mjs";
 
 function writeFixtureFile(root, path, content = "") {
@@ -81,5 +82,23 @@ test("product copy rejects overconfident pay guidance", () => {
     writeFixtureFile(root, "docs/features/salary-ai.md", "Always negotiate.\n");
 
     assert.equal(hasOverconfidentPayGuidance(root, "docs/features/salary-ai.md"), true);
+  });
+});
+
+test("product copy rejects technical-first settings copy", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "src/pages/Settings.tsx", "Config imported\n");
+    writeFixtureFile(root, "src/pages/Settings.test.tsx", "Config imported\n");
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.test.tsx"), false);
+  });
+});
+
+test("product copy rejects technical-first resume copy", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "src/pages/Resume.tsx", "Programming Languages\nGap Analysis\n");
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Resume.tsx"), true);
   });
 });

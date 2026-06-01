@@ -36,14 +36,19 @@ and record actionable findings in this active-plan surface.
   index, harness guide, agent guide, and handoff toward the compact state.
 - Current local work continues the sensor-modularity debt by extracting
   filesystem, tracked-artifact, dependency-ownership, source-structure,
-  E2E-helper, product-framing, product-copy, release-promise, and initial
-  privacy-logging policy from `scripts/check-repo-bloat.mjs` into
+  E2E-helper, product-framing, product-copy including technical-first user
+  copy policy, release-promise, and initial privacy-logging policy from
+  `scripts/check-repo-bloat.mjs` into
   `scripts/harness/checks/` modules with focused tests. The latest harness
   slices add `scripts/harness/checks/ipc-minimization.mjs` so minimized
   profile, Dashboard, and job-import IPC contracts fail locally if they drift,
   and `scripts/harness/checks/docs-drift.mjs` so grant-facing docs, stale doc
   shape, version-promise, emoji-marker, and speculative-cloud checks have
   focused coverage outside the main bloat runner.
+- Latest local harness-modularity work moves the technical-first user-copy
+  sensor into `scripts/harness/checks/product-copy.mjs`, adds focused
+  product-copy tests for Settings and Resume drift, and shrinks
+  `scripts/check-repo-bloat.mjs` to roughly 4,200 lines.
 - Latest local privacy work removes raw automation dropdown-answer logging and
   raw frontend error forwarding, then adds bloat sensors and `errorReporting`
   unit coverage so those regressions fail locally.
@@ -140,7 +145,7 @@ and record actionable findings in this active-plan surface.
    current sensors, while preserving tech-specific cases only when they test
    explicit branch behavior or source-realism parser contracts.
 2. Continue splitting oversized mixed sensors, especially docs-drift,
-   privacy-logging, fixture-quality, broad-audience, and technical-first copy
+   privacy-logging, fixture-quality, broad-audience, and source-security
    checks still inside `scripts/check-repo-bloat.mjs`.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
