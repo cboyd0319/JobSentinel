@@ -164,6 +164,10 @@ describe("Resume page", () => {
 
     expect(screen.getAllByText("Found in resume").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Added by you").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Regular use").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Some practice").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Advanced")).not.toBeInTheDocument();
+    expect(screen.queryByText("Intermediate")).not.toBeInTheDocument();
     expect(screen.queryByText("(95%)")).not.toBeInTheDocument();
     expect(screen.queryByText("(100%)")).not.toBeInTheDocument();
   });

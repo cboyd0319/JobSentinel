@@ -42,6 +42,7 @@ describe("Salary", () => {
 
     expect(screen.getByRole("heading", { name: "Pay Protection" })).toBeInTheDocument();
     expect(screen.getByLabelText("Salary floor")).toBeInTheDocument();
+    expect(screen.getByLabelText("Role Stage")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Check Pay Range" })).toBeInTheDocument();
     expect(screen.getByLabelText("Job Title")).toHaveAttribute(
       "placeholder",
@@ -55,7 +56,7 @@ describe("Salary", () => {
 
     await user.type(screen.getByLabelText("Job Title"), "Registered Nurse");
     await user.type(screen.getByLabelText("Location"), "Denver, CO");
-    await user.selectOptions(screen.getByLabelText("Seniority Level"), "principal");
+    await user.selectOptions(screen.getByLabelText("Role Stage"), "principal");
     await user.click(screen.getByRole("button", { name: "Check Pay Range" }));
 
     await waitFor(() => {

@@ -176,6 +176,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/components/AnalyticsPanel.tsx",
   "src/components/DashboardWidgets.tsx",
   "src/components/NotificationPreferences.tsx",
+  "src/components/resume-builder/steps/SkillsStep.tsx",
   "src/components/InterviewScheduler.tsx",
   "src/components/CommandPalette.tsx",
   "src/components/KeyboardShortcutsHelp.tsx",
@@ -212,6 +213,8 @@ const technicalFirstUserCopyPaths = new Set([
   "docs/features/smart-scoring.md",
   "docs/features/notifications.md",
   "docs/features/one-click-apply.md",
+  "docs/features/resume-builder.md",
+  "docs/features/salary-ai.md",
   "docs/features/scrapers.md",
   "docs/features/user-data-management.md",
   "docs/user/DEEP_LINKS.md",
@@ -533,11 +536,52 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /You have all required skills!/i,
       /Gap Analysis/i,
       /skill\.confidence_score\s*\*\s*100/i,
+      /Proficiency Distribution/i,
+      /Proficiency level/i,
+      /PROFICIENCY_LEVELS\s*=\s*\[[^\]]*Beginner[^\]]*Expert/i,
     ];
 
     if (resumePagePatterns.some((pattern) => pattern.test(text))) {
       return true;
     }
+  }
+
+  if (
+    path === "src/pages/ResumeBuilder.tsx" ||
+    path === "src/components/resume-builder/steps/SkillsStep.tsx"
+  ) {
+    const resumeBuilderPatterns = [
+      />\s*Proficiency\s*</i,
+      /["'`]Proficiency["'`]/,
+      /Select level/i,
+      /PROFICIENCY_LEVELS\s*=\s*\[[^\]]*beginner[^\]]*expert/i,
+      /charAt\(0\)\.toUpperCase\(\)\s*\+\s*level\.slice\(1\)/,
+    ];
+
+    if (resumeBuilderPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "src/pages/Salary.tsx") {
+    const salaryPagePatterns = [
+      /Seniority Level/i,
+      /Entry Level \(0-2 years\)/i,
+      /Mid Level \(3-5 years\)/i,
+      /Principal\/Executive/i,
+    ];
+
+    if (salaryPagePatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "docs/features/resume-builder.md") {
+    return /proficiency levels|expert, intermediate/i.test(text);
+  }
+
+  if (path === "docs/features/salary-ai.md") {
+    return /seniority level|by title, location, and\s+seniority/i.test(text);
   }
 
   if (path === "src/pages/SetupWizard.tsx") {

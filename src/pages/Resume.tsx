@@ -10,17 +10,51 @@ import { safeInvoke, safeInvokeWithToast } from "../utils/api";
 import { getSafeErrorToastCopy } from "../utils/safeErrorCopy";
 import { scoreFractionToPercent } from "../utils/scoreUtils";
 
-// Proficiency color lookup (better performance than switch)
+// Skill strength color lookup keeps legacy stored values readable.
 type BadgeVariant = "sentinel" | "alert" | "surface" | "success" | "danger";
 
-const PROFICIENCY_COLORS: Record<string, BadgeVariant> = {
+const SKILL_STRENGTH_COLORS: Record<string, BadgeVariant> = {
+  "can train others": "sentinel",
+  "regular use": "alert",
+  "some practice": "surface",
+  learning: "surface",
   expert: "sentinel",
   advanced: "alert",
   intermediate: "surface",
+  beginner: "surface",
 };
 
-const getProficiencyColor = (proficiency: string | null): BadgeVariant =>
-  PROFICIENCY_COLORS[proficiency?.toLowerCase() ?? ""] ?? "surface";
+const SKILL_STRENGTH_LABELS: Record<string, string> = {
+  beginner: "Learning",
+  intermediate: "Some practice",
+  proficient: "Regular use",
+  advanced: "Regular use",
+  expert: "Can train others",
+};
+
+const SKILL_STRENGTH_OPTIONS = [
+  { value: "Learning", label: "Learning" },
+  { value: "Some practice", label: "Some practice" },
+  { value: "Regular use", label: "Regular use" },
+  { value: "Can train others", label: "Can train others" },
+] as const;
+
+const DEFAULT_SKILL_STRENGTH = "Regular use";
+
+function normalizeSkillStrength(value: string | null | undefined) {
+  return value?.trim().toLowerCase() ?? "";
+}
+
+function getSkillStrengthLabel(value: string | null | undefined) {
+  const normalized = normalizeSkillStrength(value);
+  if (!normalized) {
+    return "Not set";
+  }
+  return SKILL_STRENGTH_LABELS[normalized] ?? value?.trim() ?? "Not set";
+}
+
+const getSkillStrengthColor = (strength: string | null): BadgeVariant =>
+  SKILL_STRENGTH_COLORS[normalizeSkillStrength(strength)] ?? "surface";
 
 function getSkillSourceLabel(source: string) {
   const normalized = source.trim().toLowerCase();
@@ -109,7 +143,6 @@ function ScoreBreakdownRow({
   );
 }
 
-const PROFICIENCY_LEVELS = ["Beginner", "Intermediate", "Advanced", "Expert"];
 const SKILL_CATEGORIES = [
   "Work Skills",
   "Tools and Systems",
@@ -179,7 +212,7 @@ export default function Resume({ onBack }: ResumeProps) {
   const [editForm, setEditForm] = useState<SkillUpdate>({});
   const [newSkillForm, setNewSkillForm] = useState<NewSkill>({
     skill_name: "",
-    proficiency_level: "Intermediate",
+    proficiency_level: DEFAULT_SKILL_STRENGTH,
   });
 
   useEffect(() => {
@@ -368,7 +401,7 @@ export default function Resume({ onBack }: ResumeProps) {
       });
       toast.success("Skill added", `Added "${newSkillForm.skill_name}" to your skills`);
       setShowAddSkill(false);
-      setNewSkillForm({ skill_name: "", proficiency_level: "Intermediate" });
+      setNewSkillForm({ skill_name: "", proficiency_level: DEFAULT_SKILL_STRENGTH });
       refetchData();
     } catch {
       // Error already logged and shown to user
@@ -380,7 +413,9 @@ export default function Resume({ onBack }: ResumeProps) {
     setEditForm({
       skill_name: skill.skill_name,
       skill_category: skill.skill_category || undefined,
-      proficiency_level: skill.proficiency_level || "Intermediate",
+      proficiency_level: skill.proficiency_level
+        ? getSkillStrengthLabel(skill.proficiency_level)
+        : DEFAULT_SKILL_STRENGTH,
       years_experience: skill.years_experience || undefined,
     });
   };
@@ -561,7 +596,7 @@ export default function Resume({ onBack }: ResumeProps) {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {skills.slice(0, 15).map((skill) => (
-                    <Badge key={skill.id} variant={getProficiencyColor(skill.proficiency_level)}>
+                    <Badge key={skill.id} variant={getSkillStrengthColor(skill.proficiency_level)}>
                       {skill.skill_name}
                       {skill.years_experience && ` • ${skill.years_experience}y`}
                       <span className="ml-1 text-xs opacity-70">
@@ -573,32 +608,32 @@ export default function Resume({ onBack }: ResumeProps) {
                     <Badge variant="surface">+{skills.length - 15} more</Badge>
                   )}
                 </div>
-                {/* Proficiency Distribution Chart */}
+                {/* Skill strength mix */}
                 <div className="mt-4 pt-4 border-t border-surface-200 dark:border-surface-700">
                   <h4 className="text-xs font-medium text-surface-600 dark:text-surface-400 mb-2">
-                    Proficiency Distribution
+                    Skill Strength Mix
                   </h4>
                   <div className="space-y-2">
-                    {PROFICIENCY_LEVELS.map((level) => {
+                    {SKILL_STRENGTH_OPTIONS.map((option) => {
                       const count = skills.filter(
-                        (s) => s.proficiency_level?.toLowerCase() === level.toLowerCase()
+                        (s) => getSkillStrengthLabel(s.proficiency_level) === option.label
                       ).length;
                       const percentage = skills.length > 0 ? (count / skills.length) * 100 : 0;
                       return (
-                        <div key={level} className="flex items-center gap-2">
+                        <div key={option.value} className="flex items-center gap-2">
                           <span className="text-xs text-surface-600 dark:text-surface-400 w-20">
-                            {level}
+                            {option.label}
                           </span>
                           <div className="flex-1 h-5 bg-surface-100 dark:bg-surface-700 rounded overflow-hidden">
                             <div
                               className={`h-full ${
-                                level === "Expert"
+                                option.value === "Can train others"
                                   ? "bg-sentinel-500"
-                                  : level === "Advanced"
-                                  ? "bg-alert-500"
-                                  : level === "Intermediate"
-                                  ? "bg-blue-500"
-                                  : "bg-surface-400"
+                                  : option.value === "Regular use"
+                                    ? "bg-alert-500"
+                                    : option.value === "Some practice"
+                                      ? "bg-blue-500"
+                                      : "bg-surface-400"
                               }`}
                               style={{ width: `${percentage}%` }}
                             />
@@ -663,19 +698,19 @@ export default function Resume({ onBack }: ResumeProps) {
                     </div>
                     <div>
                       <label htmlFor="proficiency-level" className="sr-only">
-                        Proficiency level
+                        Skill strength
                       </label>
                       <select
                         id="proficiency-level"
-                        value={newSkillForm.proficiency_level || "Intermediate"}
+                        value={newSkillForm.proficiency_level || DEFAULT_SKILL_STRENGTH}
                         onChange={(e) =>
                           setNewSkillForm({ ...newSkillForm, proficiency_level: e.target.value })
                         }
                         className="w-full px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus-visible:ring-2 focus-visible:ring-sentinel-500"
                       >
-                        {PROFICIENCY_LEVELS.map((level) => (
-                          <option key={level} value={level}>
-                            {level}
+                        {SKILL_STRENGTH_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
                           </option>
                         ))}
                       </select>
@@ -761,7 +796,10 @@ export default function Resume({ onBack }: ResumeProps) {
                     <Button
                       size="sm"
                       onClick={() => {
-                        setNewSkillForm({ skill_name: '', proficiency_level: 'Intermediate' });
+                        setNewSkillForm({
+                          skill_name: '',
+                          proficiency_level: DEFAULT_SKILL_STRENGTH,
+                        });
                         setShowAddSkill(true);
                       }}
                     >
@@ -796,15 +834,15 @@ export default function Resume({ onBack }: ResumeProps) {
                               placeholder="Skill name"
                             />
                             <select
-                              value={editForm.proficiency_level || "Intermediate"}
+                              value={editForm.proficiency_level || DEFAULT_SKILL_STRENGTH}
                               onChange={(e) =>
                                 setEditForm({ ...editForm, proficiency_level: e.target.value })
                               }
                               className="px-2 py-1.5 text-sm rounded border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200"
                             >
-                              {PROFICIENCY_LEVELS.map((level) => (
-                                <option key={level} value={level}>
-                                  {level}
+                              {SKILL_STRENGTH_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
                                 </option>
                               ))}
                             </select>
@@ -868,10 +906,10 @@ export default function Resume({ onBack }: ResumeProps) {
                               </p>
                               <div className="flex items-center gap-2 mt-0.5">
                                 <Badge
-                                  variant={getProficiencyColor(skill.proficiency_level)}
+                                  variant={getSkillStrengthColor(skill.proficiency_level)}
                                   size="sm"
                                 >
-                                  {skill.proficiency_level || "Unknown"}
+                                  {getSkillStrengthLabel(skill.proficiency_level)}
                                 </Badge>
                                 {skill.years_experience && (
                                   <span className="text-xs text-surface-500">

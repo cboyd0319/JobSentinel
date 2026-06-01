@@ -61,7 +61,8 @@ List skills that match the jobs you want:
 
 - **Role-specific:** Content Strategy, Patient Care, Contract Negotiation, SQL
 - **Workplace:** Leadership, communication, project management
-- Include proficiency levels if you want (expert, intermediate, etc.)
+- Include skill strength if you want, using practical labels such as learning,
+  some practice, regular use, or can train others.
 
 ### Step 6: Preview
 

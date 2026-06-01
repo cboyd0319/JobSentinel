@@ -31,12 +31,24 @@ interface SalaryProps {
 type SalarySeniority = "entry" | "mid" | "senior" | "staff" | "principal";
 
 const SENIORITY_LEVELS: readonly { value: SalarySeniority; label: string }[] = [
-  { value: "entry", label: "Entry Level (0-2 years)" },
-  { value: "mid", label: "Mid Level (3-5 years)" },
-  { value: "senior", label: "Senior (6-10 years)" },
-  { value: "staff", label: "Staff (11-15 years)" },
-  { value: "principal", label: "Principal/Executive (16+ years)" },
+  { value: "entry", label: "Starting out (0-2 years)" },
+  { value: "mid", label: "Growing experience (3-5 years)" },
+  { value: "senior", label: "Experienced (6-10 years)" },
+  { value: "staff", label: "Lead or specialist (11-15 years)" },
+  { value: "principal", label: "Executive or top-level specialist (16+ years)" },
 ];
+
+function getSalaryStageLabel(value: string) {
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "entry") return "Starting out";
+  if (normalized === "mid") return "Growing experience";
+  if (normalized === "senior") return "Experienced";
+  if (normalized === "staff") return "Lead or specialist";
+  if (normalized === "principal" || normalized === "executive") {
+    return "Executive or top-level specialist";
+  }
+  return value;
+}
 
 function getSalaryErrorAction(error: unknown): string {
   const friendly = getUserFriendlyError(error);
@@ -179,7 +191,7 @@ export default function Salary({ onBack }: SalaryProps) {
 
               <div>
                 <label htmlFor="seniority-level" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
-                  Seniority Level
+                  Role Stage
                 </label>
                 <select
                   id="seniority-level"
@@ -251,7 +263,7 @@ export default function Salary({ onBack }: SalaryProps) {
                       {benchmark.job_title}
                     </p>
                     <p className="text-sm text-surface-500 dark:text-surface-400">
-                      {benchmark.location} • {benchmark.seniority_level}
+                      {benchmark.location} • {getSalaryStageLabel(benchmark.seniority_level)}
                     </p>
                   </div>
                   <Badge variant="sentinel">{benchmark.sample_size} salary records</Badge>

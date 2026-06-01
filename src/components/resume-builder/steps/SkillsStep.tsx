@@ -2,12 +2,22 @@ import { memo } from "react";
 import { Button } from "../../Button";
 import { CardHeader } from "../../Card";
 
-const PROFICIENCY_LEVELS = ["beginner", "intermediate", "advanced", "expert"] as const;
+const SKILL_STRENGTH_VALUES = ["beginner", "intermediate", "advanced", "expert"] as const;
+const SKILL_STRENGTH_LABELS: Record<(typeof SKILL_STRENGTH_VALUES)[number], string> = {
+  beginner: "Learning",
+  intermediate: "Some practice",
+  advanced: "Regular use",
+  expert: "Can train others",
+};
 
 interface SkillEntry {
   name: string;
   category: string;
   proficiency: "beginner" | "intermediate" | "advanced" | "expert" | null;
+}
+
+function getSkillStrengthLabel(proficiency: SkillEntry["proficiency"]) {
+  return proficiency ? SKILL_STRENGTH_LABELS[proficiency] : "";
 }
 
 interface SkillsStepProps {
@@ -72,7 +82,7 @@ const SkillsStep = memo(function SkillsStep({
         </div>
         <div>
           <label className="block text-xs font-medium text-surface-700 dark:text-surface-300 mb-1">
-            Proficiency
+            Skill strength
           </label>
           <div className="flex gap-2">
             <select
@@ -85,10 +95,10 @@ const SkillsStep = memo(function SkillsStep({
               }
               className="flex-1 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
             >
-              <option value="">Select level</option>
-              {PROFICIENCY_LEVELS.map((level) => (
+              <option value="">Select strength</option>
+              {SKILL_STRENGTH_VALUES.map((level) => (
                 <option key={level} value={level}>
-                  {level.charAt(0).toUpperCase() + level.slice(1)}
+                  {SKILL_STRENGTH_LABELS[level]}
                 </option>
               ))}
             </select>
@@ -117,7 +127,7 @@ const SkillsStep = memo(function SkillsStep({
                   <>
                     <span className="mx-2 text-surface-400">•</span>
                     <span className="text-xs text-surface-500 dark:text-surface-400">
-                      {skill.proficiency}
+                      {getSkillStrengthLabel(skill.proficiency)}
                     </span>
                   </>
                 )}

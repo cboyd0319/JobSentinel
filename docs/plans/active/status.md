@@ -89,6 +89,10 @@ and record actionable findings in this active-plan surface.
 - Latest local Resume skills follow-up replaces unlabeled skill confidence
   percentages with plain labels such as "Found in resume" and "Added by you,"
   and extends product-copy coverage against confidence-score display drift.
+- Latest local skill-label follow-up replaces vague self-rating labels such as
+  beginner, intermediate, advanced, expert, and seniority level with
+  behavior-based skill strength and role-stage copy across Resume, Resume
+  Builder, Pay Protection, docs, and product-copy sensors.
 - Latest local privacy follow-up removes raw screening-question text and saved
   answer patterns from backend debug logs in Application Assist. Logs now keep
   only character counts for matched questions and patterns, and

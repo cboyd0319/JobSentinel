@@ -168,6 +168,10 @@ Current cleanup posture:
 - Current local Resume skills follow-up replaces unlabeled skill confidence
   percentages with source labels such as "Found in resume" and "Added by you,"
   with product-copy coverage against confidence-score display drift.
+- Current local skill-label follow-up replaces vague self-rating labels such as
+  beginner, intermediate, advanced, expert, and seniority level with
+  behavior-based skill strength and role-stage copy across Resume, Resume
+  Builder, Pay Protection, docs, and product-copy sensors.
 - Current local privacy follow-up removes raw screening-question text and saved
   answer patterns from Application Assist debug logs. The trace now records
   only question/pattern character counts when a saved answer matches, and

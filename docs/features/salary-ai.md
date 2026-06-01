@@ -23,7 +23,7 @@ fixed by asking harder.
 ## How to Use It
 
 1. Open **Pay Protection**.
-2. Enter a job title, location, seniority level, and optional salary floor.
+2. Enter a job title, location, role stage, and optional salary floor.
 3. Review the range evidence and pay-floor guidance.
 4. Draft negotiation notes only after checking that the facts are true.
 
@@ -82,7 +82,7 @@ Core tables:
 
 - `h1b_salaries`: public salary record imports.
 - `salary_benchmarks`: normalized benchmark ranges by title, location, and
-  seniority.
+  role stage.
 - `job_salary_predictions`: cached local predictions for saved jobs.
 - `negotiation_templates`: editable note templates.
 - `negotiation_history`: local offer and negotiation records.

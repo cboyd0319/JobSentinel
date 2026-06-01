@@ -658,11 +658,48 @@ test("product copy rejects technical-first resume copy", () => {
     writeFixtureFile(
       root,
       "src/pages/Resume.tsx",
-      "Programming Languages\nGap Analysis\nMath.round(skill.confidence_score * 100)\n",
+      [
+        "Programming Languages",
+        "Gap Analysis",
+        "Math.round(skill.confidence_score * 100)",
+        'const PROFICIENCY_LEVELS = ["Beginner", "Intermediate", "Advanced", "Expert"];',
+        "Proficiency Distribution",
+        "Proficiency level",
+        "",
+      ].join("\n"),
     );
+    writeFixtureFile(
+      root,
+      "src/pages/ResumeBuilder.tsx",
+      'const PROFICIENCY_LEVELS = ["beginner", "intermediate", "advanced", "expert"]; Proficiency Select level',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/resume-builder/steps/SkillsStep.tsx",
+      "Proficiency\nSelect level\nlevel.charAt(0).toUpperCase() + level.slice(1)\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Salary.tsx",
+      "Seniority Level\nEntry Level (0-2 years)\nPrincipal/Executive\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/resume-builder.md",
+      "Include proficiency levels if you want (expert, intermediate, etc.)\n",
+    );
+    writeFixtureFile(root, "docs/features/salary-ai.md", "Enter seniority level.\n");
     writeFixtureFile(root, "src/pages/ResumeOptimizer.tsx", "{suggestion.category}\n");
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Resume.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeBuilder.tsx"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/resume-builder/steps/SkillsStep.tsx"),
+      true,
+    );
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Salary.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/resume-builder.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/salary-ai.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
   });
 });
