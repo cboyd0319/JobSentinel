@@ -236,7 +236,8 @@ interface MockApplicationProfile {
   portfolioUrl: string | null;
   websiteUrl: string | null;
   defaultResumeId: number | null;
-  resumeFilePath: string | null;
+  hasResumeFile: boolean;
+  resumeFileName: string | null;
   defaultCoverLetterTemplate: string | null;
   usWorkAuthorized: boolean;
   requiresSponsorship: boolean;
@@ -954,7 +955,8 @@ function getDefaultApplicationProfile(): MockApplicationProfile {
     portfolioUrl: "https://jordanlee.example.com/work",
     websiteUrl: "https://jordanlee.example.com",
     defaultResumeId: null,
-    resumeFilePath: null,
+    hasResumeFile: false,
+    resumeFileName: null,
     defaultCoverLetterTemplate: null,
     usWorkAuthorized: true,
     requiresSponsorship: false,
@@ -1553,7 +1555,8 @@ function normalizeApplicationProfile(value: Partial<MockApplicationProfile>): Mo
     portfolioUrl: nullableString(value.portfolioUrl),
     websiteUrl: nullableString(value.websiteUrl),
     defaultResumeId: nullableNumber(value.defaultResumeId),
-    resumeFilePath: nullableString(value.resumeFilePath),
+    hasResumeFile: typeof value.hasResumeFile === "boolean" ? value.hasResumeFile : defaults.hasResumeFile,
+    resumeFileName: nullableString(value.resumeFileName),
     defaultCoverLetterTemplate: nullableString(value.defaultCoverLetterTemplate),
     usWorkAuthorized: typeof value.usWorkAuthorized === "boolean" ? value.usWorkAuthorized : defaults.usWorkAuthorized,
     requiresSponsorship: typeof value.requiresSponsorship === "boolean" ? value.requiresSponsorship : defaults.requiresSponsorship,
@@ -1562,6 +1565,14 @@ function normalizeApplicationProfile(value: Partial<MockApplicationProfile>): Mo
     createdAt: typeof value.createdAt === "string" ? value.createdAt : defaults.createdAt,
     updatedAt: typeof value.updatedAt === "string" ? value.updatedAt : defaults.updatedAt,
   };
+}
+
+function displayFileNameFromPath(value: unknown): string | null {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    return null;
+  }
+
+  return value.trim().split(/[\\/]/).filter(Boolean).pop() ?? "Selected resume";
 }
 
 function normalizeScreeningAnswer(value: Partial<MockScreeningAnswer>): MockScreeningAnswer {
@@ -2689,6 +2700,9 @@ function upsertMockApplicationProfile(args?: Record<string, unknown>): number {
   const existing = applicationProfile ?? getDefaultApplicationProfile();
   const now = new Date().toISOString();
 
+  const selectedResumeFileName = displayFileNameFromPath(input.resume_file_path);
+  const clearResumeFile = booleanValue(input.clear_resume_file, false);
+
   applicationProfile = {
     id: existing.id,
     fullName: String(input.full_name ?? ""),
@@ -2699,7 +2713,12 @@ function upsertMockApplicationProfile(args?: Record<string, unknown>): number {
     portfolioUrl: nullableString(input.portfolio_url),
     websiteUrl: nullableString(input.website_url),
     defaultResumeId: nullableNumber(input.default_resume_id),
-    resumeFilePath: nullableString(input.resume_file_path),
+    hasResumeFile: clearResumeFile
+      ? false
+      : selectedResumeFileName !== null || existing.hasResumeFile,
+    resumeFileName: clearResumeFile
+      ? null
+      : selectedResumeFileName ?? existing.resumeFileName,
     defaultCoverLetterTemplate: nullableString(input.default_cover_letter_template),
     usWorkAuthorized: booleanValue(input.us_work_authorized, true),
     requiresSponsorship: booleanValue(input.requires_sponsorship, false),

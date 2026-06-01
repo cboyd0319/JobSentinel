@@ -65,7 +65,13 @@ impl ProfileManager {
                 UPDATE application_profile
                 SET full_name = ?, email = ?, phone = ?, linkedin_url = ?,
                     github_url = ?, portfolio_url = ?, website_url = ?,
-                    default_resume_id = ?, resume_file_path = ?, default_cover_letter_template = ?,
+                    default_resume_id = ?,
+                    resume_file_path = CASE
+                        WHEN ? != 0 THEN NULL
+                        WHEN ? != 0 THEN ?
+                        ELSE resume_file_path
+                    END,
+                    default_cover_letter_template = ?,
                     us_work_authorized = ?, requires_sponsorship = ?,
                     max_applications_per_day = ?, require_manual_approval = ?,
                     updated_at = datetime('now')
@@ -80,6 +86,8 @@ impl ProfileManager {
             .bind(&profile.portfolio_url)
             .bind(&profile.website_url)
             .bind(profile.default_resume_id)
+            .bind(profile.clear_resume_file.unwrap_or(false) as i32)
+            .bind(profile.resume_file_path.is_some() as i32)
             .bind(&profile.resume_file_path)
             .bind(&profile.default_cover_letter_template)
             .bind(profile.us_work_authorized as i32)
@@ -295,6 +303,7 @@ pub struct ApplicationProfileInput {
     pub website_url: Option<String>,
     pub default_resume_id: Option<i64>,
     pub resume_file_path: Option<String>,
+    pub clear_resume_file: Option<bool>,
     pub default_cover_letter_template: Option<String>,
     pub us_work_authorized: bool,
     pub requires_sponsorship: bool,
@@ -351,6 +360,7 @@ mod tests {
             website_url: None,
             default_resume_id: None,
             resume_file_path: None,
+            clear_resume_file: None,
             default_cover_letter_template: None,
             us_work_authorized: true,
             requires_sponsorship: false,
@@ -384,6 +394,7 @@ mod tests {
             website_url: None,
             default_resume_id: None,
             resume_file_path: None,
+            clear_resume_file: None,
             default_cover_letter_template: None,
             us_work_authorized: true,
             requires_sponsorship: false,
@@ -408,6 +419,95 @@ mod tests {
         let profile = manager.get_profile().await.unwrap().unwrap();
         assert_eq!(profile.full_name, "Jane Doe");
         assert_eq!(profile.email, "jane@example.com");
+    }
+
+    #[tokio::test]
+    async fn test_update_profile_preserves_resume_file_without_explicit_change() {
+        let (pool, _temp_dir) = setup_test_db().await;
+        let manager = ProfileManager::new(pool);
+
+        let input1 = ApplicationProfileInput {
+            full_name: "Jordan Lee".to_string(),
+            email: "jordan@example.com".to_string(),
+            phone: None,
+            linkedin_url: None,
+            github_url: None,
+            portfolio_url: None,
+            website_url: None,
+            default_resume_id: None,
+            resume_file_path: Some("/Users/jordan/private/resume.pdf".to_string()),
+            clear_resume_file: None,
+            default_cover_letter_template: None,
+            us_work_authorized: true,
+            requires_sponsorship: false,
+            max_applications_per_day: 10,
+            require_manual_approval: true,
+        };
+
+        manager.upsert_profile(&input1).await.unwrap();
+
+        let input2 = ApplicationProfileInput {
+            email: "jordan.updated@example.com".to_string(),
+            resume_file_path: None,
+            clear_resume_file: None,
+            ..input1
+        };
+
+        manager.upsert_profile(&input2).await.unwrap();
+
+        let profile = manager.get_profile().await.unwrap().unwrap();
+        assert_eq!(
+            profile.resume_file_path,
+            Some("/Users/jordan/private/resume.pdf".to_string())
+        );
+    }
+
+    #[tokio::test]
+    async fn test_update_profile_replaces_and_clears_resume_file_explicitly() {
+        let (pool, _temp_dir) = setup_test_db().await;
+        let manager = ProfileManager::new(pool);
+
+        let input1 = ApplicationProfileInput {
+            full_name: "Jordan Lee".to_string(),
+            email: "jordan@example.com".to_string(),
+            phone: None,
+            linkedin_url: None,
+            github_url: None,
+            portfolio_url: None,
+            website_url: None,
+            default_resume_id: None,
+            resume_file_path: Some("/Users/jordan/private/resume.pdf".to_string()),
+            clear_resume_file: None,
+            default_cover_letter_template: None,
+            us_work_authorized: true,
+            requires_sponsorship: false,
+            max_applications_per_day: 10,
+            require_manual_approval: true,
+        };
+
+        manager.upsert_profile(&input1).await.unwrap();
+
+        let input2 = ApplicationProfileInput {
+            resume_file_path: Some("C:\\Users\\Jordan\\Desktop\\new-resume.docx".to_string()),
+            ..input1.clone()
+        };
+        manager.upsert_profile(&input2).await.unwrap();
+
+        let profile = manager.get_profile().await.unwrap().unwrap();
+        assert_eq!(
+            profile.resume_file_path,
+            Some("C:\\Users\\Jordan\\Desktop\\new-resume.docx".to_string())
+        );
+
+        let input3 = ApplicationProfileInput {
+            resume_file_path: None,
+            clear_resume_file: Some(true),
+            ..input1
+        };
+        manager.upsert_profile(&input3).await.unwrap();
+
+        let profile = manager.get_profile().await.unwrap().unwrap();
+        assert_eq!(profile.resume_file_path, None);
     }
 
     #[tokio::test]

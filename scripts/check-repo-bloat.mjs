@@ -48,6 +48,7 @@ import {
   hasRawFrontendErrorReporterForwarding,
 } from "./harness/checks/privacy-logging.mjs";
 import {
+  hasApplicationProfileResumePathExposure,
   hasBookmarkletTokenIpcExposure,
   hasDashboardFullConfigInvoke,
   hasFullImportedJobReturn,
@@ -4606,6 +4607,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasBookmarkletTokenIpcExposure(root, path)) {
       violations.push(`keep bookmarklet token out of renderer IPC: ${path}`);
+    }
+
+    if (hasApplicationProfileResumePathExposure(root, path)) {
+      violations.push(`keep application resume paths out of renderer IPC: ${path}`);
     }
 
     if (hasNonSettingsFullApplicationProfileInvoke(root, path)) {

@@ -52,6 +52,21 @@ fn sanitize_automation_log_url(url: &str) -> String {
     truncate_log_label(&sanitized)
 }
 
+fn resume_file_display_name(path: &str) -> Option<String> {
+    let trimmed = path.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+
+    let name = trimmed
+        .rsplit(['/', '\\'])
+        .next()
+        .map(str::trim)
+        .filter(|name| !name.is_empty())?;
+
+    Some(name.to_string())
+}
+
 // ============================================================================
 // Profile Management Commands
 // ============================================================================
@@ -126,7 +141,8 @@ pub struct ApplicationProfileResponse {
     pub portfolio_url: Option<String>,
     pub website_url: Option<String>,
     pub default_resume_id: Option<i64>,
-    pub resume_file_path: Option<String>,
+    pub has_resume_file: bool,
+    pub resume_file_name: Option<String>,
     pub default_cover_letter_template: Option<String>,
     pub us_work_authorized: bool,
     pub requires_sponsorship: bool,
@@ -148,7 +164,14 @@ impl From<ApplicationProfile> for ApplicationProfileResponse {
             portfolio_url: p.portfolio_url,
             website_url: p.website_url,
             default_resume_id: p.default_resume_id,
-            resume_file_path: p.resume_file_path,
+            has_resume_file: p
+                .resume_file_path
+                .as_deref()
+                .is_some_and(|path| !path.trim().is_empty()),
+            resume_file_name: p
+                .resume_file_path
+                .as_deref()
+                .and_then(resume_file_display_name),
             default_cover_letter_template: p.default_cover_letter_template,
             us_work_authorized: p.us_work_authorized,
             requires_sponsorship: p.requires_sponsorship,
@@ -1012,5 +1035,60 @@ impl From<crate::core::automation::answer_learning::ModificationExample>
             question_text: ex.question_text,
             modified_at: ex.modified_at.to_rfc3339(),
         }
+    }
+}
+
+#[cfg(test)]
+mod response_tests {
+    use super::*;
+
+    fn profile_with_resume_path(path: Option<String>) -> ApplicationProfile {
+        ApplicationProfile {
+            id: 1,
+            full_name: "Jordan Lee".to_string(),
+            email: "jordan@example.com".to_string(),
+            phone: None,
+            linkedin_url: None,
+            github_url: None,
+            portfolio_url: None,
+            website_url: None,
+            default_resume_id: None,
+            resume_file_path: path,
+            default_cover_letter_template: None,
+            us_work_authorized: true,
+            requires_sponsorship: false,
+            max_applications_per_day: 10,
+            require_manual_approval: true,
+            created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
+        }
+    }
+
+    #[test]
+    fn application_profile_response_redacts_resume_file_path() {
+        let response = ApplicationProfileResponse::from(profile_with_resume_path(Some(
+            "/Users/jordan/private/client-resume.pdf".to_string(),
+        )));
+
+        let json = serde_json::to_string(&response).unwrap();
+        assert!(response.has_resume_file);
+        assert_eq!(
+            response.resume_file_name,
+            Some("client-resume.pdf".to_string())
+        );
+        assert!(json.contains("client-resume.pdf"));
+        assert!(!json.contains("/Users/jordan/private"));
+        assert!(!json.contains("resumeFilePath"));
+    }
+
+    #[test]
+    fn application_profile_response_handles_windows_resume_paths() {
+        let response = ApplicationProfileResponse::from(profile_with_resume_path(Some(
+            "C:\\Users\\Jordan\\Desktop\\resume.docx".to_string(),
+        )));
+
+        let json = serde_json::to_string(&response).unwrap();
+        assert_eq!(response.resume_file_name, Some("resume.docx".to_string()));
+        assert!(!json.contains("C:\\\\Users"));
     }
 }

@@ -134,3 +134,28 @@ export function hasBookmarkletTokenIpcExposure(root, path) {
     /X-JobSentinel-Token[\s\S]{0,120}(?:invoke|navigator\.clipboard|writeText)/.test(text)
   );
 }
+
+export function hasApplicationProfileResumePathExposure(root, path) {
+  if (
+    path !== "src-tauri/src/commands/automation.rs" &&
+    path !== "src/components/automation/ProfileForm.tsx" &&
+    path !== "src/mocks/handlers.ts"
+  ) {
+    return false;
+  }
+
+  const text =
+    path.endsWith(".rs")
+      ? stripRustTestModules(readIfPresent(root, path))
+      : stripTypeScriptComments(readIfPresent(root, path));
+
+  if (path === "src-tauri/src/commands/automation.rs") {
+    return (
+      /pub\s+struct\s+ApplicationProfileResponse\s*\{[^}]*\bresume_file_path\b[^}]*\}/.test(
+        text,
+      ) || /\bresumeFilePath\b/.test(text)
+    );
+  }
+
+  return /\bresumeFilePath\b/.test(text);
+}

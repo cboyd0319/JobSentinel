@@ -62,7 +62,7 @@ export class OneClickApplyPage extends BasePage {
   }
 
   get resumePathInput(): Locator {
-    return this.page.getByLabel("Resume file path");
+    return this.page.getByLabel("Selected resume");
   }
 
   get browseResumeButton(): Locator {

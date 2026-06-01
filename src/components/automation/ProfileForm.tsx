@@ -23,7 +23,6 @@ interface FormSnapshot {
   githubUrl: string;
   portfolioUrl: string;
   websiteUrl: string;
-  resumeFilePath: string;
   usWorkAuthorized: boolean;
   requiresSponsorship: boolean;
   maxApplicationsPerDay: number;
@@ -41,7 +40,8 @@ interface ApplicationProfile {
   portfolioUrl: string | null;
   websiteUrl: string | null;
   defaultResumeId: number | null;
-  resumeFilePath: string | null;
+  hasResumeFile: boolean;
+  resumeFileName: string | null;
   defaultCoverLetterTemplate: string | null;
   usWorkAuthorized: boolean;
   requiresSponsorship: boolean;
@@ -61,6 +61,7 @@ interface ApplicationProfileInput {
   website_url?: string | null;
   default_resume_id?: number | null;
   resume_file_path?: string | null;
+  clear_resume_file?: boolean;
   default_cover_letter_template?: string | null;
   us_work_authorized: boolean;
   requires_sponsorship: boolean;
@@ -70,6 +71,10 @@ interface ApplicationProfileInput {
 
 interface ProfileFormProps {
   onSaved?: () => void;
+}
+
+function fileNameFromPath(path: string): string {
+  return path.trim().split(/[\\/]/).filter(Boolean).pop() || "Selected resume";
 }
 
 export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormProps) {
@@ -87,7 +92,9 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
   const [githubUrl, setGithubUrl] = useState("");
   const [portfolioUrl, setPortfolioUrl] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
-  const [resumeFilePath, setResumeFilePath] = useState("");
+  const [selectedResumeFilePath, setSelectedResumeFilePath] = useState("");
+  const [savedResumeFileName, setSavedResumeFileName] = useState("");
+  const [resumeFileMarkedForClear, setResumeFileMarkedForClear] = useState(false);
   const [usWorkAuthorized, setUsWorkAuthorized] = useState(true);
   const [requiresSponsorship, setRequiresSponsorship] = useState(false);
   const [maxApplicationsPerDay, setMaxApplicationsPerDay] = useState(10);
@@ -153,13 +160,14 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
       githubUrl !== originalValues.githubUrl ||
       portfolioUrl !== originalValues.portfolioUrl ||
       websiteUrl !== originalValues.websiteUrl ||
-      resumeFilePath !== originalValues.resumeFilePath ||
+      selectedResumeFilePath.trim().length > 0 ||
+      resumeFileMarkedForClear ||
       usWorkAuthorized !== originalValues.usWorkAuthorized ||
       requiresSponsorship !== originalValues.requiresSponsorship ||
       maxApplicationsPerDay !== originalValues.maxApplicationsPerDay ||
       requireManualApproval !== originalValues.requireManualApproval
     );
-  }, [originalValues, fullName, email, phone, linkedinUrl, githubUrl, portfolioUrl, websiteUrl, resumeFilePath, usWorkAuthorized, requiresSponsorship, maxApplicationsPerDay, requireManualApproval]);
+  }, [originalValues, fullName, email, phone, linkedinUrl, githubUrl, portfolioUrl, websiteUrl, selectedResumeFilePath, resumeFileMarkedForClear, usWorkAuthorized, requiresSponsorship, maxApplicationsPerDay, requireManualApproval]);
 
   const loadProfile = useCallback(async () => {
     try {
@@ -176,7 +184,9 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
         setGithubUrl(data.githubUrl || "");
         setPortfolioUrl(data.portfolioUrl || "");
         setWebsiteUrl(data.websiteUrl || "");
-        setResumeFilePath(data.resumeFilePath || "");
+        setSavedResumeFileName(data.hasResumeFile ? data.resumeFileName || "Resume selected" : "");
+        setSelectedResumeFilePath("");
+        setResumeFileMarkedForClear(false);
         setUsWorkAuthorized(data.usWorkAuthorized);
         setRequiresSponsorship(data.requiresSponsorship);
         setMaxApplicationsPerDay(data.maxApplicationsPerDay);
@@ -190,7 +200,6 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
           githubUrl: data.githubUrl || "",
           portfolioUrl: data.portfolioUrl || "",
           websiteUrl: data.websiteUrl || "",
-          resumeFilePath: data.resumeFilePath || "",
           usWorkAuthorized: data.usWorkAuthorized,
           requiresSponsorship: data.requiresSponsorship,
           maxApplicationsPerDay: data.maxApplicationsPerDay,
@@ -206,12 +215,14 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
           githubUrl: "",
           portfolioUrl: "",
           websiteUrl: "",
-          resumeFilePath: "",
           usWorkAuthorized: true,
           requiresSponsorship: false,
           maxApplicationsPerDay: 10,
           requireManualApproval: true,
         });
+        setSavedResumeFileName("");
+        setSelectedResumeFilePath("");
+        setResumeFileMarkedForClear(false);
       }
     } catch (error: unknown) {
       logError("Failed to load application profile:", error);
@@ -239,6 +250,12 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     return () => clearTimeout(timeoutId);
   }, [loading]);
 
+  const resumeFileLabel = selectedResumeFilePath
+    ? fileNameFromPath(selectedResumeFilePath)
+    : resumeFileMarkedForClear
+      ? ""
+      : savedResumeFileName;
+
   const handleSelectResume = async (): Promise<void> => {
     try {
       const selected = await open({
@@ -251,7 +268,8 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
         ],
       });
       if (selected && typeof selected === "string") {
-        setResumeFilePath(selected);
+        setSelectedResumeFilePath(selected);
+        setResumeFileMarkedForClear(false);
       }
     } catch (error: unknown) {
       logError("Failed to select resume file:", error);
@@ -291,7 +309,8 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
         github_url: githubUrl.trim() || null,
         portfolio_url: portfolioUrl.trim() || null,
         website_url: websiteUrl.trim() || null,
-        resume_file_path: resumeFilePath.trim() || null,
+        resume_file_path: selectedResumeFilePath.trim() || null,
+        clear_resume_file: resumeFileMarkedForClear,
         us_work_authorized: usWorkAuthorized,
         requires_sponsorship: requiresSponsorship,
         max_applications_per_day: maxApplicationsPerDay,
@@ -300,6 +319,14 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
 
       await invoke("upsert_application_profile", { input });
       showSuccess("Profile saved", "Your application profile has been updated");
+      const nextSavedResumeFileName = resumeFileMarkedForClear
+        ? ""
+        : selectedResumeFilePath.trim()
+          ? fileNameFromPath(selectedResumeFilePath)
+          : savedResumeFileName;
+      setSavedResumeFileName(nextSavedResumeFileName);
+      setSelectedResumeFilePath("");
+      setResumeFileMarkedForClear(false);
       // Update original values to mark form as clean
       setOriginalValues({
         fullName: fullName.trim(),
@@ -309,7 +336,6 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
         githubUrl: githubUrl.trim(),
         portfolioUrl: portfolioUrl.trim(),
         websiteUrl: websiteUrl.trim(),
-        resumeFilePath: resumeFilePath.trim(),
         usWorkAuthorized,
         requiresSponsorship,
         maxApplicationsPerDay,
@@ -330,7 +356,9 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     githubUrl,
     portfolioUrl,
     websiteUrl,
-    resumeFilePath,
+    selectedResumeFilePath,
+    savedResumeFileName,
+    resumeFileMarkedForClear,
     usWorkAuthorized,
     requiresSponsorship,
     maxApplicationsPerDay,
@@ -496,10 +524,9 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
           <div className="flex items-center gap-3">
             <div className="flex-1">
               <Input
-                label="Resume file path"
+                label="Selected resume"
                 hideLabel
-                value={resumeFilePath}
-                onChange={(e) => setResumeFilePath(e.target.value)}
+                value={resumeFileLabel}
                 placeholder="No resume selected"
                 readOnly
                 leftIcon={<DocumentIcon className="w-4 h-4" />}
@@ -512,9 +539,12 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
             >
               Browse...
             </Button>
-            {resumeFilePath && (
+            {resumeFileLabel && (
               <button
-                onClick={() => setResumeFilePath("")}
+                onClick={() => {
+                  setSelectedResumeFilePath("");
+                  setResumeFileMarkedForClear(true);
+                }}
                 className="p-2 text-surface-400 hover:text-red-500 transition-colors cursor-pointer"
                 aria-label="Clear resume"
               >

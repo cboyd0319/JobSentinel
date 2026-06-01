@@ -113,6 +113,10 @@ Current cleanup posture:
   renderer-facing bookmarklet config and mocks, copies the browser import
   button through a Rust command, and adds IPC-minimization harness coverage for
   bookmarklet token DTO drift.
+- Latest Application Assist privacy follow-up removes raw saved resume paths
+  from profile IPC and visible UI, returns only `hasResumeFile` plus
+  `resumeFileName`, preserves the stored local path on unrelated profile edits,
+  and adds IPC-minimization coverage for resume-path DTO drift.
 - Latest IPC minimization work added `has_application_profile`,
   `get_application_profile_preview`, `get_dashboard_preferences`, canonical
   import URLs before preview/hash/storage, and minimized import responses to

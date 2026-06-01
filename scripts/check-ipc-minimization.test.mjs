@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import {
+  hasApplicationProfileResumePathExposure,
   hasBookmarkletTokenIpcExposure,
   hasDashboardFullConfigInvoke,
   hasFullImportedJobReturn,
@@ -172,6 +173,39 @@ test("ipc minimization rejects bookmarklet token exposure across renderer IPC", 
       "src/mocks/handlers.ts",
     ]) {
       assert.equal(hasBookmarkletTokenIpcExposure(root, path), true);
+    }
+  });
+});
+
+test("ipc minimization rejects application resume path exposure across renderer IPC", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/automation.rs",
+      [
+        "pub struct ApplicationProfileResponse {",
+        "  pub resume_file_path: Option<String>,",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/automation/ProfileForm.tsx",
+      "setResumeFilePath(data.resumeFilePath); const input = { value: resumeFilePath };\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      "const applicationProfile = { resumeFilePath: '/Users/jordan/private/resume.pdf' };\n",
+    );
+
+    for (const path of [
+      "src-tauri/src/commands/automation.rs",
+      "src/components/automation/ProfileForm.tsx",
+      "src/mocks/handlers.ts",
+    ]) {
+      assert.equal(hasApplicationProfileResumePathExposure(root, path), true);
     }
   });
 });

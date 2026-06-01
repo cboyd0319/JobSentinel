@@ -244,6 +244,10 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
 - The latest bookmarklet privacy slice removes the browser import token from
   renderer-facing config and mocks, routes browser-button copying through Rust,
   and adds IPC-minimization harness coverage for token DTO drift.
+- The latest Application Assist privacy slice keeps raw saved resume paths in
+  the backend-only local attach path, returns only a basename and presence flag
+  to the renderer, preserves the saved path unless the user replaces or clears
+  it, and adds IPC-minimization harness coverage for path DTO drift.
 - Updated active plan and handoff docs for the latest local cleanup slice.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only

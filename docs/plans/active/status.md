@@ -71,6 +71,10 @@ and record actionable findings in this active-plan surface.
   renderer-facing config and mocks, copies the browser button through a Rust
   command, and adds IPC-minimization coverage so bookmarklet auth tokens do
   not drift back into React state.
+- Latest local Application Assist privacy work keeps saved resume file paths
+  out of renderer-facing profile IPC and UI, shows only a basename, preserves
+  existing resume paths unless the user replaces or clears them, and adds
+  IPC-minimization coverage for resume-path DTO drift.
 - Latest local broad-audience fixture work rebalanced generic market
   intelligence, notifications, config, database, ATS, ghost detection, salary,
   scoring, generic scraper adapters, command, frontend mock, sample JSON
