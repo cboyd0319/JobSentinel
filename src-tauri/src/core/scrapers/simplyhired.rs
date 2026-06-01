@@ -18,7 +18,7 @@ use sha2::{Digest, Sha256};
 /// SimplyHired job scraper using RSS feeds
 #[derive(Debug, Clone)]
 pub struct SimplyHiredScraper {
-    /// Search query (e.g., "rust developer")
+    /// Search query (e.g., "care coordinator")
     pub query: String,
     /// Location filter (e.g., "remote" or "san francisco")
     pub location: Option<String>,
@@ -324,15 +324,15 @@ mod tests {
 
     #[test]
     fn test_scraper_name() {
-        let scraper = SimplyHiredScraper::new("rust".to_string(), None, 10);
+        let scraper = SimplyHiredScraper::new("care coordinator".to_string(), None, 10);
         assert_eq!(scraper.name(), "simplyhired");
     }
 
     #[test]
     fn test_decode_html_entities() {
         assert_eq!(
-            SimplyHiredScraper::decode_html_entities("Software &amp; Engineering"),
-            "Software & Engineering"
+            SimplyHiredScraper::decode_html_entities("Care &amp; Support"),
+            "Care & Support"
         );
         assert_eq!(
             SimplyHiredScraper::decode_html_entities("Test &lt;tag&gt;"),
@@ -356,28 +356,28 @@ mod tests {
     fn test_extract_company_from_title() {
         let scraper = SimplyHiredScraper::new("test".to_string(), None, 10);
 
-        let company = scraper.extract_company("Software Engineer - Acme Corp", None);
-        assert_eq!(company, Some("Acme Corp".to_string()));
+        let company = scraper.extract_company("Care Coordinator - Acme Health", None);
+        assert_eq!(company, Some("Acme Health".to_string()));
 
-        let company = scraper.extract_company("Developer at TechStartup", None);
-        assert_eq!(company, Some("TechStartup".to_string()));
+        let company = scraper.extract_company("Inventory Manager at FreshMart", None);
+        assert_eq!(company, Some("FreshMart".to_string()));
     }
 
     #[test]
     fn test_is_remote_job() {
-        let scraper = SimplyHiredScraper::new("remote rust developer".to_string(), None, 10);
+        let scraper = SimplyHiredScraper::new("remote care coordinator".to_string(), None, 10);
         assert_eq!(
-            scraper.is_remote_job("remote rust developer", None),
+            scraper.is_remote_job("remote care coordinator", None),
             Some(true)
         );
 
-        let scraper = SimplyHiredScraper::new("rust developer".to_string(), None, 10);
+        let scraper = SimplyHiredScraper::new("care coordinator".to_string(), None, 10);
         assert_eq!(
-            scraper.is_remote_job("rust developer", Some("Remote")),
+            scraper.is_remote_job("care coordinator", Some("Remote")),
             Some(true)
         );
         assert_eq!(
-            scraper.is_remote_job("rust developer", Some("San Francisco")),
+            scraper.is_remote_job("care coordinator", Some("San Francisco")),
             None
         );
     }
@@ -386,13 +386,13 @@ mod tests {
     fn test_compute_hash_deterministic() {
         let hash1 = SimplyHiredScraper::compute_hash(
             "Company",
-            "Engineer",
+            "Care Coordinator",
             Some("NYC"),
             "https://simplyhired.com/job/123",
         );
         let hash2 = SimplyHiredScraper::compute_hash(
             "Company",
-            "Engineer",
+            "Care Coordinator",
             Some("NYC"),
             "https://simplyhired.com/job/123",
         );
@@ -402,10 +402,10 @@ mod tests {
 
     #[test]
     fn test_extract_tag() {
-        let xml = "<title>Software Engineer</title><link>https://example.com</link>";
+        let xml = "<title>Care Coordinator</title><link>https://example.com</link>";
         assert_eq!(
             SimplyHiredScraper::extract_tag(xml, "title"),
-            Some("Software Engineer".to_string())
+            Some("Care Coordinator".to_string())
         );
         assert_eq!(
             SimplyHiredScraper::extract_tag(xml, "link"),

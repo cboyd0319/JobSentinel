@@ -56,6 +56,14 @@ and record actionable findings in this active-plan surface.
   Advanced, explains location lookup without protocol jargon, broadens company
   suggestions and placeholders beyond technology, refreshes broad resume/mock
   ATS fixtures, and aligns E2E labels with the visible "Skills Interview" copy.
+- Latest local broad-audience fixture work rebalanced generic market
+  intelligence, notifications, config, database, ATS, ghost detection, salary,
+  scoring, SimplyHired, command, frontend mock, Application Assist E2E, and
+  mock data examples toward care coordination, public health, operations,
+  training, inventory planning, account management, and customer support; it
+  also extends the bloat sensor so the generic market-intelligence,
+  SimplyHired, and code-profile fixture paths cannot drift back to
+  software-only examples.
 - Latest local IPC minimization work added narrow application profile
   existence/preview commands, canonicalizes imported URLs before
   preview/hash/storage, returns only `{ jobId }` from job import, and moves
@@ -73,17 +81,20 @@ and record actionable findings in this active-plan surface.
 
 ## Next Best Work
 
-1. Continue splitting oversized mixed sensors, especially docs-drift,
+1. Continue broad-audience fixture cleanup in remaining generic scraper
+   adapters and salary-normalization examples that are not explicit
+   software-engineer/SWE branch tests.
+2. Continue splitting oversized mixed sensors, especially docs-drift,
    privacy-logging, fixture-quality, broad-audience, and technical-first copy
    checks still inside `scripts/check-repo-bloat.mjs`.
-2. Continue zero-technical-knowledge UX review across setup, settings,
+3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
-3. Continue broad-audience review so non-technical and technical job searches
+4. Continue broad-audience review so non-technical and technical job searches
    both feel first-class.
-4. Continue backend/scraper and frontend privacy-edge review.
-5. Continue the next zero-technical-knowledge UX audit area outside
+5. Continue backend/scraper and frontend privacy-edge review.
+6. Continue the next zero-technical-knowledge UX audit area outside
    support/reporting.
-6. Run final broad verification only when the remaining known work has evidence.
+7. Run final broad verification only when the remaining known work has evidence.
 
 ## Completion Bar
 

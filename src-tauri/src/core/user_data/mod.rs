@@ -1066,18 +1066,18 @@ Best regards,
 {your_name}"#,
             ),
             (
-                "Tech/Engineering Cover Letter",
-                TemplateCategory::Tech,
+                "Care Coordination Cover Letter",
+                TemplateCategory::Healthcare,
                 r#"Dear {hiring_manager},
 
-I am excited to apply for the {position} role at {company}. As a software professional with {years_experience} years of experience specializing in {skill1} and {skill2}, I am eager to bring my technical expertise to your engineering team.
+I am excited to apply for the {position} role at {company}. With {years_experience} years of experience supporting people through {skill1} and {skill2}, I am eager to bring calm coordination and dependable follow-through to your team.
 
 Throughout my career, I have:
-• Architected and deployed scalable solutions using modern tech stacks
-• Collaborated with cross-functional teams to deliver complex features on time
-• Mentored junior developers and contributed to technical documentation
+• Coordinated schedules, follow-up steps, and service updates across busy teams
+• Supported clients and coworkers with clear communication and organized records
+• Helped improve daily workflows so people received timely, consistent support
 
-I am particularly impressed by {company}'s engineering culture and the technical challenges you're tackling. I would love to contribute to your mission.
+I am particularly impressed by {company}'s commitment to helping people and keeping services organized. I would love to contribute to your mission.
 
 Looking forward to discussing how I can add value to your team.
 

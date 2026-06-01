@@ -156,7 +156,7 @@ export class ResumeBuilderPage extends BasePage {
     await this.summaryTextarea.fill(text);
   }
 
-  async completeSummary(text = "Customer success manager with deep onboarding, renewal, and customer experience results."): Promise<void> {
+  async completeSummary(text = "Account manager with strong client onboarding, renewal, and service quality results."): Promise<void> {
     await this.fillSummary(text);
     await this.goNext(3, "Experience");
   }
@@ -183,12 +183,12 @@ export class ResumeBuilderPage extends BasePage {
 
   async completeExperience(data?: Partial<ExperienceData>): Promise<void> {
     const experience = {
-      title: "Customer Success Manager",
-      company: "Acme Corp",
+      title: "Account Manager",
+      company: "BrightPath Services",
       startDate: "Jan 2020",
       endDate: "Present",
       location: "Remote",
-      achievements: ["Improved renewal rate by 18%", "Built onboarding checklist for new customers"],
+      achievements: ["Improved renewal rate by 18%", "Built onboarding checklist for new clients"],
       ...data,
     };
     await this.addExperience(experience);
@@ -239,8 +239,8 @@ export class ResumeBuilderPage extends BasePage {
 
   async completeSkills(data?: Partial<SkillData>): Promise<void> {
     await this.addSkill({
-      name: "Customer Success",
-      category: "Customer Experience",
+      name: "Account Management",
+      category: "Client Relations",
       proficiency: "advanced",
       ...data,
     });

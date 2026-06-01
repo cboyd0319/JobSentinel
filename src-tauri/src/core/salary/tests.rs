@@ -559,7 +559,7 @@ fn test_salary_prediction_serde() {
 fn test_offer_comparison_creation() {
     let comparison = OfferComparison {
         offer_id: 1,
-        company: "TechCorp".to_string(),
+        company: "CommunityCare".to_string(),
         base_salary: 150000,
         total_compensation: 180000,
         market_median: Some(140000),
@@ -568,7 +568,7 @@ fn test_offer_comparison_creation() {
     };
 
     assert_eq!(comparison.offer_id, 1);
-    assert_eq!(comparison.company, "TechCorp");
+    assert_eq!(comparison.company, "CommunityCare");
     assert_eq!(comparison.base_salary, 150000);
     assert_eq!(comparison.total_compensation, 180000);
     assert_eq!(comparison.market_median, Some(140000));
@@ -579,7 +579,7 @@ fn test_offer_comparison_creation() {
 fn test_offer_comparison_without_market_data() {
     let comparison = OfferComparison {
         offer_id: 2,
-        company: "StartupXYZ".to_string(),
+        company: "Harbor Retail".to_string(),
         base_salary: 130000,
         total_compensation: 150000,
         market_median: None,
@@ -825,18 +825,12 @@ mod database_tests {
     #[tokio::test]
     async fn test_predict_salary_for_job() {
         let pool = create_test_db().await;
-        insert_job(
-            &pool,
-            "job123",
-            "Senior Software Engineer",
-            "San Francisco, CA",
-        )
-        .await;
+        insert_job(&pool, "job123", "Case Manager", "San Francisco, CA").await;
         insert_benchmark(
             &pool,
-            "software engineer",
+            "case manager",
             "san francisco, ca",
-            "senior",
+            "mid",
             150000,
             180000,
             220000,

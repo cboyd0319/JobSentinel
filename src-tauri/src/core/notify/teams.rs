@@ -193,11 +193,11 @@ mod tests {
             job: Job {
                 id: 1,
                 hash: "test123".to_string(),
-                title: "Senior Rust Engineer".to_string(),
-                company: "Awesome Corp".to_string(),
+                title: "Care Coordinator".to_string(),
+                company: "Community Care Network".to_string(),
                 url: "https://example.com/jobs/123".to_string(),
                 location: Some("Remote".to_string()),
-                description: Some("Build amazing Rust systems".to_string()),
+                description: Some("Support patients and families with care planning".to_string()),
                 score: Some(0.95),
                 score_reasons: None,
                 source: "greenhouse".to_string(),
@@ -229,8 +229,8 @@ mod tests {
                     recency: 0.05,
                 },
                 reasons: vec![
-                    "Title matches: Senior Rust Engineer".to_string(),
-                    "Keyword match: Rust".to_string(),
+                    "Title matches: Care Coordinator".to_string(),
+                    "Keyword match: case management".to_string(),
                     "Salary 120% of target (100% credit)".to_string(),
                     "Remote job (matches preference)".to_string(),
                 ],
@@ -692,7 +692,7 @@ mod tests {
         assert_eq!(payload["@context"], "https://schema.org/extensions");
         assert_eq!(
             payload["summary"],
-            "New job alert: Senior Rust Engineer at Awesome Corp"
+            "New job alert: Care Coordinator at Community Care Network"
         );
         assert_eq!(payload["themeColor"], "00FF00");
         assert_eq!(payload["title"], "🎯 High Match Job Alert (95% Match)");
@@ -700,8 +700,11 @@ mod tests {
         // Verify sections array
         let sections = payload["sections"].as_array().unwrap();
         assert_eq!(sections.len(), 1);
-        assert_eq!(sections[0]["activityTitle"], "**Senior Rust Engineer**");
-        assert_eq!(sections[0]["activitySubtitle"], "Awesome Corp • greenhouse");
+        assert_eq!(sections[0]["activityTitle"], "**Care Coordinator**");
+        assert_eq!(
+            sections[0]["activitySubtitle"],
+            "Community Care Network • greenhouse"
+        );
 
         // Verify facts
         let facts = sections[0]["facts"].as_array().unwrap();
@@ -763,7 +766,7 @@ mod tests {
         );
         assert_eq!(
             summary,
-            "New job alert: Senior Rust Engineer at Awesome Corp"
+            "New job alert: Care Coordinator at Community Care Network"
         );
     }
 
@@ -781,14 +784,14 @@ mod tests {
     fn test_message_card_activity_title_format() {
         let notification = create_test_notification();
         let activity_title = format!("**{}**", notification.job.title);
-        assert_eq!(activity_title, "**Senior Rust Engineer**");
+        assert_eq!(activity_title, "**Care Coordinator**");
     }
 
     #[test]
     fn test_message_card_activity_subtitle_format() {
         let notification = create_test_notification();
         let subtitle = format!("{} • {}", notification.job.company, notification.job.source);
-        assert_eq!(subtitle, "Awesome Corp • greenhouse");
+        assert_eq!(subtitle, "Community Care Network • greenhouse");
     }
 
     #[test]
@@ -1091,8 +1094,8 @@ mod tests {
     #[test]
     fn test_notification_job_fields_present() {
         let notification = create_test_notification();
-        assert_eq!(notification.job.title, "Senior Rust Engineer");
-        assert_eq!(notification.job.company, "Awesome Corp");
+        assert_eq!(notification.job.title, "Care Coordinator");
+        assert_eq!(notification.job.company, "Community Care Network");
         assert_eq!(notification.job.source, "greenhouse");
         assert_eq!(notification.job.url, "https://example.com/jobs/123");
         assert_eq!(notification.job.hash, "test123");
@@ -1337,8 +1340,8 @@ mod tests {
     #[test]
     fn test_message_card_summary_with_special_characters() {
         let mut notification = create_test_notification();
-        notification.job.title = "Senior Engineer (Rust/C++)".to_string();
-        notification.job.company = "Company & Co.".to_string();
+        notification.job.title = "Care Coordinator (Bilingual/Weekend)".to_string();
+        notification.job.company = "Community Health & Co.".to_string();
 
         let summary = format!(
             "New job alert: {} at {}",
@@ -1346,7 +1349,7 @@ mod tests {
         );
         assert_eq!(
             summary,
-            "New job alert: Senior Engineer (Rust/C++) at Company & Co."
+            "New job alert: Care Coordinator (Bilingual/Weekend) at Community Health & Co."
         );
     }
 

@@ -441,11 +441,11 @@ mod tests {
             let job = Job {
                 id: 42,
                 hash: "abc123def456".to_string(),
-                title: "Senior Rust Engineer".to_string(),
-                company: "TechCorp Inc".to_string(),
+                title: "Senior Case Manager".to_string(),
+                company: "CommunityCare Inc".to_string(),
                 url: "https://example.com/jobs/123".to_string(),
                 location: Some("San Francisco, CA".to_string()),
-                description: Some("Build amazing things with Rust".to_string()),
+                description: Some("Help neighbors navigate care services".to_string()),
                 score: Some(0.95),
                 score_reasons: Some(r#"{"keywords": 5, "experience": 3}"#.to_string()),
                 source: "greenhouse".to_string(),
@@ -470,8 +470,8 @@ mod tests {
 
             assert_eq!(job.id, 42);
             assert_eq!(job.hash, "abc123def456");
-            assert_eq!(job.title, "Senior Rust Engineer");
-            assert_eq!(job.company, "TechCorp Inc");
+            assert_eq!(job.title, "Senior Case Manager");
+            assert_eq!(job.company, "CommunityCare Inc");
             assert_eq!(job.score, Some(0.95));
             assert!(job.remote.unwrap());
             assert!(job.bookmarked);
@@ -1560,20 +1560,20 @@ mod tests {
             db.migrate().await.unwrap();
 
             // Insert jobs
-            let job1 = create_test_job("search1", "Senior Rust Engineer", 0.9);
+            let job1 = create_test_job("search1", "Senior Support Manager", 0.9);
             db.upsert_job(&job1).await.unwrap();
 
-            let job2 = create_test_job("search2", "Junior Python Developer", 0.8);
+            let job2 = create_test_job("search2", "Retail Supervisor", 0.8);
             db.upsert_job(&job2).await.unwrap();
 
-            let job3 = create_test_job("search3", "Rust Developer", 0.85);
+            let job3 = create_test_job("search3", "Bilingual Support Specialist", 0.85);
             db.upsert_job(&job3).await.unwrap();
 
-            // Search for "Rust"
-            let results = db.search_jobs("Rust", 10).await.unwrap();
+            // Search for "Support"
+            let results = db.search_jobs("Support", 10).await.unwrap();
 
             assert_eq!(results.len(), 2);
-            assert!(results.iter().any(|j| j.title.contains("Rust")));
+            assert!(results.iter().any(|j| j.title.contains("Support")));
         }
 
         #[tokio::test]
@@ -1603,18 +1603,18 @@ mod tests {
             let db = Database::connect_memory().await.unwrap();
             db.migrate().await.unwrap();
 
-            // Insert 5 jobs with "Engineer" in title
+            // Insert 5 jobs with "Coordinator" in title
             for i in 0..5 {
                 let job = create_test_job(
                     &format!("eng_{}", i),
-                    &format!("Software Engineer {}", i),
+                    &format!("Program Coordinator {}", i),
                     0.8,
                 );
                 db.upsert_job(&job).await.unwrap();
             }
 
             // Search with limit 3
-            let results = db.search_jobs("Engineer", 3).await.unwrap();
+            let results = db.search_jobs("Coordinator", 3).await.unwrap();
 
             assert_eq!(results.len(), 3);
         }
@@ -1624,7 +1624,7 @@ mod tests {
             let db = Database::connect_memory().await.unwrap();
             db.migrate().await.unwrap();
 
-            let job = create_test_job("search_none", "Rust Engineer", 0.9);
+            let job = create_test_job("search_none", "Case Manager", 0.9);
             db.upsert_job(&job).await.unwrap();
 
             // Search for term that doesn't exist
@@ -1638,11 +1638,11 @@ mod tests {
             let db = Database::connect_memory().await.unwrap();
             db.migrate().await.unwrap();
 
-            let job = create_test_job("case_test", "Senior RUST Engineer", 0.9);
+            let job = create_test_job("case_test", "Senior BILINGUAL Support Specialist", 0.9);
             db.upsert_job(&job).await.unwrap();
 
             // Search with lowercase
-            let results = db.search_jobs("rust", 10).await.unwrap();
+            let results = db.search_jobs("bilingual", 10).await.unwrap();
 
             assert_eq!(results.len(), 1);
         }
@@ -1672,18 +1672,18 @@ mod tests {
             db.migrate().await.unwrap();
 
             // Insert same job from different sources
-            let mut job1 = create_test_job("dup1", "Senior Engineer", 0.95);
-            job1.company = "TechCorp".to_string();
+            let mut job1 = create_test_job("dup1", "Senior Case Manager", 0.95);
+            job1.company = "CommunityCare".to_string();
             job1.source = "greenhouse".to_string();
             db.upsert_job(&job1).await.unwrap();
 
-            let mut job2 = create_test_job("dup2", "Senior Engineer", 0.90);
-            job2.company = "TechCorp".to_string();
+            let mut job2 = create_test_job("dup2", "Senior Case Manager", 0.90);
+            job2.company = "CommunityCare".to_string();
             job2.source = "lever".to_string();
             db.upsert_job(&job2).await.unwrap();
 
-            let mut job3 = create_test_job("dup3", "Senior Engineer", 0.88);
-            job3.company = "TechCorp".to_string();
+            let mut job3 = create_test_job("dup3", "Senior Case Manager", 0.88);
+            job3.company = "CommunityCare".to_string();
             job3.source = "linkedin".to_string();
             db.upsert_job(&job3).await.unwrap();
 
@@ -1701,12 +1701,12 @@ mod tests {
             db.migrate().await.unwrap();
 
             // Insert jobs with different casing
-            let mut job1 = create_test_job("case1", "Software Engineer", 0.9);
-            job1.company = "CompanyA".to_string();
+            let mut job1 = create_test_job("case1", "Case Manager", 0.9);
+            job1.company = "CommunityCare".to_string();
             db.upsert_job(&job1).await.unwrap();
 
-            let mut job2 = create_test_job("case2", "SOFTWARE ENGINEER", 0.85);
-            job2.company = "companyA".to_string();
+            let mut job2 = create_test_job("case2", "CASE MANAGER", 0.85);
+            job2.company = "communitycare".to_string();
             db.upsert_job(&job2).await.unwrap();
 
             let groups = db.find_duplicate_groups().await.unwrap();
@@ -1981,7 +1981,8 @@ mod tests {
             let mut job = create_test_job("unicode", "Développeur Senior 🚀", 0.9);
             job.company = "株式会社テスト".to_string();
             job.location = Some("São Paulo, Brasil 🇧🇷".to_string());
-            job.description = Some("Looking for a 全栈工程师 with 経験 in Rust".to_string());
+            job.description =
+                Some("Looking for a 双语个案经理 with 経験 in scheduling".to_string());
 
             let id = db.upsert_job(&job).await.unwrap();
             let fetched = db.get_job_by_id(id).await.unwrap().unwrap();
@@ -2797,14 +2798,14 @@ mod tests {
             for i in 0..1005 {
                 let job = create_test_job(
                     &format!("search_overflow_{}", i),
-                    &format!("Engineer Position {}", i),
+                    &format!("Coordinator Position {}", i),
                     0.8,
                 );
                 db.upsert_job(&job).await.unwrap();
             }
 
             // Search should hit the MAX_IDS limit
-            let result = db.search_jobs("Engineer", 1005).await;
+            let result = db.search_jobs("Coordinator", 1005).await;
 
             // Should return error about too many IDs
             assert!(result.is_err());
@@ -2821,14 +2822,14 @@ mod tests {
             for i in 0..100 {
                 let job = create_test_job(
                     &format!("max_limit_{}", i),
-                    &format!("Software Engineer {}", i),
+                    &format!("Case Manager {}", i),
                     0.8,
                 );
                 db.upsert_job(&job).await.unwrap();
             }
 
             // Search with exactly 1000 limit (should succeed)
-            let result = db.search_jobs("Software", 1000).await;
+            let result = db.search_jobs("Case", 1000).await;
             assert!(result.is_ok());
             assert!(result.unwrap().len() <= 100);
         }
@@ -2853,12 +2854,12 @@ mod tests {
             let db = Database::connect_memory().await.unwrap();
             db.migrate().await.unwrap();
 
-            let mut job = create_test_job("quotes", "Senior Engineer", 0.9);
-            job.description = Some("Looking for 'expert' developers".to_string());
+            let mut job = create_test_job("quotes", "Senior Case Manager", 0.9);
+            job.description = Some("Looking for 'experienced' coordinators".to_string());
             db.upsert_job(&job).await.unwrap();
 
             // FTS5 phrase search with quotes
-            let result = db.search_jobs("\"Senior Engineer\"", 10).await;
+            let result = db.search_jobs("\"Senior Case Manager\"", 10).await;
             // Should handle quoted phrases
             assert!(result.is_ok() || result.is_err());
         }
@@ -3060,11 +3061,11 @@ mod tests {
             db.migrate().await.unwrap();
 
             // Same title, different companies - should NOT be duplicates
-            let mut job1 = create_test_job("diff1", "Senior Engineer", 0.9);
+            let mut job1 = create_test_job("diff1", "Senior Case Manager", 0.9);
             job1.company = "CompanyA".to_string();
             db.upsert_job(&job1).await.unwrap();
 
-            let mut job2 = create_test_job("diff2", "Senior Engineer", 0.85);
+            let mut job2 = create_test_job("diff2", "Senior Case Manager", 0.85);
             job2.company = "CompanyB".to_string();
             db.upsert_job(&job2).await.unwrap();
 
@@ -3078,11 +3079,11 @@ mod tests {
             db.migrate().await.unwrap();
 
             // Same company, different titles - should NOT be duplicates
-            let mut job1 = create_test_job("diff_title1", "Senior Engineer", 0.9);
+            let mut job1 = create_test_job("diff_title1", "Senior Case Manager", 0.9);
             job1.company = "Company".to_string();
             db.upsert_job(&job1).await.unwrap();
 
-            let mut job2 = create_test_job("diff_title2", "Junior Engineer", 0.85);
+            let mut job2 = create_test_job("diff_title2", "Junior Case Manager", 0.85);
             job2.company = "Company".to_string();
             db.upsert_job(&job2).await.unwrap();
 
@@ -3257,21 +3258,21 @@ mod tests {
             // First time tracking - should return 1
             // track_repost(company, title, source, job_hash)
             let count = db
-                .track_repost("Company A", "Software Engineer", "linkedin", "hash1")
+                .track_repost("County Services", "Case Manager", "linkedin", "hash1")
                 .await
                 .unwrap();
             assert_eq!(count, 1);
 
             // Second time - should return 2
             let count = db
-                .track_repost("Company A", "Software Engineer", "linkedin", "hash1")
+                .track_repost("County Services", "Case Manager", "linkedin", "hash1")
                 .await
                 .unwrap();
             assert_eq!(count, 2);
 
             // Different job - should return 1
             let count = db
-                .track_repost("Company B", "Data Scientist", "indeed", "hash2")
+                .track_repost("Metro Transit", "Program Coordinator", "indeed", "hash2")
                 .await
                 .unwrap();
             assert_eq!(count, 1);

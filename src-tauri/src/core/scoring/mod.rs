@@ -774,9 +774,9 @@ mod tests {
 
     fn create_test_config() -> Config {
         Config {
-            title_allowlist: vec!["Security Engineer".to_string()],
-            title_blocklist: vec!["Manager".to_string()],
-            keywords_boost: vec!["Kubernetes".to_string(), "AWS".to_string()],
+            title_allowlist: vec!["Case Manager".to_string()],
+            title_blocklist: vec!["Director".to_string()],
+            keywords_boost: vec!["Scheduling".to_string(), "CRM".to_string()],
             keywords_exclude: vec!["sales".to_string()],
             location_preferences: LocationPreferences {
                 allow_remote: true,
@@ -817,12 +817,12 @@ mod tests {
         Job {
             id: 1,
             hash: "test".to_string(),
-            title: "Security Engineer".to_string(),
-            company: "Cloudflare".to_string(),
+            title: "Case Manager".to_string(),
+            company: "CommunityCare".to_string(),
             url: "https://example.com".to_string(),
             location: Some("Remote".to_string()),
             description: Some(
-                "We need a Security Engineer with Kubernetes and AWS experience".to_string(),
+                "We need a Case Manager with Scheduling and CRM experience".to_string(),
             ),
             score: None,
             score_reasons: None,
@@ -908,9 +908,9 @@ mod tests {
     fn test_title_in_blocklist() {
         let config = create_test_config();
         let mut job = create_test_job();
-        // Title contains both allowlist term "Security Engineer" AND blocklist term "Manager"
+        // Title contains both allowlist term "Case Manager" AND blocklist term "Director"
         // Should fail on blocklist check (which comes after allowlist)
-        job.title = "Security Engineering Manager".to_string();
+        job.title = "Case Manager Director".to_string();
 
         let engine = ScoringEngine::new(Arc::new(config));
         let score = engine.score(&job);
@@ -931,7 +931,7 @@ mod tests {
     fn test_keyword_matching_case_insensitive() {
         let config = create_test_config();
         let mut job = create_test_job();
-        job.description = Some("Looking for kubernetes and aws experience".to_string());
+        job.description = Some("Looking for scheduling and crm experience".to_string());
 
         let engine = ScoringEngine::new(Arc::new(config));
         let score = engine.score(&job);
@@ -948,7 +948,7 @@ mod tests {
         let config = create_test_config();
         let mut job = create_test_job();
         job.description =
-            Some("Experience with Kubernetes-native applications and AWS cloud".to_string());
+            Some("Experience with scheduling-heavy caseloads and CRM systems".to_string());
 
         let engine = ScoringEngine::new(Arc::new(config));
         let score = engine.score(&job);
@@ -965,8 +965,7 @@ mod tests {
         let config = create_test_config();
         let mut job = create_test_job();
         job.description = Some(
-            "Security Engineer with sales responsibilities, AWS and Kubernetes experience"
-                .to_string(),
+            "Case Manager with sales responsibilities, CRM and Scheduling experience".to_string(),
         );
 
         let engine = ScoringEngine::new(Arc::new(config));
@@ -985,7 +984,7 @@ mod tests {
     fn test_partial_keyword_match() {
         let config = create_test_config();
         let mut job = create_test_job();
-        job.description = Some("Security Engineer with AWS experience".to_string()); // Only 1 of 2 keywords
+        job.description = Some("Case Manager with CRM experience".to_string()); // Only 1 of 2 keywords
 
         let engine = ScoringEngine::new(Arc::new(config));
         let score = engine.score(&job);
@@ -1266,7 +1265,7 @@ mod tests {
     fn test_location_remote_in_title() {
         let config = create_test_config();
         let mut job = create_test_job();
-        job.title = "Remote Security Engineer".to_string();
+        job.title = "Remote Case Manager".to_string();
         job.remote = None;
         job.location = None;
 
@@ -1343,7 +1342,7 @@ mod tests {
         let mut job = create_test_job();
         job.remote = None;
         job.location = None;
-        job.title = "Security Engineer".to_string(); // No "remote" in title
+        job.title = "Case Worker".to_string(); // No "remote" in title
 
         let engine = ScoringEngine::new(Arc::new(config));
         let score = engine.score(&job);
@@ -1360,8 +1359,8 @@ mod tests {
     fn test_excluded_keyword_in_title() {
         let config = create_test_config();
         let mut job = create_test_job();
-        job.title = "Security Engineer - Sales".to_string(); // Excluded keyword in title
-        job.description = Some("AWS and Kubernetes experience".to_string());
+        job.title = "Case Manager - Sales".to_string(); // Excluded keyword in title
+        job.description = Some("CRM and Scheduling experience".to_string());
 
         let engine = ScoringEngine::new(Arc::new(config));
         let score = engine.score(&job);
@@ -1430,12 +1429,12 @@ mod tests {
     fn test_multiple_allowlist_matches() {
         let mut config = create_test_config();
         config.title_allowlist = vec![
-            "Engineer".to_string(),
-            "Developer".to_string(),
-            "Security".to_string(),
+            "Case".to_string(),
+            "Coordinator".to_string(),
+            "Support".to_string(),
         ];
         let mut job = create_test_job();
-        job.title = "Senior Security Engineer".to_string(); // Matches multiple
+        job.title = "Senior Case Manager".to_string(); // Matches multiple
 
         let engine = ScoringEngine::new(Arc::new(config));
         let score = engine.score(&job);
@@ -1509,7 +1508,7 @@ mod tests {
     #[test]
     fn test_zero_boost_keywords_match() {
         let mut config = create_test_config();
-        config.keywords_boost = vec!["Rust".to_string()];
+        config.keywords_boost = vec!["Bilingual".to_string()];
         let mut job = create_test_job();
         job.description = Some("No matching keywords here".to_string());
 
@@ -1546,7 +1545,7 @@ mod tests {
         let mut job = create_test_job();
 
         // Test uppercase keywords in description
-        job.description = Some("KUBERNETES and AWS experience".to_string());
+        job.description = Some("SCHEDULING and CRM experience".to_string());
         let engine = ScoringEngine::new(Arc::new(config.clone()));
         let score = engine.score(&job);
         assert_eq!(
@@ -1555,7 +1554,7 @@ mod tests {
         );
 
         // Test mixed case in title
-        job.title = "sEcUrItY eNgInEeR".to_string();
+        job.title = "cAsE mAnAgEr".to_string();
         let score = engine.score(&job);
         assert!(
             score.breakdown.skills > 0.0,
@@ -1868,9 +1867,9 @@ mod tests {
     #[test]
     fn test_company_whitelist() {
         let mut config = create_test_config();
-        config.company_whitelist = vec!["Google".to_string(), "Cloudflare".to_string()];
+        config.company_whitelist = vec!["Metro Transit".to_string(), "CommunityCare".to_string()];
         let mut job = create_test_job();
-        job.company = "Google LLC".to_string();
+        job.company = "Metro Transit LLC".to_string();
 
         let engine = ScoringEngine::new(Arc::new(config));
         let score = engine.score(&job);
@@ -1893,10 +1892,10 @@ mod tests {
     #[test]
     fn test_company_neutral() {
         let mut config = create_test_config();
-        config.company_whitelist = vec!["Google".to_string()];
+        config.company_whitelist = vec!["Metro Transit".to_string()];
         config.company_blacklist = vec!["BadCompany".to_string()];
         let mut job = create_test_job();
-        job.company = "Microsoft".to_string(); // Not in either list
+        job.company = "County Services".to_string(); // Not in either list
 
         let engine = ScoringEngine::new(Arc::new(config));
         let score = engine.score(&job);
@@ -1939,9 +1938,9 @@ mod tests {
     #[test]
     fn test_company_fuzzy_matching_case_insensitive() {
         let mut config = create_test_config();
-        config.company_whitelist = vec!["cloudflare".to_string()];
+        config.company_whitelist = vec!["communitycare".to_string()];
         let mut job = create_test_job();
-        job.company = "CLOUDFLARE INC".to_string();
+        job.company = "COMMUNITYCARE INC".to_string();
 
         let engine = ScoringEngine::new(Arc::new(config));
         let score = engine.score(&job);
@@ -1984,9 +1983,9 @@ mod tests {
     #[test]
     fn test_company_partial_match() {
         let mut config = create_test_config();
-        config.company_whitelist = vec!["Google".to_string()];
+        config.company_whitelist = vec!["Metro Transit".to_string()];
         let mut job = create_test_job();
-        job.company = "Google DeepMind".to_string();
+        job.company = "Metro Transit Community Services".to_string();
 
         let engine = ScoringEngine::new(Arc::new(config));
         let score = engine.score(&job);
@@ -2022,10 +2021,16 @@ mod tests {
 
     #[test]
     fn test_normalize_company_name() {
-        assert_eq!(normalize_company_name("Google LLC"), "google");
-        assert_eq!(normalize_company_name("Microsoft Corporation"), "microsoft");
-        assert_eq!(normalize_company_name("Apple Inc."), "apple");
-        assert_eq!(normalize_company_name("Amazon Co"), "amazon");
+        assert_eq!(normalize_company_name("Metro Transit LLC"), "metro transit");
+        assert_eq!(
+            normalize_company_name("County Services Corporation"),
+            "county services"
+        );
+        assert_eq!(
+            normalize_company_name("Neighborhood Health Inc."),
+            "neighborhood health"
+        );
+        assert_eq!(normalize_company_name("Harbor Retail Co"), "harbor retail");
         assert_eq!(normalize_company_name("  Spaces  Inc  "), "spaces");
         assert_eq!(normalize_company_name("Company L.L.C."), "company");
     }
@@ -2033,31 +2038,40 @@ mod tests {
     #[test]
     fn test_fuzzy_match_company() {
         // Exact match after normalization
-        assert!(fuzzy_match_company("Google LLC", "Google"));
+        assert!(fuzzy_match_company("Metro Transit LLC", "Metro Transit"));
         assert!(fuzzy_match_company(
-            "Microsoft Corporation",
-            "Microsoft Corp"
+            "County Services Corporation",
+            "County Services Corp"
         ));
 
         // Partial match
-        assert!(fuzzy_match_company("Google DeepMind", "Google"));
-        assert!(fuzzy_match_company("Apple Inc", "Apple"));
+        assert!(fuzzy_match_company(
+            "Metro Transit Community Services",
+            "Metro Transit"
+        ));
+        assert!(fuzzy_match_company(
+            "Neighborhood Health Inc",
+            "Neighborhood Health"
+        ));
 
         // Case insensitive
-        assert!(fuzzy_match_company("CLOUDFLARE INC", "cloudflare"));
+        assert!(fuzzy_match_company("COMMUNITYCARE INC", "communitycare"));
 
         // Should not match
-        assert!(!fuzzy_match_company("Google", "Amazon"));
-        assert!(!fuzzy_match_company("Microsoft", "Meta"));
+        assert!(!fuzzy_match_company("Metro Transit", "Harbor Retail"));
+        assert!(!fuzzy_match_company(
+            "County Services",
+            "Public Benefit Office"
+        ));
     }
 
     #[test]
     fn test_company_scoring_with_multiple_lists() {
         let mut config = create_test_config();
         config.company_whitelist = vec![
-            "Google".to_string(),
-            "Cloudflare".to_string(),
-            "Amazon".to_string(),
+            "Metro Transit".to_string(),
+            "CommunityCare".to_string(),
+            "Harbor Retail".to_string(),
         ];
         config.company_blacklist = vec!["BadCorp".to_string(), "WorstCompany".to_string()];
 
@@ -2065,11 +2079,11 @@ mod tests {
 
         // Test whitelisted (use approximate comparison for floating point)
         let mut job = create_test_job();
-        job.company = "Amazon Web Services".to_string();
+        job.company = "Harbor Retail Supply Services".to_string();
         let score = engine.score(&job);
         assert!(
             (score.breakdown.company - 0.15).abs() < 0.001,
-            "AWS should be whitelisted, got: {}",
+            "Preferred company should be whitelisted, got: {}",
             score.breakdown.company
         );
 
@@ -2082,11 +2096,11 @@ mod tests {
         );
 
         // Test neutral (use approximate comparison for floating point)
-        job.company = "Microsoft".to_string();
+        job.company = "County Services".to_string();
         let score = engine.score(&job);
         assert!(
             (score.breakdown.company - 0.10).abs() < 0.001,
-            "Microsoft should be neutral, got: {}",
+            "County Services should be neutral, got: {}",
             score.breakdown.company
         );
     }

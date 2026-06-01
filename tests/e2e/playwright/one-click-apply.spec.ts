@@ -65,9 +65,9 @@ test.describe("Application Assist Settings", () => {
       email: "casey@example.com",
       phone: "+1 (555) 765-4321",
       linkedin: "https://linkedin.com/in/caseysentinel",
-      github: "https://code.example.com/caseysentinel",
-      portfolio: "https://casey.example.com",
-      website: "https://blog.casey.example.com",
+      github: "https://casey.example.com/profile",
+      portfolio: "https://casey.example.com/work",
+      website: "https://casey.example.com",
       maxApplications: "20",
     });
 
@@ -87,9 +87,9 @@ test.describe("Application Assist Settings", () => {
     await expect(applyPage.emailInput).toHaveValue("casey@example.com");
     await expect(applyPage.phoneInput).toHaveValue("+1 (555) 765-4321");
     await expect(applyPage.linkedInInput).toHaveValue("https://linkedin.com/in/caseysentinel");
-    await expect(applyPage.githubInput).toHaveValue("https://code.example.com/caseysentinel");
-    await expect(applyPage.portfolioInput).toHaveValue("https://casey.example.com");
-    await expect(applyPage.websiteInput).toHaveValue("https://blog.casey.example.com");
+    await expect(applyPage.githubInput).toHaveValue("https://casey.example.com/profile");
+    await expect(applyPage.portfolioInput).toHaveValue("https://casey.example.com/work");
+    await expect(applyPage.websiteInput).toHaveValue("https://casey.example.com");
     await expect(applyPage.maxApplicationsSelect).toHaveValue("20");
   });
 

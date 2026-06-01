@@ -82,6 +82,12 @@ Current cleanup posture:
   tech-first resume/mock ATS fixtures, switched E2E examples toward customer
   support and care coordination, and aligned tests with the visible
   "Skills Interview" label.
+- Latest backend fixture follow-up rebalanced generic market-intelligence,
+  notification, config, database, ATS, ghost detection, salary, scoring,
+  SimplyHired, command, and mock job examples toward care coordination, public
+  health, operations, training, inventory planning, account management, and
+  customer support, then added focused bloat coverage for recurring
+  generic-fixture paths.
 - Latest IPC minimization work added `has_application_profile`,
   `get_application_profile_preview`, `get_dashboard_preferences`, canonical
   import URLs before preview/hash/storage, and minimized import responses to

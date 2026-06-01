@@ -495,8 +495,8 @@ const ATS_POWER_WORDS = [
   "optimized",
   "enhanced",
   "streamlined",
-  "automated",
-  "refactored",
+  "organized",
+  "trained",
   "increased",
   "reduced",
   "saved",
@@ -510,9 +510,9 @@ const ATS_POWER_WORDS = [
 ] as const;
 
 const ATS_KNOWN_KEYWORDS = [
-  "SQL",
-  "automation",
-  "testing",
+  "forecasting",
+  "workflow improvement",
+  "quality assurance",
   "leadership",
   "scheduling",
   "case management",
@@ -1177,7 +1177,7 @@ function previewMockJobImport(args?: Record<string, unknown>): MockJobImportPrev
     url,
     location: "Remote",
     description_preview: `${title} role imported from ${company}. Review details before saving.`,
-    salary: "$120k-$180k",
+    salary: "$55k-$72k",
     date_posted: new Date().toISOString(),
     valid_through: null,
     employment_types: ["FULL_TIME"],
@@ -1203,8 +1203,8 @@ function importMockJobFromUrl(args?: Record<string, unknown>): MockJobImportResu
     description: preview.description_preview ?? "",
     url: preview.url,
     source: "import",
-    salary_min: 120000,
-    salary_max: 180000,
+    salary_min: 55000,
+    salary_max: 72000,
     remote: preview.remote,
     score: 1,
     hidden: false,
@@ -1869,7 +1869,7 @@ function analyzeMockResumeFormat(args?: Record<string, unknown>): MockAtsAnalysi
     formatIssues.push({
       severity: "Warning",
       issue: "Missing skills section",
-      fix: "Add relevant technical, workplace, and role-specific skills",
+      fix: "Add relevant role-specific, workplace, and transferable skills",
     });
   }
 
@@ -2090,7 +2090,7 @@ function getMockSalaryBenchmark(args?: Record<string, unknown>): MockSalaryBench
       : seniorityLabel === "Staff" || seniorityLabel === "Principal"
         ? 1.38
         : 1;
-  const base = Math.round(140000 * seniorityMultiplier);
+  const base = Math.round(68000 * seniorityMultiplier);
 
   return {
     job_title: jobTitle,
@@ -2129,8 +2129,8 @@ function generateMockNegotiationScript(args?: Record<string, unknown>): string {
   const params = isRecord(getArg(args, "params")) ? getArg(args, "params") as Record<string, unknown> : {};
   const scenario = getStringArg(args, "scenario") ?? "initial_offer";
   const jobTitle = typeof params.job_title === "string" ? params.job_title : "the role";
-  const targetSalary = typeof params.target_salary === "string" ? params.target_salary : "170000";
-  const currentOffer = typeof params.current_offer === "string" ? params.current_offer : "140000";
+  const targetSalary = typeof params.target_salary === "string" ? params.target_salary : "72000";
+  const currentOffer = typeof params.current_offer === "string" ? params.current_offer : "64000";
 
   return [
     `Scenario: ${scenario.replace(/_/g, " ")}`,
@@ -2573,8 +2573,8 @@ function getDefaultCoverLetterTemplates(): MockCoverLetterTemplate[] {
       content: "Dear {hiring_manager},\n\nI am interested in the {position} role at {company}.\n\nBest regards,\n{your_name}",
     },
     {
-      name: "Tech/Engineering Cover Letter",
-      category: "tech",
+      name: "Customer Support Cover Letter",
+      category: "general",
       content: "Dear {hiring_manager},\n\nI can bring {skill1} and {skill2} experience to the {position} role at {company}.\n\nBest regards,\n{your_name}",
     },
     {
@@ -3199,10 +3199,10 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
 
     case "get_salary_distribution":
       return [
-        { range: "$75k-$100k", count: jobs.filter((j) => j.salary_min < 100000).length },
-        { range: "$100k-$150k", count: jobs.filter((j) => j.salary_min >= 100000 && j.salary_min < 150000).length },
-        { range: "$150k-$200k", count: jobs.filter((j) => j.salary_min >= 150000 && j.salary_min < 200000).length },
-        { range: "$200k+", count: jobs.filter((j) => j.salary_min >= 200000).length },
+        { range: "$40k-$60k", count: jobs.filter((j) => j.salary_min < 60000).length },
+        { range: "$60k-$80k", count: jobs.filter((j) => j.salary_min >= 60000 && j.salary_min < 80000).length },
+        { range: "$80k-$100k", count: jobs.filter((j) => j.salary_min >= 80000 && j.salary_min < 100000).length },
+        { range: "$100k+", count: jobs.filter((j) => j.salary_min >= 100000).length },
       ].filter((bucket) => bucket.count > 0) as T;
 
     // Interview commands
@@ -3534,7 +3534,7 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
 
     // Salary commands
     case "predict_salary":
-      return { min: 120000, max: 160000, median: 140000 } as T;
+      return { min: 55000, max: 76000, median: 65000 } as T;
 
     case "get_salary_benchmark":
       return getMockSalaryBenchmark(args) as T;

@@ -11,9 +11,12 @@ mod tests {
     /// Helper function to create a valid test config
     fn create_valid_config() -> Config {
         Config {
-            title_allowlist: vec!["Security Engineer".to_string()],
+            title_allowlist: vec!["Care Coordinator".to_string()],
             title_blocklist: vec!["Manager".to_string()],
-            keywords_boost: vec!["Rust".to_string(), "Kubernetes".to_string()],
+            keywords_boost: vec![
+                "case management".to_string(),
+                "bilingual support".to_string(),
+            ],
             keywords_exclude: vec!["sales".to_string()],
             location_preferences: LocationPreferences {
                 allow_remote: true,
@@ -262,7 +265,7 @@ mod tests {
     #[test]
     fn test_empty_keyword_in_boost_fails() {
         let mut config = create_valid_config();
-        config.keywords_boost = vec!["Rust".to_string(), "".to_string()];
+        config.keywords_boost = vec!["case management".to_string(), "".to_string()];
 
         let result = validate_config(&config);
         assert!(result.is_err(), "Empty keyword in boost should fail");
@@ -1365,7 +1368,7 @@ mod tests {
     #[test]
     fn test_deserialize_with_missing_optional_fields() {
         let json = r#"{
-            "title_allowlist": ["Security Engineer"],
+            "title_allowlist": ["Care Coordinator"],
             "location_preferences": {
                 "allow_remote": true
             },
@@ -1411,7 +1414,7 @@ mod tests {
     #[test]
     fn test_deserialize_location_preferences_with_defaults() {
         let json = r#"{
-            "title_allowlist": ["Engineer"],
+            "title_allowlist": ["Care Coordinator"],
             "location_preferences": {
                 "allow_remote": true
             },
@@ -1433,7 +1436,7 @@ mod tests {
     #[test]
     fn test_deserialize_alert_config_with_defaults() {
         let json = r#"{
-            "title_allowlist": ["Engineer"],
+            "title_allowlist": ["Care Coordinator"],
             "location_preferences": {
                 "allow_remote": true
             },
@@ -1459,7 +1462,7 @@ mod tests {
     fn test_deserialize_with_field_level_defaults() {
         // This test shows that field-level defaults DO work when the parent struct is present
         let json = r#"{
-            "title_allowlist": ["Engineer"],
+            "title_allowlist": ["Care Coordinator"],
             "location_preferences": {
                 "allow_remote": true
             },
@@ -1484,7 +1487,7 @@ mod tests {
     #[test]
     fn test_deserialize_minimal_valid_config() {
         let json = r#"{
-            "title_allowlist": ["Engineer"],
+            "title_allowlist": ["Care Coordinator"],
             "location_preferences": {
                 "allow_remote": true
             },
@@ -1558,11 +1561,14 @@ mod tests {
     fn test_config_with_unicode_characters_passes() {
         let mut config = create_valid_config();
         config.title_allowlist = vec![
-            "Software Engineer 软件工程师".to_string(),
-            "Développeur Backend".to_string(),
-            "エンジニア".to_string(),
+            "Care Coordinator 护理协调员".to_string(),
+            "Coordonnatrice de programme".to_string(),
+            "ケアコーディネーター".to_string(),
         ];
-        config.keywords_boost = vec!["Rust 🦀".to_string(), "Python 🐍".to_string()];
+        config.keywords_boost = vec![
+            "case management 🗂️".to_string(),
+            "bilingual support 🗣️".to_string(),
+        ];
         config.location_preferences.cities = vec![
             "São Paulo".to_string(),
             "Москва".to_string(),

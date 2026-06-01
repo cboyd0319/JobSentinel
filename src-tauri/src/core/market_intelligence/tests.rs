@@ -57,22 +57,22 @@ fn test_compute_median_large_dataset() {
 #[test]
 fn test_skill_trend_data() {
     let trend = super::queries::SkillTrend {
-        skill_name: "Rust".to_string(),
+        skill_name: "Case Management".to_string(),
         total_jobs: 250,
-        avg_salary: Some(140000),
+        avg_salary: Some(65000),
         change_percent: 10.0,
         trend_direction: "up".to_string(),
     };
 
-    assert_eq!(trend.skill_name, "Rust");
+    assert_eq!(trend.skill_name, "Case Management");
     assert_eq!(trend.total_jobs, 250);
-    assert_eq!(trend.avg_salary, Some(140000));
+    assert_eq!(trend.avg_salary, Some(65000));
 }
 
 #[test]
 fn test_skill_trend_no_salary() {
     let trend = super::queries::SkillTrend {
-        skill_name: "Python".to_string(),
+        skill_name: "Customer Support".to_string(),
         total_jobs: 500,
         avg_salary: None,
         change_percent: -3.0,
@@ -85,15 +85,15 @@ fn test_skill_trend_no_salary() {
 #[test]
 fn test_company_activity_data() {
     let activity = super::queries::CompanyActivity {
-        company_name: "TechCorp".to_string(),
+        company_name: "Community Care Network".to_string(),
         total_posted: 50,
         avg_active: 30.5,
         hiring_trend: Some("increasing".to_string()),
-        avg_salary: Some(150000),
+        avg_salary: Some(65000),
         growth_rate: 8.5,
     };
 
-    assert_eq!(activity.company_name, "TechCorp");
+    assert_eq!(activity.company_name, "Community Care Network");
     assert_eq!(activity.total_posted, 50);
     assert_eq!(activity.avg_active, 30.5);
     assert_eq!(activity.hiring_trend, Some("increasing".to_string()));
@@ -292,9 +292,9 @@ fn test_compute_median_precision() {
 #[test]
 fn test_skill_trend_serialization() {
     let trend = super::queries::SkillTrend {
-        skill_name: "TypeScript".to_string(),
+        skill_name: "Inventory Planning".to_string(),
         total_jobs: 300,
-        avg_salary: Some(135000),
+        avg_salary: Some(58000),
         change_percent: 15.5,
         trend_direction: "up".to_string(),
     };
@@ -302,9 +302,9 @@ fn test_skill_trend_serialization() {
     let serialized = serde_json::to_string(&trend).unwrap();
     let deserialized: super::queries::SkillTrend = serde_json::from_str(&serialized).unwrap();
 
-    assert_eq!(deserialized.skill_name, "TypeScript");
+    assert_eq!(deserialized.skill_name, "Inventory Planning");
     assert_eq!(deserialized.total_jobs, 300);
-    assert_eq!(deserialized.avg_salary, Some(135000));
+    assert_eq!(deserialized.avg_salary, Some(58000));
     assert_eq!(deserialized.change_percent, 15.5);
     assert_eq!(deserialized.trend_direction, "up");
 }
@@ -636,9 +636,9 @@ mod async_tests {
             r#"
             INSERT INTO skill_demand_trends (skill_name, date, mention_count, job_count, avg_salary)
             VALUES
-                ('Rust', date('now'), 100, 50, 150000),
-                ('Python', date('now'), 200, 100, 130000),
-                ('TypeScript', date('now'), 150, 75, 140000)
+                ('Case Management', date('now'), 100, 50, 65000),
+                ('Customer Support', date('now'), 200, 100, 62000),
+                ('Inventory Planning', date('now'), 150, 75, 58000)
             "#,
         )
         .execute(&pool)
@@ -649,10 +649,10 @@ mod async_tests {
         let trends = mi.get_trending_skills(3).await.unwrap();
 
         assert_eq!(trends.len(), 3);
-        assert_eq!(trends[0].skill_name, "Python");
+        assert_eq!(trends[0].skill_name, "Customer Support");
         assert_eq!(trends[0].total_jobs, 100);
-        assert_eq!(trends[1].skill_name, "TypeScript");
-        assert_eq!(trends[2].skill_name, "Rust");
+        assert_eq!(trends[1].skill_name, "Inventory Planning");
+        assert_eq!(trends[2].skill_name, "Case Management");
     }
 
     #[tokio::test]
@@ -663,10 +663,10 @@ mod async_tests {
             r#"
             INSERT INTO skill_demand_trends (skill_name, date, mention_count, job_count)
             VALUES
-                ('Rust', date('now'), 100, 50),
-                ('Python', date('now'), 200, 100),
-                ('TypeScript', date('now'), 150, 75),
-                ('Go', date('now'), 80, 40)
+                ('Case Management', date('now'), 100, 50),
+                ('Customer Support', date('now'), 200, 100),
+                ('Inventory Planning', date('now'), 150, 75),
+                ('Bilingual Support', date('now'), 80, 40)
             "#,
         )
         .execute(&pool)
@@ -677,8 +677,8 @@ mod async_tests {
         let trends = mi.get_trending_skills(2).await.unwrap();
 
         assert_eq!(trends.len(), 2);
-        assert_eq!(trends[0].skill_name, "Python");
-        assert_eq!(trends[1].skill_name, "TypeScript");
+        assert_eq!(trends[0].skill_name, "Customer Support");
+        assert_eq!(trends[1].skill_name, "Inventory Planning");
     }
 
     #[tokio::test]
@@ -698,9 +698,9 @@ mod async_tests {
             r#"
             INSERT INTO company_hiring_velocity (company_name, date, jobs_posted_count, jobs_active_count, hiring_trend)
             VALUES
-                ('TechCorp', date('now'), 50, 30, 'increasing'),
-                ('StartupInc', date('now'), 25, 15, 'stable'),
-                ('BigTech', date('now'), 100, 75, 'increasing')
+                ('Community Care Network', date('now'), 50, 30, 'increasing'),
+                ('Regional Food Bank', date('now'), 25, 15, 'stable'),
+                ('City Health Department', date('now'), 100, 75, 'increasing')
             "#,
         )
         .execute(&pool)
@@ -711,11 +711,11 @@ mod async_tests {
         let companies = mi.get_most_active_companies(3).await.unwrap();
 
         assert_eq!(companies.len(), 3);
-        assert_eq!(companies[0].company_name, "BigTech");
+        assert_eq!(companies[0].company_name, "City Health Department");
         assert_eq!(companies[0].total_posted, 100);
         assert_eq!(companies[0].hiring_trend, Some("increasing".to_string()));
-        assert_eq!(companies[1].company_name, "TechCorp");
-        assert_eq!(companies[2].company_name, "StartupInc");
+        assert_eq!(companies[1].company_name, "Community Care Network");
+        assert_eq!(companies[2].company_name, "Regional Food Bank");
     }
 
     #[tokio::test]
@@ -833,7 +833,7 @@ mod async_tests {
         sqlx::query(
             r#"
             INSERT INTO jobs (hash, title, company, location, posted_at, updated_at)
-            VALUES ('job1', 'Software Engineer', 'TechCorp', 'San Francisco, CA', datetime('now'), datetime('now'))
+            VALUES ('job1', 'Care Coordinator', 'Community Care Network', 'Denver, CO', datetime('now'), datetime('now'))
             "#,
         )
         .execute(&pool)
@@ -843,7 +843,7 @@ mod async_tests {
         sqlx::query(
             r#"
             INSERT INTO job_skills (job_hash, skill_name, created_at)
-            VALUES ('job1', 'Rust', datetime('now'))
+            VALUES ('job1', 'Case Management', datetime('now'))
             "#,
         )
         .execute(&pool)
@@ -853,7 +853,7 @@ mod async_tests {
         sqlx::query(
             r#"
             INSERT INTO job_salary_predictions (job_hash, predicted_median)
-            VALUES ('job1', 150000.0)
+            VALUES ('job1', 65000.0)
             "#,
         )
         .execute(&pool)
@@ -866,13 +866,13 @@ mod async_tests {
 
         // Verify trend was created
         let trend: (String, i64, i64) = sqlx::query_as(
-            "SELECT skill_name, mention_count, job_count FROM skill_demand_trends WHERE skill_name = 'Rust'",
+            "SELECT skill_name, mention_count, job_count FROM skill_demand_trends WHERE skill_name = 'Case Management'",
         )
         .fetch_one(&pool)
         .await
         .unwrap();
 
-        assert_eq!(trend.0, "Rust");
+        assert_eq!(trend.0, "Case Management");
         assert_eq!(trend.1, 1); // mention_count
         assert_eq!(trend.2, 1); // job_count
     }
@@ -903,7 +903,7 @@ mod async_tests {
                 job_title_normalized, location_normalized, min_salary, p25_salary,
                 median_salary, p75_salary, max_salary, average_salary, sample_size
             )
-            VALUES ('software engineer', 'san francisco, ca', 100000, 120000, 140000, 160000, 180000, 140000, 50)
+            VALUES ('care coordinator', 'denver, co', 50000, 55000, 60000, 65000, 70000, 60000, 50)
             "#,
         )
         .execute(&pool)
@@ -922,12 +922,12 @@ mod async_tests {
         assert_eq!(count, 1);
 
         let median: i64 = sqlx::query_scalar(
-            "SELECT median_salary FROM salary_trends WHERE job_title_normalized = 'software engineer'",
+            "SELECT median_salary FROM salary_trends WHERE job_title_normalized = 'care coordinator'",
         )
         .fetch_one(&pool)
         .await
         .unwrap();
-        assert_eq!(median, 140000);
+        assert_eq!(median, 60000);
     }
 
     #[tokio::test]
@@ -954,8 +954,8 @@ mod async_tests {
             r#"
             INSERT INTO jobs (hash, title, company, location, posted_at, updated_at, status)
             VALUES
-                ('job1', 'Engineer', 'TechCorp', 'SF', date('now'), datetime('now'), 'active'),
-                ('job2', 'Designer', 'TechCorp', 'SF', date('now'), datetime('now'), 'active')
+                ('job1', 'Care Coordinator', 'Community Care Network', 'Denver, CO', date('now'), datetime('now'), 'active'),
+                ('job2', 'Program Coordinator', 'Community Care Network', 'Denver, CO', date('now'), datetime('now'), 'active')
             "#,
         )
         .execute(&pool)
@@ -968,7 +968,7 @@ mod async_tests {
 
         // Verify velocity was recorded
         let velocity: (i64, i64) = sqlx::query_as(
-            "SELECT jobs_posted_count, jobs_active_count FROM company_hiring_velocity WHERE company_name = 'TechCorp'",
+            "SELECT jobs_posted_count, jobs_active_count FROM company_hiring_velocity WHERE company_name = 'Community Care Network'",
         )
         .fetch_one(&pool)
         .await
@@ -1002,8 +1002,8 @@ mod async_tests {
             r#"
             INSERT INTO jobs (hash, title, company, location, posted_at, updated_at)
             VALUES
-                ('job1', 'Engineer', 'Corp1', 'Seattle, WA', datetime('now'), datetime('now')),
-                ('job2', 'Designer', 'Corp2', 'Seattle, WA', datetime('now'), datetime('now'))
+                ('job1', 'Care Coordinator', 'Community Care Network', 'Seattle, WA', datetime('now'), datetime('now')),
+                ('job2', 'Inventory Planner', 'FreshMart', 'Seattle, WA', datetime('now'), datetime('now'))
             "#,
         )
         .execute(&pool)
@@ -1015,8 +1015,8 @@ mod async_tests {
             r#"
             INSERT INTO job_skills (job_hash, skill_name)
             VALUES
-                ('job1', 'Rust'),
-                ('job2', 'TypeScript')
+                ('job1', 'Case Management'),
+                ('job2', 'Inventory Planning')
             "#,
         )
         .execute(&pool)
@@ -1070,7 +1070,7 @@ mod async_tests {
                 job_title_normalized, location_normalized, min_salary, p25_salary,
                 median_salary, p75_salary, max_salary, average_salary, sample_size
             )
-            VALUES ('engineer', 'remote', 100000, 120000, 140000, 160000, 180000, 140000, 10)
+            VALUES ('care coordinator', 'remote', 50000, 55000, 60000, 65000, 70000, 60000, 10)
             "#,
         )
         .execute(&pool)
@@ -1081,7 +1081,7 @@ mod async_tests {
         sqlx::query(
             r#"
             INSERT INTO jobs (hash, title, company, location, posted_at, updated_at)
-            VALUES ('job1', 'Senior Engineer', 'TechCorp', 'Remote', datetime('now'), datetime('now'))
+            VALUES ('job1', 'Senior Care Coordinator', 'Community Care Network', 'Remote', datetime('now'), datetime('now'))
             "#,
         )
         .execute(&pool)
@@ -1094,7 +1094,7 @@ mod async_tests {
 
         // Verify trend was created
         let count: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM role_demand_trends WHERE job_title_normalized = 'engineer'",
+            "SELECT COUNT(*) FROM role_demand_trends WHERE job_title_normalized = 'care coordinator'",
         )
         .fetch_one(&pool)
         .await
@@ -1111,8 +1111,8 @@ mod async_tests {
             r#"
             INSERT INTO skill_demand_trends (skill_name, date, mention_count, job_count)
             VALUES
-                ('Rust', date('now', '-7 days'), 10, 5),
-                ('Rust', date('now'), 20, 12)
+                ('Case Management', date('now', '-7 days'), 10, 5),
+                ('Case Management', date('now'), 20, 12)
             "#,
         )
         .execute(&pool)
@@ -1145,7 +1145,7 @@ mod async_tests {
                 min_salary, p25_salary, median_salary, p75_salary, max_salary,
                 avg_salary, sample_size, salary_growth_pct
             )
-            VALUES ('engineer', 'sf', date('now'), 100000, 120000, 140000, 160000, 180000, 140000, 50, 30.0)
+            VALUES ('care coordinator', 'denver', date('now'), 50000, 55000, 70000, 75000, 80000, 70000, 50, 30.0)
             "#,
         )
         .execute(&pool)
@@ -1174,7 +1174,7 @@ mod async_tests {
         sqlx::query(
             r#"
             INSERT INTO company_hiring_velocity (company_name, date, jobs_posted_count, jobs_active_count)
-            VALUES ('BigTech', date('now'), 15, 50)
+            VALUES ('Regional Health Network', date('now'), 15, 50)
             "#,
         )
         .execute(&pool)
@@ -1213,7 +1213,7 @@ mod async_tests {
             r#"
             INSERT INTO market_alerts (alert_type, title, description, severity, is_read)
             VALUES
-                ('skill_surge', 'Rust Surging', 'Rust is hot', 'info', 0),
+                ('skill_surge', 'Case Management Surging', 'Case management demand is rising', 'info', 0),
                 ('salary_spike', 'Salaries Up', 'Pay is rising', 'info', 1)
             "#,
         )
@@ -1226,7 +1226,7 @@ mod async_tests {
 
         // Should only get unread alerts
         assert_eq!(alerts.len(), 1);
-        assert_eq!(alerts[0].title, "Rust Surging");
+        assert_eq!(alerts[0].title, "Case Management Surging");
     }
 
     #[tokio::test]
@@ -1241,7 +1241,7 @@ mod async_tests {
                 min_salary, p25_salary, median_salary, p75_salary, max_salary,
                 avg_salary, sample_size, salary_growth_pct
             )
-            VALUES ('engineer', 'sf', date('now', '-7 days'), 90000, 100000, 110000, 120000, 130000, 110000, 50, 0.0)
+            VALUES ('care coordinator', 'denver', date('now', '-7 days'), 45000, 50000, 55000, 60000, 65000, 55000, 50, 0.0)
             "#,
         )
         .execute(&pool)
@@ -1255,7 +1255,7 @@ mod async_tests {
                 job_title_normalized, location_normalized, min_salary, p25_salary,
                 median_salary, p75_salary, max_salary, average_salary, sample_size
             )
-            VALUES ('engineer', 'sf', 100000, 120000, 140000, 160000, 180000, 140000, 50)
+            VALUES ('care coordinator', 'denver', 50000, 55000, 70000, 75000, 80000, 70000, 50)
             "#,
         )
         .execute(&pool)
@@ -1268,13 +1268,13 @@ mod async_tests {
 
         // Verify growth was calculated
         let growth: f64 = sqlx::query_scalar(
-            "SELECT salary_growth_pct FROM salary_trends WHERE job_title_normalized = 'engineer' AND date = date('now')",
+            "SELECT salary_growth_pct FROM salary_trends WHERE job_title_normalized = 'care coordinator' AND date = date('now')",
         )
         .fetch_one(&pool)
         .await
         .unwrap();
 
-        // Growth from 110000 to 140000 = (30000/110000)*100 = 27.27%
+        // Growth from 55000 to 70000 = (15000/55000)*100 = 27.27%
         assert!((growth - 27.27).abs() < 1.0);
     }
 
@@ -1290,7 +1290,7 @@ mod async_tests {
                 min_salary, p25_salary, median_salary, p75_salary, max_salary,
                 avg_salary, sample_size, salary_growth_pct
             )
-            VALUES ('engineer', 'sf', date('now', '-7 days'), 0, 0, 0, 0, 0, 0, 1, 0.0)
+            VALUES ('care coordinator', 'denver', date('now', '-7 days'), 0, 0, 0, 0, 0, 0, 1, 0.0)
             "#,
         )
         .execute(&pool)
@@ -1303,7 +1303,7 @@ mod async_tests {
                 job_title_normalized, location_normalized, min_salary, p25_salary,
                 median_salary, p75_salary, max_salary, average_salary, sample_size
             )
-            VALUES ('engineer', 'sf', 100000, 120000, 140000, 160000, 180000, 140000, 50)
+            VALUES ('care coordinator', 'denver', 50000, 55000, 60000, 65000, 70000, 60000, 50)
             "#,
         )
         .execute(&pool)
@@ -1316,7 +1316,7 @@ mod async_tests {
 
         // Growth should be 0 when previous is 0
         let growth: f64 = sqlx::query_scalar(
-            "SELECT salary_growth_pct FROM salary_trends WHERE job_title_normalized = 'engineer' AND date = date('now')",
+            "SELECT salary_growth_pct FROM salary_trends WHERE job_title_normalized = 'care coordinator' AND date = date('now')",
         )
         .fetch_one(&pool)
         .await
@@ -1332,7 +1332,7 @@ mod async_tests {
         sqlx::query(
             r#"
             INSERT INTO company_hiring_velocity (company_name, date, jobs_posted_count, jobs_active_count)
-            VALUES ('TechCorp', date('now', '-5 days'), 5, 20)
+            VALUES ('Community Care Network', date('now', '-5 days'), 5, 20)
             "#,
         )
         .execute(&pool)
@@ -1344,9 +1344,9 @@ mod async_tests {
             r#"
             INSERT INTO jobs (hash, title, company, location, posted_at, updated_at, status)
             VALUES
-                ('job1', 'Engineer', 'TechCorp', 'SF', date('now'), datetime('now'), 'active'),
-                ('job2', 'Designer', 'TechCorp', 'SF', date('now'), datetime('now'), 'active'),
-                ('job3', 'Manager', 'TechCorp', 'SF', date('now'), datetime('now'), 'active')
+                ('job1', 'Care Coordinator', 'Community Care Network', 'Denver, CO', date('now'), datetime('now'), 'active'),
+                ('job2', 'Program Coordinator', 'Community Care Network', 'Denver, CO', date('now'), datetime('now'), 'active'),
+                ('job3', 'Clinic Manager', 'Community Care Network', 'Denver, CO', date('now'), datetime('now'), 'active')
             "#,
         )
         .execute(&pool)
@@ -1359,7 +1359,7 @@ mod async_tests {
 
         // Verify trend is "decreasing" (3 < 5)
         let trend: String = sqlx::query_scalar(
-            "SELECT hiring_trend FROM company_hiring_velocity WHERE company_name = 'TechCorp' AND date = date('now')",
+            "SELECT hiring_trend FROM company_hiring_velocity WHERE company_name = 'Community Care Network' AND date = date('now')",
         )
         .fetch_one(&pool)
         .await
@@ -1375,7 +1375,7 @@ mod async_tests {
         sqlx::query(
             r#"
             INSERT INTO company_hiring_velocity (company_name, date, jobs_posted_count, jobs_active_count)
-            VALUES ('StartupCo', date('now', '-3 days'), 2, 10)
+            VALUES ('Community Services Co-op', date('now', '-3 days'), 2, 10)
             "#,
         )
         .execute(&pool)
@@ -1387,7 +1387,7 @@ mod async_tests {
             sqlx::query(
                 r#"
                 INSERT INTO jobs (hash, title, company, location, posted_at, updated_at, status)
-                VALUES (?, 'Engineer', 'StartupCo', 'Austin', date('now'), datetime('now'), 'active')
+                VALUES (?, 'Case Manager', 'Community Services Co-op', 'Austin', date('now'), datetime('now'), 'active')
                 "#,
             )
             .bind(format!("job{}", i))
@@ -1401,7 +1401,7 @@ mod async_tests {
         assert!(result.is_ok());
 
         let trend: String = sqlx::query_scalar(
-            "SELECT hiring_trend FROM company_hiring_velocity WHERE company_name = 'StartupCo' AND date = date('now')",
+            "SELECT hiring_trend FROM company_hiring_velocity WHERE company_name = 'Community Services Co-op' AND date = date('now')",
         )
         .fetch_one(&pool)
         .await
@@ -1417,7 +1417,7 @@ mod async_tests {
         sqlx::query(
             r#"
             INSERT INTO company_hiring_velocity (company_name, date, jobs_posted_count, jobs_active_count)
-            VALUES ('StableCorp', date('now', '-4 days'), 3, 15)
+            VALUES ('StableCare Clinic', date('now', '-4 days'), 3, 15)
             "#,
         )
         .execute(&pool)
@@ -1429,7 +1429,7 @@ mod async_tests {
             sqlx::query(
                 r#"
                 INSERT INTO jobs (hash, title, company, location, posted_at, updated_at, status)
-                VALUES (?, 'Engineer', 'StableCorp', 'Seattle', date('now'), datetime('now'), 'active')
+                VALUES (?, 'Clinic Coordinator', 'StableCare Clinic', 'Seattle', date('now'), datetime('now'), 'active')
                 "#,
             )
             .bind(format!("job{}", i))
@@ -1443,7 +1443,7 @@ mod async_tests {
         assert!(result.is_ok());
 
         let trend: String = sqlx::query_scalar(
-            "SELECT hiring_trend FROM company_hiring_velocity WHERE company_name = 'StableCorp' AND date = date('now')",
+            "SELECT hiring_trend FROM company_hiring_velocity WHERE company_name = 'StableCare Clinic' AND date = date('now')",
         )
         .fetch_one(&pool)
         .await
@@ -1462,7 +1462,7 @@ mod async_tests {
                 job_title_normalized, date, job_count,
                 avg_salary, median_salary, demand_trend
             )
-            VALUES ('engineer', date('now', '-5 days'), 10, 120000, 120000, 'stable')
+            VALUES ('care coordinator', date('now', '-5 days'), 10, 60000, 60000, 'stable')
             "#,
         )
         .execute(&pool)
@@ -1476,7 +1476,7 @@ mod async_tests {
                 job_title_normalized, location_normalized, min_salary, p25_salary,
                 median_salary, p75_salary, max_salary, average_salary, sample_size
             )
-            VALUES ('engineer', 'remote', 100000, 120000, 140000, 160000, 180000, 140000, 20)
+            VALUES ('care coordinator', 'remote', 50000, 55000, 60000, 65000, 70000, 60000, 20)
             "#,
         )
         .execute(&pool)
@@ -1488,7 +1488,7 @@ mod async_tests {
             sqlx::query(
                 r#"
                 INSERT INTO jobs (hash, title, company, location, posted_at, updated_at)
-                VALUES (?, 'Senior Engineer', 'TechCorp', 'Remote', datetime('now'), datetime('now'))
+                VALUES (?, 'Senior Care Coordinator', 'Community Care Network', 'Remote', datetime('now'), datetime('now'))
                 "#,
             )
             .bind(format!("job{}", i))
@@ -1502,7 +1502,7 @@ mod async_tests {
         assert!(result.is_ok());
 
         let trend: String = sqlx::query_scalar(
-            "SELECT demand_trend FROM role_demand_trends WHERE job_title_normalized = 'engineer' AND date = date('now')",
+            "SELECT demand_trend FROM role_demand_trends WHERE job_title_normalized = 'care coordinator' AND date = date('now')",
         )
         .fetch_one(&pool)
         .await
@@ -1577,9 +1577,9 @@ mod async_tests {
             r#"
             INSERT INTO jobs (hash, title, company, location, posted_at, updated_at)
             VALUES
-                ('job1', 'Remote Engineer', 'Corp1', 'Remote - US', datetime('now'), datetime('now')),
-                ('job2', 'Engineer', 'Corp2', 'Remote', datetime('now'), datetime('now')),
-                ('job3', 'Designer', 'Corp3', 'Austin, TX', datetime('now'), datetime('now'))
+                ('job1', 'Remote Care Coordinator', 'Org1', 'Remote - US', datetime('now'), datetime('now')),
+                ('job2', 'Care Coordinator', 'Org2', 'Remote', datetime('now'), datetime('now')),
+                ('job3', 'Program Coordinator', 'Org3', 'Austin, TX', datetime('now'), datetime('now'))
             "#,
         )
         .execute(&pool)
@@ -1590,9 +1590,9 @@ mod async_tests {
             r#"
             INSERT INTO job_skills (job_hash, skill_name)
             VALUES
-                ('job1', 'Python'),
-                ('job2', 'Python'),
-                ('job3', 'Figma')
+                ('job1', 'Case Management'),
+                ('job2', 'Case Management'),
+                ('job3', 'Program Reporting')
             "#,
         )
         .execute(&pool)
@@ -1622,8 +1622,8 @@ mod async_tests {
             r#"
             INSERT INTO jobs (hash, title, company, location, posted_at, updated_at, status)
             VALUES
-                ('job1', 'Software Engineer', 'TechCorp', 'San Francisco, CA', datetime('now'), datetime('now'), 'active'),
-                ('job2', 'Data Scientist', 'DataCo', 'New York, NY', datetime('now'), datetime('now'), 'active')
+                ('job1', 'Care Coordinator', 'Community Care Network', 'Denver, CO', datetime('now'), datetime('now'), 'active'),
+                ('job2', 'Inventory Planner', 'FreshMart', 'Chicago, IL', datetime('now'), datetime('now'), 'active')
             "#,
         )
         .execute(&pool)
@@ -1634,9 +1634,9 @@ mod async_tests {
             r#"
             INSERT INTO job_skills (job_hash, skill_name, created_at)
             VALUES
-                ('job1', 'Rust', datetime('now')),
-                ('job1', 'Python', datetime('now')),
-                ('job2', 'Python', datetime('now'))
+                ('job1', 'Case Management', datetime('now')),
+                ('job1', 'Customer Support', datetime('now')),
+                ('job2', 'Inventory Planning', datetime('now'))
             "#,
         )
         .execute(&pool)
@@ -1647,8 +1647,8 @@ mod async_tests {
             r#"
             INSERT INTO job_salary_predictions (job_hash, predicted_median)
             VALUES
-                ('job1', 150000.0),
-                ('job2', 140000.0)
+                ('job1', 65000.0),
+                ('job2', 58000.0)
             "#,
         )
         .execute(&pool)
@@ -1661,7 +1661,7 @@ mod async_tests {
                 job_title_normalized, location_normalized, min_salary, p25_salary,
                 median_salary, p75_salary, max_salary, average_salary, sample_size
             )
-            VALUES ('software engineer', 'san francisco, ca', 100000, 130000, 150000, 170000, 200000, 150000, 10)
+            VALUES ('care coordinator', 'denver, co', 50000, 55000, 60000, 65000, 70000, 60000, 10)
             "#,
         )
         .execute(&pool)

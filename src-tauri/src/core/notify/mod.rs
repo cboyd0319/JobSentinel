@@ -298,11 +298,11 @@ mod tests {
             job: Job {
                 id: 1,
                 hash: "test123".to_string(),
-                title: "Senior Rust Engineer".to_string(),
-                company: "Awesome Corp".to_string(),
+                title: "Care Coordinator".to_string(),
+                company: "Community Care Network".to_string(),
                 url: "https://example.com/jobs/123".to_string(),
                 location: Some("Remote".to_string()),
-                description: Some("Build amazing Rust systems".to_string()),
+                description: Some("Support patients and families with care planning".to_string()),
                 score: Some(0.95),
                 score_reasons: None,
                 source: "greenhouse".to_string(),
@@ -334,8 +334,8 @@ mod tests {
                     recency: 0.05,
                 },
                 reasons: vec![
-                    "Title matches: Senior Rust Engineer".to_string(),
-                    "Keyword match: Rust".to_string(),
+                    "Title matches: Care Coordinator".to_string(),
+                    "Keyword match: case management".to_string(),
                     "Salary 120% of target (100% credit)".to_string(),
                     "Remote job (matches preference)".to_string(),
                 ],
@@ -348,7 +348,7 @@ mod tests {
         use crate::core::config::{AutoRefreshConfig, LinkedInConfig, LocationPreferences};
 
         Arc::new(Config {
-            title_allowlist: vec!["Engineer".to_string()],
+            title_allowlist: vec!["Care Coordinator".to_string()],
             title_blocklist: vec![],
             keywords_boost: vec![],
             keywords_exclude: vec![],
@@ -430,8 +430,8 @@ mod tests {
 
         // Test that Notification can be serialized to JSON
         let json = serde_json::to_string(&notification).expect("Should serialize");
-        assert!(json.contains("Senior Rust Engineer"));
-        assert!(json.contains("Awesome Corp"));
+        assert!(json.contains("Care Coordinator"));
+        assert!(json.contains("Community Care Network"));
 
         // Test deserialization
         let deserialized: Notification = serde_json::from_str(&json).expect("Should deserialize");
@@ -1052,7 +1052,7 @@ mod tests {
 
     #[test]
     fn test_provider_failure_summary_omits_error_body() {
-        let secret_body = "Senior Rust Engineer at Awesome Corp https://example.com/jobs/123";
+        let secret_body = "Care Coordinator at Community Care Network https://example.com/jobs/123";
         let summary = format_provider_failure_summary(
             reqwest::StatusCode::BAD_REQUEST,
             Some(secret_body.chars().count()),
@@ -1060,8 +1060,8 @@ mod tests {
 
         assert!(summary.contains("400 Bad Request"));
         assert!(summary.contains("provider error body omitted"));
-        assert!(!summary.contains("Senior Rust Engineer"));
-        assert!(!summary.contains("Awesome Corp"));
+        assert!(!summary.contains("Care Coordinator"));
+        assert!(!summary.contains("Community Care Network"));
         assert!(!summary.contains("https://example.com/jobs/123"));
     }
 

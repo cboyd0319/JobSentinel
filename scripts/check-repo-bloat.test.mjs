@@ -492,6 +492,25 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
+      "src-tauri/src/core/market_intelligence/tests.rs",
+      [
+        'let title = "Software Engineer";',
+        'let company = "TechCorp";',
+        'let skill = "Rust";',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scrapers/simplyhired.rs",
+      [
+        '/// Search query (e.g., "rust developer")',
+        'let company = scraper.extract_company("Software Engineer - Acme Corp", None);',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/mocks/handlers.ts",
       [
         '"TypeScript demand is surging"',
@@ -542,6 +561,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       root,
       "src/components/automation/ApplicationPreview.tsx",
       '{ label: "GitHub", value: profile.githubUrl };\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/automation/ApplicationPreview.test.tsx",
+      'githubUrl: "https://code.example.com/jordanlee";\n',
     );
     writeFixtureFile(
       root,
@@ -903,6 +927,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/components/resume-builder/steps/SkillsStep.tsx",
         "src/components/automation/ProfileForm.tsx",
         "src/components/automation/ApplicationPreview.tsx",
+        "src/components/automation/ApplicationPreview.test.tsx",
         "src/components/automation/ApplyButton.test.tsx",
         "src/components/AtsLiveScorePanel.test.tsx",
         "src/components/CompanyResearchPanel.test.tsx",
@@ -922,6 +947,8 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src-tauri/src/commands/feedback/sanitizer.rs",
         "src-tauri/src/commands/import.rs",
         "src-tauri/src/commands/tests.rs",
+        "src-tauri/src/core/market_intelligence/tests.rs",
+        "src-tauri/src/core/scrapers/simplyhired.rs",
         "src-tauri/tests/api_contract_test.rs",
         "src-tauri/tests/database_integration_test.rs",
         "src-tauri/tests/scraper_integration_test.rs",
@@ -990,6 +1017,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/components/resume-builder/steps/SkillsStep.tsx",
       "src/components/automation/ProfileForm.tsx",
       "src/components/automation/ApplicationPreview.tsx",
+      "src/components/automation/ApplicationPreview.test.tsx",
       "src/components/automation/ApplyButton.test.tsx",
       "src/components/AtsLiveScorePanel.test.tsx",
       "src/components/CompanyResearchPanel.test.tsx",
@@ -1009,6 +1037,8 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src-tauri/src/commands/feedback/sanitizer.rs",
       "src-tauri/src/commands/import.rs",
       "src-tauri/src/commands/tests.rs",
+      "src-tauri/src/core/market_intelligence/tests.rs",
+      "src-tauri/src/core/scrapers/simplyhired.rs",
       "src-tauri/tests/api_contract_test.rs",
       "src-tauri/tests/database_integration_test.rs",
       "src-tauri/tests/scraper_integration_test.rs",

@@ -318,11 +318,11 @@ mod tests {
             job: Job {
                 id: 1,
                 hash: "test123".to_string(),
-                title: "Senior Rust Engineer".to_string(),
-                company: "Awesome Corp".to_string(),
+                title: "Care Coordinator".to_string(),
+                company: "Community Care Network".to_string(),
                 url: "https://example.com/jobs/123".to_string(),
                 location: Some("Remote".to_string()),
-                description: Some("Build amazing Rust systems".to_string()),
+                description: Some("Support patients and families with care planning".to_string()),
                 score: Some(0.95),
                 score_reasons: None,
                 source: "greenhouse".to_string(),
@@ -354,8 +354,8 @@ mod tests {
                     recency: 0.05,
                 },
                 reasons: vec![
-                    "Title matches: Senior Rust Engineer".to_string(),
-                    "Keyword match: Rust".to_string(),
+                    "Title matches: Care Coordinator".to_string(),
+                    "Keyword match: case management".to_string(),
                     "Salary 120% of target (100% credit)".to_string(),
                     "Remote job (matches preference)".to_string(),
                 ],
@@ -369,13 +369,13 @@ mod tests {
         let html = format_html_email(&notification.job, &notification.score);
 
         // Verify key components are present
-        assert!(html.contains("Senior Rust Engineer"));
-        assert!(html.contains("Awesome Corp"));
+        assert!(html.contains("Care Coordinator"));
+        assert!(html.contains("Community Care Network"));
         assert!(html.contains("95")); // Score percentage
         assert!(html.contains("REMOTE"));
         assert!(html.contains("$180,000 - $220,000"));
         assert!(html.contains("greenhouse"));
-        assert!(html.contains("Title matches: Senior Rust Engineer"));
+        assert!(html.contains("Title matches: Care Coordinator"));
         assert!(html.contains("https://example.com/jobs/123"));
     }
 
@@ -385,12 +385,12 @@ mod tests {
         let text = format_text_email(&notification.job, &notification.score);
 
         // Verify key components are present
-        assert!(text.contains("Senior Rust Engineer"));
-        assert!(text.contains("Awesome Corp"));
+        assert!(text.contains("Care Coordinator"));
+        assert!(text.contains("Community Care Network"));
         assert!(text.contains("95%"));
         assert!(text.contains("Yes")); // Remote
         assert!(text.contains("$180,000 - $220,000"));
-        assert!(text.contains("Title matches: Senior Rust Engineer"));
+        assert!(text.contains("Title matches: Care Coordinator"));
     }
 
     #[test]
@@ -636,26 +636,26 @@ mod tests {
     #[test]
     fn test_html_email_with_special_characters() {
         let mut notification = create_test_notification();
-        notification.job.title = "Senior Engineer & Tech Lead".to_string();
-        notification.job.company = "ABC Corp <New Division>".to_string();
+        notification.job.title = "Care Coordinator & Intake Lead".to_string();
+        notification.job.company = "Community Care Network <North Clinic>".to_string();
 
         let html = format_html_email(&notification.job, &notification.score);
 
         // Should contain the special characters as-is (not HTML-escaped in this implementation)
-        assert!(html.contains("Senior Engineer & Tech Lead"));
-        assert!(html.contains("ABC Corp <New Division>"));
+        assert!(html.contains("Care Coordinator & Intake Lead"));
+        assert!(html.contains("Community Care Network <North Clinic>"));
     }
 
     #[test]
     fn test_text_email_with_special_characters() {
         let mut notification = create_test_notification();
-        notification.job.title = "Senior Engineer & Tech Lead".to_string();
-        notification.job.company = "ABC Corp <New Division>".to_string();
+        notification.job.title = "Care Coordinator & Intake Lead".to_string();
+        notification.job.company = "Community Care Network <North Clinic>".to_string();
 
         let text = format_text_email(&notification.job, &notification.score);
 
-        assert!(text.contains("Senior Engineer & Tech Lead"));
-        assert!(text.contains("ABC Corp <New Division>"));
+        assert!(text.contains("Care Coordinator & Intake Lead"));
+        assert!(text.contains("Community Care Network <North Clinic>"));
     }
 
     #[test]
@@ -687,11 +687,13 @@ mod tests {
     #[test]
     fn test_html_email_with_long_title() {
         let mut notification = create_test_notification();
-        notification.job.title = "Senior Staff Principal Distinguished Principal Architect Lead Engineer Manager Director VP".to_string();
+        notification.job.title =
+            "Regional Senior Lead Care Coordination Program Operations Support Services Director"
+                .to_string();
 
         let html = format_html_email(&notification.job, &notification.score);
 
-        assert!(html.contains("Senior Staff Principal Distinguished"));
+        assert!(html.contains("Regional Senior Lead Care"));
     }
 
     #[test]

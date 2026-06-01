@@ -177,11 +177,11 @@ mod tests {
             job: Job {
                 id: 1,
                 hash: "test123".to_string(),
-                title: "Senior Rust Engineer".to_string(),
-                company: "Awesome Corp".to_string(),
+                title: "Care Coordinator".to_string(),
+                company: "Community Care Network".to_string(),
                 url: "https://example.com/jobs/123".to_string(),
                 location: Some("Remote".to_string()),
-                description: Some("Build amazing Rust systems".to_string()),
+                description: Some("Support patients and families with care planning".to_string()),
                 score: Some(0.95),
                 score_reasons: None,
                 source: "greenhouse".to_string(),
@@ -213,8 +213,8 @@ mod tests {
                     recency: 0.05,
                 },
                 reasons: vec![
-                    "Title matches: Senior Rust Engineer".to_string(),
-                    "Keyword match: Rust".to_string(),
+                    "Title matches: Care Coordinator".to_string(),
+                    "Keyword match: case management".to_string(),
                     "Salary 120% of target (100% credit)".to_string(),
                     "Remote job (matches preference)".to_string(),
                 ],
@@ -403,7 +403,7 @@ mod tests {
         assert!(header["text"]["text"]
             .as_str()
             .unwrap()
-            .contains("Senior Rust Engineer"));
+            .contains("Care Coordinator"));
 
         // Verify section fields
         let section = &payload["blocks"][1];
@@ -481,7 +481,7 @@ mod tests {
 
         // Should contain all reasons separated by newlines
         assert!(reasons_text.contains("Title matches"));
-        assert!(reasons_text.contains("Keyword match: Rust"));
+        assert!(reasons_text.contains("Keyword match: case management"));
         assert!(reasons_text.contains("Salary"));
         assert!(reasons_text.contains("Remote job"));
 
@@ -699,7 +699,7 @@ mod tests {
     fn test_notification_with_special_characters_in_title() {
         let mut notification = create_test_notification();
         notification.job.title =
-            "Senior Engineer @ \"Cool\" Company <script>alert('xss')</script>".to_string();
+            "Care Coordinator @ \"Friendly\" Clinic <script>alert('xss')</script>".to_string();
 
         let payload = json!({
             "blocks": [
@@ -1235,11 +1235,11 @@ mod tests {
 
     #[test]
     fn test_build_header_block_structure() {
-        let block = build_header_block("Senior Rust Engineer");
+        let block = build_header_block("Care Coordinator");
 
         assert_eq!(block["type"], "header");
         assert_eq!(block["text"]["type"], "plain_text");
-        assert_eq!(block["text"]["text"], "🎯 High Match: Senior Rust Engineer");
+        assert_eq!(block["text"]["text"], "🎯 High Match: Care Coordinator");
     }
 
     #[test]
@@ -1251,7 +1251,7 @@ mod tests {
 
     #[test]
     fn test_build_header_block_with_special_chars() {
-        let block = build_header_block("Engineer @ \"Company\" <script>");
+        let block = build_header_block("Care Coordinator @ \"Clinic\" <script>");
         let text = block["text"]["text"].as_str().unwrap();
         assert!(text.contains("@"));
         assert!(text.contains("\""));
@@ -1260,9 +1260,9 @@ mod tests {
 
     #[test]
     fn test_build_header_block_with_unicode() {
-        let block = build_header_block("🚀 Rust Developer™");
+        let block = build_header_block("🌟 Care Coordinator™");
         let text = block["text"]["text"].as_str().unwrap();
-        assert!(text.contains("🚀"));
+        assert!(text.contains("🌟"));
         assert!(text.contains("™"));
     }
 
@@ -1291,7 +1291,7 @@ mod tests {
         assert_eq!(company_field["type"], "mrkdwn");
         let text = company_field["text"].as_str().unwrap();
         assert!(text.starts_with("*Company:*\n"));
-        assert!(text.contains("Awesome Corp"));
+        assert!(text.contains("Community Care Network"));
     }
 
     #[test]
@@ -1375,7 +1375,7 @@ mod tests {
     fn test_build_reasons_section_block_content() {
         let reasons = vec![
             "Title matches".to_string(),
-            "Keyword match: Rust".to_string(),
+            "Keyword match: case management".to_string(),
             "Salary 120% of target (100% credit)".to_string(),
         ];
         let block = build_reasons_section_block(&reasons);
@@ -1383,7 +1383,7 @@ mod tests {
         let text = block["text"]["text"].as_str().unwrap();
         assert!(text.starts_with("*Why this matches:*\n"));
         assert!(text.contains("Title matches"));
-        assert!(text.contains("Keyword match: Rust"));
+        assert!(text.contains("Keyword match: case management"));
         assert!(text.contains("Salary 120% of target (100% credit)"));
     }
 
@@ -1464,7 +1464,7 @@ mod tests {
 
     #[test]
     fn test_build_actions_block_with_special_chars_url() {
-        let url = "https://example.com/jobs/123?name=Rust%20Engineer&location=Remote";
+        let url = "https://example.com/jobs/123?name=Care%20Coordinator&location=Remote";
         let block = build_actions_block(url);
 
         assert_eq!(block["elements"][0]["url"], url);
@@ -1496,7 +1496,7 @@ mod tests {
         let payload = build_slack_payload(&notification);
 
         let header_text = payload["blocks"][0]["text"]["text"].as_str().unwrap();
-        assert!(header_text.contains("Senior Rust Engineer"));
+        assert!(header_text.contains("Care Coordinator"));
     }
 
     #[test]
@@ -1509,7 +1509,7 @@ mod tests {
 
         // Check that fields contain expected data
         let company_text = fields[0]["text"].as_str().unwrap();
-        assert!(company_text.contains("Awesome Corp"));
+        assert!(company_text.contains("Community Care Network"));
 
         let score_text = fields[2]["text"].as_str().unwrap();
         assert!(score_text.contains("95%"));
@@ -1522,7 +1522,7 @@ mod tests {
 
         let reasons_text = payload["blocks"][2]["text"]["text"].as_str().unwrap();
         assert!(reasons_text.contains("Title matches"));
-        assert!(reasons_text.contains("Keyword match: Rust"));
+        assert!(reasons_text.contains("Keyword match: case management"));
     }
 
     #[test]
@@ -1585,14 +1585,14 @@ mod tests {
     #[test]
     fn test_build_slack_payload_preserves_unicode() {
         let mut notification = create_test_notification();
-        notification.job.title = "🚀 Rust Developer™".to_string();
+        notification.job.title = "🌟 Care Coordinator™".to_string();
         notification.job.company = "São Paulo Inc.".to_string();
         notification.job.location = Some("Zürich 🇨🇭".to_string());
 
         let payload = build_slack_payload(&notification);
 
         let header_text = payload["blocks"][0]["text"]["text"].as_str().unwrap();
-        assert!(header_text.contains("🚀"));
+        assert!(header_text.contains("🌟"));
         assert!(header_text.contains("™"));
 
         let company_text = payload["blocks"][1]["fields"][0]["text"].as_str().unwrap();

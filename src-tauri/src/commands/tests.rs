@@ -16,9 +16,9 @@ mod tests {
     /// Helper to create a test AppState with in-memory database
     async fn create_test_app_state() -> AppState {
         let config = Config {
-            title_allowlist: vec!["Engineer".to_string()],
+            title_allowlist: vec!["Care Coordinator".to_string()],
             title_blocklist: vec![],
-            keywords_boost: vec!["Rust".to_string()],
+            keywords_boost: vec!["case management".to_string()],
             keywords_exclude: vec![],
             location_preferences: LocationPreferences {
                 allow_remote: true,
@@ -183,7 +183,7 @@ mod tests {
     async fn test_database_job_by_id() {
         let state = create_test_app_state().await;
 
-        let job = create_test_job(0, "Test Engineer", 0.9);
+        let job = create_test_job(0, "Test Care Coordinator", 0.9);
         let job_id = state
             .database
             .upsert_job(&job)
@@ -196,7 +196,7 @@ mod tests {
             .await
             .expect("get_job_by_id should succeed");
         assert!(found_job.is_some(), "Should find the job");
-        assert_eq!(found_job.unwrap().title, "Test Engineer");
+        assert_eq!(found_job.unwrap().title, "Test Care Coordinator");
     }
 
     #[tokio::test]
@@ -344,7 +344,7 @@ mod tests {
     #[tokio::test]
     async fn test_complete_setup_config_serialization() {
         let config = Config {
-            title_allowlist: vec!["Engineer".to_string()],
+            title_allowlist: vec!["Care Coordinator".to_string()],
             title_blocklist: vec![],
             keywords_boost: vec![],
             keywords_exclude: vec![],

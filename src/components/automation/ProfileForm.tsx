@@ -454,7 +454,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
               value={githubUrl}
               onChange={(e) => handleChange("githubUrl", e.target.value, setGithubUrl)}
               onBlur={() => handleBlur("githubUrl", githubUrl)}
-              placeholder="https://code.example.com/your-name"
+              placeholder="https://profile.example.com/your-name"
               leftIcon={<GlobeIcon className="w-4 h-4" />}
               error={errors.githubUrl}
               autoComplete="url"

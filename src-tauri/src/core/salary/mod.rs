@@ -29,8 +29,8 @@
 //!
 //! // Predict salary for a job
 //! let prediction = analyzer.predict_salary(
-//!     "Software Engineer",
-//!     "San Francisco, CA",
+//!     "Care Coordinator",
+//!     "Denver, CO",
 //!     5 // years of experience
 //! ).await?;
 //!

@@ -163,7 +163,7 @@ async fn test_create_application() {
     let pool = create_test_db().await;
 
     // Insert test job
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -182,7 +182,7 @@ async fn test_create_application() {
 async fn test_update_status() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -205,11 +205,11 @@ async fn test_update_status() {
 async fn test_kanban_board() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('job1', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('job1', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('job2', 'Developer', 'AnotherCo', 'http://test2.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('job2', 'Retail Manager', 'StoreOps', 'http://test2.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -239,7 +239,7 @@ async fn test_kanban_board() {
 async fn test_auto_reminders() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -364,7 +364,7 @@ fn test_interview_type_from_str() {
 async fn test_update_last_contact() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -386,7 +386,7 @@ async fn test_update_last_contact() {
 async fn test_add_notes() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -417,7 +417,7 @@ async fn test_add_notes() {
 async fn test_add_notes_overwrites_existing() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -440,7 +440,7 @@ async fn test_add_notes_overwrites_existing() {
 async fn test_set_reminder() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -472,7 +472,7 @@ async fn test_set_reminder() {
 async fn test_get_pending_reminders() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -503,7 +503,7 @@ async fn test_get_pending_reminders() {
 async fn test_complete_reminder() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -554,11 +554,11 @@ async fn test_complete_reminder() {
 async fn test_auto_detect_ghosted() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test2', 'Developer', 'AnotherCo', 'http://test2.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test2', 'Retail Manager', 'StoreOps', 'http://test2.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -603,7 +603,7 @@ async fn test_auto_detect_ghosted() {
 async fn test_auto_detect_ghosted_no_last_contact() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -637,7 +637,7 @@ async fn test_auto_detect_ghosted_no_last_contact() {
 async fn test_auto_detect_ghosted_skips_terminal_states() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -689,7 +689,7 @@ async fn test_get_application_stats_comprehensive() {
     // Insert test jobs
     for i in 1..=10 {
         let hash = format!("test{}", i);
-        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES (?, 'Engineer', 'TestCo', 'http://test.com', 'test')")
+        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES (?, 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
             .bind(&hash)
             .execute(&pool)
             .await
@@ -765,7 +765,7 @@ async fn test_get_application_stats_response_rate_calculation() {
 
     for i in 1..=5 {
         let hash = format!("test{}", i);
-        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES (?, 'Engineer', 'TestCo', 'http://test.com', 'test')")
+        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES (?, 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
             .bind(&hash)
             .execute(&pool)
             .await
@@ -810,7 +810,7 @@ async fn test_get_application_stats_offer_rate_calculation() {
 
     for i in 1..=10 {
         let hash = format!("test{}", i);
-        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES (?, 'Engineer', 'TestCo', 'http://test.com', 'test')")
+        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES (?, 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
             .bind(&hash)
             .execute(&pool)
             .await
@@ -857,7 +857,7 @@ async fn test_get_application_stats_offer_rate_calculation() {
 async fn test_status_change_logs_event() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -888,7 +888,7 @@ async fn test_status_change_logs_event() {
 async fn test_applied_status_sets_applied_at_once() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -935,7 +935,7 @@ async fn test_applied_status_sets_applied_at_once() {
 async fn test_interview_status_auto_sets_thank_you_reminder() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -979,7 +979,7 @@ async fn test_get_application_nonexistent() {
 async fn test_create_application_duplicate_job_hash() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -1011,7 +1011,7 @@ async fn test_kanban_board_empty() {
 async fn test_get_pending_reminders_excludes_completed() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -1044,7 +1044,7 @@ async fn test_kanban_all_status_buckets() {
 
     // Create jobs for all statuses
     for i in 1..=12 {
-        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES (?, 'Engineer', 'TestCo', 'http://test.com', 'test')")
+        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES (?, 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
             .bind(format!("job{}", i))
             .execute(&pool)
             .await
@@ -1194,7 +1194,7 @@ async fn test_application_stats_all_statuses() {
 
     // Create jobs for all statuses
     for i in 1..=12 {
-        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES (?, 'Engineer', 'TestCo', 'http://test.com', 'test')")
+        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES (?, 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
             .bind(format!("job{}", i))
             .execute(&pool)
             .await
@@ -1344,7 +1344,7 @@ async fn test_application_stats_all_statuses() {
 async fn test_auto_reminder_for_offer_status() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -1387,7 +1387,7 @@ async fn test_auto_reminder_for_offer_status() {
 async fn test_technical_interview_auto_sets_thank_you_reminder() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -1418,7 +1418,7 @@ async fn test_technical_interview_auto_sets_thank_you_reminder() {
 async fn test_onsite_interview_auto_sets_thank_you_reminder() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -1449,7 +1449,7 @@ async fn test_onsite_interview_auto_sets_thank_you_reminder() {
 async fn test_screening_call_no_auto_reminder() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -1476,7 +1476,7 @@ async fn test_screening_call_no_auto_reminder() {
 async fn test_withdrawn_status_no_auto_reminder() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -1507,7 +1507,7 @@ async fn test_withdrawn_status_no_auto_reminder() {
 async fn test_application_stats_weekly_data_with_null_week() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();
@@ -1587,7 +1587,7 @@ async fn test_application_stats_weekly_data_with_null_week() {
 async fn test_event_logging_via_reminder_set() {
     let pool = create_test_db().await;
 
-    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
         .await
         .unwrap();

@@ -395,6 +395,7 @@ const broadAudienceExamplePaths = new Set([
   "src/components/resume-builder/steps/SkillsStep.tsx",
   "src/components/resume-builder/steps/SummaryStep.tsx",
   "src/components/automation/ApplicationPreview.tsx",
+  "src/components/automation/ApplicationPreview.test.tsx",
   "src/components/automation/ApplyButton.test.tsx",
   "src/components/automation/ProfileForm.tsx",
   "src/components/AtsLiveScorePanel.test.tsx",
@@ -439,6 +440,8 @@ const broadAudienceExamplePaths = new Set([
   "src-tauri/src/commands/import.rs",
   "src-tauri/src/commands/tests.rs",
   "src-tauri/src/core/deeplinks/types.rs",
+  "src-tauri/src/core/market_intelligence/tests.rs",
+  "src-tauri/src/core/scrapers/simplyhired.rs",
   "src-tauri/tests/api_contract_test.rs",
   "src-tauri/tests/database_integration_test.rs",
   "src-tauri/tests/scraper_integration_test.rs",
@@ -1017,6 +1020,30 @@ function hasEngineerFirstAudienceExamples(root, path) {
     }
   }
 
+  if (path === "src-tauri/src/core/market_intelligence/tests.rs") {
+    const marketIntelligenceTestPatterns = [
+      /Software Engineer/i,
+      /Data Scientist/i,
+      /Product Manager/i,
+      /TechCorp|BigTech|StartupInc/i,
+      /\bRust\b|\bPython\b|\bTypeScript\b/,
+      /Figma|Airbnb|B2B SaaS|ML algorithms/i,
+    ];
+
+    return marketIntelligenceTestPatterns.some((pattern) => pattern.test(text));
+  }
+
+  if (path === "src-tauri/src/core/scrapers/simplyhired.rs") {
+    const simplyHiredTestPatterns = [
+      /rust developer/i,
+      /Software Engineer/i,
+      /Developer at TechStartup/i,
+      /"Engineer"/i,
+    ];
+
+    return simplyHiredTestPatterns.some((pattern) => pattern.test(text));
+  }
+
   const stalePatterns = [
     /placeholder=["'][^"']*(?:Senior\s+)?Software Engineer/i,
     /placeholder=["'][^"']*John Doe/i,
@@ -1043,6 +1070,7 @@ function hasEngineerFirstAudienceExamples(root, path) {
     /calculate_job_hash\([^)]*["']Software Engineer["']/i,
     /create_test_job\([^)]*["'](?:Rust Engineer|Backend Engineer)["']/i,
     /https:\/\/github\.com\/(?:johndoe|caseysentinel)/i,
+    /code\.example\.com/i,
     /GitHub profile link if relevant to your role/i,
     /placeholder=["'][^"']*React/i,
     /placeholder=["'][^"']*Frontend/i,
@@ -1106,6 +1134,8 @@ function hasEngineerFirstAudienceExamples(root, path) {
     /\.\/experience/i,
     /B\.S\. CS/i,
     /Senior TypeScript role/i,
+    /B2B SaaS/i,
+    /ML algorithms/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));

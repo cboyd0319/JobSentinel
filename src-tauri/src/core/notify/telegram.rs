@@ -266,11 +266,11 @@ mod tests {
             job: Job {
                 id: 1,
                 hash: "test123".to_string(),
-                title: "Senior Rust Engineer".to_string(),
-                company: "Awesome Corp".to_string(),
+                title: "Care Coordinator".to_string(),
+                company: "Community Care Network".to_string(),
                 url: "https://example.com/jobs/123".to_string(),
                 location: Some("Remote".to_string()),
-                description: Some("Build amazing Rust systems".to_string()),
+                description: Some("Support patients and families with care planning".to_string()),
                 score: Some(0.95),
                 score_reasons: None,
                 source: "greenhouse".to_string(),
@@ -302,8 +302,8 @@ mod tests {
                     recency: 0.05,
                 },
                 reasons: vec![
-                    "Title matches: Senior Rust Engineer".to_string(),
-                    "Keyword match: Rust".to_string(),
+                    "Title matches: Care Coordinator".to_string(),
+                    "Keyword match: case management".to_string(),
                     "Salary 120% of target (100% credit)".to_string(),
                     "Remote job (matches preference)".to_string(),
                 ],
@@ -317,8 +317,8 @@ mod tests {
         let message = format_telegram_message(&notification.job, &notification.score);
 
         // Verify key components are present (with escaped special chars)
-        assert!(message.contains("Senior Rust Engineer"));
-        assert!(message.contains("Awesome Corp"));
+        assert!(message.contains("Care Coordinator"));
+        assert!(message.contains("Community Care Network"));
         assert!(message.contains("95%"));
         assert!(message.contains("Remote"));
         assert!(message.contains("https://example.com/jobs/123"));
@@ -327,7 +327,7 @@ mod tests {
     #[test]
     fn test_telegram_escapes_special_characters() {
         let mut notification = create_test_notification();
-        notification.job.title = "Senior Engineer (Remote)".to_string();
+        notification.job.title = "Care Coordinator (Remote)".to_string();
 
         let message = format_telegram_message(&notification.job, &notification.score);
 
@@ -361,7 +361,7 @@ mod tests {
 
         // Check that all reasons are included (note: some special chars will be escaped)
         assert!(message.contains("Title matches"));
-        assert!(message.contains("Keyword match: Rust"));
+        assert!(message.contains("Keyword match: case management"));
         assert!(message.contains("Salary"));
         assert!(message.contains("Remote job"));
     }

@@ -193,17 +193,14 @@ mod tests {
         let mut params = HashMap::new();
         params.insert("recruiter".to_string(), "Sarah".to_string());
         params.insert("amount".to_string(), "$160,000".to_string());
-        params.insert(
-            "position".to_string(),
-            "Senior Software Engineer".to_string(),
-        );
-        params.insert("company".to_string(), "TechCorp".to_string());
+        params.insert("position".to_string(), "Senior Case Manager".to_string());
+        params.insert("company".to_string(), "CommunityCare".to_string());
 
         let result = generator.generate("initial_offer", params).await.unwrap();
 
         assert_eq!(
             result,
-            "Dear Sarah, thank you for the $160,000 offer for the Senior Software Engineer role at TechCorp."
+            "Dear Sarah, thank you for the $160,000 offer for the Senior Case Manager role at CommunityCare."
         );
     }
 
@@ -344,10 +341,7 @@ Best regards,
 
         let mut params = HashMap::new();
         params.insert("recruiter_name".to_string(), "Sarah Johnson".to_string());
-        params.insert(
-            "position".to_string(),
-            "Senior Software Engineer".to_string(),
-        );
+        params.insert("position".to_string(), "Senior Case Manager".to_string());
         params.insert("years_experience".to_string(), "7".to_string());
         params.insert("location".to_string(), "San Francisco, CA".to_string());
         params.insert("expected_min".to_string(), "$180,000".to_string());
@@ -360,7 +354,7 @@ Best regards,
         let result = generator.generate("counter_offer", params).await.unwrap();
 
         assert!(result.contains("Sarah Johnson"));
-        assert!(result.contains("Senior Software Engineer"));
+        assert!(result.contains("Senior Case Manager"));
         assert!(result.contains("7 years"));
         assert!(result.contains("San Francisco, CA"));
         assert!(result.contains("$180,000-$210,000"));

@@ -239,7 +239,7 @@ mod tests {
     #[test]
     fn test_competitiveness_check() {
         let benchmark = SalaryBenchmark {
-            job_title: "Software Engineer".to_string(),
+            job_title: "Case Manager".to_string(),
             location: "San Francisco, CA".to_string(),
             seniority_level: SeniorityLevel::Mid,
             min_salary: 100000,
@@ -293,7 +293,7 @@ mod tests {
     #[test]
     fn test_negotiation_target() {
         let benchmark = SalaryBenchmark {
-            job_title: "Software Engineer".to_string(),
+            job_title: "Case Manager".to_string(),
             location: "San Francisco, CA".to_string(),
             seniority_level: SeniorityLevel::Mid,
             min_salary: 100000,
@@ -363,7 +363,7 @@ mod tests {
             SeniorityLevel::Unknown,
         ] {
             let benchmark = SalaryBenchmark {
-                job_title: "Software Engineer".to_string(),
+                job_title: "Case Manager".to_string(),
                 location: "San Francisco, CA".to_string(),
                 seniority_level: seniority,
                 min_salary: 100000,
@@ -384,7 +384,7 @@ mod tests {
     // Helper function to create a standard test benchmark
     fn create_test_benchmark() -> SalaryBenchmark {
         SalaryBenchmark {
-            job_title: "Software Engineer".to_string(),
+            job_title: "Case Manager".to_string(),
             location: "San Francisco, CA".to_string(),
             seniority_level: SeniorityLevel::Mid,
             min_salary: 100000,
@@ -609,7 +609,7 @@ mod tests {
     #[test]
     fn test_entry_level_benchmarks() {
         let benchmark = SalaryBenchmark {
-            job_title: "Junior Developer".to_string(),
+            job_title: "Customer Support Assistant".to_string(),
             location: "Austin, TX".to_string(),
             seniority_level: SeniorityLevel::Entry,
             min_salary: 50000,
@@ -635,7 +635,7 @@ mod tests {
     #[test]
     fn test_principal_level_benchmarks() {
         let benchmark = SalaryBenchmark {
-            job_title: "Principal Engineer".to_string(),
+            job_title: "Program Director".to_string(),
             location: "Seattle, WA".to_string(),
             seniority_level: SeniorityLevel::Principal,
             min_salary: 200000,
@@ -710,7 +710,7 @@ mod tests {
     #[test]
     fn test_different_locations_same_title() {
         let sf_benchmark = SalaryBenchmark {
-            job_title: "Software Engineer".to_string(),
+            job_title: "Case Manager".to_string(),
             location: "San Francisco, CA".to_string(),
             seniority_level: SeniorityLevel::Mid,
             min_salary: 140000,
@@ -724,7 +724,7 @@ mod tests {
         };
 
         let austin_benchmark = SalaryBenchmark {
-            job_title: "Software Engineer".to_string(),
+            job_title: "Case Manager".to_string(),
             location: "Austin, TX".to_string(),
             seniority_level: SeniorityLevel::Mid,
             min_salary: 90000,
@@ -910,12 +910,12 @@ mod tests {
         manager.upsert_benchmark(&benchmark).await.unwrap();
 
         let results = manager
-            .get_benchmarks_for_title("Software Engineer")
+            .get_benchmarks_for_title("Case Manager")
             .await
             .unwrap();
 
         assert_eq!(results.len(), 1);
-        assert_eq!(results[0].job_title, "Software Engineer");
+        assert_eq!(results[0].job_title, "Case Manager");
         assert_eq!(results[0].median_salary, 150000);
     }
 
@@ -928,13 +928,13 @@ mod tests {
         manager.upsert_benchmark(&benchmark).await.unwrap();
 
         // Partial match should work (LIKE query)
-        let results = manager.get_benchmarks_for_title("Engineer").await.unwrap();
+        let results = manager.get_benchmarks_for_title("Manager").await.unwrap();
         assert_eq!(results.len(), 1);
 
-        let results = manager.get_benchmarks_for_title("Software").await.unwrap();
+        let results = manager.get_benchmarks_for_title("Case").await.unwrap();
         assert_eq!(results.len(), 1);
 
-        let results = manager.get_benchmarks_for_title("soft").await.unwrap();
+        let results = manager.get_benchmarks_for_title("case").await.unwrap();
         assert_eq!(results.len(), 1);
     }
 
@@ -947,7 +947,7 @@ mod tests {
         manager.upsert_benchmark(&benchmark).await.unwrap();
 
         let results = manager
-            .get_benchmarks_for_title("Product Manager")
+            .get_benchmarks_for_title("Project Coordinator")
             .await
             .unwrap();
 
@@ -961,28 +961,28 @@ mod tests {
 
         // Insert multiple benchmarks
         let mut benchmark1 = create_test_benchmark();
-        benchmark1.job_title = "Software Engineer".to_string();
+        benchmark1.job_title = "Case Manager".to_string();
         benchmark1.sample_size = 500;
         manager.upsert_benchmark(&benchmark1).await.unwrap();
 
         let mut benchmark2 = create_test_benchmark();
-        benchmark2.job_title = "Senior Software Engineer".to_string();
+        benchmark2.job_title = "Senior Case Manager".to_string();
         benchmark2.location = "Seattle, WA".to_string();
         benchmark2.sample_size = 300;
         manager.upsert_benchmark(&benchmark2).await.unwrap();
 
         let mut benchmark3 = create_test_benchmark();
-        benchmark3.job_title = "Staff Software Engineer".to_string();
+        benchmark3.job_title = "Lead Case Manager".to_string();
         benchmark3.location = "Austin, TX".to_string();
         benchmark3.sample_size = 800;
         manager.upsert_benchmark(&benchmark3).await.unwrap();
 
-        let results = manager.get_benchmarks_for_title("Software").await.unwrap();
+        let results = manager.get_benchmarks_for_title("Case").await.unwrap();
         assert_eq!(results.len(), 3);
 
         // Should be ordered by sample_size DESC
         assert_eq!(results[0].sample_size, 800); // Staff
-        assert_eq!(results[1].sample_size, 500); // Software
+        assert_eq!(results[1].sample_size, 500); // Case
         assert_eq!(results[2].sample_size, 300); // Senior
     }
 
@@ -994,13 +994,13 @@ mod tests {
         // Insert 60 benchmarks
         for i in 0..60 {
             let mut benchmark = create_test_benchmark();
-            benchmark.job_title = "Software Engineer".to_string();
+            benchmark.job_title = "Case Manager".to_string();
             benchmark.location = format!("City {}", i);
             benchmark.sample_size = 100 + i;
             manager.upsert_benchmark(&benchmark).await.unwrap();
         }
 
-        let results = manager.get_benchmarks_for_title("Software").await.unwrap();
+        let results = manager.get_benchmarks_for_title("Case").await.unwrap();
 
         // Should limit to 50
         assert_eq!(results.len(), 50);
@@ -1019,15 +1019,15 @@ mod tests {
 
         // All case variations should match
         let results1 = manager
-            .get_benchmarks_for_title("software engineer")
+            .get_benchmarks_for_title("case manager")
             .await
             .unwrap();
         let results2 = manager
-            .get_benchmarks_for_title("SOFTWARE ENGINEER")
+            .get_benchmarks_for_title("CASE MANAGER")
             .await
             .unwrap();
         let results3 = manager
-            .get_benchmarks_for_title("SoFtWaRe EnGiNeEr")
+            .get_benchmarks_for_title("CaSe MaNaGeR")
             .await
             .unwrap();
 
@@ -1049,7 +1049,7 @@ mod tests {
                 max_salary, average_salary, sample_size, data_source, last_updated
             )
             VALUES (
-                'software engineer', 'remote', 'mid',
+                'case manager', 'remote', 'mid',
                 100000, 120000, 140000, 160000,
                 180000, 145000, 42, 'h1b', '2026-05-20 12:34:56'
             )
@@ -1060,7 +1060,7 @@ mod tests {
         .unwrap();
 
         let benchmarks = manager
-            .get_benchmarks_for_title("software engineer")
+            .get_benchmarks_for_title("case manager")
             .await
             .unwrap();
 
@@ -1092,7 +1092,7 @@ mod tests {
         manager.upsert_benchmark(&benchmark3).await.unwrap();
 
         let results = manager
-            .get_top_paying_locations("Software Engineer", 3)
+            .get_top_paying_locations("Case Manager", 3)
             .await
             .unwrap();
 
@@ -1119,7 +1119,7 @@ mod tests {
         }
 
         let results = manager
-            .get_top_paying_locations("Software Engineer", 3)
+            .get_top_paying_locations("Case Manager", 3)
             .await
             .unwrap();
 
@@ -1140,7 +1140,7 @@ mod tests {
 
         // Query for different job title
         let results = manager
-            .get_top_paying_locations("Product Manager", 5)
+            .get_top_paying_locations("Project Coordinator", 5)
             .await
             .unwrap();
 
@@ -1153,20 +1153,20 @@ mod tests {
         let manager = BenchmarkManager::new(pool.clone());
 
         let mut benchmark1 = create_test_benchmark();
-        benchmark1.job_title = "Software Engineer".to_string();
+        benchmark1.job_title = "Case Manager".to_string();
         benchmark1.location = "SF".to_string();
         benchmark1.median_salary = 180000;
         manager.upsert_benchmark(&benchmark1).await.unwrap();
 
         let mut benchmark2 = create_test_benchmark();
-        benchmark2.job_title = "Senior Software Engineer".to_string();
+        benchmark2.job_title = "Senior Case Manager".to_string();
         benchmark2.location = "Austin".to_string();
         benchmark2.median_salary = 200000;
         manager.upsert_benchmark(&benchmark2).await.unwrap();
 
         // Should only match exact title (not LIKE query)
         let results = manager
-            .get_top_paying_locations("Software Engineer", 5)
+            .get_top_paying_locations("Case Manager", 5)
             .await
             .unwrap();
 
@@ -1183,7 +1183,7 @@ mod tests {
         manager.upsert_benchmark(&benchmark).await.unwrap();
 
         let results = manager
-            .get_top_paying_locations("Software Engineer", 0)
+            .get_top_paying_locations("Case Manager", 0)
             .await
             .unwrap();
 
@@ -1229,7 +1229,7 @@ mod tests {
         manager.upsert_benchmark(&original).await.unwrap();
 
         let results = manager
-            .get_benchmarks_for_title("Software Engineer")
+            .get_benchmarks_for_title("Case Manager")
             .await
             .unwrap();
 

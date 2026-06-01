@@ -187,11 +187,11 @@ mod tests {
             job: Job {
                 id: 1,
                 hash: "test123".to_string(),
-                title: "Senior Rust Engineer".to_string(),
-                company: "Awesome Corp".to_string(),
+                title: "Care Coordinator".to_string(),
+                company: "Community Care Network".to_string(),
                 url: "https://example.com/jobs/123".to_string(),
                 location: Some("Remote".to_string()),
-                description: Some("Build amazing Rust systems".to_string()),
+                description: Some("Support patients and families with care planning".to_string()),
                 score: Some(0.95),
                 score_reasons: None,
                 source: "greenhouse".to_string(),
@@ -223,8 +223,8 @@ mod tests {
                     recency: 0.05,
                 },
                 reasons: vec![
-                    "Title matches: Senior Rust Engineer".to_string(),
-                    "Keyword match: Rust".to_string(),
+                    "Title matches: Care Coordinator".to_string(),
+                    "Keyword match: case management".to_string(),
                     "Salary 120% of target (100% credit)".to_string(),
                     "Remote job (matches preference)".to_string(),
                 ],
@@ -549,7 +549,7 @@ mod tests {
             notification.job.title, notification.job.company
         );
 
-        assert_eq!(title, "🎯 Senior Rust Engineer - Awesome Corp");
+        assert_eq!(title, "🎯 Care Coordinator - Community Care Network");
     }
 
     #[test]
@@ -559,7 +559,7 @@ mod tests {
 
         assert!(reasons_text.contains('\n'));
         assert!(reasons_text.contains("Title matches"));
-        assert!(reasons_text.contains("Keyword match: Rust"));
+        assert!(reasons_text.contains("Keyword match: case management"));
     }
 
     #[test]
@@ -774,7 +774,7 @@ mod tests {
     fn test_score_reasons_with_special_characters() {
         let mut notification = create_test_notification();
         notification.score.reasons = vec![
-            "C++ & Python skills".to_string(),
+            "Case management & scheduling".to_string(),
             "$200k+ salary".to_string(),
             "Remote (100%)".to_string(),
         ];
@@ -947,7 +947,7 @@ mod tests {
     #[test]
     fn test_job_title_with_special_chars() {
         let mut notification = create_test_notification();
-        notification.job.title = "Sr. C++ Developer / Tech Lead".to_string();
+        notification.job.title = "Sr. Case Manager / Team Lead".to_string();
 
         let title = format!(
             "🎯 {} - {}",
@@ -1296,7 +1296,7 @@ mod tests {
             notification.job.title, notification.job.company
         );
         assert!(title.starts_with("🎯 "));
-        assert_eq!(title, "🎯 Senior Rust Engineer - Awesome Corp");
+        assert_eq!(title, "🎯 Care Coordinator - Community Care Network");
     }
 
     #[test]

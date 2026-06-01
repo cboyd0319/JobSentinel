@@ -26,7 +26,7 @@ const mockProfile = {
   email: "jordan@example.com",
   phone: "+1 (555) 123-4567",
   linkedinUrl: "https://linkedin.com/in/jordanlee",
-  githubUrl: "https://code.example.com/jordanlee",
+  githubUrl: "https://profile.example.com/jordanlee",
   portfolioUrl: "https://jordanlee.example.com/work",
   websiteUrl: "https://jordanlee.example.com",
   usWorkAuthorized: true,
@@ -231,7 +231,7 @@ describe("ApplicationPreview", () => {
 
       await waitFor(() => {
         expect(screen.getByText("Code profile")).toBeInTheDocument();
-        expect(screen.getByText("https://code.example.com/jordanlee")).toBeInTheDocument();
+        expect(screen.getByText("https://profile.example.com/jordanlee")).toBeInTheDocument();
       });
     });
 

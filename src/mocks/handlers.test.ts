@@ -207,12 +207,12 @@ const notificationPreferencesInput: NotificationPreferences = {
     quietHoursEnabled: true,
   },
   advancedFilters: {
-    includeKeywords: ["Staff"],
+    includeKeywords: ["Support"],
     excludeKeywords: ["Contract"],
-    minSalary: 150,
+    minSalary: 55000,
     remoteOnly: true,
-    companyWhitelist: ["Anthropic"],
-    companyBlacklist: ["AvoidCo"],
+    companyWhitelist: ["CareBridge Health"],
+    companyBlacklist: ["Legacy Staffing"],
   },
 };
 
@@ -264,16 +264,16 @@ describe("mock Tauri handlers", () => {
   });
 
   it("stores bounded deduplicated search history", async () => {
-    await mockInvoke<void>("add_search_history", { query: "rust remote" });
-    await mockInvoke<void>("add_search_history", { query: "typescript remote" });
-    await mockInvoke<void>("add_search_history", { query: "rust remote" });
+    await mockInvoke<void>("add_search_history", { query: "care coordinator remote" });
+    await mockInvoke<void>("add_search_history", { query: "inventory planner remote" });
+    await mockInvoke<void>("add_search_history", { query: "care coordinator remote" });
 
     expect(await mockInvoke<string[]>("get_search_history", { limit: 20 })).toEqual([
-      "rust remote",
-      "typescript remote",
+      "care coordinator remote",
+      "inventory planner remote",
     ]);
     expect(await mockInvoke<string[]>("get_search_history", { limit: 1 })).toEqual([
-      "rust remote",
+      "care coordinator remote",
     ]);
 
     await mockInvoke<void>("clear_search_history");
@@ -315,7 +315,7 @@ describe("mock Tauri handlers", () => {
         id: created.id,
         name: "Updated letter",
         content: "Hello {company}",
-        category: "tech",
+        category: "healthcare",
       },
     );
 
@@ -323,7 +323,7 @@ describe("mock Tauri handlers", () => {
       id: created.id,
       name: "Updated letter",
       content: "Hello {company}",
-      category: "tech",
+      category: "healthcare",
       createdAt: created.createdAt,
     });
     expect(updated?.updatedAt).toEqual(expect.any(String));
@@ -440,7 +440,7 @@ describe("mock Tauri handlers", () => {
       url: canonicalUrl,
       location: "Remote",
       description_preview: expect.stringContaining("Care Coordinator"),
-      salary: "$120k-$180k",
+      salary: "$55k-$72k",
       employment_types: ["FULL_TIME"],
       remote: true,
       missing_fields: [],
@@ -526,13 +526,13 @@ describe("mock Tauri handlers", () => {
 
     const sanitized = await mockInvoke<string>("sanitize_feedback_text", {
       content:
-        "Crash at /Users/alice/secret.txt with token ghp_123456 and john@example.com",
+        "Crash at /Users/alice/secret.txt with token raw-secret-123 and john@example.com",
     });
     expect(sanitized).toContain("[USER_PATH]");
     expect(sanitized).toContain("[TOKEN]");
     expect(sanitized).toContain("[EMAIL]");
     expect(sanitized).not.toContain("alice");
-    expect(sanitized).not.toContain("ghp_123456");
+    expect(sanitized).not.toContain("raw-secret-123");
     expect(sanitized).not.toContain("john@example.com");
 
     const filename = await mockInvoke<string>("get_feedback_filename");
@@ -565,7 +565,7 @@ describe("mock Tauri handlers", () => {
     const powerWords = await mockInvoke<string[]>("get_ats_power_words");
 
     expect(powerWords).toEqual(
-      expect.arrayContaining(["led", "developed", "improved", "optimized"]),
+      expect.arrayContaining(["led", "coordinated", "improved", "supported"]),
     );
 
     const formatResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_format", {
@@ -622,12 +622,12 @@ describe("mock Tauri handlers", () => {
 
   it("handles runtime frontend command names in dev mocks", async () => {
     const benchmark = await mockInvoke<SalaryBenchmark | null>("get_salary_benchmark", {
-      jobTitle: "Customer Support Lead",
+      jobTitle: "Training Coordinator",
       location: "Chicago, IL",
       seniority: "mid",
     });
     expect(benchmark).toMatchObject({
-      job_title: "Customer Support Lead",
+      job_title: "Training Coordinator",
       location: "Chicago, IL",
       seniority_level: "Mid",
       p25_salary: expect.any(Number),
@@ -640,13 +640,13 @@ describe("mock Tauri handlers", () => {
     const script = await mockInvoke<string>("generate_negotiation_script", {
       scenario: "initial_offer",
       params: {
-        job_title: "Customer Support Lead",
-        target_salary: "72000",
-        current_offer: "64000",
+        job_title: "Training Coordinator",
+        target_salary: "68000",
+        current_offer: "60000",
       },
     });
-    expect(script).toContain("Customer Support Lead");
-    expect(script).toContain("$72,000");
+    expect(script).toContain("Training Coordinator");
+    expect(script).toContain("$68,000");
 
     const ats = await mockInvoke<AtsDetectionResponse>("detect_ats_platform", {
       url: "https://boards.greenhouse.io/example/jobs/123",

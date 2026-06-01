@@ -557,8 +557,8 @@ mod tests {
             "INSERT INTO jobs (hash, title, company, location, description, url, score, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind("test_hash")
-        .bind("Software Engineer")
-        .bind("TechCorp")
+        .bind("Care Coordinator")
+        .bind("Community Care Network")
         .bind("Remote")
         .bind("Test description")
         .bind("https://example.com")
@@ -591,8 +591,8 @@ mod tests {
             "INSERT INTO jobs (hash, title, company, location, description, url, score, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind("test_hash")
-        .bind("Engineer")
-        .bind("Company")
+        .bind("Program Coordinator")
+        .bind("FreshMart")
         .bind("Remote")
         .bind("Desc")
         .bind("https://test.com")
@@ -626,8 +626,8 @@ mod tests {
             "INSERT INTO jobs (hash, title, company, location, description, url, score, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind("test_hash")
-        .bind("Engineer")
-        .bind("Company")
+        .bind("Program Coordinator")
+        .bind("City Health Department")
         .bind("Remote")
         .bind("Desc")
         .bind("https://test.com")

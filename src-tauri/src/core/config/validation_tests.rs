@@ -6,7 +6,7 @@ mod validation_tests {
 
     fn create_minimal_valid_config() -> Config {
         Config {
-            title_allowlist: vec!["Engineer".to_string()],
+            title_allowlist: vec!["Care Coordinator".to_string()],
             title_blocklist: vec![],
             keywords_boost: vec![],
             keywords_exclude: vec![],

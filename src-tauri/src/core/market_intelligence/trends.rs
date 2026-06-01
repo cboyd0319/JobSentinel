@@ -205,7 +205,7 @@ mod tests {
         let today = Utc::now().date_naive();
         let prev = SkillDemandTrend {
             id: 1,
-            skill_name: "React".to_string(),
+            skill_name: "Scheduling".to_string(),
             date: today,
             mention_count: 100,
             job_count: 50,
@@ -217,7 +217,7 @@ mod tests {
 
         let curr = SkillDemandTrend {
             id: 2,
-            skill_name: "React".to_string(),
+            skill_name: "Scheduling".to_string(),
             date: today,
             mention_count: 150,
             job_count: 75,
@@ -236,7 +236,7 @@ mod tests {
         let today = Utc::now().date_naive();
         let trend = SalaryTrend {
             id: 1,
-            job_title_normalized: "software engineer".to_string(),
+            job_title_normalized: "case manager".to_string(),
             location_normalized: "san francisco, ca".to_string(),
             date: today,
             min_salary: 100000,
@@ -262,12 +262,12 @@ mod tests {
         let today = Utc::now().date_naive();
         let role = RoleDemandTrend {
             id: 1,
-            job_title_normalized: "software engineer".to_string(),
+            job_title_normalized: "case manager".to_string(),
             date: today,
             job_count: 500,
             avg_salary: Some(150000),
             median_salary: Some(145000),
-            top_company: Some("Google".to_string()),
+            top_company: Some("CommunityCare".to_string()),
             top_location: Some("Remote".to_string()),
             avg_experience_years: Some(4.5),
             remote_percentage: Some(65.0),
@@ -284,13 +284,13 @@ mod tests {
         let today = Utc::now().date_naive();
         let velocity = CompanyHiringVelocity {
             id: 1,
-            company_name: "TechCorp".to_string(),
+            company_name: "County Services".to_string(),
             date: today,
             jobs_posted_count: 25,
             jobs_filled_count: 15,
             jobs_active_count: 50,
             avg_days_to_fill: Some(30.0),
-            top_role: Some("Software Engineer".to_string()),
+            top_role: Some("Case Manager".to_string()),
             top_location: Some("Remote".to_string()),
             is_actively_hiring: true,
             hiring_trend: Some("increasing".to_string()),
@@ -314,9 +314,9 @@ mod tests {
             remote_job_count: 400,
             avg_salary: Some(160000),
             median_salary: Some(150000),
-            top_skill: Some("Python".to_string()),
-            top_company: Some("Meta".to_string()),
-            top_role: Some("Software Engineer".to_string()),
+            top_skill: Some("CRM".to_string()),
+            top_company: Some("Metro Transit".to_string()),
+            top_role: Some("Case Manager".to_string()),
             latitude: Some(37.7749),
             longitude: Some(-122.4194),
         };
@@ -331,7 +331,7 @@ mod tests {
         let today = Utc::now().date_naive();
         let prev = SkillDemandTrend {
             id: 1,
-            skill_name: "Go".to_string(),
+            skill_name: "Bilingual Support".to_string(),
             date: today,
             mention_count: 0,
             job_count: 0,
@@ -343,7 +343,7 @@ mod tests {
 
         let curr = SkillDemandTrend {
             id: 2,
-            skill_name: "Go".to_string(),
+            skill_name: "Bilingual Support".to_string(),
             date: today,
             mention_count: 50,
             job_count: 25,
@@ -361,7 +361,7 @@ mod tests {
         let today = Utc::now().date_naive();
         let prev = SkillDemandTrend {
             id: 1,
-            skill_name: "jQuery".to_string(),
+            skill_name: "Paper Intake".to_string(),
             date: today,
             mention_count: 200,
             job_count: 100,
@@ -373,7 +373,7 @@ mod tests {
 
         let curr = SkillDemandTrend {
             id: 2,
-            skill_name: "jQuery".to_string(),
+            skill_name: "Paper Intake".to_string(),
             date: today,
             mention_count: 100,
             job_count: 50,
@@ -392,7 +392,7 @@ mod tests {
         let today = Utc::now().date_naive();
         let prev = SkillDemandTrend {
             id: 1,
-            skill_name: "Rust".to_string(),
+            skill_name: "Inventory Planning".to_string(),
             date: today,
             mention_count: 100,
             job_count: 50,
@@ -404,7 +404,7 @@ mod tests {
 
         let curr = SkillDemandTrend {
             id: 2,
-            skill_name: "Rust".to_string(),
+            skill_name: "Inventory Planning".to_string(),
             date: today,
             mention_count: 125,
             job_count: 62,
@@ -423,7 +423,7 @@ mod tests {
         let today = Utc::now().date_naive();
         let trend = SalaryTrend {
             id: 1,
-            job_title_normalized: "developer".to_string(),
+            job_title_normalized: "support specialist".to_string(),
             location_normalized: "remote".to_string(),
             date: today,
             min_salary: 80000,
@@ -445,7 +445,7 @@ mod tests {
         let today = Utc::now().date_naive();
         let trend = SalaryTrend {
             id: 1,
-            job_title_normalized: "qa engineer".to_string(),
+            job_title_normalized: "customer support specialist".to_string(),
             location_normalized: "austin, tx".to_string(),
             date: today,
             min_salary: 70000,
@@ -467,7 +467,7 @@ mod tests {
         let today = Utc::now().date_naive();
         let trend = SalaryTrend {
             id: 1,
-            job_title_normalized: "senior engineer".to_string(),
+            job_title_normalized: "senior program coordinator".to_string(),
             location_normalized: "seattle, wa".to_string(),
             date: today,
             min_salary: 150000,
@@ -561,7 +561,7 @@ mod tests {
             jobs_filled_count: 5,
             jobs_active_count: 25,
             avg_days_to_fill: Some(30.0),
-            top_role: Some("Engineer".to_string()),
+            top_role: Some("Program Coordinator".to_string()),
             top_location: Some("Remote".to_string()),
             is_actively_hiring: true,
             hiring_trend: Some("stable".to_string()),
@@ -610,9 +610,9 @@ mod tests {
             remote_job_count: 500,
             avg_salary: Some(145000),
             median_salary: Some(140000),
-            top_skill: Some("JavaScript".to_string()),
-            top_company: Some("RemoteCo".to_string()),
-            top_role: Some("Full Stack Developer".to_string()),
+            top_skill: Some("Scheduling".to_string()),
+            top_company: Some("Remote Support Co".to_string()),
+            top_role: Some("Customer Support Lead".to_string()),
             latitude: None,
             longitude: None,
         };
@@ -635,9 +635,9 @@ mod tests {
             remote_job_count: 200,
             avg_salary: Some(80000),
             median_salary: Some(75000),
-            top_skill: Some("TypeScript".to_string()),
-            top_company: Some("BritishTech".to_string()),
-            top_role: Some("Backend Engineer".to_string()),
+            top_skill: Some("Bilingual Support".to_string()),
+            top_company: Some("Public Benefit Office".to_string()),
+            top_role: Some("Operations Coordinator".to_string()),
             latitude: Some(51.5074),
             longitude: Some(-0.1278),
         };

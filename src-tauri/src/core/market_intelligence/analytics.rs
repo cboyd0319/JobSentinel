@@ -398,8 +398,8 @@ mod tests {
             avg_salary: Some(130000),
             median_salary: Some(125000),
             remote_job_percentage: 35.5,
-            top_skill: Some("Python".to_string()),
-            top_company: Some("Google".to_string()),
+            top_skill: Some("Scheduling".to_string()),
+            top_company: Some("CommunityCare".to_string()),
             top_location: Some("Remote".to_string()),
             total_companies_hiring: 500,
             market_sentiment: "bullish".to_string(),
@@ -422,8 +422,8 @@ mod tests {
             avg_salary: Some(110000),
             median_salary: Some(105000),
             remote_job_percentage: 25.0,
-            top_skill: Some("React".to_string()),
-            top_company: Some("Meta".to_string()),
+            top_skill: Some("CRM".to_string()),
+            top_company: Some("Metro Transit".to_string()),
             top_location: Some("San Francisco, CA".to_string()),
             total_companies_hiring: 200,
             market_sentiment: "bearish".to_string(),
@@ -456,8 +456,8 @@ mod tests {
             avg_salary: Some(115000),
             median_salary: Some(110000),
             remote_job_percentage: 30.0,
-            top_skill: Some("Java".to_string()),
-            top_company: Some("Amazon".to_string()),
+            top_skill: Some("Inventory Planning".to_string()),
+            top_company: Some("Harbor Retail".to_string()),
             top_location: Some("Seattle, WA".to_string()),
             total_companies_hiring: 300,
             market_sentiment: "neutral".to_string(),
@@ -503,7 +503,7 @@ mod tests {
             median_salary: Some(130000),
             remote_job_percentage: 45.0,
             top_skill: None,
-            top_company: Some("Microsoft".to_string()),
+            top_company: Some("County Services".to_string()),
             top_location: Some("Remote".to_string()),
             total_companies_hiring: 600,
             market_sentiment: "bullish".to_string(),
@@ -548,8 +548,8 @@ mod tests {
             avg_salary: Some(140000),
             median_salary: Some(135000),
             remote_job_percentage: 85.5,
-            top_skill: Some("Rust".to_string()),
-            top_company: Some("Oxide".to_string()),
+            top_skill: Some("Bilingual Support".to_string()),
+            top_company: Some("County Services".to_string()),
             top_location: Some("Remote".to_string()),
             total_companies_hiring: 250,
             market_sentiment: "bullish".to_string(),
@@ -592,7 +592,7 @@ mod tests {
             median_salary: Some(100000),
             remote_job_percentage: 100.0,
             top_skill: Some("Obscure".to_string()),
-            top_company: Some("StartupOne".to_string()),
+            top_company: Some("Neighborhood Clinic".to_string()),
             top_location: Some("Remote".to_string()),
             total_companies_hiring: 1,
             market_sentiment: "neutral".to_string(),
@@ -613,15 +613,18 @@ mod tests {
             avg_salary: Some(125000),
             median_salary: Some(120000),
             remote_job_percentage: 40.0,
-            top_skill: Some("Rust".to_string()),
-            top_company: Some("Mozilla".to_string()),
+            top_skill: Some("Bilingual Support".to_string()),
+            top_company: Some("Northwind Health".to_string()),
             top_location: Some("San Francisco, CA".to_string()),
             total_companies_hiring: 350,
             market_sentiment: "bullish".to_string(),
-            notes: Some("Strong tech hiring in Q4".to_string()),
+            notes: Some("Strong community hiring in Q4".to_string()),
         };
 
-        assert_eq!(snapshot.notes, Some("Strong tech hiring in Q4".to_string()));
+        assert_eq!(
+            snapshot.notes,
+            Some("Strong community hiring in Q4".to_string())
+        );
         assert!(snapshot.is_healthy());
     }
 
@@ -657,12 +660,12 @@ mod tests {
             avg_salary: Some(140000),
             median_salary: Some(135000),
             remote_job_percentage: 55.0,
-            top_skill: Some("Go".to_string()),
-            top_company: Some("Google".to_string()),
+            top_skill: Some("Case Documentation".to_string()),
+            top_company: Some("CommunityCare".to_string()),
             top_location: Some("Remote".to_string()),
             total_companies_hiring: 450,
             market_sentiment: "bullish".to_string(),
-            notes: Some("Tech boom continues".to_string()),
+            notes: Some("Community hiring stays strong".to_string()),
         };
 
         let serialized = serde_json::to_string(&snapshot).unwrap();
@@ -670,7 +673,10 @@ mod tests {
 
         assert_eq!(deserialized.total_jobs, 7500);
         assert_eq!(deserialized.market_sentiment, "bullish");
-        assert_eq!(deserialized.notes, Some("Tech boom continues".to_string()));
+        assert_eq!(
+            deserialized.notes,
+            Some("Community hiring stays strong".to_string())
+        );
     }
 
     #[test]
@@ -683,19 +689,19 @@ mod tests {
             avg_salary: Some(150000),
             median_salary: Some(145000),
             remote_job_percentage: 60.0,
-            top_skill: Some("Kubernetes".to_string()),
-            top_company: Some("Amazon".to_string()),
+            top_skill: Some("Inventory Planning".to_string()),
+            top_company: Some("Harbor Retail".to_string()),
             top_location: Some("Seattle, WA".to_string()),
             total_companies_hiring: 700,
             market_sentiment: "bullish".to_string(),
-            notes: Some("Cloud infrastructure demand high".to_string()),
+            notes: Some("Care coordination demand high".to_string()),
         };
 
         let summary = snapshot.summary();
         assert!(summary.contains("200 new jobs"));
         assert!(summary.contains("12000 total"));
         assert!(summary.contains("bullish"));
-        assert!(summary.contains("Kubernetes"));
+        assert!(summary.contains("Inventory Planning"));
     }
 
     #[test]
@@ -885,8 +891,8 @@ mod tests {
         insert_test_job(
             &pool,
             "job1",
-            "Software Engineer",
-            Some("Google"),
+            "Case Manager",
+            Some("CommunityCare"),
             Some("San Francisco, CA"),
             "active",
             &today,
@@ -895,8 +901,8 @@ mod tests {
         insert_test_job(
             &pool,
             "job2",
-            "Backend Developer",
-            Some("Meta"),
+            "Operations Coordinator",
+            Some("Metro Transit"),
             Some("Remote"),
             "active",
             &today,
@@ -905,8 +911,8 @@ mod tests {
         insert_test_job(
             &pool,
             "job3",
-            "Frontend Engineer",
-            Some("Google"),
+            "Customer Support Lead",
+            Some("CommunityCare"),
             Some("New York, NY"),
             "closed",
             &yesterday,
@@ -919,9 +925,9 @@ mod tests {
         insert_test_salary(&pool, "job3", 140000).await;
 
         // Insert skills
-        insert_test_skill(&pool, "job1", "Python").await;
-        insert_test_skill(&pool, "job2", "Python").await;
-        insert_test_skill(&pool, "job3", "React").await;
+        insert_test_skill(&pool, "job1", "Scheduling").await;
+        insert_test_skill(&pool, "job2", "Scheduling").await;
+        insert_test_skill(&pool, "job3", "CRM").await;
 
         let analyzer = MarketAnalyzer::new(pool);
         let snapshot = analyzer.create_daily_snapshot().await.unwrap();
@@ -936,8 +942,8 @@ mod tests {
             assert_eq!(avg, 150000);
         }
         assert!(snapshot.remote_job_percentage > 0.0);
-        assert_eq!(snapshot.top_skill, Some("Python".to_string()));
-        assert_eq!(snapshot.top_company, Some("Google".to_string()));
+        assert_eq!(snapshot.top_skill, Some("Scheduling".to_string()));
+        assert_eq!(snapshot.top_company, Some("CommunityCare".to_string()));
         assert_eq!(snapshot.total_companies_hiring, 2);
     }
 
@@ -949,7 +955,7 @@ mod tests {
         insert_test_job(
             &pool,
             "job1",
-            "Engineer",
+            "Coordinator",
             Some("Co1"),
             Some("Remote"),
             "active",
@@ -959,7 +965,7 @@ mod tests {
         insert_test_job(
             &pool,
             "job2",
-            "Engineer",
+            "Coordinator",
             Some("Co2"),
             Some("REMOTE - US"),
             "active",
@@ -969,7 +975,7 @@ mod tests {
         insert_test_job(
             &pool,
             "job3",
-            "Engineer",
+            "Coordinator",
             Some("Co3"),
             Some("San Francisco, CA"),
             "active",
@@ -979,7 +985,7 @@ mod tests {
         insert_test_job(
             &pool,
             "job4",
-            "Engineer",
+            "Coordinator",
             Some("Co4"),
             Some("New York, NY"),
             "active",
@@ -1005,7 +1011,7 @@ mod tests {
             "INSERT INTO jobs (hash, title, company, url, status, posted_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
         )
         .bind("job1")
-        .bind("Engineer")
+        .bind("Coordinator")
         .bind("Co1")
         .bind("https://example.com/job1")
         .bind("closed")
@@ -1020,7 +1026,7 @@ mod tests {
             "INSERT INTO jobs (hash, title, company, url, status, posted_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
         )
         .bind("job2")
-        .bind("Engineer")
+        .bind("Coordinator")
         .bind("Co2")
         .bind("https://example.com/job2")
         .bind("filled")
@@ -1049,8 +1055,8 @@ mod tests {
             avg_salary: Some(120000),
             median_salary: Some(115000),
             remote_job_percentage: 40.0,
-            top_skill: Some("Rust".to_string()),
-            top_company: Some("Mozilla".to_string()),
+            top_skill: Some("Bilingual Support".to_string()),
+            top_company: Some("Northwind Health".to_string()),
             top_location: Some("Remote".to_string()),
             total_companies_hiring: 50,
             market_sentiment: "bullish".to_string(),
@@ -1089,8 +1095,8 @@ mod tests {
             avg_salary: Some(120000),
             median_salary: Some(115000),
             remote_job_percentage: 40.0,
-            top_skill: Some("Rust".to_string()),
-            top_company: Some("Mozilla".to_string()),
+            top_skill: Some("Bilingual Support".to_string()),
+            top_company: Some("Northwind Health".to_string()),
             top_location: Some("Remote".to_string()),
             total_companies_hiring: 50,
             market_sentiment: "bullish".to_string(),
@@ -1108,8 +1114,8 @@ mod tests {
             avg_salary: Some(125000),
             median_salary: Some(120000),
             remote_job_percentage: 45.0,
-            top_skill: Some("Python".to_string()),
-            top_company: Some("Google".to_string()),
+            top_skill: Some("Scheduling".to_string()),
+            top_company: Some("CommunityCare".to_string()),
             top_location: Some("San Francisco, CA".to_string()),
             total_companies_hiring: 60,
             market_sentiment: "bullish".to_string(),
@@ -1397,8 +1403,8 @@ mod tests {
         .bind(120000)
         .bind(115000)
         .bind(40.5)
-        .bind("Rust")
-        .bind("Mozilla")
+        .bind("Bilingual Support")
+        .bind("Northwind Health")
         .bind("Remote")
         .bind(50)
         .bind("bullish")
@@ -1421,8 +1427,8 @@ mod tests {
         assert_eq!(snapshot.avg_salary, Some(120000));
         assert_eq!(snapshot.median_salary, Some(115000));
         assert_eq!(snapshot.remote_job_percentage, 40.5);
-        assert_eq!(snapshot.top_skill, Some("Rust".to_string()));
-        assert_eq!(snapshot.top_company, Some("Mozilla".to_string()));
+        assert_eq!(snapshot.top_skill, Some("Bilingual Support".to_string()));
+        assert_eq!(snapshot.top_company, Some("Northwind Health".to_string()));
         assert_eq!(snapshot.top_location, Some("Remote".to_string()));
         assert_eq!(snapshot.total_companies_hiring, 50);
         assert_eq!(snapshot.market_sentiment, "bullish");
@@ -1482,7 +1488,7 @@ mod tests {
         insert_test_job(
             &pool,
             "job1",
-            "Engineer",
+            "Coordinator",
             Some(""),
             Some("Remote"),
             "active",
@@ -1492,7 +1498,7 @@ mod tests {
         insert_test_job(
             &pool,
             "job2",
-            "Engineer",
+            "Coordinator",
             None,
             Some("San Francisco"),
             "active",
@@ -1502,8 +1508,8 @@ mod tests {
         insert_test_job(
             &pool,
             "job3",
-            "Engineer",
-            Some("Google"),
+            "Coordinator",
+            Some("CommunityCare"),
             Some("New York"),
             "active",
             &today,
@@ -1514,8 +1520,8 @@ mod tests {
         let snapshot = analyzer.create_daily_snapshot().await.unwrap();
 
         assert_eq!(snapshot.total_jobs, 3);
-        assert_eq!(snapshot.total_companies_hiring, 1); // Only Google
-        assert_eq!(snapshot.top_company, Some("Google".to_string()));
+        assert_eq!(snapshot.total_companies_hiring, 1); // Only CommunityCare
+        assert_eq!(snapshot.top_company, Some("CommunityCare".to_string()));
     }
 
     #[tokio::test]
@@ -1523,9 +1529,9 @@ mod tests {
         let pool = setup_test_db().await;
         let today = Utc::now().date_naive().to_string();
 
-        insert_test_job(&pool, "job1", "Eng", Some("Co1"), None, "active", &today).await;
-        insert_test_job(&pool, "job2", "Eng", Some("Co2"), None, "active", &today).await;
-        insert_test_job(&pool, "job3", "Eng", Some("Co3"), None, "active", &today).await;
+        insert_test_job(&pool, "job1", "Svc", Some("Co1"), None, "active", &today).await;
+        insert_test_job(&pool, "job2", "Svc", Some("Co2"), None, "active", &today).await;
+        insert_test_job(&pool, "job3", "Svc", Some("Co3"), None, "active", &today).await;
 
         insert_test_salary(&pool, "job1", 100000).await;
         insert_test_salary(&pool, "job2", 150000).await;
@@ -1582,8 +1588,8 @@ mod tests {
             avg_salary: Some(145000),
             median_salary: Some(140000),
             remote_job_percentage: 50.0,
-            top_skill: Some("Python".to_string()),
-            top_company: Some("Netflix".to_string()),
+            top_skill: Some("Scheduling".to_string()),
+            top_company: Some("City Outreach".to_string()),
             top_location: Some("Los Angeles, CA".to_string()),
             total_companies_hiring: 500,
             market_sentiment: "bullish".to_string(),

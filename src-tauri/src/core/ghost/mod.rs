@@ -858,11 +858,11 @@ mod tests {
         let created_at = create_test_job_created_at(5); // 5 days ago
 
         let analysis = detector.analyze(
-            "Senior Software Engineer",
+            "Senior Case Manager",
             Some(
-                "We are looking for a Senior Software Engineer to join our team. \
-                 You will be responsible for designing and implementing software solutions. \
-                 Requirements: - 5+ years of experience - Strong Python skills - Experience with distributed systems",
+                "We are looking for a Senior Case Manager to join our team. \
+                 You will coordinate client schedules, document case plans, and manage referrals. \
+                 Requirements: - 5+ years of experience - Strong documentation skills - Experience with community resources",
             ),
             Some(150000),
             Some(200000),
@@ -886,7 +886,7 @@ mod tests {
         let created_at = create_test_job_created_at(90); // 90 days ago
 
         let analysis = detector.analyze(
-            "Software Engineer",
+            "Case Manager",
             Some("A normal job description that is reasonably long."),
             None,
             None,
@@ -914,7 +914,7 @@ mod tests {
         let created_at = create_test_job_created_at(5);
 
         let analysis = detector.analyze(
-            "Software Engineer",
+            "Case Manager",
             Some("A normal job description."),
             None,
             None,
@@ -943,7 +943,7 @@ mod tests {
         // Recent repost (30 days old) - full weight
         let recent_created = create_test_job_created_at(30);
         let recent_analysis = detector.analyze(
-            "Software Engineer",
+            "Case Manager",
             Some("A normal job description."),
             None,
             None,
@@ -957,7 +957,7 @@ mod tests {
         // Old repost (120 days old) - 50% weight
         let old_created = create_test_job_created_at(120);
         let old_analysis = detector.analyze(
-            "Software Engineer",
+            "Case Manager",
             Some("A normal job description."),
             None,
             None,
@@ -971,7 +971,7 @@ mod tests {
         // Very old repost (200 days old) - 25% weight
         let very_old_created = create_test_job_created_at(200);
         let very_old_analysis = detector.analyze(
-            "Software Engineer",
+            "Case Manager",
             Some("A normal job description."),
             None,
             None,
@@ -1042,7 +1042,7 @@ mod tests {
         let created_at = create_test_job_created_at(5);
 
         let analysis = detector.analyze(
-            "Software Engineer",
+            "Case Manager",
             Some(
                 "We're looking for a rockstar ninja who can hit the ground running \
                  in our fast-paced environment. We work hard play hard and are like a family. \
@@ -1093,8 +1093,10 @@ mod tests {
         let created_at = create_test_job_created_at(5);
 
         let analysis = detector.analyze(
-            "Junior Developer",
-            Some("Entry-level position requiring 10+ years of experience with React and Node.js."),
+            "Junior Customer Support Specialist",
+            Some(
+                "Entry-level position requiring 10+ years of CRM and bilingual support experience.",
+            ),
             None,
             None,
             Some("NYC"),
@@ -1116,7 +1118,7 @@ mod tests {
         let created_at = create_test_job_created_at(5);
 
         let analysis = detector.analyze(
-            "Software Engineer",
+            "Case Manager",
             Some("A normal job description with good details."),
             Some(100000),
             Some(150000),
@@ -1196,7 +1198,7 @@ mod tests {
 
         // Minimal data
         let analysis_minimal = detector.analyze(
-            "Engineer",
+            "Coordinator",
             Some("Job."),
             None,
             None,
@@ -1209,7 +1211,7 @@ mod tests {
 
         // Full data
         let analysis_full = detector.analyze(
-            "Senior Software Engineer",
+            "Senior Case Manager",
             Some(&"x".repeat(600)), // long description
             Some(150000),
             Some(200000),
@@ -1236,7 +1238,7 @@ mod tests {
         let created_at = create_test_job_created_at(5);
 
         let analysis = detector.analyze_enhanced(
-            "Software Engineer - URGENT",
+            "Case Manager - URGENT",
             Some(
                 "We are hiring now! This position is filling fast. Apply today and \
                  interview this week. Don't miss this opportunity - act fast!",
@@ -1298,7 +1300,7 @@ mod tests {
 
         // Low substance (all fluff)
         let low_substance = detector.analyze_enhanced(
-            "Developer",
+            "Program Coordinator",
             Some(
                 "We offer an exciting, dynamic, innovative, cutting-edge opportunity \
                  in a vibrant, energetic environment. We're looking for passionate, \
@@ -1314,14 +1316,14 @@ mod tests {
             10,
         );
 
-        // High substance (technical)
+        // High substance (detailed and specific)
         let high_substance = detector.analyze_enhanced(
-            "Senior Software Engineer",
+            "Senior Case Manager",
             Some(
-                "You will design and implement scalable APIs using Python and SQL. \
-                 Build and deploy services on AWS using Docker and Kubernetes. \
-                 Review code, write tests, and optimize database queries. \
-                 Integrate with CI/CD pipelines and monitor production systems.",
+                "You will coordinate intake schedules, maintain CRM case notes, \
+                 track referral deadlines, and prepare weekly service reports. \
+                 Review documentation for accuracy, support partner handoffs, \
+                 and monitor follow-up timelines for clients.",
             ),
             Some(150000),
             Some(200000),
@@ -1346,10 +1348,10 @@ mod tests {
         let created_at = create_test_job_created_at(5);
 
         let analysis = detector.analyze_enhanced(
-            "Software Engineer",
+            "Case Manager",
             Some(
                 "We are looking for a motivated individual to join our growing team. \
-                 The ideal candidate will have experience working with technology. \
+                 The ideal candidate will have experience working with community programs. \
                  Great opportunity to work with amazing people. Competitive salary \
                  and benefits. Room for growth and be part of something special.",
             ),
@@ -1410,7 +1412,7 @@ mod tests {
         );
 
         let basic = detector.analyze(
-            "Software Engineer",
+            "Case Manager",
             description,
             None,
             None,
@@ -1422,7 +1424,7 @@ mod tests {
         );
 
         let enhanced = detector.analyze_enhanced(
-            "Software Engineer",
+            "Case Manager",
             description,
             None,
             None,
@@ -1456,21 +1458,21 @@ mod tests {
         let created_at = create_test_job_created_at(3);
 
         let analysis = detector.analyze_enhanced(
-            "Senior Backend Engineer",
+            "Senior Operations Coordinator",
             Some(
-                "We're building the next generation of financial infrastructure. \
+                "We're improving service operations across community offices. \
                  \n\nResponsibilities:\n\
-                 - Design and implement RESTful APIs using Python/Django\n\
-                 - Build scalable microservices on AWS (ECS, Lambda, RDS)\n\
-                 - Write comprehensive tests and maintain >80% coverage\n\
-                 - Participate in code reviews and architectural discussions\n\
-                 - Debug and optimize SQL queries for PostgreSQL\n\
+                 - Coordinate scheduling across regional teams\n\
+                 - Maintain CRM follow-up records and escalation queues\n\
+                 - Prepare weekly staffing and service reports\n\
+                 - Review intake handoffs and process updates with managers\n\
+                 - Track vendor invoices and program deadlines\n\
                  \nRequirements:\n\
-                 - 5+ years of backend development experience\n\
-                 - Strong proficiency in Python and SQL\n\
-                 - Experience with Docker and Kubernetes\n\
-                 - Familiarity with CI/CD pipelines (Jenkins, GitHub Actions)\n\
-                 \nBenefits: $180k-$220k base + equity",
+                 - 5+ years of operations or program support experience\n\
+                 - Strong proficiency with scheduling, CRM, and reporting\n\
+                 - Experience with inventory planning or multi-site coordination\n\
+                 - Familiarity with staff training and vendor follow-up\n\
+                 \nBenefits: $180k-$220k base + bonus",
             ),
             Some(180000),
             Some(220000),

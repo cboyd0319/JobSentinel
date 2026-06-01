@@ -400,7 +400,7 @@ mod tests {
             title: "Junior roles declining".to_string(),
             description: "Junior roles down 30%".to_string(),
             severity: AlertSeverity::Warning,
-            related_entity: Some("Junior Developer".to_string()),
+            related_entity: Some("Junior Coordinator".to_string()),
             related_entity_type: Some(EntityType::Role),
             metric_value: Some(70.0),
             metric_change_pct: Some(-30.0),
@@ -421,7 +421,7 @@ mod tests {
             title: "Company hiring".to_string(),
             description: "Company posted jobs".to_string(),
             severity: AlertSeverity::Info,
-            related_entity: Some("TechCorp".to_string()),
+            related_entity: Some("Community Care Network".to_string()),
             related_entity_type: Some(EntityType::Company),
             metric_value: Some(50.0),
             metric_change_pct: None,
@@ -891,7 +891,7 @@ mod tests {
                 )
                 VALUES (
                     'skill_surge', 'Complete Alert', 'Full description', 'warning',
-                    'Rust', 'skill',
+                    'Case Management', 'skill',
                     250.0, 75.5, 1,
                     '2026-01-16T12:00:00Z'
                 )
@@ -909,7 +909,7 @@ mod tests {
             assert_eq!(alert.title, "Complete Alert");
             assert_eq!(alert.description, "Full description");
             assert_eq!(alert.severity, AlertSeverity::Warning);
-            assert_eq!(alert.related_entity, Some("Rust".to_string()));
+            assert_eq!(alert.related_entity, Some("Case Management".to_string()));
             assert_eq!(alert.related_entity_type, Some(EntityType::Skill));
             assert_eq!(alert.metric_value, Some(250.0));
             assert_eq!(alert.metric_change_pct, Some(75.5));

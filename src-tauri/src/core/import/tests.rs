@@ -179,8 +179,8 @@ mod tests {
         {
             "@context": "https://schema.org",
             "@type": "JobPosting",
-            "title": "Engineer",
-            "hiringOrganization": {"name": "Test Corp"},
+            "title": "Program Coordinator",
+            "hiringOrganization": {"name": "FreshMart"},
             "employmentType": ["FULL_TIME", "PART_TIME"]
         }
         </script>
