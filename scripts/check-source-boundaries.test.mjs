@@ -41,7 +41,25 @@ test("source boundaries reject stale scraper docs and source health copy", () =>
       "production-ready scrapers for 13 major job boards\n",
     );
     writeFixtureFile(root, "docs/features/scraper-health.md", "Source status → details\n");
-    writeFixtureFile(root, "src/components/ScraperHealthDashboard.tsx", "Total Scrapers\n");
+    writeFixtureFile(
+      root,
+      "src/components/ScraperHealthDashboard.tsx",
+      [
+        "Job Source Health",
+        "Health summary statistics",
+        "label: \"Degraded\"",
+        "Check Speed",
+        "Last Good Check",
+        "Page Status",
+        "getByText(\"Unknown\")",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/ScraperHealthDashboard.test.tsx",
+      'scraper_name: "linkedin"\ndisplay_name: "LinkedIn"\n',
+    );
 
     assert.equal(hasScraperDocEmojiMarkers(root, "docs/features/scrapers.md"), false);
     assert.equal(
@@ -54,6 +72,10 @@ test("source boundaries reject stale scraper docs and source health copy", () =>
     );
     assert.equal(
       hasTechnicalSourceHealthUserCopy(root, "src/components/ScraperHealthDashboard.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalSourceHealthUserCopy(root, "src/components/ScraperHealthDashboard.test.tsx"),
       true,
     );
   });

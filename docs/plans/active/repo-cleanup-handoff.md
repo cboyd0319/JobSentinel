@@ -89,6 +89,10 @@ Current branch note:
 - The current notification-settings UX slice changes source-rule,
   minimum-salary, saved-error, and loading-error copy to plain alert-settings
   wording, with NotificationPreferences and product-copy coverage.
+- The current source-status UX slice changes source-health summary, table,
+  page-check, loading, and result labels to plain job-source wording, removes
+  LinkedIn from source-health test fixtures, and adds source-boundary harness
+  coverage for stale status labels.
 - Continue using small verified commits. Avoid another remote CI run until the
   next explicit integration gate or full-goal completion pass.
 
@@ -227,6 +231,10 @@ Current cleanup posture:
   source health table, changes connection and check-speed wording away from
   diagnostic jargon, and replaces Cloudflare-protection warnings in advanced
   sources with search-link/browser-link recovery guidance.
+- Latest source-status UX follow-up changes source-health summary, table,
+  page-check, loading, and result labels to plain job-source wording, removes
+  LinkedIn from source-health test fixtures, and expands source-boundary
+  harness coverage for stale status labels.
 - Latest IPC minimization work added `has_application_profile`,
   `get_application_profile_preview`, `get_dashboard_preferences`, canonical
   import URLs before preview/hash/storage, and minimized import responses to

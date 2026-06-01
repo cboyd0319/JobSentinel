@@ -1,7 +1,7 @@
-# Job Source Health
+# Job Source Status
 
-Job source health helps non-technical users see whether job sources are working,
-degraded, blocked, or disabled. The dashboard turns source failures into
+Job source status helps users see whether job sources are working, having
+trouble, unavailable, or turned off. The dashboard turns source failures into
 plain-language status and safe next steps.
 
 ## Scope
@@ -18,19 +18,20 @@ plain-language status and safe next steps.
 
 | Status | Meaning | User-facing action |
 | ------ | ------- | ------------------ |
-| Healthy | Source recently worked | Keep using this source |
-| Degraded | Some recent failures | Watch source or try again later |
-| Down | Repeated recent failures | Prefer other sources or open official company pages |
-| Disabled | User or policy disabled source | Re-enable only if source policy allows it |
-| Unknown | No recent run data | Run a source check or wait for next scheduled scan |
+| Working | Source recently worked | Keep using this source |
+| Having trouble | Some recent checks failed | Try again later or use search links if urgent |
+| Not working | Repeated recent checks failed | Prefer other sources or open official company pages |
+| Off | User or policy turned source off | Turn on only if useful and allowed |
+| Not checked | No recent check data | Run a source check or wait for the next scheduled check |
 
 ## Dashboard Surface
 
 The Settings troubleshooting dashboard should show:
 
-- Summary counts for healthy, degraded, down, disabled, and unknown sources.
+- Summary counts for working, having-trouble, not-working, off, and not-checked
+  sources.
 - One row per source with status, recent success, average check time, jobs
-  found, last run, and a sanitized latest issue.
+  found, last check, and a sanitized latest issue.
 - Run history for recent attempts.
 - Source-check buttons for known supported sources.
 - Safe support report actions when a user needs help.

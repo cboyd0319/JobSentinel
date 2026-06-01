@@ -42,8 +42,8 @@ const mockScrapers = [
     rate_limit_per_hour: 60,
   },
   {
-    scraper_name: "linkedin",
-    display_name: "LinkedIn",
+    scraper_name: "usajobs",
+    display_name: "USAJobs",
     is_enabled: true,
     requires_auth: true,
     scraper_type: "api" as const,
@@ -141,7 +141,7 @@ const mockTestResults = [
     error: null,
   },
   {
-    scraper_name: "linkedin",
+    scraper_name: "usajobs",
     test_type: "connectivity" as const,
     passed: false,
     duration_ms: 5000,
@@ -174,7 +174,7 @@ describe("ScraperHealthDashboard", () => {
       await vi.advanceTimersByTimeAsync(0); // Flush any pending React updates
 
       // Check for the loading role status element with the loading message
-      expect(screen.getByRole("status", { name: /loading job source health/i })).toBeInTheDocument();
+      expect(screen.getByRole("status", { name: /loading job sources/i })).toBeInTheDocument();
       vi.useRealTimers();
     });
   });
@@ -248,7 +248,7 @@ describe("ScraperHealthDashboard", () => {
       await user.click(screen.getByText("Try Again"));
 
       await waitFor(() => {
-        expect(screen.getByText("Job Source Health")).toBeInTheDocument();
+        expect(screen.getByText("Job Sources")).toBeInTheDocument();
       });
     });
 
@@ -281,7 +281,7 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Job Source Health")).toBeInTheDocument();
+        expect(screen.getByText("Job Sources")).toBeInTheDocument();
       });
     });
 
@@ -323,7 +323,7 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Job Source Health")).toBeInTheDocument();
+        expect(screen.getByText("Job Sources")).toBeInTheDocument();
       });
 
       const closeButtons = screen.getAllByText("Close");
@@ -346,7 +346,7 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Total Sources")).toBeInTheDocument();
+        expect(screen.getByText("Sources")).toBeInTheDocument();
       });
       expect(screen.getByText("13")).toBeInTheDocument();
     });
@@ -355,9 +355,9 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        // Check for the stat card with Healthy label
-        const statCards = screen.getByRole("region", { name: /health summary statistics/i });
-        expect(within(statCards).getByText("Healthy")).toBeInTheDocument();
+        // Check for the stat card with Working label
+        const statCards = screen.getByRole("region", { name: /job source summary/i });
+        expect(within(statCards).getByText("Working")).toBeInTheDocument();
         expect(within(statCards).getByText("8")).toBeInTheDocument();
       });
     });
@@ -366,10 +366,10 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        const statCards = screen.getByRole("region", { name: /health summary statistics/i });
-        expect(within(statCards).getByText("Degraded")).toBeInTheDocument();
+        const statCards = screen.getByRole("region", { name: /job source summary/i });
+        expect(within(statCards).getByText("Having trouble")).toBeInTheDocument();
         // Use aria-label to find specific value
-        expect(within(statCards).getByLabelText("Degraded value: 2")).toBeInTheDocument();
+        expect(within(statCards).getByLabelText("Having trouble value: 2")).toBeInTheDocument();
       });
     });
 
@@ -377,9 +377,9 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        const statCards = screen.getByRole("region", { name: /health summary statistics/i });
-        expect(within(statCards).getByText("Down")).toBeInTheDocument();
-        expect(within(statCards).getByLabelText("Down value: 1")).toBeInTheDocument();
+        const statCards = screen.getByRole("region", { name: /job source summary/i });
+        expect(within(statCards).getByText("Not working")).toBeInTheDocument();
+        expect(within(statCards).getByLabelText("Not working value: 1")).toBeInTheDocument();
       });
     });
 
@@ -387,9 +387,9 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        const statCards = screen.getByRole("region", { name: /health summary statistics/i });
-        expect(within(statCards).getByText("Disabled")).toBeInTheDocument();
-        expect(within(statCards).getByLabelText("Disabled value: 2")).toBeInTheDocument();
+        const statCards = screen.getByRole("region", { name: /job source summary/i });
+        expect(within(statCards).getByText("Off")).toBeInTheDocument();
+        expect(within(statCards).getByLabelText("Off value: 2")).toBeInTheDocument();
       });
     });
 
@@ -397,10 +397,12 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        const statCards = screen.getByRole("region", { name: /health summary statistics/i });
-        expect(within(statCards).getByText("Jobs (24h)")).toBeInTheDocument();
+        const statCards = screen.getByRole("region", { name: /job source summary/i });
+        expect(within(statCards).getByText("Jobs found today")).toBeInTheDocument();
         // Value is formatted with toLocaleString(), so 1500 becomes "1,500"
-        expect(within(statCards).getByLabelText(/Jobs \(24h\) value: 1,500/)).toBeInTheDocument();
+        expect(
+          within(statCards).getByLabelText(/Jobs found today value: 1,500/),
+        ).toBeInTheDocument();
       });
     });
 
@@ -408,7 +410,7 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("region", { name: /health summary statistics/i })).toBeInTheDocument();
+        expect(screen.getByRole("region", { name: /job source summary/i })).toBeInTheDocument();
       });
     });
   });
@@ -444,7 +446,7 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Job Source Health")).toBeInTheDocument();
+        expect(screen.getByText("Job Sources")).toBeInTheDocument();
       });
       expect(screen.queryByText("Connections Needing Attention")).not.toBeInTheDocument();
     });
@@ -486,7 +488,7 @@ describe("ScraperHealthDashboard", () => {
       await waitFor(() => {
         expect(screen.getByText("Indeed")).toBeInTheDocument();
       });
-      expect(screen.getByText("LinkedIn")).toBeInTheDocument();
+      expect(screen.getByText("USAJobs")).toBeInTheDocument();
       expect(screen.getByText("Glassdoor")).toBeInTheDocument();
       expect(screen.getByText("Monster")).toBeInTheDocument();
     });
@@ -512,19 +514,19 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        // Multiple "Healthy" texts may appear - one in summary and in table
-        const healthyBadges = screen.getAllByText("Healthy");
+        // Multiple "Working" texts may appear - one in summary and in table
+        const healthyBadges = screen.getAllByText("Working");
         expect(healthyBadges.length).toBeGreaterThan(0);
       });
-      // Also check for Degraded badge in table
-      expect(screen.getAllByText("Degraded").length).toBeGreaterThan(0);
+      // Also check for Having trouble badge in table
+      expect(screen.getAllByText("Having trouble").length).toBeGreaterThan(0);
     });
 
     it("displays source access labels", async () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("table", { name: /job source health status/i })).toBeInTheDocument();
+        expect(screen.getByRole("table", { name: /job source status/i })).toBeInTheDocument();
       });
       expect(screen.getAllByText("Website page").length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText("Official feed")).toBeInTheDocument();
@@ -579,16 +581,16 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("OK")).toBeInTheDocument();
+        expect(screen.getAllByText("Working").length).toBeGreaterThan(0);
       });
-      expect(screen.getByText("Broken")).toBeInTheDocument();
+      expect(screen.getByText("Needs update")).toBeInTheDocument();
     });
 
     it("has accessible table structure", async () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("table", { name: /job source health status/i })).toBeInTheDocument();
+        expect(screen.getByRole("table", { name: /job source status/i })).toBeInTheDocument();
       });
     });
 
@@ -709,7 +711,7 @@ describe("ScraperHealthDashboard", () => {
       await waitFor(() => {
         expect(screen.getByText("Worked")).toBeInTheDocument();
       });
-      expect(screen.getByText(/needs review.*retry 1/i)).toBeInTheDocument();
+      expect(screen.getByText(/problem found.*retry 1/i)).toBeInTheDocument();
     });
 
     it("displays job counts in check history", async () => {
@@ -866,7 +868,7 @@ describe("ScraperHealthDashboard", () => {
 
       await waitFor(() => {
         expect(screen.getByText("Worked")).toBeInTheDocument();
-        expect(screen.getByText("Needs review")).toBeInTheDocument();
+        expect(screen.getByText("Problem found")).toBeInTheDocument();
       });
     });
 

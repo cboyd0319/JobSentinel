@@ -74,18 +74,18 @@ interface ScraperHealthDashboardProps {
 
 // Health status badge variants
 const healthStatusConfig = {
-  healthy: { variant: "success" as const, label: "Healthy", icon: "check" },
-  degraded: { variant: "alert" as const, label: "Degraded", icon: "warning" },
-  down: { variant: "danger" as const, label: "Down", icon: "x" },
-  disabled: { variant: "surface" as const, label: "Disabled", icon: "minus" },
-  unknown: { variant: "surface" as const, label: "Unknown", icon: "question" },
+  healthy: { variant: "success" as const, label: "Working", icon: "check" },
+  degraded: { variant: "alert" as const, label: "Having trouble", icon: "warning" },
+  down: { variant: "danger" as const, label: "Not working", icon: "x" },
+  disabled: { variant: "surface" as const, label: "Off", icon: "minus" },
+  unknown: { variant: "surface" as const, label: "Not checked", icon: "question" },
 };
 
 const selectorHealthConfig = {
-  healthy: { variant: "success" as const, label: "OK" },
-  degraded: { variant: "alert" as const, label: "Degraded" },
-  broken: { variant: "danger" as const, label: "Broken" },
-  unknown: { variant: "surface" as const, label: "N/A" },
+  healthy: { variant: "success" as const, label: "Working" },
+  degraded: { variant: "alert" as const, label: "May need updates" },
+  broken: { variant: "danger" as const, label: "Needs update" },
+  unknown: { variant: "surface" as const, label: "Not needed" },
 };
 
 // Format duration in ms to human readable
@@ -183,7 +183,7 @@ function formatSourceNextStep(scraper: ScraperHealthMetrics): string {
 
 function formatRunStatus(status: ScraperRun["status"], retryAttempt: number): string {
   const labels: Record<ScraperRun["status"], string> = {
-    error: "Needs review",
+    error: "Problem found",
     rate_limited: "Waiting",
     running: "Checking",
     success: "Worked",
@@ -466,7 +466,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
     return (
       <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
         <Card className="w-full max-w-md">
-          <LoadingSpinner message="Loading job source health..." />
+          <LoadingSpinner message="Loading job sources..." />
         </Card>
       </div>
     );
@@ -498,7 +498,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="font-display text-display-lg text-surface-900 dark:text-white">
-                  Job Source Health
+                  Job Sources
                 </h2>
                 <p className="text-sm text-surface-500 dark:text-surface-400 mt-1">
                   Check whether job sources are available and when they last
@@ -527,39 +527,39 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
               <div
                 className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6"
                 role="region"
-                aria-label="Health summary statistics"
+                aria-label="Job source summary"
               >
                 <StatCard
-                  label="Total Sources"
+                  label="Sources"
                   value={summary.total_scrapers}
                   accentColor="surface"
                 />
                 <StatCard
-                  label="Healthy"
+                  label="Working"
                   value={summary.healthy}
                   accentColor="sentinel"
                   icon={<StatusIcon status="check" />}
                 />
                 <StatCard
-                  label="Degraded"
+                  label="Having trouble"
                   value={summary.degraded}
                   accentColor="alert"
                   icon={<StatusIcon status="warning" />}
                 />
                 <StatCard
-                  label="Down"
+                  label="Not working"
                   value={summary.down}
                   accentColor="alert"
                   icon={<StatusIcon status="x" />}
                 />
                 <StatCard
-                  label="Disabled"
+                  label="Off"
                   value={summary.disabled}
                   accentColor="surface"
                   icon={<StatusIcon status="minus" />}
                 />
                 <StatCard
-                  label="Jobs (24h)"
+                  label="Jobs found today"
                   value={summary.total_jobs_24h}
                   accentColor="sentinel"
                 />
@@ -603,7 +603,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
               <table
                 className="w-full text-sm"
                 role="table"
-                aria-label="Job source health status"
+                aria-label="Job source status"
               >
                 <thead>
                   <tr
@@ -614,25 +614,25 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                       Source
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Current State
+                      Status
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
                       Access
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Reliability
+                      Recent Success
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Check Speed
+                      Time
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
                       Jobs Found
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Last Good Check
+                      Last Worked
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Page Status
+                      Page Check
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
                       What To Do
@@ -1001,7 +1001,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                     variant={result.passed ? "success" : "danger"}
                     size="sm"
                   >
-                    {result.passed ? "Worked" : "Needs review"}
+                    {result.passed ? "Worked" : "Problem found"}
                   </Badge>
                 </div>
               </div>

@@ -135,7 +135,23 @@ export function hasTechnicalSourceHealthUserCopy(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /Scraper Health (?:Dashboard|Monitoring)|Loading scraper health|Total Scrapers|Credential Warnings|Monitor scraper status|run smoke tests|Run smoke test|Smoke Test Results|Test All|scraper health status|\(auth\)|recent runs|No recent runs found|\/ \d+ runs|\b(?:PASS|FAIL)\b|\b[Ss]moke[- ]tests?\b/.test(
+  const staleGlobalCopy =
+    /Scraper Health (?:Dashboard|Monitoring)|Job Source Health|Loading scraper health|Total Scrapers|Credential Warnings|Monitor scraper status|run smoke tests|Run smoke test|Smoke Test Results|Test All|scraper health status|job source health status|\(auth\)|recent runs|No recent runs found|\/ \d+ runs|\b(?:PASS|FAIL)\b|\b[Ss]moke[- ]tests?\b/.test(
+      text,
+    );
+
+  if (staleGlobalCopy) {
+    return true;
+  }
+
+  if (
+    path !== "src/components/ScraperHealthDashboard.tsx" &&
+    path !== "src/components/ScraperHealthDashboard.test.tsx"
+  ) {
+    return false;
+  }
+
+  return /Health summary statistics|Total Sources|Current State|Check Speed|Last Good Check|Page Status|Jobs \(24h\)|Needs review|label:\s*["'`](?:Healthy|Degraded|Down|Disabled|Unknown)["'`]|getByText\(["'`](?:Healthy|Degraded|Down|Disabled|Unknown)["'`]\)|scraper_name:\s*["'`]linkedin["'`]|display_name:\s*["'`]LinkedIn["'`]/.test(
     text,
   );
 }

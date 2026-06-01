@@ -227,6 +227,10 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   connection warnings point users back to Settings, check speeds avoid
   millisecond jargon where possible, and advanced source warnings give
   search-link or browser-link recovery instead of Cloudflare-protection jargon.
+- Fixed additional source-status UX findings: source-health summary, table,
+  page-check, loading, and result labels now use plain job-source wording,
+  LinkedIn is removed from source-health test fixtures, and source-boundary
+  harness coverage blocks stale status labels from returning.
 - Started broad-audience drift cleanup by rebalancing company autocomplete
   suggestions across healthcare, retail, logistics, finance, public service,
   education, hospitality, and technology; replacing tech-first placeholders and
