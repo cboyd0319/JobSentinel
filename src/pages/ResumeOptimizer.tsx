@@ -218,8 +218,18 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
   const [improvingBullet, setImprovingBullet] = useState(false);
   const [showBulletImprover, setShowBulletImprover] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
+  const [showAdvancedResumeImport, setShowAdvancedResumeImport] = useState(false);
 
   const toast = useToast();
+
+  const handleChooseResume = () => {
+    if (onNavigate) {
+      onNavigate("resume");
+      return;
+    }
+
+    toast.info("Open Resume Match", "Use the Resumes page to choose or upload a resume.");
+  };
 
   // Load power words on mount
   const loadPowerWords = useCallback(async () => {
@@ -239,15 +249,18 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     }
 
     if (!resumeJson.trim()) {
-      toast.error("Missing input", "Please paste your resume details first");
+      toast.error(
+        "Choose a resume first",
+        "Choose or upload a resume, or use Import from Resume App if you already have an export.",
+      );
       return;
     }
 
     const resume = parseAtsResumeInput(resumeJson);
     if (!resume) {
       toast.error(
-        "Resume details not recognized",
-        "Use resume details exported from JobSentinel or another resume app. For a PDF resume, upload it on Resume Match first.",
+        "Resume app export not recognized",
+        "Choose or upload a resume instead, or paste a resume app export from JobSentinel or another resume app.",
       );
       return;
     }
@@ -272,15 +285,18 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
   // Analyze format only
   const handleAnalyzeFormat = async () => {
     if (!resumeJson.trim()) {
-      toast.error("Missing input", "Please paste your resume details first");
+      toast.error(
+        "Choose a resume first",
+        "Choose or upload a resume, or use Import from Resume App if you already have an export.",
+      );
       return;
     }
 
     const resume = parseAtsResumeInput(resumeJson);
     if (!resume) {
       toast.error(
-        "Resume details not recognized",
-        "Use resume details exported from JobSentinel or another resume app. For a PDF resume, upload it on Resume Match first.",
+        "Resume app export not recognized",
+        "Choose or upload a resume instead, or paste a resume app export from JobSentinel or another resume app.",
       );
       return;
     }
@@ -486,29 +502,64 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
             </Card>
 
             <Card>
-              <CardHeader title="Resume Details" />
-              <label htmlFor="resume-json-input" className="sr-only">Exported resume details</label>
-              <textarea
-                id="resume-json-input"
-                value={resumeJson}
-                onChange={(e) => setResumeJson(e.target.value)}
-                placeholder="Paste exported resume details here"
-                aria-describedby="resume-json-hint"
-                className="w-full h-96 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus-visible:ring-sentinel-400 resize-none font-mono"
-              />
-              <p id="resume-json-hint" className="text-xs text-surface-500 dark:text-surface-400 mt-2">
-                Use resume details exported from JobSentinel or another resume app. For a PDF resume, upload it on Resume Match first.
-              </p>
+              <CardHeader title="Resume" />
+              <div className="space-y-4">
+                <p className="text-sm text-surface-600 dark:text-surface-300">
+                  Choose a saved resume or upload one. That is the easiest way
+                  to compare your resume with a job post.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button
+                    onClick={handleChooseResume}
+                    className="flex-1"
+                  >
+                    Choose or Upload Resume
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="flex-1"
+                    aria-expanded={showAdvancedResumeImport}
+                    aria-controls="resume-app-import-panel"
+                    onClick={() => setShowAdvancedResumeImport((current) => !current)}
+                  >
+                    Import from Resume App
+                  </Button>
+                </div>
+
+                {showAdvancedResumeImport && (
+                  <div id="resume-app-import-panel" className="pt-4 border-t border-surface-200 dark:border-surface-700">
+                    <h2 className="text-sm font-semibold text-surface-900 dark:text-surface-100 mb-3">
+                      Import from Resume App
+                    </h2>
+                    <label htmlFor="resume-json-input" className="sr-only">Resume app export</label>
+                    <textarea
+                      id="resume-json-input"
+                      value={resumeJson}
+                      onChange={(e) => setResumeJson(e.target.value)}
+                      placeholder="Paste resume app export here"
+                      aria-describedby="resume-json-hint"
+                      className="w-full h-96 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus-visible:ring-sentinel-400 resize-none font-mono"
+                    />
+                    <p id="resume-json-hint" className="text-xs text-surface-500 dark:text-surface-400 mt-2">
+                      Use this only if a resume app gave you export text. Most
+                      users should choose or upload a resume.
+                    </p>
+                  </div>
+                )}
+              </div>
             </Card>
 
-            <div className="flex gap-3">
-              <Button onClick={handleAnalyze} loading={analyzing} className="flex-1">
-                Review Match
-              </Button>
-              <Button onClick={handleAnalyzeFormat} loading={analyzing} variant="secondary" className="flex-1">
-                Review Format Only
-              </Button>
-            </div>
+            {showAdvancedResumeImport && (
+              <div className="flex gap-3">
+                <Button onClick={handleAnalyze} loading={analyzing} className="flex-1">
+                  Review Match
+                </Button>
+                <Button onClick={handleAnalyzeFormat} loading={analyzing} variant="secondary" className="flex-1">
+                  Review Format Only
+                </Button>
+              </div>
+            )}
 
             <div className="flex gap-3">
               <Button
@@ -859,7 +910,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                   No review yet
                 </h3>
                 <p className="text-surface-500 dark:text-surface-400">
-                  Paste a job post and resume details, then choose Review Match
+                  Choose or upload a resume, paste a job post, then review the match
                 </p>
               </Card>
             )}

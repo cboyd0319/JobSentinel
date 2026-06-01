@@ -41,10 +41,12 @@ External AI is not required for resume matching.
 ## Everyday Workflow
 
 1. Open **Resumes**.
-2. Upload a PDF resume or import structured resume data.
-3. Review suggested skills and add anything important that was missed.
-4. Open job details from the dashboard to see recent resume matches.
-5. Use skills found in both places and skills to review as evidence for a
+2. Choose a saved resume or upload a PDF resume.
+3. Use **Import from resume app** only if another resume app gave you export
+   text.
+4. Review suggested skills and add anything important that was missed.
+5. Open job details from the dashboard to see recent resume matches.
+6. Use skills found in both places and skills to review as evidence for a
    decision:
    tailor carefully, save for later, ask a question, or skip.
 

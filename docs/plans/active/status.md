@@ -49,6 +49,10 @@ and record actionable findings in this active-plan surface.
   keywords such as SQL, Python, and AWS from enabling tech-heavy sources for
   broad roles like accounting, operations, or sales management. Explicit
   software/data/security role phrases still enable those sources.
+- Latest local Resume Match follow-up makes choose/upload the primary resume
+  path, moves resume-app export paste behind an explicit Import from Resume App
+  action, removes the circular PDF-upload hint, and adds focused UI plus
+  product-copy coverage against the old raw export-data path.
 - Latest local zero-technical provider setup work labels USAJobs as optional
   advanced federal monitoring with a no-setup browser-search path first, keeps
   Telegram bot details behind an advanced chat-alert path, and adds

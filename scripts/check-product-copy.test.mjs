@@ -251,6 +251,19 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(root, "src/pages/Settings.tsx", "Config imported\nAdvanced Settings\n");
     writeFixtureFile(
       root,
+      "src/pages/ResumeOptimizer.tsx",
+      [
+        "Exported resume details",
+        "Paste exported resume details here",
+        "Please paste your resume details first",
+        "Resume details not recognized",
+        "For a PDF resume, upload it on Resume Match first.",
+        "Paste a job post and resume details, then choose Review Match",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/pages/SetupWizard.tsx",
       'placeholder="https://hooks.slack.com/services/..." label="Slack connection link"',
     );
@@ -270,6 +283,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/SetupWizard.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.test.tsx"), false);
     assert.equal(

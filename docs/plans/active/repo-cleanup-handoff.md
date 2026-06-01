@@ -240,6 +240,10 @@ Current cleanup posture:
   side, keeping raw resume JSON out of browser fetch code and making Windows
   paths with backslashes usable. Source-quality coverage rejects the old
   renderer file-fetch path.
+- Latest Resume Match UX follow-up makes choose/upload the primary route,
+  keeps resume-app export paste behind an explicit Import from Resume App
+  action, removes the circular PDF-upload hint, and adds focused UI plus
+  product-copy coverage against the old raw export-data path.
 - Latest harness-session follow-up fixed the JSON mode argument parser so
   `npm run harness:session -- --json` no longer treats `--json` as the repo
   root and no longer returns a zeroed unavailable snapshot.
