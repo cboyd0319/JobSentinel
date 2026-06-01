@@ -149,7 +149,7 @@ describe("AtsLiveScorePanel", () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText("analyzing...")).toBeInTheDocument();
+        expect(screen.getByText("checking...")).toBeInTheDocument();
       });
     });
   });
@@ -528,8 +528,8 @@ describe("AtsLiveScorePanel", () => {
     });
   });
 
-  describe("view full analysis modal", () => {
-    it("shows view full analysis button", async () => {
+  describe("details modal", () => {
+    it("shows view details button", async () => {
       render(
         <AtsLiveScorePanel
           resumeData={mockResumeData}
@@ -542,11 +542,11 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /view full analysis/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /view details/i })).toBeInTheDocument();
       });
     });
 
-    it("hides view full analysis button when showFullAnalysis is false", async () => {
+    it("hides view details button when showFullAnalysis is false", async () => {
       render(
         <AtsLiveScorePanel
           resumeData={mockResumeData}
@@ -562,10 +562,10 @@ describe("AtsLiveScorePanel", () => {
         expect(screen.getByText("Some")).toBeInTheDocument();
       });
 
-      expect(screen.queryByRole("button", { name: /view full analysis/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /view details/i })).not.toBeInTheDocument();
     });
 
-    it("opens modal when view full analysis is clicked", async () => {
+    it("opens modal when view details is clicked", async () => {
       render(
         <AtsLiveScorePanel
           resumeData={mockResumeData}
@@ -577,10 +577,10 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /view full analysis/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /view details/i })).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByRole("button", { name: /view full analysis/i }));
+      fireEvent.click(screen.getByRole("button", { name: /view details/i }));
 
       expect(screen.getByText("Full Resume Readability Review")).toBeInTheDocument();
     });
@@ -597,10 +597,10 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /view full analysis/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /view details/i })).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByRole("button", { name: /view full analysis/i }));
+      fireEvent.click(screen.getByRole("button", { name: /view details/i }));
 
       expect(screen.getByText("Words Found (2)")).toBeInTheDocument();
     });
@@ -617,10 +617,10 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /view full analysis/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /view details/i })).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByRole("button", { name: /view full analysis/i }));
+      fireEvent.click(screen.getByRole("button", { name: /view details/i }));
 
       expect(screen.getByText("Words To Add (2)")).toBeInTheDocument();
       expect(screen.getByText("Spanish")).toBeInTheDocument();
@@ -639,13 +639,15 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /view full analysis/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /view details/i })).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByRole("button", { name: /view full analysis/i }));
+      fireEvent.click(screen.getByRole("button", { name: /view details/i }));
 
-      expect(screen.getByText("Format Issues (1)")).toBeInTheDocument();
+      expect(screen.getByText("Details to Check (1)")).toBeInTheDocument();
+      expect(screen.getByText("Review")).toBeInTheDocument();
       expect(screen.getByText("Summary could be longer")).toBeInTheDocument();
+      expect(screen.getByText(/How to fix: Add more details/i)).toBeInTheDocument();
     });
 
     it("displays suggestions in modal", async () => {
@@ -660,15 +662,16 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /view full analysis/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /view details/i })).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByRole("button", { name: /view full analysis/i }));
+      fireEvent.click(screen.getByRole("button", { name: /view details/i }));
 
       expect(screen.getByText("Suggestions (1)")).toBeInTheDocument();
       expect(screen.getByText("Add job words")).toBeInTheDocument();
       expect(screen.getByText("Add Spanish to skills")).toBeInTheDocument();
       expect(screen.queryByText("AddKeyword")).not.toBeInTheDocument();
+      expect(screen.getByText(/Why it helps: High match improvement/i)).toBeInTheDocument();
     });
   });
 
@@ -713,7 +716,7 @@ describe("AtsLiveScorePanel", () => {
   });
 
   describe("job context", () => {
-    it("does not show Job Context badge without job description", () => {
+    it("does not show Saved Job badge without job description", () => {
       render(
         <AtsLiveScorePanel
           resumeData={mockResumeData}
@@ -722,7 +725,7 @@ describe("AtsLiveScorePanel", () => {
         />
       );
 
-      expect(screen.queryByText("Job Context")).not.toBeInTheDocument();
+      expect(screen.queryByText("Saved Job")).not.toBeInTheDocument();
     });
 
     it("uses valid stored job context for full analysis", async () => {
@@ -743,7 +746,7 @@ describe("AtsLiveScorePanel", () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText("Job Context")).toBeInTheDocument();
+        expect(screen.getByText("Saved Job")).toBeInTheDocument();
       });
       await waitForAnalysis();
 
@@ -772,7 +775,7 @@ describe("AtsLiveScorePanel", () => {
         />
       );
 
-      expect(screen.queryByText("Job Context")).not.toBeInTheDocument();
+      expect(screen.queryByText("Saved Job")).not.toBeInTheDocument();
       await waitForAnalysis();
 
       await waitFor(() => {
@@ -800,7 +803,7 @@ describe("AtsLiveScorePanel", () => {
         />
       );
 
-      expect(screen.queryByText("Job Context")).not.toBeInTheDocument();
+      expect(screen.queryByText("Saved Job")).not.toBeInTheDocument();
     });
   });
 

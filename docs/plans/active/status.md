@@ -123,6 +123,12 @@ and record actionable findings in this active-plan surface.
   and selected-site wording, Settings avoids auto-scan and configured-company
   phrasing, generic async toasts avoid "Success"/"Error" titles, and score
   explanations use saved preference wording.
+- Latest local Resume Readability follow-up removes analysis/context jargon
+  from the live Resume Builder panel. The panel now says "checking," "Saved
+  Job," "View Details," "Details to Check," "How to fix," and "Why it helps"
+  instead of full-analysis, job-context, raw severity, fix, or impact wording.
+  Notification setup errors now say saved alert channel instead of configured
+  channel. Product-copy sensors reject the old phrases.
 - Latest local Application Assist readiness follow-up stops optional
   application-form detection from blocking the Prepare Form action. If form
   recognition is still loading, users with a saved profile can still open the

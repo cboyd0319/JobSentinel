@@ -168,6 +168,12 @@ Current cleanup posture:
 - Current local Resume skills follow-up replaces unlabeled skill confidence
   percentages with source labels such as "Found in resume" and "Added by you,"
   with product-copy coverage against confidence-score display drift.
+- Current local Resume Readability follow-up changes the Resume Builder panel
+  from analysis/context jargon to plain checking, saved-job, view-details,
+  details-to-check, how-to-fix, and why-it-helps copy. Raw severity labels are
+  mapped before display, notification setup errors say saved alert channel
+  instead of configured channel, and product-copy sensors now reject the old
+  phrases.
 - Current local skill-label follow-up replaces vague self-rating labels such as
   beginner, intermediate, advanced, expert, and seniority level with
   behavior-based skill strength and role-stage copy across Resume, Resume

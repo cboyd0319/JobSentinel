@@ -62,6 +62,17 @@ function formatSuggestionCategory(category: AtsSuggestion["category"]): string {
   }
 }
 
+function formatIssueSeverity(severity: FormatIssue["severity"]): string {
+  switch (severity) {
+    case "Critical":
+      return "Fix first";
+    case "Warning":
+      return "Review";
+    case "Info":
+      return "Note";
+  }
+}
+
 // Resume data structure for analysis
 interface ContactInfo {
   name: string;
@@ -170,7 +181,7 @@ const getStepTips = (step: number, analysis: AtsAnalysisResult | null): string[]
     tips.push(`Add words from the job post: ${analysis.missing_keywords.slice(0, 3).join(", ")}`);
   }
   if (analysis.format_issues.some(i => i.severity === "Critical")) {
-    tips.push("Address critical format issues first");
+    tips.push("Fix the most important readability details first");
   }
 
   return tips.slice(0, 3);
@@ -326,12 +337,12 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
             </svg>
             Resume Readability
             {analyzing && (
-              <span className="text-xs text-surface-400 animate-pulse">analyzing...</span>
+              <span className="text-xs text-surface-400 animate-pulse">checking...</span>
             )}
           </h3>
           {jobDescription && (
             <Tooltip content="Checking against saved job description" position="left">
-              <Badge variant="sentinel" size="sm">Job Context</Badge>
+              <Badge variant="sentinel" size="sm">Saved Job</Badge>
             </Tooltip>
           )}
         </div>
@@ -431,7 +442,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
                 className="w-full"
                 onClick={() => setShowDetailModal(true)}
               >
-                View Full Analysis
+                View Details
               </Button>
             )}
           </div>
@@ -529,11 +540,11 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
               </div>
             )}
 
-            {/* Format Issues */}
+            {/* Details to check */}
             {analysis.format_issues.length > 0 && (
               <div>
                 <h4 className="text-sm font-semibold text-surface-800 dark:text-surface-200 mb-3">
-                  Format Issues ({analysis.format_issues.length})
+                  Details to Check ({analysis.format_issues.length})
                 </h4>
                 <div className="space-y-2">
                   {analysis.format_issues.map((issue, idx) => (
@@ -552,12 +563,12 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
                           }
                           size="sm"
                         >
-                          {issue.severity}
+                          {formatIssueSeverity(issue.severity)}
                         </Badge>
                         <div className="flex-1">
                           <p className="text-sm text-surface-800 dark:text-surface-200">{issue.issue}</p>
                           <p className="text-xs text-sentinel-600 dark:text-sentinel-400 mt-1">
-                            Fix: {issue.fix}
+                            How to fix: {issue.fix}
                           </p>
                         </div>
                       </div>
@@ -586,7 +597,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
                         {suggestion.suggestion}
                       </summary>
                       <p className="text-xs text-surface-600 dark:text-surface-400 mt-2 ml-6">
-                        Impact: {suggestion.impact}
+                        Why it helps: {suggestion.impact}
                       </p>
                     </details>
                   ))}

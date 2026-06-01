@@ -76,7 +76,7 @@ const CONFIG_ERRORS = [
  * Notification and webhook error patterns
  */
 const NOTIFICATION_ERRORS = [
-  { pattern: /webhook.*failed|webhook.*invalid/i, title: 'Notification Setup Failed', message: 'We couldn\'t send notifications to your configured channel.', action: 'Open Settings, choose More Settings, then paste a fresh connection link for that channel.' },
+  { pattern: /webhook.*failed|webhook.*invalid/i, title: 'Notification Setup Failed', message: 'We couldn\'t send notifications to your saved alert channel.', action: 'Open Settings, choose More Settings, then paste a fresh connection link for that channel.' },
   { pattern: /slack.*error/i, title: 'Slack Notification Failed', message: 'Couldn\'t send a notification to Slack.', action: 'Paste a fresh Slack connection link in Settings and make sure the channel still exists.' },
   { pattern: /discord.*error/i, title: 'Discord Notification Failed', message: 'Couldn\'t send a notification to Discord.', action: 'Paste a fresh Discord connection link in Settings and make sure the channel still exists.' },
   { pattern: /teams.*error/i, title: 'Teams Notification Failed', message: 'Couldn\'t send a notification to Microsoft Teams.', action: 'Paste a fresh Teams connection link in Settings and make sure the connector is still active.' },

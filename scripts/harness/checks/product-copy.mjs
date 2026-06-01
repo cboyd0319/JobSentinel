@@ -631,6 +631,22 @@ export function hasTechnicalFirstUserCopy(root, path) {
     }
   }
 
+  if (path === "src/components/AtsLiveScorePanel.tsx") {
+    const resumeReadabilityPatterns = [
+      /analyzing\.\.\./i,
+      />\s*Job Context\s*</i,
+      /View Full Analysis/i,
+      /Format Issues/i,
+      />\s*\{issue\.severity\}\s*</i,
+      /(^|[>\n])\s*Fix:\s*\{issue\.fix\}/i,
+      /Impact:\s*\{suggestion\.impact\}/i,
+    ];
+
+    if (resumeReadabilityPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
   if (path === "docs/features/resume-builder.md") {
     return /proficiency levels|expert, intermediate/i.test(text);
   }
@@ -857,6 +873,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /database may need repair/i,
     /SSL certificate error/i,
     /Config (?:exported|imported)/i,
+    /configured\s+channel\b/i,
     /\bAdvanced Settings\b/,
     /Failed to import config/i,
     /Failed to load notification preferences/i,

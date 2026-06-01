@@ -218,6 +218,11 @@ boundaries, and harness modularity:
 - Reworked Resume saved-skill chips and rows so users see "Found in resume" or
   "Added by you" instead of unlabeled confidence percentages, with product-copy
   coverage against confidence-score display drift.
+- Reworked the live Resume Builder readability panel so users see checking,
+  saved-job, view-details, details-to-check, how-to-fix, and why-it-helps copy
+  instead of full-analysis, job-context, raw severity, fix, or impact wording.
+  Notification setup errors now point to a saved alert channel instead of a
+  configured channel, and product-copy sensors reject the old phrases.
 - Removed raw screening-question text and saved answer patterns from
   Application Assist debug logs. The trace now records only character counts
   when a saved answer matches, with privacy-logging coverage against raw trace

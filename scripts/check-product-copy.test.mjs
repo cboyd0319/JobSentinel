@@ -604,7 +604,21 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/utils/errorMessages.ts",
-      "Too Many Requests\nYou've made too many requests to this job board.\nConsider increasing the delay between searches.\n",
+      "Too Many Requests\nYou've made too many requests to this job board.\nConsider increasing the delay between searches.\nconfigured channel\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/components/AtsLiveScorePanel.tsx",
+      [
+        "analyzing...",
+        ">Job Context<",
+        "View Full Analysis",
+        "Format Issues",
+        "<Badge>{issue.severity}</Badge>",
+        "Fix: {issue.fix}",
+        "Impact: {suggestion.impact}",
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(
       root,
@@ -703,6 +717,7 @@ test("product copy rejects technical-first settings copy", () => {
       true,
     );
     assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/errorMessages.ts"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/AtsLiveScorePanel.tsx"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/components/NotificationPreferences.tsx"),
       true,
