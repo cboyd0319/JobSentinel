@@ -419,6 +419,8 @@ interface CredentialValidationError {
 
 function getCredentialValidationError(
   credentials: Credentials,
+  config?: Config,
+  credentialStatus?: Record<CredentialKey, boolean>,
 ): CredentialValidationError | null {
   if (validateSlackWebhook(credentials.slack_webhook)) {
     return {
@@ -442,6 +444,21 @@ function getCredentialValidationError(
       message:
         "Paste the full Teams connection link copied from Teams. If you are not sure, leave it blank and set it up later.",
     };
+  }
+
+  if (config?.alerts.telegram?.enabled) {
+    const hasAlertCode =
+      Boolean(credentialStatus?.telegram_bot_token) ||
+      Boolean(credentials.telegram_bot_token.trim());
+    const hasDestination = Boolean(config.alerts.telegram.chat_id?.trim());
+
+    if (!hasAlertCode || !hasDestination) {
+      return {
+        title: "Finish Telegram setup",
+        message:
+          "Add the Telegram alert code and destination number, or turn Telegram alerts off.",
+      };
+    }
   }
 
   return null;
@@ -930,7 +947,11 @@ export default function Settings({ onClose }: SettingsProps) {
   const handleSave = useCallback(async () => {
     if (!config) return;
 
-    const credentialValidationError = getCredentialValidationError(credentials);
+    const credentialValidationError = getCredentialValidationError(
+      credentials,
+      config,
+      credentialStatus,
+    );
     if (credentialValidationError) {
       toast.error(
         credentialValidationError.title,
@@ -1023,7 +1044,7 @@ export default function Settings({ onClose }: SettingsProps) {
     } finally {
       setSaving(false);
     }
-  }, [config, credentials, toast, onClose]);
+  }, [config, credentialStatus, credentials, toast, onClose]);
 
   // Keyboard shortcut: Cmd+S to save
   useEffect(() => {
@@ -1139,10 +1160,9 @@ export default function Settings({ onClose }: SettingsProps) {
       ((!credentialStatus.telegram_bot_token && !alertCode) || !destination)
     ) {
       toast.info(
-        "Add Telegram alert details first",
-        "Paste the alert code and destination number, then turn alerts on.",
+        "Telegram setup opened",
+        "Add the alert code and destination number before saving alerts.",
       );
-      return;
     }
 
     setConfig({
@@ -2821,12 +2841,17 @@ export default function Settings({ onClose }: SettingsProps) {
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
                     Telegram Notifications
+                    <Badge variant="surface" size="sm">Advanced chat alert</Badge>
                     <HelpIcon
-                      text="Get job alerts in Telegram. Message @BotFather to create a private alert bot, then message @userinfobot to find where alerts should go."
+                      text="Use desktop or email alerts unless you already use Telegram bots."
                       position="right"
                     />
                   </label>
                   <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
+                    <p className="text-xs text-surface-500 dark:text-surface-400 mb-3">
+                      Use desktop or email alerts unless you already use Telegram bots.
+                      Telegram needs an alert code and destination number from Telegram.
+                    </p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <SettingsSymbol icon="send" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
@@ -2848,10 +2873,19 @@ export default function Settings({ onClose }: SettingsProps) {
                       </label>
                     </div>
                     {(config.alerts.telegram?.enabled ||
-                      !credentialStatus.telegram_bot_token ||
-                      !(config.alerts.telegram?.chat_id ?? "").trim() ||
-                      credentials.telegram_bot_token) && (
+                      Boolean(credentials.telegram_bot_token) ||
+                      (credentialStatus.telegram_bot_token &&
+                        Boolean((config.alerts.telegram?.chat_id ?? "").trim()))) && (
                       <div className="mt-3 space-y-3">
+                        <div className="p-3 bg-surface-50 dark:bg-surface-900/50 border border-surface-200 dark:border-surface-700 rounded-lg">
+                          <p className="text-sm font-medium text-surface-700 dark:text-surface-300">
+                            Advanced Telegram setup
+                          </p>
+                          <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">
+                            Continue only if you already use Telegram bots or
+                            want to create one for private job alerts.
+                          </p>
+                        </div>
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-sm text-surface-600 dark:text-surface-400">
@@ -2993,25 +3027,41 @@ export default function Settings({ onClose }: SettingsProps) {
                         <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                           <p className="flex items-center gap-1.5 text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
                             <SettingsSymbol icon="bolt" className="h-4 w-4" />
-                            <span>Quick Setup (2 minutes)</span>
+                            <span>Advanced federal monitoring (optional)</span>
+                          </p>
+                          <p className="text-xs text-blue-700 dark:text-blue-300 mb-3">
+                            Skip this if you only want to open USAJobs in your
+                            browser. Search links need no access code.
                           </p>
                           <ol className="text-xs text-blue-700 dark:text-blue-300 space-y-1 ml-4 list-decimal">
-                            <li>Click "Get USAJobs Access Code" below</li>
-                            <li>
-                              Sign up with your email (no credit card needed)
-                            </li>
-                            <li>No coding is needed</li>
+                            <li>Use the browser search link for no setup</li>
+                            <li>Use optional monitoring only if you want JobSentinel to check USAJobs for you</li>
+                            <li>Ask USAJobs for an access code with your email</li>
                             <li>Copy the access code from your email</li>
-                            <li>Paste it here and you're done</li>
+                            <li>Paste it here</li>
                           </ol>
-                          <a
-                            href="https://developer.usajobs.gov/APIRequest/Index"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded transition-colors"
-                          >
-                            Get USAJobs Access Code
-                          </a>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <a
+                              href="https://www.usajobs.gov/Search/Results"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-blue-950 border border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-200 text-sm font-medium rounded transition-colors hover:bg-blue-100 dark:hover:bg-blue-900"
+                            >
+                              Open USAJobs search in your browser
+                            </a>
+                            <a
+                              href="https://developer.usajobs.gov/APIRequest/Index"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded transition-colors"
+                            >
+                              Get optional USAJobs access code
+                            </a>
+                          </div>
+                          <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
+                            The USAJobs access-code page is run by USAJobs, not
+                            JobSentinel.
+                          </p>
                         </div>
                       )}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

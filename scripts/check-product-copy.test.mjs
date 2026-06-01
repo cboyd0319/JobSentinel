@@ -345,6 +345,22 @@ test("product copy rejects GitHub-first support and overbroad privacy copy", () 
   });
 });
 
+test("product copy rejects technical provider setup shortcuts", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/pages/Settings.tsx",
+      [
+        "Message @BotFather to create a private alert bot.",
+        "Quick Setup (2 minutes)",
+        "Get USAJobs Access Code",
+      ].join("\n"),
+    );
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
+  });
+});
+
 test("product copy rejects stale zero-technical resume and shortcut copy", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/pages/Resume.tsx", "Import Resume Data\n");

@@ -147,6 +147,10 @@ Current cleanup posture:
   customer success engineer, and technical product manager from turning on
   tech-heavy sources by substring match. Utility and broad-audience harness
   tests now guard this behavior.
+- Current local zero-technical provider setup follow-up makes USAJobs lead with
+  a no-setup browser-search path before optional advanced monitoring, keeps
+  Telegram bot details behind an advanced chat-alert path, and adds
+  product-copy coverage against old provider setup shortcuts.
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
 - `npm run harness:plan -- --since origin/main` now maps changed files to
   focused verification commands from the harness matrix.
@@ -893,9 +897,9 @@ Next high-value passes:
      screens for plain-language actions and no terminal/developer assumptions.
    - Keep safe support report generation one click from Settings, Error
      Logs, and crash/error recovery surfaces.
-   - The latest support-path and privacy-copy findings are closed locally.
-     Remaining known follow-ups include USAJobs setup fallback wording and
-     Telegram bot setup as an advanced chat-alert path.
+   - The latest support-path, privacy-copy, USAJobs setup, and Telegram setup
+     findings are closed locally. Continue looking for new issues as new
+     surfaces change.
 6. Continue broad-audience UX review.
    - Recheck onboarding, examples, placeholders, filters, profile presets, docs,
      and empty states for engineer-only assumptions.

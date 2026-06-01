@@ -45,6 +45,10 @@ and record actionable findings in this active-plan surface.
   engineer, and customer success engineer from enabling tech-heavy job source
   defaults. Unit and harness coverage now reject generic `developer` and
   `engineer` substring matching.
+- Latest local zero-technical provider setup work labels USAJobs as optional
+  advanced federal monitoring with a no-setup browser-search path first, keeps
+  Telegram bot details behind an advanced chat-alert path, and adds
+  product-copy coverage against old provider setup shortcuts.
 - Latest local broad-profile source work removes preloaded company-source URLs
   from product, UX, content, and marketing profile JSON files. Harness coverage
   now rejects official company source URLs in broad non-technical starter
@@ -523,9 +527,9 @@ and record actionable findings in this active-plan surface.
    privacy-logging, and source-quality ownership moved into modules.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
-   The latest support-path and privacy-copy findings are closed locally.
-   Remaining known zero-technical UX follow-ups include the advanced USAJobs
-   setup path and Telegram bot setup language.
+   The latest support-path, privacy-copy, USAJobs setup, and Telegram setup
+   findings are closed locally; continue looking for new issues as later
+   slices touch copy.
 4. Continue broad-audience review so non-technical and technical job searches
    both feel first-class.
    The latest tech-source heuristic finding is closed locally; keep auditing

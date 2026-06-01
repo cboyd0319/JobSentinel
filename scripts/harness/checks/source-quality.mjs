@@ -261,7 +261,7 @@ export function hasNotificationWebhookSaveWithoutValidation(root, path) {
 
   return (
     savesNotificationWebhook &&
-    !/getCredentialValidationError\(\s*credentials\s*\)/.test(text)
+    !/getCredentialValidationError\(\s*credentials\s*(?:,|\))/s.test(text)
   );
 }
 

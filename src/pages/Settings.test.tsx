@@ -851,9 +851,51 @@ describe("Settings — handleSave flow", () => {
     expect(screen.getByPlaceholderText("Paste Teams connection link")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Paste Telegram alert code")).toBeInTheDocument();
     expect(screen.getByText("Telegram destination number")).toBeInTheDocument();
+    expect(screen.getByText(/Advanced Telegram setup/i)).toBeInTheDocument();
     expect(container.innerHTML).not.toMatch(
-      /Incoming Webhooks|incoming webhook connector|Webhooks → New Webhook|Incoming Webhook → Configure|Telegram Connection Token|Telegram Chat ID|passwords, tokens/i,
+      /Incoming Webhooks|incoming webhook connector|Webhooks → New Webhook|Incoming Webhook → Configure|Telegram Connection Token|Telegram Chat ID|passwords, tokens|Message @BotFather to create a private alert bot/i,
     );
+  });
+
+  it("keeps Telegram bot details behind the advanced chat-alert path", async () => {
+    const user = userEvent.setup();
+    const config = makeConfig();
+
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_config") return config;
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      return null;
+    });
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+
+    expect(screen.getByText(/Advanced chat alert/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Use desktop or email alerts unless you already use Telegram bots/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText("Paste Telegram alert code")).not.toBeInTheDocument();
+    expect(screen.queryByText("Telegram destination number")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("checkbox", { name: "Enable Telegram alerts" }));
+
+    expect(screen.getByPlaceholderText("Paste Telegram alert code")).toBeInTheDocument();
+    expect(screen.getByText("Telegram destination number")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
+
+    expect(mockToast.error).toHaveBeenCalledWith(
+      "Finish Telegram setup",
+      "Add the Telegram alert code and destination number, or turn Telegram alerts off.",
+    );
+    expect(mockInvoke).not.toHaveBeenCalledWith("save_config", expect.anything());
   });
 
   it("presents desktop and email alerts before optional chat alerts", async () => {
@@ -988,6 +1030,38 @@ describe("Settings — handleSave flow", () => {
       screen.getByText("See which sources are working and what to try next"),
     ).toBeInTheDocument();
     expect(screen.queryByText(/Cloudflare protection/i)).not.toBeInTheDocument();
+  });
+
+  it("labels USAJobs source setup as optional advanced monitoring", async () => {
+    const user = userEvent.setup();
+    const config = makeConfig();
+    config.usajobs.enabled = true;
+
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_config") return config;
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      return null;
+    });
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+
+    expect(screen.getByText(/Advanced federal monitoring/i)).toBeInTheDocument();
+    expect(screen.getByText(/Skip this if you only want to open USAJobs/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Open USAJobs search in your browser/i }),
+    ).toHaveAttribute("href", "https://www.usajobs.gov/Search/Results");
+    expect(
+      screen.getByRole("link", { name: /Get optional USAJobs access code/i }),
+    ).toHaveAttribute("href", "https://developer.usajobs.gov/APIRequest/Index");
+    expect(screen.queryByText(/Quick Setup/i)).not.toBeInTheDocument();
   });
 
   it("blocks saving an invalid Discord connection link", async () => {

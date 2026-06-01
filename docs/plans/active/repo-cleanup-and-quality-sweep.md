@@ -199,6 +199,10 @@ boundaries, and harness modularity:
   technical product manager do not inherit RemoteOK, HN, WeWorkRemotely, Dice,
   or BuiltIn recommendations unless explicit software/data/security or stack
   signals are present.
+- Reworked optional provider setup in Settings so USAJobs starts with a
+  no-setup browser-search path before optional advanced monitoring, and
+  Telegram bot details stay behind an advanced chat-alert path for users who
+  already use Telegram bots.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright
@@ -411,10 +415,10 @@ assumption audit, final stale-doc/reference sweep, backend/scraper privacy edge
 review, frontend boundary review, protective job-search UX review, and final
 broad verification.
 
-Known follow-ups from the latest read-only audits: USAJobs setup still needs a
-less technical fallback path, and Telegram setup should be treated as advanced
-chat setup. The tech-heavy source heuristic finding is closed locally with unit
-and broad-audience harness coverage.
+The latest read-only audit follow-ups for support-path copy, privacy copy,
+tech-heavy source heuristics, USAJobs setup, and Telegram setup are closed
+locally with focused unit and harness coverage. Continue auditing new surfaces
+for zero-technical and broad-audience drift.
 
 ## Verification
 

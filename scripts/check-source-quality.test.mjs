@@ -195,6 +195,26 @@ test("source quality rejects unsafe settings saves and raw salary logging", () =
   });
 });
 
+test("source quality accepts expanded credential validation arguments", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/pages/Settings.tsx",
+      [
+        "const credentialValidationError = getCredentialValidationError(",
+        "  credentials,",
+        "  config,",
+        "  credentialStatus,",
+        ");",
+        'await storeCredential("discord_webhook", credentials.discord_webhook);',
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(hasNotificationWebhookSaveWithoutValidation(root, "src/pages/Settings.tsx"), false);
+  });
+});
+
 test("source quality rejects static company fallback ratings", () => {
   withFixture((root) => {
     writeFixtureFile(

@@ -32,7 +32,7 @@ Pick whichever channels work best for you:
 | **Slack**           | Already live in Slack for work   |
 | **Discord**         | Have a personal Discord server   |
 | **Microsoft Teams** | Your company uses Teams          |
-| **Telegram**        | Prefer mobile notifications      |
+| **Telegram**        | Advanced setup for Telegram bot users |
 
 You can enable multiple channels at once. JobSentinel only sends alerts to
 channels you configure.
@@ -134,6 +134,14 @@ JobSentinel links to those pages from the Email settings panel.
 
 ### Telegram
 
+Use desktop or email alerts unless you already use Telegram bots. Telegram
+alerts are an advanced chat-alert path because Telegram requires an alert code
+and destination number.
+
+<details>
+<summary><strong>Advanced Telegram setup</strong></summary>
+<br>
+
 1. Message [@BotFather](https://t.me/BotFather) on Telegram
 2. Send `/newbot` and follow the prompts
 3. Copy the alert code it gives you
@@ -147,6 +155,8 @@ JobSentinel links to those pages from the Email settings panel.
 **Note:** Group destination numbers usually start with `-`.
 
 **What you'll get:** Formatted messages right on your phone.
+
+</details>
 
 ---
 
