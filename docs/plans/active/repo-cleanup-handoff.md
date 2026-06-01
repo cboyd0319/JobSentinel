@@ -56,6 +56,10 @@ Current branch note:
 - The current local profile-doc UX slice changes `profiles/README.md` from
   command-line-first setup to app setup first, moves manual file copying into
   advanced context, and adds product-copy coverage against recurrence.
+- The current local broad-audience support wording slice moves the advanced
+  config profile list to broad-first ordering, changes roadmap wording from
+  debug reports to safe support reports, and adds sensor coverage for both
+  drift classes.
 - Continue using small verified commits. Run remote CI only when the user
   explicitly asks or the full-goal completion pass requires it.
 
@@ -116,6 +120,8 @@ Current cleanup posture:
   labels are plainer, saved-report success steps are account-optional, and
   generated safe-report headings use support language instead of
   system/config/structured-data language.
+- Public roadmap and developer roadmap support-report wording now use safe
+  support report language instead of debug-report labels.
 - Latest zero-technical UX follow-up fixed Settings load failure escape and
   guidance, application tracker first-use empty state, Dashboard no-jobs
   recovery guidance, browser import Advanced connection hiding, install wording

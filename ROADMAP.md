@@ -114,7 +114,7 @@ Planned:
 In progress:
 
 - Broad copy cleanup away from hollow motivation and engineer-only defaults.
-- One-click sanitized debug report flow for issue reports.
+- One-click safe support report flow for issue reports.
 - Setup and dashboard language tuned for users with zero technical knowledge.
 
 Evaluation ideas:
@@ -139,13 +139,13 @@ In progress:
   settings.
 - OS credential-store usage for secrets.
 - No telemetry by default.
-- Sanitized debug reports and privacy-preserving feedback paths.
+- Safe support reports and privacy-preserving feedback paths.
 
 Evaluation ideas:
 
 - Test that sensitive data stays local unless a user explicitly configures an
   external channel.
-- Verify debug reports redact names, emails, secrets, local paths, and raw
+- Verify support reports redact names, emails, secrets, local paths, and raw
   resume/application content.
 - Review new features against `PRIVACY.md`, `RESPONSIBLE_AI.md`, and the harness
   verification matrix.

@@ -141,7 +141,10 @@ test("broad audience fixtures reject tech-brand config and profile seeds", () =>
     writeFixtureFile(
       root,
       "config/config.example.json",
-      '"company_whitelist": ["Google", "Cloudflare", "GitHub"]',
+      [
+        '"company_whitelist": ["Google", "Cloudflare", "GitHub"]',
+        '"_profiles_available": "software-engineering, seo-digital-marketing"',
+      ].join("\n"),
     );
     writeFixtureFile(
       root,

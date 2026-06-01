@@ -147,6 +147,7 @@ export function hasEngineerFirstAudienceExamples(root, path) {
   if (path === "config/config.example.json") {
     const configExamplePatterns = [
       /"company_whitelist":\s*\[[^\]]*"Google"[^\]]*"Cloudflare"[^\]]*"GitHub"/is,
+      /"_profiles_available":\s*"[^"]*software-engineering,\s*seo-digital-marketing/is,
     ];
 
     if (configExamplePatterns.some((pattern) => pattern.test(text))) {

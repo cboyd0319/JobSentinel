@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 import test from "node:test";
 import {
   hasApplicationAssistAutomationFraming,
+  hasFeedbackLocalReportDrift,
   hasEngineerFirstResumeTemplateCopy,
   hasFeedbackTechnicalCompanyLabels,
   hasLegacyPreferenceListCopy,
@@ -115,6 +116,16 @@ test("product copy rejects raw feedback report presentation", () => {
       true,
     );
     assert.equal(hasRawFeedbackDebugEventDetails(root, "src/components/ErrorLogPanel.tsx"), false);
+  });
+});
+
+test("product copy rejects debug-report roadmap wording", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "ROADMAP.md", "One-click sanitized debug report flow\n");
+    writeFixtureFile(root, "docs/ROADMAP.md", "| Debug reports | Sanitized reports |\n");
+
+    assert.equal(hasFeedbackLocalReportDrift(root, "ROADMAP.md"), true);
+    assert.equal(hasFeedbackLocalReportDrift(root, "docs/ROADMAP.md"), true);
   });
 });
 

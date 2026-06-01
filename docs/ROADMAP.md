@@ -40,7 +40,7 @@ current maintained surface at the time of the latest docs sweep.
 | Backend surface | 194 registered Tauri commands |
 | Privacy posture | Local-first, no telemetry, external channels user-configured |
 | External AI posture | Optional, disabled by default, routed through `src/services/aiGateway.ts` |
-| Debug reports | Sanitized reports can be copied or saved for GitHub issues |
+| Safe support reports | Sanitized reports can be copied or saved for GitHub issues |
 
 ## Working product surfaces
 

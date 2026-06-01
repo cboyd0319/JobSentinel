@@ -232,6 +232,10 @@ and record actionable findings in this active-plan surface.
 - Latest local profile-doc UX work changes `profiles/README.md` from
   command-line-first setup to app setup first, keeps manual file copying
   advanced, and adds product-copy coverage against command-first profile docs.
+- Latest local broad-audience support wording work moves the advanced config
+  profile list to broad-first ordering, changes roadmap support-report wording
+  away from debug-report labels, and adds broad-audience/product-copy sensors
+  for both drift classes.
 - Latest local docs-drift harness work moves the docs-drift violation messages
   out of `scripts/check-repo-bloat.mjs` and into
   `scripts/harness/checks/docs-drift.mjs` through

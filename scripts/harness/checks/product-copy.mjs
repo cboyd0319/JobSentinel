@@ -84,6 +84,8 @@ const payProtectionGuidancePaths = new Set([
 ]);
 
 const feedbackLocalReportPaths = new Set([
+  "ROADMAP.md",
+  "docs/ROADMAP.md",
   "docs/features/json-resume-import.md",
   "docs/features/scraper-health.md",
   "docs/features/scrapers.md",
@@ -367,6 +369,8 @@ export function hasFeedbackLocalReportDrift(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
   const stalePatterns = [
+    /\bDebug reports\b/i,
+    /sanitized debug reports?/i,
     /safe debug report/i,
     /Open Shared Folder/i,
     /Works without a GitHub or Google account/i,
