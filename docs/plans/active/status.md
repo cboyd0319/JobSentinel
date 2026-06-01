@@ -67,6 +67,10 @@ and record actionable findings in this active-plan surface.
   broadens generic Application Assist profile labels beyond code profiles, and
   hardens the Rust support-report sanitizer for full URLs plus common token,
   password, and bookmarklet-token forms.
+- Latest local bookmarklet privacy work removes the import helper token from
+  renderer-facing config and mocks, copies the browser button through a Rust
+  command, and adds IPC-minimization coverage so bookmarklet auth tokens do
+  not drift back into React state.
 - Latest local broad-audience fixture work rebalanced generic market
   intelligence, notifications, config, database, ATS, ghost detection, salary,
   scoring, generic scraper adapters, command, frontend mock, sample JSON

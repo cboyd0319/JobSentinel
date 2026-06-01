@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import {
+  hasBookmarkletTokenIpcExposure,
   hasDashboardFullConfigInvoke,
   hasFullImportedJobReturn,
   hasNonSettingsFullApplicationProfileInvoke,
@@ -138,5 +139,39 @@ test("ipc minimization rejects stale import and profile mocks", () => {
 
     assert.equal(hasStaleJobImportMockHandlers(root, "src/mocks/handlers.ts"), true);
     assert.equal(hasStaleProfilePreviewMock(root, "src/mocks/handlers.ts"), true);
+  });
+});
+
+test("ipc minimization rejects bookmarklet token exposure across renderer IPC", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/bookmarklet.rs",
+      [
+        "pub struct BookmarkletConfigResponse {",
+        "  #[serde(rename = \"authToken\")]",
+        "  pub auth_token: String,",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/BookmarkletGenerator.tsx",
+      "const token = config.authToken; await navigator.clipboard.writeText(token);\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      "const bookmarkletConfig = { authToken: 'mock-token' };\n",
+    );
+
+    for (const path of [
+      "src-tauri/src/commands/bookmarklet.rs",
+      "src/components/BookmarkletGenerator.tsx",
+      "src/mocks/handlers.ts",
+    ]) {
+      assert.equal(hasBookmarkletTokenIpcExposure(root, path), true);
+    }
   });
 });

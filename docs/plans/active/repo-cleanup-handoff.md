@@ -109,6 +109,10 @@ Current cleanup posture:
   wording, broadens generic Application Assist profile labels away from Code
   profile, and hardens Rust report sanitization for full URLs, query secrets,
   password-like values, and bookmarklet import tokens.
+- Latest bookmarklet privacy follow-up removes the import token from
+  renderer-facing bookmarklet config and mocks, copies the browser import
+  button through a Rust command, and adds IPC-minimization harness coverage for
+  bookmarklet token DTO drift.
 - Latest IPC minimization work added `has_application_profile`,
   `get_application_profile_preview`, `get_dashboard_preferences`, canonical
   import URLs before preview/hash/storage, and minimized import responses to

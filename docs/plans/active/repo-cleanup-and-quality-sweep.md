@@ -241,6 +241,9 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   code-profile labels with work-sample/profile wording, and hardens Rust
   support-report sanitization for full URLs, query secrets, password-like
   values, and bookmarklet import tokens.
+- The latest bookmarklet privacy slice removes the browser import token from
+  renderer-facing config and mocks, routes browser-button copying through Rust,
+  and adds IPC-minimization harness coverage for token DTO drift.
 - Updated active plan and handoff docs for the latest local cleanup slice.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only

@@ -8,22 +8,17 @@ vi.mock("@tauri-apps/api/core", () => ({
 }));
 
 describe("BookmarkletGenerator", () => {
-  const writeText = vi.fn();
-
   beforeEach(() => {
     vi.clearAllMocks();
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: { writeText },
-    });
   });
 
-  it("copies hidden browser button with the local auth token", async () => {
-    mockInvoke.mockResolvedValueOnce({
-      port: 4321,
-      enabled: true,
-      authToken: "token-123",
-    });
+  it("copies the hidden browser button without exposing the local auth token to the page", async () => {
+    mockInvoke
+      .mockResolvedValueOnce({
+        port: 4321,
+        enabled: true,
+      })
+      .mockResolvedValueOnce(undefined);
 
     render(<BookmarkletGenerator />);
 
@@ -31,8 +26,8 @@ describe("BookmarkletGenerator", () => {
     await waitFor(() => expect(copyButton).toBeEnabled());
     fireEvent.click(copyButton);
 
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining("X-JobSentinel-Token"));
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining("token-123"));
+    expect(mockInvoke).toHaveBeenCalledWith("get_bookmarklet_config");
+    expect(mockInvoke).toHaveBeenCalledWith("copy_bookmarklet_code");
     expect(screen.queryByText(/token-123/)).not.toBeInTheDocument();
   });
 
@@ -40,7 +35,6 @@ describe("BookmarkletGenerator", () => {
     mockInvoke.mockResolvedValueOnce({
       port: 4321,
       enabled: true,
-      authToken: "token-123",
     });
 
     render(<BookmarkletGenerator />);
@@ -65,12 +59,12 @@ describe("BookmarkletGenerator", () => {
   });
 
   it("shows safe copy guidance when browser clipboard copy fails", async () => {
-    mockInvoke.mockResolvedValueOnce({
-      port: 4321,
-      enabled: true,
-      authToken: "token-123",
-    });
-    writeText.mockRejectedValueOnce(new Error("token=secret /Users/chad/private.txt"));
+    mockInvoke
+      .mockResolvedValueOnce({
+        port: 4321,
+        enabled: true,
+      })
+      .mockRejectedValueOnce(new Error("token=secret /Users/chad/private.txt"));
 
     render(<BookmarkletGenerator />);
 

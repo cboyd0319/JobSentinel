@@ -110,7 +110,6 @@ interface MockGhostConfig {
 interface MockBookmarkletConfig {
   port: number;
   enabled: boolean;
-  authToken: string;
 }
 
 interface MockResumeData {
@@ -728,7 +727,6 @@ let ghostConfig: MockGhostConfig = getDefaultGhostConfig();
 let bookmarkletConfig: MockBookmarkletConfig = {
   port: 4321,
   enabled: false,
-  authToken: "mock-bookmarklet-token",
 };
 let resumes: MockResumeData[] = [];
 let userSkills: MockUserSkill[] = [];
@@ -3021,6 +3019,9 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "get_bookmarklet_config":
       return bookmarkletConfig as T;
 
+    case "copy_bookmarklet_code":
+      return undefined as T;
+
     case "start_bookmarklet_server": {
       const port = getNumericArg(args, "port") ?? bookmarkletConfig.port;
       bookmarkletConfig = { ...bookmarkletConfig, port, enabled: true };
@@ -3891,7 +3892,6 @@ export function resetMockData() {
   bookmarkletConfig = {
     port: 4321,
     enabled: false,
-    authToken: "mock-bookmarklet-token",
   };
   resumes = [];
   userSkills = [];

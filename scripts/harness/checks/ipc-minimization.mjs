@@ -104,3 +104,33 @@ export function hasStaleProfilePreviewMock(root, path) {
 
   return !hasPreviewCase || !hasHasProfileCase || previewIncludesPrivateFields;
 }
+
+export function hasBookmarkletTokenIpcExposure(root, path) {
+  if (
+    path !== "src-tauri/src/commands/bookmarklet.rs" &&
+    path !== "src/components/BookmarkletGenerator.tsx" &&
+    path !== "src/mocks/handlers.ts"
+  ) {
+    return false;
+  }
+
+  const text =
+    path.endsWith(".rs")
+      ? stripRustTestModules(readIfPresent(root, path))
+      : stripTypeScriptComments(readIfPresent(root, path));
+
+  if (path === "src-tauri/src/commands/bookmarklet.rs") {
+    return (
+      /pub\s+struct\s+BookmarkletConfigResponse\s*\{[^}]*\bauth_token\b[^}]*\}/.test(
+        text,
+      ) ||
+      /serde\s*\(\s*rename\s*=\s*"authToken"\s*\)/.test(text) ||
+      /Ok\s*\(\s*BookmarkletConfigResponse\s*\{[^}]*\bauth_token\s*:/.test(text)
+    );
+  }
+
+  return (
+    /\bauthToken\b/.test(text) ||
+    /X-JobSentinel-Token[\s\S]{0,120}(?:invoke|navigator\.clipboard|writeText)/.test(text)
+  );
+}

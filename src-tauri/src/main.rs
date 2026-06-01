@@ -333,6 +333,7 @@ fn main() {
             commands::deeplinks::open_deep_link,
             // Bookmarklet commands (v2.6)
             commands::bookmarklet::get_bookmarklet_config,
+            commands::bookmarklet::copy_bookmarklet_code,
             commands::bookmarklet::start_bookmarklet_server,
             commands::bookmarklet::stop_bookmarklet_server,
             commands::bookmarklet::set_bookmarklet_port,

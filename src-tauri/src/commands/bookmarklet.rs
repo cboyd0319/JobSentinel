@@ -5,6 +5,7 @@
 //! website by clicking a bookmark while viewing a job posting.
 
 use crate::commands::{errors::user_friendly_error, AppState};
+use arboard::Clipboard;
 use serde::{Deserialize, Serialize};
 use tauri::State;
 
@@ -13,8 +14,21 @@ use tauri::State;
 pub struct BookmarkletConfigResponse {
     pub port: u16,
     pub enabled: bool,
-    #[serde(rename = "authToken")]
-    pub auth_token: String,
+}
+
+fn bookmarklet_copy_error() -> String {
+    "Could not copy browser button. Allow clipboard access and try again.".to_string()
+}
+
+fn bookmarklet_code(port: u16, auth_token: &str) -> String {
+    let token = match serde_json::to_string(auth_token) {
+        Ok(value) => value,
+        Err(_) => "\"\"".to_string(),
+    };
+
+    format!(
+        "javascript:(function(){{var scripts=document.querySelectorAll('script[type=\"application/ld+json\"]');var job=null;scripts.forEach(function(s){{try{{var data=JSON.parse(s.textContent);if(data['@type']==='JobPosting')job=data;}}catch(e){{}}}});if(!job){{var title=document.querySelector('h1');var company=document.querySelector('[class*=\"company\"]')||document.querySelector('[class*=\"employer\"]');var desc=document.querySelector('[class*=\"description\"]')||document.querySelector('[class*=\"desc\"]');job={{title:title?title.textContent:'',company:company?company.textContent:'',description:desc?desc.textContent:'',url:window.location.href}};}}else{{job.url=window.location.href;}}fetch('http://localhost:{port}/api/bookmarklet/import',{{method:'POST',headers:{{'Content-Type':'application/json','X-JobSentinel-Token':{token}}},body:JSON.stringify(job)}}).then(function(r){{if(r.ok){{alert('Job imported to JobSentinel.');}}else{{alert('Could not save job. Make sure JobSentinel is open.');}}}}).catch(function(e){{alert('Cannot connect to JobSentinel. Turn on the import helper in Settings.');}});}})();"
+    )
 }
 
 /// Get current bookmarklet configuration
@@ -32,8 +46,24 @@ pub async fn get_bookmarklet_config(
     Ok(BookmarkletConfigResponse {
         port: config.port,
         enabled,
-        auth_token: config.auth_token,
     })
+}
+
+/// Copy browser import button code without exposing the import token to the renderer
+#[tauri::command]
+#[tracing::instrument(skip(state))]
+pub async fn copy_bookmarklet_code(state: State<'_, AppState>) -> Result<(), String> {
+    tracing::debug!("Copying browser import button");
+
+    let server_guard = state.bookmarklet_server.read().await;
+    let config = server_guard.config().clone();
+    let code = bookmarklet_code(config.port, &config.auth_token);
+
+    Clipboard::new()
+        .and_then(|mut clipboard| clipboard.set_text(code))
+        .map_err(|_| bookmarklet_copy_error())?;
+
+    Ok(())
 }
 
 /// Start the bookmarklet server
@@ -119,17 +149,25 @@ mod tests {
         let config = BookmarkletConfigResponse {
             port: 4321,
             enabled: true,
-            auth_token: "test-token".to_string(),
         };
 
         let json = serde_json::to_string(&config).unwrap();
         assert!(json.contains("4321"));
         assert!(json.contains("true"));
-        assert!(json.contains("authToken"));
+        assert!(!json.contains("authToken"));
+        assert!(!json.contains("test-token"));
 
         let deserialized: BookmarkletConfigResponse = serde_json::from_str(&json).unwrap();
         assert_eq!(deserialized.port, 4321);
         assert!(deserialized.enabled);
-        assert_eq!(deserialized.auth_token, "test-token");
+    }
+
+    #[test]
+    fn test_bookmarklet_code_includes_token_only_in_generated_button() {
+        let code = bookmarklet_code(4321, "test-token");
+
+        assert!(code.contains("http://localhost:4321/api/bookmarklet/import"));
+        assert!(code.contains("X-JobSentinel-Token"));
+        assert!(code.contains("test-token"));
     }
 }

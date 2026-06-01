@@ -228,7 +228,8 @@ pub use deeplinks::{
 
 // Bookmarklet commands
 pub use bookmarklet::{
-    get_bookmarklet_config, set_bookmarklet_port, start_bookmarklet_server, stop_bookmarklet_server,
+    copy_bookmarklet_code, get_bookmarklet_config, set_bookmarklet_port, start_bookmarklet_server,
+    stop_bookmarklet_server,
 };
 
 // ML commands (optional)
