@@ -1297,6 +1297,22 @@ export function hasUnauthenticatedBookmarkletImports(root, path) {
   );
 }
 
+export function hasReusableBookmarkletImportToken(root, path) {
+  if (!rawBookmarkletLoggingPaths.has(path)) {
+    return false;
+  }
+
+  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
+  const consumesToken =
+    /fn\s+consume_valid_bookmarklet_token/.test(productionText) &&
+    /auth_token\.clear\(\)/.test(productionText) &&
+    /auth_token_expires_at\s*=\s*now\s*-/.test(productionText);
+  return (
+    /body_has_valid_bookmarklet_token|has_valid_bookmarklet_token/.test(productionText) &&
+    !consumesToken
+  );
+}
+
 export function hasBookmarkletCodeWithoutTokenHeader(root, path) {
   if (!bookmarkletGeneratorPaths.has(path)) {
     return false;
@@ -1430,6 +1446,7 @@ const privacyLoggingViolationChecks = [
   [hasResidualCorePrivacyLeak, "replace residual core privacy leaks"],
   [hasManualBookmarkletJsonErrorResponses, "replace manual bookmarklet JSON error responses"],
   [hasUnauthenticatedBookmarkletImports, "require bookmarklet import auth token"],
+  [hasReusableBookmarkletImportToken, "make bookmarklet import safety codes one-use"],
   [hasBookmarkletCodeWithoutTokenHeader, "include bookmarklet auth token header"],
   [hasUnsanitizedFrontendErrorReportStorage, "sanitize frontend error report storage"],
   [hasRawFrontendErrorReporterForwarding, "sanitize frontend error reporter console forwarding"],

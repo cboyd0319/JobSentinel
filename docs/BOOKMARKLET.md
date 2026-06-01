@@ -31,8 +31,8 @@ Use the browser import button when:
 7. Paste the copied text where the bookmark stores the page address.
 8. Save it to your bookmarks bar.
 
-Copy the browser button again after changing advanced settings or restarting
-JobSentinel.
+Copy the browser button again after each saved job, after changing advanced
+settings, or after restarting JobSentinel.
 
 ## Save A Job
 
@@ -41,7 +41,8 @@ JobSentinel.
 3. Wait for the confirmation message.
 4. Open JobSentinel and review the saved job.
 
-If some details are missing, edit the saved job after import.
+If the job is missing, copy the browser button again and retry. If some details
+are missing, edit the saved job after import.
 
 ## Where It Works Best
 
@@ -64,7 +65,8 @@ JobSentinel's search link or add the job manually when import does not work.
 - Turn on the import helper in Settings.
 - If the helper will not turn on, choose another port in advanced settings and
   try again.
-- Copy the browser button again if you restarted JobSentinel.
+- Copy the browser button again if you already saved a job, restarted
+  JobSentinel, or waited about one hour.
 - If your firewall asks, allow connections for JobSentinel.
 
 ### Job Already Exists
@@ -87,10 +89,10 @@ fill in any blank details in JobSentinel.
 
 - JobSentinel creates the browser button on your computer.
 - Hidden details include a local safety code that stays out of normal setup.
-- The local safety code is refreshed when the browser button is copied and
-  expires after about one hour.
+- The local safety code is refreshed when the browser button is copied, works
+  for one save, and expires after about one hour.
 - If copying fails, the previous browser button keeps working until its safety
-  code expires.
+  code is used once or expires.
 - Job data stays local unless you choose to share it.
 - Debug reports must redact the browser button details and saved job details.
 
@@ -101,7 +103,7 @@ interface should keep technical details hidden:
 
 - Do not show the generated script in the UI.
 - Do not expose the local safety code.
-- Keep copied browser-button codes short-lived and session-scoped.
+- Keep copied browser-button codes one-use, short-lived, and session-scoped.
 - Activate a refreshed safety code only after the browser button is copied.
 - Prefer "browser import button", "import helper", and
   "advanced connection settings" in user-facing copy.

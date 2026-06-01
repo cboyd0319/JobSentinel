@@ -484,6 +484,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-01 | In progress | Hardened browser import safety-code replay: the helper now refreshes safety codes on start, accepts exact import routes only, consumes a copied code after the first valid local import attempt, and documents that users should copy the browser button again after each saved job. |
 | 2026-06-01 | In progress | Applied explorer-audit copy fixes across setup alerts, additional job sources, browser-button setup, analytics headings, weekly application pacing, and Dashboard search tips; product-copy sensors now reject provider-heavy, browser-power-user, funnel/goal, and Boolean-search wording. |
 | 2026-06-01 | In progress | Changed notification alert preferences away from "interrupt you," internal source-rule limits, and tech-career title examples; alert rules now use protective time-control wording, broader role examples, and product-copy coverage against drift. |
 | 2026-06-01 | In progress | Minimized ATS timeline event payloads so private application note bodies and reminder messages are not duplicated into `application_events.event_data`; notes/reminders remain in their owning tables, legacy event payloads are scrubbed by migration, and privacy-logging sensors reject drift. |

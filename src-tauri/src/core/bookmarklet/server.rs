@@ -23,6 +23,8 @@ const INVALID_BOOKMARKLET_PAYLOAD_MESSAGE: &str =
     "Invalid bookmarklet payload. Reload the page and try again.";
 const BOOKMARKLET_DATABASE_FAILURE_MESSAGE: &str =
     "JobSentinel could not save this job. Restart the app and try again.";
+const BOOKMARKLET_UNAUTHORIZED_MESSAGE: &str =
+    "Browser import code expired. Copy the browser button again and retry.";
 
 /// Bookmarklet server configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -73,6 +75,7 @@ impl From<&BookmarkletConfig> for BookmarkletAuthState {
     }
 }
 
+#[cfg(test)]
 fn current_bookmarklet_auth(
     auth_state: &Arc<RwLock<BookmarkletAuthState>>,
 ) -> BookmarkletAuthState {
@@ -166,9 +169,7 @@ impl BookmarkletServer {
         }
 
         self.config = config;
-        if !self.config.auth_token_is_current(Utc::now()) {
-            self.config.refresh_auth_token();
-        }
+        self.config.refresh_auth_token();
         let port = self.config.port;
         sync_bookmarklet_auth(&self.auth_state, &self.config);
         let auth_state = self.auth_state.clone();
@@ -307,15 +308,8 @@ async fn handle_connection(
     let request = String::from_utf8_lossy(&buffer[..total_read]);
 
     // Parse request
-    let (response, content_type) = if request.starts_with("POST /api/bookmarklet/import") {
-        let auth = current_bookmarklet_auth(&auth_state);
-        handle_import_request(
-            &request,
-            &auth.auth_token,
-            auth.auth_token_expires_at,
-            database,
-        )
-        .await
+    let (response, content_type) = if is_bookmarklet_import_request(&request) {
+        handle_import_request(&request, &auth_state, database).await
     } else if request.starts_with("OPTIONS") {
         ("OK".to_string(), "text/plain".to_string())
     } else {
@@ -365,6 +359,37 @@ fn body_has_valid_bookmarklet_token(body: &serde_json::Value, auth_token: &str) 
             .is_some_and(|value| value == auth_token)
 }
 
+fn bookmarklet_body_or_header_has_token(
+    request: &str,
+    body: &serde_json::Value,
+    auth_token: &str,
+) -> bool {
+    has_valid_bookmarklet_token(request, auth_token)
+        || body_has_valid_bookmarklet_token(body, auth_token)
+}
+
+fn consume_valid_bookmarklet_token(
+    auth_state: &Arc<RwLock<BookmarkletAuthState>>,
+    request: &str,
+    body: &serde_json::Value,
+    now: DateTime<Utc>,
+) -> bool {
+    let mut state = match auth_state.write() {
+        Ok(state) => state,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+
+    let valid = now <= state.auth_token_expires_at
+        && bookmarklet_body_or_header_has_token(request, body, &state.auth_token);
+
+    if valid {
+        state.auth_token.clear();
+        state.auth_token_expires_at = now - TimeDelta::seconds(1);
+    }
+
+    valid
+}
+
 fn bookmarklet_job_value(mut body: serde_json::Value) -> serde_json::Value {
     if let Some(job) = body.get("job") {
         return job.clone();
@@ -411,11 +436,15 @@ fn request_buffer_has_complete_body(buffer: &[u8]) -> bool {
     buffer.len() >= body_start + content_length
 }
 
+fn is_bookmarklet_import_request(request: &str) -> bool {
+    request.starts_with("POST /api/bookmarklet/import ")
+        || request.starts_with("POST /api/bookmarklet/import?")
+}
+
 /// Handle import request
 async fn handle_import_request(
     request: &str,
-    auth_token: &str,
-    auth_token_expires_at: DateTime<Utc>,
+    auth_state: &Arc<RwLock<BookmarkletAuthState>>,
     database: Arc<Database>,
 ) -> (String, String) {
     // Extract JSON body from request
@@ -443,12 +472,9 @@ async fn handle_import_request(
         }
     };
 
-    if Utc::now() > auth_token_expires_at
-        || (!has_valid_bookmarklet_token(request, auth_token)
-            && !body_has_valid_bookmarklet_token(&body_value, auth_token))
-    {
+    if !consume_valid_bookmarklet_token(auth_state, request, &body_value, Utc::now()) {
         return (
-            json_error_response("Unauthorized bookmarklet request"),
+            json_error_response(BOOKMARKLET_UNAUTHORIZED_MESSAGE),
             "application/json".to_string(),
         );
     }
@@ -744,6 +770,16 @@ mod tests {
         .to_string()
     }
 
+    fn bookmarklet_auth_state(
+        token: &str,
+        expires_at: DateTime<Utc>,
+    ) -> Arc<RwLock<BookmarkletAuthState>> {
+        Arc::new(RwLock::new(BookmarkletAuthState {
+            auth_token: token.to_string(),
+            auth_token_expires_at: expires_at,
+        }))
+    }
+
     async fn bookmarklet_test_database() -> Arc<Database> {
         let database = Database::connect_memory()
             .await
@@ -762,9 +798,23 @@ mod tests {
             .expect("job count should load")
     }
 
+    #[test]
+    fn test_bookmarklet_import_route_requires_exact_path() {
+        assert!(is_bookmarklet_import_request(
+            "POST /api/bookmarklet/import HTTP/1.1\r\n\r\n"
+        ));
+        assert!(is_bookmarklet_import_request(
+            "POST /api/bookmarklet/import?source=button HTTP/1.1\r\n\r\n"
+        ));
+        assert!(!is_bookmarklet_import_request(
+            "POST /api/bookmarklet/importevil HTTP/1.1\r\n\r\n"
+        ));
+    }
+
     #[tokio::test]
     async fn test_bookmarklet_import_rejects_unsafe_url_without_insert() {
         let database = bookmarklet_test_database().await;
+        let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());
         let body = bookmarklet_import_body(serde_json::json!({
             "title": "Care Coordinator",
             "company": "Community Care",
@@ -773,8 +823,7 @@ mod tests {
 
         let (response, content_type) = handle_import_request(
             &bookmarklet_import_request(&body),
-            TEST_AUTH_TOKEN,
-            bookmarklet_auth_expiry(),
+            &auth_state,
             database.clone(),
         )
         .await;
@@ -792,6 +841,7 @@ mod tests {
     #[tokio::test]
     async fn test_bookmarklet_import_rejects_missing_body_token_without_insert() {
         let database = bookmarklet_test_database().await;
+        let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());
         let body = serde_json::json!({
             "job": {
                 "title": "Care Coordinator",
@@ -803,8 +853,7 @@ mod tests {
 
         let (response, content_type) = handle_import_request(
             &bookmarklet_import_request(&body),
-            TEST_AUTH_TOKEN,
-            bookmarklet_auth_expiry(),
+            &auth_state,
             database.clone(),
         )
         .await;
@@ -812,13 +861,15 @@ mod tests {
             serde_json::from_str(&response).expect("error response should be JSON");
 
         assert_eq!(content_type, "application/json");
-        assert_eq!(parsed["error"], "Unauthorized bookmarklet request");
+        assert_eq!(parsed["error"], BOOKMARKLET_UNAUTHORIZED_MESSAGE);
         assert_eq!(stored_job_count(&database).await, 0);
     }
 
     #[tokio::test]
     async fn test_bookmarklet_import_rejects_expired_token_without_insert() {
         let database = bookmarklet_test_database().await;
+        let auth_state =
+            bookmarklet_auth_state(TEST_AUTH_TOKEN, Utc::now() - TimeDelta::minutes(1));
         let body = bookmarklet_import_body(serde_json::json!({
             "title": "Care Coordinator",
             "company": "Community Care",
@@ -827,8 +878,7 @@ mod tests {
 
         let (response, content_type) = handle_import_request(
             &bookmarklet_import_request(&body),
-            TEST_AUTH_TOKEN,
-            Utc::now() - TimeDelta::minutes(1),
+            &auth_state,
             database.clone(),
         )
         .await;
@@ -836,13 +886,14 @@ mod tests {
             serde_json::from_str(&response).expect("error response should be JSON");
 
         assert_eq!(content_type, "application/json");
-        assert_eq!(parsed["error"], "Unauthorized bookmarklet request");
+        assert_eq!(parsed["error"], BOOKMARKLET_UNAUTHORIZED_MESSAGE);
         assert_eq!(stored_job_count(&database).await, 0);
     }
 
     #[tokio::test]
     async fn test_bookmarklet_import_uses_shared_job_length_validation() {
         let database = bookmarklet_test_database().await;
+        let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());
         let body = bookmarklet_import_body(serde_json::json!({
             "title": "T".repeat(501),
             "company": "Community Care",
@@ -851,8 +902,7 @@ mod tests {
 
         let (response, content_type) = handle_import_request(
             &bookmarklet_import_request(&body),
-            TEST_AUTH_TOKEN,
-            bookmarklet_auth_expiry(),
+            &auth_state,
             database.clone(),
         )
         .await;
@@ -867,6 +917,7 @@ mod tests {
     #[tokio::test]
     async fn test_bookmarklet_import_stores_valid_job_through_shared_path() {
         let database = bookmarklet_test_database().await;
+        let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());
         let body = bookmarklet_import_body(serde_json::json!({
             "title": "Care Coordinator",
             "company": "Community Care",
@@ -878,8 +929,7 @@ mod tests {
 
         let (response, content_type) = handle_import_request(
             &bookmarklet_import_request(&body),
-            TEST_AUTH_TOKEN,
-            bookmarklet_auth_expiry(),
+            &auth_state,
             database.clone(),
         )
         .await;
@@ -897,6 +947,83 @@ mod tests {
         assert_eq!(stored.1, "Community Care");
         assert_eq!(stored.2, "bookmarklet");
         assert!(stored.3);
+    }
+
+    #[tokio::test]
+    async fn test_bookmarklet_import_consumes_token_after_first_valid_use() {
+        let database = bookmarklet_test_database().await;
+        let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());
+        let first_body = bookmarklet_import_body(serde_json::json!({
+            "title": "Care Coordinator",
+            "company": "Community Care",
+            "url": "https://example.com/jobs/1"
+        }));
+        let second_body = bookmarklet_import_body(serde_json::json!({
+            "title": "Patient Scheduler",
+            "company": "Community Care",
+            "url": "https://example.com/jobs/2"
+        }));
+
+        let (first_response, _) = handle_import_request(
+            &bookmarklet_import_request(&first_body),
+            &auth_state,
+            database.clone(),
+        )
+        .await;
+        let (second_response, _) = handle_import_request(
+            &bookmarklet_import_request(&second_body),
+            &auth_state,
+            database.clone(),
+        )
+        .await;
+        let first: serde_json::Value =
+            serde_json::from_str(&first_response).expect("first response should be JSON");
+        let second: serde_json::Value =
+            serde_json::from_str(&second_response).expect("second response should be JSON");
+
+        assert_eq!(first["success"], true);
+        assert_eq!(second["error"], BOOKMARKLET_UNAUTHORIZED_MESSAGE);
+        assert_eq!(stored_job_count(&database).await, 1);
+    }
+
+    #[tokio::test]
+    async fn test_bookmarklet_import_consumes_token_after_invalid_authenticated_payload() {
+        let database = bookmarklet_test_database().await;
+        let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());
+        let unsafe_body = bookmarklet_import_body(serde_json::json!({
+            "title": "Care Coordinator",
+            "company": "Community Care",
+            "url": "javascript:alert(1)"
+        }));
+        let valid_body = bookmarklet_import_body(serde_json::json!({
+            "title": "Patient Scheduler",
+            "company": "Community Care",
+            "url": "https://example.com/jobs/2"
+        }));
+
+        let (first_response, _) = handle_import_request(
+            &bookmarklet_import_request(&unsafe_body),
+            &auth_state,
+            database.clone(),
+        )
+        .await;
+        let (second_response, _) = handle_import_request(
+            &bookmarklet_import_request(&valid_body),
+            &auth_state,
+            database.clone(),
+        )
+        .await;
+        let first: serde_json::Value =
+            serde_json::from_str(&first_response).expect("first response should be JSON");
+        let second: serde_json::Value =
+            serde_json::from_str(&second_response).expect("second response should be JSON");
+
+        assert_eq!(
+            first["error"],
+            "Job link must be a public http or https address"
+        );
+        assert_eq!(second["error"], BOOKMARKLET_UNAUTHORIZED_MESSAGE);
+        assert_eq!(stored_job_count(&database).await, 0);
     }
 
     #[tokio::test]

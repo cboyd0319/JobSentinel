@@ -70,6 +70,7 @@ import {
   hasRawWebhookTokenRequestError,
   hasRendererCredentialSecretRead,
   hasResidualCorePrivacyLeak,
+  hasReusableBookmarkletImportToken,
   hasSecretBearingDebugDerive,
   hasStaleFeedbackWebhookSanitizer,
   hasUnauthenticatedBookmarkletImports,
@@ -417,6 +418,7 @@ test("privacy logging rejects raw import and bookmarklet details", () => {
       [
         'tracing::info!(title = %title, company = %company, "imported");',
         'format!(r#"{{"error":"{}"}}"#, e);',
+        "if body_has_valid_bookmarklet_token(&body, auth_token) { save_job(); }",
         'if request.starts_with("POST /api/bookmarklet/import") {',
         "  handle_import_request(&request, database).await",
         "}",
@@ -443,6 +445,10 @@ test("privacy logging rejects raw import and bookmarklet details", () => {
     );
     assert.equal(
       hasUnauthenticatedBookmarkletImports(root, "src-tauri/src/core/bookmarklet/server.rs"),
+      true,
+    );
+    assert.equal(
+      hasReusableBookmarkletImportToken(root, "src-tauri/src/core/bookmarklet/server.rs"),
       true,
     );
     assert.equal(
