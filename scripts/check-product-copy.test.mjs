@@ -317,6 +317,25 @@ test("product copy rejects stale zero-technical resume and shortcut copy", () =>
   });
 });
 
+test("product copy rejects technical backend error labels", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/errors.rs",
+      [
+        'Self::Database => "Database Error",',
+        'Self::Configuration => "Configuration Error",',
+        'Self::Validation => "Invalid Input",',
+        'return Some("Database is busy. Close other apps using JobSentinel and try again.");',
+        'return Some("SSL certificate error. Check your system clock and network settings.");',
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "src-tauri/src/commands/errors.rs"), true);
+  });
+});
+
 test("product copy rejects non-protective no-response labels", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/pages/Applications.tsx", "Detect Ghosted\n");

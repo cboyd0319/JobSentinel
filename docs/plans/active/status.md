@@ -289,6 +289,10 @@ and record actionable findings in this active-plan surface.
   recovery path, and dashboard job-list shortcut syntax moved behind the
   existing Shortcuts control. Focused UI tests and product-copy coverage guard
   those old phrases.
+- Latest local backend error-copy work replaces shared command error labels
+  like database/configuration/input errors with plain local-data, saved-settings,
+  and information-review copy, keeps raw SQL and secrets suppressed, and adds
+  product-copy coverage against the old technical labels.
 - Latest notification-settings UX work changes source-rule, minimum-salary,
   saved-error, and loading-error copy to plain alert-settings wording, with
   focused NotificationPreferences and product-copy coverage.

@@ -29,14 +29,14 @@ impl ErrorCategory {
     /// Get user-friendly title for this error category
     pub fn title(&self) -> &'static str {
         match self {
-            Self::Database => "Database Error",
-            Self::Network => "Connection Error",
-            Self::FileSystem => "File Error",
-            Self::Configuration => "Configuration Error",
-            Self::Browser => "Browser Error",
-            Self::NotFound => "Not Found",
-            Self::Validation => "Invalid Input",
-            Self::Unknown => "Unexpected Error",
+            Self::Database => "Local data problem",
+            Self::Network => "Connection problem",
+            Self::FileSystem => "File access problem",
+            Self::Configuration => "Saved settings problem",
+            Self::Browser => "Browser problem",
+            Self::NotFound => "Item not found",
+            Self::Validation => "Information needs review",
+            Self::Unknown => "Something went wrong",
         }
     }
 
@@ -44,15 +44,15 @@ impl ErrorCategory {
     pub fn recovery_hint(&self) -> &'static str {
         match self {
             Self::Database => {
-                "Try restarting the app. If the issue persists, your database may need repair."
+                "Restart JobSentinel. If this keeps happening, save a safe support report before changing local data."
             }
             Self::Network => "Check your internet connection and try again.",
-            Self::FileSystem => "Check file permissions and available disk space.",
-            Self::Configuration => "Check your settings or try resetting to defaults.",
-            Self::Browser => "Make sure Chrome is installed and try again.",
+            Self::FileSystem => "Choose a file you can open, or check available disk space.",
+            Self::Configuration => "Open Settings, review the saved values, and save again.",
+            Self::Browser => "Open the job page in your browser and try again.",
             Self::NotFound => "The requested item may have been deleted or moved.",
-            Self::Validation => "Please check your input and try again.",
-            Self::Unknown => "Try again. If the issue persists, restart the app.",
+            Self::Validation => "Check the information and try again.",
+            Self::Unknown => "Try again. If this keeps happening, save a safe support report.",
         }
     }
 }
@@ -149,6 +149,7 @@ pub fn categorize_error(error: &str) -> ErrorCategory {
 pub fn user_friendly_error<E: Display>(context: &str, error: E) -> String {
     let error_str = error.to_string();
     let category = categorize_error(&error_str);
+    let context = plain_context(context);
 
     // For common errors, provide specific guidance
     let specific_hint = get_specific_hint(&error_str);
@@ -171,13 +172,13 @@ fn get_specific_hint(error: &str) -> Option<&'static str> {
 
     // SQLite specific
     if lower.contains("database is locked") || lower.contains("busy") {
-        return Some("Database is busy. Close other apps using JobSentinel and try again.");
+        return Some("JobSentinel is still writing local data. Wait a moment and try again.");
     }
     if lower.contains("disk i/o error") || lower.contains("disk full") {
         return Some("Your disk may be full. Free up some space and try again.");
     }
     if lower.contains("corrupt") || lower.contains("malformed") {
-        return Some("Database may be damaged. Restart JobSentinel. If this keeps happening, save a safe support report and restore from a backup if you have one.");
+        return Some("JobSentinel could not read local data. Restart JobSentinel. If this keeps happening, save a safe support report and restore from a backup if you have one.");
     }
 
     // Network specific
@@ -188,7 +189,7 @@ fn get_specific_hint(error: &str) -> Option<&'static str> {
         return Some("Could not connect. Check if the service is available.");
     }
     if lower.contains("certificate") || lower.contains("ssl") {
-        return Some("SSL certificate error. Check your system clock and network settings.");
+        return Some("Secure connection problem. Check your system clock and network settings.");
     }
 
     // Browser specific
@@ -199,7 +200,7 @@ fn get_specific_hint(error: &str) -> Option<&'static str> {
         return Some("Browser page crashed. Please try again.");
     }
     if lower.contains("navigation") {
-        return Some("Could not load the page. The URL may be invalid or blocked.");
+        return Some("Could not load the page. The web address may be wrong or unavailable.");
     }
 
     // Profile specific
@@ -210,6 +211,65 @@ fn get_specific_hint(error: &str) -> Option<&'static str> {
     }
 
     None
+}
+
+fn plain_context(context: &str) -> &str {
+    match context {
+        "Database operation failed" => "Could not update local job data",
+        "Invalid configuration" => "Saved settings need attention",
+        "Failed to serialize config"
+        | "Failed to serialize stats"
+        | "Failed to serialize snapshot"
+        | "Failed to serialize benchmark"
+        | "Failed to serialize result"
+        | "Failed to serialize ghost config" => "Could not prepare app data",
+        _ => context,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn user_friendly_error_uses_plain_local_data_copy() {
+        let message = user_friendly_error(
+            "Database operation failed",
+            "database is locked; SELECT * FROM jobs WHERE token = 'secret'",
+        );
+
+        assert!(message.contains("Could not update local job data"));
+        assert!(message.contains("JobSentinel is still writing local data"));
+        assert!(!message.contains(&["Database", "Error"].join(" ")));
+        assert!(!message.contains("database is locked"));
+        assert!(!message.contains("SELECT"));
+        assert!(!message.contains("secret"));
+    }
+
+    #[test]
+    fn category_fallbacks_avoid_technical_labels() {
+        let message = user_friendly_error(
+            "Invalid configuration",
+            "invalid config format in saved settings",
+        );
+
+        assert!(message.contains("Saved settings need attention"));
+        assert!(message.contains("Information needs review"));
+        assert!(!message.contains(&["Configuration", "Error"].join(" ")));
+        assert!(!message.contains(&["Invalid", "Input"].join(" ")));
+    }
+
+    #[test]
+    fn connection_and_secure_connection_copy_stays_plain() {
+        let timeout = user_friendly_error("Failed to refresh jobs", "request timeout");
+        let certificate =
+            user_friendly_error("Failed to refresh jobs", "ssl certificate verify failed");
+
+        assert!(timeout.contains("Request timed out"));
+        assert!(certificate.contains("Secure connection problem"));
+        assert!(!certificate.contains(&["SSL", "certificate", "error"].join(" ")));
+        assert!(!timeout.contains(&["Connection", "Error"].join(" ")));
+    }
 }
 
 /// Macro to simplify error mapping in commands

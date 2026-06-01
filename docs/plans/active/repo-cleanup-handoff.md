@@ -185,6 +185,10 @@ Current cleanup posture:
   app", replaced browser-session storage wording with copy/paste recovery, and
   moved dashboard shortcut syntax behind the existing Shortcuts control. Each
   closed item has focused or product-copy coverage against recurrence.
+- Latest backend command error-copy follow-up replaced shared technical
+  category labels with plain local-data, saved-settings, connection, file, and
+  information-review copy while preserving raw SQL/secret suppression; product
+  copy now rejects the old backend error labels.
 - Latest zero-technical UX follow-up fixed Settings load failure escape and
   guidance, application tracker first-use empty state, Dashboard no-jobs
   recovery guidance, browser import Advanced connection hiding, install wording
