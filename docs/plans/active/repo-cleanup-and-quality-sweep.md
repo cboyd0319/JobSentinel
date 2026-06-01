@@ -209,6 +209,9 @@ boundaries, and harness modularity:
   plain labels instead of brace-token syntax. Token insertion remains available
   internally, copy guidance now says blanks instead of placeholders, and
   product-copy coverage rejects the old raw placeholder-chip wording.
+- Reworked source labels into a shared helper used by job cards, Dashboard
+  filters, saved-search summaries, comparison rows, and duplicate-review rows
+  so raw source IDs such as `manual_import` are not visible to users.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright

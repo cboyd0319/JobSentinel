@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { ComponentProps, RefObject } from "react";
 import { DashboardFiltersBar } from "./DashboardFiltersBar";
@@ -49,7 +49,7 @@ function renderFilters(overrides: Partial<ComponentProps<typeof DashboardFilters
       setScoreFilter={noop}
       sourceFilter="all"
       setSourceFilter={noop}
-      availableSources={["Greenhouse", "Lever"]}
+      availableSources={["all", "Greenhouse", "Lever"]}
       remoteFilter="all"
       setRemoteFilter={noop}
       bookmarkFilter="all"
@@ -109,5 +109,18 @@ describe("DashboardFiltersBar plain-language actions", () => {
 
     expect(screen.getByRole("button", { name: "Download 2 selected jobs" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Export 2 selected jobs to CSV" })).not.toBeInTheDocument();
+  });
+
+  it("labels source choices without raw source IDs", () => {
+    renderFilters({
+      availableSources: ["all", "greenhouse", "manual_import", "city_careers"],
+    });
+
+    fireEvent.click(screen.getByText("All Sources"));
+
+    expect(screen.getByRole("option", { name: "Greenhouse hiring page" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Saved by you" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "City Careers" })).toBeInTheDocument();
+    expect(screen.queryByText("manual_import")).not.toBeInTheDocument();
   });
 });

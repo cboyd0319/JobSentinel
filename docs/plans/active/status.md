@@ -78,6 +78,10 @@ and record actionable findings in this active-plan surface.
   buttons with plain auto-fill blank labels, keeps token insertion internal,
   changes copy/toast guidance to "blanks" language, and extends product-copy
   coverage against raw placeholder-chip drift.
+- Latest local source-label follow-up moves job source display names into a
+  shared helper and uses it in job cards, Dashboard filters, saved-search
+  summaries, comparison rows, and duplicate-review rows so raw source IDs such
+  as `manual_import` stay out of visible user copy.
 - Latest local zero-technical provider setup work labels USAJobs as optional
   advanced federal monitoring with a no-setup browser-search path first, keeps
   Telegram bot details behind an advanced chat-alert path, and adds

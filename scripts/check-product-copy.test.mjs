@@ -320,7 +320,20 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/DashboardUI/DashboardFiltersBar.tsx",
-      "Use AND for words that must both appear\n",
+      [
+        "Use AND for words that must both appear",
+        'label: source === "all" ? "All Sources" : source',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Dashboard.tsx",
+      [
+        "<li>Source: {filters.sourceFilter}</li>",
+        "<span>{job.source}</span>",
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(
       root,
@@ -345,6 +358,7 @@ test("product copy rejects technical-first settings copy", () => {
       hasTechnicalFirstUserCopy(root, "src/pages/DashboardUI/DashboardFiltersBar.tsx"),
       true,
     );
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Dashboard.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/SetupWizard.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.test.tsx"), false);

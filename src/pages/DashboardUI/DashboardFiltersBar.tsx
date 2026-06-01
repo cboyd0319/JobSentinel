@@ -5,6 +5,7 @@ import { memo, RefObject, useState, useEffect, useRef } from "react";
 import { Dropdown } from "../../components/Dropdown";
 import { Tooltip } from "../../components/Tooltip";
 import { useDebouncedValue } from "../../hooks";
+import { formatJobSourceLabel } from "../../utils/sourceLabels";
 import { scoreFilterOptions, sortOptions } from "./filterLabels";
 import {
   ExportIcon,
@@ -284,7 +285,7 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
             onChange={setSourceFilter}
             options={availableSources.map((source) => ({
               value: source,
-              label: source === "all" ? "All Sources" : source,
+              label: source === "all" ? "All Sources" : formatJobSourceLabel(source),
             }))}
           />
 

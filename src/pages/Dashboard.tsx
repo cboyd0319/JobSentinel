@@ -27,6 +27,7 @@ import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
 import { logError } from "../utils/errorUtils";
 import { SCORE_THRESHOLD_GOOD } from "../utils/constants";
 import { notifyScrapingComplete } from "../utils/notifications";
+import { formatJobSourceLabel } from "../utils/sourceLabels";
 import {
   cachedInvoke,
   invalidateCacheByCommand,
@@ -885,7 +886,7 @@ export default function Dashboard({
                 <li>Match: {formatScoreFilter(filters.scoreFilter)}</li>
               )}
               {filters.sourceFilter !== "all" && (
-                <li>Source: {filters.sourceFilter}</li>
+                <li>Source: {formatJobSourceLabel(filters.sourceFilter)}</li>
               )}
               {filters.remoteFilter !== "all" && (
                 <li>Location: {filters.remoteFilter}</li>
@@ -1101,7 +1102,7 @@ export default function Dashboard({
                     />
                     <CompareRow
                       label="Source"
-                      values={jobOps.comparedJobs.map((j) => j.source)}
+                      values={jobOps.comparedJobs.map((j) => formatJobSourceLabel(j.source))}
                     />
                     <CompareRow
                       label="Remote"
@@ -1257,7 +1258,7 @@ const DuplicateGroupCard = memo(function DuplicateGroupCard({
           >
             <div className="flex items-center gap-2">
               <span className="text-xs font-medium text-surface-500 dark:text-surface-400 uppercase">
-                {job.source}
+                {formatJobSourceLabel(job.source)}
               </span>
               {idx === 0 && (
                 <span className="text-xs bg-sentinel-500 text-white px-1.5 py-0.5 rounded">

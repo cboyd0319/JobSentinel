@@ -158,6 +158,10 @@ Current cleanup posture:
   inserted token values internal, updates copy/toast guidance toward blanks
   before sending, and adds product-copy coverage against raw placeholder-chip
   drift.
+- Current local source-label follow-up moves source display names into a shared
+  helper and applies it to job cards, Dashboard source filters, saved-search
+  summaries, comparison rows, and duplicate-review rows so raw source IDs do
+  not leak into broad-audience copy.
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
 - `npm run harness:plan -- --since origin/main` now maps changed files to
   focused verification commands from the harness matrix.
