@@ -59,12 +59,18 @@ import {
   hasRawCredentialStorageErrors,
   hasRawEmailTestErrorReturn,
   hasRawJobsWithGptDebug,
+  hasRawJobsWithGptSmokeEndpointError,
   hasRawLinkedInDebug,
   hasRawLocalPathLogging,
+  hasRawNotificationProviderErrorBody,
+  hasRawNotificationServiceErrorDetails,
   hasRawPrivateQueryLogging,
   hasRawScraperLoopErrorLogging,
   hasRawScraperUrlOrQueryLogging,
   hasRawSlackWebhookValidationErrorReturn,
+  hasRawSourceCheckResultError,
+  hasRawTelegramBotTokenRequestError,
+  hasRawWebhookTokenRequestError,
   hasRendererCredentialSecretRead,
   hasSecretBearingDebugDerive,
   hasUnboundedExternalResponseBodyRead,
@@ -286,20 +292,6 @@ const keyringSecurityDocsPaths = new Set([
 ]);
 const keyringMigrationPaths = new Set(["src-tauri/src/main.rs"]);
 const credentialArchitecturePaths = new Set(["src-tauri/src/core/credentials/mod.rs"]);
-const telegramNotificationPrivacyPaths = new Set([
-  "src-tauri/src/core/notify/telegram.rs",
-]);
-const webhookNotificationPrivacyPaths = new Set([
-  "src-tauri/src/core/notify/discord.rs",
-  "src-tauri/src/core/notify/slack.rs",
-  "src-tauri/src/core/notify/teams.rs",
-]);
-const notificationProviderErrorBodyPaths = new Set([
-  "src-tauri/src/core/notify/discord.rs",
-  "src-tauri/src/core/notify/teams.rs",
-  "src-tauri/src/core/notify/telegram.rs",
-]);
-const healthSmokePrivacyPaths = new Set(["src-tauri/src/core/health/smoke_tests.rs"]);
 const userDataDocsPaths = new Set(["docs/features/user-data-management.md"]);
 const structuredDebugLogPaths = new Set(["src-tauri/src/commands/feedback/debug_log.rs"]);
 const feedbackCommandPaths = new Set(["src-tauri/src/commands/feedback/mod.rs"]);
@@ -1568,85 +1560,6 @@ function stripRustTestModules(text) {
   }
 
   return text.slice(0, testModuleIndex);
-}
-
-function hasRawTelegramBotTokenRequestError(root, path) {
-  if (!telegramNotificationPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return /client\s*\.post\(&api_url\)[\s\S]{0,260}\.send\(\)\s*\.await\s*\?/.test(
-    productionText,
-  );
-}
-
-function hasRawWebhookTokenRequestError(root, path) {
-  if (!webhookNotificationPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return /client\s*\.post\(&?(?:config\.)?webhook_url\)[\s\S]{0,260}\.send\(\)\s*\.await\s*\?/.test(
-    productionText,
-  );
-}
-
-function hasRawNotificationProviderErrorBody(root, path) {
-  if (!notificationProviderErrorBodyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /let\s+error_text\s*=\s*read_text_with_limit\(response,[\s\S]{0,420}anyhow!\([\s\S]{0,180}error_text/.test(
-      productionText,
-    ) ||
-    /read_text_with_limit\(response,[\s\S]{0,180}\.await\?[\s\S]{0,180}anyhow!\([\s\S]{0,120}\{\}[\s\S]{0,80}error_text/.test(
-      productionText,
-    )
-  );
-}
-
-function hasRawNotificationServiceErrorDetails(root, path) {
-  if (!notificationServicePrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /tracing::(?:error|warn)!\([^;]*\{\}[^;]*,\s*e\s*\)/.test(productionText) ||
-    /errors\.push\(format!\(\s*"(?:Slack|Email|Discord|Telegram|Teams):\s*\{\}"\s*,\s*e\s*\)\)/.test(
-      productionText,
-    ) ||
-    /anyhow::anyhow!\([^;]*errors\.join\([^)]*\)[\s\S]{0,120}\b(?:webhook|token|password|SMTP)\b/i.test(
-      productionText,
-    )
-  );
-}
-
-function hasRawJobsWithGptSmokeEndpointError(root, path) {
-  if (!healthSmokePrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /"error"\s*:\s*e\.to_string\(\)/.test(productionText) ||
-    /Err\(e\)\s*=>\s*Err\(e\.into\(\)\)/.test(productionText)
-  );
-}
-
-function hasRawSourceCheckResultError(root, path) {
-  if (!healthSmokePrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /error:\s*Some\(\s*e\.to_string\(\)\s*\)/.test(productionText) ||
-    /"error"\s*:\s*format!\([^)]*e\.without_url\(\)/.test(productionText)
-  );
 }
 
 function hasStaleLinkedInCredentialDocs(root, path) {

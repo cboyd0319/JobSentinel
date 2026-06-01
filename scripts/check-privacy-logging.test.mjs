@@ -18,12 +18,18 @@ import {
   hasRawEmailTestErrorReturn,
   hasRawFrontendErrorReporterForwarding,
   hasRawJobsWithGptDebug,
+  hasRawJobsWithGptSmokeEndpointError,
   hasRawLinkedInDebug,
   hasRawLocalPathLogging,
+  hasRawNotificationProviderErrorBody,
+  hasRawNotificationServiceErrorDetails,
   hasRawPrivateQueryLogging,
   hasRawScraperLoopErrorLogging,
   hasRawScraperUrlOrQueryLogging,
   hasRawSlackWebhookValidationErrorReturn,
+  hasRawSourceCheckResultError,
+  hasRawTelegramBotTokenRequestError,
+  hasRawWebhookTokenRequestError,
   hasRendererCredentialSecretRead,
   hasSecretBearingDebugDerive,
   hasUnboundedExternalResponseBodyRead,
@@ -348,5 +354,84 @@ test("privacy logging rejects renderer credential reads and incomplete export re
     assert.equal(hasRendererCredentialSecretRead(root, "src/pages/Dashboard.tsx"), false);
     assert.equal(hasIncompleteConfigExportRedaction(root, "src/utils/export.ts"), true);
     assert.equal(hasIncompleteConfigExportRedaction(root, "src/utils/import.ts"), false);
+  });
+});
+
+test("privacy logging rejects raw notification request token errors", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/notify/telegram.rs",
+      "client.post(&api_url).send().await?",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/notify/slack.rs",
+      "client.post(&config.webhook_url).send().await?",
+    );
+
+    assert.equal(
+      hasRawTelegramBotTokenRequestError(root, "src-tauri/src/core/notify/telegram.rs"),
+      true,
+    );
+    assert.equal(
+      hasRawWebhookTokenRequestError(root, "src-tauri/src/core/notify/slack.rs"),
+      true,
+    );
+    assert.equal(
+      hasRawWebhookTokenRequestError(root, "src-tauri/src/core/notify/mod.rs"),
+      false,
+    );
+  });
+});
+
+test("privacy logging rejects notification provider and service error details", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/notify/discord.rs",
+      "let error_text = read_text_with_limit(response, 1024).await?; anyhow!(error_text);",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/notify/mod.rs",
+      'tracing::warn!("notification failed: {}", e);',
+    );
+
+    assert.equal(
+      hasRawNotificationProviderErrorBody(root, "src-tauri/src/core/notify/discord.rs"),
+      true,
+    );
+    assert.equal(
+      hasRawNotificationServiceErrorDetails(root, "src-tauri/src/core/notify/mod.rs"),
+      true,
+    );
+    assert.equal(
+      hasRawNotificationProviderErrorBody(root, "src-tauri/src/core/notify/slack.rs"),
+      false,
+    );
+  });
+});
+
+test("privacy logging rejects raw source health errors", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/health/smoke_tests.rs",
+      ['"error": e.to_string(),', "error: Some(e.to_string()),"].join("\n"),
+    );
+
+    assert.equal(
+      hasRawJobsWithGptSmokeEndpointError(root, "src-tauri/src/core/health/smoke_tests.rs"),
+      true,
+    );
+    assert.equal(
+      hasRawSourceCheckResultError(root, "src-tauri/src/core/health/smoke_tests.rs"),
+      true,
+    );
+    assert.equal(
+      hasRawSourceCheckResultError(root, "src-tauri/src/core/health/mod.rs"),
+      false,
+    );
   });
 });
