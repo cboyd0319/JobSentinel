@@ -482,6 +482,20 @@ describe("Settings — loadConfig flow", () => {
     expect(screen.queryByText(/keyword-only scoring/i)).not.toBeInTheDocument();
   });
 
+  it("uses protective auto-search helper copy", async () => {
+    setupHappyPath();
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    expect(
+      screen.getByLabelText(/Turn this on to check for new postings while JobSentinel is open/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByLabelText(/never miss a new posting/i)).not.toBeInTheDocument();
+  });
+
   it("does not check LinkedIn credentials when loading settings", async () => {
     mockInvoke.mockImplementation(async (cmd: string, args?: unknown) => {
       if (cmd === "get_config") return makeConfig();

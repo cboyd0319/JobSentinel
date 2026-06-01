@@ -85,7 +85,10 @@ JobSentinel links to those pages from the Email settings panel.
 
 ## Optional Chat Alerts
 
-### Slack
+### Slack Advanced Chat Setup
+
+Use this only if you already use Slack and want chat alerts. Desktop alerts and
+email alerts are easier to set up.
 
 1. Go to [Slack's connection-link page](https://api.slack.com/messaging/webhooks)
 2. Click "Create New App" > "From Scratch"

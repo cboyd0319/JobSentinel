@@ -93,6 +93,13 @@ and record actionable findings in this active-plan surface.
   answer patterns from backend debug logs in Application Assist. Logs now keep
   only character counts for matched questions and patterns, and
   privacy-logging sensors reject the old raw trace shape.
+- Latest local broad-audience copy follow-up removes remaining
+  zero-technical friction found by the broad-audience audit: Dashboard search
+  help no longer teaches minus-sign search operators, saved screening answers
+  hide raw match internals and confidence percentages behind plain labels,
+  site challenge errors use human-check wording instead of bot-detection
+  language, Auto-Search copy avoids "never miss" pressure, and Slack docs are
+  labeled as advanced chat setup after desktop and email alerts.
 - Latest local zero-technical provider setup work labels USAJobs as optional
   advanced federal monitoring with a no-setup browser-search path first, keeps
   Telegram bot details behind an advanced chat-alert path, and adds

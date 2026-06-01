@@ -87,10 +87,11 @@ function renderFilters(overrides: Partial<ComponentProps<typeof DashboardFilters
 }
 
 describe("DashboardFiltersBar plain-language actions", () => {
-  it("uses plain search and download copy for the default toolbar", () => {
+  it("uses plain search and download copy for the default toolbar", async () => {
     renderFilters();
 
-    expect(screen.getByRole("textbox", { name: "Search jobs" })).toHaveAttribute(
+    const searchInput = screen.getByRole("textbox", { name: "Search jobs" });
+    expect(searchInput).toHaveAttribute(
       "placeholder",
       "Search jobs",
     );
@@ -99,6 +100,12 @@ describe("DashboardFiltersBar plain-language actions", () => {
     expect(screen.queryByText("j/k/o/h")).not.toBeInTheDocument();
     expect(screen.queryByText(/Navigate: j\/k/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/senior AND manager/i)).not.toBeInTheDocument();
+
+    fireEvent.focus(searchInput);
+    expect(
+      await screen.findByText(/Search Words to Avoid in Settings/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/minus sign/i)).not.toBeInTheDocument();
   });
 
   it("uses plain download copy for selected jobs", () => {

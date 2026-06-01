@@ -183,7 +183,7 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
                   <p className="font-medium">Search tips:</p>
                   <p>• Use commas for either word: marketing, nurse</p>
                   <p>• Add important words together: office manager remote</p>
-                  <p>• Start with a minus sign to leave out a word: -intern</p>
+                  <p>• To hide work you do not want, add it under Search Words to Avoid in Settings</p>
                 </div>
               }
               position="bottom"

@@ -59,7 +59,7 @@ const SCRAPER_ERRORS = [
   { pattern: /no.*jobs.*found|empty.*results/i, title: 'No Jobs Found', message: 'No job listings matched your search criteria.', action: 'Try broadening your search filters or check different job boards.' },
   { pattern: /scraper.*disabled|source.*unavailable/i, title: 'Job Source Disabled', message: 'This job board is currently disabled in your settings.', action: 'Open Settings, choose More Settings, then View Job Sources.' },
   { pattern: /api.*key|api.*quota|api.*limit/i, title: 'Daily Job Board Limit Reached', message: 'This job board has stopped accepting more requests today.', action: 'Wait until tomorrow, or reduce how often JobSentinel checks this source.' },
-  { pattern: /captcha|bot.*detection|cloudflare/i, title: 'Bot Detection Triggered', message: 'The website thinks you\'re a bot and blocked the request.', action: 'This is a safety measure. Reduce search frequency or try again later.' },
+  { pattern: /captcha|bot.*detection|cloudflare/i, title: 'Site Asked for a Human Check', message: 'This site asked for an extra human check before showing jobs.', action: 'Open the site yourself, complete any check there, or try again later.' },
 ];
 
 /**

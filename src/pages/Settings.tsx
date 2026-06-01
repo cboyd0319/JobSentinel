@@ -2046,7 +2046,7 @@ export default function Settings({ onClose }: SettingsProps) {
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
                   Auto-Search
-                  <HelpIcon text="Automatically check for new jobs while the app is open. Turn this on to never miss a new posting." />
+                  <HelpIcon text="Turn this on to check for new postings while JobSentinel is open." />
                 </h3>
                 <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">

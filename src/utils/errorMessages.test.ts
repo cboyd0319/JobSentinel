@@ -27,6 +27,15 @@ describe("errorMessages", () => {
       expect(result.title).toBe("Local Data Busy");
     });
 
+    it("uses plain human-check copy for site challenges", () => {
+      const result = getUserFriendlyError(new Error("captcha cloudflare bot detection"));
+
+      expect(result.title).toBe("Site Asked for a Human Check");
+      expect(result.message).toContain("extra human check");
+      expect(result.action).toContain("Open the site yourself");
+      expect(`${result.title} ${result.message} ${result.action}`).not.toMatch(/bot/i);
+    });
+
     it("uses plain-language copy for common technical failures", () => {
       const userCopy = [
         getUserFriendlyError(new Error("401 unauthorized api key rejected")),

@@ -172,6 +172,12 @@ Current cleanup posture:
   answer patterns from Application Assist debug logs. The trace now records
   only question/pattern character counts when a saved answer matches, and
   privacy-logging coverage rejects the old raw trace shape.
+- Current local broad-audience copy follow-up removes technical or anxious
+  user-facing copy from Dashboard search help, saved screening answers, site
+  challenge errors, Auto-Search help, and Slack notification docs. Users now
+  see plain labels for question matches and answer-learning state, human-check
+  wording for site challenges, less absolute alert copy, and Slack labeled as
+  advanced chat setup after easier desktop/email paths.
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
 - `npm run harness:plan -- --since origin/main` now maps changed files to
   focused verification commands from the harness matrix.

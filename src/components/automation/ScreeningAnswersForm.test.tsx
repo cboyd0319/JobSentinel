@@ -191,24 +191,51 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByText("years of experience")).toBeInTheDocument();
+        expect(screen.getByText("Looks for: Years of experience")).toBeInTheDocument();
         expect(screen.getByText("5 years")).toBeInTheDocument();
-        expect(screen.getByText("relocate")).toBeInTheDocument();
+        expect(screen.getByText("Looks for: Willingness to relocate")).toBeInTheDocument();
         expect(screen.getByText("Yes")).toBeInTheDocument();
       });
     });
 
-    it("renders question match text in code elements", async () => {
+    it("renders question match text as plain labels", async () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        const codeElements = screen.getAllByText(
-          /years of experience|relocate|cover letter/,
-        );
-        codeElements.forEach((el) => {
-          expect(el.tagName.toLowerCase()).toBe("code");
+        const matchLabels = screen.getAllByText(/Looks for:/);
+        matchLabels.forEach((el) => {
+          expect(el.tagName.toLowerCase()).not.toBe("code");
         });
       });
+    });
+
+    it("uses plain labels for answer learning state", async () => {
+      mockInvoke.mockResolvedValue([
+        {
+          ...mockAnswers[0],
+          confidenceScore: 0.82,
+          timesUsed: 4,
+          timesModified: 3,
+        },
+        {
+          ...mockAnswers[1],
+          confidenceScore: 0.55,
+          timesUsed: 4,
+          timesModified: 1,
+        },
+      ]);
+
+      render(<ScreeningAnswersForm />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Usually matches")).toBeInTheDocument();
+        expect(screen.getByText("Review before using")).toBeInTheDocument();
+        expect(screen.getByText("Often edited")).toBeInTheDocument();
+        expect(screen.getByText("Sometimes edited")).toBeInTheDocument();
+      });
+
+      expect(screen.queryByText(/% confident/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Modified .*%/i)).not.toBeInTheDocument();
     });
 
     it("displays notes when present", async () => {
@@ -225,7 +252,7 @@ describe("ScreeningAnswersForm", () => {
 
       await waitFor(() => {
         const relocateAnswer = screen
-          .getByText("relocate")
+          .getByText("Looks for: Willingness to relocate")
           .closest("div");
         expect(relocateAnswer?.textContent).not.toContain("notes");
       });

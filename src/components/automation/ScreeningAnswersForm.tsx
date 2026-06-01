@@ -70,6 +70,27 @@ function formatRelativeTime(isoDate: string): string {
   return `${Math.floor(diffDays / 365)} years ago`;
 }
 
+function getQuestionMatchLabel(pattern: string) {
+  const common = COMMON_PATTERNS.find(
+    (item) => item.pattern.toLowerCase() === pattern.trim().toLowerCase(),
+  );
+  return common?.label ?? pattern.trim();
+}
+
+function getConfidenceLabel(score?: number) {
+  if (score === undefined || score <= 0) return null;
+  if (score >= 0.8) return "Usually matches";
+  if (score >= 0.5) return "Review before using";
+  return "Needs review";
+}
+
+function getModifiedUseLabel(timesModified?: number, timesUsed?: number) {
+  if (!timesModified || !timesUsed) return null;
+  const ratio = timesModified / timesUsed;
+  if (ratio >= 0.5) return "Often edited";
+  return "Sometimes edited";
+}
+
 export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved }: ScreeningAnswersFormProps) {
   const [answers, setAnswers] = useState<ScreeningAnswer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -250,17 +271,16 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <code className="text-sm bg-surface-100 dark:bg-surface-700 px-2 py-0.5 rounded text-surface-800 dark:text-surface-200 font-mono">
-                        {a.questionPattern}
-                      </code>
+                      <span className="text-sm bg-surface-100 dark:bg-surface-700 px-2 py-0.5 rounded text-surface-800 dark:text-surface-200">
+                        Looks for: {getQuestionMatchLabel(a.questionPattern)}
+                      </span>
                       {getAnswerTypeBadge(a.answerType)}
-                      {/* Confidence badge */}
-                      {a.confidenceScore !== undefined && a.confidenceScore > 0 && (
+                      {getConfidenceLabel(a.confidenceScore) && (
                         <Badge variant={
-                          a.confidenceScore >= 0.8 ? "success" :
-                          a.confidenceScore >= 0.5 ? "sentinel" : "surface"
+                          (a.confidenceScore ?? 0) >= 0.8 ? "success" :
+                          (a.confidenceScore ?? 0) >= 0.5 ? "sentinel" : "surface"
                         } className="text-xs">
-                          {Math.round(a.confidenceScore * 100)}% confident
+                          {getConfidenceLabel(a.confidenceScore)}
                         </Badge>
                       )}
                     </div>
@@ -271,9 +291,9 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
                     {a.timesUsed !== undefined && a.timesUsed > 0 && (
                       <div className="flex items-center gap-3 mt-2 text-xs text-surface-500 dark:text-surface-400">
                         <span>Used {a.timesUsed}×</span>
-                        {a.timesModified !== undefined && a.timesModified > 0 && (
+                        {getModifiedUseLabel(a.timesModified, a.timesUsed) && (
                           <span className="text-warning">
-                            Modified {a.timesModified}× ({Math.round((a.timesModified / a.timesUsed) * 100)}%)
+                            {getModifiedUseLabel(a.timesModified, a.timesUsed)}
                           </span>
                         )}
                         {a.lastUsedAt && (

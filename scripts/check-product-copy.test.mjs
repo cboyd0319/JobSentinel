@@ -334,9 +334,35 @@ test("product copy rejects technical-first settings copy", () => {
       "src/pages/DashboardUI/DashboardFiltersBar.tsx",
       [
         "Use AND for words that must both appear",
+        "Start with a minus sign to leave out a word: -intern",
         'label: source === "all" ? "All Sources" : source',
         "",
       ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/components/automation/ScreeningAnswersForm.tsx",
+      [
+        "<code>{a.questionPattern}</code>",
+        "{Math.round(a.confidenceScore * 100)}% confident",
+        "Modified {a.timesModified}× ({Math.round((a.timesModified / a.timesUsed) * 100)}%)",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/utils/errorMessages.ts",
+      [
+        "Bot Detection Triggered",
+        "The website thinks you're a bot and blocked the request.",
+        "This is a safety measure. Reduce search frequency or try again later.",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Settings.tsx",
+      "Turn this on to never miss a new posting.\n",
     );
     writeFixtureFile(
       root,
@@ -370,6 +396,12 @@ test("product copy rejects technical-first settings copy", () => {
       hasTechnicalFirstUserCopy(root, "src/pages/DashboardUI/DashboardFiltersBar.tsx"),
       true,
     );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/automation/ScreeningAnswersForm.tsx"),
+      true,
+    );
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/errorMessages.ts"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Dashboard.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/SetupWizard.tsx"), true);

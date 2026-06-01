@@ -222,6 +222,13 @@ boundaries, and harness modularity:
   Application Assist debug logs. The trace now records only character counts
   when a saved answer matches, with privacy-logging coverage against raw trace
   drift.
+- Removed more broad-audience copy drift from user-visible flows:
+  Dashboard search help now points users to Search Words to Avoid instead of
+  teaching minus-sign operators, saved screening answers show plain match and
+  learning labels instead of raw patterns or percentages, site challenge errors
+  avoid bot-detection language, Auto-Search help avoids "never miss" pressure,
+  and Slack notification docs are framed as advanced chat setup behind easier
+  desktop/email alert paths.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright
