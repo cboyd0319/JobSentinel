@@ -496,6 +496,8 @@ test("product copy rejects technical-first settings copy", () => {
         "Look for the Assets section.",
         "<summary><strong>For developers: build from source</strong></summary>",
         "<summary><strong>Need developer setup?</strong></summary>",
+        "Developers can build locally after installing Node, Rust, and the Tauri requirements.",
+        "npm run tauri:build",
         "Stale, reposted, or low-trust postings",
         "scan allowed sources immediately",
         "### Ghost Job Detection",

@@ -65,18 +65,11 @@ This can happen because JobSentinel is a new open-source app.
 <summary><strong>Optional: build it yourself</strong></summary>
 <br>
 
-Most users should download the installer and skip this section. If you prefer to
-build the app yourself, use [Developer Setup](../developer/GETTING_STARTED.md).
+Most people should download the installer and skip this section.
 
-Developers can build locally after installing Node, Rust, and the Tauri
-requirements:
-
-```bash
-npm install
-npm run tauri:build
-```
-
-Need more detail? See [Developer Setup](../developer/GETTING_STARTED.md).
+If you prefer to build JobSentinel from the source code, use
+[Developer Setup](../developer/GETTING_STARTED.md). That guide has the
+developer tools and commands.
 
 </details>
 
