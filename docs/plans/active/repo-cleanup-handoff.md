@@ -165,6 +165,9 @@ Current cleanup posture:
 - Current local Application Assist follow-up changes the preview badge
   accessible label from "Application tracking system" to "Application form" and
   adds product-copy coverage against that user-facing ATS-jargon regression.
+- Current local Resume skills follow-up replaces unlabeled skill confidence
+  percentages with source labels such as "Found in resume" and "Added by you,"
+  with product-copy coverage against confidence-score display drift.
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
 - `npm run harness:plan -- --since origin/main` now maps changed files to
   focused verification commands from the harness matrix.

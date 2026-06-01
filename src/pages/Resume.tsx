@@ -23,6 +23,17 @@ const PROFICIENCY_COLORS: Record<string, BadgeVariant> = {
 const getProficiencyColor = (proficiency: string | null): BadgeVariant =>
   PROFICIENCY_COLORS[proficiency?.toLowerCase() ?? ""] ?? "surface";
 
+function getSkillSourceLabel(source: string) {
+  const normalized = source.trim().toLowerCase();
+  if (normalized === "manual") {
+    return "Added by you";
+  }
+  if (normalized === "resume" || normalized === "import") {
+    return "Found in resume";
+  }
+  return "Saved skill";
+}
+
 function fileNameFromPath(filePath: string, fallback: string) {
   return filePath
     .split(/[\\/]/)
@@ -580,7 +591,7 @@ export default function Resume({ onBack }: ResumeProps) {
                       {skill.skill_name}
                       {skill.years_experience && ` • ${skill.years_experience}y`}
                       <span className="ml-1 text-xs opacity-70">
-                        ({Math.round(skill.confidence_score * 100)}%)
+                        {getSkillSourceLabel(skill.source)}
                       </span>
                     </Badge>
                   ))}
@@ -898,11 +909,9 @@ export default function Resume({ onBack }: ResumeProps) {
                                     {skill.skill_category}
                                   </span>
                                 )}
-                                {skill.source === "manual" && (
-                                  <Badge variant="surface" size="sm">
-                                    Manual
-                                  </Badge>
-                                )}
+                                <Badge variant="surface" size="sm">
+                                  {getSkillSourceLabel(skill.source)}
+                                </Badge>
                               </div>
                             </div>
                           </div>

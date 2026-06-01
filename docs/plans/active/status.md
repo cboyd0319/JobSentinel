@@ -86,6 +86,9 @@ and record actionable findings in this active-plan surface.
   accessible label from "Application tracking system" to "Application form" and
   adds product-copy coverage so broad-audience assistive text does not drift
   back to ATS jargon.
+- Latest local Resume skills follow-up replaces unlabeled skill confidence
+  percentages with plain labels such as "Found in resume" and "Added by you,"
+  and extends product-copy coverage against confidence-score display drift.
 - Latest local zero-technical provider setup work labels USAJobs as optional
   advanced federal monitoring with a no-setup browser-search path first, keeps
   Telegram bot details behind an advanced chat-alert path, and adds

@@ -589,7 +589,11 @@ test("product copy rejects command-first profile docs", () => {
 
 test("product copy rejects technical-first resume copy", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/pages/Resume.tsx", "Programming Languages\nGap Analysis\n");
+    writeFixtureFile(
+      root,
+      "src/pages/Resume.tsx",
+      "Programming Languages\nGap Analysis\nMath.round(skill.confidence_score * 100)\n",
+    );
     writeFixtureFile(root, "src/pages/ResumeOptimizer.tsx", "{suggestion.category}\n");
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Resume.tsx"), true);

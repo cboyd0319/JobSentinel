@@ -120,6 +120,60 @@ describe("Resume page", () => {
     expect(screen.queryByText(/skills extracted|extract skills automatically/i)).not.toBeInTheDocument();
   });
 
+  it("labels saved skill source instead of showing raw confidence percentages", async () => {
+    mockSafeInvoke.mockImplementation((command: string) => {
+      switch (command) {
+        case "get_active_resume":
+          return Promise.resolve({
+            id: 1,
+            name: "Care Coordinator Resume",
+            is_active: true,
+            created_at: "2026-05-21T12:00:00Z",
+            updated_at: "2026-05-21T12:00:00Z",
+          });
+        case "list_all_resumes":
+        case "get_recent_matches":
+          return Promise.resolve([]);
+        case "get_user_skills":
+          return Promise.resolve([
+            {
+              id: 1,
+              resume_id: 1,
+              skill_name: "Patient Scheduling",
+              skill_category: "Care coordination",
+              confidence_score: 0.95,
+              years_experience: 3,
+              proficiency_level: "Advanced",
+              source: "resume",
+            },
+            {
+              id: 2,
+              resume_id: 1,
+              skill_name: "Community Outreach",
+              skill_category: "Community programs",
+              confidence_score: 1,
+              years_experience: null,
+              proficiency_level: "Intermediate",
+              source: "manual",
+            },
+          ]);
+        default:
+          return Promise.resolve(null);
+      }
+    });
+
+    render(<Resume onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Saved Skills (2)")).toBeInTheDocument();
+    });
+
+    expect(screen.getAllByText("Found in resume").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Added by you").length).toBeGreaterThan(0);
+    expect(screen.queryByText("(95%)")).not.toBeInTheDocument();
+    expect(screen.queryByText("(100%)")).not.toBeInTheDocument();
+  });
+
   it("imports structured resumes through backend file handling", async () => {
     const user = userEvent.setup();
     const selectedPath = String.raw`C:\Resume Files\resume export.JSON`;

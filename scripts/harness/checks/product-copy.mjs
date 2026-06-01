@@ -530,6 +530,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /["'`]Missing Skills/i,
       /You have all required skills!/i,
       /Gap Analysis/i,
+      /skill\.confidence_score\s*\*\s*100/i,
     ];
 
     if (resumePagePatterns.some((pattern) => pattern.test(text))) {

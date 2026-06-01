@@ -215,6 +215,9 @@ boundaries, and harness modularity:
 - Reworked the Application Assist preview badge accessible label from
   "Application tracking system" to "Application form" and added product-copy
   coverage against that user-facing ATS-jargon regression.
+- Reworked Resume saved-skill chips and rows so users see "Found in resume" or
+  "Added by you" instead of unlabeled confidence percentages, with product-copy
+  coverage against confidence-score display drift.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright
