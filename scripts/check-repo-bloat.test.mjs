@@ -3417,7 +3417,7 @@ test("checkRepoBloat rejects fixed waits in active E2E runtime files", () => {
     writeFixtureFile(
       root,
       "tests/e2e/playwright/app.spec.ts",
-      "await page.waitForTimeout(1000);\n",
+      'await page.waitForLoadState("networkidle");\n',
     );
     writeFixtureFile(
       root,

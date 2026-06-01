@@ -430,7 +430,9 @@ export function hasFixedWaitInActiveE2eRuntime(root, path) {
     return false;
   }
 
-  return /\.waitForTimeout\(/.test(readFileSync(join(root, path), "utf8"));
+  return /(?:\.waitForTimeout\(|\.waitForLoadState\(["']networkidle["']\))/.test(
+    readFileSync(join(root, path), "utf8"),
+  );
 }
 
 export function hasStaleGettingStartedToolingDocs(root, path) {

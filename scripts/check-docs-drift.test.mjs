@@ -168,7 +168,7 @@ test("docs drift check rejects stale test guidance and fixed waits", () => {
     writeFixtureFile(
       root,
       "tests/e2e/playwright/app.spec.ts",
-      "await page.waitForTimeout(1000);\n",
+      'await page.waitForLoadState("networkidle");\n',
     );
     writeFixtureFile(
       root,

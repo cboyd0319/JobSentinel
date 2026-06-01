@@ -12,6 +12,12 @@ async function openDashboard(page: Page) {
   return { jobDetail, dashboard };
 }
 
+async function reloadDashboard(page: Page, dashboard: DashboardPage) {
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await dashboard.waitForReady();
+  await expect(dashboard.jobCards.first()).toBeVisible();
+}
+
 const JOB_INDEXES = {
   bookmarkCreate: 2,
   bookmarkRemove: 3,
@@ -24,7 +30,7 @@ const JOB_INDEXES = {
 test.describe("Job Interactions and Tracking", () => {
   test.describe("Bookmarking Jobs", () => {
     test("should bookmark an unbookmarked job", async ({ page }) => {
-      const { jobDetail } = await openDashboard(page);
+      const { jobDetail, dashboard } = await openDashboard(page);
 
       await jobDetail.openJobDetail(JOB_INDEXES.bookmarkCreate);
 
@@ -50,7 +56,7 @@ test.describe("Job Interactions and Tracking", () => {
     });
 
     test("should persist bookmark across page reload", async ({ page }) => {
-      const { jobDetail } = await openDashboard(page);
+      const { jobDetail, dashboard } = await openDashboard(page);
 
       await jobDetail.openJobDetail(JOB_INDEXES.bookmarkPersist);
       await expect.poll(() => jobDetail.isBookmarked()).toBe(false);
@@ -58,8 +64,7 @@ test.describe("Job Interactions and Tracking", () => {
       await jobDetail.toggleBookmark();
       await expect.poll(() => jobDetail.isBookmarked()).toBe(true);
 
-      await page.reload();
-      await page.waitForLoadState("networkidle");
+      await reloadDashboard(page, dashboard);
       await jobDetail.openJobDetail(JOB_INDEXES.bookmarkPersist);
 
       await expect.poll(() => jobDetail.isBookmarked()).toBe(true);
@@ -89,14 +94,13 @@ test.describe("Job Interactions and Tracking", () => {
     });
 
     test("should persist notes across page reload", async ({ page }) => {
-      const { jobDetail } = await openDashboard(page);
+      const { jobDetail, dashboard } = await openDashboard(page);
       const noteText = "Persistent note test";
 
       await jobDetail.openJobDetail(JOB_INDEXES.notePersist);
       await jobDetail.addNote(noteText);
 
-      await page.reload();
-      await page.waitForLoadState("networkidle");
+      await reloadDashboard(page, dashboard);
       await jobDetail.openJobDetail(JOB_INDEXES.notePersist);
 
       await expect.poll(() => jobDetail.getNotesCount()).toBe(1);

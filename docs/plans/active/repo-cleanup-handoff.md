@@ -201,6 +201,9 @@ Current cleanup posture:
 - Latest harness-session follow-up fixed the JSON mode argument parser so
   `npm run harness:session -- --json` no longer treats `--json` as the repo
   root and no longer returns a zeroed unavailable snapshot.
+- Latest E2E reliability follow-up removed remaining `networkidle` waits from
+  normal job-interaction coverage and expanded the active E2E fixed-wait sensor
+  to catch both `waitForTimeout` and `networkidle` outside screenshot capture.
 - Latest zero-technical UX follow-up fixed Settings load failure escape and
   guidance, application tracker first-use empty state, Dashboard no-jobs
   recovery guidance, browser import Advanced connection hiding, install wording

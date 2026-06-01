@@ -306,6 +306,9 @@ and record actionable findings in this active-plan surface.
 - Latest local harness-session work fixes `npm run harness:session -- --json`
   so the JSON flag no longer gets treated as the repo root; the normal and
   machine-readable restart snapshots now report the same live repo state.
+- Latest local E2E reliability work removes remaining `networkidle` waits from
+  normal job-interaction tests and broadens the active E2E wait sensor so only
+  screenshot capture may keep fixed visual-settle waits.
 - Latest notification-settings UX work changes source-rule, minimum-salary,
   saved-error, and loading-error copy to plain alert-settings wording, with
   focused NotificationPreferences and product-copy coverage.
