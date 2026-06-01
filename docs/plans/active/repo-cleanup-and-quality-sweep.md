@@ -268,6 +268,10 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   USAJobs access as an access code with no coding needed, changes screening
   answer setup from matching text to plain question wording, and removes
   GitHub-first Deep Links troubleshooting copy.
+- The latest harness-doc accuracy slice reconciles the deep harness audit
+  against live CI, docs-harness, release/manual-build, toolchain-pin,
+  plan-index, and bloat-runner evidence so closed findings no longer look
+  open.
 - Updated active plan and handoff docs for the latest local cleanup slice.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
@@ -303,6 +307,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 | 2026-06-01 | In progress | Removed hardcoded employer rating claims from static company fallback data, kept cached rating rendering covered by component tests, changed unknown-company guidance toward official/public-source research, and added source-quality harness coverage so static fallback ratings cannot drift back. |
 | 2026-06-01 | In progress | Narrowed browser import UI and docs away from any-job/large-board support promises toward official career pages and user-opened public job pages, explicitly stated that JobSentinel does not bypass blocking controls, and added product-copy coverage against overbroad import promises. |
 | 2026-06-01 | In progress | Reworded Job Site Search Links UI and user docs away from automated-scan and legal-guarantee language toward direct-monitoring boundaries and browser-opened searches; added product-copy coverage so old automated-scan and scraper-comparison wording cannot return. |
+| 2026-06-01 | In progress | Reconciled the deep harness audit against live workflow and harness evidence: normal CI, Docs Harness script coverage, release/manual-build preflight, toolchain pins, plan index, and main bloat-runner split now read as closed or narrowed to residual module-ownership work. |
 | 2026-05-31 | In progress | Fixed high zero-technical UX blockers from the latest audit: job import previews with missing details no longer disable the save path, visible dashboard job cards now expose Prepare Form, no-profile states show a Set Up Profile recovery action, and stale `Settings > Application Assist` guidance is blocked by bloat coverage. |
 | 2026-05-31 | In progress | Rebalanced sample JSON Resume, company fallback, bookmarklet, import, remote-scoring, dashboard search, score-modal, undo, export, and feedback sanitizer examples toward broad job-seeker examples; extended bloat coverage for the newly cleaned sample-resume, bookmarklet, search-history, and score-modal fixture paths. |
 | 2026-05-31 | In progress | Rebalanced generic scraper adapter fixtures for Greenhouse, Glassdoor, USAJobs, JobsWithGPT, Lever, We Work Remotely, and shared HTTP examples toward broad job-seeker examples without changing fetch, retry, cache, URL, or parser behavior; added bloat coverage for these cleaned generic scraper paths. |

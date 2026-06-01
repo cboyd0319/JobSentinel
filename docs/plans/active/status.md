@@ -216,6 +216,10 @@ and record actionable findings in this active-plan surface.
   browser-opened search wording, removes overconfident legal claims, and adds
   product-copy coverage so automated-scan and scraper-comparison wording cannot
   drift back into that user path.
+- Latest local harness-audit accuracy work reconciles
+  `docs/harness/deep-harness-audit-2026-05-31.md` against live CI,
+  docs-harness, release/manual-build, toolchain-pin, plan-index, and
+  bloat-runner evidence so closed findings no longer read as open work.
 - Latest local docs-drift harness work moves the docs-drift violation messages
   out of `scripts/check-repo-bloat.mjs` and into
   `scripts/harness/checks/docs-drift.mjs` through

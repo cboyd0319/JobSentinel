@@ -42,6 +42,10 @@ Current branch note:
   Job Site Search Links UI and user docs with direct-monitoring boundaries,
   removes overconfident legal wording, and adds product-copy coverage against
   old scraper-comparison language.
+- The current local harness-doc accuracy slice reconciles
+  `docs/harness/deep-harness-audit-2026-05-31.md` with live CI,
+  docs-harness, release/manual-build, toolchain-pin, plan-index, and
+  bloat-runner evidence so closed findings no longer look open.
 - Continue using small verified commits. Run remote CI only when the user
   explicitly asks or the full-goal completion pass requires it.
 
