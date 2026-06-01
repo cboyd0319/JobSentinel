@@ -31,6 +31,10 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local zero-technical problem-history follow-up renames the vague
+  `Clear All` recovery action to `Clear Problem List` and adds product-copy
+  coverage so support/problem-history screens keep destructive actions
+  explicit.
 - Latest local zero-technical Quick Start follow-up relabels the early
   developer-build disclosure as an optional self-build path and adds
   product-copy coverage so first-run install help does not drift back toward

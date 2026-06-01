@@ -201,7 +201,7 @@ test("product copy rejects debug-report roadmap wording", () => {
     writeFixtureFile(
       root,
       "src/components/ErrorLogPanel.tsx",
-      "Copy Safe Report\nSafe report details\n",
+      "Copy Safe Report\nSafe report details\n<button>Clear All</button>\n",
     );
     writeFixtureFile(
       root,

@@ -473,6 +473,7 @@ export function hasFeedbackLocalReportDrift(root, path) {
     /Debug Log \(\{\} events\)/i,
     /\[(?:APP_STARTED|VIEW_NAVIGATED|COMMAND|ERROR|SCRAPER|FEATURE)\]/i,
     /format!\(\s*["'`]\[\{\}\]\s+\{\:\?\}\\n["'`]/i,
+    />\s*Clear All\s*</i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));

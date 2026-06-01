@@ -144,7 +144,7 @@ describe("ErrorLogPanel", () => {
       ).not.toBeInTheDocument();
     });
 
-    it("shows Clear All button when errors exist", () => {
+    it("shows Clear Problem List button when errors exist", () => {
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
         errors: [createMockError()],
@@ -152,7 +152,7 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      expect(screen.getByRole("button", { name: "Clear All" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Clear Problem List" })).toBeInTheDocument();
     });
 
     it("hides action buttons when no errors", () => {
@@ -161,7 +161,7 @@ describe("ErrorLogPanel", () => {
       expect(
         screen.queryByRole("button", { name: "Save extra app details (support only)" })
       ).not.toBeInTheDocument();
-      expect(screen.queryByRole("button", { name: "Clear All" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Clear Problem List" })).not.toBeInTheDocument();
     });
 
     it("shows one-click safe support report copy action even before errors exist", () => {
@@ -404,7 +404,7 @@ describe("ErrorLogPanel", () => {
       ).toBeInTheDocument();
     });
 
-    it("calls clearErrors when Clear All clicked", () => {
+    it("calls clearErrors when Clear Problem List clicked", () => {
       const clearErrors = vi.fn();
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
@@ -414,7 +414,7 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      fireEvent.click(screen.getByRole("button", { name: "Clear All" }));
+      fireEvent.click(screen.getByRole("button", { name: "Clear Problem List" }));
 
       expect(clearErrors).toHaveBeenCalledTimes(1);
     });

@@ -290,7 +290,7 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
                   Save extra app details (support only)
                 </Button>
                 <Button size="sm" variant="danger" onClick={clearErrors}>
-                  Clear All
+                  Clear Problem List
                 </Button>
               </>
             )}
