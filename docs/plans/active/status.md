@@ -38,7 +38,9 @@ and record actionable findings in this active-plan surface.
   filesystem, tracked-artifact, dependency-ownership, source-structure,
   E2E-helper, product-framing, product-copy, release-promise, and initial
   privacy-logging policy from `scripts/check-repo-bloat.mjs` into
-  `scripts/harness/checks/` modules with focused tests.
+  `scripts/harness/checks/` modules with focused tests. The latest harness
+  slice adds `scripts/harness/checks/ipc-minimization.mjs` so minimized profile,
+  Dashboard, and job-import IPC contracts fail locally if they drift.
 - Latest local privacy work removes raw automation dropdown-answer logging and
   raw frontend error forwarding, then adds bloat sensors and `errorReporting`
   unit coverage so those regressions fail locally.
@@ -71,19 +73,17 @@ and record actionable findings in this active-plan surface.
 
 ## Next Best Work
 
-1. Continue verification and regression sensors for minimized IPC payloads
-   across application profile, job import, and Dashboard preferences.
-2. Continue splitting oversized mixed sensors, especially docs-drift,
+1. Continue splitting oversized mixed sensors, especially docs-drift,
    privacy-logging, fixture-quality, broad-audience, and technical-first copy
    checks still inside `scripts/check-repo-bloat.mjs`.
-3. Continue zero-technical-knowledge UX review across setup, settings,
+2. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
-4. Continue broad-audience review so non-technical and technical job searches
+3. Continue broad-audience review so non-technical and technical job searches
    both feel first-class.
-5. Continue backend/scraper and frontend privacy-edge review.
-6. Continue the next zero-technical-knowledge UX audit area outside
+4. Continue backend/scraper and frontend privacy-edge review.
+5. Continue the next zero-technical-knowledge UX audit area outside
    support/reporting.
-7. Run final broad verification only when the remaining known work has evidence.
+6. Run final broad verification only when the remaining known work has evidence.
 
 ## Completion Bar
 

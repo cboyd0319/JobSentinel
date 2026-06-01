@@ -86,6 +86,11 @@ Current cleanup posture:
   `get_application_profile_preview`, `get_dashboard_preferences`, canonical
   import URLs before preview/hash/storage, and minimized import responses to
   `{ jobId }`.
+- The follow-up harness slice added
+  `scripts/harness/checks/ipc-minimization.mjs` and script coverage so full
+  profile calls outside the profile editor, Dashboard full-config calls, raw
+  post-preview import URLs, full imported-job returns, and stale minimized mocks
+  fail through `npm run lint:bloat`.
 - `scripts/check-repo-bloat.mjs` still owns docs drift, most privacy logging,
   fixture-quality checks, broad-audience checks, technical-first copy checks,
   and source security patterns.

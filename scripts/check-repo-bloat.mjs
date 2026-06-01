@@ -46,6 +46,14 @@ import {
   hasRawAutomationDropdownValueLogging,
   hasRawFrontendErrorReporterForwarding,
 } from "./harness/checks/privacy-logging.mjs";
+import {
+  hasDashboardFullConfigInvoke,
+  hasFullImportedJobReturn,
+  hasNonSettingsFullApplicationProfileInvoke,
+  hasRawJobImportUrlAfterPreview,
+  hasStaleJobImportMockHandlers,
+  hasStaleProfilePreviewMock,
+} from "./harness/checks/ipc-minimization.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
@@ -3374,24 +3382,6 @@ function hasStaleDeepLinkMockHandlers(root, path) {
   });
 }
 
-function hasStaleJobImportMockHandlers(root, path) {
-  if (path !== "src/mocks/handlers.ts") {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  const requiredCommands = ["preview_job_import", "import_job_from_url"];
-
-  const missingCommand = requiredCommands.some((command) => {
-    return !new RegExp(`case\\s+["']${command}["']`).test(text);
-  });
-
-  const importReturnsOnlyId = /return\s*\{\s*jobId\s*:\s*job\.id\s*\}\s*;/.test(text);
-  const importReturnsFullJob = /return\s*\{\s*\.\.\.job\s*\}\s*;/.test(text);
-
-  return missingCommand || !importReturnsOnlyId || importReturnsFullJob;
-}
-
 function hasStaleFeedbackMockHandlers(root, path) {
   if (path !== "src/mocks/handlers.ts") {
     return false;
@@ -4485,6 +4475,26 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleJobImportMockHandlers(root, path)) {
       violations.push(`sync job-import mock command handlers: ${path}`);
+    }
+
+    if (hasStaleProfilePreviewMock(root, path)) {
+      violations.push(`sync minimized profile mock command handlers: ${path}`);
+    }
+
+    if (hasNonSettingsFullApplicationProfileInvoke(root, path)) {
+      violations.push(`use minimized application profile IPC: ${path}`);
+    }
+
+    if (hasDashboardFullConfigInvoke(root, path)) {
+      violations.push(`use Dashboard preferences IPC: ${path}`);
+    }
+
+    if (hasRawJobImportUrlAfterPreview(root, path)) {
+      violations.push(`use canonical import preview URL: ${path}`);
+    }
+
+    if (hasFullImportedJobReturn(root, path)) {
+      violations.push(`return minimized imported job payload: ${path}`);
     }
 
     if (hasStaleFeedbackMockHandlers(root, path)) {

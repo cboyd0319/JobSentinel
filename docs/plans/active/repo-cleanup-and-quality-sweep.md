@@ -228,6 +228,11 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   existence/preview commands, canonical import URLs before
   preview/hash/storage, minimized import responses to `{ jobId }`, and a
   Dashboard-only preferences DTO.
+- Added focused IPC-minimization harness coverage for those contracts under
+  `scripts/harness/checks/ipc-minimization.mjs`; `lint:bloat` now rejects
+  full profile IPC outside the profile editor, Dashboard full-config reads,
+  raw import URLs after preview, full imported-job returns, and stale minimized
+  mock payloads.
 - Updated active plan and handoff docs for the latest local cleanup slice.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
