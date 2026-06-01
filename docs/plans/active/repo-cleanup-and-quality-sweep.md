@@ -32,6 +32,10 @@ In scope:
   core goal inputs, not research appendix items.
 - Keep sanitized debug-report generation one-click from normal settings and
   crash/error recovery surfaces.
+- Use multiple sub-agents when isolated audits, research, or implementation
+  slices can move faster without shared-state conflicts. Keep sub-agent scopes
+  bounded, close completed agents promptly, and record durable findings in
+  active plans or the debt tracker.
 - Improve the repo harness so future work captures scope, audience, ease,
   evidence, rollback, and exact verification before implementation drifts.
 - Update docs when repo structure, behavior, commands, or security posture
@@ -138,6 +142,8 @@ Required process:
   `scripts/harness/checks/product-copy.mjs`.
 - [x] Extract release-promise drift checks into
   `scripts/harness/checks/release-promises.mjs`.
+- [x] Harden raw automation dropdown logging and frontend error forwarding
+  found by the privacy audit, with focused bloat and unit-test coverage.
 - [ ] Audit primary user workflows for zero-technical-knowledge ease.
 - [ ] Audit user-facing flows and copy for engineer-only assumptions.
 - [ ] Run relevant verification and push each cleanup slice.
@@ -186,6 +192,9 @@ the repo harness rather than changing user-facing product behavior:
 - Extracted front-door and runtime source release-promise checks from
   `scripts/check-repo-bloat.mjs` into
   `scripts/harness/checks/release-promises.mjs` with focused script tests.
+- Removed raw automation dropdown-answer logging and raw frontend error
+  forwarding from local/browser output paths. Added bloat sensors for both
+  regressions and unit coverage for sanitized console forwarding.
 - Updated active plan and handoff docs for the user-requested commit and push.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
@@ -217,6 +226,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-31 | In progress | Used authorized read-only sub-agents for UX and security audits; fixed the security audit's raw dropdown-answer log and frontend error-forwarding findings with bloat sensors and `errorReporting` unit coverage. |
 | 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting front-door and runtime source release-promise checks into `scripts/harness/checks/release-promises.mjs`. |
 | 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting product-copy checks for stale resume framing, Application Assist automation framing, ghost-risk overconfidence, pay-guidance overconfidence, and resume-template audience copy into `scripts/harness/checks/product-copy.mjs`. |
 | 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting product-framing checks for the README definition, free-forever MIT wording, and banned job-search phrases into `scripts/harness/checks/product-framing.mjs`. |
@@ -533,6 +543,19 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - `ScoreBreakdownModal` converted Tailwind color classes such as
   `text-green-600` into inline CSS values like `green-600`, which browsers do
   not treat as valid colors.
+- Security audit found automation dropdown selection logs writing the selected
+  value and selector. Dropdown answers can include private screening details,
+  so local logs now record only non-content outcome text.
+- Security audit found the frontend error reporter forwarding raw
+  `console.error` arguments and allowing browser default logging for global
+  errors. Forwarded console output now uses the same sanitizer as stored error
+  reports, and global handlers suppress raw default console output after
+  sanitized capture.
+- UX audit found that support and recovery still assume too much technical
+  comfort: GitHub/Drive are too central in submit options and docs, the
+  settings modal recovery path lacks a safe report action, report/problem
+  labels expose jargon, and notification setup docs mention providers beyond
+  the wizard's current flow.
 
 ## Decisions
 
@@ -610,9 +633,10 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   Uninstalled addon names create noisy build warnings and make the root support
   config look more capable than it is.
 - Frontend error reports must sanitize before local persistence or export.
-  Preserve exact error objects for development console output, but stored reports
-  must strip URL query strings/fragments/userinfo, emails, tokens, webhook URLs,
-  local user paths, and sensitive context keys.
+  Forwarded console output, stored reports, and exported reports must strip URL
+  query strings/fragments/userinfo, emails, tokens, webhook URLs, local user
+  paths, and sensitive context keys. Do not forward exact error objects to the
+  browser console after capture.
 - Notification webhook credentials must be validated before any keyring write.
   Frontend validation should mirror backend provider allowlists so users see the
   error while configuring Slack, Discord, or Teams, not only after a send fails.
@@ -698,6 +722,8 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   are bloat and should not be reintroduced.
 - Avoid fixed migration counts in docs; use live directory contents for exact
   counts and keep integration-test tree examples aligned with tracked files.
+- Privacy Rule 0 applies to local logs and browser console output, not only
+  network requests or exported support reports.
 
 ## Outcomes
 

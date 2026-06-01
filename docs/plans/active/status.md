@@ -15,6 +15,11 @@ assumptions, engineer-only defaults, and unverified claims.
 All tracked files under `docs/plans/active/` are part of the active goal until
 the work is completed, superseded, or moved out of active plans.
 
+The user has authorized multiple sub-agents for isolated audits, research, and
+implementation slices that can be worked without shared-state conflicts. Keep
+their scope bounded, preserve user changes, close completed agents promptly,
+and record actionable findings in this active-plan surface.
+
 ## Workstreams
 
 | Workstream | State | Current focus | Source |
@@ -34,6 +39,14 @@ the work is completed, superseded, or moved out of active plans.
   E2E-helper, product-framing, product-copy, and release-promise policy from
   `scripts/check-repo-bloat.mjs` into `scripts/harness/checks/` modules with
   focused tests.
+- Latest local privacy work removes raw automation dropdown-answer logging and
+  raw frontend error forwarding, then adds bloat sensors and `errorReporting`
+  unit coverage so those regressions fail locally.
+- Read-only sub-agent UX audit findings remain open: support options still make
+  GitHub/Drive too central for non-technical users, settings crash recovery
+  lacks a safe debug-report action, problem-history/export copy remains too
+  technical, and user docs mention notification providers beyond the setup
+  wizard's current flow.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.
@@ -55,7 +68,9 @@ the work is completed, superseded, or moved out of active plans.
 3. Continue broad-audience review so non-technical and technical job searches
    both feel first-class.
 4. Continue backend/scraper and frontend privacy-edge review.
-5. Run final broad verification only when the remaining known work has evidence.
+5. Fix the remaining support/recovery UX audit findings so safe local report
+   generation is the easiest path.
+6. Run final broad verification only when the remaining known work has evidence.
 
 ## Completion Bar
 

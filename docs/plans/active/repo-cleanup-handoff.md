@@ -29,11 +29,13 @@ Latest pushed harness commits before this slice:
 
 Current branch note:
 
-- At the start of this continuation, `main` matched `origin/main` at
-  `ed223733`.
+- At the start of this privacy-audit slice, `main` was ahead of `origin/main`
+  by two local sensor-modularity commits:
+  `9fe69e0e Split product copy checks` and
+  `c335575c Split release promise checks`.
 - The 2026-05-31 Docs Harness and CI runs for `10a5fe09` passed before the
-  local sensor-modularity series; later sensor-modularity slices were locally
-  verified before push.
+  local sensor-modularity series; later sensor-modularity and privacy slices
+  are locally verified before any future push.
 - Continue using small verified commits. Avoid later remote CI unless the user
   explicitly asks or the full-goal completion pass requires it.
 
@@ -58,6 +60,9 @@ Current cleanup posture:
   `scripts/harness/checks/product-copy.mjs`.
 - Release-promise drift checks now live in
   `scripts/harness/checks/release-promises.mjs`.
+- Privacy audit follow-up removed raw automation dropdown-answer logging and
+  raw frontend error forwarding. The bloat sensor now rejects those patterns,
+  and `errorReporting` unit tests cover sanitized console forwarding.
 - `scripts/check-repo-bloat.mjs` still owns docs drift, privacy logging,
   fixture-quality checks, broad-audience checks, technical-first copy checks,
   and source security patterns.
@@ -101,6 +106,10 @@ Current cleanup posture:
 - User ease is now a standalone goal requirement: assume zero technical
   knowledge for end users. Troubleshooting and issue reporting must stay
   one-click, plain-language, and privacy-preserving.
+- Multiple sub-agents are authorized for isolated audits, research, and
+  implementation slices. Keep scope bounded, avoid shared edit conflicts, close
+  completed agents promptly, and copy durable findings into active plans or the
+  debt tracker.
 - Broad audience fit is also a standalone design requirement: JobSentinel is
   for all job seekers and technical plus non-technical roles, not just
   engineers.
@@ -239,6 +248,9 @@ Recent cleanup slices on `main` include:
 - Extracted release-promise checks from `scripts/check-repo-bloat.mjs` into
   `scripts/harness/checks/release-promises.mjs` with focused
   `scripts/check-release-promises.test.mjs` coverage.
+- Used read-only UX and security sub-agents. Closed the security findings for
+  raw dropdown-answer logging and raw frontend console forwarding in code and
+  tests. Recorded remaining UX support/recovery findings as open debt.
 
 The active plan progress table has detailed slice history.
 
@@ -258,9 +270,18 @@ Latest sensor-modularity slice checks on 2026-05-31:
 - `node --test scripts/check-product-copy.test.mjs scripts/check-repo-bloat.test.mjs`
 - `node --test scripts/check-release-promises.test.mjs scripts/check-repo-bloat.test.mjs`
 - `npm run test:scripts`
+
+Latest privacy-audit slice checks on 2026-05-31:
+
+- `node --check scripts/check-repo-bloat.mjs`
+- `node --test scripts/check-repo-bloat.test.mjs`
+- `npm run test:run -- src/utils/errorReporting.test.ts`
+- `npm run test:scripts`
 - `npm run lint:bloat`
 - `npm run harness:check`
 - `npm run lint:docs`
+- `npm run lint`
+- `cd src-tauri && cargo fmt --all -- --check`
 - `git diff --check`
 
 Latest active-plan documentation slice checks on 2026-05-31:

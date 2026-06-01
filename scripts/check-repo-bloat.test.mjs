@@ -6773,6 +6773,33 @@ test("checkRepoBloat rejects raw automation browser errors", () => {
   });
 });
 
+test("checkRepoBloat rejects raw automation dropdown value logging", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/automation/browser/page.rs",
+      [
+        'tracing::debug!("Selected option \'{}\' in dropdown \'{}\'", value, selector);',
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/core/automation/browser/page.rs"], {
+      cwd: root,
+    });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "remove raw automation dropdown value logging: src-tauri/src/core/automation/browser/page.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw notification job title logging", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -7782,6 +7809,44 @@ test("checkRepoBloat rejects raw ErrorReporter storage warning details", () => {
 
     assert.ok(
       violations.includes("sanitize frontend error report storage: src/utils/errorReporting.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects raw frontend error reporter forwarding", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src/utils/errorReporting.ts",
+      [
+        "class ErrorReporter {",
+        "  init() {",
+        "    window.onerror = () => {",
+        "      return false;",
+        "    };",
+        "    window.onunhandledrejection = (event) => {",
+        "      if (!import.meta.env.DEV) {",
+        "        event.preventDefault();",
+        "      }",
+        "    };",
+        "    const originalConsoleError = console.error;",
+        "    console.error = (...args) => originalConsoleError.apply(console, args);",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src/utils/errorReporting.ts"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sanitize frontend error reporter console forwarding: src/utils/errorReporting.ts",
+      ),
       violations.join("\n"),
     );
   });

@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   errorReporter,
   parseStoredErrorReports,
+  sanitizeConsoleArgsForLogging,
   sanitizeStorageWarningError,
   withErrorCapture,
 } from "./errorReporting";
@@ -143,6 +144,36 @@ describe("errorReporting", () => {
     expect(serialized).not.toContain("/Users/alice");
     expect(serialized).not.toContain("token=abc");
     expect(serialized).not.toContain("token=secret");
+  });
+
+  it("sanitizes console arguments before forwarding", () => {
+    const error = new Error(
+      "Failed for jane@example.com in /Users/alice/resume.pdf with token=abc at https://example.com/apply?token=secret#frag"
+    );
+    error.stack = [
+      error.message,
+      "at readStorage (/Users/alice/project/src/utils/errorReporting.ts:1:1)",
+    ].join("\n");
+
+    const sanitized = sanitizeConsoleArgsForLogging([
+      error,
+      "webhook https://hooks.slack.com/services/T000/B000/SECRET",
+      {
+        password: "hunter2",
+        url: "https://example.com/apply?token=secret#frag",
+      },
+    ]);
+    const serialized = JSON.stringify(sanitized);
+
+    expect(serialized).toContain("https://example.com/apply");
+    expect(serialized).toContain("/[USER_PATH]");
+    expect(serialized).toContain("[WEBHOOK_CONFIGURED]");
+    expect(serialized).not.toContain("jane@example.com");
+    expect(serialized).not.toContain("/Users/alice");
+    expect(serialized).not.toContain("token=abc");
+    expect(serialized).not.toContain("token=secret");
+    expect(serialized).not.toContain("SECRET");
+    expect(serialized).not.toContain("hunter2");
   });
 
   it("filters malformed stored reports while preserving valid entries", () => {

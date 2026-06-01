@@ -183,11 +183,11 @@ impl AutomationPage {
                     .await
                     .context("Failed to select option")?;
 
-                tracing::debug!("Selected option '{}' in dropdown '{}'", value, selector);
+                tracing::debug!("Selected dropdown option");
                 Ok(true)
             }
             Err(_) => {
-                tracing::debug!("Select element not found: {}", selector);
+                tracing::debug!("Dropdown element not found");
                 Ok(false)
             }
         }

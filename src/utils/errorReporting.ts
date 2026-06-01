@@ -132,6 +132,31 @@ export function sanitizeStorageWarningError(error: unknown): unknown {
   return sanitizeContextValue(error);
 }
 
+function sanitizeConsoleValueForLogging(value: unknown): unknown {
+  if (value instanceof Error) {
+    return sanitizeStorageWarningError(value);
+  }
+
+  if (typeof value === 'string') {
+    return sanitizeTextForStorage(value);
+  }
+
+  if (
+    value === null ||
+    typeof value === 'number' ||
+    typeof value === 'boolean' ||
+    typeof value === 'undefined'
+  ) {
+    return value;
+  }
+
+  return sanitizeContextValue(value);
+}
+
+export function sanitizeConsoleArgsForLogging(args: unknown[]): unknown[] {
+  return args.map((arg) => sanitizeConsoleValueForLogging(arg));
+}
+
 const ERROR_REPORT_TYPES = new Set<ErrorReport['type']>([
   'render',
   'unhandled',
@@ -213,7 +238,7 @@ class ErrorReporter {
         error: error || new Error(String(message)),
         context: { source, lineno, colno },
       });
-      return false; // Don't prevent default handling
+      return true;
     };
 
     // Unhandled promise rejections
@@ -228,18 +253,14 @@ class ErrorReporter {
         context: { reason: event.reason },
       });
 
-      // Prevent default browser console error in production
-      if (!import.meta.env.DEV) {
-        event.preventDefault();
-      }
+      event.preventDefault();
     };
 
-    // Console error override (capture but don't suppress)
+    // Console error override captures locally and forwards only sanitized values.
     const originalConsoleError = console.error;
     this.originalConsoleError = originalConsoleError;
     console.error = (...args: unknown[]) => {
-      // Call original first
-      originalConsoleError.apply(console, args);
+      originalConsoleError.apply(console, sanitizeConsoleArgsForLogging(args));
 
       // Capture if it's an error object
       const firstArg = args[0];
