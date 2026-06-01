@@ -187,7 +187,9 @@ Current cleanup posture:
   user-facing ATS, CAPTCHA-bypass, anti-bot, endpoint, and selector phrasing.
 - Current local notification privacy follow-up keeps OS-level desktop
   notification payloads generic so job titles, company names, match scores,
-  salary notes, and reminder text stay inside JobSentinel.
+  salary notes, and reminder text stay inside JobSentinel. The unused generic
+  desktop notification passthrough helper is removed and privacy-logging
+  coverage blocks raw title/body notification payloads.
 - Current local privacy follow-up removes raw screening-question text and saved
   answer patterns from Application Assist debug logs. The trace now records
   only question/pattern character counts when a saved answer matches, and

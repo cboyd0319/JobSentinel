@@ -113,7 +113,9 @@ and record actionable findings in this active-plan surface.
 - Latest local notification privacy follow-up makes desktop notification
   payloads privacy-preserving by default. OS-level alerts no longer include job
   titles, company names, match scores, salary notes, or reminder text; users
-  open JobSentinel to review those details locally.
+  open JobSentinel to review those details locally. The unused generic desktop
+  notification passthrough helper was removed, and privacy-logging coverage now
+  blocks raw title/body notification passthrough from returning.
 - Latest local privacy follow-up removes raw screening-question text and saved
   answer patterns from backend debug logs in Application Assist. Logs now keep
   only character counts for matched questions and patterns, and

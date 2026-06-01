@@ -44,6 +44,7 @@ import {
   hasRawLinkedInDebug,
   hasRawLocalPathLogging,
   hasRawNotificationProviderErrorBody,
+  hasFrontendDesktopNotificationPassthrough,
   hasRawNotificationJobTitleLogging,
   hasRawNotificationServiceErrorDetails,
   hasRawPathOrQueryErrorDisplay,
@@ -194,6 +195,33 @@ test("privacy logging rejects raw automation browser errors and notification tit
       hasRawAutomationBrowserErrors(root, "src-tauri/src/core/automation/form_filler.rs"),
       false,
     );
+  });
+});
+
+test("privacy logging rejects desktop notification passthrough payloads", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/utils/notifications.ts",
+      [
+        "export async function notify(title: string, body: string): Promise<void> {",
+        "  sendNotification({ title, body });",
+        "}",
+        "sendNotification({",
+        '  title: `Reminder: ${jobTitle} at ${company}`,',
+        '  body: `${title} at ${company} - ${Math.round(score * 100)}% match`,',
+        "});",
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasFrontendDesktopNotificationPassthrough(root, "src/utils/notifications.ts"),
+      true,
+    );
+    assert.deepEqual(collectPrivacyLoggingViolations(root, "src/utils/notifications.ts"), [
+      "keep desktop notification payloads privacy-preserving: src/utils/notifications.ts",
+    ]);
   });
 });
 

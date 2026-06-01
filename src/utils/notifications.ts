@@ -91,7 +91,7 @@ export async function notifyReminder(
  * Send a desktop notification for a scraping cycle completion.
  */
 export async function notifyScrapingComplete(
-  newJobs: number,
+  _newJobs: number,
   highMatches: number
 ): Promise<void> {
   const hasPermission = await hasNotificationPermission();
@@ -105,20 +105,6 @@ export async function notifyScrapingComplete(
       title: "JobSentinel update",
       body: `New matches are ready to review. ${highMatches} need attention.`,
     });
-  } catch (error: unknown) {
-    logError("Failed to send notification:", error);
-  }
-}
-
-/**
- * Send a generic desktop notification.
- */
-export async function notify(title: string, body: string): Promise<void> {
-  const hasPermission = await hasNotificationPermission();
-  if (!hasPermission) return;
-
-  try {
-    sendNotification({ title, body });
   } catch (error: unknown) {
     logError("Failed to send notification:", error);
   }

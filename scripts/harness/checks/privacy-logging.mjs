@@ -112,6 +112,7 @@ const notificationProviderErrorBodyPaths = new Set([
 ]);
 
 const notificationServicePrivacyPaths = new Set(["src-tauri/src/core/notify/mod.rs"]);
+const frontendDesktopNotificationPrivacyPaths = new Set(["src/utils/notifications.ts"]);
 const healthSmokePrivacyPaths = new Set(["src-tauri/src/core/health/smoke_tests.rs"]);
 
 const rawUrlLoggingPaths = new Set([
@@ -1381,6 +1382,24 @@ export function hasRawNotificationJobTitleLogging(root, path) {
   return /tracing::info!\([^;]*notification\.job\.title/.test(text);
 }
 
+export function hasFrontendDesktopNotificationPassthrough(root, path) {
+  if (!frontendDesktopNotificationPrivacyPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /export\s+async\s+function\s+notify\s*\(\s*title\s*:\s*string\s*,\s*body\s*:\s*string/.test(
+      text,
+    ) ||
+    /sendNotification\(\s*\{\s*title\s*,\s*body\s*\}/.test(text) ||
+    /body:\s*`[^`]*(?:\$\{\s*(?:title|company|jobTitle|message|score|Math\.round\(score)[^}]*\})/.test(
+      text,
+    ) ||
+    /title:\s*`[^`]*(?:\$\{\s*(?:title|company|jobTitle|message)[^}]*\})/.test(text)
+  );
+}
+
 const privacyLoggingViolationChecks = [
   [hasRawPrivateQueryLogging, "replace raw private query logging"],
   [hasRawUserDataPrivacyLogging, "replace raw user-data privacy logging"],
@@ -1413,6 +1432,10 @@ const privacyLoggingViolationChecks = [
   [hasRawWebhookTokenRequestError, "remove webhook token URLs from request errors"],
   [hasRawNotificationProviderErrorBody, "omit notification provider error bodies from errors"],
   [hasRawNotificationServiceErrorDetails, "sanitize notification service error details"],
+  [
+    hasFrontendDesktopNotificationPassthrough,
+    "keep desktop notification payloads privacy-preserving",
+  ],
   [hasRawJobsWithGptSmokeEndpointError, "sanitize JobsWithGPT smoke-test endpoint errors"],
   [hasRawSourceCheckResultError, "sanitize source-check result errors"],
   [hasRawUrlLogging, "replace raw URL logging"],
