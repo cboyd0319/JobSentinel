@@ -2,7 +2,7 @@ import type { ScoreFilter, SortOption } from "../DashboardTypes";
 
 export const sortOptions: Array<{ value: SortOption; label: string }> = [
   { value: "score-desc", label: "Best Match First" },
-  { value: "score-asc", label: "Weakest Match First" },
+  { value: "score-asc", label: "Lowest Match First" },
   { value: "date-desc", label: "Date (Newest)" },
   { value: "date-asc", label: "Date (Oldest)" },
   { value: "company-asc", label: "Company (A-Z)" },

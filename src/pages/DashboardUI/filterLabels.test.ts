@@ -9,7 +9,7 @@ import {
 describe("dashboard filter labels", () => {
   it("formats saved-search preview labels without internal filter ids", () => {
     expect(formatSortOption("score-desc")).toBe("Best Match First");
-    expect(formatSortOption("score-asc")).toBe("Weakest Match First");
+    expect(formatSortOption("score-asc")).toBe("Lowest Match First");
     expect(formatScoreFilter("high")).toBe("Strong (70%+)");
   });
 
@@ -19,6 +19,7 @@ describe("dashboard filter labels", () => {
       .join(" ");
 
     expect(allLabels).toContain("All Matches");
+    expect(allLabels).not.toContain("Weakest Match First");
     expect(allLabels).not.toMatch(/score \(high|score \(low|all scores/i);
   });
 });

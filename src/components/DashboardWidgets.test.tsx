@@ -183,7 +183,7 @@ describe("DashboardWidgets", () => {
         expect(screen.getByText("Analytics Dashboard")).toBeInTheDocument();
       });
 
-      expect(screen.queryByText("Application Funnel")).not.toBeInTheDocument();
+      expect(screen.queryByText("Application Progress")).not.toBeInTheDocument();
     });
 
     it("shows charts when expanded", async () => {
@@ -195,7 +195,8 @@ describe("DashboardWidgets", () => {
 
       fireEvent.click(screen.getByText("Analytics Dashboard"));
 
-      expect(screen.getByText("Application Funnel")).toBeInTheDocument();
+      expect(screen.getByText("Application Progress")).toBeInTheDocument();
+      expect(screen.queryByText("Application Funnel")).not.toBeInTheDocument();
       expect(screen.getByText("Weekly Activity")).toBeInTheDocument();
       expect(screen.getByText("Jobs by Source")).toBeInTheDocument();
       expect(screen.getByText("Salary Distribution")).toBeInTheDocument();
@@ -387,7 +388,7 @@ describe("DashboardWidgets", () => {
 
       fireEvent.click(screen.getByText("Analytics Dashboard"));
 
-      expect(screen.queryByText("Application Funnel")).not.toBeInTheDocument();
+      expect(screen.queryByText("Application Progress")).not.toBeInTheDocument();
     });
 
     it("hides source chart when no source data", async () => {

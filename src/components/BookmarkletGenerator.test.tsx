@@ -61,6 +61,10 @@ describe("BookmarkletGenerator", () => {
     expect(screen.queryByText(/major job boards/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^LinkedIn$/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^Indeed$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Cmd\/Ctrl\+D/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/bookmark address field/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/import a job from its browser link instead/i)).toBeInTheDocument();
+    expect(screen.getByText(/Use your browser's Add Bookmark option/i)).toBeInTheDocument();
     expect(screen.getByText(/official career pages usually work best/i)).toBeInTheDocument();
     expect(screen.getByText(/company application pages/i)).toBeInTheDocument();
     expect(screen.getByText(/does not bypass those controls/i)).toBeInTheDocument();

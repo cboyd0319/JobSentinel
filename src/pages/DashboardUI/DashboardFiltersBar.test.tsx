@@ -98,6 +98,7 @@ describe("DashboardFiltersBar plain-language actions", () => {
     expect(screen.queryByRole("button", { name: "Export jobs to CSV" })).not.toBeInTheDocument();
     expect(screen.queryByText("j/k/o/h")).not.toBeInTheDocument();
     expect(screen.queryByText(/Navigate: j\/k/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/senior AND manager/i)).not.toBeInTheDocument();
   });
 
   it("uses plain download copy for selected jobs", () => {

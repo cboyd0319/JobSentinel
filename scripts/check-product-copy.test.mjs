@@ -254,7 +254,6 @@ test("product copy rejects non-protective scoring and legacy preference copy", (
 
 test("product copy rejects technical-first settings copy", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/pages/Settings.tsx", "Config imported\nAdvanced Settings\n");
     writeFixtureFile(
       root,
       "src/pages/ResumeOptimizer.tsx",
@@ -271,9 +270,23 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/SetupWizard.tsx",
-      'placeholder="https://hooks.slack.com/services/..." label="Slack connection link"',
+      [
+        'placeholder="https://hooks.slack.com/services/..." label="Slack connection link"',
+        "Start with in-app alerts now",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Settings.tsx",
+      "Config imported\nAdvanced Settings\nGreenhouse, Lever, and other popular job boards\n",
     );
     writeFixtureFile(root, "src/pages/Settings.test.tsx", "Config imported\n");
+    writeFixtureFile(
+      root,
+      "src/components/BookmarkletGenerator.tsx",
+      "Create a new bookmark in your browser (Cmd/Ctrl+D)\nbookmark address field\n",
+    );
     writeFixtureFile(root, "docs/features/smart-scoring.md", "Settings > Advanced Settings\n");
     writeFixtureFile(
       root,
@@ -291,8 +304,36 @@ test("product copy rejects technical-first settings copy", () => {
         "",
       ].join("\n"),
     );
+    writeFixtureFile(
+      root,
+      "src/components/AnalyticsPanel.tsx",
+      [
+        "Application Funnel",
+        "No funnel data yet",
+        "Performance by Job Source",
+        "Weekly Application Goal",
+        "Goal achieved this week!",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(root, "src/pages/DashboardUI/filterLabels.ts", "Weakest Match First\n");
+    writeFixtureFile(
+      root,
+      "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+      "Use AND for words that must both appear\n",
+    );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/BookmarkletGenerator.tsx"),
+      true,
+    );
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/AnalyticsPanel.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/DashboardUI/filterLabels.ts"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/pages/DashboardUI/DashboardFiltersBar.tsx"),
+      true,
+    );
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/SetupWizard.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.test.tsx"), false);

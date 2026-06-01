@@ -257,7 +257,8 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Application Funnel")).toBeInTheDocument();
+        expect(screen.getByText("Application Progress")).toBeInTheDocument();
+        expect(screen.queryByText("Application Funnel")).not.toBeInTheDocument();
       });
     });
 
@@ -273,7 +274,8 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Performance by Job Source")).toBeInTheDocument();
+        expect(screen.getByText("Responses by Job Source")).toBeInTheDocument();
+        expect(screen.queryByText("Performance by Job Source")).not.toBeInTheDocument();
       });
     });
 
@@ -446,7 +448,9 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Set Goal")).toBeInTheDocument();
+        expect(screen.getByText("Weekly Application Plan")).toBeInTheDocument();
+        expect(screen.getByText("Set Plan")).toBeInTheDocument();
+        expect(screen.queryByText("Weekly Application Goal")).not.toBeInTheDocument();
       });
     });
 
@@ -454,20 +458,20 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText("Set Goal"));
+        fireEvent.click(screen.getByText("Set Plan"));
       });
 
-      expect(screen.getByLabelText(/weekly application goal/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/weekly application plan/i)).toBeInTheDocument();
     });
 
     it("saves goal when save button is clicked", async () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText("Set Goal"));
+        fireEvent.click(screen.getByText("Set Plan"));
       });
 
-      const input = screen.getByLabelText(/weekly application goal/i);
+      const input = screen.getByLabelText(/weekly application plan/i);
       fireEvent.change(input, { target: { value: "20" } });
 
       fireEvent.click(screen.getByRole("button", { name: /save/i }));
@@ -479,7 +483,7 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText("Set Goal"));
+        fireEvent.click(screen.getByText("Set Plan"));
       });
 
       expect(screen.getByRole("button", { name: /cancel/i })).toBeInTheDocument();
@@ -489,12 +493,12 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText("Set Goal"));
+        fireEvent.click(screen.getByText("Set Plan"));
       });
 
       fireEvent.click(screen.getByRole("button", { name: /cancel/i }));
 
-      expect(screen.queryByLabelText(/weekly application goal/i)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/weekly application plan/i)).not.toBeInTheDocument();
     });
 
     it("shows prompt message when no goal is set", async () => {
@@ -502,7 +506,7 @@ describe("AnalyticsPanel", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText("Set a weekly goal to track your application progress")
+          screen.getByText("Set a weekly plan to pace your applications")
         ).toBeInTheDocument();
       });
     });
@@ -517,20 +521,20 @@ describe("AnalyticsPanel", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText("Set a weekly goal to track your application progress")
+          screen.getByText("Set a weekly plan to pace your applications")
         ).toBeInTheDocument();
       });
-      expect(screen.getByText("Set Goal")).toBeInTheDocument();
+      expect(screen.getByText("Set Plan")).toBeInTheDocument();
     });
 
     it("allows entering goal value in input", async () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText("Set Goal"));
+        fireEvent.click(screen.getByText("Set Plan"));
       });
 
-      const input = screen.getByLabelText(/weekly application goal/i) as HTMLInputElement;
+      const input = screen.getByLabelText(/weekly application plan/i) as HTMLInputElement;
       fireEvent.change(input, { target: { value: "25" } });
 
       expect(input.value).toBe("25");
@@ -540,12 +544,13 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        fireEvent.click(screen.getByText("Set Goal"));
+        fireEvent.click(screen.getByText("Set Plan"));
       });
 
-      const input = screen.getByLabelText(/weekly application goal/i);
+      const input = screen.getByLabelText(/weekly application plan/i);
       expect(input).toHaveAttribute("min", "1");
     });
+
   });
 
   describe("no data states", () => {
@@ -599,7 +604,7 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.queryByText("Performance by Job Source")).not.toBeInTheDocument();
+        expect(screen.queryByText("Responses by Job Source")).not.toBeInTheDocument();
       });
     });
 

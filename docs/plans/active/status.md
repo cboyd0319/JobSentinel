@@ -69,6 +69,11 @@ and record actionable findings in this active-plan surface.
   away from "interrupt you," internal source-rule limits, and tech-career title
   examples. The alert-rules panel now uses protective time-control wording,
   broader role examples, and product-copy coverage against drift.
+- Latest local explorer-audit follow-up reduces zero-technical and protective
+  tone drift in setup alerts, additional job sources, browser-button setup,
+  analytics headings, weekly application pacing, and Dashboard search tips.
+  Product-copy sensors now reject the old provider-heavy, browser-power-user,
+  funnel/goal, and Boolean-search wording.
 - Latest local zero-technical provider setup work labels USAJobs as optional
   advanced federal monitoring with a no-setup browser-search path first, keeps
   Telegram bot details behind an advanced chat-alert path, and adds

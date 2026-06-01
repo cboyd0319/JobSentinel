@@ -192,8 +192,10 @@ describe("SetupWizard Accessibility", () => {
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
 
       expect(
-        screen.getByText(/optional chat alerts can be added later in settings/i),
+        screen.getByText(/desktop alerts now/i),
       ).toBeInTheDocument();
+      expect(screen.getByText(/email or chat alerts can be added later in settings/i)).toBeInTheDocument();
+      expect(screen.queryByText(/in-app alerts/i)).not.toBeInTheDocument();
       expect(screen.queryByLabelText(/slack connection link/i)).not.toBeInTheDocument();
       expect(screen.queryByPlaceholderText(/hooks\.slack/i)).not.toBeInTheDocument();
     });

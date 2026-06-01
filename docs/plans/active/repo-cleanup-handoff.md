@@ -260,6 +260,11 @@ Current cleanup posture:
   from "interrupt you," internal source-rule limits, and tech-career title
   examples. Alert rules now use protective time-control wording, broader role
   examples, and product-copy coverage against drift.
+- Latest explorer-audit follow-up reduces zero-technical and protective tone
+  drift in setup alerts, additional job sources, browser-button setup,
+  analytics headings, weekly application pacing, and Dashboard search tips.
+  Product-copy sensors now reject the old provider-heavy, browser-power-user,
+  funnel/goal, and Boolean-search wording.
 - Latest harness-session follow-up fixed the JSON mode argument parser so
   `npm run harness:session -- --json` no longer treats `--json` as the repo
   root and no longer returns a zeroed unavailable snapshot.

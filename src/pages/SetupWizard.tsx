@@ -1110,7 +1110,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 <div className="mb-6 rounded-lg border-2 border-surface-200 p-4">
                   <p className="font-medium text-surface-700">Alerts</p>
                   <p className="mt-1 text-sm text-surface-500">
-                    Start with in-app alerts now. Optional chat alerts can be added later in Settings.
+                    Start with desktop alerts now. Email or chat alerts can be added later in Settings.
                   </p>
                 </div>
               </div>

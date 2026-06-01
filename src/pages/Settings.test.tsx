@@ -1059,6 +1059,34 @@ describe("Settings — handleSave flow", () => {
     expect(screen.queryByText(/Cloudflare protection/i)).not.toBeInTheDocument();
   });
 
+  it("introduces additional job sources without provider-name prerequisites", async () => {
+    const user = userEvent.setup();
+    const config = makeConfig();
+
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_config") return config;
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      return null;
+    });
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+
+    expect(
+      screen.getByText(/public company career pages and selected job sites/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Greenhouse, Lever, and other popular job boards/i),
+    ).not.toBeInTheDocument();
+  });
+
   it("labels USAJobs source setup as optional advanced monitoring", async () => {
     const user = userEvent.setup();
     const config = makeConfig();

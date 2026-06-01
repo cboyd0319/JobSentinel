@@ -201,12 +201,15 @@ export function BookmarkletGenerator() {
 
             <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
               <h5 className="text-sm font-medium text-blue-400 mb-2">How to Set Up:</h5>
+              <p className="text-sm text-gray-300 mb-3">
+                If this feels hard, import a job from its browser link instead.
+              </p>
               <ol className="text-sm text-gray-300 space-y-2 list-decimal list-inside">
                 <li>Turn on the import helper above</li>
                 <li>Copy the browser button using the button above</li>
-                <li>Create a new bookmark in your browser (Cmd/Ctrl+D)</li>
+                <li>Use your browser's Add Bookmark option</li>
                 <li>Name it "Import to JobSentinel"</li>
-                <li>Paste the copied text into the bookmark address field</li>
+                <li>Paste the copied text where the bookmark stores the page address</li>
                 <li>Save the bookmark to your bookmarks bar</li>
                 <li>Copy the browser button again after about one hour or when JobSentinel restarts</li>
               </ol>

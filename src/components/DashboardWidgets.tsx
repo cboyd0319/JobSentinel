@@ -182,10 +182,10 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
 
       {expanded && (
         <div id="analytics-dashboard-content" className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-200" role="region" aria-label="Analytics charts">
-          {/* Application Funnel */}
+          {/* Application progress */}
           {funnelData.length > 0 && (
             <Card className="p-4 dark:bg-surface-800">
-              <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-4">Application Funnel</h4>
+              <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-4">Application Progress</h4>
               <ResponsiveContainer width="100%" height={200}>
                 <FunnelChart>
                   <Tooltip contentStyle={TOOLTIP_CONTENT_STYLE} />

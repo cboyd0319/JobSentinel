@@ -482,10 +482,10 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
               )}
             </div>
 
-            {/* Application Funnel */}
+            {/* Application progress */}
             <div className="bg-surface-50 dark:bg-surface-700 rounded-lg p-4">
               <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-4">
-                Application Funnel
+                Application Progress
               </h3>
               {funnelData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={250}>
@@ -499,7 +499,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
                 </ResponsiveContainer>
               ) : (
                 <div className="h-[250px] flex items-center justify-center text-surface-400">
-                  No funnel data yet
+                  No progress data yet
                 </div>
               )}
             </div>
@@ -528,11 +528,11 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
             </div>
           )}
 
-          {/* Response Rate by Source */}
+          {/* Response rate by source */}
           {stats.by_source && stats.by_source.length > 0 && (
             <div className="bg-surface-50 dark:bg-surface-700 rounded-lg p-4">
               <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-4">
-                Performance by Job Source
+                Responses by Job Source
               </h3>
               <div className="space-y-3">
                 {stats.by_source.map((source) => (
@@ -583,17 +583,17 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
             </div>
           )}
 
-          {/* Weekly Goal Tracker */}
+          {/* Weekly application plan */}
           <div className="bg-surface-50 dark:bg-surface-700 rounded-lg p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-medium text-surface-800 dark:text-surface-200">
-                Weekly Application Goal
+                Weekly Application Plan
               </h3>
               <button
                 onClick={() => setShowGoalInput(!showGoalInput)}
                 className="text-sm text-sentinel-600 dark:text-sentinel-400 hover:underline"
               >
-                {weeklyGoal ? 'Edit Goal' : 'Set Goal'}
+                {weeklyGoal ? 'Edit Plan' : 'Set Plan'}
               </button>
             </div>
             {showGoalInput ? (
@@ -603,7 +603,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
                   value={goalInput}
                   onChange={(e) => setGoalInput(e.target.value)}
                   placeholder="Applications per week"
-                  aria-label="Weekly application goal"
+                  aria-label="Weekly application plan"
                   min={1}
                   className="flex-1 px-3 py-2 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-white"
                 />
@@ -650,13 +650,13 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
                 </div>
                 {getCurrentWeekApplications(stats.weekly_applications) >= weeklyGoal.target && (
                   <p className="text-sm text-green-600 dark:text-green-400 mt-2">
-                    Goal achieved this week!
+                    Planned applications reached this week.
                   </p>
                 )}
               </div>
             ) : (
               <p className="text-sm text-surface-500 dark:text-surface-400">
-                Set a weekly goal to track your application progress
+                Set a weekly plan to pace your applications
               </p>
             )}
           </div>

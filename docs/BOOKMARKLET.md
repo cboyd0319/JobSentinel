@@ -28,7 +28,7 @@ Use the browser import button when:
 4. Click **Copy Browser Button**.
 5. Create a new browser bookmark.
 6. Name it **Import to JobSentinel**.
-7. Paste the copied text into the bookmark address field.
+7. Paste the copied text where the bookmark stores the page address.
 8. Save it to your bookmarks bar.
 
 Copy the browser button again after changing advanced settings or restarting

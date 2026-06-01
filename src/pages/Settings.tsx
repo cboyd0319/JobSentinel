@@ -2954,7 +2954,7 @@ export default function Settings({ onClose }: SettingsProps) {
                   <HelpIcon text="JobSentinel can monitor more official job sources. Enable only the sources you want." />
                 </h3>
                 <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
-                  We monitor Greenhouse, Lever, and other popular job boards.
+                  JobSentinel can check public company career pages and selected job sites.
                   These are optional extras.
                 </p>
 
