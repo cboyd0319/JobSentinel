@@ -30,7 +30,7 @@ In scope:
   Ghost-job detection, pay-equity support, long-term-unemployment pacing,
   bias-aware route selection, practical tone, and local-first privacy are now
   core goal inputs, not research appendix items.
-- Keep sanitized debug-report generation one-click from normal settings and
+- Keep safe support report generation one-click from normal settings and
   crash/error recovery surfaces.
 - Use multiple sub-agents when isolated audits, research, or implementation
   slices can move faster without shared-state conflicts. Keep sub-agent scopes
@@ -108,7 +108,7 @@ Required process:
   products, duplicate docs, and obsolete examples.
 - [x] Remove or relocate confirmed bloat and update references.
 - [x] Add sensor coverage for any recurring junk class found during cleanup.
-- [x] Add a one-click sanitized debug-report path for GitHub issue reporting.
+- [x] Add a one-click safe support report path for GitHub issue reporting.
 - [x] Improve harness docs and templates from current harness-engineering
   references.
 - [x] Add normal-CI coverage for `npm run harness:check` and
@@ -243,6 +243,9 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   sanitized support text before toast display, and privacy-logging harness
   coverage blocks raw enhanced error messages from reaching
   `safeInvokeWithToast`.
+- Fixed additional front-door support wording findings: the root README, docs
+  hub, and harness docs now use safe support report language instead of safe
+  old report wording, with product-copy coverage expanded across those files.
 - Started broad-audience drift cleanup by rebalancing company autocomplete
   suggestions across healthcare, retail, logistics, finance, public service,
   education, hospitality, and technology; replacing tech-first placeholders and
@@ -268,10 +271,10 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   mock payloads.
 - The latest zero-technical support and privacy slice keeps saved support
   reports local in the primary UI, removes GitHub-first and shared-folder
-  wording from Settings, Quick Start, and support-report success paths, renames
-  visible safe debug-report copy to safe support-report copy, replaces generic
+  wording from Settings, Quick Start, and support report success paths, renames
+  visible old report copy to safe support report copy, replaces generic
   code-profile labels with work-sample/profile wording, and hardens Rust
-  support-report sanitization for full URLs, query secrets, password-like
+  support report sanitization for full URLs, query secrets, password-like
   values, and bookmarklet import tokens.
 - The latest bookmarklet privacy slice removes the browser import token from
   renderer-facing config and mocks, routes browser-button copying through Rust,
@@ -288,7 +291,7 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   against live CI, docs-harness, release/manual-build, toolchain-pin,
   plan-index, and bloat-runner evidence so closed findings no longer look
   open.
-- The latest support-template UX slice replaces debug-report and scraper-first
+- The latest support-template UX slice replaces old report and scraper-first
   GitHub issue template wording with safe support report and job source wording,
   then adds product-copy coverage for recurrence.
 - The latest profile-doc UX slice changes `profiles/README.md` from
@@ -298,7 +301,7 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   origin/main` so changed files produce focused verification commands from the
   matrix instead of relying on manual command selection.
 - The latest broad-audience support wording slice moves the advanced config
-  profile list to broad-first ordering, replaces roadmap debug-report labels
+  profile list to broad-first ordering, replaces old roadmap report labels
   with safe support report wording, and adds sensors for recurrence.
 - The latest feature-privacy harness slice adds a machine-readable privacy
   label manifest and validates core feature labels, data categories,
@@ -307,7 +310,7 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   and full E2E runs, with the latest smoke budget evidence at 9 Chromium smoke
   tests in 5.97 seconds against a 30-second budget.
 - The latest Rule 0 review slice updates the PR template so human review must
-  show privacy/security, local-first, external AI gateway, safe-support-report,
+  show privacy/security, local-first, external AI gateway, safe support report,
   responsible-use, broad-audience, and zero-technical-knowledge evidence; the
   harness manifest now blocks drift in those review requirements.
 - The latest zero-technical copy slice changes Market Intelligence refresh and
@@ -320,7 +323,7 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   bug-report and feature-request wording to report-a-problem,
   suggest-an-improvement, and ask-a-question wording, with focused
   CategorySelector coverage.
-- The latest safe-support-report slice changes repeat-step prompts, feedback
+- The latest safe support report slice changes repeat-step prompts, feedback
   modal step labels, frontend activity names, backend report type labels, and
   backend recent-activity lines from developer-style labels to plain-language
   support wording, with product-copy harness coverage against recurrence.
@@ -358,10 +361,11 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-01 | In progress | Replaced old report wording with safe support report wording in the root README, docs hub, harness docs, and credential docs; expanded product-copy coverage across front-door and harness files. |
 | 2026-06-01 | In progress | Pushed through `5c0d954a`; remote Docs Harness `26747322402` and CI `26747322398` both passed. CI covered harness checks, harness script tests, TypeScript, ESLint, frontend unit tests, Rust fmt, Rust clippy, Rust library tests, npm audit, and cargo-deny advisories. |
 | 2026-06-01 | In progress | Sanitized optional dev support details before toast display in `safeInvokeWithToast`; added focused API unit coverage and privacy-logging harness coverage against raw enhanced error messages. |
 | 2026-06-01 | In progress | Reworded notification settings source-rule, minimum-salary, save-failure, and loading-failure copy to plain alert-settings wording; added focused NotificationPreferences and product-copy coverage. |
-| 2026-06-01 | In progress | Reworded safe-support-report prompts, feedback modal steps, frontend activity labels, backend report type labels, and backend recent-activity lines to plain-language support copy; added product-copy harness coverage against old technical labels. |
+| 2026-06-01 | In progress | Reworded safe support report prompts, feedback modal steps, frontend activity labels, backend report type labels, and backend recent-activity lines to plain-language support copy; added product-copy harness coverage against old technical labels. |
 | 2026-06-01 | In progress | Reworded feedback choices from bug-report and feature-request labels to report-a-problem, suggest-an-improvement, and ask-a-question labels; added focused CategorySelector tests. |
 | 2026-06-01 | In progress | Reworded Dashboard job-list actions from export/CSV copy to download copy, changed the main search placeholder to "Search jobs," and added focused DashboardFiltersBar plus QuickActions tests. |
 | 2026-06-01 | In progress | Pushed through `1976fd9e`; remote Docs Harness `26744671097` and CI `26744671092` both passed. CI covered harness checks, harness script tests, TypeScript, ESLint, frontend unit tests, Rust fmt, Rust clippy, Rust library tests, npm audit, and cargo-deny advisories. |
@@ -372,11 +376,11 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 | 2026-06-01 | In progress | Narrowed browser import UI and docs away from any-job/large-board support promises toward official career pages and user-opened public job pages, explicitly stated that JobSentinel does not bypass blocking controls, and added product-copy coverage against overbroad import promises. |
 | 2026-06-01 | In progress | Reworded Job Site Search Links UI and user docs away from automated-scan and legal-guarantee language toward direct-monitoring boundaries and browser-opened searches; added product-copy coverage so old automated-scan and scraper-comparison wording cannot return. |
 | 2026-06-01 | In progress | Reconciled the deep harness audit against live workflow and harness evidence: normal CI, Docs Harness script coverage, release/manual-build preflight, toolchain pins, plan index, and main bloat-runner split now read as closed or narrowed to residual module-ownership work. |
-| 2026-06-01 | In progress | Replaced debug-report and scraper-first wording in GitHub issue templates with safe support report and job source language; added product-copy coverage so `ANONYMIZED debug report`, `Copy Debug Report`, and old scraper labels cannot return. |
+| 2026-06-01 | In progress | Replaced old report and scraper-first wording in GitHub issue templates with safe support report and job source language; added product-copy coverage so old issue-template attachment terms and scraper labels cannot return. |
 | 2026-06-01 | In progress | Reworked profile README usage from command-line file copying to app setup first, moved manual local-file copying into advanced context, and added product-copy coverage against command-first profile docs. |
 | 2026-06-01 | In progress | Pushed through `378d8c56`; Docs Harness passed and CI run `26742720063` failed only on a frontend unit-test race. Fixed `BookmarkletGenerator.test.tsx` so the copy-failure test waits for the browser-button action to become enabled before clicking. |
 | 2026-06-01 | In progress | Pushed `2b120e60`; remote Docs Harness run `26743031643` and CI run `26743031608` passed. Added local `harness:plan` work to make changed-file verification selection faster and less error-prone. |
-| 2026-06-01 | In progress | Moved advanced config profile ordering away from software-first defaults and replaced roadmap debug-report labels with safe support report wording; added bloat sensor coverage for both drift patterns. |
+| 2026-06-01 | In progress | Moved advanced config profile ordering away from software-first defaults and replaced old roadmap report labels with safe support report wording; added bloat sensor coverage for both drift patterns. |
 | 2026-06-01 | In progress | Added a machine-readable feature privacy-label manifest and harness validation for local-only, external-AI, sensitive, public-data, data-category, and fallback requirements. |
 | 2026-06-01 | In progress | Added Playwright JSON runtime budget tracking for smoke and full E2E commands; `npm run test:e2e:smoke:budget` measured 9 Chromium smoke tests in 5.97 seconds against a 30-second budget. |
 | 2026-05-31 | In progress | Fixed high zero-technical UX blockers from the latest audit: job import previews with missing details no longer disable the save path, visible dashboard job cards now expose Prepare Form, no-profile states show a Set Up Profile recovery action, and stale `Settings > Application Assist` guidance is blocked by bloat coverage. |

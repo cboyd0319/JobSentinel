@@ -37,7 +37,7 @@ focus on real openings, protect compensation goals, understand opaque screening
 signals, and keep sensitive job-search data under personal control.
 
 Core workflows work locally. Job tracking, saved searches, application notes,
-salary floors, resume records, source health, and safe debug reports work
+salary floors, resume records, source health, and safe support reports work
 without a hosted account, telemetry, cloud sync, or external AI provider.
 
 **Rule 0: user privacy and security are non-negotiable.** No feature,
@@ -76,7 +76,7 @@ or build something better with it if that helps more people.
 | Grant or research reviewer | [Research model](#research-model), [Roadmap](ROADMAP.md), and [references](#references-and-external-sources) | What is evidence-backed and how real user data is protected. |
 | Privacy or security reviewer | [Safety model](#safety-model), [PRIVACY.md](PRIVACY.md), and [RESPONSIBLE_AI.md](RESPONSIBLE_AI.md) | What can leave the device and which review gates are mandatory. |
 | Contributor | [Architecture](#architecture), [development](#development-and-verification), and [contributing](docs/developer/CONTRIBUTING.md) | How the app is structured, tested, and governed. |
-| Person reporting a problem | Use the in-app safe debug report, then [open an issue](https://github.com/cboyd0319/JobSentinel/issues/new) | How to share useful diagnostics without exposing private search data. |
+| Person reporting a problem | Use the in-app safe support report, then [open an issue](https://github.com/cboyd0319/JobSentinel/issues/new) | How to share useful app details without exposing private search data. |
 
 ## What JobSentinel Does
 
@@ -87,7 +87,7 @@ or build something better with it if that helps more people.
 | Screening systems are opaque | ATS transparency, candidate-side explainability, and application readability review | [ATS transparency research](docs/research/ats-transparency.md), [Responsible AI](RESPONSIBLE_AI.md) |
 | Long searches erode confidence and time | Fresh-role focus, pacing, weekly summaries, and gap-framing work are tracked as product requirements | [Roadmap](ROADMAP.md), [research-backed plan](docs/plans/active/research-backed-product-improvements.md) |
 | Opaque channels can trap effort | Bias-aware strategy favors direct sources, official postings, recruiter context, referral routes, and verifiable signals | [Research model](#research-model), [job-source docs](docs/research/job-site-data-sources.md) |
-| Support can expose private data | Safe debug reports can be copied or saved for GitHub issues without exposing raw job-search data | [Privacy](PRIVACY.md), [docs index](docs/README.md) |
+| Support can expose private data | Safe support reports can be copied or saved for GitHub issues without exposing raw job-search data | [Privacy](PRIVACY.md), [docs index](docs/README.md) |
 
 JobSentinel keeps applications under user review. It does not optimize for
 application volume, deceptive resume changes, source-boundary evasion, or hidden
@@ -190,7 +190,7 @@ data without informed consent.
 | Job-posting analysis | Public official postings, public ATS postings, source fixtures | No private user search history |
 | Candidate modeling | Synthetic resumes, synthetic salary floors, synthetic candidate profiles | No real resume, notes, or salary floor unless explicit informed consent exists |
 | Posting-risk tests | Synthetic suspicious, stale, scam-like, or adversarial postings | No accusation of employer intent from weak evidence |
-| UX and support tests | Local fixtures, screenshots, safe debug-report fixtures | No raw local database uploads |
+| UX and support tests | Local fixtures, screenshots, safe support report fixtures | No raw local database uploads |
 | Research outputs | Methodology notes, evaluation limits, responsible-use guidance | No demographic-linked real-user outcomes without informed consent |
 
 Research notes live in [docs/research](docs/research/README.md). Product
@@ -454,7 +454,7 @@ Developer docs:
 
 ### In Main for the Next Release
 
-- Safe debug reports can be copied or saved from settings, error
+- Safe support reports can be copied or saved from settings, error
   logs, and crash recovery surfaces.
 - Direct npm, Cargo, and GitHub Actions dependencies were refreshed to latest
   stable versions; narrower Dependabot PRs are superseded by the mainline

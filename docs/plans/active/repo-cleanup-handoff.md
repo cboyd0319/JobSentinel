@@ -51,16 +51,15 @@ Current branch note:
   `docs/harness/deep-harness-audit-2026-05-31.md` with live CI,
   docs-harness, release/manual-build, toolchain-pin, plan-index, and
   bloat-runner evidence so closed findings no longer look open.
-- The latest pushed support-template UX slice changes issue templates from
-  debug-report and scraper-first wording to safe support report and job source
+- The latest pushed support-template UX slice changes issue templates from old
+  report and scraper-first wording to safe support report and job source
   wording, with product-copy coverage against the old terms.
 - The latest pushed profile-doc UX slice changes `profiles/README.md` from
   command-line-first setup to app setup first, moves manual file copying into
   advanced context, and adds product-copy coverage against recurrence.
 - The latest pushed broad-audience support wording slice moves the advanced
-  config profile list to broad-first ordering, changes roadmap wording from
-  debug reports to safe support reports, and adds sensor coverage for both
-  drift classes.
+  config profile list to broad-first ordering, changes roadmap wording to safe
+  support reports, and adds sensor coverage for both drift classes.
 - The latest pushed feature-privacy harness slice adds
   `docs/harness/feature-privacy-labels.json` plus `harness:check`
   validation for labels, sensitive data categories, external-AI allowance, and
@@ -70,7 +69,7 @@ Current branch note:
   smoke tests in 5.97 seconds against a 30-second budget.
 - The latest pushed Rule 0 review slice updates `.github/PULL_REQUEST_TEMPLATE.md`
   with privacy/security, local-first, external AI gateway, payload preview,
-  responsible-use, safe-support-report, broad-audience, and
+  responsible-use, safe support report, broad-audience, and
   zero-technical-knowledge checks. Manifest snippets now make
   `npm run harness:check` fail when those PR review requirements drift.
 - The latest pushed zero-technical copy slice changes Market Intelligence
@@ -83,7 +82,7 @@ Current branch note:
   from bug-report and feature-request wording to report-a-problem,
   suggest-an-improvement, and ask-a-question wording, with CategorySelector
   coverage.
-- The latest pushed safe-support-report slice changes repeat-step prompts, feedback
+- The latest pushed safe support report slice changes repeat-step prompts, feedback
   modal step labels, frontend activity names, backend report type labels, and
   backend recent-activity lines to plain-language support wording; product-copy
   harness coverage now blocks the old technical labels.
@@ -103,6 +102,10 @@ Current branch note:
 - The latest pushed toast privacy slice sanitizes optional dev support details before
   toast display and adds privacy-logging harness coverage so raw enhanced error
   messages cannot be shown through `safeInvokeWithToast`.
+- The current front-door support wording slice replaces old report language
+  with safe support report language in the root README, docs hub,
+  credential docs, and harness docs; product-copy coverage now includes those
+  front-door and harness files.
 - Continue using small verified commits. Avoid another remote CI run until the
   next explicit integration gate or full-goal completion pass.
 
@@ -163,8 +166,8 @@ Current cleanup posture:
   labels are plainer, saved-report success steps are account-optional, and
   generated safe-report headings use support language instead of
   system/config/structured-data language.
-- Public roadmap and developer roadmap support-report wording now use safe
-  support report language instead of debug-report labels.
+- Public roadmap and developer roadmap support report wording now use safe
+  support report language instead of old report labels.
 - Latest zero-technical UX follow-up fixed Settings load failure escape and
   guidance, application tracker first-use empty state, Dashboard no-jobs
   recovery guidance, browser import Advanced connection hiding, install wording
@@ -209,7 +212,7 @@ Current cleanup posture:
   sidebar Application Assist path.
 - Latest support/privacy follow-up keeps saved support reports local in the
   primary flow, removes GitHub-first and shared-folder copy from support
-  surfaces, replaces visible safe debug-report wording with safe support-report
+  surfaces, replaces visible old report wording with safe support report
   wording, broadens generic Application Assist profile labels away from Code
   profile, and hardens Rust report sanitization for full URLs, query secrets,
   password-like values, and bookmarklet import tokens.
@@ -254,6 +257,9 @@ Current cleanup posture:
 - Latest toast privacy follow-up sanitizes optional dev support details before
   toast display and adds privacy-logging harness coverage against raw
   `enhancedError.message` display in `safeInvokeWithToast`.
+- Latest front-door support wording follow-up replaces old report wording with
+  safe support report wording in the root README, docs hub, credential
+  docs, and harness docs, with product-copy coverage against recurrence.
 - Latest IPC minimization work added `has_application_profile`,
   `get_application_profile_preview`, `get_dashboard_preferences`, canonical
   import URLs before preview/hash/storage, and minimized import responses to
@@ -765,7 +771,7 @@ Next high-value passes:
 5. Continue zero-technical-skill UX review.
    - Recheck setup, settings, feedback, recovery, empty states, and error
      screens for plain-language actions and no terminal/developer assumptions.
-   - Keep sanitized debug-report generation one click from Settings, Error
+   - Keep safe support report generation one click from Settings, Error
      Logs, and crash/error recovery surfaces.
 6. Continue broad-audience UX review.
    - Recheck onboarding, examples, placeholders, filters, profile presets, docs,

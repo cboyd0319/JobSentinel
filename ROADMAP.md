@@ -121,7 +121,7 @@ Evaluation ideas:
 
 - Run comprehension tests with non-technical job seekers.
 - Check whether warnings change behavior without creating fear or shame.
-- Track support-report usefulness and whether users can create reports without
+- Track safe support report usefulness and whether users can create reports without
   technical help.
 
 ## 6. Privacy-first local control

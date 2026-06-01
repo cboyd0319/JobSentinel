@@ -47,7 +47,7 @@ Use this structure:
 | Sensors | `docs/harness/verification-matrix.md` | Checks by change type |
 | Environment doctor | `npm run doctor`, `npm run doctor:e2e` | Local readiness check for Node, npm, Rust, Tauri, SQLx offline setup, Linux Tauri packages, and Playwright browser launch |
 | Experience contract | `docs/style-guide/` | Plain-language, broad-audience, zero-technical-skill review |
-| Support path | `docs/user/QUICK_START.md`, issue templates | Recovery and debug-report flow users can operate |
+| Support path | `docs/user/QUICK_START.md`, issue templates | Recovery and support report flow users can operate |
 | Privacy/AI boundary | `PRIVACY.md`, `RESPONSIBLE_AI.md`, `docs/architecture/privacy-first-ai-gateway.md` | Local-first defaults, external AI opt-in, payload preview, and responsible-use guardrails |
 | Drift control | `docs/harness/entropy-control.md` | Cleanup cadence and debt tracking |
 | Source notes | `docs/harness/sources.md` | Research basis and adoption decisions |
@@ -129,7 +129,7 @@ Sensors:
 - Keep current behavior discoverable from repo files, not chat history.
 - Treat prompt files, plans, and scripts as maintained software.
 - Put repeated failures into a sensor when the rule is cheap to check.
-- Keep support and debug-report paths one-click where a normal user can find
+- Keep support report paths one-click where a normal user can find
   them.
 - Keep external AI optional, disabled by default, and routed through the AI
   gateway with payload preview, approval, minimization, and local metadata

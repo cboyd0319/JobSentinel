@@ -79,7 +79,7 @@ UX states:
 Loading, empty, error, disabled, narrow-width, keyboard, and success states.
 
 Support path:
-Where a user can recover, copy a sanitized debug report, or get help without
+Where a user can recover, copy a safe support report, or get help without
 technical knowledge.
 
 Data model:

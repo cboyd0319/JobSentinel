@@ -774,7 +774,7 @@ Do first:
 - Single-user source registry, public ATS API preference, source risk badges,
   crawler stop list, and no-evasion scraper guardrails.
 - Local-first privacy coverage for salary floors, resume versions, job history,
-  application notes, contacts, and debug reports.
+  application notes, contacts, and safe support reports.
 
 Do next:
 

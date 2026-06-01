@@ -226,16 +226,16 @@ and record actionable findings in this active-plan surface.
   `docs/harness/deep-harness-audit-2026-05-31.md` against live CI,
   docs-harness, release/manual-build, toolchain-pin, plan-index, and
   bloat-runner evidence so closed findings no longer read as open work.
-- Latest local support-template UX work changes GitHub issue templates from
-  debug-report and scraper-first wording to safe support report and job source
+- Latest local support-template UX work changes GitHub issue templates from old
+  report and scraper-first wording to safe support report and job source
   wording, then adds product-copy coverage so old template language cannot
   drift back.
 - Latest local profile-doc UX work changes `profiles/README.md` from
   command-line-first setup to app setup first, keeps manual file copying
   advanced, and adds product-copy coverage against command-first profile docs.
 - Latest local broad-audience support wording work moves the advanced config
-  profile list to broad-first ordering, changes roadmap support-report wording
-  away from debug-report labels, and adds broad-audience/product-copy sensors
+  profile list to broad-first ordering, changes roadmap support report wording
+  away from old report labels, and adds broad-audience/product-copy sensors
   for both drift classes.
 - Latest local feature-privacy harness work adds
   `docs/harness/feature-privacy-labels.json` and validates required labels,
@@ -246,7 +246,7 @@ and record actionable findings in this active-plan surface.
   latest measured smoke budget run completed 9 Chromium smoke tests in
   5.97 seconds against a 30-second budget.
 - Latest Rule 0 harness work updates `.github/PULL_REQUEST_TEMPLATE.md` so PRs
-  must show privacy/security, optional external AI, safe-support-report,
+  must show privacy/security, optional external AI, safe support report,
   responsible-use, broad-audience, and zero-technical-knowledge evidence; the
   template is now covered by manifest snippets in `npm run harness:check`.
 - Latest zero-technical copy work changes Market Intelligence refresh and empty
@@ -258,7 +258,7 @@ and record actionable findings in this active-plan surface.
 - Latest support-language work changes feedback choices from bug-report and
   feature-request wording to report-a-problem, suggest-an-improvement, and
   ask-a-question wording, with focused CategorySelector coverage.
-- Latest safe-support-report work changes repeat-step prompts, feedback modal
+- Latest safe support report work changes repeat-step prompts, feedback modal
   step labels, frontend activity names, backend report type labels, and backend
   recent-activity lines from developer-style labels to plain-language support
   wording, with product-copy harness coverage for recurrence.
@@ -296,9 +296,9 @@ and record actionable findings in this active-plan surface.
   path in frontend and Rust recovery copy.
 - Latest local support/privacy work makes saved support reports local-only in
   the UI, removes GitHub-first and shared-folder wording from the main support
-  path, renames visible safe debug-report copy to safe support-report copy,
+  path, renames visible old report copy to safe support report copy,
   broadens generic Application Assist profile labels beyond code profiles, and
-  hardens the Rust support-report sanitizer for full URLs plus common token,
+  hardens the Rust support report sanitizer for full URLs plus common token,
   password, and bookmarklet-token forms.
 - Latest local bookmarklet privacy work removes the import helper token from
   renderer-facing config and mocks, copies the browser button through a Rust
@@ -343,6 +343,10 @@ and record actionable findings in this active-plan surface.
 - Latest local toast privacy work sanitizes optional dev support details before
   toast display and adds privacy-logging harness coverage so raw enhanced error
   messages cannot be shown through `safeInvokeWithToast`.
+- Latest local front-door support wording work replaces old report language
+  with safe support report language in the root README, docs hub, and
+  harness docs; product-copy coverage now includes those front-door and harness
+  files.
 - Latest local email-setup UX work changes the primary email alert path from
   server/password setup toward provider-first app-password guidance, hides
   sending server details behind Advanced, and updates notification docs so

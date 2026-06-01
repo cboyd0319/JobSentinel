@@ -153,7 +153,7 @@ Backend parsing also accepts prefixed forms such as
   that uses them.
 - Status views show whether a credential exists, not the credential value.
 - Plaintext config credential fields are compatibility inputs only.
-- Logs and debug reports must redact credentials, webhook URLs, cookies, API
+- Logs and safe support reports must redact credentials, webhook URLs, cookies, API
   keys, tokens, and sensitive URL parts.
 - Credential command logs use parsed allowlisted key names only. Invalid key
   errors stay generic and do not echo frontend input.

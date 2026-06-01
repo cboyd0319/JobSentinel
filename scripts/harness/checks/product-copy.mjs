@@ -84,12 +84,17 @@ const payProtectionGuidancePaths = new Set([
 ]);
 
 const feedbackLocalReportPaths = new Set([
+  "README.md",
   "ROADMAP.md",
+  "docs/README.md",
   "docs/ROADMAP.md",
   "docs/features/json-resume-import.md",
   "docs/features/scraper-health.md",
   "docs/features/scrapers.md",
   "docs/features/user-data-management.md",
+  "docs/harness/README.md",
+  "docs/harness/change-contract.md",
+  "docs/harness/verification-matrix.md",
   "docs/user/QUICK_START.md",
   "src/components/ComponentErrorBoundary.tsx",
   "src/components/ErrorBoundary.tsx",

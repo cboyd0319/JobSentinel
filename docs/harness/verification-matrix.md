@@ -73,7 +73,7 @@ with warnings-as-errors as a required local or CI gate.
 | Change | Required sensor | Add when risk increases |
 | ------ | --------------- | ----------------------- |
 | User-facing copy or workflow | Style-guide review for plain language, zero technical assumptions, and broad job-seeker fit | Focused component or page test |
-| Error, crash, feedback, or support path | Unit or integration test for recovery action plus docs or issue-template check | Playwright flow that proves user can recover or copy a sanitized debug report |
+| Error, crash, feedback, or support path | Unit or integration test for recovery action plus docs or issue-template check | Playwright flow that proves user can recover or copy a safe support report |
 | Setup, onboarding, or settings | Quick-start or feature-doc update plus relevant UI test | Windows/macOS readiness note or platform smoke |
 | Empty, loading, disabled, or narrow-width state | Component test or manual UI review against expected state | Browser screenshot or Playwright flow |
 | External side effect such as email, Slack, Discord, Teams, GitHub, or browser open | Human review gate and rollback/disable path | Security/privacy test for destination validation |

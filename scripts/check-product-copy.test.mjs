@@ -121,8 +121,15 @@ test("product copy rejects raw feedback report presentation", () => {
 
 test("product copy rejects debug-report roadmap wording", () => {
   withFixture((root) => {
+    writeFixtureFile(root, "README.md", "Use the in-app safe debug report.\n");
     writeFixtureFile(root, "ROADMAP.md", "One-click sanitized debug report flow\n");
+    writeFixtureFile(root, "docs/README.md", "Safe debug reports\n");
     writeFixtureFile(root, "docs/ROADMAP.md", "| Debug reports | Sanitized reports |\n");
+    writeFixtureFile(
+      root,
+      "docs/harness/verification-matrix.md",
+      "Playwright flow that proves user can recover or copy a sanitized debug report\n",
+    );
     writeFixtureFile(
       root,
       "src/components/feedback/DescriptionInput.tsx",
@@ -139,8 +146,14 @@ test("product copy rejects debug-report roadmap wording", () => {
       "Debug Log ({} events):\n[COMMAND]\n",
     );
 
+    assert.equal(hasFeedbackLocalReportDrift(root, "README.md"), true);
     assert.equal(hasFeedbackLocalReportDrift(root, "ROADMAP.md"), true);
+    assert.equal(hasFeedbackLocalReportDrift(root, "docs/README.md"), true);
     assert.equal(hasFeedbackLocalReportDrift(root, "docs/ROADMAP.md"), true);
+    assert.equal(
+      hasFeedbackLocalReportDrift(root, "docs/harness/verification-matrix.md"),
+      true,
+    );
     assert.equal(
       hasFeedbackLocalReportDrift(root, "src/components/feedback/DescriptionInput.tsx"),
       true,
