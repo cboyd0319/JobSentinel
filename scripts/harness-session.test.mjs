@@ -6,6 +6,7 @@ import test from "node:test";
 import {
   extractNextBestWork,
   formatHarnessSessionSummary,
+  parseHarnessSessionArgs,
   summarizeHarnessSession,
 } from "./harness-session.mjs";
 
@@ -113,6 +114,23 @@ test("formatHarnessSessionSummary prints one restart surface", () => {
   assert.match(output, /Five-tuple score: 100\/100 \(all subsystems 5\/5\)/);
   assert.match(output, /Bloat runner lines: 1176/);
   assert.match(output, /1\. Continue privacy review\./);
+});
+
+test("parseHarnessSessionArgs accepts json flag without treating it as root", () => {
+  const parsed = parseHarnessSessionArgs(["--json"], "/repo");
+
+  assert.deepEqual(parsed, { root: "/repo", json: true });
+});
+
+test("parseHarnessSessionArgs accepts root and json flag in either order", () => {
+  const requestedRoot = join(tmpdir(), "repo");
+  const rootFirst = parseHarnessSessionArgs([requestedRoot, "--json"], "/repo");
+  const flagFirst = parseHarnessSessionArgs(["--json", requestedRoot], "/repo");
+
+  assert.equal(rootFirst.root, requestedRoot);
+  assert.equal(rootFirst.json, true);
+  assert.equal(flagFirst.root, requestedRoot);
+  assert.equal(flagFirst.json, true);
 });
 
 test("extractNextBestWork joins wrapped numbered items", () => {

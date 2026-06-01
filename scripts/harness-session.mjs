@@ -138,7 +138,24 @@ export function formatHarnessSessionSummary(summary) {
   ].join("\n");
 }
 
+export function parseHarnessSessionArgs(argv, fallbackRoot = defaultRoot) {
+  let root = fallbackRoot;
+  let json = false;
+
+  for (const arg of argv) {
+    if (arg === "--json") {
+      json = true;
+      continue;
+    }
+
+    root = resolve(arg);
+  }
+
+  return { root, json };
+}
+
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
-  const root = process.argv[2] ? resolve(process.argv[2]) : defaultRoot;
-  console.log(formatHarnessSessionSummary(summarizeHarnessSession(root)));
+  const { root, json } = parseHarnessSessionArgs(process.argv.slice(2));
+  const summary = summarizeHarnessSession(root);
+  console.log(json ? JSON.stringify(summary, null, 2) : formatHarnessSessionSummary(summary));
 }

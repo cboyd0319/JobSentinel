@@ -189,7 +189,7 @@ and record actionable findings in this active-plan surface.
   orchestration out of `scripts/check-repo-bloat.mjs` and into
   `collectPrivacyLoggingViolations`; focused privacy-logging coverage now
   verifies the collector and `scripts/check-repo-bloat.mjs` is now a small
-  569-line orchestrator after the latest source-quality guard.
+  574-line orchestrator after the latest source-quality guard.
 - Latest local broad-audience fixture work replaces engineer-first defaults in
   `SkillCategoryFilter`, Cow utility, API-contract, scraper-construction, and
   ignored live-scraper tests with operations, support, accounting, and care
@@ -303,6 +303,9 @@ and record actionable findings in this active-plan surface.
   file type and size before import. Frontend coverage now verifies Windows
   paths stay usable, and source-quality harness coverage blocks the old fetch
   path.
+- Latest local harness-session work fixes `npm run harness:session -- --json`
+  so the JSON flag no longer gets treated as the repo root; the normal and
+  machine-readable restart snapshots now report the same live repo state.
 - Latest notification-settings UX work changes source-rule, minimum-salary,
   saved-error, and loading-error copy to plain alert-settings wording, with
   focused NotificationPreferences and product-copy coverage.
@@ -429,7 +432,7 @@ and record actionable findings in this active-plan surface.
    preserve tech-specific cases only when they test explicit branch behavior or
    source-realism parser contracts.
 2. Continue splitting oversized harness modules only where the ownership
-   boundary is clear; the main bloat runner is now 569 lines after docs-drift,
+   boundary is clear; the main bloat runner is now 574 lines after docs-drift,
    privacy-logging, and source-quality ownership moved into modules.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.

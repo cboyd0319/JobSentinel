@@ -40,7 +40,7 @@ Use this structure:
 | Feature privacy labels | `docs/harness/feature-privacy-labels.json` | Machine-readable feature labels for local-only, external-AI, sensitive, and public-data boundaries |
 | Plans | `docs/plans/` | Multi-step work, progress, decisions |
 | Active plan index | `docs/plans/index.json` | Machine-readable active workstream map for restart and scoring |
-| Session snapshot | `npm run harness:session` | One-command restart surface for branch state, active plan count, indexed workstreams, harness score, harness module/test counts, bloat-runner size, and next work |
+| Session snapshot | `npm run harness:session` | One-command restart surface for branch state, active plan count, indexed workstreams, harness score, harness module/test counts, bloat-runner size, and next work. Use `npm run harness:session -- --json` when a machine-readable snapshot is needed |
 | Harness score | `npm run harness:score` | Repo-native five-tuple evidence score for the WalkingLabs lecture and harness-creator tuples |
 | Harness benchmark | `npm run harness:benchmark` | Portable before/after benchmark output for score, session metrics, next work, and recommendation |
 | Verification plan | `npm run harness:plan -- --since origin/main` | Diff-aware command plan for changed files, focused tests, and required harness sensors |

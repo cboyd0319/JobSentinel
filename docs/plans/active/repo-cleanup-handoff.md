@@ -132,7 +132,7 @@ Current cleanup posture:
   `scripts/harness/checks/product-copy.mjs`.
 - Privacy/logging bloat-runner orchestration now lives in
   `collectPrivacyLoggingViolations`; `scripts/check-repo-bloat.mjs` is now a
-  small 569-line orchestrator after the latest source-quality guard.
+  small 574-line orchestrator after the latest source-quality guard.
 - Broad-audience fixture checks now cover generic skill-filter categories, Cow
   utility tests, API-contract search history, and ignored live-scraper probes
   so technical defaults do not quietly drift back into broad examples.
@@ -198,6 +198,9 @@ Current cleanup posture:
   side, keeping raw resume JSON out of browser fetch code and making Windows
   paths with backslashes usable. Source-quality coverage rejects the old
   renderer file-fetch path.
+- Latest harness-session follow-up fixed the JSON mode argument parser so
+  `npm run harness:session -- --json` no longer treats `--json` as the repo
+  root and no longer returns a zeroed unavailable snapshot.
 - Latest zero-technical UX follow-up fixed Settings load failure escape and
   guidance, application tracker first-use empty state, Dashboard no-jobs
   recovery guidance, browser import Advanced connection hiding, install wording
