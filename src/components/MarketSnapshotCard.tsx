@@ -116,7 +116,7 @@ export const MarketSnapshotCard = memo(function MarketSnapshotCard({ snapshot, l
     return (
       <Card className="dark:bg-surface-800" role="status">
         <p className="text-center text-surface-500 dark:text-surface-400 py-6">
-          No market snapshot available. Run analysis to generate one.
+          No market snapshot yet. Refresh market data to create one.
         </p>
       </Card>
     );

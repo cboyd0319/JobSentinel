@@ -227,7 +227,7 @@ describe("MarketSnapshotCard", () => {
     it("shows message when snapshot is null and not loading", () => {
       render(<MarketSnapshotCard snapshot={null} />);
       expect(
-        screen.getByText(/no market snapshot available. run analysis to generate one./i)
+        screen.getByText(/no market snapshot yet. refresh market data to create one./i)
       ).toBeInTheDocument();
     });
 

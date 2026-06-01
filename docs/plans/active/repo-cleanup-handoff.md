@@ -72,6 +72,9 @@ Current branch note:
   responsible-use, safe-support-report, broad-audience, and
   zero-technical-knowledge checks. Manifest snippets now make
   `npm run harness:check` fail when those PR review requirements drift.
+- The current local zero-technical copy slice changes Market Intelligence
+  refresh and empty-state wording from "run analysis" to "refresh market data"
+  and updates component plus smoke E2E expectations.
 - Pending integration gate: commit accumulated local slices, push to `main`,
   confirm CI passes, and then continue broader goal work when ready for the
   next remote verification run.

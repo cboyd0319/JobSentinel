@@ -80,7 +80,7 @@ test.describe("Market Intelligence", () => {
   test("runs market analysis and keeps refreshed data visible", async ({ page }) => {
     await marketPage.runAnalysis();
 
-    await expect(page.getByText("Analysis complete")).toBeVisible();
+    await expect(page.getByText("Market data refreshed")).toBeVisible();
     await expect(marketPage.marketSnapshot).toBeVisible();
     await expect(page.getByText("Top Skill: Customer Support")).toBeVisible();
   });

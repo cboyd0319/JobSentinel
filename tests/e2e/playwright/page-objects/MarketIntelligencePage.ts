@@ -31,7 +31,7 @@ export class MarketIntelligencePage extends BasePage {
   }
 
   get refreshButton(): Locator {
-    return this.page.getByRole("button", { name: "Refresh Analysis" });
+    return this.page.getByRole("button", { name: "Refresh Market Data" });
   }
 
   get marketSnapshot(): Locator {

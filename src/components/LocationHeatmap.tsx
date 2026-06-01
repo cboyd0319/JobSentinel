@@ -53,7 +53,7 @@ export const LocationHeatmap = memo(function LocationHeatmap({ locations, loadin
           Job Market by Location
         </h3>
         <p className="text-center text-surface-500 dark:text-surface-400 py-8" role="status">
-          No location data available. Run analysis to gather insights.
+          No location data yet. Refresh market data to see where jobs are showing up.
         </p>
       </Card>
     );

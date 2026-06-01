@@ -134,7 +134,7 @@ describe("LocationHeatmap", () => {
       render(<LocationHeatmap locations={[]} />);
 
       expect(
-        screen.getByText("No location data available. Run analysis to gather insights.")
+        screen.getByText("No location data yet. Refresh market data to see where jobs are showing up.")
       ).toBeInTheDocument();
     });
 

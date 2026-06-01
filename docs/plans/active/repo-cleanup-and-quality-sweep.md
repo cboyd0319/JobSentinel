@@ -294,6 +294,9 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   show privacy/security, local-first, external AI gateway, safe-support-report,
   responsible-use, broad-audience, and zero-technical-knowledge evidence; the
   harness manifest now blocks drift in those review requirements.
+- The latest zero-technical copy slice changes Market Intelligence refresh and
+  empty-state wording from "run analysis" to "refresh market data" and keeps
+  component plus smoke E2E expectations aligned.
 - Updated active plan and handoff docs for the latest local cleanup slice.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
@@ -325,6 +328,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-01 | In progress | Reworded Market Intelligence refresh and empty states from "run analysis" to "refresh market data"; focused component tests passed and smoke-budget E2E measured 9 Chromium smoke tests in 5.75 seconds against a 30-second budget. |
 | 2026-06-01 | In progress | Added Rule 0 PR review evidence requirements and manifest-backed harness snippets for privacy/security, local-first workflows, external AI gateway routing, safe support reports, responsible use, broad audience, and zero-technical-knowledge support. |
 | 2026-06-01 | In progress | Pushed `a4dade40` to `main`; remote Docs Harness `26741447318` and CI `26741447297` both passed. Per the current goal posture, avoid another remote CI run until full-goal completion or explicit user request. |
 | 2026-06-01 | In progress | Removed hardcoded employer rating claims from static company fallback data, kept cached rating rendering covered by component tests, changed unknown-company guidance toward official/public-source research, and added source-quality harness coverage so static fallback ratings cannot drift back. |

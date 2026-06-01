@@ -248,6 +248,9 @@ and record actionable findings in this active-plan surface.
   must show privacy/security, optional external AI, safe-support-report,
   responsible-use, broad-audience, and zero-technical-knowledge evidence; the
   template is now covered by manifest snippets in `npm run harness:check`.
+- Latest zero-technical copy work changes Market Intelligence refresh and empty
+  states from "run analysis" language to "refresh market data" language, with
+  focused component tests and smoke-budget E2E evidence.
 - Latest local docs-drift harness work moves the docs-drift violation messages
   out of `scripts/check-repo-bloat.mjs` and into
   `scripts/harness/checks/docs-drift.mjs` through

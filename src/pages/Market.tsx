@@ -209,7 +209,7 @@ export default function Market({ onBack }: MarketProps) {
       await safeInvokeWithToast("run_market_analysis", {}, toast, {
         logContext: "Run market analysis"
       });
-      toast.success("Analysis complete", "Market data has been refreshed");
+      toast.success("Market data refreshed", "Job market trends are up to date.");
       await fetchData();
     } catch {
       // Error already logged and shown to user
@@ -245,7 +245,7 @@ export default function Market({ onBack }: MarketProps) {
 
 
   if (loading) {
-    return <LoadingSpinner message="Loading market intelligence..." />;
+    return <LoadingSpinner message="Loading job market trends..." />;
   }
 
   if (error) {
@@ -311,7 +311,7 @@ export default function Market({ onBack }: MarketProps) {
               </div>
             </div>
             <Button onClick={handleRunAnalysis} loading={analyzing}>
-              Refresh Analysis
+              Refresh Market Data
             </Button>
           </div>
 
@@ -360,7 +360,7 @@ export default function Market({ onBack }: MarketProps) {
                   yKey="total_jobs"
                   yLabel="Jobs"
                   color="#6366f1"
-                  emptyMessage="Run analysis to see skill trends"
+                  emptyMessage="Refresh market data to see skill trends"
                 />
               </Suspense>
               <Suspense fallback={<ChartSkeleton />}>
@@ -372,7 +372,7 @@ export default function Market({ onBack }: MarketProps) {
                   yKey="total_posted"
                   yLabel="Jobs Posted"
                   color="#10b981"
-                  emptyMessage="Run analysis to see company activity"
+                  emptyMessage="Refresh market data to see company activity"
                 />
               </Suspense>
             </div>
@@ -411,7 +411,7 @@ export default function Market({ onBack }: MarketProps) {
                 yLabel="Total Jobs"
                 color="#6366f1"
                 height={350}
-                emptyMessage="No skill data available. Run analysis to gather insights."
+                emptyMessage="No skill data yet. Refresh market data to see current trends."
               />
             </Suspense>
 
@@ -421,7 +421,7 @@ export default function Market({ onBack }: MarketProps) {
               </h3>
               {skills.length === 0 ? (
                 <p className="text-surface-500 dark:text-surface-400 text-center py-8">
-                  No skill data available yet. Run analysis to gather insights.
+                  No skill data yet. Refresh market data to see current trends.
                 </p>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -475,7 +475,7 @@ export default function Market({ onBack }: MarketProps) {
                 yLabel="Jobs Posted"
                 color="#10b981"
                 height={350}
-                emptyMessage="No company data available. Run analysis to gather insights."
+                emptyMessage="No company data yet. Refresh market data to see current trends."
               />
             </Suspense>
 
@@ -485,7 +485,7 @@ export default function Market({ onBack }: MarketProps) {
               </h3>
               {companies.length === 0 ? (
                 <p className="text-surface-500 dark:text-surface-400 text-center py-8">
-                  No company data available yet. Run analysis to gather insights.
+                  No company data yet. Refresh market data to see current trends.
                 </p>
               ) : (
                 <div className="overflow-x-auto">
