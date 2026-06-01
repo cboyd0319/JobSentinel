@@ -115,9 +115,10 @@ First run is designed for zero technical knowledge:
 4. Add work to avoid, if anything comes to mind.
 5. Choose remote, hybrid, onsite, or any mix.
 6. Choose where to get alerts.
-7. Review the search before scanning starts.
+7. Review the search before JobSentinel checks selected sources.
 
-After setup, JobSentinel starts scanning. You can change every setting later.
+After setup, JobSentinel checks your selected sources. You can change every
+setting later.
 
 <details>
 <summary><strong>Installer security prompts</strong></summary>

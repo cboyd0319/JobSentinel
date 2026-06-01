@@ -1270,3 +1270,15 @@ test("product copy rejects automated-scan deep-link wording", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/DEEP_LINKS.md"), true);
   });
 });
+
+test("product copy rejects first-run scanning copy in README", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "README.md",
+      "Review the search before scanning starts.\nAfter setup, JobSentinel starts scanning.\n",
+    );
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
+  });
+});

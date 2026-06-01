@@ -555,11 +555,12 @@ and record actionable findings in this active-plan surface.
 - Latest local screenshot work refreshes `docs/images/*.png` with current
   broad-audience UI data and fixes the settings screenshot capture so it opens
   the real settings modal instead of duplicating the dashboard.
-- Latest remote checkpoint is `5c0d954a Sanitize toast support details`. Docs
-  Harness run `26747322402` and CI run `26747322398` passed for that push.
-  Remote CI covered harness checks, harness script tests, TypeScript, ESLint,
-  frontend unit tests, Rust fmt, Rust clippy, Rust library tests, npm audit,
-  and cargo-deny advisories.
+- Latest remote checkpoint is `e9292268 Stabilize browser button test`. CI run
+  `26778739829` passed for that push. Remote CI covered harness checks,
+  harness script tests, TypeScript, ESLint, frontend unit tests, Rust fmt, Rust
+  clippy, Rust library tests, npm audit, and cargo-deny advisories. Docs
+  Harness last ran on the preceding docs-affecting commit `f050070d` as run
+  `26778490093` and passed.
 - Latest local company-research accuracy work removes hardcoded employer
   rating claims from the static fallback data, keeps cached/live rating
   rendering covered by component tests, changes unknown-company guidance to

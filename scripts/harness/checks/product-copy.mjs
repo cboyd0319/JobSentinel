@@ -588,6 +588,17 @@ export function hasTechnicalFirstUserCopy(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
 
+  if (path === "README.md") {
+    const readmePatterns = [
+      /before scanning starts/i,
+      /starts scanning/i,
+    ];
+
+    if (readmePatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
   if (
     path === "src-tauri/src/core/automation/error.rs" ||
     path === "src-tauri/src/core/scrapers/error.rs"

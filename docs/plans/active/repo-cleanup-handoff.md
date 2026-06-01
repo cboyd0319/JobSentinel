@@ -20,20 +20,19 @@ scope:
 
 Latest pushed checkpoints include:
 
+- `e9292268 Stabilize browser button test`
+- `f050070d Track source copy drift`
+- `d31c87d Gate JobsWithGPT source payloads`
+- `5cf659ff Use plain source address copy`
 - `5c0d954a Sanitize toast support details`
-- `30394e48 Extract privacy logging bloat rules`
-- `8208976a Broaden utility fixture examples`
-- `7a1728c6 Broaden config and profile seeds`
-- `a4dade40 Refresh documentation screenshots`
-- `378d8c56 Make profile docs app-first`
-- `2b120e60 Fix bookmarklet copy test race`
 
 Current branch note:
 
-- `main` was pushed through `5c0d954a`. Docs Harness run `26747322402` and CI
-  run `26747322398` both passed for that push. CI covered harness checks,
-  harness script tests, TypeScript, ESLint, frontend unit tests, Rust fmt,
-  Rust clippy, Rust library tests, npm audit, and cargo-deny advisories.
+- `main` was pushed through `e9292268`. CI run `26778739829` passed for that
+  push. CI covered harness checks, harness script tests, TypeScript, ESLint,
+  frontend unit tests, Rust fmt, Rust clippy, Rust library tests, npm audit,
+  and cargo-deny advisories. Docs Harness last ran on `f050070d` as run
+  `26778490093` and passed.
 - The latest pushed harness slice adds `npm run harness:plan -- --since
   origin/main`, a changed-file command planner for focused verification.
 - The latest pushed slice removes stale hardcoded employer rating claims from
