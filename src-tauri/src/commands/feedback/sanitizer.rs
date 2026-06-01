@@ -65,6 +65,24 @@ static IP_REGEX: Lazy<Regex> = Lazy::new(|| {
         .expect("IP address regex pattern is valid and should compile")
 });
 
+// Sensitive job-search context entered as free text. Support reports should
+// keep the label but remove the user's private content.
+#[allow(clippy::expect_used)]
+static JOB_SEARCH_LABELED_CONTEXT_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(
+        r"(?im)\b((?:salary|compensation|pay)[ _-]?(?:floor|expectation|target|range|requirement)|expected salary|desired salary|resume(?:[ _-]?(?:text|data|content|summary|excerpt))?|cover[ _-]?letter(?:[ _-]?(?:text|data|content|summary|excerpt))?|private[ _-]?notes?|application[ _-]?(?:history|notes?)|screening[ _-]?(?:questions?|answers?)|question[ _-]?text|answer[ _-]?text|location[ _-]?preferences?|career[ _-]?goals?|personal[ _-]?circumstances?)\s*[:=]\s*[^\r\n]+",
+    )
+    .expect("Sensitive job-search labeled context regex pattern is valid and should compile")
+});
+
+#[allow(clippy::expect_used)]
+static JOB_SEARCH_STATEMENT_CONTEXT_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(
+        r"(?im)\b((?:my\s+)?(?:salary|compensation|pay)\s+(?:floor|expectation|target|range|requirement)|expected salary|desired salary|private note|application note|screening answer|location preference|career goal|personal circumstance)\s+(?:is|are|was|were)\s+[^\r\n]+",
+    )
+    .expect("Sensitive job-search statement context regex pattern is valid and should compile")
+});
+
 // Quoted strings (might be job titles or company names)
 #[allow(clippy::expect_used)]
 static QUOTED_STRING_REGEX: Lazy<Regex> = Lazy::new(|| {
@@ -126,6 +144,14 @@ impl Sanitizer {
 
         // IP addresses (optional - some may want to keep local IPs)
         result = IP_REGEX.replace_all(&result, "[IP_ADDRESS]").to_string();
+
+        // Sensitive job-search context from user-entered free text
+        result = JOB_SEARCH_LABELED_CONTEXT_REGEX
+            .replace_all(&result, "$1: [JOB_SEARCH_DETAIL_REDACTED]")
+            .to_string();
+        result = JOB_SEARCH_STATEMENT_CONTEXT_REGEX
+            .replace_all(&result, "$1 [JOB_SEARCH_DETAIL_REDACTED]")
+            .to_string();
 
         result
     }
@@ -358,6 +384,44 @@ mod tests {
         let input = "Scraper run: Indeed found 42 jobs, command succeeded";
         let output = Sanitizer::sanitize(input);
         assert_eq!(output, input); // Should be unchanged
+    }
+
+    #[test]
+    fn test_sanitize_job_search_sensitive_context() {
+        let input = concat!(
+            "Problem summary: app froze while saving feedback\n",
+            "Salary floor: $125,000 remote minimum\n",
+            "Resume excerpt: Led retention project for oncology team\n",
+            "Private note: laid off last month and urgent search\n",
+            "Application history: rejected by CareBridge after phone screen\n",
+            "Screening answer: I need sponsorship next year\n",
+            "Location preference: Denver only because caregiving schedule\n",
+            "Career goal: move out of night shifts\n",
+            "Personal circumstances: unemployed for eight months\n",
+            "My salary floor is 125000 before bonus\n",
+        );
+
+        let output = Sanitizer::sanitize(input);
+
+        assert!(output.contains("Problem summary: app froze while saving feedback"));
+        assert!(output.contains("Salary floor: [JOB_SEARCH_DETAIL_REDACTED]"));
+        assert!(output.contains("Resume excerpt: [JOB_SEARCH_DETAIL_REDACTED]"));
+        assert!(output.contains("Private note: [JOB_SEARCH_DETAIL_REDACTED]"));
+        assert!(output.contains("Application history: [JOB_SEARCH_DETAIL_REDACTED]"));
+        assert!(output.contains("Screening answer: [JOB_SEARCH_DETAIL_REDACTED]"));
+        assert!(output.contains("Location preference: [JOB_SEARCH_DETAIL_REDACTED]"));
+        assert!(output.contains("Career goal: [JOB_SEARCH_DETAIL_REDACTED]"));
+        assert!(output.contains("Personal circumstances: [JOB_SEARCH_DETAIL_REDACTED]"));
+        assert!(output.contains("My salary floor [JOB_SEARCH_DETAIL_REDACTED]"));
+        assert!(!output.contains("$125,000"));
+        assert!(!output.contains("oncology team"));
+        assert!(!output.contains("laid off"));
+        assert!(!output.contains("CareBridge"));
+        assert!(!output.contains("sponsorship next year"));
+        assert!(!output.contains("Denver"));
+        assert!(!output.contains("night shifts"));
+        assert!(!output.contains("unemployed for eight months"));
+        assert!(!output.contains("125000 before bonus"));
     }
 
     #[test]

@@ -128,7 +128,7 @@ describe("ErrorLogPanel", () => {
       expect(container.textContent).not.toContain("/Users/chad");
     });
 
-    it("shows advanced support details button when errors exist", () => {
+    it("shows extra support details button when errors exist", () => {
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
         errors: [createMockError()],
@@ -137,8 +137,11 @@ describe("ErrorLogPanel", () => {
       render(<ErrorLogPanel />);
 
       expect(
-        screen.getByRole("button", { name: "Advanced: Save Support Details" })
+        screen.getByRole("button", { name: "Save Extra Support Details" })
       ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: /advanced/i })
+      ).not.toBeInTheDocument();
     });
 
     it("shows Clear All button when errors exist", () => {
@@ -156,7 +159,7 @@ describe("ErrorLogPanel", () => {
       render(<ErrorLogPanel />);
 
       expect(
-        screen.queryByRole("button", { name: "Advanced: Save Support Details" })
+        screen.queryByRole("button", { name: "Save Extra Support Details" })
       ).not.toBeInTheDocument();
       expect(screen.queryByRole("button", { name: "Clear All" })).not.toBeInTheDocument();
     });
@@ -343,7 +346,7 @@ describe("ErrorLogPanel", () => {
   });
 
   describe("actions", () => {
-    it("calls exportErrors when advanced support details clicked", () => {
+    it("calls exportErrors when extra support details clicked", () => {
       const exportErrors = vi.fn();
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
@@ -353,7 +356,7 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      fireEvent.click(screen.getByRole("button", { name: "Advanced: Save Support Details" }));
+      fireEvent.click(screen.getByRole("button", { name: "Save Extra Support Details" }));
 
       expect(exportErrors).toHaveBeenCalledTimes(1);
     });

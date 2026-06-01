@@ -360,7 +360,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
               <option value="text">Text input</option>
               <option value="yes_no">Yes/No</option>
               <option value="textarea">Long text / Paragraph</option>
-              <option value="select">Dropdown selection</option>
+              <option value="select">Menu choice</option>
             </select>
           </div>
           <div>

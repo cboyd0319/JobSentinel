@@ -571,7 +571,7 @@ describe("ScreeningAnswersForm", () => {
           "Text input",
           "Yes/No",
           "Long text / Paragraph",
-          "Dropdown selection",
+          "Menu choice",
         ]);
       });
     });

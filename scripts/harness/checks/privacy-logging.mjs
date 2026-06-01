@@ -775,6 +775,27 @@ export function hasStaleFeedbackWebhookSanitizer(root, path) {
   );
 }
 
+export function hasIncompleteFeedbackJobSearchSanitizer(root, path) {
+  if (!feedbackSanitizerPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    !text.includes("JOB_SEARCH_LABELED_CONTEXT_REGEX") ||
+    !text.includes("JOB_SEARCH_STATEMENT_CONTEXT_REGEX") ||
+    !text.includes("JOB_SEARCH_DETAIL_REDACTED") ||
+    !/salary\|compensation\|pay/.test(text) ||
+    !/resume\(\?:\[ _-\]\?/.test(text) ||
+    !/private\[ _-\]\?notes/.test(text) ||
+    !/application\[ _-\]\?\(\?:history\|notes\?\)/.test(text) ||
+    !/screening\[ _-\]\?\(\?:questions\?\|answers\?\)/.test(text) ||
+    !/location\[ _-\]\?preferences/.test(text) ||
+    !/career\[ _-\]\?goals/.test(text) ||
+    !/personal\[ _-\]\?circumstances/.test(text)
+  );
+}
+
 export function hasUnsanitizedStructuredDebugLogEvents(root, path) {
   if (!structuredDebugLogPaths.has(path)) {
     return false;
@@ -1490,6 +1511,10 @@ const privacyLoggingViolationChecks = [
     "derive frontend error export version from package metadata",
   ],
   [hasStaleFeedbackWebhookSanitizer, "redact provider webhook URLs in feedback sanitizer"],
+  [
+    hasIncompleteFeedbackJobSearchSanitizer,
+    "redact sensitive job-search context in feedback sanitizer",
+  ],
   [hasUnsanitizedStructuredDebugLogEvents, "sanitize structured feedback debug events"],
   [hasUnsanitizedFeedbackFileSave, "sanitize feedback file content before saving"],
   [hasRawFeedbackOpenErrors, "sanitize feedback support-open errors"],

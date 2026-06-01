@@ -519,6 +519,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-01 | In progress | Tightened backend safe-support-report sanitization for sensitive job-search free text, reworked another zero-technical copy slice across Application Preview, Error Log fallback reports, browser import troubleshooting, notification salary filters, profile review settings, screening-answer type labels, Dashboard empty states, reminder labels, rate-limit errors, and auto-refresh warnings, and fixed TypeScript build fallbacks found by `npm run build`. |
 | 2026-06-01 | In progress | Reworked Market Snapshot from bullish/bearish/neutral sentiment labels to plain hiring-outlook labels, with focused component tests and product-copy coverage against stale finance-jargon wording. |
 | 2026-06-01 | In progress | Reworked Company Research unknown-company and slow-lookup copy so local fallback details are not described as being gathered in the background; added focused CompanyResearchPanel tests and product-copy coverage against stale request-timeout and gathering language. |
 | 2026-06-01 | In progress | Reworked Pay Protection range labels and salary-floor guidance from percentile shorthand to lower/middle/higher/highest-seen sample language, with focused Salary page tests and product-copy coverage against the old percentile jargon. |

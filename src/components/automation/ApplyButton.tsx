@@ -280,7 +280,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
           <span className="w-16 h-6 bg-surface-200 dark:bg-surface-700 rounded-full animate-pulse" />
         ) : applicationFormName ? (
           <span
-            className={`px-2 py-1 text-xs font-medium rounded-full ${ATS_COLORS[atsPlatform] || ATS_COLORS.unknown}`}
+            className={`px-2 py-1 text-xs font-medium rounded-full ${(atsPlatform && ATS_COLORS[atsPlatform]) || ATS_COLORS.unknown}`}
             title={APPLICATION_PLATFORM_HELP}
           >
             {applicationFormName}
@@ -300,7 +300,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
             size="sm"
             title={
               !hasProfile
-                ? "Set up your application profile first in Application Assist"
+                ? "Save your application profile in Application Assist"
                 : atsLoading
                   ? "Form check is still running. You can prepare details now."
                   : "Prepare application form for your review"
@@ -413,7 +413,7 @@ export const AtsBadge = memo(function AtsBadge({ url }: { url: string }) {
   // Use inline styles since Badge doesn't support className
   return (
     <span
-      className={`px-2 py-1 text-xs font-medium rounded-full ${ATS_COLORS[platform] || ATS_COLORS.unknown}`}
+      className={`px-2 py-1 text-xs font-medium rounded-full ${(platform && ATS_COLORS[platform]) || ATS_COLORS.unknown}`}
     >
       {applicationFormName}
     </span>

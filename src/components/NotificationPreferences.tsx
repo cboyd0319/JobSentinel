@@ -458,21 +458,22 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
       <div className="grid grid-cols-2 gap-4 mb-4">
         {/* Minimum yearly pay */}
         <div>
-          <label className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
+          <label htmlFor="notification-min-salary" className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
             Minimum yearly pay
           </label>
           <div className="flex items-center gap-2">
             <span className="text-surface-500">$</span>
             <input
+              id="notification-min-salary"
               type="number"
-              value={filters.minSalary ?? ''}
+              value={filters.minSalary === null ? '' : filters.minSalary * 1000}
               onChange={(e) => onChange({
-                minSalary: e.target.value ? parseInt(e.target.value) : null
+                minSalary: e.target.value ? Math.round(parseInt(e.target.value) / 1000) : null
               })}
-              placeholder="e.g., 90"
+              placeholder="e.g., 90000"
               className="w-24 px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100"
             />
-            <span className="text-surface-500 text-sm">thousand per year</span>
+            <span className="text-surface-500 text-sm">per year</span>
           </div>
         </div>
 

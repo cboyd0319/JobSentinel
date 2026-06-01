@@ -400,7 +400,10 @@ mod tests {
     fn test_feedback_file_content_is_sanitized_before_write() {
         let content = concat!(
             "User john@example.com saved report from /Users/johnsmith/Desktop/report.txt ",
-            "with webhook https://discord.com/api/webhooks/123456789/secret-token"
+            "with webhook https://discord.com/api/webhooks/123456789/secret-token\n",
+            "Salary floor: $125,000\n",
+            "Resume excerpt: Led retention project for oncology team\n",
+            "Private note: laid off last month\n"
         );
 
         let sanitized = feedback_file_content(content);
@@ -411,6 +414,12 @@ mod tests {
         assert!(sanitized.contains("[EMAIL]"));
         assert!(sanitized.contains("[USER_PATH]"));
         assert!(sanitized.contains("[WEBHOOK_CONFIGURED]"));
+        assert!(sanitized.contains("Salary floor: [JOB_SEARCH_DETAIL_REDACTED]"));
+        assert!(sanitized.contains("Resume excerpt: [JOB_SEARCH_DETAIL_REDACTED]"));
+        assert!(sanitized.contains("Private note: [JOB_SEARCH_DETAIL_REDACTED]"));
+        assert!(!sanitized.contains("$125,000"));
+        assert!(!sanitized.contains("oncology team"));
+        assert!(!sanitized.contains("laid off"));
     }
 
     #[test]
@@ -429,7 +438,8 @@ mod tests {
     fn test_sanitize_feedback_text_redacts_renderer_content() {
         let content = concat!(
             "Crash from C:\\Users\\Alice\\Desktop\\secret.txt ",
-            "using token ghp_123456789 and john@example.com"
+            "using token ghp_123456789 and john@example.com\n",
+            "Screening answer: I need sponsorship next year"
         );
 
         let sanitized = sanitize_feedback_text(content.to_string());
@@ -440,5 +450,7 @@ mod tests {
         assert!(sanitized.contains("[USER_PATH]"));
         assert!(sanitized.contains("[TOKEN]"));
         assert!(sanitized.contains("[EMAIL]"));
+        assert!(sanitized.contains("Screening answer: [JOB_SEARCH_DETAIL_REDACTED]"));
+        assert!(!sanitized.contains("sponsorship next year"));
     }
 }

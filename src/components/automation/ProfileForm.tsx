@@ -633,7 +633,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
               />
               <div>
                 <span className="text-surface-700 dark:text-surface-300 font-medium">
-                  Require manual approval
+                  Ask me before each form
                 </span>
                 <p className="text-sm text-surface-500 dark:text-surface-400">
                   Review each application before JobSentinel prepares details (recommended)

@@ -1417,8 +1417,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       root,
       "src/components/automation/ScreeningAnswersForm.tsx",
       [
-        '<HelpIcon text="Patterns use regex matching." />',
-        '<Input label="Question Pattern (regex) *" hint="Use regex patterns to match question text." />',
+        '<Select label="Dropdown selection" />',
         "",
       ].join("\n"),
     );
@@ -1430,7 +1429,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     writeFixtureFile(
       root,
       "src/components/ErrorLogPanel.tsx",
-      '"Error Logs"; "Stack Trace"; "Component Stack"; "Technical details"; "Save Log";\n',
+      '"Advanced: Save Support Details";\n',
     );
     writeFixtureFile(
       root,
@@ -1653,11 +1652,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "docs/BOOKMARKLET.md",
       [
         "# Browser Bookmarklet Integration",
-        "Any company site using Schema.org JobPosting markup.",
-        "Smart DOM Parsing falls back to intelligent HTML parsing.",
-        "Click \"Start Server\".",
-        "Paste the copied code into the URL/Location field.",
-        "**No Scraping** - Bookmarklet runs in user's browser.",
+        "Open advanced connection settings if you need another port.",
         "",
       ].join("\n"),
     );

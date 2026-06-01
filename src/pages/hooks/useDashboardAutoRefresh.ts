@@ -126,7 +126,7 @@ export function useDashboardAutoRefresh({
           if (count === 3) {
             toast.warning(
               "Auto-refresh struggling",
-              "Job scanning has failed 3 times in a row. Check your connection or try a manual search.",
+              "JobSentinel couldn't check for new jobs automatically. Check your connection, then click Search Now.",
             );
           }
           return count;

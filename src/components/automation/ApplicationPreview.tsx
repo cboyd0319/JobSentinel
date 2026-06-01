@@ -72,7 +72,7 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
   if (!profile) {
     return (
       <div className="text-center py-8 text-surface-500 dark:text-surface-400" role="status">
-        <p>No profile configured. Please set up your application profile first.</p>
+        <p>Set up your application profile to preview what JobSentinel can prepare.</p>
       </div>
     );
   }

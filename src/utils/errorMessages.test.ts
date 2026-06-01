@@ -19,7 +19,9 @@ describe("errorMessages", () => {
 
     it("handles rate limit errors", () => {
       const result = getUserFriendlyError(new Error("429 Too Many Requests"));
-      expect(result.title).toBe("Too Many Requests");
+      expect(result.title).toBe("Job Board Asked JobSentinel to Slow Down");
+      expect(result.action).toContain("check this site less often");
+      expect(`${result.title} ${result.message} ${result.action}`).not.toMatch(/request|delay/i);
     });
 
     it("handles database locked errors", () => {

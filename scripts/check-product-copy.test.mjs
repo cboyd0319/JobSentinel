@@ -554,6 +554,52 @@ test("product copy rejects technical-first settings copy", () => {
       "src/components/MarketSnapshotCard.test.tsx",
       "expect(screen.getByRole('status', { name: /market sentiment: bullish/i })).toBeInTheDocument();\n",
     );
+    writeFixtureFile(
+      root,
+      "src/components/automation/ApplicationPreview.tsx",
+      "No profile configured. Please set up your application profile first.\n",
+    );
+    writeFixtureFile(root, "src/components/automation/ProfileForm.tsx", "Require manual approval\n");
+    writeFixtureFile(
+      root,
+      "src/components/automation/ScreeningAnswersForm.tsx",
+      "Dropdown selection\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/DashboardUI/noJobsEmptyStateCopy.ts",
+      "Scan allowed sources\nLocal checks run on your schedule\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Applications.tsx",
+      "{reminder.reminder_type} - Due: {formatEventDate(reminder.reminder_time)}\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/hooks/useDashboardAutoRefresh.ts",
+      "Job scanning has failed 3 times in a row. Check your connection or try a manual search.\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/utils/errorMessages.ts",
+      "Too Many Requests\nYou've made too many requests to this job board.\nConsider increasing the delay between searches.\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/components/NotificationPreferences.tsx",
+      'placeholder="e.g., 90"\nthousand per year\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/ErrorLogPanel.tsx",
+      "Advanced: Save Support Details\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/BOOKMARKLET.md",
+      "choose another port in advanced settings\nadvanced connection settings\n",
+    );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(
@@ -613,6 +659,34 @@ test("product copy rejects technical-first settings copy", () => {
       hasTechnicalFirstUserCopy(root, "src/components/MarketSnapshotCard.test.tsx"),
       true,
     );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/automation/ApplicationPreview.tsx"),
+      true,
+    );
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/automation/ProfileForm.tsx"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/automation/ScreeningAnswersForm.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/pages/DashboardUI/noJobsEmptyStateCopy.ts"),
+      true,
+    );
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Applications.tsx"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/pages/hooks/useDashboardAutoRefresh.ts"),
+      true,
+    );
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/errorMessages.ts"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/NotificationPreferences.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src/components/ErrorLogPanel.tsx"),
+      true,
+    );
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/BOOKMARKLET.md"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/components/NotificationPreferences.tsx"),
       true,

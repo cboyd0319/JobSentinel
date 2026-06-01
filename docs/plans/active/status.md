@@ -105,6 +105,18 @@ and record actionable findings in this active-plan surface.
   bullish/bearish/neutral sentiment labels with plain hiring-outlook labels:
   more active, slower, and steady, with product-copy coverage against stale
   sentiment wording returning.
+- Latest local support-report privacy follow-up extends backend report
+  sanitization beyond URLs, paths, credentials, and emails to labeled
+  job-search context such as salary floors, resume excerpts, private notes,
+  application history, screening answers, location preferences, career goals,
+  and personal circumstances before feedback reports are returned over IPC or
+  saved to disk.
+- Latest local zero-technical UX follow-up changes Application Preview,
+  Error Log, browser import docs, notification salary filters, Application
+  Assist profile settings, screening-answer type labels, Dashboard empty
+  state copy, reminder labels, rate-limit errors, and auto-refresh warnings to
+  avoid setup jargon, raw enum values, thousand-dollar salary conversion, and
+  operational scanning language.
 - Latest local Application Assist readiness follow-up stops optional
   application-form detection from blocking the Prepare Form action. If form
   recognition is still loading, users with a saved profile can still open the

@@ -183,6 +183,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/components/Navigation.tsx",
   "src/components/automation/ApplyButton.tsx",
   "src/components/automation/ApplicationPreview.tsx",
+  "src/components/automation/ProfileForm.tsx",
   "src/components/automation/ScreeningAnswerSuggestions.tsx",
   "src/components/automation/ScreeningAnswersForm.tsx",
   "src/components/feedback/DebugInfoPreview.tsx",
@@ -192,11 +193,13 @@ const technicalFirstUserCopyPaths = new Set([
   "src/contexts/KeyboardShortcutsContext.tsx",
   "src-tauri/src/commands/errors.rs",
   "src/pages/Resume.tsx",
+  "src/pages/hooks/useDashboardAutoRefresh.ts",
   "src/pages/hooks/useDashboardJobOps.ts",
   "src/pages/hooks/useDashboardSavedSearches.ts",
   "src/pages/ResumeOptimizer.tsx",
   "src/pages/Applications.tsx",
   "src/pages/Dashboard.tsx",
+  "src/pages/DashboardUI/noJobsEmptyStateCopy.ts",
   "src/pages/DashboardUI/DashboardFiltersBar.tsx",
   "src/pages/DashboardUI/filterLabels.ts",
   "src/pages/DashboardUI/QuickActions.tsx",
@@ -706,7 +709,31 @@ export function hasTechnicalFirstUserCopy(root, path) {
   if (path === "src/components/automation/ApplicationPreview.tsx") {
     return [
       /CAPTCHA verification \(if present\)/i,
+      /No profile configured/i,
+      /set up your application profile first/i,
     ].some((pattern) => pattern.test(text));
+  }
+
+  if (path === "src/components/automation/ProfileForm.tsx") {
+    return /Require manual approval/i.test(text);
+  }
+
+  if (path === "src/components/automation/ScreeningAnswersForm.tsx") {
+    return /Dropdown selection/i.test(text);
+  }
+
+  if (path === "src/pages/DashboardUI/noJobsEmptyStateCopy.ts") {
+    return /Scan allowed sources|Local checks run on your schedule/i.test(text);
+  }
+
+  if (path === "src/pages/Applications.tsx") {
+    if (/\{reminder\.reminder_type\}\s*-\s*Due:/i.test(text)) {
+      return true;
+    }
+  }
+
+  if (path === "src/pages/hooks/useDashboardAutoRefresh.ts") {
+    return /Job scanning has failed 3 times in a row|manual search/i.test(text);
   }
 
   if (path === "src/components/BookmarkletGenerator.tsx") {
@@ -720,6 +747,16 @@ export function hasTechnicalFirstUserCopy(root, path) {
     if (browserButtonPatterns.some((pattern) => pattern.test(text))) {
       return true;
     }
+  }
+
+  if (path === "docs/BOOKMARKLET.md") {
+    return /advanced settings|another port|advanced connection settings|Works best on individual job pages from:[\s\S]{0,260}(?:LinkedIn|Indeed|Glassdoor)|Official ATS job pages|public ATS sources/i.test(
+      text,
+    );
+  }
+
+  if (path === "src/components/ErrorLogPanel.tsx") {
+    return /Advanced: Save Support Details/i.test(text);
   }
 
   if (path === "src/components/DeepLinkGenerator.tsx") {
@@ -925,6 +962,13 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /["'`]Component Stack["'`]/i,
     /["'`]Technical details["'`]/i,
     /["'`]Save Log["'`]/i,
+    /Too Many Requests/i,
+    /too many requests to this job board/i,
+    /increasing the delay between searches/i,
+    /placeholder=["'`]e\.g\., 90["'`]/i,
+    /thousand per year/i,
+    /No profile configured/i,
+    /set up your application profile first/i,
     /Import Job from URL/i,
     /Job URL/i,
     /Paste a job URL/i,

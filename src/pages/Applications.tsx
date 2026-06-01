@@ -70,6 +70,18 @@ interface PendingReminder {
   reminder_time: string;
 }
 
+const REMINDER_TYPE_LABELS: Record<string, string> = {
+  follow_up: "Follow up",
+  interview_prep: "Interview prep",
+  deadline: "Deadline",
+  offer_review: "Offer review",
+  custom: "Reminder",
+};
+
+function formatReminderType(type: string): string {
+  return REMINDER_TYPE_LABELS[type] ?? "Reminder";
+}
+
 interface ApplicationsProps {
   onBack: () => void;
   onImportJob?: () => void;
@@ -690,7 +702,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
                       {reminder.job_title} at {reminder.company}
                     </p>
                     <p className="text-sm text-surface-500 dark:text-surface-400">
-                      {reminder.reminder_type} - Due: {formatEventDate(reminder.reminder_time)}
+                      {formatReminderType(reminder.reminder_type)} due: {formatEventDate(reminder.reminder_time)}
                     </p>
                   </div>
                   <Button

@@ -561,10 +561,36 @@ describe("NotificationPreferences Component", () => {
 
       await waitFor(() => {
         expect(screen.getByText("Minimum yearly pay")).toBeInTheDocument();
-        expect(screen.getByText("thousand per year")).toBeInTheDocument();
+        expect(screen.getByText("per year")).toBeInTheDocument();
       });
+      expect(screen.getByPlaceholderText("e.g., 90000")).toBeInTheDocument();
+      expect(screen.queryByText("thousand per year")).not.toBeInTheDocument();
       expect(screen.queryByText("Minimum Salary")).not.toBeInTheDocument();
       expect(screen.queryByText("K/year")).not.toBeInTheDocument();
+    });
+
+    it("lets users enter full yearly dollars while saving the existing internal value", async () => {
+      mockInvoke
+        .mockResolvedValueOnce(DEFAULT_PREFS)
+        .mockResolvedValueOnce(true);
+
+      render(<NotificationPreferencesComponent />);
+
+      const input = await screen.findByLabelText("Minimum yearly pay");
+      fireEvent.change(input, { target: { value: "90000" } });
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith(
+          "save_notification_preferences",
+          expect.objectContaining({
+            prefs: expect.objectContaining({
+              advancedFilters: expect.objectContaining({
+                minSalary: 90,
+              }),
+            }),
+          }),
+        );
+      });
     });
 
     it("renders remote only toggle", async () => {

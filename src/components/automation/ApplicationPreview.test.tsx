@@ -89,18 +89,19 @@ describe("ApplicationPreview", () => {
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        expect(screen.getByText(/no profile configured/i)).toBeInTheDocument();
+        expect(screen.getByText(/set up your application profile/i)).toBeInTheDocument();
       });
     });
 
-    it("shows setup instruction when no profile", async () => {
+    it("uses plain setup instruction when no profile exists", async () => {
       mockInvoke.mockResolvedValue(null);
 
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        expect(screen.getByText(/set up your application profile first/i)).toBeInTheDocument();
+        expect(screen.getByText(/preview what JobSentinel can prepare/i)).toBeInTheDocument();
       });
+      expect(screen.queryByText(/no profile configured/i)).not.toBeInTheDocument();
     });
 
     it("no profile message has proper role", async () => {
@@ -109,7 +110,7 @@ describe("ApplicationPreview", () => {
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        const message = screen.getByText(/no profile configured/i);
+        const message = screen.getByText(/set up your application profile/i);
         expect(message.closest('[role="status"]')).toBeInTheDocument();
       });
     });

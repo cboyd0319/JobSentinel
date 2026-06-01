@@ -352,7 +352,12 @@ mod tests {
     #[test]
     fn test_report_sanitizes_description() {
         let category = FeedbackCategory::Bug;
-        let description = "Error at /Users/johnsmith/file.txt with email john@example.com";
+        let description = concat!(
+            "Error at /Users/johnsmith/file.txt with email john@example.com\n",
+            "Salary floor: $125,000\n",
+            "Resume text: Led retention project for oncology team\n",
+            "Private note: laid off last month\n"
+        );
         let system_info = SystemInfo::current();
 
         let report = format_feedback_report(&category, description, &system_info, None, &[]);
@@ -360,8 +365,14 @@ mod tests {
         // Should sanitize PII in description
         assert!(report.contains("/[USER_PATH]/file.txt"));
         assert!(report.contains("[EMAIL]"));
+        assert!(report.contains("Salary floor: [JOB_SEARCH_DETAIL_REDACTED]"));
+        assert!(report.contains("Resume text: [JOB_SEARCH_DETAIL_REDACTED]"));
+        assert!(report.contains("Private note: [JOB_SEARCH_DETAIL_REDACTED]"));
         assert!(!report.contains("johnsmith"));
         assert!(!report.contains("john@example.com"));
+        assert!(!report.contains("$125,000"));
+        assert!(!report.contains("oncology team"));
+        assert!(!report.contains("laid off"));
     }
 
     #[test]

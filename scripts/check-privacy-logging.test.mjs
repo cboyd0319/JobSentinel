@@ -8,6 +8,7 @@ import {
   hasBookmarkletCodeWithoutTokenHeader,
   hasCredentialKeyInputEcho,
   hasHardcodedFrontendErrorExportVersion,
+  hasIncompleteFeedbackJobSearchSanitizer,
   hasIncompleteConfigExportRedaction,
   hasLinkedInLoginCookieReturn,
   hasMlRawErrorDisplay,
@@ -796,6 +797,13 @@ test("privacy logging rejects unsanitized feedback report handling", () => {
 
     assert.equal(
       hasStaleFeedbackWebhookSanitizer(root, "src-tauri/src/commands/feedback/sanitizer.rs"),
+      true,
+    );
+    assert.equal(
+      hasIncompleteFeedbackJobSearchSanitizer(
+        root,
+        "src-tauri/src/commands/feedback/sanitizer.rs",
+      ),
       true,
     );
     assert.equal(

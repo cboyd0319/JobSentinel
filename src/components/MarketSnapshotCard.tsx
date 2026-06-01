@@ -24,15 +24,20 @@ interface MarketSnapshotCardProps {
 }
 
 type SnapshotIconName = "trend-up" | "trend-down" | "trend-flat" | "tool" | "building" | "location" | "factory";
+type OutlookConfig = { icon: SnapshotIconName; color: string; label: string };
 
 // Lookup objects for hiring outlook styling.
-const OUTLOOK_CONFIG: Record<string, { icon: SnapshotIconName; color: string; label: string }> = {
-  bullish: { icon: "trend-up", color: "text-green-600 dark:text-green-400", label: "More active" },
-  bearish: { icon: "trend-down", color: "text-red-600 dark:text-red-400", label: "Slower" },
-  neutral: { icon: "trend-flat", color: "text-surface-600 dark:text-surface-400", label: "Steady" },
+const DEFAULT_OUTLOOK: OutlookConfig = {
+  icon: "trend-flat",
+  color: "text-surface-600 dark:text-surface-400",
+  label: "Steady",
 };
 
-const DEFAULT_OUTLOOK = OUTLOOK_CONFIG.neutral;
+const OUTLOOK_CONFIG: Record<string, OutlookConfig> = {
+  bullish: { icon: "trend-up", color: "text-green-600 dark:text-green-400", label: "More active" },
+  bearish: { icon: "trend-down", color: "text-red-600 dark:text-red-400", label: "Slower" },
+  neutral: DEFAULT_OUTLOOK,
+};
 
 const getOutlookConfig = (sentiment: string | undefined | null) =>
   OUTLOOK_CONFIG[(sentiment ?? "neutral").toLowerCase()] ?? DEFAULT_OUTLOOK;

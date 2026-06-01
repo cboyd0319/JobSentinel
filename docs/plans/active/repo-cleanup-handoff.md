@@ -571,6 +571,17 @@ Current cleanup posture:
 
 Recent cleanup slices on `main` include:
 
+- Backend safe-support-report sanitization now redacts labeled sensitive
+  job-search context such as salary floors, resume excerpts, private notes,
+  application history, screening answers, location preferences, career goals,
+  and personal circumstances before feedback reports are returned or saved.
+- Another zero-technical UX slice removed setup jargon and raw internal values
+  from Application Preview, Error Log support fallback, browser import docs,
+  notification salary filters, Application Assist profile settings,
+  screening-answer type labels, Dashboard empty states, reminder labels,
+  rate-limit errors, and auto-refresh warnings.
+- Build verification also caught nullable application-form style lookups and a
+  missing Market Snapshot fallback; both are now type-safe.
 - Protective ghost/posting-risk wording across UI and maintained docs, replacing
   fake/real verdict language with stale, low-trust, needs-review, and
   verify-before-tailoring guidance.

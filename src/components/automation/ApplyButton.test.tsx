@@ -260,7 +260,7 @@ describe("ApplyButton", () => {
         const button = screen.getByRole("button", { name: /prepare form/i });
         expect(button).toHaveAttribute(
           "title",
-          "Set up your application profile first in Application Assist"
+          "Save your application profile in Application Assist"
         );
       });
     });

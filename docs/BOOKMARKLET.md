@@ -31,7 +31,7 @@ Use the browser import button when:
 7. Paste the copied text where the bookmark stores the page address.
 8. Save it to your bookmarks bar.
 
-Copy the browser button again after each saved job, after changing advanced
+Copy the browser button again after each saved job, after changing connection
 settings, or after restarting JobSentinel.
 
 ## Save A Job
@@ -63,8 +63,8 @@ JobSentinel's search link or add the job manually when import does not work.
 
 - Make sure JobSentinel is open.
 - Turn on the import helper in Settings.
-- If the helper will not turn on, choose another port in advanced settings and
-  try again.
+- If support asks you to change the connection number, open
+  **Connection settings (support only)** and try again.
 - Copy the browser button again if you already saved a job, restarted
   JobSentinel, or waited about one hour.
 - If your firewall asks, allow connections for JobSentinel.
@@ -106,6 +106,6 @@ interface should keep technical details hidden:
 - Keep copied browser-button codes one-use, short-lived, and session-scoped.
 - Activate a refreshed safety code only after the browser button is copied.
 - Prefer "browser import button", "import helper", and
-  "advanced connection settings" in user-facing copy.
+  "connection settings (support only)" in user-facing copy.
 - Keep lower-level implementation details in developer docs or code comments,
   not in the user setup path.

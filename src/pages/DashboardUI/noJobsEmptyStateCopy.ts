@@ -32,7 +32,7 @@ export function getNoJobsEmptyStateCopy(
     secondaryLabel: "Adjust Search Preferences",
     helperText:
       "If a search comes back empty, broaden the role title, location, or pay floor.",
-    firstStepTitle: "Scan allowed sources",
-    firstStepDescription: "Local checks run on your schedule",
+    firstStepTitle: "Search selected job sites",
+    firstStepDescription: "JobSentinel checks them on your schedule",
   };
 }
