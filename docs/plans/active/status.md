@@ -181,11 +181,15 @@ and record actionable findings in this active-plan surface.
   tested portable before/after report for score, session metrics, active next
   work, and harness-tuning recommendations, modeled on the WalkingLabs
   benchmark/report scripts without generating tracked report files by default.
+- Latest local privacy-logging harness work moves privacy/logging violation
+  orchestration out of `scripts/check-repo-bloat.mjs` and into
+  `collectPrivacyLoggingViolations`; focused privacy-logging coverage now
+  verifies the collector and `scripts/check-repo-bloat.mjs` is 564 lines.
 - Latest local docs-drift harness work moves the docs-drift violation messages
   out of `scripts/check-repo-bloat.mjs` and into
   `scripts/harness/checks/docs-drift.mjs` through
   `collectDocsDriftViolations`; focused docs-drift coverage now verifies the
-  collector and `scripts/check-repo-bloat.mjs` is 921 lines.
+  collector.
 - Latest local E2E reliability work removes the hard sleep from keyboard
   search-focus coverage and expands the fixed-wait sensor from page objects to
   every active Playwright runtime file, while keeping screenshot-capture waits
@@ -285,8 +289,9 @@ and record actionable findings in this active-plan surface.
 1. Continue broad-audience fixture audit in remaining less obvious fixture
    paths, while preserving tech-specific cases only when they test explicit
    branch behavior or source-realism parser contracts.
-2. Continue splitting oversized mixed sensors; the main bloat runner is now
-   921 lines after docs-drift orchestration moved into its module.
+2. Continue splitting oversized harness modules only where the ownership
+   boundary is clear; the main bloat runner is now 564 lines after docs-drift
+   and privacy-logging orchestration moved into modules.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
 4. Continue broad-audience review so non-technical and technical job searches

@@ -117,80 +117,7 @@ import {
   hasUnreferencedDocsImage,
   isJobSentinelProject,
 } from "./harness/checks/repo-integrity.mjs";
-import {
-  hasBookmarkletCodeWithoutTokenHeader,
-  hasManualBookmarkletJsonErrorResponses,
-  hasRawAutomationBrowserErrors,
-  hasRawAutomationDropdownValueLogging,
-  hasRawAutomationFormResultData,
-  hasRawAutomationQuestionLogging,
-  hasRawAtsCommandErrorDetails,
-  hasRawAutomationCommandErrorDetails,
-  hasHardcodedFrontendErrorExportVersion,
-  hasRawFrontendErrorReporterForwarding,
-  hasRawFrontendDirectErrorLogging,
-  hasRawFrontendErrorHelperDebugLogging,
-  hasRawFrontendErrorHelperUserMessage,
-  hasRawFrontendSharedErrorLogging,
-  hasLinkedInLoginCookieReturn,
-  hasCredentialKeyInputEcho,
-  hasIncompleteConfigExportRedaction,
-  hasMlRawErrorDisplay,
-  hasMlRawLocalPathDoc,
-  hasMlRawLocalPathExposure,
-  hasMissingLinkedInCredentialStorageDisable,
-  hasMissingWebhookCredentialStorageValidation,
-  hasRawBackupPathError,
-  hasRawCredentialStorageErrors,
-  hasRawEmailTestErrorReturn,
-  hasRawJobsWithGptDebug,
-  hasRawJobsWithGptSmokeEndpointError,
-  hasRawLinkedInDebug,
-  hasRawLocalPathLogging,
-  hasRawCommandSetupErrorDisplay,
-  hasRawConfigValidationUrlDisplay,
-  hasRawImportHttpErrorReturn,
-  hasRawImportRedirectDisplay,
-  hasRawImportBookmarkletCommandErrorDetails,
-  hasRawJobImportLogging,
-  hasRawBookmarkletImportLogging,
-  hasRawNotificationJobTitleLogging,
-  hasRawNotificationProviderErrorBody,
-  hasRawNotificationServiceErrorDetails,
-  hasRawPrivateQueryLogging,
-  hasRawResumeCommandDtoExposure,
-  hasRawResumeCommandErrorDetails,
-  hasRawResumeNameLogging,
-  hasRawResumeParserPathDisplay,
-  hasRawScraperLoopErrorLogging,
-  hasRawScraperUrlOrQueryLogging,
-  hasRawSchedulerJobContentLogging,
-  hasRawSchedulerScoringPrivacyLeak,
-  hasRawSchedulerScraperErrorDetails,
-  hasRawScoringCacheJobHashLogging,
-  hasRawSensitiveCommandErrorDetails,
-  hasRawSlackWebhookValidationErrorReturn,
-  hasRawSourceCheckResultError,
-  hasRawTelegramBotTokenRequestError,
-  hasRawPathOrQueryErrorDisplay,
-  hasRawUrlErrorDisplay,
-  hasRawUrlLogging,
-  hasRawUserDataPrivacyLogging,
-  hasRawUtilityCommandErrorDetails,
-  hasRawWebhookTokenRequestError,
-  hasNonPublicIpErrorEcho,
-  hasRendererCredentialSecretRead,
-  hasResidualCorePrivacyLeak,
-  hasSecretBearingDebugDerive,
-  hasStaleFeedbackWebhookSanitizer,
-  hasUnauthenticatedBookmarkletImports,
-  hasUnsafeErrorReportStorageParsing,
-  hasUnsanitizedFeedbackFileSave,
-  hasUnsanitizedFrontendErrorReportStorage,
-  hasUnsanitizedStructuredDebugLogEvents,
-  hasUnboundedExternalResponseBodyRead,
-  hasRawFeedbackOpenErrors,
-} from "./harness/checks/privacy-logging.mjs";
+import { collectPrivacyLoggingViolations } from "./harness/checks/privacy-logging.mjs";
 import {
   hasApplicationProfileResumePathExposure,
   hasBookmarkletTokenIpcExposure,
@@ -236,6 +163,10 @@ export function checkRepoBloat(root = defaultRoot) {
     }
 
     for (const violation of collectDocsDriftViolations(root, path)) {
+      violations.push(violation);
+    }
+
+    for (const violation of collectPrivacyLoggingViolations(root, path)) {
       violations.push(violation);
     }
 
@@ -386,126 +317,6 @@ export function checkRepoBloat(root = defaultRoot) {
       violations.push(`remove stale resume PDF export stub: ${path}`);
     }
 
-    if (hasRawPrivateQueryLogging(root, path)) {
-      violations.push(`replace raw private query logging: ${path}`);
-    }
-
-    if (hasRawUserDataPrivacyLogging(root, path)) {
-      violations.push(`replace raw user-data privacy logging: ${path}`);
-    }
-
-    if (hasRawSchedulerJobContentLogging(root, path)) {
-      violations.push(`sanitize scheduler job content logging: ${path}`);
-    }
-
-    if (hasRawSchedulerScraperErrorDetails(root, path)) {
-      violations.push(`sanitize scheduler scraper error details: ${path}`);
-    }
-
-    if (hasRawScraperUrlOrQueryLogging(root, path)) {
-      violations.push(`replace raw scraper URL/query logging: ${path}`);
-    }
-
-    if (hasRawScraperLoopErrorLogging(root, path)) {
-      violations.push(`sanitize scraper loop error logging: ${path}`);
-    }
-
-    if (hasUnboundedExternalResponseBodyRead(root, path)) {
-      violations.push(`replace unbounded external response body read: ${path}`);
-    }
-
-    if (hasRawLocalPathLogging(root, path)) {
-      violations.push(`replace raw local path logging: ${path}`);
-    }
-
-    if (hasRawBackupPathError(root, path)) {
-      violations.push(`sanitize backup path error display: ${path}`);
-    }
-
-    if (hasMlRawLocalPathExposure(root, path)) {
-      violations.push(`remove ML raw local path exposure: ${path}`);
-    }
-
-    if (hasMlRawErrorDisplay(root, path)) {
-      violations.push(`sanitize ML error display: ${path}`);
-    }
-
-    if (hasMlRawLocalPathDoc(root, path)) {
-      violations.push(`remove ML raw local path doc claim: ${path}`);
-    }
-
-    if (hasRawJobsWithGptDebug(root, path)) {
-      violations.push(`sanitize JobsWithGPT debug output: ${path}`);
-    }
-
-    if (hasRawLinkedInDebug(root, path)) {
-      violations.push(`sanitize legacy LinkedIn source debug output: ${path}`);
-    }
-
-    if (hasLinkedInLoginCookieReturn(root, path)) {
-      violations.push(`keep LinkedIn login cookie out of renderer response: ${path}`);
-    }
-
-    if (hasRawEmailTestErrorReturn(root, path)) {
-      violations.push(`sanitize test email command errors: ${path}`);
-    }
-
-    if (hasRawSlackWebhookValidationErrorReturn(root, path)) {
-      violations.push(`sanitize Slack webhook validation command errors: ${path}`);
-    }
-
-    if (hasSecretBearingDebugDerive(root, path)) {
-      violations.push(`sanitize secret-bearing debug derive: ${path}`);
-    }
-
-    if (hasCredentialKeyInputEcho(root, path)) {
-      violations.push(`avoid echoing credential key input: ${path}`);
-    }
-
-    if (hasRawCredentialStorageErrors(root, path)) {
-      violations.push(`sanitize credential storage errors: ${path}`);
-    }
-
-    if (hasMissingLinkedInCredentialStorageDisable(root, path)) {
-      violations.push(`disable LinkedIn credential storage: ${path}`);
-    }
-
-    if (hasMissingWebhookCredentialStorageValidation(root, path)) {
-      violations.push(`validate notification webhook credentials before keyring storage: ${path}`);
-    }
-
-    if (hasRendererCredentialSecretRead(root, path)) {
-      violations.push(`keep credential values out of renderer IPC: ${path}`);
-    }
-
-    if (hasIncompleteConfigExportRedaction(root, path)) {
-      violations.push(`redact all credential fields from config export: ${path}`);
-    }
-
-    if (hasRawTelegramBotTokenRequestError(root, path)) {
-      violations.push(`remove Telegram bot-token URLs from request errors: ${path}`);
-    }
-
-    if (hasRawWebhookTokenRequestError(root, path)) {
-      violations.push(`remove webhook token URLs from request errors: ${path}`);
-    }
-
-    if (hasRawNotificationProviderErrorBody(root, path)) {
-      violations.push(`omit notification provider error bodies from errors: ${path}`);
-    }
-
-    if (hasRawNotificationServiceErrorDetails(root, path)) {
-      violations.push(`sanitize notification service error details: ${path}`);
-    }
-
-    if (hasRawJobsWithGptSmokeEndpointError(root, path)) {
-      violations.push(`sanitize JobsWithGPT smoke-test endpoint errors: ${path}`);
-    }
-
-    if (hasRawSourceCheckResultError(root, path)) {
-      violations.push(`sanitize source-check result errors: ${path}`);
-    }
-
     if (hasStaleLinkedInCredentialDocs(root, path)) {
       violations.push(`sync LinkedIn credential docs with keyring login flow: ${path}`);
     }
@@ -530,160 +341,8 @@ export function checkRepoBloat(root = defaultRoot) {
       violations.push(`route job URL opens through backend guard only: ${path}`);
     }
 
-    if (hasRawUrlLogging(root, path)) {
-      violations.push(`replace raw URL logging: ${path}`);
-    }
-
-    if (hasRawUrlErrorDisplay(root, path)) {
-      violations.push(`replace raw URL error display: ${path}`);
-    }
-
-    if (hasRawFrontendErrorHelperUserMessage(root, path)) {
-      violations.push(`sanitize frontend user error messages: ${path}`);
-    }
-
-    if (hasRawPathOrQueryErrorDisplay(root, path)) {
-      violations.push(`replace raw path/query error display: ${path}`);
-    }
-
-    if (hasRawResumeParserPathDisplay(root, path)) {
-      violations.push(`sanitize resume parser path error display: ${path}`);
-    }
-
-    if (hasRawResumeNameLogging(root, path)) {
-      violations.push(`sanitize resume import name logging: ${path}`);
-    }
-
-    if (hasRawResumeCommandErrorDetails(root, path)) {
-      violations.push(`sanitize resume command error details: ${path}`);
-    }
-
-    if (hasRawAtsCommandErrorDetails(root, path)) {
-      violations.push(`sanitize application tracking command error details: ${path}`);
-    }
-
-    if (hasRawAutomationCommandErrorDetails(root, path)) {
-      violations.push(`sanitize automation command error details: ${path}`);
-    }
-
-    if (hasRawSensitiveCommandErrorDetails(root, path)) {
-      violations.push(`sanitize sensitive command error details: ${path}`);
-    }
-
-    if (hasRawUtilityCommandErrorDetails(root, path)) {
-      violations.push(`sanitize utility command error details: ${path}`);
-    }
-
-    if (hasRawResumeCommandDtoExposure(root, path)) {
-      violations.push(`hide resume file paths from renderer DTOs: ${path}`);
-    }
-
-    if (hasRawCommandSetupErrorDisplay(root, path)) {
-      violations.push(`replace raw command setup error display: ${path}`);
-    }
-
-    if (hasRawConfigValidationUrlDisplay(root, path)) {
-      violations.push(`sanitize config validation URL display: ${path}`);
-    }
-
-    if (hasRawImportRedirectDisplay(root, path)) {
-      violations.push(`replace raw import redirect display: ${path}`);
-    }
-
-    if (hasRawJobImportLogging(root, path)) {
-      violations.push(`replace raw job import logging: ${path}`);
-    }
-
-    if (hasRawImportHttpErrorReturn(root, path)) {
-      violations.push(`sanitize job import HTTP errors: ${path}`);
-    }
-
-    if (hasRawImportBookmarkletCommandErrorDetails(root, path)) {
-      violations.push(`sanitize import and bookmarklet command error details: ${path}`);
-    }
-
-    if (hasNonPublicIpErrorEcho(root, path)) {
-      violations.push(`sanitize non-public IP validation errors: ${path}`);
-    }
-
-    if (hasRawAutomationQuestionLogging(root, path)) {
-      violations.push(`replace raw automation screening question logging: ${path}`);
-    }
-
-    if (hasRawAutomationFormResultData(root, path)) {
-      violations.push(`sanitize automation form result data: ${path}`);
-    }
-
-    if (hasRawAutomationBrowserErrors(root, path)) {
-      violations.push(`sanitize automation browser errors: ${path}`);
-    }
-
-    if (hasRawAutomationDropdownValueLogging(root, path)) {
-      violations.push(`remove raw automation dropdown value logging: ${path}`);
-    }
-
-    if (hasRawNotificationJobTitleLogging(root, path)) {
-      violations.push(`replace raw notification job title logging: ${path}`);
-    }
-
-    if (hasRawBookmarkletImportLogging(root, path)) {
-      violations.push(`replace raw bookmarklet import metadata logging: ${path}`);
-    }
-
-    if (hasRawScoringCacheJobHashLogging(root, path)) {
-      violations.push(`replace raw scoring cache job hash logging: ${path}`);
-    }
-
-    if (hasRawSchedulerScoringPrivacyLeak(root, path)) {
-      violations.push(`replace raw scheduler scoring privacy leaks: ${path}`);
-    }
-
-    if (hasResidualCorePrivacyLeak(root, path)) {
-      violations.push(`replace residual core privacy leaks: ${path}`);
-    }
-
     if (hasOpaqueCommandUnitError(root, path)) {
       violations.push(`replace opaque command unit errors: ${path}`);
-    }
-
-    if (hasManualBookmarkletJsonErrorResponses(root, path)) {
-      violations.push(`replace manual bookmarklet JSON error responses: ${path}`);
-    }
-
-    if (hasUnauthenticatedBookmarkletImports(root, path)) {
-      violations.push(`require bookmarklet import auth token: ${path}`);
-    }
-
-    if (hasBookmarkletCodeWithoutTokenHeader(root, path)) {
-      violations.push(`include bookmarklet auth token header: ${path}`);
-    }
-
-    if (hasUnsanitizedFrontendErrorReportStorage(root, path)) {
-      violations.push(`sanitize frontend error report storage: ${path}`);
-    }
-
-    if (hasRawFrontendErrorReporterForwarding(root, path)) {
-      violations.push(`sanitize frontend error reporter console forwarding: ${path}`);
-    }
-
-    if (hasRawFrontendErrorHelperDebugLogging(root, path)) {
-      violations.push(`sanitize frontend error helper debug logging: ${path}`);
-    }
-
-    if (hasRawFrontendSharedErrorLogging(root, path)) {
-      violations.push(`sanitize shared frontend error logging: ${path}`);
-    }
-
-    if (hasRawFrontendDirectErrorLogging(root, path)) {
-      violations.push(`route frontend direct error logging through sanitized logger: ${path}`);
-    }
-
-    if (hasUnsafeErrorReportStorageParsing(root, path)) {
-      violations.push(`validate stored error reports before loading: ${path}`);
-    }
-
-    if (hasHardcodedFrontendErrorExportVersion(root, path)) {
-      violations.push(`derive frontend error export version from package metadata: ${path}`);
     }
 
     if (hasUnsafeScoreReasonJsonParsing(root, path)) {
@@ -700,10 +359,6 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleSettingsPartialSaveMessage(root, path)) {
       violations.push(`separate config save failures from credential save failures: ${path}`);
-    }
-
-    if (hasStaleFeedbackWebhookSanitizer(root, path)) {
-      violations.push(`redact provider webhook URLs in feedback sanitizer: ${path}`);
     }
 
     if (hasStaleNotificationWebhookDocs(root, path)) {
@@ -740,18 +395,6 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleNotificationPreferenceDocs(root, path)) {
       violations.push(`sync notification preference docs with backend shape: ${path}`);
-    }
-
-    if (hasUnsanitizedStructuredDebugLogEvents(root, path)) {
-      violations.push(`sanitize structured feedback debug events: ${path}`);
-    }
-
-    if (hasUnsanitizedFeedbackFileSave(root, path)) {
-      violations.push(`sanitize feedback file content before saving: ${path}`);
-    }
-
-    if (hasRawFeedbackOpenErrors(root, path)) {
-      violations.push(`sanitize feedback support-open errors: ${path}`);
     }
 
     if (hasUnownedStorybookAddon(root, path)) {

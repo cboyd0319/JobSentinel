@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import {
+  collectPrivacyLoggingViolations,
   hasBookmarkletCodeWithoutTokenHeader,
   hasCredentialKeyInputEcho,
   hasHardcodedFrontendErrorExportVersion,
@@ -93,6 +94,22 @@ function withFixture(callback) {
     rmSync(root, { recursive: true, force: true });
   }
 }
+
+test("privacy logging collector returns repo-bloat violation messages", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/jobs.rs",
+      'tracing::info!("search query: {}", query);',
+    );
+    writeFixtureFile(root, "src-tauri/src/commands/config.rs", "");
+
+    assert.deepEqual(collectPrivacyLoggingViolations(root, "src-tauri/src/commands/jobs.rs"), [
+      "replace raw private query logging: src-tauri/src/commands/jobs.rs",
+    ]);
+    assert.deepEqual(collectPrivacyLoggingViolations(root, "src-tauri/src/commands/config.rs"), []);
+  });
+});
 
 test("privacy logging rejects raw automation dropdown selected values", () => {
   withFixture((root) => {

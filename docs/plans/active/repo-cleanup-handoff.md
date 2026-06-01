@@ -58,6 +58,9 @@ Current cleanup posture:
   audience copy, Application Assist automation framing, ghost-risk
   overconfidence, and pay-guidance overconfidence now live in
   `scripts/harness/checks/product-copy.mjs`.
+- Privacy/logging bloat-runner orchestration now lives in
+  `collectPrivacyLoggingViolations`; `scripts/check-repo-bloat.mjs` is down to
+  564 lines.
 - Release-promise drift checks now live in
   `scripts/harness/checks/release-promises.mjs`.
 - Initial privacy-logging checks for raw automation dropdown values and raw
@@ -505,6 +508,22 @@ Latest harness benchmark slice checks on 2026-06-01:
 - `npm run lint:bloat`
 - `npm run lint:docs`
 - `git diff --check`
+
+Latest privacy-logging orchestration split checks on 2026-06-01:
+
+- `node --check scripts/check-repo-bloat.mjs`
+- `node --check scripts/harness/checks/privacy-logging.mjs`
+- `node --test scripts/check-privacy-logging.test.mjs`
+- `node --test --test-name-pattern` focused bloat cases:
+  `raw private query logging|unsanitized feedback|manual bookmarklet|frontend error reporter`
+  against `scripts/check-repo-bloat.test.mjs`
+- `npm run lint:bloat`
+- `npm run test:scripts`
+- `npm run harness:check`
+- `npm run lint:docs`
+- `npm run harness:score`
+- `git diff --check`
+- `wc -l scripts/check-repo-bloat.mjs scripts/harness/checks/privacy-logging.mjs`
 
 Latest harness/readiness slice checks on 2026-05-31:
 
