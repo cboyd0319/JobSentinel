@@ -164,6 +164,10 @@ As of 2026-06-01, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Removed preloaded company-source URLs from product, UX, content, and
+  marketing profile JSON files so broad non-technical templates do not choose a
+  narrow tech or SaaS employer list for the user. Broad-audience harness
+  coverage now rejects official company source URLs in broad profile seeds.
 - Reordered notification setup for broad non-technical users: Settings now
   starts with desktop alerts, follows with email, and presents Slack, Discord,
   Teams, and Telegram as optional chat alerts for users who already use those

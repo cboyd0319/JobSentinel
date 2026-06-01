@@ -4,11 +4,15 @@ import { join } from "node:path";
 const broadAudienceExamplePaths = new Set([
   "config/config.example.json",
   "examples/sample-json-resume.json",
+  "profiles/content-copywriting.json",
   "profiles/finance-accounting.json",
   "profiles/hr-recruiting.json",
+  "profiles/product-management.json",
   "profiles/project-operations.json",
+  "profiles/seo-digital-marketing.json",
   "profiles/README.md",
   "profiles/sales-business-dev.json",
+  "profiles/ux-design.json",
   "src/components/CoverLetterTemplates.tsx",
   "src/components/CompanyResearchPanel.tsx",
   "src/components/CompanyResearchPanel.test.tsx",
@@ -166,14 +170,17 @@ export function hasEngineerFirstAudienceExamples(root, path) {
   }
 
   if (
+    path === "profiles/content-copywriting.json" ||
     path === "profiles/finance-accounting.json" ||
     path === "profiles/hr-recruiting.json" ||
+    path === "profiles/product-management.json" ||
     path === "profiles/project-operations.json" ||
-    path === "profiles/sales-business-dev.json"
+    path === "profiles/seo-digital-marketing.json" ||
+    path === "profiles/sales-business-dev.json" ||
+    path === "profiles/ux-design.json"
   ) {
     const profileSeedPatterns = [
-      /https:\/\/boards\.greenhouse\.io\/(?:stripe|rippling|plaid|ramp|asana|notion|datadog|snowflake|mongodb)/i,
-      /https:\/\/jobs\.lever\.co\/lever/i,
+      /"(?:greenhouse_urls|lever_urls)"\s*:\s*\[[^\]]*"https?:\/\//is,
     ];
 
     if (profileSeedPatterns.some((pattern) => pattern.test(text))) {

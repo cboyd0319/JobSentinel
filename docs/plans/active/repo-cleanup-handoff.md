@@ -111,6 +111,10 @@ Current branch note:
 
 Current cleanup posture:
 
+- Current local broad-profile source follow-up removes preloaded company-source
+  URLs from product, UX, content, and marketing profile JSON files and extends
+  broad-audience harness coverage so broad non-technical starter profiles stay
+  empty until the user chooses official company pages to monitor.
 - Current local broad-audience notification follow-up makes desktop alerts the
   first Settings and docs path, email the second path, and Slack, Discord,
   Teams, and Telegram explicitly optional chat paths for people already using

@@ -83,17 +83,7 @@
 
   "salary_floor_usd": 90000,
 
-  "greenhouse_urls": [
-    "https://boards.greenhouse.io/figma",
-    "https://boards.greenhouse.io/airbnb",
-    "https://boards.greenhouse.io/stripe",
-    "https://boards.greenhouse.io/notion",
-    "https://boards.greenhouse.io/canva",
-    "https://boards.greenhouse.io/squarespace",
-    "https://boards.greenhouse.io/webflow"
-  ],
+  "greenhouse_urls": [],
 
-  "lever_urls": [
-    "https://jobs.lever.co/spotify"
-  ]
+  "lever_urls": []
 }

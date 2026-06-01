@@ -43,6 +43,11 @@ Start with `config/config.example.json` and fill in your own:
 - `salary_floor_usd`: Your minimum salary
 - `greenhouse_urls` / `lever_urls`: Official company pages you choose to monitor
 
+Broad starter profiles leave company source lists empty by default. JobSentinel
+should not choose a narrow tech or SaaS employer list for someone looking for
+product, design, marketing, writing, operations, finance, HR, sales, education,
+healthcare, legal, creative, or customer support work.
+
 ### Advanced Manual File Use
 
 Only use manual file copying if you are comfortable editing local app settings

@@ -163,6 +163,26 @@ test("broad audience fixtures reject tech-brand config and profile seeds", () =>
     );
     writeFixtureFile(
       root,
+      "profiles/product-management.json",
+      '"greenhouse_urls": ["https://boards.greenhouse.io/stripe"]',
+    );
+    writeFixtureFile(
+      root,
+      "profiles/ux-design.json",
+      '"greenhouse_urls": ["https://boards.greenhouse.io/figma"]',
+    );
+    writeFixtureFile(
+      root,
+      "profiles/content-copywriting.json",
+      '"greenhouse_urls": ["https://boards.greenhouse.io/notion"]',
+    );
+    writeFixtureFile(
+      root,
+      "profiles/seo-digital-marketing.json",
+      '"lever_urls": ["https://jobs.lever.co/semrush"]',
+    );
+    writeFixtureFile(
+      root,
       "profiles/sales-business-dev.json",
       '"greenhouse_urls": ["https://boards.greenhouse.io/datadog"]',
     );
@@ -170,6 +190,19 @@ test("broad audience fixtures reject tech-brand config and profile seeds", () =>
     assert.equal(hasEngineerFirstAudienceExamples(root, "config/config.example.json"), true);
     assert.equal(hasEngineerFirstAudienceExamples(root, "profiles/README.md"), true);
     assert.equal(hasEngineerFirstAudienceExamples(root, "profiles/hr-recruiting.json"), true);
+    assert.equal(
+      hasEngineerFirstAudienceExamples(root, "profiles/product-management.json"),
+      true,
+    );
+    assert.equal(hasEngineerFirstAudienceExamples(root, "profiles/ux-design.json"), true);
+    assert.equal(
+      hasEngineerFirstAudienceExamples(root, "profiles/content-copywriting.json"),
+      true,
+    );
+    assert.equal(
+      hasEngineerFirstAudienceExamples(root, "profiles/seo-digital-marketing.json"),
+      true,
+    );
     assert.equal(hasEngineerFirstAudienceExamples(root, "profiles/sales-business-dev.json"), true);
   });
 });

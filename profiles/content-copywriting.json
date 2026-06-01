@@ -90,12 +90,7 @@
 
   "salary_floor_usd": 65000,
 
-  "greenhouse_urls": [
-    "https://boards.greenhouse.io/notion",
-    "https://boards.greenhouse.io/webflow",
-    "https://boards.greenhouse.io/hubspot",
-    "https://boards.greenhouse.io/mailchimp"
-  ],
+  "greenhouse_urls": [],
 
   "lever_urls": []
 }

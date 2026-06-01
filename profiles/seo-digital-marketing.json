@@ -109,22 +109,7 @@
 
   "salary_floor_usd": 80000,
 
-  "greenhouse_urls": [
-    "https://boards.greenhouse.io/shopify",
-    "https://boards.greenhouse.io/hubspot",
-    "https://boards.greenhouse.io/klaviyo",
-    "https://boards.greenhouse.io/wayfair",
-    "https://boards.greenhouse.io/chewy",
-    "https://boards.greenhouse.io/etsy",
-    "https://boards.greenhouse.io/squarespace",
-    "https://boards.greenhouse.io/wix",
-    "https://boards.greenhouse.io/mailchimp",
-    "https://boards.greenhouse.io/canva"
-  ],
+  "greenhouse_urls": [],
 
-  "lever_urls": [
-    "https://jobs.lever.co/semrush",
-    "https://jobs.lever.co/hotjar",
-    "https://jobs.lever.co/unbounce"
-  ]
+  "lever_urls": []
 }

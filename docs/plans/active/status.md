@@ -31,6 +31,10 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local broad-profile source work removes preloaded company-source URLs
+  from product, UX, content, and marketing profile JSON files. Harness coverage
+  now rejects official company source URLs in broad non-technical starter
+  profiles unless the user adds them.
 - Latest local broad-audience notification work makes Settings and user docs
   present desktop alerts first, email second, and chat integrations as optional
   paths for people already using Slack, Discord, Teams, or Telegram.
