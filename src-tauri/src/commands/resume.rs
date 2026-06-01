@@ -18,6 +18,8 @@ use serde::Serialize;
 use std::path::Path;
 use tauri::State;
 
+const MAX_JSON_RESUME_IMPORT_BYTES: u64 = 5 * 1024 * 1024;
+
 #[derive(Debug, Clone, Serialize)]
 pub struct ResumeSummary {
     pub id: i64,
@@ -77,6 +79,62 @@ pub async fn import_json_resume(
         .import_json_resume(name, &json_string)
         .await
         .map_err(|e| user_friendly_error("Failed to import JSON Resume", e))
+}
+
+/// Import resume from a JSON Resume file selected by the user.
+#[tauri::command]
+pub async fn import_json_resume_file(
+    name: String,
+    file_path: String,
+    state: State<'_, AppState>,
+) -> Result<i64, String> {
+    let path = Path::new(&file_path);
+    tracing::info!(
+        name_chars = name.chars().count(),
+        file_path = %path_label_for_logging(path),
+        "Command: import_json_resume_file"
+    );
+
+    if !has_json_extension(path) {
+        return Err(
+            "Choose a structured resume file exported from JobSentinel or another resume tool."
+                .to_string(),
+        );
+    }
+
+    let metadata = tokio::fs::metadata(path).await.map_err(|_| {
+        "JobSentinel could not read that resume file. Choose another structured resume file or check that the file is still available.".to_string()
+    })?;
+
+    if !metadata.is_file() {
+        return Err(
+            "Choose a structured resume file exported from JobSentinel or another resume tool."
+                .to_string(),
+        );
+    }
+
+    if metadata.len() > MAX_JSON_RESUME_IMPORT_BYTES {
+        return Err(
+            "That resume file is too large for import. Choose a smaller structured resume file."
+                .to_string(),
+        );
+    }
+
+    let json_string = tokio::fs::read_to_string(path).await.map_err(|_| {
+        "JobSentinel could not read that resume file. Choose another structured resume file or check that the file is still available.".to_string()
+    })?;
+
+    tracing::info!(
+        name_chars = name.chars().count(),
+        json_chars = json_string.chars().count(),
+        "Command: import_json_resume_file loaded local file"
+    );
+
+    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    matcher
+        .import_json_resume(name, &json_string)
+        .await
+        .map_err(|e| user_friendly_error("Failed to import structured resume", e))
 }
 
 /// Get active resume
@@ -240,6 +298,12 @@ pub async fn list_all_resumes(state: State<'_, AppState>) -> Result<Vec<ResumeSu
         .await
         .map(|resumes| resumes.into_iter().map(ResumeSummary::from).collect())
         .map_err(|e| user_friendly_error("Failed to list resumes", e))
+}
+
+fn has_json_extension(path: &Path) -> bool {
+    path.extension()
+        .and_then(|extension| extension.to_str())
+        .is_some_and(|extension| extension.eq_ignore_ascii_case("json"))
 }
 
 /// Delete a resume
@@ -542,5 +606,13 @@ mod tests {
         assert!(!serialized.contains("/Users/alice"));
         assert!(!serialized.contains("parsed_text"));
         assert!(!serialized.contains("secret resume body"));
+    }
+
+    #[test]
+    fn json_resume_file_validation_requires_json_extension() {
+        assert!(has_json_extension(Path::new("resume.JSON")));
+        assert!(has_json_extension(Path::new(r"C:\Resume\resume.json")));
+        assert!(!has_json_extension(Path::new("resume.pdf")));
+        assert!(!has_json_extension(Path::new("resume")));
     }
 }

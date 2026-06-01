@@ -1276,8 +1276,8 @@ source-filter compatibility issue appears.
 - Current state: plan updated with six source documents plus first-class
   protective product priorities from the latest goal guidance. The guided setup
   preference for fresh and verified postings is implemented and covered by
-  focused tests. The visible posting-risk guidance and missing-pay cue slices
-  are implemented and covered by focused tests.
+  focused tests. The visible posting-risk guidance, missing-pay cue, and plain
+  source-label slices are implemented and covered by focused tests.
 - Evidence: source documents, selected primary sources, and local PDF text
   extraction reviewed on
   2026-05-28.

@@ -24,6 +24,8 @@ const staticCompanyFallbackPaths = new Set(["src/components/CompanyResearchPanel
 
 const settingsCredentialPaths = new Set(["src/pages/Settings.tsx"]);
 
+const resumeImportPaths = new Set(["src/pages/Resume.tsx"]);
+
 const frontendStatusEmojiPaths = new Set([
   "src/components/AnalyticsPanel.tsx",
   "src/components/BookmarkletGenerator.tsx",
@@ -232,6 +234,20 @@ export function hasStaticCompanyRatingFallback(root, path) {
   }
 
   return /\bglassdoorRating\s*:/.test(text.slice(start, end));
+}
+
+export function hasFrontendFileUrlResumeImport(root, path) {
+  if (!resumeImportPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /fetch\(\s*`file:\/\/\$\{filePath\}`\s*\)/.test(text) ||
+    /JSON\.parse\(jsonString\)[\s\S]{0,520}safeInvokeWithToast\(\s*["'`]import_json_resume["'`]/.test(
+      text,
+    )
+  );
 }
 
 export function hasNotificationWebhookSaveWithoutValidation(root, path) {

@@ -68,7 +68,10 @@ resume text in user-facing error copy.
 
 ## Developer contract
 
-The import command is `import_json_resume`.
+The renderer imports selected files through `import_json_resume_file`, which
+reads the local file in the Rust command layer and then calls the existing
+`import_json_resume` importer. The renderer must not fetch `file://` URLs or
+pass raw resume JSON through browser fetch code.
 
 Implementation paths:
 
@@ -80,11 +83,12 @@ Implementation paths:
 
 Privacy requirements:
 
-- Do not log resume names, raw JSON strings, parsed resume text, local paths, or
-  imported contact details.
-- Command logs may record non-identifying counts such as resume-name length and
-  JSON character length.
-- Renderer DTOs must not expose local file paths or full parsed resume text.
+- Do not log resume names, raw JSON strings, parsed resume text, raw local
+  paths, or imported contact details.
+- Command logs may record non-identifying counts such as resume-name length,
+  JSON character length, and sanitized path labels.
+- Returned renderer DTOs must not expose local file paths or full parsed resume
+  text.
 - Safe support reports must redact resume content unless the user explicitly
   includes it.
 

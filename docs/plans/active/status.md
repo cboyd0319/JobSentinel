@@ -298,6 +298,11 @@ and record actionable findings in this active-plan surface.
   them with display-safe error text plus a count/type-only argument summary.
   Focused API tests and privacy-logging harness coverage guard against raw
   invoke arguments returning.
+- Latest local structured-resume import work moves JSON Resume file reading
+  out of renderer `file://` fetches and into a Rust command that checks local
+  file type and size before import. Frontend coverage now verifies Windows
+  paths stay usable, and source-quality harness coverage blocks the old fetch
+  path.
 - Latest notification-settings UX work changes source-rule, minimum-salary,
   saved-error, and loading-error copy to plain alert-settings wording, with
   focused NotificationPreferences and product-copy coverage.

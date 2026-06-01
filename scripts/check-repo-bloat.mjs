@@ -84,6 +84,7 @@ import {
 import {
   hasBackendScoringReasonGlyphMarkers,
   hasDatabaseLogEmojiMarkers,
+  hasFrontendFileUrlResumeImport,
   hasFrontendStatusEmojiMarkers,
   hasNotificationScoringReasonGlyphMarkers,
   hasNotificationWebhookSaveWithoutValidation,
@@ -256,6 +257,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaticCompanyRatingFallback(root, path)) {
       violations.push(`remove stale static company ratings: ${path}`);
+    }
+
+    if (hasFrontendFileUrlResumeImport(root, path)) {
+      violations.push(`move structured resume import file reads to backend: ${path}`);
     }
 
     if (hasProductionExplicitAnySuppression(root, path)) {

@@ -23,6 +23,13 @@ const PROFICIENCY_COLORS: Record<string, BadgeVariant> = {
 const getProficiencyColor = (proficiency: string | null): BadgeVariant =>
   PROFICIENCY_COLORS[proficiency?.toLowerCase() ?? ""] ?? "surface";
 
+function fileNameFromPath(filePath: string, fallback: string) {
+  return filePath
+    .split(/[\\/]/)
+    .pop()
+    ?.replace(/\.json$/i, "") || fallback;
+}
+
 // Backend types (matching Rust types)
 interface ResumeData {
   id: number;
@@ -259,7 +266,7 @@ export default function Resume({ onBack }: ResumeProps) {
 
       setUploading(true);
       const filePath = selected as string;
-      const fileName = filePath.split("/").pop() || "Resume";
+      const fileName = fileNameFromPath(filePath, "Resume");
 
       await safeInvokeWithToast("upload_resume", { name: fileName, filePath }, toast, {
         logContext: "Upload resume"
@@ -284,24 +291,9 @@ export default function Resume({ onBack }: ResumeProps) {
 
       setUploading(true);
       const filePath = selected as string;
-      const fileName = filePath.split("/").pop()?.replace(".json", "") || "Resume";
+      const fileName = fileNameFromPath(filePath, "Resume");
 
-      // Read file content using fetch (works in Tauri)
-      const response = await fetch(`file://${filePath}`);
-      const jsonString = await response.text();
-
-      // Validate it's valid JSON
-      try {
-        JSON.parse(jsonString);
-      } catch {
-        toast.error(
-          "Resume file not recognized",
-          "Choose a structured resume file exported from JobSentinel or another resume tool.",
-        );
-        return;
-      }
-
-      await safeInvokeWithToast("import_json_resume", { name: fileName, jsonString }, toast, {
+      await safeInvokeWithToast("import_json_resume_file", { name: fileName, filePath }, toast, {
         logContext: "Import structured resume data"
       });
       toast.success("Resume imported", "Your resume data has been imported and analyzed");

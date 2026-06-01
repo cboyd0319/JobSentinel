@@ -37,7 +37,7 @@ current maintained surface at the time of the latest docs sweep.
 | Storage | Local SQLite with SQLx offline mode |
 | Source monitoring | 12 scheduled source adapters plus user-opened search links |
 | Source health | 15 source-health checks with plain troubleshooting output |
-| Backend surface | 194 registered Tauri commands |
+| Backend surface | 195 registered Tauri commands |
 | Privacy posture | Local-first, no telemetry, external channels user-configured |
 | External AI posture | Optional, disabled by default, routed through `src/services/aiGateway.ts` |
 | Safe support reports | Sanitized reports can be copied or saved for GitHub issues |

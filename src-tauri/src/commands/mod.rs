@@ -107,6 +107,7 @@ pub use resume::{
     get_user_skills,
     // Import commands
     import_json_resume,
+    import_json_resume_file,
     improve_bullet_point,
     list_all_resumes,
     // Template commands

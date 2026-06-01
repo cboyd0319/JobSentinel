@@ -193,6 +193,11 @@ Current cleanup posture:
   and raw backend exception text from propagated enhanced errors. The wrapper
   now throws display-safe copy with count/type-only argument summaries; privacy
   logging coverage rejects raw invoke arguments and raw fallback errors.
+- Latest structured-resume import follow-up moved local JSON Resume file reads
+  from renderer `file://` fetches into `import_json_resume_file` on the Rust
+  side, keeping raw resume JSON out of browser fetch code and making Windows
+  paths with backslashes usable. Source-quality coverage rejects the old
+  renderer file-fetch path.
 - Latest zero-technical UX follow-up fixed Settings load failure escape and
   guidance, application tracker first-use empty state, Dashboard no-jobs
   recovery guidance, browser import Advanced connection hiding, install wording

@@ -6,6 +6,7 @@ import test from "node:test";
 import {
   hasBackendScoringReasonGlyphMarkers,
   hasDatabaseLogEmojiMarkers,
+  hasFrontendFileUrlResumeImport,
   hasFrontendStatusEmojiMarkers,
   hasNotificationScoringReasonGlyphMarkers,
   hasNotificationWebhookSaveWithoutValidation,
@@ -150,6 +151,24 @@ test("source quality rejects unsafe rendered JSON parsing", () => {
     assert.equal(hasUnsafeScoreReasonJsonParsing(root, "src/components/GhostIndicator.tsx"), true);
     assert.equal(hasUnsafeStorageJsonParsing(root, "src/components/AnalyticsPanel.tsx"), true);
     assert.equal(hasUnsafeStorageJsonParsing(root, "src/components/AtsLiveScorePanel.tsx"), true);
+  });
+});
+
+test("source quality rejects frontend file URL resume imports", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/pages/Resume.tsx",
+      [
+        "const response = await fetch(`file://${filePath}`);",
+        "const jsonString = await response.text();",
+        "JSON.parse(jsonString);",
+        'await safeInvokeWithToast("import_json_resume", { name: fileName, jsonString }, toast);',
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(hasFrontendFileUrlResumeImport(root, "src/pages/Resume.tsx"), true);
   });
 });
 

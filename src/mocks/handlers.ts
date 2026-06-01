@@ -3315,6 +3315,12 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       return createMockResume(`${name}.json`, `${name}.json`) as T;
     }
 
+    case "import_json_resume_file": {
+      const name = getStringArg(args, "name") ?? "Imported Resume";
+      const filePath = getStringArg(args, "filePath") ?? getStringArg(args, "file_path") ?? `${name}.json`;
+      return createMockResume(`${name}.json`, filePath) as T;
+    }
+
     case "delete_resume": {
       const resumeId = getResumeIdArg(args);
       if (typeof resumeId === "number") {
