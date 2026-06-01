@@ -235,8 +235,9 @@ test("product copy rejects non-protective scoring and legacy preference copy", (
 
 test("product copy rejects technical-first settings copy", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/pages/Settings.tsx", "Config imported\n");
+    writeFixtureFile(root, "src/pages/Settings.tsx", "Config imported\nAdvanced Settings\n");
     writeFixtureFile(root, "src/pages/Settings.test.tsx", "Config imported\n");
+    writeFixtureFile(root, "docs/features/smart-scoring.md", "Settings > Advanced Settings\n");
     writeFixtureFile(
       root,
       "src/components/NotificationPreferences.tsx",
@@ -252,6 +253,10 @@ test("product copy rejects technical-first settings copy", () => {
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.test.tsx"), false);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/features/smart-scoring.md"),
+      true,
+    );
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/components/NotificationPreferences.tsx"),
       true,

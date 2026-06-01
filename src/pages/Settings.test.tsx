@@ -365,7 +365,7 @@ describe("Settings — loadConfig flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await userEvent.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+    await userEvent.click(screen.getByRole("tab", { name: "More Settings" }));
 
     expect(screen.getByText("Search links only")).toBeInTheDocument();
     expect(
@@ -390,7 +390,7 @@ describe("Settings — loadConfig flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+    await user.click(screen.getByRole("tab", { name: "More Settings" }));
 
     expect(screen.getByText("Posting Risk and Freshness")).toBeInTheDocument();
     expect(screen.getByText("Freshness behavior:")).toBeInTheDocument();
@@ -431,7 +431,7 @@ describe("Settings — loadConfig flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+    await user.click(screen.getByRole("tab", { name: "More Settings" }));
 
     const emailToggle = screen.getByRole("checkbox", {
       name: "Enable email alerts",
@@ -475,7 +475,7 @@ describe("Settings — loadConfig flow", () => {
     expect(screen.getByText("No search words to avoid")).toBeInTheDocument();
     expect(screen.queryByText("Keywords to Avoid")).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+    await user.click(screen.getByRole("tab", { name: "More Settings" }));
 
     expect(screen.getByText(/resume match \+ 30% search words/i)).toBeInTheDocument();
     expect(screen.getByText("Job title and search-word matches")).toBeInTheDocument();
@@ -597,7 +597,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+    await user.click(screen.getByRole("tab", { name: "More Settings" }));
     await user.type(
       screen.getByPlaceholderText("Paste Slack connection link"),
       "https://hooks.slack.com/services/T00/B00/secret-token",
@@ -702,7 +702,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+    await user.click(screen.getByRole("tab", { name: "More Settings" }));
     await user.click(screen.getByRole("button", { name: "Test" }));
 
     await waitFor(() => {
@@ -751,7 +751,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+    await user.click(screen.getByRole("tab", { name: "More Settings" }));
     await user.click(screen.getByRole("button", { name: "Test" }));
 
     await waitFor(() => {
@@ -793,7 +793,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+    await user.click(screen.getByRole("tab", { name: "More Settings" }));
 
     expect(screen.getByPlaceholderText("Paste Slack connection link")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Paste Discord connection link")).toBeInTheDocument();
@@ -827,7 +827,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+    await user.click(screen.getByRole("tab", { name: "More Settings" }));
 
     expect(screen.queryByText("Recommended for you")).not.toBeInTheDocument();
   });
@@ -854,7 +854,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+    await user.click(screen.getByRole("tab", { name: "More Settings" }));
 
     const recommended = screen.getByText("Recommended for you");
     const panel = recommended.parentElement?.parentElement;
@@ -887,7 +887,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+    await user.click(screen.getByRole("tab", { name: "More Settings" }));
 
     expect(screen.getAllByText(/This site sometimes blocks automatic checks/i)).toHaveLength(2);
     expect(screen.getAllByText(/use Job Site Search Links/i)).toHaveLength(2);
@@ -919,7 +919,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+    await user.click(screen.getByRole("tab", { name: "More Settings" }));
     await user.type(
       screen.getByPlaceholderText("Paste Discord connection link"),
       "https://evil.com/api/webhooks/123/abc",
@@ -960,7 +960,7 @@ describe("Settings — handleSave flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("tab", { name: "Advanced Settings" }));
+    await user.click(screen.getByRole("tab", { name: "More Settings" }));
     await user.type(
       screen.getByPlaceholderText("Paste Teams connection link"),
       "https://evil.com/webhook/abc",

@@ -1235,7 +1235,7 @@ export default function Settings({ onClose }: SettingsProps) {
                   : "border-transparent text-surface-500 hover:text-surface-700 dark:hover:text-surface-300"
               }`}
             >
-              Advanced Settings
+              More Settings
             </button>
           </div>
 

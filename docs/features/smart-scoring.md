@@ -30,7 +30,7 @@ each factor contributes to the match percentage.
 | **Company** | 10% | Favorite companies and hidden companies |
 | **Freshness** | 5% | How recently the posting appeared |
 
-The priority guide is visible in **Settings > Advanced Settings**. Most users
+The priority guide is visible in **Settings > More Settings**. Most users
 should change job titles, work words, salary floor, location, and company
 preferences before touching advanced scoring configuration.
 

@@ -174,10 +174,11 @@ Current cleanup posture:
   report label on those surfaces.
 - Latest broad-audience read-only audit found no high-confidence remaining
   engineer-first violations across maintained UI and user docs. Latest
-  zero-technical read-only audit found open debt in Settings tab naming,
-  source-health table/actions, Resume readability import/copy, and visible
-  dashboard shortcut copy. The local browser-import follow-up removed remaining
-  `ATS` jargon from browser button and LinkedIn monitoring guidance, with
+  zero-technical read-only audit found open debt in source-health
+  table/actions, Resume readability import/copy, and visible dashboard shortcut
+  copy. The local browser-import follow-up removed remaining `ATS` jargon from
+  browser button and LinkedIn monitoring guidance, and the local Settings
+  follow-up renamed the old advanced tab to "More Settings"; both have
   product-copy coverage against recurrence.
 - Latest zero-technical UX follow-up fixed Settings load failure escape and
   guidance, application tracker first-use empty state, Dashboard no-jobs
@@ -784,11 +785,10 @@ Next high-value passes:
      screens for plain-language actions and no terminal/developer assumptions.
    - Keep safe support report generation one click from Settings, Error
      Logs, and crash/error recovery surfaces.
-   - Current open read-only findings: rename or restructure the Settings
-     "Advanced Settings" tab, make source-health page-check and action labels
-     self-explanatory, make Resume readability import paths clearer, replace
-     raw suggestion category labels, replace browser-session-storage error
-     copy, clarify structured resume import, and move visible dashboard
+   - Current open read-only findings: make source-health page-check and action
+     labels self-explanatory, make Resume readability import paths clearer,
+     replace raw suggestion category labels, replace browser-session-storage
+     error copy, clarify structured resume import, and move visible dashboard
      shortcuts behind a discoverable control.
 6. Continue broad-audience UX review.
    - Recheck onboarding, examples, placeholders, filters, profile presets, docs,
