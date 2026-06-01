@@ -514,6 +514,10 @@ Recent cleanup slices on `main` include:
 - Latest local zero-technical setup follow-up removes raw Slack connection-link
   setup from first-run onboarding and replaces it with a plain note that
   optional chat alerts can be added later in Settings.
+- Latest local user-doc follow-up clarifies release-asset downloads, leads
+  notification setup with desktop and email before optional chat alerts, sends
+  normal site requests through feedback before developer docs, and moves Linux
+  keyring commands into an advanced reference.
 - Improved zero-technical support recovery by making local safe support report
   saving primary, keeping GitHub optional, adding safe support report actions to
   modal crash recovery, and updating notification setup docs.

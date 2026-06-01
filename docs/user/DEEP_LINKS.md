@@ -184,8 +184,12 @@ link, save a safe support report and share it only if you want help:
 
 ### Can I add more sites?
 
-Yes. Search links are easy to add. See the [developer guide](../developer/ADDING_DEEP_LINK_SITES.md)
-for details on adding new sites.
+Yes. The easiest path is to send feedback from JobSentinel and ask for the
+site. Include the site name and, if you are comfortable sharing it, an example
+public search page.
+
+Contributors can also add sites in code. See the
+[developer guide](../developer/ADDING_DEEP_LINK_SITES.md) for that path.
 
 ## Comparison With Monitored Sources
 

@@ -50,6 +50,10 @@ and record actionable findings in this active-plan surface.
 - Latest local zero-technical setup work removes raw Slack connection-link
   setup from first-run onboarding. Setup now tells users optional chat alerts
   can be added later in Settings, with focused UI and product-copy coverage.
+- Latest local user-doc cleanup makes the Quick Start download path point to
+  the release Assets section, puts desktop/email notifications before optional
+  chat alerts, sends normal site requests through feedback before developer
+  docs, and moves Linux keyring commands into an advanced reference.
 - Latest local work closed the active-plan compaction debt by adding this
   compact status file, archiving older progress rows, and routing the plan
   index, harness guide, agent guide, and handoff toward the compact state.

@@ -195,6 +195,9 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   button, and expires copied codes after about one hour.
 - Removed raw Slack connection-link setup from first-run onboarding and kept
   optional chat alerts as a later Settings task.
+- Updated user docs so downloads, notifications, site requests, and Linux
+  credential recovery put non-technical paths before advanced contributor or
+  command-line details.
 - Extracted root-entry, local-artifact, and tracked-disposable checks from
   `scripts/check-repo-bloat.mjs` into
   `scripts/harness/checks/repo-artifacts.mjs` with focused script tests.
@@ -374,6 +377,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-01 | In progress | Updated Quick Start, Deep Links, and credential-security docs so download, notification, site-request, and Linux keyring guidance starts with normal user actions before optional developer or command-line paths. |
 | 2026-06-01 | In progress | Removed raw Slack connection-link setup from first-run onboarding and added focused SetupWizard plus product-copy coverage so webhook-shaped setup does not drift back into the first-run path. |
 | 2026-06-01 | In progress | Removed wildcard CORS and custom auth headers from bookmarklet browser-helper imports, refreshed the local safety code when copying the browser button, expired copied codes after about one hour, and added focused expired-token coverage. |
 | 2026-06-01 | In progress | Moved production scraper constructors to a shared process-wide rate limiter and added focused coverage proving exhausted source buckets survive fresh handles. |

@@ -68,12 +68,10 @@ needed.
 Linux requires a Secret Service provider. GNOME Keyring and KWallet are the
 common providers.
 
-```bash
-secret-tool search application JobSentinel
-```
-
-If the Secret Service provider is not running, restart the user session or start
-the provider used by the desktop environment.
+If saved connection details stop working, restart your computer or sign out and
+back in, then re-enter the details in JobSentinel Settings. Advanced Linux users
+can inspect the desktop keyring from the command line in the developer
+reference below.
 
 ## Migration
 
@@ -137,6 +135,15 @@ directly when they must test or consume a saved secret.
 
 Backend parsing also accepts prefixed forms such as
 `jobsentinel_slack_webhook` for compatibility and diagnostics.
+
+### Advanced Linux Keyring Check
+
+```bash
+secret-tool search application JobSentinel
+```
+
+If the Secret Service provider is not running, restart the user session or start
+the provider used by the desktop environment.
 
 ## Error Handling
 

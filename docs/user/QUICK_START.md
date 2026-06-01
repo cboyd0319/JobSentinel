@@ -18,13 +18,14 @@ licensed. You do not need a paid account to use the core app.
 
 **Download the installer** (recommended)
 
-1. Go to [GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases)
-2. Download the installer for your computer:
+1. Open the [latest download page](https://github.com/cboyd0319/JobSentinel/releases).
+2. Look for the **Assets** section on the newest release.
+3. Download the installer for your computer:
    - **Windows installer**
    - **Mac installer**
    - **Linux installer** when present on the release
-3. Double-click and follow the prompts
-4. Open JobSentinel.
+4. Double-click and follow the prompts.
+5. Open JobSentinel.
 
 <details>
 <summary><strong>First time on Mac? (Gatekeeper warning)</strong></summary>
@@ -323,21 +324,44 @@ Your changes take effect immediately.
 
 ## Getting Notifications
 
-### Slack
+### Easiest option: desktop alerts
+
+Desktop alerts do not need another account.
+
+1. Open **Settings > Notifications > Desktop**.
+2. Turn desktop alerts on.
+3. Save settings.
+
+### Email
+
+Email alerts are optional. Use them if your email provider gives you an app
+password or sending details.
+
+1. Open **Settings > Notifications > Email**.
+2. Choose your email provider when listed.
+3. Follow the provider guidance shown in JobSentinel.
+4. Save settings.
+
+### Optional chat alerts
+
+Chat alerts are helpful if you already use these tools. Skip them if you do
+not.
+
+#### Slack
 
 1. Go to [Slack's connection-link page](https://api.slack.com/messaging/webhooks).
 2. Create a new connection link for your workspace.
 3. Copy the connection link.
 4. Paste it in JobSentinel Settings > Notifications > Slack.
 
-### Discord
+#### Discord
 
 1. Right-click your Discord channel > Edit Channel > Integrations
 2. Create a channel connection.
 3. Copy the connection link.
 4. Paste it in JobSentinel Settings > Notifications > Discord.
 
-### Microsoft Teams
+#### Microsoft Teams
 
 1. In your Teams channel, click More options > Connectors
 2. Add a channel connection.
