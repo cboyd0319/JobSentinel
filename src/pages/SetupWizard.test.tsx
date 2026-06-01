@@ -403,6 +403,12 @@ describe("SetupWizard Accessibility", () => {
       await waitFor(() => {
         expect(screen.getByText("Where do you want to work?")).toBeInTheDocument();
       });
+      expect(
+        screen.getByText(/asks an outside location lookup service/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/nothing is saved unless you add the city/i),
+      ).toBeInTheDocument();
 
       expect(
         mockInvoke.mock.calls.some(([cmd]) => cmd === "detect_location"),

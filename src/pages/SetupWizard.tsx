@@ -946,8 +946,10 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                         id="setup-location-detection-privacy"
                         className="mt-2 text-xs text-surface-500"
                       >
-                        Looks up your approximate city from your internet
-                        address. Not saved unless added.
+                        Only when you click this, JobSentinel asks an outside
+                        location lookup service for your approximate city from
+                        your internet address. Nothing is saved unless you add
+                        the city.
                       </p>
                     </div>
                   )}

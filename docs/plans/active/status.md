@@ -31,6 +31,10 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local location-privacy follow-up makes setup and settings disclose
+  that Detect Location contacts an outside location lookup service only after
+  the user clicks, and that nothing is saved unless the user adds the city.
+  Focused page tests and product-copy coverage guard the disclosure.
 - Latest local zero-technical problem-history follow-up renames the vague
   `Clear All` recovery action to `Clear Problem List` and adds product-copy
   coverage so support/problem-history screens keep destructive actions

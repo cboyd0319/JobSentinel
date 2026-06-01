@@ -1042,6 +1042,7 @@ test("product copy rejects technical provider setup shortcuts", () => {
         "Quick Setup (2 minutes)",
         "Get USAJobs Access Code",
         "USAJobs uses a free access code.",
+        "Looks up your approximate city from your internet address. Not saved unless added.",
       ].join("\n"),
     );
 

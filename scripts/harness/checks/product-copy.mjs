@@ -1187,6 +1187,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Don't know what a webhook is/i,
     /special URL that lets JobSentinel/i,
     /check if the database is accessible/i,
+    /Looks up your approximate city from your internet\s+address\. Not saved unless added\./i,
     /Popular with tech companies/i,
     /Blocked unsafe deep link URL/i,
     /Blocked unsafe job import URL/i,

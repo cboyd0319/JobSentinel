@@ -157,6 +157,7 @@ describe("Settings — loadConfig flow", () => {
   });
 
   it("does not detect location when settings opens", async () => {
+    const user = userEvent.setup();
     setupHappyPath();
     render(<Settings onClose={vi.fn()} />);
 
@@ -164,6 +165,18 @@ describe("Settings — loadConfig flow", () => {
       expect(screen.getByText("Settings")).toBeInTheDocument();
     });
 
+    expect(
+      mockInvoke.mock.calls.some(([cmd]) => cmd === "detect_location"),
+    ).toBe(false);
+
+    await user.click(screen.getByRole("checkbox", { name: /hybrid/i }));
+
+    expect(
+      screen.getByText(/asks an outside location lookup service/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/nothing is saved unless you add the city/i),
+    ).toBeInTheDocument();
     expect(
       mockInvoke.mock.calls.some(([cmd]) => cmd === "detect_location"),
     ).toBe(false);
