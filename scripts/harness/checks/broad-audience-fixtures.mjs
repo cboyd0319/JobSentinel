@@ -2,7 +2,13 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const broadAudienceExamplePaths = new Set([
+  "config/config.example.json",
   "examples/sample-json-resume.json",
+  "profiles/finance-accounting.json",
+  "profiles/hr-recruiting.json",
+  "profiles/project-operations.json",
+  "profiles/README.md",
+  "profiles/sales-business-dev.json",
   "src/components/CoverLetterTemplates.tsx",
   "src/components/CompanyResearchPanel.tsx",
   "src/components/CompanyResearchPanel.test.tsx",
@@ -100,6 +106,8 @@ const broadAudienceExamplePaths = new Set([
   "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
   "docs/developer/FRONTEND_TESTING.md",
   "docs/developer/INTEGRATION_TESTING.md",
+  "docs/developer/MACOS_DEVELOPMENT.md",
+  "docs/developer/TESTING.md",
   "docs/README.md",
   "docs/ROADMAP.md",
   "docs/features/resume-builder.md",
@@ -112,6 +120,8 @@ const broadAudienceExamplePaths = new Set([
 ]);
 
 const salaryAudienceExamplePaths = new Set([
+  "src-tauri/src/core/salary/benchmarks.rs",
+  "src-tauri/src/core/salary/negotiation.rs",
   "src-tauri/src/core/salary/predictor.rs",
   "src-tauri/src/core/salary/tests.rs",
 ]);
@@ -133,6 +143,61 @@ export function hasEngineerFirstAudienceExamples(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
+
+  if (path === "config/config.example.json") {
+    const configExamplePatterns = [
+      /"company_whitelist":\s*\[[^\]]*"Google"[^\]]*"Cloudflare"[^\]]*"GitHub"/is,
+    ];
+
+    if (configExamplePatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "profiles/README.md") {
+    const firstProfileRow = text.match(/\|\s*\*\*[^*]+\*\*\s*\|[^\n]+/);
+    if (
+      firstProfileRow &&
+      /Software Engineering|Cybersecurity|Data Science/i.test(firstProfileRow[0])
+    ) {
+      return true;
+    }
+  }
+
+  if (
+    path === "profiles/finance-accounting.json" ||
+    path === "profiles/hr-recruiting.json" ||
+    path === "profiles/project-operations.json" ||
+    path === "profiles/sales-business-dev.json"
+  ) {
+    const profileSeedPatterns = [
+      /https:\/\/boards\.greenhouse\.io\/(?:stripe|rippling|plaid|ramp|asana|notion|datadog|snowflake|mongodb)/i,
+      /https:\/\/jobs\.lever\.co\/lever/i,
+    ];
+
+    if (profileSeedPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (
+    path === "docs/developer/FRONTEND_TESTING.md" ||
+    path === "docs/developer/MACOS_DEVELOPMENT.md" ||
+    path === "docs/developer/TESTING.md"
+  ) {
+    const developerDocsPatterns = [
+      /Senior Engineer - Acme Corp/i,
+      /React Engineer/i,
+      /Security Engineer/i,
+      /Product Security/i,
+      /salary_floor_usd:\s*150000/i,
+      /salary floor:\s*\$150,000/i,
+    ];
+
+    if (developerDocsPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
 
   if (path === "src/components/AtsLiveScorePanel.tsx") {
     const atsLiveScorePatterns = [
@@ -512,6 +577,27 @@ export function hasSalaryAudienceExampleDrift(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
+
+  if (
+    path === "src-tauri/src/core/salary/benchmarks.rs" ||
+    path === "src-tauri/src/core/salary/negotiation.rs"
+  ) {
+    const salaryLocationPatterns = [
+      /location:\s*["']San Francisco,\s*CA["']/i,
+      /location:\s*["']Seattle,\s*WA["']/i,
+      /location:\s*["']Austin,\s*TX["']/i,
+      /"San Francisco,\s*CA"\.to_string\(\)/i,
+      /"Seattle,\s*WA"\.to_string\(\)/i,
+      /"Austin,\s*TX"\.to_string\(\)/i,
+      /assert_eq!\([^,]+,\s*["']San Francisco,\s*CA["']\)/i,
+      /assert_eq!\([^,]+,\s*["']Seattle,\s*WA["']\)/i,
+      /assert_eq!\([^,]+,\s*["']Austin,\s*TX["']\)/i,
+    ];
+
+    if (salaryLocationPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
 
   if (path === "src-tauri/src/core/salary/predictor.rs") {
     const predictorPatterns = [

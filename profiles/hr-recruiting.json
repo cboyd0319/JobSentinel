@@ -89,14 +89,7 @@
 
   "salary_floor_usd": 70000,
 
-  "greenhouse_urls": [
-    "https://boards.greenhouse.io/greenhouse",
-    "https://boards.greenhouse.io/rippling",
-    "https://boards.greenhouse.io/stripe",
-    "https://boards.greenhouse.io/airbnb"
-  ],
+  "greenhouse_urls": [],
 
-  "lever_urls": [
-    "https://jobs.lever.co/lever"
-  ]
+  "lever_urls": []
 }

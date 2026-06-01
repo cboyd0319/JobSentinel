@@ -236,7 +236,7 @@ describe("JobsList", () => {
 
     // After API call, shows jobs
     await waitFor(() => {
-      expect(screen.getByText("Senior Engineer - Acme Corp")).toBeInTheDocument();
+      expect(screen.getByText("Operations Manager - Acme Corp")).toBeInTheDocument();
     });
   });
 
@@ -525,7 +525,7 @@ test.describe("Job Search Workflow", () => {
   test("should search jobs and apply filters", async ({ page }) => {
     // Search for jobs
     const searchBox = page.getByRole("searchbox", { name: "Search jobs" });
-    await searchBox.fill("React Engineer");
+    await searchBox.fill("Care Coordinator");
     await searchBox.press("Enter");
 
     // Wait for results

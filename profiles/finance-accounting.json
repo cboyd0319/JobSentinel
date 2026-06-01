@@ -92,12 +92,7 @@
 
   "salary_floor_usd": 75000,
 
-  "greenhouse_urls": [
-    "https://boards.greenhouse.io/stripe",
-    "https://boards.greenhouse.io/plaid",
-    "https://boards.greenhouse.io/ramp",
-    "https://boards.greenhouse.io/brex"
-  ],
+  "greenhouse_urls": [],
 
   "lever_urls": []
 }

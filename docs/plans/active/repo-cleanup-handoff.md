@@ -64,6 +64,9 @@ Current cleanup posture:
 - Broad-audience fixture checks now cover generic skill-filter categories, Cow
   utility tests, API-contract search history, and ignored live-scraper probes
   so technical defaults do not quietly drift back into broad examples.
+- Broad-audience seed checks now cover example config company lists, broad
+  non-engineering profile URL seeds, developer-doc examples, and salary
+  location fixtures.
 - Release-promise drift checks now live in
   `scripts/harness/checks/release-promises.mjs`.
 - Initial privacy-logging checks for raw automation dropdown values and raw
@@ -545,6 +548,16 @@ Latest broad-audience fixture slice checks on 2026-06-01:
 - `cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check`
 - `git diff --check`
 - `npm run harness:benchmark`
+
+Latest broad-audience seed slice checks on 2026-06-01:
+
+- `node --test scripts/check-broad-audience-fixtures.test.mjs`
+- `npm run lint:bloat`
+- `node -e` JSON parse check for `config/config.example.json` and changed
+  profile JSON files
+- `npm run lint:docs`
+- `cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check`
+- `cargo test --manifest-path src-tauri/Cargo.toml core::salary --lib`
 
 Latest harness/readiness slice checks on 2026-05-31:
 

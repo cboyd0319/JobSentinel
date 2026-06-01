@@ -189,6 +189,11 @@ and record actionable findings in this active-plan surface.
   `SkillCategoryFilter`, Cow utility, API-contract, scraper-construction, and
   ignored live-scraper tests with operations, support, accounting, and care
   examples; the broad-audience sensor now rejects those old fixtures.
+- Latest local broad-audience seed work removes tech-brand defaults from
+  `config/config.example.json` and broad non-engineering profile URL seeds,
+  reorders `profiles/README.md` to match the broad-first UI posture, replaces
+  engineer-first developer-doc examples, and moves salary-location fixtures off
+  San Francisco, Seattle, and Austin defaults.
 - Latest local docs-drift harness work moves the docs-drift violation messages
   out of `scripts/check-repo-bloat.mjs` and into
   `scripts/harness/checks/docs-drift.mjs` through

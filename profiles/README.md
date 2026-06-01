@@ -6,17 +6,17 @@ Pre-configured job search profiles for different career paths. Copy one to use a
 
 | Profile | File | Target Roles | Salary Range |
 |---------|------|--------------|--------------|
-| **Software Engineering** | `software-engineering.json` | SWE, Backend, Frontend, DevOps, SRE | $100k - $250k |
-| **Cybersecurity** | `cybersecurity.json` | Security Engineer, AppSec, Pentester | $100k - $250k |
-| **Data Science** | `data-science.json` | Data Scientist, ML Engineer, Analyst | $90k - $220k |
-| **Product Management** | `product-management.json` | PM, TPM, Product Owner | $100k - $200k |
-| **UX/UI Design** | `ux-design.json` | Product Designer, UX Researcher | $80k - $180k |
 | **SEO & Digital Marketing** | `seo-digital-marketing.json` | SEO Manager, E-Commerce, Growth | $70k - $150k |
 | **Sales & Business Dev** | `sales-business-dev.json` | AE, BDR, Sales Manager | $60k - $200k+ |
-| **HR & Recruiting** | `hr-recruiting.json` | Recruiter, HRBP, People Ops | $60k - $150k |
-| **Finance & Accounting** | `finance-accounting.json` | FP&A, Controller, Accountant | $60k - $180k |
 | **Project & Ops** | `project-operations.json` | PM, Program Manager, Operations | $70k - $160k |
+| **Finance & Accounting** | `finance-accounting.json` | FP&A, Controller, Accountant | $60k - $180k |
+| **HR & Recruiting** | `hr-recruiting.json` | Recruiter, HRBP, People Ops | $60k - $150k |
 | **Content & Copywriting** | `content-copywriting.json` | Content Writer, UX Writer, Editor | $55k - $130k |
+| **Product Management** | `product-management.json` | PM, TPM, Product Owner | $100k - $200k |
+| **UX/UI Design** | `ux-design.json` | Product Designer, UX Researcher | $80k - $180k |
+| **Data Science** | `data-science.json` | Data Scientist, ML Engineer, Analyst | $90k - $220k |
+| **Cybersecurity** | `cybersecurity.json` | Security Engineer, AppSec, Pentester | $100k - $250k |
+| **Software Engineering** | `software-engineering.json` | SWE, Backend, Frontend, DevOps, SRE | $100k - $250k |
 
 ## How to Use
 
@@ -43,7 +43,7 @@ Start with `config/config.example.json` and fill in your own:
 - `title_allowlist`: Job titles you're targeting
 - `keywords_boost`: Your skills and tools
 - `salary_floor_usd`: Your minimum salary
-- `greenhouse_urls` / `lever_urls`: Companies you're interested in
+- `greenhouse_urls` / `lever_urls`: Official company boards you choose to monitor
 
 ## Profile Fields Explained
 

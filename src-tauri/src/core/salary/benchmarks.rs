@@ -240,7 +240,7 @@ mod tests {
     fn test_competitiveness_check() {
         let benchmark = SalaryBenchmark {
             job_title: "Case Manager".to_string(),
-            location: "San Francisco, CA".to_string(),
+            location: "Chicago, IL".to_string(),
             seniority_level: SeniorityLevel::Mid,
             min_salary: 100000,
             p25_salary: 120000,
@@ -294,7 +294,7 @@ mod tests {
     fn test_negotiation_target() {
         let benchmark = SalaryBenchmark {
             job_title: "Case Manager".to_string(),
-            location: "San Francisco, CA".to_string(),
+            location: "Chicago, IL".to_string(),
             seniority_level: SeniorityLevel::Mid,
             min_salary: 100000,
             p25_salary: 120000,
@@ -364,7 +364,7 @@ mod tests {
         ] {
             let benchmark = SalaryBenchmark {
                 job_title: "Case Manager".to_string(),
-                location: "San Francisco, CA".to_string(),
+                location: "Chicago, IL".to_string(),
                 seniority_level: seniority,
                 min_salary: 100000,
                 p25_salary: 120000,
@@ -385,7 +385,7 @@ mod tests {
     fn create_test_benchmark() -> SalaryBenchmark {
         SalaryBenchmark {
             job_title: "Case Manager".to_string(),
-            location: "San Francisco, CA".to_string(),
+            location: "Chicago, IL".to_string(),
             seniority_level: SeniorityLevel::Mid,
             min_salary: 100000,
             p25_salary: 120000,
@@ -610,7 +610,7 @@ mod tests {
     fn test_entry_level_benchmarks() {
         let benchmark = SalaryBenchmark {
             job_title: "Customer Support Assistant".to_string(),
-            location: "Austin, TX".to_string(),
+            location: "Atlanta, GA".to_string(),
             seniority_level: SeniorityLevel::Entry,
             min_salary: 50000,
             p25_salary: 60000,
@@ -636,7 +636,7 @@ mod tests {
     fn test_principal_level_benchmarks() {
         let benchmark = SalaryBenchmark {
             job_title: "Program Director".to_string(),
-            location: "Seattle, WA".to_string(),
+            location: "Denver, CO".to_string(),
             seniority_level: SeniorityLevel::Principal,
             min_salary: 200000,
             p25_salary: 250000,
@@ -711,7 +711,7 @@ mod tests {
     fn test_different_locations_same_title() {
         let sf_benchmark = SalaryBenchmark {
             job_title: "Case Manager".to_string(),
-            location: "San Francisco, CA".to_string(),
+            location: "Chicago, IL".to_string(),
             seniority_level: SeniorityLevel::Mid,
             min_salary: 140000,
             p25_salary: 160000,
@@ -725,7 +725,7 @@ mod tests {
 
         let austin_benchmark = SalaryBenchmark {
             job_title: "Case Manager".to_string(),
-            location: "Austin, TX".to_string(),
+            location: "Atlanta, GA".to_string(),
             seniority_level: SeniorityLevel::Mid,
             min_salary: 90000,
             p25_salary: 110000,
@@ -881,10 +881,10 @@ mod tests {
         let manager = BenchmarkManager::new(pool.clone());
 
         let mut benchmark = create_test_benchmark();
-        benchmark.location = "San Francisco, CA".to_string();
+        benchmark.location = "Chicago, IL".to_string();
         manager.upsert_benchmark(&benchmark).await.unwrap();
 
-        benchmark.location = "Austin, TX".to_string();
+        benchmark.location = "Atlanta, GA".to_string();
         benchmark.median_salary = 130000;
         manager.upsert_benchmark(&benchmark).await.unwrap();
 
@@ -967,13 +967,13 @@ mod tests {
 
         let mut benchmark2 = create_test_benchmark();
         benchmark2.job_title = "Senior Case Manager".to_string();
-        benchmark2.location = "Seattle, WA".to_string();
+        benchmark2.location = "Denver, CO".to_string();
         benchmark2.sample_size = 300;
         manager.upsert_benchmark(&benchmark2).await.unwrap();
 
         let mut benchmark3 = create_test_benchmark();
         benchmark3.job_title = "Lead Case Manager".to_string();
-        benchmark3.location = "Austin, TX".to_string();
+        benchmark3.location = "Atlanta, GA".to_string();
         benchmark3.sample_size = 800;
         manager.upsert_benchmark(&benchmark3).await.unwrap();
 
@@ -1077,17 +1077,17 @@ mod tests {
         let manager = BenchmarkManager::new(pool.clone());
 
         let mut benchmark1 = create_test_benchmark();
-        benchmark1.location = "San Francisco, CA".to_string();
+        benchmark1.location = "Chicago, IL".to_string();
         benchmark1.median_salary = 180000;
         manager.upsert_benchmark(&benchmark1).await.unwrap();
 
         let mut benchmark2 = create_test_benchmark();
-        benchmark2.location = "Austin, TX".to_string();
+        benchmark2.location = "Atlanta, GA".to_string();
         benchmark2.median_salary = 130000;
         manager.upsert_benchmark(&benchmark2).await.unwrap();
 
         let mut benchmark3 = create_test_benchmark();
-        benchmark3.location = "Seattle, WA".to_string();
+        benchmark3.location = "Denver, CO".to_string();
         benchmark3.median_salary = 160000;
         manager.upsert_benchmark(&benchmark3).await.unwrap();
 
@@ -1097,11 +1097,11 @@ mod tests {
             .unwrap();
 
         assert_eq!(results.len(), 3);
-        assert_eq!(results[0].0, "San Francisco, CA");
+        assert_eq!(results[0].0, "Chicago, IL");
         assert_eq!(results[0].1, 180000);
-        assert_eq!(results[1].0, "Seattle, WA");
+        assert_eq!(results[1].0, "Denver, CO");
         assert_eq!(results[1].1, 160000);
-        assert_eq!(results[2].0, "Austin, TX");
+        assert_eq!(results[2].0, "Atlanta, GA");
         assert_eq!(results[2].1, 130000);
     }
 
@@ -1154,13 +1154,13 @@ mod tests {
 
         let mut benchmark1 = create_test_benchmark();
         benchmark1.job_title = "Case Manager".to_string();
-        benchmark1.location = "SF".to_string();
+        benchmark1.location = "CHI".to_string();
         benchmark1.median_salary = 180000;
         manager.upsert_benchmark(&benchmark1).await.unwrap();
 
         let mut benchmark2 = create_test_benchmark();
         benchmark2.job_title = "Senior Case Manager".to_string();
-        benchmark2.location = "Austin".to_string();
+        benchmark2.location = "Atlanta".to_string();
         benchmark2.median_salary = 200000;
         manager.upsert_benchmark(&benchmark2).await.unwrap();
 
@@ -1171,7 +1171,7 @@ mod tests {
             .unwrap();
 
         assert_eq!(results.len(), 1);
-        assert_eq!(results[0].0, "SF");
+        assert_eq!(results[0].0, "CHI");
     }
 
     #[tokio::test]

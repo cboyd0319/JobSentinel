@@ -343,7 +343,7 @@ Best regards,
         params.insert("recruiter_name".to_string(), "Sarah Johnson".to_string());
         params.insert("position".to_string(), "Senior Case Manager".to_string());
         params.insert("years_experience".to_string(), "7".to_string());
-        params.insert("location".to_string(), "San Francisco, CA".to_string());
+        params.insert("location".to_string(), "Chicago, IL".to_string());
         params.insert("expected_min".to_string(), "$180,000".to_string());
         params.insert("expected_max".to_string(), "$210,000".to_string());
         params.insert("current_offer".to_string(), "$160,000".to_string());
@@ -356,7 +356,7 @@ Best regards,
         assert!(result.contains("Sarah Johnson"));
         assert!(result.contains("Senior Case Manager"));
         assert!(result.contains("7 years"));
-        assert!(result.contains("San Francisco, CA"));
+        assert!(result.contains("Chicago, IL"));
         assert!(result.contains("$180,000-$210,000"));
         assert!(result.contains("$160,000"));
         assert!(result.contains("$185,000"));

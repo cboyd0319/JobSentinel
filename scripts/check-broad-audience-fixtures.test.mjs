@@ -136,8 +136,83 @@ test("broad audience fixtures reject narrow utility and live scraper defaults", 
   });
 });
 
+test("broad audience fixtures reject tech-brand config and profile seeds", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "config/config.example.json",
+      '"company_whitelist": ["Google", "Cloudflare", "GitHub"]',
+    );
+    writeFixtureFile(
+      root,
+      "profiles/README.md",
+      [
+        "| Profile | File | Target Roles | Salary Range |",
+        "|---------|------|--------------|--------------|",
+        "| **Software Engineering** | `software-engineering.json` | SWE | $100k - $250k |",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "profiles/hr-recruiting.json",
+      '"greenhouse_urls": ["https://boards.greenhouse.io/rippling"]',
+    );
+    writeFixtureFile(
+      root,
+      "profiles/sales-business-dev.json",
+      '"greenhouse_urls": ["https://boards.greenhouse.io/datadog"]',
+    );
+
+    assert.equal(hasEngineerFirstAudienceExamples(root, "config/config.example.json"), true);
+    assert.equal(hasEngineerFirstAudienceExamples(root, "profiles/README.md"), true);
+    assert.equal(hasEngineerFirstAudienceExamples(root, "profiles/hr-recruiting.json"), true);
+    assert.equal(hasEngineerFirstAudienceExamples(root, "profiles/sales-business-dev.json"), true);
+  });
+});
+
+test("broad audience fixtures reject engineer-first developer docs examples", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "docs/developer/FRONTEND_TESTING.md",
+      'expect(screen.getByText("Senior Engineer - Acme Corp")).toBeInTheDocument();',
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/TESTING.md",
+      'title_allowlist: vec!["Security Engineer".to_string()], salary_floor_usd: 150000,',
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/MACOS_DEVELOPMENT.md",
+      'Enter job titles: "Security Engineer", "Product Security"',
+    );
+
+    assert.equal(
+      hasEngineerFirstAudienceExamples(root, "docs/developer/FRONTEND_TESTING.md"),
+      true,
+    );
+    assert.equal(hasEngineerFirstAudienceExamples(root, "docs/developer/TESTING.md"), true);
+    assert.equal(
+      hasEngineerFirstAudienceExamples(root, "docs/developer/MACOS_DEVELOPMENT.md"),
+      true,
+    );
+  });
+});
+
 test("salary audience fixtures reject engineer-centered salary examples", () => {
   withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/salary/benchmarks.rs",
+      'benchmark.location = "San Francisco, CA".to_string();',
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/salary/negotiation.rs",
+      'params.insert("location".to_string(), "Seattle, WA".to_string());',
+    );
     writeFixtureFile(
       root,
       "src-tauri/src/core/salary/predictor.rs",
@@ -149,6 +224,14 @@ test("salary audience fixtures reject engineer-centered salary examples", () => 
       'SeniorityLevel::from_job_title("Software Architect")',
     );
 
+    assert.equal(
+      hasSalaryAudienceExampleDrift(root, "src-tauri/src/core/salary/benchmarks.rs"),
+      true,
+    );
+    assert.equal(
+      hasSalaryAudienceExampleDrift(root, "src-tauri/src/core/salary/negotiation.rs"),
+      true,
+    );
     assert.equal(
       hasSalaryAudienceExampleDrift(root, "src-tauri/src/core/salary/predictor.rs"),
       true,

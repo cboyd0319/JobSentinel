@@ -191,8 +191,8 @@ fn test_save_and_load_config() {
 /// Helper to create a valid test config
 fn create_valid_config() -> Config {
     Config {
-        title_allowlist: vec!["Security Engineer".to_string()],
-        salary_floor_usd: 150000,
+        title_allowlist: vec!["Program Analyst".to_string()],
+        salary_floor_usd: 85000,
         // ... other fields
     }
 }

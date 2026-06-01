@@ -94,14 +94,7 @@
 
   "salary_floor_usd": 70000,
 
-  "greenhouse_urls": [
-    "https://boards.greenhouse.io/salesforce",
-    "https://boards.greenhouse.io/hubspot",
-    "https://boards.greenhouse.io/stripe",
-    "https://boards.greenhouse.io/datadog",
-    "https://boards.greenhouse.io/snowflake",
-    "https://boards.greenhouse.io/mongodb"
-  ],
+  "greenhouse_urls": [],
 
   "lever_urls": []
 }

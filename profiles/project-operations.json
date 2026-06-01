@@ -89,12 +89,7 @@
 
   "salary_floor_usd": 80000,
 
-  "greenhouse_urls": [
-    "https://boards.greenhouse.io/asana",
-    "https://boards.greenhouse.io/monday",
-    "https://boards.greenhouse.io/notion",
-    "https://boards.greenhouse.io/stripe"
-  ],
+  "greenhouse_urls": [],
 
   "lever_urls": []
 }

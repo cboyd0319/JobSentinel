@@ -196,9 +196,9 @@ npm install
    ```
 
 2. **Complete setup wizard:**
-   - Enter job titles: "Security Engineer", "Product Security"
+   - Enter job titles: "Program Analyst", "Operations Manager"
    - Select location: Remote only
-   - Set salary floor: $150,000
+   - Set salary floor: $85,000
    - (Optional) Add Slack webhook
 
 3. **Trigger a search:**
