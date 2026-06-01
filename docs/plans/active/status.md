@@ -153,6 +153,13 @@ and record actionable findings in this active-plan surface.
   checks, and unsafe Settings webhook/partial-save checks into
   `scripts/harness/checks/source-quality.mjs`; focused source-quality coverage
   is now 6 tests and `scripts/check-repo-bloat.mjs` is 1,367 lines.
+- Latest local security-doc harness work moves stale notification webhook docs,
+  security doc marker drift, URL validation security reference drift, XSS
+  security doc drift, keyring credential docs, keyring migration retry-safety,
+  credential architecture comments, and notification preference doc shape
+  checks into `scripts/harness/checks/security-docs.mjs`; focused
+  security-doc coverage is now 7 tests and `scripts/check-repo-bloat.mjs` is
+  1,231 lines.
 - Latest local privacy work removes raw automation dropdown-answer logging and
   raw frontend error forwarding, then adds bloat sensors and `errorReporting`
   unit coverage so those regressions fail locally.
@@ -248,9 +255,9 @@ and record actionable findings in this active-plan surface.
 1. Continue broad-audience fixture audit in less obvious fixture paths outside
    current sensors, while preserving tech-specific cases only when they test
    explicit branch behavior or source-realism parser contracts.
-2. Continue splitting oversized mixed sensors, especially remaining security
-   docs, credential docs, docs-image, screenshot, and release-plan drift checks
-   still inside `scripts/check-repo-bloat.mjs`.
+2. Continue splitting oversized mixed sensors, especially remaining docs-image,
+   screenshot, release-plan, and small repo-specific drift checks still inside
+   `scripts/check-repo-bloat.mjs`.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
 4. Continue broad-audience review so non-technical and technical job searches
