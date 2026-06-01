@@ -145,6 +145,10 @@ and record actionable findings in this active-plan surface.
 - Latest local Settings copy follow-up replaces the remaining `New scans`
   posting-risk toast and `Advanced chat alert` badge with plain job-check and
   optional-chat-alert wording, with Settings and product-copy coverage.
+- Latest local Application Assist recovery-copy follow-up replaces visible
+  form-preparation failure wording with `Could not prepare details` and adds
+  ApplyButton plus product-copy coverage so old preparation-error labels do
+  not return.
 - Latest local Application Assist readiness follow-up stops optional
   application-form detection from blocking the Prepare Form action. If form
   recognition is still loading, users with a saved profile can still open the

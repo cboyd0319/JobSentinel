@@ -536,6 +536,7 @@ describe("ApplyButton", () => {
       await waitFor(() => {
         // Check for error in modal specifically (not toast)
         const dialog = screen.getByRole("dialog");
+        expect(dialog).toHaveTextContent(/could not prepare details/i);
         expect(dialog).toHaveTextContent(/check your internet connection/i);
       });
     });
@@ -746,7 +747,7 @@ describe("ApplyButton", () => {
         expect(screen.getByRole("dialog")).toBeInTheDocument();
         // Error should be cleared from modal (error heading won't be present)
         const dialog = screen.getByRole("dialog");
-        expect(dialog.textContent).not.toMatch(/form preparation failed/i);
+        expect(dialog.textContent).not.toMatch(/could not prepare details/i);
       });
     });
   });

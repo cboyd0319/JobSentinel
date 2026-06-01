@@ -342,8 +342,9 @@ boundaries, and harness modularity:
   stay current.
 - Fixed additional Application Assist copy drift: the Prepare Form flow no
   longer exposes backend application-platform notes as hover text or says
-  "automation browser" in user-facing close messages. Product-copy coverage
-  rejects those strings returning.
+  "automation browser" in user-facing close messages. Later follow-up changes
+  remaining form-preparation failure copy to plain detail-preparation wording.
+  Product-copy coverage rejects those strings returning.
 - Updated user docs so downloads, notifications, site requests, and Linux
   credential recovery put non-technical paths before advanced contributor or
   command-line details.
@@ -581,6 +582,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 | 2026-06-01 | In progress | Moved structured resume import file reads from renderer `file://` fetches into a Rust command with local file type and size checks; added frontend Windows-path coverage and source-quality harness coverage against the old path. |
 | 2026-06-01 | In progress | Closed the stronger resume import path boundary: PDF upload and JSON Resume import now use backend native file-picker commands, raw renderer-supplied resume paths are rejected, PDF uploads are copied into app-owned local storage before parsing, and source-quality coverage rejects renderer-owned file picker imports. |
 | 2026-06-01 | In progress | Kept Application Assist Prepare Form available while optional application-form detection is still loading, so a slow or stuck recognition check no longer blocks users with a saved profile from continuing to the review modal. Focused ApplyButton coverage guards the recovery path. |
+| 2026-06-01 | In progress | Replaced visible Application Assist form-preparation failure wording with `Could not prepare details`, and added ApplyButton plus product-copy coverage against the old preparation-error labels. |
 | 2026-06-01 | In progress | Shared plain application-form display labels between Application Assist job-card badges and the review modal, so raw platform IDs such as `greenhouse` are shown as readable names. Focused ApplyButton and ApplicationPreview tests cover known and fallback labels. |
 | 2026-06-01 | In progress | Replaced remaining CAPTCHA-first troubleshooting copy in Application Assist docs with human-check wording and added product-copy coverage so the old user-facing phrasing does not return. |
 | 2026-06-01 | In progress | Replaced Deep Links user-doc CAPTCHA/anti-bot phrasing with human-check and site-limits wording, while keeping the no-bypass boundary. Product-copy coverage now blocks the old user-facing search-link wording. |

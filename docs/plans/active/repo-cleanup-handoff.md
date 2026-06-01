@@ -190,6 +190,9 @@ Current cleanup posture:
   from scan wording to job-check wording and renames the Telegram badge from
   advanced chat alert to optional chat alert. Settings tests and product-copy
   sensors cover the old phrases.
+- Current local Application Assist recovery-copy follow-up changes visible
+  form-preparation failure copy to `Could not prepare details`. ApplyButton
+  tests and product-copy sensors cover the old preparation-error labels.
 - Current local skill-label follow-up replaces vague self-rating labels such as
   beginner, intermediate, advanced, expert, and seniority level with
   behavior-based skill strength and role-stage copy across Resume, Resume

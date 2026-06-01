@@ -306,6 +306,7 @@ export function hasApplicationAssistAutomationFraming(root, path) {
     new RegExp(["Prepare", "\\s+", "to", "\\s+", "apply", "\\s+-\\s+", "fills", "\\s+", "form", "\\s+", "fields", "\\s+", "automatically"].join(""), "i"),
     new RegExp(["Form", "\\s+", "filling", "\\s+", "will", "\\s+", "begin", "\\s+", "shortly"].join(""), "i"),
     new RegExp(["Form", "\\s+", "Fill", "\\s+", "Failed"].join(""), "i"),
+    new RegExp(["Form", "\\s+", "preparation", "\\s+", "(?:error|failed)"].join(""), "i"),
     new RegExp(["Form", "\\s+", "filled!"].join(""), "i"),
     new RegExp(["form", "\\s+", "filling", "\\s+", "failed"].join(""), "i"),
     new RegExp(["Max", "\\s+", "applications", "\\s+", "per", "\\s+", "day"].join(""), "i"),

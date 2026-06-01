@@ -413,7 +413,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/components/automation/ApplyButton.tsx",
-      "CAPTCHA detected\n",
+      "CAPTCHA detected\nForm preparation error\nForm preparation failed\n",
     );
     writeFixtureFile(
       root,

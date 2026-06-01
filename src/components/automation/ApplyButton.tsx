@@ -176,7 +176,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
         const actionHint = safeError.action ? `\n\n${safeError.action}` : "";
         // Keep modal open with error for retry
         setFillError(safeError.message + actionHint);
-        toast.error("Form preparation error", safeError.message + actionHint);
+        toast.error("Could not prepare details", safeError.message + actionHint);
         return; // Don't close modal
       } else {
         const unfilled = result.unfilledFields.length;
@@ -220,7 +220,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
       setFillError(errorMsg + recoveryHint + actionHint);
       logError("Failed to prepare form:", error);
       toast.error(
-        safeError.title || "Form preparation failed",
+        safeError.title || "Could not prepare details",
         errorMsg + (recoveryHint || actionHint ? recoveryHint + actionHint : "")
       );
     } finally {
@@ -342,7 +342,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
               </div>
               <div className="flex-1">
                 <h4 className="text-sm font-medium text-red-800 dark:text-red-200">
-                  Form preparation failed
+                  Could not prepare details
                 </h4>
                 <p className="mt-1 text-sm text-red-700 dark:text-red-300">
                   {fillError}
