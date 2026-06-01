@@ -154,7 +154,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
     });
 
     if (patternError || answerError) {
-      toast.error("Please fix the errors", "Check the highlighted fields");
+      toast.error("Check highlighted fields", "Add the missing details, then save again.");
       return;
     }
 

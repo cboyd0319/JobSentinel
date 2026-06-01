@@ -709,8 +709,8 @@ describe("ScreeningAnswersForm", () => {
 
       await waitFor(() => {
         expect(mockToast.error).toHaveBeenCalledWith(
-          "Please fix the errors",
-          "Check the highlighted fields",
+          "Check highlighted fields",
+          "Add the missing details, then save again.",
         );
       });
     });
@@ -734,8 +734,8 @@ describe("ScreeningAnswersForm", () => {
 
       await waitFor(() => {
         expect(mockToast.error).toHaveBeenCalledWith(
-          "Please fix the errors",
-          "Check the highlighted fields",
+          "Check highlighted fields",
+          "Add the missing details, then save again.",
         );
       });
     });

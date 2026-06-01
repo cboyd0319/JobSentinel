@@ -197,6 +197,10 @@ Current cleanup posture:
   and scheduled job-check labels away from scan wording to `Checking job
   sources`, `Checking for new jobs`, and `Job check complete`. DashboardHeader
   tests and product-copy sensors cover the old scanning labels.
+- Current local Application Assist profile recovery-copy follow-up changes
+  profile load, resume selection, validation, save, and saved-answer loading
+  failures away from `Failed to...` and `Please fix the errors` labels.
+  Focused component tests and product-copy sensors cover the old phrasing.
 - Current local skill-label follow-up replaces vague self-rating labels such as
   beginner, intermediate, advanced, expert, and seniority level with
   behavior-based skill strength and role-stage copy across Resume, Resume

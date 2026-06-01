@@ -407,6 +407,7 @@ test("product copy rejects technical-first settings copy", () => {
         "Based on your history",
         "{confidencePercent}% confident",
         "(modified {Math.round(suggestion.modificationRate * 100)}%)",
+        "Failed to load suggestions",
         "",
       ].join("\n"),
     );
@@ -587,11 +588,22 @@ test("product copy rejects technical-first settings copy", () => {
       "src/components/automation/ApplicationPreview.tsx",
       "No profile configured. Please set up your application profile first.\n",
     );
-    writeFixtureFile(root, "src/components/automation/ProfileForm.tsx", "Require manual approval\n");
+    writeFixtureFile(
+      root,
+      "src/components/automation/ProfileForm.tsx",
+      [
+        "Require manual approval",
+        "Failed to load profile",
+        "Failed to select file",
+        "Please fix the errors",
+        "Failed to save",
+        "",
+      ].join("\n"),
+    );
     writeFixtureFile(
       root,
       "src/components/automation/ScreeningAnswersForm.tsx",
-      "Dropdown selection\n",
+      "Dropdown selection\nPlease fix the errors\n",
     );
     writeFixtureFile(
       root,

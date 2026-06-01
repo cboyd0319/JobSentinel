@@ -61,8 +61,8 @@ export const ScreeningAnswerSuggestions = memo(function ScreeningAnswerSuggestio
         }
       } catch (err: unknown) {
         if (isMounted) {
-          logError("Failed to load answer suggestions:", err);
-          setError("Failed to load suggestions");
+          logError("Could not load answer suggestions:", err);
+          setError("Could not load saved answers");
         }
       } finally {
         if (isMounted) {

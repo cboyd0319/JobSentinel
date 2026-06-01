@@ -48,6 +48,16 @@ describe("ProfileForm resume privacy", () => {
     vi.clearAllMocks();
   });
 
+  it("uses plain recovery copy when profile loading fails", async () => {
+    mockInvoke.mockRejectedValueOnce(new Error("load failed"));
+
+    renderProfileForm();
+
+    expect(await screen.findByText("Could not load profile")).toBeInTheDocument();
+    expect(screen.getByText("Please try again")).toBeInTheDocument();
+    expect(screen.queryByText("Failed to load profile")).not.toBeInTheDocument();
+  });
+
   it("shows saved resume name without exposing a raw local path", async () => {
     mockInvoke.mockResolvedValueOnce(mockProfile());
 
@@ -104,6 +114,21 @@ describe("ProfileForm resume privacy", () => {
     expect(screen.queryByDisplayValue(/Users\/jordan/)).not.toBeInTheDocument();
   });
 
+  it("uses plain recovery copy when resume selection fails", async () => {
+    const user = userEvent.setup();
+    mockInvoke
+      .mockResolvedValueOnce(mockProfile({ hasResumeFile: false, resumeFileName: null }))
+      .mockRejectedValueOnce(new Error("file dialog failed"));
+
+    renderProfileForm();
+
+    await screen.findByLabelText("Selected resume");
+    await user.click(screen.getByRole("button", { name: "Browse..." }));
+
+    expect(await screen.findByText("Could not select resume")).toBeInTheDocument();
+    expect(screen.queryByText("Failed to select file")).not.toBeInTheDocument();
+  });
+
   it("saves the backend resume token instead of a local file path", async () => {
     const user = userEvent.setup();
     const resumeToken = "7d9d16a1-2e5d-4b32-9eb2-bfbffb4ee871--new-resume.docx";
@@ -150,5 +175,39 @@ describe("ProfileForm resume privacy", () => {
         }),
       );
     });
+  });
+
+  it("uses plain validation copy for missing required fields", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce(mockProfile());
+
+    renderProfileForm();
+
+    await screen.findByDisplayValue("Jordan Lee");
+    await user.clear(screen.getByLabelText(/Full Name/));
+    await user.click(screen.getByRole("button", { name: "Save Profile" }));
+
+    expect(await screen.findByText("Check highlighted fields")).toBeInTheDocument();
+    expect(
+      screen.getByText("Add the missing details, then save again."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Please fix the errors")).not.toBeInTheDocument();
+  });
+
+  it("uses plain recovery copy when profile saving fails", async () => {
+    const user = userEvent.setup();
+    mockInvoke
+      .mockResolvedValueOnce(mockProfile())
+      .mockRejectedValueOnce(new Error("save failed"));
+
+    renderProfileForm();
+
+    await screen.findByDisplayValue("Jordan Lee");
+    await user.clear(screen.getByLabelText(/Full Name/));
+    await user.type(screen.getByLabelText(/Full Name/), "Jordan Parker");
+    await user.click(screen.getByRole("button", { name: "Save Profile" }));
+
+    expect(await screen.findByText("Could not save profile")).toBeInTheDocument();
+    expect(screen.queryByText("Failed to save")).not.toBeInTheDocument();
   });
 });

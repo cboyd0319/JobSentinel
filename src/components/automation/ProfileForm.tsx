@@ -228,8 +228,8 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
         setResumeFileMarkedForClear(false);
       }
     } catch (error: unknown) {
-      logError("Failed to load application profile:", error);
-      showError("Failed to load profile", "Please try again");
+      logError("Could not load application profile:", error);
+      showError("Could not load profile", "Please try again");
     } finally {
       setLoading(false);
     }
@@ -270,8 +270,8 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
         setResumeFileMarkedForClear(false);
       }
     } catch (error: unknown) {
-      logError("Failed to select resume file:", error);
-      showError("Failed to select file", "Please try again");
+      logError("Could not select resume file:", error);
+      showError("Could not select resume", "Please try again");
     }
   };
 
@@ -293,7 +293,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     // Check if any errors exist
     const hasErrors = Object.values(newErrors).some((error) => error !== undefined);
     if (hasErrors) {
-      showError("Please fix the errors", "Check the highlighted fields");
+      showError("Check highlighted fields", "Add the missing details, then save again.");
       return;
     }
 
@@ -342,8 +342,8 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
       });
       onSaved?.();
     } catch (error: unknown) {
-      logError("Failed to save profile:", error);
-      showError("Failed to save", "Please try again");
+      logError("Could not save profile:", error);
+      showError("Could not save profile", "Please try again");
     } finally {
       setSaving(false);
     }

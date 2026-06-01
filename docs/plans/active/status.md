@@ -153,6 +153,10 @@ and record actionable findings in this active-plan surface.
   wording in manual and scheduled job checks with `Checking job sources`,
   `Checking for new jobs`, and `Job check complete`, with DashboardHeader and
   product-copy coverage against old scanning labels.
+- Latest local Application Assist profile recovery-copy follow-up replaces
+  remaining `Failed to...` and `Please fix the errors` labels in profile and
+  saved-answer flows with `Could not...` and `Check highlighted fields`
+  wording, with focused component tests and product-copy coverage.
 - Latest local Application Assist readiness follow-up stops optional
   application-form detection from blocking the Prepare Form action. If form
   recognition is still loading, users with a saved profile can still open the

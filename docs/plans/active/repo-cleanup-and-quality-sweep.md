@@ -294,6 +294,10 @@ boundaries, and harness modularity:
   manual search button, toast messages, and scheduled check hook. The UI now
   says checking job sources and job check complete, with DashboardHeader and
   product-copy coverage against old scanning labels.
+- Fixed remaining Application Assist profile and saved-answer recovery copy
+  that still used `Failed to...` or `Please fix the errors` wording. The UI
+  now uses plain `Could not...` and `Check highlighted fields` recovery labels,
+  with focused component tests and product-copy coverage against old wording.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright

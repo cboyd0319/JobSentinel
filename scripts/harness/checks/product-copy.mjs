@@ -749,11 +749,15 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/components/automation/ProfileForm.tsx") {
-    return /Require manual approval/i.test(text);
+    return /Require manual approval|Failed to load profile|Failed to select file|Please fix the errors|Failed to save/i.test(text);
   }
 
   if (path === "src/components/automation/ScreeningAnswersForm.tsx") {
-    return /Dropdown selection/i.test(text);
+    return /Dropdown selection|Please fix the errors/i.test(text);
+  }
+
+  if (path === "src/components/automation/ScreeningAnswerSuggestions.tsx") {
+    return /Failed to load suggestions/i.test(text);
   }
 
   if (path === "src/pages/DashboardUI/noJobsEmptyStateCopy.ts") {

@@ -89,4 +89,13 @@ describe("ScreeningAnswerSuggestions", () => {
       expect(screen.queryByText("Suggested Answers")).not.toBeInTheDocument();
     });
   });
+
+  it("uses plain recovery copy when saved answers cannot load", async () => {
+    mockInvoke.mockRejectedValue(new Error("load failed"));
+
+    render(<ScreeningAnswerSuggestions question="When can you start?" />);
+
+    expect(await screen.findByText("Could not load saved answers")).toBeInTheDocument();
+    expect(screen.queryByText("Failed to load suggestions")).not.toBeInTheDocument();
+  });
 });
