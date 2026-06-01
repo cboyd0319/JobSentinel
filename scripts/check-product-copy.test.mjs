@@ -826,7 +826,7 @@ test("product copy rejects technical-first resume copy", () => {
     writeFixtureFile(
       root,
       "src/pages/Salary.tsx",
-      "Seniority Level\nEntry Level (0-2 years)\nPrincipal/Executive\n",
+      "Seniority Level\nEntry Level (0-2 years)\nPrincipal/Executive\n25th %\nStrong target (75th percentile)\n",
     );
     writeFixtureFile(
       root,

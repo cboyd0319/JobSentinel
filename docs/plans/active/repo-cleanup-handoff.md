@@ -264,7 +264,7 @@ Current cleanup posture:
   `scripts/harness/checks/product-copy.mjs`.
 - Privacy/logging bloat-runner orchestration now lives in
   `collectPrivacyLoggingViolations`; `scripts/check-repo-bloat.mjs` is now a
-  small 584-line orchestrator after the latest IPC-minimization guard.
+  small 594-line orchestrator after the latest IPC-minimization guard.
 - Broad-audience fixture checks now cover generic skill-filter categories, Cow
   utility tests, API-contract search history, and ignored live-scraper probes
   so technical defaults do not quietly drift back into broad examples.
@@ -593,6 +593,9 @@ Recent cleanup slices on `main` include:
 - Research-backed guided intake, work-to-avoid intake, and setup review summary.
 - Plain-language Deep Link, Browser Import Button, problem history, and ATS
   word-match copy.
+- Pay Protection range labels and salary-floor guidance now explain lower,
+  middle, higher, and highest-seen sample evidence without requiring users to
+  understand percentile shorthand.
 - Harness improvement from current public harness-engineering references and
   Persona/Bluepeak-AI sibling repo patterns.
 - Root README release/download accuracy update and WebKit slash-shortcut E2E

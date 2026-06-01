@@ -587,6 +587,10 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Entry Level \(0-2 years\)/i,
       /Mid Level \(3-5 years\)/i,
       /Principal\/Executive/i,
+      /25th\s*%/i,
+      /75th\s*%/i,
+      /75th percentile/i,
+      /25th percentile/i,
     ];
 
     if (salaryPagePatterns.some((pattern) => pattern.test(text))) {

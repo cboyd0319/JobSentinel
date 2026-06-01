@@ -272,12 +272,12 @@ export default function Salary({ onBack }: SalaryProps) {
                 {/* Salary Range Visualization */}
                 <div className="bg-surface-50 dark:bg-surface-700 rounded-lg p-4">
                   <div className="flex items-center justify-between text-sm text-surface-500 dark:text-surface-400 mb-2">
-                    <span>25th %</span>
-                    <span>Median</span>
-                    <span>75th %</span>
+                    <span>Lower range</span>
+                    <span>Middle</span>
+                    <span>Higher range</span>
                     <span className="flex items-center gap-1">
-                      Max
-                      <HelpIcon text="Percentiles show salary distribution. Median (50th) = half earn more, half less. 75th = top 25% of earners. Max is the highest benchmark in the current sample." />
+                      Highest seen
+                      <HelpIcon text="Lower range means about one quarter of records are below it. Middle means half are above and half are below. Higher range means about one quarter are above it. Highest seen is the top record in this sample." />
                     </span>
                   </div>
 
@@ -308,7 +308,7 @@ export default function Salary({ onBack }: SalaryProps) {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-3 bg-sentinel-50 dark:bg-sentinel-900/20 rounded-lg">
                     <p className="text-xs text-sentinel-600 dark:text-sentinel-400 mb-1">
-                      Strong target (75th percentile)
+                      Strong target from higher range
                     </p>
                     <p className="font-display text-display-md text-sentinel-700 dark:text-sentinel-300">
                       {formatCurrency(benchmark.p75_salary)}
@@ -396,7 +396,7 @@ function getSalaryFloorGuidance(
   if (salaryFloorAmount > benchmark.p75_salary) {
     return {
       message:
-        "Your floor is above this sample's 75th percentile. Verify level, scope, location, and range quality before lowering it.",
+        "Your floor is above the higher-pay part of this sample. Verify level, scope, location, and range quality before lowering it.",
       tone: "caution",
     };
   }
@@ -404,7 +404,7 @@ function getSalaryFloorGuidance(
   if (salaryFloorAmount > benchmark.median_salary) {
     return {
       message:
-        "Your floor is above the median sample. Use role scope and written range evidence before compromising.",
+        "Your floor is above the middle of this sample. Use role scope and written range evidence before compromising.",
       tone: "neutral",
     };
   }
@@ -412,7 +412,7 @@ function getSalaryFloorGuidance(
   if (salaryFloorAmount < benchmark.p25_salary) {
     return {
       message:
-        "Your floor is below the 25th percentile sample. Check whether the role is under-leveled or whether your floor should move up.",
+        "Your floor is below the lower-pay part of this sample. Check whether the role is under-leveled or whether your floor should move up.",
       tone: "caution",
     };
   }

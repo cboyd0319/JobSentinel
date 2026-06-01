@@ -93,6 +93,10 @@ and record actionable findings in this active-plan surface.
   beginner, intermediate, advanced, expert, and seniority level with
   behavior-based skill strength and role-stage copy across Resume, Resume
   Builder, Pay Protection, docs, and product-copy sensors.
+- Latest local Pay Protection follow-up replaces percentile shorthand on the
+  pay-range screen with lower, middle, higher, and highest-seen labels, updates
+  salary-floor guidance to explain the sample in plain language, and adds
+  product-copy coverage against percentile jargon returning.
 - Latest local Application Assist readiness follow-up stops optional
   application-form detection from blocking the Prepare Form action. If form
   recognition is still loading, users with a saved profile can still open the
@@ -407,7 +411,7 @@ and record actionable findings in this active-plan surface.
   orchestration out of `scripts/check-repo-bloat.mjs` and into
   `collectPrivacyLoggingViolations`; focused privacy-logging coverage now
   verifies the collector and `scripts/check-repo-bloat.mjs` is now a small
-  584-line orchestrator after the latest IPC-minimization guard.
+  594-line orchestrator after the latest IPC-minimization guard.
 - Latest local broad-audience fixture work replaces engineer-first defaults in
   `SkillCategoryFilter`, Cow utility, API-contract, scraper-construction, and
   ignored live-scraper tests with operations, support, accounting, and care
@@ -656,7 +660,7 @@ and record actionable findings in this active-plan surface.
    preserve tech-specific cases only when they test explicit branch behavior or
    source-realism parser contracts.
 2. Continue splitting oversized harness modules only where the ownership
-   boundary is clear; the main bloat runner is now 584 lines after docs-drift,
+   boundary is clear; the main bloat runner is now 594 lines after docs-drift,
    privacy-logging, source-quality, and IPC-minimization ownership moved into
    modules.
 3. Continue zero-technical-knowledge UX review across setup, settings,

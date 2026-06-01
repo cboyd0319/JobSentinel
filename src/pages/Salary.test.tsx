@@ -77,9 +77,25 @@ describe("Salary", () => {
     await user.type(screen.getByLabelText("Salary floor"), "120000");
     await user.click(screen.getByRole("button", { name: "Check Pay Range" }));
 
-    expect(await screen.findByText(/below the 25th percentile sample/i)).toBeInTheDocument();
+    expect(await screen.findByText(/below the lower-pay part of this sample/i)).toBeInTheDocument();
     expect(screen.getByText(/under-leveled/i)).toBeInTheDocument();
     expect(screen.getByText(/salary history/i)).toBeInTheDocument();
+  });
+
+  it("explains pay ranges without percentile shorthand", async () => {
+    const user = userEvent.setup();
+    renderSalary();
+
+    await user.type(screen.getByLabelText("Job Title"), "Registered Nurse");
+    await user.type(screen.getByLabelText("Location"), "Denver, CO");
+    await user.click(screen.getByRole("button", { name: "Check Pay Range" }));
+
+    expect(await screen.findByText("Lower range")).toBeInTheDocument();
+    expect(screen.getByText("Middle")).toBeInTheDocument();
+    expect(screen.getByText("Higher range")).toBeInTheDocument();
+    expect(screen.getByText("Highest seen")).toBeInTheDocument();
+    expect(screen.getByText("Strong target from higher range")).toBeInTheDocument();
+    expect(screen.queryByText(/25th %|75th %|75th percentile/i)).not.toBeInTheDocument();
   });
 
   it("does not show raw private details when pay range lookup fails", async () => {

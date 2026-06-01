@@ -1034,6 +1034,10 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Second implementation slice: guided setup review-volume preference so users
   can choose a smaller list, balanced list, or broad discovery before first
   scan.
+- Pay Protection now explains pay-range evidence with plain lower, middle,
+  higher, and highest-seen sample language so compensation guidance does not
+  require users to understand percentile shorthand before protecting their
+  salary floor.
 
 ## Change contract: Resume Match framing
 
