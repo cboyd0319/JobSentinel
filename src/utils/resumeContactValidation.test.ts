@@ -41,7 +41,7 @@ describe("getResumeContactValidationMessage", () => {
   it("accepts profile links with or without protocol", () => {
     const contact = validContact({
       linkedin: "linkedin.com/in/jordanlee",
-      github: "https://github.com/jordanlee",
+      github: "https://profile.example.com/jordanlee",
       website: "jordanlee.example",
     });
 
@@ -60,5 +60,13 @@ describe("getResumeContactValidationMessage", () => {
         validContact({ website: "https://user:pass@example.com" })
       )
     ).toBe("Website: URL must not include credentials");
+  });
+
+  it("uses non-technical field labels for work sample links", () => {
+    expect(
+      getResumeContactValidationMessage(
+        validContact({ github: "https://user:pass@example.com" })
+      )
+    ).toBe("Portfolio or work samples: URL must not include credentials");
   });
 });

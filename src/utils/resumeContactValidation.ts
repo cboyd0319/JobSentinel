@@ -26,7 +26,7 @@ export function getResumeContactValidationMessage(
 
   for (const [label, value] of [
     ["LinkedIn", contact.linkedin],
-    ["GitHub", contact.github],
+    ["Portfolio or work samples", contact.github],
     ["Website", contact.website],
   ] as const) {
     const error = validateUrlWithOptionalProtocol(value ?? "");

@@ -120,6 +120,8 @@ Current cleanup posture:
 - Current local zero-technical follow-up changes the Dashboard empty job-list
   recovery path when no job source is enabled: "Turn On Job Sources" opens
   Settings and "Import a Job Posting" remains available as the secondary path.
+- Current local broad-audience follow-up changes Resume Builder work-sample
+  link validation from a GitHub-specific label to "Portfolio or work samples".
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
 - `npm run harness:plan -- --since origin/main` now maps changed files to
   focused verification commands from the harness matrix.

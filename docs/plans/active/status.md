@@ -31,6 +31,9 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local broad-audience work changes Resume Builder work-sample link
+  validation from GitHub-specific error labels to "Portfolio or work samples"
+  so non-technical users are not told the field is a developer profile.
 - Latest local zero-technical UX work removes a no-source empty-state dead end:
   Dashboard now remembers whether any job source is enabled and changes the
   empty job list to a direct "Turn On Job Sources" recovery path, with import as
