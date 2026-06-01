@@ -33,9 +33,11 @@ describe("SubmitOptions", () => {
       screen.getByText(/you choose whether and where to share it/i)
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: /open a report with replies/i })
+      screen.getByRole("heading", { name: /optional maintainer issue/i })
     ).toBeInTheDocument();
-    expect(screen.getByText(/a github account may be needed/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/saving the report above does not need an account/i)
+    ).toBeInTheDocument();
     expect(screen.queryByText(/sign up/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/community/i)).not.toBeInTheDocument();
   });
@@ -48,7 +50,7 @@ describe("SubmitOptions", () => {
       screen.getByRole("button", { name: /save safe support report/i })
     );
     await user.click(
-      screen.getByRole("button", { name: /open github issue/i })
+      screen.getByRole("button", { name: /open github \(optional\)/i })
     );
 
     expect(onSubmitLocalReport).toHaveBeenCalledTimes(1);

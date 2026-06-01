@@ -31,6 +31,9 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local support UX work makes GitHub issue sharing more explicitly
+  optional in the README and feedback submit choice. The local safe support
+  report remains the primary path and does not require an account.
 - Latest local broad-audience work changes Resume Builder work-sample link
   validation from GitHub-specific error labels to "Portfolio or work samples"
   so non-technical users are not told the field is a developer profile.

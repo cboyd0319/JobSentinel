@@ -122,6 +122,9 @@ Current cleanup posture:
   Settings and "Import a Job Posting" remains available as the secondary path.
 - Current local broad-audience follow-up changes Resume Builder work-sample
   link validation from a GitHub-specific label to "Portfolio or work samples".
+- Current local support follow-up makes README and feedback submit copy frame
+  GitHub issue sharing as optional; local safe support report saving stays
+  primary and account-free.
 - Bloat and junk sensors exist and run through `npm run lint:bloat`.
 - `npm run harness:plan -- --since origin/main` now maps changed files to
   focused verification commands from the harness matrix.

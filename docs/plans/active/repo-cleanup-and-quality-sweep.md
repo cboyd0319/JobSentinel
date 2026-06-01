@@ -175,6 +175,9 @@ boundaries, and harness modularity:
   enabled and the job list is empty, the primary action now opens Settings to
   turn on job sources and the secondary action opens job-posting import instead
   of offering a search that can only warn.
+- Reworded the feedback submit path and README reader map so GitHub issue
+  sharing is an optional maintainer path, while saving the safe support report
+  remains the no-account primary path.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright

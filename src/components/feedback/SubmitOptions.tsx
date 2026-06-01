@@ -65,15 +65,16 @@ export const SubmitOptions = memo(function SubmitOptions({
         </div>
       </div>
 
-      {/* GitHub Issues - optional when the user wants a trackable report */}
+      {/* Optional maintainer issue path */}
       <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 space-y-3">
         <h3 className="font-semibold text-surface-800 dark:text-surface-200">
-          Open a report with replies
+          Optional maintainer issue
         </h3>
 
         <p className="text-sm text-surface-600 dark:text-surface-400">
-          Use this if you want a trackable GitHub issue. JobSentinel copies the
-          safe support report so you can paste it before submitting.
+          Use this only if you want to send the report to the maintainers.
+          JobSentinel copies the safe support report so you can paste it before
+          submitting.
         </p>
 
         <Button
@@ -84,11 +85,12 @@ export const SubmitOptions = memo(function SubmitOptions({
           className="w-full"
           icon={<GitHubIcon />}
         >
-          Open GitHub Issue
+          Open GitHub (Optional)
         </Button>
 
         <p className="text-xs text-surface-500 dark:text-surface-400 text-center">
-          A GitHub account may be needed to submit the issue.
+          This opens GitHub in your browser. Saving the report above does not
+          need an account.
         </p>
       </div>
     </div>

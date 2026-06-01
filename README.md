@@ -76,7 +76,7 @@ or build something better with it if that helps more people.
 | Grant or research reviewer | [Research model](#research-model), [Roadmap](ROADMAP.md), and [references](#references-and-external-sources) | What is evidence-backed and how real user data is protected. |
 | Privacy or security reviewer | [Safety model](#safety-model), [PRIVACY.md](PRIVACY.md), and [RESPONSIBLE_AI.md](RESPONSIBLE_AI.md) | What can leave the device and which review gates are mandatory. |
 | Contributor | [Architecture](#architecture), [development](#development-and-verification), and [contributing](docs/developer/CONTRIBUTING.md) | How the app is structured, tested, and governed. |
-| Person reporting a problem | Use the in-app safe support report, then [open an issue](https://github.com/cboyd0319/JobSentinel/issues/new) | How to share useful app details without exposing private search data. |
+| Person reporting a problem | Save the in-app safe support report first; sharing it in a GitHub issue is optional | How to keep useful app details local unless you choose to share them. |
 
 ## What JobSentinel Does
 
@@ -87,7 +87,7 @@ or build something better with it if that helps more people.
 | Screening systems are opaque | ATS transparency, candidate-side explainability, and application readability review | [ATS transparency research](docs/research/ats-transparency.md), [Responsible AI](RESPONSIBLE_AI.md) |
 | Long searches erode confidence and time | Fresh-role focus, pacing, weekly summaries, and gap-framing work are tracked as product requirements | [Roadmap](ROADMAP.md), [research-backed plan](docs/plans/active/research-backed-product-improvements.md) |
 | Opaque channels can trap effort | Bias-aware strategy favors direct sources, official postings, recruiter context, referral routes, and verifiable signals | [Research model](#research-model), [job-source docs](docs/research/job-site-data-sources.md) |
-| Support can expose private data | Safe support reports can be copied or saved for GitHub issues without exposing raw job-search data | [Privacy](PRIVACY.md), [docs index](docs/README.md) |
+| Support can expose private data | Safe support reports can be saved locally and shared only when the user chooses | [Privacy](PRIVACY.md), [docs index](docs/README.md) |
 
 JobSentinel keeps applications under user review. It does not optimize for
 application volume, deceptive resume changes, source-boundary evasion, or hidden
