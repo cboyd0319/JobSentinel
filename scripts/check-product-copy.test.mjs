@@ -405,6 +405,29 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
+      "docs/features/scraper-health.md",
+      [
+        "Prefer official APIs, public feeds, and official company or ATS postings.",
+        "Do not add hidden endpoint checks.",
+        "Do not attempt CAPTCHA bypass or platform-control evasion.",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/scrapers.md",
+      [
+        "public ATS APIs such as Greenhouse",
+        "understand HTTP, selectors, credentials, or logs",
+        "Public JSON endpoint",
+        "Public job endpoint",
+        "Best-effort public source; anti-bot prone",
+        "This reduces duplicate postings across ATS feeds",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/utils/errorMessages.ts",
       [
         "Bot Detection Triggered",
@@ -470,6 +493,8 @@ test("product copy rejects technical-first settings copy", () => {
       true,
     );
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/DEEP_LINKS.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scraper-health.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scrapers.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/errorMessages.ts"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Dashboard.tsx"), true);

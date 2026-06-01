@@ -40,11 +40,12 @@ The Settings troubleshooting dashboard should show:
 
 Source health must follow the same source boundaries as adapters:
 
-- Prefer official APIs, public feeds, and official company or ATS postings.
+- Prefer official feeds, public feeds, and official employer or application
+  platform postings.
 - Use rate limits and bounded response reads.
-- Do not add hidden endpoint checks.
+- Do not add hidden source checks.
 - Do not collect restricted-site session credentials.
-- Do not attempt CAPTCHA bypass or platform-control evasion.
+- Do not bypass human checks or platform controls.
 - Do not include raw credentials, cookies, private notes, resumes, salary floors,
   or application history in health errors or support reports.
 

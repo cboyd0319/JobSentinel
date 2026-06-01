@@ -215,6 +215,7 @@ const technicalFirstUserCopyPaths = new Set([
   "docs/features/one-click-apply.md",
   "docs/features/resume-builder.md",
   "docs/features/salary-ai.md",
+  "docs/features/scraper-health.md",
   "docs/features/scrapers.md",
   "docs/features/user-data-management.md",
   "docs/user/DEEP_LINKS.md",
@@ -585,6 +586,25 @@ export function hasTechnicalFirstUserCopy(root, path) {
 
   if (path === "docs/features/salary-ai.md") {
     return /seniority level|by title, location, and\s+seniority/i.test(text);
+  }
+
+  if (path === "docs/features/scraper-health.md" || path === "docs/features/scrapers.md") {
+    const sourceDocPatterns = [
+      /official company or ATS postings/i,
+      /public ATS APIs/i,
+      /public ATS sources/i,
+      /hidden endpoint/i,
+      /CAPTCHA bypass/i,
+      /anti-bot prone/i,
+      /understand HTTP, selectors, credentials, or logs/i,
+      /Public JSON endpoint/i,
+      /Public job endpoint/i,
+      /ATS feeds/i,
+    ];
+
+    if (sourceDocPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
   }
 
   if (path === "src/pages/SetupWizard.tsx") {

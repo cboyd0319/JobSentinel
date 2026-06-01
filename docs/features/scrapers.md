@@ -15,14 +15,14 @@ call hidden LinkedIn endpoints, or read LinkedIn pages in the background.
 | Scheduled adapters | Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, Glassdoor |
 | Source-check adapters | Scheduled adapters plus Indeed, Wellfound, and ZipRecruiter availability checks |
 | User-opened search links | LinkedIn and other destination links opened by the user |
-| Preferred expansion path | Official company career pages and public ATS APIs such as Greenhouse, Lever, Ashby, Workable, SmartRecruiters, and USAJobs |
+| Preferred expansion path | Official company career pages and public hiring-platform feeds or APIs such as Greenhouse, Lever, Ashby, Workable, SmartRecruiters, and USAJobs |
 
 ## Boundaries
 
 | Rule | Requirement |
 | ---- | ----------- |
-| Official source first | Prefer documented APIs, public feeds, and official company or ATS postings |
-| No restricted-site automation | Do not add hidden endpoint use, session-cookie collection, CAPTCHA bypass, or platform-control evasion |
+| Official source first | Prefer documented feeds or APIs, public feeds, and official company or application-platform postings |
+| No restricted-site automation | Do not add hidden data paths, session-cookie collection, human-check bypass, or platform-control evasion |
 | Local-first storage | Source results, run history, and notes stay local |
 | Rate limits | Every adapter must use source-specific limits and shared retry helpers where feasible |
 | Bounded reads | HTML, RSS, JSON, source-check, and import fetches cap decoded bodies at 16 MiB |
@@ -44,7 +44,7 @@ Configured source
 ## Health And Diagnostics
 
 The job source health dashboard tracks source status without requiring users to
-understand HTTP, selectors, credentials, or logs.
+understand website internals, saved connection details, or logs.
 
 | Surface | Purpose |
 | ------- | ------- |
@@ -67,15 +67,15 @@ Representative adapter limits:
 | Greenhouse | 1000 | Official/public board API |
 | Lever | 1000 | Official/public postings API |
 | USAJobs | 1000 | Official API with user-provided access code |
-| RemoteOK | 500 | Public JSON endpoint |
+| RemoteOK | 500 | Public job feed |
 | HN Who's Hiring | 500 | Public/community source |
-| Dice | 500 | Public job endpoint |
+| Dice | 500 | Public job feed |
 | WeWorkRemotely | 300 | Public feed/page |
 | BuiltIn | 300 | Public page |
 | YC Startup Jobs | 300 | Public page |
 | SimplyHired | 200 | Best-effort public source; may be blocked |
-| Glassdoor | 200 | Best-effort public source; anti-bot prone |
-| JobsWithGPT | 10000 | User-configured endpoint |
+| Glassdoor | 200 | Best-effort public source; may ask for human checks |
+| JobsWithGPT | 10000 | User-configured source |
 
 Adapters that cannot operate within source boundaries should fail closed and
 show a clear user-facing explanation.
@@ -84,8 +84,8 @@ show a clear user-facing explanation.
 
 JobSentinel normalizes posting links, titles, and locations before hashing
 records.
-This reduces duplicate postings across ATS feeds, job boards, social shares,
-and company pages.
+This reduces duplicate postings across hiring-platform feeds, job boards,
+social shares, and company pages.
 
 User-imported job links are canonicalized before preview, duplicate hashing, and
 storage. The importer removes embedded credentials, fragments, tracking
@@ -133,11 +133,11 @@ checks. Source-boundary changes also need docs and bloat-guard updates.
 
 ## Expansion Checklist
 
-- Use official APIs or public feeds where available.
+- Use official feeds or APIs where available.
 - Confirm source terms, robots policy, and practical access boundaries.
 - Add rate limits and bounded response reads.
 - Add parser fixtures or source-check coverage.
 - Add health metadata and user-safe errors.
 - Add docs and bloat checks for source-policy drift.
-- Do not add hidden endpoints, session-cookie collection, CAPTCHA bypass, or
-  evasion of platform controls.
+- Do not add hidden data paths, session-cookie collection, human-check bypass,
+  or evasion of platform controls.

@@ -106,6 +106,10 @@ and record actionable findings in this active-plan surface.
 - Latest local ghost-detection docs follow-up replaces user-visible ATS-source
   wording with employer and application-platform language while keeping the
   cautious source-evidence boundary.
+- Latest local source-docs wording follow-up replaces user-facing ATS,
+  CAPTCHA-bypass, anti-bot, endpoint, and selector phrasing in source health
+  and source adapter docs with employer, application-platform, human-check, and
+  source-boundary language.
 - Latest local privacy follow-up removes raw screening-question text and saved
   answer patterns from backend debug logs in Application Assist. Logs now keep
   only character counts for matched questions and patterns, and
