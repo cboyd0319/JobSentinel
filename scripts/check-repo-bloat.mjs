@@ -48,16 +48,25 @@ import {
   hasRawAutomationDropdownValueLogging,
   hasRawFrontendErrorReporterForwarding,
   hasLinkedInLoginCookieReturn,
+  hasCredentialKeyInputEcho,
+  hasIncompleteConfigExportRedaction,
   hasMlRawErrorDisplay,
   hasMlRawLocalPathDoc,
   hasMlRawLocalPathExposure,
+  hasMissingLinkedInCredentialStorageDisable,
+  hasMissingWebhookCredentialStorageValidation,
   hasRawBackupPathError,
+  hasRawCredentialStorageErrors,
+  hasRawEmailTestErrorReturn,
   hasRawJobsWithGptDebug,
   hasRawLinkedInDebug,
   hasRawLocalPathLogging,
   hasRawPrivateQueryLogging,
   hasRawScraperLoopErrorLogging,
   hasRawScraperUrlOrQueryLogging,
+  hasRawSlackWebhookValidationErrorReturn,
+  hasRendererCredentialSecretRead,
+  hasSecretBearingDebugDerive,
   hasUnboundedExternalResponseBodyRead,
 } from "./harness/checks/privacy-logging.mjs";
 import {
@@ -98,7 +107,6 @@ import {
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
 
-const emailCommandPrivacyPaths = new Set(["src-tauri/src/commands/config.rs"]);
 const linkedInCredentialDocsPaths = new Set([
   "src-tauri/src/core/scrapers/linkedin.rs",
   "docs/features/scrapers.md",
@@ -278,24 +286,6 @@ const keyringSecurityDocsPaths = new Set([
 ]);
 const keyringMigrationPaths = new Set(["src-tauri/src/main.rs"]);
 const credentialArchitecturePaths = new Set(["src-tauri/src/core/credentials/mod.rs"]);
-const credentialCommandPrivacyPaths = new Set([
-  "src-tauri/src/commands/credentials.rs",
-  "src-tauri/src/core/credentials/mod.rs",
-]);
-const credentialStorageErrorPrivacyPaths = new Set([
-  "src-tauri/src/core/credentials/mod.rs",
-]);
-const credentialSecretReadIpcPaths = new Set([
-  "src-tauri/src/commands/credentials.rs",
-  "src-tauri/src/commands/mod.rs",
-  "src-tauri/src/main.rs",
-  "src/pages/Settings.tsx",
-  "src/mocks/handlers.ts",
-  "docs/security/KEYRING.md",
-  "docs/features/credentials-security.md",
-  "docs/releases/v2.0.md",
-]);
-const configExportPrivacyPaths = new Set(["src/utils/export.ts"]);
 const telegramNotificationPrivacyPaths = new Set([
   "src-tauri/src/core/notify/telegram.rs",
 ]);
@@ -1578,154 +1568,6 @@ function stripRustTestModules(text) {
   }
 
   return text.slice(0, testModuleIndex);
-}
-
-function hasRawEmailTestErrorReturn(root, path) {
-  if (!emailCommandPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return /format!\(\s*"Failed to send test email:\s*\{\}"\s*,\s*e\s*\)/.test(productionText);
-}
-
-function hasRawSlackWebhookValidationErrorReturn(root, path) {
-  if (!emailCommandPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /format!\(\s*"Validation failed:\s*\{\}"\s*,\s*e\s*\)/.test(productionText) ||
-    /tracing::error!\(\s*"Webhook validation failed:\s*\{\}"\s*,\s*e\s*\)/.test(productionText)
-  );
-}
-
-function hasSecretBearingDebugDerive(root, path) {
-  if (!path.startsWith("src-tauri/src/") || !path.endsWith(".rs")) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  const secretFieldPattern =
-    /\b(?:api_key|bot_token|session_cookie|smtp_password|webhook_url|discord_webhook|linkedin_cookie|slack_webhook|teams_webhook|telegram_bot_token|usajobs_api_key)\s*:/;
-  const derivedStructPattern =
-    /#\[derive\([^)]*Debug[^)]*\)\]\s*(?:#\[[^\]]+\]\s*)*(?:pub\s+)?struct\s+\w+[^{]*\{([\s\S]*?)\n\}/g;
-
-  return [...productionText.matchAll(derivedStructPattern)].some((match) =>
-    secretFieldPattern.test(match[1] ?? ""),
-  );
-}
-
-function hasCredentialKeyInputEcho(root, path) {
-  if (!credentialCommandPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /Unknown credential key:\s*\{key\}/.test(productionText) ||
-    /Invalid credential key:\s*\{\}[\s\S]{0,80},\s*(?:s|key)\b/.test(productionText) ||
-    /format!\(\s*"[^"]*credential key[^"]*\{(?:key|s)\}/.test(productionText)
-  );
-}
-
-function hasRawCredentialStorageErrors(root, path) {
-  if (!credentialStorageErrorPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    /format!\(\s*"Failed to (?:initialize native keyring store|create keyring entry):\s*\{e\}"/.test(
-      productionText,
-    ) ||
-    /format!\(\s*"Failed to (?:store|retrieve|delete) credential[^"]*:\s*\{e\}"/.test(
-      productionText,
-    ) ||
-    /map_err\(\s*\|e\|\s*format!\([\s\S]{0,160}(?:keyring|credential)[\s\S]{0,80}\{e\}/i.test(
-      productionText,
-    )
-  );
-}
-
-function hasMissingLinkedInCredentialStorageDisable(root, path) {
-  if (!credentialCommandPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-
-  if (path === "src-tauri/src/core/credentials/mod.rs") {
-    return (
-      !productionText.includes("LINKEDIN_CREDENTIAL_STORAGE_DISABLED") ||
-      !/fn\s+reject_disabled_credential_storage/.test(productionText) ||
-      !/CredentialKey::LinkedInCookie\s*\|\s*CredentialKey::LinkedInCookieExpiry/.test(productionText) ||
-      !/reject_disabled_credential_storage\(key\)\?/.test(productionText) ||
-      !/validate_credential_value\(key,\s*value\)\?/.test(productionText)
-    );
-  }
-
-  if (path === "src-tauri/src/commands/credentials.rs") {
-    return (
-      !productionText.includes("LINKEDIN_CREDENTIALS_DISABLED") ||
-      !/fn\s+reject_disabled_credential_storage/.test(productionText) ||
-      !/CredentialKey::LinkedInCookie\s*\|\s*CredentialKey::LinkedInCookieExpiry/.test(productionText) ||
-      !/reject_disabled_credential_storage\(cred_key\)\?/.test(productionText)
-    );
-  }
-
-  return false;
-}
-
-function hasMissingWebhookCredentialStorageValidation(root, path) {
-  if (path !== "src-tauri/src/core/credentials/mod.rs") {
-    return false;
-  }
-
-  const productionText = stripRustTestModules(readFileSync(join(root, path), "utf8"));
-  return (
-    !/CredentialKey::SlackWebhook\s*=>\s*validate_webhook_credential/.test(productionText) ||
-    !/CredentialKey::DiscordWebhook\s*=>\s*validate_webhook_credential/.test(productionText) ||
-    !/CredentialKey::TeamsWebhook\s*=>\s*validate_webhook_credential/.test(productionText) ||
-    !/fn\s+validate_webhook_credential/.test(productionText)
-  );
-}
-
-function hasRendererCredentialSecretRead(root, path) {
-  if (!credentialSecretReadIpcPaths.has(path)) {
-    return false;
-  }
-
-  const text = path.endsWith(".rs")
-    ? stripRustTestModules(readFileSync(join(root, path), "utf8"))
-    : readFileSync(join(root, path), "utf8");
-
-  return /\bretrieve_credential\b|\bretrieveCredential\b/.test(text);
-}
-
-function hasIncompleteConfigExportRedaction(root, path) {
-  if (!configExportPrivacyPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return (
-    !text.includes("scrubSensitiveFields") ||
-    [
-      "api_key",
-      "bot_token",
-      "discord_webhook",
-      "linkedin_cookie",
-      "session_cookie",
-      "slack_webhook",
-      "smtp_password",
-      "teams_webhook",
-      "telegram_bot_token",
-      "usajobs_api_key",
-      "webhook_url",
-    ].some((fieldName) => !text.includes(`"${fieldName}"`))
-  );
 }
 
 function hasRawTelegramBotTokenRequestError(root, path) {

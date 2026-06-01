@@ -60,6 +60,13 @@ and record actionable findings in this active-plan surface.
   cookie-return sensors into `scripts/harness/checks/privacy-logging.mjs`;
   focused privacy-logging coverage is now 12 tests and
   `scripts/check-repo-bloat.mjs` is roughly 4,000 lines.
+- Latest local credential-privacy harness work moves raw email/webhook error,
+  secret-bearing Debug derive, credential-key echo, credential-storage error,
+  LinkedIn credential guardrail, webhook credential validation, renderer
+  credential-read, and config-export redaction sensors into
+  `scripts/harness/checks/privacy-logging.mjs`; focused privacy-logging
+  coverage is now 17 tests and `scripts/check-repo-bloat.mjs` is under 3,900
+  lines.
 - Latest local privacy work removes raw automation dropdown-answer logging and
   raw frontend error forwarding, then adds bloat sensors and `errorReporting`
   unit coverage so those regressions fail locally.
@@ -156,8 +163,9 @@ and record actionable findings in this active-plan surface.
    current sensors, while preserving tech-specific cases only when they test
    explicit branch behavior or source-realism parser contracts.
 2. Continue splitting oversized mixed sensors, especially docs-drift,
-   remaining command/notification privacy, fixture-quality, broad-audience, and
-   source-security checks still inside `scripts/check-repo-bloat.mjs`.
+   remaining notification/import/frontend privacy, fixture-quality,
+   broad-audience, and source-security checks still inside
+   `scripts/check-repo-bloat.mjs`.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
 4. Continue broad-audience review so non-technical and technical job searches

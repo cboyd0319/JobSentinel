@@ -4,12 +4,18 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import {
+  hasCredentialKeyInputEcho,
+  hasIncompleteConfigExportRedaction,
   hasLinkedInLoginCookieReturn,
   hasMlRawErrorDisplay,
   hasMlRawLocalPathDoc,
   hasMlRawLocalPathExposure,
+  hasMissingLinkedInCredentialStorageDisable,
+  hasMissingWebhookCredentialStorageValidation,
   hasRawAutomationDropdownValueLogging,
   hasRawBackupPathError,
+  hasRawCredentialStorageErrors,
+  hasRawEmailTestErrorReturn,
   hasRawFrontendErrorReporterForwarding,
   hasRawJobsWithGptDebug,
   hasRawLinkedInDebug,
@@ -17,6 +23,9 @@ import {
   hasRawPrivateQueryLogging,
   hasRawScraperLoopErrorLogging,
   hasRawScraperUrlOrQueryLogging,
+  hasRawSlackWebhookValidationErrorReturn,
+  hasRendererCredentialSecretRead,
+  hasSecretBearingDebugDerive,
   hasUnboundedExternalResponseBodyRead,
 } from "./harness/checks/privacy-logging.mjs";
 
@@ -252,5 +261,92 @@ test("privacy logging rejects LinkedIn cookie return", () => {
       hasLinkedInLoginCookieReturn(root, "src-tauri/src/commands/config.rs"),
       false,
     );
+  });
+});
+
+test("privacy logging rejects raw email and webhook errors", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/config.rs",
+      [
+        'format!("Failed to send test email: {}", e);',
+        'tracing::error!("Webhook validation failed: {}", e);',
+      ].join("\n"),
+    );
+
+    assert.equal(hasRawEmailTestErrorReturn(root, "src-tauri/src/commands/config.rs"), true);
+    assert.equal(
+      hasRawSlackWebhookValidationErrorReturn(root, "src-tauri/src/commands/config.rs"),
+      true,
+    );
+    assert.equal(hasRawEmailTestErrorReturn(root, "src-tauri/src/commands/jobs.rs"), false);
+  });
+});
+
+test("privacy logging rejects secret-bearing Debug derives", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/config/mod.rs",
+      "#[derive(Debug)]\npub struct Config {\n  api_key: String,\n}",
+    );
+
+    assert.equal(hasSecretBearingDebugDerive(root, "src-tauri/src/core/config/mod.rs"), true);
+    assert.equal(hasSecretBearingDebugDerive(root, "src/pages/Settings.tsx"), false);
+  });
+});
+
+test("privacy logging rejects credential key echo and storage errors", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/credentials/mod.rs",
+      [
+        'format!("Invalid credential key: {}", key);',
+        'format!("Failed to store credential: {e}");',
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasCredentialKeyInputEcho(root, "src-tauri/src/core/credentials/mod.rs"),
+      true,
+    );
+    assert.equal(
+      hasRawCredentialStorageErrors(root, "src-tauri/src/core/credentials/mod.rs"),
+      true,
+    );
+    assert.equal(hasCredentialKeyInputEcho(root, "src-tauri/src/core/config/mod.rs"), false);
+  });
+});
+
+test("privacy logging rejects missing credential storage guardrails", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "src-tauri/src/core/credentials/mod.rs", "pub enum CredentialKey {}\n");
+
+    assert.equal(
+      hasMissingLinkedInCredentialStorageDisable(root, "src-tauri/src/core/credentials/mod.rs"),
+      true,
+    );
+    assert.equal(
+      hasMissingWebhookCredentialStorageValidation(root, "src-tauri/src/core/credentials/mod.rs"),
+      true,
+    );
+    assert.equal(
+      hasMissingLinkedInCredentialStorageDisable(root, "src-tauri/src/core/config/mod.rs"),
+      false,
+    );
+  });
+});
+
+test("privacy logging rejects renderer credential reads and incomplete export redaction", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "src/pages/Settings.tsx", "await retrieveCredential('slack_webhook');");
+    writeFixtureFile(root, "src/utils/export.ts", "function scrubSensitiveFields() {}\n");
+
+    assert.equal(hasRendererCredentialSecretRead(root, "src/pages/Settings.tsx"), true);
+    assert.equal(hasRendererCredentialSecretRead(root, "src/pages/Dashboard.tsx"), false);
+    assert.equal(hasIncompleteConfigExportRedaction(root, "src/utils/export.ts"), true);
+    assert.equal(hasIncompleteConfigExportRedaction(root, "src/utils/import.ts"), false);
   });
 });
