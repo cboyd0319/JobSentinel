@@ -39,8 +39,9 @@ skill to get value.
 - Package metadata version: `2.6.4`.
 - Unreleased work is tracked in [CHANGELOG.md](../CHANGELOG.md) and the
   [active plans index](plans/README.md#current-active-plans).
-- Historical release notes remain under `docs/releases/`, but this page should
-  not be used as a release log.
+- Historical release notes are indexed in
+  [docs/releases](releases/README.md), but this page should not be used as a
+  release log.
 - Product priorities live in the root [ROADMAP](../ROADMAP.md); developer
   routing lives in [docs/ROADMAP](ROADMAP.md).
 
@@ -105,6 +106,7 @@ profiles by default. Real user data requires explicit informed consent.
 | Test strategy and commands | [Testing](developer/TESTING.md) |
 | Contributing workflow | [Contributing](developer/CONTRIBUTING.md) |
 | Release process | [Releasing](developer/RELEASING.md) |
+| Linux packages | [Linux Build Guide](developer/LINUX_BUILD.md) |
 | macOS notes | [macOS Development](developer/MACOS_DEVELOPMENT.md) |
 | SQLite and SQLx setup | [SQLite Configuration](developer/sqlite-configuration.md) |
 | Error-handling patterns | [Error Handling](developer/ERROR_HANDLING.md) |

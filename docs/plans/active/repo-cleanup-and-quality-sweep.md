@@ -208,6 +208,10 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   filter uses IT/software wording instead of broad engineering framing, and
   company fallback examples now include healthcare, retail, logistics,
   hospitality, education, public service, and insurance employers.
+- Fixed additional docs-bloat findings: the Linux build guide is linked from
+  the docs hub, its workflow trigger description now matches the manual
+  GitHub Actions workflow, and historical release notes now have a maintained
+  index.
 - Updated user docs so downloads, notifications, site requests, and Linux
   credential recovery put non-technical paths before advanced contributor or
   command-line details.

@@ -214,6 +214,10 @@ and record actionable findings in this active-plan surface.
   filter to IT/software wording, and broadens company fallback examples across
   healthcare, retail, logistics, hospitality, education, public service, and
   insurance.
+- Current local docs-bloat follow-up links the Linux build guide from the docs
+  hub, corrects its GitHub Actions trigger description to the manual
+  `workflow_dispatch` build, and adds a release-notes index so historical
+  release docs are discoverable without becoming the current release log.
 - Latest local harness benchmark work adds `npm run harness:benchmark`, a
   tested portable before/after report for score, session metrics, active next
   work, and harness-tuning recommendations, modeled on the WalkingLabs

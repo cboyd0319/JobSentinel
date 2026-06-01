@@ -28,7 +28,7 @@ sudo apt-get install -y \
 ### Build Tools
 
 - **Node.js** 20+ (frontend)
-- **Rust** 1.70+ (backend)
+- **Rust** stable, matching `rust-toolchain.toml`
 - **npm** (package manager)
 
 ## Building Locally
@@ -60,18 +60,19 @@ Build outputs are located at:
 - **AppImage**: `src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/`
 - **Debian**: `src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/`
 
-## CI/CD Workflow
+## GitHub Build Workflow
 
-JobSentinel uses GitHub Actions for automated Linux builds.
+JobSentinel has a manual GitHub Actions workflow for Linux packages.
 
 ### Build Workflow
 
-`.github/workflows/build-linux.yml` runs on:
+`.github/workflows/build-linux.yml` runs through `workflow_dispatch` with a
+required version input.
 
-- Push to `main` branch
-- Pull requests to `main`
-
-Artifacts are uploaded for download.
+Before packaging, the workflow validates the requested version and runs harness
+checks, harness script tests, markdown linting, the frontend build, Rust
+formatting, Rust clippy, and Rust unit tests. AppImage and Debian artifacts are
+uploaded from the workflow run.
 
 ### Release Workflow
 

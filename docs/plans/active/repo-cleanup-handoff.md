@@ -255,6 +255,9 @@ Current cleanup posture:
   boards unless explicitly technical, changes the cover-letter tech category
   to IT/software wording, and broadens company fallback data across healthcare,
   retail, logistics, hospitality, education, public service, and insurance.
+- Latest docs-bloat follow-up links `docs/developer/LINUX_BUILD.md` from the
+  docs hub, fixes its Linux build workflow trigger description, and adds
+  `docs/releases/README.md` as the historical release-notes index.
 - Latest support/privacy follow-up keeps saved support reports local in the
   primary flow, removes GitHub-first and shared-folder copy from support
   surfaces, replaces visible old report wording with safe support report
