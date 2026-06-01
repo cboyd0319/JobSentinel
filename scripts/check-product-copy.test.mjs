@@ -6,6 +6,7 @@ import test from "node:test";
 import {
   hasApplicationAssistAutomationFraming,
   hasFeedbackLocalReportDrift,
+  hasFeedbackSetupJargon,
   hasEngineerFirstResumeTemplateCopy,
   hasFeedbackTechnicalCompanyLabels,
   hasLegacyPreferenceListCopy,
@@ -133,9 +134,13 @@ test("product copy rejects raw feedback report presentation", () => {
     writeFixtureFile(
       root,
       "src/components/feedback/DebugInfoPreview.tsx",
-      "JSON.stringify(event.details)",
+      'JSON.stringify(event.details)\nvalue={`${configSummary.keywords_count} configured`}\n',
     );
-    writeFixtureFile(root, "src/services/feedbackService.ts", "Company blocklist\n");
+    writeFixtureFile(
+      root,
+      "src/services/feedbackService.ts",
+      'Company blocklist\n`Notifications: ${configSummary.notifications_configured} configured`\nhas_resume ? "configured" : "not configured"\n',
+    );
     writeFixtureFile(root, "src/components/ErrorLogPanel.tsx", "JSON.stringify(error.context)");
 
     assert.equal(
@@ -144,6 +149,14 @@ test("product copy rejects raw feedback report presentation", () => {
     );
     assert.equal(
       hasFeedbackTechnicalCompanyLabels(root, "src/services/feedbackService.ts"),
+      true,
+    );
+    assert.equal(
+      hasFeedbackSetupJargon(root, "src/components/feedback/DebugInfoPreview.tsx"),
+      true,
+    );
+    assert.equal(
+      hasFeedbackSetupJargon(root, "src/services/feedbackService.ts"),
       true,
     );
     assert.equal(

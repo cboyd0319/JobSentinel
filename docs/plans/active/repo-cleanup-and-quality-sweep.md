@@ -243,6 +243,12 @@ boundaries, and harness modularity:
   notes, application history, screening questions and answers, location
   preferences, career goals, personal circumstances, and labeled sensitive text,
   with focused unit and privacy-logging harness coverage.
+- Reworded safe app details in the feedback flow and generated support reports
+  so setup summaries use plain states such as saved, set, not set, turned on,
+  added, and not added instead of `configured`/`not configured`. The generated
+  report privacy summary now explicitly includes salary floors, resume text,
+  private notes, and application history as removed data categories, with
+  product-copy coverage against setup-summary jargon returning.
 - Fixed Dashboard salary filtering so users enter full yearly dollars instead
   of `$K` shorthand. The filter logic now compares against stored yearly
   salaries directly, the UI labels say yearly salary, current-filter summaries

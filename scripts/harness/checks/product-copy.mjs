@@ -459,6 +459,20 @@ export function hasFeedbackTechnicalCompanyLabels(root, path) {
   return /Company (?:blocklist|allowlist)/.test(text);
 }
 
+export function hasFeedbackSetupJargon(root, path) {
+  if (!feedbackDebugEventFormattingPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /\$\{configSummary\.(?:keywords_count|notifications_configured)\}\s+configured/.test(
+      text,
+    ) ||
+    /\?\s*["']configured["']\s*:\s*["']not configured["']/.test(text)
+  );
+}
+
 export function hasRawProblemHistoryContextDetails(root, path) {
   if (!problemHistoryContextFormattingPaths.has(path)) {
     return false;

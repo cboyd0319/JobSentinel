@@ -8446,6 +8446,8 @@ test("checkRepoBloat accepts current frontend webhook redaction patterns", () =>
       [
         "const WEBHOOK_PATTERN = /https:\\/\\/(?:hooks\\.slack\\.com|discord(?:app)?\\.com\\/api\\/webhooks|outlook\\.office(?:365)?\\.com\\/webhook)[^\\s]*/gi;",
         "const TOKEN_PATTERN = /token(?:\\s+|=)[^\\s&]+/gi;",
+        "const SENSITIVE_KEY_PATTERN = /salary|screening[_-]?(?:question|answer)|private[_-]?notes?/i;",
+        "const SENSITIVE_LABELED_TEXT_PATTERNS = [];",
         "function isErrorReport(report) { return true; }",
         "function parseStoredErrorReports(stored) { return JSON.parse(stored).filter(isErrorReport); }",
         "function sanitizeStoredReport(report) { return report; }",

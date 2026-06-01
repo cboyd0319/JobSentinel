@@ -115,6 +115,7 @@ describe("feedbackService", () => {
         id: "err-1",
         timestamp: "2026-05-28T10:15:00.000Z",
         message: "Failed at /Users/alice/secret.txt with token=abc123",
+        stack: "Error: Failed\n    at run (/Users/alice/app.ts:1:1?token=abc123)",
         type: "api",
         url: "http://localhost/?token=abc123",
         userAgent: "test-agent",
@@ -129,6 +130,17 @@ describe("feedbackService", () => {
     });
     expect(mockInvoke).toHaveBeenNthCalledWith(2, "sanitize_feedback_text", {
       content: expect.stringContaining("RECENT APP PROBLEMS"),
+    });
+    expect(mockInvoke).toHaveBeenNthCalledWith(2, "sanitize_feedback_text", {
+      content: expect.stringContaining(
+        "Removed before sharing: local file paths, links, sign-in tokens, cookies, connection links, email addresses, salary floors, resume text, private notes, and application history.",
+      ),
+    });
+    expect(mockInvoke).toHaveBeenNthCalledWith(2, "sanitize_feedback_text", {
+      content: expect.stringContaining("Support-only details:"),
+    });
+    expect(mockInvoke).toHaveBeenNthCalledWith(2, "sanitize_feedback_text", {
+      content: expect.not.stringContaining("webhook URLs"),
     });
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
       "final sanitized report"
@@ -223,13 +235,16 @@ describe("feedbackService", () => {
     expect(debugInfo).toContain("System type: arm64");
     expect(debugInfo).toContain("Job sources turned on: 3");
     expect(debugInfo).toContain("Search words saved: 4");
-    expect(debugInfo).toContain("Hidden companies: not configured");
-    expect(debugInfo).toContain("Favorite companies: configured");
+    expect(debugInfo).toContain("Hidden companies: not set");
+    expect(debugInfo).toContain("Favorite companies: set");
+    expect(debugInfo).toContain("Notifications: 2 turned on");
+    expect(debugInfo).toContain("Resume: added");
     expect(debugInfo).not.toContain("System type: undefined");
     expect(debugInfo).not.toContain("Architecture");
     expect(debugInfo).not.toContain("Scrapers enabled");
     expect(debugInfo).not.toContain("Company blocklist");
     expect(debugInfo).not.toContain("Company allowlist");
+    expect(debugInfo).not.toContain("configured");
   });
 
   it("formats debug event details without JSON or private values", () => {

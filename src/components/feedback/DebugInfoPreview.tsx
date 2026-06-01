@@ -88,14 +88,14 @@ export const DebugInfoPreview = memo(function DebugInfoPreview({
 
                 {/* Config Summary */}
                 <Section title="Settings summary">
-                  <InfoRow label="Job sources enabled" value={configSummary.scrapers_enabled} />
-                  <InfoRow label="Search words" value={`${configSummary.keywords_count} configured`} />
-                  <InfoRow label="Location filters" value={configSummary.has_location_prefs ? "configured" : "not configured"} />
-                  <InfoRow label="Salary filters" value={configSummary.has_salary_prefs ? "configured" : "not configured"} />
-                  <InfoRow label="Hidden companies" value={configSummary.has_company_blocklist ? "configured" : "not configured"} />
-                  <InfoRow label="Favorite companies" value={configSummary.has_company_allowlist ? "configured" : "not configured"} />
-                  <InfoRow label="Notifications" value={`${configSummary.notifications_configured} configured`} />
-                  <InfoRow label="Resume" value={configSummary.has_resume ? "uploaded" : "not uploaded"} />
+                  <InfoRow label="Job sources on" value={configSummary.scrapers_enabled} />
+                  <InfoRow label="Search words" value={`${configSummary.keywords_count} saved`} />
+                  <InfoRow label="Location choices" value={formatSetState(configSummary.has_location_prefs)} />
+                  <InfoRow label="Salary choices" value={formatSetState(configSummary.has_salary_prefs)} />
+                  <InfoRow label="Hidden companies" value={formatSetState(configSummary.has_company_blocklist)} />
+                  <InfoRow label="Favorite companies" value={formatSetState(configSummary.has_company_allowlist)} />
+                  <InfoRow label="Notifications" value={formatTurnedOnCount(configSummary.notifications_configured)} />
+                  <InfoRow label="Resume" value={configSummary.has_resume ? "added" : "not added"} />
                 </Section>
 
                 {/* Recent Activity */}
@@ -152,6 +152,14 @@ function InfoRow({ label, value }: { label: string; value: string | number }) {
       <span className="text-surface-700 dark:text-surface-300">{value}</span>
     </div>
   );
+}
+
+function formatSetState(value: boolean): string {
+  return value ? "set" : "not set";
+}
+
+function formatTurnedOnCount(count: number): string {
+  return count === 0 ? "none" : `${count} turned on`;
 }
 
 function DebugEventRow({ event }: { event: DebugEvent }) {

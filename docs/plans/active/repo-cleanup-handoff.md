@@ -196,6 +196,11 @@ Current cleanup posture:
   preferences, career goals, personal circumstances, and labeled sensitive text
   now redact before local persistence, dev console forwarding, and exported
   safe support reports; privacy-logging coverage rejects drift.
+- Current local support-report wording follow-up removes
+  `configured`/`not configured` setup jargon from the safe app details preview
+  and generated support report. Support reports now use plain setup states and
+  explicitly name job-search sensitive categories removed before sharing, with
+  product-copy harness coverage for the wording boundary.
 - Current local privacy follow-up removes raw screening-question text and saved
   answer patterns from Application Assist debug logs. The trace now records
   only question/pattern character counts when a saved answer matches, and

@@ -50,6 +50,10 @@ describe("DebugInfoPreview", () => {
 
     expect(screen.getByText(/app and device/i)).toBeInTheDocument();
     expect(screen.getByText(/settings summary/i)).toBeInTheDocument();
+    expect(screen.getByText(/job sources on/i)).toBeInTheDocument();
+    expect(screen.getByText(/6 saved/i)).toBeInTheDocument();
+    expect(screen.getAllByText("set").length).toBeGreaterThan(0);
+    expect(screen.getByText(/1 turned on/i)).toBeInTheDocument();
     expect(screen.getByText(/recent app activity/i)).toBeInTheDocument();
     expect(screen.getByText(/app action/i)).toBeInTheDocument();
     expect(screen.getByText(/Action: search jobs/i)).toBeInTheDocument();
@@ -59,6 +63,7 @@ describe("DebugInfoPreview", () => {
     expect(screen.queryByText(/\{"command"/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/CommandInvoked/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/candidate@example\.com/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/configured/i)).not.toBeInTheDocument();
   });
 
   it("lets users remove safe app details before sharing", async () => {

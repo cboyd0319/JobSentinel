@@ -123,6 +123,12 @@ and record actionable findings in this active-plan surface.
   circumstances, and labeled sensitive text now redact before local
   persistence, console forwarding, or exported support reports. Privacy-logging
   coverage requires those sanitizer categories.
+- Latest local support-report wording follow-up replaces remaining
+  `configured`/`not configured` setup jargon in the safe app details preview
+  and generated support report with plain labels such as saved, set, not set,
+  turned on, added, and not added. The report privacy summary now also names
+  job-search sensitive categories removed before sharing, and product-copy
+  coverage rejects setup-summary jargon drift.
 - Latest local privacy follow-up removes raw screening-question text and saved
   answer patterns from backend debug logs in Application Assist. Logs now keep
   only character counts for matched questions and patterns, and

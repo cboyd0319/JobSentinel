@@ -141,7 +141,7 @@ export async function saveFeedbackReport(
 function formatFrontendErrorLog(errors: ErrorReport[]): string {
   const lines = [
     "RECENT APP PROBLEMS (private details removed)",
-    "No raw local paths, URLs, tokens, cookies, webhook URLs, or email addresses.",
+    "Removed before sharing: local file paths, links, sign-in tokens, cookies, connection links, email addresses, salary floors, resume text, private notes, and application history.",
     "",
   ];
 
@@ -158,19 +158,19 @@ function formatFrontendErrorLog(errors: ErrorReport[]): string {
     );
 
     if (error.stack) {
-      lines.push(`  Support trace: ${sanitizeTextForStorage(error.stack)}`);
+      lines.push(`  Support-only details: ${sanitizeTextForStorage(error.stack)}`);
     }
 
     if (error.componentStack) {
       lines.push(
-        `  Screen trace: ${sanitizeTextForStorage(error.componentStack)}`
+        `  Screen details: ${sanitizeTextForStorage(error.componentStack)}`
       );
     }
 
     if (error.context && Object.keys(error.context).length > 0) {
       const context = sanitizeContext(error.context);
       lines.push(
-        `  Extra details: ${sanitizeTextForStorage(JSON.stringify(context, null, 2))}`
+        `  Extra safe details: ${sanitizeTextForStorage(JSON.stringify(context, null, 2))}`
       );
     }
 
@@ -351,12 +351,12 @@ export function formatDebugInfo(
     "",
     `Job sources turned on: ${configSummary.scrapers_enabled}`,
     `Search words saved: ${configSummary.keywords_count}`,
-    `Location preferences: ${configSummary.has_location_prefs ? "configured" : "not configured"}`,
-    `Salary preferences: ${configSummary.has_salary_prefs ? "configured" : "not configured"}`,
-    `Hidden companies: ${configSummary.has_company_blocklist ? "configured" : "not configured"}`,
-    `Favorite companies: ${configSummary.has_company_allowlist ? "configured" : "not configured"}`,
-    `Notifications: ${configSummary.notifications_configured} configured`,
-    `Resume: ${configSummary.has_resume ? "uploaded" : "not uploaded"}`,
+    `Location preferences: ${formatSetState(configSummary.has_location_prefs)}`,
+    `Salary preferences: ${formatSetState(configSummary.has_salary_prefs)}`,
+    `Hidden companies: ${formatSetState(configSummary.has_company_blocklist)}`,
+    `Favorite companies: ${formatSetState(configSummary.has_company_allowlist)}`,
+    `Notifications: ${formatTurnedOnCount(configSummary.notifications_configured)}`,
+    `Resume: ${configSummary.has_resume ? "added" : "not added"}`,
     "",
   ];
 
@@ -378,4 +378,12 @@ export function formatDebugInfo(
   lines.push("═══════════════════════════════════════════════════════════");
 
   return lines.join("\n");
+}
+
+function formatSetState(value: boolean): string {
+  return value ? "set" : "not set";
+}
+
+function formatTurnedOnCount(count: number): string {
+  return count === 0 ? "none" : `${count} turned on`;
 }

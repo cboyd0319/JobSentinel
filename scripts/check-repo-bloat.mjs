@@ -34,6 +34,7 @@ import {
   hasApplicationAssistAutomationFraming,
   hasEngineerFirstResumeTemplateCopy,
   hasFeedbackTechnicalCompanyLabels,
+  hasFeedbackSetupJargon,
   hasFeedbackLocalReportDrift,
   hasLegacyPreferenceListCopy,
   hasNonProtectiveScoreCopy,
@@ -508,6 +509,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasFeedbackTechnicalCompanyLabels(root, path)) {
       violations.push(`keep feedback reports plain-language: ${path}`);
+    }
+
+    if (hasFeedbackSetupJargon(root, path)) {
+      violations.push(`keep feedback setup summary plain-language: ${path}`);
     }
 
     if (hasRawProblemHistoryContextDetails(root, path)) {
