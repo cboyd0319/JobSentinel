@@ -177,9 +177,10 @@ Current cleanup posture:
   zero-technical read-only audit found open debt in Resume readability
   import/copy and visible dashboard shortcut copy. Local follow-ups removed
   remaining `ATS` jargon from browser button and LinkedIn monitoring guidance,
-  renamed the old advanced tab to "More Settings", and changed source-health
-  page-check and icon-only actions to plain labels; each has product-copy
-  coverage against recurrence.
+  renamed the old advanced tab to "More Settings", changed source-health
+  page-check and icon-only actions to plain labels, and mapped raw Resume
+  suggestion category keys to plain labels; each has product-copy coverage
+  against recurrence.
 - Latest zero-technical UX follow-up fixed Settings load failure escape and
   guidance, application tracker first-use empty state, Dashboard no-jobs
   recovery guidance, browser import Advanced connection hiding, install wording
@@ -786,9 +787,9 @@ Next high-value passes:
    - Keep safe support report generation one click from Settings, Error
      Logs, and crash/error recovery surfaces.
    - Current open read-only findings: make Resume readability import paths
-     clearer, replace raw suggestion category labels, replace
-     browser-session-storage error copy, clarify structured resume import, and
-     move visible dashboard shortcuts behind a discoverable control.
+     clearer, replace browser-session-storage error copy, clarify structured
+     resume import, and move visible dashboard shortcuts behind a discoverable
+     control.
 6. Continue broad-audience UX review.
    - Recheck onboarding, examples, placeholders, filters, profile presets, docs,
      and empty states for engineer-only assumptions.

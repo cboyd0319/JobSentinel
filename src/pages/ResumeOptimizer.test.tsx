@@ -99,6 +99,22 @@ const mockJobAnalysis = {
   missing_keywords: ["account management"],
 };
 
+const mockSuggestionAnalysis = {
+  ...mockAnalysis,
+  suggestions: [
+    {
+      category: "AddKeyword" as const,
+      suggestion: "Add account management if it honestly fits.",
+      impact: "Helps align the resume with the job post.",
+    },
+    {
+      category: "RewordBullet" as const,
+      suggestion: "Rewrite one bullet to show customer outcomes.",
+      impact: "Makes the result easier to understand.",
+    },
+  ],
+};
+
 describe("ResumeOptimizer", () => {
   const privateFailure = new Error(
     "token=raw-secret chad@example.com /Users/chad/private/resume.pdf"
@@ -204,6 +220,24 @@ describe("ResumeOptimizer", () => {
     expect(screen.getByText(/make bullet points easier to scan/i)).toBeInTheDocument();
     expect(screen.queryByText(/ATS systems/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/screening tools/i)).not.toBeInTheDocument();
+  });
+
+  it("shows plain suggestion category labels", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce(mockSuggestionAnalysis);
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    fireEvent.change(screen.getByLabelText(/exported resume details/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /review format only/i }));
+
+    expect(await screen.findByText("Suggestions (2)")).toBeInTheDocument();
+    expect(screen.getByText("Add job words")).toBeInTheDocument();
+    expect(screen.getByText("Rewrite bullet")).toBeInTheDocument();
+    expect(screen.queryByText("AddKeyword")).not.toBeInTheDocument();
+    expect(screen.queryByText("RewordBullet")).not.toBeInTheDocument();
   });
 
   it("does not show raw private details when job analysis fails", async () => {

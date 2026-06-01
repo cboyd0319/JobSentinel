@@ -666,7 +666,9 @@ describe("AtsLiveScorePanel", () => {
       fireEvent.click(screen.getByRole("button", { name: /view full analysis/i }));
 
       expect(screen.getByText("Suggestions (1)")).toBeInTheDocument();
+      expect(screen.getByText("Add job words")).toBeInTheDocument();
       expect(screen.getByText("Add Spanish to skills")).toBeInTheDocument();
+      expect(screen.queryByText("AddKeyword")).not.toBeInTheDocument();
     });
   });
 

@@ -764,6 +764,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Ghosted detection complete/i,
     /marked as ghosted/i,
     /\|\s*Ghosted\s*\|/i,
+    /\{suggestion\.category\}/,
     /Get Free API Key/i,
     /Copy the API key from your email/i,
     /Copy API key from confirmation email/i,

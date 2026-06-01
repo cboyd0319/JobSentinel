@@ -81,6 +81,19 @@ interface AtsSuggestion {
   impact: string;
 }
 
+function formatSuggestionCategory(category: SuggestionCategory): string {
+  switch (category) {
+    case "AddKeyword":
+      return "Add job words";
+    case "RewordBullet":
+      return "Rewrite bullet";
+    case "AddSection":
+      return "Add section";
+    case "RemoveItem":
+      return "Remove item";
+  }
+}
+
 interface AtsAnalysisResult {
   overall_score: number;
   keyword_score: number;
@@ -812,7 +825,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                         >
                           <summary className="cursor-pointer font-medium text-surface-800 dark:text-surface-200 flex items-center gap-2">
                             <Badge variant="sentinel" size="sm">
-                              {suggestion.category}
+                              {formatSuggestionCategory(suggestion.category)}
                             </Badge>
                             <span className="flex-1">{suggestion.suggestion}</span>
                           </summary>

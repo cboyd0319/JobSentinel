@@ -49,6 +49,19 @@ interface AtsSuggestion {
   impact: string;
 }
 
+function formatSuggestionCategory(category: AtsSuggestion["category"]): string {
+  switch (category) {
+    case "AddKeyword":
+      return "Add job words";
+    case "RewordBullet":
+      return "Rewrite bullet";
+    case "AddSection":
+      return "Add section";
+    case "RemoveItem":
+      return "Remove item";
+  }
+}
+
 // Resume data structure for analysis
 interface ContactInfo {
   name: string;
@@ -567,7 +580,9 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
                       className="p-3 bg-surface-50 dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600"
                     >
                       <summary className="cursor-pointer text-sm font-medium text-surface-800 dark:text-surface-200 flex items-center gap-2">
-                        <Badge variant="sentinel" size="sm">{suggestion.category}</Badge>
+                        <Badge variant="sentinel" size="sm">
+                          {formatSuggestionCategory(suggestion.category)}
+                        </Badge>
                         {suggestion.suggestion}
                       </summary>
                       <p className="text-xs text-surface-600 dark:text-surface-400 mt-2 ml-6">
