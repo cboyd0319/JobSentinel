@@ -128,7 +128,7 @@ describe("feedbackService", () => {
       includeDebugInfo: true,
     });
     expect(mockInvoke).toHaveBeenNthCalledWith(2, "sanitize_feedback_text", {
-      content: expect.stringContaining("FRONTEND ERROR LOG"),
+      content: expect.stringContaining("RECENT APP PROBLEMS"),
     });
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
       "final sanitized report"
@@ -168,7 +168,7 @@ describe("feedbackService", () => {
       includeDebugInfo: true,
     });
     expect(mockInvoke).toHaveBeenNthCalledWith(2, "sanitize_feedback_text", {
-      content: expect.stringContaining("FRONTEND ERROR LOG"),
+      content: expect.stringContaining("RECENT APP PROBLEMS"),
     });
     expect(mockInvoke).toHaveBeenNthCalledWith(3, "get_feedback_filename");
     expect(mockInvoke).toHaveBeenNthCalledWith(4, "save_feedback_file", {
@@ -199,7 +199,7 @@ describe("feedbackService", () => {
     });
   });
 
-  it("formats backend system architecture from get_system_info", () => {
+  it("formats backend system type from get_system_info", () => {
     const debugInfo = formatDebugInfo(
       {
         app_version: "test-version",
@@ -220,10 +220,14 @@ describe("feedbackService", () => {
       [],
     );
 
-    expect(debugInfo).toContain("Architecture: arm64");
+    expect(debugInfo).toContain("System type: arm64");
+    expect(debugInfo).toContain("Job sources turned on: 3");
+    expect(debugInfo).toContain("Search words saved: 4");
     expect(debugInfo).toContain("Hidden companies: not configured");
     expect(debugInfo).toContain("Favorite companies: configured");
-    expect(debugInfo).not.toContain("Architecture: undefined");
+    expect(debugInfo).not.toContain("System type: undefined");
+    expect(debugInfo).not.toContain("Architecture");
+    expect(debugInfo).not.toContain("Scrapers enabled");
     expect(debugInfo).not.toContain("Company blocklist");
     expect(debugInfo).not.toContain("Company allowlist");
   });

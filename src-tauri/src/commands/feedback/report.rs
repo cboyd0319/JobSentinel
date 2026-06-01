@@ -93,17 +93,20 @@ fn format_feedback_report(
 
     // Header
     report.push_str("═══════════════════════════════════════════════════════════════════════\n");
-    report.push_str("                    JOBSENTINEL BETA FEEDBACK REPORT\n");
+    report.push_str("                    JOBSENTINEL SAFE SUPPORT REPORT\n");
     report.push_str("═══════════════════════════════════════════════════════════════════════\n");
     report.push_str("\n");
 
-    report.push_str(&format!("CATEGORY: {}\n", category.as_str()));
-    report.push_str(&format!("DATE: {}\n", now.format("%B %d, %Y at %I:%M %p")));
+    report.push_str(&format!("Report type: {}\n", category.as_str()));
+    report.push_str(&format!(
+        "Created: {}\n",
+        now.format("%B %d, %Y at %I:%M %p")
+    ));
     report.push_str("\n");
 
     // User feedback
     report.push_str("───────────────────────────────────────────────────────────────────────\n");
-    report.push_str("YOUR FEEDBACK\n");
+    report.push_str("WHAT YOU WROTE\n");
     report.push_str("───────────────────────────────────────────────────────────────────────\n");
     report.push_str("\n");
     report.push_str(&Sanitizer::sanitize(description));
@@ -111,30 +114,30 @@ fn format_feedback_report(
 
     // System information
     report.push_str("───────────────────────────────────────────────────────────────────────\n");
-    report.push_str("SYSTEM INFORMATION (anonymized)\n");
+    report.push_str("APP AND DEVICE (private details removed)\n");
     report.push_str("───────────────────────────────────────────────────────────────────────\n");
     report.push_str("\n");
-    report.push_str(&format!("App Version: {}\n", system_info.app_version));
+    report.push_str(&format!("App version: {}\n", system_info.app_version));
     report.push_str(&format!(
-        "Platform: {} {}\n",
+        "Device: {} {}\n",
         system_info.platform, system_info.os_version
     ));
-    report.push_str(&format!("Architecture: {}\n", system_info.architecture));
+    report.push_str(&format!("System type: {}\n", system_info.architecture));
     report.push_str("\n");
 
     // Config summary (if provided)
     if let Some(summary) = config_summary {
         report
             .push_str("───────────────────────────────────────────────────────────────────────\n");
-        report.push_str("CONFIGURATION SUMMARY (anonymized - no actual values)\n");
+        report.push_str("JOBSENTINEL SETUP (counts only)\n");
         report
             .push_str("───────────────────────────────────────────────────────────────────────\n");
         report.push_str("\n");
-        report.push_str(&format!("Scrapers enabled: {}\n", summary.scrapers_enabled));
         report.push_str(&format!(
-            "Search keywords configured: {}\n",
-            summary.keywords_count
+            "Job sources turned on: {}\n",
+            summary.scrapers_enabled
         ));
+        report.push_str(&format!("Search words saved: {}\n", summary.keywords_count));
         report.push_str(&format!(
             "Location preferences: {}\n",
             if summary.has_location_prefs {
@@ -183,7 +186,7 @@ fn format_feedback_report(
     if !debug_events.is_empty() {
         report
             .push_str("───────────────────────────────────────────────────────────────────────\n");
-        report.push_str("RECENT ACTIVITY LOG (anonymized)\n");
+        report.push_str("RECENT APP ACTIVITY (private details removed)\n");
         report
             .push_str("───────────────────────────────────────────────────────────────────────\n");
         report.push_str("\n");
@@ -199,9 +202,9 @@ fn format_feedback_report(
         report.push_str("\n");
     }
 
-    // Structured data (JSON)
+    // Support summary (JSON)
     report.push_str("───────────────────────────────────────────────────────────────────────\n");
-    report.push_str("STRUCTURED DATA (for automated processing)\n");
+    report.push_str("SUPPORT SUMMARY\n");
     report.push_str("───────────────────────────────────────────────────────────────────────\n");
     report.push_str("\n");
     report.push_str("```json\n");
@@ -234,7 +237,7 @@ fn format_feedback_report(
 
     // Footer
     report.push_str("═══════════════════════════════════════════════════════════════════════\n");
-    report.push_str("                    END OF REPORT\n");
+    report.push_str("                    END OF SAFE SUPPORT REPORT\n");
     report.push_str("═══════════════════════════════════════════════════════════════════════\n");
 
     report
@@ -268,16 +271,16 @@ mod tests {
         let report = format_feedback_report(&category, description, &system_info, None, &[]);
 
         // Should contain all required sections
-        assert!(report.contains("JOBSENTINEL BETA FEEDBACK REPORT"));
-        assert!(report.contains("CATEGORY: Bug Report"));
-        assert!(report.contains("YOUR FEEDBACK"));
+        assert!(report.contains("JOBSENTINEL SAFE SUPPORT REPORT"));
+        assert!(report.contains("Report type: Bug Report"));
+        assert!(report.contains("WHAT YOU WROTE"));
         assert!(report.contains("Test bug description"));
-        assert!(report.contains("SYSTEM INFORMATION"));
-        assert!(report.contains("App Version: 2.6.3"));
-        assert!(report.contains("Platform: macos 14.0"));
-        assert!(report.contains("Architecture: arm64"));
-        assert!(report.contains("STRUCTURED DATA"));
-        assert!(report.contains("END OF REPORT"));
+        assert!(report.contains("APP AND DEVICE"));
+        assert!(report.contains("App version: 2.6.3"));
+        assert!(report.contains("Device: macos 14.0"));
+        assert!(report.contains("System type: arm64"));
+        assert!(report.contains("SUPPORT SUMMARY"));
+        assert!(report.contains("END OF SAFE SUPPORT REPORT"));
     }
 
     #[test]
@@ -304,9 +307,9 @@ mod tests {
             &[],
         );
 
-        assert!(report.contains("CONFIGURATION SUMMARY"));
-        assert!(report.contains("Scrapers enabled: 3"));
-        assert!(report.contains("Search keywords configured: 5"));
+        assert!(report.contains("JOBSENTINEL SETUP"));
+        assert!(report.contains("Job sources turned on: 3"));
+        assert!(report.contains("Search words saved: 5"));
         assert!(report.contains("Location preferences: configured"));
         assert!(report.contains("Salary preferences: configured"));
         assert!(report.contains("Notifications: 2 channel(s)"));
@@ -338,7 +341,7 @@ mod tests {
 
         let report = format_feedback_report(&category, description, &system_info, None, &events);
 
-        assert!(report.contains("RECENT ACTIVITY LOG"));
+        assert!(report.contains("RECENT APP ACTIVITY"));
         assert!(report.contains("ViewNavigated"));
         assert!(report.contains("ScraperRun"));
         assert!(report.contains("indeed"));

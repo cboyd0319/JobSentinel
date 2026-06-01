@@ -66,6 +66,10 @@ Current cleanup posture:
 - UX audit follow-up made safe local report saving the recommended feedback
   submit path, added safe-report copy/save actions to modal crash recovery, and
   aligned Quick Start notification setup wording with the current wizard.
+- Support/reporting UX audit items are closed locally: problem-history/export
+  labels are plainer, saved-report success steps are account-optional, and
+  generated safe-report headings use support language instead of
+  system/config/structured-data language.
 - `scripts/check-repo-bloat.mjs` still owns docs drift, privacy logging,
   fixture-quality checks, broad-audience checks, technical-first copy checks,
   and source security patterns.
@@ -257,6 +261,9 @@ Recent cleanup slices on `main` include:
 - Improved zero-technical support recovery by making local safe report saving
   primary, keeping GitHub optional, adding safe-report actions to modal crash
   recovery, and updating notification setup docs.
+- Simplified problem-history/export copy, made saved-report success steps
+  account-optional, and reworded generated report headings and field names for
+  non-technical users.
 
 The active plan progress table has detailed slice history.
 
@@ -292,7 +299,12 @@ Latest privacy-audit slice checks on 2026-05-31:
 
 Latest UX support-recovery slice checks on 2026-05-31:
 
-- `npm run test:run -- src/components/feedback/SubmitOptions.test.tsx src/components/ModalErrorBoundary.test.tsx`
+- `npm run test:run -- src/components/feedback/SubmitOptions.test.tsx
+  src/components/ModalErrorBoundary.test.tsx`
+- `npm run test:run -- src/components/ErrorLogPanel.test.tsx
+  src/components/feedback/SuccessScreen.test.tsx
+  src/services/feedbackService.test.ts src/mocks/handlers.test.ts`
+- `cd src-tauri && cargo test --lib commands::feedback`
 - `npm run lint:bloat`
 - `npm run lint:docs`
 - `npm run lint`

@@ -147,6 +147,9 @@ Required process:
 - [x] Make the feedback submit flow prefer saving a safe local report, add safe
   report actions to modal crash recovery, and align setup notification docs
   with the current Slack-only wizard step.
+- [x] Simplify problem-history/export labels, saved-report success steps, and
+  generated safe-report headings so support reporting no longer centers account
+  access or developer jargon.
 - [ ] Audit primary user workflows for zero-technical-knowledge ease.
 - [ ] Audit user-facing flows and copy for engineer-only assumptions.
 - [ ] Run relevant verification and push each cleanup slice.
@@ -201,6 +204,8 @@ the repo harness rather than changing user-facing product behavior:
 - Made the safe local report the recommended feedback submit path, added
   copy/save safe report actions to modal error recovery, and corrected Quick
   Start notification setup wording.
+- Reworded problem-history/export labels, saved-report success steps, and
+  generated safe-report section names into plain support language.
 - Updated active plan and handoff docs for the user-requested commit and push.
 
 Open high-value work remains: zero-technical-knowledge UX audit, engineer-only
@@ -232,6 +237,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-31 | In progress | Closed the current support/recovery UX audit findings by simplifying problem-history/export labels, making saved-report success steps account-optional, and rewording generated safe-report headings and fields away from developer jargon. |
 | 2026-05-31 | In progress | Improved zero-technical support recovery by making safe local reports the recommended feedback submit path, adding safe-report copy/save actions to modal crash recovery, and aligning Quick Start notification setup wording with the current wizard. |
 | 2026-05-31 | In progress | Used authorized read-only sub-agents for UX and security audits; fixed the security audit's raw dropdown-answer log and frontend error-forwarding findings with bloat sensors and `errorReporting` unit coverage. |
 | 2026-05-31 | In progress | Continued the sensor-modularity finding by extracting front-door and runtime source release-promise checks into `scripts/harness/checks/release-promises.mjs`. |
@@ -568,6 +574,10 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   setup notification docs with the current Slack-only wizard step. Remaining
   support UX debt is concentrated in problem-history/export labels and the
   saved-report success path.
+- The next follow-up simplified those problem-history/export labels, made the
+  saved-report success path account-optional, and changed generated report
+  headings from system/config/structured-data language to app, setup, activity,
+  and support-summary language.
 
 ## Decisions
 

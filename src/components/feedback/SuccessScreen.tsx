@@ -65,7 +65,7 @@ export const SuccessScreen = memo(function SuccessScreen({
       {submittedVia === "drive" && savedFeedbackFile && (
         <div className="text-center space-y-4">
           <h3 className="text-xl font-semibold text-surface-800 dark:text-surface-200">
-            Feedback file saved
+            Safe report saved
           </h3>
 
           <div className="space-y-3 text-sm text-surface-600 dark:text-surface-400">
@@ -84,9 +84,9 @@ export const SuccessScreen = memo(function SuccessScreen({
                 Next steps:
               </p>
               <ol className="list-decimal list-inside space-y-1 text-left">
-                <li>Open the feedback folder.</li>
-                <li>Upload the saved file.</li>
-                <li>Keep the file if you want a local copy.</li>
+                <li>Show the saved file.</li>
+                <li>Share it only if you want help.</li>
+                <li>Keep it local if you do not want to send it.</li>
               </ol>
             </div>
           </div>
@@ -94,20 +94,20 @@ export const SuccessScreen = memo(function SuccessScreen({
           <div className="flex flex-col gap-2">
             <Button
               variant="primary"
-              onClick={onOpenDriveFolder}
-              icon={<ExternalLinkIcon />}
-              className="w-full"
-            >
-              Open Feedback Folder
-            </Button>
-
-            <Button
-              variant="secondary"
               onClick={onRevealFile}
               icon={<FolderIcon />}
               className="w-full"
             >
-              Show File Location
+              Show Saved File
+            </Button>
+
+            <Button
+              variant="secondary"
+              onClick={onOpenDriveFolder}
+              icon={<ExternalLinkIcon />}
+              className="w-full"
+            >
+              Open Shared Folder
             </Button>
 
             <Button

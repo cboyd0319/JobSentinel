@@ -131,37 +131,37 @@ export async function saveFeedbackReport(
 
 function formatFrontendErrorLog(errors: ErrorReport[]): string {
   const lines = [
-    "FRONTEND ERROR LOG (sanitized)",
+    "RECENT APP PROBLEMS (private details removed)",
     "No raw local paths, URLs, tokens, cookies, webhook URLs, or email addresses.",
     "",
   ];
 
   if (errors.length === 0) {
-    lines.push("No stored frontend errors.", "");
+    lines.push("No recent app problems.", "");
     return lines.join("\n");
   }
 
   for (const error of errors.slice(0, MAX_FRONTEND_ERRORS_IN_REPORT)) {
     lines.push(
       `- Time: ${sanitizeTextForStorage(error.timestamp)}`,
-      `  Type: ${sanitizeTextForStorage(error.type)}`,
+      `  Problem type: ${sanitizeTextForStorage(error.type)}`,
       `  Message: ${sanitizeTextForStorage(error.message)}`,
     );
 
     if (error.stack) {
-      lines.push(`  Stack: ${sanitizeTextForStorage(error.stack)}`);
+      lines.push(`  Support trace: ${sanitizeTextForStorage(error.stack)}`);
     }
 
     if (error.componentStack) {
       lines.push(
-        `  Component Stack: ${sanitizeTextForStorage(error.componentStack)}`
+        `  Screen trace: ${sanitizeTextForStorage(error.componentStack)}`
       );
     }
 
     if (error.context && Object.keys(error.context).length > 0) {
       const context = sanitizeContext(error.context);
       lines.push(
-        `  Context: ${sanitizeTextForStorage(JSON.stringify(context, null, 2))}`
+        `  Extra details: ${sanitizeTextForStorage(JSON.stringify(context, null, 2))}`
       );
     }
 
@@ -314,20 +314,20 @@ export function formatDebugInfo(
 ): string {
   const lines: string[] = [
     "═══════════════════════════════════════════════════════════",
-    "SYSTEM INFORMATION (anonymized)",
+    "APP AND DEVICE (private details removed)",
     "═══════════════════════════════════════════════════════════",
     "",
-    `App Version: ${systemInfo.app_version}`,
-    `Platform: ${systemInfo.platform}`,
-    `OS Version: ${systemInfo.os_version}`,
-    `Architecture: ${systemInfo.architecture}`,
+    `App version: ${systemInfo.app_version}`,
+    `Device: ${systemInfo.platform}`,
+    `OS version: ${systemInfo.os_version}`,
+    `System type: ${systemInfo.architecture}`,
     "",
     "───────────────────────────────────────────────────────────",
-    "CONFIGURATION SUMMARY (anonymized - no actual values)",
+    "JOBSENTINEL SETUP (counts only)",
     "───────────────────────────────────────────────────────────",
     "",
-    `Scrapers enabled: ${configSummary.scrapers_enabled}`,
-    `Search keywords configured: ${configSummary.keywords_count}`,
+    `Job sources turned on: ${configSummary.scrapers_enabled}`,
+    `Search words saved: ${configSummary.keywords_count}`,
     `Location preferences: ${configSummary.has_location_prefs ? "configured" : "not configured"}`,
     `Salary preferences: ${configSummary.has_salary_prefs ? "configured" : "not configured"}`,
     `Hidden companies: ${configSummary.has_company_blocklist ? "configured" : "not configured"}`,
@@ -340,7 +340,7 @@ export function formatDebugInfo(
   if (debugEvents.length > 0) {
     lines.push(
       "───────────────────────────────────────────────────────────",
-      "RECENT ACTIVITY LOG (anonymized)",
+      "RECENT APP ACTIVITY (private details removed)",
       "───────────────────────────────────────────────────────────",
       "",
       ...debugEvents.map(event => {

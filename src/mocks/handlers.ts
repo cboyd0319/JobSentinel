@@ -1235,29 +1235,29 @@ function generateMockFeedbackReport(args?: Record<string, unknown>): string {
   const timestamp = new Date().toISOString();
 
   const lines = [
-    "JOBSENTINEL BETA FEEDBACK REPORT",
+    "JOBSENTINEL SAFE SUPPORT REPORT",
     "",
-    `CATEGORY: ${getMockFeedbackCategoryLabel(category)}`,
-    `DATE: ${timestamp}`,
+    `Report type: ${getMockFeedbackCategoryLabel(category)}`,
+    `Created: ${timestamp}`,
     "",
-    "YOUR FEEDBACK",
+    "WHAT YOU WROTE",
     "",
     description,
     "",
-    "SYSTEM INFORMATION (anonymized)",
+    "APP AND DEVICE (private details removed)",
     "",
-    `App Version: ${systemInfo.app_version}`,
-    `Platform: ${systemInfo.platform} ${systemInfo.os_version}`,
-    `Architecture: ${systemInfo.architecture}`,
+    `App version: ${systemInfo.app_version}`,
+    `Device: ${systemInfo.platform} ${systemInfo.os_version}`,
+    `System type: ${systemInfo.architecture}`,
   ];
 
   if (includeDebugInfo) {
     lines.push(
       "",
-      "CONFIGURATION SUMMARY (anonymized - no actual values)",
+      "JOBSENTINEL SETUP (counts only)",
       "",
-      `Scrapers enabled: ${configSummary.scrapers_enabled}`,
-      `Search words configured: ${configSummary.keywords_count}`,
+      `Job sources turned on: ${configSummary.scrapers_enabled}`,
+      `Search words saved: ${configSummary.keywords_count}`,
       `Location preferences: ${configSummary.has_location_prefs ? "configured" : "not set"}`,
       `Salary preferences: ${configSummary.has_salary_prefs ? "configured" : "not set"}`,
       `Notifications: ${configSummary.notifications_configured} channel(s)`,
@@ -1266,7 +1266,7 @@ function generateMockFeedbackReport(args?: Record<string, unknown>): string {
 
   lines.push(
     "",
-    "STRUCTURED DATA (for automated processing)",
+    "SUPPORT SUMMARY",
     "",
     JSON.stringify(
       {
@@ -1286,7 +1286,7 @@ function generateMockFeedbackReport(args?: Record<string, unknown>): string {
       2,
     ),
     "",
-    "END OF REPORT",
+    "END OF SAFE SUPPORT REPORT",
   );
 
   return lines.join("\n");

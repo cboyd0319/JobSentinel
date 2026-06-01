@@ -476,10 +476,10 @@ describe("mock Tauri handlers", () => {
       description: "Crash after search",
       includeDebugInfo: true,
     });
-    expect(report).toContain("JOBSENTINEL BETA FEEDBACK REPORT");
-    expect(report).toContain("CATEGORY: Bug Report");
+    expect(report).toContain("JOBSENTINEL SAFE SUPPORT REPORT");
+    expect(report).toContain("Report type: Bug Report");
     expect(report).toContain("Crash after search");
-    expect(report).toContain("CONFIGURATION SUMMARY");
+    expect(report).toContain("JOBSENTINEL SETUP");
 
     const sanitized = await mockInvoke<string>("sanitize_feedback_text", {
       content:

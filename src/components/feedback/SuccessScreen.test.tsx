@@ -55,27 +55,25 @@ describe("SuccessScreen", () => {
     const { onRevealFile, onOpenDriveFolder, onClose } =
       renderSuccessScreen("drive");
 
-    expect(
-      screen.getByRole("heading", { name: /feedback file saved/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /safe report saved/i })).toBeInTheDocument();
     expect(screen.getByText(savedFeedbackFile.fileName)).toBeInTheDocument();
-    expect(screen.getByText(/open the feedback folder/i)).toBeInTheDocument();
-    expect(screen.getByText(/upload the saved file/i)).toBeInTheDocument();
+    expect(screen.getByText(/show the saved file/i)).toBeInTheDocument();
+    expect(screen.getByText(/share it only if you want help/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/keep the file if you want a local copy/i)
+      screen.getByText(/keep it local if you do not want to send it/i)
     ).toBeInTheDocument();
     expect(screen.queryByText(/that's it/i)).not.toBeInTheDocument();
 
     await user.click(
-      screen.getByRole("button", { name: /open feedback folder/i })
+      screen.getByRole("button", { name: /show saved file/i })
     );
     await user.click(
-      screen.getByRole("button", { name: /show file location/i })
+      screen.getByRole("button", { name: /open shared folder/i })
     );
     await user.click(screen.getByRole("button", { name: /done/i }));
 
-    expect(onOpenDriveFolder).toHaveBeenCalledTimes(1);
     expect(onRevealFile).toHaveBeenCalledTimes(1);
+    expect(onOpenDriveFolder).toHaveBeenCalledTimes(1);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

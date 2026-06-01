@@ -19,6 +19,18 @@ const TYPE_LABELS: Record<ErrorReport['type'], { label: string; variant: 'danger
   custom: { label: 'App', variant: 'surface' },
 };
 
+function formatSafeTextForDisplay(value: string): string {
+  return value
+    .replace(/\[WEBHOOK_CONFIGURED\]/g, 'notification link hidden')
+    .replace(/li_at=\[REDACTED\]/g, 'browser session hidden')
+    .replace(/\[EMAIL\]/g, 'email hidden')
+    .replace(/\[TOKEN\]/g, 'private token hidden')
+    .replace(/\/\[USER_PATH\]/g, 'file path hidden')
+    .replace(/C:\\\[USER_PATH\]/g, 'file path hidden')
+    .replace(/\[REDACTED\]/g, 'private value hidden')
+    .replace(/\[URL\]/g, 'link hidden');
+}
+
 function formatRelativeTime(timestamp: string): string {
   const now = new Date();
   const then = new Date(timestamp);
@@ -53,7 +65,7 @@ function formatContextValue(value: unknown): string {
   }
 
   if (typeof value === 'string') {
-    return value.trim() === '' ? 'Empty' : value;
+    return value.trim() === '' ? 'Empty' : formatSafeTextForDisplay(value);
   }
 
   if (typeof value === 'number' || typeof value === 'boolean') {
@@ -99,7 +111,7 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
   const typeInfo = TYPE_LABELS[error.type];
   const appDetailRows = getReadableContextRows(error.context);
   const hasSupportDetails = Boolean(error.stack || error.componentStack);
-  const displayMessage = sanitizeTextForStorage(error.message);
+  const displayMessage = formatSafeTextForDisplay(sanitizeTextForStorage(error.message));
 
   return (
     <div className="border-b border-surface-200 dark:border-surface-700 last:border-b-0">
@@ -137,11 +149,11 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
           {hasSupportDetails && (
             <div>
               <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">
-                Details for support
+                Safe report details
               </p>
               <p className="text-xs bg-surface-100 dark:bg-surface-800 p-2 rounded text-surface-700 dark:text-surface-300">
                 Extra problem details are included when you copy or save a safe
-                debug report.
+                report.
               </p>
             </div>
           )}
@@ -149,7 +161,7 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
           {appDetailRows.length > 0 && (
             <div>
               <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">
-                App details
+                Problem details
               </p>
               <dl className="text-xs bg-surface-100 dark:bg-surface-800 p-2 rounded text-surface-700 dark:text-surface-300 space-y-1">
                 {appDetailRows.map((row) => (
@@ -198,10 +210,10 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
 
     try {
       await copySanitizedDebugReport(errors);
-      setCopyMessage("Safe debug report copied");
+      setCopyMessage("Safe report copied");
     } catch (error) {
       logError("Failed to copy debug report:", error);
-      setCopyMessage("Could not copy safe debug report");
+      setCopyMessage("Could not copy safe report");
     } finally {
       setCopyingReport(false);
     }
@@ -215,12 +227,12 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
       const savedFile = await saveSanitizedDebugReport(errors);
       setCopyMessage(
         savedFile
-          ? `Safe debug report saved: ${savedFile.fileName}`
-          : "Safe debug report save canceled"
+          ? `Safe report saved: ${savedFile.fileName}`
+          : "Safe report save canceled"
       );
     } catch (error) {
       logError("Failed to save debug report:", error);
-      setCopyMessage("Could not save safe debug report");
+      setCopyMessage("Could not save safe report");
     } finally {
       setSavingReport(false);
     }
@@ -232,7 +244,7 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
         <div className="flex items-start justify-between gap-3">
           <div>
             <h3 className="font-medium text-surface-900 dark:text-white">
-              App Problem History
+              Recent Problems
             </h3>
             <p className="text-sm text-surface-500 dark:text-surface-400 mt-0.5">
               {errors.length === 0
@@ -256,7 +268,7 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
               loading={copyingReport}
               loadingText="Copying..."
             >
-              Copy Safe Debug Report
+              Copy Safe Report
             </Button>
             <Button
               size="sm"
@@ -265,12 +277,12 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
               loading={savingReport}
               loadingText="Saving..."
             >
-              Save Safe Debug Report
+              Save Safe Report
             </Button>
             {errors.length > 0 && (
               <>
                 <Button size="sm" variant="secondary" onClick={exportErrors}>
-                  Save Problem List
+                  Save Problem Details
                 </Button>
                 <Button size="sm" variant="danger" onClick={clearErrors}>
                   Clear All

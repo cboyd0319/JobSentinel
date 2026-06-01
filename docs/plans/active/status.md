@@ -43,11 +43,10 @@ and record actionable findings in this active-plan surface.
   raw frontend error forwarding, then adds bloat sensors and `errorReporting`
   unit coverage so those regressions fail locally.
 - Latest local UX work makes saving a safe local report the primary feedback
-  path, adds safe-report copy/save actions to modal crash recovery, and updates
-  Quick Start notification setup wording to match the current wizard.
-- Remaining read-only UX audit findings stay open for follow-up:
-  problem-history/export copy remains too technical, and the saved-report
-  success flow still needs a clearer account-optional path.
+  path, adds safe-report copy/save actions to modal crash recovery, updates
+  Quick Start notification setup wording to match the current wizard, simplifies
+  problem-history/export labels, makes the saved-report success path
+  account-optional, and rewords generated reports with plain support language.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.
@@ -69,8 +68,8 @@ and record actionable findings in this active-plan surface.
 3. Continue broad-audience review so non-technical and technical job searches
    both feel first-class.
 4. Continue backend/scraper and frontend privacy-edge review.
-5. Fix the remaining support/recovery UX audit findings so safe local report
-   generation is the easiest path.
+5. Continue the next zero-technical-knowledge UX audit area outside
+   support/reporting.
 6. Run final broad verification only when the remaining known work has evidence.
 
 ## Completion Bar
