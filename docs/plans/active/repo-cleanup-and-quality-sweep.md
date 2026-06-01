@@ -283,8 +283,9 @@ boundaries, and harness modularity:
   USAJobs auto-check, optional tech-source labels are expanded, site warnings
   avoid blocks-automatic-checks phrasing, Browser Integration became Browser
   Button, posting-risk custom labels use user-facing warnings, and
-  Resume-Based Scoring became Use Resume to Sort Jobs. Focused Settings tests
-  and product-copy sensors cover old phrasing.
+  Resume-Based Scoring became Use Resume to Sort Jobs. The latest local
+  follow-up also removes remaining New scans and Advanced chat alert wording.
+  Focused Settings tests and product-copy sensors cover old phrasing.
 - Fixed Dashboard salary filtering so users enter full yearly dollars instead
   of `$K` shorthand. The filter logic now compares against stored yearly
   salaries directly, the UI labels say yearly salary, current-filter summaries

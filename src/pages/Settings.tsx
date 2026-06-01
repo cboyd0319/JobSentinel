@@ -1335,7 +1335,7 @@ export default function Settings({ onClose }: SettingsProps) {
       await invoke("set_ghost_config", { config: ghostConfig });
       toast.success(
         "Posting risk settings saved",
-        "New scans use this warning behavior.",
+        "New job checks use these warnings.",
       );
     } catch (error: unknown) {
       logError("Failed to save ghost config:", error);
@@ -2845,7 +2845,7 @@ export default function Settings({ onClose }: SettingsProps) {
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
                     Telegram Notifications
-                    <Badge variant="surface" size="sm">Advanced chat alert</Badge>
+                    <Badge variant="surface" size="sm">Optional chat alert</Badge>
                     <HelpIcon
                       text="Use desktop or email alerts unless you already use Telegram bots."
                       position="right"

@@ -875,7 +875,7 @@ describe("Settings — handleSave flow", () => {
     );
   });
 
-  it("keeps Telegram bot details behind the advanced chat-alert path", async () => {
+  it("keeps Telegram bot details behind the optional chat-alert path", async () => {
     const user = userEvent.setup();
     const config = makeConfig();
 
@@ -895,7 +895,7 @@ describe("Settings — handleSave flow", () => {
 
     await user.click(screen.getByRole("tab", { name: "More Settings" }));
 
-    expect(screen.getByText(/Advanced chat alert/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Optional chat alert/i).length).toBeGreaterThan(0);
     expect(
       screen.getByText(/Use desktop or email alerts unless you already use Telegram bots/i),
     ).toBeInTheDocument();

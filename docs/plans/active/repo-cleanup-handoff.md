@@ -186,6 +186,10 @@ Current cleanup posture:
   table and dialog labels plainer: `Kind`, `Checks Worked`, `Check Time`, and
   `Check Results` replace the older source-type and recent-success wording.
   Component tests and product-copy sensors cover the old labels.
+- Current local Settings copy follow-up changes the posting-risk save toast
+  from scan wording to job-check wording and renames the Telegram badge from
+  advanced chat alert to optional chat alert. Settings tests and product-copy
+  sensors cover the old phrases.
 - Current local skill-label follow-up replaces vague self-rating labels such as
   beginner, intermediate, advanced, expert, and seniority level with
   behavior-based skill strength and role-stage copy across Resume, Resume
