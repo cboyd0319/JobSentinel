@@ -550,9 +550,9 @@ boundaries, and harness modularity:
   show privacy/security, local-first, external AI gateway, safe support report,
   responsible-use, broad-audience, and zero-technical-knowledge evidence; the
   harness manifest now blocks drift in those review requirements.
-- The latest zero-technical copy slice changes Market Intelligence refresh and
-  empty-state wording from "run analysis" to "refresh market data" and keeps
-  component plus smoke E2E expectations aligned.
+- The latest zero-technical copy slice changes visible market-analysis labels
+  to Hiring Trends language and keeps component plus smoke E2E
+  expectations aligned.
 - The latest dashboard plain-language slice changes job-list export actions to
   download copy, removes advanced-search wording from the main search box, and
   adds focused DashboardFiltersBar plus QuickActions tests.
@@ -633,7 +633,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 | 2026-06-01 | In progress | Reworded feedback choices from bug-report and feature-request labels to report-a-problem, suggest-an-improvement, and ask-a-question labels; added focused CategorySelector tests. |
 | 2026-06-01 | In progress | Reworded Dashboard job-list actions from export/CSV copy to download copy, changed the main search placeholder to "Search jobs," and added focused DashboardFiltersBar plus QuickActions tests. |
 | 2026-06-01 | In progress | Pushed through `1976fd9e`; remote Docs Harness `26744671097` and CI `26744671092` both passed. CI covered harness checks, harness script tests, TypeScript, ESLint, frontend unit tests, Rust fmt, Rust clippy, Rust library tests, npm audit, and cargo-deny advisories. |
-| 2026-06-01 | In progress | Reworded Market Intelligence refresh and empty states from "run analysis" to "refresh market data"; focused component tests passed and smoke-budget E2E measured 9 Chromium smoke tests in 5.75 seconds against a 30-second budget. |
+| 2026-06-01 | In progress | Reworded market-analysis refresh and empty states from "run analysis" toward Hiring Trends language; focused component tests passed and smoke-budget E2E measured 9 Chromium smoke tests in 5.75 seconds against a 30-second budget. |
 | 2026-06-01 | In progress | Added Rule 0 PR review evidence requirements and manifest-backed harness snippets for privacy/security, local-first workflows, external AI gateway routing, safe support reports, responsible use, broad audience, and zero-technical-knowledge support. |
 | 2026-06-01 | In progress | Pushed `a4dade40` to `main`; remote Docs Harness `26741447318` and CI `26741447297` both passed. Per the current goal posture, avoid another remote CI run until full-goal completion or explicit user request. |
 | 2026-06-01 | In progress | Removed hardcoded employer rating claims from static company fallback data, kept cached rating rendering covered by component tests, changed unknown-company guidance toward official/public-source research, and added source-quality harness coverage so static fallback ratings cannot drift back. |
@@ -965,7 +965,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   bullets where plain text labels provide the same meaning.
 - The Linux platform module had working XDG directory setup but still described
   itself as a future stub with limited functionality.
-- Market Intelligence feature docs still used emoji-heavy headings, sample
+- Hiring Trends feature docs still used emoji-heavy headings, sample
   outputs, and stale `*_emoji()` API names after source switched to text
   indicators.
 - `get_historical_snapshots` accepted signed IPC input but converted it with
@@ -1046,7 +1046,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   instead of emoji/status symbols.
 - Keep source comments and logs aligned with implemented platform behavior;
   stale "coming soon" stub markers count as bloat once code exists.
-- Keep Market Intelligence docs aligned with text indicator APIs such as
+- Keep Hiring Trends docs aligned with text indicator APIs such as
   `severity_indicator()`, `type_indicator()`, and `sentiment_indicator()`.
 - Validate signed IPC command inputs before converting to unsigned query or
   limit types.

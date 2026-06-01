@@ -9,7 +9,7 @@ const NAV_DESTINATIONS: Array<{
   { label: "Applications", heading: "Application Tracker" },
   { label: "Resumes", heading: "Resume Match" },
   { label: "Salary", heading: "Pay Protection" },
-  { label: "Market Intel", heading: "Market Intelligence" },
+  { label: "Hiring Trends", heading: "Hiring Trends" },
   { label: "Application Assist", heading: "Application Assist Settings" },
   { label: "Resume Builder", heading: "Resume Builder" },
   { label: "Resume Match", heading: "Resume Match Helper" },

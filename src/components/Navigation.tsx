@@ -92,7 +92,7 @@ const navItems: NavItem[] = [
   { id: "applications", label: "Applications", shortcut: "⌘2", icon: <ApplicationsIcon /> },
   { id: "resume", label: "Resumes", shortcut: "⌘3", icon: <ResumeIcon /> },
   { id: "salary", label: "Salary", shortcut: "⌘4", icon: <SalaryIcon /> },
-  { id: "market", label: "Market Intel", shortcut: "⌘5", icon: <MarketIcon /> },
+  { id: "market", label: "Hiring Trends", shortcut: "⌘5", icon: <MarketIcon /> },
   { id: "automation", label: "Application Assist", shortcut: "⌘6", icon: <AutomationIcon /> },
   { id: "resume-builder", label: "Resume Builder", shortcut: "⌘7", icon: <BuilderIcon /> },
   { id: "ats-optimizer", label: "Resume Match", shortcut: "⌘8", icon: <OptimizerIcon /> },

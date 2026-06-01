@@ -72,9 +72,9 @@ Recent remote integration evidence:
   responsible-use, safe support report, broad-audience, and
   zero-technical-knowledge checks. Manifest snippets now make
   `npm run harness:check` fail when those PR review requirements drift.
-- The latest pushed zero-technical copy slice changes Market Intelligence
-  refresh and empty-state wording from "run analysis" to "refresh market data"
-  and updates component plus smoke E2E expectations.
+- The latest pushed zero-technical copy slice changes visible market-analysis
+  labels to Hiring Trends language and updates component plus
+  smoke E2E expectations.
 - The latest pushed dashboard plain-language slice changes job-list export
   actions to download copy, removes advanced-search wording from the main
   search box, and adds DashboardFiltersBar plus QuickActions tests.

@@ -1,14 +1,14 @@
-# Market Intelligence
+# Hiring Trends
 
 **Use the jobs JobSentinel has already found to spot useful hiring signals,
 without treating the sample as the whole labor market.**
 
-Market Intelligence summarizes saved and monitored postings so job seekers can
+Hiring Trends summarizes saved and monitored postings so job seekers can
 see patterns in roles, skills, companies, locations, remote work, and listed pay.
 It is a local decision aid, not a prediction engine and not a substitute for
 checking the actual job posting.
 
-![Market Intelligence Dashboard](../images/market-intelligence.png)
+![Hiring Trends dashboard](../images/market-intelligence.png)
 
 ## Privacy Labels
 
@@ -21,7 +21,7 @@ checking the actual job posting.
 | External notifications | Sensitive | Optional notification channels are used only if configured. |
 | Job posting data | Public-data only | Source postings are public or user-saved job content. |
 
-External AI is not required for market intelligence.
+External AI is not required for Hiring Trends.
 
 ## What It Helps With
 
@@ -40,7 +40,7 @@ External AI is not required for market intelligence.
 
 ## Everyday Workflow
 
-1. Open **Market Intelligence**.
+1. Open **Hiring Trends**.
 2. Review the overview for the current local job pool.
 3. Check skills, companies, locations, and alerts.
 4. Treat every signal as evidence to verify, not as proof.
@@ -63,13 +63,13 @@ reposted roles may deserve extra verification before heavy tailoring.
 | Location density | More postings mention a place or work mode. | Check commute, hybrid schedule, licensing, or remote eligibility. |
 | Alert | A local metric moved enough to flag. | Review the underlying postings before changing strategy. |
 
-Market data is only as good as the sources currently monitored. Missing salary,
+Hiring trends are only as good as the sources currently monitored. Missing salary,
 stale postings, duplicated listings, source outages, and job-board bias can all
 distort results.
 
 ## Protective Use
 
-Market Intelligence should help job seekers make decisions with less wasted
+Hiring Trends should help job seekers make decisions with less wasted
 effort:
 
 - Prioritize fresh, official-source postings when possible.
@@ -116,7 +116,7 @@ npm run lint:docs
 
 Implementation rule:
 
-- Keep market copy evidence-bounded.
+- Keep Hiring Trends copy evidence-bounded.
 - Show sample-size or uncertainty where possible.
 - Keep private candidate context separate unless a feature explicitly joins it
   with a documented privacy label.

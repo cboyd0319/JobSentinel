@@ -31,6 +31,10 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local Hiring Trends follow-up changes visible market-analysis labels
+  to plain Hiring Trends language across navigation, page
+  headings, refresh buttons, empty states, snapshot labels, and feature docs;
+  focused component tests and product-copy coverage guard the old wording.
 - Latest local location-privacy follow-up makes setup and settings disclose
   that Detect Location contacts an outside location lookup service only after
   the user clicks, and that nothing is saved unless the user adds the city.
@@ -488,7 +492,7 @@ and record actionable findings in this active-plan surface.
   focused docs-drift coverage is now 8 tests and `scripts/check-repo-bloat.mjs`
   is 2,325 lines.
 - Latest local feature-doc drift harness work moves bookmarklet status,
-  feature metadata/glyph, synonym/remote-preference doc, Market Intelligence,
+  feature metadata/glyph, synonym/remote-preference doc, Hiring Trends,
   Resume Matcher, Salary AI, smart scoring, notifications, active user-doc,
   maintained-doc, developer-layout, and application-tracking doc drift sensors
   into `scripts/harness/checks/docs-drift.mjs`; focused docs-drift coverage is
@@ -630,9 +634,9 @@ and record actionable findings in this active-plan surface.
   must show privacy/security, optional external AI, safe support report,
   responsible-use, broad-audience, and zero-technical-knowledge evidence; the
   template is now covered by manifest snippets in `npm run harness:check`.
-- Latest zero-technical copy work changes Market Intelligence refresh and empty
-  states from "run analysis" language to "refresh market data" language, with
-  focused component tests and smoke-budget E2E evidence.
+- Latest zero-technical copy work changes visible market-analysis labels
+  toward Hiring Trends language, with focused component tests and smoke-budget
+  E2E evidence.
 - Latest dashboard plain-language work changes job-list export actions to
   download copy, removes advanced-search wording from the main search box, and
   adds focused DashboardFiltersBar and QuickActions tests for the visible copy.

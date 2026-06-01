@@ -24,7 +24,7 @@ export const defaultTourSteps = [
   {
     target: "[data-tour='quick-nav']",
     title: "More Tools",
-    content: "Track your applications, compare your resume to job posts, see salary insights, and explore job market trends.",
+    content: "Track your applications, compare your resume to job posts, see salary insights, and explore hiring trends.",
     placement: "top" as const,
   },
   {

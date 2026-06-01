@@ -203,7 +203,7 @@ describe("MarketSnapshotCard", () => {
   describe("loading state", () => {
     it("shows loading skeleton when loading is true", () => {
       render(<MarketSnapshotCard snapshot={null} loading={true} />);
-      expect(screen.getByRole("status", { name: /loading market snapshot/i })).toBeInTheDocument();
+      expect(screen.getByRole("status", { name: /loading hiring trends snapshot/i })).toBeInTheDocument();
     });
 
     it("loading skeleton has pulse animation", () => {
@@ -227,7 +227,7 @@ describe("MarketSnapshotCard", () => {
     it("shows message when snapshot is null and not loading", () => {
       render(<MarketSnapshotCard snapshot={null} />);
       expect(
-        screen.getByText(/no market snapshot yet. refresh market data to create one./i)
+        screen.getByText(/no hiring trends snapshot yet. refresh hiring trends to create one./i)
       ).toBeInTheDocument();
     });
 
@@ -245,12 +245,12 @@ describe("MarketSnapshotCard", () => {
 
     it("has descriptive aria-label", () => {
       render(<MarketSnapshotCard snapshot={mockSnapshot} />);
-      expect(screen.getByLabelText(/market snapshot/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/hiring trends snapshot/i)).toBeInTheDocument();
     });
 
     it("statistics have list structure", () => {
       render(<MarketSnapshotCard snapshot={mockSnapshot} />);
-      const statsList = screen.getByLabelText(/market statistics/i);
+      const statsList = screen.getByLabelText(/hiring trend statistics/i);
       expect(statsList).toHaveAttribute("role", "list");
     });
 

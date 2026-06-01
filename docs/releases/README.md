@@ -18,7 +18,7 @@ plans, use the newer maintained source.
 | v2.5.3 | [Release notes](v2.5.3.md) |
 | v2.5.2 | [Bug fixes](v2.5.2.md) |
 | v2.5.1 | [Production release](v2.5.1.md) |
-| v2.5.0 | [Market Intelligence UI](v2.5.md) |
+| v2.5.0 | [Hiring Trends UI](v2.5.md) |
 | v2.4.0 | [Resume Builder and Resume Match UI](v2.4.md) |
 | v2.3.0 | [Advanced Resume Matching](v2.3.md) |
 | v2.2.0 | [Settings UI and Smart Scoring](v2.2.md) |

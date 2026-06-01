@@ -4835,7 +4835,7 @@ test("checkRepoBloat rejects synonym and remote preference doc drift", () => {
   });
 });
 
-test("checkRepoBloat rejects Market Intelligence doc glyph markers", () => {
+test("checkRepoBloat rejects Hiring Trends doc glyph markers", () => {
   withGitFixture((root) => {
     const chartIcon = String.fromCodePoint(0x1f4c8);
     const moneyIcon = String.fromCodePoint(0x1f4b0);
@@ -4865,14 +4865,14 @@ test("checkRepoBloat rejects Market Intelligence doc glyph markers", () => {
 
     assert.ok(
       violations.includes(
-        "replace Market Intelligence doc glyph/stale indicator markers: docs/features/market-intelligence.md",
+        "replace Hiring Trends doc glyph/stale indicator markers: docs/features/market-intelligence.md",
       ),
       violations.join("\n"),
     );
   });
 });
 
-test("checkRepoBloat rejects stale Market Intelligence doc shape", () => {
+test("checkRepoBloat rejects stale Hiring Trends doc shape", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
@@ -4904,7 +4904,7 @@ test("checkRepoBloat rejects stale Market Intelligence doc shape", () => {
 
     assert.ok(
       violations.includes(
-        "sync Market Intelligence docs with local evidence guidance: docs/features/market-intelligence.md",
+        "sync Hiring Trends docs with local evidence guidance: docs/features/market-intelligence.md",
       ),
       violations.join("\n"),
     );

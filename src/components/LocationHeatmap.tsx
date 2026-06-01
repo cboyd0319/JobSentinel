@@ -29,9 +29,9 @@ export const LocationHeatmap = memo(function LocationHeatmap({ locations, loadin
 
   if (loading) {
     return (
-      <Card className="dark:bg-surface-800" role="region" aria-label="Job Market by Location">
+      <Card className="dark:bg-surface-800" role="region" aria-label="Jobs by Location">
         <h3 id="location-heatmap-title" className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
-          Job Market by Location
+          Jobs by Location
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3" role="status" aria-live="polite" aria-busy="true" aria-label="Loading location data">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
@@ -48,12 +48,12 @@ export const LocationHeatmap = memo(function LocationHeatmap({ locations, loadin
 
   if (locations.length === 0) {
     return (
-      <Card className="dark:bg-surface-800" role="region" aria-label="Job Market by Location">
+      <Card className="dark:bg-surface-800" role="region" aria-label="Jobs by Location">
         <h3 id="location-heatmap-title" className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
-          Job Market by Location
+          Jobs by Location
         </h3>
         <p className="text-center text-surface-500 dark:text-surface-400 py-8" role="status">
-          No location data yet. Refresh market data to see where jobs are showing up.
+          No location trends yet. Refresh hiring trends to see where jobs are showing up.
         </p>
       </Card>
     );
@@ -77,7 +77,7 @@ export const LocationHeatmap = memo(function LocationHeatmap({ locations, loadin
   return (
     <Card className="dark:bg-surface-800" role="region" aria-labelledby="location-heatmap-title">
       <h3 id="location-heatmap-title" className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
-        Job Market by Location
+        Jobs by Location
       </h3>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3" role="list" aria-label="Job locations">

@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { MarketIntelligencePage } from "./page-objects/MarketIntelligencePage";
 
-test.describe("Market Intelligence", () => {
+test.describe("Hiring Trends", () => {
   let marketPage: MarketIntelligencePage;
 
   test.beforeEach(async ({ page }) => {
@@ -77,10 +77,10 @@ test.describe("Market Intelligence", () => {
     await expect(page.getByRole("button", { name: /Mark .* as read/ })).not.toBeVisible();
   });
 
-  test("runs market analysis and keeps refreshed data visible", async ({ page }) => {
+  test("refreshes hiring trends and keeps refreshed data visible", async ({ page }) => {
     await marketPage.runAnalysis();
 
-    await expect(page.getByText("Market data refreshed")).toBeVisible();
+    await expect(page.getByText("Hiring trends refreshed")).toBeVisible();
     await expect(marketPage.marketSnapshot).toBeVisible();
     await expect(page.getByText("Top Skill: Customer Support")).toBeVisible();
   });

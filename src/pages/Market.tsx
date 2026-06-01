@@ -209,7 +209,7 @@ export default function Market({ onBack }: MarketProps) {
       await safeInvokeWithToast("run_market_analysis", {}, toast, {
         logContext: "Run market analysis"
       });
-      toast.success("Market data refreshed", "Job market trends are up to date.");
+      toast.success("Hiring trends refreshed", "Current job trends are up to date.");
       await fetchData();
     } catch {
       // Error already logged and shown to user
@@ -245,7 +245,7 @@ export default function Market({ onBack }: MarketProps) {
 
 
   if (loading) {
-    return <LoadingSpinner message="Loading job market trends..." />;
+    return <LoadingSpinner message="Loading hiring trends..." />;
   }
 
   if (error) {
@@ -259,7 +259,7 @@ export default function Market({ onBack }: MarketProps) {
               </svg>
             </div>
             <h2 className="font-display text-display-sm text-surface-900 dark:text-white mb-2">
-              Could not load market data
+              Could not load hiring trends
             </h2>
             <p className="text-surface-600 dark:text-surface-400 mb-6">
               {error}
@@ -294,10 +294,10 @@ export default function Market({ onBack }: MarketProps) {
               </button>
               <div>
                 <h1 className="font-display text-display-md text-surface-900 dark:text-white">
-                  Market Intelligence
+                  Hiring Trends
                 </h1>
                 <p className="text-sm text-surface-500 dark:text-surface-400">
-                  Job market trends, company activity, and location insights
+                  Job trends, company activity, and location signals
                   {lastFetched && (() => {
                     const { text, stale } = formatRelativeTime(lastFetched);
                     return (
@@ -311,12 +311,12 @@ export default function Market({ onBack }: MarketProps) {
               </div>
             </div>
             <Button onClick={handleRunAnalysis} loading={analyzing}>
-              Refresh Market Data
+              Refresh Hiring Trends
             </Button>
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1 mt-4 -mb-4 overflow-x-auto" role="tablist" aria-label="Market Intelligence sections">
+          <div className="flex gap-1 mt-4 -mb-4 overflow-x-auto" role="tablist" aria-label="Hiring Trends sections">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -360,7 +360,7 @@ export default function Market({ onBack }: MarketProps) {
                   yKey="total_jobs"
                   yLabel="Jobs"
                   color="#6366f1"
-                  emptyMessage="Refresh market data to see skill trends"
+                  emptyMessage="Refresh hiring trends to see skill trends"
                 />
               </Suspense>
               <Suspense fallback={<ChartSkeleton />}>
@@ -372,7 +372,7 @@ export default function Market({ onBack }: MarketProps) {
                   yKey="total_posted"
                   yLabel="Jobs Posted"
                   color="#10b981"
-                  emptyMessage="Refresh market data to see company activity"
+                  emptyMessage="Refresh hiring trends to see company activity"
                 />
               </Suspense>
             </div>
@@ -411,7 +411,7 @@ export default function Market({ onBack }: MarketProps) {
                 yLabel="Total Jobs"
                 color="#6366f1"
                 height={350}
-                emptyMessage="No skill data yet. Refresh market data to see current trends."
+                emptyMessage="No skill trends yet. Refresh hiring trends to see current trends."
               />
             </Suspense>
 
@@ -421,7 +421,7 @@ export default function Market({ onBack }: MarketProps) {
               </h3>
               {skills.length === 0 ? (
                 <p className="text-surface-500 dark:text-surface-400 text-center py-8">
-                  No skill data yet. Refresh market data to see current trends.
+                  No skill trends yet. Refresh hiring trends to see current trends.
                 </p>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -475,7 +475,7 @@ export default function Market({ onBack }: MarketProps) {
                 yLabel="Jobs Posted"
                 color="#10b981"
                 height={350}
-                emptyMessage="No company data yet. Refresh market data to see current trends."
+                emptyMessage="No company trends yet. Refresh hiring trends to see current trends."
               />
             </Suspense>
 
@@ -485,7 +485,7 @@ export default function Market({ onBack }: MarketProps) {
               </h3>
               {companies.length === 0 ? (
                 <p className="text-surface-500 dark:text-surface-400 text-center py-8">
-                  No company data yet. Refresh market data to see current trends.
+                  No company trends yet. Refresh hiring trends to see current trends.
                 </p>
               ) : (
                 <div className="overflow-x-auto">

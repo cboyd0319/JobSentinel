@@ -158,6 +158,17 @@ const plainJobSearchDocPaths = new Set([
   "docs/features/smart-scoring.md",
 ]);
 
+const hiringTrendsCopyPaths = new Set([
+  "docs/README.md",
+  "docs/features/market-intelligence.md",
+  "src/config/tourSteps.ts",
+  "src/components/LocationHeatmap.tsx",
+  "src/components/MarketSnapshotCard.tsx",
+  "src/components/Navigation.tsx",
+  "src/pages/Market.tsx",
+  "src/pages/marketErrorCopy.ts",
+]);
+
 const technicalFirstUserCopyPaths = new Set([
   ".github/ISSUE_TEMPLATE/bug_report.yml",
   ".github/ISSUE_TEMPLATE/scraper_issue.yml",
@@ -185,6 +196,8 @@ const technicalFirstUserCopyPaths = new Set([
   "src/components/InterviewScheduler.tsx",
   "src/components/CommandPalette.tsx",
   "src/components/KeyboardShortcutsHelp.tsx",
+  "src/components/LocationHeatmap.tsx",
+  "src/components/MarketSnapshotCard.tsx",
   "src/components/Navigation.tsx",
   "src/components/automation/ApplyButton.tsx",
   "src/components/automation/ApplicationPreview.tsx",
@@ -598,9 +611,30 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /market sentiment:/i,
       /<span>\{snapshot\.market_sentiment\}<\/span>/i,
       /getByText\(\/(?:bearish|neutral)\/i/i,
+      /Market data/i,
+      /market data/i,
+      /No market snapshot yet/i,
     ];
 
     return marketSnapshotPatterns.some((pattern) => pattern.test(text));
+  }
+
+  if (hiringTrendsCopyPaths.has(path)) {
+    const text = readFileSync(join(root, path), "utf8");
+    const hiringTrendPatterns = [
+      /Market Intel/i,
+      /Market Intelligence/i,
+      /Market data/i,
+      /market data/i,
+      /job market trends/i,
+      /Job Market by Location/i,
+      /No location data yet/i,
+      /No market snapshot yet/i,
+    ];
+
+    if (hiringTrendPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
   }
 
   if (!technicalFirstUserCopyPaths.has(path)) {

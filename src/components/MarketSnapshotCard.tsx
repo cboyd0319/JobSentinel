@@ -111,7 +111,7 @@ function BadgeContent({ icon, children }: { icon: SnapshotIconName; children: Re
 export const MarketSnapshotCard = memo(function MarketSnapshotCard({ snapshot, loading = false }: MarketSnapshotCardProps) {
   if (loading) {
     return (
-      <Card className="dark:bg-surface-800 animate-pulse" role="status" aria-busy="true" aria-label="Loading market snapshot">
+      <Card className="dark:bg-surface-800 animate-pulse" role="status" aria-busy="true" aria-label="Loading hiring trends snapshot">
         <div className="h-24 bg-surface-200 dark:bg-surface-700 rounded" aria-hidden="true" />
       </Card>
     );
@@ -121,7 +121,7 @@ export const MarketSnapshotCard = memo(function MarketSnapshotCard({ snapshot, l
     return (
       <Card className="dark:bg-surface-800" role="status">
         <p className="text-center text-surface-500 dark:text-surface-400 py-6">
-          No market snapshot yet. Refresh market data to create one.
+          No hiring trends snapshot yet. Refresh hiring trends to create one.
         </p>
       </Card>
     );
@@ -130,10 +130,10 @@ export const MarketSnapshotCard = memo(function MarketSnapshotCard({ snapshot, l
   const outlookConfig = getOutlookConfig(snapshot.market_sentiment);
 
   return (
-    <Card className="dark:bg-surface-800" role="region" aria-label="Market snapshot">
+    <Card className="dark:bg-surface-800" role="region" aria-label="Hiring trends snapshot">
       <div className="flex flex-wrap items-center justify-between gap-4">
         {/* Main stats */}
-        <div className="flex flex-wrap gap-6" role="list" aria-label="Market statistics">
+        <div className="flex flex-wrap gap-6" role="list" aria-label="Hiring trend statistics">
           <div role="listitem">
             <p className="text-2xl font-bold text-surface-900 dark:text-white" aria-label={`${(snapshot.total_jobs ?? 0).toLocaleString()} total jobs`}>
               {(snapshot.total_jobs ?? 0).toLocaleString()}

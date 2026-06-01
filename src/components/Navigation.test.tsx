@@ -73,11 +73,11 @@ describe("Navigation", () => {
       expect(onNavigate).toHaveBeenCalledWith("salary");
     });
 
-    it("calls onNavigate when Market Intel is clicked", () => {
+    it("calls onNavigate when Hiring Trends is clicked", () => {
       const onNavigate = vi.fn();
       render(<Navigation currentPage="dashboard" onNavigate={onNavigate} />);
 
-      const btn = screen.getByTitle("Market Intel (⌘5)");
+      const btn = screen.getByTitle("Hiring Trends (⌘5)");
       fireEvent.click(btn);
 
       expect(onNavigate).toHaveBeenCalledWith("market");

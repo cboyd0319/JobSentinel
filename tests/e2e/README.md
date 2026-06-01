@@ -15,7 +15,7 @@ Reusable page objects following the Page Object Model pattern:
 - `SettingsPage.ts` - Settings management
 - `OneClickApplyPage.ts` - Application Assist settings, profile, and screening answers
 - `ResumeBuilderPage.ts` - Resume Builder wizard
-- `MarketIntelligencePage.ts` - Market Intelligence features
+- `MarketIntelligencePage.ts` - Hiring Trends features
 - `JobDetailPage.ts` - Job detail view and interactions
 
 ### Test Suites
@@ -293,7 +293,7 @@ Current test coverage:
 - Keyboard navigation
 - Application Assist settings and screening answers
 - Resume Builder wizard
-- Market Intelligence features
+- Hiring Trends features
 - Job interactions (bookmarking, notes, status)
 - Theme toggle
 - Responsive design

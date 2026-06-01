@@ -50,14 +50,14 @@ describe("LocationHeatmap", () => {
       render(<LocationHeatmap locations={defaultLocations} />);
 
       expect(
-        screen.getByRole("region", { name: /Job Market by Location/i })
+        screen.getByRole("region", { name: /Jobs by Location/i })
       ).toBeInTheDocument();
     });
 
     it("renders title", () => {
       render(<LocationHeatmap locations={defaultLocations} />);
 
-      expect(screen.getByText("Job Market by Location")).toBeInTheDocument();
+      expect(screen.getByText("Jobs by Location")).toBeInTheDocument();
     });
 
     it("renders list of locations", () => {
@@ -119,7 +119,7 @@ describe("LocationHeatmap", () => {
     it("renders title when loading", () => {
       render(<LocationHeatmap locations={[]} loading={true} />);
 
-      expect(screen.getByText("Job Market by Location")).toBeInTheDocument();
+      expect(screen.getByText("Jobs by Location")).toBeInTheDocument();
     });
 
     it("does not render locations when loading", () => {
@@ -134,14 +134,14 @@ describe("LocationHeatmap", () => {
       render(<LocationHeatmap locations={[]} />);
 
       expect(
-        screen.getByText("No location data yet. Refresh market data to see where jobs are showing up.")
+        screen.getByText("No location trends yet. Refresh hiring trends to see where jobs are showing up.")
       ).toBeInTheDocument();
     });
 
     it("renders title when empty", () => {
       render(<LocationHeatmap locations={[]} />);
 
-      expect(screen.getByText("Job Market by Location")).toBeInTheDocument();
+      expect(screen.getByText("Jobs by Location")).toBeInTheDocument();
     });
 
     it("does not render list when empty", () => {

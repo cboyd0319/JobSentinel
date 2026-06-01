@@ -2,7 +2,7 @@ import { Page, Locator, expect } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
 /**
- * Page object for Market Intelligence workflows.
+ * Page object for Hiring Trends workflows.
  */
 export class MarketIntelligencePage extends BasePage {
   constructor(page: Page) {
@@ -12,17 +12,17 @@ export class MarketIntelligencePage extends BasePage {
   async navigateTo() {
     await this.goto("/");
     await this.skipSetupWizard();
-    await this.navigateToPage("Market Intel");
+    await this.navigateToPage("Hiring Trends");
     await expect(this.heading).toBeVisible({ timeout: 15000 });
   }
 
   get heading(): Locator {
-    return this.page.getByRole("heading", { name: "Market Intelligence" });
+    return this.page.getByRole("heading", { name: "Hiring Trends" });
   }
 
   get tabList(): Locator {
     return this.page.getByRole("tablist", {
-      name: "Market Intelligence sections",
+      name: "Hiring Trends sections",
     });
   }
 
@@ -31,15 +31,15 @@ export class MarketIntelligencePage extends BasePage {
   }
 
   get refreshButton(): Locator {
-    return this.page.getByRole("button", { name: "Refresh Market Data" });
+    return this.page.getByRole("button", { name: "Refresh Hiring Trends" });
   }
 
   get marketSnapshot(): Locator {
-    return this.page.getByRole("region", { name: "Market snapshot" });
+    return this.page.getByRole("region", { name: "Hiring trends snapshot" });
   }
 
   get locationRegion(): Locator {
-    return this.page.getByRole("region", { name: "Job Market by Location" });
+    return this.page.getByRole("region", { name: "Jobs by Location" });
   }
 
   get alertsFeed(): Locator {

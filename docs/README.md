@@ -67,7 +67,7 @@ skill to get value.
 | Review-first application form help | [Application Assist](features/one-click-apply.md) |
 | Official-source job monitoring | [Job Source Adapters](features/scrapers.md) |
 | Browser import button | [Browser Import Button](BOOKMARKLET.md) |
-| Market signals | [Market Intelligence](features/market-intelligence.md) |
+| Hiring trends | [Hiring Trends](features/market-intelligence.md) |
 | Match priorities | [Smart Scoring](features/smart-scoring.md) |
 | Work-mode matching | [Remote Preference Matching](features/remote-preference-scoring.md) |
 | Broad skill matching | [Synonym Matching](features/synonym-matching.md) |

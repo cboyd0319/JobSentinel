@@ -9,7 +9,7 @@ const MAIN_HEADING_BY_SHORTCUT: Array<{
   { shortcut: 2, heading: "Application Tracker" },
   { shortcut: 3, heading: "Resume Match" },
   { shortcut: 4, heading: "Pay Protection" },
-  { shortcut: 5, heading: "Market Intelligence" },
+  { shortcut: 5, heading: "Hiring Trends" },
   { shortcut: 6, heading: "Application Assist Settings" },
   { shortcut: 7, heading: "Resume Builder" },
   { shortcut: 8, heading: "Resume Match Helper" },

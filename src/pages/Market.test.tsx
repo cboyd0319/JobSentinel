@@ -8,7 +8,7 @@ describe("Market safe error copy", () => {
     );
     const visibleText = `${copy.inlineMessage} ${copy.toastTitle} ${copy.toastMessage}`;
 
-    expect(copy.toastTitle).toBe("Market data unavailable");
+    expect(copy.toastTitle).toBe("Hiring trends unavailable");
     expect(visibleText).toContain("safe support report");
     expect(visibleText).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
   });
