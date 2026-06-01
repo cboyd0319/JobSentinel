@@ -133,7 +133,7 @@ Search links can include:
 
 Not all sites support every filter. JobSentinel uses what each site supports.
 
-## Privacy And Source Boundaries
+## Privacy And What JobSentinel Does
 
 **Privacy:**
 
@@ -146,17 +146,17 @@ Not all sites support every filter. JobSentinel uses what each site supports.
 
 - JobSentinel only creates a browser search link for these sites
 - You decide whether to open the site and log in there
-- JobSentinel does not collect session cookies for these sites
+- JobSentinel does not collect your signed-in website session for these sites
 - JobSentinel does not bypass human checks, login, or site limits
 
 ## FAQ
 
 ### Why does JobSentinel use browser-opened links for these sites?
 
-Some sites limit background collection or require you to view results in your
+Some sites limit automatic checking or require you to view results in your
 own browser:
 
-- Rate limiting
+- Limits on repeated searches
 - Human checks
 - Login requirements
 - Terms or policy restrictions
@@ -192,7 +192,8 @@ site. Include the site name and, if you are comfortable sharing it, an example
 public search page.
 
 Contributors can also add sites in code. See the
-[developer guide](../developer/ADDING_DEEP_LINK_SITES.md) for that path.
+[technical contributor guide](../developer/ADDING_DEEP_LINK_SITES.md) for that
+path.
 
 ## Comparison With Monitored Sources
 

@@ -201,6 +201,12 @@ Current cleanup posture:
   and generated support report. Support reports now use plain setup states and
   explicitly name job-search sensitive categories removed before sharing, with
   product-copy harness coverage for the wording boundary.
+- Current local sidecar audit follow-up updates Quick Start, Deep Links, Job
+  Sources, and Job Source Status docs to avoid remaining technical-first or
+  scary phrases such as Assets section, low-trust postings, session cookies,
+  background collection, rate limiting, source adapters, hidden endpoints,
+  raw format lists, and hashing internals. Product-copy harness coverage now
+  blocks those audited doc phrases from returning.
 - Current local privacy follow-up removes raw screening-question text and saved
   answer patterns from Application Assist debug logs. The trace now records
   only question/pattern character counts when a saved answer matches, and

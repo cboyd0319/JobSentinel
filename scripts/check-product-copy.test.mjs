@@ -409,10 +409,29 @@ test("product copy rejects technical-first settings copy", () => {
       root,
       "docs/user/DEEP_LINKS.md",
       [
+        "## Privacy And Source Boundaries",
+        "JobSentinel does not collect session cookies.",
+        "Some sites limit background collection.",
+        "- Rate limiting",
         "JobSentinel does not bypass CAPTCHA, login, or anti-bot controls",
         "- CAPTCHA challenges",
         "| Login and CAPTCHA | Handled by you on the site | Not bypassed |",
         "| Best for | Sites with login, anti-bot, or policy limits |",
+        "[developer guide](../developer/ADDING_DEEP_LINK_SITES.md)",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/user/QUICK_START.md",
+      [
+        "Yes. JobSentinel is free and MIT licensed.",
+        "Look for the Assets section.",
+        "<summary><strong>For developers: build from source</strong></summary>",
+        "Stale, reposted, or low-trust postings",
+        "scan allowed sources immediately",
+        "### Ghost Job Detection",
+        "force a refresh",
         "",
       ].join("\n"),
     );
@@ -420,6 +439,10 @@ test("product copy rejects technical-first settings copy", () => {
       root,
       "docs/features/scraper-health.md",
       [
+        "Source health must follow the same source boundaries as adapters.",
+        "Use rate limits and bounded response reads.",
+        "## Implementation Notes",
+        "## Verification",
         "Prefer official APIs, public feeds, and official company or ATS postings.",
         "Do not add hidden endpoint checks.",
         "Do not attempt CAPTCHA bypass or platform-control evasion.",
@@ -430,6 +453,12 @@ test("product copy rejects technical-first settings copy", () => {
       root,
       "docs/features/scrapers.md",
       [
+        "# Job Source Adapters",
+        "public, bounded source adapters",
+        "hidden LinkedIn endpoints",
+        "HTML, RSS, JSON",
+        "## Adapter Flow",
+        "SHA256(",
         "public ATS APIs such as Greenhouse",
         "understand HTTP, selectors, credentials, or logs",
         "Public JSON endpoint",
@@ -505,6 +534,7 @@ test("product copy rejects technical-first settings copy", () => {
       hasTechnicalFirstUserCopy(root, "docs/features/one-click-apply.md"),
       true,
     );
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/QUICK_START.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/DEEP_LINKS.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scraper-health.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scrapers.md"), true);

@@ -14,12 +14,13 @@ You'll need to install JobSentinel on your computer. Here's the quick version:
 **Is JobSentinel free?**
 
 Yes. JobSentinel is free, will always stay free, and will always remain MIT
-licensed. You do not need a paid account to use the core app.
+licensed. The code is free and open source, and you do not need a paid account
+to use the core app.
 
 **Download the installer** (recommended)
 
 1. Open the [latest download page](https://github.com/cboyd0319/JobSentinel/releases).
-2. Look for the **Assets** section on the newest release.
+2. Look for the download list on the newest release.
 3. Download the installer for your computer:
    - **Windows installer**
    - **Mac installer**
@@ -61,7 +62,7 @@ This can happen because JobSentinel is a new open-source app.
 </details>
 
 <details>
-<summary><strong>For developers: build from source</strong></summary>
+<summary><strong>Advanced: build from source</strong></summary>
 <br>
 
 Most users should download the installer. Developers can build locally:
@@ -203,7 +204,7 @@ Here's what happens automatically:
 - Every 2 hours, JobSentinel checks for new jobs.
 - Each job is compared with your saved search.
 - Strong matches can trigger notifications if you set them up.
-- Stale, reposted, or low-trust postings are flagged with warnings.
+- Stale, reposted, or postings that need review are flagged with warnings.
 
 ### Your Dashboard
 
@@ -223,7 +224,7 @@ The dashboard shows:
 ### Manual Search
 
 Don't want to wait 2 hours? Right-click the tray/menu bar icon and select
-**"Search Now"** to scan allowed sources immediately.
+**"Search Now"** to check allowed job sources now.
 
 ### Bookmark Jobs
 
@@ -266,10 +267,10 @@ Press `?` anytime to see the full list.
 
 ## Useful features
 
-### Ghost Job Detection
+### Posting Risk Warnings
 
-JobSentinel flags stale, reposted, or low-trust postings so you can protect
-tailoring time:
+JobSentinel flags stale, reposted, or hard-to-verify postings so you can
+protect tailoring time:
 
 - **Yellow** - Minor concerns (might be old)
 - **Orange** - Multiple warning signs
@@ -411,7 +412,7 @@ secure vault.
 1. Make sure your job titles aren't too specific
 2. Try enabling more location options (Remote + Hybrid + Onsite)
 3. Lower your minimum salary to $0 temporarily
-4. Right-click the tray icon > "Search Now" to force a refresh
+4. Right-click the tray icon > "Search Now" to check again now
 
 ### Notifications not working?
 

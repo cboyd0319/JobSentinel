@@ -249,6 +249,13 @@ boundaries, and harness modularity:
   report privacy summary now explicitly includes salary floors, resume text,
   private notes, and application history as removed data categories, with
   product-copy coverage against setup-summary jargon returning.
+- Reworked user and feature docs from the zero-technical sidecar audit:
+  Quick Start, Job Site Search Links, Job Sources, and Job Source Status now
+  avoid download-page jargon, developer-first headings, low-trust labels,
+  scan/refresh wording, browser-session internals, rate-limit terms,
+  source-adapter implementation framing, hashing internals, and maintainer
+  test-process headings in user-facing sections. Product-copy sensors now
+  guard the audited phrases.
 - Fixed Dashboard salary filtering so users enter full yearly dollars instead
   of `$K` shorthand. The filter logic now compares against stored yearly
   salaries directly, the UI labels say yearly salary, current-filter summaries

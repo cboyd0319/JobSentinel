@@ -129,6 +129,13 @@ and record actionable findings in this active-plan surface.
   turned on, added, and not added. The report privacy summary now also names
   job-search sensitive categories removed before sharing, and product-copy
   coverage rejects setup-summary jargon drift.
+- Latest local sidecar audit follow-up cleans user and feature docs that still
+  sounded technical or scary for non-technical job seekers. Quick Start, Job
+  Site Search Links, Job Sources, and Job Source Status now use plainer wording
+  for download instructions, build-from-source, posting-risk warnings, search
+  refreshes, signed-in website sessions, repeated-search limits, source rules,
+  source checks, and maintainer-only sections. Product-copy coverage rejects
+  the old doc phrases.
 - Latest local privacy follow-up removes raw screening-question text and saved
   answer patterns from backend debug logs in Application Assist. Logs now keep
   only character counts for matched questions and patterns, and

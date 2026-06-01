@@ -602,8 +602,47 @@ export function hasTechnicalFirstUserCopy(root, path) {
     return /seniority level|by title, location, and\s+seniority/i.test(text);
   }
 
+  if (path === "docs/user/QUICK_START.md") {
+    const quickStartPatterns = [
+      /Assets section/i,
+      /For developers:\s*build from source/i,
+      /low-trust postings/i,
+      /scan allowed sources immediately/i,
+      /Ghost Job Detection/i,
+      /force a refresh/i,
+    ];
+
+    if (quickStartPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "docs/user/DEEP_LINKS.md") {
+    const deepLinkPatterns = [
+      /Privacy And Source Boundaries/i,
+      /session cookies/i,
+      /background collection/i,
+      /Rate limiting/i,
+      /\[developer guide\]/i,
+    ];
+
+    if (deepLinkPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
   if (path === "docs/features/scraper-health.md" || path === "docs/features/scrapers.md") {
     const sourceDocPatterns = [
+      /Job Source Adapters/i,
+      /public, bounded source adapters/i,
+      /hidden LinkedIn endpoints/i,
+      /HTML, RSS, JSON/i,
+      /Adapter Flow/i,
+      /SHA256\(/i,
+      /source boundaries as adapters/i,
+      /rate limits and bounded response reads/i,
+      /^## Implementation Notes/im,
+      /^## Verification/im,
       /official company or ATS postings/i,
       /public ATS APIs/i,
       /public ATS sources/i,

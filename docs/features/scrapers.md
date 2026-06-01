@@ -1,12 +1,12 @@
-# Job Source Adapters
+# Job Sources
 
-JobSentinel favors official-source job monitoring and public, bounded source
-adapters. Source access must preserve user privacy, source boundaries, rate
-limits, and review-first workflows.
+JobSentinel favors official-source job monitoring and public job sources
+checked within clear limits. Source access must preserve user privacy, source
+boundaries, rate limits, and review-first workflows.
 
 LinkedIn is supported as a user-opened search destination through Deep Links.
 JobSentinel does not log in to LinkedIn, collect LinkedIn session credentials,
-call hidden LinkedIn endpoints, or read LinkedIn pages in the background.
+call private LinkedIn systems, or read LinkedIn pages in the background.
 
 ## Source Model
 
@@ -25,10 +25,10 @@ call hidden LinkedIn endpoints, or read LinkedIn pages in the background.
 | No restricted-site automation | Do not add hidden data paths, session-cookie collection, human-check bypass, or platform-control evasion |
 | Local-first storage | Source results, run history, and notes stay local |
 | Rate limits | Every adapter must use source-specific limits and shared retry helpers where feasible |
-| Bounded reads | HTML, RSS, JSON, source-check, and import fetches cap decoded bodies at 16 MiB |
+| Bounded reads | Page, feed, source-check, and import requests cap decoded bodies at 16 MiB |
 | User control | Job-site search links open in the user's browser and do not run in the background |
 
-## Adapter Flow
+## How Job Checks Work
 
 ```text
 Configured source
@@ -92,14 +92,8 @@ storage. The importer removes embedded credentials, fragments, tracking
 parameters, and sensitive query parameters while preserving public posting
 identifiers needed to recognize the posting.
 
-```text
-SHA256(
-  normalized_title +
-  company_name +
-  normalized_location +
-  normalized_url
-)
-```
+JobSentinel compares cleaned title, company, location, and link to spot
+duplicates.
 
 Normalization removes common tracking parameters, standardizes common title
 abbreviations, and maps location aliases such as `SF`, `Remote US`, and
@@ -135,7 +129,7 @@ checks. Source-boundary changes also need docs and bloat-guard updates.
 
 - Use official feeds or APIs where available.
 - Confirm source terms, robots policy, and practical access boundaries.
-- Add rate limits and bounded response reads.
+- Check sources politely and avoid reading more page data than needed.
 - Add parser fixtures or source-check coverage.
 - Add health metadata and user-safe errors.
 - Add docs and bloat checks for source-policy drift.

@@ -38,11 +38,11 @@ The Settings troubleshooting dashboard should show:
 
 ## Source Policy
 
-Source health must follow the same source boundaries as adapters:
+Source health must follow the same rules for job sources:
 
 - Prefer official feeds, public feeds, and official employer or application
   platform postings.
-- Use rate limits and bounded response reads.
+- Check sites politely and avoid reading more page data than needed.
 - Do not add hidden source checks.
 - Do not collect restricted-site session credentials.
 - Do not bypass human checks or platform controls.
@@ -53,7 +53,7 @@ LinkedIn is intentionally handled as a user-opened search-link destination. It
 should not appear as a background source, credential-renewal prompt, or source
 check.
 
-## Implementation Notes
+## For Maintainers
 
 Important modules:
 
@@ -65,7 +65,7 @@ Important modules:
 | `src-tauri/src/commands/health.rs` | Tauri command boundary |
 | `src/pages/Settings.tsx` | Troubleshooting and source status UI |
 
-## Verification
+## Checks for Maintainers
 
 Focused checks:
 
