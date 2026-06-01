@@ -193,6 +193,10 @@ Current cleanup posture:
 - Current local Application Assist recovery-copy follow-up changes visible
   form-preparation failure copy to `Could not prepare details`. ApplyButton
   tests and product-copy sensors cover the old preparation-error labels.
+- Current local Dashboard source-check copy follow-up changes remaining manual
+  and scheduled job-check labels away from scan wording to `Checking job
+  sources`, `Checking for new jobs`, and `Job check complete`. DashboardHeader
+  tests and product-copy sensors cover the old scanning labels.
 - Current local skill-label follow-up replaces vague self-rating labels such as
   beginner, intermediate, advanced, expert, and seniority level with
   behavior-based skill strength and role-stage copy across Resume, Resume

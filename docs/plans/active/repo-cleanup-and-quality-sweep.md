@@ -290,6 +290,10 @@ boundaries, and harness modularity:
   of `$K` shorthand. The filter logic now compares against stored yearly
   salaries directly, the UI labels say yearly salary, current-filter summaries
   use salary formatting, and coverage rejects old thousand-based wording.
+- Fixed remaining Dashboard source-check wording that still said scan in the
+  manual search button, toast messages, and scheduled check hook. The UI now
+  says checking job sources and job check complete, with DashboardHeader and
+  product-copy coverage against old scanning labels.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift
   readiness checks; added `npm run doctor:e2e` as the strict Playwright

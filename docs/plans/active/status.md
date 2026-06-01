@@ -149,6 +149,10 @@ and record actionable findings in this active-plan surface.
   form-preparation failure wording with `Could not prepare details` and adds
   ApplyButton plus product-copy coverage so old preparation-error labels do
   not return.
+- Latest local Dashboard source-check copy follow-up replaces remaining scan
+  wording in manual and scheduled job checks with `Checking job sources`,
+  `Checking for new jobs`, and `Job check complete`, with DashboardHeader and
+  product-copy coverage against old scanning labels.
 - Latest local Application Assist readiness follow-up stops optional
   application-form detection from blocking the Prepare Form action. If form
   recognition is still loading, users with a saved profile can still open the

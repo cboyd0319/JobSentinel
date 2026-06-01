@@ -1545,6 +1545,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/pages/Dashboard.tsx",
       [
         '"This job posting URL is not valid or safe to open"; "Unable to open the job posting URL";',
+        '"Scanning job boards..."; "Scan complete!";',
         "setError(getErrorMessage(err));",
         "setError(enhancedError.userFriendly?.message || getErrorMessage(err));",
         "",

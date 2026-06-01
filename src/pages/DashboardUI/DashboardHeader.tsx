@@ -66,7 +66,7 @@ export const DashboardHeader = memo(function DashboardHeader({
                 scrapingStatus.is_running
                   ? "Checking selected job sites"
                   : autoRefreshEnabled && nextRefreshTime
-                    ? `Auto-refresh in ${formatTimeUntil(nextRefreshTime)}`
+                    ? `Next check in ${formatTimeUntil(nextRefreshTime)}`
                     : "Ready to search"
               }
               position="bottom"
@@ -82,7 +82,7 @@ export const DashboardHeader = memo(function DashboardHeader({
                 <div className="flex flex-col">
                   <span className="text-sm text-surface-600 dark:text-surface-300">
                     {scrapingStatus.is_running
-                      ? "Scanning..."
+                      ? "Checking..."
                       : autoRefreshEnabled && nextRefreshTime
                         ? formatTimeUntil(nextRefreshTime)
                         : "Idle"
@@ -119,13 +119,14 @@ export const DashboardHeader = memo(function DashboardHeader({
             <Button
               onClick={onSearchNow}
               loading={searching}
+              loadingText="Checking..."
               disabled={searchCooldown && !searching}
               icon={<SearchIcon />}
-              aria-label={searching ? "Scanning job boards" : searchCooldown ? `Search available in ${cooldownSeconds} seconds` : "Search for new jobs"}
+              aria-label={searching ? "Checking job sources" : searchCooldown ? `Search available in ${cooldownSeconds} seconds` : "Search for new jobs"}
               data-tour="search-button"
               data-testid="btn-search-now"
             >
-              {searching ? "Scanning..." : searchCooldown ? `Wait ${cooldownSeconds}s` : "Search Now"}
+              {searching ? "Checking..." : searchCooldown ? `Wait ${cooldownSeconds}s` : "Search Now"}
             </Button>
           </div>
         </div>

@@ -314,7 +314,7 @@ export default function Dashboard({
       setSearchCooldown(true);
       setCooldownSeconds(30);
       setError(null);
-      toast.info("Scanning job boards...", "This may take a moment");
+      toast.info("Checking job sources", "This may take a moment");
 
       // Clear any existing timers
       if (cooldownIntervalRef.current)
@@ -351,7 +351,7 @@ export default function Dashboard({
       setJobs(jobsData);
       setStatistics(statsData);
       setScrapingStatus(statusData);
-      toast.success("Scan complete!", `Found ${statsData.total_jobs} jobs`);
+      toast.success("Job check complete", `Found ${statsData.total_jobs} jobs`);
 
       if (statsData.high_matches > 0) {
         notifyScrapingComplete(jobsData.length, statsData.high_matches);

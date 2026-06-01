@@ -69,7 +69,10 @@ export function useDashboardAutoRefresh({
       }
 
       try {
-        toast.info("Auto-refreshing...", "Scanning for new jobs");
+        toast.info(
+          "Checking for new jobs",
+          "JobSentinel is checking selected job sources.",
+        );
         await safeInvoke(
           "search_jobs",
           {},
@@ -126,7 +129,7 @@ export function useDashboardAutoRefresh({
           if (count === 3) {
             toast.warning(
               "Auto-refresh struggling",
-              "JobSentinel couldn't check for new jobs automatically. Check your connection, then click Search Now.",
+              "JobSentinel couldn't check for new jobs on schedule. Check your connection, then click Search Now.",
             );
           }
           return count;

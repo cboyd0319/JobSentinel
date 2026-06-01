@@ -575,7 +575,12 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/DashboardUI/DashboardHeader.tsx",
-      "Currently scanning job boards\nReady to scan\n",
+      "Currently scanning job boards\nReady to scan\nScanning job boards\nScanning...\nAuto-refresh in 5m\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Dashboard.tsx",
+      "Scanning job boards...\nScan complete!\n",
     );
     writeFixtureFile(
       root,
@@ -601,7 +606,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/hooks/useDashboardAutoRefresh.ts",
-      "Job scanning has failed 3 times in a row. Check your connection or try a manual search.\n",
+      "Auto-refreshing...\nScanning for new jobs\nJob scanning has failed 3 times in a row. Check your connection or try a manual search.\nJobSentinel couldn't check for new jobs automatically. Check your connection, then click Search Now.\n",
     );
     writeFixtureFile(
       root,

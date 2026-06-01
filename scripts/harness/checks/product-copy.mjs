@@ -760,6 +760,14 @@ export function hasTechnicalFirstUserCopy(root, path) {
     return /Scan allowed sources|Local checks run on your schedule/i.test(text);
   }
 
+  if (path === "src/pages/Dashboard.tsx") {
+    return /Scanning job boards|Scan complete/i.test(text);
+  }
+
+  if (path === "src/pages/DashboardUI/DashboardHeader.tsx") {
+    return /Scanning job boards|Scanning\.\.\.|Ready to scan|Auto-refresh in/i.test(text);
+  }
+
   if (path === "src/pages/Applications.tsx") {
     if (/\{reminder\.reminder_type\}\s*-\s*Due:/i.test(text)) {
       return true;
@@ -767,7 +775,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/pages/hooks/useDashboardAutoRefresh.ts") {
-    return /Job scanning has failed 3 times in a row|manual search/i.test(text);
+    return /Job scanning has failed 3 times in a row|manual search|Auto-refreshing|Scanning for new jobs|automatically\. Check your connection/i.test(text);
   }
 
   if (path === "src/components/BookmarkletGenerator.tsx") {
