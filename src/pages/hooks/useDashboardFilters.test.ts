@@ -199,7 +199,7 @@ describe("parseSearchQuery", () => {
 describe("matchesSearchQuery", () => {
   it("returns true when no query terms", () => {
     const result = matchesSearchQuery(
-      { title: "Engineer", company: "Acme", location: null },
+      { title: "Care Coordinator", company: "Community Care", location: null },
       { includes: [], excludes: [], isOr: false },
     );
     expect(result).toBe(true);
@@ -207,8 +207,8 @@ describe("matchesSearchQuery", () => {
 
   it("excludes matching exclude terms", () => {
     const result = matchesSearchQuery(
-      { title: "Engineer", company: "Acme", location: null },
-      { includes: [], excludes: ["acme"], isOr: false },
+      { title: "Care Coordinator", company: "Community Care", location: null },
+      { includes: [], excludes: ["community"], isOr: false },
     );
     expect(result).toBe(false);
   });

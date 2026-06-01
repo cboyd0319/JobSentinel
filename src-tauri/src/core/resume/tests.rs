@@ -514,7 +514,13 @@ async fn test_match_result_persistence() {
 
     let resume_id = create_test_resume(&pool, "Resume", "Python JavaScript").await;
     let job_hash = "job_persist";
-    create_test_job(&pool, job_hash, "Engineer", "Python JavaScript React").await;
+    create_test_job(
+        &pool,
+        job_hash,
+        "Care Coordinator",
+        "Python JavaScript React",
+    )
+    .await;
 
     // First match
     let match1 = matcher
@@ -557,7 +563,7 @@ async fn test_match_result_upsert() {
 
     let resume_id = create_test_resume(&pool, "Resume", "Python").await;
     let job_hash = "job_upsert";
-    create_test_job(&pool, job_hash, "Engineer", "Python").await;
+    create_test_job(&pool, job_hash, "Care Coordinator", "Python").await;
 
     // First match
     let _match1 = matcher
@@ -888,7 +894,13 @@ async fn test_get_match_result_success() {
 
     let resume_id = create_test_resume(&pool, "Resume", "Python JavaScript").await;
     let job_hash = "job_get_match";
-    create_test_job(&pool, job_hash, "Engineer", "Python JavaScript React").await;
+    create_test_job(
+        &pool,
+        job_hash,
+        "Care Coordinator",
+        "Python JavaScript React",
+    )
+    .await;
 
     // Create match
     let created_match = matcher
@@ -919,7 +931,7 @@ async fn test_get_match_result_with_empty_skills() {
 
     let resume_id = create_test_resume(&pool, "Resume", "").await;
     let job_hash = "job_empty_skills";
-    create_test_job(&pool, job_hash, "Engineer", "").await;
+    create_test_job(&pool, job_hash, "Care Coordinator", "").await;
 
     let created_match = matcher
         .match_resume_to_job(resume_id, job_hash)
@@ -1044,7 +1056,7 @@ async fn test_match_resume_to_job_with_null_skills_json() {
 
     let resume_id = create_test_resume(&pool, "Resume", "Python").await;
     let job_hash = "job_null_json";
-    create_test_job(&pool, job_hash, "Engineer", "Python").await;
+    create_test_job(&pool, job_hash, "Care Coordinator", "Python").await;
 
     // Create a match
     matcher
@@ -1077,7 +1089,7 @@ async fn test_match_resume_to_job_idempotent() {
 
     let resume_id = create_test_resume(&pool, "Resume", "Python JavaScript").await;
     let job_hash = "job_idempotent";
-    create_test_job(&pool, job_hash, "Engineer", "Python JavaScript").await;
+    create_test_job(&pool, job_hash, "Care Coordinator", "Python JavaScript").await;
 
     // Create match multiple times
     let match1 = matcher
@@ -1168,7 +1180,7 @@ async fn test_get_match_result_with_all_scores() {
 
     let resume_id = create_test_resume(&pool, "Resume", "Python").await;
     let job_hash = "job_all_scores";
-    create_test_job(&pool, job_hash, "Engineer", "Python").await;
+    create_test_job(&pool, job_hash, "Care Coordinator", "Python").await;
 
     // Create match and manually set all score fields
     matcher

@@ -464,9 +464,21 @@ mod tests {
 
     #[test]
     fn test_calculate_job_hash() {
-        let hash1 = calculate_job_hash("Google", "Software Engineer", "https://example.com/job/1");
-        let hash2 = calculate_job_hash("Google", "Software Engineer", "https://example.com/job/1");
-        let hash3 = calculate_job_hash("Google", "Software Engineer", "https://example.com/job/2");
+        let hash1 = calculate_job_hash(
+            "Community Care",
+            "Care Coordinator",
+            "https://example.com/job/1",
+        );
+        let hash2 = calculate_job_hash(
+            "Community Care",
+            "Care Coordinator",
+            "https://example.com/job/1",
+        );
+        let hash3 = calculate_job_hash(
+            "Community Care",
+            "Care Coordinator",
+            "https://example.com/job/2",
+        );
 
         assert_eq!(hash1, hash2);
         assert_ne!(hash1, hash3);

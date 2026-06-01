@@ -15,7 +15,7 @@ describe("useDashboardSearch", () => {
   });
 
   it("loads search history with the backend limit argument", async () => {
-    mockInvoke.mockResolvedValueOnce(["rust remote"]);
+    mockInvoke.mockResolvedValueOnce(["remote customer support"]);
 
     const { result } = renderHook(() => useDashboardSearch());
 
@@ -24,7 +24,7 @@ describe("useDashboardSearch", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.searchHistory).toEqual(["rust remote"]);
+      expect(result.current.searchHistory).toEqual(["remote customer support"]);
     });
   });
 });

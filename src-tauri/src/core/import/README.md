@@ -136,10 +136,10 @@ cargo test import
 {
   "@context": "https://schema.org",
   "@type": "JobPosting",
-  "name": "Senior Engineer",
+  "name": "Customer Support Lead",
   "hiringOrganization": {
     "@type": "Organization",
-    "name": "Tech Company"
+    "name": "Example Services"
   },
   "baseSalary": {
     "currency": "USD",

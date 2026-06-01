@@ -159,8 +159,8 @@ mod tests {
     #[test]
     fn test_bookmarklet_job_data_validation() {
         let data = BookmarkletJobData {
-            title: "Software Engineer".to_string(),
-            company: "Google".to_string(),
+            title: "Care Coordinator".to_string(),
+            company: "Community Care".to_string(),
             description: "A great job".to_string(),
             url: "https://example.com/job".to_string(),
             location: Some("San Francisco, CA".to_string()),
@@ -180,8 +180,8 @@ mod tests {
     #[test]
     fn test_bookmarklet_job_data_missing_url() {
         let data = BookmarkletJobData {
-            title: "Software Engineer".to_string(),
-            company: "Google".to_string(),
+            title: "Care Coordinator".to_string(),
+            company: "Community Care".to_string(),
             description: "A great job".to_string(),
             url: "".to_string(),
             location: None,
@@ -201,7 +201,7 @@ mod tests {
     #[test]
     fn test_schema_org_company_extraction() {
         let data = BookmarkletJobData {
-            title: "Software Engineer".to_string(),
+            title: "Care Coordinator".to_string(),
             company: "".to_string(),
             description: "".to_string(),
             url: "https://example.com/job".to_string(),
@@ -209,21 +209,21 @@ mod tests {
             salary: None,
             remote: None,
             schema_type: Some("JobPosting".to_string()),
-            hiring_organization: Some(serde_json::json!({"name": "Google Inc."})),
+            hiring_organization: Some(serde_json::json!({"name": "Community Care"})),
             job_location: None,
             base_salary: None,
             date_posted: None,
             job_location_type: None,
         };
 
-        assert_eq!(data.get_company(), Some("Google Inc.".to_string()));
+        assert_eq!(data.get_company(), Some("Community Care".to_string()));
     }
 
     #[test]
     fn test_remote_detection() {
         let data = BookmarkletJobData {
-            title: "Software Engineer".to_string(),
-            company: "Google".to_string(),
+            title: "Care Coordinator".to_string(),
+            company: "Community Care".to_string(),
             description: "".to_string(),
             url: "https://example.com/job".to_string(),
             location: None,

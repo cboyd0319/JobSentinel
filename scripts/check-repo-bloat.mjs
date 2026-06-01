@@ -381,6 +381,7 @@ const frontendStatusEmojiPaths = new Set([
   "src/pages/Applications.tsx",
 ]);
 const broadAudienceExamplePaths = new Set([
+  "examples/sample-json-resume.json",
   "src/components/CoverLetterTemplates.tsx",
   "src/components/CompanyResearchPanel.tsx",
   "src/components/CompanyResearchPanel.test.tsx",
@@ -390,6 +391,7 @@ const broadAudienceExamplePaths = new Set([
   "src/components/JobCard.test.tsx",
   "src/components/LocationHeatmap.test.tsx",
   "src/components/NotificationPreferences.test.tsx",
+  "src/components/ScoreBreakdownModal.test.tsx",
   "src/components/StatCard.test.tsx",
   "src/components/resume-builder/steps/ContactStep.tsx",
   "src/components/resume-builder/steps/SkillsStep.tsx",
@@ -408,6 +410,7 @@ const broadAudienceExamplePaths = new Set([
   "src/pages/hooks/useDashboardFilters.test.ts",
   "src/pages/hooks/useDashboardJobOps.test.ts",
   "src/pages/hooks/useDashboardSavedSearches.test.ts",
+  "src/pages/hooks/useDashboardSearch.test.ts",
   "src/utils/export.test.ts",
   "src/pages/Dashboard.tsx",
   "src/pages/DashboardUI/DashboardFiltersBar.tsx",
@@ -434,6 +437,9 @@ const broadAudienceExamplePaths = new Set([
   "src-tauri/src/core/resume/matcher.rs",
   "src-tauri/src/core/resume/parser.rs",
   "src-tauri/src/core/resume/tests.rs",
+  "src-tauri/src/core/bookmarklet/mod.rs",
+  "src-tauri/src/core/bookmarklet/server.rs",
+  "src-tauri/src/core/scoring/remote.rs",
   "src-tauri/src/commands/deeplinks.rs",
   "src-tauri/src/commands/feedback/debug_log.rs",
   "src-tauri/src/commands/feedback/sanitizer.rs",
@@ -1041,6 +1047,20 @@ function hasEngineerFirstAudienceExamples(root, path) {
     }
   }
 
+  if (path === "examples/sample-json-resume.json") {
+    const sampleJsonResumePatterns = [
+      /"name":\s*"John Doe"/i,
+      /"label":\s*"Senior Software Engineer"/i,
+      /"position":\s*"(?:(?:Senior|Junior)\s+)?(?:Software Engineer|Developer)"/i,
+      /"network":\s*"GitHub"/i,
+      /"name":\s*"Tech Corp"/i,
+      /"name":\s*"Startup Inc"/i,
+      /"keywords":\s*\[[^\]]*"Rust"/i,
+    ];
+
+    return sampleJsonResumePatterns.some((pattern) => pattern.test(text));
+  }
+
   if (path === "src-tauri/src/core/market_intelligence/tests.rs") {
     const marketIntelligenceTestPatterns = [
       /Software Engineer/i,
@@ -1099,8 +1119,11 @@ function hasEngineerFirstAudienceExamples(root, path) {
     /create_test_job\([^)]*["']TestCorp["']/i,
     /create_test_job\([^)]*["'](?:Rust Developer|Python Developer|Software Engineer)["']/i,
     /create_test_job\([^)]*["']TechCorp["']/i,
+    /create_test_job\([^)]*["']Engineer["']/i,
     /calculate_job_hash\([^)]*["']Software Engineer["']/i,
     /create_test_job\([^)]*["'](?:Rust Engineer|Backend Engineer)["']/i,
+    /["']Senior Engineer["']/i,
+    /Title matches:\s*Senior Engineer/i,
     /https:\/\/github\.com\/(?:johndoe|caseysentinel)/i,
     /code\.example\.com/i,
     /GitHub profile link if relevant to your role/i,
@@ -1108,9 +1131,11 @@ function hasEngineerFirstAudienceExamples(root, path) {
     /placeholder=["'][^"']*Frontend/i,
     /placeholder=["'][^"']*Remote Rust/i,
     /name:\s*["']Remote Rust["']/i,
+    /rust remote/i,
     /setNewSearchName\(["']Remote Rust["']\)/i,
     /Unbookmarked:\s*Software Engineer/i,
     /Moved\s+Software Engineer\s+to Phone Screen/i,
+    /Tech Cover Letter/i,
     /placeholder=["'][^"']*Tech Company Application/i,
     /Skill name \(e\.g\., Python, React\)/i,
     /Experienced software engineer/i,

@@ -327,7 +327,7 @@ mod tests {
         let output = Sanitizer::sanitize_error(input);
         assert_eq!(output, "Failed to find job titled \"[REDACTED]\"");
 
-        let input = "Company 'Google' not found in blocklist";
+        let input = "Company 'Example Health' not found in blocklist";
         let output = Sanitizer::sanitize_error(input);
         assert_eq!(output, "Company '[REDACTED]' not found in blocklist");
     }
@@ -344,7 +344,7 @@ mod tests {
         let input = concat!(
             "Error loading config from /Users/john/Library/JobSentinel/config.json: ",
             "Failed to parse webhook https://hooks.slack.com/T123/B456/xyz for user john@example.com. ",
-            "LinkedIn cookie li_at=AQEDA123 is invalid. Search for \"rust developer\" failed."
+            "LinkedIn cookie li_at=AQEDA123 is invalid. Search for \"customer support lead\" failed."
         );
 
         let output = Sanitizer::sanitize_error(input);
@@ -363,7 +363,7 @@ mod tests {
             r"Error loading config from C:\Users\Administrator\AppData\Roaming\JobSentinel\config.json: \
             Failed to parse webhook https://discord.com/api/webhooks/123/abc for user admin@company.com. \
             Database at D:\Users\dbuser\Documents\jobs.db is locked. Search for {} failed.",
-            "\"senior engineer\""
+            "\"case manager\""
         );
 
         let output = Sanitizer::sanitize_error(&input);

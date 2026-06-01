@@ -41,7 +41,7 @@ function SavedSearchTest() {
   const simulateDeleteSearch = () => {
     pushAction({
       type: "bookmark",
-      description: `Deleted search: Senior Engineer Jobs`,
+      description: `Deleted search: Care Coordinator Jobs`,
       undo: vi.fn().mockResolvedValue(undefined),
       redo: vi.fn().mockResolvedValue(undefined),
     });
@@ -70,7 +70,7 @@ function TemplateTest() {
   const simulateCreateTemplate = () => {
     pushAction({
       type: "notes",
-      description: `Created template: Tech Cover Letter`,
+      description: `Created template: Healthcare Cover Letter`,
       undo: vi.fn().mockResolvedValue(undefined),
       redo: vi.fn().mockResolvedValue(undefined),
     });
@@ -79,7 +79,7 @@ function TemplateTest() {
   const simulateUpdateTemplate = () => {
     pushAction({
       type: "notes",
-      description: `Updated template: Tech Cover Letter`,
+      description: `Updated template: Healthcare Cover Letter`,
       undo: vi.fn().mockResolvedValue(undefined),
       redo: vi.fn().mockResolvedValue(undefined),
     });
@@ -88,7 +88,7 @@ function TemplateTest() {
   const simulateDeleteTemplate = () => {
     pushAction({
       type: "notes",
-      description: `Deleted template: Tech Cover Letter`,
+      description: `Deleted template: Healthcare Cover Letter`,
       undo: vi.fn().mockResolvedValue(undefined),
       redo: vi.fn().mockResolvedValue(undefined),
     });
@@ -225,7 +225,7 @@ describe("Undo/Redo Integration Tests", () => {
         expect(screen.getByRole("alert")).toBeInTheDocument();
       });
 
-      const toastElements = screen.getAllByText(/Deleted search: Senior Engineer Jobs/i);
+      const toastElements = screen.getAllByText(/Deleted search: Care Coordinator Jobs/i);
       expect(toastElements.length).toBeGreaterThanOrEqual(1);
     });
   });
@@ -286,7 +286,7 @@ describe("Undo/Redo Integration Tests", () => {
       await waitFor(() => {
         expect(screen.getByRole("alert")).toBeInTheDocument();
       });
-      expect(screen.getAllByText(/Created template: Tech Cover Letter/i).length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText(/Created template: Healthcare Cover Letter/i).length).toBeGreaterThanOrEqual(1);
     });
 
     it("shows correct description for update template", async () => {
@@ -300,7 +300,7 @@ describe("Undo/Redo Integration Tests", () => {
       await waitFor(() => {
         expect(screen.getByRole("alert")).toBeInTheDocument();
       });
-      expect(screen.getAllByText(/Updated template: Tech Cover Letter/i).length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText(/Updated template: Healthcare Cover Letter/i).length).toBeGreaterThanOrEqual(1);
     });
 
     it("shows correct description for delete template", async () => {
@@ -314,7 +314,7 @@ describe("Undo/Redo Integration Tests", () => {
       await waitFor(() => {
         expect(screen.getByRole("alert")).toBeInTheDocument();
       });
-      expect(screen.getAllByText(/Deleted template: Tech Cover Letter/i).length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText(/Deleted template: Healthcare Cover Letter/i).length).toBeGreaterThanOrEqual(1);
     });
   });
 

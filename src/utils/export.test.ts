@@ -80,8 +80,8 @@ describe("export utilities", () => {
       const jobs = [
         {
           id: 1,
-          title: "Engineer",
-          company: "Company",
+          title: "Care Coordinator",
+          company: "Community Care",
           location: null,
           url: "https://example.com",
           source: "linkedin",
@@ -123,9 +123,9 @@ describe("export utilities", () => {
       const jobs = [
         {
           id: 1,
-          title: 'Engineer "Senior"',
-          company: "Company",
-          location: "Location",
+          title: 'Care Coordinator "Senior"',
+          company: "Community Care",
+          location: "Denver, CO",
           url: "https://example.com",
           source: "linkedin",
           score: 0.6,
@@ -135,7 +135,7 @@ describe("export utilities", () => {
 
       const csv = jobsToCSV(jobs);
       // Quotes should be escaped by doubling
-      expect(csv).toContain('"Engineer ""Senior"""');
+      expect(csv).toContain('"Care Coordinator ""Senior"""');
     });
 
     it("handles remote boolean values", () => {

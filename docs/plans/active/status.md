@@ -58,12 +58,14 @@ and record actionable findings in this active-plan surface.
   ATS fixtures, and aligns E2E labels with the visible "Skills Interview" copy.
 - Latest local broad-audience fixture work rebalanced generic market
   intelligence, notifications, config, database, ATS, ghost detection, salary,
-  scoring, generic scraper adapters, command, frontend mock, Application
-  Assist E2E, and mock data examples toward care coordination, public health,
-  operations, training, inventory planning, account management, and customer
-  support; it also extends the bloat sensor so the generic market-intelligence,
-  generic scraper, salary-normalization, and code-profile fixture paths cannot
-  drift back to software-only examples outside explicit branch coverage.
+  scoring, generic scraper adapters, command, frontend mock, sample JSON
+  Resume, company fallback, bookmarklet, import, dashboard search, score modal,
+  Application Assist E2E, and mock data examples toward care coordination,
+  public health, operations, training, inventory planning, account management,
+  and customer support; it also extends the bloat sensor so the generic
+  market-intelligence, generic scraper, salary-normalization, code-profile,
+  sample-resume, bookmarklet, search-history, and score-modal fixture paths
+  cannot drift back to software-only examples outside explicit branch coverage.
 - Latest local IPC minimization work added narrow application profile
   existence/preview commands, canonicalizes imported URLs before
   preview/hash/storage, returns only `{ jobId }` from job import, and moves

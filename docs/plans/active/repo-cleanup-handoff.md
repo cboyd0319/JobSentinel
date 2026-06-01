@@ -91,6 +91,12 @@ Current cleanup posture:
 - Latest salary fixture follow-up broadened prediction, seniority, and
   normalization examples outside explicit software-engineer/SWE branch coverage,
   then added focused bloat coverage for those salary fixture paths.
+- Latest broad fixture follow-up broadened the sample JSON Resume, company
+  fallback systems, bookmarklet, import, remote-scoring, dashboard-search,
+  score-modal, undo, export, and feedback sanitizer examples toward operations,
+  care coordination, customer support, public health, inventory planning, and
+  other broad job-seeker roles; bloat coverage now rejects drift in the newly
+  cleaned sample-resume, bookmarklet, search-history, and score-modal paths.
 - Latest IPC minimization work added `has_application_profile`,
   `get_application_profile_preview`, `get_dashboard_preferences`, canonical
   import URLs before preview/hash/storage, and minimized import responses to

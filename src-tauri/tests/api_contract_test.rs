@@ -600,7 +600,7 @@ mod user_data_commands {
         // Create - create_saved_search takes SavedSearch struct
         let search = SavedSearch {
             id: String::new(),
-            name: "Rust Jobs".to_string(),
+            name: "Customer Support Roles".to_string(),
             sort_by: "score".to_string(),
             score_filter: "all".to_string(),
             source_filter: "all".to_string(),
@@ -611,7 +611,7 @@ mod user_data_commands {
             salary_min_filter: None,
             salary_max_filter: None,
             ghost_filter: Some("all".to_string()),
-            text_search: Some("Rust remote".to_string()),
+            text_search: Some("remote customer support".to_string()),
             created_at: String::new(),
             last_used_at: None,
         };

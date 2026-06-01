@@ -224,37 +224,32 @@ mod tests {
 
     #[test]
     fn test_detect_remote_explicit_flag() {
-        let job = create_test_job("Engineer", None, None, Some(true));
+        let job = create_test_job("Care Coordinator", None, None, Some(true));
         assert_eq!(detect_remote_status(&job), RemoteStatus::Remote);
     }
 
     #[test]
     fn test_detect_remote_from_location() {
-        let job = create_test_job("Engineer", Some("Remote - US"), None, None);
+        let job = create_test_job("Care Coordinator", Some("Remote - US"), None, None);
         assert_eq!(detect_remote_status(&job), RemoteStatus::Remote);
     }
 
     #[test]
     fn test_detect_remote_from_title() {
-        let job = create_test_job(
-            "Remote Software Engineer",
-            Some("San Francisco"),
-            None,
-            None,
-        );
+        let job = create_test_job("Remote Care Coordinator", Some("San Francisco"), None, None);
         assert_eq!(detect_remote_status(&job), RemoteStatus::Remote);
     }
 
     #[test]
     fn test_detect_hybrid_from_location() {
-        let job = create_test_job("Engineer", Some("New York (Hybrid)"), None, None);
+        let job = create_test_job("Care Coordinator", Some("New York (Hybrid)"), None, None);
         assert_eq!(detect_remote_status(&job), RemoteStatus::Hybrid);
     }
 
     #[test]
     fn test_detect_hybrid_from_description() {
         let job = create_test_job(
-            "Engineer",
+            "Care Coordinator",
             Some("New York"),
             Some("Flexible location - hybrid remote and office"),
             None,
@@ -265,7 +260,7 @@ mod tests {
     #[test]
     fn test_detect_onsite_from_description() {
         let job = create_test_job(
-            "Engineer",
+            "Care Coordinator",
             Some("San Francisco"),
             Some("This is an on-site position"),
             None,
@@ -276,7 +271,7 @@ mod tests {
     #[test]
     fn test_detect_unspecified() {
         let job = create_test_job(
-            "Engineer",
+            "Care Coordinator",
             Some("New York, NY"),
             Some("Great benefits"),
             None,
@@ -354,7 +349,12 @@ mod tests {
 
     #[test]
     fn test_detect_wfh_as_remote() {
-        let job = create_test_job("Engineer", None, Some("Work from home position"), None);
+        let job = create_test_job(
+            "Care Coordinator",
+            None,
+            Some("Work from home position"),
+            None,
+        );
         assert_eq!(detect_remote_status(&job), RemoteStatus::Remote);
     }
 
@@ -362,7 +362,7 @@ mod tests {
     fn test_detect_hybrid_priority_over_remote() {
         // If job says both "remote" and "hybrid", hybrid should win
         let job = create_test_job(
-            "Engineer",
+            "Care Coordinator",
             Some("Hybrid"),
             Some("Remote work with occasional office"),
             None,

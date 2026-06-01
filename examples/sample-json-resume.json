@@ -1,216 +1,185 @@
 {
   "$schema": "https://raw.githubusercontent.com/jsonresume/resume-schema/master/schema.json",
   "basics": {
-    "name": "John Doe",
-    "label": "Senior Software Engineer",
+    "name": "Jordan Lee",
+    "label": "Operations Coordinator",
     "image": "",
-    "email": "john.doe@example.com",
+    "email": "jordan.lee@example.com",
     "phone": "+1-555-123-4567",
-    "url": "https://johndoe.com",
-    "summary": "Experienced software engineer with 8+ years building scalable backend systems and distributed applications. Expert in Rust, Python, and cloud infrastructure. Passionate about performance optimization and system design.",
+    "url": "https://jordanlee.example.com",
+    "summary": "Operations coordinator with 8+ years supporting community programs, scheduling, vendor coordination, and customer service. Strong record of improving handoffs, organizing high-volume work, and helping teams deliver reliable service.",
     "location": {
-      "address": "123 Tech Street",
-      "postalCode": "94105",
-      "city": "San Francisco",
+      "address": "123 Maple Avenue",
+      "postalCode": "60605",
+      "city": "Chicago",
       "countryCode": "US",
-      "region": "California"
+      "region": "Illinois"
     },
     "profiles": [
       {
         "network": "LinkedIn",
-        "username": "johndoe",
-        "url": "https://linkedin.com/in/johndoe"
+        "username": "jordanlee",
+        "url": "https://linkedin.com/in/jordanlee"
       },
       {
-        "network": "GitHub",
-        "username": "johndoe",
-        "url": "https://github.com/johndoe"
-      },
-      {
-        "network": "Twitter",
-        "username": "johndoe",
-        "url": "https://twitter.com/johndoe"
+        "network": "Portfolio",
+        "username": "jordanlee",
+        "url": "https://jordanlee.example.com"
       }
     ]
   },
   "work": [
     {
-      "name": "Tech Corp",
-      "position": "Senior Software Engineer",
-      "url": "https://techcorp.com",
+      "name": "River City Health",
+      "position": "Senior Operations Coordinator",
+      "url": "https://rivercityhealth.example.com",
       "startDate": "2020-01-01",
       "endDate": "",
-      "summary": "Leading development of distributed systems for high-traffic applications",
+      "summary": "Coordinates daily program operations for a community health team serving clients across multiple neighborhoods",
       "highlights": [
-        "Architected microservices platform serving 10M+ daily users",
-        "Reduced API latency by 60% through performance optimizations",
-        "Led team of 5 engineers in building real-time data pipeline",
-        "Implemented CI/CD pipeline reducing deployment time from 2 hours to 15 minutes"
+        "Reduced missed appointments by 28% by redesigning reminder and follow-up workflows",
+        "Built weekly staffing schedules for 35 team members across three locations",
+        "Created a handoff checklist that reduced intake errors and duplicate work",
+        "Trained new coordinators on client communication, documentation, and privacy practices"
       ]
     },
     {
-      "name": "Startup Inc",
-      "position": "Software Engineer",
-      "url": "https://startup.com",
+      "name": "Harbor Services",
+      "position": "Customer Support Lead",
+      "url": "https://harborservices.example.com",
       "startDate": "2018-03-01",
       "endDate": "2019-12-31",
-      "summary": "Full-stack development for early-stage SaaS product",
+      "summary": "Led front-line support for a regional services organization",
       "highlights": [
-        "Built MVP from scratch using Python and React",
-        "Implemented authentication and authorization system",
-        "Designed PostgreSQL database schema for multi-tenant architecture",
-        "Integrated Stripe payment processing"
+        "Improved first-response time by organizing shared inbox ownership",
+        "Created plain-language templates for common customer questions",
+        "Partnered with billing and operations teams to resolve repeat issues",
+        "Maintained support records in CRM and case-management systems"
       ]
     },
     {
-      "name": "MegaCorp",
-      "position": "Junior Developer",
-      "url": "https://megacorp.com",
+      "name": "Northside Retail Group",
+      "position": "Inventory Planner",
+      "url": "https://northsideretail.example.com",
       "startDate": "2016-06-01",
       "endDate": "2018-02-28",
-      "summary": "Backend development for enterprise applications",
+      "summary": "Managed inventory planning and vendor coordination for a multi-location retail team",
       "highlights": [
-        "Developed RESTful APIs using Java Spring Boot",
-        "Wrote unit and integration tests achieving 85% code coverage",
-        "Participated in agile development processes (Scrum)",
-        "Mentored 3 interns on coding best practices"
+        "Reduced stockouts by improving weekly ordering and replenishment reports",
+        "Coordinated vendor deliveries during seasonal demand spikes",
+        "Prepared inventory summaries for store managers and regional leadership",
+        "Documented standard steps for receiving, returns, and exception handling"
       ]
     }
   ],
   "volunteer": [
     {
-      "organization": "Code.org",
-      "position": "Coding Mentor",
-      "url": "https://code.org",
+      "organization": "Neighborhood Food Pantry",
+      "position": "Volunteer Scheduler",
+      "url": "https://foodpantry.example.com",
       "startDate": "2019-09-01",
       "endDate": "2021-05-31",
-      "summary": "Teaching programming to high school students",
+      "summary": "Organized volunteer shifts and donation intake for weekly distribution days",
       "highlights": [
-        "Taught Python and web development to 20+ students",
-        "Organized coding workshops and hackathons",
-        "Helped students build portfolio projects"
+        "Scheduled 40+ volunteers each month",
+        "Created intake checklists for new volunteers",
+        "Helped visitors find local support resources"
       ]
     }
   ],
   "education": [
     {
-      "institution": "Massachusetts Institute of Technology",
-      "url": "https://mit.edu",
-      "area": "Computer Science",
-      "studyType": "Bachelor of Science",
+      "institution": "City Community College",
+      "url": "https://citycollege.example.com",
+      "area": "Business Administration",
+      "studyType": "Associate Degree",
       "startDate": "2012-09-01",
-      "endDate": "2016-05-31",
-      "score": "3.8",
+      "endDate": "2014-05-31",
+      "score": "3.7",
       "courses": [
-        "6.006 - Introduction to Algorithms",
-        "6.033 - Computer Systems Engineering",
-        "6.824 - Distributed Systems",
-        "6.828 - Operating System Engineering"
+        "Operations Management",
+        "Business Communication",
+        "Spreadsheet Analysis",
+        "Customer Service Management"
       ]
     }
   ],
   "awards": [
     {
-      "title": "Employee of the Year",
+      "title": "Service Excellence Award",
       "date": "2022-12-01",
-      "awarder": "Tech Corp",
-      "summary": "Recognized for outstanding contributions to platform stability and team leadership"
+      "awarder": "River City Health",
+      "summary": "Recognized for improving client follow-up and team coordination"
     },
     {
-      "title": "Hackathon Winner",
+      "title": "Process Improvement Recognition",
       "date": "2019-10-15",
-      "awarder": "TechConf 2019",
-      "summary": "First place for building real-time collaboration tool"
+      "awarder": "Harbor Services",
+      "summary": "Recognized for reducing repeat support issues through clearer documentation"
     }
   ],
   "certificates": [
     {
-      "name": "AWS Certified Solutions Architect - Professional",
+      "name": "Certified Customer Service Professional",
       "date": "2023-03-15",
-      "issuer": "Amazon Web Services",
-      "url": "https://aws.amazon.com/certification/"
+      "issuer": "Customer Service Institute",
+      "url": "https://credential.example.com/customer-service"
     },
     {
-      "name": "Certified Kubernetes Administrator",
+      "name": "Project Coordination Certificate",
       "date": "2022-08-20",
-      "issuer": "Cloud Native Computing Foundation",
-      "url": "https://www.cncf.io/certification/cka/"
+      "issuer": "Community Learning Center",
+      "url": "https://credential.example.com/project-coordination"
     }
   ],
   "publications": [
     {
-      "name": "Optimizing Database Queries in Distributed Systems",
-      "publisher": "Tech Blog",
+      "name": "Creating Better Client Handoffs",
+      "publisher": "Community Operations Journal",
       "releaseDate": "2023-06-01",
-      "url": "https://techblog.com/optimizing-queries",
-      "summary": "Deep dive into query optimization techniques for distributed databases"
+      "url": "https://operations.example.com/client-handoffs",
+      "summary": "Practical notes on reducing missed details between intake, scheduling, and follow-up teams"
     }
   ],
   "skills": [
     {
-      "name": "Programming Languages",
+      "name": "Operations",
       "level": "Expert",
       "keywords": [
-        "Rust",
-        "Python",
-        "Go",
-        "TypeScript",
-        "Java"
+        "Scheduling",
+        "Workflow coordination",
+        "Vendor coordination",
+        "Process improvement"
       ]
     },
     {
-      "name": "Backend Frameworks",
+      "name": "Customer Support",
       "level": "Advanced",
       "keywords": [
-        "Actix",
-        "Tokio",
-        "FastAPI",
-        "Django",
-        "Spring Boot"
+        "Customer service",
+        "Case management",
+        "Shared inboxes",
+        "Escalation tracking"
       ]
     },
     {
-      "name": "Frontend Technologies",
-      "level": "Intermediate",
-      "keywords": [
-        "React",
-        "TypeScript",
-        "Tailwind CSS",
-        "Vite"
-      ]
-    },
-    {
-      "name": "Databases",
+      "name": "Office Tools",
       "level": "Advanced",
       "keywords": [
-        "PostgreSQL",
-        "MongoDB",
-        "Redis",
-        "DynamoDB",
-        "Elasticsearch"
+        "Spreadsheets",
+        "CRM",
+        "Inventory reports",
+        "Document templates"
       ]
     },
     {
-      "name": "Cloud & Infrastructure",
-      "level": "Expert",
-      "keywords": [
-        "AWS",
-        "Docker",
-        "Kubernetes",
-        "Terraform",
-        "CloudFormation"
-      ]
-    },
-    {
-      "name": "Tools & Practices",
+      "name": "Communication",
       "level": "Advanced",
       "keywords": [
-        "Git",
-        "CI/CD",
-        "GitHub Actions",
-        "Monitoring",
-        "Agile",
-        "TDD"
+        "Plain-language writing",
+        "Team handoffs",
+        "Training",
+        "Status updates"
       ]
     }
   ],
@@ -226,75 +195,73 @@
   ],
   "interests": [
     {
-      "name": "Open Source",
+      "name": "Community Service",
       "keywords": [
-        "Contributing to Rust projects",
-        "Maintaining CLI tools"
+        "Volunteer scheduling",
+        "Food pantry operations"
       ]
     },
     {
-      "name": "Technology",
+      "name": "Local Business",
       "keywords": [
-        "System design",
-        "Performance optimization",
-        "Developer tools"
+        "Service design",
+        "Small business operations"
       ]
     }
   ],
   "references": [
     {
-      "name": "Jane Smith",
-      "reference": "John is an exceptional engineer with deep expertise in distributed systems. His leadership and technical skills make him an invaluable team member."
+      "name": "Casey Morgan",
+      "reference": "Jordan is a reliable operations lead who improves systems without losing sight of the people using them."
     }
   ],
   "projects": [
     {
-      "name": "JobSentinel",
-      "description": "Job-search assistant desktop app built with Tauri 2.x and Rust",
+      "name": "Appointment Follow-Up Refresh",
+      "description": "Improved reminder and follow-up process for a community health scheduling team",
       "highlights": [
-        "Built Rust backend with 13 job board scrapers",
-        "Designed SQLite database schema with 20+ migrations",
-        "Implemented ATS-optimized resume builder",
-        "Created real-time job matching algorithm"
+        "Mapped common reasons appointments were missed",
+        "Created a weekly call and message schedule",
+        "Built a simple report for missed follow-up review",
+        "Shared the process with three partner locations"
       ],
       "keywords": [
-        "Rust",
-        "Tauri",
-        "React",
-        "SQLite",
-        "Desktop App"
+        "Scheduling",
+        "Client follow-up",
+        "Process improvement",
+        "Team training"
       ],
       "startDate": "2024-01-01",
       "endDate": "",
-      "url": "https://github.com/johndoe/jobsentinel",
+      "url": "https://jordanlee.example.com/projects/follow-up-refresh",
       "roles": [
-        "Lead Developer",
-        "Architect"
+        "Coordinator",
+        "Trainer"
       ],
-      "entity": "Personal",
-      "type": "application"
+      "entity": "River City Health",
+      "type": "operations"
     },
     {
-      "name": "RustCache",
-      "description": "High-performance caching library for Rust applications",
+      "name": "Inventory Handoff Checklist",
+      "description": "Checklist and spreadsheet workflow for reducing receiving errors",
       "highlights": [
-        "Implemented LRU and LFU eviction policies",
-        "Achieved 99.9% cache hit rate in production",
-        "Published on crates.io with 1000+ downloads"
+        "Standardized receiving notes across shifts",
+        "Reduced duplicate vendor follow-ups",
+        "Improved visibility for store managers"
       ],
       "keywords": [
-        "Rust",
-        "Caching",
-        "Performance"
+        "Inventory",
+        "Vendor coordination",
+        "Spreadsheets"
       ],
       "startDate": "2023-03-01",
       "endDate": "2023-08-31",
-      "url": "https://github.com/johndoe/rustcache",
+      "url": "https://jordanlee.example.com/projects/inventory-handoffs",
       "roles": [
-        "Author"
+        "Process Owner"
       ],
-      "entity": "Open Source",
-      "type": "library"
+      "entity": "Northside Retail Group",
+      "type": "operations"
     }
   ]
 }

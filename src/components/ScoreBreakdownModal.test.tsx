@@ -78,15 +78,15 @@ describe("ScoreBreakdownModal", () => {
 
   describe("job title", () => {
     it("displays job title when provided", () => {
-      render(<ScoreBreakdownModal {...defaultProps} jobTitle="Senior Engineer" />);
+      render(<ScoreBreakdownModal {...defaultProps} jobTitle="Customer Support Lead" />);
 
-      expect(screen.getByText("Senior Engineer")).toBeInTheDocument();
+      expect(screen.getByText("Customer Support Lead")).toBeInTheDocument();
     });
 
     it("does not display job title when not provided", () => {
       render(<ScoreBreakdownModal {...defaultProps} />);
 
-      expect(screen.queryByText("Senior Engineer")).not.toBeInTheDocument();
+      expect(screen.queryByText("Customer Support Lead")).not.toBeInTheDocument();
     });
   });
 
@@ -130,10 +130,10 @@ describe("ScoreBreakdownModal", () => {
 
   describe("score reasons parsing", () => {
     it("displays skills reasons", () => {
-      const reasons = JSON.stringify(["Title matches: Senior Engineer"]);
+      const reasons = JSON.stringify(["Title matches: Customer Support Lead"]);
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);
 
-      expect(screen.getByText("Title matches: Senior Engineer")).toBeInTheDocument();
+      expect(screen.getByText("Title matches: Customer Support Lead")).toBeInTheDocument();
     });
 
     it("displays salary reasons", () => {

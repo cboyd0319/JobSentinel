@@ -265,6 +265,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-05-31 | In progress | Rebalanced sample JSON Resume, company fallback, bookmarklet, import, remote-scoring, dashboard search, score-modal, undo, export, and feedback sanitizer examples toward broad job-seeker examples; extended bloat coverage for the newly cleaned sample-resume, bookmarklet, search-history, and score-modal fixture paths. |
 | 2026-05-31 | In progress | Rebalanced generic scraper adapter fixtures for Greenhouse, Glassdoor, USAJobs, JobsWithGPT, Lever, We Work Remotely, and shared HTTP examples toward broad job-seeker examples without changing fetch, retry, cache, URL, or parser behavior; added bloat coverage for these cleaned generic scraper paths. |
 | 2026-05-31 | In progress | Rebalanced salary prediction, seniority, and normalization fixtures away from software-only examples where they were not explicit software-engineer/SWE branch coverage; added bloat coverage so those salary fixture paths cannot drift back to engineer-only examples. |
 | 2026-05-31 | In progress | Rebalanced generic frontend mock, E2E, notification, config, database, ATS, ghost, salary, scoring, market-intelligence, SimplyHired, command, and mock job fixtures away from software-only defaults toward broad job-seeker examples, and added focused bloat coverage so recurring generic paths cannot drift back to software-only examples. |

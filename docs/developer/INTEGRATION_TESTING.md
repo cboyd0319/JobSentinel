@@ -292,7 +292,7 @@ const SAMPLE_JSON: &str = r#"{
     "jobs": [
         {
             "id": "123",
-            "title": "Senior Engineer",
+            "title": "Customer Support Lead",
             "location": "Remote"
         }
     ]
@@ -314,7 +314,7 @@ async fn test_scraper_calls_correct_endpoint() {
     let jobs = scraper.scrape().await.unwrap();
 
     assert_eq!(jobs.len(), 1);
-    assert_eq!(jobs[0].title, "Senior Engineer");
+    assert_eq!(jobs[0].title, "Customer Support Lead");
 }
 ```
 
@@ -328,7 +328,7 @@ const GREENHOUSE_HTML: &str = r#"
 <html>
     <body>
         <div class="job-item">
-            <h2>Senior Rust Developer</h2>
+            <h2>Customer Support Lead</h2>
             <span class="location">Remote</span>
         </div>
     </body>
@@ -420,7 +420,7 @@ async fn test_search_command_returns_scored_jobs() {
     let results = db.search_jobs("Safety").await.unwrap();
 
     assert_eq!(results.len(), 1);
-    assert_eq!(results[0].title, "Security Engineer");
+    assert_eq!(results[0].title, "Safety Coordinator");
 }
 ```
 
@@ -475,10 +475,10 @@ Standard config for integration tests:
 /// Create minimal test config for integration tests
 fn create_test_config() -> Config {
     Config {
-        title_allowlist: vec!["Security Engineer".to_string()],
+        title_allowlist: vec!["Safety Coordinator".to_string()],
         title_blocklist: vec!["Manager".to_string()],
-        keywords_boost: vec!["Rust".to_string()],
-        keywords_exclude: vec!["PHP".to_string()],
+        keywords_boost: vec!["scheduling".to_string()],
+        keywords_exclude: vec!["night shift".to_string()],
         location_preferences: LocationPreferences {
             allow_remote: true,
             allow_hybrid: false,
