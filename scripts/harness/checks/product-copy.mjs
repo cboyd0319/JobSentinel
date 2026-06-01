@@ -363,6 +363,9 @@ export function hasOverconfidentGhostCopy(root, path) {
     /Vague title weight/i,
     /Unrealistic requirements weight/i,
     /Missing salary weight/i,
+    /company or ATS source/i,
+    /company or ATS page/i,
+    /Company-site or ATS presence/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));

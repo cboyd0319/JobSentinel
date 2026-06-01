@@ -180,7 +180,9 @@ Current cleanup posture:
   so raw platform IDs do not appear in the preview, and Application Assist docs
   now use human-check wording instead of CAPTCHA-first troubleshooting copy.
   Deep Links user docs now use matching human-check and site-limits language
-  instead of CAPTCHA/anti-bot phrasing.
+  instead of CAPTCHA/anti-bot phrasing. Ghost-detection docs now use employer
+  and application-platform source language instead of user-visible ATS-source
+  phrasing.
 - Current local privacy follow-up removes raw screening-question text and saved
   answer patterns from Application Assist debug logs. The trace now records
   only question/pattern character counts when a saved answer matches, and

@@ -104,7 +104,17 @@ test("product copy rejects application automation framing", () => {
 
 test("product copy rejects overconfident ghost-risk copy", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "docs/features/ghost-detection.md", "Likely Ghost\n");
+    writeFixtureFile(
+      root,
+      "docs/features/ghost-detection.md",
+      [
+        "Likely Ghost",
+        "The listing appears away from the company or ATS source.",
+        "Check the company or ATS page.",
+        "Company-site or ATS presence is stronger evidence.",
+        "",
+      ].join("\n"),
+    );
 
     assert.equal(hasOverconfidentGhostCopy(root, "docs/features/ghost-detection.md"), true);
   });

@@ -18,8 +18,8 @@ means the posting has risk signals, such as:
 - **Stale listing** - The posting has been open for a long time without fresh
   evidence.
 - **Evergreen listing** - The company keeps the same role open all the time.
-- **Unclear route** - The listing appears away from the company or ATS source
-  and cannot be verified yet.
+- **Unclear route** - The listing appears away from the employer or application
+  platform source and cannot be verified yet.
 
 Scam warnings are separate. Scam signals include requests for money, early
 sensitive information, suspicious domains, fake checks, unrealistic pay, or
@@ -137,8 +137,9 @@ Use the warning as a time-protection signal:
 site, exact title, posting age, and source.
 
 **Red** - Do not spend serious tailoring time until you have stronger evidence
-the role is active. Check the company or ATS page, look for recent updates, and
-consider contacting a recruiter or hiring contact if one is available.
+the role is active. Check the employer or application page, look for recent
+updates, and consider contacting a recruiter or hiring contact if one is
+available.
 
 ## Limits
 
@@ -150,8 +151,8 @@ Ghost detection is not perfect:
   warning signs.
 - **Data dependent** - Accuracy improves when JobSentinel has more history for
   a company, title, source, or repost pattern.
-- **Source dependent** - Company-site or ATS presence is stronger evidence, but
-  it is not absolute proof that hiring is active.
+- **Source dependent** - Employer-site or application-platform presence is
+  stronger evidence, but it is not absolute proof that hiring is active.
 
 Use posting-risk warnings as one signal. If a flagged role still looks
 worthwhile, verify it and decide based on your own situation.
