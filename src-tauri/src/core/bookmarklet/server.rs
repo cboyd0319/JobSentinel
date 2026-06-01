@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sha2::{Digest, Sha256};
 use std::net::SocketAddr;
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 use thiserror::Error;
 use tokio::task::JoinHandle;
 use uuid::Uuid;
@@ -58,6 +58,41 @@ fn bookmarklet_auth_expiry() -> DateTime<Utc> {
     Utc::now() + TimeDelta::minutes(BOOKMARKLET_TOKEN_LIFETIME_MINUTES)
 }
 
+#[derive(Debug, Clone)]
+struct BookmarkletAuthState {
+    auth_token: String,
+    auth_token_expires_at: DateTime<Utc>,
+}
+
+impl From<&BookmarkletConfig> for BookmarkletAuthState {
+    fn from(config: &BookmarkletConfig) -> Self {
+        Self {
+            auth_token: config.auth_token.clone(),
+            auth_token_expires_at: config.auth_token_expires_at,
+        }
+    }
+}
+
+fn current_bookmarklet_auth(
+    auth_state: &Arc<RwLock<BookmarkletAuthState>>,
+) -> BookmarkletAuthState {
+    match auth_state.read() {
+        Ok(state) => state.clone(),
+        Err(poisoned) => poisoned.into_inner().clone(),
+    }
+}
+
+fn sync_bookmarklet_auth(
+    auth_state: &Arc<RwLock<BookmarkletAuthState>>,
+    config: &BookmarkletConfig,
+) {
+    let next = BookmarkletAuthState::from(config);
+    match auth_state.write() {
+        Ok(mut state) => *state = next,
+        Err(poisoned) => *poisoned.into_inner() = next,
+    }
+}
+
 /// Bookmarklet server errors
 #[derive(Debug, Error)]
 pub enum BookmarkletError {
@@ -80,6 +115,7 @@ pub enum BookmarkletError {
 /// HTTP server for receiving bookmarklet data
 pub struct BookmarkletServer {
     config: BookmarkletConfig,
+    auth_state: Arc<RwLock<BookmarkletAuthState>>,
     server_handle: Option<JoinHandle<()>>,
     shutdown_tx: Option<tokio::sync::oneshot::Sender<()>>,
 }
@@ -87,8 +123,10 @@ pub struct BookmarkletServer {
 impl BookmarkletServer {
     /// Create a new bookmarklet server
     pub fn new(config: BookmarkletConfig) -> Self {
+        let auth_state = Arc::new(RwLock::new(BookmarkletAuthState::from(&config)));
         Self {
             config,
+            auth_state,
             server_handle: None,
             shutdown_tx: None,
         }
@@ -102,6 +140,14 @@ impl BookmarkletServer {
     /// Set new configuration (only when server is stopped)
     pub fn set_config(&mut self, config: BookmarkletConfig) {
         self.config = config;
+        sync_bookmarklet_auth(&self.auth_state, &self.config);
+    }
+
+    /// Update only the local browser import safety code.
+    pub fn update_auth_token(&mut self, auth_token: String, auth_token_expires_at: DateTime<Utc>) {
+        self.config.auth_token = auth_token;
+        self.config.auth_token_expires_at = auth_token_expires_at;
+        sync_bookmarklet_auth(&self.auth_state, &self.config);
     }
 
     /// Check if server is running
@@ -124,23 +170,15 @@ impl BookmarkletServer {
             self.config.refresh_auth_token();
         }
         let port = self.config.port;
-        let auth_token = self.config.auth_token.clone();
-        let auth_token_expires_at = self.config.auth_token_expires_at;
+        sync_bookmarklet_auth(&self.auth_state, &self.config);
+        let auth_state = self.auth_state.clone();
 
         // Create shutdown channel
         let (shutdown_tx, shutdown_rx) = tokio::sync::oneshot::channel();
 
         // Spawn server task
         let handle = tokio::spawn(async move {
-            if let Err(e) = run_server(
-                port,
-                auth_token,
-                auth_token_expires_at,
-                database,
-                shutdown_rx,
-            )
-            .await
-            {
+            if let Err(e) = run_server(port, auth_state, database, shutdown_rx).await {
                 tracing::error!(error = %bookmarklet_error_label(&e), "Bookmarklet server error");
             }
         });
@@ -182,8 +220,7 @@ impl Default for BookmarkletServer {
 /// Run the HTTP server
 async fn run_server(
     port: u16,
-    auth_token: String,
-    auth_token_expires_at: DateTime<Utc>,
+    auth_state: Arc<RwLock<BookmarkletAuthState>>,
     database: Arc<Database>,
     mut shutdown_rx: tokio::sync::oneshot::Receiver<()>,
 ) -> Result<(), BookmarkletError> {
@@ -204,11 +241,10 @@ async fn run_server(
                 match result {
                     Ok((stream, _)) => {
                         let db = database.clone();
-                        let token = auth_token.clone();
-                        let token_expires_at = auth_token_expires_at;
+                        let auth = auth_state.clone();
                         tokio::spawn(async move {
                             if let Err(_e) =
-                                handle_connection(stream, token, token_expires_at, db).await
+                                handle_connection(stream, auth, db).await
                             {
                                 tracing::error!("Bookmarklet connection failed");
                             }
@@ -235,8 +271,7 @@ async fn run_server(
 /// Handle a single HTTP connection
 async fn handle_connection(
     stream: tokio::net::TcpStream,
-    auth_token: String,
-    auth_token_expires_at: DateTime<Utc>,
+    auth_state: Arc<RwLock<BookmarkletAuthState>>,
     database: Arc<Database>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     use tokio::io::AsyncWriteExt;
@@ -269,7 +304,14 @@ async fn handle_connection(
 
     // Parse request
     let (response, content_type) = if request.starts_with("POST /api/bookmarklet/import") {
-        handle_import_request(&request, &auth_token, auth_token_expires_at, database).await
+        let auth = current_bookmarklet_auth(&auth_state);
+        handle_import_request(
+            &request,
+            &auth.auth_token,
+            auth.auth_token_expires_at,
+            database,
+        )
+        .await
     } else if request.starts_with("OPTIONS") {
         ("OK".to_string(), "text/plain".to_string())
     } else {
@@ -644,6 +686,30 @@ mod tests {
 
         assert_ne!(config.auth_token, "old-token");
         assert!(config.auth_token_is_current(Utc::now()));
+    }
+
+    #[test]
+    fn test_bookmarklet_server_updates_auth_state_without_restart() {
+        let original_expires_at = Utc::now() + TimeDelta::minutes(5);
+        let next_expires_at = Utc::now() + TimeDelta::minutes(10);
+        let mut server = BookmarkletServer::new(BookmarkletConfig {
+            port: 4321,
+            auth_token: "old-token".to_string(),
+            auth_token_expires_at: original_expires_at,
+        });
+
+        let original_auth = current_bookmarklet_auth(&server.auth_state);
+        assert_eq!(original_auth.auth_token, "old-token");
+        assert_eq!(original_auth.auth_token_expires_at, original_expires_at);
+
+        server.update_auth_token("new-token".to_string(), next_expires_at);
+        let next_auth = current_bookmarklet_auth(&server.auth_state);
+
+        assert_eq!(server.config().auth_token, "new-token");
+        assert_eq!(server.config().auth_token_expires_at, next_expires_at);
+        assert_eq!(next_auth.auth_token, "new-token");
+        assert_eq!(next_auth.auth_token_expires_at, next_expires_at);
+        assert!(!server.is_running());
     }
 
     #[test]

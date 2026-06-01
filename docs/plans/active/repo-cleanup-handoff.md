@@ -509,7 +509,8 @@ Recent cleanup slices on `main` include:
   cooldown state across repeated manual runs and fresh scheduler instances.
 - Latest local bookmarklet boundary follow-up removes wildcard CORS and custom
   auth headers from the browser-helper flow, refreshes the local safety code
-  when copying the browser button, and expires copied codes after about one
+  only after the browser button is copied successfully, keeps the previous
+  button usable on clipboard failure, and expires copied codes after about one
   hour.
 - Latest local zero-technical setup follow-up removes raw Slack connection-link
   setup from first-run onboarding and replaces it with a plain note that

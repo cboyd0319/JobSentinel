@@ -46,7 +46,8 @@ and record actionable findings in this active-plan surface.
 - Latest local bookmarklet boundary work removes wildcard CORS and custom auth
   headers from the browser-helper flow, sends the local safety code in a
   `no-cors` text-body envelope, refreshes it when copying the browser button,
-  and expires copied codes after about one hour.
+  activates refreshed codes only after successful copy, and expires copied
+  codes after about one hour.
 - Latest local zero-technical setup work removes raw Slack connection-link
   setup from first-run onboarding. Setup now tells users optional chat alerts
   can be added later in Settings, with focused UI and product-copy coverage.

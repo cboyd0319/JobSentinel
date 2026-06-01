@@ -87,6 +87,8 @@ fill in any blank details in JobSentinel.
 - Hidden details include a local safety code that stays out of normal setup.
 - The local safety code is refreshed when the browser button is copied and
   expires after about one hour.
+- If copying fails, the previous browser button keeps working until its safety
+  code expires.
 - Job data stays local unless you choose to share it.
 - Debug reports must redact the browser button details and saved job details.
 
@@ -98,6 +100,7 @@ interface should keep technical details hidden:
 - Do not show the generated script in the UI.
 - Do not expose the local safety code.
 - Keep copied browser-button codes short-lived and session-scoped.
+- Activate a refreshed safety code only after the browser button is copied.
 - Prefer "browser import button", "import helper", and
   "advanced connection settings" in user-facing copy.
 - Keep lower-level implementation details in developer docs or code comments,

@@ -192,7 +192,8 @@ visible zero-technical UX, broad-audience defaults, and harness modularity:
   so repeated manual checks keep source cooldown state.
 - Removed wildcard CORS and custom auth headers from the bookmarklet
   browser-helper flow, refreshes the local safety code when copying the browser
-  button, and expires copied codes after about one hour.
+  button only after copy succeeds, keeps the previous button usable on
+  clipboard failure, and expires copied codes after about one hour.
 - Removed raw Slack connection-link setup from first-run onboarding and kept
   optional chat alerts as a later Settings task.
 - Updated user docs so downloads, notifications, site requests, and Linux
@@ -379,7 +380,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 | ---- | ------ | ----- |
 | 2026-06-01 | In progress | Updated Quick Start, Deep Links, and credential-security docs so download, notification, site-request, and Linux keyring guidance starts with normal user actions before optional developer or command-line paths. |
 | 2026-06-01 | In progress | Removed raw Slack connection-link setup from first-run onboarding and added focused SetupWizard plus product-copy coverage so webhook-shaped setup does not drift back into the first-run path. |
-| 2026-06-01 | In progress | Removed wildcard CORS and custom auth headers from bookmarklet browser-helper imports, refreshed the local safety code when copying the browser button, expired copied codes after about one hour, and added focused expired-token coverage. |
+| 2026-06-01 | In progress | Removed wildcard CORS and custom auth headers from bookmarklet browser-helper imports, refreshed the local safety code only after the browser button copies successfully, kept the previous button usable on clipboard failure, expired copied codes after about one hour, and added focused auth-state and expired-token coverage. |
 | 2026-06-01 | In progress | Moved production scraper constructors to a shared process-wide rate limiter and added focused coverage proving exhausted source buckets survive fresh handles. |
 | 2026-06-01 | In progress | Routed bookmarklet imports through public HTTP(S) URL validation and shared job storage validation, with focused tests for unsafe URLs, overlong fields, and valid storage. |
 | 2026-06-01 | In progress | Hardened external URL fetch boundaries for user-entered job imports and JobsWithGPT, disabled shared scraper redirects, added focused URL/security tests, and recorded remaining bookmarklet/rate-limit findings as open debt. |

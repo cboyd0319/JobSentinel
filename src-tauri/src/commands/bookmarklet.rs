@@ -4,7 +4,10 @@
 //! from a browser bookmarklet. This allows users to import jobs from any
 //! website by clicking a bookmark while viewing a job posting.
 
-use crate::commands::{errors::user_friendly_error, AppState};
+use crate::{
+    commands::{errors::user_friendly_error, AppState},
+    core::bookmarklet::BookmarkletConfig,
+};
 use arboard::Clipboard;
 use serde::{Deserialize, Serialize};
 use tauri::State;
@@ -29,6 +32,12 @@ fn bookmarklet_code(port: u16, auth_token: &str) -> String {
     format!(
         "javascript:(function(){{var scripts=document.querySelectorAll('script[type=\"application/ld+json\"]');var job=null;scripts.forEach(function(s){{try{{var data=JSON.parse(s.textContent);if(data['@type']==='JobPosting')job=data;}}catch(e){{}}}});if(!job){{var title=document.querySelector('h1');var company=document.querySelector('[class*=\"company\"]')||document.querySelector('[class*=\"employer\"]');var desc=document.querySelector('[class*=\"description\"]')||document.querySelector('[class*=\"desc\"]');job={{title:title?title.textContent:'',company:company?company.textContent:'',description:desc?desc.textContent:'',url:window.location.href}};}}else{{job.url=window.location.href;}}fetch('http://localhost:{port}/api/bookmarklet/import',{{method:'POST',mode:'no-cors',headers:{{'Content-Type':'text/plain'}},body:JSON.stringify({{token:{token},job:job}})}}).then(function(){{alert('Sent to JobSentinel. Check saved jobs.');}}).catch(function(e){{alert('Cannot connect to JobSentinel. Turn on the import helper in Settings.');}});}})();"
     )
+}
+
+fn refreshed_bookmarklet_config_for_copy(current: &BookmarkletConfig) -> BookmarkletConfig {
+    let mut config = current.clone();
+    config.refresh_auth_token();
+    config
 }
 
 /// Get current bookmarklet configuration
@@ -56,35 +65,14 @@ pub async fn copy_bookmarklet_code(state: State<'_, AppState>) -> Result<(), Str
     tracing::debug!("Copying browser import button");
 
     let mut server_guard = state.bookmarklet_server.write().await;
-    let was_running = server_guard.is_running();
-    let mut config = server_guard.config().clone();
-    config.refresh_auth_token();
+    let config = refreshed_bookmarklet_config_for_copy(server_guard.config());
     let code = bookmarklet_code(config.port, &config.auth_token);
-
-    if was_running {
-        server_guard.stop().await.map_err(|e| {
-            let message = user_friendly_error("Could not refresh browser button", &e);
-            tracing::error!(error = %message, "Failed to stop bookmarklet server for token refresh");
-            message
-        })?;
-
-        server_guard
-            .start(config, state.database.clone())
-            .await
-            .map_err(|e| {
-                let message = user_friendly_error("Could not refresh browser button", &e);
-                tracing::error!(error = %message, "Failed to restart bookmarklet server after token refresh");
-                message
-            })?;
-    } else {
-        server_guard.set_config(config);
-    }
-
-    drop(server_guard);
 
     Clipboard::new()
         .and_then(|mut clipboard| clipboard.set_text(code))
         .map_err(|_| bookmarklet_copy_error())?;
+
+    server_guard.update_auth_token(config.auth_token, config.auth_token_expires_at);
 
     Ok(())
 }
@@ -193,5 +181,21 @@ mod tests {
         assert!(code.contains("mode:'no-cors'"));
         assert!(!code.contains("X-JobSentinel-Token"));
         assert!(code.contains("test-token"));
+    }
+
+    #[test]
+    fn test_refreshed_bookmarklet_config_for_copy_does_not_mutate_current() {
+        let current = BookmarkletConfig {
+            port: 4321,
+            auth_token: "old-token".to_string(),
+            auth_token_expires_at: chrono::Utc::now() + chrono::TimeDelta::minutes(5),
+        };
+
+        let refreshed = refreshed_bookmarklet_config_for_copy(&current);
+
+        assert_eq!(current.auth_token, "old-token");
+        assert_eq!(refreshed.port, current.port);
+        assert_ne!(refreshed.auth_token, current.auth_token);
+        assert!(refreshed.auth_token_is_current(chrono::Utc::now()));
     }
 }
