@@ -22,6 +22,8 @@ function withDoctorFixture(callback) {
   const root = mkdtempSync(join(tmpdir(), "jobsentinel-doctor-"));
 
   try {
+    writeFixtureFile(root, ".nvmrc", "20\n");
+    writeFixtureFile(root, "rust-toolchain.toml", 'channel = "stable"\n');
     writeFixtureFile(root, "package-lock.json", "{}");
     writeFixtureFile(root, "node_modules/.bin/tauri", "");
     writeFixtureFile(root, "node_modules/@playwright/test/package.json", "{}");
@@ -223,6 +225,29 @@ test("runDoctor warns on toolchain baseline drift", () => {
     );
     assert.ok(
       results.some((result) => result.status === "warn" && result.label === "Rust CI baseline"),
+      formatDoctorResults(results),
+    );
+  });
+});
+
+test("runDoctor checks local runtime pin files", () => {
+  withDoctorFixture((root) => {
+    writeFixtureFile(root, ".nvmrc", "26\n");
+    writeFixtureFile(root, "rust-toolchain.toml", 'channel = "nightly"\n');
+
+    const results = runDoctor({
+      root,
+      platform: "darwin",
+      nodeVersion: "v20.11.1",
+      execFileSync: createMockExec(),
+    });
+
+    assert.ok(
+      results.some((result) => result.status === "fail" && result.label === "Node version file"),
+      formatDoctorResults(results),
+    );
+    assert.ok(
+      results.some((result) => result.status === "fail" && result.label === "Rust toolchain file"),
       formatDoctorResults(results),
     );
   });

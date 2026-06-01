@@ -2,6 +2,8 @@
 
 Research date: 2026-05-31.
 
+Last updated: 2026-06-01.
+
 Source:
 [Walking Labs, Lecture 02. What a Harness Actually Is](https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-02-what-a-harness-actually-is/#exercises).
 
@@ -16,8 +18,8 @@ without chat history.
 | --------- | ----- | -------- | --- |
 | Instructions | 5 | `AGENTS.md` gives the short project map. `docs/harness/README.md`, `docs/harness/change-contract.md`, and `docs/harness/agent-operating-model.md` split deeper guidance into indexed docs. | None urgent. Keep `AGENTS.md` short and route new rules into docs. |
 | Tools | 5 | `package.json` exposes harness, docs, security, architecture, bloat, unit, Playwright, and build commands. Rust checks are documented in `AGENTS.md` and `docs/harness/verification-matrix.md`. | Tool list is strong, but broad checks are still expensive. Keep improving focused sensors. |
-| Environment | 4 | CI pins Node 20 and stable Rust. `package-lock.json`, `Cargo.lock`, `src-tauri/.cargo/config.toml`, and `src-tauri/.sqlx` make dependency and SQLx behavior reproducible. `npm run doctor` now checks local readiness. | No devcontainer, `.nvmrc`, or `rust-toolchain.toml`. Those remain optional until environment drift repeats. |
-| State | 5 | `docs/plans/active/`, `docs/plans/completed/`, `docs/plans/tech-debt-tracker.md`, and active handoff docs preserve progress across long work. | A compact run-evidence ledger could help repeated harness changes, but current state docs are usable. |
+| Environment | 5 | CI pins Node 20 and stable Rust. `.nvmrc`, `rust-toolchain.toml`, `package-lock.json`, `Cargo.lock`, `src-tauri/.cargo/config.toml`, and `src-tauri/.sqlx` make dependency and SQLx behavior reproducible. `npm run doctor` checks local readiness and pin drift. | Keep `npm run doctor` current when runtime baselines change. |
+| State | 5 | `docs/plans/index.json`, `docs/plans/active/`, `docs/plans/completed/`, `docs/plans/tech-debt-tracker.md`, and active handoff docs preserve progress across long work. | Keep the machine-readable index aligned with active plans. |
 | Feedback | 5 | `docs/harness/verification-matrix.md`, `npm run harness:check`, docs linting, security sensors, bloat checks, unit tests, Playwright, Rust checks, and CI provide deterministic feedback. | Feedback is broad. Continue using smallest relevant checks first to avoid 12-minute local loops. |
 
 ## Lowest Subsystem
@@ -26,7 +28,7 @@ Environment was the lowest-scoring subsystem before this pass. The repo had
 good CI setup and locked dependencies, but local readiness was spread across
 `AGENTS.md`, developer docs, and workflows.
 
-The 30-minute improvement from the exercise is now implemented as:
+The first 30-minute improvement from the exercise is implemented as:
 
 ```bash
 npm run doctor
@@ -36,6 +38,14 @@ That command checks Node, npm, Rust, Cargo, rustfmt, clippy, npm dependencies,
 the Tauri CLI, lockfiles, SQLx offline cache, and SQLx offline config. It gives
 one place to start when an agent or contributor cannot tell whether the local
 machine is ready.
+
+The 2026-06-01 follow-up closed the remaining environment score gap with
+`.nvmrc`, `rust-toolchain.toml`, doctor checks for those files, and the
+repo-native score gate:
+
+```bash
+npm run harness:score
+```
 
 ## Controlled Variable Exclusion Test
 
@@ -78,7 +88,6 @@ failure messages.
 
 ## Follow-Up Debt
 
-- Consider `.nvmrc` and `rust-toolchain.toml` if runtime-version drift repeats.
 - Consider a devcontainer only if Windows, macOS, or Linux setup drift becomes
   common enough to justify container maintenance.
 - Add a small ablation fixture if future harness work needs measured

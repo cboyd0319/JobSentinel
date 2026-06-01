@@ -2,10 +2,15 @@
 
 Date: 2026-06-01.
 
-Source framework: the WalkingLabs Learn Harness Engineering material describes
-five harness subsystems: instructions, state, verification, scope, and
-lifecycle. See the
-[harness creator skill](https://github.com/walkinglabs/learn-harness-engineering/blob/main/skills/harness-creator/README.md).
+Source frameworks:
+
+- The [WalkingLabs Lecture 02](https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-02-what-a-harness-actually-is/)
+  model describes instructions, tools, environment, state, and feedback.
+- The [WalkingLabs harness-creator skill](https://github.com/walkinglabs/learn-harness-engineering/blob/main/skills/harness-creator/README.md)
+  scores instructions, state, verification, scope, and lifecycle.
+
+Current executable scorecard:
+[five-tuple-scorecard-2026-06-01.md](five-tuple-scorecard-2026-06-01.md).
 
 ## Scope
 
@@ -113,7 +118,7 @@ Observed performance change:
 ## Remaining Work
 
 - Keep `npm run harness:session` output compact enough for quick restarts.
-- Consider adding a machine-readable active-plan index if active plans keep
-  growing.
+- Keep `docs/plans/index.json` current when active workstreams change.
+- Keep `npm run harness:score` at 100/100 for repo-managed harness evidence.
 - Use this audit format after major harness changes to see whether agent
   performance improves or only documentation volume increases.

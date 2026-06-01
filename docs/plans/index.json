@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "lastUpdated": "2026-06-01",
+  "goal": "Move JobSentinel toward zero known errors, privacy leaks, stale docs, brittle tests, user-facing technical assumptions, engineer-only defaults, and unverified claims.",
+  "activeWorkstreams": [
+    {
+      "id": "active-status",
+      "path": "docs/plans/active/status.md",
+      "state": "active",
+      "nextStep": "Read first for compact goal state, current posture, next best work, and completion bar.",
+      "verification": "npm run harness:session"
+    },
+    {
+      "id": "repo-cleanup-and-quality-sweep",
+      "path": "docs/plans/active/repo-cleanup-and-quality-sweep.md",
+      "state": "open",
+      "nextStep": "Continue reliability, stale-doc cleanup, harness debt, privacy/security review, and broad verification.",
+      "verification": "npm run harness:check"
+    },
+    {
+      "id": "repo-cleanup-handoff",
+      "path": "docs/plans/active/repo-cleanup-handoff.md",
+      "state": "open",
+      "nextStep": "Keep operational restart notes and verification evidence accurate after each harness slice.",
+      "verification": "npm run harness:session"
+    },
+    {
+      "id": "guided-job-search-intake",
+      "path": "docs/plans/active/guided-job-search-intake.md",
+      "state": "active",
+      "nextStep": "Expand guided questioning and search support while preserving zero-technical-knowledge UX.",
+      "verification": "npm run test:run"
+    },
+    {
+      "id": "research-backed-product-improvements",
+      "path": "docs/plans/active/research-backed-product-improvements.md",
+      "state": "active",
+      "nextStep": "Continue ghost-job detection, pay protection, long-term unemployment support, bias-aware routes, protective tone, and local-first privacy.",
+      "verification": "npm run lint:docs"
+    }
+  ]
+}

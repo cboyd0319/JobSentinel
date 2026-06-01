@@ -2,6 +2,8 @@
 
 Research date: 2026-05-31.
 
+Last updated: 2026-06-01.
+
 Sources:
 
 - [Walking Labs skills directory](https://github.com/walkinglabs/learn-harness-engineering/tree/main/skills)
@@ -52,8 +54,8 @@ Adopt:
 
 - Keep root `AGENTS.md` short and route deeper context into `docs/`.
 - Keep deterministic checks as the real harness score:
-  `npm run harness:check`, `npm run doctor`, lint, tests, Rust checks, and E2E
-  checks by risk.
+  `npm run harness:score`, `npm run harness:check`, `npm run doctor`, lint,
+  tests, Rust checks, and E2E checks by risk.
 - Keep explicit session state in versioned plans and handoffs.
 - Consider a structural compatibility adapter if outside harness tools become
   important.
@@ -74,3 +76,21 @@ repo-native adapter that generates temporary compatibility files from current
 source-of-truth docs, then runs the external validator against those generated
 files. The generated files should stay out of source control unless they become
 owned front-door artifacts.
+
+## Repo-Native Score
+
+JobSentinel now has a repo-native structural scorer instead of duplicating
+root `feature_list.json`, `progress.md`, `session-handoff.md`, or `init.sh`.
+
+```bash
+npm run harness:score
+```
+
+The command scores both:
+
+- Lecture tuple: instructions, tools, environment, state, feedback.
+- Harness-creator tuple: instructions, state, verification, scope, lifecycle.
+
+Current target: 100/100 with every repo-managed subsystem at 5/5. This is a
+structural harness score only; it does not replace real product verification,
+platform checks, or before/after agent-session testing.

@@ -449,6 +449,27 @@ Latest active E2E fixed-wait slice checks on 2026-06-01:
 - `npm run lint:bloat`
 - `npm run test:scripts`
 
+Latest five-tuple harness score slice checks on 2026-06-01:
+
+- `node --check scripts/harness-score.mjs`
+- `node --check scripts/harness-session.mjs`
+- `node --check scripts/check-harness.mjs`
+- `node --check scripts/doctor.mjs`
+- `node --test scripts/harness-score.test.mjs`
+- `node --test scripts/harness-session.test.mjs`
+- `node --test scripts/doctor.test.mjs`
+- `node --test scripts/check-harness-policy.test.mjs`
+- `node --test scripts/check-repo-artifacts.test.mjs`
+- `npm run harness:score`
+- `npm run harness:session`
+- `npm run harness:check`
+- `npm run test:scripts`
+- `npm run doctor`
+- `npm run doctor:e2e`
+- `npm run lint:md`
+- `npm run lint:docs`
+- `git diff --check`
+
 Latest harness/readiness slice checks on 2026-05-31:
 
 - `node --check scripts/check-harness.mjs`

@@ -64,6 +64,7 @@ Use the smallest relevant check first, then broaden when risk increases.
 
 ```bash
 npm run harness:check
+npm run harness:score
 npm run lint
 npm run test:run
 npm run test:e2e

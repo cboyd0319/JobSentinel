@@ -302,6 +302,11 @@ export function runDoctor(options = {}) {
     });
   }
 
+  checkPath(results, root, ".nvmrc", "Node version file", {
+    mustContain: "20",
+    fix: "Set .nvmrc to Node 20 to match CI",
+  });
+
   runVersionCheck(results, "npm", ["--version"], "npm CLI", {
     cwd: root,
     platform,
@@ -329,6 +334,11 @@ export function runDoctor(options = {}) {
       detail: `${rustc.output}; CI uses stable Rust.`,
     });
   }
+
+  checkPath(results, root, "rust-toolchain.toml", "Rust toolchain file", {
+    mustContain: 'channel = "stable"',
+    fix: "Set rust-toolchain.toml to stable to match CI",
+  });
 
   runVersionCheck(results, "cargo", ["fmt", "--version"], "Rust formatter", {
     cwd: join(root, "src-tauri"),

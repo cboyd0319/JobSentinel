@@ -4,6 +4,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { summarizeHarnessScore } from "./harness-score.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
@@ -27,6 +28,19 @@ function readIfExists(root, path) {
   }
 
   return readFileSync(fullPath, "utf8");
+}
+
+function readJsonIfExists(root, path) {
+  const text = readIfExists(root, path);
+  if (!text) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
 }
 
 function countFileLines(root, path) {
@@ -72,7 +86,12 @@ export function extractNextBestWork(statusText) {
 
 export function summarizeHarnessSession(root = defaultRoot, options = {}) {
   const exec = options.execFileSync ?? execFileSync;
+  const scoreSummary = options.harnessScoreSummary ?? summarizeHarnessScore(root);
   const statusText = readIfExists(root, "docs/plans/active/status.md");
+  const planIndex = readJsonIfExists(root, "docs/plans/index.json");
+  const indexedWorkstreamCount = Array.isArray(planIndex?.activeWorkstreams)
+    ? planIndex.activeWorkstreams.length
+    : 0;
   const activePlansPath = join(root, "docs/plans/active");
   const activePlanCount = existsSync(activePlansPath)
     ? readdirSync(activePlansPath).filter((entry) => entry.endsWith(".md")).length
@@ -82,9 +101,14 @@ export function summarizeHarnessSession(root = defaultRoot, options = {}) {
     branch: safeGit(root, ["status", "--short", "--branch"], exec).split(/\r?\n/)[0],
     latestCommit: safeGit(root, ["log", "-1", "--oneline"], exec),
     activePlanCount,
+    indexedWorkstreamCount,
     checkModuleCount: countMatchingFiles(root, "scripts/harness/checks", /\.mjs$/),
     scriptTestCount: countMatchingFiles(root, "scripts", /\.test\.mjs$/),
     bloatRunnerLines: countFileLines(root, "scripts/check-repo-bloat.mjs"),
+    harnessScore: {
+      overall: scoreSummary.overall,
+      status: scoreSummary.allPerfect ? "all subsystems 5/5" : "incomplete",
+    },
     fiveTupleAudit: existsSync(join(root, "docs/harness/five-tuple-audit-2026-06-01.md"))
       ? "docs/harness/five-tuple-audit-2026-06-01.md"
       : "missing",
@@ -103,9 +127,11 @@ export function formatHarnessSessionSummary(summary) {
     `Branch: ${summary.branch}`,
     `Latest commit: ${summary.latestCommit}`,
     `Active plan docs: ${summary.activePlanCount}`,
+    `Indexed active workstreams: ${summary.indexedWorkstreamCount}`,
     `Harness check modules: ${summary.checkModuleCount}`,
     `Script test files: ${summary.scriptTestCount}`,
     `Bloat runner lines: ${summary.bloatRunnerLines}`,
+    `Five-tuple score: ${summary.harnessScore.overall}/100 (${summary.harnessScore.status})`,
     `Five-tuple audit: ${summary.fiveTupleAudit}`,
     "Next best work:",
     ...nextBestWork.map((item, index) => `${index + 1}. ${item}`),

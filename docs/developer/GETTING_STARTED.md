@@ -20,8 +20,8 @@
 # Install Rust (https://rustup.rs/)
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-# Install Node.js 20+ (https://nodejs.org/)
-# Download the LTS version from the website
+# Install Node.js 20 (https://nodejs.org/)
+# `.nvmrc` pins the local baseline used by CI.
 
 # Tauri CLI
 # `npm install` installs the repo-local CLI from @tauri-apps/cli.

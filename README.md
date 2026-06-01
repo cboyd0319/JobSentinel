@@ -342,8 +342,8 @@ See [RESPONSIBLE_AI.md](RESPONSIBLE_AI.md), [PRIVACY.md](PRIVACY.md), and
 
 You need:
 
-- Node.js 20 or newer
-- Rust from [rustup.rs](https://rustup.rs)
+- Node.js 20; `.nvmrc` pins the repo baseline
+- Rust from [rustup.rs](https://rustup.rs); `rust-toolchain.toml` pins stable
 - Platform dependencies listed in the
   [developer setup guide](docs/developer/GETTING_STARTED.md)
 
@@ -791,6 +791,7 @@ and fake example links are intentionally excluded.
 - [Walking Labs, Lecture 02. What a Harness Actually Is](https://walkinglabs.github.io/learn-harness-engineering/en/lectures/lecture-02-what-a-harness-actually-is/)
 - [Walking Labs harness engineering skills](https://github.com/walkinglabs/learn-harness-engineering/tree/main/skills)
 - [Walking Labs harness-creator skill](https://github.com/walkinglabs/learn-harness-engineering/tree/main/skills/harness-creator)
+- [Walking Labs harness-creator scripts](https://github.com/walkinglabs/learn-harness-engineering/tree/main/skills/harness-creator/scripts)
 
 ### Engineering and Test References
 

@@ -12,6 +12,7 @@ import {
 import { checkRepoBloat } from "./check-repo-bloat.mjs";
 import { checkTauriInvokes } from "./check-tauri-invokes.mjs";
 import { checkTestQuality } from "./check-test-quality.mjs";
+import { summarizeHarnessScore } from "./harness-score.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -379,6 +380,21 @@ for (const violation of checkTauriInvokes(root)) {
 
 for (const violation of checkTestQuality(root)) {
   errors.push(violation);
+}
+
+const harnessScore = summarizeHarnessScore(root);
+if (!harnessScore.allPerfect) {
+  errors.push(`five-tuple harness score must be 100/100; current score is ${harnessScore.overall}/100`);
+
+  for (const framework of harnessScore.frameworks) {
+    for (const subsystem of framework.subsystems) {
+      for (const item of subsystem.checks) {
+        if (!item.pass) {
+          errors.push(`${framework.name} ${subsystem.name}: ${item.label} [${item.evidence}]`);
+        }
+      }
+    }
+  }
 }
 
 if (errors.length > 0) {

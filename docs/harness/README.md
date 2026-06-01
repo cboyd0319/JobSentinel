@@ -38,7 +38,9 @@ Use this structure:
 | Change contract | `docs/harness/change-contract.md` | Acceptance criteria before edits |
 | Policy manifest | `docs/harness/manifest.json` | Required harness files, policy snippets, and README reference-source coverage |
 | Plans | `docs/plans/` | Multi-step work, progress, decisions |
-| Session snapshot | `npm run harness:session` | One-command restart surface for branch state, active plan count, harness module/test counts, bloat-runner size, and next work |
+| Active plan index | `docs/plans/index.json` | Machine-readable active workstream map for restart and scoring |
+| Session snapshot | `npm run harness:session` | One-command restart surface for branch state, active plan count, indexed workstreams, harness score, harness module/test counts, bloat-runner size, and next work |
+| Harness score | `npm run harness:score` | Repo-native five-tuple evidence score for the WalkingLabs lecture and harness-creator tuples |
 | Sensors | `docs/harness/verification-matrix.md` | Checks by change type |
 | Environment doctor | `npm run doctor`, `npm run doctor:e2e` | Local readiness check for Node, npm, Rust, Tauri, SQLx offline setup, Linux Tauri packages, and Playwright browser launch |
 | Experience contract | `docs/style-guide/` | Plain-language, broad-audience, zero-technical-skill review |
@@ -66,13 +68,16 @@ For non-trivial work, capture this before edits:
 2. Read relevant docs and code paths.
 3. Run `npm run harness:session` when resuming a broad goal or handing off a
    long session.
-4. Write or update a change contract for non-trivial work.
-5. Choose user, privacy, and verification sensors before edits.
-6. Implement the smallest coherent slice.
-7. Run sensors from `verification-matrix.md`.
-8. Remove disposable artifacts and inspect the diff.
-9. Update docs and plan state.
-10. Record remaining gaps in `docs/plans/tech-debt-tracker.md`.
+4. Run `npm run harness:score` after harness changes that affect
+   instructions, tools, environment, state, feedback, verification, scope, or
+   lifecycle.
+5. Write or update a change contract for non-trivial work.
+6. Choose user, privacy, and verification sensors before edits.
+7. Implement the smallest coherent slice.
+8. Run sensors from `verification-matrix.md`.
+9. Remove disposable artifacts and inspect the diff.
+10. Update docs and plan state.
+11. Record remaining gaps in `docs/plans/tech-debt-tracker.md`.
 
 ## Guide And Sensor Model
 
@@ -103,6 +108,7 @@ Sensors:
 - `npm run doctor`.
 - `npm run doctor:e2e` when Playwright or browser-flow readiness matters.
 - `npm run harness:check`.
+- `npm run harness:score`.
 - PR review checklist.
 - Human review for product, security, and irreversible behavior.
 
@@ -149,6 +155,7 @@ that prevents the observed failure.
 
 - [Sources](sources.md)
 - [Five-tuple harness audit](five-tuple-audit-2026-06-01.md)
+- [Five-tuple scorecard](five-tuple-scorecard-2026-06-01.md)
 - [Deep harness audit](deep-harness-audit-2026-05-31.md)
 - [Walking Labs Lecture 02 evaluation](walkinglabs-lecture-02-evaluation.md)
 - [Walking Labs harness creator skill evaluation](walkinglabs-harness-creator-skill-evaluation.md)

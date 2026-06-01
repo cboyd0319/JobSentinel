@@ -64,21 +64,31 @@ test("summarizeHarnessSession reports branch, counts, audit path, and next work"
   withFixture((root) => {
     writeFixtureFile(root, "docs/plans/active/status.md", "## Next Best Work\n\n1. Keep going.\n");
     writeFixtureFile(root, "docs/plans/active/plan-one.md", "# Plan One\n");
+    writeFixtureFile(
+      root,
+      "docs/plans/index.json",
+      JSON.stringify({ activeWorkstreams: [{ id: "one", path: "docs/plans/active/plan-one.md" }] }),
+    );
     writeFixtureFile(root, "scripts/harness/checks/a.mjs", "");
     writeFixtureFile(root, "scripts/harness/checks/b.mjs", "");
     writeFixtureFile(root, "scripts/one.test.mjs", "");
     writeFixtureFile(root, "scripts/check-repo-bloat.mjs", "one\ntwo\n");
     writeFixtureFile(root, "docs/harness/five-tuple-audit-2026-06-01.md", "# Audit\n");
 
-    const summary = summarizeHarnessSession(root, { execFileSync: fakeGit });
+    const summary = summarizeHarnessSession(root, {
+      execFileSync: fakeGit,
+      harnessScoreSummary: { overall: 100, allPerfect: true },
+    });
 
     assert.equal(summary.branch, "## main...origin/main [ahead 44]");
     assert.equal(summary.latestCommit, "abc1234 Example commit");
     assert.equal(summary.activePlanCount, 2);
+    assert.equal(summary.indexedWorkstreamCount, 1);
     assert.equal(summary.checkModuleCount, 2);
     assert.equal(summary.scriptTestCount, 1);
     assert.equal(summary.bloatRunnerLines, 2);
     assert.equal(summary.fiveTupleAudit, "docs/harness/five-tuple-audit-2026-06-01.md");
+    assert.deepEqual(summary.harnessScore, { overall: 100, status: "all subsystems 5/5" });
     assert.deepEqual(summary.nextBestWork, ["Keep going."]);
   });
 });
@@ -88,15 +98,19 @@ test("formatHarnessSessionSummary prints one restart surface", () => {
     branch: "## main",
     latestCommit: "abc1234 Example commit",
     activePlanCount: 3,
+    indexedWorkstreamCount: 4,
     checkModuleCount: 12,
     scriptTestCount: 31,
     bloatRunnerLines: 1176,
+    harnessScore: { overall: 100, status: "all subsystems 5/5" },
     fiveTupleAudit: "docs/harness/five-tuple-audit-2026-06-01.md",
     nextBestWork: ["Continue privacy review."],
   });
 
   assert.match(output, /Harness Session Snapshot/);
   assert.match(output, /Branch: ## main/);
+  assert.match(output, /Indexed active workstreams: 4/);
+  assert.match(output, /Five-tuple score: 100\/100 \(all subsystems 5\/5\)/);
   assert.match(output, /Bloat runner lines: 1176/);
   assert.match(output, /1\. Continue privacy review\./);
 });

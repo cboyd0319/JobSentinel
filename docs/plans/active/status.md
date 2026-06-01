@@ -171,6 +171,11 @@ and record actionable findings in this active-plan surface.
   `npm run harness:session`, a tested one-command restart snapshot for branch
   state, latest commit, active plan count, harness module/test counts,
   bloat-runner size, audit path, and next-best work.
+- Latest local five-tuple harness work adds `.nvmrc`, `rust-toolchain.toml`,
+  runtime-pin doctor checks, `docs/plans/index.json`, and
+  `npm run harness:score`, then wires the score into `harness:session` and
+  `harness:check` so both WalkingLabs five-tuple models stay at 100/100 for
+  repo-managed harness evidence.
 - Latest local E2E reliability work removes the hard sleep from keyboard
   search-focus coverage and expands the fixed-wait sensor from page objects to
   every active Playwright runtime file, while keeping screenshot-capture waits

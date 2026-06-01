@@ -8,6 +8,8 @@ harness work.
 - `active/` - Work in progress.
 - `archive/` - Preserved historical plan state that should not slow restarts.
 - `completed/` - Finished plans with outcomes.
+- `index.json` - Machine-readable active workstream index used by the harness
+  score and session snapshot.
 - `templates/` - Reusable plan and change-contract templates.
 - `tech-debt-tracker.md` - Durable debt and harness drift.
 

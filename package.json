@@ -22,6 +22,7 @@
     "lint:tests": "node scripts/check-test-quality.mjs",
     "harness:check": "node scripts/check-harness.mjs",
     "harness:session": "node scripts/harness-session.mjs",
+    "harness:score": "node scripts/harness-score.mjs",
     "doctor": "node scripts/doctor.mjs",
     "doctor:e2e": "node scripts/doctor.mjs --e2e",
     "release:check-version": "node scripts/validate-release-version.mjs",
