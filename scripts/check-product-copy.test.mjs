@@ -713,6 +713,12 @@ test("product copy rejects technical-first settings copy", () => {
         "bounded HTTP request",
         "parse into normalized jobs",
         "deduplicate",
+        "Configured source",
+        "source-policy check",
+        "record health metadata",
+        "Health And Diagnostics",
+        "User-Configured External Sources",
+        "local metadata only",
         "",
       ].join("\n"),
     );
@@ -1563,7 +1569,11 @@ test("product copy rejects non-protective no-response labels", () => {
     writeFixtureFile(root, "src/components/DashboardWidgets.tsx", 'label="Ghosted"\n');
     writeFixtureFile(root, "src/components/AnalyticsPanel.tsx", 'ghosted: "Ghosted"\n');
     writeFixtureFile(root, "tests/e2e/playwright/application-tracking.spec.ts", '["ghosted", "Ghosted"]\n');
-    writeFixtureFile(root, "docs/features/application-tracking.md", "| Ghosted | No response |\n");
+    writeFixtureFile(
+      root,
+      "docs/features/application-tracking.md",
+      "| Ghosted | No response |\nSlack, Discord, Teams, SMTP, or other channels are used only if the user configures them.\n",
+    );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Applications.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/DashboardWidgets.tsx"), true);

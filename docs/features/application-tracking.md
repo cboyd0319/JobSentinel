@@ -23,7 +23,7 @@ private notes. JobSentinel keeps this workflow local by default.
 | Follow-up reminders | Local only | Reminders are generated locally. |
 | Interview tracking | Local only, Sensitive | Interview details stay local unless the user exports them. |
 | Offer and pay notes | Local only, Sensitive | Salary floors and offer notes stay local. |
-| External notifications | Sensitive | Slack, Discord, Teams, SMTP, or other channels are used only if the user configures them. |
+| External notifications | Sensitive | Slack, Discord, Teams, email alerts, or other channels are used only if the user turns them on. |
 
 External AI is not required for application tracking.
 

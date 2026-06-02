@@ -222,6 +222,12 @@ Current cleanup posture:
   email-service language. Troubleshooting copy now uses turned-on, check, and
   permission wording instead of enabled/verify/admin/manual-provider wording,
   with product-copy coverage.
+- Current local app-tracking/source-doc follow-up replaces old mail-protocol
+  privacy-label wording with email-alert language and source-doc setup,
+  diagnostics, and metadata wording with user-turned-on source,
+  troubleshooting, and safe-status-detail language. It also replaces old
+  source setup and credential wording with user-approved source
+  addresses, saved access details, and turned-on access-code language.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.
@@ -413,7 +419,7 @@ Current cleanup posture:
   screenshot presence flags instead of raw local screenshot paths over IPC.
   IPC-minimization sensors cover both target-validation order and screenshot
   path exposure.
-- Current local user-configured source privacy follow-up documents the
+- Current local source-address privacy follow-up documents the
   default-off JobsWithGPT endpoint boundary in privacy docs, scraper docs,
   feature privacy labels, and config comments. If enabled, it receives only
   saved job titles, location, remote preference, and result limit, not resumes,

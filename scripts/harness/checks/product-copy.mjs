@@ -899,6 +899,17 @@ export function hasTechnicalFirstUserCopy(root, path) {
     }
   }
 
+  if (path === "docs/features/application-tracking.md") {
+    const applicationTrackingPatterns = [
+      /Slack,\s*Discord,\s*Teams,\s*SMTP/i,
+      /user configures them/i,
+    ];
+
+    if (applicationTrackingPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
   if (path === "docs/features/notifications.md" || path === "docs/user/QUICK_START.md") {
     const notificationDocPatterns = [
       /Email provider details/i,
@@ -1278,6 +1289,12 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /bounded HTTP request/i,
       /parse into normalized jobs/i,
       /deduplicate/i,
+      /Configured source/i,
+      /source-policy check/i,
+      /record health metadata/i,
+      /Health And Diagnostics/i,
+      /User-Configured External Sources/i,
+      /local metadata only/i,
     ];
 
     if (sourceDocPatterns.some((pattern) => pattern.test(text))) {

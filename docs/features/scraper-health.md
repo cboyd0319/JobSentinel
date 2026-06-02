@@ -11,7 +11,7 @@ plain-language status and safe next steps.
 | Scheduled source health | Tracks Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, and Glassdoor |
 | Source-check coverage | Includes scheduled sources plus Indeed, Wellfound, and ZipRecruiter availability checks |
 | User-opened search links | LinkedIn and similar destination links are opened by the user, not monitored in the background |
-| Credentials | Tracks user-configured external channels where applicable; LinkedIn session credentials are not collected |
+| Saved access details | Tracks user-approved external channels where applicable; LinkedIn login details are not collected |
 | Support reports | Safe support reports can be copied or saved locally, reviewed, and shared only when the user chooses |
 
 ## User States
@@ -48,10 +48,10 @@ Source health must follow the same rules for job sources:
 - Do not get around human checks or platform controls.
 - Do not include raw credentials, cookies, private notes, resumes, salary floors,
   or application history in health errors or support reports.
-- For optional user-configured source addresses such as JobsWithGPT, disclose that
+- For optional user-approved source addresses such as JobsWithGPT, disclose that
   JobsWithGPT receives only saved job titles, location, remote preference, and
   result limit for job-site checks. These addresses must stay off unless
-  configured and the exact details are reviewed and approved locally.
+  turned on and the exact details are reviewed and approved locally.
   The latest approved contact can be shown locally as contact time, website
   contacted, count-only request categories, and outcome. Do not store raw
   titles, raw location, private notes, resumes, salary floors, application

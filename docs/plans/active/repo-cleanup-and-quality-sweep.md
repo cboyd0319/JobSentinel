@@ -263,6 +263,12 @@ boundaries, and harness modularity:
   email-service language. Notification troubleshooting now uses turned-on,
   check, and permission wording instead of enabled/verify/admin/manual-provider
   wording. Product-copy tests guard the old phrases.
+- Changed application-tracking docs from old mail-protocol privacy-label
+  wording to email-alert language and source docs from setup, diagnostics, and
+  metadata wording to user-turned-on source, troubleshooting, and
+  safe-status-detail language. Also replaced old source setup and credential
+  wording with user-approved source addresses, saved access details, and
+  turned-on access-code language. Product-copy tests guard the old phrases.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

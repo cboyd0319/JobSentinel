@@ -31,17 +31,17 @@ call private LinkedIn systems, or read LinkedIn pages in the background.
 ## How Job Checks Work
 
 ```text
-Configured source
-  -> source-policy check
+Source the user turned on
+  -> source-boundary check
   -> rate limit
   -> bounded public request
   -> read public job details
   -> remove duplicates
   -> store locally
-  -> record health metadata
+  -> record safe status details
 ```
 
-## Health And Diagnostics
+## Health And Troubleshooting
 
 The job source health dashboard tracks source status without requiring users to
 understand website internals, saved connection details, or logs.
@@ -75,12 +75,12 @@ Representative source limits:
 | YC Startup Jobs | 300 | Public page |
 | SimplyHired | 200 | Best-effort public source; may be blocked |
 | Glassdoor | 200 | Best-effort public source; may ask for human checks |
-| JobsWithGPT | 10000 | User-configured source |
+| JobsWithGPT | 10000 | User-approved source address |
 
 Checks that cannot operate within source boundaries should fail closed and
 show a clear user-facing explanation.
 
-## User-Configured External Sources
+## User-Approved Source Addresses
 
 JobsWithGPT is disabled unless the user adds a source address and approves the
 exact details for that source address. Source checks send only the reviewed
@@ -93,7 +93,7 @@ a job-source address.
 When the user approves a source address, Settings should keep showing the exact
 approved details and explain that any change turns the source off until the user
 approves again.
-Settings also shows the latest approved contact as local metadata only:
+Settings also shows the latest approved contact as local status details only:
 contact time, website contacted, count-only request categories, and outcome. The
 contact history must not store raw titles, raw location, resumes, salary floors,
 private notes, application history, or full source links.
@@ -143,7 +143,7 @@ checks. Source-boundary changes also need docs and bloat-guard updates.
 | ------- | ------ |
 | Job tracking | Local only |
 | Saved searches | Local only |
-| Scheduled job checks | Local only, public-data only unless user configures an external source credential such as USAJobs |
+| Scheduled job checks | Local only, public-data only unless the user turns on an external access code such as USAJobs |
 | Source health | Local only |
 | User-opened search links | Local only, user-controlled browser action |
 | Optional support report | Local only until user chooses copy, save, or GitHub issue flow; sanitized by default |

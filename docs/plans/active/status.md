@@ -96,6 +96,13 @@ and record actionable findings in this active-plan surface.
   email-service language. It also changes notification troubleshooting from
   enabled/verify/admin/manual-provider wording to turned-on/check/permission
   language. Product-copy tests guard the old phrases.
+- Latest local app-tracking/source-doc follow-up replaces old mail-protocol
+  privacy-label wording with email-alert language and source-doc setup,
+  diagnostics, and metadata wording with user-turned-on source,
+  troubleshooting, and safe-status-detail language. It also replaces old
+  source setup and credential wording with user-approved source
+  addresses, saved access details, and turned-on access-code language.
+  Product-copy tests guard the old phrases.
 - Latest local resume-readability follow-up changes score-adjacent labels from
   `Complete`, `Completeness`, `missing`, `issues`, `View Details`, and `Full
   Resume Readability Review` to details, details-included, to-review,
@@ -480,7 +487,7 @@ and record actionable findings in this active-plan surface.
   and changes automation-attempt IPC to expose screenshot presence flags
   instead of raw local screenshot paths. IPC-minimization sensors cover both
   trust-boundary and screenshot-path regressions.
-- Latest local user-configured source privacy follow-up documents the
+- Latest local source-address privacy follow-up documents the
   default-off JobsWithGPT endpoint boundary in privacy docs, scraper docs,
   feature privacy labels, and config comments: if enabled, it receives only
   saved job titles, location, remote preference, and result limit, never
