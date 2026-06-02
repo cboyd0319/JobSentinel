@@ -61,6 +61,16 @@ describe("DeepLinkGenerator", () => {
     expect(screen.queryByText(/linkedin\.com\/jobs\/search/i)).not.toBeInTheDocument();
   });
 
+  it("guides users when the search words are missing", async () => {
+    const user = userEvent.setup();
+    render(<DeepLinkGenerator />);
+
+    await user.click(screen.getByRole("button", { name: /create search links/i }));
+
+    expect(await screen.findByText("Add a job title or work words.")).toBeInTheDocument();
+    expect(deeplinks.generateDeepLinks).not.toHaveBeenCalled();
+  });
+
   it("sends selected job type and work mode filters when generating links", async () => {
     const user = userEvent.setup();
     render(<DeepLinkGenerator />);

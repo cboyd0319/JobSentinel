@@ -55,6 +55,16 @@ describe("JobImportModal", () => {
     expect(screen.queryByPlaceholderText(/software-engineer/i)).not.toBeInTheDocument();
   });
 
+  it("guides users when the job link is missing", async () => {
+    const user = userEvent.setup();
+    renderModal();
+
+    await user.click(screen.getByRole("button", { name: "Check Job Link" }));
+
+    expect(await screen.findByText("Add a job link from your browser address bar.")).toBeInTheDocument();
+    expect(invoke).not.toHaveBeenCalled();
+  });
+
   it("explains invalid links without technical URL wording", async () => {
     const user = userEvent.setup();
     renderModal();
@@ -65,7 +75,7 @@ describe("JobImportModal", () => {
     await user.click(screen.getByRole("button", { name: "Check Job Link" }));
 
     expect(
-      await screen.findByText("Please paste the full job link from your browser address bar"),
+      await screen.findByText("Paste the full job link from your browser address bar."),
     ).toBeInTheDocument();
     expect(invoke).not.toHaveBeenCalled();
   });

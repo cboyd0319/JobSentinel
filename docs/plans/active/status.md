@@ -876,6 +876,9 @@ and record actionable findings in this active-plan surface.
 - Current local shared validation-copy slice changes email, required-field,
   resume contact, and screening-answer messages to action-first guidance, with
   product-copy coverage against old required-field phrasing.
+- Current local missing-input copy slice changes pay-check, job-import, and
+  search-link empty-input messages to action-first guidance, with focused
+  component/page coverage.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

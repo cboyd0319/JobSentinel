@@ -1239,3 +1239,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local shared validation-copy slice changes email, required-field,
   resume contact, and screening-answer messages to action-first guidance, with
   product-copy coverage against old required-field phrasing.
+- Current local missing-input copy slice changes pay-check, job-import, and
+  search-link empty-input messages to action-first guidance, with focused
+  component/page coverage.

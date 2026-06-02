@@ -1220,7 +1220,7 @@ function importMockJobFromUrl(args?: Record<string, unknown>): MockJobImportResu
 function getJobImportUrl(args?: Record<string, unknown>): string {
   const url = getStringArg(args, "url")?.trim();
   if (!url || !isExternalHttpUrl(url)) {
-    throw new Error("Please paste the full job link from your browser address bar");
+    throw new Error("Paste the full job link from your browser address bar.");
   }
 
   return canonicalizeMockJobImportUrl(url);

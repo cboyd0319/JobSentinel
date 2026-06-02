@@ -116,7 +116,7 @@ export function DeepLinkGenerator({
     e.preventDefault();
 
     if (!query.trim()) {
-      setError("Please enter a job title or work words");
+      setError("Add a job title or work words.");
       return;
     }
 
@@ -184,13 +184,13 @@ export function DeepLinkGenerator({
 
       {/* Search Form */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-        <form onSubmit={handleGenerate} className="space-y-4">
+        <form onSubmit={handleGenerate} className="space-y-4" noValidate>
           <div>
             <label
               htmlFor="query"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
-              Job title or work words *
+              Job title or work words
             </label>
             <input
               type="text"
@@ -199,7 +199,7 @@ export function DeepLinkGenerator({
               onChange={(e) => setQuery(e.target.value)}
               placeholder="e.g., Marketing Manager, Registered Nurse"
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-              required
+              aria-required="true"
             />
           </div>
 

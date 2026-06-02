@@ -68,7 +68,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
   // Preview the job import
   const handlePreview = useCallback(async () => {
     if (!url.trim()) {
-      setError("Please enter a job link");
+      setError("Add a job link from your browser address bar.");
       return;
     }
 
@@ -76,7 +76,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
     try {
       new URL(url);
     } catch {
-      setError("Please paste the full job link from your browser address bar");
+      setError("Paste the full job link from your browser address bar.");
       return;
     }
 
@@ -185,7 +185,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
           <div className="flex justify-end">
             <Button
               onClick={handlePreview}
-              disabled={loading || !url.trim()}
+              disabled={loading || importing}
               loading={loading}
               variant="primary"
             >

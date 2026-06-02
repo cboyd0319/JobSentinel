@@ -77,7 +77,7 @@ export default function Salary({ onBack }: SalaryProps) {
 
   const handleGetBenchmark = useCallback(async () => {
     if (!jobTitle.trim() || !location.trim()) {
-      toast.error("Add pay details", "Please enter a job title and location");
+      toast.error("Add pay details", "Add job title and location, then check pay again.");
       return;
     }
 

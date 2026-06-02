@@ -50,6 +50,16 @@ describe("Salary", () => {
     );
   });
 
+  it("guides users when pay details are missing", async () => {
+    const user = userEvent.setup();
+    renderSalary();
+
+    await user.click(screen.getByRole("button", { name: "Check Pay Range" }));
+
+    expect(await screen.findByText("Add job title and location, then check pay again.")).toBeInTheDocument();
+    expect(mockInvoke).not.toHaveBeenCalled();
+  });
+
   it("uses backend-supported principal seniority for principal and executive salary lookup", async () => {
     const user = userEvent.setup();
     renderSalary();
