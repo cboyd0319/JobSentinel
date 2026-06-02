@@ -757,7 +757,7 @@ describe("ScreeningAnswersForm", () => {
       fireEvent.blur(patternInput);
 
       await waitFor(() => {
-        expect(screen.getByText(/question wording is required/i)).toBeInTheDocument();
+        expect(screen.getByText(/add question wording/i)).toBeInTheDocument();
       });
     });
 
@@ -778,7 +778,7 @@ describe("ScreeningAnswersForm", () => {
       fireEvent.blur(patternInput);
 
       await waitFor(() => {
-        expect(screen.getByText(/question wording is required/i)).toBeInTheDocument();
+        expect(screen.getByText(/add question wording/i)).toBeInTheDocument();
       });
     });
 
@@ -799,7 +799,7 @@ describe("ScreeningAnswersForm", () => {
       fireEvent.blur(patternInput);
 
       await waitFor(() => {
-        expect(screen.getByText(/question wording is required/i)).toBeInTheDocument();
+        expect(screen.getByText(/add question wording/i)).toBeInTheDocument();
       });
 
       await user.clear(patternInput);
@@ -807,7 +807,7 @@ describe("ScreeningAnswersForm", () => {
 
       await waitFor(() => {
         expect(
-          screen.queryByText(/question wording is required/i),
+          screen.queryByText(/add question wording/i),
         ).not.toBeInTheDocument();
       });
     });
@@ -829,7 +829,7 @@ describe("ScreeningAnswersForm", () => {
       fireEvent.blur(answerInput);
 
       await waitFor(() => {
-        expect(screen.getByText(/answer is required/i)).toBeInTheDocument();
+        expect(screen.getByText("Add answer.")).toBeInTheDocument();
       });
     });
   });
@@ -1372,7 +1372,7 @@ describe("ScreeningAnswersForm", () => {
 
       await waitFor(() => {
         expect(
-          screen.queryByText(/question wording is required/i),
+          screen.queryByText(/add question wording/i),
         ).not.toBeInTheDocument();
       });
     });

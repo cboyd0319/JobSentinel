@@ -873,6 +873,9 @@ and record actionable findings in this active-plan surface.
 - Current local Application Assist profile fallback slice replaces remaining
   no-profile fallback wording with setup guidance and adds product-copy
   coverage against the stale title.
+- Current local shared validation-copy slice changes email, required-field,
+  resume contact, and screening-answer messages to action-first guidance, with
+  product-copy coverage against old required-field phrasing.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

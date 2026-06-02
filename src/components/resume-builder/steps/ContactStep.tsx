@@ -1,7 +1,7 @@
 import { memo, useState, useCallback } from "react";
 import { CardHeader } from "../../Card";
 import { Input } from "../../Input";
-import { validateUrlWithOptionalProtocol } from "../../../utils/formValidation";
+import { validateEmail, validateUrlWithOptionalProtocol } from "../../../utils/formValidation";
 
 interface ContactInfo {
   name: string;
@@ -18,14 +18,13 @@ interface ContactStepProps {
   setContact: (contact: ContactInfo) => void;
 }
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 const ContactStep = memo(function ContactStep({ contact, setContact }: ContactStepProps) {
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
 
-  const validateEmail = useCallback((email: string): string | undefined => {
-    if (!email.trim()) return "Email is required";
-    if (!EMAIL_REGEX.test(email)) return "Please enter a valid email address";
+  const validateContactEmail = useCallback((email: string): string | undefined => {
+    if (!email.trim()) return "Add email address.";
+    const error = validateEmail(email);
+    if (error) return error;
     return undefined;
   }, []);
 
@@ -38,13 +37,13 @@ const ContactStep = memo(function ContactStep({ contact, setContact }: ContactSt
 
   const handleBlur = useCallback((field: string, value: string) => {
     let error: string | undefined;
-    if (field === "email") error = validateEmail(value);
+    if (field === "email") error = validateContactEmail(value);
     else if (field === "phone") error = validatePhone(value);
     else if (["linkedin", "github", "website"].includes(field)) {
       error = validateUrlWithOptionalProtocol(value);
     }
     setErrors((prev) => ({ ...prev, [field]: error }));
-  }, [validateEmail, validatePhone]);
+  }, [validateContactEmail, validatePhone]);
 
   return (
     <div className="space-y-6">
@@ -60,7 +59,7 @@ const ContactStep = memo(function ContactStep({ contact, setContact }: ContactSt
           placeholder="Jordan Lee"
           maxLength={100}
           required
-          error={!contact.name.trim() ? "Name is required" : undefined}
+          error={!contact.name.trim() ? "Add your name." : undefined}
           autoComplete="name"
         />
         <Input

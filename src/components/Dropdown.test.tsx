@@ -377,10 +377,10 @@ describe("Dropdown", () => {
         <Dropdown
           options={mockOptions}
           onChange={onChange}
-          error="This field is required"
+          error="Add this detail."
         />
       );
-      expect(screen.getByText("This field is required")).toBeInTheDocument();
+      expect(screen.getByText("Add this detail.")).toBeInTheDocument();
     });
 
     it("applies error styling to button", () => {

@@ -16,7 +16,7 @@ export interface ResumeContactValidationInput {
 export function getResumeContactValidationMessage(
   contact: ResumeContactValidationInput
 ): string | undefined {
-  if (!contact.name.trim()) return "Please enter your name";
+  if (!contact.name.trim()) return "Add your name.";
 
   const emailError = validateRequiredEmail(contact.email);
   if (emailError) return emailError;

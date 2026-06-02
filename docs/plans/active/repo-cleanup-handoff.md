@@ -1179,8 +1179,10 @@ Next high-value passes:
      empty-bullet guidance to action-first copy, and empty Draft now shows
      guidance instead of doing nothing. The latest Application Assist profile
      fallback slice changes remaining no-profile fallback wording to setup
-     guidance with product-copy coverage. Continue looking for new issues as
-     new surfaces change.
+     guidance with product-copy coverage. The latest shared validation-copy
+     slice changes email, required-field, resume contact, and screening-answer
+     messages to action-first guidance. Continue looking for new issues as new
+     surfaces change.
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.

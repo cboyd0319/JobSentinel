@@ -18,7 +18,7 @@ const PHONE_MAX_DIGITS = 15;
 export function validateEmail(email: string): string | undefined {
   if (!email.trim()) return undefined; // Empty is valid (optional field)
   if (!EMAIL_REGEX.test(email.trim())) {
-    return "Please enter a valid email address (e.g., user@example.com)";
+    return "Use an email address like user@example.com.";
   }
   return undefined;
 }
@@ -29,9 +29,9 @@ export function validateEmail(email: string): string | undefined {
  * @returns Error message if invalid, undefined if valid
  */
 export function validateRequiredEmail(email: string): string | undefined {
-  if (!email.trim()) return "Email is required";
+  if (!email.trim()) return "Add email address.";
   if (!EMAIL_REGEX.test(email.trim())) {
-    return "Please enter a valid email address (e.g., user@example.com)";
+    return "Use an email address like user@example.com.";
   }
   return undefined;
 }
@@ -244,7 +244,10 @@ export function validateTeamsWebhook(url: string): string | undefined {
  * @returns Error message if invalid, undefined if valid
  */
 export function validateRequired(value: string, fieldName: string = "This field"): string | undefined {
-  if (!value.trim()) return `${fieldName} is required`;
+  if (!value.trim()) {
+    const field = fieldName === "This field" ? "this detail" : fieldName.toLowerCase();
+    return `Add ${field}.`;
+  }
   return undefined;
 }
 
@@ -270,7 +273,7 @@ export function validateRegex(pattern: string): string | undefined {
  * @returns Error message if invalid, undefined if valid
  */
 export function validateRequiredRegex(pattern: string): string | undefined {
-  if (!pattern.trim()) return "Question wording is required";
+  if (!pattern.trim()) return "Add question wording.";
   return validateRegex(pattern);
 }
 

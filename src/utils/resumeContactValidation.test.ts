@@ -25,10 +25,10 @@ describe("getResumeContactValidationMessage", () => {
 
   it("requires name and valid email", () => {
     expect(getResumeContactValidationMessage(validContact({ name: " " }))).toBe(
-      "Please enter your name"
+      "Add your name."
     );
     expect(getResumeContactValidationMessage(validContact({ email: "bad" }))).toBe(
-      "Please enter a valid email address (e.g., user@example.com)"
+      "Use an email address like user@example.com."
     );
   });
 

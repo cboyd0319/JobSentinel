@@ -80,8 +80,8 @@ describe("Input", () => {
 
   describe("validation and errors", () => {
     it("renders error message", () => {
-      render(<Input error="This field is required" />);
-      expect(screen.getByText("This field is required")).toBeInTheDocument();
+      render(<Input error="Add this detail." />);
+      expect(screen.getByText("Add this detail.")).toBeInTheDocument();
     });
 
     it("applies error styling to input", () => {

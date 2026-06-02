@@ -1236,3 +1236,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local Application Assist profile fallback slice changes remaining
   no-profile fallback wording to setup guidance and adds product-copy coverage
   against the stale title.
+- Current local shared validation-copy slice changes email, required-field,
+  resume contact, and screening-answer messages to action-first guidance, with
+  product-copy coverage against old required-field phrasing.

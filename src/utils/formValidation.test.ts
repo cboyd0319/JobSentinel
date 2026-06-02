@@ -43,19 +43,19 @@ describe("formValidation", () => {
     it("returns error message for invalid email addresses", () => {
       // Arrange & Act & Assert
       expect(validateEmail("invalid")).toBe(
-        "Please enter a valid email address (e.g., user@example.com)"
+        "Use an email address like user@example.com."
       );
       expect(validateEmail("@example.com")).toBe(
-        "Please enter a valid email address (e.g., user@example.com)"
+        "Use an email address like user@example.com."
       );
       expect(validateEmail("user@")).toBe(
-        "Please enter a valid email address (e.g., user@example.com)"
+        "Use an email address like user@example.com."
       );
       expect(validateEmail("user@domain")).toBe(
-        "Please enter a valid email address (e.g., user@example.com)"
+        "Use an email address like user@example.com."
       );
       expect(validateEmail("user @example.com")).toBe(
-        "Please enter a valid email address (e.g., user@example.com)"
+        "Use an email address like user@example.com."
       );
     });
 
@@ -63,7 +63,7 @@ describe("formValidation", () => {
       // Arrange & Act & Assert
       expect(validateEmail("  user@example.com  ")).toBeUndefined();
       expect(validateEmail("  invalid  ")).toBe(
-        "Please enter a valid email address (e.g., user@example.com)"
+        "Use an email address like user@example.com."
       );
     });
   });
@@ -77,17 +77,17 @@ describe("formValidation", () => {
 
     it("returns error message for empty string", () => {
       // Arrange & Act & Assert
-      expect(validateRequiredEmail("")).toBe("Email is required");
-      expect(validateRequiredEmail("   ")).toBe("Email is required");
+      expect(validateRequiredEmail("")).toBe("Add email address.");
+      expect(validateRequiredEmail("   ")).toBe("Add email address.");
     });
 
     it("returns error message for invalid email addresses", () => {
       // Arrange & Act & Assert
       expect(validateRequiredEmail("invalid")).toBe(
-        "Please enter a valid email address (e.g., user@example.com)"
+        "Use an email address like user@example.com."
       );
       expect(validateRequiredEmail("user@")).toBe(
-        "Please enter a valid email address (e.g., user@example.com)"
+        "Use an email address like user@example.com."
       );
     });
   });
@@ -492,20 +492,20 @@ describe("formValidation", () => {
 
     it("returns error message for empty string with default field name", () => {
       // Arrange & Act & Assert
-      expect(validateRequired("")).toBe("This field is required");
-      expect(validateRequired("   ")).toBe("This field is required");
+      expect(validateRequired("")).toBe("Add this detail.");
+      expect(validateRequired("   ")).toBe("Add this detail.");
     });
 
     it("returns error message with custom field name", () => {
       // Arrange & Act & Assert
-      expect(validateRequired("", "Username")).toBe("Username is required");
-      expect(validateRequired("   ", "Email")).toBe("Email is required");
+      expect(validateRequired("", "Username")).toBe("Add username.");
+      expect(validateRequired("   ", "Email")).toBe("Add email.");
     });
 
     it("trims whitespace before validation", () => {
       // Arrange & Act & Assert
       expect(validateRequired("  value  ")).toBeUndefined();
-      expect(validateRequired("  ")).toBe("This field is required");
+      expect(validateRequired("  ")).toBe("Add this detail.");
     });
   });
 
@@ -566,8 +566,8 @@ describe("formValidation", () => {
 
     it("returns error message for empty string", () => {
       // Arrange & Act & Assert
-      expect(validateRequiredRegex("")).toBe("Question wording is required");
-      expect(validateRequiredRegex("   ")).toBe("Question wording is required");
+      expect(validateRequiredRegex("")).toBe("Add question wording.");
+      expect(validateRequiredRegex("   ")).toBe("Add question wording.");
     });
 
     it("returns error message for invalid question match patterns", () => {

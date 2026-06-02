@@ -2705,7 +2705,7 @@ export default function Settings({ onClose }: SettingsProps) {
                           hint="Usually same as your email address"
                           error={
                             !isValidFromEmail
-                              ? "Please enter a valid email address"
+                              ? "Use an email address like user@example.com."
                               : undefined
                           }
                           autoComplete="email"
@@ -2734,7 +2734,7 @@ export default function Settings({ onClose }: SettingsProps) {
                           hint="Where to receive alerts (can be the same email)"
                           error={
                             !hasValidToEmails
-                              ? "Please enter a valid email address"
+                              ? "Use an email address like user@example.com."
                               : undefined
                           }
                           autoComplete="email"
