@@ -41,7 +41,11 @@ function withFixture(callback) {
 test("product copy rejects stale Resume Optimizer framing", () => {
   withFixture((root) => {
     writeFixtureFile(root, "docs/features/resume-matcher.md", "ATS Resume Optimizer\n");
-    writeFixtureFile(root, "src/pages/ResumeOptimizer.tsx", "Words To Add\n= Words to add\n");
+    writeFixtureFile(
+      root,
+      "src/pages/ResumeOptimizer.tsx",
+      "Words To Add\n= Words to add\nPower Words\nStrong Resume Words\nView Strong Resume Words\n",
+    );
     writeFixtureFile(
       root,
       "src/components/AtsLiveScorePanel.tsx",

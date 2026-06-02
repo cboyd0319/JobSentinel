@@ -182,6 +182,8 @@ boundaries, and harness modularity:
 - Changed Browser Button help-only settings from `Support number` to
   `Browser helper number` with support-reply guidance. Product-copy coverage now
   rejects the old label.
+- Changed Resume Match helper wording from strong/power resume words to action
+  words for clarity. Product-copy coverage now rejects the old labels.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

@@ -381,6 +381,9 @@ and record actionable findings in this active-plan surface.
   `Help-only settings` / `Browser helper number`, preserving the support escape
   hatch without asking non-technical users to reason about ports or connection
   internals.
+- Latest local Resume Match follow-up changes strong/power resume words to
+  action words for clarity, preserving truthful readability framing and adding
+  product-copy coverage against the old labels.
 - Latest local Application Assist security follow-up rejects unknown
   application-form targets before profile or saved screening-answer data is
   loaded, keeps unknown-platform generic selectors disabled as a second guard,

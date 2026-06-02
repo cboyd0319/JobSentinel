@@ -132,6 +132,8 @@ Current cleanup posture:
   application-summary, status, reply, and employer reply wording.
 - Current local Browser Button follow-up changes help-only settings from
   `Support number` to `Browser helper number` with support-reply guidance.
+- Current local Resume Match follow-up changes strong/power resume words to
+  action words for clarity, with product-copy coverage against old labels.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.

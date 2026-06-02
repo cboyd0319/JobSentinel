@@ -222,8 +222,8 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
   const [resumeJson, setResumeJson] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AtsAnalysisResult | null>(null);
-  const [powerWords, setPowerWords] = useState<string[]>([]);
-  const [showPowerWords, setShowPowerWords] = useState(false);
+  const [actionWords, setActionWords] = useState<string[]>([]);
+  const [showActionWords, setShowActionWords] = useState(false);
   const [bulletInput, setBulletInput] = useState("");
   const [improvedBullet, setImprovedBullet] = useState("");
   const [improvingBullet, setImprovingBullet] = useState(false);
@@ -242,13 +242,13 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     toast.info("Open Resume Match", "Use the Resumes page to choose or upload a resume.");
   };
 
-  // Load power words on mount
-  const loadPowerWords = useCallback(async () => {
+  // Load action words on mount
+  const loadActionWords = useCallback(async () => {
     try {
       const words = await invoke<string[]>("get_ats_power_words");
-      setPowerWords(words);
+      setActionWords(words);
     } catch (err: unknown) {
-      logError("Failed to load power words:", err);
+      logError("Failed to load action words:", err);
     }
   }, []);
 
@@ -575,14 +575,14 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
             <div className="flex gap-3">
               <Button
                 onClick={() => {
-                  loadPowerWords();
-                  setShowPowerWords(true);
+                  loadActionWords();
+                  setShowActionWords(true);
                 }}
                 variant="ghost"
                 size="sm"
                 className="flex-1"
               >
-                View Strong Resume Words
+                View Action Words
               </Button>
               <Button
                 onClick={() => setShowBulletImprover(true)}
@@ -929,19 +929,19 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
         </div>
       </main>
 
-      {/* Power Words Modal */}
+      {/* Action Words Modal */}
       <Modal
-        isOpen={showPowerWords}
-        onClose={() => setShowPowerWords(false)}
-        title="Strong Resume Words"
+        isOpen={showActionWords}
+        onClose={() => setShowActionWords(false)}
+        title="Action Words for Clarity"
       >
         <div className="space-y-4">
           <p className="text-sm text-surface-600 dark:text-surface-400">
             These action verbs can make bullet points easier to scan. Use only words that honestly fit your experience.
           </p>
-          {powerWords.length > 0 ? (
+          {actionWords.length > 0 ? (
             <div className="flex flex-wrap gap-2 max-h-96 overflow-y-auto p-2">
-              {powerWords.map((word, idx) => (
+              {actionWords.map((word, idx) => (
                 <Badge key={idx} variant="sentinel" size="sm">
                   {word}
                 </Badge>
@@ -953,7 +953,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
             </div>
           )}
           <ModalFooter>
-            <Button onClick={() => setShowPowerWords(false)}>Close</Button>
+            <Button onClick={() => setShowActionWords(false)}>Close</Button>
           </ModalFooter>
         </div>
       </Modal>

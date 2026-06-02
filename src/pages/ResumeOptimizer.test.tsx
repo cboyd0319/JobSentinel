@@ -287,10 +287,11 @@ describe("ResumeOptimizer", () => {
     mockInvoke.mockResolvedValueOnce(["Led", "Improved"]);
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
-    await user.click(screen.getByRole("button", { name: /view strong resume words/i }));
+    await user.click(screen.getByRole("button", { name: /view action words/i }));
 
-    expect(await screen.findByText("Strong Resume Words")).toBeInTheDocument();
+    expect(await screen.findByText("Action Words for Clarity")).toBeInTheDocument();
     expect(screen.getByText(/make bullet points easier to scan/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Strong Resume Words/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/ATS systems/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/screening tools/i)).not.toBeInTheDocument();
   });
