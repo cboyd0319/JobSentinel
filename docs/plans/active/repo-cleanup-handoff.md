@@ -153,6 +153,11 @@ Current cleanup posture:
   job-website-changed, check-limit, alert-channel, alert-settings, and
   computer-date wording. Error-message and product-copy coverage guard the stale
   terms.
+- Current local Resume Readability follow-up changes score-adjacent labels from
+  complete/completeness, missing/issues, view-details, and full-review wording to
+  details, details included, to-review, details-to-check, review-details, and
+  readable review wording. AtsLiveScorePanel and product-copy coverage guard the
+  old labels.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.

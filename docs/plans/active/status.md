@@ -31,6 +31,11 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local resume-readability follow-up changes score-adjacent labels from
+  `Complete`, `Completeness`, `missing`, `issues`, `View Details`, and `Full
+  Resume Readability Review` to details, details-included, to-review,
+  details-to-check, review-details, and resume-readability-review wording.
+  AtsLiveScorePanel and product-copy tests guard the old labels.
 - Latest local recovery-copy follow-up changes shared error messages from
   source-disabled, request-limit, website-format, More Settings, notification
   settings, and system-date wording to plain source-turned-off, check-limit,

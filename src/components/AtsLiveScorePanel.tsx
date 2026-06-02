@@ -409,7 +409,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
               <div className="flex-1 space-y-2">
                 <ScoreBar label="Job words" score={analysis.keyword_score} />
                 <ScoreBar label="Format" score={analysis.format_score} />
-                <ScoreBar label="Complete" score={analysis.completeness_score} />
+                <ScoreBar label="Details" score={analysis.completeness_score} />
               </div>
             </div>
 
@@ -423,18 +423,18 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
                 )}
                 {analysis.missing_keywords.length > 0 && (
                   <span className="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded">
-                    {analysis.missing_keywords.length} missing
+                    {analysis.missing_keywords.length} to review
                   </span>
                 )}
                 {analysis.format_issues.length > 0 && (
                   <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded">
-                    {analysis.format_issues.length} issues
+                    {analysis.format_issues.length} details to check
                   </span>
                 )}
               </div>
             )}
 
-            {/* View Details Button */}
+            {/* Review Details Button */}
             {showFullAnalysis && (
               <Button
                 size="sm"
@@ -442,7 +442,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
                 className="w-full"
                 onClick={() => setShowDetailModal(true)}
               >
-                View Details
+                Review Details
               </Button>
             )}
           </div>
@@ -481,7 +481,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
       <Modal
         isOpen={showDetailModal}
         onClose={() => setShowDetailModal(false)}
-        title="Full Resume Readability Review"
+        title="Resume Readability Review"
         size="lg"
       >
         {analysis && (
@@ -491,7 +491,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
               <ScoreCard label="Overall" score={analysis.overall_score} />
               <ScoreCard label="Job words" score={analysis.keyword_score} />
               <ScoreCard label="Format" score={analysis.format_score} />
-              <ScoreCard label="Completeness" score={analysis.completeness_score} />
+              <ScoreCard label="Details included" score={analysis.completeness_score} />
             </div>
 
             {/* Job words found */}

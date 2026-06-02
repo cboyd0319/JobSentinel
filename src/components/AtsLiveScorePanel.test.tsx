@@ -201,7 +201,8 @@ describe("AtsLiveScorePanel", () => {
       await waitFor(() => {
         expect(screen.getByText("Job words")).toBeInTheDocument();
         expect(screen.getByText("Format")).toBeInTheDocument();
-        expect(screen.getByText("Complete")).toBeInTheDocument();
+        expect(screen.getByText("Details")).toBeInTheDocument();
+        expect(screen.queryByText("Complete")).not.toBeInTheDocument();
       });
     });
 
@@ -233,7 +234,8 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByText("2 missing")).toBeInTheDocument();
+        expect(screen.getByText("2 to review")).toBeInTheDocument();
+        expect(screen.queryByText("2 missing")).not.toBeInTheDocument();
       });
     });
 
@@ -249,7 +251,8 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByText("1 issues")).toBeInTheDocument();
+        expect(screen.getByText("1 details to check")).toBeInTheDocument();
+        expect(screen.queryByText("1 issues")).not.toBeInTheDocument();
       });
     });
   });
@@ -553,7 +556,7 @@ describe("AtsLiveScorePanel", () => {
   });
 
   describe("details modal", () => {
-    it("shows view details button", async () => {
+    it("shows review details button", async () => {
       render(
         <AtsLiveScorePanel
           resumeData={mockResumeData}
@@ -566,11 +569,12 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /view details/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /review details/i })).toBeInTheDocument();
+        expect(screen.queryByRole("button", { name: /^view details$/i })).not.toBeInTheDocument();
       });
     });
 
-    it("hides view details button when showFullAnalysis is false", async () => {
+    it("hides review details button when showFullAnalysis is false", async () => {
       render(
         <AtsLiveScorePanel
           resumeData={mockResumeData}
@@ -586,10 +590,10 @@ describe("AtsLiveScorePanel", () => {
         expect(screen.getByText("Some")).toBeInTheDocument();
       });
 
-      expect(screen.queryByRole("button", { name: /view details/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /review details/i })).not.toBeInTheDocument();
     });
 
-    it("opens modal when view details is clicked", async () => {
+    it("opens modal when review details is clicked", async () => {
       render(
         <AtsLiveScorePanel
           resumeData={mockResumeData}
@@ -601,12 +605,13 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /view details/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /review details/i })).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByRole("button", { name: /view details/i }));
+      fireEvent.click(screen.getByRole("button", { name: /review details/i }));
 
-      expect(screen.getByText("Full Resume Readability Review")).toBeInTheDocument();
+      expect(screen.getByText("Resume Readability Review")).toBeInTheDocument();
+      expect(screen.queryByText("Full Resume Readability Review")).not.toBeInTheDocument();
     });
 
     it("displays job words found in modal", async () => {
@@ -621,10 +626,10 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /view details/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /review details/i })).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByRole("button", { name: /view details/i }));
+      fireEvent.click(screen.getByRole("button", { name: /review details/i }));
 
       expect(screen.getByText("Words Found (2)")).toBeInTheDocument();
     });
@@ -641,10 +646,10 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /view details/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /review details/i })).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByRole("button", { name: /view details/i }));
+      fireEvent.click(screen.getByRole("button", { name: /review details/i }));
 
       expect(screen.getByText("Words To Review (2)")).toBeInTheDocument();
       expect(screen.queryByText(/Words To Add/i)).not.toBeInTheDocument();
@@ -664,10 +669,10 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /view details/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /review details/i })).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByRole("button", { name: /view details/i }));
+      fireEvent.click(screen.getByRole("button", { name: /review details/i }));
 
       expect(screen.getByText("Details to Check (1)")).toBeInTheDocument();
       expect(screen.getByText("Review")).toBeInTheDocument();
@@ -687,10 +692,10 @@ describe("AtsLiveScorePanel", () => {
       await waitForAnalysis();
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /view details/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /review details/i })).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByRole("button", { name: /view details/i }));
+      fireEvent.click(screen.getByRole("button", { name: /review details/i }));
 
       expect(screen.getByText("Suggestions (1)")).toBeInTheDocument();
       expect(screen.getByText("Add job words")).toBeInTheDocument();

@@ -200,6 +200,10 @@ boundaries, and harness modularity:
   source-turned-off, job-website-changed, check-limit, alert-channel,
   alert-settings, and computer-date wording. Error-message and product-copy tests
   reject the old terms.
+- Changed Resume Readability labels from complete/completeness, missing/issues,
+  view-details, and full-review wording to details, details included, to-review,
+  details-to-check, review-details, and readable review wording. Focused
+  AtsLiveScorePanel and product-copy tests reject the old labels.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

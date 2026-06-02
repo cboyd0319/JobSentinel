@@ -1069,6 +1069,12 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Impact:\s*\{suggestion\.impact\}/i,
       /Include technical, workplace, and role-specific skills/i,
       /Add words from the job post/i,
+      /ScoreBar\s+label=["'`]Complete["'`]/,
+      /ScoreCard\s+label=["'`]Completeness["'`]/,
+      />\s*View Details\s*</i,
+      /Full Resume Readability Review/i,
+      /\{analysis\.missing_keywords\.length\}\s+missing/i,
+      /\{analysis\.format_issues\.length\}\s+issues/i,
     ];
 
     if (resumeReadabilityPatterns.some((pattern) => pattern.test(text))) {
