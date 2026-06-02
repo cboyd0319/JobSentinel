@@ -843,7 +843,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
 
   if (
     path === "src/components/AnalyticsPanel.tsx" &&
-    /Could not load application summary\.\s*Please try again/i.test(text)
+    /Could not load application summary\.\s*Please try again|Application Analytics|Status Distribution|Responses by Job Source|Average Response Time|Company Response Times|Detailed Status Breakdown|No analytics data available|Download analytics data|Close analytics|Analytics error|Loading analytics|job-analytics|Failed to fetch analytics|apps\s*·\s*\{?source\.response_rate\.toFixed\(0\)\}?\s*%\s*response/i.test(text)
   ) {
     return true;
   }
@@ -1206,7 +1206,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /\{reminder\.reminder_type\}\s*-\s*Due:/i.test(text) ||
       /applications list failed to load/i.test(text) ||
       /Status update failed/i.test(text) ||
-      /Restart JobSentinel/i.test(text)
+      /Restart JobSentinel/i.test(text) ||
+      />\s*Analytics\s*</i.test(text)
     ) {
       return true;
     }

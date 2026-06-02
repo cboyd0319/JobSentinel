@@ -163,10 +163,10 @@ test.describe("Application Tracking", () => {
       await expect(applicationsPage.applicationCards).toHaveCount(3);
     });
 
-    test("opens analytics panel", async ({ page }) => {
-      await applicationsPage.analyticsButton.click();
+    test("opens application summary panel", async ({ page }) => {
+      await applicationsPage.summaryButton.click();
 
-      await expect(page.getByRole("dialog", { name: "Application Analytics" })).toBeVisible();
+      await expect(page.getByRole("dialog", { name: "Application Summary" })).toBeVisible();
     });
 
     test("opens interview scheduler", async ({ page }) => {

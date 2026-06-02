@@ -642,7 +642,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
               </Button>
               <Button onClick={() => setShowAnalytics(true)} variant="secondary">
                 <AnalyticsIcon />
-                Analytics
+                Summary
               </Button>
               <Button onClick={handleReviewNoResponses} variant="secondary">
                 Review No Responses
@@ -887,7 +887,7 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
         </div>
       )}
 
-      {/* Analytics Panel */}
+      {/* Application summary panel */}
       {showAnalytics && (
         <Suspense fallback={<AnalyticsSkeleton />}>
           <AnalyticsPanel onClose={() => setShowAnalytics(false)} />

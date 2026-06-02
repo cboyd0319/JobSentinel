@@ -55,8 +55,8 @@ export class ApplicationsPage extends BasePage {
     return this.page.getByRole("button", { name: "Interviews" });
   }
 
-  get analyticsButton(): Locator {
-    return this.page.getByRole("button", { name: "Analytics" });
+  get summaryButton(): Locator {
+    return this.page.getByRole("button", { name: "Summary" });
   }
 
   get reviewNoResponsesButton(): Locator {

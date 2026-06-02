@@ -176,6 +176,9 @@ boundaries, and harness modularity:
 - Changed remaining Dashboard summary labels from chart jargon to
   job-search-language: `Weekly Applications`, `Where Jobs Came From`,
   `Pay Ranges Found`, and `At a Glance`.
+- Changed the Applications modal entry and modal headings from analytics and
+  response-time wording to application-summary, status, reply, and employer
+  reply wording. Product-copy coverage now rejects the old visible phrases.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

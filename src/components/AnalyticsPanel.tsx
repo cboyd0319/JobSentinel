@@ -220,7 +220,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
       );
       setStats(data);
     } catch (err: unknown) {
-      logError("Failed to fetch analytics:", err);
+      logError("Failed to fetch application summary:", err);
       setError("Could not load application summary. Try again, or copy a safe support report if this keeps happening.");
     } finally {
       setLoading(false);
@@ -259,7 +259,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `job-analytics-${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `job-application-summary-${new Date().toISOString().split('T')[0]}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -274,7 +274,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
         onKeyDown={(e) => e.key === "Escape" && onClose()}
         role="dialog"
         aria-modal="true"
-        aria-label="Loading analytics"
+        aria-label="Loading application summary"
       >
         <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto dark:bg-surface-800">
           <div className="p-6 space-y-6">
@@ -302,7 +302,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
         onKeyDown={(e) => e.key === "Escape" && onClose()}
         role="dialog"
         aria-modal="true"
-        aria-label="Analytics error"
+        aria-label="Application summary problem"
       >
         <Card className="w-full max-w-md dark:bg-surface-800 text-center p-8">
           <div className="text-red-500 mb-4">
@@ -311,10 +311,10 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
             </svg>
           </div>
           <h3 className="text-lg font-semibold text-surface-900 dark:text-white mb-2">
-            {error || "No analytics data available"}
+            {error || "No application summary yet"}
           </h3>
           <p className="text-sm text-surface-500 dark:text-surface-400 mb-6">
-            {error ? "There was a problem loading your analytics." : "Start tracking applications to see your analytics."}
+            {error ? "There was a problem loading your application summary." : "Start tracking applications to see your summary."}
           </p>
           <div className="flex justify-center gap-3">
             {error && (
@@ -372,7 +372,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
               id="analytics-title"
               className="font-display text-display-md text-surface-900 dark:text-white"
             >
-              Application Analytics
+              Application Summary
             </h2>
             <div className="flex items-center gap-3">
               {/* Date Range Filter */}
@@ -390,7 +390,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
               <button
                 onClick={handleExportCSV}
                 className="flex items-center gap-1 text-sm px-3 py-1.5 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg text-surface-700 dark:text-surface-300 transition-colors"
-                title="Download analytics data"
+                title="Download application summary"
               >
                 <ExportIcon />
                 Download
@@ -398,7 +398,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
               <button
                 onClick={onClose}
                 className="p-2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors"
-                aria-label="Close analytics"
+                aria-label="Close application summary"
               >
                 <CloseIcon />
               </button>
@@ -440,10 +440,10 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
 
           {/* Charts Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Status Distribution */}
+            {/* Application Status */}
             <div className="bg-surface-50 dark:bg-surface-700 rounded-lg p-4">
               <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-4">
-                Status Distribution
+                Application Status
               </h3>
               {pieData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={250}>
@@ -526,7 +526,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
           {stats.by_source && stats.by_source.length > 0 && (
             <div className="bg-surface-50 dark:bg-surface-700 rounded-lg p-4">
               <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-4">
-                Responses by Job Source
+                Replies by Job Source
               </h3>
               <div className="space-y-3">
                 {stats.by_source.map((source) => (
@@ -541,7 +541,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
                           {getSourceDisplayName(source.source)}
                         </span>
                         <span className="text-sm text-surface-500 dark:text-surface-400">
-                          {source.count} apps · {source.response_rate.toFixed(0)}% response
+                          {source.count} applications · {source.response_rate.toFixed(0)}% replies
                         </span>
                       </div>
                       <div className="h-2 bg-surface-200 dark:bg-surface-600 rounded-full overflow-hidden">
@@ -560,18 +560,18 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
             </div>
           )}
 
-          {/* Average Response Time */}
+          {/* Average Reply Time */}
           {stats.avg_response_days !== undefined && stats.avg_response_days > 0 && (
             <div className="bg-surface-50 dark:bg-surface-700 rounded-lg p-4">
               <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-2">
-                Average Response Time
+                Average Reply Time
               </h3>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-bold text-surface-900 dark:text-white">
                   {stats.avg_response_days.toFixed(1)}
                 </span>
                 <span className="text-surface-500 dark:text-surface-400">
-                  days from application to first response
+                  days from application to first reply
                 </span>
               </div>
             </div>
@@ -659,13 +659,13 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
           {stats.company_response_times && stats.company_response_times.length > 0 && (
             <div className="bg-surface-50 dark:bg-surface-700 rounded-lg p-4">
               <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-4">
-                Company Response Times
+                Employer Reply Times
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Fastest Responders */}
+                {/* Fastest Replies */}
                 <div>
                   <h4 className="text-sm font-medium text-green-600 dark:text-green-400 mb-2 flex items-center gap-1">
-                    <FastIcon /> Fastest Responders
+                    <FastIcon /> Fastest Replies
                   </h4>
                   <div className="space-y-2">
                     {stats.company_response_times
@@ -687,10 +687,10 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
                       ))}
                   </div>
                 </div>
-                {/* Slowest Responders */}
+                {/* Slowest Replies */}
                 <div>
                   <h4 className="text-sm font-medium text-amber-600 dark:text-amber-400 mb-2 flex items-center gap-1">
-                    <SlowIcon /> Slowest Responders
+                    <SlowIcon /> Slowest Replies
                   </h4>
                   <div className="space-y-2">
                     {stats.company_response_times
@@ -717,7 +717,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
               {stats.company_response_times.filter((c) => c.avg_days === null).length > 0 && (
                 <div className="mt-4 pt-4 border-t border-surface-200 dark:border-surface-600">
                   <h4 className="text-sm font-medium text-surface-500 dark:text-surface-400 mb-2">
-                    Awaiting Response ({stats.company_response_times.filter((c) => c.avg_days === null).length} companies)
+                    Awaiting Reply ({stats.company_response_times.filter((c) => c.avg_days === null).length} companies)
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {stats.company_response_times
@@ -745,7 +745,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
           {/* Status Breakdown */}
           <div className="bg-surface-50 dark:bg-surface-700 rounded-lg p-4">
             <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-4">
-              Detailed Status Breakdown
+              Status Details
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {Object.entries(stats.by_status).map(([status, count]) => (

@@ -124,7 +124,7 @@ describe("AnalyticsPanel", () => {
 
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
-      expect(screen.getByRole("dialog", { name: /loading analytics/i })).toBeInTheDocument();
+      expect(screen.getByRole("dialog", { name: /loading application summary/i })).toBeInTheDocument();
       expect(document.querySelectorAll(".animate-pulse").length).toBeGreaterThan(0);
     });
 
@@ -207,7 +207,7 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Application Analytics")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
     });
 
@@ -252,7 +252,7 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Status Distribution")).toBeInTheDocument();
+        expect(screen.getByText("Application Status")).toBeInTheDocument();
       });
     });
 
@@ -277,7 +277,7 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Responses by Job Source")).toBeInTheDocument();
+        expect(screen.getByText("Replies by Job Source")).toBeInTheDocument();
         expect(screen.queryByText("Performance by Job Source")).not.toBeInTheDocument();
       });
     });
@@ -297,7 +297,7 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Average Response Time")).toBeInTheDocument();
+        expect(screen.getByText("Average Reply Time")).toBeInTheDocument();
         expect(screen.getByText("7.5")).toBeInTheDocument();
       });
     });
@@ -306,7 +306,7 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Company Response Times")).toBeInTheDocument();
+        expect(screen.getByText("Employer Reply Times")).toBeInTheDocument();
         // FastCorp may appear in multiple lists, use getAllByText
         expect(screen.getAllByText("FastCorp").length).toBeGreaterThan(0);
         expect(screen.getAllByText("SlowCo").length).toBeGreaterThan(0);
@@ -317,7 +317,7 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Detailed Status Breakdown")).toBeInTheDocument();
+        expect(screen.getByText("Status Details")).toBeInTheDocument();
         expect(screen.getByText("Applied")).toBeInTheDocument();
         expect(screen.getByText("Not Selected")).toBeInTheDocument();
       });
@@ -329,10 +329,10 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /close analytics/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /close application summary/i })).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByRole("button", { name: /close analytics/i }));
+      fireEvent.click(screen.getByRole("button", { name: /close application summary/i }));
       expect(mockOnClose).toHaveBeenCalled();
     });
 
@@ -340,7 +340,7 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Application Analytics")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
 
       fireEvent.keyDown(document, { key: "Escape" });
@@ -351,7 +351,7 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Application Analytics")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
 
       const dialog = screen.getByRole("dialog");
@@ -383,7 +383,7 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Application Analytics")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
 
       const select = screen.getByRole("combobox");
@@ -609,7 +609,7 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.queryByText("Responses by Job Source")).not.toBeInTheDocument();
+        expect(screen.queryByText("Replies by Job Source")).not.toBeInTheDocument();
       });
     });
 
@@ -622,7 +622,7 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.queryByText("Average Response Time")).not.toBeInTheDocument();
+        expect(screen.queryByText("Average Reply Time")).not.toBeInTheDocument();
       });
     });
   });
@@ -632,7 +632,7 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Fastest Responders")).toBeInTheDocument();
+        expect(screen.getByText("Fastest Replies")).toBeInTheDocument();
       });
     });
 
@@ -640,15 +640,15 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Slowest Responders")).toBeInTheDocument();
+        expect(screen.getByText("Slowest Replies")).toBeInTheDocument();
       });
     });
 
-    it("shows awaiting response section", async () => {
+    it("shows awaiting reply section", async () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText(/awaiting response/i)).toBeInTheDocument();
+        expect(screen.getByText(/awaiting reply/i)).toBeInTheDocument();
         expect(screen.getByText("NoResponse Inc")).toBeInTheDocument();
       });
     });
@@ -687,7 +687,7 @@ describe("AnalyticsPanel", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByRole("button", { name: /close analytics/i })
+          screen.getByRole("button", { name: /close application summary/i })
         ).toBeInTheDocument();
       });
     });
