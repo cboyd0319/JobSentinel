@@ -31,6 +31,13 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local JobsWithGPT privacy follow-up closes `SEC-019`: approved
+  connected-source checks now write a local minimized source-request ledger, and
+  Settings shows the latest approved contact time, source host, count-only
+  request categories, and outcome. The ledger stores no raw titles, raw
+  location, resumes, salary floors, notes, application history, or full source
+  links. Source-boundary, Settings, Rust health, and scheduler tests cover the
+  boundary.
 - Latest local privacy harness follow-up closes the screening-question debug-log
   debt: Application Assist traces and screening-answer command logs now stay
   count-only or ID-only for question text, saved answer patterns, original
@@ -63,8 +70,9 @@ and record actionable findings in this active-plan surface.
   external alerts.
 - Current local connected-source privacy follow-up keeps Settings explicit after
   approving an optional source address: approval applies only to the displayed
-  exact details, and any change keeps the source off until approval happens
-  again.
+  exact details, any change keeps the source off until approval happens again,
+  and the latest approved source contact is shown as host/count/outcome
+  metadata only.
 - Current local search-link docs follow-up changes user-facing Deep Links and
   ghost-detection docs away from advanced/monitored-source wording toward plain
   job-source and more-control language; product-copy coverage rejects the stale
@@ -123,7 +131,8 @@ and record actionable findings in this active-plan surface.
   payload before the scheduler or source-health checks can contact a
   user-configured JobsWithGPT endpoint. Settings now previews endpoint, saved
   titles, location, remote filter, and result limit before approval; source
-  checks skip stale or unapproved payloads and log only high-level metadata.
+  checks skip stale or unapproved payloads, log only high-level metadata, and
+  show the latest approved contact summary from a local metadata-only ledger.
 - Latest local zero-technical copy follow-up rewords resume upload success,
   resume-app import docs, resume file privacy docs, screening-answer type
   labels, Telegram setup copy, notification troubleshooting, Dashboard filter
@@ -1035,9 +1044,9 @@ and record actionable findings in this active-plan surface.
    The browser-button stored-URL and notification-channel URL minimization
    findings from the latest read-only security audit are closed locally.
    Feedback/share narrative redaction is closed locally. JobsWithGPT approval
-   enforcement and the visible approval-scope reminder are landed locally;
-   `SEC-019` remains open only for a last-sent source-request summary if that
-   becomes necessary.
+   enforcement, visible approval-scope reminder, and local minimized
+   source-request history are landed locally; `SEC-019` is closed in the debt
+   tracker.
 6. Continue the next zero-technical-knowledge UX audit area outside
    support/reporting.
 7. Run final broad verification only when the remaining known work has evidence.

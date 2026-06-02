@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 import test from "node:test";
 import {
   hasFrontendDirectOpenDeepLinkFallback,
+  hasJobsWithGptMissingRequestLedger,
   hasJobsWithGptUnapprovedEndpointFlow,
   hasLinkedInAutomationBoundaryDrift,
   hasLinkedInNotificationBoundaryDrift,
@@ -211,5 +212,66 @@ test("source boundaries reject unapproved JobsWithGPT endpoint flows", () => {
     assert.equal(hasJobsWithGptUnapprovedEndpointFlow(root, "src/pages/Settings.tsx"), true);
     assert.equal(hasJobsWithGptUnapprovedEndpointFlow(root, "src/mocks/handlers.ts"), true);
     assert.equal(hasJobsWithGptUnapprovedEndpointFlow(root, "docs/features/scrapers.md"), false);
+  });
+});
+
+test("source boundaries reject missing JobsWithGPT request ledger", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/migrations/00000000000006_source_request_log.sql",
+      "CREATE TABLE source_request_log (id INTEGER, raw_title TEXT);\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/health/tracking.rs",
+      "pub async fn start_run() {}\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/health.rs",
+      "pub async fn get_scraper_runs() {}\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scheduler/workers/scrapers.rs",
+      "let jobswithgpt = JobsWithGptScraper::new(endpoint, query);\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/main.rs",
+      "commands::health::get_scraper_runs,\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Settings.tsx",
+      "value={config.jobswithgpt_endpoint}\n",
+    );
+
+    assert.equal(
+      hasJobsWithGptMissingRequestLedger(
+        root,
+        "src-tauri/migrations/00000000000006_source_request_log.sql",
+      ),
+      true,
+    );
+    assert.equal(
+      hasJobsWithGptMissingRequestLedger(root, "src-tauri/src/core/health/tracking.rs"),
+      true,
+    );
+    assert.equal(
+      hasJobsWithGptMissingRequestLedger(root, "src-tauri/src/commands/health.rs"),
+      true,
+    );
+    assert.equal(
+      hasJobsWithGptMissingRequestLedger(
+        root,
+        "src-tauri/src/core/scheduler/workers/scrapers.rs",
+      ),
+      true,
+    );
+    assert.equal(hasJobsWithGptMissingRequestLedger(root, "src-tauri/src/main.rs"), true);
+    assert.equal(hasJobsWithGptMissingRequestLedger(root, "src/pages/Settings.tsx"), true);
+    assert.equal(hasJobsWithGptMissingRequestLedger(root, "docs/features/scrapers.md"), false);
   });
 });

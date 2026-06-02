@@ -56,6 +56,20 @@ interface JobsWithGptApproval {
   approved_at?: string | null;
 }
 
+type SourceRequestOutcome = "started" | "success" | "failure" | "timeout";
+
+interface SourceRequestSummary {
+  id: number;
+  source: string;
+  sentAt: string;
+  endpointHost?: string | null;
+  titleCount: number;
+  hasLocation: boolean;
+  remoteOnly: boolean;
+  resultLimit: number;
+  outcome: SourceRequestOutcome;
+}
+
 // Config interface without sensitive credential fields (stored in OS keyring)
 interface Config {
   title_allowlist: string[];
@@ -592,6 +606,33 @@ function SecurityBadge({ stored }: { stored?: boolean }) {
   );
 }
 
+function formatSourceRequestTime(value: string): string {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Recorded locally";
+  }
+
+  return date.toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+}
+
+function formatSourceRequestOutcome(outcome: SourceRequestOutcome): string {
+  switch (outcome) {
+    case "success":
+      return "Completed";
+    case "failure":
+      return "Failed";
+    case "timeout":
+      return "Timed out";
+    case "started":
+    default:
+      return "Started";
+  }
+}
+
 export default function Settings({ onClose }: SettingsProps) {
   const [config, setConfig] = useState<Config | null>(null);
   const [credentials, setCredentials] = useState<Credentials>({
@@ -627,6 +668,8 @@ export default function Settings({ onClose }: SettingsProps) {
   const [savingDebugReport, setSavingDebugReport] = useState(false);
   const [ghostConfig, setGhostConfig] = useState<GhostConfig | null>(null);
   const [ghostConfigLoading, setGhostConfigLoading] = useState(false);
+  const [jobsWithGptLastRequest, setJobsWithGptLastRequest] =
+    useState<SourceRequestSummary | null>(null);
   const [ghostPreset, setGhostPreset] = useState<GhostPresetSelection>("balanced");
   const [emailProvider, setEmailProvider] = useState<
     "custom" | "gmail" | "outlook" | "yahoo"
@@ -1006,6 +1049,17 @@ export default function Settings({ onClose }: SettingsProps) {
           enabled: false,
         },
       });
+
+      try {
+        const lastRequest = await invoke<SourceRequestSummary | null>(
+          "get_latest_source_request",
+          { source: "jobswithgpt" },
+        );
+        setJobsWithGptLastRequest(lastRequest);
+      } catch (error) {
+        logError("Could not load source request history:", error);
+        setJobsWithGptLastRequest(null);
+      }
 
       // Check which credentials exist in secure storage (don't load actual values)
       // Use allSettled so a single keyring failure doesn't block the entire Settings page
@@ -3529,6 +3583,44 @@ export default function Settings({ onClose }: SettingsProps) {
                               changes, this source stays off until you approve
                               it again.
                             </p>
+                          )}
+                          {(jobsWithGptLastRequest || jobsWithGptPayloadApproved) && (
+                            <div className="mt-3 rounded-md border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 p-2 text-xs text-surface-600 dark:text-surface-300">
+                              <p className="font-semibold text-surface-700 dark:text-surface-200">
+                                Last contacted:{" "}
+                                {jobsWithGptLastRequest
+                                  ? formatSourceRequestTime(jobsWithGptLastRequest.sentAt)
+                                  : "Not yet"}
+                              </p>
+                              {jobsWithGptLastRequest && (
+                                <dl className="mt-2 grid grid-cols-1 gap-1 sm:grid-cols-[8rem_1fr]">
+                                  <dt className="font-medium">Source host</dt>
+                                  <dd className="break-all">
+                                    {jobsWithGptLastRequest.endpointHost ?? "Not recorded"}
+                                  </dd>
+                                  <dt className="font-medium">Saved titles</dt>
+                                  <dd>{jobsWithGptLastRequest.titleCount}</dd>
+                                  <dt className="font-medium">Location sent</dt>
+                                  <dd>
+                                    {jobsWithGptLastRequest.hasLocation ? "Yes" : "No"}
+                                  </dd>
+                                  <dt className="font-medium">Work location</dt>
+                                  <dd>
+                                    {jobsWithGptLastRequest.remoteOnly
+                                      ? "Remote only"
+                                      : "Saved choices"}
+                                  </dd>
+                                  <dt className="font-medium">Jobs requested</dt>
+                                  <dd>{jobsWithGptLastRequest.resultLimit}</dd>
+                                  <dt className="font-medium">Last result</dt>
+                                  <dd>
+                                    {formatSourceRequestOutcome(
+                                      jobsWithGptLastRequest.outcome,
+                                    )}
+                                  </dd>
+                                </dl>
+                              )}
+                            </div>
                           )}
                           <div className="mt-3 flex flex-wrap gap-2">
                             <Button

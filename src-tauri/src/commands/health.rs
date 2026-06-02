@@ -8,10 +8,11 @@ use crate::commands::limits::validate_optional_command_limit_i32;
 use crate::core::health::{
     check_linkedin_cookie_health, get_all_scraper_health,
     get_expiring_credentials as fetch_expiring_credentials, get_health_summary as health_summary,
-    get_scraper_configs as scraper_configs, get_scraper_runs as scraper_runs,
-    is_known_scraper_name, run_all_smoke_tests as all_smoke_tests, run_smoke_test,
-    set_scraper_enabled as scraper_enabled, CredentialHealth, HealthSummary, ScraperConfig,
-    ScraperHealthMetrics, ScraperRun, SmokeTestResult,
+    get_latest_source_request as latest_source_request, get_scraper_configs as scraper_configs,
+    get_scraper_runs as scraper_runs, is_known_scraper_name,
+    run_all_smoke_tests as all_smoke_tests, run_smoke_test, set_scraper_enabled as scraper_enabled,
+    CredentialHealth, HealthSummary, ScraperConfig, ScraperHealthMetrics, ScraperRun,
+    SmokeTestResult, SourceRequestSummary,
 };
 use crate::core::{Config, Database};
 use std::sync::Arc;
@@ -90,6 +91,19 @@ pub async fn get_scraper_runs(
     scraper_runs(&db, &scraper_name, limit)
         .await
         .map_err(|e| health_command_error("Failed to load scraper run history", e))
+}
+
+/// Get the latest minimized request record for an optional external source.
+#[tauri::command]
+pub async fn get_latest_source_request(
+    db: State<'_, Arc<Mutex<Database>>>,
+    source: String,
+) -> Result<Option<SourceRequestSummary>, String> {
+    validate_scraper_name(&source)?;
+    let db = db.lock().await;
+    latest_source_request(&db, &source)
+        .await
+        .map_err(|e| health_command_error("Failed to load source request history", e))
 }
 
 /// Run a smoke test for a specific scraper

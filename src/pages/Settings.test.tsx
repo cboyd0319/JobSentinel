@@ -656,6 +656,64 @@ describe("Settings — handleSave flow", () => {
     });
   });
 
+  it("shows connected source contact history as minimized metadata", async () => {
+    const user = userEvent.setup();
+    const approvedPayload = {
+      endpoint: "https://api.jobswithgpt.example/mcp",
+      titles: ["Case Manager"],
+      location: null,
+      remote_only: true,
+      limit: 100,
+    };
+    const loadedConfig = {
+      ...makeConfig(),
+      title_allowlist: ["Case Manager"],
+      jobswithgpt_endpoint: approvedPayload.endpoint,
+      jobswithgpt_approval: {
+        enabled: true,
+        payload: approvedPayload,
+        approved_at: "2026-06-01T12:00:00Z",
+      },
+    };
+
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_config") return loadedConfig;
+      if (cmd === "get_latest_source_request") {
+        return {
+          id: 42,
+          source: "jobswithgpt",
+          sentAt: "2026-06-01T12:30:00Z",
+          endpointHost: "api.jobswithgpt.example",
+          titleCount: 1,
+          hasLocation: false,
+          remoteOnly: true,
+          resultLimit: 100,
+          outcome: "success",
+        };
+      }
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      return null;
+    });
+
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "More Settings" }));
+    await user.click(screen.getByText("More Job Boards"));
+
+    const contactSummary = screen.getByText(/Last contacted:/i).closest("div");
+    expect(contactSummary).not.toBeNull();
+    expect(within(contactSummary!).getByText("api.jobswithgpt.example")).toBeInTheDocument();
+    expect(within(contactSummary!).getByText("Completed")).toBeInTheDocument();
+    expect(within(contactSummary!).getByText("Remote only")).toBeInTheDocument();
+    expect(within(contactSummary!).getByText("No")).toBeInTheDocument();
+  });
+
   it("shows error toast when save_config fails completely", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();

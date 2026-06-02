@@ -320,6 +320,7 @@ type MockScraperType = "api" | "html" | "rss" | "graphql" | "hybrid";
 type MockHealthStatus = "healthy" | "degraded" | "down" | "disabled" | "unknown";
 type MockSelectorHealth = "healthy" | "degraded" | "broken" | "unknown";
 type MockScraperRunStatus = "running" | "success" | "error" | "rate_limited";
+type MockSourceRequestOutcome = "started" | "success" | "failure" | "timeout";
 
 interface MockScraperDefinition {
   scraper_name: string;
@@ -362,6 +363,18 @@ interface MockSmokeTestResult {
   duration_ms: number;
   details: Record<string, unknown> | null;
   error: string | null;
+}
+
+interface MockSourceRequestSummary {
+  id: number;
+  source: string;
+  sentAt: string;
+  endpointHost: string | null;
+  titleCount: number;
+  hasLocation: boolean;
+  remoteOnly: boolean;
+  resultLimit: number;
+  outcome: MockSourceRequestOutcome;
 }
 
 interface MockCredentialHealth {
@@ -2365,6 +2378,25 @@ function getMockScraperRuns(args?: Record<string, unknown>): MockScraperRun[] {
   });
 }
 
+function getMockLatestSourceRequest(args?: Record<string, unknown>): MockSourceRequestSummary | null {
+  const source = getStringArg(args, "source") ?? "jobswithgpt";
+  if (source !== "jobswithgpt" || !hasConfiguredJobsWithGpt(config)) {
+    return null;
+  }
+
+  return {
+    id: 1,
+    source,
+    sentAt: new Date(Date.now() - 3600000).toISOString(),
+    endpointHost: "api.jobswithgpt.example",
+    titleCount: config.title_allowlist.filter((title) => title.trim().length > 0).length,
+    hasLocation: false,
+    remoteOnly: Boolean(config.location_preferences?.allow_remote && !config.location_preferences?.allow_onsite),
+    resultLimit: 100,
+    outcome: "success",
+  };
+}
+
 function getMockSmokeTestResult(scraperName: string): MockSmokeTestResult {
   return {
     scraper_name: scraperName,
@@ -3742,6 +3774,9 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
 
     case "get_scraper_runs":
       return getMockScraperRuns(args) as T;
+
+    case "get_latest_source_request":
+      return getMockLatestSourceRequest(args) as T;
 
     case "run_scraper_smoke_test": {
       const scraperName = getStringArg(args, "scraperName") ?? getStringArg(args, "scraper_name") ?? "greenhouse";

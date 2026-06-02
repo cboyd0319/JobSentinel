@@ -44,6 +44,45 @@ impl RunStatus {
     }
 }
 
+/// Outcome of an optional external source request.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SourceRequestOutcome {
+    /// Request was recorded before completion.
+    Started,
+    /// Request completed successfully.
+    Success,
+    /// Request failed before success.
+    Failure,
+    /// Request exceeded execution timeout.
+    Timeout,
+}
+
+impl SourceRequestOutcome {
+    /// Convert to database string representation.
+    #[inline]
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Started => "started",
+            Self::Success => "success",
+            Self::Failure => "failure",
+            Self::Timeout => "timeout",
+        }
+    }
+
+    /// Parse from database string.
+    #[inline]
+    pub fn from_str(s: &str) -> Self {
+        match s {
+            "started" => Self::Started,
+            "success" => Self::Success,
+            "failure" => Self::Failure,
+            "timeout" => Self::Timeout,
+            _ => Self::Failure,
+        }
+    }
+}
+
 /// Record of a single scraper execution.
 ///
 /// Stored in `scraper_runs` table for historical tracking and metrics calculation.
@@ -71,6 +110,34 @@ pub struct ScraperRun {
     pub error_code: Option<String>,
     /// Retry attempt number (0 = first try).
     pub retry_attempt: i32,
+}
+
+/// Minimized local record of an approved optional source request.
+///
+/// This intentionally stores request categories only. It does not store raw job
+/// titles, raw location values, private notes, resumes, salary floors, or full
+/// source links.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SourceRequestSummary {
+    /// Database row ID.
+    pub id: i64,
+    /// Internal source identifier, such as "jobswithgpt".
+    pub source: String,
+    /// When the request was attempted.
+    pub sent_at: DateTime<Utc>,
+    /// Host component only, without path, query, or credentials.
+    pub endpoint_host: Option<String>,
+    /// Number of saved title terms sent.
+    pub title_count: i32,
+    /// Whether any location value was included.
+    pub has_location: bool,
+    /// Whether the request used remote-only filtering.
+    pub remote_only: bool,
+    /// Maximum number of jobs requested.
+    pub result_limit: i32,
+    /// Final request outcome.
+    pub outcome: SourceRequestOutcome,
 }
 
 /// Aggregated health status for a scraper.

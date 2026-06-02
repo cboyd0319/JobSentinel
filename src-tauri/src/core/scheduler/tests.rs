@@ -1622,6 +1622,19 @@ async fn test_scraping_cycle_jobswithgpt_error_path() {
         result.errors.iter().any(|e| e.contains("JobsWithGPT")),
         "Should have JobsWithGPT error"
     );
+
+    let source_request = crate::core::health::get_latest_source_request(&database, "jobswithgpt")
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(source_request.title_count, 1);
+    assert!(!source_request.has_location);
+    assert!(source_request.remote_only);
+    assert_eq!(source_request.result_limit, 100);
+    assert_eq!(
+        source_request.outcome,
+        crate::core::health::SourceRequestOutcome::Failure
+    );
 }
 
 #[tokio::test]

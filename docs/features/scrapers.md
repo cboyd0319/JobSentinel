@@ -93,6 +93,11 @@ a job-source address.
 When the user approves a source address, Settings should keep showing the exact
 approved details and explain that any change turns the source off until the user
 approves again.
+Settings also shows the latest approved contact as local metadata only:
+contact time, source host, title count, whether location was included, work
+location mode, requested-job limit, and outcome. The contact history must not
+store raw titles, raw location, resumes, salary floors, private notes,
+application history, or full source links.
 
 ## Deduplication
 

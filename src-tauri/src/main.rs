@@ -303,6 +303,7 @@ fn main() {
             commands::health::get_scraper_configs,
             commands::health::set_scraper_enabled,
             commands::health::get_scraper_runs,
+            commands::health::get_latest_source_request,
             commands::health::run_scraper_smoke_test,
             commands::health::run_all_smoke_tests,
             commands::health::get_linkedin_cookie_health,

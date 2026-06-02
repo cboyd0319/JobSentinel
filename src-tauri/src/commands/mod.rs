@@ -203,9 +203,9 @@ pub use automation::{
 
 // Health monitoring commands
 pub use health::{
-    get_expiring_credentials, get_health_summary, get_linkedin_cookie_health, get_scraper_configs,
-    get_scraper_health, get_scraper_runs, run_all_smoke_tests, run_scraper_smoke_test,
-    set_scraper_enabled,
+    get_expiring_credentials, get_health_summary, get_latest_source_request,
+    get_linkedin_cookie_health, get_scraper_configs, get_scraper_health, get_scraper_runs,
+    run_all_smoke_tests, run_scraper_smoke_test, set_scraper_enabled,
 };
 
 // Cache management commands

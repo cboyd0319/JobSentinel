@@ -217,9 +217,10 @@ Current cleanup posture:
   PRIVACY.md, with product-copy coverage against treating those support links as
   external alerts.
 - Current local connected-source privacy follow-up adds a visible Settings
-  reminder after optional source approval: approval covers only the displayed
-  exact details, and changed details keep the source off until the user approves
-  again. Feature docs and Settings coverage reflect the behavior.
+  reminder after optional source approval and a local minimized contact-history
+  summary: approval covers only the displayed exact details, changed details
+  keep the source off until the user approves again, and the latest approved
+  source contact shows host/count/outcome metadata only.
 - Current local search-link docs follow-up changes Deep Links and ghost-detection
   docs away from advanced/monitored-source wording toward job-source and
   more-control language, with product-copy coverage against the old phrases.
@@ -1209,9 +1210,9 @@ Next high-value passes:
      result shapes.
    - The latest read-only security audit's Application Assist redirect/origin
      and external alert-reason findings are closed locally. JobsWithGPT
-     exact-payload approval and visible approval-scope reminder are landed
-     locally; `SEC-019` remains open only for a last-sent source-request summary
-     if needed.
+     exact-payload approval, visible approval-scope reminder, and local
+     minimized source-request history are landed locally; `SEC-019` is closed
+     in the debt tracker.
    - Keep no-control-workaround and local-first product rules intact.
 4. Continue frontend boundary review.
    - Recheck stored JSON parsing, URL validation, error rendering, direct

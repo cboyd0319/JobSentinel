@@ -11,9 +11,112 @@
 
 use crate::core::Database;
 use anyhow::Result;
-use chrono::Utc;
+use chrono::{NaiveDateTime, Utc};
+use sqlx::Row;
 
-use super::types::{RunStatus, ScraperRun};
+use super::types::{RunStatus, ScraperRun, SourceRequestOutcome, SourceRequestSummary};
+
+fn count_to_i32(value: usize) -> i32 {
+    i32::try_from(value).unwrap_or(i32::MAX)
+}
+
+/// Record a minimized optional external source request and return its row ID.
+///
+/// The ledger stores metadata categories only. Callers must not pass raw job
+/// titles, raw location values, private notes, resumes, salary floors, or full
+/// source links.
+pub async fn record_source_request_started(
+    db: &Database,
+    source: &str,
+    endpoint_host: Option<&str>,
+    title_count: usize,
+    has_location: bool,
+    remote_only: bool,
+    result_limit: usize,
+) -> Result<i64> {
+    let now = Utc::now().naive_utc();
+    let result = sqlx::query(
+        r#"
+        INSERT INTO source_request_log (
+            source, sent_at, endpoint_host, title_count, has_location,
+            remote_only, result_limit, outcome
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'started')
+        "#,
+    )
+    .bind(source)
+    .bind(now)
+    .bind(endpoint_host)
+    .bind(count_to_i32(title_count))
+    .bind(if has_location { 1 } else { 0 })
+    .bind(if remote_only { 1 } else { 0 })
+    .bind(count_to_i32(result_limit))
+    .execute(db.pool())
+    .await?;
+
+    Ok(result.last_insert_rowid())
+}
+
+/// Update an optional external source request outcome.
+pub async fn finish_source_request(
+    db: &Database,
+    request_id: i64,
+    outcome: SourceRequestOutcome,
+) -> Result<()> {
+    sqlx::query(
+        r#"
+        UPDATE source_request_log
+        SET outcome = ?
+        WHERE id = ?
+        "#,
+    )
+    .bind(outcome.as_str())
+    .bind(request_id)
+    .execute(db.pool())
+    .await?;
+
+    Ok(())
+}
+
+/// Retrieve the latest minimized source request record.
+pub async fn get_latest_source_request(
+    db: &Database,
+    source: &str,
+) -> Result<Option<SourceRequestSummary>> {
+    let row = sqlx::query(
+        r#"
+        SELECT id, source, sent_at, endpoint_host, title_count, has_location,
+               remote_only, result_limit, outcome
+        FROM source_request_log
+        WHERE source = ?
+        ORDER BY sent_at DESC, id DESC
+        LIMIT 1
+        "#,
+    )
+    .bind(source)
+    .fetch_optional(db.pool())
+    .await?;
+
+    row.map(|row| {
+        let sent_at = row.try_get::<NaiveDateTime, _>("sent_at")?.and_utc();
+        let has_location = row.try_get::<i32, _>("has_location")? != 0;
+        let remote_only = row.try_get::<i32, _>("remote_only")? != 0;
+        let outcome = SourceRequestOutcome::from_str(row.try_get::<String, _>("outcome")?.as_str());
+
+        Ok(SourceRequestSummary {
+            id: row.try_get("id")?,
+            source: row.try_get("source")?,
+            sent_at,
+            endpoint_host: row.try_get("endpoint_host")?,
+            title_count: row.try_get("title_count")?,
+            has_location,
+            remote_only,
+            result_limit: row.try_get("result_limit")?,
+            outcome,
+        })
+    })
+    .transpose()
+}
 
 /// Start a new scraper run and return its database ID.
 ///

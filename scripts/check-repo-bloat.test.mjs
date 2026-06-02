@@ -6505,6 +6505,32 @@ test("checkRepoBloat rejects raw JobsWithGPT smoke-test endpoint errors", () => 
   });
 });
 
+test("checkRepoBloat rejects missing JobsWithGPT request ledger", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/scheduler/workers/scrapers.rs",
+      "let jobswithgpt = JobsWithGptScraper::new(endpoint, query);\n",
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "src-tauri/src/core/scheduler/workers/scrapers.rs"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "record minimized JobsWithGPT source request history: src-tauri/src/core/scheduler/workers/scrapers.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects raw source-check result errors", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

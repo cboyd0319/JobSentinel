@@ -19,6 +19,44 @@ fn test_run_status_deserialization() {
     assert_eq!(RunStatus::from_str("unknown"), RunStatus::Failure); // fallback
 }
 
+#[tokio::test]
+async fn test_source_request_summary_tracks_minimized_metadata() {
+    let db = crate::core::Database::connect_memory().await.unwrap();
+    db.migrate().await.unwrap();
+
+    let request_id = record_source_request_started(
+        &db,
+        "jobswithgpt",
+        Some("api.jobswithgpt.example"),
+        2,
+        false,
+        true,
+        100,
+    )
+    .await
+    .unwrap();
+    finish_source_request(&db, request_id, SourceRequestOutcome::Success)
+        .await
+        .unwrap();
+
+    let summary = get_latest_source_request(&db, "jobswithgpt")
+        .await
+        .unwrap()
+        .unwrap();
+
+    assert_eq!(summary.id, request_id);
+    assert_eq!(summary.source, "jobswithgpt");
+    assert_eq!(
+        summary.endpoint_host.as_deref(),
+        Some("api.jobswithgpt.example")
+    );
+    assert_eq!(summary.title_count, 2);
+    assert!(!summary.has_location);
+    assert!(summary.remote_only);
+    assert_eq!(summary.result_limit, 100);
+    assert_eq!(summary.outcome, SourceRequestOutcome::Success);
+}
+
 #[test]
 fn test_health_status_deserialization() {
     assert_eq!(HealthStatus::from_str("healthy"), HealthStatus::Healthy);

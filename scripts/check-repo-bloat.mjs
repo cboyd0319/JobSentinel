@@ -58,6 +58,7 @@ import {
 } from "./harness/checks/source-structure.mjs";
 import {
   hasFrontendDirectOpenDeepLinkFallback,
+  hasJobsWithGptMissingRequestLedger,
   hasJobsWithGptUnapprovedEndpointFlow,
   hasLinkedInAutomationBoundaryDrift,
   hasLinkedInNotificationBoundaryDrift,
@@ -365,6 +366,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasJobsWithGptUnapprovedEndpointFlow(root, path)) {
       violations.push(`require JobsWithGPT payload review before source checks: ${path}`);
+    }
+
+    if (hasJobsWithGptMissingRequestLedger(root, path)) {
+      violations.push(`record minimized JobsWithGPT source request history: ${path}`);
     }
 
     if (hasOpaqueCommandUnitError(root, path)) {

@@ -57,6 +57,15 @@ const jobsWithGptApprovalPaths = new Set([
   "src/mocks/handlers.ts",
 ]);
 
+const jobsWithGptRequestLedgerPaths = new Set([
+  "src-tauri/migrations/00000000000006_source_request_log.sql",
+  "src-tauri/src/core/health/tracking.rs",
+  "src-tauri/src/commands/health.rs",
+  "src-tauri/src/core/scheduler/workers/scrapers.rs",
+  "src-tauri/src/main.rs",
+  "src/pages/Settings.tsx",
+]);
+
 export function hasScraperDocEmojiMarkers(root, path) {
   if (path !== "docs/features/scrapers.md") {
     return false;
@@ -286,6 +295,40 @@ export function hasJobsWithGptUnapprovedEndpointFlow(root, path) {
 
   if (path === "src/mocks/handlers.ts") {
     return /jobswithgpt_endpoint/.test(text) && !/jobswithgpt_approval/.test(text);
+  }
+
+  return false;
+}
+
+export function hasJobsWithGptMissingRequestLedger(root, path) {
+  if (!jobsWithGptRequestLedgerPaths.has(path)) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+
+  if (path === "src-tauri/migrations/00000000000006_source_request_log.sql") {
+    return !/source_request_log/.test(text) || /title_text|raw_title|location_value|salary_floor|private_notes/.test(text);
+  }
+
+  if (path === "src-tauri/src/core/health/tracking.rs") {
+    return !/record_source_request_started/.test(text) || !/get_latest_source_request/.test(text);
+  }
+
+  if (path === "src-tauri/src/commands/health.rs") {
+    return !/pub async fn get_latest_source_request/.test(text);
+  }
+
+  if (path === "src-tauri/src/core/scheduler/workers/scrapers.rs") {
+    return /JobsWithGptScraper::new/.test(text) && !/record_source_request_started/.test(text);
+  }
+
+  if (path === "src-tauri/src/main.rs") {
+    return !/commands::health::get_latest_source_request/.test(text);
+  }
+
+  if (path === "src/pages/Settings.tsx") {
+    return /jobswithgpt_endpoint/.test(text) && !/Last contacted/.test(text);
   }
 
   return false;

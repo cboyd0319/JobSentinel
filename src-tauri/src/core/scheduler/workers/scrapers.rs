@@ -52,6 +52,22 @@ fn source_failure_message(source_label: &'static str, failure_kind: &'static str
     format!("{source_label} source check failed ({failure_kind})")
 }
 
+fn endpoint_host_for_source_request(endpoint: &str) -> Option<String> {
+    url::Url::parse(endpoint)
+        .ok()
+        .and_then(|url| url.host_str().map(ToOwned::to_owned))
+}
+
+async fn finish_source_request_if_recorded(
+    db: &Arc<Database>,
+    request_id: Option<i64>,
+    outcome: crate::core::health::SourceRequestOutcome,
+) {
+    if let Some(request_id) = request_id {
+        let _ = crate::core::health::finish_source_request(db, request_id, outcome).await;
+    }
+}
+
 async fn record_scraper_failure(
     db: &Arc<Database>,
     run_id: i64,
@@ -224,6 +240,27 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
                 .await
                 .unwrap_or(0);
             let _ts = std::time::Instant::now();
+            let endpoint_host = endpoint_host_for_source_request(&jobswithgpt_payload.endpoint);
+            let source_request_id = match crate::core::health::record_source_request_started(
+                db,
+                "jobswithgpt",
+                endpoint_host.as_deref(),
+                jobswithgpt_payload.titles.len(),
+                jobswithgpt_payload.location.is_some(),
+                jobswithgpt_payload.remote_only,
+                jobswithgpt_payload.limit,
+            )
+            .await
+            {
+                Ok(request_id) => Some(request_id),
+                Err(_) => {
+                    tracing::warn!(
+                        source = "JobsWithGPT",
+                        "Could not record minimized source request metadata"
+                    );
+                    None
+                }
+            };
             match jobswithgpt.scrape().await {
                 Ok(jobs) => {
                     let _ = crate::core::health::complete_run(
@@ -234,12 +271,29 @@ pub async fn run_scrapers(config: &Arc<Config>, db: &Arc<Database>) -> (Vec<Job>
                         0,
                     )
                     .await;
+                    finish_source_request_if_recorded(
+                        db,
+                        source_request_id,
+                        crate::core::health::SourceRequestOutcome::Success,
+                    )
+                    .await;
                     tracing::info!("JobsWithGPT: {} jobs found", jobs.len());
                     all_jobs.extend(jobs);
                 }
                 Err(e) => {
                     let _dur = _ts.elapsed().as_millis() as i64;
+                    let source_request_outcome = if matches!(e, ScraperError::Timeout { .. }) {
+                        crate::core::health::SourceRequestOutcome::Timeout
+                    } else {
+                        crate::core::health::SourceRequestOutcome::Failure
+                    };
                     record_scraper_failure(db, _tid, _dur, "JobsWithGPT", &e, &mut errors).await;
+                    finish_source_request_if_recorded(
+                        db,
+                        source_request_id,
+                        source_request_outcome,
+                    )
+                    .await;
                 }
             }
         }
