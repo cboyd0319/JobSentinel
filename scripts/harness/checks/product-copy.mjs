@@ -727,6 +727,12 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Job Market by Location/i,
       /No location data yet/i,
       /No market snapshot yet/i,
+      /monitored postings/i,
+      /Skill demand/i,
+      /real skill demand/i,
+      /source bias/i,
+      /sources currently monitored/i,
+      /job-board bias/i,
     ];
 
     if (hiringTrendPatterns.some((pattern) => pattern.test(text))) {

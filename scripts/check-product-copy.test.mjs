@@ -1333,7 +1333,22 @@ test("product copy rejects market-intel jargon in hiring trends surfaces", () =>
     writeFixtureFile(root, "src/components/MarketSnapshotCard.tsx", "No market snapshot yet. Refresh market data to create one.\n");
     writeFixtureFile(root, "src/components/MarketAlertCard.tsx", "Loading market alerts\nNo market alerts at this time.\n");
     writeFixtureFile(root, "src/components/LocationHeatmap.tsx", "Job Market by Location\nNo location data yet\n");
-    writeFixtureFile(root, "docs/features/market-intelligence.md", "# Market Intelligence\nMarket snapshots\nMarket alerts\nMarket data is only as good as the sources.\n");
+    writeFixtureFile(
+      root,
+      "docs/features/market-intelligence.md",
+      [
+        "# Market Intelligence",
+        "Market snapshots",
+        "Market alerts",
+        "Market data is only as good as the sources.",
+        "Skill demand",
+        "A term appears more often in monitored postings.",
+        "Decide whether it reflects real skill demand or source bias.",
+        "Hiring trends are only as good as the sources currently monitored.",
+        "job-board bias",
+        "",
+      ].join("\n"),
+    );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/Navigation.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Market.tsx"), true);

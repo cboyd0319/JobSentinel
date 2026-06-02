@@ -171,7 +171,7 @@ export default function Market({ onBack }: MarketProps) {
         safeInvoke<SkillTrend[]>("get_trending_skills", { limit: 15 }, { logContext: "Get trending skills" }),
         safeInvoke<CompanyActivity[]>("get_active_companies", { limit: 15 }, { logContext: "Get active companies" }),
         safeInvoke<LocationHeat[]>("get_hottest_locations", { limit: 12 }, { logContext: "Get hottest locations" }),
-        safeInvoke<MarketAlert[]>("get_market_alerts", {}, { logContext: "Get market alerts" }),
+        safeInvoke<MarketAlert[]>("get_market_alerts", {}, { logContext: "Get hiring alerts" }),
         safeInvoke<MarketSnapshot | null>("get_market_snapshot", {}, { logContext: "Get market snapshot" }),
       ]);
 
@@ -355,7 +355,7 @@ export default function Market({ onBack }: MarketProps) {
                 <TrendChart
                   data={skills.slice(0, 8)}
                   type="bar"
-                  title="Skill Demand"
+                  title="Skills Appearing More Often"
                   xKey="skill_name"
                   yKey="total_jobs"
                   yLabel="Jobs"

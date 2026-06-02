@@ -53,6 +53,10 @@ and record actionable findings in this active-plan surface.
 - Latest local Deep Links docs follow-up replaces the stale "does not monitor
   directly" opening with browser-opened search-link wording. Product-copy tests
   guard the old phrase.
+- Latest local Hiring Trends follow-up replaces analyst-first monitored
+  posting, skill-demand, source-bias, job-board-bias, chart-title, and
+  support-log wording with plain job-pool, check-several-sources, and hiring
+  trend language. Product-copy tests guard the old phrases.
 - Latest local resume-readability follow-up changes score-adjacent labels from
   `Complete`, `Completeness`, `missing`, `issues`, `View Details`, and `Full
   Resume Readability Review` to details, details-included, to-review,

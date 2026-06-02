@@ -3,8 +3,8 @@
 **Use the jobs JobSentinel has already found to spot useful hiring signals,
 without treating the sample as the whole labor market.**
 
-Hiring Trends summarizes saved and monitored postings so job seekers can
-see patterns in roles, skills, companies, locations, remote work, and listed pay.
+Hiring Trends summarizes jobs JobSentinel found or jobs you saved so job seekers
+can see patterns in roles, skills, companies, locations, remote work, and listed pay.
 It is a local decision aid, not a prediction engine and not a substitute for
 checking the actual job posting.
 
@@ -27,8 +27,8 @@ External AI is not required for Hiring Trends.
 
 - **Freshness review**: See whether the local job pool is growing or going
   stale.
-- **Skill demand**: Notice skills, tools, credentials, or work areas appearing
-  more often in saved postings.
+- **Skills showing up more often**: Notice skills, tools, credentials, or work
+  areas appearing more often in saved postings.
 - **Company activity**: Identify employers with repeated or active listings,
   then verify important roles at the official source.
 - **Location and remote patterns**: Compare local, hybrid, remote, and
@@ -57,15 +57,15 @@ reposted roles may deserve extra verification before heavy tailoring.
 | Signal | What it can mean | What to check |
 | --- | --- | --- |
 | More new jobs | Local source activity increased. | Confirm roles are fresh and official-source listings still exist. |
-| Skill trend | A term appears more often in monitored postings. | Decide whether it reflects real skill demand or source bias. |
+| Skills appearing more often | A skill or tool appears more often in jobs JobSentinel found or you saved. | Check whether several sources show the same pattern before changing your resume or search. |
 | Active company | Employer has repeated or many postings. | Check official company pages and repost history. |
 | Salary trend | Listed pay changed in the local sample. | Check sample size, location, role level, and missing-pay rates. |
 | Location density | More postings mention a place or work mode. | Check commute, hybrid schedule, licensing, or remote eligibility. |
 | Alert | A local metric moved enough to flag. | Review the underlying postings before changing strategy. |
 
-Hiring trends are only as good as the sources currently monitored. Missing salary,
-stale postings, duplicated listings, source outages, and job-board bias can all
-distort results.
+Hiring Trends only knows about jobs JobSentinel found or you saved. Missing
+salary, stale postings, duplicated listings, source outages, and one job site
+showing only a narrow slice can all distort results.
 
 ## Protective Use
 

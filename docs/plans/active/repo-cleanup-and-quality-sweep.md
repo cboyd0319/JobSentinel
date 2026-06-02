@@ -223,6 +223,10 @@ boundaries, and harness modularity:
   phrases.
 - Changed Deep Links docs from "does not monitor directly" opening wording to
   browser-opened search-link language. Product-copy tests guard the old phrase.
+- Changed Hiring Trends docs and Market UI copy from monitored-posting,
+  skill-demand, source-bias, job-board-bias, chart-title, and support-log wording
+  to plain job-pool, check-several-sources, and hiring trend language.
+  Product-copy tests guard the old phrases.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

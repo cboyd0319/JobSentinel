@@ -180,6 +180,10 @@ Current cleanup posture:
 - Current local Deep Links docs follow-up replaces "does not monitor directly"
   opening wording with browser-opened search-link language. Product-copy coverage
   guards the old phrase.
+- Current local Hiring Trends follow-up replaces monitored-posting,
+  skill-demand, source-bias, job-board-bias, chart-title, and support-log wording
+  with plain job-pool, check-several-sources, and hiring trend language.
+  Product-copy coverage guards the old phrases.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.
