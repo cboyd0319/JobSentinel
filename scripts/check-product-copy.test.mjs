@@ -1923,6 +1923,18 @@ test("product copy rejects technical-first resume copy", () => {
         "redacted configuration summaries",
         "raw notes",
         "credentials, private paths, cookies, webhook",
+        "## Developer Notes",
+        "Implementation references",
+        "src/components/CoverLetterTemplates.tsx",
+        "src-tauri/src/core/user_data/",
+        "Tauri commands",
+        "notificationPrefsExample",
+        "advancedFilters",
+        "save_notification_preferences",
+        "minScoreThreshold",
+        "npm run test:run",
+        "cargo test --lib user_data",
+        "Implementation rule",
       ].join("\n"),
     );
     writeFixtureFile(

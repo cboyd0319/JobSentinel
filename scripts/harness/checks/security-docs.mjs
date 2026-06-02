@@ -23,7 +23,8 @@ const keyringSecurityDocsPaths = new Set([
 
 const keyringMigrationPaths = new Set(["src-tauri/src/main.rs"]);
 const credentialArchitecturePaths = new Set(["src-tauri/src/core/credentials/mod.rs"]);
-const userDataDocsPaths = new Set(["docs/features/user-data-management.md"]);
+const userDataFeatureDocsPaths = new Set(["docs/features/user-data-management.md"]);
+const userDataDeveloperDocsPaths = new Set(["docs/developer/ARCHITECTURE.md"]);
 
 export function hasStaleNotificationWebhookDocs(root, path) {
   if (!notificationDocsPaths.has(path)) {
@@ -151,16 +152,27 @@ export function hasStaleCredentialArchitectureComments(root, path) {
 }
 
 export function hasStaleNotificationPreferenceDocs(root, path) {
-  if (!userDataDocsPaths.has(path)) {
+  if (!userDataFeatureDocsPaths.has(path) && !userDataDeveloperDocsPaths.has(path)) {
     return false;
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return (
+  const staleShape =
     /per_source_settings|min_score|include_ghosts|keyword_rules|\bthresholds\s*:/.test(text) ||
     /Minimum score|score thresholds per notification channel|minimum score threshold/i.test(text) ||
-    /invoke\("save_notification_preferences",\s*\{\s*(?:\r?\n)?\s*(?:per_source_settings|linkedin):/m.test(text) ||
-    !/indeed:\s*\{\s*enabled:\s*true,\s*minScoreThreshold:\s*70,\s*soundEnabled:\s*true\s*\}/.test(text) ||
+    /invoke\("save_notification_preferences",\s*\{\s*(?:\r?\n)?\s*(?:per_source_settings|linkedin):/m.test(
+      text,
+    );
+
+  if (userDataFeatureDocsPaths.has(path)) {
+    return staleShape || /save_notification_preferences|advancedFilters|minScoreThreshold/.test(text);
+  }
+
+  return (
+    staleShape ||
+    !/indeed:\s*\{\s*enabled:\s*true,\s*minScoreThreshold:\s*70,\s*soundEnabled:\s*true\s*\}/.test(
+      text,
+    ) ||
     !/prefs:\s*\{[\s\S]*advancedFilters:/m.test(text)
   );
 }

@@ -955,6 +955,18 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /redacted configuration summaries/i,
       /raw notes/i,
       /credentials,\s*private paths,\s*cookies,\s*webhook/i,
+      /Developer Notes/i,
+      /Implementation references/i,
+      /src\/components\/CoverLetterTemplates\.tsx/i,
+      /src-tauri\/src\/core\/user_data/i,
+      /Tauri commands/i,
+      /notificationPrefsExample/i,
+      /advancedFilters/i,
+      /save_notification_preferences/i,
+      /minScoreThreshold/i,
+      /npm run test:run/i,
+      /cargo test --lib user_data/i,
+      /Implementation rule/i,
     ];
 
     if (userDataManagementPatterns.some((pattern) => pattern.test(text))) {

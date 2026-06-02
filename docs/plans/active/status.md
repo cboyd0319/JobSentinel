@@ -237,7 +237,7 @@ actionable findings in this active-plan surface or the relevant plan.
   search found no removed Resume Builder developer markers, `npm run
   lint:bloat`, `npm run harness:check`, `npm run lint:docs`, `npm run
   test:scripts`, and `git diff --check`.
-- Current local Smart Scoring feature-doc cleanup removes developer-only command,
+- Committed local Smart Scoring feature-doc cleanup removes developer-only command,
   config, and backend scoring-model details from the match-explanation guide.
   Product-copy sensors now reject those implementation details if they drift
   back into `docs/features/smart-scoring.md`. Focused verification passed:
@@ -245,6 +245,18 @@ actionable findings in this active-plan surface or the relevant plan.
   search found no removed Smart Scoring developer markers, `npm run lint:bloat`,
   `npm run harness:check`, `npm run lint:docs`, `npm run test:scripts`, and
   `git diff --check`.
+- Committed local user-data feature-doc cleanup removes implementation references,
+  notification-preference code snippets, and command/test details from the local
+  job-search data guide, then moves the notification-preference backend shape
+  contract into developer architecture docs. Product-copy and security-doc
+  sensors now reject those implementation details in
+  `docs/features/user-data-management.md` while requiring the developer contract
+  in `docs/developer/ARCHITECTURE.md`. Focused verification passed: `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests, `node --test
+  scripts/check-security-docs.test.mjs` passed 9 tests, targeted search found no
+  removed user-data developer markers, `npm run lint:bloat`, `npm run
+  harness:check`, `npm run lint:docs`, `npm run test:scripts`, and `git diff
+  --check`.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -306,6 +318,9 @@ Scope:
   local-storage, command, export, or backend-file implementation details.
 - Smart Scoring feature docs must teach match explanations without command,
   config, or backend scoring-model internals.
+- User-data feature docs must explain local data control without implementation
+  references, code snippets, command names, or test commands. Developer
+  architecture docs must own the notification-preference command shape.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
@@ -317,11 +332,13 @@ npm run lint:docs
 npm run test:scripts
 npm run lint
 node --test scripts/check-product-copy.test.mjs
+node --test scripts/check-security-docs.test.mjs
 ! rg -n "Technical Details|Signal Weights|Database Schema|API Commands|invoke\\(|ghost_reasons TEXT|ghost_score|repost_count|Ghost configuration commands|get_ghost_config|set_ghost_config|reset_ghost_config" docs/features/ghost-detection.md
 ! rg -n "For contributors|Developer Setup|Advanced: where JobSentinel saves local files" docs/user/QUICK_START.md
 ! rg -n "JSON Resume content|basics\\.|work\\[\\]|Developer contract|Implementation paths|select_and_import_json_resume|import_json_resume|Returned renderer DTOs|Run the focused Rust tests|cargo test core::resume::json_resume" docs/features/json-resume-import.md
 ! rg -n "Developer Details|For developers and the curious|Local Storage Model|Tauri Commands|resume_drafts|create_resume_draft|export_resume_docx|analyze_resume_for_job|Backend Files|DOCX generation" docs/features/resume-builder.md
 ! rg -n "Developer Notes|Current Tauri commands|get_scoring_config|update_scoring_config|reset_scoring_config_cmd|validate_scoring_config|ScoringConfig|recency proportions|complete scoring model|Internal field names" docs/features/smart-scoring.md
+! rg -n "Developer Notes|Implementation references|src/components/CoverLetterTemplates\\.tsx|src-tauri/src/core/user_data|Tauri commands|notificationPrefsExample|advancedFilters|save_notification_preferences|minScoreThreshold|npm run test:run|cargo test --lib user_data|Implementation rule" docs/features/user-data-management.md
 npx vitest run src/pages/Settings.test.tsx src/components/ErrorLogPanel.test.tsx
 npx vitest run src/components/ErrorLogPanel.test.tsx
 npx vitest run src/utils/errorReporting.test.ts

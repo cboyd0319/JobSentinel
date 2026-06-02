@@ -201,3 +201,36 @@ test("security docs reject stale notification preference docs", () => {
     );
   });
 });
+
+test("security docs keep notification preference shape in developer docs", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "docs/features/user-data-management.md",
+      "Notification settings control which saved searches and job sources can create alerts.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/developer/ARCHITECTURE.md",
+      [
+        'invoke("save_notification_preferences", {',
+        "  prefs: {",
+        "    indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: true },",
+        "    global: { desktopEnabled: true },",
+        "    advancedFilters: {},",
+        "  },",
+        "});",
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasStaleNotificationPreferenceDocs(root, "docs/features/user-data-management.md"),
+      false,
+    );
+    assert.equal(
+      hasStaleNotificationPreferenceDocs(root, "docs/developer/ARCHITECTURE.md"),
+      false,
+    );
+  });
+});

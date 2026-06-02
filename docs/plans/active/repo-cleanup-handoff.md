@@ -95,7 +95,7 @@ Recent remote integration evidence:
   search found no removed Resume Builder developer markers, `npm run
   lint:bloat`, `npm run harness:check`, `npm run lint:docs`, `npm run
   test:scripts`, and `git diff --check`.
-- Current local Smart Scoring feature-doc cleanup removes developer-only command,
+- Committed local Smart Scoring feature-doc cleanup removes developer-only command,
   config, and backend scoring-model details from the match-explanation guide.
   Product-copy sensors now reject those implementation details if they drift
   back into `docs/features/smart-scoring.md`. Focused verification passed:
@@ -103,6 +103,18 @@ Recent remote integration evidence:
   search found no removed Smart Scoring developer markers, `npm run lint:bloat`,
   `npm run harness:check`, `npm run lint:docs`, `npm run test:scripts`, and
   `git diff --check`.
+- Committed local user-data feature-doc cleanup removes implementation references,
+  notification-preference code snippets, and command/test details from the local
+  job-search data guide, then moves the notification-preference backend shape
+  contract into developer architecture docs. Product-copy and security-doc
+  sensors now reject those implementation details in
+  `docs/features/user-data-management.md` while requiring the developer contract
+  in `docs/developer/ARCHITECTURE.md`. Focused verification passed: `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests, `node --test
+  scripts/check-security-docs.test.mjs` passed 9 tests, targeted search found no
+  removed user-data developer markers, `npm run lint:bloat`, `npm run
+  harness:check`, `npm run lint:docs`, `npm run test:scripts`, and `git diff
+  --check`.
 - Current local source-name copy follow-up changes README source coverage,
   source feature docs, public job-source issue template, shared source labels,
   and frontend mocks from `HN Who's Hiring` wording to `Startup and tech job

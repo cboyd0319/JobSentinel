@@ -493,6 +493,20 @@ get_notification_preferences(), save_notification_preferences(),
 add_search_history(), get_search_history(), clear_search_history()
 ```
 
+Notification preference command payloads use the current `prefs` shape. Keep
+developer references aligned with this form and keep the user-facing Local
+Job-Search Data guide free of command examples:
+
+```ts
+invoke("save_notification_preferences", {
+  prefs: {
+    indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
+    global: { desktopEnabled: true },
+    advancedFilters: {},
+  },
+});
+```
+
 **Resume/Salary/Market (15):**
 
 ```rust
