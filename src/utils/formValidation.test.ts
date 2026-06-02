@@ -529,16 +529,16 @@ describe("formValidation", () => {
     it("returns error message for invalid question match patterns", () => {
       // Arrange & Act & Assert
       expect(validateRegex("[invalid")).toBe(
-        "Question match has unsupported pattern symbols. Check brackets or special characters."
+        "Use words from the question only. Remove brackets or symbols like * or ?."
       );
       expect(validateRegex("(unclosed")).toBe(
-        "Question match has unsupported pattern symbols. Check brackets or special characters."
+        "Use words from the question only. Remove brackets or symbols like * or ?."
       );
       expect(validateRegex("*invalid")).toBe(
-        "Question match has unsupported pattern symbols. Check brackets or special characters."
+        "Use words from the question only. Remove brackets or symbols like * or ?."
       );
       expect(validateRegex("(?invalid)")).toBe(
-        "Question match has unsupported pattern symbols. Check brackets or special characters."
+        "Use words from the question only. Remove brackets or symbols like * or ?."
       );
     });
 
@@ -546,7 +546,7 @@ describe("formValidation", () => {
       // Arrange & Act & Assert
       expect(validateRegex("  .*  ")).toBeUndefined();
       expect(validateRegex("  [invalid  ")).toBe(
-        "Question match has unsupported pattern symbols. Check brackets or special characters."
+        "Use words from the question only. Remove brackets or symbols like * or ?."
       );
     });
 
@@ -573,10 +573,10 @@ describe("formValidation", () => {
     it("returns error message for invalid question match patterns", () => {
       // Arrange & Act & Assert
       expect(validateRequiredRegex("[invalid")).toBe(
-        "Question match has unsupported pattern symbols. Check brackets or special characters."
+        "Use words from the question only. Remove brackets or symbols like * or ?."
       );
       expect(validateRequiredRegex("(unclosed")).toBe(
-        "Question match has unsupported pattern symbols. Check brackets or special characters."
+        "Use words from the question only. Remove brackets or symbols like * or ?."
       );
     });
   });

@@ -263,7 +263,7 @@ export function validateRegex(pattern: string): string | undefined {
     new RegExp(pattern.trim(), "i");
     return undefined;
   } catch {
-    return "Question match has unsupported pattern symbols. Check brackets or special characters.";
+    return "Use words from the question only. Remove brackets or symbols like * or ?.";
   }
 }
 

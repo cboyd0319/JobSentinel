@@ -911,7 +911,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/utils/formValidation.ts",
-      "URL must use http:// or https://\nURL must not include credentials\n",
+      "URL must use http:// or https://\nURL must not include credentials\nQuestion match has unsupported pattern symbols. Check brackets or special characters.\n",
     );
     writeFixtureFile(
       root,

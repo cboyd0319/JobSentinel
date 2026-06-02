@@ -275,6 +275,12 @@ actionable findings in this active-plan surface or the relevant plan.
   src/components/feedback/SuccessScreen.test.tsx` passed 5 tests, `node --test
   scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found no
   removed GitHub-first feedback phrases, and `npm run lint:bloat` passed.
+- Committed local question-match validation copy cleanup replaces technical
+  pattern-symbol wording with plain question-word guidance. Product-copy sensors
+  now reject the old validation wording if it drifts back. Focused verification
+  passed: `npx vitest run src/utils/formValidation.test.ts` passed 78 tests,
+  `node --test scripts/check-product-copy.test.mjs` passed 32 tests, targeted
+  search found no removed validation phrases, and `npm run lint:bloat` passed.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -346,6 +352,8 @@ Scope:
 - Feedback submit and success screens must keep the local safe support report
   path primary and refer to optional online help rather than GitHub-specific
   help-page copy.
+- Question-match validation should tell users what to do in plain terms instead
+  of naming pattern symbols, brackets, or special characters first.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
@@ -360,6 +368,7 @@ node --test scripts/check-product-copy.test.mjs
 node --test scripts/check-security-docs.test.mjs
 node --test scripts/check-privacy-logging.test.mjs scripts/check-repo-bloat.test.mjs
 ! rg -n "This opens GitHub in your browser|GitHub should have opened|The GitHub page keeps replies and updates" src/components/feedback
+! rg -n "unsupported pattern symbols|Check brackets or special characters" src/utils/formValidation.ts src/utils/formValidation.test.ts
 ! rg -n "Technical Details|Signal Weights|Database Schema|API Commands|invoke\\(|ghost_reasons TEXT|ghost_score|repost_count|Ghost configuration commands|get_ghost_config|set_ghost_config|reset_ghost_config" docs/features/ghost-detection.md
 ! rg -n "For contributors|Developer Setup|Advanced: where JobSentinel saves local files" docs/user/QUICK_START.md
 ! rg -n "JSON Resume content|basics\\.|work\\[\\]|Developer contract|Implementation paths|select_and_import_json_resume|import_json_resume|Returned renderer DTOs|Run the focused Rust tests|cargo test core::resume::json_resume" docs/features/json-resume-import.md

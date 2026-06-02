@@ -133,6 +133,12 @@ Recent remote integration evidence:
   src/components/feedback/SuccessScreen.test.tsx` passed 5 tests, `node --test
   scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found no
   removed GitHub-first feedback phrases, and `npm run lint:bloat` passed.
+- Committed local question-match validation copy cleanup replaces technical
+  pattern-symbol wording with plain question-word guidance. Product-copy sensors
+  now reject the old validation wording if it drifts back. Focused verification
+  passed: `npx vitest run src/utils/formValidation.test.ts` passed 78 tests,
+  `node --test scripts/check-product-copy.test.mjs` passed 32 tests, targeted
+  search found no removed validation phrases, and `npm run lint:bloat` passed.
 - Current local source-name copy follow-up changes README source coverage,
   source feature docs, public job-source issue template, shared source labels,
   and frontend mocks from `HN Who's Hiring` wording to `Startup and tech job
