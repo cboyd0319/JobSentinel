@@ -83,7 +83,7 @@ function getPostingRiskGuidance(
       level: "high",
       title: "Verify before tailoring",
       description:
-        "This posting has strong stale, repost, or low-detail signals. Check the source before spending serious time.",
+        "This posting has strong stale, repost, or low-detail signals. Open the original job page before spending serious time.",
       ariaLabel: "verify before tailoring",
     };
   }
@@ -93,7 +93,7 @@ function getPostingRiskGuidance(
       level: "medium",
       title: "Review before tailoring",
       description:
-        "This posting has multiple warning signs. A quick source check can protect your time.",
+        "This posting has multiple warning signs. A quick original-posting check can protect your time.",
       ariaLabel: "review before tailoring",
     };
   }

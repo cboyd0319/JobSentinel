@@ -1,6 +1,6 @@
 # Getting Started with JobSentinel
 
-**A private, local-first job-search assistant.**
+**A private job-search assistant that keeps your data on your computer.**
 
 This guide helps you install JobSentinel, create a first saved search, and know
 where to get help if something does not work.
@@ -14,8 +14,8 @@ You'll need to install JobSentinel on your computer. Here's the quick version:
 **Is JobSentinel free?**
 
 Yes. JobSentinel is free, will always stay free, and will always remain MIT
-licensed. The code is free and open source, and you do not need a paid account
-to use the core app.
+licensed. You can use it without a paid account, and people can use the code to
+help more job seekers, including by building something better.
 
 **Download the installer** (recommended)
 

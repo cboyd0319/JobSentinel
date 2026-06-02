@@ -977,6 +977,9 @@ and record actionable findings in this active-plan surface.
   support-report sanitizer for saved reports, copied safe reports, and GitHub
   issue clipboard content, including unlabeled employer, role, and layoff/job
   search narrative redaction.
+- Current local broad-audience copy follow-up replaces jargon in Quick Start,
+  resume import, privacy tables, match/posting-risk guidance, and source-health
+  troubleshooting with plain job-seeker language.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

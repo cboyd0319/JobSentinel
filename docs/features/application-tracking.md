@@ -18,7 +18,7 @@ private notes. JobSentinel keeps this workflow local by default.
 
 | Workflow | Label | Default behavior |
 | --- | --- | --- |
-| Application board | Local only, Sensitive | Records stay in the local SQLite database. |
+| Application board | Local only, Sensitive | Records stay on this device. |
 | Notes and contacts | Local only, Sensitive | Private notes and recruiter details stay local. |
 | Follow-up reminders | Local only | Reminders are generated locally. |
 | Interview tracking | Local only, Sensitive | Interview details stay local unless the user exports them. |
@@ -99,7 +99,7 @@ Follow-up reminders should help the user spend energy carefully:
 - Application records, notes, contacts, salary details, and interview details
   stay local by default.
 - External notification channels require user configuration.
-- No application tracking feature should upload a full local database.
+- No application tracking feature should upload all local job-search data.
 - Private notes, salary floors, resumes, and unrelated application history must
   not be sent to any external AI provider by default.
 - Research and grant evaluation should use public postings and synthetic

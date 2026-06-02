@@ -34,7 +34,7 @@ or save your tailoring energy.
 | Label | What it means |
 | ----- | ------------- |
 | **Lower risk** | Available evidence does not show strong warning signs |
-| **Needs light review** | Check the source before spending much time |
+| **Needs light review** | Open the original job page before spending much time |
 | **Multiple warning signs** | Verify the role before tailoring |
 | **Verify before tailoring** | Do not spend serious time until the posting is confirmed |
 

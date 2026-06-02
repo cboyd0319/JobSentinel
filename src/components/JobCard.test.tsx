@@ -230,7 +230,7 @@ describe("JobCard", () => {
         "Verify before tailoring",
       );
       expect(
-        screen.getByText(/check the source before spending serious time/i),
+        screen.getByText(/open the original job page before spending serious time/i),
       ).toBeInTheDocument();
       expect(
         screen.getByRole("article", {
@@ -248,7 +248,7 @@ describe("JobCard", () => {
         "Review before tailoring",
       );
       expect(
-        screen.getByText(/quick source check can protect your time/i),
+        screen.getByText(/quick original-posting check can protect your time/i),
       ).toBeInTheDocument();
     });
 

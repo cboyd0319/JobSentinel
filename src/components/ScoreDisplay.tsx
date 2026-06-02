@@ -94,7 +94,7 @@ function getScoreInfo(score: number) {
     return {
       label: "Strong Match",
       explanation:
-        "Strong evidence this fits your stated skills, pay, and preferences. Worth tailoring after a source check.",
+        "Strong evidence this fits your stated skills, pay, and preferences. Worth tailoring after checking the original posting.",
     };
   if (score >= SCORE_THRESHOLD_GOOD)
     return {

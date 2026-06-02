@@ -210,7 +210,7 @@ export const GhostIndicator = memo(function GhostIndicator({
           ))}
         </ul>
       ) : (
-        <p className="text-xs">Some posting details may need a source check</p>
+        <p className="text-xs">Some posting details may need checking against the original job page</p>
       )}
       {jobId && !feedbackState && (
         <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">

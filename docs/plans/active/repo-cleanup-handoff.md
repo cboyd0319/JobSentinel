@@ -1242,6 +1242,9 @@ Next high-value passes:
      sanitizer for saved reports, copied reports, and GitHub issue clipboard
      content, including unlabeled employer, role, and layoff/job-search narrative
      redaction.
+     The latest broad-audience copy follow-up replaces jargon in Quick Start,
+     resume import, privacy tables, match/posting-risk guidance, and
+     source-health troubleshooting with plain job-seeker language.
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.

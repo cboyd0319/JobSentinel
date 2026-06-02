@@ -22,7 +22,7 @@ plain-language status and safe next steps.
 | Having trouble | Some recent checks failed | Try again later or use search links if urgent |
 | Not working | Repeated recent checks failed | Prefer other sources or open official company pages |
 | Off | User or policy turned source off | Turn on only if useful and allowed |
-| Not checked | No recent check data | Run a source check or wait for the next scheduled check |
+| Not checked | No recent check data | Check this job site now or wait for the next scheduled check |
 
 ## Dashboard Surface
 
@@ -33,7 +33,7 @@ The Settings troubleshooting dashboard should show:
 - One row per source with status, recent success, average check time, jobs
   found, last check, and a sanitized latest issue.
 - Run history for recent attempts.
-- Source-check buttons for known supported sources.
+- Job-site check buttons for known supported sources.
 - Safe support report actions when a user needs help.
 
 ## Source Policy
@@ -43,18 +43,18 @@ Source health must follow the same rules for job sources:
 - Prefer official feeds, public feeds, and official employer or application
   platform postings.
 - Check sites politely and avoid reading more page data than needed.
-- Do not add hidden source checks.
+- Do not add hidden job-site checks.
 - Do not collect restricted-site session credentials.
 - Do not get around human checks or platform controls.
 - Do not include raw credentials, cookies, private notes, resumes, salary floors,
   or application history in health errors or support reports.
 - For optional user-configured source addresses such as JobsWithGPT, disclose that
   JobsWithGPT receives only saved job titles, location, remote preference, and
-  result limit for source checks. These addresses must stay off unless
+  result limit for job-site checks. These addresses must stay off unless
   configured and the exact details are reviewed and approved locally.
 
 LinkedIn is intentionally handled as a user-opened search-link destination. It
-should not appear as a background source, credential-renewal prompt, or source
+should not appear as a background source, credential-renewal prompt, or job-site
 check.
 
 ## For Maintainers

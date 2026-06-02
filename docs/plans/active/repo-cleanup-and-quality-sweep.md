@@ -1321,3 +1321,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   sanitizer for saved reports, copied safe reports, and GitHub issue clipboard
   content, including unlabeled employer, role, and layoff/job-search narrative
   redaction.
+- Current local broad-audience copy follow-up replaces jargon in Quick Start,
+  resume import, privacy tables, match/posting-risk guidance, and source-health
+  troubleshooting with plain job-seeker language.

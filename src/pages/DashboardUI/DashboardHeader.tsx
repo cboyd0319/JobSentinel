@@ -85,7 +85,7 @@ export const DashboardHeader = memo(function DashboardHeader({
                       ? "Checking..."
                       : autoRefreshEnabled && nextRefreshTime
                         ? formatTimeUntil(nextRefreshTime)
-                        : "Idle"
+                        : "Ready"
                     }
                   </span>
                   {scrapingStatus.last_scrape && !scrapingStatus.is_running && (

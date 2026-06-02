@@ -15,11 +15,11 @@ It is a local, advisory signal for readability, fit, and preparation.
 | Workflow | Label | Default behavior |
 | --- | --- | --- |
 | Resume upload and parsing | Local only, Sensitive | Resume text and file details stay local. |
-| Resume library | Local only, Sensitive | Resume versions stay in the local database. |
+| Resume library | Local only, Sensitive | Resume versions stay on this device. |
 | Skill review and edits | Local only, Sensitive | User edits stay local. |
 | Resume/job fit review | Local only, Sensitive | Resume data is compared with saved job data locally. |
 | Job posting text | Public-data only | Job descriptions are public or user-saved posting content. |
-| OCR for scanned PDFs | Local only, Sensitive | Optional local OCR uses system tools when enabled. |
+| Scanned resume PDFs | Local only, Sensitive | If enabled, JobSentinel tries to read scanned resume text on this device. |
 
 External AI is not required for resume matching.
 

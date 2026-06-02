@@ -578,7 +578,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                 </h3>
                 <p className="text-sm text-alert-600 dark:text-alert-300 mb-3">
                   Open Settings and update these saved connections if alerts or
-                  source checks stop working.
+                  job-site checks stop working.
                 </p>
                 <div className="space-y-2">
                   {credentials.map((cred) => (
@@ -712,7 +712,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                           {scraper.jobs_found_24h === 0 &&
                           scraper.total_runs_24h > 0 &&
                           scraper.health_status === "healthy" ? (
-                            <Tooltip content="This source checked successfully but found 0 jobs. Check your search terms or this source may be empty.">
+                            <Tooltip content="This job site checked successfully but found 0 jobs. Check your search terms or this source may be empty.">
                               <span className="font-medium text-amber-600 dark:text-amber-400 cursor-help">
                                 <span className="inline-flex items-center justify-end gap-1">
                                   0

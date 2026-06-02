@@ -1,6 +1,6 @@
 # Import from Resume App
 
-JobSentinel can import a resume saved in the
+JobSentinel can import a resume app export saved in the
 [JSON Resume](https://jsonresume.org/) format and turn it into an editable
 local resume draft.
 
@@ -11,7 +11,7 @@ service.
 
 ## What users can do
 
-- Import a JSON Resume file from the Resume page.
+- Import a resume app export from the Resume page.
 - Review the imported contact, work, education, skills, project, award, and
   certification details before using them.
 - Edit or remove imported items in Resume Builder.
@@ -58,8 +58,8 @@ those details manually after import.
 
 | Problem | User-facing action |
 | ------- | ------------------ |
-| File is not valid JSON | Explain that the file could not be read and let the user choose another file. |
-| File uses unsupported JSON Resume fields | Import supported fields and tell the user to review the draft. |
+| Resume export cannot be read | Explain that the file could not be read and let the user choose another file. |
+| Some resume export sections are not supported | Import supported fields and tell the user to review the draft. |
 | Imported details look wrong | Let the user edit or delete the draft locally. |
 | Import fails unexpectedly | Offer a safe support report that redacts resume content by default. |
 
