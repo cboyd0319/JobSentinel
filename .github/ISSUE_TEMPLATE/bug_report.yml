@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to report a bug!
+        Thanks for taking the time to report a problem.
 
         **Important:** Please don't include any personal information like:
         - Specific job titles you're searching for
@@ -25,15 +25,15 @@ body:
     attributes:
       label: What happened?
       description: A clear description of what went wrong
-      placeholder: "When I clicked X, I expected Y but got Z instead"
+      placeholder: "I clicked Search Now, and no jobs appeared."
     validations:
       required: true
 
   - type: textarea
     id: steps
     attributes:
-      label: Steps to reproduce
-      description: How can we make this happen?
+      label: What did you do before it happened?
+      description: Include only details you are comfortable sharing.
       placeholder: |
         1. Go to '...'
         2. Click on '...'

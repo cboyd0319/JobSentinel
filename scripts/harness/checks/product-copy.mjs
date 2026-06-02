@@ -319,6 +319,7 @@ const technicalFirstUserCopyPaths = new Set([
   "docs/harness/readme-information-design.md",
   "docs/user/DEEP_LINKS.md",
   "docs/user/QUICK_START.md",
+  "CODE_OF_CONDUCT.md",
   "PRIVACY.md",
   "SECURITY.md",
 ]);
@@ -904,6 +905,10 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /ATS platforms/i,
       /background monitoring/i,
       /job source adapter guide/i,
+      /Download the latest installer from\s*\[GitHub Releases\]/i,
+      /Local SQLite storage/i,
+      /Your OS credential store/i,
+      /Support sharing links\s*\|[^\n]*(?:GitHub issue pages|Google Drive folders)/i,
     ];
 
     if (readmePatterns.some((pattern) => pattern.test(text))) {
@@ -964,6 +969,11 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /webhook URLs/i,
       /API\s+keys/i,
       /Credential command logs/i,
+      /`config\.json`,\s*localStorage/i,
+      /accidental commits,\s*backup tools,\s*or diagnostic bundles/i,
+      /local app config or SQLite/i,
+      /command line in the developer reference/i,
+      /Invalid key\s*\|\s*App sent an unsupported saved-detail name/i,
     ];
 
     if (credentialsSecurityPatterns.some((pattern) => pattern.test(text))) {
@@ -1280,6 +1290,10 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Add New Webhook to Workspace/i,
       /Advanced Sending Server Reference/i,
       /Native OS notifications/i,
+      /System notification daemon alerts/i,
+      /https:\/\/api\.slack\.com\/messaging\/webhooks/i,
+      /Message \[@BotFather\]/i,
+      /Find the Telegram chat number/i,
     ];
 
     if (notificationDocPatterns.some((pattern) => pattern.test(text))) {
@@ -1301,6 +1315,12 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /force a refresh/i,
       /choose \*\*More Settings\*\*/i,
       /choose More Settings/i,
+      /download list on the newest release/i,
+      /Optional:\s*build it yourself/i,
+      /developer tools and commands/i,
+      /https:\/\/api\.slack\.com\/messaging\/webhooks/i,
+      /Support file locations/i,
+      /%LOCALAPPDATA%\\JobSentinel\\jobs\.db/i,
     ];
 
     if (quickStartPatterns.some((pattern) => pattern.test(text))) {
@@ -1320,6 +1340,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /does not monitor directly/i,
       /local monitoring/i,
       /Advanced filters/i,
+      /Contributors can also add sites in code/i,
+      /Browser extension integration/i,
     ];
 
     if (deepLinkPatterns.some((pattern) => pattern.test(text))) {
@@ -1502,7 +1524,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "docs/BOOKMARKLET.md") {
-    return /advanced settings|another port|advanced connection settings|Works best on individual job pages from:[\s\S]{0,260}(?:LinkedIn|Indeed|Glassdoor)|Official ATS job pages|public ATS sources|after restarting JobSentinel/i.test(
+    return /advanced settings|another port|advanced connection settings|Works best on individual job pages from:[\s\S]{0,260}(?:LinkedIn|Indeed|Glassdoor)|Official ATS job pages|public ATS sources|after restarting JobSentinel|If support asks, open \*\*Connection settings\*\*|local safety code|Debug reports must redact/i.test(
       text,
     );
   }
@@ -1539,6 +1561,14 @@ export function hasTechnicalFirstUserCopy(root, path) {
     if (sourceStatusPatterns.some((pattern) => pattern.test(text))) {
       return true;
     }
+  }
+
+  if (path === "SECURITY.md") {
+    return /email the maintainer directly or use GitHub's private vulnerability/i.test(text);
+  }
+
+  if (path === "CODE_OF_CONDUCT.md") {
+    return /reported by opening an issue or contacting\s+the maintainer directly/i.test(text);
   }
 
   if (path === "src/pages/Settings.tsx") {
@@ -2140,11 +2170,15 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /SMTP credentials/i,
     /special API access/i,
     /check your API key/i,
+    /report a bug/i,
+    /Steps to reproduce/i,
+    /I expected Y but got Z instead/i,
     /Scraper Issue/i,
     /scraper issue/i,
     /Affected Scraper/i,
     /Which job board scraper/i,
     /Scraper Health Dashboard/i,
+    /Job source health details/i,
     /Scraper returns/i,
     /Jobs are being incorrectly parsed/i,
     /Rate limiting or blocking issues/i,

@@ -6,15 +6,15 @@ If you discover a security vulnerability in JobSentinel, please report it respon
 
 **DO NOT** open a public GitHub issue for security vulnerabilities.
 
-Instead, please email the maintainer directly or use GitHub's private vulnerability
-reporting feature (Security tab → Report a vulnerability).
+Instead, use the private security contact listed for the project. If you use
+GitHub, private vulnerability reporting also works.
 
 ## What to Include
 
 When reporting a vulnerability, please include:
 
 1. Description of the vulnerability
-2. Steps to reproduce
+2. What you did before it happened
 3. Potential impact
 4. Any suggested fixes (optional but appreciated)
 

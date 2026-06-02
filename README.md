@@ -95,8 +95,8 @@ data sharing.
 
 ## Download and First Run
 
-Download the latest installer from
-[GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases/latest).
+Download the latest installer from the
+[latest download page](https://github.com/cboyd0319/JobSentinel/releases/latest).
 
 | Platform | Installer |
 | -------- | --------- |
@@ -280,12 +280,12 @@ a hosted JobSentinel service.
 
 | Data or action | Where it lives |
 | -------------- | -------------- |
-| Search settings, saved jobs, notes, and applications | Local SQLite storage |
-| Slack, Discord, Teams, email, Telegram, and USAJobs secrets | Your OS credential store |
+| Search settings, saved jobs, notes, and applications | Saved on your computer |
+| Slack, Discord, Teams, email, Telegram, and USAJobs secrets | Your computer's password store |
 | Desktop notifications | Your computer |
 | External alerts | Only the channels you configure |
 | Enabled job-source checks | Public job-source services or user-approved job sources and career pages; selected search details only |
-| Support sharing links | GitHub issue pages and Google Drive folders open only when you choose them |
+| Support sharing links | Help links open only when you choose them |
 | Optional location detection | FreeIPAPI HTTPS lookup only after you click **Detect location**; cached for the session |
 | Optional external AI | Disabled by default; every request needs opt-in, preview, approval, minimization, and local request logging |
 | Telemetry and analytics | Not collected |

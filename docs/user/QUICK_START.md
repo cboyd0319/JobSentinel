@@ -20,7 +20,7 @@ help more job seekers, including by building something better.
 **Download the installer** (recommended)
 
 1. Open the [latest download page](https://github.com/cboyd0319/JobSentinel/releases).
-2. Look for the download list on the newest release.
+2. Look for the installer list on the latest download page.
 3. Download the installer for your computer:
    - **Windows installer**
    - **Mac installer**
@@ -70,14 +70,14 @@ This can happen because JobSentinel is a new open-source app.
 </details>
 
 <details>
-<summary><strong>Optional: build it yourself</strong></summary>
+<summary><strong>For contributors</strong></summary>
 <br>
 
 Most people should download the installer and skip this section.
 
 If you prefer to build JobSentinel from the source code, use
-[Developer Setup](../developer/GETTING_STARTED.md). That guide has the
-developer tools and commands.
+[Developer Setup](../developer/GETTING_STARTED.md). That guide has the setup
+steps for people changing the app.
 
 </details>
 
@@ -356,7 +356,7 @@ not.
 
 #### Slack
 
-1. Go to [Slack's connection-link page](https://api.slack.com/messaging/webhooks).
+1. Open Slack's alert-connection page from JobSentinel Settings.
 2. Create a new connection link for your workspace.
 3. Copy the connection link.
 4. In JobSentinel, open Settings, choose **Sources & Alerts**, then paste it in
@@ -387,17 +387,17 @@ not need a cloud account or a JobSentinel account. When you turn on job sources
 or alerts, JobSentinel contacts only the sources or alert providers you choose.
 
 <details>
-<summary><strong>Support file locations</strong></summary>
+<summary><strong>Advanced: where JobSentinel saves local files</strong></summary>
 <br>
 
 You do not need to find app files for normal help. Use **Save Safe Support
 Report** or **Copy Safe Support Report** instead. The locations below are for
 extra support or your own inspection.
 
-**Saved jobs and settings:** your local JobSentinel file.
+**Saved jobs and settings:** your local JobSentinel app data.
 
-- Windows: `%LOCALAPPDATA%\JobSentinel\jobs.db`
-- macOS: `~/Library/Application Support/JobSentinel/jobs.db`
+- Windows: saved in your local app data folder
+- macOS: saved in your Application Support folder
 
 **Saved passwords and notification details:** stored in your operating system's
 secure vault.

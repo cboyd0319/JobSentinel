@@ -193,6 +193,11 @@ boundaries, and harness modularity:
   maintainer GitHub assumptions and troubleshooting-first labels. The visible
   Settings support area now says `Help and Status`, and product-copy tests
   reject the old phrases.
+- Applied read-only agent findings across README download/data-boundary wording,
+  Quick Start install and local-file wording, Deep Links
+  contributor/browser-add-on wording, Browser Button privacy wording,
+  notification and credential docs, public issue templates, SECURITY, and
+  CODE_OF_CONDUCT. Product-copy tests reject the old phrases.
 - Changed the optional connected-source contact history label from
   `Source host` to `Website contacted`, updated Settings coverage, and added a
   product-copy guard against raw source metadata labels returning.

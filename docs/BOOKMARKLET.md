@@ -64,8 +64,7 @@ JobSentinel's search link or add the job manually when import does not work.
 
 - Make sure JobSentinel is open.
 - Turn on the import helper in Settings.
-- If support asks, open **Connection settings**, follow their
-  instructions, and try again.
+- Open **Connection settings** only when JobSentinel shows that step.
 - Copy the browser button again if you already saved a job, restarted
   JobSentinel, or waited about one hour.
 - If your firewall asks, allow connections for JobSentinel.
@@ -89,13 +88,15 @@ fill in any blank details in JobSentinel.
 ## Privacy
 
 - JobSentinel creates the browser button on your computer.
-- Hidden details include a local safety code that stays out of normal setup.
-- The local safety code is refreshed when the browser button is copied, works
-  for one save, and expires after about one hour.
+- Hidden details include a private one-use browser button detail that stays out
+  of normal setup.
+- The private one-use detail is refreshed when the browser button is copied,
+  works for one save, and expires after about one hour.
 - If copying fails, the previous browser button keeps working until its safety
   code is used once or expires.
 - Job data stays local unless you choose to share it.
-- Debug reports must redact the browser button details and saved job details.
+- Safe support reports must redact the browser button details and saved job
+  details.
 
 ## For Maintainers
 
@@ -103,7 +104,7 @@ The browser import button is implemented by the bookmarklet module. The user
 interface should keep technical details hidden:
 
 - Do not show the generated script in the UI.
-- Do not expose the local safety code.
+- Do not expose the private one-use browser button detail.
 - Keep copied browser-button codes one-use, short-lived, and session-scoped.
 - Activate a refreshed safety code only after the browser button is copied.
 - Prefer "browser import button", "import helper", and "connection settings"

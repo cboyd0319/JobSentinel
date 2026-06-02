@@ -177,6 +177,12 @@ Current cleanup posture:
   copy away from maintainer GitHub assumptions and replaces the visible
   Settings `Troubleshooting` heading with `Help and Status`. Product-copy
   coverage rejects the old phrases.
+- Current local docs sidecar copy follow-up applies read-only agent findings
+  across README download/data-boundary wording, Quick Start install and
+  local-file wording, Deep Links contributor/browser-add-on wording, Browser
+  Button privacy wording, notification and credential docs, public issue
+  templates, SECURITY, and CODE_OF_CONDUCT. Product-copy coverage rejects the
+  old phrases.
 - Current local connected-source wording follow-up changes the Settings contact
   history label from `Source host` to `Website contacted`, with focused
   Settings and product-copy coverage against raw source metadata labels

@@ -33,8 +33,9 @@ discussions, and any other channels where you represent the project.
 
 ## Enforcement
 
-Instances of unacceptable behavior may be reported by opening an issue or contacting
-the maintainer directly. All complaints will be reviewed and investigated.
+Instances of unacceptable behavior may be reported through the private project
+contact or another listed help channel. All complaints will be reviewed and
+investigated.
 
 Project maintainers have the right to remove, edit, or reject contributions that
 violate this Code of Conduct, and may ban contributors for behavior they deem

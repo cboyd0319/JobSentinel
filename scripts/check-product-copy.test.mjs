@@ -672,6 +672,8 @@ test("product copy rejects technical-first settings copy", () => {
         "| Login and CAPTCHA | Handled by you on the site | Not bypassed |",
         "| Best for | Sites with login, anti-bot, or policy limits |",
         "[developer guide](../developer/ADDING_DEEP_LINK_SITES.md)",
+        "Contributors can also add sites in code",
+        "Browser extension integration",
         "",
       ].join("\n"),
     );
@@ -689,6 +691,12 @@ test("product copy rejects technical-first settings copy", () => {
         "scan allowed sources immediately",
         "### Ghost Job Detection",
         "force a refresh",
+        "Look for the download list on the newest release.",
+        "<summary><strong>Optional: build it yourself</strong></summary>",
+        "developer tools and commands",
+        "https://api.slack.com/messaging/webhooks",
+        "<summary><strong>Support file locations</strong></summary>",
+        "%LOCALAPPDATA%\\JobSentinel\\jobs.db",
         "",
       ].join("\n"),
     );
@@ -930,7 +938,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "README.md",
-      "GitHub is optional. Maintainers and contributors can\n",
+      "GitHub is optional. Maintainers and contributors can\nDownload the latest installer from [GitHub Releases]\nLocal SQLite storage\nYour OS credential store\n| Support sharing links | GitHub issue pages and Google Drive folders |\n",
     );
     writeFixtureFile(
       root,
@@ -1112,7 +1120,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "docs/BOOKMARKLET.md",
-      "choose another port in advanced settings\nadvanced connection settings\nafter restarting JobSentinel\n",
+      "choose another port in advanced settings\nadvanced connection settings\nafter restarting JobSentinel\nIf support asks, open **Connection settings**\nlocal safety code\nDebug reports must redact\n",
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
@@ -1419,6 +1427,10 @@ test("product copy rejects technical provider setup shortcuts", () => {
         'Click "Add New Webhook to Workspace"',
         "Advanced Sending Server Reference",
         "Native OS notifications",
+        "System notification daemon alerts",
+        "https://api.slack.com/messaging/webhooks",
+        "Message [@BotFather]",
+        "Find the Telegram chat number",
         "For developers and the curious",
         "Webhooks are validated before sending:",
         "Manual Email Server Reference",
@@ -1440,6 +1452,11 @@ test("product copy rejects technical provider setup shortcuts", () => {
         "webhook URLs",
         "API keys",
         "Credential command logs",
+        "`config.json`, localStorage",
+        "accidental commits, backup tools, or diagnostic bundles",
+        "local app config or SQLite",
+        "command line in the developer reference",
+        "Invalid key | App sent an unsupported saved-detail name",
       ].join("\n"),
     );
 
@@ -1516,7 +1533,16 @@ test("product copy rejects first-run and Rule 0 privacy drift", () => {
       "payload minimization\npayload preview\nlocal metadata logging\n",
     );
     writeFixtureFile(root, "docs/user/QUICK_START.md", "Click Run anyway.\nYour data stays yours. Always.\n");
-    writeFixtureFile(root, "SECURITY.md", "Works completely offline\nSensitive data never written to disk unencrypted\n");
+    writeFixtureFile(
+      root,
+      "SECURITY.md",
+      "Works completely offline\nSensitive data never written to disk unencrypted\nemail the maintainer directly or use GitHub's private vulnerability\n",
+    );
+    writeFixtureFile(
+      root,
+      "CODE_OF_CONDUCT.md",
+      "Instances of unacceptable behavior may be reported by opening an issue or contacting\nthe maintainer directly.\n",
+    );
     writeFixtureFile(root, "src/components/ErrorBoundary.tsx", "Your data is safe.\n");
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/SetupWizard.tsx"), true);
@@ -1526,6 +1552,7 @@ test("product copy rejects first-run and Rule 0 privacy drift", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "RESPONSIBLE_AI.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/QUICK_START.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "SECURITY.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "CODE_OF_CONDUCT.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/ErrorBoundary.tsx"), true);
   });
 });
@@ -1695,6 +1722,8 @@ test("product copy rejects technical issue-template support wording", () => {
         "In JobSentinel, click Settings, then Copy Debug Report.",
         "label: Debug Information",
         "description: Paste the ANONYMIZED debug report from JobSentinel.",
+        "label: Steps to reproduce",
+        "When I clicked X, I expected Y but got Z instead",
         "",
       ].join("\n"),
     );
@@ -1706,6 +1735,7 @@ test("product copy rejects technical issue-template support wording", () => {
         "label: Affected Scraper",
         "description: Which job board scraper is affected?",
         "label: Scraper Health Dashboard Output",
+        "label: Job source health details",
         "",
       ].join("\n"),
     );

@@ -192,7 +192,7 @@ Yes. The easiest path is to send feedback from JobSentinel and ask for the
 site. Include the site name and, if you are comfortable sharing it, an example
 public search page.
 
-Contributors can also add sites in code. See the
+People changing JobSentinel itself can also add sites. See the
 [contributor guide](../developer/ADDING_DEEP_LINK_SITES.md) for that path.
 
 ## Comparison With Job Sources
@@ -248,7 +248,7 @@ This is expected - log in to view results.
 - Save favorite search-link searches
 - Custom site preferences
 - Bulk open (open multiple sites at once)
-- Browser extension integration
+- Browser add-on support
 
 ### Later
 

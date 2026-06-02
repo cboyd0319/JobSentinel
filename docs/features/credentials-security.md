@@ -2,14 +2,13 @@
 
 JobSentinel keeps notification secrets, access codes, and passwords in the
 operating system credential store. Secrets do not belong
-in `config.json`, localStorage, docs, logs, or screenshots.
+in plain text files, screenshots, shared notes, docs, or logs.
 
 ## Why It Matters
 
-Plaintext credentials in a config file can be exposed by local file access,
-accidental commits, backup tools, or diagnostic bundles. OS-native credential
-stores reduce that risk by encrypting secrets at rest and enforcing local user
-access controls.
+Plain text credentials can be exposed by backups, copied files, shared reports,
+or screenshots. OS-native credential stores reduce that risk by encrypting
+secrets at rest and enforcing local user access controls.
 
 Supported stores:
 
@@ -31,7 +30,8 @@ Supported stores:
 | USAJobs access code | OS password store | USAJobs connection |
 
 Non-secret app settings, such as enabled sources, search filters, thresholds,
-locations, and notification preferences, remain in local app config or SQLite.
+locations, and notification preferences, remain in saved app settings on this
+computer.
 
 Legacy LinkedIn credential keys may exist on older installations. They are kept
 only so JobSentinel can delete or redact old values. New LinkedIn session
@@ -69,9 +69,8 @@ Linux requires a Secret Service provider. GNOME Keyring and KWallet are the
 common providers.
 
 If saved connection details stop working, restart your computer or sign out and
-back in, then re-enter the details in JobSentinel Settings. Advanced Linux users
-can inspect the desktop keyring from the command line in the developer
-reference below.
+back in, then re-enter the details in JobSentinel Settings. If this still
+fails, save a safe support report.
 
 ## Migration
 
@@ -152,7 +151,7 @@ the provider used by the desktop environment.
 | Access not allowed | Password-store prompt was declined | Allow JobSentinel in OS password-store settings |
 | Not found | Saved detail is missing | Re-enter and save the detail in Settings |
 | Service unavailable | Linux password store is stopped | Start or restart the password store |
-| Invalid key | App sent an unsupported saved-detail name | Try again; if it repeats, save a safe support report so the problem can be fixed |
+| JobSentinel could not save that detail | Saved-detail name is not supported | Try again; if it repeats, save a safe support report so the problem can be fixed |
 
 ## User Guarantees
 

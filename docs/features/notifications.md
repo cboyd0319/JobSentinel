@@ -69,7 +69,7 @@ That's it. No connection link needed.
 
 - **Windows:** Toast notifications in Action Center
 - **macOS:** Notification Center alerts
-- **Linux:** System notification daemon alerts
+- **Linux:** Desktop alerts
 
 Desktop alerts use privacy-preserving wording by default. They tell you that a
 match or reminder is ready in JobSentinel without showing job titles, company
@@ -103,7 +103,7 @@ JobSentinel links to those pages from the Email settings panel.
 Use this only if you already use Slack and want chat alerts. Desktop alerts and
 email alerts are easier to set up.
 
-1. Go to [Slack's channel connection page](https://api.slack.com/messaging/webhooks)
+1. Open Slack's alert-connection page from JobSentinel Settings
 2. Follow Slack's steps to create a channel connection link
 3. Pick the workspace and channel you want to receive alerts
 4. Use "JobSentinel" as the name if Slack asks
@@ -148,25 +148,22 @@ email alerts are easier to set up.
 
 ### Telegram
 
-Use desktop or email alerts unless you already use Telegram for automatic
-alerts. Telegram alerts are an optional chat-alert path because Telegram
-requires setup details shown in the app.
+Use desktop or email alerts unless you already know how to create a Telegram
+bot. Telegram alerts are an optional chat-alert path because Telegram requires
+setup details shown in the app.
 
 <details>
 <summary><strong>Optional Telegram alert setup</strong></summary>
 <br>
 
-1. Message [@BotFather](https://t.me/BotFather) on Telegram
-2. Send `/newbot` and follow the prompts
-3. Copy the setup code it gives you
-4. Add your Telegram alert bot to a group or channel
-5. Find the Telegram chat number for that group or channel:
-   - For groups: Use [@userinfobot](https://t.me/userinfobot)
-   - For channels: Forward a message to [@getmyid_bot](https://t.me/getmyid_bot)
-6. In JobSentinel, open Settings, choose Sources & Alerts, then paste the setup
-   code and chat number in Telegram Notifications
+1. Create a Telegram bot
+2. Copy the setup code Telegram gives you
+3. Add your Telegram alert bot to a group or channel
+4. Add the Telegram chat details shown by your Telegram setup
+5. In JobSentinel, open Settings, choose Sources & Alerts, then paste the setup
+   code and chat details in Telegram Notifications
 
-**Note:** Group chat numbers usually start with `-`.
+**Note:** Use the exact chat details shown by Telegram.
 
 **What you'll get:** Formatted messages right on your phone.
 

@@ -31,8 +31,8 @@ actionable findings in this active-plan surface or the relevant plan.
 
 ## Current Posture
 
-- Branch was clean and ahead of `origin/main` by 27 commits before the current
-  README/settings help-copy slice began. Use `git status --short --branch` for live
+- Branch was clean and ahead of `origin/main` by 28 commits before the current
+  docs sidecar copy slice began. Use `git status --short --branch` for live
   evidence before committing, pushing, or reporting remote state.
 - Latest committed frontend verification evidence: `npm run test:run` passed
   110 Vitest files and 2637 tests, `npm run build` passed in 4.13 seconds, and
@@ -105,7 +105,7 @@ actionable findings in this active-plan surface or the relevant plan.
   scripts/check-product-copy.test.mjs` passed 32 tests, `npm run lint:bloat`,
   `npm run test:scripts` passed 455 script tests, `npm run lint:docs`,
   `npm run harness:check`, and `git diff --check` passed.
-- Current local README/settings help-copy slice changes front-door support copy
+- Committed README/settings help-copy slice changes front-door support copy
   away from maintainer GitHub assumptions and replaces the visible Settings
   `Troubleshooting` heading with `Help and Status`. Product-copy coverage now
   rejects the old phrases. Focused verification passed: `npx vitest run
@@ -114,6 +114,14 @@ actionable findings in this active-plan surface or the relevant plan.
   passed: `npm run lint:bloat`, `npm run test:scripts` passed 455 script tests,
   `npm run lint:docs`, `npm run lint`, `npm run harness:check`, and
   `git diff --check`.
+- Current local docs sidecar copy slice applies read-only agent findings across
+  README download/data-boundary wording, Quick Start install and local-file
+  wording, Deep Links contributor/browser-add-on wording, Browser Button privacy
+  wording, notification and credential docs, public issue templates, SECURITY,
+  and CODE_OF_CONDUCT. Product-copy sensors now reject the old phrases. Focused
+  verification passed: `node --test scripts/check-product-copy.test.mjs`
+  passed 32 tests, `npm run lint:bloat`, `npm run test:scripts` passed 455
+  script tests, `npm run lint:docs`, and `git diff --check`.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -143,6 +151,9 @@ Scope:
   support report path primary and avoid maintainer/GitHub assumptions.
 - README and Settings help surfaces must avoid maintainer/GitHub assumptions and
   troubleshooting-first labels.
+- User-facing install, support, browser-button, notification, credential,
+  security, conduct, and public issue-template docs must avoid technical setup,
+  debugging, maintainer, and GitHub-first assumptions.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
