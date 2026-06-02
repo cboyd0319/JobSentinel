@@ -37,6 +37,7 @@ import {
   hasStaleHardcodedMigrationCount,
   hasStaleInformalMaintainerFooter,
   hasStaleMacosDeveloperDocs,
+  hasStalePlatformDataPathDocs,
   hasStaleMarketIntelligenceDocShape,
   hasStaleLinuxBuildWorkflowTriggerDoc,
   hasStaleResumeMatcherDocShape,
@@ -251,6 +252,16 @@ test("docs drift check rejects active doc and platform tooling drift", () => {
     assert.equal(hasTopLevelActiveDocGlyphMarkers(root, "docs/ML_FEATURE.md"), true);
     assert.equal(
       hasStaleGettingStartedToolingDocs(root, "docs/developer/GETTING_STARTED.md"),
+      true,
+    );
+
+    writeFixtureFile(
+      root,
+      "docs/developer/GETTING_STARTED.md",
+      "~/Library/Application Support/com.jobsentinel.app/jobs.db\n",
+    );
+    assert.equal(
+      hasStalePlatformDataPathDocs(root, "docs/developer/GETTING_STARTED.md"),
       true,
     );
     assert.equal(

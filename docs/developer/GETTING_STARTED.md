@@ -218,8 +218,8 @@ The SQLite database is **created automatically** on first launch — no setup ne
 | Platform    | Path                                                        |
 | ----------- | ----------------------------------------------------------- |
 | **Windows** | `%LOCALAPPDATA%\JobSentinel\jobs.db`                        |
-| **macOS**   | `~/Library/Application Support/com.jobsentinel.app/jobs.db` |
-| **Linux**   | `~/.local/share/com.jobsentinel.app/jobs.db`                |
+| **macOS**   | `~/Library/Application Support/JobSentinel/jobs.db`         |
+| **Linux**   | `~/.local/share/jobsentinel/jobs.db`                        |
 
 Migrations run automatically. You never need to set up tables manually.
 
@@ -230,10 +230,10 @@ Open with [DB Browser for SQLite](https://sqlitebrowser.org/):
 explorer %LOCALAPPDATA%\JobSentinel
 
 # macOS
-open ~/Library/Application\ Support/com.jobsentinel.app/
+open ~/Library/Application\ Support/JobSentinel/
 
 # Linux
-xdg-open ~/.local/share/com.jobsentinel.app/
+xdg-open ~/.local/share/jobsentinel/
 ```
 
 ---

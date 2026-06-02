@@ -526,6 +526,16 @@ export function hasStaleGettingStartedToolingDocs(root, path) {
   );
 }
 
+export function hasStalePlatformDataPathDocs(root, path) {
+  if (path !== "docs/developer/GETTING_STARTED.md") {
+    return false;
+  }
+
+  return /(?:Application Support|\.local\/share)\/com\.jobsentinel\.app/.test(
+    readFileSync(join(root, path), "utf8"),
+  );
+}
+
 export function hasStaleMacosDeveloperDocs(root, path) {
   if (path !== "docs/developer/MACOS_DEVELOPMENT.md") {
     return false;
@@ -908,6 +918,7 @@ const docsDriftRules = [
   [hasStaleE2eWaitGuidance, "replace stale E2E wait guidance"],
   [hasFixedWaitInActiveE2eRuntime, "replace fixed E2E runtime wait"],
   [hasStaleGettingStartedToolingDocs, "sync getting-started tooling docs"],
+  [hasStalePlatformDataPathDocs, "sync platform data path docs"],
   [hasStaleMacosDeveloperDocs, "sync macOS developer docs"],
   [hasStaleSqliteConfigurationDoc, "sync SQLite configuration doc"],
   [hasUnlinkedLinuxBuildGuide, "link Linux build guide from docs hub"],

@@ -1,7 +1,7 @@
 //! macOS-Specific Implementation (macOS 13+)
 //!
 //! This module contains macOS-specific code for JobSentinel.
-//! Fully functional for development and testing on macOS.
+//! It owns local directory paths and macOS environment checks.
 
 use std::path::PathBuf;
 

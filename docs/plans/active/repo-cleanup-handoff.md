@@ -102,6 +102,14 @@ Recent local verification evidence:
   results; `cargo test --lib platforms::macos` passed 22 tests with 1 ignored;
   and `npm run doctor` reported the environment ready with only the expected
   Node 26 local-runtime warning against the Node 20 CI baseline.
+- Current local platform-doc drift fix syncs the getting-started database paths
+  with live platform code: macOS data lives under `~/Library/Application
+  Support/JobSentinel`, Linux data under `~/.local/share/jobsentinel`, and the
+  stale `com.jobsentinel.app` path is now blocked by docs-drift coverage.
+  Verification passed: `node --test scripts/check-docs-drift.test.mjs
+  scripts/check-repo-bloat.test.mjs` passed 236 tests, `npm run test:scripts`
+  passed 488 tests, `npm run lint:docs` passed, `npm run lint:bloat` passed,
+  and `git diff --check` passed.
 - Current local Resume Match parser fix keeps required and preferred job-post
   sections separate when a posting uses ordinary single-line headings, so
   preferred words are not promoted into required review buckets. Verification
