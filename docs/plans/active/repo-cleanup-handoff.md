@@ -124,6 +124,9 @@ Current cleanup posture:
 - Current local dashboard wording follow-up changes visible and accessible
   analytics labels to `Application Summary` and `Application summary charts`,
   with product-copy coverage against the old wording.
+- Current local dashboard section-label follow-up changes remaining chart labels
+  to `Weekly Applications`, `Where Jobs Came From`, `Pay Ranges Found`, and
+  `At a Glance`, with product-copy coverage against the old wording.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.

@@ -1087,6 +1087,10 @@ test("product copy rejects bare dashboard summary recovery", () => {
         'setError("Could not load application summary");',
         'aria-label="Analytics charts"',
         ">Analytics Dashboard<",
+        "Weekly Activity",
+        "Jobs by Source",
+        "Salary Distribution",
+        "Quick Stats",
         "",
       ].join("\n"),
     );

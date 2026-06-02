@@ -173,6 +173,9 @@ boundaries, and harness modularity:
 - Changed the Dashboard summary toggle and chart region from analytics wording
   to `Application Summary` and `Application summary charts`, with product-copy
   coverage against the old labels.
+- Changed remaining Dashboard summary labels from chart jargon to
+  job-search-language: `Weekly Applications`, `Where Jobs Came From`,
+  `Pay Ranges Found`, and `At a Glance`.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

@@ -68,6 +68,10 @@ and record actionable findings in this active-plan surface.
   `Analytics Dashboard` label to `Application Summary` and the accessible chart
   region label to `Application summary charts`, with product-copy coverage
   against the old analytics wording.
+- Latest local dashboard section-label follow-up changes remaining chart labels
+  from `Weekly Activity`, `Jobs by Source`, `Salary Distribution`, and
+  `Quick Stats` to `Weekly Applications`, `Where Jobs Came From`,
+  `Pay Ranges Found`, and `At a Glance`.
 - Latest local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare `Could not load saved answers` message
   to support-report recovery wording, with focused component and product-copy

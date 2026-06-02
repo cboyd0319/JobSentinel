@@ -202,11 +202,11 @@ describe("DashboardWidgets", () => {
 
       expect(screen.getByText("Application Progress")).toBeInTheDocument();
       expect(screen.queryByText("Application Funnel")).not.toBeInTheDocument();
-      expect(screen.getByText("Weekly Activity")).toBeInTheDocument();
-      expect(screen.getByText("Jobs by Source")).toBeInTheDocument();
+      expect(screen.getByText("Weekly Applications")).toBeInTheDocument();
+      expect(screen.getByText("Where Jobs Came From")).toBeInTheDocument();
       expect(screen.getByText(/Connected job source/)).toBeInTheDocument();
       expect(screen.queryByText(/jobswithgpt/)).not.toBeInTheDocument();
-      expect(screen.getByText("Salary Distribution")).toBeInTheDocument();
+      expect(screen.getByText("Pay Ranges Found")).toBeInTheDocument();
     });
 
     it("renders charts region with aria-label", async () => {
@@ -223,7 +223,7 @@ describe("DashboardWidgets", () => {
       ).toBeInTheDocument();
     });
 
-    it("shows Quick Stats section", async () => {
+    it("shows At a Glance section", async () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
@@ -232,7 +232,7 @@ describe("DashboardWidgets", () => {
 
       fireEvent.click(screen.getByText("Application Summary"));
 
-      expect(screen.getByText("Quick Stats")).toBeInTheDocument();
+      expect(screen.getByText("At a Glance")).toBeInTheDocument();
     });
   });
 
@@ -344,7 +344,7 @@ describe("DashboardWidgets", () => {
       // Should still work, just won't show jobs by source chart
       fireEvent.click(screen.getByText("Application Summary"));
 
-      expect(screen.getByText("Quick Stats")).toBeInTheDocument();
+      expect(screen.getByText("At a Glance")).toBeInTheDocument();
     });
 
     it("handles undefined optional analytics data gracefully", async () => {
@@ -363,9 +363,9 @@ describe("DashboardWidgets", () => {
 
       fireEvent.click(screen.getByText("Application Summary"));
 
-      expect(screen.getByText("Quick Stats")).toBeInTheDocument();
-      expect(screen.queryByText("Jobs by Source")).not.toBeInTheDocument();
-      expect(screen.queryByText("Salary Distribution")).not.toBeInTheDocument();
+      expect(screen.getByText("At a Glance")).toBeInTheDocument();
+      expect(screen.queryByText("Where Jobs Came From")).not.toBeInTheDocument();
+      expect(screen.queryByText("Pay Ranges Found")).not.toBeInTheDocument();
     });
   });
 
@@ -416,7 +416,7 @@ describe("DashboardWidgets", () => {
 
       fireEvent.click(screen.getByText("Application Summary"));
 
-      expect(screen.queryByText("Jobs by Source")).not.toBeInTheDocument();
+      expect(screen.queryByText("Where Jobs Came From")).not.toBeInTheDocument();
     });
 
     it("hides salary chart when no salary data", async () => {
@@ -438,7 +438,7 @@ describe("DashboardWidgets", () => {
 
       fireEvent.click(screen.getByText("Application Summary"));
 
-      expect(screen.queryByText("Salary Distribution")).not.toBeInTheDocument();
+      expect(screen.queryByText("Pay Ranges Found")).not.toBeInTheDocument();
     });
   });
 

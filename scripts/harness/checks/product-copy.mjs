@@ -852,7 +852,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
     path === "src/components/DashboardWidgets.tsx" &&
     (
       /setError\(\s*["'`]Could not load application summary["'`]\s*\)/i.test(text) ||
-      /Analytics Dashboard|Analytics charts/i.test(text)
+      /Analytics Dashboard|Analytics charts|Weekly Activity|Jobs by Source|Salary Distribution|Quick Stats/i.test(text)
     )
   ) {
     return true;

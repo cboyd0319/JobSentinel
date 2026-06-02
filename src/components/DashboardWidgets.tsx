@@ -92,16 +92,16 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
       const stats = await invoke<ApplicationStats>('get_application_stats');
       setAppStats(stats);
 
-      // Fetch jobs by source (optional, degrade gracefully)
+      // Fetch source counts (optional, degrade gracefully)
       const jobs = await invoke<{ source: string; count: number }[]>('get_jobs_by_source').catch((err) => {
-        logError('Failed to load jobs by source (non-critical):', err);
+        logError('Failed to load source counts (non-critical):', err);
         return [];
       });
       setJobsBySource(Array.isArray(jobs) ? jobs : []);
 
-      // Calculate salary ranges from jobs (optional, degrade gracefully)
+      // Calculate pay range counts from jobs (optional, degrade gracefully)
       const salaryData = await invoke<SalaryRange[]>('get_salary_distribution').catch((err) => {
-        logError('Failed to load salary distribution (non-critical):', err);
+        logError('Failed to load pay range counts (non-critical):', err);
         return [];
       });
       setSalaryRanges(Array.isArray(salaryData) ? salaryData : []);
@@ -210,10 +210,10 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
             </Card>
           )}
 
-          {/* Weekly Activity */}
+          {/* Weekly Applications */}
           {appStats?.weekly_applications && appStats.weekly_applications.length > 0 && (
             <Card className="p-4 dark:bg-surface-800">
-              <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-4">Weekly Activity</h4>
+              <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-4">Weekly Applications</h4>
               <ResponsiveContainer width="100%" height={200}>
                 <AreaChart data={appStats.weekly_applications}>
                   <defs>
@@ -245,10 +245,10 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
             </Card>
           )}
 
-          {/* Jobs by Source */}
+          {/* Where Jobs Came From */}
           {sourceData.length > 0 && (
             <Card className="p-4 dark:bg-surface-800">
-              <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-4">Jobs by Source</h4>
+              <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-4">Where Jobs Came From</h4>
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
                   <Pie
@@ -275,10 +275,10 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
             </Card>
           )}
 
-          {/* Salary Distribution */}
+          {/* Pay Ranges Found */}
           {salaryRanges.length > 0 && (
             <Card className="p-4 dark:bg-surface-800">
-              <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-4">Salary Distribution</h4>
+              <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-4">Pay Ranges Found</h4>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={salaryRanges}>
                   <XAxis
@@ -300,10 +300,10 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
             </Card>
           )}
 
-          {/* Quick Stats Cards */}
+          {/* At a Glance Cards */}
           {appStats && (
             <Card className="p-4 dark:bg-surface-800 md:col-span-2">
-              <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-4">Quick Stats</h4>
+              <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-4">At a Glance</h4>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <StatBox
                   label="Employer replies"
