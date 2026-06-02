@@ -274,9 +274,11 @@ describe("ResumeOptimizer", () => {
 
     expect(screen.getByText("Job Words Overview")).toBeInTheDocument();
     expect(screen.getByText("Job words")).toBeInTheDocument();
+    expect(screen.getByText("Details included")).toBeInTheDocument();
     expect(screen.getByText("Words Found (2)")).toBeInTheDocument();
     expect(screen.getByText("Words To Review (1)")).toBeInTheDocument();
     expect(screen.getByText("Only use these words when they honestly fit your experience and improve clarity.")).toBeInTheDocument();
+    expect(screen.queryByText("Completeness")).not.toBeInTheDocument();
     expect(screen.queryByText(/Words To Add/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Keyword Matches/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Missing Keywords/i)).not.toBeInTheDocument();

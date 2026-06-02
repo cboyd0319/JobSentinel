@@ -1428,6 +1428,7 @@ test("product copy rejects stale zero-technical resume and shortcut copy", () =>
         "Improve Bullet Point",
         "Improved Version",
         "Could not improve bullet",
+        'ScoreItem label="Completeness"',
         "Paste resume details exported from JobSentinel or another supported tool.",
         "Browser session storage is unavailable. Resume Builder cannot tailor against this job.",
         "",

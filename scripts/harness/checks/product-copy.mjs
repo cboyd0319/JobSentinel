@@ -1053,6 +1053,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /(^|[>\n])\s*Fix:\s*\{issue\.fix\}/i,
       /Impact:\s*\{suggestion\.impact\}/i,
       /Your resume data has been imported and analyzed/i,
+      /ScoreItem\s+label=["'`]Completeness["'`]/,
     ];
 
     if (resumeMatchDetailPatterns.some((pattern) => pattern.test(text))) {

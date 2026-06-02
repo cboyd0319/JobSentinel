@@ -36,6 +36,9 @@ and record actionable findings in this active-plan surface.
   Dashboard no-source guidance, Quick Start notification setup, notification
   docs, smart-scoring docs, Settings tests, Dashboard tests, and product-copy
   sensors now guard the old labels and old user-doc path.
+- Latest local ResumeOptimizer follow-up changes the resume-match score label
+  from `Completeness` to `Details included`. ResumeOptimizer and product-copy
+  tests guard the old label.
 - Latest local resume-readability follow-up changes score-adjacent labels from
   `Complete`, `Completeness`, `missing`, `issues`, `View Details`, and `Full
   Resume Readability Review` to details, details-included, to-review,

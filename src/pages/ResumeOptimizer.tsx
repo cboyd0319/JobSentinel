@@ -797,7 +797,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                     <div className="space-y-3">
                       <ScoreItem label="Job words" score={analysisResult.keyword_score} />
                       <ScoreItem label="Format" score={analysisResult.format_score} />
-                      <ScoreItem label="Completeness" score={analysisResult.completeness_score} />
+                      <ScoreItem label="Details included" score={analysisResult.completeness_score} />
                     </div>
                   </div>
                 </Card>

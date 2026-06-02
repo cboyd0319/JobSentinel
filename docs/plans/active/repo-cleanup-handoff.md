@@ -163,6 +163,9 @@ Current cleanup posture:
   Dashboard no-source guidance, Quick Start notification setup, notification
   docs, smart-scoring docs, Settings tests, Dashboard tests, and product-copy
   coverage guard the old labels and old setup path.
+- Current local ResumeOptimizer follow-up changes the resume-match score label
+  from Completeness to Details included. ResumeOptimizer and product-copy
+  coverage guard the old label.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.

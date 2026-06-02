@@ -208,6 +208,8 @@ boundaries, and harness modularity:
   Preferences and Sources & Alerts. Dashboard no-source copy, Quick Start,
   notifications docs, smart-scoring docs, Settings tests, Dashboard tests, and
   product-copy sensors guard the old labels and old setup path.
+- Changed ResumeOptimizer resume-match score label from Completeness to Details
+  included. ResumeOptimizer and product-copy tests guard the old label.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.
