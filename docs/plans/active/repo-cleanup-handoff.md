@@ -228,6 +228,13 @@ Current cleanup posture:
   troubleshooting, and safe-status-detail language. It also replaces old
   source setup and credential wording with user-approved source
   addresses, saved access details, and turned-on access-code language.
+- Current local agent-aided copy audit replaces technical setup and policy
+  wording in Settings, support-history export, notification docs, credentials
+  security docs, privacy/AI policy docs, market docs, user-data docs,
+  application-tracking docs, and resume-matcher docs with turned-on,
+  connection-link, password-store, request-detail, and local-troubleshooting
+  language. Harness/PR checklist snippets now use request-review wording.
+  Product-copy tests guard the old phrases.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.

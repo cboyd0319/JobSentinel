@@ -18,7 +18,7 @@ checking the actual job posting.
 | Skill, role, company, and location trends | Local only | Trend records stay on this device. |
 | Salary trend review | Local only, Sensitive | Salary-floor context stays local. |
 | Hiring trend alerts | Local only | Alerts are created locally from saved job data. |
-| External notifications | Sensitive | Optional notification channels are used only if configured. |
+| External notifications | Sensitive | Optional notification channels are used only if the user turns them on. |
 | Job posting data | Public-data only | Source postings are public or user-saved job content. |
 
 External AI is not required for Hiring Trends.
@@ -84,7 +84,7 @@ effort:
 ## Data Boundaries
 
 - Market metrics are computed from local job data by default.
-- Notification delivery is optional and user-configured.
+- Notification delivery is optional and works only after the user turns it on.
 - No market feature should upload the user's local job database.
 - Market summaries should not include private notes, resumes, salary floors, or
   application history unless the user explicitly chooses to combine them in a

@@ -103,6 +103,13 @@ and record actionable findings in this active-plan surface.
   source setup and credential wording with user-approved source
   addresses, saved access details, and turned-on access-code language.
   Product-copy tests guard the old phrases.
+- Latest local agent-aided copy audit replaces technical setup and policy
+  wording in Settings, support-history export, notification docs, credentials
+  security docs, privacy/AI policy docs, market docs, user-data docs,
+  application-tracking docs, and resume-matcher docs with turned-on,
+  connection-link, password-store, request-detail, and local-troubleshooting
+  language. Harness/PR checklist snippets now use request-review wording.
+  Product-copy tests guard the old phrases.
 - Latest local resume-readability follow-up changes score-adjacent labels from
   `Complete`, `Completeness`, `missing`, `issues`, `View Details`, and `Full
   Resume Readability Review` to details, details-included, to-review,

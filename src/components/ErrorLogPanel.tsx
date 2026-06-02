@@ -287,7 +287,7 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
                   onClick={exportErrors}
                   title="For support only. Copy or save a safe support report first."
                 >
-                  Save extra app details (support only)
+                  Save local troubleshooting report
                 </Button>
                 <Button size="sm" variant="danger" onClick={clearErrors}>
                   Clear Problem List

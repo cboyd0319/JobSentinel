@@ -46,7 +46,7 @@ user-opened search-link destination, not a background notification source.
 Desktop alerts keep job details inside JobSentinel. Optional email and chat
 alerts may include job title, company, location, salary, remote status, match
 score, source, and job link because those services deliver the alert outside
-the app. Raw local match reasons, saved search strategy, salary-floor details,
+the app. Local match reasons, saved search strategy, salary-floor details,
 private notes, and application history stay inside JobSentinel; open the app to
 review those details.
 
@@ -118,9 +118,9 @@ email alerts are easier to set up.
 ### Discord
 
 1. Open your Discord server
-2. Go to Server Settings > Integrations
-3. Create a channel connection link
-4. Name it "JobSentinel"
+2. Skip this channel if you do not already use Discord alerts
+3. Create or open a channel connection link
+4. Name it "JobSentinel" if Discord asks
 5. Pick a channel
 6. Copy the connection link
 7. In JobSentinel, open Settings, choose Sources & Alerts, then paste the link in
@@ -236,8 +236,8 @@ into JobSentinel.
 
 ### Discord alert looks broken?
 
-Create a fresh Discord connection link from Server Settings > Integrations,
-paste it into JobSentinel, then click Test.
+Copy a fresh Discord channel connection link, paste it into JobSentinel, then
+click Test.
 
 ### Telegram says "chat not found"?
 
@@ -247,10 +247,10 @@ paste it into JobSentinel, then click Test.
 
 ---
 
-## Technical Details
+## Maintainer Notes
 
 <details>
-<summary><strong>For developers and the curious</strong></summary>
+<summary><strong>Alert delivery details</strong></summary>
 
 ### Parallel Sending
 
@@ -261,9 +261,9 @@ equals the slowest channel, not the sum of all channels.
 
 If one channel fails, others still send. You only get an error if ALL channels fail.
 
-### URL Validation
+### Connection Link Checks
 
-Webhooks are validated before sending:
+Connection links are checked before alerts send:
 
 - **Slack:** `https://hooks.slack.com/services/...`
 - **Discord:** `https://discord.com/api/webhooks/...` or
@@ -284,9 +284,9 @@ src-tauri/src/core/notify/
 - desktop.rs   # Desktop alerts
 ```
 
-### Manual Email Server Reference
+### Manual Email Details
 
-Only needed if your email service gives you these details.
+Use manual email details only if your email service gives them to you.
 
 | Provider | Server                | Port |
 | -------- | --------------------- | ---- |

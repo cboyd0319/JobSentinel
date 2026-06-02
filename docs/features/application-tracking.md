@@ -77,7 +77,7 @@ The application board supports the full job-search path:
 | Offer Accepted | User accepted an offer. |
 | Offer Declined | User declined an offer. |
 | Not Selected | Employer declined to continue. |
-| No Response | No response after the configured quiet period. |
+| No Response | No response after the quiet period you chose. |
 | Withdrawn | User chose to stop pursuing the role. |
 
 Stored status keys may use legacy internal names for compatibility. Visible

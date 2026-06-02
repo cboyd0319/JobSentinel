@@ -18,7 +18,7 @@
 - [ ] Core workflows still work locally without a cloud account or external AI provider.
 - [ ] No data is sent externally without explicit user opt-in and review.
 - [ ] External AI remains optional, disabled by default, and routed through the privacy-first AI gateway.
-- [ ] Payload preview, redaction, cancellation, approval, and local request logging stay intact.
+- [ ] Request review, redaction, cancellation, approval, and local request logging stay intact.
 - [ ] No full database upload, private notes, application history, resume, or salary floor is sent by default.
 - [ ] No new telemetry or tracking added.
 - [ ] Sensitive data is stored using OS keyring when credentials are required, not plaintext.

@@ -454,6 +454,10 @@ test("product copy rejects technical-first settings copy", () => {
         "(Tech careers)",
         "This site sometimes blocks automatic checks",
         "New scans use this warning behavior",
+        "These job boards can be monitored when enabled",
+        "Loading ghost config",
+        "Server Settings → Integrations → create a channel connection → Copy link",
+        "Channel → Connectors → create a channel connection → Copy link",
         "Browser Integration",
         "low-trust job postings",
         "Stale-posting warning after (days)",
@@ -900,7 +904,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/components/ErrorLogPanel.tsx",
-      "Save Extra Support Details\n",
+      "Save Extra Support Details\nSave extra app details (support only)\n",
     );
     writeFixtureFile(
       root,
@@ -1372,11 +1376,33 @@ test("product copy rejects technical provider setup shortcuts", () => {
         'Click "Add New Webhook to Workspace"',
         "Advanced Sending Server Reference",
         "Native OS notifications",
+        "For developers and the curious",
+        "Webhooks are validated before sending:",
+        "Manual Email Server Reference",
+        "Server Settings > Integrations",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/credentials-security.md",
+      [
+        "| Credential | Storage key | Used for |",
+        "| Slack webhook URL | jobsentinel_slack_webhook | Slack notifications |",
+        "| Discord webhook URL | jobsentinel_discord_webhook | Discord notifications |",
+        "| Microsoft Teams webhook URL | jobsentinel_teams_webhook | Teams notifications |",
+        "| Email SMTP password | jobsentinel_smtp_password | Email alerts |",
+        "Credential values stay local",
+        "whether a credential exists",
+        "Plaintext config credential fields",
+        "webhook URLs",
+        "API keys",
+        "Credential command logs",
       ].join("\n"),
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/notifications.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/credentials-security.md"), true);
   });
 });
 
@@ -1401,6 +1427,8 @@ test("product copy rejects market-intel jargon in hiring trends surfaces", () =>
         "Decide whether it reflects real skill demand or source bias.",
         "Hiring trends are only as good as the sources currently monitored.",
         "job-board bias",
+        "Optional notification channels are used only if configured.",
+        "Notification delivery is optional and user-configured.",
         "",
       ].join("\n"),
     );
@@ -1419,7 +1447,31 @@ test("product copy rejects first-run and Rule 0 privacy drift", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/pages/SetupWizard.tsx", "Career Path\nReview & Edit\nComplete setup wizard\n");
     writeFixtureFile(root, "src/components/CareerProfileSelector.tsx", "My Own Search\nStarts with {profile.keywordsBoost.length} helpful skills\n");
-    writeFixtureFile(root, "README.md", "Click Open Anyway.\nNo data is ever sent.\n");
+    writeFixtureFile(
+      root,
+      "README.md",
+      "Click Open Anyway.\nNo data is ever sent.\nuser-configured alerts\nmetadata logging\npayload minimization\npayload preview\n",
+    );
+    writeFixtureFile(
+      root,
+      "PRIVACY.md",
+      [
+        "Optional user-configured job-source addresses",
+        "These addresses are off unless configured",
+        "metadata only",
+        "raw titles",
+        "raw location",
+        "raw local match reasons",
+        "raw prompts",
+        "Public ATS postings.",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "RESPONSIBLE_AI.md",
+      "payload minimization\npayload preview\nlocal metadata logging\n",
+    );
     writeFixtureFile(root, "docs/user/QUICK_START.md", "Click Run anyway.\nYour data stays yours. Always.\n");
     writeFixtureFile(root, "SECURITY.md", "Works completely offline\nSensitive data never written to disk unencrypted\n");
     writeFixtureFile(root, "src/components/ErrorBoundary.tsx", "Your data is safe.\n");
@@ -1427,6 +1479,8 @@ test("product copy rejects first-run and Rule 0 privacy drift", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/SetupWizard.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/CareerProfileSelector.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "PRIVACY.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "RESPONSIBLE_AI.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/QUICK_START.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "SECURITY.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/ErrorBoundary.tsx"), true);
@@ -1572,7 +1626,7 @@ test("product copy rejects non-protective no-response labels", () => {
     writeFixtureFile(
       root,
       "docs/features/application-tracking.md",
-      "| Ghosted | No response |\nSlack, Discord, Teams, SMTP, or other channels are used only if the user configures them.\n",
+      "| Ghosted | No response |\nNo response after the configured quiet period.\nSlack, Discord, Teams, SMTP, or other channels are used only if the user configures them.\n",
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Applications.tsx"), true);
@@ -1716,7 +1770,18 @@ test("product copy rejects technical-first resume copy", () => {
     writeFixtureFile(
       root,
       "docs/features/resume-matcher.md",
-      "understand parsing, scoring, or ATS internals\nnot ATS manipulation\n",
+      "understand parsing, scoring, or ATS internals\nnot ATS manipulation\nshow the exact payload\nrequest metadata locally\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/user-data-management.md",
+      [
+        "external channels are used only if configured",
+        "raw private values",
+        "redacted configuration summaries",
+        "raw notes",
+        "credentials, private paths, cookies, webhook",
+      ].join("\n"),
     );
     writeFixtureFile(root, "docs/features/smart-scoring.md", "advanced scoring configuration\n");
     writeFixtureFile(
@@ -1749,6 +1814,7 @@ test("product copy rejects technical-first resume copy", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Salary.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/resume-builder.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/resume-matcher.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/user-data-management.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/smart-scoring.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/ghost-detection.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/salary-ai.md"), true);

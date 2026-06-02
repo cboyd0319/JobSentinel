@@ -37,7 +37,7 @@
       "External AI, including OpenAI or another provider,",
       "is optional, disabled by default,",
       "privacy-first AI gateway",
-      "payload preview, redaction, cancellation, approval, and local request logging"
+      "show those details before anything leaves the device"
     ],
     "PRIVACY.md": [
       "Rule 0: user privacy and security are non-negotiable.",
@@ -87,7 +87,7 @@
     ".github/PULL_REQUEST_TEMPLATE.md": [
       "Rule 0: user privacy and security are non-negotiable.",
       "External AI remains optional, disabled by default, and routed through the privacy-first AI gateway.",
-      "Payload preview, redaction, cancellation, approval, and local request logging stay intact.",
+      "Request review, redaction, cancellation, approval, and local request logging stay intact.",
       "Safe support report path stays easy, local-first, and sanitized.",
       "Zero-technical-knowledge users and technical plus non-technical job searches stay supported."
     ],

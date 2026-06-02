@@ -269,6 +269,13 @@ boundaries, and harness modularity:
   safe-status-detail language. Also replaced old source setup and credential
   wording with user-approved source addresses, saved access details, and
   turned-on access-code language. Product-copy tests guard the old phrases.
+- Changed Settings, support-history export, notification docs, credentials
+  security docs, privacy/AI policy docs, market docs, user-data docs,
+  application-tracking docs, and resume-matcher docs from technical setup and
+  policy wording to turned-on, connection-link, password-store,
+  request-detail, and local-troubleshooting language. Harness/PR checklist
+  snippets now use request-review wording. Product-copy tests guard the old
+  phrases.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

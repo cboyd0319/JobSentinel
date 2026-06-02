@@ -42,24 +42,26 @@ operating system credential store where supported:
 ## What may leave the device
 
 JobSentinel sends data outside the device only when a feature needs a network
-request or the user configures an external channel.
+request or the user turns on an external channel.
 
 Possible network activity:
 
 - Job-source checks to enabled sources and official public job feeds.
-- Optional user-configured job-source addresses, such as JobsWithGPT, may
+- Optional user-approved job-source addresses, such as JobsWithGPT, may
   receive the saved job titles, location, remote preference, and result limit
-  needed for that source check. These addresses are off unless configured and
+  needed for that source check. These addresses are off unless turned on and
   the exact details have been reviewed and approved locally.
-  JobSentinel records the latest approved contact locally as metadata only:
+  JobSentinel records the latest approved contact locally as safe status details:
   contact time, website contacted, count-only request categories, and outcome.
-  It does not store raw titles, raw location, resumes, salary floors, private
-  notes, application history, or full source links in that contact history.
+  It does not store full titles, full location text, resumes, salary floors,
+  private notes, application history, or full source links in that contact
+  history.
 - User-requested location detection through FreeIPAPI.
-- External alerts through configured Slack, Discord, Teams, Telegram, or email
-  channels. Alert payloads may include public job details and match score, but
-  raw local match reasons, salary-floor details, private notes, and application
-  history stay in JobSentinel.
+- External alerts through Slack, Discord, Teams, Telegram, or email channels the
+  user turns on.
+  Alert details may include public job details and match score, but local match
+  reasons, salary-floor details, private notes, and application history stay in
+  JobSentinel.
 - Feedback or issue-report sharing through GitHub or Google Drive only when the
   user chooses to open those support links.
 - Source-specific sign-in or session validation when the user enables a source
@@ -86,10 +88,10 @@ All external AI calls must use the AI gateway described in
 That gateway must enforce:
 
 - Explicit user opt-in before any external AI request.
-- Payload minimization: send only fields needed for the selected feature.
-- Payload preview before sending.
+- Send only fields needed for the selected feature.
+- Show the exact request details before sending.
 - Redaction, edit, and cancel paths where UI exists.
-- Local metadata logging of feature, provider, timestamp, and high-level data
+- Local request logging of feature, provider, timestamp, and high-level data
   categories sent.
 - No full database uploads.
 - No private notes or unrelated application history unless explicitly selected.
@@ -104,10 +106,10 @@ full settings. Job import removes embedded credentials, fragments, tracking
 parameters, and sensitive query parameters before preview, hashing, storage,
 or returning a result; the import command returns only the saved job id.
 
-API keys and provider credentials must not be hardcoded. If a user configures a
-provider key, it should live in the operating system credential store where
-supported. Logs must record only metadata, never raw prompts, resumes, notes,
-salary floors, credentials, or full responses.
+API keys and provider secrets must not be hardcoded. If a user adds a provider
+key, it should live in the operating system credential store where supported.
+Logs must record only safe request details, never full prompts, resumes, notes,
+salary floors, secrets, or full responses.
 
 ## What JobSentinel does not collect
 
@@ -132,11 +134,11 @@ provider terms before enabling optional external AI.
 Users control:
 
 - Which job sources are enabled.
-- Which external notification channels are configured.
+- Which external notification channels are turned on.
 - Whether location detection runs.
 - Whether feedback or safe support reports are shared.
 - Which saved jobs, notes, resumes, and application records are kept.
-- Whether optional credentials are added or removed.
+- Whether optional secrets or access details are added or removed.
 
 ## Safe support reports
 
@@ -147,10 +149,10 @@ Safe support reports should redact known sensitive values:
 
 - Names in known person-name fields or common name statements, emails, phone
   numbers, and tokens.
-- Webhook URLs and credentials.
+- Connection links and secrets.
 - Local file paths.
-- Raw resume text and application content.
-- Raw job-search queries where they are not needed for diagnosis.
+- Full resume text and application content.
+- Full job-search queries where they are not needed for diagnosis.
 
 ## Design rule
 
@@ -166,7 +168,7 @@ by default.
 Allowed by default:
 
 - Public official job postings.
-- Public ATS postings.
+- Public hiring-platform postings.
 - Synthetic resumes.
 - Synthetic salary floors.
 - Synthetic candidate profiles.

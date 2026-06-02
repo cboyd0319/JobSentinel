@@ -15,7 +15,7 @@ private circumstances. Core data workflows stay local by default.
 | Cover letter templates | Local only, Sensitive | Saved locally and never submitted automatically. |
 | Interview prep and follow-ups | Local only, Sensitive | Checklist state and reminders stay local. |
 | Saved searches | Local only, Sensitive | Search names, words, filters, and history stay local. |
-| Notification preferences | Local only, Sensitive | Preferences stay local; external channels are used only if configured. |
+| Notification preferences | Local only, Sensitive | Preferences stay local; external channels are used only if the user turns them on. |
 | Safe support reports | Local only, Sensitive | Reports are sanitized before copy or save. |
 | Location detection | Sensitive | Public-IP lookup happens only after explicit user action. |
 
@@ -71,13 +71,13 @@ instead of service internals.
 
 When something breaks, users can choose **Copy Safe Support Report** or **Save
 Safe Support Report** from Settings, App Problem History, crash recovery, or
-page error recovery. Reports are local by default and should avoid raw private
-values.
+page error recovery. Reports are local by default and should avoid full private
+details.
 
 Safe support reports can include high-level app state, feature names, timestamps,
-sanitized error categories, and redacted configuration summaries. They should
-not include raw notes, resumes, full search text, salary floors, credentials,
-private paths, cookies, webhook links, tokens, or full application history.
+sanitized error categories, and redacted settings summaries. They should not
+include full notes, resumes, full search text, salary floors, secrets, private
+paths, cookies, connection links, tokens, or full application history.
 
 ## Older Local Data
 

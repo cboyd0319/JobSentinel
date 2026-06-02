@@ -102,8 +102,8 @@ is built with OCR support and local OCR tools are installed.
 - Resume data stays local by default.
 - External AI is not required.
 - Any future external AI resume review must go through the AI gateway, require
-  explicit opt-in, show the exact payload, support redaction or cancellation,
-  and log high-level request metadata locally.
+  explicit opt-in, show the exact request contents, support redaction or
+  cancellation, and log high-level request details locally.
 - Resume matching should use public job-posting text plus the selected resume,
   not unrelated notes, salary floors, or application history.
 - Research and evaluation should use synthetic resumes unless a real user gives

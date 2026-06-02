@@ -6,10 +6,11 @@ software, not an employer screening system.
 
 External AI is optional, disabled by default, and routed through one AI gateway.
 Core workflows must work locally. Sensitive job-search data must stay local
-unless the user opts in, reviews the exact payload, and approves sending it.
+unless the user opts in, reviews the exact request details, and approves sending
+them.
 
 Rule 0: user privacy and security are non-negotiable. AI features must never
-weaken local-first storage, opt-in, payload preview, redaction, approval,
+weaken local-first storage, opt-in, request review, redaction, approval,
 credential safety, source boundaries, or human review. If an AI feature cannot
 meet that bar, it must not ship.
 
@@ -56,10 +57,11 @@ AI may help with:
 - Preparing compensation questions.
 - Generating documentation or synthetic test fixtures.
 
-Every external AI request needs opt-in, payload minimization, payload preview,
-user approval, and local metadata logging. Sensitive payloads need explicit
-selection by the user. Public-data-only requests must not include private notes,
-application history, resumes, salary floors, or unrelated local data.
+Every external AI request needs opt-in, only the needed details, a clear review
+screen before anything leaves the device, user approval, and local request
+logging. Sensitive details need explicit selection by the user. Public-data-only
+requests must not include private notes, application history, resumes, salary
+floors, or unrelated local data.
 
 ## Hiring-system transparency
 

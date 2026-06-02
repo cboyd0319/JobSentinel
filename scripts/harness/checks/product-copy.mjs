@@ -203,6 +203,7 @@ const installSecurityCopyPaths = new Set([
 
 const ruleZeroPrecisionCopyPaths = new Set([
   "PRIVACY.md",
+  "RESPONSIBLE_AI.md",
   "SECURITY.md",
   "README.md",
   "docs/features/notifications.md",
@@ -308,6 +309,7 @@ const technicalFirstUserCopyPaths = new Set([
   "docs/features/smart-scoring.md",
   "docs/features/notifications.md",
   "docs/features/one-click-apply.md",
+  "docs/features/credentials-security.md",
   "docs/features/resume-builder.md",
   "docs/features/resume-matcher.md",
   "docs/features/salary-ai.md",
@@ -738,6 +740,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /source bias/i,
       /sources currently monitored/i,
       /job-board bias/i,
+      /Optional notification channels are used only if configured/i,
+      /Notification delivery is optional and user-configured/i,
     ];
 
     if (hiringTrendPatterns.some((pattern) => pattern.test(text))) {
@@ -796,6 +800,19 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /GitHub feedback, and Google Drive are user-configured/i,
       /External alerts\s*\|[^\n]*(?:GitHub|Google Drive)/i,
       /Feedback or issue-report sharing through configured GitHub or Google Drive/i,
+      /Optional user-configured job-source addresses/i,
+      /These addresses are off unless configured/i,
+      /metadata only/i,
+      /raw titles/i,
+      /raw location/i,
+      /raw local match reasons/i,
+      /raw prompts/i,
+      /payload minimization/i,
+      /payload preview/i,
+      /user-configured alerts/i,
+      /user-configured\s+channels/i,
+      /metadata logging/i,
+      /local metadata logging/i,
       /source host/i,
       /title count/i,
       /work location mode/i,
@@ -846,6 +863,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
   if (
     path === "README.md" ||
     path === "ROADMAP.md" ||
+    path === "PRIVACY.md" ||
     path === "RESPONSIBLE_AI.md" ||
     path === "docs/harness/readme-information-design.md"
   ) {
@@ -892,6 +910,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /ATS internals/i,
       /ATS manipulation/i,
       /not ATS\s+manipulation/i,
+      /show the exact payload/i,
+      /request metadata locally/i,
     ];
 
     if (resumeMatcherPatterns.some((pattern) => pattern.test(text))) {
@@ -903,9 +923,44 @@ export function hasTechnicalFirstUserCopy(root, path) {
     const applicationTrackingPatterns = [
       /Slack,\s*Discord,\s*Teams,\s*SMTP/i,
       /user configures them/i,
+      /configured quiet period/i,
     ];
 
     if (applicationTrackingPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "docs/features/user-data-management.md") {
+    const userDataManagementPatterns = [
+      /external channels are used only if configured/i,
+      /raw private values/i,
+      /redacted configuration summaries/i,
+      /raw notes/i,
+      /credentials,\s*private paths,\s*cookies,\s*webhook/i,
+    ];
+
+    if (userDataManagementPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "docs/features/credentials-security.md") {
+    const credentialsSecurityPatterns = [
+      /Credential\s*\|\s*Storage key\s*\|\s*Used for/i,
+      /Slack webhook URL/i,
+      /Discord webhook URL/i,
+      /Microsoft Teams webhook URL/i,
+      /Email SMTP password/i,
+      /Credential values stay local/i,
+      /whether a credential exists/i,
+      /Plaintext config credential fields/i,
+      /webhook URLs/i,
+      /API\s+keys/i,
+      /Credential command logs/i,
+    ];
+
+    if (credentialsSecurityPatterns.some((pattern) => pattern.test(text))) {
       return true;
     }
   }
@@ -922,6 +977,11 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /verify the connection/i,
       /bot an admin/i,
       /manual provider setup/i,
+      /For developers and the curious/i,
+      /Webhooks are validated before sending/i,
+      /Manual Email Server Reference/i,
+      /Server Settings\s*>\s*Integrations/i,
+      /Advanced Sending Server Reference/i,
     ];
 
     if (notificationDocPatterns.some((pattern) => pattern.test(text))) {
@@ -1000,6 +1060,10 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Optional USAJobs auto-check/i,
       /Automatic USAJobs checks contact USAJobs/i,
       /New scans use this warning behavior/i,
+      /These job boards can be monitored when enabled/i,
+      /Loading ghost config/i,
+      /Server Settings\s*→\s*Integrations\s*→\s*create a channel connection\s*→\s*Copy link/i,
+      /Channel\s*→\s*Connectors\s*→\s*create a channel connection\s*→\s*Copy link/i,
       /Browser Integration/i,
       /low-trust job postings/i,
       /Stale-posting warning after \(days\)/i,
@@ -1438,7 +1502,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/components/ErrorLogPanel.tsx") {
-    return /Advanced: Save Support Details/i.test(text);
+    return /Advanced: Save Support Details|Save extra app details \(support only\)/i.test(text);
   }
 
   if (path === "src/components/DeepLinkGenerator.tsx") {

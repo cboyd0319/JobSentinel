@@ -2974,7 +2974,7 @@ export default function Settings({ onClose }: SettingsProps) {
                               ? "This doesn't look like a Discord connection link"
                               : undefined
                           }
-                          hint="Server Settings → Integrations → create a channel connection → Copy link"
+                          hint="In Discord, copy a channel connection link. Skip this if you do not already use Discord alerts."
                           autoComplete="off"
                         />
                       </div>
@@ -3052,7 +3052,7 @@ export default function Settings({ onClose }: SettingsProps) {
                               : undefined
                           }
                           autoComplete="off"
-                          hint="Channel → Connectors → create a channel connection → Copy link"
+                          hint="In Teams, copy a channel connection link. Skip this if you do not already use Teams alerts."
                         />
                       </div>
                     )}
@@ -3948,8 +3948,9 @@ export default function Settings({ onClose }: SettingsProps) {
                     <p className="flex items-start gap-1.5 text-xs text-surface-500 dark:text-surface-400 pt-2">
                       <SettingsSymbol icon="lightbulb" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
                       <span>
-                        These job boards can be monitored when enabled. Choose
-                        the ones relevant to your job search.
+                        When turned on, JobSentinel checks these job boards on
+                        your schedule. Choose the ones relevant to your job
+                        search.
                       </span>
                     </p>
                   </div>
@@ -4179,7 +4180,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     <div
                       className="flex items-center justify-center py-4"
                       role="status"
-                      aria-label="Loading ghost config"
+                      aria-label="Loading posting risk settings"
                     >
                       <div
                         className="animate-spin w-6 h-6 border-4 border-sentinel-500 border-t-transparent rounded-full"

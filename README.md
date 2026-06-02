@@ -48,9 +48,9 @@ explicit review, or privacy-preserving defaults.
 External AI, including OpenAI or another provider, is optional, disabled by
 default, and routed through the
 [privacy-first AI gateway](docs/architecture/privacy-first-ai-gateway.md).
-External requests require payload minimization, payload preview, redaction,
-cancellation, approval, and local request logging before data leaves the
-device.
+External requests send only needed details, show those details before anything
+leaves the device, and provide redaction, cancellation, approval, and local
+request logging.
 
 JobSentinel is free, will always stay free, and will always remain MIT
 licensed. This code exists to help job seekers. Fork it, adapt it, improve it,
@@ -63,7 +63,7 @@ or build something better with it if that helps more people.
 | Who is it for? | Anyone trying to find a new job, including technical and non-technical roles. |
 | What is it built to help with? | Real, relevant, fairly compensated work, not application volume. |
 | What stays local? | Searches, saved jobs, notes, resumes, salary floors, application history, and safe support reports by default. |
-| What can leave the device? | Enabled job-source checks, approved source addresses, user-configured alerts, optional location detection after a click, support links opened by the user, or explicitly approved external AI payloads. |
+| What can leave the device? | Enabled job-source checks, approved source addresses, alerts the user turns on, optional location detection after a click, support links opened by the user, or explicitly approved external AI requests. |
 | Is external AI required? | No. External AI is optional, disabled by default, preview-gated, and gateway-bound. |
 | Is it free? | Yes. JobSentinel is MIT licensed and free forever. |
 | Current release | `v2.6.4` with Windows, macOS, and Linux installers. |
@@ -157,8 +157,8 @@ After checking the download, click **More info**, then click **Run anyway**.
 
 Privacy and security are release blockers, not preferences. No account is
 required. JobSentinel stores search data locally and only sends data outside the
-app for enabled job-source checks, approved source addresses, user-configured
-channels, support links the user opens, optional location detection after a
+app for enabled job-source checks, approved source addresses, channels the user
+turns on, support links the user opens, optional location detection after a
 click, or approved external AI requests.
 
 | Principle | Repository commitment |
@@ -166,8 +166,8 @@ click, or approved external AI requests.
 | Rule 0 | Privacy and security cannot be set aside for convenience, automation, support, research, or speed. |
 | Local-first | Jobs, searches, resumes, notes, salary floors, applications, and reports stay on the user's device by default. |
 | No telemetry | JobSentinel does not collect analytics or behavioral telemetry. |
-| Optional external channels | Alert channels are user-configured; GitHub and Google Drive support links open only when the user chooses them. |
-| Optional external AI | Provider calls need opt-in, minimization, preview, approval, redaction or cancellation, and local metadata logging. |
+| Optional external channels | Alert channels work only after the user turns them on; GitHub and Google Drive support links open only when the user chooses them. |
+| Optional external AI | Provider calls need opt-in, minimization, preview, approval, redaction or cancellation, and local request logging. |
 | Candidate-side framing | Explanations help the job seeker understand fit, source risk, pay transparency, and readability. |
 | Protective tone | The app surfaces warnings, tradeoffs, and next safe actions instead of hollow motivation. |
 | Free forever | JobSentinel stays MIT licensed and free for reuse, forks, and contribution. |
@@ -219,7 +219,7 @@ React 19 + TypeScript UI
   -> Tauri command boundary
   -> Rust 2021 services
   -> local SQLite database
-  -> job-source checks and optional user-configured channels
+  -> job-source checks and optional channels the user turns on
 ```
 
 | Boundary | Rule |
@@ -228,7 +228,7 @@ React 19 + TypeScript UI
 | Storage | SQLite stores search state, saved jobs, notes, applications, and local reports. |
 | Secrets | Alert connection details, email credentials, and USAJobs access codes use the OS credential store. |
 | Job-source checks | Source checks use bounded requests, source-specific limits, and shared retry helpers. |
-| External alerts | Slack, Discord, Teams, Telegram, and email are user-configured. |
+| External alerts | Slack, Discord, Teams, Telegram, and email work only after the user turns them on. |
 | Support sharing | GitHub issue pages and Google Drive support links open only when the user chooses them. |
 | External AI | All provider calls must go through the AI gateway. Scattered provider calls are not allowed. |
 | Research mode | Public postings and synthetic candidate profiles are the default evaluation data. |
@@ -287,7 +287,7 @@ a hosted JobSentinel service.
 | Enabled job-source checks | Public job-source services or user-approved source addresses; selected search details only |
 | Support sharing links | GitHub issue pages and Google Drive folders open only when you choose them |
 | Optional location detection | FreeIPAPI HTTPS lookup only after you click **Detect location**; cached for the session |
-| Optional external AI | Disabled by default; every request needs opt-in, preview, approval, minimization, and local metadata logging |
+| Optional external AI | Disabled by default; every request needs opt-in, preview, approval, minimization, and local request logging |
 | Telemetry and analytics | Not collected |
 
 Credentials use platform storage:

@@ -1,6 +1,6 @@
 # Secure Credential Storage
 
-JobSentinel keeps notification secrets, API keys, and passwords in the
+JobSentinel keeps notification secrets, access codes, and passwords in the
 operating system credential store. Secrets do not belong
 in `config.json`, localStorage, docs, logs, or screenshots.
 
@@ -21,14 +21,14 @@ Supported stores:
 
 ## What Is Stored Securely
 
-| Credential | Storage key | Used for |
-| ---------- | ----------- | -------- |
-| Slack webhook URL | `jobsentinel_slack_webhook` | Slack notifications |
-| Discord webhook URL | `jobsentinel_discord_webhook` | Discord notifications |
-| Microsoft Teams webhook URL | `jobsentinel_teams_webhook` | Teams notifications |
-| Email SMTP password | `jobsentinel_smtp_password` | Email alerts |
-| Telegram bot token | `jobsentinel_telegram_bot_token` | Telegram notifications |
-| USAJobs access code | `jobsentinel_usajobs_api_key` | USAJobs connection |
+| Saved detail | Where JobSentinel saves it | Used for |
+| ------------ | --------------------------- | -------- |
+| Slack connection link | OS password store | Slack notifications |
+| Discord connection link | OS password store | Discord notifications |
+| Microsoft Teams connection link | OS password store | Teams notifications |
+| Email app password | OS password store | Email alerts |
+| Telegram alert code | OS password store | Telegram notifications |
+| USAJobs access code | OS password store | USAJobs connection |
 
 Non-secret app settings, such as enabled sources, search filters, thresholds,
 locations, and notification preferences, remain in local app config or SQLite.
@@ -149,22 +149,22 @@ the provider used by the desktop environment.
 
 | Error class | Common cause | User action |
 | ----------- | ------------ | ----------- |
-| Permission denied | OS credential prompt was denied | Re-allow JobSentinel in OS credential settings |
-| Not found | Credential was deleted or never configured | Re-enter and save credential in Settings |
-| Service unavailable | Linux Secret Service provider is stopped | Start or restart the provider |
+| Access not allowed | Password-store prompt was declined | Allow JobSentinel in OS password-store settings |
+| Not found | Saved detail is missing | Re-enter and save the detail in Settings |
+| Service unavailable | Linux password store is stopped | Start or restart the password store |
 | Invalid key | App sent an unsupported saved-detail name | Try again; if it repeats, save a safe support report so maintainers can fix it |
 
 ## User Guarantees
 
-- Credential values stay local unless the user configures an external channel
+- Saved secret values stay local unless the user turns on an external channel
   that uses them.
-- Status views show whether a credential exists, not the credential value.
-- Plaintext config credential fields are compatibility inputs only.
-- Logs and safe support reports must redact credentials, webhook URLs, cookies, API
-  keys, tokens, and sensitive URL parts.
-- Credential command logs use parsed allowlisted key names only. Invalid key
-  errors stay generic and do not echo frontend input.
+- Status views show whether a saved secret exists, not the saved secret value.
+- Older plain-text settings fields are compatibility inputs only.
+- Logs and safe support reports must redact secrets, connection links, cookies,
+  access codes, tokens, and sensitive URL parts.
+- Internal save-command logs use allowlisted names only. Invalid save errors
+  stay generic and do not echo what the user typed.
 - Slack, Discord, and Teams connection links are validated against provider
-  hosts and paths before keyring storage.
+  addresses before password-store storage.
 - Config export recursively clears supported credential field names, including
   legacy plaintext fields, before writing JSON.
