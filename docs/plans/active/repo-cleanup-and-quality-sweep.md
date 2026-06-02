@@ -184,8 +184,9 @@ boundaries, and harness modularity:
   rejects the old label.
 - Changed Resume Match helper wording from strong/power resume words to action
   words for clarity. Product-copy coverage now rejects the old labels.
-- Changed USAJobs automatic-check settings from `keywords` to `search words` in
-  visible setup copy. Product-copy coverage now rejects the old phrasing.
+- Changed USAJobs automatic-check settings from `keywords`, posted-within, and
+  max-results wording to search words, recent jobs, and jobs-to-ask-for copy.
+  Product-copy coverage now rejects the old phrasing.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

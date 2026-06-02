@@ -1306,10 +1306,14 @@ describe("Settings — handleSave flow", () => {
       screen.getByText(/Automatic USAJobs checks contact USAJobs/i),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/access code, USAJobs email, search words, location, remote choice/i),
+      screen.getByText(/access code, USAJobs email, search words, location,\s*remote choice, how recent jobs should be/i),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Search words")).toBeInTheDocument();
+    expect(screen.getByText("Posted in last:")).toBeInTheDocument();
+    expect(screen.getByText("Jobs to ask for:")).toBeInTheDocument();
     expect(screen.queryByLabelText("Keywords")).not.toBeInTheDocument();
+    expect(screen.queryByText("Posted within:")).not.toBeInTheDocument();
+    expect(screen.queryByText("Max results:")).not.toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: /Open USAJobs search in your browser/i }),
     ).toHaveAttribute("href", "https://www.usajobs.gov/Search/Results");

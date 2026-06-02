@@ -384,9 +384,9 @@ and record actionable findings in this active-plan surface.
 - Latest local Resume Match follow-up changes strong/power resume words to
   action words for clarity, preserving truthful readability framing and adding
   product-copy coverage against the old labels.
-- Latest local USAJobs settings follow-up changes visible `keywords` wording to
-  `search words` in automatic-check setup, with product-copy coverage against
-  the old phrasing.
+- Latest local USAJobs settings follow-up changes visible `keywords`,
+  posted-within, and max-results wording to search words, recent jobs, and
+  jobs-to-ask-for copy, with product-copy coverage against the old phrasing.
 - Latest local Application Assist security follow-up rejects unknown
   application-form targets before profile or saved screening-answer data is
   loaded, keeps unknown-platform generic selectors disabled as a second guard,

@@ -3248,8 +3248,8 @@ export default function Settings({ onClose }: SettingsProps) {
                       <p className="rounded-lg border border-surface-200 bg-surface-50 p-3 text-xs text-surface-600 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300">
                         Automatic USAJobs checks contact USAJobs. They use your
                         access code, USAJobs email, search words, location,
-                        remote choice, posted-within choice, and result limit.
-                        Leave this off for browser-only search.
+                        remote choice, how recent jobs should be, and how many
+                        jobs to ask for. Leave this off for browser-only search.
                       </p>
                       {/* Advanced USAJobs setup */}
                       {!credentialStatus.usajobs_api_key && (
@@ -3413,7 +3413,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         </label>
                         <div className="flex items-center gap-2">
                           <label className="text-sm text-surface-700 dark:text-surface-300">
-                            Posted within:
+                            Posted in last:
                           </label>
                           <select
                             value={config.usajobs?.date_posted_days ?? 30}
@@ -3441,7 +3441,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         </div>
                         <div className="flex items-center gap-2">
                           <label className="text-sm text-surface-700 dark:text-surface-300">
-                            Max results:
+                            Jobs to ask for:
                           </label>
                           <input
                             type="number"
