@@ -41,6 +41,18 @@ screening-system manipulation, or unreviewed form sending.
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local resume missing-word grouping preserves job-post importance for
+  missing Resume Match words and displays required, preferred, and other review
+  buckets. This improves resume assistance without adding network calls or
+  weakening truthful-edit guidance. Verification passed: red tests failed
+  before the fix, then `npx vitest run src/pages/ResumeOptimizer.test.tsx`
+  passed 15 tests, `npm run test:run` passed 2655 tests, `npm run build`
+  passed, `cargo fmt --all -- --check` passed, `cargo clippy -- -D warnings`
+  passed, `cargo test --lib ats_analyzer` passed 21 tests, `cargo test --lib`
+  passed 2491 tests with 21 ignored, `npm run lint:docs`, `npm run
+  harness:check`, `npm run lint:bloat`, `node --test
+  scripts/check-product-copy.test.mjs` passed 43 tests, `npm run lint`, and
+  `git diff --check`.
 - Current local resume-priority planning update moves resume assistance,
   resume-assisted guided intake, and application readability to the top
   functional priority across the README, roadmap, active plans, and feature

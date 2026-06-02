@@ -108,6 +108,10 @@ specific job post.
 **Job-Post Language** - Which important role terms and evidence are clear in
 your resume, and which ones need truthful support.
 
+**Words to review** - Missing job-post language is grouped by required,
+preferred, and other role language so users can review must-have evidence
+before nice-to-have wording.
+
 **Readable format** - Single column, standard fonts, and clear sections.
 
 **Details included** - Are all important sections filled in?
@@ -134,6 +138,11 @@ Include them when you have real evidence.
 
 **Role Language** - Common terms for the role or field.
 Use familiar wording when it accurately describes your experience.
+
+When a job-post word is missing from the resume, JobSentinel keeps that
+required, preferred, or role-language context visible. The goal is to help users
+start with the most important truthful evidence, not to turn every phrase into
+a resume edit.
 
 ---
 

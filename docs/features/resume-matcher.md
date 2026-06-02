@@ -62,6 +62,7 @@ understand parsing, scoring, or employer screening systems to use the result.
 | Experience fit | Years or level signals found in the posting and resume. | Notice lower-title, lower-pay, or stretch-role risk. |
 | Education fit | Degree or credential signals found in the posting and resume. | Spot requirements that may need explanation. |
 | Skills to review | Posting requirements not clearly represented in the resume. | Decide whether to revise, ask, learn, or skip. |
+| Required or preferred wording to review | Missing job-post language grouped by importance. | Start with required evidence before reviewing nice-to-have wording. |
 
 Low fit does not mean "do not apply." It means "review fit before spending
 extra time." Strong fit does not guarantee a response. It means the resume and
@@ -91,6 +92,8 @@ The current local matcher:
 - compares resume evidence with saved job-posting text;
 - returns fit, experience, education, matched-skill, and missing-skill
   signals;
+- preserves whether missing job-post language came from required, preferred,
+  or other role-language context;
 - stores results locally so recent job comparisons can be reviewed later.
 
 The skill list is self-contained and deterministic. Same input should produce

@@ -82,6 +82,7 @@ const mockAnalysis = {
   completeness_score: 82,
   keyword_matches: [],
   missing_keywords: [],
+  missing_keyword_details: [],
   format_issues: [],
   suggestions: [],
 };
@@ -103,6 +104,28 @@ const mockJobAnalysis = {
     },
   ],
   missing_keywords: ["account management"],
+  missing_keyword_details: [
+    {
+      keyword: "account management",
+      importance: "Required" as const,
+    },
+  ],
+};
+
+const mockGroupedGapAnalysis = {
+  ...mockAnalysis,
+  keyword_matches: [],
+  missing_keywords: ["case management", "salesforce"],
+  missing_keyword_details: [
+    {
+      keyword: "case management",
+      importance: "Required" as const,
+    },
+    {
+      keyword: "salesforce",
+      importance: "Preferred" as const,
+    },
+  ],
 };
 
 const mockSuggestionAnalysis = {
@@ -297,6 +320,29 @@ describe("ResumeOptimizer", () => {
     expect(screen.queryByText(/Words To Add/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Keyword Matches/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Missing Keywords/i)).not.toBeInTheDocument();
+  });
+
+  it("groups words to review by required and preferred job-post language", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce(mockGroupedGapAnalysis);
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    fireEvent.change(screen.getByLabelText(/^job post$/i), {
+      target: { value: "Required: case management\n\nPreferred: salesforce" },
+    });
+    await openResumeAppImport(user);
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /review match/i }));
+
+    expect(await screen.findByText("Words To Review (2)")).toBeInTheDocument();
+    expect(screen.getByText("Required to Review")).toBeInTheDocument();
+    expect(screen.getByText("Preferred to Review")).toBeInTheDocument();
+    expect(screen.getByText("case management")).toBeInTheDocument();
+    expect(screen.getByText("salesforce")).toBeInTheDocument();
+    expect(screen.getByText(/Start with required job-post language/i)).toBeInTheDocument();
   });
 
   it("explains strong resume words without screening-tool framing", async () => {

@@ -54,7 +54,7 @@ use skills::SkillExtractor;
 // Re-export ATS analyzer types
 pub use ats_analyzer::{
     AtsAnalysisResult, AtsAnalyzer, AtsSuggestion, FormatIssue, IssueSeverity, KeywordImportance,
-    KeywordMatch, SuggestionCategory,
+    KeywordMatch, MissingKeyword, SuggestionCategory,
 };
 
 // Re-export builder types

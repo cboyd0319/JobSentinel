@@ -69,6 +69,11 @@ interface KeywordMatch {
   frequency: number;
 }
 
+interface MissingKeyword {
+  keyword: string;
+  importance: KeywordImportance;
+}
+
 interface FormatIssue {
   severity: IssueSeverity;
   issue: string;
@@ -112,6 +117,7 @@ interface AtsAnalysisResult {
   completeness_score: number;
   keyword_matches: KeywordMatch[];
   missing_keywords: string[];
+  missing_keyword_details?: MissingKeyword[];
   format_issues: FormatIssue[];
   suggestions: AtsSuggestion[];
 }
@@ -435,6 +441,32 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     return { required, preferred, industry };
   };
 
+  // Keep missing job-post words grouped so required items do not blur into nice-to-haves.
+  const getMissingKeywordDetails = (): MissingKeyword[] => {
+    if (!analysisResult) return [];
+
+    if (
+      analysisResult.missing_keyword_details &&
+      analysisResult.missing_keyword_details.length > 0
+    ) {
+      return analysisResult.missing_keyword_details;
+    }
+
+    return analysisResult.missing_keywords.map((keyword) => ({
+      keyword,
+      importance: "Industry",
+    }));
+  };
+
+  const getMissingKeywordGroups = () => {
+    const missing = getMissingKeywordDetails();
+    return {
+      required: missing.filter((gap) => gap.importance === "Required"),
+      preferred: missing.filter((gap) => gap.importance === "Preferred"),
+      other: missing.filter((gap) => gap.importance === "Industry"),
+    };
+  };
+
   // Show stronger badges for words that appear more often.
   const getKeywordOpacity = (keyword: string): string => {
     if (!analysisResult) return "opacity-100";
@@ -669,7 +701,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                             resumeJson,
                             [
                               ...analysisResult.keyword_matches.map(k => k.keyword),
-                              ...analysisResult.missing_keywords
+                              ...getMissingKeywordDetails().map(k => k.keyword)
                             ],
                             "match"
                           )}
@@ -838,19 +870,62 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                 )}
 
                 {/* Words to review */}
-                {analysisResult.missing_keywords.length > 0 && (
+                {getMissingKeywordDetails().length > 0 && (
                   <Card>
-                    <CardHeader title={`Words To Review (${analysisResult.missing_keywords.length})`} />
-                    <div className="flex flex-wrap gap-2">
-                      {analysisResult.missing_keywords.map((keyword, idx) => (
-                        <Badge key={idx} variant="danger">
-                          {keyword}
-                        </Badge>
-                      ))}
-                    </div>
-                    <p className="text-xs text-surface-500 dark:text-surface-400 mt-3">
-                      Only use these words when they honestly fit your experience and improve clarity.
-                    </p>
+                    <CardHeader title={`Words To Review (${getMissingKeywordDetails().length})`} />
+                    {(() => {
+                      const { required, preferred, other } = getMissingKeywordGroups();
+                      return (
+                        <div className="space-y-4">
+                          {required.length > 0 && (
+                            <div>
+                              <h4 className="text-sm font-semibold text-danger mb-2">
+                                Required to Review
+                              </h4>
+                              <div className="flex flex-wrap gap-2">
+                                {required.map((gap, idx) => (
+                                  <Badge key={idx} variant="danger">
+                                    {gap.keyword}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {preferred.length > 0 && (
+                            <div>
+                              <h4 className="text-sm font-semibold text-alert-700 dark:text-alert-400 mb-2">
+                                Preferred to Review
+                              </h4>
+                              <div className="flex flex-wrap gap-2">
+                                {preferred.map((gap, idx) => (
+                                  <Badge key={idx} variant="alert">
+                                    {gap.keyword}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {other.length > 0 && (
+                            <div>
+                              <h4 className="text-sm font-semibold text-surface-700 dark:text-surface-300 mb-2">
+                                Other Words to Review
+                              </h4>
+                              <div className="flex flex-wrap gap-2">
+                                {other.map((gap, idx) => (
+                                  <Badge key={idx} variant="surface">
+                                    {gap.keyword}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          <div className="space-y-1 text-xs text-surface-500 dark:text-surface-400">
+                            <p>Start with required job-post language. Preferred words can help later.</p>
+                            <p>Only use these words when they honestly fit your experience and improve clarity.</p>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </Card>
                 )}
 

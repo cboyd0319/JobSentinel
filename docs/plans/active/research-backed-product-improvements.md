@@ -29,6 +29,10 @@ narrow implementation slices chosen from that backlog.
   backlog. Treat this as screening-system transparency and application
   readability: local parse preview, readable exports, required/preferred
   qualification review, truthful fit evidence, and user-confirmed edits.
+- Latest local resume-assistance slice preserves job-post importance for
+  missing resume words and groups the Resume Match review by required,
+  preferred, and other role language. Users now see which missing words deserve
+  review first without losing the truthful-edit warning.
 
 ## Source files
 

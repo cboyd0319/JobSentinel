@@ -28,6 +28,8 @@ pub struct AtsAnalysisResult {
     pub keyword_matches: Vec<KeywordMatch>,
     /// Important keywords missing from resume
     pub missing_keywords: Vec<String>,
+    /// Important keywords missing from resume with job-post importance
+    pub missing_keyword_details: Vec<MissingKeyword>,
     /// Format issues that may make a resume hard to parse
     pub format_issues: Vec<FormatIssue>,
     /// Improvement suggestions
@@ -44,6 +46,15 @@ pub struct KeywordMatch {
     /// Number of times mentioned
     pub frequency: usize,
     /// How important this keyword is
+    pub importance: KeywordImportance,
+}
+
+/// A keyword from the job post that was not clearly found in the resume
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MissingKeyword {
+    /// The keyword or phrase
+    pub keyword: String,
+    /// How important this keyword is in the job post
     pub importance: KeywordImportance,
 }
 
@@ -119,7 +130,12 @@ impl AtsAnalyzer {
         let format_result = Self::analyze_format(resume);
 
         // Find keyword matches
-        let (keyword_matches, missing_keywords) = Self::find_keyword_matches(resume, &job_keywords);
+        let (keyword_matches, missing_keyword_details) =
+            Self::find_keyword_matches(resume, &job_keywords);
+        let missing_keywords = missing_keyword_details
+            .iter()
+            .map(|gap| gap.keyword.clone())
+            .collect::<Vec<_>>();
 
         // Calculate keyword score
         let total_keywords = job_keywords.len();
@@ -132,14 +148,8 @@ impl AtsAnalyzer {
 
         // Generate keyword suggestions
         let mut suggestions = format_result.suggestions.clone();
-        for keyword in &missing_keywords {
-            let importance = job_keywords
-                .iter()
-                .find(|(k, _)| k == keyword)
-                .map(|(_, i)| *i)
-                .unwrap_or(KeywordImportance::Industry);
-
-            let impact = match importance {
+        for gap in &missing_keyword_details {
+            let impact = match gap.importance {
                 KeywordImportance::Required => "High",
                 KeywordImportance::Preferred => "Medium",
                 KeywordImportance::Industry => "Low",
@@ -147,7 +157,7 @@ impl AtsAnalyzer {
 
             suggestions.push(AtsSuggestion {
                 category: SuggestionCategory::AddKeyword,
-                suggestion: format!("Add '{}' to relevant sections", keyword),
+                suggestion: format!("Add '{}' to relevant sections", gap.keyword),
                 impact: impact.to_string(),
             });
         }
@@ -164,6 +174,7 @@ impl AtsAnalyzer {
             completeness_score: format_result.completeness_score,
             keyword_matches,
             missing_keywords,
+            missing_keyword_details,
             format_issues: format_result.format_issues,
             suggestions,
         }
@@ -208,6 +219,7 @@ impl AtsAnalyzer {
             completeness_score,
             keyword_matches: Vec::new(),
             missing_keywords: Vec::new(),
+            missing_keyword_details: Vec::new(),
             format_issues,
             suggestions,
         }
@@ -528,7 +540,7 @@ impl AtsAnalyzer {
     fn find_keyword_matches(
         resume: &ResumeData,
         job_keywords: &[(String, KeywordImportance)],
-    ) -> (Vec<KeywordMatch>, Vec<String>) {
+    ) -> (Vec<KeywordMatch>, Vec<MissingKeyword>) {
         let mut matches = Vec::new();
         let mut missing = Vec::new();
 
@@ -583,7 +595,10 @@ impl AtsAnalyzer {
                     importance: *importance,
                 });
             } else {
-                missing.push(keyword.clone());
+                missing.push(MissingKeyword {
+                    keyword: keyword.clone(),
+                    importance: *importance,
+                });
             }
         }
 
@@ -597,6 +612,16 @@ impl AtsAnalyzer {
             imp_order(a.importance)
                 .cmp(&imp_order(b.importance))
                 .then(b.frequency.cmp(&a.frequency))
+        });
+        missing.sort_by(|a, b| {
+            let imp_order = |imp: KeywordImportance| match imp {
+                KeywordImportance::Required => 0,
+                KeywordImportance::Preferred => 1,
+                KeywordImportance::Industry => 2,
+            };
+            imp_order(a.importance)
+                .cmp(&imp_order(b.importance))
+                .then(a.keyword.cmp(&b.keyword))
         });
 
         (matches, missing)
@@ -865,6 +890,29 @@ Nice to have: compliance, Excel
             .suggestions
             .iter()
             .any(|s| s.category == SuggestionCategory::AddKeyword));
+    }
+
+    #[test]
+    fn test_missing_keywords_keep_job_importance() {
+        let resume = sample_resume();
+        let job_desc = r#"
+Required: Java
+
+Preferred: Salesforce
+        "#;
+
+        let result = AtsAnalyzer::analyze_for_job(&resume, job_desc);
+
+        let has_required_gap = result
+            .missing_keyword_details
+            .iter()
+            .any(|gap| gap.keyword == "java" && gap.importance == KeywordImportance::Required);
+        let has_preferred_gap = result.missing_keyword_details.iter().any(|gap| {
+            gap.keyword == "salesforce" && gap.importance == KeywordImportance::Preferred
+        });
+
+        assert!(has_required_gap);
+        assert!(has_preferred_gap);
     }
 
     #[test]
