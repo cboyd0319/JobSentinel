@@ -27,6 +27,7 @@ import {
   hasSalaryAudienceExampleDrift,
 } from "./harness/checks/broad-audience-fixtures.mjs";
 import {
+  hasFrontDoorMacosInstallerOverpromise,
   hasFrontDoorReleaseVersionPromise,
   hasSourceReleaseVersionPromise,
 } from "./harness/checks/release-promises.mjs";
@@ -207,6 +208,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasFrontDoorReleaseVersionPromise(root, path)) {
       violations.push(`replace front-door release version promises: ${path}`);
+    }
+
+    if (hasFrontDoorMacosInstallerOverpromise(root, path)) {
+      violations.push(`replace front-door macOS installer overpromise: ${path}`);
     }
 
     if (hasSourceReleaseVersionPromise(root, path)) {

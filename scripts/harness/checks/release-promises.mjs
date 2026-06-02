@@ -22,6 +22,19 @@ export function hasFrontDoorReleaseVersionPromise(root, path) {
   );
 }
 
+export function hasFrontDoorMacosInstallerOverpromise(root, path) {
+  if (path !== "README.md") {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  return (
+    /\bWindows,\s*macOS,\s*and\s*Linux installers\b/i.test(text) ||
+    /\bmacOS installer\b/i.test(text) ||
+    /\bMac installer\b/i.test(text)
+  );
+}
+
 export function hasSourceReleaseVersionPromise(root, path) {
   if (!isRuntimeFrontendSource(path)) {
     return false;

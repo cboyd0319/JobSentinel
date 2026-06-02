@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import {
+  hasFrontDoorMacosInstallerOverpromise,
   hasFrontDoorReleaseVersionPromise,
   hasSourceReleaseVersionPromise,
 } from "./harness/checks/release-promises.mjs";
@@ -30,6 +31,23 @@ test("release promises reject front-door version promises", () => {
 
     assert.equal(hasFrontDoorReleaseVersionPromise(root, "README.md"), true);
     assert.equal(hasFrontDoorReleaseVersionPromise(root, "docs/README.md"), false);
+  });
+});
+
+test("release promises reject front-door macOS installer overpromises", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "README.md", "Current release includes Windows, macOS, and Linux installers.\n");
+
+    assert.equal(hasFrontDoorMacosInstallerOverpromise(root, "README.md"), true);
+    assert.equal(hasFrontDoorMacosInstallerOverpromise(root, "docs/README.md"), false);
+
+    writeFixtureFile(
+      root,
+      "README.md",
+      "Current release includes Windows and Linux installers plus a universal macOS package that is not notarized yet.\n",
+    );
+
+    assert.equal(hasFrontDoorMacosInstallerOverpromise(root, "README.md"), false);
   });
 });
 

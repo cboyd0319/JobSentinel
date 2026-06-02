@@ -66,7 +66,7 @@ or build something better with it if that helps more people.
 | What can leave the device? | Enabled job-source checks, job sources or career pages the user approves for checking, alerts the user turns on, optional location detection after a click, support links opened by the user, or explicitly approved external AI requests. |
 | Is external AI required? | No. External AI is optional, disabled by default, preview-gated, and gateway-bound. |
 | Is it free? | Yes. JobSentinel is MIT licensed and free forever. |
-| Current release | `v2.6.4` with Windows, macOS, and Linux installers. |
+| Current release | `v2.6.4` with Windows and Linux installers plus a universal macOS package. The public macOS package is locally verified but not notarized yet. |
 
 ## Reader Map
 
@@ -95,17 +95,19 @@ data sharing.
 
 ## Download and First Run
 
-Download the latest installer from the
+Download the latest package or installer from the
 [latest download page](https://github.com/cboyd0319/JobSentinel/releases/latest).
 
-| Platform | Installer |
+| Platform | Download |
 | -------- | --------- |
 | Windows | Windows installer |
-| macOS | Mac installer for Apple silicon and Intel Macs |
+| macOS | Universal Mac package for Apple silicon and Intel Macs. Until Developer ID signing and notarization are available, macOS requires a Privacy & Security approval on first open. |
 | Linux | Linux installer |
 
-The current `v2.6.4` release includes Windows, macOS, and Linux installers.
-Most people should use the installer. Contributors can use the
+The current `v2.6.4` release includes Windows and Linux installers plus a
+universal macOS package. Most Windows and Linux users should use the installer.
+Mac users can use the package, but first open is not zero-friction until a
+Developer ID signed and notarized public build is available. Contributors can use the
 [development setup guide](docs/developer/GETTING_STARTED.md).
 
 First run is designed for zero technical knowledge:
@@ -125,7 +127,8 @@ setting later.
 <summary><strong>Installer security prompts</strong></summary>
 <br>
 
-macOS may show this message because JobSentinel is a new open-source app:
+macOS may show this message because the current public macOS package is not
+Developer ID signed and notarized:
 
 ```text
 JobSentinel can't be opened because Apple cannot check it for malicious software.

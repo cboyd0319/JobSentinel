@@ -145,7 +145,12 @@ the package path works in local shells and CI runners with Command Line Tools.
 When notarization credentials are available, it also signs, notarizes, staples,
 and validates the custom DMG before returning.
 
-Required public-release environment:
+JobSentinel does not currently have an Apple Developer Account. Without that
+account, the app cannot be Developer ID signed, notarized, stapled, or accepted
+by Gatekeeper as a zero-friction public macOS download. The local package path
+remains useful for development and testing.
+
+Required public-release environment once an Apple Developer Account exists:
 
 ```bash
 export APPLE_CERTIFICATE="base64-encoded-p12"
@@ -201,7 +206,7 @@ and `jobs.db`.
 
 Because this local package uses an ad-hoc signature, Gatekeeper assessment
 rejects the `.app` and `.dmg`. A zero-friction public macOS release still needs
-Developer ID signing and notarization credentials.
+an Apple Developer Account, Developer ID signing, notarization, and stapling.
 
 **Note:** The `.dmg` installer is for distribution. You can also run the binary directly:
 
@@ -414,9 +419,10 @@ rustflags = ["-C", "link-arg=-fuse-ld=/opt/homebrew/bin/mold"]
    verification, app signature verification, architecture check, and packaged
    plus installed launch smoke pass locally, including local database creation
    under isolated macOS homes.
-2. **Public release gate active** - Public macOS releases require Developer ID
-   signing and notarization, then `--launch-smoke --install-smoke
-   --require-gatekeeper` verification before upload.
+2. **Public release blocked on Apple account** - Public macOS releases require
+   an Apple Developer Account, Developer ID signing, notarization, then
+   `--launch-smoke --install-smoke --require-gatekeeper` verification before
+   upload.
 3. **Published artifact gate active** - After publishing, run
    `npm run tauri:verify:macos:latest` to verify the downloaded public DMG.
 4. **Runtime workflow checks before release** - Run the app, complete setup,

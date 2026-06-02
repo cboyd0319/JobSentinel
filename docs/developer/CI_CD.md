@@ -127,6 +127,12 @@ initialization, and Gatekeeper acceptance. A failure means the public DMG is not
 ready for nontechnical macOS users and should be replaced before directing
 users to it.
 
+Current repository status: JobSentinel does not have an Apple Developer Account.
+The macOS package can be built and verified locally, but a public macOS package
+cannot be zero-friction for nontechnical users until Developer ID signing and
+notarization are available. The release workflow intentionally fails the public
+macOS path when signing/notarization secrets are missing.
+
 ---
 
 ## Manual build workflows
@@ -241,8 +247,10 @@ workflows to create releases and upload assets.
 
 ### macOS signing and notarization
 
-Public macOS release builds require Developer ID signing and notarization. Add
-these secrets to the repository:
+Public macOS release builds require an Apple Developer Account, Developer ID
+signing, and notarization. The project does not currently have that account, so
+the local macOS build is the supported macOS path for now. When an account
+exists, add these secrets to the repository:
 
 ```text
 APPLE_CERTIFICATE           # Base64-encoded Developer ID Application .p12 certificate

@@ -17,13 +17,13 @@ Yes. JobSentinel is free, will always stay free, and will always remain MIT
 licensed. You can use it without a paid account, and people can use the code to
 help more job seekers, including by building something better.
 
-**Download the installer** (recommended)
+**Download the package or installer** (recommended)
 
 1. Open the [latest download page](https://github.com/cboyd0319/JobSentinel/releases).
 2. Look for the installer list on the latest download page.
-3. Download the installer for your computer:
+3. Download the package or installer for your computer:
    - **Windows installer**
-   - **Mac installer**
+   - **Mac package** for Apple silicon and Intel Macs
    - **Linux installer** when present on the release
 4. Double-click and follow the prompts.
 5. Open JobSentinel.
@@ -33,7 +33,8 @@ help more job seekers, including by building something better.
 <br>
 
 macOS may show "JobSentinel can't be opened because Apple cannot check it for
-malicious software."
+malicious software." This is expected for the current public Mac package because
+it is not Developer ID signed and notarized yet.
 
 Continue only if you downloaded JobSentinel from the latest download page
 linked above and expected this file. If you are not sure, stop, delete the

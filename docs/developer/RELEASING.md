@@ -2,6 +2,18 @@
 
 Production builds are created locally and published to [GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases).
 
+## macOS public release status
+
+JobSentinel does not currently have an Apple Developer Account. That means a
+zero-friction public macOS DMG cannot be Developer ID signed, notarized,
+stapled, or accepted by Gatekeeper yet.
+
+The local macOS build path is still useful and verified. Use it for development,
+testing, and internal checks. Do not publish a macOS package as ready for
+nontechnical users until the project has an Apple Developer Account, the release
+secrets below are configured, and the public artifact passes
+`npm run tauri:verify:macos:latest`.
+
 ## Creating a Release
 
 ### 1. Build locally
@@ -94,7 +106,7 @@ tag.
 
 | Platform | Architecture          | Format      | Status   |
 | -------- | --------------------- | ----------- | -------- |
-| macOS    | universal             | `.dmg`      | Local mounted, installed, and data smoke ready; public artifact must pass `tauri:verify:macos:latest` |
+| macOS    | universal             | `.dmg`      | Local mounted, installed, and data smoke ready; public nontechnical release blocked until Apple Developer Account and notarization |
 | Windows  | x86_64                | `.msi`      | Ready |
 | Linux    | x86_64                | `.AppImage` / `.deb` | Workflow ready |
 

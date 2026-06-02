@@ -186,11 +186,13 @@ unreviewed form sending.
   downloaded public DMG failed because the mounted `JobSentinel.app` is not
   signed at all. The public macOS artifact therefore still needs replacement
   through the new release gate after Developer ID signing and notarization
-  secrets are configured. `gh secret list --repo cboyd0319/JobSentinel`
-  currently shows no `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`,
-  `APPLE_SIGNING_IDENTITY`, `APPLE_ID`, `APPLE_PASSWORD`, or `APPLE_TEAM_ID`
-  secrets, so public Gatekeeper readiness is blocked on adding those repository
-  secrets.
+  secrets are configured. User confirmed on 2026-06-02 that the project does
+  not have an Apple Developer Account. `gh secret list --repo
+  cboyd0319/JobSentinel` currently shows no `APPLE_CERTIFICATE`,
+  `APPLE_CERTIFICATE_PASSWORD`, `APPLE_SIGNING_IDENTITY`, `APPLE_ID`,
+  `APPLE_PASSWORD`, or `APPLE_TEAM_ID` secrets. Public Gatekeeper readiness is
+  blocked on getting an Apple Developer Account and adding those repository
+  secrets; the current achievable macOS path is local verified DMG quality.
 - Current local public macOS release harness follow-up adds
   `npm run tauri:verify:macos:latest`, which downloads the latest public
   GitHub release DMG and applies the strict universal-architecture,
@@ -203,6 +205,15 @@ unreviewed form sending.
   `npm run tauri:verify:macos:latest -- --no-launch-smoke
   --no-require-gatekeeper` failed against the current `v2.6.4` public DMG as
   expected because the mounted `JobSentinel.app` is not signed at all.
+- Current no-Apple-account follow-up updates the README, Quick Start, macOS
+  developer guide, CI/CD docs, release docs, status, and handoff docs so the
+  macOS posture is accurate: local universal DMG quality is verified, but a
+  zero-friction public macOS download is blocked until the project has an Apple
+  Developer Account and notarization. The release-promise harness now rejects
+  README text that overstates macOS public installer readiness. Verification
+  passed: focused release-promise plus repo-bloat tests passed 225 tests, `npm
+  run test:scripts` passed 503 tests, `npm run lint:docs`, `npm run
+  lint:bloat`, `npm run lint:security`, and `git diff --check` passed.
 - Current local post-publish macOS release follow-up adds
   `.github/workflows/verify-release-artifacts.yml`, which runs after a GitHub
   Release is published and can also be triggered manually with an optional
