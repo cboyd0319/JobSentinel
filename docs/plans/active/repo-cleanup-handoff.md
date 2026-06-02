@@ -257,6 +257,15 @@ Recent local verification evidence:
   Account, separates local macOS build readiness from public Gatekeeper
   friction, and adds Apple Developer ID plus notarization sources to the README
   reference index and harness manifest.
+- Current no-Apple-account drift guard follow-up after the user restated there
+  is no Apple Developer Account clarifies that Gatekeeper pass belongs to the
+  signed and notarized public artifact gate, not the local ad-hoc package path.
+  The release-promise harness now rejects front-door README claims that the
+  macOS package is notarized, Gatekeeper-ready, or zero-friction unless the
+  same line names the limitation. Verification passed: `node --test
+  scripts/check-release-promises.test.mjs scripts/check-repo-bloat.test.mjs`
+  passed 228 tests, `npm run test:scripts` passed 507 tests, `npm run
+  lint:docs`, `npm run lint:bloat`, and `git diff --check` passed.
 - Current local macOS runtime proof on 2026-06-02 passed from the current
   checkout after the user confirmed there is no Apple Developer Account:
   `npm run doctor` passed with the known Node 26 local-runtime warning,

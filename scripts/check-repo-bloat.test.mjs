@@ -258,6 +258,21 @@ test("checkRepoBloat rejects front-door macOS installer overpromises", () => {
   });
 });
 
+test("checkRepoBloat rejects front-door macOS distribution overpromises", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "README.md", "The macOS package is notarized and Gatekeeper-ready.\n");
+
+    execFileSync("git", ["add", "README.md"], { cwd: root });
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("replace front-door macOS distribution overpromise: README.md"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects source release version promises", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

@@ -35,6 +35,28 @@ export function hasFrontDoorMacosInstallerOverpromise(root, path) {
   );
 }
 
+export function hasFrontDoorMacosDistributionOverpromise(root, path) {
+  if (path !== "README.md") {
+    return false;
+  }
+
+  return readFileSync(join(root, path), "utf8")
+    .split(/\r?\n/)
+    .some((line) => {
+      const mentionsMacos = /\b(?:macOS|Mac)\b/i.test(line);
+      const makesDistributionClaim =
+        /\b(?:zero-friction|Gatekeeper[-\s]?ready|Developer ID signed|notarized)\b/i.test(
+          line,
+        );
+      const namesDistributionLimit =
+        /\b(?:not|cannot|blocked|requires|until|without|does not|not yet)\b/i.test(
+          line,
+        );
+
+      return mentionsMacos && makesDistributionClaim && !namesDistributionLimit;
+    });
+}
+
 export function hasSourceReleaseVersionPromise(root, path) {
   if (!isRuntimeFrontendSource(path)) {
     return false;

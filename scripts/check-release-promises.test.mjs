@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import {
+  hasFrontDoorMacosDistributionOverpromise,
   hasFrontDoorMacosInstallerOverpromise,
   hasFrontDoorReleaseVersionPromise,
   hasSourceReleaseVersionPromise,
@@ -48,6 +49,23 @@ test("release promises reject front-door macOS installer overpromises", () => {
     );
 
     assert.equal(hasFrontDoorMacosInstallerOverpromise(root, "README.md"), false);
+  });
+});
+
+test("release promises reject front-door macOS distribution overpromises", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "README.md", "The macOS package is notarized and Gatekeeper-ready.\n");
+
+    assert.equal(hasFrontDoorMacosDistributionOverpromise(root, "README.md"), true);
+    assert.equal(hasFrontDoorMacosDistributionOverpromise(root, "docs/README.md"), false);
+
+    writeFixtureFile(
+      root,
+      "README.md",
+      "The macOS package is not Developer ID signed or notarized yet.\n",
+    );
+
+    assert.equal(hasFrontDoorMacosDistributionOverpromise(root, "README.md"), false);
   });
 });
 

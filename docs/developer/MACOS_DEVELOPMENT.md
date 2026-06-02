@@ -181,7 +181,8 @@ For public release gating, keep `--launch-smoke --install-smoke` and add
 JobSentinel id, product name, version, icon metadata, and icon resource file,
 declares macOS 13.0 or newer as its minimum system version, the mounted app can
 start, the copied installed app can start, both launches create an isolated
-local `jobs.db`, and the app plus disk image pass Gatekeeper assessment.
+local `jobs.db`, and the signed and notarized public app plus disk image pass
+Gatekeeper assessment.
 
 After a release is published, verify the downloaded public artifact too:
 
