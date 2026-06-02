@@ -164,6 +164,10 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Changed default settings-backup download filenames from
+  `jobsentinel-config-*` to `jobsentinel-settings-backup-*`, updated export
+  utility tests, and added product-copy coverage so user-visible backup
+  artifacts do not drift back toward config jargon.
 - Added active-status docs-drift checks so the compact status fails locally when
   its `Last updated` date lags newer active-plan entries or when it records
   stale measured harness counts instead of pointing to

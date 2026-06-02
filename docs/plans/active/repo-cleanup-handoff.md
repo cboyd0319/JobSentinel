@@ -114,6 +114,10 @@ Recent remote integration evidence:
 
 Current cleanup posture:
 
+- Current local settings-backup filename follow-up changes downloaded backup
+  names from `jobsentinel-config-*` to `jobsentinel-settings-backup-*`,
+  updates export utility tests, and adds product-copy coverage against config
+  jargon returning through visible backup filenames.
 - Current local zero-technical support/protective-copy follow-up updates public
   issue templates, safe support report docs, source status, search-link sign-in
   labels, saved-search filter summaries, match-score influence labels,

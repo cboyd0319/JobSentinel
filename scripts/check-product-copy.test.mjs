@@ -459,6 +459,16 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(root, "src/pages/Settings.test.tsx", "Config imported\n");
     writeFixtureFile(
       root,
+      "src/utils/export.ts",
+      "const finalFilename = filename || `jobsentinel-config-${date}.json`;\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/utils/export.test.ts",
+      "/^jobsentinel-config-\\d{4}-\\d{2}-\\d{2}\\.json$/\n",
+    );
+    writeFixtureFile(
+      root,
       "src/components/BookmarkletGenerator.tsx",
       "Create a new bookmark in your browser (Cmd/Ctrl+D)\nbookmark address field\n",
     );
@@ -978,6 +988,8 @@ test("product copy rejects technical-first settings copy", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/SetupWizard.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Market.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/export.ts"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/export.test.ts"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.test.tsx"), false);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "docs/features/smart-scoring.md"),

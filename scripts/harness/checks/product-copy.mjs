@@ -676,6 +676,11 @@ export function hasTechnicalFirstUserCopy(root, path) {
     return companyResearchPatterns.some((pattern) => pattern.test(text));
   }
 
+  if (path === "src/utils/export.ts" || path === "src/utils/export.test.ts") {
+    const text = readFileSync(join(root, path), "utf8");
+    return /jobsentinel-config-\$\{date\}\.json|jobsentinel-config-\\d/.test(text);
+  }
+
   if (
     path === "src/components/MarketSnapshotCard.tsx" ||
     path === "src/components/MarketSnapshotCard.test.tsx"

@@ -488,7 +488,7 @@ describe("export utilities", () => {
       exportConfigToJSON(config);
 
       expect(mockLink.download).toMatch(
-        /^jobsentinel-config-\d{4}-\d{2}-\d{2}\.json$/,
+        /^jobsentinel-settings-backup-\d{4}-\d{2}-\d{2}\.json$/,
       );
     });
 

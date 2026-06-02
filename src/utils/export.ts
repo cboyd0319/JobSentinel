@@ -106,7 +106,7 @@ export function exportConfigToJSON<T>(config: T, filename?: string): void {
   const sanitized = sanitizeConfigForExport(config);
   const json = JSON.stringify(sanitized, null, 2);
   const date = new Date().toISOString().split("T")[0];
-  const finalFilename = filename || `jobsentinel-config-${date}.json`;
+  const finalFilename = filename || `jobsentinel-settings-backup-${date}.json`;
   downloadFile(json, finalFilename, "application/json");
 }
 

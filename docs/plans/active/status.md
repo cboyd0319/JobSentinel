@@ -31,6 +31,11 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local zero-technical settings-backup follow-up changes downloaded
+  backup filenames from `jobsentinel-config-*` to
+  `jobsentinel-settings-backup-*`, updates export tests, and adds product-copy
+  harness coverage so visible backup file names do not drift back to config
+  jargon.
 - Latest local JobsWithGPT privacy follow-up closes `SEC-019`: approved
   connected-source checks now write a local minimized source-request ledger, and
   Settings shows the latest approved contact time, source host, count-only
