@@ -153,8 +153,8 @@ Not all sites support every filter. JobSentinel uses what each site supports.
 
 ### Why does JobSentinel use browser-opened links for these sites?
 
-Some sites limit automatic checking or require you to view results in your
-own browser:
+Some sites ask you to review results in your own browser instead of using
+scheduled source checks:
 
 - Limits on repeated searches
 - Human checks

@@ -31,6 +31,14 @@ Latest pushed checkpoints include:
 
 Recent remote integration evidence:
 
+- Current local Deep Links browser-search cleanup changes automatic-check copy
+  to browser-review and scheduled-source-check wording. Product-copy sensors
+  now reject `does not check automatically` and `automatic checking` drift in
+  addition to scan/automation wording. Focused verification passed: `npx
+  vitest run src/components/DeepLinkGenerator.test.tsx` passed 4 tests, `node
+  --test scripts/check-product-copy.test.mjs` passed 34 tests, targeted
+  stale-phrase search found no old live wording in the Deep Links component or
+  guide, and `npm run lint:bloat` passed.
 - Current local scheduled-check wording cleanup changes remaining USAJobs and
   Quick Start automatic-check copy to scheduled/next-step wording. Product-copy
   sensors now reject newline-hidden `automatic USAJobs checks`, Quick Start

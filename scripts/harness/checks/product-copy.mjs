@@ -2269,6 +2269,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /we're just building URLs/i,
     /cannot scan automatically/i,
     /can't scan automatically/i,
+    /does not check automatically/i,
+    /automatic checking/i,
     /automated scans/i,
     /automated scanning/i,
     /No job-board limits from automated scanning/i,

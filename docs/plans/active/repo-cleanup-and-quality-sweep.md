@@ -164,6 +164,11 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local Deep Links browser-search cleanup changes automatic-check copy
+  to browser-review and scheduled-source-check wording. Product-copy sensors
+  now reject `does not check automatically` and `automatic checking` drift in
+  addition to scan/automation wording. Focused Deep Links, product-copy,
+  stale-phrase, and bloat verification passed.
 - Current local scheduled-check wording cleanup changes remaining USAJobs and
   Quick Start automatic-check copy to scheduled/next-step wording. Product-copy
   sensors now reject newline-hidden `automatic USAJobs checks`, Quick Start

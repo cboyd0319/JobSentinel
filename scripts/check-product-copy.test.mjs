@@ -2234,7 +2234,11 @@ test("product copy rejects automated-scan deep-link wording", () => {
     writeFixtureFile(
       root,
       "src/components/DeepLinkGenerator.tsx",
-      "Create ready-to-use searches for job sites that JobSentinel cannot scan automatically.\n",
+      [
+        "Create ready-to-use searches for job sites that JobSentinel cannot scan automatically.",
+        "JobSentinel does not check automatically.",
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(
       root,
@@ -2244,6 +2248,7 @@ test("product copy rejects automated-scan deep-link wording", () => {
         "Access sites that block automated scans",
         "**100% Legal:**",
         "Search links let you search these sites legally without automated scans.",
+        "Some sites limit automatic checking or require you to view results in your own browser.",
         "JobSentinel does not bypass site controls.",
         "JobSentinel does not bypass human checks, login, or site limits.",
         "| Login and human checks | Handled by you on the site | Not bypassed |",

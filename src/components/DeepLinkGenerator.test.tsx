@@ -51,7 +51,8 @@ describe("DeepLinkGenerator", () => {
     expect(screen.queryByText(/deep links/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/scan automatically/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/does not monitor directly/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/does not check automatically/i)).toBeInTheDocument();
+    expect(screen.getByText(/review in your browser/i)).toBeInTheDocument();
+    expect(screen.getByText(/scheduled source checks/i)).toBeInTheDocument();
 
     await user.type(screen.getByLabelText(/job title or work words/i), "Marketing Manager");
     await user.click(screen.getByRole("button", { name: /create search links/i }));
