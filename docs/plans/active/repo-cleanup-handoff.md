@@ -31,6 +31,13 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local alert-filter copy cleanup replaces old alert-strength wording
+  with `How picky alerts are`, updates notification docs away from
+  scoring internals, and adds product-copy sensors against the old label and
+  interim jargon. Focused verification passed: `npx vitest run
+  src/components/NotificationPreferences.test.tsx` passed 45 tests,
+  `node --test scripts/check-product-copy.test.mjs` passed 36 tests, `npm run
+  lint:docs` passed, and `git diff --check` passed.
 - Current local Resume Match action-copy cleanup renames the old tailor-resume
   button to `Review in Resume Builder`, matching the actual action and avoiding
   optimization-style resume wording. Product-copy sensors now reject the old

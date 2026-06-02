@@ -164,6 +164,11 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local alert-filter copy cleanup replaces old alert-strength wording
+  with `How picky alerts are`, updates notification docs away from
+  scoring internals, and adds product-copy sensors against the old label and
+  interim jargon. Focused NotificationPreferences, product-copy, docs, and
+  diff-check verification passed.
 - Current local Resume Match action-copy cleanup renames the old tailor-resume
   button to `Review in Resume Builder`, matching the actual action and avoiding
   optimization-style resume wording. Product-copy sensors now reject the old

@@ -575,6 +575,8 @@ test("product copy rejects technical-first settings copy", () => {
         "Which Jobs Alert You",
         "Choose which sources and filters can interrupt you",
         "Detailed rules currently apply to Indeed, Greenhouse, Lever, and JobsWithGPT",
+        "Match strength",
+        "Alert selectivity",
         "Extra Filters",
         "Only notify if title contains",
         "Never notify if title contains",
@@ -1581,6 +1583,9 @@ test("product copy rejects technical provider setup shortcuts", () => {
       [
         'They may call it an "incoming webhook" in their settings.',
         "Advanced setup for Telegram bot users",
+        "By default, alert match strength is source-specific.",
+        "Optional alerts may include match score.",
+        "Each job source has its own alert selectivity.",
         "Use desktop or email alerts unless you already know how to create a Telegram bot.",
         "Create a Telegram bot",
         "Add your Telegram alert bot to a group or channel",

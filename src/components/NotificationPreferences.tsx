@@ -59,11 +59,11 @@ const SourceConfigRow = memo(function SourceConfigRow({ sourceKey, config, onCha
         <div className="w-9 h-5 bg-surface-200 peer-focus:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-sentinel-300 dark:peer-focus-visible:ring-sentinel-800 rounded-full peer dark:bg-surface-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
       </label>
 
-      {/* Match-strength slider */}
+      {/* Alert filtering slider */}
       <div className="flex items-center gap-2 flex-1">
         <label className="text-sm text-surface-600 dark:text-surface-400 whitespace-nowrap flex items-center gap-1">
-          Match strength:
-          <HelpIcon text="Only alert when JobSentinel sees a strong enough fit. Higher means fewer alerts." size="sm" />
+          How picky alerts are:
+          <HelpIcon text="Higher means fewer alerts. Lower means more alerts." size="sm" />
         </label>
         <input
           type="range"

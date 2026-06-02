@@ -427,13 +427,15 @@ describe("NotificationPreferences Component", () => {
       });
     });
 
-    it("uses plain match-strength copy instead of score-threshold wording", async () => {
+    it("uses plain alert-filter copy instead of score-threshold wording", async () => {
       render(<NotificationPreferencesComponent />);
 
       await waitFor(() => {
-        expect(screen.getAllByText("Match strength:").length).toBeGreaterThan(0);
+        expect(screen.getAllByText("How picky alerts are:").length).toBeGreaterThan(0);
       });
 
+      expect(screen.queryByText("Match strength:")).not.toBeInTheDocument();
+      expect(screen.queryByText("Alert selectivity:")).not.toBeInTheDocument();
       expect(screen.queryByText("Quality:")).not.toBeInTheDocument();
       expect(screen.queryByText(/score threshold/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/above this match score/i)).not.toBeInTheDocument();

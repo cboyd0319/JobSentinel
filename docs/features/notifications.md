@@ -31,7 +31,7 @@ Pick whichever channels work best for you:
 | **Slack**           | Already live in Slack for work   |
 | **Discord**         | Have a personal Discord server   |
 | **Microsoft Teams** | Your company uses Teams          |
-| **Telegram**        | Optional phone chat alerts            |
+| **Telegram**        | Optional phone chat alerts       |
 
 You can enable multiple channels at once. JobSentinel only sends alerts to
 channels you configure.
@@ -45,8 +45,8 @@ user-opened search-link destination, not a background notification source.
 
 Desktop alerts keep job details inside JobSentinel. Optional email and chat
 alerts may include job title, company, location, salary, remote status, match
-score, source, and job link because those services deliver the alert outside
-the app. Local match reasons, saved search strategy, salary-floor details,
+label or percentage, source, and job link because those services deliver the
+alert outside the app. Local match reasons, saved search strategy, salary-floor details,
 private notes, and application history stay inside JobSentinel; open the app to
 review those details.
 
@@ -172,14 +172,14 @@ two details from Telegram before JobSentinel can send alerts there.
 
 ## When Do Notifications Send?
 
-By default, alert match strength is source-specific: large job boards start
-around 70%, Greenhouse and Lever around 80%, and connected job sources around
-75%.
+Each job site starts with a moderate alert filter. Raise it if alerts feel
+noisy. Lower it if too few arrive.
 
-You can adjust this in Settings, under Sources & Alerts, with Match strength.
+You can adjust this in Settings, under Sources & Alerts, with How picky alerts
+are.
 
-**Tip:** Raise match strength when alerts feel noisy. Lower it when alerts feel
-too quiet.
+**Tip:** Raise the filter when alerts feel noisy. Lower it when alerts feel too
+quiet.
 
 ---
 

@@ -1471,6 +1471,9 @@ export function hasTechnicalFirstUserCopy(root, path) {
     const notificationDocPatterns = [
       /incoming webhook/i,
       /Advanced setup for Telegram bot users/i,
+      /match strength/i,
+      /match score/i,
+      /alert selectivity/i,
       /Slack Advanced Chat Setup/i,
       /Add New Webhook to Workspace/i,
       /Advanced Sending Server Reference/i,
@@ -1860,6 +1863,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Which Jobs Alert You/,
       /sources and filters can interrupt you/i,
       /Detailed rules currently apply to Indeed, Greenhouse, Lever, and JobsWithGPT/i,
+      /Match strength/i,
+      /Alert selectivity/i,
       /Extra Filters/,
       /Only notify if title contains/,
       /Never notify if title contains/,
