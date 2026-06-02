@@ -1868,8 +1868,10 @@ function updateResumeDraft(
   resumeId: number | undefined,
   updater: (draft: MockResumeDraft) => MockResumeDraft,
 ): void {
-  if (typeof resumeId !== "number") return;
+  if (typeof resumeId !== "number") throw new Error("Resume draft not found");
 
+  const found = resumeDrafts.some((draft) => draft.id === resumeId);
+  if (!found) throw new Error("Resume draft not found");
   resumeDrafts = resumeDrafts.map((draft) =>
     draft.id === resumeId
       ? updater({ ...draft, updated_at: new Date().toISOString() })
@@ -3619,6 +3621,10 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       const resumeId = getResumeIdArg(args);
       const experienceId =
         getNumericArg(args, "experienceId") ?? getNumericArg(args, "experience_id");
+      const draft = getResumeDraft(args);
+      if (!draft || !draft.experience.some((experience) => experience.id === experienceId)) {
+        throw new Error("Experience entry not found");
+      }
       updateResumeDraft(resumeId, (draft) => ({
         ...draft,
         experience: draft.experience.filter((experience) => experience.id !== experienceId),
@@ -3642,6 +3648,10 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       const resumeId = getResumeIdArg(args);
       const educationId =
         getNumericArg(args, "educationId") ?? getNumericArg(args, "education_id");
+      const draft = getResumeDraft(args);
+      if (!draft || !draft.education.some((education) => education.id === educationId)) {
+        throw new Error("Education entry not found");
+      }
       updateResumeDraft(resumeId, (draft) => ({
         ...draft,
         education: draft.education.filter((education) => education.id !== educationId),
@@ -3661,6 +3671,9 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
 
     case "delete_resume_draft": {
       const resumeId = getResumeIdArg(args);
+      if (typeof resumeId !== "number" || !resumeDrafts.some((draft) => draft.id === resumeId)) {
+        throw new Error("Resume draft not found");
+      }
       resumeDrafts = resumeDrafts.filter((draft) => draft.id !== resumeId);
       saveMockState();
       return undefined as T;

@@ -279,6 +279,10 @@ impl ResumeBuilder {
             .await?
             .context("Resume not found")?;
 
+        if !resume.experience.iter().any(|e| e.id == exp_id) {
+            anyhow::bail!("Experience entry not found");
+        }
+
         resume.experience.retain(|e| e.id != exp_id);
         resume.updated_at = Utc::now();
 
@@ -328,6 +332,10 @@ impl ResumeBuilder {
             .get_resume(resume_id)
             .await?
             .context("Resume not found")?;
+
+        if !resume.education.iter().any(|e| e.id == edu_id) {
+            anyhow::bail!("Education entry not found");
+        }
 
         resume.education.retain(|e| e.id != edu_id);
         resume.updated_at = Utc::now();
@@ -382,7 +390,7 @@ impl ResumeBuilder {
 
     /// Delete a resume draft
     pub async fn delete_resume(&self, resume_id: i64) -> Result<()> {
-        sqlx::query(
+        let result = sqlx::query(
             r#"
             DELETE FROM resume_drafts
             WHERE id = ?
@@ -393,6 +401,10 @@ impl ResumeBuilder {
         .await
         .context("Failed to delete resume")?;
 
+        if result.rows_affected() == 0 {
+            anyhow::bail!("Resume not found");
+        }
+
         Ok(())
     }
 
@@ -400,7 +412,7 @@ impl ResumeBuilder {
     async fn save_resume(&self, resume_id: i64, resume: &ResumeData) -> Result<()> {
         let data_json = serde_json::to_string(resume).context("Failed to serialize resume data")?;
 
-        sqlx::query(
+        let result = sqlx::query(
             r#"
             UPDATE resume_drafts
             SET data = ?, updated_at = datetime('now')
@@ -412,6 +424,10 @@ impl ResumeBuilder {
         .execute(&self.pool)
         .await
         .context("Failed to update resume")?;
+
+        if result.rows_affected() == 0 {
+            anyhow::bail!("Resume not found");
+        }
 
         Ok(())
     }
@@ -540,6 +556,17 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_delete_missing_experience_returns_error() {
+        let pool = setup_test_db().await;
+        let builder = ResumeBuilder::new(pool);
+
+        let resume_id = builder.create_resume().await.unwrap();
+        let result = builder.delete_experience(resume_id, 999).await;
+
+        assert!(result.is_err());
+    }
+
+    #[tokio::test]
     async fn test_set_skills() {
         let pool = setup_test_db().await;
         let builder = ResumeBuilder::new(pool);
@@ -578,5 +605,26 @@ mod tests {
 
         let result = builder.get_resume(resume_id).await.unwrap();
         assert!(result.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_delete_missing_education_returns_error() {
+        let pool = setup_test_db().await;
+        let builder = ResumeBuilder::new(pool);
+
+        let resume_id = builder.create_resume().await.unwrap();
+        let result = builder.delete_education(resume_id, 999).await;
+
+        assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_delete_missing_resume_returns_error() {
+        let pool = setup_test_db().await;
+        let builder = ResumeBuilder::new(pool);
+
+        let result = builder.delete_resume(999).await;
+
+        assert!(result.is_err());
     }
 }

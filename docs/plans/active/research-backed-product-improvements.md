@@ -54,6 +54,9 @@ narrow implementation slices chosen from that backlog.
 - Latest local stale resume-action contract follow-up prevents a stale resume
   activation from clearing the current active resume and rejects missing skill
   edits instead of silently reporting success.
+- Latest local Resume Builder stale-draft contract follow-up rejects missing
+  experience deletes, missing education deletes, missing draft deletes, and
+  missing draft saves instead of reporting success.
 
 ## Source files
 

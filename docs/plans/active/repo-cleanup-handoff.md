@@ -318,6 +318,19 @@ Recent local verification evidence:
   Follow-up repo checks passed: `npm run lint:docs`, `npm run lint:bloat`,
   `npm run harness:check`, `git diff --check`, and `npm run
   test:e2e:smoke:budget` with 10 expected tests in about 7.9 seconds.
+- Current local Resume Builder stale-draft contract fix makes missing
+  experience and education deletes fail instead of silently updating timestamps,
+  makes missing draft deletes fail, and checks `save_resume` row counts so
+  concurrent missing drafts cannot report success. Browser/dev mocks now mirror
+  missing draft and missing nested-entry failures. Verification passed:
+  `cargo test --lib resume::builder` passed 9 tests,
+  `npx vitest run src/mocks/handlers.test.ts` passed 12 tests, `npm run
+  lint`, `npm run build`, `npm run test:run` passed 2629 tests,
+  `cargo test --lib resume` passed 178 tests, `cargo clippy -- -D warnings`,
+  and `npm run test:scripts` passed 503 tests. Follow-up repo checks passed:
+  `npm run lint:docs`, `npm run lint:bloat`, `npm run lint:security`,
+  `git diff --check`, and `npm run test:e2e:smoke:budget` with 10 expected
+  tests in about 8.2 seconds.
 - Current local resume suggestion follow-up replaces backend and mock
   suggestion impact values like `High` and `Medium` with concrete, review-first
   user guidance, changes bullet suggestions from command-style action-verb copy
