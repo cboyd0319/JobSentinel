@@ -260,6 +260,23 @@ type MockApplicationProfilePreview = Pick<
   | "requiresSponsorship"
 >;
 
+type MockApplicationProfileEdit = Pick<
+  MockApplicationProfile,
+  | "fullName"
+  | "email"
+  | "phone"
+  | "linkedinUrl"
+  | "githubUrl"
+  | "portfolioUrl"
+  | "websiteUrl"
+  | "hasResumeFile"
+  | "resumeFileName"
+  | "usWorkAuthorized"
+  | "requiresSponsorship"
+  | "maxApplicationsPerDay"
+  | "requireManualApproval"
+>;
+
 interface MockScreeningAnswer {
   id: number;
   questionPattern: string;
@@ -1391,6 +1408,26 @@ function getMockApplicationProfilePreview(): MockApplicationProfilePreview | nul
     websiteUrl: applicationProfile.websiteUrl,
     usWorkAuthorized: applicationProfile.usWorkAuthorized,
     requiresSponsorship: applicationProfile.requiresSponsorship,
+  };
+}
+
+function getMockApplicationProfileEdit(): MockApplicationProfileEdit | null {
+  if (!applicationProfile) return null;
+
+  return {
+    fullName: applicationProfile.fullName,
+    email: applicationProfile.email,
+    phone: applicationProfile.phone,
+    linkedinUrl: applicationProfile.linkedinUrl,
+    githubUrl: applicationProfile.githubUrl,
+    portfolioUrl: applicationProfile.portfolioUrl,
+    websiteUrl: applicationProfile.websiteUrl,
+    hasResumeFile: applicationProfile.hasResumeFile,
+    resumeFileName: applicationProfile.resumeFileName,
+    usWorkAuthorized: applicationProfile.usWorkAuthorized,
+    requiresSponsorship: applicationProfile.requiresSponsorship,
+    maxApplicationsPerDay: applicationProfile.maxApplicationsPerDay,
+    requireManualApproval: applicationProfile.requireManualApproval,
   };
 }
 
@@ -3704,7 +3741,7 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       return getMockApplicationProfilePreview() as T;
 
     case "get_application_profile":
-      return applicationProfile as T;
+      return getMockApplicationProfileEdit() as T;
 
     case "select_application_resume_file":
       return {

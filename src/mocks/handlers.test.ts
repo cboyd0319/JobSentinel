@@ -493,6 +493,25 @@ describe("mock Tauri handlers", () => {
       "websiteUrl",
     ]);
 
+    const editProfile = await mockInvoke<Record<string, unknown>>(
+      "get_application_profile",
+    );
+    expect(Object.keys(editProfile).sort()).toEqual([
+      "email",
+      "fullName",
+      "githubUrl",
+      "hasResumeFile",
+      "linkedinUrl",
+      "maxApplicationsPerDay",
+      "phone",
+      "portfolioUrl",
+      "requireManualApproval",
+      "requiresSponsorship",
+      "resumeFileName",
+      "usWorkAuthorized",
+      "websiteUrl",
+    ]);
+
     const preferences = await mockInvoke<DashboardPreferences>(
       "get_dashboard_preferences",
     );

@@ -30,7 +30,6 @@ interface FormSnapshot {
 
 // Types matching the Rust backend
 interface ApplicationProfile {
-  id: number;
   fullName: string;
   email: string;
   phone: string | null;
@@ -38,16 +37,12 @@ interface ApplicationProfile {
   githubUrl: string | null;
   portfolioUrl: string | null;
   websiteUrl: string | null;
-  defaultResumeId: number | null;
   hasResumeFile: boolean;
   resumeFileName: string | null;
-  defaultCoverLetterTemplate: string | null;
   usWorkAuthorized: boolean;
   requiresSponsorship: boolean;
   maxApplicationsPerDay: number;
   requireManualApproval: boolean;
-  createdAt: string;
-  updatedAt: string;
 }
 
 interface ApplicationProfileInput {

@@ -240,6 +240,15 @@ actionable findings in this active-plan surface or the relevant plan.
   passed, `npm run lint:tests` passed, `node --test
   scripts/check-product-copy.test.mjs` passed 43 tests, `npm run lint` passed,
   `npm run build` passed, and `git diff --check` passed.
+- Current local application-profile IPC minimization trims the edit-profile
+  response and mock response to fields the profile form needs, removing unused
+  backend metadata such as ids, default template fields, and timestamps. Red
+  tests failed before the fix, then `npx vitest run src/mocks/handlers.test.ts
+  src/components/automation/ProfileForm.test.tsx` passed 24 tests, `cargo test
+  --lib application_profile_response` passed 4 tests, `npm run
+  lint:tauri-invokes` passed, `cargo fmt --all -- --check` passed, `npm run
+  lint` passed, `npm run build` passed, `npm run lint:docs` passed, `npm run
+  lint:bloat` passed, and `git diff --check` passed.
 - Current local source-status wording cleanup replaces remaining user-facing
   `source health` wording with `source status` in README, roadmap, source
   guides, and ScraperHealthDashboard log context. Product-copy sensors now

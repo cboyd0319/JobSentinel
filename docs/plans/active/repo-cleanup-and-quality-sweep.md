@@ -234,6 +234,11 @@ boundaries, and harness modularity:
   not classified. Red-test, aiGateway, external-AI sensor, security,
   architecture, docs, bloat, test-quality, product-copy, lint, build, and
   diff-check verification passed.
+- Current local application-profile IPC minimization trims the edit-profile
+  response and mock response to fields the profile form needs, removing unused
+  backend metadata such as ids, default template fields, and timestamps.
+  Focused mock/ProfileForm, Rust response, Tauri invoke, Rust formatting, lint,
+  build, docs, bloat, and diff-check verification passed.
 - Current local source-status wording cleanup replaces remaining user-facing
   `source health` wording with `source status` in README, roadmap, source
   guides, and ScraperHealthDashboard log context. Product-copy sensors now

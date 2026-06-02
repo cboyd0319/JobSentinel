@@ -403,7 +403,6 @@ pub async fn get_application_profile_preview(
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ApplicationProfileResponse {
-    pub id: i64,
     pub full_name: String,
     pub email: String,
     pub phone: Option<String>,
@@ -411,22 +410,17 @@ pub struct ApplicationProfileResponse {
     pub github_url: Option<String>,
     pub portfolio_url: Option<String>,
     pub website_url: Option<String>,
-    pub default_resume_id: Option<i64>,
     pub has_resume_file: bool,
     pub resume_file_name: Option<String>,
-    pub default_cover_letter_template: Option<String>,
     pub us_work_authorized: bool,
     pub requires_sponsorship: bool,
     pub max_applications_per_day: i32,
     pub require_manual_approval: bool,
-    pub created_at: String,
-    pub updated_at: String,
 }
 
 impl From<ApplicationProfile> for ApplicationProfileResponse {
     fn from(p: ApplicationProfile) -> Self {
         Self {
-            id: p.id,
             full_name: p.full_name,
             email: p.email,
             phone: p.phone,
@@ -434,7 +428,6 @@ impl From<ApplicationProfile> for ApplicationProfileResponse {
             github_url: p.github_url,
             portfolio_url: p.portfolio_url,
             website_url: p.website_url,
-            default_resume_id: p.default_resume_id,
             has_resume_file: p
                 .resume_file_path
                 .as_deref()
@@ -443,13 +436,10 @@ impl From<ApplicationProfile> for ApplicationProfileResponse {
                 .resume_file_path
                 .as_deref()
                 .and_then(resume_file_display_name),
-            default_cover_letter_template: p.default_cover_letter_template,
             us_work_authorized: p.us_work_authorized,
             requires_sponsorship: p.requires_sponsorship,
             max_applications_per_day: p.max_applications_per_day,
             require_manual_approval: p.require_manual_approval,
-            created_at: p.created_at.to_rfc3339(),
-            updated_at: p.updated_at.to_rfc3339(),
         }
     }
 }
@@ -1425,6 +1415,23 @@ mod response_tests {
         assert!(json.contains("client-resume.pdf"));
         assert!(!json.contains("/Users/jordan/private"));
         assert!(!json.contains("resumeFilePath"));
+    }
+
+    #[test]
+    fn application_profile_response_omits_unused_backend_metadata() {
+        let response = ApplicationProfileResponse::from(profile_with_resume_path(Some(
+            "/local/app/application-resumes/7d9d16a1-2e5d-4b32-9eb2-bfbffb4ee871--jordan-resume.pdf"
+                .to_string(),
+        )));
+
+        let json = serde_json::to_value(&response).unwrap();
+        let object = json.as_object().unwrap();
+
+        assert!(!object.contains_key("id"));
+        assert!(!object.contains_key("defaultResumeId"));
+        assert!(!object.contains_key("defaultCoverLetterTemplate"));
+        assert!(!object.contains_key("createdAt"));
+        assert!(!object.contains_key("updatedAt"));
     }
 
     #[test]
