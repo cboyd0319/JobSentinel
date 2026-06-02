@@ -153,6 +153,21 @@ Recent local verification evidence:
   Node 26 while CI uses Node 20, `cargo test --lib platforms::macos` passed 22
   tests with 1 ignored, and `npm run test:e2e:smoke:budget` passed 10 expected
   tests in about 7.8 seconds with no unexpected, flaky, or skipped results.
+- Current local macOS bundle-metadata follow-up adds verifier checks for
+  expected bundle id `com.jobsentinel.main`, product name `JobSentinel`,
+  release version, and `icon.icns`; wires those checks into the release workflow
+  and public release verifier; and regenerates `src-tauri/icons/icon.icns` from
+  the approved `public/logo.png` source. A fresh
+  `npm run tauri:build:macos -- --target universal-apple-darwin` rebuilt the
+  universal app and DMG, and the rebuilt DMG passed
+  `npm run tauri:verify:macos` with expected metadata, `x86_64,arm64`
+  architectures, mounted and installed launch smoke, isolated `jobs.db`
+  creation, signature verification, and expected optional Gatekeeper rejection
+  for the ad-hoc local package. Verification passed: focused Node tests passed
+  17 tests, `actionlint .github/workflows/release.yml
+  .github/workflows/verify-release-artifacts.yml` passed, `npm run
+  test:scripts` passed 500 tests, `npm run lint:security`, `npm run
+  lint:bloat`, `npm run lint:docs`, and `git diff --check` passed.
 - Current published macOS release gap: the public GitHub `v2.6.4` release is
   live and includes `JobSentinel_2.6.4_universal.dmg`, but verification of the
   downloaded public DMG failed because the mounted `JobSentinel.app` is not

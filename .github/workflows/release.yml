@@ -213,6 +213,10 @@ jobs:
           npm run tauri:verify:macos -- --dmg
           src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
           --expected-architectures x86_64,arm64
+          --expected-bundle-id com.jobsentinel.main
+          --expected-product-name JobSentinel
+          --expected-version ${{ needs.create-release.outputs.version }}
+          --expected-icon-file icon.icns
           --launch-smoke
           --install-smoke
           --require-gatekeeper

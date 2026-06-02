@@ -39,6 +39,12 @@ export function parseArgs(args) {
   return {
     appName: getArgValue(args, "--app-name") ?? "JobSentinel.app",
     assetPattern: getArgValue(args, "--asset-pattern") ?? "universal.dmg",
+    expectedBundleMetadata: {
+      bundleIdentifier: getArgValue(args, "--expected-bundle-id") ?? "com.jobsentinel.main",
+      iconFile: getArgValue(args, "--expected-icon-file") ?? "icon.icns",
+      productName: getArgValue(args, "--expected-product-name") ?? "JobSentinel",
+      version: getArgValue(args, "--expected-version"),
+    },
     expectedArchitectures: splitList(expectedArchitectures),
     installSmoke: !hasArg(args, "--no-install-smoke"),
     launchSmoke: !hasArg(args, "--no-launch-smoke"),
@@ -106,6 +112,12 @@ async function downloadFile(url, destination) {
 export async function verifyLatestMacosRelease(options) {
   const release = await fetchJson(releaseApiUrl(options));
   const asset = findMacosDmgAsset(release, options.assetPattern);
+  const expectedBundleMetadata = {
+    ...options.expectedBundleMetadata,
+    version:
+      options.expectedBundleMetadata?.version ??
+      (typeof release.tag_name === "string" ? release.tag_name.replace(/^v/, "") : undefined),
+  };
 
   if (!asset) {
     const names = (release.assets ?? []).map((item) => item.name).join(", ");
@@ -123,6 +135,7 @@ export async function verifyLatestMacosRelease(options) {
     await verifyMacosPackage({
       appName: options.appName,
       dmgPath,
+      expectedBundleMetadata,
       expectedArchitectures: options.expectedArchitectures,
       installSmoke: options.installSmoke,
       launchSmoke: options.launchSmoke,

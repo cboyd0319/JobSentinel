@@ -78,6 +78,15 @@ const releaseWorkflowChecks = [
     label: "macOS installed app smoke gate",
     phrases: ["npm run tauri:verify:macos", "--install-smoke"],
   },
+  {
+    label: "macOS bundle metadata gate",
+    phrases: [
+      "--expected-bundle-id com.jobsentinel.main",
+      "--expected-product-name JobSentinel",
+      "--expected-version",
+      "--expected-icon-file icon.icns",
+    ],
+  },
 ];
 
 const publishedReleaseWorkflowChecks = [

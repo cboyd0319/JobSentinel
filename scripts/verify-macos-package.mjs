@@ -58,6 +58,12 @@ export function parseArgs(args, arch = process.arch) {
   return {
     appName: getArgValue(args, "--app-name") ?? "JobSentinel.app",
     dmgPath,
+    expectedBundleMetadata: {
+      bundleIdentifier: getArgValue(args, "--expected-bundle-id"),
+      iconFile: getArgValue(args, "--expected-icon-file"),
+      productName: getArgValue(args, "--expected-product-name"),
+      version: getArgValue(args, "--expected-version"),
+    },
     expectedArchitectures: expectedArchitectures
       ? splitList(expectedArchitectures)
       : defaultArchitectures(arch),
@@ -107,6 +113,64 @@ export function macosSmokeDataPaths(homePath) {
   };
 }
 
+const requiredBundleMetadata = [
+  ["bundleIdentifier", "CFBundleIdentifier"],
+  ["bundleName", "CFBundleName"],
+  ["displayName", "CFBundleDisplayName"],
+  ["executable", "CFBundleExecutable"],
+  ["iconFile", "CFBundleIconFile"],
+  ["shortVersion", "CFBundleShortVersionString"],
+  ["bundleVersion", "CFBundleVersion"],
+];
+
+export function bundleMetadataViolations(metadata, expected = {}) {
+  const violations = [];
+
+  for (const [field, plistKey] of requiredBundleMetadata) {
+    if (!metadata[field]) {
+      violations.push(`${plistKey} is missing or empty`);
+    }
+  }
+
+  if (expected.bundleIdentifier && metadata.bundleIdentifier !== expected.bundleIdentifier) {
+    violations.push(
+      `CFBundleIdentifier expected ${expected.bundleIdentifier}, found ${metadata.bundleIdentifier || "(empty)"}`,
+    );
+  }
+
+  if (expected.productName) {
+    if (metadata.bundleName !== expected.productName) {
+      violations.push(
+        `CFBundleName expected ${expected.productName}, found ${metadata.bundleName || "(empty)"}`,
+      );
+    }
+    if (metadata.displayName !== expected.productName) {
+      violations.push(
+        `CFBundleDisplayName expected ${expected.productName}, found ${metadata.displayName || "(empty)"}`,
+      );
+    }
+  }
+
+  if (expected.version) {
+    if (metadata.shortVersion !== expected.version) {
+      violations.push(
+        `CFBundleShortVersionString expected ${expected.version}, found ${metadata.shortVersion || "(empty)"}`,
+      );
+    }
+    if (metadata.bundleVersion !== expected.version) {
+      violations.push(
+        `CFBundleVersion expected ${expected.version}, found ${metadata.bundleVersion || "(empty)"}`,
+      );
+    }
+  }
+
+  if (expected.iconFile && metadata.iconFile !== expected.iconFile) {
+    violations.push(`CFBundleIconFile expected ${expected.iconFile}, found ${metadata.iconFile || "(empty)"}`);
+  }
+
+  return violations;
+}
+
 function runCapture(command, args, options = {}) {
   return execFileSync(command, args, {
     cwd: options.cwd ?? defaultRoot,
@@ -148,6 +212,43 @@ function assertPathExists(path, label) {
   if (!path || !existsSync(path)) {
     throw new Error(`${label} missing: ${path ?? "(not provided)"}`);
   }
+}
+
+function readBundleString(infoPlistPath, key) {
+  try {
+    return runCapture("plutil", ["-extract", key, "raw", "-o", "-", infoPlistPath]).trim();
+  } catch {
+    return "";
+  }
+}
+
+function readBundleMetadata(appPath) {
+  const infoPlistPath = join(appPath, "Contents", "Info.plist");
+  assertPathExists(infoPlistPath, "Info.plist");
+
+  return {
+    bundleIdentifier: readBundleString(infoPlistPath, "CFBundleIdentifier"),
+    bundleName: readBundleString(infoPlistPath, "CFBundleName"),
+    bundleVersion: readBundleString(infoPlistPath, "CFBundleVersion"),
+    displayName: readBundleString(infoPlistPath, "CFBundleDisplayName"),
+    executable: readBundleString(infoPlistPath, "CFBundleExecutable"),
+    iconFile: readBundleString(infoPlistPath, "CFBundleIconFile"),
+    minimumSystemVersion: readBundleString(infoPlistPath, "LSMinimumSystemVersion"),
+    shortVersion: readBundleString(infoPlistPath, "CFBundleShortVersionString"),
+  };
+}
+
+function verifyBundleMetadata(appPath, expectedBundleMetadata) {
+  const metadata = readBundleMetadata(appPath);
+  const violations = bundleMetadataViolations(metadata, expectedBundleMetadata);
+  if (violations.length > 0) {
+    throw new Error(`App bundle metadata check failed:\n- ${violations.join("\n- ")}`);
+  }
+
+  console.log(
+    `App bundle metadata verified: ${metadata.bundleName} ${metadata.shortVersion} (${metadata.bundleIdentifier})`,
+  );
+  return metadata;
 }
 
 function getBundleExecutable(appPath) {
@@ -246,6 +347,7 @@ function assertApplicationsSymlink(mountPath) {
 
 async function verifyAppBundle({
   appPath,
+  expectedBundleMetadata,
   expectedArchitectures,
   launchSmoke,
   requireGatekeeper,
@@ -253,6 +355,7 @@ async function verifyAppBundle({
   bundleLabel = "App bundle",
 }) {
   assertPathExists(appPath, bundleLabel);
+  verifyBundleMetadata(appPath, expectedBundleMetadata);
 
   const executable = join(appPath, "Contents", "MacOS", getBundleExecutable(appPath));
   assertPathExists(executable, "App executable");
@@ -279,6 +382,7 @@ async function verifyAppBundle({
 async function verifyInstalledApp({
   sourceAppPath,
   appName,
+  expectedBundleMetadata,
   expectedArchitectures,
   requireGatekeeper,
   smokeSeconds,
@@ -291,6 +395,7 @@ async function verifyInstalledApp({
     await verifyAppBundle({
       appPath: installedAppPath,
       bundleLabel: "Installed app bundle",
+      expectedBundleMetadata,
       expectedArchitectures,
       launchSmoke: true,
       requireGatekeeper,
@@ -330,6 +435,7 @@ export async function verifyMacosPackage(options) {
     await verifyAppBundle({
       appPath: mountedAppPath,
       bundleLabel: "Mounted app bundle",
+      expectedBundleMetadata: options.expectedBundleMetadata,
       expectedArchitectures: options.expectedArchitectures,
       launchSmoke: options.launchSmoke,
       requireGatekeeper: options.requireGatekeeper,
@@ -340,6 +446,7 @@ export async function verifyMacosPackage(options) {
       await verifyInstalledApp({
         sourceAppPath: mountedAppPath,
         appName: options.appName,
+        expectedBundleMetadata: options.expectedBundleMetadata,
         expectedArchitectures: options.expectedArchitectures,
         requireGatekeeper: options.requireGatekeeper,
         smokeSeconds: options.smokeSeconds,
@@ -362,7 +469,7 @@ export async function verifyMacosPackage(options) {
 export async function main({ args = process.argv.slice(2) } = {}) {
   const options = parseArgs(args);
   if (!options.dmgPath) {
-    throw new Error("Usage: verify-macos-package.mjs --dmg <path-to-dmg> [--expected-architectures x86_64,arm64] [--launch-smoke] [--install-smoke] [--require-gatekeeper]");
+    throw new Error("Usage: verify-macos-package.mjs --dmg <path-to-dmg> [--expected-architectures x86_64,arm64] [--expected-bundle-id com.example.app] [--expected-product-name AppName] [--expected-version X.Y.Z] [--expected-icon-file icon.icns] [--launch-smoke] [--install-smoke] [--require-gatekeeper]");
   }
   if (!Number.isFinite(options.smokeSeconds) || options.smokeSeconds < 1) {
     throw new Error(`Invalid --smoke-seconds value: ${options.smokeSeconds}`);

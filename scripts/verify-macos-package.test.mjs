@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  bundleMetadataViolations,
   defaultArchitectures,
   formatGatekeeperStatus,
   hasExpectedArchitectures,
@@ -13,6 +14,12 @@ test("macOS verifier parses positional and flagged DMG arguments", () => {
   assert.deepEqual(parseArgs(["build.dmg"], "arm64"), {
     appName: "JobSentinel.app",
     dmgPath: "build.dmg",
+    expectedBundleMetadata: {
+      bundleIdentifier: undefined,
+      iconFile: undefined,
+      productName: undefined,
+      version: undefined,
+    },
     expectedArchitectures: ["arm64"],
     installSmoke: false,
     launchSmoke: false,
@@ -26,6 +33,14 @@ test("macOS verifier parses positional and flagged DMG arguments", () => {
       "universal.dmg",
       "--expected-architectures",
       "x86_64,arm64",
+      "--expected-bundle-id",
+      "com.jobsentinel.main",
+      "--expected-product-name",
+      "JobSentinel",
+      "--expected-version",
+      "2.6.4",
+      "--expected-icon-file",
+      "icon.icns",
       "--launch-smoke",
       "--smoke-seconds",
       "3",
@@ -35,6 +50,12 @@ test("macOS verifier parses positional and flagged DMG arguments", () => {
     {
       appName: "JobSentinel.app",
       dmgPath: "universal.dmg",
+      expectedBundleMetadata: {
+        bundleIdentifier: "com.jobsentinel.main",
+        iconFile: "icon.icns",
+        productName: "JobSentinel",
+        version: "2.6.4",
+      },
       expectedArchitectures: ["x86_64", "arm64"],
       installSmoke: true,
       launchSmoke: true,
@@ -97,4 +118,44 @@ test("macOS verifier resolves launch smoke data paths under isolated home", () =
     dataDir: "/tmp/jobsentinel-smoke-home/Library/Application Support/JobSentinel",
     dbPath: "/tmp/jobsentinel-smoke-home/Library/Application Support/JobSentinel/jobs.db",
   });
+});
+
+test("macOS verifier validates required bundle metadata and expected identity", () => {
+  const metadata = {
+    bundleIdentifier: "com.jobsentinel.main",
+    bundleName: "JobSentinel",
+    bundleVersion: "2.6.4",
+    displayName: "JobSentinel",
+    executable: "jobsentinel",
+    iconFile: "icon.icns",
+    shortVersion: "2.6.4",
+  };
+
+  assert.deepEqual(
+    bundleMetadataViolations(metadata, {
+      bundleIdentifier: "com.jobsentinel.main",
+      iconFile: "icon.icns",
+      productName: "JobSentinel",
+      version: "2.6.4",
+    }),
+    [],
+  );
+
+  assert.deepEqual(
+    bundleMetadataViolations(
+      { ...metadata, bundleIdentifier: "", displayName: "Other", shortVersion: "2.6.3" },
+      {
+        bundleIdentifier: "com.jobsentinel.main",
+        iconFile: "icon.icns",
+        productName: "JobSentinel",
+        version: "2.6.4",
+      },
+    ),
+    [
+      "CFBundleIdentifier is missing or empty",
+      "CFBundleIdentifier expected com.jobsentinel.main, found (empty)",
+      "CFBundleDisplayName expected JobSentinel, found Other",
+      "CFBundleShortVersionString expected 2.6.4, found 2.6.3",
+    ],
+  );
 });
