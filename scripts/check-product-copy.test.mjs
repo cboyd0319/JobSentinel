@@ -675,6 +675,9 @@ test("product copy rejects technical-first settings copy", () => {
         "The requested resource was not found.",
         "You do not have permission to access this.",
         "Request timed out.",
+        "Please try again later.",
+        "This took too long. Please try again.",
+        "JobSentinel ran into a problem. Please try again.",
         "",
       ].join("\n"),
     );

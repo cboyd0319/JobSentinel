@@ -45,13 +45,13 @@ export class AppError extends Error {
  */
 export const ERROR_MESSAGES: Record<ErrorType, string> = {
   [ErrorType.NETWORK]: 'Could not connect. Check your internet connection.',
-  [ErrorType.API]: 'This service is unavailable right now. Please try again later.',
+  [ErrorType.API]: 'This service is unavailable right now. Try again later, or copy a safe support report if it keeps happening.',
   [ErrorType.VALIDATION]: 'Some information needs review. Check your entries.',
   [ErrorType.PARSE]: 'JobSentinel could not read that data. Try again, or copy a safe support report if you need help.',
   [ErrorType.NOT_FOUND]: 'This item could not be found. It may have been moved or deleted.',
   [ErrorType.UNAUTHORIZED]: 'JobSentinel could not open this. Check sign-in or access details.',
-  [ErrorType.TIMEOUT]: 'This took too long. Please try again.',
-  [ErrorType.UNKNOWN]: 'JobSentinel ran into a problem. Please try again.',
+  [ErrorType.TIMEOUT]: 'This took too long. Try again, or copy a safe support report if it keeps happening.',
+  [ErrorType.UNKNOWN]: 'JobSentinel ran into a problem. Try again, or copy a safe support report if it keeps happening.',
 };
 
 /**

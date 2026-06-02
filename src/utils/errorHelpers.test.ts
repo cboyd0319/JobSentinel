@@ -79,6 +79,8 @@ describe("errorHelpers", () => {
       expect(ERROR_MESSAGES[ErrorType.API]).toContain("unavailable");
       expect(ERROR_MESSAGES[ErrorType.VALIDATION]).toContain("needs review");
       expect(ERROR_MESSAGES[ErrorType.TIMEOUT]).toContain("took too long");
+      expect(ERROR_MESSAGES[ErrorType.UNKNOWN]).toContain("safe support report");
+      expect(Object.values(ERROR_MESSAGES).join("\n")).not.toContain("Please try again");
     });
   });
 

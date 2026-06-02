@@ -1270,3 +1270,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local notification preference recovery slice replaces retry-only
   alert-settings save guidance with safe-support-report guidance and focused
   component coverage.
+- Current local shared error-helper recovery slice replaces retry-only API,
+  timeout, and unknown fallback guidance with safe-support-report guidance and
+  focused helper coverage.
