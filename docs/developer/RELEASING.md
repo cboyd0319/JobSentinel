@@ -66,10 +66,11 @@ npx tauri build --target x86_64-unknown-linux-gnu
 The `Verify Release Artifacts` GitHub Actions workflow also runs after a
 release is published. It verifies the public macOS DMG from GitHub Releases
 with strict defaults: universal `x86_64,arm64` architecture checks, signature
-verification, bundle identity, release-tag version, icon file, mounted-app
-launch smoke, installed-app launch smoke, and isolated local database creation,
-plus Gatekeeper acceptance. If this workflow fails, the public DMG should be
-replaced before sharing the release with nontechnical macOS users.
+verification, bundle identity, release-tag version, icon metadata and resource
+file, mounted-app launch smoke, installed-app launch smoke, and isolated local
+database creation, plus Gatekeeper acceptance. If this workflow fails, the
+public DMG should be replaced before sharing the release with nontechnical
+macOS users.
 
 ### 2. Create GitHub Release
 

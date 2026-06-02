@@ -172,9 +172,10 @@ npm run tauri:verify:macos -- \
 
 For public release gating, keep `--launch-smoke --install-smoke` and add
 `--require-gatekeeper`. That mode fails unless the app bundle uses the expected
-JobSentinel id, product name, version, and icon file, the mounted app can
-start, the copied installed app can start, both launches create an isolated
-local `jobs.db`, and the app plus disk image pass Gatekeeper assessment.
+JobSentinel id, product name, version, icon metadata, and icon resource file,
+the mounted app can start, the copied installed app can start, both launches
+create an isolated local `jobs.db`, and the app plus disk image pass Gatekeeper
+assessment.
 
 After a release is published, verify the downloaded public artifact too:
 
@@ -184,8 +185,9 @@ npm run tauri:verify:macos:latest
 
 That command downloads the latest public GitHub release DMG and applies the
 same universal-architecture, launch-smoke, installed-app smoke, signature, and
-Gatekeeper checks, including bundle identity, release-tag version, icon file,
-and isolated macOS data directory and database creation during launch smoke.
+Gatekeeper checks, including bundle identity, release-tag version, icon
+metadata and resource file, and isolated macOS data directory and database
+creation during launch smoke.
 
 The latest local universal smoke built
 `src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg`,

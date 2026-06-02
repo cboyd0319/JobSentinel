@@ -128,6 +128,7 @@ test("macOS verifier validates required bundle metadata and expected identity", 
     displayName: "JobSentinel",
     executable: "jobsentinel",
     iconFile: "icon.icns",
+    iconResourceExists: true,
     shortVersion: "2.6.4",
   };
 
@@ -158,4 +159,8 @@ test("macOS verifier validates required bundle metadata and expected identity", 
       "CFBundleShortVersionString expected 2.6.4, found 2.6.3",
     ],
   );
+
+  assert.deepEqual(bundleMetadataViolations({ ...metadata, iconResourceExists: false }), [
+    "CFBundleIconFile resource missing from Contents/Resources: icon.icns",
+  ]);
 });

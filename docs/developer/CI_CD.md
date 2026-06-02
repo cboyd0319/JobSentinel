@@ -102,11 +102,11 @@ natively on both Apple Silicon and Intel Macs.
 
 The release workflow verifies the macOS DMG before upload with
 `npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-gatekeeper`.
-This gate checks the DMG layout, bundle id, product name, version, icon file,
-mounted app signature, universal architectures, mounted-app launch smoke,
-copied installed-app launch smoke, isolated macOS data directory and database
-creation, and Gatekeeper acceptance before the artifact can be attached to the
-draft release.
+This gate checks the DMG layout, bundle id, product name, version, icon
+metadata and resource file, mounted app signature, universal architectures,
+mounted-app launch smoke, copied installed-app launch smoke, isolated macOS
+data directory and database creation, and Gatekeeper acceptance before the
+artifact can be attached to the draft release.
 
 ## Published release verification (verify-release-artifacts.yml)
 
@@ -119,7 +119,7 @@ check to the published tag. On manual runs, the optional `tag` input checks a
 specific release, and a blank tag checks the latest public release.
 
 The public macOS verifier uses strict defaults: expected JobSentinel bundle id,
-product name, icon file, release-tag version, universal `x86_64,arm64`
+product name, icon metadata and resource file, release-tag version, universal `x86_64,arm64`
 architecture checks, mounted app signature verification, installed-app smoke,
 launch smoke, local data initialization, and Gatekeeper acceptance. A failure
 means the public DMG is not ready for nontechnical macOS users and should be
@@ -257,10 +257,10 @@ temporary keychain, `npm run tauri:build:macos` signs, notarizes, staples, and
 validates the custom DMG. The release workflow then verifies the package with
 `npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-gatekeeper` before
 upload. Without the expected bundle id, product name, release version, icon
-file, Developer ID signing, notarization, Gatekeeper acceptance, mounted-app
-plus installed-app launch smoke, and local data initialization, the macOS
-release job should fail instead of publishing a package that nontechnical users
-cannot open cleanly.
+resource file, Developer ID signing, notarization, Gatekeeper acceptance,
+mounted-app plus installed-app launch smoke, and local data initialization, the
+macOS release job should fail instead of publishing a package that
+nontechnical users cannot open cleanly.
 
 After the GitHub release is published, the `Verify Release Artifacts` workflow
 runs automatically. It downloads the public release DMG and applies the same

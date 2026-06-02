@@ -167,9 +167,10 @@ unreviewed form sending.
   tests in about 7.8 seconds with no unexpected, flaky, or skipped results.
 - Current local macOS bundle-metadata follow-up adds verifier checks for
   expected bundle id `com.jobsentinel.main`, product name `JobSentinel`,
-  release version, and `icon.icns`; wires those checks into the release workflow
-  and public release verifier; and regenerates `src-tauri/icons/icon.icns` from
-  the approved `public/logo.png` source. A fresh
+  release version, `icon.icns` metadata, and the actual icon resource in
+  `Contents/Resources`; wires those checks into the release workflow and public
+  release verifier; and regenerates `src-tauri/icons/icon.icns` from the
+  approved `public/logo.png` source. A fresh
   `npm run tauri:build:macos -- --target universal-apple-darwin` rebuilt the
   universal app and DMG, and the rebuilt DMG passed
   `npm run tauri:verify:macos` with expected metadata, `x86_64,arm64`

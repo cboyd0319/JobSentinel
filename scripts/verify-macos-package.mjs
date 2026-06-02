@@ -123,6 +123,14 @@ const requiredBundleMetadata = [
   ["bundleVersion", "CFBundleVersion"],
 ];
 
+function bundleIconResourceNames(iconFile) {
+  if (!iconFile) {
+    return [];
+  }
+
+  return iconFile.endsWith(".icns") ? [iconFile] : [iconFile, `${iconFile}.icns`];
+}
+
 export function bundleMetadataViolations(metadata, expected = {}) {
   const violations = [];
 
@@ -166,6 +174,10 @@ export function bundleMetadataViolations(metadata, expected = {}) {
 
   if (expected.iconFile && metadata.iconFile !== expected.iconFile) {
     violations.push(`CFBundleIconFile expected ${expected.iconFile}, found ${metadata.iconFile || "(empty)"}`);
+  }
+
+  if (metadata.iconFile && metadata.iconResourceExists === false) {
+    violations.push(`CFBundleIconFile resource missing from Contents/Resources: ${metadata.iconFile}`);
   }
 
   return violations;
@@ -225,6 +237,8 @@ function readBundleString(infoPlistPath, key) {
 function readBundleMetadata(appPath) {
   const infoPlistPath = join(appPath, "Contents", "Info.plist");
   assertPathExists(infoPlistPath, "Info.plist");
+  const iconFile = readBundleString(infoPlistPath, "CFBundleIconFile");
+  const resourcesPath = join(appPath, "Contents", "Resources");
 
   return {
     bundleIdentifier: readBundleString(infoPlistPath, "CFBundleIdentifier"),
@@ -232,7 +246,8 @@ function readBundleMetadata(appPath) {
     bundleVersion: readBundleString(infoPlistPath, "CFBundleVersion"),
     displayName: readBundleString(infoPlistPath, "CFBundleDisplayName"),
     executable: readBundleString(infoPlistPath, "CFBundleExecutable"),
-    iconFile: readBundleString(infoPlistPath, "CFBundleIconFile"),
+    iconFile,
+    iconResourceExists: bundleIconResourceNames(iconFile).some((name) => existsSync(join(resourcesPath, name))),
     minimumSystemVersion: readBundleString(infoPlistPath, "LSMinimumSystemVersion"),
     shortVersion: readBundleString(infoPlistPath, "CFBundleShortVersionString"),
   };
@@ -246,7 +261,7 @@ function verifyBundleMetadata(appPath, expectedBundleMetadata) {
   }
 
   console.log(
-    `App bundle metadata verified: ${metadata.bundleName} ${metadata.shortVersion} (${metadata.bundleIdentifier})`,
+    `App bundle metadata verified: ${metadata.bundleName} ${metadata.shortVersion} (${metadata.bundleIdentifier}), icon ${metadata.iconFile}`,
   );
   return metadata;
 }
