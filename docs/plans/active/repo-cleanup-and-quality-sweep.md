@@ -1506,3 +1506,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   and keyboard-help behavior. `npm run test:e2e:all:budget` now passes 252
   Chromium and WebKit tests in 123.15 seconds with a tightened 240-second
   budget.
+- Current local frontend verification follow-up syncs `ErrorLogPanel` unit
+  tests with the current `Save local troubleshooting report` action label.
+  `npm run test:run` passes 110 Vitest files and 2637 tests, `npm run build`
+  passes in 4.13 seconds, and `npm run test:scripts` passes 454 script tests.

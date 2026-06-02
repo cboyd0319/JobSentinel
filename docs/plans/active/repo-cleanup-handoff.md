@@ -30,6 +30,11 @@ Latest pushed checkpoints include:
 
 Recent remote integration evidence:
 
+- Latest local frontend verification evidence: `npm run test:run` passes 110
+  Vitest files and 2637 tests, `npm run build` passes in 4.13 seconds, and
+  `npm run test:scripts` passes 454 script tests. The latest local follow-up
+  syncs `ErrorLogPanel` unit tests with the current `Save local troubleshooting
+  report` action label.
 - `f3ed5fb9` passed Docs Harness run `26790585973` and CI run
   `26790585989` on `main`. CI covered frontend tests, Rust tests, security
   checks, docs harness checks, TypeScript, ESLint, frontend build, Rust fmt,
