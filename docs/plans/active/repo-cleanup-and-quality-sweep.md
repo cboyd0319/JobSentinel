@@ -183,6 +183,12 @@ product-function priority after the no-account macOS path is locked down:
   run lint:bloat`, local `npm run tauri:verify:macos` with
   `--require-checksum`, and public `npm run tauri:verify:macos:latest -- --tag
   v2.6.4`.
+- Current local macOS build-cleanup follow-up removes stale matching
+  `_no-account_` DMG and checksum artifacts before creating a fresh local DMG,
+  so wildcard verification does not accidentally see both an old public-style
+  no-account artifact and a newly built universal artifact in the same target
+  directory. Focused verification passed: `node --test
+  scripts/build-macos-dmg.test.mjs`.
 - Current local no-Apple-account release follow-up makes macOS tag releases
   work with the stated constraint that the project has no Apple Developer
   Account. CI builds and uploads a locally verified ad-hoc DMG when all Apple

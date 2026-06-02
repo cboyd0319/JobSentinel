@@ -278,14 +278,30 @@ export function redactNotarytoolArgs(args) {
   });
 }
 
-function removeStaleDmgArtifacts(paths, dmgName) {
+export function staleDmgArtifactNames(dmgName) {
+  const names = new Set([dmgName, `${dmgName}.sha256`]);
+
+  if (!dmgName.includes("_no-account_")) {
+    const noAccountName = dmgName.endsWith("_universal.dmg")
+      ? dmgName.replace("_universal.dmg", "_no-account_universal.dmg")
+      : `${dmgName.replace(/\.dmg$/, "")}_no-account_macos.dmg`;
+    names.add(noAccountName);
+    names.add(`${noAccountName}.sha256`);
+  }
+
+  return names;
+}
+
+export function removeStaleDmgArtifacts(paths, dmgName) {
+  const staleNames = staleDmgArtifactNames(dmgName);
+
   for (const path of paths) {
     if (!existsSync(path)) {
       continue;
     }
 
     for (const entry of readdirSync(path)) {
-      if (entry === dmgName || entry === `${dmgName}.sha256` || (entry.startsWith("rw.") && entry.endsWith(".dmg"))) {
+      if (staleNames.has(entry) || (entry.startsWith("rw.") && entry.endsWith(".dmg"))) {
         rmSync(join(path, entry), { force: true });
       }
     }

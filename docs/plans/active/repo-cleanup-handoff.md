@@ -76,6 +76,12 @@ Recent local verification evidence:
   run lint:bloat`, local `npm run tauri:verify:macos` with
   `--require-checksum`, and public `npm run tauri:verify:macos:latest -- --tag
   v2.6.4`.
+- Current local macOS build-cleanup follow-up removes stale matching
+  `_no-account_` DMG and checksum artifacts before creating a fresh local DMG,
+  so wildcard verification does not accidentally see both an old public-style
+  no-account artifact and a newly built universal artifact in the same target
+  directory. Focused verification passed: `node --test
+  scripts/build-macos-dmg.test.mjs`.
 - Current local no-account macOS readiness follow-up is running on macOS 26.5
   (Darwin 25.5.0, build 25F71) on Apple Silicon `arm64`, with SIP enabled.
   The package script now prefers the rustup-managed toolchain for universal

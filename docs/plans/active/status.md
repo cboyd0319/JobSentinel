@@ -85,6 +85,12 @@ manipulation, or unreviewed form sending.
   run lint:bloat`, local `npm run tauri:verify:macos` with
   `--require-checksum`, and public `npm run tauri:verify:macos:latest -- --tag
   v2.6.4`.
+- Current local macOS build-cleanup follow-up removes stale matching
+  `_no-account_` DMG and checksum artifacts before creating a fresh local DMG,
+  so wildcard verification does not accidentally see both an old public-style
+  no-account artifact and a newly built universal artifact in the same target
+  directory. Focused verification passed: `node --test
+  scripts/build-macos-dmg.test.mjs`.
 - Current local no-account macOS readiness follow-up hardens the package script
   so universal builds prefer the rustup-managed toolchain even when Homebrew
   Rust is first in `PATH`, writes a local `.dmg.sha256` checksum next to the

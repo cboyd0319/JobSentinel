@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import {
@@ -17,6 +19,8 @@ import {
   hasArg,
   prependPathDir,
   redactNotarytoolArgs,
+  removeStaleDmgArtifacts,
+  staleDmgArtifactNames,
 } from "./build-macos-dmg.mjs";
 
 test("macOS DMG builder defaults to app bundle builds", () => {
@@ -101,6 +105,55 @@ test("macOS DMG builder formats public checksum artifact content", () => {
     formatDmgChecksum("/tmp/JobSentinel_2.6.4_universal.dmg", "0123456789abcdef"),
     "0123456789abcdef  JobSentinel_2.6.4_universal.dmg\n",
   );
+});
+
+test("macOS DMG builder identifies stale no-account artifact variants", () => {
+  assert.deepEqual(
+    Array.from(staleDmgArtifactNames("JobSentinel_2.6.4_universal.dmg")).sort(),
+    [
+      "JobSentinel_2.6.4_no-account_universal.dmg",
+      "JobSentinel_2.6.4_no-account_universal.dmg.sha256",
+      "JobSentinel_2.6.4_universal.dmg",
+      "JobSentinel_2.6.4_universal.dmg.sha256",
+    ],
+  );
+  assert.deepEqual(
+    Array.from(staleDmgArtifactNames("JobSentinel_2.6.4_aarch64.dmg")).sort(),
+    [
+      "JobSentinel_2.6.4_aarch64.dmg",
+      "JobSentinel_2.6.4_aarch64.dmg.sha256",
+      "JobSentinel_2.6.4_aarch64_no-account_macos.dmg",
+      "JobSentinel_2.6.4_aarch64_no-account_macos.dmg.sha256",
+    ],
+  );
+});
+
+test("macOS DMG builder removes stale DMG and checksum artifacts", () => {
+  const root = mkdtempSync(join(tmpdir(), "jobsentinel-macos-artifacts-"));
+
+  try {
+    for (const name of [
+      "JobSentinel_2.6.4_universal.dmg",
+      "JobSentinel_2.6.4_universal.dmg.sha256",
+      "JobSentinel_2.6.4_no-account_universal.dmg",
+      "JobSentinel_2.6.4_no-account_universal.dmg.sha256",
+      "rw.JobSentinel_2.6.4_universal.dmg",
+      "keep.txt",
+    ]) {
+      writeFileSync(join(root, name), "fixture");
+    }
+
+    removeStaleDmgArtifacts([root], "JobSentinel_2.6.4_universal.dmg");
+
+    assert.equal(existsSync(join(root, "JobSentinel_2.6.4_universal.dmg")), false);
+    assert.equal(existsSync(join(root, "JobSentinel_2.6.4_universal.dmg.sha256")), false);
+    assert.equal(existsSync(join(root, "JobSentinel_2.6.4_no-account_universal.dmg")), false);
+    assert.equal(existsSync(join(root, "JobSentinel_2.6.4_no-account_universal.dmg.sha256")), false);
+    assert.equal(existsSync(join(root, "rw.JobSentinel_2.6.4_universal.dmg")), false);
+    assert.equal(existsSync(join(root, "keep.txt")), true);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test("macOS DMG builder resolves signing identity from release env", () => {
