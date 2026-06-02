@@ -244,6 +244,13 @@ boundaries, and harness modularity:
   search found no stale helper phrases, `npm run lint:bloat`,
   `npm run lint:docs`, `npm run test:scripts` passed 458 script tests, and
   `npm run lint` passed.
+- Committed local Job Source Status copy follow-up replaces feed, page-read, and
+  not-needed labels with public-job-list, reads-job-details, and
+  official-source wording. Focused verification passed: `npx vitest run
+  src/components/ScraperHealthDashboard.test.tsx` passed 56 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 33 tests, targeted component
+  search found no stale labels, `npm run lint:bloat`, `npm run lint:docs`,
+  `npm run test:scripts` passed 458 script tests, and `npm run lint` passed.
 - Changed generated support-report labels from support-only wording to safe app
   details and added product-copy coverage against those labels returning.
 - Changed the detailed local report tooltip from maintainer wording to plain
@@ -882,6 +889,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-02 | In progress | Replaced Job Source Status feed, page-read, and not-needed labels with public-job-list, reads-job-details, and official-source wording. Focused source-status, product-copy, search, script, docs, bloat, and lint verification passed. |
 | 2026-06-02 | In progress | Replaced Browser Button helper and advanced-setting wording with browser-import and optional setup copy. Focused Browser Button, product-copy, search, script, docs, bloat, and lint verification passed. |
 | 2026-06-02 | In progress | Replaced Settings source-toggle `automatic checks` wording with scheduled-job-check copy in source guidance and checkbox accessible names. Focused Settings, product-copy, search, script, docs, bloat, and lint verification passed. |
 | 2026-06-02 | In progress | Replaced Application Profile `Marked Sent` and `Ready to Send` stats with user-action wording so Application Assist does not imply JobSentinel sends applications. Focused page, product-copy, search, script, docs, lint, harness, and diff-check verification passed. |

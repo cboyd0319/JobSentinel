@@ -305,6 +305,13 @@ actionable findings in this active-plan surface or the relevant plan.
   search found no stale helper phrases, `npm run lint:bloat`,
   `npm run lint:docs`, `npm run test:scripts` passed 458 script tests, and
   `npm run lint` passed.
+- Committed local Job Source Status copy cleanup replaces feed, page-read, and
+  not-needed labels with public-job-list, reads-job-details, and official-source
+  wording. Focused verification passed: `npx vitest run
+  src/components/ScraperHealthDashboard.test.tsx` passed 56 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 33 tests, targeted component
+  search found no stale labels, `npm run lint:bloat`, `npm run lint:docs`,
+  `npm run test:scripts` passed 458 script tests, and `npm run lint` passed.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 

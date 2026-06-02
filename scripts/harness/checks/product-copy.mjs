@@ -1710,9 +1710,12 @@ export function hasTechnicalFirstUserCopy(root, path) {
     const sourceStatusPatterns = [
       /Check All Sources/i,
       /Official feed/i,
+      /return\s+["'`]Feed["'`]/i,
       /\(retry\s+\$\{?retryAttempt\}?\)|\(retry\s+\d+\)/i,
       />\s*Access\s*</i,
       />\s*Source Type\s*</i,
+      />\s*Can Read Jobs\s*</i,
+      />\s*Not needed\s*</i,
       />\s*Recent Success\s*</i,
       /Checks Worked/i,
       /Check Time/i,

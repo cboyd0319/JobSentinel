@@ -146,7 +146,7 @@ function formatSourceType(type: ScraperHealthMetrics["scraper_type"]): string {
     case "graphql":
       return "Official source";
     case "rss":
-      return "Feed";
+      return "Public job list";
     case "html":
     case "hybrid":
       return "Website page";
@@ -652,7 +652,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                       Last Checked
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
-                      Can Read Jobs
+                      Reads Job Details
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
                       What To Do
@@ -752,7 +752,9 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                               {selectorConfig.label}
                             </Badge>
                           ) : (
-                            <span className="text-surface-400">Not needed</span>
+                            <span className="text-surface-400">
+                              Uses official source
+                            </span>
                           )}
                         </td>
                         <td className="py-3 px-4 text-surface-700 dark:text-surface-300 max-w-xs">

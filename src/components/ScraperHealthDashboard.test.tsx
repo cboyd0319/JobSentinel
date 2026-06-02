@@ -89,6 +89,22 @@ const mockScrapers = [
     jobs_found_24h: 5,
     rate_limit_per_hour: 40,
   },
+  {
+    scraper_name: "remoteok",
+    display_name: "Remote OK",
+    is_enabled: true,
+    requires_auth: false,
+    scraper_type: "rss" as const,
+    health_status: "healthy" as const,
+    selector_health: "unknown" as const,
+    success_rate_24h: 98,
+    avg_duration_ms: 1200,
+    last_success: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+    last_error: null,
+    total_runs_24h: 12,
+    jobs_found_24h: 40,
+    rate_limit_per_hour: 60,
+  },
 ];
 
 const mockCredentials = [
@@ -531,6 +547,8 @@ describe("ScraperHealthDashboard", () => {
       expect(screen.getByText("Kind")).toBeInTheDocument();
       expect(screen.getAllByText("Website page").length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText("Official source")).toBeInTheDocument();
+      expect(screen.getByText("Public job list")).toBeInTheDocument();
+      expect(screen.queryByText("Feed")).not.toBeInTheDocument();
     });
 
     it("displays plain recent source status labels", async () => {
@@ -539,7 +557,7 @@ describe("ScraperHealthDashboard", () => {
       await waitFor(() => {
         expect(screen.getByText("Recent Status")).toBeInTheDocument();
         expect(screen.queryByText("Checks Worked")).not.toBeInTheDocument();
-        expect(screen.getByText("Mostly working")).toBeInTheDocument();
+        expect(screen.getAllByText("Mostly working").length).toBeGreaterThan(0);
       });
       expect(screen.getByText("Some trouble")).toBeInTheDocument();
       expect(screen.getByText("Needs attention")).toBeInTheDocument();
@@ -587,12 +605,15 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Can Read Jobs")).toBeInTheDocument();
+        expect(screen.getByText("Reads Job Details")).toBeInTheDocument();
       });
+      expect(screen.queryByText("Can Read Jobs")).not.toBeInTheDocument();
       expect(screen.queryByText("Page Check")).not.toBeInTheDocument();
       expect(screen.getAllByText("Yes").length).toBeGreaterThan(0);
       expect(screen.getAllByText("Having trouble").length).toBeGreaterThan(0);
       expect(screen.getByText("Cannot read jobs")).toBeInTheDocument();
+      expect(screen.getAllByText("Uses official source").length).toBeGreaterThan(0);
+      expect(screen.queryByText("Not needed")).not.toBeInTheDocument();
     });
 
     it("has accessible table structure", async () => {
@@ -607,7 +628,7 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Working. No action needed.")).toBeInTheDocument();
+        expect(screen.getAllByText("Working. No action needed.").length).toBeGreaterThan(0);
       });
       expect(
         screen.getByText("Update connection in Settings if this keeps happening."),
