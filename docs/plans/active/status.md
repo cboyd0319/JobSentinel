@@ -173,14 +173,25 @@ actionable findings in this active-plan surface or the relevant plan.
   test:scripts` passed 455 script tests, `npm run lint:bloat`, `npm run
   harness:check`, `npm run lint:docs`, `npm run lint`, and `git diff --check`
   passed.
-- Current local email-service wording slice changes Settings, Quick Start, and
+- Committed and pushed email-service wording slice changes Settings, Quick Start, and
   notification docs away from technical-first email setup wording toward
   email-service and encrypted sending language. Product-copy sensors now reject
   the old phrases. Focused verification passed: `npx vitest run
   src/pages/Settings.test.tsx` passed 38 tests, `node --test
   scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found
   no stale email setup phrases in Settings, Quick Start, or notification docs,
-  and `git diff --check` passed.
+  `npm run lint:bloat`, `npm run harness:check`, `npm run lint:docs`, `npm run
+  test:scripts` passed 455 script tests, `npm run lint`, and `git diff --check`
+  passed. Remote `Docs Harness` and `CI` runs for commit `d31a48fb` passed on
+  `main`.
+- Current local saved-secrets docs slice rewrites the credential feature guide as
+  a plain-language saved-secrets guide, keeps developer implementation details in
+  `docs/security/KEYRING.md`, updates docs index wording, and adds product-copy
+  sensors for developer-reference drift in the feature doc. Focused verification
+  passed: `node --test scripts/check-security-docs.test.mjs` passed 8 tests,
+  `node --test scripts/check-product-copy.test.mjs` passed 32 tests, `npm run
+  lint:bloat`, `npm run harness:check`, `npm run lint:docs`, `npm run
+  test:scripts` passed 456 script tests, and `git diff --check`.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -225,6 +236,8 @@ Scope:
   frontend mocks must avoid acronym-first `HN Who's Hiring` wording.
 - Email setup surfaces must use email-service and plain sending-detail language
   instead of technical mail-setup labels.
+- Credential feature docs must explain saved secrets in plain language and keep
+  developer implementation references in security/developer docs.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:

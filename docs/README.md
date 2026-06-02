@@ -72,7 +72,7 @@ skill to get value.
 | Work-mode matching | [Remote Preference Matching](features/remote-preference-scoring.md) |
 | Broad skill matching | [Synonym Matching](features/synonym-matching.md) |
 | Structured resume import | [Resume Data Import](features/json-resume-import.md) |
-| Credential storage | [Credential Security](features/credentials-security.md) |
+| Saved secrets | [Saved Secrets](features/credentials-security.md) |
 
 ## Privacy, Security, And Responsible AI
 

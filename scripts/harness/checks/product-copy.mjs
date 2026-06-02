@@ -979,6 +979,15 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /local app config or SQLite/i,
       /command line in the developer reference/i,
       /Invalid key\s*\|\s*App sent an unsupported saved-detail name/i,
+      /Developer Reference/i,
+      /Storage Names/i,
+      /Frontend Integration/i,
+      /Advanced Linux Keyring Check/i,
+      /Secret Service provider/i,
+      /CredentialKey/i,
+      /store_credential/i,
+      /jobsentinel_slack_webhook/i,
+      /compatibility and diagnostics/i,
     ];
 
     if (credentialsSecurityPatterns.some((pattern) => pattern.test(text))) {

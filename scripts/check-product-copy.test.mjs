@@ -1472,6 +1472,15 @@ test("product copy rejects technical provider setup shortcuts", () => {
         "local app config or SQLite",
         "command line in the developer reference",
         "Invalid key | App sent an unsupported saved-detail name",
+        "Developer Reference",
+        "Storage Names",
+        "Frontend Integration",
+        "Advanced Linux Keyring Check",
+        "Secret Service provider",
+        "CredentialKey",
+        "store_credential",
+        "jobsentinel_slack_webhook",
+        "compatibility and diagnostics",
       ].join("\n"),
     );
 

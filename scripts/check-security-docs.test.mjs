@@ -140,6 +140,35 @@ test("security docs reject stale keyring docs and credential comments", () => {
   });
 });
 
+test("keyring docs allow plain feature copy with implementation link", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "docs/features/credentials-security.md",
+      [
+        "USAJobs access code",
+        "Legacy LinkedIn saved details",
+        "Implementation details live in [Keyring Security](../security/KEYRING.md).",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/security/KEYRING.md",
+      [
+        "jobsentinel_usajobs_api_key",
+        "Legacy LinkedIn credential",
+        "store_credential",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasStaleKeyringSecurityDocs(root, "docs/features/credentials-security.md"),
+      false,
+    );
+    assert.equal(hasStaleKeyringSecurityDocs(root, "docs/security/KEYRING.md"), false);
+  });
+});
+
 test("security docs reject unsafe keyring migration", () => {
   withFixture((root) => {
     writeFixtureFile(

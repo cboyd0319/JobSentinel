@@ -27,17 +27,29 @@ Latest pushed checkpoints include:
 - `08c8a106 Clarify problem history clear action`
 - `bac8de85 Keep Quick Start nontechnical`
 - `bc43a35b Tighten protective support copy`
+- `d31a48fb Clarify email service setup`
 
 Recent remote integration evidence:
 
-- Current local email-service wording follow-up changes Settings, Quick Start,
-  and notification docs away from technical-first email setup wording toward
+- Pushed email-service wording follow-up changes Settings, Quick Start, and
+  notification docs away from technical-first email setup wording toward
   email-service and encrypted sending language. Focused verification passed:
   `npx vitest run
   src/pages/Settings.test.tsx` passed 38 tests, `node --test
   scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found
   no stale email setup phrases in Settings, Quick Start, or notification docs,
-  and `git diff --check` passed.
+  `npm run lint:bloat`, `npm run harness:check`, `npm run lint:docs`, `npm run
+  test:scripts` passed 455 script tests, `npm run lint`, and `git diff --check`
+  passed. Remote `Docs Harness` and `CI` runs for commit `d31a48fb` passed on
+  `main`.
+- Current local saved-secrets docs follow-up rewrites the credential feature doc
+  as a plain saved-secrets guide, keeps developer implementation details in
+  `docs/security/KEYRING.md`, updates docs index wording, and adds product-copy
+  sensors for developer-reference drift in the feature doc. Focused verification
+  passed: `node --test scripts/check-security-docs.test.mjs` passed 8 tests,
+  `node --test scripts/check-product-copy.test.mjs` passed 32 tests, `npm run
+  lint:bloat`, `npm run harness:check`, `npm run lint:docs`, `npm run
+  test:scripts` passed 456 script tests, and `git diff --check`.
 - Current local source-name copy follow-up changes README source coverage,
   source feature docs, public job-source issue template, shared source labels,
   and frontend mocks from `HN Who's Hiring` wording to `Startup and tech job
@@ -204,10 +216,15 @@ Recent remote integration evidence:
 
 Current cleanup posture:
 
-- Current local email-service wording follow-up changes Settings, Quick Start,
+- Pushed email-service wording follow-up changes Settings, Quick Start,
   and notification docs away from technical-first email setup wording. Focused
   Settings, product-copy, search, and diff-check verification cover the changed
   surfaces.
+- Current local saved-secrets docs follow-up moves the credential feature guide
+  away from developer-reference shape and toward zero-technical user/reviewer
+  language. Product-copy sensors cover the old developer-reference headings and
+  storage-key wording. Focused security-doc, product-copy, bloat, harness, docs,
+  script, and diff-check verification passed.
 - Current local source-name copy follow-up changes README, source docs, public
   job-source issue template, shared source labels, and frontend mocks away from
   `HN Who's Hiring` wording. Focused source-label, Settings, SetupWizard,

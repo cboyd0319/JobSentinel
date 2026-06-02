@@ -166,7 +166,15 @@ boundaries, and harness modularity:
 
 - Changed Settings, Quick Start, and notification docs away from technical-first
   email setup wording toward email-service and encrypted sending language.
-  Focused Settings, product-copy, search, and diff-check verification passed.
+  Focused Settings, product-copy, search, script, bloat, harness, docs, lint, and
+  diff-check verification passed; remote `Docs Harness` and `CI` passed for
+  commit `d31a48fb`.
+- Current local saved-secrets docs follow-up rewrites the credential feature doc
+  as a plain saved-secrets guide, keeps developer implementation details in
+  `docs/security/KEYRING.md`, updates docs index wording, and adds product-copy
+  sensors against developer-reference drift in the feature doc. Focused
+  security-doc, product-copy, bloat, harness, docs, script, and diff-check
+  verification passed.
 - Changed README source coverage, source feature docs, public job-source issue
   template, shared source labels, and frontend mocks from `HN Who's Hiring`
   wording to `Startup and tech job posts`. Focused source-label, Settings,

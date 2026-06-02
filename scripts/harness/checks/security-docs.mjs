@@ -95,12 +95,26 @@ export function hasStaleKeyringSecurityDocs(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return (
+  const hasStaleKeyringMarkers =
     /JobSentinel:slack-webhook|SlackWebhookUrl|DiscordWebhookUrl|TeamsWebhookUrl/.test(text) ||
     /EmailSmtpPassword|LinkedinCookies|TelegramToken/.test(text) ||
     /tauri-plugin-secure-storage` JS API|Does NOT delete plaintext values/.test(text) ||
     /HashMap<String, bool>|list_status\(\) -> Result/.test(text) ||
-    /v2\.0\.0 introduces|[✅❌⚠️✓→←]|\*\*(?:Last Updated|Version|Security Level)\*\*:/.test(text) ||
+    /v2\.0\.0 introduces|[✅❌⚠️✓→←]|\*\*(?:Last Updated|Version|Security Level)\*\*:/.test(text);
+
+  if (hasStaleKeyringMarkers) {
+    return true;
+  }
+
+  if (path === "docs/features/credentials-security.md") {
+    return (
+      !text.includes("USAJobs access code") ||
+      !text.includes("Legacy LinkedIn saved details") ||
+      !text.includes("[Keyring Security](../security/KEYRING.md)")
+    );
+  }
+
+  return (
     !text.includes("jobsentinel_usajobs_api_key") ||
     !text.includes("Legacy LinkedIn credential") ||
     !text.includes("store_credential")
