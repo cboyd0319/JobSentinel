@@ -951,13 +951,14 @@ async fn test_get_match_result_with_empty_skills() {
 async fn test_set_active_resume_nonexistent() {
     let pool = setup_test_db().await;
     let matcher = ResumeMatcher::new(pool.clone());
+    let active_id = create_test_resume(&pool, "Active Resume", "Scheduling").await;
 
-    // Try to set nonexistent resume as active
-    matcher.set_active_resume(999).await.unwrap();
+    let result = matcher.set_active_resume(999).await;
+    assert!(result.is_err());
 
-    // Should not crash, just update 0 rows
     let active = matcher.get_active_resume().await.unwrap();
-    assert!(active.is_none());
+    assert!(active.is_some());
+    assert_eq!(active.unwrap().id, active_id);
 }
 
 #[tokio::test]
@@ -1197,6 +1198,26 @@ async fn test_user_skill_validation_rejects_blank_names_and_invalid_years() {
         )
         .await;
     assert!(invalid_update_years.is_err());
+}
+
+#[tokio::test]
+async fn test_update_user_skill_nonexistent_returns_error() {
+    let pool = setup_test_db().await;
+    let matcher = ResumeMatcher::new(pool.clone());
+
+    let result = matcher
+        .update_user_skill(
+            999,
+            SkillUpdate {
+                skill_name: Some("Care Planning".to_string()),
+                skill_category: NullableFieldUpdate::Unset,
+                proficiency_level: NullableFieldUpdate::Unset,
+                years_experience: NullableFieldUpdate::Unset,
+            },
+        )
+        .await;
+
+    assert!(result.is_err());
 }
 
 #[tokio::test]

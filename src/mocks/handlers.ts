@@ -3434,13 +3434,14 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
 
     case "set_active_resume": {
       const resumeId = getResumeIdArg(args);
-      if (typeof resumeId === "number" && resumes.some((resume) => resume.id === resumeId)) {
-        resumes = resumes.map((resume) => ({
-          ...resume,
-          is_active: resume.id === resumeId,
-        }));
-        saveMockState();
+      if (typeof resumeId !== "number" || !resumes.some((resume) => resume.id === resumeId)) {
+        throw new Error("Resume not found");
       }
+      resumes = resumes.map((resume) => ({
+        ...resume,
+        is_active: resume.id === resumeId,
+      }));
+      saveMockState();
       return undefined as T;
     }
 
@@ -3506,6 +3507,9 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "update_user_skill": {
       const skillId = getSkillIdArg(args);
       const updates = normalizeSkillInput(getArg(args, "updates"));
+      if (typeof skillId !== "number" || !userSkills.some((skill) => skill.id === skillId)) {
+        throw new Error("Skill not found");
+      }
       userSkills = userSkills.map((skill) =>
         skill.id === skillId
           ? {

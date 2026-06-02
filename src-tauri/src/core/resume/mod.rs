@@ -468,16 +468,24 @@ impl ResumeMatcher {
 
     /// Set resume as active (deactivates all others)
     pub async fn set_active_resume(&self, resume_id: i64) -> Result<()> {
-        // Deactivate all resumes
-        sqlx::query("UPDATE resumes SET is_active = 0")
-            .execute(&self.db)
-            .await?;
+        let result = sqlx::query(
+            r#"
+            UPDATE resumes
+            SET
+                is_active = CASE WHEN id = ? THEN 1 ELSE 0 END,
+                updated_at = CASE WHEN id = ? THEN datetime('now') ELSE updated_at END
+            WHERE EXISTS (SELECT 1 FROM resumes WHERE id = ?)
+            "#,
+        )
+        .bind(resume_id)
+        .bind(resume_id)
+        .bind(resume_id)
+        .execute(&self.db)
+        .await?;
 
-        // Activate selected resume
-        sqlx::query("UPDATE resumes SET is_active = 1, updated_at = datetime('now') WHERE id = ?")
-            .bind(resume_id)
-            .execute(&self.db)
-            .await?;
+        if result.rows_affected() == 0 {
+            anyhow::bail!("Resume with id {} not found", resume_id);
+        }
 
         Ok(())
     }
@@ -499,6 +507,8 @@ impl ResumeMatcher {
         {
             return Ok(());
         }
+
+        ensure_user_skill_exists(&self.db, skill_id).await?;
 
         if let Some(name) = updates.skill_name {
             let name = normalize_skill_name(&name)?;
@@ -794,6 +804,19 @@ fn normalize_skill_name(name: &str) -> Result<String> {
         anyhow::bail!("Skill name is required");
     }
     Ok(trimmed.to_string())
+}
+
+async fn ensure_user_skill_exists(db: &SqlitePool, skill_id: i64) -> Result<()> {
+    let row = sqlx::query("SELECT id FROM user_skills WHERE id = ?")
+        .bind(skill_id)
+        .fetch_optional(db)
+        .await?;
+
+    if row.is_none() {
+        anyhow::bail!("Skill with id {} not found", skill_id);
+    }
+
+    Ok(())
 }
 
 fn normalize_optional_skill_text(value: Option<String>) -> Option<String> {

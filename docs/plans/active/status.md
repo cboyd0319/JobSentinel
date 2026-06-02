@@ -318,6 +318,18 @@ unreviewed form sending.
   `npm run test:scripts` passed
   503 tests, `npm run lint:bloat`, `npm run harness:check`, and `git diff
   --check`.
+- Current local stale resume-action contract fix makes missing resume
+  activation fail without clearing the current active resume, and makes missing
+  skill edits fail instead of reporting success. Browser/dev mocks now mirror
+  those stale-id failures so tests cannot depend on silent no-op behavior.
+  Verification passed: focused Rust stale activation and stale skill-update
+  tests, `npx vitest run src/pages/Resume.test.tsx src/mocks/handlers.test.ts`
+  passed 20 tests, `npm run lint`, `npm run build`, `npm run test:run` passed
+  2629 tests, `cargo test --lib resume` passed 175 tests,
+  `cargo clippy -- -D warnings`, and `npm run test:scripts` passed 503 tests.
+  Follow-up repo checks passed: `npm run lint:docs`, `npm run lint:bloat`,
+  `npm run harness:check`, `git diff --check`, and `npm run
+  test:e2e:smoke:budget` with 10 expected tests in about 7.9 seconds.
 - Current local resume suggestion follow-up replaces backend and mock
   suggestion impact values like `High` and `Medium` with concrete, review-first
   user guidance, changes bullet suggestions from command-style action-verb copy

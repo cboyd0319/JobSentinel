@@ -51,6 +51,9 @@ narrow implementation slices chosen from that backlog.
 - Latest local resume skill-edit contract follow-up lets users clear optional
   skill details, trims skill names before saving, and rejects blank skill names
   or invalid years in UI and backend paths.
+- Latest local stale resume-action contract follow-up prevents a stale resume
+  activation from clearing the current active resume and rejects missing skill
+  edits instead of silently reporting success.
 
 ## Source files
 
