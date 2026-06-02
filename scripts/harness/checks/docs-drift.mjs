@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 const requiredGrantFacingDocs = new Set([
@@ -100,6 +100,41 @@ const statusEmojiPattern =
 const deepLinksStatusEmojiPattern =
   /[\u{2705}\u{274c}\u{26a0}\u{1f510}]/u;
 
+const activeStatusPath = "docs/plans/active/status.md";
+const isoDatePattern = /\b20\d{2}-\d{2}-\d{2}\b/g;
+
+function collectActiveMarkdownPaths(root, relativeDir = "docs/plans/active") {
+  const fullDir = join(root, relativeDir);
+
+  if (!existsSync(fullDir)) {
+    return [];
+  }
+
+  return readdirSync(fullDir, { withFileTypes: true }).flatMap((entry) => {
+    const childPath = `${relativeDir}/${entry.name}`;
+
+    if (entry.isDirectory()) {
+      return collectActiveMarkdownPaths(root, childPath);
+    }
+
+    if (entry.isFile() && entry.name.endsWith(".md")) {
+      return [childPath];
+    }
+
+    return [];
+  });
+}
+
+function collectIsoDates(root, path) {
+  const fullPath = join(root, path);
+
+  if (!existsSync(fullPath)) {
+    return [];
+  }
+
+  return readFileSync(fullPath, "utf8").match(isoDatePattern) ?? [];
+}
+
 export function collectMissingGrantFacingDocs(root) {
   return [...requiredGrantFacingDocs].filter(
     (path) => !existsSync(join(root, path)),
@@ -123,6 +158,43 @@ export function hasStaleInformalMaintainerFooter(root, path) {
 
   return /Maintained By\**:\s*The Rust Mac Overlord/i.test(
     readFileSync(join(root, path), "utf8"),
+  );
+}
+
+export function hasActiveStatusStaleLastUpdatedDate(root, path) {
+  if (path !== activeStatusPath) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8");
+  const statusDate = /^Last updated:\s*(20\d{2}-\d{2}-\d{2})\./m.exec(text)?.[1];
+
+  if (!statusDate) {
+    return true;
+  }
+
+  const newestActiveDate = collectActiveMarkdownPaths(root)
+    .flatMap((activePath) => collectIsoDates(root, activePath))
+    .sort()
+    .at(-1);
+
+  return Boolean(newestActiveDate && statusDate < newestActiveDate);
+}
+
+export function hasActiveStatusStaleMeasuredCounts(root, path) {
+  if (path !== activeStatusPath) {
+    return false;
+  }
+
+  const text = readFileSync(join(root, path), "utf8").replace(/\s+/g, " ");
+
+  return (
+    /`scripts\/check-repo-bloat\.mjs`[^.]{0,160}\b\d[\d,]*(?:[- ]line| lines)\b/i.test(
+      text,
+    ) ||
+    /\b(?:focused\s+)?[a-z0-9-]+(?:\s+[a-z0-9-]+){0,4}\s+coverage\s+is\s+now\s+\d+\s+tests\b/i.test(
+      text,
+    )
   );
 }
 
@@ -797,6 +869,8 @@ export function hasStaleSmartScoringSalaryMarkerClaim(root, path) {
 const docsDriftRules = [
   [hasSpeculativeCloudDeploymentDoc, "remove speculative cloud deployment doc"],
   [hasStaleInformalMaintainerFooter, "replace stale informal maintainer footer"],
+  [hasActiveStatusStaleLastUpdatedDate, "sync active status last-updated date"],
+  [hasActiveStatusStaleMeasuredCounts, "replace stale active status measured counts"],
   [hasStaleHardcodedMigrationCount, "remove stale hardcoded migration count"],
   [hasStaleIntegrationFixtureDirectoryClaim, "remove stale integration fixture directory claim"],
   [hasStaleSchedulerWorkerPathDocs, "remove stale scheduler worker path docs"],

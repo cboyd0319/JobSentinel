@@ -5,6 +5,8 @@ import { dirname, join } from "node:path";
 import test from "node:test";
 import {
   hasActiveUserDocGlyphMarkers,
+  hasActiveStatusStaleLastUpdatedDate,
+  hasActiveStatusStaleMeasuredCounts,
   hasBookmarkletDocStatusEmojiMarkers,
   hasConfusingApplicationTrackingAtsLabel,
   hasConfusingResumeMatcherAiLabel,
@@ -250,6 +252,64 @@ test("docs drift check rejects active doc and platform tooling drift", () => {
     assert.equal(
       hasStaleSqliteConfigurationDoc(root, "docs/developer/sqlite-configuration.md"),
       true,
+    );
+  });
+});
+
+test("docs drift check rejects stale active status metrics", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "docs/plans/active/status.md",
+      [
+        "# Active Plan Status",
+        "",
+        "Last updated: 2026-06-02.",
+        "",
+        "- focused privacy-logging coverage is now 31 tests and",
+        "  `scripts/check-repo-bloat.mjs` is 3,310 lines.",
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasActiveStatusStaleMeasuredCounts(root, "docs/plans/active/status.md"),
+      true,
+    );
+    assert.equal(
+      hasActiveStatusStaleMeasuredCounts(root, "docs/plans/active/repo-cleanup-handoff.md"),
+      false,
+    );
+  });
+});
+
+test("docs drift check rejects stale active status last-updated date", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "docs/plans/active/status.md",
+      "# Active Plan Status\n\nLast updated: 2026-06-01.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/plans/active/repo-cleanup-and-quality-sweep.md",
+      "| 2026-06-02 | In progress | Guarded active status drift. |\n",
+    );
+
+    assert.equal(
+      hasActiveStatusStaleLastUpdatedDate(root, "docs/plans/active/status.md"),
+      true,
+    );
+
+    writeFixtureFile(
+      root,
+      "docs/plans/active/status.md",
+      "# Active Plan Status\n\nLast updated: 2026-06-02.\n",
+    );
+
+    assert.equal(
+      hasActiveStatusStaleLastUpdatedDate(root, "docs/plans/active/status.md"),
+      false,
     );
   });
 });

@@ -31,6 +31,10 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local active-status drift harness work adds docs-drift checks so the
+  compact active status fails locally when its `Last updated` date lags newer
+  active-plan entries or when it records stale measured harness counts instead
+  of pointing to `npm run harness:session -- --json`.
 - Current local broad-audience privacy/control follow-up removes raw provider,
   source, severity, interview outcome, and response-rate labels from user-facing
   analytics, alert, interview, and application surfaces; first-run setup now
@@ -447,128 +451,103 @@ and record actionable findings in this active-plan surface.
   shape, version-promise, emoji-marker, and speculative-cloud checks have
   focused coverage outside the main bloat runner.
 - Latest local harness-modularity work moves the technical-first user-copy
-  sensor into `scripts/harness/checks/product-copy.mjs`, adds focused
-  product-copy tests for Settings and Resume drift, and shrinks
-  `scripts/check-repo-bloat.mjs` to roughly 4,200 lines.
+  sensor into `scripts/harness/checks/product-copy.mjs` with focused tests for
+  Settings and Resume drift.
 - Latest local privacy-harness work moves raw private-query logging, scraper
   URL/query logging, scraper loop-error logging, unbounded response-body read,
-  and raw local-path logging sensors into
-  `scripts/harness/checks/privacy-logging.mjs`; focused privacy-logging tests
-  now cover those checks and `scripts/check-repo-bloat.mjs` is roughly 4,100
-  lines.
-- Latest local privacy-harness work also moves backup-path, ML local-path,
-  ML raw-error, ML path-doc, JobsWithGPT/LinkedIn Debug derive, and LinkedIn
-  cookie-return sensors into `scripts/harness/checks/privacy-logging.mjs`;
-  focused privacy-logging coverage is now 12 tests and
-  `scripts/check-repo-bloat.mjs` is roughly 4,000 lines.
-- Latest local credential-privacy harness work moves raw email/webhook error,
-  secret-bearing Debug derive, credential-key echo, credential-storage error,
-  LinkedIn credential guardrail, webhook credential validation, renderer
-  credential-read, and config-export redaction sensors into
-  `scripts/harness/checks/privacy-logging.mjs`; focused privacy-logging
-  coverage is now 17 tests and `scripts/check-repo-bloat.mjs` is under 3,900
-  lines.
-- Latest local notification/source-health privacy harness work moves
-  Telegram bot-token request, webhook-token request, provider error body,
-  notification service error detail, JobsWithGPT smoke-endpoint error, and
-  source-check result-error sensors into
-  `scripts/harness/checks/privacy-logging.mjs`; focused privacy-logging
-  coverage is now 20 tests and `scripts/check-repo-bloat.mjs` is roughly
-  3,800 lines.
+  raw local-path logging, backup-path, ML path/error, JobsWithGPT/LinkedIn Debug
+  derive, LinkedIn cookie-return, credential, config-export, notification, and
+  source-health error-detail sensors into
+  `scripts/harness/checks/privacy-logging.mjs`. Use the session snapshot for
+  current focused-test and bloat-runner counts.
 - Latest local URL/import privacy harness work moves raw URL logging, URL
   error display, path/query error display, command setup/config URL display,
   import redirect display, job-import logging, import HTTP error, and
   non-public IP echo sensors into `scripts/harness/checks/privacy-logging.mjs`;
-  use `npm run harness:session -- --json` for current focused-test and
-  bloat-runner counts.
+  use the session snapshot for current focused-test and bloat-runner counts.
 - Latest local automation/notification privacy harness work moves raw
   automation screening-question logging, automation form-result data,
   automation browser-error detail, and notification job-title logging sensors
-  into `scripts/harness/checks/privacy-logging.mjs`; use `npm run
-  harness:session -- --json` for current focused-test and bloat-runner counts.
+  into `scripts/harness/checks/privacy-logging.mjs`; use the session snapshot
+  for current focused-test and bloat-runner counts.
 - Latest local frontend error/report privacy harness work moves unsafe
   frontend error-report storage, raw error-helper output, raw shared and direct
   frontend error logging, unsafe stored-report parsing, and hardcoded error
   export-version sensors into `scripts/harness/checks/privacy-logging.mjs`;
-  focused privacy-logging coverage is now 29 tests and
-  `scripts/check-repo-bloat.mjs` is 3,496 lines.
+  use the session snapshot for current focused-test and bloat-runner counts.
 - Latest local backend command privacy harness work moves resume path/name/DTO
   exposure, resume command error-detail, application tracking command
   error-detail, automation command error-detail, sensitive command
   error-detail, and utility command error-detail sensors into
-  `scripts/harness/checks/privacy-logging.mjs`; focused privacy-logging
-  coverage is now 31 tests and `scripts/check-repo-bloat.mjs` is 3,310 lines.
+  `scripts/harness/checks/privacy-logging.mjs`; use the session snapshot for
+  current focused-test and bloat-runner counts.
 - Latest local import/bookmarklet/scheduler privacy harness work moves
   user-data privacy logging, scheduler job-content logging, scheduler scraper
   error-detail, import/bookmarklet command error-detail, bookmarklet import
   metadata logging, scoring cache job-hash logging, scheduler scoring privacy,
   residual core privacy, manual bookmarklet JSON error, bookmarklet auth, and
   bookmarklet token-header sensors into
-  `scripts/harness/checks/privacy-logging.mjs`; focused privacy-logging
-  coverage is now 34 tests and `scripts/check-repo-bloat.mjs` is 3,105 lines.
+  `scripts/harness/checks/privacy-logging.mjs`; use the session snapshot for
+  current focused-test and bloat-runner counts.
 - Latest local feedback/report privacy harness work moves stale feedback
   webhook sanitizer, structured debug-log sanitization, feedback-file save
   sanitization, and raw support-open error sensors into
-  `scripts/harness/checks/privacy-logging.mjs`; focused privacy-logging
-  coverage is now 35 tests and `scripts/check-repo-bloat.mjs` is 3,052 lines.
+  `scripts/harness/checks/privacy-logging.mjs`; use the session snapshot for
+  current focused-test and bloat-runner counts.
 - Latest local frontend feedback/report presentation harness work moves raw
   feedback debug-event details, technical company-label report copy, raw
   problem-history context display, raw error-boundary detail display,
   technical recovery copy, non-protective score copy, and legacy
   allowlist/blocklist preference copy sensors into
-  `scripts/harness/checks/product-copy.mjs`; focused product-copy coverage is
-  now 10 tests and `scripts/check-repo-bloat.mjs` is 2,947 lines.
+  `scripts/harness/checks/product-copy.mjs`; use the session snapshot for
+  current focused-test and bloat-runner counts.
 - Latest local broad-audience fixture harness work moves engineer-first
   example, generic scraper fixture, and salary-audience drift sensors into
-  `scripts/harness/checks/broad-audience-fixtures.mjs`; focused
-  broad-audience fixture coverage is now 6 tests. The latest slices also
-  broadens generic mock location defaults and Rust Application Assist profile
-  examples away from old `John Doe`, `Jane Doe`, GitHub, San Francisco, and
-  New York fixtures, and rebases scoring location fixtures away from
-  San Francisco and New York defaults, with sensor coverage for those paths.
+  `scripts/harness/checks/broad-audience-fixtures.mjs`. The latest slices also
+  broaden generic mock location defaults and Rust Application Assist profile
+  examples away from old `John Doe`, `Jane Doe`, GitHub, San Francisco, and New
+  York fixtures, and rebase scoring location fixtures away from San Francisco
+  and New York defaults, with sensor coverage for those paths.
 - Latest local developer-doc drift harness work moves stale test-guidance,
   developer testing/architecture/maintenance doc marker, active-doc marker,
   E2E fixed-wait, getting-started tooling, macOS development, and SQLite
-  configuration doc sensors into `scripts/harness/checks/docs-drift.mjs`;
-  focused docs-drift coverage is now 8 tests and `scripts/check-repo-bloat.mjs`
-  is 2,325 lines.
+  configuration doc sensors into `scripts/harness/checks/docs-drift.mjs`; use
+  the session snapshot for current focused-test and bloat-runner counts.
 - Latest local feature-doc drift harness work moves bookmarklet status,
   feature metadata/glyph, synonym/remote-preference doc, Hiring Trends,
   Resume Matcher, Salary AI, smart scoring, notifications, active user-doc,
   maintained-doc, developer-layout, and application-tracking doc drift sensors
-  into `scripts/harness/checks/docs-drift.mjs`; focused docs-drift coverage is
-  now 11 tests and `scripts/check-repo-bloat.mjs` is 2,030 lines.
+  into `scripts/harness/checks/docs-drift.mjs`; use the session snapshot for
+  current focused-test and bloat-runner counts.
 - Latest local source-boundary harness work moves scraper/source-health doc,
   source-health plain-language, LinkedIn credential/automation/notification
   boundary, cache-usage doc, direct-open fallback, and discontinued source
-  sensors into `scripts/harness/checks/source-boundaries.mjs`; focused
-  source-boundary coverage is now 5 tests and `scripts/check-repo-bloat.mjs`
-  is 1,826 lines.
+  sensors into `scripts/harness/checks/source-boundaries.mjs`; use the session
+  snapshot for current focused-test and bloat-runner counts.
 - Latest local frontend-contract harness work moves user-data, deep-link,
   feedback, and resume optimizer mock-drift sensors, runtime invoke mock
   coverage, unsafe Resume Optimizer JSON parsing, ATS keyword shape, salary,
   interview, resume match, and resume E2E seed sensors into
-  `scripts/harness/checks/frontend-contracts.mjs`; focused frontend-contract
-  coverage is now 6 tests and `scripts/check-repo-bloat.mjs` is 1,624 lines.
+  `scripts/harness/checks/frontend-contracts.mjs`; use the session snapshot for
+  current focused-test and bloat-runner counts.
 - Latest local source-quality harness work moves raw salary command logging,
   production/frontend glyph and lint-suppression sensors, backend and
   notification scoring glyph sensors, stale Rust stub checks, database-log
   glyph checks, opaque command unit-error checks, unsafe rendered JSON parsing
   checks, and unsafe Settings webhook/partial-save checks into
-  `scripts/harness/checks/source-quality.mjs`; focused source-quality coverage
-  is now 6 tests and `scripts/check-repo-bloat.mjs` is 1,367 lines.
+  `scripts/harness/checks/source-quality.mjs`; use the session snapshot for
+  current focused-test and bloat-runner counts.
 - Latest local security-doc harness work moves stale notification webhook docs,
   security doc marker drift, URL validation security reference drift, XSS
   security doc drift, keyring credential docs, keyring migration retry-safety,
   credential architecture comments, and notification preference doc shape
-  checks into `scripts/harness/checks/security-docs.mjs`; focused
-  security-doc coverage is now 7 tests and `scripts/check-repo-bloat.mjs` is
-  1,231 lines.
+  checks into `scripts/harness/checks/security-docs.mjs`; use the session
+  snapshot for current focused-test and bloat-runner counts.
 - Latest local repo-integrity harness work moves JobSentinel project detection,
   docs-image reference checks, duplicate screenshot capture checks, and
   contradictory release-plan status checks into
-  `scripts/harness/checks/repo-integrity.mjs`; focused repo-integrity coverage
-  is now 4 tests and `scripts/check-repo-bloat.mjs` is 1,176 lines.
+  `scripts/harness/checks/repo-integrity.mjs`; use the session snapshot for
+  current focused-test and bloat-runner counts.
 - Latest local lifecycle harness work adds the five-tuple harness audit and
   `npm run harness:session`, a tested one-command restart snapshot for branch
   state, latest commit, active plan count, harness module/test counts,
@@ -611,9 +590,9 @@ and record actionable findings in this active-plan surface.
   user-facing copy paths to focused verification commands.
 - Latest local privacy-logging harness work moves privacy/logging violation
   orchestration out of `scripts/check-repo-bloat.mjs` and into
-  `collectPrivacyLoggingViolations`; focused privacy-logging coverage now
-  verifies the collector and `scripts/check-repo-bloat.mjs` is now a small
-  609-line orchestrator after the latest source-boundary guard.
+  `collectPrivacyLoggingViolations`; focused privacy-logging tests verify the
+  collector, and `scripts/check-repo-bloat.mjs` remains a small orchestrator
+  after the latest source-boundary guard.
 - Latest local broad-audience fixture work replaces engineer-first defaults in
   `SkillCategoryFilter`, Cow utility, API-contract, scraper-construction, and
   ignored live-scraper tests with operations, support, accounting, and care
