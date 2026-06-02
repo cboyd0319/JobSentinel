@@ -712,7 +712,7 @@ describe("Settings — handleSave flow", () => {
           hasLocation: false,
           remoteOnly: true,
           resultLimit: 100,
-          outcome: "success",
+          outcome: "failure",
         };
       }
       if (cmd === "has_credential") return false;
@@ -735,7 +735,8 @@ describe("Settings — handleSave flow", () => {
     expect(within(contactSummary!).getByText("Website contacted")).toBeInTheDocument();
     expect(within(contactSummary!).queryByText("Source host")).not.toBeInTheDocument();
     expect(within(contactSummary!).getByText("api.jobswithgpt.example")).toBeInTheDocument();
-    expect(within(contactSummary!).getByText("Completed")).toBeInTheDocument();
+    expect(within(contactSummary!).getByText("Needs attention")).toBeInTheDocument();
+    expect(within(contactSummary!).queryByText("Failed")).not.toBeInTheDocument();
     expect(within(contactSummary!).getByText("Remote only")).toBeInTheDocument();
     expect(within(contactSummary!).getByText("No")).toBeInTheDocument();
   });

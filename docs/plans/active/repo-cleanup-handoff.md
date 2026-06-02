@@ -30,6 +30,14 @@ Latest pushed checkpoints include:
 
 Recent remote integration evidence:
 
+- Current local outcome-label copy follow-up changes optional source-contact
+  result labels from failure-first words to `Needs attention` and
+  `Took too long`, and changes reusable async-button example/test guidance from
+  `Failed to...` to `Could not...`. Focused verification passed: `npx vitest
+  run src/components/AsyncButton.test.tsx src/pages/Settings.test.tsx` passed
+  66 tests, `node --test scripts/check-product-copy.test.mjs` passed 32 tests,
+  `npm run lint:bloat`, `npm run test:scripts` passed 455 script tests,
+  `npm run lint`, and `git diff --check`.
 - Current local shared recovery details follow-up changes optional dev toast,
   component boundary, modal boundary, and certificate-error wording away from
   support-detail, generic-error, and issue labels toward app-problem and problem
@@ -176,6 +184,10 @@ Recent remote integration evidence:
 
 Current cleanup posture:
 
+- Current local outcome-label copy follow-up changes optional source-contact
+  result labels and reusable async-button guidance away from failure-first
+  wording. Focused AsyncButton, Settings, product-copy, script, bloat, lint, and
+  diff-check verification cover the changed surfaces.
 - Current local shared recovery details follow-up changes optional dev toast,
   component boundary, modal boundary, and certificate-error wording away from
   support-detail, generic-error, and issue labels. Focused utility/component,

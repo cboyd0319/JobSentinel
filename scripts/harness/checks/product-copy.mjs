@@ -1612,6 +1612,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Resume-Based Scoring/i,
       /70%\s*resume match\s*\+\s*30%\s*search words/i,
       /Source host/i,
+      /return\s+["'`]Failed["'`]/i,
+      /return\s+["'`]Timed out["'`]/i,
     ];
 
     if (settingsPatterns.some((pattern) => pattern.test(text))) {
@@ -1868,6 +1870,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /toast\.error\(["'`](?:Benchmark|Note drafting) failed["'`],\s*getErrorMessage\(err\)\)/,
     /toast\.error\(["'`]Error["'`],\s*errorMessage\s*\|\|\s*errMsg\)/,
     /toast\.error\(["'`]Something went wrong["'`]/i,
+    /errorMessage=["'`]Failed to/i,
     /Something Went Wrong/i,
     /An unexpected error occurred/i,
     /Network connection issue/i,

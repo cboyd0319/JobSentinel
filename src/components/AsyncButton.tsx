@@ -35,7 +35,7 @@ interface AsyncButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonEle
  *     await invoke("delete_job", { id: jobId });
  *   }}
  *   successMessage="Job deleted successfully"
- *   errorMessage="Failed to delete job"
+ *   errorMessage="Could not delete job"
  *   variant="danger"
  * >
  *   Delete Job

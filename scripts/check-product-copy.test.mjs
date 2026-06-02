@@ -483,6 +483,8 @@ test("product copy rejects technical-first settings copy", () => {
         "Save local troubleshooting report",
         "For support only",
         "connection settings (support only)",
+        'return "Failed"',
+        'return "Timed out"',
         "",
       ].join("\n"),
     );
@@ -848,7 +850,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/components/AsyncButton.tsx",
-      'toast.success("Success", successMessage);\ntoast.error("Error", errorMessage || safeMessage);\ntoast.error("Something went wrong", errorMessage || safeMessage);\n',
+      'toast.success("Success", successMessage);\ntoast.error("Error", errorMessage || safeMessage);\ntoast.error("Something went wrong", errorMessage || safeMessage);\nerrorMessage="Failed to delete job"\n',
     );
     writeFixtureFile(
       root,

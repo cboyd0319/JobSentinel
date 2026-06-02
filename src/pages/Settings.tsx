@@ -624,9 +624,9 @@ function formatSourceRequestOutcome(outcome: SourceRequestOutcome): string {
     case "success":
       return "Completed";
     case "failure":
-      return "Failed";
+      return "Needs attention";
     case "timeout":
-      return "Timed out";
+      return "Took too long";
     case "started":
     default:
       return "Started";

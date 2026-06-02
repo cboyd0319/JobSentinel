@@ -140,7 +140,7 @@ actionable findings in this active-plan surface or the relevant plan.
   `node --test scripts/check-product-copy.test.mjs` passed 32 tests,
   `npm run test:scripts` passed 455 script tests, `npm run lint:bloat`,
   `npm run lint`, and `git diff --check`.
-- Current local shared recovery details slice changes optional dev toast,
+- Committed shared recovery details slice changes optional dev toast,
   component boundary, modal boundary, and certificate-error wording away from
   support-detail, generic-error, and issue labels toward app-problem and problem
   wording. Product-copy sensors now reject the old phrases. Focused
@@ -151,6 +151,15 @@ actionable findings in this active-plan surface or the relevant plan.
   scripts/check-privacy-logging.test.mjs` passed 42 tests, `npm run
   lint:bloat`, `npm run test:scripts` passed 455 script tests, `npm run lint`,
   and `git diff --check`.
+- Current local outcome-label copy slice changes optional source-contact result
+  labels from failure-first words to `Needs attention` and `Took too long`, and
+  changes the reusable async-button example/test guidance from `Failed to...`
+  to `Could not...`. Product-copy sensors now reject the old phrases. Focused
+  verification passed: `npx vitest run src/components/AsyncButton.test.tsx
+  src/pages/Settings.test.tsx` passed 66 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests, `npm run lint:bloat`,
+  `npm run test:scripts` passed 455 script tests, `npm run lint`, and
+  `git diff --check`.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -189,6 +198,8 @@ Scope:
   recovery wording.
 - Optional dev toasts and app/window recovery details must use app-problem
   labels, not support-detail labels or generic error fallbacks.
+- Optional source-contact history and reusable component examples must avoid
+  failure-first labels in user-facing or future-copy surfaces.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
@@ -207,6 +218,7 @@ npx vitest run src/components/feedback/SubmitOptions.test.tsx src/components/fee
 npx vitest run src/services/feedbackService.test.ts
 npx vitest run src/components/feedback/SubmitOptions.test.tsx src/components/feedback/SuccessScreen.test.tsx src/pages/Settings.test.tsx src/pages/SetupWizard.test.tsx src/components/ScraperHealthDashboard.test.tsx src/pages/ResumeOptimizer.test.tsx src/components/BookmarkletGenerator.test.tsx src/components/ErrorBoundary.test.tsx src/components/PageErrorBoundary.test.tsx src/components/ModalErrorBoundary.test.tsx src/components/ComponentErrorBoundary.test.tsx
 npx vitest run src/utils/api.test.ts src/utils/errorMessages.test.ts src/components/ComponentErrorBoundary.test.tsx src/components/ModalErrorBoundary.test.tsx
+npx vitest run src/components/AsyncButton.test.tsx src/pages/Settings.test.tsx
 node --test scripts/check-privacy-logging.test.mjs
 git diff --check
 ```

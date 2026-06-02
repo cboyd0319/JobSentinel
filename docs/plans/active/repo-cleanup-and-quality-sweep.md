@@ -164,6 +164,11 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Changed optional source-contact result labels from failure-first words to
+  `Needs attention` and `Took too long`, and changed reusable async-button
+  guidance from `Failed to...` to `Could not...`. Focused AsyncButton,
+  Settings, product-copy, script, bloat, lint, and diff-check verification
+  passed.
 - Changed optional dev toast, component boundary, modal boundary, and
   certificate-error wording away from support-detail, generic-error, and issue
   labels toward app-problem and problem wording. Focused utility/component,

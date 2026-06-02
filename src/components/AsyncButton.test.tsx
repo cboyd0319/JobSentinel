@@ -241,14 +241,14 @@ describe("AsyncButton", () => {
       const mockOnClick = vi.fn().mockRejectedValue(new Error("Network error"));
 
       renderWithToast(
-        <AsyncButton onClick={mockOnClick} errorMessage="Failed to save">
+        <AsyncButton onClick={mockOnClick} errorMessage="Could not save">
           Save
         </AsyncButton>
       );
 
       await user.click(screen.getByText("Save"));
       await waitFor(() => {
-        expect(screen.getByText("Failed to save")).toBeInTheDocument();
+        expect(screen.getByText("Could not save")).toBeInTheDocument();
       });
     });
 
