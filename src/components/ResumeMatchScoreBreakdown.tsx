@@ -44,7 +44,7 @@ function ScoreBar({
           {label}
           {showWeight && (
             <span className="ml-1.5 text-xs text-surface-500 dark:text-surface-400">
-              Part of overall match
+              One part of this fit estimate
             </span>
           )}
         </span>
@@ -84,7 +84,7 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
 }: ResumeMatchScoreBreakdownProps) {
   const categories: ScoreCategory[] = [
     {
-      label: "Skills Match",
+      label: "Skills Fit",
       score: skillsScore,
       color: {
         bg: "bg-sentinel-100 dark:bg-sentinel-900/30",
@@ -92,7 +92,7 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
       },
     },
     {
-      label: "Experience Match",
+      label: "Experience Fit",
       score: experienceScore,
       color: {
         bg: "bg-orange-100 dark:bg-orange-900/30",
@@ -100,7 +100,7 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
       },
     },
     {
-      label: "Education Match",
+      label: "Education Fit",
       score: educationScore,
       color: {
         bg: "bg-blue-100 dark:bg-blue-900/30",
@@ -113,7 +113,7 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
 
   const tooltipContent = (
     <div className="max-w-xs space-y-1 text-xs">
-      <p className="font-semibold mb-2">How this match is reviewed:</p>
+      <p className="font-semibold mb-2">How this fit estimate is reviewed:</p>
       <p>
         <strong>Skills:</strong> Compares required and preferred skills from the job description
       </p>
@@ -125,7 +125,7 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
       </p>
       {!hasAnyScore && (
         <p className="mt-2 text-surface-400">
-          Add a resume to see detailed match information
+          Add a resume to see detailed fit information
         </p>
       )}
     </div>
@@ -135,12 +135,12 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-surface-800 dark:text-white flex items-center gap-2">
-          Resume Match Details
+          Resume Fit Details
           <Tooltip content={tooltipContent} position="top">
             <button
               type="button"
               className="text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors"
-              aria-label="Learn more about resume match"
+              aria-label="Learn more about resume fit"
             >
               <svg
                 className="w-4 h-4"
@@ -167,7 +167,7 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
       {!hasAnyScore && (
         <div className="p-3 bg-surface-50 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 rounded-lg">
           <p className="text-sm text-surface-600 dark:text-surface-400 text-center">
-            Add a resume to see detailed match information
+            Add a resume to see detailed fit information
           </p>
         </div>
       )}
@@ -187,7 +187,7 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
       {hasAnyScore && showWeights && (
         <div className="pt-3 border-t border-surface-200 dark:border-surface-700">
           <p className="text-xs text-surface-500 dark:text-surface-400">
-            Overall match reviews these areas together.
+            Overall fit reviews these areas together.
           </p>
         </div>
       )}

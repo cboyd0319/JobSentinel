@@ -34,18 +34,18 @@ The review guide is visible in **Settings > Sources & Alerts**. Most users
 should change job titles, work words, salary floor, location, and company
 preferences before touching extra match settings.
 
-## Reading a Match
+## Reading a Fit Estimate
 
-Job cards and match details should help users make a decision without guessing.
+Job cards and fit details should help users make a decision without guessing.
 
 | Label | Meaning | Next step |
 | ----- | ------- | --------- |
-| **Strong Match** | The posting fits most saved preferences | Review source, pay, and posting-risk signals before tailoring |
-| **Good Match** | The posting has several useful signals | Check weaker factors before spending serious time |
-| **Some Match** | The posting fits part of the search | Review only if the role or company is worth extra effort |
-| **Low Match** | The posting conflicts with saved preferences | Skip or update preferences if the result is wrong |
+| **Strong Fit** | The posting fits most saved preferences | Review source, pay, and posting-risk signals before tailoring |
+| **Good Fit** | The posting has several useful signals | Check weaker factors before spending serious time |
+| **Possible Fit** | The posting fits part of the search | Review only if the role or company is worth extra effort |
+| **Needs Review** | The posting conflicts with saved preferences | Skip or update preferences if the result is wrong |
 
-High match does not mean the job is real, fair, or worth applying to. Always
+High fit does not mean the job is real, fair, or worth applying to. Always
 review posting risk, salary, source, and application route.
 
 ## Factor Details

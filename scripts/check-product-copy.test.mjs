@@ -364,6 +364,7 @@ test("product copy rejects technical recovery and raw error details", () => {
         "Support details (development only)",
         "Automatic error reporting and logging",
         "Capture error with error reporting system",
+        "Clear Temporary App Data",
         "",
       ].join("\n"),
     );
@@ -450,6 +451,24 @@ test("product copy rejects non-protective scoring and legacy preference copy", (
     );
     assert.equal(hasNonProtectiveScoreCopy(root, "src/utils/scoreUtils.ts"), true);
     assert.equal(hasNonProtectiveScoreCopy(root, "src/components/ErrorBoundary.tsx"), false);
+  });
+});
+
+test("product copy rejects stale match-ranking labels", () => {
+  withFixture((root) => {
+    for (const [path, copy] of [
+      ["src/components/ScoreDisplay.tsx", "Strong Match"],
+      ["src/components/ScoreBreakdownModal.tsx", "Match Details"],
+      ["src/components/ScoreBreakdownModal.tsx", "Part of overall score"],
+      ["src/pages/DashboardUI/filterLabels.ts", "Best Match First"],
+      ["src/pages/DashboardUI/filterLabels.ts", "Lowest Match First"],
+      ["src/pages/SetupWizard.tsx", "strongest matches"],
+      ["docs/user/QUICK_START.md", "weaker or adjacent matches"],
+      ["docs/features/smart-scoring.md", "Low Match"],
+    ]) {
+      writeFixtureFile(root, path, `${copy}\n`);
+      assert.equal(hasNonProtectiveScoreCopy(root, path), true);
+    }
   });
 });
 
@@ -1342,6 +1361,21 @@ test("product copy rejects stale settings alert and source setup copy", () => {
     ]) {
       writeFixtureFile(root, "src/pages/Settings.tsx", `${staleCopy}\n`);
       assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
+    }
+  });
+});
+
+test("product copy rejects stale recovery and login privacy copy", () => {
+  withFixture((root) => {
+    for (const [path, copy] of [
+      ["src/components/ErrorLogPanel.tsx", "{displayMessage}"],
+      ["src/components/ErrorLogPanel.tsx", "Save Extra Local Details"],
+      ["docs/user/QUICK_START.md", "app password or sending details"],
+      ["docs/user/DEEP_LINKS.md", "This is expected - log in to view results."],
+      ["docs/user/DEEP_LINKS.md", "Bulk open (open multiple sites at once)"],
+    ]) {
+      writeFixtureFile(root, path, `${copy}\n`);
+      assert.equal(hasTechnicalFirstUserCopy(root, path), true);
     }
   });
 });

@@ -168,10 +168,11 @@ Pick how JobSentinel should handle older or hard-to-verify postings:
 
 Pick how broad the first results and alerts should feel:
 
-- **Smaller list** - Show fewer jobs and focus alerts on the strongest matches
+- **Smaller list** - Show fewer jobs and focus alerts on roles that most
+  clearly fit your search
 - **Balanced list** - Keep a manageable list without hiding useful roles
-- **Broad discovery** - Show more possible roles, including weaker or adjacent
-  matches
+- **Broad discovery** - Show more possible roles, including adjacent ones that
+  may still be worth a look
 
 ### Question 9: Want instant alerts? (Optional)
 
@@ -198,7 +199,7 @@ Change anything that looks wrong, then start finding jobs.
 
 ---
 
-## Step 3: Review matches
+## Step 3: Review Jobs That Fit
 
 JobSentinel is now checking the sources you allowed.
 
@@ -206,7 +207,7 @@ What JobSentinel does next:
 
 - Every 2 hours, JobSentinel checks for new jobs.
 - Each job is compared with your saved search.
-- Strong matches can trigger notifications if you set them up.
+- Roles that fit your search can trigger notifications if you set them up.
 - Stale, reposted, or postings that need review are flagged with warnings.
 
 ### Your Dashboard
@@ -215,10 +216,10 @@ What JobSentinel does next:
 
 The dashboard shows:
 
-- **Job List** - Every job found, sorted by match strength
+- **Job List** - Every job found, sorted by closest fit
 - **Posting Risk Filter** - Hide postings that need review first
 - **Search Bar** - Find jobs by keyword, company, or location
-- **Statistics** - See how many jobs match your criteria
+- **Statistics** - See how many jobs fit your criteria
 
 ---
 
@@ -341,8 +342,8 @@ Desktop alerts do not need another account.
 
 ### Email
 
-Email alerts are optional. Use them if your email service gives you an app
-password or sending details.
+Email alerts are optional. Use them only if your email service gives you a
+special password for apps or clear mail-sending instructions.
 
 1. Open Settings, choose **Sources & Alerts**, then find **Email Alerts**.
 2. Choose your email service when listed.

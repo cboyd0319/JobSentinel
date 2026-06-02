@@ -536,7 +536,7 @@ describe("Settings — loadConfig flow", () => {
         .getAllByText("Tip:")
         .some((node) => /Add your resume in the Resume tab first/i.test(node.closest("p")?.textContent ?? "")),
     ).toBe(true);
-    expect(screen.getByText("Job title and search-word matches")).toBeInTheDocument();
+    expect(screen.getByText("Job title and search-word fit")).toBeInTheDocument();
     expect(screen.queryByText(/keyword-only scoring/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/resume match \+ 30% search words/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Upload your resume/i)).not.toBeInTheDocument();

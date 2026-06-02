@@ -64,7 +64,7 @@ should not require users to understand query syntax, filters, or scoring math.
 ### Notification Preferences
 
 Notification settings control which saved searches and job sources can create
-alerts. Plain labels should describe alert destinations and match strength
+alerts. Plain labels should describe alert destinations and fit level
 instead of service internals.
 
 ### Safe Support Reports
@@ -99,6 +99,6 @@ JobSentinel and check Settings.
 | --- | --- |
 | Older templates did not appear | Make a safe support report first, then close and reopen JobSentinel and check Settings for a migration prompt. |
 | A saved search is missing | Open Saved Searches, then check recent search history. |
-| Alerts feel too noisy | Raise match strength or narrow the saved search. |
-| Alerts miss expected jobs | Lower match strength or check whether the source is enabled. |
+| Alerts feel too noisy | Raise alert selectivity or narrow the saved search. |
+| Alerts miss expected jobs | Lower alert selectivity or check whether the source is enabled. |
 | A template was deleted | Stop editing, make a safe support report, and check whether another copy exists. |

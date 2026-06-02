@@ -31,6 +31,25 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local fit-and-recovery wording cleanup changes job relevance labels
+  from match/ranking language to fit/review language across setup, dashboard
+  filters, score displays, Resume evidence panels, notifications, guided tour,
+  user-data docs, and smart-scoring docs. It also keeps raw problem messages
+  out of the App Problem History list, renames local recovery cleanup to
+  `Reset Local App Settings`, and clarifies login-required deep-link and
+  email-service setup docs. Product-copy sensors now reject the old labels and
+  recovery wording. Focused verification passed: `npx vitest run
+  src/pages/SetupWizard.test.tsx src/pages/DashboardUI/filterLabels.test.ts
+  src/components/ScoreDisplay.test.tsx
+  src/components/ScoreBreakdownModal.test.tsx
+  src/components/ErrorLogPanel.test.tsx
+  src/components/ErrorBoundary.test.tsx
+  src/components/ResumeMatchScoreBreakdown.test.tsx
+  src/pages/Resume.test.tsx src/pages/Settings.test.tsx` passed 232 tests,
+  `node --test scripts/check-product-copy.test.mjs` passed 41 tests, and
+  `npm run lint` passed. Broader verification passed: `npm run lint:docs`,
+  `npm run lint:bloat`, `npm run test:scripts` passed 466 tests,
+  `npm run harness:check`, and `git diff --check`.
 - Current local zero-technical setup-copy cleanup makes Slack alerts explicit
   opt-in after a connection link is pasted, changes manual email and USAJobs
   setup labels to plain user wording, masks outside job-source previews to the
@@ -55,11 +74,11 @@ Recent local verification evidence:
   `Tailor Resume for This Job` label. Focused verification passed: `npx vitest
   run src/pages/ResumeOptimizer.test.tsx` passed 14 tests and `node --test
   scripts/check-product-copy.test.mjs` passed 36 tests.
-- Current local App Problem History support-copy cleanup renames the old
-  detailed-report button to `Save Extra Local Details` and clarifies that extra
-  local details stay on the user's computer until the user chooses to share
-  them. Product-copy sensors now reject the old `Save Detailed Local Report`
-  label. Focused verification passed: `npx vitest run
+- Current local App Problem History support-copy cleanup renames the full
+  local problem details button to `Save Full Local Problem Details` and
+  clarifies that extra local details stay on the user's computer until the user
+  chooses to share them. Product-copy sensors now reject older detailed-report
+  labels. Focused verification passed: `npx vitest run
   src/components/ErrorLogPanel.test.tsx` passed 34 tests and `node --test
   scripts/check-product-copy.test.mjs` passed 36 tests.
 - Current local source-status wording cleanup replaces remaining user-facing
@@ -721,9 +740,9 @@ Current cleanup posture:
   copy with `Still opening your application profile...`, with ProfileForm and
   product-copy coverage against the old phrase.
 - Current local general recovery wording follow-up changes app and page
-  error-boundary copy and buttons from reload wording to `Reset App Window` and
-  `Clear Temporary App Data` language, with ErrorBoundary tests and product-copy
-  coverage against the old wording.
+  error-boundary copy and buttons from reload wording to explicit reset
+  language, with ErrorBoundary tests and product-copy coverage against the old
+  wording.
 - Current local safe-support-report wording follow-up changes support-preview
   overflow text from `more events` to `more app actions`, maps event detail
   labels to `App action`, and changes generated report overflow wording from

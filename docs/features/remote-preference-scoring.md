@@ -69,5 +69,5 @@ Examples:
 ## Settings
 
 Users can change work-mode preferences in setup or Settings. These preferences
-affect match strength and explanations. They do not send data outside the
+affect fit estimates and explanations. They do not send data outside the
 device and they do not require external AI.

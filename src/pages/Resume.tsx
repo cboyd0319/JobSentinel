@@ -986,13 +986,13 @@ export default function Resume({ onBack }: ResumeProps) {
                         <ScoreDisplay score={match.overall_match_score} size="sm" />
                       </div>
 
-                      {/* Match details */}
+                      {/* Fit details */}
                       {(match.skills_match_score !== null ||
                         match.experience_match_score !== null ||
                         match.education_match_score !== null) && (
                         <div className="mb-4 p-3 bg-surface-50 dark:bg-surface-700 rounded-lg">
                           <p className="text-xs font-medium text-surface-600 dark:text-surface-400 mb-2">
-                            Match Details
+                            Fit Details
                           </p>
                           <div className="space-y-2">
                             {match.skills_match_score !== null && (

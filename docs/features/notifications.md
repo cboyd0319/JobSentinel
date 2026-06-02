@@ -1,8 +1,8 @@
 # Notifications
 
-**Get notified when a strong match needs review.**
+**Get notified when a role that fits your search needs review.**
 
-JobSentinel can alert you the moment it finds a job that matches your criteria.
+JobSentinel can alert you when it finds a job that fits your criteria.
 Notifications stay optional and user-controlled so you can review jobs on your
 schedule.
 
@@ -44,9 +44,9 @@ user-opened search-link destination, not a background notification source.
 ## Alert Privacy
 
 Desktop alerts keep job details inside JobSentinel. Optional email and chat
-alerts may include job title, company, location, salary, remote status, match
+alerts may include job title, company, location, salary, remote status, fit
 label or percentage, source, and job link because those services deliver the
-alert outside the app. Local match reasons, saved search strategy, salary-floor details,
+alert outside the app. Local fit reasons, saved search strategy, salary-floor details,
 private notes, and application history stay inside JobSentinel; open the app to
 review those details.
 
@@ -72,7 +72,7 @@ That's it. No connection link needed.
 - **Linux:** Desktop alerts
 
 Desktop alerts use privacy-preserving wording by default. They tell you that a
-match or reminder is ready in JobSentinel without showing job titles, company
+fit review or reminder is ready in JobSentinel without showing job titles, company
 names, salary notes, or reminder text on the operating system notification
 surface.
 
@@ -127,7 +127,8 @@ email alerts are easier to set up.
 7. In JobSentinel, open Settings, choose Sources & Alerts, then paste the link in
    Discord Notifications
 
-**What you'll get:** Alert cards that make stronger matches easy to spot.
+**What you'll get:** Alert cards that make roles with stronger fit easier to
+spot.
 
 **Optional:** Add a Discord mention only if you want alerts to tag you.
 
@@ -219,7 +220,7 @@ If it doesn't work:
 
 1. Make sure that alert channel is turned on in Settings
 2. Check that your connection link is correct
-3. Make sure jobs meet your match-strength setting
+3. Make sure jobs meet your alert setting
 4. Click "Test" to check it
 
 ### Slack Says The Link Is Invalid

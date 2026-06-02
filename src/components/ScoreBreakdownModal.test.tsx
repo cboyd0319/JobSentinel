@@ -26,7 +26,7 @@ describe("ScoreBreakdownModal", () => {
     it("renders title", () => {
       render(<ScoreBreakdownModal {...defaultProps} />);
 
-      expect(screen.getByText("Match Details")).toBeInTheDocument();
+      expect(screen.getByText("Fit Details")).toBeInTheDocument();
     });
   });
 
@@ -43,35 +43,35 @@ describe("ScoreBreakdownModal", () => {
       expect(screen.getByText("85%")).toBeInTheDocument();
     });
 
-    it("displays 'Strong Match' for scores >= 90%", () => {
+    it("displays 'Strong Fit' for scores >= 90%", () => {
       render(<ScoreBreakdownModal {...defaultProps} score={0.92} />);
 
-      expect(screen.getByText("Strong Match")).toBeInTheDocument();
+      expect(screen.getByText("Strong Fit")).toBeInTheDocument();
     });
 
-    it("displays 'Good Match' for scores >= 70%", () => {
+    it("displays 'Good Fit' for scores >= 70%", () => {
       render(<ScoreBreakdownModal {...defaultProps} score={0.75} />);
 
-      expect(screen.getByText("Good Match")).toBeInTheDocument();
+      expect(screen.getByText("Good Fit")).toBeInTheDocument();
     });
 
-    it("displays 'Some Match' for scores >= 50%", () => {
+    it("displays 'Possible Fit' for scores >= 50%", () => {
       render(<ScoreBreakdownModal {...defaultProps} score={0.55} />);
 
-      expect(screen.getByText("Some Match")).toBeInTheDocument();
+      expect(screen.getByText("Possible Fit")).toBeInTheDocument();
     });
 
-    it("displays 'Low Match' for scores < 50%", () => {
+    it("displays 'Needs Review' for scores < 50%", () => {
       render(<ScoreBreakdownModal {...defaultProps} score={0.35} />);
 
-      expect(screen.getByText("Low Match")).toBeInTheDocument();
+      expect(screen.getByText("Needs Review")).toBeInTheDocument();
     });
 
     it("handles NaN score gracefully", () => {
       render(<ScoreBreakdownModal {...defaultProps} score={NaN} />);
 
       expect(screen.getByText("0%")).toBeInTheDocument();
-      expect(screen.getByText("Low Match")).toBeInTheDocument();
+      expect(screen.getByText("Needs Review")).toBeInTheDocument();
       expect(screen.queryByText("NaN%")).not.toBeInTheDocument();
     });
   });
@@ -94,7 +94,7 @@ describe("ScoreBreakdownModal", () => {
     it("displays all scoring factor labels", () => {
       render(<ScoreBreakdownModal {...defaultProps} />);
 
-      expect(screen.getByText("Skills Match")).toBeInTheDocument();
+      expect(screen.getByText("Skills Fit")).toBeInTheDocument();
       expect(screen.getByText("Salary")).toBeInTheDocument();
       expect(screen.getByText("Location")).toBeInTheDocument();
       expect(screen.getByText("Company")).toBeInTheDocument();
@@ -110,7 +110,7 @@ describe("ScoreBreakdownModal", () => {
     it("displays factor descriptions", () => {
       render(<ScoreBreakdownModal {...defaultProps} />);
 
-      expect(screen.getByText("Job title and search-word matches")).toBeInTheDocument();
+      expect(screen.getByText("Job title and search-word fit")).toBeInTheDocument();
       expect(screen.getByText("Salary meets your requirements")).toBeInTheDocument();
       expect(screen.getByText("Remote/hybrid/onsite preference")).toBeInTheDocument();
       expect(screen.getByText("Companies you prefer or hide")).toBeInTheDocument();
@@ -120,7 +120,7 @@ describe("ScoreBreakdownModal", () => {
     it("displays plain score contribution labels", () => {
       render(<ScoreBreakdownModal {...defaultProps} />);
 
-      expect(screen.getAllByText("Part of overall score")).toHaveLength(5);
+      expect(screen.getAllByText("One part of this fit estimate")).toHaveLength(5);
       expect(screen.queryByText(/\d+% influence/)).not.toBeInTheDocument();
     });
   });
@@ -165,14 +165,14 @@ describe("ScoreBreakdownModal", () => {
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons="not valid json" />);
 
       // Should render without errors
-      expect(screen.getByText("Match Details")).toBeInTheDocument();
+      expect(screen.getByText("Fit Details")).toBeInTheDocument();
     });
 
     it("ignores malformed valid JSON reason shapes", () => {
       const reasons = JSON.stringify([null, { text: "bad" }, "Salary meets target"]);
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);
 
-      expect(screen.getByText("Match Details")).toBeInTheDocument();
+      expect(screen.getByText("Fit Details")).toBeInTheDocument();
       expect(screen.getByText("Salary meets target")).toBeInTheDocument();
       expect(screen.queryByText("bad")).not.toBeInTheDocument();
     });
@@ -180,7 +180,7 @@ describe("ScoreBreakdownModal", () => {
     it("handles null reasons", () => {
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons={null} />);
 
-      expect(screen.getByText("Match Details")).toBeInTheDocument();
+      expect(screen.getByText("Fit Details")).toBeInTheDocument();
     });
 
     it("categorizes hybrid/onsite to location", () => {
@@ -221,7 +221,7 @@ describe("ScoreBreakdownModal", () => {
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);
 
       // Should render without errors
-      expect(screen.getByText("Match Details")).toBeInTheDocument();
+      expect(screen.getByText("Fit Details")).toBeInTheDocument();
     });
   });
 
@@ -282,7 +282,7 @@ describe("ScoreBreakdownModal", () => {
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);
 
       // Should parse and display partial score
-      expect(screen.getByText("Match Details")).toBeInTheDocument();
+      expect(screen.getByText("Fit Details")).toBeInTheDocument();
     });
   });
 
@@ -291,7 +291,7 @@ describe("ScoreBreakdownModal", () => {
       render(<ScoreBreakdownModal {...defaultProps} score={0} />);
 
       expect(screen.getByText("0%")).toBeInTheDocument();
-      expect(screen.getByText("Low Match")).toBeInTheDocument();
+      expect(screen.getByText("Needs Review")).toBeInTheDocument();
     });
 
     it("handles score of 1", () => {
@@ -300,13 +300,13 @@ describe("ScoreBreakdownModal", () => {
       // Multiple 100% texts exist (overall score + each factor), just check at least one
       const percentTexts = screen.getAllByText("100%");
       expect(percentTexts.length).toBeGreaterThan(0);
-      expect(screen.getByText("Strong Match")).toBeInTheDocument();
+      expect(screen.getByText("Strong Fit")).toBeInTheDocument();
     });
 
     it("handles empty reasons array", () => {
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons="[]" />);
 
-      expect(screen.getByText("Match Details")).toBeInTheDocument();
+      expect(screen.getByText("Fit Details")).toBeInTheDocument();
     });
   });
 });

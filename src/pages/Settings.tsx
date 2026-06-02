@@ -2352,7 +2352,7 @@ export default function Settings({ onClose }: SettingsProps) {
                 <p className="mb-4 rounded-lg border border-surface-200 bg-surface-50 p-3 text-xs text-surface-600 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300">
                   Email and chat alerts are sent through the service you choose.
                   They can include job title, company, location, pay, remote
-                  status, match label, source, and job link. Resume text,
+                  status, fit label, source, and job link. Resume text,
                   private notes, application history, and local match reasons
                   stay in JobSentinel.
                 </p>
@@ -4293,12 +4293,12 @@ export default function Settings({ onClose }: SettingsProps) {
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
                   Match Review Guide
-                  <HelpIcon text="These areas show what JobSentinel reviews when it sorts jobs. Use any match label to see the details." />
+                  <HelpIcon text="These areas show what JobSentinel reviews when it sorts jobs. Use any fit label to see the details." />
                 </h3>
                 <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 bg-surface-50 dark:bg-surface-900/20">
                   <p className="text-sm text-surface-600 dark:text-surface-400 mb-4">
                     JobSentinel reviews each job against your preferences and
-                    shows a match label. These areas explain what shapes the
+                    shows a fit label. These areas explain what shapes the
                     review by default.
                   </p>
                   <div className="space-y-3">
@@ -4308,10 +4308,10 @@ export default function Settings({ onClose }: SettingsProps) {
                         <SettingsSymbol icon="target" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                         <div>
                           <div className="text-sm font-medium text-surface-900 dark:text-white">
-                            Skills Match
+                            Skills Fit
                           </div>
                           <div className="text-xs text-surface-500 dark:text-surface-400">
-                            Job title and search-word matches
+                            Job title and search-word fit
                           </div>
                         </div>
                       </div>

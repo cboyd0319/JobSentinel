@@ -164,6 +164,17 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local fit-and-recovery wording cleanup changes job relevance labels
+  from match/ranking language to fit/review language across setup, dashboard
+  filters, score displays, Resume evidence panels, notifications, guided tour,
+  user-data docs, and smart-scoring docs. It also keeps raw problem messages
+  out of the App Problem History list, renames local recovery cleanup to
+  `Reset Local App Settings`, and clarifies login-required deep-link and
+  email-service setup docs. Product-copy sensors now reject the old labels and
+  recovery wording. Focused SetupWizard, Dashboard filters, ScoreDisplay,
+  ScoreBreakdownModal, ErrorLogPanel, ErrorBoundary, Resume, Settings,
+  product-copy, and lint verification passed. Broader docs, bloat, script,
+  harness, and diff-check verification passed.
 - Current local zero-technical setup-copy cleanup makes Slack alerts explicit
   opt-in after a connection link is pasted, changes manual email and USAJobs
   setup labels to plain user wording, masks outside job-source previews to the
@@ -180,11 +191,11 @@ boundaries, and harness modularity:
   button to `Review in Resume Builder`, matching the actual action and avoiding
   optimization-style resume wording. Product-copy sensors now reject the old
   label. Focused ResumeOptimizer and product-copy verification passed.
-- Current local App Problem History support-copy cleanup renames the old
-  detailed-report button to `Save Extra Local Details`, clarifies that extra
-  local details stay on the user's computer until the user chooses to share
-  them, and adds a product-copy sensor against the old label. Focused
-  ErrorLogPanel and product-copy verification passed.
+- Current local App Problem History support-copy cleanup renames the full
+  local problem details button to `Save Full Local Problem Details`, clarifies
+  that extra local details stay on the user's computer until the user chooses
+  to share them, and adds product-copy sensors against older detailed-report
+  labels. Focused ErrorLogPanel and product-copy verification passed.
 - Current local source-status wording cleanup replaces remaining user-facing
   `source health` wording with `source status` in README, roadmap, source
   guides, and ScraperHealthDashboard log context. Product-copy sensors now
@@ -505,9 +516,8 @@ boundaries, and harness modularity:
   `Still opening your application profile...`, added a focused ProfileForm
   test, and extended product-copy coverage against the old phrase.
 - Changed app and page error recovery copy from browser-style reload wording to
-  `Reset App Window` and `Clear Temporary App Data` language, updated
-  ErrorBoundary expectations, and added product-copy coverage against reload
-  labels returning.
+  explicit reset wording, updated ErrorBoundary expectations, and added
+  product-copy coverage against reload labels returning.
 - Replaced remaining support-report preview `more events` copy, raw event-detail
   labels, and generated `frontend errors omitted` wording with app-action and
   app-problem language, then added product-copy and feedback service coverage.

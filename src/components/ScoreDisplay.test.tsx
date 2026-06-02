@@ -82,34 +82,34 @@ describe("ScoreDisplay", () => {
   });
 
   describe("labels", () => {
-    it("shows 'Strong Match' for scores >= 0.9", () => {
+    it("shows 'Strong Fit' for scores >= 0.9", () => {
       render(<ScoreDisplay score={0.9} showLabel={true} />);
-      expect(screen.getByText("Strong Match")).toBeInTheDocument();
+      expect(screen.getByText("Strong Fit")).toBeInTheDocument();
     });
 
-    it("shows 'Good Match' for scores >= 0.7", () => {
+    it("shows 'Good Fit' for scores >= 0.7", () => {
       render(<ScoreDisplay score={0.75} showLabel={true} />);
-      expect(screen.getByText("Good Match")).toBeInTheDocument();
+      expect(screen.getByText("Good Fit")).toBeInTheDocument();
     });
 
-    it("shows 'Some Match' for scores >= 0.5", () => {
+    it("shows 'Possible Fit' for scores >= 0.5", () => {
       render(<ScoreDisplay score={0.55} showLabel={true} />);
-      expect(screen.getByText("Some Match")).toBeInTheDocument();
+      expect(screen.getByText("Possible Fit")).toBeInTheDocument();
     });
 
-    it("shows 'Low Match' for scores < 0.5", () => {
+    it("shows 'Needs Review' for scores < 0.5", () => {
       render(<ScoreDisplay score={0.3} showLabel={true} />);
-      expect(screen.getByText("Low Match")).toBeInTheDocument();
+      expect(screen.getByText("Needs Review")).toBeInTheDocument();
     });
 
     it("hides label when showLabel is false", () => {
       render(<ScoreDisplay score={0.9} showLabel={false} />);
-      expect(screen.queryByText("Strong Match")).not.toBeInTheDocument();
+      expect(screen.queryByText("Strong Fit")).not.toBeInTheDocument();
     });
 
     it("shows label by default", () => {
       render(<ScoreDisplay score={0.9} />);
-      expect(screen.getByText("Strong Match")).toBeInTheDocument();
+      expect(screen.getByText("Strong Fit")).toBeInTheDocument();
     });
   });
 
@@ -127,11 +127,11 @@ describe("ScoreDisplay", () => {
       expect(container.querySelector(".cursor-pointer")).toBeInTheDocument();
     });
 
-    it("uses match-strength aria copy when clickable", () => {
+    it("uses fit-estimate aria copy when clickable", () => {
       render(<ScoreDisplay score={0.8} onClick={() => {}} />);
 
       expect(
-        screen.getByRole("button", { name: /match strength: 80%\. good match/i }),
+        screen.getByRole("button", { name: /fit estimate: 80%\. good fit/i }),
       ).toBeInTheDocument();
       expect(screen.queryByLabelText(/match score/i)).not.toBeInTheDocument();
     });
@@ -169,7 +169,7 @@ describe("ScoreDisplay", () => {
       await waitFor(() => {
         expect(
           screen.getByText(
-            "This job matches many criteria. Review pay, posting freshness, and must-haves before tailoring."
+            "This role fits many criteria. Review pay, posting freshness, and must-haves before tailoring."
           )
         ).toBeInTheDocument();
       });

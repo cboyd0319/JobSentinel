@@ -250,7 +250,7 @@ class ErrorBoundary extends Component<Props, State> {
                   onClick={this.handleClearData}
                   className="w-full bg-danger/10 hover:bg-danger/20 text-danger font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-danger focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-800"
                 >
-                  Clear Temporary App Data
+                  Reset Local App Settings
                 </button>
               )}
             </div>

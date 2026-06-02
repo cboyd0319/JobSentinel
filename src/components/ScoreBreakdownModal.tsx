@@ -20,10 +20,10 @@ interface ScoreBreakdownModalProps {
 }
 
 /**
- * Match priorities (must match backend scoring defaults).
+ * Fit priorities (must match backend scoring defaults).
  */
 const FACTOR_WEIGHTS = {
-  skills: { weight: 0.40, label: "Skills Match", icon: "target", description: "Job title and search-word matches" },
+  skills: { weight: 0.40, label: "Skills Fit", icon: "target", description: "Job title and search-word fit" },
   salary: { weight: 0.25, label: "Salary", icon: "currency", description: "Salary meets your requirements" },
   location: { weight: 0.20, label: "Location", icon: "location", description: "Remote/hybrid/onsite preference" },
   company: { weight: 0.10, label: "Company", icon: "company", description: "Companies you prefer or hide" },
@@ -256,18 +256,18 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
   const percentage = Math.round(safeScore * 100);
 
   const getScoreLabel = () => {
-    if (safeScore >= SCORE_THRESHOLD_HIGH) return { label: "Strong Match", color: "text-green-600 dark:text-green-400" };
-    if (safeScore >= SCORE_THRESHOLD_GOOD) return { label: "Good Match", color: "text-sentinel-600 dark:text-sentinel-400" };
-    if (safeScore >= SCORE_THRESHOLD_PARTIAL) return { label: "Some Match", color: "text-yellow-600 dark:text-yellow-400" };
-    return { label: "Low Match", color: "text-surface-500 dark:text-surface-400" };
+    if (safeScore >= SCORE_THRESHOLD_HIGH) return { label: "Strong Fit", color: "text-green-600 dark:text-green-400" };
+    if (safeScore >= SCORE_THRESHOLD_GOOD) return { label: "Good Fit", color: "text-sentinel-600 dark:text-sentinel-400" };
+    if (safeScore >= SCORE_THRESHOLD_PARTIAL) return { label: "Possible Fit", color: "text-yellow-600 dark:text-yellow-400" };
+    return { label: "Needs Review", color: "text-surface-500 dark:text-surface-400" };
   };
 
   const scoreLabel = getScoreLabel();
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Match Details">
+    <Modal isOpen={isOpen} onClose={onClose} title="Fit Details">
       <div className="space-y-6">
-        {/* Overall match */}
+        {/* Overall fit */}
         <div className="text-center pb-4 border-b border-surface-200 dark:border-surface-700">
           <div className={`text-5xl font-bold font-mono mb-2 ${scoreLabel.color}`}>
             {percentage}%
@@ -285,7 +285,7 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
         {/* Factor Breakdown */}
         <div className="space-y-4">
           <h3 className="text-sm font-semibold text-surface-700 dark:text-surface-300 uppercase tracking-wide">
-            Match Factors
+            Fit Factors
           </h3>
 
           {(Object.keys(FACTOR_WEIGHTS) as Array<keyof typeof FACTOR_WEIGHTS>).map((key) => {
@@ -315,7 +315,7 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
                       {factorPercentage}%
                     </span>
                     <span className="text-xs text-surface-400 dark:text-surface-500">
-                      Part of overall score
+                      One part of this fit estimate
                     </span>
                   </div>
                 </div>

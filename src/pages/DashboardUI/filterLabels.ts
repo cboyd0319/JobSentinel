@@ -1,8 +1,8 @@
 import type { ScoreFilter, SortOption } from "../DashboardTypes";
 
 export const sortOptions: Array<{ value: SortOption; label: string }> = [
-  { value: "score-desc", label: "Best Match First" },
-  { value: "score-asc", label: "Lowest Match First" },
+  { value: "score-desc", label: "Closest Fit First" },
+  { value: "score-asc", label: "Needs Review First" },
   { value: "date-desc", label: "Date (Newest)" },
   { value: "date-asc", label: "Date (Oldest)" },
   { value: "company-asc", label: "Company (A-Z)" },
@@ -10,9 +10,9 @@ export const sortOptions: Array<{ value: SortOption; label: string }> = [
 
 export const scoreFilterOptions: Array<{ value: ScoreFilter; label: string }> =
   [
-    { value: "all", label: "All Matches" },
-    { value: "high", label: "Strong Match" },
-    { value: "medium", label: "Some Match" },
+    { value: "all", label: "All Fit Levels" },
+    { value: "high", label: "Strong Fit" },
+    { value: "medium", label: "Possible Fit" },
     { value: "low", label: "Needs Review" },
   ];
 
@@ -44,7 +44,7 @@ export function formatSortOption(value: SortOption): string {
 export function formatScoreFilter(value: ScoreFilter): string {
   return (
     scoreFilterOptions.find((option) => option.value === value)?.label ??
-    "Selected match"
+    "Selected fit"
   );
 }
 

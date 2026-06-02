@@ -87,31 +87,31 @@ function parseScoreReasons(reasonsJson?: string | null): {
 }
 
 /**
- * Get a human-friendly label and explanation for job match strength.
+ * Get a human-friendly label and explanation for job fit.
  */
 function getScoreInfo(score: number) {
   if (score >= SCORE_THRESHOLD_HIGH)
     return {
-      label: "Strong Match",
+      label: "Strong Fit",
       explanation:
         "Strong evidence this fits your stated skills, pay, and preferences. Worth tailoring after checking the original posting.",
     };
   if (score >= SCORE_THRESHOLD_GOOD)
     return {
-      label: "Good Match",
+      label: "Good Fit",
       explanation:
-        "This job matches many criteria. Review pay, posting freshness, and must-haves before tailoring.",
+        "This role fits many criteria. Review pay, posting freshness, and must-haves before tailoring.",
     };
   if (score >= SCORE_THRESHOLD_PARTIAL)
     return {
-      label: "Some Match",
+      label: "Possible Fit",
       explanation:
-        "Some criteria match, but key requirements may be missing. Check must-haves first.",
+        "Some criteria line up, but key requirements may be missing. Check must-haves first.",
     };
   return {
-    label: "Low Match",
+    label: "Needs Review",
     explanation:
-      "Limited match evidence. Save time unless it has a reason your settings missed.",
+      "Limited fit evidence. Save time unless it has a reason your settings missed.",
   };
 }
 
@@ -382,7 +382,7 @@ export const ScoreDisplay = memo(function ScoreDisplay({
         tabIndex={onClick ? 0 : undefined}
         aria-label={
           onClick
-            ? `Match strength: ${percentage}%. ${scoreInfo.label}`
+            ? `Fit estimate: ${percentage}%. ${scoreInfo.label}`
             : undefined
         }
         className={`inline-flex flex-col items-center gap-1 ${onClick ? "cursor-pointer" : "cursor-help"}`}

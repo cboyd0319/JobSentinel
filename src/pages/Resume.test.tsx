@@ -100,7 +100,7 @@ describe("Resume page", () => {
 
     expect(screen.getByText("Recent Resume Matches")).toBeInTheDocument();
     expect(screen.getByText("Saved Skills (0)")).toBeInTheDocument();
-    expect(screen.getByText("Match Details")).toBeInTheDocument();
+    expect(screen.getByText("Fit Details")).toBeInTheDocument();
     expect(screen.getByText("Skills fit")).toBeInTheDocument();
     expect(screen.getByText("Experience fit")).toBeInTheDocument();
     expect(screen.getByText("Education fit")).toBeInTheDocument();

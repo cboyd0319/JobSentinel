@@ -5,7 +5,6 @@ import { Badge } from './Badge';
 import { Card } from './Card';
 import {
   sanitizeContext,
-  sanitizeTextForStorage,
   type ErrorReport,
 } from '../utils/errorReporting';
 import { copySanitizedDebugReport, saveSanitizedDebugReport } from '../services/feedbackService';
@@ -111,7 +110,8 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
   const typeInfo = TYPE_LABELS[error.type];
   const appDetailRows = getReadableContextRows(error.context);
   const hasSupportDetails = Boolean(error.stack || error.componentStack);
-  const displayMessage = formatSafeTextForDisplay(sanitizeTextForStorage(error.message));
+  const safeProblemSummary =
+    'JobSentinel recorded a problem. App data stays on this device.';
 
   return (
     <div className="border-b border-surface-200 dark:border-surface-700 last:border-b-0">
@@ -127,7 +127,7 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
         </span>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-surface-900 dark:text-white truncate">
-            {displayMessage}
+            {safeProblemSummary}
           </p>
           <p className="text-xs text-surface-500 mt-0.5">
             {formatRelativeTime(error.timestamp)}
@@ -287,7 +287,7 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
                   onClick={exportErrors}
                   title="Use this only when someone helping with JobSentinel asks. It stays on your computer until you choose to share it."
                 >
-                  Save Extra Local Details
+                  Save Full Local Problem Details
                 </Button>
                 <Button size="sm" variant="danger" onClick={clearErrors}>
                   Clear Problem List

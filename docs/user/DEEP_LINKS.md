@@ -233,7 +233,8 @@ Sites marked with the login-required badge always require login:
 - FlexJobs
 - Wellfound
 
-This is expected - log in to view results.
+This is expected. Log in only if you want to use that site and accept that
+site's privacy rules.
 
 ## Related Features
 
@@ -247,7 +248,7 @@ This is expected - log in to view results.
 
 - Save favorite search-link searches
 - Custom site preferences
-- Bulk open (open multiple sites at once)
+- Review and open selected sites
 - Browser add-on support
 
 ### Later

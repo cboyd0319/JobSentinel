@@ -178,7 +178,7 @@ describe("SetupWizard Accessibility", () => {
         screen.getByText("At least $65,000/year"),
       ).toBeInTheDocument();
       expect(
-        screen.getByText(/strong matches for your saved search/i),
+        screen.getByText(/roles that fit your saved search/i),
       ).toBeInTheDocument();
       expect(screen.getByText(/saves your search on this computer/i)).toBeInTheDocument();
       expect(screen.getByText(/can contact only the job sources shown above/i)).toBeInTheDocument();

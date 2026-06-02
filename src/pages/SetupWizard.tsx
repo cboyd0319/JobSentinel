@@ -138,7 +138,7 @@ const REVIEW_VOLUME_OPTIONS: ReviewVolumeOption[] = [
   {
     id: "focused",
     label: "Smaller list",
-    description: "Show fewer jobs and focus alerts on the strongest matches.",
+    description: "Show fewer jobs and focus alerts on roles that most clearly fit your search.",
   },
   {
     id: "balanced",
@@ -148,7 +148,7 @@ const REVIEW_VOLUME_OPTIONS: ReviewVolumeOption[] = [
   {
     id: "broad",
     label: "Broad discovery",
-    description: "Show more possible roles, including weaker or adjacent matches.",
+    description: "Show more possible roles, including adjacent ones that may still be worth a look.",
   },
 ];
 
@@ -1139,7 +1139,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
 
               <div className="mb-6">
                 <p className="text-surface-600 mb-4 text-center">
-                  Get notified when JobSentinel finds strong matches for your saved search
+                  Get notified when JobSentinel finds roles that fit your saved search
                 </p>
                 
                 <div className="mb-6 rounded-lg border-2 border-surface-200 p-4">

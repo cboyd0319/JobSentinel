@@ -167,6 +167,7 @@ const protectiveScoreCopyPaths = new Set([
   "src/pages/Dashboard.tsx",
   "src/pages/DashboardUI/filterLabels.ts",
   "src/pages/DashboardUI/DashboardFiltersBar.tsx",
+  "src/pages/SetupWizard.tsx",
   "src/pages/Settings.tsx",
 ]);
 
@@ -686,6 +687,7 @@ export function hasTechnicalRecoveryCopy(root, path) {
     /No support details available/i,
     /Automatic error reporting/i,
     /error reporting system/i,
+    /Clear Temporary App Data/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));
@@ -697,7 +699,7 @@ export function hasNonProtectiveScoreCopy(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /Great Match!|Highly recommended!|You might want to skip it|if you're desperate|if you are desperate|\{reason\}\s*<\/div>|Job Scoring Weights|These weights determine|scoring weights|Configurable weights|Customize Weights|Weight Presets|Weight in overall score|\bdefault priorities\b|\bdefault priority\b|Match Priority Guide|These percentages|priority order|\b\d+%\s+weight\b|\b\d+%\s+priority\b|\(\d+%\s+priority\)|\b\d+%\s+influence\b|\(\d+%\s+influence\)|Strong \(70%\+\)|Some \(40-69%\)|Low \(<40%\)|Posting Risk Warning|weighted averages based on component importance|Score \(High|Score \(Low|All Scores|label="Score"|Jobs are scored based|top scores|Each job is scored|sorted by match score|jobs scoring|Alert Threshold|scoring above your threshold|match score, source|Match Score|Match score:|Score:\s*\{filters\.scoreFilter\}|Sort:\s*\{filters\.sortBy\}|return\s+["'`](?:Excellent|Great|Poor)["'`]/i.test(text);
+  return /Great Match!|Highly recommended!|You might want to skip it|if you're desperate|if you are desperate|\{reason\}\s*<\/div>|Job Scoring Weights|These weights determine|scoring weights|Configurable weights|Customize Weights|Weight Presets|Weight in overall score|\bdefault priorities\b|\bdefault priority\b|Match Priority Guide|These percentages|priority order|\b\d+%\s+weight\b|\b\d+%\s+priority\b|\(\d+%\s+priority\)|\b\d+%\s+influence\b|\(\d+%\s+influence\)|Strong \(70%\+\)|Some \(40-69%\)|Low \(<40%\)|Strong Match|Good Match|Some Match|Low Match|Best Match First|Lowest Match First|Match Details|Part of overall score|strongest matches|strong matches for your saved search|weaker or adjacent matches|Posting Risk Warning|weighted averages based on component importance|Score \(High|Score \(Low|All Scores|label="Score"|Jobs are scored based|top scores|Each job is scored|sorted by match score|jobs scoring|Alert Threshold|scoring above your threshold|match score, source|Match Score|Match score:|Score:\s*\{filters\.scoreFilter\}|Sort:\s*\{filters\.sortBy\}|return\s+["'`](?:Excellent|Great|Poor)["'`]/i.test(text);
 }
 
 export function hasLegacyPreferenceListCopy(root, path) {
@@ -1539,6 +1541,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /%LOCALAPPDATA%\\JobSentinel\\jobs\.db/i,
       /watching the allowed sources/i,
       /Here's what happens automatically/i,
+      /app password or sending details/i,
     ];
 
     if (quickStartPatterns.some((pattern) => pattern.test(text))) {
@@ -1560,6 +1563,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Advanced filters/i,
       /Contributors can also add sites in code/i,
       /Browser extension integration/i,
+      /This is expected\s+-\s+log in to view results/i,
+      /Bulk open \(open multiple sites at once\)/i,
     ];
 
     if (deepLinkPatterns.some((pattern) => pattern.test(text))) {
@@ -1772,7 +1777,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/components/ErrorLogPanel.tsx") {
-    return /Advanced: Save Support Details|Save extra app details \(support only\)|Use this only if a maintainer asks/i.test(
+    return /Advanced: Save Support Details|Save extra app details \(support only\)|Save Extra Local Details|Use this only if a maintainer asks|\{displayMessage\}/i.test(
       text,
     );
   }

@@ -19,6 +19,9 @@ vi.mock("../services/feedbackService", () => ({
     mockSaveSanitizedDebugReport(...args),
 }));
 
+const SAFE_PROBLEM_SUMMARY =
+  "JobSentinel recorded a problem. App data stays on this device.";
+
 const createMockError = (overrides: Partial<ErrorReport> = {}): ErrorReport => ({
   id: "test-error-1",
   type: "render",
@@ -93,7 +96,7 @@ describe("ErrorLogPanel", () => {
       expect(screen.getByText("2 problems recorded")).toBeInTheDocument();
     });
 
-    it("displays error message", () => {
+    it("shows a safe problem summary instead of the raw error message", () => {
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
         errors: [createMockError({ message: "Something went wrong" })],
@@ -101,10 +104,13 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+      expect(
+        screen.getByText(SAFE_PROBLEM_SUMMARY),
+      ).toBeInTheDocument();
+      expect(screen.queryByText("Something went wrong")).not.toBeInTheDocument();
     });
 
-    it("sanitizes stored error messages before display", () => {
+    it("keeps private stored error messages out of the visible list", () => {
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
         errors: [
@@ -117,9 +123,10 @@ describe("ErrorLogPanel", () => {
 
       const { container } = render(<ErrorLogPanel />);
 
-      expect(container.textContent).toContain("email hidden");
-      expect(container.textContent).toContain("private token hidden");
-      expect(container.textContent).toContain("file path hidden");
+      expect(container.textContent).toContain(SAFE_PROBLEM_SUMMARY);
+      expect(container.textContent).not.toContain("email hidden");
+      expect(container.textContent).not.toContain("private token hidden");
+      expect(container.textContent).not.toContain("file path hidden");
       expect(container.textContent).not.toContain("[EMAIL]");
       expect(container.textContent).not.toContain("[TOKEN]");
       expect(container.textContent).not.toContain("/[USER_PATH]");
@@ -137,11 +144,11 @@ describe("ErrorLogPanel", () => {
       render(<ErrorLogPanel />);
 
       expect(
-        screen.getByRole("button", { name: "Save Extra Local Details" })
+        screen.getByRole("button", { name: "Save Full Local Problem Details" })
       ).toBeInTheDocument();
       expect(
         screen.getByRole("button", {
-          name: "Save Extra Local Details",
+          name: "Save Full Local Problem Details",
         })
       ).toHaveAttribute(
         "title",
@@ -168,7 +175,7 @@ describe("ErrorLogPanel", () => {
       render(<ErrorLogPanel />);
 
       expect(
-        screen.queryByRole("button", { name: "Save Extra Local Details" })
+        screen.queryByRole("button", { name: "Save Full Local Problem Details" })
       ).not.toBeInTheDocument();
       expect(screen.queryByRole("button", { name: "Clear Problem List" })).not.toBeInTheDocument();
     });
@@ -265,7 +272,7 @@ describe("ErrorLogPanel", () => {
       expect(screen.queryByText("Safe support report details")).not.toBeInTheDocument();
 
       // Click to expand
-      fireEvent.click(screen.getByText("Test error message"));
+      fireEvent.click(screen.getByRole("button", { expanded: false }));
 
       expect(screen.getByText("Safe support report details")).toBeInTheDocument();
       expect(
@@ -284,7 +291,7 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      fireEvent.click(screen.getByText("Test error message"));
+      fireEvent.click(screen.getByRole("button", { expanded: false }));
 
       expect(screen.getByText("Safe support report details")).toBeInTheDocument();
       expect(screen.queryByText("at MyComponent")).not.toBeInTheDocument();
@@ -307,7 +314,7 @@ describe("ErrorLogPanel", () => {
 
       const { container } = render(<ErrorLogPanel />);
 
-      fireEvent.click(screen.getByText("Test error message"));
+      fireEvent.click(screen.getByRole("button", { expanded: false }));
 
       expect(screen.getByText("Problem details")).toBeInTheDocument();
       expect(screen.getByText("user email")).toBeInTheDocument();
@@ -348,14 +355,14 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      fireEvent.click(screen.getByText("Test error message"));
+      fireEvent.click(screen.getByRole("button", { expanded: false }));
 
       expect(screen.getByRole("button", { name: "Remove from List" })).toBeInTheDocument();
     });
   });
 
   describe("actions", () => {
-    it("calls exportErrors when extra local details is clicked", () => {
+    it("calls exportErrors when full local problem details is clicked", () => {
       const exportErrors = vi.fn();
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
@@ -365,7 +372,9 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      fireEvent.click(screen.getByRole("button", { name: "Save Extra Local Details" }));
+      fireEvent.click(
+        screen.getByRole("button", { name: "Save Full Local Problem Details" })
+      );
 
       expect(exportErrors).toHaveBeenCalledTimes(1);
     });
@@ -439,7 +448,7 @@ describe("ErrorLogPanel", () => {
       render(<ErrorLogPanel />);
 
       // Expand the error first
-      fireEvent.click(screen.getByText("Test error message"));
+      fireEvent.click(screen.getByRole("button", { expanded: false }));
 
       fireEvent.click(screen.getByRole("button", { name: "Remove from List" }));
 
@@ -509,9 +518,10 @@ describe("ErrorLogPanel", () => {
 
       render(<ErrorLogPanel />);
 
-      expect(screen.getByText("First error")).toBeInTheDocument();
-      expect(screen.getByText("Second error")).toBeInTheDocument();
-      expect(screen.getByText("Third error")).toBeInTheDocument();
+      expect(screen.getAllByText(SAFE_PROBLEM_SUMMARY)).toHaveLength(3);
+      expect(screen.queryByText("First error")).not.toBeInTheDocument();
+      expect(screen.queryByText("Second error")).not.toBeInTheDocument();
+      expect(screen.queryByText("Third error")).not.toBeInTheDocument();
     });
 
     it("each error can be expanded independently", () => {
@@ -526,7 +536,7 @@ describe("ErrorLogPanel", () => {
       render(<ErrorLogPanel />);
 
       // Expand first error
-      fireEvent.click(screen.getByText("First error"));
+      fireEvent.click(screen.getAllByRole("button", { expanded: false })[0]);
 
       expect(screen.getByText("Safe support report details")).toBeInTheDocument();
       expect(screen.queryByText("Stack 1")).not.toBeInTheDocument();

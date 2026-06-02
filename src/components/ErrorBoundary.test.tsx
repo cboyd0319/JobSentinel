@@ -235,8 +235,9 @@ describe("ErrorBoundary", () => {
         screen.getByRole("button", { name: /^reset app window$/i }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("button", { name: /clear temporary app data/i }),
+        screen.getByRole("button", { name: /reset local app settings/i }),
       ).toBeInTheDocument();
+      expect(screen.queryByText(/temporary app data/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/clear app data/i)).not.toBeInTheDocument();
     });
 
@@ -273,7 +274,7 @@ describe("ErrorBoundary", () => {
 
       await user.click(screen.getByRole("button", { name: /try again/i }));
       await user.click(
-        await screen.findByRole("button", { name: /clear temporary app data/i })
+        await screen.findByRole("button", { name: /reset local app settings/i })
       );
 
       expect(localStorage.getItem("jobsentinel-theme")).toBe("dark");

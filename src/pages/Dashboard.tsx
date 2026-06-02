@@ -887,7 +887,7 @@ export default function Dashboard({
             <ul className="list-disc list-inside space-y-0.5">
               <li>Sort: {formatSortOption(filters.sortBy)}</li>
               {filters.scoreFilter !== "all" && (
-                <li>Match: {formatScoreFilter(filters.scoreFilter)}</li>
+                <li>Fit: {formatScoreFilter(filters.scoreFilter)}</li>
               )}
               {filters.sourceFilter !== "all" && (
                 <li>Source: {formatJobSourceLabel(filters.sourceFilter)}</li>
