@@ -189,6 +189,10 @@ boundaries, and harness modularity:
   maintainer/GitHub assumptions. The safe support report path stays primary,
   GitHub is framed only as optional for users who already use it, and
   product-copy tests reject the old phrases.
+- Changed README support copy and Settings support surfaces away from
+  maintainer GitHub assumptions and troubleshooting-first labels. The visible
+  Settings support area now says `Help and Status`, and product-copy tests
+  reject the old phrases.
 - Changed the optional connected-source contact history label from
   `Source host` to `Website contacted`, updated Settings coverage, and added a
   product-copy guard against raw source metadata labels returning.

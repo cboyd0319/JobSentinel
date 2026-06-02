@@ -403,6 +403,29 @@ describe("Settings — loadConfig flow", () => {
     expect(mockInvoke).not.toHaveBeenCalledWith("linkedin_login");
   });
 
+  it("uses plain help and status copy in source settings", async () => {
+    const user = userEvent.setup();
+
+    setupHappyPath();
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
+
+    expect(
+      screen.getByRole("heading", { name: /help and status/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", {
+        name: /check job-source status or save a safe support report/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Troubleshooting")).not.toBeInTheDocument();
+  });
+
   it("uses plain posting-risk copy for freshness settings", async () => {
     const user = userEvent.setup();
 

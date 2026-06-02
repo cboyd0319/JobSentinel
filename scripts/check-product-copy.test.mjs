@@ -758,7 +758,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/Settings.tsx",
-      "Basic Settings\nMore Settings\nTurn this on to never miss a new posting.\nAuto-scan job boards\nCompany preference (if configured)\nEmail provider details\nProvider address\nProvider number\nUse this only if your provider gives you manual email details\nOptional USAJobs auto-check\nAutomatic USAJobs checks contact USAJobs\nSave failed\nTest failed\nsaved connection detail(s) failed to save\nRestart JobSentinel\n",
+      'Basic Settings\nMore Settings\nTurn this on to never miss a new posting.\nAuto-scan job boards\nCompany preference (if configured)\nEmail provider details\nProvider address\nProvider number\nUse this only if your provider gives you manual email details\nOptional USAJobs auto-check\nAutomatic USAJobs checks contact USAJobs\nSave failed\nTest failed\nsaved connection detail(s) failed to save\nRestart JobSentinel\nTroubleshooting\n<HelpIcon text="If something is not working, these details can help explain what happened." />\n',
     );
     writeFixtureFile(
       root,
@@ -926,6 +926,11 @@ test("product copy rejects technical-first settings copy", () => {
       root,
       "docs/user/DEEP_LINKS.md",
       "GitHub is optional for maintainers and contributors:\n",
+    );
+    writeFixtureFile(
+      root,
+      "README.md",
+      "GitHub is optional. Maintainers and contributors can\n",
     );
     writeFixtureFile(
       root,
@@ -1236,6 +1241,7 @@ test("product copy rejects technical-first settings copy", () => {
       true,
     );
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/DEEP_LINKS.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/BOOKMARKLET.md"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/components/NotificationPreferences.tsx"),

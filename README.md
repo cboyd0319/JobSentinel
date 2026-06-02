@@ -571,9 +571,10 @@ For job seekers, the easiest support path starts inside JobSentinel:
 3. Choose **Send Feedback** if you want a report that can receive replies.
 4. Share the safe support report only if you want help.
 
-GitHub is optional. Maintainers and contributors can
-[open an issue](https://github.com/cboyd0319/JobSentinel/issues/new), start a
-[discussion](https://github.com/cboyd0319/JobSentinel/discussions), or read the
+GitHub is optional. If you already use it, you can
+[open the project help page](https://github.com/cboyd0319/JobSentinel/issues/new)
+or start a [discussion](https://github.com/cboyd0319/JobSentinel/discussions).
+Anyone who wants to contribute can read the
 [contributing guide](docs/developer/CONTRIBUTING.md).
 
 Want to build something better? Fork the code, adapt it, and use it to help

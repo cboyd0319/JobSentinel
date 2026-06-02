@@ -4381,11 +4381,11 @@ export default function Settings({ onClose }: SettingsProps) {
                 </div>
               </section>
 
-              {/* Troubleshooting */}
+              {/* Help and status */}
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
-                  Troubleshooting
-                  <HelpIcon text="If something is not working, these details can help explain what happened." />
+                  Help and Status
+                  <HelpIcon text="Check job-source status or save a safe support report if you need help." />
                 </h3>
 
                 {/* Job Sources Button */}

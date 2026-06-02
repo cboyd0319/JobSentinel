@@ -31,8 +31,8 @@ actionable findings in this active-plan surface or the relevant plan.
 
 ## Current Posture
 
-- Branch was clean and ahead of `origin/main` by 26 commits before the current
-  user-help docs slice began. Use `git status --short --branch` for live
+- Branch was clean and ahead of `origin/main` by 27 commits before the current
+  README/settings help-copy slice began. Use `git status --short --branch` for live
   evidence before committing, pushing, or reporting remote state.
 - Latest committed frontend verification evidence: `npm run test:run` passed
   110 Vitest files and 2637 tests, `npm run build` passed in 4.13 seconds, and
@@ -98,13 +98,22 @@ actionable findings in this active-plan surface or the relevant plan.
   scripts/check-product-copy.test.mjs` passed 32 tests, `npm run lint:bloat`,
   `npm run test:scripts` passed 455 script tests, `npm run lint:docs`, `npm run
   lint`, and `git diff --check` passed.
-- Current local user-help docs slice changes broken-link and invalid saved-detail
+- Committed user-help docs slice changes broken-link and invalid saved-detail
   recovery docs away from maintainer/GitHub assumptions, keeps the safe support
   report path primary, and adds product-copy coverage against the old phrases.
   Focused verification passed: `node --test
   scripts/check-product-copy.test.mjs` passed 32 tests, `npm run lint:bloat`,
   `npm run test:scripts` passed 455 script tests, `npm run lint:docs`,
   `npm run harness:check`, and `git diff --check` passed.
+- Current local README/settings help-copy slice changes front-door support copy
+  away from maintainer GitHub assumptions and replaces the visible Settings
+  `Troubleshooting` heading with `Help and Status`. Product-copy coverage now
+  rejects the old phrases. Focused verification passed: `npx vitest run
+  src/pages/Settings.test.tsx` passed 38 tests, and `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests. Broader verification
+  passed: `npm run lint:bloat`, `npm run test:scripts` passed 455 script tests,
+  `npm run lint:docs`, `npm run lint`, `npm run harness:check`, and
+  `git diff --check`.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -132,6 +141,8 @@ Scope:
   surfaces.
 - Broken-link and invalid saved-detail recovery docs must keep the in-app safe
   support report path primary and avoid maintainer/GitHub assumptions.
+- README and Settings help surfaces must avoid maintainer/GitHub assumptions and
+  troubleshooting-first labels.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:

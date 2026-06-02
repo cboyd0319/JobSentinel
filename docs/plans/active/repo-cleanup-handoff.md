@@ -173,6 +173,10 @@ Current cleanup posture:
   saved-detail recovery docs away from maintainer/GitHub assumptions, keeps
   the in-app safe support report path primary, and adds product-copy coverage
   against the old phrases.
+- Current local README/settings help-copy follow-up changes front-door support
+  copy away from maintainer GitHub assumptions and replaces the visible
+  Settings `Troubleshooting` heading with `Help and Status`. Product-copy
+  coverage rejects the old phrases.
 - Current local connected-source wording follow-up changes the Settings contact
   history label from `Source host` to `Website contacted`, with focused
   Settings and product-copy coverage against raw source metadata labels
