@@ -1030,8 +1030,9 @@ and record actionable findings in this active-plan surface.
    The browser-button stored-URL and notification-channel URL minimization
    findings from the latest read-only security audit are closed locally.
    Feedback/share narrative redaction is closed locally. JobsWithGPT approval
-   enforcement is landed locally; `SEC-019` remains open only for a visible
-   last-sent summary if that becomes necessary.
+   enforcement and the visible approval-scope reminder are landed locally;
+   `SEC-019` remains open only for a last-sent source-request summary if that
+   becomes necessary.
 6. Continue the next zero-technical-knowledge UX audit area outside
    support/reporting.
 7. Run final broad verification only when the remaining known work has evidence.
