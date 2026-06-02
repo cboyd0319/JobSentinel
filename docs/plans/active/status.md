@@ -31,6 +31,11 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local recovery-copy follow-up changes shared error messages from
+  source-disabled, request-limit, website-format, More Settings, notification
+  settings, and system-date wording to plain source-turned-off, check-limit,
+  job-website-changed, alert-channel, alert-settings, and computer-date wording.
+  Error-message tests and product-copy sensors guard the old recovery phrases.
 - Latest local keyboard-help follow-up changes shortcut and quick-action labels
   from power-user wording to plain app action language: `Keyboard Help`, `Moving
   around`, `App-wide`, `Search and refresh`, `Save or unsave job`, `Select or

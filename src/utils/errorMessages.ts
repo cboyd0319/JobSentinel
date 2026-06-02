@@ -20,7 +20,7 @@ export interface UserFriendlyError {
 const NETWORK_ERRORS = [
   { pattern: /network|fetch|connection|timeout|ECONNREFUSED/i, title: 'Connection Problem', message: 'We couldn\'t connect to the internet or the job board.', action: 'Check your internet connection and try again. If this keeps happening, copy a safe support report.' },
   { pattern: /ENOTFOUND|DNS|domain/i, title: 'Website Not Found', message: 'The job board website couldn\'t be reached.', action: 'The website might be down temporarily. Try again in a few minutes. If this keeps happening, copy a safe support report.' },
-  { pattern: /certificate|ssl|tls/i, title: 'Security Certificate Issue', message: 'There\'s a problem with the website\'s security certificate.', action: 'This is usually temporary. Try again later, check your system date and time, or copy a safe support report if this keeps happening.' },
+  { pattern: /certificate|ssl|tls/i, title: 'Security Certificate Issue', message: 'There\'s a problem with the website\'s security certificate.', action: 'This is usually temporary. Try again later, check your computer date and time, or copy a safe support report if this keeps happening.' },
   { pattern: /429|rate.?limit/i, title: 'Job Board Asked JobSentinel to Slow Down', message: 'The job board asked JobSentinel to wait before checking again.', action: 'Wait a few minutes, then try again. If this keeps happening, check this site less often or copy a safe support report.' },
   { pattern: /503|502|504|service.?unavailable/i, title: 'Service Temporarily Down', message: 'The job board\'s servers are temporarily unavailable.', action: 'This is on their end. Try again in 10 to 15 minutes. If this keeps happening, copy a safe support report.' },
   { pattern: /401|unauthorized|authentication/i, title: 'Sign-In Details Not Working', message: 'Your saved sign-in or access details aren\'t working.', action: 'Open Settings, reconnect the job source, or paste updated access details. If this keeps happening, copy a safe support report.' },
@@ -48,17 +48,17 @@ const VALIDATION_ERRORS = [
   { pattern: /invalid.*url|invalid.*webhook/i, title: 'Web Address Not Recognized', message: 'The web address is not in a format JobSentinel can use.', action: 'Copy the full address again. It should usually start with https://.' },
   { pattern: /invalid.*json/i, title: 'Data Not Recognized', message: 'The selected data is not in a format JobSentinel can use.', action: 'Try exporting it again from the original app, or copy a safe support report if you need help.' },
   { pattern: /password.*weak|password.*short/i, title: 'Weak Password', message: 'The password doesn\'t meet security requirements.', action: 'Use a longer password with a mix of letters, numbers, and special characters.' },
-  { pattern: /date|time.*invalid/i, title: 'Check date or time', message: 'The date or time format is not recognized.', action: 'Use a date like MM/DD/YYYY, or check your system date and time settings.' },
+  { pattern: /date|time.*invalid/i, title: 'Check date or time', message: 'The date or time format is not recognized.', action: 'Use a date like MM/DD/YYYY, or check your computer date and time settings.' },
 ];
 
 /**
  * Scraper and job source error patterns
  */
 const SCRAPER_ERRORS = [
-  { pattern: /parse|selector|element.*not.*found/i, title: 'Website Format Changed', message: 'The job board\'s website layout has changed and we can\'t read it properly.', action: 'This usually means JobSentinel needs an update. Check for app updates, or copy a safe support report if you want help.' },
+  { pattern: /parse|selector|element.*not.*found/i, title: 'Job Website Changed', message: 'The job board changed how its page is organized, so JobSentinel can\'t read it yet.', action: 'Check for app updates, or copy a safe support report if you want help.' },
   { pattern: /no.*jobs.*found|empty.*results/i, title: 'No Jobs Found', message: 'No job listings matched your search criteria.', action: 'Try broadening your search filters or check different job boards.' },
-  { pattern: /scraper.*disabled|source.*unavailable/i, title: 'Job Source Disabled', message: 'This job board is currently disabled in your settings.', action: 'Open Settings, choose More Settings, then View Job Sources.' },
-  { pattern: /api.*key|api.*quota|api.*limit/i, title: 'Daily Job Board Limit Reached', message: 'This job board has stopped accepting more requests today.', action: 'Wait until tomorrow, or reduce how often JobSentinel checks this source.' },
+  { pattern: /scraper.*disabled|source.*unavailable/i, title: 'Job Source Turned Off', message: 'This job board is turned off in your settings.', action: 'Open Settings and turn this job source on if you still want JobSentinel to check it.' },
+  { pattern: /api.*key|api.*quota|api.*limit/i, title: 'Daily Job Board Check Limit Reached', message: 'This job board has stopped accepting more checks today.', action: 'Wait until tomorrow, or set JobSentinel to check this job source less often.' },
   { pattern: /captcha|bot.*detection|cloudflare/i, title: 'Site Asked for a Human Check', message: 'This site asked for an extra human check before showing jobs.', action: 'Open the site yourself, complete any check there, or try again later. If this keeps happening, copy a safe support report.' },
 ];
 
@@ -76,7 +76,7 @@ const CONFIG_ERRORS = [
  * Notification and webhook error patterns
  */
 const NOTIFICATION_ERRORS = [
-  { pattern: /webhook.*failed|webhook.*invalid/i, title: 'Could not set up notifications', message: 'We couldn\'t send notifications to your saved alert channel.', action: 'Open Settings, choose More Settings, then paste a fresh connection link for that channel.' },
+  { pattern: /webhook.*failed|webhook.*invalid/i, title: 'Could not set up notifications', message: 'We couldn\'t send notifications to your saved alert channel.', action: 'Open Settings, choose that alert channel, then paste a fresh connection link.' },
   { pattern: /slack.*error/i, title: 'Could not send Slack notification', message: 'Couldn\'t send a notification to Slack.', action: 'Paste a fresh Slack connection link in Settings and make sure the channel still exists.' },
   { pattern: /discord.*error/i, title: 'Could not send Discord notification', message: 'Couldn\'t send a notification to Discord.', action: 'Paste a fresh Discord connection link in Settings and make sure the channel still exists.' },
   { pattern: /teams.*error/i, title: 'Could not send Teams notification', message: 'Couldn\'t send a notification to Microsoft Teams.', action: 'Paste a fresh Teams connection link in Settings and make sure the connector is still active.' },
@@ -89,7 +89,7 @@ const NOTIFICATION_ERRORS = [
 const ATS_ERRORS = [
   { pattern: /application.*not.*found/i, title: 'Application Not Found', message: 'The job application you\'re looking for doesn\'t exist.', action: 'It may have been deleted. Check your applications list.' },
   { pattern: /interview.*conflict/i, title: 'Interview Time Conflict', message: 'This interview time overlaps with another one.', action: 'Choose a different time or reschedule one of the interviews.' },
-  { pattern: /reminder.*failed/i, title: 'Could not create reminder', message: 'Couldn\'t create a reminder for this event.', action: 'Check your notification settings and try again. If this keeps happening, copy a safe support report.' },
+  { pattern: /reminder.*failed/i, title: 'Could not create reminder', message: 'Couldn\'t create a reminder for this event.', action: 'Check your alert settings and try again. If this keeps happening, copy a safe support report.' },
 ];
 
 /**

@@ -147,6 +147,12 @@ Current cleanup posture:
   `Moving around`, `App-wide`, `Search and refresh`, save/unsave job,
   select/unselect job, `Open Hiring Trends`, and save-form-change wording.
   Component/context and product-copy coverage guard the old terms.
+- Current local recovery-copy follow-up changes shared error messages away from
+  source-disabled, website-format, request-limit, More Settings, notification
+  settings, and system-date wording toward source-turned-off,
+  job-website-changed, check-limit, alert-channel, alert-settings, and
+  computer-date wording. Error-message and product-copy coverage guard the stale
+  terms.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.

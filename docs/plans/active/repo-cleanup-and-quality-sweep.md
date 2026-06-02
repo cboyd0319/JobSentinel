@@ -195,6 +195,11 @@ boundaries, and harness modularity:
   app actions: keyboard help, moving around, app-wide, search and refresh,
   save/unsave job, select/unselect job, Hiring Trends, and saving current form
   changes. Component/context tests and product-copy sensors reject the old terms.
+- Changed shared recovery messages from source-disabled, website-format,
+  request-limit, More Settings, notification-settings, and system-date wording to
+  source-turned-off, job-website-changed, check-limit, alert-channel,
+  alert-settings, and computer-date wording. Error-message and product-copy tests
+  reject the old terms.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

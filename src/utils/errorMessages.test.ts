@@ -66,11 +66,47 @@ describe("errorMessages", () => {
         getUserFriendlyError(new Error("context length exceeded")),
         getUserFriendlyError(new Error("config missing")),
         getUserFriendlyError(new Error("config invalid")),
+        getUserFriendlyError(new Error("scraper disabled")),
+        getUserFriendlyError(new Error("parse failed")),
+        getUserFriendlyError(new Error("reminder failed")),
       ].flatMap((result) => [result.title, result.message, result.action ?? ""]);
 
       expect(userCopy.join("\n")).not.toMatch(
-        /API key|API Limit|job board's API|Database Busy|database|Database Corruption|Data Relationship|Invalid Email|Permission Denied|Resume Parsing|Document Too Large|processing|webhook URL|configured channel|SMTP credentials|special API access|Configuration|configuration file|app config/i,
+        /API key|API Limit|job board's API|Database Busy|database|Database Corruption|Data Relationship|Invalid Email|Permission Denied|Resume Parsing|Document Too Large|processing|webhook URL|configured channel|SMTP credentials|special API access|Configuration|configuration file|app config|disabled|More Settings|View Job Sources|Website Format Changed|notification settings/i,
       );
+    });
+
+    it("uses plain recovery for job source and page format problems", () => {
+      const sourceOff = getUserFriendlyError(new Error("scraper disabled"));
+      const pageChanged = getUserFriendlyError(new Error("parse failed"));
+
+      expect(sourceOff.title).toBe("Job Source Turned Off");
+      expect(sourceOff.message).toContain("turned off");
+      expect(sourceOff.action).toContain("turn this job source on");
+      expect(`${sourceOff.title} ${sourceOff.message} ${sourceOff.action}`).not.toMatch(
+        /disabled|More Settings|View Job Sources/i,
+      );
+      expect(pageChanged.title).toBe("Job Website Changed");
+      expect(pageChanged.message).toContain("changed how its page is organized");
+      expect(`${pageChanged.title} ${pageChanged.message} ${pageChanged.action}`).not.toMatch(
+        /selector|Website Format Changed/i,
+      );
+    });
+
+    it("uses plain recovery for alert and certificate problems", () => {
+      const certificate = getUserFriendlyError(new Error("ssl certificate expired"));
+      const date = getUserFriendlyError(new Error("time invalid"));
+      const alertChannel = getUserFriendlyError(new Error("slack webhook failed"));
+      const reminder = getUserFriendlyError(new Error("reminder failed"));
+
+      expect(certificate.action).toContain("computer date and time");
+      expect(certificate.action).not.toContain("system date and time");
+      expect(date.action).toContain("computer date and time");
+      expect(date.action).not.toContain("system date and time");
+      expect(alertChannel.action).toContain("choose that alert channel");
+      expect(alertChannel.action).not.toContain("More Settings");
+      expect(reminder.action).toContain("alert settings");
+      expect(reminder.action).not.toContain("notification settings");
     });
 
     it("gives persistent shared recovery paths a safe support report fallback", () => {
