@@ -18,6 +18,7 @@ user-facing workflow risk requires more evidence.
 | Change | Required sensor |
 | ------ | --------------- |
 | Agent docs, plans, or harness files | `npm run harness:check` |
+| Multi-agent orchestration or delegated implementation | `npm run harness:check`, focused checks for each accepted slice, and coordinator diff review evidence |
 | Markdown docs | `npm run lint:md` |
 | Package scripts | `npm run harness:check` and affected script command |
 | Environment readiness or setup commands | `npm run doctor`, `npm run doctor:e2e` when E2E readiness matters, and `npm run harness:check` |

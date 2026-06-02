@@ -95,6 +95,9 @@ the user spends tailoring time:
 - **Review before tailoring.**
 - **Verify before tailoring.**
 
+High-risk cards also show an **Open Original Posting** action and next-step
+checks so users can confirm the source before deep tailoring.
+
 Job cards also translate source IDs into plain labels such as "Greenhouse
 hiring page", "LinkedIn job board", or "Saved by you." A closer employer source
 is stronger evidence, not proof the role is active, so still verify before

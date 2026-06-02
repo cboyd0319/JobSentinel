@@ -4488,39 +4488,50 @@ export default function Settings({ onClose }: SettingsProps) {
             </p>
           </div>
 
-          {/* Help & Feedback */}
-          <div className="flex flex-wrap gap-3 mb-4">
-            <button
-              onClick={() => setShowFeedbackModal(true)}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors"
-              title="Get help, report a problem, or suggest an improvement"
+          <section className="mb-4" aria-labelledby="settings-support-heading">
+            <h3
+              id="settings-support-heading"
+              className="font-medium text-surface-800 dark:text-surface-200"
             >
-              <FeedbackIcon className="w-4 h-4" />
-              Send Feedback
-            </button>
-            <button
-              onClick={handleCopyDebugReport}
-              disabled={copyingDebugReport}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors disabled:opacity-50 disabled:pointer-events-none"
-              title="Copy a safe support report you can share only if you want help"
-            >
-              <SettingsSymbol icon="clipboard" className="w-4 h-4" />
-              {copyingDebugReport
-                ? "Copying Safe Support Report..."
-                : "Copy Safe Support Report"}
-            </button>
-            <button
-              onClick={handleSaveDebugReport}
-              disabled={savingDebugReport}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors disabled:opacity-50 disabled:pointer-events-none"
-              title="Save a safe support report you can share only if you want help"
-            >
-              <SettingsSymbol icon="document" className="w-4 h-4" />
-              {savingDebugReport
-                ? "Saving Safe Support Report..."
-                : "Save Safe Support Report"}
-            </button>
-          </div>
+              Help and Support
+            </h3>
+            <p className="mt-1 mb-3 text-xs text-surface-500 dark:text-surface-400">
+              Safe support reports hide common private details before copy or
+              save. Review the report before sharing it.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => setShowFeedbackModal(true)}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors"
+                title="Get help, report a problem, or suggest an improvement"
+              >
+                <FeedbackIcon className="w-4 h-4" />
+                Send Feedback
+              </button>
+              <button
+                onClick={handleCopyDebugReport}
+                disabled={copyingDebugReport}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                title="Copy a safe support report you can share only if you want help"
+              >
+                <SettingsSymbol icon="clipboard" className="w-4 h-4" />
+                {copyingDebugReport
+                  ? "Copying Safe Support Report..."
+                  : "Copy Safe Support Report"}
+              </button>
+              <button
+                onClick={handleSaveDebugReport}
+                disabled={savingDebugReport}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                title="Save a safe support report you can share only if you want help"
+              >
+                <SettingsSymbol icon="document" className="w-4 h-4" />
+                {savingDebugReport
+                  ? "Saving Safe Support Report..."
+                  : "Save Safe Support Report"}
+              </button>
+            </div>
+          </section>
 
           {/* Actions */}
           <div className="flex gap-3">

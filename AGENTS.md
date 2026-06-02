@@ -29,11 +29,13 @@ Read in this order for non-trivial work:
 
 1. `docs/harness/README.md` for agent operating model.
 2. `docs/plans/active/status.md` for current active-goal state.
-3. `docs/harness/verification-matrix.md` for required checks.
-4. `docs/harness/change-contract.md` for feature, bug, and refactor specs.
-5. `docs/developer/ARCHITECTURE.md` for system layout.
-6. `docs/developer/TESTING.md` for test patterns and commands.
-7. Closest feature doc under `docs/features/` for user-facing behavior.
+3. `docs/harness/multi-agent-orchestration.md` when work is broad enough for
+   safe parallel code, docs, test, review, or verification slices.
+4. `docs/harness/verification-matrix.md` for required checks.
+5. `docs/harness/change-contract.md` for feature, bug, and refactor specs.
+6. `docs/developer/ARCHITECTURE.md` for system layout.
+7. `docs/developer/TESTING.md` for test patterns and commands.
+8. Closest feature doc under `docs/features/` for user-facing behavior.
 
 Use `CLAUDE.md` and `.github/copilot-instructions.md` as compatibility
 wrappers. If they conflict with this file or `docs/harness/`, this file and

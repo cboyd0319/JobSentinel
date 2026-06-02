@@ -10,15 +10,20 @@ proves the repo-wide objective: identify and fix all known issues across the
 JobSentinel repo, then verify docs and code against that full scope.
 
 If sub-agents help get the work done faster, use them. Delegate isolated
-audits, research checks, implementation slices, and verification support when
+audits, research checks, code slices, doc slices, and verification support when
 they can move without shared-state conflicts. Keep scopes bounded, preserve user
 changes, close completed agents promptly, and copy durable findings into active
 plans, this handoff, or the debt tracker.
 
-Immediate primary goal as of 2026-06-02 is no-Apple-account macOS deployment:
-get the public universal DMG path as close to complete as possible without an
-Apple Developer Account. Resume assistance remains the next product-function
-priority after the no-account macOS path is locked down.
+Immediate primary goal as of 2026-06-02 is critical JobSentinel functionality,
+with cleanup lower priority unless it blocks functionality, privacy/security,
+or verification. Current functional focus is resume assistance, application
+readability, and ghost/stale job-card protection.
+
+No-Apple-account macOS readiness is best-possible without an Apple Developer
+Account: the universal DMG path has checksum, metadata, signature, mounted
+launch, installed launch, and isolated local-data evidence. Gatekeeper-ready
+public distribution still requires Developer ID signing and notarization.
 
 All tracked files under `docs/plans/active/` are now part of the current goal
 scope:
@@ -42,6 +47,11 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Latest live repo check: `main` is ahead of `origin/main`; use
+  `git status --short --branch` before reporting remote state. Current local
+  critical-functionality slice adds ghost/stale job-card actions, ghost-risk
+  feedback accessibility, obvious Settings support-report access, and the
+  multi-agent orchestration harness contract.
 - Current local macOS no-account post-commit verification rebuilt the universal
   DMG from committed resume-guidance head `12c184db` on macOS 26.5
   (build 25F71), Apple Silicon `arm64`, with SIP enabled. The build produced
@@ -117,6 +127,12 @@ Recent local verification evidence:
   lint:tauri-invokes`, `npm run lint:security`, `npm run lint:architecture`,
   `npx tsc --noEmit`, `git diff --check`, and `npx playwright test
   tests/e2e/playwright/resume-upload-matching.spec.ts --project=chromium`.
+- Current local resume requirement follow-ups are committed in `3d720693` and
+  `3aa39952`. They add local requirement-review rows, recognized
+  hard-constraint caps for missing authorization, location, license,
+  certification, degree, or clearance terms, and plain next actions such as
+  checking a hard requirement before tailoring, adding supporting evidence only
+  if true, or keeping useful evidence visible.
 - Current local no-account macOS checksum follow-up makes
   `npm run tauri:verify:macos` validate a local `.dmg.sha256` sidecar when it
   exists and fail with `--require-checksum` when it is missing or mismatched.
@@ -2618,16 +2634,24 @@ Keep the objective broad. Do not collapse it to already-landed slices.
 
 Next high-value passes:
 
-1. Keep root and nested junk scans current after each later slice.
+1. Finish or review current critical functionality before broad cleanup sweeps.
+   - Current local ghost/stale job-card action is under verification with
+     focused JobCard and GhostIndicator tests.
+   - Resume assistance follow-ups should stay focused on truthful local
+     requirement review, hard-constraint handling, readable evidence, and
+     next-action guidance.
+   - macOS no-account readiness should stay accurate, but Gatekeeper pass is
+     not achievable without Developer ID signing and notarization.
+2. Keep root and nested junk scans current after each later slice.
    - Latest scan removed local `.DS_Store` artifacts and found no remaining
      tracked or untracked disposable artifacts.
    - Repeat before final completion or after any build/test command that may
      create local artifacts.
-2. Run a final stale-docs and reference sweep.
+3. Run a final stale-docs and reference sweep.
    - Compare README, `docs/README.md`, harness docs, developer docs, security
      docs, feature docs, and source comments against live commands and APIs.
    - Update docs or add bloat sensors for every recurring drift class.
-3. Continue backend and scraper edge review.
+4. Continue backend and scraper edge review.
    - Recheck command error wrappers for path, URL, query, secret, cookie, and
      provider-body leaks.
    - Recheck scraper request caps, retry handling, rate limits, and health
@@ -2638,11 +2662,11 @@ Next high-value passes:
      minimized source-request history are landed locally; `SEC-019` is closed
      in the debt tracker.
    - Keep no-control-workaround and local-first product rules intact.
-4. Continue frontend boundary review.
+5. Continue frontend boundary review.
    - Recheck stored JSON parsing, URL validation, error rendering, direct
      browser-open paths, logging, and malformed input handling.
    - Prefer focused Vitest and E2E coverage for each concrete defect.
-5. Continue zero-technical-skill UX review.
+6. Continue zero-technical-skill UX review.
    - Recheck setup, settings, feedback, recovery, empty states, and error
      screens for plain-language actions and no terminal/developer assumptions.
    - Keep safe support report generation one click from Settings, Error
@@ -2742,14 +2766,14 @@ Next high-value passes:
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.
-6. Continue broad-audience UX review.
+7. Continue broad-audience UX review.
    - Recheck onboarding, examples, placeholders, filters, profile presets, docs,
      and empty states for engineer-only assumptions.
    - Make sure technical and non-technical job searches both feel first-class.
    - The latest tech-source heuristic finding is closed locally. Keep looking
      for source recommendations, defaults, and profile examples that still
      assume software roles.
-7. Keep harness evidence current.
+8. Keep harness evidence current.
    - Use the updated change-contract and plan templates for broad follow-up
      work.
    - Promote any repeated ease, privacy, or flaky-test failure into a guide or
@@ -2757,7 +2781,7 @@ Next high-value passes:
    - Prioritize the remaining top harness debt: sensor modularity, evidence
      ledger, harness architecture map, optional external harness adapter, and
      scheduled/manual reference health checks.
-8. Continue protective job-search UX review.
+9. Continue protective job-search UX review.
    - Make ghost/stale detection central on job cards and saved jobs.
    - Make salary floor, pay transparency, salary-history guardrails, and
      under-leveling checks part of pay support.
@@ -2766,11 +2790,11 @@ Next high-value passes:
    - Prefer verified company routes, referrals, recruiter contact, and
      hiring-manager signals over opaque cold-apply paths where evidence exists.
    - Keep product copy factual and protective, not generic encouragement.
-9. Decide final E2E scope.
-   - Use focused E2E while fixing narrow browser-flow issues.
-   - Run `npm run test:e2e:all` before claiming broad cross-browser completion,
-     or document why it is deferred with exact risk.
-10. Run final broad verification before goal completion.
+10. Decide final E2E scope.
+    - Use focused E2E while fixing narrow browser-flow issues.
+    - Run `npm run test:e2e:all` before claiming broad cross-browser completion,
+      or document why it is deferred with exact risk.
+11. Run final broad verification before goal completion.
     - Docs, bloat, test-quality, security, architecture, frontend tests, build,
       Rust formatting, Rust clippy, Rust tests, and chosen E2E scope all need
       current evidence.

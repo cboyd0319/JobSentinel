@@ -47,6 +47,17 @@ Non-trivial change:
 - Track progress and decisions in the plan.
 - Move plan to `docs/plans/completed/` after completion.
 
+Multi-step or broad change:
+
+- Treat the lead agent as architect, orchestrator, reviewer, and integrator.
+- Use `docs/harness/multi-agent-orchestration.md`.
+- Delegate disjoint code, docs, tests, audit, or verification slices when this
+  reduces elapsed time without creating file conflicts.
+- Keep tightly coupled or immediate blocking edits local.
+- Require every sub-agent to follow `AGENTS.md`, this harness, Rule 0, active
+  plans, and relevant verification sensors. No exceptions.
+- Review every sub-agent diff or conclusion before accepting it.
+
 ## Implementation Strategy
 
 - Match current code patterns before adding abstractions.
@@ -87,6 +98,7 @@ cd src-tauri && cargo test --lib
 Every substantial final update should include:
 
 - Files changed.
+- Sub-agent slices accepted or rejected when orchestration was used.
 - Verification run.
 - Known gaps or skipped checks.
 - Next best step when work remains.

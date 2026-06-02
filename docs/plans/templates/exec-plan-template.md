@@ -31,6 +31,14 @@ Out of scope:
 
 - Risk and mitigation.
 
+## Orchestration
+
+- Use one agent when the work is small or tightly coupled.
+- Use the architect/coordinator model for larger multi-step work with disjoint
+  code, docs, tests, review, or verification slices.
+- Sub-agents must follow `AGENTS.md`, the harness, Rule 0, and this plan. No
+  exceptions.
+
 ## Milestones
 
 - [ ] Inspect current behavior and docs.

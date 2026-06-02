@@ -63,6 +63,9 @@ interface PostingRiskGuidance {
   title: string;
   description: string;
   ariaLabel: string;
+  nextSteps?: string[];
+  actionLabel?: string;
+  actionAriaLabel?: string;
 }
 
 interface PayFloorGuidance {
@@ -85,6 +88,12 @@ function getPostingRiskGuidance(
       description:
         "This posting has strong stale, repost, or low-detail signals. Open the original job page before spending serious time.",
       ariaLabel: "verify before tailoring",
+      nextSteps: [
+        "Check that the original posting is still active.",
+        "Tailor only after the employer or hiring page still shows the role.",
+      ],
+      actionLabel: "Open Original Posting",
+      actionAriaLabel: "Open original posting before tailoring",
     };
   }
 
@@ -177,6 +186,15 @@ export const JobCard = memo(function JobCard({
       logError("Failed to open job link via Tauri command:", err);
       toast.error("Could not open job link", "Copy the link and open it in your browser.");
     }
+  };
+
+  const openJobPosting = () => {
+    if (onViewJob) {
+      onViewJob(job.url);
+      return;
+    }
+
+    void handleOpenUrl(job.url);
   };
 
   const safeScore =
@@ -296,11 +314,30 @@ export const JobCard = memo(function JobCard({
                         : "mt-0.5 h-4 w-4 flex-shrink-0 text-orange-600 dark:text-orange-300"
                     }
                   />
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p className="font-semibold">{postingRiskGuidance.title}</p>
                     <p className="text-xs leading-5 opacity-90">
                       {postingRiskGuidance.description}
                     </p>
+                    {postingRiskGuidance.nextSteps && (
+                      <ul className="mt-1 space-y-0.5 text-xs leading-5 opacity-90">
+                        {postingRiskGuidance.nextSteps.map((step) => (
+                          <li key={step}>{step}</li>
+                        ))}
+                      </ul>
+                    )}
+                    {postingRiskGuidance.actionLabel && (
+                      <button
+                        type="button"
+                        onClick={openJobPosting}
+                        onKeyDown={(e) => handleKeyDown(e, openJobPosting)}
+                        className="mt-2 inline-flex items-center gap-1 rounded-md border border-red-200 bg-white px-2.5 py-1 text-xs font-semibold text-red-700 transition-colors hover:bg-red-100 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200 dark:hover:bg-red-900/50"
+                        aria-label={postingRiskGuidance.actionAriaLabel}
+                      >
+                        {postingRiskGuidance.actionLabel}
+                        <ArrowIcon />
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
@@ -458,22 +495,8 @@ export const JobCard = memo(function JobCard({
               )}
 
               <button
-                onClick={() => {
-                  if (onViewJob) {
-                    onViewJob(job.url);
-                  } else {
-                    handleOpenUrl(job.url);
-                  }
-                }}
-                onKeyDown={(e) =>
-                  handleKeyDown(e, () => {
-                    if (onViewJob) {
-                      onViewJob(job.url);
-                    } else {
-                      handleOpenUrl(job.url);
-                    }
-                  })
-                }
+                onClick={openJobPosting}
+                onKeyDown={(e) => handleKeyDown(e, openJobPosting)}
                 className={`
                 inline-flex items-center gap-1 px-4 py-2 rounded-lg font-medium text-sm
                 transition-all duration-150 cursor-pointer

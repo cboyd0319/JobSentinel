@@ -182,6 +182,44 @@ describe("Settings — loadConfig flow", () => {
     ).toBe(false);
   });
 
+  it("keeps safe support report actions obvious and privacy-first", async () => {
+    setupHappyPath();
+    render(<Settings onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    expect(
+      screen.getByRole("heading", { name: "Help and Support" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /safe support reports hide common private details before copy or save/i,
+      ),
+    ).toBeInTheDocument();
+
+    const copyButton = screen.getByRole("button", {
+      name: "Copy Safe Support Report",
+    });
+    expect(copyButton).toHaveAttribute(
+      "title",
+      "Copy a safe support report you can share only if you want help",
+    );
+
+    const saveButton = screen.getByRole("button", {
+      name: "Save Safe Support Report",
+    });
+    expect(saveButton).toHaveAttribute(
+      "title",
+      "Save a safe support report you can share only if you want help",
+    );
+
+    const visibleText = document.body.textContent ?? "";
+    expect(visibleText).not.toMatch(/debug report/i);
+    expect(visibleText).not.toMatch(/detailed report/i);
+  });
+
   it("copies a sanitized support report from settings with one click", async () => {
     const user = userEvent.setup();
     const copySpy = vi

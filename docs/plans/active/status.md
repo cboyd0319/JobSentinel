@@ -16,39 +16,41 @@ All tracked files under `docs/plans/active/` are part of the active goal until
 the work is completed, superseded, or moved out of active plans.
 
 If sub-agents help get the work done faster, use them. The user has authorized
-multiple sub-agents for isolated audits, research, and implementation slices
-that can run without shared-state conflicts. Keep scopes bounded, preserve user
-changes, close completed agents promptly, and record actionable findings in
-this active-plan surface or the relevant plan.
+multiple sub-agents for isolated audits, research, code slices, doc slices, and
+verification support that can run without shared-state conflicts. Keep scopes
+bounded, preserve user changes, close completed agents promptly, and record
+actionable findings in this active-plan surface or the relevant plan.
 
-Immediate primary goal as of 2026-06-02: make no-Apple-account macOS
-deployment as strong as possible. That means a verified universal DMG, clear
-no-account labeling, matching checksum, metadata/signature checks, mounted and
-installed launch smoke, isolated local-data smoke, plain first-open guidance,
-and explicit acknowledgement that zero-friction Gatekeeper acceptance still
-requires Developer ID signing and notarization. Resume assistance with
-screening-system transparency and application readability remains the next
-functional priority after the no-account macOS path is locked down. Resume work
-means resume parsing, readable exports, resume/job fit review,
-required-versus-preferred qualification review, and truthful edit support. It
-does not mean hidden keyword edits, deceptive resume changes, screening-system
-manipulation, or unreviewed form sending.
+Immediate primary goal as of 2026-06-02: finish critical JobSentinel
+functionality before lower-priority cleanup. Current functional focus is resume
+assistance, application readability, and ghost/stale job-card protection. Resume
+work means local parsing, readable previews, resume/job fit review,
+required-versus-preferred qualification review, hard-constraint review, and
+truthful next-action guidance. It does not mean hidden keyword edits, deceptive
+resume changes, screening-system manipulation, or unreviewed form sending.
+No-Apple-account macOS readiness is best-possible without an Apple Developer
+Account: verified universal DMG, no-account labeling, matching checksum,
+metadata/signature checks, mounted and installed launch smoke, isolated
+local-data smoke, and plain first-open guidance. Zero-friction Gatekeeper
+acceptance still requires Developer ID signing and notarization.
 
 ## Workstreams
 
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
-| Repo cleanup and quality sweep | Open | Reliability, stale-doc cleanup, harness debt, privacy/security review, broad verification | [Plan](repo-cleanup-and-quality-sweep.md) |
-| Repo cleanup handoff | Open | Operational restart notes and verification evidence | [Handoff](repo-cleanup-handoff.md) |
+| Repo cleanup and quality sweep | Open | Lower-priority cleanup unless it blocks critical functionality, privacy/security, or verification | [Plan](repo-cleanup-and-quality-sweep.md) |
+| Repo cleanup handoff | Open | Operational restart notes, cleanup backlog, and verification evidence | [Handoff](repo-cleanup-handoff.md) |
 | Guided job-search intake | Active | Implemented setup slices stay accurate; future work expands guided questioning, resume-assisted intent capture, and search support | [Plan](guided-job-search-intake.md) |
-| Research-backed product improvements | Active | Resume assistance and application readability first, then ghost/stale detection, pay protection, long-term unemployment support, bias-aware routes, protective tone, local-first privacy | [Plan](research-backed-product-improvements.md) |
+| Research-backed product improvements | Active | Critical functionality first: resume assistance, application readability, ghost/stale job-card protection, then pay protection, pacing, bias-aware routes, protective tone, local-first privacy | [Plan](research-backed-product-improvements.md) |
 
 ## Current Posture
 
-- Branch is ahead of `origin/main` with local macOS no-account readiness
-  commits plus the current resume-assistance edits. Use
-  `git status --short --branch` for live evidence before committing, pushing,
-  or reporting remote state.
+- `main` is ahead of `origin/main`; use `git status --short --branch` for live
+  evidence before committing, pushing, or reporting remote state.
+- Current local critical-functionality slice adds a high-risk posting action on
+  job cards, keyboard-focusable ghost-risk indicators with real feedback tests,
+  a visible Settings help/support section for safe support reports, and a
+  harness-level multi-agent orchestration contract.
 - Current local active-resume preload follow-up loads the active saved resume
   when **Resume Match** opens, so a user can paste a job post and choose
   **Review Match** without knowing to click **Choose or Add Resume** first.
@@ -93,7 +95,8 @@ manipulation, or unreviewed form sending.
   selectable-text review, ethical confidence prompts, score humility, and
   profession-specific evidence prompts. Real resume/profile reference material
   remains private and must not be committed.
-- Current local resume-alignment scoring follow-up locks
+- Current local resume-alignment scoring follow-up is committed in
+  `3d720693 Add resume requirement review caps`. It locks
   `/Users/c/Downloads/ats_scoring_algorithm.md` into
   `docs/research/resume-alignment-scoring.md`, the ATS transparency note, the
   Resume Match feature guide, and the active research-backed plan. It adds
@@ -101,9 +104,12 @@ manipulation, or unreviewed form sending.
   direct/strong/partial/implied/missing states, evidence sections, and
   recognized hard-constraint caps for missing required authorization, location,
   license, certification, degree, or clearance terms. The Resume Match page now
-  turns those results into plain next actions such as checking a hard
-  requirement before tailoring, adding supporting evidence only if true, or
-  keeping useful evidence visible. Future resume work still needs deeper
+  starts local requirement and hard-constraint review for missing required
+  authorization, location, license, certification, degree, or clearance terms.
+  The follow-up `3aa39952 Add resume next-action guidance` turns those results
+  into plain next actions such as checking a hard requirement before tailoring,
+  adding supporting evidence only if true, or keeping useful evidence visible.
+  Future resume work still needs deeper
   evidence strength, seniority alignment, conservative synonyms, recency,
   section placement, and profession-specific weighting.
 - Current local macOS no-account post-commit verification rebuilt the universal
@@ -1336,119 +1342,34 @@ manipulation, or unreviewed form sending.
 
 Scope:
 
-- Manual email settings must be framed as optional setup details from the user's
-  email service, not server/address/number jargon.
-- USAJobs and connected-source review labels must describe jobs checked and
-  job-source links, not source addresses or requested jobs.
-- Error-log support actions must keep the easy safe support report path primary
-  while avoiding troubleshooting jargon in visible labels.
-- Detailed local support-report tooltips should explain help-requested use
-  without support-only or maintainer jargon.
-- Browser Button help docs should keep connection settings plain and place
-  support-request gating in instructions, not labels.
-- Detailed local report JSON export must re-sanitize records at export time, not
-  rely only on earlier capture/storage sanitization.
-- Feedback submit and success screens must keep the no-account safe support
-  report path primary and avoid maintainer/issue-page jargon in visible copy.
-- Generated support-report text must use plain safe-app-detail labels, not
-  support-only labels or uppercase support blocks.
-- Detailed local report tooltip copy must avoid maintainer jargon in user-facing
-  surfaces.
-- Broken-link and invalid saved-detail recovery docs must keep the in-app safe
-  support report path primary and avoid maintainer/GitHub assumptions.
-- README and Settings help surfaces must avoid maintainer/GitHub assumptions and
-  troubleshooting-first labels.
-- User-facing install, support, browser-button, notification, credential,
-  security, conduct, and public issue-template docs must avoid technical setup,
-  debugging, maintainer, and GitHub-first assumptions.
-- Feedback sharing, setup/source labels, source-status history, resume handoff
-  recovery, browser-button settings, and error-boundary detail labels must avoid
-  GitHub-first, issue-first, HN-abbreviation, support-only, and technical
-  recovery wording.
-- Optional dev toasts and app/window recovery details must use app-problem
-  labels, not support-detail labels or generic error fallbacks.
-- Optional source-contact history and reusable component examples must avoid
-  failure-first labels in user-facing or future-copy surfaces.
-- User-facing source coverage, issue templates, shared source labels, and
-  frontend mocks must avoid acronym-first `HN Who's Hiring` wording.
-- Email setup surfaces must use email-service and plain sending-detail language
-  instead of technical mail-setup labels.
-- Credential feature docs must explain saved secrets in plain language and keep
-  developer implementation references in security/developer docs.
-- Notification feature docs must not include maintainer-only alert delivery,
-  raw connection-link, or module-structure details.
-- Developer architecture docs must match live credential key names and current
-  alert/secret boundaries.
-- Ghost-detection feature docs must explain posting-risk guidance in
-  job-seeker language and keep developer schema/API details out of the
-  user-facing guide.
-- Quick Start must not make normal users parse developer setup labels or
-  advanced local-file wording.
-- Resume import feature docs must keep sensitive import behavior, privacy, and
-  validation guidance readable without raw schema, command, or renderer terms.
-- Resume Builder feature docs must teach resume building and matching without
-  local-storage, command, export, or backend-file implementation details.
-- Smart Scoring feature docs must teach match explanations without command,
-  config, or backend scoring-model internals.
-- User-data feature docs must explain local data control without implementation
-  references, code snippets, command names, or test commands. Developer
-  architecture docs must own the notification-preference command shape.
-- Feature docs must stay user-facing: no maintainer blocks, implementation
-  references, module paths, command/test snippets, internal saved-file wording,
-  or chat-number setup details. Developer architecture docs must own renderer
-  DTO privacy contracts.
-- Feedback submit and success screens must keep the local safe support report
-  path primary and refer to optional online help rather than GitHub-specific
-  help-page copy.
-- Question-match validation should tell users what to do in plain terms instead
-  of naming pattern symbols, brackets, or special characters first.
-- Product-copy sensors must reject recurring old phrases.
-
-Verification completed for this slice:
-
-```bash
-npm run lint:bloat
-npm run harness:check
-npm run lint:docs
-npm run test:scripts
-npm run lint
-node --test scripts/check-product-copy.test.mjs
-node --test scripts/check-security-docs.test.mjs
-node --test scripts/check-privacy-logging.test.mjs scripts/check-repo-bloat.test.mjs
-! rg -n "This opens GitHub in your browser|GitHub should have opened|The GitHub page keeps replies and updates" src/components/feedback
-! rg -n "unsupported pattern symbols|Check brackets or special characters" src/utils/formValidation.ts src/utils/formValidation.test.ts
-! rg -n "Technical Details|Signal Weights|Database Schema|API Commands|invoke\\(|ghost_reasons TEXT|ghost_score|repost_count|Ghost configuration commands|get_ghost_config|set_ghost_config|reset_ghost_config" docs/features/ghost-detection.md
-! rg -n "For contributors|Developer Setup|Advanced: where JobSentinel saves local files" docs/user/QUICK_START.md
-! rg -n "JSON Resume content|basics\\.|work\\[\\]|Developer contract|Implementation paths|select_and_import_json_resume|import_json_resume|Returned renderer DTOs|Run the focused Rust tests|cargo test core::resume::json_resume" docs/features/json-resume-import.md
-! rg -n "Developer Details|For developers and the curious|Local Storage Model|Tauri Commands|resume_drafts|create_resume_draft|export_resume_docx|analyze_resume_for_job|Backend Files|DOCX generation" docs/features/resume-builder.md
-! rg -n "Developer Notes|Current Tauri commands|get_scoring_config|update_scoring_config|reset_scoring_config_cmd|validate_scoring_config|ScoringConfig|recency proportions|complete scoring model|Internal field names" docs/features/smart-scoring.md
-! rg -n "Developer Notes|Implementation references|src/components/CoverLetterTemplates\\.tsx|src-tauri/src/core/user_data|Tauri commands|notificationPrefsExample|advancedFilters|save_notification_preferences|minScoreThreshold|npm run test:run|cargo test --lib user_data|Implementation rule" docs/features/user-data-management.md
-! rg -n "Developer Notes|Implementation references|For maintainers|For Maintainers|Important modules|Checks for Maintainers|Tauri commands|Backend core|src-tauri/src|src/pages/|cargo test|npm run test:run|npm run lint:bloat|Core tables|Core commands|HashMap-based|O\\(n\\*?m\\)|SynonymMap::|private saved-file reference|saved resume state|negative number for groups|chat number" docs/features
-npx vitest run src/pages/Settings.test.tsx src/components/ErrorLogPanel.test.tsx
-npx vitest run src/components/ErrorLogPanel.test.tsx
-npx vitest run src/utils/errorReporting.test.ts
-npx vitest run src/components/feedback/SubmitOptions.test.tsx src/components/feedback/SuccessScreen.test.tsx
-npx vitest run src/services/feedbackService.test.ts
-npx vitest run src/components/feedback/SubmitOptions.test.tsx src/components/feedback/SuccessScreen.test.tsx src/pages/Settings.test.tsx src/pages/SetupWizard.test.tsx src/components/ScraperHealthDashboard.test.tsx src/pages/ResumeOptimizer.test.tsx src/components/BookmarkletGenerator.test.tsx src/components/ErrorBoundary.test.tsx src/components/PageErrorBoundary.test.tsx src/components/ModalErrorBoundary.test.tsx src/components/ComponentErrorBoundary.test.tsx
-npx vitest run src/utils/api.test.ts src/utils/errorMessages.test.ts src/components/ComponentErrorBoundary.test.tsx src/components/ModalErrorBoundary.test.tsx
-npx vitest run src/components/AsyncButton.test.tsx src/pages/Settings.test.tsx
-npx vitest run src/utils/sourceLabels.test.ts src/pages/Settings.test.tsx src/pages/SetupWizard.test.tsx
-npx vitest run src/pages/Settings.test.tsx
-node --test scripts/check-privacy-logging.test.mjs
-git diff --check
-```
+- Primary current push is critical product functionality, not broad cleanup.
+- Local resume commits are the newest committed work: `3d720693 Add resume
+  requirement review caps` and `3aa39952 Add resume next-action guidance`.
+  They add local requirement review, recognized hard-constraint caps, and
+  plain next-action guidance for Resume Match.
+- Current local critical-functionality slice adds the high-risk **Open Original
+  Posting** action and next-step guidance on job cards, improves
+  ghost-indicator feedback accessibility and tests, makes Settings support
+  reports easier to find, and locks the architect/orchestrator plus sub-agent
+  contract into the harness.
+- No-Apple-account macOS readiness is already best-possible without an Apple
+  Developer Account. Keep the limitation explicit: Gatekeeper-ready public
+  distribution still needs Developer ID signing and notarization.
+- Repo cleanup, harness debt, and broad copy sweeps stay active, but they are
+  lower priority unless they block critical functionality, Rule 0, or
+  verification.
 
 ## Next Best Work
 
-1. Continue zero-technical-knowledge UX review across setup, settings,
-   recovery, feedback, empty states, and error screens.
-2. Continue broad-audience review so technical and non-technical job searches
-   both feel first-class.
-3. Continue backend/scraper and frontend privacy-edge review, especially logs,
-   reports, notifications, local paths, optional source checks, and external-AI
-   boundaries.
-4. Continue splitting oversized harness modules only where ownership boundaries
-   are clear and verification cost improves.
+1. Finish verification and commit the current critical-functionality and
+   orchestration harness slice.
+2. Continue resume assistance only where it improves truthful local requirement
+   review, hard-constraint handling, readable evidence, or next-action
+   guidance.
+3. Keep no-account macOS readiness accurate, but do not treat Gatekeeper pass
+   as achievable without Developer ID signing and notarization.
+4. Continue cleanup only when it blocks critical functionality,
+   privacy/security, or verification.
 5. Run final broad verification only when remaining known work has current
    evidence.
 

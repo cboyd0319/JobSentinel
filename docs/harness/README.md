@@ -36,6 +36,7 @@ Use this structure:
 | Knowledge base | `docs/` | Versioned source of truth |
 | Active status | `docs/plans/active/status.md` | Current restart surface for goal state, next work, completion bar, and latest evidence |
 | Change contract | `docs/harness/change-contract.md` | Acceptance criteria before edits |
+| Multi-agent orchestration | `docs/harness/multi-agent-orchestration.md` | Architect/coordinator and sub-agent contract for larger multi-step work |
 | Policy manifest | `docs/harness/manifest.json` | Required harness files, policy snippets, and README reference-source coverage |
 | Feature privacy labels | `docs/harness/feature-privacy-labels.json` | Machine-readable feature labels for local-only, external-AI, sensitive, and public-data boundaries |
 | Plans | `docs/plans/` | Multi-step work, progress, decisions |
@@ -78,13 +79,16 @@ For non-trivial work, capture this before edits:
    where before/after evidence matters.
 6. Run `npm run harness:plan -- --since origin/main` when changed files need a
    focused verification set.
-7. Write or update a change contract for non-trivial work.
-8. Choose user, privacy, and verification sensors before edits.
-9. Implement the smallest coherent slice.
-10. Run sensors from `verification-matrix.md`.
-11. Remove disposable artifacts and inspect the diff.
-12. Update docs and plan state.
-13. Record remaining gaps in `docs/plans/tech-debt-tracker.md`.
+7. For larger multi-step work, use
+   `docs/harness/multi-agent-orchestration.md` to split safe parallel slices
+   while keeping the coordinator accountable for review and integration.
+8. Write or update a change contract for non-trivial work.
+9. Choose user, privacy, and verification sensors before edits.
+10. Implement the smallest coherent slice.
+11. Run sensors from `verification-matrix.md`.
+12. Remove disposable artifacts and inspect the diff.
+13. Update docs and plan state.
+14. Record remaining gaps in `docs/plans/tech-debt-tracker.md`.
 
 ## Guide And Sensor Model
 
@@ -129,6 +133,10 @@ Sensors:
 - Keep current behavior discoverable from repo files, not chat history.
 - Treat prompt files, plans, and scripts as maintained software.
 - Put repeated failures into a sensor when the rule is cheap to check.
+- For larger multi-step work, use the architect/coordinator model and delegate
+  disjoint slices when it reduces elapsed time without weakening harness
+  compliance.
+- Sub-agents must follow the same harness as the coordinator. No exceptions.
 - Keep support report paths one-click where a normal user can find
   them.
 - Keep external AI optional, disabled by default, and routed through the AI
@@ -169,6 +177,7 @@ that prevents the observed failure.
 - [Walking Labs harness creator skill evaluation](walkinglabs-harness-creator-skill-evaluation.md)
 - [README information design](readme-information-design.md)
 - [Agent operating model](agent-operating-model.md)
+- [Multi-agent orchestration contract](multi-agent-orchestration.md)
 - [Change contract](change-contract.md)
 - [Verification matrix](verification-matrix.md)
 - [Entropy control](entropy-control.md)

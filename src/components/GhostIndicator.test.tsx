@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { GhostIndicator, GhostIndicatorCompact } from "./GhostIndicator";
 
@@ -10,9 +10,23 @@ vi.mock("@tauri-apps/api/core", () => ({
 
 import { invoke } from "@tauri-apps/api/core";
 
+const mockInvoke = vi.mocked(invoke);
+
+async function hoverReviewIndicator() {
+  const user = userEvent.setup();
+  const indicator = screen.getByLabelText(/posting may need review/i);
+
+  await user.hover(indicator);
+  await waitFor(() => {
+    expect(screen.getByRole("tooltip")).toBeInTheDocument();
+  });
+
+  return user;
+}
+
 describe("GhostIndicator", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    mockInvoke.mockReset();
   });
 
   describe("rendering", () => {
@@ -173,43 +187,43 @@ describe("GhostIndicator", () => {
   });
 
   describe("feedback functionality", () => {
-    it("shows feedback buttons when jobId is provided", () => {
-      // Tooltip content is rendered but may not be visible initially
-      // Just verify component renders with jobId
+    it("shows feedback buttons when jobId is provided", async () => {
       render(<GhostIndicator ghostScore={0.8} ghostReasons={null} jobId={123} />);
-      expect(screen.getByText(/verify first/i)).toBeInTheDocument();
+
+      await hoverReviewIndicator();
+
+      expect(screen.getByRole("button", { name: "Verified" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Needs Review" })).toBeInTheDocument();
     });
 
-    it("does not show feedback buttons without jobId", () => {
-      // Without jobId, tooltip won't have feedback buttons
+    it("does not show feedback buttons without jobId", async () => {
       render(<GhostIndicator ghostScore={0.8} ghostReasons={null} />);
-      expect(screen.getByText(/verify first/i)).toBeInTheDocument();
+
+      await hoverReviewIndicator();
+
+      expect(screen.queryByRole("button", { name: "Verified" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Needs Review" })).not.toBeInTheDocument();
     });
 
-    it("calls mark_job_as_real when invoked", () => {
-      // Test that the component structure supports feedback
-      const mockInvoke = vi.mocked(invoke);
+    it("calls mark_job_as_real and shows confirmation after verified feedback", async () => {
       mockInvoke.mockResolvedValue(undefined);
       const onFeedbackSubmitted = vi.fn();
-      
+
       render(<GhostIndicator ghostScore={0.8} ghostReasons={null} jobId={123} onFeedbackSubmitted={onFeedbackSubmitted} />);
-      expect(screen.getByText(/verify first/i)).toBeInTheDocument();
+
+      await hoverReviewIndicator();
+      fireEvent.click(screen.getByRole("button", { name: "Verified" }));
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith("mark_job_as_real", { jobId: 123 });
+      });
+      expect(onFeedbackSubmitted).toHaveBeenCalledWith("real");
+      expect(screen.getByText(/marked as verified active/i)).toBeInTheDocument();
     });
 
-    it("calls mark_job_as_ghost when invoked", () => {
-      // Test that the component structure supports feedback
-      const mockInvoke = vi.mocked(invoke);
+    it("calls mark_job_as_ghost and shows confirmation after needs-review feedback", async () => {
       mockInvoke.mockResolvedValue(undefined);
       const onFeedbackSubmitted = vi.fn();
-      
-      render(<GhostIndicator ghostScore={0.8} ghostReasons={null} jobId={123} onFeedbackSubmitted={onFeedbackSubmitted} />);
-      expect(screen.getByText(/verify first/i)).toBeInTheDocument();
-    });
-
-    it("calls onFeedbackSubmitted callback when provided", () => {
-      const mockInvoke = vi.mocked(invoke);
-      const onFeedbackSubmitted = vi.fn();
-      mockInvoke.mockResolvedValue(undefined);
 
       render(
         <GhostIndicator
@@ -219,43 +233,60 @@ describe("GhostIndicator", () => {
           onFeedbackSubmitted={onFeedbackSubmitted}
         />
       );
-      expect(screen.getByText(/verify first/i)).toBeInTheDocument();
+
+      await hoverReviewIndicator();
+      fireEvent.click(screen.getByRole("button", { name: "Needs Review" }));
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith("mark_job_as_ghost", { jobId: 123 });
+      });
+      expect(onFeedbackSubmitted).toHaveBeenCalledWith("ghost");
+      expect(screen.getByText(/marked as needs review/i)).toBeInTheDocument();
     });
 
-    it("supports feedback submission", () => {
-      const mockInvoke = vi.mocked(invoke);
-      mockInvoke.mockImplementation(
-        () => new Promise((resolve) => setTimeout(() => resolve(undefined), 100))
-      );
-
-      render(<GhostIndicator ghostScore={0.8} ghostReasons={null} jobId={123} />);
-      expect(screen.getByText(/verify first/i)).toBeInTheDocument();
-    });
-
-    it("can show confirmation after feedback", () => {
-      const mockInvoke = vi.mocked(invoke);
-      mockInvoke.mockResolvedValue(undefined);
-
-      render(<GhostIndicator ghostScore={0.8} ghostReasons={null} jobId={123} />);
-      expect(screen.getByText(/verify first/i)).toBeInTheDocument();
-    });
-
-    it("handles feedback submission errors gracefully", () => {
-      const mockInvoke = vi.mocked(invoke);
-      const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    it("shows an error message when feedback submission fails", async () => {
+      const onFeedbackSubmitted = vi.fn();
       mockInvoke.mockRejectedValue(new Error("Network error"));
 
-      render(<GhostIndicator ghostScore={0.8} ghostReasons={null} jobId={123} />);
-      expect(screen.getByText(/verify first/i)).toBeInTheDocument();
+      render(
+        <GhostIndicator
+          ghostScore={0.8}
+          ghostReasons={null}
+          jobId={123}
+          onFeedbackSubmitted={onFeedbackSubmitted}
+        />
+      );
 
-      consoleError.mockRestore();
+      await hoverReviewIndicator();
+      fireEvent.click(screen.getByRole("button", { name: "Verified" }));
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith("mark_job_as_real", { jobId: 123 });
+      });
+      expect(onFeedbackSubmitted).not.toHaveBeenCalled();
+      await waitFor(() => {
+        expect(screen.getByRole("alert")).toHaveTextContent(/could not save feedback/i);
+      });
     });
   });
 
   describe("accessibility", () => {
     it("has aria-label with confidence percentage", () => {
       render(<GhostIndicator ghostScore={0.75} ghostReasons={null} />);
-      expect(screen.getByLabelText(/posting may need review/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/75% confidence/i)).toBeInTheDocument();
+    });
+
+    it("is keyboard focusable so the tooltip can open without a mouse", async () => {
+      const user = userEvent.setup();
+      render(<GhostIndicator ghostScore={0.75} ghostReasons={null} />);
+
+      const indicator = screen.getByLabelText(/75% confidence/i);
+      await user.tab();
+
+      expect(indicator).toHaveFocus();
+      await waitFor(() => {
+        expect(screen.getByRole("tooltip")).toBeInTheDocument();
+      });
     });
 
     it("has cursor-help class for tooltip indication", () => {
@@ -268,7 +299,7 @@ describe("GhostIndicator", () => {
 
 describe("GhostIndicatorCompact", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    mockInvoke.mockReset();
   });
 
   describe("rendering", () => {
@@ -360,19 +391,10 @@ describe("GhostIndicatorCompact", () => {
       });
     });
 
-    it("renders with jobId prop", () => {
-      render(
-        <GhostIndicatorCompact
-          ghostScore={0.8}
-          ghostReasons={null}
-          jobId={456}
-        />
-      );
-      expect(screen.getByLabelText(/posting may need review/i)).toBeInTheDocument();
-    });
-
-    it("renders with onFeedbackSubmitted prop", () => {
+    it("calls mark_job_as_real and shows confirmation after verified feedback", async () => {
+      mockInvoke.mockResolvedValue(undefined);
       const onFeedbackSubmitted = vi.fn();
+
       render(
         <GhostIndicatorCompact
           ghostScore={0.8}
@@ -381,7 +403,63 @@ describe("GhostIndicatorCompact", () => {
           onFeedbackSubmitted={onFeedbackSubmitted}
         />
       );
-      expect(screen.getByLabelText(/posting may need review/i)).toBeInTheDocument();
+
+      await hoverReviewIndicator();
+      fireEvent.click(screen.getByRole("button", { name: "Verified" }));
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith("mark_job_as_real", { jobId: 456 });
+      });
+      expect(onFeedbackSubmitted).toHaveBeenCalledWith("real");
+      expect(screen.getByText(/marked as verified active/i)).toBeInTheDocument();
+    });
+
+    it("calls mark_job_as_ghost and shows confirmation after needs-review feedback", async () => {
+      mockInvoke.mockResolvedValue(undefined);
+      const onFeedbackSubmitted = vi.fn();
+
+      render(
+        <GhostIndicatorCompact
+          ghostScore={0.8}
+          ghostReasons={null}
+          jobId={456}
+          onFeedbackSubmitted={onFeedbackSubmitted}
+        />
+      );
+
+      await hoverReviewIndicator();
+      fireEvent.click(screen.getByRole("button", { name: "Needs Review" }));
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith("mark_job_as_ghost", { jobId: 456 });
+      });
+      expect(onFeedbackSubmitted).toHaveBeenCalledWith("ghost");
+      expect(screen.getByText(/marked as needs review/i)).toBeInTheDocument();
+    });
+
+    it("shows an error message when feedback submission fails", async () => {
+      const onFeedbackSubmitted = vi.fn();
+      mockInvoke.mockRejectedValue(new Error("Network error"));
+
+      render(
+        <GhostIndicatorCompact
+          ghostScore={0.8}
+          ghostReasons={null}
+          jobId={456}
+          onFeedbackSubmitted={onFeedbackSubmitted}
+        />
+      );
+
+      await hoverReviewIndicator();
+      fireEvent.click(screen.getByRole("button", { name: "Verified" }));
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith("mark_job_as_real", { jobId: 456 });
+      });
+      expect(onFeedbackSubmitted).not.toHaveBeenCalled();
+      await waitFor(() => {
+        expect(screen.getByRole("alert")).toHaveTextContent(/could not save feedback/i);
+      });
     });
 
     it("does not show feedback buttons without jobId", async () => {
@@ -400,6 +478,21 @@ describe("GhostIndicatorCompact", () => {
       // No feedback buttons without jobId
       await waitFor(() => {
         expect(screen.queryByTitle("Mark as verified posting")).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe("accessibility", () => {
+    it("is keyboard focusable with an accessible confidence label", async () => {
+      const user = userEvent.setup();
+      render(<GhostIndicatorCompact ghostScore={0.8} ghostReasons={null} />);
+
+      const indicator = screen.getByLabelText(/80% confidence/i);
+      await user.tab();
+
+      expect(indicator).toHaveFocus();
+      await waitFor(() => {
+        expect(screen.getByRole("tooltip")).toBeInTheDocument();
       });
     });
   });

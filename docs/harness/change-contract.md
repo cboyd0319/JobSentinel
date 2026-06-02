@@ -30,6 +30,13 @@ Source-of-truth docs:
 - Existing docs that must stay accurate.
 - New docs to create or update.
 
+Orchestration:
+- Whether this is small enough for one agent or should use the
+  architect/coordinator model.
+- Sub-agent slices, owned files, off-limits files, and verification each slice
+  must run.
+- How the coordinator will review and integrate sub-agent work.
+
 Likely files:
 - File paths or directories.
 

@@ -14,8 +14,9 @@ narrow implementation slices chosen from that backlog.
 ## Sub-agent Rule
 
 If sub-agents help get the work done faster, use them. Delegate isolated
-research audits, source checks, UI/copy audits, security/privacy reviews, and
-implementation slices when they can move without shared-state conflicts. Keep
+research audits, source checks, UI/copy audits, security/privacy reviews, code
+slices, doc slices, and verification support when they can move without
+shared-state conflicts. Keep
 scopes bounded, preserve user changes, close completed agents promptly, and
 copy durable findings back into this plan or the active status surface.
 
@@ -37,9 +38,13 @@ copy durable findings back into this plan or the active status surface.
   backlog. Treat this as screening-system transparency and application
   readability: local parse preview, readable exports, required/preferred
   qualification review, truthful fit evidence, and user-confirmed edits.
-- Current execution note on 2026-06-02: no-Apple-account macOS deployment is
-  the immediate primary goal. Resume assistance remains the next
-  product-function priority after the no-account macOS path is locked down.
+- Current execution note on 2026-06-02: critical JobSentinel functionality is
+  the immediate primary goal, with cleanup lower priority unless it blocks
+  functionality, privacy/security, or verification. Current functional focus is
+  resume assistance, application readability, and ghost/stale job-card
+  protection. No-Apple-account macOS readiness is best-possible without an
+  Apple Developer Account; Gatekeeper-ready public distribution still requires
+  Developer ID signing and notarization.
 - Latest local resume preview slice adds an explicit **See what JobSentinel
   read** action on the Resume Match page. It fetches a bounded local-only
   readable-text preview, omits saved file paths from the preview and normal
@@ -89,16 +94,24 @@ copy durable findings back into this plan or the active status surface.
   prompt-injection-like instructions, transparent rubrics, and field-specific
   evidence without claiming any universal hiring algorithm. The dedicated repo
   note now lives at `docs/research/resume-formatting-ats-2026.md`.
-- Current local resume-alignment scoring follow-up incorporates
+- Current local resume-alignment scoring follow-up is committed in
+  `3d720693 Add resume requirement review caps`. It incorporates
   `/Users/c/Downloads/ats_scoring_algorithm.md` into the resume-assistance
   backlog. It locks in transparent component rubrics, role-match versus resume
   quality separation, hard-constraint caps, direct/strong/partial/implied/missing
   match states, anti-stuffing, evidence strength, seniority alignment, recency,
   section placement, and profession-specific weighting. Local requirement-state
   rows, recognized hard-constraint caps, and plain next actions have started;
-  deeper evidence strength, synonym, recency, seniority, and
-  profession-specific weighting remain future work. The dedicated repo note now
-  lives at `docs/research/resume-alignment-scoring.md`.
+  `3aa39952 Add resume next-action guidance` adds plain guidance such as
+  checking a hard requirement before tailoring, adding supporting evidence only
+  if true, or keeping useful evidence visible. Deeper evidence strength,
+  synonym, recency, seniority, and profession-specific weighting remain future
+  work. The dedicated repo note now lives at
+  `docs/research/resume-alignment-scoring.md`.
+- Current local ghost/stale job-card action slice adds high-risk
+  **Open Original Posting** guidance, safe-link regression tests,
+  keyboard-focusable ghost-risk indicators, and real verified/needs-review
+  feedback tests.
 - Latest local resume parser follow-up keeps required and preferred job-post
   sections separate when postings use single-line headings instead of blank
   lines, preventing preferred nice-to-have language from being shown as a
@@ -923,6 +936,9 @@ Likely files later:
 
 Do first:
 
+- Resume assistance and application readability: local parse/readability
+  review, required/preferred requirement inventory, hard-constraint caps,
+  truthful evidence review, and next-action guidance.
 - Ghost-job and stale-posting protection: stale labels, source verification,
   company-site or ATS checks, repost tracking, closure checks, and "verify
   before tailoring" warnings.
@@ -1089,6 +1105,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-02 | In progress | Current local priority is critical functionality before cleanup. Resume requirement-review caps and next-action guidance are in local commits; current local ghost/stale job-card action and feedback-accessibility slice is under verification. |
 | 2026-06-02 | In progress | Refreshed active evidence after broad-audience and Rule 0 copy work. Remaining product priorities stay ghost/stale detection, pay protection, long-term-unemployment support, bias-aware routes, protective tone, and local-first privacy. |
 | 2026-05-31 | In progress | Added the compact active status surface and archived older progress rows so future research-backed product work can restart from current ghost/stale, pay protection, long-term-unemployment, bias-aware route, protective-tone, and local-first privacy priorities. |
 | 2026-05-31 | In progress | Refreshed active-plan status after harness-focused work. No product implementation changed in this plan; the next product slices remain ghost/stale detection, pay protection, long-term-unemployment support, bias-aware application routes, protective tone, and local-first privacy. |
@@ -1459,12 +1476,15 @@ source-filter compatibility issue appears.
 - Current state: plan updated with six source documents plus first-class
   protective product priorities from the latest goal guidance. The guided setup
   preference for fresh and verified postings is implemented and covered by
-  focused tests. The visible posting-risk guidance, missing-pay cue, and plain
-  source-label slices are implemented and covered by focused tests.
+  focused tests. Local resume requirement-review caps and next-action guidance
+  are committed. Current local ghost/stale job-card action and
+  feedback-accessibility slice is under verification.
 - Evidence: source documents, selected primary sources, and local PDF text
   extraction reviewed on
   2026-05-28.
-- Next step: choose the next narrow research-backed implementation slice.
+- Next step: finish verification and commit the current ghost/stale
+  job-card-action slice, then continue the next critical functional slice before
+  broad cleanup.
 - Open risks: exact source statistics need re-check before product copy or
   implementation claims; this plan does not prove feasibility of every listed
   feature.

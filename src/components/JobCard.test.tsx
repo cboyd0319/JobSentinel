@@ -239,6 +239,65 @@ describe("JobCard", () => {
       ).toBeInTheDocument();
     });
 
+    it("opens the original posting from high posting-risk guidance", async () => {
+      const user = userEvent.setup();
+      const onViewJob = vi.fn();
+      const highRiskJob = { ...mockJob, ghost_score: 0.82 };
+
+      renderWithToast(<JobCard job={highRiskJob} onViewJob={onViewJob} />);
+
+      expect(
+        screen.getByText(/check that the original posting is still active/i),
+      ).toBeInTheDocument();
+
+      await user.click(
+        screen.getByRole("button", {
+          name: /open original posting before tailoring/i,
+        }),
+      );
+
+      expect(onViewJob).toHaveBeenCalledWith("https://example.com/job/1");
+      expect(deeplinks.openDeepLink).not.toHaveBeenCalled();
+    });
+
+    it("uses the safe link opener from high posting-risk guidance", async () => {
+      const user = userEvent.setup();
+      vi.mocked(deeplinks.openDeepLink).mockResolvedValue();
+      const highRiskJob = { ...mockJob, ghost_score: 0.82 };
+
+      renderWithToast(<JobCard job={highRiskJob} />);
+
+      await user.click(
+        screen.getByRole("button", {
+          name: /open original posting before tailoring/i,
+        }),
+      );
+
+      expect(deeplinks.openDeepLink).toHaveBeenCalledWith(
+        "https://example.com/job/1",
+      );
+    });
+
+    it("blocks unsafe links from high posting-risk guidance", async () => {
+      const user = userEvent.setup();
+      const highRiskJob = {
+        ...mockJob,
+        ghost_score: 0.82,
+        url: "javascript:alert(1)",
+      };
+
+      renderWithToast(<JobCard job={highRiskJob} />);
+
+      await user.click(
+        screen.getByRole("button", {
+          name: /open original posting before tailoring/i,
+        }),
+      );
+
+      expect(await screen.findByText("Check job link")).toBeInTheDocument();
+      expect(deeplinks.openDeepLink).not.toHaveBeenCalled();
+    });
+
     it("shows lighter review guidance for medium posting risk", () => {
       const mediumRiskJob = { ...mockJob, ghost_score: 0.67 };
 

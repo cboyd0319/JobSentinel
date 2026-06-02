@@ -54,6 +54,10 @@ function feedbackLabel(feedbackState: "real" | "ghost"): string {
   return feedbackState === "real" ? "verified active" : "needs review";
 }
 
+function indicatorAriaLabel(ghostScore: number): string {
+  return `Posting may need review, ${Math.round(ghostScore * 100)}% confidence`;
+}
+
 function getSeverity(score: number): "low" | "medium" | "high" {
   if (score >= 0.75) return "high";
   if (score >= 0.6) return "medium";
@@ -148,6 +152,7 @@ export const GhostIndicator = memo(function GhostIndicator({
   onFeedbackSubmitted,
 }: GhostIndicatorProps) {
   const [feedbackState, setFeedbackState] = useState<"real" | "ghost" | null>(null);
+  const [feedbackError, setFeedbackError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Don't show if score is null or below threshold
@@ -158,11 +163,13 @@ export const GhostIndicator = memo(function GhostIndicator({
   const severity = getSeverity(ghostScore);
   const reasons = parseReasons(ghostReasons);
   const sizeClass = size === "sm" ? "w-4 h-4" : "w-5 h-5";
+  const ariaLabel = indicatorAriaLabel(ghostScore);
 
   const handleFeedback = async (feedbackVerdict: "real" | "ghost") => {
     if (!jobId || isSubmitting) return;
 
     setIsSubmitting(true);
+    setFeedbackError(false);
     try {
       if (feedbackVerdict === "real") {
         await safeInvoke("mark_job_as_real", { jobId }, {
@@ -178,7 +185,7 @@ export const GhostIndicator = memo(function GhostIndicator({
       setFeedbackState(feedbackVerdict);
       onFeedbackSubmitted?.(feedbackVerdict);
     } catch {
-      // Silent failure - feedback submission is non-critical
+      setFeedbackError(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -239,6 +246,11 @@ export const GhostIndicator = memo(function GhostIndicator({
               Needs Review
             </button>
           </div>
+          {feedbackError && (
+            <p role="alert" className="mt-2 text-xs text-red-300">
+              Could not save feedback. Try again.
+            </p>
+          )}
         </div>
       )}
       {feedbackState && (
@@ -257,10 +269,11 @@ export const GhostIndicator = memo(function GhostIndicator({
         className={`
           inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium
           ${severityBgStyles[severity]} ${severityStyles[severity]}
-          cursor-help transition-colors
+          cursor-help transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-1
           ${feedbackState === "real" ? "opacity-50" : ""}
         `}
-        aria-label="Posting may need review"
+        aria-label={ariaLabel}
+        tabIndex={0}
       >
         {severity === "high" ? (
           <WarningIcon className={sizeClass} />
@@ -287,6 +300,7 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
   onFeedbackSubmitted,
 }: Omit<GhostIndicatorProps, "size">) {
   const [feedbackState, setFeedbackState] = useState<"real" | "ghost" | null>(null);
+  const [feedbackError, setFeedbackError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (ghostScore === null || ghostScore < 0.5) {
@@ -295,11 +309,13 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
 
   const severity = getSeverity(ghostScore);
   const reasons = parseReasons(ghostReasons);
+  const ariaLabel = indicatorAriaLabel(ghostScore);
 
   const handleFeedback = async (feedbackVerdict: "real" | "ghost") => {
     if (!jobId || isSubmitting) return;
 
     setIsSubmitting(true);
+    setFeedbackError(false);
     try {
       if (feedbackVerdict === "real") {
         await safeInvoke("mark_job_as_real", { jobId }, {
@@ -315,7 +331,7 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
       setFeedbackState(feedbackVerdict);
       onFeedbackSubmitted?.(feedbackVerdict);
     } catch {
-      // Silent failure - feedback submission is non-critical
+      setFeedbackError(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -367,6 +383,11 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
               Needs Review
             </button>
           </div>
+          {feedbackError && (
+            <p role="alert" className="mt-2 text-xs text-red-300">
+              Could not save feedback. Try again.
+            </p>
+          )}
         </div>
       )}
       {feedbackState && (
@@ -385,10 +406,11 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
         className={`
           inline-flex items-center justify-center w-5 h-5 rounded-full
           ${severityBgStyles[severity]} ${severityStyles[severity]}
-          cursor-help
+          cursor-help focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-1
           ${feedbackState === "real" ? "opacity-50" : ""}
         `}
-        aria-label="Posting may need review"
+        aria-label={ariaLabel}
+        tabIndex={0}
       >
         <GhostIcon className="w-3 h-3" />
       </span>

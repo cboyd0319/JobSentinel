@@ -12,6 +12,7 @@
     "docs/harness/manifest.json",
     "docs/harness/sources.md",
     "docs/harness/agent-operating-model.md",
+    "docs/harness/multi-agent-orchestration.md",
     "docs/harness/change-contract.md",
     "docs/harness/five-tuple-scorecard-2026-06-01.md",
     "docs/harness/feature-privacy-labels.json",
@@ -34,7 +35,8 @@
     "AGENTS.md": [
       "Rule 0: user privacy and security are non-negotiable.",
       "External AI stays optional, disabled by default, and routed through the",
-      "zero technical knowledge"
+      "zero technical knowledge",
+      "multi-agent-orchestration.md"
     ],
     ".github/copilot-instructions.md": [
       "Rule 0: user privacy and security are non-negotiable.",
@@ -88,19 +90,29 @@
       "User privacy and security are non-negotiable.",
       "## Session Start Checklist",
       "## When To Add Harness",
+      "Multi-agent orchestration",
       "Experience contract",
       "Support path",
       "Privacy/AI boundary"
+    ],
+    "docs/harness/multi-agent-orchestration.md": [
+      "The coordinator is the architect and integrator.",
+      "Every sub-agent must follow the same repo harness as the coordinator. No exceptions.",
+      "Delegation never bypasses privacy, security, source-boundary, review, verification, or user-ease rules.",
+      "The coordinator remains accountable for correctness.",
+      "Do not claim implementation exists until it is in the local working tree and verified."
     ],
     "docs/harness/change-contract.md": [
       "Rule 0 evidence:",
       "Rule 0 risk:",
       "Audience and ease:",
+      "Orchestration:",
       "Harness impact:",
       "User-ease evidence:"
     ],
     "docs/harness/verification-matrix.md": [
       "## Experience And Support",
+      "Multi-agent orchestration or delegated implementation",
       "External AI provider path"
     ],
     ".github/PULL_REQUEST_TEMPLATE.md": [
@@ -122,12 +134,14 @@
     ],
     "docs/plans/templates/change-contract-template.md": [
       "## Audience And Ease",
+      "## Orchestration",
       "## Harness Impact",
       "User-ease evidence:"
     ],
     "docs/plans/templates/exec-plan-template.md": [
       "## Success Criteria",
       "## Audience And Ease",
+      "## Orchestration",
       "## Handoff"
     ],
     "src/services/aiGateway.ts": [

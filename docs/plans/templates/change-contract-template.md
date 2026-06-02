@@ -21,6 +21,14 @@
 
 - Path.
 
+## Orchestration
+
+- One-agent task or multi-agent plan:
+- Sub-agent slices:
+- Owned files per slice:
+- Off-limits files per slice:
+- Coordinator review and integration plan:
+
 ## Likely Files
 
 - Path.
