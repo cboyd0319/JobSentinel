@@ -168,8 +168,8 @@ Current cleanup posture:
   stack or tool keywords such as SQL, Python, and AWS from enabling tech-heavy
   source defaults for broad accounting, operations, or sales searches.
 - Current local zero-technical provider setup follow-up makes USAJobs lead with
-  a no-setup browser-search path before optional advanced monitoring, keeps
-  Telegram bot details behind an advanced chat-alert path, and adds
+  a no-setup browser-search path before optional automatic checks, keeps
+  Telegram bot details behind an optional chat-alert path, and adds
   product-copy coverage against old provider setup shortcuts.
 - Current local cover-letter follow-up changes template auto-fill buttons from
   raw brace tokens to plain labels such as Company and Job Title, keeps the
@@ -1153,9 +1153,13 @@ Next high-value passes:
      screens for plain-language actions and no terminal/developer assumptions.
    - Keep safe support report generation one click from Settings, Error
      Logs, and crash/error recovery surfaces.
-   - The latest support-path, privacy-copy, USAJobs setup, and Telegram setup
-     findings are closed locally. Continue looking for new issues as new
-     surfaces change.
+   - The latest support-path, privacy-copy, USAJobs setup, Telegram setup,
+     dashboard average-match label, and Application Assist stat-label findings
+     are closed locally. Continue looking for new issues as new surfaces
+     change.
+   - Latest pushed checkpoint: `2e28a55f` on `origin/main`; remote CI and Docs
+     Harness both passed after the broad-audience privacy and hiring-trend
+     label slices.
 6. Continue broad-audience UX review.
    - Recheck onboarding, examples, placeholders, filters, profile presets, docs,
      and empty states for engineer-only assumptions.

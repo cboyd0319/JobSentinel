@@ -152,11 +152,11 @@ email alerts are easier to set up.
 ### Telegram
 
 Use desktop or email alerts unless you already use Telegram for automatic
-alerts. Telegram alerts are an advanced chat-alert path because Telegram
+alerts. Telegram alerts are an optional chat-alert path because Telegram
 requires an alert code and destination number.
 
 <details>
-<summary><strong>Advanced Telegram setup</strong></summary>
+<summary><strong>Optional Telegram alert setup</strong></summary>
 <br>
 
 1. Message [@BotFather](https://t.me/BotFather) on Telegram

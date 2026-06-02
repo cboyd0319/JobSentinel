@@ -3041,7 +3041,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       <div className="mt-3 space-y-3">
                         <div className="p-3 bg-surface-50 dark:bg-surface-900/50 border border-surface-200 dark:border-surface-700 rounded-lg">
                           <p className="text-sm font-medium text-surface-700 dark:text-surface-300">
-                            Advanced Telegram setup
+                            Optional Telegram alert setup
                           </p>
                           <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">
                             Continue only if you already use Telegram for automatic
@@ -3224,12 +3224,12 @@ export default function Settings({ onClose }: SettingsProps) {
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded transition-colors"
                             >
-                              Get USAJobs access code (advanced)
+                              Request USAJobs access code
                             </a>
                           </div>
                           <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
                             This opens a USAJobs access-code page that may use
-                            developer wording. Skip it unless you want automatic
+                            official setup wording. Skip it unless you want automatic
                             USAJobs checks; browser search still works.
                           </p>
                         </div>

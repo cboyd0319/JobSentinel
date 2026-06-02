@@ -217,8 +217,8 @@ boundaries, and harness modularity:
   keywords such as SQL, Python, and AWS from enabling tech-heavy sources for
   broad accounting, operations, or sales searches.
 - Reworked optional provider setup in Settings so USAJobs starts with a
-  no-setup browser-search path before optional advanced monitoring, and
-  Telegram bot details stay behind an advanced chat-alert path for users who
+  no-setup browser-search path before optional automatic checks, and
+  Telegram bot details stay behind an optional chat-alert path for users who
   already use Telegram bots.
 - Reworked cover-letter template auto-fill buttons so non-technical users see
   plain labels instead of brace-token syntax. Token insertion remains available
@@ -1200,7 +1200,13 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   counts and keep integration-test tree examples aligned with tracked files.
 - Privacy Rule 0 applies to local logs and browser console output, not only
   network requests or exported support reports.
+- Broad-audience copy applies to small dashboard and settings labels, not only
+  long-form docs. Avoid raw score, advanced setup, and setup jargon when a plain
+  job-seeker label explains the same action.
 
 ## Outcomes
 
-- Pending.
+- Remote CI and Docs Harness passed for pushed commit `2e28a55f`.
+- Current local copy slice tightens Telegram setup, USAJobs access-code,
+  dashboard average-match, and Application Assist stat labels; focused Settings
+  tests, docs lint, source lint, build, and whitespace checks passed locally.

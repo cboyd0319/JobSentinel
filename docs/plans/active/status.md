@@ -359,8 +359,8 @@ and record actionable findings in this active-plan surface.
   60000, the labels no longer say "in thousands," current-filter summaries use
   salary formatting, and product-copy coverage rejects the old `$K` drift.
 - Latest local zero-technical provider setup work labels USAJobs as optional
-  advanced federal monitoring with a no-setup browser-search path first, keeps
-  Telegram bot details behind an advanced chat-alert path, and adds
+  automatic checks with a no-setup browser-search path first, keeps Telegram
+  bot details behind an optional chat-alert path, and adds
   product-copy coverage against old provider setup shortcuts.
 - Latest local broad-profile source work removes preloaded company-source URLs
   from product, UX, content, and marketing profile JSON files. Harness coverage
@@ -825,6 +825,13 @@ and record actionable findings in this active-plan surface.
   existence/preview commands, canonicalizes imported URLs before
   preview/hash/storage, returns only `{ jobId }` from job import, and moves
   Dashboard to a minimal preferences DTO instead of full config.
+- Latest pushed checkpoint is `2e28a55f` on `origin/main`. Remote CI and Docs
+  Harness both passed for that commit after the broad-audience privacy and
+  hiring-trend label slices were pushed.
+- Current local broad-audience copy slice removes remaining technical-first
+  setup labels from Telegram and USAJobs settings, changes dashboard average
+  score wording to average match, and makes Application Assist stats use plain
+  forms-opened, marked-sent, and ready-to-send wording.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.
@@ -847,9 +854,9 @@ and record actionable findings in this active-plan surface.
    modules.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
-   The latest support-path, privacy-copy, USAJobs setup, and Telegram setup
-   findings are closed locally; continue looking for new issues as later
-   slices touch copy.
+  The latest support-path, privacy-copy, USAJobs setup, Telegram setup,
+  dashboard match-label, and Application Assist stat-label findings are closed
+  locally; continue looking for new issues as later slices touch copy.
 4. Continue broad-audience review so non-technical and technical job searches
    both feel first-class.
    The latest tech-source heuristic finding is closed locally; keep auditing

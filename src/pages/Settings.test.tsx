@@ -953,7 +953,7 @@ describe("Settings — handleSave flow", () => {
     expect(screen.getByPlaceholderText("Paste Teams connection link")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Paste Telegram alert code")).toBeInTheDocument();
     expect(screen.getByText("Telegram destination number")).toBeInTheDocument();
-    expect(screen.getByText(/Advanced Telegram setup/i)).toBeInTheDocument();
+    expect(screen.getByText(/Optional Telegram alert setup/i)).toBeInTheDocument();
     expect(container.innerHTML).not.toMatch(
       /Incoming Webhooks|incoming webhook connector|Webhooks → New Webhook|Incoming Webhook → Configure|Telegram Connection Token|Telegram Chat ID|passwords, tokens|Message @BotFather to create a private alert bot/i,
     );
@@ -1205,7 +1205,7 @@ describe("Settings — handleSave flow", () => {
     ).toBeInTheDocument();
   });
 
-  it("labels USAJobs source setup as optional advanced monitoring", async () => {
+  it("labels USAJobs source setup as optional automatic checks", async () => {
     const user = userEvent.setup();
     const config = makeConfig();
     config.usajobs.enabled = true;
@@ -1241,7 +1241,7 @@ describe("Settings — handleSave flow", () => {
       screen.getByRole("link", { name: /Open USAJobs search in your browser/i }),
     ).toHaveAttribute("href", "https://www.usajobs.gov/Search/Results");
     expect(
-      screen.getByRole("link", { name: /Get USAJobs access code \(advanced\)/i }),
+      screen.getByRole("link", { name: /Request USAJobs access code/i }),
     ).toHaveAttribute("href", "https://developer.usajobs.gov/APIRequest/Index");
     expect(screen.queryByText(/Quick Setup/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Advanced federal monitoring/i)).not.toBeInTheDocument();

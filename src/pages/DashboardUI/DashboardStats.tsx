@@ -1,5 +1,5 @@
 // Dashboard Statistics Cards Component
-// Displays total jobs, high matches, and average score
+// Displays total jobs, high matches, and average match
 
 import { memo } from "react";
 import { Card } from "../../components/Card";
@@ -48,11 +48,11 @@ export const DashboardStats = memo(function DashboardStats({ statistics }: Dashb
         )}
       </Card>
 
-      {/* Average Score */}
+      {/* Average match */}
       <Card className="relative overflow-hidden dark:bg-surface-800">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-surface-500 dark:text-surface-400 mb-1">Avg Score</p>
+            <p className="text-sm font-medium text-surface-500 dark:text-surface-400 mb-1">Avg Match</p>
             <p className="font-mono text-display-xl text-surface-900 dark:text-white">
               {Math.round((statistics.average_score ?? 0) * 100)}%
             </p>
