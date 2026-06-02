@@ -116,14 +116,14 @@ function getScoreInfo(score: number) {
 }
 
 /**
- * Score factor weights for display
+ * Fit factor priorities for display.
  */
 const FACTOR_WEIGHTS = {
-  skills: { weight: 40, label: "Skills", icon: "target" },
-  salary: { weight: 25, label: "Salary", icon: "currency" },
-  location: { weight: 20, label: "Location", icon: "location" },
-  company: { weight: 10, label: "Company", icon: "company" },
-  recency: { weight: 5, label: "Recency", icon: "clock" },
+  skills: { priority: "Primary", label: "Skills", icon: "target" },
+  salary: { priority: "Important", label: "Salary", icon: "currency" },
+  location: { priority: "Important", label: "Location", icon: "location" },
+  company: { priority: "Supporting", label: "Company", icon: "company" },
+  recency: { priority: "Supporting", label: "Recency", icon: "clock" },
 } as const;
 
 const LEGACY_PASS_PREFIX = "\u2713";
@@ -284,7 +284,11 @@ function ScoreBreakdownTooltip({
             const statuses = reasons.map(getReasonStatus);
             const hasPass = statuses.includes("pass");
             const hasFail = statuses.includes("fail");
-            const status = hasFail ? "Needs review" : hasPass ? "Match" : "Neutral";
+            const status = hasFail
+              ? "Needs review"
+              : hasPass
+                ? "Fits"
+                : "No clear signal";
             const statusColor = hasFail
               ? "text-red-400"
               : hasPass
@@ -301,7 +305,7 @@ function ScoreBreakdownTooltip({
                   {factor.label}
                 </td>
                 <td className="text-right py-1 pr-2 text-surface-400">
-                  {factor.weight}%
+                  {factor.priority}
                 </td>
                 <td className={`py-1 font-semibold ${statusColor}`}>
                   {status}

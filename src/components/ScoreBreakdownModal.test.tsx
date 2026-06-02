@@ -120,8 +120,15 @@ describe("ScoreBreakdownModal", () => {
     it("displays plain score contribution labels", () => {
       render(<ScoreBreakdownModal {...defaultProps} />);
 
-      expect(screen.getAllByText("One part of this fit estimate")).toHaveLength(5);
+      expect(screen.getAllByText("Clear evidence")).toHaveLength(5);
+      expect(screen.getByText("Primary factor")).toBeInTheDocument();
+      expect(screen.getAllByText("Important factor")).toHaveLength(2);
+      expect(screen.getAllByText("Supporting factor")).toHaveLength(2);
+      expect(screen.queryByText("One part of this fit estimate")).not.toBeInTheDocument();
       expect(screen.queryByText(/\d+% influence/)).not.toBeInTheDocument();
+      for (const hiddenWeight of ["40%", "25%", "20%", "10%", "5%"]) {
+        expect(screen.queryByText(hiddenWeight)).not.toBeInTheDocument();
+      }
     });
   });
 
@@ -208,12 +215,12 @@ describe("ScoreBreakdownModal", () => {
       expect(overallScore).not.toHaveAttribute("style");
     });
 
-    it("applies green styling for high factor scores", () => {
+    it("applies green styling for high factor evidence", () => {
       render(<ScoreBreakdownModal {...defaultProps} score={1.0} />);
 
-      // The factor percentage badges should have green classes
-      const percentBadges = screen.getAllByText("100%");
-      expect(percentBadges.length).toBeGreaterThan(0);
+      const evidenceBadges = screen.getAllByText("Clear evidence");
+      expect(evidenceBadges.length).toBeGreaterThan(0);
+      expect(evidenceBadges[0]).toHaveClass("text-green-600", "dark:text-green-400");
     });
 
     it("handles zero factor scores", () => {
@@ -261,9 +268,8 @@ describe("ScoreBreakdownModal", () => {
       const reasons = JSON.stringify(["Not in allowlist"]);
       render(<ScoreBreakdownModal {...defaultProps} scoreReasons={reasons} />);
 
-      // The Skills factor should show 0%
-      const percentBadges = screen.getAllByText("0%");
-      expect(percentBadges.length).toBeGreaterThan(0);
+      expect(screen.getByText("Needs review")).toBeInTheDocument();
+      expect(screen.queryByText("0%")).not.toBeInTheDocument();
     });
 
     it("shows legacy list reasons in plain language", () => {
@@ -297,9 +303,8 @@ describe("ScoreBreakdownModal", () => {
     it("handles score of 1", () => {
       render(<ScoreBreakdownModal {...defaultProps} score={1} />);
 
-      // Multiple 100% texts exist (overall score + each factor), just check at least one
-      const percentTexts = screen.getAllByText("100%");
-      expect(percentTexts.length).toBeGreaterThan(0);
+      expect(screen.getByText("100%")).toBeInTheDocument();
+      expect(screen.getAllByText("Clear evidence")).toHaveLength(5);
       expect(screen.getByText("Strong Fit")).toBeInTheDocument();
     });
 

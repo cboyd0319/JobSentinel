@@ -206,7 +206,7 @@ describe("ScoreDisplay", () => {
       expect(screen.queryByText(/allowlist|blocklist/i)).not.toBeInTheDocument();
     });
 
-    it("uses priority wording in match-factor tooltip", async () => {
+    it("uses plain priority wording in fit-factor tooltip", async () => {
       const reasons = JSON.stringify(["Salary meets minimum"]);
       const { container } = render(<ScoreDisplay score={0.8} scoreReasons={reasons} />);
 
@@ -216,8 +216,15 @@ describe("ScoreDisplay", () => {
 
       await waitFor(() => {
         expect(screen.getByText("Priority")).toBeInTheDocument();
+        expect(screen.getByText("Primary")).toBeInTheDocument();
+        expect(screen.getAllByText("Important")).toHaveLength(2);
+        expect(screen.getAllByText("Supporting")).toHaveLength(2);
+        expect(screen.getByText("Fits")).toBeInTheDocument();
       });
       expect(screen.queryByText("Weight")).not.toBeInTheDocument();
+      for (const hiddenWeight of ["40%", "25%", "20%", "10%", "5%"]) {
+        expect(screen.queryByText(hiddenWeight)).not.toBeInTheDocument();
+      }
     });
   });
 

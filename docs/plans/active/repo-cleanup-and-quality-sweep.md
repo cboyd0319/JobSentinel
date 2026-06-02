@@ -164,6 +164,14 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local fit-factor display cleanup removes user-visible factor
+  percentages from ScoreDisplay tooltips and the Fit Details modal. Tooltip
+  factors now show plain priorities and statuses; modal factor badges now show
+  evidence labels instead of per-factor percentages. Product-copy sensors now
+  reject the old JSX factor-percent displays while leaving internal bar math
+  intact. Focused ScoreDisplay, ScoreBreakdownModal, and product-copy
+  verification passed. Broader lint, script, bloat, and docs verification
+  passed.
 - Current local privacy/responsible/resume fit-language cleanup changes
   `PRIVACY.md`, `RESPONSIBLE_AI.md`, and the Resume Match feature guide away
   from match-score and match-result wording toward fit-level and fit-estimate

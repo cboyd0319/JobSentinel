@@ -23,11 +23,11 @@ interface ScoreBreakdownModalProps {
  * Fit priorities (must match backend scoring defaults).
  */
 const FACTOR_WEIGHTS = {
-  skills: { weight: 0.40, label: "Skills Fit", icon: "target", description: "Job title and search-word fit" },
-  salary: { weight: 0.25, label: "Salary", icon: "currency", description: "Salary meets your requirements" },
-  location: { weight: 0.20, label: "Location", icon: "location", description: "Remote/hybrid/onsite preference" },
-  company: { weight: 0.10, label: "Company", icon: "company", description: "Companies you prefer or hide" },
-  recency: { weight: 0.05, label: "Recency", icon: "clock", description: "How fresh the posting is" },
+  skills: { weight: 0.40, priorityLabel: "Primary", label: "Skills Fit", icon: "target", description: "Job title and search-word fit" },
+  salary: { weight: 0.25, priorityLabel: "Important", label: "Salary", icon: "currency", description: "Salary meets your requirements" },
+  location: { weight: 0.20, priorityLabel: "Important", label: "Location", icon: "location", description: "Remote/hybrid/onsite preference" },
+  company: { weight: 0.10, priorityLabel: "Supporting", label: "Company", icon: "company", description: "Companies you prefer or hide" },
+  recency: { weight: 0.05, priorityLabel: "Supporting", label: "Recency", icon: "clock", description: "How fresh the posting is" },
 } as const;
 
 const LEGACY_PASS_PREFIX = "\u2713";
@@ -234,6 +234,16 @@ function getScoreColor(score: number, maxScore: number): string {
 }
 
 /**
+ * Get plain evidence label for a factor.
+ */
+function getFactorEvidenceLabel(score: number, maxScore: number): string {
+  const percentage = score / maxScore;
+  if (percentage >= SCORE_THRESHOLD_HIGH) return "Clear evidence";
+  if (percentage >= SCORE_THRESHOLD_PARTIAL) return "Some evidence";
+  return "Needs review";
+}
+
+/**
  * Get bar color for progress visualization
  */
 function getBarColor(score: number, maxScore: number): string {
@@ -311,11 +321,11 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`text-xs font-mono px-2 py-1 rounded ${getScoreColor(factorScore, maxScore)}`}>
-                      {factorPercentage}%
+                    <span className={`text-xs font-medium px-2 py-1 rounded ${getScoreColor(factorScore, maxScore)}`}>
+                      {getFactorEvidenceLabel(factorScore, maxScore)}
                     </span>
                     <span className="text-xs text-surface-400 dark:text-surface-500">
-                      One part of this fit estimate
+                      {factor.priorityLabel} factor
                     </span>
                   </div>
                 </div>

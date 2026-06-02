@@ -31,6 +31,18 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local fit-factor display cleanup removes user-visible factor
+  percentages from ScoreDisplay tooltips and the Fit Details modal. Tooltip
+  factors now show plain priorities (`Primary`, `Important`, `Supporting`) and
+  statuses (`Fits`, `Needs review`, `No clear signal`); modal factor badges now
+  show evidence labels (`Clear evidence`, `Some evidence`, `Needs review`).
+  Product-copy sensors now reject the old JSX factor-percent displays while
+  leaving internal bar math intact. Verification passed: `npx vitest run
+  src/components/ScoreDisplay.test.tsx
+  src/components/ScoreBreakdownModal.test.tsx` passed 83 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 43 tests, `npm run lint` passed,
+  `npm run test:scripts` passed 468 tests, `npm run lint:bloat` passed, and
+  `npm run lint:docs` passed.
 - Current local ScoreDisplay Storybook cleanup changes stale score examples
   from `Excellent`, `Average`, `Low`, and percentage-range labels to maintained
   fit labels (`Strong fit`, `Good fit`, `Possible fit`, `Needs review`).
