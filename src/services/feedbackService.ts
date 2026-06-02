@@ -158,7 +158,7 @@ function formatFrontendErrorLog(errors: ErrorReport[]): string {
     );
 
     if (error.stack) {
-      lines.push(`  Support-only details: ${sanitizeTextForStorage(error.stack)}`);
+      lines.push(`  Extra app details: ${sanitizeTextForStorage(error.stack)}`);
     }
 
     if (error.componentStack) {
@@ -312,7 +312,7 @@ export async function openGitHubIssue(
   ];
 
   if (debugInfo) {
-    clipboardSections.push("", "SUPPORT DETAILS", debugInfo);
+    clipboardSections.push("", "SAFE APP DETAILS", debugInfo);
   }
 
   try {

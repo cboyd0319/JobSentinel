@@ -181,6 +181,8 @@ boundaries, and harness modularity:
   online-help wording instead of maintainer/issue-page wording, while the local
   safe support report path stays primary. Added product-copy guards against the
   old phrases.
+- Changed generated support-report labels from support-only wording to safe app
+  details and added product-copy coverage against those labels returning.
 - Changed the optional connected-source contact history label from
   `Source host` to `Website contacted`, updated Settings coverage, and added a
   product-copy guard against raw source metadata labels returning.

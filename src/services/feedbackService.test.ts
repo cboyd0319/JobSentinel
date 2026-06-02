@@ -99,7 +99,7 @@ describe("feedbackService", () => {
         "WHAT YOU WROTE",
         "Add filter presets for jane@example.com and +1 (303) 555-1212",
         "",
-        "SUPPORT DETAILS",
+        "SAFE APP DETAILS",
         "debug info",
       ].join("\n"),
     });
@@ -173,7 +173,10 @@ describe("feedbackService", () => {
       ),
     });
     expect(mockInvoke).toHaveBeenNthCalledWith(2, "sanitize_feedback_text", {
-      content: expect.stringContaining("Support-only details:"),
+      content: expect.stringContaining("Extra app details:"),
+    });
+    expect(mockInvoke).toHaveBeenNthCalledWith(2, "sanitize_feedback_text", {
+      content: expect.not.stringContaining("Support-only details:"),
     });
     expect(mockInvoke).toHaveBeenNthCalledWith(2, "sanitize_feedback_text", {
       content: expect.not.stringContaining("webhook URLs"),

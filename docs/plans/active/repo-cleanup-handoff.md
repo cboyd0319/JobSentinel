@@ -163,6 +163,9 @@ Current cleanup posture:
   from maintainer/issue wording to online-help wording, keeps the no-account
   safe support report path primary, and adds product-copy coverage against the
   old support-option phrases.
+- Current local support-report label follow-up changes generated support-report
+  section labels from support-only wording to safe app details and adds a
+  product-copy guard against those labels returning.
 - Current local connected-source wording follow-up changes the Settings contact
   history label from `Source host` to `Website contacted`, with focused
   Settings and product-copy coverage against raw source metadata labels

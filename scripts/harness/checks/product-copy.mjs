@@ -567,6 +567,8 @@ export function hasFeedbackLocalReportDrift(root, path) {
     /Debug Log \(\{\} events\)/i,
     /\[(?:APP_STARTED|VIEW_NAVIGATED|COMMAND|ERROR|SCRAPER|FEATURE)\]/i,
     /format!\(\s*["'`]\[\{\}\]\s+\{\:\?\}\\n["'`]/i,
+    /Support-only details:/i,
+    /["'`]SUPPORT DETAILS["'`]/,
     />\s*Clear All\s*</i,
   ];
 

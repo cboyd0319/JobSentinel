@@ -1303,6 +1303,8 @@ test("product copy rejects support troubleshooting jargon", () => {
       [
         'const DEBUG_DETAIL_LABELS = { event: "Event" };',
         '${errors.length - MAX_FRONTEND_ERRORS_IN_REPORT} older frontend errors omitted.',
+        "Support-only details:",
+        "SUPPORT DETAILS",
         "",
       ].join("\n"),
     );

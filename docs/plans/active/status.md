@@ -77,13 +77,20 @@ actionable findings in this active-plan surface or the relevant plan.
   run lint:bloat`, `npm run harness:check`, `npm run lint:docs`, `npm run
   test:scripts` passed 455 script tests, `npm run lint`, and `git diff --check`
   passed.
-- Current local feedback-flow copy slice changes optional GitHub sharing from
+- Committed feedback-flow copy slice changes optional GitHub sharing from
   maintainer/issue wording to online-help wording, keeps the local safe support
   report path primary, and adds product-copy guards against the old phrases.
   Focused verification passed: feedback SubmitOptions and SuccessScreen Vitest
   passed 5 tests, `node --test scripts/check-product-copy.test.mjs` passed 32
   tests, `npm run lint:bloat`, `npm run test:scripts` passed 455 script tests,
   `npm run lint:docs`, `npm run lint`, and `git diff --check` passed.
+- Current local support-report label slice changes generated support-report
+  section labels from support-only wording to safe app details, and adds a
+  product-copy guard against those labels returning. Focused verification
+  passed: `npx vitest run src/services/feedbackService.test.ts` passed 12
+  tests, `node --test scripts/check-product-copy.test.mjs` passed 32 tests,
+  `npm run lint:bloat`, `npm run test:scripts` passed 455 script tests, `npm
+  run lint:docs`, `npm run lint`, and `git diff --check` passed.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -105,6 +112,8 @@ Scope:
   rely only on earlier capture/storage sanitization.
 - Feedback submit and success screens must keep the no-account safe support
   report path primary and avoid maintainer/issue-page jargon in visible copy.
+- Generated support-report text must use plain safe-app-detail labels, not
+  support-only labels or uppercase support blocks.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
@@ -120,6 +129,7 @@ npx vitest run src/pages/Settings.test.tsx src/components/ErrorLogPanel.test.tsx
 npx vitest run src/components/ErrorLogPanel.test.tsx
 npx vitest run src/utils/errorReporting.test.ts
 npx vitest run src/components/feedback/SubmitOptions.test.tsx src/components/feedback/SuccessScreen.test.tsx
+npx vitest run src/services/feedbackService.test.ts
 node --test scripts/check-privacy-logging.test.mjs
 git diff --check
 ```
