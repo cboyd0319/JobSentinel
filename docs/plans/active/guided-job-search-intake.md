@@ -69,7 +69,7 @@ paper list. These rules turn the research into product behavior:
 | ------ | ------ | -------------------- |
 | Why Don't Jobseekers Search More? | Lowering the effort to start applications can sharply increase activity when people miss high-return openings because starting feels costly. | Keep setup short, show next actions on job cards, and avoid making users configure everything before first results. |
 | Duration Dependence and Job Search over the Spell | Search effort and callbacks change over time, and fatigue is real. | Add later check-ins that ask whether to widen, narrow, pause, or refresh search settings after quiet weeks. |
-| The Potential of Recommender Systems for Directing Job Search | Recommendations can work, but only if users act on them. | Pair match scores with plain "why this job" and "what to do next" guidance. |
+| The Potential of Recommender Systems for Directing Job Search | Recommendations can work, but only if users act on them. | Pair fit estimates with plain "why this job" and "what to do next" guidance. |
 | The Accuracy of Job Seekers' Wage Expectations | Wage expectations can stay anchored even when search evidence changes. | Treat pay as a revisable preference, show market context where available, and avoid shaming copy. |
 | Jobseekers' Skills and Job Search Behaviour | Job seekers often prefer roles near prior work and may adjust search based on skill gaps. | Ask about current work, transferable work, and adjacent work separately. |
 | Words Matter | Qualification wording changes who applies, and fit perceptions are complex. | Avoid binary "qualified/not qualified" language; show required, preferred, and missing items separately. |
@@ -135,7 +135,7 @@ the flow into short screens:
 12. **Search support:** "Do you want weekly search summaries?"
     Offer pacing, quiet-period review, fresh-role review, and no-summary
     choices.
-13. **Alerts:** "Where should JobSentinel tell you about strong matches?"
+13. **Alerts:** "Where should JobSentinel tell you about roles that fit?"
     Keep all channels optional.
 
 The review screen should summarize answers in plain language:
@@ -208,7 +208,7 @@ Use defaults that avoid blocking progress:
 - Never use pressure language.
 - Avoid hollow encouragement. Use practical, protective copy that names the
   issue and the next safe action.
-- Avoid "qualified" as a binary judgment. Prefer "strong match", "missing from
+- Avoid "qualified" as a binary judgment. Prefer "strong fit", "missing from
   your current search", or "JobSentinel is not sure yet".
 - Explain automation as estimates based on visible inputs, not objective truth.
 
@@ -255,7 +255,7 @@ Acceptance criteria:
 - Default stays balanced and preserves existing result limits.
 - The final review summarizes the selected review-list behavior before scanning
   starts.
-- `complete_setup` receives source limits and alert threshold matching the
+- `complete_setup` receives source limits and alert setting matching the
   selected preference.
 - Copy assumes no technical knowledge and supports technical and non-technical
   roles.
@@ -264,7 +264,7 @@ Acceptance criteria:
 Progress:
 
 - 2026-05-29: Implemented setup review-volume choices, review summary copy,
-  config mapping to existing source limits and alert threshold, Quick Start
+  config mapping to existing source limits and alert setting, Quick Start
   guidance, and focused setup tests.
 - 2026-05-29: Implemented setup fresh-and-verified choices, review summary
   copy, config mapping to existing ghost-posting warning sensitivity, Settings

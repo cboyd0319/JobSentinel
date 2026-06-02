@@ -5,8 +5,8 @@ black box.**
 
 ## Overview
 
-JobSentinel reviews every job against saved preferences and shows a match
-percentage. The percentage is a sorting aid, not a verdict. It helps a job
+JobSentinel reviews every job against saved preferences and shows a fit
+estimate. The estimate is a sorting aid, not a verdict. It helps a job
 seeker decide which roles deserve careful review, which need verification, and
 which are likely poor fits for stated constraints.
 
@@ -17,7 +17,7 @@ The match explanation must stay plain-language:
 - Which setting affected the result.
 - What the user can change if the result is not useful.
 
-## Match Factors
+## Fit Factors
 
 JobSentinel uses five visible factors. The review roles explain which areas are
 most prominent without asking users to reason about model weights.
@@ -32,7 +32,7 @@ most prominent without asking users to reason about model weights.
 
 The review guide is visible in **Settings > Sources & Alerts**. Most users
 should change job titles, work words, salary floor, location, and company
-preferences before touching extra match settings.
+preferences before touching extra fit settings.
 
 ## Reading a Fit Estimate
 

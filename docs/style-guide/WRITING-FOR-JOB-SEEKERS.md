@@ -64,7 +64,7 @@ feel judged.
 - Offer "not sure" when a normal person may not know the answer yet.
 - Ask whether nearby roles should be shown separately.
 - Summarize answers before scanning starts.
-- Show which answers affected a match score.
+- Show which answers affected a fit estimate.
 
 **Don't:**
 

@@ -465,6 +465,11 @@ test("product copy rejects stale match-ranking labels", () => {
       ["src/pages/SetupWizard.tsx", "strongest matches"],
       ["docs/user/QUICK_START.md", "weaker or adjacent matches"],
       ["docs/features/smart-scoring.md", "Low Match"],
+      ["docs/features/smart-scoring.md", "Match Factors"],
+      ["docs/features/smart-scoring.md", "match percentage"],
+      ["docs/style-guide/GLOSSARY.md", "match score"],
+      ["docs/style-guide/WRITING-FOR-JOB-SEEKERS.md", "match scores"],
+      ["docs/plans/active/guided-job-search-intake.md", "match scores"],
     ]) {
       writeFixtureFile(root, path, `${copy}\n`);
       assert.equal(hasNonProtectiveScoreCopy(root, path), true);

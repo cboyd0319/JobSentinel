@@ -60,11 +60,12 @@ signals. It may or may not be an active role.
 
 ### Job score
 
-**What it is:** A number (0-100) that shows how well a job matches your preferences.
+**What it is:** A visible estimate that shows how closely a job fits the user's
+saved preferences.
 
-**Write this:** "match score" or just "score"
+**Write this:** "fit estimate" or "fit level"
 
-**Example:** "Jobs with a higher score match your preferences better."
+**Example:** "Jobs with a stronger fit estimate may deserve closer review."
 
 ---
 
