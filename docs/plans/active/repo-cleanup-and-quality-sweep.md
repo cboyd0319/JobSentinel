@@ -1292,3 +1292,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local dashboard bulk-action recovery follow-up removes refresh-only
   and merge-only recovery guidance from selected-job hide and duplicate-merge
   all-failure paths, with focused hook expectations and product-copy coverage.
+- Current local shared helper persistent-recovery follow-up adds safe support
+  report fallbacks to network, site, permission, reminder, notification, local
+  storage, and optional analysis-service error actions, with helper tests and
+  product-copy coverage.

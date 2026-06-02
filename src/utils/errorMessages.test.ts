@@ -73,6 +73,29 @@ describe("errorMessages", () => {
       );
     });
 
+    it("gives persistent shared recovery paths a safe support report fallback", () => {
+      const persistentErrors = [
+        "network timeout",
+        "DNS lookup failed",
+        "ssl certificate expired",
+        "503 service unavailable",
+        "403 forbidden",
+        "foreign key reference failed",
+        "disk space full",
+        "cloudflare human check",
+        "permission denied",
+        "smtp error",
+        "reminder failed",
+        "openai model error",
+      ];
+
+      for (const message of persistentErrors) {
+        const result = getUserFriendlyError(new Error(message));
+
+        expect(result.action, message).toContain("safe support report");
+      }
+    });
+
     it("handles missing required field errors", () => {
       const result = getUserFriendlyError(new Error("required field missing"));
       expect(result.title).toBe("Add missing details");

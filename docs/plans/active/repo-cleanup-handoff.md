@@ -1222,6 +1222,9 @@ Next high-value passes:
      The latest dashboard bulk-action recovery follow-up removes refresh-only
      and merge-only recovery guidance from selected-job hide and
      duplicate-merge all-failure paths.
+     The latest shared helper persistent-recovery follow-up adds safe support
+     report fallbacks to network, site, permission, reminder, notification,
+     local storage, and optional analysis-service error actions.
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.

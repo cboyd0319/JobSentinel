@@ -838,6 +838,10 @@ test("product copy rejects technical-first settings copy", () => {
         "Try refreshing your job list.",
         "restart the app",
         "contact support",
+        "action: 'Check your internet connection and try again.'",
+        "system date/time",
+        "Try again in 10-15 minutes",
+        "action: 'Check your notification settings and try again.'",
         "",
       ].join("\n"),
     );

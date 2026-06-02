@@ -951,6 +951,10 @@ and record actionable findings in this active-plan surface.
 - Current local dashboard bulk-action recovery follow-up removes refresh-only
   and merge-only recovery guidance from selected-job hide and duplicate-merge
   all-failure paths, with focused hook expectations and product-copy coverage.
+- Current local shared helper persistent-recovery follow-up adds safe support
+  report fallbacks to network, site, permission, reminder, notification, local
+  storage, and optional analysis-service error actions, with helper tests and
+  product-copy coverage.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

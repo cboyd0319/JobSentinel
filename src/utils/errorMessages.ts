@@ -18,13 +18,13 @@ export interface UserFriendlyError {
  * Network and connection error patterns
  */
 const NETWORK_ERRORS = [
-  { pattern: /network|fetch|connection|timeout|ECONNREFUSED/i, title: 'Connection Problem', message: 'We couldn\'t connect to the internet or the job board.', action: 'Check your internet connection and try again.' },
-  { pattern: /ENOTFOUND|DNS|domain/i, title: 'Website Not Found', message: 'The job board website couldn\'t be reached.', action: 'The website might be down temporarily. Try again in a few minutes.' },
-  { pattern: /certificate|ssl|tls/i, title: 'Security Certificate Issue', message: 'There\'s a problem with the website\'s security certificate.', action: 'This is usually temporary. Try again later, or check if your system date/time is correct.' },
-  { pattern: /429|rate.?limit/i, title: 'Job Board Asked JobSentinel to Slow Down', message: 'The job board asked JobSentinel to wait before checking again.', action: 'Wait a few minutes, then try again. If it keeps happening, check this site less often.' },
-  { pattern: /503|502|504|service.?unavailable/i, title: 'Service Temporarily Down', message: 'The job board\'s servers are temporarily unavailable.', action: 'This is on their end. Try again in 10-15 minutes.' },
-  { pattern: /401|unauthorized|authentication/i, title: 'Sign-In Details Not Working', message: 'Your saved sign-in or access details aren\'t working.', action: 'Open Settings, reconnect the job source, or paste updated access details.' },
-  { pattern: /403|forbidden/i, title: 'Access Denied', message: 'The job board would not allow this request.', action: 'Check whether this job board needs a signed-in or premium account, then try again.' },
+  { pattern: /network|fetch|connection|timeout|ECONNREFUSED/i, title: 'Connection Problem', message: 'We couldn\'t connect to the internet or the job board.', action: 'Check your internet connection and try again. If this keeps happening, copy a safe support report.' },
+  { pattern: /ENOTFOUND|DNS|domain/i, title: 'Website Not Found', message: 'The job board website couldn\'t be reached.', action: 'The website might be down temporarily. Try again in a few minutes. If this keeps happening, copy a safe support report.' },
+  { pattern: /certificate|ssl|tls/i, title: 'Security Certificate Issue', message: 'There\'s a problem with the website\'s security certificate.', action: 'This is usually temporary. Try again later, check your system date and time, or copy a safe support report if this keeps happening.' },
+  { pattern: /429|rate.?limit/i, title: 'Job Board Asked JobSentinel to Slow Down', message: 'The job board asked JobSentinel to wait before checking again.', action: 'Wait a few minutes, then try again. If this keeps happening, check this site less often or copy a safe support report.' },
+  { pattern: /503|502|504|service.?unavailable/i, title: 'Service Temporarily Down', message: 'The job board\'s servers are temporarily unavailable.', action: 'This is on their end. Try again in 10 to 15 minutes. If this keeps happening, copy a safe support report.' },
+  { pattern: /401|unauthorized|authentication/i, title: 'Sign-In Details Not Working', message: 'Your saved sign-in or access details aren\'t working.', action: 'Open Settings, reconnect the job source, or paste updated access details. If this keeps happening, copy a safe support report.' },
+  { pattern: /403|forbidden/i, title: 'Access Denied', message: 'The job board would not allow this request.', action: 'Check whether this job board needs a signed-in or premium account, then try again. If this keeps happening, copy a safe support report.' },
   { pattern: /404|not.?found/i, title: 'Page Not Found', message: 'The job listing or page no longer exists.', action: 'The posting may have been removed. Check the job list again, or copy a safe support report if this keeps happening.' },
 ];
 
@@ -34,9 +34,9 @@ const NETWORK_ERRORS = [
 const DATABASE_ERRORS = [
   { pattern: /database.*locked|SQLITE_BUSY/i, title: 'Local Data Busy', message: 'JobSentinel is already saving or reading your local data.', action: 'Wait a moment and try again. If this keeps happening, copy a safe support report before closing and reopening JobSentinel.' },
   { pattern: /constraint|unique|duplicate/i, title: 'Duplicate Entry', message: 'This item is already saved.', action: 'Check your existing entries before adding it again.' },
-  { pattern: /foreign.?key|reference/i, title: 'Related Information Missing', message: 'This action needs another saved item before it can continue.', action: 'Check that the related job, application, or setting still exists, then try again.' },
+  { pattern: /foreign.?key|reference/i, title: 'Related Information Missing', message: 'This action needs another saved item before it can continue.', action: 'Check that the related job, application, or setting still exists, then try again. If this keeps happening, copy a safe support report.' },
   { pattern: /corrupt|malformed|integrity/i, title: 'Local Data Problem', message: 'JobSentinel\'s local data file may be damaged.', action: 'Copy a safe support report and restore from a backup if you have one. Don\'t delete app data yet.' },
-  { pattern: /disk|storage|space/i, title: 'Storage Full', message: 'Your computer is running out of disk space.', action: 'Free up some storage space on your hard drive and try again.' },
+  { pattern: /disk|storage|space/i, title: 'Storage Full', message: 'Your computer is running out of disk space.', action: 'Free up some storage space on your hard drive and try again. If this keeps happening, copy a safe support report.' },
 ];
 
 /**
@@ -59,7 +59,7 @@ const SCRAPER_ERRORS = [
   { pattern: /no.*jobs.*found|empty.*results/i, title: 'No Jobs Found', message: 'No job listings matched your search criteria.', action: 'Try broadening your search filters or check different job boards.' },
   { pattern: /scraper.*disabled|source.*unavailable/i, title: 'Job Source Disabled', message: 'This job board is currently disabled in your settings.', action: 'Open Settings, choose More Settings, then View Job Sources.' },
   { pattern: /api.*key|api.*quota|api.*limit/i, title: 'Daily Job Board Limit Reached', message: 'This job board has stopped accepting more requests today.', action: 'Wait until tomorrow, or reduce how often JobSentinel checks this source.' },
-  { pattern: /captcha|bot.*detection|cloudflare/i, title: 'Site Asked for a Human Check', message: 'This site asked for an extra human check before showing jobs.', action: 'Open the site yourself, complete any check there, or try again later.' },
+  { pattern: /captcha|bot.*detection|cloudflare/i, title: 'Site Asked for a Human Check', message: 'This site asked for an extra human check before showing jobs.', action: 'Open the site yourself, complete any check there, or try again later. If this keeps happening, copy a safe support report.' },
 ];
 
 /**
@@ -68,7 +68,7 @@ const SCRAPER_ERRORS = [
 const CONFIG_ERRORS = [
   { pattern: /config.*not.*found|config.*missing/i, title: 'Saved Settings Need Attention', message: 'JobSentinel could not find your saved settings.', action: 'Open Settings and save them again. If this keeps happening, copy a safe support report before resetting anything.' },
   { pattern: /config.*invalid|config.*corrupt/i, title: 'Saved Settings Need Attention', message: 'JobSentinel could not read your saved settings.', action: 'Open Settings and save them again. If this keeps happening, copy a safe support report before resetting anything.' },
-  { pattern: /permission|access.*denied|EACCES/i, title: 'Permission Needed', message: 'JobSentinel needs permission to open that file or folder.', action: 'Check your system privacy settings, then try again.' },
+  { pattern: /permission|access.*denied|EACCES/i, title: 'Permission Needed', message: 'JobSentinel needs permission to open that file or folder.', action: 'Check your system privacy settings, then try again. If this keeps happening, copy a safe support report.' },
   { pattern: /file.*not.*found|ENOENT/i, title: 'File unavailable', message: 'JobSentinel could not find the file it needs.', action: 'Choose the file again, restore it from backup, or reinstall JobSentinel if this keeps happening.' },
 ];
 
@@ -80,7 +80,7 @@ const NOTIFICATION_ERRORS = [
   { pattern: /slack.*error/i, title: 'Could not send Slack notification', message: 'Couldn\'t send a notification to Slack.', action: 'Paste a fresh Slack connection link in Settings and make sure the channel still exists.' },
   { pattern: /discord.*error/i, title: 'Could not send Discord notification', message: 'Couldn\'t send a notification to Discord.', action: 'Paste a fresh Discord connection link in Settings and make sure the channel still exists.' },
   { pattern: /teams.*error/i, title: 'Could not send Teams notification', message: 'Couldn\'t send a notification to Microsoft Teams.', action: 'Paste a fresh Teams connection link in Settings and make sure the connector is still active.' },
-  { pattern: /email.*error|smtp/i, title: 'Could not send email notification', message: 'Couldn\'t send an email notification.', action: 'Check your email sending settings and saved password.' },
+  { pattern: /email.*error|smtp/i, title: 'Could not send email notification', message: 'Couldn\'t send an email notification.', action: 'Check your email sending settings and saved password. If this keeps happening, copy a safe support report.' },
 ];
 
 /**
@@ -89,7 +89,7 @@ const NOTIFICATION_ERRORS = [
 const ATS_ERRORS = [
   { pattern: /application.*not.*found/i, title: 'Application Not Found', message: 'The job application you\'re looking for doesn\'t exist.', action: 'It may have been deleted. Check your applications list.' },
   { pattern: /interview.*conflict/i, title: 'Interview Time Conflict', message: 'This interview time overlaps with another one.', action: 'Choose a different time or reschedule one of the interviews.' },
-  { pattern: /reminder.*failed/i, title: 'Could not create reminder', message: 'Couldn\'t create a reminder for this event.', action: 'Check your notification settings and try again.' },
+  { pattern: /reminder.*failed/i, title: 'Could not create reminder', message: 'Couldn\'t create a reminder for this event.', action: 'Check your notification settings and try again. If this keeps happening, copy a safe support report.' },
 ];
 
 /**
@@ -98,7 +98,7 @@ const ATS_ERRORS = [
 const AI_ERRORS = [
   { pattern: /resume.*not.*found|resume.*missing/i, title: 'Resume Not Found', message: 'No resume has been uploaded yet.', action: 'Upload your resume in the Resume section before using this feature.' },
   { pattern: /parsing.*failed|extract.*failed/i, title: 'Resume Could Not Be Read', message: 'JobSentinel could not read the information from your resume.', action: 'Use a PDF, DOCX, or TXT resume, or choose a different file.' },
-  { pattern: /ai.*error|model.*error|openai/i, title: 'Resume Analysis Problem', message: 'The resume analysis service had a problem.', action: 'Try again in a moment. If this keeps happening, check any analysis service you connected in Settings.' },
+  { pattern: /ai.*error|model.*error|openai/i, title: 'Resume Analysis Problem', message: 'The resume analysis service had a problem.', action: 'Try again in a moment. If this keeps happening, check any analysis service you connected in Settings or copy a safe support report.' },
   { pattern: /token.*limit|context.*length/i, title: 'Resume or Job Post Too Long', message: 'The resume or job post is too long for this review.', action: 'Try a shorter resume or job post. Remove repeated sections first.' },
 ];
 
