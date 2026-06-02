@@ -174,6 +174,24 @@ describe("api utilities", () => {
       expect(Array.isArray(stats.entries)).toBe(true);
     });
 
+    it("does not expose raw argument values in cache statistics", async () => {
+      mockInvoke.mockResolvedValueOnce({ data: "cached" });
+
+      await cachedInvoke("get_recent_matches", {
+        resumeId: 42,
+        resumeText: "Private resume text",
+        salaryFloor: 90000,
+      });
+
+      const serializedStats = JSON.stringify(getCacheStats());
+
+      expect(serializedStats).toContain("get_recent_matches:");
+      expect(serializedStats).not.toContain("Private resume text");
+      expect(serializedStats).not.toContain("salaryFloor");
+      expect(serializedStats).not.toContain("90000");
+      expect(serializedStats).not.toContain("resumeText");
+    });
+
     it("reports zero entries when cache is empty", () => {
       const stats = getCacheStats();
       expect(stats.cacheSize).toBe(0);

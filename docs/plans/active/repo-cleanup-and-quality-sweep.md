@@ -244,6 +244,10 @@ boundaries, and harness modularity:
   to optional review, and clarifies chat connection links should be treated like
   passwords. Focused Settings, product-copy, lint, docs, bloat, and diff-check
   verification passed.
+- Current local API cache-key privacy hardening replaces raw argument JSON in
+  in-memory cache keys with an opaque deterministic hash, so cache statistics
+  do not expose resume text, salary floors, or other request argument values.
+  Red-test, API, lint, build, docs, bloat, and diff-check verification passed.
 - Current local source-status wording cleanup replaces remaining user-facing
   `source health` wording with `source status` in README, roadmap, source
   guides, and ScraperHealthDashboard log context. Product-copy sensors now

@@ -30,17 +30,36 @@ function getCacheKey(cmd: string, args?: Record<string, unknown>): string {
   if (!args || Object.keys(args).length === 0) {
     return cmd;
   }
-  // Sort keys for consistent hashing
-  const sortedArgs = Object.keys(args)
-    .sort()
-    .reduce(
-      (acc, key) => {
-        acc[key] = args[key];
-        return acc;
-      },
-      {} as Record<string, unknown>
-    );
-  return `${cmd}:${JSON.stringify(sortedArgs)}`;
+
+  return `${cmd}:${hashCacheArgs(args)}`;
+}
+
+function hashCacheArgs(args: Record<string, unknown>): string {
+  const serialized = JSON.stringify(normalizeCacheValue(args));
+  let hash = 0x811c9dc5;
+
+  for (let index = 0; index < serialized.length; index += 1) {
+    hash ^= serialized.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+
+  return hash.toString(16).padStart(8, "0");
+}
+
+function normalizeCacheValue(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(normalizeCacheValue);
+  }
+
+  if (!value || typeof value !== "object") {
+    return value;
+  }
+
+  return Object.fromEntries(
+    Object.entries(value)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, nestedValue]) => [key, normalizeCacheValue(nestedValue)]),
+  );
 }
 
 /**
