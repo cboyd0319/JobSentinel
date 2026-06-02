@@ -153,7 +153,7 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
               </p>
               <p className="text-xs bg-surface-100 dark:bg-surface-800 p-2 rounded text-surface-700 dark:text-surface-300">
                 Extra problem details are included when you copy or save a safe
-                report.
+                support report.
               </p>
             </div>
           )}
@@ -189,7 +189,7 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
                 onClear(error.id);
               }}
             >
-              Dismiss
+              Remove from List
             </Button>
           </div>
         </div>

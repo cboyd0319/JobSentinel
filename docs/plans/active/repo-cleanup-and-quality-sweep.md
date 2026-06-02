@@ -1219,3 +1219,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local backend-copy slice changes database-domain user messages to
   local-job-data wording and adds a Rust regression test for database, query,
   schema, I/O, raw SQL, and private-path wording.
+- Current local support-panel slice changes Error Log support details to safe
+  support report language, replaces the per-problem clear action with
+  `Remove from List`, and removes advanced-support wording from Quick Start.

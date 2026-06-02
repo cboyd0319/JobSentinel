@@ -331,7 +331,7 @@ describe("ErrorLogPanel", () => {
       expect(button).toHaveAttribute("aria-expanded", "true");
     });
 
-    it("shows Dismiss button when expanded", () => {
+    it("shows remove-from-list button when expanded", () => {
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
         errors: [createMockError()],
@@ -341,7 +341,7 @@ describe("ErrorLogPanel", () => {
 
       fireEvent.click(screen.getByText("Test error message"));
 
-      expect(screen.getByRole("button", { name: "Dismiss" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Remove from List" })).toBeInTheDocument();
     });
   });
 
@@ -419,7 +419,7 @@ describe("ErrorLogPanel", () => {
       expect(clearErrors).toHaveBeenCalledTimes(1);
     });
 
-    it("calls clearError with error id when Dismiss clicked", () => {
+    it("calls clearError with error id when Remove from List clicked", () => {
       const clearError = vi.fn();
       mockUseErrorReporting.mockReturnValue({
         ...defaultMockReturn,
@@ -432,8 +432,7 @@ describe("ErrorLogPanel", () => {
       // Expand the error first
       fireEvent.click(screen.getByText("Test error message"));
 
-      // Click Dismiss
-      fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
+      fireEvent.click(screen.getByRole("button", { name: "Remove from List" }));
 
       expect(clearError).toHaveBeenCalledWith("error-123");
     });

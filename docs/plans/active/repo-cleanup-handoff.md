@@ -1159,8 +1159,9 @@ Next high-value passes:
      also replaces visible retry/dismiss buttons in Settings and Resume
      Readability with plain `Try Again` and `Close Message` actions. The latest
      backend-copy slice changes database-domain user messages toward
-     local-job-data wording. Continue looking for new issues as new surfaces
-     change.
+     local-job-data wording. The latest support-panel slice keeps Error Log
+     actions in safe support report language and makes per-problem removal
+     clearer. Continue looking for new issues as new surfaces change.
    - Latest pushed checkpoint: `2e28a55f` on `origin/main`; remote CI and Docs
      Harness both passed after the broad-audience privacy and hiring-trend
      label slices.

@@ -392,7 +392,7 @@ or alerts, JobSentinel contacts only the sources or alert providers you choose.
 
 You do not need to find app files for normal help. Use **Save Safe Support
 Report** or **Copy Safe Support Report** instead. The locations below are for
-advanced support or your own inspection.
+extra support or your own inspection.
 
 **Saved jobs and settings:** your local JobSentinel file.
 

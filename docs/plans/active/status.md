@@ -841,6 +841,9 @@ and record actionable findings in this active-plan surface.
 - Current local backend-copy slice changes database-domain user messages toward
   local-job-data wording so renderer fallbacks avoid database, query, schema,
   and disk I/O jargon.
+- Current local support-panel slice keeps Error Log actions in safe support
+  report language, changes the per-problem clear action to `Remove from List`,
+  and replaces advanced-support wording in Quick Start.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.
@@ -865,8 +868,8 @@ and record actionable findings in this active-plan surface.
    recovery, feedback, empty states, and error screens.
   The latest support-path, privacy-copy, USAJobs setup, Telegram setup,
   dashboard match-label, Application Assist stat-label, resume overall-match,
-  recovery action-label, and database user-message findings are closed locally;
-  continue looking for new issues as later slices touch copy.
+  recovery action-label, database user-message, and support-panel findings are
+  closed locally; continue looking for new issues as later slices touch copy.
 4. Continue broad-audience review so non-technical and technical job searches
    both feel first-class.
    The latest tech-source heuristic finding is closed locally; keep auditing
