@@ -202,6 +202,21 @@ Recent local verification evidence:
   passed: focused release-promise plus repo-bloat tests passed 225 tests, `npm
   run test:scripts` passed 503 tests, `npm run lint:docs`, `npm run
   lint:bloat`, `npm run lint:security`, and `git diff --check` passed.
+- Current local macOS runtime proof on 2026-06-02 passed from the current
+  checkout after the user confirmed there is no Apple Developer Account:
+  `npm run doctor` passed with the known Node 26 local-runtime warning,
+  `npm run test:e2e:smoke:budget` passed 10 expected tests in about 9.2
+  seconds, and `cargo test --lib platforms::macos` passed 22 tests with 1
+  ignored. A fresh universal package build with
+  `PATH="/opt/homebrew/opt/rustup/bin:$PATH" npm run tauri:build:macos --
+  --target universal-apple-darwin` produced
+  `src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg`.
+  The rebuilt DMG passed `npm run tauri:verify:macos` with expected bundle id,
+  product name, version, icon, macOS 13.0 minimum metadata, `x86_64,arm64`
+  architectures, mounted-app launch smoke, copied installed-app launch smoke,
+  isolated local `jobs.db` creation, and app signature verification. Gatekeeper
+  rejected the ad-hoc local DMG and app as expected; public zero-friction
+  macOS distribution still requires Developer ID signing and notarization.
 - Current local post-publish macOS release follow-up adds
   `.github/workflows/verify-release-artifacts.yml`, which runs after a GitHub
   Release is published and can also be triggered manually with an optional
