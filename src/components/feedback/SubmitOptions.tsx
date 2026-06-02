@@ -89,8 +89,8 @@ export const SubmitOptions = memo(function SubmitOptions({
         </Button>
 
         <p className="text-xs text-surface-500 dark:text-surface-400 text-center">
-          This opens GitHub in your browser. Saving the report above does not
-          need an account.
+          This opens optional online help in your browser. Saving the report
+          above does not need an account.
         </p>
       </div>
     </div>

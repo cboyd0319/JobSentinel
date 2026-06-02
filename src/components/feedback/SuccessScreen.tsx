@@ -33,8 +33,8 @@ export const SuccessScreen = memo(function SuccessScreen({
 
           <div className="space-y-3 text-sm text-surface-600 dark:text-surface-400">
             <p>
-              GitHub should have opened in your browser. Your safe support report
-              is in your clipboard.
+              The online help page should have opened in your browser. Your safe
+              support report is in your clipboard.
             </p>
 
             <div className="bg-surface-50 dark:bg-surface-900 rounded-lg p-4 border border-surface-200 dark:border-surface-700">
@@ -49,7 +49,7 @@ export const SuccessScreen = memo(function SuccessScreen({
             </div>
 
             <p className="text-xs">
-              The GitHub page keeps replies and updates in one place.
+              That page keeps replies and updates in one place.
             </p>
           </div>
 

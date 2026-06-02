@@ -235,7 +235,12 @@ test("product copy rejects debug-report roadmap wording", () => {
     writeFixtureFile(
       root,
       "src/components/feedback/SubmitOptions.tsx",
-      "Save a safe report\nSafe report so you can paste it before submitting.\n",
+      "Save a safe report\nSafe report so you can paste it before submitting.\nThis opens GitHub in your browser.\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/components/feedback/SuccessScreen.tsx",
+      "GitHub should have opened in your browser.\nThe GitHub page keeps replies and updates in one place.\n",
     );
     writeFixtureFile(
       root,
@@ -282,6 +287,10 @@ test("product copy rejects debug-report roadmap wording", () => {
     );
     assert.equal(
       hasFeedbackLocalReportDrift(root, "src/components/feedback/SubmitOptions.tsx"),
+      true,
+    );
+    assert.equal(
+      hasFeedbackLocalReportDrift(root, "src/components/feedback/SuccessScreen.tsx"),
       true,
     );
     assert.equal(

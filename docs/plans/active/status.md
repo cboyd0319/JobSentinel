@@ -267,6 +267,14 @@ actionable findings in this active-plan surface or the relevant plan.
   32 tests, `node --test scripts/check-privacy-logging.test.mjs
   scripts/check-repo-bloat.test.mjs` passed 263 tests, targeted search found no
   removed feature-doc implementation markers, and `npm run lint:bloat` passed.
+- Committed local feedback copy cleanup replaces remaining GitHub-first online
+  help copy in the safe support report flow with optional online-help wording.
+  Product-copy sensors now reject those phrases if they drift back. Focused
+  verification passed: `npx vitest run
+  src/components/feedback/SubmitOptions.test.tsx
+  src/components/feedback/SuccessScreen.test.tsx` passed 5 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found no
+  removed GitHub-first feedback phrases, and `npm run lint:bloat` passed.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -335,6 +343,9 @@ Scope:
   references, module paths, command/test snippets, internal saved-file wording,
   or chat-number setup details. Developer architecture docs must own renderer
   DTO privacy contracts.
+- Feedback submit and success screens must keep the local safe support report
+  path primary and refer to optional online help rather than GitHub-specific
+  help-page copy.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
@@ -348,6 +359,7 @@ npm run lint
 node --test scripts/check-product-copy.test.mjs
 node --test scripts/check-security-docs.test.mjs
 node --test scripts/check-privacy-logging.test.mjs scripts/check-repo-bloat.test.mjs
+! rg -n "This opens GitHub in your browser|GitHub should have opened|The GitHub page keeps replies and updates" src/components/feedback
 ! rg -n "Technical Details|Signal Weights|Database Schema|API Commands|invoke\\(|ghost_reasons TEXT|ghost_score|repost_count|Ghost configuration commands|get_ghost_config|set_ghost_config|reset_ghost_config" docs/features/ghost-detection.md
 ! rg -n "For contributors|Developer Setup|Advanced: where JobSentinel saves local files" docs/user/QUICK_START.md
 ! rg -n "JSON Resume content|basics\\.|work\\[\\]|Developer contract|Implementation paths|select_and_import_json_resume|import_json_resume|Returned renderer DTOs|Run the focused Rust tests|cargo test core::resume::json_resume" docs/features/json-resume-import.md

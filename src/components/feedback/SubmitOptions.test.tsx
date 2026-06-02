@@ -39,6 +39,10 @@ describe("SubmitOptions", () => {
     expect(
       screen.getByText(/saving the report above does not need an account/i)
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(/opens optional online help in your browser/i)
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/opens github in your browser/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/sign up/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/community/i)).not.toBeInTheDocument();
   });

@@ -36,6 +36,9 @@ describe("SuccessScreen", () => {
       screen.getByText(/your safe support report is in your clipboard/i)
     ).toBeInTheDocument();
     expect(
+      screen.getByText(/online help page should have opened in your browser/i)
+    ).toBeInTheDocument();
+    expect(
       screen.getByText(/add anything else you want us to know/i)
     ).toBeInTheDocument();
     expect(
@@ -45,8 +48,10 @@ describe("SuccessScreen", () => {
       screen.getByText(/review the help form, then send it/i)
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/github page keeps replies and updates in one place/i)
+      screen.getByText(/that page keeps replies and updates in one place/i)
     ).toBeInTheDocument();
+    expect(screen.queryByText(/github should have opened/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/github page/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/review the issue/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/issue page/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/ready to submit/i)).not.toBeInTheDocument();

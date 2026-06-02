@@ -125,6 +125,14 @@ Recent remote integration evidence:
   --test scripts/check-privacy-logging.test.mjs scripts/check-repo-bloat.test.mjs`
   passed 263 tests, targeted search found no removed feature-doc implementation
   markers, and `npm run lint:bloat` passed.
+- Committed local feedback copy cleanup replaces remaining GitHub-first online
+  help copy in the safe support report flow with optional online-help wording.
+  Product-copy sensors now reject those phrases if they drift back. Focused
+  verification passed: `npx vitest run
+  src/components/feedback/SubmitOptions.test.tsx
+  src/components/feedback/SuccessScreen.test.tsx` passed 5 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found no
+  removed GitHub-first feedback phrases, and `npm run lint:bloat` passed.
 - Current local source-name copy follow-up changes README source coverage,
   source feature docs, public job-source issue template, shared source labels,
   and frontend mocks from `HN Who's Hiring` wording to `Startup and tech job
