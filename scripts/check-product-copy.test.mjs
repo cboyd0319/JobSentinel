@@ -470,6 +470,11 @@ test("product copy rejects stale match-ranking labels", () => {
       ["docs/style-guide/GLOSSARY.md", "match score"],
       ["docs/style-guide/WRITING-FOR-JOB-SEEKERS.md", "match scores"],
       ["docs/plans/active/guided-job-search-intake.md", "match scores"],
+      ["PRIVACY.md", "Alert details may include public job details and match score"],
+      ["RESPONSIBLE_AI.md", "Present match scores as hiring guarantees"],
+      ["docs/features/resume-matcher.md", "How To Read Match Results"],
+      ["docs/features/resume-matcher.md", "Overall match"],
+      ["docs/features/resume-matcher.md", "Low match"],
     ]) {
       writeFixtureFile(root, path, `${copy}\n`);
       assert.equal(hasNonProtectiveScoreCopy(root, path), true);

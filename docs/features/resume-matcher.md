@@ -45,7 +45,7 @@ External AI is not required for resume matching.
 3. Use **Import from resume app** only if another resume app gave you export
    text.
 4. Review suggested skills and add anything important that was missed.
-5. Open job details from the dashboard to see recent resume matches.
+5. Open job details from the dashboard to see recent resume fit reviews.
 6. Use skills found in both places and skills to review as evidence for a
    decision:
    tailor carefully, save for later, ask a question, or skip.
@@ -53,18 +53,18 @@ External AI is not required for resume matching.
 JobSentinel should explain fit in plain language. A person should not need to
 understand parsing, scoring, or employer screening systems to use the result.
 
-## How To Read Match Results
+## How To Read Fit Results
 
 | Signal | Meaning | Use it for |
 | --- | --- | --- |
-| Overall match | Combined fit signal from skills, experience, and education. | Decide whether the role deserves more attention. |
+| Overall fit | Combined fit signal from skills, experience, and education. | Decide whether the role deserves more attention. |
 | Skills fit | Resume skills that appear relevant to the posting. | Find real strengths to make clearer. |
-| Experience match | Years or level signals found in the posting and resume. | Notice lower-title, lower-pay, or stretch-role risk. |
-| Education match | Degree or credential signals found in the posting and resume. | Spot requirements that may need explanation. |
+| Experience fit | Years or level signals found in the posting and resume. | Notice lower-title, lower-pay, or stretch-role risk. |
+| Education fit | Degree or credential signals found in the posting and resume. | Spot requirements that may need explanation. |
 | Skills to review | Posting requirements not clearly represented in the resume. | Decide whether to revise, ask, learn, or skip. |
 
-Low match does not mean "do not apply." It means "review fit before spending
-extra time." Strong match does not guarantee a response. It means the resume and
+Low fit does not mean "do not apply." It means "review fit before spending
+extra time." Strong fit does not guarantee a response. It means the resume and
 posting share stronger visible evidence.
 
 ## Responsible Use
@@ -75,7 +75,7 @@ Resume matching must stay candidate-side and honest:
 - Do not hide keywords.
 - Do not stuff resumes with unrelated terms.
 - Do not prompt-inject resumes.
-- Do not present the match score as an employer decision.
+- Do not present the fit estimate as an employer decision.
 - Do not encourage users to apply to roles that violate their salary floor,
   location constraints, schedule needs, or other must-haves.
 
@@ -89,7 +89,7 @@ The current local matcher:
 - extracts readable text from PDF resumes;
 - identifies skills across broad career categories;
 - compares resume evidence with saved job-posting text;
-- returns match, experience, education, matched-skill, and missing-skill
+- returns fit, experience, education, matched-skill, and missing-skill
   signals;
 - stores results locally so recent job comparisons can be reviewed later.
 

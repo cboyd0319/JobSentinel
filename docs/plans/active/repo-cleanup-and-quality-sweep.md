@@ -164,6 +164,13 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local privacy/responsible/resume fit-language cleanup changes
+  `PRIVACY.md`, `RESPONSIBLE_AI.md`, and the Resume Match feature guide away
+  from match-score and match-result wording toward fit-level and fit-estimate
+  wording. Product-copy sensors now cover those maintained docs and reject
+  stale match-score, low/strong match, and match-result headings. Focused
+  product-copy, bloat, docs, harness, script, and diff-check verification
+  passed.
 - Current local fit-estimate style-guide cleanup changes maintained writing
   guidance, glossary, Smart Scoring docs, and the active guided-intake plan away
   from match-score and match-factor wording toward fit-estimate language.

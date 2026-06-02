@@ -31,6 +31,15 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local privacy/responsible/resume fit-language cleanup changes
+  `PRIVACY.md`, `RESPONSIBLE_AI.md`, and the Resume Match feature guide away
+  from match-score and match-result wording toward fit-level and fit-estimate
+  wording. Product-copy sensors now cover those maintained docs and reject
+  stale match-score, low/strong match, and match-result headings. Focused
+  verification passed: `node --test scripts/check-product-copy.test.mjs`
+  passed 41 tests, `npm run lint:bloat` passed, `npm run lint:docs` passed,
+  `npm run harness:check` passed, `npm run test:scripts` passed 466 tests, and
+  `git diff --check` passed.
 - Current local fit-estimate style-guide cleanup changes maintained writing
   guidance, glossary, Smart Scoring docs, and the active guided-intake plan away
   from match-score and match-factor wording toward fit-estimate language.

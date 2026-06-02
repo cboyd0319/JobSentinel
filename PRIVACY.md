@@ -60,7 +60,7 @@ Possible network activity:
 - User-requested location detection through FreeIPAPI.
 - External alerts through Slack, Discord, Teams, Telegram, or email channels the
   user turns on.
-  Alert details may include public job details and match score, but local match
+  Alert details may include public job details and fit level, but local fit
   reasons, salary-floor details, private notes, and application history stay in
   JobSentinel.
 - Feedback or issue-report sharing through GitHub or Google Drive only when the

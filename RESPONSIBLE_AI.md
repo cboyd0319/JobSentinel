@@ -31,7 +31,7 @@ JobSentinel does not:
 - Invent skills, credentials, employers, titles, dates, offers, or legal claims.
 - Infer protected-class traits for scoring or salary guidance.
 - Make final employment decisions.
-- Present match scores as hiring guarantees.
+- Present fit estimates as hiring guarantees.
 
 JobSentinel supports:
 
