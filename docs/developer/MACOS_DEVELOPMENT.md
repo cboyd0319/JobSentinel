@@ -1,7 +1,7 @@
 # JobSentinel - macOS Development Guide
 
-**Status:** Development works on macOS
-**Latest Tested:** macOS Sequoia (15.x) - January 2026
+**Status:** Development and local packaging work on macOS
+**Latest Tested:** macOS 26.5 on Apple Silicon - June 2026
 
 ---
 
@@ -74,7 +74,8 @@ JobSentinel creates the following directories on macOS:
 | **Cache** | `~/Library/Caches/JobSentinel` | Cache files |
 | **Logs** | `~/Library/Logs/JobSentinel` | Application logs |
 
-**Tested on:** macOS 15 (Sequoia), macOS 14 (Sonoma), macOS 13 (Ventura)
+**Tested on:** macOS 26.5 on Apple Silicon for local build and package smoke.
+Historical development coverage also includes macOS 15, macOS 14, and macOS 13.
 
 ### View Your Data
 
@@ -106,10 +107,30 @@ npm run tauri:dev
 ### Production Build
 
 ```bash
-npm run tauri:build
+npm run tauri:build -- --bundles app
 ```
 
-**Output:** `src-tauri/target/release/bundle/dmg/JobSentinel_<version>_<arch>.dmg`
+**App output:** `src-tauri/target/release/bundle/macos/JobSentinel.app`
+
+For a local `.dmg` package, use the maintained macOS packaging script:
+
+```bash
+npm run tauri:build:macos
+```
+
+**DMG output:** `src-tauri/target/release/bundle/dmg/JobSentinel_<version>_<arch>.dmg`
+
+For a universal `.dmg` package:
+
+```bash
+rustup target add aarch64-apple-darwin x86_64-apple-darwin
+npm run tauri:build:macos -- --target universal-apple-darwin
+```
+
+The packaging script builds the Tauri `.app`, verifies or ad-hoc signs the app
+bundle when no signing identity is configured, creates a drag-to-Applications
+DMG with `hdiutil`, and verifies the disk image. It avoids Finder AppleScript so
+the package path works in local shells and CI runners with Command Line Tools.
 
 **Note:** The `.dmg` installer is for distribution. You can also run the binary directly:
 

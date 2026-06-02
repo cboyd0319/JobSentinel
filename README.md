@@ -362,13 +362,19 @@ You need:
 - Platform dependencies listed in the
   [developer setup guide](docs/developer/GETTING_STARTED.md)
 
-Build:
+Build the app from source:
 
 ```bash
 git clone https://github.com/cboyd0319/JobSentinel
 cd JobSentinel
 npm install
 npm run tauri:build
+```
+
+On macOS, use the maintained DMG package path:
+
+```bash
+npm run tauri:build:macos
 ```
 
 Installer output:

@@ -146,7 +146,12 @@ jobs:
         run: npm ci
 
       - name: Build Tauri app
+        if: matrix.platform != 'macos-latest'
         run: npx tauri build --target ${{ matrix.target }}
+
+      - name: Build macOS app and DMG
+        if: matrix.platform == 'macos-latest'
+        run: npm run tauri:build:macos -- --target ${{ matrix.target }}
 
       # Windows MSI upload
       - name: Upload Windows MSI

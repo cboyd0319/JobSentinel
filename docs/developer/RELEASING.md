@@ -8,12 +8,12 @@ Production builds are created locally and published to [GitHub Releases](https:/
 
 ```bash
 # macOS (from Mac)
-npm run tauri build
+npm run tauri:build:macos
 # Output: src-tauri/target/release/bundle/dmg/JobSentinel_*.dmg
 
 # macOS universal binary (Intel + Apple Silicon)
 rustup target add aarch64-apple-darwin x86_64-apple-darwin
-npx tauri build --target universal-apple-darwin
+npm run tauri:build:macos -- --target universal-apple-darwin
 
 # Windows (from Windows machine or VM)
 npm run tauri build
@@ -42,7 +42,7 @@ Review the draft release on GitHub and click "Publish release".
 
 | Platform | Architecture          | Format      | Status   |
 | -------- | --------------------- | ----------- | -------- |
-| macOS    | universal             | `.dmg`      | Ready |
+| macOS    | universal             | `.dmg`      | Ready after local package smoke |
 | Windows  | x86_64                | `.msi`      | Ready |
 | Linux    | x86_64                | `.AppImage` / `.deb` | Workflow ready |
 

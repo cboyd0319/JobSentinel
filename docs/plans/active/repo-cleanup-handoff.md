@@ -31,6 +31,23 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local macOS packaging work adds `npm run tauri:build:macos`, a
+  maintained DMG builder that runs Tauri app bundling, verifies or ad-hoc signs
+  `JobSentinel.app`, creates a drag-to-Applications DMG with `hdiutil`, and
+  avoids Finder AppleScript. Verification passed on macOS 26.5 Apple Silicon:
+  `node --test scripts/build-macos-dmg.test.mjs` passed 5 tests,
+  `npm run tauri:build:macos` produced
+  `src-tauri/target/release/bundle/macos/JobSentinel.app` and
+  `src-tauri/target/release/bundle/dmg/JobSentinel_2.6.4_aarch64.dmg`,
+  `hdiutil verify` reported a valid checksum, mounted-DMG inspection found
+  `JobSentinel.app` and the `Applications` symlink, `codesign --verify --deep
+  --strict --verbose=2` passed for the app inside the mounted DMG, and the
+  packaged app stayed running for 12 seconds under an isolated temporary
+  `HOME` with stderr empty before clean termination. Follow-up verification
+  also passed: `npm run test:scripts` passed 477 tests, `npm run
+  harness:check`, `npm run lint:docs`, `git diff --check`, and `npm run
+  doctor` passed with one expected local-runtime warning because this Mac is
+  running Node 26 while CI uses Node 20.
 - Current local Resume Match parser fix keeps required and preferred job-post
   sections separate when a posting uses ordinary single-line headings, so
   preferred words are not promoted into required review buckets. Verification

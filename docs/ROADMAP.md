@@ -137,6 +137,7 @@ npm run lint
 npm run test:run
 npm run test:e2e:smoke
 npm run build
+npm run tauri:build:macos # macOS package check, on macOS only
 cd src-tauri && cargo fmt --all -- --check
 cd src-tauri && cargo clippy -- -D warnings
 cd src-tauri && cargo test --lib

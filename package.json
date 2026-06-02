@@ -1,7 +1,7 @@
 {
   "name": "jobsentinel",
   "version": "2.6.4",
-  "description": "Privacy-preserving job-search assistant for Windows 11+",
+  "description": "Privacy-preserving local-first job-search assistant for desktop",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -48,6 +48,7 @@
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
+    "tauri:build:macos": "node scripts/build-macos-dmg.mjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "prepare": "husky"

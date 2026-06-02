@@ -20,12 +20,14 @@ implementation slices that can run without shared-state conflicts. Keep scopes
 bounded, preserve user changes, close completed agents promptly, and record
 actionable findings in this active-plan surface or the relevant plan.
 
-Top functional priority as of 2026-06-02: resume assistance with
-screening-system transparency and application readability. This means resume
-parsing, readable exports, resume/job fit review, required-versus-preferred
-qualification review, and truthful edit support move ahead of lower-impact
-cleanup. It does not mean hidden keyword edits, deceptive resume changes,
-screening-system manipulation, or unreviewed form sending.
+Top functional priority as of 2026-06-02: fully functional macOS build and
+package flow. Resume assistance with screening-system transparency and
+application readability remains the next functional priority after the macOS
+build path is verified and committed. Resume work means resume parsing,
+readable exports, resume/job fit review, required-versus-preferred
+qualification review, and truthful edit support. It does not mean hidden
+keyword edits, deceptive resume changes, screening-system manipulation, or
+unreviewed form sending.
 
 ## Workstreams
 
@@ -41,6 +43,23 @@ screening-system manipulation, or unreviewed form sending.
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local macOS packaging work adds `npm run tauri:build:macos`, a
+  maintained DMG builder that runs Tauri app bundling, verifies or ad-hoc signs
+  `JobSentinel.app`, creates a drag-to-Applications DMG with `hdiutil`, and
+  avoids Finder AppleScript. Verification passed on macOS 26.5 Apple Silicon:
+  `node --test scripts/build-macos-dmg.test.mjs` passed 5 tests,
+  `npm run tauri:build:macos` produced
+  `src-tauri/target/release/bundle/macos/JobSentinel.app` and
+  `src-tauri/target/release/bundle/dmg/JobSentinel_2.6.4_aarch64.dmg`,
+  `hdiutil verify` reported a valid checksum, mounted-DMG inspection found
+  `JobSentinel.app` and the `Applications` symlink, `codesign --verify --deep
+  --strict --verbose=2` passed for the app inside the mounted DMG, and the
+  packaged app stayed running for 12 seconds under an isolated temporary
+  `HOME` with stderr empty before clean termination. Follow-up verification
+  also passed: `npm run test:scripts` passed 477 tests, `npm run
+  harness:check`, `npm run lint:docs`, `git diff --check`, and `npm run
+  doctor` passed with one expected local-runtime warning because this Mac is
+  running Node 26 while CI uses Node 20.
 - Current local Resume Match parser fix keeps required and preferred job-post
   sections separate when a posting uses ordinary single-line headings, so
   preferred words are not promoted into required review buckets. Verification
