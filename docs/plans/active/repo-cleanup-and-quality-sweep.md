@@ -618,6 +618,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-02 | In progress | Reworded Resume Optimizer missing-job-post and empty-bullet validation to action-first copy, enabled empty Draft to show guidance instead of doing nothing, and added focused tests plus product-copy stale phrase checks. |
 | 2026-06-02 | In progress | Reworded Resume saved-skill validation from invalid-skill wording to `Name the skill` with action guidance, added a focused Resume page regression test, and added product-copy stale phrase checks. |
 | 2026-06-02 | In progress | Reworded saved-search empty-name validation from form-rule wording to `Name this search` with action guidance, added focused hook coverage, and added product-copy stale phrase checks. |
 | 2026-06-02 | In progress | Replaced the Application Profile generic resume-file picker button with `Choose Resume` and added product-copy coverage against the stale file-manager label. |

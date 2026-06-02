@@ -215,6 +215,24 @@ describe("ResumeOptimizer", () => {
     expect(mockInvoke).not.toHaveBeenCalledWith("analyze_resume_for_job", expect.anything());
   });
 
+  it("uses action-first validation copy before match review without a job post", async () => {
+    const user = userEvent.setup();
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    await openResumeAppImport(user);
+    fireEvent.change(screen.getByLabelText(/resume app export/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /review match/i }));
+
+    expect(mockToast.error).toHaveBeenCalledWith(
+      "Add job post",
+      "Paste the job post, then review again.",
+    );
+    expect(mockInvoke).not.toHaveBeenCalledWith("analyze_resume_for_job", expect.anything());
+  });
+
   it("submits valid resume app export for format review", async () => {
     const user = userEvent.setup();
     render(<ResumeOptimizer onBack={vi.fn()} />);
@@ -409,5 +427,19 @@ describe("ResumeOptimizer", () => {
     });
 
     expect(toastErrorText()).not.toMatch(/raw-secret|chad@example\.com|\/Users\/chad/);
+  });
+
+  it("uses action-first validation copy before drafting an empty bullet", async () => {
+    const user = userEvent.setup();
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    await user.click(screen.getByRole("button", { name: /draft alternative bullet/i }));
+    await user.click(screen.getByRole("button", { name: "Draft" }));
+
+    expect(mockToast.error).toHaveBeenCalledWith(
+      "Add a bullet point",
+      "Paste or write one bullet, then draft again.",
+    );
+    expect(mockInvoke).not.toHaveBeenCalledWith("improve_bullet_point", expect.anything());
   });
 });

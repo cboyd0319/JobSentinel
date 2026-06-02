@@ -867,6 +867,9 @@ and record actionable findings in this active-plan surface.
   `Name this search` with action guidance and focused hook coverage.
 - Current local Resume skill-validation slice changes empty-skill copy to
   `Name the skill` with action guidance and focused page coverage.
+- Current local Resume Optimizer validation slice changes missing-job-post and
+  empty-bullet guidance to action-first copy, and empty Draft now shows guidance
+  instead of doing nothing.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

@@ -255,7 +255,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
   // Analyze resume
   const handleAnalyze = async () => {
     if (!jobDescription.trim()) {
-      toast.error("Missing input", "Please paste a job post first");
+      toast.error("Add job post", "Paste the job post, then review again.");
       return;
     }
 
@@ -331,7 +331,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
   // Draft a reviewed alternative for a resume bullet.
   const handleImproveBullet = async () => {
     if (!bulletInput.trim()) {
-      toast.error("Missing input", "Please enter a bullet point to draft");
+      toast.error("Add a bullet point", "Paste or write one bullet, then draft again.");
       return;
     }
 
@@ -1007,7 +1007,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
             >
               Close
             </Button>
-            <Button onClick={handleImproveBullet} loading={improvingBullet} disabled={!bulletInput.trim()}>
+            <Button onClick={handleImproveBullet} loading={improvingBullet}>
               Draft
             </Button>
           </ModalFooter>
