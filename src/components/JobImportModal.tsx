@@ -37,6 +37,41 @@ interface JobImportModalProps {
   onImportSuccess?: () => void;
 }
 
+const missingDetailLabels = new Map<string, string>([
+  ["title", "job title"],
+  ["job_title", "job title"],
+  ["company", "company name"],
+  ["company_name", "company name"],
+  ["salary", "pay range"],
+  ["salary_min", "pay range"],
+  ["salary_max", "pay range"],
+  ["pay", "pay range"],
+  ["pay_range", "pay range"],
+  ["date_posted", "posting date"],
+  ["posted_date", "posting date"],
+  ["posting_date", "posting date"],
+  ["valid_through", "closing date"],
+  ["location", "location"],
+  ["remote", "remote option"],
+  ["employment_type", "work type"],
+  ["employment_types", "work type"],
+  ["description", "job description"],
+  ["description_preview", "job description"],
+  ["url", "job link"],
+  ["job_url", "job link"],
+  ["job_link", "job link"],
+]);
+
+function formatMissingDetail(field: string) {
+  const normalized = field.trim().toLowerCase().replace(/[\s-]+/g, "_");
+  return missingDetailLabels.get(normalized) ?? normalized.replace(/_/g, " ");
+}
+
+function formatMissingDetails(fields: string[]) {
+  const labels = fields.map(formatMissingDetail);
+  return [...new Set(labels)].join(", ");
+}
+
 function getSafeJobImportError(error: unknown) {
   const friendly = getUserFriendlyError(error);
   return {
@@ -266,7 +301,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
                   <p className="flex items-start gap-1.5 text-xs text-yellow-800 dark:text-yellow-200">
                     <WarningIcon className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
                     <span>
-                      Missing details: {preview.missing_fields.join(", ")}. You can still save this job
+                      Details to check: {formatMissingDetails(preview.missing_fields)}. You can still save this job
                       and verify the missing details before tailoring.
                     </span>
                   </p>

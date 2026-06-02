@@ -168,6 +168,9 @@ boundaries, and harness modularity:
   its `Last updated` date lags newer active-plan entries or when it records
   stale measured harness counts instead of pointing to
   `npm run harness:session -- --json`.
+- Tightened Job Import preview copy so missing details are shown as readable
+  details-to-check labels instead of raw backend field names, with focused
+  component and product-copy harness coverage against drift.
 - Tightened another zero-technical support and protective-copy slice: public
   issue templates now avoid bug/feature/scraper-first wording, safe support
   report docs require review before sharing, source status avoids
@@ -622,6 +625,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-02 | In progress | Reworded Job Import missing-preview warnings from raw missing-field lists to readable details-to-check labels and added focused component plus product-copy coverage against raw `missing_fields.join` display. |
 | 2026-06-02 | In progress | Added docs-drift checks for active-status last-updated lag and stale measured harness-count prose, then rewrote compact status count notes to point at `npm run harness:session -- --json`. |
 | 2026-06-02 | In progress | Reworded Resume Optimizer missing-job-post and empty-bullet validation to action-first copy, enabled empty Draft to show guidance instead of doing nothing, and added focused tests plus product-copy stale phrase checks. |
 | 2026-06-02 | In progress | Reworded Resume saved-skill validation from invalid-skill wording to `Name the skill` with action guidance, added a focused Resume page regression test, and added product-copy stale phrase checks. |

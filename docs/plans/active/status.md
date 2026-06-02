@@ -31,6 +31,10 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local zero-technical job-import follow-up changes missing-preview
+  warnings from raw missing-field lists to readable details-to-check labels, so
+  backend keys such as salary or job-link fields do not leak into the import
+  modal. Focused component and product-copy harness tests guard the drift.
 - Latest local active-status drift harness work adds docs-drift checks so the
   compact active status fails locally when its `Last updated` date lags newer
   active-plan entries or when it records stale measured harness counts instead

@@ -131,7 +131,8 @@ describe("JobImportModal", () => {
     });
     await user.click(screen.getByRole("button", { name: "Check Job Link" }));
 
-    expect(await screen.findByText(/You can still save this job/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Details to check: pay range, posting date/i)).toBeInTheDocument();
+    expect(screen.getByText(/You can still save this job/i)).toBeInTheDocument();
     const saveButton = screen.getByRole("button", { name: "Save Job" });
     expect(saveButton).not.toBeDisabled();
 
@@ -140,5 +141,25 @@ describe("JobImportModal", () => {
     expect(mockInvoke).toHaveBeenLastCalledWith("import_job_from_url", {
       url: "https://example.com/jobs/office-manager",
     });
+  });
+
+  it("shows readable labels when imported missing fields use backend keys", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce({
+      ...preview,
+      missing_fields: ["salary_min", "salary_max", "company_name", "job_url"],
+    });
+
+    renderModal();
+
+    fireEvent.change(screen.getByLabelText("Job link"), {
+      target: { value: "https://example.com/jobs/office-manager" },
+    });
+    await user.click(screen.getByRole("button", { name: "Check Job Link" }));
+
+    expect(
+      await screen.findByText(/Details to check: pay range, company name, job link/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/salary_min|salary_max|company_name|job_url/)).not.toBeInTheDocument();
   });
 });

@@ -421,6 +421,11 @@ test("product copy rejects technical-first settings copy", () => {
       "src/components/BookmarkletGenerator.tsx",
       "Create a new bookmark in your browser (Cmd/Ctrl+D)\nbookmark address field\n",
     );
+    writeFixtureFile(
+      root,
+      "src/components/JobImportModal.tsx",
+      "Missing details: {preview.missing_fields.join(', ')}\n",
+    );
     writeFixtureFile(root, "docs/features/smart-scoring.md", "Settings > Advanced Settings\n");
     writeFixtureFile(
       root,
@@ -890,6 +895,7 @@ test("product copy rejects technical-first settings copy", () => {
       hasTechnicalFirstUserCopy(root, "src/components/BookmarkletGenerator.tsx"),
       true,
     );
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/JobImportModal.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/AnalyticsPanel.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/DashboardUI/filterLabels.ts"), true);
     assert.equal(

@@ -800,6 +800,17 @@ export function hasTechnicalFirstUserCopy(root, path) {
     return true;
   }
 
+  if (path === "src/components/JobImportModal.tsx") {
+    const importPatterns = [
+      /Missing details:\s*\{?preview\.missing_fields\.join/i,
+      /preview\.missing_fields\.join\(\s*["'`],\s*["'`]\s*\)/i,
+    ];
+
+    if (importPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
   if (path === "src/pages/Settings.tsx") {
     const settingsPatterns = [
       /Review before anything is sent/i,

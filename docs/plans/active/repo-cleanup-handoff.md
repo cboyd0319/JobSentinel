@@ -995,6 +995,15 @@ Latest active-status drift harness slice checks on 2026-06-02:
 - `npm run harness:check`
 - `git diff --check`
 
+Latest zero-technical Job Import slice checks on 2026-06-02:
+
+- `npm run test:run -- src/components/JobImportModal.test.tsx`
+- `node --test scripts/check-product-copy.test.mjs`
+- `npm run lint:bloat`
+- `npm run lint`
+- `npm run lint:docs`
+- `git diff --check`
+
 Latest harness benchmark slice checks on 2026-06-01:
 
 - `node --check scripts/harness-benchmark.mjs`
