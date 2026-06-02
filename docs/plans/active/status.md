@@ -59,7 +59,12 @@ unreviewed form sending.
   also passed: `npm run test:scripts` passed 477 tests, `npm run
   harness:check`, `npm run lint:docs`, `git diff --check`, and `npm run
   doctor` passed with one expected local-runtime warning because this Mac is
-  running Node 26 while CI uses Node 20.
+  running Node 26 while CI uses Node 20. Post-commit macOS platform testing
+  found an env-var race in macOS tests that mutate `HOME` and
+  `XDG_CONFIG_HOME`; the test module now serializes env-dependent tests with a
+  shared mutex. Verification passed: `cargo test --lib platforms::macos`
+  passed 22 tests with 1 ignored, and `cargo test --lib` passed 2492 tests
+  with 21 ignored.
 - Current local Resume Match parser fix keeps required and preferred job-post
   sections separate when a posting uses ordinary single-line headings, so
   preferred words are not promoted into required review buckets. Verification

@@ -154,9 +154,20 @@ pub fn get_logs_dir() -> PathBuf {
 mod tests {
     use super::*;
     use std::env;
+    use std::sync::{Mutex, MutexGuard, OnceLock};
+
+    static ENV_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
+
+    fn env_guard() -> MutexGuard<'static, ()> {
+        ENV_LOCK
+            .get_or_init(|| Mutex::new(()))
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
+    }
 
     #[test]
     fn test_get_data_dir() {
+        let _env = env_guard();
         let dir = get_data_dir();
         assert!(dir.to_string_lossy().contains("JobSentinel"));
         assert!(dir.to_string_lossy().contains("Library"));
@@ -165,6 +176,7 @@ mod tests {
 
     #[test]
     fn test_get_data_dir_structure() {
+        let _env = env_guard();
         let dir = get_data_dir();
         let path_str = dir.to_string_lossy();
 
@@ -174,6 +186,7 @@ mod tests {
 
     #[test]
     fn test_get_data_dir_with_home_env() {
+        let _env = env_guard();
         // Save original HOME
         let original_home = env::var("HOME").ok();
 
@@ -195,6 +208,7 @@ mod tests {
 
     #[test]
     fn test_get_config_dir() {
+        let _env = env_guard();
         let dir = get_config_dir();
         assert!(dir.to_string_lossy().contains("jobsentinel"));
         // Should be either .config or XDG_CONFIG_HOME
@@ -204,6 +218,7 @@ mod tests {
 
     #[test]
     fn test_get_config_dir_default_path() {
+        let _env = env_guard();
         // Save original env vars
         let original_home = env::var("HOME").ok();
         let original_xdg = env::var("XDG_CONFIG_HOME").ok();
@@ -228,6 +243,7 @@ mod tests {
 
     #[test]
     fn test_get_config_dir_with_xdg_config_home() {
+        let _env = env_guard();
         // Save original env vars
         let original_xdg = env::var("XDG_CONFIG_HOME").ok();
 
@@ -246,6 +262,7 @@ mod tests {
 
     #[test]
     fn test_get_cache_dir() {
+        let _env = env_guard();
         let dir = get_cache_dir();
         assert!(dir.to_string_lossy().contains("JobSentinel"));
         assert!(dir.to_string_lossy().contains("Caches"));
@@ -253,6 +270,7 @@ mod tests {
 
     #[test]
     fn test_get_cache_dir_structure() {
+        let _env = env_guard();
         let dir = get_cache_dir();
         let path_str = dir.to_string_lossy();
 
@@ -262,6 +280,7 @@ mod tests {
 
     #[test]
     fn test_get_cache_dir_with_home_env() {
+        let _env = env_guard();
         // Save original HOME
         let original_home = env::var("HOME").ok();
 
@@ -283,6 +302,7 @@ mod tests {
 
     #[test]
     fn test_get_logs_dir() {
+        let _env = env_guard();
         let dir = get_logs_dir();
         assert!(dir.to_string_lossy().contains("JobSentinel"));
         assert!(dir.to_string_lossy().contains("Logs"));
@@ -290,6 +310,7 @@ mod tests {
 
     #[test]
     fn test_get_logs_dir_structure() {
+        let _env = env_guard();
         let dir = get_logs_dir();
         let path_str = dir.to_string_lossy();
 
@@ -299,6 +320,7 @@ mod tests {
 
     #[test]
     fn test_get_logs_dir_with_home_env() {
+        let _env = env_guard();
         // Save original HOME
         let original_home = env::var("HOME").ok();
 
@@ -317,12 +339,14 @@ mod tests {
 
     #[test]
     fn test_get_macos_version() {
+        let _env = env_guard();
         let version = get_macos_version();
         assert!(version.contains("macOS"));
     }
 
     #[test]
     fn test_get_macos_version_format() {
+        let _env = env_guard();
         let version = get_macos_version();
 
         // Should either be "macOS X.Y" or "macOS (unknown)"
@@ -335,12 +359,14 @@ mod tests {
 
     #[test]
     fn test_is_sandboxed() {
+        let _env = env_guard();
         // This test just verifies the function runs without panic
         let _ = is_sandboxed();
     }
 
     #[test]
     fn test_is_sandboxed_detection() {
+        let _env = env_guard();
         // Save original HOME
         let original_home = env::var("HOME").ok();
 
@@ -364,6 +390,7 @@ mod tests {
 
     #[test]
     fn test_is_sandboxed_no_home_env() {
+        let _env = env_guard();
         // Save original HOME
         let original_home = env::var("HOME").ok();
 
@@ -383,6 +410,7 @@ mod tests {
     #[test]
     #[ignore = "env var isolation issue in parallel test execution - code works in production"]
     fn test_initialize_creates_directories() {
+        let _env = env_guard();
         use tempfile::TempDir;
 
         // Create temporary home directory
@@ -429,6 +457,7 @@ mod tests {
 
     #[test]
     fn test_initialize_existing_directories() {
+        let _env = env_guard();
         use std::fs;
         use tempfile::TempDir;
 
@@ -471,6 +500,7 @@ mod tests {
 
     #[test]
     fn test_path_consistency() {
+        let _env = env_guard();
         // All path functions should use consistent logic for path construction
         let data_dir = get_data_dir();
         let config_dir = get_config_dir();
@@ -495,6 +525,7 @@ mod tests {
 
     #[test]
     fn test_directory_names_are_correct() {
+        let _env = env_guard();
         let data_dir = get_data_dir();
         let config_dir = get_config_dir();
         let cache_dir = get_cache_dir();
@@ -509,6 +540,7 @@ mod tests {
 
     #[test]
     fn test_data_dir_follows_apple_guidelines() {
+        let _env = env_guard();
         let dir = get_data_dir();
         let path_str = dir.to_string_lossy();
 
@@ -518,6 +550,7 @@ mod tests {
 
     #[test]
     fn test_config_dir_follows_xdg_spec() {
+        let _env = env_guard();
         // Save original env vars
         let original_xdg = env::var("XDG_CONFIG_HOME").ok();
 
