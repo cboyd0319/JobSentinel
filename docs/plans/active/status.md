@@ -34,6 +34,17 @@ actionable findings in this active-plan surface or the relevant plan.
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local pay-floor empty-state cleanup changes the no-jobs Dashboard
+  helper text so empty searches suggest nearby titles, locations, work modes,
+  or more sources before changing the user's lowest acceptable pay. Product
+  copy sensors now include that empty-state helper and reject old recovery
+  wording that nudges users to broaden or adjust their lowest pay. Verification
+  passed: `npx vitest run src/pages/Dashboard.test.tsx` passed 14 tests,
+  `node --test scripts/check-product-copy.test.mjs` passed 43 tests, and
+  `node --test scripts/check-repo-bloat.test.mjs` passed 221 tests. Broader
+  checks also passed: `npm run lint`, `npm run test:scripts` passed 468 tests,
+  `npm run lint:bloat`, `npm run lint:docs`, `npm run harness:check`, and
+  `git diff --check`.
 - Current local Resume review evidence-label cleanup changes ResumeOptimizer
   and AtsLiveScorePanel away from format-result percentages, `Overall Match`
   wording, and row-level score percentages. The visible UI now uses

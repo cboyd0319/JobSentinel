@@ -1786,6 +1786,10 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local broad-audience copy follow-up replaces jargon in Quick Start,
   resume import, privacy tables, match/posting-risk guidance, and source-health
   troubleshooting with plain job-seeker language.
+- Current local pay-floor empty-state cleanup changes no-jobs Dashboard
+  recovery copy so empty searches suggest nearby titles, locations, work modes,
+  or more sources before changing the user's lowest acceptable pay. Product
+  copy and bloat sensors now reject old lowest-pay broadening guidance.
 - Current local E2E smoke follow-up syncs Settings, Hiring Trends, and
   Application Assist Playwright selectors and report names with current
   plain-language UI labels. `npm run test:e2e:smoke:budget` now passes locally

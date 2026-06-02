@@ -189,9 +189,18 @@ test("product copy rejects non-protective salary-floor troubleshooting", () => {
       "docs/user/QUICK_START.md",
       "Lower your minimum salary to $0 temporarily\n",
     );
+    writeFixtureFile(
+      root,
+      "src/pages/DashboardUI/noJobsEmptyStateCopy.ts",
+      "If a search comes back empty, broaden the role title, location, or lowest pay you want.\n",
+    );
 
     assert.equal(
       hasNonProtectivePayFloorRecoveryCopy(root, "docs/user/QUICK_START.md"),
+      true,
+    );
+    assert.equal(
+      hasNonProtectivePayFloorRecoveryCopy(root, "src/pages/DashboardUI/noJobsEmptyStateCopy.ts"),
       true,
     );
     assert.equal(

@@ -231,6 +231,8 @@ describe("Dashboard no-jobs empty state copy", () => {
     expect(copy.title).toBe("No jobs yet");
     expect(copy.primaryLabel).toBe("Search Now");
     expect(copy.secondaryLabel).toBe("Adjust Search Preferences");
+    expect(copy.helperText).toContain("before changing your lowest acceptable pay");
+    expect(copy.helperText).not.toContain("lowest pay you want");
     expect(copy.firstStepTitle).toBe("Search selected job sites");
     expect(copy.firstStepDescription).toBe("JobSentinel checks them on your schedule");
   });

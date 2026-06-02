@@ -97,6 +97,7 @@ const payPlainLanguagePaths = new Set([
 
 const payFloorRecoveryCopyPaths = new Set([
   "docs/user/QUICK_START.md",
+  "src/pages/DashboardUI/noJobsEmptyStateCopy.ts",
 ]);
 
 const feedbackLocalReportPaths = new Set([
@@ -542,6 +543,8 @@ export function hasNonProtectivePayFloorRecoveryCopy(root, path) {
     /set (?:your )?(?:minimum salary|salary floor|pay floor) to \$0/i,
     /remove (?:your )?(?:minimum salary|salary floor|pay floor)/i,
     /disable (?:your )?(?:minimum salary|salary floor|pay floor)/i,
+    /broaden .*lowest pay/i,
+    /adjust .*lowest pay/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));

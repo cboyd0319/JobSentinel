@@ -31,7 +31,7 @@ export function getNoJobsEmptyStateCopy(
     primaryLabel: "Search Now",
     secondaryLabel: "Adjust Search Preferences",
     helperText:
-      "If a search comes back empty, broaden the role title, location, or lowest pay you want.",
+      "If a search comes back empty, try nearby role titles, locations, work modes, or more sources before changing your lowest acceptable pay.",
     firstStepTitle: "Search selected job sites",
     firstStepDescription: "JobSentinel checks them on your schedule",
   };

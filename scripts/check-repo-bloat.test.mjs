@@ -2266,15 +2266,30 @@ test("checkRepoBloat rejects non-protective salary-floor troubleshooting", () =>
       "docs/user/QUICK_START.md",
       "Lower your minimum salary to $0 temporarily\n",
     );
+    writeFixtureFile(
+      root,
+      "src/pages/DashboardUI/noJobsEmptyStateCopy.ts",
+      "If a search comes back empty, broaden the role title, location, or lowest pay you want.\n",
+    );
 
-    execFileSync("git", ["add", "package.json", "docs/user/QUICK_START.md"], {
-      cwd: root,
-    });
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/user/QUICK_START.md", "src/pages/DashboardUI/noJobsEmptyStateCopy.ts"],
+      {
+        cwd: root,
+      },
+    );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
       violations.includes("keep salary-floor troubleshooting protective: docs/user/QUICK_START.md"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "keep salary-floor troubleshooting protective: src/pages/DashboardUI/noJobsEmptyStateCopy.ts",
+      ),
       violations.join("\n"),
     );
   });
