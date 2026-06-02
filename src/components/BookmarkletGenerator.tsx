@@ -219,7 +219,7 @@ export function BookmarkletGenerator() {
               <h5 className="text-sm font-medium text-green-400 mb-2">How to Use:</h5>
               <ol className="text-sm text-gray-300 space-y-2 list-decimal list-inside">
                 <li>Open an individual job page. Official career pages usually work best.</li>
-                <li>Click the "Import to JobSentinel" button in your bookmarks bar</li>
+                <li>Use the "Import to JobSentinel" button in your bookmarks bar</li>
                 <li>JobSentinel saves the details it can read from that page</li>
                 <li>You'll see a confirmation message</li>
               </ol>

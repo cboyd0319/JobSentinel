@@ -309,7 +309,7 @@ Prepare repeated application details while keeping each submission under your co
 
 1. Click **Prepare Form** on a job worth reviewing
 2. JobSentinel opens the browser and prepares matching details
-3. You review everything and click Submit yourself only if the role still fits
+3. You review everything and submit it yourself only if the role still fits
 
 **Important:** JobSentinel never submits applications without you.
 See [Application Assist Guide](../features/one-click-apply.md) for setup.

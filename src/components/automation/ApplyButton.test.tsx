@@ -1001,7 +1001,7 @@ describe("ApplyButton", () => {
       await user.click(screen.getByRole("button", { name: /close browser/i }));
 
       await waitFor(() => {
-        expect(screen.getByText("Did you click Submit?")).toBeInTheDocument();
+        expect(screen.getByText("Did you submit the application?")).toBeInTheDocument();
       });
     });
 
@@ -1027,10 +1027,10 @@ describe("ApplyButton", () => {
       await user.click(screen.getByRole("button", { name: /close browser/i }));
 
       await waitFor(() => {
-        expect(screen.getByText("Did you click Submit?")).toBeInTheDocument();
+        expect(screen.getByText("Did you submit the application?")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole("button", { name: /yes, i clicked submit/i }));
+      await user.click(screen.getByRole("button", { name: /yes, i submitted it/i }));
 
       await waitFor(() => {
         expect(mockInvoke).toHaveBeenCalledWith("mark_attempt_submitted", { attemptId: 888 });
@@ -1059,10 +1059,10 @@ describe("ApplyButton", () => {
       await user.click(screen.getByRole("button", { name: /close browser/i }));
 
       await waitFor(() => {
-        expect(screen.getByText("Did you click Submit?")).toBeInTheDocument();
+        expect(screen.getByText("Did you submit the application?")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole("button", { name: /yes, i clicked submit/i }));
+      await user.click(screen.getByRole("button", { name: /yes, i submitted it/i }));
 
       await waitFor(() => {
         expect(localStorage.removeItem).toHaveBeenCalledWith("lastAttempt_test-hash-123");
@@ -1090,7 +1090,7 @@ describe("ApplyButton", () => {
       await user.click(screen.getByRole("button", { name: /close browser/i }));
 
       await waitFor(() => {
-        expect(screen.getByText("Did you click Submit?")).toBeInTheDocument();
+        expect(screen.getByText("Did you submit the application?")).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /no, skip/i }));

@@ -170,7 +170,7 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
           </li>
           <li className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-            <strong>Final Submit button (you click this yourself)</strong>
+            <strong>Final Submit button (you use this yourself)</strong>
           </li>
         </ul>
       </section>
@@ -185,7 +185,7 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
               <li>A browser window will open with the application page</li>
               <li>Matching profile details are prepared for your review</li>
               <li>Review every prepared detail and complete any missing fields</li>
-              <li>When ready, click the Submit button yourself</li>
+              <li>When ready, submit the form yourself</li>
             </ol>
           </div>
         </div>

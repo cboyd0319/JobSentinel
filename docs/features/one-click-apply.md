@@ -17,7 +17,7 @@ visible browser, then you inspect every field and decide whether to submit.
    visible browser.
 4. **Review everything** - check prepared details, complete blank fields, and
    decide whether this role still fits your constraints.
-5. **Click Submit yourself** - JobSentinel never clicks the final button.
+5. **Submit it yourself** - JobSentinel never sends the final application.
 
 Application Assist is review-first by design. It should save effort on repeated
 details, not push you into applications you do not want.
@@ -125,7 +125,7 @@ capitalization.
    - Complete any human check if the site asks.
    - Answer any questions that were not saved.
 7. Review the full application one more time.
-8. Click Submit yourself only if you still want to apply.
+8. Submit it yourself only if you still want to apply.
 
 ---
 
@@ -201,7 +201,7 @@ picker when you decide to attach a resume.
 
 1. Check that your profile is saved.
 2. Wait a few seconds for dynamic forms to load.
-3. Click into the form and review the field.
+3. Select the field in the form and review it.
 4. Complete unusual fields yourself.
 
 ### Wrong Data Appears
@@ -220,7 +220,7 @@ Complete the human check yourself. JobSentinel leaves that step to you.
 
 ### What JobSentinel Does Not Do
 
-- It does not click Submit.
+- It does not submit the final application.
 - It does not complete human checks.
 - It does not apply to jobs without you.
 - It does not submit profile details or send them to JobSentinel servers.

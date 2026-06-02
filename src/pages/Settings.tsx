@@ -1250,7 +1250,7 @@ export default function Settings({ onClose }: SettingsProps) {
       setConfig(result.config);
       toast.success(
         "Settings restored",
-        "Review settings and click Save. Saved connection details are not included in backups, so add them again if needed.",
+        "Review settings and use Save. Saved connection details are not included in backups, so add them again if needed.",
       );
     } catch (error: unknown) {
       logError("Failed to restore settings backup:", error);
@@ -2004,7 +2004,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         id="settings-location-detection-privacy"
                         className="mt-2 text-xs text-surface-500 dark:text-surface-400"
                       >
-                          Only when you click this, JobSentinel asks an outside
+                          Only when you use this button, JobSentinel asks an outside
                           location lookup service for your approximate city
                           from your internet address. Nothing is saved unless
                           you add the city.
@@ -4137,7 +4137,7 @@ export default function Settings({ onClose }: SettingsProps) {
               <section className="mb-6">
                 <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
                   Match Priority Guide
-                  <HelpIcon text="These percentages show which signals matter most when JobSentinel sorts jobs. Click any match label to see the details." />
+                  <HelpIcon text="These percentages show which signals matter most when JobSentinel sorts jobs. Use any match label to see the details." />
                 </h3>
                 <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 bg-surface-50 dark:bg-surface-900/20">
                   <p className="text-sm text-surface-600 dark:text-surface-400 mb-4">

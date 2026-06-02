@@ -129,7 +129,7 @@ export function useDashboardAutoRefresh({
           if (count === 3) {
             toast.warning(
               "Auto-refresh struggling",
-              "JobSentinel couldn't check for new jobs on schedule. Check your connection, then click Search Now.",
+              "JobSentinel couldn't check for new jobs on schedule. Check your connection, then use Search Now.",
             );
           }
           return count;

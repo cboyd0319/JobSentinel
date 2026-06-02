@@ -477,7 +477,7 @@ describe("CoverLetterTemplates", () => {
 
       fireEvent.click(screen.getByRole("button", { name: "New Template" }));
 
-      expect(screen.getByText("Click a label to add an auto-fill blank:")).toBeInTheDocument();
+      expect(screen.getByText("Use a label to add an auto-fill blank:")).toBeInTheDocument();
       expect(screen.getByRole("button", { name: "Insert Company" })).toBeInTheDocument();
       expect(screen.getByRole("button", { name: "Insert Job Title" })).toBeInTheDocument();
       expect(screen.queryByRole("button", { name: "{company}" })).not.toBeInTheDocument();

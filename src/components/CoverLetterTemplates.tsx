@@ -177,7 +177,7 @@ function TemplateEditor({ template, onSave, onCancel, saving }: TemplateEditorPr
 
       <div className="p-3 bg-surface-50 dark:bg-surface-800/50 rounded-lg">
         <p className="text-xs font-medium text-surface-600 dark:text-surface-400 mb-2">
-          Click a label to add an auto-fill blank:
+          Use a label to add an auto-fill blank:
         </p>
         <div className="flex flex-wrap gap-2">
           {PLACEHOLDER_HINTS.map(({ token, label, description }) => (

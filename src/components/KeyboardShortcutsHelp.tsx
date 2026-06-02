@@ -119,7 +119,7 @@ export const KeyboardShortcutsHelp = memo(function KeyboardShortcutsHelp({ isOpe
 
       <div className="border-t border-surface-200 dark:border-surface-700 px-4 py-3 bg-surface-50 dark:bg-surface-800/50 rounded-b-lg space-y-2" role="contentinfo">
         <p className="text-xs text-surface-500 dark:text-surface-400 text-center">
-          Press <ShortcutKey>?</ShortcutKey> anytime to show this help
+          Use <ShortcutKey>?</ShortcutKey> anytime to show this help
         </p>
         <div className="text-center pt-2 border-t border-surface-200 dark:border-surface-700">
           <button

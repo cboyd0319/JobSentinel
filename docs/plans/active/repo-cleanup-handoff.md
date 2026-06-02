@@ -1166,8 +1166,10 @@ Next high-value passes:
      the follow-up interview-form slice replaces asterisk/slash labels with
      plain required-field and meeting-location wording. The latest shortcut
      label slice changes static navigation/help shortcut copy from mac-only
-     symbols to `Cmd/Ctrl` labels. Continue looking for new issues as new
-     surfaces change.
+     symbols to `Cmd/Ctrl` labels. The latest mouse-neutral copy slice removes
+     click/drag-first guidance from onboarding, location detection, recovery,
+     Application Assist, application tracking, cover-letter blanks, and browser
+     import docs. Continue looking for new issues as new surfaces change.
    - Latest pushed checkpoint: `2e28a55f` on `origin/main`; remote CI and Docs
      Harness both passed after the broad-audience privacy and hiring-trend
      label slices.

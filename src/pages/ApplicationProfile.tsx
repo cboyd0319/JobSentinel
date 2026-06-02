@@ -201,7 +201,7 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
             <StepCard
               number={4}
               title="Submit Yourself"
-              description="You review the form and click Submit yourself"
+              description="You review the form and submit it yourself"
             />
           </div>
           <p className="text-sm text-surface-600 dark:text-surface-400 mt-4">

@@ -6,7 +6,7 @@ export const defaultTourSteps = [
   {
     target: "[data-tour='search-button']",
     title: "Find New Jobs",
-    content: "Click here to search for jobs. JobSentinel checks your selected sources and shows matches based on your saved search.",
+    content: "Use this search button to check for jobs. JobSentinel checks your selected sources and shows matches based on your saved search.",
     placement: "bottom" as const,
   },
   {

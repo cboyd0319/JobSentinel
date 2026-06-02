@@ -979,7 +979,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                         id="setup-location-detection-privacy"
                         className="mt-2 text-xs text-surface-500"
                       >
-                        Only when you click this, JobSentinel asks an outside
+                        Only when you use this button, JobSentinel asks an outside
                         location lookup service for your approximate city from
                         your internet address. Nothing is saved unless you add
                         the city.

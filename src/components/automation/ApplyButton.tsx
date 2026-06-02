@@ -187,7 +187,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
         if (unfilled > 0) {
           message += `. ${unfilled} fields need attention`;
         }
-        message += `. Review every field and click Submit yourself.`;
+        message += `. Review every field and submit it yourself.`;
 
         toast.success("Form ready for review", message);
       }
@@ -367,12 +367,12 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
       <Modal
         isOpen={showSubmitConfirm}
         onClose={handleSkipTracking}
-        title="Did you click Submit?"
+        title="Did you submit the application?"
         size="sm"
       >
         <div className="py-4">
           <p className="text-surface-700 dark:text-surface-300 mb-4">
-            Did you personally click the Submit button on the application form?
+            Did you personally submit the application form?
           </p>
           <p className="text-sm text-surface-500 dark:text-surface-400">
             This helps track your application status.
@@ -384,7 +384,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
           </Button>
           <Button onClick={handleMarkSubmitted}>
             <CheckIcon className="w-4 h-4 mr-2" />
-            Yes, I clicked Submit
+            Yes, I submitted it
           </Button>
         </ModalFooter>
       </Modal>

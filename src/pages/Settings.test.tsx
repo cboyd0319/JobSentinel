@@ -779,7 +779,7 @@ describe("Settings — handleSave flow", () => {
 
     expect(mockToast.success).toHaveBeenCalledWith(
       "Settings restored",
-      "Review settings and click Save. Saved connection details are not included in backups, so add them again if needed.",
+      "Review settings and use Save. Saved connection details are not included in backups, so add them again if needed.",
     );
     expect(screen.queryByText(/Config imported/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Credentials must/i)).not.toBeInTheDocument();

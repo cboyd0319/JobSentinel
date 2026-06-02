@@ -37,7 +37,7 @@ settings, or after restarting JobSentinel.
 ## Save A Job
 
 1. Open an individual job posting in your browser.
-2. Click the **Import to JobSentinel** bookmark.
+2. Use the **Import to JobSentinel** bookmark.
 3. Wait for the confirmation message.
 4. Open JobSentinel and review the saved job.
 

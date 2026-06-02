@@ -853,6 +853,10 @@ and record actionable findings in this active-plan surface.
 - Current local shortcut-label slice changes static navigation/help shortcut
   copy from mac-only command symbols to `Cmd/Ctrl` labels so Windows and macOS
   users get usable directions.
+- Current local mouse-neutral copy slice replaces remaining click/drag-first
+  guidance in onboarding, location detection, auto-refresh recovery,
+  Application Assist, application tracking, cover-letter blanks, and browser
+  import docs while preserving the "user submits applications" boundary.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.
