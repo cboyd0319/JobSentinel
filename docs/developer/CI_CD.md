@@ -209,7 +209,7 @@ These are set at the workflow level and require no secrets:
 `GITHUB_TOKEN` is automatically available to all workflows. It is used by the release and build
 workflows to create releases and upload assets.
 
-### Optional: macOS signing
+### macOS signing and notarization
 
 Public macOS release builds require Developer ID signing and notarization. Add
 these secrets to the repository:

@@ -384,13 +384,19 @@ rustflags = ["-C", "link-arg=-fuse-ld=/opt/homebrew/bin/mold"]
 
 ---
 
-## Next Steps
+## Current macOS Readiness
 
-1. **macOS module complete** - Fully functional
-2. **Test compilation** - Verify no errors
-3. **Run dev server** - Test full application flow
-4. **Create first job search** - Verify database and scraping work
-5. **Report any issues** - Open GitHub issue if problems occur
+1. **Local package path verified** - Universal DMG build, checksum
+   verification, app signature verification, architecture check, and packaged
+   launch smoke pass locally.
+2. **Public release gate active** - Public macOS releases require Developer ID
+   signing and notarization, then `--require-gatekeeper` verification before
+   upload.
+3. **Runtime workflow checks before release** - Run the app, complete setup,
+   create a first search, save an application, and generate a safe support
+   report before publishing a release.
+4. **Report issues with safe support reports** - Save a local support report
+   from the app and share it only after review.
 
 ---
 
