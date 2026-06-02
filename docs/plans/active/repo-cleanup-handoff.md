@@ -42,7 +42,7 @@ Recent remote integration evidence:
   test:scripts` passed 455 script tests, `npm run lint`, and `git diff --check`
   passed. Remote `Docs Harness` and `CI` runs for commit `d31a48fb` passed on
   `main`.
-- Current local saved-secrets docs follow-up rewrites the credential feature doc
+- Committed local saved-secrets docs follow-up rewrites the credential feature doc
   as a plain saved-secrets guide, keeps developer implementation details in
   `docs/security/KEYRING.md`, updates docs index wording, and adds product-copy
   sensors for developer-reference drift in the feature doc. Focused verification
@@ -50,6 +50,13 @@ Recent remote integration evidence:
   `node --test scripts/check-product-copy.test.mjs` passed 32 tests, `npm run
   lint:bloat`, `npm run harness:check`, `npm run lint:docs`, `npm run
   test:scripts` passed 456 script tests, and `git diff --check`.
+- Current local notification-doc cleanup removes maintainer-only alert delivery,
+  raw connection-link, and module-structure details from the user-facing
+  notification guide. Product-copy sensors now reject those blocks if they drift
+  back into the feature doc. Focused verification passed: `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found no
+  maintainer-detail block terms in `docs/features/notifications.md`, `npm run
+  lint:bloat`, and `npm run harness:check`.
 - Current local source-name copy follow-up changes README source coverage,
   source feature docs, public job-source issue template, shared source labels,
   and frontend mocks from `HN Who's Hiring` wording to `Startup and tech job
@@ -220,11 +227,14 @@ Current cleanup posture:
   and notification docs away from technical-first email setup wording. Focused
   Settings, product-copy, search, and diff-check verification cover the changed
   surfaces.
-- Current local saved-secrets docs follow-up moves the credential feature guide
+- Committed local saved-secrets docs follow-up moves the credential feature guide
   away from developer-reference shape and toward zero-technical user/reviewer
   language. Product-copy sensors cover the old developer-reference headings and
   storage-key wording. Focused security-doc, product-copy, bloat, harness, docs,
   script, and diff-check verification passed.
+- Current local notification-doc cleanup removes maintainer-only delivery and
+  module details from the user-facing notification guide. Focused product-copy,
+  bloat, harness, and targeted-search verification passed.
 - Current local source-name copy follow-up changes README, source docs, public
   job-source issue template, shared source labels, and frontend mocks away from
   `HN Who's Hiring` wording. Focused source-label, Settings, SetupWizard,

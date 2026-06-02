@@ -1316,6 +1316,16 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /email provider/i,
       /\|\s*Provider\s*\|\s*Server\s*\|\s*Port\s*\|/i,
       /All connections use TLS\/STARTTLS encryption/i,
+      /Maintainer Notes/i,
+      /Alert delivery details/i,
+      /Parallel Sending/i,
+      /Connection Link Checks/i,
+      /Module Structure/i,
+      /src-tauri\/src\/core\/notify/i,
+      /hooks\.slack\.com\/services/i,
+      /discord(?:app)?\.com\/api\/webhooks/i,
+      /outlook\.office(?:365)?\.com\/webhook/i,
+      /Telegram Bot API/i,
     ];
 
     if (notificationDocPatterns.some((pattern) => pattern.test(text))) {

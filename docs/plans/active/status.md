@@ -184,7 +184,7 @@ actionable findings in this active-plan surface or the relevant plan.
   test:scripts` passed 455 script tests, `npm run lint`, and `git diff --check`
   passed. Remote `Docs Harness` and `CI` runs for commit `d31a48fb` passed on
   `main`.
-- Current local saved-secrets docs slice rewrites the credential feature guide as
+- Committed local saved-secrets docs slice rewrites the credential feature guide as
   a plain-language saved-secrets guide, keeps developer implementation details in
   `docs/security/KEYRING.md`, updates docs index wording, and adds product-copy
   sensors for developer-reference drift in the feature doc. Focused verification
@@ -192,6 +192,13 @@ actionable findings in this active-plan surface or the relevant plan.
   `node --test scripts/check-product-copy.test.mjs` passed 32 tests, `npm run
   lint:bloat`, `npm run harness:check`, `npm run lint:docs`, `npm run
   test:scripts` passed 456 script tests, and `git diff --check`.
+- Current local notification-doc cleanup removes maintainer-only alert delivery,
+  raw connection-link, and module-structure details from the user-facing
+  notification guide. Product-copy sensors now reject those blocks if they drift
+  back into the feature doc. Focused verification passed: `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found no
+  maintainer-detail block terms in `docs/features/notifications.md`, `npm run
+  lint:bloat`, and `npm run harness:check`.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -238,6 +245,8 @@ Scope:
   instead of technical mail-setup labels.
 - Credential feature docs must explain saved secrets in plain language and keep
   developer implementation references in security/developer docs.
+- Notification feature docs must not include maintainer-only alert delivery,
+  raw connection-link, or module-structure details.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
