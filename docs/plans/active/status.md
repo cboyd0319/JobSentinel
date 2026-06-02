@@ -479,13 +479,13 @@ and record actionable findings in this active-plan surface.
   error display, path/query error display, command setup/config URL display,
   import redirect display, job-import logging, import HTTP error, and
   non-public IP echo sensors into `scripts/harness/checks/privacy-logging.mjs`;
-  focused privacy-logging coverage is now 24 tests and
-  `scripts/check-repo-bloat.mjs` is roughly 3,700 lines.
+  use `npm run harness:session -- --json` for current focused-test and
+  bloat-runner counts.
 - Latest local automation/notification privacy harness work moves raw
   automation screening-question logging, automation form-result data,
   automation browser-error detail, and notification job-title logging sensors
-  into `scripts/harness/checks/privacy-logging.mjs`; focused privacy-logging
-  coverage is now 26 tests and `scripts/check-repo-bloat.mjs` is 3,609 lines.
+  into `scripts/harness/checks/privacy-logging.mjs`; use `npm run
+  harness:session -- --json` for current focused-test and bloat-runner counts.
 - Latest local frontend error/report privacy harness work moves unsafe
   frontend error-report storage, raw error-helper output, raw shared and direct
   frontend error logging, unsafe stored-report parsing, and hardcoded error
@@ -997,9 +997,8 @@ and record actionable findings in this active-plan surface.
    preserve tech-specific cases only when they test explicit branch behavior or
    source-realism parser contracts.
 2. Continue splitting oversized harness modules only where the ownership
-   boundary is clear; the main bloat runner is now 609 lines after docs-drift,
-   privacy-logging, source-quality, and IPC-minimization ownership moved into
-   modules.
+   boundary is clear; use `npm run harness:session -- --json` for the current
+   main bloat-runner line count.
 3. Continue zero-technical-knowledge UX review across setup, settings,
    recovery, feedback, empty states, and error screens.
   The latest support-path, privacy-copy, USAJobs setup, Telegram setup,
