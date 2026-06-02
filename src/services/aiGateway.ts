@@ -48,6 +48,7 @@ export interface ExternalAiRequest {
   labels: FeaturePrivacyLabel[];
   dataCategories: ExternalAiDataCategory[];
   payload: Record<string, unknown>;
+  redactedPayload?: Record<string, unknown>;
   previewShown: boolean;
   userApproved: boolean;
   explicitlyIncludedSensitiveData?: boolean;
@@ -92,6 +93,8 @@ export type ExternalAiGatewayErrorCode =
   | "transport_missing"
   | "payload_preview_required"
   | "user_approval_required"
+  | "redacted_payload_required"
+  | "unclassified_payload_key"
   | "full_database_blocked"
   | "sensitive_payload_blocked"
   | "public_data_only_violation";
@@ -134,6 +137,70 @@ const sensitivePayloadKeys = new Set([
   "salary_floor",
 ]);
 
+const classifiedPayloadKeysByCategory: Record<ExternalAiDataCategory, Set<string>> = {
+  job_posting: new Set([
+    "benefits",
+    "company",
+    "compensation",
+    "department",
+    "description",
+    "employmentType",
+    "jobDescription",
+    "jobType",
+    "location",
+    "qualifications",
+    "requirements",
+    "responsibilities",
+    "role",
+    "salaryRange",
+    "sourceUrl",
+    "title",
+  ]),
+  public_metadata: new Set([
+    "ats",
+    "atsProvider",
+    "companyUrl",
+    "externalId",
+    "firstSeenAt",
+    "isOfficialSource",
+    "jobId",
+    "lastSeenAt",
+    "metadata",
+    "postedAt",
+    "postingUrl",
+    "source",
+    "sourceUrl",
+    "url",
+    "verifiedOnCompanySite",
+  ]),
+  resume: new Set(["resume", "resumeText", "resume_text"]),
+  salary_floor: new Set(["salaryFloor", "salary_floor"]),
+  private_notes: new Set(["notes", "privateNotes", "private_notes"]),
+  application_history: new Set(["applicationHistory", "application_history"]),
+  career_goals: new Set(["careerGoals", "career_goals"]),
+  location_preferences: new Set(["locationPreferences", "location_preferences"]),
+  full_database: new Set([
+    "database",
+    "fullDatabase",
+    "full_database",
+    "localDatabase",
+  ]),
+};
+
+function collectClassifiedPayloadKeys(): Set<string> {
+  const keys = new Set<string>();
+
+  for (const category of Object.keys(
+    classifiedPayloadKeysByCategory,
+  ) as ExternalAiDataCategory[]) {
+    for (const key of classifiedPayloadKeysByCategory[category]) {
+      keys.add(key);
+    }
+  }
+
+  return keys;
+}
+
 function collectPayloadKeys(value: unknown, keys = new Set<string>()): Set<string> {
   if (!value || typeof value !== "object") {
     return keys;
@@ -158,11 +225,40 @@ function hasSensitivePayloadKeys(payload: Record<string, unknown>): boolean {
   return [...collectPayloadKeys(payload)].some((key) => sensitivePayloadKeys.has(key));
 }
 
-function hasSensitiveData(request: ExternalAiRequest): boolean {
+function findUnclassifiedPayloadKey(
+  payload: Record<string, unknown>,
+): string | undefined {
+  const classifiedKeys = collectClassifiedPayloadKeys();
+
+  return [...collectPayloadKeys(payload)].find((key) => !classifiedKeys.has(key));
+}
+
+function getOutgoingPayload(
+  settings: ExternalAiSettings,
+  request: ExternalAiRequest,
+): Record<string, unknown> {
+  if (!settings.redaction.enabled) {
+    return request.payload;
+  }
+
+  if (!request.redactedPayload) {
+    throw new ExternalAiGatewayError(
+      "redacted_payload_required",
+      "Review the details that would be sent before using outside AI.",
+    );
+  }
+
+  return request.redactedPayload;
+}
+
+function hasSensitiveData(
+  request: ExternalAiRequest,
+  outgoingPayload: Record<string, unknown>,
+): boolean {
   return (
     request.labels.includes("Sensitive") ||
     request.dataCategories.some((category) => sensitiveDataCategories.has(category)) ||
-    hasSensitivePayloadKeys(request.payload)
+    hasSensitivePayloadKeys(outgoingPayload)
   );
 }
 
@@ -171,7 +267,7 @@ function validateRequest(
   provider: ExternalAiProvider,
   request: ExternalAiRequest,
   transport?: ExternalAiTransport,
-): asserts provider is Exclude<ExternalAiProvider, "none"> {
+): Record<string, unknown> {
   if (!settings.enabled) {
     throw new ExternalAiGatewayError(
       "external_ai_disabled",
@@ -214,7 +310,19 @@ function validateRequest(
     );
   }
 
-  if (request.labels.includes("Public-data only") && hasSensitivePayloadKeys(request.payload)) {
+  const outgoingPayload = getOutgoingPayload(settings, request);
+  const unclassifiedRawKey = findUnclassifiedPayloadKey(request.payload);
+  const unclassifiedOutgoingKey = findUnclassifiedPayloadKey(outgoingPayload);
+  const unclassifiedKey = unclassifiedRawKey ?? unclassifiedOutgoingKey;
+
+  if (unclassifiedKey) {
+    throw new ExternalAiGatewayError(
+      "unclassified_payload_key",
+      "Outside AI payload contains a field JobSentinel has not classified.",
+    );
+  }
+
+  if (request.labels.includes("Public-data only") && hasSensitivePayloadKeys(outgoingPayload)) {
     throw new ExternalAiGatewayError(
       "public_data_only_violation",
       "JobSentinel can send only public job-posting details here.",
@@ -222,7 +330,7 @@ function validateRequest(
   }
 
   if (
-    hasSensitiveData(request) &&
+    hasSensitiveData(request, outgoingPayload) &&
     (!settings.allowSensitivePayloads || !request.explicitlyIncludedSensitiveData)
   ) {
     throw new ExternalAiGatewayError(
@@ -230,6 +338,8 @@ function validateRequest(
       "Private details stay local unless you choose exactly what to send and turn on sharing for private details.",
     );
   }
+
+  return outgoingPayload;
 }
 
 export function createExternalAiGateway(
@@ -240,7 +350,13 @@ export function createExternalAiGateway(
   return {
     async send(request: ExternalAiRequest): Promise<ExternalAiResponse> {
       const provider = settings.provider;
-      validateRequest(settings, provider, request, transport);
+      const outgoingPayload = validateRequest(settings, provider, request, transport);
+      if (provider === "none") {
+        throw new ExternalAiGatewayError(
+          "provider_not_selected",
+          "Choose the outside AI service before sending anything.",
+        );
+      }
       if (!transport) {
         throw new ExternalAiGatewayError(
           "transport_missing",
@@ -253,7 +369,7 @@ export function createExternalAiGateway(
         provider,
         labels: request.labels,
         dataCategories: request.dataCategories,
-        payload: request.payload,
+        payload: outgoingPayload,
       };
 
       const response = await transport.send(preparedRequest);

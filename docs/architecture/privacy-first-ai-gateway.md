@@ -119,6 +119,11 @@ The frontend gateway type lives in `src/services/aiGateway.ts`. It defines:
 - `ExternalAiDataCategory`
 - `ExternalAiGateway`
 
+`ExternalAiRequest.payload` is the candidate payload prepared by a feature.
+When `external_ai.redaction.enabled = true`, callers must also provide
+`ExternalAiRequest.redactedPayload`, which is the reviewed payload that may be
+sent. The gateway sends only that reviewed payload to provider transports.
+
 External provider transports should plug into that gateway instead of creating
 provider-specific calls throughout the codebase. Production code should not call
 external AI provider APIs outside this gateway.
@@ -131,6 +136,9 @@ Implemented now:
 - Disabled-by-default guard.
 - Provider-required guard.
 - Payload preview and user-approval guards.
+- Redacted payload required when redaction is enabled.
+- Reviewed redacted payload sent instead of raw feature payload.
+- Classified payload-key guard for unknown fields.
 - Sensitive-payload guard.
 - Full-database block.
 - Public-data-only payload guard.

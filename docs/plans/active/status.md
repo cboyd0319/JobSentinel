@@ -230,6 +230,16 @@ actionable findings in this active-plan surface or the relevant plan.
   search found no production matches, `npm run lint` passed, `npm run
   lint:bloat` passed, `npm run lint:docs` passed, and `git diff --check`
   passed.
+- Current local external-AI gateway hardening requires a reviewed
+  `redactedPayload` whenever redaction is enabled, sends only that reviewed
+  payload to provider transports, and rejects payload fields the gateway has
+  not classified. Verification passed: red tests failed before the fix, then
+  `npx vitest run src/services/aiGateway.test.ts` passed 12 tests, `npm run
+  lint:external-ai` passed, `npm run lint:security` passed, `npm run
+  lint:architecture` passed, `npm run lint:docs` passed, `npm run lint:bloat`
+  passed, `npm run lint:tests` passed, `node --test
+  scripts/check-product-copy.test.mjs` passed 43 tests, `npm run lint` passed,
+  `npm run build` passed, and `git diff --check` passed.
 - Current local source-status wording cleanup replaces remaining user-facing
   `source health` wording with `source status` in README, roadmap, source
   guides, and ScraperHealthDashboard log context. Product-copy sensors now

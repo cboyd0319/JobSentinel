@@ -228,6 +228,12 @@ boundaries, and harness modularity:
   detailed-report labels, raw stack/report labels, and GitHub-specific failure
   copy. Focused ErrorLogPanel, feedbackService, product-copy, stale-copy
   search, lint, bloat, docs, and diff-check verification passed.
+- Current local external-AI gateway hardening requires a reviewed
+  `redactedPayload` whenever redaction is enabled, sends only that reviewed
+  payload to provider transports, and rejects payload fields the gateway has
+  not classified. Red-test, aiGateway, external-AI sensor, security,
+  architecture, docs, bloat, test-quality, product-copy, lint, build, and
+  diff-check verification passed.
 - Current local source-status wording cleanup replaces remaining user-facing
   `source health` wording with `source status` in README, roadmap, source
   guides, and ScraperHealthDashboard log context. Product-copy sensors now

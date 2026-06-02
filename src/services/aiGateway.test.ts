@@ -17,6 +17,12 @@ const publicJobSummaryRequest: ExternalAiRequest = {
     description: "Lead scheduling and vendor coordination.",
     sourceUrl: "https://jobs.example.test/operations-manager",
   },
+  redactedPayload: {
+    title: "Operations Manager",
+    company: "Example Co",
+    description: "Lead scheduling and vendor coordination.",
+    sourceUrl: "https://jobs.example.test/operations-manager",
+  },
   previewShown: true,
   userApproved: true,
 };
@@ -149,6 +155,10 @@ describe("aiGateway", () => {
           ...publicJobSummaryRequest.payload,
           privateNotes: "Do not send this note",
         },
+        redactedPayload: {
+          ...publicJobSummaryRequest.redactedPayload,
+          privateNotes: "Do not send this note",
+        },
       }),
     ).rejects.toMatchObject({
       code: "public_data_only_violation",
@@ -186,6 +196,81 @@ describe("aiGateway", () => {
       labels: ["External AI optional", "Public-data only"],
       dataCategories: ["job_posting", "public_metadata"],
     });
+  });
+
+  it("requires a reviewed redacted payload when redaction is enabled", async () => {
+    const transport = {
+      send: vi.fn().mockResolvedValue({ text: "summary" }),
+    };
+    const requestWithoutRedaction = { ...publicJobSummaryRequest };
+    delete requestWithoutRedaction.redactedPayload;
+    const gateway = createExternalAiGateway(enabledSettings(), transport);
+
+    await expect(gateway.send(requestWithoutRedaction)).rejects.toMatchObject({
+      code: "redacted_payload_required",
+      message: "Review the details that would be sent before using outside AI.",
+    });
+    expect(transport.send).not.toHaveBeenCalled();
+  });
+
+  it("sends the reviewed redacted payload instead of the raw payload", async () => {
+    const transport = {
+      send: vi.fn().mockResolvedValue({ text: "summary" }),
+    };
+    const gateway = createExternalAiGateway(enabledSettings(), transport);
+
+    await gateway.send({
+      ...publicJobSummaryRequest,
+      payload: {
+        ...publicJobSummaryRequest.payload,
+        description: "Lead scheduling. Private draft note removed before sending.",
+      },
+      redactedPayload: {
+        ...publicJobSummaryRequest.payload,
+        description: "Lead scheduling.",
+      },
+    });
+
+    expect(transport.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        payload: {
+          ...publicJobSummaryRequest.payload,
+          description: "Lead scheduling.",
+        },
+      }),
+    );
+    expect(transport.send).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        payload: expect.objectContaining({
+          description: expect.stringContaining("Private draft note"),
+        }),
+      }),
+    );
+  });
+
+  it("rejects payload keys that are not classified by the gateway", async () => {
+    const transport = {
+      send: vi.fn().mockResolvedValue({ text: "summary" }),
+    };
+    const gateway = createExternalAiGateway(enabledSettings(), transport);
+
+    await expect(
+      gateway.send({
+        ...publicJobSummaryRequest,
+        payload: {
+          ...publicJobSummaryRequest.payload,
+          unreviewedCandidatePacket: ["private answer"],
+        },
+        redactedPayload: {
+          ...publicJobSummaryRequest.redactedPayload,
+          unreviewedCandidatePacket: ["private answer"],
+        },
+      }),
+    ).rejects.toMatchObject({
+      code: "unclassified_payload_key",
+      message: "Outside AI payload contains a field JobSentinel has not classified.",
+    });
+    expect(transport.send).not.toHaveBeenCalled();
   });
 
   it("exposes typed gateway errors for UI cancel and redaction flows", () => {
