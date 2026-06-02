@@ -1962,7 +1962,7 @@ function analyzeMockResumeFormat(args?: Record<string, unknown>): MockAtsAnalysi
     suggestions.push({
       category: "AddSection",
       suggestion: "Add work experience with measurable impact",
-      impact: "High",
+      impact: "Makes your work evidence easier to compare in one place.",
     });
   }
   if (sections.skills.length === 0) {

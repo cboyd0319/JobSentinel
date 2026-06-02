@@ -1274,6 +1274,15 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
+      "src-tauri/src/core/resume/ats_analyzer.rs",
+      [
+        'impact: "High".to_string(),',
+        'suggestion: format!("Start bullet with action verb: {}", bullet),',
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "src/components/NotificationPreferences.tsx",
       'placeholder="e.g., 90"\nthousand per year\n',
     );

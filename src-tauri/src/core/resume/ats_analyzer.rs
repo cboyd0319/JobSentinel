@@ -457,7 +457,7 @@ impl AtsAnalyzer {
                         "Add achievement bullets for {} at {}",
                         exp.title, exp.company
                     ),
-                    impact: "High".to_string(),
+                    impact: "Makes your work evidence easier to compare in one place.".to_string(),
                 });
             }
 
@@ -480,8 +480,11 @@ impl AtsAnalyzer {
                 if !has_power_word {
                     suggestions.push(AtsSuggestion {
                         category: SuggestionCategory::RewordBullet,
-                        suggestion: format!("Start bullet with action verb: '{}'", bullet),
-                        impact: "Medium".to_string(),
+                        suggestion: format!(
+                            "Review whether this bullet can start with a clear action: '{}'",
+                            bullet
+                        ),
+                        impact: "Makes the bullet easier to scan and understand.".to_string(),
                     });
                 }
             }
@@ -727,7 +730,9 @@ impl AtsAnalyzer {
             }
         }
 
-        keywords.into_iter().collect()
+        let mut sorted_keywords = keywords.into_iter().collect::<Vec<_>>();
+        sorted_keywords.sort();
+        sorted_keywords
     }
 
     fn get_industry_keywords() -> Vec<&'static str> {
@@ -1205,6 +1210,40 @@ Preferred: Salesforce
         assert!(suggestion.impact.contains("real evidence is visible"));
         assert!(!suggestion.suggestion.contains("Add '"));
         assert_ne!(suggestion.impact, "High");
+    }
+
+    #[test]
+    fn test_resume_format_suggestions_have_plain_impact_copy() {
+        let mut resume = sample_resume();
+        resume.experience[0].achievements.clear();
+
+        let result = AtsAnalyzer::analyze_format(&resume);
+        let suggestion = result
+            .suggestions
+            .iter()
+            .find(|s| s.category == SuggestionCategory::AddSection)
+            .expect("add-section suggestion");
+
+        assert!(suggestion.impact.contains("work evidence"));
+        assert_ne!(suggestion.impact, "High");
+    }
+
+    #[test]
+    fn test_bullet_suggestions_are_review_first() {
+        let mut resume = sample_resume();
+        resume.experience[0].achievements = vec!["Handled weekly client scheduling".to_string()];
+
+        let result = AtsAnalyzer::analyze_format(&resume);
+        let suggestion = result
+            .suggestions
+            .iter()
+            .find(|s| s.category == SuggestionCategory::RewordBullet)
+            .expect("bullet suggestion");
+
+        assert!(suggestion.suggestion.contains("Review whether"));
+        assert!(suggestion.suggestion.contains("clear action"));
+        assert!(suggestion.impact.contains("easier to scan"));
+        assert_ne!(suggestion.impact, "Medium");
     }
 
     #[test]

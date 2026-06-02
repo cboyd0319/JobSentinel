@@ -1337,6 +1337,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
   if (
     path === "src-tauri/src/core/resume/matcher.rs" ||
     path === "src-tauri/src/core/resume/ats_analyzer.rs" ||
+    path === "src/mocks/handlers.ts" ||
     path === "src-tauri/src/core/salary/analyzer.rs" ||
     path === "src-tauri/migrations/00000000000000_initial_schema.sql"
   ) {
@@ -1350,6 +1351,9 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /make this an easy decision/i,
       /skin in the game/i,
       /\(add specific metrics\)/i,
+      /impact:\s*["'`](?:High|Medium)["'`]/i,
+      /impact:\s*(?:"High"|"Medium")\.to_string\(\)/i,
+      /Start bullet with action verb/i,
     ];
 
     if (advisoryGuidancePatterns.some((pattern) => pattern.test(text))) {

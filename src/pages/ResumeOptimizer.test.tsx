@@ -401,6 +401,33 @@ describe("ResumeOptimizer", () => {
     expect(screen.queryByText(/Impact:/)).not.toBeInTheDocument();
   });
 
+  it("shows concrete suggestion impact copy instead of internal priority words", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce({
+      ...mockAnalysis,
+      suggestions: [
+        {
+          category: "AddSection" as const,
+          suggestion: "Add work experience with measurable impact",
+          impact: "Makes your work evidence easier to compare in one place.",
+        },
+      ],
+    });
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    await openResumeAppImport(user);
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /review format only/i }));
+
+    expect(await screen.findByText("Suggestions (1)")).toBeInTheDocument();
+    expect(screen.getByText(/Why it helps: Makes your work evidence easier to compare/i)).toBeInTheDocument();
+    expect(screen.queryByText(/^High$/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Medium$/)).not.toBeInTheDocument();
+  });
+
   it("gives a plain recovery path when Resume Builder cannot receive the job post", async () => {
     const user = userEvent.setup();
     const onNavigate = vi.fn();

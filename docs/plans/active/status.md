@@ -146,6 +146,18 @@ unreviewed form sending.
   harness:check`, `npm run lint:bloat`, `node --test
   scripts/check-product-copy.test.mjs` passed 43 tests, `npm run lint`, and
   `git diff --check`.
+- Current local resume suggestion follow-up replaces backend and mock
+  suggestion impact values like `High` and `Medium` with concrete, review-first
+  user guidance, changes bullet suggestions from command-style action-verb copy
+  to "review whether" copy, and sorts extracted job words so suggestions are
+  deterministic instead of depending on hash iteration order. Verification
+  passed: `cargo test --lib ats_analyzer` passed 25 tests, `npx vitest run
+  src/pages/ResumeOptimizer.test.tsx` passed 16 tests, `node --test
+  scripts/check-product-copy.test.mjs scripts/check-repo-bloat.test.mjs`
+  passed 264 tests, `npm run test:scripts` passed 488 tests, `npm run
+  test:run` passed 2657 tests, `npm run lint` passed, `cargo fmt --all --
+  --check` passed, `cargo clippy -- -D warnings` passed, `cargo test --lib`
+  passed 2495 tests with 21 ignored, and `npm run build` passed.
 - Current local Resume Builder live-panel cleanup carries the same
   required/preferred/other missing-word grouping into live resume review, updates
   real and mock ATS suggestions to ask users to review truthful evidence instead
