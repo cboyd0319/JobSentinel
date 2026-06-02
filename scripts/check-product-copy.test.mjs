@@ -1045,6 +1045,7 @@ test("product copy rejects technical-first settings copy", () => {
         "Please fix the errors",
         "Failed to save",
         "Taking longer than expected...",
+        "Select your resume file (PDF or DOCX) for application review",
         "",
       ].join("\n"),
     );

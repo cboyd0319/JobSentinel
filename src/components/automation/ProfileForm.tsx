@@ -524,11 +524,11 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
           </div>
         </section>
 
-        {/* Resume Upload */}
+        {/* Resume file */}
         <section>
           <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
             Resume File
-            <HelpIcon text="Select your resume file (PDF or DOCX) for application review" />
+            <HelpIcon text="Choose a resume file saved on this device. You decide whether to attach it on each application." />
           </h4>
           <div className="flex items-center gap-3">
             <div className="flex-1">

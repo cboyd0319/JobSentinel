@@ -34,6 +34,15 @@ actionable findings in this active-plan surface or the relevant plan.
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local Application Profile resume-file help follow-up changes the
+  tooltip from generic application-review wording to local, user-controlled
+  attachment wording. Product-copy sensors now reject the old ProfileForm
+  tooltip. Focused verification passed: `npx vitest run
+  src/components/automation/ProfileForm.test.tsx`, `node --test
+  scripts/check-product-copy.test.mjs`, targeted stale-phrase search found no
+  old visible wording in ProfileForm, and `git diff --check`. Broader
+  verification passed: `npm run lint:bloat`, `npm run lint:docs`,
+  `npm run test:scripts`, `npm run lint`, and `git diff --check`.
 - Current local Application Assist resume-file copy follow-up changes the manual
   task label from resume-upload wording to user-controlled resume-file wording.
   Product-copy sensors now reject the old Application Preview label. Focused

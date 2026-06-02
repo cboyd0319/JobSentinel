@@ -164,6 +164,12 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local Application Profile resume-file help follow-up changes the
+  tooltip from generic application-review wording to local, user-controlled
+  attachment wording. Product-copy sensors now reject the old ProfileForm
+  tooltip. Focused ProfileForm, product-copy, targeted stale-phrase, and
+  diff-check verification passed. Broader bloat, docs, script, lint, and
+  diff-check verification passed.
 - Current local Application Assist resume-file copy follow-up changes the manual
   task label from resume-upload wording to user-controlled resume-file wording.
   Product-copy sensors now reject the old Application Preview label. Focused
@@ -924,6 +930,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-02 | In progress | Changed Application Profile resume-file tooltip from generic application-review wording to local, user-controlled attachment wording. Product-copy sensors now reject the old ProfileForm tooltip; focused ProfileForm, product-copy, targeted stale-phrase, bloat, docs, script, lint, and diff-check verification passed. |
 | 2026-06-02 | In progress | Changed Application Assist manual task copy from resume-upload wording to user-controlled resume-file wording. Product-copy sensors now reject the old Application Preview label; focused ApplicationPreview, product-copy, targeted stale-phrase, bloat, docs, script, lint, and diff-check verification passed. |
 | 2026-06-02 | In progress | Changed Resume Builder import-skill recovery copy from upload wording to add wording so users do not infer cloud transfer for local resume review. Product-copy sensors now reject the old Resume Builder upload phrasing; focused product-copy, targeted stale-phrase, bloat, docs, script, lint, and diff-check verification passed. |
 | 2026-06-02 | In progress | Changed local Resume Match surfaces and feature docs from choose/upload wording to choose/add wording. Product-copy sensors now reject the old local-resume upload phrasing in `ResumeOptimizer`, `ResumeMatchScoreBreakdown`, and the Resume Match feature doc; focused Vitest, product-copy, targeted stale-phrase, bloat, docs, script, lint, and diff-check verification passed. |

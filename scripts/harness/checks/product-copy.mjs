@@ -1600,7 +1600,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/components/automation/ProfileForm.tsx") {
-    return /Require manual approval|Failed to load profile|Failed to select file|Please fix the errors|Failed to save|Please try again|Taking longer than expected/i.test(text);
+    return /Require manual approval|Failed to load profile|Failed to select file|Please fix the errors|Failed to save|Please try again|Taking longer than expected|Select your resume file \(PDF or DOCX\) for application review/i.test(text);
   }
 
   if (path === "src/components/automation/ScreeningAnswersForm.tsx") {

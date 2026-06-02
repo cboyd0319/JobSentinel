@@ -89,6 +89,22 @@ describe("ProfileForm resume privacy", () => {
     expect(screen.queryByDisplayValue(/Users\/jordan/)).not.toBeInTheDocument();
   });
 
+  it("explains resume files as local and user-controlled", async () => {
+    mockInvoke.mockResolvedValueOnce(mockProfile());
+
+    renderProfileForm();
+
+    await screen.findByLabelText("Selected resume");
+    expect(
+      screen.getByLabelText(
+        "Choose a resume file saved on this device. You decide whether to attach it on each application.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText("Select your resume file (PDF or DOCX) for application review"),
+    ).not.toBeInTheDocument();
+  });
+
   it("keeps saved resume path on profile edits unless the user replaces or clears it", async () => {
     const user = userEvent.setup();
     mockInvoke.mockResolvedValueOnce(mockProfile()).mockResolvedValueOnce(1);
