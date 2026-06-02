@@ -182,6 +182,10 @@ boundaries, and harness modularity:
   ghost reason labels, live resume tips, scoring contribution labels, and
   source-health table headings, with product-copy harness coverage for the stale
   phrases.
+- Reworked the source-health recent-status table so non-technical users see
+  plain labels instead of raw success percentages. Feature docs now describe the
+  same user-facing surface, and product-copy coverage rejects stale metric-first
+  display code.
 - Tightened another zero-technical support and protective-copy slice: public
   issue templates now avoid bug/feature/scraper-first wording, safe support
   report docs require review before sharing, source status avoids

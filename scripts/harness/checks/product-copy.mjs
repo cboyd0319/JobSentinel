@@ -1238,6 +1238,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Checks Worked/i,
       /Check Time/i,
       /Last Worked/i,
+      /success_rate_24h\.toFixed\(0\)\s*\}\s*%/i,
       /Job Source Check Results/i,
       /Source Controls/i,
       /title=["']Source Check Results["']|\/\*\s*Source Check Results Modal\s*\*\//i,

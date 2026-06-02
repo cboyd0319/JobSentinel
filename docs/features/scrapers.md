@@ -49,7 +49,7 @@ understand website internals, saved connection details, or logs.
 | Surface | Purpose |
 | ------- | ------- |
 | Summary stats | Healthy, degraded, down, disabled, and unknown source counts |
-| Source table | Recent success, average check time, jobs found, last run, and latest safe issue |
+| Source table | Current status, plain recent-result label, jobs found, last checked, and next step |
 | Check history | Recent source attempts with timing and sanitized issues |
 | Source checks | Availability checks for known supported sources |
 | Troubleshooting | Plain-language next steps and sanitized support report help |

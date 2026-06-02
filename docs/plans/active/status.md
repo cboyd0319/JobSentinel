@@ -44,6 +44,10 @@ and record actionable findings in this active-plan surface.
   guidance, resume import success copy, ghost reason labels, live resume tips,
   score contribution labels, and source-health table headings so user-facing
   surfaces stay plain-language, evidence-bounded, and broad-audience.
+- Current local source-health follow-up changes the recent source status table
+  from raw percent display to plain labels such as "Mostly working," "Some
+  trouble," and "Needs attention"; feature docs and product-copy harness coverage
+  now reject stale metric-first wording.
 - Latest local zero-technical job-import follow-up changes missing-preview
   warnings from raw missing-field lists to readable details-to-check labels, so
   backend keys such as salary or job-link fields do not leak into the import

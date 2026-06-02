@@ -30,8 +30,8 @@ The Settings troubleshooting dashboard should show:
 
 - Summary counts for working, having-trouble, not-working, off, and not-checked
   sources.
-- One row per source with status, recent success, average check time, jobs
-  found, last check, and a sanitized latest issue.
+- One row per source with status, plain recent-result label, time needed, jobs
+  found, last checked, whether JobSentinel can read jobs, and what to do next.
 - Run history for recent attempts.
 - Job-site check buttons for known supported sources.
 - Safe support report actions when a user needs help.

@@ -153,6 +153,26 @@ function formatSourceType(type: ScraperHealthMetrics["scraper_type"]): string {
   }
 }
 
+function getRecentStatus(scraper: ScraperHealthMetrics) {
+  if (!scraper.is_enabled) {
+    return { label: "Off", className: "text-surface-500" };
+  }
+
+  if (scraper.total_runs_24h === 0) {
+    return { label: "Not checked yet", className: "text-surface-500" };
+  }
+
+  if (scraper.success_rate_24h >= 90) {
+    return { label: "Mostly working", className: "text-green-600 dark:text-green-400" };
+  }
+
+  if (scraper.success_rate_24h >= 70) {
+    return { label: "Some trouble", className: "text-yellow-600 dark:text-yellow-400" };
+  }
+
+  return { label: "Needs attention", className: "text-red-600 dark:text-red-400" };
+}
+
 function formatSourceNextStep(scraper: ScraperHealthMetrics): string {
   if (!scraper.is_enabled) {
     return "Off. Turn on if useful.";
@@ -648,6 +668,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                       healthStatusConfig[scraper.health_status];
                     const selectorConfig =
                       selectorHealthConfig[scraper.selector_health];
+                    const recentStatus = getRecentStatus(scraper);
 
                     return (
                       <tr
@@ -693,16 +714,8 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                           </Badge>
                         </td>
                         <td className="py-3 px-4 text-right">
-                          <span
-                            className={
-                              scraper.success_rate_24h >= 90
-                                ? "text-green-600 dark:text-green-400"
-                                : scraper.success_rate_24h >= 70
-                                  ? "text-yellow-600 dark:text-yellow-400"
-                                  : "text-red-600 dark:text-red-400"
-                            }
-                          >
-                            {scraper.success_rate_24h.toFixed(0)}%
+                          <span className={recentStatus.className}>
+                            {recentStatus.label}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-right text-surface-600 dark:text-surface-400">
@@ -726,7 +739,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                             </span>
                           )}
                           <span className="text-surface-500 ml-1">
-                            / {scraper.total_runs_24h} checks
+                            from {scraper.total_runs_24h} checks
                           </span>
                         </td>
                         <td className="py-3 px-4 text-surface-600 dark:text-surface-400">

@@ -533,16 +533,19 @@ describe("ScraperHealthDashboard", () => {
       expect(screen.getByText("Official source")).toBeInTheDocument();
     });
 
-    it("displays plain check success header and rates", async () => {
+    it("displays plain recent source status labels", async () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
         expect(screen.getByText("Recent Status")).toBeInTheDocument();
         expect(screen.queryByText("Checks Worked")).not.toBeInTheDocument();
-        expect(screen.getByText("95%")).toBeInTheDocument();
+        expect(screen.getByText("Mostly working")).toBeInTheDocument();
       });
-      expect(screen.getByText("72%")).toBeInTheDocument();
-      expect(screen.getByText("35%")).toBeInTheDocument();
+      expect(screen.getByText("Some trouble")).toBeInTheDocument();
+      expect(screen.getByText("Needs attention")).toBeInTheDocument();
+      expect(screen.queryByText("95%")).not.toBeInTheDocument();
+      expect(screen.queryByText("72%")).not.toBeInTheDocument();
+      expect(screen.queryByText("35%")).not.toBeInTheDocument();
     });
 
     it("displays average duration", async () => {
@@ -560,7 +563,7 @@ describe("ScraperHealthDashboard", () => {
       await waitFor(() => {
         expect(screen.getByText("150")).toBeInTheDocument();
       });
-      expect(screen.getByText("/ 24 checks")).toBeInTheDocument();
+      expect(screen.getByText("from 24 checks")).toBeInTheDocument();
     });
 
     it("displays relative time for last success", async () => {

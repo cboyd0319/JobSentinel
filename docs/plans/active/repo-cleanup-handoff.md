@@ -203,8 +203,10 @@ Current cleanup posture:
 - Current local Job Source Status follow-up makes the remaining source-panel
   table and dialog labels plainer: `Kind`, `Recent Status`, `Time Needed`,
   `Last Checked`, and `Check Results` replace the older source-type,
-  recent-success, and check-metric wording. Component tests and product-copy
-  sensors cover the old labels.
+  recent-success, and check-metric wording. The latest refinement changes raw
+  recent success percentages into plain labels such as `Mostly working`,
+  `Some trouble`, and `Needs attention`, with matching feature docs and
+  product-copy coverage against stale metric-first display code.
 - Current local Settings copy follow-up changes the posting-risk save toast
   from scan wording to job-check wording and renames the Telegram badge from
   advanced chat alert to optional chat alert. Settings tests and product-copy
