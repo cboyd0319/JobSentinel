@@ -1385,7 +1385,10 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalled();
+        expect(mockToast.error).toHaveBeenCalledWith(
+          "Could not load saved answers",
+          "Try again. If it keeps happening, copy a safe support report.",
+        );
       });
     });
 

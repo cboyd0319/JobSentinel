@@ -121,7 +121,8 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
     } catch (error: unknown) {
       const safeError = getSafeErrorToastCopy(error, {
         fallbackTitle: "Could not load saved answers",
-        fallbackMessage: "Please try again.",
+        fallbackMessage: "Try again. If it keeps happening, copy a safe support report.",
+        includeAction: false,
       });
       toast.error(safeError.title, safeError.message);
       setAnswers([]); // Ensure answers is always an array even on error

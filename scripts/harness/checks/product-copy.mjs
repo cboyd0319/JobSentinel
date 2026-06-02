@@ -1069,7 +1069,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/components/automation/ScreeningAnswersForm.tsx") {
-    return /Dropdown selection|Please fix the errors|Failed to load answers/i.test(text);
+    return /Dropdown selection|Please fix the errors|Failed to load answers|Please try again/i.test(text);
   }
 
   if (path === "src/components/automation/ScreeningAnswerSuggestions.tsx") {

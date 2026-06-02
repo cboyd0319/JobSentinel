@@ -208,6 +208,10 @@ and record actionable findings in this active-plan surface.
   remaining `Failed to...` and `Please fix the errors` labels in profile and
   saved-answer flows with `Could not...` and `Check highlighted fields`
   wording, with focused component tests and product-copy coverage.
+- Latest local saved-answer recovery follow-up replaces the remaining
+  retry-only saved-answer load fallback with safe-support-report guidance and
+  extends product-copy coverage so retry-only fallback copy does not return
+  there.
 - Latest local job-link recovery-copy follow-up replaces remaining
   `Failed to open link` / `Unable to open the job link` toasts with
   `Could not open job link` and browser-copy guidance across job cards and the
@@ -893,6 +897,9 @@ and record actionable findings in this active-plan surface.
 - Current local Application Assist profile recovery slice replaces vague
   retry-only copy with safe-support-report next steps and extends product-copy
   coverage.
+- Current local saved-answer recovery slice replaces the remaining
+  retry-only saved-answer load fallback with safe-support-report guidance and
+  focused component coverage.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

@@ -760,7 +760,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/components/automation/ScreeningAnswersForm.tsx",
-      "Dropdown selection\nPlease fix the errors\nFailed to load answers\n",
+      "Dropdown selection\nPlease fix the errors\nFailed to load answers\nPlease try again\n",
     );
     writeFixtureFile(
       root,

@@ -1256,3 +1256,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local Application Assist profile recovery slice replaces vague
   retry-only copy with safe-support-report next steps and extends product-copy
   coverage.
+- Current local saved-answer recovery slice replaces the remaining
+  retry-only saved-answer load fallback with safe-support-report guidance and
+  focused component coverage.
