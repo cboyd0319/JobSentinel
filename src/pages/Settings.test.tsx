@@ -508,6 +508,7 @@ describe("Settings — loadConfig flow", () => {
     expect(screen.queryByText(/regular password/i)).not.toBeInTheDocument();
     expect(screen.queryByText("Email Server")).not.toBeInTheDocument();
     expect(screen.queryByText("Email provider details")).not.toBeInTheDocument();
+    expect(screen.queryByText(/email provider/i)).not.toBeInTheDocument();
   });
 
   it("uses plain search-word copy for matching settings", async () => {

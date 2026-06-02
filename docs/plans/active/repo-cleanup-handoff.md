@@ -30,6 +30,14 @@ Latest pushed checkpoints include:
 
 Recent remote integration evidence:
 
+- Current local email-service wording follow-up changes Settings, Quick Start,
+  and notification docs away from technical-first email setup wording toward
+  email-service and encrypted sending language. Focused verification passed:
+  `npx vitest run
+  src/pages/Settings.test.tsx` passed 38 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found
+  no stale email setup phrases in Settings, Quick Start, or notification docs,
+  and `git diff --check` passed.
 - Current local source-name copy follow-up changes README source coverage,
   source feature docs, public job-source issue template, shared source labels,
   and frontend mocks from `HN Who's Hiring` wording to `Startup and tech job
@@ -196,6 +204,10 @@ Recent remote integration evidence:
 
 Current cleanup posture:
 
+- Current local email-service wording follow-up changes Settings, Quick Start,
+  and notification docs away from technical-first email setup wording. Focused
+  Settings, product-copy, search, and diff-check verification cover the changed
+  surfaces.
 - Current local source-name copy follow-up changes README, source docs, public
   job-source issue template, shared source labels, and frontend mocks away from
   `HN Who's Hiring` wording. Focused source-label, Settings, SetupWizard,

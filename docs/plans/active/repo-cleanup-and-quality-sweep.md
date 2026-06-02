@@ -164,6 +164,9 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Changed Settings, Quick Start, and notification docs away from technical-first
+  email setup wording toward email-service and encrypted sending language.
+  Focused Settings, product-copy, search, and diff-check verification passed.
 - Changed README source coverage, source feature docs, public job-source issue
   template, shared source labels, and frontend mocks from `HN Who's Hiring`
   wording to `Startup and tech job posts`. Focused source-label, Settings,

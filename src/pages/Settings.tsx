@@ -730,7 +730,7 @@ export default function Settings({ onClose }: SettingsProps) {
   );
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
 
-  // Email provider templates for easier setup
+  // Email service templates for easier setup
   const emailProviderTemplates = {
     gmail: {
       server: "smtp.gmail.com",
@@ -792,7 +792,7 @@ export default function Settings({ onClose }: SettingsProps) {
     setGhostConfig({ ...ghostPresets[preset] });
   };
 
-  // Apply email provider template
+  // Apply email service template
   const applyEmailProvider = (
     provider: "gmail" | "outlook" | "yahoo" | "custom",
   ) => {
@@ -2464,7 +2464,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       <span className="font-medium text-surface-800 dark:text-surface-200">
                         Email Alerts
                       </span>
-                      <HelpIcon text="Email alerts are optional. Leave this off unless your email provider gives you an app password or sending settings." />
+                      <HelpIcon text="Email alerts are optional. Leave this off unless your email service gives you an app password or sending settings." />
                     </div>
                     <label
                       className="relative inline-flex items-center cursor-pointer"
@@ -2494,7 +2494,7 @@ export default function Settings({ onClose }: SettingsProps) {
 
                   {config.alerts.email?.enabled && (
                     <div className="space-y-3">
-                      {/* Email Provider Quick Setup */}
+                      {/* Email service quick setup */}
                       <div className="flex items-center gap-2 -mt-1 mb-2">
                         <span className="text-sm text-surface-600 dark:text-surface-400">
                           Optional setup:
@@ -2577,7 +2577,7 @@ export default function Settings({ onClose }: SettingsProps) {
                                   ) {
                                     toast.error(
                                       "App password needed",
-                                      "Enter the app password from your email provider.",
+                                      "Enter the app password from your email service.",
                                     );
                                     return;
                                   }
@@ -2691,7 +2691,7 @@ export default function Settings({ onClose }: SettingsProps) {
                                   </span>
                                 </label>
                                 <p className="text-xs text-surface-500 dark:text-surface-400">
-                                  Leave this on unless your email provider says to turn it off.
+                                  Leave this on unless your email service says to turn it off.
                                 </p>
                               </div>
                             </div>
@@ -2739,7 +2739,7 @@ export default function Settings({ onClose }: SettingsProps) {
                             placeholder={
                               credentialStatus.smtp_password
                                 ? "Enter new app password to update"
-                                : "App password from your email provider"
+                                : "App password from your email service"
                             }
                             autoComplete="current-password"
                           />

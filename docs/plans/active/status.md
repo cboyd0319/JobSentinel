@@ -160,7 +160,7 @@ actionable findings in this active-plan surface or the relevant plan.
   scripts/check-product-copy.test.mjs` passed 32 tests, `npm run lint:bloat`,
   `npm run test:scripts` passed 455 script tests, `npm run lint`, and
   `git diff --check`.
-- Current local source-name copy slice changes README source coverage, source
+- Committed source-name copy slice changes README source coverage, source
   feature docs, public job-source issue template, shared source labels, and
   frontend mocks from `HN Who's Hiring` wording to `Startup and tech job posts`.
   Product-copy sensors now reject the acronym-first source wording in
@@ -173,6 +173,14 @@ actionable findings in this active-plan surface or the relevant plan.
   test:scripts` passed 455 script tests, `npm run lint:bloat`, `npm run
   harness:check`, `npm run lint:docs`, `npm run lint`, and `git diff --check`
   passed.
+- Current local email-service wording slice changes Settings, Quick Start, and
+  notification docs away from technical-first email setup wording toward
+  email-service and encrypted sending language. Product-copy sensors now reject
+  the old phrases. Focused verification passed: `npx vitest run
+  src/pages/Settings.test.tsx` passed 38 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found
+  no stale email setup phrases in Settings, Quick Start, or notification docs,
+  and `git diff --check` passed.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -215,6 +223,8 @@ Scope:
   failure-first labels in user-facing or future-copy surfaces.
 - User-facing source coverage, issue templates, shared source labels, and
   frontend mocks must avoid acronym-first `HN Who's Hiring` wording.
+- Email setup surfaces must use email-service and plain sending-detail language
+  instead of technical mail-setup labels.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
@@ -235,6 +245,7 @@ npx vitest run src/components/feedback/SubmitOptions.test.tsx src/components/fee
 npx vitest run src/utils/api.test.ts src/utils/errorMessages.test.ts src/components/ComponentErrorBoundary.test.tsx src/components/ModalErrorBoundary.test.tsx
 npx vitest run src/components/AsyncButton.test.tsx src/pages/Settings.test.tsx
 npx vitest run src/utils/sourceLabels.test.ts src/pages/Settings.test.tsx src/pages/SetupWizard.test.tsx
+npx vitest run src/pages/Settings.test.tsx
 node --test scripts/check-privacy-logging.test.mjs
 git diff --check
 ```

@@ -1304,6 +1304,9 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /https:\/\/api\.slack\.com\/messaging\/webhooks/i,
       /Message \[@BotFather\]/i,
       /Find the Telegram chat number/i,
+      /email provider/i,
+      /\|\s*Provider\s*\|\s*Server\s*\|\s*Port\s*\|/i,
+      /All connections use TLS\/STARTTLS encryption/i,
     ];
 
     if (notificationDocPatterns.some((pattern) => pattern.test(text))) {
@@ -1600,6 +1603,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Provider address/i,
       /Provider number/i,
       /Use this only if your provider gives you manual email details/i,
+      /email provider/i,
       /automatic monitoring/i,
       /Advanced federal monitoring/i,
       /Advanced chat alert/i,

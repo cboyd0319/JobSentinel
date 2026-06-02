@@ -13,7 +13,7 @@ schedule.
 ## What is a connection link?
 
 Desktop alerts do not need a connection link. Email alerts use your email
-provider's app password or sending settings.
+service's app password or sending settings.
 
 Slack, Discord, and Teams give you a private connection link for chat alerts.
 Copy that link, then paste it into JobSentinel.
@@ -84,7 +84,7 @@ surface.
    Alerts
 2. Choose Gmail, Outlook, Yahoo, or Other
 3. Enter the email address that should send alerts
-4. Enter an app password if your email provider requires one
+4. Enter an app password if your email service requires one
 5. Add recipient email addresses
 6. Use **Manual email setup** only if your email service gives you manual email
    details
@@ -283,15 +283,10 @@ src-tauri/src/core/notify/
 
 ### Manual Email Details
 
-Use manual email details only if your email service gives them to you.
+Use manual email details only if your email service gives them to you. Copy the
+details exactly as shown by that service, then use the Test button in
+JobSentinel before relying on the alert.
 
-| Provider | Server                | Port |
-| -------- | --------------------- | ---- |
-| Gmail    | smtp.gmail.com        | 587  |
-| Outlook  | smtp-mail.outlook.com | 587  |
-| Yahoo    | smtp.mail.yahoo.com   | 587  |
-| SendGrid | smtp.sendgrid.net     | 587  |
-
-All connections use TLS/STARTTLS encryption.
+JobSentinel uses encrypted email sending when the selected service supports it.
 
 </details>

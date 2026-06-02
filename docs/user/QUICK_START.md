@@ -341,11 +341,11 @@ Desktop alerts do not need another account.
 
 ### Email
 
-Email alerts are optional. Use them if your email provider gives you an app
+Email alerts are optional. Use them if your email service gives you an app
 password or sending details.
 
 1. Open Settings, choose **Sources & Alerts**, then find **Email Alerts**.
-2. Choose your email provider when listed.
+2. Choose your email service when listed.
 3. Follow the email-service steps shown in JobSentinel.
 4. Save settings.
 
@@ -384,7 +384,7 @@ not.
 
 Your saved job-search data stays on your computer by default. Core workflows do
 not need a cloud account or a JobSentinel account. When you turn on job sources
-or alerts, JobSentinel contacts only the sources or alert providers you choose.
+or alerts, JobSentinel contacts only the sources or alert services you choose.
 
 <details>
 <summary><strong>Advanced: where JobSentinel saves local files</strong></summary>
