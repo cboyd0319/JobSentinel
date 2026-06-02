@@ -969,6 +969,10 @@ and record actionable findings in this active-plan surface.
   job links before duplicate hashing or storage, stripping userinfo, fragments,
   tracking parameters, tokens, and candidate/email markers while preserving
   public job identifiers.
+- Current local notification URL privacy follow-up routes Slack, Discord,
+  Teams, Telegram, and email job links through the shared outbound minimizer
+  before any optional off-device alert payload is built; non-public links are
+  omitted or replaced with local-app guidance.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.
@@ -1001,9 +1005,9 @@ and record actionable findings in this active-plan surface.
    setup defaults, examples, placeholders, and source recommendations as new
    slices touch broad-role behavior.
 5. Continue backend/scraper and frontend privacy-edge review.
-   The browser-button stored-URL minimization finding from the latest read-only
-   security audit is closed locally. Notification-channel URL minimization and
-   feedback/share narrative redaction remain the next Rule 0 privacy findings.
+   The browser-button stored-URL and notification-channel URL minimization
+   findings from the latest read-only security audit are closed locally.
+   Feedback/share narrative redaction remains the next Rule 0 privacy finding.
    JobsWithGPT approval enforcement is landed locally; `SEC-019` remains open
    only for a visible last-sent summary if that becomes necessary.
 6. Continue the next zero-technical-knowledge UX audit area outside

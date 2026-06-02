@@ -1235,6 +1235,9 @@ Next high-value passes:
      The latest bookmarklet URL privacy follow-up canonicalizes browser-button
      job links before duplicate hashing or storage; notification-channel URL
      minimization and feedback/share narrative redaction remain next.
+     The latest notification URL privacy follow-up routes Slack, Discord,
+     Teams, Telegram, and email job links through the shared outbound minimizer;
+     feedback/share narrative redaction remains next.
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.

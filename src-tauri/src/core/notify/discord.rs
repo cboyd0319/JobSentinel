@@ -3,8 +3,8 @@
 //! Sends rich-formatted job alerts to Discord using webhooks with embeds.
 
 use super::{
-    notification_provider_failure_summary, validate_webhook_url_security_parts, Notification,
-    LOCAL_MATCH_DETAILS_MESSAGE,
+    notification_job_href, notification_provider_failure_summary,
+    validate_webhook_url_security_parts, Notification, LOCAL_MATCH_DETAILS_MESSAGE,
 };
 use crate::core::config::DiscordConfig;
 use anyhow::{anyhow, Result};
@@ -44,18 +44,10 @@ fn validate_webhook_url(url: &str) -> Result<()> {
     Ok(())
 }
 
-/// Send Discord notification via webhook
-pub async fn send_discord_notification(
-    config: &DiscordConfig,
-    notification: &Notification,
-) -> Result<()> {
-    // Validate webhook URL before sending
-    validate_webhook_url(&config.webhook_url)?;
-
+fn build_discord_payload(config: &DiscordConfig, notification: &Notification) -> serde_json::Value {
     let job = &notification.job;
     let score = &notification.score;
 
-    // Determine embed color based on score (green for high, yellow for medium)
     let color = if score.total >= 0.9 {
         0x10b981 // Green
     } else if score.total >= 0.8 {
@@ -73,11 +65,9 @@ pub async fn send_discord_notification(
         "Not specified".to_string()
     };
 
-    // Build Discord embed
     let mut embed = json!({
         "title": format!("🎯 {} - {}", job.title, job.company),
         "description": format!("**{}% Match** • {}", (score.total * 100.0).round(), job.source),
-        "url": job.url,
         "color": color,
         "fields": [
             {
@@ -107,21 +97,34 @@ pub async fn send_discord_notification(
         "timestamp": chrono::Utc::now().to_rfc3339()
     });
 
-    // Add thumbnail if we have a company logo (future enhancement)
-    // For now, use a generic icon
+    if let Some(href) = notification_job_href(&job.url) {
+        embed["url"] = json!(href);
+    }
+
     embed["thumbnail"] = json!({
         "url": "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png"
     });
 
-    // Build payload with optional mention
     let mut payload = json!({
         "embeds": [embed]
     });
 
-    // Add user mention if configured
     if let Some(user_id) = &config.user_id_to_mention {
         payload["content"] = json!(format!("<@{}>", user_id));
     }
+
+    payload
+}
+
+/// Send Discord notification via webhook
+pub async fn send_discord_notification(
+    config: &DiscordConfig,
+    notification: &Notification,
+) -> Result<()> {
+    // Validate webhook URL before sending
+    validate_webhook_url(&config.webhook_url)?;
+
+    let payload = build_discord_payload(config, notification);
 
     // Send POST request to Discord webhook with timeout
     let client = reqwest::Client::builder()
@@ -716,6 +719,29 @@ mod tests {
         assert!(embed.get("fields").is_some());
         assert!(embed.get("footer").is_some());
         assert_eq!(embed["fields"].as_array().unwrap().len(), 3);
+    }
+
+    #[test]
+    fn test_discord_payload_minimizes_job_url() {
+        let mut notification = create_test_notification();
+        notification.job.url =
+            "https://example.com/jobs?utm_source=alert&gh_jid=123&token=secret&candidate_email=person@example.com#private"
+                .to_string();
+        let config = DiscordConfig {
+            enabled: true,
+            webhook_url: "https://discord.com/api/webhooks/123/token".to_string(),
+            user_id_to_mention: None,
+        };
+
+        let payload = build_discord_payload(&config, &notification);
+        let url = payload["embeds"][0]["url"].as_str().unwrap();
+
+        assert_eq!(url, "https://example.com/jobs?gh_jid=123");
+        assert!(!url.contains("utm_source"));
+        assert!(!url.contains("token"));
+        assert!(!url.contains("candidate_email"));
+        assert!(!url.contains("person@example.com"));
+        assert!(!url.contains("private"));
     }
 
     #[test]

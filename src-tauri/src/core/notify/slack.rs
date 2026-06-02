@@ -2,7 +2,10 @@
 //!
 //! Sends rich-formatted job alerts to Slack via incoming webhooks.
 
-use super::{validate_webhook_url_security_parts, Notification, LOCAL_MATCH_DETAILS_MESSAGE};
+use super::{
+    notification_job_href, validate_webhook_url_security_parts, Notification,
+    LOCAL_MATCH_DETAILS_MESSAGE,
+};
 use anyhow::{anyhow, Result};
 use serde_json::json;
 
@@ -101,8 +104,10 @@ fn build_reasons_section_block(reasons: &[String]) -> serde_json::Value {
 }
 
 /// Build actions block with view button
-fn build_actions_block(job_url: &str) -> serde_json::Value {
-    json!({
+fn build_actions_block(job_url: &str) -> Option<serde_json::Value> {
+    let href = notification_job_href(job_url)?;
+
+    Some(json!({
         "type": "actions",
         "elements": [
             {
@@ -111,23 +116,26 @@ fn build_actions_block(job_url: &str) -> serde_json::Value {
                     "type": "plain_text",
                     "text": "View Job"
                 },
-                "url": job_url,
+                "url": href,
                 "style": "primary"
             }
         ]
-    })
+    }))
 }
 
 /// Build complete Slack message payload
 fn build_slack_payload(notification: &Notification) -> serde_json::Value {
-    json!({
-        "blocks": [
-            build_header_block(&notification.job.title),
-            build_fields_section_block(notification),
-            build_match_details_section_block(),
-            build_actions_block(&notification.job.url),
-        ]
-    })
+    let mut blocks = vec![
+        build_header_block(&notification.job.title),
+        build_fields_section_block(notification),
+        build_match_details_section_block(),
+    ];
+
+    if let Some(actions) = build_actions_block(&notification.job.url) {
+        blocks.push(actions);
+    }
+
+    json!({ "blocks": blocks })
 }
 
 /// Send Slack notification
@@ -1483,7 +1491,7 @@ mod tests {
 
     #[test]
     fn test_build_actions_block_structure() {
-        let block = build_actions_block("https://example.com/jobs/123");
+        let block = build_actions_block("https://example.com/jobs/123").expect("public job link");
 
         assert_eq!(block["type"], "actions");
         assert!(block["elements"].is_array());
@@ -1492,7 +1500,7 @@ mod tests {
 
     #[test]
     fn test_build_actions_block_button() {
-        let block = build_actions_block("https://example.com/jobs/123");
+        let block = build_actions_block("https://example.com/jobs/123").expect("public job link");
 
         let button = &block["elements"][0];
         assert_eq!(button["type"], "button");
@@ -1503,19 +1511,25 @@ mod tests {
     }
 
     #[test]
-    fn test_build_actions_block_url_preserved() {
+    fn test_build_actions_block_strips_tracking_ref() {
         let url = "https://jobs.example.com/apply/123456?ref=jobsentinel";
-        let block = build_actions_block(url);
+        let block = build_actions_block(url).expect("public job link");
 
-        assert_eq!(block["elements"][0]["url"], url);
+        assert_eq!(
+            block["elements"][0]["url"],
+            "https://jobs.example.com/apply/123456"
+        );
     }
 
     #[test]
-    fn test_build_actions_block_with_special_chars_url() {
+    fn test_build_actions_block_canonicalizes_query_encoding() {
         let url = "https://example.com/jobs/123?name=Care%20Coordinator&location=Remote";
-        let block = build_actions_block(url);
+        let block = build_actions_block(url).expect("public job link");
 
-        assert_eq!(block["elements"][0]["url"], url);
+        assert_eq!(
+            block["elements"][0]["url"],
+            "https://example.com/jobs/123?name=Care+Coordinator&location=Remote"
+        );
     }
 
     #[test]
@@ -1581,6 +1595,29 @@ mod tests {
 
         let button_url = payload["blocks"][3]["elements"][0]["url"].as_str().unwrap();
         assert_eq!(button_url, "https://example.com/jobs/123");
+    }
+
+    #[test]
+    fn test_build_slack_payload_minimizes_job_url() {
+        let mut notification = create_test_notification();
+        notification.job.url =
+            "https://example.com/jobs?utm_source=alert&gh_jid=123&token=secret&candidate_email=person@example.com#private"
+                .to_string();
+
+        let payload = build_slack_payload(&notification);
+        let blocks = payload["blocks"].as_array().unwrap();
+        let action_block = blocks
+            .iter()
+            .find(|block| block["type"] == "actions")
+            .expect("public job link should create actions block");
+        let url = action_block["elements"][0]["url"].as_str().unwrap();
+
+        assert_eq!(url, "https://example.com/jobs?gh_jid=123");
+        assert!(!url.contains("utm_source"));
+        assert!(!url.contains("token"));
+        assert!(!url.contains("candidate_email"));
+        assert!(!url.contains("person@example.com"));
+        assert!(!url.contains("private"));
     }
 
     #[test]
@@ -1688,7 +1725,7 @@ mod tests {
     #[test]
     fn test_build_actions_block_with_long_url() {
         let long_url = "https://example.com/jobs/".to_string() + &"a".repeat(200);
-        let block = build_actions_block(&long_url);
+        let block = build_actions_block(&long_url).expect("public job link");
 
         assert_eq!(block["elements"][0]["url"], long_url);
     }
@@ -1701,7 +1738,7 @@ mod tests {
         let header = build_header_block(&notification.job.title);
         let fields = build_fields_section_block(&notification);
         let reasons = build_match_details_section_block();
-        let actions = build_actions_block(&notification.job.url);
+        let actions = build_actions_block(&notification.job.url).expect("public job link");
 
         // Verify they can be assembled
         let manual_payload = json!({

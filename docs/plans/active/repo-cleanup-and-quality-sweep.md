@@ -1312,3 +1312,8 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   candidate/email markers. Remaining Rule 0 findings from the read-only
   security audit are notification-channel URL minimization and feedback/share
   narrative redaction.
+- Current local notification URL privacy follow-up routes Slack, Discord,
+  Teams, Telegram, and email job links through the shared outbound minimizer
+  before optional off-device alert payloads are built; non-public links are
+  omitted or replaced with local-app guidance. Remaining Rule 0 finding from
+  the read-only security audit is feedback/share narrative redaction.

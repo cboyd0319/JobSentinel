@@ -2,9 +2,10 @@
 //!
 //! Sends rich HTML-formatted job alerts via email using SMTP.
 
-use super::{Notification, LOCAL_MATCH_DETAILS_MESSAGE};
+use super::{
+    notification_job_href, Notification, LOCAL_JOB_LINK_MESSAGE, LOCAL_MATCH_DETAILS_MESSAGE,
+};
 use crate::core::config::EmailConfig;
-use crate::core::url_security::validate_external_http_url;
 use anyhow::{anyhow, Context, Result};
 use lettre::{
     message::{header::ContentType, Mailbox},
@@ -214,9 +215,7 @@ fn format_html_email(job: &crate::core::db::Job, score: &crate::core::scoring::J
 }
 
 fn validated_job_href(url: &str) -> Option<String> {
-    validate_external_http_url(url)
-        .ok()
-        .map(|validated| validated.to_string())
+    notification_job_href(url)
 }
 
 fn escape_html(s: &str) -> String {
@@ -237,6 +236,8 @@ fn format_text_email(job: &crate::core::db::Job, score: &crate::core::scoring::J
         "Not specified".to_string()
     };
     let local_match_details = format!("  - {}", LOCAL_MATCH_DETAILS_MESSAGE);
+    let job_link =
+        validated_job_href(&job.url).unwrap_or_else(|| LOCAL_JOB_LINK_MESSAGE.to_string());
 
     format!(
         r#"🎯 HIGH MATCH JOB ALERT
@@ -270,7 +271,7 @@ You can adjust your notification preferences in the app settings.
             "No"
         },
         local_match_details,
-        job.url,
+        job_link,
         score.total * 100.0,
     )
 }
@@ -818,13 +819,17 @@ mod tests {
     fn test_html_email_url_with_query_params() {
         let mut notification = create_test_notification();
         notification.job.url =
-            "https://example.com/jobs/123?utm_source=jobsentinel&ref=alert".to_string();
+            "https://example.com/jobs/123?utm_source=jobsentinel&gh_jid=123&token=secret&candidate_email=person@example.com#private"
+                .to_string();
 
         let html = format_html_email(&notification.job, &notification.score);
 
-        assert!(html.contains(
-            "href=\"https://example.com/jobs/123?utm_source=jobsentinel&amp;ref=alert\""
-        ));
+        assert!(html.contains("href=\"https://example.com/jobs/123?gh_jid=123\""));
+        assert!(!html.contains("utm_source"));
+        assert!(!html.contains("token"));
+        assert!(!html.contains("candidate_email"));
+        assert!(!html.contains("person@example.com"));
+        assert!(!html.contains("private"));
     }
 
     #[test]
@@ -841,11 +846,14 @@ mod tests {
     #[test]
     fn test_text_email_url_with_fragments() {
         let mut notification = create_test_notification();
-        notification.job.url = "https://example.com/careers#senior-engineer-role".to_string();
+        notification.job.url =
+            "https://example.com/careers?gh_jid=123&token=secret#senior-engineer-role".to_string();
 
         let text = format_text_email(&notification.job, &notification.score);
 
-        assert!(text.contains("https://example.com/careers#senior-engineer-role"));
+        assert!(text.contains("VIEW JOB: https://example.com/careers?gh_jid=123"));
+        assert!(!text.contains("token"));
+        assert!(!text.contains("senior-engineer-role"));
     }
 
     #[test]

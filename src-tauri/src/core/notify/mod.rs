@@ -9,6 +9,7 @@ use crate::core::{
     credentials::{CredentialKey, CredentialStore},
     db::Job,
     scoring::JobScore,
+    url_security::canonicalize_user_supplied_job_url,
 };
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
@@ -29,6 +30,11 @@ pub struct Notification {
 
 pub(crate) const LOCAL_MATCH_DETAILS_MESSAGE: &str =
     "Open JobSentinel to review match details saved on this computer.";
+pub(crate) const LOCAL_JOB_LINK_MESSAGE: &str = "Open JobSentinel to view the saved job link.";
+
+pub(crate) fn notification_job_href(url: &str) -> Option<String> {
+    canonicalize_user_supplied_job_url(url).ok()
+}
 
 /// Notification service
 pub struct NotificationService {
@@ -605,6 +611,27 @@ mod tests {
             url::Url::parse(&notification.job.url).is_ok(),
             "Job URL should be valid"
         );
+    }
+
+    #[test]
+    fn test_notification_job_href_minimizes_private_url_parts() {
+        let href = notification_job_href(
+            "https://example.com/jobs?utm_source=alert&gh_jid=123&token=secret&candidate_email=person@example.com#private",
+        )
+        .expect("public job link should be usable");
+
+        assert_eq!(href, "https://example.com/jobs?gh_jid=123");
+        assert!(!href.contains("utm_source"));
+        assert!(!href.contains("token"));
+        assert!(!href.contains("candidate_email"));
+        assert!(!href.contains("person@example.com"));
+        assert!(!href.contains("private"));
+    }
+
+    #[test]
+    fn test_notification_job_href_omits_non_public_links() {
+        assert!(notification_job_href("http://localhost:3000/private?token=secret").is_none());
+        assert!(notification_job_href("javascript:alert(1)").is_none());
     }
 
     #[test]

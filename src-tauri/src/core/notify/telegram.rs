@@ -2,7 +2,10 @@
 //!
 //! Sends formatted job alerts to Telegram using the Bot API with Markdown.
 
-use super::{notification_provider_failure_summary, Notification, LOCAL_MATCH_DETAILS_MESSAGE};
+use super::{
+    notification_job_href, notification_provider_failure_summary, Notification,
+    LOCAL_JOB_LINK_MESSAGE, LOCAL_MATCH_DETAILS_MESSAGE,
+};
 use crate::core::config::TelegramConfig;
 use anyhow::{anyhow, Result};
 use serde_json::json;
@@ -179,6 +182,9 @@ fn format_telegram_message(
     let score_percent = escape(&format!("{:.0}%", score.total * 100.0));
 
     let reasons = format!("  {}", escape(LOCAL_MATCH_DETAILS_MESSAGE));
+    let job_link = notification_job_href(&job.url)
+        .map(|href| format!("[View Full Job Posting]({})", href))
+        .unwrap_or_else(|| escape(LOCAL_JOB_LINK_MESSAGE));
 
     // Build message with MarkdownV2 formatting
     format!(
@@ -196,7 +202,7 @@ fn format_telegram_message(
 *Why this matches:*
 {}
 
-[View Full Job Posting]({})
+{}
 
 _Sent by JobSentinel • Job Search Assistant_"#,
         title,
@@ -208,7 +214,7 @@ _Sent by JobSentinel • Job Search Assistant_"#,
         source,
         remote,
         reasons,
-        job.url
+        job_link
     )
 }
 
@@ -557,6 +563,23 @@ mod tests {
         assert!(message.contains("*Remote:*"));
         assert!(message.contains("*Why this matches:*"));
         assert!(message.contains("[View Full Job Posting]"));
+    }
+
+    #[test]
+    fn test_telegram_message_minimizes_job_url() {
+        let mut notification = create_test_notification();
+        notification.job.url =
+            "https://example.com/jobs?utm_source=alert&gh_jid=123&token=secret&candidate_email=person@example.com#private"
+                .to_string();
+
+        let message = format_telegram_message(&notification.job, &notification.score);
+
+        assert!(message.contains("[View Full Job Posting](https://example.com/jobs?gh_jid=123)"));
+        assert!(!message.contains("utm_source"));
+        assert!(!message.contains("token"));
+        assert!(!message.contains("candidate_email"));
+        assert!(!message.contains("person@example.com"));
+        assert!(!message.contains("private"));
     }
 
     #[test]

@@ -3,8 +3,8 @@
 //! Sends formatted job alerts to Microsoft Teams using Incoming Webhooks.
 
 use super::{
-    notification_provider_failure_summary, validate_webhook_url_security_parts, Notification,
-    LOCAL_MATCH_DETAILS_MESSAGE,
+    notification_job_href, notification_provider_failure_summary,
+    validate_webhook_url_security_parts, Notification, LOCAL_MATCH_DETAILS_MESSAGE,
 };
 use anyhow::{anyhow, Result};
 use serde_json::json;
@@ -43,18 +43,10 @@ fn validate_webhook_url(url: &str) -> Result<()> {
     Ok(())
 }
 
-/// Send Teams notification via webhook
-///
-/// Uses the MessageCard format for compatibility with most Teams setups.
-/// Newer Adaptive Cards format could be added in the future.
-pub async fn send_teams_notification(webhook_url: &str, notification: &Notification) -> Result<()> {
-    // Validate webhook URL before sending
-    validate_webhook_url(webhook_url)?;
-
+fn build_teams_payload(notification: &Notification) -> serde_json::Value {
     let job = &notification.job;
     let score = &notification.score;
 
-    // Determine theme color based on score
     let theme_color = if score.total >= 0.9 {
         "00FF00" // Green
     } else if score.total >= 0.8 {
@@ -72,9 +64,7 @@ pub async fn send_teams_notification(webhook_url: &str, notification: &Notificat
         "Not specified".to_string()
     };
 
-    // Build MessageCard payload
-    // See: https://docs.microsoft.com/en-us/outlook/actionable-messages/message-card-reference
-    let payload = json!({
+    let mut payload = json!({
         "@type": "MessageCard",
         "@context": "https://schema.org/extensions",
         "summary": format!("New job alert: {} at {}", job.title, job.company),
@@ -105,20 +95,36 @@ pub async fn send_teams_notification(webhook_url: &str, notification: &Notificat
                 ],
                 "text": format!("**Why this matches:**\n\n{}", LOCAL_MATCH_DETAILS_MESSAGE)
             }
-        ],
-        "potentialAction": [
-            {
+        ]
+    });
+
+    if let Some(href) = notification_job_href(&job.url) {
+        payload["potentialAction"] = json!([
+             {
                 "@type": "OpenUri",
                 "name": "View Full Job Posting",
                 "targets": [
                     {
                         "os": "default",
-                        "uri": job.url
+                        "uri": href
                     }
                 ]
             }
-        ]
-    });
+        ]);
+    }
+
+    payload
+}
+
+/// Send Teams notification via webhook
+///
+/// Uses the MessageCard format for compatibility with most Teams setups.
+/// Newer Adaptive Cards format could be added in the future.
+pub async fn send_teams_notification(webhook_url: &str, notification: &Notification) -> Result<()> {
+    // Validate webhook URL before sending
+    validate_webhook_url(webhook_url)?;
+
+    let payload = build_teams_payload(notification);
 
     // Send POST request to Teams webhook with timeout
     let client = reqwest::Client::builder()
@@ -574,6 +580,26 @@ mod tests {
 
         assert_eq!(action["@type"], "OpenUri");
         assert_eq!(action["targets"][0]["uri"], notification.job.url);
+    }
+
+    #[test]
+    fn test_teams_payload_minimizes_job_url() {
+        let mut notification = create_test_notification();
+        notification.job.url =
+            "https://example.com/jobs?utm_source=alert&gh_jid=123&token=secret&candidate_email=person@example.com#private"
+                .to_string();
+
+        let payload = build_teams_payload(&notification);
+        let url = payload["potentialAction"][0]["targets"][0]["uri"]
+            .as_str()
+            .unwrap();
+
+        assert_eq!(url, "https://example.com/jobs?gh_jid=123");
+        assert!(!url.contains("utm_source"));
+        assert!(!url.contains("token"));
+        assert!(!url.contains("candidate_email"));
+        assert!(!url.contains("person@example.com"));
+        assert!(!url.contains("private"));
     }
 
     #[test]
