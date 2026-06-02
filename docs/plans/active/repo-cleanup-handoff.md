@@ -220,6 +220,9 @@ Current cleanup posture:
   reminder after optional source approval: approval covers only the displayed
   exact details, and changed details keep the source off until the user approves
   again. Feature docs and Settings coverage reflect the behavior.
+- Current local search-link docs follow-up changes Deep Links and ghost-detection
+  docs away from advanced/monitored-source wording toward job-source and
+  more-control language, with product-copy coverage against the old phrases.
 - Current local Settings copy follow-up changes the posting-risk save toast
   from scan wording to job-check wording and renames the Telegram badge from
   advanced chat alert to optional chat alert. Settings tests and product-copy

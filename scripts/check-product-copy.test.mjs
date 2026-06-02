@@ -128,6 +128,7 @@ test("product copy rejects overconfident ghost-risk copy", () => {
         "The listing appears away from the company or ATS source.",
         "Check the company or ATS page.",
         "Company-site or ATS presence is stronger evidence.",
+        "Advanced controls are available.",
         "",
       ].join("\n"),
     );
@@ -1557,6 +1558,11 @@ test("product copy rejects automated-scan deep-link wording", () => {
         "[technical contributor guide](../developer/ADDING_DEEP_LINK_SITES.md)",
         "## Comparison with Scrapers",
         "**Use scanners for:** Sites that allow it",
+        "## Supported Sites (18)",
+        "| Feature | Search Links | Monitored sources |",
+        "Saved locally when a monitored source returns a job",
+        "Official or public sources that allow local monitoring",
+        "- Advanced filters (salary, experience level)",
         "",
       ].join("\n"),
     );

@@ -199,6 +199,9 @@ boundaries, and harness modularity:
   approval: the approved state applies only to the displayed exact details, and
   any change keeps the source off until the user approves again. Feature docs and
   focused Settings coverage reflect the behavior.
+- Reworked user-facing search-link and ghost-detection docs away from
+  advanced/monitored-source wording toward plain job-source and more-control
+  language, with product-copy coverage against the old terms.
 - Tightened another zero-technical support and protective-copy slice: public
   issue templates now avoid bug/feature/scraper-first wording, safe support
   report docs require review before sharing, source status avoids

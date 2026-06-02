@@ -463,6 +463,7 @@ export function hasOverconfidentGhostCopy(root, path) {
     /Vague title weight/i,
     /Unrealistic requirements weight/i,
     /Missing salary weight/i,
+    /Advanced controls/i,
     /company or ATS source/i,
     /company or ATS page/i,
     /Company-site or ATS presence/i,
@@ -1077,6 +1078,10 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /background collection/i,
       /Rate limiting/i,
       /\[developer guide\]/i,
+      /^## Supported Sites/im,
+      /Monitored sources?/i,
+      /local monitoring/i,
+      /Advanced filters/i,
     ];
 
     if (deepLinkPatterns.some((pattern) => pattern.test(text))) {

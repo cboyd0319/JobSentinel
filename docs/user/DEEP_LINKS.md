@@ -16,7 +16,7 @@ rules.
 - Clear boundary: you open the site and decide what to save
 - Quick way to search multiple sites at once
 
-## Supported Sites (18)
+## Job Sites With Search Links (18)
 
 ### General Job Boards (5)
 
@@ -194,17 +194,18 @@ public search page.
 Contributors can also add sites in code. See the
 [contributor guide](../developer/ADDING_DEEP_LINK_SITES.md) for that path.
 
-## Comparison With Monitored Sources
+## Comparison With Job Sources
 
-| Feature | Search Links | Monitored sources |
+| Feature | Search Links | Job sources checked by JobSentinel |
 |---------|--------------|-------------------|
 | **Who opens the site** | You, in your browser | JobSentinel, where allowed |
 | **Login and human checks** | Handled by you on the site | Not worked around |
 | **Page changes** | You still see the site directly | Source rules may need updates |
-| **Saving jobs** | You choose what to save | Saved locally when a monitored source returns a job |
-| **Best for** | Sites with login, human checks, or policy limits | Official or public sources that allow local monitoring |
+| **Saving jobs** | You choose what to save | Saved locally when a job source returns a job |
+| **Best for** | Sites with login, human checks, or policy limits | Official or public sources that allow local checks |
 
-**Use monitored sources for:** Official or public sources that allow local monitoring.
+**Use JobSentinel job sources for:** Official or public sources that allow local
+checks.
 **Use search links for:** Sites that are best opened by you in your browser.
 
 ## Troubleshooting
@@ -235,7 +236,7 @@ This is expected - log in to view results.
 
 ## Related Features
 
-- **Monitored sources** - Local checks for supported official or public sources
+- **Job sources** - Local checks for supported official or public sources
 - **Search-link favorites** (not yet implemented) - Save favorite search-link searches
 - **Job Tracker** - Track applications from manual searches
 
@@ -251,6 +252,6 @@ This is expected - log in to view results.
 ### Later
 
 - More sites (50+ total)
-- Advanced filters (salary, experience level)
+- More filters, such as salary and experience level
 - Search history
 - Quick search from system tray

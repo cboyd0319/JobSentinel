@@ -122,8 +122,8 @@ Detection Settings**:
 - **Fresh and verified first** - Warns sooner so older or weak-source postings
   move lower before you spend tailoring time.
 
-Most users can leave the balanced setting on. Advanced controls are available
-for people who want exact stale-day, repost-count, or signal-strength settings.
+Most users can leave the balanced setting on. More controls are available for
+people who want exact stale-day, repost-count, or signal-strength settings.
 Changes take effect immediately with a live preview showing how many listings
 would need review.
 

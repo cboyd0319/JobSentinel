@@ -60,6 +60,10 @@ and record actionable findings in this active-plan surface.
   approving an optional source address: approval applies only to the displayed
   exact details, and any change keeps the source off until approval happens
   again.
+- Current local search-link docs follow-up changes user-facing Deep Links and
+  ghost-detection docs away from advanced/monitored-source wording toward plain
+  job-source and more-control language; product-copy coverage rejects the stale
+  terms.
 - Latest local zero-technical job-import follow-up changes missing-preview
   warnings from raw missing-field lists to readable details-to-check labels, so
   backend keys such as salary or job-link fields do not leak into the import
