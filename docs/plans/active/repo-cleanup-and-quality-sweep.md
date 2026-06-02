@@ -1245,3 +1245,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local Resume Builder validation slice changes missing-step and skill
   detail messages to action-first copy and adds focused helper coverage for
   step validation.
+- Current local shared link/contact validation slice changes URL, phone, port,
+  and multi-email messages to plain guidance and lets stray email-list commas
+  pass instead of treating them as bad addresses.

@@ -31,7 +31,7 @@ const ContactStep = memo(function ContactStep({ contact, setContact }: ContactSt
   const validatePhone = useCallback((phone: string): string | undefined => {
     if (!phone.trim()) return undefined;
     const digits = phone.replace(/\D/g, "");
-    if (digits.length < 10) return "Phone must be at least 10 digits";
+    if (digits.length < 10) return "Use a phone number with at least 10 digits.";
     return undefined;
   }, []);
 

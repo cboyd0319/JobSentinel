@@ -882,6 +882,9 @@ and record actionable findings in this active-plan surface.
 - Current local Resume Builder validation slice changes missing-step and skill
   detail messages to action-first copy and adds focused helper coverage for
   step validation.
+- Current local shared link/contact validation slice changes URL, phone, port,
+  and multi-email messages to plain guidance and lets stray email-list commas
+  pass instead of treating them as bad addresses.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

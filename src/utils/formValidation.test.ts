@@ -112,26 +112,26 @@ describe("formValidation", () => {
     it("returns error message for invalid URLs", () => {
       // Arrange & Act & Assert
       expect(validateUrl("not-a-url")).toBe(
-        "Please enter a valid URL (e.g., https://example.com)"
+        "Use a web link like https://example.com."
       );
       expect(validateUrl("example.com")).toBe(
-        "Please enter a valid URL (e.g., https://example.com)"
+        "Use a web link like https://example.com."
       );
       expect(validateUrl("//example.com")).toBe(
-        "Please enter a valid URL (e.g., https://example.com)"
+        "Use a web link like https://example.com."
       );
     });
 
     it("returns error message for non-HTTP protocols", () => {
       // Arrange & Act & Assert
       expect(validateUrl("ftp://example.com")).toBe(
-        "URL must start with http:// or https://"
+        "Use a web link that starts with https:// or http://."
       );
       expect(validateUrl("file://example.com")).toBe(
-        "URL must start with http:// or https://"
+        "Use a web link that starts with https:// or http://."
       );
       expect(validateUrl("javascript:alert(1)")).toBe(
-        "URL must start with http:// or https://"
+        "Use a web link that starts with https:// or http://."
       );
     });
 
@@ -139,7 +139,7 @@ describe("formValidation", () => {
       // Arrange & Act & Assert
       expect(validateUrl("  https://example.com  ")).toBeUndefined();
       expect(validateUrl("  not-a-url  ")).toBe(
-        "Please enter a valid URL (e.g., https://example.com)"
+        "Use a web link like https://example.com."
       );
     });
   });
@@ -153,17 +153,17 @@ describe("formValidation", () => {
 
     it("returns error message for empty string", () => {
       // Arrange & Act & Assert
-      expect(validateRequiredUrl("")).toBe("URL is required");
-      expect(validateRequiredUrl("   ")).toBe("URL is required");
+      expect(validateRequiredUrl("")).toBe("Add a web link.");
+      expect(validateRequiredUrl("   ")).toBe("Add a web link.");
     });
 
     it("returns error message for invalid URLs", () => {
       // Arrange & Act & Assert
       expect(validateRequiredUrl("not-a-url")).toBe(
-        "Please enter a valid URL (e.g., https://example.com)"
+        "Use a web link like https://example.com."
       );
       expect(validateRequiredUrl("ftp://example.com")).toBe(
-        "URL must start with http:// or https://"
+        "Use a web link that starts with https:// or http://."
       );
     });
   });
@@ -218,21 +218,21 @@ describe("formValidation", () => {
     it("returns error message for too few digits", () => {
       // Arrange & Act & Assert
       expect(validatePhone("123456789")).toBe(
-        "Phone number must have 10-15 digits"
+        "Use a phone number with 10 to 15 digits."
       );
-      expect(validatePhone("12345")).toBe("Phone number must have 10-15 digits");
+      expect(validatePhone("12345")).toBe("Use a phone number with 10 to 15 digits.");
       expect(validatePhone("(123) 456-78")).toBe(
-        "Phone number must have 10-15 digits"
+        "Use a phone number with 10 to 15 digits."
       );
     });
 
     it("returns error message for too many digits", () => {
       // Arrange & Act & Assert
       expect(validatePhone("1234567890123456")).toBe(
-        "Phone number must have 10-15 digits"
+        "Use a phone number with 10 to 15 digits."
       );
       expect(validatePhone("12345678901234567890")).toBe(
-        "Phone number must have 10-15 digits"
+        "Use a phone number with 10 to 15 digits."
       );
     });
 
@@ -246,11 +246,11 @@ describe("formValidation", () => {
       // Arrange & Act & Assert
       expect(validatePhone("9876543210")).toBeUndefined(); // Exactly 10 digits
       expect(validatePhone("987654321")).toBe(
-        "Phone number must have 10-15 digits"
+        "Use a phone number with 10 to 15 digits."
       ); // 9 digits (just below min)
       expect(validatePhone("123456789012345")).toBeUndefined(); // Exactly 15 digits
       expect(validatePhone("1234567890123456")).toBe(
-        "Phone number must have 10-15 digits"
+        "Use a phone number with 10 to 15 digits."
       ); // 16 digits (just above max)
     });
   });
@@ -594,24 +594,24 @@ describe("formValidation", () => {
 
     it("returns error message for port below minimum", () => {
       // Arrange & Act & Assert
-      expect(validatePort(0)).toBe("Port must be between 1 and 65535");
-      expect(validatePort(-1)).toBe("Port must be between 1 and 65535");
-      expect(validatePort(-100)).toBe("Port must be between 1 and 65535");
+      expect(validatePort(0)).toBe("Use a port number from 1 to 65535.");
+      expect(validatePort(-1)).toBe("Use a port number from 1 to 65535.");
+      expect(validatePort(-100)).toBe("Use a port number from 1 to 65535.");
     });
 
     it("returns error message for port above maximum", () => {
       // Arrange & Act & Assert
-      expect(validatePort(65536)).toBe("Port must be between 1 and 65535");
-      expect(validatePort(70000)).toBe("Port must be between 1 and 65535");
-      expect(validatePort(100000)).toBe("Port must be between 1 and 65535");
+      expect(validatePort(65536)).toBe("Use a port number from 1 to 65535.");
+      expect(validatePort(70000)).toBe("Use a port number from 1 to 65535.");
+      expect(validatePort(100000)).toBe("Use a port number from 1 to 65535.");
     });
 
     it("handles boundary conditions", () => {
       // Arrange & Act & Assert
       expect(validatePort(1)).toBeUndefined(); // Lower bound
-      expect(validatePort(0)).toBe("Port must be between 1 and 65535"); // Just below
+      expect(validatePort(0)).toBe("Use a port number from 1 to 65535."); // Just below
       expect(validatePort(65535)).toBeUndefined(); // Upper bound
-      expect(validatePort(65536)).toBe("Port must be between 1 and 65535"); // Just above
+      expect(validatePort(65536)).toBe("Use a port number from 1 to 65535."); // Just above
     });
 
     it("handles common port numbers", () => {
@@ -658,14 +658,14 @@ describe("formValidation", () => {
     it("returns error message for invalid email in list", () => {
       // Arrange & Act & Assert
       const result = validateEmailList("user1@example.com,invalid,user2@example.com");
-      expect(result).toContain("Invalid email addresses:");
+      expect(result).toContain("Check these email addresses:");
       expect(result).toContain("invalid");
     });
 
     it("returns error message for multiple invalid emails", () => {
       // Arrange & Act & Assert
       const result = validateEmailList("invalid1,user@example.com,invalid2");
-      expect(result).toContain("Invalid email addresses:");
+      expect(result).toContain("Check these email addresses:");
       expect(result).toContain("invalid1");
       expect(result).toContain("invalid2");
     });
@@ -673,7 +673,7 @@ describe("formValidation", () => {
     it("returns error message for all invalid emails", () => {
       // Arrange & Act & Assert
       const result = validateEmailList("invalid1,invalid2,invalid3");
-      expect(result).toContain("Invalid email addresses:");
+      expect(result).toContain("Check these email addresses:");
       expect(result).toContain("invalid1");
       expect(result).toContain("invalid2");
       expect(result).toContain("invalid3");
@@ -682,29 +682,23 @@ describe("formValidation", () => {
     it("handles edge case with single invalid email", () => {
       // Arrange & Act & Assert
       const result = validateEmailList("invalid");
-      expect(result).toContain("Invalid email addresses:");
+      expect(result).toContain("Check these email addresses:");
       expect(result).toContain("invalid");
     });
 
     it("handles trailing comma", () => {
       // Arrange & Act & Assert
-      const result = validateEmailList("user@example.com,");
-      expect(result).toContain("Invalid email addresses:");
-      expect(result).toContain(""); // Empty string after comma is invalid
+      expect(validateEmailList("user@example.com,")).toBeUndefined();
     });
 
     it("handles leading comma", () => {
       // Arrange & Act & Assert
-      const result = validateEmailList(",user@example.com");
-      expect(result).toContain("Invalid email addresses:");
-      expect(result).toContain(""); // Empty string before comma is invalid
+      expect(validateEmailList(",user@example.com")).toBeUndefined();
     });
 
     it("handles multiple commas", () => {
       // Arrange & Act & Assert
-      const result = validateEmailList("user1@example.com,,user2@example.com");
-      expect(result).toContain("Invalid email addresses:");
-      expect(result).toContain(""); // Empty string between commas is invalid
+      expect(validateEmailList("user1@example.com,,user2@example.com")).toBeUndefined();
     });
   });
 });

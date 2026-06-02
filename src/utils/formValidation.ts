@@ -47,11 +47,11 @@ export function validateUrl(url: string): string | undefined {
   try {
     const parsed = new URL(url.trim());
     if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
-      return "URL must start with http:// or https://";
+      return "Use a web link that starts with https:// or http://.";
     }
     return undefined;
   } catch {
-    return "Please enter a valid URL (e.g., https://example.com)";
+    return "Use a web link like https://example.com.";
   }
 }
 
@@ -76,7 +76,7 @@ export function validateUrlWithOptionalProtocol(url: string): string | undefined
     }
     return undefined;
   } catch {
-    return "Please enter a valid URL";
+    return "Use a normal web link.";
   }
 }
 
@@ -86,7 +86,7 @@ export function validateUrlWithOptionalProtocol(url: string): string | undefined
  * @returns Error message if invalid, undefined if valid
  */
 export function validateRequiredUrl(url: string): string | undefined {
-  if (!url.trim()) return "URL is required";
+  if (!url.trim()) return "Add a web link.";
   return validateUrl(url);
 }
 
@@ -100,7 +100,7 @@ export function validatePhone(phone: string): string | undefined {
 
   const digits = phone.replace(/\D/g, "");
   if (digits.length < PHONE_MIN_DIGITS || digits.length > PHONE_MAX_DIGITS) {
-    return `Phone number must have ${PHONE_MIN_DIGITS}-${PHONE_MAX_DIGITS} digits`;
+    return `Use a phone number with ${PHONE_MIN_DIGITS} to ${PHONE_MAX_DIGITS} digits.`;
   }
   return undefined;
 }
@@ -284,7 +284,7 @@ export function validateRequiredRegex(pattern: string): string | undefined {
  */
 export function validatePort(port: number): string | undefined {
   if (port < 1 || port > 65535) {
-    return "Port must be between 1 and 65535";
+    return "Use a port number from 1 to 65535.";
   }
   return undefined;
 }
@@ -297,11 +297,11 @@ export function validatePort(port: number): string | undefined {
 export function validateEmailList(emails: string): string | undefined {
   if (!emails.trim()) return undefined; // Empty is valid (optional field)
 
-  const emailList = emails.split(",").map(e => e.trim());
+  const emailList = emails.split(",").map(e => e.trim()).filter(Boolean);
   const invalidEmails = emailList.filter(e => !EMAIL_REGEX.test(e));
 
   if (invalidEmails.length > 0) {
-    return `Invalid email addresses: ${invalidEmails.join(", ")}`;
+    return `Check these email addresses: ${invalidEmails.join(", ")}`;
   }
   return undefined;
 }

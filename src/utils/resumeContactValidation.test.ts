@@ -34,7 +34,7 @@ describe("getResumeContactValidationMessage", () => {
 
   it("validates optional phone number", () => {
     expect(getResumeContactValidationMessage(validContact({ phone: "123" }))).toBe(
-      "Phone number must have 10-15 digits"
+      "Use a phone number with 10 to 15 digits."
     );
   });
 
