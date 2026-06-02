@@ -49,3 +49,14 @@ Research outputs should make the work inspectable:
 - Privacy and responsible-use notes.
 - Product implications for ghost-job detection, salary transparency,
   pay-equity support, ATS transparency, and long-term unemployment support.
+
+## Research Notes
+
+- [Job seeker behavior](job-seeker-behavior.md)
+- [ATS transparency](ats-transparency.md)
+- [Resume formatting and application readability, 2026](resume-formatting-ats-2026.md)
+- [Resume alignment scoring](resume-alignment-scoring.md)
+- [Ghost jobs](ghost-jobs.md)
+- [Job-site data sources](job-site-data-sources.md)
+- [Pay equity](pay-equity.md)
+- [Salary negotiation](salary-negotiation.md)

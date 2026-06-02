@@ -198,6 +198,9 @@ impl AtsAnalyzer {
         // Check for prompt-injection-like or hidden-instruction text.
         Self::check_adversarial_content(resume, &mut format_issues, &mut suggestions);
 
+        // Check for repeated keyword piles that hurt readability and trust.
+        Self::check_keyword_stuffing(resume, &mut format_issues, &mut suggestions);
+
         // Calculate format score
         let critical_count = format_issues
             .iter()
@@ -536,6 +539,28 @@ impl AtsAnalyzer {
         });
     }
 
+    fn check_keyword_stuffing(
+        resume: &ResumeData,
+        issues: &mut Vec<FormatIssue>,
+        suggestions: &mut Vec<AtsSuggestion>,
+    ) {
+        if !Self::has_keyword_stuffing(resume) {
+            return;
+        }
+
+        issues.push(FormatIssue {
+            severity: IssueSeverity::Warning,
+            issue: "Possible keyword stuffing detected".to_string(),
+            fix: "Remove repeated keyword piles and show each important skill through truthful experience, tools, scope, or outcomes.".to_string(),
+        });
+        suggestions.push(AtsSuggestion {
+            category: SuggestionCategory::FormatFix,
+            suggestion: "Replace repeated keywords with readable evidence a recruiter can understand and you can defend in an interview.".to_string(),
+            impact: "Keeps the resume credible while still making real qualifications visible."
+                .to_string(),
+        });
+    }
+
     fn has_adversarial_content(resume: &ResumeData) -> bool {
         Self::text_has_adversarial_content(&resume.summary)
             || Self::text_has_adversarial_content(&resume.contact_info.name)
@@ -579,6 +604,36 @@ impl AtsAnalyzer {
             })
     }
 
+    fn has_keyword_stuffing(resume: &ResumeData) -> bool {
+        Self::text_has_keyword_stuffing(&resume.summary)
+            || resume.experience.iter().any(|experience| {
+                Self::text_has_keyword_stuffing(&experience.title)
+                    || Self::text_has_keyword_stuffing(&experience.company)
+                    || experience
+                        .achievements
+                        .iter()
+                        .any(|item| Self::text_has_keyword_stuffing(item))
+            })
+            || resume.skills.iter().any(|skill| {
+                Self::text_has_keyword_stuffing(&skill.name)
+                    || Self::text_has_keyword_stuffing(&skill.category)
+                    || skill
+                        .proficiency
+                        .as_deref()
+                        .is_some_and(Self::text_has_keyword_stuffing)
+            })
+            || resume
+                .projects
+                .iter()
+                .any(|item| Self::text_has_keyword_stuffing(item))
+            || resume.custom_sections.iter().any(|(section, values)| {
+                Self::text_has_keyword_stuffing(section)
+                    || values
+                        .iter()
+                        .any(|item| Self::text_has_keyword_stuffing(item))
+            })
+    }
+
     fn text_has_adversarial_content(text: &str) -> bool {
         if text.chars().any(|c| {
             matches!(
@@ -608,6 +663,51 @@ impl AtsAnalyzer {
         ]
         .iter()
         .any(|phrase| lower.contains(phrase))
+    }
+
+    fn text_has_keyword_stuffing(text: &str) -> bool {
+        let token_re = regex::Regex::new(r"(?i)[a-z][a-z0-9+#.]{1,}").unwrap();
+        let mut previous = String::new();
+        let mut run_length = 0;
+
+        for token in token_re.find_iter(text).map(|m| m.as_str()) {
+            let token = token.trim_matches('.').to_ascii_lowercase();
+            if token.len() < 3 || Self::is_keyword_stuffing_stopword(&token) {
+                previous.clear();
+                run_length = 0;
+                continue;
+            }
+
+            if token == previous {
+                run_length += 1;
+            } else {
+                previous = token;
+                run_length = 1;
+            }
+
+            if run_length >= 3 {
+                return true;
+            }
+        }
+
+        false
+    }
+
+    fn is_keyword_stuffing_stopword(token: &str) -> bool {
+        matches!(
+            token,
+            "and"
+                | "the"
+                | "for"
+                | "with"
+                | "from"
+                | "that"
+                | "this"
+                | "you"
+                | "your"
+                | "resume"
+                | "work"
+        )
     }
 
     fn calculate_completeness(resume: &ResumeData) -> f64 {
@@ -668,8 +768,32 @@ impl AtsAnalyzer {
                         .to_string(),
                 impact:
                     "Keeps the resume readable and avoids tactics that can backfire with employers or screening systems."
-                        .to_string(),
+                    .to_string(),
             });
+        }
+
+        if Self::text_has_keyword_stuffing(readable_text) {
+            format_issues.push(FormatIssue {
+                severity: IssueSeverity::Warning,
+                issue: "Possible keyword stuffing detected".to_string(),
+                fix: "Remove repeated keyword piles and show each important skill through truthful experience, tools, scope, or outcomes.".to_string(),
+            });
+            suggestions.push(AtsSuggestion {
+                category: SuggestionCategory::FormatFix,
+                suggestion: "Replace repeated keywords with readable evidence a recruiter can understand and you can defend in an interview.".to_string(),
+                impact: "Keeps the resume credible while still making real qualifications visible."
+                    .to_string(),
+            });
+        }
+
+        if !readable_text.is_empty() {
+            Self::check_plain_text_contact(readable_text, &mut format_issues, &mut suggestions);
+            Self::check_plain_text_headings(readable_text, &mut format_issues, &mut suggestions);
+            Self::check_plain_text_layout_risks(
+                readable_text,
+                &mut format_issues,
+                &mut suggestions,
+            );
         }
 
         let critical_count = format_issues
@@ -695,6 +819,130 @@ impl AtsAnalyzer {
             format_issues,
             suggestions,
         }
+    }
+
+    fn check_plain_text_contact(
+        resume_text: &str,
+        issues: &mut Vec<FormatIssue>,
+        suggestions: &mut Vec<AtsSuggestion>,
+    ) {
+        let top_text = resume_text
+            .lines()
+            .filter(|line| !line.trim().is_empty())
+            .take(12)
+            .collect::<Vec<_>>()
+            .join("\n");
+
+        if Self::contains_email(&top_text) {
+            return;
+        }
+
+        issues.push(FormatIssue {
+            severity: IssueSeverity::Warning,
+            issue: "Contact information is not visible near the top".to_string(),
+            fix:
+                "Put email and basic contact details in the resume body near the top, not only in a header, footer, image, or text box."
+                    .to_string(),
+        });
+        suggestions.push(AtsSuggestion {
+            category: SuggestionCategory::FormatFix,
+            suggestion:
+                "Review the readable text preview and make sure contact details appear near the top."
+                    .to_string(),
+            impact: "Helps application systems and recruiters find the right contact information."
+                .to_string(),
+        });
+    }
+
+    fn check_plain_text_headings(
+        resume_text: &str,
+        issues: &mut Vec<FormatIssue>,
+        suggestions: &mut Vec<AtsSuggestion>,
+    ) {
+        if resume_text.lines().any(Self::is_standard_resume_heading) {
+            return;
+        }
+
+        issues.push(FormatIssue {
+            severity: IssueSeverity::Warning,
+            issue: "No standard resume section headings found".to_string(),
+            fix:
+                "Use clear headings such as Summary, Skills, Professional Experience, Education, Certifications, or Projects."
+                    .to_string(),
+        });
+        suggestions.push(AtsSuggestion {
+            category: SuggestionCategory::FormatFix,
+            suggestion: "Replace creative section names with standard resume headings.".to_string(),
+            impact: "Makes the resume easier for people and application systems to scan in order."
+                .to_string(),
+        });
+    }
+
+    fn check_plain_text_layout_risks(
+        resume_text: &str,
+        issues: &mut Vec<FormatIssue>,
+        suggestions: &mut Vec<AtsSuggestion>,
+    ) {
+        let table_like_lines = resume_text
+            .lines()
+            .filter(|line| {
+                let trimmed = line.trim();
+                trimmed.matches('|').count() >= 2 || trimmed.matches('\t').count() >= 2
+            })
+            .count();
+
+        if table_like_lines < 2 {
+            return;
+        }
+
+        issues.push(FormatIssue {
+            severity: IssueSeverity::Warning,
+            issue: "Readable resume text contains table-like formatting".to_string(),
+            fix:
+                "Use a simple single-column layout for important resume content instead of tables, columns, or skill bars."
+                    .to_string(),
+        });
+        suggestions.push(AtsSuggestion {
+            category: SuggestionCategory::FormatFix,
+            suggestion: "Check whether tables or columns scrambled the plain-text reading order."
+                .to_string(),
+            impact:
+                "Keeps qualifications readable when the resume is copied, parsed, or reviewed quickly."
+                    .to_string(),
+        });
+    }
+
+    fn contains_email(text: &str) -> bool {
+        regex::Regex::new(r"(?i)\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b")
+            .unwrap()
+            .is_match(text)
+    }
+
+    fn is_standard_resume_heading(line: &str) -> bool {
+        let normalized = line
+            .trim()
+            .trim_end_matches(':')
+            .to_lowercase()
+            .replace('/', " ");
+        let normalized = normalized.split_whitespace().collect::<Vec<_>>().join(" ");
+        matches!(
+            normalized.as_str(),
+            "summary"
+                | "profile"
+                | "skills"
+                | "skills technical skills"
+                | "technical skills"
+                | "core skills"
+                | "professional experience"
+                | "work experience"
+                | "experience"
+                | "projects"
+                | "selected projects"
+                | "education"
+                | "certifications"
+                | "licenses"
+                | "publications"
+        )
     }
 
     fn build_job_analysis_result(
@@ -1226,6 +1474,86 @@ mod tests {
         assert!(result.format_issues.iter().any(|issue| issue
             .issue
             .contains("Instruction-like or hidden resume text")));
+    }
+
+    #[test]
+    fn test_analyze_format_flags_obvious_keyword_stuffing() {
+        let mut resume = sample_resume();
+        resume.experience[0]
+            .achievements
+            .push("AWS AWS AWS IAM IAM IAM security security security".to_string());
+
+        let result = AtsAnalyzer::analyze_format(&resume);
+
+        assert!(result.format_issues.iter().any(|issue| {
+            issue.severity == IssueSeverity::Warning
+                && issue.issue.contains("Possible keyword stuffing")
+                && issue.fix.contains("truthful experience")
+        }));
+        assert!(result.suggestions.iter().any(|suggestion| {
+            suggestion.category == SuggestionCategory::FormatFix
+                && suggestion.suggestion.contains("readable evidence")
+        }));
+    }
+
+    #[test]
+    fn test_analyze_text_for_job_flags_missing_top_contact_and_standard_headings() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\nMy Journey\nLed client support teams\nCapabilities\nLeadership",
+            &["Leadership".to_string()],
+            "Required: leadership",
+        );
+
+        assert!(result
+            .format_issues
+            .iter()
+            .any(|issue| issue.issue.contains("Contact information is not visible")));
+        assert!(result
+            .format_issues
+            .iter()
+            .any(|issue| issue.issue.contains("standard resume section headings")));
+    }
+
+    #[test]
+    fn test_analyze_text_for_job_flags_obvious_keyword_stuffing() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nSkills\nAWS AWS AWS IAM IAM IAM",
+            &["AWS".to_string()],
+            "Required: AWS",
+        );
+
+        assert!(result
+            .format_issues
+            .iter()
+            .any(|issue| issue.issue.contains("Possible keyword stuffing")));
+    }
+
+    #[test]
+    fn test_analyze_text_for_job_accepts_slash_standard_heading() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nSkills / Technical Skills\nLeadership",
+            &["Leadership".to_string()],
+            "Required: leadership",
+        );
+
+        assert!(!result
+            .format_issues
+            .iter()
+            .any(|issue| issue.issue.contains("standard resume section headings")));
+    }
+
+    #[test]
+    fn test_analyze_text_for_job_flags_table_like_resume_text() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nSkills\n| Skill | Level |\n| Leadership | Advanced |",
+            &["Leadership".to_string()],
+            "Required: leadership",
+        );
+
+        assert!(result
+            .format_issues
+            .iter()
+            .any(|issue| issue.issue.contains("table-like formatting")));
     }
 
     #[test]

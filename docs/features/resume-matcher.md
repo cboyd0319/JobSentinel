@@ -29,10 +29,18 @@ External AI is not required for resume matching.
 
 - **Resume readability**: Confirm and copy the text JobSentinel can read from
   the selected resume.
+- **Readable structure review**: Flag missing top contact details, missing
+  standard section headings, table-like extracted text, hidden instructions,
+  and other practical readability risks.
 - **Fit review**: Compare resume skills, experience, and education with a job
   posting.
 - **Truthful tailoring**: See which real experience might be worth making more
   visible.
+- **Requirement inventory**: Separate must-have requirements, high-value terms,
+  supporting terms, and words that should not be forced into the resume.
+- **Knockout consistency review**: Notice when required form answers should be
+  supported by visible resume evidence, such as licenses, work authorization,
+  location, required tools, or years of experience.
 - **Gap awareness**: Notice missing or weakly represented requirements before
   spending time on a role.
 - **Resume safety review**: Flag prompt-injection-like instructions, hidden
@@ -69,6 +77,8 @@ External AI is not required for resume matching.
 
 JobSentinel should explain fit in plain language. A person should not need to
 understand parsing, scoring, or employer screening systems to use the result.
+JobSentinel should also make clear that local fit and readability results are
+diagnostics, not predictions of how a specific employer will screen or respond.
 
 ## How To Read Fit Results
 
@@ -84,6 +94,10 @@ understand parsing, scoring, or employer screening systems to use the result.
 Low fit does not mean "do not apply." It means "review fit before spending
 extra time." Strong fit does not guarantee a response. It means the resume and
 posting share stronger visible evidence.
+
+Resume quality and role fit are separate. A clear resume can still be a poor
+fit for a role, and a plausible role fit can still need format cleanup before
+submission.
 
 ## Responsible Use
 
@@ -107,6 +121,9 @@ The current local matcher:
 - extracts readable text from PDF, DOCX, TXT, and Markdown resumes;
 - provides an explicit local preview of readable resume text without returning
   the saved file path;
+- checks the extracted text for common application-readability risks such as
+  missing top contact details, missing standard section headings, table-like
+  text, and hidden instruction-like content;
 - can review the active saved resume against a pasted job post without copying
   structured resume details into the page;
 - loads the active saved resume on page open so the user can paste a job post
@@ -134,6 +151,17 @@ Current import support covers PDF, DOCX, TXT, and Markdown. Private reference
 examples reviewed during planning also showed RTF, ODT, EPUB, and archive
 exports. Future importer work should use synthetic fixtures based on those
 format patterns instead of committing private resume text.
+
+The detailed research note for future resume assistance work is
+[Resume Formatting And Application Readability, 2026](../research/resume-formatting-ats-2026.md).
+That guidance locks in single-column readable structure, plain-text preview,
+truthful keyword evidence, application-form consistency, ethical confidence,
+profession-specific prompts, and score humility.
+The companion
+[Resume Alignment Scoring](../research/resume-alignment-scoring.md) note locks
+in transparent component rubrics, match states, evidence strength, hard
+constraint caps, conservative synonym handling, recency and section placement,
+and profession-specific weighting as future work.
 
 ## Boundaries
 

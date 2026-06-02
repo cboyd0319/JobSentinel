@@ -82,6 +82,24 @@ manipulation, or unreviewed form sending.
   src/mocks/handlers.test.ts`, `npm run lint -- --quiet`, `npm run test:run`,
   `npm run build`, `npm run lint:docs`, `npm run lint:bloat`, and `git diff
   --check`.
+- Current local 2026 resume-guidance follow-up locks
+  `/Users/c/Downloads/updated_resume_formatting_ats_guidance_2026(2).md` into
+  `docs/research/resume-formatting-ats-2026.md`, the ATS transparency note,
+  the Resume Match feature guide, and the active research-backed plan. It adds
+  local readable-text checks for top contact details, standard headings, and
+  table-like extracted text. It also records future work for requirement
+  inventory, knockout-question consistency, file-type/file-size checks,
+  selectable-text review, ethical confidence prompts, score humility, and
+  profession-specific evidence prompts. Real resume/profile reference material
+  remains private and must not be committed.
+- Current local resume-alignment scoring follow-up locks
+  `/Users/c/Downloads/ats_scoring_algorithm.md` into
+  `docs/research/resume-alignment-scoring.md`, the ATS transparency note, the
+  Resume Match feature guide, and the active research-backed plan. It adds
+  local keyword-stuffing detection and records future work for transparent
+  component rubrics, resume-quality versus role-fit separation, hard-constraint
+  caps, match states, evidence strength, seniority alignment, conservative
+  synonyms, recency, section placement, and profession-specific weighting.
 - Current local resume-assistance follow-up makes **Review Match** usable with
   the active saved resume instead of requiring copied structured resume
   details, keeps saved resume text inside the Tauri backend, adds a local

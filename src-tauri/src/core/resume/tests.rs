@@ -171,6 +171,10 @@ async fn create_test_job(pool: &SqlitePool, job_hash: &str, title: &str, descrip
     .unwrap();
 }
 
+fn uploaded_skill_names(skills: Vec<super::types::UserSkill>) -> Vec<String> {
+    skills.into_iter().map(|skill| skill.skill_name).collect()
+}
+
 // Resume CRUD tests
 
 #[tokio::test]
@@ -190,6 +194,67 @@ async fn test_get_resume() {
     assert_eq!(row.get::<String, _>("name"), "Test Resume");
     assert_eq!(row.get::<String, _>("parsed_text"), "Test content");
     assert_eq!(row.get::<i64, _>("is_active"), 1);
+}
+
+#[tokio::test]
+async fn test_upload_resume_txt_parses_text_and_extracts_skills() {
+    let pool = setup_test_db().await;
+    let matcher = ResumeMatcher::new(pool.clone());
+    let temp_dir = tempfile::TempDir::new().unwrap();
+    let file_path = temp_dir.path().join("support-resume.txt");
+    std::fs::write(
+        &file_path,
+        "Jordan Lee\n\nSKILLS\nLeadership\nCommunication\nCustomer Service",
+    )
+    .unwrap();
+
+    let resume_id = matcher
+        .upload_resume("Support Resume", &file_path.to_string_lossy())
+        .await
+        .unwrap();
+    let resume = matcher.get_resume(resume_id).await.unwrap();
+    let skill_names = uploaded_skill_names(matcher.get_user_skills(resume_id).await.unwrap());
+
+    assert_eq!(resume.name, "Support Resume");
+    assert!(resume.is_active);
+    assert!(resume.parsed_text.unwrap().contains("Customer Service"));
+    assert!(skill_names.contains(&"Leadership".to_string()));
+    assert!(skill_names.contains(&"Communication".to_string()));
+    assert!(skill_names.contains(&"Customer Service".to_string()));
+}
+
+#[tokio::test]
+async fn test_upload_resume_docx_parses_text_and_extracts_skills() {
+    use docx_rs::{Docx, Paragraph, Run};
+    use std::io::Cursor;
+
+    let pool = setup_test_db().await;
+    let matcher = ResumeMatcher::new(pool.clone());
+    let temp_dir = tempfile::TempDir::new().unwrap();
+    let file_path = temp_dir.path().join("operations-resume.docx");
+    let mut buffer = Cursor::new(Vec::new());
+    Docx::new()
+        .add_paragraph(Paragraph::new().add_run(Run::new().add_text("Jordan Lee")))
+        .add_paragraph(Paragraph::new().add_run(Run::new().add_text("SKILLS")))
+        .add_paragraph(Paragraph::new().add_run(Run::new().add_text("Project Management")))
+        .add_paragraph(Paragraph::new().add_run(Run::new().add_text("Agile")))
+        .build()
+        .pack(&mut buffer)
+        .unwrap();
+    std::fs::write(&file_path, buffer.into_inner()).unwrap();
+
+    let resume_id = matcher
+        .upload_resume("Operations Resume", &file_path.to_string_lossy())
+        .await
+        .unwrap();
+    let resume = matcher.get_resume(resume_id).await.unwrap();
+    let parsed_text = resume.parsed_text.unwrap();
+    let skill_names = uploaded_skill_names(matcher.get_user_skills(resume_id).await.unwrap());
+
+    assert!(parsed_text.contains("Project Management"));
+    assert!(parsed_text.contains("Agile"));
+    assert!(skill_names.contains(&"Project Management".to_string()));
+    assert!(skill_names.contains(&"Agile".to_string()));
 }
 
 #[tokio::test]

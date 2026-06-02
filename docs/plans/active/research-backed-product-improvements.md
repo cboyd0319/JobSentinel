@@ -73,6 +73,21 @@ narrow implementation slices chosen from that backlog.
   copies preserve file extensions, and private reference resume/profile
   material was not committed. Verification is recorded in the active status
   and handoff docs for this slice.
+- Current local resume-formatting guidance follow-up incorporates
+  `/Users/c/Downloads/updated_resume_formatting_ats_guidance_2026(2).md` into
+  the resume-assistance backlog. It emphasizes simple single-column structure,
+  standard headings, top contact details in the document body, selectable text,
+  plain-text preview, truthful keyword/evidence alignment, no hidden text or
+  prompt-injection-like instructions, transparent rubrics, and field-specific
+  evidence without claiming any universal hiring algorithm. The dedicated repo
+  note now lives at `docs/research/resume-formatting-ats-2026.md`.
+- Current local resume-alignment scoring follow-up incorporates
+  `/Users/c/Downloads/ats_scoring_algorithm.md` into the resume-assistance
+  backlog. It locks in transparent component rubrics, role-match versus resume
+  quality separation, hard-constraint caps, direct/strong/partial/implied/missing
+  match states, anti-stuffing, evidence strength, seniority alignment, recency,
+  section placement, and profession-specific weighting as future work. The
+  dedicated repo note now lives at `docs/research/resume-alignment-scoring.md`.
 - Latest local resume parser follow-up keeps required and preferred job-post
   sections separate when postings use single-line headings instead of blank
   lines, preventing preferred nice-to-have language from being shown as a
@@ -113,6 +128,10 @@ narrow implementation slices chosen from that backlog.
   `/Users/c/Downloads/`
 - `/Users/c/Downloads/ghost_job_detection_research_and_guidance.md`
 - `/Users/c/Downloads/job_site_web_scraping_research_and_guidance.md`
+- `/Users/c/Downloads/updated_resume_formatting_ats_guidance_2026(2).md`
+- `/Users/c/Downloads/ats_scoring_algorithm.md`
+- `docs/research/resume-formatting-ats-2026.md`
+- `docs/research/resume-alignment-scoring.md`
 - `/Users/c/Downloads/In Salary Negotiations, Women Do Ask - PON - Program on Negotiation at Harvard Law School.pdf`
 - `/Users/c/Downloads/pay_equity_higher_pay_women_people_of_color.md`
 
@@ -519,8 +538,14 @@ Likely files later:
   gaps, and unknown fields.
 - Add copyable plain-text export and parsed-text preview to verify that PDF or
   DOCX content is readable.
+- Add top-contact, standard-heading, and single-column structure checks based
+  on readable text rather than visual template assumptions.
 - Add screening-system readability checks for tables, columns, graphics, icons,
   unusual headings, hidden text, empty text layers, and scan-only PDFs.
+- Add file-type guidance that follows employer instructions first, then points
+  users toward clean DOCX or selectable-text PDF when no format is named.
+- Add file-size and selectable-text checks where local metadata and parser
+  support are available.
 - Add photo, image-only, and visual-layout warnings because VLM and visual
   resume screeners can pick up proxy cues and because image-heavy resumes are
   less accessible.
@@ -529,14 +554,38 @@ Likely files later:
   for different role types.
 - Add evidence-backed edit suggestions: each suggested term must map to resume
   evidence or user-confirmed experience.
+- Add guided requirement inventory: must-have, high-value, supporting, and
+  do-not-force terms.
 - Add required/preferred/nice-to-have grouping for job keywords.
+- Add knockout-question consistency review for authorization, location,
+  license, certification, clearance, degree, years, salary, availability, and
+  travel answers.
+- Add direct, strong, partial, implied, and missing match states for each major
+  requirement so users see why a term did or did not count.
+- Add hard-constraint confidence caps for unmet legal, authorization,
+  location, license, credential, degree, clearance, safety-critical, parsing,
+  unreadable-history, false-claim, and generic-resume risks.
 - Add semantic-fit checks for synonyms and transferable skills, not only exact
   keyword matches.
+- Add conservative synonym handling so adjacent terms are useful but not
+  over-credited as direct matches.
 - Add keyword-stuffing and hidden-text detection with plain warnings.
+- Add evidence-strength levels for missing, bare keyword, duty-only,
+  responsibility with tools, scope-backed accomplishment, and metric-backed
+  accomplishment.
 - Add "human read" review that catches machine-optimized but awkward bullets.
 - Add bullet suggestions that preserve user facts and ask for confirmation
   before changing claims.
+- Add capability-ladder prompts so users can distinguish exposure, assisted
+  work, hands-on use, independent delivery, ownership, and expert or strategic
+  work before accepting stronger wording.
+- Add interview-defense prompts for strengthened bullets: problem, role,
+  action, tools, collaborators, result, evidence, and lesson learned.
 - Add "confidence in extraction" for skills and dates.
+- Add recency weighting and section-placement signals so recent experience
+  evidence counts more than stale or skills-list-only mentions.
+- Add seniority-alignment checks for early-career, mid-level, senior,
+  staff/principal, manager, director, and executive expectations.
 - Add "unknown" states for dates, titles, education, certifications, and gaps
   instead of forcing possibly false parser guesses into scoring.
 - Add employment-gap and career-break support that helps users present true
@@ -547,8 +596,14 @@ Likely files later:
 - Add model-agnostic resume writing guidance: clear structure, truthful
   evidence, and human readability rather than optimization for a guessed
   screening model.
+- Keep resume-quality rubrics separate from role-fit review, and label all
+  score-like signals as local diagnostics rather than employer predictions.
 - Add support for non-technical skill taxonomies across healthcare, education,
   operations, sales, finance, legal, service, trades, creative, and government.
+- Add profession-specific evidence prompts for security, software, data,
+  product, marketing, sales, operations, support, design, executive, federal,
+  academic, career-change, early-career, healthcare, legal, and compliance
+  paths.
 
 Likely files later:
 
@@ -959,6 +1014,8 @@ Do not build:
 - [x] Review `/Users/c/Downloads/job_site_web_scraping_research_and_guidance.md`.
 - [x] Review `/Users/c/Downloads/In Salary Negotiations, Women Do Ask - PON - Program on Negotiation at Harvard Law School.pdf`.
 - [x] Review `/Users/c/Downloads/pay_equity_higher_pay_women_people_of_color.md`.
+- [x] Review `/Users/c/Downloads/updated_resume_formatting_ats_guidance_2026(2).md`.
+- [x] Review `/Users/c/Downloads/ats_scoring_algorithm.md`.
 - [x] Spot-check primary sources for high-impact claims.
 - [x] Inventory 52 source URLs across all three research docs and extract 45
   accessible sources for a second-pass review.
