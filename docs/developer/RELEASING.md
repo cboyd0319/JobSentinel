@@ -6,6 +6,18 @@ Production builds are created locally and published to [GitHub Releases](https:/
 
 ### 1. Build locally
 
+For a public macOS release, set the Developer ID signing and notarization
+environment before building:
+
+```bash
+export APPLE_CERTIFICATE="base64-encoded-p12"
+export APPLE_CERTIFICATE_PASSWORD="p12-export-password"
+export APPLE_SIGNING_IDENTITY="Developer ID Application: Name (TEAMID)"
+export APPLE_ID="developer@example.com"
+export APPLE_PASSWORD="app-specific-password"
+export APPLE_TEAM_ID="TEAMID"
+```
+
 ```bash
 # macOS (from Mac)
 npm run tauri:build:macos

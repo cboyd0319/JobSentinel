@@ -142,6 +142,19 @@ The packaging script builds the Tauri `.app`, verifies or ad-hoc signs the app
 bundle when no signing identity is configured, creates a drag-to-Applications
 DMG with `hdiutil`, and verifies the disk image. It avoids Finder AppleScript so
 the package path works in local shells and CI runners with Command Line Tools.
+When notarization credentials are available, it also signs, notarizes, staples,
+and validates the custom DMG before returning.
+
+Required public-release environment:
+
+```bash
+export APPLE_CERTIFICATE="base64-encoded-p12"
+export APPLE_CERTIFICATE_PASSWORD="p12-export-password"
+export APPLE_SIGNING_IDENTITY="Developer ID Application: Name (TEAMID)"
+export APPLE_ID="developer@example.com"
+export APPLE_PASSWORD="app-specific-password"
+export APPLE_TEAM_ID="TEAMID"
+```
 
 After building a `.dmg`, run the package verifier:
 

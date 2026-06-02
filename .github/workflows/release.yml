@@ -145,6 +145,60 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
+      - name: Configure macOS signing and notarization
+        if: matrix.platform == 'macos-latest'
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euo pipefail
+
+          missing=()
+          for name in APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID; do
+            if [ -z "${!name:-}" ]; then
+              missing+=("$name")
+            fi
+          done
+
+          if [ "${#missing[@]}" -ne 0 ]; then
+            printf 'Missing macOS release secrets: %s\n' "${missing[*]}"
+            exit 1
+          fi
+
+          keychain_password="$(openssl rand -hex 24)"
+          keychain_path="$RUNNER_TEMP/jobsentinel-signing.keychain-db"
+          certificate_path="$RUNNER_TEMP/jobsentinel-certificate.p12"
+
+          printf '%s' "$APPLE_CERTIFICATE" | base64 --decode > "$certificate_path"
+          security create-keychain -p "$keychain_password" "$keychain_path"
+          security default-keychain -s "$keychain_path"
+          security unlock-keychain -p "$keychain_password" "$keychain_path"
+          security set-keychain-settings -lut 21600 "$keychain_path"
+          security import "$certificate_path" \
+            -k "$keychain_path" \
+            -P "$APPLE_CERTIFICATE_PASSWORD" \
+            -T /usr/bin/codesign \
+            -T /usr/bin/security
+          security set-key-partition-list \
+            -S apple-tool:,apple:,codesign: \
+            -s \
+            -k "$keychain_password" \
+            "$keychain_path"
+          security find-identity -v -p codesigning "$keychain_path"
+
+          {
+            printf 'APPLE_SIGNING_IDENTITY=%s\n' "$APPLE_SIGNING_IDENTITY"
+            printf 'JOBSENTINEL_MACOS_SIGNING_IDENTITY=%s\n' "$APPLE_SIGNING_IDENTITY"
+            printf 'APPLE_ID=%s\n' "$APPLE_ID"
+            printf 'APPLE_PASSWORD=%s\n' "$APPLE_PASSWORD"
+            printf 'APPLE_TEAM_ID=%s\n' "$APPLE_TEAM_ID"
+            printf 'JOBSENTINEL_MACOS_NOTARIZE_DMG=true\n'
+          } >> "$GITHUB_ENV"
+
       - name: Build Tauri app
         if: matrix.platform != 'macos-latest'
         run: npx tauri build --target ${{ matrix.target }}

@@ -2,11 +2,15 @@ import assert from "node:assert/strict";
 import { join } from "node:path";
 import test from "node:test";
 import {
+  buildNotarytoolSubmitArgs,
   buildTauriArgs,
   getArchSuffix,
   getMacBuildPaths,
   getReleaseDir,
+  getSigningIdentity,
+  hasPartialNotarizationCredentials,
   hasArg,
+  redactNotarytoolArgs,
 } from "./build-macos-dmg.mjs";
 
 test("macOS DMG builder defaults to app bundle builds", () => {
@@ -72,5 +76,114 @@ test("macOS DMG builder names app and DMG outputs from metadata", () => {
       "dmg",
       "JobSentinel_2.6.4_universal.dmg",
     ),
+  );
+});
+
+test("macOS DMG builder resolves signing identity from release env", () => {
+  assert.equal(getSigningIdentity({ APPLE_SIGNING_IDENTITY: "Developer ID Application: Chad" }), "Developer ID Application: Chad");
+  assert.equal(getSigningIdentity({ JOBSENTINEL_MACOS_SIGNING_IDENTITY: "Local Identity" }), "Local Identity");
+  assert.equal(getSigningIdentity({ MACOS_SIGNING_IDENTITY: "Legacy Identity" }), "Legacy Identity");
+  assert.equal(getSigningIdentity({}), "-");
+});
+
+test("macOS DMG builder builds notarytool args for Apple ID credentials", () => {
+  assert.deepEqual(
+    buildNotarytoolSubmitArgs("/tmp/JobSentinel.dmg", {
+      APPLE_ID: "developer@example.com",
+      APPLE_PASSWORD: "@env:APPLE_APP_PASSWORD",
+      APPLE_TEAM_ID: "ABCDE12345",
+    }),
+    [
+      "notarytool",
+      "submit",
+      "/tmp/JobSentinel.dmg",
+      "--apple-id",
+      "developer@example.com",
+      "--password",
+      "@env:APPLE_PASSWORD",
+      "--team-id",
+      "ABCDE12345",
+      "--wait",
+    ],
+  );
+});
+
+test("macOS DMG builder builds notarytool args for API key credentials", () => {
+  assert.deepEqual(
+    buildNotarytoolSubmitArgs("/tmp/JobSentinel.dmg", {
+      APPLE_API_KEY: "KEYID12345",
+      APPLE_API_ISSUER: "00000000-0000-0000-0000-000000000000",
+      APPLE_API_KEY_PATH: "/private/AuthKey_KEYID12345.p8",
+    }),
+    [
+      "notarytool",
+      "submit",
+      "/tmp/JobSentinel.dmg",
+      "--key-id",
+      "KEYID12345",
+      "--key",
+      "/private/AuthKey_KEYID12345.p8",
+      "--wait",
+      "--issuer",
+      "00000000-0000-0000-0000-000000000000",
+    ],
+  );
+});
+
+test("macOS DMG builder builds notarytool args for keychain profile", () => {
+  assert.deepEqual(
+    buildNotarytoolSubmitArgs("/tmp/JobSentinel.dmg", {
+      JOBSENTINEL_MACOS_NOTARY_PROFILE: "jobsentinel-notary",
+    }),
+    [
+      "notarytool",
+      "submit",
+      "/tmp/JobSentinel.dmg",
+      "--keychain-profile",
+      "jobsentinel-notary",
+      "--wait",
+    ],
+  );
+});
+
+test("macOS DMG builder detects partial notarization credentials", () => {
+  assert.equal(hasPartialNotarizationCredentials({ APPLE_ID: "developer@example.com" }), true);
+  assert.equal(
+    hasPartialNotarizationCredentials({
+      APPLE_ID: "developer@example.com",
+      APPLE_PASSWORD: "@env:APPLE_APP_PASSWORD",
+      APPLE_TEAM_ID: "ABCDE12345",
+    }),
+    false,
+  );
+  assert.equal(hasPartialNotarizationCredentials({}), false);
+});
+
+test("macOS DMG builder redacts notarytool auth values in logs", () => {
+  assert.deepEqual(
+    redactNotarytoolArgs([
+      "notarytool",
+      "submit",
+      "JobSentinel.dmg",
+      "--apple-id",
+      "developer@example.com",
+      "--password",
+      "secret-password",
+      "--team-id",
+      "ABCDE12345",
+      "--wait",
+    ]),
+    [
+      "notarytool",
+      "submit",
+      "JobSentinel.dmg",
+      "--apple-id",
+      "<redacted>",
+      "--password",
+      "<redacted>",
+      "--team-id",
+      "<redacted>",
+      "--wait",
+    ],
   );
 });

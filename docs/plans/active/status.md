@@ -89,9 +89,26 @@ unreviewed form sending.
   src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg
   --expected-architectures x86_64,arm64 --launch-smoke` passed, strict
   `--require-gatekeeper` verification failed as expected on the ad-hoc DMG,
-  `npm run test:scripts` passed 482 tests, `npm run lint:docs`, `npm run
+  `npm run test:scripts` passed 488 tests, `npm run lint:docs`, `npm run
   harness:check`, `npm run lint:bloat`, `npm run lint:security`, `actionlint
-  .github/workflows/release.yml`, and `git diff --check` passed.
+  .github/workflows/release.yml`, and `git diff --check` passed. Current local
+  signing follow-up makes the custom DMG builder release-aware: when Apple
+  notarization credentials are available, it signs the DMG, submits it through
+  `xcrun notarytool`, staples the ticket, validates the stapled ticket, and
+  fails on partial credential sets. It uses `@env:APPLE_PASSWORD` so the
+  app-specific password is not placed in `notarytool` process arguments. The
+  release workflow now fails early if macOS signing/notarization secrets are
+  missing, imports the Developer ID certificate into a temporary keychain,
+  exports the required Tauri and JobSentinel signing env vars, notarizes the
+  custom DMG, and still requires Gatekeeper pass before upload. Verification
+  passed: `node --test scripts/build-macos-dmg.test.mjs
+  scripts/verify-macos-package.test.mjs` passed 16 tests, `actionlint
+  .github/workflows/release.yml` passed, `git diff --check` passed, the
+  universal `tauri:build:macos` command produced the universal DMG, and `npm run
+  tauri:verify:macos -- --dmg
+  src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg
+  --expected-architectures x86_64,arm64 --launch-smoke` passed with expected
+  optional Gatekeeper rejection for the local ad-hoc build.
 - Current local Resume Match parser fix keeps required and preferred job-post
   sections separate when a posting uses ordinary single-line headings, so
   preferred words are not promoted into required review buckets. Verification

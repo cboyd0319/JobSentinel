@@ -211,20 +211,25 @@ workflows to create releases and upload assets.
 
 ### Optional: macOS signing
 
-If you want signed and notarized macOS builds, add these secrets to the repository:
+Public macOS release builds require Developer ID signing and notarization. Add
+these secrets to the repository:
 
 ```text
-MACOS_CERTIFICATE        # Base64-encoded .p12 certificate
-MACOS_CERTIFICATE_PWD    # Password for the certificate
-APPLE_ID                 # Apple ID used for notarization
-APPLE_PASSWORD           # App-specific password (not your account password)
-APPLE_TEAM_ID            # 10-character Apple Team ID
+APPLE_CERTIFICATE           # Base64-encoded Developer ID Application .p12 certificate
+APPLE_CERTIFICATE_PASSWORD  # Password used when exporting the .p12 certificate
+APPLE_SIGNING_IDENTITY      # Developer ID Application identity used by codesign
+APPLE_ID                    # Apple ID used for notarization
+APPLE_PASSWORD              # App-specific password, not the account password
+APPLE_TEAM_ID               # 10-character Apple Team ID
 ```
 
-The release workflow verifies macOS packages with `npm run tauri:verify:macos`
-and `--require-gatekeeper` before upload. Without Developer ID signing and
-notarization, the macOS release job should fail instead of publishing a package
-that nontechnical users cannot open cleanly.
+The macOS release job fails before building if any of these secrets are missing.
+When they are present, the workflow imports the Developer ID certificate into a
+temporary keychain, `npm run tauri:build:macos` signs, notarizes, staples, and
+validates the custom DMG. The release workflow then verifies the package with
+`npm run tauri:verify:macos -- --require-gatekeeper` before upload. Without
+Developer ID signing and notarization, the macOS release job should fail instead
+of publishing a package that nontechnical users cannot open cleanly.
 
 ---
 
