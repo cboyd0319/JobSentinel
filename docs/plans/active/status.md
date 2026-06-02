@@ -151,7 +151,7 @@ actionable findings in this active-plan surface or the relevant plan.
   scripts/check-privacy-logging.test.mjs` passed 42 tests, `npm run
   lint:bloat`, `npm run test:scripts` passed 455 script tests, `npm run lint`,
   and `git diff --check`.
-- Current local outcome-label copy slice changes optional source-contact result
+- Committed outcome-label copy slice changes optional source-contact result
   labels from failure-first words to `Needs attention` and `Took too long`, and
   changes the reusable async-button example/test guidance from `Failed to...`
   to `Could not...`. Product-copy sensors now reject the old phrases. Focused
@@ -160,6 +160,19 @@ actionable findings in this active-plan surface or the relevant plan.
   scripts/check-product-copy.test.mjs` passed 32 tests, `npm run lint:bloat`,
   `npm run test:scripts` passed 455 script tests, `npm run lint`, and
   `git diff --check`.
+- Current local source-name copy slice changes README source coverage, source
+  feature docs, public job-source issue template, shared source labels, and
+  frontend mocks from `HN Who's Hiring` wording to `Startup and tech job posts`.
+  Product-copy sensors now reject the acronym-first source wording in
+  user-facing source surfaces. Focused verification passed: `npx vitest run
+  src/utils/sourceLabels.test.ts src/pages/Settings.test.tsx
+  src/pages/SetupWizard.test.tsx` passed 60 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests, no `HN Who's Hiring`,
+  `Hacker News`, or `Who's Hiring thread` wording remains in user-facing issue
+  template, README, feature-doc, user-doc, or source paths, `npm run
+  test:scripts` passed 455 script tests, `npm run lint:bloat`, `npm run
+  harness:check`, `npm run lint:docs`, `npm run lint`, and `git diff --check`
+  passed.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -200,6 +213,8 @@ Scope:
   labels, not support-detail labels or generic error fallbacks.
 - Optional source-contact history and reusable component examples must avoid
   failure-first labels in user-facing or future-copy surfaces.
+- User-facing source coverage, issue templates, shared source labels, and
+  frontend mocks must avoid acronym-first `HN Who's Hiring` wording.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
@@ -219,6 +234,7 @@ npx vitest run src/services/feedbackService.test.ts
 npx vitest run src/components/feedback/SubmitOptions.test.tsx src/components/feedback/SuccessScreen.test.tsx src/pages/Settings.test.tsx src/pages/SetupWizard.test.tsx src/components/ScraperHealthDashboard.test.tsx src/pages/ResumeOptimizer.test.tsx src/components/BookmarkletGenerator.test.tsx src/components/ErrorBoundary.test.tsx src/components/PageErrorBoundary.test.tsx src/components/ModalErrorBoundary.test.tsx src/components/ComponentErrorBoundary.test.tsx
 npx vitest run src/utils/api.test.ts src/utils/errorMessages.test.ts src/components/ComponentErrorBoundary.test.tsx src/components/ModalErrorBoundary.test.tsx
 npx vitest run src/components/AsyncButton.test.tsx src/pages/Settings.test.tsx
+npx vitest run src/utils/sourceLabels.test.ts src/pages/Settings.test.tsx src/pages/SetupWizard.test.tsx
 node --test scripts/check-privacy-logging.test.mjs
 git diff --check
 ```

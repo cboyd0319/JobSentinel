@@ -714,6 +714,7 @@ test("product copy rejects technical-first settings copy", () => {
         "Prefer official APIs, public feeds, and official company or ATS postings.",
         "Do not add hidden endpoint checks.",
         "Do not attempt CAPTCHA bypass or platform-control evasion.",
+        "HN Who's Hiring",
         "",
       ].join("\n"),
     );
@@ -745,6 +746,7 @@ test("product copy rejects technical-first settings copy", () => {
         "Health And Diagnostics",
         "User-Configured External Sources",
         "local metadata only",
+        "HN Who's Hiring",
         "",
       ].join("\n"),
     );
@@ -854,6 +856,11 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
+      "src/utils/sourceLabels.ts",
+      'hn_hiring: { label: "Who\'s Hiring thread" }\n',
+    );
+    writeFixtureFile(
+      root,
       "src/services/aiGateway.ts",
       [
         "External AI transport is not configured.",
@@ -941,7 +948,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "README.md",
-      "GitHub is optional. Maintainers and contributors can\nDownload the latest installer from [GitHub Releases]\nLocal SQLite storage\nYour OS credential store\n| Support sharing links | GitHub issue pages and Google Drive folders |\n",
+      "GitHub is optional. Maintainers and contributors can\nDownload the latest installer from [GitHub Releases]\nLocal SQLite storage\nYour OS credential store\n| Support sharing links | GitHub issue pages and Google Drive folders |\nHN Who's Hiring\n",
     );
     writeFixtureFile(
       root,
@@ -1183,6 +1190,7 @@ test("product copy rejects technical-first settings copy", () => {
       true,
     );
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/AsyncButton.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/sourceLabels.ts"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/ScoreBreakdownModal.tsx"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/components/CompanyResearchPanel.tsx"),

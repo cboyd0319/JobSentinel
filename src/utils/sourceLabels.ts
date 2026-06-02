@@ -76,7 +76,7 @@ const SOURCE_GUIDANCE_BY_KEY: Record<string, JobSourceGuidance> = {
     description: JOB_BOARD_SOURCE_DESCRIPTION,
   },
   hn_hiring: {
-    label: "Who's Hiring thread",
+    label: "Startup and tech job posts",
     description: COMMUNITY_SOURCE_DESCRIPTION,
   },
   jobswithgpt: {

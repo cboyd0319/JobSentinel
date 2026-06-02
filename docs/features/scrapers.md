@@ -12,7 +12,7 @@ call private LinkedIn systems, or read LinkedIn pages in the background.
 
 | Category | Sources |
 | -------- | ------- |
-| Scheduled job checks | Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, Glassdoor |
+| Scheduled job checks | Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, startup and tech job posts, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, Glassdoor |
 | Source-check helpers | Scheduled job checks plus Indeed, Wellfound, and ZipRecruiter availability checks |
 | User-opened search links | LinkedIn and other destination links opened by the user |
 | Preferred expansion path | Official company career pages and public hiring-platform feeds or APIs such as Greenhouse, Lever, Ashby, Workable, SmartRecruiters, and USAJobs |
@@ -68,7 +68,7 @@ Representative source limits:
 | Lever | 1000 | Official/public postings API |
 | USAJobs | 1000 | Official API with user-provided access code |
 | RemoteOK | 500 | Public job feed |
-| HN Who's Hiring | 500 | Public/community source |
+| Startup and tech job posts | 500 | Public/community source |
 | Dice | 500 | Public job feed |
 | WeWorkRemotely | 300 | Public feed/page |
 | BuiltIn | 300 | Public page |

@@ -30,7 +30,19 @@ Latest pushed checkpoints include:
 
 Recent remote integration evidence:
 
-- Current local outcome-label copy follow-up changes optional source-contact
+- Current local source-name copy follow-up changes README source coverage,
+  source feature docs, public job-source issue template, shared source labels,
+  and frontend mocks from `HN Who's Hiring` wording to `Startup and tech job
+  posts`. Focused verification passed: `npx vitest run
+  src/utils/sourceLabels.test.ts src/pages/Settings.test.tsx
+  src/pages/SetupWizard.test.tsx` passed 60 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests, no `HN Who's Hiring`,
+  `Hacker News`, or `Who's Hiring thread` wording remains in user-facing issue
+  template, README, feature-doc, user-doc, or source paths, `npm run
+  test:scripts` passed 455 script tests, `npm run lint:bloat`, `npm run
+  harness:check`, `npm run lint:docs`, `npm run lint`, and `git diff --check`
+  passed.
+- Latest local outcome-label copy follow-up changes optional source-contact
   result labels from failure-first words to `Needs attention` and
   `Took too long`, and changes reusable async-button example/test guidance from
   `Failed to...` to `Could not...`. Focused verification passed: `npx vitest
@@ -38,7 +50,7 @@ Recent remote integration evidence:
   66 tests, `node --test scripts/check-product-copy.test.mjs` passed 32 tests,
   `npm run lint:bloat`, `npm run test:scripts` passed 455 script tests,
   `npm run lint`, and `git diff --check`.
-- Current local shared recovery details follow-up changes optional dev toast,
+- Latest local shared recovery details follow-up changes optional dev toast,
   component boundary, modal boundary, and certificate-error wording away from
   support-detail, generic-error, and issue labels toward app-problem and problem
   wording. Focused verification passed: `npx vitest run src/utils/api.test.ts
@@ -48,7 +60,7 @@ Recent remote integration evidence:
   scripts/check-privacy-logging.test.mjs` passed 42 tests, `npm run
   lint:bloat`, `npm run test:scripts` passed 455 script tests, `npm run lint`,
   and `git diff --check`.
-- Current local frontend sidecar copy follow-up changes optional feedback
+- Latest local frontend sidecar copy follow-up changes optional feedback
   sharing from GitHub-help and issue-step wording to online-help and help-form
   wording, expands HN source labels to startup and tech job posts, changes
   source-status history from issue wording to problem wording, changes resume
@@ -184,16 +196,21 @@ Recent remote integration evidence:
 
 Current cleanup posture:
 
-- Current local outcome-label copy follow-up changes optional source-contact
+- Current local source-name copy follow-up changes README, source docs, public
+  job-source issue template, shared source labels, and frontend mocks away from
+  `HN Who's Hiring` wording. Focused source-label, Settings, SetupWizard,
+  product-copy, search, script, bloat, harness, docs, lint, and diff-check
+  verification cover the changed surfaces.
+- Latest local outcome-label copy follow-up changes optional source-contact
   result labels and reusable async-button guidance away from failure-first
   wording. Focused AsyncButton, Settings, product-copy, script, bloat, lint, and
   diff-check verification cover the changed surfaces.
-- Current local shared recovery details follow-up changes optional dev toast,
+- Latest local shared recovery details follow-up changes optional dev toast,
   component boundary, modal boundary, and certificate-error wording away from
   support-detail, generic-error, and issue labels. Focused utility/component,
   product-copy, privacy-logging, script, bloat, lint, and diff-check
   verification cover the changed surfaces.
-- Current local frontend sidecar copy follow-up changes feedback sharing,
+- Latest local frontend sidecar copy follow-up changes feedback sharing,
   success-step, Settings source, setup source, source-status table,
   Resume Builder/Optimizer recovery, Browser Button, and error-boundary detail
   labels away from GitHub-first, issue-first, HN-abbreviation, support-only, and
@@ -229,7 +246,7 @@ Current cleanup posture:
   copy away from maintainer GitHub assumptions and replaces the visible
   Settings `Troubleshooting` heading with `Help and Status`. Product-copy
   coverage rejects the old phrases.
-- Current local docs sidecar copy follow-up applies read-only agent findings
+- Latest local docs sidecar copy follow-up applies read-only agent findings
   across README download/data-boundary wording, Quick Start install and
   local-file wording, Deep Links contributor/browser-add-on wording, Browser
   Button privacy wording, notification and credential docs, public issue

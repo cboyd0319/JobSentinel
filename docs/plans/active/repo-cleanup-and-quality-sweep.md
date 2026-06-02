@@ -164,6 +164,11 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Changed README source coverage, source feature docs, public job-source issue
+  template, shared source labels, and frontend mocks from `HN Who's Hiring`
+  wording to `Startup and tech job posts`. Focused source-label, Settings,
+  SetupWizard, product-copy, search, script, bloat, harness, docs, lint, and
+  diff-check verification passed.
 - Changed optional source-contact result labels from failure-first words to
   `Needs attention` and `Took too long`, and changed reusable async-button
   guidance from `Failed to...` to `Could not...`. Focused AsyncButton,

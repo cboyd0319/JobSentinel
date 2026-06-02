@@ -8,7 +8,7 @@ plain-language status and safe next steps.
 
 | Area | Current behavior |
 | ---- | ---------------- |
-| Scheduled source health | Tracks Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, and Glassdoor |
+| Scheduled source health | Tracks Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, startup and tech job posts, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, and Glassdoor |
 | Source-check coverage | Includes scheduled sources plus Indeed, Wellfound, and ZipRecruiter availability checks |
 | User-opened search links | LinkedIn and similar destination links are opened by the user, not monitored in the background |
 | Saved access details | Tracks user-approved external channels where applicable; LinkedIn login details are not collected |

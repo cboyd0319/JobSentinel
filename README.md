@@ -318,7 +318,7 @@ destination, not a scheduled source.
 | Hiring-platform feeds | Greenhouse, Lever |
 | General and tech job sites | Dice, Glassdoor, SimplyHired |
 | Remote and startup job sites | RemoteOK, WeWorkRemotely, BuiltIn, YC Startup Jobs |
-| Community and official feeds | HN Who's Hiring, JobsWithGPT, USAJobs |
+| Community and official feeds | Startup and tech job posts, JobsWithGPT, USAJobs |
 | User-opened search links | LinkedIn and other job-site destinations opened by the user |
 
 Some monitored sources have optional setup. USAJobs can use an access code for

@@ -542,7 +542,7 @@ const MOCK_SCRAPERS: readonly MockScraperDefinition[] = [
   { scraper_name: "greenhouse", display_name: "Greenhouse", requires_auth: false, scraper_type: "api", rate_limit_per_hour: 60 },
   { scraper_name: "lever", display_name: "Lever", requires_auth: false, scraper_type: "api", rate_limit_per_hour: 60 },
   { scraper_name: "remoteok", display_name: "Remote OK", requires_auth: false, scraper_type: "api", rate_limit_per_hour: 120 },
-  { scraper_name: "hn_hiring", display_name: "HN Who's Hiring", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 30 },
+  { scraper_name: "hn_hiring", display_name: "Startup and tech job posts", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 30 },
   { scraper_name: "weworkremotely", display_name: "We Work Remotely", requires_auth: false, scraper_type: "rss", rate_limit_per_hour: 60 },
   { scraper_name: "indeed", display_name: "Indeed", requires_auth: false, scraper_type: "html", rate_limit_per_hour: 60 },
   { scraper_name: "wellfound", display_name: "Wellfound", requires_auth: true, scraper_type: "html", rate_limit_per_hour: 45 },

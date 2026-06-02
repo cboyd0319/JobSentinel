@@ -302,6 +302,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/utils/errorMessages.ts",
   "src/utils/safeErrorCopy.ts",
   "src/utils/formValidation.ts",
+  "src/utils/sourceLabels.ts",
   "tests/e2e/playwright/application-tracking.spec.ts",
   "tests/e2e/playwright/page-objects/ApplicationsPage.ts",
   "docs/features/application-tracking.md",
@@ -1396,6 +1397,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Health And Diagnostics/i,
       /User-Configured External Sources/i,
       /local metadata only/i,
+      /HN Who's Hiring/i,
+      /Hacker News/i,
     ];
 
     if (sourceDocPatterns.some((pattern) => pattern.test(text))) {
@@ -1412,6 +1415,10 @@ export function hasTechnicalFirstUserCopy(root, path) {
     if (setupWizardPatterns.some((pattern) => pattern.test(text))) {
       return true;
     }
+  }
+
+  if (path === "src/utils/sourceLabels.ts") {
+    return /Who's Hiring thread|HN Who's Hiring|Hacker News/i.test(text);
   }
 
   if (path === "src/components/automation/ApplicationPreview.tsx") {
@@ -1871,6 +1878,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /toast\.error\(["'`]Error["'`],\s*errorMessage\s*\|\|\s*errMsg\)/,
     /toast\.error\(["'`]Something went wrong["'`]/i,
     /errorMessage=["'`]Failed to/i,
+    /HN Who's Hiring/i,
+    /Hacker News/i,
     /Something Went Wrong/i,
     /An unexpected error occurred/i,
     /Network connection issue/i,

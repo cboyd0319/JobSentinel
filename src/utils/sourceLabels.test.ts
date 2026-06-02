@@ -18,6 +18,10 @@ describe("sourceLabels", () => {
     expect(guidance.description).toContain("verify before tailoring");
   });
 
+  it("labels community hiring posts without acronym-first wording", () => {
+    expect(formatJobSourceLabel("hn_hiring")).toBe("Startup and tech job posts");
+  });
+
   it("cleans unknown source IDs before rendering", () => {
     expect(formatJobSourceLabel("city_careers")).toBe("City Careers");
   });
