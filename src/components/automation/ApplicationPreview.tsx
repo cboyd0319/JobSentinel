@@ -154,7 +154,7 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
         <ul className="text-sm text-surface-600 dark:text-surface-400 space-y-2 pl-7" role="list" aria-label="Manual tasks">
           <li className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-            Resume upload (select your file)
+            Resume file (you choose it)
           </li>
           <li className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />

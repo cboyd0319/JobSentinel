@@ -1033,7 +1033,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/components/automation/ApplicationPreview.tsx",
-      "No profile configured. Please set up your application profile first.\n",
+      "No profile configured. Please set up your application profile first.\nResume upload (select your file)\n",
     );
     writeFixtureFile(
       root,

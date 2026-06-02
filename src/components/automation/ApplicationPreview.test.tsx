@@ -389,13 +389,14 @@ describe("ApplicationPreview", () => {
   });
 
   describe("manual tasks section", () => {
-    it("displays resume upload task", async () => {
+    it("displays resume file task without upload wording", async () => {
       mockInvoke.mockResolvedValue(mockProfile);
 
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        expect(screen.getByText(/resume upload/i)).toBeInTheDocument();
+        expect(screen.getByText(/resume file \(you choose it\)/i)).toBeInTheDocument();
+        expect(screen.queryByText(/resume upload/i)).not.toBeInTheDocument();
       });
     });
 

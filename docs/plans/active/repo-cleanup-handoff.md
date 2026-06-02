@@ -187,6 +187,15 @@ Recent remote integration evidence:
   old wording only in sensor fixtures or negative assertions. Broader
   verification passed: `npm run lint:bloat`, `npm run lint:docs`,
   `npm run test:scripts`, `npm run lint`, and `git diff --check`.
+- Current local Application Assist resume-file copy cleanup changes the manual
+  task label from resume-upload wording to user-controlled resume-file wording.
+  Product-copy sensors now reject the old Application Preview label. Focused
+  verification passed: `npx vitest run
+  src/components/automation/ApplicationPreview.test.tsx`, `node --test
+  scripts/check-product-copy.test.mjs`, targeted stale-phrase search found no
+  old visible wording in Application Preview, and `git diff --check`. Broader
+  verification passed: `npm run lint:bloat`, `npm run lint:docs`,
+  `npm run test:scripts`, `npm run lint`, and `git diff --check`.
 - Current local Resume Builder add-copy cleanup changes import-skill recovery
   copy from upload wording to add wording so users do not infer cloud transfer
   for local resume review. Product-copy sensors now reject the old Resume

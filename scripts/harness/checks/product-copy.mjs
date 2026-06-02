@@ -1581,6 +1581,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
     return [
       /CAPTCHA verification \(if present\)/i,
       /No profile configured/i,
+      /Resume upload \(select your file\)/i,
       /set up your application profile first/i,
     ].some((pattern) => pattern.test(text));
   }
