@@ -54,8 +54,9 @@ Use a proof ladder:
 1. **Identity:** one sentence says what JobSentinel is.
 2. **Promise:** local-first, privacy-first, free forever, broad-audience.
 3. **Problem:** ghost jobs, pay opacity, opaque screening, long searches.
-4. **Product answer:** official-source monitoring, ghost-job detection, ATS
-   transparency, salary transparency, pay-equity support, local tracking.
+4. **Product answer:** official-source monitoring, ghost-job detection,
+   hiring-system transparency, salary transparency, pay-equity support, local
+   tracking.
 5. **Trust proof:** Rule 0, no telemetry, optional external AI gateway, research
    sources, tests, harness, license.
 6. **Next action:** download, read quick start, review research, contribute, or
@@ -70,7 +71,7 @@ Use this question-answer-proof-path pattern for each major section:
 | Identity | What is this? | Open-source, local-first job-search assistant for real, relevant, fairly compensated work | Product definition, badges, license |
 | Audience | Is this for me? | Technical and non-technical job seekers, plus reviewers and contributors | Reader map table |
 | Stakes | Why does it matter? | Ghost jobs, pay opacity, opaque screening, long searches, and privacy risk are product requirements | Research brief and source index |
-| Capabilities | What does it do today? | Monitoring, posting-risk review, pay protection, ATS transparency, application tracking, safe support reports | Capability map and screenshots |
+| Capabilities | What does it do today? | Monitoring, posting-risk review, pay protection, hiring-system transparency, application tracking, safe support reports | Capability map and screenshots |
 | Trust | Why should I believe it? | Rule 0, no telemetry, local-first storage, optional external AI, review gates | Privacy docs, AI gateway, harness checks |
 | Limits | What will it not do? | No employer-side decisions, no deceptive resume help, no source-boundary evasion, no hidden data sharing | Responsible AI, privacy, scope table |
 | Contribution | How do I help? | Build, verify, report, discuss, fork, or reuse | Commands, docs, issue routes, MIT license |

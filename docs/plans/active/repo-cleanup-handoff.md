@@ -209,6 +209,10 @@ Current cleanup posture:
   channels, support links, location detection, and approved external AI
   payloads. It also replaces source-adapter, HTTP-client, background-monitoring,
   and duplicate handling jargon in front-door source docs.
+- Current local hiring-system wording follow-up changes README, ROADMAP,
+  RESPONSIBLE_AI, and the README information-design harness from ATS-first
+  labels to hiring-system and hiring-platform language while preserving research
+  links.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.

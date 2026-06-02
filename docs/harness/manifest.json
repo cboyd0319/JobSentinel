@@ -52,7 +52,7 @@
       "Rule 0: user privacy and security are non-negotiable.",
       "External AI is optional, disabled by default, and routed through one AI gateway.",
       "Candidate-side explainability",
-      "Manipulate ATS systems.",
+      "Manipulate employer screening systems.",
       "AI outputs are advisory. Users remain in control."
     ],
     "docs/architecture/privacy-first-ai-gateway.md": [

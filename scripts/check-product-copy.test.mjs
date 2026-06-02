@@ -1839,3 +1839,29 @@ test("product copy rejects front-door pay jargon", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/harness/readme-information-design.md"), true);
   });
 });
+
+test("product copy rejects front-door ATS jargon", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "README.md",
+      "ATS transparency\nofficial ATS postings\npublic ATS postings\n",
+    );
+    writeFixtureFile(root, "ROADMAP.md", "Company-site and ATS verification\nATS pages\n");
+    writeFixtureFile(
+      root,
+      "RESPONSIBLE_AI.md",
+      "ATS-readable application clarity\nManipulate ATS systems\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/harness/readme-information-design.md",
+      "ATS transparency\n",
+    );
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "ROADMAP.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "RESPONSIBLE_AI.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/harness/readme-information-design.md"), true);
+  });
+});

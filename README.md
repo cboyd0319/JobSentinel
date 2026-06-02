@@ -84,7 +84,7 @@ or build something better with it if that helps more people.
 | ------------------ | ---------------- | -------------------- |
 | Stale, reposted, or unverifiable roles waste tailoring time | Ghost-job detection, first-seen and last-seen tracking, repost context, source health, and official-source job monitoring | [Ghost-job research](docs/research/ghost-jobs.md), [ghost detection](docs/features/ghost-detection.md) |
 | Pay opacity can lead to underpaid work | Salary floors, salary transparency checks, compensation range review, lower-title or lower-pay cues, and negotiation prep | [Pay-equity research](docs/research/pay-equity.md), [salary negotiation](docs/research/salary-negotiation.md) |
-| Screening systems are opaque | ATS transparency, candidate-side explainability, and application readability review | [ATS transparency research](docs/research/ats-transparency.md), [Responsible AI](RESPONSIBLE_AI.md) |
+| Screening systems are opaque | Hiring-system transparency, candidate-side explainability, and application readability review | [screening-system research](docs/research/ats-transparency.md), [Responsible AI](RESPONSIBLE_AI.md) |
 | Long searches erode confidence and time | Fresh-role focus, pacing, weekly summaries, and gap-framing work are tracked as product requirements | [Roadmap](ROADMAP.md), [research-backed plan](docs/plans/active/research-backed-product-improvements.md) |
 | Opaque channels can trap effort | Bias-aware strategy favors direct sources, official postings, recruiter context, referral routes, and verifiable signals | [Research model](#research-model), [job-source docs](docs/research/job-site-data-sources.md) |
 | Support can expose private data | Safe support reports can be saved locally and shared only when the user chooses | [Privacy](PRIVACY.md), [docs index](docs/README.md) |
@@ -177,7 +177,7 @@ External AI support must go through the documented
 can help summarize public job posts, explain fit, explain stale-posting risk,
 check salary transparency, and prepare compensation questions. It must not
 submit applications, fabricate qualifications, hide keywords, add resume prompt
-injection, manipulate ATS systems, solve CAPTCHAs, collect private candidate
+injection, manipulate employer screening systems, solve CAPTCHAs, collect private candidate
 data for research, infer protected characteristics, or send full local database
 dumps.
 
@@ -193,13 +193,13 @@ data without informed consent.
 | Ghost-job and stale-posting detection | Prioritize fresh, verifiable roles and warn before a user spends time tailoring weak postings. | Does JobSentinel reduce time spent on stale or low-trust roles without hiding useful options? |
 | Pay equity and salary-floor protection | Treat salary floors, pay transparency, lower-title or lower-pay risk, and compensation prep as core search features. | Does JobSentinel help users avoid underpaid opportunities and preserve compensation goals? |
 | Long-term unemployment support | Support pacing, fresh-role focus, weekly summaries, and gap framing without shame or pressure. | Does JobSentinel reduce fatigue and improve search control for people in long searches? |
-| Bias-aware application strategy | Favor direct sources, official ATS postings, recruiter context, referral routes, and verifiable signals over opaque channels. | Does JobSentinel shift effort toward channels with better evidence and clearer next steps? |
+| Bias-aware application strategy | Favor direct sources, official hiring-platform postings, recruiter context, referral routes, and verifiable signals over opaque channels. | Does JobSentinel shift effort toward channels with better evidence and clearer next steps? |
 | Protective UX | Use practical warnings and next actions instead of hollow motivation. | Does JobSentinel protect time, confidence, and dignity under rejection-heavy conditions? |
 | Privacy-first local control | Keep sensitive job-search data local by default and make every external path explicit, inspectable, and cancellable. | Does JobSentinel preserve user control when optional integrations are enabled? |
 
 | Evaluation area | Default data | Boundary |
 | --------------- | ------------ | -------- |
-| Job-posting analysis | Public official postings, public ATS postings, source fixtures | No private user search history |
+| Job-posting analysis | Public official postings, public hiring-platform postings, source fixtures | No private user search history |
 | Candidate modeling | Synthetic resumes, synthetic salary floors, synthetic candidate profiles | No real resume, notes, or salary floor unless explicit informed consent exists |
 | Posting-risk tests | Synthetic suspicious, stale, scam-like, or adversarial postings | No accusation of employer intent from weak evidence |
 | UX and support tests | Local fixtures, screenshots, safe support report fixtures | No raw local database uploads |
@@ -257,9 +257,9 @@ Architecture and maintenance docs:
 | -------------- | -------------- |
 | ![Resume builder](docs/images/resume-builder.png) | ![Resume matcher](docs/images/resume-matcher.png) |
 
-| ATS transparency | Application Assist |
+| Hiring-system transparency | Application Assist |
 | ---------------- | ------------------ |
-| ![ATS transparency](docs/images/ats-optimizer.png) | ![Application Assist](docs/images/one-click-apply.png) |
+| ![Hiring-system transparency](docs/images/ats-optimizer.png) | ![Application Assist](docs/images/one-click-apply.png) |
 
 | Pay Protection | Hiring Trends |
 | -------------- | ------------- |

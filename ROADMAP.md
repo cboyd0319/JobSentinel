@@ -10,10 +10,10 @@ This roadmap tracks the six design pillars that guide product work.
 
 Planned:
 
-- Company-site and ATS verification before deep tailoring.
+- Company-site and hiring-platform verification before deep tailoring.
 - Repost and duplicate tracking across sources.
 - Closure checks for saved jobs and imported job links.
-- Source-quality labels for employer pages, ATS pages, recruiters, staffing
+- Source-quality labels for employer pages, hiring-platform pages, recruiters, staffing
   firms, aggregators, and uncertain sources.
 
 In progress:

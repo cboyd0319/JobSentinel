@@ -250,6 +250,10 @@ boundaries, and harness modularity:
   and approved external AI payloads. Replaced source-adapter, HTTP-client,
   background-monitoring, and duplicate handling jargon in front-door source docs
   and product-copy sensors now guard the old phrases.
+- Changed README, ROADMAP, RESPONSIBLE_AI, and the README information-design
+  harness from ATS-first front-door labels to hiring-system and hiring-platform
+  language while keeping research links intact. Product-copy tests guard the old
+  labels.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

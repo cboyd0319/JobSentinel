@@ -21,7 +21,7 @@ JobSentinel does not:
 - Encourage deceptive resume optimization.
 - Use hidden keyword stuffing.
 - Support resume prompt injection.
-- Manipulate ATS systems.
+- Manipulate employer screening systems.
 - Solve CAPTCHAs.
 - Collect from restricted sites or evade platform controls.
 - Upload the user's entire local database.
@@ -35,7 +35,7 @@ JobSentinel does not:
 JobSentinel supports:
 
 - Candidate-side explainability.
-- ATS-readable application clarity.
+- Readable application materials for employer screening systems.
 - Ghost-job risk explanations.
 - Truthful application readability.
 - Salary transparency analysis.
@@ -61,7 +61,7 @@ user approval, and local metadata logging. Sensitive payloads need explicit
 selection by the user. Public-data-only requests must not include private notes,
 application history, resumes, salary floors, or unrelated local data.
 
-## ATS transparency
+## Hiring-system transparency
 
 JobSentinel helps users see whether an application is readable, complete, and
 truthful. It should explain what it found, what is uncertain, and what the user
@@ -105,7 +105,7 @@ closed, evergreen, or high risk.
 
 JobSentinel should:
 
-- Prefer company or official ATS sources when available.
+- Prefer company or official hiring-platform sources when available.
 - Track first seen, last seen, reposts, closure signals, and source quality.
 - Separate ghost-job risk from scam risk.
 - Give users recovery actions: verify, save anyway, hide, mark stale, or undo.

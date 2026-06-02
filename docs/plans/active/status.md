@@ -83,6 +83,10 @@ and record actionable findings in this active-plan surface.
   replaces source-adapter, HTTP-client, background-monitoring, and duplicate
   handling jargon in front-door source docs. Product-copy tests guard the old
   phrases.
+- Latest local hiring-system wording follow-up changes README, ROADMAP,
+  RESPONSIBLE_AI, and the README information-design harness from ATS-first
+  front-door labels to hiring-system and hiring-platform language while keeping
+  research links intact. Product-copy tests guard the old labels.
 - Latest local resume-readability follow-up changes score-adjacent labels from
   `Complete`, `Completeness`, `missing`, `issues`, `View Details`, and `Full
   Resume Readability Review` to details, details-included, to-review,

@@ -842,6 +842,28 @@ export function hasTechnicalFirstUserCopy(root, path) {
     }
   }
 
+  if (
+    path === "README.md" ||
+    path === "ROADMAP.md" ||
+    path === "RESPONSIBLE_AI.md" ||
+    path === "docs/harness/readme-information-design.md"
+  ) {
+    const text = readFileSync(join(root, path), "utf8");
+    const frontDoorAtsPatterns = [
+      /ATS transparency/i,
+      /ATS-readable application clarity/i,
+      /Manipulate ATS systems/i,
+      /official ATS postings/i,
+      /public ATS postings/i,
+      /Company-site and ATS verification/i,
+      /ATS pages/i,
+    ];
+
+    if (frontDoorAtsPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
   if (!technicalFirstUserCopyPaths.has(path)) {
     return false;
   }
