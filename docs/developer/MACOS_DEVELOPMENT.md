@@ -162,12 +162,14 @@ After building a `.dmg`, run the package verifier:
 npm run tauri:verify:macos -- \
   --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg \
   --expected-architectures x86_64,arm64 \
-  --launch-smoke
+  --launch-smoke \
+  --install-smoke
 ```
 
-For public release gating, keep `--launch-smoke` and add
-`--require-gatekeeper`. That mode fails unless the mounted app can start and the
-app plus disk image pass Gatekeeper assessment.
+For public release gating, keep `--launch-smoke --install-smoke` and add
+`--require-gatekeeper`. That mode fails unless the mounted app can start, the
+copied installed app can start, and the app plus disk image pass Gatekeeper
+assessment.
 
 After a release is published, verify the downloaded public artifact too:
 
@@ -176,14 +178,16 @@ npm run tauri:verify:macos:latest
 ```
 
 That command downloads the latest public GitHub release DMG and applies the
-same universal-architecture, launch-smoke, signature, and Gatekeeper checks.
+same universal-architecture, launch-smoke, installed-app smoke, signature, and
+Gatekeeper checks.
 
 The latest local universal smoke built
 `src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg`,
 verified the DMG checksum through `npm run tauri:verify:macos`, confirmed the
 app binary contains both `x86_64` and `arm64`, verified the mounted app
-signature, and kept the mounted app running for 12 seconds under an isolated
-temporary home with empty stderr.
+signature, copied the app into a temporary install root, and kept both mounted
+and installed app launches running for 12 seconds under isolated temporary
+homes with empty stderr.
 
 Because this local package uses an ad-hoc signature, Gatekeeper assessment
 rejects the `.app` and `.dmg`. A zero-friction public macOS release still needs
@@ -398,10 +402,10 @@ rustflags = ["-C", "link-arg=-fuse-ld=/opt/homebrew/bin/mold"]
 
 1. **Local package path verified** - Universal DMG build, checksum
    verification, app signature verification, architecture check, and packaged
-   launch smoke pass locally.
+   plus installed launch smoke pass locally.
 2. **Public release gate active** - Public macOS releases require Developer ID
-   signing and notarization, then `--launch-smoke --require-gatekeeper`
-   verification before upload.
+   signing and notarization, then `--launch-smoke --install-smoke
+   --require-gatekeeper` verification before upload.
 3. **Published artifact gate active** - After publishing, run
    `npm run tauri:verify:macos:latest` to verify the downloaded public DMG.
 4. **Runtime workflow checks before release** - Run the app, complete setup,

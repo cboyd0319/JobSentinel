@@ -134,6 +134,19 @@ Recent local verification evidence:
   smoke stayed running for 12 seconds with empty stderr. Gatekeeper still
   rejects the local ad-hoc package, as expected until Developer ID signing and
   notarization are configured.
+- Current local installed-app macOS smoke follow-up adds `--install-smoke` to
+  `npm run tauri:verify:macos`, copies `JobSentinel.app` out of the mounted DMG
+  into a temporary install root with `ditto`, verifies the copied bundle
+  signature and architectures, runs Gatekeeper assessment, and launches the
+  copied app under an isolated temporary home. The macOS release workflow now
+  requires `--launch-smoke --install-smoke --require-gatekeeper` before upload,
+  and security sensors require that installed-app smoke gate. Verification
+  passed: focused Node tests passed 14 tests, live local universal DMG
+  verification with `--launch-smoke --install-smoke` passed for both mounted and
+  copied installed app launches, `actionlint .github/workflows/release.yml
+  .github/workflows/verify-release-artifacts.yml` passed, `npm run
+  lint:security`, `npm run lint:bloat`, `npm run test:scripts` passed 497
+  tests, and `npm run lint:docs` passed.
 - Current published macOS release gap: the public GitHub `v2.6.4` release is
   live and includes `JobSentinel_2.6.4_universal.dmg`, but verification of the
   downloaded public DMG failed because the mounted `JobSentinel.app` is not

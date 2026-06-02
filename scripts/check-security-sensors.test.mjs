@@ -45,7 +45,7 @@ function writeBaseRepo(root, csp) {
   );
   writeFileSync(
     join(root, ".github/workflows/release.yml"),
-    "jobs:\n  release:\n    steps:\n      - run: npm run tauri:verify:macos -- --launch-smoke --require-gatekeeper\n",
+    "jobs:\n  release:\n    steps:\n      - run: npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-gatekeeper\n",
   );
   writeFileSync(
     join(root, ".github/workflows/verify-release-artifacts.yml"),
@@ -115,6 +115,24 @@ test("checkSecuritySensors rejects macOS release gates without launch smoke", ()
   assert(
     checkSecuritySensors(root).includes(
       "release workflow is missing macOS package gate: macOS launch smoke gate",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects macOS release gates without install smoke", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-install-smoke-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, ".github/workflows/release.yml"),
+    "jobs:\n  release:\n    steps:\n      - run: npm run tauri:verify:macos -- --launch-smoke --require-gatekeeper\n",
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      "release workflow is missing macOS package gate: macOS installed app smoke gate",
     ),
   );
 });

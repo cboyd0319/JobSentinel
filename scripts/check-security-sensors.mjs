@@ -74,6 +74,10 @@ const releaseWorkflowChecks = [
     label: "macOS launch smoke gate",
     phrases: ["npm run tauri:verify:macos", "--launch-smoke"],
   },
+  {
+    label: "macOS installed app smoke gate",
+    phrases: ["npm run tauri:verify:macos", "--install-smoke"],
+  },
 ];
 
 const publishedReleaseWorkflowChecks = [

@@ -32,13 +32,15 @@ npm run tauri:build:macos -- --target universal-apple-darwin
 npm run tauri:verify:macos -- \
   --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg \
   --expected-architectures x86_64,arm64 \
-  --launch-smoke
+  --launch-smoke \
+  --install-smoke
 
 # Public macOS release gate
 npm run tauri:verify:macos -- \
   --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg \
   --expected-architectures x86_64,arm64 \
   --launch-smoke \
+  --install-smoke \
   --require-gatekeeper
 
 # After publishing, verify the downloaded public macOS artifact
@@ -56,9 +58,9 @@ npx tauri build --target x86_64-unknown-linux-gnu
 The `Verify Release Artifacts` GitHub Actions workflow also runs after a
 release is published. It verifies the public macOS DMG from GitHub Releases
 with strict defaults: universal `x86_64,arm64` architecture checks, signature
-verification, launch smoke, and Gatekeeper acceptance. If this workflow fails,
-the public DMG should be replaced before sharing the release with nontechnical
-macOS users.
+verification, mounted-app launch smoke, installed-app launch smoke, and
+Gatekeeper acceptance. If this workflow fails, the public DMG should be
+replaced before sharing the release with nontechnical macOS users.
 
 ### 2. Create GitHub Release
 
@@ -80,7 +82,7 @@ tag.
 
 | Platform | Architecture          | Format      | Status   |
 | -------- | --------------------- | ----------- | -------- |
-| macOS    | universal             | `.dmg`      | Local smoke ready; public artifact must pass `tauri:verify:macos:latest` |
+| macOS    | universal             | `.dmg`      | Local mounted and installed smoke ready; public artifact must pass `tauri:verify:macos:latest` |
 | Windows  | x86_64                | `.msi`      | Ready |
 | Linux    | x86_64                | `.AppImage` / `.deb` | Workflow ready |
 

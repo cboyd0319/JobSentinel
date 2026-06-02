@@ -214,6 +214,7 @@ jobs:
           src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
           --expected-architectures x86_64,arm64
           --launch-smoke
+          --install-smoke
           --require-gatekeeper
 
       # Windows MSI upload

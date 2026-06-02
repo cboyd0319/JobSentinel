@@ -61,6 +61,7 @@ export function parseArgs(args, arch = process.arch) {
     expectedArchitectures: expectedArchitectures
       ? splitList(expectedArchitectures)
       : defaultArchitectures(arch),
+    installSmoke: hasArg(args, "--install-smoke"),
     launchSmoke: hasArg(args, "--launch-smoke") || Boolean(smokeValue),
     requireGatekeeper: hasArg(args, "--require-gatekeeper"),
     smokeSeconds: smokeValue ? Number(smokeValue) : defaultSmokeSeconds,
@@ -230,8 +231,15 @@ function assertApplicationsSymlink(mountPath) {
   }
 }
 
-async function verifyMountedApp({ appPath, expectedArchitectures, launchSmoke, requireGatekeeper, smokeSeconds }) {
-  assertPathExists(appPath, "Mounted app bundle");
+async function verifyAppBundle({
+  appPath,
+  expectedArchitectures,
+  launchSmoke,
+  requireGatekeeper,
+  smokeSeconds,
+  bundleLabel = "App bundle",
+}) {
+  assertPathExists(appPath, bundleLabel);
 
   const executable = join(appPath, "Contents", "MacOS", getBundleExecutable(appPath));
   assertPathExists(executable, "App executable");
@@ -252,6 +260,32 @@ async function verifyMountedApp({ appPath, expectedArchitectures, launchSmoke, r
 
   if (launchSmoke) {
     await smokeLaunch({ appPath, seconds: smokeSeconds });
+  }
+}
+
+async function verifyInstalledApp({
+  sourceAppPath,
+  appName,
+  expectedArchitectures,
+  requireGatekeeper,
+  smokeSeconds,
+}) {
+  const installRoot = mkdtempSync(join(tmpdir(), "jobsentinel-macos-install-"));
+  const installedAppPath = join(installRoot, appName);
+
+  try {
+    runChecked("ditto", [sourceAppPath, installedAppPath]);
+    await verifyAppBundle({
+      appPath: installedAppPath,
+      bundleLabel: "Installed app bundle",
+      expectedArchitectures,
+      launchSmoke: true,
+      requireGatekeeper,
+      smokeSeconds,
+    });
+    console.log(`Install smoke passed: copied app launched from ${installedAppPath}.`);
+  } finally {
+    rmSync(installRoot, { recursive: true, force: true });
   }
 }
 
@@ -279,13 +313,25 @@ export async function verifyMacosPackage(options) {
     mounted = true;
 
     assertApplicationsSymlink(mountPath);
-    await verifyMountedApp({
-      appPath: join(mountPath, options.appName),
+    const mountedAppPath = join(mountPath, options.appName);
+    await verifyAppBundle({
+      appPath: mountedAppPath,
+      bundleLabel: "Mounted app bundle",
       expectedArchitectures: options.expectedArchitectures,
       launchSmoke: options.launchSmoke,
       requireGatekeeper: options.requireGatekeeper,
       smokeSeconds: options.smokeSeconds,
     });
+
+    if (options.installSmoke) {
+      await verifyInstalledApp({
+        sourceAppPath: mountedAppPath,
+        appName: options.appName,
+        expectedArchitectures: options.expectedArchitectures,
+        requireGatekeeper: options.requireGatekeeper,
+        smokeSeconds: options.smokeSeconds,
+      });
+    }
   } finally {
     if (mounted) {
       try {
@@ -303,7 +349,7 @@ export async function verifyMacosPackage(options) {
 export async function main({ args = process.argv.slice(2) } = {}) {
   const options = parseArgs(args);
   if (!options.dmgPath) {
-    throw new Error("Usage: verify-macos-package.mjs --dmg <path-to-dmg> [--expected-architectures x86_64,arm64] [--launch-smoke] [--require-gatekeeper]");
+    throw new Error("Usage: verify-macos-package.mjs --dmg <path-to-dmg> [--expected-architectures x86_64,arm64] [--launch-smoke] [--install-smoke] [--require-gatekeeper]");
   }
   if (!Number.isFinite(options.smokeSeconds) || options.smokeSeconds < 1) {
     throw new Error(`Invalid --smoke-seconds value: ${options.smokeSeconds}`);
