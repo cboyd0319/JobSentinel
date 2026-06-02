@@ -86,10 +86,12 @@ const payProtectionGuidancePaths = new Set([
 const payPlainLanguagePaths = new Set([
   "README.md",
   "ROADMAP.md",
+  "docs/features/salary-ai.md",
   "docs/features/market-intelligence.md",
   "docs/features/resume-matcher.md",
   "docs/harness/readme-information-design.md",
   "docs/research/pay-equity.md",
+  "src/pages/Salary.tsx",
 ]);
 
 const payFloorRecoveryCopyPaths = new Set([

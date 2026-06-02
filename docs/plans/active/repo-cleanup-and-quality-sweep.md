@@ -233,6 +233,9 @@ boundaries, and harness modularity:
 - Changed support-preview privacy copy from absolute removes-private-details
   wording to common-private-details and review-before-sharing language.
   DebugInfoPreview and product-copy tests guard the old claim.
+- Changed Pay Protection visible guidance and feature docs from career-jargon
+  wording to too-low-title-or-pay-level language. Salary and product-copy tests
+  guard the old term.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

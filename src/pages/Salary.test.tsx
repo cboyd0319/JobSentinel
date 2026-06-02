@@ -88,7 +88,7 @@ describe("Salary", () => {
     await user.click(screen.getByRole("button", { name: "Check Pay Range" }));
 
     expect(await screen.findByText(/below the lower-pay part of this sample/i)).toBeInTheDocument();
-    expect(screen.getByText(/under-leveled/i)).toBeInTheDocument();
+    expect(screen.getByText(/too low a title or pay level/i)).toBeInTheDocument();
     expect(screen.getByText(/salary history/i)).toBeInTheDocument();
   });
 

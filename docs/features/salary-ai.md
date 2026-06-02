@@ -13,8 +13,8 @@ fixed by asking harder.
 - Show "Pay not listed" on job cards when structured salary fields are empty.
 - Show a below-floor warning on job cards when listed pay tops out below the
   user's saved floor.
-- Flag when a floor is below credible range evidence or when an offer may be
-  under-leveled.
+- Flag when a floor is below credible range evidence or when a role may be
+  listed at too low a title or pay level.
 - Draft editable negotiation notes grounded in role scope, written ranges, and
   user-confirmed facts.
 - Compare offers across pay, benefits, schedule, level, promotion path, and

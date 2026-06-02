@@ -65,6 +65,9 @@ and record actionable findings in this active-plan surface.
   removes-private-details wording with common-private-details plus
   review-before-sharing language. DebugInfoPreview and product-copy tests guard
   the old claim.
+- Latest local Pay Protection follow-up replaces remaining career-jargon visible
+  wording in Salary UI and feature docs with too-low-title-or-pay-level language.
+  Salary and product-copy tests guard the old term.
 - Latest local resume-readability follow-up changes score-adjacent labels from
   `Complete`, `Completeness`, `missing`, `issues`, `View Details`, and `Full
   Resume Readability Review` to details, details-included, to-review,

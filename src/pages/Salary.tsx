@@ -412,7 +412,7 @@ function getSalaryFloorGuidance(
   if (salaryFloorAmount < benchmark.p25_salary) {
     return {
       message:
-        "Your floor is below the lower-pay part of this sample. Check whether the role is under-leveled or whether your floor should move up.",
+        "Your floor is below the lower-pay part of this sample. Check whether this role is listed at too low a title or pay level, or whether your floor should move up.",
       tone: "caution",
     };
   }

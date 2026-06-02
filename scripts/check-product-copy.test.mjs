@@ -1794,6 +1794,8 @@ test("product copy rejects front-door pay jargon", () => {
       "What does it optimize for?\nunder-leveling cues\ndoes not optimize for application volume\n",
     );
     writeFixtureFile(root, "ROADMAP.md", "under-anchoring guidance\n");
+    writeFixtureFile(root, "src/pages/Salary.tsx", "role is under-leveled\n");
+    writeFixtureFile(root, "docs/features/salary-ai.md", "offer may be under-leveled\n");
     writeFixtureFile(root, "docs/research/pay-equity.md", "under-leveling\n");
     writeFixtureFile(root, "docs/features/market-intelligence.md", "spot under-leveling\n");
     writeFixtureFile(root, "docs/features/resume-matcher.md", "Notice under-leveled roles\n");
@@ -1805,6 +1807,8 @@ test("product copy rejects front-door pay jargon", () => {
 
     assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "ROADMAP.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Salary.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/salary-ai.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/research/pay-equity.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/market-intelligence.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/resume-matcher.md"), true);

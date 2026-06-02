@@ -191,6 +191,9 @@ Current cleanup posture:
   removes-private-details wording with common-private-details and
   review-before-sharing language. DebugInfoPreview and product-copy coverage
   guard the old claim.
+- Current local Pay Protection follow-up replaces remaining career-jargon visible
+  wording in Salary UI and feature docs with too-low-title-or-pay-level language.
+  Salary and product-copy coverage guard the old term.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.
