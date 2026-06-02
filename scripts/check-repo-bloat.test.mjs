@@ -10144,6 +10144,62 @@ test("checkRepoBloat rejects stale resume optimizer mock handlers", () => {
   });
 });
 
+test("checkRepoBloat rejects stale resume suggestion category labels", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/resume/ats_analyzer.rs",
+      `
+pub enum SuggestionCategory {
+    AddKeyword,
+    RewordBullet,
+    AddSection,
+    ReorderContent,
+    FormatFix,
+}
+`,
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/ResumeOptimizer.tsx",
+      'type SuggestionCategory = "AddKeyword" | "RewordBullet" | "AddSection" | "RemoveItem";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/components/AtsLiveScorePanel.tsx",
+      'type SuggestionCategory = "AddKeyword" | "RewordBullet" | "AddSection" | "ReorderContent" | "FormatFix";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      'type MockSuggestionCategory = "AddKeyword" | "RewordBullet" | "AddSection";\n',
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "src-tauri/src/core/resume/ats_analyzer.rs",
+        "src/pages/ResumeOptimizer.tsx",
+        "src/components/AtsLiveScorePanel.tsx",
+        "src/mocks/handlers.ts",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes("sync resume suggestion category labels: src/pages/ResumeOptimizer.tsx"),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes("sync resume suggestion category labels: src/mocks/handlers.ts"),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects stale ATS keyword match frontend shape", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

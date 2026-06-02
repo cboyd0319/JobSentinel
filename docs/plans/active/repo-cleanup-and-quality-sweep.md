@@ -166,6 +166,13 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local resume category-drift harness follow-up adds frontend-contract
+  and repo-bloat sensor coverage so backend resume suggestion categories,
+  browser/dev mocks, Resume Match Helper labels, and Resume Builder live review
+  labels cannot silently drift. The sensor rejects stale `RemoveItem`, missing
+  backend or mock categories, and missing plain labels for `FormatFix` and
+  `ReorderContent`. Focused frontend-contract and repo-bloat fixture tests
+  passed, live `npm run lint:bloat` passed, and `npm run test:scripts` passed.
 - Current local Resume review evidence-label cleanup changes ResumeOptimizer
   and AtsLiveScorePanel away from format-result percentages, `Overall Match`
   wording, and row-level score percentages. The visible UI now uses Resume Fit,

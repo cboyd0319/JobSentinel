@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { listTrackedFiles } from "./repo-artifacts.mjs";
 
@@ -124,6 +125,85 @@ export function hasStaleAtsKeywordMatchFrontendShape(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
   return /\bfound_in\s*:\s*string\s*[;\n]/.test(text) || /\bcontext\s*:\s*string\s*[;\n]/.test(text);
+}
+
+const resumeSuggestionCategoryPaths = new Set([
+  "src-tauri/src/core/resume/ats_analyzer.rs",
+  "src/pages/ResumeOptimizer.tsx",
+  "src/components/AtsLiveScorePanel.tsx",
+  "src/mocks/handlers.ts",
+]);
+
+const fallbackResumeSuggestionCategories = [
+  "AddKeyword",
+  "RewordBullet",
+  "AddSection",
+  "ReorderContent",
+  "FormatFix",
+];
+
+function readOptionalFile(root, path) {
+  const fullPath = join(root, path);
+  return existsSync(fullPath) ? readFileSync(fullPath, "utf8") : "";
+}
+
+function collectBackendResumeSuggestionCategories(root) {
+  const text = readOptionalFile(root, "src-tauri/src/core/resume/ats_analyzer.rs");
+  const enumBody = /pub\s+enum\s+SuggestionCategory\s*\{(?<body>[\s\S]*?)\n\}/.exec(text)
+    ?.groups?.body;
+
+  if (!enumBody) {
+    return fallbackResumeSuggestionCategories;
+  }
+
+  const categories = [...enumBody.matchAll(/^\s*([A-Z][A-Za-z0-9_]*)\s*,/gm)].map(
+    (match) => match[1],
+  );
+
+  return categories.length > 0 ? categories : fallbackResumeSuggestionCategories;
+}
+
+function hasMissingResumeSuggestionCategories(text, categories) {
+  return categories.some((category) => !new RegExp(`["']${category}["']`).test(text));
+}
+
+function hasStaleResumeSuggestionLabels(text, categories) {
+  return (
+    /\bRemoveItem\b/.test(text) ||
+    (categories.includes("FormatFix") &&
+      !/case\s+["']FormatFix["'][\s\S]{0,120}return\s+["']Safety check["']/.test(text)) ||
+    (categories.includes("ReorderContent") &&
+      !/case\s+["']ReorderContent["'][\s\S]{0,120}return\s+["']Reorder content["']/.test(text))
+  );
+}
+
+export function hasResumeSuggestionCategoryDrift(root, path) {
+  if (!resumeSuggestionCategoryPaths.has(path)) {
+    return false;
+  }
+
+  const categories = collectBackendResumeSuggestionCategories(root);
+  const frontendPaths = [
+    "src/pages/ResumeOptimizer.tsx",
+    "src/components/AtsLiveScorePanel.tsx",
+  ];
+
+  for (const frontendPath of frontendPaths) {
+    const text = readOptionalFile(root, frontendPath);
+    if (!text) {
+      continue;
+    }
+
+    if (
+      hasMissingResumeSuggestionCategories(text, categories) ||
+      hasStaleResumeSuggestionLabels(text, categories)
+    ) {
+      return true;
+    }
+  }
+
+  const mockText = readOptionalFile(root, "src/mocks/handlers.ts");
+  return Boolean(mockText) && hasMissingResumeSuggestionCategories(mockText, categories);
 }
 
 export function hasUnsafeResumeOptimizerJsonParsing(root, path) {

@@ -13,6 +13,7 @@ import {
   hasStaleResumeE2eMatchSeed,
   hasStaleResumeMatchSubscoreDisplay,
   hasStaleResumeOptimizerMockHandlers,
+  hasResumeSuggestionCategoryDrift,
   hasStaleSalaryBenchmarkFrontendShape,
   hasStaleUserDataMockHandlers,
   hasUnsafeResumeOptimizerJsonParsing,
@@ -97,6 +98,69 @@ test("frontend contracts reject stale resume optimizer and ATS shapes", () => {
       hasStaleAtsKeywordMatchFrontendShape(root, "src/components/AtsLiveScorePanel.tsx"),
       true,
     );
+  });
+});
+
+test("frontend contracts reject resume suggestion category drift", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/resume/ats_analyzer.rs",
+      `
+pub enum SuggestionCategory {
+    AddKeyword,
+    RewordBullet,
+    AddSection,
+    ReorderContent,
+    FormatFix,
+}
+`,
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/ResumeOptimizer.tsx",
+      `
+type SuggestionCategory = "AddKeyword" | "RewordBullet" | "AddSection" | "RemoveItem";
+function formatSuggestionCategory(category: SuggestionCategory): string {
+  switch (category) {
+    case "AddKeyword": return "Add job words";
+    case "RewordBullet": return "Rewrite bullet";
+    case "AddSection": return "Add section";
+    case "RemoveItem": return "Remove item";
+  }
+}
+`,
+    );
+    writeFixtureFile(
+      root,
+      "src/components/AtsLiveScorePanel.tsx",
+      `
+interface AtsSuggestion {
+  category: "AddKeyword" | "RewordBullet" | "AddSection" | "ReorderContent" | "FormatFix";
+}
+function formatSuggestionCategory(category: AtsSuggestion["category"]): string {
+  switch (category) {
+    case "AddKeyword": return "Add job words";
+    case "RewordBullet": return "Rewrite bullet";
+    case "AddSection": return "Add section";
+    case "ReorderContent": return "Reorder content";
+    case "FormatFix": return "Safety check";
+  }
+}
+`,
+    );
+    writeFixtureFile(
+      root,
+      "src/mocks/handlers.ts",
+      'type MockSuggestionCategory = "AddKeyword" | "RewordBullet" | "AddSection";\n',
+    );
+
+    assert.equal(
+      hasResumeSuggestionCategoryDrift(root, "src/pages/ResumeOptimizer.tsx"),
+      true,
+    );
+    assert.equal(hasResumeSuggestionCategoryDrift(root, "src/mocks/handlers.ts"), true);
+    assert.equal(hasResumeSuggestionCategoryDrift(root, "src/pages/Salary.tsx"), false);
   });
 });
 

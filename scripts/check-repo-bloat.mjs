@@ -81,6 +81,7 @@ import {
   hasStaleResumeE2eMatchSeed,
   hasStaleResumeMatchSubscoreDisplay,
   hasStaleResumeOptimizerMockHandlers,
+  hasResumeSuggestionCategoryDrift,
   hasStaleSalaryBenchmarkFrontendShape,
   hasStaleUserDataMockHandlers,
   hasUnsafeResumeOptimizerJsonParsing,
@@ -575,6 +576,10 @@ export function checkRepoBloat(root = defaultRoot) {
 
     if (hasStaleAtsKeywordMatchFrontendShape(root, path)) {
       violations.push(`sync ATS keyword match frontend shape: ${path}`);
+    }
+
+    if (hasResumeSuggestionCategoryDrift(root, path)) {
+      violations.push(`sync resume suggestion category labels: ${path}`);
     }
 
     if (hasUnsafeResumeOptimizerJsonParsing(root, path)) {

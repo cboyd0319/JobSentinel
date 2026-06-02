@@ -38,6 +38,15 @@ Recent local verification evidence:
   focused `AtsLiveScorePanel` and `ResumeOptimizer` tests passed 62 tests,
   `npm run lint -- --quiet`, `npm run test:run` passed 2634 tests,
   `npm run build`, and `npm run lint:docs` passed.
+- Current local resume category-drift harness follow-up adds a frontend
+  contract sensor so backend resume suggestion categories, browser/dev mocks,
+  Resume Match Helper labels, and Resume Builder live review labels cannot
+  silently drift again. It rejects stale `RemoveItem`, missing backend
+  categories, missing mock categories, and missing plain labels for
+  `FormatFix` and `ReorderContent`. Verification passed: focused frontend
+  contract and bloat fixture tests passed 230 repo-bloat tests plus the
+  frontend-contract fixture tests, `npm run lint:bloat`, and `npm run
+  test:scripts` passed 505 tests.
 - Current local no-Apple-account macOS proof passed on current `main`:
   `npm run doctor` reported the environment ready with one known Node 26 local
   warning, `cargo test --lib platforms::macos` passed 22 tests with 1 ignored,
