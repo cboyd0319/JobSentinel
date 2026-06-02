@@ -216,6 +216,10 @@ Current cleanup posture:
   channels from user-opened GitHub/Google Drive support links in README and
   PRIVACY.md, with product-copy coverage against treating those support links as
   external alerts.
+- Current local connected-source privacy follow-up adds a visible Settings
+  reminder after optional source approval: approval covers only the displayed
+  exact details, and changed details keep the source off until the user approves
+  again. Feature docs and Settings coverage reflect the behavior.
 - Current local Settings copy follow-up changes the posting-risk save toast
   from scan wording to job-check wording and renames the Telegram badge from
   advanced chat alert to optional chat alert. Settings tests and product-copy

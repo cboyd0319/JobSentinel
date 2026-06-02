@@ -3523,6 +3523,13 @@ export default function Settings({ onClose }: SettingsProps) {
                             <dt className="font-medium">Jobs to ask for</dt>
                             <dd>{jobsWithGptPayload.limit}</dd>
                           </dl>
+                          {jobsWithGptPayloadApproved && (
+                            <p className="mt-3 text-xs text-green-700 dark:text-green-300">
+                              Approved for these exact details. If anything
+                              changes, this source stays off until you approve
+                              it again.
+                            </p>
+                          )}
                           <div className="mt-3 flex flex-wrap gap-2">
                             <Button
                               size="sm"

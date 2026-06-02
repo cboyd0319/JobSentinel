@@ -629,6 +629,11 @@ describe("Settings — handleSave flow", () => {
     await user.click(
       screen.getByRole("button", { name: "Approve these exact details" }),
     );
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Approved for these exact details/i),
+      ).toBeInTheDocument();
+    });
     await user.click(screen.getByRole("button", { name: /save changes/i }));
 
     await waitFor(() => {

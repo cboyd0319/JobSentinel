@@ -90,6 +90,9 @@ change, the approval no longer matches and JobSentinel skips that source until
 the user reviews the new details. Do not send resumes, salary floors, private
 notes, application history, screening answers, or unrelated profile details to
 a job-source address.
+When the user approves a source address, Settings should keep showing the exact
+approved details and explain that any change turns the source off until the user
+approves again.
 
 ## Deduplication
 

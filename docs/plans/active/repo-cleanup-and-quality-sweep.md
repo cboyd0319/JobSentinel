@@ -195,6 +195,10 @@ boundaries, and harness modularity:
   channels are separate from user-opened GitHub/Google Drive support links.
   Product-copy coverage now rejects conflating GitHub or Google Drive with
   external alerts.
+- Added a visible Settings reminder for optional connected job sources after
+  approval: the approved state applies only to the displayed exact details, and
+  any change keeps the source off until the user approves again. Feature docs and
+  focused Settings coverage reflect the behavior.
 - Tightened another zero-technical support and protective-copy slice: public
   issue templates now avoid bug/feature/scraper-first wording, safe support
   report docs require review before sharing, source status avoids

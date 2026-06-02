@@ -56,6 +56,10 @@ and record actionable findings in this active-plan surface.
   channels from user-opened GitHub/Google Drive support links in README and
   PRIVACY.md, with product-copy coverage against conflating support links with
   external alerts.
+- Current local connected-source privacy follow-up keeps Settings explicit after
+  approving an optional source address: approval applies only to the displayed
+  exact details, and any change keeps the source off until approval happens
+  again.
 - Latest local zero-technical job-import follow-up changes missing-preview
   warnings from raw missing-field lists to readable details-to-check labels, so
   backend keys such as salary or job-link fields do not leak into the import
