@@ -260,7 +260,9 @@ boundaries, and harness modularity:
 - Changed notification docs and Quick Start from old email-provider-details,
   Slack app-from-scratch, secure-credential-manager, and provider-guidance
   wording to email-sending-details, connection-link, password-store, and
-  email-service language. Product-copy tests guard the old phrases.
+  email-service language. Notification troubleshooting now uses turned-on,
+  check, and permission wording instead of enabled/verify/admin/manual-provider
+  wording. Product-copy tests guard the old phrases.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

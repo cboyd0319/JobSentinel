@@ -742,7 +742,18 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "docs/features/notifications.md",
-      "Email provider details\nCreate New App\nFrom Scratch\nsecure credential manager\nLegacy plain-text fields\n",
+      [
+        "Email provider details",
+        "Create New App",
+        "From Scratch",
+        "secure credential manager",
+        "Legacy plain-text fields",
+        "channel is **enabled**",
+        "verify the connection",
+        "bot an admin",
+        "manual provider setup",
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(
       root,

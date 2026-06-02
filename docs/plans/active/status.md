@@ -93,7 +93,9 @@ and record actionable findings in this active-plan surface.
 - Latest local notification docs follow-up replaces old email-provider-details,
   Slack app-from-scratch, secure-credential-manager, and provider-guidance
   wording with email-sending-details, connection-link, password-store, and
-  email-service language. Product-copy tests guard the old phrases.
+  email-service language. It also changes notification troubleshooting from
+  enabled/verify/admin/manual-provider wording to turned-on/check/permission
+  language. Product-copy tests guard the old phrases.
 - Latest local resume-readability follow-up changes score-adjacent labels from
   `Complete`, `Completeness`, `missing`, `issues`, `View Details`, and `Full
   Resume Readability Review` to details, details-included, to-review,

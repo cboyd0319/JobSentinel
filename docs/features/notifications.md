@@ -220,10 +220,10 @@ If it doesn't work:
 
 ### No notifications received?
 
-1. Verify the channel is **enabled** in Settings
+1. Make sure that alert channel is turned on in Settings
 2. Check that your connection link is correct
 3. Make sure jobs meet your match-strength setting
-4. Click "Test" to verify the connection
+4. Click "Test" to check it
 
 ### Slack says the link is invalid?
 
@@ -242,8 +242,8 @@ paste it into JobSentinel, then click Test.
 ### Telegram says "chat not found"?
 
 1. Make sure the bot is added to your group/channel
-2. Verify the destination number is correct (negative number for groups)
-3. If it's a channel, make the bot an admin
+2. Check that the destination number is correct (negative number for groups)
+3. If it's a channel, give the bot permission to post there
 
 ---
 
@@ -286,7 +286,7 @@ src-tauri/src/core/notify/
 
 ### Manual Email Server Reference
 
-Only needed for manual provider setup.
+Only needed if your email service gives you these details.
 
 | Provider | Server                | Port |
 | -------- | --------------------- | ---- |

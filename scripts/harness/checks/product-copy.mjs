@@ -907,6 +907,10 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /secure credential manager/i,
       /Legacy plain-text fields/i,
       /provider guidance/i,
+      /channel is \*\*enabled\*\*/i,
+      /verify the connection/i,
+      /bot an admin/i,
+      /manual provider setup/i,
     ];
 
     if (notificationDocPatterns.some((pattern) => pattern.test(text))) {
