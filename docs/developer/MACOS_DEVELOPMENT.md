@@ -168,8 +168,8 @@ npm run tauri:verify:macos -- \
 
 For public release gating, keep `--launch-smoke --install-smoke` and add
 `--require-gatekeeper`. That mode fails unless the mounted app can start, the
-copied installed app can start, and the app plus disk image pass Gatekeeper
-assessment.
+copied installed app can start, both launches create an isolated local
+`jobs.db`, and the app plus disk image pass Gatekeeper assessment.
 
 After a release is published, verify the downloaded public artifact too:
 
@@ -179,7 +179,8 @@ npm run tauri:verify:macos:latest
 
 That command downloads the latest public GitHub release DMG and applies the
 same universal-architecture, launch-smoke, installed-app smoke, signature, and
-Gatekeeper checks.
+Gatekeeper checks, including isolated macOS data directory and database
+creation during launch smoke.
 
 The latest local universal smoke built
 `src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg`,
@@ -187,7 +188,8 @@ verified the DMG checksum through `npm run tauri:verify:macos`, confirmed the
 app binary contains both `x86_64` and `arm64`, verified the mounted app
 signature, copied the app into a temporary install root, and kept both mounted
 and installed app launches running for 12 seconds under isolated temporary
-homes with empty stderr.
+homes with empty stderr. Both launches created an isolated macOS data directory
+and `jobs.db`.
 
 Because this local package uses an ad-hoc signature, Gatekeeper assessment
 rejects the `.app` and `.dmg`. A zero-friction public macOS release still needs
@@ -402,7 +404,8 @@ rustflags = ["-C", "link-arg=-fuse-ld=/opt/homebrew/bin/mold"]
 
 1. **Local package path verified** - Universal DMG build, checksum
    verification, app signature verification, architecture check, and packaged
-   plus installed launch smoke pass locally.
+   plus installed launch smoke pass locally, including local database creation
+   under isolated macOS homes.
 2. **Public release gate active** - Public macOS releases require Developer ID
    signing and notarization, then `--launch-smoke --install-smoke
    --require-gatekeeper` verification before upload.

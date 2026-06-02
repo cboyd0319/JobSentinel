@@ -99,6 +99,14 @@ export function formatGatekeeperStatus({ subject, accepted, requireGatekeeper })
   return `Gatekeeper rejected optional check: ${subject}. Developer ID signing and notarization are still required for a zero-friction public macOS release.`;
 }
 
+export function macosSmokeDataPaths(homePath) {
+  const dataDir = join(homePath, "Library", "Application Support", "JobSentinel");
+  return {
+    dataDir,
+    dbPath: join(dataDir, "jobs.db"),
+  };
+}
+
 function runCapture(command, args, options = {}) {
   return execFileSync(command, args, {
     cwd: options.cwd ?? defaultRoot,
@@ -188,13 +196,14 @@ async function smokeLaunch({ appPath, seconds }) {
   const stderrFd = openSync(stderrPath, "w");
 
   try {
-    mkdirSync(join(smokeRoot, "home"));
+    const homePath = join(smokeRoot, "home");
+    mkdirSync(homePath);
     mkdirSync(join(smokeRoot, "xdg"));
 
     const child = spawn(executable, [], {
       env: {
         ...process.env,
-        HOME: join(smokeRoot, "home"),
+        HOME: homePath,
         XDG_CONFIG_HOME: join(smokeRoot, "xdg"),
       },
       stdio: ["ignore", stdoutFd, stderrFd],
@@ -215,6 +224,10 @@ async function smokeLaunch({ appPath, seconds }) {
       throw new Error(`Launch smoke wrote stderr:\n${stderr}`);
     }
 
+    const dataPaths = macosSmokeDataPaths(homePath);
+    assertPathExists(dataPaths.dataDir, "Smoke data directory");
+    assertPathExists(dataPaths.dbPath, "Smoke database");
+    console.log("Local data smoke passed: app created isolated macOS data directory and jobs.db.");
     console.log(`Launch smoke passed: app stayed running for ${seconds} seconds with empty stderr.`);
   } finally {
     closeSync(stdoutFd);

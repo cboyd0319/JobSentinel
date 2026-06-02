@@ -141,11 +141,12 @@ Recent local verification evidence:
   copied app under an isolated temporary home. The macOS release workflow now
   requires `--launch-smoke --install-smoke --require-gatekeeper` before upload,
   and security sensors require that installed-app smoke gate. Verification
-  passed: focused Node tests passed 14 tests, live local universal DMG
+  passed: focused verifier Node tests passed 10 tests, live local universal DMG
   verification with `--launch-smoke --install-smoke` passed for both mounted and
-  copied installed app launches, `actionlint .github/workflows/release.yml
+  copied installed app launches, and both launches created isolated macOS data
+  directories with `jobs.db`. `actionlint .github/workflows/release.yml
   .github/workflows/verify-release-artifacts.yml` passed, `npm run
-  lint:security`, `npm run lint:bloat`, `npm run test:scripts` passed 497
+  lint:security`, `npm run lint:bloat`, `npm run test:scripts` passed 498
   tests, and `npm run lint:docs` passed.
 - Current published macOS release gap: the public GitHub `v2.6.4` release is
   live and includes `JobSentinel_2.6.4_universal.dmg`, but verification of the

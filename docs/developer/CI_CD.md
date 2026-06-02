@@ -103,8 +103,9 @@ natively on both Apple Silicon and Intel Macs.
 The release workflow verifies the macOS DMG before upload with
 `npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-gatekeeper`.
 This gate checks the DMG layout, mounted app signature, universal architectures,
-mounted-app launch smoke, copied installed-app launch smoke, and Gatekeeper
-acceptance before the artifact can be attached to the draft release.
+mounted-app launch smoke, copied installed-app launch smoke, isolated macOS
+data directory and database creation, and Gatekeeper acceptance before the
+artifact can be attached to the draft release.
 
 ## Published release verification (verify-release-artifacts.yml)
 
@@ -118,8 +119,9 @@ specific release, and a blank tag checks the latest public release.
 
 The public macOS verifier uses strict defaults: universal `x86_64,arm64`
 architecture checks, mounted app signature verification, installed-app smoke,
-launch smoke, and Gatekeeper acceptance. A failure means the public DMG is not ready for
-nontechnical macOS users and should be replaced before directing users to it.
+launch smoke, local data initialization, and Gatekeeper acceptance. A failure
+means the public DMG is not ready for nontechnical macOS users and should be
+replaced before directing users to it.
 
 ---
 
@@ -252,15 +254,17 @@ When they are present, the workflow imports the Developer ID certificate into a
 temporary keychain, `npm run tauri:build:macos` signs, notarizes, staples, and
 validates the custom DMG. The release workflow then verifies the package with
 `npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-gatekeeper` before
-upload. Without Developer ID signing, notarization, Gatekeeper acceptance, and
-mounted-app plus installed-app launch smoke, the macOS release job should fail instead of
-publishing a package that nontechnical users cannot open cleanly.
+upload. Without Developer ID signing, notarization, Gatekeeper acceptance,
+mounted-app plus installed-app launch smoke, and local data initialization, the
+macOS release job should fail instead of publishing a package that nontechnical
+users cannot open cleanly.
 
 After the GitHub release is published, the `Verify Release Artifacts` workflow
 runs automatically. It downloads the public release DMG and applies the same
-signature, architecture, launch-smoke, installed-app smoke, and Gatekeeper
-checks to the artifact users can actually download. The same check can be run
-locally on a Mac with `npm run tauri:verify:macos:latest`.
+signature, architecture, launch-smoke, installed-app smoke, local data
+initialization, and Gatekeeper checks to the artifact users can actually
+download. The same check can be run locally on a Mac with
+`npm run tauri:verify:macos:latest`.
 
 ---
 

@@ -4,6 +4,7 @@ import {
   defaultArchitectures,
   formatGatekeeperStatus,
   hasExpectedArchitectures,
+  macosSmokeDataPaths,
   parseArgs,
   parseLipoArchitectures,
 } from "./verify-macos-package.mjs";
@@ -89,4 +90,11 @@ test("macOS verifier distinguishes optional and required Gatekeeper rejection", 
     }),
     "Gatekeeper rejected required public release artifact: JobSentinel.app",
   );
+});
+
+test("macOS verifier resolves launch smoke data paths under isolated home", () => {
+  assert.deepEqual(macosSmokeDataPaths("/tmp/jobsentinel-smoke-home"), {
+    dataDir: "/tmp/jobsentinel-smoke-home/Library/Application Support/JobSentinel",
+    dbPath: "/tmp/jobsentinel-smoke-home/Library/Application Support/JobSentinel/jobs.db",
+  });
 });
