@@ -34,7 +34,7 @@ Use this structure:
 | ----- | -------------------- | ------- |
 | Entry guide | `AGENTS.md` | Short map and hard repo rules |
 | Knowledge base | `docs/` | Versioned source of truth |
-| Active status | `docs/plans/active/status.md` | Compact restart surface for current goal state, next work, and completion bar |
+| Active status | `docs/plans/active/status.md` | Current restart surface for goal state, next work, completion bar, and latest evidence |
 | Change contract | `docs/harness/change-contract.md` | Acceptance criteria before edits |
 | Policy manifest | `docs/harness/manifest.json` | Required harness files, policy snippets, and README reference-source coverage |
 | Feature privacy labels | `docs/harness/feature-privacy-labels.json` | Machine-readable feature labels for local-only, external-AI, sensitive, and public-data boundaries |

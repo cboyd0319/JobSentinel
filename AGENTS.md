@@ -11,9 +11,16 @@ JobSentinel is a privacy-first desktop job search app.
 - Backend: Tauri 2, Rust 2021, Tokio, SQLite with SQLx offline mode.
 - Audience: anyone trying to find a job, including technical and non-technical
   roles. Do not design user-facing flows only for engineers, developers, or
-  people who can debug software.
-- Product rule: user data stays local unless the user configures an external
-  channel such as email, Slack, Discord, Teams, GitHub, or Google Drive.
+  people who can debug software. User-facing flows must assume zero technical
+  knowledge.
+- Rule 0: user privacy and security are non-negotiable. No feature, shortcut,
+  test fixture, support flow, external AI provider, or source adapter may
+  weaken local-first storage, credential safety, explicit user review, or
+  privacy-preserving defaults.
+- Product rule: user data stays local unless the user explicitly configures an
+  external channel such as email, Slack, Discord, Teams, GitHub, or Google
+  Drive. External AI stays optional, disabled by default, and routed through the
+  privacy-first AI gateway.
 - Primary targets: Windows 11+, macOS, Linux.
 
 ## Source Of Truth

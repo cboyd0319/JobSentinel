@@ -23,6 +23,21 @@ test("harness policy manifest owns required docs and source policy", () => {
       "Rule 0: user privacy and security are non-negotiable.",
     ),
   );
+  assert.ok(
+    manifest.requiredHarnessSnippets["AGENTS.md"].includes(
+      "Rule 0: user privacy and security are non-negotiable.",
+    ),
+  );
+  assert.ok(
+    manifest.requiredHarnessSnippets["CLAUDE.md"].includes(
+      "Rule 0: user privacy and security are non-negotiable.",
+    ),
+  );
+  assert.ok(
+    manifest.requiredHarnessSnippets[".github/copilot-instructions.md"].includes(
+      "Rule 0: user privacy and security are non-negotiable.",
+    ),
+  );
   assert.equal(manifest.readmeReferences.heading, "## References and external sources");
   assert.equal(manifest.readmeReferences.excludedTestUrlExplanation, "Security test payloads");
   assert.ok(

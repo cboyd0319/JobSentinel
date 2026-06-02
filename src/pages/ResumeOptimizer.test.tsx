@@ -250,7 +250,7 @@ describe("ResumeOptimizer", () => {
         resume: validResume,
       });
     });
-    expect(mockToast.success).toHaveBeenCalledWith("Format review complete", "Format score: 84%");
+    expect(mockToast.success).toHaveBeenCalledWith("Format review complete", "Format result: 84%");
   });
 
   it("uses plain job-word copy for job match results", async () => {

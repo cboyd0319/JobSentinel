@@ -217,7 +217,7 @@ function validateRequest(
   if (request.labels.includes("Public-data only") && hasSensitivePayloadKeys(request.payload)) {
     throw new ExternalAiGatewayError(
       "public_data_only_violation",
-      "This request can only send public job-posting details.",
+      "JobSentinel can send only public job-posting details here.",
     );
   }
 

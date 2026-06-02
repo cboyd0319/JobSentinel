@@ -594,7 +594,7 @@ const MOCK_DEEP_LINK_SITES = [
     category: SiteCategory.General,
     requires_login: false,
     logo_url: "https://www.ziprecruiter.com/favicon.ico",
-    notes: "Fast-growing job board with Application Assist",
+    notes: "General job board with Application Assist support",
   },
   {
     id: "linkedin",
@@ -1412,7 +1412,7 @@ function generateMockFeedbackReport(args?: Record<string, unknown>): string {
     "",
     description,
     "",
-    "APP AND DEVICE (private details removed)",
+    "APP AND DEVICE (common private details hidden)",
     "",
     `App version: ${systemInfo.app_version}`,
     `Device: ${systemInfo.platform} ${systemInfo.os_version}`,

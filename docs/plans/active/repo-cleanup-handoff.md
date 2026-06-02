@@ -30,6 +30,14 @@ Latest pushed checkpoints include:
 
 Recent remote integration evidence:
 
+- Latest local broad-audience and Rule 0 follow-up applies read-only
+  sub-agent findings across support-report privacy wording, visible
+  resume/settings/export/outside-AI copy, README and source-doc approved
+  job-source feed wording, wrapper Rule 0 snippets, feature privacy-label
+  freshness, and active status compaction. Verification passed:
+  `npm run harness:check`, `npm run test:scripts`, `npm run lint:docs`,
+  `npm run lint:bloat`, `npm run lint`, focused Vitest for eight affected
+  frontend/service test files, and `git diff --check`.
 - Latest local frontend verification evidence: `npm run test:run` passes 110
   Vitest files and 2637 tests, `npm run build` passes in 4.13 seconds, and
   `npm run test:scripts` passes 454 script tests. The latest local follow-up
@@ -222,7 +230,7 @@ Current cleanup posture:
   scheduled-check and on-your-schedule wording. Settings and product-copy coverage
   guard the old phrases.
 - Current local README/source-doc follow-up expands network disclosure for
-  enabled job-source checks, approved source addresses, user-configured
+  enabled job-source checks, approved job-source feeds, user-configured
   channels, support links, location detection, and approved external AI
   payloads. It also replaces source-adapter, HTTP-client, background-monitoring,
   and duplicate handling jargon in front-door source docs.

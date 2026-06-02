@@ -20,6 +20,13 @@ and `docs/harness/`.
 ## Claude-Specific Notes
 
 - Use repo files as current evidence.
+- Rule 0: user privacy and security are non-negotiable.
+- External AI stays optional, disabled by default, and routed through the
+  privacy-first AI gateway.
+- User-facing flows must assume zero technical knowledge and support technical
+  plus non-technical job searches.
+- Preserve responsible-use boundaries: truthful application guidance,
+  human-in-the-loop submission, and source controls.
 - Keep work scoped and verified.
 - Update docs when behavior, setup, architecture, commands, or security rules
   change.

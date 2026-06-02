@@ -24,7 +24,7 @@ rules.
 - **Monster** - Established job board with career resources
 - **CareerBuilder** - General job listings
 - **SimplyHired** - Job aggregator with salary estimates
-- **ZipRecruiter** - Fast-growing job board with Application Assist
+- **ZipRecruiter** - General job board with Application Assist support
 
 ### Professional Networking (2)
 

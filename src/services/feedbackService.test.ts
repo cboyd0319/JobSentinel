@@ -169,7 +169,7 @@ describe("feedbackService", () => {
     });
     expect(mockInvoke).toHaveBeenNthCalledWith(2, "sanitize_feedback_text", {
       content: expect.stringContaining(
-        "Removed before sharing: local file paths, links, sign-in tokens, cookies, connection links, email addresses, salary floors, resume text, private notes, and application history.",
+        "Common private details hidden before this report is created: local file paths, links, sign-in tokens, cookies, connection links, email addresses, salary floors, resume text, private notes, and application history. Review before sharing.",
       ),
     });
     expect(mockInvoke).toHaveBeenNthCalledWith(2, "sanitize_feedback_text", {

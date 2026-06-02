@@ -140,8 +140,8 @@ export async function saveFeedbackReport(
 
 function formatFrontendErrorLog(errors: ErrorReport[]): string {
   const lines = [
-    "RECENT APP PROBLEMS (private details removed)",
-    "Removed before sharing: local file paths, links, sign-in tokens, cookies, connection links, email addresses, salary floors, resume text, private notes, and application history.",
+    "RECENT APP PROBLEMS (common private details hidden)",
+    "Common private details hidden before this report is created: local file paths, links, sign-in tokens, cookies, connection links, email addresses, salary floors, resume text, private notes, and application history. Review before sharing.",
     "",
   ];
 
@@ -352,7 +352,7 @@ export function formatDebugInfo(
 ): string {
   const lines: string[] = [
     "═══════════════════════════════════════════════════════════",
-    "APP AND DEVICE (private details removed)",
+    "APP AND DEVICE (common private details hidden)",
     "═══════════════════════════════════════════════════════════",
     "",
     `App version: ${systemInfo.app_version}`,
@@ -378,7 +378,7 @@ export function formatDebugInfo(
   if (debugEvents.length > 0) {
     lines.push(
       "───────────────────────────────────────────────────────────",
-      "RECENT APP ACTIVITY (private details removed)",
+      "RECENT APP ACTIVITY (common private details hidden)",
       "───────────────────────────────────────────────────────────",
       "",
       ...debugEvents.map(event => {

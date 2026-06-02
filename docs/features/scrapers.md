@@ -75,22 +75,21 @@ Representative source limits:
 | YC Startup Jobs | 300 | Public page |
 | SimplyHired | 200 | Best-effort public source; may be blocked |
 | Glassdoor | 200 | Best-effort public source; may ask for human checks |
-| JobsWithGPT | 10000 | User-approved source address |
+| JobsWithGPT | 10000 | User-approved job-source feed |
 
 Checks that cannot operate within source boundaries should fail closed and
 show a clear user-facing explanation.
 
-## User-Approved Source Addresses
+## User-Approved Job-Source Feeds
 
-JobsWithGPT is disabled unless the user adds a source address and approves the
-exact details for that source address. Source checks send only the reviewed
-search fields needed by that address: saved job titles, location, remote
-preference, and result limit. If titles, source address, or remote settings
-change, the approval no longer matches and JobSentinel skips that source until
-the user reviews the new details. Do not send resumes, salary floors, private
-notes, application history, screening answers, or unrelated profile details to
-a job-source address.
-When the user approves a source address, Settings should keep showing the exact
+JobsWithGPT is disabled unless the user adds a job-source feed and approves the
+exact details for that feed. Source checks send only the reviewed search fields
+needed by that feed: saved job titles, location, remote preference, and result
+limit. If titles, feed, or remote settings change, the approval no longer
+matches and JobSentinel skips that source until the user reviews the new
+details. Do not send resumes, salary floors, private notes, application history,
+screening answers, or unrelated profile details to a job-source feed.
+When the user approves a job-source feed, Settings should keep showing the exact
 approved details and explain that any change turns the source off until the user
 approves again.
 Settings also shows the latest approved contact as local status details only:

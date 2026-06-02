@@ -569,7 +569,7 @@ function getCredentialValidationError(
       return {
         title: "Finish Telegram setup",
         message:
-          "Add the Telegram alert code and destination number, or turn Telegram alerts off.",
+          "Add the Telegram setup details shown below, or turn Telegram alerts off.",
       };
     }
   }
@@ -687,7 +687,7 @@ export default function Settings({ onClose }: SettingsProps) {
       await copySanitizedDebugReport();
       toast.success(
         "Safe support report copied",
-        "Share it only if you want help. Private details are removed first."
+        "Share it only if you want help. JobSentinel hides common private details; review it before sharing."
       );
     } catch (error) {
       logError("Could not copy support report:", error);
@@ -1364,7 +1364,7 @@ export default function Settings({ onClose }: SettingsProps) {
     ) {
       toast.info(
         "Telegram setup opened",
-        "Add the alert code and destination number before saving alerts.",
+        "Add the Telegram setup details before saving alerts.",
       );
     }
 
@@ -3072,7 +3072,7 @@ export default function Settings({ onClose }: SettingsProps) {
                   <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
                     <p className="text-xs text-surface-500 dark:text-surface-400 mb-3">
                       Use desktop or email alerts unless you already use Telegram for automatic alerts.
-                      Telegram needs an alert code and destination number from Telegram.
+                      Telegram needs setup details from Telegram.
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -3111,7 +3111,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-sm text-surface-600 dark:text-surface-400">
-                              Telegram alert code
+                              Telegram setup code
                             </span>
                             <SecurityBadge
                               stored={credentialStatus.telegram_bot_token}
@@ -3128,15 +3128,15 @@ export default function Settings({ onClose }: SettingsProps) {
                             }
                             placeholder={
                               credentialStatus.telegram_bot_token
-                                ? "Enter new Telegram alert code"
-                                : "Paste Telegram alert code"
+                                ? "Enter new Telegram setup code"
+                                : "Paste Telegram setup code"
                             }
                             hint="In Telegram, message @BotFather, send /newbot, then copy the code it gives you"
                           />
                         </div>
                         <div>
                           <span className="text-sm text-surface-600 dark:text-surface-400 mb-1 block">
-                            Telegram destination number
+                            Telegram chat number
                           </span>
                           <Input
                             placeholder="Numbers from @userinfobot"
@@ -4204,7 +4204,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       <SettingsSymbol icon="document" className="h-6 w-6 text-surface-500 dark:text-surface-400" />
                       <div>
                         <div className="text-sm font-medium text-surface-900 dark:text-white">
-                          Use Resume for Scoring
+                          Use Resume to Sort Jobs
                         </div>
                         <div className="text-xs text-surface-500 dark:text-surface-400">
                           Match jobs against your resume skills first, then your

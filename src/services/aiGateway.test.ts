@@ -152,7 +152,7 @@ describe("aiGateway", () => {
       }),
     ).rejects.toMatchObject({
       code: "public_data_only_violation",
-      message: "This request can only send public job-posting details.",
+      message: "JobSentinel can send only public job-posting details here.",
     });
     expect(transport.send).not.toHaveBeenCalled();
   });

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-06-01",
+  "lastUpdated": "2026-06-02",
   "labels": [
     "Local only",
     "External AI optional",
@@ -63,13 +63,13 @@
       "name": "Application Assist",
       "labels": ["Local only", "Sensitive"],
       "dataCategories": ["resume", "application_history", "career_goals"],
-      "defaultDataFlow": "Profile details and selected resume file copies stay local. Resume selection uses a backend native picker and renderer IPC receives only an app-owned token plus display name.",
+      "defaultDataFlow": "Profile details and selected resume file copies stay local. Resume selection uses the app file picker and app screens receive only a private saved-file reference plus display name.",
       "externalAi": {
         "allowed": false,
         "required": false,
         "fallback": "Application Assist prepares local profile details without external AI. Resume attachment remains manual."
       },
-      "sensitivityNote": "Profile details and resumes are sensitive. Do not expose raw local paths to renderer IPC or upload saved resumes automatically."
+      "sensitivityNote": "Profile details and resumes are sensitive. Do not expose raw local paths to app screens or upload saved resumes automatically."
     },
     {
       "id": "first-seen-last-seen-job-tracking",
@@ -86,14 +86,14 @@
     },
     {
       "id": "user-configured-job-source-endpoints",
-      "name": "User-configured job-source addresses",
+      "name": "User-approved job-source feeds",
       "labels": ["Sensitive"],
       "dataCategories": ["career_goals", "location_preferences"],
-      "defaultDataFlow": "Off unless the user configures a source address and approves the exact JobsWithGPT details. Source checks send only reviewed saved job titles, location, remote preference, and result limit to that source address. Latest approved contact history is stored locally as metadata only.",
+      "defaultDataFlow": "Off unless the user configures a job-source feed and approves the exact JobsWithGPT details. Source checks send only reviewed saved job titles, location, remote preference, and result limit to that feed. Latest approved contact history is stored locally as safe status details only.",
       "externalAi": {
         "allowed": false,
         "required": false,
-        "fallback": "Leave the source address blank and use local, official, or user-opened source paths."
+        "fallback": "Leave the job-source feed blank and use local, official, or user-opened source paths."
       },
       "sensitivityNote": "Search titles and locations can reveal career goals. The scheduler must skip JobsWithGPT unless the current details match the local approval record. The local contact-history ledger must not store raw titles, raw location, resumes, salary floors, private notes, application history, screening answers, profile details, or full source links."
     },

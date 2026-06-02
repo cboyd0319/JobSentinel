@@ -175,7 +175,7 @@ const getStepTips = (step: number, analysis: AtsAnalysisResult | null): string[]
     tips.push("Use a simpler format so hiring systems can read it");
   }
   if (analysis.completeness_score < 70) {
-    tips.push("Add more details to improve completeness");
+    tips.push("Add more details to improve the details-included result");
   }
   if (analysis.missing_keywords.length > 3) {
     tips.push(`Review job-post words for truthful fit: ${analysis.missing_keywords.slice(0, 3).join(", ")}`);

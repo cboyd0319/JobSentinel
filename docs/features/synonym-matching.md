@@ -4,7 +4,7 @@
 
 ## Overview
 
-JobSentinel includes **intelligent synonym matching** for keyword scoring,
+JobSentinel includes **local synonym matching** for keyword scoring,
 allowing flexible matching of job descriptions without requiring exact keyword
 matches.
 
@@ -28,7 +28,7 @@ JobSentinel can also match common nearby wording:
 And vice versa: searching for "Client Service" can also match "Customer
 Support", and searching for "EHR" can also match "EMR".
 
-### 2. Word Boundary Detection
+### 2. Avoids Partial-Word Matches
 
 The system is smart enough to avoid false positives:
 

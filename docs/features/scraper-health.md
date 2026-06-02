@@ -48,10 +48,10 @@ Source health must follow the same rules for job sources:
 - Do not get around human checks or platform controls.
 - Do not include raw credentials, cookies, private notes, resumes, salary floors,
   or application history in health errors or support reports.
-- For optional user-approved source addresses such as JobsWithGPT, disclose that
-  JobsWithGPT receives only saved job titles, location, remote preference, and
-  result limit for job-site checks. These addresses must stay off unless
-  turned on and the exact details are reviewed and approved locally.
+- For optional user-approved job-source feeds such as JobsWithGPT, disclose
+  that JobsWithGPT receives only saved job titles, location, remote preference,
+  and result limit for job-site checks. These feeds must stay off unless turned
+  on and the exact details are reviewed and approved locally.
   The latest approved contact can be shown locally as contact time, website
   contacted, count-only request categories, and outcome. Do not store raw
   titles, raw location, private notes, resumes, salary floors, application

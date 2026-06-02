@@ -48,8 +48,8 @@ External AI is not required for application tracking.
 2. Review the board and pending follow-ups.
 3. Move each card when status changes.
 4. Open a card to add notes, contact details, salary information, or next steps.
-5. Use interviews, reminders, analytics, and no-response review to decide where to
-   spend time next.
+5. Use interviews, reminders, local summaries, and no-response review to decide
+   where to spend time next.
 
 JobSentinel should make this usable for a person who has never used a project
 management tool. The board should answer plain questions:

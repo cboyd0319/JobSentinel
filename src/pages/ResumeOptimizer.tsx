@@ -319,7 +319,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
       });
 
       setAnalysisResult(result);
-      toast.success("Format review complete", `Format score: ${Math.round(result.format_score)}%`);
+      toast.success("Format review complete", `Format result: ${Math.round(result.format_score)}%`);
     } catch (err: unknown) {
       toast.error("Review could not run", getResumeAnalysisErrorAction(err));
       logError("Format analysis error:", err);

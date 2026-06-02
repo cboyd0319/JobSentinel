@@ -86,7 +86,7 @@ Planned:
 - Warm-path prompts when a saved contact, recruiter, or direct company route is
   available.
 - Company and source response-history summaries kept local to the user.
-- Hiring-manager and recruiter signal capture without contact upload.
+- Local hiring-manager and recruiter context summaries without contact upload.
 
 In progress:
 

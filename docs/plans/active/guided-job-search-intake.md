@@ -363,8 +363,9 @@ The UI maps one of three setup choices to the existing serialized
 
 ## Current implementation
 
-- Status as of 2026-05-31: the implemented setup slices remain active and
-  accurate. No product code changed in the 2026-05-31 harness refresh.
+- Status as of 2026-06-02: the implemented setup slices remain active and
+  accurate. The latest harness and broad-audience copy slices did not change
+  guided-intake behavior.
 - Setup asks for job titles, work the user wants, and work to avoid before
   scanning starts.
 - Work to avoid maps to `keywords_exclude`, so matching jobs can rank lower

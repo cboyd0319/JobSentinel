@@ -37,17 +37,17 @@ function escapeCSV(
  */
 export function jobsToCSV(jobs: Job[]): string {
   const headers = [
-    "ID",
+    "Job Number",
     "Title",
     "Company",
     "Location",
-    "URL",
+    "Job Link",
     "Source",
-    "Score",
+    "Match",
     "Remote",
     "Salary Min",
     "Salary Max",
-    "Created At",
+    "Saved Date",
   ];
 
   const rows = jobs.map((job) => [

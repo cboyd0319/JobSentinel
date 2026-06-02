@@ -128,7 +128,7 @@ email alerts are easier to set up.
 
 **What you'll get:** Alert cards that make stronger matches easy to spot.
 
-**Bonus:** Add your Discord user ID to get @mentioned on alerts.
+**Optional:** Add a Discord mention only if you want alerts to tag you.
 
 ---
 
@@ -150,7 +150,7 @@ email alerts are easier to set up.
 
 Use desktop or email alerts unless you already use Telegram for automatic
 alerts. Telegram alerts are an optional chat-alert path because Telegram
-requires an alert code and destination number.
+requires setup details shown in the app.
 
 <details>
 <summary><strong>Optional Telegram alert setup</strong></summary>
@@ -158,15 +158,15 @@ requires an alert code and destination number.
 
 1. Message [@BotFather](https://t.me/BotFather) on Telegram
 2. Send `/newbot` and follow the prompts
-3. Copy the alert code it gives you
+3. Copy the setup code it gives you
 4. Add your Telegram alert bot to a group or channel
-5. Find the Telegram destination number for that group or channel:
+5. Find the Telegram chat number for that group or channel:
    - For groups: Use [@userinfobot](https://t.me/userinfobot)
    - For channels: Forward a message to [@getmyid_bot](https://t.me/getmyid_bot)
-6. In JobSentinel, open Settings, choose Sources & Alerts, then paste the alert
-   code and destination number in Telegram Notifications
+6. In JobSentinel, open Settings, choose Sources & Alerts, then paste the setup
+   code and chat number in Telegram Notifications
 
-**Note:** Group destination numbers usually start with `-`.
+**Note:** Group chat numbers usually start with `-`.
 
 **What you'll get:** Formatted messages right on your phone.
 
@@ -242,7 +242,7 @@ click Test.
 ### Telegram says "chat not found"?
 
 1. Make sure the bot is added to your group/channel
-2. Check that the destination number is correct (negative number for groups)
+2. Check that the chat number is correct (negative number for groups)
 3. If it's a channel, give the bot permission to post there
 
 ---

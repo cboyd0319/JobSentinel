@@ -26,8 +26,8 @@ By default, these stay on the user's computer:
 - Resume versions, resume parsing results, match explanations, and application
   drafts.
 - Resume file copies selected through native file pickers for Resume Match and
-  Application Assist. The renderer sees only app-owned tokens, command results,
-  or display names where needed, not original file paths.
+  Application Assist. The app shows only a saved-file reference, command
+  result, or display name where needed, not original file paths.
 - Salary floors, salary preferences, offer notes, and negotiation notes.
 - Local problem history and safe support reports before the user chooses to
   share them.
@@ -47,10 +47,11 @@ request or the user turns on an external channel.
 Possible network activity:
 
 - Job-source checks to enabled sources and official public job feeds.
-- Optional user-approved job-source addresses, such as JobsWithGPT, may
-  receive the saved job titles, location, remote preference, and result limit
-  needed for that source check. These addresses are off unless turned on and
-  the exact details have been reviewed and approved locally.
+- Optional user-approved job-source feeds, such as the JobsWithGPT job-source
+  feed, may receive the saved job titles, location, remote preference, and
+  result limit needed for that source check. These feeds are not external AI
+  requests. They are off unless turned on and the exact details have been
+  reviewed and approved locally.
   JobSentinel records the latest approved contact locally as safe status details:
   contact time, website contacted, count-only request categories, and outcome.
   It does not store full titles, full location text, resumes, salary floors,
@@ -99,12 +100,12 @@ That gateway must enforce:
 - Local-only fallback or a clear external-AI-required label for features that
   cannot run locally.
 
-The same minimization rule applies to local IPC boundaries. Non-settings
-screens request narrow profile existence or preview commands instead of the
-full application profile. Dashboard uses a small preferences DTO instead of
-full settings. Job import removes embedded credentials, fragments, tracking
-parameters, and sensitive query parameters before preview, hashing, storage,
-or returning a result; the import command returns only the saved job id.
+The same minimization rule applies inside the app. Non-settings screens request
+only narrow profile existence or preview details instead of the full application
+profile. Dashboard uses a small settings summary instead of full settings. Job
+import removes embedded credentials, fragments, tracking parameters, and
+sensitive query parameters before preview, hashing, storage, or returning a
+result; the import command returns only the saved job id.
 
 API keys and provider secrets must not be hardcoded. If a user adds a provider
 key, it should live in the operating system credential store where supported.

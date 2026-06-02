@@ -63,7 +63,7 @@ or build something better with it if that helps more people.
 | Who is it for? | Anyone trying to find a new job, including technical and non-technical roles. |
 | What is it built to help with? | Real, relevant, fairly compensated work, not application volume. |
 | What stays local? | Searches, saved jobs, notes, resumes, salary floors, application history, and safe support reports by default. |
-| What can leave the device? | Enabled job-source checks, approved source addresses, alerts the user turns on, optional location detection after a click, support links opened by the user, or explicitly approved external AI requests. |
+| What can leave the device? | Enabled job-source checks, job sources or career pages the user approves for checking, alerts the user turns on, optional location detection after a click, support links opened by the user, or explicitly approved external AI requests. |
 | Is external AI required? | No. External AI is optional, disabled by default, preview-gated, and gateway-bound. |
 | Is it free? | Yes. JobSentinel is MIT licensed and free forever. |
 | Current release | `v2.6.4` with Windows, macOS, and Linux installers. |
@@ -157,9 +157,9 @@ After checking the download, click **More info**, then click **Run anyway**.
 
 Privacy and security are release blockers, not preferences. No account is
 required. JobSentinel stores search data locally and only sends data outside the
-app for enabled job-source checks, approved source addresses, channels the user
-turns on, support links the user opens, optional location detection after a
-click, or approved external AI requests.
+app for enabled job-source checks, job sources or career pages the user approves
+for checking, channels the user turns on, support links the user opens,
+optional location detection after a click, or approved external AI requests.
 
 | Principle | Repository commitment |
 | --------- | --------------------- |
@@ -284,7 +284,7 @@ a hosted JobSentinel service.
 | Slack, Discord, Teams, email, Telegram, and USAJobs secrets | Your OS credential store |
 | Desktop notifications | Your computer |
 | External alerts | Only the channels you configure |
-| Enabled job-source checks | Public job-source services or user-approved source addresses; selected search details only |
+| Enabled job-source checks | Public job-source services or user-approved job sources and career pages; selected search details only |
 | Support sharing links | GitHub issue pages and Google Drive folders open only when you choose them |
 | Optional location detection | FreeIPAPI HTTPS lookup only after you click **Detect location**; cached for the session |
 | Optional external AI | Disabled by default; every request needs opt-in, preview, approval, minimization, and local request logging |

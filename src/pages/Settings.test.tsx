@@ -203,7 +203,7 @@ describe("Settings — loadConfig flow", () => {
     expect(copySpy).toHaveBeenCalledTimes(1);
     expect(mockToast.success).toHaveBeenCalledWith(
       "Safe support report copied",
-      "Share it only if you want help. Private details are removed first."
+      "Share it only if you want help. JobSentinel hides common private details; review it before sharing."
     );
   });
 
@@ -1023,8 +1023,8 @@ describe("Settings — handleSave flow", () => {
     expect(screen.getByPlaceholderText("Paste Slack connection link")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Paste Discord connection link")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Paste Teams connection link")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Paste Telegram alert code")).toBeInTheDocument();
-    expect(screen.getByText("Telegram destination number")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Paste Telegram setup code")).toBeInTheDocument();
+    expect(screen.getByText("Telegram chat number")).toBeInTheDocument();
     expect(screen.getByText(/Optional Telegram alert setup/i)).toBeInTheDocument();
     expect(container.innerHTML).not.toMatch(
       /Incoming Webhooks|incoming webhook connector|Webhooks → New Webhook|Incoming Webhook → Configure|Telegram Connection Token|Telegram Chat ID|passwords, tokens|Message @BotFather to create a private alert bot/i,
@@ -1057,19 +1057,19 @@ describe("Settings — handleSave flow", () => {
         /Use desktop or email alerts unless you already use Telegram for automatic alerts/i,
       ),
     ).toBeInTheDocument();
-    expect(screen.queryByPlaceholderText("Paste Telegram alert code")).not.toBeInTheDocument();
-    expect(screen.queryByText("Telegram destination number")).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText("Paste Telegram setup code")).not.toBeInTheDocument();
+    expect(screen.queryByText("Telegram chat number")).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("checkbox", { name: "Enable Telegram alerts" }));
 
-    expect(screen.getByPlaceholderText("Paste Telegram alert code")).toBeInTheDocument();
-    expect(screen.getByText("Telegram destination number")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Paste Telegram setup code")).toBeInTheDocument();
+    expect(screen.getByText("Telegram chat number")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /save changes/i }));
 
     expect(mockToast.error).toHaveBeenCalledWith(
       "Finish Telegram setup",
-      "Add the Telegram alert code and destination number, or turn Telegram alerts off.",
+      "Add the Telegram setup details shown below, or turn Telegram alerts off.",
     );
     expect(mockInvoke).not.toHaveBeenCalledWith("save_config", expect.anything());
   });

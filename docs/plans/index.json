@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "lastUpdated": "2026-06-01",
+  "lastUpdated": "2026-06-02",
   "goal": "Move JobSentinel toward zero known errors, privacy leaks, stale docs, brittle tests, user-facing technical assumptions, engineer-only defaults, and unverified claims.",
   "activeWorkstreams": [
     {
       "id": "active-status",
       "path": "docs/plans/active/status.md",
       "state": "active",
-      "nextStep": "Read first for compact goal state, current posture, next best work, and completion bar.",
+      "nextStep": "Read first for current goal state, current posture, next best work, completion bar, and recent evidence.",
       "verification": "npm run harness:session"
     },
     {

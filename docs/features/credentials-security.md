@@ -17,7 +17,7 @@ Supported stores:
 | -------- | ---------------- |
 | macOS | Keychain |
 | Windows | Credential Manager |
-| Linux | Secret Service API through GNOME Keyring, KWallet, or compatible providers |
+| Linux | Linux password store, such as GNOME Keyring, KWallet, or compatible providers |
 
 ## What Is Stored Securely
 
@@ -27,7 +27,7 @@ Supported stores:
 | Discord connection link | OS password store | Discord notifications |
 | Microsoft Teams connection link | OS password store | Teams notifications |
 | Email app password | OS password store | Email alerts |
-| Telegram alert code | OS password store | Telegram notifications |
+| Telegram setup code | OS password store | Telegram notifications |
 | USAJobs access code | OS password store | USAJobs connection |
 
 Non-secret app settings, such as enabled sources, search filters, thresholds,
@@ -40,10 +40,10 @@ credential storage is disabled by source policy.
 ## How It Works
 
 1. User enters a credential in Settings or setup.
-2. React invokes a Tauri credential command such as `store_credential`.
-3. Rust parses the key into `CredentialKey`.
-4. `CredentialStore` writes the value under service name `JobSentinel`.
-5. Later notification or scraper code retrieves the value from the OS keyring
+2. JobSentinel saves the secret through its secure app layer.
+3. The app identifies which saved detail is being stored.
+4. The secure store writes the value under service name `JobSentinel`.
+5. Later notification or job-source code retrieves the value from the OS keyring
    only when needed.
 
 Credential values are not returned in status calls. Settings checks presence

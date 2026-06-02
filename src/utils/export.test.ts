@@ -11,9 +11,9 @@ describe("export utilities", () => {
   describe("jobsToCSV", () => {
     it("generates CSV with headers", () => {
       const csv = jobsToCSV([]);
-      expect(csv).toContain("ID,Title,Company");
-      expect(csv).toContain("Location,URL,Source");
-      expect(csv).toContain("Score,Remote,Salary Min,Salary Max,Created At");
+      expect(csv).toContain("Job Number,Title,Company");
+      expect(csv).toContain("Location,Job Link,Source");
+      expect(csv).toContain("Match,Remote,Salary Min,Salary Max,Saved Date");
     });
 
     it("exports single job correctly", () => {

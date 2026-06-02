@@ -31,7 +31,7 @@ export const SubmitOptions = memo(function SubmitOptions({
           </h3>
 
           <div className="space-y-2 text-sm text-surface-600 dark:text-surface-400">
-            <BenefitItem text="Saves a sanitized report on your computer" />
+            <BenefitItem text="Saves a support report on your computer for you to review" />
             <BenefitItem text="Works without any account" />
             <BenefitItem text="You choose whether and where to share it" />
           </div>
@@ -48,7 +48,7 @@ export const SubmitOptions = memo(function SubmitOptions({
           </Button>
 
           <p className="text-xs text-surface-500 dark:text-surface-400 text-center">
-            Private details are removed before the file is created.
+            JobSentinel hides common private details. Review the report before sharing.
           </p>
         </div>
       </div>

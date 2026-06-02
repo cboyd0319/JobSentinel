@@ -246,7 +246,7 @@ boundaries, and harness modularity:
   on-your-schedule wording. Settings and product-copy tests guard the old
   phrases.
 - Expanded README network disclosure for enabled job-source checks, approved
-  source addresses, user-configured channels, support links, location detection,
+  job-source feeds, user-configured channels, support links, location detection,
   and approved external AI payloads. Replaced source-adapter, HTTP-client,
   background-monitoring, and duplicate handling jargon in front-door source docs
   and product-copy sensors now guard the old phrases.
@@ -267,7 +267,7 @@ boundaries, and harness modularity:
   wording to email-alert language and source docs from setup, diagnostics, and
   metadata wording to user-turned-on source, troubleshooting, and
   safe-status-detail language. Also replaced old source setup and credential
-  wording with user-approved source addresses, saved access details, and
+  wording with user-approved job-source feeds, saved access details, and
   turned-on access-code language. Product-copy tests guard the old phrases.
 - Changed Settings, support-history export, notification docs, credentials
   security docs, privacy/AI policy docs, market docs, user-data docs,
@@ -785,6 +785,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-02 | In progress | Applied the latest read-only sub-agent findings: support-report copy now avoids absolute privacy-removal claims, visible resume/settings/export/outside-AI wording avoids scoring/request jargon, README and source docs use approved job-source feed/link wording, agent wrappers carry Rule 0 plus broad-audience requirements, and active status is compact again. Verified with harness, script, docs, bloat, lint, focused Vitest, and diff-check gates. |
 | 2026-06-02 | In progress | Replaced stale saved debug-report filename, reveal, and failure-log wording in support-report paths with support-report wording and added product-copy plus Rust coverage against backend reveal recovery drift. |
 | 2026-06-02 | In progress | Replaced visible resume missing-word prompts from "Words To Add" to "Words To Review" across resume review surfaces and added product-copy coverage against old add-word framing. |
 | 2026-06-02 | In progress | Integrated read-only sub-agent UX/copy audit findings across first-run privacy, source setup, email security, pay guidance, resume import, ghost labels, live resume tips, score contribution labels, and source-health table headings. |

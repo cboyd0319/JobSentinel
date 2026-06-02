@@ -924,6 +924,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-02 | In progress | Refreshed active evidence after broad-audience and Rule 0 copy work. Remaining product priorities stay ghost/stale detection, pay protection, long-term-unemployment support, bias-aware routes, protective tone, and local-first privacy. |
 | 2026-05-31 | In progress | Added the compact active status surface and archived older progress rows so future research-backed product work can restart from current ghost/stale, pay protection, long-term-unemployment, bias-aware route, protective-tone, and local-first privacy priorities. |
 | 2026-05-31 | In progress | Refreshed active-plan status after harness-focused work. No product implementation changed in this plan; the next product slices remain ghost/stale detection, pay protection, long-term-unemployment support, bias-aware application routes, protective tone, and local-first privacy. |
 

@@ -31,6 +31,25 @@
     "src/services/aiGateway.ts"
   ],
   "requiredHarnessSnippets": {
+    "AGENTS.md": [
+      "Rule 0: user privacy and security are non-negotiable.",
+      "External AI stays optional, disabled by default, and routed through the",
+      "zero technical knowledge"
+    ],
+    ".github/copilot-instructions.md": [
+      "Rule 0: user privacy and security are non-negotiable.",
+      "External AI stays optional, disabled by default, and routed through the",
+      "User data stays local unless the user explicitly configures an external",
+      "User-facing flows must assume zero technical knowledge",
+      "Preserve responsible-use boundaries"
+    ],
+    "CLAUDE.md": [
+      "Rule 0: user privacy and security are non-negotiable.",
+      "External AI stays optional, disabled by default, and routed through the",
+      "User-facing flows must assume zero technical knowledge",
+      "Preserve responsible-use boundaries",
+      "Read [AGENTS.md](AGENTS.md) first."
+    ],
     "README.md": [
       "Core workflows work locally.",
       "Rule 0: user privacy and security are non-negotiable.",

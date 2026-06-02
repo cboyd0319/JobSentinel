@@ -606,6 +606,10 @@ export function hasFeedbackSetupJargon(root, path) {
     /\bevent:\s*["']Event["']/.test(text) ||
     /frontend errors omitted/i.test(text) ||
     /removes private details before sharing/i.test(text) ||
+    /Private details are removed/i.test(text) ||
+    /private details removed/i.test(text) ||
+    /Removed before sharing/i.test(text) ||
+    /Saves a sanitized report/i.test(text) ||
     /Job titles, company names, search words, and personal details are not included/i.test(text)
   );
 }
@@ -1834,6 +1838,9 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /\bBot Token\b/i,
     /Telegram Connection Token/i,
     /Telegram Chat ID/i,
+    /Telegram alert code/i,
+    /alert code and destination number/i,
+    /destination number/i,
     /connection token/i,
     /It only contacts job sources or alert services\s+needed for features you turn on/i,
     /monitor more official job sources/i,
@@ -1894,6 +1901,10 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /logs can help diagnose/i,
     /Helps troubleshoot faster/i,
     /removes private details before sharing/i,
+    /Private details are removed/i,
+    /private details removed/i,
+    /Removed before sharing/i,
+    /Saves a sanitized report/i,
     /Job titles, company names, search words, and personal details are not included/i,
     />\s*Page Check\s*</i,
     /Needs update/i,
