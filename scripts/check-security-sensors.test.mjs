@@ -48,6 +48,26 @@ function writeBaseRepo(root, csp) {
     "jobs:\n  release:\n    steps:\n      - run: npm run tauri:verify:macos -- --launch-smoke --require-gatekeeper\n",
   );
   writeFileSync(
+    join(root, ".github/workflows/verify-release-artifacts.yml"),
+    [
+      "on:",
+      "  release:",
+      "    types:",
+      "      - published",
+      "  workflow_dispatch:",
+      "    inputs:",
+      "      tag:",
+      "jobs:",
+      "  verify-macos-public-artifact:",
+      "    runs-on: macos-latest",
+      "    steps:",
+      "      - run: |",
+      "          RELEASE_TAG=\"$RELEASE_TAG\"",
+      "          DISPATCH_TAG=\"$DISPATCH_TAG\"",
+      "          npm run tauri:verify:macos:latest -- --tag \"$RELEASE_TAG\"",
+    ].join("\n"),
+  );
+  writeFileSync(
     join(root, "docs/developer/CI_CD.md"),
     "npm audit --audit-level=moderate\ncargo deny check advisories\n",
   );
@@ -95,6 +115,24 @@ test("checkSecuritySensors rejects macOS release gates without launch smoke", ()
   assert(
     checkSecuritySensors(root).includes(
       "release workflow is missing macOS package gate: macOS launch smoke gate",
+    ),
+  );
+});
+
+test("checkSecuritySensors rejects missing public macOS artifact verifier", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-public-release-");
+  writeBaseRepo(
+    root,
+    "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'",
+  );
+  writeFileSync(
+    join(root, ".github/workflows/verify-release-artifacts.yml"),
+    "on:\n  release:\n    types:\n      - published\njobs:\n  verify:\n    runs-on: ubuntu-latest\n",
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      "published release workflow is missing public artifact gate: public macOS artifact verifier",
     ),
   );
 });

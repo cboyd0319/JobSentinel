@@ -1,0 +1,49 @@
+name: Verify Release Artifacts
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to verify. Leave blank to verify the latest public release.
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  verify-macos-public-artifact:
+    name: Verify public macOS DMG
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify public macOS release artifact
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          DISPATCH_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+
+          args=()
+          release_tag="${RELEASE_TAG:-${DISPATCH_TAG:-}}"
+          if [ -n "$release_tag" ]; then
+            args+=(--tag "$release_tag")
+          fi
+
+          npm run tauri:verify:macos:latest -- "${args[@]}"

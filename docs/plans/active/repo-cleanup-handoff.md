@@ -152,6 +152,17 @@ Recent local verification evidence:
   `npm run tauri:verify:macos:latest -- --no-launch-smoke
   --no-require-gatekeeper` failed against the current `v2.6.4` public DMG as
   expected because the mounted `JobSentinel.app` is not signed at all.
+- Current local post-publish macOS release follow-up adds
+  `.github/workflows/verify-release-artifacts.yml`, which runs after a GitHub
+  Release is published and can also be triggered manually with an optional
+  `tag` input. The workflow runs on `macos-latest` and verifies the public DMG
+  with `npm run tauri:verify:macos:latest`, scoped to the published tag when
+  available. Security sensors now require this workflow to keep the public
+  macOS artifact verifier, release-publish trigger, manual trigger, and scoped
+  tag handling in place. Verification passed: focused Node tests passed 13
+  tests, `actionlint .github/workflows/verify-release-artifacts.yml` passed,
+  `npm run lint:docs`, `npm run lint:security`, `npm run lint:bloat`, `npm run
+  test:scripts` passed 496 tests, and `git diff --check` passed.
 - Current local platform-doc drift fix syncs the getting-started database paths
   with live platform code: macOS data lives under `~/Library/Application
   Support/JobSentinel`, Linux data under `~/.local/share/jobsentinel`, and the

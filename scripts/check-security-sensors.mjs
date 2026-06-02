@@ -76,6 +76,25 @@ const releaseWorkflowChecks = [
   },
 ];
 
+const publishedReleaseWorkflowChecks = [
+  {
+    label: "published release trigger",
+    phrases: ["release:", "published"],
+  },
+  {
+    label: "manual release trigger",
+    phrases: ["workflow_dispatch:", "tag:"],
+  },
+  {
+    label: "public macOS artifact verifier",
+    phrases: ["macos-latest", "npm run tauri:verify:macos:latest"],
+  },
+  {
+    label: "scoped release tag",
+    phrases: ["RELEASE_TAG", "DISPATCH_TAG", "--tag"],
+  },
+];
+
 const ciDocsChecks = [
   {
     label: "npm audit",
@@ -113,6 +132,7 @@ export function formatSecuritySensorSummary() {
     `matrix=${requiredMatrixEntries.length}`,
     "workflow=1",
     `release-workflow=${releaseWorkflowChecks.length}`,
+    `published-release-workflow=${publishedReleaseWorkflowChecks.length}`,
     "ci=2",
     `ci-docs=${ciDocsChecks.length}`,
     "renderer-csp=1",
@@ -153,6 +173,20 @@ export function checkSecuritySensors(root = defaultRoot) {
   for (const check of releaseWorkflowChecks) {
     if (!includesAll(releaseWorkflow, check.phrases)) {
       violations.push(`release workflow is missing macOS package gate: ${check.label}`);
+    }
+  }
+
+  const publishedReleaseWorkflow = readIfExists(
+    root,
+    ".github/workflows/verify-release-artifacts.yml",
+    violations,
+  );
+
+  for (const check of publishedReleaseWorkflowChecks) {
+    if (!includesAll(publishedReleaseWorkflow, check.phrases)) {
+      violations.push(
+        `published release workflow is missing public artifact gate: ${check.label}`,
+      );
     }
   }
 

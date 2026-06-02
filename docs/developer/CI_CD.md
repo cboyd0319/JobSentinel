@@ -9,6 +9,7 @@
 - [Overview](#overview)
 - [Continuous integration (ci.yml)](#continuous-integration-ciyml)
 - [Release builds (release.yml)](#release-builds-releaseyml)
+- [Published release verification (verify-release-artifacts.yml)](#published-release-verification-verify-release-artifactsyml)
 - [Manual build workflows](#manual-build-workflows)
 - [Local CI simulation](#local-ci-simulation)
 - [Release process](#release-process)
@@ -19,15 +20,16 @@
 
 ## Overview
 
-JobSentinel uses five GitHub Actions workflows:
+JobSentinel uses six GitHub Actions workflows:
 
-| Workflow      | File                | Trigger                      | Purpose                      |
-| ------------- | ------------------- | ---------------------------- | ---------------------------- |
-| CI            | `ci.yml`            | Push or PR to `main`         | Tests, linting, security     |
-| Docs Harness  | `docs-harness.yml`  | Docs and harness changes     | Harness, markdown lint       |
-| Release       | `release.yml`       | Version tag (`v*`)           | Build and publish installers |
-| Build Windows | `build-windows.yml` | Manual (`workflow_dispatch`) | Windows MSI on demand        |
-| Build Linux   | `build-linux.yml`   | Manual (`workflow_dispatch`) | Linux AppImage/deb on demand |
+| Workflow                 | File                           | Trigger                      | Purpose                         |
+| ------------------------ | ------------------------------ | ---------------------------- | ------------------------------- |
+| CI                       | `ci.yml`                       | Push or PR to `main`         | Tests, linting, security        |
+| Docs Harness             | `docs-harness.yml`             | Docs and harness changes     | Harness, markdown lint          |
+| Release                  | `release.yml`                  | Version tag (`v*`)           | Build and publish installers    |
+| Verify Release Artifacts | `verify-release-artifacts.yml` | Published release or manual  | Verify public downloadable DMGs |
+| Build Windows            | `build-windows.yml`            | Manual (`workflow_dispatch`) | Windows MSI on demand           |
+| Build Linux              | `build-linux.yml`              | Manual (`workflow_dispatch`) | Linux AppImage/deb on demand    |
 
 CI skips runs when only documentation files change (`.md`, `docs/**`, Storybook, etc.).
 The docs harness workflow covers maintained docs and agent-facing harness files.
@@ -97,6 +99,27 @@ from the GitHub Releases page.
 The macOS build targets `universal-apple-darwin`, which compiles for both `aarch64-apple-darwin`
 and `x86_64-apple-darwin` and links them into a single binary. This means the `.dmg` runs
 natively on both Apple Silicon and Intel Macs.
+
+The release workflow verifies the macOS DMG before upload with
+`npm run tauri:verify:macos -- --launch-smoke --require-gatekeeper`. This gate
+checks the DMG layout, mounted app signature, universal architectures, launch
+smoke, and Gatekeeper acceptance before the artifact can be attached to the
+draft release.
+
+## Published release verification (verify-release-artifacts.yml)
+
+**Trigger:** Published GitHub Release or manual `workflow_dispatch`
+
+This workflow verifies the macOS artifact exactly as users download it from
+GitHub Releases. It runs on `macos-latest`, installs Node dependencies, and runs
+`npm run tauri:verify:macos:latest`. On release publish events, it scopes the
+check to the published tag. On manual runs, the optional `tag` input checks a
+specific release, and a blank tag checks the latest public release.
+
+The public macOS verifier uses strict defaults: universal `x86_64,arm64`
+architecture checks, mounted app signature verification, launch smoke, and
+Gatekeeper acceptance. A failure means the public DMG is not ready for
+nontechnical macOS users and should be replaced before directing users to it.
 
 ---
 
@@ -182,6 +205,7 @@ Pushing the tag triggers `release.yml` automatically.
 2. Find the draft created by the workflow
 3. Review the auto-generated release notes
 4. Click **Publish release**
+5. Confirm the `Verify Release Artifacts` workflow passes for the published tag
 
 ### Version numbering
 
@@ -232,10 +256,11 @@ upload. Without Developer ID signing, notarization, Gatekeeper acceptance, and
 mounted-app launch smoke, the macOS release job should fail instead of
 publishing a package that nontechnical users cannot open cleanly.
 
-After the GitHub release is published, run `npm run tauri:verify:macos:latest`
-on a Mac. That command downloads the public release DMG and applies the same
+After the GitHub release is published, the `Verify Release Artifacts` workflow
+runs automatically. It downloads the public release DMG and applies the same
 signature, architecture, launch-smoke, and Gatekeeper checks to the artifact
-users can actually download.
+users can actually download. The same check can be run locally on a Mac with
+`npm run tauri:verify:macos:latest`.
 
 ---
 
