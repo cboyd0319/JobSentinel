@@ -86,7 +86,7 @@ surface.
 3. Enter the email address that should send alerts
 4. Enter an app password if your email provider requires one
 5. Add recipient email addresses
-6. Use Email provider details only if your provider gives you manual email
+6. Use Email sending details only if your email service gives you manual email
    details
 
 **Gmail and Yahoo users:** Use an app password from your account security page.
@@ -104,13 +104,11 @@ Use this only if you already use Slack and want chat alerts. Desktop alerts and
 email alerts are easier to set up.
 
 1. Go to [Slack's channel connection page](https://api.slack.com/messaging/webhooks)
-2. Click "Create New App" > "From Scratch"
-3. Name it "JobSentinel" and pick your workspace
-4. Turn on channel connection links
-5. Click the button that adds the channel link to your workspace
-6. Pick a channel (like #job-alerts)
-7. Copy the connection link
-8. In JobSentinel, open Settings, choose Sources & Alerts, then paste the link in
+2. Follow Slack's steps to create a channel connection link
+3. Pick the workspace and channel you want to receive alerts
+4. Use "JobSentinel" as the name if Slack asks
+5. Copy the connection link
+6. In JobSentinel, open Settings, choose Sources & Alerts, then paste the link in
    Slack Notifications
 
 **What you'll get:** Formatted messages with job details and a "View Job" button.
@@ -192,14 +190,14 @@ too quiet.
 ## Security Note
 
 Notification links, app passwords, and alert codes use your operating system's
-secure credential manager:
+password store:
 
 - **macOS:** Keychain
 - **Windows:** Credential Manager
 - **Linux:** Secret Service
 
-New saved details should use the secure credential manager. Legacy plain-text
-fields are migrated and cleared when possible.
+Older saved details are moved into that password store and cleared when
+possible.
 
 ---
 

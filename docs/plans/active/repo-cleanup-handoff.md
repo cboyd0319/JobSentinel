@@ -216,6 +216,10 @@ Current cleanup posture:
 - Current local Resume Matcher docs follow-up replaces ATS-internals,
   ATS-manipulation, and active research no-goal wording with
   employer-screening-system language and product-copy coverage.
+- Current local notification docs follow-up replaces old email-provider-details,
+  Slack app-from-scratch, secure-credential-manager, and provider-guidance
+  wording with email-sending-details, connection-link, password-store, and
+  email-service language plus product-copy coverage.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.

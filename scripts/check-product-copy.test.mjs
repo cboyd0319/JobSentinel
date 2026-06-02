@@ -741,6 +741,11 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
+      "docs/features/notifications.md",
+      "Email provider details\nCreate New App\nFrom Scratch\nsecure credential manager\nLegacy plain-text fields\n",
+    );
+    writeFixtureFile(
+      root,
       "src/pages/ApplicationProfile.tsx",
       "Failed to load application history\nRestart JobSentinel\n",
     );
@@ -1012,7 +1017,11 @@ test("product copy rejects technical-first settings copy", () => {
         "",
       ].join("\n"),
     );
-    writeFixtureFile(root, "docs/user/QUICK_START.md", "Open Settings, choose **More Settings**.\n");
+    writeFixtureFile(
+      root,
+      "docs/user/QUICK_START.md",
+      "Open Settings, choose **More Settings**.\nFollow the provider guidance shown in JobSentinel.\n",
+    );
     writeFixtureFile(
       root,
       "src/components/AtsLiveScorePanel.tsx",
@@ -1088,6 +1097,7 @@ test("product copy rejects technical-first settings copy", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/DEEP_LINKS.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scraper-health.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scrapers.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/notifications.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/errorMessages.ts"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Dashboard.tsx"), true);

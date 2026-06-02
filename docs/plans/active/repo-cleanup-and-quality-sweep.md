@@ -257,6 +257,10 @@ boundaries, and harness modularity:
 - Changed Resume Matcher docs and active research no-goal language from
   ATS-internals and ATS-manipulation wording to employer-screening-system
   language. Product-copy tests guard the old phrases.
+- Changed notification docs and Quick Start from old email-provider-details,
+  Slack app-from-scratch, secure-credential-manager, and provider-guidance
+  wording to email-sending-details, connection-link, password-store, and
+  email-service language. Product-copy tests guard the old phrases.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

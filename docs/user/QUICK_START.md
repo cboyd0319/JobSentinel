@@ -346,7 +346,7 @@ password or sending details.
 
 1. Open Settings, choose **Sources & Alerts**, then find **Email Alerts**.
 2. Choose your email provider when listed.
-3. Follow the provider guidance shown in JobSentinel.
+3. Follow the email-service steps shown in JobSentinel.
 4. Save settings.
 
 ### Optional chat alerts

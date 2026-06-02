@@ -899,6 +899,21 @@ export function hasTechnicalFirstUserCopy(root, path) {
     }
   }
 
+  if (path === "docs/features/notifications.md" || path === "docs/user/QUICK_START.md") {
+    const notificationDocPatterns = [
+      /Email provider details/i,
+      /Create New App/i,
+      /From Scratch/i,
+      /secure credential manager/i,
+      /Legacy plain-text fields/i,
+      /provider guidance/i,
+    ];
+
+    if (notificationDocPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
   if (
     path === "src/components/AnalyticsPanel.tsx" &&
     /Could not load application summary\.\s*Please try again|Application Analytics|Status Distribution|Responses by Job Source|Average Response Time|Company Response Times|Detailed Status Breakdown|No analytics data available|Download analytics data|Close analytics|Analytics error|Loading analytics|job-analytics|Failed to fetch analytics|apps\s*·\s*\{?source\.response_rate\.toFixed\(0\)\}?\s*%\s*response/i.test(text)
