@@ -1673,6 +1673,10 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Support number/i,
       /Help-only settings/i,
       /support reply/i,
+      /Import Helper/i,
+      /Advanced browser button setting/i,
+      /Browser helper number/i,
+      /import helper/i,
     ];
 
     if (browserButtonPatterns.some((pattern) => pattern.test(text))) {

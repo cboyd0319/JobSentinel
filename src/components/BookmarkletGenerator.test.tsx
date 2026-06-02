@@ -45,7 +45,8 @@ describe("BookmarkletGenerator", () => {
     expect(screen.queryByText("Connection Number")).not.toBeInTheDocument();
     expect(screen.queryByText("Support number")).not.toBeInTheDocument();
     expect(screen.queryByText("Browser helper number")).not.toBeInTheDocument();
-    expect(screen.getByText("Import Helper")).toBeInTheDocument();
+    expect(screen.queryByText("Import Helper")).not.toBeInTheDocument();
+    expect(screen.getByText("Browser Import")).toBeInTheDocument();
     await waitFor(() =>
       expect(screen.getByRole("button", { name: /turn off/i })).toBeInTheDocument(),
     );
@@ -55,8 +56,10 @@ describe("BookmarkletGenerator", () => {
     expect(screen.getAllByText(/closed and reopened/i).length).toBeGreaterThan(0);
     expect(screen.queryByText(/when JobSentinel restarts/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/local safety code/i)).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /advanced browser button setting/i }));
-    expect(screen.getByText("Browser helper number")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /optional browser button setting/i }));
+    expect(screen.queryByText("Advanced browser button setting")).not.toBeInTheDocument();
+    expect(screen.queryByText("Browser helper number")).not.toBeInTheDocument();
+    expect(screen.getByText("Button setup number")).toBeInTheDocument();
     expect(screen.queryByText("Connection Number")).not.toBeInTheDocument();
     expect(screen.queryByText("Support number")).not.toBeInTheDocument();
     expect(screen.getByText(/help instructions tell you otherwise/i)).toBeInTheDocument();
@@ -70,6 +73,7 @@ describe("BookmarkletGenerator", () => {
     expect(screen.queryByText(/any job posting/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/supported sites/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/major job boards/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/import helper/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^LinkedIn$/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^Indeed$/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Cmd\/Ctrl\+D/i)).not.toBeInTheDocument();

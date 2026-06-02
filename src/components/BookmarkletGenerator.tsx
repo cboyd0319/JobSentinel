@@ -63,7 +63,7 @@ export function BookmarkletGenerator() {
       setError(null);
     } catch (err) {
       logError("Failed to toggle bookmarklet server:", err);
-      setError("Could not update the browser import helper");
+      setError("Could not update browser import");
     } finally {
       setLoading(false);
     }
@@ -129,7 +129,7 @@ export function BookmarkletGenerator() {
         <div className="flex items-center gap-4">
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Import Helper
+              Browser Import
             </label>
             <div className="flex items-center gap-3">
               <Badge variant={config.enabled ? "success" : "surface"}>
@@ -154,12 +154,12 @@ export function BookmarkletGenerator() {
             className="text-sm text-gray-400 hover:text-white underline"
             aria-expanded={showAdvanced}
           >
-            Advanced browser button setting
+            Optional browser button setting
           </button>
           {showAdvanced && (
             <div className="mt-3 rounded-lg border border-gray-700 p-4">
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Browser helper number
+                Button setup number
               </label>
               <input
                 type="number"
@@ -206,7 +206,7 @@ export function BookmarkletGenerator() {
                 Prefer a simpler import? Paste the job link into JobSentinel instead.
               </p>
               <ol className="text-sm text-gray-300 space-y-2 list-decimal list-inside">
-                <li>Turn on the import helper above</li>
+                <li>Turn on Browser Import above</li>
                 <li>Copy the browser button using the button above</li>
                 <li>Use your browser's Add Bookmark option</li>
                 <li>Name it "Import to JobSentinel"</li>

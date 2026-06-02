@@ -297,6 +297,14 @@ actionable findings in this active-plan surface or the relevant plan.
   targeted Settings search found no stale phrase, `npm run lint:bloat`,
   `npm run lint:docs`, `npm run test:scripts` passed 458 script tests, and
   `npm run lint` passed.
+- Committed local Browser Button copy cleanup replaces remaining helper and
+  advanced-setting wording with browser-import and optional setup wording.
+  Focused verification passed: `npx vitest run
+  src/components/BookmarkletGenerator.test.tsx` passed 3 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 33 tests, targeted component
+  search found no stale helper phrases, `npm run lint:bloat`,
+  `npm run lint:docs`, `npm run test:scripts` passed 458 script tests, and
+  `npm run lint` passed.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 

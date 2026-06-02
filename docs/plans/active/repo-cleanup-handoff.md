@@ -154,6 +154,15 @@ Recent remote integration evidence:
   scripts/check-product-copy.test.mjs` passed 33 tests, targeted Settings
   search found no stale phrase, `npm run lint:bloat`, `npm run lint:docs`,
   `npm run test:scripts` passed 458 script tests, and `npm run lint` passed.
+- Committed local Browser Button copy cleanup replaces `Import Helper`,
+  `Advanced browser button setting`, `Browser helper number`, and remaining
+  import-helper wording with browser-import and optional setup wording.
+  Focused verification passed: `npx vitest run
+  src/components/BookmarkletGenerator.test.tsx` passed 3 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 33 tests, targeted component
+  search found no stale helper phrases, `npm run lint:bloat`,
+  `npm run lint:docs`, `npm run test:scripts` passed 458 script tests, and
+  `npm run lint` passed.
 - Current local source-name copy follow-up changes README source coverage,
   source feature docs, public job-source issue template, shared source labels,
   and frontend mocks from `HN Who's Hiring` wording to `Startup and tech job
