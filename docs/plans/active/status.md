@@ -100,9 +100,12 @@ manipulation, or unreviewed form sending.
   local keyword-stuffing detection, requirement-review rows with
   direct/strong/partial/implied/missing states, evidence sections, and
   recognized hard-constraint caps for missing required authorization, location,
-  license, certification, degree, or clearance terms. Future resume work still
-  needs deeper evidence strength, seniority alignment, conservative synonyms,
-  recency, section placement, and profession-specific weighting.
+  license, certification, degree, or clearance terms. The Resume Match page now
+  turns those results into plain next actions such as checking a hard
+  requirement before tailoring, adding supporting evidence only if true, or
+  keeping useful evidence visible. Future resume work still needs deeper
+  evidence strength, seniority alignment, conservative synonyms, recency,
+  section placement, and profession-specific weighting.
 - Current local macOS no-account post-commit verification rebuilt the universal
   DMG from committed resume-guidance head `12c184db` on macOS 26.5
   (build 25F71), Apple Silicon `arm64`, with SIP enabled. The build produced

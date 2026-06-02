@@ -141,6 +141,9 @@ The current local matcher:
 - flags recognized missing hard requirements such as authorization, location,
   license, certification, degree, or clearance and limits the fit label until
   the user verifies the requirement;
+- turns the local review into plain next actions such as checking a hard
+  requirement before tailoring, adding supporting evidence only if true, or
+  keeping useful evidence visible;
 - passes that context to the live Resume Builder review panel when available;
 - keeps required and preferred job-post headings separate even when the posting
   uses ordinary single-line section breaks;

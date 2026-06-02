@@ -515,15 +515,40 @@ describe("ResumeOptimizer", () => {
 
     expect(await screen.findByText("Hard Requirements To Check (1)")).toBeInTheDocument();
     expect(screen.getByText("Security clearance")).toBeInTheDocument();
-    expect(screen.getByText("Check first")).toBeInTheDocument();
+    expect(screen.getAllByText("Check first").length).toBeGreaterThan(0);
     expect(screen.getByText(/Verify this before tailoring/i)).toBeInTheDocument();
     expect(screen.getByText("Requirement Review (3)")).toBeInTheDocument();
     expect(screen.getByText("Visible evidence")).toBeInTheDocument();
-    expect(screen.getByText("Needs support")).toBeInTheDocument();
+    expect(screen.getAllByText("Needs support").length).toBeGreaterThan(0);
     expect(screen.getByText("Not found")).toBeInTheDocument();
     expect(screen.getByText("Hard requirement")).toBeInTheDocument();
     expect(screen.getAllByText("Found in: skills").length).toBeGreaterThan(0);
     expect(screen.getByText("No clear resume evidence found")).toBeInTheDocument();
+  });
+
+  it("shows plain next actions from requirement review results", async () => {
+    const user = userEvent.setup();
+    mockInvokeResponses({ analyze_resume_for_job: mockRequirementReviewAnalysis });
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    fireEvent.change(screen.getByLabelText(/^job post$/i), {
+      target: {
+        value: "Required: scheduling, CRM, security clearance",
+      },
+    });
+    await openResumeAppImport(user);
+    fireEvent.change(screen.getByLabelText(/copied resume details/i), {
+      target: { value: JSON.stringify(validResume) },
+    });
+
+    await user.click(screen.getByRole("button", { name: /review match/i }));
+
+    expect(await screen.findByText("What To Do Next")).toBeInTheDocument();
+    expect(screen.getByText(/Check security clearance before tailoring/i)).toBeInTheDocument();
+    expect(screen.getByText(/Add supporting evidence for crm only if true/i)).toBeInTheDocument();
+    expect(screen.getByText(/Keep scheduling visible/i)).toBeInTheDocument();
+    expect(screen.queryByText(/maximize/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/guarantee/i)).not.toBeInTheDocument();
   });
 
   it("explains strong resume words without screening-tool framing", async () => {
