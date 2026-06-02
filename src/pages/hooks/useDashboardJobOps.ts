@@ -64,7 +64,7 @@ export function useDashboardJobOps(
               logError("Failed to undo hide:", err);
               toast.error(
                 "Could not undo change",
-                "Couldn't restore the hidden job. Try refreshing.",
+                "Hidden job was not restored. Check the job list, then copy a safe support report if this keeps happening.",
               );
             }
           },
@@ -78,7 +78,7 @@ export function useDashboardJobOps(
               logError("Failed to redo hide:", err);
               toast.error(
                 "Could not redo change",
-                "Couldn't hide the job again. Try refreshing.",
+                "Job was not hidden again. Check the job list, then copy a safe support report if this keeps happening.",
               );
             }
           },
@@ -136,7 +136,7 @@ export function useDashboardJobOps(
               logError("Failed to undo bookmark:", err);
               toast.error(
                 "Could not undo change",
-                "Couldn't restore bookmark state. Try refreshing.",
+                "Bookmark was not restored. Check the job list, then copy a safe support report if this keeps happening.",
               );
             }
           },
@@ -152,7 +152,7 @@ export function useDashboardJobOps(
               logError("Failed to redo bookmark:", err);
               toast.error(
                 "Could not redo change",
-                "Couldn't change bookmark. Try refreshing.",
+                "Bookmark was not changed again. Check the job list, then copy a safe support report if this keeps happening.",
               );
             }
           },
@@ -225,7 +225,7 @@ export function useDashboardJobOps(
             logError("Failed to undo notes:", err);
             toast.error(
               "Could not undo change",
-              "Couldn't restore previous notes. Try refreshing.",
+              "Previous notes were not restored. Check the notes, then copy a safe support report if this keeps happening.",
             );
           }
         },
@@ -242,7 +242,7 @@ export function useDashboardJobOps(
             logError("Failed to redo notes:", err);
             toast.error(
               "Could not redo change",
-              "Couldn't reapply notes. Try refreshing.",
+              "Notes were not reapplied. Check the notes, then copy a safe support report if this keeps happening.",
             );
           }
         },
@@ -333,7 +333,7 @@ export function useDashboardJobOps(
             logError("Failed to undo bulk hide:", err);
             toast.error(
               "Could not undo change",
-              "Couldn't restore some hidden jobs. Try refreshing.",
+              "Some hidden jobs were not restored. Check the job list, then copy a safe support report if this keeps happening.",
             );
           }
         },
@@ -351,7 +351,7 @@ export function useDashboardJobOps(
             logError("Failed to redo bulk hide:", err);
             toast.error(
               "Could not redo change",
-              "Couldn't hide some jobs again. Try refreshing.",
+              "Some jobs were not hidden again. Check the job list, then copy a safe support report if this keeps happening.",
             );
           }
         },

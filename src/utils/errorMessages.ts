@@ -25,7 +25,7 @@ const NETWORK_ERRORS = [
   { pattern: /503|502|504|service.?unavailable/i, title: 'Service Temporarily Down', message: 'The job board\'s servers are temporarily unavailable.', action: 'This is on their end. Try again in 10-15 minutes.' },
   { pattern: /401|unauthorized|authentication/i, title: 'Sign-In Details Not Working', message: 'Your saved sign-in or access details aren\'t working.', action: 'Open Settings, reconnect the job source, or paste updated access details.' },
   { pattern: /403|forbidden/i, title: 'Access Denied', message: 'The job board would not allow this request.', action: 'Check whether this job board needs a signed-in or premium account, then try again.' },
-  { pattern: /404|not.?found/i, title: 'Page Not Found', message: 'The job listing or page no longer exists.', action: 'The posting may have been removed. Try refreshing your job list.' },
+  { pattern: /404|not.?found/i, title: 'Page Not Found', message: 'The job listing or page no longer exists.', action: 'The posting may have been removed. Check the job list again, or copy a safe support report if this keeps happening.' },
 ];
 
 /**

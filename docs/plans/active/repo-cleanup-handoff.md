@@ -1209,6 +1209,9 @@ Next high-value passes:
      The latest feedback-report save recovery slice replaces the remaining
      retry-oriented save-report wording with direct copy-report and
      choose-another-folder guidance.
+     The latest undo/redo recovery slice replaces browser-refresh-style
+     guidance in dashboard undo, global undo, and missing-page recovery flows
+     with local check plus safe-support-report next steps.
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.

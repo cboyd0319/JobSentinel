@@ -7,6 +7,8 @@ import {
 } from "./undoContextDef";
 
 const MAX_UNDO_STACK = 50;
+const UNDO_RECOVERY_MESSAGE =
+  "Check the change, then copy a safe support report if this keeps happening.";
 
 export function UndoProvider({ children }: { children: ReactNode }) {
   // Use state instead of refs to properly trigger re-renders
@@ -41,7 +43,7 @@ export function UndoProvider({ children }: { children: ReactNode }) {
           });
           toast.info("Undone", action.description);
         } catch {
-          toast.error("Could not undo change", "Try refreshing if the change looks wrong.");
+          toast.error("Could not undo change", UNDO_RECOVERY_MESSAGE);
         }
       },
     });
@@ -59,7 +61,7 @@ export function UndoProvider({ children }: { children: ReactNode }) {
           setRedoStack(redoPrev => [action, ...redoPrev]);
           toast.info("Undone", action.description);
         } catch {
-          toast.error("Could not undo change", "Try refreshing if the change looks wrong.");
+          toast.error("Could not undo change", UNDO_RECOVERY_MESSAGE);
           // Restore the action to undo stack on failure
           setUndoStack(p => [action, ...p]);
         }
@@ -81,7 +83,7 @@ export function UndoProvider({ children }: { children: ReactNode }) {
           setUndoStack(undoPrev => [action, ...undoPrev]);
           toast.info("Redone", action.description);
         } catch {
-          toast.error("Could not redo change", "Try refreshing if the change looks wrong.");
+          toast.error("Could not redo change", UNDO_RECOVERY_MESSAGE);
           // Restore the action to redo stack on failure
           setRedoStack(p => [action, ...p]);
         }

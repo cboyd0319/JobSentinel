@@ -24,6 +24,16 @@ describe("errorMessages", () => {
       expect(`${result.title} ${result.message} ${result.action}`).not.toMatch(/request|delay/i);
     });
 
+    it("uses safe support report guidance when a saved page is gone", () => {
+      const result = getUserFriendlyError(new Error("404 not found"));
+      const copy = `${result.title} ${result.message} ${result.action}`;
+
+      expect(result.title).toBe("Page Not Found");
+      expect(result.action).toContain("Check the job list again");
+      expect(result.action).toContain("safe support report");
+      expect(copy).not.toMatch(/try refreshing/i);
+    });
+
     it("handles database locked errors", () => {
       const result = getUserFriendlyError(new Error("database is locked"));
       expect(result.title).toBe("Local Data Busy");

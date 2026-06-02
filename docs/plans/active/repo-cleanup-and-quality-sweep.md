@@ -1276,3 +1276,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local feedback-report save recovery slice replaces the remaining
   retry-oriented save-report wording with direct copy-report and
   choose-another-folder guidance.
+- Current local undo/redo recovery slice replaces browser-refresh-style
+  guidance in dashboard undo, global undo, and missing-page recovery flows with
+  local check plus safe-support-report next steps, with focused hook/context
+  helper tests and product-copy coverage.

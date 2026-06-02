@@ -252,6 +252,34 @@ describe("UndoContext", () => {
 
       expect(onUndo).not.toHaveBeenCalled();
     });
+
+    it("shows safe support report guidance when undo fails", async () => {
+      const onUndo = vi.fn().mockRejectedValue(new Error("Undo failed"));
+
+      render(
+        <TestWrapper>
+          <TestComponent onUndo={onUndo} />
+        </TestWrapper>
+      );
+
+      fireEvent.click(screen.getByTestId("push-action"));
+
+      await waitFor(() => {
+        expect(screen.getByTestId("can-undo")).toHaveTextContent("true");
+      });
+
+      await act(async () => {
+        fireEvent.click(screen.getByTestId("undo-btn"));
+      });
+
+      await waitFor(() => {
+        expect(onUndo).toHaveBeenCalled();
+      });
+
+      expect(screen.getByText("Could not undo change")).toBeInTheDocument();
+      expect(screen.getByText(/copy a safe support report/i)).toBeInTheDocument();
+      expect(screen.queryByText(/try refreshing/i)).not.toBeInTheDocument();
+    });
   });
 
   describe("redo", () => {
@@ -340,6 +368,10 @@ describe("UndoContext", () => {
       await waitFor(() => {
         expect(onRedo).toHaveBeenCalled();
       });
+
+      expect(screen.getByText("Could not redo change")).toBeInTheDocument();
+      expect(screen.getByText(/copy a safe support report/i)).toBeInTheDocument();
+      expect(screen.queryByText(/try refreshing/i)).not.toBeInTheDocument();
     });
   });
 

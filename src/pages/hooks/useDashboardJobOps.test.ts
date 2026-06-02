@@ -133,6 +133,29 @@ describe("handleToggleBookmark", () => {
     );
     expect(mockPushAction).not.toHaveBeenCalled();
   });
+
+  it("uses safe support report guidance when bookmark undo fails", async () => {
+    const jobs = [makeJob({ id: 1, bookmarked: false })];
+    const { result } = renderJobOps(jobs);
+    mockInvoke.mockResolvedValueOnce(true);
+
+    await act(async () => {
+      await result.current.handleToggleBookmark(1);
+    });
+
+    expect(mockPushAction).toHaveBeenCalledOnce();
+    const pushedAction = mockPushAction.mock.calls[0][0];
+    mockInvoke.mockRejectedValueOnce(new Error("backend down"));
+
+    await act(async () => {
+      await pushedAction.undo();
+    });
+
+    expect(mockToast.error).toHaveBeenCalledWith(
+      "Could not undo change",
+      "Bookmark was not restored. Check the job list, then copy a safe support report if this keeps happening.",
+    );
+  });
 });
 
 // ─── handleBulkHide ───────────────────────────────────────────────────────────

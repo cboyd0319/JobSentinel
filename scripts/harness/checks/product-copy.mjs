@@ -1135,19 +1135,19 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/utils/errorMessages.ts") {
-    return /Notification Setup Failed|Slack Notification Failed|Discord Notification Failed|Teams Notification Failed|Email Notification Failed|Reminder Setup Failed|API key|API Limit|The database is currently in use|Configuration Missing|configuration file|webhook URL|SMTP credentials|contact support with the error details below|technical:\s*technicalMessage|JSON\.stringify\(error\)/i.test(
+    return /Notification Setup Failed|Slack Notification Failed|Discord Notification Failed|Teams Notification Failed|Email Notification Failed|Reminder Setup Failed|API key|API Limit|The database is currently in use|Configuration Missing|configuration file|webhook URL|SMTP credentials|contact support with the error details below|technical:\s*technicalMessage|JSON\.stringify\(error\)|Try refreshing/i.test(
       text,
     );
   }
 
   if (path === "src/pages/hooks/useDashboardJobOps.ts") {
-    return /Undo failed|Redo failed|Bookmark Failed|Bulk Hide Failed|Bulk Bookmark Failed|Bulk Merge Failed|\d+\s+failed|Couldn't update bookmark\.\s*Try again/i.test(
+    return /Undo failed|Redo failed|Bookmark Failed|Bulk Hide Failed|Bulk Bookmark Failed|Bulk Merge Failed|\d+\s+failed|Couldn't update bookmark\.\s*Try again|Try refreshing/i.test(
       text,
     );
   }
 
   if (path === "src/contexts/UndoContext.tsx") {
-    return /Undo failed|Redo failed/i.test(text);
+    return /Undo failed|Redo failed|Try refreshing/i.test(text);
   }
 
   if (path === "src/pages/hooks/useDashboardAutoRefresh.ts") {

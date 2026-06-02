@@ -935,6 +935,10 @@ and record actionable findings in this active-plan surface.
 - Current local feedback-report save recovery slice replaces the remaining
   retry-oriented save-report wording with direct copy-report and
   choose-another-folder guidance.
+- Current local undo/redo recovery slice replaces browser-refresh-style
+  guidance in dashboard undo, global undo, and missing-page recovery flows with
+  local check plus safe-support-report next steps, with focused hook/context
+  helper tests and product-copy coverage.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

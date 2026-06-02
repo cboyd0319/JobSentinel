@@ -801,12 +801,12 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/hooks/useDashboardJobOps.ts",
-      "Undo failed\nRedo failed\nBookmark Failed\nBulk Hide Failed\nBulk Bookmark Failed\nBulk Merge Failed\n3 failed\nCouldn't update bookmark. Try again.\n",
+      "Undo failed\nRedo failed\nBookmark Failed\nBulk Hide Failed\nBulk Bookmark Failed\nBulk Merge Failed\n3 failed\nCouldn't update bookmark. Try again.\nTry refreshing.\n",
     );
     writeFixtureFile(
       root,
       "src/contexts/UndoContext.tsx",
-      "Undo failed\nRedo failed\n",
+      "Undo failed\nRedo failed\nTry refreshing if the change looks wrong.\n",
     );
     writeFixtureFile(
       root,
@@ -835,6 +835,7 @@ test("product copy rejects technical-first settings copy", () => {
         "Reminder Setup Failed",
         "Document Too Large",
         "too long for processing",
+        "Try refreshing your job list.",
         "",
       ].join("\n"),
     );
