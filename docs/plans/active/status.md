@@ -257,6 +257,16 @@ actionable findings in this active-plan surface or the relevant plan.
   removed user-data developer markers, `npm run lint:bloat`, `npm run
   harness:check`, `npm run lint:docs`, `npm run test:scripts`, and `git diff
   --check`.
+- Committed local feature-doc implementation-leak cleanup removes remaining
+  maintainer blocks, implementation references, module paths, command/test
+  snippets, saved-file internals, and chat-number setup wording from
+  user-facing feature guides. Resume renderer DTO privacy requirements moved to
+  developer architecture docs. Product-copy and privacy sensors now keep
+  feature guides plain while preserving developer contracts. Focused
+  verification passed: `node --test scripts/check-product-copy.test.mjs` passed
+  32 tests, `node --test scripts/check-privacy-logging.test.mjs
+  scripts/check-repo-bloat.test.mjs` passed 263 tests, targeted search found no
+  removed feature-doc implementation markers, and `npm run lint:bloat` passed.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -321,6 +331,10 @@ Scope:
 - User-data feature docs must explain local data control without implementation
   references, code snippets, command names, or test commands. Developer
   architecture docs must own the notification-preference command shape.
+- Feature docs must stay user-facing: no maintainer blocks, implementation
+  references, module paths, command/test snippets, internal saved-file wording,
+  or chat-number setup details. Developer architecture docs must own renderer
+  DTO privacy contracts.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
@@ -333,12 +347,14 @@ npm run test:scripts
 npm run lint
 node --test scripts/check-product-copy.test.mjs
 node --test scripts/check-security-docs.test.mjs
+node --test scripts/check-privacy-logging.test.mjs scripts/check-repo-bloat.test.mjs
 ! rg -n "Technical Details|Signal Weights|Database Schema|API Commands|invoke\\(|ghost_reasons TEXT|ghost_score|repost_count|Ghost configuration commands|get_ghost_config|set_ghost_config|reset_ghost_config" docs/features/ghost-detection.md
 ! rg -n "For contributors|Developer Setup|Advanced: where JobSentinel saves local files" docs/user/QUICK_START.md
 ! rg -n "JSON Resume content|basics\\.|work\\[\\]|Developer contract|Implementation paths|select_and_import_json_resume|import_json_resume|Returned renderer DTOs|Run the focused Rust tests|cargo test core::resume::json_resume" docs/features/json-resume-import.md
 ! rg -n "Developer Details|For developers and the curious|Local Storage Model|Tauri Commands|resume_drafts|create_resume_draft|export_resume_docx|analyze_resume_for_job|Backend Files|DOCX generation" docs/features/resume-builder.md
 ! rg -n "Developer Notes|Current Tauri commands|get_scoring_config|update_scoring_config|reset_scoring_config_cmd|validate_scoring_config|ScoringConfig|recency proportions|complete scoring model|Internal field names" docs/features/smart-scoring.md
 ! rg -n "Developer Notes|Implementation references|src/components/CoverLetterTemplates\\.tsx|src-tauri/src/core/user_data|Tauri commands|notificationPrefsExample|advancedFilters|save_notification_preferences|minScoreThreshold|npm run test:run|cargo test --lib user_data|Implementation rule" docs/features/user-data-management.md
+! rg -n "Developer Notes|Implementation references|For maintainers|For Maintainers|Important modules|Checks for Maintainers|Tauri commands|Backend core|src-tauri/src|src/pages/|cargo test|npm run test:run|npm run lint:bloat|Core tables|Core commands|HashMap-based|O\\(n\\*?m\\)|SynonymMap::|private saved-file reference|saved resume state|negative number for groups|chat number" docs/features
 npx vitest run src/pages/Settings.test.tsx src/components/ErrorLogPanel.test.tsx
 npx vitest run src/components/ErrorLogPanel.test.tsx
 npx vitest run src/utils/errorReporting.test.ts

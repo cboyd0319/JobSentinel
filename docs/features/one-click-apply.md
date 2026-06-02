@@ -182,10 +182,9 @@ JobSentinel never clicks Submit. This keeps the decision with you:
 
 ### Resume Attachment Is Manual
 
-Saved resume files stay local and are represented internally by a private
-saved-file reference. JobSentinel validates that saved resume state before
-preparing a form, but it does not send the resume file to the application site.
-Use the site's own file picker when you decide to attach a resume.
+Saved resume files stay local. JobSentinel shows only the file name in this
+workflow and does not attach your resume automatically. Use the application
+site's own file picker when you decide to attach a resume.
 
 ---
 

@@ -239,5 +239,5 @@ click Test.
 ### Telegram says "chat not found"?
 
 1. Make sure the bot is added to your group/channel
-2. Check that the chat number is correct (negative number for groups)
-3. If it's a channel, give the bot permission to post there
+2. Check that the Telegram setup details match what Telegram showed you
+3. If it is a channel, give the bot permission to post there

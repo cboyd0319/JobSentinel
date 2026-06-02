@@ -515,6 +515,19 @@ invoke("save_notification_preferences", {
 // Market: trends, companies, locations, alerts, analysis
 ```
 
+Resume list and active-resume commands return renderer-safe summaries. Keep
+local file paths and parsed resume text out of renderer DTOs:
+
+```rust
+pub struct ResumeSummary {
+    pub id: i64,
+    pub name: String,
+    pub is_active: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+```
+
 **Automation Commands:**
 
 ```rust

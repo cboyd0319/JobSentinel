@@ -1974,6 +1974,85 @@ test("product copy rejects technical-first resume copy", () => {
     writeFixtureFile(root, "docs/features/salary-ai.md", "Enter seniority level.\n");
     writeFixtureFile(
       root,
+      "docs/features/market-intelligence.md",
+      [
+        "## Developer Notes",
+        "Implementation references",
+        "Backend core: `src-tauri/src/core/market_intelligence/`",
+        "Tauri commands: `src-tauri/src/commands/market.rs`",
+        "npm run test:run -- src/pages/Market.test.tsx",
+        "cd src-tauri && cargo test --lib market_intelligence",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/application-tracking.md",
+      [
+        "## Developer Notes",
+        "Implementation references",
+        "Backend core: `src-tauri/src/core/ats/`",
+        "Tauri commands: `src-tauri/src/commands/ats.rs`",
+        "Database migrations: `src-tauri/migrations/`",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/scraper-health.md",
+      [
+        "## For Maintainers",
+        "Important modules:",
+        "`src-tauri/src/core/health/smoke_tests.rs`",
+        "cd src-tauri && cargo test --lib core::health",
+        "npm run lint:bloat",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/remote-preference-scoring.md",
+      [
+        "## Developer Notes",
+        "The backend work-mode logic lives in `src-tauri/src/core/scoring/remote.rs`",
+        "cd src-tauri && cargo test --lib scoring::remote",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/scrapers.md",
+      [
+        "<summary><strong>For maintainers</strong></summary>",
+        "cd src-tauri && cargo test --lib core::scrapers",
+        "npm run lint:bloat",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/synonym-matching.md",
+      [
+        "> **Module:** `src-tauri/src/core/scoring/synonyms.rs`",
+        "HashMap-based",
+        "O(n*m)",
+        "SynonymMap::add_synonym_group",
+        "cd src-tauri && cargo test --lib scoring::synonyms",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/one-click-apply.md",
+      "private saved-file reference\nsaved resume state\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/notifications.md",
+      "chat number is correct (negative number for groups)\n",
+    );
+    writeFixtureFile(
+      root,
       "src/pages/ResumeOptimizer.tsx",
       [
         "{suggestion.category}",
@@ -2003,6 +2082,17 @@ test("product copy rejects technical-first resume copy", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/smart-scoring.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/ghost-detection.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/salary-ai.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/market-intelligence.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/application-tracking.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scraper-health.md"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "docs/features/remote-preference-scoring.md"),
+      true,
+    );
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scrapers.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/synonym-matching.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/one-click-apply.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/notifications.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
   });
 });

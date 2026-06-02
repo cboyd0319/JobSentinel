@@ -1,20 +1,18 @@
 # Synonym Matching for Smart Scoring
 
-> **Module:** `src-tauri/src/core/scoring/synonyms.rs`
-
 ## Overview
 
-JobSentinel includes **local synonym matching** for keyword scoring,
-allowing flexible matching of job descriptions without requiring exact keyword
-matches.
+JobSentinel includes **local synonym matching** for saved search words and match
+scoring. This helps match nearby wording in job descriptions without requiring
+the user to guess every phrase an employer might use.
 
 Synonyms are intentionally broad-audience. Healthcare, office, operations,
 public-sector, customer support, accounting, education, retail, and technical
 roles are all treated as first-class examples.
 
-## Key Features
+## What It Helps With
 
-### 1. Bidirectional Synonym Matching
+### Nearby Wording
 
 When you configure a work phrase like "Customer Support" or "EMR",
 JobSentinel can also match common nearby wording:
@@ -28,23 +26,23 @@ JobSentinel can also match common nearby wording:
 And vice versa: searching for "Client Service" can also match "Customer
 Support", and searching for "EHR" can also match "EMR".
 
-### 2. Avoids Partial-Word Matches
+### Avoiding Partial-Word Matches
 
-The system is smart enough to avoid false positives:
+JobSentinel avoids obvious false positives:
 
 - Match: "RN" matches "RN evening shift"
 - Match: "RN" matches "Registered Nurse"
 - No match: "RN" does not match "internship"
 
-### 3. Case Insensitivity
+### Capital Letters Do Not Matter
 
-All matching is case-insensitive:
+Capital letters do not change matching:
 
 - "customer service" matches "Customer Service" and "CUSTOMER SERVICE".
 
-### 4. Pre-populated Synonym Groups
+### Built-In Phrase Groups
 
-The system comes with synonym groups for common job titles, work areas, and
+JobSentinel comes with phrase groups for common job titles, work areas, and
 tools across technical and non-technical searches.
 
 The list starts with broad customer, office, care, public-sector, business, and
@@ -190,20 +188,10 @@ job-seeker wide.
 - **Test**: Test, Testing, QA, Quality Assurance, test, testing, qa
 - **Automation**: Automation, automation, automated testing
 
-## How It Works
+## Everyday Example
 
-### Saved Setting Example
-
-For a broad search, saved settings can include work phrases such as:
-
-```json
-{
-  "keywords_boost": ["Customer Support", "Care Coordination", "Scheduling"],
-  "keywords_exclude": ["overnight"]
-}
-```
-
-### Matching Behavior
+For a broad search, a user might save work phrases such as "Customer Support",
+"Care Coordination", and "Scheduling" while avoiding overnight roles.
 
 **Job Description:**
 
@@ -219,83 +207,11 @@ For a broad search, saved settings can include work phrases such as:
 **Result:** JobSentinel has more evidence that this role matches the user's
 saved work interests.
 
-### Architecture
-
-The synonym matching system consists of:
-
-1. **SynonymMap** - Core data structure (`src-tauri/src/core/scoring/synonyms.rs`)
-   - HashMap-based for O(1) lookups
-   - Stores bidirectional synonym mappings
-   - Efficient word boundary detection
-
-2. **Integration** - Scoring engine integration (`src-tauri/src/core/scoring/mod.rs`)
-   - Used in `score_skills()` for boost keywords
-   - Used in excluded keywords detection
-   - Transparent to existing configuration
-
-## Performance
-
-- **Lookup Time:** O(1) - HashMap-based synonym lookup
-- **Matching Time:** O(n\*m) where n is number of keyword occurrences, m is average synonym group size
-- **Memory:** Minimal - synonym groups are pre-computed at startup
-
-## Potential Follow-Ups
-
-### Configurable Custom Synonyms
-
-The code supports custom synonym groups through `SynonymMap::add_synonym_group`.
-A future config surface could expose user-defined groups like this:
-
-```json
-{
-  "custom_synonyms": {
-    "Care Coordinator": ["Care Navigator", "Patient Navigator"],
-    "Grant Writer": ["Proposal Writer", "Development Writer"]
-  }
-}
-```
-
-### Database-Backed Synonyms
-
-Store user-defined synonyms in SQLite for persistence across sessions.
-
-### Fuzzy Matching
-
-Extend to include edit-distance-based fuzzy matching for typos:
-
-- "Custmer Service" to "Customer Service"
-- "Scheduing" to "Scheduling"
-
-## Testing
-
-Comprehensive test suite in `src-tauri/src/core/scoring/synonyms.rs`:
-
-- Basic synonym matching
-- Case insensitivity
-- Word boundary detection
-- Bidirectional matching
-- Multiple synonyms in one text
-- Punctuation boundaries
-- Special characters (`C++`, `C#`)
-- Empty input handling
-
-Run tests:
-
-```bash
-cd src-tauri && cargo test --lib scoring::synonyms
-```
-
 ## Examples
 
 ### Example 1: Customer Support Variants
 
-**Config:**
-
-```json
-{
-  "keywords_boost": ["Customer Support"]
-}
-```
+**Saved phrase:** "Customer Support"
 
 **Matches:**
 
@@ -306,13 +222,7 @@ cd src-tauri && cargo test --lib scoring::synonyms
 
 ### Example 2: Healthcare and Care Coordination Variants
 
-**Config:**
-
-```json
-{
-  "keywords_boost": ["EMR", "Care Coordination", "Scheduling"]
-}
-```
+**Saved phrases:** "EMR", "Care Coordination", "Scheduling"
 
 **Matches:**
 
@@ -323,13 +233,7 @@ cd src-tauri && cargo test --lib scoring::synonyms
 
 ### Example 3: Accounting, Retail, and Operations Variants
 
-**Config:**
-
-```json
-{
-  "keywords_boost": ["QuickBooks", "POS", "Inventory", "Operations"]
-}
-```
+**Saved phrases:** "QuickBooks", "POS", "Inventory", "Operations"
 
 **Matches:**
 
@@ -340,13 +244,7 @@ cd src-tauri && cargo test --lib scoring::synonyms
 
 ### Example 4: Technical Variants
 
-**Config:**
-
-```json
-{
-  "keywords_boost": ["Python", "React", "Kubernetes"]
-}
-```
+**Saved phrases:** "Python", "React", "Kubernetes"
 
 **Matches:**
 
@@ -356,11 +254,11 @@ cd src-tauri && cargo test --lib scoring::synonyms
 
 ## Compatibility
 
-No configuration changes are needed. Synonym matching is additive:
+No user setup changes are needed. Synonym matching is additive:
 
-- Existing keywords continue to work
-- Synonym matching is additive (more matches, never fewer)
-- No breaking changes to scoring algorithm
+- Existing saved words continue to work.
+- Synonym matching can add matches, but it should not remove matches.
+- Match explanations should stay plain and advisory.
 
 ## See Also
 

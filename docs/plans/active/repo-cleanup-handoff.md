@@ -115,6 +115,16 @@ Recent remote integration evidence:
   removed user-data developer markers, `npm run lint:bloat`, `npm run
   harness:check`, `npm run lint:docs`, `npm run test:scripts`, and `git diff
   --check`.
+- Committed local feature-doc implementation-leak cleanup removes remaining
+  maintainer blocks, implementation references, module paths, command/test
+  snippets, saved-file internals, and chat-number setup wording from
+  user-facing feature guides. Resume renderer DTO privacy requirements moved to
+  developer architecture docs. Product-copy and privacy sensors now keep feature
+  guides plain while preserving developer contracts. Focused verification passed:
+  `node --test scripts/check-product-copy.test.mjs` passed 32 tests, `node
+  --test scripts/check-privacy-logging.test.mjs scripts/check-repo-bloat.test.mjs`
+  passed 263 tests, targeted search found no removed feature-doc implementation
+  markers, and `npm run lint:bloat` passed.
 - Current local source-name copy follow-up changes README source coverage,
   source feature docs, public job-source issue template, shared source labels,
   and frontend mocks from `HN Who's Hiring` wording to `Startup and tech job

@@ -68,48 +68,6 @@ Offer guidance should be evidence-bounded:
 Negotiation notes should never invent competing offers, legal claims, skills,
 credentials, accomplishments, or market data.
 
-<details>
-<summary><strong>For maintainers</strong></summary>
-
-## Technical Shape
-
-```text
-public salary records
-  -> aggregated salary benchmarks
-  -> pay range evidence
-  -> pay-floor guidance
-  -> editable negotiation notes
-```
-
-Core tables:
-
-- `h1b_salaries`: public salary record imports.
-- `salary_benchmarks`: normalized benchmark ranges by title, location, and
-  role stage.
-- `job_salary_predictions`: cached local predictions for saved jobs.
-- `negotiation_templates`: editable note templates.
-- `negotiation_history`: local offer and negotiation records.
-
-Core commands:
-
-- `get_salary_benchmark`
-- `predict_salary`
-- `generate_negotiation_script`
-- `compare_offers`
-
-Command logs must not include raw job titles, locations, salary floors, offer
-amounts, resume text, or negotiation notes.
-
-</details>
-
-## Verification
-
-```bash
-npm run test:run -- src/pages/Salary.test.tsx
-npm run lint:bloat
-cd src-tauri && cargo fmt --all -- --check
-```
-
 Pay guidance changes should also be reviewed against:
 
 - [Pay-equity research](../research/pay-equity.md)

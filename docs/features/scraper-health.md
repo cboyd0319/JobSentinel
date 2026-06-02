@@ -60,29 +60,3 @@ Source health must follow the same rules for job sources:
 LinkedIn is intentionally handled as a user-opened search-link destination. It
 should not appear as a background source, credential-renewal prompt, or job-site
 check.
-
-## For Maintainers
-
-Important modules:
-
-| Module | Role |
-| ------ | ---- |
-| `src-tauri/src/core/health/smoke_tests.rs` | Known source-check list and connectivity checks |
-| `src-tauri/src/core/health/tracking.rs` | Run lifecycle records |
-| `src-tauri/src/core/health/metrics.rs` | Aggregated health metrics |
-| `src-tauri/src/commands/health.rs` | Tauri command boundary |
-| `src/pages/Settings.tsx` | Troubleshooting and source status UI |
-
-## Checks for Maintainers
-
-Focused checks:
-
-```bash
-cd src-tauri && cargo test --lib core::health
-cd src-tauri && cargo test --lib core::scheduler
-npm run test:run -- src/pages/Settings.test.tsx
-npm run lint:bloat
-```
-
-Add or update tests when source lists, source-policy boundaries, source-check
-behavior, or user-facing status copy changes.

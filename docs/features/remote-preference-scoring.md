@@ -71,29 +71,3 @@ Examples:
 Users can change work-mode preferences in setup or Settings. These preferences
 affect match strength and explanations. They do not send data outside the
 device and they do not require external AI.
-
-## Developer Notes
-
-<details>
-<summary><strong>Implementation reference</strong></summary>
-
-The backend work-mode logic lives in `src-tauri/src/core/scoring/remote.rs` and
-feeds the location factor used by the main scoring engine.
-
-The current configuration uses existing `LocationPreferences` flags:
-
-- `allow_remote`
-- `allow_hybrid`
-- `allow_onsite`
-
-The backend keeps compatibility with those fields while translating them into a
-remote-only, remote-preferred, hybrid-preferred, on-site-preferred, or flexible
-matching mode.
-
-Focused tests live with the Rust module:
-
-```bash
-cd src-tauri && cargo test --lib scoring::remote
-```
-
-</details>

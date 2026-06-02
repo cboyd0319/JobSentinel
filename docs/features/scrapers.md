@@ -116,26 +116,6 @@ Normalization removes common tracking parameters, standardizes common title
 abbreviations, and maps location aliases such as `SF`, `Remote US`, and
 `work from home` to canonical forms.
 
-<details>
-<summary><strong>For maintainers</strong></summary>
-
-## Testing
-
-Use focused checks before broad suites:
-
-```bash
-cd src-tauri && cargo test --lib core::scrapers
-cd src-tauri && cargo test --lib core::health
-cd src-tauri && cargo test --lib core::scheduler
-npm run lint:bloat
-```
-
-Source-check changes should include parser fixtures or source-specific unit tests,
-rate-limit awareness, bounded-read coverage where relevant, and sanitized error
-checks. Source-boundary changes also need docs and bloat-guard updates.
-
-</details>
-
 ## Privacy Labels
 
 | Feature | Labels |
@@ -152,8 +132,6 @@ checks. Source-boundary changes also need docs and bloat-guard updates.
 - Use official feeds or APIs where available.
 - Confirm source terms, robots policy, and practical access boundaries.
 - Check sources politely and avoid reading more page data than needed.
-- Add parser fixtures or source-check coverage.
 - Add health metadata and user-safe errors.
-- Add docs and bloat checks for source-policy drift.
 - Do not add hidden data paths, session-cookie collection, human-check workarounds,
   or evasion of platform controls.

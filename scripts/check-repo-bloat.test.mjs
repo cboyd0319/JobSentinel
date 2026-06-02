@@ -6246,7 +6246,7 @@ test("checkRepoBloat rejects resume renderer DTO path exposure", () => {
     );
     writeFixtureFile(
       root,
-      "docs/features/resume-matcher.md",
+      "docs/developer/ARCHITECTURE.md",
       'const activeResume = await invoke<Resume>("get_active_resume");\n',
     );
 
@@ -6259,7 +6259,7 @@ test("checkRepoBloat rejects resume renderer DTO path exposure", () => {
         "src/pages/Resume.tsx",
         "src/pages/ResumeBuilder.tsx",
         "src/mocks/handlers.ts",
-        "docs/features/resume-matcher.md",
+        "docs/developer/ARCHITECTURE.md",
       ],
       { cwd: root },
     );
@@ -6271,7 +6271,7 @@ test("checkRepoBloat rejects resume renderer DTO path exposure", () => {
       "src/pages/Resume.tsx",
       "src/pages/ResumeBuilder.tsx",
       "src/mocks/handlers.ts",
-      "docs/features/resume-matcher.md",
+      "docs/developer/ARCHITECTURE.md",
     ]) {
       assert.ok(
         violations.includes(`hide resume file paths from renderer DTOs: ${path}`),

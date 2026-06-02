@@ -307,16 +307,19 @@ const technicalFirstUserCopyPaths = new Set([
   "tests/e2e/playwright/page-objects/ApplicationsPage.ts",
   "docs/features/application-tracking.md",
   "docs/features/ghost-detection.md",
+  "docs/features/market-intelligence.md",
   "docs/features/smart-scoring.md",
   "docs/features/notifications.md",
   "docs/features/one-click-apply.md",
   "docs/features/credentials-security.md",
   "docs/features/json-resume-import.md",
+  "docs/features/remote-preference-scoring.md",
   "docs/features/resume-builder.md",
   "docs/features/resume-matcher.md",
   "docs/features/salary-ai.md",
   "docs/features/scraper-health.md",
   "docs/features/scrapers.md",
+  "docs/features/synonym-matching.md",
   "docs/features/user-data-management.md",
   "docs/harness/readme-information-design.md",
   "docs/user/DEEP_LINKS.md",
@@ -901,6 +904,34 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
+
+  if (path.startsWith("docs/features/")) {
+    const featureDocImplementationPatterns = [
+      /^##\s*(?:Developer Notes|For Maintainers|Checks for Maintainers)\b/im,
+      /Implementation references/i,
+      /Important modules/i,
+      /Tauri commands/i,
+      /Backend core/i,
+      /src-tauri\/src/i,
+      /src\/pages\//i,
+      /cargo test/i,
+      /npm run test:run/i,
+      /npm run lint:bloat/i,
+      /Core tables/i,
+      /Core commands/i,
+      /HashMap-based/i,
+      /O\(n\*?m\)/i,
+      /SynonymMap::/i,
+      /private saved-file reference/i,
+      /saved resume state/i,
+      /negative number for groups/i,
+      /chat number/i,
+    ];
+
+    if (featureDocImplementationPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
 
   if (path === "README.md") {
     const readmePatterns = [

@@ -144,7 +144,7 @@ const resumeCommandDtoPrivacyPaths = new Set([
   "src/pages/Resume.tsx",
   "src/pages/ResumeBuilder.tsx",
   "src/mocks/handlers.ts",
-  "docs/features/resume-matcher.md",
+  "docs/developer/ARCHITECTURE.md",
 ]);
 
 const resumeCommandErrorPrivacyPaths = new Set(["src-tauri/src/commands/resume.rs"]);

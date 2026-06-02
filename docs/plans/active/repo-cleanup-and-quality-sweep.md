@@ -858,6 +858,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-02 | In progress | Removed remaining maintainer blocks, implementation references, module paths, command/test snippets, saved-file internals, and chat-number setup wording from user-facing feature guides. Moved the resume renderer DTO privacy contract into developer architecture docs and extended product-copy/privacy sensors so feature docs stay plain while developer contracts remain checked. |
 | 2026-06-02 | In progress | Removed implementation references, notification-preference code snippets, and command/test details from the user-facing Local Job-Search Data guide, moved the notification-preference backend shape contract into developer architecture docs, and retargeted security-doc sensors so the user-facing guide stays plain while the developer contract remains checked. |
 | 2026-06-02 | In progress | Removed developer-only command, config, and backend scoring-model details from the user-facing Smart Scoring guide. Product-copy sensors now reject those implementation details in `docs/features/smart-scoring.md`. |
 | 2026-06-02 | In progress | Removed developer-only local-storage, command, export, and backend-file details from the user-facing Resume Builder guide. Product-copy sensors now reject those implementation details in `docs/features/resume-builder.md`. |
