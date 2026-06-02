@@ -96,3 +96,54 @@ export function UnsafeUrlInput({ url }: { url: string }) {
     );
   });
 });
+
+test("checkFrontendBoundaries resolves tsconfig path aliases", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "tsconfig.json",
+      `
+{
+  "compilerOptions": {
+    /* Path aliases */
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "exclude": ["**/*.test.tsx"]
+}
+`,
+    );
+    writeFixtureFile(
+      root,
+      "src/components/BadImport.tsx",
+      `
+import { Dashboard } from "@/pages/Dashboard";
+
+export function BadImport() {
+  return <Dashboard />;
+}
+`,
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/Dashboard.tsx",
+      `
+export function Dashboard() {
+  return null;
+}
+`,
+    );
+
+    const violations = checkFrontendBoundaries(root);
+
+    assert.ok(
+      violations.some((violation) =>
+        violation.includes(
+          "src/components/BadImport.tsx imports @/pages/Dashboard across forbidden boundary (components -> pages)",
+        ),
+      ),
+      violations.join("\n"),
+    );
+  });
+});

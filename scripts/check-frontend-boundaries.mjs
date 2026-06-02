@@ -145,6 +145,130 @@ function resolveLocalImport(root, fromFile, specifier) {
   return normalize(resolve(dirname(fromFile), specifier));
 }
 
+function readAliasMappings(root) {
+  const tsconfigPath = join(root, "tsconfig.json");
+
+  if (!existsSync(tsconfigPath)) {
+    return [];
+  }
+
+  const tsconfig = JSON.parse(stripJsonComments(readFileSync(tsconfigPath, "utf8")));
+  const paths = tsconfig?.compilerOptions?.paths;
+
+  if (!paths || typeof paths !== "object") {
+    return [];
+  }
+
+  return Object.entries(paths).flatMap(([pattern, targets]) => {
+    if (!Array.isArray(targets)) {
+      return [];
+    }
+
+    const starIndex = pattern.indexOf("*");
+    const patternPrefix = starIndex === -1 ? pattern : pattern.slice(0, starIndex);
+    const patternSuffix = starIndex === -1 ? "" : pattern.slice(starIndex + 1);
+
+    return targets
+      .filter((target) => typeof target === "string")
+      .map((target) => {
+        const targetStarIndex = target.indexOf("*");
+        return {
+          pattern,
+          patternPrefix,
+          patternSuffix,
+          targetPrefix:
+            targetStarIndex === -1 ? target : target.slice(0, targetStarIndex),
+          targetSuffix:
+            targetStarIndex === -1 ? "" : target.slice(targetStarIndex + 1),
+        };
+      });
+  });
+}
+
+function stripJsonComments(text) {
+  let output = "";
+  let inString = false;
+  let escaped = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    const next = text[index + 1];
+
+    if (inString) {
+      output += char;
+      if (escaped) {
+        escaped = false;
+      } else if (char === "\\") {
+        escaped = true;
+      } else if (char === "\"") {
+        inString = false;
+      }
+      continue;
+    }
+
+    if (char === "\"") {
+      inString = true;
+      output += char;
+      continue;
+    }
+
+    if (char === "/" && next === "/") {
+      while (index < text.length && text[index] !== "\n") {
+        index += 1;
+      }
+      output += "\n";
+      continue;
+    }
+
+    if (char === "/" && next === "*") {
+      index += 2;
+      while (index < text.length && !(text[index] === "*" && text[index + 1] === "/")) {
+        index += 1;
+      }
+      index += 1;
+      continue;
+    }
+
+    output += char;
+  }
+
+  return output;
+}
+
+function resolveAliasedImport(root, specifier, aliasMappings) {
+  for (const mapping of aliasMappings) {
+    if (
+      !specifier.startsWith(mapping.patternPrefix) ||
+      !specifier.endsWith(mapping.patternSuffix)
+    ) {
+      continue;
+    }
+
+    if (!mapping.pattern.includes("*") && specifier !== mapping.pattern) {
+      continue;
+    }
+
+    const wildcard = mapping.pattern.includes("*")
+      ? specifier.slice(
+          mapping.patternPrefix.length,
+          specifier.length - mapping.patternSuffix.length,
+        )
+      : "";
+
+    return normalize(resolve(root, `${mapping.targetPrefix}${wildcard}${mapping.targetSuffix}`));
+  }
+
+  return null;
+}
+
+function resolveImport(root, fromFile, specifier, aliasMappings) {
+  if (specifier.startsWith(".")) {
+    return resolveLocalImport(root, fromFile, specifier);
+  }
+
+  return resolveAliasedImport(root, specifier, aliasMappings);
+}
+
 function isPathUnder(path, maybeParent) {
   const rel = relative(maybeParent, path);
   return rel === "" || (!rel.startsWith("..") && !rel.startsWith("/"));
@@ -155,7 +279,9 @@ function pathExistsWithKnownExtension(path) {
     return true;
   }
 
-  return [".ts", ".tsx", ".js", ".jsx"].some((ext) => existsSync(`${path}${ext}`));
+  return [".ts", ".tsx", ".js", ".jsx"].some(
+    (ext) => existsSync(`${path}${ext}`) || existsSync(join(path, `index${ext}`)),
+  );
 }
 
 function hasDynamicTailwindClassConstruction(text) {
@@ -172,6 +298,7 @@ function hasHttpPrefixUrlValidation(text) {
 
 export function checkFrontendBoundaries(root = defaultRoot) {
   const srcRoot = join(root, "src");
+  const aliasMappings = readAliasMappings(root);
   const violations = [];
 
   for (const file of collectSourceFiles(root)) {
@@ -204,7 +331,7 @@ export function checkFrontendBoundaries(root = defaultRoot) {
     }
 
     for (const specifier of getImportSpecifiers(text)) {
-      const resolved = resolveLocalImport(root, file, specifier);
+      const resolved = resolveImport(root, file, specifier, aliasMappings);
 
       if (
         !resolved ||

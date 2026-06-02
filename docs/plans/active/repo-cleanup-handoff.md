@@ -31,6 +31,14 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local frontend-boundary harness cleanup closes the alias-resolution
+  gap from the deep harness audit. `check-frontend-boundaries.mjs` now reads
+  `tsconfig.json` path aliases, strips JSONC comments without corrupting glob
+  strings, and applies layer-boundary checks to `@/*` imports. Verification
+  passed: `node --test scripts/check-frontend-boundaries.test.mjs` passed 4
+  tests and `node scripts/check-frontend-boundaries.mjs` passed. Broader
+  checks also passed: `npm run test:scripts` passed 469 tests,
+  `npm run lint:bloat`, `npm run lint:docs`, and `git diff --check`.
 - Current local Browser Button recovery cleanup replaces remaining
   settings/connection-style error copy with action-first Browser Import
   recovery, adds sanitized load/toggle/number-save/copy tests, and updates the

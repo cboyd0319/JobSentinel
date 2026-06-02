@@ -1767,6 +1767,9 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   renames user-facing guide copy from connection settings to button setup
   number, and adds component coverage for sanitized load, toggle, number-save,
   and copy failures.
+- Current local frontend-boundary harness follow-up closes the `@/*` alias
+  blind spot from the deep harness audit by resolving `tsconfig.json` path
+  aliases before applying layer-boundary checks.
 - Current local modal repeated-failure recovery follow-up replaces close-and
   try-later guidance with copy/save safe support report first, with focused
   modal-boundary and product-copy coverage.
