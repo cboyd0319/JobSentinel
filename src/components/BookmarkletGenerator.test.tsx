@@ -51,6 +51,8 @@ describe("BookmarkletGenerator", () => {
     expect(screen.getByRole("button", { name: /copy browser button/i })).toBeInTheDocument();
     expect(screen.getAllByText(/copy.*after each saved job/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/copy a fresh browser button/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/closed and reopened/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/when JobSentinel restarts/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/local safety code/i)).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /support settings/i }));
     expect(screen.getByText("Support number")).toBeInTheDocument();
@@ -92,6 +94,7 @@ describe("BookmarkletGenerator", () => {
 
     expect(await screen.findByText(/could not copy browser button/i)).toBeInTheDocument();
     expect(screen.getByText(/allow clipboard access and try again/i)).toBeInTheDocument();
+    expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
     expect(screen.queryByText(/token=secret/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/\/Users\/chad/i)).not.toBeInTheDocument();
   });

@@ -1225,6 +1225,9 @@ Next high-value passes:
      The latest shared helper persistent-recovery follow-up adds safe support
      report fallbacks to network, site, permission, reminder, notification,
      local storage, and optional analysis-service error actions.
+     The latest Browser Button recovery follow-up replaces restart wording and
+     clipboard-only retry guidance with close/reopen wording plus safe support
+     report fallback across frontend and command-boundary copy.
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.

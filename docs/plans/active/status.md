@@ -955,6 +955,10 @@ and record actionable findings in this active-plan surface.
   report fallbacks to network, site, permission, reminder, notification, local
   storage, and optional analysis-service error actions, with helper tests and
   product-copy coverage.
+- Current local Browser Button recovery follow-up replaces restart wording and
+  clipboard-only retry guidance with close/reopen wording plus safe support
+  report fallback across frontend and command-boundary copy, with focused
+  component/Rust tests and product-copy coverage.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

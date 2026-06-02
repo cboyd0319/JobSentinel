@@ -997,7 +997,12 @@ test("product copy rejects support troubleshooting jargon", () => {
     writeFixtureFile(
       root,
       "src/components/BookmarkletGenerator.tsx",
-      "Advanced connection settings\nlocal safety code\nIf this feels hard\nblock page import\n",
+      "Advanced connection settings\nlocal safety code\nIf this feels hard\nblock page import\nAllow clipboard access and try again.\nwhen JobSentinel restarts\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/bookmarklet.rs",
+      '"Could not copy browser button. Allow clipboard access and try again.".to_string()',
     );
     writeFixtureFile(
       root,
@@ -1018,6 +1023,10 @@ test("product copy rejects support troubleshooting jargon", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/components/BookmarkletGenerator.tsx"),
+      true,
+    );
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src-tauri/src/commands/bookmarklet.rs"),
       true,
     );
     assert.equal(

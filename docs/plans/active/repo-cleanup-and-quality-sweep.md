@@ -1296,3 +1296,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   report fallbacks to network, site, permission, reminder, notification, local
   storage, and optional analysis-service error actions, with helper tests and
   product-copy coverage.
+- Current local Browser Button recovery follow-up replaces restart wording and
+  clipboard-only retry guidance with close/reopen wording plus safe support
+  report fallback across frontend and command-boundary copy, with focused
+  component/Rust tests and product-copy coverage.

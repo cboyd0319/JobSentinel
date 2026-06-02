@@ -20,7 +20,7 @@ pub struct BookmarkletConfigResponse {
 }
 
 fn bookmarklet_copy_error() -> String {
-    "Could not copy browser button. Allow clipboard access and try again.".to_string()
+    "Could not copy browser button. Allow clipboard access and try again, or copy a safe support report if this keeps happening.".to_string()
 }
 
 fn bookmarklet_code(port: u16, auth_token: &str) -> String {
@@ -181,6 +181,14 @@ mod tests {
         assert!(code.contains("mode:'no-cors'"));
         assert!(!code.contains("X-JobSentinel-Token"));
         assert!(code.contains("test-token"));
+    }
+
+    #[test]
+    fn test_bookmarklet_copy_error_has_safe_support_report_fallback() {
+        let message = bookmarklet_copy_error();
+
+        assert!(message.contains("safe support report"));
+        assert!(message.contains("Allow clipboard access and try again, or copy"));
     }
 
     #[test]

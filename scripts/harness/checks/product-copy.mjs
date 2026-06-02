@@ -256,6 +256,7 @@ const technicalFirstUserCopyPaths = new Set([
   "src/contexts/UndoContext.tsx",
   "src/contexts/KeyboardShortcutsContext.tsx",
   "src-tauri/src/commands/errors.rs",
+  "src-tauri/src/commands/bookmarklet.rs",
   "src-tauri/src/core/db/error.rs",
   "src-tauri/src/core/automation/error.rs",
   "src-tauri/src/core/resume/ats_analyzer.rs",
@@ -1171,11 +1172,17 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /local safety code/i,
       /If this feels hard/i,
       /block page import/i,
+      /Allow clipboard access and try again\./i,
+      /when JobSentinel restarts/i,
     ];
 
     if (browserButtonPatterns.some((pattern) => pattern.test(text))) {
       return true;
     }
+  }
+
+  if (path === "src-tauri/src/commands/bookmarklet.rs") {
+    return /Allow clipboard access and try again\./i.test(text);
   }
 
   if (path === "docs/BOOKMARKLET.md") {

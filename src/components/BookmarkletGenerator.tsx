@@ -92,7 +92,7 @@ export function BookmarkletGenerator() {
     } catch (err) {
       logError("Could not copy browser import button:", err);
       setCopied(false);
-      setError("Could not copy browser button. Allow clipboard access and try again.");
+      setError("Could not copy browser button. Allow clipboard access and try again, or copy a safe support report if this keeps happening.");
     }
   };
 
@@ -195,7 +195,7 @@ export function BookmarkletGenerator() {
               </div>
               <p className="text-xs text-gray-500">
                 For your safety, copy a fresh browser button after each saved job, after
-                about one hour, or when JobSentinel restarts.
+                about one hour, or if JobSentinel was closed and reopened.
               </p>
             </div>
 
@@ -211,7 +211,7 @@ export function BookmarkletGenerator() {
                 <li>Name it "Import to JobSentinel"</li>
                 <li>Paste the copied text where the bookmark stores the page address</li>
                 <li>Save the bookmark to your bookmarks bar</li>
-                <li>Copy the browser button again after each saved job, after about one hour, or when JobSentinel restarts</li>
+                <li>Copy the browser button again after each saved job, after about one hour, or if JobSentinel was closed and reopened</li>
               </ol>
             </div>
 
