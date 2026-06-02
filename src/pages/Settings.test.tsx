@@ -469,7 +469,7 @@ describe("Settings — loadConfig flow", () => {
     expect(screen.getByRole("button", { name: "Other" })).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Use this only if your provider gives you manual email details",
+        "Leave these alone unless your email service gave you these details.",
       ),
     ).toBeInTheDocument();
 
@@ -478,12 +478,13 @@ describe("Settings — loadConfig flow", () => {
     expect(
       screen.getByText(/Use an app password from Google Account Security/),
     ).toBeInTheDocument();
-    expect(screen.getByText("Email provider details")).toBeInTheDocument();
-    expect(screen.getByText("Provider address")).toBeInTheDocument();
-    expect(screen.getByText("Provider number")).toBeInTheDocument();
+    expect(screen.getByText("Email sending details")).toBeInTheDocument();
+    expect(screen.getByText("Sending address")).toBeInTheDocument();
+    expect(screen.getByText("Sending number")).toBeInTheDocument();
     expect(screen.getByText("Email address")).toBeInTheDocument();
     expect(screen.queryByText(/regular password/i)).not.toBeInTheDocument();
     expect(screen.queryByText("Email Server")).not.toBeInTheDocument();
+    expect(screen.queryByText("Email provider details")).not.toBeInTheDocument();
   });
 
   it("uses plain search-word copy for matching settings", async () => {

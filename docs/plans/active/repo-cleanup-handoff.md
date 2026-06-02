@@ -198,6 +198,9 @@ Current cleanup posture:
   guardrail jargon with review-first outside-AI, public-job-details, and
   private-details-stay-local language. Gateway and product-copy coverage guard
   the old wording.
+- Current local email-alert setup follow-up replaces provider-address/provider-number
+  wording with email-sending-details, sending-address, and sending-number labels.
+  Settings and product-copy coverage guard the old labels.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.

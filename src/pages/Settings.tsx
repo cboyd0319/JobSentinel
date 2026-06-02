@@ -754,7 +754,7 @@ export default function Settings({ onClose }: SettingsProps) {
       server: "",
       port: 587,
       starttls: true,
-      hint: "Use this only if your provider gives you manual email details",
+      hint: "Leave these alone unless your email service gave you these details.",
     },
   };
 
@@ -2618,11 +2618,11 @@ export default function Settings({ onClose }: SettingsProps) {
                       </div>
                       <details className="rounded-lg border border-surface-200 dark:border-surface-700 p-3">
                         <summary className="cursor-pointer text-sm font-medium text-surface-700 dark:text-surface-300">
-                          Email provider details
+                          Email sending details
                         </summary>
                         <div className="grid grid-cols-2 gap-3 mt-3">
                           <Input
-                            label="Provider address"
+                            label="Sending address"
                             value={config.alerts.email?.smtp_server ?? ""}
                             onChange={(e) =>
                               setConfig({
@@ -2637,12 +2637,12 @@ export default function Settings({ onClose }: SettingsProps) {
                               })
                             }
                             placeholder="smtp.gmail.com"
-                            hint="Use the email sending address from your email provider."
+                            hint="Use this only if your email service gave you this detail."
                           />
                           <div className="flex gap-2">
                             <div className="flex-1">
                               <Input
-                                label="Provider number"
+                                label="Sending number"
                                 type="number"
                                 value={config.alerts.email?.smtp_port ?? 587}
                                 onChange={(e) =>
@@ -2658,7 +2658,7 @@ export default function Settings({ onClose }: SettingsProps) {
                                     },
                                   })
                                 }
-                                hint="Use the email sending number from your email provider. Leave it alone unless your provider says otherwise."
+                                hint="Use this only if your email service gave you this detail."
                               />
                             </div>
                             <div className="flex items-end pb-2">

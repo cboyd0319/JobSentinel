@@ -239,6 +239,9 @@ boundaries, and harness modularity:
 - Changed outside-AI gateway guardrail messages from provider/payload/sensitive
   jargon to review-first outside-AI, public-job-details, and private-details-stay-local
   language. Gateway and product-copy tests guard the old wording.
+- Changed email-alert setup labels from provider-address/provider-number wording
+  to email-sending-details, sending-address, and sending-number labels. Settings
+  and product-copy tests guard the old labels.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

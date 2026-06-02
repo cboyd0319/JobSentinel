@@ -71,6 +71,9 @@ and record actionable findings in this active-plan surface.
 - Latest local outside-AI gateway follow-up replaces technical guardrail messages
   with review-first outside-AI, public-job-details, and private-details-stay-local
   language. Gateway and product-copy tests guard the old wording.
+- Latest local email-alert setup follow-up replaces provider-address/provider-number
+  wording with email-sending-details, sending-address, and sending-number labels.
+  Settings and product-copy tests guard the old labels.
 - Latest local resume-readability follow-up changes score-adjacent labels from
   `Complete`, `Completeness`, `missing`, `issues`, `View Details`, and `Full
   Resume Readability Review` to details, details-included, to-review,
