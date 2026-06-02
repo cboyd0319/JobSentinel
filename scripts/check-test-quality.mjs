@@ -48,13 +48,27 @@ const qualityRules = [
   },
   {
     label: "skipped unit test",
-    pattern: /\b(?:describe|it)\.skip\s*\(/,
+    pattern: /\b(?:describe|it|test)\.skip\s*\(/,
     extensions: new Set([".js", ".jsx", ".mjs", ".ts", ".tsx"]),
   },
   {
     label: "temporarily disabled test block",
     pattern: disabledTestBlockPattern,
     extensions: new Set([".js", ".jsx", ".mjs", ".rs", ".ts", ".tsx"]),
+  },
+];
+
+const wholeFileQualityRules = [
+  {
+    label: "empty test body",
+    pattern:
+      /\b(?:describe|it|test)\s*\(\s*(["'`])(?:\\.|(?!\1)[\s\S])*?\1\s*,\s*(?:async\s*)?(?:\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>\s*\{\s*\}\s*\)/g,
+    extensions: new Set([".js", ".jsx", ".mjs", ".ts", ".tsx"]),
+  },
+  {
+    label: "empty test body",
+    pattern: /#\s*\[\s*test\s*\]\s*fn\s+\w+\s*\([^)]*\)\s*\{\s*\}/g,
+    extensions: new Set([".rs"]),
   },
 ];
 
@@ -107,6 +121,20 @@ export function checkTestQuality(root = defaultRoot) {
         }
       }
     });
+
+    const text = lines.join("\n");
+    for (const rule of wholeFileQualityRules) {
+      if (rule.extensions && !rule.extensions.has(extension)) {
+        continue;
+      }
+
+      rule.pattern.lastIndex = 0;
+      let match;
+      while ((match = rule.pattern.exec(text)) !== null) {
+        const lineNumber = text.slice(0, match.index).split(/\n/).length;
+        violations.push(`${rel}:${lineNumber} contains ${rule.label}`);
+      }
+    }
   }
 
   return violations;

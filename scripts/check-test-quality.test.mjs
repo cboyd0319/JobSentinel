@@ -59,7 +59,9 @@ mod tests {
     // ${disabledMarker} - these tests depend on old behavior
     /* // ${noCommitMarker}: ${reenableMarker} company matching
     #[test]
-    fn skipped_behavior() {}
+    fn skipped_behavior() {
+        assert!(false);
+    }
     */
 }
 `,
@@ -70,6 +72,74 @@ mod tests {
     assert.deepEqual(violations, [
       "src-tauri/src/core/scoring/mod.rs:4 contains temporarily disabled test block",
       "src-tauri/src/core/scoring/mod.rs:5 contains temporarily disabled test block",
+    ]);
+  });
+});
+
+test("checkTestQuality rejects skipped test blocks", () => {
+  withFixture((root) => {
+    const skippedCall = "test" + ".skip";
+    const noOpAssertion = "expect(" + "true).toBe(true);";
+    writeFixtureFile(
+      root,
+      "src/components/Widget.test.tsx",
+      `
+import { test } from "vitest";
+
+${skippedCall}("renders widget", () => {
+  ${noOpAssertion}
+});
+`,
+    );
+
+    const violations = checkTestQuality(root);
+
+    assert.deepEqual(violations, [
+      "src/components/Widget.test.tsx:4 contains skipped unit test",
+      "src/components/Widget.test.tsx:5 contains no-op true assertion",
+    ]);
+  });
+});
+
+test("checkTestQuality rejects empty JavaScript test bodies", () => {
+  withFixture((root) => {
+    const emptyBody = "{" + "}";
+    writeFixtureFile(
+      root,
+      "scripts/empty-widget.test.mjs",
+      `
+import test from "node:test";
+
+test("does nothing", () => ${emptyBody});
+`,
+    );
+
+    const violations = checkTestQuality(root);
+
+    assert.deepEqual(violations, [
+      "scripts/empty-widget.test.mjs:4 contains empty test body",
+    ]);
+  });
+});
+
+test("checkTestQuality rejects empty Rust test bodies", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/empty_test.rs",
+      `
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn does_nothing() {}
+}
+`,
+    );
+
+    const violations = checkTestQuality(root);
+
+    assert.deepEqual(violations, [
+      "src-tauri/src/core/empty_test.rs:4 contains empty test body",
     ]);
   });
 });

@@ -160,10 +160,11 @@ test("docs drift check rejects stale maintainer and migration claims", () => {
 
 test("docs drift check rejects stale test guidance and fixed waits", () => {
   withFixture((root) => {
+    const skippedTestGuidance = "test" + ".skip()";
     writeFixtureFile(
       root,
       "docs/developer/FRONTEND_TESTING.md",
-      "Use test.skip() and waitForTimeout(ms) while debugging.\n",
+      `Use ${skippedTestGuidance} and waitForTimeout(ms) while debugging.\n`,
     );
     writeFixtureFile(
       root,

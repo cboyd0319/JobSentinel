@@ -1770,6 +1770,9 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local frontend-boundary harness follow-up closes the `@/*` alias
   blind spot from the deep harness audit by resolving `tsconfig.json` path
   aliases before applying layer-boundary checks.
+- Current local test-quality harness follow-up closes skipped and empty-test
+  blind spots by rejecting `test.skip`, empty JavaScript tests, and empty Rust
+  `#[test]` functions.
 - Current local modal repeated-failure recovery follow-up replaces close-and
   try-later guidance with copy/save safe support report first, with focused
   modal-boundary and product-copy coverage.

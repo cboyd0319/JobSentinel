@@ -31,6 +31,15 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local test-quality harness cleanup closes the skipped/empty-test
+  smell gap from the deep harness audit. `check-test-quality.mjs` now rejects
+  `test.skip`, empty JavaScript test bodies, and empty Rust `#[test]`
+  functions. Verification passed: `node --test
+  scripts/check-test-quality.test.mjs` passed 5 tests,
+  `node scripts/check-test-quality.mjs` passed, and `node --test
+  scripts/check-docs-drift.test.mjs` passed 15 tests. Broader checks also
+  passed: `npm run test:scripts` passed 472 tests, `npm run lint:bloat`,
+  `npm run lint:docs`, and `git diff --check`.
 - Current local frontend-boundary harness cleanup closes the alias-resolution
   gap from the deep harness audit. `check-frontend-boundaries.mjs` now reads
   `tsconfig.json` path aliases, strips JSONC comments without corrupting glob
