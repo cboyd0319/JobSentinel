@@ -1248,3 +1248,5 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local shared link/contact validation slice changes URL, phone, port,
   and multi-email messages to plain guidance and lets stray email-list commas
   pass instead of treating them as bad addresses.
+- Current local unsafe-job-link copy slice changes invalid saved-link warnings
+  to plain protective guidance and adds JobCard coverage.

@@ -1287,6 +1287,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Phone number must have/i,
     /Port must be between 1 and 65535/i,
     /Invalid email addresses/i,
+    /Invalid job link/i,
+    /This job link is not safe to open/i,
     /Invalid date/i,
     /Invalid duration/i,
     /Interview cannot be scheduled in the past/i,

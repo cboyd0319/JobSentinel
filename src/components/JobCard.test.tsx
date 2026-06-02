@@ -528,6 +528,20 @@ describe("JobCard", () => {
       );
     });
 
+    it("shows plain guidance for unsafe saved links", async () => {
+      const user = userEvent.setup();
+      renderWithToast(<JobCard job={{ ...mockJob, url: "javascript:alert(1)" }} />);
+
+      const viewBtn = screen.getByTestId("btn-view");
+      await user.click(viewBtn);
+
+      expect(await screen.findByText("Check job link")).toBeInTheDocument();
+      expect(
+        screen.getByText("This saved link does not look safe to open."),
+      ).toBeInTheDocument();
+      expect(deeplinks.openDeepLink).not.toHaveBeenCalled();
+    });
+
     it("does not fall back to window.open when openDeepLink fails", async () => {
       const user = userEvent.setup();
       const mockWindowOpen = vi.fn();

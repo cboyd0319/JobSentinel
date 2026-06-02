@@ -384,12 +384,12 @@ export default function Dashboard({
       // Security: validate job link before opening.
       if (!isValidJobUrl(job.url)) {
         logError(
-          "Security: Blocked attempt to open invalid job link:",
+          "Security: Blocked unsafe saved job link:",
           job.url.slice(0, 50),
         );
         toast.error(
-          "Invalid job link",
-          "This job link is not safe to open",
+          "Check job link",
+          "This saved link does not look safe to open.",
         );
         return;
       }

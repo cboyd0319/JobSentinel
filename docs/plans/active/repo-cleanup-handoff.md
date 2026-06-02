@@ -1187,8 +1187,9 @@ Next high-value passes:
      missing-step and skill-detail messages to action-first copy with focused
      helper coverage. The latest shared link/contact validation slice changes
      URL, phone, port, and multi-email messages to plain guidance and ignores
-     stray email-list commas. Continue looking for new issues as new surfaces
-     change.
+     stray email-list commas. The latest unsafe-job-link copy slice changes
+     invalid saved-link warnings to plain protective guidance with JobCard
+     coverage. Continue looking for new issues as new surfaces change.
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.

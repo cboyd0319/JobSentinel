@@ -885,6 +885,8 @@ and record actionable findings in this active-plan surface.
 - Current local shared link/contact validation slice changes URL, phone, port,
   and multi-email messages to plain guidance and lets stray email-list commas
   pass instead of treating them as bad addresses.
+- Current local unsafe-job-link copy slice changes invalid saved-link warnings
+  to plain protective guidance and adds JobCard coverage.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.
