@@ -188,7 +188,7 @@ class PageErrorBoundary extends Component<Props, State> {
             {import.meta.env.DEV && safeErrorStack && (
               <details className="mt-6 p-4 bg-surface-100 dark:bg-surface-800 rounded-lg text-sm">
                 <summary className="cursor-pointer text-surface-600 dark:text-surface-400 font-medium">
-                  Support details (development only)
+                  App problem details
                 </summary>
                 <pre className="mt-2 overflow-auto text-xs text-red-600 dark:text-red-400 whitespace-pre-wrap max-h-64">
                   {safeErrorStack}

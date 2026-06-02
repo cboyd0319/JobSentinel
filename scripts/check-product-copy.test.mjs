@@ -319,23 +319,24 @@ test("product copy rejects technical recovery and raw error details", () => {
         "Reload App",
         "Reset App Window & Reload",
         "If reload does not work",
+        "Support details (development only)",
         "",
       ].join("\n"),
     );
     writeFixtureFile(
       root,
       "src/components/PageErrorBoundary.tsx",
-      "This keeps happening. This page may be temporarily unavailable.",
+      "This keeps happening. This page may be temporarily unavailable.\nSupport details (development only)",
     );
     writeFixtureFile(
       root,
       "src/components/ComponentErrorBoundary.tsx",
-      "This section failed to load",
+      "This section failed to load\nShow support details",
     );
     writeFixtureFile(
       root,
       "src/components/ModalErrorBoundary.tsx",
-      "This window failed to load\nPlease close and try again later\nTry closing and checking back later\n",
+      "This window failed to load\nPlease close and try again later\nTry closing and checking back later\nSupport details (development only)\n",
     );
     writeFixtureFile(root, "src/components/ScraperHealthDashboard.tsx", "window state");
 
@@ -766,7 +767,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/Settings.tsx",
-      'Basic Settings\nMore Settings\nTurn this on to never miss a new posting.\nAuto-scan job boards\nCompany preference (if configured)\nEmail provider details\nProvider address\nProvider number\nUse this only if your provider gives you manual email details\nOptional USAJobs auto-check\nAutomatic USAJobs checks contact USAJobs\nSave failed\nTest failed\nsaved connection detail(s) failed to save\nRestart JobSentinel\nTroubleshooting\n<HelpIcon text="If something is not working, these details can help explain what happened." />\n',
+      'Basic Settings\nMore Settings\nTurn this on to never miss a new posting.\nAuto-scan job boards\nCompany preference (if configured)\nEmail provider details\nProvider address\nProvider number\nUse this only if your provider gives you manual email details\nOptional USAJobs auto-check\nAutomatic USAJobs checks contact USAJobs\nSave failed\nTest failed\nsaved connection detail(s) failed to save\nRestart JobSentinel\nTroubleshooting\n<HelpIcon text="If something is not working, these details can help explain what happened." />\nHacker News Who\'s Hiring\nTurn Hacker News hiring post checks on or off\n',
     );
     writeFixtureFile(
       root,
@@ -943,12 +944,12 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/components/feedback/SubmitOptions.tsx",
-      "Optional maintainer issue\nSend to maintainers (optional)\nOpen GitHub (Optional)\n",
+      "Optional maintainer issue\nSend to maintainers (optional)\nOpen GitHub (Optional)\nOpen GitHub Help Page\n",
     );
     writeFixtureFile(
       root,
       "src/components/feedback/SuccessScreen.tsx",
-      "Your feedback report has been saved:\nThe issue page keeps replies and updates in one place.\n",
+      "Your feedback report has been saved:\nThe issue page keeps replies and updates in one place.\nReview the issue, then submit it.\n",
     );
     writeFixtureFile(
       root,
@@ -1299,7 +1300,7 @@ test("product copy rejects support troubleshooting jargon", () => {
     writeFixtureFile(
       root,
       "src/components/BookmarkletGenerator.tsx",
-      "Advanced connection settings\nlocal safety code\nIf this feels hard\nblock page import\nAllow clipboard access and try again.\nwhen JobSentinel restarts\nSupport settings\nSupport number\n",
+      "Advanced connection settings\nlocal safety code\nIf this feels hard\nblock page import\nAllow clipboard access and try again.\nwhen JobSentinel restarts\nSupport settings\nSupport number\nHelp-only settings\nunless a support reply asks\n",
     );
     writeFixtureFile(
       root,
@@ -1340,7 +1341,7 @@ test("product copy rejects support troubleshooting jargon", () => {
     writeFixtureFile(
       root,
       "src/components/ScraperHealthDashboard.tsx",
-      ">Page Check<\n>Access<\n>Source Type<\n>Recent Success\nChecks Worked\nCheck Time\nLast Worked\n{scraper.success_rate_24h.toFixed(0)}%\nCheck All Sources\nOfficial feed\n(retry ${retryAttempt})\nSource Controls\nJob Source Check Results\nSource Check Results\nNeeds update\n'Turn this source off'\n'Check this source now'\n",
+      ">Page Check<\n>Access<\n>Source Type<\n>Recent Success\n>Issue<\nChecks Worked\nCheck Time\nLast Worked\n{scraper.success_rate_24h.toFixed(0)}%\nCheck All Sources\nOfficial feed\n(retry ${retryAttempt})\nSource Controls\nJob Source Check Results\nSource Check Results\nNeeds update\n'Turn this source off'\n'Check this source now'\n",
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
@@ -1389,7 +1390,7 @@ test("product copy rejects GitHub-first support and overbroad privacy copy", () 
     writeFixtureFile(
       root,
       "src/pages/SetupWizard.tsx",
-      "Nothing is sent anywhere unless you set up notifications.",
+      "Nothing is sent anywhere unless you set up notifications.\nHacker News hiring posts",
     );
     writeFixtureFile(
       root,
@@ -1823,7 +1824,7 @@ test("product copy rejects technical-first resume copy", () => {
     writeFixtureFile(
       root,
       "src/pages/ResumeBuilder.tsx",
-      'const PROFICIENCY_LEVELS = ["beginner", "intermediate", "advanced", "expert"]; Proficiency Select level Failed to import skills Failed to generate preview Export failed Try restarting JobSentinel Try restarting the app',
+      'const PROFICIENCY_LEVELS = ["beginner", "intermediate", "advanced", "expert"]; Proficiency Select level Failed to import skills Failed to generate preview Export failed Try restarting JobSentinel Try restarting the app more issues',
     );
     writeFixtureFile(
       root,
@@ -1870,6 +1871,8 @@ test("product copy rejects technical-first resume copy", () => {
         "{suggestion.category}",
         "Navigating to Resume Builder",
         "Job context has been saved",
+        "Navigation not available",
+        "Cannot navigate to Resume Builder",
         "Format Issues",
         "<Badge>{issue.severity}</Badge>",
         "Fix: {issue.fix}",

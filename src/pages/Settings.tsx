@@ -896,8 +896,8 @@ export default function Settings({ onClose }: SettingsProps) {
     if (isTechFocused) {
       if (!config?.hn_hiring?.enabled) {
         recommendations.push({
-          board: "Hacker News Who's Hiring",
-          reason: "Active monthly tech hiring threads",
+          board: "Startup and tech job posts",
+          reason: "Active monthly startup and tech hiring posts",
           enable: () =>
             setConfig({
               ...config!,
@@ -3748,22 +3748,22 @@ export default function Settings({ onClose }: SettingsProps) {
                       </div>
                     </div>
 
-                    {/* Hacker News Who's Hiring */}
+                    {/* Startup and tech hiring posts */}
                     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <SettingsSymbol icon="chat" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                           <span className="font-medium text-surface-800 dark:text-surface-200">
-                            Hacker News Who's Hiring
+                            Startup and tech hiring posts
                           </span>
                           <span className="text-xs text-surface-500">
-                            (Monthly thread)
+                            (Monthly hiring posts)
                           </span>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
-                            aria-label="Turn Hacker News hiring post checks on or off"
+                            aria-label="Turn startup and tech hiring post checks on or off"
                             checked={config.hn_hiring?.enabled ?? false}
                             onChange={(e) =>
                               setConfig({

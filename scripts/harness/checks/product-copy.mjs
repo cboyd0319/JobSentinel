@@ -664,6 +664,8 @@ export function hasTechnicalRecoveryCopy(root, path) {
     /Reload App/i,
     /Reset App Window & Reload/i,
     /If reload does not work/i,
+    /Support details \(development only\)/i,
+    /Show support details/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));
@@ -772,6 +774,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Continue with My Own Search/i,
       /My Own Search/i,
       /Starts with \{?profile\.keywordsBoost\.length\}? helpful skills/i,
+      /Hacker News hiring posts/i,
     ];
 
     if (firstRunPatterns.some((pattern) => pattern.test(text))) {
@@ -1071,6 +1074,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Advanced chat alert/i,
       /\(Tech hubs\)/i,
       /HN Who's Hiring/i,
+      /Hacker News Who's Hiring/i,
+      /Turn Hacker News hiring post checks on or off/i,
       /\(Tech careers\)/i,
       /blocks automatic checks/i,
       /Optional USAJobs auto-check/i,
@@ -1165,6 +1170,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /restarting JobSentinel/i,
       /Try restarting the app/i,
       /restarting the app/i,
+      /more issues/i,
     ];
 
     if (resumeBuilderPatterns.some((pattern) => pattern.test(text))) {
@@ -1219,6 +1225,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Improve Bullet Point/i,
       /Improved Version/i,
       /Could not improve bullet/i,
+      /Navigation not available/i,
+      /Cannot navigate to Resume Builder/i,
       /Navigating to Resume Builder/i,
       /Job context has been saved/i,
       /Format Issues/i,
@@ -1512,6 +1520,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /when JobSentinel restarts/i,
       /Support settings/i,
       /Support number/i,
+      /Help-only settings/i,
+      /support reply/i,
     ];
 
     if (browserButtonPatterns.some((pattern) => pattern.test(text))) {
@@ -1552,6 +1562,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Checks Worked/i,
       /Check Time/i,
       /Last Worked/i,
+      />\s*Issue\s*</i,
       /success_rate_24h\.toFixed\(0\)\s*\}\s*%/i,
       /Job Source Check Results/i,
       /Source Controls/i,
@@ -1586,6 +1597,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Advanced chat alert/i,
       /\(Tech hubs\)/i,
       /HN Who's Hiring/i,
+      /Hacker News Who's Hiring/i,
+      /Turn Hacker News hiring post checks on or off/i,
       /\(Tech careers\)/i,
       /blocks automatic checks/i,
       /New scans use this warning behavior/i,
@@ -1829,8 +1842,10 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Optional maintainer issue/i,
     /Send to maintainers \(optional\)/i,
     /Open GitHub \(Optional\)/i,
+    /Open GitHub Help Page/i,
     /Your feedback report has been saved/i,
     /The issue page keeps replies and updates in one place/i,
+    /Review the issue,\s*then submit it/i,
     /\bpay floor\b/i,
     /contact support with the error details below/i,
     /contact support/i,

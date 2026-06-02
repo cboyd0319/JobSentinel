@@ -51,7 +51,7 @@ describe("SubmitOptions", () => {
       screen.getByRole("button", { name: /save safe support report/i })
     );
     await user.click(
-      screen.getByRole("button", { name: /open github help page/i })
+      screen.getByRole("button", { name: /open online help page/i })
     );
 
     expect(onSubmitLocalReport).toHaveBeenCalledTimes(1);

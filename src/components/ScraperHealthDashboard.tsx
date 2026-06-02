@@ -856,7 +856,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                             New jobs
                           </th>
                           <th className="text-left py-2 px-3 font-medium text-surface-600 dark:text-surface-400">
-                            Issue
+                            Problem
                           </th>
                         </tr>
                       </thead>

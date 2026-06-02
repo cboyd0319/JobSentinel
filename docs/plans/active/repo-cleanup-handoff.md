@@ -30,6 +30,25 @@ Latest pushed checkpoints include:
 
 Recent remote integration evidence:
 
+- Current local frontend sidecar copy follow-up changes optional feedback
+  sharing from GitHub-help and issue-step wording to online-help and help-form
+  wording, expands HN source labels to startup and tech job posts, changes
+  source-status history from issue wording to problem wording, changes resume
+  recovery handoff copy to plain sidebar guidance, and changes visible support
+  detail labels to app problem details. Focused verification passed: `npx
+  vitest run src/components/feedback/SubmitOptions.test.tsx
+  src/components/feedback/SuccessScreen.test.tsx src/pages/Settings.test.tsx
+  src/pages/SetupWizard.test.tsx
+  src/components/ScraperHealthDashboard.test.tsx
+  src/pages/ResumeOptimizer.test.tsx
+  src/components/BookmarkletGenerator.test.tsx
+  src/components/ErrorBoundary.test.tsx
+  src/components/PageErrorBoundary.test.tsx
+  src/components/ModalErrorBoundary.test.tsx
+  src/components/ComponentErrorBoundary.test.tsx` passed 214 tests,
+  `node --test scripts/check-product-copy.test.mjs` passed 32 tests,
+  `npm run test:scripts` passed 455 script tests, `npm run lint:bloat`,
+  `npm run lint`, and `git diff --check`.
 - Current local settings/support copy follow-up changes manual email setup
   labels, USAJobs jobs-to-check wording, connected-source review labels, and
   the detailed local support-report action. Focused verification passed:
@@ -147,6 +166,12 @@ Recent remote integration evidence:
 
 Current cleanup posture:
 
+- Current local frontend sidecar copy follow-up changes feedback sharing,
+  success-step, Settings source, setup source, source-status table,
+  Resume Builder/Optimizer recovery, Browser Button, and error-boundary detail
+  labels away from GitHub-first, issue-first, HN-abbreviation, support-only, and
+  technical recovery wording. Focused UI, product-copy, script, bloat, lint, and
+  diff-check verification cover the changed surfaces.
 - Current local settings/support copy follow-up changes manual email setup
   labels, jobs-to-check wording, connected-source review labels, and detailed
   local support-report action copy, with focused Settings, ErrorLogPanel, and

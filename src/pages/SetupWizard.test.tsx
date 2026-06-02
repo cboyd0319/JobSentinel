@@ -295,7 +295,7 @@ describe("SetupWizard Accessibility", () => {
       expect(screen.getByText("Job sources")).toBeInTheDocument();
       expect(
         screen.getByText(
-          "Remote OK, We Work Remotely, Hacker News hiring posts. You can turn these off in Settings.",
+          "Remote OK, We Work Remotely, Startup and tech hiring posts. You can turn these off in Settings.",
         ),
       ).toBeInTheDocument();
 

@@ -154,7 +154,7 @@ export function BookmarkletGenerator() {
             className="text-sm text-gray-400 hover:text-white underline"
             aria-expanded={showAdvanced}
           >
-            Help-only settings
+            Advanced browser button setting
           </button>
           {showAdvanced && (
             <div className="mt-3 rounded-lg border border-gray-700 p-4">
@@ -171,7 +171,8 @@ export function BookmarkletGenerator() {
                 max="65535"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Leave this at 4321 unless a support reply asks you to change it.
+                Leave this number unchanged unless JobSentinel help instructions
+                tell you otherwise.
               </p>
             </div>
           )}

@@ -747,6 +747,8 @@ describe("ScraperHealthDashboard", () => {
 
       await waitFor(() => {
         const historyPanel = screen.getByRole("region", { name: /recent checks/i });
+        expect(within(historyPanel).getByText("Problem")).toBeInTheDocument();
+        expect(within(historyPanel).queryByText("Issue")).not.toBeInTheDocument();
         expect(within(historyPanel).getByText("15")).toBeInTheDocument();
         expect(within(historyPanel).getByText("+3")).toBeInTheDocument();
       });

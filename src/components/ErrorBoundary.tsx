@@ -258,7 +258,7 @@ class ErrorBoundary extends Component<Props, State> {
             {import.meta.env.DEV && safeErrorStack && (
               <details className="mt-6 p-4 bg-surface-100 dark:bg-surface-900/50 rounded-lg">
                 <summary className="cursor-pointer text-sm text-surface-600 dark:text-surface-400 font-medium">
-                  Support details (development only)
+                  App problem details
                 </summary>
                 <pre className="mt-2 text-xs text-danger overflow-auto max-h-48 whitespace-pre-wrap">
                   {safeErrorStack}

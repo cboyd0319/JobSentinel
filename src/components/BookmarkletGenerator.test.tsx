@@ -55,11 +55,12 @@ describe("BookmarkletGenerator", () => {
     expect(screen.getAllByText(/closed and reopened/i).length).toBeGreaterThan(0);
     expect(screen.queryByText(/when JobSentinel restarts/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/local safety code/i)).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /help-only settings/i }));
+    fireEvent.click(screen.getByRole("button", { name: /advanced browser button setting/i }));
     expect(screen.getByText("Browser helper number")).toBeInTheDocument();
     expect(screen.queryByText("Connection Number")).not.toBeInTheDocument();
     expect(screen.queryByText("Support number")).not.toBeInTheDocument();
-    expect(screen.getByText(/unless a support reply asks/i)).toBeInTheDocument();
+    expect(screen.getByText(/help instructions tell you otherwise/i)).toBeInTheDocument();
+    expect(screen.queryByText(/unless a support reply asks/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/server port/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/bookmarklet code/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/bookmarklet/i)).not.toBeInTheDocument();

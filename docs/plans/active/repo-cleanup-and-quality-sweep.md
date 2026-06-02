@@ -164,6 +164,11 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Changed feedback sharing, success-step, Settings source, setup source,
+  source-status table, Resume Builder/Optimizer recovery, Browser Button, and
+  error-boundary detail labels away from GitHub-first, issue-first,
+  HN-abbreviation, support-only, and technical recovery wording. Focused UI,
+  product-copy, script, bloat, lint, and diff-check verification passed.
 - Changed remaining Settings and support-report jargon: manual email setup now
   uses email-service wording, USAJobs uses jobs-to-check wording,
   connected-source review uses job-source link labels, and Error Log exposes a

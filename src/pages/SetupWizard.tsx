@@ -201,7 +201,7 @@ function formatJobSourceSummary(
       ? "We Work Remotely"
       : null,
     config.hn_hiring.enabled || sourceDefaults.hnHiringEnabled
-      ? "Hacker News hiring posts"
+      ? "Startup and tech hiring posts"
       : null,
   ].filter((source): source is string => source !== null);
 

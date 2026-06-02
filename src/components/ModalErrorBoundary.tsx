@@ -242,7 +242,7 @@ class ModalErrorBoundary extends Component<Props, State> {
             {import.meta.env.DEV && this.state.error?.stack && (
               <details className="mt-4 p-3 bg-surface-100 dark:bg-surface-900/50 rounded-lg">
                 <summary className="cursor-pointer text-xs text-surface-600 dark:text-surface-400 font-medium">
-                  Support details (development only)
+                  App problem details
                 </summary>
                 <pre className="mt-2 text-xs text-red-600 dark:text-red-400 overflow-auto max-h-32 whitespace-pre-wrap">
                   {safeModalErrorDetails(this.state.error)}

@@ -1230,7 +1230,8 @@ describe("Settings — handleSave flow", () => {
 
     expect(panelQueries.getByText("RemoteOK")).toBeInTheDocument();
     expect(panelQueries.getByText("WeWorkRemotely")).toBeInTheDocument();
-    expect(panelQueries.getByText("Hacker News Who's Hiring")).toBeInTheDocument();
+    expect(panelQueries.getByText("Startup and tech job posts")).toBeInTheDocument();
+    expect(panelQueries.queryByText("Hacker News Who's Hiring")).not.toBeInTheDocument();
     expect(panelQueries.getByText(/remote tech roles/i)).toBeInTheDocument();
   });
 
@@ -1296,7 +1297,7 @@ describe("Settings — handleSave flow", () => {
       screen.getByRole("checkbox", { name: /Turn Remote OK automatic checks on or off/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("checkbox", { name: /Turn Hacker News hiring post checks on or off/i }),
+      screen.getByRole("checkbox", { name: /Turn startup and tech hiring post checks on or off/i }),
     ).toBeInTheDocument();
   });
 

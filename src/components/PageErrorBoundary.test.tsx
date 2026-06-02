@@ -339,7 +339,7 @@ describe("PageErrorBoundary", () => {
   });
 
   describe("development mode", () => {
-    it("shows support details in dev mode", () => {
+    it("shows app problem details in dev mode", () => {
       // Mock dev environment
       vi.stubEnv("DEV", true);
 
@@ -349,12 +349,12 @@ describe("PageErrorBoundary", () => {
         </PageErrorBoundary>
       );
 
-      expect(screen.getByText(/support details/i)).toBeInTheDocument();
+      expect(screen.getByText(/app problem details/i)).toBeInTheDocument();
 
       vi.unstubAllEnvs();
     });
 
-    it("support details are in a collapsible section", () => {
+    it("app problem details are in a collapsible section", () => {
       vi.stubEnv("DEV", true);
 
       const { container } = render(
@@ -368,7 +368,7 @@ describe("PageErrorBoundary", () => {
 
       const summary = details?.querySelector("summary");
       expect(summary).toBeInTheDocument();
-      expect(summary).toHaveTextContent(/support details/i);
+      expect(summary).toHaveTextContent(/app problem details/i);
 
       vi.unstubAllEnvs();
     });

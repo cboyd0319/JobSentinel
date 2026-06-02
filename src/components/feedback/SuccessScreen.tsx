@@ -44,7 +44,7 @@ export const SuccessScreen = memo(function SuccessScreen({
               <ol className="list-decimal list-inside space-y-1 text-left">
                 <li>Add anything else you want us to know.</li>
                 <li>Paste the safe support report if it is not already included.</li>
-                <li>Review the issue, then submit it.</li>
+                <li>Review the help form, then send it.</li>
               </ol>
             </div>
 

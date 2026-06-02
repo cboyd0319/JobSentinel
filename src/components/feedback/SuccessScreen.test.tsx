@@ -42,8 +42,12 @@ describe("SuccessScreen", () => {
       screen.getByText(/paste the safe support report if it is not already included/i)
     ).toBeInTheDocument();
     expect(
+      screen.getByText(/review the help form, then send it/i)
+    ).toBeInTheDocument();
+    expect(
       screen.getByText(/github page keeps replies and updates in one place/i)
     ).toBeInTheDocument();
+    expect(screen.queryByText(/review the issue/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/issue page/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/ready to submit/i)).not.toBeInTheDocument();
 

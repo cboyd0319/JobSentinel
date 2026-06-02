@@ -31,9 +31,9 @@ actionable findings in this active-plan surface or the relevant plan.
 
 ## Current Posture
 
-- Branch was clean and ahead of `origin/main` by 28 commits before the current
-  docs sidecar copy slice began. Use `git status --short --branch` for live
-  evidence before committing, pushing, or reporting remote state.
+- Branch has multiple local commits ahead of `origin/main`. Use
+  `git status --short --branch` for live evidence before committing, pushing,
+  or reporting remote state.
 - Latest committed frontend verification evidence: `npm run test:run` passed
   110 Vitest files and 2637 tests, `npm run build` passed in 4.13 seconds, and
   `npm run test:scripts` passed 454 script tests.
@@ -114,7 +114,7 @@ actionable findings in this active-plan surface or the relevant plan.
   passed: `npm run lint:bloat`, `npm run test:scripts` passed 455 script tests,
   `npm run lint:docs`, `npm run lint`, `npm run harness:check`, and
   `git diff --check`.
-- Current local docs sidecar copy slice applies read-only agent findings across
+- Committed docs sidecar copy slice applies read-only agent findings across
   README download/data-boundary wording, Quick Start install and local-file
   wording, Deep Links contributor/browser-add-on wording, Browser Button privacy
   wording, notification and credential docs, public issue templates, SECURITY,
@@ -122,6 +122,24 @@ actionable findings in this active-plan surface or the relevant plan.
   verification passed: `node --test scripts/check-product-copy.test.mjs`
   passed 32 tests, `npm run lint:bloat`, `npm run test:scripts` passed 455
   script tests, `npm run lint:docs`, and `git diff --check`.
+- Current local frontend sidecar copy slice applies read-only agent findings
+  across feedback sharing, success-step, Settings source, setup source,
+  source-status table, Resume Builder/Optimizer recovery, Browser Button, and
+  error-boundary detail labels. Product-copy sensors now reject the old phrases.
+  Focused verification passed: `npx vitest run
+  src/components/feedback/SubmitOptions.test.tsx
+  src/components/feedback/SuccessScreen.test.tsx src/pages/Settings.test.tsx
+  src/pages/SetupWizard.test.tsx
+  src/components/ScraperHealthDashboard.test.tsx
+  src/pages/ResumeOptimizer.test.tsx
+  src/components/BookmarkletGenerator.test.tsx
+  src/components/ErrorBoundary.test.tsx
+  src/components/PageErrorBoundary.test.tsx
+  src/components/ModalErrorBoundary.test.tsx
+  src/components/ComponentErrorBoundary.test.tsx` passed 214 tests,
+  `node --test scripts/check-product-copy.test.mjs` passed 32 tests,
+  `npm run test:scripts` passed 455 script tests, `npm run lint:bloat`,
+  `npm run lint`, and `git diff --check`.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -154,6 +172,10 @@ Scope:
 - User-facing install, support, browser-button, notification, credential,
   security, conduct, and public issue-template docs must avoid technical setup,
   debugging, maintainer, and GitHub-first assumptions.
+- Feedback sharing, setup/source labels, source-status history, resume handoff
+  recovery, browser-button settings, and error-boundary detail labels must avoid
+  GitHub-first, issue-first, HN-abbreviation, support-only, and technical
+  recovery wording.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
@@ -170,6 +192,7 @@ npx vitest run src/components/ErrorLogPanel.test.tsx
 npx vitest run src/utils/errorReporting.test.ts
 npx vitest run src/components/feedback/SubmitOptions.test.tsx src/components/feedback/SuccessScreen.test.tsx
 npx vitest run src/services/feedbackService.test.ts
+npx vitest run src/components/feedback/SubmitOptions.test.tsx src/components/feedback/SuccessScreen.test.tsx src/pages/Settings.test.tsx src/pages/SetupWizard.test.tsx src/components/ScraperHealthDashboard.test.tsx src/pages/ResumeOptimizer.test.tsx src/components/BookmarkletGenerator.test.tsx src/components/ErrorBoundary.test.tsx src/components/PageErrorBoundary.test.tsx src/components/ModalErrorBoundary.test.tsx src/components/ComponentErrorBoundary.test.tsx
 node --test scripts/check-privacy-logging.test.mjs
 git diff --check
 ```

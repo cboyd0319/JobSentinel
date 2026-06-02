@@ -1520,7 +1520,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                             </ul>
                             {atsAnalysis.issues.length > 3 && (
                               <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">
-                                +{atsAnalysis.issues.length - 3} more issues
+                                +{atsAnalysis.issues.length - 3} more things to check
                               </p>
                             )}
                           </div>

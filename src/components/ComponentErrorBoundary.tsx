@@ -118,7 +118,7 @@ class ComponentErrorBoundary extends Component<Props, State> {
               {import.meta.env.DEV && (
                 <details className="mt-2">
                   <summary className="text-xs text-red-600 dark:text-red-500 cursor-pointer hover:underline">
-                    Show support details
+                    Show app problem details
                   </summary>
                   <pre className="mt-1 text-xs text-red-600 dark:text-red-500 overflow-auto max-h-32 whitespace-pre-wrap">
                     {safeComponentErrorDetails(this.state.error)}

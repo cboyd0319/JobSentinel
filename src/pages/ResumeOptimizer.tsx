@@ -449,7 +449,10 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
   // Send the saved job post to Resume Builder.
   const handleTailorResume = () => {
     if (!onNavigate) {
-      toast.error("Navigation not available", "Cannot navigate to Resume Builder");
+      toast.error(
+        "Could not open Resume Builder",
+        "Open Resume Builder from the sidebar, then paste this job post."
+      );
       return;
     }
 

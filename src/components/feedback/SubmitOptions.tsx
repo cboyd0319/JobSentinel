@@ -65,7 +65,7 @@ export const SubmitOptions = memo(function SubmitOptions({
         </div>
       </div>
 
-      {/* Optional maintainer feedback path */}
+      {/* Optional online help path */}
       <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 space-y-3">
         <h3 className="font-semibold text-surface-800 dark:text-surface-200">
           Ask for help online (optional)
@@ -85,7 +85,7 @@ export const SubmitOptions = memo(function SubmitOptions({
           className="w-full"
           icon={<GitHubIcon />}
         >
-          Open GitHub Help Page
+          Open Online Help Page
         </Button>
 
         <p className="text-xs text-surface-500 dark:text-surface-400 text-center">
