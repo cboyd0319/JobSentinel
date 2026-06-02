@@ -1152,7 +1152,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/pages/hooks/useDashboardJobOps.ts") {
-    return /Undo failed|Redo failed|Bookmark Failed|Bulk Hide Failed|Bulk Bookmark Failed|Bulk Merge Failed|\d+\s+failed|Couldn't update bookmark\.\s*Try again|Try refreshing|restart the app/i.test(
+    return /Undo failed|Redo failed|Bookmark Failed|Bulk Hide Failed|Bulk Bookmark Failed|Bulk Merge Failed|\d+\s+failed|Couldn't update bookmark\.\s*Try again|Try refreshing|refresh and try again|restart the app|None of the duplicate groups could be merged\. Try merging them individually/i.test(
       text,
     );
   }

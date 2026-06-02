@@ -366,7 +366,7 @@ export function useDashboardJobOps(
       if (failures.length === idsToHide.length) {
         toast.error(
           "Could not hide selected jobs",
-          "None of the jobs could be hidden. Try hiding them one at a time, or refresh and try again.",
+          "None of the jobs were hidden. Try hiding one job at a time, or copy a safe support report if this keeps happening.",
         );
       } else {
         toast.warning(
@@ -586,7 +586,7 @@ export function useDashboardJobOps(
         );
         toast.error(
           "Could not merge duplicates",
-          "None of the duplicate groups could be merged. Try merging them individually.",
+          "None of the duplicate groups were merged. Try merging one group at a time, or copy a safe support report if this keeps happening.",
         );
       }
     },

@@ -948,6 +948,9 @@ and record actionable findings in this active-plan surface.
   restart-style builder startup/load fallbacks and browser-button setup note
   with safe-support-report-first or close/reopen guidance plus product-copy
   coverage.
+- Current local dashboard bulk-action recovery follow-up removes refresh-only
+  and merge-only recovery guidance from selected-job hide and duplicate-merge
+  all-failure paths, with focused hook expectations and product-copy coverage.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

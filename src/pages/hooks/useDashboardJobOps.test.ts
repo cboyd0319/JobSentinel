@@ -270,7 +270,7 @@ describe("handleBulkHide", () => {
     expect(mockToast.error).toHaveBeenCalledOnce();
     expect(mockToast.error).toHaveBeenCalledWith(
       "Could not hide selected jobs",
-      expect.any(String),
+      "None of the jobs were hidden. Try hiding one job at a time, or copy a safe support report if this keeps happening.",
     );
 
     expect(mockToast.warning).not.toHaveBeenCalled();
@@ -376,7 +376,7 @@ describe("handleMergeAllDuplicates", () => {
     expect(mockToast.error).toHaveBeenCalledOnce();
     expect(mockToast.error).toHaveBeenCalledWith(
       "Could not merge duplicates",
-      expect.any(String),
+      "None of the duplicate groups were merged. Try merging one group at a time, or copy a safe support report if this keeps happening.",
     );
 
     expect(mockToast.warning).not.toHaveBeenCalled();

@@ -1289,3 +1289,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   restart-style builder startup/load fallbacks and browser-button setup note
   with safe-support-report-first or close/reopen guidance plus product-copy
   coverage.
+- Current local dashboard bulk-action recovery follow-up removes refresh-only
+  and merge-only recovery guidance from selected-job hide and duplicate-merge
+  all-failure paths, with focused hook expectations and product-copy coverage.

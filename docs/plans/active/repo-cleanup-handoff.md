@@ -1219,6 +1219,9 @@ Next high-value passes:
      The latest Resume Builder restart-copy follow-up replaces the remaining
      restart-style builder startup/load fallbacks and browser-button setup note
      with safe-support-report-first or close/reopen guidance.
+     The latest dashboard bulk-action recovery follow-up removes refresh-only
+     and merge-only recovery guidance from selected-job hide and
+     duplicate-merge all-failure paths.
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.
