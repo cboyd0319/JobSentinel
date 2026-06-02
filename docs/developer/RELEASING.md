@@ -41,6 +41,9 @@ npm run tauri:verify:macos -- \
   --launch-smoke \
   --require-gatekeeper
 
+# After publishing, verify the downloaded public macOS artifact
+npm run tauri:verify:macos:latest
+
 # Windows (from Windows machine or VM)
 npm run tauri build
 # Output: src-tauri/target/release/bundle/msi/JobSentinel_*.msi
@@ -68,7 +71,7 @@ Review the draft release on GitHub and click "Publish release".
 
 | Platform | Architecture          | Format      | Status   |
 | -------- | --------------------- | ----------- | -------- |
-| macOS    | universal             | `.dmg`      | Local smoke ready; public release requires Gatekeeper and launch-smoke pass |
+| macOS    | universal             | `.dmg`      | Local smoke ready; public artifact must pass `tauri:verify:macos:latest` |
 | Windows  | x86_64                | `.msi`      | Ready |
 | Linux    | x86_64                | `.AppImage` / `.deb` | Workflow ready |
 

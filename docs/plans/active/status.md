@@ -152,6 +152,18 @@ unreviewed form sending.
   signed at all. The public macOS artifact therefore still needs replacement
   through the new release gate after Developer ID signing and notarization
   secrets are configured.
+- Current local public macOS release harness follow-up adds
+  `npm run tauri:verify:macos:latest`, which downloads the latest public
+  GitHub release DMG and applies the strict universal-architecture,
+  launch-smoke, signature, and Gatekeeper checks to the user-facing artifact.
+  This command is expected to fail until the current unsigned public DMG is
+  replaced by a Developer ID signed and notarized artifact. Verification
+  passed: `node --test scripts/verify-latest-macos-release.test.mjs
+  scripts/verify-macos-package.test.mjs` passed 9 tests, `npm run
+  lint:docs`, and `git diff --check` passed. The new public verifier command
+  `npm run tauri:verify:macos:latest -- --no-launch-smoke
+  --no-require-gatekeeper` failed against the current `v2.6.4` public DMG as
+  expected because the mounted `JobSentinel.app` is not signed at all.
 - Current local platform-doc drift fix syncs the getting-started database paths
   with live platform code: macOS data lives under `~/Library/Application
   Support/JobSentinel`, Linux data under `~/.local/share/jobsentinel`, and the

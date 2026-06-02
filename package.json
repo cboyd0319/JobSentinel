@@ -50,6 +50,7 @@
     "tauri:build": "tauri build",
     "tauri:build:macos": "node scripts/build-macos-dmg.mjs",
     "tauri:verify:macos": "node scripts/verify-macos-package.mjs",
+    "tauri:verify:macos:latest": "node scripts/verify-latest-macos-release.mjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "prepare": "husky"

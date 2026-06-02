@@ -169,6 +169,15 @@ For public release gating, keep `--launch-smoke` and add
 `--require-gatekeeper`. That mode fails unless the mounted app can start and the
 app plus disk image pass Gatekeeper assessment.
 
+After a release is published, verify the downloaded public artifact too:
+
+```bash
+npm run tauri:verify:macos:latest
+```
+
+That command downloads the latest public GitHub release DMG and applies the
+same universal-architecture, launch-smoke, signature, and Gatekeeper checks.
+
 The latest local universal smoke built
 `src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg`,
 verified the DMG checksum through `npm run tauri:verify:macos`, confirmed the
@@ -393,10 +402,12 @@ rustflags = ["-C", "link-arg=-fuse-ld=/opt/homebrew/bin/mold"]
 2. **Public release gate active** - Public macOS releases require Developer ID
    signing and notarization, then `--launch-smoke --require-gatekeeper`
    verification before upload.
-3. **Runtime workflow checks before release** - Run the app, complete setup,
+3. **Published artifact gate active** - After publishing, run
+   `npm run tauri:verify:macos:latest` to verify the downloaded public DMG.
+4. **Runtime workflow checks before release** - Run the app, complete setup,
    create a first search, save an application, and generate a safe support
    report before publishing a release.
-4. **Report issues with safe support reports** - Save a local support report
+5. **Report issues with safe support reports** - Save a local support report
    from the app and share it only after review.
 
 ---

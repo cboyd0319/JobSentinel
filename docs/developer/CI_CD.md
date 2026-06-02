@@ -232,6 +232,11 @@ upload. Without Developer ID signing, notarization, Gatekeeper acceptance, and
 mounted-app launch smoke, the macOS release job should fail instead of
 publishing a package that nontechnical users cannot open cleanly.
 
+After the GitHub release is published, run `npm run tauri:verify:macos:latest`
+on a Mac. That command downloads the public release DMG and applies the same
+signature, architecture, launch-smoke, and Gatekeeper checks to the artifact
+users can actually download.
+
 ---
 
 ## Troubleshooting
