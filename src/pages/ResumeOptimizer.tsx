@@ -239,7 +239,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
       return;
     }
 
-    toast.info("Open Resume Match", "Use the Resumes page to choose or upload a resume.");
+    toast.info("Open Resume Match", "Use the Resumes page to choose or add a resume.");
   };
 
   // Load action words on mount
@@ -262,7 +262,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     if (!resumeJson.trim()) {
       toast.error(
         "Choose a resume first",
-        "Choose or upload a resume, or use Import from Resume App if you already have an export.",
+        "Choose or add a resume, or use Import from Resume App if you already have an export.",
       );
       return;
     }
@@ -271,7 +271,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     if (!resume) {
       toast.error(
         "Resume app export not recognized",
-        "Choose or upload a resume instead, or paste a resume app export from JobSentinel or another resume app.",
+        "Choose or add a resume instead, or paste a resume app export from JobSentinel or another resume app.",
       );
       return;
     }
@@ -298,7 +298,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     if (!resumeJson.trim()) {
       toast.error(
         "Choose a resume first",
-        "Choose or upload a resume, or use Import from Resume App if you already have an export.",
+        "Choose or add a resume, or use Import from Resume App if you already have an export.",
       );
       return;
     }
@@ -307,7 +307,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     if (!resume) {
       toast.error(
         "Resume app export not recognized",
-        "Choose or upload a resume instead, or paste a resume app export from JobSentinel or another resume app.",
+        "Choose or add a resume instead, or paste a resume app export from JobSentinel or another resume app.",
       );
       return;
     }
@@ -519,7 +519,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
               <CardHeader title="Resume" />
               <div className="space-y-4">
                 <p className="text-sm text-surface-600 dark:text-surface-300">
-                  Choose a saved resume or upload one. That is the easiest way
+                  Choose a saved resume or add one. That is the easiest way
                   to compare your resume with a job post.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -527,7 +527,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                     onClick={handleChooseResume}
                     className="flex-1"
                   >
-                    Choose or Upload Resume
+                    Choose or Add Resume
                   </Button>
                   <Button
                     type="button"
@@ -557,7 +557,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                     />
                     <p id="resume-json-hint" className="text-xs text-surface-500 dark:text-surface-400 mt-2">
                       Use this only if a resume app gave you export text. Most
-                      users should choose or upload a resume.
+                      users should choose or add a resume.
                     </p>
                   </div>
                 )}
@@ -924,7 +924,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                   No review yet
                 </h3>
                 <p className="text-surface-500 dark:text-surface-400">
-                  Choose or upload a resume, paste a job post, then review the match
+                  Choose or add a resume, paste a job post, then review the match
                 </p>
               </Card>
             )}

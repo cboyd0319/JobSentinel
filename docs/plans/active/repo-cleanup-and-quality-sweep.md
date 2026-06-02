@@ -164,6 +164,12 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local Resume Match add-copy follow-up changes local Resume Match
+  surfaces and feature docs from choose/upload wording to choose/add wording.
+  Product-copy sensors now reject the old local-resume upload phrasing in the
+  page, details component, and feature doc. Focused Resume Match, product-copy,
+  targeted stale-phrase, bloat, docs, script, lint, and diff-check verification
+  passed.
 - Current local resume-add copy follow-up changes local Resume page and Settings
   resume-match copy from upload/uploaded wording to add/added wording so users
   do not infer cloud transfer for local resume review. Product-copy sensors now
@@ -906,6 +912,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-02 | In progress | Changed local Resume Match surfaces and feature docs from choose/upload wording to choose/add wording. Product-copy sensors now reject the old local-resume upload phrasing in `ResumeOptimizer`, `ResumeMatchScoreBreakdown`, and the Resume Match feature doc; focused Vitest, product-copy, targeted stale-phrase, bloat, docs, script, lint, and diff-check verification passed. |
 | 2026-06-02 | In progress | Changed local Resume page and Settings resume-match copy from upload/uploaded wording to add/added wording so users do not infer cloud transfer for local resume review. Focused Resume, Settings, product-copy, targeted stale-phrase, bloat, docs, script, lint, and diff-check verification passed. |
 | 2026-06-02 | In progress | Fixed shared error precedence so resume-not-found and resume-parsing failures use resume-review recovery instead of page/source recovery, replaced upload/service wording with local-first resume-review copy, and added focused utility, product-copy, bloat, docs, script, lint, and diff-check verification. |
 | 2026-06-02 | In progress | Removed remaining user-visible `import helper` wording from the Browser Import guide and generated browser-button alert. Product-copy sensors now reject the stale phrase in docs, UI, and generated Rust code; focused Rust bookmarklet, formatter, bloat, docs, script, lint, and diff-check verification passed. |

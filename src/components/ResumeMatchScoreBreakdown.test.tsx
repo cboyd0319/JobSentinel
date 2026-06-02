@@ -148,7 +148,7 @@ describe("ResumeMatchScoreBreakdown", () => {
       expect(screen.getByText("N/A")).toBeInTheDocument();
     });
 
-    it("shows upload prompt when all scores are null", () => {
+    it("shows add-resume prompt when all scores are null", () => {
       render(
         <ResumeMatchScoreBreakdown
           skillsScore={null}
@@ -159,11 +159,14 @@ describe("ResumeMatchScoreBreakdown", () => {
       );
 
       expect(
-        screen.getByText("Upload a resume to see detailed match information")
+        screen.getByText("Add a resume to see detailed match information")
       ).toBeInTheDocument();
+      expect(
+        screen.queryByText("Upload a resume to see detailed match information")
+      ).not.toBeInTheDocument();
     });
 
-    it("does not show upload prompt when any score exists", () => {
+    it("does not show add-resume prompt when any score exists", () => {
       render(
         <ResumeMatchScoreBreakdown
           skillsScore={0.5}
@@ -174,7 +177,7 @@ describe("ResumeMatchScoreBreakdown", () => {
       );
 
       expect(
-        screen.queryByText("Upload a resume to see detailed match information")
+        screen.queryByText("Add a resume to see detailed match information")
       ).not.toBeInTheDocument();
     });
 

@@ -71,6 +71,33 @@ test("product copy rejects stale Resume Optimizer framing", () => {
   });
 });
 
+test("product copy rejects local resume upload wording in resume match", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "docs/features/resume-matcher.md",
+      "Resume upload and parsing\nChoose a saved resume or upload a PDF resume.\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/pages/ResumeOptimizer.tsx",
+      "Choose a saved resume or upload one.\nChoose or Upload Resume\nChoose or upload a resume instead.\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/components/ResumeMatchScoreBreakdown.tsx",
+      "Upload a resume to see detailed match information\n",
+    );
+
+    assert.equal(hasStaleResumeOptimizerFraming(root, "docs/features/resume-matcher.md"), true);
+    assert.equal(hasStaleResumeOptimizerFraming(root, "src/pages/ResumeOptimizer.tsx"), true);
+    assert.equal(
+      hasStaleResumeOptimizerFraming(root, "src/components/ResumeMatchScoreBreakdown.tsx"),
+      true,
+    );
+  });
+});
+
 test("product copy rejects engineer-first resume template copy", () => {
   withFixture((root) => {
     writeFixtureFile(

@@ -5,6 +5,7 @@ const staleResumeOptimizerFramingPaths = new Set([
   "src/App.tsx",
   "src/components/AtsLiveScorePanel.tsx",
   "src/components/Navigation.tsx",
+  "src/components/ResumeMatchScoreBreakdown.tsx",
   "src/contexts/KeyboardShortcutsContext.tsx",
   "src/pages/Resume.tsx",
   "src/pages/ResumeBuilder.tsx",
@@ -358,6 +359,10 @@ export function hasStaleResumeOptimizerFraming(root, path) {
     /filter resumes before a human/i,
     /pass these filters/i,
     /pass ATS filters/i,
+    /Resume upload and parsing/i,
+    /Choose a saved resume or upload a PDF resume/i,
+    /choose or upload/i,
+    /Upload a resume to see detailed match information/i,
     /what keywords you're missing/i,
     /might get filtered out/i,
     /probably won't pass/i,
@@ -1303,6 +1308,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Impact:\s*\{suggestion\.impact\}/i,
       /Your resume data has been imported and analyzed/i,
       /ScoreItem\s+label=["'`]Completeness["'`]/,
+      /choose or upload/i,
+      /Choose or Upload Resume/i,
     ];
 
     if (resumeMatchDetailPatterns.some((pattern) => pattern.test(text))) {

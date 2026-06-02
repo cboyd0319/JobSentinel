@@ -197,6 +197,17 @@ Recent remote integration evidence:
   the touched paths. Broader verification passed: `npm run lint:bloat`,
   `npm run lint:docs`, `npm run test:scripts`, `npm run lint`, and
   `git diff --check`.
+- Current local Resume Match add-copy cleanup changes local Resume Match
+  surfaces and feature docs from choose/upload wording to choose/add wording.
+  Product-copy sensors now reject the old local-resume upload phrasing in
+  `ResumeOptimizer`, `ResumeMatchScoreBreakdown`, and the Resume Match feature
+  doc. Focused verification passed: `npx vitest run
+  src/pages/ResumeOptimizer.test.tsx
+  src/components/ResumeMatchScoreBreakdown.test.tsx`, `node --test
+  scripts/check-product-copy.test.mjs`, and targeted stale-phrase search found
+  no old visible wording in the touched surfaces. Broader verification passed:
+  `npm run lint:bloat`, `npm run lint:docs`, `npm run test:scripts`,
+  `npm run lint`, and `git diff --check`.
 - Current local source-name copy follow-up changes README source coverage,
   source feature docs, public job-source issue template, shared source labels,
   and frontend mocks from `HN Who's Hiring` wording to `Startup and tech job

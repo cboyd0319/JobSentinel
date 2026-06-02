@@ -156,16 +156,17 @@ describe("ResumeOptimizer", () => {
     mockInvoke.mockResolvedValue(mockAnalysis);
   });
 
-  it("starts with choose or upload before resume app export import", async () => {
+  it("starts with choose or add before resume app export import", async () => {
     const user = userEvent.setup();
     const onNavigate = vi.fn();
     render(<ResumeOptimizer onBack={vi.fn()} onNavigate={onNavigate} />);
 
-    expect(screen.getByText(/choose a saved resume or upload one/i)).toBeInTheDocument();
+    expect(screen.getByText(/choose a saved resume or add one/i)).toBeInTheDocument();
     expect(screen.queryByLabelText(/resume app export/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/for a PDF resume/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/choose a saved resume or upload one/i)).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /choose or upload resume/i }));
+    await user.click(screen.getByRole("button", { name: /choose or add resume/i }));
 
     expect(onNavigate).toHaveBeenCalledWith("resume");
 
@@ -188,7 +189,7 @@ describe("ResumeOptimizer", () => {
 
     expect(mockToast.error).toHaveBeenCalledWith(
       "Resume app export not recognized",
-      "Choose or upload a resume instead, or paste a resume app export from JobSentinel or another resume app.",
+      "Choose or add a resume instead, or paste a resume app export from JobSentinel or another resume app.",
     );
     expect(mockInvoke).not.toHaveBeenCalledWith("analyze_resume_format", expect.anything());
   });
@@ -210,7 +211,7 @@ describe("ResumeOptimizer", () => {
 
     expect(mockToast.error).toHaveBeenCalledWith(
       "Resume app export not recognized",
-      "Choose or upload a resume instead, or paste a resume app export from JobSentinel or another resume app.",
+      "Choose or add a resume instead, or paste a resume app export from JobSentinel or another resume app.",
     );
     expect(mockInvoke).not.toHaveBeenCalledWith("analyze_resume_for_job", expect.anything());
   });

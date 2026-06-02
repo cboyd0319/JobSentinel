@@ -125,7 +125,7 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
       </p>
       {!hasAnyScore && (
         <p className="mt-2 text-surface-400">
-          Upload a resume to see detailed match information
+          Add a resume to see detailed match information
         </p>
       )}
     </div>
@@ -167,7 +167,7 @@ export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown
       {!hasAnyScore && (
         <div className="p-3 bg-surface-50 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 rounded-lg">
           <p className="text-sm text-surface-600 dark:text-surface-400 text-center">
-            Upload a resume to see detailed match information
+            Add a resume to see detailed match information
           </p>
         </div>
       )}

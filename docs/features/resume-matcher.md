@@ -14,7 +14,7 @@ It is a local, advisory signal for readability, fit, and preparation.
 
 | Workflow | Label | Default behavior |
 | --- | --- | --- |
-| Resume upload and parsing | Local only, Sensitive | Resume text and file details stay local. |
+| Resume add and parsing | Local only, Sensitive | Resume text and file details stay local. |
 | Resume library | Local only, Sensitive | Resume versions stay on this device. |
 | Skill review and edits | Local only, Sensitive | User edits stay local. |
 | Resume/job fit review | Local only, Sensitive | Resume data is compared with saved job data locally. |
@@ -41,7 +41,7 @@ External AI is not required for resume matching.
 ## Everyday Workflow
 
 1. Open **Resumes**.
-2. Choose a saved resume or upload a PDF resume.
+2. Choose a saved resume or add a PDF resume.
 3. Use **Import from resume app** only if another resume app gave you export
    text.
 4. Review suggested skills and add anything important that was missed.

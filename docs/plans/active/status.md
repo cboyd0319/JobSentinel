@@ -34,6 +34,17 @@ actionable findings in this active-plan surface or the relevant plan.
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local Resume Match add-copy follow-up changes local Resume Match
+  surfaces and feature docs from choose/upload wording to choose/add wording.
+  Product-copy sensors now reject the old local-resume upload phrasing in
+  `ResumeOptimizer`, `ResumeMatchScoreBreakdown`, and the Resume Match feature
+  doc. Focused verification passed: `npx vitest run
+  src/pages/ResumeOptimizer.test.tsx
+  src/components/ResumeMatchScoreBreakdown.test.tsx`, `node --test
+  scripts/check-product-copy.test.mjs`, and targeted stale-phrase search found
+  no old visible wording in the touched surfaces. Broader verification passed:
+  `npm run lint:bloat`, `npm run lint:docs`, `npm run test:scripts`,
+  `npm run lint`, and `git diff --check`.
 - Current local resume-add copy follow-up changes local Resume page and Settings
   resume-match copy from upload/uploaded wording to add/added wording so users
   do not infer a cloud transfer for local resume review. Product-copy sensors
