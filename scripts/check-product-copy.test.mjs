@@ -1886,6 +1886,21 @@ test("product copy rejects technical-first resume copy", () => {
     );
     writeFixtureFile(
       root,
+      "docs/features/json-resume-import.md",
+      [
+        "| JSON Resume content | JobSentinel draft field |",
+        "`basics.name`",
+        "`work[]`",
+        "## Developer contract",
+        "select_and_import_json_resume",
+        "Returned renderer DTOs must not expose local file paths",
+        "Run the focused Rust tests",
+        "cargo test core::resume::json_resume",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
       "docs/features/user-data-management.md",
       [
         "external channels are used only if configured",
@@ -1939,6 +1954,7 @@ test("product copy rejects technical-first resume copy", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Salary.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/resume-builder.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/resume-matcher.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/json-resume-import.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/user-data-management.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/smart-scoring.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/ghost-detection.md"), true);

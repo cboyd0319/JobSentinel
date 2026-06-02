@@ -214,13 +214,21 @@ actionable findings in this active-plan surface or the relevant plan.
   ghost schema/API terms in that feature doc, `npm run lint:bloat`, `npm run
   harness:check`, `npm run lint:docs`, `npm run test:scripts`, and
   `git diff --check`.
-- Current local Quick Start cleanup replaces contributor/developer setup labels
+- Committed local Quick Start cleanup replaces contributor/developer setup labels
   and advanced local-file wording with plain optional source-code and file
   location copy. Product-copy sensors now reject the old current phrases in
   `docs/user/QUICK_START.md`. Focused verification passed: `node --test
   scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found no
   old Quick Start phrases, `npm run lint:bloat`, `npm run harness:check`, `npm
   run lint:docs`, `npm run test:scripts`, and `git diff --check`.
+- Current local resume-import feature-doc cleanup replaces raw JSON field mapping
+  and developer command-contract details with plain imported-section, privacy,
+  and validation guidance. Product-copy sensors now reject those implementation
+  details if they drift back into `docs/features/json-resume-import.md`.
+  Focused verification passed: `node --test scripts/check-product-copy.test.mjs`
+  passed 32 tests, targeted search found no removed resume-import contract
+  markers, `npm run lint:bloat`, `npm run harness:check`, `npm run lint:docs`,
+  `npm run test:scripts`, and `git diff --check`.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -276,6 +284,8 @@ Scope:
   user-facing guide.
 - Quick Start must not make normal users parse developer setup labels or
   advanced local-file wording.
+- Resume import feature docs must keep sensitive import behavior, privacy, and
+  validation guidance readable without raw schema, command, or renderer terms.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
@@ -289,6 +299,7 @@ npm run lint
 node --test scripts/check-product-copy.test.mjs
 ! rg -n "Technical Details|Signal Weights|Database Schema|API Commands|invoke\\(|ghost_reasons TEXT|ghost_score|repost_count|Ghost configuration commands|get_ghost_config|set_ghost_config|reset_ghost_config" docs/features/ghost-detection.md
 ! rg -n "For contributors|Developer Setup|Advanced: where JobSentinel saves local files" docs/user/QUICK_START.md
+! rg -n "JSON Resume content|basics\\.|work\\[\\]|Developer contract|Implementation paths|select_and_import_json_resume|import_json_resume|Returned renderer DTOs|Run the focused Rust tests|cargo test core::resume::json_resume" docs/features/json-resume-import.md
 npx vitest run src/pages/Settings.test.tsx src/components/ErrorLogPanel.test.tsx
 npx vitest run src/components/ErrorLogPanel.test.tsx
 npx vitest run src/utils/errorReporting.test.ts

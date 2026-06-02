@@ -1,8 +1,8 @@
 # Import from Resume App
 
-JobSentinel can import a resume app export saved in the
-[JSON Resume](https://jsonresume.org/) format and turn it into an editable
-local resume draft.
+JobSentinel can import a resume app export saved in a supported resume-app
+format, including [JSON Resume](https://jsonresume.org/), and turn it into an
+editable local resume draft.
 
 Privacy label: **Local only** and **Sensitive**. Resume content stays on the
 user's device. Importing a resume must not send the file, parsed text, contact
@@ -22,24 +22,14 @@ This feature is for job seekers in any field. Examples and tests should include
 office, healthcare, education, service, trades, operations, creative, public
 sector, technical, and non-technical resumes.
 
-## Import behavior
+## Import Behavior
 
-| JSON Resume content | JobSentinel draft field |
-| ------------------- | ----------------------- |
-| `basics.name` | Contact name |
-| `basics.email` | Contact email |
-| `basics.phone` | Contact phone |
-| `basics.url` | Website |
-| `basics.summary` | Summary |
-| `basics.location` | Location |
-| `basics.profiles` | Public profile links |
-| `work[]` | Work experience |
-| `volunteer[]` | Volunteer experience |
-| `education[]` | Education |
-| `skills[]` | Skills |
-| `certificates[]` | Certifications |
-| `awards[]` | Awards or certifications |
-| `projects[]` | Project experience |
+JobSentinel can bring in common resume sections such as:
+
+- Contact name, email, phone, website, location, and public profile links.
+- Summary text.
+- Work, volunteer, education, project, award, and certification details.
+- Skill groups and listed skills.
 
 Unsupported sections are ignored instead of blocking import. The user can add
 those details manually after import.
@@ -66,57 +56,22 @@ those details manually after import.
 Do not show Rust errors, database terms, stack traces, local file paths, or raw
 resume text in user-facing error copy.
 
-## Developer contract
-
-The renderer starts import through `select_and_import_json_resume`. The Rust
-command opens the native file picker, reads the selected local file in the
-backend command layer, and then calls the existing `import_json_resume` importer.
-The renderer must not receive raw local file paths, fetch `file://` URLs, or pass
-raw resume JSON through browser fetch code.
-
-Implementation paths:
-
-- `src/pages/Resume.tsx`
-- `src-tauri/src/commands/resume.rs`
-- `src-tauri/src/core/resume/json_resume.rs`
-- `src-tauri/src/core/resume/mod.rs`
-- `examples/sample-json-resume.json`
-
-Privacy requirements:
+## Privacy Requirements
 
 - Do not log resume names, raw JSON strings, parsed resume text, raw local
   paths, or imported contact details.
 - Command logs may record non-identifying counts such as resume-name length,
   JSON character length, and sanitized path labels.
-- Returned renderer DTOs must not expose local file paths or full parsed resume
-  text.
+- App screens must not expose local file paths or full parsed resume text.
 - Safe support reports must redact resume content unless the user explicitly
   includes it.
 
-Validation requirements:
+## Validation Requirements
 
 - Keep import tolerant of partial JSON Resume files.
 - Keep unsupported fields non-fatal.
 - Keep malformed JSON errors clear and non-technical.
 - Keep tests broad enough to cover non-software resumes.
-
-## Verification
-
-Run the focused Rust tests after importer changes:
-
-```bash
-cd src-tauri
-cargo test core::resume::json_resume
-```
-
-Run these broader checks when user-facing copy, privacy behavior, or command
-shape changes:
-
-```bash
-npm run lint:bloat
-npm run lint:docs
-cd src-tauri && cargo test --lib
-```
 
 ## References
 

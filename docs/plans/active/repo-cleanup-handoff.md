@@ -72,13 +72,21 @@ Recent remote integration evidence:
   ghost schema/API terms in that feature doc, `npm run lint:bloat`, `npm run
   harness:check`, `npm run lint:docs`, `npm run test:scripts`, and
   `git diff --check`.
-- Current local Quick Start cleanup replaces contributor/developer setup labels
+- Committed local Quick Start cleanup replaces contributor/developer setup labels
   and advanced local-file wording with plain optional source-code and file
   location copy. Product-copy sensors now reject the old current phrases in
   `docs/user/QUICK_START.md`. Focused verification passed: `node --test
   scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found no
   old Quick Start phrases, `npm run lint:bloat`, `npm run harness:check`, `npm
   run lint:docs`, `npm run test:scripts`, and `git diff --check`.
+- Current local resume-import feature-doc cleanup replaces raw JSON field mapping
+  and developer command-contract details with plain imported-section, privacy, and
+  validation guidance. Product-copy sensors now reject those implementation
+  details if they drift back into `docs/features/json-resume-import.md`.
+  Focused verification passed: `node --test scripts/check-product-copy.test.mjs`
+  passed 32 tests, targeted search found no removed resume-import contract
+  markers, `npm run lint:bloat`, `npm run harness:check`, `npm run lint:docs`,
+  `npm run test:scripts`, and `git diff --check`.
 - Current local source-name copy follow-up changes README source coverage,
   source feature docs, public job-source issue template, shared source labels,
   and frontend mocks from `HN Who's Hiring` wording to `Startup and tech job

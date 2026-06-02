@@ -311,6 +311,7 @@ const technicalFirstUserCopyPaths = new Set([
   "docs/features/notifications.md",
   "docs/features/one-click-apply.md",
   "docs/features/credentials-security.md",
+  "docs/features/json-resume-import.md",
   "docs/features/resume-builder.md",
   "docs/features/resume-matcher.md",
   "docs/features/salary-ai.md",
@@ -1283,6 +1284,26 @@ export function hasTechnicalFirstUserCopy(root, path) {
 
   if (path === "docs/features/smart-scoring.md" && /advanced scoring configuration/i.test(text)) {
     return true;
+  }
+
+  if (path === "docs/features/json-resume-import.md") {
+    const resumeImportDocPatterns = [
+      /JSON Resume content\s*\|\s*JobSentinel draft field/i,
+      /`basics\./i,
+      /`(?:work|volunteer|education|skills|certificates|awards|projects)\[\]`/i,
+      /Developer contract/i,
+      /Implementation paths/i,
+      /select_and_import_json_resume/i,
+      /import_json_resume/i,
+      /Returned renderer DTOs/i,
+      /Run the focused Rust tests/i,
+      /cd src-tauri/i,
+      /cargo test core::resume::json_resume/i,
+    ];
+
+    if (resumeImportDocPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
   }
 
   if (path === "docs/features/ghost-detection.md") {
