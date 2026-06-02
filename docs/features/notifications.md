@@ -86,7 +86,7 @@ surface.
 3. Enter the email address that should send alerts
 4. Enter an app password if your email provider requires one
 5. Add recipient email addresses
-6. Use Email sending details only if your email service gives you manual email
+6. Use **Manual email setup** only if your email service gives you manual email
    details
 
 **Gmail and Yahoo users:** Use an app password from your account security page.

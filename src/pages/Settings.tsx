@@ -2618,11 +2618,11 @@ export default function Settings({ onClose }: SettingsProps) {
                       </div>
                       <details className="rounded-lg border border-surface-200 dark:border-surface-700 p-3">
                         <summary className="cursor-pointer text-sm font-medium text-surface-700 dark:text-surface-300">
-                          Email sending details
+                          Manual email setup
                         </summary>
                         <div className="grid grid-cols-2 gap-3 mt-3">
                           <Input
-                            label="Sending address"
+                            label="Email sending service"
                             value={config.alerts.email?.smtp_server ?? ""}
                             onChange={(e) =>
                               setConfig({
@@ -2642,7 +2642,7 @@ export default function Settings({ onClose }: SettingsProps) {
                           <div className="flex gap-2">
                             <div className="flex-1">
                               <Input
-                                label="Sending number"
+                                label="Number from email service"
                                 type="number"
                                 value={config.alerts.email?.smtp_port ?? 587}
                                 onChange={(e) =>
@@ -3442,7 +3442,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         </div>
                         <div className="flex items-center gap-2">
                           <label className="text-sm text-surface-700 dark:text-surface-300">
-                            Jobs to ask for:
+                            Jobs to check:
                           </label>
                           <input
                             type="number"
@@ -3563,7 +3563,7 @@ export default function Settings({ onClose }: SettingsProps) {
                             Review before JobSentinel contacts this source
                           </p>
                           <dl className="grid grid-cols-1 gap-2 text-xs text-surface-600 dark:text-surface-300 sm:grid-cols-[8rem_1fr]">
-                            <dt className="font-medium">Source address</dt>
+                            <dt className="font-medium">Job-source link</dt>
                             <dd className="break-all">{jobsWithGptPayload.endpoint}</dd>
                             <dt className="font-medium">Job titles</dt>
                             <dd>{jobsWithGptPayload.titles.join(", ")}</dd>
@@ -3575,7 +3575,7 @@ export default function Settings({ onClose }: SettingsProps) {
                                 ? "Remote only"
                                 : "Uses your saved work-location choices"}
                             </dd>
-                            <dt className="font-medium">Jobs to ask for</dt>
+                            <dt className="font-medium">Jobs to check</dt>
                             <dd>{jobsWithGptPayload.limit}</dd>
                           </dl>
                           {jobsWithGptPayloadApproved && (
@@ -3611,7 +3611,7 @@ export default function Settings({ onClose }: SettingsProps) {
                                       ? "Remote only"
                                       : "Saved choices"}
                                   </dd>
-                                  <dt className="font-medium">Jobs requested</dt>
+                                  <dt className="font-medium">Jobs checked</dt>
                                   <dd>{jobsWithGptLastRequest.resultLimit}</dd>
                                   <dt className="font-medium">Last result</dt>
                                   <dd>

@@ -164,6 +164,12 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Changed remaining Settings and support-report jargon: manual email setup now
+  uses email-service wording, USAJobs uses jobs-to-check wording,
+  connected-source review uses job-source link labels, and Error Log exposes a
+  detailed local report without troubleshooting wording. Focused Settings,
+  ErrorLogPanel, bloat, product-copy, harness, docs, script, lint, and
+  diff-check verification passed.
 - Changed the optional connected-source contact history label from
   `Source host` to `Website contacted`, updated Settings coverage, and added a
   product-copy guard against raw source metadata labels returning.
@@ -185,7 +191,7 @@ boundaries, and harness modularity:
 - Changed Resume Match helper wording from strong/power resume words to action
   words for clarity. Product-copy coverage now rejects the old labels.
 - Changed USAJobs automatic-check settings from `keywords`, posted-within, and
-  max-results wording to search words, recent jobs, and jobs-to-ask-for copy.
+  max-results wording to search words, recent jobs, and jobs-to-check copy.
   Product-copy coverage now rejects the old phrasing.
 - Changed notification preferences from settings/control jargon to plain
   job-alert rules: the global switch, source state copy, title-word rules,
@@ -240,8 +246,8 @@ boundaries, and harness modularity:
   jargon to review-first outside-AI, public-job-details, and private-details-stay-local
   language. Gateway and product-copy tests guard the old wording.
 - Changed email-alert setup labels from provider-address/provider-number wording
-  to email-sending-details, sending-address, and sending-number labels. Settings
-  and product-copy tests guard the old labels.
+  to manual-email-setup and email-service labels. Settings and product-copy
+  tests guard the old labels.
 - Changed USAJobs setup from old shortcut phrasing to scheduled-check and
   on-your-schedule wording. Settings and product-copy tests guard the old
   phrases.
@@ -259,7 +265,7 @@ boundaries, and harness modularity:
   language. Product-copy tests guard the old phrases.
 - Changed notification docs and Quick Start from old email-provider-details,
   Slack app-from-scratch, secure-credential-manager, and provider-guidance
-  wording to email-sending-details, connection-link, password-store, and
+  wording to manual-email-setup, connection-link, password-store, and
   email-service language. Notification troubleshooting now uses turned-on,
   check, and permission wording instead of enabled/verify/admin/manual-provider
   wording. Product-copy tests guard the old phrases.
@@ -1508,7 +1514,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   Chromium and WebKit tests in 123.15 seconds with a tightened 240-second
   budget.
 - Current local frontend verification follow-up syncs `ErrorLogPanel` unit
-  tests with the current `Save local troubleshooting report` action label.
+  tests with the current `Save Detailed Local Report` action label.
   `npm run test:run` passes 110 Vitest files and 2637 tests, `npm run build`
   passes in 4.13 seconds, and `npm run test:scripts` passes 454 script tests.
 - Current local backend verification evidence: `cargo fmt --all -- --check`

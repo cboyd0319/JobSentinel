@@ -478,9 +478,9 @@ describe("Settings — loadConfig flow", () => {
     expect(
       screen.getByText(/Use an app password from Google Account Security/),
     ).toBeInTheDocument();
-    expect(screen.getByText("Email sending details")).toBeInTheDocument();
-    expect(screen.getByText("Sending address")).toBeInTheDocument();
-    expect(screen.getByText("Sending number")).toBeInTheDocument();
+    expect(screen.getByText("Manual email setup")).toBeInTheDocument();
+    expect(screen.getByText("Email sending service")).toBeInTheDocument();
+    expect(screen.getByText("Number from email service")).toBeInTheDocument();
     expect(screen.getByText("Email address")).toBeInTheDocument();
     expect(screen.queryByText(/regular password/i)).not.toBeInTheDocument();
     expect(screen.queryByText("Email Server")).not.toBeInTheDocument();
@@ -1311,7 +1311,7 @@ describe("Settings — handleSave flow", () => {
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Search words")).toBeInTheDocument();
     expect(screen.getByText("Posted in last:")).toBeInTheDocument();
-    expect(screen.getByText("Jobs to ask for:")).toBeInTheDocument();
+    expect(screen.getByText("Jobs to check:")).toBeInTheDocument();
     expect(screen.queryByLabelText("Keywords")).not.toBeInTheDocument();
     expect(screen.queryByText("Posted within:")).not.toBeInTheDocument();
     expect(screen.queryByText("Max results:")).not.toBeInTheDocument();

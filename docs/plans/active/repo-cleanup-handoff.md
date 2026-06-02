@@ -30,6 +30,14 @@ Latest pushed checkpoints include:
 
 Recent remote integration evidence:
 
+- Current local settings/support copy follow-up changes manual email setup
+  labels, USAJobs jobs-to-check wording, connected-source review labels, and
+  the detailed local support-report action. Focused verification passed:
+  `npx vitest run src/pages/Settings.test.tsx
+  src/components/ErrorLogPanel.test.tsx`, `node --test
+  scripts/check-product-copy.test.mjs`, `npm run lint:bloat`,
+  `npm run harness:check`, `npm run lint:docs`, `npm run test:scripts`,
+  `npm run lint`, and `git diff --check`.
 - Latest local broad-audience and Rule 0 follow-up applies read-only
   sub-agent findings across support-report privacy wording, visible
   resume/settings/export/outside-AI copy, README and source-doc approved
@@ -41,8 +49,8 @@ Recent remote integration evidence:
 - Latest local frontend verification evidence: `npm run test:run` passes 110
   Vitest files and 2637 tests, `npm run build` passes in 4.13 seconds, and
   `npm run test:scripts` passes 454 script tests. The latest local follow-up
-  syncs `ErrorLogPanel` unit tests with the current `Save local troubleshooting
-  report` action label.
+  syncs `ErrorLogPanel` unit tests with the current `Save Detailed Local
+  Report` action label.
 - Latest local backend verification evidence: `cargo fmt --all -- --check`
   passes, `cargo test --lib` passes 2489 tests with 21 ignored, and
   `cargo clippy -- -D warnings` reports no issues from `src-tauri`.
@@ -139,6 +147,10 @@ Recent remote integration evidence:
 
 Current cleanup posture:
 
+- Current local settings/support copy follow-up changes manual email setup
+  labels, jobs-to-check wording, connected-source review labels, and detailed
+  local support-report action copy, with focused Settings, ErrorLogPanel, and
+  product-copy coverage.
 - Current local connected-source wording follow-up changes the Settings contact
   history label from `Source host` to `Website contacted`, with focused
   Settings and product-copy coverage against raw source metadata labels
@@ -161,7 +173,7 @@ Current cleanup posture:
   action words for clarity, with product-copy coverage against old labels.
 - Current local USAJobs settings follow-up changes visible `keywords`,
   posted-within, and max-results wording to search words, recent jobs, and
-  jobs-to-ask-for copy, with product-copy coverage against old phrasing.
+  jobs-to-check copy, with product-copy coverage against old phrasing.
 - Current local notification-rules follow-up changes the alert-preferences panel
   from settings/control jargon to plain job-alert choices: `All job alerts`,
   job boards that are `turned on`, `Extra alert rules`, job-title word rules,
@@ -224,7 +236,7 @@ Current cleanup posture:
   private-details-stay-local language. Gateway and product-copy coverage guard
   the old wording.
 - Current local email-alert setup follow-up replaces provider-address/provider-number
-  wording with email-sending-details, sending-address, and sending-number labels.
+  wording with manual-email-setup and email-service labels.
   Settings and product-copy coverage guard the old labels.
 - Current local USAJobs setup follow-up replaces old shortcut phrasing with
   scheduled-check and on-your-schedule wording. Settings and product-copy coverage
@@ -243,7 +255,7 @@ Current cleanup posture:
   employer-screening-system language and product-copy coverage.
 - Current local notification docs follow-up replaces old email-provider-details,
   Slack app-from-scratch, secure-credential-manager, and provider-guidance
-  wording with email-sending-details, connection-link, password-store, and
+  wording with manual-email-setup, connection-link, password-store, and
   email-service language. Troubleshooting copy now uses turned-on, check, and
   permission wording instead of enabled/verify/admin/manual-provider wording,
   with product-copy coverage.

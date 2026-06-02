@@ -228,7 +228,7 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
       setCopyMessage(
         savedFile
           ? `Safe support report saved: ${savedFile.fileName}`
-          : "Safe support report save canceled"
+          : "Safe support report not saved"
       );
     } catch (error) {
       logError("Failed to save support report:", error);
@@ -287,7 +287,7 @@ export const ErrorLogPanel = memo(function ErrorLogPanel() {
                   onClick={exportErrors}
                   title="For support only. Copy or save a safe support report first."
                 >
-                  Save local troubleshooting report
+                  Save Detailed Local Report
                 </Button>
                 <Button size="sm" variant="danger" onClick={clearErrors}>
                   Clear Problem List

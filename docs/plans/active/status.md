@@ -31,8 +31,8 @@ actionable findings in this active-plan surface or the relevant plan.
 
 ## Current Posture
 
-- Branch was clean and ahead of `origin/main` by 19 commits before the current
-  copy and harness slice began. Use `git status --short --branch` for live
+- Branch was clean and ahead of `origin/main` by 20 commits before the current
+  settings/support copy slice began. Use `git status --short --branch` for live
   evidence before committing, pushing, or reporting remote state.
 - Latest committed frontend verification evidence: `npm run test:run` passed
   110 Vitest files and 2637 tests, `npm run build` passed in 4.13 seconds, and
@@ -48,14 +48,21 @@ actionable findings in this active-plan surface or the relevant plan.
 - Latest committed E2E evidence: `npm run test:e2e:smoke:budget` passed in
   6.22 seconds, and `npm run test:e2e:all:budget` passed 252 Chromium and
   WebKit tests in 123.15 seconds against the 240-second budget.
-- Latest local broad-audience and Rule 0 slice fixes read-only sub-agent
+- Latest committed broad-audience and Rule 0 slice fixes read-only sub-agent
   findings: support-report privacy overclaims, visible scoring jargon, Telegram
   setup jargon, approved job-source feed wording, wrapper Rule 0 snippets,
   feature privacy-label freshness, and active-plan status compaction.
-- Latest local verification for that slice: `npm run harness:check`,
+- Latest committed verification for that slice: `npm run harness:check`,
   `npm run test:scripts`, `npm run lint:docs`, `npm run lint:bloat`,
   `npm run lint`, focused Vitest for eight affected frontend/service test
   files, and `git diff --check` passed. Focused Vitest passed 178 tests.
+- Current local settings/support copy slice changes manual email setup labels,
+  USAJobs jobs-to-check labels, connected-source review labels, and the detailed
+  local support-report action. Verification passed: focused Vitest for Settings
+  and ErrorLogPanel passed 71 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests, `npm run lint:bloat`,
+  `npm run harness:check`, `npm run lint:docs`, `npm run test:scripts` passed
+  454 script tests, `npm run lint`, and `git diff --check` passed.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -63,24 +70,24 @@ actionable findings in this active-plan surface or the relevant plan.
 
 Scope:
 
-- User-facing support-report copy must say common private details are hidden and
-  remind users to review before sharing.
-- Visible product copy must avoid scoring/jargon where a plain label works.
-- Agent wrappers and harness manifest must lock in Rule 0, optional external AI,
-  zero-technical-knowledge UX, broad job-seeker support, and responsible-use
-  boundaries.
-- Active plan status must stay a true restart surface; detailed history belongs
-  in handoff, plan, debt, or archive docs.
+- Manual email settings must be framed as optional setup details from the user's
+  email service, not server/address/number jargon.
+- USAJobs and connected-source review labels must describe jobs checked and
+  job-source links, not source addresses or requested jobs.
+- Error-log support actions must keep the easy safe support report path primary
+  while avoiding troubleshooting jargon in visible labels.
+- Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
 
 ```bash
-npm run harness:check
-npm run test:scripts
-npm run lint:docs
 npm run lint:bloat
+npm run harness:check
+npm run lint:docs
+npm run test:scripts
 npm run lint
-npx vitest run src/components/feedback/SubmitOptions.test.tsx src/pages/Settings.test.tsx src/pages/ResumeOptimizer.test.tsx src/components/AtsLiveScorePanel.test.tsx src/services/aiGateway.test.ts src/services/feedbackService.test.ts src/utils/export.test.ts src/utils/errorMessages.test.ts
+node --test scripts/check-product-copy.test.mjs
+npx vitest run src/pages/Settings.test.tsx src/components/ErrorLogPanel.test.tsx
 git diff --check
 ```
 
