@@ -10,6 +10,11 @@ on:
         description: Release tag to verify. Leave blank to verify the latest public release.
         required: false
         type: string
+      require_gatekeeper:
+        description: Require Gatekeeper acceptance. Use only for Developer ID signed and notarized macOS releases.
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -37,6 +42,7 @@ jobs:
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
           DISPATCH_TAG: ${{ inputs.tag }}
+          REQUIRE_GATEKEEPER: ${{ inputs.require_gatekeeper || vars.JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER || 'false' }}
         run: |
           set -euo pipefail
 
@@ -44,6 +50,9 @@ jobs:
           release_tag="${RELEASE_TAG:-${DISPATCH_TAG:-}}"
           if [ -n "$release_tag" ]; then
             args+=(--tag "$release_tag")
+          fi
+          if [ "${REQUIRE_GATEKEEPER:-false}" = "true" ]; then
+            args+=(--require-gatekeeper)
           fi
 
           npm run tauri:verify:macos:latest -- "${args[@]}"

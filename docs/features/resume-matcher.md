@@ -18,6 +18,7 @@ It is a local, advisory signal for readability, fit, and preparation.
 | Readable text preview | Local only, Sensitive | The user can explicitly open and copy a bounded preview of text JobSentinel read from the selected resume. |
 | Resume library | Local only, Sensitive | Resume versions stay on this device. |
 | Skill review and edits | Local only, Sensitive | User edits stay local. |
+| Reviewed-skill sorting preference | Local only, Sensitive | A user can explicitly use reviewed local skills as one job-sorting signal. |
 | Resume/job fit review | Local only, Sensitive | Resume data is compared with saved job data locally. |
 | Job posting text | Public-data only | Job descriptions are public or user-saved posting content. |
 | Scanned resume PDFs | Local only, Sensitive | If enabled, JobSentinel tries to read scanned resume text on this device. |
@@ -37,6 +38,9 @@ External AI is not required for resume matching.
 - **Resume safety review**: Flag prompt-injection-like instructions, hidden
   text, and invisible characters with a plain **Safety check** label before
   the resume is used.
+- **Reviewed-skill sorting**: After reviewing saved skills, choose whether
+  those local skills should help sort jobs alongside titles, search words,
+  salary, location, and company preferences.
 - **Multiple resumes**: Keep different resume versions for different kinds of
   work.
 - **Broad career coverage**: Recognize skills from technical and non-technical
@@ -52,8 +56,10 @@ External AI is not required for resume matching.
 4. Use **Import from resume app** only if another resume app gave you export
    text.
 5. Review suggested skills and add anything important that was missed.
-6. Open job details from the dashboard to see recent resume fit reviews.
-7. Use skills found in both places and skills to review as evidence for a
+6. Choose **Use these skills to sort jobs** if the reviewed local skills should
+   influence job sorting.
+7. Open job details from the dashboard to see recent resume fit reviews.
+8. Use skills found in both places and skills to review as evidence for a
    decision:
    tailor carefully, save for later, ask a question, or skip.
 
@@ -98,6 +104,8 @@ The current local matcher:
 - provides an explicit local preview of readable resume text without returning
   the saved file path;
 - identifies skills across broad career categories;
+- lets reviewed local skills influence job sorting only after the user turns
+  that preference on;
 - compares resume evidence with saved job-posting text;
 - returns fit, experience, education, matched-skill, and missing-skill
   signals;

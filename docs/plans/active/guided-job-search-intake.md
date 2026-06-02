@@ -33,6 +33,9 @@ then turning the answers into JobSentinel search settings.
   should show extracted skills and experience first, ask what work the user
   wants more or less of, and never let resume evidence leave the device by
   default.
+- Latest local reviewed-resume-skill sorting slice adds the same review-first
+  shape on the Resume page: users can turn reviewed local skills on or off as a
+  job-sorting signal after checking the skill list.
 
 ## Research-backed design rules
 

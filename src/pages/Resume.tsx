@@ -85,6 +85,10 @@ interface ResumeTextPreview {
   is_truncated: boolean;
 }
 
+interface ResumeMatchingPreference {
+  enabled: boolean;
+}
+
 interface UserSkill {
   id: number;
   resume_id: number;
@@ -137,6 +141,10 @@ function optionalTrimmedText(value: string | null | undefined): string | null {
 
 function optionalYearsValue(value: number | null | undefined): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function isResumeMatchingEnabled(preference: ResumeMatchingPreference | null | undefined) {
+  return preference?.enabled === true;
 }
 
 function ScoreBreakdownRow({
@@ -225,6 +233,8 @@ export default function Resume({ onBack }: ResumeProps) {
   const [showTextPreview, setShowTextPreview] = useState(false);
   const [textPreview, setTextPreview] = useState<ResumeTextPreview | null>(null);
   const [textPreviewLoading, setTextPreviewLoading] = useState(false);
+  const [resumeMatchingEnabled, setResumeMatchingEnabled] = useState(false);
+  const [resumeMatchingLoading, setResumeMatchingLoading] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{
     type: 'resume' | 'skill';
@@ -246,15 +256,21 @@ export default function Resume({ onBack }: ResumeProps) {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [resumeData, resumesData] = await Promise.all([
+        const [resumeData, resumesData, preferenceData] = await Promise.all([
           safeInvoke<ResumeData | null>("get_active_resume", {}, { logContext: "Load active resume" }),
           safeInvoke<ResumeData[]>("list_all_resumes", {}, { logContext: "List all resumes" }),
+          safeInvoke<ResumeMatchingPreference | null>(
+            "get_resume_matching_preference",
+            {},
+            { logContext: "Load resume sorting preference" },
+          ),
         ]);
 
         if (cancelled) return;
 
         setResume(resumeData);
         setAllResumes(resumesData);
+        setResumeMatchingEnabled(isResumeMatchingEnabled(preferenceData));
 
         if (resumeData) {
           const [skillsData, matchesData] = await Promise.all([
@@ -266,6 +282,9 @@ export default function Resume({ onBack }: ResumeProps) {
 
           setSkills(skillsData);
           setRecentMatches(matchesData);
+        } else {
+          setSkills([]);
+          setRecentMatches([]);
         }
       } catch (error: unknown) {
         if (cancelled) return;
@@ -291,12 +310,18 @@ export default function Resume({ onBack }: ResumeProps) {
   const refetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const [resumeData, resumesData] = await Promise.all([
+      const [resumeData, resumesData, preferenceData] = await Promise.all([
         safeInvoke<ResumeData | null>("get_active_resume", {}, { logContext: "Refetch active resume" }),
         safeInvoke<ResumeData[]>("list_all_resumes", {}, { logContext: "Refetch all resumes" }),
+        safeInvoke<ResumeMatchingPreference | null>(
+          "get_resume_matching_preference",
+          {},
+          { logContext: "Refetch resume sorting preference" },
+        ),
       ]);
       setResume(resumeData);
       setAllResumes(resumesData);
+      setResumeMatchingEnabled(isResumeMatchingEnabled(preferenceData));
 
       if (resumeData) {
         const [skillsData, matchesData] = await Promise.all([
@@ -305,6 +330,9 @@ export default function Resume({ onBack }: ResumeProps) {
         ]);
         setSkills(skillsData);
         setRecentMatches(matchesData);
+      } else {
+        setSkills([]);
+        setRecentMatches([]);
       }
     } catch (error: unknown) {
       const safeError = getSafeErrorToastCopy(error, {
@@ -418,6 +446,41 @@ export default function Resume({ onBack }: ResumeProps) {
       toast.success("Text copied", "Readable resume text copied to your clipboard.");
     } catch {
       toast.error("Could not copy text", "Select the text and copy it manually.");
+    }
+  };
+
+  const handleSetResumeMatching = async (enabled: boolean) => {
+    if (enabled && (!resume || skills.length === 0)) {
+      toast.error("Review skills first", "Add or review at least one skill before using it to sort jobs.");
+      return;
+    }
+
+    try {
+      setResumeMatchingLoading(true);
+      const preference = await safeInvoke<ResumeMatchingPreference>(
+        "set_resume_matching_enabled",
+        { enabled },
+        { logContext: enabled ? "Use resume skills for job sorting" : "Stop using resume skills for job sorting" },
+      );
+      setResumeMatchingEnabled(preference.enabled);
+      if (preference.enabled) {
+        toast.success(
+          "Resume skills will help sort jobs",
+          "JobSentinel will use these reviewed local skills in job sorting.",
+        );
+      } else {
+        toast.success(
+          "Resume skills paused",
+          "JobSentinel will sort jobs from your saved titles, words, salary, location, and company preferences.",
+        );
+      }
+    } catch (error: unknown) {
+      const safeError = getSafeErrorToastCopy(error, {
+        fallbackTitle: "Could not update resume sorting",
+      });
+      toast.error(safeError.title, safeError.message);
+    } finally {
+      setResumeMatchingLoading(false);
     }
   };
 
@@ -676,6 +739,55 @@ export default function Resume({ onBack }: ResumeProps) {
               >
                 See what JobSentinel read
               </Button>
+
+              <div className="mb-4 rounded-lg border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-800 p-3">
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div>
+                    <h3 className="text-sm font-medium text-surface-800 dark:text-surface-200">
+                      Resume Skills Sorting
+                    </h3>
+                    <p className="text-xs text-surface-500 dark:text-surface-400">
+                      Use reviewed local skills as one signal when sorting jobs.
+                    </p>
+                  </div>
+                  {resumeMatchingEnabled && (
+                    <Badge variant="success" size="sm">
+                      On
+                    </Badge>
+                  )}
+                </div>
+                {resumeMatchingEnabled ? (
+                  <div className="space-y-3">
+                    <p className="text-sm text-surface-600 dark:text-surface-300">
+                      Resume skills are helping sort jobs.
+                    </p>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => handleSetResumeMatching(false)}
+                      loading={resumeMatchingLoading}
+                      loadingText="Saving..."
+                    >
+                      Stop using resume skills
+                    </Button>
+                  </div>
+                ) : skills.length > 0 ? (
+                  <Button
+                    size="sm"
+                    className="w-full"
+                    onClick={() => handleSetResumeMatching(true)}
+                    loading={resumeMatchingLoading}
+                    loadingText="Saving..."
+                  >
+                    Use these skills to sort jobs
+                  </Button>
+                ) : (
+                  <p className="text-sm text-surface-500 dark:text-surface-400">
+                    Review or add skills before using them to sort jobs.
+                  </p>
+                )}
+              </div>
 
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">

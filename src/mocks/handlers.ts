@@ -3225,6 +3225,16 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "get_dashboard_preferences":
       return getMockDashboardPreferences() as T;
 
+    case "get_resume_matching_preference":
+      return { enabled: Boolean(config.use_resume_matching) } as T;
+
+    case "set_resume_matching_enabled": {
+      const enabled = Boolean(getArg(args, "enabled"));
+      config = { ...config, use_resume_matching: enabled };
+      saveMockState();
+      return { enabled } as T;
+    }
+
     case "save_config":
       config = { ...config, ...(getArg(args, "config") as object) };
       saveMockState();

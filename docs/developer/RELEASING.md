@@ -9,17 +9,17 @@ zero-friction public macOS DMG cannot be Developer ID signed, notarized,
 stapled, or accepted by Gatekeeper yet.
 
 The local macOS build path is still useful and verified. Use it for development,
-testing, and internal checks. Do not publish a macOS package as ready for
-nontechnical users until the project has an Apple Developer Account, the release
-secrets below are configured, and the public artifact passes
-`npm run tauri:verify:macos:latest`.
+testing, internal checks, and clearly labeled no-account public packages. Do not
+publish a macOS package as zero-friction or Gatekeeper-ready until the project
+has an Apple Developer Account, the release secrets below are configured, and
+the public artifact passes `npm run tauri:verify:macos:latest -- --require-gatekeeper`.
 
 ## Creating a Release
 
 ### 1. Build locally
 
-For a public macOS release, set the Developer ID signing and notarization
-environment before building:
+For a zero-friction public macOS release, set the Developer ID signing and
+notarization environment before building:
 
 ```bash
 export APPLE_CERTIFICATE="base64-encoded-p12"
@@ -52,7 +52,7 @@ npm run tauri:verify:macos -- \
   --launch-smoke \
   --install-smoke
 
-# Public macOS release gate
+# Developer ID public macOS release gate
 npm run tauri:verify:macos -- \
   --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg \
   --expected-architectures x86_64,arm64 \
@@ -65,8 +65,12 @@ npm run tauri:verify:macos -- \
   --install-smoke \
   --require-gatekeeper
 
-# After publishing, verify the downloaded public macOS artifact
+# After publishing, verify the downloaded public macOS artifact.
+# Current no-account release path:
 npm run tauri:verify:macos:latest
+
+# Developer ID signed and notarized release path:
+npm run tauri:verify:macos:latest -- --require-gatekeeper
 
 # Windows (from Windows machine or VM)
 npm run tauri build
@@ -79,12 +83,14 @@ npx tauri build --target x86_64-unknown-linux-gnu
 
 The `Verify Release Artifacts` GitHub Actions workflow also runs after a
 release is published. It verifies the public macOS DMG from GitHub Releases
-with strict defaults: universal `x86_64,arm64` architecture checks, signature
-verification, bundle identity, release-tag version, icon metadata and resource
-file, macOS 13.0 minimum-system metadata, mounted-app launch smoke,
-installed-app launch smoke, and isolated local database creation, plus
-Gatekeeper acceptance. If this workflow fails, the public DMG should be
-replaced before sharing the release with nontechnical macOS users.
+with no-account defaults: universal `x86_64,arm64` architecture checks,
+signature verification, bundle identity, release-tag version, icon metadata and
+resource file, macOS 13.0 minimum-system metadata, mounted-app launch smoke,
+installed-app launch smoke, and isolated local database creation. Gatekeeper
+acceptance is opt-in with the `require_gatekeeper` workflow input or
+`JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER` repository variable, and should be used
+for Developer ID signed and notarized releases. If this workflow fails, the
+public DMG should be replaced before sharing the release.
 
 ### 2. Create GitHub Release
 

@@ -141,7 +141,7 @@
       "name": "Resume assistance and application readability",
       "labels": ["Local only", "Sensitive"],
       "dataCategories": ["resume", "job_posting", "career_goals"],
-      "defaultDataFlow": "Resume parsing, explicit readable-text preview and copy, section review, readable export checks, and truthful edit guidance work locally by default. Job posting text may be compared with a selected resume only after the user chooses that resume.",
+      "defaultDataFlow": "Resume parsing, explicit readable-text preview and copy, reviewed-skill sorting, section review, readable export checks, and truthful edit guidance work locally by default. Job posting text may be compared with a selected resume only after the user chooses that resume, and reviewed resume skills influence sorting only after the user turns that preference on.",
       "externalAi": {
         "allowed": false,
         "required": false,

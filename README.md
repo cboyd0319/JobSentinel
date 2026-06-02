@@ -66,7 +66,7 @@ or build something better with it if that helps more people.
 | What can leave the device? | Enabled job-source checks, job sources or career pages the user approves for checking, alerts the user turns on, optional location detection after a click, support links opened by the user, or explicitly approved external AI requests. |
 | Is external AI required? | No. External AI is optional, disabled by default, preview-gated, and gateway-bound. |
 | Is it free? | Yes. JobSentinel is MIT licensed and free forever. |
-| Current release | `v2.6.4` with Windows and Linux installers plus a universal macOS package. The project does not currently have an Apple Developer Account, so the public macOS package is locally verified but not Developer ID signed or notarized yet. |
+| Current release | `v2.6.4` with Windows and Linux installers plus a universal macOS package. The project does not currently have an Apple Developer Account, so macOS packages cannot be Developer ID signed, notarized, or Gatekeeper-ready yet. |
 
 ## Reader Map
 
@@ -101,7 +101,7 @@ Download the latest package or installer from the
 | Platform | Download |
 | -------- | --------- |
 | Windows | Windows installer |
-| macOS | Universal Mac package for Apple silicon and Intel Macs. The project does not currently have an Apple Developer Account, so macOS requires a Privacy & Security approval on first open until Developer ID signing and notarization are available. |
+| macOS | Universal Mac package for Apple silicon and Intel Macs. The project does not currently have an Apple Developer Account, so macOS may require a Privacy & Security approval on first open until Developer ID signing and notarization are available. |
 | Linux | Linux installer |
 
 The current `v2.6.4` release includes Windows and Linux installers plus a
@@ -110,7 +110,10 @@ Mac users can use the package, but first open is not zero-friction because
 JobSentinel does not currently have an Apple Developer Account for Developer ID
 signing and notarization. This is a release-distribution constraint, not a core
 runtime feature gap: the macOS app can still be built, packaged, verified, and
-tested locally. Contributors can use the
+tested locally. The no-account macOS release path verifies ad-hoc packages for
+metadata, signatures, universal architecture, launch smoke, installed-app smoke,
+and local data creation, but it does not claim Gatekeeper readiness.
+Contributors can use the
 [development setup guide](docs/developer/GETTING_STARTED.md).
 
 First run is designed for zero technical knowledge:
@@ -391,7 +394,8 @@ npm run tauri:build:macos -- --target universal-apple-darwin
 npm run tauri:verify:macos -- \
   --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg \
   --expected-architectures x86_64,arm64 \
-  --launch-smoke
+  --launch-smoke \
+  --install-smoke
 ```
 
 Installer output:
@@ -430,7 +434,7 @@ JobSentinel is built as a Tauri desktop app.
 | Storage | SQLite with SQLx offline mode |
 | Tests | Vitest, Playwright, Rust tests, docs harness checks |
 
-Current backend surface: **198 registered Tauri commands**.
+Current backend surface: **200 registered Tauri commands**.
 
 Common checks:
 
@@ -788,6 +792,7 @@ and fake example links are intentionally excluded.
 - [Tauri](https://tauri.app/)
 - [Tauri distribution guide](https://v2.tauri.app/distribute/)
 - [Tauri security guide](https://v2.tauri.app/learn/security/)
+- [Tauri macOS code signing](https://v2.tauri.app/distribute/sign/macos/)
 - [Tauri Linux signing](https://tauri.app/distribute/sign/linux/)
 - [Apple Developer ID](https://developer.apple.com/developer-id/)
 - [Apple Developer ID support](https://developer.apple.com/support/developer-id/)

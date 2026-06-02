@@ -61,13 +61,14 @@ Inputs include:
 - Job titles to avoid.
 - Work words to show more often.
 - Work words to avoid.
-- Added resume skills when resume matching is enabled.
+- Reviewed resume skills after the user turns on resume-skill sorting from the
+  Resume page or Settings.
 - Synonym matching for equivalent words, such as "customer support" and
   "client support."
 
-When resume matching is off, JobSentinel uses saved titles and work words. When
-resume matching is on, resume skills add more context without replacing the
-user's stated preferences.
+When resume-skill sorting is off, JobSentinel uses saved titles and work
+words. When it is on, reviewed local resume skills add more context without
+replacing the user's stated preferences.
 
 Saved settings apply to the running app after they save. Turning resume-based
 matching on or off does not require closing and reopening JobSentinel, and

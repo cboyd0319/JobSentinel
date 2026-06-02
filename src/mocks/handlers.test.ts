@@ -53,6 +53,10 @@ type ResumeTextPreview = {
   is_truncated: boolean;
 };
 
+type ResumeMatchingPreference = {
+  enabled: boolean;
+};
+
 type JobImportPreview = {
   title: string;
   company: string;
@@ -544,6 +548,22 @@ describe("mock Tauri handlers", () => {
       autoRefresh: { enabled: true, interval_minutes: 30 },
       salaryFloorUsd: 80000,
       anyJobSourceEnabled: false,
+    });
+  });
+
+  it("persists resume matching preferences through mock config commands", async () => {
+    expect(await mockInvoke<ResumeMatchingPreference>("get_resume_matching_preference")).toEqual({
+      enabled: false,
+    });
+
+    expect(
+      await mockInvoke<ResumeMatchingPreference>("set_resume_matching_enabled", {
+        enabled: true,
+      }),
+    ).toEqual({ enabled: true });
+
+    expect(await mockInvoke<ResumeMatchingPreference>("get_resume_matching_preference")).toEqual({
+      enabled: true,
     });
   });
 

@@ -157,15 +157,33 @@ jobs:
         run: |
           set -euo pipefail
 
+          required=(
+            APPLE_CERTIFICATE
+            APPLE_CERTIFICATE_PASSWORD
+            APPLE_SIGNING_IDENTITY
+            APPLE_ID
+            APPLE_PASSWORD
+            APPLE_TEAM_ID
+          )
           missing=()
-          for name in APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID; do
+          for name in "${required[@]}"; do
             if [ -z "${!name:-}" ]; then
               missing+=("$name")
             fi
           done
 
           if [ "${#missing[@]}" -ne 0 ]; then
-            printf 'Missing macOS release secrets: %s\n' "${missing[*]}"
+            if [ "${#missing[@]}" -eq "${#required[@]}" ]; then
+              printf 'Apple Developer release secrets are not configured. Building locally verified ad-hoc macOS DMG without notarization.\n'
+              {
+                printf 'JOBSENTINEL_MACOS_SIGNING_IDENTITY=-\n'
+                printf 'JOBSENTINEL_MACOS_NOTARIZE_DMG=false\n'
+                printf 'JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER=false\n'
+              } >> "$GITHUB_ENV"
+              exit 0
+            fi
+
+            printf 'Partial macOS release secrets are configured. Missing: %s\n' "${missing[*]}"
             exit 1
           fi
 
@@ -197,6 +215,7 @@ jobs:
             printf 'APPLE_PASSWORD=%s\n' "$APPLE_PASSWORD"
             printf 'APPLE_TEAM_ID=%s\n' "$APPLE_TEAM_ID"
             printf 'JOBSENTINEL_MACOS_NOTARIZE_DMG=true\n'
+            printf 'JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER=true\n'
           } >> "$GITHUB_ENV"
 
       - name: Build Tauri app
@@ -209,18 +228,33 @@ jobs:
 
       - name: Verify macOS app and DMG
         if: matrix.platform == 'macos-latest'
-        run: >
-          npm run tauri:verify:macos -- --dmg
-          src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
-          --expected-architectures x86_64,arm64
-          --expected-bundle-id com.jobsentinel.main
-          --expected-product-name JobSentinel
-          --expected-version ${{ needs.create-release.outputs.version }}
-          --expected-icon-file icon.icns
-          --expected-minimum-system-version 13.0
-          --launch-smoke
-          --install-smoke
-          --require-gatekeeper
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          dmg_paths=(src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg)
+          if [ "${#dmg_paths[@]}" -ne 1 ]; then
+            printf 'Expected exactly one macOS DMG, found %s\n' "${#dmg_paths[@]}"
+            exit 1
+          fi
+          args=(
+            --dmg "${dmg_paths[0]}"
+            --expected-architectures "x86_64,arm64"
+            --expected-bundle-id "com.jobsentinel.main"
+            --expected-product-name "JobSentinel"
+            --expected-version "${{ needs.create-release.outputs.version }}"
+            --expected-icon-file "icon.icns"
+            --expected-minimum-system-version "13.0"
+            --launch-smoke
+            --install-smoke
+          )
+
+          if [ "${JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER:-false}" = "true" ]; then
+            args+=(--require-gatekeeper)
+          fi
+
+          npm run tauri:verify:macos -- "${args[@]}"
 
       # Windows MSI upload
       - name: Upload Windows MSI

@@ -51,7 +51,7 @@ export function parseArgs(args) {
     launchSmoke: !hasArg(args, "--no-launch-smoke"),
     releaseTag: getArgValue(args, "--tag"),
     repo: getArgValue(args, "--repo") ?? defaultRepo,
-    requireGatekeeper: !hasArg(args, "--no-require-gatekeeper"),
+    requireGatekeeper: hasArg(args, "--require-gatekeeper") && !hasArg(args, "--no-require-gatekeeper"),
     smokeSeconds: Number(getArgValue(args, "--smoke-seconds") ?? "12"),
   };
 }

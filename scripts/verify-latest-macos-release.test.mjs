@@ -5,7 +5,7 @@ import {
   parseArgs,
 } from "./verify-latest-macos-release.mjs";
 
-test("latest macOS release verifier defaults to strict public release checks", () => {
+test("latest macOS release verifier defaults to no-account public checks", () => {
   assert.deepEqual(parseArgs([]), {
     appName: "JobSentinel.app",
     assetPattern: "universal.dmg",
@@ -21,7 +21,7 @@ test("latest macOS release verifier defaults to strict public release checks", (
     launchSmoke: true,
     releaseTag: undefined,
     repo: "cboyd0319/JobSentinel",
-    requireGatekeeper: true,
+    requireGatekeeper: false,
     smokeSeconds: 12,
   });
 });
@@ -48,7 +48,7 @@ test("latest macOS release verifier supports scoped overrides", () => {
       "arm64",
       "--no-install-smoke",
       "--no-launch-smoke",
-      "--no-require-gatekeeper",
+      "--require-gatekeeper",
       "--smoke-seconds",
       "3",
       "--app-name",
@@ -69,7 +69,7 @@ test("latest macOS release verifier supports scoped overrides", () => {
       launchSmoke: false,
       releaseTag: "v2.6.4",
       repo: "example/project",
-      requireGatekeeper: false,
+      requireGatekeeper: true,
       smokeSeconds: 3,
     },
   );

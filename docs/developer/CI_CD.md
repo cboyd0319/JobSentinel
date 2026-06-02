@@ -101,13 +101,14 @@ and `x86_64-apple-darwin` and links them into a single binary. This means the `.
 natively on both Apple Silicon and Intel Macs.
 
 The release workflow verifies the macOS DMG before upload with
-`npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-gatekeeper`.
-This gate checks the DMG layout, bundle id, product name, version, icon
-metadata and resource file, macOS 13.0 minimum-system metadata, mounted app
-signature, universal architectures, mounted-app launch smoke, copied
-installed-app launch smoke, isolated macOS data directory and database
-creation, and Gatekeeper acceptance before the artifact can be attached to the
-draft release.
+`npm run tauri:verify:macos -- --launch-smoke --install-smoke`. This gate
+checks the DMG layout, bundle id, product name, version, icon metadata and
+resource file, macOS 13.0 minimum-system metadata, mounted app signature,
+universal architectures, mounted-app launch smoke, copied installed-app launch
+smoke, and isolated macOS data directory and database creation before the
+artifact can be attached to the draft release. When Developer ID signing and
+notarization secrets are configured, the workflow also adds
+`--require-gatekeeper`.
 
 ## Published release verification (verify-release-artifacts.yml)
 
@@ -119,19 +120,21 @@ GitHub Releases. It runs on `macos-latest`, installs Node dependencies, and runs
 check to the published tag. On manual runs, the optional `tag` input checks a
 specific release, and a blank tag checks the latest public release.
 
-The public macOS verifier uses strict defaults: expected JobSentinel bundle id,
-product name, icon metadata and resource file, release-tag version, macOS 13.0
-minimum-system metadata, universal `x86_64,arm64` architecture checks, mounted
-app signature verification, installed-app smoke, launch smoke, local data
-initialization, and Gatekeeper acceptance. A failure means the public DMG is not
-ready for nontechnical macOS users and should be replaced before directing
-users to it.
+The public macOS verifier defaults to the current no-Apple-account release
+path: expected JobSentinel bundle id, product name, icon metadata and resource
+file, release-tag version, macOS 13.0 minimum-system metadata, universal
+`x86_64,arm64` architecture checks, mounted app signature verification,
+installed-app smoke, launch smoke, and local data initialization. Gatekeeper
+acceptance is required only when the manual `require_gatekeeper` input or
+`JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER` repository variable is set to `true`.
 
 Current repository status: JobSentinel does not have an Apple Developer Account.
 The macOS package can be built and verified locally, but a public macOS package
 cannot be zero-friction for nontechnical users until Developer ID signing and
-notarization are available. The release workflow intentionally fails the public
-macOS path when signing/notarization secrets are missing.
+notarization are available. The release workflow builds a locally verified
+ad-hoc macOS DMG when all Apple release secrets are missing, fails if only some
+Apple secrets are configured, and uses the strict Gatekeeper gate when all
+required Apple secrets are present.
 
 ---
 
@@ -261,23 +264,26 @@ APPLE_PASSWORD              # App-specific password, not the account password
 APPLE_TEAM_ID               # 10-character Apple Team ID
 ```
 
-The macOS release job fails before building if any of these secrets are missing.
-When they are present, the workflow imports the Developer ID certificate into a
-temporary keychain, `npm run tauri:build:macos` signs, notarizes, staples, and
-validates the custom DMG. The release workflow then verifies the package with
-`npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-gatekeeper` before
-upload. Without the expected bundle id, product name, release version, icon
-resource file, macOS 13.0 minimum-system metadata, Developer ID signing,
+If all of these secrets are missing, the macOS release job builds an ad-hoc
+signed DMG and verifies it without a Gatekeeper claim. If only some secrets are
+configured, the job fails before building. When all secrets are present, the
+workflow imports the Developer ID certificate into a temporary keychain,
+`npm run tauri:build:macos` signs, notarizes, staples, and validates the custom
+DMG. The release workflow then verifies the package with
+`npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-gatekeeper`
+before upload. Without the expected bundle id, product name, release version,
+icon resource file, macOS 13.0 minimum-system metadata, Developer ID signing,
 notarization, Gatekeeper acceptance, mounted-app plus installed-app launch
-smoke, and local data initialization, the macOS release job should fail instead
-of publishing a package that nontechnical users cannot open cleanly.
+smoke, and local data initialization, the signed macOS release job should fail
+instead of publishing a package that nontechnical users cannot open cleanly.
 
 After the GitHub release is published, the `Verify Release Artifacts` workflow
 runs automatically. It downloads the public release DMG and applies the same
 signature, architecture, launch-smoke, installed-app smoke, local data
-initialization, and Gatekeeper checks to the artifact users can actually
-download. The same check can be run locally on a Mac with
-`npm run tauri:verify:macos:latest`.
+initialization, and optional Gatekeeper checks to the artifact users can
+actually download. The same no-account check can be run locally on a Mac with
+`npm run tauri:verify:macos:latest`; add `--require-gatekeeper` only for a
+Developer ID signed and notarized release.
 
 ---
 

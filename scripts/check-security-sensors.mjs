@@ -81,11 +81,15 @@ const releaseWorkflowChecks = [
   {
     label: "macOS bundle metadata gate",
     phrases: [
-      "--expected-bundle-id com.jobsentinel.main",
-      "--expected-product-name JobSentinel",
+      "--expected-bundle-id",
+      "com.jobsentinel.main",
+      "--expected-product-name",
+      "JobSentinel",
       "--expected-version",
-      "--expected-icon-file icon.icns",
-      "--expected-minimum-system-version 13.0",
+      "--expected-icon-file",
+      "icon.icns",
+      "--expected-minimum-system-version",
+      "13.0",
     ],
   },
 ];

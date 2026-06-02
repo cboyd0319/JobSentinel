@@ -166,6 +166,16 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local no-Apple-account release follow-up makes macOS tag releases
+  work with the stated constraint that the project has no Apple Developer
+  Account. CI builds and uploads a locally verified ad-hoc DMG when all Apple
+  release secrets are missing, fails on partial secret sets, and uses signing,
+  notarization, stapling, validation, and Gatekeeper acceptance only when all
+  required Apple secrets exist.
+- Current local reviewed-resume-skill sorting follow-up adds an explicit Resume
+  page control to use or stop using reviewed local skills for job sorting.
+  Backend config commands, browser/dev mocks, feature docs, and privacy labels
+  now match that local-only sensitive workflow.
 - Current local runtime-settings follow-up fixes current-session configuration
   staleness. Saved settings now update both disk and runtime memory, scheduler
   cycles use a current config snapshot, health/source-status smoke commands use

@@ -38,6 +38,10 @@ narrow implementation slices chosen from that backlog.
   app session, including resume-based job matching. Resume-enabled scoring
   cache entries now include the active resume id so turning resume matching on
   cannot reuse base keyword-only scores.
+- Latest local reviewed-resume-skill sorting slice adds explicit Resume page
+  controls to use or stop using reviewed local skills as one job-sorting
+  signal. It keeps the behavior local-only, user-controlled, and separate from
+  external AI or application automation.
 - Latest local resume-assistance slice preserves job-post importance for
   missing resume words and groups the Resume Match review by required,
   preferred, and other role language. Users now see which missing words deserve

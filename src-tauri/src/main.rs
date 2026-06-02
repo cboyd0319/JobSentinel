@@ -141,6 +141,8 @@ fn main() {
             commands::config::save_config,
             commands::config::get_config,
             commands::config::get_dashboard_preferences,
+            commands::config::get_resume_matching_preference,
+            commands::config::set_resume_matching_enabled,
             commands::config::validate_slack_webhook,
             commands::config::is_first_run,
             commands::config::complete_setup,

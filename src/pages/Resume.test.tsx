@@ -329,6 +329,106 @@ describe("Resume page", () => {
     expect(screen.queryByText("(100%)")).not.toBeInTheDocument();
   });
 
+  it("lets job seekers explicitly use reviewed resume skills for local sorting", async () => {
+    const user = userEvent.setup();
+
+    mockSafeInvoke.mockImplementation((command: string) => {
+      switch (command) {
+        case "get_active_resume":
+          return Promise.resolve({
+            id: 1,
+            name: "Care Coordinator Resume",
+            is_active: true,
+            created_at: "2026-05-21T12:00:00Z",
+            updated_at: "2026-05-21T12:00:00Z",
+          });
+        case "list_all_resumes":
+        case "get_recent_matches":
+          return Promise.resolve([]);
+        case "get_resume_matching_preference":
+          return Promise.resolve({ enabled: false });
+        case "get_user_skills":
+          return Promise.resolve([
+            {
+              id: 1,
+              resume_id: 1,
+              skill_name: "Patient Scheduling",
+              skill_category: "Customer or Patient Support",
+              confidence_score: 1,
+              years_experience: 3,
+              proficiency_level: "Regular use",
+              source: "manual",
+            },
+          ]);
+        case "set_resume_matching_enabled":
+          return Promise.resolve({ enabled: true });
+        default:
+          return Promise.resolve(null);
+      }
+    });
+
+    render(<Resume onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Saved Skills (1)")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("button", { name: "Use these skills to sort jobs" }));
+
+    expect(mockSafeInvoke).toHaveBeenCalledWith(
+      "set_resume_matching_enabled",
+      { enabled: true },
+      { logContext: "Use resume skills for job sorting" },
+    );
+    expect(await screen.findByText("Resume skills are helping sort jobs.")).toBeInTheDocument();
+    expect(mockToast.success).toHaveBeenCalledWith(
+      "Resume skills will help sort jobs",
+      "JobSentinel will use these reviewed local skills in job sorting.",
+    );
+  });
+
+  it("shows resume skill sorting as on when already enabled", async () => {
+    mockSafeInvoke.mockImplementation((command: string) => {
+      switch (command) {
+        case "get_active_resume":
+          return Promise.resolve({
+            id: 1,
+            name: "Care Coordinator Resume",
+            is_active: true,
+            created_at: "2026-05-21T12:00:00Z",
+            updated_at: "2026-05-21T12:00:00Z",
+          });
+        case "list_all_resumes":
+        case "get_recent_matches":
+          return Promise.resolve([]);
+        case "get_resume_matching_preference":
+          return Promise.resolve({ enabled: true });
+        case "get_user_skills":
+          return Promise.resolve([
+            {
+              id: 1,
+              resume_id: 1,
+              skill_name: "Patient Scheduling",
+              skill_category: "Customer or Patient Support",
+              confidence_score: 1,
+              years_experience: 3,
+              proficiency_level: "Regular use",
+              source: "manual",
+            },
+          ]);
+        default:
+          return Promise.resolve(null);
+      }
+    });
+
+    render(<Resume onBack={vi.fn()} />);
+
+    expect(await screen.findByText("Resume skills are helping sort jobs.")).toBeInTheDocument();
+    expect(screen.getByText("On")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Stop using resume skills" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Use these skills to sort jobs" })).not.toBeInTheDocument();
+  });
+
   it("clears optional skill details and trims skill names when editing", async () => {
     const user = userEvent.setup();
 

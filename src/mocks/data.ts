@@ -162,6 +162,7 @@ export const mockConfig = {
     cities: ["Remote", "Chicago", "Austin", "Atlanta"],
   },
   salary_floor_usd: 80000,
+  use_resume_matching: false,
   alerts: {
     slack: {
       enabled: false,

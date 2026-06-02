@@ -142,6 +142,12 @@ pub struct DashboardPreferences {
     pub any_job_source_enabled: bool,
 }
 
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ResumeMatchingPreference {
+    pub enabled: bool,
+}
+
 impl DashboardPreferences {
     fn from_config(config: &Config) -> Self {
         Self {
@@ -152,6 +158,35 @@ impl DashboardPreferences {
     }
 }
 
+async fn set_resume_matching_enabled_in_runtime_and_path(
+    enabled: bool,
+    runtime_config: &RwLock<Config>,
+    config_path: &Path,
+) -> Result<ResumeMatchingPreference, String> {
+    let mut next_config = {
+        let config = runtime_config.read().await;
+        config.clone()
+    };
+    next_config.use_resume_matching = enabled;
+
+    next_config.save(config_path).map_err(|e| {
+        let message = user_friendly_error("Failed to save configuration", &e);
+        tracing::error!(
+            config_path = %path_label_for_logging(config_path),
+            error = %message,
+            "Failed to save resume matching preference"
+        );
+        message
+    })?;
+
+    {
+        let mut runtime_config = runtime_config.write().await;
+        *runtime_config = next_config;
+    }
+
+    Ok(ResumeMatchingPreference { enabled })
+}
+
 #[tauri::command]
 pub async fn get_dashboard_preferences(
     state: State<'_, AppState>,
@@ -159,6 +194,28 @@ pub async fn get_dashboard_preferences(
     tracing::info!("Command: get_dashboard_preferences");
     let config = state.config.read().await;
     Ok(DashboardPreferences::from_config(&config))
+}
+
+#[tauri::command]
+pub async fn get_resume_matching_preference(
+    state: State<'_, AppState>,
+) -> Result<ResumeMatchingPreference, String> {
+    tracing::info!("Command: get_resume_matching_preference");
+    let config = state.config.read().await;
+    Ok(ResumeMatchingPreference {
+        enabled: config.use_resume_matching,
+    })
+}
+
+#[tauri::command]
+pub async fn set_resume_matching_enabled(
+    enabled: bool,
+    state: State<'_, AppState>,
+) -> Result<ResumeMatchingPreference, String> {
+    tracing::info!(enabled, "Command: set_resume_matching_enabled");
+    let config_path = Config::default_path();
+    set_resume_matching_enabled_in_runtime_and_path(enabled, state.config.as_ref(), &config_path)
+        .await
 }
 
 fn any_job_source_enabled(config: &Config) -> bool {
@@ -400,6 +457,22 @@ mod tests {
         assert_eq!(saved.salary_floor_usd, 95_000);
         assert!(saved.use_resume_matching);
         assert_eq!(saved.keywords_boost, vec!["case management"]);
+    }
+
+    #[tokio::test]
+    async fn set_resume_matching_enabled_updates_runtime_config_after_disk_save() {
+        let runtime_config = RwLock::new(create_dashboard_test_config());
+        let temp_dir = tempfile::tempdir().unwrap();
+        let config_path = temp_dir.path().join("config.json");
+
+        let preference =
+            set_resume_matching_enabled_in_runtime_and_path(true, &runtime_config, &config_path)
+                .await
+                .unwrap();
+
+        assert!(preference.enabled);
+        assert!(runtime_config.read().await.use_resume_matching);
+        assert!(Config::load(&config_path).unwrap().use_resume_matching);
     }
 
     #[test]
