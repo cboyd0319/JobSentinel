@@ -8,7 +8,7 @@ plain-language status and safe next steps.
 
 | Area | Current behavior |
 | ---- | ---------------- |
-| Scheduled source health | Tracks Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, startup and tech job posts, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, and Glassdoor |
+| Scheduled source status | Tracks Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, startup and tech job posts, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, and Glassdoor |
 | Source-check coverage | Includes scheduled sources plus Indeed, Wellfound, and ZipRecruiter availability checks |
 | User-opened search links | LinkedIn and similar destination links are opened by the user, not monitored in the background |
 | Saved access details | Tracks user-approved external channels where applicable; LinkedIn login details are not collected |
@@ -26,7 +26,7 @@ plain-language status and safe next steps.
 
 ## Dashboard Surface
 
-The Settings troubleshooting dashboard should show:
+The Settings source-status view should show:
 
 - Summary counts for working, having-trouble, not-working, off, and not-checked
   sources.
@@ -38,7 +38,7 @@ The Settings troubleshooting dashboard should show:
 
 ## Source Policy
 
-Source health must follow the same rules for job sources:
+Source status must follow the same rules for job sources:
 
 - Prefer official feeds, public feeds, and official employer or application
   platform postings.

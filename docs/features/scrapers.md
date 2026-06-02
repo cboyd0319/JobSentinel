@@ -42,7 +42,7 @@ Source the user turned on
 
 ## Source Status And Help
 
-The job source health dashboard tracks source status without requiring users to
+The job source status view tracks source status without requiring users to
 understand website internals, saved connection details, or logs.
 
 | Surface | Purpose |
@@ -53,7 +53,7 @@ understand website internals, saved connection details, or logs.
 | Source checks | Availability checks for known supported sources |
 | Help steps | Plain-language next steps and sanitized support report help |
 
-Source health must never leak credentials, raw cookies, full URLs containing
+Source status must never leak credentials, raw cookies, full URLs containing
 sensitive parameters, private notes, salary floors, resumes, or application
 history.
 
@@ -122,7 +122,7 @@ abbreviations, and maps location aliases such as `SF`, `Remote US`, and
 | Job tracking | Local only |
 | Saved searches | Local only |
 | Scheduled job checks | Local only, public-data only unless the user turns on an external access code such as USAJobs |
-| Source health | Local only |
+| Source status | Local only |
 | User-opened search links | Local only, user-controlled browser action |
 | Optional support report | Local only until user chooses copy, save, or GitHub issue flow; sanitized by default |
 

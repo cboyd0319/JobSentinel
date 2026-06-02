@@ -36,7 +36,7 @@ current maintained surface at the time of the latest docs sweep.
 | Desktop app | Tauri 2, React 19, TypeScript, Rust 2021 |
 | Storage | Local SQLite with SQLx offline mode |
 | Source monitoring | 12 scheduled source adapters plus user-opened search links |
-| Source health | 15 source-health checks with plain troubleshooting output |
+| Source status | 15 source-status checks with plain help output |
 | Backend surface | 197 registered Tauri commands |
 | Privacy posture | Local-first, no telemetry, external channels user-configured |
 | External AI posture | Optional, disabled by default, routed through `src/services/aiGateway.ts` |
@@ -47,7 +47,7 @@ current maintained surface at the time of the latest docs sweep.
 | Surface | Maintained docs |
 | ------- | --------------- |
 | Setup and search intent | [Quick start](user/QUICK_START.md), [guided intake plan](plans/active/guided-job-search-intake.md) |
-| Job monitoring and source health | [Source adapters](features/scrapers.md), [source health](features/scraper-health.md) |
+| Job monitoring and source status | [Source checks](features/scrapers.md), [source status](features/scraper-health.md) |
 | Ghost and stale-posting review | [Ghost detection](features/ghost-detection.md), [research plan](plans/active/research-backed-product-improvements.md) |
 | Salary and pay protection | [Salary support](features/salary-ai.md), [pay-equity research](research/pay-equity.md) |
 | Resume builder and fit review | [Resume builder](features/resume-builder.md), [resume match](features/resume-matcher.md) |

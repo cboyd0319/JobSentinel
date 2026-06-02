@@ -1359,6 +1359,7 @@ test("product copy rejects technical source-check flow wording", () => {
         "Source checks use bounded requests, source-specific limits, and shared retry helpers.",
         "duplicate handling, health checks, and bounded website reads",
         "local search, follows source-specific boundaries",
+        "job source health docs",
         "",
       ].join("\n"),
     );
@@ -1368,14 +1369,27 @@ test("product copy rejects technical source-check flow wording", () => {
       [
         "Every source check must use source-specific limits and shared retry helpers where feasible",
         "Page, feed, source-check, and import requests cap decoded bodies at 16 MiB",
+        "The job source health dashboard tracks source status",
+        "Source health must never leak credentials",
         "  -> source-boundary check",
         "  -> bounded public request",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/scraper-health.md",
+      [
+        "Scheduled source health",
+        "The Settings troubleshooting dashboard should show:",
+        "Source health must follow the same rules for job sources:",
         "",
       ].join("\n"),
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scrapers.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scraper-health.md"), true);
   });
 });
 

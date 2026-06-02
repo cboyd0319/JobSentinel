@@ -34,6 +34,14 @@ actionable findings in this active-plan surface or the relevant plan.
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local source-status wording cleanup replaces remaining user-facing
+  `source health` wording with `source status` in README, roadmap, source
+  guides, and ScraperHealthDashboard log context. Product-copy sensors now
+  reject source-health drift in user-facing surfaces. Focused verification
+  passed: `npx vitest run src/components/ScraperHealthDashboard.test.tsx`
+  passed 56 tests, `node --test scripts/check-product-copy.test.mjs` passed 36
+  tests, targeted stale-phrase search found no old live wording, `npm run
+  lint:bloat` passed, and `npm run lint:docs` passed.
 - Current local user-doc help-heading cleanup replaces remaining user-facing
   `Troubleshooting` headings with plain "When Something Does Not Work" or
   source-status help language across Quick Start, Deep Links, feature guides,

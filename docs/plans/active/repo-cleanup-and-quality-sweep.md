@@ -164,6 +164,11 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local source-status wording cleanup replaces remaining user-facing
+  `source health` wording with `source status` in README, roadmap, source
+  guides, and ScraperHealthDashboard log context. Product-copy sensors now
+  reject source-health drift. Focused ScraperHealthDashboard, product-copy,
+  stale-phrase, bloat, and docs verification passed.
 - Current local user-doc help-heading cleanup replaces remaining user-facing
   `Troubleshooting` headings with plain "When Something Does Not Work" or
   source-status help language across Quick Start, Deep Links, feature guides,

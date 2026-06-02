@@ -37,7 +37,7 @@ focus on real openings, protect compensation goals, understand opaque screening
 signals, and keep sensitive job-search data under personal control.
 
 Core workflows work locally. Job tracking, saved searches, application notes,
-salary floors, resume records, source health, and safe support reports work
+salary floors, resume records, source status, and safe support reports work
 without a hosted account, telemetry, cloud sync, or external AI provider.
 
 **Rule 0: user privacy and security are non-negotiable.** No feature,
@@ -82,7 +82,7 @@ or build something better with it if that helps more people.
 
 | Job-seeker problem | Product response | Evidence or boundary |
 | ------------------ | ---------------- | -------------------- |
-| Stale, reposted, or unverifiable roles waste tailoring time | Ghost-job detection, first-seen and last-seen tracking, repost context, source health, and official-source job monitoring | [Ghost-job research](docs/research/ghost-jobs.md), [ghost detection](docs/features/ghost-detection.md) |
+| Stale, reposted, or unverifiable roles waste tailoring time | Ghost-job detection, first-seen and last-seen tracking, repost context, source status, and official-source job monitoring | [Ghost-job research](docs/research/ghost-jobs.md), [ghost detection](docs/features/ghost-detection.md) |
 | Pay opacity can lead to underpaid work | Salary floors, salary transparency checks, compensation range review, lower-title or lower-pay cues, and negotiation prep | [Pay-equity research](docs/research/pay-equity.md), [salary negotiation](docs/research/salary-negotiation.md) |
 | Screening systems are opaque | Hiring-system transparency, candidate-side explainability, and application readability review | [screening-system research](docs/research/ats-transparency.md), [Responsible AI](RESPONSIBLE_AI.md) |
 | Long searches erode confidence and time | Fresh-role focus, pacing, weekly summaries, and gap-framing work are tracked as product requirements | [Roadmap](ROADMAP.md), [research-backed plan](docs/plans/active/research-backed-product-improvements.md) |
@@ -323,14 +323,14 @@ destination, not a scheduled source.
 
 Some monitored sources have optional setup. USAJobs can use an access code for
 scheduled checks, but users can open USAJobs through job-site search links
-without setup. JobSentinel reports source health so you can see when a source is
+without setup. JobSentinel reports source status so you can see when a source is
 healthy, degraded, or blocked. Source collection is scoped to a single user's
 local search, follows each source's allowed use, and favors public
 hiring-platform feeds or official company sources when available. Some sites
 only allow user-opened searches. Use search links for those sites.
 
 Read the full [job source guide](docs/features/scrapers.md) and
-[job source health docs](docs/features/scraper-health.md).
+[job source status docs](docs/features/scraper-health.md).
 
 ---
 

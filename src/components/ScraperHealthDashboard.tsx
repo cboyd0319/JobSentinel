@@ -339,7 +339,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
         safeInvoke<ScraperHealthMetrics[]>(
           "get_scraper_health",
           {},
-          { logContext: "Load source health" },
+          { logContext: "Load source status" },
         ),
         safeInvoke<CredentialHealth[]>(
           "get_expiring_credentials",
