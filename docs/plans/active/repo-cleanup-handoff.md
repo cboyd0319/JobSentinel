@@ -31,6 +31,15 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local ScoreDisplay Storybook cleanup changes stale score examples
+  from `Excellent`, `Average`, `Low`, and percentage-range labels to maintained
+  fit labels (`Strong fit`, `Good fit`, `Possible fit`, `Needs review`).
+  Product-copy sensors now reject the old story names and range labels.
+  Verification passed: `npx vitest run src/components/ScoreDisplay.test.tsx`
+  passed 44 tests, `node --test scripts/check-product-copy.test.mjs` passed 43
+  tests, `npm run lint` passed, `npm run test:scripts` passed 468 tests,
+  `npm run lint:bloat` passed, `npm run lint:docs` passed, and
+  `git diff --check` passed.
 - Current local alert-pickiness UI cleanup changes Notification Preferences
   alert-filter badges from raw threshold percentages to plain labels (`Very
   picky`, `Picky`, `Balanced`, `More alerts`) and gives each slider a

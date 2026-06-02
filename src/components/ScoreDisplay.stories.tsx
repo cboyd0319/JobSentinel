@@ -23,7 +23,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const HighScore: Story = {
+export const StrongFit: Story = {
   args: {
     score: 0.95,
     showLabel: true,
@@ -37,14 +37,14 @@ export const GoodScore: Story = {
   },
 };
 
-export const AverageScore: Story = {
+export const PossibleFit: Story = {
   args: {
     score: 0.55,
     showLabel: true,
   },
 };
 
-export const LowScore: Story = {
+export const NeedsReview: Story = {
   args: {
     score: 0.35,
     showLabel: true,
@@ -81,24 +81,24 @@ export const Bar: Story = {
   render: (args) => <ScoreBar score={args.score} />,
 };
 
-export const AllScoreRanges: Story = {
+export const FitLabels: Story = {
   args: { score: 0.5 },
   render: () => (
     <div className="space-y-4 w-64">
       <div>
-        <p className="text-sm text-surface-500 mb-2">Excellent (90%+)</p>
+        <p className="text-sm text-surface-500 mb-2">Strong fit</p>
         <ScoreDisplay score={0.95} showLabel />
       </div>
       <div>
-        <p className="text-sm text-surface-500 mb-2">Good (70-89%)</p>
+        <p className="text-sm text-surface-500 mb-2">Good fit</p>
         <ScoreDisplay score={0.80} showLabel />
       </div>
       <div>
-        <p className="text-sm text-surface-500 mb-2">Average (50-69%)</p>
+        <p className="text-sm text-surface-500 mb-2">Possible fit</p>
         <ScoreDisplay score={0.60} showLabel />
       </div>
       <div>
-        <p className="text-sm text-surface-500 mb-2">Low (&lt;50%)</p>
+        <p className="text-sm text-surface-500 mb-2">Needs review</p>
         <ScoreDisplay score={0.40} showLabel />
       </div>
     </div>

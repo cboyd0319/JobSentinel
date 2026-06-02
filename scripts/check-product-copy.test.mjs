@@ -458,6 +458,11 @@ test("product copy rejects stale match-ranking labels", () => {
   withFixture((root) => {
     for (const [path, copy] of [
       ["src/components/ScoreDisplay.tsx", "Strong Match"],
+      ["src/components/ScoreDisplay.stories.tsx", "Excellent (90%+)"],
+      ["src/components/ScoreDisplay.stories.tsx", "Average (50-69%)"],
+      ["src/components/ScoreDisplay.stories.tsx", "Low (&lt;50%)"],
+      ["src/components/ScoreDisplay.stories.tsx", "AllScoreRanges"],
+      ["src/components/ScoreDisplay.stories.tsx", "HighScore"],
       ["src/components/ScoreBreakdownModal.tsx", "Match Details"],
       ["src/components/ScoreBreakdownModal.tsx", "Part of overall score"],
       ["src/pages/DashboardUI/filterLabels.ts", "Best Match First"],
