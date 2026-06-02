@@ -114,6 +114,10 @@ Recent remote integration evidence:
 
 Current cleanup posture:
 
+- Current local connected-source wording follow-up changes the Settings contact
+  history label from `Source host` to `Website contacted`, with focused
+  Settings and product-copy coverage against raw source metadata labels
+  returning to visible copy.
 - Current local application-profile loading follow-up replaces vague slow-load
   copy with `Still opening your application profile...`, with ProfileForm and
   product-copy coverage against the old phrase.

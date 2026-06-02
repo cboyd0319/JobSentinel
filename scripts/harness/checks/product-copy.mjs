@@ -867,6 +867,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       />Result limit</i,
       /Not remote-only/i,
       /Get optional USAJobs access code/i,
+      /Source host/i,
       /(?:>\s*|["'`])Settings backup saved(?:\s*<|["'`])/,
       /Saved passwords and connection codes are left out for safety/i,
       /Config imported/i,
@@ -1316,6 +1317,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Hide risky postings/i,
       /Resume-Based Scoring/i,
       /70%\s*resume match\s*\+\s*30%\s*search words/i,
+      /Source host/i,
     ];
 
     if (settingsPatterns.some((pattern) => pattern.test(text))) {

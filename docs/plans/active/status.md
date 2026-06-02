@@ -52,11 +52,15 @@ and record actionable findings in this active-plan surface.
   jargon.
 - Latest local JobsWithGPT privacy follow-up closes `SEC-019`: approved
   connected-source checks now write a local minimized source-request ledger, and
-  Settings shows the latest approved contact time, source host, count-only
+  Settings shows the latest approved contact time, contacted website, count-only
   request categories, and outcome. The ledger stores no raw titles, raw
   location, resumes, salary floors, notes, application history, or full source
   links. Source-boundary, Settings, Rust health, and scheduler tests cover the
   boundary.
+- Latest local connected-source wording follow-up changes the Settings contact
+  history label from `Source host` to `Website contacted`, with focused
+  Settings and product-copy coverage so raw source metadata labels do not drift
+  back into user-facing copy.
 - Latest local privacy harness follow-up closes the screening-question debug-log
   debt: Application Assist traces and screening-answer command logs now stay
   count-only or ID-only for question text, saved answer patterns, original

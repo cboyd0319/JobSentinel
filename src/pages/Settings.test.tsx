@@ -708,6 +708,8 @@ describe("Settings — handleSave flow", () => {
 
     const contactSummary = screen.getByText(/Last contacted:/i).closest("div");
     expect(contactSummary).not.toBeNull();
+    expect(within(contactSummary!).getByText("Website contacted")).toBeInTheDocument();
+    expect(within(contactSummary!).queryByText("Source host")).not.toBeInTheDocument();
     expect(within(contactSummary!).getByText("api.jobswithgpt.example")).toBeInTheDocument();
     expect(within(contactSummary!).getByText("Completed")).toBeInTheDocument();
     expect(within(contactSummary!).getByText("Remote only")).toBeInTheDocument();

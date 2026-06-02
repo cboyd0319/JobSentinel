@@ -1069,6 +1069,14 @@ test("product copy rejects technical-first settings copy", () => {
   });
 });
 
+test("product copy rejects raw connected-source metadata labels", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "src/pages/Settings.tsx", "<dt>Source host</dt>\n");
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
+  });
+});
+
 test("product copy rejects support troubleshooting jargon", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/pages/Settings.tsx", "These logs can help diagnose it.\n");

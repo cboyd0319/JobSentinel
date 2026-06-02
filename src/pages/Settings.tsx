@@ -3594,7 +3594,7 @@ export default function Settings({ onClose }: SettingsProps) {
                               </p>
                               {jobsWithGptLastRequest && (
                                 <dl className="mt-2 grid grid-cols-1 gap-1 sm:grid-cols-[8rem_1fr]">
-                                  <dt className="font-medium">Source host</dt>
+                                  <dt className="font-medium">Website contacted</dt>
                                   <dd className="break-all">
                                     {jobsWithGptLastRequest.endpointHost ?? "Not recorded"}
                                   </dd>
