@@ -410,12 +410,14 @@ npm run tauri:verify:macos -- \
   --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg \
   --expected-architectures x86_64,arm64 \
   --launch-smoke \
-  --install-smoke
+  --install-smoke \
+  --require-checksum
 ```
 
 The macOS package script also writes
-`JobSentinel_<version>_universal.dmg.sha256` next to the DMG. Upload or share
-both files together.
+`JobSentinel_<version>_universal.dmg.sha256` next to the DMG. The verifier can
+require that checksum sidecar before upload or sharing. Upload or share both
+files together.
 
 Installer output:
 

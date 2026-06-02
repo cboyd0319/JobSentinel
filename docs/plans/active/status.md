@@ -70,6 +70,19 @@ manipulation, or unreviewed form sending.
   lint:tauri-invokes`, `npm run lint:security`, `npm run lint:architecture`,
   `npx tsc --noEmit`, `git diff --check`, and `npx playwright test
   tests/e2e/playwright/resume-upload-matching.spec.ts --project=chromium`.
+- Current local no-account macOS checksum follow-up makes
+  `npm run tauri:verify:macos` validate a local `.dmg.sha256` sidecar when it
+  exists and fail with `--require-checksum` when it is missing or mismatched.
+  The release workflow now requires that builder-created checksum before the
+  macOS upload path proceeds, while the post-publish verifier still checks the
+  downloaded public checksum asset. Gatekeeper rejection remains expected
+  without an Apple Developer Account. Verification passed on macOS 26.5:
+  focused macOS script tests, full `npm run test:scripts`, `npm run lint:docs`,
+  `npm run lint:security`, `npx actionlint .github/workflows/release.yml
+  .github/workflows/verify-release-artifacts.yml`, `git diff --check`, `npm
+  run lint:bloat`, local `npm run tauri:verify:macos` with
+  `--require-checksum`, and public `npm run tauri:verify:macos:latest -- --tag
+  v2.6.4`.
 - Current local no-account macOS readiness follow-up hardens the package script
   so universal builds prefer the rustup-managed toolchain even when Homebrew
   Rust is first in `PATH`, writes a local `.dmg.sha256` checksum next to the

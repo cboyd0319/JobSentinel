@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { execFileSync, spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   closeSync,
   existsSync,
@@ -70,7 +71,9 @@ export function parseArgs(args, arch = process.arch) {
       : defaultArchitectures(arch),
     installSmoke: hasArg(args, "--install-smoke"),
     launchSmoke: hasArg(args, "--launch-smoke") || Boolean(smokeValue),
+    requireChecksum: hasArg(args, "--require-checksum"),
     requireGatekeeper: hasArg(args, "--require-gatekeeper"),
+    verifyChecksum: !hasArg(args, "--no-checksum"),
     smokeSeconds: smokeValue ? Number(smokeValue) : defaultSmokeSeconds,
   };
 }
@@ -112,6 +115,43 @@ export function macosSmokeDataPaths(homePath) {
     dataDir,
     dbPath: join(dataDir, "jobs.db"),
   };
+}
+
+export function parseSha256Checksum(content) {
+  const match = content.match(/\b([a-fA-F0-9]{64})\b/);
+  if (!match) {
+    throw new Error("SHA-256 checksum file did not contain a 64-character hex digest.");
+  }
+
+  return match[1].toLowerCase();
+}
+
+function sha256File(path) {
+  return createHash("sha256").update(readFileSync(path)).digest("hex");
+}
+
+export function verifyLocalDmgChecksum(dmgPath, { requireChecksum = false, verifyChecksum = true } = {}) {
+  if (!verifyChecksum) {
+    return false;
+  }
+
+  const checksumPath = `${dmgPath}.sha256`;
+  if (!existsSync(checksumPath)) {
+    if (requireChecksum) {
+      throw new Error(`SHA-256 checksum sidecar missing: ${checksumPath}`);
+    }
+    console.warn(`No SHA-256 checksum sidecar found; skipping checksum check: ${checksumPath}`);
+    return false;
+  }
+
+  const expected = parseSha256Checksum(readFileSync(checksumPath, "utf8"));
+  const actual = sha256File(dmgPath);
+  if (actual !== expected) {
+    throw new Error(`SHA-256 checksum mismatch for ${dmgPath}. Expected ${expected}, found ${actual}.`);
+  }
+
+  console.log(`SHA-256 checksum verified: ${actual}`);
+  return true;
 }
 
 const requiredBundleMetadata = [
@@ -433,6 +473,10 @@ async function verifyInstalledApp({
 export async function verifyMacosPackage(options) {
   requireMacos();
   assertPathExists(options.dmgPath, "DMG");
+  verifyLocalDmgChecksum(options.dmgPath, {
+    requireChecksum: options.requireChecksum,
+    verifyChecksum: options.verifyChecksum,
+  });
 
   runChecked("hdiutil", ["verify", options.dmgPath]);
   gatekeeperAssess(options.dmgPath, "open", options.requireGatekeeper);
@@ -492,7 +536,7 @@ export async function verifyMacosPackage(options) {
 export async function main({ args = process.argv.slice(2) } = {}) {
   const options = parseArgs(args);
   if (!options.dmgPath) {
-    throw new Error("Usage: verify-macos-package.mjs --dmg <path-to-dmg> [--expected-architectures x86_64,arm64] [--expected-bundle-id com.example.app] [--expected-product-name AppName] [--expected-version X.Y.Z] [--expected-icon-file icon.icns] [--expected-minimum-system-version 13.0] [--launch-smoke] [--install-smoke] [--require-gatekeeper]");
+    throw new Error("Usage: verify-macos-package.mjs --dmg <path-to-dmg> [--expected-architectures x86_64,arm64] [--expected-bundle-id com.example.app] [--expected-product-name AppName] [--expected-version X.Y.Z] [--expected-icon-file icon.icns] [--expected-minimum-system-version 13.0] [--launch-smoke] [--install-smoke] [--require-checksum] [--require-gatekeeper]");
   }
   if (!Number.isFinite(options.smokeSeconds) || options.smokeSeconds < 1) {
     throw new Error(`Invalid --smoke-seconds value: ${options.smokeSeconds}`);

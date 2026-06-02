@@ -88,7 +88,8 @@ npm run tauri:verify:macos -- \
   --expected-icon-file icon.icns \
   --expected-minimum-system-version 13.0 \
   --launch-smoke \
-  --install-smoke
+  --install-smoke \
+  --require-checksum
 
 # Developer ID public macOS release gate
 npm run tauri:verify:macos -- \
@@ -101,6 +102,7 @@ npm run tauri:verify:macos -- \
   --expected-minimum-system-version 13.0 \
   --launch-smoke \
   --install-smoke \
+  --require-checksum \
   --require-gatekeeper
 
 # After publishing, verify the downloaded public macOS artifact.

@@ -256,6 +256,7 @@ jobs:
             --expected-minimum-system-version "13.0"
             --launch-smoke
             --install-smoke
+            --require-checksum
           )
 
           if [ "${JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER:-false}" = "true" ]; then

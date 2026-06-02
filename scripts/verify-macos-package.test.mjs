@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 import {
   bundleMetadataViolations,
@@ -8,6 +11,8 @@ import {
   macosSmokeDataPaths,
   parseArgs,
   parseLipoArchitectures,
+  parseSha256Checksum,
+  verifyLocalDmgChecksum,
 } from "./verify-macos-package.mjs";
 
 test("macOS verifier parses positional and flagged DMG arguments", () => {
@@ -24,7 +29,9 @@ test("macOS verifier parses positional and flagged DMG arguments", () => {
     expectedArchitectures: ["arm64"],
     installSmoke: false,
     launchSmoke: false,
+    requireChecksum: false,
     requireGatekeeper: false,
+    verifyChecksum: true,
     smokeSeconds: 12,
   });
 
@@ -48,6 +55,7 @@ test("macOS verifier parses positional and flagged DMG arguments", () => {
       "--smoke-seconds",
       "3",
       "--install-smoke",
+      "--require-checksum",
       "--require-gatekeeper",
     ], "x64"),
     {
@@ -63,10 +71,31 @@ test("macOS verifier parses positional and flagged DMG arguments", () => {
       expectedArchitectures: ["x86_64", "arm64"],
       installSmoke: true,
       launchSmoke: true,
+      requireChecksum: true,
       requireGatekeeper: true,
+      verifyChecksum: true,
       smokeSeconds: 3,
     },
   );
+
+  assert.deepEqual(parseArgs(["--dmg", "build.dmg", "--no-checksum"], "arm64"), {
+    appName: "JobSentinel.app",
+    dmgPath: "build.dmg",
+    expectedBundleMetadata: {
+      bundleIdentifier: undefined,
+      iconFile: undefined,
+      minimumSystemVersion: undefined,
+      productName: undefined,
+      version: undefined,
+    },
+    expectedArchitectures: ["arm64"],
+    installSmoke: false,
+    launchSmoke: false,
+    requireChecksum: false,
+    requireGatekeeper: false,
+    verifyChecksum: false,
+    smokeSeconds: 12,
+  });
 });
 
 test("macOS verifier maps local Node architectures to Mach-O architectures", () => {
@@ -122,6 +151,39 @@ test("macOS verifier resolves launch smoke data paths under isolated home", () =
     dataDir: "/tmp/jobsentinel-smoke-home/Library/Application Support/JobSentinel",
     dbPath: "/tmp/jobsentinel-smoke-home/Library/Application Support/JobSentinel/jobs.db",
   });
+});
+
+test("macOS verifier parses SHA-256 checksum files", () => {
+  assert.equal(
+    parseSha256Checksum("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef  JobSentinel.dmg\n"),
+    "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  );
+  assert.throws(() => parseSha256Checksum("not a checksum"), /64-character hex digest/);
+});
+
+test("macOS verifier validates local SHA-256 sidecar when present or required", () => {
+  const root = mkdtempSync(join(tmpdir(), "jobsentinel-macos-checksum-"));
+  const dmgPath = join(root, "JobSentinel.dmg");
+
+  try {
+    writeFileSync(dmgPath, "test dmg bytes");
+    writeFileSync(
+      `${dmgPath}.sha256`,
+      "3afd4f5c931bc10f99b884b7588dde1d43e6f823e1137439264f378ae1339895  JobSentinel.dmg\n",
+    );
+
+    assert.equal(verifyLocalDmgChecksum(dmgPath, { requireChecksum: true }), true);
+
+    writeFileSync(`${dmgPath}.sha256`, "0000000000000000000000000000000000000000000000000000000000000000  JobSentinel.dmg\n");
+    assert.throws(() => verifyLocalDmgChecksum(dmgPath), /SHA-256 checksum mismatch/);
+
+    rmSync(`${dmgPath}.sha256`, { force: true });
+    assert.equal(verifyLocalDmgChecksum(dmgPath), false);
+    assert.throws(() => verifyLocalDmgChecksum(dmgPath, { requireChecksum: true }), /checksum sidecar missing/);
+    assert.equal(verifyLocalDmgChecksum(dmgPath, { verifyChecksum: false, requireChecksum: true }), false);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test("macOS verifier validates required bundle metadata and expected identity", () => {

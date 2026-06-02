@@ -175,14 +175,16 @@ npm run tauri:verify:macos -- \
   --expected-icon-file icon.icns \
   --expected-minimum-system-version 13.0 \
   --launch-smoke \
-  --install-smoke
+  --install-smoke \
+  --require-checksum
 ```
 
-For current no-account package checks, keep `--launch-smoke --install-smoke`
-without `--require-gatekeeper`. That mode verifies the app bundle uses the
-expected JobSentinel id, product name, version, icon metadata, and icon resource
-file, declares macOS 13.0 or newer as its minimum system version, the mounted
-app can start, the copied installed app can start, and both launches create an
+For current no-account package checks, keep `--launch-smoke --install-smoke
+--require-checksum` without `--require-gatekeeper`. That mode verifies the app
+bundle uses the expected JobSentinel id, product name, version, icon metadata,
+and icon resource file, declares macOS 13.0 or newer as its minimum system
+version, the generated `.dmg.sha256` sidecar matches the DMG, the mounted app
+can start, the copied installed app can start, and both launches create an
 isolated local `jobs.db`. For Developer ID public release gating, add
 `--require-gatekeeper`; that mode also requires the signed and notarized public
 app plus disk image to pass Gatekeeper assessment.
