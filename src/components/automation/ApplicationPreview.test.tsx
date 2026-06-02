@@ -482,13 +482,13 @@ describe("ApplicationPreview", () => {
       });
     });
 
-    it("instructs user to click submit", async () => {
+    it("instructs user to submit the application themselves", async () => {
       mockInvoke.mockResolvedValue(mockProfile);
 
       render(<ApplicationPreview job={mockJob} atsPlatform="greenhouse" />);
 
       await waitFor(() => {
-        expect(screen.getByText(/click the submit button yourself/i)).toBeInTheDocument();
+        expect(screen.getByText(/submit the form yourself/i)).toBeInTheDocument();
       });
     });
   });

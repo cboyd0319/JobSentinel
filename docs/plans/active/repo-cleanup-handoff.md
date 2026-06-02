@@ -1169,10 +1169,12 @@ Next high-value passes:
      symbols to `Cmd/Ctrl` labels. The latest mouse-neutral copy slice removes
      click/drag-first guidance from onboarding, location detection, recovery,
      Application Assist, application tracking, cover-letter blanks, and browser
-     import docs. Continue looking for new issues as new surfaces change.
-   - Latest pushed checkpoint: `2e28a55f` on `origin/main`; remote CI and Docs
-     Harness both passed after the broad-audience privacy and hiring-trend
-     label slices.
+     import docs, with a follow-up stale-test fix for the Application Preview
+     submit-yourself guidance. Continue looking for new issues as new surfaces
+     change.
+   - Do not trust hardcoded checkpoint notes for remote status. Use
+     `git status --short --branch`, `git log --oneline -3`, and `gh run list
+     --branch main --limit 5` as live evidence before reporting CI state.
 6. Continue broad-audience UX review.
    - Recheck onboarding, examples, placeholders, filters, profile presets, docs,
      and empty states for engineer-only assumptions.

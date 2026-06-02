@@ -1272,6 +1272,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /click Save/i,
     /click Submit yourself/i,
     /Click Submit yourself/i,
+    /click the submit button yourself/i,
     /Did you click Submit/i,
     /personally click the Submit/i,
     /Yes, I clicked Submit/i,
