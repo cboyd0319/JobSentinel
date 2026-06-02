@@ -49,17 +49,20 @@ External AI is not required for resume matching.
 
 ## Everyday Workflow
 
-1. Open **Resumes**.
-2. Choose a saved resume or add a PDF resume.
-3. Choose **See what JobSentinel read** if you want to inspect the readable
+1. Open **Resume Match**.
+2. Paste the job post.
+3. Choose **Choose or Add Resume** to use the active saved resume, or open
+   **Resumes** if you need to add or change one.
+4. Choose **See what JobSentinel read** if you want to inspect the readable
    resume text before using match results.
-4. Use **Import from resume app** only if another resume app gave you export
+5. Use **Import from resume app** only if another resume app gave you export
    text.
-5. Review suggested skills and add anything important that was missed.
-6. Choose **Use these skills to sort jobs** if the reviewed local skills should
+6. Click **Review Match**.
+7. Review suggested skills and add anything important that was missed.
+8. Choose **Use these skills to sort jobs** if the reviewed local skills should
    influence job sorting.
-7. Open job details from the dashboard to see recent resume fit reviews.
-8. Use skills found in both places and skills to review as evidence for a
+9. Open job details from the dashboard to see recent resume fit reviews.
+10. Use skills found in both places and skills to review as evidence for a
    decision:
    tailor carefully, save for later, ask a question, or skip.
 
@@ -103,6 +106,8 @@ The current local matcher:
 - extracts readable text from PDF resumes;
 - provides an explicit local preview of readable resume text without returning
   the saved file path;
+- can review the active saved resume against a pasted job post without copying
+  structured resume details into the page;
 - identifies skills across broad career categories;
 - lets reviewed local skills influence job sorting only after the user turns
   that preference on;
@@ -114,6 +119,8 @@ The current local matcher:
 - passes that context to the live Resume Builder review panel when available;
 - keeps required and preferred job-post headings separate even when the posting
   uses ordinary single-line section breaks;
+- treats job posts with too little recognized requirement detail as
+  insufficient evidence instead of a perfect match;
 - stores results locally so recent job comparisons can be reviewed later.
 
 The skill list is self-contained and deterministic. Same input should produce

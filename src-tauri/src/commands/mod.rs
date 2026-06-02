@@ -85,6 +85,7 @@ pub use resume::{
     // Skill management commands (Phase 1)
     add_user_skill,
     // ATS analysis commands
+    analyze_active_resume_for_job,
     analyze_resume_for_job,
     analyze_resume_format,
     create_resume_draft,

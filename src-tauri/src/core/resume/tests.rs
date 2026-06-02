@@ -1036,7 +1036,7 @@ async fn test_get_user_skills_with_all_fields() {
     .bind(0.95)
     .bind(5.5)
     .bind("Expert")
-    .bind("manual")
+    .bind("user_input")
     .execute(&pool)
     .await
     .unwrap();
@@ -1048,7 +1048,7 @@ async fn test_get_user_skills_with_all_fields() {
     assert_eq!(skills[0].confidence_score, 0.95);
     assert_eq!(skills[0].years_experience, Some(5.5));
     assert_eq!(skills[0].proficiency_level, Some("Expert".to_string()));
-    assert_eq!(skills[0].source, "manual");
+    assert_eq!(skills[0].source, "user_input");
 }
 
 #[tokio::test]

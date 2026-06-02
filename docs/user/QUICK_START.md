@@ -308,8 +308,9 @@ screening software:
 
 1. Click **Resume Match** in the sidebar
 2. Paste the job post
-3. Add your resume details
-4. Get feedback on job-post evidence, readability, and truthful edits
+3. Choose or add a saved resume
+4. Click **Review Match**
+5. Get feedback on job-post evidence, readability, and truthful edits
 
 ### Application Assist
 

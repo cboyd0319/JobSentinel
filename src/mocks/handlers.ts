@@ -2085,7 +2085,7 @@ function analyzeMockResumeForJob(args?: Record<string, unknown>): MockAtsAnalysi
   const missingKeywords = missingKeywordDetails.map(({ keyword }) => keyword);
   const keywordScore = keywords.length > 0
     ? Math.round((keywordMatches.length / keywords.length) * 1000) / 10
-    : 100;
+    : 0;
   const suggestions: MockAtsSuggestion[] = [
     ...formatResult.suggestions,
     ...missingKeywordDetails.map(({ keyword, importance }) => {
@@ -3825,6 +3825,31 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
 
     case "analyze_resume_for_job":
       return analyzeMockResumeForJob(args) as T;
+
+    case "analyze_active_resume_for_job": {
+      const activeResume = getActiveResume();
+      if (!activeResume) {
+        throw new Error("Choose or add a resume before reviewing job fit.");
+      }
+
+      const readableText = (activeResume.parsed_text ?? "").trim();
+      if (!readableText) {
+        throw new Error("JobSentinel could not find readable text in the active resume.");
+      }
+
+      return analyzeMockResumeForJob({
+        resume: {
+          summary: readableText,
+          experience: [],
+          skills: [],
+          education: [],
+          certifications: [],
+          projects: [],
+          custom_sections: {},
+        },
+        jobDescription: getStringArg(args, "jobDescription") ?? "",
+      }) as T;
+    }
 
     case "get_ats_power_words":
       return [...ATS_POWER_WORDS] as T;

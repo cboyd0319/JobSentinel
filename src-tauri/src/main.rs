@@ -199,6 +199,7 @@ fn main() {
             commands::resume::export_resume_html,
             commands::resume::export_resume_text,
             // ATS Optimizer commands (v2.0)
+            commands::resume::analyze_active_resume_for_job,
             commands::resume::analyze_resume_for_job,
             commands::resume::analyze_resume_format,
             commands::resume::extract_job_keywords,

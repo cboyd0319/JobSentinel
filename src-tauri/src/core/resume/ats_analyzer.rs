@@ -149,61 +149,33 @@ impl AtsAnalyzer {
         // Find keyword matches
         let (keyword_matches, missing_keyword_details) =
             Self::find_keyword_matches(resume, &job_keywords);
-        let missing_keywords = missing_keyword_details
-            .iter()
-            .map(|gap| gap.keyword.clone())
-            .collect::<Vec<_>>();
-
-        // Calculate keyword score
-        let total_keywords = job_keywords.len();
-        let matched_keywords = keyword_matches.len();
-        let keyword_score = if total_keywords > 0 {
-            (matched_keywords as f64 / total_keywords as f64) * 100.0
-        } else {
-            100.0
-        };
-
-        // Generate keyword suggestions
-        let mut suggestions = format_result.suggestions.clone();
-        for gap in &missing_keyword_details {
-            let impact = match gap.importance {
-                KeywordImportance::Required => {
-                    "Required job-post language is easier to compare when real evidence is visible."
-                }
-                KeywordImportance::Preferred => {
-                    "Preferred job-post language can help when it honestly fits your background."
-                }
-                KeywordImportance::Industry => {
-                    "Role language can improve clarity when it accurately describes your work."
-                }
-            };
-
-            suggestions.push(AtsSuggestion {
-                category: SuggestionCategory::AddKeyword,
-                suggestion: format!(
-                    "Review whether '{}' is true for your background and worth making visible",
-                    gap.keyword
-                ),
-                impact: impact.to_string(),
-            });
-        }
-
-        // Calculate overall score (weighted average)
-        let overall_score = (keyword_score * 0.4)
-            + (format_result.format_score * 0.3)
-            + (format_result.completeness_score * 0.3);
-
-        AtsAnalysisResult {
-            overall_score,
-            keyword_score,
-            format_score: format_result.format_score,
-            completeness_score: format_result.completeness_score,
+        Self::build_job_analysis_result(
+            job_description,
+            &job_keywords,
+            format_result,
             keyword_matches,
-            missing_keywords,
             missing_keyword_details,
-            format_issues: format_result.format_issues,
-            suggestions,
-        }
+        )
+    }
+
+    /// Analyze plain resume text against a job description without returning raw text.
+    pub fn analyze_text_for_job(
+        resume_text: &str,
+        skills: &[String],
+        job_description: &str,
+    ) -> AtsAnalysisResult {
+        let job_keywords = Self::extract_job_keywords(job_description);
+        let format_result = Self::analyze_plain_text_format(resume_text);
+        let (keyword_matches, missing_keyword_details) =
+            Self::find_keyword_matches_in_text(resume_text, skills, &job_keywords);
+
+        Self::build_job_analysis_result(
+            job_description,
+            &job_keywords,
+            format_result,
+            keyword_matches,
+            missing_keyword_details,
+        )
     }
 
     /// Analyze resume format without job context
@@ -281,7 +253,9 @@ impl AtsAnalyzer {
 
         // Add industry keywords if found
         for keyword in Self::get_industry_keywords() {
-            if lower.contains(keyword) && !keywords.iter().any(|(k, _)| k == keyword) {
+            if Self::keyword_appears_in_text(&lower, keyword)
+                && !keywords.iter().any(|(k, _)| k == keyword)
+            {
                 keywords.push((keyword.to_string(), KeywordImportance::Industry));
             }
         }
@@ -668,6 +642,132 @@ impl AtsAnalyzer {
         (filled as f64 / total as f64) * 100.0
     }
 
+    fn analyze_plain_text_format(resume_text: &str) -> AtsAnalysisResult {
+        let readable_text = resume_text.trim();
+        let mut format_issues = Vec::new();
+        let mut suggestions = Vec::new();
+
+        if readable_text.is_empty() {
+            format_issues.push(FormatIssue {
+                severity: IssueSeverity::Critical,
+                issue: "No readable resume text found".to_string(),
+                fix: "Add a resume with readable text before reviewing job fit.".to_string(),
+            });
+        }
+
+        if Self::text_has_adversarial_content(readable_text) {
+            format_issues.push(FormatIssue {
+                severity: IssueSeverity::Warning,
+                issue: "Instruction-like or hidden resume text detected".to_string(),
+                fix: "Remove instructions aimed at screening tools and keep only truthful qualifications, work evidence, and readable application content.".to_string(),
+            });
+            suggestions.push(AtsSuggestion {
+                category: SuggestionCategory::FormatFix,
+                suggestion:
+                    "Review the resume for prompt-injection-like instructions, hidden text, or invisible characters before using it."
+                        .to_string(),
+                impact:
+                    "Keeps the resume readable and avoids tactics that can backfire with employers or screening systems."
+                        .to_string(),
+            });
+        }
+
+        let critical_count = format_issues
+            .iter()
+            .filter(|i| i.severity == IssueSeverity::Critical)
+            .count();
+        let warning_count = format_issues
+            .iter()
+            .filter(|i| i.severity == IssueSeverity::Warning)
+            .count();
+        let format_score =
+            (100.0 - (critical_count as f64 * 20.0) - (warning_count as f64 * 5.0)).max(0.0);
+        let completeness_score = if readable_text.is_empty() { 0.0 } else { 100.0 };
+
+        AtsAnalysisResult {
+            overall_score: (format_score * 0.5) + (completeness_score * 0.5),
+            keyword_score: 0.0,
+            format_score,
+            completeness_score,
+            keyword_matches: Vec::new(),
+            missing_keywords: Vec::new(),
+            missing_keyword_details: Vec::new(),
+            format_issues,
+            suggestions,
+        }
+    }
+
+    fn build_job_analysis_result(
+        job_description: &str,
+        job_keywords: &[(String, KeywordImportance)],
+        mut format_result: AtsAnalysisResult,
+        keyword_matches: Vec<KeywordMatch>,
+        missing_keyword_details: Vec<MissingKeyword>,
+    ) -> AtsAnalysisResult {
+        let missing_keywords = missing_keyword_details
+            .iter()
+            .map(|gap| gap.keyword.clone())
+            .collect::<Vec<_>>();
+
+        let total_keywords = job_keywords.len();
+        let matched_keywords = keyword_matches.len();
+        let keyword_score = if total_keywords > 0 {
+            (matched_keywords as f64 / total_keywords as f64) * 100.0
+        } else {
+            0.0
+        };
+
+        if total_keywords == 0 && !job_description.trim().is_empty() {
+            format_result.format_issues.push(FormatIssue {
+                severity: IssueSeverity::Info,
+                issue: "Not enough job-post detail recognized to score fit confidently."
+                    .to_string(),
+                fix: "Paste a fuller job post with responsibilities, requirements, or preferred qualifications."
+                    .to_string(),
+            });
+        }
+
+        let mut suggestions = format_result.suggestions.clone();
+        for gap in &missing_keyword_details {
+            let impact = match gap.importance {
+                KeywordImportance::Required => {
+                    "Required job-post language is easier to compare when real evidence is visible."
+                }
+                KeywordImportance::Preferred => {
+                    "Preferred job-post language can help when it honestly fits your background."
+                }
+                KeywordImportance::Industry => {
+                    "Role language can improve clarity when it accurately describes your work."
+                }
+            };
+
+            suggestions.push(AtsSuggestion {
+                category: SuggestionCategory::AddKeyword,
+                suggestion: format!(
+                    "Review whether '{}' is true for your background and worth making visible",
+                    gap.keyword
+                ),
+                impact: impact.to_string(),
+            });
+        }
+
+        let overall_score = (keyword_score * 0.4)
+            + (format_result.format_score * 0.3)
+            + (format_result.completeness_score * 0.3);
+
+        AtsAnalysisResult {
+            overall_score,
+            keyword_score,
+            format_score: format_result.format_score,
+            completeness_score: format_result.completeness_score,
+            keyword_matches,
+            missing_keywords,
+            missing_keyword_details,
+            format_issues: format_result.format_issues,
+            suggestions,
+        }
+    }
+
     fn find_keyword_matches(
         resume: &ResumeData,
         job_keywords: &[(String, KeywordImportance)],
@@ -682,7 +782,7 @@ impl AtsAnalyzer {
             // Search in summary
             let summary_lower = resume.summary.to_lowercase();
             let keyword_lower = keyword.to_lowercase();
-            let count = summary_lower.matches(&keyword_lower).count();
+            let count = Self::keyword_frequency(&summary_lower, &keyword_lower);
             if count > 0 {
                 found_in.push("summary".to_string());
                 frequency += count;
@@ -697,7 +797,7 @@ impl AtsAnalyzer {
                     exp.achievements.join(" ")
                 )
                 .to_lowercase();
-                let count = exp_text.matches(&keyword_lower).count();
+                let count = Self::keyword_frequency(&exp_text, &keyword_lower);
                 if count > 0 {
                     if !found_in.contains(&"experience".to_string()) {
                         found_in.push("experience".to_string());
@@ -709,7 +809,9 @@ impl AtsAnalyzer {
             // Search in skills
             for skill in &resume.skills {
                 let skill_lower = skill.name.to_lowercase();
-                if skill_lower.contains(&keyword_lower) || keyword_lower.contains(&skill_lower) {
+                if Self::keyword_appears_in_text(&skill_lower, &keyword_lower)
+                    || Self::keyword_appears_in_text(&keyword_lower, &skill_lower)
+                {
                     if !found_in.contains(&"skills".to_string()) {
                         found_in.push("skills".to_string());
                     }
@@ -756,6 +858,109 @@ impl AtsAnalyzer {
         });
 
         (matches, missing)
+    }
+
+    fn find_keyword_matches_in_text(
+        resume_text: &str,
+        skills: &[String],
+        job_keywords: &[(String, KeywordImportance)],
+    ) -> (Vec<KeywordMatch>, Vec<MissingKeyword>) {
+        let mut matches = Vec::new();
+        let mut missing = Vec::new();
+        let resume_lower = resume_text.to_lowercase();
+
+        for (keyword, importance) in job_keywords {
+            let keyword_lower = keyword.to_lowercase();
+            let mut found_in = Vec::new();
+            let mut frequency = Self::keyword_frequency(&resume_lower, &keyword_lower);
+
+            if frequency > 0 {
+                found_in.push("resume text".to_string());
+            }
+
+            let skill_hits = skills
+                .iter()
+                .filter(|skill| {
+                    let skill_lower = skill.to_lowercase();
+                    Self::keyword_appears_in_text(&skill_lower, &keyword_lower)
+                        || Self::keyword_appears_in_text(&keyword_lower, &skill_lower)
+                })
+                .count();
+
+            if skill_hits > 0 {
+                found_in.push("skills".to_string());
+                frequency += skill_hits;
+            }
+
+            if frequency > 0 {
+                matches.push(KeywordMatch {
+                    keyword: keyword.clone(),
+                    found_in,
+                    frequency,
+                    importance: *importance,
+                });
+            } else {
+                missing.push(MissingKeyword {
+                    keyword: keyword.clone(),
+                    importance: *importance,
+                });
+            }
+        }
+
+        matches.sort_by(|a, b| {
+            let imp_order = |imp: KeywordImportance| match imp {
+                KeywordImportance::Required => 0,
+                KeywordImportance::Preferred => 1,
+                KeywordImportance::Industry => 2,
+            };
+            imp_order(a.importance)
+                .cmp(&imp_order(b.importance))
+                .then(b.frequency.cmp(&a.frequency))
+        });
+        missing.sort_by(|a, b| {
+            let imp_order = |imp: KeywordImportance| match imp {
+                KeywordImportance::Required => 0,
+                KeywordImportance::Preferred => 1,
+                KeywordImportance::Industry => 2,
+            };
+            imp_order(a.importance)
+                .cmp(&imp_order(b.importance))
+                .then(a.keyword.cmp(&b.keyword))
+        });
+
+        (matches, missing)
+    }
+
+    fn keyword_frequency(text: &str, keyword: &str) -> usize {
+        if keyword.trim().is_empty() {
+            return 0;
+        }
+
+        text.match_indices(keyword)
+            .filter(|(start, _)| Self::keyword_match_has_boundaries(text, keyword, *start))
+            .count()
+    }
+
+    fn keyword_appears_in_text(text: &str, keyword: &str) -> bool {
+        Self::keyword_frequency(text, keyword) > 0
+    }
+
+    fn keyword_match_has_boundaries(text: &str, keyword: &str, start: usize) -> bool {
+        let end = start + keyword.len();
+        let before_is_term = text[..start]
+            .chars()
+            .next_back()
+            .is_some_and(Self::is_keyword_term_char);
+        let after_is_term = text[end..]
+            .chars()
+            .next()
+            .is_some_and(Self::is_keyword_term_char);
+
+        !before_is_term && !after_is_term
+    }
+
+    fn is_keyword_term_char(ch: char) -> bool {
+        ch.is_alphanumeric() || matches!(ch, '#' | '+' | '.')
     }
 
     fn extract_section(text: &str, headers: &[&str]) -> String {
@@ -1123,6 +1328,46 @@ Preferred:
     }
 
     #[test]
+    fn test_analyze_for_job_with_unrecognized_post_never_scores_perfect() {
+        let resume = sample_resume();
+        let job_desc = "We are hiring a dependable teammate for a busy office.";
+
+        let result = AtsAnalyzer::analyze_for_job(&resume, job_desc);
+
+        assert_eq!(result.keyword_score, 0.0);
+        assert!(result.overall_score < 100.0);
+        assert!(result.format_issues.iter().any(|issue| {
+            issue.severity == IssueSeverity::Info
+                && issue
+                    .issue
+                    .contains("Not enough job-post detail recognized")
+        }));
+    }
+
+    #[test]
+    fn test_analyze_text_for_job_uses_saved_resume_text_without_structured_json() {
+        let resume_text = "Jordan led client intake scheduling and case documentation.";
+        let skills = vec!["CRM".to_string()];
+        let job_desc = "Required: case management, scheduling, CRM";
+
+        let result = AtsAnalyzer::analyze_text_for_job(resume_text, &skills, job_desc);
+
+        assert!(result
+            .keyword_matches
+            .iter()
+            .any(|matched| matched.keyword == "scheduling"
+                && matched.found_in.contains(&"resume text".to_string())));
+        assert!(result
+            .keyword_matches
+            .iter()
+            .any(|matched| matched.keyword == "crm"
+                && matched.found_in.contains(&"skills".to_string())));
+        assert!(result.missing_keyword_details.iter().any(|gap| {
+            gap.keyword == "case management" && gap.importance == KeywordImportance::Required
+        }));
+    }
+
+    #[test]
     fn test_missing_keywords_keep_job_importance() {
         let resume = sample_resume();
         let job_desc = r#"
@@ -1266,6 +1511,41 @@ Preferred: Salesforce
         let rust_match = result.keyword_matches.iter().find(|m| m.keyword == "rust");
         assert!(rust_match.is_some());
         assert!(rust_match.unwrap().frequency >= 3);
+    }
+
+    #[test]
+    fn test_keyword_matching_does_not_count_substrings_as_evidence() {
+        let mut resume = sample_resume();
+        resume.summary =
+            "Customer success specialist with JavaScript dashboards and Salesforce reports"
+                .to_string();
+        resume.skills = vec![
+            Skill {
+                name: "JavaScript".to_string(),
+                category: "Tools".to_string(),
+                proficiency: None,
+            },
+            Skill {
+                name: "Salesforce".to_string(),
+                category: "Tools".to_string(),
+                proficiency: None,
+            },
+        ];
+
+        let result = AtsAnalyzer::analyze_for_job(&resume, "Required: Java, sales");
+
+        assert!(!result
+            .keyword_matches
+            .iter()
+            .any(|matched| matched.keyword == "java" || matched.keyword == "sales"));
+        assert!(result
+            .missing_keyword_details
+            .iter()
+            .any(|gap| gap.keyword == "java" && gap.importance == KeywordImportance::Required));
+        assert!(result
+            .missing_keyword_details
+            .iter()
+            .any(|gap| gap.keyword == "sales" && gap.importance == KeywordImportance::Required));
     }
 
     #[test]

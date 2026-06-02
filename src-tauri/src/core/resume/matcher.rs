@@ -369,7 +369,7 @@ impl JobMatcher {
         let skills_match_score = if !job_skill_names.is_empty() {
             matching_skills.len() as f64 / job_skill_names.len() as f64
         } else {
-            1.0 // No required skills = 100% match
+            0.0 // No recognized job skills means insufficient evidence, not a perfect match.
         };
 
         // Extract and calculate experience match
@@ -488,14 +488,21 @@ impl JobMatcher {
         let exp_pct = (experience_score * 100.0).round() as i32;
         let edu_pct = (education_score * 100.0).round() as i32;
 
+        let skill_count = matching_skills.len() + missing_skills.len();
+        let skill_line = if skill_count == 0 {
+            "- Skills: not enough job-post skill detail recognized".to_string()
+        } else {
+            format!(
+                "- Skills: {}% ({}/{} matched)",
+                skills_pct,
+                matching_skills.len(),
+                skill_count
+            )
+        };
+
         let mut analysis = format!(
-            "Match Score: {}%\n- Skills: {}% ({}/{} matched)\n- Experience: {}%\n- Education: {}%\n\n",
-            overall_pct,
-            skills_pct,
-            matching_skills.len(),
-            matching_skills.len() + missing_skills.len(),
-            exp_pct,
-            edu_pct
+            "Match Score: {}%\n{}\n- Experience: {}%\n- Education: {}%\n\n",
+            overall_pct, skill_line, exp_pct, edu_pct
         );
 
         // Skills breakdown
@@ -934,11 +941,16 @@ mod tests {
         // Don't add any job skills
         let match_result = matcher.calculate_match(resume_id, job_hash).await.unwrap();
 
-        // No required skills = 100% match
-        assert_eq!(match_result.skills_match_score, Some(1.0));
-        assert_eq!(match_result.overall_match_score, 1.0);
+        // No recognized job skills means insufficient evidence, not a perfect match.
+        assert_eq!(match_result.skills_match_score, Some(0.0));
+        assert!(match_result.overall_match_score < 1.0);
         assert_eq!(match_result.matching_skills.len(), 0);
         assert_eq!(match_result.missing_skills.len(), 0);
+        assert!(match_result
+            .gap_analysis
+            .as_deref()
+            .unwrap_or_default()
+            .contains("not enough job-post skill detail recognized"));
     }
 
     #[tokio::test]

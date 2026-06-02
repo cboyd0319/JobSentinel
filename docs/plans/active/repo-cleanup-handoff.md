@@ -31,6 +31,31 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local resume-assistance follow-up makes **Review Match** usable with
+  the active saved resume instead of requiring copied structured resume
+  details. The new `analyze_active_resume_for_job` command analyzes saved
+  resume text inside Tauri and returns only score, match, gap, issue, and
+  suggestion data to the renderer. Side-by-side comparison remains available
+  only for explicit copied resume details, so saved resume text is not echoed
+  into the optimizer page. The same slice treats unrecognized job posts and
+  missing extracted job skills as insufficient evidence instead of perfect
+  match, and stores manually added skills with the migration-valid
+  `user_input` source. Focused verification passed: `cargo test --lib
+  ats_analyzer --manifest-path src-tauri/Cargo.toml`, `cargo test --lib
+  test_calculate_match_no_job_skills --manifest-path src-tauri/Cargo.toml`,
+  `cargo test --lib
+  test_update_user_skill_clears_optional_fields_and_trims_name
+  --manifest-path src-tauri/Cargo.toml`, and `npx vitest run
+  src/pages/ResumeOptimizer.test.tsx src/mocks/handlers.test.ts`. Broader
+  verification passed: `cargo check --manifest-path src-tauri/Cargo.toml`,
+  `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`,
+  `cargo test --lib resume --manifest-path src-tauri/Cargo.toml`, `cargo test
+  --lib --manifest-path src-tauri/Cargo.toml`, `cargo fmt --all
+  --manifest-path src-tauri/Cargo.toml -- --check`, `npm run test:run`, `npm
+  run build`, `npm run lint -- --quiet`, `npm run lint:docs`, `npm run
+  lint:tauri-invokes`, `npm run lint:security`, `npm run lint:architecture`,
+  `npx tsc --noEmit`, `git diff --check`, and `npx playwright test
+  tests/e2e/playwright/resume-upload-matching.spec.ts --project=chromium`.
 - Current local no-account macOS readiness follow-up is running on macOS 26.5
   (Darwin 25.5.0, build 25F71) on Apple Silicon `arm64`, with SIP enabled.
   The package script now prefers the rustup-managed toolchain for universal

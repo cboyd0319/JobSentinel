@@ -722,6 +722,21 @@ describe("mock Tauri handlers", () => {
       ]),
     );
 
+    await mockInvoke<number>("select_and_upload_resume");
+    const activeJobResult = await mockInvoke<AtsAnalysisResult>("analyze_active_resume_for_job", {
+      jobDescription: "Required: scheduling, case management.",
+    });
+    expect(activeJobResult.keyword_matches).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "scheduling",
+          found_in: expect.arrayContaining(["summary"]),
+          frequency: expect.any(Number),
+          importance: "Required",
+        }),
+      ]),
+    );
+
     const improved = await mockInvoke<string>("improve_bullet_point", {
       bullet: "helped with client scheduling",
       jobContext: "Required: scheduling, case management",

@@ -129,6 +129,14 @@ interface AtsAnalysisResult {
   suggestions: AtsSuggestion[];
 }
 
+interface ResumeSummary {
+  id: number;
+  name: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 type Page = "dashboard" | "applications" | "resume" | "resume-builder" | "ats-optimizer" | "salary" | "market" | "automation";
 
 interface ResumeOptimizerProps {
@@ -216,6 +224,17 @@ function isAtsResumeData(value: unknown): value is AtsResumeData {
   );
 }
 
+function isResumeSummary(value: unknown): value is ResumeSummary {
+  return (
+    isRecord(value) &&
+    typeof value.id === "number" &&
+    typeof value.name === "string" &&
+    typeof value.is_active === "boolean" &&
+    typeof value.created_at === "string" &&
+    typeof value.updated_at === "string"
+  );
+}
+
 function parseAtsResumeInput(value: string): AtsResumeData | null {
   try {
     const parsed: unknown = JSON.parse(value);
@@ -243,10 +262,26 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
   const [showBulletImprover, setShowBulletImprover] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
   const [showAdvancedResumeImport, setShowAdvancedResumeImport] = useState(false);
+  const [activeResume, setActiveResume] = useState<ResumeSummary | null>(null);
+  const [analysisInputSource, setAnalysisInputSource] = useState<"active" | "copied" | null>(null);
 
   const toast = useToast();
 
-  const handleChooseResume = () => {
+  const handleChooseResume = async () => {
+    try {
+      const selected = await invoke<unknown>("get_active_resume");
+      if (isResumeSummary(selected)) {
+        setActiveResume(selected);
+        setAnalysisResult(null);
+        setAnalysisInputSource(null);
+        setShowComparison(false);
+        toast.success("Resume selected", `${selected.name} is ready for job match review.`);
+        return;
+      }
+    } catch (err: unknown) {
+      logError("Could not load active resume:", err);
+    }
+
     if (onNavigate) {
       onNavigate("resume");
       return;
@@ -272,7 +307,9 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
       return;
     }
 
-    if (!resumeJson.trim()) {
+    const useCopiedResume = showAdvancedResumeImport && resumeJson.trim().length > 0;
+
+    if (!useCopiedResume && !activeResume) {
       toast.error(
         "Choose a resume first",
         "Choose or add a resume, or use Import from Resume App if you already have an export.",
@@ -280,30 +317,40 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
       return;
     }
 
-    const resume = parseAtsResumeInput(resumeJson);
-    if (!resume) {
-      toast.error(
-        "Could not read copied resume details",
-        "Choose or add a resume instead, or paste copied resume details from JobSentinel or another resume app.",
-      );
-      return;
-    }
-
     try {
       setAnalyzing(true);
-      const result = await invoke<AtsAnalysisResult>("analyze_resume_for_job", {
-        resume,
-        jobDescription,
-      });
+      const result = useCopiedResume
+        ? await (() => {
+            const resume = parseAtsResumeInput(resumeJson);
+            if (!resume) {
+              throw new Error("invalid-copied-resume-details");
+            }
+            return invoke<AtsAnalysisResult>("analyze_resume_for_job", {
+              resume,
+              jobDescription,
+            });
+          })()
+        : await invoke<AtsAnalysisResult>("analyze_active_resume_for_job", {
+            jobDescription,
+          });
 
       setAnalysisResult(result);
+      setAnalysisInputSource(useCopiedResume ? "copied" : "active");
+      setShowComparison(false);
       toast.success(
         "Review ready",
         "Use the details below as a guide before you apply.",
       );
     } catch (err: unknown) {
-      toast.error("Review could not run", getResumeAnalysisErrorAction(err));
-      logError("Analysis error:", err);
+      if (err instanceof Error && err.message === "invalid-copied-resume-details") {
+        toast.error(
+          "Could not read copied resume details",
+          "Choose or add a resume instead, or paste copied resume details from JobSentinel or another resume app.",
+        );
+      } else {
+        toast.error("Review could not run", getResumeAnalysisErrorAction(err));
+        logError("Analysis error:", err);
+      }
     } finally {
       setAnalyzing(false);
     }
@@ -437,6 +484,64 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     );
   };
 
+  const highlightKeywordGroups = (
+    text: string,
+    matchedKeywords: string[],
+    missingKeywords: string[],
+  ): React.ReactElement => {
+    const keywordTypes = new Map<string, "match" | "missing">();
+    for (const keyword of matchedKeywords) {
+      keywordTypes.set(keyword.toLowerCase(), "match");
+    }
+    for (const keyword of missingKeywords) {
+      keywordTypes.set(keyword.toLowerCase(), "missing");
+    }
+
+    const sortedKeywords = [...keywordTypes.keys()].sort((a, b) => b.length - a.length);
+    if (!text || sortedKeywords.length === 0) {
+      return <span>{text}</span>;
+    }
+
+    const regex = new RegExp(`\\b(${sortedKeywords.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})\\b`, 'gi');
+    const parts: { text: string; type: "plain" | "match" | "missing" }[] = [];
+    let currentIndex = 0;
+
+    for (const match of Array.from(text.matchAll(regex))) {
+      const matchStart = match.index!;
+      const matchEnd = matchStart + match[0].length;
+
+      if (matchStart > currentIndex) {
+        parts.push({ text: text.slice(currentIndex, matchStart), type: "plain" });
+      }
+
+      parts.push({
+        text: match[0],
+        type: keywordTypes.get(match[0].toLowerCase()) ?? "match",
+      });
+      currentIndex = matchEnd;
+    }
+
+    if (currentIndex < text.length) {
+      parts.push({ text: text.slice(currentIndex), type: "plain" });
+    }
+
+    return (
+      <>
+        {parts.map((part, idx) => {
+          if (part.type === "plain") return <span key={idx}>{part.text}</span>;
+          const colorClass = part.type === "match"
+            ? "bg-green-200 dark:bg-green-900/50 text-green-900 dark:text-green-100"
+            : "bg-red-200 dark:bg-red-900/50 text-red-900 dark:text-red-100";
+          return (
+            <span key={idx} className={`${colorClass} px-1 rounded`}>
+              {part.text}
+            </span>
+          );
+        })}
+      </>
+    );
+  };
+
   // Group job-post words by how the analyzer classified them.
   const getKeywordDensity = () => {
     if (!analysisResult) return { required: [], preferred: [], industry: [] };
@@ -514,6 +619,9 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     toast.success("Opening Resume Builder", "This job post is ready there.");
   };
 
+  const canShowComparison =
+    analysisInputSource === "copied" && Boolean(jobDescription.trim()) && Boolean(resumeJson.trim());
+
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
       {/* Header */}
@@ -564,6 +672,11 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                   Choose a saved resume or add one. That is the easiest way
                   to compare your resume with a job post.
                 </p>
+                {activeResume && (
+                  <div className="rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-sm text-surface-700 dark:text-surface-200">
+                    <span className="font-medium">Selected resume:</span> {activeResume.name}
+                  </div>
+                )}
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Button
                     onClick={handleChooseResume}
@@ -606,14 +719,22 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
               </div>
             </Card>
 
-            {showAdvancedResumeImport && (
-              <div className="flex gap-3">
-                <Button onClick={handleAnalyze} loading={analyzing} className="flex-1">
-                  Review Match
-                </Button>
+            <div className="flex gap-3">
+              <Button onClick={handleAnalyze} loading={analyzing} className="flex-1">
+                Review Match
+              </Button>
+              {showAdvancedResumeImport && (
                 <Button onClick={handleAnalyzeFormat} loading={analyzing} variant="secondary" className="flex-1">
                   Review Format Only
                 </Button>
+              )}
+            </div>
+
+            {showAdvancedResumeImport && (
+              <div className="flex gap-3">
+                <p className="text-xs text-surface-500 dark:text-surface-400">
+                  Copied resume details are used only for this local review.
+                </p>
               </div>
             )}
 
@@ -653,7 +774,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
               <>
                 {/* Action Buttons */}
                 <div className="flex gap-3">
-                  {jobDescription.trim() && (
+                  {canShowComparison && (
                     <Button
                       onClick={() => setShowComparison(!showComparison)}
                       variant={showComparison ? "primary" : "secondary"}
@@ -674,7 +795,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                 </div>
 
                 {/* Side-by-Side Comparison View */}
-                {showComparison && jobDescription.trim() && (
+                {showComparison && canShowComparison && (
                   <Card>
                     <CardHeader title="Resume-Job Comparison" />
                     <div className="grid grid-cols-2 gap-4">
@@ -687,10 +808,10 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                           Job Requirements
                         </h3>
                         <div className="bg-surface-50 dark:bg-surface-800 rounded-lg p-4 max-h-96 overflow-y-auto text-sm text-surface-700 dark:text-surface-300 whitespace-pre-wrap font-mono">
-                          {highlightKeywords(
+                          {highlightKeywordGroups(
                             jobDescription,
                             analysisResult.keyword_matches.map(k => k.keyword),
-                            "match"
+                            getMissingKeywordDetails().map(k => k.keyword)
                           )}
                         </div>
                       </div>
@@ -706,10 +827,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                         <div className="bg-surface-50 dark:bg-surface-800 rounded-lg p-4 max-h-96 overflow-y-auto text-sm text-surface-700 dark:text-surface-300 whitespace-pre-wrap font-mono">
                           {highlightKeywords(
                             resumeJson,
-                            [
-                              ...analysisResult.keyword_matches.map(k => k.keyword),
-                              ...getMissingKeywordDetails().map(k => k.keyword)
-                            ],
+                            analysisResult.keyword_matches.map(k => k.keyword),
                             "match"
                           )}
                         </div>

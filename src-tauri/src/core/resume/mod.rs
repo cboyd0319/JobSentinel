@@ -587,7 +587,7 @@ impl ResumeMatcher {
                 resume_id, skill_name, skill_category, confidence_score,
                 proficiency_level, years_experience, source
             )
-            VALUES (?, ?, ?, 1.0, ?, ?, 'manual')
+            VALUES (?, ?, ?, 1.0, ?, ?, 'user_input')
             "#,
         )
         .bind(resume_id)

@@ -33,7 +33,7 @@ In scope:
 - Keep safe support report generation one-click from normal settings and
   crash/error recovery surfaces.
 - Keep the macOS build and DMG package path functional, locally verifiable, and
-  documented because a working macOS app is the current primary product target.
+  documented.
 - Use multiple sub-agents when isolated audits, research, or implementation
   slices can move faster without shared-state conflicts. Keep sub-agent scopes
   bounded, close completed agents promptly, and record durable findings in

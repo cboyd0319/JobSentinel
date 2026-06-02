@@ -162,6 +162,14 @@ const mockIssueAnalysis = {
   ],
 };
 
+const mockActiveResume = {
+  id: 42,
+  name: "Customer Success Resume",
+  is_active: true,
+  created_at: "2026-01-01T00:00:00Z",
+  updated_at: "2026-01-02T00:00:00Z",
+};
+
 async function openResumeAppImport(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole("button", { name: /import from resume app/i }));
 }
@@ -191,11 +199,42 @@ describe("ResumeOptimizer", () => {
 
     await user.click(screen.getByRole("button", { name: /choose or add resume/i }));
 
-    expect(onNavigate).toHaveBeenCalledWith("resume");
+    await waitFor(() => {
+      expect(onNavigate).toHaveBeenCalledWith("resume");
+    });
 
     await openResumeAppImport(user);
 
     expect(screen.getByLabelText(/copied resume details/i)).toBeInTheDocument();
+  });
+
+  it("reviews a job against the active saved resume without copied details", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockImplementation((command) => {
+      if (command === "get_active_resume") return Promise.resolve(mockActiveResume);
+      if (command === "analyze_active_resume_for_job") return Promise.resolve(mockJobAnalysis);
+      return Promise.resolve(mockAnalysis);
+    });
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    await user.click(screen.getByRole("button", { name: /choose or add resume/i }));
+
+    expect(await screen.findByText(/selected resume:/i)).toBeInTheDocument();
+    expect(screen.getByText(mockActiveResume.name)).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/^job post$/i), {
+      target: { value: "Need onboarding, retention, and account management experience" },
+    });
+    await user.click(screen.getByRole("button", { name: /review match/i }));
+
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith("analyze_active_resume_for_job", {
+        jobDescription: "Need onboarding, retention, and account management experience",
+      });
+    });
+    expect(mockInvoke).not.toHaveBeenCalledWith("analyze_resume_for_job", expect.anything());
+    expect(await screen.findByText("Resume Fit")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /show comparison/i })).not.toBeInTheDocument();
   });
 
   it("validates copied resume details before format review", async () => {

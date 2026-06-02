@@ -763,6 +763,48 @@ pub fn analyze_resume_for_job(resume: AtsResumeData, job_description: String) ->
     AtsAnalyzer::analyze_for_job(&resume, &job_description)
 }
 
+/// Analyze the active saved resume against a job description without returning raw resume text.
+#[tauri::command]
+pub async fn analyze_active_resume_for_job(
+    job_description: String,
+    state: State<'_, AppState>,
+) -> Result<AtsAnalysisResult, String> {
+    tracing::info!("Command: analyze_active_resume_for_job");
+
+    if job_description.trim().is_empty() {
+        return Err("Paste the job post, then review again.".to_string());
+    }
+
+    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    let resume = matcher
+        .get_active_resume()
+        .await
+        .map_err(|e| user_friendly_error("Failed to get active resume", e))?
+        .ok_or_else(|| "Choose or add a resume before reviewing job fit.".to_string())?;
+
+    let readable_text = resume.parsed_text.as_deref().unwrap_or("").trim();
+    if readable_text.is_empty() {
+        return Err(
+            "JobSentinel could not find readable text in the active resume. Add a PDF resume with readable text or use Import from Resume App."
+                .to_string(),
+        );
+    }
+
+    let skill_names = matcher
+        .get_user_skills(resume.id)
+        .await
+        .map_err(|e| user_friendly_error("Failed to get resume skills", e))?
+        .into_iter()
+        .map(|skill| skill.skill_name)
+        .collect::<Vec<_>>();
+
+    Ok(AtsAnalyzer::analyze_text_for_job(
+        readable_text,
+        &skill_names,
+        &job_description,
+    ))
+}
+
 /// Analyze resume format without job context
 #[tauri::command]
 pub fn analyze_resume_format(resume: AtsResumeData) -> AtsAnalysisResult {

@@ -20,13 +20,11 @@ implementation slices that can run without shared-state conflicts. Keep scopes
 bounded, preserve user changes, close completed agents promptly, and record
 actionable findings in this active-plan surface or the relevant plan.
 
-Top functional priority as of 2026-06-02: macOS no-account readiness for users
-who do not have an Apple Developer Account path available. The local system
-checked on 2026-06-02 is macOS 26.5 (Darwin 25.5.0, build 25F71) on Apple
-Silicon `arm64`, with SIP enabled. Resume assistance with screening-system
-transparency and application readability remains the next functional priority
-after the macOS build path is verified and committed. Resume work means resume
-parsing, readable exports, resume/job fit review, required-versus-preferred
+Top functional priority as of 2026-06-02: resume assistance with
+screening-system transparency and application readability. The no-account
+macOS readiness path was verified, committed, pushed, and left with green CI
+and docs harness runs for commit `232920d5`. Resume work means resume parsing,
+readable exports, resume/job fit review, required-versus-preferred
 qualification review, and truthful edit support. It does not mean hidden
 keyword edits, deceptive resume changes, screening-system manipulation, or
 unreviewed form sending.
@@ -42,9 +40,32 @@ unreviewed form sending.
 
 ## Current Posture
 
-- Branch has multiple local commits ahead of `origin/main`. Use
-  `git status --short --branch` for live evidence before committing, pushing,
-  or reporting remote state.
+- Branch was aligned with `origin/main` before the current resume-assistance
+  local edits. Use `git status --short --branch` for live evidence before
+  committing, pushing, or reporting remote state.
+- Current local resume-assistance follow-up makes **Review Match** usable with
+  the active saved resume instead of requiring copied structured resume
+  details, keeps saved resume text inside the Tauri backend, adds a local
+  `analyze_active_resume_for_job` command, and keeps side-by-side comparison
+  hidden unless the user explicitly uses copied resume details. The same slice
+  prevents unrecognized job posts or missing extracted job skills from
+  producing a perfect fit score and fixes manual skill additions to use the
+  migration-valid `user_input` source. Focused verification passed:
+  `cargo test --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`,
+  `cargo test --lib test_calculate_match_no_job_skills --manifest-path
+  src-tauri/Cargo.toml`, `cargo test --lib
+  test_update_user_skill_clears_optional_fields_and_trims_name
+  --manifest-path src-tauri/Cargo.toml`, and `npx vitest run
+  src/pages/ResumeOptimizer.test.tsx src/mocks/handlers.test.ts`. Broader
+  verification passed: `cargo check --manifest-path src-tauri/Cargo.toml`,
+  `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`,
+  `cargo test --lib resume --manifest-path src-tauri/Cargo.toml`, `cargo test
+  --lib --manifest-path src-tauri/Cargo.toml`, `cargo fmt --all
+  --manifest-path src-tauri/Cargo.toml -- --check`, `npm run test:run`, `npm
+  run build`, `npm run lint -- --quiet`, `npm run lint:docs`, `npm run
+  lint:tauri-invokes`, `npm run lint:security`, `npm run lint:architecture`,
+  `npx tsc --noEmit`, `git diff --check`, and `npx playwright test
+  tests/e2e/playwright/resume-upload-matching.spec.ts --project=chromium`.
 - Current local no-account macOS readiness follow-up hardens the package script
   so universal builds prefer the rustup-managed toolchain even when Homebrew
   Rust is first in `PATH`, writes a local `.dmg.sha256` checksum next to the
