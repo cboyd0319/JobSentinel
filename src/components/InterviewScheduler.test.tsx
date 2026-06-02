@@ -378,7 +378,7 @@ describe("InterviewScheduler", () => {
       fireEvent.click(scheduleButtons[0]);
 
       await waitFor(() => {
-        expect(screen.getByLabelText(/Interview Type/)).toBeInTheDocument();
+        expect(screen.getByLabelText(/Interview style/)).toBeInTheDocument();
       });
     });
 
@@ -395,7 +395,7 @@ describe("InterviewScheduler", () => {
       fireEvent.click(scheduleButtons[0]);
 
       await waitFor(() => {
-        expect(screen.getByLabelText(/Date & Time/)).toBeInTheDocument();
+        expect(screen.getByLabelText(/Date and time/)).toBeInTheDocument();
       });
     });
 

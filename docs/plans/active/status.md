@@ -847,6 +847,9 @@ and record actionable findings in this active-plan surface.
 - Current local interview-scheduling slice changes required-field, date, and
   duration validation to action-first guidance, and extends product-copy
   coverage against the old invalid/missing-field labels.
+- Current local interview-form slice replaces asterisk required labels,
+  slash-separated meeting-link wording, and select-placeholder copy with plain
+  required-field and location guidance.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

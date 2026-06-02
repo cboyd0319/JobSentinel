@@ -744,7 +744,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
 
               <div>
                 <label htmlFor="app-select" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Application *
+                  Application (required)
                 </label>
                 <select
                   id="app-select"
@@ -752,7 +752,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                   onChange={(e) => setFormData({ ...formData, application_id: Number(e.target.value) })}
                   className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100"
                 >
-                  <option value={0}>Select application...</option>
+                  <option value={0}>Choose an application...</option>
                   {applications.map((app) => (
                     <option key={app.id} value={app.id}>
                       {app.job_title} at {app.company}
@@ -763,7 +763,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
 
               <div>
                 <label htmlFor="interview-type" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Interview Type
+                  Interview style
                 </label>
                 <select
                   id="interview-type"
@@ -781,7 +781,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
 
               <div>
                 <label htmlFor="scheduled-at" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Date & Time *
+                  Date and time (required)
                 </label>
                 <input
                   type="datetime-local"
@@ -836,7 +836,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
 
               <div>
                 <label htmlFor="location" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                  Location / Meeting Link
+                  Location or meeting link
                 </label>
                 <input
                   type="text"
@@ -865,7 +865,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                 </div>
                 <div>
                   <label htmlFor="interviewer-title" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                    Their Title
+                    Their role
                   </label>
                   <input
                     type="text"
@@ -1069,7 +1069,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                     </div>
                     <div>
                       <label htmlFor="post-notes" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
-                        Post-Interview Notes
+                        Notes after interview
                       </label>
                       <textarea
                         id="post-notes"
