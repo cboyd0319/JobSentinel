@@ -1737,6 +1737,7 @@ test("product copy rejects stale zero-technical resume and shortcut copy", () =>
       "src/pages/Settings.tsx",
       "When enabled, job scores use skills from your uploaded resume.\nUpload your resume in the Resume tab first. If no resume is uploaded, scoring uses your job titles.\n",
     );
+    writeFixtureFile(root, "docs/features/smart-scoring.md", "Uploaded resume skills\n");
     writeFixtureFile(
       root,
       "src/pages/ResumeOptimizer.tsx",
@@ -1758,6 +1759,7 @@ test("product copy rejects stale zero-technical resume and shortcut copy", () =>
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Resume.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/smart-scoring.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/pages/DashboardUI/DashboardFiltersBar.tsx"),

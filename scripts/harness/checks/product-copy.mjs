@@ -1378,6 +1378,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /recency proportions/i,
       /complete scoring model/i,
       /Internal field names/i,
+      /Uploaded resume skills/i,
     ];
 
     if (smartScoringDocPatterns.some((pattern) => pattern.test(text))) {

@@ -61,7 +61,7 @@ Inputs include:
 - Job titles to avoid.
 - Work words to show more often.
 - Work words to avoid.
-- Uploaded resume skills when resume matching is enabled.
+- Added resume skills when resume matching is enabled.
 - Synonym matching for equivalent words, such as "customer support" and
   "client support."
 

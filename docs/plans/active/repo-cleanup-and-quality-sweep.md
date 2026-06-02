@@ -164,6 +164,11 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local Smart Scoring doc resume-wording follow-up changes the remaining
+  uploaded-resume phrasing to added-resume phrasing in the feature guide.
+  Product-copy sensors now reject the old Smart Scoring doc wording. Focused
+  product-copy, docs, targeted stale-phrase, and diff-check verification passed.
+  Broader bloat, docs, script, lint, and diff-check verification passed.
 - Current local Application Profile resume-file help follow-up changes the
   tooltip from generic application-review wording to local, user-controlled
   attachment wording. Product-copy sensors now reject the old ProfileForm
@@ -930,6 +935,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-02 | In progress | Changed remaining Smart Scoring feature-doc uploaded-resume phrasing to added-resume phrasing. Product-copy sensors now reject the old Smart Scoring doc wording; focused product-copy, docs, targeted stale-phrase, bloat, docs, script, lint, and diff-check verification passed. |
 | 2026-06-02 | In progress | Changed Application Profile resume-file tooltip from generic application-review wording to local, user-controlled attachment wording. Product-copy sensors now reject the old ProfileForm tooltip; focused ProfileForm, product-copy, targeted stale-phrase, bloat, docs, script, lint, and diff-check verification passed. |
 | 2026-06-02 | In progress | Changed Application Assist manual task copy from resume-upload wording to user-controlled resume-file wording. Product-copy sensors now reject the old Application Preview label; focused ApplicationPreview, product-copy, targeted stale-phrase, bloat, docs, script, lint, and diff-check verification passed. |
 | 2026-06-02 | In progress | Changed Resume Builder import-skill recovery copy from upload wording to add wording so users do not infer cloud transfer for local resume review. Product-copy sensors now reject the old Resume Builder upload phrasing; focused product-copy, targeted stale-phrase, bloat, docs, script, lint, and diff-check verification passed. |
