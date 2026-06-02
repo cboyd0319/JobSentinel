@@ -1,16 +1,23 @@
-//! Resume PDF Parser
+//! Local resume parser
 //!
-//! Extracts text content from PDF resumes using pdf-extract.
+//! Extracts text content from PDF, DOCX, TXT, and Markdown resumes.
 //! Supports OCR fallback for scanned PDFs when the `ocr` feature is enabled.
 
 use anyhow::{Context, Result};
-use std::path::Path;
+use quick_xml::{events::Event, Reader};
+use std::{
+    fs::File,
+    io::Read,
+    path::{Path, PathBuf},
+};
+use zip::ZipArchive;
 
 /// Minimum text length to consider PDF extraction successful (before falling back to OCR)
 #[cfg(feature = "ocr")]
 const MIN_TEXT_LENGTH: usize = 100;
+const MAX_DOCX_DOCUMENT_XML_BYTES: u64 = 8 * 1024 * 1024;
 
-/// Resume parser for extracting text from PDF files
+/// Resume parser for extracting text from local resume files
 ///
 /// # OCR Support
 /// When built with the `ocr` feature, this parser can fall back to OCR
@@ -69,6 +76,20 @@ impl ResumeParser {
         }
     }
 
+    /// Parse a supported resume file and extract text content.
+    ///
+    /// Supported formats are PDF, DOCX, TXT, and Markdown.
+    pub fn parse_resume(&self, file_path: &Path) -> Result<String> {
+        let canonical_path = canonical_regular_file(file_path)?;
+
+        match resume_extension(&canonical_path).as_deref() {
+            Some("pdf") => self.parse_pdf_from_canonical(&canonical_path),
+            Some("docx") => self.parse_docx_from_canonical(&canonical_path),
+            Some("txt" | "md") => self.parse_plain_text_from_canonical(&canonical_path),
+            _ => Err(anyhow::anyhow!("File must be PDF, DOCX, TXT, or Markdown")),
+        }
+    }
+
     /// Parse PDF file and extract text content
     ///
     /// # Arguments
@@ -84,30 +105,20 @@ impl ResumeParser {
     /// let text = parser.parse_pdf(Path::new("/path/to/resume.pdf"))?;
     /// ```
     pub fn parse_pdf(&self, file_path: &Path) -> Result<String> {
-        // Canonicalize path to prevent path traversal attacks
-        // This resolves symlinks and removes ../ components
-        let canonical_path = file_path
-            .canonicalize()
-            .context("Invalid or inaccessible path")?;
-
-        // Security: Verify the canonical path still exists (canonicalize can succeed on symlinks to deleted files)
-        if !canonical_path.exists() {
-            return Err(anyhow::anyhow!("File not found"));
-        }
-
-        // Security: Verify the canonical path is a regular file (not a directory, device, etc.)
-        if !canonical_path.is_file() {
-            return Err(anyhow::anyhow!("Path is not a regular file"));
-        }
+        let canonical_path = canonical_regular_file(file_path)?;
 
         // Verify it's a PDF file
-        if canonical_path.extension().and_then(|s| s.to_str()) != Some("pdf") {
+        if resume_extension(&canonical_path).as_deref() != Some("pdf") {
             return Err(anyhow::anyhow!("File must be a PDF"));
         }
 
+        self.parse_pdf_from_canonical(&canonical_path)
+    }
+
+    fn parse_pdf_from_canonical(&self, canonical_path: &Path) -> Result<String> {
         // Extract text using pdf-extract
-        let text = pdf_extract::extract_text(&canonical_path)
-            .context("Failed to extract text from PDF")?;
+        let text =
+            pdf_extract::extract_text(canonical_path).context("Failed to extract text from PDF")?;
 
         // Clean up extracted text
         let cleaned_text = self.clean_text(&text);
@@ -135,6 +146,100 @@ impl ResumeParser {
         }
 
         Ok(cleaned_text)
+    }
+
+    fn parse_plain_text_from_canonical(&self, canonical_path: &Path) -> Result<String> {
+        let text =
+            std::fs::read_to_string(canonical_path).context("Failed to read resume text file")?;
+
+        Ok(self.clean_text(&text))
+    }
+
+    fn parse_docx_from_canonical(&self, canonical_path: &Path) -> Result<String> {
+        let file = File::open(canonical_path).context("Failed to open DOCX resume")?;
+        let mut archive = ZipArchive::new(file).context("Failed to read DOCX resume")?;
+        let mut document = archive
+            .by_name("word/document.xml")
+            .context("DOCX resume is missing document text")?;
+
+        if document.size() > MAX_DOCX_DOCUMENT_XML_BYTES {
+            return Err(anyhow::anyhow!("DOCX resume text is too large"));
+        }
+
+        let mut document_xml = String::new();
+        document
+            .read_to_string(&mut document_xml)
+            .context("Failed to read DOCX document text")?;
+
+        let text = self.extract_docx_text(&document_xml)?;
+        let cleaned_text = self.clean_text(&text);
+
+        if cleaned_text.is_empty() {
+            return Err(anyhow::anyhow!("DOCX resume did not contain readable text"));
+        }
+
+        Ok(cleaned_text)
+    }
+
+    fn extract_docx_text(&self, document_xml: &str) -> Result<String> {
+        let mut reader = Reader::from_str(document_xml);
+        reader.config_mut().trim_text(false);
+
+        let mut buf = Vec::new();
+        let mut full_text = String::new();
+        let mut current_paragraph = String::new();
+        let mut in_text = false;
+
+        loop {
+            match reader
+                .read_event_into(&mut buf)
+                .context("Failed to parse DOCX document text")?
+            {
+                Event::Start(element) if xml_local_name(element.name().as_ref()) == b"t" => {
+                    in_text = true;
+                }
+                Event::End(element) => match xml_local_name(element.name().as_ref()) {
+                    b"t" => in_text = false,
+                    b"p" => {
+                        let paragraph = current_paragraph.trim();
+                        if !paragraph.is_empty() {
+                            if !full_text.is_empty() {
+                                full_text.push('\n');
+                            }
+                            full_text.push_str(paragraph);
+                        }
+                        current_paragraph.clear();
+                    }
+                    _ => {}
+                },
+                Event::Empty(element) => match xml_local_name(element.name().as_ref()) {
+                    b"tab" => current_paragraph.push('\t'),
+                    b"br" | b"cr" => current_paragraph.push('\n'),
+                    _ => {}
+                },
+                Event::Text(text) if in_text => {
+                    current_paragraph.push_str(
+                        &text
+                            .unescape()
+                            .context("Failed to decode DOCX document text")?,
+                    );
+                }
+                Event::Eof => break,
+                _ => {}
+            }
+
+            buf.clear();
+        }
+
+        let paragraph = current_paragraph.trim();
+        if !paragraph.is_empty() {
+            if !full_text.is_empty() {
+                full_text.push('\n');
+            }
+            full_text.push_str(paragraph);
+        }
+
+        Ok(full_text)
     }
 
     /// Extract text from PDF using OCR (for scanned documents)
@@ -331,6 +436,33 @@ impl ResumeParser {
 
         sections
     }
+}
+
+fn canonical_regular_file(file_path: &Path) -> Result<PathBuf> {
+    // Canonicalize path to prevent path traversal attacks.
+    let canonical_path = file_path
+        .canonicalize()
+        .context("Invalid or inaccessible path")?;
+
+    if !canonical_path.exists() {
+        return Err(anyhow::anyhow!("File not found"));
+    }
+
+    if !canonical_path.is_file() {
+        return Err(anyhow::anyhow!("Path is not a regular file"));
+    }
+
+    Ok(canonical_path)
+}
+
+fn resume_extension(path: &Path) -> Option<String> {
+    path.extension()
+        .and_then(|value| value.to_str())
+        .map(str::to_ascii_lowercase)
+}
+
+fn xml_local_name(name: &[u8]) -> &[u8] {
+    name.rsplit(|byte| *byte == b':').next().unwrap_or(name)
 }
 
 impl Default for ResumeParser {
@@ -581,5 +713,72 @@ JavaScript
 
         // Should fail - not a PDF and canonicalization won't accept this
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_resume_txt_extracts_plain_text() {
+        use tempfile::TempDir;
+
+        let temp_dir = TempDir::new().unwrap();
+        let file_path = temp_dir.path().join("customer-success-resume.txt");
+        std::fs::write(
+            &file_path,
+            "Jordan Lee\n\nEXPERIENCE\nCustomer Success Manager\n\nSKILLS\nOnboarding",
+        )
+        .unwrap();
+
+        let parser = ResumeParser::new();
+        let text = parser.parse_resume(&file_path).unwrap();
+
+        assert!(text.contains("Jordan Lee"));
+        assert!(text.contains("Customer Success Manager"));
+        assert!(text.contains("Onboarding"));
+    }
+
+    #[test]
+    fn test_parse_resume_md_extracts_markdown_text() {
+        use tempfile::TempDir;
+
+        let temp_dir = TempDir::new().unwrap();
+        let file_path = temp_dir.path().join("operations-resume.md");
+        std::fs::write(
+            &file_path,
+            "# Jordan Lee\n\n## Experience\nProgram Operations Lead\n\n## Skills\nScheduling",
+        )
+        .unwrap();
+
+        let parser = ResumeParser::new();
+        let text = parser.parse_resume(&file_path).unwrap();
+
+        assert!(text.contains("Jordan Lee"));
+        assert!(text.contains("Program Operations Lead"));
+        assert!(text.contains("Scheduling"));
+    }
+
+    #[test]
+    fn test_parse_resume_docx_extracts_document_text() {
+        use docx_rs::{Docx, Paragraph, Run};
+        use std::io::Cursor;
+        use tempfile::TempDir;
+
+        let temp_dir = TempDir::new().unwrap();
+        let file_path = temp_dir.path().join("program-coordinator-resume.docx");
+        let mut buffer = Cursor::new(Vec::new());
+        Docx::new()
+            .add_paragraph(Paragraph::new().add_run(Run::new().add_text("Jordan Lee")))
+            .add_paragraph(Paragraph::new().add_run(Run::new().add_text("Program Coordinator")))
+            .add_paragraph(Paragraph::new().add_run(Run::new().add_text("SKILLS")))
+            .add_paragraph(Paragraph::new().add_run(Run::new().add_text("Scheduling")))
+            .build()
+            .pack(&mut buffer)
+            .unwrap();
+        std::fs::write(&file_path, buffer.into_inner()).unwrap();
+
+        let parser = ResumeParser::new();
+        let text = parser.parse_resume(&file_path).unwrap();
+
+        assert!(text.contains("Jordan Lee"));
+        assert!(text.contains("Program Coordinator"));
+        assert!(text.contains("Scheduling"));
     }
 }

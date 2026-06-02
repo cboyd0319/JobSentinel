@@ -323,7 +323,7 @@ lookup results, sanitized error reports, and transient recovery hints.
 
 **Purpose**: Local resume fit review and parsing
 
-- PDF resume parsing
+- PDF, DOCX, TXT, and Markdown resume parsing
 - Skill extraction
 - Job-resume matching with confidence scores
 

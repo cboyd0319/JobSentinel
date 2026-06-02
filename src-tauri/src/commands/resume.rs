@@ -24,6 +24,7 @@ use uuid::Uuid;
 const MAX_JSON_RESUME_IMPORT_BYTES: u64 = 5 * 1024 * 1024;
 const MANAGED_RESUME_UPLOAD_DIR: &str = "resume-uploads";
 const MAX_RESUME_TEXT_PREVIEW_CHARS: usize = 6_000;
+const SUPPORTED_RESUME_UPLOAD_EXTENSIONS: &[&str] = &["pdf", "docx", "txt", "md"];
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ResumeSummary {
@@ -89,7 +90,7 @@ pub async fn upload_resume(
     unreachable!("renderer resume file path rejection always returns an error")
 }
 
-/// Select, copy, and parse a PDF resume without exposing source paths to renderer IPC.
+/// Select, copy, and parse a local resume without exposing source paths to renderer IPC.
 #[tauri::command]
 pub async fn select_and_upload_resume(
     app: tauri::AppHandle,
@@ -98,7 +99,7 @@ pub async fn select_and_upload_resume(
     let Some(file_path) = app
         .dialog()
         .file()
-        .add_filter("PDF", &["pdf"])
+        .add_filter("Resume", SUPPORTED_RESUME_UPLOAD_EXTENSIONS)
         .blocking_pick_file()
     else {
         return Ok(None);
@@ -107,7 +108,7 @@ pub async fn select_and_upload_resume(
     let source_path = file_path
         .into_path()
         .map_err(|_| "Could not read the selected resume file.".to_string())?;
-    let (name, managed_path) = copy_selected_pdf_resume_to_managed_storage(&source_path)?;
+    let (name, managed_path) = copy_selected_resume_to_managed_storage(&source_path)?;
     let resume_id = upload_resume_from_managed_path(name, managed_path, state).await?;
 
     Ok(Some(resume_id))
@@ -425,10 +426,11 @@ fn has_json_extension(path: &Path) -> bool {
         .is_some_and(|extension| extension.eq_ignore_ascii_case("json"))
 }
 
-fn has_pdf_extension(path: &Path) -> bool {
-    path.extension()
-        .and_then(|extension| extension.to_str())
-        .is_some_and(|extension| extension.eq_ignore_ascii_case("pdf"))
+fn supported_resume_extension(path: &Path) -> Option<String> {
+    let extension = path.extension()?.to_str()?.to_ascii_lowercase();
+    SUPPORTED_RESUME_UPLOAD_EXTENSIONS
+        .contains(&extension.as_str())
+        .then_some(extension)
 }
 
 fn reject_renderer_resume_file_path(_file_path: &str) -> Result<(), String> {
@@ -487,12 +489,13 @@ fn safe_resume_upload_file_name(path: &Path) -> String {
         safe_stem
     };
 
-    format!("{}--{safe_stem}.pdf", Uuid::new_v4())
+    let extension = supported_resume_extension(path).unwrap_or_else(|| "resume".to_string());
+    format!("{}--{safe_stem}.{extension}", Uuid::new_v4())
 }
 
-fn validate_selected_pdf_resume(path: &Path) -> Result<(), String> {
-    if !has_pdf_extension(path) {
-        return Err("Choose a PDF resume file.".to_string());
+fn validate_selected_resume(path: &Path) -> Result<(), String> {
+    if supported_resume_extension(path).is_none() {
+        return Err("Choose a PDF, DOCX, TXT, or Markdown resume file.".to_string());
     }
 
     let metadata = std::fs::metadata(path)
@@ -504,8 +507,8 @@ fn validate_selected_pdf_resume(path: &Path) -> Result<(), String> {
     Ok(())
 }
 
-fn copy_selected_pdf_resume_to_managed_storage(path: &Path) -> Result<(String, PathBuf), String> {
-    validate_selected_pdf_resume(path)?;
+fn copy_selected_resume_to_managed_storage(path: &Path) -> Result<(String, PathBuf), String> {
+    validate_selected_resume(path)?;
     let name = selected_resume_name(path, "Resume");
     let managed_dir = managed_resume_upload_dir();
     std::fs::create_dir_all(&managed_dir)
@@ -785,7 +788,7 @@ pub async fn analyze_active_resume_for_job(
     let readable_text = resume.parsed_text.as_deref().unwrap_or("").trim();
     if readable_text.is_empty() {
         return Err(
-            "JobSentinel could not find readable text in the active resume. Add a PDF resume with readable text or use Import from Resume App."
+            "JobSentinel could not find readable text in the active resume. Add a PDF, DOCX, TXT, or Markdown resume with readable text, or use Import from Resume App."
                 .to_string(),
         );
     }
@@ -915,6 +918,38 @@ mod tests {
         assert!(has_json_extension(Path::new(r"C:\Resume\resume.json")));
         assert!(!has_json_extension(Path::new("resume.pdf")));
         assert!(!has_json_extension(Path::new("resume")));
+    }
+
+    #[test]
+    fn resume_upload_extension_validation_accepts_supported_local_formats() {
+        assert_eq!(
+            supported_resume_extension(Path::new("resume.PDF")).as_deref(),
+            Some("pdf")
+        );
+        assert_eq!(
+            supported_resume_extension(Path::new("resume.DOCX")).as_deref(),
+            Some("docx")
+        );
+        assert_eq!(
+            supported_resume_extension(Path::new("resume.txt")).as_deref(),
+            Some("txt")
+        );
+        assert_eq!(
+            supported_resume_extension(Path::new("resume.md")).as_deref(),
+            Some("md")
+        );
+        assert!(supported_resume_extension(Path::new("resume.doc")).is_none());
+    }
+
+    #[test]
+    fn safe_resume_upload_file_name_preserves_supported_extension() {
+        let docx_name = safe_resume_upload_file_name(Path::new("Jordan Resume.docx"));
+        let text_name = safe_resume_upload_file_name(Path::new("Jordan Resume.txt"));
+
+        assert!(docx_name.ends_with("--Jordan-Resume.docx"));
+        assert!(text_name.ends_with("--Jordan-Resume.txt"));
+        assert!(!docx_name.contains(' '));
+        assert!(!text_name.contains(' '));
     }
 
     #[test]

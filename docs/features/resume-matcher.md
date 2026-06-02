@@ -104,7 +104,7 @@ employer screening systems.
 
 The current local matcher:
 
-- extracts readable text from PDF resumes;
+- extracts readable text from PDF, DOCX, TXT, and Markdown resumes;
 - provides an explicit local preview of readable resume text without returning
   the saved file path;
 - can review the active saved resume against a pasted job post without copying
@@ -130,10 +130,10 @@ The skill list is self-contained and deterministic. Same input should produce
 the same local result. Optional OCR is available for scanned PDFs when the app
 is built with OCR support and local OCR tools are installed.
 
-Current import support is PDF-first. Private reference examples reviewed during
-planning showed common resume material also appears as DOCX, TXT, RTF, ODT, MD,
-EPUB, and zipped exports. Future importer work should use synthetic fixtures
-based on those format patterns instead of committing private resume text.
+Current import support covers PDF, DOCX, TXT, and Markdown. Private reference
+examples reviewed during planning also showed RTF, ODT, EPUB, and archive
+exports. Future importer work should use synthetic fixtures based on those
+format patterns instead of committing private resume text.
 
 ## Boundaries
 

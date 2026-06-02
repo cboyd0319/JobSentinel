@@ -3698,6 +3698,7 @@ dependencies = [
  "once_cell",
  "pdf-extract",
  "proptest",
+ "quick-xml 0.36.2",
  "regex",
  "reqwest 0.13.4",
  "scopeguard",
@@ -3723,6 +3724,7 @@ dependencies = [
  "uuid",
  "windows 0.62.2",
  "wiremock",
+ "zip 0.6.6",
 ]
 
 [[package]]

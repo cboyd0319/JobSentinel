@@ -64,8 +64,15 @@ narrow implementation slices chosen from that backlog.
   paths, or profile content should be committed. The references confirmed that
   real job seekers use mixed resume formats and profile surfaces such as DOCX,
   PDF, RTF, TXT, MD, ODT, EPUB, archive exports, and profile-style Markdown.
-  Current import support remains PDF-first; future importer work should use
-  synthetic fixtures derived from these patterns.
+  Current local import now supports PDF, DOCX, TXT, and Markdown; future
+  importer work should use synthetic fixtures for remaining RTF, ODT, EPUB,
+  archive-export, and profile-surface patterns.
+- Current local resume-format import follow-up adds DOCX, TXT, and Markdown
+  parsing alongside existing PDF parsing. DOCX text is extracted locally from
+  `word/document.xml`, upload selection allows the supported formats, managed
+  copies preserve file extensions, and private reference resume/profile
+  material was not committed. Verification is recorded in the active status
+  and handoff docs for this slice.
 - Latest local resume parser follow-up keeps required and preferred job-post
   sections separate when postings use single-line headings instead of blank
   lines, preventing preferred nice-to-have language from being shown as a

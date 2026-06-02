@@ -177,12 +177,31 @@ product-function priority after the no-account macOS path is locked down:
   evidence. No private resume text, names, chronology, file paths, or profile
   content was added to the repo. The references confirmed mixed real-world
   resume formats such as DOCX, PDF, RTF, TXT, MD, ODT, EPUB, and archive
-  exports; current app import support remains PDF-first, so future
-  format-import work should use synthetic fixtures derived from those patterns.
-  Focused verification passed: `npx vitest run
+  exports. Current local resume import now supports PDF, DOCX, TXT, and
+  Markdown; future format-import work should use synthetic fixtures for
+  remaining RTF, ODT, EPUB, and archive-export patterns. Focused verification
+  passed for the previous active-resume preload slice: `npx vitest run
   src/pages/ResumeOptimizer.test.tsx`, `npm run test:run`, `npm run lint
   -- --quiet`, `npm run build`, `npm run lint:docs`, `npm run lint:bloat`,
   and `git diff --check`.
+- Current local resume-format import follow-up adds local parsing for DOCX,
+  TXT, and Markdown resumes alongside existing PDF parsing. Upload selection
+  now allows PDF, DOCX, TXT, and Markdown, managed local copies preserve the
+  selected extension, and DOCX parsing extracts `word/document.xml` text from
+  the local file without exposing source paths to renderer IPC. Private
+  reference resume/profile material was not committed. Verification passed:
+  `cargo test --lib parse_resume --manifest-path src-tauri/Cargo.toml`,
+  `cargo test --lib resume_upload_extension --manifest-path
+  src-tauri/Cargo.toml`, `cargo test --lib safe_resume_upload_file_name
+  --manifest-path src-tauri/Cargo.toml`, `cargo test --lib resume
+  --manifest-path src-tauri/Cargo.toml`, `cargo test --lib --manifest-path
+  src-tauri/Cargo.toml`, `cargo fmt --all --manifest-path
+  src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
+  src-tauri/Cargo.toml -- -D warnings`, `npx vitest run
+  src/pages/Resume.test.tsx src/utils/errorMessages.test.ts
+  src/mocks/handlers.test.ts`, `npm run lint -- --quiet`, `npm run test:run`,
+  `npm run build`, `npm run lint:docs`, `npm run lint:bloat`, and `git diff
+  --check`.
 - Current local no-account macOS checksum follow-up makes
   `npm run tauri:verify:macos` validate a local `.dmg.sha256` sidecar when it
   exists and fail with `--require-checksum` when it is missing or mismatched.

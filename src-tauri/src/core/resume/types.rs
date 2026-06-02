@@ -4,7 +4,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Deserializer, Serialize};
 use std::collections::HashMap;
 
-/// Resume metadata (for uploaded PDF resumes)
+/// Resume metadata for uploaded local resumes.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Resume {
     pub id: i64,

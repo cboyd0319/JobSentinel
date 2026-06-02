@@ -97,7 +97,7 @@ const ATS_ERRORS = [
  */
 const RESUME_REVIEW_ERRORS = [
   { pattern: /resume.*not.*found|resume.*missing/i, title: 'Resume Not Found', message: 'No resume has been added yet.', action: 'Add your resume in the Resume section before using this feature.' },
-  { pattern: /parsing.*failed|extract.*failed/i, title: 'Resume Could Not Be Read', message: 'JobSentinel could not read the information from your resume.', action: 'Use a PDF, DOCX, or TXT resume, or choose a different file.' },
+  { pattern: /parsing.*failed|extract.*failed/i, title: 'Resume Could Not Be Read', message: 'JobSentinel could not read the information from your resume.', action: 'Use a PDF, DOCX, TXT, or Markdown resume, or choose a different file.' },
   { pattern: /ai.*error|model.*error|openai/i, title: 'Resume Review Problem', message: 'The resume review had a problem.', action: 'Try again in a moment. If this keeps happening, check any review tool you connected in Settings or copy a safe support report.' },
   { pattern: /token.*limit|context.*length/i, title: 'Resume or Job Post Too Long', message: 'The resume or job post is too long for this review.', action: 'Try a shorter resume or job post. Remove repeated sections first.' },
 ];

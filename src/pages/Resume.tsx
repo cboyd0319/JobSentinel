@@ -698,7 +698,7 @@ export default function Resume({ onBack }: ResumeProps) {
             </p>
             <div className="flex gap-3 justify-center">
               <Button onClick={handleUploadResume} loading={uploading} loadingText="Adding...">
-                Add Resume (PDF)
+                Add Resume
               </Button>
               <Button
                 variant="secondary"
@@ -1351,7 +1351,8 @@ export default function Resume({ onBack }: ResumeProps) {
           </div>
         ) : (
           <p className="text-surface-600 dark:text-surface-400">
-            No readable text found. Try adding a different PDF or use a resume app export.
+            No readable text found. Try adding a different PDF, DOCX, TXT, or Markdown resume,
+            or use a resume app export.
           </p>
         )}
         <ModalFooter>

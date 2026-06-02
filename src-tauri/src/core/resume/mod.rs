@@ -4,7 +4,7 @@
 //!
 //! ## Features
 //!
-//! - **PDF Parsing** - Extract text from PDF resumes
+//! - **Local Resume Parsing** - Extract text from PDF, DOCX, TXT, and Markdown resumes
 //! - **Skill Extraction** - Identify technical, workplace, and role-specific skills
 //! - **Semantic Matching** - Compare resume skills against job requirements
 //! - **Gap Analysis** - Identify missing skills and strengths
@@ -20,7 +20,7 @@
 //! let matcher = ResumeMatcher::new(db_pool);
 //!
 //! // Upload and parse resume
-//! let resume_id = matcher.upload_resume("My Resume.pdf", "/path/to/resume.pdf").await?;
+//! let resume_id = matcher.upload_resume("My Resume.docx", "/path/to/resume.docx").await?;
 //!
 //! // Extract skills automatically
 //! let skills = matcher.extract_skills(resume_id).await?;
@@ -109,8 +109,8 @@ impl ResumeMatcher {
 
     /// Upload and parse a new resume
     pub async fn upload_resume(&self, name: &str, file_path: &str) -> Result<i64> {
-        // Parse PDF to extract text
-        let parsed_text = self.parser.parse_pdf(Path::new(file_path))?;
+        // Parse local resume file to extract readable text.
+        let parsed_text = self.parser.parse_resume(Path::new(file_path))?;
 
         // Insert into database
         let result = sqlx::query(

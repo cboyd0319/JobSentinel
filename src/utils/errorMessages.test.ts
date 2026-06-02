@@ -144,6 +144,7 @@ describe("errorMessages", () => {
       expect(missingResume.action).toContain("Add your resume");
       expect(parsingProblem.title).toBe("Resume Could Not Be Read");
       expect(parsingProblem.message).toContain("resume");
+      expect(parsingProblem.action).toContain("Markdown");
       expect(reviewProblem.title).toBe("Resume Review Problem");
       expect(reviewProblem.message).toContain("resume review");
       expect(reviewProblem.action).toContain("review tool you connected");
