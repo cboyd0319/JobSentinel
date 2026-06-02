@@ -1228,6 +1228,8 @@ Next high-value passes:
      The latest Browser Button recovery follow-up replaces restart wording and
      clipboard-only retry guidance with close/reopen wording plus safe support
      report fallback across frontend and command-boundary copy.
+     The latest modal repeated-failure recovery follow-up replaces
+     close-and-try-later guidance with copy/save safe support report first.
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.

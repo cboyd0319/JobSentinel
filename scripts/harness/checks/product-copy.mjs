@@ -619,6 +619,8 @@ export function hasTechnicalRecoveryCopy(root, path) {
     /window state/i,
     /This section failed to load/i,
     /This window failed to load/i,
+    /Please close and try again later/i,
+    /Try closing and checking back later/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));

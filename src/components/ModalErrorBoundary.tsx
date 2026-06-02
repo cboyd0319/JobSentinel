@@ -164,7 +164,7 @@ class ModalErrorBoundary extends Component<Props, State> {
               </p>
               <p className="text-xs text-surface-500 dark:text-surface-400">
                 {showRetryWarning
-                  ? "This keeps happening. Please close and try again later."
+                  ? "This keeps happening. Copy or save a safe support report before closing this window."
                   : "App data stays on this device. You can close this and try again."}
               </p>
               {this.state.retryCount > 0 && (
@@ -177,7 +177,7 @@ class ModalErrorBoundary extends Component<Props, State> {
             {showRetryWarning && (
               <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
                 <p className="text-xs text-yellow-800 dark:text-yellow-200">
-                  This feature may be temporarily unavailable. Try closing and checking back later.
+                  This feature may be temporarily unavailable. Copy or save a safe support report first, then close this window.
                 </p>
               </div>
             )}

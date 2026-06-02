@@ -298,7 +298,7 @@ test("product copy rejects technical recovery and raw error details", () => {
     writeFixtureFile(
       root,
       "src/components/ModalErrorBoundary.tsx",
-      "This window failed to load",
+      "This window failed to load\nPlease close and try again later\nTry closing and checking back later\n",
     );
     writeFixtureFile(root, "src/components/ScraperHealthDashboard.tsx", "window state");
 

@@ -236,6 +236,28 @@ describe("ModalErrorBoundary", () => {
       expect(screen.getByText("This window needs attention")).toBeInTheDocument();
     });
 
+    it("tells users to copy a safe support report after repeated retry failures", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <ModalErrorBoundary>
+          <ThrowError shouldThrow={true} />
+        </ModalErrorBoundary>
+      );
+
+      await user.click(screen.getByRole("button", { name: /try again/i }));
+      await user.click(screen.getByRole("button", { name: /try again/i }));
+
+      expect(
+        screen.getByText(/copy or save a safe support report before closing this window/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/copy or save a safe support report first, then close this window/i),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/please close and try again later/i)).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /try again/i })).not.toBeInTheDocument();
+    });
+
     it("does not render children after error", () => {
       render(
         <ModalErrorBoundary>

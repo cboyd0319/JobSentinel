@@ -1300,3 +1300,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   clipboard-only retry guidance with close/reopen wording plus safe support
   report fallback across frontend and command-boundary copy, with focused
   component/Rust tests and product-copy coverage.
+- Current local modal repeated-failure recovery follow-up replaces close-and
+  try-later guidance with copy/save safe support report first, with focused
+  modal-boundary and product-copy coverage.
