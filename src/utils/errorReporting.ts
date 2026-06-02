@@ -457,11 +457,13 @@ class ErrorReporter {
    * Export errors as JSON
    */
   export(): string {
+    const errors = this.errors.map((report) => sanitizeStoredReport(report));
+
     return JSON.stringify({
       exported_at: new Date().toISOString(),
       app_version: __APP_VERSION__,
-      error_count: this.errors.length,
-      errors: this.errors,
+      error_count: errors.length,
+      errors,
     }, null, 2);
   }
 

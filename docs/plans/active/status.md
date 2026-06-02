@@ -56,18 +56,27 @@ actionable findings in this active-plan surface or the relevant plan.
   `npm run test:scripts`, `npm run lint:docs`, `npm run lint:bloat`,
   `npm run lint`, focused Vitest for eight affected frontend/service test
   files, and `git diff --check` passed. Focused Vitest passed 178 tests.
-- Current local settings/support copy slice changes manual email setup labels,
+- Committed settings/support copy slice changes manual email setup labels,
   USAJobs jobs-to-check labels, connected-source review labels, and the detailed
   local support-report action. Verification passed: focused Vitest for Settings
   and ErrorLogPanel passed 71 tests, `node --test
   scripts/check-product-copy.test.mjs` passed 32 tests, `npm run lint:bloat`,
   `npm run harness:check`, `npm run lint:docs`, `npm run test:scripts` passed
   454 script tests, `npm run lint`, and `git diff --check` passed.
-- Current local feedback/recovery tooltip slice changes the detailed local
+- Committed feedback/recovery tooltip slice changes the detailed local
   support report tooltip and Browser Button docs away from support-only wording
   and adds product-copy coverage. Verification passed: focused ErrorLogPanel
   Vitest passed 34 tests, `node --test scripts/check-product-copy.test.mjs`
   passed 32 tests, and `npm run lint:bloat` passed.
+- Current local detailed-report privacy slice makes frontend error-report JSON
+  export re-sanitize stored records before writing, adds a regression test for
+  private job-search details in detailed local report output, and adds a privacy
+  sensor against raw `errors: this.errors` export drift. Focused verification
+  passed: `npx vitest run src/utils/errorReporting.test.ts` passed 14 tests,
+  `node --test scripts/check-privacy-logging.test.mjs` passed 42 tests, `npm
+  run lint:bloat`, `npm run harness:check`, `npm run lint:docs`, `npm run
+  test:scripts` passed 455 script tests, `npm run lint`, and `git diff --check`
+  passed.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -85,6 +94,8 @@ Scope:
   without support-only jargon.
 - Browser Button help docs should keep connection settings plain and place
   support-request gating in instructions, not labels.
+- Detailed local report JSON export must re-sanitize records at export time, not
+  rely only on earlier capture/storage sanitization.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
@@ -98,6 +109,8 @@ npm run lint
 node --test scripts/check-product-copy.test.mjs
 npx vitest run src/pages/Settings.test.tsx src/components/ErrorLogPanel.test.tsx
 npx vitest run src/components/ErrorLogPanel.test.tsx
+npx vitest run src/utils/errorReporting.test.ts
+node --test scripts/check-privacy-logging.test.mjs
 git diff --check
 ```
 

@@ -155,6 +155,10 @@ Current cleanup posture:
   report tooltip and Browser Button docs from support-only wording to
   maintainer-requested-use wording, with focused ErrorLogPanel, product-copy,
   and bloat coverage.
+- Current local detailed-report privacy follow-up makes frontend error-report
+  JSON export re-sanitize stored records, adds regression coverage for private
+  job-search details in detailed local report output, and adds a privacy sensor
+  against raw `errors: this.errors` export drift.
 - Current local connected-source wording follow-up changes the Settings contact
   history label from `Source host` to `Website contacted`, with focused
   Settings and product-copy coverage against raw source metadata labels

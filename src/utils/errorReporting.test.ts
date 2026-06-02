@@ -312,4 +312,37 @@ describe("errorReporting", () => {
 
     expect(exported.app_version).toBe(__APP_VERSION__);
   });
+
+  it("sanitizes detailed local report export before writing JSON", () => {
+    errorReporter.captureCustom(
+      [
+        "Failed for candidate@example.com",
+        "token=abc123",
+        "/Users/chad/private/resume.pdf",
+        "salary floor: $92000",
+        "private notes: active search",
+      ].join(" "),
+      {
+        resumeText: "Full resume body",
+        salaryFloor: 92000,
+        privateNotes: "Active search and family details",
+        retryUrl: "https://example.com/apply?token=secret#frag",
+      },
+    );
+
+    const exported = errorReporter.export();
+
+    expect(exported).toContain("[EMAIL]");
+    expect(exported).toContain("[TOKEN]");
+    expect(exported).toContain("/[USER_PATH]");
+    expect(exported).toContain("salary floor: [REDACTED]");
+    expect(exported).toContain('"privateNotes": "[REDACTED]"');
+    expect(exported).not.toContain("candidate@example.com");
+    expect(exported).not.toContain("abc123");
+    expect(exported).not.toContain("/Users/chad");
+    expect(exported).not.toContain("92000");
+    expect(exported).not.toContain("Full resume body");
+    expect(exported).not.toContain("Active search");
+    expect(exported).not.toContain("token=secret");
+  });
 });

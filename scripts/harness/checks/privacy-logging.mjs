@@ -306,6 +306,7 @@ export function hasUnsanitizedFrontendErrorReportStorage(root, path) {
   const text = readFileSync(join(root, path), "utf8");
   return (
     /this\.errors\.unshift\(report\)/.test(text) ||
+    /\berrors:\s*this\.errors\b/.test(text) ||
     (/localStorage\.setItem\(STORAGE_KEY,\s*JSON\.stringify\(this\.errors\)\)/.test(text) &&
       !/sanitizeStoredReport/.test(text)) ||
     /logError\(`\[ErrorReporter\]\[\$\{type\}\]`,\s*error\.message/.test(text) ||

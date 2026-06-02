@@ -173,6 +173,10 @@ boundaries, and harness modularity:
 - Changed the detailed local report tooltip and Browser Button docs from
   support-only wording to maintainer-requested-use wording. Focused
   ErrorLogPanel, product-copy, and bloat checks passed.
+- Hardened detailed local report JSON export so frontend error-report records
+  are re-sanitized at export time. Added Vitest coverage for private job-search
+  details in detailed local report output and a privacy sensor against raw
+  `errors: this.errors` export drift.
 - Changed the optional connected-source contact history label from
   `Source host` to `Website contacted`, updated Settings coverage, and added a
   product-copy guard against raw source metadata labels returning.

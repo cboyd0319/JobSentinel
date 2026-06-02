@@ -341,6 +341,34 @@ test("privacy logging rejects unsafe frontend error report storage", () => {
   });
 });
 
+test("privacy logging rejects raw frontend error report export", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/utils/errorReporting.ts",
+      [
+        "const TOKEN_PATTERN = /token(?:\\s+|=)/;",
+        "const WEBHOOK_PATTERN = /https:\\/\\/(?:discord(?:app)?\\.com\\/api\\/webhooks|outlook\\.office(?:365)?\\.com\\/webhook)/;",
+        "const SENSITIVE_LABELED_TEXT_PATTERNS = [/salary/];",
+        "function sanitizeStoredReport(report) { return report; }",
+        "function isErrorReport(report) { return Boolean(report); }",
+        "function parseStoredErrorReports(stored) { return []; }",
+        "class ErrorReporter {",
+        "  export() {",
+        "    return JSON.stringify({ errors: this.errors });",
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasUnsanitizedFrontendErrorReportStorage(root, "src/utils/errorReporting.ts"),
+      true,
+    );
+  });
+});
+
 test("privacy logging rejects raw frontend error helper output", () => {
   withFixture((root) => {
     writeFixtureFile(
