@@ -94,6 +94,7 @@ The current local matcher:
   signals;
 - preserves whether missing job-post language came from required, preferred,
   or other role-language context;
+- passes that context to the live Resume Builder review panel when available;
 - keeps required and preferred job-post headings separate even when the posting
   uses ordinary single-line section breaks;
 - stores results locally so recent job comparisons can be reviewed later.

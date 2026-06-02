@@ -132,6 +132,10 @@ type AtsAnalysisResult = {
     importance: "Required" | "Preferred" | "Industry";
   }>;
   missing_keywords: string[];
+  missing_keyword_details: Array<{
+    keyword: string;
+    importance: "Required" | "Preferred" | "Industry";
+  }>;
   format_issues: Array<{
     severity: "Critical" | "Warning" | "Info";
     issue: string;
@@ -621,11 +625,20 @@ describe("mock Tauri handlers", () => {
       ]),
     );
     expect(jobResult.missing_keywords).toContain("bilingual");
+    expect(jobResult.missing_keyword_details).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          keyword: "bilingual",
+          importance: "Required",
+        }),
+      ]),
+    );
     expect(jobResult.suggestions).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           category: "AddKeyword",
-          suggestion: expect.stringContaining("bilingual"),
+          suggestion: expect.stringContaining("Review whether 'bilingual'"),
+          impact: expect.stringContaining("real evidence is visible"),
         }),
       ]),
     );
@@ -636,7 +649,8 @@ describe("mock Tauri handlers", () => {
     });
     expect(improved).toContain("Contributed to client scheduling");
     expect(improved).toContain("add a true number, outcome, or concrete detail if you have one");
-    expect(improved).toContain("consider adding");
+    expect(improved).toContain("review if these are true and worth making visible");
+    expect(improved).not.toContain("consider adding");
   });
 
   it("handles runtime frontend command names in dev mocks", async () => {

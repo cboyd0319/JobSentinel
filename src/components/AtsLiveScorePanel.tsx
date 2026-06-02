@@ -26,6 +26,7 @@ export interface AtsAnalysisResult {
   completeness_score: number;
   keyword_matches: KeywordMatch[];
   missing_keywords: string[];
+  missing_keyword_details?: MissingKeyword[];
   format_issues: FormatIssue[];
   suggestions: AtsSuggestion[];
 }
@@ -35,6 +36,11 @@ interface KeywordMatch {
   importance: "Required" | "Preferred" | "Industry";
   found_in: string[];
   frequency: number;
+}
+
+interface MissingKeyword {
+  keyword: string;
+  importance: "Required" | "Preferred" | "Industry";
 }
 
 interface FormatIssue {
@@ -186,6 +192,27 @@ const getStepTips = (step: number, analysis: AtsAnalysisResult | null): string[]
 
   return tips.slice(0, 3);
 };
+
+function getMissingKeywordDetails(analysis: AtsAnalysisResult): MissingKeyword[] {
+  if (analysis.missing_keyword_details && analysis.missing_keyword_details.length > 0) {
+    return analysis.missing_keyword_details;
+  }
+
+  return analysis.missing_keywords.map((keyword) => ({
+    keyword,
+    importance: "Industry",
+  }));
+}
+
+function getMissingKeywordGroups(analysis: AtsAnalysisResult) {
+  const missing = getMissingKeywordDetails(analysis);
+
+  return {
+    required: missing.filter((gap) => gap.importance === "Required"),
+    preferred: missing.filter((gap) => gap.importance === "Preferred"),
+    other: missing.filter((gap) => gap.importance === "Industry"),
+  };
+}
 
 function isStoredJobContext(value: unknown): value is StoredJobContext {
   if (!value || typeof value !== "object") {
@@ -522,21 +549,63 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
             )}
 
             {/* Words to review */}
-            {analysis.missing_keywords.length > 0 && (
+            {getMissingKeywordDetails(analysis).length > 0 && (
               <div>
                 <h4 className="text-sm font-semibold text-surface-800 dark:text-surface-200 mb-3">
-                  Words To Review ({analysis.missing_keywords.length})
+                  Words To Review ({getMissingKeywordDetails(analysis).length})
                 </h4>
-                <div className="flex flex-wrap gap-2">
-                  {analysis.missing_keywords.map((keyword, idx) => (
-                    <Badge key={idx} variant="danger" size="sm">
-                      {keyword}
-                    </Badge>
-                  ))}
-                </div>
-                <p className="text-xs text-surface-500 dark:text-surface-400 mt-2">
-                  Only use these words when they honestly fit your experience and improve clarity.
-                </p>
+                {(() => {
+                  const { required, preferred, other } = getMissingKeywordGroups(analysis);
+
+                  return (
+                    <div className="space-y-3">
+                      {required.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold text-danger mb-2">Required to Review</p>
+                          <div className="flex flex-wrap gap-2">
+                            {required.map((gap, idx) => (
+                              <Badge key={idx} variant="danger" size="sm">
+                                {gap.keyword}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {preferred.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold text-alert-700 dark:text-alert-400 mb-2">
+                            Preferred to Review
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {preferred.map((gap, idx) => (
+                              <Badge key={idx} variant="alert" size="sm">
+                                {gap.keyword}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {other.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold text-surface-700 dark:text-surface-300 mb-2">
+                            Other Words to Review
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {other.map((gap, idx) => (
+                              <Badge key={idx} variant="surface" size="sm">
+                                {gap.keyword}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      <div className="space-y-1 text-xs text-surface-500 dark:text-surface-400">
+                        <p>Start with required job-post language. Preferred words can help later.</p>
+                        <p>Only use these words when they honestly fit your experience and improve clarity.</p>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             )}
 
@@ -568,7 +637,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
                         <div className="flex-1">
                           <p className="text-sm text-surface-800 dark:text-surface-200">{issue.issue}</p>
                           <p className="text-xs text-sentinel-600 dark:text-sentinel-400 mt-1">
-                            How to fix: {issue.fix}
+                            Possible edit to review: {issue.fix}
                           </p>
                         </div>
                       </div>

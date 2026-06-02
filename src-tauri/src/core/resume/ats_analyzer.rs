@@ -167,14 +167,23 @@ impl AtsAnalyzer {
         let mut suggestions = format_result.suggestions.clone();
         for gap in &missing_keyword_details {
             let impact = match gap.importance {
-                KeywordImportance::Required => "High",
-                KeywordImportance::Preferred => "Medium",
-                KeywordImportance::Industry => "Low",
+                KeywordImportance::Required => {
+                    "Required job-post language is easier to compare when real evidence is visible."
+                }
+                KeywordImportance::Preferred => {
+                    "Preferred job-post language can help when it honestly fits your background."
+                }
+                KeywordImportance::Industry => {
+                    "Role language can improve clarity when it accurately describes your work."
+                }
             };
 
             suggestions.push(AtsSuggestion {
                 category: SuggestionCategory::AddKeyword,
-                suggestion: format!("Add '{}' to relevant sections", gap.keyword),
+                suggestion: format!(
+                    "Review whether '{}' is true for your background and worth making visible",
+                    gap.keyword
+                ),
                 impact: impact.to_string(),
             });
         }
@@ -382,7 +391,7 @@ impl AtsAnalyzer {
                     .any(|&k| improved.to_lowercase().contains(&k.to_lowercase()))
             {
                 improved.push_str(&format!(
-                    " (consider adding: {})",
+                    " (review if these are true and worth making visible: {})",
                     important_keywords.join(", ")
                 ));
             }
@@ -1053,8 +1062,10 @@ Preferred: Salesforce
         let job_desc = "Required: case management, scheduling, CRM";
         let improved = AtsAnalyzer::improve_bullet(bullet, Some(job_desc));
 
-        // Should suggest adding required keywords
-        assert!(improved.contains("case management") || improved.contains("consider adding"));
+        // Should suggest reviewing truthful required language, not stuffing words.
+        assert!(improved.contains("case management"));
+        assert!(improved.contains("worth making visible"));
+        assert!(!improved.contains("consider adding"));
     }
 
     #[test]
@@ -1175,6 +1186,25 @@ Preferred: Salesforce
             .suggestions
             .iter()
             .any(|s| s.category == SuggestionCategory::AddKeyword));
+    }
+
+    #[test]
+    fn test_missing_keyword_suggestions_are_review_first() {
+        let resume = sample_resume();
+        let job_desc = "Required: Java";
+
+        let result = AtsAnalyzer::analyze_for_job(&resume, job_desc);
+        let suggestion = result
+            .suggestions
+            .iter()
+            .find(|s| s.category == SuggestionCategory::AddKeyword)
+            .expect("missing keyword suggestion");
+
+        assert!(suggestion.suggestion.contains("Review whether"));
+        assert!(suggestion.suggestion.contains("worth making visible"));
+        assert!(suggestion.impact.contains("real evidence is visible"));
+        assert!(!suggestion.suggestion.contains("Add '"));
+        assert_ne!(suggestion.impact, "High");
     }
 
     #[test]

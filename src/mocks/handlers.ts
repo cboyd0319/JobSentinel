@@ -494,6 +494,7 @@ interface MockAtsAnalysisResult {
   completeness_score: number;
   keyword_matches: MockKeywordMatch[];
   missing_keywords: string[];
+  missing_keyword_details: MockAtsKeyword[];
   format_issues: MockFormatIssue[];
   suggestions: MockAtsSuggestion[];
 }
@@ -1987,6 +1988,7 @@ function analyzeMockResumeFormat(args?: Record<string, unknown>): MockAtsAnalysi
     completeness_score: completenessScore,
     keyword_matches: [],
     missing_keywords: [],
+    missing_keyword_details: [],
     format_issues: formatIssues,
     suggestions,
   };
@@ -1999,7 +2001,7 @@ function analyzeMockResumeForJob(args?: Record<string, unknown>): MockAtsAnalysi
   const sections = getMockAtsResumeSections(resume);
   const keywords = extractMockAtsKeywords(jobDescription);
   const keywordMatches: MockKeywordMatch[] = [];
-  const missingKeywords: string[] = [];
+  const missingKeywordDetails: MockAtsKeyword[] = [];
 
   for (const { keyword, importance } of keywords) {
     const foundIn = findMockKeywordLocations(sections, keyword);
@@ -2011,22 +2013,29 @@ function analyzeMockResumeForJob(args?: Record<string, unknown>): MockAtsAnalysi
         importance,
       });
     } else {
-      missingKeywords.push(keyword);
+      missingKeywordDetails.push({ keyword, importance });
     }
   }
 
+  const missingKeywords = missingKeywordDetails.map(({ keyword }) => keyword);
   const keywordScore = keywords.length > 0
     ? Math.round((keywordMatches.length / keywords.length) * 1000) / 10
     : 100;
   const suggestions: MockAtsSuggestion[] = [
     ...formatResult.suggestions,
-    ...missingKeywords.map((keyword) => ({
-      category: "AddKeyword" as const,
-      suggestion: `Add '${keyword}' to relevant sections`,
-      impact: keywords.find((candidate) => candidate.keyword === keyword)?.importance === "Required"
-        ? "High"
-        : "Medium",
-    })),
+    ...missingKeywordDetails.map(({ keyword, importance }) => {
+      const impact = importance === "Required"
+        ? "Required job-post language is easier to compare when real evidence is visible."
+        : importance === "Preferred"
+          ? "Preferred job-post language can help when it honestly fits your background."
+          : "Role language can improve clarity when it accurately describes your work.";
+
+      return {
+        category: "AddKeyword" as const,
+        suggestion: `Review whether '${keyword}' is true for your background and worth making visible`,
+        impact,
+      };
+    }),
   ];
 
   return {
@@ -2037,6 +2046,7 @@ function analyzeMockResumeForJob(args?: Record<string, unknown>): MockAtsAnalysi
     keyword_score: keywordScore,
     keyword_matches: keywordMatches,
     missing_keywords: missingKeywords,
+    missing_keyword_details: missingKeywordDetails,
     suggestions,
   };
 }
@@ -2068,7 +2078,7 @@ function improveMockBulletPoint(args?: Record<string, unknown>): string {
       .filter((keyword) => !improved.toLowerCase().includes(keyword.toLowerCase()))
       .slice(0, 2);
     if (requiredKeywords.length > 0) {
-      improved += ` (consider adding: ${requiredKeywords.join(", ")})`;
+      improved += ` (review if these are true and worth making visible: ${requiredKeywords.join(", ")})`;
     }
   }
 

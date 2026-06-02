@@ -81,6 +81,16 @@ describe("AtsLiveScorePanel", () => {
       },
     ],
     missing_keywords: ["Spanish", "Zendesk"],
+    missing_keyword_details: [
+      {
+        keyword: "Spanish",
+        importance: "Required",
+      },
+      {
+        keyword: "Zendesk",
+        importance: "Preferred",
+      },
+    ],
     format_issues: [
       {
         severity: "Warning",
@@ -91,8 +101,8 @@ describe("AtsLiveScorePanel", () => {
     suggestions: [
       {
         category: "AddKeyword",
-        suggestion: "Add Spanish to skills",
-        impact: "High match improvement",
+        suggestion: "Review whether 'Spanish' is true for your background and worth making visible",
+        impact: "Required job-post language is easier to compare when real evidence is visible.",
       },
     ],
   };
@@ -679,7 +689,32 @@ describe("AtsLiveScorePanel", () => {
       expect(screen.getByText("Details to Check (1)")).toBeInTheDocument();
       expect(screen.getByText("Review")).toBeInTheDocument();
       expect(screen.getByText("Summary could be longer")).toBeInTheDocument();
-      expect(screen.getByText(/How to fix: Add more details/i)).toBeInTheDocument();
+      expect(screen.getByText(/Possible edit to review: Add more details/i)).toBeInTheDocument();
+    });
+
+    it("groups words to review by job-post importance", async () => {
+      render(
+        <AtsLiveScorePanel
+          resumeData={mockResumeData}
+          currentStep={1}
+          debounceMs={10}
+        />
+      );
+
+      await waitForAnalysis();
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /review details/i })).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole("button", { name: /review details/i }));
+
+      expect(screen.getByText("Words To Review (2)")).toBeInTheDocument();
+      expect(screen.getByText("Required to Review")).toBeInTheDocument();
+      expect(screen.getByText("Preferred to Review")).toBeInTheDocument();
+      expect(screen.getByText("Spanish")).toBeInTheDocument();
+      expect(screen.getByText("Zendesk")).toBeInTheDocument();
+      expect(screen.getByText(/Start with required job-post language/i)).toBeInTheDocument();
     });
 
     it("displays suggestions in modal", async () => {
@@ -701,9 +736,9 @@ describe("AtsLiveScorePanel", () => {
 
       expect(screen.getByText("Suggestions (1)")).toBeInTheDocument();
       expect(screen.getByText("Add job words")).toBeInTheDocument();
-      expect(screen.getByText("Add Spanish to skills")).toBeInTheDocument();
+      expect(screen.getByText(/Review whether 'Spanish'/i)).toBeInTheDocument();
       expect(screen.queryByText("AddKeyword")).not.toBeInTheDocument();
-      expect(screen.getByText(/Why it helps: High match improvement/i)).toBeInTheDocument();
+      expect(screen.getByText(/Why it helps: Required job-post language/i)).toBeInTheDocument();
     });
   });
 

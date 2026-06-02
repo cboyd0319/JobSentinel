@@ -89,6 +89,20 @@ unreviewed form sending.
   harness:check`, `npm run lint:bloat`, `node --test
   scripts/check-product-copy.test.mjs` passed 43 tests, `npm run lint`, and
   `git diff --check`.
+- Current local Resume Builder live-panel cleanup carries the same
+  required/preferred/other missing-word grouping into live resume review, updates
+  real and mock ATS suggestions to ask users to review truthful evidence instead
+  of adding words, and changes bullet draft hints away from `consider adding`
+  phrasing. Verification passed: `npx vitest run
+  src/components/AtsLiveScorePanel.test.tsx
+  src/pages/ResumeOptimizer.test.tsx src/mocks/handlers.test.ts` passed 69
+  tests, `cargo test --lib ats_analyzer` passed 23 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 43 tests, `cargo fmt --all --
+  --check`, `npm run lint`, `npm run lint:docs`, `npm run harness:check`,
+  `npm run build`, `cargo clippy -- -D warnings`, `npm run lint:bloat`,
+  `npm run test:run` passed 2656 tests, focused Resume Builder Playwright
+  smoke passed 1 test, `cargo test --lib` passed 2493 tests with 21 ignored,
+  and `git diff --check` passed.
 - Current local resume-priority planning update moves resume assistance,
   resume-assisted guided intake, and application readability to the top
   functional priority across the README, roadmap, active plans, and feature
