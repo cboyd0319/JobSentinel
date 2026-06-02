@@ -693,7 +693,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
         logContext: "Get active resume for skill import"
       });
       if (!activeResume) {
-        toast.warning("No resume uploaded", "Please upload a resume in Resume Match first");
+        toast.warning("No resume added", "Add a resume in Resume Match first");
         return;
       }
 
@@ -705,7 +705,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       });
 
       if (userSkills.length === 0) {
-        toast.info("No skills found", "Upload and review a resume in Resume Match first");
+        toast.info("No skills found", "Add and review a resume in Resume Match first");
         return;
       }
 

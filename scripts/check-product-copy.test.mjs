@@ -88,6 +88,11 @@ test("product copy rejects local resume upload wording in resume match", () => {
       "src/components/ResumeMatchScoreBreakdown.tsx",
       "Upload a resume to see detailed match information\n",
     );
+    writeFixtureFile(
+      root,
+      "src/pages/ResumeBuilder.tsx",
+      "No resume uploaded\nPlease upload a resume in Resume Match first\nUpload and review a resume in Resume Match first\n",
+    );
 
     assert.equal(hasStaleResumeOptimizerFraming(root, "docs/features/resume-matcher.md"), true);
     assert.equal(hasStaleResumeOptimizerFraming(root, "src/pages/ResumeOptimizer.tsx"), true);
@@ -95,6 +100,7 @@ test("product copy rejects local resume upload wording in resume match", () => {
       hasStaleResumeOptimizerFraming(root, "src/components/ResumeMatchScoreBreakdown.tsx"),
       true,
     );
+    assert.equal(hasStaleResumeOptimizerFraming(root, "src/pages/ResumeBuilder.tsx"), true);
   });
 });
 
