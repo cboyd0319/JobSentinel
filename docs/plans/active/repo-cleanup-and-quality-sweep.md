@@ -164,6 +164,10 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local Resume Match action-copy cleanup renames the old tailor-resume
+  button to `Review in Resume Builder`, matching the actual action and avoiding
+  optimization-style resume wording. Product-copy sensors now reject the old
+  label. Focused ResumeOptimizer and product-copy verification passed.
 - Current local App Problem History support-copy cleanup renames the old
   detailed-report button to `Save Extra Local Details`, clarifies that extra
   local details stay on the user's computer until the user chooses to share

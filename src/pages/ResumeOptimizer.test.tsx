@@ -356,8 +356,8 @@ describe("ResumeOptimizer", () => {
 
     await user.click(screen.getByRole("button", { name: /review match/i }));
 
-    const tailorButton = await screen.findByRole("button", { name: /tailor resume for this job/i });
-    await user.click(tailorButton);
+    const builderButton = await screen.findByRole("button", { name: /review in resume builder/i });
+    await user.click(builderButton);
 
     expect(mockToast.error).toHaveBeenCalledWith(
       "Could not open Resume Builder with this job",

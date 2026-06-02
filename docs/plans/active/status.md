@@ -34,6 +34,12 @@ actionable findings in this active-plan surface or the relevant plan.
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local Resume Match action-copy cleanup renames the old tailor-resume
+  button to `Review in Resume Builder`, matching the actual action and avoiding
+  optimization-style resume wording. Product-copy sensors now reject the old
+  `Tailor Resume for This Job` label. Focused verification passed: `npx vitest
+  run src/pages/ResumeOptimizer.test.tsx` passed 14 tests and `node --test
+  scripts/check-product-copy.test.mjs` passed 36 tests.
 - Current local App Problem History support-copy cleanup renames the old
   detailed-report button to `Save Extra Local Details` and clarifies that extra
   local details stay on the user's computer until the user chooses to share

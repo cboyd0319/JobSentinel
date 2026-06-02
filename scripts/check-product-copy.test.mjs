@@ -1835,6 +1835,7 @@ test("product copy rejects stale zero-technical resume and shortcut copy", () =>
         "Improve Bullet Point",
         "Improved Version",
         "Could not improve bullet",
+        "Tailor Resume for This Job",
         'ScoreItem label="Completeness"',
         "Paste resume details exported from JobSentinel or another supported tool.",
         "Paste resume app export here",

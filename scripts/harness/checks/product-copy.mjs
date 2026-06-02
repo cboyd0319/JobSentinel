@@ -1331,6 +1331,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Improve Bullet Point/i,
       /Improved Version/i,
       /Could not improve bullet/i,
+      /Tailor Resume for This Job/i,
       /Navigation not available/i,
       /Cannot navigate to Resume Builder/i,
       /Navigating to Resume Builder/i,

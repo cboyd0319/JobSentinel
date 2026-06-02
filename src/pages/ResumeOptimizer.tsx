@@ -447,7 +447,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
   };
 
   // Send the saved job post to Resume Builder.
-  const handleTailorResume = () => {
+  const handleReviewInResumeBuilder = () => {
     if (!onNavigate) {
       toast.error(
         "Could not open Resume Builder",
@@ -622,11 +622,11 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                   )}
                   {onNavigate && (
                     <Button
-                      onClick={handleTailorResume}
+                      onClick={handleReviewInResumeBuilder}
                       variant="success"
                       className="flex-1"
                     >
-                      Tailor Resume for This Job
+                      Review in Resume Builder
                     </Button>
                   )}
                 </div>
