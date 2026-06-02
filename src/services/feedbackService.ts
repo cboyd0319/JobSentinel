@@ -297,17 +297,26 @@ export async function saveSanitizedDebugReport(
  */
 export async function openGitHubIssue(
   category: FeedbackCategory,
-  _description: string,
+  description: string,
   debugInfo: string | null
 ): Promise<void> {
-  // Copy debug info to clipboard if included
+  const safeDescription = sanitizeTextForStorage(description.trim());
+  const clipboardSections = [
+    "JOBSENTINEL SAFE SUPPORT REPORT",
+    "",
+    "WHAT YOU WROTE",
+    safeDescription,
+  ];
+
   if (debugInfo) {
-    try {
-      await navigator.clipboard.writeText(debugInfo);
-    } catch (error) {
-      logError("Failed to copy feedback debug info to clipboard:", error);
-      // Non-fatal - user can still open issue
-    }
+    clipboardSections.push("", "SUPPORT DETAILS", debugInfo);
+  }
+
+  try {
+    await navigator.clipboard.writeText(clipboardSections.join("\n"));
+  } catch (error) {
+    logError("Failed to copy feedback debug info to clipboard:", error);
+    // Non-fatal - user can still open issue
   }
 
   await invoke("open_github_issues", { template: category });

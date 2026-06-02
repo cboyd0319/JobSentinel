@@ -14,10 +14,10 @@ checking the actual job posting.
 
 | Workflow | Label | Default behavior |
 | --- | --- | --- |
-| Market snapshots | Local only | Aggregates are computed from local job records. |
+| Hiring Trends snapshots | Local only | Aggregates are computed from local job records. |
 | Skill, role, company, and location trends | Local only | Trend records stay in the local database. |
 | Salary trend review | Local only, Sensitive | Salary-floor context stays local. |
-| Market alerts | Local only | Alerts are created locally from saved job data. |
+| Hiring trend alerts | Local only | Alerts are created locally from saved job data. |
 | External notifications | Sensitive | Optional notification channels are used only if configured. |
 | Job posting data | Public-data only | Source postings are public or user-saved job content. |
 

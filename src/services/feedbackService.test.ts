@@ -84,9 +84,23 @@ describe("feedbackService", () => {
   it("opens GitHub issues through the backend issue command", async () => {
     mockInvoke.mockResolvedValueOnce(undefined);
 
-    await openGitHubIssue("feature", "Add filter presets", "debug info");
+    await openGitHubIssue(
+      "feature",
+      "Add filter presets for jane@example.com and +1 (303) 555-1212",
+      "debug info",
+    );
 
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith("debug info");
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      [
+        "JOBSENTINEL SAFE SUPPORT REPORT",
+        "",
+        "WHAT YOU WROTE",
+        "Add filter presets for [EMAIL] and [PHONE]",
+        "",
+        "SUPPORT DETAILS",
+        "debug info",
+      ].join("\n"),
+    );
     expect(mockInvoke).toHaveBeenCalledWith("open_github_issues", {
       template: "feature",
     });

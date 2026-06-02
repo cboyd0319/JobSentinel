@@ -123,6 +123,37 @@ describe("errorReporting", () => {
     expect(serialized).not.toContain("medical appointments");
   });
 
+  it("redacts phone numbers and known person-name fields", () => {
+    const report = errorReporter.captureCustom(
+      [
+        "Phone: +1 (303) 555-1212",
+        "backup 720-555-9911",
+        "Full name: Chad Boyd",
+        "My name is Chad Boyd",
+        "Company name is CareBridge Health",
+      ].join(" | "),
+      {
+        fullName: "Chad Boyd",
+        phone: "+1 (303) 555-1212",
+        companyName: "CareBridge Health",
+      },
+    );
+
+    const serialized = JSON.stringify(report);
+
+    expect(serialized).toContain("Phone: [PHONE]");
+    expect(serialized).toContain("backup [PHONE]");
+    expect(serialized).toContain("Full name: [REDACTED]");
+    expect(serialized).toContain("My name [REDACTED]");
+    expect(serialized).toContain("Company name is CareBridge Health");
+    expect(report.context?.fullName).toBe("[REDACTED]");
+    expect(report.context?.phone).toBe("[REDACTED]");
+    expect(report.context?.companyName).toBe("CareBridge Health");
+    expect(serialized).not.toContain("303");
+    expect(serialized).not.toContain("720");
+    expect(serialized).not.toContain("Chad Boyd");
+  });
+
   it("uses sanitized reports in development console logging", () => {
     vi.stubEnv("DEV", true);
 

@@ -1215,8 +1215,8 @@ export default function Settings({ onClose }: SettingsProps) {
     try {
       exportConfigToJSON(config);
       toast.success(
-        "Settings backup saved",
-        "Saved passwords and connection codes are left out for safety.",
+        "Private settings backup saved",
+        "Saved passwords and connection codes are left out. This backup can still include search, pay, location, company, and alert settings.",
       );
     } catch (error: unknown) {
       logError("Failed to export config:", error);
@@ -3210,12 +3210,13 @@ export default function Settings({ onClose }: SettingsProps) {
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded transition-colors"
                             >
-                              Get optional USAJobs access code
+                              Get USAJobs access code (advanced)
                             </a>
                           </div>
                           <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
-                            The USAJobs access-code page is run by USAJobs, not
-                            JobSentinel.
+                            This opens a USAJobs access-code page that may use
+                            developer wording. Skip it unless you want automatic
+                            USAJobs checks; browser search still works.
                           </p>
                         </div>
                       )}
@@ -3484,22 +3485,22 @@ export default function Settings({ onClose }: SettingsProps) {
                       {jobsWithGptPayload && (
                         <div className="mt-3 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800/50 p-3">
                           <p className="text-xs font-semibold text-surface-700 dark:text-surface-200 mb-2">
-                            Review before anything is sent
+                            Review before JobSentinel contacts this source
                           </p>
                           <dl className="grid grid-cols-1 gap-2 text-xs text-surface-600 dark:text-surface-300 sm:grid-cols-[8rem_1fr]">
-                            <dt className="font-medium">Endpoint</dt>
+                            <dt className="font-medium">Source address</dt>
                             <dd className="break-all">{jobsWithGptPayload.endpoint}</dd>
                             <dt className="font-medium">Job titles</dt>
                             <dd>{jobsWithGptPayload.titles.join(", ")}</dd>
                             <dt className="font-medium">Location</dt>
                             <dd>Not sent</dd>
-                            <dt className="font-medium">Remote filter</dt>
+                            <dt className="font-medium">Work location sent</dt>
                             <dd>
                               {jobsWithGptPayload.remote_only
                                 ? "Remote only"
-                                : "Not remote-only"}
+                                : "Uses your saved work-location choices"}
                             </dd>
-                            <dt className="font-medium">Result limit</dt>
+                            <dt className="font-medium">Jobs to ask for</dt>
                             <dd>{jobsWithGptPayload.limit}</dd>
                           </dl>
                           <div className="mt-3 flex flex-wrap gap-2">
@@ -4278,23 +4279,35 @@ export default function Settings({ onClose }: SettingsProps) {
           )}
 
           {/* Backup & Restore - visible on both tabs */}
-          <div className="flex gap-3 mb-4">
-            <button
-              onClick={handleImportConfig}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors"
-              title="Restore settings from a backup file"
+          <div className="mb-4">
+            <div className="flex gap-3">
+              <button
+                onClick={handleImportConfig}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors"
+                title="Restore settings from a backup file"
+              >
+                <ImportIcon className="w-4 h-4" />
+                Restore Settings
+              </button>
+              <button
+                onClick={handleExportConfig}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors"
+                title="Save your current settings to a private backup file"
+                aria-describedby="settings-backup-privacy-note"
+              >
+                <ExportIcon className="w-4 h-4" />
+                Backup Settings
+              </button>
+            </div>
+            <p
+              id="settings-backup-privacy-note"
+              className="mt-2 text-xs text-surface-500 dark:text-surface-400"
             >
-              <ImportIcon className="w-4 h-4" />
-              Restore Settings
-            </button>
-            <button
-              onClick={handleExportConfig}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors"
-              title="Save your current settings to a backup file"
-            >
-              <ExportIcon className="w-4 h-4" />
-              Backup Settings
-            </button>
+              Settings backups are private files. They can include job titles,
+              pay choices, locations, company preferences, and alert settings.
+              Do not attach them to support requests; use a safe support report
+              instead.
+            </p>
           </div>
 
           {/* Help & Feedback */}

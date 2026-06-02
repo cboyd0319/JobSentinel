@@ -164,6 +164,14 @@ As of 2026-06-01, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Tightened Rule 0 and zero-technical surfaces after the latest sub-agent
+  audit: first-run labels now ask for the work the user wants, Hiring Trends
+  alerts no longer use market-alert wording, settings backup copy marks the
+  artifact private, public issue templates warn against personal details, safe
+  support reports include the user's sanitized description, and frontend plus
+  backend sanitizers now redact phone numbers and known person-name fields.
+  Product-copy sensors guard install-warning, privacy-claim, source-label,
+  issue-template, first-run, and Hiring Trends wording.
 - Reordered core synonym taxonomy so customer, office, care, public-sector,
   business, creative, and product examples come before programming and
   engineering groups. Broad-audience harness coverage now rejects tech-first

@@ -191,14 +191,15 @@ more alerts.
 
 ## Security Note
 
-**Your saved details are safe.** Notification links, app passwords, and alert
-codes are stored in your operating system's secure credential manager:
+Notification links, app passwords, and alert codes use your operating system's
+secure credential manager:
 
 - **macOS:** Keychain
 - **Windows:** Credential Manager
 - **Linux:** Secret Service
 
-Saved details are never stored in plain text configuration files.
+New saved details should use the secure credential manager. Legacy plain-text
+fields are migrated and cleared when possible.
 
 ---
 
@@ -237,7 +238,8 @@ into JobSentinel.
 
 ### Discord alert looks broken?
 
-Make sure your connection link starts with `https://discord.com/api/webhooks/`.
+Create a fresh Discord connection link from Server Settings > Integrations,
+paste it into JobSentinel, then click Test.
 
 ### Telegram says "chat not found"?
 

@@ -31,6 +31,12 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local Rule 0 ease follow-up makes first-run profile selection plainer,
+  keeps install warning overrides tied to the latest download page, labels
+  settings backups as private, warns public issue-template users not to include
+  personal details, removes absolute safety claims from crash recovery, and
+  redacts phones plus known person-name fields in safe support reports.
+  Product-copy, frontend, script, and Rust sanitizer tests cover the drift.
 - Latest local Hiring Trends follow-up changes visible market-analysis labels
   to plain Hiring Trends language across navigation, page
   headings, refresh buttons, empty states, snapshot labels, and feature docs;

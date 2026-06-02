@@ -48,10 +48,10 @@ describe("SetupWizard Accessibility", () => {
 
       const liveRegions = document.querySelectorAll('[aria-live="polite"]');
       const stepRegion = Array.from(liveRegions).find(region =>
-        region.textContent?.includes("Career Path")
+        region.textContent?.includes("Work You Want")
       );
 
-      expect(stepRegion?.textContent).toContain("Step 1 of 4: Career Path");
+      expect(stepRegion?.textContent).toContain("Step 1 of 4: Work You Want");
     });
 
     it("should have proper ARIA attributes on live region", () => {
@@ -73,13 +73,13 @@ describe("SetupWizard Accessibility", () => {
       renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
 
       const continueButton = screen.getByRole("button", {
-        name: /continue with my own search/i,
+        name: /build my search/i,
       });
 
       expect(continueButton).toBeEnabled();
       await user.click(continueButton);
 
-      expect(screen.getByText("Review & Edit")).toBeInTheDocument();
+      expect(screen.getByText("Job Basics")).toBeInTheDocument();
       expect(screen.getByText("Add at least one job title")).toBeInTheDocument();
     });
 
@@ -88,7 +88,7 @@ describe("SetupWizard Accessibility", () => {
       mockInvoke.mockResolvedValue(undefined);
       renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
 
-      await user.click(screen.getByRole("button", { name: /continue with my own search/i }));
+      await user.click(screen.getByRole("button", { name: /build my search/i }));
 
       await user.type(screen.getByPlaceholderText("Add a job title..."), "Office Manager{enter}");
       await user.type(screen.getByPlaceholderText("Add a skill..."), "Scheduling{enter}");
@@ -142,7 +142,7 @@ describe("SetupWizard Accessibility", () => {
       const user = userEvent.setup();
       renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
 
-      await user.click(screen.getByRole("button", { name: /continue with my own search/i }));
+      await user.click(screen.getByRole("button", { name: /build my search/i }));
       await user.type(screen.getByPlaceholderText("Add a job title..."), "Office Manager{enter}");
       await user.type(screen.getByPlaceholderText("Add a skill..."), "Scheduling{enter}");
       await user.type(
@@ -186,7 +186,7 @@ describe("SetupWizard Accessibility", () => {
       const user = userEvent.setup();
       renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
 
-      await user.click(screen.getByRole("button", { name: /continue with my own search/i }));
+      await user.click(screen.getByRole("button", { name: /build my search/i }));
       await user.type(screen.getByPlaceholderText("Add a job title..."), "Office Manager{enter}");
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
@@ -205,7 +205,7 @@ describe("SetupWizard Accessibility", () => {
       mockInvoke.mockResolvedValue(undefined);
       renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
 
-      await user.click(screen.getByRole("button", { name: /continue with my own search/i }));
+      await user.click(screen.getByRole("button", { name: /build my search/i }));
       await user.type(screen.getByPlaceholderText("Add a job title..."), "Bookkeeper{enter}");
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
@@ -240,7 +240,7 @@ describe("SetupWizard Accessibility", () => {
       mockInvoke.mockResolvedValue(undefined);
       renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
 
-      await user.click(screen.getByRole("button", { name: /continue with my own search/i }));
+      await user.click(screen.getByRole("button", { name: /build my search/i }));
       await user.type(screen.getByPlaceholderText("Add a job title..."), "Medical Assistant{enter}");
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
@@ -282,7 +282,7 @@ describe("SetupWizard Accessibility", () => {
       mockInvoke.mockResolvedValue(undefined);
       renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
 
-      await user.click(screen.getByRole("button", { name: /continue with my own search/i }));
+      await user.click(screen.getByRole("button", { name: /build my search/i }));
       await user.type(screen.getByPlaceholderText("Add a job title..."), "Software Engineer{enter}");
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
@@ -352,7 +352,7 @@ describe("SetupWizard Accessibility", () => {
 
       const [firstProfile] = screen.getAllByRole("radio");
       fireEvent.click(firstProfile);
-      fireEvent.click(screen.getByRole("button", { name: /continue with this path/i }));
+      fireEvent.click(screen.getByRole("button", { name: /use these starting ideas/i }));
       fireEvent.click(screen.getByRole("button", { name: /^continue$/i }));
 
       const remoteOption = await screen.findByRole("checkbox", {
@@ -396,7 +396,7 @@ describe("SetupWizard Accessibility", () => {
       const [firstProfile] = screen.getAllByRole("radio");
       await user.click(firstProfile);
       await user.click(
-        screen.getByRole("button", { name: /continue with this path/i }),
+        screen.getByRole("button", { name: /use these starting ideas/i }),
       );
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
 
@@ -437,7 +437,7 @@ describe("SetupWizard Accessibility", () => {
       const user = userEvent.setup();
       renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
 
-      await user.click(screen.getByRole("button", { name: /continue with my own search/i }));
+      await user.click(screen.getByRole("button", { name: /build my search/i }));
       await user.type(screen.getByPlaceholderText("Add a job title..."), "Office Manager{enter}");
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
 

@@ -136,12 +136,13 @@ Users control:
 
 ## Debug reports
 
-JobSentinel includes one-click sanitized debug reports so users can attach useful
-context to a GitHub issue without exposing private data.
+JobSentinel includes sanitized debug reports designed to redact known sensitive
+values before users review and share them.
 
-Debug reports should redact:
+Debug reports should redact known sensitive values:
 
-- Names, emails, phone numbers, and tokens.
+- Names in known person-name fields or common name statements, emails, phone
+  numbers, and tokens.
 - Webhook URLs and credentials.
 - Local file paths.
 - Raw resume text and application content.

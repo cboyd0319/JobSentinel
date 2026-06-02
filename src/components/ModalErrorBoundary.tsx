@@ -23,8 +23,8 @@ interface State {
 
 function safeModalErrorMessage(error: Error | null): string {
   return error
-    ? 'This window could not load. Your data is safe. Close it and try again.'
-    : 'This window needs attention. Your data is safe.';
+    ? 'This window could not load. App data stays on this device. Close it and try again.'
+    : 'This window needs attention. App data stays on this device.';
 }
 
 function safeModalErrorDetails(error: Error | null): string {
@@ -165,7 +165,7 @@ class ModalErrorBoundary extends Component<Props, State> {
               <p className="text-xs text-surface-500 dark:text-surface-400">
                 {showRetryWarning
                   ? "This keeps happening. Please close and try again later."
-                  : "Your data is safe. You can close this and try again."}
+                  : "App data stays on this device. You can close this and try again."}
               </p>
               {this.state.retryCount > 0 && (
                 <p className="text-xs text-red-600 dark:text-red-400 mt-2">

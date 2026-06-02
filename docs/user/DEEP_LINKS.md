@@ -137,10 +137,10 @@ Not all sites support every filter. JobSentinel uses what each site supports.
 
 **Privacy:**
 
-- No data is sent to JobSentinel servers
-- Search links are created locally in your app
-- Your browser opens the job site
-- No tracking or analytics
+- Search links are created locally in your app.
+- JobSentinel does not send data to JobSentinel servers.
+- JobSentinel does not collect analytics.
+- Opened job sites may receive search terms and apply their own privacy rules.
 
 **Source boundaries:**
 

@@ -279,12 +279,12 @@ describe("MarketAlertList", () => {
 
     it("shows loading skeleton when loading", () => {
       render(<MarketAlertList alerts={[]} loading={true} />);
-      expect(screen.getByRole("status", { name: /loading market alerts/i })).toBeInTheDocument();
+      expect(screen.getByRole("status", { name: /loading hiring trend alerts/i })).toBeInTheDocument();
     });
 
     it("shows empty state when no alerts", () => {
       render(<MarketAlertList alerts={[]} />);
-      expect(screen.getByText(/no market alerts at this time/i)).toBeInTheDocument();
+      expect(screen.getByText(/no hiring trend alerts yet/i)).toBeInTheDocument();
     });
 
     it("does not show loading skeleton when not loading", () => {
@@ -356,7 +356,7 @@ describe("MarketAlertList", () => {
 
     it("has descriptive aria-label", () => {
       render(<MarketAlertList alerts={mockAlerts} />);
-      expect(screen.getByLabelText(/market alerts/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/hiring trend alerts/i)).toBeInTheDocument();
     });
 
     it("has status role for empty state", () => {

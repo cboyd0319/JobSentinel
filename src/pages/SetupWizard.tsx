@@ -210,8 +210,8 @@ function applyReviewVolumePreference<T extends {
 
 // Step 0 is profile selection, then simplified flow
 const STEPS = [
-  { id: 0, title: "Career Path", description: "What kind of work are you looking for?" },
-  { id: 1, title: "Review & Edit", description: "Customize your job search" },
+  { id: 0, title: "Work You Want", description: "What kind of work are you looking for?" },
+  { id: 1, title: "Job Basics", description: "Tell JobSentinel what to look for" },
   { id: 2, title: "Location", description: "Where do you want to work?" },
   { id: 3, title: "Notifications", description: "Stay informed (optional)" },
 ];
@@ -529,9 +529,9 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       };
 
       await safeInvokeWithToast("complete_setup", { config: configToSave }, toast, {
-        logContext: "Complete setup wizard"
+        logContext: "Complete first-run setup"
       });
-      toast.success("Setup complete", "Your saved search is ready.");
+      toast.success("Saved search ready", "JobSentinel will use these choices.");
       onComplete();
     } catch {
       // Error already logged and shown to user
@@ -642,12 +642,12 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 className="w-full mt-6"
                 size="lg"
               >
-                {selectedProfile ? "Continue with This Path" : "Continue with My Own Search"}
+                {selectedProfile ? "Use These Starting Ideas" : "Build My Search"}
               </Button>
             </div>
           )}
 
-          {/* Step 1: Review & Edit Job Titles + Skills (combined) */}
+          {/* Step 1: Job titles, skills, and constraints */}
           {step === 1 && (
             <div className="motion-safe:animate-slide-up space-y-6">
               {/* Pre-populated indicator */}

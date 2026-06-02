@@ -127,7 +127,7 @@ describe("PageErrorBoundary", () => {
       );
 
       expect(
-        screen.getByText(/this page needs attention\. your data is safe/i),
+        screen.getByText(/this page needs attention\. app data stays on this device/i),
       ).toBeInTheDocument();
       expect(screen.getByText(/save a safe support report/i)).toBeInTheDocument();
       expect(screen.queryByText("Page test error")).not.toBeInTheDocument();
@@ -262,7 +262,7 @@ describe("PageErrorBoundary", () => {
       expect(screen.getByTestId("empty-state")).toBeInTheDocument();
     });
 
-    it("shows default message with 'Your data is safe' when error message is undefined", () => {
+    it("shows default local data message when error message is undefined", () => {
       function ThrowErrorWithoutMessage() {
          
         throw { name: "CustomError" };
@@ -275,7 +275,7 @@ describe("PageErrorBoundary", () => {
       );
 
       expect(
-        screen.getByText(/this page needs attention. your data is safe./i)
+        screen.getByText(/this page needs attention. app data stays on this device./i)
       ).toBeInTheDocument();
     });
 
@@ -292,18 +292,18 @@ describe("PageErrorBoundary", () => {
       );
 
       expect(
-        screen.getByText(/this page needs attention\. your data is safe/i)
+        screen.getByText(/this page needs attention\. app data stays on this device/i)
       ).toBeInTheDocument();
     });
 
-    it("includes 'Your data is safe' message in description", () => {
+    it("includes local data message in description", () => {
       render(
         <PageErrorBoundary>
           <ThrowError shouldThrow={true} />
         </PageErrorBoundary>
       );
 
-      const description = screen.getByText(/this page needs attention\. your data is safe/i);
+      const description = screen.getByText(/this page needs attention\. app data stays on this device/i);
       expect(description).toBeInTheDocument();
     });
 

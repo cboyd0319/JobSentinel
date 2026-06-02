@@ -43,7 +43,7 @@ export class MarketIntelligencePage extends BasePage {
   }
 
   get alertsFeed(): Locator {
-    return this.page.getByRole("feed", { name: "Market alerts" });
+    return this.page.getByRole("feed", { name: "Hiring trend alerts" });
   }
 
   async switchToTab(name: "Overview" | "Skills" | "Companies" | "Locations" | "Alerts") {

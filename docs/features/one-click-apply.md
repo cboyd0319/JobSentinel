@@ -223,7 +223,8 @@ Complete the human check yourself. JobSentinel leaves that step to you.
 - It does not click Submit.
 - It does not complete human checks.
 - It does not apply to jobs without you.
-- It does not share your profile details.
+- It does not submit profile details or send them to JobSentinel servers.
+- It prepares selected fields only after preview and user approval.
 - It does not work around site security controls.
 
 ### What You Control

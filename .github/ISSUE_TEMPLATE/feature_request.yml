@@ -6,7 +6,17 @@ body:
   - type: markdown
     attributes:
       value: |
-        We'd love to hear your ideas for making JobSentinel better!
+        Share the idea without private job-search details.
+
+        **Important:** Please don't include personal information like:
+        - Specific job titles you're searching for
+        - Company names from your search
+        - Your location or salary preferences
+        - Resume text, notes, or application history
+
+        JobSentinel can create a safe support report that redacts known
+        sensitive details before you share it. Open Settings and click
+        Copy Safe Support Report only if a report would help explain the idea.
 
   - type: textarea
     id: problem

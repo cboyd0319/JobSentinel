@@ -134,14 +134,14 @@ describe("ErrorBoundary", () => {
       ).toBeInTheDocument();
     });
 
-    it("shows safety message", () => {
+    it("shows local data message", () => {
       render(
         <ErrorBoundary>
           <ThrowError shouldThrow={true} />
         </ErrorBoundary>
       );
 
-      expect(screen.getAllByText(/your data is safe/i).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/app data stays on this device/i).length).toBeGreaterThan(0);
     });
 
     it("copies a sanitized debug report from the crash screen", async () => {
@@ -227,7 +227,7 @@ describe("ErrorBoundary", () => {
         screen.getByText(/copy or save a safe support report first/i),
       ).toBeInTheDocument();
       expect(
-        screen.getByText(/saved jobs and applications stay saved on this device/i),
+        screen.getByText(/saved jobs and applications stay on this device/i),
       ).toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: /reset app window.*reload/i }),

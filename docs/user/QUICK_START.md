@@ -35,7 +35,11 @@ to use the core app.
 macOS may show "JobSentinel can't be opened because Apple cannot check it for
 malicious software."
 
-**To fix this:**
+Continue only if you downloaded JobSentinel from the latest download page
+linked above and expected this file. If you are not sure, stop, delete the
+download, and download it again from that page.
+
+**To continue after checking the download:**
 
 1. Go to **System Settings > Privacy & Security**
 2. Scroll down and click **"Open Anyway"** next to the JobSentinel message
@@ -52,7 +56,11 @@ approve it once.
 
 Windows SmartScreen may show "Windows protected your PC" because JobSentinel is new.
 
-**To continue:**
+Continue only if you downloaded JobSentinel from the latest download page
+linked above and expected this file. If you are not sure, stop, delete the
+download, and download it again from that page.
+
+**To continue after checking the download:**
 
 1. Click **"More info"**
 2. Click **"Run anyway"**
@@ -86,13 +94,13 @@ Left-click the icon to open the dashboard.
 
 ---
 
-## Step 2: Complete the setup wizard
+## Step 2: Answer the first-run questions
 
 The first time you open JobSentinel, setup asks a few plain questions.
 
 ### Question 1: What kind of work are you looking for?
 
-Pick a career path or choose **My Own Search**.
+Pick a starting area or choose **Build My Search**.
 
 ### Question 2: What job titles do you want?
 
@@ -279,7 +287,7 @@ separately.
 Create professional resumes right inside JobSentinel:
 
 1. Click **Resume Builder** in the sidebar
-2. Follow the 7-step wizard
+2. Answer the guided resume questions
 3. Pick from 5 clean templates designed for readable applications
 4. Export to Word (.docx)
 
@@ -422,8 +430,9 @@ secure vault.
 2. Click **Save Safe Support Report** to create a local file, or click
    **Copy Safe Support Report** if you prefer to paste it.
 3. Open **Send Feedback** if you want a report with replies.
-4. Share the safe support report only if you want help. It is already
-   sanitized before sharing.
+4. Share the safe support report only if you want help. JobSentinel redacts
+   known sensitive fields before copy or save, but review the report before
+   sharing it.
 
 Also include:
 
@@ -445,4 +454,5 @@ Next useful steps:
 
 **JobSentinel keeps practical job-search support local and under your control.**
 
-*JobSentinel - Your data stays yours. Always.*
+*Your job-search data stays local unless you choose an external channel or
+approve an external AI request.*

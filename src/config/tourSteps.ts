@@ -11,7 +11,7 @@ export const defaultTourSteps = [
   },
   {
     target: "[data-tour='settings-button']",
-    title: "Customize Your Search",
+    title: "Tell JobSentinel What Matters",
     content: "Change your job titles, skills, salary preferences, or notifications so alerts match your current search.",
     placement: "bottom" as const,
   },

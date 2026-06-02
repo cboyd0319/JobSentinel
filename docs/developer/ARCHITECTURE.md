@@ -341,7 +341,7 @@ lookup results, sanitized error reports, and transient recovery hints.
 - Skill demand trends
 - Company hiring velocity
 - Location job density
-- Market alerts for anomalies
+- Hiring trend alerts for anomalies
 - **Submodules:**
   - `types.rs` - Market analytics types
   - `trends.rs` - Trend analysis and tracking

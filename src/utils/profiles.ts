@@ -513,7 +513,7 @@ export function getProfileById(id: string): CareerProfile | undefined {
 }
 
 /**
- * Convert a career profile to config format for the setup wizard
+ * Convert a career profile to config format for first-run setup
  */
 export function profileToConfig(profile: CareerProfile) {
   const sourceDefaults = getProfileSourceDefaults(profile);

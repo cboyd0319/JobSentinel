@@ -552,7 +552,7 @@ export default function Market({ onBack }: MarketProps) {
         {activeTab === "alerts" && (
           <Card className="dark:bg-surface-800">
             <h3 className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
-              Market Alerts
+              Hiring Trend Alerts
             </h3>
             <MarketAlertList
               alerts={alerts}

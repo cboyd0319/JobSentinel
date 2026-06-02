@@ -195,7 +195,7 @@ npm install
    npm run tauri:dev
    ```
 
-2. **Complete setup wizard:**
+2. **Complete first-run setup:**
    - Enter job titles: "Program Analyst", "Operations Manager"
    - Select location: Remote only
    - Set salary floor: $85,000

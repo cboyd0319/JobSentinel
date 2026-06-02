@@ -164,7 +164,9 @@ signals. It may or may not be an active role.
 
 **Write this:** "Mac security warning" or just describe the fix
 
-**Example:** "If Mac shows a security warning, go to System Settings > Privacy & Security and click 'Open Anyway'."
+**Example:** "If Mac shows a security warning, first make sure you downloaded
+JobSentinel from the latest download page. Then go to System Settings > Privacy
+& Security and click 'Open Anyway'."
 
 ### SmartScreen (Windows)
 
@@ -172,7 +174,9 @@ signals. It may or may not be an active role.
 
 **Write this:** "Windows security warning" or just describe the fix
 
-**Example:** "If Windows shows a blue warning screen, click 'More info' then 'Run anyway'."
+**Example:** "If Windows shows a blue warning screen, first make sure you
+downloaded JobSentinel from the latest download page. Then click 'More info'
+and 'Run anyway'."
 
 ### Installer / MSI / DMG
 

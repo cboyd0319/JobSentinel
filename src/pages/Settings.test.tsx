@@ -616,7 +616,7 @@ describe("Settings — handleSave flow", () => {
     );
 
     expect(
-      screen.getByText("Review before anything is sent"),
+      screen.getByText("Review before JobSentinel contacts this source"),
     ).toBeInTheDocument();
     expect(screen.getByText("Case Manager")).toBeInTheDocument();
 
@@ -769,9 +769,10 @@ describe("Settings — handleSave flow", () => {
     await user.click(screen.getByRole("button", { name: "Backup Settings" }));
 
     expect(mockExportConfigToJSON).toHaveBeenCalledTimes(1);
+    expect(screen.getByText(/Settings backups are private files/i)).toBeInTheDocument();
     expect(mockToast.success).toHaveBeenCalledWith(
-      "Settings backup saved",
-      "Saved passwords and connection codes are left out for safety.",
+      "Private settings backup saved",
+      "Saved passwords and connection codes are left out. This backup can still include search, pay, location, company, and alert settings.",
     );
 
     await user.click(screen.getByRole("button", { name: "Restore Settings" }));
@@ -1219,7 +1220,7 @@ describe("Settings — handleSave flow", () => {
       screen.getByRole("link", { name: /Open USAJobs search in your browser/i }),
     ).toHaveAttribute("href", "https://www.usajobs.gov/Search/Results");
     expect(
-      screen.getByRole("link", { name: /Get optional USAJobs access code/i }),
+      screen.getByRole("link", { name: /Get USAJobs access code \(advanced\)/i }),
     ).toHaveAttribute("href", "https://developer.usajobs.gov/APIRequest/Index");
     expect(screen.queryByText(/Quick Setup/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Advanced federal monitoring/i)).not.toBeInTheDocument();

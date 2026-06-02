@@ -7,8 +7,8 @@ import { saveSanitizedDebugReport } from "../services/feedbackService";
 
 function getSafeErrorMessage(error: Error | null): string {
   return error
-    ? "This page needs attention. Your data is safe. Try again, go back, or save a safe support report if it keeps happening."
-    : "This page needs attention. Your data is safe.";
+    ? "This page needs attention. App data stays on this device. Try again, go back, or save a safe support report if it keeps happening. If this happened while saving, check recent changes."
+    : "This page needs attention. App data stays on this device.";
 }
 
 function getSafeErrorStack(error: Error | null): string | null {

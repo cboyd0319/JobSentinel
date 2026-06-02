@@ -130,8 +130,13 @@ macOS may show this message because JobSentinel is a new open-source app:
 JobSentinel can't be opened because Apple cannot check it for malicious software.
 ```
 
-To continue, open **System Settings**, go to **Privacy & Security**, click
-**Open Anyway** next to the JobSentinel message, then click **Open**.
+Continue only if you downloaded JobSentinel from the latest download page linked
+above and expected this file. If you are not sure, stop, delete the download,
+and download it again from that page.
+
+After checking the download, open **System Settings**, go to **Privacy &
+Security**, click **Open Anyway** next to the JobSentinel message, then click
+**Open**.
 
 Windows may show this message because JobSentinel is a new app:
 
@@ -139,7 +144,11 @@ Windows may show this message because JobSentinel is a new app:
 Windows protected your PC
 ```
 
-To continue, click **More info**, then click **Run anyway**.
+Continue only if you downloaded JobSentinel from the latest download page linked
+above and expected this file. If you are not sure, stop, delete the download,
+and download it again from that page.
+
+After checking the download, click **More info**, then click **Run anyway**.
 
 </details>
 
@@ -249,9 +258,9 @@ Architecture and maintenance docs:
 | ---------------- | ------------------ |
 | ![ATS transparency](docs/images/ats-optimizer.png) | ![Application Assist](docs/images/one-click-apply.png) |
 
-| Pay Protection | Market intelligence |
-| -------------- | ------------------- |
-| ![Pay Protection](docs/images/salary-ai.png) | ![Market intelligence](docs/images/market-intelligence.png) |
+| Pay Protection | Hiring Trends |
+| -------------- | ------------- |
+| ![Pay Protection](docs/images/salary-ai.png) | ![Hiring Trends](docs/images/market-intelligence.png) |
 
 | Settings |
 | -------- |

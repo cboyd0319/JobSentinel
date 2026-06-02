@@ -29,7 +29,7 @@ External AI is not required for application tracking.
 
 ## What It Helps With
 
-- **Pipeline clarity**: See applications by status so the next action is clear.
+- **Status clarity**: See applications by status so the next action is clear.
 - **Follow-up timing**: Track when a reply, thank-you note, or check-in is due.
 - **Quiet-period awareness**: Notice roles that have gone silent without
   treating silence as personal failure.

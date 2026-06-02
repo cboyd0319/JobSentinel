@@ -141,7 +141,7 @@ and usable desktop-product entrypoint before it reads like a developer manual:
 4. Dashboard screenshot.
 5. Abstract for broad-audience readers.
 6. Local-first and optional external-AI boundary.
-7. Rule 0 privacy and security guarantee.
+7. Rule 0 privacy and security commitment.
 8. Free-forever MIT license and reuse invitation.
 9. At-a-glance table.
 10. Audience route table.

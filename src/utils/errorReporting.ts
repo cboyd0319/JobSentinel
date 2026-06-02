@@ -35,6 +35,8 @@ const SENSITIVE_KEY_PATTERN = new RegExp(
     "webhook",
     "authorization",
     "credential",
+    "phone(?:[_-]?number)?",
+    "(?:full|candidate|applicant|user|your)[_-]?name",
     "li_at",
     "salary",
     "compensation",
@@ -56,14 +58,16 @@ const URL_PATTERN = /https?:\/\/[^\s"'<>\\)]+/gi;
 const USER_PATH_PATTERN = /\/(?:Users|home)\/[^/\s]+/g;
 const WINDOWS_USER_PATH_PATTERN = /[A-Za-z]:\\Users\\[^\\\s]+/g;
 const EMAIL_PATTERN = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+const PHONE_PATTERN = /(?:\+?1[\s.-]?)?(?:\([2-9][0-9]{2}\)|[2-9][0-9]{2})[\s.-]?[2-9][0-9]{2}[\s.-]?[0-9]{4}\b/g;
 const LINKEDIN_COOKIE_PATTERN = /li_at=[^\s;]+/g;
 const TOKEN_PATTERN = /\b(?:Bearer\s+[^\s]+|token(?:\s+|=)[^\s&]+|api_key=[^\s&]+|access_token=[^\s&]+|refresh_token=[^\s&]+|secret=[^\s&]+|password=[^\s&]+)/gi;
 const WEBHOOK_PATTERN = /https:\/\/(?:hooks\.slack\.com|discord(?:app)?\.com\/api\/webhooks|outlook\.office(?:365)?\.com\/webhook|hooks\.discord\.com\/api\/webhooks|hooks\.teams\.com\/workflows)[^\s"'<>\\)]*/gi;
 const SENSITIVE_LABELED_TEXT_PATTERNS = [
   /\b((?:salary|compensation)(?:[_ -]?(?:floor|expectation|range|preference|prefs?))?\s*[:=]\s*)[^\n\r;|]+/gi,
   /\b((?:resume|cover letter)(?:[_ -]?(?:text|data|content|summary))?\s*[:=]\s*)[^\n\r;|]+/gi,
-  /\b((?:private notes?|application history|application notes?|screening question|screening answer|answer text|question text|career goals?|personal circumstances?)\s*[:=]\s*)[^\n\r;|]+/gi,
+  /\b((?:private notes?|application history|application notes?|screening question|screening answer|answer text|question text|career goals?|personal circumstances?|(?:full|candidate|applicant|user|your)[_ -]?name)\s*[:=]\s*)[^\n\r;|]+/gi,
 ];
+const PERSON_NAME_STATEMENT_PATTERN = /\b((?:my|candidate|applicant|user)\s+name)\s+(?:is|was)\s+[^\n\r;|]+/gi;
 
 function truncateStoredString(value: string): string {
   if (value.length <= MAX_STORED_STRING_LENGTH) {
@@ -95,10 +99,12 @@ export function sanitizeTextForStorage(value: string): string {
   sanitized = sanitized.replace(WINDOWS_USER_PATH_PATTERN, 'C:\\[USER_PATH]');
   sanitized = sanitized.replace(URL_PATTERN, (url) => sanitizeUrlForStorage(url));
   sanitized = sanitized.replace(EMAIL_PATTERN, '[EMAIL]');
+  sanitized = sanitized.replace(PHONE_PATTERN, '[PHONE]');
   sanitized = sanitized.replace(TOKEN_PATTERN, '[TOKEN]');
   for (const pattern of SENSITIVE_LABELED_TEXT_PATTERNS) {
     sanitized = sanitized.replace(pattern, '$1[REDACTED]');
   }
+  sanitized = sanitized.replace(PERSON_NAME_STATEMENT_PATTERN, '$1 [REDACTED]');
 
   return truncateStoredString(sanitized);
 }

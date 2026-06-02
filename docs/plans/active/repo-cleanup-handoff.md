@@ -20,20 +20,20 @@ scope:
 
 Latest pushed checkpoints include:
 
-- `e9292268 Stabilize browser button test`
-- `f050070d Track source copy drift`
-- `d31c87d Gate JobsWithGPT source payloads`
-- `5cf659ff Use plain source address copy`
-- `5c0d954a Sanitize toast support details`
+- `c08a56d9 Rename market view to Hiring Trends`
+- `1ddab044 Disclose location lookup provider use`
+- `08c8a106 Clarify problem history clear action`
+- `bac8de85 Keep Quick Start nontechnical`
+- `bc43a35b Tighten protective support copy`
 
 Recent remote integration evidence:
 
-- `e9292268` passed CI run `26778739829`. CI covered harness checks, harness
-  script tests, TypeScript, ESLint, frontend unit tests, Rust fmt, Rust clippy,
-  Rust library tests, npm audit, and cargo-deny advisories. Docs Harness ran on
-  `f050070d` as run `26778490093` and passed. Use `npm run harness:session`
-  and `gh run list --branch main` for the live branch head after later
-  continuation slices.
+- `c08a56d9` passed Docs Harness run `26782529545` and CI run
+  `26782529665`. CI covered frontend tests, Rust tests, security checks, docs
+  harness checks, TypeScript, ESLint, frontend build, Rust fmt, Rust clippy,
+  npm audit, cargo-deny advisories, and all maintained harness/script checks.
+  Use `npm run harness:session` and `gh run list --branch main` for the live
+  branch head after later continuation slices.
 - The latest pushed harness slice adds `npm run harness:plan -- --since
   origin/main`, a changed-file command planner for focused verification.
 - The latest pushed slice removes stale hardcoded employer rating claims from
@@ -111,6 +111,14 @@ Recent remote integration evidence:
 
 Current cleanup posture:
 
+- Current local Rule 0 ease follow-up tightens public and support-report
+  privacy boundaries: setup asks for the work the user wants, install docs
+  require latest-download verification before OS override steps, issue
+  templates warn users away from personal details, safe support reports copy
+  the user's sanitized description, frontend and Rust sanitizers redact phone
+  numbers plus known person-name fields, error boundaries avoid absolute safety
+  claims, Settings marks backups private, and Hiring Trends alerts use the new
+  product language. Product-copy sensors cover these drift classes.
 - Current local synonym taxonomy follow-up reorders
   `src-tauri/src/core/scoring/synonyms.rs` so broad job-search role and tool
   groups come before programming and engineering groups. Harness coverage now

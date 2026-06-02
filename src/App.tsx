@@ -114,7 +114,7 @@ function App() {
       <ErrorBoundary>
         <SkipToContent />
         <div className="min-h-screen" id="main-content" tabIndex={-1}>
-          <Suspense fallback={<PageLoader message="Loading setup wizard..." />}>
+          <Suspense fallback={<PageLoader message="Getting JobSentinel ready..." />}>
             <SetupWizard onComplete={handleSetupComplete} />
           </Suspense>
         </div>

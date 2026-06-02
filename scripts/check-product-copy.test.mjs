@@ -1056,15 +1056,60 @@ test("product copy rejects market-intel jargon in hiring trends surfaces", () =>
     writeFixtureFile(root, "src/pages/Market.tsx", "Market Intelligence\nRefresh Market Data\n");
     writeFixtureFile(root, "src/pages/marketErrorCopy.ts", "Market data unavailable\n");
     writeFixtureFile(root, "src/components/MarketSnapshotCard.tsx", "No market snapshot yet. Refresh market data to create one.\n");
+    writeFixtureFile(root, "src/components/MarketAlertCard.tsx", "Loading market alerts\nNo market alerts at this time.\n");
     writeFixtureFile(root, "src/components/LocationHeatmap.tsx", "Job Market by Location\nNo location data yet\n");
-    writeFixtureFile(root, "docs/features/market-intelligence.md", "# Market Intelligence\nMarket data is only as good as the sources.\n");
+    writeFixtureFile(root, "docs/features/market-intelligence.md", "# Market Intelligence\nMarket snapshots\nMarket alerts\nMarket data is only as good as the sources.\n");
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/Navigation.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Market.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/marketErrorCopy.ts"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/MarketSnapshotCard.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/MarketAlertCard.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/LocationHeatmap.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/market-intelligence.md"), true);
+  });
+});
+
+test("product copy rejects first-run and Rule 0 privacy drift", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "src/pages/SetupWizard.tsx", "Career Path\nReview & Edit\nComplete setup wizard\n");
+    writeFixtureFile(root, "src/components/CareerProfileSelector.tsx", "My Own Search\nStarts with {profile.keywordsBoost.length} helpful skills\n");
+    writeFixtureFile(root, "README.md", "Click Open Anyway.\nNo data is ever sent.\n");
+    writeFixtureFile(root, "docs/user/QUICK_START.md", "Click Run anyway.\nYour data stays yours. Always.\n");
+    writeFixtureFile(root, "SECURITY.md", "Works completely offline\nSensitive data never written to disk unencrypted\n");
+    writeFixtureFile(root, "src/components/ErrorBoundary.tsx", "Your data is safe.\n");
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/SetupWizard.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/CareerProfileSelector.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/user/QUICK_START.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "SECURITY.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/ErrorBoundary.tsx"), true);
+  });
+});
+
+test("product copy rejects technical source labels and unsafe public issue templates", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/pages/Settings.tsx",
+      [
+        "Review before anything is sent",
+        "<dt>Endpoint</dt>",
+        "<dt>Remote filter</dt>",
+        "<dt>Result limit</dt>",
+        "Not remote-only",
+        "Get optional USAJobs access code",
+        "Settings backup saved",
+        "Saved passwords and connection codes are left out for safety.",
+      ].join("\n"),
+    );
+    writeFixtureFile(root, ".github/ISSUE_TEMPLATE/feature_request.yml", "Describe your idea.\n");
+    writeFixtureFile(root, ".github/ISSUE_TEMPLATE/question.yml", "Ask a question.\n");
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, ".github/ISSUE_TEMPLATE/feature_request.yml"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, ".github/ISSUE_TEMPLATE/question.yml"), true);
   });
 });
 

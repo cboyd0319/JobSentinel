@@ -123,14 +123,14 @@ describe("ModalErrorBoundary", () => {
       vi.unstubAllEnvs();
     });
 
-    it("shows safety message", () => {
+    it("shows local data message", () => {
       render(
         <ModalErrorBoundary>
           <ThrowError shouldThrow={true} />
         </ModalErrorBoundary>
       );
 
-      expect(screen.getAllByText(/your data is safe/i).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/app data stays on this device/i).length).toBeGreaterThan(0);
     });
 
     it("shows Close button", () => {

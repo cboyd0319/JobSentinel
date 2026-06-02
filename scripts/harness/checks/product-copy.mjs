@@ -163,14 +163,51 @@ const hiringTrendsCopyPaths = new Set([
   "docs/features/market-intelligence.md",
   "src/config/tourSteps.ts",
   "src/components/LocationHeatmap.tsx",
+  "src/components/MarketAlertCard.tsx",
   "src/components/MarketSnapshotCard.tsx",
   "src/components/Navigation.tsx",
   "src/pages/Market.tsx",
   "src/pages/marketErrorCopy.ts",
+  "tests/e2e/playwright/page-objects/MarketIntelligencePage.ts",
+]);
+
+const firstRunPlainCopyPaths = new Set([
+  "src/App.tsx",
+  "src/components/CareerProfileSelector.tsx",
+  "src/config/tourSteps.ts",
+  "src/pages/SetupWizard.tsx",
+  "docs/user/QUICK_START.md",
+]);
+
+const installSecurityCopyPaths = new Set([
+  "README.md",
+  "docs/style-guide/GLOSSARY.md",
+  "docs/user/QUICK_START.md",
+]);
+
+const ruleZeroPrecisionCopyPaths = new Set([
+  "PRIVACY.md",
+  "SECURITY.md",
+  "README.md",
+  "docs/features/notifications.md",
+  "docs/features/one-click-apply.md",
+  "docs/harness/readme-information-design.md",
+  "docs/user/DEEP_LINKS.md",
+  "docs/user/QUICK_START.md",
+  "src/components/ErrorBoundary.tsx",
+  "src/components/ModalErrorBoundary.tsx",
+  "src/components/PageErrorBoundary.tsx",
+]);
+
+const publicIssueTemplatePrivacyPaths = new Set([
+  ".github/ISSUE_TEMPLATE/feature_request.yml",
+  ".github/ISSUE_TEMPLATE/question.yml",
 ]);
 
 const technicalFirstUserCopyPaths = new Set([
   ".github/ISSUE_TEMPLATE/bug_report.yml",
+  ".github/ISSUE_TEMPLATE/feature_request.yml",
+  ".github/ISSUE_TEMPLATE/question.yml",
   ".github/ISSUE_TEMPLATE/scraper_issue.yml",
   "profiles/README.md",
   "README.md",
@@ -251,8 +288,11 @@ const technicalFirstUserCopyPaths = new Set([
   "docs/features/scraper-health.md",
   "docs/features/scrapers.md",
   "docs/features/user-data-management.md",
+  "docs/harness/readme-information-design.md",
   "docs/user/DEEP_LINKS.md",
   "docs/user/QUICK_START.md",
+  "PRIVACY.md",
+  "SECURITY.md",
 ]);
 
 export function hasStaleResumeOptimizerFraming(root, path) {
@@ -624,8 +664,14 @@ export function hasTechnicalFirstUserCopy(root, path) {
     const hiringTrendPatterns = [
       /Market Intel/i,
       /Market Intelligence/i,
-      /Market data/i,
-      /market data/i,
+      /(?:>\s*|["'`])Market Alerts(?:\s*<|["'`])/i,
+      /Market snapshots/i,
+      /(?:>\s*|["'`])Market alerts(?:\s*<|["'`])/i,
+      /Loading market alerts/i,
+      /No market alerts/i,
+      /Failed to Load Market Data/i,
+      /Market data unavailable/i,
+      /Refresh Market Data/i,
       /job market trends/i,
       /Job Market by Location/i,
       /No location data yet/i,
@@ -633,6 +679,73 @@ export function hasTechnicalFirstUserCopy(root, path) {
     ];
 
     if (hiringTrendPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+
+    if (path === "src/pages/Market.tsx") {
+      return false;
+    }
+  }
+
+  if (firstRunPlainCopyPaths.has(path)) {
+    const text = readFileSync(join(root, path), "utf8");
+    const firstRunPatterns = [
+      /setup wizard/i,
+      /Loading setup wizard/i,
+      /Career Path/i,
+      /Review & Edit/i,
+      /Customize Your Search/i,
+      /Continue with This Path/i,
+      /Continue with My Own Search/i,
+      /My Own Search/i,
+      /Starts with \{?profile\.keywordsBoost\.length\}? helpful skills/i,
+    ];
+
+    if (firstRunPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (installSecurityCopyPaths.has(path)) {
+    const text = readFileSync(join(root, path), "utf8");
+    const hasSecurityOverride = /Open Anyway|Run anyway/i.test(text);
+    const hasDownloadCheck = /downloaded JobSentinel from the latest download page/i.test(text);
+
+    if (hasSecurityOverride && !hasDownloadCheck) {
+      return true;
+    }
+  }
+
+  if (ruleZeroPrecisionCopyPaths.has(path)) {
+    const text = readFileSync(join(root, path), "utf8");
+    const ruleZeroPatterns = [
+      /Your data is safe/i,
+      /Your saved details are safe/i,
+      /Your data stays yours\. Always/i,
+      /No data is ever sent/i,
+      /Works completely offline/i,
+      /Sensitive data never written/i,
+      /without exposing private data/i,
+      /already sanitized before sharing/i,
+      /Saved details are never stored in plain text/i,
+      /Rule 0 privacy and security guarantee/i,
+      /It does not share your profile details/i,
+      /No tracking or analytics/i,
+    ];
+
+    if (ruleZeroPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+
+    if (path === "PRIVACY.md" || path === "SECURITY.md") {
+      return false;
+    }
+  }
+
+  if (publicIssueTemplatePrivacyPaths.has(path)) {
+    const text = readFileSync(join(root, path), "utf8");
+
+    if (!/Please don't include personal information/i.test(text)) {
       return true;
     }
   }
@@ -652,6 +765,61 @@ export function hasTechnicalFirstUserCopy(root, path) {
     if (readmePatterns.some((pattern) => pattern.test(text))) {
       return true;
     }
+  }
+
+  if (path === "src/pages/Settings.tsx") {
+    const settingsPatterns = [
+      /Review before anything is sent/i,
+      />Endpoint</i,
+      />Remote filter</i,
+      />Result limit</i,
+      /Not remote-only/i,
+      /Get optional USAJobs access code/i,
+      /(?:>\s*|["'`])Settings backup saved(?:\s*<|["'`])/,
+      /Saved passwords and connection codes are left out for safety/i,
+      /Config imported/i,
+      /(?:>\s*|["'`])Advanced Settings(?:\s*<|["'`])/,
+      /Greenhouse, Lever, and other popular job boards/i,
+      /native OS notifications/i,
+      /app is focused/i,
+      /SMTP server/i,
+      /SMTP port/i,
+      /Connection Number/i,
+      /automatic monitoring/i,
+      /Advanced federal monitoring/i,
+      /Advanced chat alert/i,
+      /\(Tech hubs\)/i,
+      /HN Who's Hiring/i,
+      /\(Tech careers\)/i,
+      /blocks automatic checks/i,
+      /New scans use this warning behavior/i,
+      /Browser Integration/i,
+      /low-trust job postings/i,
+      /Stale-posting warning after \(days\)/i,
+      /Repeated-posting warning count/i,
+      /Very short description limit \(characters\)/i,
+      /Hide risky postings/i,
+      /Resume-Based Scoring/i,
+      /70%\s*resume match\s*\+\s*30%\s*search words/i,
+      /These logs can help diagnose it/i,
+      /Turn this on to never miss a new posting/i,
+      /Auto-scan job boards/i,
+      /Company preference \(if configured\)/i,
+      /["'`]Save failed["'`]/,
+      /["'`]Test failed["'`]/,
+      /saved connection detail\(s\) failed to save/i,
+      /Message @BotFather to create a private alert bot/i,
+      /Quick Setup \(2 minutes\)/i,
+      />\s*Get USAJobs Access Code\s*</i,
+      /USAJobs uses a free access code/i,
+      /Looks up your approximate city from your internet\s+address\. Not saved unless added\./i,
+    ];
+
+    if (settingsPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+
+    return false;
   }
 
   if (

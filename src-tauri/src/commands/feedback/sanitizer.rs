@@ -28,6 +28,15 @@ static EMAIL_REGEX: Lazy<Regex> = Lazy::new(|| {
         .expect("Email address regex pattern is valid and should compile")
 });
 
+// Phone numbers: common North American formats → [PHONE]
+#[allow(clippy::expect_used)]
+static PHONE_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(
+        r"(?:\+?1[\s.-]?)?(?:\([2-9][0-9]{2}\)|[2-9][0-9]{2})[\s.-]?[2-9][0-9]{2}[\s.-]?[0-9]{4}\b",
+    )
+    .expect("Phone number regex pattern is valid and should compile")
+});
+
 // Webhooks: provider URL → [WEBHOOK_CONFIGURED]
 #[allow(clippy::expect_used)]
 static WEBHOOK_REGEX: Lazy<Regex> = Lazy::new(|| {
@@ -70,7 +79,7 @@ static IP_REGEX: Lazy<Regex> = Lazy::new(|| {
 #[allow(clippy::expect_used)]
 static JOB_SEARCH_LABELED_CONTEXT_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(
-        r"(?im)\b((?:salary|compensation|pay)[ _-]?(?:floor|expectation|target|range|requirement)|expected salary|desired salary|resume(?:[ _-]?(?:text|data|content|summary|excerpt))?|cover[ _-]?letter(?:[ _-]?(?:text|data|content|summary|excerpt))?|private[ _-]?notes?|application[ _-]?(?:history|notes?)|screening[ _-]?(?:questions?|answers?)|question[ _-]?text|answer[ _-]?text|location[ _-]?preferences?|career[ _-]?goals?|personal[ _-]?circumstances?)\s*[:=]\s*[^\r\n]+",
+        r"(?im)\b((?:salary|compensation|pay)[ _-]?(?:floor|expectation|target|range|requirement)|expected salary|desired salary|resume(?:[ _-]?(?:text|data|content|summary|excerpt))?|cover[ _-]?letter(?:[ _-]?(?:text|data|content|summary|excerpt))?|private[ _-]?notes?|application[ _-]?(?:history|notes?)|screening[ _-]?(?:questions?|answers?)|question[ _-]?text|answer[ _-]?text|location[ _-]?preferences?|career[ _-]?goals?|personal[ _-]?circumstances?|(?:full|candidate|applicant|user|your)[ _-]?name)\s*[:=]\s*[^\r\n]+",
     )
     .expect("Sensitive job-search labeled context regex pattern is valid and should compile")
 });
@@ -81,6 +90,12 @@ static JOB_SEARCH_STATEMENT_CONTEXT_REGEX: Lazy<Regex> = Lazy::new(|| {
         r"(?im)\b((?:my\s+)?(?:salary|compensation|pay)\s+(?:floor|expectation|target|range|requirement)|expected salary|desired salary|private note|application note|screening answer|location preference|career goal|personal circumstance)\s+(?:is|are|was|were)\s+[^\r\n]+",
     )
     .expect("Sensitive job-search statement context regex pattern is valid and should compile")
+});
+
+#[allow(clippy::expect_used)]
+static PERSON_NAME_STATEMENT_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(?im)\b((?:my|candidate|applicant|user)\s+name)\s+(?:is|was)\s+[^\r\n]+")
+        .expect("Person-name statement regex pattern is valid and should compile")
 });
 
 // Quoted strings (might be job titles or company names)
@@ -126,6 +141,9 @@ impl Sanitizer {
         // Emails: john@example.com → [EMAIL]
         result = EMAIL_REGEX.replace_all(&result, "[EMAIL]").to_string();
 
+        // Phone numbers: +1 (303) 555-1212 → [PHONE]
+        result = PHONE_REGEX.replace_all(&result, "[PHONE]").to_string();
+
         // Webhooks: full URL → [WEBHOOK_CONFIGURED]
         result = WEBHOOK_REGEX
             .replace_all(&result, "[WEBHOOK_CONFIGURED]")
@@ -151,6 +169,9 @@ impl Sanitizer {
             .to_string();
         result = JOB_SEARCH_STATEMENT_CONTEXT_REGEX
             .replace_all(&result, "$1 [JOB_SEARCH_DETAIL_REDACTED]")
+            .to_string();
+        result = PERSON_NAME_STATEMENT_REGEX
+            .replace_all(&result, "$1 [PERSON_NAME_REDACTED]")
             .to_string();
 
         result
@@ -274,6 +295,27 @@ mod tests {
         let input = "User email: john.doe@example.com configured";
         let output = Sanitizer::sanitize(input);
         assert_eq!(output, "User email: [EMAIL] configured");
+    }
+
+    #[test]
+    fn test_sanitize_phone_numbers_and_person_names() {
+        let input = concat!(
+            "Phone: +1 (303) 555-1212\n",
+            "backup 720-555-9911\n",
+            "Full name: Chad Boyd\n",
+            "My name is Chad Boyd\n",
+            "Company name is CareBridge Health\n",
+        );
+        let output = Sanitizer::sanitize(input);
+
+        assert!(output.contains("Phone: [PHONE]"));
+        assert!(output.contains("backup [PHONE]"));
+        assert!(output.contains("Full name: [JOB_SEARCH_DETAIL_REDACTED]"));
+        assert!(output.contains("My name [PERSON_NAME_REDACTED]"));
+        assert!(output.contains("Company name is CareBridge Health"));
+        assert!(!output.contains("303"));
+        assert!(!output.contains("720"));
+        assert!(!output.contains("Chad Boyd"));
     }
 
     #[test]

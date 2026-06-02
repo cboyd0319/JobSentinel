@@ -30,16 +30,22 @@ JobSentinel is built with privacy and security as core principles:
 
 ### Privacy-First Architecture
 
-- **Zero telemetry:** No data is ever sent to external servers without explicit user configuration
+- **Zero telemetry:** JobSentinel does not collect analytics or send data to
+  JobSentinel servers.
 - **Local-first:** All job data stored in local SQLite database
-- **No accounts required:** Works completely offline
-- **Portable:** Can run from USB drive with no installation
+- **No account required:** Core workflows work without a JobSentinel account.
+- **User-controlled network use:** Job checks, location detection, configured
+  alerts, and optional external AI can use network access only through visible
+  user-controlled features.
 
 ### Credential Security
 
 - **OS-native keyring:** Credentials stored using Windows Credential Manager, macOS Keychain,
   or Linux Secret Service
-- **No plaintext storage:** Sensitive data never written to disk unencrypted
+- **No plaintext credential storage:** New notification links, access codes, and
+  passwords should use the OS credential manager. Job-search data is stored in
+  the local SQLite database, and settings backups can include private search
+  choices.
 - **Minimal retention:** Only stores what's necessary for configured features
 
 ### Network Security

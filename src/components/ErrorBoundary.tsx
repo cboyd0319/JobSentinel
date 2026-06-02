@@ -11,8 +11,8 @@ const VISUAL_PREFERENCE_KEYS = [
 
 function getSafeErrorMessage(error: Error | null): string {
   return error
-    ? 'JobSentinel ran into a problem. Your data is safe. Try again, or copy a safe support report if it keeps happening.'
-    : 'JobSentinel ran into a problem. Your data is safe.';
+    ? 'JobSentinel ran into a problem. App data stays on this device. Try again, or copy a safe support report if it keeps happening. If this happened while saving, check recent changes.'
+    : 'JobSentinel ran into a problem. App data stays on this device.';
 }
 
 function getSafeErrorStack(error: Error | null): string | null {
@@ -187,8 +187,8 @@ class ErrorBoundary extends Component<Props, State> {
             <div className="p-4 bg-surface-50 dark:bg-surface-900/50 rounded-lg mb-6">
               <p className="text-sm text-surface-500 dark:text-surface-400">
                 {showClearData
-                  ? "This keeps happening. Copy or save a safe support report first. If reload does not work, reset the app window; saved jobs and applications stay saved on this device."
-                  : "Your data is safe. Try reloading the app to continue."}
+                  ? "This keeps happening. Copy or save a safe support report first. If reload does not work, reset the app window; saved jobs and applications stay on this device."
+                  : "App data stays on this device. Try reloading the app to continue."}
               </p>
             </div>
 
