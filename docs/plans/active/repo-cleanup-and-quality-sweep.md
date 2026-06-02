@@ -168,6 +168,21 @@ boundaries, and harness modularity. Immediate primary focus is
 no-Apple-account macOS deployment; resume assistance remains the next
 product-function priority after the no-account macOS path is locked down:
 
+- Current local active-resume preload follow-up loads the active saved resume
+  when **Resume Match** opens, so a user can paste a job post and choose
+  **Review Match** without knowing to click **Choose or Add Resume** first.
+  The silent preload does not toast; the explicit choose action still refreshes
+  the selected resume or opens **Resumes** when none exists. Private resume and
+  profile reference directories were reviewed only as generalized pattern
+  evidence. No private resume text, names, chronology, file paths, or profile
+  content was added to the repo. The references confirmed mixed real-world
+  resume formats such as DOCX, PDF, RTF, TXT, MD, ODT, EPUB, and archive
+  exports; current app import support remains PDF-first, so future
+  format-import work should use synthetic fixtures derived from those patterns.
+  Focused verification passed: `npx vitest run
+  src/pages/ResumeOptimizer.test.tsx`, `npm run test:run`, `npm run lint
+  -- --quiet`, `npm run build`, `npm run lint:docs`, `npm run lint:bloat`,
+  and `git diff --check`.
 - Current local no-account macOS checksum follow-up makes
   `npm run tauri:verify:macos` validate a local `.dmg.sha256` sidecar when it
   exists and fail with `--require-checksum` when it is missing or mismatched.

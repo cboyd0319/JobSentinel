@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Button } from "../components/Button";
 import { Card, CardHeader } from "../components/Card";
@@ -249,6 +249,11 @@ function getResumeAnalysisErrorAction(error: unknown): string {
   return friendly.action ?? friendly.message;
 }
 
+async function getActiveResumeSummary(): Promise<ResumeSummary | null> {
+  const selected = await invoke<unknown>("get_active_resume");
+  return isResumeSummary(selected) ? selected : null;
+}
+
 export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerProps) {
   const [jobDescription, setJobDescription] = useState("");
   const [resumeJson, setResumeJson] = useState("");
@@ -267,10 +272,33 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
 
   const toast = useToast();
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadActiveResume = async () => {
+      try {
+        const selected = await getActiveResumeSummary();
+        if (cancelled || !selected) return;
+
+        setActiveResume(selected);
+      } catch (err: unknown) {
+        if (!cancelled) {
+          logError("Could not load active resume:", err);
+        }
+      }
+    };
+
+    void loadActiveResume();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const handleChooseResume = async () => {
     try {
-      const selected = await invoke<unknown>("get_active_resume");
-      if (isResumeSummary(selected)) {
+      const selected = await getActiveResumeSummary();
+      if (selected) {
         setActiveResume(selected);
         setAnalysisResult(null);
         setAnalysisInputSource(null);

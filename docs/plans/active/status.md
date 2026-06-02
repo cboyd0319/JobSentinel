@@ -44,9 +44,25 @@ manipulation, or unreviewed form sending.
 
 ## Current Posture
 
-- Branch was aligned with `origin/main` before the current resume-assistance
-  local edits. Use `git status --short --branch` for live evidence before
-  committing, pushing, or reporting remote state.
+- Branch is ahead of `origin/main` with local macOS no-account readiness
+  commits plus the current resume-assistance edits. Use
+  `git status --short --branch` for live evidence before committing, pushing,
+  or reporting remote state.
+- Current local active-resume preload follow-up loads the active saved resume
+  when **Resume Match** opens, so a user can paste a job post and choose
+  **Review Match** without knowing to click **Choose or Add Resume** first.
+  The silent preload does not show a toast, while the explicit choose action
+  still refreshes the active resume or opens **Resumes** when none exists.
+  Private resume and profile reference directories were reviewed only as
+  generalized pattern evidence. No private resume text, names, chronology, file
+  paths, or profile content was added to the repo. The references confirmed
+  mixed real-world resume formats such as DOCX, PDF, RTF, TXT, MD, ODT, EPUB,
+  and archive exports; current app import support remains PDF-first, so future
+  format-import work should use synthetic fixtures derived from those patterns.
+  Focused verification passed: `npx vitest run
+  src/pages/ResumeOptimizer.test.tsx`, `npm run test:run`, `npm run lint
+  -- --quiet`, `npm run build`, `npm run lint:docs`, `npm run lint:bloat`,
+  and `git diff --check`.
 - Current local resume-assistance follow-up makes **Review Match** usable with
   the active saved resume instead of requiring copied structured resume
   details, keeps saved resume text inside the Tauri backend, adds a local

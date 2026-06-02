@@ -51,8 +51,9 @@ External AI is not required for resume matching.
 
 1. Open **Resume Match**.
 2. Paste the job post.
-3. Choose **Choose or Add Resume** to use the active saved resume, or open
-   **Resumes** if you need to add or change one.
+3. If you already have an active saved resume, JobSentinel selects it for the
+   review automatically. Choose **Choose or Add Resume** only when you need to
+   add, change, or refresh the selected resume.
 4. Choose **See what JobSentinel read** if you want to inspect the readable
    resume text before using match results.
 5. Use **Import from resume app** only if another resume app gave you export
@@ -108,6 +109,8 @@ The current local matcher:
   the saved file path;
 - can review the active saved resume against a pasted job post without copying
   structured resume details into the page;
+- loads the active saved resume on page open so the user can paste a job post
+  and review fit without knowing any technical setup steps;
 - identifies skills across broad career categories;
 - lets reviewed local skills influence job sorting only after the user turns
   that preference on;
@@ -126,6 +129,11 @@ The current local matcher:
 The skill list is self-contained and deterministic. Same input should produce
 the same local result. Optional OCR is available for scanned PDFs when the app
 is built with OCR support and local OCR tools are installed.
+
+Current import support is PDF-first. Private reference examples reviewed during
+planning showed common resume material also appears as DOCX, TXT, RTF, ODT, MD,
+EPUB, and zipped exports. Future importer work should use synthetic fixtures
+based on those format patterns instead of committing private resume text.
 
 ## Boundaries
 

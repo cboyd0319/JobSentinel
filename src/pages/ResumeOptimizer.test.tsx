@@ -170,6 +170,18 @@ const mockActiveResume = {
   updated_at: "2026-01-02T00:00:00Z",
 };
 
+function mockInvokeResponses(responses: Record<string, unknown | Error>) {
+  mockInvoke.mockImplementation((command) => {
+    if (Object.prototype.hasOwnProperty.call(responses, command)) {
+      const response = responses[command];
+      if (response instanceof Error) return Promise.reject(response);
+      return Promise.resolve(response);
+    }
+    if (command === "get_active_resume") return Promise.resolve(null);
+    return Promise.resolve(mockAnalysis);
+  });
+}
+
 async function openResumeAppImport(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole("button", { name: /import from resume app/i }));
 }
@@ -184,7 +196,7 @@ describe("ResumeOptimizer", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockWriteStorageValue.mockReturnValue(true);
-    mockInvoke.mockResolvedValue(mockAnalysis);
+    mockInvokeResponses({});
   });
 
   it("starts with choose or add before copied resume details import", async () => {
@@ -235,6 +247,41 @@ describe("ResumeOptimizer", () => {
     expect(mockInvoke).not.toHaveBeenCalledWith("analyze_resume_for_job", expect.anything());
     expect(await screen.findByText("Resume Fit")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /show comparison/i })).not.toBeInTheDocument();
+  });
+
+  it("loads the active saved resume on page open and reviews without an extra resume click", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockImplementation((command) => {
+      if (command === "get_active_resume") return Promise.resolve(mockActiveResume);
+      if (command === "analyze_active_resume_for_job") return Promise.resolve(mockJobAnalysis);
+      return Promise.resolve(mockAnalysis);
+    });
+    render(<ResumeOptimizer onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith("get_active_resume");
+    });
+    expect(await screen.findByText(/selected resume:/i)).toBeInTheDocument();
+    expect(screen.getByText(mockActiveResume.name)).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/^job post$/i), {
+      target: { value: "Need onboarding, retention, and account management experience" },
+    });
+    await user.click(screen.getByRole("button", { name: /review match/i }));
+
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith("analyze_active_resume_for_job", {
+        jobDescription: "Need onboarding, retention, and account management experience",
+      });
+    });
+    expect(mockToast.success).toHaveBeenCalledWith(
+      "Review ready",
+      "Use the details below as a guide before you apply.",
+    );
+    expect(mockToast.success).not.toHaveBeenCalledWith(
+      "Resume selected",
+      expect.any(String),
+    );
   });
 
   it("validates copied resume details before format review", async () => {
@@ -321,7 +368,7 @@ describe("ResumeOptimizer", () => {
 
   it("uses plain job-word copy for job match results", async () => {
     const user = userEvent.setup();
-    mockInvoke.mockResolvedValueOnce(mockJobAnalysis);
+    mockInvokeResponses({ analyze_resume_for_job: mockJobAnalysis });
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
     fireEvent.change(screen.getByLabelText(/^job post$/i), {
@@ -363,7 +410,7 @@ describe("ResumeOptimizer", () => {
 
   it("groups words to review by required and preferred job-post language", async () => {
     const user = userEvent.setup();
-    mockInvoke.mockResolvedValueOnce(mockGroupedGapAnalysis);
+    mockInvokeResponses({ analyze_resume_for_job: mockGroupedGapAnalysis });
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
     fireEvent.change(screen.getByLabelText(/^job post$/i), {
@@ -386,7 +433,7 @@ describe("ResumeOptimizer", () => {
 
   it("explains strong resume words without screening-tool framing", async () => {
     const user = userEvent.setup();
-    mockInvoke.mockResolvedValueOnce(["Led", "Improved"]);
+    mockInvokeResponses({ get_ats_power_words: ["Led", "Improved"] });
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
     await user.click(screen.getByRole("button", { name: /view action words/i }));
@@ -400,7 +447,7 @@ describe("ResumeOptimizer", () => {
 
   it("shows plain suggestion category labels", async () => {
     const user = userEvent.setup();
-    mockInvoke.mockResolvedValueOnce(mockSuggestionAnalysis);
+    mockInvokeResponses({ analyze_resume_format: mockSuggestionAnalysis });
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
     await openResumeAppImport(user);
@@ -419,24 +466,26 @@ describe("ResumeOptimizer", () => {
 
   it("shows safety suggestion labels for format-fix guidance", async () => {
     const user = userEvent.setup();
-    mockInvoke.mockResolvedValueOnce({
-      ...mockAnalysis,
-      format_issues: [
-        {
-          severity: "Warning" as const,
-          issue: "Instruction-like or hidden resume text detected",
-          fix: "Remove instructions aimed at screening tools and keep only truthful qualifications.",
-        },
-      ],
-      suggestions: [
-        {
-          category: "FormatFix" as const,
-          suggestion:
-            "Review the resume for prompt-injection-like instructions, hidden text, or invisible characters before using it.",
-          impact:
-            "Keeps the resume readable and avoids tactics that can backfire with employers or screening systems.",
-        },
-      ],
+    mockInvokeResponses({
+      analyze_resume_format: {
+        ...mockAnalysis,
+        format_issues: [
+          {
+            severity: "Warning" as const,
+            issue: "Instruction-like or hidden resume text detected",
+            fix: "Remove instructions aimed at screening tools and keep only truthful qualifications.",
+          },
+        ],
+        suggestions: [
+          {
+            category: "FormatFix" as const,
+            suggestion:
+              "Review the resume for prompt-injection-like instructions, hidden text, or invisible characters before using it.",
+            impact:
+              "Keeps the resume readable and avoids tactics that can backfire with employers or screening systems.",
+          },
+        ],
+      },
     });
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
@@ -455,15 +504,17 @@ describe("ResumeOptimizer", () => {
 
   it("shows plain labels for reorder-content suggestions", async () => {
     const user = userEvent.setup();
-    mockInvoke.mockResolvedValueOnce({
-      ...mockAnalysis,
-      suggestions: [
-        {
-          category: "ReorderContent" as const,
-          suggestion: "Move recent patient coordination work above older roles.",
-          impact: "Makes the most relevant evidence easier to find first.",
-        },
-      ],
+    mockInvokeResponses({
+      analyze_resume_format: {
+        ...mockAnalysis,
+        suggestions: [
+          {
+            category: "ReorderContent" as const,
+            suggestion: "Move recent patient coordination work above older roles.",
+            impact: "Makes the most relevant evidence easier to find first.",
+          },
+        ],
+      },
     });
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
@@ -481,7 +532,7 @@ describe("ResumeOptimizer", () => {
 
   it("uses plain labels for readability details", async () => {
     const user = userEvent.setup();
-    mockInvoke.mockResolvedValueOnce(mockIssueAnalysis);
+    mockInvokeResponses({ analyze_resume_format: mockIssueAnalysis });
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
     await openResumeAppImport(user);
@@ -504,15 +555,17 @@ describe("ResumeOptimizer", () => {
 
   it("shows concrete suggestion impact copy instead of internal priority words", async () => {
     const user = userEvent.setup();
-    mockInvoke.mockResolvedValueOnce({
-      ...mockAnalysis,
-      suggestions: [
-        {
-          category: "AddSection" as const,
-          suggestion: "Add work experience with measurable impact",
-          impact: "Makes your work evidence easier to compare in one place.",
-        },
-      ],
+    mockInvokeResponses({
+      analyze_resume_format: {
+        ...mockAnalysis,
+        suggestions: [
+          {
+            category: "AddSection" as const,
+            suggestion: "Add work experience with measurable impact",
+            impact: "Makes your work evidence easier to compare in one place.",
+          },
+        ],
+      },
     });
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
@@ -557,7 +610,7 @@ describe("ResumeOptimizer", () => {
 
   it("does not show raw private details when job analysis fails", async () => {
     const user = userEvent.setup();
-    mockInvoke.mockRejectedValueOnce(privateFailure);
+    mockInvokeResponses({ analyze_resume_for_job: privateFailure });
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
     fireEvent.change(screen.getByLabelText(/^job post$/i), {
@@ -582,7 +635,7 @@ describe("ResumeOptimizer", () => {
 
   it("does not show raw private details when format analysis fails", async () => {
     const user = userEvent.setup();
-    mockInvoke.mockRejectedValueOnce(privateFailure);
+    mockInvokeResponses({ analyze_resume_format: privateFailure });
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
     await openResumeAppImport(user);
@@ -604,7 +657,7 @@ describe("ResumeOptimizer", () => {
 
   it("does not show raw private details when bullet improvement fails", async () => {
     const user = userEvent.setup();
-    mockInvoke.mockRejectedValueOnce(privateFailure);
+    mockInvokeResponses({ improve_bullet_point: privateFailure });
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
     await user.click(screen.getByRole("button", { name: /draft alternative bullet/i }));

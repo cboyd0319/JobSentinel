@@ -54,6 +54,18 @@ narrow implementation slices chosen from that backlog.
   keeps saved resume text inside the Tauri backend, and treats unrecognized job
   posts or missing extracted job skills as insufficient evidence rather than a
   perfect match.
+- Current local active-resume preload follow-up loads the active saved resume
+  when **Resume Match** opens, so users can paste a job post and review fit
+  without knowing to click **Choose or Add Resume** first. The silent preload
+  does not show a toast; the explicit choose action still refreshes the active
+  resume or opens **Resumes** when none exists.
+- Private resume and profile reference directories were reviewed only as
+  generalized pattern evidence. No private resume text, names, chronology, file
+  paths, or profile content should be committed. The references confirmed that
+  real job seekers use mixed resume formats and profile surfaces such as DOCX,
+  PDF, RTF, TXT, MD, ODT, EPUB, archive exports, and profile-style Markdown.
+  Current import support remains PDF-first; future importer work should use
+  synthetic fixtures derived from these patterns.
 - Latest local resume parser follow-up keeps required and preferred job-post
   sections separate when postings use single-line headings instead of blank
   lines, preventing preferred nice-to-have language from being shown as a
