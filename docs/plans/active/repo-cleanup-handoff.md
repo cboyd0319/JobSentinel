@@ -148,6 +148,11 @@ Recent local verification evidence:
   .github/workflows/verify-release-artifacts.yml` passed, `npm run
   lint:security`, `npm run lint:bloat`, `npm run test:scripts` passed 498
   tests, and `npm run lint:docs` passed.
+- Current local macOS post-commit readiness checks passed: `npm run doctor`
+  reported the environment ready with one known warning because this Mac runs
+  Node 26 while CI uses Node 20, `cargo test --lib platforms::macos` passed 22
+  tests with 1 ignored, and `npm run test:e2e:smoke:budget` passed 10 expected
+  tests in about 7.8 seconds with no unexpected, flaky, or skipped results.
 - Current published macOS release gap: the public GitHub `v2.6.4` release is
   live and includes `JobSentinel_2.6.4_universal.dmg`, but verification of the
   downloaded public DMG failed because the mounted `JobSentinel.app` is not
