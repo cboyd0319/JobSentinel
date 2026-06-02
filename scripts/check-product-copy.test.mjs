@@ -1306,8 +1306,21 @@ test("product copy rejects technical provider setup shortcuts", () => {
         "Looks up your approximate city from your internet address. Not saved unless added.",
       ].join("\n"),
     );
+    writeFixtureFile(
+      root,
+      "docs/features/notifications.md",
+      [
+        'They may call it an "incoming webhook" in their settings.',
+        "Advanced setup for Telegram bot users",
+        "Slack Advanced Chat Setup",
+        'Click "Add New Webhook to Workspace"',
+        "Advanced Sending Server Reference",
+        "Native OS notifications",
+      ].join("\n"),
+    );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/notifications.md"), true);
   });
 });
 

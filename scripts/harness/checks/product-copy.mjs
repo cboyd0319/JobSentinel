@@ -1093,6 +1093,21 @@ export function hasTechnicalFirstUserCopy(root, path) {
     return /seniority level|by title, location, and\s+seniority/i.test(text);
   }
 
+  if (path === "docs/features/notifications.md") {
+    const notificationDocPatterns = [
+      /incoming webhook/i,
+      /Advanced setup for Telegram bot users/i,
+      /Slack Advanced Chat Setup/i,
+      /Add New Webhook to Workspace/i,
+      /Advanced Sending Server Reference/i,
+      /Native OS notifications/i,
+    ];
+
+    if (notificationDocPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
   if (path === "docs/user/QUICK_START.md") {
     const quickStartPatterns = [
       /Assets section/i,

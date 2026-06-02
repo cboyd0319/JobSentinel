@@ -166,6 +166,10 @@ Current cleanup posture:
 - Current local ResumeOptimizer follow-up changes the resume-match score label
   from Completeness to Details included. ResumeOptimizer and product-copy
   coverage guard the old label.
+- Current local notifications-doc follow-up changes visible setup wording from
+  advanced/webhook/native-OS phrasing to connection-link, optional phone-chat,
+  desktop-alert, and manual email reference language. Product-copy coverage
+  guards the old phrases.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.

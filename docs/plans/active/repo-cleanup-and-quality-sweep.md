@@ -210,6 +210,9 @@ boundaries, and harness modularity:
   product-copy sensors guard the old labels and old setup path.
 - Changed ResumeOptimizer resume-match score label from Completeness to Details
   included. ResumeOptimizer and product-copy tests guard the old label.
+- Changed notification docs from advanced/webhook/native-OS setup wording to
+  connection-link, optional phone-chat, desktop-alert, and manual email
+  reference language. Product-copy tests guard the old phrases.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

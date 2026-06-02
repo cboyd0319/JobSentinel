@@ -16,8 +16,7 @@ Desktop alerts do not need a connection link. Email alerts use your email
 provider's app password or sending settings.
 
 Slack, Discord, and Teams give you a private connection link for chat alerts.
-They may call it an "incoming webhook" in their settings. Copy that link, then
-paste it into JobSentinel.
+Copy that link, then paste it into JobSentinel.
 
 ---
 
@@ -32,7 +31,7 @@ Pick whichever channels work best for you:
 | **Slack**           | Already live in Slack for work   |
 | **Discord**         | Have a personal Discord server   |
 | **Microsoft Teams** | Your company uses Teams          |
-| **Telegram**        | Advanced setup for Telegram bot users |
+| **Telegram**        | Optional phone chat alerts            |
 
 You can enable multiple channels at once. JobSentinel only sends alerts to
 channels you configure.
@@ -99,16 +98,16 @@ JobSentinel links to those pages from the Email settings panel.
 
 ## Optional Chat Alerts
 
-### Slack Advanced Chat Setup
+### Slack Chat Alerts
 
 Use this only if you already use Slack and want chat alerts. Desktop alerts and
 email alerts are easier to set up.
 
-1. Go to [Slack's connection-link page](https://api.slack.com/messaging/webhooks)
+1. Go to [Slack's channel connection page](https://api.slack.com/messaging/webhooks)
 2. Click "Create New App" > "From Scratch"
 3. Name it "JobSentinel" and pick your workspace
 4. Turn on channel connection links
-5. Click "Add New Webhook to Workspace"
+5. Click the button that adds the channel link to your workspace
 6. Pick a channel (like #job-alerts)
 7. Copy the connection link
 8. In JobSentinel, open Settings, choose Sources & Alerts, then paste the link in
@@ -284,10 +283,10 @@ src-tauri/src/core/notify/
 - teams.rs     # Teams webhooks
 - email.rs     # Email sending
 - telegram.rs  # Telegram Bot API
-- desktop.rs   # Native OS notifications
+- desktop.rs   # Desktop alerts
 ```
 
-### Advanced Sending Server Reference
+### Manual Email Server Reference
 
 Only needed for manual provider setup.
 
