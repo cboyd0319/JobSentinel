@@ -28,6 +28,11 @@ then turning the answers into JobSentinel search settings.
 - Latest local saved-search summary work maps raw filter IDs to plain labels
   such as Remote Only, Bookmarked, and With Notes, so guided-intake answers
   remain readable when users save or review a search.
+- Priority update on 2026-06-02: guided intake should support optional
+  resume-assisted questioning. If a user chooses to use a resume, JobSentinel
+  should show extracted skills and experience first, ask what work the user
+  wants more or less of, and never let resume evidence leave the device by
+  default.
 
 ## Research-backed design rules
 
@@ -114,28 +119,31 @@ the flow into short screens:
    Let users add titles or skip.
 3. **Work wanted:** "What work should show up more often?"
    Accept skills, duties, tools, industries, and strengths.
-4. **Work to avoid:** "What work should JobSentinel rank lower?"
+4. **Resume help:** "Should JobSentinel use a resume to suggest work and skills
+   for you to review?"
+   Keep this optional, local by default, and review-first.
+5. **Work to avoid:** "What work should JobSentinel rank lower?"
    Accept schedule, travel, job type, industry, company, and duty examples.
-5. **Must-haves:** "What would make a job impossible for you?"
+6. **Must-haves:** "What would make a job impossible for you?"
    Examples: location, schedule, license, commute, travel, pay, sponsorship.
-6. **Pay:** "What pay would make a job worth considering?"
+7. **Pay:** "What pay would make a job worth considering?"
    Include "not sure", "show jobs with missing pay", and "warn me below this
    floor".
-7. **Location and schedule:** "Where and when can you work?"
+8. **Location and schedule:** "Where and when can you work?"
    Capture remote, hybrid, on-site, cities, commute, shifts, and travel.
-8. **Adjacent roles:** "Should JobSentinel suggest nearby roles?"
+9. **Adjacent roles:** "Should JobSentinel suggest nearby roles?"
    Choices: yes, maybe show separately, no.
-9. **Review style:** "How many jobs do you want to review at once?"
+10. **Review style:** "How many jobs do you want to review at once?"
    Use this to prevent overwhelming dashboards and alerts.
-10. **Freshness:** "Should fresh or verified jobs show first?"
+11. **Freshness:** "Should fresh or verified jobs show first?"
     Capture fresh-only, verified-first, or balanced behavior.
-11. **Application route:** "Which routes feel worth your time?"
+12. **Application route:** "Which routes feel worth your time?"
     Capture company sites, referrals, recruiters, hiring managers, staffing
     agencies, and broad job boards.
-12. **Search support:** "Do you want weekly search summaries?"
+13. **Search support:** "Do you want weekly search summaries?"
     Offer pacing, quiet-period review, fresh-role review, and no-summary
     choices.
-13. **Alerts:** "Where should JobSentinel tell you about roles that fit?"
+14. **Alerts:** "Where should JobSentinel tell you about roles that fit?"
     Keep all channels optional.
 
 The review screen should summarize answers in plain language:
@@ -155,6 +163,7 @@ Each answer should map to existing settings where possible:
 | Target job titles | title allowlist |
 | Work to avoid | title blocklist or excluded keywords |
 | Skills and preferred work | boosted keywords |
+| Optional resume-assisted skill review | reviewed boosted keywords and resume evidence |
 | Deal breakers | excluded keywords |
 | Remote, hybrid, onsite | location preferences |
 | Cities or regions | location city list |
@@ -219,6 +228,10 @@ Use defaults that avoid blocking progress:
 - Debug reports must redact free-text answers unless the user explicitly
   includes them.
 - Importing or using a resume must be optional.
+- Resume-assisted intake must show extracted resume evidence before it affects
+  search settings.
+- Resume text, salary floors, private notes, and application history must not
+  be sent to external AI or any external channel by default.
 
 ## Success checks
 

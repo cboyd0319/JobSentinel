@@ -31,6 +31,15 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local resume-priority planning update moves resume assistance,
+  resume-assisted guided intake, and application readability to the top
+  functional priority across the README, roadmap, active plans, and feature
+  privacy-label harness. It also updates stale score-label test expectations
+  from old short labels to current evidence labels. Verification passed:
+  `npx vitest run src/utils/scoreUtils.test.ts` passed 16 tests, `npm run
+  test:run` passed 2654 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 43 tests, `npm run
+  harness:check`, `npm run lint:docs`, `npm run lint`, and `git diff --check`.
 - Current local Application Tracker subtitle cleanup replaces visible
   keyboard-instruction text with plain purpose copy and adds product-copy
   coverage so the old technical subtitle cannot return. Verification passed:
@@ -1541,9 +1550,9 @@ Recent cleanup slices on `main` include:
 - Release-note copy cleanup for current resume framing.
 - WebKit E2E shortcut delivery and dashboard count stabilization.
 - Chromium E2E stabilization after full-suite failures.
-- Active research-backed product planning for job-seeker behavior, ATS-aware
-  preparation, ghost/stale-post research, local source collection, salary
-  negotiation, and pay-equity support.
+- Active research-backed product planning for job-seeker behavior,
+  screening-system resume preparation, ghost/stale-post research, local source
+  collection, salary negotiation, and pay-equity support.
 - Resume Match copy moved from ATS/keyword jargon to resume-match and
   job-word language.
 - Root and nested junk scan removed local `.DS_Store` artifacts and confirmed

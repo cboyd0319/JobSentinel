@@ -481,9 +481,13 @@ Developer docs:
 
 ### Tracked Next
 
+- Resume assistance is now the top functional priority: local resume parsing,
+  readable resume exports, resume/job fit review, required-versus-preferred
+  qualification review, and hiring-system transparency through application
+  readability.
 - Continued zero-technical-knowledge UX review.
 - Continued broad-audience review for technical and non-technical roles.
-- Local matching improvements.
+- Local matching improvements grounded in visible evidence.
 
 Read [docs/README.md](docs/README.md), [CHANGELOG.md](CHANGELOG.md),
 [ROADMAP.md](ROADMAP.md), and the [developer roadmap](docs/ROADMAP.md) for more

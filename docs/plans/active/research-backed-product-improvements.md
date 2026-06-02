@@ -3,10 +3,10 @@
 ## Problem
 
 JobSentinel already has search setup, scoring, resume matching, resume building,
-ATS analysis, Application Assist, market intelligence, ghost detection, and
-application tracking. The research notes in the six user-provided source files
-show additional ways to make those features more useful, more honest, safer,
-and easier for job seekers from many backgrounds.
+screening-system transparency, Application Assist, market intelligence, ghost
+detection, and application tracking. The research notes in the six
+user-provided source files show additional ways to make those features more
+useful, more honest, safer, and easier for job seekers from many backgrounds.
 
 This plan turns the research into a product improvement backlog and tracks
 narrow implementation slices chosen from that backlog.
@@ -25,6 +25,10 @@ narrow implementation slices chosen from that backlog.
   bullet drafting, salary-offer advice, and default negotiation templates so
   users get advisory next steps grounded in truth, pay evidence, and personal
   constraints instead of pressure to apply immediately, upskill, or accept.
+- Priority update on 2026-06-02: resume assistance moves to the top functional
+  backlog. Treat this as screening-system transparency and application
+  readability: local parse preview, readable exports, required/preferred
+  qualification review, truthful fit evidence, and user-confirmed edits.
 
 ## Source files
 
@@ -86,8 +90,8 @@ In scope:
 - Implementation areas across dashboard, setup, scoring, resume,
   application tracking, Application Assist, market intelligence, scrapers, and
   docs.
-- Legitimate ATS-aware optimization: accurate machine readability, truthful
-  alignment, and human-readable applications.
+- Screening-system transparency and application readability: accurate machine
+  readability, truthful alignment, and human-readable applications.
 - Local-first behavior and explicit user control.
 - Single-user, low-volume, local job-source monitoring for the user's saved
   searches, company watchlists, and imported job URLs.
@@ -218,6 +222,16 @@ First-class product requirements:
 | AI salary-advice bias research | AI salary advice can vary by protected attributes and model version in tasks with no single ground truth. | Keep negotiation suggestions evidence-backed, inspectable, local where possible, and never personalized through inferred protected-class traits. |
 
 ## Product improvement backlog
+
+Current priority order:
+
+1. Resume assistance and application readability.
+2. Guided intake that uses optional resume evidence to understand the job
+   seeker's target work.
+3. Ghost-job and stale-posting protection.
+4. Pay-equity and salary-floor protection.
+5. Bias-aware application routes, pacing, and long-term unemployment support.
+6. Harness and cleanup items that do not block core product behavior.
 
 ### 1. Guided setup and search intent
 
@@ -422,15 +436,15 @@ Likely files later:
 - `docs/features/salary-ai.md`
 - `docs/features/remote-preference-scoring.md`
 
-### 5. Resume and ATS-aware preparation
+### 5. Resume assistance and application readability
 
 - Add parse-preview mode that shows what JobSentinel extracts from a resume:
   name, contact, titles, employers, dates, skills, education, certifications,
   gaps, and unknown fields.
 - Add copyable plain-text export and parsed-text preview to verify that PDF or
   DOCX content is readable.
-- Add format linting for tables, columns, graphics, icons, unusual headings,
-  hidden text, empty text layers, and scan-only PDFs.
+- Add screening-system readability checks for tables, columns, graphics, icons,
+  unusual headings, hidden text, empty text layers, and scan-only PDFs.
 - Add photo, image-only, and visual-layout warnings because VLM and visual
   resume screeners can pick up proxy cues and because image-heavy resumes are
   less accessible.
@@ -455,7 +469,8 @@ Likely files later:
   whether to apply when they lack a listed degree, certification, or exact
   title but have relevant proof.
 - Add model-agnostic resume writing guidance: clear structure, truthful
-  evidence, and human readability rather than optimization for a guessed LLM.
+  evidence, and human readability rather than optimization for a guessed
+  screening model.
 - Add support for non-technical skill taxonomies across healthcare, education,
   operations, sales, finance, legal, service, trades, creative, and government.
 
@@ -1041,8 +1056,8 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 ## Outcomes
 
-- Combined product backlog exists for job-seeker behavior, ATS-aware resume
-  preparation, ghost-job research, local source collection, and salary
+- Combined product backlog exists for job-seeker behavior, screening-system
+  resume preparation, ghost-job research, local source collection, and salary
   negotiation and pay-equity support.
 - Product priorities now explicitly center ghost-job protection, pay-equity
   safeguards, long-term-unemployment support, bias-aware application routes,

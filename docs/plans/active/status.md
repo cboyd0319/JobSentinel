@@ -20,20 +20,36 @@ implementation slices that can run without shared-state conflicts. Keep scopes
 bounded, preserve user changes, close completed agents promptly, and record
 actionable findings in this active-plan surface or the relevant plan.
 
+Top functional priority as of 2026-06-02: resume assistance with
+screening-system transparency and application readability. This means resume
+parsing, readable exports, resume/job fit review, required-versus-preferred
+qualification review, and truthful edit support move ahead of lower-impact
+cleanup. It does not mean hidden keyword edits, deceptive resume changes,
+screening-system manipulation, or unreviewed form sending.
+
 ## Workstreams
 
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
 | Repo cleanup and quality sweep | Open | Reliability, stale-doc cleanup, harness debt, privacy/security review, broad verification | [Plan](repo-cleanup-and-quality-sweep.md) |
 | Repo cleanup handoff | Open | Operational restart notes and verification evidence | [Handoff](repo-cleanup-handoff.md) |
-| Guided job-search intake | Active | Implemented setup slices stay accurate; future work expands guided questioning and search support | [Plan](guided-job-search-intake.md) |
-| Research-backed product improvements | Active | Ghost/stale detection, pay protection, long-term unemployment support, bias-aware routes, protective tone, local-first privacy | [Plan](research-backed-product-improvements.md) |
+| Guided job-search intake | Active | Implemented setup slices stay accurate; future work expands guided questioning, resume-assisted intent capture, and search support | [Plan](guided-job-search-intake.md) |
+| Research-backed product improvements | Active | Resume assistance and application readability first, then ghost/stale detection, pay protection, long-term unemployment support, bias-aware routes, protective tone, local-first privacy | [Plan](research-backed-product-improvements.md) |
 
 ## Current Posture
 
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local resume-priority planning update moves resume assistance,
+  resume-assisted guided intake, and application readability to the top
+  functional priority across the README, roadmap, active plans, and feature
+  privacy-label harness. It also updates stale score-label test expectations
+  from old short labels to current evidence labels. Verification passed:
+  `npx vitest run src/utils/scoreUtils.test.ts` passed 16 tests, `npm run
+  test:run` passed 2654 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 43 tests, `npm run
+  harness:check`, `npm run lint:docs`, `npm run lint`, and `git diff --check`.
 - Current local Application Tracker subtitle cleanup replaces visible
   keyboard-instruction text with plain purpose copy and adds product-copy
   coverage so the old technical subtitle cannot return. Verification passed:

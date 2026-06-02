@@ -70,24 +70,24 @@ describe("scoreUtils", () => {
   });
 
   describe("getScoreLabel", () => {
-    it("returns 'Strong' for scores >= 90", () => {
-      expect(getScoreLabel(90)).toBe("Strong");
-      expect(getScoreLabel(100)).toBe("Strong");
+    it("returns 'Strong evidence' for scores >= 90", () => {
+      expect(getScoreLabel(90)).toBe("Strong evidence");
+      expect(getScoreLabel(100)).toBe("Strong evidence");
     });
 
-    it("returns 'Useful' for scores >= 80 and < 90", () => {
-      expect(getScoreLabel(80)).toBe("Useful");
-      expect(getScoreLabel(89)).toBe("Useful");
+    it("returns 'Clear evidence' for scores >= 80 and < 90", () => {
+      expect(getScoreLabel(80)).toBe("Clear evidence");
+      expect(getScoreLabel(89)).toBe("Clear evidence");
     });
 
-    it("returns 'Some' for scores >= 70 and < 80", () => {
-      expect(getScoreLabel(70)).toBe("Some");
-      expect(getScoreLabel(79)).toBe("Some");
+    it("returns 'Some evidence' for scores >= 70 and < 80", () => {
+      expect(getScoreLabel(70)).toBe("Some evidence");
+      expect(getScoreLabel(79)).toBe("Some evidence");
     });
 
-    it("returns 'Review' for scores >= 60 and < 70", () => {
-      expect(getScoreLabel(60)).toBe("Review");
-      expect(getScoreLabel(69)).toBe("Review");
+    it("returns 'Mixed evidence' for scores >= 60 and < 70", () => {
+      expect(getScoreLabel(60)).toBe("Mixed evidence");
+      expect(getScoreLabel(69)).toBe("Mixed evidence");
     });
 
     it("returns 'Needs review' for scores >= 40 and < 60", () => {

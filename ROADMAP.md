@@ -6,6 +6,45 @@ user control.
 
 This roadmap tracks the six design pillars that guide product work.
 
+## Top current priority: resume assistance and application readability
+
+Resume assistance is the highest-priority functional workstream. JobSentinel
+should help users create, import, review, and improve truthful resumes for
+technical and non-technical roles while preserving privacy and user control.
+
+Planned:
+
+- Resume parse preview that shows readable text, extracted sections, unknown
+  fields, and extraction confidence before results influence fit estimates.
+- Plain-text and DOCX export checks so users can verify applications can read
+  the resume.
+- Required, preferred, and nice-to-have qualification grouping for each job
+  posting.
+- Evidence-backed edit suggestions that tie every suggested word or bullet to
+  user-confirmed experience.
+- Screening-system transparency and application readability checks for tables,
+  columns, graphics, image-only pages, hidden text, unusual headings, and
+  awkward machine-optimized bullets.
+
+In progress:
+
+- Local Resume Builder, JSON Resume import, Resume Match, resume/job fit
+  review, bullet improvement, and DOCX export.
+- Product copy moved away from keyword-gaming and toward truthful fit evidence.
+- Privacy labels classify resume workflows as local-only and sensitive by
+  default.
+
+Evaluation ideas:
+
+- Test resume parse accuracy across healthcare, education, retail, operations,
+  sales, finance, government, trades, creative, technology, and service roles.
+- Compare exported resume text against preview text before release.
+- Check whether users understand required versus preferred qualifications and
+  avoid false or hidden keyword edits.
+- Verify no resume text, salary floor, private notes, or application history
+  leaves the device without explicit opt-in, payload preview, redaction, and
+  approval.
+
 ## 1. Ghost-job and stale-posting detection
 
 Planned:
