@@ -683,6 +683,8 @@ export function hasTechnicalRecoveryCopy(root, path) {
     /Support details \(development only\)/i,
     /Show support details/i,
     /No support details available/i,
+    /Automatic error reporting/i,
+    /error reporting system/i,
   ];
 
   return stalePatterns.some((pattern) => pattern.test(text));
@@ -707,6 +709,11 @@ export function hasLegacyPreferenceListCopy(root, path) {
 }
 
 export function hasTechnicalFirstUserCopy(root, path) {
+  if (path === "src/utils/vitals.ts") {
+    const text = readFileSync(join(root, path), "utf8");
+    return /analytics service|analytics services|custom reporting|sendToAnalytics|telemetry/i.test(text);
+  }
+
   if (path === "src/components/CompanyResearchPanel.tsx") {
     const text = readFileSync(join(root, path), "utf8");
     const companyResearchPatterns = [

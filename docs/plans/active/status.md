@@ -34,6 +34,19 @@ actionable findings in this active-plan surface or the relevant plan.
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local telemetry-comment cleanup removes analytics-service and
+  automatic-error-reporting language from web-vitals and error-boundary comments
+  so comments match Rule 0 local-first behavior. Product-copy sensors now reject
+  those drift phrases. Focused verification passed: `node --test
+  scripts/check-product-copy.test.mjs`, `npx vitest run
+  src/components/ErrorBoundary.test.tsx
+  src/components/ComponentErrorBoundary.test.tsx
+  src/components/PageErrorBoundary.test.tsx
+  src/components/ModalErrorBoundary.test.tsx src/utils/vitals.test.ts`,
+  targeted stale-phrase search found no old wording in touched files, and
+  `git diff --check`. Broader verification passed: `npm run lint:bloat`,
+  `npm run lint:docs`, `npm run test:scripts`, `npm run lint`, and
+  `git diff --check`.
 - Current local Resume Builder doc attachment-wording follow-up changes upload
   preview and ready-to-upload phrasing to application-preview and attach
   wording. Product-copy sensors now reject the old Resume Builder doc phrases.

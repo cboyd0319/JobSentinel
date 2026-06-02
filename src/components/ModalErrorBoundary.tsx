@@ -43,8 +43,8 @@ function safeModalErrorDetails(error: Error | null): string {
  * Features:
  * - Graceful error handling without app crash
  * - Retry functionality with count tracking
- * - Automatic error reporting
- * - Modal-specific context for debugging
+ * - Local sanitized problem capture
+ * - Modal-specific context for safe support reports
  */
 class ModalErrorBoundary extends Component<Props, State> {
   public state: State = {
@@ -60,7 +60,7 @@ class ModalErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Capture error with error reporting system
+    // Capture sanitized error details locally.
     errorReporter.captureReactError(
       error,
       errorInfo.componentStack || undefined,

@@ -362,25 +362,32 @@ test("product copy rejects technical recovery and raw error details", () => {
         "Reset App Window & Reload",
         "If reload does not work",
         "Support details (development only)",
+        "Automatic error reporting and logging",
+        "Capture error with error reporting system",
         "",
       ].join("\n"),
     );
     writeFixtureFile(
       root,
       "src/components/PageErrorBoundary.tsx",
-      "This keeps happening. This page may be temporarily unavailable.\nSupport details (development only)",
+      "This keeps happening. This page may be temporarily unavailable.\nSupport details (development only)\nAutomatic error reporting",
     );
     writeFixtureFile(
       root,
       "src/components/ComponentErrorBoundary.tsx",
-      "This section failed to load\nShow support details\nNo support details available",
+      "This section failed to load\nShow support details\nNo support details available\nAutomatic error reporting",
     );
     writeFixtureFile(
       root,
       "src/components/ModalErrorBoundary.tsx",
-      "This window failed to load\nPlease close and try again later\nTry closing and checking back later\nSupport details (development only)\nNo support details available\n",
+      "This window failed to load\nPlease close and try again later\nTry closing and checking back later\nSupport details (development only)\nNo support details available\nAutomatic error reporting\n",
     );
     writeFixtureFile(root, "src/components/ScraperHealthDashboard.tsx", "window state");
+    writeFixtureFile(
+      root,
+      "src/utils/vitals.ts",
+      "In production, you could send to analytics service\nsendToAnalytics(metric)\nwith analytics services or custom reporting\n",
+    );
 
     assert.equal(hasRawErrorBoundaryDetails(root, "src/components/ErrorBoundary.tsx"), true);
     assert.equal(hasTechnicalRecoveryCopy(root, "src/components/ErrorBoundary.tsx"), true);
@@ -396,6 +403,7 @@ test("product copy rejects technical recovery and raw error details", () => {
       hasTechnicalRecoveryCopy(root, "src/components/ModalErrorBoundary.tsx"),
       true,
     );
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/utils/vitals.ts"), true);
     assert.equal(
       hasTechnicalRecoveryCopy(root, "src/components/ScraperHealthDashboard.tsx"),
       true,

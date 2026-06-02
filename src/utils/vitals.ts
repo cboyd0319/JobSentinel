@@ -33,15 +33,15 @@ export function reportWebVitals(onReport?: VitalsCallback) {
 }
 
 /**
- * Default metric logger - logs to console in dev mode
+ * Default metric handler.
+ * Local-first by default: metrics stay in memory unless a caller supplies a
+ * local handler. Do not add analytics or network reporting here.
  */
 function logMetric(_metric: Metric) {
-  // In production, you could send to analytics service
-  // Example: sendToAnalytics(metric)
+  // Intentionally no-op.
 }
 
-// Note: getMetricRating and getMetricUnit are kept for potential future use
-// with analytics services or custom reporting
+// Note: getMetricRating and getMetricUnit are kept for local diagnostics and tests.
 
 /**
  * Get human-readable rating for a metric

@@ -38,7 +38,7 @@ interface State {
  * Catches unhandled errors and provides recovery options.
  *
  * Features:
- * - Automatic error reporting and logging
+ * - Local sanitized problem capture and logging
  * - Retry functionality with error count tracking
  * - Fallback to full reload if too many errors
  * - Custom fallback UI support
@@ -60,7 +60,7 @@ class ErrorBoundary extends Component<Props, State> {
     // Increment error count
     this.setState(prev => ({ errorCount: prev.errorCount + 1 }));
 
-    // Capture error with error reporting system
+    // Capture sanitized error details locally.
     errorReporter.captureReactError(
       error,
       errorInfo.componentStack || undefined,

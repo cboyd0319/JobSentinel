@@ -36,7 +36,7 @@ function safeComponentErrorDetails(error: Error | null): string {
  * - Custom fallback UI
  * - Optional silent failure (just hide component)
  * - Error callback for parent handling
- * - Automatic error reporting
+ * - Local sanitized problem capture
  *
  * Usage:
  * ```tsx
@@ -56,7 +56,7 @@ class ComponentErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Capture error with error reporting system
+    // Capture sanitized error details locally.
     errorReporter.captureReactError(
       error,
       errorInfo.componentStack || undefined,

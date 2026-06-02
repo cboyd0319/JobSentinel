@@ -40,7 +40,7 @@ interface State {
  * - Retry functionality with count tracking
  * - Navigation back to safety
  * - Custom fallback UI support
- * - Automatic error reporting
+ * - Local sanitized problem capture
  */
 class PageErrorBoundary extends Component<Props, State> {
   public state: State = {
@@ -56,7 +56,7 @@ class PageErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Capture error with error reporting system
+    // Capture sanitized error details locally.
     errorReporter.captureReactError(
       error,
       errorInfo.componentStack || undefined,
