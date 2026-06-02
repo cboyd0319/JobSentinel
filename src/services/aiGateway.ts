@@ -175,49 +175,49 @@ function validateRequest(
   if (!settings.enabled) {
     throw new ExternalAiGatewayError(
       "external_ai_disabled",
-      "External AI is disabled by default. Enable it before sending data.",
+      "Outside AI is off. Turn it on only after reviewing what will be sent.",
     );
   }
 
   if (provider === "none") {
     throw new ExternalAiGatewayError(
       "provider_not_selected",
-      "External AI provider must be selected before sending data.",
+      "Choose the outside AI service before sending anything.",
     );
   }
 
   if (!transport) {
     throw new ExternalAiGatewayError(
       "transport_missing",
-      "External AI sending is not set up.",
+      "Outside AI sending is not set up.",
     );
   }
 
   if (settings.requirePayloadPreview && !request.previewShown) {
     throw new ExternalAiGatewayError(
       "payload_preview_required",
-      "Payload preview is required before any external AI request.",
+      "Review the details that would be sent before continuing.",
     );
   }
 
   if (!request.userApproved) {
     throw new ExternalAiGatewayError(
       "user_approval_required",
-      "User approval is required before any external AI request.",
+      "Approve sending these details before continuing.",
     );
   }
 
   if (request.dataCategories.includes("full_database")) {
     throw new ExternalAiGatewayError(
       "full_database_blocked",
-      "Full database payloads must never be sent to external AI providers.",
+      "JobSentinel will not send all saved job data to outside AI.",
     );
   }
 
   if (request.labels.includes("Public-data only") && hasSensitivePayloadKeys(request.payload)) {
     throw new ExternalAiGatewayError(
       "public_data_only_violation",
-      "Public-data-only AI requests cannot include private user data.",
+      "This request can only send public job-posting details.",
     );
   }
 
@@ -227,7 +227,7 @@ function validateRequest(
   ) {
     throw new ExternalAiGatewayError(
       "sensitive_payload_blocked",
-      "Sensitive data requires explicit user selection and sensitive-payload opt-in.",
+      "Private details stay local unless you choose exactly what to send and turn on sharing for private details.",
     );
   }
 }
@@ -244,7 +244,7 @@ export function createExternalAiGateway(
       if (!transport) {
         throw new ExternalAiGatewayError(
           "transport_missing",
-          "External AI sending is not set up.",
+          "Outside AI sending is not set up.",
         );
       }
 

@@ -194,6 +194,10 @@ Current cleanup posture:
 - Current local Pay Protection follow-up replaces remaining career-jargon visible
   wording in Salary UI and feature docs with too-low-title-or-pay-level language.
   Salary and product-copy coverage guard the old term.
+- Current local outside-AI gateway follow-up replaces provider/payload/sensitive
+  guardrail jargon with review-first outside-AI, public-job-details, and
+  private-details-stay-local language. Gateway and product-copy coverage guard
+  the old wording.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.

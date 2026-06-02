@@ -801,7 +801,17 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/services/aiGateway.ts",
-      "External AI transport is not configured.\n",
+      [
+        "External AI transport is not configured.",
+        "External AI is disabled by default. Enable it before sending data.",
+        "External AI provider must be selected before sending data.",
+        "External AI sending is not set up.",
+        "Payload preview is required before any external AI request.",
+        "User approval is required before any external AI request.",
+        "Full database payloads must never be sent to external AI providers.",
+        "Sensitive data requires explicit user selection and sensitive-payload opt-in.",
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(
       root,

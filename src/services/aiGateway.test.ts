@@ -55,6 +55,7 @@ describe("aiGateway", () => {
 
     await expect(gateway.send(publicJobSummaryRequest)).rejects.toMatchObject({
       code: "external_ai_disabled",
+      message: "Outside AI is off. Turn it on only after reviewing what will be sent.",
     });
     expect(transport.send).not.toHaveBeenCalled();
   });
@@ -72,6 +73,7 @@ describe("aiGateway", () => {
       }),
     ).rejects.toMatchObject({
       code: "payload_preview_required",
+      message: "Review the details that would be sent before continuing.",
     });
     expect(transport.send).not.toHaveBeenCalled();
   });
@@ -81,7 +83,7 @@ describe("aiGateway", () => {
 
     await expect(gateway.send(publicJobSummaryRequest)).rejects.toMatchObject({
       code: "transport_missing",
-      message: "External AI sending is not set up.",
+      message: "Outside AI sending is not set up.",
     });
   });
 
@@ -105,6 +107,8 @@ describe("aiGateway", () => {
       }),
     ).rejects.toMatchObject({
       code: "sensitive_payload_blocked",
+      message:
+        "Private details stay local unless you choose exactly what to send and turn on sharing for private details.",
     });
     expect(transport.send).not.toHaveBeenCalled();
   });
@@ -127,6 +131,7 @@ describe("aiGateway", () => {
       }),
     ).rejects.toMatchObject({
       code: "full_database_blocked",
+      message: "JobSentinel will not send all saved job data to outside AI.",
     });
     expect(transport.send).not.toHaveBeenCalled();
   });
@@ -147,6 +152,7 @@ describe("aiGateway", () => {
       }),
     ).rejects.toMatchObject({
       code: "public_data_only_violation",
+      message: "This request can only send public job-posting details.",
     });
     expect(transport.send).not.toHaveBeenCalled();
   });

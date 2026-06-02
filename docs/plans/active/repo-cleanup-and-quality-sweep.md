@@ -236,6 +236,9 @@ boundaries, and harness modularity:
 - Changed Pay Protection visible guidance and feature docs from career-jargon
   wording to too-low-title-or-pay-level language. Salary and product-copy tests
   guard the old term.
+- Changed outside-AI gateway guardrail messages from provider/payload/sensitive
+  jargon to review-first outside-AI, public-job-details, and private-details-stay-local
+  language. Gateway and product-copy tests guard the old wording.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.
@@ -468,7 +471,7 @@ boundaries, and harness modularity:
   wording. Shared helpers, Rust command error titles, error boundaries,
   Dashboard recovery, job import, and external AI gateway setup errors now use
   plain `JobSentinel needs attention` / `JobSentinel ran into a problem` /
-  `External AI sending is not set up` wording, with product-copy coverage
+  `Outside AI sending is not set up` wording, with product-copy coverage
   against the old labels.
 - Fixed older shared error-helper messages that still used technical labels
   such as `Invalid input`, `Data format error`, requested-resource wording, and
