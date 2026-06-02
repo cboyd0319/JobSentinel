@@ -101,15 +101,17 @@ Download the latest package or installer from the
 | Platform | Download |
 | -------- | --------- |
 | Windows | Windows installer |
-| macOS | Universal Mac package for Apple silicon and Intel Macs. Use only a Mac package that has a matching `.sha256` checksum asset on the release. The project does not currently have an Apple Developer Account, so macOS requires a first-open Privacy & Security approval until Developer ID signing and notarization are available. |
+| macOS | Universal Mac package for Apple silicon and Intel Macs. Use only a Mac package that has a matching `.sha256` checksum asset on the release. Until Developer ID signing and notarization are available, the no-account DMG filename should include `_no-account_`. The project does not currently have an Apple Developer Account, so macOS requires a first-open Privacy & Security approval until Developer ID signing and notarization are available. |
 | Linux | Linux installer |
 
 The current `v2.6.4` release includes Windows and Linux installers plus
 `JobSentinel_2.6.4_no-account_universal.dmg` for macOS. Most Windows and Linux
 users should use the installer. Mac users should use only a release package
 with a matching `JobSentinel_*_universal.dmg.sha256` checksum and passing public
-macOS verification. If a release is missing the checksum, treat the Mac package
-as pending replacement and use a fresh local build instead.
+macOS verification. Until Developer ID signing and notarization are available,
+the no-account DMG filename should include `_no-account_`. If a release is
+missing the checksum or that no-account label, treat the Mac package as pending
+replacement and use a fresh local build instead.
 
 Mac first open is not zero-friction because JobSentinel does not currently have
 an Apple Developer Account for Developer ID signing and notarization. This is a
