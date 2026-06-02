@@ -220,6 +220,14 @@ boundaries, and harness modularity:
   online-help wording instead of maintainer/issue-page wording, while the local
   safe support report path stays primary. Added product-copy guards against the
   old phrases.
+- Committed local Application Profile stat-copy follow-up replaces `Marked Sent`
+  and `Ready to Send` with user-action wording so the page does not imply
+  JobSentinel sends applications. Focused verification passed: `npx vitest run
+  src/pages/ApplicationProfile.test.tsx` passed 1 test, `node --test
+  scripts/check-product-copy.test.mjs` passed 33 tests, targeted component
+  search found no stale labels, `npm run lint:bloat`, `npm run lint:docs`,
+  `npm run test:scripts` passed 458 script tests, `npm run lint`,
+  `npm run harness:check`, and `git diff --check` passed.
 - Changed generated support-report labels from support-only wording to safe app
   details and added product-copy coverage against those labels returning.
 - Changed the detailed local report tooltip from maintainer wording to plain
@@ -858,6 +866,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-02 | In progress | Replaced Application Profile `Marked Sent` and `Ready to Send` stats with user-action wording so Application Assist does not imply JobSentinel sends applications. Focused page, product-copy, search, script, docs, lint, harness, and diff-check verification passed. |
 | 2026-06-02 | In progress | Replaced technical question-match validation copy with plain question-word guidance. Product-copy sensors now reject the old unsupported-pattern-symbol wording if it drifts back. |
 | 2026-06-02 | In progress | Replaced remaining GitHub-first online help copy in the safe support report submit and success screens with optional online-help wording. Product-copy sensors now reject those feedback phrases if they drift back. |
 | 2026-06-02 | In progress | Removed remaining maintainer blocks, implementation references, module paths, command/test snippets, saved-file internals, and chat-number setup wording from user-facing feature guides. Moved the resume renderer DTO privacy contract into developer architecture docs and extended product-copy/privacy sensors so feature docs stay plain while developer contracts remain checked. |

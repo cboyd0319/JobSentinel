@@ -281,6 +281,14 @@ actionable findings in this active-plan surface or the relevant plan.
   passed: `npx vitest run src/utils/formValidation.test.ts` passed 78 tests,
   `node --test scripts/check-product-copy.test.mjs` passed 32 tests, targeted
   search found no removed validation phrases, and `npm run lint:bloat` passed.
+- Committed local Application Profile stat-copy cleanup replaces send/sent
+  wording with labels that make clear users submit applications themselves.
+  Focused verification passed: `npx vitest run
+  src/pages/ApplicationProfile.test.tsx` passed 1 test, `node --test
+  scripts/check-product-copy.test.mjs` passed 33 tests, targeted component
+  search found no stale labels, `npm run lint:bloat`, `npm run lint:docs`,
+  `npm run test:scripts` passed 458 script tests, `npm run lint`,
+  `npm run harness:check`, and `git diff --check` passed.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 

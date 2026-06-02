@@ -1623,7 +1623,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/pages/ApplicationProfile.tsx") {
-    return /Failed to load application history|Restart JobSentinel/i.test(text);
+    return /Failed to load application history|Restart JobSentinel|Marked Sent|Ready to Send/i.test(text);
   }
 
   if (path === "src/hooks/useFeedback.ts") {

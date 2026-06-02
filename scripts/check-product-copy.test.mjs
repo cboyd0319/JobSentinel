@@ -804,7 +804,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/ApplicationProfile.tsx",
-      "Failed to load application history\nRestart JobSentinel\n",
+      "Failed to load application history\nRestart JobSentinel\nMarked Sent\nReady to Send\n",
     );
     writeFixtureFile(
       root,
@@ -1279,6 +1279,14 @@ test("product copy rejects technical-first settings copy", () => {
       hasTechnicalFirstUserCopy(root, "src/components/NotificationPreferences.tsx"),
       true,
     );
+  });
+});
+
+test("product copy rejects Application Profile send/sent stats", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "src/pages/ApplicationProfile.tsx", "Marked Sent\nReady to Send\n");
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ApplicationProfile.tsx"), true);
   });
 });
 

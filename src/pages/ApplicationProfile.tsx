@@ -101,7 +101,7 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
                 value={stats?.totalAttempts ?? 0}
               />
               <StatCard
-                label="Marked Sent"
+                label="Submitted by You"
                 value={stats?.submitted ?? 0}
                 trend={stats?.submitted ? { value: stats.submitted, isPositive: true } : undefined}
               />
@@ -110,7 +110,7 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
                 value={stats?.pending ?? 0}
               />
               <StatCard
-                label="Ready to Send"
+                label="Submission Rate"
                 value={`${(stats?.successRate ?? 0).toFixed(0)}%`}
               />
             </>
