@@ -791,7 +791,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/hooks/useFeedback.ts",
-      "Failed to load system information\n",
+      "Failed to load system information\nPlease try again or copy the report instead\n",
     );
     writeFixtureFile(
       root,

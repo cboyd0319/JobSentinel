@@ -237,7 +237,7 @@ export function useFeedback(): UseFeedbackResult {
       setState(prev => ({
         ...prev,
         submitting: false,
-        error: "Could not save a safe support report. Please try again or copy the report instead.",
+        error: "Could not save a safe support report. Copy the report instead, or try saving again after choosing another folder.",
       }));
     }
   }, [state.category, state.description, state.includeDebugInfo]);

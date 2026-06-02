@@ -1206,6 +1206,9 @@ Next high-value passes:
      alert-settings save guidance with safe-support-report guidance.
      The latest shared error-helper recovery slice replaces retry-only API,
      timeout, and unknown fallback guidance with safe-support-report guidance.
+     The latest feedback-report save recovery slice replaces the remaining
+     retry-oriented save-report wording with direct copy-report and
+     choose-another-folder guidance.
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.

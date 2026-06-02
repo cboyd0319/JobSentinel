@@ -1273,3 +1273,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local shared error-helper recovery slice replaces retry-only API,
   timeout, and unknown fallback guidance with safe-support-report guidance and
   focused helper coverage.
+- Current local feedback-report save recovery slice replaces the remaining
+  retry-oriented save-report wording with direct copy-report and
+  choose-another-folder guidance.

@@ -236,6 +236,9 @@ and record actionable findings in this active-plan surface.
 - Latest local shared error-helper recovery follow-up replaces retry-only API,
   timeout, and unknown fallback guidance with safe-support-report guidance and
   expands product-copy coverage against the old sentences.
+- Latest local feedback-report save recovery follow-up replaces the remaining
+  `Please try again` save-report wording with direct copy-report and
+  choose-another-folder guidance, with product-copy coverage.
 - Latest local recovery-title follow-up replaces remaining visible
   `Failed to...` fallback titles in Resume, Resume Builder, Screening Answers,
   Interview Scheduler, and company-research fallback UI with `Could not...`
@@ -929,6 +932,9 @@ and record actionable findings in this active-plan surface.
 - Current local shared error-helper recovery slice replaces retry-only API,
   timeout, and unknown fallback guidance with safe-support-report guidance and
   focused helper coverage.
+- Current local feedback-report save recovery slice replaces the remaining
+  retry-oriented save-report wording with direct copy-report and
+  choose-another-folder guidance.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

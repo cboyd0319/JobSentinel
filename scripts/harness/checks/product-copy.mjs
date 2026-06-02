@@ -1127,7 +1127,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/hooks/useFeedback.ts") {
-    return /Failed to load system information/i.test(text);
+    return /Failed to load system information|Please try again or copy the report instead/i.test(text);
   }
 
   if (path === "src/utils/api.ts") {
