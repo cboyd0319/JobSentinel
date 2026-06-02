@@ -1175,7 +1175,13 @@ impl AtsAnalyzer {
         let has_direct_evidence = matched.found_in.iter().any(|section| {
             matches!(
                 section.as_str(),
-                "resume text" | "experience" | "summary" | "projects" | "certifications"
+                "resume text"
+                    | "experience"
+                    | "summary"
+                    | "projects"
+                    | "education"
+                    | "certifications"
+                    | "licenses"
             )
         });
 
@@ -1394,16 +1400,11 @@ impl AtsAnalyzer {
     ) -> (Vec<KeywordMatch>, Vec<MissingKeyword>) {
         let mut matches = Vec::new();
         let mut missing = Vec::new();
-        let resume_lower = resume_text.to_lowercase();
 
         for (keyword, importance) in job_keywords {
             let keyword_lower = keyword.to_lowercase();
-            let mut found_in = Vec::new();
-            let mut frequency = Self::keyword_frequency(&resume_lower, &keyword_lower);
-
-            if frequency > 0 {
-                found_in.push("resume text".to_string());
-            }
+            let (mut found_in, mut frequency) =
+                Self::plain_text_keyword_hits(resume_text, &keyword_lower);
 
             let skill_hits = skills
                 .iter()
@@ -1415,7 +1416,7 @@ impl AtsAnalyzer {
                 .count();
 
             if skill_hits > 0 {
-                found_in.push("skills".to_string());
+                Self::add_evidence_section(&mut found_in, "skills");
                 frequency += skill_hits;
             }
 
@@ -1456,6 +1457,68 @@ impl AtsAnalyzer {
         });
 
         (matches, missing)
+    }
+
+    fn plain_text_keyword_hits(resume_text: &str, keyword_lower: &str) -> (Vec<String>, usize) {
+        let mut found_in = Vec::new();
+        let mut frequency = 0;
+        let mut current_section = "resume text";
+
+        for line in resume_text.lines() {
+            if let Some(section) = Self::plain_text_section_label(line) {
+                current_section = section;
+            }
+
+            let line_lower = line.to_lowercase();
+            let count = Self::keyword_frequency(&line_lower, keyword_lower);
+            if count == 0 {
+                continue;
+            }
+
+            Self::add_evidence_section(&mut found_in, current_section);
+            frequency += count;
+        }
+
+        (found_in, frequency)
+    }
+
+    fn add_evidence_section(found_in: &mut Vec<String>, section: &str) {
+        if !found_in.iter().any(|existing| existing == section) {
+            found_in.push(section.to_string());
+        }
+    }
+
+    fn plain_text_section_label(line: &str) -> Option<&'static str> {
+        let normalized = line
+            .trim()
+            .trim_start_matches(|c: char| c == '-' || c == '*' || c == '•')
+            .trim_start()
+            .trim_end_matches(':')
+            .to_lowercase()
+            .replace('/', " ");
+        let normalized = normalized.split_whitespace().collect::<Vec<_>>().join(" ");
+
+        let labels = [
+            ("professional experience", "experience"),
+            ("work experience", "experience"),
+            ("selected projects", "projects"),
+            ("skills technical skills", "skills"),
+            ("technical skills", "skills"),
+            ("core skills", "skills"),
+            ("certifications", "certifications"),
+            ("licenses", "licenses"),
+            ("publications", "publications"),
+            ("education", "education"),
+            ("experience", "experience"),
+            ("projects", "projects"),
+            ("summary", "summary"),
+            ("profile", "summary"),
+            ("skills", "skills"),
+        ];
+
+        labels.iter().find_map(|(heading, label)| {
+            Self::line_starts_with_heading(&normalized, heading).then_some(*label)
+        })
     }
 
     fn keyword_frequency(text: &str, keyword: &str) -> usize {
@@ -2303,7 +2366,7 @@ Preferred: Salesforce
     #[test]
     fn test_requirement_reviews_explain_direct_partial_and_missing_evidence() {
         let result = AtsAnalyzer::analyze_text_for_job(
-            "Jordan Lee\njordan@example.com\n\nSkills\nLed client intake scheduling projects.",
+            "Jordan Lee\njordan@example.com\n\nExperience\nLed client intake scheduling projects.",
             &["CRM".to_string()],
             "Required: scheduling, CRM\n\nPreferred: Salesforce",
         );
@@ -2316,7 +2379,7 @@ Preferred: Salesforce
         assert_eq!(scheduling.match_state, RequirementMatchState::Direct);
         assert!(scheduling
             .evidence_sections
-            .contains(&"resume text".to_string()));
+            .contains(&"experience".to_string()));
         assert!(scheduling.recommendation.contains("visible evidence"));
 
         let crm = result
@@ -2335,6 +2398,33 @@ Preferred: Salesforce
             .expect("salesforce review");
         assert_eq!(salesforce.match_state, RequirementMatchState::Missing);
         assert!(salesforce.recommendation.contains("Only add it if true"));
+    }
+
+    #[test]
+    fn test_plain_text_requirement_review_treats_skills_section_as_partial_evidence() {
+        let result = AtsAnalyzer::analyze_text_for_job(
+            "Jordan Lee\njordan@example.com\n\nSkills\nCRM\n\nExperience\nLed intake scheduling rollout.",
+            &[],
+            "Required: CRM, scheduling",
+        );
+
+        let crm = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "crm")
+            .expect("crm review");
+        assert_eq!(crm.match_state, RequirementMatchState::Partial);
+        assert!(crm.evidence_sections.contains(&"skills".to_string()));
+
+        let scheduling = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "scheduling")
+            .expect("scheduling review");
+        assert_eq!(scheduling.match_state, RequirementMatchState::Direct);
+        assert!(scheduling
+            .evidence_sections
+            .contains(&"experience".to_string()));
     }
 
     #[test]

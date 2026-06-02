@@ -108,10 +108,16 @@ copy durable findings back into this plan or the active status surface.
   synonym, recency, seniority, and profession-specific weighting remain future
   work. The dedicated repo note now lives at
   `docs/research/resume-alignment-scoring.md`.
-- Current local ghost/stale job-card action slice adds high-risk
+- Latest pushed ghost/stale job-card action slice is committed in
+  `6adcff7c Add posting verification support`. It adds high-risk
   **Open Original Posting** guidance, safe-link regression tests,
-  keyboard-focusable ghost-risk indicators, and real verified/needs-review
-  feedback tests.
+  keyboard-focusable ghost-risk indicators, real verified/needs-review
+  feedback tests, a visible Settings help/support section, and the harness
+  multi-agent orchestration contract.
+- Current local resume evidence-strength follow-up starts section-placement
+  review for saved-resume plain text, keeping skills-list-only terms as lighter
+  evidence while experience, summary, project, education, certification, and
+  license evidence can count as direct.
 - Latest local resume parser follow-up keeps required and preferred job-post
   sections separate when postings use single-line headings instead of blank
   lines, preventing preferred nice-to-have language from being shown as a
@@ -1105,7 +1111,8 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
-| 2026-06-02 | In progress | Current local priority is critical functionality before cleanup. Resume requirement-review caps and next-action guidance are in local commits; current local ghost/stale job-card action and feedback-accessibility slice is under verification. |
+| 2026-06-02 | In progress | Ghost/stale job-card action and feedback-accessibility slice is pushed in `6adcff7c`. Current local resume evidence-strength follow-up starts section-placement review for saved-resume plain text. |
+| 2026-06-02 | In progress | Current local priority is critical functionality before cleanup. Resume requirement-review caps and next-action guidance are in local commits. |
 | 2026-06-02 | In progress | Refreshed active evidence after broad-audience and Rule 0 copy work. Remaining product priorities stay ghost/stale detection, pay protection, long-term-unemployment support, bias-aware routes, protective tone, and local-first privacy. |
 | 2026-05-31 | In progress | Added the compact active status surface and archived older progress rows so future research-backed product work can restart from current ghost/stale, pay protection, long-term-unemployment, bias-aware route, protective-tone, and local-first privacy priorities. |
 | 2026-05-31 | In progress | Refreshed active-plan status after harness-focused work. No product implementation changed in this plan; the next product slices remain ghost/stale detection, pay protection, long-term-unemployment support, bias-aware application routes, protective tone, and local-first privacy. |
@@ -1477,14 +1484,15 @@ source-filter compatibility issue appears.
   protective product priorities from the latest goal guidance. The guided setup
   preference for fresh and verified postings is implemented and covered by
   focused tests. Local resume requirement-review caps and next-action guidance
-  are committed. Current local ghost/stale job-card action and
-  feedback-accessibility slice is under verification.
+  are committed. Ghost/stale job-card action and feedback-accessibility work is
+  pushed in `6adcff7c`. Current local resume evidence-strength follow-up is
+  under verification.
 - Evidence: source documents, selected primary sources, and local PDF text
   extraction reviewed on
   2026-05-28.
-- Next step: finish verification and commit the current ghost/stale
-  job-card-action slice, then continue the next critical functional slice before
-  broad cleanup.
+- Next step: finish verification and commit the current resume
+  evidence-strength slice, then continue the next critical functional slice
+  before broad cleanup.
 - Open risks: exact source statistics need re-check before product copy or
   implementation claims; this plan does not prove feasibility of every listed
   feature.

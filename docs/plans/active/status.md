@@ -45,12 +45,20 @@ acceptance still requires Developer ID signing and notarization.
 
 ## Current Posture
 
-- `main` is ahead of `origin/main`; use `git status --short --branch` for live
-  evidence before committing, pushing, or reporting remote state.
-- Current local critical-functionality slice adds a high-risk posting action on
+- `main` matches `origin/main` at `6adcff7c Add posting verification support`.
+  Use `git status --short --branch` for live evidence before committing,
+  pushing, or reporting remote state.
+- Latest pushed critical-functionality slice adds a high-risk posting action on
   job cards, keyboard-focusable ghost-risk indicators with real feedback tests,
   a visible Settings help/support section for safe support reports, and a
   harness-level multi-agent orchestration contract.
+- Current local resume evidence-strength follow-up separates plain-text
+  saved-resume requirement evidence by section, so skills-list-only terms stay
+  lighter evidence while experience, summary, project, education,
+  certification, or license evidence can count as direct. Focused analyzer
+  verification passed: `cargo test --lib requirement_review --manifest-path
+  src-tauri/Cargo.toml` and `cargo test --lib ats_analyzer --manifest-path
+  src-tauri/Cargo.toml`.
 - Current local active-resume preload follow-up loads the active saved resume
   when **Resume Match** opens, so a user can paste a job post and choose
   **Review Match** without knowing to click **Choose or Add Resume** first.
@@ -1347,11 +1355,14 @@ Scope:
   requirement review caps` and `3aa39952 Add resume next-action guidance`.
   They add local requirement review, recognized hard-constraint caps, and
   plain next-action guidance for Resume Match.
-- Current local critical-functionality slice adds the high-risk **Open Original
+- Latest pushed critical-functionality slice adds the high-risk **Open Original
   Posting** action and next-step guidance on job cards, improves
   ghost-indicator feedback accessibility and tests, makes Settings support
   reports easier to find, and locks the architect/orchestrator plus sub-agent
   contract into the harness.
+- Current local resume evidence-strength slice starts section-placement review
+  for saved-resume plain text by distinguishing skills-list hits from
+  experience, summary, project, education, certification, and license hits.
 - No-Apple-account macOS readiness is already best-possible without an Apple
   Developer Account. Keep the limitation explicit: Gatekeeper-ready public
   distribution still needs Developer ID signing and notarization.
@@ -1361,8 +1372,7 @@ Scope:
 
 ## Next Best Work
 
-1. Finish verification and commit the current critical-functionality and
-   orchestration harness slice.
+1. Finish verification and commit the current resume evidence-strength slice.
 2. Continue resume assistance only where it improves truthful local requirement
    review, hard-constraint handling, readable evidence, or next-action
    guidance.
