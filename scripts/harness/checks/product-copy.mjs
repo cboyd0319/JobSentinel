@@ -852,6 +852,11 @@ export function hasTechnicalFirstUserCopy(root, path) {
     const readmePatterns = [
       /before scanning starts/i,
       /starts scanning/i,
+      /source adapters/i,
+      /common source HTTP client/i,
+      /ATS platforms/i,
+      /background monitoring/i,
+      /job source adapter guide/i,
     ];
 
     if (readmePatterns.some((pattern) => pattern.test(text))) {
@@ -1213,6 +1218,12 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /title count/i,
       /work location mode/i,
       /requested-job limit/i,
+      /Scheduled adapters/i,
+      /Source-check adapters/i,
+      /Representative adapter limits/i,
+      /bounded HTTP request/i,
+      /parse into normalized jobs/i,
+      /deduplicate/i,
     ];
 
     if (sourceDocPatterns.some((pattern) => pattern.test(text))) {

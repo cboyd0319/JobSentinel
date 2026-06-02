@@ -245,6 +245,11 @@ boundaries, and harness modularity:
 - Changed USAJobs setup from old shortcut phrasing to scheduled-check and
   on-your-schedule wording. Settings and product-copy tests guard the old
   phrases.
+- Expanded README network disclosure for enabled job-source checks, approved
+  source addresses, user-configured channels, support links, location detection,
+  and approved external AI payloads. Replaced source-adapter, HTTP-client,
+  background-monitoring, and duplicate handling jargon in front-door source docs
+  and product-copy sensors now guard the old phrases.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.
@@ -1319,8 +1324,8 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   them; pair the deletion with bloat allowlist updates.
 - Keep IP geolocation behind explicit user action, use HTTPS, and document the
   public-IP lookup because it is an external provider call.
-- Match ATS platforms from parsed URL host/path only; HTML fallback can inspect
-  page content, but URL detection must not trust arbitrary query text.
+- Match hiring platforms from parsed URL host/path only; page fallback can
+  inspect page content, but URL detection must not trust arbitrary query text.
 - Log sanitized URL labels for automation commands instead of raw
   user-controlled URLs.
 - Treat stale source-tree snapshots and old module paths as repo bloat when

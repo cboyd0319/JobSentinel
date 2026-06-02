@@ -204,6 +204,11 @@ Current cleanup posture:
 - Current local USAJobs setup follow-up replaces old shortcut phrasing with
   scheduled-check and on-your-schedule wording. Settings and product-copy coverage
   guard the old phrases.
+- Current local README/source-doc follow-up expands network disclosure for
+  enabled job-source checks, approved source addresses, user-configured
+  channels, support links, location detection, and approved external AI
+  payloads. It also replaces source-adapter, HTTP-client, background-monitoring,
+  and duplicate handling jargon in front-door source docs.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.
@@ -442,9 +447,9 @@ Current cleanup posture:
 - Current local sidecar audit follow-up updates Quick Start, Deep Links, Job
   Sources, and Job Source Status docs to avoid remaining technical-first or
   scary phrases such as Assets section, low-trust postings, session cookies,
-  background collection, rate limiting, source adapters, hidden endpoints,
-  raw format lists, and hashing internals. Product-copy harness coverage now
-  blocks those audited doc phrases from returning.
+  background-check wording, rate-limit jargon, source-adapter labels, hidden
+  internal-address wording, raw format lists, and hashing internals. Product-copy
+  harness coverage now blocks those audited doc phrases from returning.
 - Current local UI copy follow-up updates Browser Button setup, Job Site Search
   Links, and Job Source Status wording from the sidecar audit. The old advanced
   connection, local safety code, if-this-feels-hard, block-page-import,

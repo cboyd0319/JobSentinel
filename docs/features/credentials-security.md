@@ -152,7 +152,7 @@ the provider used by the desktop environment.
 | Permission denied | OS credential prompt was denied | Re-allow JobSentinel in OS credential settings |
 | Not found | Credential was deleted or never configured | Re-enter and save credential in Settings |
 | Service unavailable | Linux Secret Service provider is stopped | Start or restart the provider |
-| Invalid key | Frontend or command sent an unknown key | Fix caller to use a supported snake-case key |
+| Invalid key | App sent an unsupported saved-detail name | Try again; if it repeats, save a safe support report so maintainers can fix it |
 
 ## User Guarantees
 

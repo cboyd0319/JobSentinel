@@ -63,7 +63,7 @@ or build something better with it if that helps more people.
 | Who is it for? | Anyone trying to find a new job, including technical and non-technical roles. |
 | What is it built to help with? | Real, relevant, fairly compensated work, not application volume. |
 | What stays local? | Searches, saved jobs, notes, resumes, salary floors, application history, and safe support reports by default. |
-| What can leave the device? | Only user-configured alerts, optional location detection after a click, or explicitly approved external AI payloads. |
+| What can leave the device? | Enabled job-source checks, approved source addresses, user-configured alerts, optional location detection after a click, support links opened by the user, or explicitly approved external AI payloads. |
 | Is external AI required? | No. External AI is optional, disabled by default, preview-gated, and gateway-bound. |
 | Is it free? | Yes. JobSentinel is MIT licensed and free forever. |
 | Current release | `v2.6.4` with Windows, macOS, and Linux installers. |
@@ -157,8 +157,9 @@ After checking the download, click **More info**, then click **Run anyway**.
 
 Privacy and security are release blockers, not preferences. No account is
 required. JobSentinel stores search data locally and only sends data outside the
-app when the user explicitly configures a channel or approves an external AI
-request.
+app for enabled job-source checks, approved source addresses, user-configured
+channels, support links the user opens, optional location detection after a
+click, or approved external AI requests.
 
 | Principle | Repository commitment |
 | --------- | --------------------- |
@@ -218,7 +219,7 @@ React 19 + TypeScript UI
   -> Tauri command boundary
   -> Rust 2021 services
   -> local SQLite database
-  -> source adapters and optional user-configured channels
+  -> job-source checks and optional user-configured channels
 ```
 
 | Boundary | Rule |
@@ -226,7 +227,7 @@ React 19 + TypeScript UI
 | Renderer to backend | UI calls typed Tauri commands and handles errors with user-safe messages. |
 | Storage | SQLite stores search state, saved jobs, notes, applications, and local reports. |
 | Secrets | Alert connection details, email credentials, and USAJobs access codes use the OS credential store. |
-| Source adapters | Adapters use bounded requests, source-specific rate limits, and shared retry helpers. |
+| Job-source checks | Source checks use bounded requests, source-specific limits, and shared retry helpers. |
 | External alerts | Slack, Discord, Teams, Telegram, and email are user-configured. |
 | Support sharing | GitHub issue pages and Google Drive support links open only when the user chooses them. |
 | External AI | All provider calls must go through the AI gateway. Scattered provider calls are not allowed. |
@@ -283,6 +284,7 @@ a hosted JobSentinel service.
 | Slack, Discord, Teams, email, Telegram, and USAJobs secrets | Your OS credential store |
 | Desktop notifications | Your computer |
 | External alerts | Only the channels you configure |
+| Enabled job-source checks | Public job-source services or user-approved source addresses; selected search details only |
 | Support sharing links | GitHub issue pages and Google Drive folders open only when you choose them |
 | Optional location detection | FreeIPAPI HTTPS lookup only after you click **Detect location**; cached for the session |
 | Optional external AI | Disabled by default; every request needs opt-in, preview, approval, minimization, and local metadata logging |
@@ -306,29 +308,29 @@ Learn more in [secure credential storage](docs/security/KEYRING.md) and the
 
 ## Source Coverage
 
-JobSentinel supports 12 scheduled source adapters with rate limits,
-deduplication, health checks, and shared retry helpers for adapters that route
-requests through the common source HTTP client. The health system also has 15
-source-health checks. LinkedIn is a user-opened search-link destination, not a
-background source.
+JobSentinel can check 12 job sources on a schedule, with clear source limits,
+duplicate handling, health checks, and bounded website reads. The health system
+also has 15 source-health checks. LinkedIn is a user-opened search-link
+destination, not a scheduled source.
 
 | Category | Sources |
 | -------- | ------- |
-| ATS platforms | Greenhouse, Lever |
-| General and tech boards | Dice, Glassdoor, SimplyHired |
-| Remote and startup boards | RemoteOK, WeWorkRemotely, BuiltIn, YC Startup Jobs |
-| Community and specialized feeds | HN Who's Hiring, JobsWithGPT, USAJobs |
+| Hiring-platform feeds | Greenhouse, Lever |
+| General and tech job sites | Dice, Glassdoor, SimplyHired |
+| Remote and startup job sites | RemoteOK, WeWorkRemotely, BuiltIn, YC Startup Jobs |
+| Community and official feeds | HN Who's Hiring, JobsWithGPT, USAJobs |
 | User-opened search links | LinkedIn and other job-site destinations opened by the user |
 
 Some monitored sources have optional setup. USAJobs can use an access code for
-background monitoring, but users can open USAJobs through job-site search links
+scheduled checks, but users can open USAJobs through job-site search links
 without setup. JobSentinel reports source health so you can see when a source is
 healthy, degraded, or blocked. Source collection is scoped to a single user's
-local search, follows source-specific boundaries, and favors public ATS feeds or
-official company sources when available. Large platforms with restricted
+local search, follows source-specific boundaries, and favors public
+hiring-platform feeds or official company sources when available. Large
+platforms with restricted
 automation policies should be opened by the user through search links.
 
-Read the full [job source adapter guide](docs/features/scrapers.md) and
+Read the full [job source guide](docs/features/scrapers.md) and
 [job source health docs](docs/features/scraper-health.md).
 
 ---
@@ -475,7 +477,7 @@ Developer docs:
   refresh.
 - Playwright smoke and full-browser test commands are faster and support
   `npm run test:e2e:last-failed` for quick failure loops.
-- LinkedIn is now user-opened search links only; background monitoring and new
+- LinkedIn is now user-opened search links only; scheduled checks and new
   session credential storage are disabled by source policy.
 
 ### Tracked Next

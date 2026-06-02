@@ -707,6 +707,12 @@ test("product copy rejects technical-first settings copy", () => {
         "Public job endpoint",
         "Best-effort public source; anti-bot prone",
         "This reduces duplicate postings across ATS feeds",
+        "Scheduled adapters",
+        "Source-check adapters",
+        "Representative adapter limits",
+        "bounded HTTP request",
+        "parse into normalized jobs",
+        "deduplicate",
         "",
       ].join("\n"),
     );
@@ -1789,7 +1795,15 @@ test("product copy rejects first-run scanning copy in README", () => {
     writeFixtureFile(
       root,
       "README.md",
-      "Review the search before scanning starts.\nAfter setup, JobSentinel starts scanning.\n",
+      [
+        "Review the search before scanning starts.",
+        "After setup, JobSentinel starts scanning.",
+        "JobSentinel supports scheduled source adapters through a common source HTTP client.",
+        "ATS platforms include Greenhouse and Lever.",
+        "USAJobs can use an access code for background monitoring.",
+        "Read the full job source adapter guide.",
+        "",
+      ].join("\n"),
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);

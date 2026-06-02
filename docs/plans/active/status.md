@@ -77,6 +77,12 @@ and record actionable findings in this active-plan surface.
 - Latest local USAJobs setup follow-up replaces old shortcut phrasing with
   scheduled-check and on-your-schedule wording. Settings and product-copy tests
   guard the old phrases.
+- Latest local README/source-doc follow-up expands network disclosure for
+  job-source checks, approved source addresses, user-configured channels,
+  support links, location detection, and approved external AI payloads. It also
+  replaces source-adapter, HTTP-client, background-monitoring, and duplicate
+  handling jargon in front-door source docs. Product-copy tests guard the old
+  phrases.
 - Latest local resume-readability follow-up changes score-adjacent labels from
   `Complete`, `Completeness`, `missing`, `issues`, `View Details`, and `Full
   Resume Readability Review` to details, details-included, to-review,
