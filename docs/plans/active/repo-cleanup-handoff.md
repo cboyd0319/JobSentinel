@@ -50,13 +50,20 @@ Recent remote integration evidence:
   `node --test scripts/check-product-copy.test.mjs` passed 32 tests, `npm run
   lint:bloat`, `npm run harness:check`, `npm run lint:docs`, `npm run
   test:scripts` passed 456 script tests, and `git diff --check`.
-- Current local notification-doc cleanup removes maintainer-only alert delivery,
+- Committed local notification-doc cleanup removes maintainer-only alert delivery,
   raw connection-link, and module-structure details from the user-facing
   notification guide. Product-copy sensors now reject those blocks if they drift
   back into the feature doc. Focused verification passed: `node --test
   scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found no
   maintainer-detail block terms in `docs/features/notifications.md`, `npm run
   lint:bloat`, and `npm run harness:check`.
+- Current local architecture-doc accuracy slice aligns the developer credential
+  and notification module summary with live Rust names, service naming, legacy
+  LinkedIn cleanup, and alert privacy boundaries. Docs-drift sensors now reject
+  the stale credential names and old storage-boundary wording. Focused
+  verification passed: `node --test scripts/check-docs-drift.test.mjs` passed
+  15 tests, targeted architecture search found no stale credential markers,
+  `npm run lint:bloat`, and `npm run harness:check`.
 - Current local source-name copy follow-up changes README source coverage,
   source feature docs, public job-source issue template, shared source labels,
   and frontend mocks from `HN Who's Hiring` wording to `Startup and tech job
@@ -232,9 +239,12 @@ Current cleanup posture:
   language. Product-copy sensors cover the old developer-reference headings and
   storage-key wording. Focused security-doc, product-copy, bloat, harness, docs,
   script, and diff-check verification passed.
-- Current local notification-doc cleanup removes maintainer-only delivery and
+- Committed local notification-doc cleanup removes maintainer-only delivery and
   module details from the user-facing notification guide. Focused product-copy,
   bloat, harness, and targeted-search verification passed.
+- Current local architecture-doc accuracy slice fixes stale credential and
+  notification module docs against live Rust names and alert privacy boundaries.
+  Focused docs-drift, bloat, harness, and targeted-search verification passed.
 - Current local source-name copy follow-up changes README, source docs, public
   job-source issue template, shared source labels, and frontend mocks away from
   `HN Who's Hiring` wording. Focused source-label, Settings, SetupWizard,

@@ -175,10 +175,14 @@ boundaries, and harness modularity:
   sensors against developer-reference drift in the feature doc. Focused
   security-doc, product-copy, bloat, harness, docs, script, and diff-check
   verification passed.
-- Current local notification-doc cleanup removes maintainer-only alert delivery,
+- Committed local notification-doc cleanup removes maintainer-only alert delivery,
   raw connection-link, and module-structure details from the user-facing
   notification guide. Focused product-copy, targeted-search, bloat, and harness
   verification passed.
+- Current local architecture-doc accuracy slice aligns developer credential and
+  notification module docs with live Rust names, service naming, legacy LinkedIn
+  cleanup, and alert privacy boundaries. Focused docs-drift, targeted-search,
+  bloat, and harness verification passed.
 - Changed README source coverage, source feature docs, public job-source issue
   template, shared source labels, and frontend mocks from `HN Who's Hiring`
   wording to `Startup and tech job posts`. Focused source-label, Settings,

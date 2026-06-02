@@ -432,12 +432,17 @@ export function hasDeveloperArchitectureDocMarkers(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return (
-    /[✅❌⚠️]|\*\*(?:Last Updated|Version|Maintained By)\*\*:|[\u{2190}-\u{21ff}\u{2500}-\u{257f}]/u.test(text) ||
-    /Good ✅|Bad ❌|DO ✅|DON'T ❌|No cloud dependencies \(v1\.0\)|JobSentinel v\d+\.\d+(?:\.\d+)? System Architecture/.test(
-      text,
-    )
-  );
+  const stalePatterns = [
+    /[✅❌⚠️]|\*\*(?:Last Updated|Version|Maintained By)\*\*:|[\u{2190}-\u{21ff}\u{2500}-\u{257f}]/u,
+    /Good ✅|Bad ❌|DO ✅|DON'T ❌|No cloud dependencies \(v1\.0\)/,
+    /JobSentinel v\d+\.\d+(?:\.\d+)? System Architecture/,
+    /core\/credentials\/` \(NEW in v2\.0\)/,
+    /SlackWebhookUrl|DiscordWebhookUrl|TeamsWebhookUrl|UsaJobsAccessCode/,
+    /Dual-access pattern: Tauri plugin/,
+    /service_name: String,\s*\/\/ "com\.jobsentinel\.app"/,
+  ];
+
+  return stalePatterns.some((pattern) => pattern.test(text));
 }
 
 export function hasDeveloperMaintenanceDocDrift(root, path) {

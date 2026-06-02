@@ -217,13 +217,15 @@ total_score = (
 )
 ```
 
-#### `core/credentials/` (NEW in v2.0)
+#### `core/credentials/`
 
-**Purpose**: Secure credential storage
+**Purpose**: OS password-store boundary
 
-- OS-native keyring integration
-- macOS Keychain, Windows Credential Manager, Linux Secret Service
-- Dual-access pattern: Tauri plugin for frontend, keyring crate for backend
+- Frontend reaches saved secrets only through Tauri credential commands.
+- Backend notification and source code uses `CredentialStore` directly.
+- Both paths use service name `JobSentinel` and `jobsentinel_*` storage keys.
+- Legacy LinkedIn entries are retained only for cleanup and redaction, not new
+  storage.
 
 **Key Types:**
 
@@ -231,23 +233,22 @@ total_score = (
 pub enum CredentialKey {
     SmtpPassword,
     TelegramBotToken,
-    SlackWebhookUrl,
-    DiscordWebhookUrl,
-    TeamsWebhookUrl,
-    UsaJobsAccessCode,
-}
-
-pub struct CredentialStore {
-    service_name: String,  // "com.jobsentinel.app"
+    SlackWebhook,
+    DiscordWebhook,
+    TeamsWebhook,
+    LinkedInCookie,
+    LinkedInCookieExpiry,
+    UsaJobsApiKey,
 }
 ```
 
-**Credentials Secured:**
+**Saved details:**
 
-- SMTP password (email notifications)
-- Telegram bot token
-- Slack/Discord/Teams webhook URLs
+- Email app password
+- Telegram setup code
+- Slack, Discord, and Teams connection links
 - USAJobs access code
+- Legacy LinkedIn entries for cleanup and redaction only
 
 See [Security: Keyring Integration](../security/KEYRING.md) for full documentation.
 
@@ -255,17 +256,18 @@ See [Security: Keyring Integration](../security/KEYRING.md) for full documentati
 
 **Purpose**: Alert notifications
 
-- Slack, Discord, Teams webhooks
-- Email via SMTP
-- Desktop notifications via Tauri
-- **Credentials fetched from keyring at runtime** (v2.0+)
+- Slack, Discord, and Teams chat alerts
+- Email alerts
+- Desktop alerts through Tauri
+- Saved alert details resolved inside backend code when needed
 
 **Security:**
 
-- Webhook URL validation
-- HTTPS enforcement
-- Domain allowlisting
-- Secure credential storage via keyring
+- Connection-link validation before save and send.
+- HTTPS and host/path checks for chat-alert links.
+- Saved secret values are not returned to the renderer.
+- External alerts omit local match reasons, private notes, salary-floor details,
+  and application history.
 
 #### `core/ghost/`
 

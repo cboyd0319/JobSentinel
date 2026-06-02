@@ -207,7 +207,14 @@ test("docs drift check rejects developer doc stale markers", () => {
     writeFixtureFile(
       root,
       "docs/developer/ARCHITECTURE.md",
-      "JobSentinel v2.7 System Architecture\n",
+      [
+        "JobSentinel v2.7 System Architecture",
+        "#### `core/credentials/` (NEW in v2.0)",
+        "SlackWebhookUrl",
+        "Dual-access pattern: Tauri plugin",
+        'service_name: String,  // "com.jobsentinel.app"',
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(root, "docs/developer/GETTING_STARTED.md", "**Version 2.1**\n");
 
