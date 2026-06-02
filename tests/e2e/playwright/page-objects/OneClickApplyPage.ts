@@ -70,7 +70,7 @@ export class OneClickApplyPage extends BasePage {
   }
 
   get maxApplicationsSelect(): Locator {
-    return this.page.getByLabel("Daily application review limit");
+    return this.page.getByLabel("Applications to review per day");
   }
 
   get manualApprovalCheckbox(): Locator {

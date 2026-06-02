@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ToastProvider } from "../../contexts";
 import { ProfileForm } from "./ProfileForm";
@@ -232,6 +232,47 @@ describe("ProfileForm resume privacy", () => {
       screen.getByText("Add the missing details, then save again."),
     ).toBeInTheDocument();
     expect(screen.queryByText("Please fix the errors")).not.toBeInTheDocument();
+  });
+
+  it("uses protective review pace choices", async () => {
+    mockInvoke.mockResolvedValueOnce(mockProfile());
+
+    renderProfileForm();
+
+    const reviewPace = await screen.findByRole("combobox", {
+      name: "Applications to review per day",
+    });
+
+    expect(screen.getByText("Review Pace")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Use a pace you can review carefully. JobSentinel never submits applications for you.",
+      ),
+    ).toBeInTheDocument();
+    expect(within(reviewPace).getByRole("option", { name: "3" })).toBeInTheDocument();
+    expect(within(reviewPace).getByRole("option", { name: "15" })).toBeInTheDocument();
+    expect(within(reviewPace).queryByRole("option", { name: "50" })).not.toBeInTheDocument();
+    expect(screen.queryByText("Daily review limit:")).not.toBeInTheDocument();
+  });
+
+  it("keeps an existing high review pace visible without making it a normal choice", async () => {
+    mockInvoke.mockResolvedValueOnce(mockProfile({ maxApplicationsPerDay: 20 }));
+
+    renderProfileForm();
+
+    const reviewPace = await screen.findByRole("combobox", {
+      name: "Applications to review per day",
+    });
+
+    expect(reviewPace).toHaveValue("20");
+    expect(
+      within(reviewPace).getByRole("option", { name: "20 (current saved pace)" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Your saved pace is higher than the usual choices. Lower it if applications start crowding out verified, fairly paid roles.",
+      ),
+    ).toBeInTheDocument();
   });
 
   it("uses plain recovery copy when profile saving fails", async () => {

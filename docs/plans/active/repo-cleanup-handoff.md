@@ -31,6 +31,20 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local Application Assist review-pace cleanup changes stats away from
+  volume/rate wording (`Forms Opened`, `Submission Rate`) toward review-first
+  labels, changes profile review settings to `Review Pace`, removes the normal
+  `50` daily option, and keeps higher saved paces visible only as existing
+  state with protective guidance. Product-copy sensors now reject old review
+  pace and submission-rate drift. Verification passed: `npx vitest run
+  src/components/automation/ProfileForm.test.tsx
+  src/pages/ApplicationProfile.test.tsx` passed 14 tests, `node --test
+  scripts/check-product-copy.test.mjs` passed 43 tests, `node --test
+  scripts/check-repo-bloat.test.mjs` passed 221 tests, focused Playwright
+  `node scripts/run-playwright.mjs test
+  tests/e2e/playwright/one-click-apply.spec.ts --project=chromium --grep
+  "loads settings stats"` passed 1 test in 2.9s, `npm run lint`,
+  `npm run lint:bloat`, `npm run lint:docs`, and `git diff --check`.
 - Current local test-quality harness cleanup closes the skipped/empty-test
   smell gap from the deep harness audit. `check-test-quality.mjs` now rejects
   `test.skip`, empty JavaScript test bodies, and empty Rust `#[test]`

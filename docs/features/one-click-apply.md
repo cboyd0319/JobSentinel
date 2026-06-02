@@ -69,10 +69,10 @@ Before using Application Assist, fill in your information:
 - Whether you are authorized to work in the United States
 - Whether you need visa sponsorship now or in the future
 
-### Review Settings
+### Review Pace
 
-- **Daily review limit** - a guardrail against spending too much energy on
-  forms in one day.
+- **Applications to review per day** - a guardrail against spending too much
+  energy on forms in one day.
 - **Ask me before each form** - shows a preview before JobSentinel prepares
   details on a form. Keep this on unless you have a clear reason to change it.
 
@@ -161,10 +161,10 @@ verification.
 
 ## Safety Features
 
-### Review Limit
+### Review Pace
 
-The default daily review limit protects your time and attention. Raise it only
-when it matches your search plan.
+The default daily review pace protects your time and attention. Keep it at a
+level where every application can still be reviewed carefully.
 
 ### Manual Review
 

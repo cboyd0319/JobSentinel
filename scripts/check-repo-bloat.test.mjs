@@ -1944,7 +1944,7 @@ test("checkRepoBloat rejects application-assist automation framing", () => {
     writeFixtureFile(
       root,
       "src/pages/ApplicationProfile.tsx",
-      '"One-Click Apply Settings"; "Total Attempts"; "Success Rate";\n',
+      '"One-Click Apply Settings"; "Total Attempts"; "Success Rate"; "Submission Rate";\n',
     );
     writeFixtureFile(
       root,

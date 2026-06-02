@@ -18,10 +18,10 @@ test.describe("Application Assist Settings", () => {
   });
 
   test("loads settings stats, tabs, and human-review safety copy @smoke", async ({ page }) => {
-    await expect(applyPage.statCard("Forms Opened")).toContainText("42");
-    await expect(applyPage.statCard("Marked Sent")).toContainText("38");
+    await expect(applyPage.statCard("Opened for Review")).toContainText("42");
+    await expect(applyPage.statCard("Submitted by You")).toContainText("38");
     await expect(applyPage.statCard("Needs Follow-Up")).toContainText("4");
-    await expect(applyPage.statCard("Ready to Send")).toContainText("90%");
+    await expect(applyPage.statCard("Sent After Review")).toContainText("90%");
     await expect(applyPage.profileTab).toBeVisible();
     await expect(applyPage.screeningTab).toBeVisible();
     await expect(page.getByRole("heading", { name: "How Application Assist Works" })).toBeVisible();
@@ -66,7 +66,7 @@ test.describe("Application Assist Settings", () => {
       github: "https://casey.example.com/profile",
       portfolio: "https://casey.example.com/work",
       website: "https://casey.example.com",
-      maxApplications: "20",
+      maxApplications: "15",
     });
 
     await expect(applyPage.unsavedChangesIndicator).toBeVisible();
@@ -88,12 +88,12 @@ test.describe("Application Assist Settings", () => {
     await expect(applyPage.githubInput).toHaveValue("https://casey.example.com/profile");
     await expect(applyPage.portfolioInput).toHaveValue("https://casey.example.com/work");
     await expect(applyPage.websiteInput).toHaveValue("https://casey.example.com");
-    await expect(applyPage.maxApplicationsSelect).toHaveValue("20");
+    await expect(applyPage.maxApplicationsSelect).toHaveValue("15");
   });
 
   test("keeps manual approval enabled and final submission manual", async ({ page }) => {
     await expect(applyPage.manualApprovalCheckbox).toBeChecked();
-    await expect(page.getByText("Review each application before JobSentinel prepares details")).toBeVisible();
+    await expect(page.getByText("Review every application before JobSentinel prepares details")).toBeVisible();
     await expect(page.getByText("You review every field and decide whether to submit")).toBeVisible();
   });
 

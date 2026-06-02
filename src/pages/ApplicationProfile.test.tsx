@@ -47,10 +47,11 @@ describe("ApplicationProfile", () => {
       expect(screen.getByRole("article", { name: "Submitted by You statistic" })).toBeInTheDocument();
     });
 
-    expect(screen.getByRole("article", { name: "Forms Opened statistic" })).toBeInTheDocument();
+    expect(screen.getByRole("article", { name: "Opened for Review statistic" })).toBeInTheDocument();
     expect(screen.getByRole("article", { name: "Needs Follow-Up statistic" })).toBeInTheDocument();
-    expect(screen.getByRole("article", { name: "Submission Rate statistic" })).toBeInTheDocument();
+    expect(screen.getByRole("article", { name: "Sent After Review statistic" })).toBeInTheDocument();
     expect(screen.queryByText("Marked Sent")).not.toBeInTheDocument();
     expect(screen.queryByText("Ready to Send")).not.toBeInTheDocument();
+    expect(screen.queryByText("Submission Rate")).not.toBeInTheDocument();
   });
 });

@@ -97,7 +97,7 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
           ) : (
             <>
               <StatCard
-                label="Forms Opened"
+                label="Opened for Review"
                 value={stats?.totalAttempts ?? 0}
               />
               <StatCard
@@ -110,7 +110,7 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
                 value={stats?.pending ?? 0}
               />
               <StatCard
-                label="Submission Rate"
+                label="Sent After Review"
                 value={`${(stats?.successRate ?? 0).toFixed(0)}%`}
               />
             </>

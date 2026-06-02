@@ -440,6 +440,7 @@ export function hasApplicationAssistAutomationFraming(root, path) {
     new RegExp(["Max", "\\s+", "applications", "\\s+", "per", "\\s+", "day"].join(""), "i"),
     new RegExp(["Total", "\\s+", "Attempts"].join(""), "i"),
     new RegExp(["Success", "\\s+", "Rate"].join(""), "i"),
+    new RegExp(["Submission", "\\s+", "Rate"].join(""), "i"),
     new RegExp(["Automation", "\\s+", "Settings"].join(""), "i"),
     new RegExp(["No", "\\s+", "Auto-Submit"].join(""), "i"),
     new RegExp(["automated", "\\s+", "browsers"].join(""), "i"),
@@ -1699,7 +1700,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/components/automation/ProfileForm.tsx") {
-    return /Require manual approval|Failed to load profile|Failed to select file|Please fix the errors|Failed to save|Please try again|Taking longer than expected|Select your resume file \(PDF or DOCX\) for application review/i.test(text);
+    return /Require manual approval|Failed to load profile|Failed to select file|Please fix the errors|Failed to save|Please try again|Taking longer than expected|Select your resume file \(PDF or DOCX\) for application review|Daily application review limit|Daily review limit:|<option value="50">50<\/option>/i.test(text);
   }
 
   if (path === "src/components/automation/ScreeningAnswersForm.tsx") {
@@ -1743,7 +1744,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/pages/ApplicationProfile.tsx") {
-    return /Failed to load application history|Restart JobSentinel|Marked Sent|Ready to Send/i.test(text);
+    return /Failed to load application history|Restart JobSentinel|Marked Sent|Ready to Send|Submission Rate/i.test(text);
   }
 
   if (path === "src/hooks/useFeedback.ts") {

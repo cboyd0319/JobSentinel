@@ -77,6 +77,8 @@ interface ApplicationResumeFileSelection {
   fileName: string;
 }
 
+const REVIEW_PACE_OPTIONS = [3, 5, 10, 15] as const;
+
 export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormProps) {
   const [loading, setLoading] = useState(true);
   const [takingLong, setTakingLong] = useState(false);
@@ -261,6 +263,9 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     : resumeFileMarkedForClear
       ? ""
       : savedResumeFileName;
+  const hasStandardReviewPace = REVIEW_PACE_OPTIONS.some(
+    (option) => option === maxApplicationsPerDay,
+  );
 
   const handleSelectResume = async (): Promise<void> => {
     try {
@@ -609,29 +614,45 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
           </div>
         </section>
 
-        {/* Review Settings */}
+        {/* Review Pace */}
         <section role="group" aria-labelledby="review-settings-heading">
           <h4 id="review-settings-heading" className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
-            Review Settings
-            <HelpIcon text="Control how Application Assist prepares forms for review" />
+            Review Pace
+            <HelpIcon text="Set a review pace you can inspect carefully. JobSentinel never submits applications for you." />
           </h4>
           <div className="space-y-4">
-            <div className="flex items-center gap-4">
-              <label htmlFor="max-applications-select" className="text-surface-700 dark:text-surface-300 text-sm">
-                Daily review limit:
-              </label>
-              <select
-                id="max-applications-select"
-                value={maxApplicationsPerDay}
-                onChange={(e) => setMaxApplicationsPerDay(parseInt(e.target.value))}
-                className="px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100"
-                aria-label="Daily application review limit"
-              >
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="20">20</option>
-                <option value="50">50</option>
-              </select>
+            <div className="space-y-2">
+              <div className="flex items-center gap-4">
+                <label htmlFor="max-applications-select" className="text-surface-700 dark:text-surface-300 text-sm">
+                  Applications to review per day:
+                </label>
+                <select
+                  id="max-applications-select"
+                  value={maxApplicationsPerDay}
+                  onChange={(e) => setMaxApplicationsPerDay(parseInt(e.target.value))}
+                  className="px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100"
+                  aria-label="Applications to review per day"
+                >
+                  {REVIEW_PACE_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                  {!hasStandardReviewPace && maxApplicationsPerDay > 0 && (
+                    <option value={maxApplicationsPerDay}>
+                      {maxApplicationsPerDay} (current saved pace)
+                    </option>
+                  )}
+                </select>
+              </div>
+              <p className="text-xs text-surface-500 dark:text-surface-400">
+                Use a pace you can review carefully. JobSentinel never submits applications for you.
+              </p>
+              {!hasStandardReviewPace && maxApplicationsPerDay > 0 && (
+                <p className="text-xs text-amber-600 dark:text-amber-400">
+                  Your saved pace is higher than the usual choices. Lower it if applications start crowding out verified, fairly paid roles.
+                </p>
+              )}
             </div>
             <label className="flex items-start gap-3 cursor-pointer">
               <input
@@ -645,7 +666,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
                   Ask me before each form
                 </span>
                 <p className="text-sm text-surface-500 dark:text-surface-400">
-                  Review each application before JobSentinel prepares details (recommended)
+                  Review every application before JobSentinel prepares details (recommended)
                 </p>
               </div>
             </label>

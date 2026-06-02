@@ -403,7 +403,7 @@ pub struct ScreeningAnswer {
 
 - Never clicks Submit (user always decides)
 - CAPTCHA detection with user prompts
-- Daily review limit
+- Review pace limit
 - Visible browser window (no headless mode)
 - Resume attachment remains manual; Application Assist does not upload saved
   resume files automatically

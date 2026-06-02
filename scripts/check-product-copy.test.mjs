@@ -136,6 +136,11 @@ test("product copy rejects application automation framing", () => {
       "src/components/automation/ApplicationPreview.tsx",
       'aria-label={`Application tracking system: ${atsPlatform}`}\n',
     );
+    writeFixtureFile(
+      root,
+      "src/pages/ApplicationProfile.tsx",
+      '"Submission Rate"\n',
+    );
 
     assert.equal(
       hasApplicationAssistAutomationFraming(root, "docs/features/one-click-apply.md"),
@@ -150,6 +155,10 @@ test("product copy rejects application automation framing", () => {
         root,
         "src/components/automation/ApplicationPreview.tsx",
       ),
+      true,
+    );
+    assert.equal(
+      hasApplicationAssistAutomationFraming(root, "src/pages/ApplicationProfile.tsx"),
       true,
     );
   });
@@ -925,7 +934,7 @@ test("product copy rejects technical-first settings copy", () => {
     writeFixtureFile(
       root,
       "src/pages/ApplicationProfile.tsx",
-      "Failed to load application history\nRestart JobSentinel\nMarked Sent\nReady to Send\n",
+      "Failed to load application history\nRestart JobSentinel\nMarked Sent\nReady to Send\nSubmission Rate\n",
     );
     writeFixtureFile(
       root,
@@ -1124,6 +1133,9 @@ test("product copy rejects technical-first settings copy", () => {
       "src/components/automation/ProfileForm.tsx",
       [
         "Require manual approval",
+        "Daily application review limit",
+        "Daily review limit:",
+        '<option value="50">50</option>',
         "Failed to load profile",
         "Failed to select file",
         "Please fix the errors",
@@ -1478,7 +1490,11 @@ test("product copy rejects prescriptive resume review copy", () => {
 
 test("product copy rejects Application Profile send/sent stats", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/pages/ApplicationProfile.tsx", "Marked Sent\nReady to Send\n");
+    writeFixtureFile(
+      root,
+      "src/pages/ApplicationProfile.tsx",
+      "Marked Sent\nReady to Send\nSubmission Rate\n",
+    );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ApplicationProfile.tsx"), true);
   });

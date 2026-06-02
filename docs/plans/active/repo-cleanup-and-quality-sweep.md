@@ -1047,6 +1047,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-06-02 | In progress | Changed Application Assist stats from volume/rate wording (`Forms Opened`, `Submission Rate`) to review-first labels, changed profile review settings to `Review Pace`, removed the normal `50` daily option, and kept higher saved paces visible only as existing state with protective guidance. Focused ProfileForm/ApplicationProfile, product-copy, repo-bloat, Playwright smoke, lint, docs, and diff-check verification passed. |
 | 2026-06-02 | In progress | Changed stale ScoreDisplay Storybook examples from `Excellent`, `Average`, `Low`, and percentage-range labels to maintained fit labels. Product-copy sensors now reject the old story names and range labels; focused ScoreDisplay, product-copy, lint, script, bloat, docs, and diff-check verification passed. |
 | 2026-06-02 | In progress | Changed Notification Preferences alert-filter badges from raw threshold percentages to plain alert-pickiness labels and added source-specific slider names. Product-copy sensors now reject raw `{config.minScoreThreshold}%` display; focused NotificationPreferences, product-copy, lint, script, bloat, docs, and diff-check verification passed. |
 | 2026-06-02 | In progress | Applied latest read-only sidecar findings across the docs hub, Job Sources, Resume Data Import, Fit Review, Resume Builder, Notifications, Quick Start, and Privacy. Removed API/rate/schema/score-range wording from user-facing docs, switched source pacing to plain labels, pointed Resume Builder at the current Resume Match image, and added product-copy coverage; focused product-copy, script, bloat, harness, docs, targeted-search, and diff-check verification passed. |
@@ -1770,6 +1771,11 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local frontend-boundary harness follow-up closes the `@/*` alias
   blind spot from the deep harness audit by resolving `tsconfig.json` path
   aliases before applying layer-boundary checks.
+- Current local Application Assist review-pace follow-up changes stats away
+  from volume/rate wording (`Forms Opened`, `Submission Rate`) toward
+  review-first labels, changes profile review settings to `Review Pace`, removes
+  the normal `50` daily option, and keeps higher saved paces visible only as
+  existing state with protective guidance.
 - Current local test-quality harness follow-up closes skipped and empty-test
   blind spots by rejecting `test.skip`, empty JavaScript tests, and empty Rust
   `#[test]` functions.
