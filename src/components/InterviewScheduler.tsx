@@ -66,13 +66,13 @@ const TYPE_COLORS: Record<string, string> = {
 const OUTCOME_COLORS: Record<string, string> = {
   passed: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
   pending: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
-  failed: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+  failed: "bg-surface-100 text-surface-800 dark:bg-surface-700 dark:text-surface-200",
 };
 
 const OUTCOME_LABELS: Record<string, string> = {
   passed: "Went well",
   pending: "Not sure yet",
-  failed: "Did not go well",
+  failed: "Not a fit",
 };
 
 function formatOutcomeLabel(outcome: string): string {
@@ -1053,7 +1053,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                         onClick={() => { setFeedbackOutcome("failed"); setShowFeedbackForm(true); }}
                         className="flex-1"
                       >
-                        Did not go well
+                        Not a fit
                       </Button>
                     </div>
                   </>

@@ -31,6 +31,17 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local interview outcome cleanup changes the negative outcome button
+  and chip from `Did not go well` to `Not a fit`, keeps the persisted
+  `failed` value for data compatibility, and uses neutral chip colors instead
+  of red failure colors. Product-copy sensors now reject the old phrase.
+  Verification passed: `npx vitest run
+  src/components/InterviewScheduler.test.tsx` passed 39 tests,
+  `node --test scripts/check-product-copy.test.mjs` passed 43 tests, and
+  `rg -n "Did not go well" src docs/plans/active README.md ROADMAP.md --glob
+  '!docs/archive/**'` found no matches. Broader checks also passed:
+  `npm run lint`, `npm run test:scripts` passed 468 tests,
+  `npm run lint:bloat`, `npm run lint:docs`, and `git diff --check`.
 - Current local pay-floor empty-state cleanup changes the no-jobs Dashboard
   helper text so empty searches suggest nearby titles, locations, work modes,
   or more sources before changing the user's lowest acceptable pay. Product
@@ -1015,7 +1026,7 @@ Current cleanup posture:
   profile details.
 - Current local interview-outcome follow-up keeps the persisted `failed`
   interview outcome value while changing visible outcome buttons and chips to
-  plain, non-shaming labels such as `Did not go well`. Focused component tests
+  plain, non-shaming labels such as `Not a fit`. Focused component tests
   and product-copy sensors cover the old labels.
 - Current local skill-label follow-up replaces vague self-rating labels such as
   beginner, intermediate, advanced, expert, and seniority level with

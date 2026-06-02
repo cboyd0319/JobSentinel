@@ -801,7 +801,7 @@ boundaries, and harness modularity:
   remain out of that external source request.
 - Fixed visible interview outcome labels that still used pass/fail framing.
   The internal saved value remains `failed`, but visible buttons and chips now
-  use plain, non-shaming labels such as `Did not go well`, with focused
+  use plain, non-shaming labels such as `Not a fit`, with focused
   component tests and product-copy coverage.
 - Added `npm run doctor` for local Node, npm, Rust, Tauri CLI, lockfile, SQLx
   offline, Linux Tauri package, Playwright browser, and toolchain drift

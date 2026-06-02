@@ -551,7 +551,7 @@ describe("InterviewScheduler", () => {
       await waitFor(() => {
         expect(screen.getByText("Went well")).toBeInTheDocument();
         expect(screen.getByText("Not sure yet")).toBeInTheDocument();
-        expect(screen.getByText("Did not go well")).toBeInTheDocument();
+        expect(screen.getByText("Not a fit")).toBeInTheDocument();
       });
     });
 

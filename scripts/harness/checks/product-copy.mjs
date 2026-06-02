@@ -1719,7 +1719,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/components/InterviewScheduler.tsx") {
-    return /Failed to load interviews|Technical Interview|Mark as Complete|>\s*Failed\s*<|feedbackOutcome\.charAt/.test(text) || /Interview Outcome:/.test(text);
+    return /Failed to load interviews|Technical Interview|Mark as Complete|>\s*Failed\s*<|Did not go well|feedbackOutcome\.charAt/.test(text) || /Interview Outcome:/.test(text);
   }
 
   if (path === "src/pages/DashboardUI/DashboardHeader.tsx") {
