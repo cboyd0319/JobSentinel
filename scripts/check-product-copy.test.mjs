@@ -545,6 +545,7 @@ test("product copy rejects technical-first settings copy", () => {
         "{confidencePercent}% confident",
         "(modified {Math.round(suggestion.modificationRate * 100)}%)",
         "Failed to load suggestions",
+        'setError("Could not load saved answers");',
         "",
       ].join("\n"),
     );

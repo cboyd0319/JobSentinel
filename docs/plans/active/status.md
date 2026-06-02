@@ -68,6 +68,10 @@ and record actionable findings in this active-plan surface.
   `Analytics Dashboard` label to `Application Summary` and the accessible chart
   region label to `Application summary charts`, with product-copy coverage
   against the old analytics wording.
+- Latest local saved-answer recovery follow-up changes Application Assist
+  suggested-answer failures from a bare `Could not load saved answers` message
+  to support-report recovery wording, with focused component and product-copy
+  coverage.
 - Latest local privacy harness follow-up closes the screening-question debug-log
   debt: Application Assist traces and screening-answer command logs now stay
   count-only or ID-only for question text, saved answer patterns, original

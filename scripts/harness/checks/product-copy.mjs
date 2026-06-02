@@ -1182,7 +1182,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/components/automation/ScreeningAnswerSuggestions.tsx") {
-    return /Failed to load suggestions/i.test(text);
+    return /Failed to load suggestions|setError\(\s*["'`]Could not load saved answers["'`]\s*\)/i.test(text);
   }
 
   if (path === "src/pages/DashboardUI/noJobsEmptyStateCopy.ts") {

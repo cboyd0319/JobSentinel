@@ -95,7 +95,7 @@ describe("ScreeningAnswerSuggestions", () => {
 
     render(<ScreeningAnswerSuggestions question="When can you start?" />);
 
-    expect(await screen.findByText("Could not load saved answers")).toBeInTheDocument();
+    expect(await screen.findByText("Could not load saved answers. Try again, or copy a safe support report if this keeps happening.")).toBeInTheDocument();
     expect(screen.queryByText("Failed to load suggestions")).not.toBeInTheDocument();
   });
 });
