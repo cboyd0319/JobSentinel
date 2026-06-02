@@ -36,6 +36,22 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local macOS no-account post-commit verification rebuilt the universal
+  DMG from committed resume-guidance head `12c184db` on macOS 26.5
+  (build 25F71), Apple Silicon `arm64`, with SIP enabled. The build produced
+  `src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg`
+  plus `.sha256` sidecar. `npm run tauri:verify:macos -- --dmg
+  src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg
+  --expected-bundle-id com.jobsentinel.main --expected-product-name JobSentinel
+  --expected-version 2.6.4 --expected-icon-file icon.icns
+  --expected-minimum-system-version 13.0 --expected-architectures x86_64,arm64
+  --launch-smoke --install-smoke --require-checksum` passed. It verified
+  checksum `ade524d737ec75ae89aa5f2884409c0ee694002b106be982355486e49053e9c2`,
+  DMG integrity, bundle metadata, universal architectures, code signature,
+  mounted-app launch smoke, installed-app launch smoke, and isolated local
+  `jobs.db` creation. Gatekeeper rejected the ad-hoc DMG and app as expected;
+  Developer ID signing and notarization are still required for zero-friction
+  public macOS distribution.
 - Current local active-resume preload follow-up loads the active saved resume
   when **Resume Match** opens, so a user can paste a job post and choose
   **Review Match** without knowing to click **Choose or Add Resume** first.

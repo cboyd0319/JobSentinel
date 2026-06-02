@@ -100,6 +100,22 @@ manipulation, or unreviewed form sending.
   component rubrics, resume-quality versus role-fit separation, hard-constraint
   caps, match states, evidence strength, seniority alignment, conservative
   synonyms, recency, section placement, and profession-specific weighting.
+- Current local macOS no-account post-commit verification rebuilt the universal
+  DMG from committed resume-guidance head `12c184db` on macOS 26.5
+  (build 25F71), Apple Silicon `arm64`, with SIP enabled. The build produced
+  `src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg`
+  plus `.sha256` sidecar. `npm run tauri:verify:macos -- --dmg
+  src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg
+  --expected-bundle-id com.jobsentinel.main --expected-product-name JobSentinel
+  --expected-version 2.6.4 --expected-icon-file icon.icns
+  --expected-minimum-system-version 13.0 --expected-architectures x86_64,arm64
+  --launch-smoke --install-smoke --require-checksum` passed. It verified
+  checksum `ade524d737ec75ae89aa5f2884409c0ee694002b106be982355486e49053e9c2`,
+  DMG integrity, bundle metadata, universal architectures, code signature,
+  mounted-app launch smoke, installed-app launch smoke, and isolated local
+  `jobs.db` creation. Gatekeeper rejected the ad-hoc DMG and app as expected;
+  Developer ID signing and notarization are still required for zero-friction
+  public macOS distribution.
 - Current local resume-assistance follow-up makes **Review Match** usable with
   the active saved resume instead of requiring copied structured resume
   details, keeps saved resume text inside the Tauri backend, adds a local
