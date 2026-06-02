@@ -48,6 +48,9 @@ narrow implementation slices chosen from that backlog.
   sub-scores for recent Resume Match results and makes the Resume page guard
   optional sub-scores before display, preventing partial payloads from showing
   invalid percentages.
+- Latest local resume skill-edit contract follow-up lets users clear optional
+  skill details, trims skill names before saving, and rejects blank skill names
+  or invalid years in UI and backend paths.
 
 ## Source files
 

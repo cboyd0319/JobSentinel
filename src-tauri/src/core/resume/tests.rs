@@ -1,6 +1,7 @@
 //! Tests for the resume module
 
 use super::skills::SkillExtractor;
+use super::types::{NewSkill, NullableFieldUpdate, SkillUpdate};
 use super::ResumeMatcher;
 use sqlx::sqlite::SqlitePoolOptions;
 use sqlx::{Row, SqlitePool};
@@ -1047,6 +1048,155 @@ async fn test_get_user_skills_with_all_fields() {
     assert_eq!(skills[0].years_experience, Some(5.5));
     assert_eq!(skills[0].proficiency_level, Some("Expert".to_string()));
     assert_eq!(skills[0].source, "manual");
+}
+
+#[tokio::test]
+async fn test_update_user_skill_clears_optional_fields_and_trims_name() {
+    let pool = setup_test_db().await;
+    let matcher = ResumeMatcher::new(pool.clone());
+    let resume_id = create_test_resume(&pool, "Resume", "Resident support").await;
+
+    let skill_id = matcher
+        .add_user_skill(
+            resume_id,
+            NewSkill {
+                skill_name: "  Case Management  ".to_string(),
+                skill_category: Some("  Community Support  ".to_string()),
+                proficiency_level: Some("  Regular use  ".to_string()),
+                years_experience: Some(4.0),
+            },
+        )
+        .await
+        .unwrap();
+
+    matcher
+        .update_user_skill(
+            skill_id,
+            SkillUpdate {
+                skill_name: Some("  Care Planning  ".to_string()),
+                skill_category: NullableFieldUpdate::Clear,
+                proficiency_level: NullableFieldUpdate::Clear,
+                years_experience: NullableFieldUpdate::Clear,
+            },
+        )
+        .await
+        .unwrap();
+
+    let skills = matcher.get_user_skills(resume_id).await.unwrap();
+    assert_eq!(skills.len(), 1);
+    assert_eq!(skills[0].skill_name, "Care Planning");
+    assert_eq!(skills[0].skill_category, None);
+    assert_eq!(skills[0].proficiency_level, None);
+    assert_eq!(skills[0].years_experience, None);
+}
+
+#[test]
+fn test_skill_update_deserializes_missing_and_null_differently() {
+    let missing: SkillUpdate = serde_json::from_value(serde_json::json!({})).unwrap();
+    assert_eq!(missing.skill_category, NullableFieldUpdate::Unset);
+    assert_eq!(missing.proficiency_level, NullableFieldUpdate::Unset);
+    assert_eq!(missing.years_experience, NullableFieldUpdate::Unset);
+
+    let explicit_clear: SkillUpdate = serde_json::from_value(serde_json::json!({
+        "skill_category": null,
+        "proficiency_level": null,
+        "years_experience": null
+    }))
+    .unwrap();
+    assert_eq!(explicit_clear.skill_category, NullableFieldUpdate::Clear);
+    assert_eq!(explicit_clear.proficiency_level, NullableFieldUpdate::Clear);
+    assert_eq!(explicit_clear.years_experience, NullableFieldUpdate::Clear);
+
+    let explicit_values: SkillUpdate = serde_json::from_value(serde_json::json!({
+        "skill_category": "Customer support",
+        "proficiency_level": "Regular use",
+        "years_experience": 3.5
+    }))
+    .unwrap();
+    assert_eq!(
+        explicit_values.skill_category,
+        NullableFieldUpdate::Set("Customer support".to_string())
+    );
+    assert_eq!(
+        explicit_values.proficiency_level,
+        NullableFieldUpdate::Set("Regular use".to_string())
+    );
+    assert_eq!(
+        explicit_values.years_experience,
+        NullableFieldUpdate::Set(3.5)
+    );
+}
+
+#[tokio::test]
+async fn test_user_skill_validation_rejects_blank_names_and_invalid_years() {
+    let pool = setup_test_db().await;
+    let matcher = ResumeMatcher::new(pool.clone());
+    let resume_id = create_test_resume(&pool, "Resume", "Scheduling").await;
+
+    let blank_add = matcher
+        .add_user_skill(
+            resume_id,
+            NewSkill {
+                skill_name: "   ".to_string(),
+                skill_category: None,
+                proficiency_level: None,
+                years_experience: None,
+            },
+        )
+        .await;
+    assert!(blank_add.is_err());
+
+    let invalid_years = matcher
+        .add_user_skill(
+            resume_id,
+            NewSkill {
+                skill_name: "Scheduling".to_string(),
+                skill_category: None,
+                proficiency_level: None,
+                years_experience: Some(51.0),
+            },
+        )
+        .await;
+    assert!(invalid_years.is_err());
+
+    let skill_id = matcher
+        .add_user_skill(
+            resume_id,
+            NewSkill {
+                skill_name: "Scheduling".to_string(),
+                skill_category: None,
+                proficiency_level: None,
+                years_experience: Some(2.0),
+            },
+        )
+        .await
+        .unwrap();
+
+    let blank_update = matcher
+        .update_user_skill(
+            skill_id,
+            SkillUpdate {
+                skill_name: Some("   ".to_string()),
+                skill_category: NullableFieldUpdate::Unset,
+                proficiency_level: NullableFieldUpdate::Unset,
+                years_experience: NullableFieldUpdate::Unset,
+            },
+        )
+        .await;
+    assert!(blank_update.is_err());
+
+    let invalid_update_years = matcher
+        .update_user_skill(
+            skill_id,
+            SkillUpdate {
+                skill_name: None,
+                skill_category: NullableFieldUpdate::Unset,
+                proficiency_level: NullableFieldUpdate::Unset,
+                years_experience: NullableFieldUpdate::Set(-1.0),
+            },
+        )
+        .await;
+    assert!(invalid_update_years.is_err());
 }
 
 #[tokio::test]

@@ -305,6 +305,19 @@ unreviewed form sending.
   test:scripts` passed 503 tests. Follow-up repo checks passed: `npm run
   lint:docs`, `npm run lint:bloat`, `npm run harness:check`, and
   `git diff --check`.
+- Current local resume skill-edit contract fix trims skill names, rejects blank
+  names and invalid years in both UI and backend paths, and adds explicit
+  set/clear/unchanged handling for optional skill category, strength, and years
+  fields so users can remove stale skill details without hidden renderer
+  assumptions. Mock skill handling now mirrors the same trim and clear behavior.
+  Verification passed: focused Rust skill-edit and serde contract tests,
+  `npx vitest run src/pages/Resume.test.tsx src/mocks/handlers.test.ts`
+  passed 20 tests, `npm run lint`, `npm run build`, `npm run test:run` passed
+  2629 tests, `cargo test --lib resume` passed 174 tests,
+  `cargo clippy -- -D warnings`, `cargo fmt --all -- --check`,
+  `npm run test:scripts` passed
+  503 tests, `npm run lint:bloat`, `npm run harness:check`, and `git diff
+  --check`.
 - Current local resume suggestion follow-up replaces backend and mock
   suggestion impact values like `High` and `Medium` with concrete, review-first
   user guidance, changes bullet suggestions from command-style action-verb copy

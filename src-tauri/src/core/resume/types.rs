@@ -1,7 +1,7 @@
 //! Type definitions for the resume module
 
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use std::collections::HashMap;
 
 /// Resume metadata (for uploaded PDF resumes)
@@ -138,12 +138,15 @@ pub struct MatchResultWithJob {
 // ============================================================================
 
 /// Update payload for modifying a user skill
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 pub struct SkillUpdate {
     pub skill_name: Option<String>,
-    pub skill_category: Option<String>,
-    pub proficiency_level: Option<String>,
-    pub years_experience: Option<f64>,
+    #[serde(default, deserialize_with = "deserialize_nullable_update")]
+    pub skill_category: NullableFieldUpdate<String>,
+    #[serde(default, deserialize_with = "deserialize_nullable_update")]
+    pub proficiency_level: NullableFieldUpdate<String>,
+    #[serde(default, deserialize_with = "deserialize_nullable_update")]
+    pub years_experience: NullableFieldUpdate<f64>,
 }
 
 /// Payload for adding a new skill
@@ -153,6 +156,38 @@ pub struct NewSkill {
     pub skill_category: Option<String>,
     pub proficiency_level: Option<String>,
     pub years_experience: Option<f64>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum NullableFieldUpdate<T> {
+    Unset,
+    Clear,
+    Set(T),
+}
+
+impl<T> Default for NullableFieldUpdate<T> {
+    fn default() -> Self {
+        Self::Unset
+    }
+}
+
+impl<T> NullableFieldUpdate<T> {
+    pub fn is_unset(&self) -> bool {
+        matches!(self, Self::Unset)
+    }
+}
+
+fn deserialize_nullable_update<'de, D, T>(
+    deserializer: D,
+) -> Result<NullableFieldUpdate<T>, D::Error>
+where
+    D: Deserializer<'de>,
+    T: Deserialize<'de>,
+{
+    Option::<T>::deserialize(deserializer).map(|value| match value {
+        Some(value) => NullableFieldUpdate::Set(value),
+        None => NullableFieldUpdate::Clear,
+    })
 }
 
 // ============================================================================

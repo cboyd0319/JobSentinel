@@ -2817,6 +2817,20 @@ function normalizeSkillInput(value: unknown): MockSkillInput {
   return value && typeof value === "object" ? (value as MockSkillInput) : {};
 }
 
+function hasOwnInputKey(value: MockSkillInput, key: keyof MockSkillInput): boolean {
+  return Object.prototype.hasOwnProperty.call(value, key);
+}
+
+function trimmedStringOrNull(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed ? trimmed : null;
+}
+
+function skillYearsOrNull(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
 function normalizeProfileInput(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" ? (value as Record<string, unknown>) : {};
 }
@@ -3469,20 +3483,19 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "add_user_skill": {
       const resumeId = getResumeIdArg(args);
       const skill = normalizeSkillInput(getArg(args, "skill"));
-      if (typeof resumeId !== "number" || typeof skill.skill_name !== "string") {
+      const skillName = trimmedStringOrNull(skill.skill_name);
+      if (typeof resumeId !== "number" || !skillName) {
         return undefined as T;
       }
 
       const newSkill: MockUserSkill = {
         id: getNextId(userSkills),
         resume_id: resumeId,
-        skill_name: skill.skill_name,
-        skill_category: typeof skill.skill_category === "string" ? skill.skill_category : null,
+        skill_name: skillName,
+        skill_category: trimmedStringOrNull(skill.skill_category),
         confidence_score: 1,
-        years_experience:
-          typeof skill.years_experience === "number" ? skill.years_experience : null,
-        proficiency_level:
-          typeof skill.proficiency_level === "string" ? skill.proficiency_level : null,
+        years_experience: skillYearsOrNull(skill.years_experience),
+        proficiency_level: trimmedStringOrNull(skill.proficiency_level),
         source: "manual",
       };
       userSkills.push(newSkill);
@@ -3498,19 +3511,16 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
           ? {
               ...skill,
               skill_name:
-                typeof updates.skill_name === "string" ? updates.skill_name : skill.skill_name,
-              skill_category:
-                typeof updates.skill_category === "string"
-                  ? updates.skill_category
-                  : skill.skill_category,
-              proficiency_level:
-                typeof updates.proficiency_level === "string"
-                  ? updates.proficiency_level
-                  : skill.proficiency_level,
-              years_experience:
-                typeof updates.years_experience === "number"
-                  ? updates.years_experience
-                  : skill.years_experience,
+                trimmedStringOrNull(updates.skill_name) ?? skill.skill_name,
+              skill_category: hasOwnInputKey(updates, "skill_category")
+                ? trimmedStringOrNull(updates.skill_category)
+                : skill.skill_category,
+              proficiency_level: hasOwnInputKey(updates, "proficiency_level")
+                ? trimmedStringOrNull(updates.proficiency_level)
+                : skill.proficiency_level,
+              years_experience: hasOwnInputKey(updates, "years_experience")
+                ? skillYearsOrNull(updates.years_experience)
+                : skill.years_experience,
               source: "manual",
             }
           : skill,

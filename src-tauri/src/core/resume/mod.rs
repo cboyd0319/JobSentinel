@@ -50,6 +50,7 @@ pub mod types;
 use matcher::JobMatcher;
 use parser::ResumeParser;
 use skills::SkillExtractor;
+use types::NullableFieldUpdate;
 
 // Re-export ATS analyzer types
 pub use ats_analyzer::{
@@ -491,54 +492,52 @@ impl ResumeMatcher {
         skill_id: i64,
         updates: types::SkillUpdate,
     ) -> Result<()> {
-        // Build dynamic update query based on provided fields
-        let mut query_parts = Vec::new();
-        let mut bindings: Vec<Box<dyn std::any::Any + Send + Sync>> = Vec::new();
-
-        if let Some(ref name) = updates.skill_name {
-            query_parts.push("skill_name = ?");
-            bindings.push(Box::new(name.clone()));
-        }
-        if let Some(ref category) = updates.skill_category {
-            query_parts.push("skill_category = ?");
-            bindings.push(Box::new(category.clone()));
-        }
-        if let Some(ref level) = updates.proficiency_level {
-            query_parts.push("proficiency_level = ?");
-            bindings.push(Box::new(level.clone()));
-        }
-        if updates.years_experience.is_some() {
-            query_parts.push("years_experience = ?");
-            bindings.push(Box::new(updates.years_experience));
+        if updates.skill_name.is_none()
+            && updates.skill_category.is_unset()
+            && updates.proficiency_level.is_unset()
+            && updates.years_experience.is_unset()
+        {
+            return Ok(());
         }
 
-        if query_parts.is_empty() {
-            return Ok(()); // Nothing to update
-        }
-
-        // Use a simpler approach - update each field individually
-        if let Some(ref name) = updates.skill_name {
+        if let Some(name) = updates.skill_name {
+            let name = normalize_skill_name(&name)?;
             sqlx::query("UPDATE user_skills SET skill_name = ? WHERE id = ?")
                 .bind(name)
                 .bind(skill_id)
                 .execute(&self.db)
                 .await?;
         }
-        if let Some(ref category) = updates.skill_category {
+        if !updates.skill_category.is_unset() {
+            let category = match updates.skill_category {
+                NullableFieldUpdate::Unset => unreachable!(),
+                NullableFieldUpdate::Clear => None,
+                NullableFieldUpdate::Set(category) => normalize_optional_skill_text(Some(category)),
+            };
             sqlx::query("UPDATE user_skills SET skill_category = ? WHERE id = ?")
                 .bind(category)
                 .bind(skill_id)
                 .execute(&self.db)
                 .await?;
         }
-        if let Some(ref level) = updates.proficiency_level {
+        if !updates.proficiency_level.is_unset() {
+            let level = match updates.proficiency_level {
+                NullableFieldUpdate::Unset => unreachable!(),
+                NullableFieldUpdate::Clear => None,
+                NullableFieldUpdate::Set(level) => normalize_optional_skill_text(Some(level)),
+            };
             sqlx::query("UPDATE user_skills SET proficiency_level = ? WHERE id = ?")
                 .bind(level)
                 .bind(skill_id)
                 .execute(&self.db)
                 .await?;
         }
-        if let Some(years) = updates.years_experience {
+        if !updates.years_experience.is_unset() {
+            let years = match updates.years_experience {
+                NullableFieldUpdate::Unset => unreachable!(),
+                NullableFieldUpdate::Clear => None,
+                NullableFieldUpdate::Set(years) => validate_skill_years(Some(years))?,
+            };
             sqlx::query("UPDATE user_skills SET years_experience = ? WHERE id = ?")
                 .bind(years)
                 .bind(skill_id)
@@ -567,6 +566,11 @@ impl ResumeMatcher {
 
     /// Add a new skill manually
     pub async fn add_user_skill(&self, resume_id: i64, skill: types::NewSkill) -> Result<i64> {
+        let skill_name = normalize_skill_name(&skill.skill_name)?;
+        let skill_category = normalize_optional_skill_text(skill.skill_category);
+        let proficiency_level = normalize_optional_skill_text(skill.proficiency_level);
+        let years_experience = validate_skill_years(skill.years_experience)?;
+
         let result = sqlx::query(
             r#"
             INSERT INTO user_skills (
@@ -577,19 +581,19 @@ impl ResumeMatcher {
             "#,
         )
         .bind(resume_id)
-        .bind(&skill.skill_name)
-        .bind(&skill.skill_category)
-        .bind(&skill.proficiency_level)
-        .bind(skill.years_experience)
+        .bind(&skill_name)
+        .bind(&skill_category)
+        .bind(&proficiency_level)
+        .bind(years_experience)
         .execute(&self.db)
         .await?;
 
         let skill_id = result.last_insert_rowid();
         tracing::info!(
-            "Added manual skill '{}' to resume {} with id {}",
-            skill.skill_name,
             resume_id,
-            skill_id
+            skill_id,
+            skill_name_chars = skill_name.chars().count(),
+            "Added manual skill"
         );
 
         Ok(skill_id)
@@ -781,6 +785,35 @@ impl ResumeMatcher {
 
         tracing::info!("Imported JSON Resume as draft {}", resume_id);
         Ok(resume_id)
+    }
+}
+
+fn normalize_skill_name(name: &str) -> Result<String> {
+    let trimmed = name.trim();
+    if trimmed.is_empty() {
+        anyhow::bail!("Skill name is required");
+    }
+    Ok(trimmed.to_string())
+}
+
+fn normalize_optional_skill_text(value: Option<String>) -> Option<String> {
+    value.and_then(|text| {
+        let trimmed = text.trim();
+        if trimmed.is_empty() {
+            None
+        } else {
+            Some(trimmed.to_string())
+        }
+    })
+}
+
+fn validate_skill_years(value: Option<f64>) -> Result<Option<f64>> {
+    match value {
+        Some(years) if !years.is_finite() => anyhow::bail!("Skill years must be a number"),
+        Some(years) if !(0.0..=50.0).contains(&years) => {
+            anyhow::bail!("Skill years must be between 0 and 50")
+        }
+        other => Ok(other),
     }
 }
 

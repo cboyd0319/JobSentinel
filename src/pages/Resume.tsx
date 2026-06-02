@@ -89,9 +89,9 @@ interface UserSkill {
 
 interface SkillUpdate {
   skill_name?: string;
-  skill_category?: string;
-  proficiency_level?: string;
-  years_experience?: number;
+  skill_category?: string | null;
+  proficiency_level?: string | null;
+  years_experience?: number | null;
 }
 
 interface NewSkill {
@@ -119,6 +119,15 @@ interface MatchResult {
 
 function isScoreFraction(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
+}
+
+function optionalTrimmedText(value: string | null | undefined): string | null {
+  const trimmed = value?.trim() ?? "";
+  return trimmed ? trimmed : null;
+}
+
+function optionalYearsValue(value: number | null | undefined): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 function ScoreBreakdownRow({
@@ -359,8 +368,21 @@ export default function Resume({ onBack }: ResumeProps) {
   };
 
   const handleUpdateSkill = async (skillId: number) => {
+    const skillName = editForm.skill_name?.trim() ?? "";
+    if (!skillName) {
+      toast.error("Name the skill", "Add a skill name, then save again.");
+      return;
+    }
+
+    const updates: SkillUpdate = {
+      skill_name: skillName,
+      skill_category: optionalTrimmedText(editForm.skill_category),
+      proficiency_level: optionalTrimmedText(editForm.proficiency_level),
+      years_experience: optionalYearsValue(editForm.years_experience),
+    };
+
     try {
-      await safeInvokeWithToast("update_user_skill", { skillId, updates: editForm }, toast, {
+      await safeInvokeWithToast("update_user_skill", { skillId, updates }, toast, {
         logContext: "Update user skill"
       });
       toast.success("Skill updated", "Your skill has been updated");
@@ -391,7 +413,8 @@ export default function Resume({ onBack }: ResumeProps) {
   };
 
   const handleAddSkill = async () => {
-    if (!resume || !newSkillForm.skill_name.trim()) {
+    const skillName = newSkillForm.skill_name.trim();
+    if (!resume || !skillName) {
       toast.error("Name the skill", "Add a skill name, then save again.");
       return;
     }
@@ -399,11 +422,17 @@ export default function Resume({ onBack }: ResumeProps) {
     try {
       await safeInvokeWithToast("add_user_skill", {
         resumeId: resume.id,
-        skill: newSkillForm,
+        skill: {
+          ...newSkillForm,
+          skill_name: skillName,
+          skill_category: optionalTrimmedText(newSkillForm.skill_category) ?? undefined,
+          proficiency_level: optionalTrimmedText(newSkillForm.proficiency_level) ?? undefined,
+          years_experience: optionalYearsValue(newSkillForm.years_experience) ?? undefined,
+        },
       }, toast, {
         logContext: "Add user skill"
       });
-      toast.success("Skill added", `Added "${newSkillForm.skill_name}" to your skills`);
+      toast.success("Skill added", `Added "${skillName}" to your skills`);
       setShowAddSkill(false);
       setNewSkillForm({ skill_name: "", proficiency_level: DEFAULT_SKILL_STRENGTH });
       refetchData();
@@ -420,7 +449,7 @@ export default function Resume({ onBack }: ResumeProps) {
       proficiency_level: skill.proficiency_level
         ? getSkillStrengthLabel(skill.proficiency_level)
         : DEFAULT_SKILL_STRENGTH,
-      years_experience: skill.years_experience || undefined,
+      years_experience: skill.years_experience ?? undefined,
     });
   };
 
@@ -752,7 +781,7 @@ export default function Resume({ onBack }: ResumeProps) {
                         placeholder="Years of experience (optional)"
                         min="0"
                         max="50"
-                        value={newSkillForm.years_experience || ""}
+                        value={newSkillForm.years_experience ?? ""}
                         onChange={(e) =>
                           setNewSkillForm({
                             ...newSkillForm,
@@ -854,7 +883,7 @@ export default function Resume({ onBack }: ResumeProps) {
                               onChange={(e) =>
                                 setEditForm({
                                   ...editForm,
-                                  skill_category: e.target.value || undefined,
+                                  skill_category: e.target.value || null,
                                 })
                               }
                               className="px-2 py-1.5 text-sm rounded border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200"
@@ -868,13 +897,13 @@ export default function Resume({ onBack }: ResumeProps) {
                             </select>
                             <input
                               type="number"
-                              value={editForm.years_experience || ""}
+                              value={editForm.years_experience ?? ""}
                               onChange={(e) =>
                                 setEditForm({
                                   ...editForm,
                                   years_experience: e.target.value
                                     ? Number(e.target.value)
-                                    : undefined,
+                                    : null,
                                 })
                               }
                               min="0"

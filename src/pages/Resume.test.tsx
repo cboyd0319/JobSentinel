@@ -226,6 +226,126 @@ describe("Resume page", () => {
     expect(screen.queryByText("(100%)")).not.toBeInTheDocument();
   });
 
+  it("clears optional skill details and trims skill names when editing", async () => {
+    const user = userEvent.setup();
+
+    mockSafeInvokeWithToast.mockResolvedValue(undefined);
+    mockSafeInvoke.mockImplementation((command: string) => {
+      switch (command) {
+        case "get_active_resume":
+          return Promise.resolve({
+            id: 1,
+            name: "Care Coordinator Resume",
+            is_active: true,
+            created_at: "2026-05-21T12:00:00Z",
+            updated_at: "2026-05-21T12:00:00Z",
+          });
+        case "list_all_resumes":
+        case "get_recent_matches":
+          return Promise.resolve([]);
+        case "get_user_skills":
+          return Promise.resolve([
+            {
+              id: 1,
+              resume_id: 1,
+              skill_name: "Patient Scheduling",
+              skill_category: "Customer or Patient Support",
+              confidence_score: 1,
+              years_experience: 3,
+              proficiency_level: "Intermediate",
+              source: "manual",
+            },
+          ]);
+        default:
+          return Promise.resolve(null);
+      }
+    });
+
+    render(<Resume onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Saved Skills (1)")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("button", { name: "Edit skill: Patient Scheduling" }));
+    await user.clear(screen.getByPlaceholderText("Skill name"));
+    await user.type(screen.getByPlaceholderText("Skill name"), "  Care Navigation  ");
+    await user.selectOptions(screen.getByDisplayValue("Customer or Patient Support"), "");
+    await user.clear(screen.getByPlaceholderText("Years"));
+    await user.click(screen.getByRole("button", { name: "Save" }));
+
+    expect(mockSafeInvokeWithToast).toHaveBeenCalledWith(
+      "update_user_skill",
+      {
+        skillId: 1,
+        updates: {
+          skill_name: "Care Navigation",
+          skill_category: null,
+          proficiency_level: "Some practice",
+          years_experience: null,
+        },
+      },
+      expect.anything(),
+      { logContext: "Update user skill" },
+    );
+  });
+
+  it("uses action-first validation copy when editing a skill without a name", async () => {
+    const user = userEvent.setup();
+
+    mockSafeInvoke.mockImplementation((command: string) => {
+      switch (command) {
+        case "get_active_resume":
+          return Promise.resolve({
+            id: 1,
+            name: "Care Coordinator Resume",
+            is_active: true,
+            created_at: "2026-05-21T12:00:00Z",
+            updated_at: "2026-05-21T12:00:00Z",
+          });
+        case "list_all_resumes":
+        case "get_recent_matches":
+          return Promise.resolve([]);
+        case "get_user_skills":
+          return Promise.resolve([
+            {
+              id: 1,
+              resume_id: 1,
+              skill_name: "Patient Scheduling",
+              skill_category: null,
+              confidence_score: 1,
+              years_experience: null,
+              proficiency_level: "Regular use",
+              source: "manual",
+            },
+          ]);
+        default:
+          return Promise.resolve(null);
+      }
+    });
+
+    render(<Resume onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Saved Skills (1)")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("button", { name: "Edit skill: Patient Scheduling" }));
+    await user.clear(screen.getByPlaceholderText("Skill name"));
+    await user.click(screen.getByRole("button", { name: "Save" }));
+
+    expect(mockToast.error).toHaveBeenCalledWith(
+      "Name the skill",
+      "Add a skill name, then save again.",
+    );
+    expect(mockSafeInvokeWithToast).not.toHaveBeenCalledWith(
+      "update_user_skill",
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+    );
+  });
+
   it("uses action-first validation copy when adding a skill without a name", async () => {
     const user = userEvent.setup();
 
