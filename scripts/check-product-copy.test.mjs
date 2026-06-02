@@ -440,6 +440,8 @@ test("product copy rejects technical-first settings copy", () => {
         "SMTP port",
         ">Secure<",
         "Connection Number",
+        "access code, USAJobs email, keywords, location",
+        'label="Keywords"',
         "For automatic monitoring",
         "Advanced federal monitoring",
         "Advanced chat alert",

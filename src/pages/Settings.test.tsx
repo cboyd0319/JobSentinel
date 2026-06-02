@@ -1306,8 +1306,10 @@ describe("Settings — handleSave flow", () => {
       screen.getByText(/Automatic USAJobs checks contact USAJobs/i),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/access code, USAJobs email, keywords, location, remote choice/i),
+      screen.getByText(/access code, USAJobs email, search words, location, remote choice/i),
     ).toBeInTheDocument();
+    expect(screen.getByLabelText("Search words")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Keywords")).not.toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: /Open USAJobs search in your browser/i }),
     ).toHaveAttribute("href", "https://www.usajobs.gov/Search/Results");

@@ -880,6 +880,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       />Result limit</i,
       /Not remote-only/i,
       /Get optional USAJobs access code/i,
+      /USAJobs email,\s*keywords,\s*location/i,
+      /label=["']Keywords["']/i,
       /Source host/i,
       /(?:>\s*|["'`])Settings backup saved(?:\s*<|["'`])/,
       /Saved passwords and connection codes are left out for safety/i,
