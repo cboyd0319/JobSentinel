@@ -1,0 +1,322 @@
+#!/usr/bin/env node
+
+import { execFileSync, spawn } from "node:child_process";
+import {
+  closeSync,
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  mkdtempSync,
+  openSync,
+  readFileSync,
+  rmSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+const scriptPath = fileURLToPath(import.meta.url);
+const defaultRoot = resolve(dirname(scriptPath), "..");
+const defaultSmokeSeconds = 12;
+
+export function getArgValue(args, name) {
+  const exactIndex = args.indexOf(name);
+  if (exactIndex >= 0) {
+    return args[exactIndex + 1];
+  }
+
+  const prefixed = args.find((arg) => arg.startsWith(`${name}=`));
+  return prefixed ? prefixed.slice(name.length + 1) : undefined;
+}
+
+export function hasArg(args, name) {
+  return args.some((arg) => arg === name || arg.startsWith(`${name}=`));
+}
+
+function splitList(value) {
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+export function defaultArchitectures(arch = process.arch) {
+  if (arch === "arm64") return ["arm64"];
+  if (arch === "x64") return ["x86_64"];
+  return [arch];
+}
+
+export function parseArgs(args, arch = process.arch) {
+  const positionalDmg = args.find((arg) => !arg.startsWith("-"));
+  const dmgPath = getArgValue(args, "--dmg") ?? positionalDmg;
+  const expectedArchitectures =
+    getArgValue(args, "--expected-architectures") ??
+    getArgValue(args, "--expected-archs") ??
+    "";
+  const smokeValue = getArgValue(args, "--smoke-seconds");
+
+  return {
+    appName: getArgValue(args, "--app-name") ?? "JobSentinel.app",
+    dmgPath,
+    expectedArchitectures: expectedArchitectures
+      ? splitList(expectedArchitectures)
+      : defaultArchitectures(arch),
+    launchSmoke: hasArg(args, "--launch-smoke") || Boolean(smokeValue),
+    requireGatekeeper: hasArg(args, "--require-gatekeeper"),
+    smokeSeconds: smokeValue ? Number(smokeValue) : defaultSmokeSeconds,
+  };
+}
+
+export function parseLipoArchitectures(output) {
+  const fatMatch = output.match(/are:\s*([^\n]+)/);
+  if (fatMatch) {
+    return fatMatch[1].split(/\s+/).filter(Boolean);
+  }
+
+  const thinMatch = output.match(/architecture:\s*([^\s]+)/);
+  if (thinMatch) {
+    return [thinMatch[1]];
+  }
+
+  return [];
+}
+
+export function hasExpectedArchitectures(found, expected) {
+  const foundSet = new Set(found);
+  return expected.every((architecture) => foundSet.has(architecture));
+}
+
+export function formatGatekeeperStatus({ subject, accepted, requireGatekeeper }) {
+  if (accepted) {
+    return `Gatekeeper accepted: ${subject}`;
+  }
+
+  if (requireGatekeeper) {
+    return `Gatekeeper rejected required public release artifact: ${subject}`;
+  }
+
+  return `Gatekeeper rejected optional check: ${subject}. Developer ID signing and notarization are still required for a zero-friction public macOS release.`;
+}
+
+function runCapture(command, args, options = {}) {
+  return execFileSync(command, args, {
+    cwd: options.cwd ?? defaultRoot,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+    timeout: options.timeout,
+  });
+}
+
+function runChecked(command, args, options = {}) {
+  console.log(`$ ${[command, ...args].join(" ")}`);
+  return runCapture(command, args, options);
+}
+
+function runResult(command, args) {
+  try {
+    const output = runCapture(command, args);
+    return {
+      accepted: true,
+      output,
+      status: 0,
+    };
+  } catch (error) {
+    return {
+      accepted: false,
+      output: `${error.stdout ?? ""}${error.stderr ?? ""}`,
+      status: error.status ?? 1,
+    };
+  }
+}
+
+function requireMacos() {
+  if (process.platform !== "darwin") {
+    throw new Error("macOS package verification must run on macOS.");
+  }
+}
+
+function assertPathExists(path, label) {
+  if (!path || !existsSync(path)) {
+    throw new Error(`${label} missing: ${path ?? "(not provided)"}`);
+  }
+}
+
+function getBundleExecutable(appPath) {
+  const infoPlistPath = join(appPath, "Contents", "Info.plist");
+  assertPathExists(infoPlistPath, "Info.plist");
+  return runCapture("plutil", ["-extract", "CFBundleExecutable", "raw", "-o", "-", infoPlistPath]).trim();
+}
+
+function gatekeeperAssess(subject, type, requireGatekeeper) {
+  const result = runResult("spctl", ["--assess", "--type", type, "--verbose=4", subject]);
+  const status = formatGatekeeperStatus({
+    accepted: result.accepted,
+    requireGatekeeper,
+    subject,
+  });
+
+  if (result.accepted) {
+    console.log(status);
+    return result;
+  }
+
+  if (requireGatekeeper) {
+    throw new Error(`${status}\n${result.output.trim()}`);
+  }
+
+  console.log(status);
+  if (result.output.trim()) {
+    console.log(result.output.trim());
+  }
+
+  return result;
+}
+
+async function sleep(ms) {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function smokeLaunch({ appPath, seconds }) {
+  const executable = join(appPath, "Contents", "MacOS", getBundleExecutable(appPath));
+  assertPathExists(executable, "App executable");
+
+  const smokeRoot = mkdtempSync(join(tmpdir(), "jobsentinel-macos-smoke-"));
+  const stdoutPath = join(smokeRoot, "stdout.log");
+  const stderrPath = join(smokeRoot, "stderr.log");
+  const stdoutFd = openSync(stdoutPath, "w");
+  const stderrFd = openSync(stderrPath, "w");
+
+  try {
+    mkdirSync(join(smokeRoot, "home"));
+    mkdirSync(join(smokeRoot, "xdg"));
+
+    const child = spawn(executable, [], {
+      env: {
+        ...process.env,
+        HOME: join(smokeRoot, "home"),
+        XDG_CONFIG_HOME: join(smokeRoot, "xdg"),
+      },
+      stdio: ["ignore", stdoutFd, stderrFd],
+    });
+
+    await sleep(seconds * 1000);
+
+    if (child.exitCode !== null) {
+      throw new Error(`Launch smoke exited before ${seconds} seconds with status ${child.exitCode}.`);
+    }
+
+    const exitPromise = new Promise((resolve) => child.once("exit", resolve));
+    child.kill("SIGTERM");
+    await exitPromise;
+
+    const stderr = readFileSync(stderrPath, "utf8");
+    if (stderr.trim()) {
+      throw new Error(`Launch smoke wrote stderr:\n${stderr}`);
+    }
+
+    console.log(`Launch smoke passed: app stayed running for ${seconds} seconds with empty stderr.`);
+  } finally {
+    closeSync(stdoutFd);
+    closeSync(stderrFd);
+    rmSync(smokeRoot, { recursive: true, force: true });
+  }
+}
+
+function assertApplicationsSymlink(mountPath) {
+  const applicationsPath = join(mountPath, "Applications");
+  assertPathExists(applicationsPath, "Applications symlink");
+  if (!lstatSync(applicationsPath).isSymbolicLink()) {
+    throw new Error(`Applications entry is not a symlink: ${applicationsPath}`);
+  }
+}
+
+async function verifyMountedApp({ appPath, expectedArchitectures, launchSmoke, requireGatekeeper, smokeSeconds }) {
+  assertPathExists(appPath, "Mounted app bundle");
+
+  const executable = join(appPath, "Contents", "MacOS", getBundleExecutable(appPath));
+  assertPathExists(executable, "App executable");
+
+  const lipoOutput = runChecked("lipo", ["-info", executable]);
+  const architectures = parseLipoArchitectures(lipoOutput);
+  if (!hasExpectedArchitectures(architectures, expectedArchitectures)) {
+    throw new Error(
+      `App binary architectures mismatch. Expected ${expectedArchitectures.join(", ")}, found ${architectures.join(", ") || "(none)"}.`,
+    );
+  }
+  console.log(`App binary architectures verified: ${architectures.join(" ")}`);
+
+  runChecked("codesign", ["--verify", "--deep", "--strict", "--verbose=2", appPath]);
+  console.log(`App bundle signature verified: ${appPath}`);
+
+  gatekeeperAssess(appPath, "execute", requireGatekeeper);
+
+  if (launchSmoke) {
+    await smokeLaunch({ appPath, seconds: smokeSeconds });
+  }
+}
+
+export async function verifyMacosPackage(options) {
+  requireMacos();
+  assertPathExists(options.dmgPath, "DMG");
+
+  runChecked("hdiutil", ["verify", options.dmgPath]);
+  gatekeeperAssess(options.dmgPath, "open", options.requireGatekeeper);
+
+  const tempRoot = mkdtempSync(join(tmpdir(), "jobsentinel-macos-verify-"));
+  const mountPath = join(tempRoot, "mount");
+  let mounted = false;
+
+  try {
+    mkdirSync(mountPath);
+    runChecked("hdiutil", [
+      "attach",
+      "-nobrowse",
+      "-readonly",
+      "-mountpoint",
+      mountPath,
+      options.dmgPath,
+    ]);
+    mounted = true;
+
+    assertApplicationsSymlink(mountPath);
+    await verifyMountedApp({
+      appPath: join(mountPath, options.appName),
+      expectedArchitectures: options.expectedArchitectures,
+      launchSmoke: options.launchSmoke,
+      requireGatekeeper: options.requireGatekeeper,
+      smokeSeconds: options.smokeSeconds,
+    });
+  } finally {
+    if (mounted) {
+      try {
+        runChecked("hdiutil", ["detach", mountPath]);
+      } catch (error) {
+        console.warn(error instanceof Error ? error.message : String(error));
+      }
+    }
+    rmSync(tempRoot, { recursive: true, force: true });
+  }
+
+  console.log(`macOS package verification passed: ${options.dmgPath}`);
+}
+
+export async function main({ args = process.argv.slice(2) } = {}) {
+  const options = parseArgs(args);
+  if (!options.dmgPath) {
+    throw new Error("Usage: verify-macos-package.mjs --dmg <path-to-dmg> [--expected-architectures x86_64,arm64] [--launch-smoke] [--require-gatekeeper]");
+  }
+  if (!Number.isFinite(options.smokeSeconds) || options.smokeSeconds < 1) {
+    throw new Error(`Invalid --smoke-seconds value: ${options.smokeSeconds}`);
+  }
+
+  await verifyMacosPackage(options);
+}
+
+if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
+  try {
+    await main();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  }
+}

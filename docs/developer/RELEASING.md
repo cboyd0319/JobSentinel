@@ -16,6 +16,18 @@ rustup target add aarch64-apple-darwin x86_64-apple-darwin
 npm run tauri:build:macos -- --target universal-apple-darwin
 # Output: src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg
 
+# Verify macOS package integrity locally
+npm run tauri:verify:macos -- \
+  --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg \
+  --expected-architectures x86_64,arm64 \
+  --launch-smoke
+
+# Public macOS release gate
+npm run tauri:verify:macos -- \
+  --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg \
+  --expected-architectures x86_64,arm64 \
+  --require-gatekeeper
+
 # Windows (from Windows machine or VM)
 npm run tauri build
 # Output: src-tauri/target/release/bundle/msi/JobSentinel_*.msi
@@ -43,7 +55,7 @@ Review the draft release on GitHub and click "Publish release".
 
 | Platform | Architecture          | Format      | Status   |
 | -------- | --------------------- | ----------- | -------- |
-| macOS    | universal             | `.dmg`      | Ready after local universal package smoke |
+| macOS    | universal             | `.dmg`      | Local smoke ready; public release requires Gatekeeper pass |
 | Windows  | x86_64                | `.msi`      | Ready |
 | Linux    | x86_64                | `.AppImage` / `.deb` | Workflow ready |
 

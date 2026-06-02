@@ -221,6 +221,11 @@ APPLE_PASSWORD           # App-specific password (not your account password)
 APPLE_TEAM_ID            # 10-character Apple Team ID
 ```
 
+The release workflow verifies macOS packages with `npm run tauri:verify:macos`
+and `--require-gatekeeper` before upload. Without Developer ID signing and
+notarization, the macOS release job should fail instead of publishing a package
+that nontechnical users cannot open cleanly.
+
 ---
 
 ## Troubleshooting

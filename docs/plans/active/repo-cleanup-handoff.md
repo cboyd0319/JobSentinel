@@ -65,7 +65,21 @@ Recent local verification evidence:
   stderr empty before clean termination. Remaining distribution blocker:
   `spctl --assess` rejected the local ad-hoc signed `.app` and `.dmg`, so a
   zero-friction public macOS release still needs Developer ID signing and
-  notarization credentials.
+  notarization credentials. Current local macOS package harness work adds
+  `npm run tauri:verify:macos` to make these checks repeatable: it verifies the
+  DMG checksum, reports Gatekeeper status, mounts the DMG read-only, checks the
+  drag-to-Applications layout, verifies expected binary architectures, verifies
+  the app signature, optionally runs a launch smoke, and can fail release builds
+  with `--require-gatekeeper`. The release workflow now runs the verifier with
+  `--require-gatekeeper` before macOS upload so an ad-hoc package cannot be
+  uploaded as a public macOS release. Verification passed: `npm run
+  tauri:verify:macos -- --dmg
+  src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg
+  --expected-architectures x86_64,arm64 --launch-smoke` passed, strict
+  `--require-gatekeeper` verification failed as expected on the ad-hoc DMG,
+  `npm run test:scripts` passed 482 tests, `npm run lint:docs`, `npm run
+  harness:check`, `npm run lint:bloat`, `npm run lint:security`, `actionlint
+  .github/workflows/release.yml`, and `git diff --check` passed.
 - Current local Resume Match parser fix keeps required and preferred job-post
   sections separate when a posting uses ordinary single-line headings, so
   preferred words are not promoted into required review buckets. Verification

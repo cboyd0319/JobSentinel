@@ -143,11 +143,24 @@ bundle when no signing identity is configured, creates a drag-to-Applications
 DMG with `hdiutil`, and verifies the disk image. It avoids Finder AppleScript so
 the package path works in local shells and CI runners with Command Line Tools.
 
+After building a `.dmg`, run the package verifier:
+
+```bash
+npm run tauri:verify:macos -- \
+  --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg \
+  --expected-architectures x86_64,arm64 \
+  --launch-smoke
+```
+
+For public release gating, add `--require-gatekeeper`. That mode fails unless
+the app and disk image pass Gatekeeper assessment.
+
 The latest local universal smoke built
 `src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg`,
-verified the DMG checksum, confirmed the app binary contains both `x86_64` and
-`arm64`, verified the mounted app signature, and kept the mounted app running
-for 12 seconds under an isolated temporary home with empty stderr.
+verified the DMG checksum through `npm run tauri:verify:macos`, confirmed the
+app binary contains both `x86_64` and `arm64`, verified the mounted app
+signature, and kept the mounted app running for 12 seconds under an isolated
+temporary home with empty stderr.
 
 Because this local package uses an ad-hoc signature, Gatekeeper assessment
 rejects the `.app` and `.dmg`. A zero-friction public macOS release still needs

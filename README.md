@@ -377,6 +377,17 @@ On macOS, use the maintained DMG package path:
 npm run tauri:build:macos
 ```
 
+For a universal macOS package and local package verification:
+
+```bash
+rustup target add aarch64-apple-darwin x86_64-apple-darwin
+npm run tauri:build:macos -- --target universal-apple-darwin
+npm run tauri:verify:macos -- \
+  --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg \
+  --expected-architectures x86_64,arm64 \
+  --launch-smoke
+```
+
 Installer output:
 
 | Platform | Output path |

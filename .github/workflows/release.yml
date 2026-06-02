@@ -153,6 +153,14 @@ jobs:
         if: matrix.platform == 'macos-latest'
         run: npm run tauri:build:macos -- --target ${{ matrix.target }}
 
+      - name: Verify macOS app and DMG
+        if: matrix.platform == 'macos-latest'
+        run: >
+          npm run tauri:verify:macos -- --dmg
+          src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
+          --expected-architectures x86_64,arm64
+          --require-gatekeeper
+
       # Windows MSI upload
       - name: Upload Windows MSI
         if: matrix.platform == 'windows-latest'
