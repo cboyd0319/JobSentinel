@@ -202,6 +202,11 @@ Recent local verification evidence:
   passed: focused release-promise plus repo-bloat tests passed 225 tests, `npm
   run test:scripts` passed 503 tests, `npm run lint:docs`, `npm run
   lint:bloat`, `npm run lint:security`, and `git diff --check` passed.
+- Current local no-Apple-account README follow-up makes the front-door release
+  row and macOS download row explicitly say the project has no Apple Developer
+  Account, separates local macOS build readiness from public Gatekeeper
+  friction, and adds Apple Developer ID plus notarization sources to the README
+  reference index and harness manifest.
 - Current local macOS runtime proof on 2026-06-02 passed from the current
   checkout after the user confirmed there is no Apple Developer Account:
   `npm run doctor` passed with the known Node 26 local-runtime warning,

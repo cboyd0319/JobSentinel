@@ -66,7 +66,7 @@ or build something better with it if that helps more people.
 | What can leave the device? | Enabled job-source checks, job sources or career pages the user approves for checking, alerts the user turns on, optional location detection after a click, support links opened by the user, or explicitly approved external AI requests. |
 | Is external AI required? | No. External AI is optional, disabled by default, preview-gated, and gateway-bound. |
 | Is it free? | Yes. JobSentinel is MIT licensed and free forever. |
-| Current release | `v2.6.4` with Windows and Linux installers plus a universal macOS package. The public macOS package is locally verified but not notarized yet. |
+| Current release | `v2.6.4` with Windows and Linux installers plus a universal macOS package. The project does not currently have an Apple Developer Account, so the public macOS package is locally verified but not Developer ID signed or notarized yet. |
 
 ## Reader Map
 
@@ -101,13 +101,16 @@ Download the latest package or installer from the
 | Platform | Download |
 | -------- | --------- |
 | Windows | Windows installer |
-| macOS | Universal Mac package for Apple silicon and Intel Macs. Until Developer ID signing and notarization are available, macOS requires a Privacy & Security approval on first open. |
+| macOS | Universal Mac package for Apple silicon and Intel Macs. The project does not currently have an Apple Developer Account, so macOS requires a Privacy & Security approval on first open until Developer ID signing and notarization are available. |
 | Linux | Linux installer |
 
 The current `v2.6.4` release includes Windows and Linux installers plus a
 universal macOS package. Most Windows and Linux users should use the installer.
-Mac users can use the package, but first open is not zero-friction until a
-Developer ID signed and notarized public build is available. Contributors can use the
+Mac users can use the package, but first open is not zero-friction because
+JobSentinel does not currently have an Apple Developer Account for Developer ID
+signing and notarization. This is a release-distribution constraint, not a core
+runtime feature gap: the macOS app can still be built, packaged, verified, and
+tested locally. Contributors can use the
 [development setup guide](docs/developer/GETTING_STARTED.md).
 
 First run is designed for zero technical knowledge:
@@ -786,6 +789,9 @@ and fake example links are intentionally excluded.
 - [Tauri distribution guide](https://v2.tauri.app/distribute/)
 - [Tauri security guide](https://v2.tauri.app/learn/security/)
 - [Tauri Linux signing](https://tauri.app/distribute/sign/linux/)
+- [Apple Developer ID](https://developer.apple.com/developer-id/)
+- [Apple Developer ID support](https://developer.apple.com/support/developer-id/)
+- [Apple notarizing macOS software before distribution](https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution)
 - [React](https://react.dev/)
 - [Rust](https://doc.rust-lang.org/)
 - [rustup](https://rustup.rs)
