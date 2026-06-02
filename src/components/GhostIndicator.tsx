@@ -187,7 +187,7 @@ export const GhostIndicator = memo(function GhostIndicator({
   const tooltipContent = (
     <div className="max-w-xs">
       <div className="font-semibold mb-1">
-        Posting Needs Verification ({Math.round(ghostScore * 100)}% risk)
+        Posting may need review
       </div>
       {reasons.length > 0 ? (
         <ul className="text-xs space-y-1.5">
@@ -210,7 +210,7 @@ export const GhostIndicator = memo(function GhostIndicator({
           ))}
         </ul>
       ) : (
-        <p className="text-xs">Warning signals detected from posting details</p>
+        <p className="text-xs">Some posting details may need a source check</p>
       )}
       {jobId && !feedbackState && (
         <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">
@@ -260,7 +260,7 @@ export const GhostIndicator = memo(function GhostIndicator({
           cursor-help transition-colors
           ${feedbackState === "real" ? "opacity-50" : ""}
         `}
-        aria-label={`Posting risk warning: ${Math.round(ghostScore * 100)}%`}
+        aria-label="Posting may need review"
       >
         {severity === "high" ? (
           <WarningIcon className={sizeClass} />
@@ -271,7 +271,7 @@ export const GhostIndicator = memo(function GhostIndicator({
           {feedbackState === "real"
             ? "Marked Verified"
             : severity === "high"
-            ? "High Risk"
+            ? "Verify First"
             : "Needs Review"}
         </span>
       </span>
@@ -324,7 +324,7 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
   const tooltipContent = (
     <div className="max-w-xs">
       <div className="font-semibold mb-1">
-        Posting Risk Warning ({Math.round(ghostScore * 100)}%)
+        Posting may need review
       </div>
       {reasons.length > 0 ? (
         <ul className="text-xs space-y-1">
@@ -388,7 +388,7 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
           cursor-help
           ${feedbackState === "real" ? "opacity-50" : ""}
         `}
-        aria-label={`Posting risk warning: ${Math.round(ghostScore * 100)}%`}
+        aria-label="Posting may need review"
       >
         <GhostIcon className="w-3 h-3" />
       </span>

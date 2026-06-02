@@ -55,7 +55,8 @@ planning, and `docs/plans/tech-debt-tracker.md` for current technical debt.
 - [Testing](#testing)
 - [Submitting Changes](#submitting-changes)
 - [Adding New Features](#adding-new-features)
-- [Reporting Bugs](#reporting-bugs)
+- [Reporting Problems](#reporting-problems)
+- [Improvement Ideas](#improvement-ideas)
 
 ---
 
@@ -569,66 +570,72 @@ pub mod freebsd;
 
 ---
 
-## Reporting Bugs
+## Reporting Problems
 
-### Before Reporting
+### Before Reporting A Problem
 
 1. Search existing [issues](https://github.com/cboyd0319/JobSentinel/issues)
 2. Try latest version
 3. Check [FAQ](../../README.md#frequently-asked-questions)
+4. Keep private job-search details out of public issues.
 
-### Bug Report Template
+Use the in-app safe support report when app state matters. It redacts known
+sensitive values before review and sharing. Do not ask users to paste raw logs,
+terminal output, stack traces, local paths, resume text, salary floors, notes,
+or application history into public issues.
+
+### Problem Report Template
 
 ```markdown
-**Describe the bug**
+**What happened?**
 Clear description of what's wrong
 
-**To Reproduce**
+**How can we make this happen?**
 Steps to reproduce:
 
 1. Go to '...'
 2. Click on '...'
-3. See error
+3. See problem
 
-**Expected behavior**
+**What did you expect?**
 What should happen
 
 **Screenshots**
-(if applicable)
+If applicable, and only if they do not show private job-search details.
 
-**Environment:**
+**Computer**
 
-- OS: [e.g., Windows 11, macOS 15 Sequoia]
+- OS: [e.g., Windows 11, macOS 26 Tahoe]
 - JobSentinel Version: [e.g., 1.0.0]
-- Error logs: (run with `RUST_LOG=debug`)
 
-**Additional context**
-Any other relevant information
+**Safe support report**
+Paste only if you want help and after reviewing it.
 ```
 
 ---
 
-## Feature Requests
+## Improvement Ideas
 
-### Before Requesting
+### Before Suggesting An Improvement
 
 1. Search existing [issues](https://github.com/cboyd0319/JobSentinel/issues)
 2. Check [project roadmap](../ROADMAP.md)
+3. Keep private job-search details out of public issues.
 
-### Feature Request Template
+### Improvement Template
 
 ```markdown
-**Is your feature request related to a problem?**
+**What problem does this solve?**
 Clear description of the problem
 
-**Describe the solution you'd like**
+**What would you like to see?**
 What you want to happen
 
-**Describe alternatives you've considered**
+**What else have you considered?**
 Other solutions you thought about
 
 **Additional context**
-Mockups, examples, etc.
+Only include details that are safe to make public.
 ```
 
 ---

@@ -16,8 +16,18 @@ then turning the answers into JobSentinel search settings.
 - Explain why a question helps in one sentence or less.
 - Use plain examples from many fields, not software-first examples.
 - Save answers locally.
-- Let users edit the result before scanning starts.
+- Let users edit the result before job checks start.
 - Let users change answers later in Settings.
+
+## Current implementation notes
+
+- Latest local broad-audience copy work changed HR and customer-success profile
+  defaults so non-technical people work, onboarding, retention, service
+  recovery, customer education, and account support examples appear before
+  tech-specific recruiting or support language.
+- Latest local saved-search summary work maps raw filter IDs to plain labels
+  such as Remote Only, Bookmarked, and With Notes, so guided-intake answers
+  remain readable when users save or review a search.
 
 ## Research-backed design rules
 

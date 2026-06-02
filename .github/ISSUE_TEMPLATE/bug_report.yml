@@ -1,6 +1,6 @@
-name: Bug Report
+name: Report a Problem
 description: Something isn't working right
-title: "[Bug]: "
+title: "[Problem]: "
 labels: ["bug", "triage"]
 body:
   - type: markdown
@@ -13,8 +13,8 @@ body:
         - Company names from your search
         - Your location or salary preferences
 
-        JobSentinel can create a safe support report that redacts sensitive
-        details before you share it.
+        JobSentinel can create a safe support report that redacts known
+        sensitive details before you review and share it.
 
         Open Settings and click Copy Safe Support Report. If an error screen is
         open, click Copy Safe Support Report there. Paste that report below
@@ -40,7 +40,7 @@ body:
         3. See error
 
   - type: textarea
-    id: debug-info
+    id: safe-support-report
     attributes:
       label: Safe support report
       description: Paste the safe support report from JobSentinel only if you want help.

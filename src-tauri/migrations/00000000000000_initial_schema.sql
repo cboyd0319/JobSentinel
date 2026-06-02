@@ -393,7 +393,7 @@ CREATE TABLE IF NOT EXISTS application_attempts (
     FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE SET NULL
 );
 
--- CAPTCHA challenges encountered during automation
+-- Manual site challenge records
 CREATE TABLE IF NOT EXISTS captcha_challenges (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     application_attempt_id INTEGER NOT NULL,
@@ -589,7 +589,7 @@ INSERT OR IGNORE INTO negotiation_templates (template_name, scenario, template_t
 (
     'Initial Offer Response',
     'initial_offer',
-    'Thank you for the offer! I''m excited about the opportunity to join {{company}}. Based on my research of market rates for this role in {{location}} and my {{years_experience}} years of experience, I was hoping for a compensation package in the range of {{target_min}}-{{target_max}}. Is there any flexibility in the current offer of {{current_offer}}?',
+    'Thank you for the offer. I''d like to compare compensation with role scope and pay evidence for {{company}} in {{location}}. Based on the role and my {{years_experience}} years of experience, my target range is {{target_min}}-{{target_max}}. Can we discuss whether the current offer of {{current_offer}} can move toward that range?',
     '["company", "location", "years_experience", "target_min", "target_max", "current_offer"]',
     1
 ),
@@ -603,14 +603,14 @@ INSERT OR IGNORE INTO negotiation_templates (template_name, scenario, template_t
 (
     'Competing Offer Leverage',
     'competing_offer',
-    'I wanted to be transparent with you - I''ve received another offer from {{competing_company}} at {{competing_offer}}. However, {{company}} remains my top choice because of {{reasons}}. Is there any way we could adjust the compensation to {{target_salary}} to make this an easy decision for me?',
+    'I have another offer from {{competing_company}} at {{competing_offer}}. I''m still interested in {{company}} because of {{reasons}}. Can we discuss whether this offer can move toward {{target_salary}}?',
     '["competing_company", "competing_offer", "company", "reasons", "target_salary"]',
     1
 ),
 (
     'Equity Focused',
     'equity_focused',
-    'Thank you for the breakdown. While the base salary of {{base_salary}} is competitive, I''m particularly interested in the long-term potential at {{company}}. Would it be possible to increase the equity component from {{current_equity}} to {{target_equity}}? I''m committed to the company''s success and would love to have more skin in the game.',
+    'Thank you for the compensation breakdown. I''d like to understand whether equity can move from {{current_equity}} to {{target_equity}} while keeping the base salary at {{base_salary}}. Can we discuss what is possible for this role at {{company}}?',
     '["base_salary", "company", "current_equity", "target_equity"]',
     1
 );

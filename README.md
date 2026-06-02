@@ -100,12 +100,13 @@ Download the latest installer from
 
 | Platform | Installer |
 | -------- | --------- |
-| Windows | `.msi` |
-| macOS | universal `.dmg` for Apple silicon and Intel Macs |
-| Linux | `.AppImage` or `.deb` |
+| Windows | Windows installer |
+| macOS | Mac installer for Apple silicon and Intel Macs |
+| Linux | Linux installer |
 
-The current `v2.6.4` release includes Windows, macOS, and Linux assets. You can
-also [build from source](#build-from-source).
+The current `v2.6.4` release includes Windows, macOS, and Linux installers.
+Most people should use the installer. Contributors can use the
+[development setup guide](docs/developer/GETTING_STARTED.md).
 
 First run is designed for zero technical knowledge:
 

@@ -111,6 +111,13 @@ Recent remote integration evidence:
 
 Current cleanup posture:
 
+- Current local zero-technical support/protective-copy follow-up updates public
+  issue templates, safe support report docs, source status, search-link sign-in
+  labels, saved-search filter summaries, match-score influence labels,
+  ghost-risk tooltip copy, resume bullet drafting, resume gap guidance, pay
+  offer advice, negotiation templates, broad HR/customer-success profile
+  defaults, and application-form error copy. Focused frontend, script, and
+  Rust tests cover the changed surfaces.
 - Current local Rule 0 ease follow-up tightens public and support-report
   privacy boundaries: setup asks for the work the user wants, install docs
   require latest-download verification before OS override steps, issue

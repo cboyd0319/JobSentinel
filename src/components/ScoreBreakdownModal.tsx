@@ -315,7 +315,7 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
                       {factorPercentage}%
                     </span>
                     <span className="text-xs text-surface-400 dark:text-surface-500">
-                      {Math.round(factor.weight * 100)}% priority
+                      {Math.round(factor.weight * 100)}% influence
                     </span>
                   </div>
                 </div>

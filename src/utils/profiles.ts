@@ -284,22 +284,24 @@ export const CAREER_PROFILES: CareerProfile[] = [
     salaryRange: "$60k - $150k",
     salaryFloor: 60000,
     titleAllowlist: [
-      "Recruiter", "Senior Recruiter", "Technical Recruiter", "Recruiting Manager",
+      "Recruiter", "Senior Recruiter", "Recruiting Manager",
       "Talent Acquisition", "Sourcer", "Recruiting Coordinator",
       "HR Business Partner", "HRBP", "HR Manager", "Director of HR", "VP of HR", "CHRO",
       "People Operations", "People Partner", "HR Generalist",
-      "Compensation Analyst", "Benefits Manager", "Learning & Development"
+      "Compensation Analyst", "Benefits Manager", "Learning & Development",
+      "Employee Relations", "Onboarding Specialist", "Technical Recruiter"
     ],
     titleBlocklist: ["Intern", "Internship", "Junior", "Entry Level"],
     keywordsBoost: [
-      "Technical Recruiting", "Full-cycle Recruiting", "Sourcing",
-      "Greenhouse", "Lever", "LinkedIn Recruiter", "ATS",
+      "Full-cycle Recruiting", "Sourcing", "Employee Relations",
+      "Onboarding", "Benefits", "Compensation", "HRIS",
+      "Performance Management", "Learning & Development", "People Operations",
       "Employer Branding", "Diversity & Inclusion", "D&I",
-      "Compensation", "Benefits", "HRIS", "Workday", "Performance Management"
+      "Workday", "Greenhouse", "Lever", "LinkedIn Recruiter", "Technical Recruiting"
     ],
     keywordsExclude: ["staffing agency", "temp agency"],
     locationPreferences: { allow_remote: true, allow_hybrid: true, allow_onsite: true },
-    sampleTitles: ["Technical Recruiter", "HRBP", "People Operations"]
+    sampleTitles: ["Recruiter", "HRBP", "People Operations"]
   },
   {
     id: "finance-accounting",
@@ -470,7 +472,8 @@ export const CAREER_PROFILES: CareerProfile[] = [
     titleBlocklist: ["Intern", "Internship", "Junior", "Entry Level", "Tier 1"],
     keywordsBoost: [
       "Customer Success", "Customer Experience", "NPS", "CSAT", "Churn Prevention",
-      "Onboarding", "Implementation", "Renewal", "Upsell", "Cross-sell",
+      "Retention", "Service Recovery", "Customer Education", "Account Support",
+      "Onboarding", "Implementation", "Renewal", "CRM", "Upsell", "Cross-sell",
       "Salesforce", "Gainsight", "ChurnZero", "Zendesk", "Intercom",
       "SaaS", "B2B", "Enterprise", "Technical Support", "Troubleshooting"
     ],

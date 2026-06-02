@@ -12,7 +12,7 @@ plain-language status and safe next steps.
 | Source-check coverage | Includes scheduled sources plus Indeed, Wellfound, and ZipRecruiter availability checks |
 | User-opened search links | LinkedIn and similar destination links are opened by the user, not monitored in the background |
 | Credentials | Tracks user-configured external channels where applicable; LinkedIn session credentials are not collected |
-| Support reports | Sanitized reports can be copied or saved locally before the user chooses whether to share |
+| Support reports | Safe support reports can be copied or saved locally, reviewed, and shared only when the user chooses |
 
 ## User States
 

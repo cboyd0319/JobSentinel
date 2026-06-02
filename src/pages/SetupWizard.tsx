@@ -99,7 +99,7 @@ const FRESHNESS_OPTIONS: FreshnessOption[] = [
   {
     id: "balanced",
     label: "Balanced",
-    description: "Use normal posting-risk warnings while keeping the list broad.",
+    description: "Use normal posting-review alerts while keeping the list broad.",
   },
   {
     id: "wide_search",

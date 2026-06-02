@@ -395,15 +395,15 @@ describe("ResumeOptimizer", () => {
     mockInvoke.mockRejectedValueOnce(privateFailure);
     render(<ResumeOptimizer onBack={vi.fn()} />);
 
-    await user.click(screen.getByRole("button", { name: /improve bullet point/i }));
+    await user.click(screen.getByRole("button", { name: /draft alternative bullet/i }));
     fireEvent.change(screen.getByPlaceholderText(/reduce missed appointments/i), {
       target: { value: "Improved customer onboarding." },
     });
-    await user.click(screen.getByRole("button", { name: "Improve" }));
+    await user.click(screen.getByRole("button", { name: "Draft" }));
 
     await waitFor(() => {
       expect(mockToast.error).toHaveBeenCalledWith(
-        "Could not improve bullet",
+        "Could not draft bullet",
         expect.stringContaining("safe support report")
       );
     });

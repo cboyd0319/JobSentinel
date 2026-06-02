@@ -31,6 +31,13 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local zero-technical support and protective-copy follow-up makes
+  public issue templates use problem/idea/source wording and tell users to keep
+  personal details out; safe support report docs now say users can save/copy,
+  review, and share only if they choose. Source-status, search-link,
+  match-score, ghost-risk, resume bullet, pay guidance, negotiation template,
+  and application-form copy now use advisory, protective language. Product-copy,
+  frontend, script, and Rust tests guard the drift.
 - Latest local Rule 0 ease follow-up makes first-run profile selection plainer,
   keeps install warning overrides tied to the latest download page, labels
   settings backups as private, warns public issue-template users not to include
@@ -303,7 +310,7 @@ and record actionable findings in this active-plan surface.
 - Latest local sidecar audit follow-up cleans user and feature docs that still
   sounded technical or scary for non-technical job seekers. Quick Start, Job
   Site Search Links, Job Sources, and Job Source Status now use plainer wording
-  for download instructions, build-from-source, posting-risk warnings, search
+  for download instructions, build-from-source, posting-review alerts, search
   refreshes, signed-in website sessions, repeated-search limits, source rules,
   source checks, and maintainer-only sections. Product-copy coverage rejects
   the old doc phrases.

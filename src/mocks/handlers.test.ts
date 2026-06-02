@@ -616,7 +616,7 @@ describe("mock Tauri handlers", () => {
       jobContext: "Required: scheduling, case management",
     });
     expect(improved).toContain("Contributed to client scheduling");
-    expect(improved).toContain("add specific metrics");
+    expect(improved).toContain("add a true number, outcome, or concrete detail if you have one");
     expect(improved).toContain("consider adding");
   });
 

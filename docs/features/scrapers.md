@@ -110,6 +110,9 @@ Normalization removes common tracking parameters, standardizes common title
 abbreviations, and maps location aliases such as `SF`, `Remote US`, and
 `work from home` to canonical forms.
 
+<details>
+<summary><strong>For maintainers</strong></summary>
+
 ## Testing
 
 Use focused checks before broad suites:
@@ -124,6 +127,8 @@ npm run lint:bloat
 Adapter changes should include parser fixtures or source-specific unit tests,
 rate-limit awareness, bounded-read coverage where relevant, and sanitized error
 checks. Source-boundary changes also need docs and bloat-guard updates.
+
+</details>
 
 ## Privacy Labels
 

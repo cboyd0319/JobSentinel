@@ -32,7 +32,8 @@ JobSentinel is built with privacy and security as core principles:
 
 - **Zero telemetry:** JobSentinel does not collect analytics or send data to
   JobSentinel servers.
-- **Local-first:** All job data stored in local SQLite database
+- **Local-first:** Job-search records are stored on the user's device by
+  default. External channels send only configured or approved details.
 - **No account required:** Core workflows work without a JobSentinel account.
 - **User-controlled network use:** Job checks, location detection, configured
   alerts, and optional external AI can use network access only through visible

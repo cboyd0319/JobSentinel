@@ -29,7 +29,7 @@ By default, these stay on the user's computer:
   Application Assist. The renderer sees only app-owned tokens, command results,
   or display names where needed, not original file paths.
 - Salary floors, salary preferences, offer notes, and negotiation notes.
-- Local problem history and sanitized debug reports before the user chooses to
+- Local problem history and safe support reports before the user chooses to
   share them.
 
 JobSentinel stores app data in local SQLite storage. Secrets are stored in the
@@ -130,16 +130,16 @@ Users control:
 - Which job sources are enabled.
 - Which external notification channels are configured.
 - Whether location detection runs.
-- Whether feedback or debug reports are shared.
+- Whether feedback or safe support reports are shared.
 - Which saved jobs, notes, resumes, and application records are kept.
 - Whether optional credentials are added or removed.
 
-## Debug reports
+## Safe support reports
 
-JobSentinel includes sanitized debug reports designed to redact known sensitive
-values before users review and share them.
+JobSentinel includes safe support reports with limited app details. They redact
+known sensitive values before users review and share them.
 
-Debug reports should redact known sensitive values:
+Safe support reports should redact known sensitive values:
 
 - Names in known person-name fields or common name statements, emails, phone
   numbers, and tokens.

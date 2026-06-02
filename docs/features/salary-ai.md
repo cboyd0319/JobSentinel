@@ -33,8 +33,8 @@ inputs, not as self-worth scores.
 ## Pay Protection Rules
 
 - Warn when listed or estimated pay is below the user's floor.
-- Warn when the user's target is below the 25th percentile or below a credible
-  posted midpoint.
+- Warn when the user's target is below the lower-pay part of a credible sample
+  or below a credible posted midpoint.
 - Treat missing pay as useful evidence about transparency, not as neutral or as
   proof of bad intent.
 - Check whether title, scope, decision rights, team size, budget, and promotion
@@ -68,6 +68,9 @@ Offer guidance should be evidence-bounded:
 Negotiation notes should never invent competing offers, legal claims, skills,
 credentials, accomplishments, or market data.
 
+<details>
+<summary><strong>For maintainers</strong></summary>
+
 ## Technical Shape
 
 ```text
@@ -96,6 +99,8 @@ Core commands:
 
 Command logs must not include raw job titles, locations, salary floors, offer
 amounts, resume text, or negotiation notes.
+
+</details>
 
 ## Verification
 

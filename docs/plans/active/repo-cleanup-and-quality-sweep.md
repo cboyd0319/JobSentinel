@@ -164,6 +164,13 @@ As of 2026-06-01, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Tightened another zero-technical support and protective-copy slice: public
+  issue templates now avoid bug/feature/scraper-first wording, safe support
+  report docs require review before sharing, source status avoids
+  all-sources/login jargon, saved-search summaries map raw filter IDs to plain
+  labels, score details use influence labels, ghost-risk tooltips avoid
+  warning-theater wording, resume/pay recommendations stay advisory, and
+  product-copy sensors reject the old phrases.
 - Tightened Rule 0 and zero-technical surfaces after the latest sub-agent
   audit: first-run labels now ask for the work the user wants, Hiring Trends
   alerts no longer use market-alert wording, settings backup copy marks the

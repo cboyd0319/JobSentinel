@@ -81,6 +81,9 @@ import { DashboardHeader } from "./DashboardUI/DashboardHeader";
 import { DashboardStats } from "./DashboardUI/DashboardStats";
 import { QuickActions } from "./DashboardUI/QuickActions";
 import {
+  formatBookmarkFilter,
+  formatNotesFilter,
+  formatRemoteFilter,
   formatScoreFilter,
   formatSortOption,
 } from "./DashboardUI/filterLabels";
@@ -890,13 +893,13 @@ export default function Dashboard({
                 <li>Source: {formatJobSourceLabel(filters.sourceFilter)}</li>
               )}
               {filters.remoteFilter !== "all" && (
-                <li>Location: {filters.remoteFilter}</li>
+                <li>Location: {formatRemoteFilter(filters.remoteFilter)}</li>
               )}
               {filters.bookmarkFilter !== "all" && (
-                <li>Saved: {filters.bookmarkFilter}</li>
+                <li>Saved: {formatBookmarkFilter(filters.bookmarkFilter)}</li>
               )}
               {filters.notesFilter !== "all" && (
-                <li>Notes: {filters.notesFilter}</li>
+                <li>Notes: {formatNotesFilter(filters.notesFilter)}</li>
               )}
               {filters.postedDateFilter !== "all" && (
                 <li>

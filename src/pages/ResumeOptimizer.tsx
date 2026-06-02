@@ -328,10 +328,10 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     }
   };
 
-  // Improve bullet point
+  // Draft a reviewed alternative for a resume bullet.
   const handleImproveBullet = async () => {
     if (!bulletInput.trim()) {
-      toast.error("Missing input", "Please enter a bullet point to improve");
+      toast.error("Missing input", "Please enter a bullet point to draft");
       return;
     }
 
@@ -343,10 +343,10 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
       });
 
       setImprovedBullet(improved);
-      toast.success("Bullet improved", "See the improved version below");
+      toast.success("Draft ready", "Review the suggested version below");
     } catch (err: unknown) {
-      toast.error("Could not improve bullet", getResumeAnalysisErrorAction(err));
-      logError("Bullet improvement error:", err);
+      toast.error("Could not draft bullet", getResumeAnalysisErrorAction(err));
+      logError("Bullet draft error:", err);
     } finally {
       setImprovingBullet(false);
     }
@@ -590,7 +590,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                 size="sm"
                 className="flex-1"
               >
-                Improve Bullet Point
+                Draft Alternative Bullet
               </Button>
             </div>
           </div>
@@ -966,11 +966,11 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
           setBulletInput("");
           setImprovedBullet("");
         }}
-        title="Improve Bullet Point"
+        title="Draft Alternative Bullet"
       >
         <div className="space-y-4">
           <p className="text-sm text-surface-600 dark:text-surface-400">
-            Enter a resume bullet point and we'll improve it with clear, job-aligned language.
+            Enter a resume bullet point and we'll draft clearer, job-aligned language for you to review.
           </p>
           <div>
             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
@@ -988,7 +988,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
           {improvedBullet && (
             <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
               <p className="text-sm font-medium text-green-800 dark:text-green-300 mb-2">
-                Improved Version:
+                Suggested Version:
               </p>
               <p className="text-sm text-green-700 dark:text-green-400">
                 {improvedBullet}
@@ -1008,7 +1008,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
               Close
             </Button>
             <Button onClick={handleImproveBullet} loading={improvingBullet} disabled={!bulletInput.trim()}>
-              Improve
+              Draft
             </Button>
           </ModalFooter>
         </div>

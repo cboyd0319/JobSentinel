@@ -103,21 +103,21 @@ describe("ResumeMatchScoreBreakdown", () => {
     });
   });
 
-  describe("priority display", () => {
-    it("shows priorities by default", () => {
+  describe("influence display", () => {
+    it("shows influence labels by default", () => {
       render(<ResumeMatchScoreBreakdown {...defaultProps} />);
 
-      expect(screen.getByText("(50% priority)")).toBeInTheDocument(); // skills
-      expect(screen.getByText("(30% priority)")).toBeInTheDocument(); // experience
-      expect(screen.getByText("(20% priority)")).toBeInTheDocument(); // education
+      expect(screen.getByText("(50% influence)")).toBeInTheDocument(); // skills
+      expect(screen.getByText("(30% influence)")).toBeInTheDocument(); // experience
+      expect(screen.getByText("(20% influence)")).toBeInTheDocument(); // education
     });
 
-    it("hides priorities when showWeights is false", () => {
+    it("hides influence labels when showWeights is false", () => {
       render(<ResumeMatchScoreBreakdown {...defaultProps} showWeights={false} />);
 
-      expect(screen.queryByText("(50% priority)")).not.toBeInTheDocument();
-      expect(screen.queryByText("(30% priority)")).not.toBeInTheDocument();
-      expect(screen.queryByText("(20% priority)")).not.toBeInTheDocument();
+      expect(screen.queryByText("(50% influence)")).not.toBeInTheDocument();
+      expect(screen.queryByText("(30% influence)")).not.toBeInTheDocument();
+      expect(screen.queryByText("(20% influence)")).not.toBeInTheDocument();
     });
 
     it("shows priority explanation when showWeights is true", () => {

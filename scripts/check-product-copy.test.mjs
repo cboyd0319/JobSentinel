@@ -195,6 +195,11 @@ test("product copy rejects debug-report roadmap wording", () => {
     writeFixtureFile(root, "docs/ROADMAP.md", "| Debug reports | Sanitized reports |\n");
     writeFixtureFile(
       root,
+      "docs/developer/CONTRIBUTING.md",
+      "### Bug Report Template\nError logs: (run with `RUST_LOG=debug`)\n",
+    );
+    writeFixtureFile(
+      root,
       "docs/harness/verification-matrix.md",
       "Playwright flow that proves user can recover or copy a sanitized debug report\n",
     );
@@ -228,11 +233,17 @@ test("product copy rejects debug-report roadmap wording", () => {
       "src-tauri/src/commands/feedback/debug_log.rs",
       "Debug Log ({} events):\n[COMMAND]\n",
     );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/health/smoke_tests.rs",
+      "This source check could not finish. Try again later or attach a safe debug report.\n",
+    );
 
     assert.equal(hasFeedbackLocalReportDrift(root, "README.md"), true);
     assert.equal(hasFeedbackLocalReportDrift(root, "ROADMAP.md"), true);
     assert.equal(hasFeedbackLocalReportDrift(root, "docs/README.md"), true);
     assert.equal(hasFeedbackLocalReportDrift(root, "docs/ROADMAP.md"), true);
+    assert.equal(hasFeedbackLocalReportDrift(root, "docs/developer/CONTRIBUTING.md"), true);
     assert.equal(
       hasFeedbackLocalReportDrift(root, "docs/harness/verification-matrix.md"),
       true,
@@ -259,6 +270,10 @@ test("product copy rejects debug-report roadmap wording", () => {
     );
     assert.equal(
       hasFeedbackLocalReportDrift(root, "src-tauri/src/commands/feedback/debug_log.rs"),
+      true,
+    );
+    assert.equal(
+      hasFeedbackLocalReportDrift(root, "src-tauri/src/core/health/smoke_tests.rs"),
       true,
     );
   });
@@ -314,8 +329,19 @@ test("product copy rejects non-protective scoring and legacy preference copy", (
       "src/utils/scoreUtils.ts",
       'if (score >= 90) return "Excellent";\nif (score >= 80) return "Great";\nreturn "Poor";\n',
     );
+    writeFixtureFile(root, "src/pages/DashboardUI/filterLabels.ts", "Strong (70%+)\n");
+    writeFixtureFile(root, "src/components/ScoreBreakdownModal.tsx", "40% priority\n");
+    writeFixtureFile(root, "src/components/ResumeMatchScoreBreakdown.tsx", "(50% priority)\n");
+    writeFixtureFile(root, "src/components/GhostIndicator.tsx", "Posting Risk Warning\n");
 
     assert.equal(hasNonProtectiveScoreCopy(root, "src/components/ScoreDisplay.tsx"), true);
+    assert.equal(hasNonProtectiveScoreCopy(root, "src/pages/DashboardUI/filterLabels.ts"), true);
+    assert.equal(hasNonProtectiveScoreCopy(root, "src/components/ScoreBreakdownModal.tsx"), true);
+    assert.equal(
+      hasNonProtectiveScoreCopy(root, "src/components/ResumeMatchScoreBreakdown.tsx"),
+      true,
+    );
+    assert.equal(hasNonProtectiveScoreCopy(root, "src/components/GhostIndicator.tsx"), true);
     assert.equal(
       hasLegacyPreferenceListCopy(root, "docs/features/application-tracking.md"),
       true,
@@ -963,7 +989,7 @@ test("product copy rejects support troubleshooting jargon", () => {
     writeFixtureFile(
       root,
       "src/components/DeepLinkGenerator.tsx",
-      "JobSentinel does not monitor directly.\n",
+      "JobSentinel does not monitor directly.\nLogin required\n",
     );
     writeFixtureFile(
       root,
@@ -973,7 +999,7 @@ test("product copy rejects support troubleshooting jargon", () => {
     writeFixtureFile(
       root,
       "src/components/ScraperHealthDashboard.tsx",
-      ">Page Check<\n>Access<\n>Source Type<\n>Recent Success<\nOfficial feed\n(retry ${retryAttempt})\nSource Controls\nJob Source Check Results\nSource Check Results\nNeeds update\n'Turn this source off'\n'Check this source now'\n",
+      ">Page Check<\n>Access<\n>Source Type<\n>Recent Success<\nCheck All Sources\nOfficial feed\n(retry ${retryAttempt})\nSource Controls\nJob Source Check Results\nSource Check Results\nNeeds update\n'Turn this source off'\n'Check this source now'\n",
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
@@ -1104,12 +1130,34 @@ test("product copy rejects technical source labels and unsafe public issue templ
         "Saved passwords and connection codes are left out for safety.",
       ].join("\n"),
     );
-    writeFixtureFile(root, ".github/ISSUE_TEMPLATE/feature_request.yml", "Describe your idea.\n");
-    writeFixtureFile(root, ".github/ISSUE_TEMPLATE/question.yml", "Ask a question.\n");
+    writeFixtureFile(root, ".github/ISSUE_TEMPLATE/bug_report.yml", "Report the bug.\n");
+    writeFixtureFile(
+      root,
+      ".github/ISSUE_TEMPLATE/feature_request.yml",
+      [
+        "Please don't include personal information.",
+        "JobSentinel can create a safe support report that redacts sensitive",
+        "details before you share it.",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      ".github/ISSUE_TEMPLATE/question.yml",
+      [
+        "Please don't include personal information.",
+        "JobSentinel can create a safe support report that redacts known",
+        "sensitive details before you share it.",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(root, ".github/ISSUE_TEMPLATE/scraper_issue.yml", "Report a source issue.\n");
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, ".github/ISSUE_TEMPLATE/bug_report.yml"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, ".github/ISSUE_TEMPLATE/feature_request.yml"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, ".github/ISSUE_TEMPLATE/question.yml"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, ".github/ISSUE_TEMPLATE/scraper_issue.yml"), true);
   });
 });
 
@@ -1120,6 +1168,9 @@ test("product copy rejects stale zero-technical resume and shortcut copy", () =>
       root,
       "src/pages/ResumeOptimizer.tsx",
       [
+        "Improve Bullet Point",
+        "Improved Version",
+        "Could not improve bullet",
         "Paste resume details exported from JobSentinel or another supported tool.",
         "Browser session storage is unavailable. Resume Builder cannot tailor against this job.",
         "",
@@ -1208,6 +1259,42 @@ test("product copy rejects technical issue-template support wording", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, ".github/ISSUE_TEMPLATE/bug_report.yml"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, ".github/ISSUE_TEMPLATE/scraper_issue.yml"),
+      true,
+    );
+  });
+});
+
+test("product copy rejects non-advisory resume and pay guidance", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/resume/matcher.rs",
+      "Recommendation: Strong match. Apply immediately.\nStudy the missing skills.\nConsider upskilling.\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/resume/ats_analyzer.rs",
+      "improved.push_str(\" (add specific metrics)\");\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/src/core/salary/analyzer.rs",
+      "Excellent offer! Accept or negotiate equity.\n",
+    );
+    writeFixtureFile(
+      root,
+      "src-tauri/migrations/00000000000000_initial_schema.sql",
+      "I was hoping for a compensation package. Make this an easy decision. I would love to have more skin in the game.\n",
+    );
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "src-tauri/src/core/resume/matcher.rs"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src-tauri/src/core/resume/ats_analyzer.rs"),
+      true,
+    );
+    assert.equal(hasTechnicalFirstUserCopy(root, "src-tauri/src/core/salary/analyzer.rs"), true);
+    assert.equal(
+      hasTechnicalFirstUserCopy(root, "src-tauri/migrations/00000000000000_initial_schema.sql"),
       true,
     );
   });

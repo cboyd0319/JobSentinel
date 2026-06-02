@@ -384,16 +384,23 @@ fn test_offer_comparison_market_position_logic() {
 fn test_offer_comparison_recommendation_logic() {
     let position = "above_market";
     let rec = match position {
-        "above_market" => "Excellent offer! Accept or negotiate equity.".to_string(),
+        "above_market" => {
+            "This offer is above this sample range. Review benefits, schedule, title, and your floor before deciding.".to_string()
+        }
         "at_market" => "Fair offer. Consider negotiating for 10-15% more.".to_string(),
         "below_market" => format!("Below market. Counter with ${}-${}.", 150000, 180000),
         _ => "Unknown".to_string(),
     };
-    assert_eq!(rec, "Excellent offer! Accept or negotiate equity.");
+    assert_eq!(
+        rec,
+        "This offer is above this sample range. Review benefits, schedule, title, and your floor before deciding."
+    );
 
     let position = "at_market";
     let rec = match position {
-        "above_market" => "Excellent offer! Accept or negotiate equity.".to_string(),
+        "above_market" => {
+            "This offer is above this sample range. Review benefits, schedule, title, and your floor before deciding.".to_string()
+        }
         "at_market" => "Fair offer. Consider negotiating for 10-15% more.".to_string(),
         "below_market" => format!("Below market. Counter with ${}-${}.", 150000, 180000),
         _ => "Unknown".to_string(),
@@ -402,7 +409,9 @@ fn test_offer_comparison_recommendation_logic() {
 
     let position = "below_market";
     let rec = match position {
-        "above_market" => "Excellent offer! Accept or negotiate equity.".to_string(),
+        "above_market" => {
+            "This offer is above this sample range. Review benefits, schedule, title, and your floor before deciding.".to_string()
+        }
         "at_market" => "Fair offer. Consider negotiating for 10-15% more.".to_string(),
         "below_market" => format!("Below market. Counter with ${}-${}.", 150000, 180000),
         _ => "Unknown".to_string(),

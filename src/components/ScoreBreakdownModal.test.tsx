@@ -117,14 +117,14 @@ describe("ScoreBreakdownModal", () => {
       expect(screen.getByText("How fresh the posting is")).toBeInTheDocument();
     });
 
-    it("displays factor priorities", () => {
+    it("displays factor influence labels", () => {
       render(<ScoreBreakdownModal {...defaultProps} />);
 
-      expect(screen.getByText("40% priority")).toBeInTheDocument();
-      expect(screen.getByText("25% priority")).toBeInTheDocument();
-      expect(screen.getByText("20% priority")).toBeInTheDocument();
-      expect(screen.getByText("10% priority")).toBeInTheDocument();
-      expect(screen.getByText("5% priority")).toBeInTheDocument();
+      expect(screen.getByText("40% influence")).toBeInTheDocument();
+      expect(screen.getByText("25% influence")).toBeInTheDocument();
+      expect(screen.getByText("20% influence")).toBeInTheDocument();
+      expect(screen.getByText("10% influence")).toBeInTheDocument();
+      expect(screen.getByText("5% influence")).toBeInTheDocument();
     });
   });
 

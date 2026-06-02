@@ -1,7 +1,7 @@
-name: Job Source Issue
+name: Job Source Problem
 description: Report job source results that look wrong
 title: "[Source]: "
-labels: ["scraper", "bug", "triage"]
+labels: ["job-source", "bug", "triage"]
 body:
   - type: markdown
     attributes:
@@ -11,12 +11,13 @@ body:
         **Important:** Please don't include any personal information like specific
         job titles, company names, or location details from your search.
 
-        JobSentinel can create a safe support report that redacts sensitive
-        details before you share it. Open Settings and click Copy Safe Support
-        Report, then paste that report below only if you want help.
+        JobSentinel can create a safe support report that redacts known
+        sensitive details before you review and share it. Open Settings and
+        click Copy Safe Support Report, then paste that report below only if
+        you want help.
 
   - type: dropdown
-    id: scraper
+    id: job-source
     attributes:
       label: Affected job source
       description: Which job source is affected?
@@ -40,15 +41,15 @@ body:
   - type: dropdown
     id: issue-type
     attributes:
-      label: Issue Type
+      label: What kind of problem?
       description: What kind of problem are you seeing?
       options:
         - No jobs appear
         - Some job details are missing
-        - The source check crashes or shows an error
+        - JobSentinel stops while checking this source
         - Job details look wrong
         - Duplicate jobs appear
-        - The site is blocking checks
+        - The site is not allowing checks right now
         - Other
     validations:
       required: true
@@ -77,7 +78,7 @@ body:
       render: text
 
   - type: textarea
-    id: debug-info
+    id: safe-support-report
     attributes:
       label: Safe support report
       description: Paste the safe support report from JobSentinel only if you want help.

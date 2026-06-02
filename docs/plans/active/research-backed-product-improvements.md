@@ -11,6 +11,17 @@ and easier for job seekers from many backgrounds.
 This plan turns the research into a product improvement backlog and tracks
 narrow implementation slices chosen from that backlog.
 
+## Current implementation notes
+
+- Latest local protective-copy slice made ghost-risk tooltips say postings may
+  need review instead of presenting a hard warning, changed match factor
+  weights to influence labels, and moved source-status and search-link copy
+  away from all-sources or login-required jargon.
+- Latest local pay and resume slice changed gap-analysis recommendations,
+  bullet drafting, salary-offer advice, and default negotiation templates so
+  users get advisory next steps grounded in truth, pay evidence, and personal
+  constraints instead of pressure to apply immediately, upskill, or accept.
+
 ## Source files
 
 - `/Users/c/Downloads/job_seeker_behavior_research_papers.md`

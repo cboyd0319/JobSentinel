@@ -293,11 +293,11 @@ describe("ScraperHealthDashboard", () => {
       });
     });
 
-    it("shows Check All Sources button", async () => {
+    it("shows Check Sources Now button", async () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Check All Sources")).toBeInTheDocument();
+        expect(screen.getByText("Check Sources Now")).toBeInTheDocument();
       });
     });
 
@@ -823,10 +823,10 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Check All Sources")).toBeInTheDocument();
+        expect(screen.getByText("Check Sources Now")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Check All Sources"));
+      await user.click(screen.getByText("Check Sources Now"));
 
       await waitFor(() => {
         expect(mockInvoke).toHaveBeenCalledWith("run_all_smoke_tests", {});
@@ -848,10 +848,10 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Check All Sources")).toBeInTheDocument();
+        expect(screen.getByText("Check Sources Now")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Check All Sources"));
+      await user.click(screen.getByText("Check Sources Now"));
 
       await waitFor(() => {
         expect(screen.getByText("Checking...")).toBeInTheDocument();
@@ -863,10 +863,10 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Check All Sources")).toBeInTheDocument();
+        expect(screen.getByText("Check Sources Now")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Check All Sources"));
+      await user.click(screen.getByText("Check Sources Now"));
 
       await waitFor(() => {
         expect(screen.getByText("Check Results")).toBeInTheDocument();
@@ -878,10 +878,10 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Check All Sources")).toBeInTheDocument();
+        expect(screen.getByText("Check Sources Now")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Check All Sources"));
+      await user.click(screen.getByText("Check Sources Now"));
 
       await waitFor(() => {
         expect(screen.getByText("Worked")).toBeInTheDocument();
@@ -894,10 +894,10 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Check All Sources")).toBeInTheDocument();
+        expect(screen.getByText("Check Sources Now")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Check All Sources"));
+      await user.click(screen.getByText("Check Sources Now"));
 
       await waitFor(() => {
         const resultsDialog = screen.getByRole("dialog", {
@@ -913,10 +913,10 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Check All Sources")).toBeInTheDocument();
+        expect(screen.getByText("Check Sources Now")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Check All Sources"));
+      await user.click(screen.getByText("Check Sources Now"));
 
       await waitFor(() => {
         expect(screen.getByText(/check your internet connection/i)).toBeInTheDocument();
@@ -929,10 +929,10 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Check All Sources")).toBeInTheDocument();
+        expect(screen.getByText("Check Sources Now")).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText("Check All Sources"));
+      await user.click(screen.getByText("Check Sources Now"));
 
       await waitFor(() => {
         expect(screen.getByText("Check Results")).toBeInTheDocument();

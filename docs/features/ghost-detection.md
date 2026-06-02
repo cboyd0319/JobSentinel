@@ -106,7 +106,7 @@ Use the posting-risk filter above your job list:
 
 - **All Jobs** - Show everything.
 - **Lower Risk** - Hide postings that need a warning.
-- **Needs Review** - Show only jobs with posting-risk warnings.
+- **Needs Review** - Show only jobs with posting-review alerts.
 
 Use "Lower Risk" when you are low on time or energy. Use "Needs Review" when
 you want to check old or suspicious listings before deciding what to do.
@@ -154,7 +154,7 @@ Ghost detection is not perfect:
 - **Source dependent** - Employer-site or application-platform presence is
   stronger evidence, but it is not absolute proof that hiring is active.
 
-Use posting-risk warnings as one signal. If a flagged role still looks
+Use posting-review alerts as one signal. If a flagged role still looks
 worthwhile, verify it and decide based on your own situation.
 
 ## User Feedback

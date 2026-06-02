@@ -92,6 +92,7 @@ const feedbackLocalReportPaths = new Set([
   "ROADMAP.md",
   "docs/README.md",
   "docs/ROADMAP.md",
+  "docs/developer/CONTRIBUTING.md",
   "docs/features/json-resume-import.md",
   "docs/features/scraper-health.md",
   "docs/features/scrapers.md",
@@ -114,6 +115,7 @@ const feedbackLocalReportPaths = new Set([
   "src/services/feedbackService.ts",
   "src-tauri/src/commands/feedback/debug_log.rs",
   "src-tauri/src/commands/feedback/report.rs",
+  "src-tauri/src/core/health/smoke_tests.rs",
   "src/mocks/handlers.ts",
   "src/utils/errorMessages.ts",
 ]);
@@ -145,10 +147,12 @@ const protectiveScoreCopyPaths = new Set([
   "docs/user/QUICK_START.md",
   "src/config/tourSteps.ts",
   "src/components/ResumeMatchScoreBreakdown.tsx",
+  "src/components/GhostIndicator.tsx",
   "src/components/ScoreDisplay.tsx",
   "src/components/ScoreBreakdownModal.tsx",
   "src/utils/scoreUtils.ts",
   "src/pages/Dashboard.tsx",
+  "src/pages/DashboardUI/filterLabels.ts",
   "src/pages/DashboardUI/DashboardFiltersBar.tsx",
   "src/pages/Settings.tsx",
 ]);
@@ -200,8 +204,10 @@ const ruleZeroPrecisionCopyPaths = new Set([
 ]);
 
 const publicIssueTemplatePrivacyPaths = new Set([
+  ".github/ISSUE_TEMPLATE/bug_report.yml",
   ".github/ISSUE_TEMPLATE/feature_request.yml",
   ".github/ISSUE_TEMPLATE/question.yml",
+  ".github/ISSUE_TEMPLATE/scraper_issue.yml",
 ]);
 
 const technicalFirstUserCopyPaths = new Set([
@@ -251,7 +257,11 @@ const technicalFirstUserCopyPaths = new Set([
   "src/contexts/KeyboardShortcutsContext.tsx",
   "src-tauri/src/commands/errors.rs",
   "src-tauri/src/core/automation/error.rs",
+  "src-tauri/src/core/resume/ats_analyzer.rs",
+  "src-tauri/src/core/resume/matcher.rs",
+  "src-tauri/src/core/salary/analyzer.rs",
   "src-tauri/src/core/scrapers/error.rs",
+  "src-tauri/migrations/00000000000000_initial_schema.sql",
   "src/utils/api.ts",
   "src/pages/Resume.tsx",
   "src/pages/hooks/useDashboardAutoRefresh.ts",
@@ -522,6 +532,9 @@ export function hasFeedbackLocalReportDrift(root, path) {
     /Describe Your Feedback/i,
     /Report type:\s*(?:Bug Report|Feature Idea)/i,
     /return\s+["'`](?:Bug Report|Feature Idea)["'`]/i,
+    /Bug Report Template/i,
+    /Feature Request Template/i,
+    /Error logs:\s*\(run with `RUST_LOG=debug`\)/i,
     /No debug events recorded/i,
     /Debug Log \(\{\} events\)/i,
     /\[(?:APP_STARTED|VIEW_NAVIGATED|COMMAND|ERROR|SCRAPER|FEATURE)\]/i,
@@ -615,7 +628,7 @@ export function hasNonProtectiveScoreCopy(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /Great Match!|Highly recommended!|You might want to skip it|if you're desperate|if you are desperate|\{reason\}\s*<\/div>|Job Scoring Weights|These weights determine|scoring weights|Configurable weights|Customize Weights|Weight Presets|Weight in overall score|\b\d+%\s+weight\b|weighted averages based on component importance|Score \(High|Score \(Low|All Scores|label="Score"|Jobs are scored based|top scores|Each job is scored|sorted by match score|jobs scoring|Alert Threshold|scoring above your threshold|match score, source|Match Score|Match score:|Score:\s*\{filters\.scoreFilter\}|Sort:\s*\{filters\.sortBy\}|return\s+["'`](?:Excellent|Great|Poor)["'`]/i.test(text);
+  return /Great Match!|Highly recommended!|You might want to skip it|if you're desperate|if you are desperate|\{reason\}\s*<\/div>|Job Scoring Weights|These weights determine|scoring weights|Configurable weights|Customize Weights|Weight Presets|Weight in overall score|\b\d+%\s+weight\b|\b\d+%\s+priority\b|\(\d+%\s+priority\)|Strong \(70%\+\)|Some \(40-69%\)|Low \(<40%\)|Posting Risk Warning|weighted averages based on component importance|Score \(High|Score \(Low|All Scores|label="Score"|Jobs are scored based|top scores|Each job is scored|sorted by match score|jobs scoring|Alert Threshold|scoring above your threshold|match score, source|Match Score|Match score:|Score:\s*\{filters\.scoreFilter\}|Sort:\s*\{filters\.sortBy\}|return\s+["'`](?:Excellent|Great|Poor)["'`]/i.test(text);
 }
 
 export function hasLegacyPreferenceListCopy(root, path) {
@@ -745,7 +758,15 @@ export function hasTechnicalFirstUserCopy(root, path) {
   if (publicIssueTemplatePrivacyPaths.has(path)) {
     const text = readFileSync(join(root, path), "utf8");
 
-    if (!/Please don't include personal information/i.test(text)) {
+    if (!/Please don't include (?:any )?personal information/i.test(text)) {
+      return true;
+    }
+
+    if (/redacts sensitive\s+details before you share it/i.test(text)) {
+      return true;
+    }
+
+    if (!/redacts known\s+sensitive details before you review and share it/i.test(text)) {
       return true;
     }
   }
@@ -897,8 +918,34 @@ export function hasTechnicalFirstUserCopy(root, path) {
     }
   }
 
+  if (
+    path === "src-tauri/src/core/resume/matcher.rs" ||
+    path === "src-tauri/src/core/resume/ats_analyzer.rs" ||
+    path === "src-tauri/src/core/salary/analyzer.rs" ||
+    path === "src-tauri/migrations/00000000000000_initial_schema.sql"
+  ) {
+    const advisoryGuidancePatterns = [
+      /Apply immediately/i,
+      /Study the missing skills/i,
+      /Consider upskilling/i,
+      /Excellent offer!\s*Accept/i,
+      /I was hoping/i,
+      /top choice/i,
+      /make this an easy decision/i,
+      /skin in the game/i,
+      /\(add specific metrics\)/i,
+    ];
+
+    if (advisoryGuidancePatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
   if (path === "src/pages/ResumeOptimizer.tsx") {
     const resumeMatchDetailPatterns = [
+      /Improve Bullet Point/i,
+      /Improved Version/i,
+      /Could not improve bullet/i,
       /Navigating to Resume Builder/i,
       /Job context has been saved/i,
       /Format Issues/i,
@@ -1111,13 +1158,14 @@ export function hasTechnicalFirstUserCopy(root, path) {
   }
 
   if (path === "src/components/DeepLinkGenerator.tsx") {
-    if (/does not monitor directly/i.test(text)) {
+    if (/does not monitor directly|Login required/i.test(text)) {
       return true;
     }
   }
 
   if (path === "src/components/ScraperHealthDashboard.tsx") {
     const sourceStatusPatterns = [
+      /Check All Sources/i,
       /Official feed/i,
       /\(retry\s+\$\{?retryAttempt\}?\)|\(retry\s+\d+\)/i,
       />\s*Access\s*</i,

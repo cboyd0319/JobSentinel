@@ -160,7 +160,7 @@ Pick how JobSentinel should handle older or hard-to-verify postings:
 
 - **Fresh and verified first** - Warn earlier when a posting looks old,
   reposted, or hard to verify
-- **Balanced** - Use normal posting-risk warnings while keeping the list broad
+- **Balanced** - Use normal posting-review alerts while keeping the list broad
 - **Widest search** - Show more older postings and warn only when risk looks
   clearer
 
@@ -270,7 +270,7 @@ Press `?` anytime to see the full list.
 
 ## Useful features
 
-### Posting Risk Warnings
+### Posting Review Alerts
 
 JobSentinel flags stale, reposted, or hard-to-verify postings so you can
 protect tailoring time:
@@ -389,8 +389,9 @@ or alerts, JobSentinel contacts only the sources or alert providers you choose.
 <summary><strong>Support file locations</strong></summary>
 <br>
 
-You do not need these locations for normal use. They help only when you choose
-to inspect local files or share a safe support report.
+You do not need to find app files for normal help. Use **Save Safe Support
+Report** or **Copy Safe Support Report** instead. The locations below are for
+advanced support or your own inspection.
 
 **Saved jobs and settings:** your local JobSentinel file.
 

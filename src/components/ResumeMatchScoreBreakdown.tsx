@@ -47,7 +47,7 @@ function ScoreBar({
           {label}
           {showWeight && (
             <span className="ml-1.5 text-xs text-surface-500 dark:text-surface-400">
-              ({weight}% priority)
+              ({weight}% influence)
             </span>
           )}
         </span>

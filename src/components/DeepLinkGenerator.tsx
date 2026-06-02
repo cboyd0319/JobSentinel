@@ -355,7 +355,7 @@ export function DeepLinkGenerator({
                   {link.site.requires_login && (
                     <div className="mb-3 inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded text-xs text-yellow-800 dark:text-yellow-400">
                       <CategoryIcon icon="lock" className="h-3.5 w-3.5" />
-                      <span>Login required</span>
+                      <span>You may need to sign in on that site</span>
                     </div>
                   )}
 

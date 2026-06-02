@@ -450,18 +450,20 @@ impl JobMatcher {
 
         // Recommendation
         if overall_score >= 0.8 {
-            analysis.push_str("Recommendation: Strong match. Apply immediately.");
+            analysis.push_str(
+                "Next step: If this role still fits your goals, review the missing items and decide whether to apply.",
+            );
         } else if overall_score >= 0.6 {
             analysis.push_str(
-                "Recommendation: Good match. Consider highlighting transferable skills in your application.",
+                "Next step: Review transferable skills and add only experience you can support truthfully.",
             );
         } else if overall_score >= 0.4 {
             analysis.push_str(
-                "Recommendation: Moderate match. Study the missing skills and mention any related experience.",
+                "Next step: Check whether the missing items are required. If related experience exists, add it truthfully.",
             );
         } else {
             analysis.push_str(
-                "Recommendation: Low match. Consider upskilling in the missing areas before applying.",
+                "Next step: This role may need more review before tailoring. Compare it against your goals and constraints.",
             );
         }
 
@@ -564,18 +566,20 @@ impl JobMatcher {
 
         // Recommendation
         if overall_score >= 0.8 {
-            analysis.push_str("Recommendation: Strong match. Apply immediately.");
+            analysis.push_str(
+                "Next step: If this role still fits your goals, review the missing items and decide whether to apply.",
+            );
         } else if overall_score >= 0.6 {
             analysis.push_str(
-                "Recommendation: Good match. Consider highlighting transferable skills in your application.",
+                "Next step: Review transferable skills and add only experience you can support truthfully.",
             );
         } else if overall_score >= 0.4 {
             analysis.push_str(
-                "Recommendation: Moderate match. Study the missing skills and mention any related experience.",
+                "Next step: Check whether the missing items are required. If related experience exists, add it truthfully.",
             );
         } else {
             analysis.push_str(
-                "Recommendation: Low match. Consider upskilling in the missing areas before applying.",
+                "Next step: This role may need more review before tailoring. Compare it against your goals and constraints.",
             );
         }
 
@@ -990,8 +994,8 @@ mod tests {
         let analysis = matcher.generate_gap_analysis(&matching, &missing, 0.85);
 
         assert!(analysis.contains("85%"));
-        assert!(analysis.contains("Strong match"));
-        assert!(analysis.contains("Apply immediately"));
+        assert!(analysis.contains("review the missing items"));
+        assert!(analysis.contains("decide whether to apply"));
     }
 
     #[tokio::test]
@@ -1007,8 +1011,8 @@ mod tests {
         let analysis = matcher.generate_gap_analysis(&matching, &missing, 0.67);
 
         assert!(analysis.contains("67%"));
-        assert!(analysis.contains("Good match"));
-        assert!(analysis.contains("transferable skills"));
+        assert!(analysis.contains("Review transferable skills"));
+        assert!(analysis.contains("support truthfully"));
     }
 
     #[tokio::test]
@@ -1021,8 +1025,8 @@ mod tests {
         let analysis = matcher.generate_gap_analysis(&matching, &missing, 0.5);
 
         assert!(analysis.contains("50%"));
-        assert!(analysis.contains("Moderate match"));
-        assert!(analysis.contains("missing skills"));
+        assert!(analysis.contains("missing items are required"));
+        assert!(analysis.contains("add it truthfully"));
     }
 
     #[tokio::test]
@@ -1039,8 +1043,7 @@ mod tests {
         let analysis = matcher.generate_gap_analysis(&matching, &missing, 0.2);
 
         assert!(analysis.contains("20%"));
-        assert!(analysis.contains("Low match"));
-        assert!(analysis.contains("upskilling"));
+        assert!(analysis.contains("goals and constraints"));
     }
 
     #[tokio::test]
@@ -1050,7 +1053,7 @@ mod tests {
         let analysis = matcher.generate_gap_analysis(&[], &[], 1.0);
 
         assert!(analysis.contains("100%"));
-        assert!(analysis.contains("Strong match"));
+        assert!(analysis.contains("decide whether to apply"));
     }
 
     #[tokio::test]

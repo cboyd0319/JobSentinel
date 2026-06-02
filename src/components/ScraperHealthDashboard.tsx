@@ -511,7 +511,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                   onClick={runAllSmokeTests}
                   disabled={testingAll}
                 >
-                  {testingAll ? "Checking..." : "Check All Sources"}
+                  {testingAll ? "Checking..." : "Check Sources Now"}
                 </Button>
                 <Button variant="secondary" onClick={() => loadHealthData()}>
                   Refresh

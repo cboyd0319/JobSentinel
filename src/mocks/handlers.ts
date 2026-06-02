@@ -2007,7 +2007,7 @@ function improveMockBulletPoint(args?: Record<string, unknown>): string {
   }
 
   if (!/\d|%/.test(improved)) {
-    improved += " (add specific metrics)";
+    improved += " (add a true number, outcome, or concrete detail if you have one)";
   }
 
   const jobContext = getStringArg(args, "jobContext") ?? getStringArg(args, "job_context");

@@ -345,7 +345,10 @@ impl AutomationError {
                 format!("You have already applied to this job on {}.", platform)
             }
             Self::UnsupportedPlatform { platform } => {
-                format!("Application platform '{}' is not supported yet.", platform)
+                format!(
+                    "This application form on {} is not supported yet.",
+                    platform
+                )
             }
             Self::IncompleteProfile { missing_fields } => {
                 format!(

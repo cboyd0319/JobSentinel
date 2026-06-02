@@ -334,7 +334,7 @@ impl AtsAnalyzer {
 
         // Add quantification if missing
         if !improved.contains(|c: char| c.is_ascii_digit()) && !improved.contains('%') {
-            improved.push_str(" (add specific metrics)");
+            improved.push_str(" (add a true number, outcome, or concrete detail if you have one)");
         }
 
         // Add relevant keywords from job context
@@ -920,8 +920,8 @@ Nice to have: compliance, Excel
         let bullet = "Led intake scheduling";
         let improved = AtsAnalyzer::improve_bullet(bullet, None);
 
-        // Should suggest adding metrics
-        assert!(improved.contains("metrics"));
+        // Should suggest adding a true concrete detail.
+        assert!(improved.contains("true number"));
     }
 
     #[test]

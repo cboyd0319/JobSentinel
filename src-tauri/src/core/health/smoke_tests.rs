@@ -38,7 +38,7 @@ const SOURCE_CHECK_NETWORK_ERROR: &str =
 const SOURCE_CHECK_READ_ERROR: &str =
     "JobSentinel could not read this source response. Try again later.";
 const SOURCE_CHECK_DEFAULT_ERROR: &str =
-    "This source check could not finish. Try again later or attach a safe debug report.";
+    "This source check could not finish. Try again later or save a safe support report.";
 
 #[must_use]
 pub fn smoke_test_scrapers() -> &'static [&'static str] {
