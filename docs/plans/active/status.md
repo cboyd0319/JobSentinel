@@ -1,6 +1,6 @@
 # Active Plan Status
 
-Last updated: 2026-06-01.
+Last updated: 2026-06-02.
 
 Read this file before opening long active plans. It is the compact restart
 surface for the active goal; the detailed plans remain authoritative for scope,
@@ -965,6 +965,10 @@ and record actionable findings in this active-plan surface.
 - Current local page repeated-failure recovery follow-up replaces temporary
   unavailable warning copy with save-safe-support-report-first guidance, with
   focused page-boundary and product-copy coverage.
+- Current local bookmarklet URL privacy follow-up canonicalizes browser-button
+  job links before duplicate hashing or storage, stripping userinfo, fragments,
+  tracking parameters, tokens, and candidate/email markers while preserving
+  public job identifiers.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.
@@ -997,11 +1001,11 @@ and record actionable findings in this active-plan surface.
    setup defaults, examples, placeholders, and source recommendations as new
    slices touch broad-role behavior.
 5. Continue backend/scraper and frontend privacy-edge review.
-   The screening-answer IPC and ATS timeline findings from the latest read-only
-   security audit are closed locally; continue looking for new issues as later
-   slices touch trust boundaries. JobsWithGPT approval enforcement is landed
-   locally; `SEC-019` remains open only for a visible last-sent summary if that
-   becomes necessary.
+   The browser-button stored-URL minimization finding from the latest read-only
+   security audit is closed locally. Notification-channel URL minimization and
+   feedback/share narrative redaction remain the next Rule 0 privacy findings.
+   JobsWithGPT approval enforcement is landed locally; `SEC-019` remains open
+   only for a visible last-sent summary if that becomes necessary.
 6. Continue the next zero-technical-knowledge UX audit area outside
    support/reporting.
 7. Run final broad verification only when the remaining known work has evidence.

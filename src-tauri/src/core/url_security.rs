@@ -2,7 +2,7 @@
 
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use tokio::net::lookup_host;
-use url::Url;
+use url::{form_urlencoded::Serializer, Url};
 
 const MAX_LOG_URL_LEN: usize = 80;
 const BLOCKED_HOST_SUFFIXES: &[&str] = &["local", "lan", "home", "internal", "corp"];
@@ -114,6 +114,73 @@ pub fn sanitize_url_for_logging(url: &str) -> String {
     parsed_url.set_fragment(None);
 
     truncate_log_label(parsed_url.as_ref())
+}
+
+/// Canonicalize a user-supplied job-posting URL before local storage or hash use.
+///
+/// User-controlled job links can carry credentials, tracking parameters,
+/// candidate identifiers, session tokens, and private fragments. This keeps
+/// stable public job identifiers while removing data that should not be stored
+/// or later sent through optional notification channels.
+pub fn canonicalize_user_supplied_job_url(url: &str) -> Result<String, String> {
+    let mut parsed = Url::parse(url).map_err(|_| "Invalid URL format".to_string())?;
+
+    let _ = parsed.set_username("");
+    let _ = parsed.set_password(None);
+    parsed.set_fragment(None);
+
+    let retained_pairs: Vec<(String, String)> = parsed
+        .query_pairs()
+        .filter(|(name, _)| !is_sensitive_job_query_param(name))
+        .map(|(name, value)| (name.into_owned(), value.into_owned()))
+        .collect();
+
+    let encoded_query = Serializer::new(String::new())
+        .extend_pairs(
+            retained_pairs
+                .iter()
+                .map(|(name, value)| (name.as_str(), value.as_str())),
+        )
+        .finish();
+
+    if encoded_query.is_empty() {
+        parsed.set_query(None);
+    } else {
+        parsed.set_query(Some(&encoded_query));
+    }
+
+    validate_external_http_url(parsed.as_str())?;
+
+    Ok(parsed.to_string())
+}
+
+fn is_sensitive_job_query_param(name: &str) -> bool {
+    let normalized = name.to_ascii_lowercase();
+
+    normalized.starts_with("utm_")
+        || matches!(
+            normalized.as_str(),
+            "fbclid"
+                | "gclid"
+                | "msclkid"
+                | "mc_cid"
+                | "mc_eid"
+                | "igshid"
+                | "source"
+                | "ref"
+                | "referrer"
+        )
+        || [
+            "token",
+            "session",
+            "auth",
+            "credential",
+            "password",
+            "email",
+            "candidate",
+        ]
+        .iter()
+        .any(|marker| normalized.contains(marker))
 }
 
 fn is_blocked_ip(ip: IpAddr) -> bool {

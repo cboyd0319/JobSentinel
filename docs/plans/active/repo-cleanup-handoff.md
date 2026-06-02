@@ -1232,6 +1232,9 @@ Next high-value passes:
      close-and-try-later guidance with copy/save safe support report first.
      The latest page repeated-failure recovery follow-up replaces temporary
      unavailable warning copy with save-safe-support-report-first guidance.
+     The latest bookmarklet URL privacy follow-up canonicalizes browser-button
+     job links before duplicate hashing or storage; notification-channel URL
+     minimization and feedback/share narrative redaction remain next.
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.

@@ -1306,3 +1306,9 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local page repeated-failure recovery follow-up replaces temporary
   unavailable warning copy with save-safe-support-report-first guidance, with
   focused page-boundary and product-copy coverage.
+- Current local bookmarklet URL privacy follow-up canonicalizes browser-button
+  job links through the shared core URL-security path before duplicate hashing
+  or storage, stripping userinfo, fragments, tracking parameters, tokens, and
+  candidate/email markers. Remaining Rule 0 findings from the read-only
+  security audit are notification-channel URL minimization and feedback/share
+  narrative redaction.

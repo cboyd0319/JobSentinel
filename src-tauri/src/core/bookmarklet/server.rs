@@ -3,7 +3,10 @@
 //! Runs a simple HTTP server on localhost to receive job data from browser bookmarklets.
 
 use super::BookmarkletJobData;
-use crate::core::db::{Database, Job};
+use crate::core::{
+    db::{Database, Job},
+    url_security::canonicalize_user_supplied_job_url,
+};
 use chrono::{DateTime, TimeDelta, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -512,7 +515,15 @@ async fn handle_import_request(
         .map(|value| value.trim().to_string())
         .filter(|value| !value.is_empty());
     let remote = job_data.is_remote();
-    let url = job_data.url.trim().to_string();
+    let url = match canonicalize_user_supplied_job_url(job_data.url.trim()) {
+        Ok(url) => url,
+        Err(_) => {
+            return (
+                json_error_response("Job link must be a public http or https address"),
+                "application/json".to_string(),
+            );
+        }
+    };
 
     // Calculate job hash for deduplication
     let job_hash = calculate_job_hash(&company, &title, &url);
@@ -947,6 +958,41 @@ mod tests {
         assert_eq!(stored.1, "Community Care");
         assert_eq!(stored.2, "bookmarklet");
         assert!(stored.3);
+    }
+
+    #[tokio::test]
+    async fn test_bookmarklet_import_minimizes_url_before_storage() {
+        let database = bookmarklet_test_database().await;
+        let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());
+        let body = bookmarklet_import_body(serde_json::json!({
+            "title": "Care Coordinator",
+            "company": "Community Care",
+            "description": "Coordinate care appointments",
+            "url": "https://example.com/jobs?utm_source=browser&gh_jid=123&token=secret&candidate_email=person@example.com&query=care#private",
+            "location": "Denver, CO"
+        }));
+
+        let (response, content_type) = handle_import_request(
+            &bookmarklet_import_request(&body),
+            &auth_state,
+            database.clone(),
+        )
+        .await;
+        let parsed: serde_json::Value =
+            serde_json::from_str(&response).expect("success response should be JSON");
+        let stored_url: String = sqlx::query_scalar("SELECT url FROM jobs LIMIT 1")
+            .fetch_one(database.pool())
+            .await
+            .expect("stored URL should load");
+
+        assert_eq!(content_type, "application/json");
+        assert_eq!(parsed["success"], true);
+        assert_eq!(stored_url, "https://example.com/jobs?gh_jid=123&query=care");
+        assert!(!stored_url.contains("utm_source"));
+        assert!(!stored_url.contains("token"));
+        assert!(!stored_url.contains("candidate_email"));
+        assert!(!stored_url.contains("person@example.com"));
+        assert!(!stored_url.contains("private"));
     }
 
     #[tokio::test]

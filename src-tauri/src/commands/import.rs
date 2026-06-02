@@ -7,12 +7,11 @@ use crate::core::import::{
     fetch_job_page, parse_schema_org_job_posting, schema_org::create_preview, ImportError,
     JobImportPreview,
 };
-use crate::core::url_security::sanitize_url_for_logging;
+use crate::core::url_security::{canonicalize_user_supplied_job_url, sanitize_url_for_logging};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use tauri::State;
-use url::{form_urlencoded::Serializer, Url};
 
 /// Preview a job import from a URL
 ///
@@ -216,66 +215,7 @@ fn calculate_job_hash(company: &str, title: &str, url: &str) -> String {
 }
 
 fn canonicalize_import_url(url: &str) -> Result<String, ImportError> {
-    let mut parsed =
-        Url::parse(url).map_err(|_| ImportError::InvalidUrl("Invalid URL format".to_string()))?;
-
-    let _ = parsed.set_username("");
-    let _ = parsed.set_password(None);
-    parsed.set_fragment(None);
-
-    let retained_pairs: Vec<(String, String)> = parsed
-        .query_pairs()
-        .filter(|(name, _)| !is_sensitive_import_query_param(name))
-        .map(|(name, value)| (name.into_owned(), value.into_owned()))
-        .collect();
-
-    let encoded_query = Serializer::new(String::new())
-        .extend_pairs(
-            retained_pairs
-                .iter()
-                .map(|(name, value)| (name.as_str(), value.as_str())),
-        )
-        .finish();
-
-    if encoded_query.is_empty() {
-        parsed.set_query(None);
-    } else {
-        parsed.set_query(Some(&encoded_query));
-    }
-
-    crate::core::url_security::validate_external_http_url(parsed.as_str())
-        .map_err(ImportError::InvalidUrl)?;
-
-    Ok(parsed.to_string())
-}
-
-fn is_sensitive_import_query_param(name: &str) -> bool {
-    let normalized = name.to_ascii_lowercase();
-
-    normalized.starts_with("utm_")
-        || matches!(
-            normalized.as_str(),
-            "fbclid"
-                | "gclid"
-                | "msclkid"
-                | "mc_cid"
-                | "mc_eid"
-                | "igshid"
-                | "source"
-                | "ref"
-                | "referrer"
-        )
-        || [
-            "token",
-            "session",
-            "auth",
-            "credential",
-            "password",
-            "email",
-            "candidate",
-        ]
-        .iter()
-        .any(|marker| normalized.contains(marker))
+    canonicalize_user_supplied_job_url(url).map_err(ImportError::InvalidUrl)
 }
 
 /// Extract location string from Schema.org JobLocation

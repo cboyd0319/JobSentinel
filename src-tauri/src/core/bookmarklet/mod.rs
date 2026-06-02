@@ -71,7 +71,7 @@ impl BookmarkletJobData {
             return Err("URL is required".to_string());
         }
 
-        crate::core::url_security::validate_external_http_url(self.url.trim())
+        crate::core::url_security::canonicalize_user_supplied_job_url(self.url.trim())
             .map_err(|_| "Job link must be a public http or https address".to_string())?;
 
         // Try to get title from Schema.org or fallback field
