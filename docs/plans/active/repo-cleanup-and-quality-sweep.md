@@ -179,6 +179,9 @@ boundaries, and harness modularity:
 - Changed the Applications modal entry and modal headings from analytics and
   response-time wording to application-summary, status, reply, and employer
   reply wording. Product-copy coverage now rejects the old visible phrases.
+- Changed Browser Button help-only settings from `Support number` to
+  `Browser helper number` with support-reply guidance. Product-copy coverage now
+  rejects the old label.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.

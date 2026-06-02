@@ -377,9 +377,10 @@ and record actionable findings in this active-plan surface.
   human checks, or site limits, and product-copy coverage rejects the old
   wording.
 - Latest local Browser Button follow-up changes support-only connection labels
-  from `Connection settings` / `Connection Number` to `Support settings` /
-  `Support number`, preserving the support escape hatch without asking
-  non-technical users to reason about ports or connection internals.
+  from `Connection settings` / `Connection Number` / `Support number` to
+  `Help-only settings` / `Browser helper number`, preserving the support escape
+  hatch without asking non-technical users to reason about ports or connection
+  internals.
 - Latest local Application Assist security follow-up rejects unknown
   application-form targets before profile or saved screening-answer data is
   loaded, keeps unknown-platform generic selectors disabled as a second guard,

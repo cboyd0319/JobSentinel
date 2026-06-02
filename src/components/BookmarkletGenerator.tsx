@@ -154,12 +154,12 @@ export function BookmarkletGenerator() {
             className="text-sm text-gray-400 hover:text-white underline"
             aria-expanded={showAdvanced}
           >
-            Support settings
+            Help-only settings
           </button>
           {showAdvanced && (
             <div className="mt-3 rounded-lg border border-gray-700 p-4">
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Support number
+                Browser helper number
               </label>
               <input
                 type="number"
@@ -171,7 +171,7 @@ export function BookmarkletGenerator() {
                 max="65535"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Default: 4321. Change only if support asks.
+                Leave this at 4321 unless a support reply asks you to change it.
               </p>
             </div>
           )}

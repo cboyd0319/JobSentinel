@@ -1257,6 +1257,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /block page import/i,
       /Allow clipboard access and try again\./i,
       /when JobSentinel restarts/i,
+      /Support settings/i,
+      /Support number/i,
     ];
 
     if (browserButtonPatterns.some((pattern) => pattern.test(text))) {

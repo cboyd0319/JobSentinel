@@ -130,6 +130,8 @@ Current cleanup posture:
 - Current local application-summary modal follow-up changes the Applications
   button and modal labels away from analytics and response-time wording toward
   application-summary, status, reply, and employer reply wording.
+- Current local Browser Button follow-up changes help-only settings from
+  `Support number` to `Browser helper number` with support-reply guidance.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.
