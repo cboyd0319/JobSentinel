@@ -300,12 +300,11 @@ export async function openGitHubIssue(
   description: string,
   debugInfo: string | null
 ): Promise<void> {
-  const safeDescription = sanitizeTextForStorage(description.trim());
   const clipboardSections = [
     "JOBSENTINEL SAFE SUPPORT REPORT",
     "",
     "WHAT YOU WROTE",
-    safeDescription,
+    description.trim(),
   ];
 
   if (debugInfo) {
@@ -313,7 +312,10 @@ export async function openGitHubIssue(
   }
 
   try {
-    await navigator.clipboard.writeText(clipboardSections.join("\n"));
+    const clipboardContent = await invoke<string>("sanitize_feedback_text", {
+      content: clipboardSections.join("\n"),
+    });
+    await navigator.clipboard.writeText(clipboardContent);
   } catch (error) {
     logError("Failed to copy feedback debug info to clipboard:", error);
     // Non-fatal - user can still open issue

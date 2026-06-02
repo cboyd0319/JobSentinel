@@ -89,7 +89,7 @@ fn feedback_suggested_filename(suggested_filename: Option<String>) -> String {
 }
 
 fn feedback_file_content(content: &str) -> String {
-    Sanitizer::sanitize(content)
+    Sanitizer::sanitize_support_report_text(content)
 }
 
 fn feedback_file_name(path: &Path) -> String {
@@ -452,5 +452,17 @@ mod tests {
         assert!(sanitized.contains("[EMAIL]"));
         assert!(sanitized.contains("Screening answer: [JOB_SEARCH_DETAIL_REDACTED]"));
         assert!(!sanitized.contains("sponsorship next year"));
+    }
+
+    #[test]
+    fn test_sanitize_feedback_text_redacts_unlabeled_job_search_narrative() {
+        let content = r#"Issue while applying to "Acme Health" for care manager role after layoff"#;
+
+        let sanitized = sanitize_feedback_text(content.to_string());
+
+        assert!(sanitized.contains("[JOB_SEARCH_DETAIL_REDACTED]"));
+        assert!(!sanitized.contains("Acme Health"));
+        assert!(!sanitized.contains("care manager"));
+        assert!(!sanitized.contains("layoff"));
     }
 }

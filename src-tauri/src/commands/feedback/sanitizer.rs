@@ -98,6 +98,14 @@ static PERSON_NAME_STATEMENT_REGEX: Lazy<Regex> = Lazy::new(|| {
         .expect("Person-name statement regex pattern is valid and should compile")
 });
 
+#[allow(clippy::expect_used)]
+static JOB_SEARCH_NARRATIVE_CONTEXT_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(
+        r"(?im)\b((?:while\s+)?(?:applying|applied|interviewing|interviewed|negotiating|rejected|offer(?:ed)?|laid off|layoff|unemployed|employment gap|resume gap|job search urgency)\b[^\r\n]*)",
+    )
+    .expect("Sensitive job-search narrative regex pattern is valid and should compile")
+});
+
 // Quoted strings (might be job titles or company names)
 #[allow(clippy::expect_used)]
 static QUOTED_STRING_REGEX: Lazy<Regex> = Lazy::new(|| {
@@ -195,6 +203,14 @@ impl Sanitizer {
             .to_string();
 
         result
+    }
+
+    pub fn sanitize_support_report_text(text: &str) -> String {
+        let result = Self::sanitize_error(text);
+
+        JOB_SEARCH_NARRATIVE_CONTEXT_REGEX
+            .replace_all(&result, "[JOB_SEARCH_DETAIL_REDACTED]")
+            .to_string()
     }
 
     /// Sanitize file paths specifically

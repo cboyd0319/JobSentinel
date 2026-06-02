@@ -109,7 +109,7 @@ fn format_feedback_report(
     report.push_str("WHAT YOU WROTE\n");
     report.push_str("───────────────────────────────────────────────────────────────────────\n");
     report.push_str("\n");
-    report.push_str(&Sanitizer::sanitize(description));
+    report.push_str(&Sanitizer::sanitize_support_report_text(description));
     report.push_str("\n\n");
 
     // System information
@@ -373,6 +373,21 @@ mod tests {
         assert!(!report.contains("$125,000"));
         assert!(!report.contains("oncology team"));
         assert!(!report.contains("laid off"));
+    }
+
+    #[test]
+    fn test_report_redacts_unlabeled_job_search_narrative() {
+        let category = FeedbackCategory::Bug;
+        let description =
+            r#"Issue while applying to "Acme Health" for care manager role after layoff"#;
+        let system_info = SystemInfo::current();
+
+        let report = format_feedback_report(&category, description, &system_info, None, &[]);
+
+        assert!(report.contains("[JOB_SEARCH_DETAIL_REDACTED]"));
+        assert!(!report.contains("Acme Health"));
+        assert!(!report.contains("care manager"));
+        assert!(!report.contains("layoff"));
     }
 
     #[test]

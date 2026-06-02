@@ -82,7 +82,9 @@ describe("feedbackService", () => {
   });
 
   it("opens GitHub issues through the backend issue command", async () => {
-    mockInvoke.mockResolvedValueOnce(undefined);
+    mockInvoke
+      .mockResolvedValueOnce("backend sanitized issue report")
+      .mockResolvedValueOnce(undefined);
 
     await openGitHubIssue(
       "feature",
@@ -90,31 +92,51 @@ describe("feedbackService", () => {
       "debug info",
     );
 
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-      [
+    expect(mockInvoke).toHaveBeenNthCalledWith(1, "sanitize_feedback_text", {
+      content: [
         "JOBSENTINEL SAFE SUPPORT REPORT",
         "",
         "WHAT YOU WROTE",
-        "Add filter presets for [EMAIL] and [PHONE]",
+        "Add filter presets for jane@example.com and +1 (303) 555-1212",
         "",
         "SUPPORT DETAILS",
         "debug info",
       ].join("\n"),
-    );
-    expect(mockInvoke).toHaveBeenCalledWith("open_github_issues", {
+    });
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith("backend sanitized issue report");
+    expect(mockInvoke).toHaveBeenNthCalledWith(2, "open_github_issues", {
       template: "feature",
     });
+  });
+
+  it("uses backend redaction for GitHub issue narrative text", async () => {
+    mockInvoke
+      .mockResolvedValueOnce("WHAT YOU WROTE\n[JOB_SEARCH_DETAIL_REDACTED]")
+      .mockResolvedValueOnce(undefined);
+
+    await openGitHubIssue(
+      "bug",
+      'Issue while applying to "Acme Health" for care manager role after layoff',
+      null,
+    );
+
+    expect(mockInvoke).toHaveBeenNthCalledWith(1, "sanitize_feedback_text", {
+      content: expect.stringContaining('Issue while applying to "Acme Health"'),
+    });
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      "WHAT YOU WROTE\n[JOB_SEARCH_DETAIL_REDACTED]",
+    );
   });
 
   it("continues opening GitHub issues when debug clipboard copy fails", async () => {
     vi.mocked(navigator.clipboard.writeText).mockRejectedValueOnce(
       new Error("clipboard denied for /Users/alice/secrets.txt?token=abc"),
     );
-    mockInvoke.mockResolvedValueOnce(undefined);
+    mockInvoke.mockResolvedValueOnce("safe issue report").mockResolvedValueOnce(undefined);
 
     await openGitHubIssue("bug", "Crash after search", "debug info");
 
-    expect(mockInvoke).toHaveBeenCalledWith("open_github_issues", {
+    expect(mockInvoke).toHaveBeenLastCalledWith("open_github_issues", {
       template: "bug",
     });
   });

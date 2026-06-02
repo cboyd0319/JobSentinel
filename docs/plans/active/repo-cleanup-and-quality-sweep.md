@@ -1317,3 +1317,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
   before optional off-device alert payloads are built; non-public links are
   omitted or replaced with local-app guidance. Remaining Rule 0 finding from
   the read-only security audit is feedback/share narrative redaction.
+- Current local feedback/share privacy follow-up uses the backend support-report
+  sanitizer for saved reports, copied safe reports, and GitHub issue clipboard
+  content, including unlabeled employer, role, and layoff/job-search narrative
+  redaction.

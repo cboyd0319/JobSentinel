@@ -1238,6 +1238,10 @@ Next high-value passes:
      The latest notification URL privacy follow-up routes Slack, Discord,
      Teams, Telegram, and email job links through the shared outbound minimizer;
      feedback/share narrative redaction remains next.
+     The latest feedback/share privacy follow-up uses the backend support-report
+     sanitizer for saved reports, copied reports, and GitHub issue clipboard
+     content, including unlabeled employer, role, and layoff/job-search narrative
+     redaction.
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.

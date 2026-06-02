@@ -973,6 +973,10 @@ and record actionable findings in this active-plan surface.
   Teams, Telegram, and email job links through the shared outbound minimizer
   before any optional off-device alert payload is built; non-public links are
   omitted or replaced with local-app guidance.
+- Current local feedback/share privacy follow-up uses the backend
+  support-report sanitizer for saved reports, copied safe reports, and GitHub
+  issue clipboard content, including unlabeled employer, role, and layoff/job
+  search narrative redaction.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.
@@ -1007,9 +1011,9 @@ and record actionable findings in this active-plan surface.
 5. Continue backend/scraper and frontend privacy-edge review.
    The browser-button stored-URL and notification-channel URL minimization
    findings from the latest read-only security audit are closed locally.
-   Feedback/share narrative redaction remains the next Rule 0 privacy finding.
-   JobsWithGPT approval enforcement is landed locally; `SEC-019` remains open
-   only for a visible last-sent summary if that becomes necessary.
+   Feedback/share narrative redaction is closed locally. JobsWithGPT approval
+   enforcement is landed locally; `SEC-019` remains open only for a visible
+   last-sent summary if that becomes necessary.
 6. Continue the next zero-technical-knowledge UX audit area outside
    support/reporting.
 7. Run final broad verification only when the remaining known work has evidence.
