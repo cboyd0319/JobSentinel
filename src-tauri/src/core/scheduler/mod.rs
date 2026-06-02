@@ -3,8 +3,9 @@
 //! Manages periodic job scraping based on user configuration.
 
 use anyhow::Result;
+use std::sync::Arc;
 use std::time::Duration;
-use tokio::time;
+use tokio::{sync::RwLock, time};
 
 // Module declarations
 mod pipeline;
@@ -16,8 +17,15 @@ pub use types::{ScheduleConfig, Scheduler, ScrapingResult};
 
 impl Scheduler {
     pub fn new(
-        config: std::sync::Arc<crate::core::config::Config>,
-        database: std::sync::Arc<crate::core::db::Database>,
+        config: Arc<crate::core::config::Config>,
+        database: Arc<crate::core::db::Database>,
+    ) -> Self {
+        Self::new_shared(Arc::new(RwLock::new((*config).clone())), database)
+    }
+
+    pub fn new_shared(
+        config: Arc<RwLock<crate::core::config::Config>>,
+        database: Arc<crate::core::db::Database>,
     ) -> Self {
         let (shutdown_tx, _) = tokio::sync::broadcast::channel(1);
         Self {
@@ -50,15 +58,15 @@ impl Scheduler {
     ///
     /// The scheduler can be stopped gracefully by calling `shutdown()` on the Scheduler instance.
     pub async fn start(&self) -> Result<()> {
-        let interval = Duration::from_secs(self.config.scraping_interval_hours * 3600);
         let mut shutdown_rx = self.shutdown_tx.subscribe();
 
-        tracing::info!(
-            "Starting scheduler with interval: {} hours",
-            self.config.scraping_interval_hours
-        );
-
         loop {
+            let interval_hours = {
+                let config = self.config.read().await;
+                config.scraping_interval_hours
+            };
+            let interval = Duration::from_secs(interval_hours * 3600);
+
             tracing::info!("Scheduler: Running job scraping cycle");
 
             tokio::select! {
@@ -92,10 +100,7 @@ impl Scheduler {
             }
 
             // Wait for next run or shutdown signal
-            tracing::info!(
-                "Next scraping cycle in {} hours",
-                self.config.scraping_interval_hours
-            );
+            tracing::info!("Next scraping cycle in {} hours", interval_hours);
 
             tokio::select! {
                 _ = time::sleep(interval) => {

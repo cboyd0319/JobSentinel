@@ -116,8 +116,8 @@ pub async fn get_ghost_config(state: State<'_, AppState>) -> Result<Value, Strin
     tracing::info!("Command: get_ghost_config");
 
     // Get from main config, or use default if not present
-    let ghost_config = state
-        .config
+    let config = state.config.read().await;
+    let ghost_config = config
         .ghost_config
         .clone()
         .unwrap_or_else(GhostConfig::default);
@@ -128,7 +128,7 @@ pub async fn get_ghost_config(state: State<'_, AppState>) -> Result<Value, Strin
 
 /// Update ghost detection configuration
 #[tauri::command]
-pub async fn set_ghost_config(config: Value, _state: State<'_, AppState>) -> Result<(), String> {
+pub async fn set_ghost_config(config: Value, state: State<'_, AppState>) -> Result<(), String> {
     tracing::info!("Command: set_ghost_config");
 
     // Parse GhostConfig from JSON
@@ -185,13 +185,18 @@ pub async fn set_ghost_config(config: Value, _state: State<'_, AppState>) -> Res
         message
     })?;
 
+    {
+        let mut runtime_config = state.config.write().await;
+        *runtime_config = current_config;
+    }
+
     tracing::info!("Ghost detection config updated successfully");
     Ok(())
 }
 
 /// Reset ghost detection configuration to defaults
 #[tauri::command]
-pub async fn reset_ghost_config(_state: State<'_, AppState>) -> Result<(), String> {
+pub async fn reset_ghost_config(state: State<'_, AppState>) -> Result<(), String> {
     tracing::info!("Command: reset_ghost_config");
 
     // Load current config
@@ -223,6 +228,11 @@ pub async fn reset_ghost_config(_state: State<'_, AppState>) -> Result<(), Strin
         );
         message
     })?;
+
+    {
+        let mut runtime_config = state.config.write().await;
+        *runtime_config = current_config;
+    }
 
     tracing::info!("Ghost detection config reset to defaults");
     Ok(())

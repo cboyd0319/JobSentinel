@@ -69,6 +69,11 @@ When resume matching is off, JobSentinel uses saved titles and work words. When
 resume matching is on, resume skills add more context without replacing the
 user's stated preferences.
 
+Saved settings apply to the running app after they save. Turning resume-based
+matching on or off does not require closing and reopening JobSentinel, and
+cached match results are kept separate for base scoring and active-resume
+scoring.
+
 ### Salary
 
 Salary review compares listed pay to the user's salary floor and target pay.

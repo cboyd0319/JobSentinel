@@ -66,6 +66,7 @@ macOS, and Linux.
 - Load/save user preferences
 - Validate configuration values
 - Provide sensible defaults
+- Keep the in-memory runtime configuration in sync after settings are saved
 - **Submodules:**
   - `types.rs` - Configuration types and structures
   - `validation.rs` - Configuration validation logic
@@ -594,13 +595,14 @@ get_config_dir()  // ~/.config/jobsentinel
 ### Complete Scraping Cycle
 
 1. User triggers a scrape or the scheduler fires.
-2. `Scheduler::run_scraping_cycle()` starts scraper workers for configured sources.
-3. Each scraper parses HTML or JSON into `Vec<Job>`.
-4. For each job, the backend computes a SHA-256 hash, scores the job, and upserts it
+2. `Scheduler::run_scraping_cycle()` snapshots the current runtime configuration.
+3. The scheduler starts scraper workers for configured sources.
+4. Each scraper parses HTML or JSON into `Vec<Job>`.
+5. For each job, the backend computes a SHA-256 hash, scores the job, and upserts it
    into the database.
-5. The notification layer selects jobs meeting the configured alert threshold.
-6. Each unsent high-scoring job can produce an alert through the configured channels.
-7. The command returns the result summary to the UI.
+6. The notification layer selects jobs meeting the configured alert threshold.
+7. Each unsent high-scoring job can produce an alert through the configured channels.
+8. The command returns the result summary to the UI.
 
 ### Configuration Flow
 
@@ -608,7 +610,11 @@ get_config_dir()  // ~/.config/jobsentinel
 2. Frontend calls `save_config(config)`.
 3. Rust validates the configuration.
 4. Valid configuration is saved to `~/.config/jobsentinel/config.json`.
-5. Invalid configuration returns an error with details for the UI.
+5. The shared runtime configuration is updated after the disk save succeeds.
+6. Manual searches, scheduled source checks, source-status smoke tests, scoring,
+   posting-risk settings, and support-report summaries read the updated runtime
+   configuration without requiring an app restart.
+7. Invalid configuration returns an error with details for the UI.
 
 ---
 

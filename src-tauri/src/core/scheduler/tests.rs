@@ -5,6 +5,7 @@ use crate::core::{
 };
 use std::sync::Arc;
 use std::time::Duration;
+use tokio::sync::RwLock;
 
 fn create_test_config() -> Config {
     Config {
@@ -79,10 +80,31 @@ async fn test_scheduler_creation() {
     let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
 
     // Verify scheduler was created with correct config
+    let scheduler_config = scheduler.config.read().await;
     assert_eq!(
-        scheduler.config.scraping_interval_hours,
+        scheduler_config.scraping_interval_hours,
         config.scraping_interval_hours
     );
+}
+
+#[tokio::test]
+async fn test_scheduler_shared_config_updates_without_restart() {
+    let config = Arc::new(RwLock::new(create_test_config()));
+    let db = Database::connect_memory().await.unwrap();
+    db.migrate().await.unwrap();
+    let database = Arc::new(db);
+
+    let scheduler = Scheduler::new_shared(Arc::clone(&config), Arc::clone(&database));
+
+    {
+        let mut config = config.write().await;
+        config.scraping_interval_hours = 6;
+        config.use_resume_matching = true;
+    }
+
+    let scheduler_config = scheduler.config.read().await;
+    assert_eq!(scheduler_config.scraping_interval_hours, 6);
+    assert!(scheduler_config.use_resume_matching);
 }
 
 #[tokio::test]
@@ -407,7 +429,8 @@ async fn test_scheduler_interval_calculation() {
 
     // The interval should be converted to seconds correctly
     // 4 hours = 4 * 3600 = 14400 seconds
-    assert_eq!(scheduler.config.scraping_interval_hours, 4);
+    let scheduler_config = scheduler.config.read().await;
+    assert_eq!(scheduler_config.scraping_interval_hours, 4);
 }
 
 #[tokio::test]
@@ -709,7 +732,8 @@ async fn test_scheduler_respects_config_interval() {
     let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
 
     // Verify scheduler uses correct interval
-    assert_eq!(scheduler.config.scraping_interval_hours, 8);
+    let scheduler_config = scheduler.config.read().await;
+    assert_eq!(scheduler_config.scraping_interval_hours, 8);
 }
 
 // ========================================

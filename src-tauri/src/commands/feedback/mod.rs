@@ -228,8 +228,8 @@ pub async fn get_system_info() -> Result<SystemInfo, String> {
 /// Get configuration summary (Tauri command)
 #[tauri::command]
 pub async fn get_config_summary(state: State<'_, AppState>) -> Result<ConfigSummary, String> {
-    let config = &*state.config;
-    Ok(system_info::summarize_config(config))
+    let config = state.config.read().await;
+    Ok(system_info::summarize_config(&config))
 }
 
 /// Generate a complete feedback report

@@ -31,6 +31,35 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local runtime-settings follow-up fixes current-session configuration
+  staleness. `save_config` now updates the shared runtime configuration after
+  the disk save succeeds; manual searches, scheduled source checks,
+  dashboard preferences, posting-risk settings, source-status smoke tests, and
+  safe support report summaries read the current saved settings without an app
+  restart. Scheduler cycles snapshot config once per run so scraper, scoring,
+  posting-risk, and notification stages agree without holding a lock during
+  network or database work. Resume-enabled scoring cache keys now include the
+  active resume id, preventing base keyword scores from being reused after
+  resume matching is turned on. Health commands now use managed `AppState`
+  instead of unmanaged database/config state, fixing real-app source-status
+  smoke-test invocations. Focused verification passed: `cargo test --lib
+  save_config_updates_runtime_config_after_disk_save --manifest-path
+  src-tauri/Cargo.toml`, `cargo test --lib
+  test_scheduler_shared_config_updates_without_restart --manifest-path
+  src-tauri/Cargo.toml`, `cargo test --lib
+  resume_enabled_cache_key_includes_resume_id --manifest-path
+  src-tauri/Cargo.toml`, `cargo test --lib config --manifest-path
+  src-tauri/Cargo.toml`, `cargo test --lib health --manifest-path
+  src-tauri/Cargo.toml`, and `cargo test --lib scheduler --manifest-path
+  src-tauri/Cargo.toml`. Broader verification passed: `cargo test --lib
+  --manifest-path src-tauri/Cargo.toml` passed 2511 tests with 21 ignored,
+  `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, `npm run
+  test:run` passed 2637 tests, `npm run test:scripts` passed 507 tests, `npm
+  run lint -- --quiet`, `npm run lint:docs`, `npm run lint:tauri-invokes`,
+  `npm run lint:bloat`, `npm run lint:security`, `npm run build`, `npm run
+  test:e2e:smoke:budget` passed 10 expected tests in 8.23 seconds, `cargo fmt
+  --all --manifest-path src-tauri/Cargo.toml -- --check`, and `git diff
+  --check`.
 - Current local resume safety-label follow-up aligns the Resume Match Helper
   and Resume Builder live review with backend suggestion categories so
   prompt-injection-like or hidden-text guidance displays as **Safety check**

@@ -450,14 +450,14 @@ fn main() {
             tracing::info!("Database initialized successfully");
 
             // Wrap shared state in Arc
-            let config_arc = Arc::new(config);
+            let config_arc = Arc::new(RwLock::new(config));
             let database_arc = Arc::new(database);
 
             // Initialize scheduler status tracking
             let scheduler_status = Arc::new(RwLock::new(SchedulerStatus::default()));
 
             // Create scheduler (will be started after setup if not first run)
-            let scheduler = Scheduler::new(Arc::clone(&config_arc), Arc::clone(&database_arc));
+            let scheduler = Scheduler::new_shared(Arc::clone(&config_arc), Arc::clone(&database_arc));
             let scheduler_arc = Arc::new(scheduler);
 
             // Create bookmarklet server (not started automatically)
@@ -483,7 +483,6 @@ fn main() {
 
                 let scheduler_clone = Arc::clone(&scheduler_arc);
                 let status_clone = Arc::clone(&scheduler_status);
-                let interval_hours = config_arc.scraping_interval_hours;
                 let app_handle = app.handle().clone();
 
                 // Subscribe to shutdown signal before spawning task
@@ -520,6 +519,11 @@ fn main() {
                                 tracing::error!("Background scraping failed: {}", e);
                             }
                         }
+
+                        let interval_hours = {
+                            let config = config_arc.read().await;
+                            config.scraping_interval_hours
+                        };
 
                         // Calculate next run time first to ensure consistency
                         let now = Utc::now();

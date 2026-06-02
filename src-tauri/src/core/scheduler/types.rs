@@ -2,7 +2,7 @@
 
 use crate::core::config::Config;
 use std::sync::Arc;
-use tokio::sync::broadcast;
+use tokio::sync::{broadcast, RwLock};
 
 /// Schedule configuration
 #[derive(Debug, Clone)]
@@ -26,7 +26,7 @@ impl From<&Config> for ScheduleConfig {
 /// Scheduler handle
 #[derive(Debug)]
 pub struct Scheduler {
-    pub(crate) config: Arc<Config>,
+    pub(crate) config: Arc<RwLock<Config>>,
     pub(crate) database: Arc<crate::core::db::Database>,
     pub(crate) shutdown_tx: broadcast::Sender<()>,
 }

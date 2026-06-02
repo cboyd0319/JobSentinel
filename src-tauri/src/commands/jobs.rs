@@ -19,7 +19,7 @@ pub async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
 
     // Create scheduler instance
     let scheduler =
-        crate::core::scheduler::Scheduler::new(state.config.clone(), state.database.clone());
+        crate::core::scheduler::Scheduler::new_shared(state.config.clone(), state.database.clone());
 
     // Run single scraping cycle
     match scheduler.run_scraping_cycle().await {
@@ -336,12 +336,13 @@ pub async fn get_scraping_status(state: State<'_, AppState>) -> Result<Value, St
     tracing::info!("Command: get_scraping_status");
 
     let status = state.scheduler_status.read().await;
+    let config = state.config.read().await;
 
     Ok(serde_json::json!({
         "is_running": status.is_running,
         "last_scrape": status.last_run.map(|dt| dt.to_rfc3339()),
         "next_scrape": status.next_run.map(|dt| dt.to_rfc3339()),
-        "interval_hours": state.config.scraping_interval_hours,
+        "interval_hours": config.scraping_interval_hours,
     }))
 }
 

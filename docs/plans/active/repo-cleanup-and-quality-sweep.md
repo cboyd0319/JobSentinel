@@ -166,6 +166,11 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local runtime-settings follow-up fixes current-session configuration
+  staleness. Saved settings now update both disk and runtime memory, scheduler
+  cycles use a current config snapshot, health/source-status smoke commands use
+  managed app state, and resume-enabled score cache entries include the active
+  resume id so base keyword scores cannot drift into resume scoring.
 - Current local resume category-drift harness follow-up adds frontend-contract
   and repo-bloat sensor coverage so backend resume suggestion categories,
   browser/dev mocks, Resume Match Helper labels, and Resume Builder live review

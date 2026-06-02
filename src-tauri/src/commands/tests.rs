@@ -69,7 +69,7 @@ mod tests {
         let bookmarklet_server = BookmarkletServer::new(bookmarklet_config);
 
         AppState {
-            config: Arc::new(config),
+            config: Arc::new(RwLock::new(config)),
             database: Arc::new(database),
             scheduler: None,
             scheduler_status: Arc::new(RwLock::new(SchedulerStatus::default())),
@@ -218,9 +218,10 @@ mod tests {
     #[tokio::test]
     async fn test_config_structure() {
         let state = create_test_app_state().await;
+        let config = state.config.read().await;
 
-        assert_eq!(state.config.salary_floor_usd, 100000);
-        assert_eq!(state.config.immediate_alert_threshold, 0.9);
+        assert_eq!(config.salary_floor_usd, 100000);
+        assert_eq!(config.immediate_alert_threshold, 0.9);
     }
 
     #[tokio::test]

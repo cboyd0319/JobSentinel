@@ -1,6 +1,7 @@
 //! Main scraping pipeline orchestration
 
 use anyhow::Result;
+use std::sync::Arc;
 
 use super::types::{Scheduler, ScrapingResult};
 use super::workers::{persist_and_notify, run_scrapers, score_jobs};
@@ -20,10 +21,15 @@ impl Scheduler {
         let cycle_start = Instant::now();
         tracing::info!("Starting full scraping cycle");
 
+        let config = {
+            let config = self.config.read().await;
+            Arc::new(config.clone())
+        };
+
         // 1. Run all scrapers
         let stage1_start = Instant::now();
         tracing::info!("Pipeline stage 1/3: Running scrapers");
-        let (all_jobs, mut errors) = run_scrapers(&self.config, &self.database).await;
+        let (all_jobs, mut errors) = run_scrapers(&config, &self.database).await;
         let stage1_duration = stage1_start.elapsed();
         tracing::info!(
             job_count = all_jobs.len(),
@@ -34,7 +40,7 @@ impl Scheduler {
         // 2. Score all jobs and run ghost detection
         let stage2_start = Instant::now();
         tracing::info!("Pipeline stage 2/3: Scoring jobs and detecting ghost postings");
-        let scored_jobs = score_jobs(all_jobs, &self.config, &self.database).await;
+        let scored_jobs = score_jobs(all_jobs, &config, &self.database).await;
         let stage2_duration = stage2_start.elapsed();
         tracing::info!(
             job_count = scored_jobs.len(),
@@ -45,7 +51,7 @@ impl Scheduler {
         // 3. Store in database and send notifications
         let stage3_start = Instant::now();
         tracing::info!("Pipeline stage 3/3: Persisting jobs and sending notifications");
-        let stats = persist_and_notify(&scored_jobs, &self.config, &self.database).await;
+        let stats = persist_and_notify(&scored_jobs, &config, &self.database).await;
         let stage3_duration = stage3_start.elapsed();
         tracing::info!(
             elapsed_ms = stage3_duration.as_millis(),

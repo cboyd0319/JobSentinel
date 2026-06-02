@@ -4,9 +4,30 @@ use crate::core::{
     config::Config,
     db::{Database, Job},
     ghost::{GhostConfig, GhostDetector},
+    resume::ResumeMatcher,
     scoring::{get_cached_score, set_cached_score, JobScore, ScoreCacheKey, ScoringEngine},
 };
 use std::sync::Arc;
+
+fn score_cache_key(job_hash: &str, active_resume_id: Option<i64>) -> ScoreCacheKey {
+    active_resume_id.map_or_else(
+        || ScoreCacheKey::base(job_hash),
+        |resume_id| ScoreCacheKey::new(job_hash, Some(resume_id)),
+    )
+}
+
+async fn active_resume_cache_id(config: &Config, database: &Database) -> Option<i64> {
+    if !config.use_resume_matching {
+        return None;
+    }
+
+    ResumeMatcher::new(database.pool().clone())
+        .get_active_resume()
+        .await
+        .ok()
+        .flatten()
+        .map(|resume| resume.id)
+}
 
 /// Score all jobs and run ghost detection analysis
 ///
@@ -42,12 +63,13 @@ pub async fn score_jobs(
     // Use async scoring when resume matching is enabled
     let mut cache_hits = 0;
     let mut cache_misses = 0;
+    let active_resume_id = active_resume_cache_id(config, database).await;
 
     if config.use_resume_matching {
         tracing::debug!("Resume-based scoring enabled, using async scoring with cache");
         for mut job in jobs {
             // Try cache first (resume-aware)
-            let cache_key = ScoreCacheKey::base(&job.hash);
+            let cache_key = score_cache_key(&job.hash, active_resume_id);
             let score = if let Some(cached) = get_cached_score(&cache_key).await {
                 cache_hits += 1;
                 (*cached).clone()
@@ -183,4 +205,25 @@ fn serialize_score_reasons(job_hash: &str, reasons: &[String]) -> String {
         );
         String::new()
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn resume_enabled_cache_key_includes_resume_id() {
+        let key = score_cache_key("job-hash", Some(42));
+
+        assert_eq!(key.job_hash, "job-hash");
+        assert_eq!(key.resume_id, Some(42));
+    }
+
+    #[test]
+    fn base_cache_key_has_no_resume_id() {
+        let key = score_cache_key("job-hash", None);
+
+        assert_eq!(key.job_hash, "job-hash");
+        assert_eq!(key.resume_id, None);
+    }
 }

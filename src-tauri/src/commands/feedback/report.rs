@@ -54,7 +54,8 @@ pub(super) async fn generate_feedback_report_impl(
 
     // Get config summary (if debug info requested)
     let config_summary = if include_debug_info {
-        Some(summarize_config(&state.config))
+        let config = state.config.read().await;
+        Some(summarize_config(&config))
     } else {
         None
     };

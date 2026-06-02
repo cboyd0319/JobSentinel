@@ -34,6 +34,10 @@ narrow implementation slices chosen from that backlog.
   readable-text preview, omits saved file paths from the preview and normal
   resume summaries, and lets users copy the readable text after opening the
   preview.
+- Latest local runtime-settings slice makes saved settings apply in the current
+  app session, including resume-based job matching. Resume-enabled scoring
+  cache entries now include the active resume id so turning resume matching on
+  cannot reuse base keyword-only scores.
 - Latest local resume-assistance slice preserves job-post importance for
   missing resume words and groups the Resume Match review by required,
   preferred, and other role language. Users now see which missing words deserve

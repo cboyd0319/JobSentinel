@@ -10,8 +10,9 @@ use crate::core::db::Database;
 use crate::core::logging::path_label_for_logging;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::fmt;
+use std::{fmt, path::Path};
 use tauri::State;
+use tokio::sync::RwLock;
 
 /// Email configuration for testing (matches frontend interface)
 #[derive(Clone, Serialize, Deserialize)]
@@ -85,26 +86,39 @@ fn resolve_smtp_password_for_test(smtp_password: String) -> Result<String, Strin
     get_stored_credential_for_test(CredentialKey::SmtpPassword, "SMTP password")
 }
 
-/// Save user configuration
-#[tauri::command]
-pub async fn save_config(config: Value, _state: State<'_, AppState>) -> Result<(), String> {
-    tracing::info!("Command: save_config");
-
-    // Parse config from JSON
+async fn save_config_to_runtime_and_path(
+    config: Value,
+    runtime_config: &RwLock<Config>,
+    config_path: &Path,
+) -> Result<(), String> {
     let parsed_config: Config = serde_json::from_value(config)
         .map_err(|e| user_friendly_error("Invalid configuration", e))?;
 
-    // Save to file
-    let config_path = Config::default_path();
-    parsed_config.save(&config_path).map_err(|e| {
+    parsed_config.save(config_path).map_err(|e| {
         let message = user_friendly_error("Failed to save configuration", &e);
         tracing::error!(
-            config_path = %path_label_for_logging(&config_path),
+            config_path = %path_label_for_logging(config_path),
             error = %message,
             "Failed to save configuration"
         );
         message
     })?;
+
+    {
+        let mut runtime_config = runtime_config.write().await;
+        *runtime_config = parsed_config;
+    }
+
+    Ok(())
+}
+
+/// Save user configuration
+#[tauri::command]
+pub async fn save_config(config: Value, state: State<'_, AppState>) -> Result<(), String> {
+    tracing::info!("Command: save_config");
+
+    let config_path = Config::default_path();
+    save_config_to_runtime_and_path(config, state.config.as_ref(), &config_path).await?;
 
     tracing::info!("Configuration saved successfully");
     Ok(())
@@ -115,8 +129,8 @@ pub async fn save_config(config: Value, _state: State<'_, AppState>) -> Result<(
 pub async fn get_config(state: State<'_, AppState>) -> Result<Value, String> {
     tracing::info!("Command: get_config");
 
-    serde_json::to_value(&*state.config)
-        .map_err(|e| user_friendly_error("Failed to serialize config", e))
+    let config = state.config.read().await;
+    serde_json::to_value(&*config).map_err(|e| user_friendly_error("Failed to serialize config", e))
 }
 
 /// Minimal dashboard preferences. Avoids exposing full settings to dashboard UI.
@@ -143,7 +157,8 @@ pub async fn get_dashboard_preferences(
     state: State<'_, AppState>,
 ) -> Result<DashboardPreferences, String> {
     tracing::info!("Command: get_dashboard_preferences");
-    Ok(DashboardPreferences::from_config(state.config.as_ref()))
+    let config = state.config.read().await;
+    Ok(DashboardPreferences::from_config(&config))
 }
 
 fn any_job_source_enabled(config: &Config) -> bool {
@@ -357,6 +372,34 @@ mod tests {
         assert!(preferences.auto_refresh.enabled);
         assert_eq!(preferences.auto_refresh.interval_minutes, 45);
         assert!(preferences.any_job_source_enabled);
+    }
+
+    #[tokio::test]
+    async fn save_config_updates_runtime_config_after_disk_save() {
+        let runtime_config = RwLock::new(create_dashboard_test_config());
+        let temp_dir = tempfile::tempdir().unwrap();
+        let config_path = temp_dir.path().join("config.json");
+
+        let mut new_config = create_dashboard_test_config();
+        new_config.salary_floor_usd = 95_000;
+        new_config.use_resume_matching = true;
+        new_config.keywords_boost = vec!["case management".to_string()];
+        let payload = serde_json::to_value(&new_config).unwrap();
+
+        save_config_to_runtime_and_path(payload, &runtime_config, &config_path)
+            .await
+            .unwrap();
+
+        let runtime = runtime_config.read().await;
+        assert_eq!(runtime.salary_floor_usd, 95_000);
+        assert!(runtime.use_resume_matching);
+        assert_eq!(runtime.keywords_boost, vec!["case management"]);
+        drop(runtime);
+
+        let saved = Config::load(&config_path).unwrap();
+        assert_eq!(saved.salary_floor_usd, 95_000);
+        assert!(saved.use_resume_matching);
+        assert_eq!(saved.keywords_boost, vec!["case management"]);
     }
 
     #[test]

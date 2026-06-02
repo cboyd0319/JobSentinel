@@ -51,7 +51,7 @@ pub struct SchedulerStatus {
 
 /// Application state shared across commands
 pub struct AppState {
-    pub config: Arc<Config>,
+    pub config: Arc<RwLock<Config>>,
     pub database: Arc<Database>,
     pub scheduler: Option<Arc<Scheduler>>,
     pub scheduler_status: Arc<RwLock<SchedulerStatus>>,

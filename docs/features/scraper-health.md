@@ -34,6 +34,8 @@ The Settings source-status view should show:
   found, last checked, whether JobSentinel can read jobs, and what to do next.
 - Run history for recent attempts.
 - Job-site check buttons for known supported sources.
+- Job-site checks use the current saved settings in the running app; users do
+  not need to close and reopen JobSentinel after changing source settings.
 - Safe support report actions when a user needs help.
 
 ## Source Policy
