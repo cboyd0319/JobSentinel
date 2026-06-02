@@ -1262,6 +1262,7 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Missing input/i,
     /Please paste a job post first/i,
     /Please enter a bullet point to draft/i,
+    /Profile required/i,
     /Invalid date/i,
     /Invalid duration/i,
     /Interview cannot be scheduled in the past/i,

@@ -137,7 +137,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied, onOpenApp
   const handlePrepareApplication = () => {
     if (!hasProfile) {
       toast.error(
-        "Profile required",
+        "Set up profile first",
         "Open Application Assist from the sidebar and save the details you want JobSentinel to prepare."
       );
       return;

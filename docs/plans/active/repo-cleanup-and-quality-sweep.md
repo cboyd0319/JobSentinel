@@ -1212,6 +1212,8 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Broad-audience copy applies to small dashboard and settings labels, not only
   long-form docs. Avoid raw score, advanced setup, and setup jargon when a plain
   job-seeker label explains the same action.
+- Disabled or guarded actions still need plain fallback copy because future UI
+  changes can make those paths reachable again.
 
 ## Outcomes
 
@@ -1231,3 +1233,6 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local support-panel slice changes Error Log support details to safe
   support report language, replaces the per-problem clear action with
   `Remove from List`, and removes advanced-support wording from Quick Start.
+- Current local Application Assist profile fallback slice changes remaining
+  no-profile fallback wording to setup guidance and adds product-copy coverage
+  against the stale title.
