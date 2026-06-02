@@ -75,8 +75,8 @@ The application board supports the full job-search path:
 | Onsite Interview | Final, panel, site, or deeper-round conversation. |
 | Offer Received | Employer made an offer. |
 | Offer Accepted | User accepted an offer. |
-| Offer Rejected | User declined an offer. |
-| Rejected | Employer declined to continue. |
+| Offer Declined | User declined an offer. |
+| Not Selected | Employer declined to continue. |
 | No Response | No response after the configured quiet period. |
 | Withdrawn | User chose to stop pursuing the role. |
 

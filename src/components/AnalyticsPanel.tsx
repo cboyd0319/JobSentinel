@@ -14,6 +14,7 @@ import { Pie } from "recharts/es6/polar/Pie";
 import { Cell } from "recharts/es6/component/Cell";
 import { Legend } from "recharts/es6/component/Legend";
 import { readStorageValue, removeStorageValue, writeStorageValue } from "../utils/browserStorage";
+import { getJobSourceGuidance } from "../utils/sourceLabels";
 
 interface StatusCounts {
   to_apply: number;
@@ -98,20 +99,9 @@ const STATUS_LABELS: Record<string, string> = {
   offer_received: "Offer",
   offer_accepted: "Accepted",
   offer_rejected: "Declined",
-  rejected: "Rejected",
+  rejected: "Not Selected",
   ghosted: "No Response",
   withdrawn: "Withdrawn",
-};
-
-// Source name mappings for display
-const SOURCE_LABELS: Record<string, string> = {
-  linkedin: 'LinkedIn',
-  greenhouse: 'Greenhouse',
-  lever: 'Lever',
-  jobswithgpt: 'JobsWithGPT',
-  glassdoor: 'Glassdoor',
-  direct: 'Direct',
-  other: 'Other',
 };
 
 const SOURCE_COLORS: Record<string, string> = {
@@ -175,6 +165,10 @@ function getCurrentWeekApplications(weeklyData: WeeklyData[]): number {
   if (weeklyData.length === 0) return 0;
   // The most recent week is the current week
   return weeklyData[weeklyData.length - 1]?.count || 0;
+}
+
+function getSourceDisplayName(source: string): string {
+  return getJobSourceGuidance(source).label;
 }
 
 export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: AnalyticsPanelProps) {
@@ -243,8 +237,8 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
     const rows: string[][] = [
       ['Metric', 'Value'],
       ['Total Applications', stats.total.toString()],
-      ['Response Rate', `${stats.response_rate.toFixed(1)}%`],
-      ['Offer Rate', `${stats.offer_rate.toFixed(1)}%`],
+      ['Employer replies', `${stats.response_rate.toFixed(1)}%`],
+      ['Offers received', `${stats.offer_rate.toFixed(1)}%`],
       [''],
       ['Status', 'Count'],
       ...Object.entries(stats.by_status).map(([status, count]) => [
@@ -419,13 +413,13 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
               icon={<ApplicationIcon />}
             />
             <MetricCard
-              label="Response Rate"
+              label="Employer replies"
               value={`${stats.response_rate.toFixed(1)}%`}
               icon={<ResponseIcon />}
               sublabel="Got a response"
             />
             <MetricCard
-              label="Offer Rate"
+              label="Offers received"
               value={`${stats.offer_rate.toFixed(1)}%`}
               icon={<OfferIcon />}
               sublabel="Received offer"
@@ -544,7 +538,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
                         <span className="font-medium text-surface-800 dark:text-surface-200">
-                          {SOURCE_LABELS[source.source.toLowerCase()] || source.source}
+                          {getSourceDisplayName(source.source)}
                         </span>
                         <span className="text-sm text-surface-500 dark:text-surface-400">
                           {source.count} apps · {source.response_rate.toFixed(0)}% response
@@ -661,7 +655,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
             )}
           </div>
 
-          {/* Company Response Rates */}
+          {/* Company reply timing */}
           {stats.company_response_times && stats.company_response_times.length > 0 && (
             <div className="bg-surface-50 dark:bg-surface-700 rounded-lg p-4">
               <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-4">

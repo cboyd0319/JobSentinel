@@ -31,7 +31,7 @@ vi.mock("../utils/errorUtils", () => ({
   getErrorMessage: (err: Error) => err.message,
 }));
 
-// Mock URL methods for iCal download
+// Mock URL methods for calendar reminder download
 const mockCreateObjectURL = vi.fn(() => "blob:test");
 const mockRevokeObjectURL = vi.fn();
 global.URL.createObjectURL = mockCreateObjectURL;
@@ -241,11 +241,11 @@ describe("InterviewScheduler", () => {
       });
     });
 
-    it("shows iCal download link", async () => {
+    it("shows add-to-calendar link", async () => {
       render(<InterviewScheduler onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getAllByText("iCal").length).toBeGreaterThan(0);
+        expect(screen.getAllByText("Add to calendar").length).toBeGreaterThan(0);
       });
     });
 
@@ -289,7 +289,8 @@ describe("InterviewScheduler", () => {
       fireEvent.click(screen.getByText(/Past \(\d+\)/));
 
       await waitFor(() => {
-        expect(screen.getByText("Passed")).toBeInTheDocument();
+        expect(screen.getByText("Went well")).toBeInTheDocument();
+        expect(screen.queryByText("Passed")).not.toBeInTheDocument();
       });
     });
 
@@ -616,8 +617,8 @@ describe("InterviewScheduler", () => {
     });
   });
 
-  describe("iCal export", () => {
-    it("triggers download when iCal link is clicked", async () => {
+  describe("calendar export", () => {
+    it("triggers download when add-to-calendar link is clicked", async () => {
       const appendChildSpy = vi.spyOn(document.body, "appendChild");
       const removeChildSpy = vi.spyOn(document.body, "removeChild");
       const anchorClickSpy = vi
@@ -627,10 +628,10 @@ describe("InterviewScheduler", () => {
       render(<InterviewScheduler onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getAllByText("iCal").length).toBeGreaterThan(0);
+        expect(screen.getAllByText("Add to calendar").length).toBeGreaterThan(0);
       });
 
-      fireEvent.click(screen.getAllByText("iCal")[0]);
+      fireEvent.click(screen.getAllByText("Add to calendar")[0]);
 
       await waitFor(() => {
         expect(mockCreateObjectURL).toHaveBeenCalled();

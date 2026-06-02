@@ -20,9 +20,14 @@ vi.mock("recharts", () => ({
   XAxis: () => <div data-testid="x-axis" />,
   YAxis: () => <div data-testid="y-axis" />,
   Tooltip: () => <div data-testid="tooltip" />,
-  PieChart: () => <div data-testid="pie-chart" />,
-  Pie: ({ children }: { children?: React.ReactNode }) => (
-    <div data-testid="pie">{children}</div>
+  PieChart: ({ children }: { children?: React.ReactNode }) => (
+    <div data-testid="pie-chart">{children}</div>
+  ),
+  Pie: ({ children, data }: { children?: React.ReactNode; data?: unknown[] }) => (
+    <div data-testid="pie">
+      {data ? JSON.stringify(data) : null}
+      {children}
+    </div>
   ),
   Cell: () => <div data-testid="cell" />,
   Legend: () => <div data-testid="legend" />,
@@ -67,7 +72,7 @@ describe("DashboardWidgets", () => {
   };
 
   const mockJobsBySource = [
-    { source: "linkedin", count: 30 },
+    { source: "jobswithgpt", count: 30 },
     { source: "indeed", count: 15 },
     { source: "greenhouse", count: 5 },
   ];
@@ -137,11 +142,11 @@ describe("DashboardWidgets", () => {
       });
     });
 
-    it("shows response rate in header", async () => {
+    it("shows employer replies in header", async () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
-        expect(screen.getByText("40% response rate")).toBeInTheDocument();
+        expect(screen.getByText("40% employer replies")).toBeInTheDocument();
       });
     });
 
@@ -199,6 +204,8 @@ describe("DashboardWidgets", () => {
       expect(screen.queryByText("Application Funnel")).not.toBeInTheDocument();
       expect(screen.getByText("Weekly Activity")).toBeInTheDocument();
       expect(screen.getByText("Jobs by Source")).toBeInTheDocument();
+      expect(screen.getByText(/Connected job source/)).toBeInTheDocument();
+      expect(screen.queryByText(/jobswithgpt/)).not.toBeInTheDocument();
       expect(screen.getByText("Salary Distribution")).toBeInTheDocument();
     });
 
@@ -230,7 +237,7 @@ describe("DashboardWidgets", () => {
   });
 
   describe("quick stats", () => {
-    it("shows response rate stat", async () => {
+    it("shows employer replies stat", async () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
@@ -239,11 +246,11 @@ describe("DashboardWidgets", () => {
 
       fireEvent.click(screen.getByText("Analytics Dashboard"));
 
-      expect(screen.getByText("Response Rate")).toBeInTheDocument();
+      expect(screen.getByText("Employer replies")).toBeInTheDocument();
       expect(screen.getByText("40%")).toBeInTheDocument();
     });
 
-    it("shows offer rate stat", async () => {
+    it("shows offers received stat", async () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
@@ -252,7 +259,7 @@ describe("DashboardWidgets", () => {
 
       fireEvent.click(screen.getByText("Analytics Dashboard"));
 
-      expect(screen.getByText("Offer Rate")).toBeInTheDocument();
+      expect(screen.getByText("Offers received")).toBeInTheDocument();
       expect(screen.getByText("10%")).toBeInTheDocument();
     });
 
@@ -450,7 +457,7 @@ describe("DashboardWidgets", () => {
   });
 
   describe("stat box colors", () => {
-    it("shows success color for high response rate", async () => {
+    it("keeps high employer-reply percentage visually neutral", async () => {
       mockInvoke.mockImplementation((command: string) => {
         if (command === "get_application_stats") {
           return Promise.resolve({ ...mockAppStats, response_rate: 50 });
@@ -461,16 +468,16 @@ describe("DashboardWidgets", () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
-        expect(screen.getByText("50% response rate")).toBeInTheDocument();
+        expect(screen.getByText("50% employer replies")).toBeInTheDocument();
       });
 
       fireEvent.click(screen.getByText("Analytics Dashboard"));
 
-      const responseRateBox = screen.getByText("Response Rate").closest("div");
-      expect(responseRateBox?.className).toContain("bg-success/10");
+      const responseRateBox = screen.getByText("Employer replies").closest("div");
+      expect(responseRateBox?.className).toContain("bg-surface-50");
     });
 
-    it("shows warning color for medium response rate", async () => {
+    it("keeps medium employer-reply percentage visually neutral", async () => {
       mockInvoke.mockImplementation((command: string) => {
         if (command === "get_application_stats") {
           return Promise.resolve({ ...mockAppStats, response_rate: 20 });
@@ -481,16 +488,16 @@ describe("DashboardWidgets", () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
-        expect(screen.getByText("20% response rate")).toBeInTheDocument();
+        expect(screen.getByText("20% employer replies")).toBeInTheDocument();
       });
 
       fireEvent.click(screen.getByText("Analytics Dashboard"));
 
-      const responseRateBox = screen.getByText("Response Rate").closest("div");
-      expect(responseRateBox?.className).toContain("bg-warning/10");
+      const responseRateBox = screen.getByText("Employer replies").closest("div");
+      expect(responseRateBox?.className).toContain("bg-surface-50");
     });
 
-    it("shows danger color for low response rate", async () => {
+    it("keeps low employer-reply percentage visually neutral", async () => {
       mockInvoke.mockImplementation((command: string) => {
         if (command === "get_application_stats") {
           return Promise.resolve({ ...mockAppStats, response_rate: 10 });
@@ -501,13 +508,13 @@ describe("DashboardWidgets", () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
-        expect(screen.getByText("10% response rate")).toBeInTheDocument();
+        expect(screen.getByText("10% employer replies")).toBeInTheDocument();
       });
 
       fireEvent.click(screen.getByText("Analytics Dashboard"));
 
-      const responseRateBox = screen.getByText("Response Rate").closest("div");
-      expect(responseRateBox?.className).toContain("bg-danger/10");
+      const responseRateBox = screen.getByText("Employer replies").closest("div");
+      expect(responseRateBox?.className).toContain("bg-surface-50");
     });
   });
 });

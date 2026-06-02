@@ -471,7 +471,14 @@ describe("NotificationPreferences Component", () => {
         expect(screen.getByText("Indeed")).toBeInTheDocument();
         expect(screen.getByText("Greenhouse")).toBeInTheDocument();
         expect(screen.getByText("Lever")).toBeInTheDocument();
-        expect(screen.getByText("JobsWithGPT")).toBeInTheDocument();
+        expect(screen.getByText("Connected job source")).toBeInTheDocument();
+        expect(screen.queryByText("JobsWithGPT")).not.toBeInTheDocument();
+        expect(
+          screen.getByRole("checkbox", { name: "Turn Indeed alerts on or off" }),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole("checkbox", { name: "Turn Indeed alert sound on or off" }),
+        ).toBeInTheDocument();
       });
     });
 
@@ -650,6 +657,22 @@ describe("NotificationPreferences Component", () => {
   });
 
   describe("error handling", () => {
+    it("does not show default alert rules when loading saved rules fails", async () => {
+      mockInvoke.mockRejectedValueOnce(new Error("Load failed"));
+
+      render(<NotificationPreferencesComponent />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText("Could not load alert rules. Your saved choices were not changed."),
+        ).toBeInTheDocument();
+      });
+
+      expect(screen.getByText("Try again before changing alert rules.")).toBeInTheDocument();
+      expect(screen.queryByText("All Notifications")).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /try again/i })).toBeInTheDocument();
+    });
+
     it("shows error toast when save fails", async () => {
       mockInvoke
         .mockResolvedValueOnce(DEFAULT_PREFS) // initial load

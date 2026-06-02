@@ -68,7 +68,8 @@ describe("MarketAlertCard", () => {
 
     it("renders severity badge", () => {
       render(<MarketAlertCard alert={mockAlert} />);
-      expect(screen.getByText("warning")).toBeInTheDocument();
+      expect(screen.getByText("Needs review")).toBeInTheDocument();
+      expect(screen.queryByText("warning")).not.toBeInTheDocument();
     });
 
     it("renders related entity badge", () => {
@@ -111,20 +112,22 @@ describe("MarketAlertCard", () => {
     it("displays severity indicator for critical", () => {
       const criticalAlert = { ...mockAlert, severity: "critical" };
       render(<MarketAlertCard alert={criticalAlert} />);
-      // Check that critical severity is displayed
-      expect(screen.getByText("critical")).toBeInTheDocument();
+      expect(screen.getByText("Check soon")).toBeInTheDocument();
+      expect(screen.queryByText("critical")).not.toBeInTheDocument();
     });
 
     it("displays severity indicator for warning", () => {
       const warningAlert = { ...mockAlert, severity: "warning" };
       render(<MarketAlertCard alert={warningAlert} />);
-      expect(screen.getByText("warning")).toBeInTheDocument();
+      expect(screen.getByText("Needs review")).toBeInTheDocument();
+      expect(screen.queryByText("warning")).not.toBeInTheDocument();
     });
 
     it("displays severity indicator for info", () => {
       const infoAlert = { ...mockAlert, severity: "info" };
       render(<MarketAlertCard alert={infoAlert} />);
-      expect(screen.getByText("info")).toBeInTheDocument();
+      expect(screen.getByText("New signal")).toBeInTheDocument();
+      expect(screen.queryByText("info")).not.toBeInTheDocument();
     });
   });
 
@@ -250,7 +253,7 @@ describe("MarketAlertCard", () => {
 
     it("has descriptive aria-label", () => {
       render(<MarketAlertCard alert={mockAlert} />);
-      expect(screen.getByLabelText(/warning alert: customer support demand is rising/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Needs review alert: customer support demand is rising/i)).toBeInTheDocument();
     });
 
     it("has aria-live for unread alerts", () => {

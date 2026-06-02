@@ -20,7 +20,7 @@ const SOURCE_INFO: Record<AlertSourceKey, { name: string; color: string; icon: s
   indeed: { name: 'Indeed', color: '#2557A7', icon: 'I' },
   greenhouse: { name: 'Greenhouse', color: '#3AB549', icon: 'G' },
   lever: { name: 'Lever', color: '#6B46C1', icon: 'L' },
-  jobswithgpt: { name: 'JobsWithGPT', color: '#10A37F', icon: 'J' },
+  jobswithgpt: { name: 'Connected job source', color: '#10A37F', icon: 'J' },
 };
 
 interface SourceConfigRowProps {
@@ -51,6 +51,7 @@ const SourceConfigRow = memo(function SourceConfigRow({ sourceKey, config, onCha
       <label className="relative inline-flex items-center cursor-pointer">
         <input
           type="checkbox"
+          aria-label={`Turn ${info.name} alerts on or off`}
           checked={config.enabled}
           onChange={(e) => onChange({ ...config, enabled: e.target.checked })}
           className="sr-only peer"
@@ -83,6 +84,7 @@ const SourceConfigRow = memo(function SourceConfigRow({ sourceKey, config, onCha
       <label className="flex items-center gap-2 cursor-pointer p-2 -m-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700/50 transition-colors">
         <input
           type="checkbox"
+          aria-label={`Turn ${info.name} alert sound on or off`}
           checked={config.soundEnabled}
           onChange={(e) => onChange({ ...config, soundEnabled: e.target.checked })}
           disabled={!config.enabled}
@@ -110,7 +112,7 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
       setPrefs(loaded);
     } catch {
       // Error logged by safeInvoke in loadNotificationPreferencesAsync
-      setLoadError('Could not load notification settings');
+      setLoadError('Could not load alert rules. Your saved choices were not changed.');
     } finally {
       setLoading(false);
     }
@@ -172,6 +174,9 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
       <Card>
         <div className="p-8 text-center">
           <p className="text-danger mb-3">{loadError}</p>
+          <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
+            Try again before changing alert rules.
+          </p>
           <button
             onClick={loadPreferences}
             className="px-4 py-2 text-sm font-medium bg-sentinel-500 text-white rounded-lg hover:bg-sentinel-600 transition-colors"
@@ -275,7 +280,10 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
             Alert sources
           </p>
           <p className="text-xs text-surface-500 dark:text-surface-400 mb-3">
-            Choose which job sources can send alerts. Sources not listed here still follow the main alert switch and quiet hours.
+            Choose which job sources can send alerts. Only sources shown here
+            have separate alert rules. Other enabled job boards use the main
+            alert switch; turn a board off in Additional Job Boards to stop
+            those alerts.
           </p>
           {(Object.keys(SOURCE_INFO) as AlertSourceKey[]).map((sourceKey) => (
             <SourceConfigRow

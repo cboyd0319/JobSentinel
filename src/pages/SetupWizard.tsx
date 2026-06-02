@@ -180,6 +180,38 @@ function reviewVolumeSummary(preference: ReviewVolumePreference) {
   }
 }
 
+function formatJobSourceSummary(
+  config: {
+    title_allowlist: string[];
+    keywords_boost: string[];
+    location_preferences: { allow_remote: boolean };
+    remoteok: { enabled: boolean };
+    hn_hiring: { enabled: boolean };
+    weworkremotely: { enabled: boolean };
+  },
+): string {
+  const sourceDefaults = getSearchSourceDefaults({
+    titles: config.title_allowlist,
+    keywords: config.keywords_boost,
+    allowRemote: config.location_preferences.allow_remote,
+  });
+  const sources = [
+    config.remoteok.enabled || sourceDefaults.remoteokEnabled ? "Remote OK" : null,
+    config.weworkremotely.enabled || sourceDefaults.weworkremotelyEnabled
+      ? "We Work Remotely"
+      : null,
+    config.hn_hiring.enabled || sourceDefaults.hnHiringEnabled
+      ? "Hacker News hiring posts"
+      : null,
+  ].filter((source): source is string => source !== null);
+
+  if (sources.length === 0) {
+    return "Local saved search only; add sources in Settings.";
+  }
+
+  return `${sources.join(", ")}. You can turn these off in Settings.`;
+}
+
 function applyReviewVolumePreference<T extends {
   immediate_alert_threshold?: number;
   remoteok: { limit: number };
@@ -551,6 +583,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     location: formatLocationSummary(config.location_preferences),
     freshness: freshnessSummary(freshnessPreference),
     reviewVolume: reviewVolumeSummary(reviewVolumePreference),
+    jobSources: formatJobSourceSummary(config),
     pay:
       config.salary_floor_usd > 0
         ? `At least $${config.salary_floor_usd.toLocaleString()}/year`
@@ -1152,6 +1185,10 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                   <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
                     <dt className="font-medium text-surface-600">Review list</dt>
                     <dd className="text-surface-800">{searchSummary.reviewVolume}</dd>
+                  </div>
+                  <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
+                    <dt className="font-medium text-surface-600">Job sources</dt>
+                    <dd className="text-surface-800">{searchSummary.jobSources}</dd>
                   </div>
                   <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
                     <dt className="font-medium text-surface-600">Pay</dt>

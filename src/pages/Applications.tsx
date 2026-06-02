@@ -96,8 +96,8 @@ const STATUS_COLUMNS = [
   { key: "onsite_interview", label: "Onsite Interview", color: "bg-cyan-500" },
   { key: "offer_received", label: "Offer Received", color: "bg-success" },
   { key: "offer_accepted", label: "Offer Accepted", color: "bg-emerald-500" },
-  { key: "offer_rejected", label: "Offer Rejected", color: "bg-orange-500" },
-  { key: "rejected", label: "Rejected", color: "bg-danger" },
+  { key: "offer_rejected", label: "Offer Declined", color: "bg-orange-500" },
+  { key: "rejected", label: "Not Selected", color: "bg-danger" },
   { key: "withdrawn", label: "Withdrawn", color: "bg-amber-500" },
   { key: "ghosted", label: "No Response", color: "bg-surface-400" },
 ] as const;
@@ -341,8 +341,8 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
     } catch (err: unknown) {
       logError("Failed to fetch applications:", err);
       toast.error(
-        "Couldn't load applications",
-        "Your applications list could not load. Check your internet connection and restart the app if needed."
+        "Could not load saved applications",
+        "Restart JobSentinel. If this keeps happening, save a safe support report."
       );
     } finally {
       setLoading(false);

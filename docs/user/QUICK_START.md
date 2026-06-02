@@ -239,8 +239,9 @@ Click the notes icon (or press `n`) on any job to add your own comments.
 
 ### Company Research
 
-Click on any company name (or press `c`) to see info like tools, systems,
-company size, and Glassdoor ratings.
+Click **Research company** to see local company details when JobSentinel has
+them, such as industry, employer size, work mode, tools or systems, and links
+to check official or public review pages.
 
 ---
 

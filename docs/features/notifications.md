@@ -179,13 +179,14 @@ requires an alert code and destination number.
 
 ## When Do Notifications Send?
 
-By default, JobSentinel sends notifications for jobs with a **90% or higher**
-match-strength setting.
+By default, alert match strength is source-specific: large job boards start
+around 70%, Greenhouse and Lever around 80%, and connected job sources around
+75%.
 
 You can adjust this in Settings, under More Settings, with Match strength.
 
-**Tip:** Start at 90% to avoid too many alerts. Lower it to 80% if you want
-more alerts.
+**Tip:** Raise match strength when alerts feel noisy. Lower it when alerts feel
+too quiet.
 
 ---
 

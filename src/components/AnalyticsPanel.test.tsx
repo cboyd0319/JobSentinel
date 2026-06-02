@@ -85,6 +85,7 @@ describe("AnalyticsPanel", () => {
     by_source: [
       { source: "linkedin", count: 25, response_rate: 40 },
       { source: "greenhouse", count: 15, response_rate: 55 },
+      { source: "jobswithgpt", count: 4, response_rate: 25 },
     ],
     avg_response_days: 7.5,
     company_response_times: [
@@ -217,21 +218,21 @@ describe("AnalyticsPanel", () => {
       });
     });
 
-    it("shows response rate metric", async () => {
+    it("shows employer replies metric", async () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
         expect(screen.getByText("45.5%")).toBeInTheDocument();
-        expect(screen.getByText("Response Rate")).toBeInTheDocument();
+        expect(screen.getByText("Employer replies")).toBeInTheDocument();
       });
     });
 
-    it("shows offer rate metric", async () => {
+    it("shows offers received metric", async () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
         expect(screen.getByText("6.0%")).toBeInTheDocument();
-        expect(screen.getByText("Offer Rate")).toBeInTheDocument();
+        expect(screen.getByText("Offers received")).toBeInTheDocument();
       });
     });
 
@@ -283,8 +284,10 @@ describe("AnalyticsPanel", () => {
       render(<AnalyticsPanel onClose={mockOnClose} />);
 
       await waitFor(() => {
-        expect(screen.getByText("LinkedIn")).toBeInTheDocument();
-        expect(screen.getByText("Greenhouse")).toBeInTheDocument();
+        expect(screen.getByText("LinkedIn job board")).toBeInTheDocument();
+        expect(screen.getByText("Greenhouse hiring page")).toBeInTheDocument();
+        expect(screen.getByText("Connected job source")).toBeInTheDocument();
+        expect(screen.queryByText("JobsWithGPT")).not.toBeInTheDocument();
       });
     });
 
@@ -314,7 +317,7 @@ describe("AnalyticsPanel", () => {
       await waitFor(() => {
         expect(screen.getByText("Detailed Status Breakdown")).toBeInTheDocument();
         expect(screen.getByText("Applied")).toBeInTheDocument();
-        expect(screen.getByText("Rejected")).toBeInTheDocument();
+        expect(screen.getByText("Not Selected")).toBeInTheDocument();
       });
     });
   });

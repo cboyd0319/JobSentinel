@@ -118,6 +118,19 @@ export const MarketAlertCard = memo(function MarketAlertCard({ alert, onMarkRead
   const getAlertTypeIcon = (type: string) =>
     ALERT_TYPE_ICONS[type.toLowerCase()] ?? DEFAULT_ALERT_ICON;
 
+  const getSeverityLabel = (severity: string) => {
+    switch (severity.toLowerCase()) {
+      case "critical":
+        return "Check soon";
+      case "warning":
+        return "Needs review";
+      case "info":
+        return "New signal";
+      default:
+        return "Needs review";
+    }
+  };
+
   const formatChange = (change: number | null) => {
     if (change === null) return null;
     const sign = change > 0 ? "+" : "";
@@ -125,6 +138,7 @@ export const MarketAlertCard = memo(function MarketAlertCard({ alert, onMarkRead
   };
 
   const styles = getSeverityStyles(alert.severity);
+  const severityLabel = getSeverityLabel(alert.severity);
 
   return (
     <div
@@ -132,7 +146,7 @@ export const MarketAlertCard = memo(function MarketAlertCard({ alert, onMarkRead
         alert.is_read ? "opacity-60" : ""
       }`}
       role="article"
-      aria-label={`${alert.severity} alert: ${alert.title}`}
+      aria-label={`${severityLabel} alert: ${alert.title}`}
       aria-live={!alert.is_read ? "polite" : undefined}
     >
       <div className="flex items-start justify-between gap-3">
@@ -146,7 +160,7 @@ export const MarketAlertCard = memo(function MarketAlertCard({ alert, onMarkRead
                 {alert.title}
               </h4>
               <span className={`text-xs px-2 py-0.5 rounded-full ${styles.badge}`}>
-                {alert.severity}
+                {severityLabel}
               </span>
               {alert.related_entity && (
                 <span className="text-xs px-2 py-0.5 rounded-full bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300">

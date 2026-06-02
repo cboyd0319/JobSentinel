@@ -10,6 +10,7 @@ import {
 import { Card } from './Card';
 import { LoadingSpinner } from './LoadingSpinner';
 import { logError } from '../utils/errorUtils';
+import { getJobSourceGuidance } from '../utils/sourceLabels';
 
 // Extracted constant to prevent re-creating object on each render
 const TOOLTIP_CONTENT_STYLE = {
@@ -173,7 +174,7 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
           {appStats && (
             <div className="flex items-center gap-4 text-sm text-surface-500 dark:text-surface-400">
               <span>{appStats.total} applications</span>
-              <span>{Math.round(appStats.response_rate)}% response rate</span>
+              <span>{Math.round(appStats.response_rate)}% employer replies</span>
             </div>
           )}
           <ChevronIcon className={`w-5 h-5 text-surface-400 transition-transform ${expanded ? 'rotate-180' : ''}`} />
@@ -305,14 +306,14 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
               <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-4">Quick Stats</h4>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <StatBox
-                  label="Response Rate"
+                  label="Employer replies"
                   value={`${Math.round(appStats.response_rate)}%`}
-                  color={appStats.response_rate > 30 ? 'success' : appStats.response_rate > 15 ? 'warning' : 'danger'}
+                  color="surface"
                 />
                 <StatBox
-                  label="Offer Rate"
+                  label="Offers received"
                   value={`${Math.round(appStats.offer_rate)}%`}
-                  color={appStats.offer_rate > 10 ? 'success' : appStats.offer_rate > 5 ? 'warning' : 'surface'}
+                  color="surface"
                 />
                 <StatBox
                   label="Active"
@@ -367,23 +368,8 @@ const StatBox = memo(function StatBox({ label, value, color }: { label: string; 
   );
 });
 
-// Extracted to top level for better performance
-const SOURCE_NAMES: Record<string, string> = {
-  greenhouse: 'Greenhouse',
-  lever: 'Lever',
-  linkedin: 'LinkedIn',
-  indeed: 'Indeed',
-  remoteok: 'RemoteOK',
-  hn_hiring: 'HN Hiring',
-  weworkremotely: 'WWR',
-  ziprecruiter: 'ZipRecruiter',
-  builtin: 'BuiltIn',
-  dice: 'Dice',
-  wellfound: 'Wellfound',
-};
-
 function formatSourceName(source: string): string {
-  return SOURCE_NAMES[source.toLowerCase()] || source;
+  return getJobSourceGuidance(source).label;
 }
 
 const ChartIcon = memo(function ChartIcon({ className = '' }: { className?: string }) {

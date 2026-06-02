@@ -1028,6 +1028,12 @@ describe("Settings — handleSave flow", () => {
     expect(
       screen.getByRole("checkbox", { name: "Enable desktop alerts" }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Email and chat alerts are sent through the service you choose/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Resume text, private notes, application history, and local match reasons stay in JobSentinel/i),
+    ).toBeInTheDocument();
 
     const notificationText = container.textContent ?? "";
     const desktopIndex = notificationText.indexOf("Desktop Notifications");
@@ -1191,6 +1197,12 @@ describe("Settings — handleSave flow", () => {
     expect(
       screen.queryByText(/Greenhouse, Lever, and other popular job boards/i),
     ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("checkbox", { name: /Turn Remote OK automatic checks on or off/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("checkbox", { name: /Turn Hacker News hiring post checks on or off/i }),
+    ).toBeInTheDocument();
   });
 
   it("labels USAJobs source setup as optional advanced monitoring", async () => {
@@ -1216,6 +1228,15 @@ describe("Settings — handleSave flow", () => {
 
     expect(screen.getByText(/Optional USAJobs auto-check/i)).toBeInTheDocument();
     expect(screen.getByText(/Skip this if you only want to open USAJobs/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("checkbox", { name: /Turn USAJobs automatic checks on or off/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Automatic USAJobs checks contact USAJobs/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/access code, USAJobs email, keywords, location, remote choice/i),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: /Open USAJobs search in your browser/i }),
     ).toHaveAttribute("href", "https://www.usajobs.gov/Search/Results");

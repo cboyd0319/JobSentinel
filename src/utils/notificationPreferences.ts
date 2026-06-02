@@ -75,17 +75,13 @@ export interface JobForNotification {
 
 // Async load from backend
 export async function loadNotificationPreferencesAsync(): Promise<NotificationPreferences> {
-  try {
-    const stored = await safeInvoke<NotificationPreferences | null>('get_notification_preferences', {}, {
-      logContext: "Load notification preferences",
-      silent: true
-    });
-    if (stored) {
-      // Merge with defaults to handle new fields
-      return normalizeNotificationPreferences({ ...DEFAULT_PREFERENCES, ...stored });
-    }
-  } catch {
-    // Silent failure - return defaults
+  const stored = await safeInvoke<NotificationPreferences | null>('get_notification_preferences', {}, {
+    logContext: "Load notification preferences",
+    silent: true
+  });
+  if (stored) {
+    // Merge with defaults to handle new fields
+    return normalizeNotificationPreferences({ ...DEFAULT_PREFERENCES, ...stored });
   }
   return DEFAULT_PREFERENCES;
 }

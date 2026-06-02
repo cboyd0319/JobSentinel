@@ -51,13 +51,16 @@ JobSentinel is built with privacy and security as core principles:
 
 ### Network Security
 
-- **TLS everywhere:** Uses rustls (pure Rust TLS) for all HTTPS connections
-- **No HTTP fallback:** All external connections require HTTPS
+- **HTTPS-first external paths:** Webhooks, location lookup, provider calls,
+  and configured secrets use HTTPS. Public job URLs may be `http` or `https`
+  when validation confirms a public host and blocks local, private, and
+  userinfo targets.
 - **User-controlled webhooks:** Notifications only sent to user-configured endpoints
 
 ### Code Security
 
-- **Memory safety:** Written in Rust with `unsafe_code = "deny"`
+- **Memory safety:** Rust denies unsafe code by default. Windows platform FFI
+  uses scoped unsafe code where OS APIs require it.
 - **SQL injection prevention:** All database queries use SQLx parameterized queries
 - **Input validation:** User input validated before use
 - **Dependency auditing:** Regular `cargo audit` checks

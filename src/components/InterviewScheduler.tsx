@@ -84,7 +84,7 @@ const PREP_CHECKLIST = [
   { id: "research", label: "Research company background", icon: "search" },
   { id: "review_jd", label: "Review job description", icon: "doc" },
   { id: "prepare_questions", label: "Prepare questions to ask", icon: "question" },
-  { id: "star_stories", label: "Prepare STAR stories", icon: "star" },
+  { id: "work_examples", label: "Prepare 2-3 examples from past work", icon: "star" },
   { id: "tech_review", label: "Review role requirements", icon: "code" },
 ];
 
@@ -434,7 +434,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
       });
       invalidateCacheByCommand("get_upcoming_interviews");
       invalidateCacheByCommand("get_past_interviews");
-      toast.success("Interview completed", `Marked as ${outcome}`);
+      toast.success("Interview completed", formatOutcomeLabel(outcome));
       setSelectedInterview(null);
       setShowFeedbackForm(false);
       setFeedbackOutcome('');
@@ -599,10 +599,10 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                         <button
                           onClick={(e) => { e.stopPropagation(); handleExportICal(interview); }}
                           className="text-xs text-sentinel-600 dark:text-sentinel-400 hover:underline flex items-center gap-1"
-                          title="Download calendar file"
+                          title="Add to calendar"
                         >
                           <DownloadIcon />
-                          iCal
+                          Add to calendar
                         </button>
                       </div>
                     </div>
@@ -652,7 +652,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                           </span>
                           {interview.outcome && (
                             <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${OUTCOME_COLORS[interview.outcome] || OUTCOME_COLORS.pending}`}>
-                              {interview.outcome.charAt(0).toUpperCase() + interview.outcome.slice(1)}
+                              {formatOutcomeLabel(interview.outcome)}
                             </span>
                           )}
                         </div>

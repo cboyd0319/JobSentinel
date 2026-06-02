@@ -170,6 +170,10 @@ describe("SetupWizard Accessibility", () => {
       expect(review.getByText("Fresh and verified first")).toBeInTheDocument();
       expect(review.getByText("Review list")).toBeInTheDocument();
       expect(review.getByText("Balanced list")).toBeInTheDocument();
+      expect(review.getByText("Job sources")).toBeInTheDocument();
+      expect(
+        review.getByText("Local saved search only; add sources in Settings."),
+      ).toBeInTheDocument();
       expect(
         screen.getByText("At least $65,000/year"),
       ).toBeInTheDocument();
@@ -286,6 +290,14 @@ describe("SetupWizard Accessibility", () => {
       await user.type(screen.getByPlaceholderText("Add a job title..."), "Software Engineer{enter}");
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
       await user.click(screen.getByRole("button", { name: /^continue$/i }));
+
+      expect(screen.getByText("Job sources")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Remote OK, We Work Remotely, Hacker News hiring posts. You can turn these off in Settings.",
+        ),
+      ).toBeInTheDocument();
+
       await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
 
       await waitFor(() => {

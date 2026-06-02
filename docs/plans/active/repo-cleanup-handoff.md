@@ -20,6 +20,8 @@ scope:
 
 Latest pushed checkpoints include:
 
+- `f3ed5fb9 Tighten protective user copy`
+- `22b96bf5 Tighten Rule 0 support copy`
 - `c08a56d9 Rename market view to Hiring Trends`
 - `1ddab044 Disclose location lookup provider use`
 - `08c8a106 Clarify problem history clear action`
@@ -28,12 +30,13 @@ Latest pushed checkpoints include:
 
 Recent remote integration evidence:
 
-- `c08a56d9` passed Docs Harness run `26782529545` and CI run
-  `26782529665`. CI covered frontend tests, Rust tests, security checks, docs
-  harness checks, TypeScript, ESLint, frontend build, Rust fmt, Rust clippy,
-  npm audit, cargo-deny advisories, and all maintained harness/script checks.
-  Use `npm run harness:session` and `gh run list --branch main` for the live
-  branch head after later continuation slices.
+- `f3ed5fb9` passed Docs Harness run `26790585973` and CI run
+  `26790585989` on `main`. CI covered frontend tests, Rust tests, security
+  checks, docs harness checks, TypeScript, ESLint, frontend build, Rust fmt,
+  Rust clippy, npm audit, cargo-deny advisories, and maintained
+  harness/script checks. Use `npm run harness:session` and
+  `gh run list --branch main` for the live branch head after later
+  continuation slices.
 - The latest pushed harness slice adds `npm run harness:plan -- --since
   origin/main`, a changed-file command planner for focused verification.
 - The latest pushed slice removes stale hardcoded employer rating claims from

@@ -2285,6 +2285,13 @@ export default function Settings({ onClose }: SettingsProps) {
                   Email gives you an inbox copy. Chat alerts are optional for
                   people who already use those tools.
                 </p>
+                <p className="mb-4 rounded-lg border border-surface-200 bg-surface-50 p-3 text-xs text-surface-600 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300">
+                  Email and chat alerts are sent through the service you choose.
+                  They can include job title, company, location, pay, remote
+                  status, match label, source, and job link. Resume text,
+                  private notes, application history, and local match reasons
+                  stay in JobSentinel.
+                </p>
 
                 {/* Desktop Notifications */}
                 <div className="mb-4">
@@ -3154,6 +3161,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
                         type="checkbox"
+                        aria-label="Turn USAJobs automatic checks on or off"
                         checked={config.usajobs?.enabled ?? false}
                         onChange={(e) =>
                           setConfig({
@@ -3177,6 +3185,12 @@ export default function Settings({ onClose }: SettingsProps) {
 
                   {config.usajobs?.enabled && (
                     <div className="space-y-3">
+                      <p className="rounded-lg border border-surface-200 bg-surface-50 p-3 text-xs text-surface-600 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300">
+                        Automatic USAJobs checks contact USAJobs. They use your
+                        access code, USAJobs email, keywords, location, remote
+                        choice, posted-within choice, and result limit. Leave
+                        this off for browser-only search.
+                      </p>
                       {/* Advanced USAJobs setup */}
                       {!credentialStatus.usajobs_api_key && (
                         <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
@@ -3442,13 +3456,13 @@ export default function Settings({ onClose }: SettingsProps) {
                     </span>
                   </summary>
                   <div className="p-4 pt-0 space-y-4">
-                    {/* JobsWithGPT */}
+                    {/* Optional connected job source */}
                     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-3 gap-3">
                         <div className="flex min-w-0 items-center gap-2">
                           <SettingsSymbol icon="settings" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
                           <span className="font-medium text-surface-800 dark:text-surface-200">
-                            JobsWithGPT
+                            Connected job source
                           </span>
                           <Badge
                             variant={jobsWithGptPayloadApproved ? "success" : "surface"}
@@ -3539,6 +3553,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
+                            aria-label="Turn Remote OK automatic checks on or off"
                             checked={config.remoteok?.enabled ?? false}
                             onChange={(e) =>
                               setConfig({
@@ -3573,6 +3588,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
+                            aria-label="Turn We Work Remotely automatic checks on or off"
                             checked={config.weworkremotely?.enabled ?? false}
                             onChange={(e) =>
                               setConfig({
@@ -3606,6 +3622,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
+                            aria-label="Turn BuiltIn automatic checks on or off"
                             checked={config.builtin?.enabled ?? false}
                             onChange={(e) =>
                               setConfig({
@@ -3640,6 +3657,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
+                            aria-label="Turn Hacker News hiring post checks on or off"
                             checked={config.hn_hiring?.enabled ?? false}
                             onChange={(e) =>
                               setConfig({
@@ -3675,6 +3693,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
+                            aria-label="Turn Dice automatic checks on or off"
                             checked={config.dice?.enabled ?? false}
                             onChange={(e) =>
                               setConfig({
@@ -3709,6 +3728,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
+                            aria-label="Turn YC Startup automatic checks on or off"
                             checked={config.yc_startup?.enabled ?? false}
                             onChange={(e) =>
                               setConfig({
@@ -3744,6 +3764,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
+                            aria-label="Turn SimplyHired automatic checks on or off"
                             checked={config.simplyhired?.enabled ?? false}
                             onChange={(e) =>
                               setConfig({
@@ -3788,6 +3809,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
+                            aria-label="Turn Glassdoor automatic checks on or off"
                             checked={config.glassdoor?.enabled ?? false}
                             onChange={(e) =>
                               setConfig({

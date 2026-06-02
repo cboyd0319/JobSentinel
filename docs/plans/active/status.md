@@ -31,6 +31,12 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Current local broad-audience privacy/control follow-up removes raw provider,
+  source, severity, interview outcome, and response-rate labels from user-facing
+  analytics, alert, interview, and application surfaces; first-run setup now
+  previews inferred job sources before saving; notification-rule load failures
+  no longer fall back to enabled defaults; Settings now discloses email/chat
+  and USAJobs data sharing and labels source toggles for screen readers.
 - Latest local zero-technical support and protective-copy follow-up makes
   public issue templates use problem/idea/source wording and tell users to keep
   personal details out; safe support report docs now say users can save/copy,
@@ -598,13 +604,13 @@ and record actionable findings in this active-plan surface.
 - Latest local screenshot work refreshes `docs/images/*.png` with current
   broad-audience UI data and fixes the settings screenshot capture so it opens
   the real settings modal instead of duplicating the dashboard.
-- Recent remote integration evidence: `e9292268 Stabilize browser button test`
-  passed CI run `26778739829`. Remote CI covered harness checks, harness
-  script tests, TypeScript, ESLint, frontend unit tests, Rust fmt, Rust clippy,
-  Rust library tests, npm audit, and cargo-deny advisories. Docs Harness ran on
-  the preceding docs-affecting commit `f050070d` as run `26778490093` and
-  passed. Treat this as recorded evidence, not as a promise that the named
-  commit remains the current branch head after later continuation slices.
+- Recent remote integration evidence: `f3ed5fb9 Tighten protective user copy`
+  passed Docs Harness run `26790585973` and CI run `26790585989` on `main`.
+  Remote CI covered harness checks, harness script tests, TypeScript, ESLint,
+  frontend unit tests, Rust fmt, Rust clippy, Rust library tests, npm audit,
+  and cargo-deny advisories. Treat this as recorded evidence, not as a promise
+  that the named commit remains the current branch head after later
+  continuation slices.
 - Latest local company-research accuracy work removes hardcoded employer
   rating claims from the static fallback data, keeps cached/live rating
   rendering covered by component tests, changes unknown-company guidance to
