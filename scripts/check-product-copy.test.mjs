@@ -1082,7 +1082,12 @@ test("product copy rejects bare dashboard summary recovery", () => {
     writeFixtureFile(
       root,
       "src/components/DashboardWidgets.tsx",
-      'setError("Could not load application summary");\n',
+      [
+        'setError("Could not load application summary");',
+        'aria-label="Analytics charts"',
+        ">Analytics Dashboard<",
+        "",
+      ].join("\n"),
     );
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/DashboardWidgets.tsx"), true);

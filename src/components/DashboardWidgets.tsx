@@ -168,7 +168,7 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
       >
         <div className="flex items-center gap-2">
           <ChartIcon className="w-5 h-5 text-sentinel-500" />
-          <span className="font-medium text-surface-800 dark:text-surface-200">Analytics Dashboard</span>
+          <span className="font-medium text-surface-800 dark:text-surface-200">Application Summary</span>
         </div>
         <div className="flex items-center gap-3">
           {appStats && (
@@ -182,7 +182,7 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
       </button>
 
       {expanded && (
-        <div id="analytics-dashboard-content" className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-200" role="region" aria-label="Analytics charts">
+        <div id="analytics-dashboard-content" className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-200" role="region" aria-label="Application summary charts">
           {/* Application progress */}
           {funnelData.length > 0 && (
             <Card className="p-4 dark:bg-surface-800">

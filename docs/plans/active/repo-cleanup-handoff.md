@@ -121,6 +121,9 @@ Current cleanup posture:
 - Current local dashboard recovery follow-up changes the summary-widget failure
   message from bare load-failure copy to support-report recovery wording, with
   focused DashboardWidgets and product-copy coverage.
+- Current local dashboard wording follow-up changes visible and accessible
+  analytics labels to `Application Summary` and `Application summary charts`,
+  with product-copy coverage against the old wording.
 - Current local application-profile loading follow-up replaces vague slow-load
   copy with `Still opening your application profile...`, with ProfileForm and
   product-copy coverage against the old phrase.

@@ -130,7 +130,7 @@ describe("DashboardWidgets", () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
-        expect(screen.getByText("Analytics Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
     });
 
@@ -155,7 +155,7 @@ describe("DashboardWidgets", () => {
 
       await waitFor(() => {
         const button = screen.getByRole("button", {
-          name: /Analytics Dashboard/i,
+          name: /Application Summary/i,
         });
         expect(button).toHaveAttribute("aria-expanded", "false");
       });
@@ -165,11 +165,11 @@ describe("DashboardWidgets", () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
-        expect(screen.getByText("Analytics Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
 
       const button = screen.getByRole("button", {
-        name: /Analytics Dashboard/i,
+        name: /Application Summary/i,
       });
 
       fireEvent.click(button);
@@ -185,7 +185,7 @@ describe("DashboardWidgets", () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
-        expect(screen.getByText("Analytics Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
 
       expect(screen.queryByText("Application Progress")).not.toBeInTheDocument();
@@ -195,10 +195,10 @@ describe("DashboardWidgets", () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
-        expect(screen.getByText("Analytics Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Analytics Dashboard"));
+      fireEvent.click(screen.getByText("Application Summary"));
 
       expect(screen.getByText("Application Progress")).toBeInTheDocument();
       expect(screen.queryByText("Application Funnel")).not.toBeInTheDocument();
@@ -213,13 +213,13 @@ describe("DashboardWidgets", () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
-        expect(screen.getByText("Analytics Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Analytics Dashboard"));
+      fireEvent.click(screen.getByText("Application Summary"));
 
       expect(
-        screen.getByRole("region", { name: "Analytics charts" })
+        screen.getByRole("region", { name: "Application summary charts" })
       ).toBeInTheDocument();
     });
 
@@ -227,10 +227,10 @@ describe("DashboardWidgets", () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
-        expect(screen.getByText("Analytics Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Analytics Dashboard"));
+      fireEvent.click(screen.getByText("Application Summary"));
 
       expect(screen.getByText("Quick Stats")).toBeInTheDocument();
     });
@@ -241,10 +241,10 @@ describe("DashboardWidgets", () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
-        expect(screen.getByText("Analytics Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Analytics Dashboard"));
+      fireEvent.click(screen.getByText("Application Summary"));
 
       expect(screen.getByText("Employer replies")).toBeInTheDocument();
       expect(screen.getByText("40%")).toBeInTheDocument();
@@ -254,10 +254,10 @@ describe("DashboardWidgets", () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
-        expect(screen.getByText("Analytics Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Analytics Dashboard"));
+      fireEvent.click(screen.getByText("Application Summary"));
 
       expect(screen.getByText("Offers received")).toBeInTheDocument();
       expect(screen.getByText("10%")).toBeInTheDocument();
@@ -267,10 +267,10 @@ describe("DashboardWidgets", () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
-        expect(screen.getByText("Analytics Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Analytics Dashboard"));
+      fireEvent.click(screen.getByText("Application Summary"));
 
       expect(screen.getByText("Active")).toBeInTheDocument();
       // 20 applied + 5 screening + 3 phone + 2 technical + 1 onsite = 31
@@ -281,10 +281,10 @@ describe("DashboardWidgets", () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
-        expect(screen.getByText("Analytics Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Analytics Dashboard"));
+      fireEvent.click(screen.getByText("Application Summary"));
 
       expect(screen.getByText("No Response")).toBeInTheDocument();
       expect(screen.getByText("2")).toBeInTheDocument();
@@ -296,10 +296,10 @@ describe("DashboardWidgets", () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
-        expect(screen.getByText("Analytics Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Analytics Dashboard"));
+      fireEvent.click(screen.getByText("Application Summary"));
 
       // Funnel shows stages with counts
       expect(screen.getByText(/Applied: 20/)).toBeInTheDocument();
@@ -338,11 +338,11 @@ describe("DashboardWidgets", () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
-        expect(screen.getByText("Analytics Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
 
       // Should still work, just won't show jobs by source chart
-      fireEvent.click(screen.getByText("Analytics Dashboard"));
+      fireEvent.click(screen.getByText("Application Summary"));
 
       expect(screen.getByText("Quick Stats")).toBeInTheDocument();
     });
@@ -358,10 +358,10 @@ describe("DashboardWidgets", () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
-        expect(screen.getByText("Analytics Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Analytics Dashboard"));
+      fireEvent.click(screen.getByText("Application Summary"));
 
       expect(screen.getByText("Quick Stats")).toBeInTheDocument();
       expect(screen.queryByText("Jobs by Source")).not.toBeInTheDocument();
@@ -392,10 +392,10 @@ describe("DashboardWidgets", () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
-        expect(screen.getByText("Analytics Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Analytics Dashboard"));
+      fireEvent.click(screen.getByText("Application Summary"));
 
       expect(screen.queryByText("Application Progress")).not.toBeInTheDocument();
     });
@@ -411,10 +411,10 @@ describe("DashboardWidgets", () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
-        expect(screen.getByText("Analytics Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Analytics Dashboard"));
+      fireEvent.click(screen.getByText("Application Summary"));
 
       expect(screen.queryByText("Jobs by Source")).not.toBeInTheDocument();
     });
@@ -433,10 +433,10 @@ describe("DashboardWidgets", () => {
       render(<DashboardWidgets />);
 
       await waitFor(() => {
-        expect(screen.getByText("Analytics Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Analytics Dashboard"));
+      fireEvent.click(screen.getByText("Application Summary"));
 
       expect(screen.queryByText("Salary Distribution")).not.toBeInTheDocument();
     });
@@ -449,7 +449,7 @@ describe("DashboardWidgets", () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText("Analytics Dashboard")).toBeInTheDocument();
+        expect(screen.getByText("Application Summary")).toBeInTheDocument();
       });
 
       expect(container.firstChild).toHaveClass("custom-class");
@@ -471,7 +471,7 @@ describe("DashboardWidgets", () => {
         expect(screen.getByText("50% employer replies")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Analytics Dashboard"));
+      fireEvent.click(screen.getByText("Application Summary"));
 
       const responseRateBox = screen.getByText("Employer replies").closest("div");
       expect(responseRateBox?.className).toContain("bg-surface-50");
@@ -491,7 +491,7 @@ describe("DashboardWidgets", () => {
         expect(screen.getByText("20% employer replies")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Analytics Dashboard"));
+      fireEvent.click(screen.getByText("Application Summary"));
 
       const responseRateBox = screen.getByText("Employer replies").closest("div");
       expect(responseRateBox?.className).toContain("bg-surface-50");
@@ -511,7 +511,7 @@ describe("DashboardWidgets", () => {
         expect(screen.getByText("10% employer replies")).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByText("Analytics Dashboard"));
+      fireEvent.click(screen.getByText("Application Summary"));
 
       const responseRateBox = screen.getByText("Employer replies").closest("div");
       expect(responseRateBox?.className).toContain("bg-surface-50");
