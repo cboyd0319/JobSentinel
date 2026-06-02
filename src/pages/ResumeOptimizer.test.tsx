@@ -279,6 +279,14 @@ describe("ResumeOptimizer", () => {
     expect(screen.getByText("Words Found (2)")).toBeInTheDocument();
     expect(screen.getByText("Words To Review (1)")).toBeInTheDocument();
     expect(screen.getByText("Only use these words when they honestly fit your experience and improve clarity.")).toBeInTheDocument();
+    expect(mockToast.success).toHaveBeenCalledWith(
+      "Review ready",
+      "Use the details below as a guide before you apply.",
+    );
+    expect(mockToast.success).not.toHaveBeenCalledWith(
+      "Review complete",
+      expect.stringContaining("Overall match"),
+    );
     expect(screen.queryByText("Completeness")).not.toBeInTheDocument();
     expect(screen.queryByText(/Words To Add/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Keyword Matches/i)).not.toBeInTheDocument();
@@ -333,10 +341,11 @@ describe("ResumeOptimizer", () => {
     expect(await screen.findByText("Details to Check (1)")).toBeInTheDocument();
     expect(screen.getByText("Review")).toBeInTheDocument();
     expect(screen.getByText("Summary could be easier to read")).toBeInTheDocument();
-    expect(screen.getByText("How to fix: Use one short paragraph.")).toBeInTheDocument();
+    expect(screen.getByText("Possible edit to review: Use one short paragraph.")).toBeInTheDocument();
     expect(screen.getByText("Why it helps: Makes the outcome easier to understand.")).toBeInTheDocument();
     expect(screen.queryByText("Warning")).not.toBeInTheDocument();
     expect(screen.queryByText(/Fix:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/How to fix/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Impact:/)).not.toBeInTheDocument();
   });
 

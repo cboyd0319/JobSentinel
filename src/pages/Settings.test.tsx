@@ -501,7 +501,9 @@ describe("Settings — loadConfig flow", () => {
     expect(
       screen.getByText(/Use an app password from Google Account Security/),
     ).toBeInTheDocument();
-    expect(screen.getByText("Manual email setup")).toBeInTheDocument();
+    expect(
+      screen.getByText("Only if your email service gave you these details"),
+    ).toBeInTheDocument();
     expect(screen.getByText("Email sending service")).toBeInTheDocument();
     expect(screen.getByText("Number from email service")).toBeInTheDocument();
     expect(screen.getByText("Email address")).toBeInTheDocument();
@@ -651,11 +653,26 @@ describe("Settings — handleSave flow", () => {
       "https://api.jobswithgpt.example/mcp",
     );
 
-    expect(screen.getByPlaceholderText("Paste a job-source link from a service you trust")).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(
+        "Leave blank unless you intentionally use an outside job feed",
+      ),
+    ).toBeInTheDocument();
     expect(screen.queryByText("Optional source address")).not.toBeInTheDocument();
     expect(
       screen.getByText("Review before JobSentinel contacts this source"),
     ).toBeInTheDocument();
+    expect(screen.getByText("api.jobswithgpt.example")).toBeInTheDocument();
+    expect(
+      screen.queryByText("https://api.jobswithgpt.example/mcp"),
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Show full link" }));
+
+    expect(
+      screen.getByText("https://api.jobswithgpt.example/mcp"),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Hide full link" })).toBeInTheDocument();
     expect(screen.getByText("Case Manager")).toBeInTheDocument();
 
     await user.click(
@@ -804,7 +821,9 @@ describe("Settings — handleSave flow", () => {
 
     await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
     await user.type(
-      screen.getByPlaceholderText("Paste Slack connection link"),
+      screen.getByPlaceholderText(
+        "Paste Slack connection link, then turn Slack alerts on",
+      ),
       "https://hooks.slack.com/services/T00/B00/secret-token",
     );
     await user.click(screen.getByRole("button", { name: /save changes/i }));
@@ -825,6 +844,58 @@ describe("Settings — handleSave flow", () => {
       value: "https://hooks.slack.com/services/T00/B00/secret-token",
     });
     expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("requires turning Slack alerts on after pasting a connection link", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    let savedConfig: ReturnType<typeof makeConfig> | null = null;
+
+    mockInvoke.mockImplementation(async (cmd: string, args?: unknown) => {
+      if (cmd === "get_config") return makeConfig();
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "detect_location") return null;
+      if (cmd === "store_credential") return null;
+      if (cmd === "save_config") {
+        savedConfig = (args as { config: ReturnType<typeof makeConfig> }).config;
+        return null;
+      }
+      return null;
+    });
+
+    render(<Settings onClose={onClose} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
+    const slackToggle = screen.getByRole("checkbox", {
+      name: "Enable Slack alerts",
+    });
+
+    await user.type(
+      screen.getByPlaceholderText(
+        "Paste Slack connection link, then turn Slack alerts on",
+      ),
+      "https://hooks.slack.com/services/T00/B00/secret-token",
+    );
+
+    expect(slackToggle).not.toBeChecked();
+
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
+
+    await waitFor(() => {
+      expect(savedConfig?.alerts.slack.enabled).toBe(false);
+    });
+
+    await user.click(slackToggle);
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
+
+    await waitFor(() => {
+      expect(savedConfig?.alerts.slack.enabled).toBe(true);
+    });
   });
 
   it("shows clear feedback when a settings backup cannot be read", async () => {
@@ -1052,7 +1123,11 @@ describe("Settings — handleSave flow", () => {
 
     await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 
-    expect(screen.getByPlaceholderText("Paste Slack connection link")).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(
+        "Paste Slack connection link, then turn Slack alerts on",
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Paste Discord connection link")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Paste Teams connection link")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Paste Telegram setup code")).toBeInTheDocument();
@@ -1359,7 +1434,7 @@ describe("Settings — handleSave flow", () => {
       screen.getByRole("link", { name: /Open USAJobs search in your browser/i }),
     ).toHaveAttribute("href", "https://www.usajobs.gov/Search/Results");
     expect(
-      screen.getByRole("link", { name: /Request USAJobs access code/i }),
+      screen.getByRole("link", { name: /Open USAJobs access-code request/i }),
     ).toHaveAttribute("href", "https://developer.usajobs.gov/APIRequest/Index");
     expect(screen.queryByText(/Quick Setup/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Advanced federal monitoring/i)).not.toBeInTheDocument();

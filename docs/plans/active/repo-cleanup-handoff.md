@@ -31,6 +31,17 @@ Latest pushed checkpoints include:
 
 Recent local verification evidence:
 
+- Current local zero-technical setup-copy cleanup makes Slack alerts explicit
+  opt-in after a connection link is pasted, changes manual email and USAJobs
+  setup labels to plain user wording, masks outside job-source previews to the
+  site name until the user chooses to show the full link, and changes
+  feedback/resume review copy away from diagnostic and prescriptive language.
+  Focused verification passed: `npx vitest run
+  src/pages/Settings.test.tsx src/pages/ResumeOptimizer.test.tsx
+  src/components/feedback/DebugInfoPreview.test.tsx` passed 55 tests,
+  `npm run test:scripts` passed 464 tests, `npm run lint:docs` passed,
+  `npm run lint` passed, `npm run lint:bloat` passed, and `git diff --check`
+  passed.
 - Current local alert-filter copy cleanup replaces old alert-strength wording
   with `How picky alerts are`, updates notification docs away from
   scoring internals, and adds product-copy sensors against the old label and

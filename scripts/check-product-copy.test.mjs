@@ -1330,6 +1330,52 @@ test("product copy rejects technical-first settings copy", () => {
   });
 });
 
+test("product copy rejects stale settings alert and source setup copy", () => {
+  withFixture((root) => {
+    for (const staleCopy of [
+      "Manual email setup",
+      "Auto-enable Slack if valid connection link entered.",
+      'placeholder="Paste Slack connection link"',
+      "Request USAJobs access code",
+      '<dt className="font-medium">Job-source link</dt>',
+      "Paste a job-source link from a service you trust",
+    ]) {
+      writeFixtureFile(root, "src/pages/Settings.tsx", `${staleCopy}\n`);
+      assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
+    }
+  });
+});
+
+test("product copy rejects technical feedback preview labels", () => {
+  withFixture((root) => {
+    for (const staleCopy of ["App version", "Platform", "Device type"]) {
+      writeFixtureFile(
+        root,
+        "src/components/feedback/DebugInfoPreview.tsx",
+        `${staleCopy}\n`,
+      );
+      assert.equal(
+        hasTechnicalFirstUserCopy(root, "src/components/feedback/DebugInfoPreview.tsx"),
+        true,
+      );
+    }
+  });
+});
+
+test("product copy rejects prescriptive resume review copy", () => {
+  withFixture((root) => {
+    for (const staleCopy of [
+      "Overall match: ${Math.round(result.overall_score)}%",
+      "Overall match: 84%",
+      "How to fix: {issue.fix}",
+      "How to fix: Use one short paragraph.",
+    ]) {
+      writeFixtureFile(root, "src/pages/ResumeOptimizer.tsx", `${staleCopy}\n`);
+      assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
+    }
+  });
+});
+
 test("product copy rejects Application Profile send/sent stats", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/pages/ApplicationProfile.tsx", "Marked Sent\nReady to Send\n");

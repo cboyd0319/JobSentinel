@@ -1157,8 +1157,12 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Provider address/i,
       /Provider number/i,
       /Use this only if your provider gives you manual email details/i,
+      /Manual email setup/i,
       /automatic monitoring/i,
+      /Auto-enable Slack if valid connection link entered/i,
+      /Paste Slack connection link["'`]/i,
       /Advanced federal monitoring/i,
+      /Request USAJobs access code/i,
       /\bautomatic checks\b/i,
       /automatic\s+USAJobs\s+checks/i,
       /Advanced chat alert/i,
@@ -1183,6 +1187,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Hide risky postings/i,
       /Resume-Based Scoring/i,
       /70%\s*resume match\s*\+\s*30%\s*search words/i,
+      /<dt[^>]*>\s*Job-source link\s*<\/dt>/i,
+      /Paste a job-source link from a service you trust/i,
       /uploaded resume/i,
       /Upload your resume/i,
       /uploaded,\s*scoring uses/i,
@@ -1846,6 +1852,31 @@ export function hasTechnicalFirstUserCopy(root, path) {
     ];
 
     if (settingsPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "src/components/feedback/DebugInfoPreview.tsx") {
+    const debugPreviewPatterns = [
+      /App version/i,
+      /^Platform$/im,
+      /Device type/i,
+    ];
+
+    if (debugPreviewPatterns.some((pattern) => pattern.test(text))) {
+      return true;
+    }
+  }
+
+  if (path === "src/pages/ResumeOptimizer.tsx") {
+    const resumeOptimizerPatterns = [
+      /Overall match:\s*\$\{/i,
+      /Overall match:\s*\d+%/i,
+      /How to fix:\s*\{/i,
+      /How to fix:/i,
+    ];
+
+    if (resumeOptimizerPatterns.some((pattern) => pattern.test(text))) {
       return true;
     }
   }

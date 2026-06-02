@@ -289,6 +289,14 @@ function buildJobsWithGptPayload(config: Config): JobsWithGptPayload | null {
   };
 }
 
+function formatJobSourceSite(endpoint: string): string {
+  try {
+    return new URL(endpoint).host;
+  } catch {
+    return "Hidden until the link is valid";
+  }
+}
+
 function sameStringArray(left: string[], right: string[]): boolean {
   return (
     left.length === right.length &&
@@ -670,6 +678,7 @@ export default function Settings({ onClose }: SettingsProps) {
   const [ghostConfigLoading, setGhostConfigLoading] = useState(false);
   const [jobsWithGptLastRequest, setJobsWithGptLastRequest] =
     useState<SourceRequestSummary | null>(null);
+  const [showJobsWithGptEndpoint, setShowJobsWithGptEndpoint] = useState(false);
   const [ghostPreset, setGhostPreset] = useState<GhostPresetSelection>("balanced");
   const [emailProvider, setEmailProvider] = useState<
     "custom" | "gmail" | "outlook" | "yahoo"
@@ -1316,9 +1325,9 @@ export default function Settings({ onClose }: SettingsProps) {
   };
 
   const handleWebhookAlertToggle = (
-    channel: "discord" | "teams",
-    label: "Discord" | "Teams",
-    credentialKey: "discord_webhook" | "teams_webhook",
+    channel: "slack" | "discord" | "teams",
+    label: "Slack" | "Discord" | "Teams",
+    credentialKey: "slack_webhook" | "discord_webhook" | "teams_webhook",
     value: string,
     validator: (value: string) => boolean,
     enabled: boolean,
@@ -2618,7 +2627,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       </div>
                       <details className="rounded-lg border border-surface-200 dark:border-surface-700 p-3">
                         <summary className="cursor-pointer text-sm font-medium text-surface-700 dark:text-surface-300">
-                          Manual email setup
+                          Only if your email service gave you these details
                         </summary>
                         <div className="grid grid-cols-2 gap-3 mt-3">
                           <Input
@@ -2824,82 +2833,101 @@ export default function Settings({ onClose }: SettingsProps) {
                     />
                     <SecurityBadge stored={credentialStatus.slack_webhook} />
                   </label>
-                  <div className="flex gap-2">
-                    <div className="flex-1">
-                      <Input
-                        type="password"
-                        value={credentials.slack_webhook}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setCredentials((prev) => ({
-                            ...prev,
-                            slack_webhook: value,
-                          }));
-                          // Auto-enable Slack if valid connection link entered.
-                          if (value && isValidSlackWebhook(value)) {
-                            setConfig({
-                              ...config,
-                              alerts: {
-                                ...config.alerts,
-                                slack: { enabled: true },
-                              },
-                            });
+                  <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <SettingsSymbol icon="chat" className="h-5 w-5 text-surface-500 dark:text-surface-400" />
+                        <span className="text-sm text-surface-600 dark:text-surface-300">
+                          Send alerts to Slack
+                        </span>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          aria-label="Enable Slack alerts"
+                          checked={config.alerts.slack?.enabled ?? false}
+                          onChange={(e) =>
+                            handleWebhookAlertToggle(
+                              "slack",
+                              "Slack",
+                              "slack_webhook",
+                              credentials.slack_webhook,
+                              isValidSlackWebhook,
+                              e.target.checked,
+                            )
                           }
-                        }}
-                        placeholder={
-                          credentialStatus.slack_webhook
-                            ? "Enter new Slack connection link"
-                            : "Paste Slack connection link"
-                        }
-                        error={
-                          credentials.slack_webhook &&
-                          !isValidSlackWebhook(credentials.slack_webhook)
-                            ? "This doesn't look like a Slack connection link"
-                            : undefined
-                        }
-                        hint="Saved securely on this computer"
-                        autoComplete="off"
-                      />
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus-visible:ring-4 peer-focus-visible:ring-sentinel-300 dark:peer-focus-visible:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
+                      </label>
                     </div>
-                    {(credentials.slack_webhook ||
-                      credentialStatus.slack_webhook) && (
-                      <Button
-                        variant="secondary"
-                        disabled={testingSlack}
-                        onClick={async () => {
-                          setTestingSlack(true);
-                          try {
-                            if (
-                              !credentials.slack_webhook &&
-                              !credentialStatus.slack_webhook
-                            ) {
-                              toast.error(
-                                "No Slack link",
-                                "Paste a Slack connection link first.",
-                              );
-                              return;
-                            }
-                            await invoke("validate_slack_webhook", {
-                              webhookUrl: credentials.slack_webhook,
-                            });
-                            toast.success(
-                              "Test sent!",
-                              "Check your Slack channel",
-                            );
-                          } catch {
-                            toast.error(
-                              "Could not send test",
-                              "Check that the Slack connection link is correct and try again",
-                            );
-                          } finally {
-                            setTestingSlack(false);
+                    <div className="mt-3 flex gap-2">
+                      <div className="flex-1">
+                        <Input
+                          type="password"
+                          value={credentials.slack_webhook}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setCredentials((prev) => ({
+                              ...prev,
+                              slack_webhook: value,
+                            }));
+                          }}
+                          placeholder={
+                            credentialStatus.slack_webhook
+                              ? "Enter new Slack connection link"
+                              : "Paste Slack connection link, then turn Slack alerts on"
                           }
-                        }}
-                        className="whitespace-nowrap"
-                      >
-                        {testingSlack ? "Testing..." : "Test"}
-                      </Button>
-                    )}
+                          error={
+                            credentials.slack_webhook &&
+                            !isValidSlackWebhook(credentials.slack_webhook)
+                              ? "This doesn't look like a Slack connection link"
+                              : undefined
+                          }
+                          hint="Saved securely on this computer"
+                          autoComplete="off"
+                        />
+                      </div>
+                      {(credentials.slack_webhook ||
+                        credentialStatus.slack_webhook) && (
+                        <Button
+                          variant="secondary"
+                          disabled={testingSlack}
+                          onClick={async () => {
+                            setTestingSlack(true);
+                            try {
+                              if (
+                                !credentials.slack_webhook &&
+                                !credentialStatus.slack_webhook
+                              ) {
+                                toast.error(
+                                  "No Slack link",
+                                  "Paste a Slack connection link first.",
+                                );
+                                return;
+                              }
+                              await invoke("validate_slack_webhook", {
+                                webhookUrl: credentials.slack_webhook,
+                              });
+                              toast.success(
+                                "Test sent!",
+                                "Check your Slack channel",
+                              );
+                            } catch {
+                              toast.error(
+                                "Could not send test",
+                                "Check that the Slack connection link is correct and try again",
+                              );
+                            } finally {
+                              setTestingSlack(false);
+                            }
+                          }}
+                          className="whitespace-nowrap"
+                        >
+                          {testingSlack ? "Testing..." : "Test"}
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -3286,7 +3314,7 @@ export default function Settings({ onClose }: SettingsProps) {
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded transition-colors"
                             >
-                              Request USAJobs access code
+                              Open USAJobs access-code request
                             </a>
                           </div>
                           <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
@@ -3539,13 +3567,15 @@ export default function Settings({ onClose }: SettingsProps) {
                       <Input
                         label="Optional job-source link"
                         value={config.jobswithgpt_endpoint ?? ""}
-                        onChange={(e) =>
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setShowJobsWithGptEndpoint(false);
                           setConfig({
                             ...config,
-                            jobswithgpt_endpoint: e.target.value,
-                          })
-                        }
-                        placeholder="Paste a job-source link from a service you trust"
+                            jobswithgpt_endpoint: value,
+                          });
+                        }}
+                        placeholder="Leave blank unless you intentionally use an outside job feed"
                         hint="Off until you review and approve the details below"
                       />
 
@@ -3565,8 +3595,25 @@ export default function Settings({ onClose }: SettingsProps) {
                             Review before JobSentinel contacts this source
                           </p>
                           <dl className="grid grid-cols-1 gap-2 text-xs text-surface-600 dark:text-surface-300 sm:grid-cols-[8rem_1fr]">
-                            <dt className="font-medium">Job-source link</dt>
-                            <dd className="break-all">{jobsWithGptPayload.endpoint}</dd>
+                            <dt className="font-medium">Job-source site</dt>
+                            <dd className="space-y-1">
+                              <div className={showJobsWithGptEndpoint ? "break-all" : ""}>
+                                {showJobsWithGptEndpoint
+                                  ? jobsWithGptPayload.endpoint
+                                  : formatJobSourceSite(jobsWithGptPayload.endpoint)}
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() =>
+                                  setShowJobsWithGptEndpoint((visible) => !visible)
+                                }
+                              >
+                                {showJobsWithGptEndpoint
+                                  ? "Hide full link"
+                                  : "Show full link"}
+                              </Button>
+                            </dd>
                             <dt className="font-medium">Job titles</dt>
                             <dd>{jobsWithGptPayload.titles.join(", ")}</dd>
                             <dt className="font-medium">Location</dt>

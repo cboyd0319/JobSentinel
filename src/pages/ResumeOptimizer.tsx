@@ -284,7 +284,10 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
       });
 
       setAnalysisResult(result);
-      toast.success("Review complete", `Overall match: ${Math.round(result.overall_score)}%`);
+      toast.success(
+        "Review ready",
+        "Use the details below as a guide before you apply.",
+      );
     } catch (err: unknown) {
       toast.error("Review could not run", getResumeAnalysisErrorAction(err));
       logError("Analysis error:", err);
@@ -870,7 +873,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
                             </p>
                           </div>
                           <p className="text-sm text-surface-600 dark:text-surface-400 bg-sentinel-50 dark:bg-sentinel-900/20 px-2 py-1 rounded">
-                            How to fix: {issue.fix}
+                            Possible edit to review: {issue.fix}
                           </p>
                         </div>
                       ))}

@@ -86,8 +86,8 @@ surface.
 3. Enter the email address that should send alerts
 4. Enter an app password if your email service requires one
 5. Add recipient email addresses
-6. Use **Manual email setup** only if your email service gives you manual email
-   details
+6. If your email service gives you manual email details, open **Only if your
+   email service gave you these details**
 
 **Gmail and Yahoo users:** Use an app password from your account security page.
 JobSentinel links to those pages from the Email settings panel.
@@ -110,6 +110,7 @@ email alerts are easier to set up.
 5. Copy the connection link
 6. In JobSentinel, open Settings, choose Sources & Alerts, then paste the link in
    Slack Notifications
+7. Turn on Enable Slack alerts after you review the connection
 
 **What you'll get:** Formatted messages with job details and a "View Job" button.
 

@@ -49,6 +49,9 @@ describe("DebugInfoPreview", () => {
     await user.click(screen.getByRole("button", { name: /safe app details/i }));
 
     expect(screen.getByText(/app and device/i)).toBeInTheDocument();
+    expect(screen.getByText(/app release/i)).toBeInTheDocument();
+    expect(screen.getByText(/computer system/i)).toBeInTheDocument();
+    expect(screen.getByText(/computer type/i)).toBeInTheDocument();
     expect(screen.getByText(/settings summary/i)).toBeInTheDocument();
     expect(screen.getByText(/job sources on/i)).toBeInTheDocument();
     expect(screen.getByText(/6 saved/i)).toBeInTheDocument();
@@ -67,6 +70,8 @@ describe("DebugInfoPreview", () => {
     expect(screen.queryByText(/candidate@example\.com/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/configured/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/removes private details before sharing/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/app version/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Platform$/i)).not.toBeInTheDocument();
   });
 
   it("lets users remove safe app details before sharing", async () => {

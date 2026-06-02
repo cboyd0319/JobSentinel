@@ -164,6 +164,13 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local zero-technical setup-copy cleanup makes Slack alerts explicit
+  opt-in after a connection link is pasted, changes manual email and USAJobs
+  setup labels to plain user wording, masks outside job-source previews to the
+  site name until the user chooses to show the full link, and changes
+  feedback/resume review copy away from diagnostic and prescriptive language.
+  Focused Settings, ResumeOptimizer, DebugInfoPreview, script, docs, lint,
+  bloat, and diff-check verification passed.
 - Current local alert-filter copy cleanup replaces old alert-strength wording
   with `How picky alerts are`, updates notification docs away from
   scoring internals, and adds product-copy sensors against the old label and

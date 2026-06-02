@@ -81,10 +81,10 @@ export const DebugInfoPreview = memo(function DebugInfoPreview({
               <div className="space-y-4 text-xs font-mono">
                 {/* System Info */}
                 <Section title="App and device">
-                  <InfoRow label="App version" value={systemInfo.app_version} />
-                  <InfoRow label="Platform" value={systemInfo.platform} />
+                  <InfoRow label="App release" value={systemInfo.app_version} />
+                  <InfoRow label="Computer system" value={systemInfo.platform} />
                   <InfoRow label="Operating system" value={systemInfo.os_version} />
-                  <InfoRow label="Device type" value={systemInfo.architecture} />
+                  <InfoRow label="Computer type" value={systemInfo.architecture} />
                 </Section>
 
                 {/* Config Summary */}
