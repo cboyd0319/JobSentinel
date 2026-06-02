@@ -1434,7 +1434,9 @@ function getMockApplicationProfileEdit(): MockApplicationProfileEdit | null {
 
 function generateMockFeedbackReport(args?: Record<string, unknown>): string {
   const category = getMockFeedbackCategory(args);
-  const description = getStringArg(args, "description") ?? "";
+  const description = sanitizeMockSupportReportText(
+    getStringArg(args, "description") ?? "",
+  );
   const includeDebugInfo = booleanValue(getArg(args, "includeDebugInfo"), false);
   const systemInfo = getMockSystemInfo();
   const configSummary = getMockConfigSummary();
@@ -1529,15 +1531,52 @@ function sanitizeMockFilename(filename: string): string {
   return basename.replace(/[^a-zA-Z0-9._-]/g, "-") || getMockFeedbackFilename();
 }
 
+function sanitizeMockSupportReportText(content: string): string {
+  let result = content;
+
+  result = result.replace(
+    /https:\/\/(?:hooks\.slack\.com|discord(?:app)?\.com\/api\/webhooks|outlook\.office(?:365)?\.com\/webhook|hooks\.discord\.com\/api\/webhooks|hooks\.teams\.com\/workflows)[^\s"'<>\\)]*/gi,
+    "[WEBHOOK_CONFIGURED]",
+  );
+  result = result.replace(/li_at=[^\s;]+/g, "li_at=[REDACTED]");
+  result = result.replace(/\/(?:Users|home)\/[^/\s]+/g, "/[USER_PATH]");
+  result = result.replace(/[A-Za-z]:\\Users\\[^\\\s]+/g, "C:\\[USER_PATH]");
+  result = result.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "[EMAIL]");
+  result = result.replace(
+    /(?:\+?1[\s.-]?)?(?:\([2-9][0-9]{2}\)|[2-9][0-9]{2})[\s.-]?[2-9][0-9]{2}[\s.-]?[0-9]{4}\b/g,
+    "[PHONE]",
+  );
+  result = result.replace(
+    /(Bearer\s+[^\s"'<>]+|(?:access_token|refresh_token|api[_-]?key|token|secret|password|x-jobsentinel-token)=[^\s&"'<>\\)]+|["']?(?:access_token|refresh_token|api[_-]?key|token|secret|password|x-jobsentinel-token)["']?\s*:\s*["'][^"']+["']|(?:token|secret|password)\s+[^\s"'<>]+)/gi,
+    "[TOKEN]",
+  );
+  result = result.replace(/https?:\/\/[^\s"'<>\\)]+/gi, "[URL]");
+  result = result.replace(/\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/g, "[IP_ADDRESS]");
+  result = result.replace(
+    /\b((?:salary|compensation|pay)[ _-]?(?:floor|expectation|target|range|requirement)|expected salary|desired salary|resume(?:[ _-]?(?:text|data|content|summary|excerpt))?|cover[ _-]?letter(?:[ _-]?(?:text|data|content|summary|excerpt))?|private[ _-]?notes?|application[ _-]?(?:history|notes?)|screening[ _-]?(?:questions?|answers?)|question[ _-]?text|answer[ _-]?text|location[ _-]?preferences?|career[ _-]?goals?|personal[ _-]?circumstances?|(?:full|candidate|applicant|user|your)[ _-]?name)\s*[:=]\s*[^\r\n]+/gim,
+    "$1: [JOB_SEARCH_DETAIL_REDACTED]",
+  );
+  result = result.replace(
+    /\b((?:my\s+)?(?:salary|compensation|pay)\s+(?:floor|expectation|target|range|requirement)|expected salary|desired salary|private note|application note|screening answer|location preference|career goal|personal circumstance)\s+(?:is|are|was|were)\s+[^\r\n]+/gim,
+    "$1 [JOB_SEARCH_DETAIL_REDACTED]",
+  );
+  result = result.replace(
+    /\b((?:my|candidate|applicant|user)\s+name)\s+(?:is|was)\s+[^\r\n]+/gim,
+    "$1 [PERSON_NAME_REDACTED]",
+  );
+  result = result.replace(/"[^"]+"/g, "\"[REDACTED]\"");
+  result = result.replace(/'[^']+'/g, "'[REDACTED]'");
+  result = result.replace(
+    /\b((?:while\s+)?(?:applying|applied|interviewing|interviewed|negotiating|rejected|offer(?:ed)?|laid off|layoff|unemployed|employment gap|resume gap|job search urgency)\b[^\r\n]*)/gim,
+    "[JOB_SEARCH_DETAIL_REDACTED]",
+  );
+
+  return result;
+}
+
 function sanitizeMockFeedbackText(args?: Record<string, unknown>): string {
   const content = getStringArg(args, "content") ?? "";
-  return content
-    .replace(/https:\/\/(?:hooks\.slack\.com|discord(?:app)?\.com\/api\/webhooks|outlook\.office(?:365)?\.com\/webhook|hooks\.discord\.com\/api\/webhooks|hooks\.teams\.com\/workflows)[^\s"'<>\\)]*/gi, "[WEBHOOK_CONFIGURED]")
-    .replace(/li_at=[^\s;]+/g, "li_at=[REDACTED]")
-    .replace(/\/(?:Users|home)\/[^/\s]+/g, "/[USER_PATH]")
-    .replace(/[A-Za-z]:\\Users\\[^\\\s]+/g, "C:\\[USER_PATH]")
-    .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "[EMAIL]")
-    .replace(/\b(?:Bearer\s+[^\s]+|token(?:\s+|=)[^\s&]+|api_key=[^\s&]+|access_token=[^\s&]+|refresh_token=[^\s&]+|secret=[^\s&]+|password=[^\s&]+)/gi, "[TOKEN]");
+  return sanitizeMockSupportReportText(content);
 }
 
 function getMockFeedbackCategory(args?: Record<string, unknown>): MockFeedbackCategory {

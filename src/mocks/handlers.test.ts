@@ -596,6 +596,44 @@ describe("mock Tauri handlers", () => {
     ).resolves.toBeUndefined();
   });
 
+  it("redacts sensitive job-search details in mock support reports", async () => {
+    const sensitiveText = [
+      "Crash while applying to \"Acme Health\" for care manager role after layoff",
+      "Salary floor: $125,000 remote minimum",
+      "Resume excerpt: Led retention project for oncology team",
+      "Private note: laid off last month and urgent search",
+      "Screening answer: I need sponsorship next year",
+      "Location preference: Denver only",
+      "My name is Alice Applicant",
+      "Phone: +1 (303) 555-1212",
+      "Link: https://example.com/jobs/123?candidate=alice",
+    ].join("\n");
+
+    const report = await mockInvoke<string>("generate_feedback_report", {
+      category: "bug",
+      description: sensitiveText,
+      includeDebugInfo: false,
+    });
+    const sanitized = await mockInvoke<string>("sanitize_feedback_text", {
+      content: sensitiveText,
+    });
+    const combined = `${report}\n${sanitized}`;
+
+    expect(combined).toContain("[JOB_SEARCH_DETAIL_REDACTED]");
+    expect(combined).toContain("[PERSON_NAME_REDACTED]");
+    expect(combined).toContain("[PHONE]");
+    expect(combined).toContain("[URL]");
+    expect(combined).not.toContain("Acme Health");
+    expect(combined).not.toContain("care manager");
+    expect(combined).not.toContain("$125,000");
+    expect(combined).not.toContain("oncology team");
+    expect(combined).not.toContain("sponsorship next year");
+    expect(combined).not.toContain("Denver");
+    expect(combined).not.toContain("Alice Applicant");
+    expect(combined).not.toContain("303");
+    expect(combined).not.toContain("candidate=alice");
+  });
+
   it("analyzes resumes with the real ATS backend command names", async () => {
     const powerWords = await mockInvoke<string[]>("get_ats_power_words");
 

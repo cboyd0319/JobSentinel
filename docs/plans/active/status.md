@@ -43,6 +43,19 @@ unreviewed form sending.
 - Branch has multiple local commits ahead of `origin/main`. Use
   `git status --short --branch` for live evidence before committing, pushing,
   or reporting remote state.
+- Current local safe-support-report mock parity fix makes browser/dev
+  `generate_feedback_report` and `sanitize_feedback_text` redact sensitive
+  job-search details like salary floors, resume excerpts, private notes,
+  screening answers, location preferences, names, phone numbers, raw URLs, and
+  job-search narratives the same way the backend support-report sanitizer does.
+  Verification passed: `npx vitest run src/mocks/handlers.test.ts` passed 13
+  tests, `npm run lint -- --quiet` passed, `npx vitest run
+  src/mocks/handlers.test.ts src/services/feedbackService.test.ts
+  src/utils/errorReporting.test.ts` passed 39 tests, and `cargo test --lib
+  feedback` passed 52 tests. Broader checks passed: `npm run test:run`
+  passed 2630 tests, `npm run build`, `npm run lint:docs`, `npm run
+  lint:bloat`, `npm run lint:security`, `git diff --check`, and `npm run
+  test:e2e:smoke:budget` passed 10 expected tests in about 7.8 seconds.
 - Current local macOS packaging work adds `npm run tauri:build:macos`, a
   maintained DMG builder that runs Tauri app bundling, verifies or ad-hoc signs
   `JobSentinel.app`, creates a drag-to-Applications DMG with `hdiutil`, and
