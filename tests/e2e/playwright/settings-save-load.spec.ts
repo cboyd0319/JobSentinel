@@ -40,7 +40,7 @@ test.describe("Settings Save and Load", () => {
     });
   });
 
-  test.describe("Basic Settings", () => {
+  test.describe("Search Preferences", () => {
     test("loads core job-search defaults", async () => {
       await expect(settingsPage.dialog).toContainText("SEO Manager");
       await expect(settingsPage.dialog).toContainText("Google Analytics");
@@ -92,7 +92,7 @@ test.describe("Settings Save and Load", () => {
     });
   });
 
-  test.describe("Advanced Settings", () => {
+  test.describe("Sources & Alerts", () => {
     test.beforeEach(async () => {
       await settingsPage.switchTab("advanced");
     });

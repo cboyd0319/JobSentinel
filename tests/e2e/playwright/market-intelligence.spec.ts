@@ -17,7 +17,7 @@ test.describe("Hiring Trends", () => {
     await expect(page.getByLabel("42 percent remote jobs")).toBeVisible();
     await expect(page.getByText("Top Skill: Customer Support")).toBeVisible();
     await expect(page.getByText("Top Company: CareBridge Health")).toBeVisible();
-    await expect(page.getByRole("region", { name: "Skill Demand" })).toBeVisible();
+    await expect(page.getByRole("region", { name: "Skills Appearing More Often" })).toBeVisible();
     await expect(page.getByRole("region", { name: "Company Hiring Activity" })).toBeVisible();
     await expect(marketPage.locationRegion).toBeVisible();
     await expect(page.getByRole("listitem", { name: /Remote: 312 jobs/ })).toBeVisible();
@@ -67,7 +67,7 @@ test.describe("Hiring Trends", () => {
 
     await expect(marketPage.alertsFeed).toBeVisible();
     await expect(page.getByText("2 unread alerts")).toBeVisible();
-    await expect(page.getByRole("article", { name: /warning alert: Customer support demand is rising/ })).toBeVisible();
+    await expect(page.getByRole("article", { name: /Needs review alert: Customer support demand is rising/ })).toBeVisible();
     await page.getByRole("button", { name: "Mark Customer support demand is rising as read" }).click();
 
     await expect(page.getByText("1 unread alert")).toBeVisible();

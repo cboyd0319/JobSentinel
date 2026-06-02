@@ -66,7 +66,7 @@ export class OneClickApplyPage extends BasePage {
   }
 
   get browseResumeButton(): Locator {
-    return this.page.getByRole("button", { name: "Browse..." });
+    return this.page.getByRole("button", { name: "Choose Resume" });
   }
 
   get maxApplicationsSelect(): Locator {

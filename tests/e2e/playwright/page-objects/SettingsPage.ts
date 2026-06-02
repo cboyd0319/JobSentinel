@@ -17,11 +17,11 @@ export class SettingsPage extends BasePage {
   }
 
   get basicTab(): Locator {
-    return this.dialog.getByRole("tab", { name: "Basic Settings" });
+    return this.dialog.getByRole("tab", { name: "Search Preferences" });
   }
 
   get advancedTab(): Locator {
-    return this.dialog.getByRole("tab", { name: "More Settings" });
+    return this.dialog.getByRole("tab", { name: "Sources & Alerts" });
   }
 
   get saveButton(): Locator {

@@ -1497,3 +1497,7 @@ Current progress rows stay here. Older rows are preserved in [progress history](
 - Current local broad-audience copy follow-up replaces jargon in Quick Start,
   resume import, privacy tables, match/posting-risk guidance, and source-health
   troubleshooting with plain job-seeker language.
+- Current local E2E smoke follow-up syncs Settings, Hiring Trends, and
+  Application Assist Playwright selectors and report names with current
+  plain-language UI labels. `npm run test:e2e:smoke:budget` now passes locally
+  in 6.22 seconds against the 30-second budget.

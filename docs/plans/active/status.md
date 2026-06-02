@@ -31,6 +31,11 @@ and record actionable findings in this active-plan surface.
 
 ## Current Posture
 
+- Latest local E2E smoke follow-up syncs Settings, Hiring Trends, and
+  Application Assist Playwright selectors and report names with current
+  plain-language UI labels. `npm run doctor:e2e` passes with the known local
+  Node 26 versus CI Node 20 warning, and `npm run test:e2e:smoke:budget`
+  passes in 6.22 seconds against the 30-second budget.
 - Latest local settings-tab follow-up changes the Settings tabs from `Basic
   Settings` and `More Settings` to `Search Preferences` and `Sources & Alerts`.
   Dashboard no-source guidance, Quick Start notification setup, notification

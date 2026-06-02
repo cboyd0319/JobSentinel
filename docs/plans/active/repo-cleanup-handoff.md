@@ -69,7 +69,9 @@ Recent remote integration evidence:
   local fallback guidance.
 - The latest pushed E2E budget slice adds Playwright JSON budget commands for
   smoke and full-suite runs. Latest local smoke budget evidence: 9 Chromium
-  smoke tests in 5.97 seconds against a 30-second budget.
+  smoke tests in 6.22 seconds against a 30-second budget. The latest local
+  follow-up also syncs Settings, Hiring Trends, and Application Assist
+  Playwright selectors and report names with current plain-language UI labels.
 - The latest pushed Rule 0 review slice updates `.github/PULL_REQUEST_TEMPLATE.md`
   with privacy/security, local-first, external AI gateway, payload preview,
   responsible-use, safe support report, broad-audience, and

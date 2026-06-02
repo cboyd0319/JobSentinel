@@ -18,10 +18,10 @@ test.describe("Application Assist Settings", () => {
   });
 
   test("loads settings stats, tabs, and human-review safety copy @smoke", async ({ page }) => {
-    await expect(applyPage.statCard("Forms Reviewed")).toContainText("42");
-    await expect(applyPage.statCard("Marked Submitted")).toContainText("38");
+    await expect(applyPage.statCard("Forms Opened")).toContainText("42");
+    await expect(applyPage.statCard("Marked Sent")).toContainText("38");
     await expect(applyPage.statCard("Needs Follow-Up")).toContainText("4");
-    await expect(applyPage.statCard("Review Completion")).toContainText("90%");
+    await expect(applyPage.statCard("Ready to Send")).toContainText("90%");
     await expect(applyPage.profileTab).toBeVisible();
     await expect(applyPage.screeningTab).toBeVisible();
     await expect(page.getByRole("heading", { name: "How Application Assist Works" })).toBeVisible();
