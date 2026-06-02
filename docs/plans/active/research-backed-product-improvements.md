@@ -37,6 +37,9 @@ narrow implementation slices chosen from that backlog.
   sections separate when postings use single-line headings instead of blank
   lines, preventing preferred nice-to-have language from being shown as a
   required gap.
+- Latest local Resume Match mock-contract follow-up keeps dev/browser mock
+  match results on the same `0.0` to `1.0` fraction scale as the real backend,
+  preventing mock-only inflated percentages in resume assistance views.
 
 ## Source files
 

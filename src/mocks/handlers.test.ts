@@ -32,6 +32,18 @@ type CoverLetterTemplate = {
   updatedAt: string;
 };
 
+type MockJobSummary = {
+  hash: string;
+  score: number;
+};
+
+type MockMatchResult = {
+  overall_match_score: number;
+  skills_match_score: number | null;
+  experience_match_score: number | null;
+  education_match_score: number | null;
+};
+
 type JobImportPreview = {
   title: string;
   company: string;
@@ -651,6 +663,27 @@ describe("mock Tauri handlers", () => {
     expect(improved).toContain("add a true number, outcome, or concrete detail if you have one");
     expect(improved).toContain("review if these are true and worth making visible");
     expect(improved).not.toContain("consider adding");
+  });
+
+  it("returns mock resume match scores as backend-compatible fractions", async () => {
+    const [job] = await mockInvoke<MockJobSummary[]>("get_jobs", {});
+    const resumeId = await mockInvoke<number>("select_and_upload_resume");
+
+    const match = await mockInvoke<MockMatchResult>("match_resume_to_job", {
+      resumeId,
+      jobHash: job.hash,
+    });
+
+    expect(match.overall_match_score).toBe(job.score);
+    expect(match.skills_match_score).toBe(job.score);
+    expect(match.experience_match_score).toBe(Number((job.score - 0.05).toFixed(2)));
+    expect(match.education_match_score).toBeNull();
+    expect(match.overall_match_score).toBeGreaterThanOrEqual(0);
+    expect(match.overall_match_score).toBeLessThanOrEqual(1);
+    expect(match.skills_match_score).toBeGreaterThanOrEqual(0);
+    expect(match.skills_match_score).toBeLessThanOrEqual(1);
+    expect(match.experience_match_score).toBeGreaterThanOrEqual(0);
+    expect(match.experience_match_score).toBeLessThanOrEqual(1);
   });
 
   it("handles runtime frontend command names in dev mocks", async () => {

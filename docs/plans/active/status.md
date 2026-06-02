@@ -272,6 +272,16 @@ unreviewed form sending.
   harness:check`, `npm run lint:bloat`, `node --test
   scripts/check-product-copy.test.mjs` passed 43 tests, `npm run lint`, and
   `git diff --check`.
+- Current local Resume Match mock-contract fix keeps development and browser
+  mock results aligned with the real backend fraction-score contract. The mock
+  `match_resume_to_job` command now returns `0.0` to `1.0` fit fractions
+  instead of `0` to `100` values, preventing mock/dev Resume Match views from
+  showing inflated percentages. Verification passed: `npx vitest run
+  src/mocks/handlers.test.ts` passed 12 tests, `npx vitest run
+  src/pages/Resume.test.tsx src/mocks/handlers.test.ts` passed 17 tests,
+  `npm run lint`, `npm run lint:bloat`, `npm run test:run` passed 2658
+  tests, `npm run build`, `npm run lint:docs`, `npm run test:scripts` passed
+  503 tests, and `git diff --check`.
 - Current local resume suggestion follow-up replaces backend and mock
   suggestion impact values like `High` and `Medium` with concrete, review-first
   user guidance, changes bullet suggestions from command-style action-verb copy

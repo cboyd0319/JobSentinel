@@ -2797,6 +2797,14 @@ function getNextId(items: Array<{ id: number }>): number {
   return items.reduce((max, item) => Math.max(max, item.id), 0) + 1;
 }
 
+function toScoreFraction(score: number): number {
+  if (!Number.isFinite(score)) {
+    return 0;
+  }
+
+  return Math.max(0, Math.min(1, score));
+}
+
 function getResumeIdArg(args: Record<string, unknown> | undefined): number | undefined {
   return getNumericArg(args, "resumeId") ?? getNumericArg(args, "resume_id");
 }
@@ -3537,15 +3545,16 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       const skills = userSkills
         .filter((skill) => skill.resume_id === resumeId)
         .map((skill) => skill.skill_name);
+      const matchScore = toScoreFraction(job.score);
       const match: MockMatchResult = {
         id: getNextId(recentMatches),
         resume_id: resumeId,
         job_hash: jobHash,
         job_title: job.title,
         company: job.company,
-        overall_match_score: Math.round(job.score * 100),
-        skills_match_score: Math.round(job.score * 100),
-        experience_match_score: Math.max(0, Math.round(job.score * 100) - 5),
+        overall_match_score: matchScore,
+        skills_match_score: matchScore,
+        experience_match_score: Math.max(0, Number((matchScore - 0.05).toFixed(2))),
         education_match_score: null,
         matching_skills: skills.slice(0, 3),
         missing_skills: ["Role-specific evidence"],
