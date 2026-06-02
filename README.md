@@ -227,7 +227,7 @@ React 19 + TypeScript UI
 | Renderer to backend | UI calls typed Tauri commands and handles errors with user-safe messages. |
 | Storage | SQLite stores search state, saved jobs, notes, applications, and local reports. |
 | Secrets | Alert connection details, email credentials, and USAJobs access codes use the OS credential store. |
-| Job-source checks | Source checks use bounded requests, source-specific limits, and shared retry helpers. |
+| Job-source checks | Source checks contact approved public job sources, wait between checks, read only needed job details, and save results locally. |
 | External alerts | Slack, Discord, Teams, Telegram, and email work only after the user turns them on. |
 | Support sharing | GitHub issue pages and Google Drive support links open only when the user chooses them. |
 | External AI | All provider calls must go through the AI gateway. Scattered provider calls are not allowed. |
@@ -309,8 +309,8 @@ Learn more in [secure credential storage](docs/security/KEYRING.md) and the
 ## Source Coverage
 
 JobSentinel can check 12 job sources on a schedule, with clear source limits,
-duplicate handling, health checks, and bounded website reads. The health system
-also has 15 source-health checks. LinkedIn is a user-opened search-link
+duplicate cleanup, plain source-status checks, and limited website reads. The
+Settings page also shows 15 source-status checks. LinkedIn is a user-opened search-link
 destination, not a scheduled source.
 
 | Category | Sources |
@@ -325,7 +325,7 @@ Some monitored sources have optional setup. USAJobs can use an access code for
 scheduled checks, but users can open USAJobs through job-site search links
 without setup. JobSentinel reports source health so you can see when a source is
 healthy, degraded, or blocked. Source collection is scoped to a single user's
-local search, follows source-specific boundaries, and favors public
+local search, follows each source's allowed use, and favors public
 hiring-platform feeds or official company sources when available. Large
 platforms with restricted
 automation policies should be opened by the user through search links.

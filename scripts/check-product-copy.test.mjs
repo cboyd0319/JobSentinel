@@ -1350,6 +1350,35 @@ test("product copy rejects raw connected-source metadata labels", () => {
   });
 });
 
+test("product copy rejects technical source-check flow wording", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "README.md",
+      [
+        "Source checks use bounded requests, source-specific limits, and shared retry helpers.",
+        "duplicate handling, health checks, and bounded website reads",
+        "local search, follows source-specific boundaries",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/features/scrapers.md",
+      [
+        "Every source check must use source-specific limits and shared retry helpers where feasible",
+        "Page, feed, source-check, and import requests cap decoded bodies at 16 MiB",
+        "  -> source-boundary check",
+        "  -> bounded public request",
+        "",
+      ].join("\n"),
+    );
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "README.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scrapers.md"), true);
+  });
+});
+
 test("product copy rejects bare dashboard summary recovery", () => {
   withFixture((root) => {
     writeFixtureFile(

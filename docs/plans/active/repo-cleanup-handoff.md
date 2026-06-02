@@ -31,6 +31,14 @@ Latest pushed checkpoints include:
 
 Recent remote integration evidence:
 
+- Current local README and source-guide wording cleanup replaces internal
+  bounded-request, source-specific-boundary, retry-helper, and source-boundary
+  flow wording with plain source-check, allowed-use, wait-between-checks, and
+  local-save wording. Product-copy sensors now reject the old implementation
+  phrases on the front door and source guide. Focused verification passed:
+  `node --test scripts/check-product-copy.test.mjs` passed 35 tests, `npm run
+  lint:docs` passed, targeted stale-phrase search found no old live wording in
+  README or source docs, and `npm run lint:bloat` passed.
 - Current local Deep Links browser-search cleanup changes automatic-check copy
   to browser-review and scheduled-source-check wording. Product-copy sensors
   now reject `does not check automatically` and `automatic checking` drift in

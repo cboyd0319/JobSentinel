@@ -24,17 +24,16 @@ call private LinkedIn systems, or read LinkedIn pages in the background.
 | Official source first | Prefer documented feeds or APIs, public feeds, and official company or application-platform postings |
 | No restricted-site automation | Do not add hidden data paths, session-cookie collection, human-check workarounds, or platform-control evasion |
 | Local-first storage | Source results, run history, and notes stay local |
-| Rate limits | Every source check must use source-specific limits and shared retry helpers where feasible |
-| Bounded reads | Page, feed, source-check, and import requests cap decoded bodies at 16 MiB |
+| Rate limits | Every source check must wait within that source's limits |
+| Response size | JobSentinel stops reading very large responses; the current safety limit is 16 MiB |
 | User control | Job-site search links open in the user's browser and do not run in the background |
 
 ## How Job Checks Work
 
 ```text
 Source the user turned on
-  -> source-boundary check
-  -> rate limit
-  -> bounded public request
+  -> confirm the source is allowed
+  -> wait within that source's limits
   -> read public job details
   -> remove duplicates
   -> store locally

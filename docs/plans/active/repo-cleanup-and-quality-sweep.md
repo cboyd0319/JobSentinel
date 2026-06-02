@@ -164,6 +164,12 @@ As of 2026-06-02, the active plan remains open. Latest local work improved
 visible zero-technical UX, broad-audience defaults, privacy/security
 boundaries, and harness modularity:
 
+- Current local README and source-guide wording cleanup replaces internal
+  bounded-request, source-specific-boundary, retry-helper, and source-boundary
+  flow wording with plain source-check, allowed-use, wait-between-checks, and
+  local-save wording. Product-copy sensors now reject the old implementation
+  phrases. Focused product-copy, docs, stale-phrase, and bloat verification
+  passed.
 - Current local Deep Links browser-search cleanup changes automatic-check copy
   to browser-review and scheduled-source-check wording. Product-copy sensors
   now reject `does not check automatically` and `automatic checking` drift in
