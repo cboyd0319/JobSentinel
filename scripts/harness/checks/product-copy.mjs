@@ -791,6 +791,10 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /GitHub feedback, and Google Drive are user-configured/i,
       /External alerts\s*\|[^\n]*(?:GitHub|Google Drive)/i,
       /Feedback or issue-report sharing through configured GitHub or Google Drive/i,
+      /source host/i,
+      /title count/i,
+      /work location mode/i,
+      /requested-job limit/i,
     ];
 
     if (ruleZeroPatterns.some((pattern) => pattern.test(text))) {
@@ -1193,6 +1197,10 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /Public JSON endpoint/i,
       /Public job endpoint/i,
       /ATS feeds/i,
+      /source host/i,
+      /title count/i,
+      /work location mode/i,
+      /requested-job limit/i,
     ];
 
     if (sourceDocPatterns.some((pattern) => pattern.test(text))) {

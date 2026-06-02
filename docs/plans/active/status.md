@@ -57,6 +57,10 @@ and record actionable findings in this active-plan surface.
   posting, skill-demand, source-bias, job-board-bias, chart-title, and
   support-log wording with plain job-pool, check-several-sources, and hiring
   trend language. Product-copy tests guard the old phrases.
+- Latest local source-contact docs follow-up replaces remaining lowercase
+  `source host` metadata wording in privacy and source-health docs with
+  `website contacted`, count-only categories, and outcome language. Product-copy
+  tests guard the old labels.
 - Latest local resume-readability follow-up changes score-adjacent labels from
   `Complete`, `Completeness`, `missing`, `issues`, `View Details`, and `Full
   Resume Readability Review` to details, details-included, to-review,

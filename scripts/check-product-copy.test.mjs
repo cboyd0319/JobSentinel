@@ -1169,8 +1169,14 @@ test("product copy rejects technical-first settings copy", () => {
 test("product copy rejects raw connected-source metadata labels", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/pages/Settings.tsx", "<dt>Source host</dt>\n");
+    writeFixtureFile(root, "PRIVACY.md", "contact time, source host, title count, work location mode, requested-job limit\n");
+    writeFixtureFile(root, "docs/features/scraper-health.md", "contact time, source host, title count, work location mode, requested-job limit\n");
+    writeFixtureFile(root, "docs/features/scrapers.md", "contact time, source host, title count, work location mode, requested-job limit\n");
 
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "PRIVACY.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scraper-health.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/scrapers.md"), true);
   });
 });
 

@@ -52,10 +52,10 @@ Source health must follow the same rules for job sources:
   JobsWithGPT receives only saved job titles, location, remote preference, and
   result limit for job-site checks. These addresses must stay off unless
   configured and the exact details are reviewed and approved locally.
-  The latest approved contact can be shown locally as contact time, source host,
-  count-only request categories, and outcome. Do not store raw titles, raw
-  location, private notes, resumes, salary floors, application history, or full
-  source links in that contact history.
+  The latest approved contact can be shown locally as contact time, website
+  contacted, count-only request categories, and outcome. Do not store raw
+  titles, raw location, private notes, resumes, salary floors, application
+  history, or full source links in that contact history.
 
 LinkedIn is intentionally handled as a user-opened search-link destination. It
 should not appear as a background source, credential-renewal prompt, or job-site

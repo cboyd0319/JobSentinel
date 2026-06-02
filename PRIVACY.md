@@ -52,9 +52,9 @@ Possible network activity:
   needed for that source check. These addresses are off unless configured and
   the exact details have been reviewed and approved locally.
   JobSentinel records the latest approved contact locally as metadata only:
-  contact time, source host, count-only request categories, and outcome. It does
-  not store raw titles, raw location, resumes, salary floors, private notes,
-  application history, or full source links in that contact history.
+  contact time, website contacted, count-only request categories, and outcome.
+  It does not store raw titles, raw location, resumes, salary floors, private
+  notes, application history, or full source links in that contact history.
 - User-requested location detection through FreeIPAPI.
 - External alerts through configured Slack, Discord, Teams, Telegram, or email
   channels. Alert payloads may include public job details and match score, but

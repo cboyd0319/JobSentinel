@@ -184,6 +184,9 @@ Current cleanup posture:
   skill-demand, source-bias, job-board-bias, chart-title, and support-log wording
   with plain job-pool, check-several-sources, and hiring trend language.
   Product-copy coverage guards the old phrases.
+- Current local source-contact docs follow-up replaces lowercase source-host
+  metadata wording with website-contacted, count-only request-category, and
+  outcome language. Product-copy coverage guards the old labels.
 - Current local saved-answer recovery follow-up changes Application Assist
   suggested-answer failures from a bare saved-answers message to support-report
   recovery wording, with focused component and product-copy coverage.

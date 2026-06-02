@@ -227,6 +227,9 @@ boundaries, and harness modularity:
   skill-demand, source-bias, job-board-bias, chart-title, and support-log wording
   to plain job-pool, check-several-sources, and hiring trend language.
   Product-copy tests guard the old phrases.
+- Changed privacy and source-health docs from lowercase source-host metadata
+  wording to website-contacted, count-only request-category, and outcome
+  language. Product-copy tests guard the old labels.
 - Changed Application Assist suggested-answer failure copy from a bare saved
   answers message to support-report recovery wording, with focused component and
   product-copy coverage.
