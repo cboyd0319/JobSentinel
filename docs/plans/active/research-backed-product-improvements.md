@@ -13,6 +13,10 @@ narrow implementation slices chosen from that backlog.
 
 ## Current implementation notes
 
+- Latest local ghost-detection docs slice removed developer-only schema,
+  signal-weight, and API-command details from the user-facing feature guide so
+  the maintained page stays protective and usable for job seekers with no
+  technical background.
 - Latest local protective-copy slice made ghost-risk tooltips say postings may
   need review instead of presenting a hard warning, changed match factor
   weights to influence labels, and moved source-status and search-link copy

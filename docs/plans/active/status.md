@@ -199,13 +199,21 @@ actionable findings in this active-plan surface or the relevant plan.
   scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found no
   maintainer-detail block terms in `docs/features/notifications.md`, `npm run
   lint:bloat`, and `npm run harness:check`.
-- Current local architecture-doc accuracy slice aligns the developer credential
+- Committed local architecture-doc accuracy slice aligns the developer credential
   and notification module summary with live Rust names, service naming, legacy
   LinkedIn cleanup, and alert privacy boundaries. Docs-drift sensors now reject
   the stale credential names and old storage-boundary wording. Focused
   verification passed: `node --test scripts/check-docs-drift.test.mjs` passed
   15 tests, targeted architecture search found no stale credential markers,
   `npm run lint:bloat`, and `npm run harness:check`.
+- Current local ghost-detection feature-doc cleanup removes developer-only
+  schema and API command details from the job-seeker guide. Product-copy sensors
+  now reject those implementation details if they drift back into
+  `docs/features/ghost-detection.md`. Focused verification passed: `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found no
+  ghost schema/API terms in that feature doc, `npm run lint:bloat`, `npm run
+  harness:check`, `npm run lint:docs`, `npm run test:scripts`, and
+  `git diff --check`.
 - No remote CI or push should run unless the user explicitly asks in the current
   turn.
 
@@ -256,6 +264,9 @@ Scope:
   raw connection-link, or module-structure details.
 - Developer architecture docs must match live credential key names and current
   alert/secret boundaries.
+- Ghost-detection feature docs must explain posting-risk guidance in
+  job-seeker language and keep developer schema/API details out of the
+  user-facing guide.
 - Product-copy sensors must reject recurring old phrases.
 
 Verification completed for this slice:
@@ -267,6 +278,7 @@ npm run lint:docs
 npm run test:scripts
 npm run lint
 node --test scripts/check-product-copy.test.mjs
+! rg -n "Technical Details|Signal Weights|Database Schema|API Commands|invoke\\(|ghost_reasons TEXT|ghost_score|repost_count|Ghost configuration commands|get_ghost_config|set_ghost_config|reset_ghost_config" docs/features/ghost-detection.md
 npx vitest run src/pages/Settings.test.tsx src/components/ErrorLogPanel.test.tsx
 npx vitest run src/components/ErrorLogPanel.test.tsx
 npx vitest run src/utils/errorReporting.test.ts

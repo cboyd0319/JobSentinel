@@ -1896,7 +1896,18 @@ test("product copy rejects technical-first resume copy", () => {
     writeFixtureFile(
       root,
       "docs/features/ghost-detection.md",
-      "low-trust listing\nSettings > Detection > Ghost Detection Settings\n",
+      [
+        "low-trust listing",
+        "Settings > Detection > Ghost Detection Settings",
+        "For developers and the curious",
+        "Signal Weights",
+        "Database Schema",
+        "ghost_reasons TEXT",
+        "### API Commands",
+        "invoke(\"get_ghost_config\");",
+        "invoke(\"set_ghost_config\", {});",
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(root, "docs/features/salary-ai.md", "Enter seniority level.\n");
     writeFixtureFile(

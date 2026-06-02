@@ -57,13 +57,21 @@ Recent remote integration evidence:
   scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found no
   maintainer-detail block terms in `docs/features/notifications.md`, `npm run
   lint:bloat`, and `npm run harness:check`.
-- Current local architecture-doc accuracy slice aligns the developer credential
+- Committed local architecture-doc accuracy slice aligns the developer credential
   and notification module summary with live Rust names, service naming, legacy
   LinkedIn cleanup, and alert privacy boundaries. Docs-drift sensors now reject
   the stale credential names and old storage-boundary wording. Focused
   verification passed: `node --test scripts/check-docs-drift.test.mjs` passed
   15 tests, targeted architecture search found no stale credential markers,
   `npm run lint:bloat`, and `npm run harness:check`.
+- Current local ghost-detection feature-doc cleanup removes developer-only schema,
+  signal-weight, and API-command details from the user-facing guide. Product-copy
+  sensors now reject those implementation details if they drift back into
+  `docs/features/ghost-detection.md`. Focused verification passed: `node --test
+  scripts/check-product-copy.test.mjs` passed 32 tests, targeted search found no
+  ghost schema/API terms in that feature doc, `npm run lint:bloat`, `npm run
+  harness:check`, `npm run lint:docs`, `npm run test:scripts`, and
+  `git diff --check`.
 - Current local source-name copy follow-up changes README source coverage,
   source feature docs, public job-source issue template, shared source labels,
   and frontend mocks from `HN Who's Hiring` wording to `Startup and tech job

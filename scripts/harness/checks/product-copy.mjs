@@ -1290,6 +1290,17 @@ export function hasTechnicalFirstUserCopy(root, path) {
       /low-trust listing/i,
       /Settings\s*>\s*Detection\s*>\s*Ghost Detection Settings/i,
       /Ghost Detection Settings/i,
+      /For developers and the curious/i,
+      /Signal Weights/i,
+      /Database Schema/i,
+      /API Commands/i,
+      /Ghost configuration commands/i,
+      /ghost_reasons TEXT/i,
+      /\bghost_score\b/i,
+      /\brepost_count\b/i,
+      /invoke\("get_ghost_/i,
+      /invoke\("set_ghost_config/i,
+      /invoke\("reset_ghost_config/i,
     ];
 
     if (ghostDetectionDocPatterns.some((pattern) => pattern.test(text))) {
