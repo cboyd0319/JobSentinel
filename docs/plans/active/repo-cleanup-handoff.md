@@ -52,7 +52,17 @@ Recent local verification evidence:
   `XDG_CONFIG_HOME`; the test module now serializes env-dependent tests with a
   shared mutex. Verification passed: `cargo test --lib platforms::macos`
   passed 22 tests with 1 ignored, and `cargo test --lib` passed 2492 tests
-  with 21 ignored.
+  with 21 ignored. Follow-up universal packaging verification also passed after
+  installing rustup targets for `aarch64-apple-darwin` and
+  `x86_64-apple-darwin`: `PATH="/opt/homebrew/opt/rustup/bin:$PATH" npm run
+  tauri:build:macos -- --target universal-apple-darwin` produced
+  `src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg`,
+  `hdiutil verify` reported a valid checksum, `lipo -info` confirmed the
+  mounted app binary contains `x86_64 arm64`, `codesign --verify --deep
+  --strict --verbose=2` passed for the mounted app, mounted-DMG inspection found
+  `JobSentinel.app` and the `Applications` symlink, and the mounted universal
+  app stayed running for 12 seconds under an isolated temporary `HOME` with
+  stderr empty before clean termination.
 - Current local Resume Match parser fix keeps required and preferred job-post
   sections separate when a posting uses ordinary single-line headings, so
   preferred words are not promoted into required review buckets. Verification

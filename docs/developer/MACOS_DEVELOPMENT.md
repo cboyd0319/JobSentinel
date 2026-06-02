@@ -1,6 +1,6 @@
 # JobSentinel - macOS Development Guide
 
-**Status:** Development and local packaging work on macOS
+**Status:** Local app packaging and universal DMG packaging verified on macOS
 **Latest Tested:** macOS 26.5 on Apple Silicon - June 2026
 
 ---
@@ -15,6 +15,10 @@
    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
    source $HOME/.cargo/env
    ```
+
+   Universal macOS builds require the rustup-managed
+   `aarch64-apple-darwin` and `x86_64-apple-darwin` targets. Homebrew Rust may
+   only include the current machine target.
 
 2. **Install Node.js:**
 
@@ -74,8 +78,9 @@ JobSentinel creates the following directories on macOS:
 | **Cache** | `~/Library/Caches/JobSentinel` | Cache files |
 | **Logs** | `~/Library/Logs/JobSentinel` | Application logs |
 
-**Tested on:** macOS 26.5 on Apple Silicon for local build and package smoke.
-Historical development coverage also includes macOS 15, macOS 14, and macOS 13.
+**Tested on:** macOS 26.5 on Apple Silicon for current-architecture and
+universal local package smoke. Historical development coverage also includes
+macOS 15, macOS 14, and macOS 13.
 
 ### View Your Data
 
@@ -127,10 +132,22 @@ rustup target add aarch64-apple-darwin x86_64-apple-darwin
 npm run tauri:build:macos -- --target universal-apple-darwin
 ```
 
+If Homebrew Rust is first in `PATH`, put rustup first for this command:
+
+```bash
+PATH="$HOME/.cargo/bin:$PATH" npm run tauri:build:macos -- --target universal-apple-darwin
+```
+
 The packaging script builds the Tauri `.app`, verifies or ad-hoc signs the app
 bundle when no signing identity is configured, creates a drag-to-Applications
 DMG with `hdiutil`, and verifies the disk image. It avoids Finder AppleScript so
 the package path works in local shells and CI runners with Command Line Tools.
+
+The latest local universal smoke built
+`src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg`,
+verified the DMG checksum, confirmed the app binary contains both `x86_64` and
+`arm64`, verified the mounted app signature, and kept the mounted app running
+for 12 seconds under an isolated temporary home with empty stderr.
 
 **Note:** The `.dmg` installer is for distribution. You can also run the binary directly:
 

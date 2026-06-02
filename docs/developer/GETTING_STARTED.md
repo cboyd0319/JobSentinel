@@ -73,7 +73,7 @@ npm run tauri:build
 
 # macOS: Build universal binary (Intel + Apple Silicon)
 rustup target add aarch64-apple-darwin x86_64-apple-darwin
-npm run tauri -- build --target universal-apple-darwin
+npm run tauri:build:macos -- --target universal-apple-darwin
 
 # Windows MSI installer output
 # src-tauri/target/<target>/release/bundle/msi/JobSentinel_<version>_x64_en-US.msi
