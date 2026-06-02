@@ -1077,6 +1077,18 @@ test("product copy rejects raw connected-source metadata labels", () => {
   });
 });
 
+test("product copy rejects bare dashboard summary recovery", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/components/DashboardWidgets.tsx",
+      'setError("Could not load application summary");\n',
+    );
+
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/DashboardWidgets.tsx"), true);
+  });
+});
+
 test("product copy rejects support troubleshooting jargon", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/pages/Settings.tsx", "These logs can help diagnose it.\n");

@@ -118,6 +118,9 @@ Current cleanup posture:
   history label from `Source host` to `Website contacted`, with focused
   Settings and product-copy coverage against raw source metadata labels
   returning to visible copy.
+- Current local dashboard recovery follow-up changes the summary-widget failure
+  message from bare load-failure copy to support-report recovery wording, with
+  focused DashboardWidgets and product-copy coverage.
 - Current local application-profile loading follow-up replaces vague slow-load
   copy with `Still opening your application profile...`, with ProfileForm and
   product-copy coverage against the old phrase.

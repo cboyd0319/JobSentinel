@@ -317,7 +317,7 @@ describe("DashboardWidgets", () => {
       await waitFor(() => {
         expect(document.querySelector(".animate-spin")).not.toBeInTheDocument();
       });
-      expect(screen.getByText("Could not load application summary")).toBeInTheDocument();
+      expect(screen.getByText("Could not load application summary. Try again, or copy a safe support report if this keeps happening.")).toBeInTheDocument();
       expect(screen.queryByText("Failed to load analytics data")).not.toBeInTheDocument();
     });
 

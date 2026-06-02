@@ -61,6 +61,9 @@ and record actionable findings in this active-plan surface.
   history label from `Source host` to `Website contacted`, with focused
   Settings and product-copy coverage so raw source metadata labels do not drift
   back into user-facing copy.
+- Latest local dashboard recovery follow-up changes the summary-widget failure
+  copy from a bare `Could not load application summary` message to support-report
+  recovery wording, with focused DashboardWidgets and product-copy coverage.
 - Latest local privacy harness follow-up closes the screening-question debug-log
   debt: Application Assist traces and screening-answer command logs now stay
   count-only or ID-only for question text, saved answer patterns, original

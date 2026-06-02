@@ -848,6 +848,13 @@ export function hasTechnicalFirstUserCopy(root, path) {
     return true;
   }
 
+  if (
+    path === "src/components/DashboardWidgets.tsx" &&
+    /setError\(\s*["'`]Could not load application summary["'`]\s*\)/i.test(text)
+  ) {
+    return true;
+  }
+
   if (path === "src/components/JobImportModal.tsx") {
     const importPatterns = [
       /Missing details:\s*\{?preview\.missing_fields\.join/i,

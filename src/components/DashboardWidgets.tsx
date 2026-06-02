@@ -107,7 +107,7 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
       setSalaryRanges(Array.isArray(salaryData) ? salaryData : []);
     } catch (error: unknown) {
       logError('Failed to load widget data:', error);
-      setError('Could not load application summary');
+      setError('Could not load application summary. Try again, or copy a safe support report if this keeps happening.');
     } finally {
       setLoading(false);
     }
