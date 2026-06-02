@@ -1173,8 +1173,9 @@ Next high-value passes:
      submit-yourself guidance. The latest resume-choice copy slice replaces the
      Application Profile generic resume-file picker label with `Choose Resume`.
      The latest saved-search validation slice changes empty-name copy to
-     `Name this search` with action guidance. Continue looking for new issues
-     as new surfaces change.
+     `Name this search` with action guidance. The latest Resume validation
+     slice changes empty-skill copy to `Name the skill` with action guidance.
+     Continue looking for new issues as new surfaces change.
    - Do not trust hardcoded checkpoint notes for remote status. Use
      `git status --short --branch`, `git log --oneline -3`, and `gh run list
      --branch main --limit 5` as live evidence before reporting CI state.

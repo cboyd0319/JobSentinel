@@ -1257,6 +1257,8 @@ export function hasTechnicalFirstUserCopy(root, path) {
     /Missing required fields/i,
     /Name required/i,
     /Please enter a name for this search/i,
+    /Invalid skill/i,
+    /Please enter a skill name/i,
     /Invalid date/i,
     /Invalid duration/i,
     /Interview cannot be scheduled in the past/i,

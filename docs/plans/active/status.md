@@ -865,6 +865,8 @@ and record actionable findings in this active-plan surface.
   coverage against the stale file-manager label.
 - Current local saved-search validation slice changes empty-name copy to
   `Name this search` with action guidance and focused hook coverage.
+- Current local Resume skill-validation slice changes empty-skill copy to
+  `Name the skill` with action guidance and focused page coverage.
 - The previous local slice closed the hardcoded harness-policy debt by moving
   required harness files, policy snippets, and README reference-source coverage
   into `docs/harness/manifest.json`.

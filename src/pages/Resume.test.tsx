@@ -4,17 +4,19 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import Resume from "./Resume";
 import { safeInvoke, safeInvokeWithToast } from "../utils/api";
 
+const mockToast = vi.hoisted(() => ({
+  success: vi.fn(),
+  error: vi.fn(),
+  info: vi.fn(),
+}));
+
 vi.mock("../utils/api", () => ({
   safeInvoke: vi.fn(),
   safeInvokeWithToast: vi.fn(),
 }));
 
 vi.mock("../contexts", () => ({
-  useToast: () => ({
-    success: vi.fn(),
-    error: vi.fn(),
-    info: vi.fn(),
-  }),
+  useToast: () => mockToast,
 }));
 
 const mockSafeInvoke = vi.mocked(safeInvoke);
@@ -170,6 +172,49 @@ describe("Resume page", () => {
     expect(screen.queryByText("Intermediate")).not.toBeInTheDocument();
     expect(screen.queryByText("(95%)")).not.toBeInTheDocument();
     expect(screen.queryByText("(100%)")).not.toBeInTheDocument();
+  });
+
+  it("uses action-first validation copy when adding a skill without a name", async () => {
+    const user = userEvent.setup();
+
+    mockSafeInvoke.mockImplementation((command: string) => {
+      switch (command) {
+        case "get_active_resume":
+          return Promise.resolve({
+            id: 1,
+            name: "Care Coordinator Resume",
+            is_active: true,
+            created_at: "2026-05-21T12:00:00Z",
+            updated_at: "2026-05-21T12:00:00Z",
+          });
+        case "list_all_resumes":
+        case "get_user_skills":
+        case "get_recent_matches":
+          return Promise.resolve([]);
+        default:
+          return Promise.resolve(null);
+      }
+    });
+
+    render(<Resume onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Saved Skills (0)")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("button", { name: "Add" }));
+    await user.click(screen.getAllByRole("button", { name: "Add Skill" })[0]);
+
+    expect(mockToast.error).toHaveBeenCalledWith(
+      "Name the skill",
+      "Add a skill name, then save again.",
+    );
+    expect(mockSafeInvokeWithToast).not.toHaveBeenCalledWith(
+      "add_user_skill",
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+    );
   });
 
   it("imports structured resumes through backend-owned file handling", async () => {

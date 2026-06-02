@@ -388,7 +388,7 @@ export default function Resume({ onBack }: ResumeProps) {
 
   const handleAddSkill = async () => {
     if (!resume || !newSkillForm.skill_name.trim()) {
-      toast.error("Invalid skill", "Please enter a skill name");
+      toast.error("Name the skill", "Add a skill name, then save again.");
       return;
     }
 
